@@ -14,6 +14,8 @@ namespace PointlessWaymarks.CmsData.ContentHtml.PhotoGalleryHtml
         public HtmlTag? CameraRollContentTag { get; set; }
         public string? CreatedBy { get; set; }
         public DateTime? GenerationVersion { get; set; }
+
+        public string? LangAttribute { get; set; }
         public DateTime? LastDateGroupDateTime { get; set; }
         public PictureSiteInformation? MainImage { get; set; }
         public string? PageUrl { get; set; }

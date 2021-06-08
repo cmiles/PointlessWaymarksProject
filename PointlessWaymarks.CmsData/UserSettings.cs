@@ -21,6 +21,7 @@ namespace PointlessWaymarks.CmsData
         private string _siteAuthors = string.Empty;
         private string _siteEmailTo = string.Empty;
         private string _siteKeywords = string.Empty;
+        private string _siteLangAttribute = string.Empty;
         private string _siteName = string.Empty;
         private string _siteS3Bucket = string.Empty;
         private string _siteS3BucketRegion = string.Empty;
@@ -177,6 +178,17 @@ namespace PointlessWaymarks.CmsData
             {
                 if (value == _siteKeywords) return;
                 _siteKeywords = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public string SiteLangAttribute
+        {
+            get => _siteLangAttribute;
+            set
+            {
+                if (value == _siteLangAttribute) return;
+                _siteLangAttribute = value;
                 OnPropertyChanged();
             }
         }

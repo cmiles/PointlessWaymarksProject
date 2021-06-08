@@ -1,9 +1,10 @@
 ﻿<#@ template language="C#" #>
-<#@ import namespace="CommonHtml" #>
+<#@ import namespace="PointlessWaymarks.CmsData.CommonHtml" #>
 <!DOCTYPE html>
 <html lang="en">
-<head data-generationversion="<#=GenerationVersion?.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fffffff") ?? string.Empty #>">
-    <meta charset="utf-8">
+<head data-generationversion="<#=
+                    GenerationVersion?.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fffffff") ?? string.Empty #>">
+    <meta charset="utf-8" lang="<#= LangAttribute ?? "en" #>">
     <title>Tag List</title>
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0">

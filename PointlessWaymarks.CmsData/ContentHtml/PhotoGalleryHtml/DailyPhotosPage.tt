@@ -1,29 +1,32 @@
 ﻿<#@ template language="C#" #>
+<#@ import namespace="System.Collections.Generic" #>
 <#@ import namespace="System.Linq" #>
-<#@ import namespace="Database.Models" #>
-<#@ import namespace="CommonHtml" #>
+<#@ import namespace="PointlessWaymarks.CmsData.CommonHtml" #>
+<#@ import namespace="PointlessWaymarks.CmsData.Database.Models" #>
 <!DOCTYPE html>
 <html lang="en">
-<head data-generationversion="<#=GenerationVersion?.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fffffff") ?? string.Empty #>">
-    <meta charset="utf-8">
-    <title><#=Title.HtmlEncode() #></title>
-    <meta name="description" content="<#=Summary.HtmlEncode() #>">
-    <meta name="author" content="<#=CreatedBy.HtmlEncode() #>">
-    <meta name="keywords" content="<#= string.Join(",", PhotoTags).HtmlEncode() #>" >
+<head data-generationversion="<#=
+                    GenerationVersion?.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fffffff") ?? string.Empty #>">
+    <meta charset="utf-8" lang="<#= LangAttribute ?? "en" #>">
+    <title><#= Title.HtmlEncode() #></title>
+    <meta name="description" content="<#= Summary.HtmlEncode() #>">
+    <meta name="author" content="<#= CreatedBy.HtmlEncode() #>">
+    <meta name="keywords" content="<#=
+                    string.Join(",", PhotoTags?.Select(x => x.TagSlug).ToList() ?? new List<string>()).HtmlEncode() #>" >
 
-    <meta property="og:site_name" content="<#=SiteName.HtmlEncode() #>" />
-    <meta property="og:url" content="https:<#=PageUrl #>" />
+    <meta property="og:site_name" content="<#= SiteName.HtmlEncode() #>" />
+    <meta property="og:url" content="https:<#= PageUrl ?? string.Empty #>" />
     <meta property="og:type" content="article" />
-    <meta property="og:title" content="<#=Title.HtmlEncode() #>" />
+    <meta property="og:title" content="<#= Title.HtmlEncode() #>" />
     <meta property="og:description" content="<#= Summary.HtmlEncode() #>" />
 
     <#= Tags.OpenGraphImageMetaTags(MainImage) #>
 
     <link rel = "schema.DC" href = "http://purl.org/DC/elements/1.0/">
-    <meta name="DC.Title" content="<#=Title.HtmlEncode() #>">
-    <meta name="DC.Creator" content="<#=CreatedBy.HtmlEncode() #>">
-    <meta name="DC.Publisher" content="<#=SiteName.HtmlEncode() #>">
-    <meta name="DC.Description" content="<#=Summary.HtmlEncode() #>">
+    <meta name="DC.Title" content="<#= Title.HtmlEncode() #>">
+    <meta name="DC.Creator" content="<#= CreatedBy.HtmlEncode() #>">
+    <meta name="DC.Publisher" content="<#= SiteName.HtmlEncode() #>">
+    <meta name="DC.Description" content="<#= Summary.HtmlEncode() #>">
     <meta name="DC.Date" content="<#=
                 PhotoPageDate.ToString("yyyy-MM-dd").HtmlEncode() #>">
     <meta name="DC.Format" content="text/html">
@@ -53,7 +56,8 @@
         <#= Tags.TagList(PhotoTags).ToString() #>
         <#=
                 BodyContentReferences.RelatedContentTag(
-                    ImageList.Select(x => ((IContentId) x.Pictures.DbEntry).ContentId).ToList(), GenerationVersion).Result #>
+                    ImageList.Select(x => ((IContentId) x.Pictures.DbEntry).ContentId).ToList(), GenerationVersion)
+                    .Result #>
         <#=
                 DailyPhotosPageParts.PreviousAndNextPostsDiv(this) #>
     </div>

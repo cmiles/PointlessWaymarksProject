@@ -35,6 +35,13 @@ namespace PointlessWaymarks.CmsData.ContentHtml.IndexHtml
             
             #line default
             #line hidden
+            this.Write("\" lang=\"");
+            
+            #line 7 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\IndexHtml\IndexPage.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(LangAttribute));
+            
+            #line default
+            #line hidden
             this.Write("\">\r\n    <meta charset=\"utf-8\">\r\n    <title>");
             
             #line 9 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\IndexHtml\IndexPage.tt"

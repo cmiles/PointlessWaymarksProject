@@ -35,6 +35,13 @@ namespace PointlessWaymarks.CmsData.ContentHtml.ErrorHtml
             
             #line default
             #line hidden
+            this.Write("\" lang=\"");
+            
+            #line 7 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\ErrorHtml\ErrorPage.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(LangAttribute));
+            
+            #line default
+            #line hidden
             this.Write("\">\r\n    <meta charset=\"utf-8\">\r\n    <meta name=\"robots\" content=\"noindex\" />\r\n    <title>");
             
             #line 10 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\ErrorHtml\ErrorPage.tt"

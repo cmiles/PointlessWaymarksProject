@@ -21,6 +21,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml.NoteHtml
             SiteName = settings.SiteName;
             PageUrl = settings.NotePageUrl(DbEntry);
             Title = DbEntry.Title;
+            LangAttribute = settings.SiteLangAttribute;
 
             var (previousContent, laterContent) = Tags.MainFeedPreviousAndLaterContent(3, DbEntry.CreatedOn);
             PreviousPosts = previousContent;
@@ -29,6 +30,8 @@ namespace PointlessWaymarks.CmsData.ContentHtml.NoteHtml
 
         public NoteContent DbEntry { get; }
         public DateTime? GenerationVersion { get; set; }
+
+        public string LangAttribute { get; set; }
         public List<IContentCommon> LaterPosts { get; set; }
         public string PageUrl { get; }
         public List<IContentCommon> PreviousPosts { get; set; }

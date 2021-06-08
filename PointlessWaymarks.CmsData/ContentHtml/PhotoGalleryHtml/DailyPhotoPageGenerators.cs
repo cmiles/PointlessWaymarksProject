@@ -119,7 +119,8 @@ namespace PointlessWaymarks.CmsData.ContentHtml.PhotoGalleryHtml
                     datePhotos.SelectMany(Db.TagListParseToSlugsAndIsExcluded).Distinct().OrderBy(x => x.TagSlug)
                         .ToList(),
                 PageUrl = UserSettingsSingleton.CurrentSettings().DailyPhotoGalleryUrl(startsAfterOrOn),
-                GenerationVersion = generationVersion
+                GenerationVersion = generationVersion,
+                LangAttribute = UserSettingsSingleton.CurrentSettings().SiteLangAttribute
             };
 
             return photoPage;

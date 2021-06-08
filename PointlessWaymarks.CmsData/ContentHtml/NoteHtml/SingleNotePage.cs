@@ -9,7 +9,7 @@
 // ------------------------------------------------------------------------------
 namespace PointlessWaymarks.CmsData.ContentHtml.NoteHtml
 {
-    using CommonHtml;
+    using PointlessWaymarks.CmsData.CommonHtml;
     using System;
     
     /// <summary>
@@ -35,189 +35,196 @@ namespace PointlessWaymarks.CmsData.ContentHtml.NoteHtml
             #line hidden
             this.Write("\" data-generationversion=\"");
             
-            #line 5 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\NoteHtml\SingleNotePage.tt"
+            #line 6 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\NoteHtml\SingleNotePage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(GenerationVersion?.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fffffff") ?? string.Empty));
+            
+            #line default
+            #line hidden
+            this.Write("\" lang=\"");
+            
+            #line 7 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\NoteHtml\SingleNotePage.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(LangAttribute));
             
             #line default
             #line hidden
             this.Write("\">\r\n    <meta charset=\"utf-8\">\r\n    <title>");
             
-            #line 7 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\NoteHtml\SingleNotePage.tt"
+            #line 9 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\NoteHtml\SingleNotePage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Title.HtmlEncode()));
             
             #line default
             #line hidden
             this.Write("</title>\r\n    <meta name=\"author\" content=\"");
             
-            #line 8 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\NoteHtml\SingleNotePage.tt"
+            #line 10 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\NoteHtml\SingleNotePage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(DbEntry.CreatedBy.HtmlEncode()));
             
             #line default
             #line hidden
             this.Write("\">\r\n    <meta name=\"keywords\" content=\"");
             
-            #line 9 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\NoteHtml\SingleNotePage.tt"
+            #line 11 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\NoteHtml\SingleNotePage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(DbEntry.Tags.HtmlEncode()));
             
             #line default
             #line hidden
             this.Write("\" >\r\n\r\n    <meta property=\"og:site_name\" content=\"");
             
-            #line 11 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\NoteHtml\SingleNotePage.tt"
+            #line 13 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\NoteHtml\SingleNotePage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(SiteName.HtmlEncode()));
             
             #line default
             #line hidden
             this.Write("\" />\r\n    <meta property=\"og:url\" content=\"https:");
             
-            #line 12 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\NoteHtml\SingleNotePage.tt"
+            #line 14 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\NoteHtml\SingleNotePage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(PageUrl));
             
             #line default
             #line hidden
             this.Write("\" />\r\n    <meta property=\"og:type\" content=\"article\" />\r\n    <meta property=\"og:title\" content=\"");
             
-            #line 14 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\NoteHtml\SingleNotePage.tt"
+            #line 16 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\NoteHtml\SingleNotePage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Title.HtmlEncode()));
             
             #line default
             #line hidden
             this.Write("\" />\r\n\r\n    <link rel = \"schema.DC\" href = \"http://purl.org/DC/elements/1.0/\">\r\n    <meta name=\"DC.Title\" content=\"");
             
-            #line 17 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\NoteHtml\SingleNotePage.tt"
+            #line 19 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\NoteHtml\SingleNotePage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Title.HtmlEncode()));
             
             #line default
             #line hidden
             this.Write("\">\r\n    <meta name=\"DC.Creator\" content=\"");
             
-            #line 18 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\NoteHtml\SingleNotePage.tt"
+            #line 20 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\NoteHtml\SingleNotePage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(DbEntry.CreatedBy.HtmlEncode()));
             
             #line default
             #line hidden
             this.Write("\">\r\n    <meta name=\"DC.Publisher\" content=\"");
             
-            #line 19 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\NoteHtml\SingleNotePage.tt"
+            #line 21 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\NoteHtml\SingleNotePage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(SiteName.HtmlEncode()));
             
             #line default
             #line hidden
             this.Write("\">\r\n    <meta name=\"DC.Description\" content=\"");
             
-            #line 20 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\NoteHtml\SingleNotePage.tt"
+            #line 22 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\NoteHtml\SingleNotePage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(DbEntry.Summary.HtmlEncode()));
             
             #line default
             #line hidden
             this.Write("\">\r\n    <meta name=\"DC.Date\" content=\"");
             
-            #line 21 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\NoteHtml\SingleNotePage.tt"
+            #line 23 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\NoteHtml\SingleNotePage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(DbEntry.CreatedOn.ToString("yyyy-MM-dd").HtmlEncode()));
             
             #line default
             #line hidden
             this.Write("\">\r\n    <meta name=\"DC.Format\" content=\"text/html\">\r\n    <meta name=\"DC.Language\" content=\"en-US\">\r\n\r\n    <link rel=\"alternate\" type=\"application/rss+xml\" \r\n      title=\"");
             
-            #line 27 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\NoteHtml\SingleNotePage.tt"
+            #line 29 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\NoteHtml\SingleNotePage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture($"RSS Feed for {UserSettingsSingleton.CurrentSettings().SiteName} - Notes".HtmlEncode()));
             
             #line default
             #line hidden
             this.Write("\"\r\n      href=\"https:");
             
-            #line 29 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\NoteHtml\SingleNotePage.tt"
+            #line 31 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\NoteHtml\SingleNotePage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(UserSettingsSingleton.CurrentSettings().NoteRssUrl()));
             
             #line default
             #line hidden
             this.Write("\" />\r\n\r\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\r\n\r\n    ");
             
-            #line 34 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\NoteHtml\SingleNotePage.tt"
+            #line 36 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\NoteHtml\SingleNotePage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Tags.CssStyleFileString()));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 35 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\NoteHtml\SingleNotePage.tt"
+            #line 37 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\NoteHtml\SingleNotePage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Tags.FavIconFileString()));
             
             #line default
             #line hidden
             this.Write("\r\n\r\n    ");
             
-            #line 37 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\NoteHtml\SingleNotePage.tt"
+            #line 39 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\NoteHtml\SingleNotePage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(SpatialScripts.IncludeIfNeeded(DbEntry)));
             
             #line default
             #line hidden
             this.Write("\r\n</head>\r\n\r\n<body>\r\n    ");
             
-            #line 41 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\NoteHtml\SingleNotePage.tt"
+            #line 43 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\NoteHtml\SingleNotePage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Tags.StandardHeader().Result.ToString()));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 42 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\NoteHtml\SingleNotePage.tt"
+            #line 44 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\NoteHtml\SingleNotePage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(HorizontalRule.StandardRule()));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 43 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\NoteHtml\SingleNotePage.tt"
+            #line 45 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\NoteHtml\SingleNotePage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(NoteParts.NoteTitleDiv(DbEntry)));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 44 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\NoteHtml\SingleNotePage.tt"
+            #line 46 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\NoteHtml\SingleNotePage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Tags.PostBodyDiv(DbEntry).Result.ToString()));
             
             #line default
             #line hidden
             this.Write("\r\n     ");
             
-            #line 45 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\NoteHtml\SingleNotePage.tt"
+            #line 48 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\NoteHtml\SingleNotePage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(HorizontalRule.StandardRule()));
             
             #line default
             #line hidden
             this.Write("\r\n    <div class=\"information-section\">\r\n        ");
             
-            #line 47 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\NoteHtml\SingleNotePage.tt"
+            #line 50 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\NoteHtml\SingleNotePage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Tags.TagList(DbEntry).ToString()));
             
             #line default
             #line hidden
             this.Write("\r\n        ");
             
-            #line 48 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\NoteHtml\SingleNotePage.tt"
+            #line 51 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\NoteHtml\SingleNotePage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(BodyContentReferences.RelatedContentTag(DbEntry, GenerationVersion).Result));
             
             #line default
             #line hidden
             this.Write("\r\n        ");
             
-            #line 50 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\NoteHtml\SingleNotePage.tt"
+            #line 53 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\NoteHtml\SingleNotePage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Tags.PreviousAndNextPostsDiv(PreviousPosts, LaterPosts)));
             
             #line default
             #line hidden
             this.Write("\r\n    </div>\r\n    ");
             
-            #line 53 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\NoteHtml\SingleNotePage.tt"
+            #line 56 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\NoteHtml\SingleNotePage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(HorizontalRule.StandardRule()));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 54 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\NoteHtml\SingleNotePage.tt"
+            #line 57 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\NoteHtml\SingleNotePage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Footer.StandardFooterDiv().Result));
             
             #line default

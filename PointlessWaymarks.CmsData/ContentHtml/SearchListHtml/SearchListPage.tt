@@ -1,16 +1,18 @@
 ﻿<#@ template language="C#" #>
-<#@ import namespace="CommonHtml" #>
+<#@ import namespace="PointlessWaymarks.CmsData.CommonHtml" #>
 <!DOCTYPE html>
 <html lang="en">
-<head data-generationversion="<#=GenerationVersion?.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fffffff") ?? string.Empty #>">
-    <meta charset="utf-8">
-    <# if (AddNoIndexTag)
-       {
-    #>
+<head data-generationversion="<#=
+                    GenerationVersion?.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fffffff") ?? string.Empty #>">
+    <meta charset="utf-8" lang="<#= LangAttribute #>">
+    <#
+    if (AddNoIndexTag)
+    {
+#>
         <meta name="robots" content="noindex" />
     <#
-       }
-    #>
+    }
+#>
     <title><#= ListTitle.HtmlEncode() #></title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <#
@@ -22,11 +24,13 @@
             $"RSS Feed for {UserSettingsSingleton.CurrentSettings().SiteName} - {ListTitle}".HtmlEncode() #>"     
       href="https:<#= RssUrl #>" />
     <#
-    } #>
+    }
+#>
 
     <#= Tags.CssStyleFileString() #>
     <#= Tags.FavIconFileString() #>
-    <script src="<#= UserSettingsUtilities.SearchListJavascriptUrl() #>"></script>
+    <script src="<#=
+                    UserSettingsUtilities.SearchListJavascriptUrl() #>"></script>
 </head>
 
 <body>

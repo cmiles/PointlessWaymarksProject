@@ -37,6 +37,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml.IndexHtml
             SiteSummary = settings.SiteSummary;
             SiteAuthors = settings.SiteAuthors;
             PageUrl = settings.IndexPageUrl();
+            LangAttribute = settings.SiteLangAttribute;
 
             IndexContent = Db.MainFeedRecentDynamicContent(20).Result.OrderByDescending(x => x.CreatedOn).ToList();
 
@@ -62,6 +63,8 @@ namespace PointlessWaymarks.CmsData.ContentHtml.IndexHtml
         public DateTime? GenerationVersion { get; set; }
         public bool IncludeSpatialScripts { get; set; }
         public List<dynamic> IndexContent { get; }
+
+        public string LangAttribute { get; set; }
         public PictureSiteInformation? MainImage { get; }
         public string PageUrl { get; }
         public List<IContentCommon> PreviousPosts { get; }

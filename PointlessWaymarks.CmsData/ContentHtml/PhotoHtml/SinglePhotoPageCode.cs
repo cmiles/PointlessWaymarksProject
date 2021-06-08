@@ -19,12 +19,15 @@ namespace PointlessWaymarks.CmsData.ContentHtml.PhotoHtml
             SiteUrl = settings.SiteUrl;
             SiteName = settings.SiteName;
             PageUrl = settings.PhotoPageUrl(DbEntry);
+            LangAttribute = settings.SiteLangAttribute;
 
             PictureInformation = new PictureSiteInformation(DbEntry.ContentId);
         }
 
         public PhotoContent DbEntry { get; }
         public DateTime? GenerationVersion { get; set; }
+
+        public string LangAttribute { get; set; }
         public string PageUrl { get; }
         public PictureSiteInformation PictureInformation { get; }
         public string SiteName { get; }

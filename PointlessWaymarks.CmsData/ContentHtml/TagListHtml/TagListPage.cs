@@ -9,7 +9,7 @@
 // ------------------------------------------------------------------------------
 namespace PointlessWaymarks.CmsData.ContentHtml.TagListHtml
 {
-    using CommonHtml;
+    using PointlessWaymarks.CmsData.CommonHtml;
     using System;
     
     /// <summary>
@@ -33,51 +33,58 @@ namespace PointlessWaymarks.CmsData.ContentHtml.TagListHtml
             
             #line default
             #line hidden
-            this.Write("\">\r\n    <meta charset=\"utf-8\">\r\n    <title>Tag List</title>\r\n\r\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\r\n\r\n    ");
+            this.Write("\">\r\n    <meta charset=\"utf-8\" lang=\"");
             
-            #line 11 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\TagListHtml\TagListPage.tt"
+            #line 7 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\TagListHtml\TagListPage.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(LangAttribute ?? "en"));
+            
+            #line default
+            #line hidden
+            this.Write("\">\r\n    <title>Tag List</title>\r\n\r\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\r\n\r\n    ");
+            
+            #line 12 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\TagListHtml\TagListPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Tags.CssStyleFileString()));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 12 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\TagListHtml\TagListPage.tt"
+            #line 13 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\TagListHtml\TagListPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Tags.FavIconFileString()));
             
             #line default
             #line hidden
             this.Write("\r\n</head>\r\n<body>\r\n    ");
             
-            #line 15 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\TagListHtml\TagListPage.tt"
+            #line 16 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\TagListHtml\TagListPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Tags.StandardHeader().Result.ToString()));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 16 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\TagListHtml\TagListPage.tt"
+            #line 17 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\TagListHtml\TagListPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(HorizontalRule.StandardRule()));
             
             #line default
             #line hidden
             this.Write("\r\n    <div class=\"search-input-container\">\r\n        <input type=\"text\" class=\"search-input\" id=\"userSearchText\" onkeyup=\"searchContent()\" placeholder=\"Search Tags...\">\r\n    </div>\r\n    ");
             
-            #line 20 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\TagListHtml\TagListPage.tt"
+            #line 21 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\TagListHtml\TagListPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(TagList()));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 21 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\TagListHtml\TagListPage.tt"
+            #line 22 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\TagListHtml\TagListPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(HorizontalRule.StandardRule()));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 22 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\TagListHtml\TagListPage.tt"
+            #line 23 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\TagListHtml\TagListPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Footer.StandardFooterDiv().Result));
             
             #line default

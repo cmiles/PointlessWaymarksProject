@@ -1204,6 +1204,12 @@ namespace PointlessWaymarks.CmsData
                 hasUpdates = true;
             }
 
+            if (string.IsNullOrWhiteSpace(readResult.SiteLangAttribute))
+            {
+                readResult.SiteLangAttribute = "en";
+                hasUpdates = true;
+            }
+
             if (readResult.SettingsId == Guid.Empty)
             {
                 readResult.SettingsId = Guid.NewGuid();

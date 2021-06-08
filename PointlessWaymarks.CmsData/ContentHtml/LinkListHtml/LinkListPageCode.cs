@@ -20,9 +20,12 @@ namespace PointlessWaymarks.CmsData.ContentHtml.LinkListHtml
         {
             RssUrl = UserSettingsSingleton.CurrentSettings().LinkRssUrl();
             ListTitle = "Links";
+            LangAttribute = UserSettingsSingleton.CurrentSettings().SiteLangAttribute;
         }
 
         public DateTime? GenerationVersion { get; set; }
+
+        public string LangAttribute { get; set; }
         public string ListTitle { get; set; }
         public string RssUrl { get; set; }
 

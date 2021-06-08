@@ -1,25 +1,27 @@
 ﻿<#@ template language="C#" #>
-<#@ import namespace="CommonHtml" #>
+<#@ import namespace="PointlessWaymarks.CmsData.CommonHtml" #>
 <!DOCTYPE html>
 <html lang="en">
-<head data-contentversion="<#=DbEntry.ContentVersion.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fffffff") #>" data-generationversion="<#=GenerationVersion?.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fffffff") ?? string.Empty #>">
+<head data-contentversion="<#=
+                    DbEntry.ContentVersion.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fffffff") #>" data-generationversion="<#=
+                    GenerationVersion?.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fffffff") ?? string.Empty #>" lang="<#= LangAttribute #>">
     <meta charset="utf-8">
-    <title><#=DbEntry.Title.HtmlEncode() #></title>
-    <meta name="description" content="<#=DbEntry.Summary.HtmlEncode() #>">
-    <meta name="author" content="<#=DbEntry.CreatedBy.HtmlEncode() #>">
+    <title><#= DbEntry.Title.HtmlEncode() #></title>
+    <meta name="description" content="<#= DbEntry.Summary.HtmlEncode() #>">
+    <meta name="author" content="<#= DbEntry.CreatedBy.HtmlEncode() #>">
     <meta name="keywords" content="<#= DbEntry.Tags.HtmlEncode() #>" >
 
-    <meta property="og:site_name" content="<#=SiteName.HtmlEncode() #>" />
-    <meta property="og:url" content="https:<#=PageUrl #>" />
+    <meta property="og:site_name" content="<#= SiteName.HtmlEncode() #>" />
+    <meta property="og:url" content="https:<#= PageUrl #>" />
     <meta property="og:type" content="article" />
-    <meta property="og:title" content="<#=DbEntry.Title.HtmlEncode() #>" />
+    <meta property="og:title" content="<#= DbEntry.Title.HtmlEncode() #>" />
     <meta property="og:description" content="<#= DbEntry.Summary.HtmlEncode() #>" />
 
     <link rel = "schema.DC" href = "http://purl.org/DC/elements/1.0/">
-    <meta name="DC.Title" content="<#=DbEntry.Title.HtmlEncode() #>">
-    <meta name="DC.Creator" content="<#=DbEntry.CreatedBy.HtmlEncode() #>">
-    <meta name="DC.Publisher" content="<#=SiteName.HtmlEncode() #>">
-    <meta name="DC.Description" content="<#=DbEntry.Summary.HtmlEncode() #>">
+    <meta name="DC.Title" content="<#= DbEntry.Title.HtmlEncode() #>">
+    <meta name="DC.Creator" content="<#= DbEntry.CreatedBy.HtmlEncode() #>">
+    <meta name="DC.Publisher" content="<#= SiteName.HtmlEncode() #>">
+    <meta name="DC.Description" content="<#= DbEntry.Summary.HtmlEncode() #>">
     <meta name="DC.Date" content="<#=
                 DbEntry.CreatedOn.ToString("yyyy-MM-dd").HtmlEncode() #>">
     <meta name="DC.Format" content="text/html">
@@ -45,14 +47,16 @@
 <body class="single-photo-body">
     <#=
                 PictureInformation.PictureFigureWithCaptionTag("100vw") #>
-    <#= Tags.PostBodyDiv(DbEntry).Result.ToString() #>
+    <#=
+                    Tags.PostBodyDiv(DbEntry).Result.ToString() #>
     <div class="information-section">
         <#= Tags.TagList(DbEntry).ToString() #>
         <#=
                 BodyContentReferences.RelatedContentTag(DbEntry, GenerationVersion).Result #>
         <#=
                 Tags.CreatedByAndUpdatedOnDiv(DbEntry).ToString() #>
-        <#= Tags.UpdateNotesDiv(DbEntry).Result.ToString() #>
+        <#=
+                    Tags.UpdateNotesDiv(DbEntry).Result.ToString() #>
     </div>
     <#= HorizontalRule.StandardRule() #>
     <#= Footer.StandardFooterDiv().Result #>

@@ -15,6 +15,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml.PhotoGalleryHtml
         public string? CreatedBy { get; set; }
         public DateTime? GenerationVersion { get; set; }
         public List<PictureSiteInformation>? ImageList { get; set; }
+        public string? LangAttribute { get; set; }
         public PictureSiteInformation? MainImage { get; set; }
         public DailyPhotosPage? NextDailyPhotosPage { get; set; }
         public string? PageUrl { get; set; }

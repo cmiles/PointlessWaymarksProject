@@ -40,6 +40,13 @@ namespace PointlessWaymarks.CmsData.ContentHtml.LineHtml
             
             #line default
             #line hidden
+            this.Write("\" lang=\"");
+            
+            #line 5 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\LineHtml\SingleLinePage.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(LangAttribute));
+            
+            #line default
+            #line hidden
             this.Write("\">\r\n    <meta charset=\"utf-8\">\r\n    <title>");
             
             #line 7 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\LineHtml\SingleLinePage.tt"

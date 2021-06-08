@@ -23,11 +23,14 @@ namespace PointlessWaymarks.CmsData.ContentHtml.SearchListHtml
             ContentFunction = contentFunction;
             ListTitle = listTitle;
             GenerationVersion = generationVersion;
+            LangAttribute = UserSettingsSingleton.CurrentSettings().SiteLangAttribute;
         }
 
         public bool AddNoIndexTag { get; set; }
         public Func<List<object>> ContentFunction { get; }
         public DateTime? GenerationVersion { get; }
+
+        public string LangAttribute { get; set; }
         public string ListTitle { get; }
         public string RssUrl { get; }
 

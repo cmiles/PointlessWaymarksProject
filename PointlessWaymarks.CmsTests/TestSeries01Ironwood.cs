@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Windows.Threading;
+using System.Windows;
 using AngleSharp;
 using ClosedXML.Excel;
 using Microsoft.EntityFrameworkCore;
@@ -18,7 +18,6 @@ using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsData.Import;
 using PointlessWaymarks.CmsWpfControls.PhotoContentEditor;
 using PointlessWaymarks.CmsWpfControls.Utility;
-using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 
 namespace PointlessWaymarks.CmsTests
 {
@@ -46,10 +45,23 @@ namespace PointlessWaymarks.CmsTests
 
         public static UserSettings TestSiteSettings { get; set; }
 
-
         [OneTimeSetUp]
         public async Task A00_CreateTestSite()
         {
+            //This is one of the lower answers from the StackOverflow question below - I found this 
+            //to be a very easy and understandable way to allow WPF GUI oriented code that contains
+            //sections that must run on the GUI thread to run without issue.
+            //
+            //https://stackoverflow.com/questions/1106881/using-the-wpf-dispatcher-in-unit-tests
+            var waitForApplicationRun = new TaskCompletionSource<bool>();
+            Task.Run(() =>
+            {
+                var application = new Application();
+                application.Startup += (s, e) => { waitForApplicationRun.SetResult(true); };
+                application.Run();
+            });
+            waitForApplicationRun.Task.Wait();
+
             var outSettings = await UserSettingsUtilities.SetupNewSite(
                 $"IronwoodForestTestSite-{DateTime.Now:yyyy-MM-dd-HH-mm-ss}", DebugTrackers.DebugProgressTracker());
             TestSiteSettings = outSettings;
@@ -112,7 +124,6 @@ namespace PointlessWaymarks.CmsTests
         [Test]
         public async Task A21_PhotoEditorGuiContextEditOfQuarryPhoto()
         {
-            ThreadSwitcher.PinnedDispatcher = Dispatcher.CurrentDispatcher;
             DataNotifications.SuspendNotifications = false;
             DataNotifications.NewDataNotificationChannel().MessageReceived += DebugTrackers.DataNotificationDiagnostic;
 
@@ -633,6 +644,15 @@ namespace PointlessWaymarks.CmsTests
                 document.QuerySelectorAll(".post-related-posts-container .related-post-container");
 
             Assert.AreEqual(2, dailyBeforeAfterItems.Length);
+        }
+
+        [OneTimeTearDown]
+        public void Z01_TearDown()
+        {
+            //See the note and code in the setup method
+            //
+            //https://stackoverflow.com/questions/1106881/using-the-wpf-dispatcher-in-unit-tests
+            Application.Current.Dispatcher.Invoke(Application.Current.Shutdown);
         }
     }
 }

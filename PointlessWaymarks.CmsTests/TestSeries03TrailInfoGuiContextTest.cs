@@ -2,6 +2,7 @@
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Threading;
 using Microsoft.EntityFrameworkCore;
 using NUnit.Framework;
@@ -31,6 +32,20 @@ namespace PointlessWaymarks.CmsTests
         [OneTimeSetUp]
         public async Task A00_CreateTestSite()
         {
+            //This is one of the lower answers from the StackOverflow question below - I found this 
+            //to be a very easy and understandable way to allow WPF GUI oriented code that contains
+            //sections that must run on the GUI thread to run without issue.
+            //
+            //https://stackoverflow.com/questions/1106881/using-the-wpf-dispatcher-in-unit-tests
+            var waitForApplicationRun = new TaskCompletionSource<bool>();
+            Task.Run(() =>
+            {
+                var application = new Application();
+                application.Startup += (s, e) => { waitForApplicationRun.SetResult(true); };
+                application.Run();
+            });
+            waitForApplicationRun.Task.Wait();
+            
             var outSettings = await UserSettingsUtilities.SetupNewSite(
                 $"TrailNotesTestSite-{DateTime.Now:yyyy-MM-dd-HH-mm-ss}", DebugTrackers.DebugProgressTracker());
             TestSiteSettings = outSettings;
@@ -61,7 +76,6 @@ namespace PointlessWaymarks.CmsTests
         [Test]
         public async Task B01_NewFile()
         {
-            ThreadSwitcher.PinnedDispatcher = Dispatcher.CurrentDispatcher;
             DataNotifications.SuspendNotifications = false;
             DataNotifications.NewDataNotificationChannel().MessageReceived += DebugTrackers.DataNotificationDiagnostic;
 
@@ -373,6 +387,15 @@ namespace PointlessWaymarks.CmsTests
             Assert.True(dbContent.CreatedBy == newFileContext.CreatedUpdatedDisplay.CreatedByEntry.UserValue);
             Assert.True(dbContent.BodyContent == newFileContext.BodyContent.BodyContent);
             Assert.True(dbContent.UpdateNotes == newFileContext.UpdateNotes.UpdateNotes);
+        }
+        
+        [OneTimeTearDown]
+        public void Z01_TearDown()
+        {
+            //See the note and code in the setup method
+            //
+            //https://stackoverflow.com/questions/1106881/using-the-wpf-dispatcher-in-unit-tests
+            Application.Current.Dispatcher.Invoke(Application.Current.Shutdown);
         }
     }
 }

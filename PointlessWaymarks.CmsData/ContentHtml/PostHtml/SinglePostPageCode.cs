@@ -20,6 +20,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml.PostHtml
             SiteUrl = settings.SiteUrl;
             SiteName = settings.SiteName;
             PageUrl = settings.PostPageUrl(DbEntry);
+            LangAttribute = settings.SiteLangAttribute;
 
             if (DbEntry.MainPicture != null) MainImage = new PictureSiteInformation(DbEntry.MainPicture.Value);
 
@@ -30,6 +31,8 @@ namespace PointlessWaymarks.CmsData.ContentHtml.PostHtml
 
         public PostContent DbEntry { get; }
         public DateTime? GenerationVersion { get; set; }
+
+        public string LangAttribute { get; set; }
         public List<IContentCommon> LaterPosts { get; }
         public PictureSiteInformation? MainImage { get; }
         public string PageUrl { get; }

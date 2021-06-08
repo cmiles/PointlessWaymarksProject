@@ -1,30 +1,31 @@
 ﻿<#@ template language="C#" #>
-<#@ import namespace="CommonHtml" #>
+<#@ import namespace="PointlessWaymarks.CmsData.CommonHtml" #>
 <!DOCTYPE html>
 <html lang="en">
-<head data-generationversion="<#=GenerationVersion?.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fffffff") ?? string.Empty #>">
-    <meta charset="utf-8">
-    <title><#=SiteName?.HtmlEncode() #> - Photographs</title>
-    <meta name="description" content="All photographs on <#=SiteName?.HtmlEncode() #> listed by date.">
-    <meta name="author" content="<#=CreatedBy?.HtmlEncode() #>">
+<head data-generationversion="<#=
+                    GenerationVersion?.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fffffff") ?? string.Empty #>">
+    <meta charset="utf-8" lang="<#= LangAttribute #>">
+    <title><#= SiteName.HtmlEncode() #> - Photographs</title>
+    <meta name="description" content="All photographs on <#= SiteName.HtmlEncode() #> listed by date.">
+    <meta name="author" content="<#= CreatedBy.HtmlEncode() #>">
     <meta name="keywords" content="photographs, camera roll" >
 
-    <meta property="og:site_name" content="<#=SiteName?.HtmlEncode() #>" />
-    <meta property="og:url" content="https:<#=PageUrl #>" />
+    <meta property="og:site_name" content="<#= SiteName.HtmlEncode() #>" />
+    <meta property="og:url" content="https:<#= PageUrl ?? string.Empty #>" />
     <meta property="og:type" content="article" />
     <meta property="og:title" content="Photographs By Date" />
-    <meta property="og:description" content="All photographs on <#=SiteName?.HtmlEncode() #> listed by date." />
+    <meta property="og:description" content="All photographs on <#= SiteName.HtmlEncode() #> listed by date." />
 
     <#=
                 Tags.OpenGraphImageMetaTags(MainImage) #>
 
     <link rel = "schema.DC" href = "http://purl.org/DC/elements/1.0/">
     <meta name="DC.Title" content="Photographs By Date">
-    <meta name="DC.Creator" content="<#=CreatedBy?.HtmlEncode() #>">
-    <meta name="DC.Publisher" content="<#=SiteName?.HtmlEncode() #>">
-    <meta name="DC.Description" content="All photographs on <#=SiteName?.HtmlEncode() #> listed by date.">
+    <meta name="DC.Creator" content="<#= CreatedBy.HtmlEncode() #>">
+    <meta name="DC.Publisher" content="<#= SiteName.HtmlEncode() #>">
+    <meta name="DC.Description" content="All photographs on <#= SiteName.HtmlEncode() #> listed by date.">
     <meta name="DC.Date" content="<#=
-                LastDateGroupDateTime?.ToString("yyyy-MM-dd").HtmlEncode() #>">
+                LastDateGroupDateTime?.ToString("yyyy-MM-dd").HtmlEncode() ?? string.Empty #>">
     <meta name="DC.Format" content="text/html">
     <meta name="DC.Language" content="en-US">
 
@@ -46,7 +47,8 @@
     <#= HorizontalRule.StandardRule() #>
     <#=
                 Tags.TitleDiv($"{SiteName} - Photographs").ToString() #>
-    <#= CameraRollContentTag?.ToString() #>
+    <#=
+                    CameraRollContentTag?.ToString() ?? string.Empty #>
     <#= HorizontalRule.StandardRule() #>
     <#= Footer.StandardFooterDiv().Result #>
 </body>

@@ -197,7 +197,11 @@ namespace PointlessWaymarks.CmsData.ContentHtml.SearchListHtml
             progress?.Report("Tag Pages - Getting Tag Data For Search");
             var tags = Db.TagSlugsAndContentList(false, true, progress).Result;
 
-            var allTags = new TagListPage {ContentFunction = () => tags, GenerationVersion = generationVersion};
+            var allTags = new TagListPage
+            {
+                ContentFunction = () => tags, GenerationVersion = generationVersion,
+                LangAttribute = UserSettingsSingleton.CurrentSettings().SiteLangAttribute
+            };
 
             progress?.Report("Tag Pages - Writing All Tag Data");
             await allTags.WriteLocalHtml();
@@ -209,7 +213,11 @@ namespace PointlessWaymarks.CmsData.ContentHtml.SearchListHtml
             progress?.Report("Tag Pages - Getting Tag Data For Search");
             var tags = Db.TagSlugsAndContentList(false, true, progress).Result;
 
-            var allTags = new TagListPage {ContentFunction = () => tags, GenerationVersion = generationVersion};
+            var allTags = new TagListPage
+            {
+                ContentFunction = () => tags, GenerationVersion = generationVersion,
+                LangAttribute = UserSettingsSingleton.CurrentSettings().SiteLangAttribute
+            };
 
             progress?.Report("Tag Pages - Writing All Tag Data");
             await allTags.WriteLocalHtml();

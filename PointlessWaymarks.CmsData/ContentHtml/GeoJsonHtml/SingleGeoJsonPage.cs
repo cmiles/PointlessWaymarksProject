@@ -40,6 +40,13 @@ namespace PointlessWaymarks.CmsData.ContentHtml.GeoJsonHtml
             
             #line default
             #line hidden
+            this.Write("\" lang=\"");
+            
+            #line 5 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\GeoJsonHtml\SingleGeoJsonPage.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(LangAttribute));
+            
+            #line default
+            #line hidden
             this.Write("\">\r\n    <meta charset=\"utf-8\">\r\n    <title>");
             
             #line 7 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\GeoJsonHtml\SingleGeoJsonPage.tt"
@@ -110,14 +117,14 @@ namespace PointlessWaymarks.CmsData.ContentHtml.GeoJsonHtml
             
             #line default
             #line hidden
-            this.Write("\">\r\n    <meta name =\"DC.Creator\" content=\"");
+            this.Write("\">\r\n    <meta name=\"DC.Creator\" content=\"");
             
             #line 22 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\GeoJsonHtml\SingleGeoJsonPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(DbEntry.CreatedBy.HtmlEncode()));
             
             #line default
             #line hidden
-            this.Write("\">\r\n    <meta name =\"DC.Publisher\" content=\"");
+            this.Write("\">\r\n    <meta name=\"DC.Publisher\" content=\"");
             
             #line 23 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\GeoJsonHtml\SingleGeoJsonPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(SiteName.HtmlEncode()));

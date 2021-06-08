@@ -16,6 +16,8 @@ namespace PointlessWaymarks.CmsData.ContentHtml.TagListHtml
         public Func<List<(string tagName, List<object> tagCotentEntries)>>? ContentFunction { get; set; }
         public DateTime? GenerationVersion { get; set; }
 
+        public string? LangAttribute { get; set; }
+
         public HtmlTag TagList()
         {
             if (ContentFunction == null)
