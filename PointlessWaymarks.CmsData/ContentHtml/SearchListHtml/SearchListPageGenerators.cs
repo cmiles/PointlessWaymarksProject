@@ -200,7 +200,8 @@ namespace PointlessWaymarks.CmsData.ContentHtml.SearchListHtml
             var allTags = new TagListPage
             {
                 ContentFunction = () => tags, GenerationVersion = generationVersion,
-                LangAttribute = UserSettingsSingleton.CurrentSettings().SiteLangAttribute
+                LangAttribute = UserSettingsSingleton.CurrentSettings().SiteLangAttribute,
+                DirAttribute = UserSettingsSingleton.CurrentSettings().SiteDirectionAttribute
             };
 
             progress?.Report("Tag Pages - Writing All Tag Data");
@@ -216,7 +217,8 @@ namespace PointlessWaymarks.CmsData.ContentHtml.SearchListHtml
             var allTags = new TagListPage
             {
                 ContentFunction = () => tags, GenerationVersion = generationVersion,
-                LangAttribute = UserSettingsSingleton.CurrentSettings().SiteLangAttribute
+                LangAttribute = UserSettingsSingleton.CurrentSettings().SiteLangAttribute,
+                DirAttribute = UserSettingsSingleton.CurrentSettings().SiteDirectionAttribute
             };
 
             progress?.Report("Tag Pages - Writing All Tag Data");

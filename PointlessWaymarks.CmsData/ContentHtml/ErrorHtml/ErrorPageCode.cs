@@ -21,7 +21,10 @@ namespace PointlessWaymarks.CmsData.ContentHtml.ErrorHtml
             SiteAuthors = settings.SiteAuthors;
             PageUrl = settings.IndexPageUrl();
             LangAttribute = settings.SiteLangAttribute;
+            DirAttribute = settings.SiteDirectionAttribute;
         }
+
+        public string DirAttribute { get; set; }
 
         public DateTime? GenerationVersion { get; set; }
 

@@ -3,7 +3,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head data-generationversion="<#=
-                    GenerationVersion?.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fffffff") ?? string.Empty #>" lang="<#= LangAttribute #>">
+                    GenerationVersion?.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fffffff") ?? string.Empty #>" lang="<#= LangAttribute #>" dir="<#= DirAttribute #>" dir="<#= DirAttribute #>">
     <meta charset="utf-8">
     <meta name="robots" content="noindex" />
     <title><#= SiteName #></title>

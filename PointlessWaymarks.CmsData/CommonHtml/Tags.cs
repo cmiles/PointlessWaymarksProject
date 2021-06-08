@@ -513,7 +513,7 @@ namespace PointlessWaymarks.CmsData.CommonHtml
 
             foreach (var loopTag in tags)
             {
-                var tagLinkContainer = new DivTag().AddClass("tags-detail-link-container");
+                var tagLinkContainer = new DivTag().AddClasses("tags-detail-link-container", "box-container");
                 if (loopTag.IsExcluded)
                 {
                     var tagP = new HtmlTag("p").AddClass("tag-detail-text");

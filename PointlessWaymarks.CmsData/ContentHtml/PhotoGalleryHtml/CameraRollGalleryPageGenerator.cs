@@ -33,7 +33,8 @@ namespace PointlessWaymarks.CmsData.ContentHtml.PhotoGalleryHtml
                     LastDateGroupDateTime = DateTime.MinValue,
                     MainImage = null,
                     GenerationVersion = generationVersion,
-                    LangAttribute = UserSettingsSingleton.CurrentSettings().SiteLangAttribute
+                    LangAttribute = UserSettingsSingleton.CurrentSettings().SiteLangAttribute,
+                    DirAttribute = UserSettingsSingleton.CurrentSettings().SiteDirectionAttribute
                 };
 
             var loopGoal = allDates.Count;
@@ -205,7 +206,8 @@ namespace PointlessWaymarks.CmsData.ContentHtml.PhotoGalleryHtml
                 LastDateGroupDateTime = allDates.First().Date,
                 MainImage = mainImage,
                 GenerationVersion = generationVersion,
-                LangAttribute = UserSettingsSingleton.CurrentSettings().SiteLangAttribute
+                LangAttribute = UserSettingsSingleton.CurrentSettings().SiteLangAttribute,
+                DirAttribute = UserSettingsSingleton.CurrentSettings().SiteDirectionAttribute
             };
 
             return toReturn;

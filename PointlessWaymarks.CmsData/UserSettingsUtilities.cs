@@ -1209,6 +1209,12 @@ namespace PointlessWaymarks.CmsData
                 readResult.SiteLangAttribute = "en";
                 hasUpdates = true;
             }
+            
+            if (string.IsNullOrWhiteSpace(readResult.SiteDirectionAttribute))
+            {
+                readResult.SiteDirectionAttribute = "ltr";
+                hasUpdates = true;
+            }
 
             if (readResult.SettingsId == Guid.Empty)
             {

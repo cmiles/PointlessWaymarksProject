@@ -1,5 +1,52 @@
+* {
+    box-sizing: border-box;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --background-red: 22;
+        --background-green: 22;
+        --background-blue: 22;
+        --background-color: rgb(var(--background-red), var(--background-green), var(--background-blue));
+        --foreground-brightness: ((var(--background-red) * 299) + (var(--background-green) * 587) + (var(--background-blue) * 114)) / 1000;
+        --foreground-component-color: calc((var(--foreground-brightness) - 128) * -1000);
+        --foreground-color: rgb(var(--foreground-component-color), var(--foreground-component-color), var(--foreground-component-color));
+        --foreground-secondary-color: rgb(180, 180, 180);
+    }
+    .box-container {
+        box-shadow: 0px 0px 0px 1px rgb(var(--foreground-component-color), var(--foreground-component-color), var(--foreground-component-color));
+    }
+    .photo-detail {
+        box-shadow: 0px 0px 0px 1px rgb(var(--foreground-component-color), var(--foreground-component-color), var(--foreground-component-color));
+    }
+}
+
+@media (prefers-color-scheme: light) {
+    :root {
+        --background-red: 255;
+        --background-green: 255;
+        --background-blue: 255;
+        --background-color: rgb(var(--background-red), var(--background-green), var(--background-blue));
+        --foreground-brightness: ((var(--background-red) * 299) + (var(--background-green) * 587) + (var(--background-blue) * 114)) / 1000;
+        --foreground-component-color: calc((var(--foreground-brightness) - 128) * -1000);
+        --foreground-color: rgb(var(--foreground-component-color), var(--foreground-component-color), var(--foreground-component-color));
+        --foreground-secondary-color: rgb(180, 180, 180);
+    }
+    .box-container {
+        box-shadow: 0 1px 3px rgba(var(--foreground-component-color), var(--foreground-component-color), var(--foreground-component-color),0.12), 0 1px 2px rgba(var(--foreground-component-color), var(--foreground-component-color), var(--foreground-component-color),0.24);
+    }
+    .photo-detail {
+        box-shadow: 0 1px 3px rgba(var(--foreground-component-color), var(--foreground-component-color), var(--foreground-component-color),0.12), 0 1px 2px rgba(var(--foreground-component-color), var(--foreground-component-color), var(--foreground-component-color),0.24);
+    }
+}
+
+html {
+    background: var(--background-color);
+    color: var(--foreground-color);
+}
+
 body {
-    font-family: charter, Cambria, Georgia, Times, ‘Times New Roman’, serif;
+    font-family: charter, Cambria, Georgia, Times, â€˜Times New Romanâ€™, serif;
     font-size: 1rem;
 }
 
@@ -8,7 +55,7 @@ body {
 }
 
 .single-photo-body {
-    color: rgb(180, 180, 180);
+    color: var(--foreground-secondary-color);
     margin-top: 0;
 }
 
@@ -33,7 +80,7 @@ body {
     margin-bottom: .3rem;
     display: table-caption;
     caption-side: bottom;
-    color: rgb(180, 180, 180);
+    color: var(--foreground-secondary-color);
     line-height: 1.4rem;
 }
 
@@ -45,7 +92,7 @@ body {
 
 .single-image-body {
     font-family: Geneva, 'Lucida Sans', 'Lucida Grande', 'Lucida Sans Unicode', Verdana, sans-serif;
-    color: rgb(180, 180, 180);
+    color: var(--foreground-secondary-color);
     margin-top: 0;
 }
 
@@ -70,7 +117,7 @@ body {
     margin-bottom: .3rem;
     display: table-caption;
     caption-side: bottom;
-    color: rgb(180, 180, 180);
+    color: var(--foreground-secondary-color);
     line-height: 1.4rem;
 }
 
@@ -94,14 +141,13 @@ body {
     flex-wrap: wrap;
     align-items: center;
     margin-top: 1rem;
-    color: rgb(180, 180, 180);
+    color: var(--foreground-secondary-color);
     margin-left: 1%;
     margin-right: 1%;
 }
 
 .tags-detail-link-container {
     margin: 3px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
     transition: all 0.3s cubic-bezier(.25,.8,.25,1);
     border-radius: 4px;
     text-align: center;
@@ -125,14 +171,14 @@ a.tag-detail-link:active {
 a.tag-detail-link {
     margin: .5rem 1.5rem;
     display: block;
-    color: rgb(180, 180, 180);
+    color: var(--foreground-secondary-color);
     text-decoration: none;
 }
 
 p.tag-detail-text {
     margin: .5rem 1.5rem;
     display: block;
-    color: rgb(180, 180, 180);
+    color: var(--foreground-secondary-color);
     text-decoration: none;
 }
 
@@ -143,7 +189,7 @@ p.tag-detail-text {
 }
 
 .footer-site-link-content {
-    color: black;
+    color: var(--foreground-color);
 }
 
 .footer-content-lists-container {
@@ -151,7 +197,7 @@ p.tag-detail-text {
 }
 
 .footer-site-email {
-    color: rgb(180, 180, 180);
+    color: var(--foreground-secondary-color);
 }
 
 .footer-site-link-content {
@@ -187,24 +233,24 @@ p.tag-detail-text {
 }
 
 a.site-header-title-link {
-    color: black;
+    color: var(--foreground-color);
     text-decoration: none;
 }
 
 a.site-header-title-link:visited {
-        color: black;
-        text-decoration: none;
-    }
+    color: var(--foreground-color);
+    text-decoration: none;
+}
 
 a.site-header-title-link:hover {
-        color: black;
-        text-decoration: underline;
-    }
+    color: var(--foreground-color);
+    text-decoration: underline;
+}
 
 a.site-header-title-link:active {
-        color: black;
-        text-decoration: none;
-    }
+    color: var(--foreground-color);
+    text-decoration: none;
+}
 
 .note-title-content {
     text-align: center;
@@ -215,7 +261,7 @@ a.site-header-title-link:active {
 }
 
 .site-header-subtitle {
-    color: rgb(180, 180, 180);
+    color: var(--foreground-secondary-color);
     text-align: center;
     margin: .8rem .4rem 0 1rem;
     font-weight: normal;
@@ -226,7 +272,7 @@ a.site-header-title-link:active {
     text-align: center;
     font-weight: normal;
     text-decoration: none;
-    color: black;
+    color: var(--foreground-color);
     font-size: 1.7rem;
     line-height: 2.2rem;
     margin-bottom: 0;
@@ -234,29 +280,29 @@ a.site-header-title-link:active {
 
 .title-link-content a {
     text-decoration: none;
-    color: black;
+    color: var(--foreground-color);
 }
 
 .title-link-content a:visited {
     text-decoration: none;
-    color: black;
+    color: var(--foreground-color);
 }
 
 .title-link-content a:hover {
     text-decoration: underline;
-    color: black;
+    color: var(--foreground-color);
 }
 
 .title-link-content a:active {
     text-decoration: none;
-    color: black;
+    color: var(--foreground-color);
 }
 
-.post-title-area-created-and-updated-content { 
+.post-title-area-created-and-updated-content {
     font-weight: normal;
     text-align: center;
     margin-top: .5rem;
-    color: rgb(180, 180, 180);
+    color: var(--foreground-secondary-color);
 }
 
 .core-links-container {
@@ -279,7 +325,6 @@ a.site-header-title-link:active {
 
 .post-related-posts-link-container {
     margin: 3px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
     transition: all 0.3s cubic-bezier(.25,.8,.25,1);
     border-radius: 4px;
 }
@@ -290,14 +335,14 @@ a.site-header-title-link:active {
     flex-wrap: wrap;
     align-items: center;
     margin-top: 1rem;
-    color: rgb(180, 180, 180);
+    color: var(--foreground-secondary-color);
 }
 
-.post-related-posts-link 
+.post-related-posts-link
 {
     margin: 6px;
     display: block;
-    color: rgb(180, 180, 180);
+    color: var(--foreground-secondary-color);
 }
 
 .post-body-content p,
@@ -311,7 +356,6 @@ a.site-header-title-link:active {
 }
 
 .post-body-content blockquote {
-    background: #f9f9f9;
     border-left: 2px solid #aaa;
     margin-top: 1rem;
     margin-bottom: 2rem;
@@ -320,7 +364,7 @@ a.site-header-title-link:active {
     margin-right: 1%;
 }
 
-.update-notes-title, 
+.update-notes-title,
 .update-notes-content p,
 .update-notes-content ul {
     margin-left: 1%;
@@ -328,7 +372,7 @@ a.site-header-title-link:active {
     margin-top: 1rem;
     margin-bottom: 1rem;
     line-height: 1rem;
-    color: rgb(180, 180, 180);
+    color: var(--foreground-secondary-color);
 }
 
 .photo-details-container {
@@ -337,14 +381,13 @@ a.site-header-title-link:active {
     flex-wrap: wrap;
     align-items: center;
     margin-top: 1rem;
-    color: rgb(180, 180, 180);
+    color: var(--foreground-secondary-color);
     margin-left: 1%;
     margin-right: 1%;
 }
 
 .photo-detail {
     margin: 3px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
     transition: all 0.3s cubic-bezier(.25,.8,.25,1);
     border-radius: 4px;
     text-align: center;
@@ -353,7 +396,7 @@ a.site-header-title-link:active {
 .photo-detail-content {
     margin: .5rem 1.5rem;
     display: block;
-    color: rgb(180, 180, 180);
+    color: var(--foreground-secondary-color);
     text-decoration: none;
 }
 
@@ -368,19 +411,18 @@ a.site-header-title-link:active {
     flex-wrap: wrap;
     align-items: center;
     margin-top: 2.5rem;
-    color: rgb(180, 180, 180);
+    color: var(--foreground-secondary-color);
 }
 
 .related-post-container {
     margin: 3px;
     width: 316px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
     transition: all 0.3s cubic-bezier(.25,.8,.25,1);
     border-radius: 4px;
     display: flex;
 }
 
- 
+
 .related-post-image-content-container {
     width: 100px;
     height: 100px;
@@ -415,7 +457,7 @@ a.site-header-title-link:active {
 
 .related-post-text-content-title-link {
     text-decoration: none;
-    color: rgb(180, 180, 180);
+    color: var(--foreground-secondary-color);
 }
 
 .related-post-text-content-date {
@@ -439,11 +481,10 @@ a.site-header-title-link:active {
 
 .content-compact-container {
     margin: 10px 2px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
     transition: all 0.3s cubic-bezier(.25,.8,.25,1);
     border-radius: 4px;
     display: flex;
-    width: 300px; 
+    width: 300px;
     min-width: 300px;
 }
 
@@ -455,7 +496,7 @@ a.site-header-title-link:active {
 }
 
 .information-section {
-    color: rgb(180, 180, 180);
+    color: var(--foreground-secondary-color);
 }
 
 .daily-photo-gallery-list-container {
@@ -557,7 +598,6 @@ a.site-header-title-link:active {
 }
 
 .tag-list-item {
-    box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
     transition: all 0.3s cubic-bezier(.25,.8,.25,1);
     border-radius: 4px;
     margin: 8px;
@@ -566,26 +606,26 @@ a.site-header-title-link:active {
 a.tag-list-link:visited {
     margin: 8px;
     display: block;
-    color: black;
+    color: var(--foreground-color);
 }
 
 a.tag-list-link:hover {
     margin: 8px;
     display: block;
-    color: black;
+    color: var(--foreground-color);
     text-decoration: underline;
 }
 
 a.tag-list-link:active {
     margin: 8px;
     display: block;
-    color: black;
+    color: var(--foreground-color);
 }
 
 a.tag-list-link {
     margin: 8px;
     display: block;
-    color: black;
+    color: var(--foreground-color);
 }
 
 @media screen and (min-width: 600px) {
@@ -601,7 +641,7 @@ a.tag-list-link {
         margin-right: 4%;
     }
 
-    .update-notes-title, 
+    .update-notes-title,
     .update-notes-content p,
     .update-notes-content ul {
         margin-left: 4%;
@@ -642,7 +682,6 @@ a.tag-list-link {
         justify-content: center;
         margin: auto 12px;
     }
-
 }
 
 @media screen and (min-width: 1200px) {
@@ -665,7 +704,7 @@ a.tag-list-link {
         margin-right: auto;
     }
 
-    .update-notes-title, 
+    .update-notes-title,
     .update-notes-content p,
     .update-notes-content ul {
         width: 1100px;
@@ -702,7 +741,7 @@ a.tag-list-link {
 
 .standard-rule {
     border-radius: 4px;
-    color: rgb(180, 180, 180);
+    color: var(--foreground-secondary-color);
     opacity: .2;
     max-width: 60%;
     margin-bottom: 1rem;
@@ -710,6 +749,7 @@ a.tag-list-link {
 
 .search-input-container {
     display: flex;
+    border: 1px solid var(--foreground-color);
     flex-direction: row;
     flex-wrap: wrap;
     justify-content: center;
@@ -718,10 +758,8 @@ a.tag-list-link {
 
 .search-input {
     width: 300px;
-    border: 1px solid rgb(210, 210, 210);
     border-radius: 4px;
     padding: 6px 10px;
-    box-sizing: border-box;
 }
 
 .content-list-filter-container {
@@ -767,19 +805,19 @@ a.tag-list-link {
 
 .content-compact-text-content-summary {
     font-size: 12px;
-    color: rgb(180, 180, 180);
+    color: var(--foreground-secondary-color);
 }
 
 .content-compact-text-content-optional-summary {
     font-size: 12px;
-    color: rgb(180, 180, 180);
+    color: var(--foreground-secondary-color);
     display: none;
 }
 
 .content-compact-text-content-date {
     font-size: 12px;
     text-align: end;
-    color: rgb(180, 180, 180);
+    color: var(--foreground-secondary-color);
 }
 
 .link-compact-text-content-container {
@@ -793,13 +831,13 @@ a.tag-list-link {
 
 .link-compact-text-content-summary {
     font-size: 12px;
-    color: rgb(180, 180, 180);
+    color: var(--foreground-secondary-color);
     overflow: auto;
 }
 
 @media screen and (min-width: 640px) {
     .content-compact-container {
-        width: 600px; 
+        width: 600px;
         min-width: 600px;
     }
 
@@ -815,8 +853,8 @@ a.tag-list-link {
 
 @media screen and (min-width: 1200px) {
     .content-compact-container {
-        width: 900px; 
-        min-width: 900px; 
+        width: 900px;
+        min-width: 900px;
     }
 
     .content-compact-text-content-optional-summary {

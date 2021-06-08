@@ -40,6 +40,13 @@ namespace PointlessWaymarks.CmsData.ContentHtml.LinkListHtml
             
             #line default
             #line hidden
+            this.Write("\" dir=\"");
+            
+            #line 6 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\LinkListHtml\LinkListPage.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(DirAttribute));
+            
+            #line default
+            #line hidden
             this.Write("\">\r\n    <meta charset=\"utf-8\">\r\n    <title>");
             
             #line 8 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\LinkListHtml\LinkListPage.tt"

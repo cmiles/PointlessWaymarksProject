@@ -9,7 +9,7 @@ namespace PointlessWaymarks.CmsData.CommonHtml
     {
         public static HtmlTag FromContentCommon(IContentCommon content)
         {
-            var compactContentContainerDiv = new DivTag().AddClass("content-compact-container");
+            var compactContentContainerDiv = new DivTag().AddClasses("content-compact-container", "box-container");
 
             var linkTo = UserSettingsSingleton.CurrentSettings().ContentUrl(content.ContentId).Result;
 
@@ -57,7 +57,7 @@ namespace PointlessWaymarks.CmsData.CommonHtml
 
         public static HtmlTag FromLinkContent(LinkContent content)
         {
-            var compactContentContainerDiv = new DivTag().AddClass("content-compact-container");
+            var compactContentContainerDiv = new DivTag().AddClasses("content-compact-container", "box-container");
 
             var compactContentMainTextContentDiv = new DivTag().AddClass("link-compact-text-content-container");
 

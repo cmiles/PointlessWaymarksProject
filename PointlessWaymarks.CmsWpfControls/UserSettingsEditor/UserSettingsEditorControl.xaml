@@ -97,6 +97,20 @@
                         Text="{Binding EditorSettings.SiteEmailTo, UpdateSourceTrigger=PropertyChanged}" />
                 </StackPanel>
                 <StackPanel Orientation="Vertical">
+                    <Label Style="{StaticResource DataEntryLabelStyle}" Target="{Binding ElementName=SiteLangTextBox}">Site Lang Attribute</Label>
+                    <TextBox
+                        Name="SiteLangTextBox"
+                        Style="{StaticResource DataEntryTextBoxSingleLineStyle}"
+                        Text="{Binding EditorSettings.SiteLangAttribute, UpdateSourceTrigger=PropertyChanged}" />
+                </StackPanel>
+                <StackPanel Orientation="Vertical">
+                    <Label Style="{StaticResource DataEntryLabelStyle}" Target="{Binding ElementName=SiteDirTextBox}">Site Dir Attribute</Label>
+                    <TextBox
+                        Name="SiteDirTextBox"
+                        Style="{StaticResource DataEntryTextBoxSingleLineStyle}"
+                        Text="{Binding EditorSettings.SiteDirectionAttribute, UpdateSourceTrigger=PropertyChanged}" />
+                </StackPanel>
+                <StackPanel Orientation="Vertical">
                     <Label Style="{StaticResource DataEntryLabelStyle}" Target="{Binding ElementName=DefaultCreatedByTextBox}">
                         Default Created By Name
                     </Label>

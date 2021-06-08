@@ -15,7 +15,7 @@ namespace PointlessWaymarks.CmsData.CommonHtml
         public static HtmlTag RelatedContentDiv(IContentCommon? post)
         {
             if (post == null) return HtmlTag.Empty();
-            var relatedPostContainerDiv = new DivTag().AddClass("related-post-container");
+            var relatedPostContainerDiv = new DivTag().AddClasses("related-post-container", "box-container");
             if (post.MainPicture != null)
             {
                 var relatedPostMainPictureContentDiv = new DivTag().AddClass("related-post-image-content-container");

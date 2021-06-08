@@ -20,9 +20,12 @@ namespace PointlessWaymarks.CmsData.ContentHtml.LineHtml
             SiteName = settings.SiteName;
             PageUrl = settings.LinePageUrl(DbEntry);
             LangAttribute = settings.SiteLangAttribute;
+            DirAttribute = settings.SiteDirectionAttribute;
 
             if (DbEntry.MainPicture != null) MainImage = new PictureSiteInformation(DbEntry.MainPicture.Value);
         }
+
+        public string DirAttribute { get; set; }
 
         public LineContent DbEntry { get; }
         public DateTime? GenerationVersion { get; set; }

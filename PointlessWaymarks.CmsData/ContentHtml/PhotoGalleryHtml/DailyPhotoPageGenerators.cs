@@ -120,7 +120,8 @@ namespace PointlessWaymarks.CmsData.ContentHtml.PhotoGalleryHtml
                         .ToList(),
                 PageUrl = UserSettingsSingleton.CurrentSettings().DailyPhotoGalleryUrl(startsAfterOrOn),
                 GenerationVersion = generationVersion,
-                LangAttribute = UserSettingsSingleton.CurrentSettings().SiteLangAttribute
+                LangAttribute = UserSettingsSingleton.CurrentSettings().SiteLangAttribute,
+                DirAttribute = UserSettingsSingleton.CurrentSettings().SiteDirectionAttribute
             };
 
             return photoPage;

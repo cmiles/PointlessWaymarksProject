@@ -17,6 +17,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml.TagListHtml
         public DateTime? GenerationVersion { get; set; }
 
         public string? LangAttribute { get; set; }
+        public string? DirAttribute { get; set; }
 
         public HtmlTag TagList()
         {
@@ -29,7 +30,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml.TagListHtml
 
             foreach (var loopTagGroup in toProcess)
             {
-                var contentContainer = new DivTag().AddClass("tag-list-item");
+                var contentContainer = new DivTag().AddClasses("tag-list-item", "box-container");
                 contentContainer.Data("tagname", loopTagGroup.tagName.Replace("-", " "));
                 contentContainer.Data("tagslug", loopTagGroup.tagName);
 

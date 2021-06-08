@@ -22,11 +22,14 @@ namespace PointlessWaymarks.CmsData.ContentHtml.NoteHtml
             PageUrl = settings.NotePageUrl(DbEntry);
             Title = DbEntry.Title;
             LangAttribute = settings.SiteLangAttribute;
+            DirAttribute = settings.SiteDirectionAttribute;
 
             var (previousContent, laterContent) = Tags.MainFeedPreviousAndLaterContent(3, DbEntry.CreatedOn);
             PreviousPosts = previousContent;
             LaterPosts = laterContent;
         }
+
+        public string DirAttribute { get; set; }
 
         public NoteContent DbEntry { get; }
         public DateTime? GenerationVersion { get; set; }

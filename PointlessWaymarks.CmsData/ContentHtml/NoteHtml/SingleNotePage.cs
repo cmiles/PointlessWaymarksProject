@@ -47,6 +47,13 @@ namespace PointlessWaymarks.CmsData.ContentHtml.NoteHtml
             
             #line default
             #line hidden
+            this.Write("\" dir=\"");
+            
+            #line 7 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\NoteHtml\SingleNotePage.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(DirAttribute));
+            
+            #line default
+            #line hidden
             this.Write("\">\r\n    <meta charset=\"utf-8\">\r\n    <title>");
             
             #line 9 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\NoteHtml\SingleNotePage.tt"

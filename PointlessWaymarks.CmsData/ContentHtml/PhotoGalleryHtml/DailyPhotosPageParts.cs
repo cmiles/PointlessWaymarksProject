@@ -11,7 +11,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml.PhotoGalleryHtml
         {
             if (photoPage == null) return HtmlTag.Empty();
 
-            var relatedPostContainerDiv = new DivTag().AddClass("related-post-container");
+            var relatedPostContainerDiv = new DivTag().AddClasses("related-post-container", "box-container");
 
             var relatedPostMainPictureContentDiv = new DivTag().AddClass("related-post-image-content-container");
 

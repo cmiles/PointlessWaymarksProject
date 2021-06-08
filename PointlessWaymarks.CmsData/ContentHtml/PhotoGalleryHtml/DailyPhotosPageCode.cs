@@ -25,6 +25,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml.PhotoGalleryHtml
         public string? SiteName { get; set; }
         public string? Summary { get; set; }
         public string? Title { get; set; }
+        public string? DirAttribute { get; set; }
 
         public async Task WriteLocalHtml()
         {

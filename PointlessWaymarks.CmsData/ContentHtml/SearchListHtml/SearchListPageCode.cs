@@ -24,7 +24,10 @@ namespace PointlessWaymarks.CmsData.ContentHtml.SearchListHtml
             ListTitle = listTitle;
             GenerationVersion = generationVersion;
             LangAttribute = UserSettingsSingleton.CurrentSettings().SiteLangAttribute;
+            DirAttribute = UserSettingsSingleton.CurrentSettings().SiteDirectionAttribute;
         }
+
+        public string DirAttribute { get; set; }
 
         public bool AddNoIndexTag { get; set; }
         public Func<List<object>> ContentFunction { get; }

@@ -38,7 +38,8 @@ namespace PointlessWaymarks.CmsData.ContentHtml.IndexHtml
             SiteAuthors = settings.SiteAuthors;
             PageUrl = settings.IndexPageUrl();
             LangAttribute = settings.SiteLangAttribute;
-
+            DirAttribute = settings.SiteDirectionAttribute;
+            
             IndexContent = Db.MainFeedRecentDynamicContent(20).Result.OrderByDescending(x => x.CreatedOn).ToList();
 
             var mainImageGuid = IndexContent
@@ -59,6 +60,8 @@ namespace PointlessWaymarks.CmsData.ContentHtml.IndexHtml
                 PreviousPosts = previousLater.previousContent;
             }
         }
+
+        public string DirAttribute { get; set; }
 
         public DateTime? GenerationVersion { get; set; }
         public bool IncludeSpatialScripts { get; set; }
