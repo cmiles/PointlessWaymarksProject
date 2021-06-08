@@ -2,6 +2,7 @@
     box-sizing: border-box;
 }
 
+/* Calculations below for color originally from: https://www.smashingmagazine.com/2020/07/css-techniques-legibility/ */
 @media (prefers-color-scheme: dark) {
     :root {
         --background-red: 22;

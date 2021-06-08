@@ -1,8 +1,4 @@
 ﻿## Todos
- - Eliminate sync FileWriteLog usage
- - Look for .Result and other that can be eliminated
- - Change FileWriteLog to a store in memory and batch insert  
- - NoIndex on excluded tags
  - Check if excluded tags are properly picked up for changed html  
  - All Items Tab - reports for no tags, etc.
  - For geo types and notes review local file cleanup on delete
@@ -28,6 +24,16 @@ Site:
  - Could all font sizes be controlled by slider or setting? I like the control in the editor but maybe everywhere would be more useful? And persist in Settings?
  
 ## Notes
+
+6/8/2021
+
+With the async changes I have been able to reprocess PointlessWaymarks html without issues a number of times without exceptions. I have some apparent pauses and perf questions still...
+
+Dark Mode - did the initial work on a simple dark mode for the site - while not particularly about dark mode the two sites that I was particularly drawn to on this dive into CSS were https://uglyduck.ca/ and https://www.smashingmagazine.com/2020/07/css-techniques-legibility/.
+
+Bug Fix: In the T4 templates I missed some of the change to Task returns and had to go back and fix that - there is decent T4 template support from Rider but this again shows a weakness of this tech imho.
+
+Bug Fix: I switched Tags and didn't realize that I missed in one of the T4 templates pulling the tag name rather than the tag data structure.
 
 6/7/2021
 
