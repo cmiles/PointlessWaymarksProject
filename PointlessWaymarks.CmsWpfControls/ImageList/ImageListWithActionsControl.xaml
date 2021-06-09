@@ -68,13 +68,12 @@
             DataContext="{Binding ListContext}" />
         <Border Grid.Row="2" Style="{StaticResource ActionPanelBorderStyle}">
             <WrapPanel HorizontalAlignment="Center" Orientation="Horizontal">
-
                 <Button
                     Command="{Binding ListContext.EditSelectedCommand}"
                     Content="_Edit"
                     Style="{StaticResource ActionPanelButtonStyle}" />
                 <Button
-                    Command="{Binding ListContext.NewActions.NewFileContentFromFilesCommand}"
+                    Command="{Binding ListContext.NewActions.NewImageContentFromFilesCommand}"
                     Content="_New From Files"
                     Style="{StaticResource ActionPanelButtonStyle}" />
                 <Button

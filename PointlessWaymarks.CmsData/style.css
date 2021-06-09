@@ -82,7 +82,7 @@ body {
     display: table-caption;
     caption-side: bottom;
     color: var(--foreground-secondary-color);
-    line-height: 1.4rem;
+    line-height: calc(1ex / 0.32);
 }
 
 .map-figure-title-caption {
@@ -119,7 +119,7 @@ body {
     display: table-caption;
     caption-side: bottom;
     color: var(--foreground-secondary-color);
-    line-height: 1.4rem;
+    line-height: calc(1ex / 0.32);
 }
 
 .image-source-notes-content {
@@ -275,7 +275,7 @@ a.site-header-title-link:active {
     text-decoration: none;
     color: var(--foreground-color);
     font-size: 1.7rem;
-    line-height: 2.2rem;
+    line-height: calc(1ex / 0.42);
     margin-bottom: 0;
 }
 
@@ -353,7 +353,7 @@ a.site-header-title-link:active {
     margin-right: 1%;
     margin-top: 1rem;
     margin-bottom: 2rem;
-    line-height: 1.55rem;
+    line-height: calc(1ex / 0.32);
 }
 
 .post-body-content blockquote {
@@ -688,19 +688,22 @@ a.tag-list-link {
 @media screen and (min-width: 1200px) {
     .title-link-content, .title-content {
         font-size: 2rem;
-        line-height: 2.6rem;
+        line-height: calc(1ex / 0.42);
     }
 
     .post-body-content p,
     .post-body-content ul,
     .post-body-content ol {
-        width: 1100px;
+        max-width: 1100px;
+        width: 80ch;
         margin-left: auto;
         margin-right: auto;
+        
     }
 
     .post-body-content blockquote {
-        width: 1080px;
+        max-width: 1080px;
+        width: 80ch;
         margin-left: auto;
         margin-right: auto;
     }
@@ -709,6 +712,7 @@ a.tag-list-link {
     .update-notes-content p,
     .update-notes-content ul {
         width: 1100px;
+        width: 80ch;
         margin-left: auto;
         margin-right: auto;
     }

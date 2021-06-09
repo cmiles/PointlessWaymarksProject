@@ -16,6 +16,7 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList
         {
             _loaderFunc = loaderFunc;
             _columnSort = sorting;
+            AddNewItemsFromDataNotifications = false;
         }
 
 #pragma warning disable 1998

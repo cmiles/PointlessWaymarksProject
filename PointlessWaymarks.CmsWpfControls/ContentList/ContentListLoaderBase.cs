@@ -11,7 +11,7 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList
 {
     public abstract class ContentListLoaderBase : IContentListLoader
     {
-        private bool _addNewItemsFromDataNotifications;
+        private bool _addNewItemsFromDataNotifications = true;
         private bool _allItemsLoaded;
 
         private List<DataNotificationContentType> _dataNotificationTypesToRespondTo = new();

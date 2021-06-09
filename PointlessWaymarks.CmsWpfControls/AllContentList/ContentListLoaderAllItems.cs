@@ -62,6 +62,14 @@ namespace PointlessWaymarks.CmsWpfControls.AllContentList
                     async () =>
                     {
                         var funcDb = await Db.Context();
+                        progress?.Report($"Loading Image Content from DB - Max {PartialLoadQuantity} Items");
+                        listItems.AddRange(await funcDb.ImageContents
+                            .OrderByDescending(x => x.LastUpdatedOn ?? x.CreatedOn)
+                            .Take(PartialLoadQuantity.Value).ToListAsync());
+                    },
+                    async () =>
+                    {
+                        var funcDb = await Db.Context();
                         progress?.Report($"Loading Line Content from DB - Max {PartialLoadQuantity} Items");
                         listItems.AddRange(await funcDb.LineContents
                             .OrderByDescending(x => x.LastUpdatedOn ?? x.CreatedOn)
@@ -130,6 +138,10 @@ namespace PointlessWaymarks.CmsWpfControls.AllContentList
 
             progress?.Report("Loading GeoJson Content from DB");
             listItems.AddRange(await db.GeoJsonContents.OrderByDescending(x => x.LastUpdatedOn ?? x.CreatedOn)
+                .ToListAsync());
+            
+            progress?.Report("Loading Image Content from DB");
+            listItems.AddRange(await db.ImageContents.OrderByDescending(x => x.LastUpdatedOn ?? x.CreatedOn)
                 .ToListAsync());
 
             progress?.Report("Loading Line Content from DB");
