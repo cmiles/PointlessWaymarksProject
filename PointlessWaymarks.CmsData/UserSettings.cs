@@ -19,6 +19,7 @@ namespace PointlessWaymarks.CmsData
         private string _pinboardApiToken = string.Empty;
         private Guid _settingsId;
         private string _siteAuthors = string.Empty;
+        private string _siteDirectionAttribute = string.Empty;
         private string _siteEmailTo = string.Empty;
         private string _siteKeywords = string.Empty;
         private string _siteLangAttribute = string.Empty;
@@ -27,7 +28,6 @@ namespace PointlessWaymarks.CmsData
         private string _siteS3BucketRegion = string.Empty;
         private string _siteSummary = string.Empty;
         private string _siteUrl = string.Empty;
-        private string _siteDirectionAttribute = string.Empty;
 
         public string BingApiKey
         {
@@ -161,6 +161,17 @@ namespace PointlessWaymarks.CmsData
             }
         }
 
+        public string SiteDirectionAttribute
+        {
+            get => _siteDirectionAttribute;
+            set
+            {
+                if (value == _siteDirectionAttribute) return;
+                _siteDirectionAttribute = value;
+                OnPropertyChanged();
+            }
+        }
+
         public string SiteEmailTo
         {
             get => _siteEmailTo;
@@ -190,17 +201,6 @@ namespace PointlessWaymarks.CmsData
             {
                 if (value == _siteLangAttribute) return;
                 _siteLangAttribute = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public string SiteDirectionAttribute
-        {
-            get => _siteDirectionAttribute;
-            set
-            {
-                if (value == _siteDirectionAttribute) return;
-                _siteDirectionAttribute = value;
                 OnPropertyChanged();
             }
         }

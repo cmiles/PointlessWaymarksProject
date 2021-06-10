@@ -25,9 +25,9 @@ namespace PointlessWaymarks.CmsData.ContentHtml.PhotoHtml
             PictureInformation = new PictureSiteInformation(DbEntry.ContentId);
         }
 
-        public string DirAttribute { get; set; }
-
         public PhotoContent DbEntry { get; }
+
+        public string DirAttribute { get; set; }
         public DateTime? GenerationVersion { get; set; }
 
         public string LangAttribute { get; set; }

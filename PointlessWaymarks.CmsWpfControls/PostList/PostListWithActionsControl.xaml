@@ -60,9 +60,6 @@
                 <MenuItem Command="{Binding ListContext.GenerateHtmlSelectedCommand}" Header="Generate Html" />
                 <MenuItem Command="{Binding ListContext.ExtractNewLinksSelectedCommand}" Header="Extract Links" />
             </MenuItem>
-            <MenuItem Header="Import">
-                <MenuItem Command="{Binding WordPressImportWindowCommand}" Header="WordPress XML Import Helper" />
-            </MenuItem>
         </Menu>
         <contentList:ContentListControl
             Grid.Row="1"

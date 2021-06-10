@@ -66,8 +66,8 @@
                     Content="_Edit"
                     Style="{StaticResource ActionPanelButtonStyle}" />
                 <Button
-                    Command="{Binding ListContext.NewActions.NewNoteContentCommand}"
-                    Content="_New Content"
+                    Command="{Binding ListContext.NewActions.NewLinkContentCommand}"
+                    Content="_New Link"
                     Style="{StaticResource ActionPanelButtonStyle}" />
                 <Button
                     Command="{Binding MdLinkCodesToClipboardForSelectedCommand}"

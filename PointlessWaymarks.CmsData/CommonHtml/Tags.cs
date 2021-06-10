@@ -145,7 +145,7 @@ namespace PointlessWaymarks.CmsData.CommonHtml
                 if (includeTitle) summaryString += ": ";
                 summaryString += $"{dbEntry.Summary.Trim()}";
             }
-            
+
             if (!char.IsPunctuation(summaryString[^1]))
                 summaryString += ".";
 
@@ -255,7 +255,7 @@ namespace PointlessWaymarks.CmsData.CommonHtml
             {
                 titleSummaryString = dbEntry.Summary.TrimNullToEmpty();
             }
-            
+
             if (!string.IsNullOrWhiteSpace(titleSummaryString) && !char.IsPunctuation(titleSummaryString[^1]))
                 titleSummaryString += ".";
 

@@ -6,6 +6,7 @@ using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Data;
 using JetBrains.Annotations;
@@ -15,7 +16,9 @@ using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsWpfControls.FileContentEditor;
+using PointlessWaymarks.CmsWpfControls.LinkContentEditor;
 using PointlessWaymarks.CmsWpfControls.PostContentEditor;
+using PointlessWaymarks.CmsWpfControls.Utility;
 using PointlessWaymarks.PressSharper;
 using PointlessWaymarks.WpfCommon.Commands;
 using PointlessWaymarks.WpfCommon.Status;
@@ -32,9 +35,11 @@ namespace PointlessWaymarks.CmsWpfControls.WordPressXmlImport
         private bool _importPages = true;
         private bool _importPosts = true;
         private ObservableCollection<WordPressXmlImportListItem>? _items;
+        private ContentListSelected<WordPressXmlImportListItem>? _listSelection;
         private Command _loadWordPressXmlFileCommand;
         private List<WordPressXmlImportListItem> _selectedItems = new();
         private Command _selectedToFileContentEditorCommand;
+        private Command _selectedToLinkContentEditorCommand;
         private Command _selectedToPostContentEditorCommand;
         private StatusControlContext _statusContext;
         private string _userFilterText = string.Empty;
@@ -47,7 +52,9 @@ namespace PointlessWaymarks.CmsWpfControls.WordPressXmlImport
             _loadWordPressXmlFileCommand = StatusContext.RunBlockingTaskCommand(LoadWordPressXmlFile);
             _selectedToPostContentEditorCommand = StatusContext.RunBlockingTaskCommand(SelectedToPostContentEditor);
             _selectedToFileContentEditorCommand = StatusContext.RunBlockingTaskCommand(SelectedToFileContentEditor);
+            _selectedToLinkContentEditorCommand = StatusContext.RunBlockingTaskCommand(SelectedToLinkContentEditor);
         }
+
 
         public bool FilterOutExistingPostUrls
         {
@@ -115,6 +122,17 @@ namespace PointlessWaymarks.CmsWpfControls.WordPressXmlImport
             }
         }
 
+        public ContentListSelected<WordPressXmlImportListItem>? ListSelection
+        {
+            get => _listSelection;
+            set
+            {
+                if (Equals(value, _listSelection)) return;
+                _listSelection = value;
+                OnPropertyChanged();
+            }
+        }
+
         public Command LoadWordPressXmlFileCommand
         {
             get => _loadWordPressXmlFileCommand;
@@ -144,6 +162,17 @@ namespace PointlessWaymarks.CmsWpfControls.WordPressXmlImport
             {
                 if (Equals(value, _selectedToFileContentEditorCommand)) return;
                 _selectedToFileContentEditorCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public Command SelectedToLinkContentEditorCommand
+        {
+            get => _selectedToLinkContentEditorCommand;
+            set
+            {
+                if (Equals(value, _selectedToLinkContentEditorCommand)) return;
+                _selectedToLinkContentEditorCommand = value;
                 OnPropertyChanged();
             }
         }
@@ -211,6 +240,8 @@ namespace PointlessWaymarks.CmsWpfControls.WordPressXmlImport
         public async Task LoadWordPressXmlFile()
         {
             await ThreadSwitcher.ResumeForegroundAsync();
+
+            ListSelection = await ContentListSelected<WordPressXmlImportListItem>.CreateInstance(StatusContext);
 
             if (!ImportPages && !ImportPosts)
             {
@@ -361,6 +392,39 @@ namespace PointlessWaymarks.CmsWpfControls.WordPressXmlImport
 
                 await ThreadSwitcher.ResumeForegroundAsync();
                 new FileContentEditorWindow(newContent).PositionWindowAndShow();
+                await ThreadSwitcher.ResumeBackgroundAsync();
+            }
+        }
+
+        public async Task SelectedToLinkContentEditor()
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            if (!SelectedItems.Any())
+            {
+                StatusContext.ToastWarning("No Items Selected?");
+                return;
+            }
+
+            foreach (var loopItems in SelectedItems)
+            {
+                var possibleLinkMatch = Regex.Match(loopItems.Content,
+                    @"\b(https?)://[-A-Z0-9+&@#/%?=~_|$!:,.;]*[A-Z0-9+&@#/%=~_|$]", RegexOptions.IgnoreCase);
+
+                var possibleLink = possibleLinkMatch.Success ? possibleLinkMatch.Value : string.Empty;
+
+                var newPost = new LinkContent
+                {
+                    Url = possibleLink,
+                    Comments = loopItems.Content,
+                    CreatedBy = loopItems.CreatedBy,
+                    CreatedOn = loopItems.CreatedOn,
+                    Tags = loopItems.Tags,
+                    Title = loopItems.Title
+                };
+
+                await ThreadSwitcher.ResumeForegroundAsync();
+                new LinkContentEditorWindow(newPost).PositionWindowAndShow();
                 await ThreadSwitcher.ResumeBackgroundAsync();
             }
         }

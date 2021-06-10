@@ -60,8 +60,12 @@
                 HorizontalContentAlignment="Stretch"
                 ItemsSource="{Binding Items}"
                 ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                SelectedItem="{Binding ListSelection.Selected}"
                 SelectionChanged="Selector_OnSelectionChanged"
                 SelectionMode="Extended">
+                <b:Interaction.Behaviors>
+                    <wpfBehavior:AttachCommandBindingsBehavior CommandBindings="{Binding ListSelection.ListBoxAppCommandBindings}" />
+                </b:Interaction.Behaviors>
                 <ListBox.ItemTemplate>
                     <DataTemplate DataType="wordPressXmlImport:WordPressXmlImportListItem">
                         <Border Style="{StaticResource ContentListOuterBorderStyle}">
@@ -86,6 +90,11 @@
                                     <b:Interaction.Behaviors>
                                         <wpfBehavior:ReadOnlyTextBoxClickAndKeyboardPass />
                                     </b:Interaction.Behaviors>
+                                    <b:Interaction.Triggers>
+                                        <b:EventTrigger EventName="SelectionChanged">
+                                            <wpfBehavior:EventToCommand Command="{Binding SelectedTextTracker.SelectedTextChangedCommand}" PassEventArgsToCommand="True" />
+                                        </b:EventTrigger>
+                                    </b:Interaction.Triggers>
                                 </TextBox>
                                 <TextBox
                                     Grid.Row="1"
@@ -97,11 +106,15 @@
                                             <Binding Path="WordPressType" />
                                             <Binding Path="CreatedBy" />
                                         </MultiBinding>
-
                                     </TextBox.Text>
                                     <b:Interaction.Behaviors>
                                         <wpfBehavior:ReadOnlyTextBoxClickAndKeyboardPass />
                                     </b:Interaction.Behaviors>
+                                    <b:Interaction.Triggers>
+                                        <b:EventTrigger EventName="SelectionChanged">
+                                            <wpfBehavior:EventToCommand Command="{Binding SelectedTextTracker.SelectedTextChangedCommand}" PassEventArgsToCommand="True" />
+                                        </b:EventTrigger>
+                                    </b:Interaction.Triggers>
                                 </TextBox>
                                 <TextBox
                                     Grid.Row="2"
@@ -117,6 +130,11 @@
                                     <b:Interaction.Behaviors>
                                         <wpfBehavior:ReadOnlyTextBoxClickAndKeyboardPass />
                                     </b:Interaction.Behaviors>
+                                    <b:Interaction.Triggers>
+                                        <b:EventTrigger EventName="SelectionChanged">
+                                            <wpfBehavior:EventToCommand Command="{Binding SelectedTextTracker.SelectedTextChangedCommand}" PassEventArgsToCommand="True" />
+                                        </b:EventTrigger>
+                                    </b:Interaction.Triggers>
                                 </TextBox>
                                 <TextBox
                                     Grid.Row="3"
@@ -133,6 +151,11 @@
                                         <wpfBehavior:ListBoxItemControlIgnoreMouseWheelBehavior />
                                         <wpfBehavior:ReadOnlyTextBoxClickAndKeyboardPass />
                                     </b:Interaction.Behaviors>
+                                    <b:Interaction.Triggers>
+                                        <b:EventTrigger EventName="SelectionChanged">
+                                            <wpfBehavior:EventToCommand Command="{Binding SelectedTextTracker.SelectedTextChangedCommand}" PassEventArgsToCommand="True" />
+                                        </b:EventTrigger>
+                                    </b:Interaction.Triggers>
                                 </TextBox>
                             </Grid>
                         </Border>
@@ -160,6 +183,7 @@
                 <RadioButton GroupName="FolderSource" IsChecked="{Binding FolderFromCategory}">Folder From Category</RadioButton>
                 <Button Command="{Binding SelectedToPostContentEditorCommand}">Selected To Post Editor</Button>
                 <Button Command="{Binding SelectedToFileContentEditorCommand}">Selected To File Editor</Button>
+                <Button Command="{Binding SelectedToLinkContentEditorCommand}">Selected To Link Editor</Button>
             </WrapPanel>
         </GroupBox>
     </Grid>

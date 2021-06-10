@@ -9,7 +9,6 @@ using JetBrains.Annotations;
 using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.ContentHtml.PostHtml;
 using PointlessWaymarks.CmsWpfControls.ContentList;
-using PointlessWaymarks.CmsWpfControls.WordPressXmlImport;
 using PointlessWaymarks.WpfCommon.Commands;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
@@ -24,7 +23,6 @@ namespace PointlessWaymarks.CmsWpfControls.PostList
         private ContentListContext _listContext;
         private Command _postCodesToClipboardForSelectedCommand;
         private Command _refreshDataCommand;
-        private Command _wordPressImportWindowCommand;
 
         public PostListWithActionsContext(StatusControlContext statusContext)
         {
@@ -84,17 +82,6 @@ namespace PointlessWaymarks.CmsWpfControls.PostList
             {
                 if (Equals(value, _statusContext)) return;
                 _statusContext = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public Command WordPressImportWindowCommand
-        {
-            get => _wordPressImportWindowCommand;
-            set
-            {
-                if (Equals(value, _wordPressImportWindowCommand)) return;
-                _wordPressImportWindowCommand = value;
                 OnPropertyChanged();
             }
         }
@@ -161,8 +148,6 @@ namespace PointlessWaymarks.CmsWpfControls.PostList
             EmailHtmlToClipboardCommand = StatusContext.RunBlockingTaskCommand(EmailHtmlToClipboard);
             RefreshDataCommand = StatusContext.RunBlockingTaskCommand(ListContext.LoadData);
 
-            WordPressImportWindowCommand = StatusContext.RunNonBlockingTaskCommand(WordPressImportWindow);
-
             ListContext.ContextMenuItems = new List<ContextMenuItemData>
             {
                 new() {ItemName = "Edit", ItemCommand = ListContext.EditSelectedCommand},
@@ -195,14 +180,6 @@ namespace PointlessWaymarks.CmsWpfControls.PostList
         {
             return ListContext?.ListSelection?.SelectedItems?.Where(x => x is PostListListItem).Cast<PostListListItem>()
                 .ToList() ?? new List<PostListListItem>();
-        }
-
-
-        private async Task WordPressImportWindow()
-        {
-            await ThreadSwitcher.ResumeForegroundAsync();
-
-            new WordPressXmlImportWindow().PositionWindowAndShow();
         }
     }
 }

@@ -25,9 +25,9 @@ namespace PointlessWaymarks.CmsData.ContentHtml.GeoJsonHtml
             if (DbEntry.MainPicture != null) MainImage = new PictureSiteInformation(DbEntry.MainPicture.Value);
         }
 
-        public string DirAttribute { get; set; }
-
         public GeoJsonContent DbEntry { get; }
+
+        public string DirAttribute { get; set; }
         public DateTime? GenerationVersion { get; set; }
 
         public string LangAttribute { get; set; }

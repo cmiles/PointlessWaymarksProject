@@ -13,6 +13,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml.PhotoGalleryHtml
     public partial class DailyPhotosPage
     {
         public string? CreatedBy { get; set; }
+        public string? DirAttribute { get; set; }
         public DateTime? GenerationVersion { get; set; }
         public List<PictureSiteInformation>? ImageList { get; set; }
         public string? LangAttribute { get; set; }
@@ -25,7 +26,6 @@ namespace PointlessWaymarks.CmsData.ContentHtml.PhotoGalleryHtml
         public string? SiteName { get; set; }
         public string? Summary { get; set; }
         public string? Title { get; set; }
-        public string? DirAttribute { get; set; }
 
         public async Task WriteLocalHtml()
         {

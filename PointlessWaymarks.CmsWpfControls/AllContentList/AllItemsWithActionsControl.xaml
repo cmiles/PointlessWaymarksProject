@@ -45,6 +45,9 @@
                 <MenuItem Command="{Binding ListContext.ImportFromExcelFileCommand}" Header="Import From Excel File" />
                 <MenuItem Command="{Binding ListContext.ImportFromOpenExcelInstanceCommand}" Header="Import From Open Excel Application" />
             </MenuItem>
+            <MenuItem Header="Import">
+                <MenuItem Command="{Binding WordPressImportWindowCommand}" Header="WordPress XML Import Helper" />
+            </MenuItem>
         </Menu>
         <contentList:ContentListControl
             Grid.Row="1"

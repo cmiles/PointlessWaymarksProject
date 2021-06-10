@@ -25,9 +25,9 @@ namespace PointlessWaymarks.CmsData.ContentHtml.FileHtml
             if (DbEntry.MainPicture != null) MainImage = new PictureSiteInformation(DbEntry.MainPicture.Value);
         }
 
-        public string DirAttribute { get; set; }
-
         public FileContent DbEntry { get; set; }
+
+        public string DirAttribute { get; set; }
         public DateTime? GenerationVersion { get; init; }
 
         public string LangAttribute { get; set; }

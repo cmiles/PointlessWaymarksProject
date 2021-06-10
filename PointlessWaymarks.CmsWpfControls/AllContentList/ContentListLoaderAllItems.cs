@@ -139,7 +139,7 @@ namespace PointlessWaymarks.CmsWpfControls.AllContentList
             progress?.Report("Loading GeoJson Content from DB");
             listItems.AddRange(await db.GeoJsonContents.OrderByDescending(x => x.LastUpdatedOn ?? x.CreatedOn)
                 .ToListAsync());
-            
+
             progress?.Report("Loading Image Content from DB");
             listItems.AddRange(await db.ImageContents.OrderByDescending(x => x.LastUpdatedOn ?? x.CreatedOn)
                 .ToListAsync());

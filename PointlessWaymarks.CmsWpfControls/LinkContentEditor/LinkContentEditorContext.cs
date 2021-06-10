@@ -390,7 +390,9 @@ namespace PointlessWaymarks.CmsWpfControls.LinkContentEditor
             ShowInLinkRssEntry.ReferenceValue = DbEntry.ShowInLinkRss;
             ShowInLinkRssEntry.UserValue = DbEntry.ShowInLinkRss;
 
-            LinkDateTimeEntry = ConversionDataEntryContext<DateTime?>.CreateInstance(ConversionDataEntryHelpers.DateTimeNullableConversion);
+            LinkDateTimeEntry =
+                ConversionDataEntryContext<DateTime?>.CreateInstance(ConversionDataEntryHelpers
+                    .DateTimeNullableConversion);
             LinkDateTimeEntry.Title = "Link Date";
             LinkDateTimeEntry.HelpText = "Date the Link Content was Created or Updated";
             LinkDateTimeEntry.ReferenceValue = DbEntry.LinkDate;

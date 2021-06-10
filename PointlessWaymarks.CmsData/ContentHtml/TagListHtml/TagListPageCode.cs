@@ -14,10 +14,10 @@ namespace PointlessWaymarks.CmsData.ContentHtml.TagListHtml
     public partial class TagListPage
     {
         public Func<List<(string tagName, List<object> tagCotentEntries)>>? ContentFunction { get; set; }
+        public string? DirAttribute { get; set; }
         public DateTime? GenerationVersion { get; set; }
 
         public string? LangAttribute { get; set; }
-        public string? DirAttribute { get; set; }
 
         public HtmlTag TagList()
         {

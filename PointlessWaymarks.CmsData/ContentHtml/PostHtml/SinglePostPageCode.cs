@@ -30,9 +30,9 @@ namespace PointlessWaymarks.CmsData.ContentHtml.PostHtml
             LaterPosts = laterContent;
         }
 
-        public string DirAttribute { get; set; }
-
         public PostContent DbEntry { get; }
+
+        public string DirAttribute { get; set; }
         public DateTime? GenerationVersion { get; set; }
 
         public string LangAttribute { get; set; }

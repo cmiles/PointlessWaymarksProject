@@ -27,10 +27,10 @@ namespace PointlessWaymarks.CmsData.ContentHtml.SearchListHtml
             DirAttribute = UserSettingsSingleton.CurrentSettings().SiteDirectionAttribute;
         }
 
-        public string DirAttribute { get; set; }
-
         public bool AddNoIndexTag { get; set; }
         public Func<List<object>> ContentFunction { get; }
+
+        public string DirAttribute { get; set; }
         public DateTime? GenerationVersion { get; }
 
         public string LangAttribute { get; set; }

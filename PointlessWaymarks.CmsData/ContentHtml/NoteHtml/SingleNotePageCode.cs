@@ -29,9 +29,9 @@ namespace PointlessWaymarks.CmsData.ContentHtml.NoteHtml
             LaterPosts = laterContent;
         }
 
-        public string DirAttribute { get; set; }
-
         public NoteContent DbEntry { get; }
+
+        public string DirAttribute { get; set; }
         public DateTime? GenerationVersion { get; set; }
 
         public string LangAttribute { get; set; }

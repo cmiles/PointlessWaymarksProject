@@ -1,11 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using PointlessWaymarks.CmsWpfControls.ContentList;
-using PointlessWaymarks.CmsWpfControls.Utility;
+using PointlessWaymarks.CmsWpfControls.WordPressXmlImport;
 using PointlessWaymarks.WpfCommon.Commands;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
@@ -16,6 +15,7 @@ namespace PointlessWaymarks.CmsWpfControls.AllContentList
     public class AllItemsWithActionsContext : INotifyPropertyChanged
     {
         private ContentListContext _listContext;
+        private Command _wordPressImportWindowCommand;
 
         public AllItemsWithActionsContext(StatusControlContext statusContext)
         {
@@ -36,6 +36,18 @@ namespace PointlessWaymarks.CmsWpfControls.AllContentList
         }
 
         public StatusControlContext StatusContext { get; set; }
+
+        public Command WordPressImportWindowCommand
+        {
+            get => _wordPressImportWindowCommand;
+            set
+            {
+                if (Equals(value, _wordPressImportWindowCommand)) return;
+                _wordPressImportWindowCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
         public event PropertyChangedEventHandler PropertyChanged;
 
         public async Task LoadData()
@@ -43,7 +55,9 @@ namespace PointlessWaymarks.CmsWpfControls.AllContentList
             await ThreadSwitcher.ResumeBackgroundAsync();
 
             ListContext = new ContentListContext(StatusContext, new ContentListLoaderAllItems(100));
-            
+
+            WordPressImportWindowCommand = StatusContext.RunNonBlockingTaskCommand(WordPressImportWindow);
+
             ListContext.ContextMenuItems = new List<ContextMenuItemData>
             {
                 new() {ItemName = "Edit", ItemCommand = ListContext.EditSelectedCommand},
@@ -66,6 +80,13 @@ namespace PointlessWaymarks.CmsWpfControls.AllContentList
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        private async Task WordPressImportWindow()
+        {
+            await ThreadSwitcher.ResumeForegroundAsync();
+
+            new WordPressXmlImportWindow().PositionWindowAndShow();
         }
     }
 }

@@ -1184,6 +1184,12 @@ namespace PointlessWaymarks.CmsData.ContentHtml
             });
         }
 
+        public static async Task GenerateErrorPage(DateTime? generationVersion, IProgress<string>? progress = null)
+        {
+            var error = new ErrorPage {GenerationVersion = generationVersion};
+            await error.WriteLocalHtml();
+        }
+
         public static async Task GenerateHtmlFromCommonContent(IContentCommon content, DateTime generationVersion,
             IProgress<string>? progress = null)
         {
@@ -1227,12 +1233,6 @@ namespace PointlessWaymarks.CmsData.ContentHtml
         {
             var index = new IndexPage {GenerationVersion = generationVersion};
             await index.WriteLocalHtml();
-        }
-        
-        public static async Task GenerateErrorPage(DateTime? generationVersion, IProgress<string>? progress = null)
-        {
-            var error = new ErrorPage() {GenerationVersion = generationVersion};
-            await error.WriteLocalHtml();
         }
 
         public static async Task GenerateMainFeedContent(DateTime generationVersion, IProgress<string>? progress = null)

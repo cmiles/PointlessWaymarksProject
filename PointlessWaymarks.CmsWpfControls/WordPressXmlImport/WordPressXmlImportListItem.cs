@@ -3,15 +3,17 @@ using System;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
+using PointlessWaymarks.CmsWpfControls.Utility;
 
 namespace PointlessWaymarks.CmsWpfControls.WordPressXmlImport
 {
-    public class WordPressXmlImportListItem : INotifyPropertyChanged
+    public class WordPressXmlImportListItem : INotifyPropertyChanged, ISelectedTextTracker
     {
         private string _category = string.Empty;
         private string _content = string.Empty;
         private string _createdBy = string.Empty;
         private DateTime _createdOn = DateTime.Now;
+        private CurrentSelectedTextTracker _selectedTextTracker = new();
         private string _slug = string.Empty;
         private string _summary = string.Empty;
         private string _tags = string.Empty;
@@ -118,6 +120,17 @@ namespace PointlessWaymarks.CmsWpfControls.WordPressXmlImport
         }
 
         public event PropertyChangedEventHandler? PropertyChanged;
+
+        public CurrentSelectedTextTracker SelectedTextTracker
+        {
+            get => _selectedTextTracker;
+            set
+            {
+                if (Equals(value, _selectedTextTracker)) return;
+                _selectedTextTracker = value;
+                OnPropertyChanged();
+            }
+        }
 
         [NotifyPropertyChangedInvocator]
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = "")

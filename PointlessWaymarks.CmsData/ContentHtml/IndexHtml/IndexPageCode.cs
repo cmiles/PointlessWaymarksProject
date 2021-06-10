@@ -39,7 +39,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml.IndexHtml
             PageUrl = settings.IndexPageUrl();
             LangAttribute = settings.SiteLangAttribute;
             DirAttribute = settings.SiteDirectionAttribute;
-            
+
             IndexContent = Db.MainFeedRecentDynamicContent(20).Result.OrderByDescending(x => x.CreatedOn).ToList();
 
             var mainImageGuid = IndexContent

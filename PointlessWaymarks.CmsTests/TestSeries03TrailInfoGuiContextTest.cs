@@ -3,7 +3,6 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Threading;
 using Microsoft.EntityFrameworkCore;
 using NUnit.Framework;
 using Omu.ValueInjecter;
@@ -11,7 +10,6 @@ using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.Content;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsWpfControls.FileContentEditor;
-using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 
 namespace PointlessWaymarks.CmsTests
 {
@@ -45,7 +43,7 @@ namespace PointlessWaymarks.CmsTests
                 application.Run();
             });
             waitForApplicationRun.Task.Wait();
-            
+
             var outSettings = await UserSettingsUtilities.SetupNewSite(
                 $"TrailNotesTestSite-{DateTime.Now:yyyy-MM-dd-HH-mm-ss}", DebugTrackers.DebugProgressTracker());
             TestSiteSettings = outSettings;
@@ -388,7 +386,7 @@ namespace PointlessWaymarks.CmsTests
             Assert.True(dbContent.BodyContent == newFileContext.BodyContent.BodyContent);
             Assert.True(dbContent.UpdateNotes == newFileContext.UpdateNotes.UpdateNotes);
         }
-        
+
         [OneTimeTearDown]
         public void Z01_TearDown()
         {
