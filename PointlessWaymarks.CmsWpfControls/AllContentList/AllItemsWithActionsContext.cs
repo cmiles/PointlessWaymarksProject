@@ -15,26 +15,13 @@ namespace PointlessWaymarks.CmsWpfControls.AllContentList
 {
     public class AllItemsWithActionsContext : INotifyPropertyChanged
     {
-        private Command _importFromExcelFileCommand;
         private ContentListContext _listContext;
-        private Command _selectedToExcelCommand;
 
         public AllItemsWithActionsContext(StatusControlContext statusContext)
         {
             StatusContext = statusContext ?? new StatusControlContext();
 
             StatusContext.RunFireAndForgetBlockingTaskWithUiMessageReturn(LoadData);
-        }
-
-        public Command ImportFromExcelFileCommand
-        {
-            get => _importFromExcelFileCommand;
-            set
-            {
-                if (Equals(value, _importFromExcelFileCommand)) return;
-                _importFromExcelFileCommand = value;
-                OnPropertyChanged();
-            }
         }
 
         public ContentListContext ListContext
@@ -48,17 +35,6 @@ namespace PointlessWaymarks.CmsWpfControls.AllContentList
             }
         }
 
-        public Command SelectedToExcelCommand
-        {
-            get => _selectedToExcelCommand;
-            set
-            {
-                if (Equals(value, _selectedToExcelCommand)) return;
-                _selectedToExcelCommand = value;
-                OnPropertyChanged();
-            }
-        }
-
         public StatusControlContext StatusContext { get; set; }
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -67,13 +43,7 @@ namespace PointlessWaymarks.CmsWpfControls.AllContentList
             await ThreadSwitcher.ResumeBackgroundAsync();
 
             ListContext = new ContentListContext(StatusContext, new ContentListLoaderAllItems(100));
-
-            SelectedToExcelCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
-                await ExcelHelpers.SelectedToExcel(ListContext.ListSelection.SelectedItems?.Cast<dynamic>().ToList(),
-                    StatusContext));
-            ImportFromExcelFileCommand =
-                StatusContext.RunBlockingTaskCommand(async () => await ExcelHelpers.ImportFromExcelFile(StatusContext));
-
+            
             ListContext.ContextMenuItems = new List<ContextMenuItemData>
             {
                 new() {ItemName = "Edit", ItemCommand = ListContext.EditSelectedCommand},
