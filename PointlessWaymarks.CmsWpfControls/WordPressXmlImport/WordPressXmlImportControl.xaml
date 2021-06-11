@@ -59,10 +59,13 @@
                 x:Name="ItemsListBox"
                 HorizontalContentAlignment="Stretch"
                 ItemsSource="{Binding Items}"
+                ScrollViewer.CanContentScroll="True"
                 ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                 SelectedItem="{Binding ListSelection.Selected}"
                 SelectionChanged="Selector_OnSelectionChanged"
-                SelectionMode="Extended">
+                SelectionMode="Extended"
+                VirtualizingPanel.IsVirtualizing="True"
+                VirtualizingPanel.ScrollUnit="Pixel">
                 <b:Interaction.Behaviors>
                     <wpfBehavior:AttachCommandBindingsBehavior CommandBindings="{Binding ListSelection.ListBoxAppCommandBindings}" />
                 </b:Interaction.Behaviors>

@@ -158,7 +158,7 @@ namespace PointlessWaymarks.CmsWpfControls.TagExclusionEditor
                 }
             }
 
-            var currentItemsWithDbEntry = currentItems.Where(x => x.DbEntry != null && x.DbEntry.Id >= 0).ToList();
+            var currentItemsWithDbEntry = currentItems.Where(x => x.DbEntry is {Id: >= 0}).ToList();
             var newItemIds = listItems.Select(x => x.DbEntry.Id);
 
             var deletedItems = currentItemsWithDbEntry.Where(x => !newItemIds.Contains(x.DbEntry.Id)).ToList();

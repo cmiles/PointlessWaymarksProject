@@ -48,6 +48,7 @@ namespace PointlessWaymarks.CmsData
 #pragma warning restore 1998
             [EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
+            // ReSharper disable once ForCanBeConvertedToForeach
             for (var i = 0; i < toEnumerate.Count; i++)
             {
                 cancellationToken.ThrowIfCancellationRequested();

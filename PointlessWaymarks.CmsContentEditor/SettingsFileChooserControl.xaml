@@ -30,8 +30,11 @@
                 HorizontalContentAlignment="Stretch"
                 BorderThickness="0"
                 ItemsSource="{Binding Items}"
+                ScrollViewer.CanContentScroll="True"
                 ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                SelectionMode="Single">
+                SelectionMode="Single"
+                VirtualizingPanel.IsVirtualizing="True"
+                VirtualizingPanel.ScrollUnit="Pixel">
                 <b:Interaction.Behaviors>
                     <behaviors:ListBoxOneLineMouseWheelScroll />
                 </b:Interaction.Behaviors>

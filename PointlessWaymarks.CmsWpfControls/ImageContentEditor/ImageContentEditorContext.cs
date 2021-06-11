@@ -421,7 +421,7 @@ namespace PointlessWaymarks.CmsWpfControls.ImageContentEditor
             ImageContent contentToLoad = null, FileInfo initialImage = null)
         {
             var newContext = new ImageContentEditorContext(statusContext);
-            if (initialImage != null && initialImage.Exists) newContext._initialImage = initialImage;
+            if (initialImage is {Exists: true}) newContext._initialImage = initialImage;
             await newContext.LoadData(contentToLoad);
             return newContext;
         }
@@ -533,7 +533,7 @@ namespace PointlessWaymarks.CmsWpfControls.ImageContentEditor
             AltTextEntry.ReferenceValue = DbEntry.AltText ?? string.Empty;
             AltTextEntry.UserValue = DbEntry.AltText.TrimNullToEmpty();
 
-            if (DbEntry.Id < 1 && _initialImage != null && _initialImage.Exists &&
+            if (DbEntry.Id < 1 && _initialImage is {Exists: true} &&
                 FileHelpers.ImageFileTypeIsSupported(_initialImage))
             {
                 SelectedFile = _initialImage;

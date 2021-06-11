@@ -884,8 +884,7 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList
                 Items.Where(x => x is IContentListSmallImage).Cast<IContentListSmallImage>().ToList();
 
             foreach (var loopListItem in smallImageListItems)
-                if (((dynamic) loopListItem).DbEntry is IMainImage dbMainImageEntry &&
-                    dbMainImageEntry.MainPicture != null &&
+                if (((dynamic) loopListItem).DbEntry is IMainImage {MainPicture: { }} dbMainImageEntry &&
                     translatedMessage.ContentIds.Contains(dbMainImageEntry.MainPicture.Value))
                     loopListItem.SmallImageUrl = GetSmallImageUrl(dbMainImageEntry);
         }

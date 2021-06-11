@@ -64,7 +64,7 @@ namespace PointlessWaymarks.CmsWpfControls.FileContentEditor
 
         private FileContentEditorContext(StatusControlContext statusContext, FileInfo initialFile = null)
         {
-            if (initialFile != null && initialFile.Exists) _initialFile = initialFile;
+            if (initialFile is {Exists: true}) _initialFile = initialFile;
 
             SetupStatusContextAndCommands(statusContext);
         }
@@ -552,7 +552,7 @@ namespace PointlessWaymarks.CmsWpfControls.FileContentEditor
                 }
             }
 
-            if (DbEntry.Id < 1 && _initialFile != null && _initialFile.Exists)
+            if (DbEntry.Id < 1 && _initialFile is {Exists: true})
             {
                 SelectedFile = _initialFile;
                 _initialFile = null;

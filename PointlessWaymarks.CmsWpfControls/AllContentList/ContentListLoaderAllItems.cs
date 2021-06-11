@@ -11,6 +11,8 @@ namespace PointlessWaymarks.CmsWpfControls.AllContentList
 {
     public class ContentListLoaderAllItems : ContentListLoaderBase
     {
+        private bool _allLoaded;
+
         public ContentListLoaderAllItems(int? partialLoadQuantity) : base("Items", partialLoadQuantity)
         {
             ShowType = true;
@@ -24,6 +26,7 @@ namespace PointlessWaymarks.CmsWpfControls.AllContentList
 
             if (await db.FileContents.CountAsync() > PartialLoadQuantity) return false;
             if (await db.GeoJsonContents.CountAsync() > PartialLoadQuantity) return false;
+            if (await db.ImageContents.CountAsync() > PartialLoadQuantity) return false;
             if (await db.LineContents.CountAsync() > PartialLoadQuantity) return false;
             if (await db.LinkContents.CountAsync() > PartialLoadQuantity) return false;
             if (await db.MapComponents.CountAsync() > PartialLoadQuantity) return false;
@@ -171,6 +174,8 @@ namespace PointlessWaymarks.CmsWpfControls.AllContentList
             progress?.Report("Loading Post Content from DB");
             listItems.AddRange(await db.PostContents.OrderByDescending(x => x.LastUpdatedOn ?? x.CreatedOn)
                 .ToListAsync());
+
+            _allLoaded = true;
 
             return listItems;
         }

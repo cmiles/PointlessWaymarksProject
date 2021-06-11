@@ -593,7 +593,7 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoContentEditor
         {
             var newContext = new PhotoContentEditorContext(statusContext) {StatusContext = {BlockUi = true}};
 
-            if (initialPhoto != null && initialPhoto.Exists) newContext._initialPhoto = initialPhoto;
+            if (initialPhoto is {Exists: true}) newContext._initialPhoto = initialPhoto;
             await newContext.LoadData(null);
 
             newContext.StatusContext.BlockUi = false;
@@ -765,7 +765,7 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoContentEditor
             PhotoCreatedOnEntry.ReferenceValue = DbEntry.PhotoCreatedOn;
             PhotoCreatedOnEntry.UserText = DbEntry.PhotoCreatedOn.ToString("MM/dd/yyyy h:mm:ss tt");
 
-            if (DbEntry.Id < 1 && _initialPhoto != null && _initialPhoto.Exists &&
+            if (DbEntry.Id < 1 && _initialPhoto is {Exists: true} &&
                 FileHelpers.PhotoFileTypeIsSupported(_initialPhoto))
             {
                 SelectedFile = _initialPhoto;

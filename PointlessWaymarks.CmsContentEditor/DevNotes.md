@@ -1,4 +1,5 @@
 ﻿## Todos
+ - Fix partial load detection in loaders
  - Check if excluded tags are properly picked up for changed html  
  - All Items Tab - reports for no tags, etc.
  - For geo types and notes review local file cleanup on delete
@@ -24,6 +25,12 @@ Site:
  - Could all font sizes be controlled by slider or setting? I like the control in the editor but maybe everywhere would be more useful? And persist in Settings?
  
 ## Notes
+
+6/11/2021
+
+Back to working on the HikeLemmon conversion - looking at slightly different data and doing a slightly different workflow is good and already resulted in bracket codes to link a post thru an image and helped find a bug with the partial load detection.
+
+Tried the ModernWofUi package again - https://github.com/Kinnara/ModernWpf - some of the results were immediately great but some details seemed off (control sizing in lists seemed different and some colors didn't change as expected but I didn't seem to be setting the colors?) - I'm sure using this project could work but this made me realize that all I want to do is a straight color change, no other changes. Will have to look again at other Dark Mode solutions.
 
 6/8/2021
 

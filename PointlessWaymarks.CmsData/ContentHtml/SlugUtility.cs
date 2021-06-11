@@ -65,7 +65,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml
             for (var i = 0; i < len; i++)
             {
                 var c = normalized[i];
-                if (c >= 'a' && c <= 'z' || c >= '0' && c <= '9')
+                if (c is >= 'a' and <= 'z' or >= '0' and <= '9')
                 {
                     if (prevDash)
                     {
@@ -75,7 +75,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml
 
                     sb.Append(c);
                 }
-                else if (c >= 'A' && c <= 'Z')
+                else if (c is >= 'A' and <= 'Z')
                 {
                     if (prevDash)
                     {
@@ -89,7 +89,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml
                     else
                         sb.Append(c);
                 }
-                else if (c == ' ' || c == ',' || c == '.' || c == '/' || c == '\\' || c == '-' || c == '_' || c == '=')
+                else if (c is ' ' or ',' or '.' or '/' or '\\' or '-' or '_' or '=')
                 {
                     if (!prevDash && sb.Length > 0) prevDash = true;
                 }
@@ -141,11 +141,11 @@ namespace PointlessWaymarks.CmsData.ContentHtml
             for (var i = 0; i < len; i++)
             {
                 var c = normalized[i];
-                if (c >= 'a' && c <= 'z' || c >= '0' && c <= '9' || allowedBeyondAtoZ1To9.Contains(c))
+                if (c is >= 'a' and <= 'z' || c is >= '0' and <= '9' || allowedBeyondAtoZ1To9.Contains(c))
                 {
                     sb.Append(c);
                 }
-                else if (c >= 'A' && c <= 'Z')
+                else if (c is >= 'A' and <= 'Z')
                 {
                     // Tricky way to convert to lowercase
                     if (toLower)
@@ -184,7 +184,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml
             for (var i = 0; i < len; i++)
             {
                 var c = normalized[i];
-                if (c >= 'a' && c <= 'z' || c >= '0' && c <= '9' || c == '_' || c == '-')
+                if (c is >= 'a' and <= 'z' || c is >= '0' and <= '9' || c == '_' || c == '-')
                 {
                     if (previousSpace)
                     {
@@ -194,7 +194,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml
 
                     sb.Append(c);
                 }
-                else if (c >= 'A' && c <= 'Z')
+                else if (c is >= 'A' and <= 'Z')
                 {
                     if (previousSpace)
                     {

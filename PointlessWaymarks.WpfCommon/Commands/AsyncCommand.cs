@@ -167,7 +167,7 @@ namespace PointlessWaymarks.WpfCommon.Commands
     /// <summary>
     ///     Interface for Async Command with parameter
     /// </summary>
-    public interface IAsyncCommand<T> : ICommand
+    public interface IAsyncCommand<in T> : ICommand
     {
         /// <summary>
         ///     Execute the command async.

@@ -214,7 +214,7 @@ namespace PointlessWaymarks.CmsWpfControls.PointDetailEditor
 
             var toLoad = new List<PointDetail>();
 
-            if (dbEntry != null && dbEntry.Id > 0)
+            if (dbEntry is {Id: > 0})
             {
                 var db = await Db.Context();
 

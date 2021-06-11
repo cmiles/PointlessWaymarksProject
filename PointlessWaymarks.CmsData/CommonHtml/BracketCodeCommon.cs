@@ -135,6 +135,7 @@ namespace PointlessWaymarks.CmsData.CommonHtml
             input = await BracketCodePhotoLinks.Process(input, progress);
             input = await BracketCodePointLinks.Process(input, progress);
             input = await BracketCodePosts.Process(input, progress);
+            input = await BracketCodePostImage.ProcessForEmail(input, progress);
             input = BracketCodeSpecialPages.Process(input, progress);
 
             // 2020/12/19 These Codes produce maps on the site but aren't going to work
@@ -164,6 +165,7 @@ namespace PointlessWaymarks.CmsData.CommonHtml
             input = await BracketCodePointLinks.Process(input, progress);
             input = await BracketCodePoints.ProcessForDirectLocalAccess(input, progress);
             input = await BracketCodePosts.Process(input, progress);
+            input = await BracketCodePostImage.ProcessForDirectLocalAccess(input, progress);
             input = BracketCodeSpecialPages.Process(input, progress);
 
             return input;
@@ -187,6 +189,7 @@ namespace PointlessWaymarks.CmsData.CommonHtml
             input = await BracketCodePoints.Process(input, progress);
             input = await BracketCodePointLinks.Process(input, progress);
             input = await BracketCodePosts.Process(input, progress);
+            input = await BracketCodePostImage.ProcessToFigureWithLink(input, progress);
             input = BracketCodeSpecialPages.Process(input, progress);
 
             return input;

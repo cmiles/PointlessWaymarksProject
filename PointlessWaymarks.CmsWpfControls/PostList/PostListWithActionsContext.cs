@@ -22,6 +22,7 @@ namespace PointlessWaymarks.CmsWpfControls.PostList
         private Command _emailHtmlToClipboardCommand;
         private ContentListContext _listContext;
         private Command _postCodesToClipboardForSelectedCommand;
+        private Command _postImageCodesToClipboardForSelectedCommand;
         private Command _refreshDataCommand;
 
         public PostListWithActionsContext(StatusControlContext statusContext)
@@ -60,6 +61,17 @@ namespace PointlessWaymarks.CmsWpfControls.PostList
             {
                 if (Equals(value, _postCodesToClipboardForSelectedCommand)) return;
                 _postCodesToClipboardForSelectedCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public Command PostImageCodesToClipboardForSelectedCommand
+        {
+            get => _postImageCodesToClipboardForSelectedCommand;
+            set
+            {
+                if (Equals(value, _postImageCodesToClipboardForSelectedCommand)) return;
+                _postImageCodesToClipboardForSelectedCommand = value;
                 OnPropertyChanged();
             }
         }
@@ -109,7 +121,6 @@ namespace PointlessWaymarks.CmsWpfControls.PostList
             StatusContext.ToastSuccess($"To Clipboard {finalString}");
         }
 
-
         private async Task EmailHtmlToClipboard()
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
@@ -143,7 +154,7 @@ namespace PointlessWaymarks.CmsWpfControls.PostList
 
             ListContext = new ContentListContext(StatusContext, new PostListLoader(100));
 
-            PostCodesToClipboardForSelectedCommand =
+            PostImageCodesToClipboardForSelectedCommand =
                 StatusContext.RunBlockingTaskCommand(BracketCodesToClipboardForSelected);
             EmailHtmlToClipboardCommand = StatusContext.RunBlockingTaskCommand(EmailHtmlToClipboard);
             RefreshDataCommand = StatusContext.RunBlockingTaskCommand(ListContext.LoadData);
@@ -153,7 +164,12 @@ namespace PointlessWaymarks.CmsWpfControls.PostList
                 new() {ItemName = "Edit", ItemCommand = ListContext.EditSelectedCommand},
                 new()
                 {
-                    ItemName = "{{}} Code to Clipboard", ItemCommand = ListContext.BracketCodeToClipboardSelectedCommand
+                    ItemName = "{{}} Link Code to Clipboard",
+                    ItemCommand = ListContext.BracketCodeToClipboardSelectedCommand
+                },
+                new()
+                {
+                    ItemName = "{{}} Image to Clipboard", ItemCommand = PostImageCodesToClipboardForSelectedCommand
                 },
                 new() {ItemName = "Email Html to Clipboard", ItemCommand = EmailHtmlToClipboardCommand},
                 new()

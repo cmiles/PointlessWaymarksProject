@@ -546,25 +546,23 @@ namespace PointlessWaymarks.CmsWpfControls.MapComponentEditor
 
             foreach (var loopElements in MapElements)
             {
-                if (loopElements is MapElementListGeoJsonItem mapGeoJson)
-                    if (mapGeoJson.DbEntry?.GeoJson != null)
-                    {
-                        geoJsonList.Add(SpatialConverters.GeoJsonToFeatureCollection(mapGeoJson.DbEntry.GeoJson));
-                        boundsKeeper.Add(new Point(mapGeoJson.DbEntry.InitialViewBoundsMaxLongitude,
-                            mapGeoJson.DbEntry.InitialViewBoundsMaxLatitude));
-                        boundsKeeper.Add(new Point(mapGeoJson.DbEntry.InitialViewBoundsMinLongitude,
-                            mapGeoJson.DbEntry.InitialViewBoundsMinLatitude));
-                    }
+                if (loopElements is MapElementListGeoJsonItem {DbEntry: {GeoJson: { }}} mapGeoJson)
+                {
+                    geoJsonList.Add(SpatialConverters.GeoJsonToFeatureCollection(mapGeoJson.DbEntry.GeoJson));
+                    boundsKeeper.Add(new Point(mapGeoJson.DbEntry.InitialViewBoundsMaxLongitude,
+                        mapGeoJson.DbEntry.InitialViewBoundsMaxLatitude));
+                    boundsKeeper.Add(new Point(mapGeoJson.DbEntry.InitialViewBoundsMinLongitude,
+                        mapGeoJson.DbEntry.InitialViewBoundsMinLatitude));
+                }
 
-                if (loopElements is MapElementListLineItem mapLine)
-                    if (mapLine.DbEntry?.Line != null)
-                    {
-                        geoJsonList.Add(SpatialConverters.GeoJsonToFeatureCollection(mapLine.DbEntry.Line));
-                        boundsKeeper.Add(new Point(mapLine.DbEntry.InitialViewBoundsMaxLongitude,
-                            mapLine.DbEntry.InitialViewBoundsMaxLatitude));
-                        boundsKeeper.Add(new Point(mapLine.DbEntry.InitialViewBoundsMinLongitude,
-                            mapLine.DbEntry.InitialViewBoundsMinLatitude));
-                    }
+                if (loopElements is MapElementListLineItem {DbEntry: {Line: { }}} mapLine)
+                {
+                    geoJsonList.Add(SpatialConverters.GeoJsonToFeatureCollection(mapLine.DbEntry.Line));
+                    boundsKeeper.Add(new Point(mapLine.DbEntry.InitialViewBoundsMaxLongitude,
+                        mapLine.DbEntry.InitialViewBoundsMaxLatitude));
+                    boundsKeeper.Add(new Point(mapLine.DbEntry.InitialViewBoundsMinLongitude,
+                        mapLine.DbEntry.InitialViewBoundsMinLatitude));
+                }
             }
 
             if (MapElements.Any(x => x is MapElementListPointItem))

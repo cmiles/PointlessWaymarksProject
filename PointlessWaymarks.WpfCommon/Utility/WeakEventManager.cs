@@ -77,6 +77,7 @@ namespace PointlessWaymarks.WpfCommon.Utility
 
             if (_eventHandlers.TryGetValue(eventName, out var target))
             {
+                // ReSharper disable once ForCanBeConvertedToForeach
                 for (var i = 0; i < target.Count; i++)
                 {
                     var subscription = target[i];
@@ -97,6 +98,7 @@ namespace PointlessWaymarks.WpfCommon.Utility
                         toRaise.Add((subscriber, subscription.Handler));
                 }
 
+                // ReSharper disable once ForCanBeConvertedToForeach
                 for (var i = 0; i < toRemove.Count; i++)
                 {
                     var subscription = toRemove[i];
@@ -104,6 +106,7 @@ namespace PointlessWaymarks.WpfCommon.Utility
                 }
             }
 
+            // ReSharper disable once ForCanBeConvertedToForeach
             for (var i = 0; i < toRaise.Count; i++)
             {
                 var (subscriber, handler) = toRaise[i];
@@ -162,7 +165,7 @@ namespace PointlessWaymarks.WpfCommon.Utility
             }
         }
 
-        private struct Subscription
+        private readonly struct Subscription
         {
             public Subscription(WeakReference subscriber, MethodInfo handler)
             {

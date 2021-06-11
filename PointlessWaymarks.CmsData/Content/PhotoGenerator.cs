@@ -125,6 +125,7 @@ namespace PointlessWaymarks.CmsData.Content
             if (string.IsNullOrWhiteSpace(toReturn.License))
                 toReturn.License = iptcDirectory?.GetDescription(IptcDirectory.TagCopyrightNotice) ?? string.Empty;
 
+            // ReSharper disable once InlineOutVariableDeclaration - Better to establish type and value of shutterValue explicitly
             var shutterValue = new Rational();
             if (exifSubIfDirectory?.TryGetRational(37377, out shutterValue) ?? false)
                 toReturn.ShutterSpeed = ExifHelpers.ShutterSpeedToHumanReadableString(shutterValue);

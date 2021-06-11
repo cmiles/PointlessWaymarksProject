@@ -230,7 +230,7 @@ namespace PointlessWaymarks.WpfCommon.Behaviors
         {
             var element = GetAssociatedObject();
 
-            return AssociatedObject == null || element != null && !element.IsEnabled;
+            return AssociatedObject == null || element is {IsEnabled: false};
         }
 
         private void EnableDisableElement()

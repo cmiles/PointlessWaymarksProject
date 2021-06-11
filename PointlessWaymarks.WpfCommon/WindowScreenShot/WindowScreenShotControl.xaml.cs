@@ -46,7 +46,7 @@ namespace PointlessWaymarks.WpfCommon.WindowScreenShot
             DataContext = this;
         }
 
-        public Command WindowScreenShotCommand { get; set; }
+        public Command WindowScreenShotCommand { get; }
 
         public event PropertyChangedEventHandler PropertyChanged;
 
