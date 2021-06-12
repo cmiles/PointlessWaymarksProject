@@ -21,37 +21,27 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
             };
         }
 
-        public override async Task<bool> CheckAllItemsAreLoaded()
-        {
-            if (PartialLoadQuantity == null) return true;
-
-            var db = await Db.Context();
-
-            return !(await db.PhotoContents.CountAsync() > PartialLoadQuantity);
-        }
-
         public override async Task<List<object>> LoadItems(IProgress<string> progress = null)
         {
-            var listItems = new List<object>();
-
             var db = await Db.Context();
 
             if (PartialLoadQuantity != null)
             {
                 progress?.Report($"Loading Photo Content from DB - Max {PartialLoadQuantity} Items");
-                listItems.AddRange(await db.PhotoContents.OrderByDescending(x => x.LastUpdatedOn ?? x.CreatedOn)
-                    .Take(PartialLoadQuantity.Value).ToListAsync());
+                var returnItems = (await db.PhotoContents.OrderByDescending(x => x.LastUpdatedOn ?? x.CreatedOn)
+                    .Take(PartialLoadQuantity.Value).ToListAsync()).Cast<object>().ToList();
 
-                AllItemsLoaded = await CheckAllItemsAreLoaded();
+                AllItemsLoaded = await db.PhotoContents.CountAsync() <= returnItems.Count;
 
-                return listItems;
+                return returnItems;
             }
 
-            progress?.Report("Loading Photo Content from DB");
-            listItems.AddRange(await db.PhotoContents.OrderByDescending(x => x.LastUpdatedOn ?? x.CreatedOn)
-                .ToListAsync());
+            progress?.Report("Loading All Photo Content from DB");
 
-            return listItems;
+            AllItemsLoaded = true;
+
+            return (await db.PhotoContents.OrderByDescending(x => x.LastUpdatedOn ?? x.CreatedOn)
+                .ToListAsync()).Cast<object>().ToList();
         }
 
         public ColumnSortControlContext SortContext()

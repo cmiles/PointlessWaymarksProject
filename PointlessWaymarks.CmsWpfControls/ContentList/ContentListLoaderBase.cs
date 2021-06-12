@@ -48,8 +48,6 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList
             }
         }
 
-        public abstract Task<bool> CheckAllItemsAreLoaded();
-
         public List<DataNotificationContentType> DataNotificationTypesToRespondTo
         {
             get => _dataNotificationTypesToRespondTo;

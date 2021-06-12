@@ -16,37 +16,27 @@ namespace PointlessWaymarks.CmsWpfControls.FileList
             DataNotificationTypesToRespondTo = new List<DataNotificationContentType> {DataNotificationContentType.File};
         }
 
-        public override async Task<bool> CheckAllItemsAreLoaded()
-        {
-            if (PartialLoadQuantity == null) return true;
-
-            var db = await Db.Context();
-
-            return !(await db.FileContents.CountAsync() > PartialLoadQuantity);
-        }
-
         public override async Task<List<object>> LoadItems(IProgress<string> progress = null)
         {
-            var listItems = new List<object>();
-
             var db = await Db.Context();
 
             if (PartialLoadQuantity != null)
             {
                 progress?.Report($"Loading File Content from DB - Max {PartialLoadQuantity} Items");
-                listItems.AddRange(await db.FileContents.OrderByDescending(x => x.LastUpdatedOn ?? x.CreatedOn)
-                    .Take(PartialLoadQuantity.Value).ToListAsync());
+                var returnItems = (await db.FileContents.OrderByDescending(x => x.LastUpdatedOn ?? x.CreatedOn)
+                    .Take(PartialLoadQuantity.Value).ToListAsync()).Cast<object>().ToList();
 
-                AllItemsLoaded = await CheckAllItemsAreLoaded();
+                AllItemsLoaded = await db.FileContents.CountAsync() <= returnItems.Count;
 
-                return listItems;
+                return returnItems;
             }
 
-            progress?.Report("Loading File Content from DB");
-            listItems.AddRange(await db.FileContents.OrderByDescending(x => x.LastUpdatedOn ?? x.CreatedOn)
-                .ToListAsync());
+            progress?.Report("Loading All File Content from DB");
 
-            return listItems;
+            AllItemsLoaded = true;
+
+            return (await db.FileContents.OrderByDescending(x => x.LastUpdatedOn ?? x.CreatedOn)
+                .ToListAsync()).Cast<object>().ToList();
         }
     }
 }

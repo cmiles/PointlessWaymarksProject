@@ -16,37 +16,27 @@ namespace PointlessWaymarks.CmsWpfControls.LineList
             DataNotificationTypesToRespondTo = new List<DataNotificationContentType> {DataNotificationContentType.Line};
         }
 
-        public override async Task<bool> CheckAllItemsAreLoaded()
-        {
-            if (PartialLoadQuantity == null) return true;
-
-            var db = await Db.Context();
-
-            return !(await db.LineContents.CountAsync() > PartialLoadQuantity);
-        }
-
         public override async Task<List<object>> LoadItems(IProgress<string> progress = null)
         {
-            var listItems = new List<object>();
-
             var db = await Db.Context();
 
             if (PartialLoadQuantity != null)
             {
                 progress?.Report($"Loading Line Content from DB - Max {PartialLoadQuantity} Items");
-                listItems.AddRange(await db.LineContents.OrderByDescending(x => x.LastUpdatedOn ?? x.CreatedOn)
-                    .Take(PartialLoadQuantity.Value).ToListAsync());
+                var returnItems = (await db.LineContents.OrderByDescending(x => x.LastUpdatedOn ?? x.CreatedOn)
+                    .Take(PartialLoadQuantity.Value).ToListAsync()).Cast<object>().ToList();
 
-                AllItemsLoaded = await CheckAllItemsAreLoaded();
+                AllItemsLoaded = await db.LineContents.CountAsync() <= returnItems.Count;
 
-                return listItems;
+                return returnItems;
             }
 
-            progress?.Report("Loading Line Content from DB");
-            listItems.AddRange(await db.LineContents.OrderByDescending(x => x.LastUpdatedOn ?? x.CreatedOn)
-                .ToListAsync());
+            progress?.Report("Loading All Line Content from DB");
 
-            return listItems;
+            AllItemsLoaded = true;
+
+            return (await db.LineContents.OrderByDescending(x => x.LastUpdatedOn ?? x.CreatedOn)
+                .ToListAsync()).Cast<object>().ToList();
         }
     }
 }

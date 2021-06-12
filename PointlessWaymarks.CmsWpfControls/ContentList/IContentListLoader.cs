@@ -15,7 +15,6 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList
         string ListHeaderName { get; }
         int? PartialLoadQuantity { get; set; }
         bool ShowType { get; set; }
-        Task<bool> CheckAllItemsAreLoaded();
         Task<List<object>> LoadItems(IProgress<string> progress = null);
 
         ColumnSortControlContext SortContext()

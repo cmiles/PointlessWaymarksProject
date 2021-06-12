@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using PointlessWaymarks.CmsData;
@@ -11,128 +13,141 @@ namespace PointlessWaymarks.CmsWpfControls.AllContentList
 {
     public class ContentListLoaderAllItems : ContentListLoaderBase
     {
-        private bool _allLoaded;
+        private int _partialLoadCount;
 
         public ContentListLoaderAllItems(int? partialLoadQuantity) : base("Items", partialLoadQuantity)
         {
             ShowType = true;
         }
 
-        public override async Task<bool> CheckAllItemsAreLoaded()
-        {
-            if (PartialLoadQuantity == null) return true;
-
-            var db = await Db.Context();
-
-            if (await db.FileContents.CountAsync() > PartialLoadQuantity) return false;
-            if (await db.GeoJsonContents.CountAsync() > PartialLoadQuantity) return false;
-            if (await db.ImageContents.CountAsync() > PartialLoadQuantity) return false;
-            if (await db.LineContents.CountAsync() > PartialLoadQuantity) return false;
-            if (await db.LinkContents.CountAsync() > PartialLoadQuantity) return false;
-            if (await db.MapComponents.CountAsync() > PartialLoadQuantity) return false;
-            if (await db.NoteContents.CountAsync() > PartialLoadQuantity) return false;
-            if (await db.PhotoContents.CountAsync() > PartialLoadQuantity) return false;
-            if (await db.PointContents.CountAsync() > PartialLoadQuantity) return false;
-            if (await db.PostContents.CountAsync() > PartialLoadQuantity) return false;
-
-            return true;
-        }
-
         public override async Task<List<object>> LoadItems(IProgress<string> progress = null)
         {
-            var listItems = new List<object>();
+            _partialLoadCount = 0;
 
             if (PartialLoadQuantity != null)
             {
+                var itemBag = new ConcurrentBag<List<object>>();
+
                 await new List<Func<Task>>
                 {
                     async () =>
                     {
                         var funcDb = await Db.Context();
                         progress?.Report($"Loading File Content from DB - Max {PartialLoadQuantity} Items");
-                        listItems.AddRange(await funcDb.FileContents
+                        var dbItems = await funcDb.FileContents
                             .OrderByDescending(x => x.LastUpdatedOn ?? x.CreatedOn)
-                            .Take(PartialLoadQuantity.Value).ToListAsync());
+                            .Take(PartialLoadQuantity.Value).Cast<object>().ToListAsync();
+                        itemBag.Add(dbItems);
+                        if (await funcDb.FileContents.CountAsync() > dbItems.Count)
+                            Interlocked.Increment(ref _partialLoadCount);
                     },
                     async () =>
                     {
                         var funcDb = await Db.Context();
                         progress?.Report($"Loading GeoJson Content from DB - Max {PartialLoadQuantity} Items");
-                        listItems.AddRange(await funcDb.GeoJsonContents
+                        var dbItems = await funcDb.GeoJsonContents
                             .OrderByDescending(x => x.LastUpdatedOn ?? x.CreatedOn)
-                            .Take(PartialLoadQuantity.Value).ToListAsync());
+                            .Take(PartialLoadQuantity.Value).Cast<object>().ToListAsync();
+                        itemBag.Add(dbItems);
+                        if (await funcDb.GeoJsonContents.CountAsync() > dbItems.Count)
+                            Interlocked.Increment(ref _partialLoadCount);
                     },
                     async () =>
                     {
                         var funcDb = await Db.Context();
                         progress?.Report($"Loading Image Content from DB - Max {PartialLoadQuantity} Items");
-                        listItems.AddRange(await funcDb.ImageContents
+                        var dbItems = await funcDb.ImageContents
                             .OrderByDescending(x => x.LastUpdatedOn ?? x.CreatedOn)
-                            .Take(PartialLoadQuantity.Value).ToListAsync());
+                            .Take(PartialLoadQuantity.Value).Cast<object>().ToListAsync();
+                        itemBag.Add(dbItems);
+                        if (await funcDb.ImageContents.CountAsync() > dbItems.Count)
+                            Interlocked.Increment(ref _partialLoadCount);
                     },
                     async () =>
                     {
                         var funcDb = await Db.Context();
                         progress?.Report($"Loading Line Content from DB - Max {PartialLoadQuantity} Items");
-                        listItems.AddRange(await funcDb.LineContents
+                        var dbItems = await funcDb.LineContents
                             .OrderByDescending(x => x.LastUpdatedOn ?? x.CreatedOn)
-                            .Take(PartialLoadQuantity.Value).ToListAsync());
+                            .Take(PartialLoadQuantity.Value).Cast<object>().ToListAsync();
+                        itemBag.Add(dbItems);
+                        if (await funcDb.LineContents.CountAsync() > dbItems.Count)
+                            Interlocked.Increment(ref _partialLoadCount);
                     },
                     async () =>
                     {
                         var funcDb = await Db.Context();
                         progress?.Report($"Loading Link Content from DB- Max {PartialLoadQuantity} Items");
-                        listItems.AddRange(await funcDb.LinkContents
+                        var dbItems = await funcDb.LinkContents
                             .OrderByDescending(x => x.LastUpdatedOn ?? x.CreatedOn)
-                            .Take(PartialLoadQuantity.Value).ToListAsync());
+                            .Take(PartialLoadQuantity.Value).Cast<object>().ToListAsync();
+                        itemBag.Add(dbItems);
+                        if (await funcDb.LinkContents.CountAsync() > dbItems.Count)
+                            Interlocked.Increment(ref _partialLoadCount);
                     },
                     async () =>
                     {
                         var funcDb = await Db.Context();
                         progress?.Report($"Loading Map Content from DB- Max {PartialLoadQuantity} Items");
-                        listItems.AddRange(await funcDb.MapComponents
+                        var dbItems = await funcDb.MapComponents
                             .OrderByDescending(x => x.LastUpdatedOn ?? x.CreatedOn)
-                            .Take(PartialLoadQuantity.Value).ToListAsync());
+                            .Take(PartialLoadQuantity.Value).Cast<object>().ToListAsync();
+                        itemBag.Add(dbItems);
+                        if (await funcDb.MapComponents.CountAsync() > dbItems.Count)
+                            Interlocked.Increment(ref _partialLoadCount);
                     },
                     async () =>
                     {
                         var funcDb = await Db.Context();
                         progress?.Report($"Loading Note Content from DB - Max {PartialLoadQuantity} Items");
-                        listItems.AddRange(await funcDb.NoteContents
+                        var dbItems = await funcDb.NoteContents
                             .OrderByDescending(x => x.LastUpdatedOn ?? x.CreatedOn)
-                            .Take(PartialLoadQuantity.Value).ToListAsync());
+                            .Take(PartialLoadQuantity.Value).Cast<object>().ToListAsync();
+                        itemBag.Add(dbItems);
+                        if (await funcDb.NoteContents.CountAsync() > dbItems.Count)
+                            Interlocked.Increment(ref _partialLoadCount);
                     },
                     async () =>
                     {
                         var funcDb = await Db.Context();
                         progress?.Report($"Loading Photo Content from DB - Max {PartialLoadQuantity} Items");
-                        listItems.AddRange(await funcDb.PhotoContents
+                        var dbItems = await funcDb.PhotoContents
                             .OrderByDescending(x => x.LastUpdatedOn ?? x.CreatedOn)
-                            .Take(PartialLoadQuantity.Value).ToListAsync());
+                            .Take(PartialLoadQuantity.Value).Cast<object>().ToListAsync();
+                        itemBag.Add(dbItems);
+                        if (await funcDb.PhotoContents.CountAsync() > dbItems.Count)
+                            Interlocked.Increment(ref _partialLoadCount);
                     },
                     async () =>
                     {
                         var funcDb = await Db.Context();
                         progress?.Report($"Loading Point Content from DB - Max {PartialLoadQuantity} Items");
-                        listItems.AddRange(await funcDb.PointContents
+                        var dbItems = await funcDb.PointContents
                             .OrderByDescending(x => x.LastUpdatedOn ?? x.CreatedOn)
-                            .Take(PartialLoadQuantity.Value).ToListAsync());
+                            .Take(PartialLoadQuantity.Value).Cast<object>().ToListAsync();
+                        itemBag.Add(dbItems);
+                        if (await funcDb.PointContents.CountAsync() > dbItems.Count)
+                            Interlocked.Increment(ref _partialLoadCount);
                     },
                     async () =>
                     {
                         var funcDb = await Db.Context();
                         progress?.Report($"Loading Post Content from DB - Max {PartialLoadQuantity} Items");
-                        listItems.AddRange(await funcDb.PostContents
+                        var dbItems = await funcDb.PostContents
                             .OrderByDescending(x => x.LastUpdatedOn ?? x.CreatedOn)
-                            .Take(PartialLoadQuantity.Value).ToListAsync());
+                            .Take(PartialLoadQuantity.Value).Cast<object>().ToListAsync();
+                        itemBag.Add(dbItems);
+                        if (await funcDb.PostContents.CountAsync() > dbItems.Count)
+                            Interlocked.Increment(ref _partialLoadCount);
                     }
                 }.AsyncParallelForEach();
 
-                AllItemsLoaded = await CheckAllItemsAreLoaded();
+                AllItemsLoaded = _partialLoadCount == 0;
 
-                return listItems;
+                return itemBag.SelectMany(x => x.Select(y => y)).ToList();
             }
 
+            var listItems = new List<object>();
             var db = await Db.Context();
 
             progress?.Report("Loading File Content from DB");
@@ -175,7 +190,7 @@ namespace PointlessWaymarks.CmsWpfControls.AllContentList
             listItems.AddRange(await db.PostContents.OrderByDescending(x => x.LastUpdatedOn ?? x.CreatedOn)
                 .ToListAsync());
 
-            _allLoaded = true;
+            AllItemsLoaded = true;
 
             return listItems;
         }

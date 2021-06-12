@@ -19,37 +19,27 @@ namespace PointlessWaymarks.CmsWpfControls.PointList
             };
         }
 
-        public override async Task<bool> CheckAllItemsAreLoaded()
-        {
-            if (PartialLoadQuantity == null) return true;
-
-            var db = await Db.Context();
-
-            return !(await db.PointContents.CountAsync() > PartialLoadQuantity);
-        }
-
         public override async Task<List<object>> LoadItems(IProgress<string> progress = null)
         {
-            var listItems = new List<object>();
-
             var db = await Db.Context();
 
             if (PartialLoadQuantity != null)
             {
                 progress?.Report($"Loading Point Content from DB - Max {PartialLoadQuantity} Items");
-                listItems.AddRange(await db.PointContents.OrderByDescending(x => x.LastUpdatedOn ?? x.CreatedOn)
-                    .Take(PartialLoadQuantity.Value).ToListAsync());
+                var returnItems = (await db.PointContents.OrderByDescending(x => x.LastUpdatedOn ?? x.CreatedOn)
+                    .Take(PartialLoadQuantity.Value).ToListAsync()).Cast<object>().ToList();
 
-                AllItemsLoaded = await CheckAllItemsAreLoaded();
+                AllItemsLoaded = await db.PointContents.CountAsync() <= returnItems.Count;
 
-                return listItems;
+                return returnItems;
             }
 
-            progress?.Report("Loading Point Content from DB");
-            listItems.AddRange(await db.PointContents.OrderByDescending(x => x.LastUpdatedOn ?? x.CreatedOn)
-                .ToListAsync());
+            progress?.Report("Loading All Point Content from DB");
 
-            return listItems;
+            AllItemsLoaded = true;
+
+            return (await db.PointContents.OrderByDescending(x => x.LastUpdatedOn ?? x.CreatedOn)
+                .ToListAsync()).Cast<object>().ToList();
         }
     }
 }

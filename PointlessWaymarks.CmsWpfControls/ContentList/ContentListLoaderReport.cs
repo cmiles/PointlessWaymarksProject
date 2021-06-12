@@ -19,13 +19,6 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList
             AddNewItemsFromDataNotifications = false;
         }
 
-#pragma warning disable 1998
-        public override async Task<bool> CheckAllItemsAreLoaded()
-#pragma warning restore 1998
-        {
-            return true;
-        }
-
         public override async Task<List<object>> LoadItems(IProgress<string> progress = null)
         {
             var listItems = new List<object>();
