@@ -21,7 +21,6 @@ namespace PointlessWaymarks.CmsWpfControls.PostList
         private readonly StatusControlContext _statusContext;
         private Command _emailHtmlToClipboardCommand;
         private ContentListContext _listContext;
-        private Command _postCodesToClipboardForSelectedCommand;
         private Command _postImageCodesToClipboardForSelectedCommand;
         private Command _refreshDataCommand;
 
@@ -50,17 +49,6 @@ namespace PointlessWaymarks.CmsWpfControls.PostList
             {
                 if (Equals(value, _listContext)) return;
                 _listContext = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public Command PostCodesToClipboardForSelectedCommand
-        {
-            get => _postCodesToClipboardForSelectedCommand;
-            set
-            {
-                if (Equals(value, _postCodesToClipboardForSelectedCommand)) return;
-                _postCodesToClipboardForSelectedCommand = value;
                 OnPropertyChanged();
             }
         }

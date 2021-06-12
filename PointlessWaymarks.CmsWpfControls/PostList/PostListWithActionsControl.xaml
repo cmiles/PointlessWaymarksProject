@@ -76,7 +76,7 @@
                     Content="_New Post"
                     Style="{StaticResource ActionPanelButtonStyle}" />
                 <Button
-                    Command="{Binding PostCodesToClipboardForSelectedCommand}"
+                    Command="{Binding ListContext.BracketCodeToClipboardSelectedCommand}"
                     Content="_Code to Clipboard"
                     Style="{StaticResource ActionPanelButtonStyle}" />
                 <Button
