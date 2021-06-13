@@ -1,5 +1,4 @@
 ﻿## Todos
- - Fix partial load detection in loaders
  - Check if excluded tags are properly picked up for changed html  
  - All Items Tab - reports for no tags, etc.
  - For geo types and notes review local file cleanup on delete

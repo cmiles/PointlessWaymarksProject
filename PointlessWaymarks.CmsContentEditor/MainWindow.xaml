@@ -26,6 +26,7 @@
     xmlns:valueConverters="clr-namespace:PointlessWaymarks.WpfCommon.ValueConverters;assembly=PointlessWaymarks.WpfCommon"
     xmlns:windowScreenShot1="clr-namespace:PointlessWaymarks.WpfCommon.WindowScreenShot;assembly=PointlessWaymarks.WpfCommon"
     Name="MainWindowXaml"
+    Closing="MainWindow_OnClosing"
     Title="{Binding InfoTitle}"
     Width="900"
     Height="650"

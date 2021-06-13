@@ -7,6 +7,7 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Controls;
 using HtmlTableHelper;
 using JetBrains.Annotations;
@@ -832,6 +833,15 @@ namespace PointlessWaymarks.CmsContentEditor
         {
             StatusContext.RunFireAndForgetBlockingTaskWithUiMessageReturn(async () =>
                 await SettingsFileChooserOnSettingsFileUpdated(e));
+        }
+
+        private void MainWindow_OnClosing(object sender, CancelEventArgs e)
+        {
+            if (Application.Current.Windows.Count > 1)
+            {
+                StatusContext.ToastError("Please close child windows first...");
+                e.Cancel = true;
+            }
         }
     }
 }
