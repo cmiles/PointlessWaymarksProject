@@ -778,6 +778,15 @@ namespace PointlessWaymarks.CmsContentEditor
                 FilesWrittenContext = new FilesWrittenLogListContext(null, true);
         }
 
+        private void MainWindow_OnClosing(object sender, CancelEventArgs e)
+        {
+            if (Application.Current.Windows.Count > 1)
+            {
+                StatusContext.ToastError("Please close child windows first...");
+                e.Cancel = true;
+            }
+        }
+
         [NotifyPropertyChangedInvocator]
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
@@ -833,15 +842,6 @@ namespace PointlessWaymarks.CmsContentEditor
         {
             StatusContext.RunFireAndForgetBlockingTaskWithUiMessageReturn(async () =>
                 await SettingsFileChooserOnSettingsFileUpdated(e));
-        }
-
-        private void MainWindow_OnClosing(object sender, CancelEventArgs e)
-        {
-            if (Application.Current.Windows.Count > 1)
-            {
-                StatusContext.ToastError("Please close child windows first...");
-                e.Cancel = true;
-            }
         }
     }
 }

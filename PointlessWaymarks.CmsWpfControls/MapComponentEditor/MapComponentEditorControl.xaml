@@ -234,6 +234,10 @@
                     Command="{Binding SaveAndCloseCommand}"
                     Content="Save and Close"
                     Style="{StaticResource ActionPanelButtonStyle}" />
+                <Button
+                    Command="{Binding LinkToClipboardCommand}"
+                    Content="Code to Clipboard"
+                    Style="{StaticResource ActionPanelButtonStyle}" />
             </WrapPanel>
         </Border>
         <windowScreenShot:WindowScreenShotControl

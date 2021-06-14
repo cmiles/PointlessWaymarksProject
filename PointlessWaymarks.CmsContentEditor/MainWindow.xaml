@@ -26,11 +26,11 @@
     xmlns:valueConverters="clr-namespace:PointlessWaymarks.WpfCommon.ValueConverters;assembly=PointlessWaymarks.WpfCommon"
     xmlns:windowScreenShot1="clr-namespace:PointlessWaymarks.WpfCommon.WindowScreenShot;assembly=PointlessWaymarks.WpfCommon"
     Name="MainWindowXaml"
-    Closing="MainWindow_OnClosing"
     Title="{Binding InfoTitle}"
     Width="900"
     Height="650"
     d:DataContext="{d:DesignInstance cmsContentEditor:MainWindow}"
+    Closing="MainWindow_OnClosing"
     mc:Ignorable="d">
     <Window.Resources>
         <ResourceDictionary>

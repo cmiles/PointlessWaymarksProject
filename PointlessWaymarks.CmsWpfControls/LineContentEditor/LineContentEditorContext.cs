@@ -6,10 +6,12 @@ using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using System.Windows;
 using JetBrains.Annotations;
 using NetTopologySuite.Geometries;
 using Ookii.Dialogs.Wpf;
 using PointlessWaymarks.CmsData;
+using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.Content;
 using PointlessWaymarks.CmsData.ContentHtml.LineHtml;
 using PointlessWaymarks.CmsData.Database.Models;
@@ -44,6 +46,7 @@ namespace PointlessWaymarks.CmsWpfControls.LineContentEditor
         private HelpDisplayContext _helpContext;
         private Command _importFromGpxCommand;
         private string _lineGeoJson;
+        private Command _linkToClipboardCommand;
         private string _previewHtml;
         private string _previewLineJsonDto;
         private Command _refreshMapPreviewCommand;
@@ -74,6 +77,7 @@ namespace PointlessWaymarks.CmsWpfControls.LineContentEditor
                 StatusContext.RunBlockingTaskCommand(async () => await ImportFromGpx(ReplaceElevationOnImport));
             ReplaceElevationsCommand = StatusContext.RunBlockingTaskCommand(async () => await ReplaceElevations());
             RefreshMapPreviewCommand = StatusContext.RunBlockingTaskCommand(RefreshMapPreview);
+            LinkToClipboardCommand = StatusContext.RunBlockingTaskCommand(LinkToClipboard);
 
             HelpContext = new HelpDisplayContext(new List<string>
             {
@@ -169,6 +173,17 @@ namespace PointlessWaymarks.CmsWpfControls.LineContentEditor
             {
                 if (value == _lineGeoJson) return;
                 _lineGeoJson = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public Command LinkToClipboardCommand
+        {
+            get => _linkToClipboardCommand;
+            set
+            {
+                if (Equals(value, _linkToClipboardCommand)) return;
+                _linkToClipboardCommand = value;
                 OnPropertyChanged();
             }
         }
@@ -441,6 +456,25 @@ namespace PointlessWaymarks.CmsWpfControls.LineContentEditor
 
             LineGeoJson = await SpatialHelpers.GeoJsonWithLineStringFromCoordinateList(importTrackPoints,
                 replaceElevations, StatusContext.ProgressTracker());
+        }
+
+        private async Task LinkToClipboard()
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            if (DbEntry == null || DbEntry.Id < 1)
+            {
+                StatusContext.ToastError("Sorry - please save before getting link...");
+                return;
+            }
+
+            var linkString = BracketCodeLines.Create(DbEntry);
+
+            await ThreadSwitcher.ResumeForegroundAsync();
+
+            Clipboard.SetText(linkString);
+
+            StatusContext.ToastSuccess($"To Clipboard: {linkString}");
         }
 
         public async Task LoadData(LineContent toLoad)

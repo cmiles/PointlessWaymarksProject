@@ -7,8 +7,8 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:status="clr-namespace:PointlessWaymarks.WpfCommon.Status;assembly=PointlessWaymarks.WpfCommon"
     Title="Link Editor"
-    Width="600"
-    Height="660"
+    Width="900"
+    Height="650"
     d:DataContext="{d:DesignInstance linkContentEditor:LinkContentEditorWindow}"
     mc:Ignorable="d">
     <Grid>

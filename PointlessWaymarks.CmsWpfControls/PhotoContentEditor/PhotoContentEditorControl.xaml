@@ -196,6 +196,10 @@
                     Command="{Binding ViewOnSiteCommand}"
                     Content="_View on Site"
                     Style="{StaticResource ActionPanelButtonStyle}" />
+                <Button
+                    Command="{Binding LinkToClipboardCommand}"
+                    Content="Code to Clipboard"
+                    Style="{StaticResource ActionPanelButtonStyle}" />
             </WrapPanel>
         </Border>
         <windowScreenShot:WindowScreenShotControl

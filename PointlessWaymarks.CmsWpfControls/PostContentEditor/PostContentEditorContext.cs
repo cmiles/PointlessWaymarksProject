@@ -4,8 +4,10 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using System.Windows;
 using JetBrains.Annotations;
 using PointlessWaymarks.CmsData;
+using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.Content;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsWpfControls.BodyContentEditor;
@@ -35,6 +37,7 @@ namespace PointlessWaymarks.CmsWpfControls.PostContentEditor
         private bool _hasChanges;
         private bool _hasValidationIssues;
         private HelpDisplayContext _helpContext;
+        private Command _linkToClipboardCommand;
         private Command _saveAndCloseCommand;
         private Command _saveCommand;
         private BoolDataEntryContext _showInSiteFeed;
@@ -55,6 +58,7 @@ namespace PointlessWaymarks.CmsWpfControls.PostContentEditor
             ExtractNewLinksCommand = StatusContext.RunBlockingTaskCommand(() =>
                 LinkExtraction.ExtractNewAndShowLinkContentEditors(
                     $"{BodyContent.BodyContent} {UpdateNotes.UpdateNotes}", StatusContext.ProgressTracker()));
+            LinkToClipboardCommand = StatusContext.RunBlockingTaskCommand(LinkToClipboard);
 
             HelpContext = new HelpDisplayContext(new List<string>
             {
@@ -125,6 +129,17 @@ namespace PointlessWaymarks.CmsWpfControls.PostContentEditor
             {
                 if (Equals(value, _helpContext)) return;
                 _helpContext = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public Command LinkToClipboardCommand
+        {
+            get => _linkToClipboardCommand;
+            set
+            {
+                if (Equals(value, _linkToClipboardCommand)) return;
+                _linkToClipboardCommand = value;
                 OnPropertyChanged();
             }
         }
@@ -277,6 +292,25 @@ namespace PointlessWaymarks.CmsWpfControls.PostContentEditor
             newEntry.BodyContentFormat = BodyContent.BodyContentFormat.SelectedContentFormatAsString;
 
             return newEntry;
+        }
+
+        private async Task LinkToClipboard()
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            if (DbEntry == null || DbEntry.Id < 1)
+            {
+                StatusContext.ToastError("Sorry - please save before getting link...");
+                return;
+            }
+
+            var linkString = BracketCodePosts.Create(DbEntry);
+
+            await ThreadSwitcher.ResumeForegroundAsync();
+
+            Clipboard.SetText(linkString);
+
+            StatusContext.ToastSuccess($"To Clipboard: {linkString}");
         }
 
         public async Task LoadData(PostContent toLoad)

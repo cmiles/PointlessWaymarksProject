@@ -7,8 +7,8 @@
     xmlns:pointContentEditor="clr-namespace:PointlessWaymarks.CmsWpfControls.PointContentEditor"
     xmlns:status="clr-namespace:PointlessWaymarks.WpfCommon.Status;assembly=PointlessWaymarks.WpfCommon"
     Title="Point Editor"
-    Width="800"
-    Height="600"
+    Width="900"
+    Height="650"
     d:DataContext="{d:DesignInstance pointContentEditor:PointContentEditorWindow}"
     mc:Ignorable="d">
     <Grid>

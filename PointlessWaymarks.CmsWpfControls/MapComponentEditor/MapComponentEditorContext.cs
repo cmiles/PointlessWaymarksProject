@@ -42,6 +42,7 @@ namespace PointlessWaymarks.CmsWpfControls.MapComponentEditor
         private MapComponent? _dbEntry;
         private bool _hasChanges;
         private bool _hasValidationIssues;
+        private Command _linkToClipboardCommand;
         private ObservableCollection<IMapElementListItem>? _mapElements;
         private string _previewHtml;
         private string _previewMapJsonJsonDto = string.Empty;
@@ -68,6 +69,7 @@ namespace PointlessWaymarks.CmsWpfControls.MapComponentEditor
             _saveAndCloseCommand = StatusContext.RunBlockingTaskCommand(async () => await SaveAndGenerateHtml(true));
             _refreshMapPreviewCommand = StatusContext.RunBlockingTaskCommand(RefreshMapPreview);
             _removeItemCommand = StatusContext.RunBlockingTaskCommand<IMapElementListItem>(RemoveItem);
+            _linkToClipboardCommand = StatusContext.RunBlockingTaskCommand(LinkToClipboard);
 
             _previewHtml = WpfHtmlDocument.ToHtmlLeafletMapDocument("Map",
                 UserSettingsSingleton.CurrentSettings().LatitudeDefault,
@@ -114,6 +116,17 @@ namespace PointlessWaymarks.CmsWpfControls.MapComponentEditor
             {
                 if (Equals(value, _dbEntry)) return;
                 _dbEntry = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public Command LinkToClipboardCommand
+        {
+            get => _linkToClipboardCommand;
+            set
+            {
+                if (Equals(value, _linkToClipboardCommand)) return;
+                _linkToClipboardCommand = value;
                 OnPropertyChanged();
             }
         }
@@ -449,6 +462,25 @@ namespace PointlessWaymarks.CmsWpfControls.MapComponentEditor
             }).ToList();
 
             return new MapComponentDto(newEntry, finalElementList);
+        }
+
+        private async Task LinkToClipboard()
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            if (DbEntry == null || DbEntry.Id < 1)
+            {
+                StatusContext.ToastError("Sorry - please save before getting link...");
+                return;
+            }
+
+            var linkString = BracketCodeMapComponents.Create(DbEntry);
+
+            await ThreadSwitcher.ResumeForegroundAsync();
+
+            Clipboard.SetText(linkString);
+
+            StatusContext.ToastSuccess($"To Clipboard: {linkString}");
         }
 
         public async Task LoadData(MapComponent? toLoad)

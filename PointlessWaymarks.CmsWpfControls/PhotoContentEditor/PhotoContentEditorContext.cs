@@ -5,11 +5,13 @@ using System.Diagnostics;
 using System.IO;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Media.Imaging;
 using JetBrains.Annotations;
 using Ookii.Dialogs.Wpf;
 using PhotoSauce.MagicScaler;
 using PointlessWaymarks.CmsData;
+using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.Content;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsWpfControls.BodyContentEditor;
@@ -52,6 +54,7 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoContentEditor
         private ConversionDataEntryContext<int?> _isoEntry;
         private StringDataEntryContext _lensEntry;
         private StringDataEntryContext _licenseEntry;
+        private Command _linkToClipboardCommand;
         private FileInfo _loadedFile;
         private StringDataEntryContext _photoCreatedByEntry;
         private ConversionDataEntryContext<DateTime> _photoCreatedOnEntry;
@@ -245,6 +248,17 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoContentEditor
             {
                 if (Equals(value, _licenseEntry)) return;
                 _licenseEntry = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public Command LinkToClipboardCommand
+        {
+            get => _linkToClipboardCommand;
+            set
+            {
+                if (Equals(value, _linkToClipboardCommand)) return;
+                _linkToClipboardCommand = value;
                 OnPropertyChanged();
             }
         }
@@ -655,6 +669,25 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoContentEditor
             return newEntry;
         }
 
+        private async Task LinkToClipboard()
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            if (DbEntry == null || DbEntry.Id < 1)
+            {
+                StatusContext.ToastError("Sorry - please save before getting link...");
+                return;
+            }
+
+            var linkString = BracketCodePhotos.Create(DbEntry);
+
+            await ThreadSwitcher.ResumeForegroundAsync();
+
+            Clipboard.SetText(linkString);
+
+            StatusContext.ToastSuccess($"To Clipboard: {linkString}");
+        }
+
         public async Task LoadData(PhotoContent toLoad, bool skipMediaDirectoryCheck = false)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
@@ -671,6 +704,7 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoContentEditor
             UpdateNotes = await UpdateNotesEditorContext.CreateInstance(StatusContext, DbEntry);
             TagEdit = TagsEditorContext.CreateInstance(StatusContext, DbEntry);
             BodyContent = await BodyContentEditorContext.CreateInstance(StatusContext, DbEntry);
+            LinkToClipboardCommand = StatusContext.RunBlockingTaskCommand(LinkToClipboard);
 
             if (!skipMediaDirectoryCheck && toLoad != null && !string.IsNullOrWhiteSpace(DbEntry.OriginalFileName))
             {

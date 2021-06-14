@@ -7,8 +7,8 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:status="clr-namespace:PointlessWaymarks.WpfCommon.Status;assembly=PointlessWaymarks.WpfCommon"
     Title="Line Editor"
-    Width="800"
-    Height="600"
+    Width="900"
+    Height="650"
     d:DataContext="{d:DesignInstance lineContentEditor:LineContentEditorWindow}"
     mc:Ignorable="d">
     <Grid>

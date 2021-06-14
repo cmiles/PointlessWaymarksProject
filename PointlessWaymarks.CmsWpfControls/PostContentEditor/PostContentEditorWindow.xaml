@@ -7,8 +7,8 @@
     xmlns:postContentEditor="clr-namespace:PointlessWaymarks.CmsWpfControls.PostContentEditor"
     xmlns:status="clr-namespace:PointlessWaymarks.WpfCommon.Status;assembly=PointlessWaymarks.WpfCommon"
     Title="Post Editor"
-    Width="800"
-    Height="600"
+    Width="900"
+    Height="650"
     d:DataContext="{d:DesignInstance postContentEditor:PostContentEditorWindow}"
     mc:Ignorable="d">
     <Grid>

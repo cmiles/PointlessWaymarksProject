@@ -5,9 +5,11 @@ using System.Diagnostics;
 using System.Net.Http;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using System.Windows;
 using JetBrains.Annotations;
 using Omu.ValueInjecter;
 using PointlessWaymarks.CmsData;
+using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.Content;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
@@ -47,6 +49,7 @@ namespace PointlessWaymarks.CmsWpfControls.PointContentEditor
         private bool _hasValidationIssues;
         private HelpDisplayContext _helpContext;
         private ConversionDataEntryContext<double> _latitudeEntry;
+        private Command _linkToClipboardCommand;
         private ConversionDataEntryContext<double> _longitudeEntry;
         private PointDetailListContext _pointDetails;
         private Command _saveAndCloseCommand;
@@ -70,6 +73,7 @@ namespace PointlessWaymarks.CmsWpfControls.PointContentEditor
                 LinkExtraction.ExtractNewAndShowLinkContentEditors(
                     $"{BodyContent.BodyContent} {UpdateNotes.UpdateNotes}", StatusContext.ProgressTracker()));
             GetElevationCommand = StatusContext.RunBlockingTaskCommand(GetElevation);
+            LinkToClipboardCommand = StatusContext.RunBlockingTaskCommand(LinkToClipboard);
 
             HelpContext = new HelpDisplayContext(new List<string>
             {
@@ -172,6 +176,17 @@ namespace PointlessWaymarks.CmsWpfControls.PointContentEditor
             {
                 if (Equals(value, _latitudeEntry)) return;
                 _latitudeEntry = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public Command LinkToClipboardCommand
+        {
+            get => _linkToClipboardCommand;
+            set
+            {
+                if (Equals(value, _linkToClipboardCommand)) return;
+                _linkToClipboardCommand = value;
                 OnPropertyChanged();
             }
         }
@@ -425,6 +440,25 @@ namespace PointlessWaymarks.CmsWpfControls.PointContentEditor
             if (_broadcastLatLongChange && !LatitudeEntry.HasValidationIssues && !LongitudeEntry.HasValidationIssues)
                 RaisePointLatitudeLongitudeChange?.Invoke(this,
                     new PointLatitudeLongitudeChange(LatitudeEntry.UserValue, LongitudeEntry.UserValue));
+        }
+
+        private async Task LinkToClipboard()
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            if (DbEntry == null || DbEntry.Id < 1)
+            {
+                StatusContext.ToastError("Sorry - please save before getting link...");
+                return;
+            }
+
+            var linkString = BracketCodePointLinks.Create(DbEntry);
+
+            await ThreadSwitcher.ResumeForegroundAsync();
+
+            Clipboard.SetText(linkString);
+
+            StatusContext.ToastSuccess($"To Clipboard: {linkString}");
         }
 
         public async Task LoadData(PointContent toLoad)

@@ -10,6 +10,7 @@ using System.Windows;
 using JetBrains.Annotations;
 using Ookii.Dialogs.Wpf;
 using PointlessWaymarks.CmsData;
+using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.Content;
 using PointlessWaymarks.CmsData.ContentHtml.GeoJsonHtml;
 using PointlessWaymarks.CmsData.Database.Models;
@@ -44,6 +45,7 @@ namespace PointlessWaymarks.CmsWpfControls.GeoJsonContentEditor
         private HelpDisplayContext _helpContext;
         private Command _importGeoJsonFileCommand;
         private Command _importGeoJsonFromClipboardCommand;
+        private Command _linkToClipboardCommand;
         private string _previewGeoJsonDto;
         private string _previewHtml;
         private Command _refreshMapPreviewCommand;
@@ -69,6 +71,7 @@ namespace PointlessWaymarks.CmsWpfControls.GeoJsonContentEditor
             ImportGeoJsonFileCommand = StatusContext.RunBlockingTaskCommand(ImportGeoJsonFile);
             ImportGeoJsonFromClipboardCommand = StatusContext.RunBlockingTaskCommand(ImportGeoJsonFromClipboard);
             RefreshMapPreviewCommand = StatusContext.RunBlockingTaskCommand(RefreshMapPreview);
+            LinkToClipboardCommand = StatusContext.RunBlockingTaskCommand(LinkToClipboard);
 
             HelpContext = new HelpDisplayContext(new List<string>
             {
@@ -178,6 +181,17 @@ namespace PointlessWaymarks.CmsWpfControls.GeoJsonContentEditor
             {
                 if (Equals(value, _importGeoJsonFromClipboardCommand)) return;
                 _importGeoJsonFromClipboardCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public Command LinkToClipboardCommand
+        {
+            get => _linkToClipboardCommand;
+            set
+            {
+                if (Equals(value, _linkToClipboardCommand)) return;
+                _linkToClipboardCommand = value;
                 OnPropertyChanged();
             }
         }
@@ -428,6 +442,25 @@ namespace PointlessWaymarks.CmsWpfControls.GeoJsonContentEditor
             }
 
             GeoJsonText = clipboardText;
+        }
+
+        private async Task LinkToClipboard()
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            if (DbEntry == null || DbEntry.Id < 1)
+            {
+                StatusContext.ToastError("Sorry - please save before getting link...");
+                return;
+            }
+
+            var linkString = BracketCodeGeoJson.Create(DbEntry);
+
+            await ThreadSwitcher.ResumeForegroundAsync();
+
+            Clipboard.SetText(linkString);
+
+            StatusContext.ToastSuccess($"To Clipboard: {linkString}");
         }
 
         public async Task LoadData(GeoJsonContent toLoad)
