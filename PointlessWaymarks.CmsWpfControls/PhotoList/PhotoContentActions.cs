@@ -552,6 +552,8 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
             var newWindow = new PhotoListWindow {PhotoListContext = context, WindowTitle = title};
 
             newWindow.PositionWindowAndShow();
+
+            await context.LoadData();
         }
 
 
