@@ -87,7 +87,7 @@
             <TabItem Header="Menu Links">
                 <menuListEditor:MenuLinkEditorControl DataContext="{Binding TabMenuLinkContext}" />
             </TabItem>
-            <TabItem Header="Tag Exclusions">
+            <TabItem Header="Tag Search Exclusions">
                 <tagExclusionEditor:TagExclusionEditorControl DataContext="{Binding TabTagExclusionContext}" />
             </TabItem>
             <TabItem Header="Tags">

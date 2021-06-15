@@ -768,7 +768,7 @@ namespace PointlessWaymarks.CmsContentEditor
                 TabNoteListContext = new NoteListWithActionsContext(null);
             if (SelectedTab.Header.ToString() == "Links" && TabLinkContext == null)
                 TabLinkContext = new LinkListWithActionsContext(null);
-            if (SelectedTab.Header.ToString() == "Tag Exclusions" && TabTagExclusionContext == null)
+            if (SelectedTab.Header.ToString() == "Tag Search Exclusions" && TabTagExclusionContext == null)
                 TabTagExclusionContext = new TagExclusionEditorContext(null);
             if (SelectedTab.Header.ToString() == "Menu Links" && TabMenuLinkContext == null)
                 TabMenuLinkContext = new MenuLinkEditorContext(null);

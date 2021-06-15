@@ -36,7 +36,7 @@
         </GroupBox>
         <GroupBox
             Grid.Row="1"
-            Header="Tag Exclusions"
+            Header="Tag Search Exclusions"
             Style="{StaticResource UiComponentGroupBoxStyle}">
             <ScrollViewer Name="TagExclusionListScrollViewer" HorizontalScrollBarVisibility="Disabled">
                 <ItemsControl ItemsSource="{Binding Items}" ScrollViewer.HorizontalScrollBarVisibility="Disabled">

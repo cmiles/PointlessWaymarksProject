@@ -72,13 +72,13 @@
                                             <MenuItem
                                                 Command="{Binding Path=PlacementTarget.Tag.RemoveExcludedTagCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ContextMenu}}"
                                                 CommandParameter="{Binding .}"
-                                                Header="Remove Tag Exclusion"
+                                                Header="Remove Tag Search Exclusion"
                                                 IsEnabled="{Binding IsExcludedTag}" />
                                             <!--  ReSharper disable once Xaml.BindingWithContextNotResolved - For Tag on Placement Target  -->
                                             <MenuItem
                                                 Command="{Binding Path=PlacementTarget.Tag.MakeExcludedTagCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ContextMenu}}"
                                                 CommandParameter="{Binding .}"
-                                                Header="Make Tag Exclusion"
+                                                Header="Add Tag Search Exclusion"
                                                 IsEnabled="{Binding IsExcludedTag, Converter={StaticResource BooleanNot}}" />
                                         </ContextMenu>
                                     </Grid.ContextMenu>
@@ -108,7 +108,7 @@
                                             <b:Interaction.Behaviors>
                                                 <wpfBehavior:ReadOnlyTextBoxClickAndKeyboardPass />
                                             </b:Interaction.Behaviors>
-                                            [Excluded Tag]
+                                            [Tag Excluded from Search]
                                         </TextBox>
                                     </StackPanel>
                                 </Grid>

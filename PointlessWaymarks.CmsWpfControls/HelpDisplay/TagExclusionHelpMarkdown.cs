@@ -4,22 +4,23 @@
     {
         public static string HelpBlock =>
             @"
-### Tag Exclusions
+### Tag Search Exclusions
 
-For most content you will enter tags in an
-editor and it is fairly natural to keep all the tags you enter appropriate for public display on 
-your site. However in the case of Photographs - and in some cases Links - tags might have been
-generated in another context (for example in Lightroom for your personal Photo Catalog) and not appropriate for 
-public display.
+For most content you will enter tags into this program with the intent to display them with the content you are 
+creating so it is fairly natural to keep all the tags you enter appropriate for public display.
 
-Tag Exclusions are a way to exclude certain tags from visual display. For example you might create content 
-from photos that are tagged with a friends name - great for some sites and uses, but on some sites it might
-not be appropriate to create a way for any user to get to a page of photos tagged with your friends name thru
-the public tag search page in a single click...
+However in the case of Photographs - and in some cases Links and other content - tags might have been generated 
+in another program/context (for example in Lightroom for your personal photo catalog) where you 
+might fill in information that is not as appropriate for public display.
 
-Excluded Tags will not appear in the Tag List for Content Pages or in the Tags Search Page and a Tag
-page will not be generated. Excluded tags will not be shown on the the Main Content Search
-Page - but they will be in the html as data tags and can both be searched for and seen in the source.
+Tag Search Exclusions are a way to make tags more discrete. Excluded Tags won't appear in various search pages generated 
+by this program, the tag page will not be automatically linked to anything and the header of the Tag Page will
+indicate to search engines not to index the tag page.
+
+However, if you have a tag you want to completely 'exclude' and keep completely private DO NOT ENTER THE TAG
+INTO THIS SOFTWARE!!!!! While these exclusions allow a tag to be more discrete information about the tag will
+absolutely still be generated and present/visible on the public version of the site - and while the header of the Tag Page
+may 'ask' search engines not to index that page search engines DO NOT always respect that request...
 ";
     }
 }

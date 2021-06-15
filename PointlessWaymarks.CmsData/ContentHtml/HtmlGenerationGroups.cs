@@ -601,6 +601,51 @@ namespace PointlessWaymarks.CmsData.ContentHtml
             await mainContext.SaveChangesAsync();
         }
 
+        public static async Task GenerateChangedContentIdReferencesFromTagExclusionChanges(DateTime generationVersion,
+            DateTime previousGenerationVersion, IProgress<string>? progress)
+        {
+            progress?.Report("Querying for changes to Tags Excluded from Search");
+
+            var db = await Db.Context();
+
+            var excludedThisGeneration = await db.GenerationTagLogs
+                .Where(x => x.GenerationVersion == generationVersion && x.TagIsExcludedFromSearch)
+                .AsNoTracking().ToListAsync();
+
+            var excludedLastGeneration = await db.GenerationTagLogs.Where(x =>
+                    x.GenerationVersion == previousGenerationVersion && x.TagIsExcludedFromSearch)
+                .AsNoTracking().ToListAsync();
+
+            var changedExclusions = excludedThisGeneration.Join(excludedLastGeneration, o => o.TagSlug, i => i.TagSlug,
+                    (x, y) => new {x, y}).Where(x => x.x.TagIsExcludedFromSearch != x.y.TagIsExcludedFromSearch)
+                .Where(x => x.x.TagSlug != null).Select(x => x.x.TagSlug).ToList();
+
+            if (changedExclusions.Count == 0)
+            {
+                progress?.Report("Found no Tags where there are changes to Excluded from Search");
+                return;
+            }
+
+            progress?.Report($"Found {changedExclusions.Count} Tags where there are changes to Excluded from Search");
+
+            var impactedContent = db.GenerationTagLogs.Where(x => changedExclusions.Contains(x.TagSlug))
+                .Select(x => x.RelatedContentId)
+                .Distinct().ToList();
+
+            progress?.Report(
+                $"Found {impactedContent.Count} Content Ids where Tags Excluded from Search changes may cause the content to regenerate - writing to db.");
+
+            foreach (var loopExclusionContentChanges in impactedContent)
+            {
+                if (await db.GenerationChangedContentIds.AnyAsync(x => x.ContentId == loopExclusionContentChanges))
+                    continue;
+                await db.GenerationChangedContentIds.AddAsync(new GenerationChangedContentId
+                    {ContentId = loopExclusionContentChanges});
+            }
+
+            progress?.Report("Done checking for changes to Tags Excluded from Search");
+        }
+
         public static async Task GenerateChangedDailyPhotoGalleries(DateTime generationVersion,
             IProgress<string>? progress = null)
         {
@@ -777,10 +822,11 @@ namespace PointlessWaymarks.CmsData.ContentHtml
                 var tagCompareLogic = new CompareLogic();
                 var spec = new Dictionary<Type, IEnumerable<string>>
                 {
-                    {typeof(GenerationTagLog), new[] {"RelatedContentId"}}
+                    {typeof(GenerationTagLog), new[] {"RelatedContentId", "TagIsExcludedFromSearch"}}
                 };
                 tagCompareLogic.Config.CollectionMatchingSpec = spec;
                 tagCompareLogic.Config.MembersToInclude.Add("RelatedContentId");
+                tagCompareLogic.Config.MembersToInclude.Add("TagIsExcludedFromSearch");
 
                 return tagCompareLogic;
             }
@@ -918,6 +964,9 @@ namespace PointlessWaymarks.CmsData.ContentHtml
             await RelatedContentReference.GenerateRelatedContentDbTable(generationVersion, progress);
             await GenerateChangedContentIdReferences(lastGenerationDateTime, generationVersion, progress);
             await SetupTagGenerationDbData(generationVersion, progress);
+            await GenerateChangedContentIdReferencesFromTagExclusionChanges(generationVersion, lastGenerationDateTime,
+                progress);
+
             await SetupDailyPhotoGenerationDbData(generationVersion, progress);
 
             if (!await db.GenerationChangedContentIds.AnyAsync())
@@ -1295,6 +1344,8 @@ namespace PointlessWaymarks.CmsData.ContentHtml
         {
             var tagData = await Db.TagSlugsAndContentList(true, false, progress);
 
+            var excludedTagSlugs = await Db.TagExclusionSlugs();
+
             var db = await Db.Context();
 
             foreach (var (tag, contentObjects) in tagData)
@@ -1303,7 +1354,8 @@ namespace PointlessWaymarks.CmsData.ContentHtml
                 {
                     GenerationVersion = currentGenerationVersion,
                     RelatedContentId = loopContent.ContentId,
-                    TagSlug = tag
+                    TagSlug = tag,
+                    TagIsExcludedFromSearch = excludedTagSlugs.Contains(tag)
                 });
 
             await db.SaveChangesAsync(true);
