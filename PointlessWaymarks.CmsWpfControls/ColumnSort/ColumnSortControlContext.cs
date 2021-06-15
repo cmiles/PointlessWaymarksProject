@@ -49,7 +49,7 @@ namespace PointlessWaymarks.CmsWpfControls.ColumnSort
         private void AddItem(ColumnSortControlSortItem sortItem)
         {
             var currentSortCount = Items.Count(x => x.Order > 0);
-            if (Items.Any(x => x.Order > 0) || currentSortCount == 1 && sortItem.Order > 0)
+            if (!Items.Any(x => x.Order > 0) || currentSortCount == 1 && sortItem.Order > 0)
             {
                 ToggleItem(sortItem);
                 return;

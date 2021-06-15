@@ -652,7 +652,7 @@
                                         MouseAction="LeftClick" />
                                 </Button.InputBindings>
                             </Button>
-                            <Button Content="{Binding DbEntry.Aperture, Converter={StaticResource StringDefault}, ConverterParameter='(No Aperture Model)'}" ToolTip="Aperture - click to search for other photos taken with this Aperture">
+                            <Button Content="{Binding DbEntry.Aperture, Converter={StaticResource StringDefault}, ConverterParameter='(No Aperture)'}" ToolTip="Aperture - click to search for other photos taken with this Aperture">
                                 <Button.InputBindings>
                                     <MouseBinding
                                         Command="{Binding ItemActions.ApertureSearchCommand}"
