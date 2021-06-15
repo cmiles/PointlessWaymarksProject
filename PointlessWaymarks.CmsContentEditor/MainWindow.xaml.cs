@@ -740,6 +740,9 @@ namespace PointlessWaymarks.CmsContentEditor
                 new HelpDisplayContext(new List<string> {SoftwareUsedHelpMarkdown.HelpBlock});
 
             await ThreadSwitcher.ResumeForegroundAsync();
+            
+            // ReSharper disable once ConditionIsAlwaysTrueOrFalse for generated ThisAssembly.Git.IsDirty
+            InfoTitle = $"{UserSettingsSingleton.CurrentSettings().SiteName} - Pointless Waymarks CMS - Built On {GetBuildDate(Assembly.GetEntryAssembly())} - Commit {ThisAssembly.Git.Commit} {(ThisAssembly.Git.IsDirty ? "(Has Local Changes)" : string.Empty)}";
 
             MainTabControl.SelectedIndex = 0;
         }
