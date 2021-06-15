@@ -1,6 +1,6 @@
 ### Contact and Donate to your Favorite Open Source Projects!
 
-Working on a zero-budget-no-commercial goals personal project like this one and having so many great libraries to build with is an incredible privilege (there is a list of projects I am using at the bottom of this page) - one of my goals for 2021 is to do a better job reaching out to, thanking and making donations when possible/appropriate to the projects that have been useful to me. Please consider doing the same!!!
+Working on a zero-budget-no-commercial-goals personal project like this one and having so many great libraries to build with is an incredible privilege (there is a list of projects I am using at the bottom of this page) - one of my goals for 2021 is to do a better job reaching out to, thanking and making donations when possible/appropriate to the projects that have been useful to me. Please consider doing the same!!!
 
 # Pointless Waymarks CMS
 
@@ -8,18 +8,18 @@ This project is not currently intended for general use - it is made public under
 
 Pointless Waymarks CMS is a .NET Core 5 Windows WPF GUI for generating a static website based on database information and a settings file. It is not an 'all purpose static site generation solution' - the focus is a limited set of content types to support creating long-lasting free content about the landscape, place, photography, nature, history...
 
-[Pointless Waymarks](https://PointlessWaymarks.com) is generated with the Pointless Waymarks CMS and is a good example of both the output and intent. The inspiration for this code is the joy that creating content about the landscape has brought to my life and the realization that for personal content I no longer care about search rankings or page views, just about creating and learning.
+[Pointless Waymarks](https://PointlessWaymarks.com) is generated with the Pointless Waymarks CMS and is a good example of both the output and intent. The inspirations for this code are the joy that creating content about the landscape has brought to my life and the realization that for personal content I no longer care about search rankings or page views, only about creating, getting outside, learning and exploring.
 
 Some details:
  - A static site because it is currently one of the lowest cost, lowest maintenance, most durable ways to put content online.
  - Database driven to offer flexibility in creating and updating content and to potentially support the generation of multiple output formats.
- - Custom software rather than a generic cms/web framework to optimize support for a limited set of content types - with a limited scope I believe creating custom software is likely to produce better results than adapting existing software.
+ - Custom software rather than a generic cms/web framework to optimize support for a limited set of content types - with a limited scope I believe creating custom software is likely to produce better results than adapting existing software (and re-adapting it as it updates)...
  - Desktop creation software because it is an excellent way to create zero cost software. WPF because I largely work in Windows, it is my favorite Windows GUI technology atm and because the experimentation/learning/coding I do here flows back into my day job where I help to create and maintain an Inventory Management and Reporting system that has a WPF Front End.
- - A focus on 'content' and simple functional presentation
+ - A focus on 'content' and a simple functional presentation. My experience is that websites that focus on a simple presentations of content can survive, have impact and be meaningful for many many years without heavy revisions into the 'latest' style.
 
 Todo Lists, Idea Lists and a Development Log are [found in a DevNotes.md file that is versioned along with the code](PointlessWaymarksCmsContentEditor/DevNotes.md).
 
-If you have questions or comments please contact me at PointlessWaymarks@gmail.com
+If you have questions or comments please contact me at PointlessWaymarks@gmail.com - as noted above there is currently no intent to create 'public releases' and using this software is probably only reasonable if you don't mind (enjoy!) a little debugging and bug fixing...
 
 ## Application Screen Shots
 
@@ -31,11 +31,17 @@ Options to launch recent projects or create a new project.
 
 ### Content Lists
 
-Each Content Type has a list interface - these are all similar with sorting, filtering and access to Excel Export/Import. The ability to export to Excel, edit and import the changes is provided for all content types and most fields. Many updates are more easily made in the program but Excel provides a powerful interface for complicated/bulk edits.
+The first tab in the application is an 'All Content' list. Like all of the lists you can sort and filter the list, import/export from excel and the list will update automatically as content changes. In the All Content list menus, buttons and context menu allow you to take a limited set of actions that apply to all content types. It is possible to do quite a bit of work without ever needing to switch back-and-forth between the tabs for specific content types especially when everything you are working on is recent.
+
+![Posts List](PointlessWaymarks.CmsScreenShots/AllContentList.jpg "All Content List")
+
+Each Content Type has a dedicated list interface - these lists have more content type specific functions that are not found in the All Content List. Content lists start by load a limited number of recent entries and present an option to load all entries - this is a very practical compromise that allows the lists to load quickly showing the content you are most likely to want to see.
+
+The ability to export to Excel, edit and import the changes is provided for all content types and most fields. Many updates are more easily made in the program but Excel provides a powerful interface for complicated/bulk edits.
 
 ![Posts List](PointlessWaymarks.CmsScreenShots/PostsList.jpg "Posts List")
 
-From the Photo List you can import photos in bulk - where possible the program will use the Photo's Metadata to generate an entry and in many cases it can create and save Photo Content without any additional data entry.
+Photographs are a central content type in this program and there is decent support for importing multiple photos at once filling the various fields by extracting metadata from the photo. I have found it rather painless to import even larger batches of photographs with minimal clean up afterwards.
 
 The Photo List items have buttons to quickly find other similar photos based on details such as Camera Make, Lens, Aperture, Shutter Speed, etc. Not shown but available in the Photo List under the Reports menu are reports on photos with potential problems such as 'No Tags' or 'Blank License' and an option to export all of a photo's 'raw' metadata to an html file.
 
@@ -54,6 +60,8 @@ The content editors are intended to be simple, helpful and functional. Change an
 
 Tags are a primary way of connecting and organizing content - a Tag Editor along with Excel Export/Import provide support for organizing/correcting/updating tags.
 
+This software has no support for storing 'completely private' content - but it does have support for excluding Tags from the site's various search pages and indicating to search engines not to index excluded Tag Pages. This can be a good way of providing some 'modesty' for tags that you might not want to delete - but that you also don't want to make prominent on the site.
+
 ![Tag List](PointlessWaymarks.CmsScreenShots/TagList.jpg "Tag List")
 
 ### Menu Links
@@ -64,8 +72,7 @@ Content is the focus of the project and admin/widget/header/menu options are kep
 
 ### File Change Tracking
 
-Deploying the site is simply a matter of syncing the content from the generated local site to its destination. To help with that process the program tracks written files and has options to export the files, create very basic S3 cli scripts or use the simple built in S3 uploader.
-
+Deploying the site is simply a matter of syncing the content from the generated local site to its destination. To help with that process the program tracks written files and has options to export a list of files, create very basic S3 cli scripts or use the simple built in S3 uploader. There is also support to detect changed and no longer needed files on S3.
 
 ![Written Files List](PointlessWaymarks.CmsScreenShots/WrittenFilesList.jpg "Written Files List")
 ![Written Files List](PointlessWaymarks.CmsScreenShots/S3Uploader.jpg "Written Files List")
