@@ -35,7 +35,7 @@ The first tab in the application is an 'All Content' list. Like all of the lists
 
 ![Posts List](PointlessWaymarks.CmsScreenShots/AllContentList.jpg "All Content List")
 
-Each Content Type has a dedicated list interface - these lists have more content type specific functions that are not found in the All Content List. Content lists start by load a limited number of recent entries and present an option to load all entries - this is a very practical compromise that allows the lists to load quickly showing the content you are most likely to want to see.
+Each Content Type has a dedicated list interface - these lists have more content type specific functions that are not found in the All Content List. Content lists start by loading a limited number of recent entries and present an option to load all entries - this compromise allows the lists to load quickly showing the content you are most likely to want to see.
 
 The ability to export to Excel, edit and import the changes is provided for all content types and most fields. Many updates are more easily made in the program but Excel provides a powerful interface for complicated/bulk edits.
 
