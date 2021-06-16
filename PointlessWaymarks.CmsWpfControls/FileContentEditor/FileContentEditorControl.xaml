@@ -147,11 +147,11 @@
                     Style="{StaticResource ActionPanelButtonStyle}" />
                 <Button
                     Command="{Binding LinkToClipboardCommand}"
-                    Content="Link to Clipboard"
+                    Content="Image Code"
                     Style="{StaticResource ActionPanelButtonStyle}" />
                 <Button
                     Command="{Binding DownloadLinkToClipboardCommand}"
-                    Content="Download Link to Clipboard"
+                    Content="Download Code"
                     Style="{StaticResource ActionPanelButtonStyle}" />
                 <Button Command="{Binding SaveAndExtractImageFromPdfCommand}" Style="{StaticResource ActionPanelButtonStyle}">
                     <Viewbox StretchDirection="DownOnly">

@@ -20,7 +20,6 @@ namespace PointlessWaymarks.CmsWpfControls.NoteList
         private readonly StatusControlContext _statusContext;
         private Command _emailHtmlToClipboardCommand;
         private ContentListContext _listContext;
-        private Command _postCodesToClipboardForSelectedCommand;
         private Command _refreshDataCommand;
 
         public NoteListWithActionsContext(StatusControlContext statusContext)
@@ -49,17 +48,6 @@ namespace PointlessWaymarks.CmsWpfControls.NoteList
             {
                 if (Equals(value, _listContext)) return;
                 _listContext = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public Command NoteCodesToClipboardForSelectedCommand
-        {
-            get => _postCodesToClipboardForSelectedCommand;
-            set
-            {
-                if (Equals(value, _postCodesToClipboardForSelectedCommand)) return;
-                _postCodesToClipboardForSelectedCommand = value;
                 OnPropertyChanged();
             }
         }
@@ -122,8 +110,6 @@ namespace PointlessWaymarks.CmsWpfControls.NoteList
             ListContext = new ContentListContext(StatusContext, new NoteListLoader(100));
 
             RefreshDataCommand = StatusContext.RunBlockingTaskCommand(ListContext.LoadData);
-            NoteCodesToClipboardForSelectedCommand =
-                StatusContext.RunBlockingTaskCommand(NoteCodesToClipboardForSelected);
             EmailHtmlToClipboardCommand = StatusContext.RunBlockingTaskCommand(EmailHtmlToClipboard);
 
             ListContext.ContextMenuItems = new List<ContextMenuItemData>
@@ -131,7 +117,7 @@ namespace PointlessWaymarks.CmsWpfControls.NoteList
                 new() {ItemName = "Edit", ItemCommand = ListContext.EditSelectedCommand},
                 new()
                 {
-                    ItemName = "{{}} Code to Clipboard", ItemCommand = ListContext.BracketCodeToClipboardSelectedCommand
+                    ItemName = "Text Code to Clipboard", ItemCommand = ListContext.BracketCodeToClipboardSelectedCommand
                 },
                 new() {ItemName = "Email Html to Clipboard", ItemCommand = EmailHtmlToClipboardCommand},
                 new()
@@ -144,29 +130,6 @@ namespace PointlessWaymarks.CmsWpfControls.NoteList
             };
 
             await ListContext.LoadData();
-        }
-
-        private async Task NoteCodesToClipboardForSelected()
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            if (SelectedItems() == null || !SelectedItems().Any())
-            {
-                StatusContext.ToastError("Nothing Selected?");
-                return;
-            }
-
-            var finalString = string.Empty;
-
-            foreach (var loopSelected in SelectedItems())
-                finalString +=
-                    @$"{{{{notelink {loopSelected.DbEntry.ContentId}; {loopSelected.DbEntry.Slug}}}}}{Environment.NewLine}";
-
-            await ThreadSwitcher.ResumeForegroundAsync();
-
-            Clipboard.SetText(finalString);
-
-            StatusContext.ToastSuccess($"To Clipboard {finalString}");
         }
 
         [NotifyPropertyChangedInvocator]

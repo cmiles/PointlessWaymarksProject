@@ -152,12 +152,12 @@ namespace PointlessWaymarks.CmsWpfControls.PostList
                 new() {ItemName = "Edit", ItemCommand = ListContext.EditSelectedCommand},
                 new()
                 {
-                    ItemName = "{{}} Link Code to Clipboard",
+                    ItemName = "Text Code to Clipboard",
                     ItemCommand = ListContext.BracketCodeToClipboardSelectedCommand
                 },
                 new()
                 {
-                    ItemName = "{{}} Image to Clipboard", ItemCommand = PostImageCodesToClipboardForSelectedCommand
+                    ItemName = "Image Code to Clipboard", ItemCommand = PostImageCodesToClipboardForSelectedCommand
                 },
                 new() {ItemName = "Email Html to Clipboard", ItemCommand = EmailHtmlToClipboardCommand},
                 new()

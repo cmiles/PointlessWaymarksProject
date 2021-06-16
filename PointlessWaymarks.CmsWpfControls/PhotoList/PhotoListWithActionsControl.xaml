@@ -94,8 +94,8 @@
                     Content="_New w/Autosave"
                     Style="{StaticResource ActionPanelButtonStyle}" />
                 <Button
-                    Command="{Binding PhotoCodesToClipboardForSelectedCommand}"
-                    Content="_Code to Clipboard"
+                    Command="{Binding ListContext.BracketCodeToClipboardSelectedCommand}"
+                    Content="Image _Code"
                     Style="{StaticResource ActionPanelButtonStyle}" />
             </WrapPanel>
         </Border>

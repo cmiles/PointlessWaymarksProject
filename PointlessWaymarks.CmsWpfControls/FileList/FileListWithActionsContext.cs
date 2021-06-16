@@ -23,7 +23,6 @@ namespace PointlessWaymarks.CmsWpfControls.FileList
         private readonly StatusControlContext _statusContext;
         private Command _emailHtmlToClipboardCommand;
         private Command _fileDownloadLinkCodesToClipboardForSelectedCommand;
-        private Command _fileImageLinkCodesToClipboardForSelectedCommand;
         private Command _filePageLinkCodesToClipboardForSelectedCommand;
         private Command _firstPagePreviewFromPdfToCairoCommand;
         private ContentListContext _listContext;
@@ -55,17 +54,6 @@ namespace PointlessWaymarks.CmsWpfControls.FileList
             {
                 if (Equals(value, _fileDownloadLinkCodesToClipboardForSelectedCommand)) return;
                 _fileDownloadLinkCodesToClipboardForSelectedCommand = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public Command FileImageLinkCodesToClipboardForSelectedCommand
-        {
-            get => _fileImageLinkCodesToClipboardForSelectedCommand;
-            set
-            {
-                if (Equals(value, _fileImageLinkCodesToClipboardForSelectedCommand)) return;
-                _fileImageLinkCodesToClipboardForSelectedCommand = value;
                 OnPropertyChanged();
             }
         }
@@ -187,31 +175,6 @@ namespace PointlessWaymarks.CmsWpfControls.FileList
             StatusContext.ToastSuccess($"To Clipboard {finalString}");
         }
 
-        private async Task FileImageLinkCodesToClipboardForSelected()
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            if (SelectedItems() == null || !SelectedItems().Any())
-            {
-                StatusContext.ToastError("Nothing Selected?");
-                return;
-            }
-
-            var finalString = string.Empty;
-
-            foreach (var loopSelected in SelectedItems())
-                finalString += @$"{BracketCodeFileImage.Create(loopSelected.DbEntry)}{Environment.NewLine}";
-
-            if (SelectedItems().Any(x => x.DbEntry.MainPicture == null))
-                StatusContext.ToastWarning("Some File Image Links do not have images?");
-
-            await ThreadSwitcher.ResumeForegroundAsync();
-
-            Clipboard.SetText(finalString);
-
-            StatusContext.ToastSuccess($"To Clipboard {finalString}");
-        }
-
         private async Task FilePageLinkCodesToClipboardForSelected()
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
@@ -256,8 +219,6 @@ namespace PointlessWaymarks.CmsWpfControls.FileList
             RefreshDataCommand = StatusContext.RunBlockingTaskCommand(ListContext.LoadData);
             FilePageLinkCodesToClipboardForSelectedCommand =
                 StatusContext.RunBlockingTaskCommand(FilePageLinkCodesToClipboardForSelected);
-            FileImageLinkCodesToClipboardForSelectedCommand =
-                StatusContext.RunBlockingTaskCommand(FileImageLinkCodesToClipboardForSelected);
             FileDownloadLinkCodesToClipboardForSelectedCommand =
                 StatusContext.RunBlockingTaskCommand(FileDownloadLinkCodesToClipboardForSelected);
             ViewFilesCommand =
@@ -273,16 +234,16 @@ namespace PointlessWaymarks.CmsWpfControls.FileList
                 new() {ItemName = "Edit", ItemCommand = ListContext.EditSelectedCommand},
                 new()
                 {
-                    ItemName = "{{}} Codes to Clipboard", ItemCommand = FileImageLinkCodesToClipboardForSelectedCommand
+                    ItemName = "Image Code to Clipboard", ItemCommand = ListContext.BracketCodeToClipboardSelectedCommand
                 },
                 new()
                 {
-                    ItemName = "{{}} Link Codes to Clipboard",
+                    ItemName = "Text Code to Clipboard",
                     ItemCommand = FilePageLinkCodesToClipboardForSelectedCommand
                 },
                 new()
                 {
-                    ItemName = "{{}} Download Codes to Clipboard",
+                    ItemName = "Download Code to Clipboard",
                     ItemCommand = FileDownloadLinkCodesToClipboardForSelectedCommand
                 },
                 new() {ItemName = "Email Html to Clipboard", ItemCommand = EmailHtmlToClipboardCommand},

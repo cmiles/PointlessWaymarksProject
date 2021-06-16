@@ -25,7 +25,6 @@ namespace PointlessWaymarks.CmsWpfControls.ImageList
         private readonly StatusControlContext _statusContext;
         private Command _emailHtmlToClipboardCommand;
         private Command _forcedResizeCommand;
-        private Command _imageBracketCodesToClipboardForSelectedCommand;
         private Command _imageBracketLinkCodesToClipboardForSelectedCommand;
         private ContentListContext _listContext;
         private Command _refreshDataCommand;
@@ -57,18 +56,6 @@ namespace PointlessWaymarks.CmsWpfControls.ImageList
             {
                 if (Equals(value, _forcedResizeCommand)) return;
                 _forcedResizeCommand = value;
-                OnPropertyChanged();
-            }
-        }
-
-
-        public Command ImageBracketCodesToClipboardForSelectedCommand
-        {
-            get => _imageBracketCodesToClipboardForSelectedCommand;
-            set
-            {
-                if (Equals(value, _imageBracketCodesToClipboardForSelectedCommand)) return;
-                _imageBracketCodesToClipboardForSelectedCommand = value;
                 OnPropertyChanged();
             }
         }
@@ -210,27 +197,6 @@ namespace PointlessWaymarks.CmsWpfControls.ImageList
             }
         }
 
-        private async Task ImageBracketCodesToClipboardForSelected()
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            if (SelectedItems() == null || !SelectedItems().Any())
-            {
-                StatusContext.ToastError("Nothing Selected?");
-                return;
-            }
-
-            var finalString = SelectedItems().Aggregate(string.Empty,
-                (current, loopSelected) =>
-                    current + @$"{BracketCodeImages.Create(loopSelected.DbEntry)}{Environment.NewLine}");
-
-            await ThreadSwitcher.ResumeForegroundAsync();
-
-            Clipboard.SetText(finalString);
-
-            StatusContext.ToastSuccess($"To Clipboard: {finalString}");
-        }
-
         private async Task ImageBracketLinkCodesToClipboardForSelected()
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
@@ -260,8 +226,6 @@ namespace PointlessWaymarks.CmsWpfControls.ImageList
 
             RefreshDataCommand = StatusContext.RunBlockingTaskCommand(ListContext.LoadData);
 
-            ImageBracketCodesToClipboardForSelectedCommand =
-                StatusContext.RunBlockingTaskCommand(ImageBracketCodesToClipboardForSelected);
             ImageBracketLinkCodesToClipboardForSelectedCommand =
                 StatusContext.RunBlockingTaskCommand(ImageBracketLinkCodesToClipboardForSelected);
 
@@ -280,12 +244,12 @@ namespace PointlessWaymarks.CmsWpfControls.ImageList
                 new() {ItemName = "Edit", ItemCommand = ListContext.EditSelectedCommand},
                 new()
                 {
-                    ItemName = "{{}} Image Codes to Clipboard",
-                    ItemCommand = ImageBracketCodesToClipboardForSelectedCommand
+                    ItemName = "Image Code to Clipboard",
+                    ItemCommand = ListContext.BracketCodeToClipboardSelectedCommand
                 },
                 new()
                 {
-                    ItemName = "{{}} Link Codes to Clipboard",
+                    ItemName = "Text Code to Clipboard",
                     ItemCommand = ImageBracketLinkCodesToClipboardForSelectedCommand
                 },
                 new() {ItemName = "Email Html to Clipboard", ItemCommand = EmailHtmlToClipboardCommand},

@@ -173,7 +173,7 @@
                     Style="{StaticResource ActionPanelButtonStyle}" />
                 <Button
                     Command="{Binding LinkToClipboardCommand}"
-                    Content="Link Code to Clipboard"
+                    Content="Image Code"
                     Style="{StaticResource ActionPanelButtonStyle}" />
             </WrapPanel>
         </Border>

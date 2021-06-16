@@ -74,11 +74,11 @@
                     Style="{StaticResource ActionPanelButtonStyle}" />
                 <Button
                     Command="{Binding LineLinkCodesToClipboardForSelectedCommand}"
-                    Content="Link _Code to Clipboard"
+                    Content="Text Code to Clipboard"
                     Style="{StaticResource ActionPanelButtonStyle}" />
                 <Button
-                    Command="{Binding LineMapCodesToClipboardForSelectedCommand}"
-                    Content="Map Code to Clipboard"
+                    Command="{Binding ListContext.BracketCodeToClipboardSelectedCommand}"
+                    Content="Map _Code to Clipboard"
                     Style="{StaticResource ActionPanelButtonStyle}" />
             </WrapPanel>
         </Border>

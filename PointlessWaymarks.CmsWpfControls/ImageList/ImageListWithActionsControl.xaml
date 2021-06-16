@@ -77,12 +77,12 @@
                     Content="_New From Files"
                     Style="{StaticResource ActionPanelButtonStyle}" />
                 <Button
-                    Command="{Binding ImageBracketCodesToClipboardForSelectedCommand}"
-                    Content="_Code to Clipboard"
+                    Command="{Binding ListContext.BracketCodeToClipboardSelectedCommand}"
+                    Content="Image _Code to Clipboard"
                     Style="{StaticResource ActionPanelButtonStyle}" />
                 <Button
                     Command="{Binding ImageBracketLinkCodesToClipboardForSelectedCommand}"
-                    Content="Link Code to Clipboard"
+                    Content="Text Code to Clipboard"
                     Style="{StaticResource ActionPanelButtonStyle}" />
             </WrapPanel>
         </Border>

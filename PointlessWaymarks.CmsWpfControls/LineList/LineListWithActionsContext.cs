@@ -19,7 +19,6 @@ namespace PointlessWaymarks.CmsWpfControls.LineList
     {
         private readonly StatusControlContext _statusContext;
         private Command _lineLinkCodesToClipboardForSelectedCommand;
-        private Command _lineMapCodesToClipboardForSelectedCommand;
         private ContentListContext _listContext;
         private Command _refreshDataCommand;
 
@@ -37,17 +36,6 @@ namespace PointlessWaymarks.CmsWpfControls.LineList
             {
                 if (Equals(value, _lineLinkCodesToClipboardForSelectedCommand)) return;
                 _lineLinkCodesToClipboardForSelectedCommand = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public Command LineMapCodesToClipboardForSelectedCommand
-        {
-            get => _lineMapCodesToClipboardForSelectedCommand;
-            set
-            {
-                if (Equals(value, _lineMapCodesToClipboardForSelectedCommand)) return;
-                _lineMapCodesToClipboardForSelectedCommand = value;
                 OnPropertyChanged();
             }
         }
@@ -117,8 +105,6 @@ namespace PointlessWaymarks.CmsWpfControls.LineList
 
             LineLinkCodesToClipboardForSelectedCommand =
                 StatusContext.RunBlockingTaskCommand(LinkBracketCodesToClipboardForSelected);
-            LineMapCodesToClipboardForSelectedCommand =
-                StatusContext.RunBlockingTaskCommand(MapBracketCodesToClipboardForSelected);
             RefreshDataCommand = StatusContext.RunBlockingTaskCommand(ListContext.LoadData);
 
             ListContext.ContextMenuItems = new List<ContextMenuItemData>
@@ -126,7 +112,11 @@ namespace PointlessWaymarks.CmsWpfControls.LineList
                 new() {ItemName = "Edit", ItemCommand = ListContext.EditSelectedCommand},
                 new()
                 {
-                    ItemName = "{{}} Code to Clipboard", ItemCommand = ListContext.BracketCodeToClipboardSelectedCommand
+                    ItemName = "Map Code to Clipboard", ItemCommand = ListContext.BracketCodeToClipboardSelectedCommand
+                },
+                new()
+                {
+                    ItemName = "Text Code to Clipboard", ItemCommand = LineLinkCodesToClipboardForSelectedCommand
                 },
                 new()
                     {ItemName = "Extract New Links", ItemCommand = ListContext.ExtractNewLinksSelectedCommand},
@@ -138,27 +128,6 @@ namespace PointlessWaymarks.CmsWpfControls.LineList
             };
 
             await ListContext.LoadData();
-        }
-
-        private async Task MapBracketCodesToClipboardForSelected()
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            if (SelectedItems() == null || !SelectedItems().Any())
-            {
-                StatusContext.ToastError("Nothing Selected?");
-                return;
-            }
-
-            var finalString = SelectedItems().Aggregate(string.Empty,
-                (current, loopSelected) =>
-                    current + @$"{BracketCodeLines.Create(loopSelected.DbEntry)}{Environment.NewLine}");
-
-            await ThreadSwitcher.ResumeForegroundAsync();
-
-            Clipboard.SetText(finalString);
-
-            StatusContext.ToastSuccess($"To Clipboard {finalString}");
         }
 
         [NotifyPropertyChangedInvocator]

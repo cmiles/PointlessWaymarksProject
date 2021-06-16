@@ -76,8 +76,8 @@
                     Command="{Binding ListContext.NewActions.NewFileContentFromFilesCommand}"
                     Content="New Content from Files"
                     Style="{StaticResource ActionPanelButtonStyle}" />
-                <Button Command="{Binding FileImageLinkCodesToClipboardForSelectedCommand}" Style="{StaticResource ActionPanelButtonStyle}">
-                    Image Link Code
+                <Button Command="{Binding ListContext.BracketCodeToClipboardSelectedCommand}" Style="{StaticResource ActionPanelButtonStyle}">
+                    Image _Code
                 </Button>
                 <Button Command="{Binding FirstPagePreviewFromPdfToCairoCommand}" Style="{StaticResource ActionPanelButtonStyle}">
                     Generate Cover Image

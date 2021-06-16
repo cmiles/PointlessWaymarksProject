@@ -76,8 +76,8 @@
                     Content="_New Content"
                     Style="{StaticResource ActionPanelButtonStyle}" />
                 <Button
-                    Command="{Binding NoteCodesToClipboardForSelectedCommand}"
-                    Content="_Code to Clipboard"
+                    Command="{Binding ListContext.BracketCodeToClipboardSelectedCommand}"
+                    Content="Text _Code"
                     Style="{StaticResource ActionPanelButtonStyle}" />
                 <Button
                     Command="{Binding EmailHtmlToClipboardCommand}"

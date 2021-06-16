@@ -33,7 +33,6 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
         private Command _forcedResizeCommand;
         private ContentListContext _listContext;
         private Command _openUrlForPhotoListCommand;
-        private Command _photoCodesToClipboardForSelectedCommand;
         private Command _photoLinkCodesToClipboardForSelectedCommand;
         private Command _refreshDataCommand;
         private Command _regenerateHtmlAndReprocessPhotoForSelectedCommand;
@@ -105,18 +104,6 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
             {
                 if (Equals(value, _openUrlForPhotoListCommand)) return;
                 _openUrlForPhotoListCommand = value;
-                OnPropertyChanged();
-            }
-        }
-
-
-        public Command PhotoCodesToClipboardForSelectedCommand
-        {
-            get => _photoCodesToClipboardForSelectedCommand;
-            set
-            {
-                if (Equals(value, _photoCodesToClipboardForSelectedCommand)) return;
-                _photoCodesToClipboardForSelectedCommand = value;
                 OnPropertyChanged();
             }
         }
@@ -338,12 +325,12 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
                 new() {ItemName = "Edit", ItemCommand = ListContext.EditSelectedCommand},
                 new()
                 {
-                    ItemName = "{{}} Photo Codes to Clipboard",
-                    ItemCommand = PhotoCodesToClipboardForSelectedCommand
+                    ItemName = "Image Code to Clipboard",
+                    ItemCommand = ListContext.BracketCodeToClipboardSelectedCommand
                 },
                 new()
                 {
-                    ItemName = "{{}} Link Codes to Clipboard",
+                    ItemName = "Text Code to Clipboard",
                     ItemCommand = PhotoLinkCodesToClipboardForSelectedCommand
                 },
                 new() {ItemName = "Email Html to Clipboard", ItemCommand = EmailHtmlToClipboardCommand},
@@ -369,27 +356,6 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
-
-        private async Task PhotoCodesToClipboardForSelected()
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            if (SelectedItems() == null || !SelectedItems().Any())
-            {
-                StatusContext.ToastError("Nothing Selected?");
-                return;
-            }
-
-            var finalString = SelectedItems().Aggregate(string.Empty,
-                (current, loopSelected) =>
-                    current + BracketCodePhotos.Create(loopSelected.DbEntry) + Environment.NewLine);
-
-            await ThreadSwitcher.ResumeForegroundAsync();
-
-            Clipboard.SetText(finalString);
-
-            StatusContext.ToastSuccess($"To Clipboard {finalString}");
         }
 
         private async Task PhotoLinkCodesToClipboardForSelected()
@@ -643,8 +609,6 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
             RegenerateHtmlAndReprocessPhotoForSelectedCommand =
                 StatusContext.RunBlockingTaskWithCancellationCommand(RegenerateHtmlAndReprocessPhotoForSelected,
                     "Cancel HTML Generation and Photo Resizing");
-            PhotoCodesToClipboardForSelectedCommand =
-                StatusContext.RunBlockingTaskCommand(PhotoCodesToClipboardForSelected);
             PhotoLinkCodesToClipboardForSelectedCommand =
                 StatusContext.RunBlockingTaskCommand(PhotoLinkCodesToClipboardForSelected);
             RefreshDataCommand = StatusContext.RunBlockingTaskCommand(ListContext.LoadData);

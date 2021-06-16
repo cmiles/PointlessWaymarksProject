@@ -20,7 +20,6 @@ namespace PointlessWaymarks.CmsWpfControls.PointList
         private readonly StatusControlContext _statusContext;
         private ContentListContext _listContext;
         private Command _pointLinkBracketCodesToClipboardForSelectedCommand;
-        private Command _pointMapBracketCodesToClipboardForSelectedCommand;
         private Command _refreshDataCommand;
 
         public PointListWithActionsContext(StatusControlContext statusContext)
@@ -48,17 +47,6 @@ namespace PointlessWaymarks.CmsWpfControls.PointList
             {
                 if (Equals(value, _pointLinkBracketCodesToClipboardForSelectedCommand)) return;
                 _pointLinkBracketCodesToClipboardForSelectedCommand = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public Command PointMapBracketCodesToClipboardForSelectedCommand
-        {
-            get => _pointMapBracketCodesToClipboardForSelectedCommand;
-            set
-            {
-                if (Equals(value, _pointMapBracketCodesToClipboardForSelectedCommand)) return;
-                _pointMapBracketCodesToClipboardForSelectedCommand = value;
                 OnPropertyChanged();
             }
         }
@@ -97,15 +85,17 @@ namespace PointlessWaymarks.CmsWpfControls.PointList
             RefreshDataCommand = StatusContext.RunBlockingTaskCommand(ListContext.LoadData);
             PointLinkBracketCodesToClipboardForSelectedCommand =
                 StatusContext.RunNonBlockingTaskCommand(PointLinkBracketCodesToClipboardForSelected);
-            PointMapBracketCodesToClipboardForSelectedCommand =
-                StatusContext.RunNonBlockingTaskCommand(PointBracketCodesToClipboardForSelected);
 
             ListContext.ContextMenuItems = new List<ContextMenuItemData>
             {
                 new() {ItemName = "Edit", ItemCommand = ListContext.EditSelectedCommand},
                 new()
                 {
-                    ItemName = "{{}} Code to Clipboard", ItemCommand = ListContext.BracketCodeToClipboardSelectedCommand
+                    ItemName = "Map Code to Clipboard", ItemCommand = ListContext.BracketCodeToClipboardSelectedCommand
+                },
+                new()
+                {
+                    ItemName = "Text Code to Clipboard", ItemCommand = PointLinkBracketCodesToClipboardForSelectedCommand
                 },
                 new()
                     {ItemName = "Extract New Links", ItemCommand = ListContext.ExtractNewLinksSelectedCommand},
@@ -123,27 +113,6 @@ namespace PointlessWaymarks.CmsWpfControls.PointList
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
-
-        private async Task PointBracketCodesToClipboardForSelected()
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            if (SelectedItems() == null || !SelectedItems().Any())
-            {
-                StatusContext.ToastError("Nothing Selected?");
-                return;
-            }
-
-            var finalString = SelectedItems().Aggregate(string.Empty,
-                (current, loopSelected) =>
-                    current + @$"{BracketCodePoints.Create(loopSelected.DbEntry)}{Environment.NewLine}");
-
-            await ThreadSwitcher.ResumeForegroundAsync();
-
-            Clipboard.SetText(finalString);
-
-            StatusContext.ToastSuccess($"To Clipboard {finalString}");
         }
 
         private async Task PointLinkBracketCodesToClipboardForSelected()

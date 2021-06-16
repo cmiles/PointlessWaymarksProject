@@ -18,7 +18,6 @@ namespace PointlessWaymarks.CmsWpfControls.GeoJsonList
     public class GeoJsonListWithActionsContext : INotifyPropertyChanged
     {
         private Command _geoJsonLinkCodesToClipboardForSelectedCommand;
-        private Command _geoJsonMapCodesToClipboardForSelectedCommand;
         private ContentListContext _listContext;
         private Command _refreshDataCommand;
         private StatusControlContext _statusContext;
@@ -40,18 +39,6 @@ namespace PointlessWaymarks.CmsWpfControls.GeoJsonList
                 OnPropertyChanged();
             }
         }
-
-        public Command GeoJsonMapCodesToClipboardForSelectedCommand
-        {
-            get => _geoJsonMapCodesToClipboardForSelectedCommand;
-            set
-            {
-                if (Equals(value, _geoJsonMapCodesToClipboardForSelectedCommand)) return;
-                _geoJsonMapCodesToClipboardForSelectedCommand = value;
-                OnPropertyChanged();
-            }
-        }
-
 
         public ContentListContext ListContext
         {
@@ -117,8 +104,6 @@ namespace PointlessWaymarks.CmsWpfControls.GeoJsonList
 
             ListContext = new ContentListContext(StatusContext, new GeoJsonListLoader(100));
 
-            GeoJsonMapCodesToClipboardForSelectedCommand =
-                StatusContext.RunBlockingTaskCommand(MapBracketCodesToClipboardForSelected);
             GeoJsonLinkCodesToClipboardForSelectedCommand =
                 StatusContext.RunBlockingTaskCommand(LinkBracketCodesToClipboardForSelected);
             RefreshDataCommand = StatusContext.RunBlockingTaskCommand(ListContext.LoadData);
@@ -128,7 +113,11 @@ namespace PointlessWaymarks.CmsWpfControls.GeoJsonList
                 new() {ItemName = "Edit", ItemCommand = ListContext.EditSelectedCommand},
                 new()
                 {
-                    ItemName = "{{}} Code to Clipboard", ItemCommand = ListContext.BracketCodeToClipboardSelectedCommand
+                    ItemName = "Map Code to Clipboard", ItemCommand = ListContext.BracketCodeToClipboardSelectedCommand
+                },
+                new()
+                {
+                    ItemName = "Text Code to Clipboard", ItemCommand = GeoJsonLinkCodesToClipboardForSelectedCommand
                 },
                 new()
                     {ItemName = "Extract New Links", ItemCommand = ListContext.ExtractNewLinksSelectedCommand},
@@ -140,27 +129,6 @@ namespace PointlessWaymarks.CmsWpfControls.GeoJsonList
             };
 
             await ListContext.LoadData();
-        }
-
-        private async Task MapBracketCodesToClipboardForSelected()
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            if (SelectedItems() == null || !SelectedItems().Any())
-            {
-                StatusContext.ToastError("Nothing Selected?");
-                return;
-            }
-
-            var finalString = SelectedItems().Aggregate(string.Empty,
-                (current, loopSelected) =>
-                    current + @$"{BracketCodeGeoJson.Create(loopSelected.DbEntry)}{Environment.NewLine}");
-
-            await ThreadSwitcher.ResumeForegroundAsync();
-
-            Clipboard.SetText(finalString);
-
-            StatusContext.ToastSuccess($"To Clipboard {finalString}");
         }
 
         [NotifyPropertyChangedInvocator]

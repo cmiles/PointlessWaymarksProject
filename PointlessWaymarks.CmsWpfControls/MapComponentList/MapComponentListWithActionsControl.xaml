@@ -71,8 +71,8 @@
                     Content="_New Content"
                     Style="{StaticResource ActionPanelButtonStyle}" />
                 <Button
-                    Command="{Binding MapComponentCodesToClipboardForSelectedCommand}"
-                    Content="Code to Clipboard"
+                    Command="{Binding ListContext.BracketCodeToClipboardSelectedCommand}"
+                    Content="Map Code"
                     Style="{StaticResource ActionPanelButtonStyle}" />
                 <Button Command="{Binding ListContext.DeleteSelectedCommand}" Style="{StaticResource ActionPanelButtonStyle}">Delete</Button>
                 <Button
