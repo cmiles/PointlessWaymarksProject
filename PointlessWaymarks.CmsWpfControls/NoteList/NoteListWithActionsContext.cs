@@ -107,7 +107,7 @@ namespace PointlessWaymarks.CmsWpfControls.NoteList
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            ListContext = new ContentListContext(StatusContext, new NoteListLoader(100));
+            ListContext ??= new ContentListContext(StatusContext, new NoteListLoader(100));
 
             RefreshDataCommand = StatusContext.RunBlockingTaskCommand(ListContext.LoadData);
             EmailHtmlToClipboardCommand = StatusContext.RunBlockingTaskCommand(EmailHtmlToClipboard);

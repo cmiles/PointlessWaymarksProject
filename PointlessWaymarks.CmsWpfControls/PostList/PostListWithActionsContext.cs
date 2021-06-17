@@ -140,7 +140,7 @@ namespace PointlessWaymarks.CmsWpfControls.PostList
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            ListContext = new ContentListContext(StatusContext, new PostListLoader(100));
+            ListContext ??= new ContentListContext(StatusContext, new PostListLoader(100));
 
             PostImageCodesToClipboardForSelectedCommand =
                 StatusContext.RunBlockingTaskCommand(BracketCodesToClipboardForSelected);

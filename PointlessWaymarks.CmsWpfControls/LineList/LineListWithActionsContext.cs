@@ -101,7 +101,7 @@ namespace PointlessWaymarks.CmsWpfControls.LineList
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            ListContext = new ContentListContext(StatusContext, new LineListLoader(100));
+            ListContext ??= new ContentListContext(StatusContext, new LineListLoader(100));
 
             LineLinkCodesToClipboardForSelectedCommand =
                 StatusContext.RunBlockingTaskCommand(LinkBracketCodesToClipboardForSelected);

@@ -56,7 +56,7 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
         {
             StatusContext = statusContext ?? new StatusControlContext();
 
-            ListContext = new ContentListContext(StatusContext, reportFilter);
+            ListContext ??= new ContentListContext(StatusContext, reportFilter);
 
             SetupCommands();
 
@@ -316,7 +316,7 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            ListContext = new ContentListContext(StatusContext, new PhotoListLoader(100));
+            ListContext ??= new ContentListContext(StatusContext, new PhotoListLoader(100));
 
             SetupCommands();
 

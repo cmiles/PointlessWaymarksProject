@@ -174,7 +174,7 @@ namespace PointlessWaymarks.CmsWpfControls.LinkList
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            ListContext = new ContentListContext(StatusContext, new LinkListLoader(100));
+            ListContext ??= new ContentListContext(StatusContext, new LinkListLoader(100));
 
             RefreshDataCommand = StatusContext.RunBlockingTaskCommand(ListContext.LoadData);
             MdLinkCodesToClipboardForSelectedCommand =

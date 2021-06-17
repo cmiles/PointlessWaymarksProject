@@ -222,7 +222,7 @@ namespace PointlessWaymarks.CmsWpfControls.ImageList
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            ListContext = new ContentListContext(StatusContext, new ImageListLoader(100));
+            ListContext ??= new ContentListContext(StatusContext, new ImageListLoader(100));
 
             RefreshDataCommand = StatusContext.RunBlockingTaskCommand(ListContext.LoadData);
 

@@ -214,7 +214,7 @@ namespace PointlessWaymarks.CmsWpfControls.FileList
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            ListContext = new ContentListContext(StatusContext, new FileListLoader(100));
+            ListContext ??= new ContentListContext(StatusContext, new FileListLoader(100));
 
             RefreshDataCommand = StatusContext.RunBlockingTaskCommand(ListContext.LoadData);
             FilePageLinkCodesToClipboardForSelectedCommand =

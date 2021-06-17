@@ -80,7 +80,7 @@ namespace PointlessWaymarks.CmsWpfControls.PointList
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            ListContext = new ContentListContext(StatusContext, new PointListLoader(100));
+            ListContext ??= new ContentListContext(StatusContext, new PointListLoader(100));
 
             RefreshDataCommand = StatusContext.RunBlockingTaskCommand(ListContext.LoadData);
             PointLinkBracketCodesToClipboardForSelectedCommand =

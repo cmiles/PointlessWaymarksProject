@@ -68,7 +68,7 @@ namespace PointlessWaymarks.CmsWpfControls.MapComponentList
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            ListContext = new ContentListContext(StatusContext, new MapComponentListLoader(100));
+            ListContext ??= new ContentListContext(StatusContext, new MapComponentListLoader(100));
 
             RefreshDataCommand = StatusContext.RunBlockingTaskCommand(ListContext.LoadData);
 

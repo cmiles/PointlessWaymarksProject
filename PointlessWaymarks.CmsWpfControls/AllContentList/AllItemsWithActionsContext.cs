@@ -54,7 +54,7 @@ namespace PointlessWaymarks.CmsWpfControls.AllContentList
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            ListContext = new ContentListContext(StatusContext, new ContentListLoaderAllItems(100));
+            ListContext ??= new ContentListContext(StatusContext, new ContentListLoaderAllItems(100));
 
             WordPressImportWindowCommand = StatusContext.RunNonBlockingTaskCommand(WordPressImportWindow);
 
