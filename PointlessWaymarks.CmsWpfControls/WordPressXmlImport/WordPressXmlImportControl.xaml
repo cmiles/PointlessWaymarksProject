@@ -20,10 +20,11 @@
     <Grid Margin="4">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
             <RowDefinition />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
-        <GroupBox Header="Actions" Style="{StaticResource UiComponentGroupBoxStyle}">
+        <GroupBox Header="Load" Style="{StaticResource UiComponentGroupBoxStyle}">
             <WrapPanel HorizontalAlignment="Center" Orientation="Horizontal">
                 <WrapPanel.Resources>
                     <Style TargetType="Button">
@@ -40,20 +41,20 @@
                         <Setter Property="Width" Value="180" />
                     </Style>
                 </WrapPanel.Resources>
+                <CheckBox Margin="0,0,18,0" IsChecked="{Binding ImportPosts}">Import Posts</CheckBox>
+                <CheckBox Margin="0,0,18,0" IsChecked="{Binding ImportPages}">Import Pages</CheckBox>
+                <CheckBox Margin="0,0,18,0" IsChecked="{Binding FilterOutExistingPostUrls}">Filter Out Existing URLs</CheckBox>
                 <Button Command="{Binding LoadWordPressXmlFileCommand}">Load File</Button>
-                <CheckBox Width="120" IsChecked="{Binding ImportPosts}">Import Posts</CheckBox>
-                <CheckBox Width="120" IsChecked="{Binding ImportPages}">Import Pages</CheckBox>
-                <CheckBox Width="180" IsChecked="{Binding FilterOutExistingPostUrls}">Filter Out Existing URLs</CheckBox>
-                <Label>Filter Title/Slug/Category/Tags For:</Label>
-                <TextBox
-                    Width="200"
-                    VerticalAlignment="Center"
-                    Text="{Binding UserFilterText, Delay=500, UpdateSourceTrigger=PropertyChanged}" />
             </WrapPanel>
         </GroupBox>
+        <GroupBox Grid.Row="1" Style="{StaticResource UiComponentGroupBoxStyle}">
+            <TextBox
+                VerticalAlignment="Center"
+                Text="{Binding UserFilterText, Delay=500, UpdateSourceTrigger=PropertyChanged}" />
+        </GroupBox>
         <GroupBox
-            Grid.Row="1"
-            Header="WordPress XML Items"
+            Grid.Row="2"
+            Header="WordPress Items"
             Style="{StaticResource UiComponentGroupBoxStyle}">
             <ListBox
                 x:Name="ItemsListBox"
@@ -67,7 +68,8 @@
                 VirtualizingPanel.IsVirtualizing="True"
                 VirtualizingPanel.ScrollUnit="Pixel">
                 <b:Interaction.Behaviors>
-                    <wpfBehavior:AttachCommandBindingsBehavior CommandBindings="{Binding ListSelection.ListBoxAppCommandBindings}" />
+                    <wpfBehavior:AttachCommandBindingsBehavior
+                        CommandBindings="{Binding ListSelection.ListBoxAppCommandBindings}" />
                 </b:Interaction.Behaviors>
                 <ListBox.ItemTemplate>
                     <DataTemplate DataType="wordPressXmlImport:WordPressXmlImportListItem">
@@ -95,7 +97,9 @@
                                     </b:Interaction.Behaviors>
                                     <b:Interaction.Triggers>
                                         <b:EventTrigger EventName="SelectionChanged">
-                                            <wpfBehavior:EventToCommand Command="{Binding SelectedTextTracker.SelectedTextChangedCommand}" PassEventArgsToCommand="True" />
+                                            <wpfBehavior:EventToCommand
+                                                Command="{Binding SelectedTextTracker.SelectedTextChangedCommand}"
+                                                PassEventArgsToCommand="True" />
                                         </b:EventTrigger>
                                     </b:Interaction.Triggers>
                                 </TextBox>
@@ -115,7 +119,9 @@
                                     </b:Interaction.Behaviors>
                                     <b:Interaction.Triggers>
                                         <b:EventTrigger EventName="SelectionChanged">
-                                            <wpfBehavior:EventToCommand Command="{Binding SelectedTextTracker.SelectedTextChangedCommand}" PassEventArgsToCommand="True" />
+                                            <wpfBehavior:EventToCommand
+                                                Command="{Binding SelectedTextTracker.SelectedTextChangedCommand}"
+                                                PassEventArgsToCommand="True" />
                                         </b:EventTrigger>
                                     </b:Interaction.Triggers>
                                 </TextBox>
@@ -135,7 +141,9 @@
                                     </b:Interaction.Behaviors>
                                     <b:Interaction.Triggers>
                                         <b:EventTrigger EventName="SelectionChanged">
-                                            <wpfBehavior:EventToCommand Command="{Binding SelectedTextTracker.SelectedTextChangedCommand}" PassEventArgsToCommand="True" />
+                                            <wpfBehavior:EventToCommand
+                                                Command="{Binding SelectedTextTracker.SelectedTextChangedCommand}"
+                                                PassEventArgsToCommand="True" />
                                         </b:EventTrigger>
                                     </b:Interaction.Triggers>
                                 </TextBox>
@@ -156,7 +164,9 @@
                                     </b:Interaction.Behaviors>
                                     <b:Interaction.Triggers>
                                         <b:EventTrigger EventName="SelectionChanged">
-                                            <wpfBehavior:EventToCommand Command="{Binding SelectedTextTracker.SelectedTextChangedCommand}" PassEventArgsToCommand="True" />
+                                            <wpfBehavior:EventToCommand
+                                                Command="{Binding SelectedTextTracker.SelectedTextChangedCommand}"
+                                                PassEventArgsToCommand="True" />
                                         </b:EventTrigger>
                                     </b:Interaction.Triggers>
                                 </TextBox>
@@ -167,8 +177,8 @@
             </ListBox>
         </GroupBox>
         <GroupBox
-            Grid.Row="2"
-            Header="Load WordPress XML"
+            Grid.Row="3"
+            Header="Content From Selected WordPress Item"
             Style="{StaticResource UiComponentGroupBoxStyle}">
             <WrapPanel HorizontalAlignment="Center" Orientation="Horizontal">
                 <WrapPanel.Resources>

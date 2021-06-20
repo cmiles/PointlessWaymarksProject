@@ -63,7 +63,7 @@ namespace PointlessWaymarks.CmsWpfControls.AllContentList
                 new() {ItemName = "Edit", ItemCommand = ListContext.EditSelectedCommand},
                 new()
                 {
-                    ItemName = "{{}} Code to Clipboard", ItemCommand = ListContext.BracketCodeToClipboardSelectedCommand
+                    ItemName = "Code to Clipboard", ItemCommand = ListContext.BracketCodeToClipboardSelectedCommand
                 },
                 new()
                     {ItemName = "Extract New Links", ItemCommand = ListContext.ExtractNewLinksSelectedCommand},
