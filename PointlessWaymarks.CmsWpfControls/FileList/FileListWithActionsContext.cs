@@ -28,6 +28,7 @@ namespace PointlessWaymarks.CmsWpfControls.FileList
         private ContentListContext _listContext;
         private Command _refreshDataCommand;
         private Command _viewFilesCommand;
+        private Command _fileUrlLinkCodesToClipboardForSelectedCommand;
 
         public FileListWithActionsContext(StatusControlContext statusContext)
         {
@@ -175,6 +176,28 @@ namespace PointlessWaymarks.CmsWpfControls.FileList
             StatusContext.ToastSuccess($"To Clipboard {finalString}");
         }
 
+        private async Task FileUrlLinkCodesToClipboardForSelected()
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            if (SelectedItems() == null || !SelectedItems().Any())
+            {
+                StatusContext.ToastError("Nothing Selected?");
+                return;
+            }
+
+            var finalString = string.Empty;
+
+            foreach (var loopSelected in SelectedItems())
+                finalString += @$"{BracketCodeFileUrl.Create(loopSelected.DbEntry)}{Environment.NewLine}";
+
+            await ThreadSwitcher.ResumeForegroundAsync();
+
+            Clipboard.SetText(finalString);
+
+            StatusContext.ToastSuccess($"To Clipboard {finalString}");
+        }
+
         private async Task FilePageLinkCodesToClipboardForSelected()
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
@@ -221,6 +244,8 @@ namespace PointlessWaymarks.CmsWpfControls.FileList
                 StatusContext.RunBlockingTaskCommand(FilePageLinkCodesToClipboardForSelected);
             FileDownloadLinkCodesToClipboardForSelectedCommand =
                 StatusContext.RunBlockingTaskCommand(FileDownloadLinkCodesToClipboardForSelected);
+            FileUrlLinkCodesToClipboardForSelectedCommand =
+                StatusContext.RunBlockingTaskCommand(FileDownloadLinkCodesToClipboardForSelected);
             ViewFilesCommand =
                 StatusContext.RunBlockingTaskWithCancellationCommand(ViewFilesSelected, "Cancel File View");
 
@@ -246,6 +271,11 @@ namespace PointlessWaymarks.CmsWpfControls.FileList
                     ItemName = "Download Code to Clipboard",
                     ItemCommand = FileDownloadLinkCodesToClipboardForSelectedCommand
                 },
+                new()
+                {
+                    ItemName = "URL Code to Clipboard",
+                    ItemCommand = FileDownloadLinkCodesToClipboardForSelectedCommand
+                },
                 new() {ItemName = "Email Html to Clipboard", ItemCommand = EmailHtmlToClipboardCommand},
                 new() {ItemName = "View Files", ItemCommand = ViewFilesCommand},
                 new() {ItemName = "Open URLs", ItemCommand = ListContext.OpenUrlSelectedCommand},
@@ -264,6 +294,17 @@ namespace PointlessWaymarks.CmsWpfControls.FileList
             };
 
             await ListContext.LoadData();
+        }
+
+        public Command FileUrlLinkCodesToClipboardForSelectedCommand
+        {
+            get => _fileUrlLinkCodesToClipboardForSelectedCommand;
+            set
+            {
+                if (Equals(value, _fileUrlLinkCodesToClipboardForSelectedCommand)) return;
+                _fileUrlLinkCodesToClipboardForSelectedCommand = value;
+                OnPropertyChanged();
+            }
         }
 
         [NotifyPropertyChangedInvocator]

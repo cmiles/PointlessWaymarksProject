@@ -123,6 +123,7 @@ namespace PointlessWaymarks.CmsData.CommonHtml
         {
             if (string.IsNullOrWhiteSpace(input)) return string.Empty;
 
+            input = await BracketCodeFileUrl.Process(input, progress).ConfigureAwait(false);
             input = await BracketCodeFileDownloads.Process(input, progress).ConfigureAwait(false);
             input = await BracketCodeFiles.Process(input, progress).ConfigureAwait(false);
             input = await BracketCodeFileImage.ProcessForEmail(input, progress).ConfigureAwait(false);
@@ -150,6 +151,7 @@ namespace PointlessWaymarks.CmsData.CommonHtml
 
         public static async Task<string> ProcessCodesForLocalDisplay(string input, IProgress<string>? progress = null)
         {
+            input = await BracketCodeFileUrl.Process(input, progress).ConfigureAwait(false);
             input = await BracketCodeFileDownloads.Process(input, progress).ConfigureAwait(false);
             input = await BracketCodeFiles.Process(input, progress).ConfigureAwait(false);
             input = await BracketCodeFileImage.ProcessForDirectLocalAccess(input, progress).ConfigureAwait(false);
@@ -173,6 +175,7 @@ namespace PointlessWaymarks.CmsData.CommonHtml
 
         public static async Task<string> ProcessCodesForSite(string input, IProgress<string>? progress = null)
         {
+            input = await BracketCodeFileUrl.Process(input, progress).ConfigureAwait(false);
             input = await BracketCodeFileDownloads.Process(input, progress).ConfigureAwait(false);
             input = await BracketCodeFiles.Process(input, progress).ConfigureAwait(false);
             input = await BracketCodeFileImage.ProcessToFigureWithLink(input, progress).ConfigureAwait(false);
