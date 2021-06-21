@@ -38,8 +38,6 @@ namespace PointlessWaymarks.CmsData.ContentHtml.ErrorHtml
 
         public async Task WriteLocalHtml()
         {
-            var settings = UserSettingsSingleton.CurrentSettings();
-
             var parser = new HtmlParser();
             var htmlDoc = parser.ParseDocument(TransformText());
 

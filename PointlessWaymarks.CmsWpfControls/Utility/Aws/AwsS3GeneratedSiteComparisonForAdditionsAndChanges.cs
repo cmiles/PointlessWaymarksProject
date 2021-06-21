@@ -110,22 +110,24 @@ namespace PointlessWaymarks.CmsWpfControls.Utility.Aws
                 var matches = awsObjects.Where(x => !x.Key.EndsWith("/") && x.Size != 0 && x.Key == loopFileKey)
                     .ToList();
 
-                if (matches.Count > 1)
+                switch (matches.Count)
                 {
-                    returnReport.ErrorMessages.Add(
-                        $"Unexpected Condition - {matches.Count} matches found for {loopFile.FullName} - {string.Join(", ", matches.Select(x => x.Key))}");
-                }
-                else if (matches.Count == 1)
-                {
-                    if (loopFile.Length != matches.First().Size)
-                        returnReport.FileSizeMismatches.Add(new S3Upload(loopFile, matches.First().Key, bucket,
-                            region.SystemName, "S3 File Size Mismatch"));
-                    matches.ForEach(x => awsObjects.Remove(x));
-                }
-                else
-                {
-                    returnReport.MissingFiles.Add(new S3Upload(loopFile, FileInfoInGeneratedSiteToS3Key(loopFile),
-                        bucket, region.SystemName, "File Missing on S3"));
+                    case > 1:
+                        returnReport.ErrorMessages.Add(
+                            $"Unexpected Condition - {matches.Count} matches found for {loopFile.FullName} - {string.Join(", ", matches.Select(x => x.Key))}");
+                        break;
+                    case 1:
+                    {
+                        if (loopFile.Length != matches.First().Size)
+                            returnReport.FileSizeMismatches.Add(new S3Upload(loopFile, matches.First().Key, bucket,
+                                region.SystemName, "S3 File Size Mismatch"));
+                        matches.ForEach(x => awsObjects.Remove(x));
+                        break;
+                    }
+                    default:
+                        returnReport.MissingFiles.Add(new S3Upload(loopFile, FileInfoInGeneratedSiteToS3Key(loopFile),
+                            bucket, region.SystemName, "File Missing on S3"));
+                        break;
                 }
             }
 

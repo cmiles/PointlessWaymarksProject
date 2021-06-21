@@ -68,7 +68,7 @@ namespace PointlessWaymarks.CmsWpfControls.UserSettingsEditor
 
         public string PdfToCairoHelpText =>
             "pdftocairo transforms Pdf files to other formats including jpg files - this program " +
-            "can be use it to automatically generate an image of the first/cover page of a pdf, very " +
+            "can use it to automatically generate an image of a page of a pdf, very " +
             "useful when adding PDFs to the File Content. However pdftocariro is not included with this " +
             "program... On Windows the easiest way to get pdftocairo is to install [MiKTeX](https://miktex.org/download). " +
             "Once installed the setting above should be the folder where pdftocairo.exe is located - " +

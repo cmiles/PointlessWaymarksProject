@@ -8,7 +8,7 @@ using Omu.ValueInjecter;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 
-namespace PointlessWaymarksCmsData.Json
+namespace PointlessWaymarks.CmsData.Json
 {
     public static class DbImport
     {
@@ -21,7 +21,7 @@ namespace PointlessWaymarksCmsData.Json
          {
              progress?.Report("<#= loopTypeNames #> - Starting");
 
-             if (toImport == null || !toImport.Any())
+             if (!toImport.Any())
              {
                  progress?.Report("No <#= loopTypeNames #> items to import...");
                  return;

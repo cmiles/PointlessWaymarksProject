@@ -8,17 +8,12 @@ namespace PointlessWaymarks.WpfCommon.ValueConverters
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            switch (value)
+            return value switch
             {
-                case null:
-                    return true;
-
-                case bool b:
-                    return !b;
-
-                default:
-                    return true;
-            }
+                null => true,
+                bool b => !b,
+                _ => true
+            };
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

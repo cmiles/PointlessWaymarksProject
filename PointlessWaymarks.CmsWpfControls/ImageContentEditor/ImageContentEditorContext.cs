@@ -568,7 +568,7 @@ namespace PointlessWaymarks.CmsWpfControls.ImageContentEditor
 
             var rotate = new MagicScalerImageResizer();
 
-            await rotate.Rotate(SelectedFile, rotationType);
+            await MagicScalerImageResizer.Rotate(SelectedFile, rotationType);
             ResizeSelectedFile = true;
 
             StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(SelectedFileChanged);

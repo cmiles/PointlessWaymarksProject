@@ -8,8 +8,7 @@ namespace PointlessWaymarks.WpfCommon.ValueConverters
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            var createdOn = value as DateTime?;
-            if (createdOn == null) return "No Created On Date";
+            if (!(value is DateTime createdOn)) return "No Created On Date";
             return $"Created On {createdOn:yyyy-MM-dd}";
         }
 

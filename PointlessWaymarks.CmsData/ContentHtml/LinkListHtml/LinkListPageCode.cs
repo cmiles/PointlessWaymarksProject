@@ -32,7 +32,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml.LinkListHtml
         public string ListTitle { get; set; }
         public string RssUrl { get; set; }
 
-        public HtmlTag LinkTableTag()
+        public static HtmlTag LinkTableTag()
         {
             var db = Db.Context().Result;
 

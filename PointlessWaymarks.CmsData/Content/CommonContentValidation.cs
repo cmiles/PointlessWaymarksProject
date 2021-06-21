@@ -224,7 +224,7 @@ namespace PointlessWaymarks.CmsData.Content
 
         public static IsValid LatitudeValidation(double latitude)
         {
-            if (latitude > 90 || latitude < -90)
+            if (latitude is > 90 or < -90)
                 return new IsValid(false, $"Latitude on Earth must be between -90 and 90 - {latitude} is not valid.");
 
             return new IsValid(true, "Latitude is Valid");
@@ -232,7 +232,7 @@ namespace PointlessWaymarks.CmsData.Content
 
         public static IsValid LongitudeValidation(double longitude)
         {
-            if (longitude > 180 || longitude < -180)
+            if (longitude is > 180 or < -180)
                 return new IsValid(false,
                     $"Longitude on Earth must be between -180 and 180 - {longitude} is not valid.");
 

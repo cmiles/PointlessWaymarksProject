@@ -177,10 +177,6 @@ namespace PointlessWaymarks.CmsContentEditor
             StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(CleanupTemporaryFiles);
         }
 
-        public Command AllEventsExcelReportCommand { get; set; }
-
-        public Command AllEventsHtmlReportCommand { get; set; }
-
         public Command CheckAllContentForInvalidBracketCodeContentIdsCommand { get; set; }
 
         public Command ConfirmOrGenerateAllPhotosImagesFilesCommand { get; set; }

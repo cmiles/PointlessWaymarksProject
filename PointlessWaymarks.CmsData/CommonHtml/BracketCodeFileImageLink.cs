@@ -78,8 +78,10 @@ namespace PointlessWaymarks.CmsData.CommonHtml
                     progress?.Report(
                         $"File Image Link without Main Image - converting to filelink - File: {dbFile.Title}");
 
-                    loopMatch.bracketCodeText.Replace("fileimagelink", "filelink", StringComparison.OrdinalIgnoreCase);
+                    var newBracketCodeText = loopMatch.bracketCodeText.Replace("fileimagelink", "filelink", StringComparison.OrdinalIgnoreCase);
 
+                    toProcess = toProcess.Replace(loopMatch.bracketCodeText, newBracketCodeText);
+                    
                     await BracketCodeFiles.Process(toProcess);
 
                     continue;
@@ -92,8 +94,10 @@ namespace PointlessWaymarks.CmsData.CommonHtml
                     progress?.Report(
                         $"File Image Link with Null PictureSiteInformation - converting to filelink - File: {dbFile.Title}");
 
-                    loopMatch.bracketCodeText.Replace("fileimagelink", "filelink", StringComparison.OrdinalIgnoreCase);
+                    var newBracketCodeText = loopMatch.bracketCodeText.Replace("fileimagelink", "filelink", StringComparison.OrdinalIgnoreCase);
 
+                    toProcess = toProcess.Replace(loopMatch.bracketCodeText, newBracketCodeText);
+                    
                     await BracketCodeFiles.Process(toProcess);
 
                     continue;

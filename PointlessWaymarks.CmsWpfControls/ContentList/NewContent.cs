@@ -88,7 +88,7 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList
         public StatusControlContext StatusContext
         {
             get => _statusContext;
-            set
+            init
             {
                 if (Equals(value, _statusContext)) return;
                 _statusContext = value;
@@ -107,7 +107,7 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList
             newContentWindow.PositionWindowAndShow();
         }
 
-        private async Task NewFileContentFromFiles(CancellationToken cancellationToken)
+        public async Task NewFileContentFromFiles(CancellationToken cancellationToken)
         {
             await ThreadSwitcher.ResumeForegroundAsync();
 
@@ -172,7 +172,7 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList
             newContentWindow.PositionWindowAndShow();
         }
 
-        private async Task NewImageContentFromFiles(CancellationToken cancellationToken)
+        public async Task NewImageContentFromFiles(CancellationToken cancellationToken)
         {
             await ThreadSwitcher.ResumeForegroundAsync();
 
@@ -276,7 +276,7 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList
             newContentWindow.PositionWindowAndShow();
         }
 
-        private async Task NewPhotoContentFromFiles(bool autoSaveAndClose, CancellationToken cancellationToken)
+        public async Task NewPhotoContentFromFiles(bool autoSaveAndClose, CancellationToken cancellationToken)
         {
             await ThreadSwitcher.ResumeForegroundAsync();
 

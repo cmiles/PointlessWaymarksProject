@@ -13,13 +13,11 @@ namespace PointlessWaymarks.CmsData.Import
 
             foreach (var loopCells in headerRow)
             {
-                var columnStringValue = loopCells;
-
-                if (string.IsNullOrWhiteSpace(columnStringValue)) continue;
+                if (string.IsNullOrWhiteSpace(loopCells)) continue;
 
                 Columns.Add(new ContentImportColumn
                 {
-                    ColumnHeader = columnStringValue, ColumnNumber = headerRow.IndexOf(loopCells)
+                    ColumnHeader = loopCells, ColumnNumber = headerRow.IndexOf(loopCells)
                 });
             }
         }

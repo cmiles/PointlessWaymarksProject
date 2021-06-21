@@ -141,7 +141,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml
             for (var i = 0; i < len; i++)
             {
                 var c = normalized[i];
-                if (c is >= 'a' and <= 'z' || c is >= '0' and <= '9' || allowedBeyondAtoZ1To9.Contains(c))
+                if (c is >= 'a' and <= 'z' or >= '0' and <= '9' || allowedBeyondAtoZ1To9.Contains(c))
                 {
                     sb.Append(c);
                 }
@@ -184,7 +184,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml
             for (var i = 0; i < len; i++)
             {
                 var c = normalized[i];
-                if (c is >= 'a' and <= 'z' || c is >= '0' and <= '9' || c == '_' || c == '-')
+                if (c is >= 'a' and <= 'z' or >= '0' and <= '9' or '_' or '-')
                 {
                     if (previousSpace)
                     {
@@ -208,7 +208,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml
                     else
                         sb.Append(c);
                 }
-                else if (c == ',' || c == '.' || c == '/' || c == '\\' || c == '=' || c == ' ' || c == ';')
+                else if (c is ',' or '.' or '/' or '\\' or '=' or ' ' or ';')
                 {
                     if (!previousSpace && sb.Length > 0) previousSpace = true;
                 }

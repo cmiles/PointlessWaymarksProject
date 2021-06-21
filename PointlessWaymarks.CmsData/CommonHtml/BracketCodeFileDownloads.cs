@@ -43,11 +43,6 @@ namespace PointlessWaymarks.CmsData.CommonHtml
             return resultList;
         }
 
-        public static string FileLinkBracketCode(FileContent content)
-        {
-            return $@"{{{{{BracketCodeToken} {content.ContentId}; {content.Title}}}}}";
-        }
-
         public static async Task<string> Process(string toProcess, IProgress<string>? progress = null)
         {
             if (string.IsNullOrWhiteSpace(toProcess)) return string.Empty;

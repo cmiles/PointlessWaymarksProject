@@ -4,11 +4,6 @@ namespace PointlessWaymarks.CmsData.CommonHtml
 {
     public static class SpatialScripts
     {
-        public static string IncludeIfNeeded(string content)
-        {
-            return BracketCodeCommon.ContainsSpatialBracketCodes(content) ? ScriptsAndLinks() : string.Empty;
-        }
-
         public static string IncludeIfNeeded(IContentCommon content)
         {
             return BracketCodeCommon.ContainsSpatialBracketCodes(content) ? ScriptsAndLinks() : string.Empty;

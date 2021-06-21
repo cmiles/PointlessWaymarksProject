@@ -89,15 +89,13 @@ namespace PointlessWaymarks.CmsData.Rss
 
             progress?.Report($"Writing {titleAdd} RSS to {fileInfo.FullName}");
 
-            var localIndexFile = fileInfo;
-
-            if (localIndexFile.Exists)
+            if (fileInfo.Exists)
             {
-                localIndexFile.Delete();
-                localIndexFile.Refresh();
+                fileInfo.Delete();
+                fileInfo.Refresh();
             }
 
-            await FileManagement.WriteAllTextToFileAndLogAsync(localIndexFile.FullName,
+            await FileManagement.WriteAllTextToFileAndLogAsync(fileInfo.FullName,
                 RssFileString($"{UserSettingsSingleton.CurrentSettings().SiteName} - {titleAdd}",
                     string.Join(Environment.NewLine, items)), Encoding.UTF8);
         }

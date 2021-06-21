@@ -301,32 +301,35 @@ namespace PointlessWaymarks.CmsWpfControls.TagList
                 return;
             }
 
-            if (translatedMessage.UpdateType == DataNotificationUpdateType.LocalContent) return;
-
-            if (translatedMessage.UpdateType == DataNotificationUpdateType.Delete)
+            switch (translatedMessage.UpdateType)
             {
-                var relatedEntries = ListItemsWithContentIds(translatedMessage.ContentIds);
-
-                foreach (var loopEntries in relatedEntries)
+                case DataNotificationUpdateType.LocalContent:
+                    return;
+                case DataNotificationUpdateType.Delete:
                 {
-                    var contentToRemoveList = loopEntries.ContentInformation
-                        .Where(x => translatedMessage.ContentIds.Contains(x.ContentId)).ToList();
+                    var relatedEntries = ListItemsWithContentIds(translatedMessage.ContentIds);
 
-                    var newContentList = loopEntries.ContentInformation.Except(contentToRemoveList).ToList();
-
-                    if (!newContentList.Any())
+                    foreach (var loopEntries in relatedEntries)
                     {
-                        await ThreadSwitcher.ResumeForegroundAsync();
-                        Items.Remove(loopEntries);
-                        await ThreadSwitcher.ResumeBackgroundAsync();
-                        continue;
+                        var contentToRemoveList = loopEntries.ContentInformation
+                            .Where(x => translatedMessage.ContentIds.Contains(x.ContentId)).ToList();
+
+                        var newContentList = loopEntries.ContentInformation.Except(contentToRemoveList).ToList();
+
+                        if (!newContentList.Any())
+                        {
+                            await ThreadSwitcher.ResumeForegroundAsync();
+                            Items.Remove(loopEntries);
+                            await ThreadSwitcher.ResumeBackgroundAsync();
+                            continue;
+                        }
+
+                        loopEntries.ContentInformation = newContentList;
+                        loopEntries.ContentCount = newContentList.Count;
                     }
 
-                    loopEntries.ContentInformation = newContentList;
-                    loopEntries.ContentCount = newContentList.Count;
+                    return;
                 }
-
-                return;
             }
 
             var db = await Db.Context();

@@ -299,7 +299,7 @@ namespace PointlessWaymarks.CmsData.CommonHtml
             {
                 PhotoContent => PhotoFigureTag(sizes),
                 ImageContent => ImageFigureTag(sizes),
-                _ => throw new ArgumentException("not a recognized picture type")
+                _ =>  throw new Exception($"{nameof(Pictures.DbEntry)} is not a recognized picture type for {nameof(PictureFigureWithCaptionAndLinkTag)}")
             };
         }
 
@@ -311,7 +311,7 @@ namespace PointlessWaymarks.CmsData.CommonHtml
             {
                 PhotoContent p => PhotoFigureWithCaptionAndLinkTag(p, sizes, linkUrl),
                 ImageContent i => ImageFigureWithCaptionAndLinkTag(i, sizes, linkUrl),
-                _ => throw new ArgumentException("not a recognized picture type", nameof(Pictures.DbEntry))
+                _ => throw new Exception($"{nameof(Pictures.DbEntry)} is not a recognized picture type for {nameof(PictureFigureWithCaptionAndLinkTag)}")
             };
         }
 

@@ -277,8 +277,8 @@ namespace PointlessWaymarks.CmsWpfControls.BodyContentEditor
         {
             if (string.IsNullOrWhiteSpace(SelectedBodyText)) return;
             SelectedBodyText = Regex.Replace(SelectedBodyText, @"\r\n?|\n", " ");
-            RegexOptions options = RegexOptions.None;
-            Regex regex = new Regex("[ ]{2,}", options);     
+            var options = RegexOptions.None;
+            var regex = new Regex("[ ]{2,}", options);     
             SelectedBodyText = regex.Replace(SelectedBodyText, " ");
         }
 

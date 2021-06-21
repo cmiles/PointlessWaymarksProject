@@ -26,7 +26,7 @@ namespace PointlessWaymarks.CmsData.CommonHtml
                 case ContentFormatEnum.Html01:
                     return toProcess;
                 default:
-                    throw new ArgumentOutOfRangeException();
+                    throw new ArgumentOutOfRangeException( $"{nameof(contentFormat)} is not a recognized {nameof(ContentFormatEnum)} for {nameof(ProcessContent)}");
             }
         }
     }

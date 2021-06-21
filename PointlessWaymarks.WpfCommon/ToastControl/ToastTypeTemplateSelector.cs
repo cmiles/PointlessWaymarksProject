@@ -15,23 +15,14 @@ namespace PointlessWaymarks.WpfCommon.ToastControl
             if (item is not ToastViewModel toastViewModel)
                 return null;
 
-            switch (toastViewModel.Type)
+            return toastViewModel.Type switch
             {
-                case ToastType.Information:
-                    return InformationTemplate;
-
-                case ToastType.Success:
-                    return SuccessTemplate;
-
-                case ToastType.Warning:
-                    return WarningTemplate;
-
-                case ToastType.Error:
-                    return ErrorTemplate;
-
-                default:
-                    return null;
-            }
+                ToastType.Information => InformationTemplate,
+                ToastType.Success => SuccessTemplate,
+                ToastType.Warning => WarningTemplate,
+                ToastType.Error => ErrorTemplate,
+                _ => null
+            };
         }
     }
 }

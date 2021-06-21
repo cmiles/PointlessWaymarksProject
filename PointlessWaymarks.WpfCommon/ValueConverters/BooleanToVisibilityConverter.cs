@@ -9,17 +9,12 @@ namespace PointlessWaymarks.WpfCommon.ValueConverters
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            switch (value)
+            return value switch
             {
-                case null:
-                    return Visibility.Visible;
-
-                case bool b:
-                    return b ? Visibility.Visible : Visibility.Collapsed;
-
-                default:
-                    return Visibility.Visible;
-            }
+                null => Visibility.Visible,
+                bool b => b ? Visibility.Visible : Visibility.Collapsed,
+                _ => Visibility.Visible
+            };
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

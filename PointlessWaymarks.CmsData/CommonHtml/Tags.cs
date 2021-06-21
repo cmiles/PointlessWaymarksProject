@@ -219,18 +219,6 @@ namespace PointlessWaymarks.CmsData.CommonHtml
             return metaString;
         }
 
-        public static HtmlTag PageCreatedDiv(ICreatedAndLastUpdateOnAndBy createdBy)
-        {
-            var createdByDiv = new DivTag().AddClass("created-by-container");
-
-            createdByDiv.Children.Add(new HtmlTag("div").AddClass("created-title"));
-
-            createdByDiv.Children.Add(new HtmlTag("p").AddClass("created-by-content").Text(
-                $"Page Created by {createdBy.CreatedBy}, {createdBy.CreatedOn:M/d/yyyy}"));
-
-            return createdByDiv;
-        }
-
         public static string PhotoCaptionText(PhotoContent dbEntry, bool includeTitle = false)
         {
             var summaryStringList = new List<string>();
@@ -443,25 +431,6 @@ namespace PointlessWaymarks.CmsData.CommonHtml
                     relatedPostsContainer.Children.Add(BodyContentReferences.RelatedContentDiv(loopPosts));
 
             return relatedPostsContainer;
-        }
-
-        public static HtmlTag SearchTypeLinksDiv()
-        {
-            var settings = UserSettingsSingleton.CurrentSettings();
-
-            var coreLinksDiv = new DivTag().AddClass("search-types-container");
-
-            coreLinksDiv.Children.Add(
-                new LinkTag("Search Posts", @$"{settings.PostsListUrl()}").AddClass("search-types-item"));
-            coreLinksDiv.Children.Add(
-                new LinkTag("Photos", @$"{settings.PhotoListUrl()}").AddClass("search-types-item"));
-            coreLinksDiv.Children.Add(
-                new LinkTag("Images", @$"{settings.ImageListUrl()}").AddClass("search-types-item"));
-            coreLinksDiv.Children.Add(new LinkTag("Files", @$"{settings.FileListUrl()}").AddClass("search-types-item"));
-            coreLinksDiv.Children.Add(new LinkTag("Notes", @$"{settings.NoteListUrl()}").AddClass("search-types-item"));
-            coreLinksDiv.Children.Add(new LinkTag("Links", @$"{settings.LinkListUrl()}").AddClass("search-types-item"));
-
-            return coreLinksDiv;
         }
 
         public static HtmlTag SiteMainRss()

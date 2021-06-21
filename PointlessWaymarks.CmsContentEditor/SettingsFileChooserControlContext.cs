@@ -43,12 +43,6 @@ namespace PointlessWaymarks.CmsContentEditor
         public ObservableCollection<SettingsFileListItem> Items
         {
             get => _items;
-            set
-            {
-                if (Equals(value, _items)) return;
-                _items = value;
-                OnPropertyChanged();
-            }
         }
 
         public Command NewFileCommand { get; set; }

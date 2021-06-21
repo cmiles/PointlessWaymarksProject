@@ -519,8 +519,7 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList
 
             foreach (var loopItem in Items)
             {
-                if (loopItem == null) continue;
-                var id = loopItem.ContentId();
+                var id = loopItem?.ContentId();
                 if (id == null) continue;
                 if (translatedMessage.ContentIds.Contains(id.Value))
                     existingListItemsMatchingNotification.Add(loopItem);

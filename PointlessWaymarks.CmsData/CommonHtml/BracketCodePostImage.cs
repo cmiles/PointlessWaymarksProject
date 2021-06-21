@@ -78,8 +78,10 @@ namespace PointlessWaymarks.CmsData.CommonHtml
                     progress?.Report(
                         $"Post Image Link without Main Image - converting to post - Post: {dbPost.Title}");
 
-                    loopMatch.bracketCodeText.Replace(BracketCodeToken, BracketCodePosts.BracketCodeToken,
+                    var newBracketCodeText = loopMatch.bracketCodeText.Replace(BracketCodeToken, BracketCodePosts.BracketCodeToken,
                         StringComparison.OrdinalIgnoreCase);
+
+                    toProcess = toProcess.Replace(loopMatch.bracketCodeText, newBracketCodeText);
 
                     await BracketCodePosts.Process(toProcess);
 
@@ -93,9 +95,11 @@ namespace PointlessWaymarks.CmsData.CommonHtml
                     progress?.Report(
                         $"Post Image Link with Null PictureSiteInformation - converting to post - Post: {dbPost.Title}");
 
-                    loopMatch.bracketCodeText.Replace(BracketCodeToken, BracketCodePosts.BracketCodeToken,
+                    var newBracketCodeText = loopMatch.bracketCodeText.Replace(BracketCodeToken, BracketCodePosts.BracketCodeToken,
                         StringComparison.OrdinalIgnoreCase);
 
+                    toProcess = toProcess.Replace(loopMatch.bracketCodeText, newBracketCodeText);
+                    
                     await BracketCodePosts.Process(toProcess);
 
                     continue;

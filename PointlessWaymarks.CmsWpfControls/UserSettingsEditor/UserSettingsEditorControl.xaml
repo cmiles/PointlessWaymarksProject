@@ -172,6 +172,7 @@
                         Name="PdfToCairoDirectoryTextBox"
                         Style="{StaticResource DataEntryTextBoxSingleLineStyle}"
                         Text="{Binding EditorSettings.PdfToCairoExeDirectory, UpdateSourceTrigger=PropertyChanged}" />
+                    <wpf:MarkdownViewer Markdown="{Binding PdfToCairoHelpText}"></wpf:MarkdownViewer>
                 </StackPanel>
                 <StackPanel Orientation="Vertical">
                     <Label Style="{StaticResource DataEntryLabelStyle}" Target="{Binding ElementName=S3BucketTextBox}">

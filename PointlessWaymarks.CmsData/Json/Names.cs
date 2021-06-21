@@ -2,37 +2,37 @@
 {
     public static class Names
     {
-        public static string FileContentPrefix = "File---";
+        public const string FileContentPrefix = "File---";
 
-        public static string GeoJsonContentPrefix = "GeoJsonContent---";
-        public static string HistoricFileContentPrefix = "HistoricFiles---";
-        public static string HistoricGeoJsonContentPrefix = "HistoricGeoJsonContent---";
-        public static string HistoricImageContentPrefix = "HistoricImages---";
-        public static string HistoricLineContentPrefix = "HistoricLine---";
-        public static string HistoricLinkListFileName = "HistoricLinkList";
-        public static string HistoricMapComponentContentPrefix = "HistoricMapComponent---";
-        public static string HistoricNoteContentPrefix = "HistoricNotes---";
-        public static string HistoricPhotoContentPrefix = "HistoricPhotos---";
-        public static string HistoricPointContentPrefix = "HistoricPoints---";
-        public static string HistoricPointDetailsContentPrefix = "HistoricPointDetails---";
-        public static string HistoricPostContentPrefix = "HistoricPosts---";
+        public const string GeoJsonContentPrefix = "GeoJsonContent---";
+        public const string HistoricFileContentPrefix = "HistoricFiles---";
+        public const string HistoricGeoJsonContentPrefix = "HistoricGeoJsonContent---";
+        public const string HistoricImageContentPrefix = "HistoricImages---";
+        public const string HistoricLineContentPrefix = "HistoricLine---";
+        public const string HistoricLinkListFileName = "HistoricLinkList";
+        public const string HistoricMapComponentContentPrefix = "HistoricMapComponent---";
+        public const string HistoricNoteContentPrefix = "HistoricNotes---";
+        public const string HistoricPhotoContentPrefix = "HistoricPhotos---";
+        public const string HistoricPointContentPrefix = "HistoricPoints---";
+        public const string HistoricPointDetailsContentPrefix = "HistoricPointDetails---";
+        public const string HistoricPostContentPrefix = "HistoricPosts---";
 
-        public static string ImageContentPrefix = "Image---";
+        public const string ImageContentPrefix = "Image---";
 
-        public static string LineContentPrefix = "Line---";
-        public static string LinkListFileName = "LinkList";
+        public const string LineContentPrefix = "Line---";
+        public const string LinkListFileName = "LinkList";
 
-        public static string MapComponentContentPrefix = "MapComponent---";
-        public static string MenuLinksFileName = "MenuLinks";
+        public const string MapComponentContentPrefix = "MapComponent---";
+        public const string MenuLinksFileName = "MenuLinks";
 
-        public static string NoteContentPrefix = "Note---";
+        public const string NoteContentPrefix = "Note---";
 
-        public static string PhotoContentPrefix = "Photo---";
+        public const string PhotoContentPrefix = "Photo---";
 
-        public static string PointContentPrefix = "Point---";
-        public static string PointDetailsContentPrefix = "PointDetails---";
+        public const string PointContentPrefix = "Point---";
+        public const string PointDetailsContentPrefix = "PointDetails---";
 
-        public static string PostContentPrefix = "Post---";
-        public static string TagExclusionsFileName = "TagExclusions";
+        public const string PostContentPrefix = "Post---";
+        public const string TagExclusionsFileName = "TagExclusions";
     }
 }

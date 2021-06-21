@@ -95,10 +95,10 @@ namespace PointlessWaymarks.CmsData.Content
 
             toReturn.Lens = exifSubIfDirectory?.GetDescription(ExifDirectoryBase.TagLensModel) ?? string.Empty;
 
-            if (toReturn.Lens == string.Empty || toReturn.Lens == "----")
+            if (toReturn.Lens is "" or "----")
                 toReturn.Lens = xmpDirectory?.XmpMeta?.GetProperty(XmpConstants.NsExifAux, "Lens")?.Value ??
                                 string.Empty;
-            if (toReturn.Lens == string.Empty || toReturn.Lens == "----")
+            if (toReturn.Lens is "" or "----")
             {
                 toReturn.Lens =
                     xmpDirectory?.XmpMeta?.GetProperty(XmpConstants.NsCameraraw, "LensProfileName")?.Value ??

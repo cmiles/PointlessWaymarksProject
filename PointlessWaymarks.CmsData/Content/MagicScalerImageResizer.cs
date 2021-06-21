@@ -36,7 +36,7 @@ namespace PointlessWaymarks.CmsData.Content
             return newFileInfo;
         }
 
-        public async Task<FileInfo?> Rotate(FileInfo toRotate, Orientation orientation)
+        public static async Task<FileInfo?> Rotate(FileInfo toRotate, Orientation orientation)
         {
             if (!toRotate.Exists) return null;
 
