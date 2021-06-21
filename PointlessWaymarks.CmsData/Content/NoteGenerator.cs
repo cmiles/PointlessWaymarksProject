@@ -21,22 +21,22 @@ namespace PointlessWaymarks.CmsData.Content
 
             var htmlContext = new SingleNotePage(toGenerate) {GenerationVersion = generationVersion};
 
-            await htmlContext.WriteLocalHtml();
+            await htmlContext.WriteLocalHtml().ConfigureAwait(false);
         }
 
         public static async Task<(GenerationReturn generationReturn, NoteContent? noteContent)> SaveAndGenerateHtml(
             NoteContent toSave, DateTime? generationVersion, IProgress<string>? progress = null)
         {
-            var validationReturn = await Validate(toSave);
+            var validationReturn = await Validate(toSave).ConfigureAwait(false);
 
             if (validationReturn.HasError) return (validationReturn, null);
 
             Db.DefaultPropertyCleanup(toSave);
             toSave.Tags = Db.TagListCleanup(toSave.Tags);
 
-            await Db.SaveNoteContent(toSave);
-            await GenerateHtml(toSave, generationVersion, progress);
-            await Export.WriteLocalDbJson(toSave, progress);
+            await Db.SaveNoteContent(toSave).ConfigureAwait(false);
+            await GenerateHtml(toSave, generationVersion, progress).ConfigureAwait(false);
+            await Export.WriteLocalDbJson(toSave, progress).ConfigureAwait(false);
 
             DataNotifications.PublishDataNotification("Note Generator", DataNotificationContentType.Note,
                 DataNotificationUpdateType.Update, new List<Guid> {toSave.ContentId});
@@ -48,13 +48,13 @@ namespace PointlessWaymarks.CmsData.Content
         {
             var attemptCount = 1;
 
-            var db = await Db.Context();
+            var db = await Db.Context().ConfigureAwait(false);
 
             var currentLength = 6;
 
-            if (await db.NoteContents.AnyAsync())
+            if (await db.NoteContents.AnyAsync().ConfigureAwait(false))
             {
-                var dbMaxLength = await db.NoteContents.Where(x => x.Slug != null).MaxAsync(x => x.Slug!.Length);
+                var dbMaxLength = await db.NoteContents.Where(x => x.Slug != null).MaxAsync(x => x.Slug!.Length).ConfigureAwait(false);
                 currentLength = dbMaxLength > currentLength ? dbMaxLength : currentLength;
             }
 
@@ -62,10 +62,10 @@ namespace PointlessWaymarks.CmsData.Content
 
             async Task<bool> SlugAlreadyExists(string slug)
             {
-                return await db.NoteContents.AnyAsync(x => x.Slug == slug);
+                return await db.NoteContents.AnyAsync(x => x.Slug == slug).ConfigureAwait(false);
             }
 
-            while (await SlugAlreadyExists(possibleSlug))
+            while (await SlugAlreadyExists(possibleSlug).ConfigureAwait(false))
             {
                 if (attemptCount > 1000)
                     throw new DataException(
@@ -86,7 +86,7 @@ namespace PointlessWaymarks.CmsData.Content
                 return GenerationReturn.Error($"Problem with Root Directory: {rootDirectoryCheck.Explanation}",
                     noteContent.ContentId);
 
-            var commonContentCheck = await CommonContentValidation.ValidateContentCommon(noteContent);
+            var commonContentCheck = await CommonContentValidation.ValidateContentCommon(noteContent).ConfigureAwait(false);
             if (!commonContentCheck.Valid)
                 return GenerationReturn.Error(commonContentCheck.Explanation, noteContent.ContentId);
 

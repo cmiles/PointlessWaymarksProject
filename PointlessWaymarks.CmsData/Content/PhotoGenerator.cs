@@ -28,7 +28,7 @@ namespace PointlessWaymarks.CmsData.Content
 
             var htmlContext = new SinglePhotoPage(toGenerate) {GenerationVersion = generationVersion};
 
-            await htmlContext.WriteLocalHtml();
+            await htmlContext.WriteLocalHtml().ConfigureAwait(false);
         }
 
         public static (GenerationReturn generationReturn, PhotoMetadata? metadata) PhotoMetadataFromFile(
@@ -352,18 +352,18 @@ namespace PointlessWaymarks.CmsData.Content
             PhotoContent toSave, FileInfo selectedFile, bool overwriteExistingFiles, DateTime? generationVersion,
             IProgress<string>? progress = null)
         {
-            var validationReturn = await Validate(toSave, selectedFile);
+            var validationReturn = await Validate(toSave, selectedFile).ConfigureAwait(false);
 
             if (validationReturn.HasError) return (validationReturn, null);
 
             Db.DefaultPropertyCleanup(toSave);
             toSave.Tags = Db.TagListCleanup(toSave.Tags);
 
-            await FileManagement.WriteSelectedPhotoContentFileToMediaArchive(selectedFile);
-            await Db.SavePhotoContent(toSave);
-            await WritePhotoFromMediaArchiveToLocalSite(toSave, overwriteExistingFiles, progress);
-            await GenerateHtml(toSave, generationVersion, progress);
-            await Export.WriteLocalDbJson(toSave);
+            await FileManagement.WriteSelectedPhotoContentFileToMediaArchive(selectedFile).ConfigureAwait(false);
+            await Db.SavePhotoContent(toSave).ConfigureAwait(false);
+            await WritePhotoFromMediaArchiveToLocalSite(toSave, overwriteExistingFiles, progress).ConfigureAwait(false);
+            await GenerateHtml(toSave, generationVersion, progress).ConfigureAwait(false);
+            await Export.WriteLocalDbJson(toSave).ConfigureAwait(false);
 
             DataNotifications.PublishDataNotification("Photo Generator", DataNotificationContentType.Photo,
                 DataNotificationUpdateType.LocalContent, new List<Guid> {toSave.ContentId});
@@ -374,12 +374,12 @@ namespace PointlessWaymarks.CmsData.Content
         public static async Task<(GenerationReturn generationReturn, PhotoContent? photoContent)> SaveToDb(
             PhotoContent toSave, FileInfo selectedFile)
         {
-            var validationReturn = await Validate(toSave, selectedFile);
+            var validationReturn = await Validate(toSave, selectedFile).ConfigureAwait(false);
 
             if (validationReturn.HasError) return (validationReturn, null);
 
-            await FileManagement.WriteSelectedPhotoContentFileToMediaArchive(selectedFile);
-            await Db.SavePhotoContent(toSave);
+            await FileManagement.WriteSelectedPhotoContentFileToMediaArchive(selectedFile).ConfigureAwait(false);
+            await Db.SavePhotoContent(toSave).ConfigureAwait(false);
 
             return (GenerationReturn.Success($"Saved {toSave.Title}"), toSave);
         }
@@ -403,7 +403,7 @@ namespace PointlessWaymarks.CmsData.Content
                 return GenerationReturn.Error($"Problem with Media Archive: {mediaArchiveCheck.Explanation}",
                     photoContent.ContentId);
 
-            var commonContentCheck = await CommonContentValidation.ValidateContentCommon(photoContent);
+            var commonContentCheck = await CommonContentValidation.ValidateContentCommon(photoContent).ConfigureAwait(false);
             if (!commonContentCheck.Valid)
                 return GenerationReturn.Error(commonContentCheck.Explanation, photoContent.ContentId);
 
@@ -414,7 +414,7 @@ namespace PointlessWaymarks.CmsData.Content
             selectedFile.Refresh();
 
             var photoFileValidation =
-                await CommonContentValidation.PhotoFileValidation(selectedFile, photoContent.ContentId);
+                await CommonContentValidation.PhotoFileValidation(selectedFile, photoContent.ContentId).ConfigureAwait(false);
 
             if (!photoFileValidation.Valid)
                 return GenerationReturn.Error(photoFileValidation.Explanation, photoContent.ContentId);
@@ -441,14 +441,14 @@ namespace PointlessWaymarks.CmsData.Content
                 targetFile.Refresh();
             }
 
-            if (!targetFile.Exists) await sourceFile.CopyToAndLogAsync(targetFile.FullName);
+            if (!targetFile.Exists) await sourceFile.CopyToAndLogAsync(targetFile.FullName).ConfigureAwait(false);
 
             PictureResizing.DeleteSupportedPictureFilesInDirectoryOtherThanOriginalFile(photoContent, progress);
 
             PictureResizing.CleanDisplayAndSrcSetFilesInPhotoDirectory(photoContent, forcedResizeOverwriteExistingFiles,
                 progress);
 
-            await PictureResizing.ResizeForDisplayAndSrcset(photoContent, forcedResizeOverwriteExistingFiles, progress);
+            await PictureResizing.ResizeForDisplayAndSrcset(photoContent, forcedResizeOverwriteExistingFiles, progress).ConfigureAwait(false);
         }
     }
 }

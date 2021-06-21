@@ -41,7 +41,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml.SearchListHtml
             var fileInfo = UserSettingsSingleton.CurrentSettings().LocalSiteAllContentListFile();
 
             await WriteSearchListHtml(ContentList, fileInfo, "All Content",
-                UserSettingsSingleton.CurrentSettings().AllContentRssUrl(), generationVersion, progress);
+                UserSettingsSingleton.CurrentSettings().AllContentRssUrl(), generationVersion, progress).ConfigureAwait(false);
             RssBuilder.WriteContentCommonListRss(
                 ContentList().Cast<IContentCommon>().OrderByDescending(x => x.CreatedOn).Take(MaxNumberOfRssEntries)
                     .ToList(), UserSettingsSingleton.CurrentSettings().LocalSiteAllContentRssFile(), "All Content",
@@ -61,7 +61,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml.SearchListHtml
 
             await WriteSearchListHtml(ContentList, fileInfo, "Files",
                 UserSettingsSingleton.CurrentSettings().FileRssUrl(),
-                generationVersion, progress);
+                generationVersion, progress).ConfigureAwait(false);
             RssBuilder.WriteContentCommonListRss(
                 ContentList().Cast<IContentCommon>().OrderByDescending(x => x.CreatedOn).Take(MaxNumberOfRssEntries)
                     .ToList(), UserSettingsSingleton.CurrentSettings().LocalSiteFileRssFile(), "Files", progress);
@@ -81,7 +81,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml.SearchListHtml
 
             await WriteSearchListHtml(ContentList, fileInfo, "Images",
                 UserSettingsSingleton.CurrentSettings().ImageRssUrl(),
-                generationVersion, progress);
+                generationVersion, progress).ConfigureAwait(false);
             RssBuilder.WriteContentCommonListRss(
                 ContentList().Cast<IContentCommon>().OrderByDescending(x => x.CreatedOn).Take(MaxNumberOfRssEntries)
                     .ToList(), UserSettingsSingleton.CurrentSettings().LocalSiteImageRssFile(), "Images", progress);
@@ -100,7 +100,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml.SearchListHtml
 
             await WriteSearchListHtml(ContentList, fileInfo, "Notes",
                 UserSettingsSingleton.CurrentSettings().NoteRssUrl(),
-                generationVersion, progress);
+                generationVersion, progress).ConfigureAwait(false);
             RssBuilder.WriteContentCommonListRss(
                 ContentList().Cast<IContentCommon>().OrderByDescending(x => x.CreatedOn).Take(MaxNumberOfRssEntries)
                     .ToList(), UserSettingsSingleton.CurrentSettings().LocalSiteNoteRssFile(), "Notes", progress);
@@ -119,7 +119,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml.SearchListHtml
 
             await WriteSearchListHtml(ContentList, fileInfo, "Photos",
                 UserSettingsSingleton.CurrentSettings().PhotoRssUrl(),
-                generationVersion, progress);
+                generationVersion, progress).ConfigureAwait(false);
             RssBuilder.WriteContentCommonListRss(
                 ContentList().Cast<IContentCommon>().OrderByDescending(x => x.CreatedOn).Take(MaxNumberOfRssEntries)
                     .ToList(), UserSettingsSingleton.CurrentSettings().LocalSitePhotoRssFile(), "Photos", progress);
@@ -138,7 +138,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml.SearchListHtml
 
             await WriteSearchListHtml(ContentList, fileInfo, "Points",
                 UserSettingsSingleton.CurrentSettings().PointsRssUrl(),
-                generationVersion, progress);
+                generationVersion, progress).ConfigureAwait(false);
             RssBuilder.WriteContentCommonListRss(
                 ContentList().Cast<IContentCommon>().OrderByDescending(x => x.CreatedOn).Take(MaxNumberOfRssEntries)
                     .ToList(), UserSettingsSingleton.CurrentSettings().LocalSitePointRssFile(), "Points", progress);
@@ -157,7 +157,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml.SearchListHtml
 
             await WriteSearchListHtml(ContentList, fileInfo, "Posts",
                 UserSettingsSingleton.CurrentSettings().PostsRssUrl(),
-                generationVersion, progress);
+                generationVersion, progress).ConfigureAwait(false);
             RssBuilder.WriteContentCommonListRss(
                 ContentList().Cast<IContentCommon>().OrderByDescending(x => x.CreatedOn).Take(MaxNumberOfRssEntries)
                     .ToList(), UserSettingsSingleton.CurrentSettings().LocalSitePostRssFile(), "Posts", progress);
@@ -189,7 +189,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml.SearchListHtml
                 fileInfo.Refresh();
             }
 
-            await FileManagement.WriteAllTextToFileAndLog(fileInfo.FullName, htmlString);
+            await FileManagement.WriteAllTextToFileAndLog(fileInfo.FullName, htmlString).ConfigureAwait(false);
         }
 
         public static async Task WriteTagList(DateTime generationVersion, IProgress<string>? progress = null)
@@ -205,7 +205,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml.SearchListHtml
             };
 
             progress?.Report("Tag Pages - Writing All Tag Data");
-            await allTags.WriteLocalHtml();
+            await allTags.WriteLocalHtml().ConfigureAwait(false);
         }
 
         public static async Task WriteTagListAndTagPages(DateTime? generationVersion,
@@ -222,7 +222,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml.SearchListHtml
             };
 
             progress?.Report("Tag Pages - Writing All Tag Data");
-            await allTags.WriteLocalHtml();
+            await allTags.WriteLocalHtml().ConfigureAwait(false);
 
             progress?.Report("Tag Pages - Getting Tag Data For Page Generation");
 
@@ -239,8 +239,8 @@ namespace PointlessWaymarks.CmsData.ContentHtml.SearchListHtml
                 await WriteSearchListHtml(() => loopTags.contentObjects,
                     UserSettingsSingleton.CurrentSettings().LocalSiteTagListFileInfo(loopTags.tag),
                     $"Tag - {loopTags.tag}", string.Empty, generationVersion, progress,
-                    excludedTags.Contains(loopTags.tag));
-            });
+                    excludedTags.Contains(loopTags.tag)).ConfigureAwait(false);
+            }).ConfigureAwait(false);
         }
 
         public static async Task WriteTagPage(string tag, List<dynamic> content, DateTime? generationVersion,
@@ -248,7 +248,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml.SearchListHtml
         {
             await WriteSearchListHtml(() => content,
                 UserSettingsSingleton.CurrentSettings().LocalSiteTagListFileInfo(tag),
-                $"Tag - {tag}", string.Empty, generationVersion, progress);
+                $"Tag - {tag}", string.Empty, generationVersion, progress).ConfigureAwait(false);
         }
     }
 }

@@ -34,9 +34,9 @@ namespace PointlessWaymarks.CmsData.CommonHtml
 
             foreach (var loopGuid in resultList)
             {
-                var context = await Db.Context();
+                var context = await Db.Context().ConfigureAwait(false);
 
-                var dbContent = await context.ImageContents.FirstOrDefaultAsync(x => x.ContentId == loopGuid);
+                var dbContent = await context.ImageContents.FirstOrDefaultAsync(x => x.ContentId == loopGuid).ConfigureAwait(false);
                 if (dbContent == null) continue;
 
                 progress?.Report($"Image Code - Adding DbContent For {dbContent.Title}");
@@ -66,12 +66,12 @@ namespace PointlessWaymarks.CmsData.CommonHtml
 
             if (!resultList.Any()) return toProcess;
 
-            var context = await Db.Context();
+            var context = await Db.Context().ConfigureAwait(false);
 
             foreach (var loopMatch in resultList)
             {
                 var dbImage =
-                    await context.ImageContents.FirstOrDefaultAsync(x => x.ContentId == loopMatch.contentGuid);
+                    await context.ImageContents.FirstOrDefaultAsync(x => x.ContentId == loopMatch.contentGuid).ConfigureAwait(false);
                 if (dbImage == null) continue;
 
                 progress?.Report($"Image Code for {dbImage.Title} processed");
@@ -94,7 +94,7 @@ namespace PointlessWaymarks.CmsData.CommonHtml
             IProgress<string>? progress = null)
         {
             return await Process(toProcess, page => page.PictureInformation.LocalPictureFigureTag().ToString(),
-                progress);
+                progress).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -106,7 +106,7 @@ namespace PointlessWaymarks.CmsData.CommonHtml
         public static async Task<string> ProcessForEmail(string toProcess, IProgress<string>? progress = null)
         {
             return await Process(toProcess, page => page.PictureInformation.EmailPictureTableTag().ToString(),
-                progress);
+                progress).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -119,7 +119,7 @@ namespace PointlessWaymarks.CmsData.CommonHtml
         {
             return await Process(toProcess,
                 page => page.PictureInformation.PictureFigureWithCaptionAndLinkToPicturePageTag("100vw").ToString(),
-                progress);
+                progress).ConfigureAwait(false);
         }
     }
 }

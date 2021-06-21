@@ -18,7 +18,7 @@ namespace PointlessWaymarks.CmsData
 
         private static readonly WorkQueue<string> SendMessageQueue = new()
         {
-            Processor = async x => await DataNotificationTransmissionChannel.PublishAsync(Encoding.UTF8.GetBytes(x))
+            Processor = async x => await DataNotificationTransmissionChannel.PublishAsync(Encoding.UTF8.GetBytes(x)).ConfigureAwait(false)
         };
 
         public static bool SuspendNotifications { get; set; }

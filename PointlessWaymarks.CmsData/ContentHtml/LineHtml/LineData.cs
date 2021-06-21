@@ -53,7 +53,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml.LineHtml
 
             await FileManagement.WriteAllTextToFileAndLogAsync(dataFileInfo.FullName,
                 await GenerateLineJson(geoJsonContent.Line,
-                    UserSettingsSingleton.CurrentSettings().LinePageUrl(geoJsonContent)));
+                    UserSettingsSingleton.CurrentSettings().LinePageUrl(geoJsonContent)).ConfigureAwait(false)).ConfigureAwait(false);
         }
 
         public record LineSiteJsonData(string PageUrl, GeoJsonData.SpatialBounds Bounds, FeatureCollection GeoJson);

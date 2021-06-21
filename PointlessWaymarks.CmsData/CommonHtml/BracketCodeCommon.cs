@@ -123,49 +123,49 @@ namespace PointlessWaymarks.CmsData.CommonHtml
         {
             if (string.IsNullOrWhiteSpace(input)) return string.Empty;
 
-            input = await BracketCodeFileDownloads.Process(input, progress);
-            input = await BracketCodeFiles.Process(input, progress);
-            input = await BracketCodeFileImage.ProcessForEmail(input, progress);
-            input = await BracketCodeGeoJsonLinks.Process(input, progress);
-            input = await BracketCodeImages.ProcessForEmail(input, progress);
-            input = await BracketCodeImageLinks.Process(input, progress);
-            input = await BracketCodeLineLinks.Process(input, progress);
-            input = await BracketCodeNotes.Process(input, progress);
-            input = await BracketCodePhotos.ProcessForEmail(input, progress);
-            input = await BracketCodePhotoLinks.Process(input, progress);
-            input = await BracketCodePointLinks.Process(input, progress);
-            input = await BracketCodePosts.Process(input, progress);
-            input = await BracketCodePostImage.ProcessForEmail(input, progress);
+            input = await BracketCodeFileDownloads.Process(input, progress).ConfigureAwait(false);
+            input = await BracketCodeFiles.Process(input, progress).ConfigureAwait(false);
+            input = await BracketCodeFileImage.ProcessForEmail(input, progress).ConfigureAwait(false);
+            input = await BracketCodeGeoJsonLinks.Process(input, progress).ConfigureAwait(false);
+            input = await BracketCodeImages.ProcessForEmail(input, progress).ConfigureAwait(false);
+            input = await BracketCodeImageLinks.Process(input, progress).ConfigureAwait(false);
+            input = await BracketCodeLineLinks.Process(input, progress).ConfigureAwait(false);
+            input = await BracketCodeNotes.Process(input, progress).ConfigureAwait(false);
+            input = await BracketCodePhotos.ProcessForEmail(input, progress).ConfigureAwait(false);
+            input = await BracketCodePhotoLinks.Process(input, progress).ConfigureAwait(false);
+            input = await BracketCodePointLinks.Process(input, progress).ConfigureAwait(false);
+            input = await BracketCodePosts.Process(input, progress).ConfigureAwait(false);
+            input = await BracketCodePostImage.ProcessForEmail(input, progress).ConfigureAwait(false);
             input = BracketCodeSpecialPages.Process(input, progress);
 
             // 2020/12/19 These Codes produce maps on the site but aren't going to work
             // in email, the ProcessForEmail will just remove this content
-            input = await BracketCodeGeoJson.ProcessForEmail(input, progress);
-            input = await BracketCodeLines.ProcessForEmail(input, progress);
+            input = await BracketCodeGeoJson.ProcessForEmail(input, progress).ConfigureAwait(false);
+            input = await BracketCodeLines.ProcessForEmail(input, progress).ConfigureAwait(false);
             input = BracketCodeMapComponents.ProcessForEmail(input, progress);
-            input = await BracketCodePoints.ProcessForEmail(input, progress);
+            input = await BracketCodePoints.ProcessForEmail(input, progress).ConfigureAwait(false);
 
             return input;
         }
 
         public static async Task<string> ProcessCodesForLocalDisplay(string input, IProgress<string>? progress = null)
         {
-            input = await BracketCodeFileDownloads.Process(input, progress);
-            input = await BracketCodeFiles.Process(input, progress);
-            input = await BracketCodeFileImage.ProcessForDirectLocalAccess(input, progress);
-            input = await BracketCodeGeoJson.ProcessForDirectLocalAccess(input, progress);
-            input = await BracketCodeGeoJsonLinks.Process(input, progress);
-            input = await BracketCodeImages.ProcessForDirectLocalAccess(input, progress);
-            input = await BracketCodeImageLinks.Process(input, progress);
-            input = await BracketCodeLines.ProcessForDirectLocalAccess(input, progress);
-            input = await BracketCodeLineLinks.Process(input, progress);
-            input = await BracketCodeNotes.Process(input, progress);
-            input = await BracketCodePhotos.ProcessForDirectLocalAccess(input, progress);
-            input = await BracketCodePhotoLinks.Process(input, progress);
-            input = await BracketCodePointLinks.Process(input, progress);
-            input = await BracketCodePoints.ProcessForDirectLocalAccess(input, progress);
-            input = await BracketCodePosts.Process(input, progress);
-            input = await BracketCodePostImage.ProcessForDirectLocalAccess(input, progress);
+            input = await BracketCodeFileDownloads.Process(input, progress).ConfigureAwait(false);
+            input = await BracketCodeFiles.Process(input, progress).ConfigureAwait(false);
+            input = await BracketCodeFileImage.ProcessForDirectLocalAccess(input, progress).ConfigureAwait(false);
+            input = await BracketCodeGeoJson.ProcessForDirectLocalAccess(input, progress).ConfigureAwait(false);
+            input = await BracketCodeGeoJsonLinks.Process(input, progress).ConfigureAwait(false);
+            input = await BracketCodeImages.ProcessForDirectLocalAccess(input, progress).ConfigureAwait(false);
+            input = await BracketCodeImageLinks.Process(input, progress).ConfigureAwait(false);
+            input = await BracketCodeLines.ProcessForDirectLocalAccess(input, progress).ConfigureAwait(false);
+            input = await BracketCodeLineLinks.Process(input, progress).ConfigureAwait(false);
+            input = await BracketCodeNotes.Process(input, progress).ConfigureAwait(false);
+            input = await BracketCodePhotos.ProcessForDirectLocalAccess(input, progress).ConfigureAwait(false);
+            input = await BracketCodePhotoLinks.Process(input, progress).ConfigureAwait(false);
+            input = await BracketCodePointLinks.Process(input, progress).ConfigureAwait(false);
+            input = await BracketCodePoints.ProcessForDirectLocalAccess(input, progress).ConfigureAwait(false);
+            input = await BracketCodePosts.Process(input, progress).ConfigureAwait(false);
+            input = await BracketCodePostImage.ProcessForDirectLocalAccess(input, progress).ConfigureAwait(false);
             input = BracketCodeSpecialPages.Process(input, progress);
 
             return input;
@@ -173,23 +173,23 @@ namespace PointlessWaymarks.CmsData.CommonHtml
 
         public static async Task<string> ProcessCodesForSite(string input, IProgress<string>? progress = null)
         {
-            input = await BracketCodeFileDownloads.Process(input, progress);
-            input = await BracketCodeFiles.Process(input, progress);
-            input = await BracketCodeFileImage.ProcessToFigureWithLink(input, progress);
-            input = await BracketCodeGeoJson.Process(input, progress);
-            input = await BracketCodeGeoJsonLinks.Process(input, progress);
-            input = await BracketCodeImages.ProcessToFigureWithLink(input, progress);
-            input = await BracketCodeImageLinks.Process(input, progress);
-            input = await BracketCodeLines.Process(input, progress);
-            input = await BracketCodeLineLinks.Process(input, progress);
-            input = await BracketCodeMapComponents.Process(input, progress);
-            input = await BracketCodeNotes.Process(input, progress);
-            input = await BracketCodePhotos.ProcessToFigureWithLink(input, progress);
-            input = await BracketCodePhotoLinks.Process(input, progress);
-            input = await BracketCodePoints.Process(input, progress);
-            input = await BracketCodePointLinks.Process(input, progress);
-            input = await BracketCodePosts.Process(input, progress);
-            input = await BracketCodePostImage.ProcessToFigureWithLink(input, progress);
+            input = await BracketCodeFileDownloads.Process(input, progress).ConfigureAwait(false);
+            input = await BracketCodeFiles.Process(input, progress).ConfigureAwait(false);
+            input = await BracketCodeFileImage.ProcessToFigureWithLink(input, progress).ConfigureAwait(false);
+            input = await BracketCodeGeoJson.Process(input, progress).ConfigureAwait(false);
+            input = await BracketCodeGeoJsonLinks.Process(input, progress).ConfigureAwait(false);
+            input = await BracketCodeImages.ProcessToFigureWithLink(input, progress).ConfigureAwait(false);
+            input = await BracketCodeImageLinks.Process(input, progress).ConfigureAwait(false);
+            input = await BracketCodeLines.Process(input, progress).ConfigureAwait(false);
+            input = await BracketCodeLineLinks.Process(input, progress).ConfigureAwait(false);
+            input = await BracketCodeMapComponents.Process(input, progress).ConfigureAwait(false);
+            input = await BracketCodeNotes.Process(input, progress).ConfigureAwait(false);
+            input = await BracketCodePhotos.ProcessToFigureWithLink(input, progress).ConfigureAwait(false);
+            input = await BracketCodePhotoLinks.Process(input, progress).ConfigureAwait(false);
+            input = await BracketCodePoints.Process(input, progress).ConfigureAwait(false);
+            input = await BracketCodePointLinks.Process(input, progress).ConfigureAwait(false);
+            input = await BracketCodePosts.Process(input, progress).ConfigureAwait(false);
+            input = await BracketCodePostImage.ProcessToFigureWithLink(input, progress).ConfigureAwait(false);
             input = BracketCodeSpecialPages.Process(input, progress);
 
             return input;

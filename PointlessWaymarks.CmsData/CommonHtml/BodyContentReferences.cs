@@ -60,25 +60,25 @@ namespace PointlessWaymarks.CmsData.CommonHtml
             {
                 var posts = await toQuery.PostContents
                     .Where(x => x.BodyContent != null && x.BodyContent.Contains(toCheckFor.ToString()))
-                    .Cast<IContentCommon>().ToListAsync();
+                    .Cast<IContentCommon>().ToListAsync().ConfigureAwait(false);
                 var notes = await toQuery.NoteContents
                     .Where(x => x.BodyContent != null && x.BodyContent.Contains(toCheckFor.ToString()))
-                    .Cast<IContentCommon>().ToListAsync();
+                    .Cast<IContentCommon>().ToListAsync().ConfigureAwait(false);
                 var files = await toQuery.FileContents
                     .Where(x => x.BodyContent != null && x.BodyContent.Contains(toCheckFor.ToString()))
-                    .Cast<IContentCommon>().ToListAsync();
+                    .Cast<IContentCommon>().ToListAsync().ConfigureAwait(false);
 
                 return posts.Concat(notes).Concat(files).OrderByDescending(x => x.LastUpdatedOn ?? x.CreatedOn)
                     .ToList();
             }
 
-            var db = await Db.Context();
+            var db = await Db.Context().ConfigureAwait(false);
 
             var referencesFromOtherContent = await db.GenerationRelatedContents
                 .Where(x => x.GenerationVersion == generationVersion && x.ContentTwo == toCheckFor)
-                .Select(x => x.ContentOne).Distinct().ToListAsync();
+                .Select(x => x.ContentOne).Distinct().ToListAsync().ConfigureAwait(false);
 
-            var otherReferences = await db.ContentFromContentIds(referencesFromOtherContent);
+            var otherReferences = await db.ContentFromContentIds(referencesFromOtherContent).ConfigureAwait(false);
 
             var typeFilteredReferences = new List<IContentCommon>();
 
@@ -114,7 +114,7 @@ namespace PointlessWaymarks.CmsData.CommonHtml
 
             if (content is IUpdateNotes updateContent) toSearch += updateContent.UpdateNotes;
 
-            return await RelatedContentTag(content.ContentId, toSearch, generationVersion, progress);
+            return await RelatedContentTag(content.ContentId, toSearch, generationVersion, progress).ConfigureAwait(false);
         }
 
         public static async Task<HtmlTag> RelatedContentTag(Guid toCheckFor, string bodyContentToCheckIn,
@@ -122,34 +122,34 @@ namespace PointlessWaymarks.CmsData.CommonHtml
         {
             var contentCommonList = new List<IContentCommon>();
 
-            var db = await Db.Context();
+            var db = await Db.Context().ConfigureAwait(false);
 
             //References to this content
             contentCommonList.AddRange(
-                await RelatedContentReferencesFromOtherContent(db, toCheckFor, generationVersion));
+                await RelatedContentReferencesFromOtherContent(db, toCheckFor, generationVersion).ConfigureAwait(false));
 
             //5/4/2021 - Based on looking at Pointless Waymarks it doesn't seem useful to link back to all the content that is used - for example an Image that is displayed doesn't merit a related content link to the image (the display of the image seems self documenting), otoh just using a link to an image seems like it may be worth a related link.
             contentCommonList.AddRange(
-                await BracketCodeFiles.DbContentFromBracketCodes(bodyContentToCheckIn, progress));
+                await BracketCodeFiles.DbContentFromBracketCodes(bodyContentToCheckIn, progress).ConfigureAwait(false));
             //contentCommonList.AddRange(BracketCodeFileImage.DbContentFromBracketCodes(bodyContentToCheckIn, progress));
             contentCommonList.AddRange(
-                await BracketCodeFileDownloads.DbContentFromBracketCodes(bodyContentToCheckIn, progress));
+                await BracketCodeFileDownloads.DbContentFromBracketCodes(bodyContentToCheckIn, progress).ConfigureAwait(false));
             //contentCommonList.AddRange(BracketCodeGeoJson.DbContentFromBracketCodes(bodyContentToCheckIn, progress));
             contentCommonList.AddRange(
-                await BracketCodeGeoJsonLinks.DbContentFromBracketCodes(bodyContentToCheckIn, progress));
+                await BracketCodeGeoJsonLinks.DbContentFromBracketCodes(bodyContentToCheckIn, progress).ConfigureAwait(false));
             //contentCommonList.AddRange(BracketCodeImages.DbContentFromBracketCodes(bodyContentToCheckIn, progress));
             contentCommonList.AddRange(
-                await BracketCodeImageLinks.DbContentFromBracketCodes(bodyContentToCheckIn, progress));
+                await BracketCodeImageLinks.DbContentFromBracketCodes(bodyContentToCheckIn, progress).ConfigureAwait(false));
             //contentCommonList.AddRange(BracketCodeLines.DbContentFromBracketCodes(bodyContentToCheckIn, progress));
             contentCommonList.AddRange(
-                await BracketCodeLineLinks.DbContentFromBracketCodes(bodyContentToCheckIn, progress));
+                await BracketCodeLineLinks.DbContentFromBracketCodes(bodyContentToCheckIn, progress).ConfigureAwait(false));
             contentCommonList.AddRange(
-                await BracketCodeNotes.DbContentFromBracketCodes(bodyContentToCheckIn, progress));
+                await BracketCodeNotes.DbContentFromBracketCodes(bodyContentToCheckIn, progress).ConfigureAwait(false));
             //contentCommonList.AddRange(BracketCodePoints.DbContentFromBracketCodes(bodyContentToCheckIn, progress));
             contentCommonList.AddRange(
-                await BracketCodePointLinks.DbContentFromBracketCodes(bodyContentToCheckIn, progress));
+                await BracketCodePointLinks.DbContentFromBracketCodes(bodyContentToCheckIn, progress).ConfigureAwait(false));
             contentCommonList.AddRange(
-                await BracketCodePosts.DbContentFromBracketCodes(bodyContentToCheckIn, progress));
+                await BracketCodePosts.DbContentFromBracketCodes(bodyContentToCheckIn, progress).ConfigureAwait(false));
 
             var transformedList = new List<(DateTime sortDateTime, HtmlTag tagContent)>();
 
@@ -165,12 +165,12 @@ namespace PointlessWaymarks.CmsData.CommonHtml
                 }
             }
 
-            var photoContent = await BracketCodePhotos.DbContentFromBracketCodes(bodyContentToCheckIn, progress);
+            var photoContent = await BracketCodePhotos.DbContentFromBracketCodes(bodyContentToCheckIn, progress).ConfigureAwait(false);
             photoContent.AddRange(
-                await BracketCodePhotoLinks.DbContentFromBracketCodes(bodyContentToCheckIn, progress));
+                await BracketCodePhotoLinks.DbContentFromBracketCodes(bodyContentToCheckIn, progress).ConfigureAwait(false));
 
             //If the object itself is a photo add it to the list
-            photoContent.AddIfNotNull(await db.PhotoContents.SingleOrDefaultAsync(x => x.ContentId == toCheckFor));
+            photoContent.AddIfNotNull(await db.PhotoContents.SingleOrDefaultAsync(x => x.ContentId == toCheckFor).ConfigureAwait(false));
 
             if (photoContent.Any())
             {
@@ -178,7 +178,7 @@ namespace PointlessWaymarks.CmsData.CommonHtml
 
                 foreach (var loopDates in dates)
                 {
-                    var toAdd = await DailyPhotoPageGenerators.DailyPhotoGallery(loopDates, null);
+                    var toAdd = await DailyPhotoPageGenerators.DailyPhotoGallery(loopDates, null).ConfigureAwait(false);
                     if (toAdd != null)
                         transformedList.Add((loopDates, DailyPhotosPageParts.DailyPhotosPageRelatedContentDiv(toAdd)));
                 }
@@ -199,12 +199,12 @@ namespace PointlessWaymarks.CmsData.CommonHtml
 
         public static async Task<HtmlTag> RelatedContentTag(List<Guid> toCheckFor, DateTime? generationVersion)
         {
-            var db = await Db.Context();
+            var db = await Db.Context().ConfigureAwait(false);
 
             var allRelated = new List<IContentCommon>();
 
             foreach (var loopGuid in toCheckFor)
-                allRelated.AddRange(await db.RelatedContentReferencesFromOtherContent(loopGuid, generationVersion));
+                allRelated.AddRange(await db.RelatedContentReferencesFromOtherContent(loopGuid, generationVersion).ConfigureAwait(false));
 
             if (!allRelated.Any()) return HtmlTag.Empty();
 

@@ -40,7 +40,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml.LineHtml
         {
             var settings = UserSettingsSingleton.CurrentSettings();
 
-            await LineData.WriteJsonData(DbEntry);
+            await LineData.WriteJsonData(DbEntry).ConfigureAwait(false);
 
             var parser = new HtmlParser();
             var htmlDoc = parser.ParseDocument(TransformText());
@@ -66,7 +66,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml.LineHtml
                 htmlFileInfo.Refresh();
             }
 
-            await FileManagement.WriteAllTextToFileAndLogAsync(htmlFileInfo.FullName, htmlString);
+            await FileManagement.WriteAllTextToFileAndLogAsync(htmlFileInfo.FullName, htmlString).ConfigureAwait(false);
         }
     }
 }

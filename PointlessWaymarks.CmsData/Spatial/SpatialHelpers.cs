@@ -125,7 +125,7 @@ namespace PointlessWaymarks.CmsData.Spatial
             bool replaceElevations, IProgress<string>? progress = null)
         {
             if (replaceElevations)
-                await ElevationService.OpenTopoMapZenElevation(new HttpClient(), pointList, progress);
+                await ElevationService.OpenTopoMapZenElevation(new HttpClient(), pointList, progress).ConfigureAwait(false);
 
             // ReSharper disable once CoVariantArrayConversion It appears from testing that a linestring will reflect CoordinateZ
             var newLineString = new LineString(pointList.ToArray());
@@ -168,7 +168,7 @@ namespace PointlessWaymarks.CmsData.Spatial
 
             var coordinateList = CoordinateListFromGeoJsonFeatureCollectionWithLinestring(geoJson);
 
-            return await GeoJsonWithLineStringFromCoordinateList(coordinateList, true, progress);
+            return await GeoJsonWithLineStringFromCoordinateList(coordinateList, true, progress).ConfigureAwait(false);
         }
 
         public static LineStatsInImperial LineStatsInImperialFromCoordinateList(List<CoordinateZ> line)
@@ -231,7 +231,7 @@ namespace PointlessWaymarks.CmsData.Spatial
 
             try
             {
-                parsedGpx = GpxFile.Parse(await File.ReadAllTextAsync(gpxFile.FullName),
+                parsedGpx = GpxFile.Parse(await File.ReadAllTextAsync(gpxFile.FullName).ConfigureAwait(false),
                     new GpxReaderSettings
                     {
                         IgnoreUnexpectedChildrenOfTopLevelElement = true, IgnoreVersionAttribute = true

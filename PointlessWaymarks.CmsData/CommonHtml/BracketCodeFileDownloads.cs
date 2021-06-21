@@ -28,11 +28,11 @@ namespace PointlessWaymarks.CmsData.CommonHtml
 
             var resultList = new List<FileContent>();
 
-            var context = await Db.Context();
+            var context = await Db.Context().ConfigureAwait(false);
 
             foreach (var loopGuid in guidList)
             {
-                var dbContent = await context.FileContents.FirstOrDefaultAsync(x => x.ContentId == loopGuid);
+                var dbContent = await context.FileContents.FirstOrDefaultAsync(x => x.ContentId == loopGuid).ConfigureAwait(false);
                 if (dbContent == null) continue;
 
                 progress?.Report($"File Code - Adding DbContent For {dbContent.Title}");
@@ -49,12 +49,12 @@ namespace PointlessWaymarks.CmsData.CommonHtml
 
             var resultList = BracketCodeCommon.ContentBracketCodeMatches(toProcess, BracketCodeToken);
 
-            var context = await Db.Context();
+            var context = await Db.Context().ConfigureAwait(false);
 
             foreach (var loopMatch in resultList)
             {
                 var dbContent =
-                    await context.FileContents.FirstOrDefaultAsync(x => x.ContentId == loopMatch.contentGuid);
+                    await context.FileContents.FirstOrDefaultAsync(x => x.ContentId == loopMatch.contentGuid).ConfigureAwait(false);
                 if (dbContent == null) continue;
 
                 progress?.Report($"Adding file download link {dbContent.Title} from Code");

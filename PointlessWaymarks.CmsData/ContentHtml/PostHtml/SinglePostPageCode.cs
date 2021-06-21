@@ -71,7 +71,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml.PostHtml
                 htmlFileInfo.Refresh();
             }
 
-            await FileManagement.WriteAllTextToFileAndLog(htmlFileInfo.FullName, htmlString);
+            await FileManagement.WriteAllTextToFileAndLog(htmlFileInfo.FullName, htmlString).ConfigureAwait(false);
         }
     }
 }

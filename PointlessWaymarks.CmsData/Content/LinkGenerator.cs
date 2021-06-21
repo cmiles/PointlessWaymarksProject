@@ -19,7 +19,7 @@ namespace PointlessWaymarks.CmsData.Content
 
             var htmlContext = new LinkListPage {GenerationVersion = generationVersion};
 
-            await htmlContext.WriteLocalHtmlRssAndJson();
+            await htmlContext.WriteLocalHtmlRssAndJson().ConfigureAwait(false);
         }
 
         public static async Task<(GenerationReturn generationReturn, LinkMetadata? metadata)> LinkMetadataFromUrl(
@@ -33,7 +33,7 @@ namespace PointlessWaymarks.CmsData.Content
 
             var config = Configuration.Default.WithDefaultLoader().WithJs();
             var context = BrowsingContext.New(config);
-            var document = await context.OpenAsync(url);
+            var document = await context.OpenAsync(url).ConfigureAwait(false);
 
             progress?.Report("Looking for Title");
 
@@ -160,16 +160,16 @@ namespace PointlessWaymarks.CmsData.Content
         public static async Task<(GenerationReturn generationReturn, LinkContent? linkContent)> SaveAndGenerateHtml(
             LinkContent toSave, DateTime? generationVersion, IProgress<string>? progress = null)
         {
-            var validationReturn = await Validate(toSave);
+            var validationReturn = await Validate(toSave).ConfigureAwait(false);
 
             if (validationReturn.HasError) return (validationReturn, null);
 
             Db.DefaultPropertyCleanup(toSave);
             toSave.Tags = Db.TagListCleanup(toSave.Tags);
 
-            await Db.SaveLinkContent(toSave);
-            await SaveLinkToPinboard(toSave, progress);
-            await GenerateHtmlAndJson(generationVersion, progress);
+            await Db.SaveLinkContent(toSave).ConfigureAwait(false);
+            await SaveLinkToPinboard(toSave, progress).ConfigureAwait(false);
+            await GenerateHtmlAndJson(generationVersion, progress).ConfigureAwait(false);
 
             DataNotifications.PublishDataNotification("Link Generator", DataNotificationContentType.Link,
                 DataNotificationUpdateType.LocalContent, new List<Guid> {toSave.ContentId});
@@ -214,7 +214,7 @@ namespace PointlessWaymarks.CmsData.Content
             {
                 using var pb = new PinboardAPI(UserSettingsSingleton.CurrentSettings().PinboardApiToken);
                 progress?.Report("Adding Pinboard Bookmark");
-                await pb.Posts.Add(bookmark);
+                await pb.Posts.Add(bookmark).ConfigureAwait(false);
             }
             catch (Exception e)
             {
@@ -243,7 +243,7 @@ namespace PointlessWaymarks.CmsData.Content
                 return GenerationReturn.Error(createdUpdatedValidationMessage, linkContent.ContentId);
 
             var urlValidation =
-                await CommonContentValidation.ValidateLinkContentLinkUrl(linkContent.Url, linkContent.ContentId);
+                await CommonContentValidation.ValidateLinkContentLinkUrl(linkContent.Url, linkContent.ContentId).ConfigureAwait(false);
 
             if (!urlValidation.Valid)
                 return GenerationReturn.Error(urlValidation.Explanation, linkContent.ContentId);

@@ -14,11 +14,11 @@ namespace PointlessWaymarks.CmsData.ContentHtml.PhotoGalleryHtml
         public static async Task<CameraRollGalleryPage> CameraRoll(DateTime? generationVersion,
             IProgress<string>? progress = null)
         {
-            var db = await Db.Context();
+            var db = await Db.Context().ConfigureAwait(false);
 
             progress?.Report("Starting Camera Roll Generation");
 
-            var allDates = (await db.PhotoContents.Select(x => x.PhotoCreatedOn).ToListAsync()).Select(x => x.Date)
+            var allDates = (await db.PhotoContents.Select(x => x.PhotoCreatedOn).ToListAsync().ConfigureAwait(false)).Select(x => x.Date)
                 .Distinct().OrderByDescending(x => x).ToList();
 
             progress?.Report($"Found {allDates.Count} Dates with Photos for Camera Roll");
@@ -150,7 +150,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml.PhotoGalleryHtml
 
                 var datePhotos = await db.PhotoContents
                     .Where(x => x.PhotoCreatedOn >= startsAfterOrOn && x.PhotoCreatedOn < endsBefore)
-                    .OrderBy(x => x.PhotoCreatedOn).ToListAsync();
+                    .OrderBy(x => x.PhotoCreatedOn).ToListAsync().ConfigureAwait(false);
 
                 var infoItem = new DivTag().AddClass("camera-roll-info-item-container");
 
@@ -194,7 +194,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml.PhotoGalleryHtml
             }
 
             var createdByEntries =
-                (await db.PhotoContents.GroupBy(x => x.PhotoCreatedBy).Select(x => x.Key).ToListAsync())
+                (await db.PhotoContents.GroupBy(x => x.PhotoCreatedBy).Select(x => x.Key).ToListAsync().ConfigureAwait(false))
                 .Where(x => !string.IsNullOrWhiteSpace(x)).Select(x => x!.Trim()).OrderBy(x => x).ToList();
 
             var toReturn = new CameraRollGalleryPage

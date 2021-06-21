@@ -14,23 +14,23 @@ namespace PointlessWaymarks.CmsData.Content
         {
             progress?.Report($"Map Component - Generate Data for {toGenerate.Map.ContentId}, {toGenerate.Map.Title}");
 
-            await MapData.WriteJsonData(toGenerate);
+            await MapData.WriteJsonData(toGenerate).ConfigureAwait(false);
         }
 
         public static async Task<(GenerationReturn generationReturn, MapComponentDto? mapDto)> SaveAndGenerateData(
             MapComponentDto toSave, DateTime? generationVersion, IProgress<string>? progress = null)
         {
-            var validationReturn = await Validate(toSave);
+            var validationReturn = await Validate(toSave).ConfigureAwait(false);
 
             if (validationReturn.HasError) return (validationReturn, null);
 
             Db.DefaultPropertyCleanup(toSave);
 
-            var savedComponent = await Db.SaveMapComponent(toSave);
+            var savedComponent = await Db.SaveMapComponent(toSave).ConfigureAwait(false);
 
-            await GenerateData(savedComponent, progress);
+            await GenerateData(savedComponent, progress).ConfigureAwait(false);
 
-            await Export.WriteLocalDbJson(savedComponent.Map);
+            await Export.WriteLocalDbJson(savedComponent.Map).ConfigureAwait(false);
 
             DataNotifications.PublishDataNotification("Map Component Generator", DataNotificationContentType.Map,
                 DataNotificationUpdateType.LocalContent, new List<Guid> {savedComponent.Map.ContentId});
@@ -49,7 +49,7 @@ namespace PointlessWaymarks.CmsData.Content
                 return GenerationReturn.Error($"Problem with Root Directory: {rootDirectoryCheck.Explanation}",
                     mapComponent.Map.ContentId);
 
-            var commonContentCheck = await CommonContentValidation.ValidateMapComponent(mapComponent);
+            var commonContentCheck = await CommonContentValidation.ValidateMapComponent(mapComponent).ConfigureAwait(false);
             if (!commonContentCheck.Valid)
                 return GenerationReturn.Error(commonContentCheck.Explanation, mapComponent.Map.ContentId);
 

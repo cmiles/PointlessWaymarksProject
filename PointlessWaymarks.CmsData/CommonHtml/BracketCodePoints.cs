@@ -33,11 +33,11 @@ namespace PointlessWaymarks.CmsData.CommonHtml
 
             if (!guidList.Any()) return returnList;
 
-            var context = await Db.Context();
+            var context = await Db.Context().ConfigureAwait(false);
 
             foreach (var loopMatch in guidList)
             {
-                var dbContent = await context.PointContents.FirstOrDefaultAsync(x => x.ContentId == loopMatch);
+                var dbContent = await context.PointContents.FirstOrDefaultAsync(x => x.ContentId == loopMatch).ConfigureAwait(false);
                 if (dbContent == null) continue;
 
                 progress?.Report($"Point Code - Adding DbContent For {dbContent.Title}");
@@ -58,12 +58,12 @@ namespace PointlessWaymarks.CmsData.CommonHtml
 
             if (!resultList.Any()) return toProcess;
 
-            var context = await Db.Context();
+            var context = await Db.Context().ConfigureAwait(false);
 
             foreach (var loopMatch in resultList)
             {
                 var dbContent =
-                    await context.PointContents.FirstOrDefaultAsync(x => x.ContentId == loopMatch.contentGuid);
+                    await context.PointContents.FirstOrDefaultAsync(x => x.ContentId == loopMatch.contentGuid).ConfigureAwait(false);
                 if (dbContent?.Slug == null) continue;
 
                 progress?.Report($"Adding point {dbContent.Title} from Code");
@@ -87,12 +87,12 @@ namespace PointlessWaymarks.CmsData.CommonHtml
 
             if (!resultList.Any()) return toProcess;
 
-            var context = await Db.Context();
+            var context = await Db.Context().ConfigureAwait(false);
 
             foreach (var loopMatch in resultList)
             {
                 var dbContent =
-                    await context.PointContents.FirstOrDefaultAsync(x => x.ContentId == loopMatch.contentGuid);
+                    await context.PointContents.FirstOrDefaultAsync(x => x.ContentId == loopMatch.contentGuid).ConfigureAwait(false);
                 if (dbContent?.Slug == null) continue;
 
                 progress?.Report($"Adding point {dbContent.Title} from Code");
@@ -114,12 +114,12 @@ namespace PointlessWaymarks.CmsData.CommonHtml
 
             if (!resultList.Any()) return toProcess;
 
-            var context = await Db.Context();
+            var context = await Db.Context().ConfigureAwait(false);
 
             foreach (var loopMatch in resultList)
             {
                 var dbContent =
-                    await context.PointContents.FirstOrDefaultAsync(x => x.ContentId == loopMatch.contentGuid);
+                    await context.PointContents.FirstOrDefaultAsync(x => x.ContentId == loopMatch.contentGuid).ConfigureAwait(false);
                 if (dbContent == null) continue;
 
                 progress?.Report($"For Email Subbing Point Map for Link {dbContent.Title} from Code");

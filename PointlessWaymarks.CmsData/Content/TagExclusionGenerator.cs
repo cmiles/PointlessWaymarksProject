@@ -12,18 +12,18 @@ namespace PointlessWaymarks.CmsData.Content
         public static async Task<(GenerationReturn generationReturn, TagExclusion? returnContent)> Save(
             TagExclusion toSave)
         {
-            var validationResult = await Validate(toSave);
+            var validationResult = await Validate(toSave).ConfigureAwait(false);
             if (validationResult.HasError) return (validationResult, null);
 
-            var db = await Db.Context();
+            var db = await Db.Context().ConfigureAwait(false);
 
             if (toSave.Id < 1)
             {
                 toSave.Tag = Db.TagListItemCleanup(toSave.Tag);
                 toSave.ContentVersion = DateTime.Now.ToUniversalTime().TrimDateTimeToSeconds();
 
-                await db.AddAsync(toSave);
-                await db.SaveChangesAsync(true);
+                await db.AddAsync(toSave).ConfigureAwait(false);
+                await db.SaveChangesAsync(true).ConfigureAwait(false);
 
                 DataNotifications.PublishDataNotification("Tag Exclusion Generator",
                     DataNotificationContentType.TagExclusion,
@@ -32,12 +32,12 @@ namespace PointlessWaymarks.CmsData.Content
                 return (GenerationReturn.Success("Tag Exclusion Saved"), toSave);
             }
 
-            var toModify = await db.TagExclusions.SingleAsync(x => x.Id == toSave.Id);
+            var toModify = await db.TagExclusions.SingleAsync(x => x.Id == toSave.Id).ConfigureAwait(false);
 
             toModify.Tag = Db.TagListItemCleanup(toSave.Tag);
             toModify.ContentVersion = DateTime.Now.ToUniversalTime().TrimDateTimeToSeconds();
 
-            await db.SaveChangesAsync(true);
+            await db.SaveChangesAsync(true).ConfigureAwait(false);
 
             DataNotifications.PublishDataNotification("Tag Exclusion Generator",
                 DataNotificationContentType.TagExclusion,
@@ -56,7 +56,7 @@ namespace PointlessWaymarks.CmsData.Content
 
             var cleanedTag = Db.TagListItemCleanup(toValidate.Tag);
 
-            var db = await Db.Context();
+            var db = await Db.Context().ConfigureAwait(false);
             if (db.TagExclusions.Any(x => x.Id != toValidate.Id && x.Tag == cleanedTag))
                 return GenerationReturn.Error(
                     $"It appears that the tag '{cleanedTag}' is already in the Exclusion List?");

@@ -65,7 +65,7 @@ namespace PointlessWaymarks.CmsData.Rss
 
             foreach (var loopContent in content)
             {
-                var contentUrl = await settings.ContentUrl(loopContent.ContentId);
+                var contentUrl = await settings.ContentUrl(loopContent.ContentId).ConfigureAwait(false);
 
                 string? itemDescription = null;
 
@@ -97,7 +97,7 @@ namespace PointlessWaymarks.CmsData.Rss
 
             await FileManagement.WriteAllTextToFileAndLogAsync(fileInfo.FullName,
                 RssFileString($"{UserSettingsSingleton.CurrentSettings().SiteName} - {titleAdd}",
-                    string.Join(Environment.NewLine, items)), Encoding.UTF8);
+                    string.Join(Environment.NewLine, items)), Encoding.UTF8).ConfigureAwait(false);
         }
     }
 }

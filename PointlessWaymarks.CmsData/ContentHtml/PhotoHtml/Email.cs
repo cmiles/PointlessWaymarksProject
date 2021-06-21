@@ -44,11 +44,11 @@ namespace PointlessWaymarks.CmsData.ContentHtml.PhotoHtml
 
             mdBuilder.AppendLine($"<p style=\"text-align: center;\">{Tags.CreatedByAndUpdatedOnString(content)}</p>");
 
-            var preprocessResults = await BracketCodeCommon.ProcessCodesForEmail(mdBuilder.ToString(), progress);
+            var preprocessResults = await BracketCodeCommon.ProcessCodesForEmail(mdBuilder.ToString(), progress).ConfigureAwait(false);
             var bodyHtmlString = ContentProcessing.ProcessContent(preprocessResults, content.BodyContentFormat);
 
             var innerContent = HtmlEmail.ChildrenIntoTableCells(
-                $"{await HtmlEmail.EmailSimpleTitle(content)}{bodyHtmlString}{HtmlEmail.EmailSimpleFooter()}");
+                $"{await HtmlEmail.EmailSimpleTitle(content).ConfigureAwait(false)}{bodyHtmlString}{HtmlEmail.EmailSimpleFooter()}");
 
             var emailHtml = HtmlEmail.WrapInNestedCenteringTable(innerContent);
 

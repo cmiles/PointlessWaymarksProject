@@ -11,7 +11,7 @@ namespace PointlessWaymarks.CmsData.CommonHtml
 
             var footerDiv = new HtmlTag("footer").AddClass("footer-container");
 
-            footerDiv.Children.Add(await Tags.CoreLinksDiv());
+            footerDiv.Children.Add(await Tags.CoreLinksDiv().ConfigureAwait(false));
 
             if (!string.IsNullOrWhiteSpace(settings.SiteEmailTo))
             {

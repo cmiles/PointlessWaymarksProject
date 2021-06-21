@@ -24,12 +24,12 @@ namespace PointlessWaymarks.CmsData.Content
             await using var outStream = new FileStream(newFileInfo.FullName, FileMode.Create);
             var results = MagicImageProcessor.ProcessImage(toResize.FullNameWithLongFilePrefix(), outStream, settings);
 
-            await outStream.DisposeAsync();
+            await outStream.DisposeAsync().ConfigureAwait(false);
 
             var finalFileName = Path.Combine(toResize.Directory?.FullName ?? string.Empty,
                 $"{Path.GetFileNameWithoutExtension(toResize.Name)}--{imageTypeString}{(addSizeString ? $"--{width}w--{results.Settings.Height}h" : string.Empty)}.jpg");
 
-            await FileManagement.MoveFileAndLog(newFileInfo.FullName, finalFileName);
+            await FileManagement.MoveFileAndLog(newFileInfo.FullName, finalFileName).ConfigureAwait(false);
 
             newFileInfo = new FileInfo(finalFileName);
 
@@ -53,13 +53,13 @@ namespace PointlessWaymarks.CmsData.Content
             pl.WriteOutput(outStream);
 
             pl.Dispose();
-            await outStream.DisposeAsync();
+            await outStream.DisposeAsync().ConfigureAwait(false);
 
             var finalFileName = toRotate.FullName;
 
             toRotate.Delete();
 
-            await FileManagement.MoveFileAndLog(newFileInfo.FullName, finalFileName);
+            await FileManagement.MoveFileAndLog(newFileInfo.FullName, finalFileName).ConfigureAwait(false);
 
             newFileInfo = new FileInfo(finalFileName);
 

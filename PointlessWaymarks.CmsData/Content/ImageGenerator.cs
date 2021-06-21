@@ -19,14 +19,14 @@ namespace PointlessWaymarks.CmsData.Content
 
             var htmlContext = new SingleImagePage(toGenerate) {GenerationVersion = generationVersion};
 
-            await htmlContext.WriteLocalHtml();
+            await htmlContext.WriteLocalHtml().ConfigureAwait(false);
         }
 
         public static async Task<(GenerationReturn generationReturn, ImageContent? imageContent)> SaveAndGenerateHtml(
             ImageContent toSave, FileInfo selectedFile, bool overwriteExistingFiles, DateTime? generationVersion,
             IProgress<string>? progress = null)
         {
-            var validationReturn = await Validate(toSave, selectedFile);
+            var validationReturn = await Validate(toSave, selectedFile).ConfigureAwait(false);
 
             if (validationReturn.HasError) return (validationReturn, null);
 
@@ -34,11 +34,11 @@ namespace PointlessWaymarks.CmsData.Content
             toSave.Tags = Db.TagListCleanup(toSave.Tags);
 
             toSave.OriginalFileName = selectedFile.Name;
-            await FileManagement.WriteSelectedImageContentFileToMediaArchive(selectedFile);
-            await Db.SaveImageContent(toSave);
-            await WriteImageFromMediaArchiveToLocalSite(toSave, overwriteExistingFiles, progress);
-            await GenerateHtml(toSave, generationVersion, progress);
-            await Export.WriteLocalDbJson(toSave);
+            await FileManagement.WriteSelectedImageContentFileToMediaArchive(selectedFile).ConfigureAwait(false);
+            await Db.SaveImageContent(toSave).ConfigureAwait(false);
+            await WriteImageFromMediaArchiveToLocalSite(toSave, overwriteExistingFiles, progress).ConfigureAwait(false);
+            await GenerateHtml(toSave, generationVersion, progress).ConfigureAwait(false);
+            await Export.WriteLocalDbJson(toSave).ConfigureAwait(false);
 
             DataNotifications.PublishDataNotification("Image Generator", DataNotificationContentType.Image,
                 DataNotificationUpdateType.LocalContent, new List<Guid> {toSave.ContentId});
@@ -65,7 +65,7 @@ namespace PointlessWaymarks.CmsData.Content
                 return GenerationReturn.Error($"Problem with Media Archive: {mediaArchiveCheck.Explanation}",
                     imageContent.ContentId);
 
-            var commonContentCheck = await CommonContentValidation.ValidateContentCommon(imageContent);
+            var commonContentCheck = await CommonContentValidation.ValidateContentCommon(imageContent).ConfigureAwait(false);
             if (!commonContentCheck.Valid)
                 return GenerationReturn.Error(commonContentCheck.Explanation, imageContent.ContentId);
 
@@ -85,7 +85,7 @@ namespace PointlessWaymarks.CmsData.Content
                 return GenerationReturn.Error("The file doesn't appear to be a supported file type.",
                     imageContent.ContentId);
 
-            if (await (await Db.Context()).ImageFilenameExistsInDatabase(selectedFile.Name, imageContent.ContentId))
+            if (await (await Db.Context().ConfigureAwait(false)).ImageFilenameExistsInDatabase(selectedFile.Name, imageContent.ContentId).ConfigureAwait(false))
                 return GenerationReturn.Error(
                     "This filename already exists in the database - image file names must be unique.",
                     imageContent.ContentId);
@@ -112,14 +112,14 @@ namespace PointlessWaymarks.CmsData.Content
                 targetFile.Refresh();
             }
 
-            if (!targetFile.Exists) await sourceFile.CopyToAndLogAsync(targetFile.FullName);
+            if (!targetFile.Exists) await sourceFile.CopyToAndLogAsync(targetFile.FullName).ConfigureAwait(false);
 
             PictureResizing.DeleteSupportedPictureFilesInDirectoryOtherThanOriginalFile(imageContent, progress);
 
             PictureResizing.CleanDisplayAndSrcSetFilesInImageDirectory(imageContent, forcedResizeOverwriteExistingFiles,
                 progress);
 
-            await PictureResizing.ResizeForDisplayAndSrcset(imageContent, forcedResizeOverwriteExistingFiles, progress);
+            await PictureResizing.ResizeForDisplayAndSrcset(imageContent, forcedResizeOverwriteExistingFiles, progress).ConfigureAwait(false);
         }
     }
 }

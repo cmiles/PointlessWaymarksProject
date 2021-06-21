@@ -13,11 +13,11 @@ namespace PointlessWaymarks.CmsData.ContentHtml.PhotoGalleryHtml
         public static async Task<List<DailyPhotosPage>> DailyPhotoGalleries(List<DateTime> datesToCreate,
             DateTime? generationVersion, IProgress<string>? progress = null)
         {
-            var db = await Db.Context();
+            var db = await Db.Context().ConfigureAwait(false);
 
             progress?.Report($"Starting Daily Photo Pages Generation for {datesToCreate.Count} Dates");
 
-            var allDates = (await db.PhotoContents.Select(x => x.PhotoCreatedOn).ToListAsync()).Select(x => x.Date)
+            var allDates = (await db.PhotoContents.Select(x => x.PhotoCreatedOn).ToListAsync().ConfigureAwait(false)).Select(x => x.Date)
                 .Distinct().OrderByDescending(x => x).ToList();
 
             progress?.Report($"Found {allDates.Count} Dates with Photos");
@@ -31,15 +31,15 @@ namespace PointlessWaymarks.CmsData.ContentHtml.PhotoGalleryHtml
                 var loopDate = datesToCreate[i];
 
                 if (i % 10 == 0) progress?.Report($"Daily Photo Page - {loopDate:D} - {i + 1} of {loopGoal}");
-                var toAdd = await DailyPhotoGallery(loopDate, generationVersion);
+                var toAdd = await DailyPhotoGallery(loopDate, generationVersion).ConfigureAwait(false);
 
                 var nextDate = allDates.Where(x => x > loopDate).OrderBy(x => x).FirstOrDefault();
                 if (nextDate == default) toAdd!.NextDailyPhotosPage = null;
-                else toAdd!.NextDailyPhotosPage = await DailyPhotoGallery(nextDate, generationVersion);
+                else toAdd!.NextDailyPhotosPage = await DailyPhotoGallery(nextDate, generationVersion).ConfigureAwait(false);
 
                 var previousDate = allDates.Where(x => x < loopDate).OrderByDescending(x => x).FirstOrDefault();
                 if (previousDate == default) toAdd.PreviousDailyPhotosPage = null;
-                else toAdd.PreviousDailyPhotosPage = await DailyPhotoGallery(previousDate, generationVersion);
+                else toAdd.PreviousDailyPhotosPage = await DailyPhotoGallery(previousDate, generationVersion).ConfigureAwait(false);
 
                 returnList.Add(toAdd);
             }
@@ -50,11 +50,11 @@ namespace PointlessWaymarks.CmsData.ContentHtml.PhotoGalleryHtml
         public static async Task<List<DailyPhotosPage>> DailyPhotoGalleries(DateTime? generationVersion,
             IProgress<string>? progress = null)
         {
-            var db = await Db.Context();
+            var db = await Db.Context().ConfigureAwait(false);
 
             progress?.Report("Starting Daily Photo Pages Generation");
 
-            var allDates = (await db.PhotoContents.Select(x => x.PhotoCreatedOn).ToListAsync()).Select(x => x.Date)
+            var allDates = (await db.PhotoContents.Select(x => x.PhotoCreatedOn).ToListAsync().ConfigureAwait(false)).Select(x => x.Date)
                 .Distinct().OrderByDescending(x => x).ToList();
 
             progress?.Report($"Found {allDates.Count} Dates with Photos");
@@ -68,7 +68,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml.PhotoGalleryHtml
                 var loopDate = allDates[i];
 
                 if (i % 10 == 0) progress?.Report($"Daily Photo Page - {loopDate:D} - {i} of {loopGoal}");
-                var toAdd = await DailyPhotoGallery(loopDate, generationVersion);
+                var toAdd = await DailyPhotoGallery(loopDate, generationVersion).ConfigureAwait(false);
 
                 if (i > 0)
                 {
@@ -86,14 +86,14 @@ namespace PointlessWaymarks.CmsData.ContentHtml.PhotoGalleryHtml
         public static async Task<DailyPhotosPage?> DailyPhotoGallery(DateTime dateTimeForPictures,
             DateTime? generationVersion)
         {
-            var db = await Db.Context();
+            var db = await Db.Context().ConfigureAwait(false);
 
             var startsAfterOrOn = dateTimeForPictures.Date;
             var endsBefore = dateTimeForPictures.AddDays(1).Date;
 
             var datePhotos = await db.PhotoContents
                 .Where(x => x.PhotoCreatedOn >= startsAfterOrOn && x.PhotoCreatedOn < endsBefore)
-                .OrderBy(x => x.PhotoCreatedOn).ToListAsync();
+                .OrderBy(x => x.PhotoCreatedOn).ToListAsync().ConfigureAwait(false);
 
             if (!datePhotos.Any()) return null;
 

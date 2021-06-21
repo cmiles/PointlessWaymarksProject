@@ -19,39 +19,39 @@ namespace PointlessWaymarks.CmsData.Content
     {
         public static async Task<List<GenerationReturn>> CheckContentFolderStructure(this UserSettings settings)
         {
-            var db = await Db.Context();
+            var db = await Db.Context().ConfigureAwait(false);
 
             var returnList = new List<GenerationReturn>();
 
-            returnList.AddRange((await db.FileContents.ToListAsync()).Select(x =>
+            returnList.AddRange((await db.FileContents.ToListAsync().ConfigureAwait(false)).Select(x =>
                 GenerationReturn.TryCatchToGenerationReturn(() => settings.LocalSiteFileContentDirectory(x),
                     $"Check Content Folder for File {x.Title}")));
 
-            returnList.AddRange((await db.GeoJsonContents.ToListAsync()).Select(x =>
+            returnList.AddRange((await db.GeoJsonContents.ToListAsync().ConfigureAwait(false)).Select(x =>
                 GenerationReturn.TryCatchToGenerationReturn(() => settings.LocalSiteGeoJsonContentDirectory(x),
                     $"Check Content Folder for GeoJson {x.Title}")));
 
-            returnList.AddRange((await db.ImageContents.ToListAsync()).Select(x =>
+            returnList.AddRange((await db.ImageContents.ToListAsync().ConfigureAwait(false)).Select(x =>
                 GenerationReturn.TryCatchToGenerationReturn(() => settings.LocalSiteImageContentDirectory(x),
                     $"Check Content Folder for Image {x.Title}")));
 
-            returnList.AddRange((await db.LineContents.ToListAsync()).Select(x =>
+            returnList.AddRange((await db.LineContents.ToListAsync().ConfigureAwait(false)).Select(x =>
                 GenerationReturn.TryCatchToGenerationReturn(() => settings.LocalSiteLineContentDirectory(x),
                     $"Check Content Folder for Line {x.Title}")));
 
-            returnList.AddRange((await db.NoteContents.ToListAsync()).Select(x =>
+            returnList.AddRange((await db.NoteContents.ToListAsync().ConfigureAwait(false)).Select(x =>
                 GenerationReturn.TryCatchToGenerationReturn(() => settings.LocalSiteNoteContentDirectory(x),
                     $"Check Content Folder for Note {x.Title}")));
 
-            returnList.AddRange((await db.PhotoContents.ToListAsync()).Select(x =>
+            returnList.AddRange((await db.PhotoContents.ToListAsync().ConfigureAwait(false)).Select(x =>
                 GenerationReturn.TryCatchToGenerationReturn(() => settings.LocalSitePhotoContentDirectory(x),
                     $"Check Content Folder for Photo {x.Title}")));
 
-            returnList.AddRange((await db.PointContents.ToListAsync()).Select(x =>
+            returnList.AddRange((await db.PointContents.ToListAsync().ConfigureAwait(false)).Select(x =>
                 GenerationReturn.TryCatchToGenerationReturn(() => settings.LocalSitePointContentDirectory(x),
                     $"Check Content Folder for Point {x.Title}")));
 
-            returnList.AddRange((await db.PostContents.ToListAsync()).Select(x =>
+            returnList.AddRange((await db.PostContents.ToListAsync().ConfigureAwait(false)).Select(x =>
                 GenerationReturn.TryCatchToGenerationReturn(() => settings.LocalSitePostContentDirectory(x),
                     $"Check Content Folder for Post {x.Title}")));
 
@@ -85,9 +85,9 @@ namespace PointlessWaymarks.CmsData.Content
                     $"there appears to be a file missing for File Title {dbContent.Title} " + $"slug {dbContent.Slug}",
                     dbContent.ContentId);
 
-            if (archiveFile.Exists && !contentFile.Exists) await archiveFile.CopyToAndLogAsync(contentFile.FullName);
+            if (archiveFile.Exists && !contentFile.Exists) await archiveFile.CopyToAndLogAsync(contentFile.FullName).ConfigureAwait(false);
 
-            if (!archiveFile.Exists && contentFile.Exists) await contentFile.CopyToAndLogAsync(archiveFile.FullName);
+            if (!archiveFile.Exists && contentFile.Exists) await contentFile.CopyToAndLogAsync(archiveFile.FullName).ConfigureAwait(false);
 
             archiveFile.Refresh();
             contentFile.Refresh();
@@ -132,9 +132,9 @@ namespace PointlessWaymarks.CmsData.Content
                     dbContent.ContentId);
 
 
-            if (archiveFile.Exists && !contentFile.Exists) await archiveFile.CopyToAndLogAsync(contentFile.FullName);
+            if (archiveFile.Exists && !contentFile.Exists) await archiveFile.CopyToAndLogAsync(contentFile.FullName).ConfigureAwait(false);
 
-            if (!archiveFile.Exists && contentFile.Exists) await contentFile.CopyToAndLogAsync(archiveFile.FullName);
+            if (!archiveFile.Exists && contentFile.Exists) await contentFile.CopyToAndLogAsync(archiveFile.FullName).ConfigureAwait(false);
 
             archiveFile.Refresh();
             contentFile.Refresh();
@@ -178,9 +178,9 @@ namespace PointlessWaymarks.CmsData.Content
                     $"there appears to be a file missing for Photo Title {dbContent.Title} " + $"slug {dbContent.Slug}",
                     dbContent.ContentId);
 
-            if (archiveFile.Exists && !contentFile.Exists) await archiveFile.CopyToAndLogAsync(contentFile.FullName);
+            if (archiveFile.Exists && !contentFile.Exists) await archiveFile.CopyToAndLogAsync(contentFile.FullName).ConfigureAwait(false);
 
-            if (!archiveFile.Exists && contentFile.Exists) await contentFile.CopyToAndLogAsync(archiveFile.FullName);
+            if (!archiveFile.Exists && contentFile.Exists) await contentFile.CopyToAndLogAsync(archiveFile.FullName).ConfigureAwait(false);
 
             archiveFile.Refresh();
             contentFile.Refresh();
@@ -199,9 +199,9 @@ namespace PointlessWaymarks.CmsData.Content
 
         public static async Task<List<GenerationReturn>> CleanAndResizeAllImageFiles(IProgress<string>? progress = null)
         {
-            var db = await Db.Context();
+            var db = await Db.Context().ConfigureAwait(false);
 
-            var allItems = await db.ImageContents.ToListAsync();
+            var allItems = await db.ImageContents.ToListAsync().ConfigureAwait(false);
 
             var loopCount = 1;
             var totalCount = allItems.Count;
@@ -214,7 +214,7 @@ namespace PointlessWaymarks.CmsData.Content
             {
                 progress?.Report($"Image Clean and Resize for {loopItem.Title} - {loopCount} of {totalCount}");
 
-                returnList.Add(await PictureResizing.CopyCleanResizeImage(loopItem, progress));
+                returnList.Add(await PictureResizing.CopyCleanResizeImage(loopItem, progress).ConfigureAwait(false));
 
                 loopCount++;
             }
@@ -224,9 +224,9 @@ namespace PointlessWaymarks.CmsData.Content
 
         public static async Task<List<GenerationReturn>> CleanAndResizeAllPhotoFiles(IProgress<string>? progress = null)
         {
-            var db = await Db.Context();
+            var db = await Db.Context().ConfigureAwait(false);
 
-            var allItems = await db.PhotoContents.ToListAsync();
+            var allItems = await db.PhotoContents.ToListAsync().ConfigureAwait(false);
 
             var loopCount = 1;
             var totalCount = allItems.Count;
@@ -239,7 +239,7 @@ namespace PointlessWaymarks.CmsData.Content
             {
                 progress?.Report($"Photo Clean and Resize for {loopItem.Title} - {loopCount} of {totalCount}");
 
-                returnList.Add(await PictureResizing.CopyCleanResizePhoto(loopItem, progress));
+                returnList.Add(await PictureResizing.CopyCleanResizePhoto(loopItem, progress).ConfigureAwait(false));
 
                 loopCount++;
             }
@@ -298,9 +298,9 @@ namespace PointlessWaymarks.CmsData.Content
         public static async Task<List<GenerationReturn>> ConfirmAllFileContentFilesArePresent(
             IProgress<string>? progress = null)
         {
-            var db = await Db.Context();
+            var db = await Db.Context().ConfigureAwait(false);
 
-            var allItems = await db.FileContents.Where(x => string.IsNullOrEmpty(x.OriginalFileName)).ToListAsync();
+            var allItems = await db.FileContents.Where(x => string.IsNullOrEmpty(x.OriginalFileName)).ToListAsync().ConfigureAwait(false);
 
             var loopCount = 1;
             var totalCount = allItems.Count;
@@ -313,7 +313,7 @@ namespace PointlessWaymarks.CmsData.Content
             {
                 progress?.Report($"File Check for {loopItem.Title} - {loopCount} of {totalCount}");
 
-                returnList.Add(await CheckFileOriginalFileIsInMediaAndContentDirectories(loopItem));
+                returnList.Add(await CheckFileOriginalFileIsInMediaAndContentDirectories(loopItem).ConfigureAwait(false));
 
                 loopCount++;
             }
@@ -325,7 +325,7 @@ namespace PointlessWaymarks.CmsData.Content
         {
             var returnValue = fileInfo.CopyTo(destinationFileName);
 
-            await LogFileWriteAsync(destinationFileName);
+            await LogFileWriteAsync(destinationFileName).ConfigureAwait(false);
 
             return returnValue;
         }
@@ -334,7 +334,7 @@ namespace PointlessWaymarks.CmsData.Content
         {
             var returnValue = fileInfo.CopyTo(destinationFileName);
 
-            await LogFileWriteAsync(destinationFileName);
+            await LogFileWriteAsync(destinationFileName).ConfigureAwait(false);
 
             return returnValue;
         }
@@ -353,49 +353,49 @@ namespace PointlessWaymarks.CmsData.Content
                         fileName,
                         retryCount)).ExecuteAsync(async () =>
             {
-                var db = await Db.Context();
+                var db = await Db.Context().ConfigureAwait(false);
 
                 await db.GenerationFileWriteLogs.AddAsync(new GenerationFileWriteLog
                 {
                     FileName = fileName, WrittenOnVersion = DateTime.Now.TrimDateTimeToSeconds().ToUniversalTime()
-                });
-                await db.SaveChangesAsync(true);
-            });
+                }).ConfigureAwait(false);
+                await db.SaveChangesAsync(true).ConfigureAwait(false);
+            }).ConfigureAwait(false);
         }
 
         public static async Task MoveFileAndLog(string sourceFile, string destinationFile)
         {
             File.Move(sourceFile, destinationFile);
 
-            await LogFileWriteAsync(destinationFile);
+            await LogFileWriteAsync(destinationFile).ConfigureAwait(false);
         }
 
         public static async Task MoveFileAndLogAsync(string sourceFile, string destinationFile)
         {
             File.Move(sourceFile, destinationFile);
 
-            await LogFileWriteAsync(destinationFile);
+            await LogFileWriteAsync(destinationFile).ConfigureAwait(false);
         }
 
         public static async Task RemoveContentDirectoriesAndFilesNotFoundInCurrentDatabase(
             IProgress<string>? progress = null)
         {
-            await RemoveFileDirectoriesNotFoundInCurrentDatabase(progress);
-            await RemoveGeoJsonDirectoriesNotFoundInCurrentDatabase(progress);
-            await RemoveImageDirectoriesNotFoundInCurrentDatabase(progress);
-            await RemoveLineDirectoriesNotFoundInCurrentDatabase(progress);
-            await RemoveNoteDirectoriesNotFoundInCurrentDatabase(progress);
-            await RemovePhotoDirectoriesNotFoundInCurrentDatabase(progress);
-            await RemovePointDirectoriesNotFoundInCurrentDatabase(progress);
-            await RemovePostDirectoriesNotFoundInCurrentDatabase(progress);
-            await RemoveTagContentFilesNotInCurrentDatabase(progress);
+            await RemoveFileDirectoriesNotFoundInCurrentDatabase(progress).ConfigureAwait(false);
+            await RemoveGeoJsonDirectoriesNotFoundInCurrentDatabase(progress).ConfigureAwait(false);
+            await RemoveImageDirectoriesNotFoundInCurrentDatabase(progress).ConfigureAwait(false);
+            await RemoveLineDirectoriesNotFoundInCurrentDatabase(progress).ConfigureAwait(false);
+            await RemoveNoteDirectoriesNotFoundInCurrentDatabase(progress).ConfigureAwait(false);
+            await RemovePhotoDirectoriesNotFoundInCurrentDatabase(progress).ConfigureAwait(false);
+            await RemovePointDirectoriesNotFoundInCurrentDatabase(progress).ConfigureAwait(false);
+            await RemovePostDirectoriesNotFoundInCurrentDatabase(progress).ConfigureAwait(false);
+            await RemoveTagContentFilesNotInCurrentDatabase(progress).ConfigureAwait(false);
         }
 
         public static async Task RemoveFileDirectoriesNotFoundInCurrentDatabase(IProgress<string>? progress)
         {
             progress?.Report("Starting Directory Cleanup");
 
-            var db = await Db.Context();
+            var db = await Db.Context().ConfigureAwait(false);
             var dbFolders = db.FileContents.Select(x => x.Folder).Distinct().OrderBy(x => x).ToList();
 
             var siteTopLevelFileDirectory = UserSettingsSingleton.CurrentSettings().LocalSiteFileDirectory();
@@ -443,7 +443,7 @@ namespace PointlessWaymarks.CmsData.Content
         {
             progress?.Report("Starting File Media Archive Cleanup");
 
-            var db = await Db.Context();
+            var db = await Db.Context().ConfigureAwait(false);
             var siteFileMediaArchiveDirectory =
                 UserSettingsSingleton.CurrentSettings().LocalMediaArchiveFileDirectory();
             var siteFileMediaArchiveFiles = siteFileMediaArchiveDirectory.GetFiles().OrderBy(x => x.Name).ToList();
@@ -470,7 +470,7 @@ namespace PointlessWaymarks.CmsData.Content
         {
             progress?.Report("Starting Directory Cleanup");
 
-            var db = await Db.Context();
+            var db = await Db.Context().ConfigureAwait(false);
             var dbFolders = db.GeoJsonContents.Select(x => x.Folder).Distinct().OrderBy(x => x).ToList();
 
             var siteTopLevelGeoJsonDirectory = UserSettingsSingleton.CurrentSettings().LocalSiteGeoJsonDirectory();
@@ -519,7 +519,7 @@ namespace PointlessWaymarks.CmsData.Content
         {
             progress?.Report("Starting Directory Cleanup");
 
-            var db = await Db.Context();
+            var db = await Db.Context().ConfigureAwait(false);
             var dbFolders = db.ImageContents.Select(x => x.Folder).Distinct().OrderBy(x => x).ToList();
 
             var siteTopLevelImageDirectory = UserSettingsSingleton.CurrentSettings().LocalSiteImageDirectory();
@@ -567,7 +567,7 @@ namespace PointlessWaymarks.CmsData.Content
         {
             progress?.Report("Starting Image Media Archive Cleanup");
 
-            var db = await Db.Context();
+            var db = await Db.Context().ConfigureAwait(false);
             var siteImageMediaArchiveDirectory =
                 UserSettingsSingleton.CurrentSettings().LocalMediaArchiveImageDirectory();
             var siteImageMediaArchiveFiles = siteImageMediaArchiveDirectory.GetFiles().OrderBy(x => x.Name).ToList();
@@ -594,7 +594,7 @@ namespace PointlessWaymarks.CmsData.Content
         {
             progress?.Report("Starting Directory Cleanup");
 
-            var db = await Db.Context();
+            var db = await Db.Context().ConfigureAwait(false);
             var dbFolders = db.LineContents.Select(x => x.Folder).Distinct().OrderBy(x => x).ToList();
 
             var siteTopLevelLineDirectory = UserSettingsSingleton.CurrentSettings().LocalSiteLineDirectory();
@@ -641,16 +641,16 @@ namespace PointlessWaymarks.CmsData.Content
 
         public static async Task RemoveMediaArchiveFilesNotInDatabase(IProgress<string>? progress)
         {
-            await RemoveFileMediaArchiveFilesNotInCurrentDatabase(progress);
-            await RemoveImageMediaArchiveFilesNotInCurrentDatabase(progress);
-            await RemovePhotoMediaArchiveFilesNotInCurrentDatabase(progress);
+            await RemoveFileMediaArchiveFilesNotInCurrentDatabase(progress).ConfigureAwait(false);
+            await RemoveImageMediaArchiveFilesNotInCurrentDatabase(progress).ConfigureAwait(false);
+            await RemovePhotoMediaArchiveFilesNotInCurrentDatabase(progress).ConfigureAwait(false);
         }
 
         public static async Task RemoveNoteDirectoriesNotFoundInCurrentDatabase(IProgress<string>? progress)
         {
             progress?.Report("Starting Directory Cleanup");
 
-            var db = await Db.Context();
+            var db = await Db.Context().ConfigureAwait(false);
             var dbFolders = db.NoteContents.Select(x => x.Folder).Distinct().OrderBy(x => x).ToList();
 
             var siteTopLevelNoteDirectory = UserSettingsSingleton.CurrentSettings().LocalSiteNoteDirectory();
@@ -705,7 +705,7 @@ namespace PointlessWaymarks.CmsData.Content
         {
             progress?.Report("Starting Directory Cleanup");
 
-            var db = await Db.Context();
+            var db = await Db.Context().ConfigureAwait(false);
             var dbPhotoFolders = db.PhotoContents.Select(x => x.Folder).Distinct().OrderBy(x => x).ToList();
 
             var siteTopLevelPhotoDirectory = UserSettingsSingleton.CurrentSettings().LocalSitePhotoDirectory();
@@ -758,7 +758,7 @@ namespace PointlessWaymarks.CmsData.Content
 
             var dailyGalleryFiles = dailyPhotoGalleryDirectory.GetFiles().OrderBy(x => x.Name).ToList();
 
-            var allPhotoDays = (await db.PhotoContents.Select(x => x.PhotoCreatedOn).Distinct().ToListAsync())
+            var allPhotoDays = (await db.PhotoContents.Select(x => x.PhotoCreatedOn).Distinct().ToListAsync().ConfigureAwait(false))
                 .Select(x => x.Date).Distinct().ToList();
 
             progress?.Report(
@@ -786,7 +786,7 @@ namespace PointlessWaymarks.CmsData.Content
         {
             progress?.Report("Starting Photo Media Archive Cleanup");
 
-            var db = await Db.Context();
+            var db = await Db.Context().ConfigureAwait(false);
             var sitePhotoMediaArchiveDirectory =
                 UserSettingsSingleton.CurrentSettings().LocalMediaArchivePhotoDirectory();
             var sitePhotoMediaArchiveFiles = sitePhotoMediaArchiveDirectory.GetFiles().OrderBy(x => x.Name).ToList();
@@ -813,7 +813,7 @@ namespace PointlessWaymarks.CmsData.Content
         {
             progress?.Report("Starting Directory Cleanup");
 
-            var db = await Db.Context();
+            var db = await Db.Context().ConfigureAwait(false);
             var dbFolders = db.PointContents.Select(x => x.Folder).Distinct().OrderBy(x => x).ToList();
 
             var siteTopLevelPointDirectory = UserSettingsSingleton.CurrentSettings().LocalSitePointDirectory();
@@ -862,7 +862,7 @@ namespace PointlessWaymarks.CmsData.Content
         {
             progress?.Report("Starting Directory Cleanup");
 
-            var db = await Db.Context();
+            var db = await Db.Context().ConfigureAwait(false);
             var dbFolders = db.PostContents.Select(x => x.Folder).Distinct().OrderBy(x => x).ToList();
 
             var siteTopLevelPostDirectory = UserSettingsSingleton.CurrentSettings().LocalSitePostDirectory();
@@ -910,7 +910,7 @@ namespace PointlessWaymarks.CmsData.Content
         {
             progress?.Report("Starting Tag Directory Cleanup");
 
-            var tags = (await Db.TagSlugsAndContentList(true, false, progress)).Select(x => x.tag).Distinct().ToList();
+            var tags = (await Db.TagSlugsAndContentList(true, false, progress).ConfigureAwait(false)).Select(x => x.tag).Distinct().ToList();
 
             var tagFiles = UserSettingsSingleton.CurrentSettings().LocalSiteTagsDirectory().GetFiles("TagList-*.html")
                 .OrderBy(x => x.Name).ToList();
@@ -933,7 +933,7 @@ namespace PointlessWaymarks.CmsData.Content
 
             await using var stream = siteResources.CreateReadStream();
             using StreamReader reader = new(stream);
-            var spatialScript = await reader.ReadToEndAsync();
+            var spatialScript = await reader.ReadToEndAsync().ConfigureAwait(false);
 
             return spatialScript;
         }
@@ -1001,30 +1001,30 @@ namespace PointlessWaymarks.CmsData.Content
 
         public static async Task WriteAllTextToFileAndLog(string path, string contents)
         {
-            await File.WriteAllTextAsync(path, contents);
+            await File.WriteAllTextAsync(path, contents).ConfigureAwait(false);
 
-            await LogFileWriteAsync(path);
+            await LogFileWriteAsync(path).ConfigureAwait(false);
         }
 
         public static async Task WriteAllTextToFileAndLog(string path, string contents, Encoding encoding)
         {
-            await File.WriteAllTextAsync(path, contents, encoding);
+            await File.WriteAllTextAsync(path, contents, encoding).ConfigureAwait(false);
 
-            await LogFileWriteAsync(path);
+            await LogFileWriteAsync(path).ConfigureAwait(false);
         }
 
         public static async Task WriteAllTextToFileAndLogAsync(string path, string contents)
         {
-            await File.WriteAllTextAsync(path, contents);
+            await File.WriteAllTextAsync(path, contents).ConfigureAwait(false);
 
-            await LogFileWriteAsync(path);
+            await LogFileWriteAsync(path).ConfigureAwait(false);
         }
 
         public static async Task WriteAllTextToFileAndLogAsync(string path, string contents, Encoding encoding)
         {
-            await File.WriteAllTextAsync(path, contents, encoding);
+            await File.WriteAllTextAsync(path, contents, encoding).ConfigureAwait(false);
 
-            await LogFileWriteAsync(path);
+            await LogFileWriteAsync(path).ConfigureAwait(false);
         }
 
         public static async Task WriteFavIconToGeneratedSite(IProgress<string>? progress)
@@ -1044,10 +1044,10 @@ namespace PointlessWaymarks.CmsData.Content
 
             var fileStream = File.Create(destinationFile.FullName);
             fileAsStream.Seek(0, SeekOrigin.Begin);
-            await fileAsStream.CopyToAsync(fileStream);
+            await fileAsStream.CopyToAsync(fileStream).ConfigureAwait(false);
             fileStream.Close();
 
-            await LogFileWriteAsync(destinationFile.FullName);
+            await LogFileWriteAsync(destinationFile.FullName).ConfigureAwait(false);
 
             progress?.Report($"Site Resources - Writing {siteResources.Name} to {destinationFile.FullName}");
         }
@@ -1064,7 +1064,7 @@ namespace PointlessWaymarks.CmsData.Content
 
             if (destinationFile.Exists) destinationFile.Delete();
 
-            await selectedFile.CopyToAndLog(destinationFileName);
+            await selectedFile.CopyToAndLog(destinationFileName).ConfigureAwait(false);
         }
 
         public static async Task<GenerationReturn> WriteSelectedFileContentFileToMediaArchive(FileInfo selectedFile,
@@ -1081,7 +1081,7 @@ namespace PointlessWaymarks.CmsData.Content
 
             if (destinationFile.Exists) destinationFile.Delete();
 
-            await selectedFile.CopyToAndLogAsync(destinationFileName);
+            await selectedFile.CopyToAndLogAsync(destinationFileName).ConfigureAwait(false);
 
             return GenerationReturn.Success("File is copied to Media Archive");
         }
@@ -1098,7 +1098,7 @@ namespace PointlessWaymarks.CmsData.Content
 
             if (destinationFile.Exists) destinationFile.Delete();
 
-            await selectedFile.CopyToAndLog(destinationFileName);
+            await selectedFile.CopyToAndLog(destinationFileName).ConfigureAwait(false);
         }
 
         public static async Task<GenerationReturn> WriteSelectedImageContentFileToMediaArchive(FileInfo selectedFile,
@@ -1115,7 +1115,7 @@ namespace PointlessWaymarks.CmsData.Content
 
             if (destinationFile.Exists) destinationFile.Delete();
 
-            await selectedFile.CopyToAndLogAsync(destinationFileName);
+            await selectedFile.CopyToAndLogAsync(destinationFileName).ConfigureAwait(false);
 
             return GenerationReturn.Success("Image is copied to Media Archive");
         }
@@ -1132,7 +1132,7 @@ namespace PointlessWaymarks.CmsData.Content
 
             if (destinationFile.Exists) destinationFile.Delete();
 
-            await selectedFile.CopyToAndLog(destinationFileName);
+            await selectedFile.CopyToAndLog(destinationFileName).ConfigureAwait(false);
         }
 
         public static async Task<GenerationReturn> WriteSelectedPhotoContentFileToMediaArchive(FileInfo selectedFile,
@@ -1149,7 +1149,7 @@ namespace PointlessWaymarks.CmsData.Content
 
             if (destinationFile.Exists) destinationFile.Delete();
 
-            await selectedFile.CopyToAndLogAsync(destinationFileName);
+            await selectedFile.CopyToAndLogAsync(destinationFileName).ConfigureAwait(false);
 
             return GenerationReturn.Success("Photo is copied to Media Archive");
         }
@@ -1182,10 +1182,10 @@ namespace PointlessWaymarks.CmsData.Content
 
                 var fileStream = File.Create(destinationFile.FullName);
                 fileAsStream.Seek(0, SeekOrigin.Begin);
-                await fileAsStream.CopyToAsync(fileStream);
+                await fileAsStream.CopyToAsync(fileStream).ConfigureAwait(false);
                 fileStream.Close();
 
-                await LogFileWriteAsync(destinationFile.FullName);
+                await LogFileWriteAsync(destinationFile.FullName).ConfigureAwait(false);
 
                 progress?.Report($"Site Resources - Writing {loopSiteResources.Name} to {destinationFile.FullName}");
             }
@@ -1208,10 +1208,10 @@ namespace PointlessWaymarks.CmsData.Content
 
             var fileStream = File.Create(destinationFile.FullName);
             fileAsStream.Seek(0, SeekOrigin.Begin);
-            await fileAsStream.CopyToAsync(fileStream);
+            await fileAsStream.CopyToAsync(fileStream).ConfigureAwait(false);
             fileStream.Close();
 
-            await LogFileWriteAsync(destinationFile.FullName);
+            await LogFileWriteAsync(destinationFile.FullName).ConfigureAwait(false);
 
             progress?.Report($"Site Resources - Writing {siteResources.Name} to {destinationFile.FullName}");
         }

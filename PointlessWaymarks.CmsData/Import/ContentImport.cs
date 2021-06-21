@@ -314,9 +314,9 @@ namespace PointlessWaymarks.CmsData.Import
             }
             else
             {
-                var db = await Db.Context();
+                var db = await Db.Context().ConfigureAwait(false);
 
-                dbEntry = await db.ContentFromContentId(contentId.ParsedValue.Value);
+                dbEntry = await db.ContentFromContentId(contentId.ParsedValue.Value).ConfigureAwait(false);
             }
 
             if (dbEntry == null) return (true, $"No Db Entry for {contentId.ParsedValue} found", null);
@@ -337,7 +337,7 @@ namespace PointlessWaymarks.CmsData.Import
             var errorNotes = new List<string>();
             var updateList = new List<ContentImportUpdateSuggestion>();
 
-            var db = await Db.Context();
+            var db = await Db.Context().ConfigureAwait(false);
 
             var lastRow = toProcess.Count;
 
@@ -345,7 +345,7 @@ namespace PointlessWaymarks.CmsData.Import
 
             foreach (var loopRow in toProcess.Skip(1))
             {
-                var importResult = await ImportContentFromExcelRow(headerInfo, loopRow);
+                var importResult = await ImportContentFromExcelRow(headerInfo, loopRow).ConfigureAwait(false);
 
                 if (importResult.hasError)
                 {
@@ -380,7 +380,7 @@ namespace PointlessWaymarks.CmsData.Import
 
                 if (contentDbId > 0)
                 {
-                    var currentDbEntry = await db.ContentFromContentId(contentId);
+                    var currentDbEntry = await db.ContentFromContentId(contentId).ConfigureAwait(false);
 
                     if (currentDbEntry == null)
                     {
@@ -415,15 +415,15 @@ namespace PointlessWaymarks.CmsData.Import
                 var validationResult = importResult.processContent switch
                 {
                     PhotoContent p => await PhotoGenerator.Validate(p,
-                        UserSettingsSingleton.CurrentSettings().LocalMediaArchivePhotoContentFile(p)),
+                        UserSettingsSingleton.CurrentSettings().LocalMediaArchivePhotoContentFile(p)).ConfigureAwait(false),
                     FileContent f => await FileGenerator.Validate(f,
-                        UserSettingsSingleton.CurrentSettings().LocalMediaArchiveFileContentFile(f)),
+                        UserSettingsSingleton.CurrentSettings().LocalMediaArchiveFileContentFile(f)).ConfigureAwait(false),
                     ImageContent i => await ImageGenerator.Validate(i,
-                        UserSettingsSingleton.CurrentSettings().LocalMediaArchiveImageContentFile(i)),
-                    PointContentDto pc => await PointGenerator.Validate(pc),
-                    PostContent pc => await PostGenerator.Validate(pc),
-                    LinkContent l => await LinkGenerator.Validate(l),
-                    NoteContent n => await NoteGenerator.Validate(n),
+                        UserSettingsSingleton.CurrentSettings().LocalMediaArchiveImageContentFile(i)).ConfigureAwait(false),
+                    PointContentDto pc => await PointGenerator.Validate(pc).ConfigureAwait(false),
+                    PostContent pc => await PostGenerator.Validate(pc).ConfigureAwait(false),
+                    LinkContent l => await LinkGenerator.Validate(l).ConfigureAwait(false),
+                    NoteContent n => await NoteGenerator.Validate(n).ConfigureAwait(false),
                     _ => GenerationReturn.Error("Excel Import - No Content Type Generator found?")
                 };
 
@@ -490,7 +490,7 @@ namespace PointlessWaymarks.CmsData.Import
 
             progress?.Report($"Excel Import - {fileName} - Range {tableRange.RangeAddress.ToStringRelative(true)}");
 
-            return await ImportContentTable(translated, progress);
+            return await ImportContentTable(translated, progress).ConfigureAwait(false);
         }
 
         public static async Task<ContentImportResults> ImportFromTopMostExcelInstance(
@@ -503,7 +503,7 @@ namespace PointlessWaymarks.CmsData.Import
             if (currentExcel?.ActiveWorkbook?.ActiveSheet == null)
             {
                 progress?.Report("No Active Excel Instance with an open File Found?");
-                return await ImportContentTable(null, progress);
+                return await ImportContentTable(null, progress).ConfigureAwait(false);
             }
 
             var worksheet = (Worksheet) currentExcel.ActiveWorkbook.ActiveSheet;
@@ -513,14 +513,14 @@ namespace PointlessWaymarks.CmsData.Import
             {
                 progress?.Report(
                     $"No data found in Workbook {currentExcel.ActiveWorkbook.Name} - Worksheet {worksheet.Name}?");
-                return await ImportContentTable(null, progress);
+                return await ImportContentTable(null, progress).ConfigureAwait(false);
             }
 
             if (tableRange.Columns.Count < 2 || tableRange.Rows.Count < 2)
             {
                 progress?.Report(
                     $"Not enough data found in Workbook {currentExcel.ActiveWorkbook.Name} - Worksheet {worksheet.Name}?");
-                return await ImportContentTable(null, progress);
+                return await ImportContentTable(null, progress).ConfigureAwait(false);
             }
 
             progress?.Report(
@@ -545,7 +545,7 @@ namespace PointlessWaymarks.CmsData.Import
                 excelRow++;
             }
 
-            return await ImportContentTable(translated, progress);
+            return await ImportContentTable(translated, progress).ConfigureAwait(false);
         }
 
         private static dynamic? NewContentTypeToImportDbType(string? newContentTypeString)
@@ -596,7 +596,7 @@ namespace PointlessWaymarks.CmsData.Import
                         }
 
                         generationResult = (await PhotoGenerator.SaveAndGenerateHtml(photo,
-                            archiveFile, false, null, progress)).generationReturn;
+                            archiveFile, false, null, progress).ConfigureAwait(false)).generationReturn;
                         break;
                     }
                     case FileContent file:
@@ -613,7 +613,7 @@ namespace PointlessWaymarks.CmsData.Import
                         }
 
                         generationResult = (await FileGenerator.SaveAndGenerateHtml(file,
-                            archiveFile, false, null, progress)).generationReturn;
+                            archiveFile, false, null, progress).ConfigureAwait(false)).generationReturn;
                         break;
                     }
                     case ImageContent image:
@@ -630,30 +630,30 @@ namespace PointlessWaymarks.CmsData.Import
                         }
 
                         generationResult = (await ImageGenerator.SaveAndGenerateHtml(image,
-                            archiveFile, false, null, progress)).generationReturn;
+                            archiveFile, false, null, progress).ConfigureAwait(false)).generationReturn;
                         break;
                     }
                     case PointContentDto point:
                     {
-                        generationResult = (await PointGenerator.SaveAndGenerateHtml(point, null, progress))
+                        generationResult = (await PointGenerator.SaveAndGenerateHtml(point, null, progress).ConfigureAwait(false))
                             .generationReturn;
                         break;
                     }
                     case PostContent post:
                     {
-                        generationResult = (await PostGenerator.SaveAndGenerateHtml(post, null, progress))
+                        generationResult = (await PostGenerator.SaveAndGenerateHtml(post, null, progress).ConfigureAwait(false))
                             .generationReturn;
                         break;
                     }
                     case NoteContent note:
                     {
-                        generationResult = (await NoteGenerator.SaveAndGenerateHtml(note, null, progress))
+                        generationResult = (await NoteGenerator.SaveAndGenerateHtml(note, null, progress).ConfigureAwait(false))
                             .generationReturn;
                         break;
                     }
                     case LinkContent link:
                     {
-                        generationResult = (await LinkGenerator.SaveAndGenerateHtml(link, null, progress))
+                        generationResult = (await LinkGenerator.SaveAndGenerateHtml(link, null, progress).ConfigureAwait(false))
                             .generationReturn;
                         break;
                     }

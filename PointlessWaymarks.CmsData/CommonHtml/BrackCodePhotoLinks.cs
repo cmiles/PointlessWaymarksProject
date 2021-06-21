@@ -30,11 +30,11 @@ namespace PointlessWaymarks.CmsData.CommonHtml
 
             if (!guidList.Any()) return returnList;
 
-            var context = await Db.Context();
+            var context = await Db.Context().ConfigureAwait(false);
 
             foreach (var loopGuid in guidList)
             {
-                var dbContent = await context.PhotoContents.FirstOrDefaultAsync(x => x.ContentId == loopGuid);
+                var dbContent = await context.PhotoContents.FirstOrDefaultAsync(x => x.ContentId == loopGuid).ConfigureAwait(false);
                 if (dbContent == null) continue;
 
                 progress?.Report($"Photo Link Code - Adding DbContent For {dbContent.Title}");
@@ -55,7 +55,7 @@ namespace PointlessWaymarks.CmsData.CommonHtml
 
             if (!resultList.Any()) return toProcess;
 
-            var context = await Db.Context();
+            var context = await Db.Context().ConfigureAwait(false);
 
             foreach (var loopMatch in resultList)
             {

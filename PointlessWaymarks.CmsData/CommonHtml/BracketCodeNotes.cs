@@ -32,7 +32,7 @@ namespace PointlessWaymarks.CmsData.CommonHtml
 
             if (!guidList.Any()) return returnList;
 
-            var context = await Db.Context();
+            var context = await Db.Context().ConfigureAwait(false);
 
             foreach (var loopMatch in guidList)
             {
@@ -57,12 +57,12 @@ namespace PointlessWaymarks.CmsData.CommonHtml
 
             if (!resultList.Any()) return toProcess;
 
-            var context = await Db.Context();
+            var context = await Db.Context().ConfigureAwait(false);
 
             foreach (var loopMatch in resultList)
             {
                 var dbContent =
-                    await context.NoteContents.FirstOrDefaultAsync(x => x.ContentId == loopMatch.contentGuid);
+                    await context.NoteContents.FirstOrDefaultAsync(x => x.ContentId == loopMatch.contentGuid).ConfigureAwait(false);
                 if (dbContent == null) continue;
 
                 progress?.Report($"Adding note link {dbContent.Title} from Code");

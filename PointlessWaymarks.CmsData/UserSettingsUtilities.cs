@@ -42,35 +42,35 @@ namespace PointlessWaymarks.CmsData
 
         public static async Task<string> ContentUrl(this UserSettings settings, Guid toLink)
         {
-            var db = await Db.Context();
+            var db = await Db.Context().ConfigureAwait(false);
 
             //!!Content Type List!!
 
-            var possibleFile = await db.FileContents.SingleOrDefaultAsync(x => x.ContentId == toLink);
+            var possibleFile = await db.FileContents.SingleOrDefaultAsync(x => x.ContentId == toLink).ConfigureAwait(false);
             if (possibleFile != null) return settings.FilePageUrl(possibleFile);
 
-            var possibleGeoJson = await db.GeoJsonContents.SingleOrDefaultAsync(x => x.ContentId == toLink);
+            var possibleGeoJson = await db.GeoJsonContents.SingleOrDefaultAsync(x => x.ContentId == toLink).ConfigureAwait(false);
             if (possibleGeoJson != null) return settings.GeoJsonPageUrl(possibleGeoJson);
 
-            var possibleImage = await db.ImageContents.SingleOrDefaultAsync(x => x.ContentId == toLink);
+            var possibleImage = await db.ImageContents.SingleOrDefaultAsync(x => x.ContentId == toLink).ConfigureAwait(false);
             if (possibleImage != null) return settings.ImagePageUrl(possibleImage);
 
-            var possibleLine = await db.LineContents.SingleOrDefaultAsync(x => x.ContentId == toLink);
+            var possibleLine = await db.LineContents.SingleOrDefaultAsync(x => x.ContentId == toLink).ConfigureAwait(false);
             if (possibleLine != null) return settings.LinePageUrl(possibleLine);
 
-            var possibleLink = await db.LinkContents.SingleOrDefaultAsync(x => x.ContentId == toLink);
+            var possibleLink = await db.LinkContents.SingleOrDefaultAsync(x => x.ContentId == toLink).ConfigureAwait(false);
             if (possibleLink != null) return settings.LinkListUrl();
 
-            var possibleNote = await db.NoteContents.SingleOrDefaultAsync(x => x.ContentId == toLink);
+            var possibleNote = await db.NoteContents.SingleOrDefaultAsync(x => x.ContentId == toLink).ConfigureAwait(false);
             if (possibleNote != null) return settings.NotePageUrl(possibleNote);
 
-            var possiblePhoto = await db.PhotoContents.SingleOrDefaultAsync(x => x.ContentId == toLink);
+            var possiblePhoto = await db.PhotoContents.SingleOrDefaultAsync(x => x.ContentId == toLink).ConfigureAwait(false);
             if (possiblePhoto != null) return settings.PhotoPageUrl(possiblePhoto);
 
-            var possiblePoint = await db.PointContents.SingleOrDefaultAsync(x => x.ContentId == toLink);
+            var possiblePoint = await db.PointContents.SingleOrDefaultAsync(x => x.ContentId == toLink).ConfigureAwait(false);
             if (possiblePoint != null) return settings.PointPageUrl(possiblePoint);
 
-            var possiblePost = await db.PostContents.SingleOrDefaultAsync(x => x.ContentId == toLink);
+            var possiblePost = await db.PostContents.SingleOrDefaultAsync(x => x.ContentId == toLink).ConfigureAwait(false);
             if (possiblePost != null) return settings.PostPageUrl(possiblePost);
 
             return string.Empty;
@@ -132,7 +132,7 @@ namespace PointlessWaymarks.CmsData
             progress?.Report("Checking for database files...");
 
             var db = Db.Context().Result;
-            await db.Database.EnsureCreatedAsync();
+            await db.Database.EnsureCreatedAsync().ConfigureAwait(false);
         }
 
         public static string FaviconUrl(this UserSettings settings)
@@ -1006,8 +1006,8 @@ namespace PointlessWaymarks.CmsData
 
         public static async Task<string> PageUrl(this UserSettings settings, Guid contentGuid)
         {
-            var db = await Db.Context();
-            var content = await db.ContentFromContentId(contentGuid);
+            var db = await Db.Context().ConfigureAwait(false);
+            var content = await db.ContentFromContentId(contentGuid).ConfigureAwait(false);
 
             //!!Content Type List!!
 
@@ -1111,7 +1111,7 @@ namespace PointlessWaymarks.CmsData
 
             await using (var fs = new FileStream(currentFile.FullName, FileMode.Open, FileAccess.Read))
             {
-                readResult = await JsonSerializer.DeserializeAsync<UserSettings>(fs) ?? new UserSettings();
+                readResult = await JsonSerializer.DeserializeAsync<UserSettings>(fs).ConfigureAwait(false) ?? new UserSettings();
             }
 
             var timeStampForMissingValues = $"{DateTime.Now:yyyy-MM-dd--HH-mm-ss-fff}";
@@ -1225,7 +1225,7 @@ namespace PointlessWaymarks.CmsData
             if (hasUpdates)
             {
                 progress?.Report("Found missing values - writing defaults back to settings.");
-                await WriteSettings(readResult);
+                await WriteSettings(readResult).ConfigureAwait(false);
             }
 
             return readResult;
@@ -1305,16 +1305,16 @@ namespace PointlessWaymarks.CmsData
 
             progress?.Report("Writing Settings");
 
-            await WriteSettings(newSettings);
+            await WriteSettings(newSettings).ConfigureAwait(false);
 
             progress?.Report("Setting up directory structure.");
 
             newSettings.VerifyOrCreateAllTopLevelFolders();
-            await EnsureDbIsPresent(progress);
+            await EnsureDbIsPresent(progress).ConfigureAwait(false);
 
-            await FileManagement.WriteFavIconToGeneratedSite(progress);
-            await FileManagement.WriteStylesCssToGeneratedSite(progress);
-            await FileManagement.WriteSiteResourcesToGeneratedSite(progress);
+            await FileManagement.WriteFavIconToGeneratedSite(progress).ConfigureAwait(false);
+            await FileManagement.WriteStylesCssToGeneratedSite(progress).ConfigureAwait(false);
+            await FileManagement.WriteSiteResourcesToGeneratedSite(progress).ConfigureAwait(false);
 
             return newSettings;
         }
@@ -1434,7 +1434,7 @@ namespace PointlessWaymarks.CmsData
         public static async Task WriteSettings(this UserSettings toWrite)
         {
             var currentFile = SettingsFile();
-            await File.WriteAllTextAsync(currentFile.FullName, JsonSerializer.Serialize(toWrite));
+            await File.WriteAllTextAsync(currentFile.FullName, JsonSerializer.Serialize(toWrite)).ConfigureAwait(false);
         }
     }
 }

@@ -35,7 +35,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml.GeoJsonHtml
 
             jsonString = jsonString.Replace("{{self}}", pageUrl);
 
-            await BracketCodeCommon.ProcessCodesForSite(jsonString);
+            await BracketCodeCommon.ProcessCodesForSite(jsonString).ConfigureAwait(false);
 
             return jsonString;
         }
@@ -64,7 +64,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml.GeoJsonHtml
 
             await FileManagement.WriteAllTextToFileAndLogAsync(dataFileInfo.FullName,
                 await GenerateGeoJson(geoJsonContent.GeoJson,
-                    UserSettingsSingleton.CurrentSettings().GeoJsonPageUrl(geoJsonContent)));
+                    UserSettingsSingleton.CurrentSettings().GeoJsonPageUrl(geoJsonContent)).ConfigureAwait(false)).ConfigureAwait(false);
         }
 
         public record GeoJsonSiteJsonData(string PageUrl, SpatialBounds Bounds, FeatureCollection GeoJson);

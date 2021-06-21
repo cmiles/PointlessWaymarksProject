@@ -17,13 +17,13 @@ namespace PointlessWaymarks.CmsData
         public static async Task AsyncParallelForEach(this List<Func<Task>> source,
             int maxDegreeOfParallelism = DataflowBlockOptions.Unbounded, TaskScheduler? scheduler = null)
         {
-            await source.ToListAsync().AsyncParallelForEach(async x => await x(), maxDegreeOfParallelism, scheduler);
+            await source.ToListAsync().AsyncParallelForEach(async x => await x().ConfigureAwait(false), maxDegreeOfParallelism, scheduler).ConfigureAwait(false);
         }
 
         public static async Task AsyncParallelForEach<T>(this List<T> source, Func<T, Task> body,
             int maxDegreeOfParallelism = -1, TaskScheduler? scheduler = null)
         {
-            await source.ToListAsync().AsyncParallelForEach(body, maxDegreeOfParallelism, scheduler);
+            await source.ToListAsync().AsyncParallelForEach(body, maxDegreeOfParallelism, scheduler).ConfigureAwait(false);
         }
 
         public static async Task AsyncParallelForEach<T>(this IAsyncEnumerable<T> source, Func<T, Task> body,
@@ -40,7 +40,7 @@ namespace PointlessWaymarks.CmsData
             await foreach (var item in source)
                 block.Post(item);
             block.Complete();
-            await block.Completion;
+            await block.Completion.ConfigureAwait(false);
         }
 
 #pragma warning disable 1998

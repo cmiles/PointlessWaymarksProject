@@ -34,7 +34,7 @@ namespace PointlessWaymarks.CmsData.CommonHtml
 
             foreach (var loopGuid in resultList)
             {
-                var context = await Db.Context();
+                var context = await Db.Context().ConfigureAwait(false);
 
                 var dbContent = context.PhotoContents.FirstOrDefault(x => x.ContentId == loopGuid);
                 if (dbContent == null) continue;
@@ -67,12 +67,12 @@ namespace PointlessWaymarks.CmsData.CommonHtml
 
             if (!resultList.Any()) return toProcess;
 
-            var context = await Db.Context();
+            var context = await Db.Context().ConfigureAwait(false);
 
             foreach (var loopMatch in resultList)
             {
                 var dbPhoto =
-                    await context.PhotoContents.FirstOrDefaultAsync(x => x.ContentId == loopMatch.contentGuid);
+                    await context.PhotoContents.FirstOrDefaultAsync(x => x.ContentId == loopMatch.contentGuid).ConfigureAwait(false);
                 if (dbPhoto == null) continue;
 
                 progress?.Report($"Photo Code for {dbPhoto.Title} processed");
@@ -95,7 +95,7 @@ namespace PointlessWaymarks.CmsData.CommonHtml
             IProgress<string>? progress = null)
         {
             return await Process(toProcess, page => page.PictureInformation.LocalPictureFigureTag().ToString(),
-                progress);
+                progress).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -107,7 +107,7 @@ namespace PointlessWaymarks.CmsData.CommonHtml
         public static async Task<string> ProcessForEmail(string toProcess, IProgress<string>? progress = null)
         {
             return await Process(toProcess, page => page.PictureInformation.EmailPictureTableTag().ToString(),
-                progress);
+                progress).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -120,7 +120,7 @@ namespace PointlessWaymarks.CmsData.CommonHtml
         {
             return await Process(toProcess,
                 page => page.PictureInformation.PictureFigureWithCaptionAndLinkToPicturePageTag("100vw").ToString(),
-                progress);
+                progress).ConfigureAwait(false);
         }
     }
 }

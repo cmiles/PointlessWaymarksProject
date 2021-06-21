@@ -23,7 +23,7 @@ namespace PointlessWaymarks.CmsData.CommonHtml
             foreach (var loopItems in items)
             {
                 var html = ContentProcessing.ProcessContent(
-                    await BracketCodeCommon.ProcessCodesForSite(loopItems.LinkTag ?? string.Empty, progress),
+                    await BracketCodeCommon.ProcessCodesForSite(loopItems.LinkTag ?? string.Empty, progress).ConfigureAwait(false),
                     ContentFormatEnum.MarkdigMarkdown01);
 
                 var coreLinkContainer = new DivTag().AddClass("core-links-item").Text(html).Encoded(false);
@@ -376,7 +376,7 @@ namespace PointlessWaymarks.CmsData.CommonHtml
             var bodyContainer = new HtmlTag("div").AddClass("post-body-container");
 
             var bodyText = ContentProcessing.ProcessContent(
-                await BracketCodeCommon.ProcessCodesForSite(dbEntry.BodyContent, progress), dbEntry.BodyContentFormat);
+                await BracketCodeCommon.ProcessCodesForSite(dbEntry.BodyContent, progress).ConfigureAwait(false), dbEntry.BodyContentFormat);
 
             bodyContainer.Children.Add(new HtmlTag("div").AddClass("post-body-content").Encoded(false).Text(bodyText));
 
@@ -391,7 +391,7 @@ namespace PointlessWaymarks.CmsData.CommonHtml
             var bodyContainer = new HtmlTag("div").AddClass("post-body-container");
 
             var bodyText = ContentProcessing.ProcessContent(
-                await BracketCodeCommon.ProcessCodesForSite(bodyContent, progress),
+                await BracketCodeCommon.ProcessCodesForSite(bodyContent, progress).ConfigureAwait(false),
                 ContentFormatEnum.MarkdigMarkdown01);
 
             bodyContainer.Children.Add(new HtmlTag("div").AddClass("post-body-content").Encoded(false).Text(bodyText));
@@ -458,7 +458,7 @@ namespace PointlessWaymarks.CmsData.CommonHtml
                 titleContainer.Children.Add(titleSiteSummary);
             }
 
-            titleContainer.Children.Add(await CoreLinksDiv());
+            titleContainer.Children.Add(await CoreLinksDiv().ConfigureAwait(false));
 
             return titleContainer;
         }
@@ -575,7 +575,7 @@ namespace PointlessWaymarks.CmsData.CommonHtml
             var updateNotesContentContainer = new DivTag().AddClass("update-notes-content");
 
             var updateNotesHtml = ContentProcessing.ProcessContent(
-                await BracketCodeCommon.ProcessCodesForSite(dbEntry.UpdateNotes), dbEntry.UpdateNotesFormat);
+                await BracketCodeCommon.ProcessCodesForSite(dbEntry.UpdateNotes).ConfigureAwait(false), dbEntry.UpdateNotesFormat);
 
             updateNotesContentContainer.Encoded(false).Text(updateNotesHtml);
 

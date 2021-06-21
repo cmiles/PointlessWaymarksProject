@@ -28,7 +28,7 @@ namespace PointlessWaymarks.CmsData.Json
             if (jsonFile.Exists) jsonFile.Delete();
             jsonFile.Refresh();
 
-            await FileManagement.WriteAllTextToFileAndLog(jsonFile.FullName, jsonDbEntry);
+            await FileManagement.WriteAllTextToFileAndLog(jsonFile.FullName, jsonDbEntry).ConfigureAwait(false);
 
             var latestHistoricEntries = db.HistoricLinkContents.ToList();
 
@@ -42,7 +42,7 @@ namespace PointlessWaymarks.CmsData.Json
             if (jsonHistoricFile.Exists) jsonHistoricFile.Delete();
             jsonHistoricFile.Refresh();
 
-            await FileManagement.WriteAllTextToFileAndLog(jsonHistoricFile.FullName, jsonHistoricDbEntry);
+            await FileManagement.WriteAllTextToFileAndLog(jsonHistoricFile.FullName, jsonHistoricDbEntry).ConfigureAwait(false);
         }
 
         public static async Task WriteLocalDbJson(FileContent dbEntry, IProgress<string>? progress = null)
@@ -50,7 +50,7 @@ namespace PointlessWaymarks.CmsData.Json
             progress?.Report("Writing Db Entry to Json");
 
             var settings = UserSettingsSingleton.CurrentSettings();
-            var db = await Db.Context();
+            var db = await Db.Context().ConfigureAwait(false);
             var jsonDbEntry = JsonSerializer.Serialize(dbEntry, new JsonSerializerOptions {WriteIndented = true});
 
             var jsonFile = new FileInfo(Path.Combine(settings.LocalSiteFileContentDirectory(dbEntry).FullName,
@@ -59,7 +59,7 @@ namespace PointlessWaymarks.CmsData.Json
             if (jsonFile.Exists) jsonFile.Delete();
             jsonFile.Refresh();
 
-            await FileManagement.WriteAllTextToFileAndLogAsync(jsonFile.FullName, jsonDbEntry);
+            await FileManagement.WriteAllTextToFileAndLogAsync(jsonFile.FullName, jsonDbEntry).ConfigureAwait(false);
 
             progress?.Report("Writing Historic Db Entries to Json");
 
@@ -78,13 +78,13 @@ namespace PointlessWaymarks.CmsData.Json
             if (jsonHistoricFile.Exists) jsonHistoricFile.Delete();
             jsonHistoricFile.Refresh();
 
-            await FileManagement.WriteAllTextToFileAndLogAsync(jsonHistoricFile.FullName, jsonHistoricDbEntry);
+            await FileManagement.WriteAllTextToFileAndLogAsync(jsonHistoricFile.FullName, jsonHistoricDbEntry).ConfigureAwait(false);
         }
 
         public static async Task WriteLocalDbJson(PostContent dbEntry)
         {
             var settings = UserSettingsSingleton.CurrentSettings();
-            var db = await Db.Context();
+            var db = await Db.Context().ConfigureAwait(false);
             var jsonDbEntry = JsonSerializer.Serialize(dbEntry, new JsonSerializerOptions {WriteIndented = true});
 
             var jsonFile = new FileInfo(Path.Combine(settings.LocalSitePostContentDirectory(dbEntry).FullName,
@@ -93,7 +93,7 @@ namespace PointlessWaymarks.CmsData.Json
             if (jsonFile.Exists) jsonFile.Delete();
             jsonFile.Refresh();
 
-            await FileManagement.WriteAllTextToFileAndLogAsync(jsonFile.FullName, jsonDbEntry);
+            await FileManagement.WriteAllTextToFileAndLogAsync(jsonFile.FullName, jsonDbEntry).ConfigureAwait(false);
 
             var latestHistoricEntries = db.HistoricPostContents.Where(x => x.ContentId == dbEntry.ContentId)
                 .OrderByDescending(x => x.LastUpdatedOn).Take(10);
@@ -108,13 +108,13 @@ namespace PointlessWaymarks.CmsData.Json
             if (jsonHistoricFile.Exists) jsonHistoricFile.Delete();
             jsonHistoricFile.Refresh();
 
-            await FileManagement.WriteAllTextToFileAndLogAsync(jsonHistoricFile.FullName, jsonHistoricDbEntry);
+            await FileManagement.WriteAllTextToFileAndLogAsync(jsonHistoricFile.FullName, jsonHistoricDbEntry).ConfigureAwait(false);
         }
 
         public static async Task WriteLocalDbJson(LineContent dbEntry)
         {
             var settings = UserSettingsSingleton.CurrentSettings();
-            var db = await Db.Context();
+            var db = await Db.Context().ConfigureAwait(false);
             var jsonDbEntry = JsonSerializer.Serialize(dbEntry, new JsonSerializerOptions {WriteIndented = true});
 
             var jsonFile = new FileInfo(Path.Combine(settings.LocalSiteLineContentDirectory(dbEntry).FullName,
@@ -123,7 +123,7 @@ namespace PointlessWaymarks.CmsData.Json
             if (jsonFile.Exists) jsonFile.Delete();
             jsonFile.Refresh();
 
-            await FileManagement.WriteAllTextToFileAndLogAsync(jsonFile.FullName, jsonDbEntry);
+            await FileManagement.WriteAllTextToFileAndLogAsync(jsonFile.FullName, jsonDbEntry).ConfigureAwait(false);
 
             var latestHistoricEntries = db.HistoricLineContents.Where(x => x.ContentId == dbEntry.ContentId)
                 .OrderByDescending(x => x.LastUpdatedOn).Take(10);
@@ -138,13 +138,13 @@ namespace PointlessWaymarks.CmsData.Json
             if (jsonHistoricFile.Exists) jsonHistoricFile.Delete();
             jsonHistoricFile.Refresh();
 
-            await FileManagement.WriteAllTextToFileAndLogAsync(jsonHistoricFile.FullName, jsonHistoricDbEntry);
+            await FileManagement.WriteAllTextToFileAndLogAsync(jsonHistoricFile.FullName, jsonHistoricDbEntry).ConfigureAwait(false);
         }
 
         public static async Task WriteLocalDbJson(GeoJsonContent dbEntry)
         {
             var settings = UserSettingsSingleton.CurrentSettings();
-            var db = await Db.Context();
+            var db = await Db.Context().ConfigureAwait(false);
             var jsonDbEntry = JsonSerializer.Serialize(dbEntry, new JsonSerializerOptions {WriteIndented = true});
 
             var jsonFile = new FileInfo(Path.Combine(settings.LocalSiteGeoJsonContentDirectory(dbEntry).FullName,
@@ -153,7 +153,7 @@ namespace PointlessWaymarks.CmsData.Json
             if (jsonFile.Exists) jsonFile.Delete();
             jsonFile.Refresh();
 
-            await FileManagement.WriteAllTextToFileAndLogAsync(jsonFile.FullName, jsonDbEntry);
+            await FileManagement.WriteAllTextToFileAndLogAsync(jsonFile.FullName, jsonDbEntry).ConfigureAwait(false);
 
             var latestHistoricEntries = db.HistoricGeoJsonContents.Where(x => x.ContentId == dbEntry.ContentId)
                 .OrderByDescending(x => x.LastUpdatedOn).Take(10);
@@ -169,13 +169,13 @@ namespace PointlessWaymarks.CmsData.Json
             if (jsonHistoricFile.Exists) jsonHistoricFile.Delete();
             jsonHistoricFile.Refresh();
 
-            await FileManagement.WriteAllTextToFileAndLogAsync(jsonHistoricFile.FullName, jsonHistoricDbEntry);
+            await FileManagement.WriteAllTextToFileAndLogAsync(jsonHistoricFile.FullName, jsonHistoricDbEntry).ConfigureAwait(false);
         }
 
         public static async Task WriteLocalDbJson(MapComponent dbEntry)
         {
             var settings = UserSettingsSingleton.CurrentSettings();
-            var db = await Db.Context();
+            var db = await Db.Context().ConfigureAwait(false);
             var jsonDbEntry = JsonSerializer.Serialize(dbEntry, new JsonSerializerOptions {WriteIndented = true});
 
             var jsonFile = new FileInfo(Path.Combine(settings.LocalSiteMapComponentDataDirectory().FullName,
@@ -184,7 +184,7 @@ namespace PointlessWaymarks.CmsData.Json
             if (jsonFile.Exists) jsonFile.Delete();
             jsonFile.Refresh();
 
-            await FileManagement.WriteAllTextToFileAndLogAsync(jsonFile.FullName, jsonDbEntry);
+            await FileManagement.WriteAllTextToFileAndLogAsync(jsonFile.FullName, jsonDbEntry).ConfigureAwait(false);
 
             var latestHistoricEntries = db.HistoricMapComponents.Where(x => x.ContentId == dbEntry.ContentId)
                 .OrderByDescending(x => x.LastUpdatedOn).Take(10);
@@ -195,7 +195,7 @@ namespace PointlessWaymarks.CmsData.Json
             {
                 var historicElements = await db.HistoricMapComponentElements.Where(x =>
                     x.MapComponentContentId == loopHistoricEntries.ContentId &&
-                    x.LastUpdateOn == loopHistoricEntries.LastUpdatedOn).ToListAsync();
+                    x.LastUpdateOn == loopHistoricEntries.LastUpdatedOn).ToListAsync().ConfigureAwait(false);
 
                 toArchive.Add(new HistoricMapComponentDto(loopHistoricEntries, historicElements));
             }
@@ -207,13 +207,13 @@ namespace PointlessWaymarks.CmsData.Json
             jsonHistoricFile.Refresh();
 
             await FileManagement.WriteAllTextToFileAndLogAsync(jsonHistoricFile.FullName,
-                JsonSerializer.Serialize(toArchive));
+                JsonSerializer.Serialize(toArchive)).ConfigureAwait(false);
         }
 
         public static async Task WriteLocalDbJson(PointContent dbEntry)
         {
             var settings = UserSettingsSingleton.CurrentSettings();
-            var db = await Db.Context();
+            var db = await Db.Context().ConfigureAwait(false);
             var jsonDbEntry = JsonSerializer.Serialize(dbEntry, new JsonSerializerOptions {WriteIndented = true});
 
             var jsonFile = new FileInfo(Path.Combine(settings.LocalSitePointContentDirectory(dbEntry).FullName,
@@ -222,7 +222,7 @@ namespace PointlessWaymarks.CmsData.Json
             if (jsonFile.Exists) jsonFile.Delete();
             jsonFile.Refresh();
 
-            await FileManagement.WriteAllTextToFileAndLogAsync(jsonFile.FullName, jsonDbEntry);
+            await FileManagement.WriteAllTextToFileAndLogAsync(jsonFile.FullName, jsonDbEntry).ConfigureAwait(false);
 
             var latestHistoricEntries = db.HistoricPointContents.Where(x => x.ContentId == dbEntry.ContentId)
                 .OrderByDescending(x => x.LastUpdatedOn).Take(10);
@@ -236,7 +236,7 @@ namespace PointlessWaymarks.CmsData.Json
             if (latestHistoricEntries.Any())
             {
                 var jsonHistoricDbEntry = JsonSerializer.Serialize(latestHistoricEntries);
-                await FileManagement.WriteAllTextToFileAndLogAsync(jsonHistoricFile.FullName, jsonHistoricDbEntry);
+                await FileManagement.WriteAllTextToFileAndLogAsync(jsonHistoricFile.FullName, jsonHistoricDbEntry).ConfigureAwait(false);
             }
 
             var pointDetailsFile = new FileInfo(Path.Combine(settings.LocalSitePointContentDirectory(dbEntry).FullName,
@@ -245,12 +245,12 @@ namespace PointlessWaymarks.CmsData.Json
             if (pointDetailsFile.Exists) pointDetailsFile.Delete();
             pointDetailsFile.Refresh();
 
-            var pointDetails = await Db.PointDetailsForPoint(dbEntry.ContentId, db);
+            var pointDetails = await Db.PointDetailsForPoint(dbEntry.ContentId, db).ConfigureAwait(false);
 
             if (pointDetails.Any())
             {
                 var jsonPointDetails = JsonSerializer.Serialize(pointDetails);
-                await FileManagement.WriteAllTextToFileAndLogAsync(pointDetailsFile.FullName, jsonPointDetails);
+                await FileManagement.WriteAllTextToFileAndLogAsync(pointDetailsFile.FullName, jsonPointDetails).ConfigureAwait(false);
             }
 
             var historicPointDetailsFile = new FileInfo(Path.Combine(
@@ -260,19 +260,19 @@ namespace PointlessWaymarks.CmsData.Json
             if (historicPointDetailsFile.Exists) historicPointDetailsFile.Delete();
             historicPointDetailsFile.Refresh();
 
-            var historicPointDetails = await Db.HistoricPointDetailsForPoint(dbEntry.ContentId, db, 40);
+            var historicPointDetails = await Db.HistoricPointDetailsForPoint(dbEntry.ContentId, db, 40).ConfigureAwait(false);
 
             if (historicPointDetails.Any())
             {
                 var jsonPointDetails = JsonSerializer.Serialize(historicPointDetails);
-                await FileManagement.WriteAllTextToFileAndLogAsync(historicPointDetailsFile.FullName, jsonPointDetails);
+                await FileManagement.WriteAllTextToFileAndLogAsync(historicPointDetailsFile.FullName, jsonPointDetails).ConfigureAwait(false);
             }
         }
 
         public static async Task WriteLocalDbJson(NoteContent dbEntry, IProgress<string>? progress = null)
         {
             var settings = UserSettingsSingleton.CurrentSettings();
-            var db = await Db.Context();
+            var db = await Db.Context().ConfigureAwait(false);
             var jsonDbEntry = JsonSerializer.Serialize(dbEntry, new JsonSerializerOptions {WriteIndented = true});
 
             var jsonFile = new FileInfo(Path.Combine(settings.LocalSiteNoteContentDirectory(dbEntry).FullName,
@@ -281,7 +281,7 @@ namespace PointlessWaymarks.CmsData.Json
             if (jsonFile.Exists) jsonFile.Delete();
             jsonFile.Refresh();
 
-            await FileManagement.WriteAllTextToFileAndLogAsync(jsonFile.FullName, jsonDbEntry);
+            await FileManagement.WriteAllTextToFileAndLogAsync(jsonFile.FullName, jsonDbEntry).ConfigureAwait(false);
 
             var latestHistoricEntries = db.HistoricNoteContents.Where(x => x.ContentId == dbEntry.ContentId)
                 .OrderByDescending(x => x.LastUpdatedOn).Take(10);
@@ -296,13 +296,13 @@ namespace PointlessWaymarks.CmsData.Json
             if (jsonHistoricFile.Exists) jsonHistoricFile.Delete();
             jsonHistoricFile.Refresh();
 
-            await FileManagement.WriteAllTextToFileAndLogAsync(jsonHistoricFile.FullName, jsonHistoricDbEntry);
+            await FileManagement.WriteAllTextToFileAndLogAsync(jsonHistoricFile.FullName, jsonHistoricDbEntry).ConfigureAwait(false);
         }
 
         public static async Task WriteLocalDbJson(ImageContent dbEntry)
         {
             var settings = UserSettingsSingleton.CurrentSettings();
-            var db = await Db.Context();
+            var db = await Db.Context().ConfigureAwait(false);
             var jsonDbEntry = JsonSerializer.Serialize(dbEntry, new JsonSerializerOptions {WriteIndented = true});
 
             var jsonFile = new FileInfo(Path.Combine(settings.LocalSiteImageContentDirectory(dbEntry).FullName,
@@ -311,7 +311,7 @@ namespace PointlessWaymarks.CmsData.Json
             if (jsonFile.Exists) jsonFile.Delete();
             jsonFile.Refresh();
 
-            await FileManagement.WriteAllTextToFileAndLogAsync(jsonFile.FullName, jsonDbEntry);
+            await FileManagement.WriteAllTextToFileAndLogAsync(jsonFile.FullName, jsonDbEntry).ConfigureAwait(false);
 
             var latestHistoricEntries = db.HistoricImageContents.Where(x => x.ContentId == dbEntry.ContentId)
                 .OrderByDescending(x => x.LastUpdatedOn).Take(10);
@@ -326,13 +326,13 @@ namespace PointlessWaymarks.CmsData.Json
             if (jsonHistoricFile.Exists) jsonHistoricFile.Delete();
             jsonHistoricFile.Refresh();
 
-            await FileManagement.WriteAllTextToFileAndLogAsync(jsonHistoricFile.FullName, jsonHistoricDbEntry);
+            await FileManagement.WriteAllTextToFileAndLogAsync(jsonHistoricFile.FullName, jsonHistoricDbEntry).ConfigureAwait(false);
         }
 
         public static async Task WriteLocalDbJson(PhotoContent dbEntry)
         {
             var settings = UserSettingsSingleton.CurrentSettings();
-            var db = await Db.Context();
+            var db = await Db.Context().ConfigureAwait(false);
             var jsonDbEntry = JsonSerializer.Serialize(dbEntry, new JsonSerializerOptions {WriteIndented = true});
 
             var jsonFile = new FileInfo(Path.Combine(settings.LocalSitePhotoContentDirectory(dbEntry).FullName,
@@ -341,7 +341,7 @@ namespace PointlessWaymarks.CmsData.Json
             if (jsonFile.Exists) jsonFile.Delete();
             jsonFile.Refresh();
 
-            await FileManagement.WriteAllTextToFileAndLogAsync(jsonFile.FullName, jsonDbEntry);
+            await FileManagement.WriteAllTextToFileAndLogAsync(jsonFile.FullName, jsonDbEntry).ConfigureAwait(false);
 
             var latestHistoricEntries = db.HistoricPhotoContents.Where(x => x.ContentId == dbEntry.ContentId)
                 .OrderByDescending(x => x.LastUpdatedOn).Take(10);
@@ -356,7 +356,7 @@ namespace PointlessWaymarks.CmsData.Json
             if (jsonHistoricFile.Exists) jsonHistoricFile.Delete();
             jsonHistoricFile.Refresh();
 
-            await FileManagement.WriteAllTextToFileAndLogAsync(jsonHistoricFile.FullName, jsonHistoricDbEntry);
+            await FileManagement.WriteAllTextToFileAndLogAsync(jsonHistoricFile.FullName, jsonHistoricDbEntry).ConfigureAwait(false);
         }
 
         public static async Task WriteMenuLinksJson()
@@ -374,7 +374,7 @@ namespace PointlessWaymarks.CmsData.Json
             if (jsonFile.Exists) jsonFile.Delete();
             jsonFile.Refresh();
 
-            await FileManagement.WriteAllTextToFileAndLog(jsonFile.FullName, jsonDbEntry);
+            await FileManagement.WriteAllTextToFileAndLog(jsonFile.FullName, jsonDbEntry).ConfigureAwait(false);
         }
 
         public static async Task WriteTagExclusionsJson()
@@ -392,7 +392,7 @@ namespace PointlessWaymarks.CmsData.Json
             if (jsonFile.Exists) jsonFile.Delete();
             jsonFile.Refresh();
 
-            await FileManagement.WriteAllTextToFileAndLog(jsonFile.FullName, jsonDbEntry);
+            await FileManagement.WriteAllTextToFileAndLog(jsonFile.FullName, jsonDbEntry).ConfigureAwait(false);
         }
     }
 }

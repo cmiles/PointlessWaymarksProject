@@ -20,7 +20,7 @@ namespace PointlessWaymarks.CmsData.Content
 
             var htmlContext = new SingleFilePage(toGenerate) {GenerationVersion = generationVersion};
 
-            await htmlContext.WriteLocalHtml();
+            await htmlContext.WriteLocalHtml().ConfigureAwait(false);
         }
 
 
@@ -28,7 +28,7 @@ namespace PointlessWaymarks.CmsData.Content
             FileContent toSave, FileInfo selectedFile, bool overwriteExistingFiles, DateTime? generationVersion,
             IProgress<string>? progress = null)
         {
-            var validationReturn = await Validate(toSave, selectedFile);
+            var validationReturn = await Validate(toSave, selectedFile).ConfigureAwait(false);
 
             if (validationReturn.HasError) return (validationReturn, null);
 
@@ -36,11 +36,11 @@ namespace PointlessWaymarks.CmsData.Content
             toSave.Tags = Db.TagListCleanup(toSave.Tags);
 
             toSave.OriginalFileName = selectedFile.Name;
-            await FileManagement.WriteSelectedFileContentFileToMediaArchive(selectedFile);
-            await Db.SaveFileContent(toSave);
-            await WriteFileFromMediaArchiveToLocalSite(toSave, overwriteExistingFiles);
-            await GenerateHtml(toSave, generationVersion, progress);
-            await Export.WriteLocalDbJson(toSave, progress);
+            await FileManagement.WriteSelectedFileContentFileToMediaArchive(selectedFile).ConfigureAwait(false);
+            await Db.SaveFileContent(toSave).ConfigureAwait(false);
+            await WriteFileFromMediaArchiveToLocalSite(toSave, overwriteExistingFiles).ConfigureAwait(false);
+            await GenerateHtml(toSave, generationVersion, progress).ConfigureAwait(false);
+            await Export.WriteLocalDbJson(toSave, progress).ConfigureAwait(false);
 
             DataNotifications.PublishDataNotification("File Generator", DataNotificationContentType.File,
                 DataNotificationUpdateType.LocalContent, new List<Guid> {toSave.ContentId});
@@ -67,7 +67,7 @@ namespace PointlessWaymarks.CmsData.Content
                 return GenerationReturn.Error($"Problem with Media Archive: {mediaArchiveCheck.Explanation}",
                     fileContent.ContentId);
 
-            var (valid, explanation) = await CommonContentValidation.ValidateContentCommon(fileContent);
+            var (valid, explanation) = await CommonContentValidation.ValidateContentCommon(fileContent).ConfigureAwait(false);
             if (!valid)
                 return GenerationReturn.Error(explanation, fileContent.ContentId);
 
@@ -83,7 +83,7 @@ namespace PointlessWaymarks.CmsData.Content
             if (!FolderFileUtility.IsNoUrlEncodingNeeded(Path.GetFileNameWithoutExtension(selectedFile.Name)))
                 return GenerationReturn.Error("Limit File Names to A-Z a-z - . _", fileContent.ContentId);
 
-            if (await (await Db.Context()).FileFilenameExistsInDatabase(selectedFile.Name, fileContent.ContentId))
+            if (await (await Db.Context().ConfigureAwait(false)).FileFilenameExistsInDatabase(selectedFile.Name, fileContent.ContentId).ConfigureAwait(false))
                 return GenerationReturn.Error(
                     "This filename already exists in the database - file names must be unique.", fileContent.ContentId);
 
@@ -113,7 +113,7 @@ namespace PointlessWaymarks.CmsData.Content
                 targetFile.Refresh();
             }
 
-            if (!targetFile.Exists) await sourceFile.CopyToAndLog(targetFile.FullName);
+            if (!targetFile.Exists) await sourceFile.CopyToAndLog(targetFile.FullName).ConfigureAwait(false);
         }
     }
 }

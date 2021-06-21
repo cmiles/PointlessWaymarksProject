@@ -47,7 +47,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml
 
             var header = new HtmlTag("h3");
             header.Style("text-align", "center");
-            var postAddress = $"https:{await UserSettingsSingleton.CurrentSettings().ContentUrl(contentId)}";
+            var postAddress = $"https:{await UserSettingsSingleton.CurrentSettings().ContentUrl(contentId).ConfigureAwait(false)}";
             var postLink = new LinkTag($"{UserSettingsSingleton.CurrentSettings().SiteName} - {title}", postAddress);
             header.Children.Add(postLink);
 

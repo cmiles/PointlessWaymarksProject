@@ -15,20 +15,20 @@ namespace PointlessWaymarks.CmsData.ContentHtml.MapComponentData
     {
         public static async Task WriteJsonData(Guid mapComponentGuid)
         {
-            await WriteJsonData(await Db.MapComponentDtoFromContentId(mapComponentGuid));
+            await WriteJsonData(await Db.MapComponentDtoFromContentId(mapComponentGuid).ConfigureAwait(false)).ConfigureAwait(false);
         }
 
         public static async Task WriteJsonData(MapComponentDto dto)
         {
             var dtoElementGuids = dto.Elements.Select(x => x.ElementContentId).ToList();
 
-            var db = await Db.Context();
+            var db = await Db.Context().ConfigureAwait(false);
             var pointGuids = await db.PointContents.Where(x => dtoElementGuids.Contains(x.ContentId))
-                .Select(x => x.ContentId).ToListAsync();
+                .Select(x => x.ContentId).ToListAsync().ConfigureAwait(false);
             var lineGuids = await db.LineContents.Where(x => dtoElementGuids.Contains(x.ContentId))
-                .Select(x => x.ContentId).ToListAsync();
+                .Select(x => x.ContentId).ToListAsync().ConfigureAwait(false);
             var geoJsonGuids = await db.GeoJsonContents.Where(x => dtoElementGuids.Contains(x.ContentId))
-                .Select(x => x.ContentId).ToListAsync();
+                .Select(x => x.ContentId).ToListAsync().ConfigureAwait(false);
             var showDetailsGuid = dto.Elements.Where(x => x.ShowDetailsDefault).Select(x => x.ElementContentId)
                 .Distinct().ToList();
 
@@ -45,7 +45,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml.MapComponentData
             }
 
             await FileManagement.WriteAllTextToFileAndLogAsync(dataFileInfo.FullName,
-                JsonSerializer.Serialize(mapDtoJson));
+                JsonSerializer.Serialize(mapDtoJson)).ConfigureAwait(false);
         }
 
         public record MapSiteJsonData(MapComponent MapComponent, List<Guid> GeoJsonGuids, List<Guid> LineGuids,

@@ -164,7 +164,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml.IndexHtml
 
         public async Task WriteLocalHtml()
         {
-            await WriteRss();
+            await WriteRss().ConfigureAwait(false);
 
             foreach (var loopPosts in IndexContent.Take(NumberOfContentItemsToDisplay))
                 if (BracketCodeCommon.ContainsSpatialBracketCodes(loopPosts) ||
@@ -189,7 +189,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml.IndexHtml
                 htmlFileInfo.Refresh();
             }
 
-            await FileManagement.WriteAllTextToFileAndLog(htmlFileInfo.FullName, htmlString);
+            await FileManagement.WriteAllTextToFileAndLog(htmlFileInfo.FullName, htmlString).ConfigureAwait(false);
         }
 
 
@@ -342,7 +342,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml.IndexHtml
 
             await FileManagement.WriteAllTextToFileAndLog(localIndexFile.FullName,
                 RssBuilder.RssFileString($"{UserSettingsSingleton.CurrentSettings().SiteName}",
-                    string.Join(Environment.NewLine, items)), Encoding.UTF8);
+                    string.Join(Environment.NewLine, items)), Encoding.UTF8).ConfigureAwait(false);
         }
     }
 }

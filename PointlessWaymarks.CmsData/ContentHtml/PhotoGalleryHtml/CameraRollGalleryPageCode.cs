@@ -40,7 +40,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml.PhotoGalleryHtml
                 htmlFileInfo.Refresh();
             }
 
-            await FileManagement.WriteAllTextToFileAndLog(htmlFileInfo.FullName, htmlString);
+            await FileManagement.WriteAllTextToFileAndLog(htmlFileInfo.FullName, htmlString).ConfigureAwait(false);
         }
     }
 }

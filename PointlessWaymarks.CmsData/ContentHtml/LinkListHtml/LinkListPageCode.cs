@@ -96,7 +96,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml.LinkListHtml
 
             await FileManagement.WriteAllTextToFileAndLog(localIndexFile.FullName,
                 RssBuilder.RssFileString($"{UserSettingsSingleton.CurrentSettings().SiteName} - Link List",
-                    string.Join(Environment.NewLine, items)), Encoding.UTF8);
+                    string.Join(Environment.NewLine, items)), Encoding.UTF8).ConfigureAwait(false);
         }
 
         public async Task WriteLocalHtmlRssAndJson()
@@ -119,9 +119,9 @@ namespace PointlessWaymarks.CmsData.ContentHtml.LinkListHtml
                 htmlFileInfo.Refresh();
             }
 
-            await FileManagement.WriteAllTextToFileAndLog(htmlFileInfo.FullName, htmlString);
+            await FileManagement.WriteAllTextToFileAndLog(htmlFileInfo.FullName, htmlString).ConfigureAwait(false);
 
-            await WriteContentListRss();
+            await WriteContentListRss().ConfigureAwait(false);
         }
     }
 }

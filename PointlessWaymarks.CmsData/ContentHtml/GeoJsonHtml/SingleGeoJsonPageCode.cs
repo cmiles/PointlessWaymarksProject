@@ -40,7 +40,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml.GeoJsonHtml
         {
             var settings = UserSettingsSingleton.CurrentSettings();
 
-            await GeoJsonData.WriteJsonData(DbEntry);
+            await GeoJsonData.WriteJsonData(DbEntry).ConfigureAwait(false);
 
             var parser = new HtmlParser();
             var htmlDoc = parser.ParseDocument(TransformText());
@@ -67,7 +67,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml.GeoJsonHtml
                 htmlFileInfo.Refresh();
             }
 
-            await FileManagement.WriteAllTextToFileAndLogAsync(htmlFileInfo.FullName, htmlString);
+            await FileManagement.WriteAllTextToFileAndLogAsync(htmlFileInfo.FullName, htmlString).ConfigureAwait(false);
         }
     }
 }

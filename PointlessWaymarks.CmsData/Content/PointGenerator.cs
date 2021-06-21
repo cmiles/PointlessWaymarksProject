@@ -17,23 +17,23 @@ namespace PointlessWaymarks.CmsData.Content
 
             var htmlContext = new SinglePointPage(toGenerate) {GenerationVersion = generationVersion};
 
-            await htmlContext.WriteLocalHtml();
+            await htmlContext.WriteLocalHtml().ConfigureAwait(false);
         }
 
         public static async Task<(GenerationReturn generationReturn, PointContentDto? pointContent)>
             SaveAndGenerateHtml(PointContentDto toSave, DateTime? generationVersion, IProgress<string>? progress = null)
         {
-            var validationReturn = await Validate(toSave);
+            var validationReturn = await Validate(toSave).ConfigureAwait(false);
 
             if (validationReturn.HasError) return (validationReturn, null);
 
             Db.DefaultPropertyCleanup(toSave);
             toSave.Tags = Db.TagListCleanup(toSave.Tags);
 
-            var savedPoint = await Db.SavePointContent(toSave);
+            var savedPoint = await Db.SavePointContent(toSave).ConfigureAwait(false);
 
-            await GenerateHtml(savedPoint!, generationVersion, progress);
-            await Export.WriteLocalDbJson(Db.PointContentDtoToPointContentAndDetails(savedPoint!).content);
+            await GenerateHtml(savedPoint!, generationVersion, progress).ConfigureAwait(false);
+            await Export.WriteLocalDbJson(Db.PointContentDtoToPointContentAndDetails(savedPoint!).content).ConfigureAwait(false);
 
             DataNotifications.PublishDataNotification("Point Generator", DataNotificationContentType.Point,
                 DataNotificationUpdateType.LocalContent, new List<Guid> {savedPoint!.ContentId});
@@ -50,7 +50,7 @@ namespace PointlessWaymarks.CmsData.Content
                 return GenerationReturn.Error($"Problem with Root Directory: {rootDirectoryCheck.Explanation}",
                     pointContent.ContentId);
 
-            var commonContentCheck = await CommonContentValidation.ValidateContentCommon(pointContent);
+            var commonContentCheck = await CommonContentValidation.ValidateContentCommon(pointContent).ConfigureAwait(false);
             if (!commonContentCheck.Valid)
                 return GenerationReturn.Error(commonContentCheck.Explanation, pointContent.ContentId);
 

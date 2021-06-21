@@ -70,7 +70,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml.NoteHtml
                 htmlFileInfo.Refresh();
             }
 
-            await FileManagement.WriteAllTextToFileAndLog(htmlFileInfo.FullName, htmlString);
+            await FileManagement.WriteAllTextToFileAndLog(htmlFileInfo.FullName, htmlString).ConfigureAwait(false);
         }
     }
 }

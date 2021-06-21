@@ -245,12 +245,12 @@ namespace PointlessWaymarks.CmsData.ContentHtml
 
             if (exceptInThisContent == null)
                 imageCheck = await context.FileContents.Where(x => !string.IsNullOrWhiteSpace(x.OriginalFileName))
-                    .AnyAsync(x => x.OriginalFileName!.ToLower() == filename.ToLower());
+                    .AnyAsync(x => x.OriginalFileName!.ToLower() == filename.ToLower()).ConfigureAwait(false);
             else
                 imageCheck = await context.FileContents.Where(x => !string.IsNullOrWhiteSpace(x.OriginalFileName))
                     .AnyAsync(x =>
                         x.OriginalFileName!.ToLower() == filename.ToLower() &&
-                        x.ContentId != exceptInThisContent.Value);
+                        x.ContentId != exceptInThisContent.Value).ConfigureAwait(false);
 
             return imageCheck;
         }
@@ -264,12 +264,12 @@ namespace PointlessWaymarks.CmsData.ContentHtml
 
             if (exceptInThisContent == null)
                 imageCheck = await context.ImageContents.Where(x => !string.IsNullOrWhiteSpace(x.OriginalFileName))
-                    .AnyAsync(x => x.OriginalFileName!.ToLower() == filename.ToLower());
+                    .AnyAsync(x => x.OriginalFileName!.ToLower() == filename.ToLower()).ConfigureAwait(false);
             else
                 imageCheck = await context.ImageContents.Where(x => !string.IsNullOrWhiteSpace(x.OriginalFileName))
                     .AnyAsync(x =>
                         x.OriginalFileName!.ToLower() == filename.ToLower() &&
-                        x.ContentId != exceptInThisContent.Value);
+                        x.ContentId != exceptInThisContent.Value).ConfigureAwait(false);
 
             return imageCheck;
         }
@@ -283,12 +283,12 @@ namespace PointlessWaymarks.CmsData.ContentHtml
 
             if (exceptInThisContent == null)
                 photoCheck = await context.PhotoContents.Where(x => !string.IsNullOrWhiteSpace(x.OriginalFileName))
-                    .AnyAsync(x => x.OriginalFileName!.ToLower() == filename.ToLower());
+                    .AnyAsync(x => x.OriginalFileName!.ToLower() == filename.ToLower()).ConfigureAwait(false);
             else
                 photoCheck = await context.PhotoContents.Where(x => !string.IsNullOrWhiteSpace(x.OriginalFileName))
                     .AnyAsync(x =>
                         x.OriginalFileName!.ToLower() == filename.ToLower() &&
-                        x.ContentId != exceptInThisContent.Value);
+                        x.ContentId != exceptInThisContent.Value).ConfigureAwait(false);
 
             return photoCheck;
         }
@@ -313,28 +313,28 @@ namespace PointlessWaymarks.CmsData.ContentHtml
             //!!Content Type List!!
             if (excludedContentId == null)
             {
-                var fileCheck = await context.FileContents.AnyAsync(x => x.Slug == slug);
-                var imageCheck = await context.ImageContents.AnyAsync(x => x.Slug == slug);
-                var noteCheck = await context.NoteContents.AnyAsync(x => x.Slug == slug);
-                var photoCheck = await context.PhotoContents.AnyAsync(x => x.Slug == slug);
-                var pointCheck = await context.PointContents.AnyAsync(x => x.Slug == slug);
-                var postCheck = await context.PostContents.AnyAsync(x => x.Slug == slug);
+                var fileCheck = await context.FileContents.AnyAsync(x => x.Slug == slug).ConfigureAwait(false);
+                var imageCheck = await context.ImageContents.AnyAsync(x => x.Slug == slug).ConfigureAwait(false);
+                var noteCheck = await context.NoteContents.AnyAsync(x => x.Slug == slug).ConfigureAwait(false);
+                var photoCheck = await context.PhotoContents.AnyAsync(x => x.Slug == slug).ConfigureAwait(false);
+                var pointCheck = await context.PointContents.AnyAsync(x => x.Slug == slug).ConfigureAwait(false);
+                var postCheck = await context.PostContents.AnyAsync(x => x.Slug == slug).ConfigureAwait(false);
 
                 return photoCheck || postCheck || imageCheck || noteCheck || fileCheck || pointCheck;
             }
 
             var fileExcludeCheck =
-                await context.FileContents.AnyAsync(x => x.Slug == slug && x.ContentId != excludedContentId);
+                await context.FileContents.AnyAsync(x => x.Slug == slug && x.ContentId != excludedContentId).ConfigureAwait(false);
             var imageExcludeCheck =
-                await context.ImageContents.AnyAsync(x => x.Slug == slug && x.ContentId != excludedContentId);
+                await context.ImageContents.AnyAsync(x => x.Slug == slug && x.ContentId != excludedContentId).ConfigureAwait(false);
             var noteExcludeCheck =
-                await context.NoteContents.AnyAsync(x => x.Slug == slug && x.ContentId != excludedContentId);
+                await context.NoteContents.AnyAsync(x => x.Slug == slug && x.ContentId != excludedContentId).ConfigureAwait(false);
             var photoExcludeCheck =
-                await context.PhotoContents.AnyAsync(x => x.Slug == slug && x.ContentId != excludedContentId);
+                await context.PhotoContents.AnyAsync(x => x.Slug == slug && x.ContentId != excludedContentId).ConfigureAwait(false);
             var pointExcludeCheck =
-                await context.PointContents.AnyAsync(x => x.Slug == slug && x.ContentId != excludedContentId);
+                await context.PointContents.AnyAsync(x => x.Slug == slug && x.ContentId != excludedContentId).ConfigureAwait(false);
             var postExcludeCheck =
-                await context.PostContents.AnyAsync(x => x.Slug == slug && x.ContentId != excludedContentId);
+                await context.PostContents.AnyAsync(x => x.Slug == slug && x.ContentId != excludedContentId).ConfigureAwait(false);
 
 
             return photoExcludeCheck || postExcludeCheck || imageExcludeCheck || noteExcludeCheck || fileExcludeCheck ||

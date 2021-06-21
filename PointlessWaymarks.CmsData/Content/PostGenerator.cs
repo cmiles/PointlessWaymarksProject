@@ -17,22 +17,22 @@ namespace PointlessWaymarks.CmsData.Content
 
             var htmlContext = new SinglePostPage(toGenerate) {GenerationVersion = generationVersion};
 
-            await htmlContext.WriteLocalHtml();
+            await htmlContext.WriteLocalHtml().ConfigureAwait(false);
         }
 
         public static async Task<(GenerationReturn generationReturn, PostContent? postContent)> SaveAndGenerateHtml(
             PostContent toSave, DateTime? generationVersion, IProgress<string>? progress = null)
         {
-            var validationReturn = await Validate(toSave);
+            var validationReturn = await Validate(toSave).ConfigureAwait(false);
 
             if (validationReturn.HasError) return (validationReturn, null);
 
             Db.DefaultPropertyCleanup(toSave);
             toSave.Tags = Db.TagListCleanup(toSave.Tags);
 
-            await Db.SavePostContent(toSave);
-            await GenerateHtml(toSave, generationVersion, progress);
-            await Export.WriteLocalDbJson(toSave);
+            await Db.SavePostContent(toSave).ConfigureAwait(false);
+            await GenerateHtml(toSave, generationVersion, progress).ConfigureAwait(false);
+            await Export.WriteLocalDbJson(toSave).ConfigureAwait(false);
 
             DataNotifications.PublishDataNotification("Post Generator", DataNotificationContentType.Post,
                 DataNotificationUpdateType.LocalContent, new List<Guid> {toSave.ContentId});
@@ -48,7 +48,7 @@ namespace PointlessWaymarks.CmsData.Content
                 return GenerationReturn.Error($"Problem with Root Directory: {rootDirectoryCheck.Explanation}",
                     postContent.ContentId);
 
-            var commonContentCheck = await CommonContentValidation.ValidateContentCommon(postContent);
+            var commonContentCheck = await CommonContentValidation.ValidateContentCommon(postContent).ConfigureAwait(false);
             if (!commonContentCheck.Valid)
                 return GenerationReturn.Error(commonContentCheck.Explanation, postContent.ContentId);
 

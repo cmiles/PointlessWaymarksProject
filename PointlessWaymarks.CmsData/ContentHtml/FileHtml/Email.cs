@@ -9,7 +9,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml.FileHtml
     {
         public static async Task<string> ToHtmlEmail(FileContent content, IProgress<string>? progress = null)
         {
-            var preprocessResults = await BracketCodeCommon.ProcessCodesForEmail(content.BodyContent, progress);
+            var preprocessResults = await BracketCodeCommon.ProcessCodesForEmail(content.BodyContent, progress).ConfigureAwait(false);
             var bodyHtmlString = ContentProcessing.ProcessContent(preprocessResults, content.BodyContentFormat);
 
             var tags = Tags.TagListTextLinkList(content);
@@ -21,7 +21,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml.FileHtml
             possibleDownloadLink.Style("text-align", "center");
 
             var innerContent = HtmlEmail.ChildrenIntoTableCells(
-                $"{await HtmlEmail.EmailSimpleTitle(content)}{bodyHtmlString}{possibleDownloadLink}{tags}{createdUpdated}{HtmlEmail.EmailSimpleFooter()}");
+                $"{await HtmlEmail.EmailSimpleTitle(content).ConfigureAwait(false)}{bodyHtmlString}{possibleDownloadLink}{tags}{createdUpdated}{HtmlEmail.EmailSimpleFooter()}");
 
             var emailHtml = HtmlEmail.WrapInNestedCenteringTable(innerContent);
 

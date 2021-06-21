@@ -21,7 +21,7 @@ namespace PointlessWaymarks.CmsData.CommonHtml
 
             var sourceImage = new FileInfo(Path.Combine(targetDirectory.FullName, dbEntry.OriginalFileName));
 
-            await PictureResizing.ResizeForDisplayAndSrcset(sourceImage, false);
+            await PictureResizing.ResizeForDisplayAndSrcset(sourceImage, false).ConfigureAwait(false);
         }
 
         public static async Task ConfirmOrGeneratePhotoDirectoryAndPictures(PhotoContent dbEntry)
@@ -34,7 +34,7 @@ namespace PointlessWaymarks.CmsData.CommonHtml
 
             var sourceImage = new FileInfo(Path.Combine(targetDirectory.FullName, dbEntry.OriginalFileName));
 
-            await PictureResizing.ResizeForDisplayAndSrcset(sourceImage, false);
+            await PictureResizing.ResizeForDisplayAndSrcset(sourceImage, false).ConfigureAwait(false);
         }
 
         public static PictureAsset? ProcessImageDirectory(Guid photoOrImageContentId)
