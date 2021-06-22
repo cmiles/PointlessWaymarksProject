@@ -274,7 +274,7 @@ namespace PointlessWaymarks.CmsWpfControls.FileList
                 new()
                 {
                     ItemName = "URL Code to Clipboard",
-                    ItemCommand = FileDownloadLinkCodesToClipboardForSelectedCommand
+                    ItemCommand = FileUrlLinkCodesToClipboardForSelectedCommand
                 },
                 new() {ItemName = "Email Html to Clipboard", ItemCommand = EmailHtmlToClipboardCommand},
                 new() {ItemName = "View Files", ItemCommand = ViewFilesCommand},

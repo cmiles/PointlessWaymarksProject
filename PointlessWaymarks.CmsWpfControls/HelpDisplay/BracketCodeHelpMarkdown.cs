@@ -22,6 +22,7 @@ Link Types:
  - filelink - text link to the File Page
  - fileimagelink - image link to the File Page
  - filedownloadlink - text link to the File itself - this is a 'download' link and will only work correctly if direct downloads are enabled for the file
+ - fileurl - the url for the file referenced by the file content - this does not create a link or do anything other than return the url for the referenced file as text - this can be used to use the file in something like an html audio tag
  - geojson - map with GeoJson
  - geojsonlink - text link to the GeoJson Page
  - image - image ink to the Image Page

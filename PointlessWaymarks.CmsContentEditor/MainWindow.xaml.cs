@@ -736,9 +736,10 @@ namespace PointlessWaymarks.CmsContentEditor
                 new HelpDisplayContext(new List<string> {SoftwareUsedHelpMarkdown.HelpBlock});
 
             await ThreadSwitcher.ResumeForegroundAsync();
-            
+
             // ReSharper disable once ConditionIsAlwaysTrueOrFalse for generated ThisAssembly.Git.IsDirty
-            InfoTitle = $"{UserSettingsSingleton.CurrentSettings().SiteName} - Pointless Waymarks CMS - Built On {GetBuildDate(Assembly.GetEntryAssembly())} - Commit {ThisAssembly.Git.Commit} {(ThisAssembly.Git.IsDirty ? "(Has Local Changes)" : string.Empty)}";
+            InfoTitle =
+                $"{UserSettingsSingleton.CurrentSettings().SiteName} - Pointless Waymarks CMS - Built On {GetBuildDate(Assembly.GetEntryAssembly())} - Commit {ThisAssembly.Git.Commit} {(ThisAssembly.Git.IsDirty ? "(Has Local Changes)" : string.Empty)}";
 
             MainTabControl.SelectedIndex = 0;
         }
@@ -781,6 +782,11 @@ namespace PointlessWaymarks.CmsContentEditor
         {
             if (Application.Current.Windows.Count > 1)
             {
+                //The Visual Studio in window WPF debug tool appear to the application as an
+                //AdornerWindow - this exception allows closing as expecting when debugging.
+                if (Application.Current.Windows.Count == 2 &&
+                    Application.Current.Windows[1].GetType().Name.Contains("AdornerWindow")) return;
+
                 StatusContext.ToastError("Please close child windows first...");
                 e.Cancel = true;
             }

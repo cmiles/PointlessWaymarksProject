@@ -19,8 +19,6 @@ namespace PointlessWaymarks.CmsContentEditor
 {
     public class SettingsFileChooserControlContext : INotifyPropertyChanged
     {
-        private ObservableCollection<SettingsFileListItem> _items = new();
-
         private StatusControlContext _statusContext;
         private string _userNewFileName;
 
@@ -40,10 +38,7 @@ namespace PointlessWaymarks.CmsContentEditor
 
         public Command<SettingsFileListItem> ChooseRecentFileCommand { get; set; }
 
-        public ObservableCollection<SettingsFileListItem> Items
-        {
-            get => _items;
-        }
+        public ObservableCollection<SettingsFileListItem> Items { get; } = new();
 
         public Command NewFileCommand { get; set; }
 
