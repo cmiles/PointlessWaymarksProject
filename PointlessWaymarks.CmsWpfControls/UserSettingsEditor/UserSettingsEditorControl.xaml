@@ -7,6 +7,8 @@
     xmlns:status="clr-namespace:PointlessWaymarks.WpfCommon.Status;assembly=PointlessWaymarks.WpfCommon"
     xmlns:userSettingsEditor="clr-namespace:PointlessWaymarks.CmsWpfControls.UserSettingsEditor"
     xmlns:wpf="clr-namespace:Markdig.Wpf;assembly=Markdig.Wpf"
+    xmlns:behaviors="clr-namespace:PointlessWaymarks.WpfCommon.Behaviors;assembly=PointlessWaymarks.WpfCommon"
+    xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
     d:DataContext="{d:DesignInstance userSettingsEditor:UserSettingsEditorContext}"
     d:DesignHeight="300"
     d:DesignWidth="300"
@@ -18,6 +20,11 @@
             </ResourceDictionary.MergedDictionaries>
             <Style TargetType="StackPanel">
                 <Setter Property="Margin" Value="0,4,0,0" />
+            </Style>
+            <Style TargetType="{x:Type FlowDocument}" x:Key="{x:Static wpf:Styles.DocumentStyleKey}">
+                <Setter Property="FontFamily" Value="Calibri" />
+                <Setter Property="TextAlignment" Value="Left" />
+                <Setter Property="FontSize" Value="14" />
             </Style>
         </ResourceDictionary>
     </UserControl.Resources>
@@ -36,6 +43,11 @@
                         Name="LocalSiteRootDirectoryTextBox"
                         Style="{StaticResource DataEntryTextBoxSingleLineStyle}"
                         Text="{Binding EditorSettings.LocalSiteRootDirectory, UpdateSourceTrigger=PropertyChanged}" />
+                    <wpf:MarkdownViewer Markdown="{Binding HelpMarkdownLocalSiteRootDirectory}">
+                        <b:Interaction.Behaviors>
+                            <behaviors:IgnoreMouseWheelBehavior />
+                        </b:Interaction.Behaviors>
+                    </wpf:MarkdownViewer>
                 </StackPanel>
                 <StackPanel Orientation="Vertical">
                     <Label Style="{StaticResource DataEntryLabelStyle}" Target="{Binding ElementName=LocalMediaArchiveTextBox}">
@@ -45,13 +57,23 @@
                         Name="LocalMediaArchiveTextBox"
                         Style="{StaticResource DataEntryTextBoxSingleLineStyle}"
                         Text="{Binding EditorSettings.LocalMediaArchive, UpdateSourceTrigger=PropertyChanged}" />
+                    <wpf:MarkdownViewer Markdown="{Binding HelpMarkdownLocalMediaArchive}">
+                        <b:Interaction.Behaviors>
+                            <behaviors:IgnoreMouseWheelBehavior />
+                        </b:Interaction.Behaviors>
+                    </wpf:MarkdownViewer>
                 </StackPanel>
                 <StackPanel Orientation="Vertical">
-                    <Label Style="{StaticResource DataEntryLabelStyle}" Target="{Binding ElementName=SiteUrlTextBox}">Url</Label>
+                    <Label Style="{StaticResource DataEntryLabelStyle}" Target="{Binding ElementName=SiteUrlTextBox}">Domain</Label>
                     <TextBox
                         Name="SiteUrlTextBox"
                         Style="{StaticResource DataEntryTextBoxSingleLineStyle}"
                         Text="{Binding EditorSettings.SiteUrl, UpdateSourceTrigger=PropertyChanged}" />
+                    <wpf:MarkdownViewer Markdown="{Binding HelpMarkdownDomain}">
+                        <b:Interaction.Behaviors>
+                            <behaviors:IgnoreMouseWheelBehavior />
+                        </b:Interaction.Behaviors>
+                    </wpf:MarkdownViewer>
                 </StackPanel>
                 <StackPanel Orientation="Vertical">
                     <Label Style="{StaticResource DataEntryLabelStyle}" Target="{Binding ElementName=SiteNameTextBox}">Site Name</Label>
@@ -59,6 +81,11 @@
                         Name="SiteNameTextBox"
                         Style="{StaticResource DataEntryTextBoxSingleLineStyle}"
                         Text="{Binding EditorSettings.SiteName, UpdateSourceTrigger=PropertyChanged}" />
+                    <wpf:MarkdownViewer Markdown="{Binding HelpMarkdownSiteName}">
+                        <b:Interaction.Behaviors>
+                            <behaviors:IgnoreMouseWheelBehavior />
+                        </b:Interaction.Behaviors>
+                    </wpf:MarkdownViewer>
                 </StackPanel>
                 <StackPanel Orientation="Vertical">
                     <Label Style="{StaticResource DataEntryLabelStyle}" Target="{Binding ElementName=SiteAuthorsTextBox}">
@@ -68,6 +95,11 @@
                         Name="SiteAuthorsTextBox"
                         Style="{StaticResource DataEntryTextBoxSingleLineStyle}"
                         Text="{Binding EditorSettings.SiteAuthors, UpdateSourceTrigger=PropertyChanged}" />
+                    <wpf:MarkdownViewer Markdown="{Binding HelpMarkdownSiteAuthors}">
+                        <b:Interaction.Behaviors>
+                            <behaviors:IgnoreMouseWheelBehavior />
+                        </b:Interaction.Behaviors>
+                    </wpf:MarkdownViewer>
                 </StackPanel>
                 <StackPanel Orientation="Vertical">
                     <Label Style="{StaticResource DataEntryLabelStyle}" Target="{Binding ElementName=SiteKeywordsTextBox}">
@@ -77,15 +109,25 @@
                         Name="SiteKeywordsTextBox"
                         Style="{StaticResource DataEntryTextBoxSingleLineStyle}"
                         Text="{Binding EditorSettings.SiteKeywords, UpdateSourceTrigger=PropertyChanged}" />
+                    <wpf:MarkdownViewer Markdown="{Binding HelpMarkdownSiteKeywords}">
+                        <b:Interaction.Behaviors>
+                            <behaviors:IgnoreMouseWheelBehavior />
+                        </b:Interaction.Behaviors>
+                    </wpf:MarkdownViewer>
                 </StackPanel>
                 <StackPanel Orientation="Vertical">
                     <Label Style="{StaticResource DataEntryLabelStyle}" Target="{Binding ElementName=SiteSummaryTextBox}">
-                        Site Summary
+                        Site Sub-title/Summary
                     </Label>
                     <TextBox
                         Name="SiteSummaryTextBox"
                         Style="{StaticResource DataEntryTextBoxSingleLineStyle}"
                         Text="{Binding EditorSettings.SiteSummary, UpdateSourceTrigger=PropertyChanged}" />
+                    <wpf:MarkdownViewer Markdown="{Binding HelpMarkdownSubtitleSummary}">
+                        <b:Interaction.Behaviors>
+                            <behaviors:IgnoreMouseWheelBehavior />
+                        </b:Interaction.Behaviors>
+                    </wpf:MarkdownViewer>
                 </StackPanel>
                 <StackPanel Orientation="Vertical">
                     <Label Style="{StaticResource DataEntryLabelStyle}" Target="{Binding ElementName=SiteEmailToTextBox}">
@@ -102,6 +144,11 @@
                         Name="SiteLangTextBox"
                         Style="{StaticResource DataEntryTextBoxSingleLineStyle}"
                         Text="{Binding EditorSettings.SiteLangAttribute, UpdateSourceTrigger=PropertyChanged}" />
+                    <wpf:MarkdownViewer Markdown="{Binding HelpMarkdownSiteLangAttribute}">
+                        <b:Interaction.Behaviors>
+                            <behaviors:IgnoreMouseWheelBehavior />
+                        </b:Interaction.Behaviors>
+                    </wpf:MarkdownViewer>
                 </StackPanel>
                 <StackPanel Orientation="Vertical">
                     <Label Style="{StaticResource DataEntryLabelStyle}" Target="{Binding ElementName=SiteDirTextBox}">Site Dir Attribute</Label>
@@ -118,6 +165,11 @@
                         Name="DefaultCreatedByTextBox"
                         Style="{StaticResource DataEntryTextBoxSingleLineStyle}"
                         Text="{Binding EditorSettings.DefaultCreatedBy, UpdateSourceTrigger=PropertyChanged}" />
+                    <wpf:MarkdownViewer Markdown="{Binding HelpMarkdownSiteDirAttribute}">
+                        <b:Interaction.Behaviors>
+                            <behaviors:IgnoreMouseWheelBehavior />
+                        </b:Interaction.Behaviors>
+                    </wpf:MarkdownViewer>
                 </StackPanel>
                 <StackPanel Orientation="Vertical">
                     <Label Style="{StaticResource DataEntryLabelStyle}" Target="{Binding ElementName=LatitudeTextBox}">
@@ -130,12 +182,27 @@
                 </StackPanel>
                 <StackPanel Orientation="Vertical">
                     <Label Style="{StaticResource DataEntryLabelStyle}" Target="{Binding ElementName=LongitudeTextBox}">
+                        Default Latitude and Longitude
+                    </Label>
+                    <wpf:MarkdownViewer Markdown="{Binding HelpMarkdownDefaultLatitudeLongitude}">
+                        <b:Interaction.Behaviors>
+                            <behaviors:IgnoreMouseWheelBehavior />
+                        </b:Interaction.Behaviors>
+                    </wpf:MarkdownViewer>
+                </StackPanel>
+                <StackPanel Orientation="Vertical">
+                    <Label Style="{StaticResource DataEntryLabelStyle}" Target="{Binding ElementName=LongitudeTextBox}">
                         Default Latitude
                     </Label>
                     <TextBox
                         Name="LongitudeTextBox"
                         Style="{StaticResource DataEntryTextBoxSingleLineStyle}"
                         Text="{Binding EditorSettings.LongitudeDefault, UpdateSourceTrigger=PropertyChanged}" />
+                    <wpf:MarkdownViewer Markdown="{Binding HelpMarkdownDefaultLatitudeLongitude}">
+                        <b:Interaction.Behaviors>
+                            <behaviors:IgnoreMouseWheelBehavior />
+                        </b:Interaction.Behaviors>
+                    </wpf:MarkdownViewer>
                 </StackPanel>
                 <StackPanel Orientation="Vertical">
                     <Label Style="{StaticResource DataEntryLabelStyle}" Target="{Binding ElementName=BingApiKeyTextBox}">
@@ -145,6 +212,11 @@
                         Name="BingApiKeyTextBox"
                         Style="{StaticResource DataEntryTextBoxSingleLineStyle}"
                         Text="{Binding EditorSettings.BingApiKey, UpdateSourceTrigger=PropertyChanged}" />
+                    <wpf:MarkdownViewer Markdown="{Binding HelpMarkdownBingMapsApiKey}">
+                        <b:Interaction.Behaviors>
+                            <behaviors:IgnoreMouseWheelBehavior />
+                        </b:Interaction.Behaviors>
+                    </wpf:MarkdownViewer>
                 </StackPanel>
                 <StackPanel Orientation="Vertical">
                     <Label Style="{StaticResource DataEntryLabelStyle}" Target="{Binding ElementName=CalTopoApiKeyTextBox}">
@@ -154,6 +226,11 @@
                         Name="CalTopoApiKeyTextBox"
                         Style="{StaticResource DataEntryTextBoxSingleLineStyle}"
                         Text="{Binding EditorSettings.CalTopoApiKey, UpdateSourceTrigger=PropertyChanged}" />
+                    <wpf:MarkdownViewer Markdown="{Binding HelpMarkdownCalTopoMapsApiKey}">
+                        <b:Interaction.Behaviors>
+                            <behaviors:IgnoreMouseWheelBehavior />
+                        </b:Interaction.Behaviors>
+                    </wpf:MarkdownViewer>
                 </StackPanel>
                 <StackPanel Orientation="Vertical">
                     <Label Style="{StaticResource DataEntryLabelStyle}" Target="{Binding ElementName=PinboardApiTokenTextBox}">
@@ -163,6 +240,11 @@
                         Name="PinboardApiTokenTextBox"
                         Style="{StaticResource DataEntryTextBoxSingleLineStyle}"
                         Text="{Binding EditorSettings.PinboardApiToken, UpdateSourceTrigger=PropertyChanged}" />
+                    <wpf:MarkdownViewer Markdown="{Binding HelpMarkdownPinboardApiKey}">
+                        <b:Interaction.Behaviors>
+                            <behaviors:IgnoreMouseWheelBehavior />
+                        </b:Interaction.Behaviors>
+                    </wpf:MarkdownViewer>
                 </StackPanel>
                 <StackPanel Orientation="Vertical">
                     <Label Style="{StaticResource DataEntryLabelStyle}" Target="{Binding ElementName=PdfToCairoDirectoryTextBox}">
@@ -172,8 +254,23 @@
                         Name="PdfToCairoDirectoryTextBox"
                         Style="{StaticResource DataEntryTextBoxSingleLineStyle}"
                         Text="{Binding EditorSettings.PdfToCairoExeDirectory, UpdateSourceTrigger=PropertyChanged}" />
-                    <wpf:MarkdownViewer Markdown="{Binding PdfToCairoHelpText}"></wpf:MarkdownViewer>
+                    <wpf:MarkdownViewer Markdown="{Binding HelpMarkdownPdfToCairo}">
+                        <b:Interaction.Behaviors>
+                            <behaviors:IgnoreMouseWheelBehavior />
+                        </b:Interaction.Behaviors>
+                    </wpf:MarkdownViewer>
                 </StackPanel>
+                <StackPanel Orientation="Vertical">
+                    <Label Style="{StaticResource DataEntryLabelStyle}" Target="{Binding ElementName=S3BucketTextBox}">
+                        Amazon S3
+                    </Label>
+                    <wpf:MarkdownViewer Markdown="{Binding HelpMarkdownS3Information}">
+                        <b:Interaction.Behaviors>
+                            <behaviors:IgnoreMouseWheelBehavior />
+                        </b:Interaction.Behaviors>
+                    </wpf:MarkdownViewer>
+                </StackPanel>
+
                 <StackPanel Orientation="Vertical">
                     <Label Style="{StaticResource DataEntryLabelStyle}" Target="{Binding ElementName=S3BucketTextBox}">
                         S3 Bucket Name
@@ -188,6 +285,9 @@
                         S3 Bucket Region
                     </Label>
                     <ComboBox
+                        Margin="6,0,0,0"
+                        Width="200"
+                        HorizontalAlignment="Left"
                         Name="S3BucketRegionComboBox"
                         ItemsSource="{Binding RegionChoices}"
                         SelectedValue="{Binding EditorSettings.SiteS3BucketRegion, UpdateSourceTrigger=PropertyChanged}" />

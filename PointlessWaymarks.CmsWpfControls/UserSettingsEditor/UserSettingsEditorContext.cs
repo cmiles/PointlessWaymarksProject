@@ -66,13 +66,69 @@ namespace PointlessWaymarks.CmsWpfControls.UserSettingsEditor
             }
         }
 
-        public string PdfToCairoHelpText =>
+        public string HelpMarkdownBingMapsApiKey =>
+            "If you have a Bing Maps API key you can enter it here - this will allow access to some Bing layers in the maps. This is NOT required for maps to be functional.";
+
+        public string HelpMarkdownCalTopoMapsApiKey =>
+            "If you have a CalTopo Maps API key you can enter it here - this will allow access to some CalTopo layers in the maps. This is NOT required for maps to be functional.";
+
+        public string HelpMarkdownDefaultCreatedByName =>
+            "Set this to fill in a Default Created By when creating new content. Example 'Charles Miles'.";
+
+        public string HelpMarkdownDefaultLatitudeLongitude =>
+            "The default Latitude and Longitude (in dd.dddd format) are used as the default starting point for maps. Example Latitude '32.4432', Longitude '-110.7577'.";
+
+        public string HelpMarkdownDomain =>
+            "This is the subdomain + domain and optionally port - for example 'PointlessWaymarks.com'. This software will " +
+            "prepend protocol and append paths to this.";
+
+        public string HelpMarkdownLocalMediaArchive =>
+            "The original/source media files are stored separately from the generated site - this (local) directory is very " +
+            "important because the generating the site depends on the settings file, database and the contents of this " +
+            "directory. Ideally you should backup this directory.";
+
+        public string HelpMarkdownLocalSiteRootDirectory =>
+            "This is the directory where the local generated site will be placed - this should be a local directory, the " +
+            "intention is that this program will create a local generated site to this directory and provide tools " +
+            "to help you sync that to a server if you want to publish a public version of the site.";
+
+        public string HelpMarkdownPdfToCairo =>
             "pdftocairo transforms Pdf files to other formats including jpg files - this program " +
             "can use it to automatically generate an image of a page of a pdf, very " +
             "useful when adding PDFs to the File Content. However pdftocariro is not included with this " +
             "program... On Windows the easiest way to get pdftocairo is to install [MiKTeX](https://miktex.org/download). " +
             "Once installed the setting above should be the folder where pdftocairo.exe is located - " +
             "for example C:\\MiKTeX 2.9\\miktex\\bin";
+
+        public string HelpMarkdownPinboardApiKey =>
+            "Sites, pages and links on the internet are constantly disappearing - [Pinboard](https://pinboard.in/) is a bookmarking site that has options to archive links for your personal use and this software has some functions that help you send links to Pinboard if you enter your Api Key. This is OPTIONAL - nothing in this software requires Pinboard.";
+
+        public string HelpMarkdownS3Information =>
+            "This is NOT required. Amazon S3 - especially behind a service like Cloudflare - can be an excellent way to host a static site like this program generates. This program can help you upload files and maintain files on S3, but to do so you must provide some information - S3 Bucket Name (this will often match your domain name), S3 Bucket Region and AWS Site Credentials (these are not shown and are stored securely by windows - these are NOT stored in the database or in the settings file).";
+
+
+        public string HelpMarkdownSiteAuthors =>
+            "A value for the site creators/authors - for example " +
+            "'Pointless Waymarks Team'.";
+
+        public string HelpMarkdownSiteDirAttribute =>
+            "Lang attribute for the site - see the [dir attribute on MDN](https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/dir) for more information.";
+
+        public string HelpMarkdownSiteEmailTo =>
+            "An Email To for the site - example 'PointlessWaymarks@gmail.com'.";
+
+        public string HelpMarkdownSiteKeywords =>
+            "Used in as the tags for the overall/entire site - for example " +
+            "'outdoors,hiking,running,landscape,photography,history'.";
+
+        public string HelpMarkdownSiteLangAttribute =>
+            "Lang attribute for the site - see [lang attribute on MDN](https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/lang) for more information.";
+
+        public string HelpMarkdownSiteName =>
+            "The 'human readable' Site Name - for example 'Pointless Waymarks'.";
+
+        public string HelpMarkdownSubtitleSummary =>
+            "Used as a sub-title and site summary - example 'Ramblings, Questionable Geographics, Photographic Half-truths'.";
 
         public List<string> RegionChoices
         {
