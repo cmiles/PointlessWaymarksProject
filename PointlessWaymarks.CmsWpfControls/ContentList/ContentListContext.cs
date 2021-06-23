@@ -732,6 +732,7 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList
                 if ((toFilter.Content().Summary ?? string.Empty).ToLower().Contains(loweredString)) return true;
                 if ((toFilter.Content().CreatedBy ?? string.Empty).ToLower().Contains(loweredString)) return true;
                 if ((toFilter.Content().LastUpdatedBy ?? string.Empty).ToLower().Contains(loweredString)) return true;
+                if (toFilter.ContentId() != null && toFilter.ContentId().ToString().ToLower().Contains(loweredString)) return true;
                 return false;
             };
         }

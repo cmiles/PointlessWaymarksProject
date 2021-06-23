@@ -21,6 +21,9 @@
             <Style TargetType="StackPanel">
                 <Setter Property="Margin" Value="0,4,0,0" />
             </Style>
+            <Style TargetType="Label">
+                <Setter Property="FontSize" Value="14" />
+            </Style>
             <Style TargetType="{x:Type FlowDocument}" x:Key="{x:Static wpf:Styles.DocumentStyleKey}">
                 <Setter Property="FontFamily" Value="Calibri" />
                 <Setter Property="TextAlignment" Value="Left" />

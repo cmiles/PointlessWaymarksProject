@@ -21,12 +21,12 @@
             Please Choose a Settings File or Create a New One
         </TextBlock>
         <GroupBox
-            Margin="4,24,4,0"
+            Margin="4,18,4,0"
             BorderThickness="2"
             FontSize="18"
             Header="Recent Files">
             <ListBox
-                Height="160"
+                Height="200"
                 HorizontalContentAlignment="Stretch"
                 BorderThickness="0"
                 ItemsSource="{Binding Items}"
@@ -73,7 +73,7 @@
             </ListBox>
         </GroupBox>
         <GroupBox
-            Margin="4,24,4,0"
+            Margin="4,12,4,0"
             BorderThickness="2"
             FontSize="18"
             Header="Existing File">
@@ -88,7 +88,7 @@
             </StackPanel>
         </GroupBox>
         <GroupBox
-            Margin="4,24,4,0"
+            Margin="4,12,4,0"
             BorderThickness="2"
             FontSize="18"
             Header="New Settings File">
