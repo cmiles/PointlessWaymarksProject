@@ -25,6 +25,10 @@ Site:
  
 ## Notes
 
+6/24/2021
+
+Back to 2014 Posts on the HikeLemmon conversion - still haven't tackled trails and trailheads, that will be intersting. Smaller changes lately generated mainly thru conversion work.
+
 6/14/2021
 
 Small changes lately due to HikeLemmon conversion work - getting to be a bit more routine but still learning from the different GUI flow compared to recent PointlessWaymarks work. The conversion work certainly makes me think about how I might better setup content to be more portable -- one pain point is the media for HikeLemmon, it was not 'in' Wordpress and very easy to export (good), but it wasn't in a form that I thought was robust enough to want to reuse (bad). In PointlessWarmarks CMS posts and photos/files/media are together in the same system (again) but my hope is that 1) this system better represents what is important to me and more clearly describes the content/attribute/material I would want to migrate so cleaner export would be possible and 2) perhaps even if the posts moved somewhere else as far as static content generation goes maybe this system is good enough to actually serve my needs for a static external media source...

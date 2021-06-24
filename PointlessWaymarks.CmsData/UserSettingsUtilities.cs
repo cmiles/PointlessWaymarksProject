@@ -1292,6 +1292,8 @@ namespace PointlessWaymarks.CmsData
             newSettings.DefaultCreatedBy = "Pointless Waymarks CMS";
             newSettings.SiteName = userFilename;
             newSettings.SiteUrl = "localhost.com";
+            newSettings.SiteDirectionAttribute = "ltr";
+            newSettings.SiteLangAttribute = "en";
             newSettings.SiteKeywords = "new,site";
             newSettings.SiteSummary = "A new site.";
             newSettings.SiteAuthors = "Pointless Waymarks CMS";
