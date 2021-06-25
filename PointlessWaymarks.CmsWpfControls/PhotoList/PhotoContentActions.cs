@@ -359,7 +359,7 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
 
             var url = $@"http://{settings.PhotoPageUrl(content)}";
 
-            var ps = new ProcessStartInfo(url) {UseShellExecute = true, Verb = "open"};
+            var ps = new ProcessStartInfo(url) { UseShellExecute = true, Verb = "open" };
             Process.Start(ps);
         }
 
@@ -452,30 +452,6 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
                 .Cast<object>().ToList();
         }
 
-        public async Task EditContent(PhotoContent content)
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            if (content == null) return;
-
-            var context = await Db.Context();
-
-            var refreshedData = context.PhotoContents.SingleOrDefault(x => x.ContentId == content.ContentId);
-
-            if (refreshedData == null)
-                StatusContext.ToastError($"{content.Title} is no longer active in the database? Can not edit - " +
-                                         "look for a historic version...");
-
-            await ThreadSwitcher.ResumeForegroundAsync();
-
-            var newContentWindow = new PhotoContentEditorWindow(refreshedData);
-
-            newContentWindow.PositionWindowAndShow();
-
-            await ThreadSwitcher.ResumeBackgroundAsync();
-        }
-
-
         public static async Task<List<object>> FocalLengthSearch(PhotoContent content)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
@@ -507,7 +483,7 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
         public static PhotoListListItem ListItemFromDbItem(PhotoContent content,
             PhotoContentActions photoContentActions, bool showType)
         {
-            return new()
+            return new PhotoListListItem
             {
                 DbEntry = content,
                 SmallImageUrl = ContentListContext.GetSmallImageUrl(content),
@@ -549,7 +525,7 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
 
             await ThreadSwitcher.ResumeForegroundAsync();
 
-            var newWindow = new PhotoListWindow {PhotoListContext = context, WindowTitle = title};
+            var newWindow = new PhotoListWindow { PhotoListContext = context, WindowTitle = title };
 
             newWindow.PositionWindowAndShow();
 
@@ -583,7 +559,7 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
                 var possibleFile = UserSettingsSingleton.CurrentSettings()
                     .LocalMediaArchivePhotoContentFile(refreshedData);
 
-                if (possibleFile is not {Exists: true})
+                if (possibleFile is not { Exists: true })
                 {
                     StatusContext.ToastWarning("No Media File Found?");
                     return;
@@ -591,7 +567,7 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
 
                 await ThreadSwitcher.ResumeForegroundAsync();
 
-                var ps = new ProcessStartInfo(possibleFile.FullName) {UseShellExecute = true, Verb = "open"};
+                var ps = new ProcessStartInfo(possibleFile.FullName) { UseShellExecute = true, Verb = "open" };
                 Process.Start(ps);
             }
             catch (Exception e)
