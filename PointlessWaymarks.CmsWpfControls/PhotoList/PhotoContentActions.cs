@@ -535,7 +535,7 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
             var dateTimeBefore = content.PhotoCreatedOn.Date.AddDays(1);
 
             return (await db.PhotoContents
-                    .Where(x => x.PhotoCreatedOn > dateTimeAfter && x.PhotoCreatedOn < dateTimeBefore).ToListAsync())
+                    .Where(x => x.PhotoCreatedOn >= dateTimeAfter && x.PhotoCreatedOn < dateTimeBefore).ToListAsync())
                 .Cast<object>().ToList();
         }
 
