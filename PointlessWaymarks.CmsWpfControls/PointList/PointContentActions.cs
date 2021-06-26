@@ -240,7 +240,7 @@ namespace PointlessWaymarks.CmsWpfControls.PointList
 
             var url = $@"http://{settings.PointPageUrl(content)}";
 
-            var ps = new ProcessStartInfo(url) {UseShellExecute = true, Verb = "open"};
+            var ps = new ProcessStartInfo(url) { UseShellExecute = true, Verb = "open" };
             Process.Start(ps);
         }
 
@@ -315,7 +315,7 @@ namespace PointlessWaymarks.CmsWpfControls.PointList
         public static PointListListItem ListItemFromDbItem(PointContent content, PointContentActions itemActions,
             bool showType)
         {
-            return new()
+            return new PointListListItem
             {
                 DbEntry = content,
                 SmallImageUrl = ContentListContext.GetSmallImageUrl(content),

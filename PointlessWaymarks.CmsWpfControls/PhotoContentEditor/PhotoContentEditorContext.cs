@@ -19,6 +19,7 @@ using PointlessWaymarks.CmsWpfControls.BoolDataEntry;
 using PointlessWaymarks.CmsWpfControls.ContentIdViewer;
 using PointlessWaymarks.CmsWpfControls.ConversionDataEntry;
 using PointlessWaymarks.CmsWpfControls.CreatedAndUpdatedByAndOnDisplay;
+using PointlessWaymarks.CmsWpfControls.HelpDisplay;
 using PointlessWaymarks.CmsWpfControls.PhotoList;
 using PointlessWaymarks.CmsWpfControls.StringDataEntry;
 using PointlessWaymarks.CmsWpfControls.TagsEditor;
@@ -50,6 +51,7 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoContentEditor
         private StringDataEntryContext _focalLengthEntry;
         private bool _hasChanges;
         private bool _hasValidationIssues;
+        private HelpDisplayContext _helpContext;
         private FileInfo _initialPhoto;
         private ConversionDataEntryContext<int?> _isoEntry;
         private StringDataEntryContext _lensEntry;
@@ -219,6 +221,17 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoContentEditor
             }
         }
 
+        public HelpDisplayContext HelpContext
+        {
+            get => _helpContext;
+            set
+            {
+                if (Equals(value, _helpContext)) return;
+                _helpContext = value;
+                OnPropertyChanged();
+            }
+        }
+
         public ConversionDataEntryContext<int?> IsoEntry
         {
             get => _isoEntry;
@@ -284,6 +297,16 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoContentEditor
                 OnPropertyChanged();
             }
         }
+
+        public string PhotoEditorHelpText => @"
+### Photo Content
+
+Photo Content puts a jpg file together with photo specific data like Aperture, Shutter Speed, ISO, etc. Photo Content is automatically organized into Daily and All galleries.
+
+Photo Content Notes:
+ - New Photos created from files have good support for importing metadata - importing a file is generally the best way to create new Photo Content.
+ - Photo and Image Content both work with jpg files - main differences include the photo specific data that is stored (aperture, shutter speed, ISO, etc.), Photos are organized into generated Daily Photos pages and Photos
+";
 
         public Command RenameSelectedFileCommand
         {
@@ -605,9 +628,9 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoContentEditor
         public static async Task<PhotoContentEditorContext> CreateInstance(StatusControlContext statusContext,
             FileInfo initialPhoto)
         {
-            var newContext = new PhotoContentEditorContext(statusContext) {StatusContext = {BlockUi = true}};
+            var newContext = new PhotoContentEditorContext(statusContext) { StatusContext = { BlockUi = true } };
 
-            if (initialPhoto is {Exists: true}) newContext._initialPhoto = initialPhoto;
+            if (initialPhoto is { Exists: true }) newContext._initialPhoto = initialPhoto;
             await newContext.LoadData(null);
 
             newContext.StatusContext.BlockUi = false;
@@ -726,7 +749,7 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoContentEditor
                         $" but it was not found in the expected location of {archiveFile.FullName} - " +
                         "this will cause an error and prevent you from saving. You can re-load the photo or " +
                         "maybe your media directory moved unexpectedly and you could close this editor " +
-                        "and restore it (or change it in settings) before continuing?", new List<string> {"OK"});
+                        "and restore it (or change it in settings) before continuing?", new List<string> { "OK" });
                 }
             }
 
@@ -799,7 +822,7 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoContentEditor
             PhotoCreatedOnEntry.ReferenceValue = DbEntry.PhotoCreatedOn;
             PhotoCreatedOnEntry.UserText = DbEntry.PhotoCreatedOn.ToString("MM/dd/yyyy h:mm:ss tt");
 
-            if (DbEntry.Id < 1 && _initialPhoto is {Exists: true} &&
+            if (DbEntry.Id < 1 && _initialPhoto is { Exists: true } &&
                 FileHelpers.PhotoFileTypeIsSupported(_initialPhoto))
             {
                 SelectedFile = _initialPhoto;
@@ -948,6 +971,12 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoContentEditor
                 StatusContext.RunBlockingTaskCommand(async () => await RotateImage(Orientation.Rotate90));
             RotatePhotoLeftCommand =
                 StatusContext.RunBlockingTaskCommand(async () => await RotateImage(Orientation.Rotate270));
+
+
+            HelpContext = new HelpDisplayContext(new List<string>
+            {
+                PhotoEditorHelpText, CommonFields.TitleSlugFolderSummary, BracketCodeHelpMarkdown.HelpBlock
+            });
         }
 
         private async Task ViewOnSite()
@@ -964,7 +993,7 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoContentEditor
 
             var url = $@"http://{settings.PhotoPageUrl(DbEntry)}";
 
-            var ps = new ProcessStartInfo(url) {UseShellExecute = true, Verb = "open"};
+            var ps = new ProcessStartInfo(url) { UseShellExecute = true, Verb = "open" };
             Process.Start(ps);
         }
 
@@ -972,7 +1001,7 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoContentEditor
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            if (SelectedFile is not {Exists: true, Directory: {Exists: true}})
+            if (SelectedFile is not { Exists: true, Directory: { Exists: true } })
             {
                 StatusContext.ToastError("No Selected Photo or Selected Photo no longer exists?");
                 return;
@@ -980,7 +1009,7 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoContentEditor
 
             await ThreadSwitcher.ResumeForegroundAsync();
 
-            var ps = new ProcessStartInfo(SelectedFile.FullName) {UseShellExecute = true, Verb = "open"};
+            var ps = new ProcessStartInfo(SelectedFile.FullName) { UseShellExecute = true, Verb = "open" };
             Process.Start(ps);
         }
     }

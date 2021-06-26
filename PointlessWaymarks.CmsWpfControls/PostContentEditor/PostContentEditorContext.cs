@@ -62,7 +62,7 @@ namespace PointlessWaymarks.CmsWpfControls.PostContentEditor
 
             HelpContext = new HelpDisplayContext(new List<string>
             {
-                CommonFields.TitleSlugFolderSummary, BracketCodeHelpMarkdown.HelpBlock
+                PostEditorHelpText, CommonFields.TitleSlugFolderSummary, BracketCodeHelpMarkdown.HelpBlock
             });
         }
 
@@ -143,6 +143,15 @@ namespace PointlessWaymarks.CmsWpfControls.PostContentEditor
                 OnPropertyChanged();
             }
         }
+
+        public string PostEditorHelpText => @"
+### Post Content
+
+Posts are the most 'generic' content type and will, by default, be included on the main page of the site in chronological order.
+
+Notes:
+ - This system does not have 'Pages', Posts (or another Content Type) can serve as 'Pages'.
+";
 
         public Command SaveAndCloseCommand
         {
@@ -384,7 +393,7 @@ namespace PointlessWaymarks.CmsWpfControls.PostContentEditor
 
             var url = $@"http://{settings.PostPageUrl(DbEntry)}";
 
-            var ps = new ProcessStartInfo(url) {UseShellExecute = true, Verb = "open"};
+            var ps = new ProcessStartInfo(url) { UseShellExecute = true, Verb = "open" };
             Process.Start(ps);
         }
     }

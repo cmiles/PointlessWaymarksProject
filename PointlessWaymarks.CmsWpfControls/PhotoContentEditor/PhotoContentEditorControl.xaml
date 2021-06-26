@@ -19,6 +19,7 @@
     xmlns:windowScreenShot="clr-namespace:PointlessWaymarks.WpfCommon.WindowScreenShot;assembly=PointlessWaymarks.WpfCommon"
     xmlns:wpfBehavior="clr-namespace:PointlessWaymarks.WpfCommon.Behaviors;assembly=PointlessWaymarks.WpfCommon"
     xmlns:wpfConverter="clr-namespace:PointlessWaymarks.WpfCommon.ValueConverters;assembly=PointlessWaymarks.WpfCommon"
+    xmlns:helpDisplay="clr-namespace:PointlessWaymarks.CmsWpfControls.HelpDisplay"
     d:DataContext="{d:DesignInstance photoContentEditor:PhotoContentEditorContext}"
     d:DesignHeight="300"
     d:DesignWidth="300"
@@ -172,6 +173,9 @@
                 <Grid>
                     <updateNotesEditor:UpdateNotesEditorHorizontalControl DataContext="{Binding UpdateNotes}" />
                 </Grid>
+            </TabItem>
+            <TabItem Header="Help">
+                <helpDisplay:HelpDisplayControl DataContext="{Binding HelpContext}" />
             </TabItem>
         </TabControl>
         <Border

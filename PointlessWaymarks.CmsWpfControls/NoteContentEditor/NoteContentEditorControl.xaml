@@ -13,6 +13,7 @@
     xmlns:stringDataEntry="clr-namespace:PointlessWaymarks.CmsWpfControls.StringDataEntry"
     xmlns:tagsEditor="clr-namespace:PointlessWaymarks.CmsWpfControls.TagsEditor"
     xmlns:windowScreenShot="clr-namespace:PointlessWaymarks.WpfCommon.WindowScreenShot;assembly=PointlessWaymarks.WpfCommon"
+    xmlns:helpDisplay="clr-namespace:PointlessWaymarks.CmsWpfControls.HelpDisplay"
     d:DataContext="{d:DesignInstance noteContentEditor:NoteContentEditorContext}"
     d:DesignHeight="450"
     d:DesignWidth="800"
@@ -48,10 +49,13 @@
                     </ScrollViewer>
                 </Grid>
             </TabItem>
-            <TabItem Header="Post Body">
+            <TabItem Header="Note Body">
                 <Grid>
                     <bodyContentEditor1:BodyContentEditorControl DataContext="{Binding BodyContent}" />
                 </Grid>
+            </TabItem>
+            <TabItem Header="Help">
+                <helpDisplay:HelpDisplayControl DataContext="{Binding HelpContext}" />
             </TabItem>
         </TabControl>
         <Border Grid.Row="1" Style="{StaticResource ActionPanelBorderStyle}">

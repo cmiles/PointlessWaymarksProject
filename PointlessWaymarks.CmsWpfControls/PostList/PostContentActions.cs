@@ -232,7 +232,7 @@ namespace PointlessWaymarks.CmsWpfControls.PostList
 
             var url = $@"http://{settings.PostPageUrl(content)}";
 
-            var ps = new ProcessStartInfo(url) {UseShellExecute = true, Verb = "open"};
+            var ps = new ProcessStartInfo(url) { UseShellExecute = true, Verb = "open" };
             Process.Start(ps);
         }
 
@@ -307,7 +307,7 @@ namespace PointlessWaymarks.CmsWpfControls.PostList
         public static PostListListItem ListItemFromDbItem(PostContent content, PostContentActions itemActions,
             bool showType)
         {
-            return new()
+            return new PostListListItem
             {
                 DbEntry = content,
                 SmallImageUrl = ContentListContext.GetSmallImageUrl(content),

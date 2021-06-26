@@ -243,7 +243,7 @@ namespace PointlessWaymarks.CmsWpfControls.LinkList
 
             var url = content.Url;
 
-            var ps = new ProcessStartInfo(url) {UseShellExecute = true, Verb = "open"};
+            var ps = new ProcessStartInfo(url) { UseShellExecute = true, Verb = "open" };
             Process.Start(ps);
         }
 
@@ -318,7 +318,7 @@ namespace PointlessWaymarks.CmsWpfControls.LinkList
         public static LinkListListItem ListItemFromDbItem(LinkContent content, LinkContentActions itemActions,
             bool showType)
         {
-            return new() {DbEntry = content, ItemActions = itemActions, ShowType = showType};
+            return new LinkListListItem { DbEntry = content, ItemActions = itemActions, ShowType = showType };
         }
 
         [NotifyPropertyChangedInvocator]

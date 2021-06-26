@@ -25,6 +25,10 @@ Site:
  
 ## Notes
 
+6/26/2021
+
+Got the Help Tab into the Note and Photo editors - the help isn't critical or substantial at this point but I think it will be easier (more motivating?) to add details over time if the basic ui/code is already in place.
+
 6/24/2021
 
 Back to 2014 Posts on the HikeLemmon conversion - still haven't tackled trails and trailheads, that will be intersting. Smaller changes lately generated mainly thru conversion work.

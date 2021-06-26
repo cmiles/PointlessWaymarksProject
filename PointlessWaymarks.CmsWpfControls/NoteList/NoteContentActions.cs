@@ -231,7 +231,7 @@ namespace PointlessWaymarks.CmsWpfControls.NoteList
 
             var url = $@"http://{settings.NotePageUrl(content)}";
 
-            var ps = new ProcessStartInfo(url) {UseShellExecute = true, Verb = "open"};
+            var ps = new ProcessStartInfo(url) { UseShellExecute = true, Verb = "open" };
             Process.Start(ps);
         }
 
@@ -306,7 +306,7 @@ namespace PointlessWaymarks.CmsWpfControls.NoteList
         public static NoteListListItem ListItemFromDbItem(NoteContent content, NoteContentActions itemActions,
             bool showType)
         {
-            return new() {DbEntry = content, ItemActions = itemActions, ShowType = showType};
+            return new NoteListListItem { DbEntry = content, ItemActions = itemActions, ShowType = showType };
         }
 
         [NotifyPropertyChangedInvocator]

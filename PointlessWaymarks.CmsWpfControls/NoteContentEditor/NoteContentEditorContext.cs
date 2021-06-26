@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
@@ -14,6 +15,7 @@ using PointlessWaymarks.CmsWpfControls.BoolDataEntry;
 using PointlessWaymarks.CmsWpfControls.ContentFolder;
 using PointlessWaymarks.CmsWpfControls.ContentIdViewer;
 using PointlessWaymarks.CmsWpfControls.CreatedAndUpdatedByAndOnDisplay;
+using PointlessWaymarks.CmsWpfControls.HelpDisplay;
 using PointlessWaymarks.CmsWpfControls.StringDataEntry;
 using PointlessWaymarks.CmsWpfControls.TagsEditor;
 using PointlessWaymarks.CmsWpfControls.Utility;
@@ -35,6 +37,7 @@ namespace PointlessWaymarks.CmsWpfControls.NoteContentEditor
         private ContentFolderContext _folderEntry;
         private bool _hasChanges;
         private bool _hasValidationIssues;
+        private HelpDisplayContext _helpContext;
         private Command _linkToClipboardCommand;
         private Command _saveAndCloseCommand;
         private Command _saveCommand;
@@ -57,6 +60,13 @@ namespace PointlessWaymarks.CmsWpfControls.NoteContentEditor
                 LinkExtraction.ExtractNewAndShowLinkContentEditors(BodyContent.BodyContent,
                     StatusContext.ProgressTracker()));
             LinkToClipboardCommand = StatusContext.RunBlockingTaskCommand(LinkToClipboard);
+
+
+            HelpContext = new HelpDisplayContext(new List<string>
+            {
+                NoteEditorHelpText, CommonFields.SummaryFieldBlock, CommonFields.FolderFieldBlock,
+                BracketCodeHelpMarkdown.HelpBlock
+            });
         }
 
         public BodyContentEditorContext BodyContent
@@ -125,6 +135,17 @@ namespace PointlessWaymarks.CmsWpfControls.NoteContentEditor
             }
         }
 
+        public HelpDisplayContext HelpContext
+        {
+            get => _helpContext;
+            set
+            {
+                if (Equals(value, _helpContext)) return;
+                _helpContext = value;
+                OnPropertyChanged();
+            }
+        }
+
         public Command LinkToClipboardCommand
         {
             get => _linkToClipboardCommand;
@@ -135,6 +156,12 @@ namespace PointlessWaymarks.CmsWpfControls.NoteContentEditor
                 OnPropertyChanged();
             }
         }
+
+        public string NoteEditorHelpText => @"
+### Note Content
+
+Note Content is like a simplified Post - no title and slug to edit or maintain and no Updates data to maintain. You can always use a Post instead of a note - but you might find it convenient if trying to quickly post a news item or a couple of links to do it as a Note rather than a Post.
+";
 
         public Command SaveAndCloseCommand
         {
@@ -374,7 +401,7 @@ namespace PointlessWaymarks.CmsWpfControls.NoteContentEditor
 
             var url = $@"http://{settings.NotePageUrl(DbEntry)}";
 
-            var ps = new ProcessStartInfo(url) {UseShellExecute = true, Verb = "open"};
+            var ps = new ProcessStartInfo(url) { UseShellExecute = true, Verb = "open" };
             Process.Start(ps);
         }
     }
