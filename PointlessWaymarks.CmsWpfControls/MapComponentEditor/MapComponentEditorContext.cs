@@ -22,6 +22,7 @@ using PointlessWaymarks.CmsData.Spatial;
 using PointlessWaymarks.CmsWpfControls.ContentIdViewer;
 using PointlessWaymarks.CmsWpfControls.ContentList;
 using PointlessWaymarks.CmsWpfControls.CreatedAndUpdatedByAndOnDisplay;
+using PointlessWaymarks.CmsWpfControls.HelpDisplay;
 using PointlessWaymarks.CmsWpfControls.StringDataEntry;
 using PointlessWaymarks.CmsWpfControls.UpdateNotesEditor;
 using PointlessWaymarks.CmsWpfControls.Utility.ChangesAndValidation;
@@ -42,6 +43,7 @@ namespace PointlessWaymarks.CmsWpfControls.MapComponentEditor
         private MapComponent? _dbEntry;
         private bool _hasChanges;
         private bool _hasValidationIssues;
+        private HelpDisplayContext _helpContext;
         private Command _linkToClipboardCommand;
         private ObservableCollection<IMapElementListItem>? _mapElements;
         private string _previewHtml;
@@ -74,6 +76,11 @@ namespace PointlessWaymarks.CmsWpfControls.MapComponentEditor
             _previewHtml = WpfHtmlDocument.ToHtmlLeafletMapDocument("Map",
                 UserSettingsSingleton.CurrentSettings().LatitudeDefault,
                 UserSettingsSingleton.CurrentSettings().LongitudeDefault, string.Empty);
+
+            HelpContext = new HelpDisplayContext(new List<string>
+            {
+                CommonFields.TitleSlugFolderSummary, BracketCodeHelpMarkdown.HelpBlock
+            });
         }
 
         public ContentIdViewerControlContext? ContentId
@@ -116,6 +123,17 @@ namespace PointlessWaymarks.CmsWpfControls.MapComponentEditor
             {
                 if (Equals(value, _dbEntry)) return;
                 _dbEntry = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public HelpDisplayContext HelpContext
+        {
+            get => _helpContext;
+            set
+            {
+                if (Equals(value, _helpContext)) return;
+                _helpContext = value;
                 OnPropertyChanged();
             }
         }
@@ -577,7 +595,6 @@ namespace PointlessWaymarks.CmsWpfControls.MapComponentEditor
             var boundsKeeper = new List<Point>();
 
             foreach (var loopElements in MapElements)
-            {
                 switch (loopElements)
                 {
                     case MapElementListGeoJsonItem {DbEntry: {GeoJson: { }}} mapGeoJson:
@@ -595,7 +612,6 @@ namespace PointlessWaymarks.CmsWpfControls.MapComponentEditor
                             mapLine.DbEntry.InitialViewBoundsMinLatitude));
                         break;
                 }
-            }
 
             if (MapElements.Any(x => x is MapElementListPointItem))
             {

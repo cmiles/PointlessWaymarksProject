@@ -11,6 +11,7 @@ using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsWpfControls.BoolDataEntry;
 using PointlessWaymarks.CmsWpfControls.ConversionDataEntry;
 using PointlessWaymarks.CmsWpfControls.CreatedAndUpdatedByAndOnDisplay;
+using PointlessWaymarks.CmsWpfControls.HelpDisplay;
 using PointlessWaymarks.CmsWpfControls.StringDataEntry;
 using PointlessWaymarks.CmsWpfControls.TagsEditor;
 using PointlessWaymarks.CmsWpfControls.Utility.ChangesAndValidation;
@@ -31,6 +32,7 @@ namespace PointlessWaymarks.CmsWpfControls.LinkContentEditor
         private Command _extractDataCommand;
         private bool _hasChanges;
         private bool _hasValidationIssues;
+        private HelpDisplayContext _helpContext;
         private ConversionDataEntryContext<DateTime?> _linkDateTimeEntry;
         private StringDataEntryContext _linkUrlEntry;
         private Command _openUrlInBrowserCommand;
@@ -63,6 +65,11 @@ namespace PointlessWaymarks.CmsWpfControls.LinkContentEditor
                 {
                     StatusContext.ToastWarning($"Trouble opening link - {e.Message}");
                 }
+            });
+
+            HelpContext = new HelpDisplayContext(new List<string>
+            {
+                CommonFields.TitleSlugFolderSummary, BracketCodeHelpMarkdown.HelpBlock
             });
         }
 
@@ -128,6 +135,17 @@ namespace PointlessWaymarks.CmsWpfControls.LinkContentEditor
             {
                 if (Equals(value, _extractDataCommand)) return;
                 _extractDataCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public HelpDisplayContext HelpContext
+        {
+            get => _helpContext;
+            set
+            {
+                if (Equals(value, _helpContext)) return;
+                _helpContext = value;
                 OnPropertyChanged();
             }
         }

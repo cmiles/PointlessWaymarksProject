@@ -11,6 +11,7 @@
     xmlns:stringDataEntry="clr-namespace:PointlessWaymarks.CmsWpfControls.StringDataEntry"
     xmlns:tagsEditor="clr-namespace:PointlessWaymarks.CmsWpfControls.TagsEditor"
     xmlns:windowScreenShot="clr-namespace:PointlessWaymarks.WpfCommon.WindowScreenShot;assembly=PointlessWaymarks.WpfCommon"
+    xmlns:helpDisplay="clr-namespace:PointlessWaymarks.CmsWpfControls.HelpDisplay"
     d:DataContext="{d:DesignInstance linkContentEditor:LinkContentEditorContext}"
     d:DesignHeight="300"
     d:DesignWidth="300"
@@ -28,31 +29,42 @@
             <RowDefinition />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
-        <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Visible">
-            <StackPanel Margin="4" CanHorizontallyScroll="False">
-                <stringDataEntry:StringDataEntryControl DataContext="{Binding LinkUrlEntry}" />
-                <Grid Margin="6,2,0,0">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition />
-                        <ColumnDefinition />
-                    </Grid.ColumnDefinitions>
-                    <Button Command="{Binding ExtractDataCommand}" Content="Try to Extract _Data" />
-                    <Button
-                        Grid.Column="1"
-                        Command="{Binding OpenUrlInBrowserCommand}"
-                        Content="_Open in Browser" />
-                </Grid>
-                <stringDataEntry:StringDataEntryMultiLineControl DataContext="{Binding CommentsEntry}" TextBoxHeight="60" />
-                <tagsEditor:TagsEditorControl DataContext="{Binding TagEdit}" />
-                <stringDataEntry:StringDataEntryMultiLineControl DataContext="{Binding TitleEntry}" />
-                <stringDataEntry:StringDataEntryMultiLineControl DataContext="{Binding SiteEntry}" />
-                <stringDataEntry:StringDataEntryControl DataContext="{Binding AuthorEntry}" />
-                <conversionDataEntry:ConversionDataEntryControl DataContext="{Binding LinkDateTimeEntry}" />
-                <stringDataEntry:StringDataEntryControl DataContext="{Binding DescriptionEntry}" />
-                <boolDataEntry1:BoolDataEntryControl DataContext="{Binding ShowInLinkRssEntry}" Style="{StaticResource DataEntryBoolStyle}" />
-                <createdAndUpdatedByAndOnDisplay:CreatedAndUpdatedByAndOnDisplayControl DataContext="{Binding CreatedUpdatedDisplay}" Style="{StaticResource CreatedUpdatedInPanelStyle}" />
-            </StackPanel>
-        </ScrollViewer>
+        <TabControl>
+            <TabItem>
+                <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Visible">
+                    <StackPanel Margin="4" CanHorizontallyScroll="False">
+                        <stringDataEntry:StringDataEntryControl DataContext="{Binding LinkUrlEntry}" />
+                        <Grid Margin="6,2,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition />
+                                <ColumnDefinition />
+                            </Grid.ColumnDefinitions>
+                            <Button Command="{Binding ExtractDataCommand}" Content="Try to Extract _Data" />
+                            <Button
+                                Grid.Column="1"
+                                Command="{Binding OpenUrlInBrowserCommand}"
+                                Content="_Open in Browser" />
+                        </Grid>
+                        <stringDataEntry:StringDataEntryMultiLineControl DataContext="{Binding CommentsEntry}"
+                                                                         TextBoxHeight="60" />
+                        <tagsEditor:TagsEditorControl DataContext="{Binding TagEdit}" />
+                        <stringDataEntry:StringDataEntryMultiLineControl DataContext="{Binding TitleEntry}" />
+                        <stringDataEntry:StringDataEntryMultiLineControl DataContext="{Binding SiteEntry}" />
+                        <stringDataEntry:StringDataEntryControl DataContext="{Binding AuthorEntry}" />
+                        <conversionDataEntry:ConversionDataEntryControl DataContext="{Binding LinkDateTimeEntry}" />
+                        <stringDataEntry:StringDataEntryControl DataContext="{Binding DescriptionEntry}" />
+                        <boolDataEntry1:BoolDataEntryControl DataContext="{Binding ShowInLinkRssEntry}"
+                                                             Style="{StaticResource DataEntryBoolStyle}" />
+                        <createdAndUpdatedByAndOnDisplay:CreatedAndUpdatedByAndOnDisplayControl
+                            DataContext="{Binding CreatedUpdatedDisplay}"
+                            Style="{StaticResource CreatedUpdatedInPanelStyle}" />
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+            <TabItem Header="Help">
+                <helpDisplay:HelpDisplayControl DataContext="{Binding HelpContext}" />
+            </TabItem>
+        </TabControl>
         <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition />

@@ -18,6 +18,7 @@ using PointlessWaymarks.CmsWpfControls.BodyContentEditor;
 using PointlessWaymarks.CmsWpfControls.BoolDataEntry;
 using PointlessWaymarks.CmsWpfControls.ContentIdViewer;
 using PointlessWaymarks.CmsWpfControls.CreatedAndUpdatedByAndOnDisplay;
+using PointlessWaymarks.CmsWpfControls.HelpDisplay;
 using PointlessWaymarks.CmsWpfControls.StringDataEntry;
 using PointlessWaymarks.CmsWpfControls.TagsEditor;
 using PointlessWaymarks.CmsWpfControls.TitleSummarySlugFolderEditor;
@@ -40,6 +41,7 @@ namespace PointlessWaymarks.CmsWpfControls.ImageContentEditor
         private CreatedAndUpdatedByAndOnDisplayContext _createdUpdatedDisplay;
         private ImageContent _dbEntry;
         private Command _extractNewLinksCommand;
+        private HelpDisplayContext _helpContext;
         private FileInfo _initialImage;
         private Command _linkToClipboardCommand;
         private FileInfo _loadedFile;
@@ -144,6 +146,17 @@ namespace PointlessWaymarks.CmsWpfControls.ImageContentEditor
             {
                 if (Equals(value, _extractNewLinksCommand)) return;
                 _extractNewLinksCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public HelpDisplayContext HelpContext
+        {
+            get => _helpContext;
+            set
+            {
+                if (Equals(value, _helpContext)) return;
+                _helpContext = value;
                 OnPropertyChanged();
             }
         }
@@ -630,6 +643,11 @@ namespace PointlessWaymarks.CmsWpfControls.ImageContentEditor
         public void SetupContextAndCommands(StatusControlContext statusContext)
         {
             StatusContext = statusContext ?? new StatusControlContext();
+
+            HelpContext = new HelpDisplayContext(new List<string>
+            {
+                CommonFields.TitleSlugFolderSummary, BracketCodeHelpMarkdown.HelpBlock
+            });
 
             ChooseFileCommand = StatusContext.RunBlockingTaskCommand(async () => await ChooseFile());
             SaveCommand = StatusContext.RunBlockingTaskCommand(async () =>
