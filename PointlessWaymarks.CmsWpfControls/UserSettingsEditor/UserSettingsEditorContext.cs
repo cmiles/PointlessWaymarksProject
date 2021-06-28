@@ -112,7 +112,7 @@ namespace PointlessWaymarks.CmsWpfControls.UserSettingsEditor
             "'Pointless Waymarks Team'.";
 
         public string HelpMarkdownSiteDirAttribute =>
-            "Lang attribute for the site - see the [dir attribute on MDN](https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/dir) for more information.";
+            "Dir attribute indicating text direction for the site - see the [dir attribute on MDN](https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/dir) for more information.";
 
         public string HelpMarkdownSiteEmailTo =>
             "An Email To for the site - example 'PointlessWaymarks@gmail.com'.";
@@ -122,7 +122,7 @@ namespace PointlessWaymarks.CmsWpfControls.UserSettingsEditor
             "'outdoors,hiking,running,landscape,photography,history'.";
 
         public string HelpMarkdownSiteLangAttribute =>
-            "Lang attribute for the site - see [lang attribute on MDN](https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/lang) for more information.";
+            "Lang attribute indicating the default language for the site - see [lang attribute on MDN](https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/lang) for more information.";
 
         public string HelpMarkdownSiteName =>
             "The 'human readable' Site Name - for example 'Pointless Waymarks'.";

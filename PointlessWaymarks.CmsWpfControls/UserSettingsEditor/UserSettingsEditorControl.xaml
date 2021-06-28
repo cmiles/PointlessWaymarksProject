@@ -35,9 +35,16 @@
         <CommandBinding Command="{x:Static wpf:Commands.Hyperlink}" Executed="OpenHyperlink" />
     </FrameworkElement.CommandBindings>
     <Grid>
-        <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Visible">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"></RowDefinition>
+            <RowDefinition Height="Auto"></RowDefinition>
+        </Grid.RowDefinitions>
+        <GroupBox
+            Margin="4,0,4,0"
+            Header="Settings"
+            Style="{StaticResource UiComponentGroupBoxStyle}">
+            <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Visible">
             <StackPanel Orientation="Vertical">
-                <Button Command="{Binding SaveSettingsCommand}" Style="{StaticResource ActionPanelButtonStyle}">Save</Button>
                 <StackPanel Orientation="Vertical">
                     <Label Style="{StaticResource DataEntryLabelStyle}" Target="{Binding ElementName=LocalSiteRootDirectoryTextBox}">
                         Local Site Root Directory
@@ -140,6 +147,11 @@
                         Name="SiteEmailToTextBox"
                         Style="{StaticResource DataEntryTextBoxSingleLineStyle}"
                         Text="{Binding EditorSettings.SiteEmailTo, UpdateSourceTrigger=PropertyChanged}" />
+                    <wpf:MarkdownViewer Markdown="{Binding HelpMarkdownSiteEmailTo}">
+                        <b:Interaction.Behaviors>
+                            <behaviors:IgnoreMouseWheelBehavior />
+                        </b:Interaction.Behaviors>
+                    </wpf:MarkdownViewer>
                 </StackPanel>
                 <StackPanel Orientation="Vertical">
                     <Label Style="{StaticResource DataEntryLabelStyle}" Target="{Binding ElementName=SiteLangTextBox}">Site Lang Attribute</Label>
@@ -159,6 +171,11 @@
                         Name="SiteDirTextBox"
                         Style="{StaticResource DataEntryTextBoxSingleLineStyle}"
                         Text="{Binding EditorSettings.SiteDirectionAttribute, UpdateSourceTrigger=PropertyChanged}" />
+                    <wpf:MarkdownViewer Markdown="{Binding HelpMarkdownSiteDirAttribute}">
+                        <b:Interaction.Behaviors>
+                            <behaviors:IgnoreMouseWheelBehavior />
+                        </b:Interaction.Behaviors>
+                    </wpf:MarkdownViewer>
                 </StackPanel>
                 <StackPanel Orientation="Vertical">
                     <Label Style="{StaticResource DataEntryLabelStyle}" Target="{Binding ElementName=DefaultCreatedByTextBox}">
@@ -168,7 +185,7 @@
                         Name="DefaultCreatedByTextBox"
                         Style="{StaticResource DataEntryTextBoxSingleLineStyle}"
                         Text="{Binding EditorSettings.DefaultCreatedBy, UpdateSourceTrigger=PropertyChanged}" />
-                    <wpf:MarkdownViewer Markdown="{Binding HelpMarkdownSiteDirAttribute}">
+                    <wpf:MarkdownViewer Markdown="{Binding HelpMarkdownDefaultCreatedByName}">
                         <b:Interaction.Behaviors>
                             <behaviors:IgnoreMouseWheelBehavior />
                         </b:Interaction.Behaviors>
@@ -185,17 +202,7 @@
                 </StackPanel>
                 <StackPanel Orientation="Vertical">
                     <Label Style="{StaticResource DataEntryLabelStyle}" Target="{Binding ElementName=LongitudeTextBox}">
-                        Default Latitude and Longitude
-                    </Label>
-                    <wpf:MarkdownViewer Markdown="{Binding HelpMarkdownDefaultLatitudeLongitude}">
-                        <b:Interaction.Behaviors>
-                            <behaviors:IgnoreMouseWheelBehavior />
-                        </b:Interaction.Behaviors>
-                    </wpf:MarkdownViewer>
-                </StackPanel>
-                <StackPanel Orientation="Vertical">
-                    <Label Style="{StaticResource DataEntryLabelStyle}" Target="{Binding ElementName=LongitudeTextBox}">
-                        Default Latitude
+                        Default Longitude
                     </Label>
                     <TextBox
                         Name="LongitudeTextBox"
@@ -307,6 +314,10 @@
                 </StackPanel>
             </StackPanel>
         </ScrollViewer>
-        <status:StatusControl d:IsHidden="true" DataContext="{Binding StatusContext}" />
+            </GroupBox>
+        <Border Grid.Row="1" Style="{StaticResource ActionPanelBorderStyle}">
+            <Button Command="{Binding SaveSettingsCommand}" Style="{StaticResource ActionPanelUnlimitedWidthButtonStyle}">Save</Button>
+        </Border>
+            <status:StatusControl d:IsHidden="true" Grid.RowSpan="2" DataContext="{Binding StatusContext}" />
     </Grid>
 </UserControl>

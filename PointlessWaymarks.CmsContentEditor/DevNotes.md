@@ -22,7 +22,7 @@ Site:
  - Should the code record a checksum of media archive files to be able to check if they change on disk rather than thru the program?
  - Could I successfully tuck away a copy of the current edits to help in unexpected shut downs? No good if I can't expose these in a helpful way...
  - Could all font sizes be controlled by slider or setting? I like the control in the editor but maybe everywhere would be more useful? And persist in Settings?
- 
+
 ## Notes
 
 6/26/2021
