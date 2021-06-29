@@ -37,7 +37,7 @@ namespace PointlessWaymarks.CmsData.Spatial
 
         public static async Task<string> SerializeFeatureCollection(FeatureCollection featureCollection)
         {
-            var serializer = GeoJsonSerializer.Create(new JsonSerializerSettings {Formatting = Formatting.Indented},
+            var serializer = GeoJsonSerializer.Create(new JsonSerializerSettings { Formatting = Formatting.Indented },
                 Wgs84GeometryFactory(), 3);
 
             await using var stringWriter = new StringWriter();
@@ -49,7 +49,7 @@ namespace PointlessWaymarks.CmsData.Spatial
 
         public static async Task<string> SerializeAsGeoJson(object toSerialize)
         {
-            var serializer = GeoJsonSerializer.Create(new JsonSerializerSettings {Formatting = Formatting.Indented},
+            var serializer = GeoJsonSerializer.Create(new JsonSerializerSettings { Formatting = Formatting.Indented },
                 Wgs84GeometryFactory(), 3);
 
             await using var stringWriter = new StringWriter();
@@ -69,7 +69,7 @@ namespace PointlessWaymarks.CmsData.Spatial
         {
             if (toProcess == null) return toProcess;
 
-            var positionPropertyNames = new List<string> {"Latitude", "Longitude"};
+            var positionPropertyNames = new List<string> { "Latitude", "Longitude" };
 
             var positionProperties = typeof(T).GetProperties().Where(x =>
                 (x.PropertyType == typeof(double) || x.PropertyType == typeof(double?)) && x.GetSetMethod() != null &&
@@ -78,11 +78,11 @@ namespace PointlessWaymarks.CmsData.Spatial
             foreach (var loopProperty in positionProperties)
             {
                 if (loopProperty.GetValue(toProcess) == null) continue;
-                var current = (double) loopProperty.GetValue(toProcess)!;
+                var current = (double)loopProperty.GetValue(toProcess)!;
                 loopProperty.SetValue(toProcess, Math.Round(current, 6));
             }
 
-            var distancePropertyNames = new List<string> {"Distance"};
+            var distancePropertyNames = new List<string> { "Distance" };
 
             var distanceProperties = typeof(T).GetProperties().Where(x =>
                 (x.PropertyType == typeof(double) || x.PropertyType == typeof(double?)) && x.GetSetMethod() != null &&
@@ -91,11 +91,11 @@ namespace PointlessWaymarks.CmsData.Spatial
             foreach (var loopProperty in distanceProperties)
             {
                 if (loopProperty.GetValue(toProcess) == null) continue;
-                var current = (double) loopProperty.GetValue(toProcess)!;
+                var current = (double)loopProperty.GetValue(toProcess)!;
                 loopProperty.SetValue(toProcess, Math.Round(current, 2));
             }
 
-            var elevationPropertyNames = new List<string> {"Elevation"};
+            var elevationPropertyNames = new List<string> { "Elevation" };
 
             var elevationProperties = typeof(T).GetProperties().Where(x =>
                 (x.PropertyType == typeof(double) || x.PropertyType == typeof(double?)) && x.GetSetMethod() != null &&
@@ -104,7 +104,7 @@ namespace PointlessWaymarks.CmsData.Spatial
             foreach (var loopProperty in elevationProperties)
             {
                 if (loopProperty.GetValue(toProcess) == null) continue;
-                var current = (double) loopProperty.GetValue(toProcess)!;
+                var current = (double)loopProperty.GetValue(toProcess)!;
                 loopProperty.SetValue(toProcess, Math.Round(current, 0));
             }
 
@@ -125,14 +125,15 @@ namespace PointlessWaymarks.CmsData.Spatial
             bool replaceElevations, IProgress<string>? progress = null)
         {
             if (replaceElevations)
-                await ElevationService.OpenTopoMapZenElevation(new HttpClient(), pointList, progress).ConfigureAwait(false);
+                await ElevationService.OpenTopoMapZenElevation(new HttpClient(), pointList, progress)
+                    .ConfigureAwait(false);
 
             // ReSharper disable once CoVariantArrayConversion It appears from testing that a linestring will reflect CoordinateZ
             var newLineString = new LineString(pointList.ToArray());
             var newFeature = new Feature(newLineString, new AttributesTable());
-            var featureCollection = new FeatureCollection {newFeature};
+            var featureCollection = new FeatureCollection { newFeature };
 
-            var serializer = GeoJsonSerializer.Create(new JsonSerializerSettings {Formatting = Formatting.Indented},
+            var serializer = GeoJsonSerializer.Create(new JsonSerializerSettings { Formatting = Formatting.Indented },
                 Wgs84GeometryFactory(), 3);
             await using var stringWriter = new StringWriter();
             using var jsonWriter = new JsonTextWriter(stringWriter);
@@ -144,7 +145,7 @@ namespace PointlessWaymarks.CmsData.Spatial
         {
             if (string.IsNullOrWhiteSpace(geoJson)) return new List<CoordinateZ>();
 
-            var serializer = GeoJsonSerializer.Create(new JsonSerializerSettings {Formatting = Formatting.Indented},
+            var serializer = GeoJsonSerializer.Create(new JsonSerializerSettings { Formatting = Formatting.Indented },
                 Wgs84GeometryFactory(), 3);
 
             using var stringReader = new StringReader(geoJson);
@@ -156,7 +157,7 @@ namespace PointlessWaymarks.CmsData.Spatial
 
             if (possibleLine == null) return new List<CoordinateZ>();
 
-            var geoLine = (LineString) possibleLine.Geometry;
+            var geoLine = (LineString)possibleLine.Geometry;
 
             return geoLine.Coordinates.Select(x => new CoordinateZ(x.X, x.Y, x.Z)).ToList();
         }
@@ -209,7 +210,8 @@ namespace PointlessWaymarks.CmsData.Spatial
 
         public static LineStatsInImperial LineStatsInImperialFromMetricStats(LineStatsInMeters metricStats)
         {
-            return new(metricStats.Length.MetersToMiles(), metricStats.ElevationClimb.MetersToFeet(),
+            return new LineStatsInImperial(metricStats.Length.MetersToMiles(),
+                metricStats.ElevationClimb.MetersToFeet(),
                 metricStats.ElevationDescent.MetersToFeet(), metricStats.MaximumElevation.MetersToFeet(),
                 metricStats.MinimumElevation.MetersToFeet());
         }
@@ -225,7 +227,7 @@ namespace PointlessWaymarks.CmsData.Spatial
         {
             var returnList = new List<(string description, List<CoordinateZ>)>();
 
-            if (gpxFile is not {Exists: true}) return returnList;
+            if (gpxFile is not { Exists: true }) return returnList;
 
             GpxFile parsedGpx;
 
@@ -248,7 +250,8 @@ namespace PointlessWaymarks.CmsData.Spatial
             foreach (var loopTracks in parsedGpx.Tracks)
             {
                 var descriptionElements =
-                    new List<string> {$"{trackCounter++}", loopTracks.Comment, loopTracks.Description, loopTracks.Name}
+                    new List<string>
+                            { $"{trackCounter++}", loopTracks.Comment, loopTracks.Description, loopTracks.Name }
                         .Where(x => !string.IsNullOrWhiteSpace(x)).ToList();
 
                 var extensions = loopTracks.Extensions;

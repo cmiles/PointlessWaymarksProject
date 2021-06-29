@@ -377,7 +377,6 @@ namespace PointlessWaymarks.CmsWpfControls.PointContentEditor
             return toReturn;
         }
 
-
         public async Task GetElevation()
         {
             if (LatitudeEntry.HasValidationIssues || LongitudeEntry.HasValidationIssues)
@@ -594,7 +593,7 @@ namespace PointlessWaymarks.CmsWpfControls.PointContentEditor
 
             var url = $@"http://{settings.PointPageUrl(DbEntry)}";
 
-            var ps = new ProcessStartInfo(url) {UseShellExecute = true, Verb = "open"};
+            var ps = new ProcessStartInfo(url) { UseShellExecute = true, Verb = "open" };
             Process.Start(ps);
         }
     }

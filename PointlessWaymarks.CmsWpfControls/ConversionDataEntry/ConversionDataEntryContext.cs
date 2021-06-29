@@ -6,6 +6,7 @@ using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsWpfControls.Utility.ChangesAndValidation;
+using TypeSupport.Extensions;
 
 namespace PointlessWaymarks.CmsWpfControls.ConversionDataEntry
 {
@@ -17,6 +18,7 @@ namespace PointlessWaymarks.CmsWpfControls.ConversionDataEntry
         private bool _hasChanges;
         private bool _hasValidationIssues;
         private string _helpText;
+        private bool _isNumeric;
         private T _referenceValue;
         private string _title;
         private string _userText;
@@ -29,6 +31,7 @@ namespace PointlessWaymarks.CmsWpfControls.ConversionDataEntry
         private ConversionDataEntryContext()
         {
             ComparisonFunction = (referenceValue, userValue) => referenceValue.Equals(userValue);
+            if (typeof(T).GetExtendedType().IsNumericType) IsNumeric = true;
         }
 
         public Func<T, T, bool> ComparisonFunction
@@ -60,6 +63,17 @@ namespace PointlessWaymarks.CmsWpfControls.ConversionDataEntry
             {
                 if (value == _helpText) return;
                 _helpText = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public bool IsNumeric
+        {
+            get => _isNumeric;
+            set
+            {
+                if (value == _isNumeric) return;
+                _isNumeric = value;
                 OnPropertyChanged();
             }
         }
@@ -177,7 +191,7 @@ namespace PointlessWaymarks.CmsWpfControls.ConversionDataEntry
         public static ConversionDataEntryContext<T> CreateInstance(
             Func<string, (bool passed, string conversionMessage, T result)> converter)
         {
-            return new() {Converter = converter};
+            return new ConversionDataEntryContext<T> { Converter = converter };
         }
 
         [NotifyPropertyChangedInvocator]

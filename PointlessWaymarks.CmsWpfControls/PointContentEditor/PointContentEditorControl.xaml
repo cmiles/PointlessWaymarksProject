@@ -18,6 +18,7 @@
     xmlns:windowScreenShot="clr-namespace:PointlessWaymarks.WpfCommon.WindowScreenShot;assembly=PointlessWaymarks.WpfCommon"
     xmlns:wpf="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
     xmlns:wpfConverter="clr-namespace:PointlessWaymarks.WpfCommon.ValueConverters;assembly=PointlessWaymarks.WpfCommon"
+    xmlns:utility="clr-namespace:PointlessWaymarks.CmsWpfControls.Utility"
     d:DataContext="{d:DesignInstance pointContentEditor:PointContentEditorContext}"
     d:DesignHeight="300"
     d:DesignWidth="300"
@@ -31,6 +32,7 @@
                 <ResourceDictionary Source="/PointlessWaymarks.WpfCommon;component/Utility/Icons.xaml" />
             </ResourceDictionary.MergedDictionaries>
             <wpfConverter:BooleanNotToVisibilityConverter x:Key="BooleanNotToVisibility" />
+            <utility:MetersToFeetValueConverter x:Key="MetersToFeet"/>
         </ResourceDictionary>
     </UserControl.Resources>
     <Grid Margin="4">
@@ -66,10 +68,13 @@
                             <conversionDataEntry:ConversionDataEntryControl Width="120" DataContext="{Binding LatitudeEntry}" />
                             <conversionDataEntry:ConversionDataEntryControl Width="120" DataContext="{Binding LongitudeEntry}" />
                             <conversionDataEntry:ConversionDataEntryControl Width="120" DataContext="{Binding ElevationEntry}" />
+                            <Label VerticalAlignment="Bottom" Margin="0,0,0,-3">meters</Label>
+                            <TextBox VerticalAlignment="Bottom" Margin="0,0,10,2" TextAlignment="Right" Style="{StaticResource ReadOnlyTextBoxStyle}" Text="{Binding ElevationEntry.UserText, Converter={StaticResource MetersToFeet}, StringFormat='{}({0:F0} feet)'}"
+                                     Visibility="{Binding ElevationEntry.UserText, Converter={StaticResource NullOrWhiteSpaceStringToCollapsed}}"></TextBox>
                             <Button
                                 Width="90"
-                                Height="40"
-                                Margin="2,2,0,0"
+                                Height="32"
+                                Margin="2,2,0,1"
                                 VerticalAlignment="Bottom"
                                 Command="{Binding GetElevationCommand}">
                                 Get Elevation

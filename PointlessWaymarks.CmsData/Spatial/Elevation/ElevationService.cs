@@ -57,7 +57,7 @@ namespace PointlessWaymarks.CmsData.Spatial.Elevation
                 //Expecting to get the exact Lat Long back thru the elevation query
                 coordinates.Where(x => x.X == loopResults.Location.Longitude && x.Y == loopResults.Location.Latitude)
                     // ReSharper restore CompareOfFloatsByEqualityOperator
-                    .ToList().ForEach(x => x.Z = loopResults.Elevation.MetersToFeet());
+                    .ToList().ForEach(x => x.Z = loopResults.Elevation ?? 0);
             }
 
             return coordinates;
@@ -76,7 +76,7 @@ namespace PointlessWaymarks.CmsData.Spatial.Elevation
 
             var elevationParsed = JsonSerializer.Deserialize<ElevationResponse>(elevationReturn);
 
-            return elevationParsed?.Elevations.First().Elevation.MetersToFeet();
+            return elevationParsed?.Elevations.First().Elevation;
         }
 
         public static async Task<List<CoordinateZ>> OpenTopoMapZenElevation(HttpClient client,

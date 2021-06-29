@@ -5,6 +5,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:utility="clr-namespace:PointlessWaymarks.WpfCommon.Utility;assembly=PointlessWaymarks.WpfCommon"
+    xmlns:utility1="clr-namespace:PointlessWaymarks.CmsWpfControls.Utility"
     d:DesignHeight="450"
     d:DesignWidth="800"
     mc:Ignorable="d">
@@ -15,6 +16,7 @@
                 <ResourceDictionary Source="/PointlessWaymarks.WpfCommon;component/Utility/Icons.xaml" />
             </ResourceDictionary.MergedDictionaries>
             <BooleanToVisibilityConverter x:Key="BooleanToVisibility" />
+            <utility1:TrueIsRightTextAlignmentConverter x:Key="TrueIsRightAlign"/>
         </ResourceDictionary>
     </UserControl.Resources>
     <StackPanel Orientation="Vertical">
@@ -42,6 +44,7 @@
         <TextBox
             Name="ValueTextBox"
             Style="{StaticResource DataEntryTextBoxSingleLineStyle}"
+            TextAlignment="{Binding IsNumeric, Converter={StaticResource TrueIsRightAlign}}"
             Text="{Binding UserText, UpdateSourceTrigger=PropertyChanged, Delay=100}" />
     </StackPanel>
 </UserControl>
