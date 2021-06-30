@@ -34,6 +34,7 @@ using PointlessWaymarks.CmsWpfControls.NoteList;
 using PointlessWaymarks.CmsWpfControls.PhotoList;
 using PointlessWaymarks.CmsWpfControls.PointList;
 using PointlessWaymarks.CmsWpfControls.PostList;
+using PointlessWaymarks.CmsWpfControls.SitePreview;
 using PointlessWaymarks.CmsWpfControls.TagExclusionEditor;
 using PointlessWaymarks.CmsWpfControls.TagList;
 using PointlessWaymarks.CmsWpfControls.UserSettingsEditor;
@@ -155,11 +156,11 @@ namespace PointlessWaymarks.CmsContentEditor
                 await HtmlGenerationGroups.GenerateAllGeoJsonHtml(null, StatusContext.ProgressTracker()));
 
             //Derived
-            GenerateAllListHtmlCommand = StatusContext.RunBlockingActionCommand(() =>
-                HtmlGenerationGroups.GenerateAllListHtml(null, StatusContext.ProgressTracker()));
+            GenerateAllListHtmlCommand = StatusContext.RunBlockingActionCommand(async () =>
+                await HtmlGenerationGroups.GenerateAllListHtml(null, StatusContext.ProgressTracker()));
 
-            GenerateAllTagHtmlCommand = StatusContext.RunBlockingActionCommand(() =>
-                HtmlGenerationGroups.GenerateAllTagHtml(null, StatusContext.ProgressTracker()));
+            GenerateAllTagHtmlCommand = StatusContext.RunBlockingActionCommand(async () =>
+                await HtmlGenerationGroups.GenerateAllTagHtml(null, StatusContext.ProgressTracker()));
 
             GenerateCameraRollCommand = StatusContext.RunBlockingTaskCommand(async () =>
                 await HtmlGenerationGroups.GenerateCameraRollHtml(null, StatusContext.ProgressTracker()));

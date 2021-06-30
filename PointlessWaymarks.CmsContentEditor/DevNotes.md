@@ -25,6 +25,14 @@ Site:
 
 ## Notes
 
+6/29/2021
+
+With posts conversions for Hikelemmon back into 2014 I started doing some Trailhead work as Points Content - this has already made the Points better with some corrections regarding some feet/meter elevation confusion and small page tweaks - seeing the output today will obviously lead to more work.
+
+Decided to go with Elevation in Meters as primary and just show feet in the gui only as a translation of meters - I tried doing feet everywhere but that quickly seemed hard to justify when data like gpx and data from services is in meters.
+
+I was look at Rick Strahl's live web reload server in this post https://weblog.west-wind.com/posts/2021/Mar/23/LiveReloadServer-A-NET-Core-Based-Generic-Static-Web-Server-with-Live-Reload and realized that WebView2 makes it very easy to create a preview window for the current site without needing a server! Basically the key is  SetVirtualHostNameToFolderMapping which allow you to map a folder to a 'virtual' domain - tested and have a first rough version working!
+
 6/26/2021
 
 Got the Help Tab into the Note and Photo editors - the help isn't critical or substantial at this point but I think it will be easier (more motivating?) to add details over time if the basic ui/code is already in place.

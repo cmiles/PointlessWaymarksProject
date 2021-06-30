@@ -11,11 +11,11 @@ the editor will allow you to place 'anything' in these content slots the intent 
 html <a/> tag, PointlessWaymarks bracket code or Markdown style link - with a short/minimal text description.
 
 A simple but useful menu could consist of the following entries:
-    {{index; text Home}}
-    {{searchpage; text Search}}
-    {{photogallerypage; text Photos}}
-    {{tagspage; text Tags}}
-    {{linklistpage; text Links}}
+    {{index; text Home;}}
+    {{searchpage; text Search;}}
+    {{photogallerypage; text Photos;}}
+    {{tagspage; text Tags;}}
+    {{linklistpage; text Links;}}
 ";
     }
 }

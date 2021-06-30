@@ -48,6 +48,9 @@
             <MenuItem Header="Import">
                 <MenuItem Command="{Binding WordPressImportWindowCommand}" Header="WordPress XML Import Helper" />
             </MenuItem>
+            <MenuItem Header="Preview">
+                <MenuItem Command="{Binding WordPressImportWindowCommand}" Header="Site Preview Window" />
+            </MenuItem>
         </Menu>
         <contentList:ContentListControl
             Grid.Row="1"

@@ -2,8 +2,10 @@
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using System.Windows.Forms.VisualStyles;
 using JetBrains.Annotations;
 using PointlessWaymarks.CmsWpfControls.ContentList;
+using PointlessWaymarks.CmsWpfControls.SitePreview;
 using PointlessWaymarks.CmsWpfControls.WordPressXmlImport;
 using PointlessWaymarks.WpfCommon.Commands;
 using PointlessWaymarks.WpfCommon.Status;
@@ -16,6 +18,7 @@ namespace PointlessWaymarks.CmsWpfControls.AllContentList
     {
         private ContentListContext _listContext;
         private Command _wordPressImportWindowCommand;
+        private Command _showSiteBrowserWindowCommand;
 
         public AllItemsWithActionsContext(StatusControlContext statusContext)
         {
@@ -50,6 +53,16 @@ namespace PointlessWaymarks.CmsWpfControls.AllContentList
 
         public event PropertyChangedEventHandler PropertyChanged;
 
+        private async Task ShowSiteBrowserWindow()
+        {
+
+            await ThreadSwitcher.ResumeForegroundAsync();
+
+            var sitePreviewWindow = new SitePreviewWindow();
+
+            sitePreviewWindow.Show();
+        }
+
         public async Task LoadData()
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
@@ -57,6 +70,7 @@ namespace PointlessWaymarks.CmsWpfControls.AllContentList
             ListContext ??= new ContentListContext(StatusContext, new ContentListLoaderAllItems(100));
 
             WordPressImportWindowCommand = StatusContext.RunNonBlockingTaskCommand(WordPressImportWindow);
+            ShowSiteBrowserWindowCommand = StatusContext.RunNonBlockingTaskCommand(ShowSiteBrowserWindow);
 
             ListContext.ContextMenuItems = new List<ContextMenuItemData>
             {
@@ -74,6 +88,17 @@ namespace PointlessWaymarks.CmsWpfControls.AllContentList
             };
 
             await ListContext.LoadData();
+        }
+
+        public Command ShowSiteBrowserWindowCommand
+        {
+            get => _showSiteBrowserWindowCommand;
+            set
+            {
+                if (Equals(value, _showSiteBrowserWindowCommand)) return;
+                _showSiteBrowserWindowCommand = value;
+                OnPropertyChanged();
+            }
         }
 
         [NotifyPropertyChangedInvocator]
