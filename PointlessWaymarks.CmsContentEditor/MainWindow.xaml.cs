@@ -34,7 +34,6 @@ using PointlessWaymarks.CmsWpfControls.NoteList;
 using PointlessWaymarks.CmsWpfControls.PhotoList;
 using PointlessWaymarks.CmsWpfControls.PointList;
 using PointlessWaymarks.CmsWpfControls.PostList;
-using PointlessWaymarks.CmsWpfControls.SitePreview;
 using PointlessWaymarks.CmsWpfControls.TagExclusionEditor;
 using PointlessWaymarks.CmsWpfControls.TagList;
 using PointlessWaymarks.CmsWpfControls.UserSettingsEditor;
@@ -79,7 +78,7 @@ namespace PointlessWaymarks.CmsContentEditor
         {
             InitializeComponent();
 
-            JotServices.Tracker.Configure<MainWindow>().Properties(x => new {x.RecentSettingsFilesNames});
+            JotServices.Tracker.Configure<MainWindow>().Properties(x => new { x.RecentSettingsFilesNames });
 
             JotServices.Tracker.Track(this);
 
@@ -515,12 +514,12 @@ namespace PointlessWaymarks.CmsContentEditor
 
                 var htmlString =
                     ($"<h1>Clean and Resize All Image Files Error Report - {frozenNow:yyyy-MM-dd---HH-mm-ss}</h1><br>" +
-                     results.ToHtmlTable(new {@class = "pure-table pure-table-striped"}))
+                     results.ToHtmlTable(new { @class = "pure-table pure-table-striped" }))
                     .ToHtmlDocumentWithPureCss("Clean and Resize Images Error Report", "body {margin: 12px;}");
 
                 await File.WriteAllTextAsync(file.FullName, htmlString);
 
-                var ps = new ProcessStartInfo(file.FullName) {UseShellExecute = true, Verb = "open"};
+                var ps = new ProcessStartInfo(file.FullName) { UseShellExecute = true, Verb = "open" };
 
                 Process.Start(ps);
 
@@ -547,12 +546,12 @@ namespace PointlessWaymarks.CmsContentEditor
 
                 var htmlString =
                     ($"<h1>Clean and Resize All Photo Files Error Report - {frozenNow:yyyy-MM-dd---HH-mm-ss}</h1><br>" +
-                     results.ToHtmlTable(new {@class = "pure-table pure-table-striped"}))
+                     results.ToHtmlTable(new { @class = "pure-table pure-table-striped" }))
                     .ToHtmlDocumentWithPureCss("Clean and Resize Photos Error Report", "body {margin: 12px;}");
 
                 await File.WriteAllTextAsync(file.FullName, htmlString);
 
-                var ps = new ProcessStartInfo(file.FullName) {UseShellExecute = true, Verb = "open"};
+                var ps = new ProcessStartInfo(file.FullName) { UseShellExecute = true, Verb = "open" };
 
                 Process.Start(ps);
 
@@ -591,12 +590,12 @@ namespace PointlessWaymarks.CmsContentEditor
 
                 var htmlString =
                     ($"<h1>Confirm All File Content Files Error Report - {frozenNow:yyyy-MM-dd---HH-mm-ss}</h1><br>" +
-                     results.ToHtmlTable(new {@class = "pure-table pure-table-striped"}))
+                     results.ToHtmlTable(new { @class = "pure-table pure-table-striped" }))
                     .ToHtmlDocumentWithPureCss("Confirm Files Error Report", "body {margin: 12px;}");
 
                 await File.WriteAllTextAsync(file.FullName, htmlString);
 
-                var ps = new ProcessStartInfo(file.FullName) {UseShellExecute = true, Verb = "open"};
+                var ps = new ProcessStartInfo(file.FullName) { UseShellExecute = true, Verb = "open" };
 
                 Process.Start(ps);
 
@@ -734,7 +733,7 @@ namespace PointlessWaymarks.CmsContentEditor
             SettingsEditorContext =
                 new UserSettingsEditorContext(StatusContext, UserSettingsSingleton.CurrentSettings());
             SoftwareComponentsHelpContext =
-                new HelpDisplayContext(new List<string> {SoftwareUsedHelpMarkdown.HelpBlock});
+                new HelpDisplayContext(new List<string> { SoftwareUsedHelpMarkdown.HelpBlock });
 
             await ThreadSwitcher.ResumeForegroundAsync();
 
@@ -834,7 +833,7 @@ namespace PointlessWaymarks.CmsContentEditor
             if (fileList.Contains(UserSettingsUtilities.SettingsFileName))
                 fileList.Remove(UserSettingsUtilities.SettingsFileName);
 
-            fileList = new List<string> {UserSettingsUtilities.SettingsFileName}.Concat(fileList).ToList();
+            fileList = new List<string> { UserSettingsUtilities.SettingsFileName }.Concat(fileList).ToList();
 
             if (fileList.Count > 10)
                 fileList = fileList.Take(10).ToList();

@@ -12,6 +12,11 @@
     <Geometry x:Key="IconDataError">M13 13H11V7H13M11 15H13V17H11M15.73 3H8.27L3 8.27V15.73L8.27 21H15.73L21 15.73V8.27L15.73 3Z</Geometry>
     <Geometry x:Key="IconDataDownArrow">M11,4H13V16L18.5,10.5L19.92,11.92L12,19.84L4.08,11.92L5.5,10.5L11,16V4Z</Geometry>
     <Geometry x:Key="IconDataUpArrow">M13,20H11V8L5.5,13.5L4.08,12.08L12,4.16L19.92,12.08L18.5,13.5L13,8V20Z</Geometry>
+    <Geometry x:Key="IconDataArrowLeftCircle">M2,12A10,10 0 0,1 12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22A10,10 0 0,1 2,12M18,11H10L13.5,7.5L12.08,6.08L6.16,12L12.08,17.92L13.5,16.5L10,13H18V11Z</Geometry>
+    <Geometry x:Key="IconDataArrowRightCircle">M22,12A10,10 0 0,1 12,22A10,10 0 0,1 2,12A10,10 0 0,1 12,2A10,10 0 0,1 22,12M6,13H14L10.5,16.5L11.92,17.92L17.84,12L11.92,6.08L10.5,7.5L14,11H6V13Z</Geometry>
+    <Geometry x:Key="IconDataHomeCircle">M19.07,4.93C17.22,3 14.66,1.96 12,2C9.34,1.96 6.79,3 4.94,4.93C3,6.78 1.96,9.34 2,12C1.96,14.66 3,17.21 4.93,19.06C6.78,21 9.34,22.04 12,22C14.66,22.04 17.21,21 19.06,19.07C21,17.22 22.04,14.66 22,12C22.04,9.34 21,6.78 19.07,4.93M17,12V18H13.5V13H10.5V18H7V12H5L12,5L19.5,12H17Z</Geometry>
+    <Geometry x:Key="IconRefreshCircle">M12 2A10 10 0 1 0 22 12A10 10 0 0 0 12 2M18 11H13L14.81 9.19A3.94 3.94 0 0 0 12 8A4 4 0 1 0 15.86 13H17.91A6 6 0 1 1 12 6A5.91 5.91 0 0 1 16.22 7.78L18 6Z</Geometry>
+
     <system:Double x:Key="SmallIconSize">16</system:Double>
     <!--
         InfoIconData - Google - https://materialdesignicons.com/icon/information-outline
@@ -22,5 +27,9 @@
         CameraOutline - Google - https://materialdesignicons.com/icon/camera-outline
         DownArrow - Austin Andrews - https://materialdesignicons.com/icon/arrow-down
         UpArrow - Austin Andrews - https://materialdesignicons.com/icon/arrow-up
+        ArrowLeftCircle - Austin Andrews - https://materialdesignicons.com/icon/arrow-left-circle
+        ArrowRightCircle - Austin Andrews - https://materialdesignicons.com/icon/arrow-right-circle
+        HomeCircle - Austin Andrews - https://materialdesignicons.com/icon/home-circle
+        RefreshCircle - François Risoud - https://materialdesignicons.com/icon/refresh-circle
     -->
 </ResourceDictionary>

@@ -2,7 +2,6 @@
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
-using System.Windows.Forms.VisualStyles;
 using JetBrains.Annotations;
 using PointlessWaymarks.CmsWpfControls.ContentList;
 using PointlessWaymarks.CmsWpfControls.SitePreview;
@@ -17,8 +16,8 @@ namespace PointlessWaymarks.CmsWpfControls.AllContentList
     public class AllItemsWithActionsContext : INotifyPropertyChanged
     {
         private ContentListContext _listContext;
-        private Command _wordPressImportWindowCommand;
         private Command _showSiteBrowserWindowCommand;
+        private Command _wordPressImportWindowCommand;
 
         public AllItemsWithActionsContext(StatusControlContext statusContext)
         {
@@ -38,6 +37,17 @@ namespace PointlessWaymarks.CmsWpfControls.AllContentList
             }
         }
 
+        public Command ShowSiteBrowserWindowCommand
+        {
+            get => _showSiteBrowserWindowCommand;
+            set
+            {
+                if (Equals(value, _showSiteBrowserWindowCommand)) return;
+                _showSiteBrowserWindowCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
         public StatusControlContext StatusContext { get; set; }
 
         public Command WordPressImportWindowCommand
@@ -53,16 +63,6 @@ namespace PointlessWaymarks.CmsWpfControls.AllContentList
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        private async Task ShowSiteBrowserWindow()
-        {
-
-            await ThreadSwitcher.ResumeForegroundAsync();
-
-            var sitePreviewWindow = new SitePreviewWindow();
-
-            sitePreviewWindow.Show();
-        }
-
         public async Task LoadData()
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
@@ -74,37 +74,35 @@ namespace PointlessWaymarks.CmsWpfControls.AllContentList
 
             ListContext.ContextMenuItems = new List<ContextMenuItemData>
             {
-                new() {ItemName = "Edit", ItemCommand = ListContext.EditSelectedCommand},
+                new() { ItemName = "Edit", ItemCommand = ListContext.EditSelectedCommand },
                 new()
                 {
                     ItemName = "Code to Clipboard", ItemCommand = ListContext.BracketCodeToClipboardSelectedCommand
                 },
                 new()
-                    {ItemName = "Extract New Links", ItemCommand = ListContext.ExtractNewLinksSelectedCommand},
-                new() {ItemName = "Open URL", ItemCommand = ListContext.OpenUrlSelectedCommand},
-                new() {ItemName = "Delete", ItemCommand = ListContext.DeleteSelectedCommand},
+                    { ItemName = "Extract New Links", ItemCommand = ListContext.ExtractNewLinksSelectedCommand },
+                new() { ItemName = "Open URL", ItemCommand = ListContext.OpenUrlSelectedCommand },
+                new() { ItemName = "Delete", ItemCommand = ListContext.DeleteSelectedCommand },
                 new()
-                    {ItemName = "View History", ItemCommand = ListContext.ViewHistorySelectedCommand}
+                    { ItemName = "View History", ItemCommand = ListContext.ViewHistorySelectedCommand }
             };
 
             await ListContext.LoadData();
-        }
-
-        public Command ShowSiteBrowserWindowCommand
-        {
-            get => _showSiteBrowserWindowCommand;
-            set
-            {
-                if (Equals(value, _showSiteBrowserWindowCommand)) return;
-                _showSiteBrowserWindowCommand = value;
-                OnPropertyChanged();
-            }
         }
 
         [NotifyPropertyChangedInvocator]
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        private async Task ShowSiteBrowserWindow()
+        {
+            await ThreadSwitcher.ResumeForegroundAsync();
+
+            var sitePreviewWindow = new SitePreviewWindow();
+
+            sitePreviewWindow.Show();
         }
 
         private async Task WordPressImportWindow()
