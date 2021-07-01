@@ -49,7 +49,7 @@
                 <MenuItem Command="{Binding WordPressImportWindowCommand}" Header="WordPress XML Import Helper" />
             </MenuItem>
             <MenuItem Header="Preview">
-                <MenuItem Command="{Binding ShowSiteBrowserWindowCommand}" Header="Site Preview Window" />
+                <MenuItem Command="{Binding ShowSiteBrowserWindowCommand}" Header="Preview Site from Disk" />
             </MenuItem>
         </Menu>
         <contentList:ContentListControl

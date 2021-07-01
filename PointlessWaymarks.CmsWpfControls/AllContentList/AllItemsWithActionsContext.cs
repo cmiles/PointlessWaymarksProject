@@ -100,7 +100,7 @@ namespace PointlessWaymarks.CmsWpfControls.AllContentList
         {
             await ThreadSwitcher.ResumeForegroundAsync();
 
-            var sitePreviewWindow = new SitePreviewWindow();
+            var sitePreviewWindow = new SiteOnDiskPreviewWindow();
 
             sitePreviewWindow.Show();
         }

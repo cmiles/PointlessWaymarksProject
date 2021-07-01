@@ -16,20 +16,19 @@ using PointlessWaymarks.WpfCommon.Utility;
 namespace PointlessWaymarks.CmsWpfControls.SitePreview
 {
     /// <summary>
-    ///     Interaction logic for SitePreviewWindow.xaml
+    ///     Interaction logic for SiteOnDiskPreviewWindow.xaml
     /// </summary>
-    public partial class SitePreviewWindow : INotifyPropertyChanged
+    public partial class SiteOnDiskPreviewWindow : INotifyPropertyChanged
     {
         private string _currentAddress;
         private string _initialPage;
         private string _localSiteUrl;
         private string _sourceUrl;
         private string _textBarAddress;
-        private string _url;
         private string _localSiteFolder;
         private string _windowTitle;
 
-        public SitePreviewWindow()
+        public SiteOnDiskPreviewWindow()
         {
             InitializeComponent();
 
@@ -176,12 +175,14 @@ namespace PointlessWaymarks.CmsWpfControls.SitePreview
             if (string.IsNullOrEmpty(e.Uri))
             {
                 e.Cancel = true;
+                StatusContext.ToastError("Blank URL for navigation?");
                 return;
             }
 
             if (!e.Uri.ToLower().StartsWith("http"))
             {
                 e.Cancel = true;
+                StatusContext.ToastError("This window only supports http and https (no ftp, no searches, ...");
                 return;
             }
 
@@ -193,6 +194,7 @@ namespace PointlessWaymarks.CmsWpfControls.SitePreview
             catch (Exception exception)
             {
                 e.Cancel = true;
+                StatusContext.ToastError($"Trouble parsing {e.Uri}? {exception.Message}");
                 return;
             }
 
@@ -200,6 +202,7 @@ namespace PointlessWaymarks.CmsWpfControls.SitePreview
             {
                 e.Cancel = true;
                 ProcessHelpers.OpenUrlInExternalBrowser(e.Uri);
+                StatusContext.ToastError($"Sending external link {e.Uri} to the default browser.");
                 TextBarAddress = CurrentAddress;
                 return;
             }

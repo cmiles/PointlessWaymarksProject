@@ -318,6 +318,6 @@
         <Border Grid.Row="1" Style="{StaticResource ActionPanelBorderStyle}">
             <Button Command="{Binding SaveSettingsCommand}" Style="{StaticResource ActionPanelUnlimitedWidthButtonStyle}">Save</Button>
         </Border>
-            <status:StatusControl d:IsHidden="true" Grid.RowSpan="2" DataContext="{Binding StatusContext}" />
+        <status:StatusControl d:IsHidden="true" Grid.Row="0" Grid.RowSpan="2" DataContext="{Binding StatusContext}" />
     </Grid>
 </UserControl>

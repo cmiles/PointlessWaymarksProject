@@ -1,4 +1,4 @@
-﻿<Window x:Class="PointlessWaymarks.CmsWpfControls.SitePreview.SitePreviewWindow"
+﻿<Window x:Class="PointlessWaymarks.CmsWpfControls.SitePreview.SiteOnDiskPreviewWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -6,9 +6,10 @@
         xmlns:local="clr-namespace:PointlessWaymarks.CmsWpfControls.SitePreview"
         xmlns:wpf="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
         xmlns:wpf1="clr-namespace:Markdig.Wpf;assembly=Markdig.Wpf"
+        xmlns:status="clr-namespace:PointlessWaymarks.WpfCommon.Status;assembly=PointlessWaymarks.WpfCommon"
         mc:Ignorable="d"
         Title="{Binding WindowTitle}" Height="700" Width="900"
-        d:DataContext="{d:DesignInstance local:SitePreviewWindow}">
+        d:DataContext="{d:DesignInstance local:SiteOnDiskPreviewWindow}">
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -86,5 +87,6 @@
             <wpf:WebView2 Margin="4" x:Name="SitePreviewWebView" Source="{Binding SourceUrl}"
                           NavigationStarting="SitePreviewWebView_OnNavigationStarting" />
         </Border>
+        <status:StatusControl d:IsHidden="true" Grid.Row="0" Grid.RowSpan="2" DataContext="{Binding StatusContext}" />
     </Grid>
 </Window>
