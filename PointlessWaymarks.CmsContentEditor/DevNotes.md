@@ -25,6 +25,10 @@ Site:
 
 ## Notes
 
+7/12/2021
+
+Early in preview .NET 5 I hadn't had any luck with single file publishing - but in playing with a small sample project I realized that this project was a few settings away from a single file deploy. There is some additional testing needed to make sure that resource file extraction and maybe some other details work as expected but in addition to a nice single file package the vision here is that on publishing HTML the exe for this project and the exe for an imagined single file folder preview program would be copied to the root of the site for durability and ease of use.
+
 6/29/2021
 
 With posts conversions for Hikelemmon back into 2014 I started doing some Trailhead work as Points Content - this has already made the Points better with some corrections regarding some feet/meter elevation confusion and small page tweaks - seeing the output today will obviously lead to more work.
