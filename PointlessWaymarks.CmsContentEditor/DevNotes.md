@@ -27,7 +27,7 @@ Site:
 
 7/12/2021
 
-Early in preview .NET 5 I hadn't had any luck with single file publishing - but in playing with a small sample project I realized that this project was a few settings away from a single file deploy. There is some additional testing needed to make sure that resource file extraction and maybe some other details work as expected but in addition to a nice single file package the vision here is that on publishing HTML the exe for this project and the exe for an imagined single file folder preview program would be copied to the root of the site for durability and ease of use.
+Early in preview .NET 5 I hadn't had any luck with single file publishing - but in playing with a small sample project I realized that this project was a few settings away from a single file deploy. There is some additional testing needed to make sure that resource file extraction and maybe some other details work as expected but in addition to a nice single file package the vision here is that on publishing HTML the exe for this project and the exe for an imagined single file folder preview program would be copied to the root of the site for durability and ease of use.x
 
 6/29/2021
 

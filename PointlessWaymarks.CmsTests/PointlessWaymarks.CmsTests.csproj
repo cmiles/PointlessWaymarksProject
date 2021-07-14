@@ -2,8 +2,8 @@
 
   <PropertyGroup>
     <TargetFramework>net5.0-windows10.0.17763.0</TargetFramework>
+    <Platforms>x64</Platforms>
     <IsPackable>false</IsPackable>
-    <Platforms>AnyCPU;x64;x86</Platforms>
     <LangVersion>9.0</LangVersion>
   </PropertyGroup>
 

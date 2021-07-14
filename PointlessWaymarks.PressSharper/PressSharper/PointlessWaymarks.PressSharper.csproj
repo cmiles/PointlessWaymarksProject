@@ -1,6 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
+    <Platforms>x64</Platforms>
     <AssemblyTitle>PressSharper</AssemblyTitle>
     <Company>Brandon Wood</Company>
     <Product>PressSharper</Product>
