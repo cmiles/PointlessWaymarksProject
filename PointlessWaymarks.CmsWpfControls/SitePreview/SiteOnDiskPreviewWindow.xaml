@@ -8,85 +8,10 @@
         xmlns:wpf1="clr-namespace:Markdig.Wpf;assembly=Markdig.Wpf"
         xmlns:status="clr-namespace:PointlessWaymarks.WpfCommon.Status;assembly=PointlessWaymarks.WpfCommon"
         mc:Ignorable="d"
-        Title="{Binding WindowTitle}" Height="700" Width="900"
+        Title="{Binding PreviewContext.WindowTitle}" Height="700" Width="900"
         d:DataContext="{d:DesignInstance local:SiteOnDiskPreviewWindow}">
-    <Window.Resources>
-        <ResourceDictionary>
-            <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="../WpfControlsResourceDictionary.xaml" />
-                <ResourceDictionary Source="/PointlessWaymarks.WpfCommon;component/Utility/Icons.xaml" />
-            </ResourceDictionary.MergedDictionaries>
-            <Style TargetType="{x:Type FlowDocument}" x:Key="{x:Static wpf1:Styles.DocumentStyleKey}">
-                <Setter Property="FontFamily" Value="Calibri" />
-                <Setter Property="TextAlignment" Value="Left" />
-                <Setter Property="FontSize" Value="14" />
-            </Style>
-        </ResourceDictionary>
-    </Window.Resources>
     <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="*" />
-        </Grid.RowDefinitions>
-        <Border Style="{StaticResource ActionPanelBorderStyle}">
-            <Grid Margin="4">
-                <Grid.Resources>
-                    <Style TargetType="Button">
-                        <Setter Property="Height" Value="30" />
-                        <Setter Property="Width" Value="30" />
-                    </Style>
-                    <Style TargetType="Path">
-                        <Setter Property="VerticalAlignment" Value="Center" />
-                        <Setter Property="HorizontalAlignment" Value="Center" />
-                        <Setter Property="Margin" Value="-2,-2,0,0" />
-                        <Setter Property="Fill" Value="Green" />
-                    </Style>
-                    <Style TargetType="Viewbox">
-                        <Setter Property="VerticalAlignment" Value="Center" />
-                        <Setter Property="HorizontalAlignment" Value="Center" />
-                        <Setter Property="Stretch" Value="Uniform" />
-                        <Setter Property="StretchDirection" Value="Both" />
-                    </Style>
-                </Grid.Resources>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="*" />
-                </Grid.ColumnDefinitions>
-                <Button Command="{Binding TryGoBackNavigationCommand}">
-                    <Viewbox>
-                        <Path Data="{StaticResource IconDataArrowLeftCircle}" />
-                    </Viewbox>
-                </Button>
-                <Button Grid.Column="1" Command="{Binding TryGoForwardNavigationCommand}">
-                    <Viewbox>
-                        <Path Data="{StaticResource IconDataArrowRightCircle}" />
-                    </Viewbox>
-                </Button>
-                <Button Grid.Column="2" Command="{Binding TryRefreshCommand}">
-                    <Viewbox>
-                        <Path Data="{StaticResource IconRefreshCircle}" />
-                    </Viewbox>
-                </Button>
-                <Button Grid.Column="3" Command="{Binding TryNavigateHomeCommand}">
-                    <Viewbox>
-                        <Path Data="{StaticResource IconDataHomeCircle}" />
-                    </Viewbox>
-                </Button>
-                <TextBox Margin="4,0,0,0" Grid.Column="4" VerticalContentAlignment="Center" FontSize="15"
-                         Text="{Binding TextBarAddress}">
-                    <TextBox.InputBindings>
-                        <KeyBinding Key="Return" Command="{Binding TryUserNavigationCommand}" />
-                    </TextBox.InputBindings>
-                </TextBox>
-            </Grid>
-        </Border>
-        <Border Style="{StaticResource ActionPanelBorderStyle}" Grid.Row="1">
-            <wpf:WebView2 Margin="4" x:Name="SitePreviewWebView" Source="{Binding SourceUrl}"
-                          NavigationStarting="SitePreviewWebView_OnNavigationStarting" />
-        </Border>
-        <status:StatusControl d:IsHidden="true" Grid.Row="0" Grid.RowSpan="2" DataContext="{Binding StatusContext}" />
+        <local:SitePreviewControl DataContext="{Binding PreviewContext}"></local:SitePreviewControl>
+        <status:StatusControl d:IsHidden="true" Grid.Row="0" DataContext="{Binding StatusContext}" />
     </Grid>
 </Window>

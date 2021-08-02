@@ -1,20 +1,45 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Data;
+using System.Windows.Documents;
+using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using System.Windows.Navigation;
+using System.Windows.Shapes;
 using JetBrains.Annotations;
+using Microsoft.AspNetCore.Diagnostics;
 using PointlessWaymarks.CmsData;
+using PointlessWaymarks.CmsWpfControls.SitePreview;
 using PointlessWaymarks.WpfCommon.Status;
 
-namespace PointlessWaymarks.CmsWpfControls.SitePreview
+namespace PointlessWaymarks.LocalViewer
 {
     /// <summary>
-    ///     Interaction logic for SiteOnDiskPreviewWindow.xaml
+    /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class SiteOnDiskPreviewWindow : INotifyPropertyChanged
+    public partial class MainWindow : INotifyPropertyChanged
     {
         private StatusControlContext _statusContext;
         private SitePreviewContext _previewContext;
 
-        public SiteOnDiskPreviewWindow()
+        public MainWindow()
+        {
+            InitializeComponent();
+
+            StatusContext = new StatusControlContext();
+
+            DataContext = this;
+        }
+
+        public MainWindow(string siteUrl, string localFolder, string siteName)
         {
             InitializeComponent();
 
@@ -22,9 +47,9 @@ namespace PointlessWaymarks.CmsWpfControls.SitePreview
 
             DataContext = this;
 
-            PreviewContext = new SitePreviewContext(UserSettingsSingleton.CurrentSettings().SiteUrl,
-                UserSettingsSingleton.CurrentSettings().LocalSiteRootDirectory,
-                UserSettingsSingleton.CurrentSettings().SiteName, StatusContext);
+            PreviewContext = new SitePreviewContext(siteUrl,
+                localFolder,
+                siteName, StatusContext);
         }
 
         public SitePreviewContext PreviewContext

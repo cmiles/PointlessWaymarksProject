@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "PointlessWaymarks.LocalViewer": {
+      "commandName": "Project",
+      "commandLineArgs": "-f D:\\PointlessWaymarks\\GeneratedSite -s PointlessWaymarks -u pointlesswaymarks.com"
+    }
+  }
+}
