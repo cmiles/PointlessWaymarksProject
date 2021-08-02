@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -46,6 +48,49 @@ namespace PointlessWaymarks.LocalViewer
             StatusContext = new StatusControlContext();
 
             DataContext = this;
+
+            if (string.IsNullOrWhiteSpace(localFolder)) localFolder = Environment.CurrentDirectory;
+
+            if (string.IsNullOrWhiteSpace(siteUrl) || string.IsNullOrWhiteSpace(siteName))
+            {
+                var possibleFile = Directory.EnumerateDirectories(Environment.CurrentDirectory, "index.htm*")
+                    .OrderBy(x => x.Length).FirstOrDefault();
+
+                if (!string.IsNullOrWhiteSpace(possibleFile))
+                {
+                    var urlFound = !string.IsNullOrWhiteSpace(siteUrl);
+                    var siteNameFound = !string.IsNullOrWhiteSpace(siteName);
+
+                    foreach (var loopLine in File.ReadLines(possibleFile))
+                    {
+                        if (!urlFound)
+                        {
+                            var urlString = Regex.Match(loopLine, "<meta property=\"og:url\" content=\"(?<contentUrl>.*)\">", RegexOptions.IgnoreCase).Groups["contentUrl"].Value;
+
+                            if (!string.IsNullOrWhiteSpace(urlString))
+                            {
+                                urlFound = true;
+                                siteUrl = new Uri(urlString).Host;
+                            }
+                        }
+
+                        if (!siteNameFound)
+                        {
+                            var siteNameString = Regex.Match(loopLine, "<meta property=\"og:site_name\" content=\"(?<contentUrl>.*)\">", RegexOptions.IgnoreCase).Groups["contentUrl"].Value;
+
+                            if (!string.IsNullOrWhiteSpace(siteNameString))
+                            {
+                                siteNameFound = true;
+                                siteName = siteNameString;
+                            }
+                        }
+
+                        if (urlFound && siteNameFound) break;
+
+                        if (loopLine.Contains("</head>", StringComparison.InvariantCultureIgnoreCase)) break;
+                    }
+                }
+            }
 
             PreviewContext = new SitePreviewContext(siteUrl,
                 localFolder,
