@@ -15,6 +15,7 @@ namespace PointlessWaymarks.CmsWpfControls.BoolDataEntry
         private bool _hasChanges;
         private bool _hasValidationIssues;
         private string _helpText;
+        private bool _isEnabled = true;
         private bool _referenceValue;
         private string _title;
         private bool _userValue;
@@ -34,6 +35,17 @@ namespace PointlessWaymarks.CmsWpfControls.BoolDataEntry
             {
                 if (value == _helpText) return;
                 _helpText = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public bool IsEnabled
+        {
+            get => _isEnabled;
+            set
+            {
+                if (value == _isEnabled) return;
+                _isEnabled = value;
                 OnPropertyChanged();
             }
         }
@@ -141,7 +153,7 @@ namespace PointlessWaymarks.CmsWpfControls.BoolDataEntry
 
         public static BoolDataEntryContext CreateInstance()
         {
-            return new();
+            return new BoolDataEntryContext();
         }
 
         public static BoolDataEntryContext CreateInstanceForShowInSearch(IShowInSearch dbEntry, bool defaultSetting)

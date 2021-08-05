@@ -18,5 +18,23 @@ namespace PointlessWaymarks.CmsData.ContentHtml.FileHtml
 
             return downloadLinkContainer;
         }
+
+        public static HtmlTag EmbedFileTag(FileContent content)
+        {
+            if (!content.EmbedFile) return HtmlTag.Empty();
+
+            var embedContainer = new DivTag().AddClass("file-embed-container");
+
+            var settings = UserSettingsSingleton.CurrentSettings();
+
+            if (content.OriginalFileName.TrimNullToEmpty().EndsWith(".pdf"))
+            {
+                var embedTag = new HtmlTag("embed").Attr("src", settings.FileDownloadUrl(content))
+                    .Attr("type", "application/pdf").AddClass("file-embed");
+                embedContainer.Children.Add(embedTag);
+            }
+
+            return embedContainer;
+        }
     }
 }

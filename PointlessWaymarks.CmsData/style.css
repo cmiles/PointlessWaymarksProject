@@ -401,6 +401,16 @@ a.site-header-title-link:active {
     margin: 1rem;
 }
 
+.file-embed-container {
+    text-align: center;
+    margin: 1rem;
+}
+
+.file-embed {
+    width: 100%;
+    height: 80vh;
+}
+
 .related-posts-list-container {
     display: flex;
     justify-content: center;

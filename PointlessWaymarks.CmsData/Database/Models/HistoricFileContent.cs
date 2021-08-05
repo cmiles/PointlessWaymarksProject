@@ -5,6 +5,7 @@ namespace PointlessWaymarks.CmsData.Database.Models
 {
     public class HistoricFileContent : IUpdateNotes, IContentCommon
     {
+        public bool EmbedFile { get; set; }
         public string? OriginalFileName { get; set; }
         public bool PublicDownloadLink { get; set; }
         public string? BodyContent { get; set; }

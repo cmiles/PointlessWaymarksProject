@@ -36,6 +36,7 @@ namespace PointlessWaymarks.CmsWpfControls.FileContentEditor
         private ContentIdViewerControlContext _contentId;
         private CreatedAndUpdatedByAndOnDisplayContext _createdUpdatedDisplay;
         private FileContent _dbEntry;
+        private BoolDataEntryContext _embedFile;
         private Command _extractNewLinksCommand;
         private bool _hasChanges;
         private bool _hasValidationIssues;
@@ -64,7 +65,7 @@ namespace PointlessWaymarks.CmsWpfControls.FileContentEditor
 
         private FileContentEditorContext(StatusControlContext statusContext, FileInfo initialFile = null)
         {
-            if (initialFile is {Exists: true}) _initialFile = initialFile;
+            if (initialFile is { Exists: true }) _initialFile = initialFile;
 
             SetupStatusContextAndCommands(statusContext);
         }
@@ -130,6 +131,17 @@ namespace PointlessWaymarks.CmsWpfControls.FileContentEditor
         }
 
         public Command DownloadLinkToClipboardCommand { get; set; }
+
+        public BoolDataEntryContext EmbedFile
+        {
+            get => _embedFile;
+            set
+            {
+                if (Equals(value, _embedFile)) return;
+                _embedFile = value;
+                OnPropertyChanged();
+            }
+        }
 
         public Command ExtractNewLinksCommand
         {
@@ -472,6 +484,7 @@ Notes:
             newEntry.BodyContentFormat = BodyContent.BodyContentFormat.SelectedContentFormatAsString;
             newEntry.OriginalFileName = SelectedFile.Name;
             newEntry.PublicDownloadLink = PublicDownloadLink.UserValue;
+            newEntry.EmbedFile = PublicDownloadLink.UserValue && EmbedFile.UserValue;
 
             return newEntry;
         }
@@ -535,6 +548,30 @@ Notes:
                 "If checked there will be a hyperlink will on the File Content Page to download the content. NOTE! The File" +
                 "will be copied into the generated HTML for the site regardless of this setting - this setting is only about " +
                 "whether a download link is shown.";
+            PublicDownloadLink.PropertyChanged += (sender, args) =>
+            {
+                if (args.PropertyName == "UserValue" && PublicDownloadLink != null && EmbedFile != null)
+                {
+                    if (PublicDownloadLink.UserValue == false)
+                    {
+                        EmbedFile.UserValue = false;
+                        EmbedFile.IsEnabled = false;
+                    }
+                    else
+                    {
+                        EmbedFile.IsEnabled = true;
+                    }
+                }
+            };
+
+            EmbedFile = BoolDataEntryContext.CreateInstance();
+            EmbedFile.Title = "Embed File in Page";
+            EmbedFile.ReferenceValue = DbEntry.EmbedFile;
+            EmbedFile.UserValue = DbEntry.EmbedFile;
+            EmbedFile.HelpText =
+                "If checked supported file types will be embedded in the the page - in general this means that" +
+                "there will be a viewer/player for the file. This option is only available if 'Show Public" +
+                "Download Link' is checked and not all content types are supported.";
 
             TitleSummarySlugFolder = await TitleSummarySlugEditorContext.CreateInstance(StatusContext, DbEntry);
             ShowInSiteFeed = BoolDataEntryContext.CreateInstanceForShowInSiteFeed(DbEntry, false);
@@ -569,11 +606,11 @@ Notes:
                         $" but it was not found in the expected locations of {archiveFile.FullName} or {contentFile.FullName} - " +
                         "this will cause an error and prevent you from saving. You can re-load the file or " +
                         "maybe your media directory moved unexpectedly and you could close this editor " +
-                        "and restore it (or change it in settings) before continuing?", new List<string> {"OK"});
+                        "and restore it (or change it in settings) before continuing?", new List<string> { "OK" });
                 }
             }
 
-            if (DbEntry.Id < 1 && _initialFile is {Exists: true})
+            if (DbEntry.Id < 1 && _initialFile is { Exists: true })
             {
                 SelectedFile = _initialFile;
                 _initialFile = null;
@@ -597,7 +634,7 @@ Notes:
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            if (SelectedFile is not {Exists: true, Directory: {Exists: true}})
+            if (SelectedFile is not { Exists: true, Directory: { Exists: true } })
             {
                 StatusContext.ToastError("No Selected File or Selected File no longer exists?");
                 return;
@@ -605,7 +642,7 @@ Notes:
 
             await ThreadSwitcher.ResumeForegroundAsync();
 
-            var ps = new ProcessStartInfo(SelectedFile.FullName) {UseShellExecute = true, Verb = "open"};
+            var ps = new ProcessStartInfo(SelectedFile.FullName) { UseShellExecute = true, Verb = "open" };
             Process.Start(ps);
         }
 
@@ -613,7 +650,7 @@ Notes:
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            if (SelectedFile is not {Exists: true, Directory: {Exists: true}})
+            if (SelectedFile is not { Exists: true, Directory: { Exists: true } })
             {
                 StatusContext.ToastWarning("No Selected File or Selected File no longer exists?");
                 return;
@@ -621,13 +658,13 @@ Notes:
 
             await ThreadSwitcher.ResumeForegroundAsync();
 
-            var ps = new ProcessStartInfo(SelectedFile.Directory.FullName) {UseShellExecute = true, Verb = "open"};
+            var ps = new ProcessStartInfo(SelectedFile.Directory.FullName) { UseShellExecute = true, Verb = "open" };
             Process.Start(ps);
         }
 
         private async Task SaveAndExtractImageFromPdf()
         {
-            if (SelectedFile is not {Exists: true} || !SelectedFile.Extension.ToLower().Contains("pdf"))
+            if (SelectedFile is not { Exists: true } || !SelectedFile.Extension.ToLower().Contains("pdf"))
             {
                 StatusContext.ToastError("Please selected a valid pdf file");
                 return;
@@ -663,7 +700,7 @@ Notes:
 
             await LoadData(fileContent);
 
-            await PdfHelpers.PdfPageToImageWithPdfToCairo(StatusContext, new List<FileContent> {DbEntry}, pageNumber);
+            await PdfHelpers.PdfPageToImageWithPdfToCairo(StatusContext, new List<FileContent> { DbEntry }, pageNumber);
         }
 
         public async Task SaveAndGenerateHtml(bool overwriteExistingFiles, bool closeAfterSave)
@@ -744,7 +781,7 @@ Notes:
 
             var url = $@"http://{settings.FilePageUrl(DbEntry)}";
 
-            var ps = new ProcessStartInfo(url) {UseShellExecute = true, Verb = "open"};
+            var ps = new ProcessStartInfo(url) { UseShellExecute = true, Verb = "open" };
             Process.Start(ps);
         }
     }

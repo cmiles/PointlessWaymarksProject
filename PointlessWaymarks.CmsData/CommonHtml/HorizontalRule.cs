@@ -1,4 +1,5 @@
-﻿using HtmlTags;
+﻿using System.Linq;
+using HtmlTags;
 
 namespace PointlessWaymarks.CmsData.CommonHtml
 {
@@ -7,6 +8,14 @@ namespace PointlessWaymarks.CmsData.CommonHtml
         public static HtmlTag StandardRule()
         {
             return new HtmlTag("hr").AddClass("standard-rule");
+        }
+
+        public static HtmlTag StandardRuleIfAnyNotEmptyTags(params HtmlTag[] values)
+        {
+            if (!values.Any()) return HtmlTag.Empty();
+            return values.All(x => string.IsNullOrWhiteSpace(x.ToString()))
+                ? HtmlTag.Empty()
+                : new HtmlTag("hr").AddClass("standard-rule");
         }
 
         public static HtmlTag StandardRuleIfNotEmptyTag(HtmlTag tag)

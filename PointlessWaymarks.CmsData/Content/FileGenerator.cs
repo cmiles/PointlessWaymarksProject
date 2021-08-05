@@ -18,7 +18,7 @@ namespace PointlessWaymarks.CmsData.Content
         {
             progress?.Report($"File Content - Generate HTML for {toGenerate.Title}");
 
-            var htmlContext = new SingleFilePage(toGenerate) {GenerationVersion = generationVersion};
+            var htmlContext = new SingleFilePage(toGenerate) { GenerationVersion = generationVersion };
 
             await htmlContext.WriteLocalHtml().ConfigureAwait(false);
         }
@@ -43,7 +43,7 @@ namespace PointlessWaymarks.CmsData.Content
             await Export.WriteLocalDbJson(toSave, progress).ConfigureAwait(false);
 
             DataNotifications.PublishDataNotification("File Generator", DataNotificationContentType.File,
-                DataNotificationUpdateType.LocalContent, new List<Guid> {toSave.ContentId});
+                DataNotificationUpdateType.LocalContent, new List<Guid> { toSave.ContentId });
 
             return (GenerationReturn.Success($"Saved and Generated Content And Html for {toSave.Title}"), toSave);
         }
@@ -67,7 +67,8 @@ namespace PointlessWaymarks.CmsData.Content
                 return GenerationReturn.Error($"Problem with Media Archive: {mediaArchiveCheck.Explanation}",
                     fileContent.ContentId);
 
-            var (valid, explanation) = await CommonContentValidation.ValidateContentCommon(fileContent).ConfigureAwait(false);
+            var (valid, explanation) =
+                await CommonContentValidation.ValidateContentCommon(fileContent).ConfigureAwait(false);
             if (!valid)
                 return GenerationReturn.Error(explanation, fileContent.ContentId);
 
@@ -83,7 +84,8 @@ namespace PointlessWaymarks.CmsData.Content
             if (!FolderFileUtility.IsNoUrlEncodingNeeded(Path.GetFileNameWithoutExtension(selectedFile.Name)))
                 return GenerationReturn.Error("Limit File Names to A-Z a-z - . _", fileContent.ContentId);
 
-            if (await (await Db.Context().ConfigureAwait(false)).FileFilenameExistsInDatabase(selectedFile.Name, fileContent.ContentId).ConfigureAwait(false))
+            if (await (await Db.Context().ConfigureAwait(false))
+                .FileFilenameExistsInDatabase(selectedFile.Name, fileContent.ContentId).ConfigureAwait(false))
                 return GenerationReturn.Error(
                     "This filename already exists in the database - file names must be unique.", fileContent.ContentId);
 

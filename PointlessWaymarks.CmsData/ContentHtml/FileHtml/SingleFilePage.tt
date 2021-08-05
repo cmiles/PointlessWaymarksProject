@@ -53,8 +53,9 @@
                     Tags.PostBodyDiv(DbEntry).Result.ToString() #>
     <#= HorizontalRule.StandardRule() #>
     <#= FileParts.DownloadLinkTag(DbEntry) #>
+    <#= FileParts.EmbedFileTag(DbEntry) #>
     <#=
-                HorizontalRule.StandardRuleIfNotEmptyTag(FileParts.DownloadLinkTag(DbEntry)) #>
+                HorizontalRule.StandardRuleIfAnyNotEmptyTags(FileParts.DownloadLinkTag(DbEntry), FileParts.EmbedFileTag(DbEntry)) #>
     <div class="information-section">
         <#= Tags.TagList(DbEntry).ToString() #>
         <#=

@@ -108,6 +108,7 @@
                                 </Grid>
                             </StackPanel>
                             <boolDataEntry1:BoolDataEntryControl DataContext="{Binding PublicDownloadLink}" />
+                            <boolDataEntry1:BoolDataEntryControl DataContext="{Binding EmbedFile}" />
                             <titleSummarySlugFolderEditor:TitleSummarySlugEditorControl Margin="0,4,0,0" DataContext="{Binding TitleSummarySlugFolder}" />
                             <boolDataEntry1:BoolDataEntryControl DataContext="{Binding ShowInSiteFeed}" Style="{StaticResource DataEntryBoolStyle}" />
                             <tagsEditor:TagsEditorControl DataContext="{Binding TagEdit}" Style="{StaticResource TagsEditorInPanelStyle}" />
