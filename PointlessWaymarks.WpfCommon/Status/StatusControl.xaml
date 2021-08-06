@@ -19,7 +19,16 @@
             <BooleanToVisibilityConverter x:Key="BoolTrueVisibleFalseCollapsed" />
         </ResourceDictionary>
     </UserControl.Resources>
-    <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+    <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" x:Name="MainGrid">
+        <Grid.Style>
+            <Style TargetType="Grid">
+                <Style.Triggers>
+                    <DataTrigger Binding="{Binding ElementName=MainGrid, Path=IsVisible}" Value="True">
+                        <Setter Property="FocusManager.FocusedElement" Value="{Binding ElementName=StatusLogListBox}" />
+                    </DataTrigger>
+                </Style.Triggers>
+            </Style>
+        </Grid.Style>
         <Rectangle
             Grid.Column="0"
             HorizontalAlignment="Stretch"
@@ -37,6 +46,7 @@
             Visibility="{Binding BlockUi, Converter={StaticResource BoolTrueVisibleFalseCollapsed}}">
             <ListBox
                 Margin="24"
+                x:Name="StatusLogListBox"
                 HorizontalAlignment="Stretch"
                 VerticalAlignment="Center"
                 BorderThickness="0"
@@ -58,7 +68,18 @@
                 </ListBox.ItemTemplate>
             </ListBox>
         </Border>
-        <Grid Grid.Column="0" Visibility="{Binding StringEntryVisible, Converter={StaticResource BoolTrueVisibleFalseCollapsed}}">
+        <Grid x:Name="TextBoxGrid" Grid.Column="0"
+              Visibility="{Binding StringEntryVisible, Converter={StaticResource BoolTrueVisibleFalseCollapsed}}">
+            <Grid.Style>
+                <Style TargetType="Grid">
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding ElementName=TextBoxGrid, Path=IsVisible}" Value="True">
+                            <Setter Property="FocusManager.FocusedElement"
+                                    Value="{Binding ElementName=UserTextTextBox}" />
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Grid.Style>
             <Border Background="White" CornerRadius="8">
                 <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
                     <Grid.RowDefinitions>
@@ -83,6 +104,7 @@
                         Text="{Binding StringEntryMessage}"
                         TextWrapping="Wrap" />
                     <TextBox
+                        x:Name="UserTextTextBox"
                         Grid.Row="2"
                         MaxWidth="800"
                         Margin="4,12"
@@ -129,7 +151,8 @@
             </ListBox.ItemsPanel>
         </ListBox>
 
-        <Grid Grid.Column="0" Visibility="{Binding MessageBoxVisible, Converter={StaticResource BoolTrueVisibleFalseCollapsed}}">
+        <Grid Grid.Column="0"
+              Visibility="{Binding MessageBoxVisible, Converter={StaticResource BoolTrueVisibleFalseCollapsed}}">
             <Border Background="White" CornerRadius="8">
                 <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
                     <Grid.RowDefinitions>
@@ -158,11 +181,23 @@
                         VerticalScrollBarVisibility="Auto" />
                     <ItemsControl Grid.Row="2" ItemsSource="{Binding MessageBoxButtonList}">
                         <ItemsControl.ItemTemplate>
-                            <DataTemplate>
+                            <DataTemplate DataType="status:StatusControlMessageButton">
                                 <Button
                                     Command="{Binding DataContext.UserMessageBoxResponseCommand, ElementName=StatusControlXaml}"
-                                    CommandParameter="{Binding .}"
-                                    Content="{Binding .}" />
+                                    CommandParameter="{Binding MessageText}"
+                                    Content="{Binding MessageText}">
+                                    <Button.Style>
+                                        <Style>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsDefault}" Value="True">
+                                                    <Setter Property="FocusManager.FocusedElement"
+                                                            Value="{Binding RelativeSource={RelativeSource Self}}" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Button.Style>
+
+                                </Button>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>

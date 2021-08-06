@@ -601,12 +601,12 @@ Notes:
                 }
                 else
                 {
-                    await StatusContext.ShowMessage("Missing File",
+                    await StatusContext.ShowMessageWithOkButton("Missing File",
                         $"There is an original file listed for this entry - {DbEntry.OriginalFileName} -" +
                         $" but it was not found in the expected locations of {archiveFile.FullName} or {contentFile.FullName} - " +
                         "this will cause an error and prevent you from saving. You can re-load the file or " +
                         "maybe your media directory moved unexpectedly and you could close this editor " +
-                        "and restore it (or change it in settings) before continuing?", new List<string> { "OK" });
+                        "and restore it (or change it in settings) before continuing?");
                 }
             }
 

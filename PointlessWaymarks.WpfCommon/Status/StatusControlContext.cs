@@ -24,7 +24,7 @@ namespace PointlessWaymarks.WpfCommon.Status
         private int _countOfRunningNonBlockingTasks;
 
         private CancellationTokenSource _currentFullScreenCancellationSource;
-        private List<string> _messageBoxButtonList;
+        private List<StatusControlMessageButton> _messageBoxButtonList;
         private string _messageBoxMessage;
         private string _messageBoxTitle;
         private bool _messageBoxVisible;
@@ -76,7 +76,7 @@ namespace PointlessWaymarks.WpfCommon.Status
 
         public Dispatcher ContextDispatcher { get; set; }
 
-        public List<string> MessageBoxButtonList
+        public List<StatusControlMessageButton> MessageBoxButtonList
         {
             get => _messageBoxButtonList;
             set
@@ -242,7 +242,7 @@ namespace PointlessWaymarks.WpfCommon.Status
             if (obj.IsFaulted)
             {
                 ToastError($"Error: {obj.Exception?.Message}");
-                Task.Run(() => Log.Error(obj.Exception, "BlockTaskCompleted Exception - Status Context Id: {10}",
+                Task.Run(() => Log.Error(obj.Exception, "BlockTaskCompleted Exception - Status Context Id: {ContextId}",
                     StatusControlContextId));
             }
         }
@@ -271,7 +271,7 @@ namespace PointlessWaymarks.WpfCommon.Status
             if (obj.IsFaulted)
             {
                 ToastError($"Error: {obj.Exception?.Message}");
-                Task.Run(() => Log.Error(obj.Exception, "BlockTaskCompleted Exception - Status Context Id: {10}",
+                Task.Run(() => Log.Error(obj.Exception, "BlockTaskCompleted Exception - Status Context Id: {ContextId}",
                     StatusControlContextId));
             }
         }
@@ -296,14 +296,13 @@ namespace PointlessWaymarks.WpfCommon.Status
 
             if (obj.IsFaulted)
             {
-                await ShowMessage("Error", obj.Exception?.ToString() ?? "Error with no information?!?!",
-                    new List<string> {"Ok"});
+                await ShowMessageWithOkButton("Error", obj.Exception?.ToString() ?? "Error with no information?!?!");
 
 #pragma warning disable 4014
                 // Intended intended as Fire and Forget
                 Task.Run(() => Log.Error(obj.Exception,
 #pragma warning restore 4014
-                    "FireAndForgetBlockingTaskWithUiMessageReturnCompleted Exception - Status Context Id: {10}",
+                    "FireAndForgetBlockingTaskWithUiMessageReturnCompleted Exception - Status Context Id: {ContextId}",
                     StatusControlContextId));
             }
         }
@@ -319,7 +318,7 @@ namespace PointlessWaymarks.WpfCommon.Status
                 ToastError($"Error: {obj.Exception?.Message}");
 
                 Task.Run(() => Log.Error(obj.Exception,
-                    "FireAndForgetTaskWithToastErrorReturnCompleted Exception - Status Context Id: {10}",
+                    "FireAndForgetTaskWithToastErrorReturnCompleted Exception - Status Context Id: {ContextId}",
                     StatusControlContextId));
             }
         }
@@ -351,7 +350,8 @@ namespace PointlessWaymarks.WpfCommon.Status
             {
                 ToastError($"Error: {obj.Exception?.Message}");
 
-                Task.Run(() => Log.Error(obj.Exception, "NonBlockTaskCompleted Exception - Status Context Id: {10}",
+                Task.Run(() => Log.Error(obj.Exception,
+                    "NonBlockTaskCompleted Exception - Status Context Id: {ContextId}",
                     StatusControlContextId));
             }
         }
@@ -398,7 +398,7 @@ namespace PointlessWaymarks.WpfCommon.Status
 
         public Command RunBlockingActionCommand(Action toRun)
         {
-            return new(() => RunBlockingAction(toRun));
+            return new Command(() => RunBlockingAction(toRun));
         }
 
         public void RunBlockingTask(Func<Task> toRun)
@@ -415,12 +415,12 @@ namespace PointlessWaymarks.WpfCommon.Status
 
         public Command<T> RunBlockingTaskCommand<T>(Func<T, Task> toRun)
         {
-            return new(x => RunBlockingTask(async () => await toRun(x)));
+            return new Command<T>(x => RunBlockingTask(async () => await toRun(x)));
         }
 
         public Command RunBlockingTaskCommand(Func<Task> toRun)
         {
-            return new(() => RunBlockingTask(toRun));
+            return new Command(() => RunBlockingTask(toRun));
         }
 
         public void RunBlockingTaskWithCancellation(Func<CancellationToken, Task> toRun, string cancelDescription)
@@ -432,7 +432,7 @@ namespace PointlessWaymarks.WpfCommon.Status
             ContextDispatcher?.InvokeAsync(() =>
             {
                 CancellationList.Add(
-                    new UserCancellations {CancelSource = tokenSource, Description = cancelDescription});
+                    new UserCancellations { CancelSource = tokenSource, Description = cancelDescription });
                 ShowCancellations = CancellationList.Any();
             });
 
@@ -444,7 +444,7 @@ namespace PointlessWaymarks.WpfCommon.Status
         public Command RunBlockingTaskWithCancellationCommand(Func<CancellationToken, Task> toRun,
             string cancelDescription)
         {
-            return new(() => RunBlockingTaskWithCancellation(toRun, cancelDescription));
+            return new Command(() => RunBlockingTaskWithCancellation(toRun, cancelDescription));
         }
 
         public void RunFireAndForgetBlockingTaskWithUiMessageReturn(Func<Task> toRun)
@@ -456,11 +456,11 @@ namespace PointlessWaymarks.WpfCommon.Status
             }
             catch (Exception e)
             {
-                ShowMessage("Error", e.ToString(), new List<string> {"Ok"}).Wait();
+                ShowMessageWithOkButton("Error", e.ToString()).Wait();
                 DecrementBlockingTasks();
 
                 Task.Run(() => Log.Error(e,
-                    "RunFireAndForgetBlockingTaskWithUiMessageReturn Exception - Status Context Id: {10}",
+                    "RunFireAndForgetBlockingTaskWithUiMessageReturn Exception - Status Context Id: {ContextId}",
                     StatusControlContextId));
             }
         }
@@ -478,7 +478,7 @@ namespace PointlessWaymarks.WpfCommon.Status
                 ToastError($"Error: {e.Message}");
 
                 Task.Run(() => Log.Error(e,
-                    "RunFireAndForgetTaskWithUiToastErrorReturn Exception - Status Context Id: {10}",
+                    "RunFireAndForgetTaskWithUiToastErrorReturn Exception - Status Context Id: {ContextId}",
                     StatusControlContextId));
             }
         }
@@ -490,7 +490,7 @@ namespace PointlessWaymarks.WpfCommon.Status
 
         public Command RunNonBlockingActionCommand(Action toRun)
         {
-            return new(() => RunNonBlockingAction(toRun));
+            return new Command(() => RunNonBlockingAction(toRun));
         }
 
         public void RunNonBlockingTask(Func<Task> toRun)
@@ -501,17 +501,35 @@ namespace PointlessWaymarks.WpfCommon.Status
 
         public Command<T> RunNonBlockingTaskCommand<T>(Func<T, Task> toRun)
         {
-            return new(x => RunNonBlockingTask(async () => await toRun(x)));
+            return new Command<T>(x => RunNonBlockingTask(async () => await toRun(x)));
         }
 
         public Command RunNonBlockingTaskCommand(Func<Task> toRun)
         {
-            return new(() => RunNonBlockingTask(toRun));
+            return new Command(() => RunNonBlockingTask(toRun));
         }
 
         public async Task<string> ShowMessage(string title, string body, List<string> buttons)
         {
+            if (buttons == null || !buttons.Any()) buttons = new List<string> { "Ok" };
+
+            return await ShowMessage(title, body,
+                buttons.Select(x => new StatusControlMessageButton { MessageText = x }).ToList());
+        }
+
+        public async Task<string> ShowMessage(string title, string body, List<StatusControlMessageButton> buttons)
+        {
             await ThreadSwitcher.ThreadSwitcher.ResumeForegroundAsync();
+
+            if (buttons == null || !buttons.Any())
+                buttons = new List<StatusControlMessageButton>
+                    { new() { IsDefault = true, MessageText = "Ok" } };
+
+            if (buttons.All(x => !x.IsDefault) || buttons.Count(x => x.IsDefault) > 1)
+            {
+                buttons.ForEach(x => x.IsDefault = false);
+                buttons.First().IsDefault = true;
+            }
 
             MessageBoxTitle = title;
             MessageBoxMessage = body;
@@ -546,7 +564,7 @@ namespace PointlessWaymarks.WpfCommon.Status
 
             MessageBoxTitle = string.Empty;
             MessageBoxMessage = string.Empty;
-            MessageBoxButtonList = new List<string>();
+            MessageBoxButtonList = new List<StatusControlMessageButton>();
             ShowMessageResponse = string.Empty;
             MessageBoxVisible = false;
 
@@ -558,7 +576,8 @@ namespace PointlessWaymarks.WpfCommon.Status
 
         public async Task<string> ShowMessageWithOkButton(string title, string body)
         {
-            return await ShowMessage(title, body, new List<string> {"Ok"});
+            return await ShowMessage(title, body,
+                new List<StatusControlMessageButton> { new() { IsDefault = true, MessageText = "Ok" } });
         }
 
         public async Task<(bool, string)> ShowStringEntry(string title, string body, string initialUserString)
@@ -582,7 +601,7 @@ namespace PointlessWaymarks.WpfCommon.Status
                 if (e is not OperationCanceledException) Progress($"ShowStringEntry Exception {e.Message}");
 #pragma warning disable 4014
                 // Intended intended as Fire and Forget
-                Task.Run(() => Log.Error(e, "NonBlockTaskCompleted Exception - Status Context Id: {10}",
+                Task.Run(() => Log.Error(e, "NonBlockTaskCompleted Exception - Status Context Id: {ContextId}",
 #pragma warning restore 4014
                     StatusControlContextId));
             }

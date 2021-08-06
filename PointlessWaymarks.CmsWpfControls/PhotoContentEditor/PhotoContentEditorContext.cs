@@ -744,12 +744,12 @@ Photo Content Notes:
                 }
                 else
                 {
-                    await StatusContext.ShowMessage("Missing Photo",
+                    await StatusContext.ShowMessageWithOkButton("Missing Photo",
                         $"There is an original file listed for this photo - {DbEntry.OriginalFileName} -" +
                         $" but it was not found in the expected location of {archiveFile.FullName} - " +
                         "this will cause an error and prevent you from saving. You can re-load the photo or " +
                         "maybe your media directory moved unexpectedly and you could close this editor " +
-                        "and restore it (or change it in settings) before continuing?", new List<string> { "OK" });
+                        "and restore it (or change it in settings) before continuing?");
                 }
             }
 
