@@ -11,12 +11,18 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    <FrameworkReference Include="Microsoft.NETCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="CommandLineParser" Version="2.8.0" />
     <PackageReference Include="GitInfo" Version="2.1.2">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Jot" Version="2.1.8" />
+    <PackageReference Include="Microsoft.AspNetCore.Server.Kestrel" Version="2.2.0" />
   </ItemGroup>
 
   <ItemGroup>
