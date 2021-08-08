@@ -36,7 +36,7 @@ namespace PointlessWaymarks.CmsWpfControls.TagExclusionEditor
             SaveItemCommand = StatusContext.RunNonBlockingTaskCommand<TagExclusionEditorListItem>(SaveItem);
             DeleteItemCommand = StatusContext.RunNonBlockingTaskCommand<TagExclusionEditorListItem>(DeleteItem);
 
-            StatusContext.RunFireAndForgetBlockingTaskWithUiMessageReturn(LoadData);
+            StatusContext.RunFireAndForgetBlockingTask(LoadData);
         }
 
         public Command AddNewItemCommand { get; set; }

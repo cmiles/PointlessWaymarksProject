@@ -20,7 +20,7 @@ namespace PointlessWaymarks.CmsWpfControls.ImageContentEditor
 
             StatusContext = new StatusControlContext();
 
-            StatusContext.RunFireAndForgetBlockingTaskWithUiMessageReturn(async () =>
+            StatusContext.RunFireAndForgetBlockingTask(async () =>
             {
                 ImageEditor = await ImageContentEditorContext.CreateInstance(StatusContext);
 
@@ -38,7 +38,7 @@ namespace PointlessWaymarks.CmsWpfControls.ImageContentEditor
 
             StatusContext = new StatusControlContext();
 
-            StatusContext.RunFireAndForgetBlockingTaskWithUiMessageReturn(async () =>
+            StatusContext.RunFireAndForgetBlockingTask(async () =>
             {
                 ImageEditor =
                     await ImageContentEditorContext.CreateInstance(StatusContext, contentToLoad, initialImage);

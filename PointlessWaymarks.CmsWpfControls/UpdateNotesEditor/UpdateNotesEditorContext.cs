@@ -80,7 +80,7 @@ namespace PointlessWaymarks.CmsWpfControls.UpdateNotesEditor
                 _updateNotesFormat = value;
                 OnPropertyChanged();
 
-                StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(UpdateUpdateNotesContentHtml);
+                StatusContext.RunFireAndForgetNonBlockingTask(UpdateUpdateNotesContentHtml);
             }
         }
 

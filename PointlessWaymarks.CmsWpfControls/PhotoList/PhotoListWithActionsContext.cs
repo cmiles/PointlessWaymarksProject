@@ -49,7 +49,7 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
         {
             StatusContext = statusContext ?? new StatusControlContext();
 
-            StatusContext.RunFireAndForgetBlockingTaskWithUiMessageReturn(LoadData);
+            StatusContext.RunFireAndForgetBlockingTask(LoadData);
         }
 
         public PhotoListWithActionsContext(StatusControlContext statusContext, IContentListLoader reportFilter)
@@ -60,7 +60,7 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
 
             SetupCommands();
 
-            StatusContext.RunFireAndForgetBlockingTaskWithUiMessageReturn(ListContext.LoadData);
+            StatusContext.RunFireAndForgetBlockingTask(ListContext.LoadData);
         }
 
         public Command EmailHtmlToClipboardCommand

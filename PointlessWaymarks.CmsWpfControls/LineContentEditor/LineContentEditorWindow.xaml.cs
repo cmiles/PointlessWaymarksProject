@@ -21,7 +21,7 @@ namespace PointlessWaymarks.CmsWpfControls.LineContentEditor
             InitializeComponent();
             StatusContext = new StatusControlContext();
 
-            StatusContext.RunFireAndForgetBlockingTaskWithUiMessageReturn(async () =>
+            StatusContext.RunFireAndForgetBlockingTask(async () =>
             {
                 LineContent = await LineContentEditorContext.CreateInstance(StatusContext, toLoad);
 

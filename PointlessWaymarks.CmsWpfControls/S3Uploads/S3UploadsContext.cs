@@ -468,7 +468,7 @@ namespace PointlessWaymarks.CmsWpfControls.S3Uploads
 
             UploadBatch = await S3UploadsUploadBatch.CreateInstance(localSelected);
 
-            StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(async () => await UploadBatch.StartUploadBatch());
+            StatusContext.RunFireAndForgetNonBlockingTask(async () => await UploadBatch.StartUploadBatch());
         }
 
         public async Task StartSelectedUploads()
@@ -489,7 +489,7 @@ namespace PointlessWaymarks.CmsWpfControls.S3Uploads
 
             UploadBatch = await S3UploadsUploadBatch.CreateInstance(localSelected);
 
-            StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(async () => await UploadBatch.StartUploadBatch());
+            StatusContext.RunFireAndForgetNonBlockingTask(async () => await UploadBatch.StartUploadBatch());
         }
     }
 }

@@ -418,7 +418,7 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList
                 _userFilterText = value;
                 OnPropertyChanged();
 
-                StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(FilterList);
+                StatusContext.RunFireAndForgetNonBlockingTask(FilterList);
             }
         }
 
@@ -638,7 +638,7 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList
                     itemWithSmallImage.SmallImageUrl = GetSmallImageUrl(mainImage);
             }
 
-            StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(FilterList);
+            StatusContext.RunFireAndForgetNonBlockingTask(FilterList);
         }
 
         public async Task DeleteSelected(CancellationToken cancelToken)

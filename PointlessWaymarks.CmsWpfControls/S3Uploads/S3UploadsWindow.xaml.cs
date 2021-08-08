@@ -26,7 +26,7 @@ namespace PointlessWaymarks.CmsWpfControls.S3Uploads
 
             DataContext = this;
 
-            StatusContext.RunFireAndForgetBlockingTaskWithUiMessageReturn(async () =>
+            StatusContext.RunFireAndForgetBlockingTask(async () =>
             {
                 UploadContext = await S3UploadsContext.CreateInstance(StatusContext, toLoad);
             });
@@ -66,7 +66,7 @@ namespace PointlessWaymarks.CmsWpfControls.S3Uploads
         {
             if (_forceClose) return;
 
-            StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(WindowCloseOverload);
+            StatusContext.RunFireAndForgetNonBlockingTask(WindowCloseOverload);
             e.Cancel = true;
         }
 

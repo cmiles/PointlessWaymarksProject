@@ -276,7 +276,7 @@ Notes:
                 _selectedFile = value;
                 OnPropertyChanged();
 
-                StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(SelectedFileChanged);
+                StatusContext.RunFireAndForgetNonBlockingTask(SelectedFileChanged);
             }
         }
 

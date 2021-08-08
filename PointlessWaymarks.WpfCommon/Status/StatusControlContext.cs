@@ -288,7 +288,7 @@ namespace PointlessWaymarks.WpfCommon.Status
             NonBlockingTaskAreRunning = _countOfRunningNonBlockingTasks > 0;
         }
 
-        private async void FireAndForgetBlockingTaskWithUiMessageReturnCompleted(Task obj)
+        private async void FireAndForgetBlockingTaskCompleted(Task obj)
         {
             DecrementBlockingTasks();
 
@@ -302,12 +302,13 @@ namespace PointlessWaymarks.WpfCommon.Status
                 // Intended intended as Fire and Forget
                 Task.Run(() => Log.Error(obj.Exception,
 #pragma warning restore 4014
-                    "FireAndForgetBlockingTaskWithUiMessageReturnCompleted Exception - Status Context Id: {ContextId}",
+                    "FireAndForgetBlockingTaskCompleted Exception - Status Context Id: {ContextId}",
                     StatusControlContextId));
             }
         }
 
-        private void FireAndForgetTaskWithToastErrorReturnCompleted(Task obj)
+
+        private void FireAndForgetNonBlockingTaskCompleted(Task obj)
         {
             DecrementNonBlockingTasks();
 
@@ -318,7 +319,21 @@ namespace PointlessWaymarks.WpfCommon.Status
                 ToastError($"Error: {obj.Exception?.Message}");
 
                 Task.Run(() => Log.Error(obj.Exception,
-                    "FireAndForgetTaskWithToastErrorReturnCompleted Exception - Status Context Id: {ContextId}",
+                    "FireAndForgetNonBlockingTaskCompleted Exception - Status Context Id: {ContextId}",
+                    StatusControlContextId));
+            }
+        }
+
+        private void FireAndForgetWithToastOnErrorCompleted(Task obj)
+        {
+            if (obj.IsCanceled) return;
+
+            if (obj.IsFaulted)
+            {
+                ToastError($"Error: {obj.Exception?.Message}");
+
+                Task.Run(() => Log.Error(obj.Exception,
+                    "FireAndForgetNonBlockingTaskCompleted Exception - Status Context Id: {ContextId}",
                     StatusControlContextId));
             }
         }
@@ -447,12 +462,12 @@ namespace PointlessWaymarks.WpfCommon.Status
             return new Command(() => RunBlockingTaskWithCancellation(toRun, cancelDescription));
         }
 
-        public void RunFireAndForgetBlockingTaskWithUiMessageReturn(Func<Task> toRun)
+        public void RunFireAndForgetBlockingTask(Func<Task> toRun)
         {
             try
             {
                 IncrementBlockingTasks();
-                Task.Run(async () => await toRun()).ContinueWith(FireAndForgetBlockingTaskWithUiMessageReturnCompleted);
+                Task.Run(async () => await toRun()).ContinueWith(FireAndForgetBlockingTaskCompleted);
             }
             catch (Exception e)
             {
@@ -460,17 +475,17 @@ namespace PointlessWaymarks.WpfCommon.Status
                 DecrementBlockingTasks();
 
                 Task.Run(() => Log.Error(e,
-                    "RunFireAndForgetBlockingTaskWithUiMessageReturn Exception - Status Context Id: {ContextId}",
+                    "RunFireAndForgetBlockingTask Exception - Status Context Id: {ContextId}",
                     StatusControlContextId));
             }
         }
 
-        public void RunFireAndForgetTaskWithUiToastErrorReturn(Func<Task> toRun)
+        public void RunFireAndForgetNonBlockingTask(Func<Task> toRun)
         {
             try
             {
                 IncrementNonBlockingTasks();
-                Task.Run(async () => await toRun()).ContinueWith(FireAndForgetTaskWithToastErrorReturnCompleted);
+                Task.Run(async () => await toRun()).ContinueWith(FireAndForgetNonBlockingTaskCompleted);
             }
             catch (Exception e)
             {
@@ -478,7 +493,24 @@ namespace PointlessWaymarks.WpfCommon.Status
                 ToastError($"Error: {e.Message}");
 
                 Task.Run(() => Log.Error(e,
-                    "RunFireAndForgetTaskWithUiToastErrorReturn Exception - Status Context Id: {ContextId}",
+                    "RunFireAndForgetNonBlockingTask Exception - Status Context Id: {ContextId}",
+                    StatusControlContextId));
+            }
+        }
+
+        public void RunFireAndForgetWithToastOnError(Func<Task> toRun)
+        {
+            try
+            {
+                Task.Run(async () => await toRun()).ContinueWith(FireAndForgetWithToastOnErrorCompleted);
+            }
+            catch (Exception e)
+            {
+                DecrementNonBlockingTasks();
+                ToastError($"Error: {e.Message}");
+
+                Task.Run(() => Log.Error(e,
+                    "RunFireAndForgetNonBlockingTask Exception - Status Context Id: {ContextId}",
                     StatusControlContextId));
             }
         }

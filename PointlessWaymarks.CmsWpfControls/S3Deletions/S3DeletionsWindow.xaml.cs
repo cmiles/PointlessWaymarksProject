@@ -22,7 +22,7 @@ namespace PointlessWaymarks.CmsWpfControls.S3Deletions
 
             DataContext = this;
 
-            StatusContext.RunFireAndForgetBlockingTaskWithUiMessageReturn(async () =>
+            StatusContext.RunFireAndForgetBlockingTask(async () =>
             {
                 DeletionContext = await S3DeletionsContext.CreateInstance(StatusContext, itemsToDelete);
             });

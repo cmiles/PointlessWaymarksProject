@@ -74,7 +74,7 @@ namespace PointlessWaymarks.CmsWpfControls.TagList
             ImportFromOpenExcelInstanceCommand = StatusContext.RunBlockingTaskCommand(async () =>
                 await ExcelHelpers.ImportFromOpenExcelInstance(StatusContext));
 
-            StatusContext.RunFireAndForgetBlockingTaskWithUiMessageReturn(LoadData);
+            StatusContext.RunFireAndForgetBlockingTask(LoadData);
         }
 
         public Command AllDetailItemsToExcelCommand
@@ -244,7 +244,7 @@ namespace PointlessWaymarks.CmsWpfControls.TagList
                 _userFilterText = value;
                 OnPropertyChanged();
 
-                StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(FilterList);
+                StatusContext.RunFireAndForgetNonBlockingTask(FilterList);
             }
         }
 

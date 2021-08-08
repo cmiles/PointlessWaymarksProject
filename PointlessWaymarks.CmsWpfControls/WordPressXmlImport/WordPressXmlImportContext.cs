@@ -208,7 +208,7 @@ namespace PointlessWaymarks.CmsWpfControls.WordPressXmlImport
                 _userFilterText = value;
                 OnPropertyChanged();
 
-                StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(FilterList);
+                StatusContext.RunFireAndForgetNonBlockingTask(FilterList);
             }
         }
 

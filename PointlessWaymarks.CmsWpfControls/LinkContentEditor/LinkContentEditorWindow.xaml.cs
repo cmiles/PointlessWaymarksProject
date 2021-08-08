@@ -18,7 +18,7 @@ namespace PointlessWaymarks.CmsWpfControls.LinkContentEditor
             InitializeComponent();
             StatusContext = new StatusControlContext();
 
-            StatusContext.RunFireAndForgetBlockingTaskWithUiMessageReturn(async () =>
+            StatusContext.RunFireAndForgetBlockingTask(async () =>
             {
                 EditorContent =
                     await LinkContentEditorContext.CreateInstance(StatusContext, toLoad, extractDataFromLink);

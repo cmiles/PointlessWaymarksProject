@@ -34,7 +34,7 @@ namespace PointlessWaymarks.CmsWpfControls.FileList
         {
             StatusContext = statusContext ?? new StatusControlContext();
 
-            StatusContext.RunFireAndForgetBlockingTaskWithUiMessageReturn(LoadData);
+            StatusContext.RunFireAndForgetBlockingTask(LoadData);
         }
 
         public Command EmailHtmlToClipboardCommand

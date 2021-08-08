@@ -32,7 +32,7 @@ namespace PointlessWaymarks.CmsWpfControls.LinkList
         {
             StatusContext = statusContext ?? new StatusControlContext();
 
-            StatusContext.RunFireAndForgetBlockingTaskWithUiMessageReturn(LoadData);
+            StatusContext.RunFireAndForgetBlockingTask(LoadData);
         }
 
         public ContentListContext ListContext

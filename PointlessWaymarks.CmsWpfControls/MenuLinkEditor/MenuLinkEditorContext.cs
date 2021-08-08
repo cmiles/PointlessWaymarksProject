@@ -52,7 +52,7 @@ namespace PointlessWaymarks.CmsWpfControls.MenuLinkEditor
 
             HelpMarkdown = MenuLinksHelpMarkdown.HelpBlock;
 
-            StatusContext.RunFireAndForgetBlockingTaskWithUiMessageReturn(LoadData);
+            StatusContext.RunFireAndForgetBlockingTask(LoadData);
         }
 
         public Command AddItemCommand

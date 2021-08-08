@@ -86,7 +86,7 @@ namespace PointlessWaymarks.CmsWpfControls.FilesWrittenLogList
                 StatusContext.RunNonBlockingTaskCommand(AllWrittenFilesToS3UploaderJsonFile);
             OpenUploaderJsonFileCommand = StatusContext.RunNonBlockingTaskCommand(OpenUploaderJsonFile);
 
-            if (loadInBackground) StatusContext.RunFireAndForgetBlockingTaskWithUiMessageReturn(LoadData);
+            if (loadInBackground) StatusContext.RunFireAndForgetBlockingTask(LoadData);
 
             _dataNotificationsProcessor = new DataNotificationsWorkQueue {Processor = DataNotificationReceived};
             DataNotifications.NewDataNotificationChannel().MessageReceived += OnDataNotificationReceived;

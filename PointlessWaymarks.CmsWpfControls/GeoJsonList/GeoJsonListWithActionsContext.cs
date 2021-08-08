@@ -26,7 +26,7 @@ namespace PointlessWaymarks.CmsWpfControls.GeoJsonList
         {
             StatusContext = statusContext ?? new StatusControlContext();
 
-            StatusContext.RunFireAndForgetBlockingTaskWithUiMessageReturn(LoadData);
+            StatusContext.RunFireAndForgetBlockingTask(LoadData);
         }
 
         public Command GeoJsonLinkCodesToClipboardForSelectedCommand

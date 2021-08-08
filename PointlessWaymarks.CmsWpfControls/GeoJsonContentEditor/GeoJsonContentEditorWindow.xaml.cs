@@ -21,7 +21,7 @@ namespace PointlessWaymarks.CmsWpfControls.GeoJsonContentEditor
             InitializeComponent();
             StatusContext = new StatusControlContext();
 
-            StatusContext.RunFireAndForgetBlockingTaskWithUiMessageReturn(async () =>
+            StatusContext.RunFireAndForgetBlockingTask(async () =>
             {
                 GeoJsonContent = await GeoJsonContentEditorContext.CreateInstance(StatusContext, toLoad);
 

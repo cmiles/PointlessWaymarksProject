@@ -21,7 +21,7 @@ namespace PointlessWaymarks.CmsWpfControls.MapComponentEditor
             InitializeComponent();
             StatusContext = new StatusControlContext();
 
-            StatusContext.RunFireAndForgetBlockingTaskWithUiMessageReturn(async () =>
+            StatusContext.RunFireAndForgetBlockingTask(async () =>
             {
                 MapComponentContent = await MapComponentEditorContext.CreateInstance(StatusContext, toLoad);
 

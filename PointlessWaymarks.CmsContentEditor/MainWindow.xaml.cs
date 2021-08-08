@@ -174,7 +174,7 @@ namespace PointlessWaymarks.CmsContentEditor
 
             SettingsFileChooser.SettingsFileUpdated += SettingsFileChooserOnSettingsFileUpdatedEvent;
 
-            StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(CleanupTemporaryFiles);
+            StatusContext.RunFireAndForgetNonBlockingTask(CleanupTemporaryFiles);
         }
 
         public Command CheckAllContentForInvalidBracketCodeContentIdsCommand { get; set; }
@@ -840,12 +840,12 @@ namespace PointlessWaymarks.CmsContentEditor
 
             RecentSettingsFilesNames = string.Join("|", fileList);
 
-            StatusContext.RunFireAndForgetBlockingTaskWithUiMessageReturn(LoadData);
+            StatusContext.RunFireAndForgetBlockingTask(LoadData);
         }
 
         private void SettingsFileChooserOnSettingsFileUpdatedEvent(object sender, (bool isNew, string userString) e)
         {
-            StatusContext.RunFireAndForgetBlockingTaskWithUiMessageReturn(async () =>
+            StatusContext.RunFireAndForgetBlockingTask(async () =>
                 await SettingsFileChooserOnSettingsFileUpdated(e));
         }
     }

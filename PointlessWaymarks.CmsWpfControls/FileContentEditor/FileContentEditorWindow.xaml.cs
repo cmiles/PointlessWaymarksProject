@@ -19,7 +19,7 @@ namespace PointlessWaymarks.CmsWpfControls.FileContentEditor
             InitializeComponent();
             StatusContext = new StatusControlContext();
 
-            StatusContext.RunFireAndForgetBlockingTaskWithUiMessageReturn(async () =>
+            StatusContext.RunFireAndForgetBlockingTask(async () =>
             {
                 FileContent = await FileContentEditorContext.CreateInstance(StatusContext);
 
@@ -36,7 +36,7 @@ namespace PointlessWaymarks.CmsWpfControls.FileContentEditor
             InitializeComponent();
             StatusContext = new StatusControlContext();
 
-            StatusContext.RunFireAndForgetBlockingTaskWithUiMessageReturn(async () =>
+            StatusContext.RunFireAndForgetBlockingTask(async () =>
             {
                 FileContent = await FileContentEditorContext.CreateInstance(StatusContext, initialFile);
 
@@ -53,7 +53,7 @@ namespace PointlessWaymarks.CmsWpfControls.FileContentEditor
             InitializeComponent();
             StatusContext = new StatusControlContext();
 
-            StatusContext.RunFireAndForgetBlockingTaskWithUiMessageReturn(async () =>
+            StatusContext.RunFireAndForgetBlockingTask(async () =>
             {
                 FileContent = await FileContentEditorContext.CreateInstance(StatusContext, toLoad);
 

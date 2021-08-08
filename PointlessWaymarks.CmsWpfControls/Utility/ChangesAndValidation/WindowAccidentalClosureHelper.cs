@@ -30,7 +30,7 @@ namespace PointlessWaymarks.CmsWpfControls.Utility.ChangesAndValidation
 
             e.Cancel = true;
 
-            StatusContext.RunFireAndForgetBlockingTaskWithUiMessageReturn(WindowClosing);
+            StatusContext.RunFireAndForgetBlockingTask(WindowClosing);
         }
 
         private async Task WindowClosing()

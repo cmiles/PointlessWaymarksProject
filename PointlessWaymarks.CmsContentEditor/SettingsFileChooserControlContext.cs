@@ -31,7 +31,7 @@ namespace PointlessWaymarks.CmsContentEditor
             ChooseFileCommand = new Command(ChooseFile);
             ChooseRecentFileCommand = new Command<SettingsFileListItem>(LaunchRecentFile);
 
-            StatusContext.RunFireAndForgetBlockingTaskWithUiMessageReturn(LoadData);
+            StatusContext.RunFireAndForgetBlockingTask(LoadData);
         }
 
         public Command ChooseFileCommand { get; set; }

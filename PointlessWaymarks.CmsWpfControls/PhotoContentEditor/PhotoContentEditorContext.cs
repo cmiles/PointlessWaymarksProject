@@ -394,7 +394,7 @@ Photo Content Notes:
                 _selectedFile = value;
                 OnPropertyChanged();
 
-                StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(SelectedFileChanged);
+                StatusContext.RunFireAndForgetNonBlockingTask(SelectedFileChanged);
             }
         }
 
@@ -889,7 +889,7 @@ Photo Content Notes:
             await MagicScalerImageResizer.Rotate(SelectedFile, rotationType);
             ResizeSelectedFile = true;
 
-            StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(SelectedFileChanged);
+            StatusContext.RunFireAndForgetNonBlockingTask(SelectedFileChanged);
         }
 
         public async Task SaveAndGenerateHtml(bool overwriteExistingFiles, bool closeAfterSave = false)

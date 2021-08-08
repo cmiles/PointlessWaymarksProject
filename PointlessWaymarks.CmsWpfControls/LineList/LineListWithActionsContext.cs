@@ -26,7 +26,7 @@ namespace PointlessWaymarks.CmsWpfControls.LineList
         {
             StatusContext = statusContext ?? new StatusControlContext();
 
-            StatusContext.RunFireAndForgetBlockingTaskWithUiMessageReturn(LoadData);
+            StatusContext.RunFireAndForgetBlockingTask(LoadData);
         }
 
         public Command LineLinkCodesToClipboardForSelectedCommand

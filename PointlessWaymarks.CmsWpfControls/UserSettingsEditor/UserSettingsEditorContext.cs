@@ -30,7 +30,7 @@ namespace PointlessWaymarks.CmsWpfControls.UserSettingsEditor
         {
             StatusContext = statusContext ?? new StatusControlContext();
 
-            StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(async () => await LoadData(toLoad));
+            StatusContext.RunFireAndForgetNonBlockingTask(async () => await LoadData(toLoad));
         }
 
         public Command DeleteAwsCredentials
