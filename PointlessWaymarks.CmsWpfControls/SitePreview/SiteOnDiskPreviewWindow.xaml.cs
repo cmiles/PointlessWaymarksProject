@@ -11,8 +11,8 @@ namespace PointlessWaymarks.CmsWpfControls.SitePreview
     /// </summary>
     public partial class SiteOnDiskPreviewWindow : INotifyPropertyChanged
     {
-        private StatusControlContext _statusContext;
         private SitePreviewContext _previewContext;
+        private StatusControlContext _statusContext;
 
         public SiteOnDiskPreviewWindow()
         {
@@ -24,7 +24,7 @@ namespace PointlessWaymarks.CmsWpfControls.SitePreview
 
             PreviewContext = new SitePreviewContext(UserSettingsSingleton.CurrentSettings().SiteUrl,
                 UserSettingsSingleton.CurrentSettings().LocalSiteRootDirectory,
-                UserSettingsSingleton.CurrentSettings().SiteName, StatusContext);
+                UserSettingsSingleton.CurrentSettings().SiteName, "", StatusContext);
         }
 
         public SitePreviewContext PreviewContext

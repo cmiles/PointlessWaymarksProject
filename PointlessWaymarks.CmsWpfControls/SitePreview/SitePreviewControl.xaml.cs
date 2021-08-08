@@ -2,27 +2,18 @@
 using System.ComponentModel;
 using System.IO;
 using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
 using System.Windows;
-using DocumentFormat.OpenXml.Drawing.Charts;
 using JetBrains.Annotations;
 using Microsoft.Web.WebView2.Core;
-using PointlessWaymarks.CmsData;
-using PointlessWaymarks.WpfCommon.Commands;
-using PointlessWaymarks.WpfCommon.Status;
-using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 using PointlessWaymarks.WpfCommon.Utility;
 
 namespace PointlessWaymarks.CmsWpfControls.SitePreview
 {
     /// <summary>
-    /// Interaction logic for SitePreviewControl.xaml
+    ///     Interaction logic for SitePreviewControl.xaml
     /// </summary>
     public partial class SitePreviewControl : INotifyPropertyChanged
     {
-
-
-
         public SitePreviewControl()
         {
             InitializeComponent();
@@ -30,10 +21,7 @@ namespace PointlessWaymarks.CmsWpfControls.SitePreview
             DataContext = this;
         }
 
-        public void LoadData()
-        {
-            InitializeAsync();
-        }
+        public SitePreviewContext PreviewContext { get; set; }
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -46,20 +34,29 @@ namespace PointlessWaymarks.CmsWpfControls.SitePreview
             // Note this waits until the first page is navigated!
             await SitePreviewWebView.EnsureCoreWebView2Async(env);
 
-            // Optional: Map a folder from the Executable Folder to a virtual domain
-            // NOTE: This requires a Canary preview currently (.720+)
-            SitePreviewWebView.CoreWebView2.SetVirtualHostNameToFolderMapping(
-                PreviewContext.SiteUrl,
-                PreviewContext.LocalSiteFolder,
-                CoreWebView2HostResourceAccessKind.Allow);
-            
             SitePreviewWebView.Source = new Uri(PreviewContext.InitialPage);
+        }
+
+        public void LoadData()
+        {
+            InitializeAsync();
         }
 
         [NotifyPropertyChangedInvocator]
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+
+        private void SitePreviewControl_OnDataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
+        {
+            if (e.NewValue is SitePreviewContext context)
+            {
+                PreviewContext = context;
+                context.WebViewGui = SitePreviewWebView;
+                LoadData();
+            }
         }
 
         private void SitePreviewWebView_OnNavigationStarting(object sender, CoreWebView2NavigationStartingEventArgs e)
@@ -74,7 +71,8 @@ namespace PointlessWaymarks.CmsWpfControls.SitePreview
             if (!e.Uri.ToLower().StartsWith("http"))
             {
                 e.Cancel = true;
-                PreviewContext.StatusContext.ToastError("This window only supports http and https (no ftp, no searches, ...");
+                PreviewContext.StatusContext.ToastError(
+                    "This window only supports http and https (no ftp, no searches, ...");
                 return;
             }
 
@@ -90,7 +88,7 @@ namespace PointlessWaymarks.CmsWpfControls.SitePreview
                 return;
             }
 
-            if (parsedUri.Host.ToLower() != PreviewContext.SiteUrl.ToLower())
+            if (parsedUri.Authority.ToLower() != PreviewContext.PreviewServerHost.ToLower())
             {
                 e.Cancel = true;
                 ProcessHelpers.OpenUrlInExternalBrowser(e.Uri);
@@ -101,19 +99,5 @@ namespace PointlessWaymarks.CmsWpfControls.SitePreview
 
             PreviewContext.TextBarAddress = e.Uri;
         }
-
-   
-
-        private void SitePreviewControl_OnDataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
-        {
-            if (e.NewValue is SitePreviewContext context)
-            {
-                PreviewContext = context;
-                context.WebViewGui = SitePreviewWebView;
-                LoadData();
-            }
-        }
-
-        public SitePreviewContext PreviewContext { get; set; }
     }
 }

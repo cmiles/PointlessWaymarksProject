@@ -1,42 +1,30 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using JetBrains.Annotations;
-using Microsoft.AspNetCore.Diagnostics;
-using PointlessWaymarks.CmsData;
+using Microsoft.Extensions.Hosting;
 using PointlessWaymarks.CmsWpfControls.SitePreview;
 using PointlessWaymarks.WpfCommon.Status;
+using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 
 namespace PointlessWaymarks.LocalViewer
 {
     /// <summary>
-    /// Interaction logic for MainWindow.xaml
+    ///     Interaction logic for MainWindow.xaml
     /// </summary>
     public partial class MainWindow : INotifyPropertyChanged
     {
-        private StatusControlContext _statusContext;
         private SitePreviewContext _previewContext;
+        private StatusControlContext _statusContext;
 
         public MainWindow()
         {
             InitializeComponent();
 
-            StatusContext = new StatusControlContext();
+            StatusContext = new StatusControlContext { BlockUi = false };
 
             DataContext = this;
         }
@@ -45,7 +33,7 @@ namespace PointlessWaymarks.LocalViewer
         {
             InitializeComponent();
 
-            StatusContext = new StatusControlContext();
+            StatusContext = new StatusControlContext { BlockUi = false };
 
             DataContext = this;
 
@@ -65,7 +53,9 @@ namespace PointlessWaymarks.LocalViewer
                     {
                         if (!urlFound)
                         {
-                            var urlString = Regex.Match(loopLine, "<meta property=\"og:url\" content=\"(?<contentUrl>.*)\">", RegexOptions.IgnoreCase).Groups["contentUrl"].Value;
+                            var urlString = Regex
+                                .Match(loopLine, "<meta property=\"og:url\" content=\"(?<contentUrl>.*)\">",
+                                    RegexOptions.IgnoreCase).Groups["contentUrl"].Value;
 
                             if (!string.IsNullOrWhiteSpace(urlString))
                             {
@@ -76,7 +66,9 @@ namespace PointlessWaymarks.LocalViewer
 
                         if (!siteNameFound)
                         {
-                            var siteNameString = Regex.Match(loopLine, "<meta property=\"og:site_name\" content=\"(?<contentUrl>.*)\">", RegexOptions.IgnoreCase).Groups["contentUrl"].Value;
+                            var siteNameString = Regex.Match(loopLine,
+                                "<meta property=\"og:site_name\" content=\"(?<contentUrl>.*)\">",
+                                RegexOptions.IgnoreCase).Groups["contentUrl"].Value;
 
                             if (!string.IsNullOrWhiteSpace(siteNameString))
                             {
@@ -92,9 +84,20 @@ namespace PointlessWaymarks.LocalViewer
                 }
             }
 
+            var freePort = PreviewServer.FreeTcpPort();
+
+            var server = PreviewServer.CreateHostBuilder(
+                siteUrl, localFolder, freePort).Build();
+
+            StatusContext.RunFireAndForgetWithToastOnError(async () =>
+            {
+                await ThreadSwitcher.ResumeBackgroundAsync();
+                await server.RunAsync();
+            });
+
             PreviewContext = new SitePreviewContext(siteUrl,
                 localFolder,
-                siteName, StatusContext);
+                siteName, $"localhost:{freePort}", StatusContext);
         }
 
         public SitePreviewContext PreviewContext
