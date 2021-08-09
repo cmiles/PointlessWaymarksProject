@@ -2,8 +2,10 @@
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows;
+using DocumentFormat.OpenXml.Drawing;
 using JetBrains.Annotations;
 using Microsoft.Web.WebView2.Wpf;
+using PointlessWaymarks.CmsData;
 using PointlessWaymarks.WpfCommon.Commands;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
@@ -245,7 +247,7 @@ namespace PointlessWaymarks.CmsWpfControls.SitePreview
         private async Task TryUserNavigation()
         {
             await ThreadSwitcher.ResumeForegroundAsync();
-            WebViewGui.CoreWebView2.Navigate(TextBarAddress);
+            WebViewGui.CoreWebView2.Navigate($"http://{StringHelpers.UrlCombine(SiteUrl, TextBarAddress)}");
         }
     }
 }

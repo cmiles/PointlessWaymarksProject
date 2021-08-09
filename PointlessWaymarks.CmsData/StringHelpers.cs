@@ -151,9 +151,30 @@ namespace PointlessWaymarks.CmsData
                 .Where(x => x.PropertyType == typeof(string) && x.GetSetMethod() != null).ToList();
 
             foreach (var loopProperties in properties)
-                loopProperties.SetValue(toProcess, ((string?) loopProperties.GetValue(toProcess)).TrimNullToEmpty());
+                loopProperties.SetValue(toProcess, ((string?)loopProperties.GetValue(toProcess)).TrimNullToEmpty());
 
             return toProcess;
+        }
+
+        /// <summary>
+        ///     A simple method to combine pieces of a Url in the spirit of Path.Combine - note this
+        ///     only handles simple cases and mostly is a convenience to deal with leading a trailing
+        ///     '/' characters.
+        /// </summary>
+        /// <param name="url1"></param>
+        /// <param name="url2"></param>
+        /// <returns></returns>
+        public static string UrlCombine(string url1, string url2)
+        {
+            //https://stackoverflow.com/questions/372865/path-combine-for-urls
+            if (url1.Length == 0) return url2;
+
+            if (url2.Length == 0) return url1;
+
+            url1 = url1.TrimEnd('/', '\\');
+            url2 = url2.TrimStart('/', '\\');
+
+            return $"{url1}/{url2}";
         }
 
 

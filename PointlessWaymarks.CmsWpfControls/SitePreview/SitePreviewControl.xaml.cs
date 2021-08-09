@@ -14,14 +14,25 @@ namespace PointlessWaymarks.CmsWpfControls.SitePreview
     /// </summary>
     public partial class SitePreviewControl : INotifyPropertyChanged
     {
+        private SitePreviewContext _previewContext;
+
         public SitePreviewControl()
         {
             InitializeComponent();
 
-            DataContext = this;
+            DataContext = PreviewContext;
         }
 
-        public SitePreviewContext PreviewContext { get; set; }
+        public SitePreviewContext PreviewContext
+        {
+            get => _previewContext;
+            set
+            {
+                if (Equals(value, _previewContext)) return;
+                _previewContext = value;
+                OnPropertyChanged();
+            }
+        }
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -93,11 +104,11 @@ namespace PointlessWaymarks.CmsWpfControls.SitePreview
                 e.Cancel = true;
                 ProcessHelpers.OpenUrlInExternalBrowser(e.Uri);
                 PreviewContext.StatusContext.ToastError($"Sending external link {e.Uri} to the default browser.");
-                PreviewContext.TextBarAddress = PreviewContext.CurrentAddress;
+                PreviewContext.TextBarAddress = new Uri(PreviewContext.CurrentAddress).PathAndQuery;
                 return;
             }
 
-            PreviewContext.TextBarAddress = e.Uri;
+            PreviewContext.TextBarAddress = new Uri(e.Uri).PathAndQuery;
         }
     }
 }

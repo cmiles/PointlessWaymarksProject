@@ -24,12 +24,11 @@ namespace PointlessWaymarks.CmsWpfControls.SitePreview
             app.Use(async (context, next) =>
             {
                 var possiblePath = context.Request.Path;
-                string moddedFile;
 
                 if (possiblePath == null || string.IsNullOrWhiteSpace(possiblePath.Value) ||
                     possiblePath.Value == "/")
                 {
-                    moddedFile = File.ReadAllText(Path.Join(previewFileRoot, "index.html")).Replace(
+                    var moddedFile = (await File.ReadAllTextAsync(Path.Join(previewFileRoot, "index.html"))).Replace(
                             $"https://{previewHost}",
                             $"http://localhost:{previewListeningPort}", StringComparison.InvariantCultureIgnoreCase)
                         .Replace($"//{previewHost}", $"//localhost:{previewListeningPort}",
