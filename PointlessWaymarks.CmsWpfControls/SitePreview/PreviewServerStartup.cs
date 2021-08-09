@@ -8,7 +8,7 @@ using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
-namespace PointlessWaymarks.LocalViewer
+namespace PointlessWaymarks.CmsWpfControls.SitePreview
 {
     public class PreviewServerStartup
     {

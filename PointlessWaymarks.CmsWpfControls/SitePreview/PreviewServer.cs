@@ -4,7 +4,7 @@ using System.Net.Sockets;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
 
-namespace PointlessWaymarks.LocalViewer
+namespace PointlessWaymarks.CmsWpfControls.SitePreview
 {
     public static class PreviewServer
     {

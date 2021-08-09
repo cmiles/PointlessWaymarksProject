@@ -1,8 +1,10 @@
 ﻿using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
+using Microsoft.Extensions.Hosting;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.WpfCommon.Status;
+using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 
 namespace PointlessWaymarks.CmsWpfControls.SitePreview
 {
@@ -22,9 +24,20 @@ namespace PointlessWaymarks.CmsWpfControls.SitePreview
 
             DataContext = this;
 
+            var freePort = PreviewServer.FreeTcpPort();
+
+            var server = PreviewServer.CreateHostBuilder(
+                UserSettingsSingleton.CurrentSettings().SiteUrl, UserSettingsSingleton.CurrentSettings().LocalSiteRootDirectory, freePort).Build();
+
+            StatusContext.RunFireAndForgetWithToastOnError(async () =>
+            {
+                await ThreadSwitcher.ResumeBackgroundAsync();
+                await server.RunAsync();
+            });
+
             PreviewContext = new SitePreviewContext(UserSettingsSingleton.CurrentSettings().SiteUrl,
                 UserSettingsSingleton.CurrentSettings().LocalSiteRootDirectory,
-                UserSettingsSingleton.CurrentSettings().SiteName, "", StatusContext);
+                UserSettingsSingleton.CurrentSettings().SiteName, $"localhost:{freePort}", StatusContext);
         }
 
         public SitePreviewContext PreviewContext
