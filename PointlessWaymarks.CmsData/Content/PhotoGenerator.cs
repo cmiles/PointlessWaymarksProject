@@ -26,7 +26,7 @@ namespace PointlessWaymarks.CmsData.Content
         {
             progress?.Report($"Photo Content - Generate HTML for {toGenerate.Title}");
 
-            var htmlContext = new SinglePhotoPage(toGenerate) {GenerationVersion = generationVersion};
+            var htmlContext = new SinglePhotoPage(toGenerate) { GenerationVersion = generationVersion };
 
             await htmlContext.WriteLocalHtml().ConfigureAwait(false);
         }
@@ -252,6 +252,8 @@ namespace PointlessWaymarks.CmsData.Content
                     : $"{toReturn.PhotoCreatedOn:yyyy} {toReturn.PhotoCreatedOn:MMMM} {toReturn.Title}";
             }
 
+            if (string.IsNullOrWhiteSpace(toReturn.Summary)) toReturn.Summary = toReturn.Title;
+
             //Order is important here - the title supplies the summary in the code above - but overwrite that if there is a
             //description.
             var description = exifDirectory?.GetDescription(ExifDirectoryBase.TagImageDescription) ?? string.Empty;
@@ -259,7 +261,7 @@ namespace PointlessWaymarks.CmsData.Content
                 toReturn.Summary = description;
 
             //Add a trailing . to the summary if it doesn't end with ! ? .
-            if (!toReturn.Summary.EndsWith(".") && !toReturn.Summary.EndsWith("!") && !toReturn.Summary.EndsWith("?"))
+            if (!string.IsNullOrWhiteSpace(toReturn.Summary) && !toReturn.Summary.EndsWith(".") && !toReturn.Summary.EndsWith("!") && !toReturn.Summary.EndsWith("?"))
                 toReturn.Summary = $"{toReturn.Summary}.";
 
             //Remove multi space from title and summary
@@ -366,7 +368,7 @@ namespace PointlessWaymarks.CmsData.Content
             await Export.WriteLocalDbJson(toSave).ConfigureAwait(false);
 
             DataNotifications.PublishDataNotification("Photo Generator", DataNotificationContentType.Photo,
-                DataNotificationUpdateType.LocalContent, new List<Guid> {toSave.ContentId});
+                DataNotificationUpdateType.LocalContent, new List<Guid> { toSave.ContentId });
 
             return (GenerationReturn.Success($"Saved and Generated Content And Html for {toSave.Title}"), toSave);
         }
@@ -403,7 +405,8 @@ namespace PointlessWaymarks.CmsData.Content
                 return GenerationReturn.Error($"Problem with Media Archive: {mediaArchiveCheck.Explanation}",
                     photoContent.ContentId);
 
-            var commonContentCheck = await CommonContentValidation.ValidateContentCommon(photoContent).ConfigureAwait(false);
+            var commonContentCheck =
+                await CommonContentValidation.ValidateContentCommon(photoContent).ConfigureAwait(false);
             if (!commonContentCheck.Valid)
                 return GenerationReturn.Error(commonContentCheck.Explanation, photoContent.ContentId);
 
@@ -414,7 +417,8 @@ namespace PointlessWaymarks.CmsData.Content
             selectedFile.Refresh();
 
             var photoFileValidation =
-                await CommonContentValidation.PhotoFileValidation(selectedFile, photoContent.ContentId).ConfigureAwait(false);
+                await CommonContentValidation.PhotoFileValidation(selectedFile, photoContent.ContentId)
+                    .ConfigureAwait(false);
 
             if (!photoFileValidation.Valid)
                 return GenerationReturn.Error(photoFileValidation.Explanation, photoContent.ContentId);
@@ -448,7 +452,8 @@ namespace PointlessWaymarks.CmsData.Content
             PictureResizing.CleanDisplayAndSrcSetFilesInPhotoDirectory(photoContent, forcedResizeOverwriteExistingFiles,
                 progress);
 
-            await PictureResizing.ResizeForDisplayAndSrcset(photoContent, forcedResizeOverwriteExistingFiles, progress).ConfigureAwait(false);
+            await PictureResizing.ResizeForDisplayAndSrcset(photoContent, forcedResizeOverwriteExistingFiles, progress)
+                .ConfigureAwait(false);
         }
     }
 }
