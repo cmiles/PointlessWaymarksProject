@@ -24,21 +24,29 @@ namespace PointlessWaymarks.CmsData.Content
             var db = await Db.Context().ConfigureAwait(false);
 
             returnList.AddRange(await CheckForBadContentReferences(
-                (await db.FileContents.ToListAsync().ConfigureAwait(false)).Cast<IContentCommon>().ToList(), db, progress).ConfigureAwait(false));
+                (await db.FileContents.ToListAsync().ConfigureAwait(false)).Cast<IContentCommon>().ToList(), db,
+                progress).ConfigureAwait(false));
             returnList.AddRange(await CheckForBadContentReferences(
-                (await db.GeoJsonContents.ToListAsync().ConfigureAwait(false)).Cast<IContentCommon>().ToList(), db, progress).ConfigureAwait(false));
+                (await db.GeoJsonContents.ToListAsync().ConfigureAwait(false)).Cast<IContentCommon>().ToList(), db,
+                progress).ConfigureAwait(false));
             returnList.AddRange(await CheckForBadContentReferences(
-                (await db.ImageContents.ToListAsync().ConfigureAwait(false)).Cast<IContentCommon>().ToList(), db, progress).ConfigureAwait(false));
+                (await db.ImageContents.ToListAsync().ConfigureAwait(false)).Cast<IContentCommon>().ToList(), db,
+                progress).ConfigureAwait(false));
             returnList.AddRange(await CheckForBadContentReferences(
-                (await db.LineContents.ToListAsync().ConfigureAwait(false)).Cast<IContentCommon>().ToList(), db, progress).ConfigureAwait(false));
+                (await db.LineContents.ToListAsync().ConfigureAwait(false)).Cast<IContentCommon>().ToList(), db,
+                progress).ConfigureAwait(false));
             returnList.AddRange(await CheckForBadContentReferences(
-                (await db.NoteContents.ToListAsync().ConfigureAwait(false)).Cast<IContentCommon>().ToList(), db, progress).ConfigureAwait(false));
+                (await db.NoteContents.ToListAsync().ConfigureAwait(false)).Cast<IContentCommon>().ToList(), db,
+                progress).ConfigureAwait(false));
             returnList.AddRange(await CheckForBadContentReferences(
-                (await db.PhotoContents.ToListAsync().ConfigureAwait(false)).Cast<IContentCommon>().ToList(), db, progress).ConfigureAwait(false));
+                (await db.PhotoContents.ToListAsync().ConfigureAwait(false)).Cast<IContentCommon>().ToList(), db,
+                progress).ConfigureAwait(false));
             returnList.AddRange(await CheckForBadContentReferences(
-                (await db.PointContents.ToListAsync().ConfigureAwait(false)).Cast<IContentCommon>().ToList(), db, progress).ConfigureAwait(false));
+                (await db.PointContents.ToListAsync().ConfigureAwait(false)).Cast<IContentCommon>().ToList(), db,
+                progress).ConfigureAwait(false));
             returnList.AddRange(await CheckForBadContentReferences(
-                (await db.PostContents.ToListAsync().ConfigureAwait(false)).Cast<IContentCommon>().ToList(), db, progress).ConfigureAwait(false));
+                (await db.PostContents.ToListAsync().ConfigureAwait(false)).Cast<IContentCommon>().ToList(), db,
+                progress).ConfigureAwait(false));
 
             return returnList;
         }
@@ -76,7 +84,8 @@ namespace PointlessWaymarks.CmsData.Content
                 pointDto.PointDetails.ForEach(x => toSearch += x.StructuredDataAsJson);
 
             if (content is PointContent point)
-                (await Db.PointDetailsForPoint(point.ContentId, db).ConfigureAwait(false)).ForEach(x => toSearch += x.StructuredDataAsJson);
+                (await Db.PointDetailsForPoint(point.ContentId, db).ConfigureAwait(false)).ForEach(x =>
+                    toSearch += x.StructuredDataAsJson);
 
             if (string.IsNullOrWhiteSpace(toSearch) && !extracted.Any())
                 return GenerationReturn.Success(
@@ -162,6 +171,18 @@ namespace PointlessWaymarks.CmsData.Content
             return new IsValid(true, "Elevation is Valid");
         }
 
+        public static bool FileContentFileFileNameHasInvalidCharacters(FileInfo? fileContentFile,
+            Guid? currentContentId)
+        {
+            if (fileContentFile == null) return false;
+
+            fileContentFile.Refresh();
+
+            if (!fileContentFile.Exists) return false;
+
+            return !FolderFileUtility.IsNoUrlEncodingNeeded(Path.GetFileNameWithoutExtension(fileContentFile.Name));
+        }
+
 
         public static async Task<IsValid> FileContentFileValidation(FileInfo? fileContentFile, Guid? currentContentId)
         {
@@ -174,7 +195,8 @@ namespace PointlessWaymarks.CmsData.Content
             if (!FolderFileUtility.IsNoUrlEncodingNeeded(Path.GetFileNameWithoutExtension(fileContentFile.Name)))
                 return new IsValid(false, "Limit File Names to A-Z a-z 0-9 - . _");
 
-            if (await (await Db.Context().ConfigureAwait(false)).ImageFilenameExistsInDatabase(fileContentFile.Name, currentContentId).ConfigureAwait(false))
+            if (await (await Db.Context().ConfigureAwait(false))
+                .FileFilenameExistsInDatabase(fileContentFile.Name, currentContentId).ConfigureAwait(false))
                 return new IsValid(false, "This filename already exists in the database - file names must be unique.");
 
             return new IsValid(true, "File is Valid");
@@ -215,7 +237,8 @@ namespace PointlessWaymarks.CmsData.Content
             if (!FolderFileUtility.PictureFileTypeIsSupported(imageFile))
                 return new IsValid(false, "The file doesn't appear to be a supported file type.");
 
-            if (await (await Db.Context().ConfigureAwait(false)).ImageFilenameExistsInDatabase(imageFile.Name, currentContentId).ConfigureAwait(false))
+            if (await (await Db.Context().ConfigureAwait(false))
+                .ImageFilenameExistsInDatabase(imageFile.Name, currentContentId).ConfigureAwait(false))
                 return new IsValid(false,
                     "This filename already exists in the database - image file names must be unique.");
 
@@ -251,7 +274,8 @@ namespace PointlessWaymarks.CmsData.Content
             if (!FolderFileUtility.PictureFileTypeIsSupported(photoFile))
                 return new IsValid(false, "The file doesn't appear to be a supported file type.");
 
-            if (await (await Db.Context().ConfigureAwait(false)).PhotoFilenameExistsInDatabase(photoFile.Name, currentContentId).ConfigureAwait(false))
+            if (await (await Db.Context().ConfigureAwait(false))
+                .PhotoFilenameExistsInDatabase(photoFile.Name, currentContentId).ConfigureAwait(false))
                 return new IsValid(false,
                     "This filename already exists in the database - photo file names must be unique.");
 
@@ -306,7 +330,8 @@ namespace PointlessWaymarks.CmsData.Content
                 errorMessage.Add(createdUpdatedExplanation);
             }
 
-            var slugValidation = await ValidateSlugLocalAndDb(toValidate.Slug, toValidate.ContentId).ConfigureAwait(false);
+            var slugValidation =
+                await ValidateSlugLocalAndDb(toValidate.Slug, toValidate.ContentId).ConfigureAwait(false);
 
             if (!slugValidation.Valid)
             {
@@ -338,7 +363,9 @@ namespace PointlessWaymarks.CmsData.Content
                 errorMessage.Add(bodyContentFormatValidation.Explanation);
             }
 
-            var contentIdCheck = await CheckForBadContentReferences(toValidate, await Db.Context().ConfigureAwait(false), null).ConfigureAwait(false);
+            var contentIdCheck =
+                await CheckForBadContentReferences(toValidate, await Db.Context().ConfigureAwait(false), null)
+                    .ConfigureAwait(false);
 
             if (contentIdCheck.HasError)
             {
@@ -512,7 +539,8 @@ namespace PointlessWaymarks.CmsData.Content
             foreach (var loopElements in mapComponent.Elements)
             {
                 if (loopElements.Id < 1 ||
-                    await Db.ContentIdIsSpatialContentInDatabase(loopElements.MapComponentContentId).ConfigureAwait(false)) continue;
+                    await Db.ContentIdIsSpatialContentInDatabase(loopElements.MapComponentContentId)
+                        .ConfigureAwait(false)) continue;
                 isValid = false;
                 errorMessage.Add("Could not find all Elements Content Items in Db?");
                 break;
@@ -539,7 +567,8 @@ namespace PointlessWaymarks.CmsData.Content
 
             if (!localValidation.Valid) return localValidation;
 
-            if (await (await Db.Context().ConfigureAwait(false)).SlugExistsInDatabase(slug, contentId).ConfigureAwait(false))
+            if (await (await Db.Context().ConfigureAwait(false)).SlugExistsInDatabase(slug, contentId)
+                .ConfigureAwait(false))
                 return new IsValid(false, "This slug already exists in the database - slugs must be unique.");
 
             return new IsValid(true, string.Empty);

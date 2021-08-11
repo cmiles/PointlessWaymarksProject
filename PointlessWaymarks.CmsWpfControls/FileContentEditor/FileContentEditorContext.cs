@@ -31,6 +31,7 @@ namespace PointlessWaymarks.CmsWpfControls.FileContentEditor
     public class FileContentEditorContext : INotifyPropertyChanged, IHasChanges, IHasValidationIssues,
         ICheckForChangesAndValidation
     {
+        private Command _autoRenameSelectedFileCommand;
         private BodyContentEditorContext _bodyContent;
         private Command _chooseFileCommand;
         private ContentIdViewerControlContext _contentId;
@@ -53,6 +54,7 @@ namespace PointlessWaymarks.CmsWpfControls.FileContentEditor
         private FileInfo _selectedFile;
         private bool _selectedFileHasPathOrNameChanges;
         private bool _selectedFileHasValidationIssues;
+        private bool _selectedFileNameHasInvalidCharacters;
         private string _selectedFileValidationMessage;
         private BoolDataEntryContext _showInSiteFeed;
         private StatusControlContext _statusContext;
@@ -73,6 +75,17 @@ namespace PointlessWaymarks.CmsWpfControls.FileContentEditor
         private FileContentEditorContext(StatusControlContext statusContext)
         {
             SetupStatusContextAndCommands(statusContext);
+        }
+
+        public Command AutoRenameSelectedFileCommand
+        {
+            get => _autoRenameSelectedFileCommand;
+            set
+            {
+                if (Equals(value, _autoRenameSelectedFileCommand)) return;
+                _autoRenameSelectedFileCommand = value;
+                OnPropertyChanged();
+            }
         }
 
         public BodyContentEditorContext BodyContent
@@ -298,6 +311,17 @@ Notes:
             {
                 if (value == _selectedFileHasValidationIssues) return;
                 _selectedFileHasValidationIssues = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public bool SelectedFileNameHasInvalidCharacters
+        {
+            get => _selectedFileNameHasInvalidCharacters;
+            set
+            {
+                if (value == _selectedFileNameHasInvalidCharacters) return;
+                _selectedFileNameHasInvalidCharacters = value;
                 OnPropertyChanged();
             }
         }
@@ -739,6 +763,9 @@ Notes:
             SelectedFileHasValidationIssues = !isValid;
 
             SelectedFileValidationMessage = explanation;
+
+            SelectedFileNameHasInvalidCharacters =
+                CommonContentValidation.FileContentFileFileNameHasInvalidCharacters(SelectedFile, DbEntry?.ContentId);
         }
 
         public void SetupStatusContextAndCommands(StatusControlContext statusContext)
@@ -759,6 +786,8 @@ Notes:
             ViewOnSiteCommand = StatusContext.RunBlockingTaskCommand(ViewOnSite);
             RenameSelectedFileCommand = StatusContext.RunBlockingTaskCommand(async () =>
                 await FileHelpers.RenameSelectedFile(SelectedFile, StatusContext, x => SelectedFile = x));
+            AutoRenameSelectedFileCommand = StatusContext.RunBlockingTaskCommand(async () =>
+                await FileHelpers.TryAutoRenameSelectedFile(SelectedFile, StatusContext, x => SelectedFile = x));
             ExtractNewLinksCommand = StatusContext.RunBlockingTaskCommand(() =>
                 LinkExtraction.ExtractNewAndShowLinkContentEditors(
                     $"{BodyContent.BodyContent} {UpdateNotes.UpdateNotes}", StatusContext.ProgressTracker()));

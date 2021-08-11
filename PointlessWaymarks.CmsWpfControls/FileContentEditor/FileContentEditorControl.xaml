@@ -95,6 +95,7 @@
                                         </WrapPanel.Resources>
                                         <Button Command="{Binding OpenSelectedFileCommand}">Open File</Button>
                                         <Button Command="{Binding OpenSelectedFileDirectoryCommand}">Open Directory</Button>
+                                        <Button Command="{Binding AutoRenameSelectedFileCommand}" Visibility="{Binding SelectedFileNameHasInvalidCharacters, Converter={StaticResource BooleanToVisibility}}" Background="Yellow" ToolTip="This filename has illegal characters - pressing this to attempt to auto-rename the file">Auto-Rename</Button>
                                         <Button Command="{Binding RenameSelectedFileCommand}">Rename</Button>
                                     </WrapPanel>
                                 </Grid>
