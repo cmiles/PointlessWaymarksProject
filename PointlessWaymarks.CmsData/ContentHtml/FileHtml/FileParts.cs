@@ -1,4 +1,5 @@
-﻿using HtmlTags;
+﻿using System;
+using HtmlTags;
 using PointlessWaymarks.CmsData.Database.Models;
 
 namespace PointlessWaymarks.CmsData.ContentHtml.FileHtml
@@ -27,7 +28,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml.FileHtml
 
             var settings = UserSettingsSingleton.CurrentSettings();
 
-            if (content.OriginalFileName.TrimNullToEmpty().EndsWith(".pdf"))
+            if (content.OriginalFileName.TrimNullToEmpty().EndsWith(".pdf", StringComparison.InvariantCultureIgnoreCase))
             {
                 var embedTag = new HtmlTag("embed").Attr("src", settings.FileDownloadUrl(content))
                     .Attr("type", "application/pdf").AddClass("file-embed");
