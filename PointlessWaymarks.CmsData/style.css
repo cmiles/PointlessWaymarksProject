@@ -403,7 +403,7 @@ a.site-header-title-link:active {
 
 .file-embed-container {
     text-align: center;
-    margin: 1rem;
+    margin: 1rem 10%;
 }
 
 .file-embed {
@@ -759,7 +759,6 @@ a.tag-list-link {
 
 .search-input-container {
     display: flex;
-    border: 1px solid var(--foreground-color);
     flex-direction: row;
     flex-wrap: wrap;
     justify-content: center;
