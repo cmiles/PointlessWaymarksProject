@@ -95,18 +95,25 @@
                         <MouseBinding Command="{Binding ViewSelectedFileCommand}" MouseAction="LeftDoubleClick" />
                     </Image.InputBindings>
                 </Image>
-                <TextBox
-                    Grid.Row="3"
-                    Margin="4,12,4,12"
-                    HorizontalAlignment="Center"
-                    Style="{StaticResource ReadOnlyTextBoxStyle}"
-                    Text="{Binding SelectedFile.FullName, Mode=OneWay}"
-                    TextDecorations="Underline"
-                    TextWrapping="Wrap">
-                    <b:Interaction.Behaviors>
-                        <wpfBehavior:TextBoxDoubleClickLauncher />
-                    </b:Interaction.Behaviors>
-                </TextBox>
+                <StackPanel Orientation="Vertical" Grid.Row="3" Margin="4,12,4,12">
+                    <TextBox
+                        HorizontalAlignment="Center"
+                        Style="{StaticResource ReadOnlyTextBoxStyle}"
+                        Text="{Binding SelectedFile.FullName, Mode=OneWay}"
+                        TextDecorations="Underline"
+                        TextWrapping="Wrap">
+                        <b:Interaction.Behaviors>
+                            <wpfBehavior:TextBoxDoubleClickLauncher />
+                        </b:Interaction.Behaviors>
+                    </TextBox>
+                    <Button Background="Yellow"
+                            HorizontalAlignment="Center"
+                            Visibility="{Binding SelectedFileNameHasInvalidCharacters, Converter={StaticResource BooleanToVisibility}}"
+                            Command="{Binding AutoRenameSelectedFileCommand}"
+                            ToolTip="This filename has illegal characters - pressing this to attempt to auto-rename the file">
+                        Auto-Fix File Name
+                    </Button>
+                </StackPanel>
                 <WrapPanel
                     Grid.Row="4"
                     Margin="4,0,4,8"
@@ -136,11 +143,17 @@
                 <Grid>
                     <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
                         <StackPanel Margin="4" CanHorizontallyScroll="False">
-                            <titleSummarySlugFolderEditor:TitleSummarySlugEditorControl DataContext="{Binding TitleSummarySlugFolder}" />
-                            <boolDataEntry1:BoolDataEntryControl DataContext="{Binding ShowInSiteFeed}" Style="{StaticResource DataEntryBoolStyle}" />
-                            <tagsEditor:TagsEditorControl DataContext="{Binding TagEdit}" Style="{StaticResource TagsEditorInPanelStyle}" />
-                            <createdAndUpdatedByAndOnDisplay:CreatedAndUpdatedByAndOnDisplayControl DataContext="{Binding CreatedUpdatedDisplay}" Style="{StaticResource CreatedUpdatedInPanelStyle}" />
-                            <contentIdViewer:ContentIdViewerControl DataContext="{Binding ContentId}" Style="{StaticResource ContentIdInPanelStyle}" />
+                            <titleSummarySlugFolderEditor:TitleSummarySlugEditorControl
+                                DataContext="{Binding TitleSummarySlugFolder}" />
+                            <boolDataEntry1:BoolDataEntryControl DataContext="{Binding ShowInSiteFeed}"
+                                                                 Style="{StaticResource DataEntryBoolStyle}" />
+                            <tagsEditor:TagsEditorControl DataContext="{Binding TagEdit}"
+                                                          Style="{StaticResource TagsEditorInPanelStyle}" />
+                            <createdAndUpdatedByAndOnDisplay:CreatedAndUpdatedByAndOnDisplayControl
+                                DataContext="{Binding CreatedUpdatedDisplay}"
+                                Style="{StaticResource CreatedUpdatedInPanelStyle}" />
+                            <contentIdViewer:ContentIdViewerControl DataContext="{Binding ContentId}"
+                                                                    Style="{StaticResource ContentIdInPanelStyle}" />
                         </StackPanel>
                     </ScrollViewer>
                 </Grid>

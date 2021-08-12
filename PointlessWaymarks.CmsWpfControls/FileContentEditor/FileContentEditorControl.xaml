@@ -69,19 +69,30 @@
                                         <RowDefinition Height="Auto" />
                                         <RowDefinition Height="Auto" />
                                     </Grid.RowDefinitions>
-                                    <Button Command="{Binding ChooseFileCommand}" Style="{StaticResource ActionPanelButtonStyle}">Choose File</Button>
+                                    <Button Command="{Binding ChooseFileCommand}"
+                                            Style="{StaticResource ActionPanelButtonStyle}">
+                                        Choose File
+                                    </Button>
                                     <Label Grid.Row="1" Style="{StaticResource DataEntryLabelStyle}">Selected File</Label>
-                                    <TextBox
-                                        Grid.Row="2"
-                                        Margin="6,2,0,8"
-                                        Style="{StaticResource ReadOnlyTextBoxStyle}"
-                                        Text="{Binding SelectedFile.FullName, Mode=OneWay}"
-                                        TextDecorations="Underline"
-                                        TextWrapping="Wrap">
-                                        <b:Interaction.Behaviors>
-                                            <wpfBehavior:TextBoxDoubleClickLauncher />
-                                        </b:Interaction.Behaviors>
-                                    </TextBox>
+                                    <StackPanel Orientation="Vertical" Grid.Row="2"
+                                                Margin="6,2,0,8">
+                                        <TextBox
+
+                                            Style="{StaticResource ReadOnlyTextBoxStyle}"
+                                            Text="{Binding SelectedFile.FullName, Mode=OneWay}"
+                                            TextDecorations="Underline"
+                                            TextWrapping="Wrap">
+                                            <b:Interaction.Behaviors>
+                                                <wpfBehavior:TextBoxDoubleClickLauncher />
+                                            </b:Interaction.Behaviors>
+                                        </TextBox>
+                                        <Button Command="{Binding AutoRenameSelectedFileCommand}"
+                                                Visibility="{Binding SelectedFileNameHasInvalidCharacters, Converter={StaticResource BooleanToVisibility}}"
+                                                Background="Yellow"
+                                                ToolTip="This filename has illegal characters - pressing this to attempt to auto-rename the file">
+                                            Auto-Fix File Name
+                                        </Button>
+                                    </StackPanel>
                                     <WrapPanel
                                         Grid.Row="3"
                                         Margin="4,0,4,12"
@@ -95,7 +106,7 @@
                                         </WrapPanel.Resources>
                                         <Button Command="{Binding OpenSelectedFileCommand}">Open File</Button>
                                         <Button Command="{Binding OpenSelectedFileDirectoryCommand}">Open Directory</Button>
-                                        <Button Command="{Binding AutoRenameSelectedFileCommand}" Visibility="{Binding SelectedFileNameHasInvalidCharacters, Converter={StaticResource BooleanToVisibility}}" Background="Yellow" ToolTip="This filename has illegal characters - pressing this to attempt to auto-rename the file">Auto-Rename</Button>
+
                                         <Button Command="{Binding RenameSelectedFileCommand}">Rename</Button>
                                     </WrapPanel>
                                 </Grid>
@@ -110,11 +121,17 @@
                             </StackPanel>
                             <boolDataEntry1:BoolDataEntryControl DataContext="{Binding PublicDownloadLink}" />
                             <boolDataEntry1:BoolDataEntryControl DataContext="{Binding EmbedFile}" />
-                            <titleSummarySlugFolderEditor:TitleSummarySlugEditorControl Margin="0,4,0,0" DataContext="{Binding TitleSummarySlugFolder}" />
-                            <boolDataEntry1:BoolDataEntryControl DataContext="{Binding ShowInSiteFeed}" Style="{StaticResource DataEntryBoolStyle}" />
-                            <tagsEditor:TagsEditorControl DataContext="{Binding TagEdit}" Style="{StaticResource TagsEditorInPanelStyle}" />
-                            <createdAndUpdatedByAndOnDisplay:CreatedAndUpdatedByAndOnDisplayControl DataContext="{Binding CreatedUpdatedDisplay}" Style="{StaticResource CreatedUpdatedInPanelStyle}" />
-                            <contentIdViewer:ContentIdViewerControl DataContext="{Binding ContentId}" Style="{StaticResource ContentIdInPanelStyle}" />
+                            <titleSummarySlugFolderEditor:TitleSummarySlugEditorControl Margin="0,4,0,0"
+                                DataContext="{Binding TitleSummarySlugFolder}" />
+                            <boolDataEntry1:BoolDataEntryControl DataContext="{Binding ShowInSiteFeed}"
+                                                                 Style="{StaticResource DataEntryBoolStyle}" />
+                            <tagsEditor:TagsEditorControl DataContext="{Binding TagEdit}"
+                                                          Style="{StaticResource TagsEditorInPanelStyle}" />
+                            <createdAndUpdatedByAndOnDisplay:CreatedAndUpdatedByAndOnDisplayControl
+                                DataContext="{Binding CreatedUpdatedDisplay}"
+                                Style="{StaticResource CreatedUpdatedInPanelStyle}" />
+                            <contentIdViewer:ContentIdViewerControl DataContext="{Binding ContentId}"
+                                                                    Style="{StaticResource ContentIdInPanelStyle}" />
                         </StackPanel>
                     </ScrollViewer>
                 </Grid>
@@ -155,7 +172,8 @@
                     Command="{Binding DownloadLinkToClipboardCommand}"
                     Content="Download Code"
                     Style="{StaticResource ActionPanelButtonStyle}" />
-                <Button Command="{Binding SaveAndExtractImageFromPdfCommand}" Style="{StaticResource ActionPanelButtonStyle}">
+                <Button Command="{Binding SaveAndExtractImageFromPdfCommand}"
+                        Style="{StaticResource ActionPanelButtonStyle}">
                     <Viewbox StretchDirection="DownOnly">
                         <StackPanel Orientation="Horizontal">
                             <Label>Save, Extract Pdf Page</Label>

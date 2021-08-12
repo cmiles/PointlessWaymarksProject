@@ -39,6 +39,7 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoContentEditor
     {
         private StringDataEntryContext _altTextEntry;
         private StringDataEntryContext _apertureEntry;
+        private Command _autoRenameSelectedFileCommand;
         private BodyContentEditorContext _bodyContent;
         private StringDataEntryContext _cameraMakeEntry;
         private StringDataEntryContext _cameraModelEntry;
@@ -71,6 +72,7 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoContentEditor
         private BitmapSource _selectedFileBitmapSource;
         private bool _selectedFileHasPathOrNameChanges;
         private bool _selectedFileHasValidationIssues;
+        private bool _selectedFileNameHasInvalidCharacters;
         private string _selectedFileValidationMessage;
         private BoolDataEntryContext _showInSiteFeed;
         private StringDataEntryContext _shutterSpeedEntry;
@@ -107,6 +109,17 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoContentEditor
             {
                 if (Equals(value, _apertureEntry)) return;
                 _apertureEntry = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public Command AutoRenameSelectedFileCommand
+        {
+            get => _autoRenameSelectedFileCommand;
+            set
+            {
+                if (Equals(value, _autoRenameSelectedFileCommand)) return;
+                _autoRenameSelectedFileCommand = value;
                 OnPropertyChanged();
             }
         }
@@ -427,6 +440,17 @@ Photo Content Notes:
             {
                 if (value == _selectedFileHasValidationIssues) return;
                 _selectedFileHasValidationIssues = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public bool SelectedFileNameHasInvalidCharacters
+        {
+            get => _selectedFileNameHasInvalidCharacters;
+            set
+            {
+                if (value == _selectedFileNameHasInvalidCharacters) return;
+                _selectedFileNameHasInvalidCharacters = value;
                 OnPropertyChanged();
             }
         }
@@ -929,6 +953,9 @@ Photo Content Notes:
 
             SelectedFileValidationMessage = explanation;
 
+            SelectedFileNameHasInvalidCharacters =
+                CommonContentValidation.FileContentFileFileNameHasInvalidCharacters(SelectedFile, DbEntry?.ContentId);
+
             if (SelectedFile == null)
             {
                 SelectedFileBitmapSource = ImageHelpers.BlankImage;
@@ -964,6 +991,8 @@ Photo Content Notes:
             ViewOnSiteCommand = StatusContext.RunBlockingTaskCommand(ViewOnSite);
             RenameSelectedFileCommand = StatusContext.RunBlockingTaskCommand(async () =>
                 await FileHelpers.RenameSelectedFile(SelectedFile, StatusContext, x => SelectedFile = x));
+            AutoRenameSelectedFileCommand = StatusContext.RunBlockingTaskCommand(async () =>
+                await FileHelpers.TryAutoRenameSelectedFile(SelectedFile, StatusContext, x => SelectedFile = x));
             ExtractNewLinksCommand = StatusContext.RunBlockingTaskCommand(() =>
                 LinkExtraction.ExtractNewAndShowLinkContentEditors(BodyContent.BodyContent,
                     StatusContext.ProgressTracker()));

@@ -35,6 +35,7 @@ namespace PointlessWaymarks.CmsWpfControls.ImageContentEditor
     public class ImageContentEditorContext : INotifyPropertyChanged, IHasChanges
     {
         private StringDataEntryContext _altText;
+        private Command _autoRenameSelectedFileCommand;
         private BodyContentEditorContext _bodyContent;
         private Command _chooseFileCommand;
         private ContentIdViewerControlContext _contentId;
@@ -56,6 +57,7 @@ namespace PointlessWaymarks.CmsWpfControls.ImageContentEditor
         private BitmapSource _selectedFileBitmapSource;
         private bool _selectedFileHasPathOrNameChanges;
         private bool _selectedFileHasValidationIssues;
+        private bool _selectedFileNameHasInvalidCharacters;
         private string _selectedFileValidationMessage;
         private BoolDataEntryContext _showInSearch;
         private BoolDataEntryContext _showInSiteFeed;
@@ -80,6 +82,17 @@ namespace PointlessWaymarks.CmsWpfControls.ImageContentEditor
             {
                 if (Equals(value, _altText)) return;
                 _altText = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public Command AutoRenameSelectedFileCommand
+        {
+            get => _autoRenameSelectedFileCommand;
+            set
+            {
+                if (Equals(value, _autoRenameSelectedFileCommand)) return;
+                _autoRenameSelectedFileCommand = value;
                 OnPropertyChanged();
             }
         }
@@ -295,6 +308,17 @@ namespace PointlessWaymarks.CmsWpfControls.ImageContentEditor
             }
         }
 
+        public bool SelectedFileNameHasInvalidCharacters
+        {
+            get => _selectedFileNameHasInvalidCharacters;
+            set
+            {
+                if (value == _selectedFileNameHasInvalidCharacters) return;
+                _selectedFileNameHasInvalidCharacters = value;
+                OnPropertyChanged();
+            }
+        }
+
         public string SelectedFileValidationMessage
         {
             get => _selectedFileValidationMessage;
@@ -434,7 +458,7 @@ namespace PointlessWaymarks.CmsWpfControls.ImageContentEditor
             ImageContent contentToLoad = null, FileInfo initialImage = null)
         {
             var newContext = new ImageContentEditorContext(statusContext);
-            if (initialImage is {Exists: true}) newContext._initialImage = initialImage;
+            if (initialImage is { Exists: true }) newContext._initialImage = initialImage;
             await newContext.LoadData(contentToLoad);
             return newContext;
         }
@@ -546,7 +570,7 @@ namespace PointlessWaymarks.CmsWpfControls.ImageContentEditor
             AltTextEntry.ReferenceValue = DbEntry.AltText ?? string.Empty;
             AltTextEntry.UserValue = DbEntry.AltText.TrimNullToEmpty();
 
-            if (DbEntry.Id < 1 && _initialImage is {Exists: true} &&
+            if (DbEntry.Id < 1 && _initialImage is { Exists: true } &&
                 FileHelpers.ImageFileTypeIsSupported(_initialImage))
             {
                 SelectedFile = _initialImage;
@@ -623,6 +647,9 @@ namespace PointlessWaymarks.CmsWpfControls.ImageContentEditor
 
             SelectedFileValidationMessage = explanation;
 
+            SelectedFileNameHasInvalidCharacters =
+                CommonContentValidation.FileContentFileFileNameHasInvalidCharacters(SelectedFile, DbEntry?.ContentId);
+
             if (SelectedFile == null)
             {
                 SelectedFileBitmapSource = ImageHelpers.BlankImage;
@@ -660,6 +687,8 @@ namespace PointlessWaymarks.CmsWpfControls.ImageContentEditor
             ViewSelectedFileCommand = StatusContext.RunNonBlockingTaskCommand(ViewSelectedFile);
             RenameSelectedFileCommand = StatusContext.RunBlockingTaskCommand(async () =>
                 await FileHelpers.RenameSelectedFile(SelectedFile, StatusContext, x => SelectedFile = x));
+            AutoRenameSelectedFileCommand = StatusContext.RunBlockingTaskCommand(async () =>
+                await FileHelpers.TryAutoRenameSelectedFile(SelectedFile, StatusContext, x => SelectedFile = x));
             RotateImageRightCommand =
                 StatusContext.RunBlockingTaskCommand(async () => await RotateImage(Orientation.Rotate90));
             RotateImageLeftCommand =
@@ -685,7 +714,7 @@ namespace PointlessWaymarks.CmsWpfControls.ImageContentEditor
 
             var url = $@"http://{settings.ImagePageUrl(DbEntry)}";
 
-            var ps = new ProcessStartInfo(url) {UseShellExecute = true, Verb = "open"};
+            var ps = new ProcessStartInfo(url) { UseShellExecute = true, Verb = "open" };
             Process.Start(ps);
         }
 
@@ -693,7 +722,7 @@ namespace PointlessWaymarks.CmsWpfControls.ImageContentEditor
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            if (SelectedFile is not {Exists: true, Directory: {Exists: true}})
+            if (SelectedFile is not { Exists: true, Directory: { Exists: true } })
             {
                 StatusContext.ToastError("No Selected File or Selected File no longer exists?");
                 return;
@@ -701,7 +730,7 @@ namespace PointlessWaymarks.CmsWpfControls.ImageContentEditor
 
             await ThreadSwitcher.ResumeForegroundAsync();
 
-            var ps = new ProcessStartInfo(SelectedFile.FullName) {UseShellExecute = true, Verb = "open"};
+            var ps = new ProcessStartInfo(SelectedFile.FullName) { UseShellExecute = true, Verb = "open" };
             Process.Start(ps);
         }
     }
