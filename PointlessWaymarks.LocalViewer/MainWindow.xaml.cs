@@ -41,7 +41,7 @@ namespace PointlessWaymarks.LocalViewer
 
             if (string.IsNullOrWhiteSpace(siteUrl) || string.IsNullOrWhiteSpace(siteName))
             {
-                var possibleFile = Directory.EnumerateDirectories(Environment.CurrentDirectory, "index.htm*")
+                var possibleFile = Directory.EnumerateFiles(localFolder, "index.htm*")
                     .OrderBy(x => x.Length).FirstOrDefault();
 
                 if (!string.IsNullOrWhiteSpace(possibleFile))

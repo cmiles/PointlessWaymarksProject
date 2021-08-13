@@ -16,7 +16,7 @@ namespace PointlessWaymarks.LocalViewer
 
             var options = (optionsResult as Parsed<CommandLineOptions>)?.Value;
 
-            new MainWindow(options.Url, options.Folder, options.SiteName).Show();
+            new MainWindow(options?.Url, options?.Folder, options?.SiteName).Show();
         }
     }
 }
