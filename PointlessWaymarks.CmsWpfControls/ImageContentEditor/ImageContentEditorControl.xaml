@@ -86,7 +86,7 @@
                         <MouseBinding Command="{Binding ViewSelectedFileCommand}" MouseAction="LeftDoubleClick" />
                     </Image.InputBindings>
                 </Image>
-                <StackPanel Orientation="Vertical" Grid.Row="3" Margin="4,12,4,12">
+                <StackPanel Orientation="Vertical" Grid.Row="2" Margin="4,12,4,12">
                     <TextBox
                         HorizontalAlignment="Center"
                         Style="{StaticResource ReadOnlyTextBoxStyle}"

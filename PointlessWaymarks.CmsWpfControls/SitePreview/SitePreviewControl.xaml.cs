@@ -79,11 +79,26 @@ namespace PointlessWaymarks.CmsWpfControls.SitePreview
                 return;
             }
 
-            if (!e.Uri.ToLower().StartsWith("http"))
+            if (!e.Uri.StartsWith("http", StringComparison.InvariantCultureIgnoreCase))
             {
                 e.Cancel = true;
                 PreviewContext.StatusContext.ToastError(
-                    "This window only supports http and https (no ftp, no searches, ...");
+                    "This window only supports http and https (no ftp, etc.)");
+                return;
+            }
+
+            //The preview server rewrites html files so that links should point
+            //to the localhost preview - this is to catch links loaded by javascript
+            //that point to the site and redirect the link to localhost
+            if (e.Uri.Contains(PreviewContext.SiteUrl, StringComparison.CurrentCultureIgnoreCase))
+            {
+                var rewrittenUrl = e.Uri.Replace(
+                    "https://", "http://",
+                    StringComparison.InvariantCultureIgnoreCase).Replace($"//{PreviewContext.SiteUrl}",
+                    $"//{PreviewContext.PreviewServerHost}", StringComparison.InvariantCultureIgnoreCase);
+                e.Cancel = true;
+
+                SitePreviewWebView.CoreWebView2.Navigate(rewrittenUrl);
                 return;
             }
 
@@ -99,7 +114,7 @@ namespace PointlessWaymarks.CmsWpfControls.SitePreview
                 return;
             }
 
-            if (parsedUri.Authority.ToLower() != PreviewContext.PreviewServerHost.ToLower())
+            if (!string.Equals(parsedUri.Authority, PreviewContext.PreviewServerHost, StringComparison.CurrentCultureIgnoreCase))
             {
                 e.Cancel = true;
                 ProcessHelpers.OpenUrlInExternalBrowser(e.Uri);
