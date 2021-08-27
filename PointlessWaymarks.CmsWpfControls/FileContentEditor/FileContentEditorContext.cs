@@ -688,7 +688,7 @@ Notes:
 
         private async Task SaveAndExtractImageFromPdf()
         {
-            if (SelectedFile is not { Exists: true } || !SelectedFile.Extension.ToLower().Contains("pdf"))
+            if (SelectedFile is not { Exists: true } || !SelectedFile.Extension.ToUpperInvariant().Contains("PDF"))
             {
                 StatusContext.ToastError("Please selected a valid pdf file");
                 return;

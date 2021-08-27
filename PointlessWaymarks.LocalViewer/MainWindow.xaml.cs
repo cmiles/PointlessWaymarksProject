@@ -79,7 +79,7 @@ namespace PointlessWaymarks.LocalViewer
 
                         if (urlFound && siteNameFound) break;
 
-                        if (loopLine.Contains("</head>", StringComparison.InvariantCultureIgnoreCase)) break;
+                        if (loopLine.Contains("</head>", StringComparison.OrdinalIgnoreCase)) break;
                     }
                 }
             }

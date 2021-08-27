@@ -79,7 +79,7 @@ namespace PointlessWaymarks.CmsWpfControls.SitePreview
                 return;
             }
 
-            if (!e.Uri.StartsWith("http", StringComparison.InvariantCultureIgnoreCase))
+            if (!e.Uri.StartsWith("http", StringComparison.OrdinalIgnoreCase))
             {
                 e.Cancel = true;
                 PreviewContext.StatusContext.ToastError(
@@ -94,8 +94,8 @@ namespace PointlessWaymarks.CmsWpfControls.SitePreview
             {
                 var rewrittenUrl = e.Uri.Replace(
                     "https://", "http://",
-                    StringComparison.InvariantCultureIgnoreCase).Replace($"//{PreviewContext.SiteUrl}",
-                    $"//{PreviewContext.PreviewServerHost}", StringComparison.InvariantCultureIgnoreCase);
+                    StringComparison.OrdinalIgnoreCase).Replace($"//{PreviewContext.SiteUrl}",
+                    $"//{PreviewContext.PreviewServerHost}", StringComparison.OrdinalIgnoreCase);
                 e.Cancel = true;
 
                 SitePreviewWebView.CoreWebView2.Navigate(rewrittenUrl);
@@ -114,7 +114,8 @@ namespace PointlessWaymarks.CmsWpfControls.SitePreview
                 return;
             }
 
-            if (!string.Equals(parsedUri.Authority, PreviewContext.PreviewServerHost, StringComparison.CurrentCultureIgnoreCase))
+            if (!string.Equals(parsedUri.Authority, PreviewContext.PreviewServerHost,
+                StringComparison.CurrentCultureIgnoreCase))
             {
                 e.Cancel = true;
                 ProcessHelpers.OpenUrlInExternalBrowser(e.Uri);

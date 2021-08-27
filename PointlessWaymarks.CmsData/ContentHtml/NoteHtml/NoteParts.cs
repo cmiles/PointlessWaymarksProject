@@ -13,7 +13,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml.NoteHtml
             var onlyCreated = false;
 
             if (dbEntry.LastUpdatedOn != null && dbEntry.CreatedOn.Date == dbEntry.LastUpdatedOn.Value.Date)
-                if (string.Compare(dbEntry.CreatedBy, dbEntry.LastUpdatedBy, StringComparison.OrdinalIgnoreCase) != 0)
+                if (!string.Equals(dbEntry.CreatedBy, dbEntry.LastUpdatedBy, StringComparison.OrdinalIgnoreCase))
                 {
                     createdUpdatedString = $"{dbEntry.LastUpdatedBy} ";
                     onlyCreated = true;

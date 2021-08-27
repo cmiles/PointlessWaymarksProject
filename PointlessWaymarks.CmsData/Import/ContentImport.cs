@@ -103,7 +103,8 @@ namespace PointlessWaymarks.CmsData.Import
                 columnName.TrimNullToEmpty(), StringComparison.CurrentCultureIgnoreCase));
 
             if (contentIdColumn == null)
-                return new ContentImportValueParse<Guid?> {ParsedValue = null, StringValue = null, ValueParsed = false};
+                return new ContentImportValueParse<Guid?>
+                    { ParsedValue = null, StringValue = null, ValueParsed = false };
 
             var stringValue = toProcess.Values[contentIdColumn.ColumnNumber];
 
@@ -165,7 +166,7 @@ namespace PointlessWaymarks.CmsData.Import
 
                 if (string.IsNullOrWhiteSpace(stringValue)) continue;
 
-                var toAdd = new ContentImportValueParse<PointDetail?> {StringValue = stringValue};
+                var toAdd = new ContentImportValueParse<PointDetail?> { StringValue = stringValue };
                 returnList.Add(toAdd);
 
                 var splitList = stringValue.RemoveNewLines().TrimNullToEmpty().Split("||")
@@ -185,7 +186,7 @@ namespace PointlessWaymarks.CmsData.Import
                 //
                 if (splitList[0].Length <= 10 || !splitList[0].StartsWith("ContentId:"))
                 {
-                    pointDetail = new PointDetail {ContentId = Guid.NewGuid(), CreatedOn = DateTime.Now};
+                    pointDetail = new PointDetail { ContentId = Guid.NewGuid(), CreatedOn = DateTime.Now };
                 }
                 else
                 {
@@ -390,7 +391,7 @@ namespace PointlessWaymarks.CmsData.Import
 
                     var compareLogic = new CompareLogic
                     {
-                        Config = {MembersToIgnore = new List<string> {"LastUpdatedBy"}, MaxDifferences = 100}
+                        Config = { MembersToIgnore = new List<string> { "LastUpdatedBy" }, MaxDifferences = 100 }
                     };
                     ComparisonResult comparisonResult =
                         compareLogic.Compare(currentDbEntry, importResult.processContent);
@@ -415,11 +416,14 @@ namespace PointlessWaymarks.CmsData.Import
                 var validationResult = importResult.processContent switch
                 {
                     PhotoContent p => await PhotoGenerator.Validate(p,
-                        UserSettingsSingleton.CurrentSettings().LocalMediaArchivePhotoContentFile(p)).ConfigureAwait(false),
+                            UserSettingsSingleton.CurrentSettings().LocalMediaArchivePhotoContentFile(p))
+                        .ConfigureAwait(false),
                     FileContent f => await FileGenerator.Validate(f,
-                        UserSettingsSingleton.CurrentSettings().LocalMediaArchiveFileContentFile(f)).ConfigureAwait(false),
+                            UserSettingsSingleton.CurrentSettings().LocalMediaArchiveFileContentFile(f))
+                        .ConfigureAwait(false),
                     ImageContent i => await ImageGenerator.Validate(i,
-                        UserSettingsSingleton.CurrentSettings().LocalMediaArchiveImageContentFile(i)).ConfigureAwait(false),
+                            UserSettingsSingleton.CurrentSettings().LocalMediaArchiveImageContentFile(i))
+                        .ConfigureAwait(false),
                     PointContentDto pc => await PointGenerator.Validate(pc).ConfigureAwait(false),
                     PostContent pc => await PostGenerator.Validate(pc).ConfigureAwait(false),
                     LinkContent l => await LinkGenerator.Validate(l).ConfigureAwait(false),
@@ -506,7 +510,7 @@ namespace PointlessWaymarks.CmsData.Import
                 return await ImportContentTable(null, progress).ConfigureAwait(false);
             }
 
-            var worksheet = (Worksheet) currentExcel.ActiveWorkbook.ActiveSheet;
+            var worksheet = (Worksheet)currentExcel.ActiveWorkbook.ActiveSheet;
             var tableRange = worksheet.UsedRange;
 
             if (tableRange == null)
@@ -526,12 +530,12 @@ namespace PointlessWaymarks.CmsData.Import
             progress?.Report(
                 $"Excel Open File Import - Workbook {currentExcel.ActiveWorkbook.Name} - Worksheet {worksheet.Name} - Range {tableRange.Address}");
 
-            var excelObjects = (object?[,]) tableRange.Value;
+            var excelObjects = (object?[,])tableRange.Value;
 
             var rowLength = excelObjects.GetLength(0);
             var columnLength = excelObjects.GetLength(1);
 
-            var excelRow = ((Range) tableRange.Cells[1, 1]).Row;
+            var excelRow = ((Range)tableRange.Cells[1, 1]).Row;
 
             var translated = new List<ContentImportRow>();
 
@@ -552,15 +556,15 @@ namespace PointlessWaymarks.CmsData.Import
         {
             if (string.IsNullOrWhiteSpace(newContentTypeString)) return null;
 
-            return newContentTypeString.ToLower() switch
+            return newContentTypeString.ToUpperInvariant() switch
             {
-                "file" => new FileContent(),
-                "image" => new ImageContent(),
-                "link" => new LinkContent(),
-                "note" => new NoteContent(),
-                "photo" => new PhotoContent(),
-                "point" => new PointContentDto(),
-                "post" => new PostContent(),
+                "FILE" => new FileContent(),
+                "IMAGE" => new ImageContent(),
+                "LINK" => new LinkContent(),
+                "NOTE" => new NoteContent(),
+                "PHOTO" => new PhotoContent(),
+                "POINT" => new PointContentDto(),
+                "POST" => new PostContent(),
                 _ => null
             };
         }
@@ -587,7 +591,7 @@ namespace PointlessWaymarks.CmsData.Import
                         var archiveFile = UserSettingsSingleton.CurrentSettings()
                             .LocalMediaArchivePhotoContentFile(photo);
 
-                        if (archiveFile is not {Exists: true})
+                        if (archiveFile is not { Exists: true })
                         {
                             generationResult = GenerationReturn.Error(
                                 $"Can not find media archive file for Photo Titled {photo.Title} - file: {archiveFile?.FullName}",
@@ -604,7 +608,7 @@ namespace PointlessWaymarks.CmsData.Import
                         var archiveFile = UserSettingsSingleton.CurrentSettings()
                             .LocalMediaArchiveFileContentFile(file);
 
-                        if (archiveFile is not {Exists: true})
+                        if (archiveFile is not { Exists: true })
                         {
                             generationResult = GenerationReturn.Error(
                                 $"Can not find media archive file for Photo Titled {file.Title} - file: {archiveFile?.FullName}",
@@ -621,7 +625,7 @@ namespace PointlessWaymarks.CmsData.Import
                         var archiveFile = UserSettingsSingleton.CurrentSettings()
                             .LocalMediaArchiveImageContentFile(image);
 
-                        if (archiveFile is not {Exists: true})
+                        if (archiveFile is not { Exists: true })
                         {
                             generationResult = GenerationReturn.Error(
                                 $"Can not find media archive file for Photo Titled {image.Title} - file: {archiveFile?.FullName}",
@@ -635,25 +639,29 @@ namespace PointlessWaymarks.CmsData.Import
                     }
                     case PointContentDto point:
                     {
-                        generationResult = (await PointGenerator.SaveAndGenerateHtml(point, null, progress).ConfigureAwait(false))
+                        generationResult = (await PointGenerator.SaveAndGenerateHtml(point, null, progress)
+                                .ConfigureAwait(false))
                             .generationReturn;
                         break;
                     }
                     case PostContent post:
                     {
-                        generationResult = (await PostGenerator.SaveAndGenerateHtml(post, null, progress).ConfigureAwait(false))
+                        generationResult = (await PostGenerator.SaveAndGenerateHtml(post, null, progress)
+                                .ConfigureAwait(false))
                             .generationReturn;
                         break;
                     }
                     case NoteContent note:
                     {
-                        generationResult = (await NoteGenerator.SaveAndGenerateHtml(note, null, progress).ConfigureAwait(false))
+                        generationResult = (await NoteGenerator.SaveAndGenerateHtml(note, null, progress)
+                                .ConfigureAwait(false))
                             .generationReturn;
                         break;
                     }
                     case LinkContent link:
                     {
-                        generationResult = (await LinkGenerator.SaveAndGenerateHtml(link, null, progress).ConfigureAwait(false))
+                        generationResult = (await LinkGenerator.SaveAndGenerateHtml(link, null, progress)
+                                .ConfigureAwait(false))
                             .generationReturn;
                         break;
                     }

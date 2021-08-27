@@ -88,7 +88,8 @@ namespace PointlessWaymarks.CmsData.Content
         {
             if (!toCheck.Exists) return false;
 
-            return toCheck.Extension.ToLower().Contains("jpg") || toCheck.Extension.ToLower().Contains("jpeg");
+            return toCheck.Extension.ToUpperInvariant().Contains("JPG") ||
+                   toCheck.Extension.ToUpperInvariant().Contains("JPEG");
         }
 
         public static string TryMakeFilenameValid(string filenameWithoutExtensionToTransform)

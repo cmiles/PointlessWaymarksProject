@@ -28,7 +28,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml.FileHtml
 
             var settings = UserSettingsSingleton.CurrentSettings();
 
-            if (content.OriginalFileName.TrimNullToEmpty().EndsWith(".pdf", StringComparison.InvariantCultureIgnoreCase))
+            if (content.OriginalFileName.TrimNullToEmpty().EndsWith(".pdf", StringComparison.OrdinalIgnoreCase))
             {
                 var embedTag = new HtmlTag("embed").Attr("src", settings.FileDownloadUrl(content))
                     .Attr("type", "application/pdf").AddClass("file-embed");

@@ -87,7 +87,7 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList
 
             NewActions = new NewContent(StatusContext);
 
-            DataNotificationsProcessor = new DataNotificationsWorkQueue {Processor = DataNotificationReceived};
+            DataNotificationsProcessor = new DataNotificationsWorkQueue { Processor = DataNotificationReceived };
 
             LoadAllCommand = StatusContext.RunBlockingTaskCommand(async () =>
             {
@@ -631,7 +631,7 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList
 
                 if (translatedMessage.UpdateType == DataNotificationUpdateType.Update)
                     // ReSharper disable All
-                    ((dynamic) existingItem).DbEntry = (dynamic) loopItem;
+                    ((dynamic)existingItem).DbEntry = (dynamic)loopItem;
                 // ReSharper restore All
 
                 if (loopItem is IMainImage mainImage && existingItem is IContentListSmallImage itemWithSmallImage)
@@ -655,7 +655,7 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList
                 if (await StatusContext.ShowMessage("Delete Multiple Items",
                     $"You are about to delete {ListSelection.SelectedItems.Count} items - do you really want to delete all of these items?" +
                     $"{Environment.NewLine}{Environment.NewLine}{string.Join(Environment.NewLine, ListSelection.SelectedItems.Select(x => x.Content().Title))}",
-                    new List<string> {"Yes", "No"}) == "No")
+                    new List<string> { "Yes", "No" }) == "No")
                     return;
 
             var currentSelected = ListSelection.SelectedItems;
@@ -720,19 +720,24 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList
 
             await ThreadSwitcher.ResumeForegroundAsync();
 
-            ((CollectionView) CollectionViewSource.GetDefaultView(Items)).Filter = o =>
+            ((CollectionView)CollectionViewSource.GetDefaultView(Items)).Filter = o =>
             {
                 if (string.IsNullOrWhiteSpace(UserFilterText)) return true;
 
-                var loweredString = UserFilterText.ToLower();
-
                 if (o is not IContentListItem toFilter) return false;
-                if ((toFilter.Content().Title ?? string.Empty).ToLower().Contains(loweredString)) return true;
-                if ((toFilter.Content().Tags ?? string.Empty).ToLower().Contains(loweredString)) return true;
-                if ((toFilter.Content().Summary ?? string.Empty).ToLower().Contains(loweredString)) return true;
-                if ((toFilter.Content().CreatedBy ?? string.Empty).ToLower().Contains(loweredString)) return true;
-                if ((toFilter.Content().LastUpdatedBy ?? string.Empty).ToLower().Contains(loweredString)) return true;
-                if (toFilter.ContentId() != null && toFilter.ContentId().ToString().ToLower().Contains(loweredString)) return true;
+
+                if ((toFilter.Content().Title ?? string.Empty).Contains(UserFilterText,
+                    StringComparison.OrdinalIgnoreCase)) return true;
+                if ((toFilter.Content().Tags ?? string.Empty).Contains(UserFilterText,
+                    StringComparison.OrdinalIgnoreCase)) return true;
+                if ((toFilter.Content().Summary ?? string.Empty).Contains(UserFilterText,
+                    StringComparison.OrdinalIgnoreCase)) return true;
+                if ((toFilter.Content().CreatedBy ?? string.Empty).Contains(UserFilterText,
+                    StringComparison.OrdinalIgnoreCase)) return true;
+                if ((toFilter.Content().LastUpdatedBy ?? string.Empty).Contains(UserFilterText,
+                    StringComparison.OrdinalIgnoreCase)) return true;
+                if (toFilter.ContentId() != null && toFilter.ContentId().ToString()
+                    .Contains(UserFilterText, StringComparison.OrdinalIgnoreCase)) return true;
                 return false;
             };
         }
@@ -884,7 +889,7 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList
                 Items.Where(x => x is IContentListSmallImage).Cast<IContentListSmallImage>().ToList();
 
             foreach (var loopListItem in smallImageListItems)
-                if (((dynamic) loopListItem).DbEntry is IMainImage {MainPicture: { }} dbMainImageEntry &&
+                if (((dynamic)loopListItem).DbEntry is IMainImage { MainPicture: { } } dbMainImageEntry &&
                     translatedMessage.ContentIds.Contains(dbMainImageEntry.MainPicture.Value))
                     loopListItem.SmallImageUrl = GetSmallImageUrl(dbMainImageEntry);
         }

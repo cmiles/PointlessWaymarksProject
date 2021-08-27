@@ -23,7 +23,8 @@ namespace PointlessWaymarks.CmsData.CommonHtml
             foreach (var loopItems in items)
             {
                 var html = ContentProcessing.ProcessContent(
-                    await BracketCodeCommon.ProcessCodesForSite(loopItems.LinkTag ?? string.Empty, progress).ConfigureAwait(false),
+                    await BracketCodeCommon.ProcessCodesForSite(loopItems.LinkTag ?? string.Empty, progress)
+                        .ConfigureAwait(false),
                     ContentFormatEnum.MarkdigMarkdown01);
 
                 var coreLinkContainer = new DivTag().AddClass("core-links-item").Text(html).Encoded(false);
@@ -53,7 +54,7 @@ namespace PointlessWaymarks.CmsData.CommonHtml
             var onlyCreated = false;
 
             if (dbEntry.LastUpdatedOn != null && dbEntry.CreatedOn.Date == dbEntry.LastUpdatedOn.Value.Date)
-                if (string.Compare(dbEntry.CreatedBy, dbEntry.LastUpdatedBy, StringComparison.OrdinalIgnoreCase) == 0)
+                if (string.Equals(dbEntry.CreatedBy, dbEntry.LastUpdatedBy, StringComparison.OrdinalIgnoreCase))
                 {
                     createdUpdatedString = $"Created and Updated by {dbEntry.LastUpdatedBy}";
                     onlyCreated = true;
@@ -233,8 +234,9 @@ namespace PointlessWaymarks.CmsData.CommonHtml
 
                 if (summaryHasValue)
                 {
-                    var summaryIsInTitle = titleSummaryString.Replace(".", string.Empty).ToLower()
-                        .Contains(dbEntry.Summary.TrimNullToEmpty().Replace(".", string.Empty).ToLower());
+                    var summaryIsInTitle = titleSummaryString.Replace(".", string.Empty)
+                        .Contains(dbEntry.Summary.TrimNullToEmpty().Replace(".", string.Empty),
+                            StringComparison.OrdinalIgnoreCase);
 
                     if (!summaryIsInTitle) titleSummaryString += $": {dbEntry.Summary.TrimNullToEmpty()}";
                 }
@@ -249,7 +251,7 @@ namespace PointlessWaymarks.CmsData.CommonHtml
 
             summaryStringList.Add(titleSummaryString);
 
-            if(!string.IsNullOrWhiteSpace(dbEntry.PhotoCreatedBy)) summaryStringList.Add($"{dbEntry.PhotoCreatedBy}.");
+            if (!string.IsNullOrWhiteSpace(dbEntry.PhotoCreatedBy)) summaryStringList.Add($"{dbEntry.PhotoCreatedBy}.");
             summaryStringList.Add($"{dbEntry.PhotoCreatedOn:M/d/yyyy}.");
 
             return string.Join(" ", summaryStringList);
@@ -274,7 +276,7 @@ namespace PointlessWaymarks.CmsData.CommonHtml
             var stringWidth = "94%";
             if (emailSize.Width < emailSize.Height)
                 stringWidth = emailSize.Height > 600
-                    ? ((int) (600M / emailSize.Height * emailSize.Width)).ToString("F0")
+                    ? ((int)(600M / emailSize.Height * emailSize.Width)).ToString("F0")
                     : emailSize.Width.ToString("F0");
 
             var imageTag = new HtmlTag("img").Attr("src", $"https:{emailSize.SiteUrl}")
@@ -285,8 +287,8 @@ namespace PointlessWaymarks.CmsData.CommonHtml
 
             if (!willHaveVisibleCaption && string.IsNullOrWhiteSpace(emailSize.AltText) &&
                 pictureDirectoryInfo.DbEntry != null &&
-                !string.IsNullOrWhiteSpace(((ITitleSummarySlugFolder) pictureDirectoryInfo.DbEntry).Summary))
-                imageTag.Attr("alt", ((ITitleSummarySlugFolder) pictureDirectoryInfo.DbEntry).Summary);
+                !string.IsNullOrWhiteSpace(((ITitleSummarySlugFolder)pictureDirectoryInfo.DbEntry).Summary))
+                imageTag.Attr("alt", ((ITitleSummarySlugFolder)pictureDirectoryInfo.DbEntry).Summary);
 
             return imageTag;
         }
@@ -309,8 +311,8 @@ namespace PointlessWaymarks.CmsData.CommonHtml
 
             if (!willHaveVisibleCaption && string.IsNullOrWhiteSpace(pictureDirectoryInfo.DisplayPicture.AltText) &&
                 pictureDirectoryInfo.DbEntry != null &&
-                !string.IsNullOrWhiteSpace(((ITitleSummarySlugFolder) pictureDirectoryInfo.DbEntry).Summary))
-                imageTag.Attr("alt", ((ITitleSummarySlugFolder) pictureDirectoryInfo.DbEntry).Summary);
+                !string.IsNullOrWhiteSpace(((ITitleSummarySlugFolder)pictureDirectoryInfo.DbEntry).Summary))
+                imageTag.Attr("alt", ((ITitleSummarySlugFolder)pictureDirectoryInfo.DbEntry).Summary);
 
             return imageTag;
         }
@@ -376,7 +378,8 @@ namespace PointlessWaymarks.CmsData.CommonHtml
             var bodyContainer = new HtmlTag("div").AddClass("post-body-container");
 
             var bodyText = ContentProcessing.ProcessContent(
-                await BracketCodeCommon.ProcessCodesForSite(dbEntry.BodyContent, progress).ConfigureAwait(false), dbEntry.BodyContentFormat);
+                await BracketCodeCommon.ProcessCodesForSite(dbEntry.BodyContent, progress).ConfigureAwait(false),
+                dbEntry.BodyContentFormat);
 
             bodyContainer.Children.Add(new HtmlTag("div").AddClass("post-body-content").Encoded(false).Text(bodyText));
 
@@ -575,7 +578,8 @@ namespace PointlessWaymarks.CmsData.CommonHtml
             var updateNotesContentContainer = new DivTag().AddClass("update-notes-content");
 
             var updateNotesHtml = ContentProcessing.ProcessContent(
-                await BracketCodeCommon.ProcessCodesForSite(dbEntry.UpdateNotes).ConfigureAwait(false), dbEntry.UpdateNotesFormat);
+                await BracketCodeCommon.ProcessCodesForSite(dbEntry.UpdateNotes).ConfigureAwait(false),
+                dbEntry.UpdateNotesFormat);
 
             updateNotesContentContainer.Encoded(false).Text(updateNotesHtml);
 

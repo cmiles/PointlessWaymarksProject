@@ -85,7 +85,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml
 
                     // Tricky way to convert to lowercase
                     if (toLower)
-                        sb.Append((char) (c | 32));
+                        sb.Append((char)(c | 32));
                     else
                         sb.Append(c);
                 }
@@ -149,7 +149,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml
                 {
                     // Tricky way to convert to lowercase
                     if (toLower)
-                        sb.Append((char) (c | 32));
+                        sb.Append((char)(c | 32));
                     else
                         sb.Append(c);
                 }
@@ -204,7 +204,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml
 
                     // Tricky way to convert to lowercase
                     if (toLower)
-                        sb.Append((char) (c | 32));
+                        sb.Append((char)(c | 32));
                     else
                         sb.Append(c);
                 }
@@ -324,17 +324,23 @@ namespace PointlessWaymarks.CmsData.ContentHtml
             }
 
             var fileExcludeCheck =
-                await context.FileContents.AnyAsync(x => x.Slug == slug && x.ContentId != excludedContentId).ConfigureAwait(false);
+                await context.FileContents.AnyAsync(x => x.Slug == slug && x.ContentId != excludedContentId)
+                    .ConfigureAwait(false);
             var imageExcludeCheck =
-                await context.ImageContents.AnyAsync(x => x.Slug == slug && x.ContentId != excludedContentId).ConfigureAwait(false);
+                await context.ImageContents.AnyAsync(x => x.Slug == slug && x.ContentId != excludedContentId)
+                    .ConfigureAwait(false);
             var noteExcludeCheck =
-                await context.NoteContents.AnyAsync(x => x.Slug == slug && x.ContentId != excludedContentId).ConfigureAwait(false);
+                await context.NoteContents.AnyAsync(x => x.Slug == slug && x.ContentId != excludedContentId)
+                    .ConfigureAwait(false);
             var photoExcludeCheck =
-                await context.PhotoContents.AnyAsync(x => x.Slug == slug && x.ContentId != excludedContentId).ConfigureAwait(false);
+                await context.PhotoContents.AnyAsync(x => x.Slug == slug && x.ContentId != excludedContentId)
+                    .ConfigureAwait(false);
             var pointExcludeCheck =
-                await context.PointContents.AnyAsync(x => x.Slug == slug && x.ContentId != excludedContentId).ConfigureAwait(false);
+                await context.PointContents.AnyAsync(x => x.Slug == slug && x.ContentId != excludedContentId)
+                    .ConfigureAwait(false);
             var postExcludeCheck =
-                await context.PostContents.AnyAsync(x => x.Slug == slug && x.ContentId != excludedContentId).ConfigureAwait(false);
+                await context.PostContents.AnyAsync(x => x.Slug == slug && x.ContentId != excludedContentId)
+                    .ConfigureAwait(false);
 
 
             return photoExcludeCheck || postExcludeCheck || imageExcludeCheck || noteExcludeCheck || fileExcludeCheck ||

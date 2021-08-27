@@ -14,13 +14,15 @@ namespace PointlessWaymarks.CmsWpfControls.Utility
         public static bool ImageFileTypeIsSupported(FileInfo toCheck)
         {
             if (toCheck is not { Exists: true }) return false;
-            return toCheck.Extension.ToLower().Contains("jpg") || toCheck.Extension.ToLower().Contains("jpeg");
+            return toCheck.Extension.ToUpperInvariant().Contains("JPG") ||
+                   toCheck.Extension.ToUpperInvariant().Contains("JPEG");
         }
 
         public static bool PhotoFileTypeIsSupported(FileInfo toCheck)
         {
             if (toCheck is not { Exists: true }) return false;
-            return toCheck.Extension.ToLower().Contains("jpg") || toCheck.Extension.ToLower().Contains("jpeg");
+            return toCheck.Extension.ToUpperInvariant().Contains("JPG") ||
+                   toCheck.Extension.ToUpperInvariant().Contains("JPEG");
         }
 
         public static async Task RenameSelectedFile(FileInfo selectedFile, StatusControlContext statusContext,

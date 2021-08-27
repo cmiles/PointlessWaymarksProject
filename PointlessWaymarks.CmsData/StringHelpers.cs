@@ -35,7 +35,7 @@ namespace PointlessWaymarks.CmsData
             a = a.TrimNullToEmpty();
             b = b.TrimNullToEmpty();
 
-            return string.Compare(a, b, StringComparison.InvariantCulture) == 0;
+            return string.Equals(a, b, StringComparison.OrdinalIgnoreCase);
         }
 
         public static string GetMethodName(this object type, [CallerMemberName] string? caller = null)

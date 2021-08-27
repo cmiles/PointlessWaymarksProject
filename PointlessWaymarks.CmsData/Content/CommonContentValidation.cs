@@ -433,10 +433,10 @@ namespace PointlessWaymarks.CmsData.Content
             if (!FolderFileUtility.IsNoUrlEncodingNeeded(folder))
                 return new IsValid(false, "Limit folder names to a-z A-Z 0-9 _ -");
 
-            if (folder.ToLower() == "data")
+            if (string.Equals(folder, "data", StringComparison.OrdinalIgnoreCase))
                 return new IsValid(false,
                     "Folders can not be named 'Data' - this folder is reserved for use by the CMS");
-            if (folder.ToLower() == "galleries")
+            if (string.Equals(folder, "galleries", StringComparison.OrdinalIgnoreCase))
                 return new IsValid(false,
                     "Folders can not be named 'Galleries' - this folder is reserved for use by the CMS");
 
@@ -459,7 +459,8 @@ namespace PointlessWaymarks.CmsData.Content
             if (contentGuid == null)
             {
                 var duplicateUrl = await db.LinkContents.Where(x => x.Url != null)
-                    .AnyAsync(x => x.Url!.ToLower() == url.ToLower()).ConfigureAwait(false);
+                    .AnyAsync(x => string.Equals(x.Url!, url, StringComparison.OrdinalIgnoreCase))
+                    .ConfigureAwait(false);
                 if (duplicateUrl)
                     return new IsValid(false,
                         "URL Already exists in the database - duplicates are not allowed, try editing the existing entry to add new/updated information.");
@@ -467,7 +468,9 @@ namespace PointlessWaymarks.CmsData.Content
             else
             {
                 var duplicateUrl = await db.LinkContents.Where(x => x.Url != null).AnyAsync(x =>
-                    x.ContentId != contentGuid.Value && x.Url!.ToLower() == url.ToLower()).ConfigureAwait(false);
+                        x.ContentId != contentGuid.Value &&
+                        string.Equals(x.Url!, url, StringComparison.OrdinalIgnoreCase))
+                    .ConfigureAwait(false);
                 if (duplicateUrl)
                     return new IsValid(false,
                         "URL Already exists in the database - duplicates are not allowed, try editing the existing entry to add new/updated information.");
