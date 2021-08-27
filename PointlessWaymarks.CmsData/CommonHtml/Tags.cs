@@ -249,7 +249,7 @@ namespace PointlessWaymarks.CmsData.CommonHtml
 
             summaryStringList.Add(titleSummaryString);
 
-            summaryStringList.Add($"{dbEntry.PhotoCreatedBy}.");
+            if(!string.IsNullOrWhiteSpace(dbEntry.PhotoCreatedBy)) summaryStringList.Add($"{dbEntry.PhotoCreatedBy}.");
             summaryStringList.Add($"{dbEntry.PhotoCreatedOn:M/d/yyyy}.");
 
             return string.Join(" ", summaryStringList);
