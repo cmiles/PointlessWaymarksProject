@@ -31,7 +31,43 @@ namespace PointlessWaymarks.CmsData.ContentHtml.FileHtml
             if (content.OriginalFileName.TrimNullToEmpty().EndsWith(".pdf", StringComparison.OrdinalIgnoreCase))
             {
                 var embedTag = new HtmlTag("embed").Attr("src", settings.FileDownloadUrl(content))
-                    .Attr("type", "application/pdf").AddClass("file-embed");
+                    .Attr("type", "application/pdf").Title(content.Title).AddClass("file-embed");
+                embedContainer.Children.Add(embedTag);
+            }
+            else if (content.OriginalFileName.TrimNullToEmpty().EndsWith(".mov", StringComparison.OrdinalIgnoreCase))
+            {
+                var embedTag = new HtmlTag("embed").Attr("src", settings.FileDownloadUrl(content))
+                    .Attr("type", "video/quicktime").Title(content.Title).AddClass("file-embed");
+                embedContainer.Children.Add(embedTag);
+            }
+            else if (content.OriginalFileName.TrimNullToEmpty().EndsWith(".webm", StringComparison.OrdinalIgnoreCase))
+            {
+                var embedTag = new HtmlTag("embed").Attr("src", settings.FileDownloadUrl(content))
+                    .Attr("type", "video/webm").Title(content.Title).AddClass("file-embed");
+                embedContainer.Children.Add(embedTag);
+            }
+            else if (content.OriginalFileName.TrimNullToEmpty().EndsWith(".mp4", StringComparison.OrdinalIgnoreCase))
+            {
+                var embedTag = new HtmlTag("embed").Attr("src", settings.FileDownloadUrl(content))
+                    .Attr("type", "video/mp4").Title(content.Title).AddClass("file-embed");
+                embedContainer.Children.Add(embedTag);
+            }
+            else if (content.OriginalFileName.TrimNullToEmpty().EndsWith(".mp3", StringComparison.OrdinalIgnoreCase))
+            {
+                var embedTag = new HtmlTag("embed").Attr("src", settings.FileDownloadUrl(content))
+                    .Attr("type", "audio/mpeg").Title(content.Title).AddClass("file-embed");
+                embedContainer.Children.Add(embedTag);
+            }
+            else if (content.OriginalFileName.TrimNullToEmpty().EndsWith(".ogg", StringComparison.OrdinalIgnoreCase))
+            {
+                var embedTag = new HtmlTag("embed").Attr("src", settings.FileDownloadUrl(content))
+                    .Attr("type", "audio/ogg").Title(content.Title).AddClass("file-embed");
+                embedContainer.Children.Add(embedTag);
+            }
+            else if (content.OriginalFileName.TrimNullToEmpty().EndsWith(".wav", StringComparison.OrdinalIgnoreCase))
+            {
+                var embedTag = new HtmlTag("embed").Attr("src", settings.FileDownloadUrl(content))
+                    .Attr("type", "audio/vnd.wav").Title(content.Title).AddClass("file-embed");
                 embedContainer.Children.Add(embedTag);
             }
 
