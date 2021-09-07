@@ -688,7 +688,7 @@ namespace PointlessWaymarks.CmsWpfControls.ImageContentEditor
             RenameSelectedFileCommand = StatusContext.RunBlockingTaskCommand(async () =>
                 await FileHelpers.RenameSelectedFile(SelectedFile, StatusContext, x => SelectedFile = x));
             AutoRenameSelectedFileCommand = StatusContext.RunBlockingTaskCommand(async () =>
-                await FileHelpers.TryAutoRenameSelectedFile(SelectedFile, StatusContext, x => SelectedFile = x));
+                await FileHelpers.TryAutoCleanRenameSelectedFile(SelectedFile, StatusContext, x => SelectedFile = x));
             RotateImageRightCommand =
                 StatusContext.RunBlockingTaskCommand(async () => await RotateImage(Orientation.Rotate90));
             RotateImageLeftCommand =

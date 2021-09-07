@@ -16,6 +16,9 @@ namespace PointlessWaymarks.CmsWpfControls.TitleSummarySlugFolderEditor
     public class TitleSummarySlugEditorContext : INotifyPropertyChanged, IHasChanges, IHasValidationIssues,
         ICheckForChangesAndValidation
     {
+        private string _customTitleButtonText;
+        private bool _customTitleButtonVisible;
+        private Command _customTitleCommand;
         private ITitleSummarySlugFolder _dbEntry;
         private ContentFolderContext _folderEntry;
         private bool _hasChanges;
@@ -25,10 +28,54 @@ namespace PointlessWaymarks.CmsWpfControls.TitleSummarySlugFolderEditor
         private StringDataEntryContext _summaryEntry;
         private StringDataEntryContext _titleEntry;
         private Command _titleToSlugCommand;
+        private Command _titleToSummaryCommand;
 
         private TitleSummarySlugEditorContext(StatusControlContext statusContext)
         {
             StatusContext = statusContext ?? new StatusControlContext();
+        }
+
+        private TitleSummarySlugEditorContext(StatusControlContext statusContext, string customTitleCommandText,
+            Command customTitleCommand)
+        {
+            StatusContext = statusContext ?? new StatusControlContext();
+
+            CustomTitleButtonText = customTitleCommandText;
+            CustomTitleCommand = customTitleCommand;
+            CustomTitleButtonVisible = true;
+        }
+
+        public string CustomTitleButtonText
+        {
+            get => _customTitleButtonText;
+            set
+            {
+                if (value == _customTitleButtonText) return;
+                _customTitleButtonText = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public bool CustomTitleButtonVisible
+        {
+            get => _customTitleButtonVisible;
+            set
+            {
+                if (value == _customTitleButtonVisible) return;
+                _customTitleButtonVisible = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public Command CustomTitleCommand
+        {
+            get => _customTitleCommand;
+            set
+            {
+                if (Equals(value, _customTitleCommand)) return;
+                _customTitleCommand = value;
+                OnPropertyChanged();
+            }
         }
 
         public ITitleSummarySlugFolder DbEntry
@@ -108,6 +155,18 @@ namespace PointlessWaymarks.CmsWpfControls.TitleSummarySlugFolderEditor
             }
         }
 
+
+        public Command TitleToSummaryCommand
+        {
+            get => _titleToSummaryCommand;
+            set
+            {
+                if (Equals(value, _titleToSummaryCommand)) return;
+                _titleToSummaryCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
         public void CheckForChangesAndValidationIssues()
         {
             HasChanges = PropertyScanners.ChildPropertiesHaveChanges(this);
@@ -151,11 +210,23 @@ namespace PointlessWaymarks.CmsWpfControls.TitleSummarySlugFolderEditor
             return newItem;
         }
 
+        public static async Task<TitleSummarySlugEditorContext> CreateInstance(StatusControlContext statusContext,
+            string customTitleCommandText, Command customTitleCommand, ITitleSummarySlugFolder dbEntry)
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            var newItem = new TitleSummarySlugEditorContext(statusContext, customTitleCommandText, customTitleCommand);
+            await newItem.LoadData(dbEntry);
+
+            return newItem;
+        }
+
         public async Task LoadData(ITitleSummarySlugFolder dbEntry)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
             TitleToSlugCommand = StatusContext.RunBlockingActionCommand(TitleToSlug);
+            TitleToSummaryCommand = StatusContext.RunBlockingActionCommand(TitleToSummary);
 
             DbEntry = dbEntry;
 
@@ -181,6 +252,15 @@ namespace PointlessWaymarks.CmsWpfControls.TitleSummarySlugFolderEditor
         public void TitleToSlug()
         {
             SlugEntry.UserValue = SlugUtility.Create(true, TitleEntry.UserValue);
+        }
+
+
+        public void TitleToSummary()
+        {
+            SummaryEntry.UserValue = TitleEntry.UserValue;
+
+            if (!char.IsPunctuation(SummaryEntry.UserValue[^1]))
+                SummaryEntry.UserValue += ".";
         }
     }
 }

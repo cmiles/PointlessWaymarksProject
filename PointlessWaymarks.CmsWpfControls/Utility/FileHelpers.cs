@@ -5,6 +5,7 @@ using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.Content;
 using PointlessWaymarks.CmsData.ContentHtml;
 using PointlessWaymarks.WpfCommon.Status;
+using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 using Serilog;
 
 namespace PointlessWaymarks.CmsWpfControls.Utility
@@ -99,9 +100,19 @@ namespace PointlessWaymarks.CmsWpfControls.Utility
             statusContext.ToastSuccess($"Selected file now {selectedFile.FullName}");
         }
 
-        public static async Task TryAutoRenameSelectedFile(FileInfo selectedFile, StatusControlContext statusContext,
+        /// <summary>
+        ///     Attempts to rename a file to a name that conforms to the constrained filename rules of this program.
+        /// </summary>
+        /// <param name="selectedFile"></param>
+        /// <param name="statusContext"></param>
+        /// <param name="setSelectedFile"></param>
+        /// <returns></returns>
+        public static async Task TryAutoCleanRenameSelectedFile(FileInfo selectedFile,
+            StatusControlContext statusContext,
             Action<FileInfo> setSelectedFile)
         {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
             if (selectedFile is not { Exists: true })
             {
                 statusContext.ToastWarning("No file to rename?");
@@ -110,9 +121,30 @@ namespace PointlessWaymarks.CmsWpfControls.Utility
 
             var cleanedFileNamePath = Path.GetFileNameWithoutExtension(selectedFile.Name).TrimNullToEmpty();
 
-            if (string.IsNullOrWhiteSpace(cleanedFileNamePath)) return;
+            await TryAutoRenameSelectedFile(selectedFile, cleanedFileNamePath, statusContext, setSelectedFile);
+        }
 
-            var cleanedName = SlugUtility.Create(false, cleanedFileNamePath);
+        /// <summary>
+        ///     Tries to rename a file to an automatically cleaned version of the input suggested name.
+        /// </summary>
+        /// <param name="selectedFile"></param>
+        /// <param name="suggestedName"></param>
+        /// <param name="statusContext"></param>
+        /// <param name="setSelectedFile"></param>
+        /// <returns></returns>
+        public static async Task TryAutoRenameSelectedFile(FileInfo selectedFile, string suggestedName,
+            StatusControlContext statusContext,
+            Action<FileInfo> setSelectedFile)
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            if (selectedFile is not { Exists: true })
+            {
+                statusContext.ToastWarning("No file to rename?");
+                return;
+            }
+
+            var cleanedName = SlugUtility.Create(false, suggestedName.TrimNullToEmpty());
 
             if (string.IsNullOrWhiteSpace(cleanedName))
             {

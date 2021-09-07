@@ -787,7 +787,7 @@ Notes:
             RenameSelectedFileCommand = StatusContext.RunBlockingTaskCommand(async () =>
                 await FileHelpers.RenameSelectedFile(SelectedFile, StatusContext, x => SelectedFile = x));
             AutoRenameSelectedFileCommand = StatusContext.RunBlockingTaskCommand(async () =>
-                await FileHelpers.TryAutoRenameSelectedFile(SelectedFile, StatusContext, x => SelectedFile = x));
+                await FileHelpers.TryAutoCleanRenameSelectedFile(SelectedFile, StatusContext, x => SelectedFile = x));
             ExtractNewLinksCommand = StatusContext.RunBlockingTaskCommand(() =>
                 LinkExtraction.ExtractNewAndShowLinkContentEditors(
                     $"{BodyContent.BodyContent} {UpdateNotes.UpdateNotes}", StatusContext.ProgressTracker()));

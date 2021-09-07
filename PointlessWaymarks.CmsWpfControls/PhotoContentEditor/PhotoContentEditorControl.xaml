@@ -109,7 +109,7 @@
                     <Button Background="Yellow"
                             HorizontalAlignment="Center"
                             Visibility="{Binding SelectedFileNameHasInvalidCharacters, Converter={StaticResource BooleanToVisibility}}"
-                            Command="{Binding AutoRenameSelectedFileCommand}"
+                            Command="{Binding AutoCleanRenameSelectedFileCommand}"
                             ToolTip="This filename has illegal characters - pressing this to attempt to auto-rename the file">
                         Auto-Fix File Name
                     </Button>
@@ -131,6 +131,7 @@
                         Show Metadata
                     </Button>
                     <Button Command="{Binding ViewSelectedFileCommand}">View Photo</Button>
+                    <Button Command="{Binding AutoRenameSelectedFileBasedOnTitleCommand}">Title->Name</Button>
                     <Button Command="{Binding RenameSelectedFileCommand}">Rename</Button>
                 </WrapPanel>
             </Grid>

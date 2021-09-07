@@ -39,7 +39,8 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoContentEditor
     {
         private StringDataEntryContext _altTextEntry;
         private StringDataEntryContext _apertureEntry;
-        private Command _autoRenameSelectedFileCommand;
+        private Command _autoCleanRenameSelectedFileCommand;
+        private Command _autoRenameSelectedFileBasedOnTitleCommand;
         private BodyContentEditorContext _bodyContent;
         private StringDataEntryContext _cameraMakeEntry;
         private StringDataEntryContext _cameraModelEntry;
@@ -113,13 +114,24 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoContentEditor
             }
         }
 
-        public Command AutoRenameSelectedFileCommand
+        public Command AutoCleanRenameSelectedFileCommand
         {
-            get => _autoRenameSelectedFileCommand;
+            get => _autoCleanRenameSelectedFileCommand;
             set
             {
-                if (Equals(value, _autoRenameSelectedFileCommand)) return;
-                _autoRenameSelectedFileCommand = value;
+                if (Equals(value, _autoCleanRenameSelectedFileCommand)) return;
+                _autoCleanRenameSelectedFileCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public Command AutoRenameSelectedFileBasedOnTitleCommand
+        {
+            get => _autoRenameSelectedFileBasedOnTitleCommand;
+            set
+            {
+                if (Equals(value, _autoRenameSelectedFileBasedOnTitleCommand)) return;
+                _autoRenameSelectedFileBasedOnTitleCommand = value;
                 OnPropertyChanged();
             }
         }
@@ -744,7 +756,8 @@ Photo Content Notes:
                 UpdateNotesFormat = UserSettingsUtilities.DefaultContentFormatChoice()
             };
 
-            TitleSummarySlugFolder = await TitleSummarySlugEditorContext.CreateInstance(StatusContext, DbEntry);
+            TitleSummarySlugFolder = await TitleSummarySlugEditorContext.CreateInstance(StatusContext, "To File Name",
+                AutoRenameSelectedFileBasedOnTitleCommand, DbEntry);
             CreatedUpdatedDisplay = await CreatedAndUpdatedByAndOnDisplayContext.CreateInstance(StatusContext, DbEntry);
             ShowInSiteFeed = BoolDataEntryContext.CreateInstanceForShowInSiteFeed(DbEntry, false);
             ContentId = await ContentIdViewerControlContext.CreateInstance(StatusContext, DbEntry);
@@ -991,8 +1004,11 @@ Photo Content Notes:
             ViewOnSiteCommand = StatusContext.RunBlockingTaskCommand(ViewOnSite);
             RenameSelectedFileCommand = StatusContext.RunBlockingTaskCommand(async () =>
                 await FileHelpers.RenameSelectedFile(SelectedFile, StatusContext, x => SelectedFile = x));
-            AutoRenameSelectedFileCommand = StatusContext.RunBlockingTaskCommand(async () =>
-                await FileHelpers.TryAutoRenameSelectedFile(SelectedFile, StatusContext, x => SelectedFile = x));
+            AutoCleanRenameSelectedFileCommand = StatusContext.RunBlockingTaskCommand(async () =>
+                await FileHelpers.TryAutoCleanRenameSelectedFile(SelectedFile, StatusContext, x => SelectedFile = x));
+            AutoRenameSelectedFileBasedOnTitleCommand = StatusContext.RunBlockingTaskCommand(async () =>
+                await FileHelpers.TryAutoRenameSelectedFile(SelectedFile, TitleSummarySlugFolder.TitleEntry.UserValue,
+                    StatusContext, x => SelectedFile = x));
             ExtractNewLinksCommand = StatusContext.RunBlockingTaskCommand(() =>
                 LinkExtraction.ExtractNewAndShowLinkContentEditors(BodyContent.BodyContent,
                     StatusContext.ProgressTracker()));

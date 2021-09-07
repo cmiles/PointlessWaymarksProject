@@ -22,10 +22,25 @@
     <StackPanel Orientation="Vertical">
         <StackPanel Orientation="Vertical">
             <stringDataEntry:StringDataEntryControl DataContext="{Binding TitleEntry}" />
-            <Button
-                Margin="6,4,0,0"
-                Command="{Binding TitleToSlugCommand}"
-                Content="Title to Slug" />
+            <WrapPanel Orientation="Horizontal" Margin="12,6,0,6">
+                <WrapPanel.Resources>
+                    <Style TargetType="Button">
+                        <Setter Property="Width" Value="90" />
+                        <Setter Property="Margin" Value="2,0,2,0"></Setter>
+                    </Style>
+                </WrapPanel.Resources>
+                <TextBlock VerticalAlignment="Center">Title:</TextBlock>
+                <Button
+                    Command="{Binding TitleToSlugCommand}"
+                    Content="To Slug" />
+                <Button
+                    Command="{Binding TitleToSummaryCommand}"
+                    Content="To Summary" />
+                <Button
+                    Command="{Binding CustomTitleCommand}"
+                    Content="{Binding CustomTitleButtonText,UpdateSourceTrigger=PropertyChanged}" 
+                    Visibility="{Binding CustomTitleButtonVisible, Converter={StaticResource BooleanToVisibility}}"/>
+            </WrapPanel>
         </StackPanel>
         <stringDataEntry:StringDataEntryControl DataContext="{Binding SlugEntry}" />
         <contentFolder1:ContentFolderControl DataContext="{Binding FolderEntry}" />
