@@ -131,7 +131,7 @@
                         Show Metadata
                     </Button>
                     <Button Command="{Binding ViewSelectedFileCommand}">View Photo</Button>
-                    <Button Command="{Binding AutoRenameSelectedFileBasedOnTitleCommand}">Title->Name</Button>
+                    <Button Command="{Binding AutoRenameSelectedFileBasedOnTitleCommand}" IsEnabled="{Binding TitleSummarySlugFolder.CustomTitleFunctionEnabled}">Title->Name</Button>
                     <Button Command="{Binding RenameSelectedFileCommand}">Rename</Button>
                 </WrapPanel>
             </Grid>

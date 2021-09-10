@@ -32,14 +32,17 @@
                 <TextBlock VerticalAlignment="Center">Title:</TextBlock>
                 <Button
                     Command="{Binding TitleToSlugCommand}"
+                    IsEnabled="{Binding TitleToSlugEnabled}"
                     Content="To Slug" />
                 <Button
                     Command="{Binding TitleToSummaryCommand}"
+                    IsEnabled="{Binding TitleToSummaryEnabled}"
                     Content="To Summary" />
                 <Button
                     Command="{Binding CustomTitleCommand}"
-                    Content="{Binding CustomTitleButtonText,UpdateSourceTrigger=PropertyChanged}" 
-                    Visibility="{Binding CustomTitleButtonVisible, Converter={StaticResource BooleanToVisibility}}"/>
+                    IsEnabled="{Binding CustomTitleFunctionEnabled}"
+                    Content="{Binding CustomTitleFunctionText,UpdateSourceTrigger=PropertyChanged}" 
+                    Visibility="{Binding CustomTitleFunctionVisible, Converter={StaticResource BooleanToVisibility}}"/>
             </WrapPanel>
         </StackPanel>
         <stringDataEntry:StringDataEntryControl DataContext="{Binding SlugEntry}" />

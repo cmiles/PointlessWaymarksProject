@@ -13,6 +13,7 @@ using PhotoSauce.MagicScaler;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.Content;
+using PointlessWaymarks.CmsData.ContentHtml;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsWpfControls.BodyContentEditor;
 using PointlessWaymarks.CmsWpfControls.BoolDataEntry;
@@ -757,7 +758,9 @@ Photo Content Notes:
             };
 
             TitleSummarySlugFolder = await TitleSummarySlugEditorContext.CreateInstance(StatusContext, "To File Name",
-                AutoRenameSelectedFileBasedOnTitleCommand, DbEntry);
+                AutoRenameSelectedFileBasedOnTitleCommand,
+                x => !Path.GetFileNameWithoutExtension(SelectedFile.Name)
+                    .Equals(SlugUtility.Create(false, x.TitleEntry.UserValue), StringComparison.OrdinalIgnoreCase), DbEntry);
             CreatedUpdatedDisplay = await CreatedAndUpdatedByAndOnDisplayContext.CreateInstance(StatusContext, DbEntry);
             ShowInSiteFeed = BoolDataEntryContext.CreateInstanceForShowInSiteFeed(DbEntry, false);
             ContentId = await ContentIdViewerControlContext.CreateInstance(StatusContext, DbEntry);
@@ -948,7 +951,7 @@ Photo Content Notes:
             if (closeAfterSave)
             {
                 await ThreadSwitcher.ResumeForegroundAsync();
-                RequestContentEditorWindowClose?.Invoke(this, new EventArgs());
+                RequestContentEditorWindowClose?.Invoke(this, EventArgs.Empty);
             }
         }
 
@@ -961,6 +964,8 @@ Photo Content Notes:
 
             var (isValid, explanation) =
                 await CommonContentValidation.PhotoFileValidation(SelectedFile, DbEntry?.ContentId);
+
+            TitleSummarySlugFolder?.CheckForChangesToTitleToFunctionStates();
 
             SelectedFileHasValidationIssues = !isValid;
 
@@ -1007,8 +1012,10 @@ Photo Content Notes:
             AutoCleanRenameSelectedFileCommand = StatusContext.RunBlockingTaskCommand(async () =>
                 await FileHelpers.TryAutoCleanRenameSelectedFile(SelectedFile, StatusContext, x => SelectedFile = x));
             AutoRenameSelectedFileBasedOnTitleCommand = StatusContext.RunBlockingTaskCommand(async () =>
+            {
                 await FileHelpers.TryAutoRenameSelectedFile(SelectedFile, TitleSummarySlugFolder.TitleEntry.UserValue,
-                    StatusContext, x => SelectedFile = x));
+                    StatusContext, x => SelectedFile = x);
+            });
             ExtractNewLinksCommand = StatusContext.RunBlockingTaskCommand(() =>
                 LinkExtraction.ExtractNewAndShowLinkContentEditors(BodyContent.BodyContent,
                     StatusContext.ProgressTracker()));

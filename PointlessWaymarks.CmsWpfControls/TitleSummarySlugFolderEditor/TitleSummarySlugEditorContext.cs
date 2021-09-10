@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
@@ -16,9 +17,11 @@ namespace PointlessWaymarks.CmsWpfControls.TitleSummarySlugFolderEditor
     public class TitleSummarySlugEditorContext : INotifyPropertyChanged, IHasChanges, IHasValidationIssues,
         ICheckForChangesAndValidation
     {
-        private string _customTitleButtonText;
-        private bool _customTitleButtonVisible;
+        private Func<TitleSummarySlugEditorContext, bool> _customTitleCheckToEnable;
         private Command _customTitleCommand;
+        private bool _customTitleFunctionEnabled;
+        private string _customTitleFunctionText;
+        private bool _customTitleFunctionVisible;
         private ITitleSummarySlugFolder _dbEntry;
         private ContentFolderContext _folderEntry;
         private bool _hasChanges;
@@ -28,7 +31,9 @@ namespace PointlessWaymarks.CmsWpfControls.TitleSummarySlugFolderEditor
         private StringDataEntryContext _summaryEntry;
         private StringDataEntryContext _titleEntry;
         private Command _titleToSlugCommand;
+        private bool _titleToSlugEnabled = true;
         private Command _titleToSummaryCommand;
+        private bool _titleToSummaryEnabled = true;
 
         private TitleSummarySlugEditorContext(StatusControlContext statusContext)
         {
@@ -36,33 +41,23 @@ namespace PointlessWaymarks.CmsWpfControls.TitleSummarySlugFolderEditor
         }
 
         private TitleSummarySlugEditorContext(StatusControlContext statusContext, string customTitleCommandText,
-            Command customTitleCommand)
+            Command customTitleCommand, Func<TitleSummarySlugEditorContext, bool> customTitleCheckToEnable)
         {
             StatusContext = statusContext ?? new StatusControlContext();
 
-            CustomTitleButtonText = customTitleCommandText;
+            CustomTitleFunctionText = customTitleCommandText;
             CustomTitleCommand = customTitleCommand;
-            CustomTitleButtonVisible = true;
+            CustomTitleCheckToEnable = customTitleCheckToEnable;
+            CustomTitleFunctionVisible = true;
         }
 
-        public string CustomTitleButtonText
+        public Func<TitleSummarySlugEditorContext, bool> CustomTitleCheckToEnable
         {
-            get => _customTitleButtonText;
+            get => _customTitleCheckToEnable;
             set
             {
-                if (value == _customTitleButtonText) return;
-                _customTitleButtonText = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public bool CustomTitleButtonVisible
-        {
-            get => _customTitleButtonVisible;
-            set
-            {
-                if (value == _customTitleButtonVisible) return;
-                _customTitleButtonVisible = value;
+                if (Equals(value, _customTitleCheckToEnable)) return;
+                _customTitleCheckToEnable = value;
                 OnPropertyChanged();
             }
         }
@@ -74,6 +69,39 @@ namespace PointlessWaymarks.CmsWpfControls.TitleSummarySlugFolderEditor
             {
                 if (Equals(value, _customTitleCommand)) return;
                 _customTitleCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public bool CustomTitleFunctionEnabled
+        {
+            get => _customTitleFunctionEnabled;
+            set
+            {
+                if (value == _customTitleFunctionEnabled) return;
+                _customTitleFunctionEnabled = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public string CustomTitleFunctionText
+        {
+            get => _customTitleFunctionText;
+            set
+            {
+                if (value == _customTitleFunctionText) return;
+                _customTitleFunctionText = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public bool CustomTitleFunctionVisible
+        {
+            get => _customTitleFunctionVisible;
+            set
+            {
+                if (value == _customTitleFunctionVisible) return;
+                _customTitleFunctionVisible = value;
                 OnPropertyChanged();
             }
         }
@@ -155,6 +183,17 @@ namespace PointlessWaymarks.CmsWpfControls.TitleSummarySlugFolderEditor
             }
         }
 
+        public bool TitleToSlugEnabled
+        {
+            get => _titleToSlugEnabled;
+            set
+            {
+                if (value == _titleToSlugEnabled) return;
+                _titleToSlugEnabled = value;
+                OnPropertyChanged();
+            }
+        }
+
 
         public Command TitleToSummaryCommand
         {
@@ -163,6 +202,17 @@ namespace PointlessWaymarks.CmsWpfControls.TitleSummarySlugFolderEditor
             {
                 if (Equals(value, _titleToSummaryCommand)) return;
                 _titleToSummaryCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public bool TitleToSummaryEnabled
+        {
+            get => _titleToSummaryEnabled;
+            set
+            {
+                if (value == _titleToSummaryEnabled) return;
+                _titleToSummaryEnabled = value;
                 OnPropertyChanged();
             }
         }
@@ -211,11 +261,13 @@ namespace PointlessWaymarks.CmsWpfControls.TitleSummarySlugFolderEditor
         }
 
         public static async Task<TitleSummarySlugEditorContext> CreateInstance(StatusControlContext statusContext,
-            string customTitleCommandText, Command customTitleCommand, ITitleSummarySlugFolder dbEntry)
+            string customTitleCommandText, Command customTitleCommand,
+            Func<TitleSummarySlugEditorContext, bool> customTitleCheckToEnable, ITitleSummarySlugFolder dbEntry)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            var newItem = new TitleSummarySlugEditorContext(statusContext, customTitleCommandText, customTitleCommand);
+            var newItem = new TitleSummarySlugEditorContext(statusContext, customTitleCommandText, customTitleCommand,
+                customTitleCheckToEnable);
             await newItem.LoadData(dbEntry);
 
             return newItem;
@@ -231,11 +283,42 @@ namespace PointlessWaymarks.CmsWpfControls.TitleSummarySlugFolderEditor
             DbEntry = dbEntry;
 
             TitleEntry = StringDataEntryContext.CreateTitleInstance(DbEntry);
+            TitleEntry.PropertyChanged += TitleChangedMonitor;
+
             SlugEntry = StringDataEntryContext.CreateSlugInstance(DbEntry);
+            SlugEntry.PropertyChanged += TitleChangedMonitor;
+
             SummaryEntry = StringDataEntryContext.CreateSummaryInstance(DbEntry);
+            SummaryEntry.PropertyChanged += TitleChangedMonitor;
+
             FolderEntry = await ContentFolderContext.CreateInstance(StatusContext, DbEntry);
 
             PropertyScanners.SubscribeToChildHasChangesAndHasValidationIssues(this, CheckForChangesAndValidationIssues);
+        }
+
+        public void CheckForChangesToTitleToFunctionStates()
+        {
+            try
+            {
+                TitleToSlugEnabled = SlugUtility.Create(true, TitleEntry.UserValue) != SlugEntry.UserValue;
+                TitleToSummaryEnabled = !(
+                    SummaryEntry.UserValue.Equals(TitleEntry.UserValue, StringComparison.OrdinalIgnoreCase)
+                    || (SummaryEntry.UserValue.Length - 1 == TitleEntry.UserValue.Length && char.IsPunctuation(SummaryEntry.UserValue[^1]) && SummaryEntry.UserValue[0..^1].Equals(TitleEntry.UserValue, StringComparison.OrdinalIgnoreCase)));
+
+                CustomTitleFunctionEnabled =
+                    CustomTitleCheckToEnable?.Invoke(this) ?? false;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+            }
+        }
+
+        private void TitleChangedMonitor(object sender, PropertyChangedEventArgs e)
+        {
+            if (!e?.PropertyName?.Equals("UserValue") ?? true) return;
+
+            CheckForChangesToTitleToFunctionStates();
         }
 
         [NotifyPropertyChangedInvocator]

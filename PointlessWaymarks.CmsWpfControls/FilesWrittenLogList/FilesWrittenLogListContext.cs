@@ -88,7 +88,7 @@ namespace PointlessWaymarks.CmsWpfControls.FilesWrittenLogList
 
             if (loadInBackground) StatusContext.RunFireAndForgetBlockingTask(LoadData);
 
-            _dataNotificationsProcessor = new DataNotificationsWorkQueue {Processor = DataNotificationReceived};
+            _dataNotificationsProcessor = new DataNotificationsWorkQueue { Processor = DataNotificationReceived };
             DataNotifications.NewDataNotificationChannel().MessageReceived += OnDataNotificationReceived;
         }
 
@@ -532,6 +532,9 @@ namespace PointlessWaymarks.CmsWpfControls.FilesWrittenLogList
 
             var newUploadWindow = new S3UploadsWindow(toTransfer);
             newUploadWindow.PositionWindowAndShow();
+
+            newUploadWindow.UploadContext?.StatusContext.RunNonBlockingTaskCommand(newUploadWindow.UploadContext
+                .StartAllUploads);
         }
 
         private async Task FileItemsToS3UploaderJsonFile(List<FilesWrittenLogListListItem> items)
@@ -722,7 +725,7 @@ namespace PointlessWaymarks.CmsWpfControls.FilesWrittenLogList
 
             logChoiceList = logChoiceList.OrderByDescending(x => x.FilterDateTimeUtc).ToList();
 
-            logChoiceList.Add(new FileWrittenLogListDateTimeFilterChoice {DisplayText = "All"});
+            logChoiceList.Add(new FileWrittenLogListDateTimeFilterChoice { DisplayText = "All" });
 
 
             FileWrittenLogListDateTimeFilterChoice toSelect;
@@ -730,7 +733,9 @@ namespace PointlessWaymarks.CmsWpfControls.FilesWrittenLogList
             if (SelectedGenerationChoice == null)
             {
                 var possibleLastScript =
-                    logChoiceList.FirstOrDefault(x => x.DisplayText.EndsWith("  - Script Generated"));
+                    logChoiceList.FirstOrDefault(x =>
+                        x.DisplayText.EndsWith("  - Upload Generated") ||
+                        x.DisplayText.EndsWith(" - Script Generated"));
 
                 toSelect = possibleLastScript ?? logChoiceList[0];
             }
@@ -938,7 +943,7 @@ namespace PointlessWaymarks.CmsWpfControls.FilesWrittenLogList
                 {
                     var cancelOrContinue = await StatusContext.ShowMessage("Files For Deletion Report Error",
                         $"The report returned {results.S3KeysToDelete.Count} results and the errors below - Cancel or Continue?{Environment.NewLine}{Environment.NewLine}{string.Join($"{{Environment.NewLine}}{Environment.NewLine}", results.ErrorMessages)}",
-                        new List<string> {"Cancel", "Continue"});
+                        new List<string> { "Cancel", "Continue" });
 
                     if (cancelOrContinue == "Cancel") return;
                 }
@@ -972,7 +977,7 @@ namespace PointlessWaymarks.CmsWpfControls.FilesWrittenLogList
                 {
                     var cancelOrContinue = await StatusContext.ShowMessage("Missing And Changed Files Report Error",
                         $"The report returned {results.FileSizeMismatches.Count + results.MissingFiles.Count} results and the errors below - Cancel or Continue?{Environment.NewLine}{Environment.NewLine}{string.Join($"{{Environment.NewLine}}{Environment.NewLine}", results.ErrorMessages)}",
-                        new List<string> {"Cancel", "Continue"});
+                        new List<string> { "Cancel", "Continue" });
 
                     if (cancelOrContinue == "Cancel") return;
                 }

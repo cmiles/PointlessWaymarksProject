@@ -383,7 +383,7 @@ Note Content is like a simplified Post - no title and slug to edit or maintain a
             if (closeAfterSave)
             {
                 await ThreadSwitcher.ResumeForegroundAsync();
-                RequestContentEditorWindowClose?.Invoke(this, new EventArgs());
+                RequestContentEditorWindowClose?.Invoke(this, EventArgs.Empty);
             }
         }
 

@@ -456,7 +456,7 @@ namespace PointlessWaymarks.CmsWpfControls.LinkContentEditor
             if (closeAfterSave)
             {
                 await ThreadSwitcher.ResumeForegroundAsync();
-                RequestContentEditorWindowClose?.Invoke(this, new EventArgs());
+                RequestContentEditorWindowClose?.Invoke(this, EventArgs.Empty);
             }
         }
 
