@@ -8,6 +8,7 @@
     xmlns:contentIdViewer="clr-namespace:PointlessWaymarks.CmsWpfControls.ContentIdViewer"
     xmlns:createdAndUpdatedByAndOnDisplay="clr-namespace:PointlessWaymarks.CmsWpfControls.CreatedAndUpdatedByAndOnDisplay"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:helpDisplay="clr-namespace:PointlessWaymarks.CmsWpfControls.HelpDisplay"
     xmlns:imageContentEditor="clr-namespace:PointlessWaymarks.CmsWpfControls.ImageContentEditor"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:stringDataEntry="clr-namespace:PointlessWaymarks.CmsWpfControls.StringDataEntry"
@@ -18,7 +19,6 @@
     xmlns:windowScreenShot="clr-namespace:PointlessWaymarks.WpfCommon.WindowScreenShot;assembly=PointlessWaymarks.WpfCommon"
     xmlns:wpfBehavior="clr-namespace:PointlessWaymarks.WpfCommon.Behaviors;assembly=PointlessWaymarks.WpfCommon"
     xmlns:wpfConverter="clr-namespace:PointlessWaymarks.WpfCommon.ValueConverters;assembly=PointlessWaymarks.WpfCommon"
-    xmlns:helpDisplay="clr-namespace:PointlessWaymarks.CmsWpfControls.HelpDisplay"
     d:DataContext="{d:DesignInstance imageContentEditor:ImageContentEditorContext}"
     d:DesignHeight="300"
     d:DesignWidth="300"
@@ -86,7 +86,10 @@
                         <MouseBinding Command="{Binding ViewSelectedFileCommand}" MouseAction="LeftDoubleClick" />
                     </Image.InputBindings>
                 </Image>
-                <StackPanel Orientation="Vertical" Grid.Row="2" Margin="4,12,4,12">
+                <StackPanel
+                    Grid.Row="2"
+                    Margin="4,12,4,12"
+                    Orientation="Vertical">
                     <TextBox
                         HorizontalAlignment="Center"
                         Style="{StaticResource ReadOnlyTextBoxStyle}"
@@ -97,11 +100,12 @@
                             <wpfBehavior:TextBoxDoubleClickLauncher />
                         </b:Interaction.Behaviors>
                     </TextBox>
-                    <Button Background="Yellow"
-                            HorizontalAlignment="Center"
-                            Visibility="{Binding SelectedFileNameHasInvalidCharacters, Converter={StaticResource BooleanToVisibility}}"
-                            Command="{Binding AutoRenameSelectedFileCommand}"
-                            ToolTip="This filename has illegal characters - pressing this to attempt to auto-rename the file">
+                    <Button
+                        HorizontalAlignment="Center"
+                        Background="Yellow"
+                        Command="{Binding AutoRenameSelectedFileCommand}"
+                        ToolTip="This filename has illegal characters - pressing this to attempt to auto-rename the file"
+                        Visibility="{Binding SelectedFileNameHasInvalidCharacters, Converter={StaticResource BooleanToVisibility}}">
                         Auto-Fix File Name
                     </Button>
                 </StackPanel>
@@ -131,20 +135,13 @@
                 <Grid>
                     <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
                         <StackPanel Margin="4" CanHorizontallyScroll="False">
-                            <titleSummarySlugFolderEditor:TitleSummarySlugEditorControl
-                                DataContext="{Binding TitleSummarySlugFolder}" />
-                            <boolDataEntry1:BoolDataEntryControl DataContext="{Binding ShowInSiteFeed}"
-                                                                 Style="{StaticResource DataEntryBoolStyle}" />
-                            <boolDataEntry1:BoolDataEntryControl DataContext="{Binding ShowInSearch}"
-                                                                 Style="{StaticResource DataEntryBoolStyle}" />
-                            <tagsEditor:TagsEditorControl DataContext="{Binding TagEdit}"
-                                                          Style="{StaticResource TagsEditorInPanelStyle}" />
+                            <titleSummarySlugFolderEditor:TitleSummarySlugEditorControl DataContext="{Binding TitleSummarySlugFolder}" />
+                            <boolDataEntry1:BoolDataEntryControl DataContext="{Binding ShowInSiteFeed}" Style="{StaticResource DataEntryBoolStyle}" />
+                            <boolDataEntry1:BoolDataEntryControl DataContext="{Binding ShowInSearch}" Style="{StaticResource DataEntryBoolStyle}" />
+                            <tagsEditor:TagsEditorControl DataContext="{Binding TagEdit}" Style="{StaticResource TagsEditorInPanelStyle}" />
                             <stringDataEntry:StringDataEntryControl DataContext="{Binding AltTextEntry}" />
-                            <createdAndUpdatedByAndOnDisplay:CreatedAndUpdatedByAndOnDisplayControl
-                                DataContext="{Binding CreatedUpdatedDisplay}"
-                                Style="{StaticResource CreatedUpdatedInPanelStyle}" />
-                            <contentIdViewer:ContentIdViewerControl DataContext="{Binding ContentId}"
-                                                                    Style="{StaticResource ContentIdInPanelStyle}" />
+                            <createdAndUpdatedByAndOnDisplay:CreatedAndUpdatedByAndOnDisplayControl DataContext="{Binding CreatedUpdatedDisplay}" Style="{StaticResource CreatedUpdatedInPanelStyle}" />
+                            <contentIdViewer:ContentIdViewerControl DataContext="{Binding ContentId}" Style="{StaticResource ContentIdInPanelStyle}" />
                         </StackPanel>
                     </ScrollViewer>
                 </Grid>

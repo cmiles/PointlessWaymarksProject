@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net5.0-windows10.0.17763.0</TargetFramework>
+    <TargetFramework>net6.0-windows10.0.17763.0</TargetFramework>
     <Platforms>x64</Platforms>
     <UseWPF>true</UseWPF>
     <ApplicationIcon>PointlessWaymarksCmsIcons\favicon.ico</ApplicationIcon>
@@ -19,16 +19,16 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="GitInfo" Version="2.1.2">
+    <PackageReference Include="GitInfo" Version="2.2.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="gong-wpf-dragdrop" Version="2.3.2" />
+    <PackageReference Include="gong-wpf-dragdrop" Version="2.4.1" />
     <PackageReference Include="Markdig.Wpf" Version="0.5.0.1" />
-    <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.902.49" />
-    <PackageReference Include="Ookii.Dialogs.Wpf" Version="3.1.0" />
+    <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.961.33" />
+    <PackageReference Include="Ookii.Dialogs.Wpf" Version="4.0.0" />
     <PackageReference Include="System.Runtime.Caching" Version="5.0.0" />
-    <PackageReference Include="TypeSupport" Version="1.1.11" />
+    <PackageReference Include="TypeSupport" Version="1.1.12" />
   </ItemGroup>
 
   <ItemGroup>

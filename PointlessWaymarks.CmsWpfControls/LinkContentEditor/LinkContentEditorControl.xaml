@@ -6,12 +6,12 @@
     xmlns:conversionDataEntry="clr-namespace:PointlessWaymarks.CmsWpfControls.ConversionDataEntry"
     xmlns:createdAndUpdatedByAndOnDisplay="clr-namespace:PointlessWaymarks.CmsWpfControls.CreatedAndUpdatedByAndOnDisplay"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:helpDisplay="clr-namespace:PointlessWaymarks.CmsWpfControls.HelpDisplay"
     xmlns:linkContentEditor="clr-namespace:PointlessWaymarks.CmsWpfControls.LinkContentEditor"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:stringDataEntry="clr-namespace:PointlessWaymarks.CmsWpfControls.StringDataEntry"
     xmlns:tagsEditor="clr-namespace:PointlessWaymarks.CmsWpfControls.TagsEditor"
     xmlns:windowScreenShot="clr-namespace:PointlessWaymarks.WpfCommon.WindowScreenShot;assembly=PointlessWaymarks.WpfCommon"
-    xmlns:helpDisplay="clr-namespace:PointlessWaymarks.CmsWpfControls.HelpDisplay"
     d:DataContext="{d:DesignInstance linkContentEditor:LinkContentEditorContext}"
     d:DesignHeight="300"
     d:DesignWidth="300"
@@ -45,19 +45,15 @@
                                 Command="{Binding OpenUrlInBrowserCommand}"
                                 Content="_Open in Browser" />
                         </Grid>
-                        <stringDataEntry:StringDataEntryMultiLineControl DataContext="{Binding CommentsEntry}"
-                                                                         TextBoxHeight="60" />
+                        <stringDataEntry:StringDataEntryMultiLineControl DataContext="{Binding CommentsEntry}" TextBoxHeight="60" />
                         <tagsEditor:TagsEditorControl DataContext="{Binding TagEdit}" />
                         <stringDataEntry:StringDataEntryMultiLineControl DataContext="{Binding TitleEntry}" />
                         <stringDataEntry:StringDataEntryMultiLineControl DataContext="{Binding SiteEntry}" />
                         <stringDataEntry:StringDataEntryControl DataContext="{Binding AuthorEntry}" />
                         <conversionDataEntry:ConversionDataEntryControl DataContext="{Binding LinkDateTimeEntry}" />
                         <stringDataEntry:StringDataEntryControl DataContext="{Binding DescriptionEntry}" />
-                        <boolDataEntry1:BoolDataEntryControl DataContext="{Binding ShowInLinkRssEntry}"
-                                                             Style="{StaticResource DataEntryBoolStyle}" />
-                        <createdAndUpdatedByAndOnDisplay:CreatedAndUpdatedByAndOnDisplayControl
-                            DataContext="{Binding CreatedUpdatedDisplay}"
-                            Style="{StaticResource CreatedUpdatedInPanelStyle}" />
+                        <boolDataEntry1:BoolDataEntryControl DataContext="{Binding ShowInLinkRssEntry}" Style="{StaticResource DataEntryBoolStyle}" />
+                        <createdAndUpdatedByAndOnDisplay:CreatedAndUpdatedByAndOnDisplayControl DataContext="{Binding CreatedUpdatedDisplay}" Style="{StaticResource CreatedUpdatedInPanelStyle}" />
                     </StackPanel>
                 </ScrollViewer>
             </TabItem>

@@ -194,7 +194,7 @@ namespace PointlessWaymarks.CmsWpfControls.UserSettingsEditor
 
             var writeStream = File.Create(currentFile.FullName);
 
-            await JsonSerializer.SerializeAsync(writeStream, EditorSettings, null, CancellationToken.None);
+            await JsonSerializer.SerializeAsync(writeStream, EditorSettings, options: null, CancellationToken.None);
 
             UserSettingsSingleton.CurrentSettings().InjectFrom(EditorSettings);
         }

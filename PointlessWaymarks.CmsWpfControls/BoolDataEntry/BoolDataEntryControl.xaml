@@ -25,8 +25,8 @@
             VerticalContentAlignment="Center"
             Content="{Binding Title}"
             FontWeight="DemiBold"
-            IsEnabled="{Binding IsEnabled}"
             IsChecked="{Binding UserValue}"
+            IsEnabled="{Binding IsEnabled}"
             IsThreeState="{Binding UserValueIsNullable}"
             ToolTip="{Binding HelpText}" />
         <utility:IndicatorIcon

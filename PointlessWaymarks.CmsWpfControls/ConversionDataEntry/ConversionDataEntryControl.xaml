@@ -16,7 +16,7 @@
                 <ResourceDictionary Source="/PointlessWaymarks.WpfCommon;component/Utility/Icons.xaml" />
             </ResourceDictionary.MergedDictionaries>
             <BooleanToVisibilityConverter x:Key="BooleanToVisibility" />
-            <utility1:TrueIsRightTextAlignmentConverter x:Key="TrueIsRightAlign"/>
+            <utility1:TrueIsRightTextAlignmentConverter x:Key="TrueIsRightAlign" />
         </ResourceDictionary>
     </UserControl.Resources>
     <StackPanel Orientation="Vertical">
@@ -44,7 +44,7 @@
         <TextBox
             Name="ValueTextBox"
             Style="{StaticResource DataEntryTextBoxSingleLineStyle}"
-            TextAlignment="{Binding IsNumeric, Converter={StaticResource TrueIsRightAlign}}"
-            Text="{Binding UserText, UpdateSourceTrigger=PropertyChanged, Delay=100}" />
+            Text="{Binding UserText, UpdateSourceTrigger=PropertyChanged, Delay=100}"
+            TextAlignment="{Binding IsNumeric, Converter={StaticResource TrueIsRightAlign}}" />
     </StackPanel>
 </UserControl>

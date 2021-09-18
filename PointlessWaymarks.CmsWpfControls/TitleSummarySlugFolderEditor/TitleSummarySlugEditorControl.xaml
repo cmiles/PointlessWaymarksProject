@@ -22,27 +22,27 @@
     <StackPanel Orientation="Vertical">
         <StackPanel Orientation="Vertical">
             <stringDataEntry:StringDataEntryControl DataContext="{Binding TitleEntry}" />
-            <WrapPanel Orientation="Horizontal" Margin="12,6,0,6">
+            <WrapPanel Margin="12,6,0,6" Orientation="Horizontal">
                 <WrapPanel.Resources>
                     <Style TargetType="Button">
                         <Setter Property="Width" Value="90" />
-                        <Setter Property="Margin" Value="2,0,2,0"></Setter>
+                        <Setter Property="Margin" Value="2,0,2,0" />
                     </Style>
                 </WrapPanel.Resources>
                 <TextBlock VerticalAlignment="Center">Title:</TextBlock>
                 <Button
                     Command="{Binding TitleToSlugCommand}"
-                    IsEnabled="{Binding TitleToSlugEnabled}"
-                    Content="To Slug" />
+                    Content="To Slug"
+                    IsEnabled="{Binding TitleToSlugEnabled}" />
                 <Button
                     Command="{Binding TitleToSummaryCommand}"
-                    IsEnabled="{Binding TitleToSummaryEnabled}"
-                    Content="To Summary" />
+                    Content="To Summary"
+                    IsEnabled="{Binding TitleToSummaryEnabled}" />
                 <Button
                     Command="{Binding CustomTitleCommand}"
+                    Content="{Binding CustomTitleFunctionText, UpdateSourceTrigger=PropertyChanged}"
                     IsEnabled="{Binding CustomTitleFunctionEnabled}"
-                    Content="{Binding CustomTitleFunctionText,UpdateSourceTrigger=PropertyChanged}" 
-                    Visibility="{Binding CustomTitleFunctionVisible, Converter={StaticResource BooleanToVisibility}}"/>
+                    Visibility="{Binding CustomTitleFunctionVisible, Converter={StaticResource BooleanToVisibility}}" />
             </WrapPanel>
         </StackPanel>
         <stringDataEntry:StringDataEntryControl DataContext="{Binding SlugEntry}" />

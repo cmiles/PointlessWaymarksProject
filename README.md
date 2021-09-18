@@ -6,7 +6,7 @@ Working on a zero-budget-no-commercial-goals personal project like this one and 
 
 At this point this project is not intended for general use - it is made public under the MIT License to share with friends, colleagues and anyone who finds the code interesting or useful.
 
-Pointless Waymarks CMS is a .NET Core 5 Windows WPF GUI for generating a static website based on database information and a settings file. It is not an 'all purpose static site generation solution' - the focus is a limited set of content types to support creating long-lasting free content about the landscape, place, photography, nature, history...
+Pointless Waymarks CMS is a .NET Core 6 Windows WPF GUI for generating a static website based on database information and a settings file. It is not an 'all purpose static site generation solution' - the focus is a limited set of content types to support creating long-lasting free content about the landscape, place, photography, nature, history...
 
 [Pointless Waymarks](https://PointlessWaymarks.com) is generated with the Pointless Waymarks CMS and is a good example of both the output and intent. The inspirations for this code are the joy that creating content about the landscape has brought to my life and the realization that for personal content I no longer care about search rankings or page views, only about creating, getting outside, learning and exploring.
 

@@ -19,7 +19,10 @@
             <BooleanToVisibilityConverter x:Key="BoolTrueVisibleFalseCollapsed" />
         </ResourceDictionary>
     </UserControl.Resources>
-    <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" x:Name="MainGrid">
+    <Grid
+        x:Name="MainGrid"
+        HorizontalAlignment="Stretch"
+        VerticalAlignment="Stretch">
         <Grid.Style>
             <Style TargetType="Grid">
                 <Style.Triggers>
@@ -45,8 +48,8 @@
             Opacity=".9"
             Visibility="{Binding BlockUi, Converter={StaticResource BoolTrueVisibleFalseCollapsed}}">
             <ListBox
-                Margin="24"
                 x:Name="StatusLogListBox"
+                Margin="24"
                 HorizontalAlignment="Stretch"
                 VerticalAlignment="Center"
                 BorderThickness="0"
@@ -68,14 +71,15 @@
                 </ListBox.ItemTemplate>
             </ListBox>
         </Border>
-        <Grid x:Name="TextBoxGrid" Grid.Column="0"
-              Visibility="{Binding StringEntryVisible, Converter={StaticResource BoolTrueVisibleFalseCollapsed}}">
+        <Grid
+            x:Name="TextBoxGrid"
+            Grid.Column="0"
+            Visibility="{Binding StringEntryVisible, Converter={StaticResource BoolTrueVisibleFalseCollapsed}}">
             <Grid.Style>
                 <Style TargetType="Grid">
                     <Style.Triggers>
                         <DataTrigger Binding="{Binding ElementName=TextBoxGrid, Path=IsVisible}" Value="True">
-                            <Setter Property="FocusManager.FocusedElement"
-                                    Value="{Binding ElementName=UserTextTextBox}" />
+                            <Setter Property="FocusManager.FocusedElement" Value="{Binding ElementName=UserTextTextBox}" />
                         </DataTrigger>
                     </Style.Triggers>
                 </Style>
@@ -151,8 +155,7 @@
             </ListBox.ItemsPanel>
         </ListBox>
 
-        <Grid Grid.Column="0"
-              Visibility="{Binding MessageBoxVisible, Converter={StaticResource BoolTrueVisibleFalseCollapsed}}">
+        <Grid Grid.Column="0" Visibility="{Binding MessageBoxVisible, Converter={StaticResource BoolTrueVisibleFalseCollapsed}}">
             <Border Background="White" CornerRadius="8">
                 <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
                     <Grid.RowDefinitions>
@@ -190,8 +193,7 @@
                                         <Style>
                                             <Style.Triggers>
                                                 <DataTrigger Binding="{Binding IsDefault}" Value="True">
-                                                    <Setter Property="FocusManager.FocusedElement"
-                                                            Value="{Binding RelativeSource={RelativeSource Self}}" />
+                                                    <Setter Property="FocusManager.FocusedElement" Value="{Binding RelativeSource={RelativeSource Self}}" />
                                                 </DataTrigger>
                                             </Style.Triggers>
                                         </Style>

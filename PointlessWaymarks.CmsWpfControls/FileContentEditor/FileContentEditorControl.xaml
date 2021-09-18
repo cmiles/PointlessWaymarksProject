@@ -69,15 +69,15 @@
                                         <RowDefinition Height="Auto" />
                                         <RowDefinition Height="Auto" />
                                     </Grid.RowDefinitions>
-                                    <Button Command="{Binding ChooseFileCommand}"
-                                            Style="{StaticResource ActionPanelButtonStyle}">
+                                    <Button Command="{Binding ChooseFileCommand}" Style="{StaticResource ActionPanelButtonStyle}">
                                         Choose File
                                     </Button>
                                     <Label Grid.Row="1" Style="{StaticResource DataEntryLabelStyle}">Selected File</Label>
-                                    <StackPanel Orientation="Vertical" Grid.Row="2"
-                                                Margin="6,2,0,8">
+                                    <StackPanel
+                                        Grid.Row="2"
+                                        Margin="6,2,0,8"
+                                        Orientation="Vertical">
                                         <TextBox
-
                                             Style="{StaticResource ReadOnlyTextBoxStyle}"
                                             Text="{Binding SelectedFile.FullName, Mode=OneWay}"
                                             TextDecorations="Underline"
@@ -86,10 +86,11 @@
                                                 <wpfBehavior:TextBoxDoubleClickLauncher />
                                             </b:Interaction.Behaviors>
                                         </TextBox>
-                                        <Button Command="{Binding AutoRenameSelectedFileCommand}"
-                                                Visibility="{Binding SelectedFileNameHasInvalidCharacters, Converter={StaticResource BooleanToVisibility}}"
-                                                Background="Yellow"
-                                                ToolTip="This filename has illegal characters - pressing this to attempt to auto-rename the file">
+                                        <Button
+                                            Background="Yellow"
+                                            Command="{Binding AutoRenameSelectedFileCommand}"
+                                            ToolTip="This filename has illegal characters - pressing this to attempt to auto-rename the file"
+                                            Visibility="{Binding SelectedFileNameHasInvalidCharacters, Converter={StaticResource BooleanToVisibility}}">
                                             Auto-Fix File Name
                                         </Button>
                                     </StackPanel>
@@ -121,17 +122,11 @@
                             </StackPanel>
                             <boolDataEntry1:BoolDataEntryControl DataContext="{Binding PublicDownloadLink}" />
                             <boolDataEntry1:BoolDataEntryControl DataContext="{Binding EmbedFile}" />
-                            <titleSummarySlugFolderEditor:TitleSummarySlugEditorControl Margin="0,4,0,0"
-                                DataContext="{Binding TitleSummarySlugFolder}" />
-                            <boolDataEntry1:BoolDataEntryControl DataContext="{Binding ShowInSiteFeed}"
-                                                                 Style="{StaticResource DataEntryBoolStyle}" />
-                            <tagsEditor:TagsEditorControl DataContext="{Binding TagEdit}"
-                                                          Style="{StaticResource TagsEditorInPanelStyle}" />
-                            <createdAndUpdatedByAndOnDisplay:CreatedAndUpdatedByAndOnDisplayControl
-                                DataContext="{Binding CreatedUpdatedDisplay}"
-                                Style="{StaticResource CreatedUpdatedInPanelStyle}" />
-                            <contentIdViewer:ContentIdViewerControl DataContext="{Binding ContentId}"
-                                                                    Style="{StaticResource ContentIdInPanelStyle}" />
+                            <titleSummarySlugFolderEditor:TitleSummarySlugEditorControl Margin="0,4,0,0" DataContext="{Binding TitleSummarySlugFolder}" />
+                            <boolDataEntry1:BoolDataEntryControl DataContext="{Binding ShowInSiteFeed}" Style="{StaticResource DataEntryBoolStyle}" />
+                            <tagsEditor:TagsEditorControl DataContext="{Binding TagEdit}" Style="{StaticResource TagsEditorInPanelStyle}" />
+                            <createdAndUpdatedByAndOnDisplay:CreatedAndUpdatedByAndOnDisplayControl DataContext="{Binding CreatedUpdatedDisplay}" Style="{StaticResource CreatedUpdatedInPanelStyle}" />
+                            <contentIdViewer:ContentIdViewerControl DataContext="{Binding ContentId}" Style="{StaticResource ContentIdInPanelStyle}" />
                         </StackPanel>
                     </ScrollViewer>
                 </Grid>
@@ -172,8 +167,7 @@
                     Command="{Binding DownloadLinkToClipboardCommand}"
                     Content="Download Code"
                     Style="{StaticResource ActionPanelButtonStyle}" />
-                <Button Command="{Binding SaveAndExtractImageFromPdfCommand}"
-                        Style="{StaticResource ActionPanelButtonStyle}">
+                <Button Command="{Binding SaveAndExtractImageFromPdfCommand}" Style="{StaticResource ActionPanelButtonStyle}">
                     <Viewbox StretchDirection="DownOnly">
                         <StackPanel Orientation="Horizontal">
                             <Label>Save, Extract Pdf Page</Label>
