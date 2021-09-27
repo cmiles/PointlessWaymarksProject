@@ -42,7 +42,7 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
                     DataType = x.Type.ToString(),
                     x.DirectoryName,
                     Tag = x.Name,
-                    TagValue = ObjectDumper.Dump(x.Description)
+                    TagValue = x.Description?.SafeObjectDump()
                 }).ToHtmlTable(new {@class = "pure-table pure-table-striped"});
 
             var xmpDirectory = ImageMetadataReader.ReadMetadata(selectedFile.FullName).OfType<XmpDirectory>()

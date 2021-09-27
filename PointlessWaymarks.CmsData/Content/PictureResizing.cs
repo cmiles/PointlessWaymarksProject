@@ -248,7 +248,7 @@ namespace PointlessWaymarks.CmsData.Content
                 var toThrow =
                     new Exception(
                         "The Image DbEntry did not have valid information on the Original File Name for the image");
-                toThrow.Data.Add("Post DbEntry", ObjectDumper.Dump(dbEntry));
+                toThrow.Data.Add("Post DbEntry", dbEntry.SafeObjectDump());
                 throw toThrow;
             }
 

@@ -1,5 +1,8 @@
 ﻿using System;
 using System.IO;
+using System.IO.Enumeration;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using PointlessWaymarks.CmsData.Content;
 using Serilog;
 using Serilog.Formatting.Compact;
@@ -127,7 +130,7 @@ namespace PointlessWaymarks.CmsData
         /// <returns></returns>
         public static string SafeObjectDump(this object toDump)
         {
-            return ObjectDumper.Dump(toDump, new DumpOptions {MaxLevel = 2, DumpStyle = DumpStyle.Console});
+            return ObjectDumper.Dump(toDump, new DumpOptions { MaxLevel = 2, DumpStyle = DumpStyle.Console });
         }
 
         /// <summary>

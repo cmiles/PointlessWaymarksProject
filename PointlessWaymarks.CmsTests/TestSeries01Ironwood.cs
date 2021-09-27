@@ -54,7 +54,9 @@ namespace PointlessWaymarks.CmsTests
             //
             //https://stackoverflow.com/questions/1106881/using-the-wpf-dispatcher-in-unit-tests
             var waitForApplicationRun = new TaskCompletionSource<bool>();
+#pragma warning disable 4014
             Task.Run(() =>
+#pragma warning restore 4014
             {
                 var application = new Application();
                 application.Startup += (s, e) => { waitForApplicationRun.SetResult(true); };

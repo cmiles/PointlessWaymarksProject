@@ -1,4 +1,5 @@
 ﻿## Todos
+ - Embed Front End Check/Test for 'beyond PDF'
  - Test if excluded tags are properly picked up for changed html  
  - All Items Tab - reports for no tags, etc.
  - For geo types and notes review local file cleanup on delete
@@ -24,6 +25,18 @@ Site:
  - Could all font sizes be controlled by slider or setting? I like the control in the editor but maybe everywhere would be more useful? And persist in Settings?
 
 ## Notes
+
+9/26/2021
+
+A move to a new house has slowed work on this project although it has also inspired additional sites which means more/slightly different use and better testing and ideas! Some catch up notes - surely incomplete.
+
+Basic Auth: One challenge with an Amazon S3 Static Site is how to do any auth - if you have Cloudflare in front of the site one option is to use Cloudflare Workers to do basic auth - this seems to be working nicely for a very simple shared password case (site for friendsd), the basic auth screen isn't perfect (a bit jarring compared to semi-standard login screens these days) but this does seem like an interesting solution. Worker code committed.
+
+SourceGenerators: These have better support now and I was able to do a sample project where INotifyPropertyChanged worked via Nuget libraries. The support in the Windows Community Toolkit to do INotifyPropertyChanged but to also do Commands was particularly interesting. What was more problematic is that currently it seems that Visual Studio editor support doesn't fully understand the Source Generator scenario and files that would compile without error still showed red-squiggly style errors.
+
+Showing some File Content via the Embed tag is now possible for limited content types with only PDF support fully flushed out. I believe I am seeing some issues with mobile and PDF embeds but not overly concerned at the moment with a lot todo on this.
+
+Worked with photos not out of Lightroom and added some options to rename based on title and to push the title to the summary.
 
 7/12/2021
 

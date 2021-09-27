@@ -57,7 +57,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml.GeoJsonHtml
                 var toThrow =
                     new Exception(
                         "The GeoJson DbEntry did not have valid information to determine a file for the html");
-                toThrow.Data.Add("GeoJson DbEntry", ObjectDumper.Dump(DbEntry));
+                toThrow.Data.Add("GeoJson DbEntry", DbEntry.SafeObjectDump());
                 throw toThrow;
             }
 

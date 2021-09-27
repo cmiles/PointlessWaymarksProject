@@ -61,7 +61,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml.PostHtml
             {
                 var toThrow =
                     new Exception("The Post DbEntry did not have valid information to determine a file for the html");
-                toThrow.Data.Add("Post DbEntry", ObjectDumper.Dump(DbEntry));
+                toThrow.Data.Add("Post DbEntry", DbEntry.SafeObjectDump());
                 throw toThrow;
             }
 

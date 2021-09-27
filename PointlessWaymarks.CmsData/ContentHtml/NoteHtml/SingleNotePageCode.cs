@@ -60,7 +60,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml.NoteHtml
             {
                 var toThrow =
                     new Exception("The Note DbEntry did not have valid information to determine a file for the html");
-                toThrow.Data.Add("Note DbEntry", ObjectDumper.Dump(DbEntry));
+                toThrow.Data.Add("Note DbEntry", DbEntry.SafeObjectDump());
                 throw toThrow;
             }
 

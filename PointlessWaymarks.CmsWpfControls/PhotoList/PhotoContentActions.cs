@@ -413,7 +413,7 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
             var historicView = new ContentViewHistoryPage($"Historic Entries - {content.Title}",
                 UserSettingsSingleton.CurrentSettings().SiteName, $"Historic Entries - {content.Title}",
                 historicItems.OrderByDescending(x => x.LastUpdatedOn.HasValue).ThenByDescending(x => x.LastUpdatedOn)
-                    .Select(ObjectDumper.Dump).ToList());
+                    .Select(LogHelpers.SafeObjectDump).ToList());
 
             historicView.WriteHtmlToTempFolderAndShow(StatusContext.ProgressTracker());
         }

@@ -77,7 +77,7 @@ namespace PointlessWaymarks.CmsWpfControls.MapComponentEditor
                 UserSettingsSingleton.CurrentSettings().LatitudeDefault,
                 UserSettingsSingleton.CurrentSettings().LongitudeDefault, string.Empty);
 
-            HelpContext = new HelpDisplayContext(new List<string>
+            _helpContext = new HelpDisplayContext(new List<string>
             {
                 CommonFields.TitleSlugFolderSummary, BracketCodeHelpMarkdown.HelpBlock
             });

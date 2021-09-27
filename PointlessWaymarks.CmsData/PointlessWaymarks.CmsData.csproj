@@ -40,12 +40,12 @@
   <ItemGroup>
     <PackageReference Include="AngleSharp" Version="1.0.0-alpha-844" />
     <PackageReference Include="AngleSharp.Js" Version="0.15.0" />
-    <PackageReference Include="AWSSDK.S3" Version="3.7.3.1" />
+    <PackageReference Include="AWSSDK.S3" Version="3.7.3.4" />
     <PackageReference Include="ClosedXML" Version="0.95.4" />
-    <PackageReference Include="CompareNETObjects" Version="4.73.0" />
-    <PackageReference Include="FluentMigrator" Version="3.3.0" />
-    <PackageReference Include="FluentMigrator.Runner" Version="3.3.0" />
-    <PackageReference Include="FluentMigrator.Runner.SQLite" Version="3.3.0" />
+    <PackageReference Include="CompareNETObjects" Version="4.74.0" />
+    <PackageReference Include="FluentMigrator" Version="3.3.1" />
+    <PackageReference Include="FluentMigrator.Runner" Version="3.3.1" />
+    <PackageReference Include="FluentMigrator.Runner.SQLite" Version="3.3.1" />
     <PackageReference Include="GeoAPI" Version="1.7.5" />
     <PackageReference Include="GitInfo" Version="2.2.0">
       <PrivateAssets>all</PrivateAssets>
@@ -55,7 +55,7 @@
     <PackageReference Include="HtmlTags" Version="8.1.1" />
     <PackageReference Include="JetBrains.Annotations" Version="2021.2.0" />
     <PackageReference Include="Markdig" Version="0.26.0" />
-    <PackageReference Include="MetadataExtractor" Version="2.7.0" />
+    <PackageReference Include="MetadataExtractor" Version="2.7.1" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="5.0.10" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="5.0.10" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="5.0.2" />
