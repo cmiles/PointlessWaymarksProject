@@ -561,7 +561,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml
 
             contentChanges = contentChanges.Concat(noLongerPresentIds).Concat(addedIds).Distinct().ToList();
 
-            var originalContentSets = contentChanges.Partition(500).ToList();
+            var originalContentSets = contentChanges.Chunk(500).ToList();
 
             var relatedIds = new List<Guid>();
 
@@ -887,7 +887,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml
             var allCurrentTags = db.GenerationTagLogs.Where(x => x.GenerationVersion == generationVersion)
                 .Where(x => x.TagSlug != null).Select(x => x.TagSlug!).Distinct().OrderBy(x => x).ToList();
 
-            var partitionedTags = allCurrentTags.Split(10);
+            var partitionedTags = allCurrentTags.Chunk(10).ToList();
 
             var allTasks = new List<Task>();
 

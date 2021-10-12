@@ -951,7 +951,7 @@ namespace PointlessWaymarks.CmsData.Database
         {
             var db = await Context().ConfigureAwait(false);
 
-            var idChunks = pointContentId.Partition(250);
+            var idChunks = pointContentId.Chunk(250);
 
             var returnList = new List<PointContentDto>();
 

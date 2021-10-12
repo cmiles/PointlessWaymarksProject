@@ -17,7 +17,7 @@ namespace PointlessWaymarks.CmsData.Spatial.Elevation
         {
             if (!coordinates.Any()) return coordinates;
 
-            var partitionedCoordinates = coordinates.Partition(100).ToList();
+            var partitionedCoordinates = coordinates.Chunk(100).ToList();
 
             var resultList = new List<ElevationResult>();
 
