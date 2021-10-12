@@ -18,7 +18,7 @@ namespace PointlessWaymarks.CmsWpfControls.S3Uploads
         private StatusControlContext _statusContext;
         private S3UploadsContext? _uploadContext;
 
-        public S3UploadsWindow(List<S3Upload> toLoad)
+        public S3UploadsWindow(List<S3Upload> toLoad, bool autoStartUpload)
         {
             InitializeComponent();
 
@@ -29,6 +29,7 @@ namespace PointlessWaymarks.CmsWpfControls.S3Uploads
             StatusContext.RunFireAndForgetBlockingTask(async () =>
             {
                 UploadContext = await S3UploadsContext.CreateInstance(StatusContext, toLoad);
+                UploadContext.StatusContext.RunNonBlockingTask(UploadContext.StartAllUploads);
             });
         }
 
@@ -81,7 +82,7 @@ namespace PointlessWaymarks.CmsWpfControls.S3Uploads
 
             var userAction = await StatusContext.ShowMessage("Running Upload...",
                 "Exiting this window with an upload running could create errors on S3:",
-                new List<string> {"Close Immediately", "Cancel and Close", "Return to Upload"});
+                new List<string> { "Close Immediately", "Cancel and Close", "Return to Upload" });
 
             switch (userAction)
             {

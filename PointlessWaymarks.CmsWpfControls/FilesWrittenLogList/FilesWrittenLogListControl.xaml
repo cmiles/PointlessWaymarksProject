@@ -29,25 +29,40 @@
                     </Grid.RowDefinitions>
                     <Menu>
                         <MenuItem Header="S3 ">
-                            <MenuItem Command="{Binding SiteMissingFilesReportCommand}" Header="S3 - Missing and Changed Files on Site" />
-                            <MenuItem Command="{Binding SiteDeletedFilesReportCommand}" Header="S3 - Deleted Files on Site" />
+                            <MenuItem Command="{Binding SelectedWrittenFilesToRunningS3UploaderCommand}"
+                                      Header="S3 - Upload All" />
+                            <MenuItem Command="{Binding AllWrittenFilesToRunningS3UploaderCommand}"
+                                      Header="S3 - Upload Selected" />
                             <Separator />
-                            <MenuItem Command="{Binding SelectedWrittenFilesToS3UploaderCommand}" Header="S3 - Selected to Uploader" />
-                            <MenuItem Command="{Binding AllWrittenFilesToS3UploaderCommand}" Header="S3 - All to Uploader" />
+                            <MenuItem Command="{Binding SiteMissingFilesReportCommand}"
+                                      Header="S3 - Missing and Changed Files on Site" />
+                            <MenuItem Command="{Binding SiteDeletedFilesReportCommand}"
+                                      Header="S3 - Deleted Files on Site" />
                             <Separator />
-                            <MenuItem Command="{Binding SelectedWrittenFilesToS3UploaderJsonFileCommand}" Header="Selected to Uploader Json File" />
-                            <MenuItem Command="{Binding AllWrittenFilesToS3UploaderJsonFileCommand}" Header="All to Uploader Json File" />
+                            <MenuItem Command="{Binding AllWrittenFilesToS3UploaderCommand}"
+                                      Header="S3 - All to Uploader" />
+                            <MenuItem Command="{Binding SelectedWrittenFilesToS3UploaderCommand}"
+                                      Header="S3 - Selected to Uploader" />
+                            <Separator />
+                            <MenuItem Command="{Binding AllWrittenFilesToS3UploaderJsonFileCommand}"
+                                      Header="All to Uploader Json File" />
+                            <MenuItem Command="{Binding SelectedWrittenFilesToS3UploaderJsonFileCommand}"
+                                      Header="Selected to Uploader Json File" />
                             <Separator />
                             <MenuItem Command="{Binding OpenUploaderJsonFileCommand}" Header="Open Uploader Json File" />
                             <Separator />
-                            <MenuItem Command="{Binding SelectedScriptStringsToPowerShellScriptCommand}" Header="Selected to PowerShell Ps1 File" />
-                            <MenuItem Command="{Binding SelectedScriptStringsToClipboardCommand}" Header="Selected to Clipboard" />
+                            <MenuItem Command="{Binding AllScriptStringsToPowerShellScriptCommand}"
+                                      Header="All to PowerShell Ps1 File" />
+                            <MenuItem Command="{Binding SelectedScriptStringsToPowerShellScriptCommand}"
+                                      Header="Selected to PowerShell Ps1 File" />
                             <Separator />
-                            <MenuItem Command="{Binding AllScriptStringsToPowerShellScriptCommand}" Header="All to PowerShell Ps1 File" />
                             <MenuItem Command="{Binding AllScriptStringsToClipboardCommand}" Header="All to Clipboard" />
+                            <MenuItem Command="{Binding SelectedScriptStringsToClipboardCommand}"
+                                      Header="Selected to Clipboard" />
                         </MenuItem>
                         <MenuItem Header="File Names">
-                            <MenuItem Command="{Binding SelectedWrittenFilesToClipboardCommand}" Header="Selected to Clipboard" />
+                            <MenuItem Command="{Binding SelectedWrittenFilesToClipboardCommand}"
+                                      Header="Selected to Clipboard" />
                             <MenuItem Command="{Binding AllWrittenFilesToClipboardCommand}" Header="All to Clipboard" />
                         </MenuItem>
                         <MenuItem Header="Excel">

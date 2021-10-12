@@ -67,7 +67,7 @@ namespace PointlessWaymarks.CmsWpfControls.S3Uploads
             _removeSelectedItemsCommand = StatusContext.RunBlockingTaskCommand(RemoveSelectedItems);
             _clearCompletedUploadBatch = StatusContext.RunNonBlockingActionCommand(() =>
             {
-                if (UploadBatch is {Completed: true}) UploadBatch = null;
+                if (UploadBatch is { Completed: true }) UploadBatch = null;
             });
         }
 
@@ -278,6 +278,7 @@ namespace PointlessWaymarks.CmsWpfControls.S3Uploads
         {
             var newControl = new S3UploadsContext(statusContext);
             await newControl.LoadData(uploadList);
+
             return newControl;
         }
 
@@ -452,7 +453,7 @@ namespace PointlessWaymarks.CmsWpfControls.S3Uploads
 
         public async Task StartAllUploads()
         {
-            if (UploadBatch is {Completed: false})
+            if (UploadBatch is { Completed: false })
             {
                 StatusContext.ToastWarning("Wait for the current Upload Batch to Complete...");
                 return;
@@ -473,7 +474,7 @@ namespace PointlessWaymarks.CmsWpfControls.S3Uploads
 
         public async Task StartSelectedUploads()
         {
-            if (UploadBatch is {Completed: false})
+            if (UploadBatch is { Completed: false })
             {
                 StatusContext.ToastWarning("Wait for the current Upload Batch to Complete...");
                 return;

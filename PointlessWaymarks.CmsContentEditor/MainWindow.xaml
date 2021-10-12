@@ -107,6 +107,7 @@
                     </Grid.RowDefinitions>
                     <GroupBox Header="Common Actions" Style="{StaticResource UiComponentGroupBoxStyle}">
                         <StackPanel Orientation="Vertical">
+                            <Button Margin="12" Command="{Binding GenerateChangedHtmlAndStartUploadCommand}">Generate HTML From Content With Changes And Start Upload</Button>
                             <Button Margin="12" Command="{Binding GenerateChangedHtmlCommand}">Generate HTML From Content With Changes</Button>
                             <Button Margin="12" Command="{Binding RemoveUnusedFoldersAndFilesFromContentCommand}">
                                 Remove Unused Files and Folders from Generated Site

@@ -34,6 +34,7 @@ using PointlessWaymarks.CmsWpfControls.NoteList;
 using PointlessWaymarks.CmsWpfControls.PhotoList;
 using PointlessWaymarks.CmsWpfControls.PointList;
 using PointlessWaymarks.CmsWpfControls.PostList;
+using PointlessWaymarks.CmsWpfControls.S3Uploads;
 using PointlessWaymarks.CmsWpfControls.TagExclusionEditor;
 using PointlessWaymarks.CmsWpfControls.TagList;
 using PointlessWaymarks.CmsWpfControls.UserSettingsEditor;
@@ -98,6 +99,8 @@ namespace PointlessWaymarks.CmsContentEditor
             StatusContext = new StatusControlContext();
 
             //Common
+            GenerateChangedHtmlAndStartUploadCommand =
+                StatusContext.RunBlockingTaskCommand(GenerateChangedHtmlAndStartUpload);
             GenerateChangedHtmlCommand = StatusContext.RunBlockingTaskCommand(GenerateChangedHtml);
 
             RemoveUnusedFilesFromMediaArchiveCommand =
@@ -106,8 +109,8 @@ namespace PointlessWaymarks.CmsContentEditor
             RemoveUnusedFoldersAndFilesFromContentCommand =
                 StatusContext.RunBlockingTaskCommand(RemoveUnusedFoldersAndFilesFromContent);
 
-            GenerateIndexCommand = StatusContext.RunBlockingActionCommand(() =>
-                HtmlGenerationGroups.GenerateIndex(null, StatusContext.ProgressTracker()));
+            GenerateIndexCommand = StatusContext.RunBlockingTaskCommand(async () =>
+                await HtmlGenerationGroups.GenerateIndex(null, StatusContext.ProgressTracker()));
 
             CheckAllContentForInvalidBracketCodeContentIdsCommand =
                 StatusContext.RunBlockingTaskCommand(CheckAllContentForInvalidBracketCodeContentIds);
@@ -155,10 +158,10 @@ namespace PointlessWaymarks.CmsContentEditor
                 await HtmlGenerationGroups.GenerateAllGeoJsonHtml(null, StatusContext.ProgressTracker()));
 
             //Derived
-            GenerateAllListHtmlCommand = StatusContext.RunBlockingActionCommand(async () =>
+            GenerateAllListHtmlCommand = StatusContext.RunBlockingTaskCommand(async () =>
                 await HtmlGenerationGroups.GenerateAllListHtml(null, StatusContext.ProgressTracker()));
 
-            GenerateAllTagHtmlCommand = StatusContext.RunBlockingActionCommand(async () =>
+            GenerateAllTagHtmlCommand = StatusContext.RunBlockingTaskCommand(async () =>
                 await HtmlGenerationGroups.GenerateAllTagHtml(null, StatusContext.ProgressTracker()));
 
             GenerateCameraRollCommand = StatusContext.RunBlockingTaskCommand(async () =>
@@ -201,6 +204,8 @@ namespace PointlessWaymarks.CmsContentEditor
         public Command GenerateAllTagHtmlCommand { get; set; }
 
         public Command GenerateCameraRollCommand { get; set; }
+
+        public Command GenerateChangedHtmlAndStartUploadCommand { get; set; }
 
         public Command GenerateChangedHtmlCommand { get; set; }
 
@@ -679,6 +684,27 @@ namespace PointlessWaymarks.CmsContentEditor
             if (generationResults.All(x => !x.HasError)) return;
 
             await Reports.InvalidBracketCodeContentIdsHtmlReport(generationResults);
+        }
+
+        private async Task GenerateChangedHtmlAndStartUpload()
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            await HtmlGenerationGroups.GenerateChangedToHtml(StatusContext.ProgressTracker());
+            var toUpload = await S3UploadHelpers.FilesSinceLastUploadToRunningUploadWindow(StatusContext.ProgressTracker());
+            
+            await S3UploadHelpers.S3UploaderItemsToS3UploaderJsonFile(toUpload.uploadItems, Path.Combine(UserSettingsSingleton.CurrentSettings().LocalSiteScriptsDirectory().FullName,
+                $"{DateTime.Now:yyyy-MM-dd--HH-mm-ss}---File-Upload-Data.json"));
+
+            if (!toUpload.validUploadList.Valid)
+            {
+                await StatusContext.ShowMessageWithOkButton("Upload Failure",
+                    $"Generating HTML appears to have succeeded but creating an upload failed: {toUpload.validUploadList.Explanation}");
+                return;
+            }
+
+            await ThreadSwitcher.ResumeForegroundAsync();
+            new S3UploadsWindow(toUpload.uploadItems, true).Show();
         }
 
 
