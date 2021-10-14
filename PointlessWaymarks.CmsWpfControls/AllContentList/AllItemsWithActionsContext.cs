@@ -4,7 +4,6 @@ using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using PointlessWaymarks.CmsWpfControls.ContentList;
-using PointlessWaymarks.CmsWpfControls.SitePreview;
 using PointlessWaymarks.CmsWpfControls.WordPressXmlImport;
 using PointlessWaymarks.WpfCommon.Commands;
 using PointlessWaymarks.WpfCommon.Status;
@@ -16,7 +15,6 @@ namespace PointlessWaymarks.CmsWpfControls.AllContentList
     public class AllItemsWithActionsContext : INotifyPropertyChanged
     {
         private ContentListContext _listContext;
-        private Command _showSiteBrowserWindowCommand;
         private Command _wordPressImportWindowCommand;
 
         public AllItemsWithActionsContext(StatusControlContext statusContext)
@@ -33,17 +31,6 @@ namespace PointlessWaymarks.CmsWpfControls.AllContentList
             {
                 if (Equals(value, _listContext)) return;
                 _listContext = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public Command ShowSiteBrowserWindowCommand
-        {
-            get => _showSiteBrowserWindowCommand;
-            set
-            {
-                if (Equals(value, _showSiteBrowserWindowCommand)) return;
-                _showSiteBrowserWindowCommand = value;
                 OnPropertyChanged();
             }
         }
@@ -70,7 +57,6 @@ namespace PointlessWaymarks.CmsWpfControls.AllContentList
             ListContext ??= new ContentListContext(StatusContext, new ContentListLoaderAllItems(100));
 
             WordPressImportWindowCommand = StatusContext.RunNonBlockingTaskCommand(WordPressImportWindow);
-            ShowSiteBrowserWindowCommand = StatusContext.RunNonBlockingTaskCommand(ShowSiteBrowserWindow);
 
             ListContext.ContextMenuItems = new List<ContextMenuItemData>
             {
@@ -96,14 +82,6 @@ namespace PointlessWaymarks.CmsWpfControls.AllContentList
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
-        private async Task ShowSiteBrowserWindow()
-        {
-            await ThreadSwitcher.ResumeForegroundAsync();
-
-            var sitePreviewWindow = new SiteOnDiskPreviewWindow();
-
-            sitePreviewWindow.Show();
-        }
 
         private async Task WordPressImportWindow()
         {

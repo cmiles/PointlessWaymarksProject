@@ -15,6 +15,7 @@ namespace PointlessWaymarks.CmsWpfControls.SitePreview
     public partial class SitePreviewControl : INotifyPropertyChanged
     {
         private SitePreviewContext _previewContext;
+        private bool _loaded;
 
         public SitePreviewControl()
         {
@@ -38,14 +39,19 @@ namespace PointlessWaymarks.CmsWpfControls.SitePreview
 
         private async void InitializeAsync()
         {
-            // must create a data folder if running out of a secured folder that can't write like Program Files
-            var env = await CoreWebView2Environment.CreateAsync(
-                userDataFolder: Path.Combine(Path.GetTempPath(), "PointWaymarksCms_SitePreviewBrowserData"));
+            if (!_loaded)
+            {
+                _loaded = true;
 
-            // Note this waits until the first page is navigated!
-            await SitePreviewWebView.EnsureCoreWebView2Async(env);
+                // must create a data folder if running out of a secured folder that can't write like Program Files
+                var env = await CoreWebView2Environment.CreateAsync(
+                    userDataFolder: Path.Combine(Path.GetTempPath(), "PointWaymarksCms_SitePreviewBrowserData"));
 
-            SitePreviewWebView.Source = new Uri(PreviewContext.InitialPage);
+                // Note this waits until the first page is navigated!
+                await SitePreviewWebView.EnsureCoreWebView2Async(env);
+
+                SitePreviewWebView.Source = new Uri(PreviewContext.InitialPage);
+            }
         }
 
         public void LoadData()

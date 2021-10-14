@@ -29,9 +29,9 @@
                     </Grid.RowDefinitions>
                     <Menu>
                         <MenuItem Header="S3 ">
-                            <MenuItem Command="{Binding SelectedWrittenFilesToRunningS3UploaderCommand}"
-                                      Header="S3 - Upload All" />
                             <MenuItem Command="{Binding AllWrittenFilesToRunningS3UploaderCommand}"
+                                      Header="S3 - Upload All" />
+                            <MenuItem Command="{Binding SelectedWrittenFilesToRunningS3UploaderCommand}"
                                       Header="S3 - Upload Selected" />
                             <Separator />
                             <MenuItem Command="{Binding SiteMissingFilesReportCommand}"

@@ -38,6 +38,7 @@ using PointlessWaymarks.CmsWpfControls.S3Uploads;
 using PointlessWaymarks.CmsWpfControls.TagExclusionEditor;
 using PointlessWaymarks.CmsWpfControls.TagList;
 using PointlessWaymarks.CmsWpfControls.UserSettingsEditor;
+using PointlessWaymarks.CmsWpfControls.Utility;
 using PointlessWaymarks.CmsWpfControls.WpfHtml;
 using PointlessWaymarks.WpfCommon.Commands;
 using PointlessWaymarks.WpfCommon.Status;
@@ -99,9 +100,11 @@ namespace PointlessWaymarks.CmsContentEditor
             StatusContext = new StatusControlContext();
 
             //Common
-            GenerateChangedHtmlAndStartUploadCommand =
-                StatusContext.RunBlockingTaskCommand(GenerateChangedHtmlAndStartUpload);
-            GenerateChangedHtmlCommand = StatusContext.RunBlockingTaskCommand(GenerateChangedHtml);
+            GenerateChangedHtmlAndStartUploadCommand = StatusContext.RunBlockingTaskCommand(async () =>
+                await S3UploadHelpers.FilesSinceLastUploadToRunningUploadWindow(StatusContext.ProgressTracker()));
+
+            GenerateChangedHtmlCommand = StatusContext.RunBlockingTaskCommand(async () =>
+                await GenerationHelpers.GenerateChangedHtml(StatusContext.ProgressTracker()));
 
             RemoveUnusedFilesFromMediaArchiveCommand =
                 StatusContext.RunBlockingTaskCommand(RemoveUnusedFilesFromMediaArchive);
@@ -675,38 +678,6 @@ namespace PointlessWaymarks.CmsContentEditor
 
             await Reports.InvalidBracketCodeContentIdsHtmlReport(generationResults);
         }
-
-        private async Task GenerateChangedHtml()
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-            var generationResults = await HtmlGenerationGroups.GenerateChangedToHtml(StatusContext.ProgressTracker());
-
-            if (generationResults.All(x => !x.HasError)) return;
-
-            await Reports.InvalidBracketCodeContentIdsHtmlReport(generationResults);
-        }
-
-        private async Task GenerateChangedHtmlAndStartUpload()
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            await HtmlGenerationGroups.GenerateChangedToHtml(StatusContext.ProgressTracker());
-            var toUpload = await S3UploadHelpers.FilesSinceLastUploadToRunningUploadWindow(StatusContext.ProgressTracker());
-            
-            await S3UploadHelpers.S3UploaderItemsToS3UploaderJsonFile(toUpload.uploadItems, Path.Combine(UserSettingsSingleton.CurrentSettings().LocalSiteScriptsDirectory().FullName,
-                $"{DateTime.Now:yyyy-MM-dd--HH-mm-ss}---File-Upload-Data.json"));
-
-            if (!toUpload.validUploadList.Valid)
-            {
-                await StatusContext.ShowMessageWithOkButton("Upload Failure",
-                    $"Generating HTML appears to have succeeded but creating an upload failed: {toUpload.validUploadList.Explanation}");
-                return;
-            }
-
-            await ThreadSwitcher.ResumeForegroundAsync();
-            new S3UploadsWindow(toUpload.uploadItems, true).Show();
-        }
-
 
         private static DateTime? GetBuildDate(Assembly assembly)
         {

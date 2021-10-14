@@ -32,6 +32,8 @@ using PointlessWaymarks.CmsWpfControls.PhotoContentEditor;
 using PointlessWaymarks.CmsWpfControls.PhotoList;
 using PointlessWaymarks.CmsWpfControls.PointList;
 using PointlessWaymarks.CmsWpfControls.PostList;
+using PointlessWaymarks.CmsWpfControls.S3Uploads;
+using PointlessWaymarks.CmsWpfControls.SitePreview;
 using PointlessWaymarks.CmsWpfControls.Utility;
 using PointlessWaymarks.WpfCommon.Commands;
 using PointlessWaymarks.WpfCommon.Status;
@@ -50,6 +52,8 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList
         private Command _deleteSelectedCommand;
         private Command _editSelectedCommand;
         private FileContentActions _fileItemActions;
+        private Command _generateChangedHtmlAndStartUploadCommand;
+        private Command _generateChangedHtmlCommand;
         private Command _generateHtmlSelectedCommand;
         private GeoJsonContentActions _geoJsonItemActions;
         private ImageContentActions _imageItemActions;
@@ -69,6 +73,7 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList
         private PointContentActions _pointItemActions;
         private PostContentActions _postItemActions;
         private Command _selectedToExcelCommand;
+        private Command _showSiteBrowserWindowCommand;
         private StatusControlContext _statusContext;
         private string _userFilterText;
         private Command _viewHistorySelectedCommand;
@@ -121,6 +126,14 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList
             SelectedToExcelCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
                 await ExcelHelpers.SelectedToExcel(ListSelection.SelectedItems?.Cast<dynamic>().ToList(),
                     StatusContext));
+
+            GenerateChangedHtmlAndStartUploadCommand =
+                StatusContext.RunBlockingTaskCommand(async () =>
+                    await S3UploadHelpers.GenerateChangedHtmlAndStartUpload(StatusContext));
+            GenerateChangedHtmlCommand =
+                StatusContext.RunBlockingTaskCommand(async () =>
+                    await GenerationHelpers.GenerateChangedHtml(StatusContext.ProgressTracker()));
+            ShowSiteBrowserWindowCommand = StatusContext.RunNonBlockingTaskCommand(ShowSiteBrowserWindow);
         }
 
         public Command BracketCodeToClipboardSelectedCommand
@@ -189,6 +202,28 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList
             {
                 if (Equals(value, _fileItemActions)) return;
                 _fileItemActions = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public Command GenerateChangedHtmlAndStartUploadCommand
+        {
+            get => _generateChangedHtmlAndStartUploadCommand;
+            set
+            {
+                if (Equals(value, _generateChangedHtmlAndStartUploadCommand)) return;
+                _generateChangedHtmlAndStartUploadCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public Command GenerateChangedHtmlCommand
+        {
+            get => _generateChangedHtmlCommand;
+            set
+            {
+                if (Equals(value, _generateChangedHtmlCommand)) return;
+                _generateChangedHtmlCommand = value;
                 OnPropertyChanged();
             }
         }
@@ -399,6 +434,17 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList
             {
                 if (Equals(value, _selectedToExcelCommand)) return;
                 _selectedToExcelCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public Command ShowSiteBrowserWindowCommand
+        {
+            get => _showSiteBrowserWindowCommand;
+            set
+            {
+                if (Equals(value, _showSiteBrowserWindowCommand)) return;
+                _showSiteBrowserWindowCommand = value;
                 OnPropertyChanged();
             }
         }
@@ -696,9 +742,9 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList
 
             if (ListSelection.SelectedItems.Count > 20)
                 if (await StatusContext.ShowMessage("Delete Multiple Items",
-                    $"You are about to delete {ListSelection.SelectedItems.Count} items - do you really want to delete all of these items?" +
-                    $"{Environment.NewLine}{Environment.NewLine}{string.Join(Environment.NewLine, ListSelection.SelectedItems.Select(x => x.Content().Title))}",
-                    new List<string> { "Yes", "No" }) == "No")
+                        $"You are about to delete {ListSelection.SelectedItems.Count} items - do you really want to delete all of these items?" +
+                        $"{Environment.NewLine}{Environment.NewLine}{string.Join(Environment.NewLine, ListSelection.SelectedItems.Select(x => x.Content().Title))}",
+                        new List<string> { "Yes", "No" }) == "No")
                     return;
 
             var currentSelected = ListSelection.SelectedItems;
@@ -935,6 +981,15 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList
                 if (((dynamic)loopListItem).DbEntry is IMainImage { MainPicture: { } } dbMainImageEntry &&
                     translatedMessage.ContentIds.Contains(dbMainImageEntry.MainPicture.Value))
                     loopListItem.SmallImageUrl = GetSmallImageUrl(dbMainImageEntry);
+        }
+
+        private async Task ShowSiteBrowserWindow()
+        {
+            await ThreadSwitcher.ResumeForegroundAsync();
+
+            var sitePreviewWindow = new SiteOnDiskPreviewWindow();
+
+            sitePreviewWindow.Show();
         }
 
         private async Task TryOpenEditorsForDroppedFiles(List<string> files, StatusControlContext statusContext)

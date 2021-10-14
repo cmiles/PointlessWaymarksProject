@@ -6,38 +6,20 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using PointlessWaymarks.CmsData;
+using PointlessWaymarks.CmsData.ContentHtml;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsWpfControls.FilesWrittenLogList;
 using PointlessWaymarks.CmsWpfControls.Utility.Aws;
+using PointlessWaymarks.WpfCommon.Status;
+using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 
 namespace PointlessWaymarks.CmsWpfControls.S3Uploads
 {
     public static class S3UploadHelpers
     {
-        /// <summary>
-        /// Saves S3Uploader Items to the specified json file and writes an entry into the GenerationFileTransferScriptLogs 
-        /// </summary>
-        /// <param name="items"></param>
-        /// <param name="fileName"></param>
-        /// <returns></returns>
-        public static async Task S3UploaderItemsToS3UploaderJsonFile(List<S3Upload> items, string fileName)
-        {
-            var jsonInfo = JsonSerializer.Serialize(items.Select(x =>
-                new S3UploadFileRecord(x.ToUpload.FullName, x.S3Key, x.BucketName, x.Region, x.Note)));
-
-            var file = new FileInfo(fileName);
-
-            await File.WriteAllTextAsync(file.FullName, jsonInfo);
-
-            await Db.SaveGenerationFileTransferScriptLog(new GenerationFileTransferScriptLog
-            {
-                FileName = file.FullName,
-                WrittenOnVersion = DateTime.Now.TrimDateTimeToSeconds().ToUniversalTime()
-            });
-        }
-
-        public static async Task<(IsValid validUploadList, List<S3Upload> uploadItems)> FilesSinceLastUploadToRunningUploadWindow(IProgress<string> progress)
+        public static async Task<(IsValid validUploadList, List<S3Upload> uploadItems)>
+            FilesSinceLastUploadToRunningUploadWindow(IProgress<string> progress)
         {
             progress.Report("Checking Bucket Details in Settings");
 
@@ -103,8 +85,51 @@ namespace PointlessWaymarks.CmsWpfControls.S3Uploads
                         $"From Files Written Log - {x.WrittenOn}")).ToList();
 
 
-
             return (new IsValid(true, string.Empty), s3Items);
+        }
+
+        public static async Task GenerateChangedHtmlAndStartUpload(StatusControlContext statusContext)
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            await HtmlGenerationGroups.GenerateChangedToHtml(statusContext.ProgressTracker());
+            var toUpload = await FilesSinceLastUploadToRunningUploadWindow(statusContext.ProgressTracker());
+
+            await S3UploaderItemsToS3UploaderJsonFile(toUpload.uploadItems, Path.Combine(
+                UserSettingsSingleton.CurrentSettings().LocalSiteScriptsDirectory().FullName,
+                $"{DateTime.Now:yyyy-MM-dd--HH-mm-ss}---File-Upload-Data.json"));
+
+            if (!toUpload.validUploadList.Valid)
+            {
+                await statusContext.ShowMessageWithOkButton("Upload Failure",
+                    $"Generating HTML appears to have succeeded but creating an upload failed: {toUpload.validUploadList.Explanation}");
+                return;
+            }
+
+            await ThreadSwitcher.ResumeForegroundAsync();
+            new S3UploadsWindow(toUpload.uploadItems, true).Show();
+        }
+
+        /// <summary>
+        ///     Saves S3Uploader Items to the specified json file and writes an entry into the GenerationFileTransferScriptLogs
+        /// </summary>
+        /// <param name="items"></param>
+        /// <param name="fileName"></param>
+        /// <returns></returns>
+        public static async Task S3UploaderItemsToS3UploaderJsonFile(List<S3Upload> items, string fileName)
+        {
+            var jsonInfo = JsonSerializer.Serialize(items.Select(x =>
+                new S3UploadFileRecord(x.ToUpload.FullName, x.S3Key, x.BucketName, x.Region, x.Note)));
+
+            var file = new FileInfo(fileName);
+
+            await File.WriteAllTextAsync(file.FullName, jsonInfo);
+
+            await Db.SaveGenerationFileTransferScriptLog(new GenerationFileTransferScriptLog
+            {
+                FileName = file.FullName,
+                WrittenOnVersion = DateTime.Now.TrimDateTimeToSeconds().ToUniversalTime()
+            });
         }
     }
 }
