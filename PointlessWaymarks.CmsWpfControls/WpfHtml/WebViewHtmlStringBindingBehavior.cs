@@ -19,12 +19,13 @@ namespace PointlessWaymarks.CmsWpfControls.WpfHtml
             new PropertyMetadata(default(string), OnHtmlChanged));
 
         private readonly List<FileInfo> _previousFiles = new();
+        private bool _loaded;
 
         public string CachedHtml { get; set; }
 
         public string HtmlString
         {
-            get => (string) GetValue(HtmlStringProperty);
+            get => (string)GetValue(HtmlStringProperty);
             set => SetValue(HtmlStringProperty, value);
         }
 
@@ -94,9 +95,23 @@ namespace PointlessWaymarks.CmsWpfControls.WpfHtml
 
         private async void OnLoaded(object sender, RoutedEventArgs e)
         {
-            var webViewEnvironment = await CoreWebView2Environment.CreateAsync(userDataFolder: Path.Combine(
-                UserSettingsUtilities.TempStorageHtmlDirectory().FullName));
-            await AssociatedObject.EnsureCoreWebView2Async(webViewEnvironment);
+            if (!_loaded)
+            {
+                var webViewEnvironment = await CoreWebView2Environment.CreateAsync(userDataFolder: Path.Combine(
+                    UserSettingsUtilities.TempStorageHtmlDirectory().FullName));
+
+                try
+                {
+                    await AssociatedObject.EnsureCoreWebView2Async(webViewEnvironment);
+                }
+                catch (Exception exception)
+                {
+                    Console.WriteLine(exception);
+                    Log.Error(exception, "Error in the OnLoaded method with the WebView2 EnsureCoreWebView2Async.");
+                }
+
+                _loaded = true;
+            }
         }
 
         private async void OnReady(object sender, EventArgs e)
