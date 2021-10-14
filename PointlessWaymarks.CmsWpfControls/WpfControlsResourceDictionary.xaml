@@ -142,7 +142,7 @@
         Text="{Binding DbEntry.Title, Mode=OneWay}"
         TextWrapping="Wrap">
         <b:Interaction.Behaviors>
-            <wpfBehavior:ReadOnlyTextBoxClickAndKeyboardPass />
+            <wpfBehavior:ReadOnlyTextBoxClickKeyboardAndDragPass />
         </b:Interaction.Behaviors>
         <b:Interaction.Triggers>
             <b:EventTrigger EventName="SelectionChanged">
@@ -157,7 +157,7 @@
             Text="{Binding DbEntry.Title, Mode=OneWay}"
             TextWrapping="Wrap">
             <b:Interaction.Behaviors>
-                <wpfBehavior:ReadOnlyTextBoxClickAndKeyboardPass />
+                <wpfBehavior:ReadOnlyTextBoxClickKeyboardAndDragPass />
             </b:Interaction.Behaviors>
             <b:Interaction.Triggers>
                 <b:EventTrigger EventName="SelectionChanged">
@@ -172,7 +172,7 @@
             TextWrapping="Wrap"
             Visibility="{Binding ShowType, Converter={StaticResource BooleanToVisibility}}">
             <b:Interaction.Behaviors>
-                <wpfBehavior:ReadOnlyTextBoxClickAndKeyboardPass />
+                <wpfBehavior:ReadOnlyTextBoxClickKeyboardAndDragPass />
             </b:Interaction.Behaviors>
             <b:Interaction.Triggers>
                 <b:EventTrigger EventName="SelectionChanged">
@@ -186,7 +186,7 @@
             Text="{Binding DbEntry.CreatedBy, Mode=OneWay, StringFormat='Created By: {0}'}"
             TextWrapping="Wrap">
             <b:Interaction.Behaviors>
-                <wpfBehavior:ReadOnlyTextBoxClickAndKeyboardPass />
+                <wpfBehavior:ReadOnlyTextBoxClickKeyboardAndDragPass />
             </b:Interaction.Behaviors>
             <b:Interaction.Triggers>
                 <b:EventTrigger EventName="SelectionChanged">
@@ -201,7 +201,7 @@
             TextWrapping="Wrap"
             Visibility="{Binding DbEntry.LastUpdatedBy, Converter={StaticResource NullOrWhiteSpaceStringToCollapsed}}">
             <b:Interaction.Behaviors>
-                <wpfBehavior:ReadOnlyTextBoxClickAndKeyboardPass />
+                <wpfBehavior:ReadOnlyTextBoxClickKeyboardAndDragPass />
             </b:Interaction.Behaviors>
             <b:Interaction.Triggers>
                 <b:EventTrigger EventName="SelectionChanged">
@@ -218,7 +218,7 @@
         Text="{Binding DbEntry.Summary, Mode=OneWay}"
         TextWrapping="Wrap">
         <b:Interaction.Behaviors>
-            <wpfBehavior:ReadOnlyTextBoxClickAndKeyboardPass />
+            <wpfBehavior:ReadOnlyTextBoxClickKeyboardAndDragPass />
         </b:Interaction.Behaviors>
         <b:Interaction.Triggers>
             <b:EventTrigger EventName="SelectionChanged">
@@ -234,7 +234,7 @@
         Text="{Binding DbEntry.Tags, Mode=OneWay, StringFormat='Tags: {0}'}"
         TextWrapping="Wrap">
         <b:Interaction.Behaviors>
-            <wpfBehavior:ReadOnlyTextBoxClickAndKeyboardPass />
+            <wpfBehavior:ReadOnlyTextBoxClickKeyboardAndDragPass />
         </b:Interaction.Behaviors>
         <b:Interaction.Triggers>
             <b:EventTrigger EventName="SelectionChanged">
@@ -253,7 +253,7 @@
             Text="{Binding DbEntry.Folder, Mode=OneWay, StringFormat='Folder: {0}'}"
             TextWrapping="Wrap">
             <b:Interaction.Behaviors>
-                <wpfBehavior:ReadOnlyTextBoxClickAndKeyboardPass />
+                <wpfBehavior:ReadOnlyTextBoxClickKeyboardAndDragPass />
             </b:Interaction.Behaviors>
             <b:Interaction.Triggers>
                 <b:EventTrigger EventName="SelectionChanged">
@@ -268,7 +268,7 @@
             Text="{Binding DbEntry.Slug, Mode=OneWay, StringFormat='Slug: {0}'}"
             TextWrapping="Wrap">
             <b:Interaction.Behaviors>
-                <wpfBehavior:ReadOnlyTextBoxClickAndKeyboardPass />
+                <wpfBehavior:ReadOnlyTextBoxClickKeyboardAndDragPass />
             </b:Interaction.Behaviors>
             <b:Interaction.Triggers>
                 <b:EventTrigger EventName="SelectionChanged">
@@ -285,7 +285,7 @@
         Text="{Binding DbEntry.OriginalFileName, Mode=OneWay, StringFormat='File: {0}'}"
         TextWrapping="Wrap">
         <b:Interaction.Behaviors>
-            <wpfBehavior:ReadOnlyTextBoxClickAndKeyboardPass />
+            <wpfBehavior:ReadOnlyTextBoxClickKeyboardAndDragPass />
         </b:Interaction.Behaviors>
         <b:Interaction.Triggers>
             <b:EventTrigger EventName="SelectionChanged">
@@ -302,7 +302,7 @@
             Text="{Binding DbEntry.ContentVersion, Mode=OneWay, StringFormat='Content Version (UTC): {0:r}'}"
             TextWrapping="Wrap">
             <b:Interaction.Behaviors>
-                <wpfBehavior:ReadOnlyTextBoxClickAndKeyboardPass />
+                <wpfBehavior:ReadOnlyTextBoxClickKeyboardAndDragPass />
             </b:Interaction.Behaviors>
             <b:Interaction.Triggers>
                 <b:EventTrigger EventName="SelectionChanged">
@@ -316,7 +316,7 @@
             Text="{Binding DbEntry.ContentId, Mode=OneWay, StringFormat='Content Id: {0}'}"
             TextWrapping="Wrap">
             <b:Interaction.Behaviors>
-                <wpfBehavior:ReadOnlyTextBoxClickAndKeyboardPass />
+                <wpfBehavior:ReadOnlyTextBoxClickKeyboardAndDragPass />
             </b:Interaction.Behaviors>
             <b:Interaction.Triggers>
                 <b:EventTrigger EventName="SelectionChanged">
@@ -771,7 +771,7 @@
                         Text="{Binding LinkContentString, Mode=OneWay}"
                         TextWrapping="Wrap">
                         <b:Interaction.Behaviors>
-                            <wpfBehavior:ReadOnlyTextBoxClickAndKeyboardPass />
+                            <wpfBehavior:ReadOnlyTextBoxClickKeyboardAndDragPass />
                         </b:Interaction.Behaviors>
                         <b:Interaction.Triggers>
                             <b:EventTrigger EventName="SelectionChanged">

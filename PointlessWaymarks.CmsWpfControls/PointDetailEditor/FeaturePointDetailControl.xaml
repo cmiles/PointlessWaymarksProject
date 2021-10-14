@@ -30,7 +30,7 @@
                     Text="{Binding DbEntry.DataType}"
                     TextWrapping="Wrap">
                     <b:Interaction.Behaviors>
-                        <wpfBehavior:ReadOnlyTextBoxClickAndKeyboardPass />
+                        <wpfBehavior:ReadOnlyTextBoxClickKeyboardAndDragPass />
                     </b:Interaction.Behaviors>
                 </TextBox>
                 <stringDataEntry:StringDataEntryControl DataContext="{Binding TypeEditor}" />

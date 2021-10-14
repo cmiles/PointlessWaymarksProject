@@ -6,8 +6,19 @@ using PointlessWaymarks.WpfCommon.Utility;
 
 namespace PointlessWaymarks.WpfCommon.Behaviors
 {
-    public class ReadOnlyTextBoxClickAndKeyboardPass : Behavior<TextBox>
+    public class ReadOnlyTextBoxClickKeyboardAndDragPass : Behavior<TextBox>
     {
+        private void AssociatedObjectOnDragEvents(object sender, DragEventArgs e)
+        {
+            if (sender == null) return;
+
+            var possibleParent = XamlHelpers.FindParent<ListBoxItem>(sender as DependencyObject);
+
+            if (possibleParent == null) return;
+
+            e.Handled = true;
+        }
+
         private void AssociatedObjectOnMouseDown(object sender, MouseButtonEventArgs e)
         {
             if (sender == null) return;
@@ -48,6 +59,11 @@ namespace PointlessWaymarks.WpfCommon.Behaviors
         {
             AssociatedObject.PreviewMouseDown += AssociatedObjectOnMouseDown;
             AssociatedObject.PreviewKeyDown += AssociatedObjectOnPreviewKeyDown;
+
+            //Mark the drag previews as handled
+            AssociatedObject.PreviewDragLeave += AssociatedObjectOnDragEvents;
+            AssociatedObject.PreviewDragEnter += AssociatedObjectOnDragEvents;
+            AssociatedObject.PreviewDragOver += AssociatedObjectOnDragEvents;
         }
     }
 }

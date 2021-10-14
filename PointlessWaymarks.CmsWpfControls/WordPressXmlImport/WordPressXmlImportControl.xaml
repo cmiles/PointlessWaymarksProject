@@ -90,7 +90,7 @@
                                         </MultiBinding>
                                     </TextBox.Text>
                                     <b:Interaction.Behaviors>
-                                        <wpfBehavior:ReadOnlyTextBoxClickAndKeyboardPass />
+                                        <wpfBehavior:ReadOnlyTextBoxClickKeyboardAndDragPass />
                                     </b:Interaction.Behaviors>
                                     <b:Interaction.Triggers>
                                         <b:EventTrigger EventName="SelectionChanged">
@@ -110,7 +110,7 @@
                                         </MultiBinding>
                                     </TextBox.Text>
                                     <b:Interaction.Behaviors>
-                                        <wpfBehavior:ReadOnlyTextBoxClickAndKeyboardPass />
+                                        <wpfBehavior:ReadOnlyTextBoxClickKeyboardAndDragPass />
                                     </b:Interaction.Behaviors>
                                     <b:Interaction.Triggers>
                                         <b:EventTrigger EventName="SelectionChanged">
@@ -130,7 +130,7 @@
                                         </MultiBinding>
                                     </TextBox.Text>
                                     <b:Interaction.Behaviors>
-                                        <wpfBehavior:ReadOnlyTextBoxClickAndKeyboardPass />
+                                        <wpfBehavior:ReadOnlyTextBoxClickKeyboardAndDragPass />
                                     </b:Interaction.Behaviors>
                                     <b:Interaction.Triggers>
                                         <b:EventTrigger EventName="SelectionChanged">
@@ -151,7 +151,7 @@
                                     VerticalScrollBarVisibility="Auto">
                                     <b:Interaction.Behaviors>
                                         <wpfBehavior:ListBoxItemControlIgnoreMouseWheelBehavior />
-                                        <wpfBehavior:ReadOnlyTextBoxClickAndKeyboardPass />
+                                        <wpfBehavior:ReadOnlyTextBoxClickKeyboardAndDragPass />
                                     </b:Interaction.Behaviors>
                                     <b:Interaction.Triggers>
                                         <b:EventTrigger EventName="SelectionChanged">

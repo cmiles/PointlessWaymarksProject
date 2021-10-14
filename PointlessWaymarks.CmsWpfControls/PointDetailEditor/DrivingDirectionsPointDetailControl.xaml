@@ -30,7 +30,7 @@
                     Text="{Binding DbEntry.DataType}"
                     TextWrapping="Wrap">
                     <b:Interaction.Behaviors>
-                        <behaviors:ReadOnlyTextBoxClickAndKeyboardPass />
+                        <behaviors:ReadOnlyTextBoxClickKeyboardAndDragPass />
                     </b:Interaction.Behaviors>
                 </TextBox>
                 <contentFormat:ContentFormatChooserControl DataContext="{Binding NoteFormatEditor}" />

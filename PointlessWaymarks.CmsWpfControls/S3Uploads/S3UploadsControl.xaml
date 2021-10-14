@@ -43,7 +43,7 @@
                             Text="{Binding Note, Mode=OneWay}"
                             TextWrapping="Wrap">
                             <b:Interaction.Behaviors>
-                                <wpfBehavior:ReadOnlyTextBoxClickAndKeyboardPass />
+                                <wpfBehavior:ReadOnlyTextBoxClickKeyboardAndDragPass />
                             </b:Interaction.Behaviors>
                             <b:Interaction.Triggers>
                                 <b:EventTrigger EventName="SelectionChanged">
@@ -67,7 +67,7 @@
                                     MouseAction="LeftClick" />
                             </TextBox.InputBindings>
                             <b:Interaction.Behaviors>
-                                <wpfBehavior:ReadOnlyTextBoxClickAndKeyboardPass />
+                                <wpfBehavior:ReadOnlyTextBoxClickKeyboardAndDragPass />
                             </b:Interaction.Behaviors>
                         </TextBox>
                         <TextBox
@@ -83,7 +83,7 @@
                                 </MultiBinding>
                             </TextBox.Text>
                             <b:Interaction.Behaviors>
-                                <wpfBehavior:ReadOnlyTextBoxClickAndKeyboardPass />
+                                <wpfBehavior:ReadOnlyTextBoxClickKeyboardAndDragPass />
                             </b:Interaction.Behaviors>
                             <b:Interaction.Triggers>
                                 <b:EventTrigger EventName="SelectionChanged">
@@ -132,7 +132,7 @@
                             Text="{Binding Note, Mode=OneWay}"
                             TextWrapping="Wrap">
                             <b:Interaction.Behaviors>
-                                <wpfBehavior:ReadOnlyTextBoxClickAndKeyboardPass />
+                                <wpfBehavior:ReadOnlyTextBoxClickKeyboardAndDragPass />
                             </b:Interaction.Behaviors>
                         </TextBox>
                         <TextBox
@@ -150,7 +150,7 @@
                                     MouseAction="LeftClick" />
                             </TextBox.InputBindings>
                             <b:Interaction.Behaviors>
-                                <wpfBehavior:ReadOnlyTextBoxClickAndKeyboardPass />
+                                <wpfBehavior:ReadOnlyTextBoxClickKeyboardAndDragPass />
                             </b:Interaction.Behaviors>
                         </TextBox>
                         <TextBox
@@ -165,7 +165,7 @@
                                 </MultiBinding>
                             </TextBox.Text>
                             <b:Interaction.Behaviors>
-                                <wpfBehavior:ReadOnlyTextBoxClickAndKeyboardPass />
+                                <wpfBehavior:ReadOnlyTextBoxClickKeyboardAndDragPass />
                             </b:Interaction.Behaviors>
                         </TextBox>
                         <WrapPanel Grid.Row="3" Margin="2">

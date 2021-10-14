@@ -95,7 +95,7 @@
                                                 </MultiBinding>
                                             </TextBox.Text>
                                             <b:Interaction.Behaviors>
-                                                <wpfBehavior:ReadOnlyTextBoxClickAndKeyboardPass />
+                                                <wpfBehavior:ReadOnlyTextBoxClickKeyboardAndDragPass />
                                             </b:Interaction.Behaviors>
                                         </TextBox>
                                         <TextBox
@@ -106,7 +106,7 @@
                                             TextWrapping="Wrap"
                                             Visibility="{Binding IsExcludedTag, Converter={StaticResource BooleanToVisibility}}">
                                             <b:Interaction.Behaviors>
-                                                <wpfBehavior:ReadOnlyTextBoxClickAndKeyboardPass />
+                                                <wpfBehavior:ReadOnlyTextBoxClickKeyboardAndDragPass />
                                             </b:Interaction.Behaviors>
                                             [Tag Excluded from Search]
                                         </TextBox>
@@ -161,7 +161,7 @@
                                                 Text="{Binding Title}"
                                                 TextWrapping="Wrap">
                                                 <b:Interaction.Behaviors>
-                                                    <wpfBehavior:ReadOnlyTextBoxClickAndKeyboardPass />
+                                                    <wpfBehavior:ReadOnlyTextBoxClickKeyboardAndDragPass />
                                                 </b:Interaction.Behaviors>
                                             </TextBox>
                                             <TextBox
@@ -170,7 +170,7 @@
                                                 Text="{Binding ContentType}"
                                                 TextWrapping="Wrap">
                                                 <b:Interaction.Behaviors>
-                                                    <wpfBehavior:ReadOnlyTextBoxClickAndKeyboardPass />
+                                                    <wpfBehavior:ReadOnlyTextBoxClickKeyboardAndDragPass />
                                                 </b:Interaction.Behaviors>
                                             </TextBox>
                                             <TextBox
@@ -179,7 +179,7 @@
                                                 Text="{Binding Tags, StringFormat='Tags: {0}'}"
                                                 TextWrapping="Wrap">
                                                 <b:Interaction.Behaviors>
-                                                    <wpfBehavior:ReadOnlyTextBoxClickAndKeyboardPass />
+                                                    <wpfBehavior:ReadOnlyTextBoxClickKeyboardAndDragPass />
                                                 </b:Interaction.Behaviors>
                                             </TextBox>
                                         </StackPanel>

@@ -31,7 +31,7 @@
                     Text="{Binding DbEntry.DataType}"
                     TextWrapping="Wrap">
                     <b:Interaction.Behaviors>
-                        <wpfBehavior:ReadOnlyTextBoxClickAndKeyboardPass />
+                        <wpfBehavior:ReadOnlyTextBoxClickKeyboardAndDragPass />
                     </b:Interaction.Behaviors>
                 </TextBox>
                 <boolDataEntry1:BoolDataEntryControl DataContext="{Binding SignEditor}" Style="{StaticResource DataEntryBoolStyle}" />
