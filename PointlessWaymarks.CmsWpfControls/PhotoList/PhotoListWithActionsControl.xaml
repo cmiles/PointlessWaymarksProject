@@ -71,6 +71,11 @@
                 <MenuItem Command="{Binding RegenerateHtmlAndReprocessPhotoForSelectedCommand}" Header="Reprocess Photo and Generate Html" />
                 <MenuItem Command="{Binding ListContext.ExtractNewLinksSelectedCommand}" Header="Extract Links" />
             </MenuItem>
+            <MenuItem Header="Site">
+                <MenuItem Command="{Binding ListContext.GenerateChangedHtmlAndStartUploadCommand}" Header="Generate Site and Start Upload" />
+                <MenuItem Command="{Binding ListContext.GenerateChangedHtmlCommand}" Header="Generate Site" />
+                <MenuItem Command="{Binding ListContext.ShowSiteBrowserWindowCommand}" Header="Preview Site from Disk" />
+            </MenuItem>
         </Menu>
         <contentList:ContentListControl
             Grid.Row="1"

@@ -40,6 +40,7 @@ namespace PointlessWaymarks.CmsWpfControls.PointContentEditor
 
         private async void PointContentEditorControl_OnLoaded(object sender, RoutedEventArgs e)
         {
+            await ThreadSwitcher.ResumeForegroundAsync();
             await PointContentWebView.EnsureCoreWebView2Async();
         }
 

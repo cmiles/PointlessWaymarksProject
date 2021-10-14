@@ -97,20 +97,20 @@ namespace PointlessWaymarks.CmsWpfControls.WpfHtml
         {
             if (!_loaded)
             {
-                var webViewEnvironment = await CoreWebView2Environment.CreateAsync(userDataFolder: Path.Combine(
-                    UserSettingsUtilities.TempStorageHtmlDirectory().FullName));
-
+                _loaded = true;
                 try
                 {
+                    var webViewEnvironment = await CoreWebView2Environment.CreateAsync(userDataFolder: Path.Combine(
+                        UserSettingsUtilities.TempStorageHtmlDirectory().FullName));
+
+                    await ThreadSwitcher.ResumeForegroundAsync();
                     await AssociatedObject.EnsureCoreWebView2Async(webViewEnvironment);
                 }
                 catch (Exception exception)
                 {
                     Console.WriteLine(exception);
-                    Log.Error(exception, "Error in the OnLoaded method with the WebView2 EnsureCoreWebView2Async.");
+                    Log.Error(exception, "Error in the OnLoaded method with the WebView2.");
                 }
-
-                _loaded = true;
             }
         }
 

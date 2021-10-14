@@ -5,6 +5,7 @@ using System.Runtime.CompilerServices;
 using System.Windows;
 using JetBrains.Annotations;
 using Microsoft.Web.WebView2.Core;
+using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 using PointlessWaymarks.WpfCommon.Utility;
 
 namespace PointlessWaymarks.CmsWpfControls.SitePreview
@@ -39,19 +40,20 @@ namespace PointlessWaymarks.CmsWpfControls.SitePreview
 
         private async void InitializeAsync()
         {
-            if (!_loaded)
-            {
-                _loaded = true;
+            //if (!_loaded)
+            //{
+            //    _loaded = true;
 
                 // must create a data folder if running out of a secured folder that can't write like Program Files
                 var env = await CoreWebView2Environment.CreateAsync(
                     userDataFolder: Path.Combine(Path.GetTempPath(), "PointWaymarksCms_SitePreviewBrowserData"));
 
+                await ThreadSwitcher.ResumeForegroundAsync();
                 // Note this waits until the first page is navigated!
                 await SitePreviewWebView.EnsureCoreWebView2Async(env);
 
-                SitePreviewWebView.Source = new Uri(PreviewContext.InitialPage);
-            }
+                SitePreviewWebView.CoreWebView2.Navigate(PreviewContext.InitialPage);
+            //}
         }
 
         public void LoadData()

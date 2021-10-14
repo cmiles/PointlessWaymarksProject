@@ -44,6 +44,7 @@ namespace PointlessWaymarks.CmsWpfControls.WpfHtml
 
         private async void OnLoaded(object sender, RoutedEventArgs e)
         {
+            await ThreadSwitcher.ResumeForegroundAsync();
             await AssociatedObject.EnsureCoreWebView2Async();
         }
 
