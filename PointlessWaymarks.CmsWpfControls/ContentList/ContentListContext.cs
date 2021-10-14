@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
@@ -11,12 +12,15 @@ using System.Windows.Data;
 using System.Windows.Threading;
 using GongSolutions.Wpf.DragDrop;
 using JetBrains.Annotations;
+using MetadataExtractor;
+using MetadataExtractor.Formats.Exif;
 using Microsoft.EntityFrameworkCore;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsWpfControls.ColumnSort;
+using PointlessWaymarks.CmsWpfControls.FileContentEditor;
 using PointlessWaymarks.CmsWpfControls.FileList;
 using PointlessWaymarks.CmsWpfControls.GeoJsonList;
 using PointlessWaymarks.CmsWpfControls.ImageList;
@@ -24,6 +28,7 @@ using PointlessWaymarks.CmsWpfControls.LineList;
 using PointlessWaymarks.CmsWpfControls.LinkList;
 using PointlessWaymarks.CmsWpfControls.MapComponentList;
 using PointlessWaymarks.CmsWpfControls.NoteList;
+using PointlessWaymarks.CmsWpfControls.PhotoContentEditor;
 using PointlessWaymarks.CmsWpfControls.PhotoList;
 using PointlessWaymarks.CmsWpfControls.PointList;
 using PointlessWaymarks.CmsWpfControls.PostList;
@@ -37,7 +42,7 @@ using TinyIpc.Messaging;
 
 namespace PointlessWaymarks.CmsWpfControls.ContentList
 {
-    public class ContentListContext : INotifyPropertyChanged, IDragSource
+    public class ContentListContext : INotifyPropertyChanged, IDragSource, IDropTarget
     {
         private Command _bracketCodeToClipboardSelectedCommand;
         private IContentListLoader _contentListLoader;
@@ -462,6 +467,44 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList
         public bool TryCatchOccurredException(Exception exception)
         {
             return false;
+        }
+
+        public void DragOver(IDropInfo dropInfo)
+        {
+            if (dropInfo.Data is IDataObject systemDataObject && systemDataObject.GetDataPresent(DataFormats.FileDrop))
+            {
+                var possibleFileInfo = systemDataObject.GetData(DataFormats.FileDrop) as string[];
+
+                if (possibleFileInfo == null || !possibleFileInfo.Any()) return;
+
+                var validFileExtensions = new List<string>
+                {
+                    ".PDF",
+                    ".MPG",
+                    ".MPEG",
+                    ".WAV",
+                    ".JPG",
+                    ".JPEG"
+                };
+
+                if (possibleFileInfo.Any(x => validFileExtensions.Contains(Path.GetExtension(x).ToUpperInvariant())))
+                    dropInfo.Effects = DragDropEffects.Link;
+            }
+        }
+
+        public void Drop(IDropInfo dropInfo)
+        {
+            if (dropInfo.Data is IDataObject systemDataObject && systemDataObject.GetDataPresent(DataFormats.FileDrop))
+            {
+                if (systemDataObject.GetData(DataFormats.FileDrop) is not string[] possibleFileInfo)
+                {
+                    StatusContext.ToastError("Couldn't understand the dropped files?");
+                    return;
+                }
+
+                StatusContext.RunBlockingTask(async () =>
+                    await TryOpenEditorsForDroppedFiles(possibleFileInfo.ToList(), StatusContext));
+            }
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -892,6 +935,76 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList
                 if (((dynamic)loopListItem).DbEntry is IMainImage { MainPicture: { } } dbMainImageEntry &&
                     translatedMessage.ContentIds.Contains(dbMainImageEntry.MainPicture.Value))
                     loopListItem.SmallImageUrl = GetSmallImageUrl(dbMainImageEntry);
+        }
+
+        private async Task TryOpenEditorsForDroppedFiles(List<string> files, StatusControlContext statusContext)
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            var fileContentExtensions = new List<string> { ".PDF", ".MPG", ".MPEG", ".WAV" };
+            var pictureContentExtensions = new List<string> { ".JPG", ".JPEG" };
+
+            foreach (var loopFile in files)
+            {
+                if (fileContentExtensions.Contains(Path.GetExtension(loopFile).ToUpperInvariant()))
+                {
+                    await ThreadSwitcher.ResumeForegroundAsync();
+
+                    var newEditor = new FileContentEditorWindow(new FileInfo(loopFile));
+                    newEditor.Show();
+
+                    await ThreadSwitcher.ResumeBackgroundAsync();
+
+                    statusContext.ToastSuccess($"{Path.GetFileName(loopFile)} sent to File Editor");
+
+                    continue;
+                }
+
+                if (pictureContentExtensions.Contains(Path.GetExtension(loopFile).ToUpperInvariant()))
+                {
+                    string make;
+                    string model;
+
+                    try
+                    {
+                        var exifDirectory = ImageMetadataReader.ReadMetadata(loopFile).OfType<ExifIfd0Directory>()
+                            .FirstOrDefault();
+
+                        make = exifDirectory?.GetDescription(ExifDirectoryBase.TagMake) ?? string.Empty;
+                        model = exifDirectory?.GetDescription(ExifDirectoryBase.TagModel) ?? string.Empty;
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine(e);
+                        throw;
+                    }
+
+
+                    if (!string.IsNullOrWhiteSpace(make) || !string.IsNullOrWhiteSpace(model))
+                    {
+                        await ThreadSwitcher.ResumeForegroundAsync();
+
+                        var photoEditorWindow = new PhotoContentEditorWindow(new FileInfo(loopFile));
+                        photoEditorWindow.Show();
+
+                        await ThreadSwitcher.ResumeBackgroundAsync();
+
+
+                        statusContext.ToastSuccess($"{Path.GetFileName(loopFile)} sent to Photo Editor");
+                    }
+                    else
+                    {
+                        await ThreadSwitcher.ResumeForegroundAsync();
+
+                        var imageEditorWindow = new PhotoContentEditorWindow(new FileInfo(loopFile));
+                        imageEditorWindow.Show();
+
+                        await ThreadSwitcher.ResumeBackgroundAsync();
+
+                        statusContext.ToastSuccess($"{Path.GetFileName(loopFile)} sent to Image Editor");
+                    }
+                }
+            }
         }
 
         public async Task ViewHistorySelected(CancellationToken cancelToken)

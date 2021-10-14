@@ -79,6 +79,8 @@
                 x:Name="ContentListBox"
                 dd:DragDrop.DragHandler="{Binding .}"
                 dd:DragDrop.IsDragSource="True"
+                dd:DragDrop.DropHandler="{Binding .}"
+                dd:DragDrop.IsDropTarget="True"
                 ItemTemplateSelector="{StaticResource ContentListTemplateSelector}"
                 ItemsSource="{Binding Items}"
                 SelectedItem="{Binding ListSelection.Selected}"
