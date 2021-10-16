@@ -13,6 +13,10 @@
     d:DataContext="{d:DesignInstance s3Uploads:S3UploadsWindow}"
     Closing="S3UploadsWindow_OnClosing"
     mc:Ignorable="d">
+    <Window.TaskbarItemInfo>
+        <TaskbarItemInfo ProgressState="{Binding StatusContext.WindowProgressState}"
+                         ProgressValue="{Binding StatusContext.WindowProgress}" />
+    </Window.TaskbarItemInfo>
     <Grid>
         <s3Uploads:S3UploadsControl DataContext="{Binding UploadContext}" />
         <windowScreenShot:WindowScreenShotControl

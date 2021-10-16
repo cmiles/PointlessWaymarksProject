@@ -9,6 +9,7 @@ using System.Runtime.CompilerServices;
 using System.Text.Json;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Shell;
 using JetBrains.Annotations;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsWpfControls.Utility;
@@ -468,6 +469,7 @@ namespace PointlessWaymarks.CmsWpfControls.S3Uploads
             var localSelected = Items.ToList();
 
             UploadBatch = await S3UploadsUploadBatch.CreateInstance(localSelected);
+            UploadBatch.PropertyChanged += UploadBatchOnPropertyChanged;
 
             StatusContext.RunFireAndForgetNonBlockingTask(async () => await UploadBatch.StartUploadBatch());
         }
@@ -491,6 +493,19 @@ namespace PointlessWaymarks.CmsWpfControls.S3Uploads
             UploadBatch = await S3UploadsUploadBatch.CreateInstance(localSelected);
 
             StatusContext.RunFireAndForgetNonBlockingTask(async () => await UploadBatch.StartUploadBatch());
+        }
+
+        private void UploadBatchOnPropertyChanged(object? sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(UploadBatch.Uploading))
+            {
+                if (UploadBatch?.Uploading ?? false)
+                    StatusContext.WindowProgressState = TaskbarItemProgressState.Normal;
+                else StatusContext.WindowProgressState = TaskbarItemProgressState.None;
+            }
+
+            if (e.PropertyName == nameof(UploadBatch.CompletedSizePercent))
+                StatusContext.WindowProgress = UploadBatch?.CompletedSizePercent ?? 0M;
         }
     }
 }

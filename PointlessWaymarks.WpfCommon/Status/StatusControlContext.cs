@@ -7,6 +7,7 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Shell;
 using System.Windows.Threading;
 using JetBrains.Annotations;
 using PointlessWaymarks.WpfCommon.Commands;
@@ -37,6 +38,8 @@ namespace PointlessWaymarks.WpfCommon.Status
         private string _stringEntryUserText;
         private bool _stringEntryVisible;
         private ToastSource _toast;
+        private decimal _windowProgress;
+        private TaskbarItemProgressState _windowProgressState;
 
         public StatusControlContext()
         {
@@ -227,6 +230,28 @@ namespace PointlessWaymarks.WpfCommon.Status
         public Command UserStringEntryApprovedResponseCommand { get; set; }
         public Command UserStringEntryCancelledResponseCommand { get; set; }
 
+        public decimal WindowProgress
+        {
+            get => _windowProgress;
+            set
+            {
+                if (value == _windowProgress) return;
+                _windowProgress = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public TaskbarItemProgressState WindowProgressState
+        {
+            get => _windowProgressState;
+            set
+            {
+                if (value == _windowProgressState) return;
+                _windowProgressState = value;
+                OnPropertyChanged();
+            }
+        }
+
         public event PropertyChangedEventHandler PropertyChanged;
 
         private void BlockTaskCompleted(Task obj)
@@ -366,8 +391,7 @@ namespace PointlessWaymarks.WpfCommon.Status
                 ToastError($"Error: {obj.Exception?.Message}");
 
                 Task.Run(() => Log.Error(obj.Exception,
-                    "NonBlockTaskCompleted Exception - Status Context Id: {ContextId}",
-                    StatusControlContextId));
+                    "NonBlockTaskCompleted Exception - Status Context Id: {ContextId}", StatusControlContextId));
             }
         }
 
@@ -446,8 +470,10 @@ namespace PointlessWaymarks.WpfCommon.Status
 
             ContextDispatcher?.InvokeAsync(() =>
             {
-                CancellationList.Add(
-                    new UserCancellations { CancelSource = tokenSource, Description = cancelDescription });
+                CancellationList.Add(new UserCancellations
+                {
+                    CancelSource = tokenSource, Description = cancelDescription
+                });
                 ShowCancellations = CancellationList.Any();
             });
 
@@ -474,8 +500,7 @@ namespace PointlessWaymarks.WpfCommon.Status
                 ShowMessageWithOkButton("Error", e.ToString()).Wait();
                 DecrementBlockingTasks();
 
-                Task.Run(() => Log.Error(e,
-                    "RunFireAndForgetBlockingTask Exception - Status Context Id: {ContextId}",
+                Task.Run(() => Log.Error(e, "RunFireAndForgetBlockingTask Exception - Status Context Id: {ContextId}",
                     StatusControlContextId));
             }
         }
@@ -554,8 +579,7 @@ namespace PointlessWaymarks.WpfCommon.Status
             await ThreadSwitcher.ThreadSwitcher.ResumeForegroundAsync();
 
             if (buttons == null || !buttons.Any())
-                buttons = new List<StatusControlMessageButton>
-                    { new() { IsDefault = true, MessageText = "Ok" } };
+                buttons = new List<StatusControlMessageButton> { new() { IsDefault = true, MessageText = "Ok" } };
 
             if (buttons.All(x => !x.IsDefault) || buttons.Count(x => x.IsDefault) > 1)
             {

@@ -29,7 +29,7 @@ namespace PointlessWaymarks.CmsWpfControls.S3Uploads
             StatusContext.RunFireAndForgetBlockingTask(async () =>
             {
                 UploadContext = await S3UploadsContext.CreateInstance(StatusContext, toLoad);
-                UploadContext.StatusContext.RunNonBlockingTask(UploadContext.StartAllUploads);
+                if (autoStartUpload) UploadContext.StatusContext.RunNonBlockingTask(UploadContext.StartAllUploads);
             });
         }
 
