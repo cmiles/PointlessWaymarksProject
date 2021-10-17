@@ -30,18 +30,17 @@ namespace PointlessWaymarks.WpfCommon.Utility
             if (window.WindowState == WindowState.Minimized) window.WindowState = WindowState.Normal;
 
             var hwnd = WindowToHwnd(window);
-            var screenBounds = Screen.FromHandle(new WindowInteropHelper(window).Handle).Bounds;
-            var ratio = Convert.ToDouble(GetDpiRatio(hwnd));
+            var screenBounds = Screen.FromHandle(new WindowInteropHelper(window).Handle).WorkingArea;
 
-            var screenWidth = screenBounds.Width / ratio;
-            var screenHeight = screenBounds.Height / ratio;
-            var screenX = screenBounds.X / ratio;
-            var screenY = screenBounds.Y / ratio;
+            var screenWidth = screenBounds.Width;
+            var screenHeight = screenBounds.Height;
+            var screenX = screenBounds.X;
+            var screenY = screenBounds.Y;
 
             var windowLeftAbsolute = window.Left + screenX; // absolute Left
             var windowTopAbsolute = window.Top + screenY; // absolute Top
 
-            if (window.Left + window.Width > screenWidth * 1.1)
+            if (window.Left + window.Width > screenWidth)
             {
                 window.Left = screenX + screenWidth - window.Width;
                 windowLeftAbsolute = window.Left;
@@ -49,9 +48,9 @@ namespace PointlessWaymarks.WpfCommon.Utility
 
             if (windowLeftAbsolute < screenX)
             {
-                window.Left = 20 + screenX;
-                if (window.Width + 20 > screenWidth)
-                    window.Width = screenWidth - 40;
+                window.Left = 10 + screenX;
+                if (window.Width + 10 > screenWidth)
+                    window.Width = screenWidth - 20;
             }
 
             if (window.Top + window.Height > screenHeight)
@@ -62,9 +61,9 @@ namespace PointlessWaymarks.WpfCommon.Utility
 
             if (windowTopAbsolute < screenY)
             {
-                window.Top = 20 + screenY;
-                if (window.Height + 20 > screenHeight)
-                    window.Height = screenHeight - 60;
+                window.Top = 10 + screenY;
+                if (window.Height + 10 > screenHeight)
+                    window.Height = screenHeight - 20;
             }
         }
 
