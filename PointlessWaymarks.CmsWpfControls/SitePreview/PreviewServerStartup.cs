@@ -30,7 +30,7 @@ namespace PointlessWaymarks.CmsWpfControls.SitePreview
                 {
                     var moddedFile = (await File.ReadAllTextAsync(Path.Join(previewFileRoot, "index.html"))).Replace(
                             $"https://{previewHost}",
-                            $"http://localhost:{previewListeningPort}", StringComparison.OrdinalIgnoreCase)
+                            $"http://{previewHost}", StringComparison.OrdinalIgnoreCase)
                         .Replace($"//{previewHost}", $"//localhost:{previewListeningPort}",
                             StringComparison.OrdinalIgnoreCase);
                     await context.Response.WriteAsync(moddedFile);
@@ -44,7 +44,7 @@ namespace PointlessWaymarks.CmsWpfControls.SitePreview
                         string streamLine;
                         while ((streamLine = await sr.ReadLineAsync()) != null)
                             rawFile.AppendLine(streamLine.Replace(
-                                $"https://{previewHost}", $"http://localhost:{previewListeningPort}",
+                                $"https://{previewHost}", $"http://{previewHost}",
                                 StringComparison.OrdinalIgnoreCase).Replace($"//{previewHost}",
                                 $"//localhost:{previewListeningPort}", StringComparison.OrdinalIgnoreCase));
                     }

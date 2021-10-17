@@ -44,15 +44,15 @@ namespace PointlessWaymarks.CmsWpfControls.SitePreview
             //{
             //    _loaded = true;
 
-                // must create a data folder if running out of a secured folder that can't write like Program Files
-                var env = await CoreWebView2Environment.CreateAsync(
-                    userDataFolder: Path.Combine(Path.GetTempPath(), "PointWaymarksCms_SitePreviewBrowserData"));
+            // must create a data folder if running out of a secured folder that can't write like Program Files
+            var env = await CoreWebView2Environment.CreateAsync(
+                userDataFolder: Path.Combine(Path.GetTempPath(), "PointWaymarksCms_SitePreviewBrowserData"));
 
-                await ThreadSwitcher.ResumeForegroundAsync();
-                // Note this waits until the first page is navigated!
-                await SitePreviewWebView.EnsureCoreWebView2Async(env);
+            await ThreadSwitcher.ResumeForegroundAsync();
+            // Note this waits until the first page is navigated!
+            await SitePreviewWebView.EnsureCoreWebView2Async(env);
 
-                SitePreviewWebView.CoreWebView2.Navigate(PreviewContext.InitialPage);
+            SitePreviewWebView.CoreWebView2.Navigate(PreviewContext.InitialPage);
             //}
         }
 
@@ -90,20 +90,19 @@ namespace PointlessWaymarks.CmsWpfControls.SitePreview
             if (!e.Uri.StartsWith("http", StringComparison.OrdinalIgnoreCase))
             {
                 e.Cancel = true;
-                PreviewContext.StatusContext.ToastError(
-                    "This window only supports http and https (no ftp, etc.)");
+                PreviewContext.StatusContext.ToastError("This window only supports http and https (no ftp, etc.)");
                 return;
             }
 
             //The preview server rewrites html files so that links should point
             //to the localhost preview - this is to catch links loaded by javascript
             //that point to the site and redirect the link to localhost
-            if (e.Uri.Contains(PreviewContext.SiteUrl, StringComparison.CurrentCultureIgnoreCase))
+            if (e.Uri.Contains(PreviewContext.SiteUrl, StringComparison.CurrentCultureIgnoreCase) &&
+                !e.Uri.Contains(PreviewContext.PreviewServerHost))
             {
-                var rewrittenUrl = e.Uri.Replace(
-                    "https://", "http://",
-                    StringComparison.OrdinalIgnoreCase).Replace($"//{PreviewContext.SiteUrl}",
-                    $"//{PreviewContext.PreviewServerHost}", StringComparison.OrdinalIgnoreCase);
+                var rewrittenUrl = e.Uri.Replace("https://", "http://", StringComparison.OrdinalIgnoreCase)
+                    .Replace($"//{PreviewContext.SiteUrl}", $"//{PreviewContext.PreviewServerHost}",
+                        StringComparison.OrdinalIgnoreCase);
                 e.Cancel = true;
 
                 SitePreviewWebView.CoreWebView2.Navigate(rewrittenUrl);
