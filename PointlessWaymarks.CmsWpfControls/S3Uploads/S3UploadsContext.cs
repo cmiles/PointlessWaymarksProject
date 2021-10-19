@@ -27,6 +27,7 @@ namespace PointlessWaymarks.CmsWpfControls.S3Uploads
         private ObservableCollection<S3UploadsItem>? _items;
         private ContentListSelected<S3UploadsItem>? _listSelection;
         private Command<S3UploadsItem> _openLocalFileInExplorerCommand;
+        private WindowIconStatus _osStatusIndicator;
         private Command _removeSelectedItemsCommand;
         private Command _saveAllToUploadJsonFileCommand;
         private Command _saveNotUploadedToUploadJsonFileCommand;
@@ -40,9 +41,10 @@ namespace PointlessWaymarks.CmsWpfControls.S3Uploads
         private Command _toExcelSelectedItemsCommand;
         private S3UploadsUploadBatch? _uploadBatch;
 
-        public S3UploadsContext(StatusControlContext? statusContext)
+        public S3UploadsContext(StatusControlContext? statusContext, WindowIconStatus osStatusIndicator)
         {
             _statusContext = statusContext ?? new StatusControlContext();
+            _osStatusIndicator = osStatusIndicator;
 
             _startSelectedUploadsCommand = StatusContext.RunNonBlockingTaskCommand(StartSelectedUploads);
             _startAllUploadsCommand = StatusContext.RunNonBlockingTaskCommand(StartAllUploads);
@@ -123,6 +125,17 @@ namespace PointlessWaymarks.CmsWpfControls.S3Uploads
             {
                 if (Equals(value, _openLocalFileInExplorerCommand)) return;
                 _openLocalFileInExplorerCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public WindowIconStatus OsStatusIndicator
+        {
+            get => _osStatusIndicator;
+            set
+            {
+                if (Equals(value, _osStatusIndicator)) return;
+                _osStatusIndicator = value;
                 OnPropertyChanged();
             }
         }
@@ -275,9 +288,9 @@ namespace PointlessWaymarks.CmsWpfControls.S3Uploads
         }
 
         public static async Task<S3UploadsContext> CreateInstance(StatusControlContext statusContext,
-            List<S3Upload> uploadList)
+            List<S3Upload> uploadList, WindowIconStatus windowStatus)
         {
-            var newControl = new S3UploadsContext(statusContext);
+            var newControl = new S3UploadsContext(statusContext, windowStatus);
             await newControl.LoadData(uploadList);
 
             return newControl;
@@ -497,15 +510,21 @@ namespace PointlessWaymarks.CmsWpfControls.S3Uploads
 
         private void UploadBatchOnPropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
-            if (e.PropertyName == nameof(UploadBatch.Uploading))
+            if (e.PropertyName == nameof(UploadBatch) || e.PropertyName == nameof(UploadBatch.Uploading) ||
+                e.PropertyName == nameof(UploadBatch.CompletedSizePercent) ||
+                e.PropertyName == nameof(UploadBatch.CompletedItemPercent))
             {
-                if (UploadBatch?.Uploading ?? false)
-                    StatusContext.WindowProgressState = TaskbarItemProgressState.Normal;
-                else StatusContext.WindowProgressState = TaskbarItemProgressState.None;
-            }
+                if (UploadBatch is not { Uploading: true })
+                {
+                    OsStatusIndicator.AddRequest(new WindowIconStatusRequest(DateTime.Now,
+                        StatusContext.StatusControlContextId, TaskbarItemProgressState.None, null));
+                    return;
+                }
 
-            if (e.PropertyName == nameof(UploadBatch.CompletedSizePercent))
-                StatusContext.WindowProgress = UploadBatch?.CompletedSizePercent ?? 0M;
+                OsStatusIndicator.AddRequest(new WindowIconStatusRequest(DateTime.Now,
+                    StatusContext.StatusControlContextId, TaskbarItemProgressState.Normal,
+                    (UploadBatch.CompletedSizePercent + UploadBatch.CompletedItemPercent) / 2));
+            }
         }
     }
 }

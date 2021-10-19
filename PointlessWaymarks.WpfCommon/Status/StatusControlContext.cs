@@ -7,7 +7,6 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Shell;
 using System.Windows.Threading;
 using JetBrains.Annotations;
 using PointlessWaymarks.WpfCommon.Commands;
@@ -38,8 +37,6 @@ namespace PointlessWaymarks.WpfCommon.Status
         private string _stringEntryUserText;
         private bool _stringEntryVisible;
         private ToastSource _toast;
-        private decimal _windowProgress;
-        private TaskbarItemProgressState _windowProgressState;
 
         public StatusControlContext()
         {
@@ -229,28 +226,6 @@ namespace PointlessWaymarks.WpfCommon.Status
         public Command<string> UserMessageBoxResponseCommand { get; set; }
         public Command UserStringEntryApprovedResponseCommand { get; set; }
         public Command UserStringEntryCancelledResponseCommand { get; set; }
-
-        public decimal WindowProgress
-        {
-            get => _windowProgress;
-            set
-            {
-                if (value == _windowProgress) return;
-                _windowProgress = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public TaskbarItemProgressState WindowProgressState
-        {
-            get => _windowProgressState;
-            set
-            {
-                if (value == _windowProgressState) return;
-                _windowProgressState = value;
-                OnPropertyChanged();
-            }
-        }
 
         public event PropertyChangedEventHandler PropertyChanged;
 

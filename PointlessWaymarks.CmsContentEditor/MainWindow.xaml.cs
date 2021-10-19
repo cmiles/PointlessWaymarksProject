@@ -93,6 +93,8 @@ namespace PointlessWaymarks.CmsContentEditor
                 // ReSharper disable once ConditionIsAlwaysTrueOrFalse for generated ThisAssembly.Git.IsDirty
                 $"Pointless Waymarks CMS - Built On {GetBuildDate(Assembly.GetEntryAssembly())} - Commit {ThisAssembly.Git.Commit} {(ThisAssembly.Git.IsDirty ? "(Has Local Changes)" : string.Empty)}";
 
+            OsStatusIndicator = new WindowIconStatus();
+
             ShowSettingsFileChooser = true;
 
             DataContext = this;
@@ -248,6 +250,8 @@ namespace PointlessWaymarks.CmsContentEditor
                 OnPropertyChanged();
             }
         }
+
+        public WindowIconStatus OsStatusIndicator { get; set; }
 
         public string RecentSettingsFilesNames
         {
@@ -842,8 +846,7 @@ namespace PointlessWaymarks.CmsContentEditor
 
         private void SettingsFileChooserOnSettingsFileUpdatedEvent(object sender, (bool isNew, string userString) e)
         {
-            StatusContext.RunFireAndForgetBlockingTask(async () =>
-                await SettingsFileChooserOnSettingsFileUpdated(e));
+            StatusContext.RunFireAndForgetBlockingTask(async () => await SettingsFileChooserOnSettingsFileUpdated(e));
         }
     }
 }

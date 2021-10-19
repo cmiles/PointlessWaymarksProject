@@ -15,6 +15,7 @@ namespace PointlessWaymarks.CmsWpfControls.S3Uploads
     public partial class S3UploadsWindow : INotifyPropertyChanged
     {
         private bool _forceClose;
+        private WindowIconStatus _osStatusIndicator;
         private StatusControlContext _statusContext;
         private S3UploadsContext? _uploadContext;
 
@@ -23,14 +24,26 @@ namespace PointlessWaymarks.CmsWpfControls.S3Uploads
             InitializeComponent();
 
             _statusContext = new StatusControlContext();
+            _osStatusIndicator = new WindowIconStatus();
 
             DataContext = this;
 
             StatusContext.RunFireAndForgetBlockingTask(async () =>
             {
-                UploadContext = await S3UploadsContext.CreateInstance(StatusContext, toLoad);
+                UploadContext = await S3UploadsContext.CreateInstance(StatusContext, toLoad, OsStatusIndicator);
                 if (autoStartUpload) UploadContext.StatusContext.RunNonBlockingTask(UploadContext.StartAllUploads);
             });
+        }
+
+        public WindowIconStatus OsStatusIndicator
+        {
+            get => _osStatusIndicator;
+            set
+            {
+                if (Equals(value, _osStatusIndicator)) return;
+                _osStatusIndicator = value;
+                OnPropertyChanged();
+            }
         }
 
         public StatusControlContext StatusContext
