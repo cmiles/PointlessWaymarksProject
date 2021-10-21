@@ -171,7 +171,7 @@ namespace PointlessWaymarks.CmsWpfControls.BoolDataEntry
             return newContext;
         }
 
-        public static BoolDataEntryContext CreateInstanceForShowInSiteFeed(IShowInSiteFeed dbEntry, bool defaultSetting)
+        public static BoolDataEntryContext CreateInstanceForShowInSiteFeed(IMainSiteFeed dbEntry, bool defaultSetting)
         {
             var newContext = new BoolDataEntryContext
             {
