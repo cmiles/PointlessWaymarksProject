@@ -530,7 +530,7 @@ namespace PointlessWaymarks.CmsWpfControls.ImageContentEditor
             };
 
             TitleSummarySlugFolder = await TitleSummarySlugEditorContext.CreateInstance(StatusContext, DbEntry);
-            ShowInSiteFeed = BoolDataEntryContext.CreateInstanceForShowInSiteFeed(DbEntry, false);
+            ShowInSiteFeed = BoolDataEntryContext.CreateInstanceForShowInMainSiteFeed(DbEntry, false);
             ShowInSearch = BoolDataEntryContext.CreateInstanceForShowInSearch(DbEntry, true);
             CreatedUpdatedDisplay = await CreatedAndUpdatedByAndOnDisplayContext.CreateInstance(StatusContext, DbEntry);
             ContentId = await ContentIdViewerControlContext.CreateInstance(StatusContext, DbEntry);

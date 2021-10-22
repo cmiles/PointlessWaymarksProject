@@ -156,6 +156,36 @@ namespace PointlessWaymarks.CmsWpfControls.BoolDataEntry
             return new BoolDataEntryContext();
         }
 
+        public static BoolDataEntryContext CreateInstanceForIsDraft(IMainSiteFeed dbEntry, bool defaultSetting)
+        {
+            var newContext = new BoolDataEntryContext
+            {
+                ReferenceValue = dbEntry?.ShowInMainSiteFeed ?? defaultSetting,
+                UserValue = dbEntry?.ShowInMainSiteFeed ?? defaultSetting,
+                Title = "Draft",
+                HelpText =
+                    "'Draft' content will not appear in the Main Site Feed, Search or RSS Feeds - however html will " +
+                    "still be generated for the content, this is NOT a way to keep content hidden or secret!"
+            };
+
+            return newContext;
+        }
+
+        public static BoolDataEntryContext CreateInstanceForShowInMainSiteFeed(IMainSiteFeed dbEntry,
+            bool defaultSetting)
+        {
+            var newContext = new BoolDataEntryContext
+            {
+                ReferenceValue = dbEntry?.ShowInMainSiteFeed ?? defaultSetting,
+                UserValue = dbEntry?.ShowInMainSiteFeed ?? defaultSetting,
+                Title = "Show in Main Site Feed",
+                HelpText =
+                    "Checking this box will make the content appear in the Main Site RSS Feed and - if the content is recent - on the site's homepage"
+            };
+
+            return newContext;
+        }
+
         public static BoolDataEntryContext CreateInstanceForShowInSearch(IShowInSearch dbEntry, bool defaultSetting)
         {
             var newContext = new BoolDataEntryContext
@@ -166,20 +196,6 @@ namespace PointlessWaymarks.CmsWpfControls.BoolDataEntry
                 HelpText =
                     "If checked the content will appear in Site, Tag and other search screens - otherwise the content will still be " +
                     "on the site and publicly available but it will not show in search"
-            };
-
-            return newContext;
-        }
-
-        public static BoolDataEntryContext CreateInstanceForShowInSiteFeed(IMainSiteFeed dbEntry, bool defaultSetting)
-        {
-            var newContext = new BoolDataEntryContext
-            {
-                ReferenceValue = dbEntry?.ShowInMainSiteFeed ?? defaultSetting,
-                UserValue = dbEntry?.ShowInMainSiteFeed ?? defaultSetting,
-                Title = "Show in Main Site Feed",
-                HelpText =
-                    "Checking this box will make the content appear in the Main Site RSS Feed and - if the content is recent - on the site's homepage"
             };
 
             return newContext;

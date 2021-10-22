@@ -167,7 +167,8 @@ namespace PointlessWaymarks.CmsWpfControls.FileContentEditor
             }
         }
 
-        public string FileEditorHelpText => @"
+        public string FileEditorHelpText =>
+            @"
 ### File Content
 
 Interesting books, dissertations, academic papers, maps, meeting notes, articles, memos, reports, etc. are available on a wide variety of subjects - but over years, decades, of time resources can easily 'disappear' from the internet... Websites are no longer available, agencies delete documents they are no longer legally required to retain, older versions of a document are not kept when a newer version comes out, departments shut down, funding runs out...
@@ -598,7 +599,7 @@ Notes:
                 "Download Link' is checked and not all content types are supported.";
 
             TitleSummarySlugFolder = await TitleSummarySlugEditorContext.CreateInstance(StatusContext, DbEntry);
-            ShowInSiteFeed = BoolDataEntryContext.CreateInstanceForShowInSiteFeed(DbEntry, false);
+            ShowInSiteFeed = BoolDataEntryContext.CreateInstanceForShowInMainSiteFeed(DbEntry, false);
             CreatedUpdatedDisplay = await CreatedAndUpdatedByAndOnDisplayContext.CreateInstance(StatusContext, DbEntry);
             ContentId = await ContentIdViewerControlContext.CreateInstance(StatusContext, DbEntry);
             UpdateNotes = await UpdateNotesEditorContext.CreateInstance(StatusContext, DbEntry);

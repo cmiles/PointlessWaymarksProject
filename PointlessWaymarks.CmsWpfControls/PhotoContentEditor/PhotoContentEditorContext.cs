@@ -762,7 +762,7 @@ Photo Content Notes:
                 x => !Path.GetFileNameWithoutExtension(SelectedFile.Name)
                     .Equals(SlugUtility.Create(false, x.TitleEntry.UserValue), StringComparison.OrdinalIgnoreCase), DbEntry);
             CreatedUpdatedDisplay = await CreatedAndUpdatedByAndOnDisplayContext.CreateInstance(StatusContext, DbEntry);
-            ShowInSiteFeed = BoolDataEntryContext.CreateInstanceForShowInSiteFeed(DbEntry, false);
+            ShowInSiteFeed = BoolDataEntryContext.CreateInstanceForShowInMainSiteFeed(DbEntry, false);
             ContentId = await ContentIdViewerControlContext.CreateInstance(StatusContext, DbEntry);
             UpdateNotes = await UpdateNotesEditorContext.CreateInstance(StatusContext, DbEntry);
             TagEdit = TagsEditorContext.CreateInstance(StatusContext, DbEntry);

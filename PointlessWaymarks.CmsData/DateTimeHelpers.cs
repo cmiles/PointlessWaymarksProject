@@ -18,7 +18,7 @@ namespace PointlessWaymarks.CmsData
 
             foreach (var loopProperty in dateTimeProperties)
             {
-                var current = (DateTime) loopProperty.GetValue(toProcess)!;
+                var current = (DateTime)loopProperty.GetValue(toProcess)!;
                 loopProperty.SetValue(toProcess,
                     new DateTime(current.Year, current.Month, current.Day, current.Hour, current.Minute, current.Second,
                         current.Kind));
@@ -29,7 +29,7 @@ namespace PointlessWaymarks.CmsData
 
             foreach (var loopProperties in nullableDateTimeProperties)
             {
-                var current = (DateTime?) loopProperties.GetValue(toProcess);
+                var current = (DateTime?)loopProperties.GetValue(toProcess);
                 if (current == null) continue;
                 DateTime? newDateTime = new DateTime(current.Value.Year, current.Value.Month, current.Value.Day,
                     current.Value.Hour, current.Value.Minute, current.Value.Second, current.Value.Kind);

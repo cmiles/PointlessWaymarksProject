@@ -151,7 +151,7 @@ namespace PointlessWaymarks.CmsWpfControls.StringDataEntry
                 HelpText = "This will be the Folder and File Name used in URLs - limited to a-z 0-9 _ -",
                 ReferenceValue = dbEntry?.Slug ?? string.Empty,
                 UserValue = StringHelpers.NullToEmptyTrim(dbEntry?.Slug),
-                ValidationFunctions = new List<Func<string, IsValid>> {CommonContentValidation.ValidateSlugLocal}
+                ValidationFunctions = new List<Func<string, IsValid>> { CommonContentValidation.ValidateSlugLocal }
             };
 
             slugEntry.CheckForChangesAndValidationIssues();
@@ -167,7 +167,7 @@ namespace PointlessWaymarks.CmsWpfControls.StringDataEntry
                 HelpText = "A short text entry that will show in Search and short references to the content",
                 ReferenceValue = dbEntry?.Summary ?? string.Empty,
                 UserValue = StringHelpers.NullToEmptyTrim(dbEntry?.Summary),
-                ValidationFunctions = new List<Func<string, IsValid>> {CommonContentValidation.ValidateSummary}
+                ValidationFunctions = new List<Func<string, IsValid>> { CommonContentValidation.ValidateSummary }
             };
 
             summaryEntry.CheckForChangesAndValidationIssues();
@@ -183,7 +183,7 @@ namespace PointlessWaymarks.CmsWpfControls.StringDataEntry
                 HelpText = "Title Text",
                 ReferenceValue = dbEntry?.Title ?? string.Empty,
                 UserValue = StringHelpers.NullToEmptyTrim(dbEntry?.Title),
-                ValidationFunctions = new List<Func<string, IsValid>> {CommonContentValidation.ValidateTitle}
+                ValidationFunctions = new List<Func<string, IsValid>> { CommonContentValidation.ValidateTitle }
             };
 
             titleEntry.CheckForChangesAndValidationIssues();

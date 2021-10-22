@@ -13,6 +13,7 @@ using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsWpfControls.BodyContentEditor;
 using PointlessWaymarks.CmsWpfControls.BoolDataEntry;
 using PointlessWaymarks.CmsWpfControls.ContentIdViewer;
+using PointlessWaymarks.CmsWpfControls.ContentInMainSiteFeed;
 using PointlessWaymarks.CmsWpfControls.CreatedAndUpdatedByAndOnDisplay;
 using PointlessWaymarks.CmsWpfControls.HelpDisplay;
 using PointlessWaymarks.CmsWpfControls.TagsEditor;
@@ -40,13 +41,13 @@ namespace PointlessWaymarks.CmsWpfControls.PostContentEditor
         private Command _linkToClipboardCommand;
         private Command _saveAndCloseCommand;
         private Command _saveCommand;
-        private BoolDataEntryContext _showInSiteFeed;
         private TagsEditorContext _tagEdit;
         private TitleSummarySlugEditorContext _titleSummarySlugFolder;
         private UpdateNotesEditorContext _updateNotes;
         private Command _viewOnSiteCommand;
 
         public EventHandler RequestContentEditorWindowClose;
+        private ContentInMainSiteFeedContext _mainSiteFeed;
 
         private PostContentEditorContext(StatusControlContext statusContext)
         {
@@ -144,7 +145,8 @@ namespace PointlessWaymarks.CmsWpfControls.PostContentEditor
             }
         }
 
-        public string PostEditorHelpText => @"
+        public string PostEditorHelpText =>
+            @"
 ### Post Content
 
 Posts are the most 'generic' content type and will, by default, be included on the main page of the site in chronological order.
@@ -171,17 +173,6 @@ Notes:
             {
                 if (Equals(value, _saveCommand)) return;
                 _saveCommand = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public BoolDataEntryContext ShowInSiteFeed
-        {
-            get => _showInSiteFeed;
-            set
-            {
-                if (value == _showInSiteFeed) return;
-                _showInSiteFeed = value;
                 OnPropertyChanged();
             }
         }
@@ -291,7 +282,9 @@ Notes:
             newEntry.Folder = TitleSummarySlugFolder.FolderEntry.UserValue.TrimNullToEmpty();
             newEntry.Slug = TitleSummarySlugFolder.SlugEntry.UserValue.TrimNullToEmpty();
             newEntry.Summary = TitleSummarySlugFolder.SummaryEntry.UserValue.TrimNullToEmpty();
-            newEntry.ShowInMainSiteFeed = ShowInSiteFeed.UserValue;
+            newEntry.ShowInMainSiteFeed = MainSiteFeed.ShowInMainSiteFeedEntry.UserValue;
+            newEntry.MainSiteFeedOn = MainSiteFeed.ShowInMainSiteFeedOnEntry.UserValue;
+            newEntry.IsDraft = MainSiteFeed.ShowInMainSiteFeedEntry.UserValue;
             newEntry.Tags = TagEdit.TagListString();
             newEntry.Title = TitleSummarySlugFolder.TitleEntry.UserValue.TrimNullToEmpty();
             newEntry.CreatedBy = CreatedUpdatedDisplay.CreatedByEntry.UserValue.TrimNullToEmpty();
@@ -326,22 +319,37 @@ Notes:
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
+            var frozenNow = DateTime.Now;
+
             DbEntry = toLoad ?? new PostContent
             {
                 BodyContentFormat = UserSettingsUtilities.DefaultContentFormatChoice(),
                 UpdateNotesFormat = UserSettingsUtilities.DefaultContentFormatChoice(),
-                ShowInMainSiteFeed = true
+                ShowInMainSiteFeed = true,
+                CreatedOn = frozenNow,
+                MainSiteFeedOn = frozenNow
             };
 
             TitleSummarySlugFolder = await TitleSummarySlugEditorContext.CreateInstance(StatusContext, DbEntry);
             CreatedUpdatedDisplay = await CreatedAndUpdatedByAndOnDisplayContext.CreateInstance(StatusContext, DbEntry);
-            ShowInSiteFeed = BoolDataEntryContext.CreateInstanceForShowInSiteFeed(DbEntry, true);
+            MainSiteFeed = await ContentInMainSiteFeedContext.CreateInstance(StatusContext, DbEntry);
             ContentId = await ContentIdViewerControlContext.CreateInstance(StatusContext, DbEntry);
             UpdateNotes = await UpdateNotesEditorContext.CreateInstance(StatusContext, DbEntry);
             TagEdit = TagsEditorContext.CreateInstance(StatusContext, DbEntry);
             BodyContent = await BodyContentEditorContext.CreateInstance(StatusContext, DbEntry);
 
             PropertyScanners.SubscribeToChildHasChangesAndHasValidationIssues(this, CheckForChangesAndValidationIssues);
+        }
+
+        public ContentInMainSiteFeedContext MainSiteFeed
+        {
+            get => _mainSiteFeed;
+            set
+            {
+                if (Equals(value, _mainSiteFeed)) return;
+                _mainSiteFeed = value;
+                OnPropertyChanged();
+            }
         }
 
         [NotifyPropertyChangedInvocator]

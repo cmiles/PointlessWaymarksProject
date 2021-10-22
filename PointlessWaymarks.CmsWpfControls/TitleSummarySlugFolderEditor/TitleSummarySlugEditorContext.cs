@@ -249,6 +249,25 @@ namespace PointlessWaymarks.CmsWpfControls.TitleSummarySlugFolderEditor
 
         public event PropertyChangedEventHandler PropertyChanged;
 
+        public void CheckForChangesToTitleToFunctionStates()
+        {
+            try
+            {
+                TitleToSlugEnabled = SlugUtility.Create(true, TitleEntry.UserValue) != SlugEntry.UserValue;
+                TitleToSummaryEnabled =
+                    !(SummaryEntry.UserValue.Equals(TitleEntry.UserValue, StringComparison.OrdinalIgnoreCase) ||
+                      (SummaryEntry.UserValue.Length - 1 == TitleEntry.UserValue.Length &&
+                       char.IsPunctuation(SummaryEntry.UserValue[^1]) && SummaryEntry.UserValue[..^1]
+                           .Equals(TitleEntry.UserValue, StringComparison.OrdinalIgnoreCase)));
+
+                CustomTitleFunctionEnabled = CustomTitleCheckToEnable?.Invoke(this) ?? false;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+            }
+        }
+
         public static async Task<TitleSummarySlugEditorContext> CreateInstance(StatusControlContext statusContext,
             ITitleSummarySlugFolder dbEntry)
         {
@@ -296,31 +315,6 @@ namespace PointlessWaymarks.CmsWpfControls.TitleSummarySlugFolderEditor
             PropertyScanners.SubscribeToChildHasChangesAndHasValidationIssues(this, CheckForChangesAndValidationIssues);
         }
 
-        public void CheckForChangesToTitleToFunctionStates()
-        {
-            try
-            {
-                TitleToSlugEnabled = SlugUtility.Create(true, TitleEntry.UserValue) != SlugEntry.UserValue;
-                TitleToSummaryEnabled = !(
-                    SummaryEntry.UserValue.Equals(TitleEntry.UserValue, StringComparison.OrdinalIgnoreCase)
-                    || (SummaryEntry.UserValue.Length - 1 == TitleEntry.UserValue.Length && char.IsPunctuation(SummaryEntry.UserValue[^1]) && SummaryEntry.UserValue[0..^1].Equals(TitleEntry.UserValue, StringComparison.OrdinalIgnoreCase)));
-
-                CustomTitleFunctionEnabled =
-                    CustomTitleCheckToEnable?.Invoke(this) ?? false;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex);
-            }
-        }
-
-        private void TitleChangedMonitor(object sender, PropertyChangedEventArgs e)
-        {
-            if (!e?.PropertyName?.Equals("UserValue") ?? true) return;
-
-            CheckForChangesToTitleToFunctionStates();
-        }
-
         [NotifyPropertyChangedInvocator]
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
@@ -330,6 +324,13 @@ namespace PointlessWaymarks.CmsWpfControls.TitleSummarySlugFolderEditor
 
             if (!propertyName.Contains("HasChanges") && !propertyName.Contains("Validation"))
                 CheckForChangesAndValidationIssues();
+        }
+
+        private void TitleChangedMonitor(object sender, PropertyChangedEventArgs e)
+        {
+            if (!e?.PropertyName?.Equals("UserValue") ?? true) return;
+
+            CheckForChangesToTitleToFunctionStates();
         }
 
         public void TitleToSlug()

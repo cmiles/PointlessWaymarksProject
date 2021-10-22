@@ -64,7 +64,9 @@ namespace PointlessWaymarks.CmsWpfControls.NoteContentEditor
 
             HelpContext = new HelpDisplayContext(new List<string>
             {
-                NoteEditorHelpText, CommonFields.SummaryFieldBlock, CommonFields.FolderFieldBlock,
+                NoteEditorHelpText,
+                CommonFields.SummaryFieldBlock,
+                CommonFields.FolderFieldBlock,
                 BracketCodeHelpMarkdown.HelpBlock
             });
         }
@@ -157,7 +159,8 @@ namespace PointlessWaymarks.CmsWpfControls.NoteContentEditor
             }
         }
 
-        public string NoteEditorHelpText => @"
+        public string NoteEditorHelpText =>
+            @"
 ### Note Content
 
 Note Content is like a simplified Post - no title and slug to edit or maintain and no Updates data to maintain. You can always use a Post instead of a note - but you might find it convenient if trying to quickly post a news item or a couple of links to do it as a Note rather than a Post.
@@ -344,7 +347,7 @@ Note Content is like a simplified Post - no title and slug to edit or maintain a
             FolderEntry = await ContentFolderContext.CreateInstance(StatusContext, DbEntry);
             Summary = StringDataEntryContext.CreateSummaryInstance(DbEntry);
             CreatedUpdatedDisplay = await CreatedAndUpdatedByAndOnDisplayContext.CreateInstance(StatusContext, DbEntry);
-            ShowInSiteFeed = BoolDataEntryContext.CreateInstanceForShowInSiteFeed(DbEntry, true);
+            ShowInSiteFeed = BoolDataEntryContext.CreateInstanceForShowInMainSiteFeed(DbEntry, true);
             ContentId = await ContentIdViewerControlContext.CreateInstance(StatusContext, DbEntry);
             TagEdit = TagsEditorContext.CreateInstance(StatusContext, DbEntry);
             BodyContent = await BodyContentEditorContext.CreateInstance(StatusContext, DbEntry);

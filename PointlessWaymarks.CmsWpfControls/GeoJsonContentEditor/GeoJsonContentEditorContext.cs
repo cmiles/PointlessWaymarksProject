@@ -475,7 +475,7 @@ namespace PointlessWaymarks.CmsWpfControls.GeoJsonContentEditor
 
             TitleSummarySlugFolder = await TitleSummarySlugEditorContext.CreateInstance(StatusContext, DbEntry);
             CreatedUpdatedDisplay = await CreatedAndUpdatedByAndOnDisplayContext.CreateInstance(StatusContext, DbEntry);
-            ShowInSiteFeed = BoolDataEntryContext.CreateInstanceForShowInSiteFeed(DbEntry, false);
+            ShowInSiteFeed = BoolDataEntryContext.CreateInstanceForShowInMainSiteFeed(DbEntry, false);
             ContentId = await ContentIdViewerControlContext.CreateInstance(StatusContext, DbEntry);
             UpdateNotes = await UpdateNotesEditorContext.CreateInstance(StatusContext, DbEntry);
             TagEdit = TagsEditorContext.CreateInstance(StatusContext, DbEntry);
@@ -551,7 +551,7 @@ namespace PointlessWaymarks.CmsWpfControls.GeoJsonContentEditor
 
             var url = $@"http://{settings.GeoJsonPageUrl(DbEntry)}";
 
-            var ps = new ProcessStartInfo(url) {UseShellExecute = true, Verb = "open"};
+            var ps = new ProcessStartInfo(url) { UseShellExecute = true, Verb = "open" };
             Process.Start(ps);
         }
     }
