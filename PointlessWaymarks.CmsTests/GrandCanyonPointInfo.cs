@@ -25,6 +25,7 @@ namespace PointlessWaymarks.CmsTests
                 ContentId = YumaPointContentId,
                 CreatedBy = "Point Test",
                 CreatedOn = new DateTime(2020, 9, 18, 7, 16, 16),
+                MainSiteFeedOn = new DateTime(2020, 9, 18, 7, 16, 16),
                 Folder = "GrandCanyon",
                 ShowInMainSiteFeed = false,
                 Summary = "A named point on the South Rim of the Grand Canyon",
@@ -55,6 +56,7 @@ namespace PointlessWaymarks.CmsTests
                 BodyContentFormat = ContentFormatDefaults.Content.ToString(),
                 CreatedBy = "Point Test",
                 CreatedOn = new DateTime(2020, 9, 18, 7, 16, 16),
+                MainSiteFeedOn = new DateTime(2020, 9, 18, 7, 16, 16),
                 Folder = "GrandCanyon",
                 ShowInMainSiteFeed = false,
                 Summary =
@@ -141,7 +143,10 @@ namespace PointlessWaymarks.CmsTests
 
             var compareLogic = new CompareLogic
             {
-                Config = {MembersToIgnore = new List<string> {"ContentId", "ContentVersion", "Id", "PointDetails"}}
+                Config =
+                {
+                    MembersToIgnore = new List<string> { "ContentId", "ContentVersion", "Id", "PointDetails" }
+                }
             };
 
             var pointCompareResult = compareLogic.Compare(reference, toCompare);
@@ -187,7 +192,7 @@ namespace PointlessWaymarks.CmsTests
             Assert.True(jsonFile.Exists, $"Json file {jsonFile.FullName} does not exist?");
 
             var jsonFileImported = Import.ContentFromFiles<PointContent>(
-                new List<string> {jsonFile.FullName}, Names.PointContentPrefix).Single();
+                new List<string> { jsonFile.FullName }, Names.PointContentPrefix).Single();
             var compareLogic = new CompareLogic();
             var comparisonResult = compareLogic.Compare(newContent, jsonFileImported);
             Assert.True(comparisonResult.AreEqual,

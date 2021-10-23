@@ -324,12 +324,15 @@ namespace PointlessWaymarks.CmsData.Content
 
             toReturn.InjectFrom(metadata);
 
+            var created = DateTime.Now;
+
             toReturn.OriginalFileName = selectedFile.Name;
             toReturn.ContentId = Guid.NewGuid();
             toReturn.CreatedBy = string.IsNullOrWhiteSpace(photoContentCreatedBy)
                 ? UserSettingsSingleton.CurrentSettings().DefaultCreatedBy
                 : photoContentCreatedBy.Trim();
-            toReturn.CreatedOn = DateTime.Now;
+            toReturn.CreatedOn = created;
+            toReturn.MainSiteFeedOn = created;
             toReturn.Slug = SlugUtility.Create(true, toReturn.Title);
             toReturn.BodyContentFormat = ContentFormatDefaults.Content.ToString();
             toReturn.UpdateNotesFormat = ContentFormatDefaults.Content.ToString();

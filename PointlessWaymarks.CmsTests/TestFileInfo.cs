@@ -27,6 +27,7 @@ namespace PointlessWaymarks.CmsTests
                 ContentId = Guid.NewGuid(),
                 CreatedBy = "GC File Test",
                 CreatedOn = new DateTime(2020, 10, 6, 6, 18, 00),
+                MainSiteFeedOn = new DateTime(2020, 10, 6, 6, 18, 00),
                 Folder = "Trails",
                 PublicDownloadLink = true,
                 Title = "Grandview Trail",
@@ -45,6 +46,7 @@ namespace PointlessWaymarks.CmsTests
                 ContentId = Guid.NewGuid(),
                 CreatedBy = "File Test",
                 CreatedOn = new DateTime(2020, 7, 24, 5, 55, 55),
+                MainSiteFeedOn = new DateTime(2020, 7, 24, 5, 55, 55),
                 Folder = "Maps",
                 PublicDownloadLink = true,
                 Title = "Ironwood Forest National Monument Map",
@@ -137,7 +139,8 @@ namespace PointlessWaymarks.CmsTests
             {
                 Config =
                 {
-                    MembersToIgnore = new List<string> {"ContentId", "ContentVersion", "Id", "OriginalFileName"}
+                    MembersToIgnore =
+                        new List<string> { "ContentId", "ContentVersion", "Id", "OriginalFileName" }
                 }
             };
 
@@ -196,7 +199,7 @@ namespace PointlessWaymarks.CmsTests
             Assert.True(jsonFile.Exists, $"Json file {jsonFile.FullName} does not exist?");
 
             var jsonFileImported = Import.ContentFromFiles<FileContent>(
-                new List<string> {jsonFile.FullName}, Names.FileContentPrefix).Single();
+                new List<string> { jsonFile.FullName }, Names.FileContentPrefix).Single();
             var compareLogic = new CompareLogic();
             var comparisonResult = compareLogic.Compare(newContent, jsonFileImported);
             Assert.True(comparisonResult.AreEqual,

@@ -26,6 +26,7 @@ namespace PointlessWaymarks.CmsTests
                 ContentId = Guid.NewGuid(),
                 CreatedBy = "Image Test",
                 CreatedOn = new DateTime(2020, 7, 25, 5, 55, 55),
+                MainSiteFeedOn = new DateTime(2020, 7, 25, 5, 55, 55),
                 Folder = "Maps",
                 Title = "Ironwood Forest National Monument Map Cover Page",
                 ShowInMainSiteFeed = false,
@@ -55,7 +56,7 @@ namespace PointlessWaymarks.CmsTests
                 "Expected Number of Files Does Not Match");
 
             var pictureAssetInformation = PictureAssetProcessing.ProcessPictureDirectory(newContent.ContentId);
-            var pictureAssetDbEntry = (ImageContent) pictureAssetInformation.DbEntry;
+            var pictureAssetDbEntry = (ImageContent)pictureAssetInformation.DbEntry;
             Assert.IsTrue(pictureAssetDbEntry.ContentId == newContent.ContentId,
                 $"Picture Asset appears to have gotten an incorrect DB entry of {pictureAssetDbEntry.ContentId} rather than {newContent.ContentId}");
 
@@ -179,7 +180,7 @@ namespace PointlessWaymarks.CmsTests
             Assert.True(jsonFile.Exists, $"Json file {jsonFile.FullName} does not exist?");
 
             var jsonFileImported = Import.ContentFromFiles<ImageContent>(
-                new List<string> {jsonFile.FullName}, Names.ImageContentPrefix).Single();
+                new List<string> { jsonFile.FullName }, Names.ImageContentPrefix).Single();
             var compareLogic = new CompareLogic();
             var comparisonResult = compareLogic.Compare(newContent, jsonFileImported);
             Assert.True(comparisonResult.AreEqual,

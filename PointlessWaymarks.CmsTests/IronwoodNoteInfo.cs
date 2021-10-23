@@ -28,6 +28,7 @@ namespace PointlessWaymarks.CmsTests
                 ContentId = Guid.NewGuid(),
                 CreatedBy = "Note Test",
                 CreatedOn = new DateTime(2020, 8, 17, 7, 17, 17),
+                MainSiteFeedOn = new DateTime(2020, 8, 17, 7, 17, 17),
                 Folder = "IronwoodForest",
                 ShowInMainSiteFeed = true,
                 Summary = "Basic links for Ironwood Forest National Monument",
@@ -72,7 +73,7 @@ namespace PointlessWaymarks.CmsTests
 
             var compareLogic = new CompareLogic
             {
-                Config = {MembersToIgnore = new List<string> {"ContentId", "ContentVersion", "Id"}}
+                Config = { MembersToIgnore = new List<string> { "ContentId", "ContentVersion", "Id" } }
             };
 
             var compareResult = compareLogic.Compare(reference, toCompare);
@@ -101,7 +102,7 @@ namespace PointlessWaymarks.CmsTests
             Assert.True(jsonFile.Exists, $"Json file {jsonFile.FullName} does not exist?");
 
             var jsonFileImported = Import.ContentFromFiles<NoteContent>(
-                new List<string> {jsonFile.FullName}, Names.NoteContentPrefix).Single();
+                new List<string> { jsonFile.FullName }, Names.NoteContentPrefix).Single();
             var compareLogic = new CompareLogic();
             var comparisonResult = compareLogic.Compare(newContent, jsonFileImported);
             Assert.True(comparisonResult.AreEqual,

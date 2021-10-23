@@ -30,6 +30,7 @@ A significant concentration of ironwood (also known as desert ironwood, Olneya t
                 ContentId = Guid.NewGuid(),
                 CreatedBy = "Post Test",
                 CreatedOn = new DateTime(2020, 8, 18, 7, 16, 16),
+                MainSiteFeedOn = new DateTime(2020, 8, 18, 7, 16, 16),
                 Folder = "IronwoodForest",
                 ShowInMainSiteFeed = true,
                 Summary = "Basic information for Ironwood Forest National Monument",
@@ -74,7 +75,7 @@ A significant concentration of ironwood (also known as desert ironwood, Olneya t
 
             var compareLogic = new CompareLogic
             {
-                Config = {MembersToIgnore = new List<string> {"ContentId", "ContentVersion", "Id"}}
+                Config = { MembersToIgnore = new List<string> { "ContentId", "ContentVersion", "Id" } }
             };
 
             var compareResult = compareLogic.Compare(reference, toCompare);
@@ -103,7 +104,7 @@ A significant concentration of ironwood (also known as desert ironwood, Olneya t
             Assert.True(jsonFile.Exists, $"Json file {jsonFile.FullName} does not exist?");
 
             var jsonFileImported = Import.ContentFromFiles<PostContent>(
-                new List<string> {jsonFile.FullName}, Names.PostContentPrefix).Single();
+                new List<string> { jsonFile.FullName }, Names.PostContentPrefix).Single();
             var compareLogic = new CompareLogic();
             var comparisonResult = compareLogic.Compare(newContent, jsonFileImported);
             Assert.True(comparisonResult.AreEqual,

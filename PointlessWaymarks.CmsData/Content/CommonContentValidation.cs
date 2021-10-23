@@ -321,13 +321,20 @@ namespace PointlessWaymarks.CmsData.Content
                 errorMessage.Add(summaryValidation.Explanation);
             }
 
-            var (createdUpdatedIsValid, createdUpdatedExplanation) =
-                ValidateCreatedAndUpdatedBy(toValidate, isNewEntry);
+            var createdUpdatedValidation = ValidateCreatedAndUpdatedBy(toValidate, isNewEntry);
 
-            if (!createdUpdatedIsValid)
+            if (!createdUpdatedValidation.Valid)
             {
                 isValid = false;
-                errorMessage.Add(createdUpdatedExplanation);
+                errorMessage.Add(createdUpdatedValidation.Explanation);
+            }
+
+            var mainSiteFeedOnValidation = ValidateMainSiteFeed(toValidate, isNewEntry);
+
+            if (!mainSiteFeedOnValidation.Valid)
+            {
+                isValid = false;
+                errorMessage.Add(mainSiteFeedOnValidation.Explanation);
             }
 
             var slugValidation =
@@ -443,13 +450,6 @@ namespace PointlessWaymarks.CmsData.Content
             return new IsValid(true, string.Empty);
         }
 
-        public static IsValid ValidateGeoJson(string? geoJson)
-        {
-            if (string.IsNullOrWhiteSpace(geoJson)) return new IsValid(false, "GeoJson can not be blank");
-
-            return new IsValid(true, string.Empty);
-        }
-
         public static async Task<IsValid> ValidateLinkContentLinkUrl(string? url, Guid? contentGuid)
         {
             if (string.IsNullOrWhiteSpace(url)) return new IsValid(false, "Link URL can not be blank");
@@ -477,6 +477,20 @@ namespace PointlessWaymarks.CmsData.Content
             }
 
             return new IsValid(true, string.Empty);
+        }
+
+        public static IsValid ValidateMainSiteFeed(IMainSiteFeed toValidate, bool isNewEntry)
+        {
+            var isValid = true;
+            var errorMessage = new List<string>();
+
+            if (toValidate.MainSiteFeedOn == DateTime.MinValue)
+            {
+                isValid = false;
+                errorMessage.Add($"Main Site Feed On date of {toValidate.MainSiteFeedOn} is not valid.");
+            }
+
+            return new IsValid(isValid, string.Join(Environment.NewLine, errorMessage));
         }
 
         public static async Task<IsValid> ValidateMapComponent(MapComponentDto mapComponent)

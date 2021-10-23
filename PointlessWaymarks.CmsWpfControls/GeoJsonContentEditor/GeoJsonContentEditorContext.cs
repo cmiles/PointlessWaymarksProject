@@ -15,8 +15,8 @@ using PointlessWaymarks.CmsData.Content;
 using PointlessWaymarks.CmsData.ContentHtml.GeoJsonHtml;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsWpfControls.BodyContentEditor;
-using PointlessWaymarks.CmsWpfControls.BoolDataEntry;
 using PointlessWaymarks.CmsWpfControls.ContentIdViewer;
+using PointlessWaymarks.CmsWpfControls.ContentInMainSiteFeed;
 using PointlessWaymarks.CmsWpfControls.CreatedAndUpdatedByAndOnDisplay;
 using PointlessWaymarks.CmsWpfControls.HelpDisplay;
 using PointlessWaymarks.CmsWpfControls.TagsEditor;
@@ -46,12 +46,13 @@ namespace PointlessWaymarks.CmsWpfControls.GeoJsonContentEditor
         private Command _importGeoJsonFileCommand;
         private Command _importGeoJsonFromClipboardCommand;
         private Command _linkToClipboardCommand;
+        private ContentInMainSiteFeedContext _mainSiteFeed;
         private string _previewGeoJsonDto;
         private string _previewHtml;
         private Command _refreshMapPreviewCommand;
         private Command _saveAndCloseCommand;
         private Command _saveCommand;
-        private BoolDataEntryContext _showInSiteFeed;
+        private StatusControlContext _statusContext;
         private TagsEditorContext _tagEdit;
         private TitleSummarySlugEditorContext _titleSummarySlugFolder;
         private UpdateNotesEditorContext _updateNotes;
@@ -196,6 +197,17 @@ namespace PointlessWaymarks.CmsWpfControls.GeoJsonContentEditor
             }
         }
 
+        public ContentInMainSiteFeedContext MainSiteFeed
+        {
+            get => _mainSiteFeed;
+            set
+            {
+                if (Equals(value, _mainSiteFeed)) return;
+                _mainSiteFeed = value;
+                OnPropertyChanged();
+            }
+        }
+
         public string PreviewGeoJsonDto
         {
             get => _previewGeoJsonDto;
@@ -251,18 +263,16 @@ namespace PointlessWaymarks.CmsWpfControls.GeoJsonContentEditor
             }
         }
 
-        public BoolDataEntryContext ShowInSiteFeed
+        public StatusControlContext StatusContext
         {
-            get => _showInSiteFeed;
+            get => _statusContext;
             set
             {
-                if (value == _showInSiteFeed) return;
-                _showInSiteFeed = value;
+                if (Equals(value, _statusContext)) return;
+                _statusContext = value;
                 OnPropertyChanged();
             }
         }
-
-        public StatusControlContext StatusContext { get; set; }
 
         public TagsEditorContext TagEdit
         {
@@ -367,7 +377,9 @@ namespace PointlessWaymarks.CmsWpfControls.GeoJsonContentEditor
             newEntry.Folder = TitleSummarySlugFolder.FolderEntry.UserValue.TrimNullToEmpty();
             newEntry.Slug = TitleSummarySlugFolder.SlugEntry.UserValue.TrimNullToEmpty();
             newEntry.Summary = TitleSummarySlugFolder.SummaryEntry.UserValue.TrimNullToEmpty();
-            newEntry.ShowInMainSiteFeed = ShowInSiteFeed.UserValue;
+            newEntry.ShowInMainSiteFeed = MainSiteFeed.ShowInMainSiteFeedEntry.UserValue;
+            newEntry.MainSiteFeedOn = MainSiteFeed.ShowInMainSiteFeedOnEntry.UserValue;
+            newEntry.IsDraft = MainSiteFeed.ShowInMainSiteFeedEntry.UserValue;
             newEntry.Tags = TagEdit.TagListString();
             newEntry.Title = TitleSummarySlugFolder.TitleEntry.UserValue.TrimNullToEmpty();
             newEntry.CreatedBy = CreatedUpdatedDisplay.CreatedByEntry.UserValue.TrimNullToEmpty();
@@ -467,15 +479,19 @@ namespace PointlessWaymarks.CmsWpfControls.GeoJsonContentEditor
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
+            var created = DateTime.Now;
+
             DbEntry = toLoad ?? new GeoJsonContent
             {
                 BodyContentFormat = UserSettingsUtilities.DefaultContentFormatChoice(),
-                UpdateNotesFormat = UserSettingsUtilities.DefaultContentFormatChoice()
+                UpdateNotesFormat = UserSettingsUtilities.DefaultContentFormatChoice(),
+                CreatedOn = created,
+                MainSiteFeedOn = created
             };
 
             TitleSummarySlugFolder = await TitleSummarySlugEditorContext.CreateInstance(StatusContext, DbEntry);
             CreatedUpdatedDisplay = await CreatedAndUpdatedByAndOnDisplayContext.CreateInstance(StatusContext, DbEntry);
-            ShowInSiteFeed = BoolDataEntryContext.CreateInstanceForShowInMainSiteFeed(DbEntry, false);
+            MainSiteFeed = await ContentInMainSiteFeedContext.CreateInstance(StatusContext, DbEntry);
             ContentId = await ContentIdViewerControlContext.CreateInstance(StatusContext, DbEntry);
             UpdateNotes = await UpdateNotesEditorContext.CreateInstance(StatusContext, DbEntry);
             TagEdit = TagsEditorContext.CreateInstance(StatusContext, DbEntry);

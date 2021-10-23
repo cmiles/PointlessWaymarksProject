@@ -17,8 +17,8 @@ using PointlessWaymarks.CmsData.ContentHtml.LineHtml;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsData.Spatial;
 using PointlessWaymarks.CmsWpfControls.BodyContentEditor;
-using PointlessWaymarks.CmsWpfControls.BoolDataEntry;
 using PointlessWaymarks.CmsWpfControls.ContentIdViewer;
+using PointlessWaymarks.CmsWpfControls.ContentInMainSiteFeed;
 using PointlessWaymarks.CmsWpfControls.CreatedAndUpdatedByAndOnDisplay;
 using PointlessWaymarks.CmsWpfControls.HelpDisplay;
 using PointlessWaymarks.CmsWpfControls.TagsEditor;
@@ -47,6 +47,7 @@ namespace PointlessWaymarks.CmsWpfControls.LineContentEditor
         private Command _importFromGpxCommand;
         private string _lineGeoJson;
         private Command _linkToClipboardCommand;
+        private ContentInMainSiteFeedContext _mainSiteFeed;
         private string _previewHtml;
         private string _previewLineJsonDto;
         private Command _refreshMapPreviewCommand;
@@ -54,7 +55,6 @@ namespace PointlessWaymarks.CmsWpfControls.LineContentEditor
         private Command _replaceElevationsCommand;
         private Command _saveAndCloseCommand;
         private Command _saveCommand;
-        private BoolDataEntryContext _showInSiteFeed;
         private StatusControlContext _statusContext;
         private TagsEditorContext _tagEdit;
         private TitleSummarySlugEditorContext _titleSummarySlugFolder;
@@ -188,6 +188,17 @@ namespace PointlessWaymarks.CmsWpfControls.LineContentEditor
             }
         }
 
+        public ContentInMainSiteFeedContext MainSiteFeed
+        {
+            get => _mainSiteFeed;
+            set
+            {
+                if (Equals(value, _mainSiteFeed)) return;
+                _mainSiteFeed = value;
+                OnPropertyChanged();
+            }
+        }
+
         public string PreviewHtml
         {
             get => _previewHtml;
@@ -261,17 +272,6 @@ namespace PointlessWaymarks.CmsWpfControls.LineContentEditor
             {
                 if (Equals(value, _saveCommand)) return;
                 _saveCommand = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public BoolDataEntryContext ShowInSiteFeed
-        {
-            get => _showInSiteFeed;
-            set
-            {
-                if (value == _showInSiteFeed) return;
-                _showInSiteFeed = value;
                 OnPropertyChanged();
             }
         }
@@ -390,7 +390,9 @@ namespace PointlessWaymarks.CmsWpfControls.LineContentEditor
             newEntry.Folder = TitleSummarySlugFolder.FolderEntry.UserValue.TrimNullToEmpty();
             newEntry.Slug = TitleSummarySlugFolder.SlugEntry.UserValue.TrimNullToEmpty();
             newEntry.Summary = TitleSummarySlugFolder.SummaryEntry.UserValue.TrimNullToEmpty();
-            newEntry.ShowInMainSiteFeed = ShowInSiteFeed.UserValue;
+            newEntry.ShowInMainSiteFeed = MainSiteFeed.ShowInMainSiteFeedEntry.UserValue;
+            newEntry.MainSiteFeedOn = MainSiteFeed.ShowInMainSiteFeedOnEntry.UserValue;
+            newEntry.IsDraft = MainSiteFeed.ShowInMainSiteFeedEntry.UserValue;
             newEntry.Tags = TagEdit.TagListString();
             newEntry.Title = TitleSummarySlugFolder.TitleEntry.UserValue.TrimNullToEmpty();
             newEntry.CreatedBy = CreatedUpdatedDisplay.CreatedByEntry.UserValue.TrimNullToEmpty();
@@ -481,15 +483,19 @@ namespace PointlessWaymarks.CmsWpfControls.LineContentEditor
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
+            var created = DateTime.Now;
+
             DbEntry = toLoad ?? new LineContent
             {
                 BodyContentFormat = UserSettingsUtilities.DefaultContentFormatChoice(),
-                UpdateNotesFormat = UserSettingsUtilities.DefaultContentFormatChoice()
+                UpdateNotesFormat = UserSettingsUtilities.DefaultContentFormatChoice(),
+                CreatedOn = created,
+                MainSiteFeedOn = created
             };
 
             TitleSummarySlugFolder = await TitleSummarySlugEditorContext.CreateInstance(StatusContext, DbEntry);
             CreatedUpdatedDisplay = await CreatedAndUpdatedByAndOnDisplayContext.CreateInstance(StatusContext, DbEntry);
-            ShowInSiteFeed = BoolDataEntryContext.CreateInstanceForShowInMainSiteFeed(DbEntry, false);
+            MainSiteFeed = await ContentInMainSiteFeedContext.CreateInstance(StatusContext, DbEntry);
             ContentId = await ContentIdViewerControlContext.CreateInstance(StatusContext, DbEntry);
             UpdateNotes = await UpdateNotesEditorContext.CreateInstance(StatusContext, DbEntry);
             TagEdit = TagsEditorContext.CreateInstance(StatusContext, DbEntry);

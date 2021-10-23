@@ -16,8 +16,8 @@ using PointlessWaymarks.CmsData.Content;
 using PointlessWaymarks.CmsData.ContentHtml;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsWpfControls.BodyContentEditor;
-using PointlessWaymarks.CmsWpfControls.BoolDataEntry;
 using PointlessWaymarks.CmsWpfControls.ContentIdViewer;
+using PointlessWaymarks.CmsWpfControls.ContentInMainSiteFeed;
 using PointlessWaymarks.CmsWpfControls.ConversionDataEntry;
 using PointlessWaymarks.CmsWpfControls.CreatedAndUpdatedByAndOnDisplay;
 using PointlessWaymarks.CmsWpfControls.HelpDisplay;
@@ -61,6 +61,7 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoContentEditor
         private StringDataEntryContext _licenseEntry;
         private Command _linkToClipboardCommand;
         private FileInfo _loadedFile;
+        private ContentInMainSiteFeedContext _mainSiteFeed;
         private StringDataEntryContext _photoCreatedByEntry;
         private ConversionDataEntryContext<DateTime> _photoCreatedOnEntry;
         private Command _renameSelectedFileCommand;
@@ -76,7 +77,6 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoContentEditor
         private bool _selectedFileHasValidationIssues;
         private bool _selectedFileNameHasInvalidCharacters;
         private string _selectedFileValidationMessage;
-        private BoolDataEntryContext _showInSiteFeed;
         private StringDataEntryContext _shutterSpeedEntry;
         private StatusControlContext _statusContext;
         private TagsEditorContext _tagEdit;
@@ -302,6 +302,17 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoContentEditor
             }
         }
 
+        public ContentInMainSiteFeedContext MainSiteFeed
+        {
+            get => _mainSiteFeed;
+            set
+            {
+                if (Equals(value, _mainSiteFeed)) return;
+                _mainSiteFeed = value;
+                OnPropertyChanged();
+            }
+        }
+
         public StringDataEntryContext PhotoCreatedByEntry
         {
             get => _photoCreatedByEntry;
@@ -324,7 +335,8 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoContentEditor
             }
         }
 
-        public string PhotoEditorHelpText => @"
+        public string PhotoEditorHelpText =>
+            @"
 ### Photo Content
 
 Photo Content puts a jpg file together with photo specific data like Aperture, Shutter Speed, ISO, etc. Photo Content is automatically organized into Daily and All galleries.
@@ -475,17 +487,6 @@ Photo Content Notes:
             {
                 if (value == _selectedFileValidationMessage) return;
                 _selectedFileValidationMessage = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public BoolDataEntryContext ShowInSiteFeed
-        {
-            get => _showInSiteFeed;
-            set
-            {
-                if (Equals(value, _showInSiteFeed)) return;
-                _showInSiteFeed = value;
                 OnPropertyChanged();
             }
         }
@@ -709,7 +710,9 @@ Photo Content Notes:
             newEntry.License = LicenseEntry.UserValue.TrimNullToEmpty();
             newEntry.Slug = TitleSummarySlugFolder.SlugEntry.UserValue.TrimNullToEmpty();
             newEntry.Summary = TitleSummarySlugFolder.SummaryEntry.UserValue.TrimNullToEmpty();
-            newEntry.ShowInMainSiteFeed = ShowInSiteFeed.UserValue;
+            newEntry.ShowInMainSiteFeed = MainSiteFeed.ShowInMainSiteFeedEntry.UserValue;
+            newEntry.MainSiteFeedOn = MainSiteFeed.ShowInMainSiteFeedOnEntry.UserValue;
+            newEntry.IsDraft = MainSiteFeed.ShowInMainSiteFeedEntry.UserValue;
             newEntry.Tags = TagEdit.TagListString();
             newEntry.Title = TitleSummarySlugFolder.TitleEntry.UserValue.TrimNullToEmpty();
             newEntry.AltText = AltTextEntry.UserValue.TrimNullToEmpty();
@@ -760,9 +763,10 @@ Photo Content Notes:
             TitleSummarySlugFolder = await TitleSummarySlugEditorContext.CreateInstance(StatusContext, "To File Name",
                 AutoRenameSelectedFileBasedOnTitleCommand,
                 x => !Path.GetFileNameWithoutExtension(SelectedFile.Name)
-                    .Equals(SlugUtility.Create(false, x.TitleEntry.UserValue), StringComparison.OrdinalIgnoreCase), DbEntry);
+                    .Equals(SlugUtility.Create(false, x.TitleEntry.UserValue), StringComparison.OrdinalIgnoreCase),
+                DbEntry);
             CreatedUpdatedDisplay = await CreatedAndUpdatedByAndOnDisplayContext.CreateInstance(StatusContext, DbEntry);
-            ShowInSiteFeed = BoolDataEntryContext.CreateInstanceForShowInMainSiteFeed(DbEntry, false);
+            MainSiteFeed = await ContentInMainSiteFeedContext.CreateInstance(StatusContext, DbEntry);
             ContentId = await ContentIdViewerControlContext.CreateInstance(StatusContext, DbEntry);
             UpdateNotes = await UpdateNotesEditorContext.CreateInstance(StatusContext, DbEntry);
             TagEdit = TagsEditorContext.CreateInstance(StatusContext, DbEntry);
@@ -1013,8 +1017,8 @@ Photo Content Notes:
                 await FileHelpers.TryAutoCleanRenameSelectedFile(SelectedFile, StatusContext, x => SelectedFile = x));
             AutoRenameSelectedFileBasedOnTitleCommand = StatusContext.RunBlockingTaskCommand(async () =>
             {
-                await FileHelpers.TryAutoRenameSelectedFile(SelectedFile, TitleSummarySlugFolder.TitleEntry.UserValue,
-                    StatusContext, x => SelectedFile = x);
+                await FileHelpers.TryAutoRenameSelectedFile(SelectedFile,
+                    TitleSummarySlugFolder.TitleEntry.UserValue, StatusContext, x => SelectedFile = x);
             });
             ExtractNewLinksCommand = StatusContext.RunBlockingTaskCommand(() =>
                 LinkExtraction.ExtractNewAndShowLinkContentEditors(BodyContent.BodyContent,

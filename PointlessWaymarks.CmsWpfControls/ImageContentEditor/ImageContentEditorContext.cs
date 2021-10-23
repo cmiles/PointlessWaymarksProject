@@ -17,6 +17,7 @@ using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsWpfControls.BodyContentEditor;
 using PointlessWaymarks.CmsWpfControls.BoolDataEntry;
 using PointlessWaymarks.CmsWpfControls.ContentIdViewer;
+using PointlessWaymarks.CmsWpfControls.ContentInMainSiteFeed;
 using PointlessWaymarks.CmsWpfControls.CreatedAndUpdatedByAndOnDisplay;
 using PointlessWaymarks.CmsWpfControls.HelpDisplay;
 using PointlessWaymarks.CmsWpfControls.StringDataEntry;
@@ -46,6 +47,7 @@ namespace PointlessWaymarks.CmsWpfControls.ImageContentEditor
         private FileInfo _initialImage;
         private Command _linkToClipboardCommand;
         private FileInfo _loadedFile;
+        private ContentInMainSiteFeedContext _mainSiteFeed;
         private Command _renameSelectedFileCommand;
         private bool _resizeSelectedFile;
         private Command _rotateImageLeftCommand;
@@ -60,7 +62,6 @@ namespace PointlessWaymarks.CmsWpfControls.ImageContentEditor
         private bool _selectedFileNameHasInvalidCharacters;
         private string _selectedFileValidationMessage;
         private BoolDataEntryContext _showInSearch;
-        private BoolDataEntryContext _showInSiteFeed;
         private StatusControlContext _statusContext;
         private TagsEditorContext _tagEdit;
         private TitleSummarySlugEditorContext _titleSummarySlugFolder;
@@ -181,6 +182,17 @@ namespace PointlessWaymarks.CmsWpfControls.ImageContentEditor
             {
                 if (Equals(value, _linkToClipboardCommand)) return;
                 _linkToClipboardCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public ContentInMainSiteFeedContext MainSiteFeed
+        {
+            get => _mainSiteFeed;
+            set
+            {
+                if (Equals(value, _mainSiteFeed)) return;
+                _mainSiteFeed = value;
                 OnPropertyChanged();
             }
         }
@@ -341,17 +353,6 @@ namespace PointlessWaymarks.CmsWpfControls.ImageContentEditor
             }
         }
 
-        public BoolDataEntryContext ShowInSiteFeed
-        {
-            get => _showInSiteFeed;
-            set
-            {
-                if (Equals(value, _showInSiteFeed)) return;
-                _showInSiteFeed = value;
-                OnPropertyChanged();
-            }
-        }
-
         public StatusControlContext StatusContext
         {
             get => _statusContext;
@@ -485,7 +486,9 @@ namespace PointlessWaymarks.CmsWpfControls.ImageContentEditor
             newEntry.Folder = TitleSummarySlugFolder.FolderEntry.UserValue.TrimNullToEmpty();
             newEntry.Slug = TitleSummarySlugFolder.SlugEntry.UserValue.TrimNullToEmpty();
             newEntry.Summary = TitleSummarySlugFolder.SummaryEntry.UserValue.TrimNullToEmpty();
-            newEntry.ShowInMainSiteFeed = ShowInSiteFeed.UserValue;
+            newEntry.ShowInMainSiteFeed = MainSiteFeed.ShowInMainSiteFeedEntry.UserValue;
+            newEntry.MainSiteFeedOn = MainSiteFeed.ShowInMainSiteFeedOnEntry.UserValue;
+            newEntry.IsDraft = MainSiteFeed.ShowInMainSiteFeedEntry.UserValue;
             newEntry.ShowInSearch = ShowInSearch.UserValue;
             newEntry.Tags = TagEdit.TagListString();
             newEntry.Title = TitleSummarySlugFolder.TitleEntry.UserValue.TrimNullToEmpty();
@@ -530,7 +533,7 @@ namespace PointlessWaymarks.CmsWpfControls.ImageContentEditor
             };
 
             TitleSummarySlugFolder = await TitleSummarySlugEditorContext.CreateInstance(StatusContext, DbEntry);
-            ShowInSiteFeed = BoolDataEntryContext.CreateInstanceForShowInMainSiteFeed(DbEntry, false);
+            MainSiteFeed = await ContentInMainSiteFeedContext.CreateInstance(StatusContext, DbEntry);
             ShowInSearch = BoolDataEntryContext.CreateInstanceForShowInSearch(DbEntry, true);
             CreatedUpdatedDisplay = await CreatedAndUpdatedByAndOnDisplayContext.CreateInstance(StatusContext, DbEntry);
             ContentId = await ContentIdViewerControlContext.CreateInstance(StatusContext, DbEntry);

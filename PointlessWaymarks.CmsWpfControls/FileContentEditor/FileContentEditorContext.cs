@@ -15,6 +15,7 @@ using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsWpfControls.BodyContentEditor;
 using PointlessWaymarks.CmsWpfControls.BoolDataEntry;
 using PointlessWaymarks.CmsWpfControls.ContentIdViewer;
+using PointlessWaymarks.CmsWpfControls.ContentInMainSiteFeed;
 using PointlessWaymarks.CmsWpfControls.CreatedAndUpdatedByAndOnDisplay;
 using PointlessWaymarks.CmsWpfControls.HelpDisplay;
 using PointlessWaymarks.CmsWpfControls.TagsEditor;
@@ -44,6 +45,7 @@ namespace PointlessWaymarks.CmsWpfControls.FileContentEditor
         private HelpDisplayContext _helpContext;
         private FileInfo _initialFile;
         private FileInfo _loadedFile;
+        private ContentInMainSiteFeedContext _mainSiteFeed;
         private Command _openSelectedFileDirectoryCommand;
         private string _pdfToImagePageToExtract = "1";
         private BoolDataEntryContext _publicDownloadLink;
@@ -56,7 +58,6 @@ namespace PointlessWaymarks.CmsWpfControls.FileContentEditor
         private bool _selectedFileHasValidationIssues;
         private bool _selectedFileNameHasInvalidCharacters;
         private string _selectedFileValidationMessage;
-        private BoolDataEntryContext _showInSiteFeed;
         private StatusControlContext _statusContext;
         private TagsEditorContext _tagEdit;
         private TitleSummarySlugEditorContext _titleSummarySlugFolder;
@@ -202,6 +203,17 @@ Notes:
 
         public Command LinkToClipboardCommand { get; set; }
 
+        public ContentInMainSiteFeedContext MainSiteFeed
+        {
+            get => _mainSiteFeed;
+            set
+            {
+                if (Equals(value, _mainSiteFeed)) return;
+                _mainSiteFeed = value;
+                OnPropertyChanged();
+            }
+        }
+
         public Command OpenSelectedFileCommand { get; set; }
 
         public Command OpenSelectedFileDirectoryCommand
@@ -334,17 +346,6 @@ Notes:
             {
                 if (value == _selectedFileValidationMessage) return;
                 _selectedFileValidationMessage = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public BoolDataEntryContext ShowInSiteFeed
-        {
-            get => _showInSiteFeed;
-            set
-            {
-                if (Equals(value, _showInSiteFeed)) return;
-                _showInSiteFeed = value;
                 OnPropertyChanged();
             }
         }
@@ -499,7 +500,9 @@ Notes:
             newEntry.Folder = TitleSummarySlugFolder.FolderEntry.UserValue.TrimNullToEmpty();
             newEntry.Slug = TitleSummarySlugFolder.SlugEntry.UserValue.TrimNullToEmpty();
             newEntry.Summary = TitleSummarySlugFolder.SummaryEntry.UserValue.TrimNullToEmpty();
-            newEntry.ShowInMainSiteFeed = ShowInSiteFeed.UserValue;
+            newEntry.ShowInMainSiteFeed = MainSiteFeed.ShowInMainSiteFeedEntry.UserValue;
+            newEntry.MainSiteFeedOn = MainSiteFeed.ShowInMainSiteFeedOnEntry.UserValue;
+            newEntry.IsDraft = MainSiteFeed.ShowInMainSiteFeedEntry.UserValue;
             newEntry.Tags = TagEdit.TagListString();
             newEntry.Title = TitleSummarySlugFolder.TitleEntry.UserValue.TrimNullToEmpty();
             newEntry.CreatedBy = CreatedUpdatedDisplay.CreatedByEntry.UserValue.TrimNullToEmpty();
@@ -558,11 +561,15 @@ Notes:
 
             StatusContext.Progress("Loading Data...");
 
+            var created = DateTime.Now;
+
             DbEntry = toLoad ?? new FileContent
             {
                 BodyContentFormat = UserSettingsUtilities.DefaultContentFormatChoice(),
                 UpdateNotesFormat = UserSettingsUtilities.DefaultContentFormatChoice(),
-                PublicDownloadLink = true
+                PublicDownloadLink = true,
+                CreatedOn = created,
+                MainSiteFeedOn = created
             };
 
             PublicDownloadLink = BoolDataEntryContext.CreateInstance();
@@ -599,7 +606,7 @@ Notes:
                 "Download Link' is checked and not all content types are supported.";
 
             TitleSummarySlugFolder = await TitleSummarySlugEditorContext.CreateInstance(StatusContext, DbEntry);
-            ShowInSiteFeed = BoolDataEntryContext.CreateInstanceForShowInMainSiteFeed(DbEntry, false);
+            MainSiteFeed = await ContentInMainSiteFeedContext.CreateInstance(StatusContext, DbEntry);
             CreatedUpdatedDisplay = await CreatedAndUpdatedByAndOnDisplayContext.CreateInstance(StatusContext, DbEntry);
             ContentId = await ContentIdViewerControlContext.CreateInstance(StatusContext, DbEntry);
             UpdateNotes = await UpdateNotesEditorContext.CreateInstance(StatusContext, DbEntry);

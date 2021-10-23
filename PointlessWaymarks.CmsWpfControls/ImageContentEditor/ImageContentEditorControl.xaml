@@ -19,6 +19,7 @@
     xmlns:windowScreenShot="clr-namespace:PointlessWaymarks.WpfCommon.WindowScreenShot;assembly=PointlessWaymarks.WpfCommon"
     xmlns:wpfBehavior="clr-namespace:PointlessWaymarks.WpfCommon.Behaviors;assembly=PointlessWaymarks.WpfCommon"
     xmlns:wpfConverter="clr-namespace:PointlessWaymarks.WpfCommon.ValueConverters;assembly=PointlessWaymarks.WpfCommon"
+    xmlns:contentInMainSiteFeed="clr-namespace:PointlessWaymarks.CmsWpfControls.ContentInMainSiteFeed"
     d:DataContext="{d:DesignInstance imageContentEditor:ImageContentEditorContext}"
     d:DesignHeight="300"
     d:DesignWidth="300"
@@ -136,7 +137,7 @@
                     <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
                         <StackPanel Margin="4" CanHorizontallyScroll="False">
                             <titleSummarySlugFolderEditor:TitleSummarySlugEditorControl DataContext="{Binding TitleSummarySlugFolder}" />
-                            <boolDataEntry1:BoolDataEntryControl DataContext="{Binding ShowInSiteFeed}" Style="{StaticResource DataEntryBoolStyle}" />
+                            <contentInMainSiteFeed:ContentInMainSiteFeedControl DataContext="{Binding MainSiteFeed}" />
                             <boolDataEntry1:BoolDataEntryControl DataContext="{Binding ShowInSearch}" Style="{StaticResource DataEntryBoolStyle}" />
                             <tagsEditor:TagsEditorControl DataContext="{Binding TagEdit}" Style="{StaticResource TagsEditorInPanelStyle}" />
                             <stringDataEntry:StringDataEntryControl DataContext="{Binding AltTextEntry}" />

@@ -11,7 +11,6 @@ using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.Content;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsWpfControls.BodyContentEditor;
-using PointlessWaymarks.CmsWpfControls.BoolDataEntry;
 using PointlessWaymarks.CmsWpfControls.ContentIdViewer;
 using PointlessWaymarks.CmsWpfControls.ContentInMainSiteFeed;
 using PointlessWaymarks.CmsWpfControls.CreatedAndUpdatedByAndOnDisplay;
@@ -39,6 +38,7 @@ namespace PointlessWaymarks.CmsWpfControls.PostContentEditor
         private bool _hasValidationIssues;
         private HelpDisplayContext _helpContext;
         private Command _linkToClipboardCommand;
+        private ContentInMainSiteFeedContext _mainSiteFeed;
         private Command _saveAndCloseCommand;
         private Command _saveCommand;
         private TagsEditorContext _tagEdit;
@@ -47,7 +47,6 @@ namespace PointlessWaymarks.CmsWpfControls.PostContentEditor
         private Command _viewOnSiteCommand;
 
         public EventHandler RequestContentEditorWindowClose;
-        private ContentInMainSiteFeedContext _mainSiteFeed;
 
         private PostContentEditorContext(StatusControlContext statusContext)
         {
@@ -141,6 +140,17 @@ namespace PointlessWaymarks.CmsWpfControls.PostContentEditor
             {
                 if (Equals(value, _linkToClipboardCommand)) return;
                 _linkToClipboardCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public ContentInMainSiteFeedContext MainSiteFeed
+        {
+            get => _mainSiteFeed;
+            set
+            {
+                if (Equals(value, _mainSiteFeed)) return;
+                _mainSiteFeed = value;
                 OnPropertyChanged();
             }
         }
@@ -319,15 +329,15 @@ Notes:
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            var frozenNow = DateTime.Now;
+            var created = DateTime.Now;
 
             DbEntry = toLoad ?? new PostContent
             {
                 BodyContentFormat = UserSettingsUtilities.DefaultContentFormatChoice(),
                 UpdateNotesFormat = UserSettingsUtilities.DefaultContentFormatChoice(),
                 ShowInMainSiteFeed = true,
-                CreatedOn = frozenNow,
-                MainSiteFeedOn = frozenNow
+                CreatedOn = created,
+                MainSiteFeedOn = created
             };
 
             TitleSummarySlugFolder = await TitleSummarySlugEditorContext.CreateInstance(StatusContext, DbEntry);
@@ -339,17 +349,6 @@ Notes:
             BodyContent = await BodyContentEditorContext.CreateInstance(StatusContext, DbEntry);
 
             PropertyScanners.SubscribeToChildHasChangesAndHasValidationIssues(this, CheckForChangesAndValidationIssues);
-        }
-
-        public ContentInMainSiteFeedContext MainSiteFeed
-        {
-            get => _mainSiteFeed;
-            set
-            {
-                if (Equals(value, _mainSiteFeed)) return;
-                _mainSiteFeed = value;
-                OnPropertyChanged();
-            }
         }
 
         [NotifyPropertyChangedInvocator]

@@ -11,9 +11,9 @@ using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.Content;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsWpfControls.BodyContentEditor;
-using PointlessWaymarks.CmsWpfControls.BoolDataEntry;
 using PointlessWaymarks.CmsWpfControls.ContentFolder;
 using PointlessWaymarks.CmsWpfControls.ContentIdViewer;
+using PointlessWaymarks.CmsWpfControls.ContentInMainSiteFeed;
 using PointlessWaymarks.CmsWpfControls.CreatedAndUpdatedByAndOnDisplay;
 using PointlessWaymarks.CmsWpfControls.HelpDisplay;
 using PointlessWaymarks.CmsWpfControls.StringDataEntry;
@@ -39,9 +39,9 @@ namespace PointlessWaymarks.CmsWpfControls.NoteContentEditor
         private bool _hasValidationIssues;
         private HelpDisplayContext _helpContext;
         private Command _linkToClipboardCommand;
+        private ContentInMainSiteFeedContext _mainSiteFeed;
         private Command _saveAndCloseCommand;
         private Command _saveCommand;
-        private BoolDataEntryContext _showInSiteFeed;
         private string _slug;
         private StringDataEntryContext _summary;
         private TagsEditorContext _tagEdit;
@@ -159,6 +159,17 @@ namespace PointlessWaymarks.CmsWpfControls.NoteContentEditor
             }
         }
 
+        public ContentInMainSiteFeedContext MainSiteFeed
+        {
+            get => _mainSiteFeed;
+            set
+            {
+                if (Equals(value, _mainSiteFeed)) return;
+                _mainSiteFeed = value;
+                OnPropertyChanged();
+            }
+        }
+
         public string NoteEditorHelpText =>
             @"
 ### Note Content
@@ -185,17 +196,6 @@ Note Content is like a simplified Post - no title and slug to edit or maintain a
             {
                 if (Equals(value, _saveCommand)) return;
                 _saveCommand = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public BoolDataEntryContext ShowInSiteFeed
-        {
-            get => _showInSiteFeed;
-            set
-            {
-                if (value == _showInSiteFeed) return;
-                _showInSiteFeed = value;
                 OnPropertyChanged();
             }
         }
@@ -306,7 +306,9 @@ Note Content is like a simplified Post - no title and slug to edit or maintain a
 
             newEntry.Folder = FolderEntry.UserValue.TrimNullToEmpty();
             newEntry.Summary = Summary.UserValue.TrimNullToEmpty();
-            newEntry.ShowInMainSiteFeed = ShowInSiteFeed.UserValue;
+            newEntry.ShowInMainSiteFeed = MainSiteFeed.ShowInMainSiteFeedEntry.UserValue;
+            newEntry.MainSiteFeedOn = MainSiteFeed.ShowInMainSiteFeedOnEntry.UserValue;
+            newEntry.IsDraft = MainSiteFeed.ShowInMainSiteFeedEntry.UserValue;
             newEntry.Tags = TagEdit.TagListString();
             newEntry.CreatedBy = CreatedUpdatedDisplay.CreatedByEntry.UserValue.TrimNullToEmpty();
             newEntry.BodyContent = BodyContent.BodyContent.TrimNullToEmpty();
@@ -338,16 +340,20 @@ Note Content is like a simplified Post - no title and slug to edit or maintain a
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
+            var created = DateTime.Now;
+
             DbEntry = toLoad ?? new NoteContent
             {
                 BodyContentFormat = UserSettingsUtilities.DefaultContentFormatChoice(),
-                Slug = await NoteGenerator.UniqueNoteSlug()
+                Slug = await NoteGenerator.UniqueNoteSlug(),
+                CreatedOn = created,
+                MainSiteFeedOn = created
             };
 
             FolderEntry = await ContentFolderContext.CreateInstance(StatusContext, DbEntry);
             Summary = StringDataEntryContext.CreateSummaryInstance(DbEntry);
             CreatedUpdatedDisplay = await CreatedAndUpdatedByAndOnDisplayContext.CreateInstance(StatusContext, DbEntry);
-            ShowInSiteFeed = BoolDataEntryContext.CreateInstanceForShowInMainSiteFeed(DbEntry, true);
+            MainSiteFeed = await ContentInMainSiteFeedContext.CreateInstance(StatusContext, DbEntry);
             ContentId = await ContentIdViewerControlContext.CreateInstance(StatusContext, DbEntry);
             TagEdit = TagsEditorContext.CreateInstance(StatusContext, DbEntry);
             BodyContent = await BodyContentEditorContext.CreateInstance(StatusContext, DbEntry);

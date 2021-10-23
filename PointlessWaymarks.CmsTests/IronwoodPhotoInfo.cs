@@ -262,7 +262,7 @@ namespace PointlessWaymarks.CmsTests
                 "Expected Number of Files Does Not Match");
 
             var pictureAssetInformation = PictureAssetProcessing.ProcessPictureDirectory(newContent.ContentId);
-            var pictureAssetDbEntry = (PhotoContent) pictureAssetInformation.DbEntry;
+            var pictureAssetDbEntry = (PhotoContent)pictureAssetInformation.DbEntry;
             Assert.IsTrue(pictureAssetDbEntry.ContentId == newContent.ContentId,
                 $"Picture Asset appears to have gotten an incorrect DB entry of {pictureAssetDbEntry.ContentId} rather than {newContent.ContentId}");
 
@@ -306,6 +306,7 @@ namespace PointlessWaymarks.CmsTests
             if (string.IsNullOrWhiteSpace(reference.CreatedBy))
                 reference.CreatedBy = UserSettingsSingleton.CurrentSettings().DefaultCreatedBy;
             if (reference.CreatedOn == default) reference.CreatedOn = toCompare.CreatedOn;
+            if (reference.MainSiteFeedOn == default) reference.MainSiteFeedOn = toCompare.MainSiteFeedOn;
             if (string.IsNullOrWhiteSpace(reference.LastUpdatedBy) &&
                 !string.IsNullOrWhiteSpace(toCompare.LastUpdatedBy))
                 reference.LastUpdatedBy = UserSettingsSingleton.CurrentSettings().DefaultCreatedBy;
@@ -370,7 +371,7 @@ namespace PointlessWaymarks.CmsTests
             Assert.True(jsonFile.Exists, $"Json file {jsonFile.FullName} does not exist?");
 
             var jsonFileImported = Import.ContentFromFiles<PhotoContent>(
-                new List<string> {jsonFile.FullName}, Names.PhotoContentPrefix).Single();
+                new List<string> { jsonFile.FullName }, Names.PhotoContentPrefix).Single();
             var compareLogic = new CompareLogic();
             var comparisonResult = compareLogic.Compare(newContent, jsonFileImported);
             Assert.True(comparisonResult.AreEqual,
