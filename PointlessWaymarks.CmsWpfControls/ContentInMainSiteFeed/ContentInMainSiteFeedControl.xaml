@@ -18,10 +18,10 @@
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </UserControl.Resources>
-    <StackPanel Orientation="Vertical">
-        <boolDataEntry:BoolDataEntryControl DataContext="{Binding ShowInMainSiteFeedEntry}" />
-        <conversionDataEntry:ConversionDataEntryControl DataContext="{Binding ShowInMainSiteFeedOnEntry}"
+    <StackPanel Margin="0,8,0,0" Orientation="Vertical">
+        <boolDataEntry:BoolDataEntryControl Margin="4,0,0,0" DataContext="{Binding ShowInMainSiteFeedEntry}" />
+        <conversionDataEntry:ConversionDataEntryControl Margin="0,2,0,0" DataContext="{Binding ShowInMainSiteFeedOnEntry}"
                                                         IsEnabled="{Binding Path=DataContext.ShowInMainSiteFeedEntry.UserValue, ElementName=ContentInMainSiteFeedControlXaml}" />
-        <boolDataEntry:BoolDataEntryControl DataContext="{Binding IsDraftEntry}"></boolDataEntry:BoolDataEntryControl>
+        <boolDataEntry:BoolDataEntryControl Margin="4,10,0,0" DataContext="{Binding IsDraftEntry}"></boolDataEntry:BoolDataEntryControl>
     </StackPanel>
 </UserControl>
