@@ -19,7 +19,7 @@ namespace PointlessWaymarks.CmsData.Database.Models
         [NotMapped] public DateTime LatestUpdate => LastUpdatedOn ?? CreatedOn;
         public Guid? MainPicture { get; set; }
         public bool IsDraft { get; set; }
-        public DateTime MainSiteFeedOn { get; set; }
+        public DateTime FeedOn { get; set; }
         public bool ShowInMainSiteFeed { get; set; }
         public bool ShowInSearch { get; set; }
         public string? Tags { get; set; }

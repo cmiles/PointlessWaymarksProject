@@ -28,7 +28,7 @@ namespace PointlessWaymarks.CmsTests
                 ContentId = Guid.NewGuid(),
                 CreatedBy = "Note Test",
                 CreatedOn = new DateTime(2020, 8, 17, 7, 17, 17),
-                MainSiteFeedOn = new DateTime(2020, 8, 17, 7, 17, 17),
+                FeedOn = new DateTime(2020, 8, 17, 7, 17, 17),
                 Folder = "IronwoodForest",
                 ShowInMainSiteFeed = true,
                 Summary = "Basic links for Ironwood Forest National Monument",

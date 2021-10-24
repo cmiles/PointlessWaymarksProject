@@ -306,7 +306,7 @@ namespace PointlessWaymarks.CmsTests
             if (string.IsNullOrWhiteSpace(reference.CreatedBy))
                 reference.CreatedBy = UserSettingsSingleton.CurrentSettings().DefaultCreatedBy;
             if (reference.CreatedOn == default) reference.CreatedOn = toCompare.CreatedOn;
-            if (reference.MainSiteFeedOn == default) reference.MainSiteFeedOn = toCompare.MainSiteFeedOn;
+            if (reference.FeedOn == default) reference.FeedOn = toCompare.FeedOn;
             if (string.IsNullOrWhiteSpace(reference.LastUpdatedBy) &&
                 !string.IsNullOrWhiteSpace(toCompare.LastUpdatedBy))
                 reference.LastUpdatedBy = UserSettingsSingleton.CurrentSettings().DefaultCreatedBy;

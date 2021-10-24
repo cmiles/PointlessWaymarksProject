@@ -26,7 +26,7 @@ namespace PointlessWaymarks.CmsTests
                 ContentId = Guid.NewGuid(),
                 CreatedBy = "Image Test",
                 CreatedOn = new DateTime(2020, 7, 25, 5, 55, 55),
-                MainSiteFeedOn = new DateTime(2020, 7, 25, 5, 55, 55),
+                FeedOn = new DateTime(2020, 7, 25, 5, 55, 55),
                 Folder = "Maps",
                 Title = "Ironwood Forest National Monument Map Cover Page",
                 ShowInMainSiteFeed = false,

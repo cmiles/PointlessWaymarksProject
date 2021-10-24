@@ -484,10 +484,10 @@ namespace PointlessWaymarks.CmsData.Content
             var isValid = true;
             var errorMessage = new List<string>();
 
-            if (toValidate.MainSiteFeedOn == DateTime.MinValue)
+            if (toValidate.FeedOn == DateTime.MinValue)
             {
                 isValid = false;
-                errorMessage.Add($"Main Site Feed On date of {toValidate.MainSiteFeedOn} is not valid.");
+                errorMessage.Add($"Main Site Feed On date of {toValidate.FeedOn} is not valid.");
             }
 
             return new IsValid(isValid, string.Join(Environment.NewLine, errorMessage));

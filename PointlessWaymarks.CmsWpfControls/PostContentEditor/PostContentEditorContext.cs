@@ -293,7 +293,7 @@ Notes:
             newEntry.Slug = TitleSummarySlugFolder.SlugEntry.UserValue.TrimNullToEmpty();
             newEntry.Summary = TitleSummarySlugFolder.SummaryEntry.UserValue.TrimNullToEmpty();
             newEntry.ShowInMainSiteFeed = MainSiteFeed.ShowInMainSiteFeedEntry.UserValue;
-            newEntry.MainSiteFeedOn = MainSiteFeed.ShowInMainSiteFeedOnEntry.UserValue;
+            newEntry.FeedOn = MainSiteFeed.ShowInMainSiteFeedOnEntry.UserValue;
             newEntry.IsDraft = MainSiteFeed.ShowInMainSiteFeedEntry.UserValue;
             newEntry.Tags = TagEdit.TagListString();
             newEntry.Title = TitleSummarySlugFolder.TitleEntry.UserValue.TrimNullToEmpty();
@@ -337,7 +337,7 @@ Notes:
                 UpdateNotesFormat = UserSettingsUtilities.DefaultContentFormatChoice(),
                 ShowInMainSiteFeed = true,
                 CreatedOn = created,
-                MainSiteFeedOn = created
+                FeedOn = created
             };
 
             TitleSummarySlugFolder = await TitleSummarySlugEditorContext.CreateInstance(StatusContext, DbEntry);

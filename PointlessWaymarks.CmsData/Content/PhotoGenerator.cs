@@ -332,7 +332,7 @@ namespace PointlessWaymarks.CmsData.Content
                 ? UserSettingsSingleton.CurrentSettings().DefaultCreatedBy
                 : photoContentCreatedBy.Trim();
             toReturn.CreatedOn = created;
-            toReturn.MainSiteFeedOn = created;
+            toReturn.FeedOn = created;
             toReturn.Slug = SlugUtility.Create(true, toReturn.Title);
             toReturn.BodyContentFormat = ContentFormatDefaults.Content.ToString();
             toReturn.UpdateNotesFormat = ContentFormatDefaults.Content.ToString();

@@ -487,7 +487,7 @@ namespace PointlessWaymarks.CmsWpfControls.ImageContentEditor
             newEntry.Slug = TitleSummarySlugFolder.SlugEntry.UserValue.TrimNullToEmpty();
             newEntry.Summary = TitleSummarySlugFolder.SummaryEntry.UserValue.TrimNullToEmpty();
             newEntry.ShowInMainSiteFeed = MainSiteFeed.ShowInMainSiteFeedEntry.UserValue;
-            newEntry.MainSiteFeedOn = MainSiteFeed.ShowInMainSiteFeedOnEntry.UserValue;
+            newEntry.FeedOn = MainSiteFeed.ShowInMainSiteFeedOnEntry.UserValue;
             newEntry.IsDraft = MainSiteFeed.ShowInMainSiteFeedEntry.UserValue;
             newEntry.ShowInSearch = ShowInSearch.UserValue;
             newEntry.Tags = TagEdit.TagListString();

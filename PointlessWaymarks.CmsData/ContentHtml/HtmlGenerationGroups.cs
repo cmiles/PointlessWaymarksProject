@@ -156,7 +156,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml
         {
             var db = await Db.Context().ConfigureAwait(false);
 
-            var allItems = await db.FileContents.ToListAsync().ConfigureAwait(false);
+            var allItems = await db.FileContents.Where(x => !x.IsDraft).ToListAsync().ConfigureAwait(false);
 
             var totalCount = allItems.Count;
 
@@ -176,7 +176,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml
         {
             var db = await Db.Context().ConfigureAwait(false);
 
-            var allItems = await db.GeoJsonContents.ToListAsync().ConfigureAwait(false);
+            var allItems = await db.GeoJsonContents.Where(x => !x.IsDraft).ToListAsync().ConfigureAwait(false);
 
             var totalCount = allItems.Count;
 
@@ -245,7 +245,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml
         {
             var db = await Db.Context().ConfigureAwait(false);
 
-            var allItems = await db.ImageContents.ToListAsync().ConfigureAwait(false);
+            var allItems = await db.ImageContents.Where(x => !x.IsDraft).ToListAsync().ConfigureAwait(false);
 
             var totalCount = allItems.Count;
 
@@ -265,7 +265,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml
         {
             var db = await Db.Context().ConfigureAwait(false);
 
-            var allItems = await db.LineContents.ToListAsync().ConfigureAwait(false);
+            var allItems = await db.LineContents.Where(x => !x.IsDraft).ToListAsync().ConfigureAwait(false);
 
             var totalCount = allItems.Count;
 
@@ -336,7 +336,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml
         {
             var db = await Db.Context().ConfigureAwait(false);
 
-            var allItems = await db.NoteContents.ToListAsync().ConfigureAwait(false);
+            var allItems = await db.NoteContents.Where(x => !x.IsDraft).ToListAsync().ConfigureAwait(false);
 
             var totalCount = allItems.Count;
 
@@ -356,7 +356,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml
         {
             var db = await Db.Context().ConfigureAwait(false);
 
-            var allItems = await db.PhotoContents.ToListAsync().ConfigureAwait(false);
+            var allItems = await db.PhotoContents.Where(x => !x.IsDraft).ToListAsync().ConfigureAwait(false);
 
             var totalCount = allItems.Count;
 
@@ -378,7 +378,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml
 
             var db = await Db.Context().ConfigureAwait(false);
 
-            var allItems = await db.PointContents.ToListAsync().ConfigureAwait(false);
+            var allItems = await db.PointContents.Where(x => !x.IsDraft).ToListAsync().ConfigureAwait(false);
 
             var totalCount = allItems.Count;
 
@@ -411,7 +411,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml
         {
             var db = await Db.Context().ConfigureAwait(false);
 
-            var allItems = await db.PostContents.ToListAsync().ConfigureAwait(false);
+            var allItems = await db.PostContents.Where(x => !x.IsDraft).ToListAsync().ConfigureAwait(false);
 
             var totalCount = allItems.Count;
 
@@ -1373,7 +1373,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml
 
             progress?.Report("Getting list of all Photo Dates and Content");
 
-            var allPhotoInfo = await db.PhotoContents.AsNoTracking().ToListAsync().ConfigureAwait(false);
+            var allPhotoInfo = await db.PhotoContents.Where(x => !x.IsDraft).AsNoTracking().ToListAsync().ConfigureAwait(false);
 
             var datesAndContent = allPhotoInfo.GroupBy(x => x.PhotoCreatedOn.Date)
                 .Select(x => new { date = x.Key, contentIds = x.Select(y => y.ContentId) })

@@ -54,7 +54,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml.PhotoGalleryHtml
 
             progress?.Report("Starting Daily Photo Pages Generation");
 
-            var allDates = (await db.PhotoContents.Select(x => x.PhotoCreatedOn).ToListAsync().ConfigureAwait(false)).Select(x => x.Date)
+            var allDates = (await db.PhotoContents.Where(x => !x.IsDraft).Select(x => x.PhotoCreatedOn).ToListAsync().ConfigureAwait(false)).Select(x => x.Date)
                 .Distinct().OrderByDescending(x => x).ToList();
 
             progress?.Report($"Found {allDates.Count} Dates with Photos");
@@ -91,7 +91,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml.PhotoGalleryHtml
             var startsAfterOrOn = dateTimeForPictures.Date;
             var endsBefore = dateTimeForPictures.AddDays(1).Date;
 
-            var datePhotos = await db.PhotoContents
+            var datePhotos = await db.PhotoContents.Where(x => !x.IsDraft)
                 .Where(x => x.PhotoCreatedOn >= startsAfterOrOn && x.PhotoCreatedOn < endsBefore)
                 .OrderBy(x => x.PhotoCreatedOn).ToListAsync().ConfigureAwait(false);
 

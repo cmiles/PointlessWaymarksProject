@@ -24,14 +24,14 @@ namespace PointlessWaymarks.CmsData.ContentHtml.SearchListHtml
             {
                 //!!Content Type List!!
                 var db = Db.Context().Result;
-                var fileContent = db.FileContents.Cast<object>().ToList();
-                var geoJsonContent = db.GeoJsonContents.Cast<object>().ToList();
-                var imageContent = db.ImageContents.Where(x => x.ShowInSearch).Cast<object>().ToList();
-                var lineContent = db.LineContents.Cast<object>().ToList();
-                var noteContent = db.NoteContents.Cast<object>().ToList();
-                var photoContent = db.PhotoContents.Cast<object>().ToList();
-                var pointContent = db.PointContents.Cast<object>().ToList();
-                var postContent = db.PostContents.Cast<object>().ToList();
+                var fileContent = db.FileContents.Where(x => !x.IsDraft).Cast<object>().ToList();
+                var geoJsonContent = db.GeoJsonContents.Where(x => !x.IsDraft).Cast<object>().ToList();
+                var imageContent = db.ImageContents.Where(x => !x.IsDraft && x.ShowInSearch).Cast<object>().ToList();
+                var lineContent = db.LineContents.Where(x => !x.IsDraft).Cast<object>().ToList();
+                var noteContent = db.NoteContents.Where(x => !x.IsDraft).Cast<object>().ToList();
+                var photoContent = db.PhotoContents.Where(x => !x.IsDraft).Cast<object>().ToList();
+                var pointContent = db.PointContents.Where(x => !x.IsDraft).Cast<object>().ToList();
+                var postContent = db.PostContents.Where(x => !x.IsDraft).Cast<object>().ToList();
 
                 return fileContent.Concat(geoJsonContent).Concat(imageContent).Concat(lineContent).Concat(noteContent)
                     .Concat(photoContent).Concat(pointContent).Concat(postContent)
@@ -43,7 +43,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml.SearchListHtml
             await WriteSearchListHtml(ContentList, fileInfo, "All Content",
                 UserSettingsSingleton.CurrentSettings().AllContentRssUrl(), generationVersion, progress).ConfigureAwait(false);
             RssBuilder.WriteContentCommonListRss(
-                ContentList().Cast<IContentCommon>().OrderByDescending(x => x.CreatedOn).Take(MaxNumberOfRssEntries)
+                ContentList().Cast<IContentCommon>().OrderByDescending(x => x.FeedOn).Take(MaxNumberOfRssEntries)
                     .ToList(), UserSettingsSingleton.CurrentSettings().LocalSiteAllContentRssFile(), "All Content",
                 progress);
         }
@@ -54,7 +54,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml.SearchListHtml
             static List<object> ContentList()
             {
                 var db = Db.Context().Result;
-                return db.FileContents.OrderBy(x => x.Title).Cast<object>().ToList();
+                return db.FileContents.Where(x => !x.IsDraft).OrderBy(x => x.Title).Cast<object>().ToList();
             }
 
             var fileInfo = UserSettingsSingleton.CurrentSettings().LocalSiteFileListFile();
@@ -63,7 +63,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml.SearchListHtml
                 UserSettingsSingleton.CurrentSettings().FileRssUrl(),
                 generationVersion, progress).ConfigureAwait(false);
             RssBuilder.WriteContentCommonListRss(
-                ContentList().Cast<IContentCommon>().OrderByDescending(x => x.CreatedOn).Take(MaxNumberOfRssEntries)
+                ContentList().Cast<IContentCommon>().OrderByDescending(x => x.FeedOn).Take(MaxNumberOfRssEntries)
                     .ToList(), UserSettingsSingleton.CurrentSettings().LocalSiteFileRssFile(), "Files", progress);
         }
 
@@ -74,7 +74,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml.SearchListHtml
             static List<object> ContentList()
             {
                 var db = Db.Context().Result;
-                return db.ImageContents.Where(x => x.ShowInSearch).OrderBy(x => x.Title).Cast<object>().ToList();
+                return db.ImageContents.Where(x => !x.IsDraft && x.ShowInSearch).OrderBy(x => x.Title).Cast<object>().ToList();
             }
 
             var fileInfo = UserSettingsSingleton.CurrentSettings().LocalSiteImageListFile();
@@ -83,7 +83,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml.SearchListHtml
                 UserSettingsSingleton.CurrentSettings().ImageRssUrl(),
                 generationVersion, progress).ConfigureAwait(false);
             RssBuilder.WriteContentCommonListRss(
-                ContentList().Cast<IContentCommon>().OrderByDescending(x => x.CreatedOn).Take(MaxNumberOfRssEntries)
+                ContentList().Cast<IContentCommon>().OrderByDescending(x => x.FeedOn).Take(MaxNumberOfRssEntries)
                     .ToList(), UserSettingsSingleton.CurrentSettings().LocalSiteImageRssFile(), "Images", progress);
         }
 
@@ -93,7 +93,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml.SearchListHtml
             static List<object> ContentList()
             {
                 var db = Db.Context().Result;
-                return db.NoteContents.ToList().OrderByDescending(x => x.Title).Cast<object>().ToList();
+                return db.NoteContents.Where(x => !x.IsDraft).ToList().OrderByDescending(x => x.Title).Cast<object>().ToList();
             }
 
             var fileInfo = UserSettingsSingleton.CurrentSettings().LocalSiteNoteListFile();
@@ -102,7 +102,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml.SearchListHtml
                 UserSettingsSingleton.CurrentSettings().NoteRssUrl(),
                 generationVersion, progress).ConfigureAwait(false);
             RssBuilder.WriteContentCommonListRss(
-                ContentList().Cast<IContentCommon>().OrderByDescending(x => x.CreatedOn).Take(MaxNumberOfRssEntries)
+                ContentList().Cast<IContentCommon>().OrderByDescending(x => x.FeedOn).Take(MaxNumberOfRssEntries)
                     .ToList(), UserSettingsSingleton.CurrentSettings().LocalSiteNoteRssFile(), "Notes", progress);
         }
 
@@ -112,7 +112,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml.SearchListHtml
             static List<object> ContentList()
             {
                 var db = Db.Context().Result;
-                return db.PhotoContents.OrderBy(x => x.Title).Cast<object>().ToList();
+                return db.PhotoContents.Where(x => !x.IsDraft).OrderBy(x => x.Title).Cast<object>().ToList();
             }
 
             var fileInfo = UserSettingsSingleton.CurrentSettings().LocalSitePhotoListFile();
@@ -121,7 +121,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml.SearchListHtml
                 UserSettingsSingleton.CurrentSettings().PhotoRssUrl(),
                 generationVersion, progress).ConfigureAwait(false);
             RssBuilder.WriteContentCommonListRss(
-                ContentList().Cast<IContentCommon>().OrderByDescending(x => x.CreatedOn).Take(MaxNumberOfRssEntries)
+                ContentList().Cast<IContentCommon>().OrderByDescending(x => x.FeedOn).Take(MaxNumberOfRssEntries)
                     .ToList(), UserSettingsSingleton.CurrentSettings().LocalSitePhotoRssFile(), "Photos", progress);
         }
 
@@ -131,7 +131,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml.SearchListHtml
             static List<object> ContentList()
             {
                 var db = Db.Context().Result;
-                return db.PointContents.OrderBy(x => x.Title).Cast<object>().ToList();
+                return db.PointContents.Where(x => !x.IsDraft).OrderBy(x => x.Title).Cast<object>().ToList();
             }
 
             var fileInfo = UserSettingsSingleton.CurrentSettings().LocalSitePointListFile();
@@ -140,7 +140,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml.SearchListHtml
                 UserSettingsSingleton.CurrentSettings().PointsRssUrl(),
                 generationVersion, progress).ConfigureAwait(false);
             RssBuilder.WriteContentCommonListRss(
-                ContentList().Cast<IContentCommon>().OrderByDescending(x => x.CreatedOn).Take(MaxNumberOfRssEntries)
+                ContentList().Cast<IContentCommon>().OrderByDescending(x => x.FeedOn).Take(MaxNumberOfRssEntries)
                     .ToList(), UserSettingsSingleton.CurrentSettings().LocalSitePointRssFile(), "Points", progress);
         }
 
@@ -150,7 +150,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml.SearchListHtml
             static List<object> ContentList()
             {
                 var db = Db.Context().Result;
-                return db.PostContents.OrderBy(x => x.Title).Cast<object>().ToList();
+                return db.PostContents.Where(x => !x.IsDraft).OrderBy(x => x.Title).Cast<object>().ToList();
             }
 
             var fileInfo = UserSettingsSingleton.CurrentSettings().LocalSitePostListFile();
@@ -159,7 +159,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml.SearchListHtml
                 UserSettingsSingleton.CurrentSettings().PostsRssUrl(),
                 generationVersion, progress).ConfigureAwait(false);
             RssBuilder.WriteContentCommonListRss(
-                ContentList().Cast<IContentCommon>().OrderByDescending(x => x.CreatedOn).Take(MaxNumberOfRssEntries)
+                ContentList().Cast<IContentCommon>().OrderByDescending(x => x.FeedOn).Take(MaxNumberOfRssEntries)
                     .ToList(), UserSettingsSingleton.CurrentSettings().LocalSitePostRssFile(), "Posts", progress);
         }
 

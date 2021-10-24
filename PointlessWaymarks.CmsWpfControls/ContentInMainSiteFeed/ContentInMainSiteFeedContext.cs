@@ -135,11 +135,11 @@ namespace PointlessWaymarks.CmsWpfControls.ContentInMainSiteFeed
 
             ShowInMainSiteFeedOnEntry =
                 ConversionDataEntryContext<DateTime>.CreateInstance(ConversionDataEntryHelpers.DateTimeConversion);
-            ShowInMainSiteFeedOnEntry.Title = "Show in Main Site Feed On";
+            ShowInMainSiteFeedOnEntry.Title = "Show in Site Feeds On";
             ShowInMainSiteFeedOnEntry.HelpText =
                 "Sets when (if enabled) the content will appear on the Front Page and in RSS Feeds";
-            ShowInMainSiteFeedOnEntry.ReferenceValue = DbEntry.MainSiteFeedOn;
-            ShowInMainSiteFeedOnEntry.UserText = DbEntry.MainSiteFeedOn.ToString("MM/dd/yyyy h:mm:ss tt");
+            ShowInMainSiteFeedOnEntry.ReferenceValue = DbEntry.FeedOn;
+            ShowInMainSiteFeedOnEntry.UserText = DbEntry.FeedOn.ToString("MM/dd/yyyy h:mm:ss tt");
 
             IsDraftEntry = BoolDataEntryContext.CreateInstanceForIsDraft(DbEntry, false);
 

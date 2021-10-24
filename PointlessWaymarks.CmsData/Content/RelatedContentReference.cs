@@ -76,28 +76,28 @@ namespace PointlessWaymarks.CmsData.Content
                 async () =>
                 {
                     var db = await Db.Context().ConfigureAwait(false);
-                    var files = (await db.FileContents.ToListAsync().ConfigureAwait(false)).Cast<IContentCommon>().ToList();
+                    var files = (await db.FileContents.Where(x => !x.IsDraft).ToListAsync().ConfigureAwait(false)).Cast<IContentCommon>().ToList();
                     progress?.Report($"Processing {files.Count} File Content Entries for Related Content");
                     await ExtractAndWriteRelatedContentDbReferences(generationVersion, files, db, progress).ConfigureAwait(false);
                 },
                 async () =>
                 {
                     var db = await Db.Context().ConfigureAwait(false);
-                    var geoJson = (await db.GeoJsonContents.ToListAsync().ConfigureAwait(false)).Cast<IContentCommon>().ToList();
+                    var geoJson = (await db.GeoJsonContents.Where(x => !x.IsDraft).ToListAsync().ConfigureAwait(false)).Cast<IContentCommon>().ToList();
                     progress?.Report($"Processing {geoJson.Count} GeoJson Content Entries for Related Content");
                     await ExtractAndWriteRelatedContentDbReferences(generationVersion, geoJson, db, progress).ConfigureAwait(false);
                 },
                 async () =>
                 {
                     var db = await Db.Context().ConfigureAwait(false);
-                    var images = (await db.ImageContents.ToListAsync().ConfigureAwait(false)).Cast<IContentCommon>().ToList();
+                    var images = (await db.ImageContents.Where(x => !x.IsDraft).ToListAsync().ConfigureAwait(false)).Cast<IContentCommon>().ToList();
                     progress?.Report($"Processing {images.Count} Image Content Entries for Related Content");
                     await ExtractAndWriteRelatedContentDbReferences(generationVersion, images, db, progress).ConfigureAwait(false);
                 },
                 async () =>
                 {
                     var db = await Db.Context().ConfigureAwait(false);
-                    var lines = (await db.LineContents.ToListAsync().ConfigureAwait(false)).Cast<IContentCommon>().ToList();
+                    var lines = (await db.LineContents.Where(x => !x.IsDraft).ToListAsync().ConfigureAwait(false)).Cast<IContentCommon>().ToList();
                     progress?.Report($"Processing {lines.Count} Line Content Entries for Related Content");
                     await ExtractAndWriteRelatedContentDbReferences(generationVersion, lines, db, progress).ConfigureAwait(false);
                 },
@@ -116,28 +116,28 @@ namespace PointlessWaymarks.CmsData.Content
                 async () =>
                 {
                     var db = await Db.Context().ConfigureAwait(false);
-                    var notes = (await db.NoteContents.ToListAsync().ConfigureAwait(false)).Cast<IContentCommon>().ToList();
+                    var notes = (await db.NoteContents.Where(x => !x.IsDraft).ToListAsync().ConfigureAwait(false)).Cast<IContentCommon>().ToList();
                     progress?.Report($"Processing {notes.Count} Note Content Entries for Related Content");
                     await ExtractAndWriteRelatedContentDbReferences(generationVersion, notes, db, progress).ConfigureAwait(false);
                 },
                 async () =>
                 {
                     var db = await Db.Context().ConfigureAwait(false);
-                    var photos = (await db.PhotoContents.ToListAsync().ConfigureAwait(false)).Cast<IContentCommon>().ToList();
+                    var photos = (await db.PhotoContents.Where(x => !x.IsDraft).ToListAsync().ConfigureAwait(false)).Cast<IContentCommon>().ToList();
                     progress?.Report($"Processing {photos.Count} Photo Content Entries for Related Content");
                     await ExtractAndWriteRelatedContentDbReferences(generationVersion, photos, db, progress).ConfigureAwait(false);
                 },
                 async () =>
                 {
                     var db = await Db.Context().ConfigureAwait(false);
-                    var points = (await db.PointContents.ToListAsync().ConfigureAwait(false)).Cast<IContentCommon>().ToList();
+                    var points = (await db.PointContents.Where(x => !x.IsDraft).ToListAsync().ConfigureAwait(false)).Cast<IContentCommon>().ToList();
                     progress?.Report($"Processing {points.Count} Point Content Entries for Related Content");
                     await ExtractAndWriteRelatedContentDbReferences(generationVersion, points, db, progress).ConfigureAwait(false);
                 },
                 async () =>
                 {
                     var db = await Db.Context().ConfigureAwait(false);
-                    var posts = (await db.PostContents.ToListAsync().ConfigureAwait(false)).Cast<IContentCommon>().ToList();
+                    var posts = (await db.PostContents.Where(x => !x.IsDraft).ToListAsync().ConfigureAwait(false)).Cast<IContentCommon>().ToList();
                     progress?.Report($"Processing {posts.Count} Post Content Entries for Related Content");
                     await ExtractAndWriteRelatedContentDbReferences(generationVersion, posts, db, progress).ConfigureAwait(false);
                 }

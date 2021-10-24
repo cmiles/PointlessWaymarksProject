@@ -18,7 +18,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml.PhotoGalleryHtml
 
             progress?.Report("Starting Camera Roll Generation");
 
-            var allDates = (await db.PhotoContents.Select(x => x.PhotoCreatedOn).ToListAsync().ConfigureAwait(false)).Select(x => x.Date)
+            var allDates = (await db.PhotoContents.Where(x => !x.IsDraft).Select(x => x.PhotoCreatedOn).ToListAsync().ConfigureAwait(false)).Select(x => x.Date)
                 .Distinct().OrderByDescending(x => x).ToList();
 
             progress?.Report($"Found {allDates.Count} Dates with Photos for Camera Roll");

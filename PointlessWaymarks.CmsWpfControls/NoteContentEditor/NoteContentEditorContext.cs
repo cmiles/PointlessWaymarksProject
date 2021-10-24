@@ -307,7 +307,7 @@ Note Content is like a simplified Post - no title and slug to edit or maintain a
             newEntry.Folder = FolderEntry.UserValue.TrimNullToEmpty();
             newEntry.Summary = Summary.UserValue.TrimNullToEmpty();
             newEntry.ShowInMainSiteFeed = MainSiteFeed.ShowInMainSiteFeedEntry.UserValue;
-            newEntry.MainSiteFeedOn = MainSiteFeed.ShowInMainSiteFeedOnEntry.UserValue;
+            newEntry.FeedOn = MainSiteFeed.ShowInMainSiteFeedOnEntry.UserValue;
             newEntry.IsDraft = MainSiteFeed.ShowInMainSiteFeedEntry.UserValue;
             newEntry.Tags = TagEdit.TagListString();
             newEntry.CreatedBy = CreatedUpdatedDisplay.CreatedByEntry.UserValue.TrimNullToEmpty();
@@ -347,7 +347,7 @@ Note Content is like a simplified Post - no title and slug to edit or maintain a
                 BodyContentFormat = UserSettingsUtilities.DefaultContentFormatChoice(),
                 Slug = await NoteGenerator.UniqueNoteSlug(),
                 CreatedOn = created,
-                MainSiteFeedOn = created
+                FeedOn = created
             };
 
             FolderEntry = await ContentFolderContext.CreateInstance(StatusContext, DbEntry);

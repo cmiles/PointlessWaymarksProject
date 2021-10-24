@@ -6,6 +6,14 @@
                     DbEntry.ContentVersion.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fffffff") #>" data-generationversion="<#=
                     GenerationVersion?.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fffffff") ?? string.Empty #>" lang="<#= LangAttribute #>" dir="<#= DirAttribute #>">
     <meta charset="utf-8">
+            <#
+    if (DbEntry.IsDraft)
+    {
+#>
+        <meta name="robots" content="noindex" />
+    <#
+    }
+#>
     <title><#= Title.HtmlEncode() #></title>
     <meta name="author" content="<#= DbEntry.CreatedBy.HtmlEncode() #>">
     <meta name="keywords" content="<#= DbEntry.Tags.HtmlEncode() #>" >

@@ -696,102 +696,102 @@ namespace PointlessWaymarks.CmsData.Database
         {
             var db = await Context().ConfigureAwait(false);
             var fileContent =
-                await db.FileContents.Where(x => x.ShowInMainSiteFeed).Cast<IContentCommon>().ToListAsync().ConfigureAwait(false);
-            var geoJsonContent = await db.GeoJsonContents.Where(x => x.ShowInMainSiteFeed).Cast<IContentCommon>()
+                await db.FileContents.Where(x => x.ShowInMainSiteFeed && !x.IsDraft).Cast<IContentCommon>().ToListAsync().ConfigureAwait(false);
+            var geoJsonContent = await db.GeoJsonContents.Where(x => x.ShowInMainSiteFeed && !x.IsDraft).Cast<IContentCommon>()
                 .ToListAsync().ConfigureAwait(false);
-            var imageContent = await db.ImageContents.Where(x => x.ShowInMainSiteFeed).Cast<IContentCommon>()
+            var imageContent = await db.ImageContents.Where(x => x.ShowInMainSiteFeed && !x.IsDraft).Cast<IContentCommon>()
                 .ToListAsync().ConfigureAwait(false);
             var lineContent =
-                await db.LineContents.Where(x => x.ShowInMainSiteFeed).Cast<IContentCommon>().ToListAsync().ConfigureAwait(false);
+                await db.LineContents.Where(x => x.ShowInMainSiteFeed && !x.IsDraft).Cast<IContentCommon>().ToListAsync().ConfigureAwait(false);
             var noteContent =
-                await db.NoteContents.Where(x => x.ShowInMainSiteFeed).Cast<IContentCommon>().ToListAsync().ConfigureAwait(false);
-            var photoContent = await db.PhotoContents.Where(x => x.ShowInMainSiteFeed).Cast<IContentCommon>()
+                await db.NoteContents.Where(x => x.ShowInMainSiteFeed && !x.IsDraft).Cast<IContentCommon>().ToListAsync().ConfigureAwait(false);
+            var photoContent = await db.PhotoContents.Where(x => x.ShowInMainSiteFeed && !x.IsDraft).Cast<IContentCommon>()
                 .ToListAsync().ConfigureAwait(false);
-            var pointContent = await db.PointContents.Where(x => x.ShowInMainSiteFeed).Cast<IContentCommon>()
+            var pointContent = await db.PointContents.Where(x => x.ShowInMainSiteFeed && !x.IsDraft).Cast<IContentCommon>()
                 .ToListAsync().ConfigureAwait(false);
             var postContent =
-                await db.PostContents.Where(x => x.ShowInMainSiteFeed).Cast<IContentCommon>().ToListAsync().ConfigureAwait(false);
+                await db.PostContents.Where(x => x.ShowInMainSiteFeed && !x.IsDraft).Cast<IContentCommon>().ToListAsync().ConfigureAwait(false);
 
             return fileContent.Concat(geoJsonContent).Concat(imageContent).Concat(lineContent).Concat(noteContent)
-                .Concat(postContent).Concat(photoContent).Concat(pointContent).OrderByDescending(x => x.CreatedOn)
+                .Concat(postContent).Concat(photoContent).Concat(pointContent).OrderByDescending(x => x.FeedOn)
                 .ToList();
         }
 
         public static async Task<List<IContentCommon>> MainFeedCommonContentAfter(DateTime after, int numberOfEntries)
         {
             var db = await Context().ConfigureAwait(false);
-            var fileContent = await db.FileContents.Where(x => x.ShowInMainSiteFeed && x.CreatedOn > after)
-                .OrderByDescending(x => x.CreatedOn).Take(numberOfEntries).Cast<IContentCommon>().ToListAsync().ConfigureAwait(false);
-            var geoJsonContent = await db.GeoJsonContents.Where(x => x.ShowInMainSiteFeed && x.CreatedOn > after)
-                .OrderByDescending(x => x.CreatedOn).Take(numberOfEntries).Cast<IContentCommon>().ToListAsync().ConfigureAwait(false);
-            var imageContent = await db.ImageContents.Where(x => x.ShowInMainSiteFeed && x.CreatedOn > after)
-                .OrderByDescending(x => x.CreatedOn).Take(numberOfEntries).Cast<IContentCommon>().ToListAsync().ConfigureAwait(false);
-            var lineContent = await db.LineContents.Where(x => x.ShowInMainSiteFeed && x.CreatedOn > after)
-                .OrderByDescending(x => x.CreatedOn).Take(numberOfEntries).Cast<IContentCommon>().ToListAsync().ConfigureAwait(false);
-            var noteContent = await db.NoteContents.Where(x => x.ShowInMainSiteFeed && x.CreatedOn > after)
-                .OrderByDescending(x => x.CreatedOn).Take(numberOfEntries).Cast<IContentCommon>().ToListAsync().ConfigureAwait(false);
-            var photoContent = await db.PhotoContents.Where(x => x.ShowInMainSiteFeed && x.CreatedOn > after)
-                .OrderByDescending(x => x.CreatedOn).Take(numberOfEntries).Cast<IContentCommon>().ToListAsync().ConfigureAwait(false);
-            var pointContent = await db.PointContents.Where(x => x.ShowInMainSiteFeed && x.CreatedOn > after)
-                .OrderByDescending(x => x.CreatedOn).Take(numberOfEntries).Cast<IContentCommon>().ToListAsync().ConfigureAwait(false);
-            var postContent = await db.PostContents.Where(x => x.ShowInMainSiteFeed && x.CreatedOn > after)
-                .OrderByDescending(x => x.CreatedOn).Take(numberOfEntries).Cast<IContentCommon>().ToListAsync().ConfigureAwait(false);
+            var fileContent = await db.FileContents.Where(x => x.ShowInMainSiteFeed && !x.IsDraft && x.FeedOn > after)
+                .OrderByDescending(x => x.FeedOn).Take(numberOfEntries).Cast<IContentCommon>().ToListAsync().ConfigureAwait(false);
+            var geoJsonContent = await db.GeoJsonContents.Where(x => x.ShowInMainSiteFeed && !x.IsDraft && x.FeedOn > after)
+                .OrderByDescending(x => x.FeedOn).Take(numberOfEntries).Cast<IContentCommon>().ToListAsync().ConfigureAwait(false);
+            var imageContent = await db.ImageContents.Where(x => x.ShowInMainSiteFeed && !x.IsDraft && x.FeedOn > after)
+                .OrderByDescending(x => x.FeedOn).Take(numberOfEntries).Cast<IContentCommon>().ToListAsync().ConfigureAwait(false);
+            var lineContent = await db.LineContents.Where(x => x.ShowInMainSiteFeed && !x.IsDraft && x.FeedOn > after)
+                .OrderByDescending(x => x.FeedOn).Take(numberOfEntries).Cast<IContentCommon>().ToListAsync().ConfigureAwait(false);
+            var noteContent = await db.NoteContents.Where(x => x.ShowInMainSiteFeed && !x.IsDraft && x.FeedOn > after)
+                .OrderByDescending(x => x.FeedOn).Take(numberOfEntries).Cast<IContentCommon>().ToListAsync().ConfigureAwait(false);
+            var photoContent = await db.PhotoContents.Where(x => x.ShowInMainSiteFeed && !x.IsDraft && x.FeedOn > after)
+                .OrderByDescending(x => x.FeedOn).Take(numberOfEntries).Cast<IContentCommon>().ToListAsync().ConfigureAwait(false);
+            var pointContent = await db.PointContents.Where(x => x.ShowInMainSiteFeed && !x.IsDraft && x.FeedOn > after)
+                .OrderByDescending(x => x.FeedOn).Take(numberOfEntries).Cast<IContentCommon>().ToListAsync().ConfigureAwait(false);
+            var postContent = await db.PostContents.Where(x => x.ShowInMainSiteFeed && !x.IsDraft && x.FeedOn > after)
+                .OrderByDescending(x => x.FeedOn).Take(numberOfEntries).Cast<IContentCommon>().ToListAsync().ConfigureAwait(false);
 
             return fileContent.Concat(geoJsonContent).Concat(imageContent).Concat(lineContent).Concat(noteContent)
-                .Concat(photoContent).Concat(postContent).Concat(pointContent).OrderBy(x => x.CreatedOn)
+                .Concat(photoContent).Concat(postContent).Concat(pointContent).OrderBy(x => x.FeedOn)
                 .Take(numberOfEntries).ToList();
         }
 
         public static async Task<List<IContentCommon>> MainFeedCommonContentBefore(DateTime before, int numberOfEntries)
         {
             var db = await Context().ConfigureAwait(false);
-            var fileContent = await db.FileContents.Where(x => x.ShowInMainSiteFeed && x.CreatedOn < before)
-                .OrderByDescending(x => x.CreatedOn).Take(numberOfEntries).Cast<IContentCommon>().ToListAsync().ConfigureAwait(false);
-            var geoJsonContent = await db.GeoJsonContents.Where(x => x.ShowInMainSiteFeed && x.CreatedOn < before)
-                .OrderByDescending(x => x.CreatedOn).Take(numberOfEntries).Cast<IContentCommon>().ToListAsync().ConfigureAwait(false);
-            var imageContent = await db.ImageContents.Where(x => x.ShowInMainSiteFeed && x.CreatedOn < before)
-                .OrderByDescending(x => x.CreatedOn).Take(numberOfEntries).Cast<IContentCommon>().ToListAsync().ConfigureAwait(false);
-            var lineContent = await db.LineContents.Where(x => x.ShowInMainSiteFeed && x.CreatedOn < before)
-                .OrderByDescending(x => x.CreatedOn).Take(numberOfEntries).Cast<IContentCommon>().ToListAsync().ConfigureAwait(false);
-            var noteContent = await db.NoteContents.Where(x => x.ShowInMainSiteFeed && x.CreatedOn < before)
-                .OrderByDescending(x => x.CreatedOn).Take(numberOfEntries).Cast<IContentCommon>().ToListAsync().ConfigureAwait(false);
-            var photoContent = await db.PhotoContents.Where(x => x.ShowInMainSiteFeed && x.CreatedOn < before)
-                .OrderByDescending(x => x.CreatedOn).Take(numberOfEntries).Cast<IContentCommon>().ToListAsync().ConfigureAwait(false);
-            var pointContent = await db.PointContents.Where(x => x.ShowInMainSiteFeed && x.CreatedOn < before)
-                .OrderByDescending(x => x.CreatedOn).Take(numberOfEntries).Cast<IContentCommon>().ToListAsync().ConfigureAwait(false);
-            var postContent = await db.PostContents.Where(x => x.ShowInMainSiteFeed && x.CreatedOn < before)
-                .OrderByDescending(x => x.CreatedOn).Take(numberOfEntries).Cast<IContentCommon>().ToListAsync().ConfigureAwait(false);
+            var fileContent = await db.FileContents.Where(x => x.ShowInMainSiteFeed && !x.IsDraft && !x.IsDraft && x.FeedOn < before)
+                .OrderByDescending(x => x.FeedOn).Take(numberOfEntries).Cast<IContentCommon>().ToListAsync().ConfigureAwait(false);
+            var geoJsonContent = await db.GeoJsonContents.Where(x => x.ShowInMainSiteFeed && !x.IsDraft && !x.IsDraft && x.FeedOn < before)
+                .OrderByDescending(x => x.FeedOn).Take(numberOfEntries).Cast<IContentCommon>().ToListAsync().ConfigureAwait(false);
+            var imageContent = await db.ImageContents.Where(x => x.ShowInMainSiteFeed && !x.IsDraft && !x.IsDraft && x.FeedOn < before)
+                .OrderByDescending(x => x.FeedOn).Take(numberOfEntries).Cast<IContentCommon>().ToListAsync().ConfigureAwait(false);
+            var lineContent = await db.LineContents.Where(x => x.ShowInMainSiteFeed && !x.IsDraft && !x.IsDraft && x.FeedOn < before)
+                .OrderByDescending(x => x.FeedOn).Take(numberOfEntries).Cast<IContentCommon>().ToListAsync().ConfigureAwait(false);
+            var noteContent = await db.NoteContents.Where(x => x.ShowInMainSiteFeed && !x.IsDraft && !x.IsDraft && x.FeedOn < before)
+                .OrderByDescending(x => x.FeedOn).Take(numberOfEntries).Cast<IContentCommon>().ToListAsync().ConfigureAwait(false);
+            var photoContent = await db.PhotoContents.Where(x => x.ShowInMainSiteFeed && !x.IsDraft && !x.IsDraft && x.FeedOn < before)
+                .OrderByDescending(x => x.FeedOn).Take(numberOfEntries).Cast<IContentCommon>().ToListAsync().ConfigureAwait(false);
+            var pointContent = await db.PointContents.Where(x => x.ShowInMainSiteFeed && !x.IsDraft && !x.IsDraft && x.FeedOn < before)
+                .OrderByDescending(x => x.FeedOn).Take(numberOfEntries).Cast<IContentCommon>().ToListAsync().ConfigureAwait(false);
+            var postContent = await db.PostContents.Where(x => x.ShowInMainSiteFeed && !x.IsDraft && !x.IsDraft && x.FeedOn < before)
+                .OrderByDescending(x => x.FeedOn).Take(numberOfEntries).Cast<IContentCommon>().ToListAsync().ConfigureAwait(false);
 
             return fileContent.Concat(geoJsonContent).Concat(imageContent).Concat(lineContent).Concat(noteContent)
-                .Concat(postContent).Concat(photoContent).Concat(pointContent).OrderByDescending(x => x.CreatedOn)
+                .Concat(postContent).Concat(photoContent).Concat(pointContent).OrderByDescending(x => x.FeedOn)
                 .Take(numberOfEntries).ToList();
         }
 
         public static async Task<List<dynamic>> MainFeedRecentDynamicContent(int topNumberOfEntries)
         {
             var db = await Context().ConfigureAwait(false);
-            var fileContent = await db.FileContents.Where(x => x.ShowInMainSiteFeed).OrderByDescending(x => x.CreatedOn)
+            var fileContent = await db.FileContents.Where(x => x.ShowInMainSiteFeed && !x.IsDraft && !x.IsDraft).OrderByDescending(x => x.FeedOn)
                 .Take(topNumberOfEntries).Cast<dynamic>().ToListAsync().ConfigureAwait(false);
-            var geoJsonContent = await db.GeoJsonContents.Where(x => x.ShowInMainSiteFeed)
-                .OrderByDescending(x => x.CreatedOn).Take(topNumberOfEntries).Cast<dynamic>().ToListAsync().ConfigureAwait(false);
-            var imageContent = await db.ImageContents.Where(x => x.ShowInMainSiteFeed)
-                .OrderByDescending(x => x.CreatedOn).Take(topNumberOfEntries).Cast<dynamic>().ToListAsync().ConfigureAwait(false);
-            var lineContent = await db.LineContents.Where(x => x.ShowInMainSiteFeed).OrderByDescending(x => x.CreatedOn)
+            var geoJsonContent = await db.GeoJsonContents.Where(x => x.ShowInMainSiteFeed && !x.IsDraft && !x.IsDraft)
+                .OrderByDescending(x => x.FeedOn).Take(topNumberOfEntries).Cast<dynamic>().ToListAsync().ConfigureAwait(false);
+            var imageContent = await db.ImageContents.Where(x => x.ShowInMainSiteFeed && !x.IsDraft && !x.IsDraft)
+                .OrderByDescending(x => x.FeedOn).Take(topNumberOfEntries).Cast<dynamic>().ToListAsync().ConfigureAwait(false);
+            var lineContent = await db.LineContents.Where(x => x.ShowInMainSiteFeed && !x.IsDraft && !x.IsDraft).OrderByDescending(x => x.FeedOn)
                 .Take(topNumberOfEntries).Cast<dynamic>().ToListAsync().ConfigureAwait(false);
-            var noteContent = await db.NoteContents.Where(x => x.ShowInMainSiteFeed).OrderByDescending(x => x.CreatedOn)
+            var noteContent = await db.NoteContents.Where(x => x.ShowInMainSiteFeed && !x.IsDraft && !x.IsDraft).OrderByDescending(x => x.FeedOn)
                 .Take(topNumberOfEntries).Cast<dynamic>().ToListAsync().ConfigureAwait(false);
-            var photoContent = await db.PhotoContents.Where(x => x.ShowInMainSiteFeed)
-                .OrderByDescending(x => x.CreatedOn).Take(topNumberOfEntries).Cast<dynamic>().ToListAsync().ConfigureAwait(false);
-            var pointContent = (await db.PointContents.Where(x => x.ShowInMainSiteFeed)
-                    .OrderByDescending(x => x.CreatedOn).Take(topNumberOfEntries).Select(x => x.ContentId)
+            var photoContent = await db.PhotoContents.Where(x => x.ShowInMainSiteFeed && !x.IsDraft && !x.IsDraft)
+                .OrderByDescending(x => x.FeedOn).Take(topNumberOfEntries).Cast<dynamic>().ToListAsync().ConfigureAwait(false);
+            var pointContent = (await db.PointContents.Where(x => x.ShowInMainSiteFeed && !x.IsDraft && !x.IsDraft)
+                    .OrderByDescending(x => x.FeedOn).Take(topNumberOfEntries).Select(x => x.ContentId)
                     .ToListAsync().ConfigureAwait(false))
                 .Select(x => PointAndPointDetails(x).Result).Cast<dynamic>().ToList();
-            var postContent = await db.PostContents.Where(x => x.ShowInMainSiteFeed).OrderByDescending(x => x.CreatedOn)
+            var postContent = await db.PostContents.Where(x => x.ShowInMainSiteFeed && !x.IsDraft && !x.IsDraft).OrderByDescending(x => x.FeedOn)
                 .Take(topNumberOfEntries).Cast<dynamic>().ToListAsync().ConfigureAwait(false);
 
 
             return fileContent.Concat(geoJsonContent).Concat(imageContent).Concat(lineContent).Concat(noteContent)
-                .Concat(photoContent).Concat(pointContent).Concat(postContent).OrderByDescending(x => x.CreatedOn)
+                .Concat(photoContent).Concat(pointContent).Concat(postContent).OrderByDescending(x => x.FeedOn)
                 .Take(topNumberOfEntries).ToList();
         }
 
@@ -1725,7 +1725,7 @@ namespace PointlessWaymarks.CmsData.Database
                     progress?.Report("Process File Content Tags");
                     var db = await Context().ConfigureAwait(false);
                     tagBag.Add(ParseToTagSlugsAndContentList(
-                        (await db.FileContents.ToListAsync().ConfigureAwait(false)).Cast<ITag>().ToList(),
+                        (await db.FileContents.Where(x => !x.IsDraft).ToListAsync().ConfigureAwait(false)).Cast<ITag>().ToList(),
                         removeExcludedTags, progress));
                 },
                 async () =>
@@ -1733,7 +1733,7 @@ namespace PointlessWaymarks.CmsData.Database
                     progress?.Report("Process GeoJson Content Tags");
                     var db = await Context().ConfigureAwait(false);
                     tagBag.Add(ParseToTagSlugsAndContentList(
-                        (await db.GeoJsonContents.ToListAsync().ConfigureAwait(false)).Cast<ITag>().ToList(),
+                        (await db.GeoJsonContents.Where(x => !x.IsDraft).ToListAsync().ConfigureAwait(false)).Cast<ITag>().ToList(),
                         removeExcludedTags, progress));
                 },
                 async () =>
@@ -1742,8 +1742,8 @@ namespace PointlessWaymarks.CmsData.Database
                     var db = await Context().ConfigureAwait(false);
                     tagBag.Add(ParseToTagSlugsAndContentList(
                         includePagesExcludedFromSearch
-                            ? (await db.ImageContents.ToListAsync().ConfigureAwait(false)).Cast<ITag>().ToList()
-                            : (await db.ImageContents.Where(y => y.ShowInSearch).ToListAsync().ConfigureAwait(false)).Cast<ITag>().ToList(),
+                            ? (await db.ImageContents.Where(x => !x.IsDraft).ToListAsync().ConfigureAwait(false)).Cast<ITag>().ToList()
+                            : (await db.ImageContents.Where(y => !y.IsDraft && y.ShowInSearch).ToListAsync().ConfigureAwait(false)).Cast<ITag>().ToList(),
                         removeExcludedTags, progress));
                 },
                 async () =>
@@ -1751,7 +1751,7 @@ namespace PointlessWaymarks.CmsData.Database
                     progress?.Report("Process Line Content Tags");
                     var db = await Context().ConfigureAwait(false);
                     tagBag.Add(ParseToTagSlugsAndContentList(
-                        (await db.LineContents.ToListAsync().ConfigureAwait(false)).Cast<ITag>().ToList(),
+                        (await db.LineContents.Where(x => !x.IsDraft).ToListAsync().ConfigureAwait(false)).Cast<ITag>().ToList(),
                         removeExcludedTags, progress));
                 },
                 async () =>
@@ -1767,7 +1767,7 @@ namespace PointlessWaymarks.CmsData.Database
                     progress?.Report("Process Note Content Tags");
                     var db = await Context().ConfigureAwait(false);
                     tagBag.Add(ParseToTagSlugsAndContentList(
-                        (await db.NoteContents.ToListAsync().ConfigureAwait(false)).Cast<ITag>().ToList(),
+                        (await db.NoteContents.Where(x => !x.IsDraft).ToListAsync().ConfigureAwait(false)).Cast<ITag>().ToList(),
                         removeExcludedTags, progress));
                 },
                 async () =>
@@ -1775,7 +1775,7 @@ namespace PointlessWaymarks.CmsData.Database
                     progress?.Report("Process Photo Content Tags");
                     var db = await Context().ConfigureAwait(false);
                     tagBag.Add(ParseToTagSlugsAndContentList(
-                        (await db.PhotoContents.ToListAsync().ConfigureAwait(false)).Cast<ITag>().ToList(),
+                        (await db.PhotoContents.Where(x => !x.IsDraft).ToListAsync().ConfigureAwait(false)).Cast<ITag>().ToList(),
                         removeExcludedTags, progress));
                 },
                 async () =>
@@ -1783,7 +1783,7 @@ namespace PointlessWaymarks.CmsData.Database
                     progress?.Report("Process Point Content Tags");
                     var db = await Context().ConfigureAwait(false);
                     tagBag.Add(ParseToTagSlugsAndContentList(
-                        (await db.PointContents.ToListAsync().ConfigureAwait(false)).Cast<ITag>().ToList(),
+                        (await db.PointContents.Where(x => !x.IsDraft).ToListAsync().ConfigureAwait(false)).Cast<ITag>().ToList(),
                         removeExcludedTags, progress));
                 },
                 async () =>
@@ -1791,7 +1791,7 @@ namespace PointlessWaymarks.CmsData.Database
                     progress?.Report("Process Post Content Tags");
                     var db = await Context().ConfigureAwait(false);
                     tagBag.Add(ParseToTagSlugsAndContentList(
-                        (await db.PostContents.ToListAsync().ConfigureAwait(false)).Cast<ITag>().ToList(),
+                        (await db.PostContents.Where(x => !x.IsDraft).ToListAsync().ConfigureAwait(false)).Cast<ITag>().ToList(),
                         removeExcludedTags, progress));
                 }
             }.AsyncParallelForEach().ConfigureAwait(false);
