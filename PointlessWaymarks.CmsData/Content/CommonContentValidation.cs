@@ -329,7 +329,7 @@ namespace PointlessWaymarks.CmsData.Content
                 errorMessage.Add(createdUpdatedValidation.Explanation);
             }
 
-            var mainSiteFeedOnValidation = ValidateMainSiteFeed(toValidate, isNewEntry);
+            var mainSiteFeedOnValidation = ValidateSiteFeedOn(toValidate, isNewEntry);
 
             if (!mainSiteFeedOnValidation.Valid)
             {
@@ -479,7 +479,7 @@ namespace PointlessWaymarks.CmsData.Content
             return new IsValid(true, string.Empty);
         }
 
-        public static IsValid ValidateMainSiteFeed(IMainSiteFeed toValidate, bool isNewEntry)
+        public static IsValid ValidateSiteFeedOn(IMainSiteFeed toValidate, bool isNewEntry)
         {
             var isValid = true;
             var errorMessage = new List<string>();
@@ -487,7 +487,7 @@ namespace PointlessWaymarks.CmsData.Content
             if (toValidate.FeedOn == DateTime.MinValue)
             {
                 isValid = false;
-                errorMessage.Add($"Main Site Feed On date of {toValidate.FeedOn} is not valid.");
+                errorMessage.Add($"A Feed On date of {toValidate.FeedOn} is not valid.");
             }
 
             return new IsValid(isValid, string.Join(Environment.NewLine, errorMessage));

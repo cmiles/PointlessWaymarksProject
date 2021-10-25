@@ -17,7 +17,7 @@ using PointlessWaymarks.CmsData.Spatial;
 using PointlessWaymarks.CmsData.Spatial.Elevation;
 using PointlessWaymarks.CmsWpfControls.BodyContentEditor;
 using PointlessWaymarks.CmsWpfControls.ContentIdViewer;
-using PointlessWaymarks.CmsWpfControls.ContentInMainSiteFeed;
+using PointlessWaymarks.CmsWpfControls.ContentSiteFeedAndIsDraft;
 using PointlessWaymarks.CmsWpfControls.ConversionDataEntry;
 using PointlessWaymarks.CmsWpfControls.CreatedAndUpdatedByAndOnDisplay;
 using PointlessWaymarks.CmsWpfControls.HelpDisplay;
@@ -51,7 +51,7 @@ namespace PointlessWaymarks.CmsWpfControls.PointContentEditor
         private ConversionDataEntryContext<double> _latitudeEntry;
         private Command _linkToClipboardCommand;
         private ConversionDataEntryContext<double> _longitudeEntry;
-        private ContentInMainSiteFeedContext _mainSiteFeed;
+        private ContentSiteFeedAndIsDraftContext _mainSiteFeed;
         private PointDetailListContext _pointDetails;
         private Command _saveAndCloseCommand;
         private Command _saveCommand;
@@ -203,7 +203,7 @@ namespace PointlessWaymarks.CmsWpfControls.PointContentEditor
             }
         }
 
-        public ContentInMainSiteFeedContext MainSiteFeed
+        public ContentSiteFeedAndIsDraftContext MainSiteFeed
         {
             get => _mainSiteFeed;
             set
@@ -491,7 +491,7 @@ namespace PointlessWaymarks.CmsWpfControls.PointContentEditor
 
             TitleSummarySlugFolder = await TitleSummarySlugEditorContext.CreateInstance(StatusContext, DbEntry);
             CreatedUpdatedDisplay = await CreatedAndUpdatedByAndOnDisplayContext.CreateInstance(StatusContext, DbEntry);
-            MainSiteFeed = await ContentInMainSiteFeedContext.CreateInstance(StatusContext, DbEntry);
+            MainSiteFeed = await ContentSiteFeedAndIsDraftContext.CreateInstance(StatusContext, DbEntry);
             ContentId = await ContentIdViewerControlContext.CreateInstance(StatusContext, DbEntry);
             UpdateNotes = await UpdateNotesEditorContext.CreateInstance(StatusContext, DbEntry);
             TagEdit = TagsEditorContext.CreateInstance(StatusContext, DbEntry);

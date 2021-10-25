@@ -13,7 +13,7 @@ using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsWpfControls.BodyContentEditor;
 using PointlessWaymarks.CmsWpfControls.ContentFolder;
 using PointlessWaymarks.CmsWpfControls.ContentIdViewer;
-using PointlessWaymarks.CmsWpfControls.ContentInMainSiteFeed;
+using PointlessWaymarks.CmsWpfControls.ContentSiteFeedAndIsDraft;
 using PointlessWaymarks.CmsWpfControls.CreatedAndUpdatedByAndOnDisplay;
 using PointlessWaymarks.CmsWpfControls.HelpDisplay;
 using PointlessWaymarks.CmsWpfControls.StringDataEntry;
@@ -39,7 +39,7 @@ namespace PointlessWaymarks.CmsWpfControls.NoteContentEditor
         private bool _hasValidationIssues;
         private HelpDisplayContext _helpContext;
         private Command _linkToClipboardCommand;
-        private ContentInMainSiteFeedContext _mainSiteFeed;
+        private ContentSiteFeedAndIsDraftContext _mainSiteFeed;
         private Command _saveAndCloseCommand;
         private Command _saveCommand;
         private string _slug;
@@ -159,7 +159,7 @@ namespace PointlessWaymarks.CmsWpfControls.NoteContentEditor
             }
         }
 
-        public ContentInMainSiteFeedContext MainSiteFeed
+        public ContentSiteFeedAndIsDraftContext MainSiteFeed
         {
             get => _mainSiteFeed;
             set
@@ -353,7 +353,7 @@ Note Content is like a simplified Post - no title and slug to edit or maintain a
             FolderEntry = await ContentFolderContext.CreateInstance(StatusContext, DbEntry);
             Summary = StringDataEntryContext.CreateSummaryInstance(DbEntry);
             CreatedUpdatedDisplay = await CreatedAndUpdatedByAndOnDisplayContext.CreateInstance(StatusContext, DbEntry);
-            MainSiteFeed = await ContentInMainSiteFeedContext.CreateInstance(StatusContext, DbEntry);
+            MainSiteFeed = await ContentSiteFeedAndIsDraftContext.CreateInstance(StatusContext, DbEntry);
             ContentId = await ContentIdViewerControlContext.CreateInstance(StatusContext, DbEntry);
             TagEdit = TagsEditorContext.CreateInstance(StatusContext, DbEntry);
             BodyContent = await BodyContentEditorContext.CreateInstance(StatusContext, DbEntry);

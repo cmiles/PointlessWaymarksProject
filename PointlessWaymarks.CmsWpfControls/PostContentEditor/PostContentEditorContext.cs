@@ -12,7 +12,7 @@ using PointlessWaymarks.CmsData.Content;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsWpfControls.BodyContentEditor;
 using PointlessWaymarks.CmsWpfControls.ContentIdViewer;
-using PointlessWaymarks.CmsWpfControls.ContentInMainSiteFeed;
+using PointlessWaymarks.CmsWpfControls.ContentSiteFeedAndIsDraft;
 using PointlessWaymarks.CmsWpfControls.CreatedAndUpdatedByAndOnDisplay;
 using PointlessWaymarks.CmsWpfControls.HelpDisplay;
 using PointlessWaymarks.CmsWpfControls.TagsEditor;
@@ -38,7 +38,7 @@ namespace PointlessWaymarks.CmsWpfControls.PostContentEditor
         private bool _hasValidationIssues;
         private HelpDisplayContext _helpContext;
         private Command _linkToClipboardCommand;
-        private ContentInMainSiteFeedContext _mainSiteFeed;
+        private ContentSiteFeedAndIsDraftContext _mainSiteFeed;
         private Command _saveAndCloseCommand;
         private Command _saveCommand;
         private TagsEditorContext _tagEdit;
@@ -144,7 +144,7 @@ namespace PointlessWaymarks.CmsWpfControls.PostContentEditor
             }
         }
 
-        public ContentInMainSiteFeedContext MainSiteFeed
+        public ContentSiteFeedAndIsDraftContext MainSiteFeed
         {
             get => _mainSiteFeed;
             set
@@ -342,7 +342,7 @@ Notes:
 
             TitleSummarySlugFolder = await TitleSummarySlugEditorContext.CreateInstance(StatusContext, DbEntry);
             CreatedUpdatedDisplay = await CreatedAndUpdatedByAndOnDisplayContext.CreateInstance(StatusContext, DbEntry);
-            MainSiteFeed = await ContentInMainSiteFeedContext.CreateInstance(StatusContext, DbEntry);
+            MainSiteFeed = await ContentSiteFeedAndIsDraftContext.CreateInstance(StatusContext, DbEntry);
             ContentId = await ContentIdViewerControlContext.CreateInstance(StatusContext, DbEntry);
             UpdateNotes = await UpdateNotesEditorContext.CreateInstance(StatusContext, DbEntry);
             TagEdit = TagsEditorContext.CreateInstance(StatusContext, DbEntry);

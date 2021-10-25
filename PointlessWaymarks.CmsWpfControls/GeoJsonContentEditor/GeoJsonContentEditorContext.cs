@@ -16,7 +16,7 @@ using PointlessWaymarks.CmsData.ContentHtml.GeoJsonHtml;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsWpfControls.BodyContentEditor;
 using PointlessWaymarks.CmsWpfControls.ContentIdViewer;
-using PointlessWaymarks.CmsWpfControls.ContentInMainSiteFeed;
+using PointlessWaymarks.CmsWpfControls.ContentSiteFeedAndIsDraft;
 using PointlessWaymarks.CmsWpfControls.CreatedAndUpdatedByAndOnDisplay;
 using PointlessWaymarks.CmsWpfControls.HelpDisplay;
 using PointlessWaymarks.CmsWpfControls.TagsEditor;
@@ -46,7 +46,7 @@ namespace PointlessWaymarks.CmsWpfControls.GeoJsonContentEditor
         private Command _importGeoJsonFileCommand;
         private Command _importGeoJsonFromClipboardCommand;
         private Command _linkToClipboardCommand;
-        private ContentInMainSiteFeedContext _mainSiteFeed;
+        private ContentSiteFeedAndIsDraftContext _mainSiteFeed;
         private string _previewGeoJsonDto;
         private string _previewHtml;
         private Command _refreshMapPreviewCommand;
@@ -197,7 +197,7 @@ namespace PointlessWaymarks.CmsWpfControls.GeoJsonContentEditor
             }
         }
 
-        public ContentInMainSiteFeedContext MainSiteFeed
+        public ContentSiteFeedAndIsDraftContext MainSiteFeed
         {
             get => _mainSiteFeed;
             set
@@ -491,7 +491,7 @@ namespace PointlessWaymarks.CmsWpfControls.GeoJsonContentEditor
 
             TitleSummarySlugFolder = await TitleSummarySlugEditorContext.CreateInstance(StatusContext, DbEntry);
             CreatedUpdatedDisplay = await CreatedAndUpdatedByAndOnDisplayContext.CreateInstance(StatusContext, DbEntry);
-            MainSiteFeed = await ContentInMainSiteFeedContext.CreateInstance(StatusContext, DbEntry);
+            MainSiteFeed = await ContentSiteFeedAndIsDraftContext.CreateInstance(StatusContext, DbEntry);
             ContentId = await ContentIdViewerControlContext.CreateInstance(StatusContext, DbEntry);
             UpdateNotes = await UpdateNotesEditorContext.CreateInstance(StatusContext, DbEntry);
             TagEdit = TagsEditorContext.CreateInstance(StatusContext, DbEntry);

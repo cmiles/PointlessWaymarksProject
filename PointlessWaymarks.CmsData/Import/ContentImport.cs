@@ -312,6 +312,13 @@ namespace PointlessWaymarks.CmsData.Import
                     return (true, "Content Type Not Found", null);
 
                 dbEntry.ContentId = Guid.NewGuid();
+                //To help with new content creation - this could result in a user wanting to import older 
+                //older created dates not getting a warning that they didn't get the value into the sheet,
+                //but I think overall this is a nice helper.
+                if (dbEntry.CreatedOn == DateTime.MinValue)
+                    dbEntry.CreatedOn = DateTime.Now;
+                if (dbEntry.FeedOn == DateTime.MinValue)
+                    dbEntry.FeedOn = dbEntry.CreatedOn;
             }
             else
             {

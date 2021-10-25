@@ -15,7 +15,7 @@ using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsWpfControls.BodyContentEditor;
 using PointlessWaymarks.CmsWpfControls.BoolDataEntry;
 using PointlessWaymarks.CmsWpfControls.ContentIdViewer;
-using PointlessWaymarks.CmsWpfControls.ContentInMainSiteFeed;
+using PointlessWaymarks.CmsWpfControls.ContentSiteFeedAndIsDraft;
 using PointlessWaymarks.CmsWpfControls.CreatedAndUpdatedByAndOnDisplay;
 using PointlessWaymarks.CmsWpfControls.HelpDisplay;
 using PointlessWaymarks.CmsWpfControls.TagsEditor;
@@ -45,7 +45,7 @@ namespace PointlessWaymarks.CmsWpfControls.FileContentEditor
         private HelpDisplayContext _helpContext;
         private FileInfo _initialFile;
         private FileInfo _loadedFile;
-        private ContentInMainSiteFeedContext _mainSiteFeed;
+        private ContentSiteFeedAndIsDraftContext _mainSiteFeed;
         private Command _openSelectedFileDirectoryCommand;
         private string _pdfToImagePageToExtract = "1";
         private BoolDataEntryContext _publicDownloadLink;
@@ -203,7 +203,7 @@ Notes:
 
         public Command LinkToClipboardCommand { get; set; }
 
-        public ContentInMainSiteFeedContext MainSiteFeed
+        public ContentSiteFeedAndIsDraftContext MainSiteFeed
         {
             get => _mainSiteFeed;
             set
@@ -606,7 +606,7 @@ Notes:
                 "Download Link' is checked and not all content types are supported.";
 
             TitleSummarySlugFolder = await TitleSummarySlugEditorContext.CreateInstance(StatusContext, DbEntry);
-            MainSiteFeed = await ContentInMainSiteFeedContext.CreateInstance(StatusContext, DbEntry);
+            MainSiteFeed = await ContentSiteFeedAndIsDraftContext.CreateInstance(StatusContext, DbEntry);
             CreatedUpdatedDisplay = await CreatedAndUpdatedByAndOnDisplayContext.CreateInstance(StatusContext, DbEntry);
             ContentId = await ContentIdViewerControlContext.CreateInstance(StatusContext, DbEntry);
             UpdateNotes = await UpdateNotesEditorContext.CreateInstance(StatusContext, DbEntry);

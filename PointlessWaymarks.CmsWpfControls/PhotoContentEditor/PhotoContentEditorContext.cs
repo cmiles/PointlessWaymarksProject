@@ -17,7 +17,7 @@ using PointlessWaymarks.CmsData.ContentHtml;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsWpfControls.BodyContentEditor;
 using PointlessWaymarks.CmsWpfControls.ContentIdViewer;
-using PointlessWaymarks.CmsWpfControls.ContentInMainSiteFeed;
+using PointlessWaymarks.CmsWpfControls.ContentSiteFeedAndIsDraft;
 using PointlessWaymarks.CmsWpfControls.ConversionDataEntry;
 using PointlessWaymarks.CmsWpfControls.CreatedAndUpdatedByAndOnDisplay;
 using PointlessWaymarks.CmsWpfControls.HelpDisplay;
@@ -61,7 +61,7 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoContentEditor
         private StringDataEntryContext _licenseEntry;
         private Command _linkToClipboardCommand;
         private FileInfo _loadedFile;
-        private ContentInMainSiteFeedContext _mainSiteFeed;
+        private ContentSiteFeedAndIsDraftContext _mainSiteFeed;
         private StringDataEntryContext _photoCreatedByEntry;
         private ConversionDataEntryContext<DateTime> _photoCreatedOnEntry;
         private Command _renameSelectedFileCommand;
@@ -302,7 +302,7 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoContentEditor
             }
         }
 
-        public ContentInMainSiteFeedContext MainSiteFeed
+        public ContentSiteFeedAndIsDraftContext MainSiteFeed
         {
             get => _mainSiteFeed;
             set
@@ -766,7 +766,7 @@ Photo Content Notes:
                     .Equals(SlugUtility.Create(false, x.TitleEntry.UserValue), StringComparison.OrdinalIgnoreCase),
                 DbEntry);
             CreatedUpdatedDisplay = await CreatedAndUpdatedByAndOnDisplayContext.CreateInstance(StatusContext, DbEntry);
-            MainSiteFeed = await ContentInMainSiteFeedContext.CreateInstance(StatusContext, DbEntry);
+            MainSiteFeed = await ContentSiteFeedAndIsDraftContext.CreateInstance(StatusContext, DbEntry);
             ContentId = await ContentIdViewerControlContext.CreateInstance(StatusContext, DbEntry);
             UpdateNotes = await UpdateNotesEditorContext.CreateInstance(StatusContext, DbEntry);
             TagEdit = TagsEditorContext.CreateInstance(StatusContext, DbEntry);

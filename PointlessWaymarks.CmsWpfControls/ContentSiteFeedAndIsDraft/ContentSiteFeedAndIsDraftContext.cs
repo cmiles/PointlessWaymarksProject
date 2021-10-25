@@ -10,9 +10,9 @@ using PointlessWaymarks.CmsWpfControls.Utility.ChangesAndValidation;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 
-namespace PointlessWaymarks.CmsWpfControls.ContentInMainSiteFeed
+namespace PointlessWaymarks.CmsWpfControls.ContentSiteFeedAndIsDraft
 {
-    public class ContentInMainSiteFeedContext : INotifyPropertyChanged, IHasChanges, IHasValidationIssues,
+    public class ContentSiteFeedAndIsDraftContext : INotifyPropertyChanged, IHasChanges, IHasValidationIssues,
         ICheckForChangesAndValidation
     {
         private IMainSiteFeed _dbEntry;
@@ -23,7 +23,7 @@ namespace PointlessWaymarks.CmsWpfControls.ContentInMainSiteFeed
         private ConversionDataEntryContext<DateTime> _showInMainSiteFeedOnEntry;
         private StatusControlContext _statusContext;
 
-        public ContentInMainSiteFeedContext(StatusControlContext statusContext)
+        public ContentSiteFeedAndIsDraftContext(StatusControlContext statusContext)
         {
             StatusContext = statusContext ?? new();
         }
@@ -114,12 +114,12 @@ namespace PointlessWaymarks.CmsWpfControls.ContentInMainSiteFeed
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public static async Task<ContentInMainSiteFeedContext> CreateInstance(StatusControlContext statusContext,
+        public static async Task<ContentSiteFeedAndIsDraftContext> CreateInstance(StatusControlContext statusContext,
             IMainSiteFeed dbEntry)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            var newItem = new ContentInMainSiteFeedContext(statusContext);
+            var newItem = new ContentSiteFeedAndIsDraftContext(statusContext);
             await newItem.LoadData(dbEntry);
 
             return newItem;
