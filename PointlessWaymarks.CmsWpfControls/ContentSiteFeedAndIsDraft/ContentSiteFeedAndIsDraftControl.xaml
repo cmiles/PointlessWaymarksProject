@@ -5,10 +5,10 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:boolDataEntry="clr-namespace:PointlessWaymarks.CmsWpfControls.BoolDataEntry"
              xmlns:conversionDataEntry="clr-namespace:PointlessWaymarks.CmsWpfControls.ConversionDataEntry"
+             xmlns:contentSiteFeedAndIsDraft="clr-namespace:PointlessWaymarks.CmsWpfControls.ContentSiteFeedAndIsDraft"
              mc:Ignorable="d"
-             x:Name="ContentInMainSiteFeedControlXaml"
              d:DesignHeight="300" d:DesignWidth="300"
-             d:DataContext="{d:DesignInstance local:ContentInMainSiteFeedContext}">
+             d:DataContext="{d:DesignInstance contentSiteFeedAndIsDraft:ContentSiteFeedAndIsDraftContext}">
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -19,8 +19,7 @@
     </UserControl.Resources>
     <StackPanel Margin="0,8,0,0" Orientation="Vertical">
         <boolDataEntry:BoolDataEntryControl Margin="4,0,0,0" DataContext="{Binding ShowInMainSiteFeedEntry}" />
-        <conversionDataEntry:ConversionDataEntryControl Margin="0,2,0,0" DataContext="{Binding ShowInMainSiteFeedOnEntry}"
-                                                        IsEnabled="{Binding Path=DataContext.ShowInMainSiteFeedEntry.UserValue, ElementName=ContentInMainSiteFeedControlXaml}" />
+        <conversionDataEntry:ConversionDataEntryControl Margin="0,2,0,0" DataContext="{Binding ShowInMainSiteFeedOnEntry}" />
         <boolDataEntry:BoolDataEntryControl Margin="4,10,0,0" DataContext="{Binding IsDraftEntry}"></boolDataEntry:BoolDataEntryControl>
     </StackPanel>
 </UserControl>

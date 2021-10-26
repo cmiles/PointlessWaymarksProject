@@ -482,7 +482,6 @@ namespace PointlessWaymarks.CmsWpfControls.PointContentEditor
             {
                 BodyContentFormat = UserSettingsUtilities.DefaultContentFormatChoice(),
                 UpdateNotesFormat = UserSettingsUtilities.DefaultContentFormatChoice(),
-                CreatedBy = UserSettingsSingleton.CurrentSettings().DefaultCreatedBy,
                 Latitude = UserSettingsSingleton.CurrentSettings().LatitudeDefault,
                 Longitude = UserSettingsSingleton.CurrentSettings().LongitudeDefault,
                 CreatedOn = created,

@@ -755,9 +755,14 @@ Photo Content Notes:
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
+            var created = DateTime.Now;
+
             DbEntry = toLoad ?? new PhotoContent
             {
-                UpdateNotesFormat = UserSettingsUtilities.DefaultContentFormatChoice()
+                BodyContentFormat = UserSettingsUtilities.DefaultContentFormatChoice(),
+                UpdateNotesFormat = UserSettingsUtilities.DefaultContentFormatChoice(),
+                CreatedOn = created,
+                FeedOn = created,
             };
 
             TitleSummarySlugFolder = await TitleSummarySlugEditorContext.CreateInstance(StatusContext, "To File Name",
