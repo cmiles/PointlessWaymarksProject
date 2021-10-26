@@ -47,7 +47,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml.ErrorHtml
             var htmlString = stringWriter.ToString();
 
             var htmlFileInfo =
-                new FileInfo($@"{UserSettingsSingleton.CurrentSettings().LocalSiteRootDirectory}\error.html");
+                new FileInfo($@"{UserSettingsSingleton.CurrentSettings().LocalSiteRootFullDirectory().FullName}\error.html");
 
             if (htmlFileInfo.Exists)
             {

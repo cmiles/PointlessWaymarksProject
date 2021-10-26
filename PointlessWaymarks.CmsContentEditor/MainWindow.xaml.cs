@@ -825,16 +825,16 @@ namespace PointlessWaymarks.CmsContentEditor
             if (settingReturn.isNew)
                 await UserSettingsUtilities.SetupNewSite(settingReturn.userInput, StatusContext.ProgressTracker());
             else
-                UserSettingsUtilities.SettingsFileName = settingReturn.userInput;
+                UserSettingsUtilities.SettingsFileFullName = settingReturn.userInput;
 
-            StatusContext.Progress($"Using {UserSettingsUtilities.SettingsFileName}");
+            StatusContext.Progress($"Using {UserSettingsUtilities.SettingsFileFullName}");
 
             var fileList = RecentSettingsFilesNames?.Split("|").ToList() ?? new List<string>();
 
-            if (fileList.Contains(UserSettingsUtilities.SettingsFileName))
-                fileList.Remove(UserSettingsUtilities.SettingsFileName);
+            if (fileList.Contains(UserSettingsUtilities.SettingsFileFullName))
+                fileList.Remove(UserSettingsUtilities.SettingsFileFullName);
 
-            fileList = new List<string> { UserSettingsUtilities.SettingsFileName }.Concat(fileList).ToList();
+            fileList = new List<string> { UserSettingsUtilities.SettingsFileFullName }.Concat(fileList).ToList();
 
             if (fileList.Count > 10)
                 fileList = fileList.Take(10).ToList();

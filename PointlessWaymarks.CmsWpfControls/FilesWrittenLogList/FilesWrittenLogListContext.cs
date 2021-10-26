@@ -552,7 +552,7 @@ namespace PointlessWaymarks.CmsWpfControls.FilesWrittenLogList
             if (toSkipCount > 0)
                 StatusContext.ToastWarning($"{toSkipCount} skipped files not in the Generation Directory");
 
-            var fileName = Path.Combine(UserSettingsSingleton.CurrentSettings().LocalSiteScriptsDirectory().FullName,
+            var fileName = Path.Combine(UserSettingsSingleton.CurrentSettings().LocalScriptsDirectory().FullName,
                 $"{DateTime.Now:yyyy-MM-dd--HH-mm-ss}---File-Upload-Data.json");
 
             await S3UploadHelpers.S3UploaderItemsToS3UploaderJsonFile(toTransfer, fileName);
@@ -569,7 +569,7 @@ namespace PointlessWaymarks.CmsWpfControls.FilesWrittenLogList
 
             var toTransfer = FileItemsToUploaderItems(items);
 
-            var fileName = Path.Combine(UserSettingsSingleton.CurrentSettings().LocalSiteScriptsDirectory().FullName,
+            var fileName = Path.Combine(UserSettingsSingleton.CurrentSettings().LocalScriptsDirectory().FullName,
                 $"{DateTime.Now:yyyy-MM-dd--HH-mm-ss}---File-Upload-Data.json");
 
             await S3UploadHelpers.S3UploaderItemsToS3UploaderJsonFile(toTransfer, fileName);
@@ -582,7 +582,7 @@ namespace PointlessWaymarks.CmsWpfControls.FilesWrittenLogList
             var scriptString = FileItemsToScriptString(toWrite);
 
             var file = new FileInfo(Path.Combine(
-                UserSettingsSingleton.CurrentSettings().LocalSiteScriptsDirectory().FullName,
+                UserSettingsSingleton.CurrentSettings().LocalScriptsDirectory().FullName,
                 $"{DateTime.Now:yyyy-MM-dd--HH-mm-ss}---File-Upload-Script.ps1"));
 
             await File.WriteAllTextAsync(file.FullName, scriptString);
@@ -813,7 +813,7 @@ namespace PointlessWaymarks.CmsWpfControls.FilesWrittenLogList
             {
                 Multiselect = false,
                 Filter = "json files (*.json)|*.json|All files (*.*)|*.*",
-                InitialDirectory = UserSettingsSingleton.CurrentSettings().LocalSiteScriptsDirectory().FullName
+                InitialDirectory = UserSettingsSingleton.CurrentSettings().LocalScriptsDirectory().FullName
             };
 
             if (!(dialog.ShowDialog() ?? false)) return;

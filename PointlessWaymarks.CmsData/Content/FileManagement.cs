@@ -991,7 +991,7 @@ namespace PointlessWaymarks.CmsData.Content
         {
             return new()
             {
-                settings.LocalSiteMediaArchiveDirectory().CreateIfItDoesNotExist(),
+                settings.LocalMediaArchiveFullDirectory().CreateIfItDoesNotExist(),
                 settings.LocalMediaArchivePhotoDirectory().CreateIfItDoesNotExist(),
                 settings.LocalMediaArchiveImageDirectory().CreateIfItDoesNotExist(),
                 settings.LocalMediaArchiveFileDirectory().CreateIfItDoesNotExist(),
@@ -1036,7 +1036,7 @@ namespace PointlessWaymarks.CmsData.Content
             var fileAsStream = siteResources.CreateReadStream();
 
             var destinationFile =
-                new FileInfo(Path.Combine(UserSettingsSingleton.CurrentSettings().LocalSiteRootDirectory,
+                new FileInfo(Path.Combine(UserSettingsSingleton.CurrentSettings().LocalSiteRootFullDirectory().FullName,
                     siteResources.Name));
 
             var destinationDirectory = destinationFile.Directory;
@@ -1174,7 +1174,7 @@ namespace PointlessWaymarks.CmsData.Content
                     filePathStyleName = loopSiteResources.Name;
 
                 var destinationFile =
-                    new FileInfo(Path.Combine(UserSettingsSingleton.CurrentSettings().LocalSiteRootDirectory,
+                    new FileInfo(Path.Combine(UserSettingsSingleton.CurrentSettings().LocalSiteRootFullDirectory().FullName,
                         filePathStyleName));
 
                 var destinationDirectory = destinationFile.Directory;
@@ -1200,7 +1200,7 @@ namespace PointlessWaymarks.CmsData.Content
             var fileAsStream = siteResources.CreateReadStream();
 
             var destinationFile =
-                new FileInfo(Path.Combine(UserSettingsSingleton.CurrentSettings().LocalSiteRootDirectory,
+                new FileInfo(Path.Combine(UserSettingsSingleton.CurrentSettings().LocalSiteRootFullDirectory().FullName,
                     siteResources.Name));
 
             var destinationDirectory = destinationFile.Directory;

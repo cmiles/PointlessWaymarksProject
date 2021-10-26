@@ -12,7 +12,7 @@ namespace PointlessWaymarks.CmsData
         private string _databaseFile = string.Empty;
         private string _defaultCreatedBy = string.Empty;
         private double _latitudeDefault;
-        private string _localMediaArchive = string.Empty;
+        private string _localMediaArchiveDirectory = string.Empty;
         private string _localSiteRootDirectory = string.Empty;
         private double _longitudeDefault;
         private string _pdfToCairoExeDirectory = string.Empty;
@@ -51,6 +51,10 @@ namespace PointlessWaymarks.CmsData
             }
         }
 
+        /// <summary>
+        /// Database File Name Setting - this may be relative or absolute, prefer the DatabaseFileFullName in the
+        /// UserSettingsUtilities for general purpose use.
+        /// </summary>
         public string DatabaseFile
         {
             get => _databaseFile;
@@ -84,17 +88,26 @@ namespace PointlessWaymarks.CmsData
             }
         }
 
-        public string LocalMediaArchive
+        /// <summary>
+        /// Relative or Absolute Local Media Archive Directory - prefer the LocalMediaArchiveFullDirectory
+        /// in UserSettingsUtilities as it will always represent the full path.
+        /// </summary>
+        public string LocalMediaArchiveDirectory
         {
-            get => _localMediaArchive;
+            get => _localMediaArchiveDirectory;
             set
             {
-                if (value == _localMediaArchive) return;
-                _localMediaArchive = value;
+                if (value == _localMediaArchiveDirectory) return;
+                _localMediaArchiveDirectory = value;
                 OnPropertyChanged();
             }
         }
 
+        /// <summary>
+        /// Relative or Absolute Local Site Root Directory (the directory html will be generated into)
+        /// - prefer the LocalMediaArchiveFullDirectory in UserSettingsUtilities as it will always
+        /// represent the full path.
+        /// </summary>
         public string LocalSiteRootDirectory
         {
             get => _localSiteRootDirectory;

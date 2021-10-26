@@ -61,12 +61,12 @@
                     </StackPanel>
                     <StackPanel Orientation="Vertical">
                         <Label Style="{StaticResource DataEntryLabelStyle}" Target="{Binding ElementName=LocalMediaArchiveTextBox}">
-                            Local Media Archive
+                            Local Media Archive Directory
                         </Label>
                         <TextBox
                             Name="LocalMediaArchiveTextBox"
                             Style="{StaticResource DataEntryTextBoxSingleLineStyle}"
-                            Text="{Binding EditorSettings.LocalMediaArchive, UpdateSourceTrigger=PropertyChanged}" />
+                            Text="{Binding EditorSettings.LocalMediaArchiveDirectory, UpdateSourceTrigger=PropertyChanged}" />
                         <wpf:MarkdownViewer Markdown="{Binding HelpMarkdownLocalMediaArchive}">
                             <b:Interaction.Behaviors>
                                 <behaviors:IgnoreMouseWheelBehavior />

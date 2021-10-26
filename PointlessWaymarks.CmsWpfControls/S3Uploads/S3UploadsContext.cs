@@ -300,7 +300,7 @@ namespace PointlessWaymarks.CmsWpfControls.S3Uploads
         {
             if (!items.Any()) return;
 
-            var fileName = Path.Combine(UserSettingsSingleton.CurrentSettings().LocalSiteScriptsDirectory().FullName,
+            var fileName = Path.Combine(UserSettingsSingleton.CurrentSettings().LocalScriptsDirectory().FullName,
                 $"{DateTime.Now:yyyy-MM-dd--HH-mm-ss}---File-Upload-Data.json");
 
             var jsonInfo = JsonSerializer.Serialize(items.Select(x =>

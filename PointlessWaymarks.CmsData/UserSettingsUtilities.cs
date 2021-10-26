@@ -18,7 +18,14 @@ namespace PointlessWaymarks.CmsData
 {
     public static class UserSettingsUtilities
     {
-        public static string SettingsFileName { get; set; } = "PointlessWaymarksCmsSettings.json";
+        public static string SettingsFileFullName { get; set; } = "PointlessWaymarksCmsSettings.json";
+
+        private static string AddSettingsFileRootDirectoryIfNeeded(this string fileName)
+        {
+            if (Path.IsPathFullyQualified(fileName)) return fileName;
+
+            return Path.Combine(SettingsFile().DirectoryName ?? string.Empty, fileName);
+        }
 
         public static string AllContentListUrl(this UserSettings settings)
         {
@@ -46,31 +53,40 @@ namespace PointlessWaymarks.CmsData
 
             //!!Content Type List!!
 
-            var possibleFile = await db.FileContents.SingleOrDefaultAsync(x => x.ContentId == toLink).ConfigureAwait(false);
+            var possibleFile = await db.FileContents.SingleOrDefaultAsync(x => x.ContentId == toLink)
+                .ConfigureAwait(false);
             if (possibleFile != null) return settings.FilePageUrl(possibleFile);
 
-            var possibleGeoJson = await db.GeoJsonContents.SingleOrDefaultAsync(x => x.ContentId == toLink).ConfigureAwait(false);
+            var possibleGeoJson = await db.GeoJsonContents.SingleOrDefaultAsync(x => x.ContentId == toLink)
+                .ConfigureAwait(false);
             if (possibleGeoJson != null) return settings.GeoJsonPageUrl(possibleGeoJson);
 
-            var possibleImage = await db.ImageContents.SingleOrDefaultAsync(x => x.ContentId == toLink).ConfigureAwait(false);
+            var possibleImage = await db.ImageContents.SingleOrDefaultAsync(x => x.ContentId == toLink)
+                .ConfigureAwait(false);
             if (possibleImage != null) return settings.ImagePageUrl(possibleImage);
 
-            var possibleLine = await db.LineContents.SingleOrDefaultAsync(x => x.ContentId == toLink).ConfigureAwait(false);
+            var possibleLine = await db.LineContents.SingleOrDefaultAsync(x => x.ContentId == toLink)
+                .ConfigureAwait(false);
             if (possibleLine != null) return settings.LinePageUrl(possibleLine);
 
-            var possibleLink = await db.LinkContents.SingleOrDefaultAsync(x => x.ContentId == toLink).ConfigureAwait(false);
+            var possibleLink = await db.LinkContents.SingleOrDefaultAsync(x => x.ContentId == toLink)
+                .ConfigureAwait(false);
             if (possibleLink != null) return settings.LinkListUrl();
 
-            var possibleNote = await db.NoteContents.SingleOrDefaultAsync(x => x.ContentId == toLink).ConfigureAwait(false);
+            var possibleNote = await db.NoteContents.SingleOrDefaultAsync(x => x.ContentId == toLink)
+                .ConfigureAwait(false);
             if (possibleNote != null) return settings.NotePageUrl(possibleNote);
 
-            var possiblePhoto = await db.PhotoContents.SingleOrDefaultAsync(x => x.ContentId == toLink).ConfigureAwait(false);
+            var possiblePhoto = await db.PhotoContents.SingleOrDefaultAsync(x => x.ContentId == toLink)
+                .ConfigureAwait(false);
             if (possiblePhoto != null) return settings.PhotoPageUrl(possiblePhoto);
 
-            var possiblePoint = await db.PointContents.SingleOrDefaultAsync(x => x.ContentId == toLink).ConfigureAwait(false);
+            var possiblePoint = await db.PointContents.SingleOrDefaultAsync(x => x.ContentId == toLink)
+                .ConfigureAwait(false);
             if (possiblePoint != null) return settings.PointPageUrl(possiblePoint);
 
-            var possiblePost = await db.PostContents.SingleOrDefaultAsync(x => x.ContentId == toLink).ConfigureAwait(false);
+            var possiblePost = await db.PostContents.SingleOrDefaultAsync(x => x.ContentId == toLink)
+                .ConfigureAwait(false);
             if (possiblePost != null) return settings.PostPageUrl(possiblePost);
 
             return string.Empty;
@@ -104,9 +120,38 @@ namespace PointlessWaymarks.CmsData
             return $"//{settings.SiteUrl}/Photos/Galleries/Daily/DailyPhotos-{galleryDate:yyyy-MM-dd}.html";
         }
 
+        /// <summary>
+        ///     This returns a fully qualified path for the Database File based on the given settings.
+        /// </summary>
+        /// <param name="settings"></param>
+        /// <returns></returns>
+        public static string DatabaseFileFullName(this UserSettings settings)
+        {
+            return settings.DatabaseFile.AddSettingsFileRootDirectoryIfNeeded();
+        }
+
         public static string DefaultContentFormatChoice()
         {
             return Enum.GetNames(typeof(ContentFormatEnum)).First();
+        }
+
+        /// <summary>
+        ///     This returns the default Pointless Waymarks storage directory - currently in the users
+        ///     My Documents in a Pointless Waymarks Cms Folder - this will return the same value regardless
+        ///     of settings, site locations, etc...
+        /// </summary>
+        /// <returns></returns>
+        public static DirectoryInfo DefaultStorageDirectory()
+        {
+            var directory =
+                new DirectoryInfo(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
+                    "Pointless Waymarks Cms"));
+
+            if (!directory.Exists) directory.Create();
+
+            directory.Refresh();
+
+            return directory;
         }
 
         public static async Task EnsureDbIsPresent(IProgress<string>? progress = null)
@@ -162,7 +207,7 @@ namespace PointlessWaymarks.CmsData
 
         public static UserSettingsGenerationValues GenerationValues(this UserSettings settings)
         {
-            return (UserSettingsGenerationValues) new UserSettingsGenerationValues().InjectFrom(settings);
+            return (UserSettingsGenerationValues)new UserSettingsGenerationValues().InjectFrom(settings);
         }
 
         public static string GeoJsonListUrl(this UserSettings settings)
@@ -236,7 +281,20 @@ namespace PointlessWaymarks.CmsData
 
         public static DirectoryInfo LocalMediaArchiveFileDirectory(this UserSettings settings)
         {
-            var directory = new DirectoryInfo(Path.Combine(settings.LocalMediaArchive, "Files"));
+            var directory =
+                new DirectoryInfo(Path.Combine(settings.LocalMediaArchiveFullDirectory().FullName, "Files"));
+
+            if (!directory.Exists) directory.Create();
+
+            directory.Refresh();
+
+            return directory;
+        }
+
+        public static DirectoryInfo LocalMediaArchiveFullDirectory(this UserSettings settings)
+        {
+            var directory =
+                new DirectoryInfo(settings.LocalMediaArchiveDirectory.AddSettingsFileRootDirectoryIfNeeded());
 
             if (!directory.Exists) directory.Create();
 
@@ -256,7 +314,8 @@ namespace PointlessWaymarks.CmsData
 
         public static DirectoryInfo LocalMediaArchiveImageDirectory(this UserSettings settings)
         {
-            var directory = new DirectoryInfo(Path.Combine(settings.LocalMediaArchive, "Images"));
+            var directory =
+                new DirectoryInfo(Path.Combine(settings.LocalMediaArchiveFullDirectory().FullName, "Images"));
 
             if (!directory.Exists) directory.Create();
 
@@ -267,7 +326,7 @@ namespace PointlessWaymarks.CmsData
 
         public static DirectoryInfo LocalMediaArchiveLogsDirectory(this UserSettings settings)
         {
-            var directory = new DirectoryInfo(Path.Combine(settings.LocalMediaArchive, "Logs"));
+            var directory = new DirectoryInfo(Path.Combine(settings.LocalMediaArchiveFullDirectory().FullName, "Logs"));
 
             if (!directory.Exists) directory.Create();
 
@@ -287,7 +346,20 @@ namespace PointlessWaymarks.CmsData
 
         public static DirectoryInfo LocalMediaArchivePhotoDirectory(this UserSettings settings)
         {
-            var directory = new DirectoryInfo(Path.Combine(settings.LocalMediaArchive, "Photos"));
+            var directory =
+                new DirectoryInfo(Path.Combine(settings.LocalMediaArchiveFullDirectory().FullName, "Photos"));
+
+            if (!directory.Exists) directory.Create();
+
+            directory.Refresh();
+
+            return directory;
+        }
+
+        public static DirectoryInfo LocalScriptsDirectory(this UserSettings settings)
+        {
+            var directory =
+                new DirectoryInfo(Path.Combine(settings.LocalMediaArchiveFullDirectory().FullName, "Scripts"));
 
             if (!directory.Exists) directory.Create();
 
@@ -298,13 +370,13 @@ namespace PointlessWaymarks.CmsData
 
         public static FileInfo LocalSiteAllContentListFile(this UserSettings settings)
         {
-            var directory = settings.LocalSiteRootDirectory;
+            var directory = settings.LocalSiteRootFullDirectory().FullName;
             return new FileInfo($"{Path.Combine(directory, "AllContentList")}.html");
         }
 
         public static FileInfo LocalSiteAllContentRssFile(this UserSettings settings)
         {
-            var directory = settings.LocalSiteRootDirectory;
+            var directory = settings.LocalSiteRootFullDirectory().FullName;
             return new FileInfo($"{Path.Combine(directory, "AllContentRss")}.xml");
         }
 
@@ -322,8 +394,8 @@ namespace PointlessWaymarks.CmsData
 
         public static DirectoryInfo LocalSiteDailyPhotoGalleryDirectory(this UserSettings settings)
         {
-            var directory =
-                new DirectoryInfo(Path.Combine(settings.LocalSiteRootDirectory, "Photos", "Galleries", "Daily"));
+            var directory = new DirectoryInfo(Path.Combine(settings.LocalSiteRootFullDirectory().FullName, "Photos",
+                "Galleries", "Daily"));
             if (!directory.Exists) directory.Create();
 
             directory.Refresh();
@@ -347,7 +419,7 @@ namespace PointlessWaymarks.CmsData
             name = name.Replace(".html", "");
 
             if (DateTime.TryParseExact(name, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None,
-                out var parsedDateTime))
+                    out var parsedDateTime))
                 return parsedDateTime;
 
             return null;
@@ -355,7 +427,7 @@ namespace PointlessWaymarks.CmsData
 
         public static DirectoryInfo LocalSiteDirectory(this UserSettings settings)
         {
-            var directory = new DirectoryInfo(settings.LocalSiteRootDirectory);
+            var directory = new DirectoryInfo(settings.LocalSiteRootFullDirectory().FullName);
             if (!directory.Exists) directory.Create();
 
             directory.Refresh();
@@ -396,7 +468,7 @@ namespace PointlessWaymarks.CmsData
 
         public static DirectoryInfo LocalSiteFileDirectory(this UserSettings settings)
         {
-            var directory = new DirectoryInfo(Path.Combine(settings.LocalSiteRootDirectory, "Files"));
+            var directory = new DirectoryInfo(Path.Combine(settings.LocalSiteRootFullDirectory().FullName, "Files"));
             if (!directory.Exists) directory.Create();
 
             directory.Refresh();
@@ -458,7 +530,7 @@ namespace PointlessWaymarks.CmsData
 
         public static DirectoryInfo LocalSiteGeoJsonDirectory(this UserSettings settings)
         {
-            var directory = new DirectoryInfo(Path.Combine(settings.LocalSiteRootDirectory, "GeoJson"));
+            var directory = new DirectoryInfo(Path.Combine(settings.LocalSiteRootFullDirectory().FullName, "GeoJson"));
             if (!directory.Exists) directory.Create();
 
             directory.Refresh();
@@ -519,7 +591,7 @@ namespace PointlessWaymarks.CmsData
 
         public static DirectoryInfo LocalSiteImageDirectory(this UserSettings settings)
         {
-            var directory = new DirectoryInfo(Path.Combine(settings.LocalSiteRootDirectory, "Images"));
+            var directory = new DirectoryInfo(Path.Combine(settings.LocalSiteRootFullDirectory().FullName, "Images"));
             if (!directory.Exists) directory.Create();
 
             directory.Refresh();
@@ -549,7 +621,7 @@ namespace PointlessWaymarks.CmsData
 
         public static FileInfo LocalSiteIndexFile(this UserSettings settings)
         {
-            var directory = settings.LocalSiteRootDirectory;
+            var directory = settings.LocalSiteRootFullDirectory().FullName;
             return new FileInfo($"{Path.Combine(directory, "index")}.html");
         }
 
@@ -587,7 +659,7 @@ namespace PointlessWaymarks.CmsData
 
         public static DirectoryInfo LocalSiteLineDirectory(this UserSettings settings)
         {
-            var directory = new DirectoryInfo(Path.Combine(settings.LocalSiteRootDirectory, "Lines"));
+            var directory = new DirectoryInfo(Path.Combine(settings.LocalSiteRootFullDirectory().FullName, "Lines"));
             if (!directory.Exists) directory.Create();
 
             directory.Refresh();
@@ -617,7 +689,7 @@ namespace PointlessWaymarks.CmsData
 
         public static DirectoryInfo LocalSiteLinkDirectory(this UserSettings settings)
         {
-            var directory = new DirectoryInfo(Path.Combine(settings.LocalSiteRootDirectory, "Links"));
+            var directory = new DirectoryInfo(Path.Combine(settings.LocalSiteRootFullDirectory().FullName, "Links"));
             if (!directory.Exists) directory.Create();
 
             directory.Refresh();
@@ -656,18 +728,7 @@ namespace PointlessWaymarks.CmsData
 
         public static DirectoryInfo LocalSiteMapComponentDirectory(this UserSettings settings)
         {
-            var directory = new DirectoryInfo(Path.Combine(settings.LocalSiteRootDirectory, "Maps"));
-            if (!directory.Exists) directory.Create();
-
-            directory.Refresh();
-
-            return directory;
-        }
-
-        public static DirectoryInfo LocalSiteMediaArchiveDirectory(this UserSettings settings)
-        {
-            var directory = new DirectoryInfo(settings.LocalMediaArchive);
-
+            var directory = new DirectoryInfo(Path.Combine(settings.LocalSiteRootFullDirectory().FullName, "Maps"));
             if (!directory.Exists) directory.Create();
 
             directory.Refresh();
@@ -694,7 +755,7 @@ namespace PointlessWaymarks.CmsData
 
         public static DirectoryInfo LocalSiteNoteDirectory(this UserSettings settings)
         {
-            var directory = new DirectoryInfo(Path.Combine(settings.LocalSiteRootDirectory, "Notes"));
+            var directory = new DirectoryInfo(Path.Combine(settings.LocalSiteRootFullDirectory().FullName, "Notes"));
             if (!directory.Exists) directory.Create();
 
             directory.Refresh();
@@ -755,7 +816,7 @@ namespace PointlessWaymarks.CmsData
 
         public static DirectoryInfo LocalSitePhotoDirectory(this UserSettings settings)
         {
-            var directory = new DirectoryInfo(Path.Combine(settings.LocalSiteRootDirectory, "Photos"));
+            var directory = new DirectoryInfo(Path.Combine(settings.LocalSiteRootFullDirectory().FullName, "Photos"));
             if (!directory.Exists) directory.Create();
 
             directory.Refresh();
@@ -765,7 +826,8 @@ namespace PointlessWaymarks.CmsData
 
         public static DirectoryInfo LocalSitePhotoGalleryDirectory(this UserSettings settings)
         {
-            var directory = new DirectoryInfo(Path.Combine(settings.LocalSiteRootDirectory, "Photos", "Galleries"));
+            var directory =
+                new DirectoryInfo(Path.Combine(settings.LocalSiteRootFullDirectory().FullName, "Photos", "Galleries"));
             if (!directory.Exists) directory.Create();
 
             directory.Refresh();
@@ -854,7 +916,7 @@ namespace PointlessWaymarks.CmsData
 
         public static DirectoryInfo LocalSitePointDirectory(this UserSettings settings)
         {
-            var directory = new DirectoryInfo(Path.Combine(settings.LocalSiteRootDirectory, "Points"));
+            var directory = new DirectoryInfo(Path.Combine(settings.LocalSiteRootFullDirectory().FullName, "Points"));
             if (!directory.Exists) directory.Create();
 
             directory.Refresh();
@@ -916,7 +978,8 @@ namespace PointlessWaymarks.CmsData
 
         public static DirectoryInfo LocalSitePostDirectory(this UserSettings settings)
         {
-            var localDirectory = new DirectoryInfo(Path.Combine(settings.LocalSiteRootDirectory, "Posts"));
+            var localDirectory =
+                new DirectoryInfo(Path.Combine(settings.LocalSiteRootFullDirectory().FullName, "Posts"));
             if (!localDirectory.Exists) localDirectory.Create();
 
             localDirectory.Refresh();
@@ -944,15 +1007,9 @@ namespace PointlessWaymarks.CmsData
             return new FileInfo($"{Path.Combine(directory.FullName, "PostRss")}.xml");
         }
 
-        public static FileInfo LocalSiteRssIndexFeedListFile(this UserSettings settings)
+        public static DirectoryInfo LocalSiteRootFullDirectory(this UserSettings settings)
         {
-            var directory = settings.LocalSiteRootDirectory;
-            return new FileInfo($"{Path.Combine(directory, "RssIndexFeed")}.xml");
-        }
-
-        public static DirectoryInfo LocalSiteScriptsDirectory(this UserSettings settings)
-        {
-            var directory = new DirectoryInfo(Path.Combine(settings.LocalMediaArchive, "Scripts"));
+            var directory = new DirectoryInfo(settings.LocalSiteRootDirectory.AddSettingsFileRootDirectoryIfNeeded());
 
             if (!directory.Exists) directory.Create();
 
@@ -961,9 +1018,16 @@ namespace PointlessWaymarks.CmsData
             return directory;
         }
 
+        public static FileInfo LocalSiteRssIndexFeedListFile(this UserSettings settings)
+        {
+            var directory = settings.LocalSiteRootFullDirectory().FullName;
+            return new FileInfo($"{Path.Combine(directory, "RssIndexFeed")}.xml");
+        }
+
         public static DirectoryInfo LocalSiteSiteResourcesDirectory(this UserSettings settings)
         {
-            var directory = new DirectoryInfo(Path.Combine(settings.LocalSiteRootDirectory, "SiteResources"));
+            var directory =
+                new DirectoryInfo(Path.Combine(settings.LocalSiteRootFullDirectory().FullName, "SiteResources"));
             if (!directory.Exists) directory.Create();
 
             directory.Refresh();
@@ -981,7 +1045,7 @@ namespace PointlessWaymarks.CmsData
 
         public static DirectoryInfo LocalSiteTagsDirectory(this UserSettings settings)
         {
-            var directory = new DirectoryInfo(Path.Combine(settings.LocalSiteRootDirectory, "Tags"));
+            var directory = new DirectoryInfo(Path.Combine(settings.LocalSiteRootFullDirectory().FullName, "Tags"));
             if (!directory.Exists) directory.Create();
 
             directory.Refresh();
@@ -1111,7 +1175,8 @@ namespace PointlessWaymarks.CmsData
 
             await using (var fs = new FileStream(currentFile.FullName, FileMode.Open, FileAccess.Read))
             {
-                readResult = await JsonSerializer.DeserializeAsync<UserSettings>(fs).ConfigureAwait(false) ?? new UserSettings();
+                readResult = await JsonSerializer.DeserializeAsync<UserSettings>(fs).ConfigureAwait(false) ??
+                             new UserSettings();
             }
 
             var timeStampForMissingValues = $"{DateTime.Now:yyyy-MM-dd--HH-mm-ss-fff}";
@@ -1119,20 +1184,6 @@ namespace PointlessWaymarks.CmsData
             var hasUpdates = false;
 
             progress?.Report("Checking for missing values in settings...");
-
-            if (string.IsNullOrWhiteSpace(readResult.LocalSiteRootDirectory))
-            {
-                //This could fail for all kinds of interesting reasons but for the purposes of this program I am not sure that
-                //industrial strength name collision avoidance is needed
-                var newRootDirectory =
-                    new DirectoryInfo(Path.Combine(currentFile.Directory.FullName, timeStampForMissingValues));
-
-                newRootDirectory.CreateIfItDoesNotExist();
-
-                readResult.LocalSiteRootDirectory = newRootDirectory.FullName;
-
-                hasUpdates = true;
-            }
 
             if (string.IsNullOrWhiteSpace(readResult.DatabaseFile))
             {
@@ -1148,17 +1199,20 @@ namespace PointlessWaymarks.CmsData
                 var newLocalSiteRoot = new DirectoryInfo(Path.Combine(currentFile.Directory.FullName,
                     timeStampForMissingValues, $"PointlessWaymarks-Site-{timeStampForMissingValues}"));
 
-                if (!newLocalSiteRoot.Exists) newLocalSiteRoot.Create();
+                newLocalSiteRoot.CreateIfItDoesNotExist();
+                readResult.LocalSiteRootDirectory = Path.GetRelativePath(currentFile.DirectoryName ?? string.Empty,
+                    newLocalSiteRoot.FullName);
                 hasUpdates = true;
             }
 
-            if (string.IsNullOrWhiteSpace(readResult.LocalMediaArchive))
+            if (string.IsNullOrWhiteSpace(readResult.LocalMediaArchiveDirectory))
             {
                 var newMediaArchive = new DirectoryInfo(Path.Combine(currentFile.Directory.FullName,
                     timeStampForMissingValues, $"PointlessWaymarks-MediaArchive-{timeStampForMissingValues}"));
 
-                if (!newMediaArchive.Exists) newMediaArchive.Create();
-                readResult.LocalMediaArchive = newMediaArchive.FullName;
+                newMediaArchive.CreateIfItDoesNotExist();
+                readResult.LocalMediaArchiveDirectory = Path.GetRelativePath(currentFile.DirectoryName ?? string.Empty,
+                    newMediaArchive.FullName);
                 hasUpdates = true;
             }
 
@@ -1200,7 +1254,7 @@ namespace PointlessWaymarks.CmsData
 
             if (string.IsNullOrWhiteSpace(readResult.SiteEmailTo))
             {
-                readResult.SiteEmailTo = "nothing@nowhere.com";
+                readResult.SiteEmailTo = "email.to@nowhere.com";
                 hasUpdates = true;
             }
 
@@ -1244,7 +1298,7 @@ namespace PointlessWaymarks.CmsData
 
         public static FileInfo SettingsFile()
         {
-            return new(Path.Combine(StorageDirectory().FullName, SettingsFileName));
+            return new(SettingsFileFullName);
         }
 
         /// <summary>
@@ -1259,7 +1313,7 @@ namespace PointlessWaymarks.CmsData
 
             var newSettings = new UserSettings();
 
-            var rootDirectory = new DirectoryInfo(Path.Combine(StorageDirectory().FullName, userFilename));
+            var rootDirectory = new DirectoryInfo(Path.Combine(DefaultStorageDirectory().FullName, userFilename));
 
             progress?.Report("Creating new settings - looking for home...");
 
@@ -1268,7 +1322,7 @@ namespace PointlessWaymarks.CmsData
             while (rootDirectory.Exists)
             {
                 rootDirectory =
-                    new DirectoryInfo(Path.Combine(StorageDirectory().FullName, $"{userFilename}-{fileNumber}"));
+                    new DirectoryInfo(Path.Combine(DefaultStorageDirectory().FullName, $"{userFilename}-{fileNumber}"));
                 rootDirectory.Refresh();
                 progress?.Report($"Trying {rootDirectory.FullName}...");
                 fileNumber++;
@@ -1276,16 +1330,13 @@ namespace PointlessWaymarks.CmsData
 
             rootDirectory.Create();
 
-            var siteRoot = new DirectoryInfo(Path.Combine(rootDirectory.FullName, "GeneratedSite"));
-            newSettings.LocalSiteRootDirectory = siteRoot.FullName;
+            newSettings.LocalSiteRootDirectory = "GeneratedSite";
 
-            progress?.Report($"Local Site Root set to {siteRoot.FullName}");
+            progress?.Report($"Local Site Root set to {newSettings.LocalSiteRootDirectory}");
 
-            newSettings.DatabaseFile =
-                Path.Combine(rootDirectory.FullName, $"PointlessWaymarksCmsDatabase-{userFilename}.db");
+            newSettings.DatabaseFile = $"PointlessWaymarksCmsDatabase-{userFilename}.db";
 
-            var mediaDirectory = new DirectoryInfo(Path.Combine(rootDirectory.FullName, "MediaArchive"));
-            newSettings.LocalMediaArchive = mediaDirectory.FullName;
+            newSettings.LocalMediaArchiveDirectory = "MediaArchive";
 
             progress?.Report("Adding fake default values...");
 
@@ -1297,12 +1348,12 @@ namespace PointlessWaymarks.CmsData
             newSettings.SiteKeywords = "new,site";
             newSettings.SiteSummary = "A new site.";
             newSettings.SiteAuthors = "Pointless Waymarks CMS";
-            newSettings.SiteEmailTo = "nothing@nowhere.com";
+            newSettings.SiteEmailTo = "emailto@nowhere.com";
             newSettings.LatitudeDefault = 32.443131;
             newSettings.LongitudeDefault = -110.788429;
             newSettings.SettingsId = Guid.NewGuid();
 
-            SettingsFileName =
+            SettingsFileFullName =
                 Path.Combine(rootDirectory.FullName, $"PointlessWaymarksCmsSettings-{userFilename}.json");
 
             progress?.Report("Writing Settings");
@@ -1334,24 +1385,11 @@ namespace PointlessWaymarks.CmsData
                 x.SystemName == settings.SiteS3BucketRegion);
         }
 
-        public static DirectoryInfo StorageDirectory()
-        {
-            var directory =
-                new DirectoryInfo(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
-                    "Pointless Waymarks Cms"));
-
-            if (!directory.Exists) directory.Create();
-
-            directory.Refresh();
-
-            return directory;
-        }
-
         public static string StylesCssFromLocalSiteRootDirectory()
         {
             var settings = UserSettingsSingleton.CurrentSettings();
 
-            var possibleFile = new FileInfo(Path.Combine(settings.LocalSiteRootDirectory, "style.css"));
+            var possibleFile = new FileInfo(Path.Combine(settings.LocalSiteRootFullDirectory().FullName, "style.css"));
 
             if (!possibleFile.Exists) return string.Empty;
 
@@ -1394,12 +1432,12 @@ namespace PointlessWaymarks.CmsData
         {
             var settings = UserSettingsSingleton.CurrentSettings();
 
-            if (string.IsNullOrWhiteSpace(settings.LocalMediaArchive))
+            if (string.IsNullOrWhiteSpace(settings.LocalMediaArchiveDirectory))
                 return new IsValid(false, "No Local File Root User Setting Found");
 
             try
             {
-                var directory = new DirectoryInfo(settings.LocalMediaArchive);
+                var directory = new DirectoryInfo(settings.LocalMediaArchiveFullDirectory().FullName);
                 if (!directory.Exists) directory.Create();
                 directory.Refresh();
             }
@@ -1420,7 +1458,7 @@ namespace PointlessWaymarks.CmsData
 
             try
             {
-                var directory = new DirectoryInfo(settings.LocalSiteRootDirectory);
+                var directory = settings.LocalSiteRootFullDirectory();
                 if (!directory.Exists) directory.Create();
                 directory.Refresh();
             }

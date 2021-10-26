@@ -181,7 +181,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml.IndexHtml
             var htmlString = stringWriter.ToString();
 
             var htmlFileInfo =
-                new FileInfo($@"{UserSettingsSingleton.CurrentSettings().LocalSiteRootDirectory}\index.html");
+                new FileInfo($@"{UserSettingsSingleton.CurrentSettings().LocalSiteRootFullDirectory().FullName}\index.html");
 
             if (htmlFileInfo.Exists)
             {

@@ -96,7 +96,7 @@ namespace PointlessWaymarks.CmsWpfControls.S3Uploads
             var toUpload = await FilesSinceLastUploadToRunningUploadWindow(statusContext.ProgressTracker());
 
             await S3UploaderItemsToS3UploaderJsonFile(toUpload.uploadItems, Path.Combine(
-                UserSettingsSingleton.CurrentSettings().LocalSiteScriptsDirectory().FullName,
+                UserSettingsSingleton.CurrentSettings().LocalScriptsDirectory().FullName,
                 $"{DateTime.Now:yyyy-MM-dd--HH-mm-ss}---File-Upload-Data.json"));
 
             if (!toUpload.validUploadList.Valid)

@@ -255,7 +255,7 @@ namespace PointlessWaymarks.CmsWpfControls.WordPressXmlImport
             {
                 Multiselect = false,
                 Filter = "xml files (*.xml)|*.xml|All files (*.*)|*.*",
-                InitialDirectory = UserSettingsSingleton.CurrentSettings().LocalSiteScriptsDirectory().FullName
+                InitialDirectory = UserSettingsSingleton.CurrentSettings().LocalScriptsDirectory().FullName
             };
 
             if (!(dialog.ShowDialog() ?? false)) return;

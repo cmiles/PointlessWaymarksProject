@@ -170,7 +170,7 @@ namespace PointlessWaymarks.CmsData.Database
 #pragma warning restore 1998
         {
             var optionsBuilder = new DbContextOptionsBuilder<PointlessWaymarksContext>();
-            var dbPath = UserSettingsSingleton.CurrentSettings().DatabaseFile;
+            var dbPath = UserSettingsSingleton.CurrentSettings().DatabaseFileFullName();
             return new PointlessWaymarksContext(optionsBuilder.UseSqlite($"Data Source={dbPath}").Options);
         }
 
