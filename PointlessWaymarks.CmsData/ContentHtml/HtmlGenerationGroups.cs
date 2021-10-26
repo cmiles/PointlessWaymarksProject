@@ -148,7 +148,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml
             var allPages = await DailyPhotoPageGenerators.DailyPhotoGalleries(generationVersion, progress)
                 .ConfigureAwait(false);
 
-            await allPages.AsyncParallelForEach(async x => await x.WriteLocalHtml().ConfigureAwait(false))
+            await Parallel.ForEachAsync(allPages, async (x, _) => await x.WriteLocalHtml().ConfigureAwait(false))
                 .ConfigureAwait(false);
         }
 
@@ -162,7 +162,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml
 
             progress?.Report($"Found {totalCount} Files to Generate");
 
-            await allItems.AsyncParallelForEach(async loopItem =>
+            await Parallel.ForEachAsync(allItems, async (loopItem, _) =>
             {
                 progress?.Report($"Writing HTML for {loopItem.Title}");
 
@@ -182,7 +182,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml
 
             progress?.Report($"Found {totalCount} GeoJson Entries to Generate");
 
-            await allItems.AsyncParallelForEach(async loopItem =>
+            await Parallel.ForEachAsync(allItems, async (loopItem, _) =>
             {
                 progress?.Report($"Writing HTML for {loopItem.Title}");
 
@@ -223,14 +223,16 @@ namespace PointlessWaymarks.CmsData.ContentHtml
 
             await Task.WhenAll(generationTasks).ConfigureAwait(false);
 
-            await new List<Func<Task>>
+            var taskSet = new List<Func<Task>>
             {
                 async () => await GenerateAllTagHtml(generationVersion, progress).ConfigureAwait(false),
                 async () => await GenerateAllListHtml(generationVersion, progress).ConfigureAwait(false),
                 async () => await GenerateAllUtilityJson(progress).ConfigureAwait(false),
                 async () => await GenerateIndex(generationVersion, progress).ConfigureAwait(false),
                 async () => await GenerateErrorPage(generationVersion, progress).ConfigureAwait(false)
-            }.AsyncParallelForEach().ConfigureAwait(false);
+            };
+
+            await Parallel.ForEachAsync(taskSet, async (x, _) => await x()).ConfigureAwait(false);
 
             progress?.Report(
                 $"Generation Complete - Writing Generation Date Time of UTC {generationVersion} in Db Generation log as Last Generation");
@@ -251,7 +253,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml
 
             progress?.Report($"Found {totalCount} Images to Generate");
 
-            await allItems.AsyncParallelForEach(async loopItem =>
+            await Parallel.ForEachAsync(allItems, async (loopItem, _) =>
             {
                 progress?.Report($"Writing HTML for {loopItem.Title}");
 
@@ -271,7 +273,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml
 
             progress?.Report($"Found {totalCount} Lines to Generate");
 
-            await allItems.AsyncParallelForEach(async loopItem =>
+            await Parallel.ForEachAsync(allItems, async (loopItem, _) =>
             {
                 progress?.Report($"Writing HTML for {loopItem.Title}");
 
@@ -283,10 +285,10 @@ namespace PointlessWaymarks.CmsData.ContentHtml
 
         public static async Task GenerateAllListHtml(DateTime? generationVersion, IProgress<string>? progress = null)
         {
-            var actionList = new List<Func<Task>>
+            var taskSet = new List<Func<Task>>
             {
-                async () => await SearchListPageGenerators.WriteAllContentCommonSearchListHtml(generationVersion,
-                    progress).ConfigureAwait(false),
+                async () => await SearchListPageGenerators
+                    .WriteAllContentCommonSearchListHtml(generationVersion, progress).ConfigureAwait(false),
                 async () => await SearchListPageGenerators.WriteFileContentListHtml(generationVersion, progress)
                     .ConfigureAwait(false),
                 async () => await SearchListPageGenerators.WriteImageContentListHtml(generationVersion, progress)
@@ -308,7 +310,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml
                 }
             };
 
-            await actionList.AsyncParallelForEach().ConfigureAwait(false);
+            await Parallel.ForEachAsync(taskSet, async (x, _) => await x()).ConfigureAwait(false);
         }
 
         public static async Task GenerateAllMapData(DateTime? generationVersion, IProgress<string>? progress = null)
@@ -323,7 +325,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml
 
             progress?.Report($"Found {totalCount} Map Components to Generate");
 
-            await allItems.AsyncParallelForEach(async loopItem =>
+            await Parallel.ForEachAsync(allItems, async (loopItem, _) =>
             {
                 progress?.Report($"Writing Data for {loopItem.Title}");
 
@@ -342,7 +344,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml
 
             progress?.Report($"Found {totalCount} Posts to Generate");
 
-            await allItems.AsyncParallelForEach(async loopItem =>
+            await Parallel.ForEachAsync(allItems, async (loopItem, _) =>
             {
                 progress?.Report($"Writing HTML for Note Dated {loopItem.CreatedOn:d}");
 
@@ -362,7 +364,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml
 
             progress?.Report($"Found {totalCount} Photos to Generate");
 
-            await allItems.AsyncParallelForEach(async loopItem =>
+            await Parallel.ForEachAsync(allItems, async (loopItem, _) =>
             {
                 progress?.Report($"Writing HTML for {loopItem.Title}");
 
@@ -384,7 +386,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml
 
             progress?.Report($"Found {totalCount} Points to Generate");
 
-            await allItems.AsyncParallelForEach(async loopItem =>
+            await Parallel.ForEachAsync(allItems, async (loopItem, _) =>
             {
                 progress?.Report($"Writing HTML for {loopItem.Title}");
 
@@ -417,7 +419,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml
 
             progress?.Report($"Found {totalCount} Posts to Generate");
 
-            await allItems.AsyncParallelForEach(async loopItem =>
+            await Parallel.ForEachAsync(allItems, async (loopItem, _) =>
             {
                 progress?.Report($"Writing HTML for {loopItem.Title}");
 
@@ -460,23 +462,21 @@ namespace PointlessWaymarks.CmsData.ContentHtml
 
             var guidBag = new ConcurrentBag<List<Guid>>();
 
-            await new List<Func<Task>>
+            var taskSet = new List<Func<Task>>
             {
                 async () =>
                 {
                     var db = await Db.Context().ConfigureAwait(false);
                     var files = await db.FileContents.Where(x => x.ContentVersion > contentAfter)
-                        .Select(x => x.ContentId)
-                        .ToListAsync().ConfigureAwait(false);
+                        .Select(x => x.ContentId).ToListAsync().ConfigureAwait(false);
                     guidBag.Add(files);
                     progress?.Report($"Found {files.Count} File Content Entries Changed After {contentAfter}");
                 },
                 async () =>
                 {
                     var db = await Db.Context().ConfigureAwait(false);
-                    var geoJson =
-                        await db.GeoJsonContents.Where(x => x.ContentVersion > contentAfter).Select(x => x.ContentId)
-                            .ToListAsync().ConfigureAwait(false);
+                    var geoJson = await db.GeoJsonContents.Where(x => x.ContentVersion > contentAfter)
+                        .Select(x => x.ContentId).ToListAsync().ConfigureAwait(false);
                     guidBag.Add(geoJson);
                     progress?.Report($"Found {geoJson.Count} GeoJson Content Entries Changed After {contentAfter}");
                 },
@@ -484,8 +484,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml
                 {
                     var db = await Db.Context().ConfigureAwait(false);
                     var images = await db.ImageContents.Where(x => x.ContentVersion > contentAfter)
-                        .Select(x => x.ContentId)
-                        .ToListAsync().ConfigureAwait(false);
+                        .Select(x => x.ContentId).ToListAsync().ConfigureAwait(false);
                     guidBag.Add(images);
                     progress?.Report($"Found {images.Count} Image Content Entries Changed After {contentAfter}");
                 },
@@ -493,8 +492,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml
                 {
                     var db = await Db.Context().ConfigureAwait(false);
                     var lines = await db.LineContents.Where(x => x.ContentVersion > contentAfter)
-                        .Select(x => x.ContentId)
-                        .ToListAsync().ConfigureAwait(false);
+                        .Select(x => x.ContentId).ToListAsync().ConfigureAwait(false);
                     guidBag.Add(lines);
                     progress?.Report($"Found {lines.Count} Line Content Entries Changed After {contentAfter}");
                 },
@@ -502,8 +500,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml
                 {
                     var db = await Db.Context().ConfigureAwait(false);
                     var links = await db.LinkContents.Where(x => x.ContentVersion > contentAfter)
-                        .Select(x => x.ContentId)
-                        .ToListAsync().ConfigureAwait(false);
+                        .Select(x => x.ContentId).ToListAsync().ConfigureAwait(false);
                     guidBag.Add(links);
                     progress?.Report($"Found {links.Count} Link Content Entries Changed After {contentAfter}");
                 },
@@ -511,8 +508,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml
                 {
                     var db = await Db.Context().ConfigureAwait(false);
                     var maps = await db.MapComponents.Where(x => x.ContentVersion > contentAfter)
-                        .Select(x => x.ContentId)
-                        .ToListAsync().ConfigureAwait(false);
+                        .Select(x => x.ContentId).ToListAsync().ConfigureAwait(false);
                     guidBag.Add(maps);
                     progress?.Report($"Found {maps.Count} Map Components Changed After {contentAfter}");
                 },
@@ -520,8 +516,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml
                 {
                     var db = await Db.Context().ConfigureAwait(false);
                     var notes = await db.NoteContents.Where(x => x.ContentVersion > contentAfter)
-                        .Select(x => x.ContentId)
-                        .ToListAsync().ConfigureAwait(false);
+                        .Select(x => x.ContentId).ToListAsync().ConfigureAwait(false);
                     guidBag.Add(notes);
                     progress?.Report($"Found {notes.Count} Note Content Entries Changed After {contentAfter}");
                 },
@@ -529,8 +524,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml
                 {
                     var db = await Db.Context().ConfigureAwait(false);
                     var photos = await db.PhotoContents.Where(x => x.ContentVersion > contentAfter)
-                        .Select(x => x.ContentId)
-                        .ToListAsync().ConfigureAwait(false);
+                        .Select(x => x.ContentId).ToListAsync().ConfigureAwait(false);
                     guidBag.Add(photos);
                     progress?.Report($"Found {photos.Count} Photo Content Entries Changed After {contentAfter}");
                 },
@@ -538,8 +532,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml
                 {
                     var db = await Db.Context().ConfigureAwait(false);
                     var points = await db.PointContents.Where(x => x.ContentVersion > contentAfter)
-                        .Select(x => x.ContentId)
-                        .ToListAsync().ConfigureAwait(false);
+                        .Select(x => x.ContentId).ToListAsync().ConfigureAwait(false);
                     guidBag.Add(points);
                     progress?.Report($"Found {points.Count} Point Content Entries Changed After {contentAfter}");
                 },
@@ -547,28 +540,29 @@ namespace PointlessWaymarks.CmsData.ContentHtml
                 {
                     var db = await Db.Context().ConfigureAwait(false);
                     var posts = await db.PostContents.Where(x => x.ContentVersion > contentAfter)
-                        .Select(x => x.ContentId)
-                        .ToListAsync().ConfigureAwait(false);
+                        .Select(x => x.ContentId).ToListAsync().ConfigureAwait(false);
                     guidBag.Add(posts);
                     progress?.Report($"Found {posts.Count} Post Content Entries Changed After {contentAfter}");
                 }
-            }.AsyncParallelForEach().ConfigureAwait(false);
+            };
+
+            await Parallel.ForEachAsync(taskSet, async (x, _) => await x()).ConfigureAwait(false);
 
             var contentChanges = guidBag.SelectMany(x => x.Select(y => y)).ToList();
 
             progress?.Report("Gathering deleted and new content with related content...");
 
             var previousGenerationVersion = mainContext.GenerationLogs
-                .Where(x => x.GenerationVersion < generationVersion)
-                .Select(x => x.GenerationVersion).OrderByDescending(x => x).FirstOrDefault();
+                .Where(x => x.GenerationVersion < generationVersion).Select(x => x.GenerationVersion)
+                .OrderByDescending(x => x).FirstOrDefault();
 
             var lastLoopPrimaryIds = await mainContext.GenerationRelatedContents
                 .Where(x => x.GenerationVersion == previousGenerationVersion).Select(x => x.ContentOne).Distinct()
                 .ToListAsync().ConfigureAwait(false);
 
             var thisLoopPrimaryIds = await mainContext.GenerationRelatedContents
-                .Where(x => x.GenerationVersion == generationVersion).Select(x => x.ContentOne).Distinct()
-                .ToListAsync().ConfigureAwait(false);
+                .Where(x => x.GenerationVersion == generationVersion).Select(x => x.ContentOne).Distinct().ToListAsync()
+                .ConfigureAwait(false);
 
             var noLongerPresentIds = lastLoopPrimaryIds.Except(thisLoopPrimaryIds).ToList();
             progress?.Report($"Found {noLongerPresentIds.Count} Content Ids not in current Related Ids");
@@ -626,16 +620,17 @@ namespace PointlessWaymarks.CmsData.ContentHtml
             var db = await Db.Context().ConfigureAwait(false);
 
             var excludedThisGeneration = await db.GenerationTagLogs
-                .Where(x => x.GenerationVersion == generationVersion && x.TagIsExcludedFromSearch)
-                .AsNoTracking().ToListAsync().ConfigureAwait(false);
+                .Where(x => x.GenerationVersion == generationVersion && x.TagIsExcludedFromSearch).AsNoTracking()
+                .ToListAsync().ConfigureAwait(false);
 
             var excludedLastGeneration = await db.GenerationTagLogs.Where(x =>
-                    x.GenerationVersion == previousGenerationVersion && x.TagIsExcludedFromSearch)
-                .AsNoTracking().ToListAsync().ConfigureAwait(false);
+                    x.GenerationVersion == previousGenerationVersion && x.TagIsExcludedFromSearch).AsNoTracking()
+                .ToListAsync().ConfigureAwait(false);
 
-            var changedExclusions = excludedThisGeneration.Join(excludedLastGeneration, o => o.TagSlug, i => i.TagSlug,
-                    (x, y) => new { x, y }).Where(x => x.x.TagIsExcludedFromSearch != x.y.TagIsExcludedFromSearch)
-                .Where(x => x.x.TagSlug != null).Select(x => x.x.TagSlug).ToList();
+            var changedExclusions = excludedThisGeneration
+                .Join(excludedLastGeneration, o => o.TagSlug, i => i.TagSlug, (x, y) => new { x, y })
+                .Where(x => x.x.TagIsExcludedFromSearch != x.y.TagIsExcludedFromSearch).Where(x => x.x.TagSlug != null)
+                .Select(x => x.x.TagSlug).ToList();
 
             if (changedExclusions.Count == 0)
             {
@@ -646,8 +641,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml
             progress?.Report($"Found {changedExclusions.Count} Tags where there are changes to Excluded from Search");
 
             var impactedContent = db.GenerationTagLogs.Where(x => changedExclusions.Contains(x.TagSlug))
-                .Select(x => x.RelatedContentId)
-                .Distinct().ToList();
+                .Select(x => x.RelatedContentId).Distinct().ToList();
 
             progress?.Report(
                 $"Found {impactedContent.Count} Content Ids where Tags Excluded from Search changes may cause the content to regenerate - writing to db.");
@@ -655,10 +649,12 @@ namespace PointlessWaymarks.CmsData.ContentHtml
             foreach (var loopExclusionContentChanges in impactedContent)
             {
                 if (await db.GenerationChangedContentIds.AnyAsync(x => x.ContentId == loopExclusionContentChanges)
-                    .ConfigureAwait(false))
+                        .ConfigureAwait(false))
                     continue;
                 await db.GenerationChangedContentIds.AddAsync(new GenerationChangedContentId
-                    { ContentId = loopExclusionContentChanges }).ConfigureAwait(false);
+                {
+                    ContentId = loopExclusionContentChanges
+                }).ConfigureAwait(false);
             }
 
             progress?.Report("Done checking for changes to Tags Excluded from Search");
@@ -713,10 +709,9 @@ namespace PointlessWaymarks.CmsData.ContentHtml
                     datesToGenerate.Add(before.DailyPhotoDate);
             }
 
-            var resultantPages =
-                await DailyPhotoPageGenerators.DailyPhotoGalleries(datesToGenerate, generationVersion, progress)
-                    .ConfigureAwait(false);
-            await resultantPages.AsyncParallelForEach(async x => await x.WriteLocalHtml().ConfigureAwait(false))
+            var resultantPages = await DailyPhotoPageGenerators
+                .DailyPhotoGalleries(datesToGenerate, generationVersion, progress).ConfigureAwait(false);
+            await Parallel.ForEachAsync(resultantPages, async (x, _) => await x.WriteLocalHtml().ConfigureAwait(false))
                 .ConfigureAwait(false);
         }
 
@@ -887,9 +882,9 @@ namespace PointlessWaymarks.CmsData.ContentHtml
                 if (!generationComparisonResults.AreEqual)
                 {
                     generateProgress?.Report($"New content found for tag {tag} - creating page");
-                    var contentToWrite =
-                        await pointlessWaymarksContext.ContentFromContentIds(contentThisGeneration
-                            .Select(x => x.RelatedContentId).ToList()).ConfigureAwait(false);
+                    var contentToWrite = await pointlessWaymarksContext
+                        .ContentFromContentIds(contentThisGeneration.Select(x => x.RelatedContentId).ToList())
+                        .ConfigureAwait(false);
                     await SearchListPageGenerators.WriteTagPage(tag, contentToWrite, dateTime, generateProgress)
                         .ConfigureAwait(false);
                     return;
@@ -899,16 +894,16 @@ namespace PointlessWaymarks.CmsData.ContentHtml
                 var primaryContentChanges = await pointlessWaymarksContext.GenerationChangedContentIds.AnyAsync(x =>
                     contentThisGeneration.Select(y => y.RelatedContentId).Contains(x.ContentId)).ConfigureAwait(false);
 
-                var directTagContent =
-                    await pointlessWaymarksContext.ContentFromContentIds(contentThisGeneration
-                        .Select(x => x.RelatedContentId).ToList()).ConfigureAwait(false);
+                var directTagContent = await pointlessWaymarksContext
+                    .ContentFromContentIds(contentThisGeneration.Select(x => x.RelatedContentId).ToList())
+                    .ConfigureAwait(false);
 
                 //Main Image changes
                 var mainImageContentIds = directTagContent.Select(x => Db.MainImageContentIdIfPresent(x))
                     .Where(x => x != null).Cast<Guid>().ToList();
 
-                var mainImageContentChanges = await pointlessWaymarksContext.GenerationChangedContentIds.AnyAsync(x =>
-                    mainImageContentIds.Contains(x.ContentId)).ConfigureAwait(false);
+                var mainImageContentChanges = await pointlessWaymarksContext.GenerationChangedContentIds
+                    .AnyAsync(x => mainImageContentIds.Contains(x.ContentId)).ConfigureAwait(false);
 
                 if (primaryContentChanges || mainImageContentChanges)
                 {
@@ -1090,7 +1085,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml
 
             progress?.Report($"Found {totalCount} Files to Generate");
 
-            await allItems.AsyncParallelForEach(async loopItem =>
+            await Parallel.ForEachAsync(allItems, async (loopItem, _) =>
             {
                 progress?.Report($"Writing HTML for {loopItem.Title}");
 
@@ -1113,7 +1108,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml
 
             progress?.Report($"Found {totalCount} GeoJson Entries to Generate");
 
-            await allItems.AsyncParallelForEach(async loopItem =>
+            await Parallel.ForEachAsync(allItems, async (loopItem, _) =>
             {
                 progress?.Report($"Writing HTML for {loopItem.Title}");
 
@@ -1132,7 +1127,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml
                 .Join(db.GenerationChangedContentIds, o => o.ContentId, i => i.ContentId, (o, i) => o).ToListAsync()
                 .ConfigureAwait(false);
 
-            await allItems.AsyncParallelForEach(async loopItem =>
+            await Parallel.ForEachAsync(allItems, async (loopItem, _) =>
             {
                 progress?.Report($"Writing HTML for {loopItem.Title}");
 
@@ -1155,7 +1150,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml
 
             progress?.Report($"Found {totalCount} Lines to Generate");
 
-            await allItems.AsyncParallelForEach(async loopItem =>
+            await Parallel.ForEachAsync(allItems, async (loopItem, _) =>
             {
                 progress?.Report($"Writing HTML for {loopItem.Title}");
 
@@ -1178,7 +1173,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml
 
             progress?.Report($"Found {totalCount} Map Components to Generate");
 
-            await allItems.AsyncParallelForEach(async loopItem =>
+            await Parallel.ForEachAsync(allItems, async (loopItem, _) =>
             {
                 progress?.Report($"Writing Data for {loopItem.Title}");
 
@@ -1200,7 +1195,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml
 
             progress?.Report($"Found {totalCount} Posts to Generate");
 
-            await allItems.AsyncParallelForEach(async loopItem =>
+            await Parallel.ForEachAsync(allItems, async (loopItem, _) =>
             {
                 progress?.Report($"Writing HTML for Note Dated {loopItem.CreatedOn:d}");
 
@@ -1223,7 +1218,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml
 
             progress?.Report($"Found {totalCount} Photos to Generate");
 
-            await allItems.AsyncParallelForEach(async loopItem =>
+            await Parallel.ForEachAsync(allItems, async (loopItem, _) =>
             {
                 progress?.Report($"Writing HTML for {loopItem.Title}");
 
@@ -1249,7 +1244,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml
             if (allItems.Count > 0)
                 await GenerateAllPointHtml(generationVersion, progress).ConfigureAwait(false);
 
-            await allItems.AsyncParallelForEach(async loopItem =>
+            await Parallel.ForEachAsync(allItems, async (loopItem, _) =>
             {
                 progress?.Report($"Writing HTML for {loopItem.Title}");
 
@@ -1277,7 +1272,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml
 
             progress?.Report($"Found {totalCount} Posts to Generate");
 
-            await allItems.AsyncParallelForEach(async loopItem =>
+            await Parallel.ForEachAsync(allItems, async (loopItem, _) =>
             {
                 progress?.Report($"Writing HTML for {loopItem.Title} - {loopCount} of {totalCount}");
 
@@ -1355,7 +1350,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml
             foreach (var loopMains in mainFeedContent)
             {
                 if (await db.GenerationChangedContentIds.AnyAsync(x => x.ContentId == loopMains.ContentId)
-                    .ConfigureAwait(false))
+                        .ConfigureAwait(false))
                 {
                     progress?.Report($"Main Feed - {loopMains.Title} already in Changed List");
                     continue;
@@ -1373,7 +1368,8 @@ namespace PointlessWaymarks.CmsData.ContentHtml
 
             progress?.Report("Getting list of all Photo Dates and Content");
 
-            var allPhotoInfo = await db.PhotoContents.Where(x => !x.IsDraft).AsNoTracking().ToListAsync().ConfigureAwait(false);
+            var allPhotoInfo = await db.PhotoContents.Where(x => !x.IsDraft).AsNoTracking().ToListAsync()
+                .ConfigureAwait(false);
 
             var datesAndContent = allPhotoInfo.GroupBy(x => x.PhotoCreatedOn.Date)
                 .Select(x => new { date = x.Key, contentIds = x.Select(y => y.ContentId) })
