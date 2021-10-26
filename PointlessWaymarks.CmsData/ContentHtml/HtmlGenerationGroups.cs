@@ -467,7 +467,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml
                 async () =>
                 {
                     var db = await Db.Context().ConfigureAwait(false);
-                    var files = await db.FileContents.Where(x => x.ContentVersion > contentAfter)
+                    var files = await db.FileContents.Where(x => x.ContentVersion > contentAfter && !x.IsDraft)
                         .Select(x => x.ContentId).ToListAsync().ConfigureAwait(false);
                     guidBag.Add(files);
                     progress?.Report($"Found {files.Count} File Content Entries Changed After {contentAfter}");
@@ -475,7 +475,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml
                 async () =>
                 {
                     var db = await Db.Context().ConfigureAwait(false);
-                    var geoJson = await db.GeoJsonContents.Where(x => x.ContentVersion > contentAfter)
+                    var geoJson = await db.GeoJsonContents.Where(x => x.ContentVersion > contentAfter && !x.IsDraft)
                         .Select(x => x.ContentId).ToListAsync().ConfigureAwait(false);
                     guidBag.Add(geoJson);
                     progress?.Report($"Found {geoJson.Count} GeoJson Content Entries Changed After {contentAfter}");
@@ -483,7 +483,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml
                 async () =>
                 {
                     var db = await Db.Context().ConfigureAwait(false);
-                    var images = await db.ImageContents.Where(x => x.ContentVersion > contentAfter)
+                    var images = await db.ImageContents.Where(x => x.ContentVersion > contentAfter && !x.IsDraft)
                         .Select(x => x.ContentId).ToListAsync().ConfigureAwait(false);
                     guidBag.Add(images);
                     progress?.Report($"Found {images.Count} Image Content Entries Changed After {contentAfter}");
@@ -491,7 +491,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml
                 async () =>
                 {
                     var db = await Db.Context().ConfigureAwait(false);
-                    var lines = await db.LineContents.Where(x => x.ContentVersion > contentAfter)
+                    var lines = await db.LineContents.Where(x => x.ContentVersion > contentAfter && !x.IsDraft)
                         .Select(x => x.ContentId).ToListAsync().ConfigureAwait(false);
                     guidBag.Add(lines);
                     progress?.Report($"Found {lines.Count} Line Content Entries Changed After {contentAfter}");
@@ -515,7 +515,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml
                 async () =>
                 {
                     var db = await Db.Context().ConfigureAwait(false);
-                    var notes = await db.NoteContents.Where(x => x.ContentVersion > contentAfter)
+                    var notes = await db.NoteContents.Where(x => x.ContentVersion > contentAfter && !x.IsDraft)
                         .Select(x => x.ContentId).ToListAsync().ConfigureAwait(false);
                     guidBag.Add(notes);
                     progress?.Report($"Found {notes.Count} Note Content Entries Changed After {contentAfter}");
@@ -523,7 +523,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml
                 async () =>
                 {
                     var db = await Db.Context().ConfigureAwait(false);
-                    var photos = await db.PhotoContents.Where(x => x.ContentVersion > contentAfter)
+                    var photos = await db.PhotoContents.Where(x => x.ContentVersion > contentAfter && !x.IsDraft)
                         .Select(x => x.ContentId).ToListAsync().ConfigureAwait(false);
                     guidBag.Add(photos);
                     progress?.Report($"Found {photos.Count} Photo Content Entries Changed After {contentAfter}");
@@ -531,7 +531,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml
                 async () =>
                 {
                     var db = await Db.Context().ConfigureAwait(false);
-                    var points = await db.PointContents.Where(x => x.ContentVersion > contentAfter)
+                    var points = await db.PointContents.Where(x => x.ContentVersion > contentAfter && !x.IsDraft)
                         .Select(x => x.ContentId).ToListAsync().ConfigureAwait(false);
                     guidBag.Add(points);
                     progress?.Report($"Found {points.Count} Point Content Entries Changed After {contentAfter}");
@@ -539,7 +539,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml
                 async () =>
                 {
                     var db = await Db.Context().ConfigureAwait(false);
-                    var posts = await db.PostContents.Where(x => x.ContentVersion > contentAfter)
+                    var posts = await db.PostContents.Where(x => x.ContentVersion > contentAfter && !x.IsDraft)
                         .Select(x => x.ContentId).ToListAsync().ConfigureAwait(false);
                     guidBag.Add(posts);
                     progress?.Report($"Found {posts.Count} Post Content Entries Changed After {contentAfter}");
@@ -1077,7 +1077,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml
         {
             var db = await Db.Context().ConfigureAwait(false);
 
-            var allItems = await db.FileContents
+            var allItems = await db.FileContents.Where(x => !x.IsDraft)
                 .Join(db.GenerationChangedContentIds, o => o.ContentId, i => i.ContentId, (o, i) => o).ToListAsync()
                 .ConfigureAwait(false);
 
@@ -1100,7 +1100,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml
         {
             var db = await Db.Context().ConfigureAwait(false);
 
-            var allItems = await db.GeoJsonContents
+            var allItems = await db.GeoJsonContents.Where(x => !x.IsDraft)
                 .Join(db.GenerationChangedContentIds, o => o.ContentId, i => i.ContentId, (o, i) => o).ToListAsync()
                 .ConfigureAwait(false);
 
@@ -1123,7 +1123,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml
         {
             var db = await Db.Context().ConfigureAwait(false);
 
-            var allItems = await db.ImageContents
+            var allItems = await db.ImageContents.Where(x => !x.IsDraft)
                 .Join(db.GenerationChangedContentIds, o => o.ContentId, i => i.ContentId, (o, i) => o).ToListAsync()
                 .ConfigureAwait(false);
 
@@ -1142,7 +1142,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml
         {
             var db = await Db.Context().ConfigureAwait(false);
 
-            var allItems = await db.LineContents
+            var allItems = await db.LineContents.Where(x => !x.IsDraft)
                 .Join(db.GenerationChangedContentIds, o => o.ContentId, i => i.ContentId, (o, i) => o).ToListAsync()
                 .ConfigureAwait(false);
 
@@ -1187,7 +1187,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml
         {
             var db = await Db.Context().ConfigureAwait(false);
 
-            var allItems = await db.NoteContents
+            var allItems = await db.NoteContents.Where(x => !x.IsDraft)
                 .Join(db.GenerationChangedContentIds, o => o.ContentId, i => i.ContentId, (o, i) => o).ToListAsync()
                 .ConfigureAwait(false);
 
@@ -1210,7 +1210,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml
         {
             var db = await Db.Context().ConfigureAwait(false);
 
-            var allItems = await db.PhotoContents
+            var allItems = await db.PhotoContents.Where(x => !x.IsDraft)
                 .Join(db.GenerationChangedContentIds, o => o.ContentId, i => i.ContentId, (o, i) => o).ToListAsync()
                 .ConfigureAwait(false);
 
@@ -1233,7 +1233,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml
         {
             var db = await Db.Context().ConfigureAwait(false);
 
-            var allItems = await db.PointContents
+            var allItems = await db.PointContents.Where(x => !x.IsDraft)
                 .Join(db.GenerationChangedContentIds, o => o.ContentId, i => i.ContentId, (o, i) => o).ToListAsync()
                 .ConfigureAwait(false);
 
@@ -1263,7 +1263,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml
         {
             var db = await Db.Context().ConfigureAwait(false);
 
-            var allItems = await db.PostContents
+            var allItems = await db.PostContents.Where(x => !x.IsDraft)
                 .Join(db.GenerationChangedContentIds, o => o.ContentId, i => i.ContentId, (o, i) => o).ToListAsync()
                 .ConfigureAwait(false);
 

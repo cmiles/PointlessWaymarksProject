@@ -26,6 +26,20 @@ Site:
 
 ## Notes
 
+10/26/2021
+
+Recent Work:
+
+Parallel.ForEachAsync - found via https://www.alvinashcraft.com/ and https://www.hanselman.com/blog/parallelforeachasync-in-net-6 the current .NET version adds the much needed Parallel.ForEachAsync. Previously I had code sourced from https://medium.com/@alex.puiu/parallel-foreach-async-in-c-36756f8ebe62 and https://scatteredcode.net/parallel-foreach-async-in-c/#:~:text=Foreach%20itself%20is%20very%20useful,high%20latency%20or%20long%20processing that was working great, but long term better to go with the framework. I think this is an important addition for the conversion of older code - working thru 'chains' of methods adding async just to end up with a puzzle about what to do when you hit a Parallel.ForEach is a trouble when converting older code.
+
+Chunk - Another spot where I had utility methods to chunk (partition/split) a lists into smaller lists - this code is not overly complicated but better to let the framework maintain and test it!
+
+IsDraft - For simplicity this program is currently heavily based around writing content 'in place' into the the generated site directory as content is created. This means that any sense of a draft is weak because the content has already been written to the local site on the first save - and once it is on the local site it might be 'live' (if only doing a local site) and it is not reasonable to be confident it would be excluded from a remote site/copy. Because drafts are so well supported and well known this seems like a major omission - but I found that because for me the local copy of the content is essentially the draft (pushing to a live site is manually triggered). 98% this works well and goes with the simplicity of this system overall - this system is not  about collaborating with a large team on real time content creation and while it is potentially about 'long form' content it is more about simple content (the intent is that you have words/images/maps but not complex per post layout/design) you could do most of your long form in any text editor... But even so the use case that has come up for me is having content that is staged for posting but I don't want to show on the homepage yet - ie a draft, drafts are only about index, rss, search and tags, not about keeping content off the site - draft content is likely to be directly addressable but should be hidden from a 'normal' user.
+
+FeedOn - Created and updated dates are incredibly important to me - to much internet content hides this information, sometimes because it is just not valued like it should be and sometimes to make users believe it is current even when it is older. So I want fairly 'strict/true' last updated dates - but correcting a typo or link in a post shouldn't push it back to the top of the index. So what to sort on? Initially I sorted on created and that worked great - but recently I've had some posts where an update of the posts did merit pushing it to the top of the homepage but there was no good way to do that... Added the FeedOn date which defaults to the created date as a spot that you can manipulate if needed and is used for homepage/feed sorting.
+
+Settings File Relative Path Support - I recently did a video call with a friend and showed this program - one challenge was that to bring over one of the sites I am using I had to edit the settings file for the new location on my laptop and it struck me as painful because the relative paths from the settings file hadn't changed, only the base path. Added support and changed code so that the database file and media and site directories can have relative or absolute paths.
+
 9/26/2021
 
 A move to a new house has slowed work on this project although it has also inspired additional sites which means more/slightly different use and better testing and ideas! Some catch up notes - surely incomplete.
