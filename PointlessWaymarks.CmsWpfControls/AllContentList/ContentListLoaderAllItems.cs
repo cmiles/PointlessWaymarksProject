@@ -28,7 +28,7 @@ namespace PointlessWaymarks.CmsWpfControls.AllContentList
             {
                 var itemBag = new ConcurrentBag<List<object>>();
 
-                await new List<Func<Task>>
+                var taskSet = new List<Func<Task>>
                 {
                     async () =>
                     {
@@ -140,7 +140,9 @@ namespace PointlessWaymarks.CmsWpfControls.AllContentList
                         if (await funcDb.PostContents.CountAsync() > dbItems.Count)
                             Interlocked.Increment(ref _partialLoadCount);
                     }
-                }.AsyncParallelForEach();
+                };
+
+                await Parallel.ForEachAsync(taskSet, async (x, _) => await x()).ConfigureAwait(false);
 
                 AllItemsLoaded = _partialLoadCount == 0;
 
