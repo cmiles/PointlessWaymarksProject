@@ -171,7 +171,7 @@ namespace PointlessWaymarks.CmsData
                 var runner = sc.GetRequiredService<IMigrationRunner>();
 
                 // Execute the migrations
-                runner.MigrateDown(202110250000);
+                runner.MigrateUp();
             }
 
             progress?.Report("Checking for database files...");

@@ -47,7 +47,7 @@ namespace PointlessWaymarks.CmsData.Database.Migrations
 
                 Execute.Sql(@$"ALTER TABLE {loopTable} 
                     ADD COLUMN FeedOn Text 
-                    NOT NULL DEFAULT '{DateTime.Now}'");
+                    NOT NULL DEFAULT '0001-01-01 00:00:00'");
 
                 Execute.Sql(@$"Update {loopTable} set FeedOn = CreatedOn");
             }
