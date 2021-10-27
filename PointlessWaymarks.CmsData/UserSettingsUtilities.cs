@@ -6,7 +6,9 @@ using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Amazon;
+using FluentMigrator.Runner;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Omu.ValueInjecter;
 using PointlessWaymarks.CmsData.Content;
 using PointlessWaymarks.CmsData.ContentHtml;
@@ -156,23 +158,21 @@ namespace PointlessWaymarks.CmsData
 
         public static async Task EnsureDbIsPresent(IProgress<string>? progress = null)
         {
-            //TODO: Re-enable migrations if any to apply
-            //
-            //var possibleDbFile = new FileInfo(settings.DatabaseFile);
-            //
-            //if (possibleDbFile.Exists)
-            //{
-            //    var sc = new ServiceCollection().AddFluentMigratorCore().ConfigureRunner(rb =>
-            //            rb.AddSQLite().WithGlobalConnectionString($"Data Source={settings.DatabaseFile}")
-            //                .ScanIn(typeof(PointlessWaymarksContext).Assembly).For.Migrations())
-            //        .AddLogging(lb => lb.AddFluentMigratorConsole()).BuildServiceProvider(false);
+            var possibleDbFile = new FileInfo(UserSettingsSingleton.CurrentSettings().DatabaseFileFullName());
 
-            //    // Instantiate the runner
-            //    var runner = sc.GetRequiredService<IMigrationRunner>();
+            if (possibleDbFile.Exists)
+            {
+                var sc = new ServiceCollection().AddFluentMigratorCore().ConfigureRunner(rb =>
+                        rb.AddSQLite().WithGlobalConnectionString($"Data Source={UserSettingsSingleton.CurrentSettings().DatabaseFileFullName()}")
+                            .ScanIn(typeof(PointlessWaymarksContext).Assembly).For.Migrations())
+                    .AddLogging(lb => lb.AddFluentMigratorConsole()).BuildServiceProvider(false);
 
-            //    // Execute the migrations
-            //    runner.MigrateUp();
-            //}
+                // Instantiate the runner
+                var runner = sc.GetRequiredService<IMigrationRunner>();
+
+                // Execute the migrations
+                runner.MigrateDown(202110250000);
+            }
 
             progress?.Report("Checking for database files...");
 

@@ -8,9 +8,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Database\Migrations\**" />
-    <EmbeddedResource Remove="Database\Migrations\**" />
-    <None Remove="Database\Migrations\**" />
     <None Update="ContentHtml\ErrorHtml\ErrorPage.tt">
       <Generator>TextTemplatingFilePreprocessor</Generator>
       <CustomToolNamespace>PointlessWaymarks.CmsData.ContentHtml.ErrorHtml</CustomToolNamespace>
