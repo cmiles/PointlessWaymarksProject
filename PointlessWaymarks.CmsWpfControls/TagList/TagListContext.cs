@@ -263,7 +263,7 @@ namespace PointlessWaymarks.CmsWpfControls.TagList
 
         private string ContentTypeString(dynamic content)
         {
-            var contentTypeString = Db.ContentTypeString(content);
+            var contentTypeString = Db.ContentTypeDisplayString(content);
 
             if (contentTypeString == string.Empty)
             {

@@ -85,6 +85,14 @@ namespace PointlessWaymarks.CmsData.Database
             return returnList;
         }
 
+        /// <summary>
+        /// Takes in a ContentId and returns the Entry as a dynamic, or null if not found. Points are returned as
+        /// a PointContentDto (as dynamic). Because the ContentIds are unique this allows finding content regardless
+        /// of the type.
+        /// </summary>
+        /// <param name="db"></param>
+        /// <param name="contentId"></param>
+        /// <returns></returns>
         public static async Task<dynamic?> ContentFromContentId(this PointlessWaymarksContext db, Guid contentId)
         {
             //!!Content Type List!!
@@ -127,6 +135,15 @@ namespace PointlessWaymarks.CmsData.Database
             return null;
         }
 
+        /// <summary>
+        /// Takes in a list of ContentIds and returns matching related Entries as a dynamic, or null if not found.
+        /// Points are returned as a PointContentDto (as dynamic). Note that there is no notification or exception
+        /// from this method if an input ContentId is not matched - only matches are returned.
+        /// of the type.
+        /// </summary>
+        /// <param name="db"></param>
+        /// <param name="contentIds"></param>
+        /// <returns></returns>
         public static async Task<List<dynamic>> ContentFromContentIds(this PointlessWaymarksContext db,
             List<Guid> contentIds)
         {
@@ -147,6 +164,12 @@ namespace PointlessWaymarks.CmsData.Database
             return returnList;
         }
 
+        /// <summary>
+        /// Determines if a ContentId is from a Point, Line or GeoJson entry - returns false otherwise (this does not
+        /// validate if the ContentId exists in the database, only if it is present in a spatial type table).
+        /// </summary>
+        /// <param name="toValidate"></param>
+        /// <returns></returns>
         public static async Task<bool> ContentIdIsSpatialContentInDatabase(Guid toValidate)
         {
             var db = await Context().ConfigureAwait(false);
@@ -158,7 +181,13 @@ namespace PointlessWaymarks.CmsData.Database
             return false;
         }
 
-        public static string ContentTypeString(dynamic content)
+        /// <summary>
+        /// A standardized conversion of a Content Type into a simple standard display string. Both Point and
+        /// PointDto will return the same string.
+        /// </summary>
+        /// <param name="content"></param>
+        /// <returns></returns>
+        public static string ContentTypeDisplayString(dynamic content)
         {
             //!!Content Type List!!
             return content switch
@@ -177,12 +206,22 @@ namespace PointlessWaymarks.CmsData.Database
             };
         }
 
+        /// <summary>
+        /// Returns a new UTC datetime trimmed to the second - more importantly this is a wrapper around the conventions
+        /// for 'ContentVersion' and be used so that those are consistent.
+        /// </summary>
+        /// <returns></returns>
         private static DateTime ContentVersionDateTime()
         {
             var frozenNow = DateTime.Now.ToUniversalTime();
             return new DateTime(frozenNow.Year, frozenNow.Month, frozenNow.Day, frozenNow.Hour, frozenNow.Minute,
                 frozenNow.Second, frozenNow.Kind);
         }
+
+        /// <summary>
+        /// Returns a database context based on the current settings.
+        /// </summary>
+        /// <returns></returns>
 #pragma warning disable 1998
         public static async Task<PointlessWaymarksContext> Context()
 #pragma warning restore 1998
@@ -205,6 +244,11 @@ namespace PointlessWaymarks.CmsData.Database
             SpatialHelpers.RoundSpatialValues(toProcess);
         }
 
+        /// <summary>
+        /// Returns a List of 'Fully Deleted' Content - ie where the ContentId is no longer present in the related Content
+        /// table.
+        /// </summary>
+        /// <returns></returns>
         public static async Task<List<HistoricFileContent>> DeletedFileContent()
         {
             var db = await Context().ConfigureAwait(false);
@@ -217,6 +261,11 @@ namespace PointlessWaymarks.CmsData.Database
                 .Select(x => x.OrderByDescending(y => y.ContentVersion).First()).ToList();
         }
 
+        /// <summary>
+        /// Returns a List of 'Fully Deleted' Content - ie where the ContentId is no longer present in the related Content
+        /// table.
+        /// </summary>
+        /// <returns></returns>
         public static async Task<List<HistoricGeoJsonContent>> DeletedGeoJsonContent()
         {
             var db = await Context().ConfigureAwait(false);
@@ -229,6 +278,11 @@ namespace PointlessWaymarks.CmsData.Database
                 .Select(x => x.OrderByDescending(y => y.ContentVersion).First()).ToList();
         }
 
+        /// <summary>
+        /// Returns a List of 'Fully Deleted' Content - ie where the ContentId is no longer present in the related Content
+        /// table.
+        /// </summary>
+        /// <returns></returns>
         public static async Task<List<HistoricImageContent>> DeletedImageContent()
         {
             var db = await Context().ConfigureAwait(false);
@@ -241,6 +295,11 @@ namespace PointlessWaymarks.CmsData.Database
                 .Select(x => x.OrderByDescending(y => y.ContentVersion).First()).ToList();
         }
 
+        /// <summary>
+        /// Returns a List of 'Fully Deleted' Content - ie where the ContentId is no longer present in the related Content
+        /// table.
+        /// </summary>
+        /// <returns></returns>
         public static async Task<List<HistoricLineContent>> DeletedLineContent()
         {
             var db = await Context().ConfigureAwait(false);
@@ -253,6 +312,11 @@ namespace PointlessWaymarks.CmsData.Database
                 .Select(x => x.OrderByDescending(y => y.ContentVersion).First()).ToList();
         }
 
+        /// <summary>
+        /// Returns a List of 'Fully Deleted' Content - ie where the ContentId is no longer present in the related Content
+        /// table.
+        /// </summary>
+        /// <returns></returns>
         public static async Task<List<HistoricLinkContent>> DeletedLinkContent()
         {
             var db = await Context().ConfigureAwait(false);
@@ -265,6 +329,11 @@ namespace PointlessWaymarks.CmsData.Database
                 .Select(x => x.OrderByDescending(y => y.ContentVersion).First()).ToList();
         }
 
+        /// <summary>
+        /// Returns a List of 'Fully Deleted' Content - ie where the ContentId is no longer present in the related Content
+        /// table.
+        /// </summary>
+        /// <returns></returns>
         public static async Task<List<HistoricNoteContent>> DeletedNoteContent()
         {
             var db = await Context().ConfigureAwait(false);
@@ -277,6 +346,11 @@ namespace PointlessWaymarks.CmsData.Database
                 .Select(x => x.OrderByDescending(y => y.ContentVersion).First()).ToList();
         }
 
+        /// <summary>
+        /// Returns a List of 'Fully Deleted' Content - ie where the ContentId is no longer present in the related Content
+        /// table.
+        /// </summary>
+        /// <returns></returns>
         public static async Task<List<HistoricPhotoContent>> DeletedPhotoContent()
         {
             var db = await Context().ConfigureAwait(false);
@@ -289,6 +363,11 @@ namespace PointlessWaymarks.CmsData.Database
                 .Select(x => x.OrderByDescending(y => y.ContentVersion).First()).ToList();
         }
 
+        /// <summary>
+        /// Returns a List of 'Fully Deleted' Content - ie where the ContentId is no longer present in the related Content
+        /// table.
+        /// </summary>
+        /// <returns></returns>
         public static async Task<List<HistoricPointContent>> DeletedPointContent()
         {
             var db = await Context().ConfigureAwait(false);
@@ -301,6 +380,11 @@ namespace PointlessWaymarks.CmsData.Database
                 .Select(x => x.OrderByDescending(y => y.ContentVersion).First()).ToList();
         }
 
+        /// <summary>
+        /// Returns a List of 'Fully Deleted' Content - ie where the ContentId is no longer present in the related Content
+        /// table.
+        /// </summary>
+        /// <returns></returns>
         public static async Task<List<HistoricPostContent>> DeletedPostContent()
         {
             var db = await Context().ConfigureAwait(false);
@@ -313,6 +397,11 @@ namespace PointlessWaymarks.CmsData.Database
                 .Select(x => x.OrderByDescending(y => y.ContentVersion).First()).ToList();
         }
 
+        /// <summary>
+        /// Deletes a Content Entry writing Historic Content, showing progress and publishing Data Notifications.
+        ///  In general use this rather deleting content directly...
+        /// </summary>
+        /// <returns></returns>
         public static async Task DeleteFileContent(Guid contentId, IProgress<string>? progress = null)
         {
             var context = await Context().ConfigureAwait(false);
@@ -344,6 +433,11 @@ namespace PointlessWaymarks.CmsData.Database
                 DataNotificationUpdateType.Delete, toHistoric.Select(x => x.ContentId).ToList());
         }
 
+        /// <summary>
+        /// Deletes a Content Entry writing Historic Content, showing progress and publishing Data Notifications.
+        ///  In general use this rather deleting content directly...
+        /// </summary>
+        /// <returns></returns>
         public static async Task DeleteGeoJsonContent(Guid contentId, IProgress<string>? progress = null)
         {
             var context = await Context().ConfigureAwait(false);
@@ -375,6 +469,11 @@ namespace PointlessWaymarks.CmsData.Database
                 DataNotificationUpdateType.Delete, toHistoric.Select(x => x.ContentId).ToList());
         }
 
+        /// <summary>
+        /// Deletes a Content Entry writing Historic Content, showing progress and publishing Data Notifications.
+        ///  In general use this rather deleting content directly...
+        /// </summary>
+        /// <returns></returns>
         public static async Task DeleteImageContent(Guid contentId, IProgress<string>? progress = null)
         {
             var context = await Context().ConfigureAwait(false);
@@ -406,6 +505,11 @@ namespace PointlessWaymarks.CmsData.Database
                 DataNotificationUpdateType.Delete, toHistoric.Select(x => x.ContentId).ToList());
         }
 
+        /// <summary>
+        /// Deletes a Content Entry writing Historic Content, showing progress and publishing Data Notifications.
+        ///  In general use this rather deleting content directly...
+        /// </summary>
+        /// <returns></returns>
         public static async Task DeleteLineContent(Guid contentId, IProgress<string>? progress = null)
         {
             var context = await Context().ConfigureAwait(false);
@@ -437,6 +541,11 @@ namespace PointlessWaymarks.CmsData.Database
                 DataNotificationUpdateType.Delete, toHistoric.Select(x => x.ContentId).ToList());
         }
 
+        /// <summary>
+        /// Deletes a Content Entry writing Historic Content, showing progress and publishing Data Notifications.
+        ///  In general use this rather deleting content directly...
+        /// </summary>
+        /// <returns></returns>
         public static async Task DeleteLinkContent(Guid contentId, IProgress<string>? progress = null)
         {
             var context = await Context().ConfigureAwait(false);
@@ -468,6 +577,11 @@ namespace PointlessWaymarks.CmsData.Database
                 DataNotificationUpdateType.Delete, toHistoric.Select(x => x.ContentId).ToList());
         }
 
+        /// <summary>
+        /// Deletes a Content Entry writing Historic Content, showing progress and publishing Data Notifications.
+        ///  In general use this rather deleting content directly...
+        /// </summary>
+        /// <returns></returns>
         public static async Task DeleteMapComponent(Guid contentId, IProgress<string>? progress = null)
         {
             var context = await Context().ConfigureAwait(false);
@@ -523,6 +637,11 @@ namespace PointlessWaymarks.CmsData.Database
                     DataNotificationUpdateType.Delete, elementsToDeleteContentIds);
         }
 
+        /// <summary>
+        /// Deletes a Content Entry writing Historic Content, showing progress and publishing Data Notifications.
+        ///  In general use this rather deleting content directly...
+        /// </summary>
+        /// <returns></returns>
         public static async Task DeleteNoteContent(Guid contentId, IProgress<string>? progress = null)
         {
             var context = await Context().ConfigureAwait(false);
@@ -554,6 +673,11 @@ namespace PointlessWaymarks.CmsData.Database
                 DataNotificationUpdateType.Delete, toHistoric.Select(x => x.ContentId).ToList());
         }
 
+        /// <summary>
+        /// Deletes a Content Entry writing Historic Content, showing progress and publishing Data Notifications.
+        ///  In general use this rather deleting content directly...
+        /// </summary>
+        /// <returns></returns>
         public static async Task DeletePhotoContent(Guid contentId, IProgress<string>? progress = null)
         {
             var context = await Context().ConfigureAwait(false);
@@ -585,6 +709,11 @@ namespace PointlessWaymarks.CmsData.Database
                 DataNotificationUpdateType.Delete, toHistoric.Select(x => x.ContentId).ToList());
         }
 
+        /// <summary>
+        /// Deletes a Content Entry writing Historic Content, showing progress and publishing Data Notifications.
+        ///  In general use this rather deleting content directly...
+        /// </summary>
+        /// <returns></returns>
         public static async Task DeletePointContent(Guid contentId, IProgress<string>? progress = null)
         {
             var context = await Context().ConfigureAwait(false);
@@ -638,6 +767,11 @@ namespace PointlessWaymarks.CmsData.Database
                 DataNotificationUpdateType.Delete, relatedDetails.Select(x => x.ContentId).ToList());
         }
 
+        /// <summary>
+        /// Deletes a Content Entry writing Historic Content, showing progress and publishing Data Notifications.
+        ///  In general use this rather deleting content directly...
+        /// </summary>
+        /// <returns></returns>
         public static async Task DeletePostContent(Guid contentId, IProgress<string>? progress = null)
         {
             var context = await Context().ConfigureAwait(false);
@@ -669,6 +803,11 @@ namespace PointlessWaymarks.CmsData.Database
                 DataNotificationUpdateType.Delete, toHistoric.Select(x => x.ContentId).ToList());
         }
 
+        /// <summary>
+        /// Deletes a Tag Exclusion and publishes Data Notifications.
+        ///  In general use this rather deleting content directly...
+        /// </summary>
+        /// <returns></returns>
         public static async Task DeleteTagExclusion(int tagExclusionDbEntryId, IProgress<string>? progress = null)
         {
             var context = await Context().ConfigureAwait(false);
@@ -685,6 +824,13 @@ namespace PointlessWaymarks.CmsData.Database
                 DataNotificationUpdateType.Delete, null);
         }
 
+        /// <summary>
+        /// Takes in a Content Type that has a Folder (note Links do not have Folders) and returns a list of ALL folders
+        /// currently in the database for that Content Type (ie pass in a Post and get back a list of all folders used in
+        /// all Posts - can be used to get choices for existing folders).
+        /// </summary>
+        /// <param name="content"></param>
+        /// <returns></returns>
         public static async Task<List<string>> FolderNamesFromContent(dynamic content)
         {
             var db = await Context().ConfigureAwait(false);
@@ -713,6 +859,13 @@ namespace PointlessWaymarks.CmsData.Database
             };
         }
 
+        /// <summary>
+        /// Returns up to the specified number of historic details for a Point.
+        /// </summary>
+        /// <param name="pointContentId"></param>
+        /// <param name="db"></param>
+        /// <param name="entriesToReturn"></param>
+        /// <returns></returns>
         public static async Task<List<HistoricPointDetail>> HistoricPointDetailsForPoint(Guid pointContentId,
             PointlessWaymarksContext db, int entriesToReturn)
         {
@@ -720,6 +873,10 @@ namespace PointlessWaymarks.CmsData.Database
                 .ToListAsync().ConfigureAwait(false);
         }
 
+        /// <summary>
+        /// Queries the 'Contents' Tables for entries marked ShowInMainSiteFeed and not IsDraft returning them as an IContentCommon.
+        /// </summary>
+        /// <returns></returns>
         public static async Task<List<IContentCommon>> MainFeedCommonContent()
         {
             var db = await Context().ConfigureAwait(false);
@@ -745,32 +902,39 @@ namespace PointlessWaymarks.CmsData.Database
                 .ToList();
         }
 
+        /// <summary>
+        /// Queries the 'Contents' Tables for entries marked ShowInMainSiteFeed, not IsDraft and having a FeedOn date after
+        /// the input datetime and the returns the most recent entries.
+        /// </summary>
+        /// <param name="after"></param>
+        /// <param name="numberOfEntries"></param>
+        /// <returns></returns>
         public static async Task<List<IContentCommon>> MainFeedCommonContentAfter(DateTime after, int numberOfEntries)
         {
             var db = await Context().ConfigureAwait(false);
             var fileContent = await db.FileContents.Where(x => x.ShowInMainSiteFeed && !x.IsDraft && x.FeedOn > after)
-                .OrderByDescending(x => x.FeedOn).Take(numberOfEntries).Cast<IContentCommon>().ToListAsync()
+                .OrderByDescending(x => x.FeedOn).Cast<IContentCommon>().ToListAsync()
                 .ConfigureAwait(false);
             var geoJsonContent = await db.GeoJsonContents
                 .Where(x => x.ShowInMainSiteFeed && !x.IsDraft && x.FeedOn > after).OrderByDescending(x => x.FeedOn)
-                .Take(numberOfEntries).Cast<IContentCommon>().ToListAsync().ConfigureAwait(false);
+                .Cast<IContentCommon>().ToListAsync().ConfigureAwait(false);
             var imageContent = await db.ImageContents.Where(x => x.ShowInMainSiteFeed && !x.IsDraft && x.FeedOn > after)
-                .OrderByDescending(x => x.FeedOn).Take(numberOfEntries).Cast<IContentCommon>().ToListAsync()
+                .OrderByDescending(x => x.FeedOn).Cast<IContentCommon>().ToListAsync()
                 .ConfigureAwait(false);
             var lineContent = await db.LineContents.Where(x => x.ShowInMainSiteFeed && !x.IsDraft && x.FeedOn > after)
-                .OrderByDescending(x => x.FeedOn).Take(numberOfEntries).Cast<IContentCommon>().ToListAsync()
+                .OrderByDescending(x => x.FeedOn).Cast<IContentCommon>().ToListAsync()
                 .ConfigureAwait(false);
             var noteContent = await db.NoteContents.Where(x => x.ShowInMainSiteFeed && !x.IsDraft && x.FeedOn > after)
-                .OrderByDescending(x => x.FeedOn).Take(numberOfEntries).Cast<IContentCommon>().ToListAsync()
+                .OrderByDescending(x => x.FeedOn).Cast<IContentCommon>().ToListAsync()
                 .ConfigureAwait(false);
             var photoContent = await db.PhotoContents.Where(x => x.ShowInMainSiteFeed && !x.IsDraft && x.FeedOn > after)
-                .OrderByDescending(x => x.FeedOn).Take(numberOfEntries).Cast<IContentCommon>().ToListAsync()
+                .OrderByDescending(x => x.FeedOn).Cast<IContentCommon>().ToListAsync()
                 .ConfigureAwait(false);
             var pointContent = await db.PointContents.Where(x => x.ShowInMainSiteFeed && !x.IsDraft && x.FeedOn > after)
-                .OrderByDescending(x => x.FeedOn).Take(numberOfEntries).Cast<IContentCommon>().ToListAsync()
+                .OrderByDescending(x => x.FeedOn).Cast<IContentCommon>().ToListAsync()
                 .ConfigureAwait(false);
             var postContent = await db.PostContents.Where(x => x.ShowInMainSiteFeed && !x.IsDraft && x.FeedOn > after)
-                .OrderByDescending(x => x.FeedOn).Take(numberOfEntries).Cast<IContentCommon>().ToListAsync()
+                .OrderByDescending(x => x.FeedOn).Cast<IContentCommon>().ToListAsync()
                 .ConfigureAwait(false);
 
             return fileContent.Concat(geoJsonContent).Concat(imageContent).Concat(lineContent).Concat(noteContent)
@@ -778,40 +942,47 @@ namespace PointlessWaymarks.CmsData.Database
                 .Take(numberOfEntries).ToList();
         }
 
+        /// <summary>
+        /// Queries the 'Contents' Tables for entries marked ShowInMainSiteFeed, not IsDraft and having a FeedOn date before
+        /// the input datetime and the returns the most recent entries.
+        /// </summary>
+        /// <param name="before"></param>
+        /// <param name="numberOfEntries"></param>
+        /// <returns></returns>
         public static async Task<List<IContentCommon>> MainFeedCommonContentBefore(DateTime before, int numberOfEntries)
         {
             var db = await Context().ConfigureAwait(false);
             var fileContent = await db.FileContents
-                .Where(x => x.ShowInMainSiteFeed && !x.IsDraft && !x.IsDraft && x.FeedOn < before)
-                .OrderByDescending(x => x.FeedOn).Take(numberOfEntries).Cast<IContentCommon>().ToListAsync()
+                .Where(x => x.ShowInMainSiteFeed && !x.IsDraft && x.FeedOn < before)
+                .OrderByDescending(x => x.FeedOn).Cast<IContentCommon>().ToListAsync()
                 .ConfigureAwait(false);
             var geoJsonContent = await db.GeoJsonContents
-                .Where(x => x.ShowInMainSiteFeed && !x.IsDraft && !x.IsDraft && x.FeedOn < before)
-                .OrderByDescending(x => x.FeedOn).Take(numberOfEntries).Cast<IContentCommon>().ToListAsync()
+                .Where(x => x.ShowInMainSiteFeed && !x.IsDraft && x.FeedOn < before)
+                .OrderByDescending(x => x.FeedOn).Cast<IContentCommon>().ToListAsync()
                 .ConfigureAwait(false);
             var imageContent = await db.ImageContents
-                .Where(x => x.ShowInMainSiteFeed && !x.IsDraft && !x.IsDraft && x.FeedOn < before)
-                .OrderByDescending(x => x.FeedOn).Take(numberOfEntries).Cast<IContentCommon>().ToListAsync()
+                .Where(x => x.ShowInMainSiteFeed && !x.IsDraft && x.FeedOn < before)
+                .OrderByDescending(x => x.FeedOn).Cast<IContentCommon>().ToListAsync()
                 .ConfigureAwait(false);
             var lineContent = await db.LineContents
-                .Where(x => x.ShowInMainSiteFeed && !x.IsDraft && !x.IsDraft && x.FeedOn < before)
-                .OrderByDescending(x => x.FeedOn).Take(numberOfEntries).Cast<IContentCommon>().ToListAsync()
+                .Where(x => x.ShowInMainSiteFeed && !x.IsDraft && x.FeedOn < before)
+                .OrderByDescending(x => x.FeedOn).Cast<IContentCommon>().ToListAsync()
                 .ConfigureAwait(false);
             var noteContent = await db.NoteContents
-                .Where(x => x.ShowInMainSiteFeed && !x.IsDraft && !x.IsDraft && x.FeedOn < before)
-                .OrderByDescending(x => x.FeedOn).Take(numberOfEntries).Cast<IContentCommon>().ToListAsync()
+                .Where(x => x.ShowInMainSiteFeed && !x.IsDraft && x.FeedOn < before)
+                .OrderByDescending(x => x.FeedOn).Cast<IContentCommon>().ToListAsync()
                 .ConfigureAwait(false);
             var photoContent = await db.PhotoContents
-                .Where(x => x.ShowInMainSiteFeed && !x.IsDraft && !x.IsDraft && x.FeedOn < before)
-                .OrderByDescending(x => x.FeedOn).Take(numberOfEntries).Cast<IContentCommon>().ToListAsync()
+                .Where(x => x.ShowInMainSiteFeed && !x.IsDraft && x.FeedOn < before)
+                .OrderByDescending(x => x.FeedOn).Cast<IContentCommon>().ToListAsync()
                 .ConfigureAwait(false);
             var pointContent = await db.PointContents
-                .Where(x => x.ShowInMainSiteFeed && !x.IsDraft && !x.IsDraft && x.FeedOn < before)
-                .OrderByDescending(x => x.FeedOn).Take(numberOfEntries).Cast<IContentCommon>().ToListAsync()
+                .Where(x => x.ShowInMainSiteFeed && !x.IsDraft && x.FeedOn < before)
+                .OrderByDescending(x => x.FeedOn).Cast<IContentCommon>().ToListAsync()
                 .ConfigureAwait(false);
             var postContent = await db.PostContents
-                .Where(x => x.ShowInMainSiteFeed && !x.IsDraft && !x.IsDraft && x.FeedOn < before)
-                .OrderByDescending(x => x.FeedOn).Take(numberOfEntries).Cast<IContentCommon>().ToListAsync()
+                .Where(x => x.ShowInMainSiteFeed && !x.IsDraft && x.FeedOn < before)
+                .OrderByDescending(x => x.FeedOn).Cast<IContentCommon>().ToListAsync()
                 .ConfigureAwait(false);
 
             return fileContent.Concat(geoJsonContent).Concat(imageContent).Concat(lineContent).Concat(noteContent)
@@ -819,46 +990,47 @@ namespace PointlessWaymarks.CmsData.Database
                 .Take(numberOfEntries).ToList();
         }
 
+        /// <summary>
+        /// Queries the 'Contents' Tables for entries marked ShowInMainSiteFeed and not IsDraft and 
+        /// and the returns the most recent entries.
+        /// </summary>
+        /// <param name="topNumberOfEntries"></param>
+        /// <returns></returns>
         public static async Task<List<dynamic>> MainFeedRecentDynamicContent(int topNumberOfEntries)
         {
             var db = await Context().ConfigureAwait(false);
-            var fileContent = await db.FileContents.Where(x => x.ShowInMainSiteFeed && !x.IsDraft && !x.IsDraft)
-                .OrderByDescending(x => x.FeedOn).Take(topNumberOfEntries).Cast<dynamic>().ToListAsync()
-                .ConfigureAwait(false);
-            var geoJsonContent = await db.GeoJsonContents.Where(x => x.ShowInMainSiteFeed && !x.IsDraft && !x.IsDraft)
-                .OrderByDescending(x => x.FeedOn).Take(topNumberOfEntries).Cast<dynamic>().ToListAsync()
-                .ConfigureAwait(false);
-            var imageContent = await db.ImageContents.Where(x => x.ShowInMainSiteFeed && !x.IsDraft && !x.IsDraft)
-                .OrderByDescending(x => x.FeedOn).Take(topNumberOfEntries).Cast<dynamic>().ToListAsync()
-                .ConfigureAwait(false);
-            var lineContent = await db.LineContents.Where(x => x.ShowInMainSiteFeed && !x.IsDraft && !x.IsDraft)
-                .OrderByDescending(x => x.FeedOn).Take(topNumberOfEntries).Cast<dynamic>().ToListAsync()
-                .ConfigureAwait(false);
-            var noteContent = await db.NoteContents.Where(x => x.ShowInMainSiteFeed && !x.IsDraft && !x.IsDraft)
-                .OrderByDescending(x => x.FeedOn).Take(topNumberOfEntries).Cast<dynamic>().ToListAsync()
-                .ConfigureAwait(false);
-            var photoContent = await db.PhotoContents.Where(x => x.ShowInMainSiteFeed && !x.IsDraft && !x.IsDraft)
-                .OrderByDescending(x => x.FeedOn).Take(topNumberOfEntries).Cast<dynamic>().ToListAsync()
-                .ConfigureAwait(false);
-            var pointContent = (await db.PointContents.Where(x => x.ShowInMainSiteFeed && !x.IsDraft && !x.IsDraft)
-                .OrderByDescending(x => x.FeedOn).Take(topNumberOfEntries).Select(x => x.ContentId).ToListAsync()
-                .ConfigureAwait(false)).Select(x => PointAndPointDetails(x).Result).Cast<dynamic>().ToList();
-            var postContent = await db.PostContents.Where(x => x.ShowInMainSiteFeed && !x.IsDraft && !x.IsDraft)
-                .OrderByDescending(x => x.FeedOn).Take(topNumberOfEntries).Cast<dynamic>().ToListAsync()
-                .ConfigureAwait(false);
 
+            //Query the content and the dates first before returning the full content entry. This will result in an entry
+            //being returned for every single content entry and this could be optimized - but in this system I think the 
+            //realistic total number of entries and low usage of this method makes it unlikely this is a problem.
+            var fileContentDateList = await db.FileContents.Where(x => x.ShowInMainSiteFeed && !x.IsDraft).Select(x => new {x.ContentId, x.FeedOn}).ToListAsync().ConfigureAwait(false);
+            var geoJsonContentDateList = await db.GeoJsonContents.Where(x => x.ShowInMainSiteFeed && !x.IsDraft).Select(x => new { x.ContentId, x.FeedOn }).ToListAsync().ConfigureAwait(false);
+            var imageContentDateList = await db.ImageContents.Where(x => x.ShowInMainSiteFeed && !x.IsDraft).Select(x => new { x.ContentId, x.FeedOn }).ToListAsync().ConfigureAwait(false);
+            var lineContentDateList = await db.LineContents.Where(x => x.ShowInMainSiteFeed && !x.IsDraft).Select(x => new { x.ContentId, x.FeedOn }).ToListAsync().ConfigureAwait(false);
+            var noteContentDateList = await db.NoteContents.Where(x => x.ShowInMainSiteFeed && !x.IsDraft).Select(x => new { x.ContentId, x.FeedOn }).ToListAsync().ConfigureAwait(false);
+            var photoContentDateList = await db.PhotoContents.Where(x => x.ShowInMainSiteFeed && !x.IsDraft).Select(x => new { x.ContentId, x.FeedOn }).ToListAsync().ConfigureAwait(false);
+            var pointContentDateList = await db.PointContents.Where(x => x.ShowInMainSiteFeed && !x.IsDraft).Select(x => new { x.ContentId, x.FeedOn }).ToListAsync().ConfigureAwait(false);
+            var postContentDateList = await db.PostContents.Where(x => x.ShowInMainSiteFeed && !x.IsDraft).Select(x => new { x.ContentId, x.FeedOn }).ToListAsync().ConfigureAwait(false);
 
-            return fileContent.Concat(geoJsonContent).Concat(imageContent).Concat(lineContent).Concat(noteContent)
-                .Concat(photoContent).Concat(pointContent).Concat(postContent).OrderByDescending(x => x.FeedOn)
-                .Take(topNumberOfEntries).ToList();
+            var contentIdListForFeed = fileContentDateList.Concat(geoJsonContentDateList).Concat(imageContentDateList).Concat(lineContentDateList).Concat(noteContentDateList)
+                .Concat(photoContentDateList).Concat(pointContentDateList).Concat(postContentDateList).OrderByDescending(x => x.FeedOn)
+                .Take(topNumberOfEntries).Select(x => x.ContentId).ToList();
+
+            var dynamicContent = await db.ContentFromContentIds(contentIdListForFeed);
+
+            return dynamicContent.OrderByDescending(x => x.FeedOn).ToList();
         }
 
         public static Guid? MainImageContentIdIfPresent(dynamic content)
         {
+            //Todo: Look at the usage method and possibly rename or inline?
+            //This is related to the 'related content' blocks typically below a piece of content - but
+            //not all contained content become related content - a point display is typically a map
+            //and a 
             return content switch
             {
-                FileContent f => f.MainPicture,
-                PostContent p => p.MainPicture,
+                FileContent x => x.MainPicture,
+                PostContent x => x.MainPicture,
                 _ => null
             };
         }

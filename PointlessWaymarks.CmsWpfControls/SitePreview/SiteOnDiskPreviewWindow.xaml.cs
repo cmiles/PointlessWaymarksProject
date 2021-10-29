@@ -27,7 +27,7 @@ namespace PointlessWaymarks.CmsWpfControls.SitePreview
             var freePort = PreviewServer.FreeTcpPort();
 
             var server = PreviewServer.CreateHostBuilder(
-                UserSettingsSingleton.CurrentSettings().SiteUrl, UserSettingsSingleton.CurrentSettings().LocalSiteRootDirectory, freePort).Build();
+                UserSettingsSingleton.CurrentSettings().SiteUrl, UserSettingsSingleton.CurrentSettings().LocalSiteRootFullDirectory().FullName, freePort).Build();
 
             StatusContext.RunFireAndForgetWithToastOnError(async () =>
             {
@@ -36,7 +36,7 @@ namespace PointlessWaymarks.CmsWpfControls.SitePreview
             });
 
             PreviewContext = new SitePreviewContext(UserSettingsSingleton.CurrentSettings().SiteUrl,
-                UserSettingsSingleton.CurrentSettings().LocalSiteRootDirectory,
+                UserSettingsSingleton.CurrentSettings().LocalSiteRootFullDirectory().FullName,
                 UserSettingsSingleton.CurrentSettings().SiteName, $"localhost:{freePort}", StatusContext);
         }
 

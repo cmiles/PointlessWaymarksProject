@@ -16,7 +16,7 @@ namespace PointlessWaymarks.CmsWpfControls.Utility.Aws
 
         public static string DirectoryInfoInGeneratedSiteToS3Key(DirectoryInfo directory)
         {
-            return directory.FullName.Replace($"{UserSettingsSingleton.CurrentSettings().LocalSiteRootDirectory}\\", "")
+            return directory.FullName.Replace($"{UserSettingsSingleton.CurrentSettings().LocalSiteRootFullDirectory().FullName}\\", "")
                 .Replace("\\", "/") + "/";
         }
 
@@ -35,12 +35,12 @@ namespace PointlessWaymarks.CmsWpfControls.Utility.Aws
 
             progress?.Report("Getting list of all generated files");
 
-            var allGeneratedFiles = new DirectoryInfo(UserSettingsSingleton.CurrentSettings().LocalSiteRootDirectory)
+            var allGeneratedFiles = new DirectoryInfo(UserSettingsSingleton.CurrentSettings().LocalSiteRootFullDirectory().FullName)
                 .GetFiles("*", SearchOption.AllDirectories).OrderBy(x => x.FullName)
                 .Select(AwsS3GeneratedSiteComparisonForAdditionsAndChanges.FileInfoInGeneratedSiteToS3Key).ToList();
 
             var allGeneratedDirectories =
-                new DirectoryInfo(UserSettingsSingleton.CurrentSettings().LocalSiteRootDirectory)
+                new DirectoryInfo(UserSettingsSingleton.CurrentSettings().LocalSiteRootFullDirectory().FullName)
                     .GetDirectories("*", SearchOption.AllDirectories).OrderBy(x => x.FullName)
                     .Select(DirectoryInfoInGeneratedSiteToS3Key).ToList();
 

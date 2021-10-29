@@ -89,13 +89,13 @@ namespace PointlessWaymarks.CmsData.Content
 
             if (string.IsNullOrWhiteSpace(toSearch) && !extracted.Any())
                 return GenerationReturn.Success(
-                    $"{Db.ContentTypeString(content)} {content.Title} - No Content Ids Found", content.ContentId);
+                    $"{Db.ContentTypeDisplayString(content)} {content.Title} - No Content Ids Found", content.ContentId);
 
             extracted.AddRange(BracketCodeCommon.BracketCodeContentIds(toSearch));
 
             if (!extracted.Any())
                 return GenerationReturn.Success(
-                    $"{Db.ContentTypeString(content)} {content.Title} - No Content Ids Found", content.ContentId);
+                    $"{Db.ContentTypeDisplayString(content)} {content.Title} - No Content Ids Found", content.ContentId);
 
             progress?.Report($"Found {extracted.Count} ContentIds to check for {content.Title}");
 
@@ -114,11 +114,11 @@ namespace PointlessWaymarks.CmsData.Content
 
             if (notFoundList.Any())
                 return GenerationReturn.Error(
-                    $"{Db.ContentTypeString(content)} {content.Title} has " +
+                    $"{Db.ContentTypeDisplayString(content)} {content.Title} has " +
                     $"Invalid ContentIds in Bracket Codes - {string.Join(", ", notFoundList)}", content.ContentId);
 
             return GenerationReturn.Success(
-                $"{Db.ContentTypeString(content)} {content.Title} - No Invalid Content Ids Found");
+                $"{Db.ContentTypeDisplayString(content)} {content.Title} - No Invalid Content Ids Found");
         }
 
         public static async Task<GenerationReturn> CheckStringForBadContentReferences(string? toSearch,

@@ -105,7 +105,7 @@ namespace PointlessWaymarks.CmsData
 
         /// <summary>
         /// Relative or Absolute Local Site Root Directory (the directory html will be generated into)
-        /// - prefer the LocalMediaArchiveFullDirectory in UserSettingsUtilities as it will always
+        /// - prefer the LocalSiteRootFullDirectory in UserSettingsUtilities as it will always
         /// represent the full path.
         /// </summary>
         public string LocalSiteRootDirectory

@@ -26,7 +26,7 @@ namespace PointlessWaymarks.CmsData
         {
             if (Path.IsPathFullyQualified(fileName)) return fileName;
 
-            return Path.Combine(SettingsFile().DirectoryName ?? string.Empty, fileName);
+            return Path.Combine(SettingsFile().DirectoryName ?? string.Empty, fileName.TrimStart(Path.DirectorySeparatorChar));
         }
 
         public static string AllContentListUrl(this UserSettings settings)
@@ -1332,7 +1332,7 @@ namespace PointlessWaymarks.CmsData
 
             newSettings.LocalSiteRootDirectory = "GeneratedSite";
 
-            progress?.Report($"Local Site Root set to {newSettings.LocalSiteRootDirectory}");
+            progress?.Report($"Local Site Root set to {newSettings.LocalSiteRootFullDirectory().FullName}");
 
             newSettings.DatabaseFile = $"PointlessWaymarksCmsDatabase-{userFilename}.db";
 
@@ -1453,7 +1453,7 @@ namespace PointlessWaymarks.CmsData
         {
             var settings = UserSettingsSingleton.CurrentSettings();
 
-            if (string.IsNullOrWhiteSpace(settings.LocalSiteRootDirectory))
+            if (string.IsNullOrWhiteSpace(settings.LocalSiteRootFullDirectory().FullName))
                 return new IsValid(false, "No Local File Root User Setting Found");
 
             try
@@ -1474,7 +1474,7 @@ namespace PointlessWaymarks.CmsData
         public static async Task WriteSettings(this UserSettings toWrite)
         {
             var currentFile = SettingsFile();
-            await File.WriteAllTextAsync(currentFile.FullName, JsonSerializer.Serialize(toWrite)).ConfigureAwait(false);
+            await File.WriteAllTextAsync(currentFile.FullName, JsonSerializer.Serialize(toWrite, new JsonSerializerOptions() {WriteIndented = true})).ConfigureAwait(false);
         }
     }
 }

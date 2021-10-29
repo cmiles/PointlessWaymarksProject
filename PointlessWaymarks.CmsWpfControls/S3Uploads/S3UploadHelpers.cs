@@ -39,7 +39,7 @@ namespace PointlessWaymarks.CmsWpfControls.S3Uploads
             var sinceDate = db.GenerationFileTransferScriptLogs.OrderByDescending(x => x.WrittenOnVersion)
                 .FirstOrDefault()?.WrittenOnVersion;
 
-            var generationDirectory = new DirectoryInfo(UserSettingsSingleton.CurrentSettings().LocalSiteRootDirectory)
+            var generationDirectory = new DirectoryInfo(UserSettingsSingleton.CurrentSettings().LocalSiteRootFullDirectory().FullName)
                 .FullName;
 
             progress.Report($"Filtering for Generation Directory: {generationDirectory}");
@@ -62,7 +62,7 @@ namespace PointlessWaymarks.CmsWpfControls.S3Uploads
             progress.Report($"Processing {dbItems.Count} items for display");
             foreach (var loopDbItems in dbItems.Where(x => !string.IsNullOrWhiteSpace(x.FileName)).ToList())
             {
-                var directory = new DirectoryInfo(UserSettingsSingleton.CurrentSettings().LocalSiteRootDirectory);
+                var directory = new DirectoryInfo(UserSettingsSingleton.CurrentSettings().LocalSiteRootFullDirectory().FullName);
                 var fileBase = loopDbItems.FileName!.Replace(directory.FullName, string.Empty);
                 var isInGenerationDirectory = loopDbItems.FileName.StartsWith(generationDirectory);
                 var transformedFileName = $"{userBucketName}{fileBase}".Replace("\\", "/");

@@ -653,7 +653,7 @@ namespace PointlessWaymarks.CmsWpfControls.FilesWrittenLogList
 
             var db = await Db.Context();
 
-            var generationDirectory = new DirectoryInfo(UserSettingsSingleton.CurrentSettings().LocalSiteRootDirectory)
+            var generationDirectory = new DirectoryInfo(UserSettingsSingleton.CurrentSettings().LocalSiteRootFullDirectory().FullName)
                 .FullName;
 
             StatusContext.Progress($"Filtering for Generation Directory: {FilterForFilesInCurrentGenerationDirectory}");
@@ -676,7 +676,7 @@ namespace PointlessWaymarks.CmsWpfControls.FilesWrittenLogList
             StatusContext.Progress($"Processing {dbItems.Count} items for display");
             foreach (var loopDbItems in dbItems.Where(x => !string.IsNullOrWhiteSpace(x.FileName)).ToList())
             {
-                var directory = new DirectoryInfo(UserSettingsSingleton.CurrentSettings().LocalSiteRootDirectory);
+                var directory = new DirectoryInfo(UserSettingsSingleton.CurrentSettings().LocalSiteRootFullDirectory().FullName);
                 var fileBase = loopDbItems.FileName!.Replace(directory.FullName, string.Empty);
                 var isInGenerationDirectory = loopDbItems.FileName.StartsWith(generationDirectory);
                 var transformedFileName = ToTransformedFileString(fileBase);
