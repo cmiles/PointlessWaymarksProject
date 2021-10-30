@@ -1750,7 +1750,7 @@ namespace PointlessWaymarks.CmsData.Database
             if (newDetailIds.Any())
                 DataNotifications.PublishDataNotification("Db", DataNotificationContentType.PointDetail,
                     DataNotificationUpdateType.New, updatedDetailIds);
-            b
+            
         }
 
         /// <summary>

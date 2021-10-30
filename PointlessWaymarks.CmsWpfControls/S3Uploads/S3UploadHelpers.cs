@@ -19,7 +19,7 @@ namespace PointlessWaymarks.CmsWpfControls.S3Uploads
     public static class S3UploadHelpers
     {
         public static async Task<(IsValid validUploadList, List<S3Upload> uploadItems)>
-            FilesSinceLastUploadToRunningUploadWindow(IProgress<string> progress)
+            FilesSinceLastUploadToUploadList(IProgress<string> progress)
         {
             progress.Report("Checking Bucket Details in Settings");
 
@@ -93,7 +93,7 @@ namespace PointlessWaymarks.CmsWpfControls.S3Uploads
             await ThreadSwitcher.ResumeBackgroundAsync();
 
             await HtmlGenerationGroups.GenerateChangedToHtml(statusContext.ProgressTracker());
-            var toUpload = await FilesSinceLastUploadToRunningUploadWindow(statusContext.ProgressTracker());
+            var toUpload = await FilesSinceLastUploadToUploadList(statusContext.ProgressTracker());
 
             await S3UploaderItemsToS3UploaderJsonFile(toUpload.uploadItems, Path.Combine(
                 UserSettingsSingleton.CurrentSettings().LocalScriptsDirectory().FullName,

@@ -103,7 +103,7 @@ namespace PointlessWaymarks.CmsContentEditor
 
             //Common
             GenerateChangedHtmlAndStartUploadCommand = StatusContext.RunBlockingTaskCommand(async () =>
-                await S3UploadHelpers.FilesSinceLastUploadToRunningUploadWindow(StatusContext.ProgressTracker()));
+                await S3UploadHelpers.GenerateChangedHtmlAndStartUpload(StatusContext));
 
             GenerateChangedHtmlCommand = StatusContext.RunBlockingTaskCommand(async () =>
                 await GenerationHelpers.GenerateChangedHtml(StatusContext.ProgressTracker()));
