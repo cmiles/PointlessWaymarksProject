@@ -20,7 +20,7 @@ namespace PointlessWaymarks.CmsWpfControls.ContentSiteFeedAndIsDraft
         private bool _hasValidationIssues;
         private BoolDataEntryContext _isDraftEntry;
         private BoolDataEntryContext _showInMainSiteFeedEntry;
-        private ConversionDataEntryContext<DateTime> _showInMainSiteFeedOnEntry;
+        private ConversionDataEntryContext<DateTime> _feedOnEntry;
         private StatusControlContext _statusContext;
 
         public ContentSiteFeedAndIsDraftContext(StatusControlContext statusContext)
@@ -61,13 +61,13 @@ namespace PointlessWaymarks.CmsWpfControls.ContentSiteFeedAndIsDraft
             }
         }
 
-        public ConversionDataEntryContext<DateTime> ShowInMainSiteFeedOnEntry
+        public ConversionDataEntryContext<DateTime> FeedOnEntry
         {
-            get => _showInMainSiteFeedOnEntry;
+            get => _feedOnEntry;
             set
             {
-                if (Equals(value, _showInMainSiteFeedOnEntry)) return;
-                _showInMainSiteFeedOnEntry = value;
+                if (Equals(value, _feedOnEntry)) return;
+                _feedOnEntry = value;
                 OnPropertyChanged();
             }
         }
@@ -133,13 +133,13 @@ namespace PointlessWaymarks.CmsWpfControls.ContentSiteFeedAndIsDraft
 
             ShowInMainSiteFeedEntry = BoolDataEntryContext.CreateInstanceForShowInMainSiteFeed(DbEntry, false);
 
-            ShowInMainSiteFeedOnEntry =
+            FeedOnEntry =
                 ConversionDataEntryContext<DateTime>.CreateInstance(ConversionDataEntryHelpers.DateTimeConversion);
-            ShowInMainSiteFeedOnEntry.Title = "Show in Site Feeds On";
-            ShowInMainSiteFeedOnEntry.HelpText =
+            FeedOnEntry.Title = "Show in Site Feeds On";
+            FeedOnEntry.HelpText =
                 "Sets when (if enabled) the content will appear on the Front Page and in RSS Feeds";
-            ShowInMainSiteFeedOnEntry.ReferenceValue = DbEntry.FeedOn;
-            ShowInMainSiteFeedOnEntry.UserText = DbEntry.FeedOn.ToString("MM/dd/yyyy h:mm:ss tt");
+            FeedOnEntry.ReferenceValue = DbEntry.FeedOn;
+            FeedOnEntry.UserText = DbEntry.FeedOn.ToString("MM/dd/yyyy h:mm:ss tt");
 
             IsDraftEntry = BoolDataEntryContext.CreateInstanceForIsDraft(DbEntry, false);
 

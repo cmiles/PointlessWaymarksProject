@@ -307,8 +307,8 @@ Note Content is like a simplified Post - no title and slug to edit or maintain a
             newEntry.Folder = FolderEntry.UserValue.TrimNullToEmpty();
             newEntry.Summary = Summary.UserValue.TrimNullToEmpty();
             newEntry.ShowInMainSiteFeed = MainSiteFeed.ShowInMainSiteFeedEntry.UserValue;
-            newEntry.FeedOn = MainSiteFeed.ShowInMainSiteFeedOnEntry.UserValue;
-            newEntry.IsDraft = MainSiteFeed.ShowInMainSiteFeedEntry.UserValue;
+            newEntry.FeedOn = MainSiteFeed.FeedOnEntry.UserValue;
+            newEntry.IsDraft = MainSiteFeed.IsDraftEntry.UserValue;
             newEntry.Tags = TagEdit.TagListString();
             newEntry.CreatedBy = CreatedUpdatedDisplay.CreatedByEntry.UserValue.TrimNullToEmpty();
             newEntry.BodyContent = BodyContent.BodyContent.TrimNullToEmpty();

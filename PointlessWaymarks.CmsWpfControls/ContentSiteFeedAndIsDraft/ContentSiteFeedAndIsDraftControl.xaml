@@ -19,7 +19,7 @@
     </UserControl.Resources>
     <StackPanel Margin="0,8,0,0" Orientation="Vertical">
         <boolDataEntry:BoolDataEntryControl Margin="4,0,0,0" DataContext="{Binding ShowInMainSiteFeedEntry}" />
-        <conversionDataEntry:ConversionDataEntryControl Margin="0,2,0,0" DataContext="{Binding ShowInMainSiteFeedOnEntry}" />
+        <conversionDataEntry:ConversionDataEntryControl Margin="0,2,0,0" DataContext="{Binding FeedOnEntry}" />
         <boolDataEntry:BoolDataEntryControl Margin="4,10,0,0" DataContext="{Binding IsDraftEntry}"></boolDataEntry:BoolDataEntryControl>
     </StackPanel>
 </UserControl>

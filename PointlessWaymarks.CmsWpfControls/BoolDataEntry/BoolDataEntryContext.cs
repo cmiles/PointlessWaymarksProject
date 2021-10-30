@@ -160,8 +160,8 @@ namespace PointlessWaymarks.CmsWpfControls.BoolDataEntry
         {
             var newContext = new BoolDataEntryContext
             {
-                ReferenceValue = dbEntry?.ShowInMainSiteFeed ?? defaultSetting,
-                UserValue = dbEntry?.ShowInMainSiteFeed ?? defaultSetting,
+                ReferenceValue = dbEntry?.IsDraft ?? defaultSetting,
+                UserValue = dbEntry?.IsDraft ?? defaultSetting,
                 Title = "Draft",
                 HelpText =
                     "'Draft' content will not appear in the Main Site Feed, Search or RSS Feeds - however html will " +

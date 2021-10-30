@@ -899,8 +899,15 @@ namespace PointlessWaymarks.CmsData.ContentHtml
                     .ConfigureAwait(false);
 
                 //Main Image changes
-                var mainImageContentIds = directTagContent.Select(x => Db.MainImageContentIdIfPresent(x))
-                    .Where(x => x != null).Cast<Guid>().ToList();
+                var mainImageContentIds = directTagContent.Select(x =>
+                {
+                    return x switch
+                    {
+                        FileContent y => y.MainPicture,
+                        PostContent y => y.MainPicture,
+                        _ => null
+                    };
+                }).Where(x => x != null).Cast<Guid>().ToList();
 
                 var mainImageContentChanges = await pointlessWaymarksContext.GenerationChangedContentIds
                     .AnyAsync(x => mainImageContentIds.Contains(x.ContentId)).ConfigureAwait(false);
