@@ -32,6 +32,10 @@
     d:DataContext="{d:DesignInstance cmsContentEditor:MainWindow}"
     Closing="MainWindow_OnClosing"
     mc:Ignorable="d">
+    <Window.TaskbarItemInfo>
+        <TaskbarItemInfo ProgressState="{Binding WindowStatus.WindowState}"
+                         ProgressValue="{Binding WindowStatus.WindowProgress}" />
+    </Window.TaskbarItemInfo>
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>

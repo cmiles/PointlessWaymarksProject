@@ -14,8 +14,8 @@
     Closing="S3UploadsWindow_OnClosing"
     mc:Ignorable="d">
     <Window.TaskbarItemInfo>
-        <TaskbarItemInfo ProgressState="{Binding OsStatusIndicator.WindowState}"
-                         ProgressValue="{Binding OsStatusIndicator.WindowProgress}" />
+        <TaskbarItemInfo ProgressState="{Binding WindowStatus.WindowState}"
+                         ProgressValue="{Binding WindowStatus.WindowProgress}" />
     </Window.TaskbarItemInfo>
     <Grid>
         <s3Uploads:S3UploadsControl DataContext="{Binding UploadContext}" />

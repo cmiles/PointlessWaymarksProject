@@ -44,6 +44,8 @@ namespace PointlessWaymarks.WpfCommon.Status
 
         public void AddRequest(WindowIconStatusRequest request)
         {
+            request.RequestedOn = DateTime.Now;
+
             _statusList.RemoveAll(x => x.RequestedBy == request.RequestedBy);
             _statusList.Add(request);
 
@@ -90,6 +92,9 @@ namespace PointlessWaymarks.WpfCommon.Status
         }
     }
 
-    public record WindowIconStatusRequest(DateTime RequestedOn, Guid RequestedBy, TaskbarItemProgressState StateRequest,
-        decimal? Progress);
+    public record WindowIconStatusRequest(Guid RequestedBy, TaskbarItemProgressState StateRequest,
+        decimal? Progress = null)
+    {
+        public DateTime RequestedOn { get; set; }
+    }
 }

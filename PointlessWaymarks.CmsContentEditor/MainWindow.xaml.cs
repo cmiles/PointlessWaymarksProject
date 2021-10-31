@@ -35,6 +35,7 @@ using PointlessWaymarks.CmsWpfControls.PhotoList;
 using PointlessWaymarks.CmsWpfControls.PointList;
 using PointlessWaymarks.CmsWpfControls.PostList;
 using PointlessWaymarks.CmsWpfControls.S3Uploads;
+using PointlessWaymarks.CmsWpfControls.SitePreview;
 using PointlessWaymarks.CmsWpfControls.TagExclusionEditor;
 using PointlessWaymarks.CmsWpfControls.TagList;
 using PointlessWaymarks.CmsWpfControls.UserSettingsEditor;
@@ -86,7 +87,7 @@ namespace PointlessWaymarks.CmsContentEditor
 
             if (Width < 900) Width = 900;
             if (Height < 650) Height = 650;
-
+            
             WindowInitialPositionHelpers.EnsureWindowIsVisible(this);
 
             InfoTitle =
@@ -101,7 +102,22 @@ namespace PointlessWaymarks.CmsContentEditor
 
             StatusContext = new StatusControlContext();
 
+            WindowStatus = new WindowIconStatus();
+
             //Common
+
+            GenerateChangedHtmlAndShowPreviewCommand = StatusContext.RunBlockingTaskCommand(async () =>
+            {
+                    await ThreadSwitcher.ResumeBackgroundAsync();
+
+                    await HtmlGenerationGroups.GenerateChangedToHtml(StatusContext.ProgressTracker());
+
+                    await ThreadSwitcher.ResumeForegroundAsync();
+
+                    var sitePreviewWindow = new SiteOnDiskPreviewWindow();
+                    sitePreviewWindow.Show();
+            });
+
             GenerateChangedHtmlAndStartUploadCommand = StatusContext.RunBlockingTaskCommand(async () =>
                 await S3UploadHelpers.GenerateChangedHtmlAndStartUpload(StatusContext));
 
@@ -185,6 +201,8 @@ namespace PointlessWaymarks.CmsContentEditor
             StatusContext.RunFireAndForgetNonBlockingTask(CleanupTemporaryFiles);
         }
 
+        public WindowIconStatus WindowStatus { get; set; }
+
         public Command CheckAllContentForInvalidBracketCodeContentIdsCommand { get; set; }
 
         public Command ConfirmOrGenerateAllPhotosImagesFilesCommand { get; set; }
@@ -209,6 +227,8 @@ namespace PointlessWaymarks.CmsContentEditor
         public Command GenerateAllTagHtmlCommand { get; set; }
 
         public Command GenerateCameraRollCommand { get; set; }
+
+        public Command GenerateChangedHtmlAndShowPreviewCommand { get; set; }
 
         public Command GenerateChangedHtmlAndStartUploadCommand { get; set; }
 
@@ -729,7 +749,7 @@ namespace PointlessWaymarks.CmsContentEditor
 
             StatusContext.Progress("Setting up UI Controls");
 
-            TabAllListContext = new AllItemsWithActionsContext(null);
+            TabAllListContext = new AllItemsWithActionsContext(null, WindowStatus);
 
             SettingsEditorContext =
                 new UserSettingsEditorContext(StatusContext, UserSettingsSingleton.CurrentSettings());

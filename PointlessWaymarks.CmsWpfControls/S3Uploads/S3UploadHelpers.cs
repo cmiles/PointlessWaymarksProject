@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
+using System.Windows.Shell;
 using Microsoft.EntityFrameworkCore;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.ContentHtml;
@@ -39,8 +40,9 @@ namespace PointlessWaymarks.CmsWpfControls.S3Uploads
             var sinceDate = db.GenerationFileTransferScriptLogs.OrderByDescending(x => x.WrittenOnVersion)
                 .FirstOrDefault()?.WrittenOnVersion;
 
-            var generationDirectory = new DirectoryInfo(UserSettingsSingleton.CurrentSettings().LocalSiteRootFullDirectory().FullName)
-                .FullName;
+            var generationDirectory =
+                new DirectoryInfo(UserSettingsSingleton.CurrentSettings().LocalSiteRootFullDirectory().FullName)
+                    .FullName;
 
             progress.Report($"Filtering for Generation Directory: {generationDirectory}");
 
@@ -62,7 +64,8 @@ namespace PointlessWaymarks.CmsWpfControls.S3Uploads
             progress.Report($"Processing {dbItems.Count} items for display");
             foreach (var loopDbItems in dbItems.Where(x => !string.IsNullOrWhiteSpace(x.FileName)).ToList())
             {
-                var directory = new DirectoryInfo(UserSettingsSingleton.CurrentSettings().LocalSiteRootFullDirectory().FullName);
+                var directory =
+                    new DirectoryInfo(UserSettingsSingleton.CurrentSettings().LocalSiteRootFullDirectory().FullName);
                 var fileBase = loopDbItems.FileName!.Replace(directory.FullName, string.Empty);
                 var isInGenerationDirectory = loopDbItems.FileName.StartsWith(generationDirectory);
                 var transformedFileName = $"{userBucketName}{fileBase}".Replace("\\", "/");
@@ -78,32 +81,42 @@ namespace PointlessWaymarks.CmsWpfControls.S3Uploads
             }
 
             var s3Items = transformedItems.Where(x => x.IsInGenerationDirectory && File.Exists(x.WrittenFile)).Select(
-                x =>
-                    new S3Upload(new FileInfo(x.WrittenFile),
-                        AwsS3GeneratedSiteComparisonForAdditionsAndChanges.FileInfoInGeneratedSiteToS3Key(
-                            new FileInfo(x.WrittenFile)), userBucketName, userBucketRegion,
-                        $"From Files Written Log - {x.WrittenOn}")).ToList();
+                x => new S3Upload(new FileInfo(x.WrittenFile),
+                    AwsS3GeneratedSiteComparisonForAdditionsAndChanges.FileInfoInGeneratedSiteToS3Key(
+                        new FileInfo(x.WrittenFile)), userBucketName, userBucketRegion,
+                    $"From Files Written Log - {x.WrittenOn}")).ToList();
 
 
             return (new IsValid(true, string.Empty), s3Items);
         }
 
-        public static async Task GenerateChangedHtmlAndStartUpload(StatusControlContext statusContext)
+        public static async Task GenerateChangedHtmlAndStartUpload(StatusControlContext statusContext,
+            WindowIconStatus windowStatus = null)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
+            (IsValid validUploadList, List<S3Upload> uploadItems) toUpload;
 
-            await HtmlGenerationGroups.GenerateChangedToHtml(statusContext.ProgressTracker());
-            var toUpload = await FilesSinceLastUploadToUploadList(statusContext.ProgressTracker());
-
-            await S3UploaderItemsToS3UploaderJsonFile(toUpload.uploadItems, Path.Combine(
-                UserSettingsSingleton.CurrentSettings().LocalScriptsDirectory().FullName,
-                $"{DateTime.Now:yyyy-MM-dd--HH-mm-ss}---File-Upload-Data.json"));
-
-            if (!toUpload.validUploadList.Valid)
+            try
             {
-                await statusContext.ShowMessageWithOkButton("Upload Failure",
-                    $"Generating HTML appears to have succeeded but creating an upload failed: {toUpload.validUploadList.Explanation}");
-                return;
+                windowStatus?.AddRequest(new WindowIconStatusRequest(statusContext.StatusControlContextId,
+                    TaskbarItemProgressState.Indeterminate));
+                await HtmlGenerationGroups.GenerateChangedToHtml(statusContext.ProgressTracker());
+                toUpload = await FilesSinceLastUploadToUploadList(statusContext.ProgressTracker());
+
+                await S3UploaderItemsToS3UploaderJsonFile(toUpload.uploadItems,
+                    Path.Combine(UserSettingsSingleton.CurrentSettings().LocalScriptsDirectory().FullName,
+                        $"{DateTime.Now:yyyy-MM-dd--HH-mm-ss}---File-Upload-Data.json"));
+
+                if (!toUpload.validUploadList.Valid)
+                {
+                    await statusContext.ShowMessageWithOkButton("Upload Failure",
+                        $"Generating HTML appears to have succeeded but creating an upload failed: {toUpload.validUploadList.Explanation}");
+                    return;
+                }
+            }
+            finally
+            {
+                windowStatus?.AddRequest(new WindowIconStatusRequest(statusContext.StatusControlContextId, TaskbarItemProgressState.None));
             }
 
             await ThreadSwitcher.ResumeForegroundAsync();
@@ -127,8 +140,7 @@ namespace PointlessWaymarks.CmsWpfControls.S3Uploads
 
             await Db.SaveGenerationFileTransferScriptLog(new GenerationFileTransferScriptLog
             {
-                FileName = file.FullName,
-                WrittenOnVersion = DateTime.Now.TrimDateTimeToSeconds().ToUniversalTime()
+                FileName = file.FullName, WrittenOnVersion = DateTime.Now.TrimDateTimeToSeconds().ToUniversalTime()
             });
         }
     }

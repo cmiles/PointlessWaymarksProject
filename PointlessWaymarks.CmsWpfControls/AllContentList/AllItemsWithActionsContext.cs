@@ -16,12 +16,26 @@ namespace PointlessWaymarks.CmsWpfControls.AllContentList
     {
         private ContentListContext _listContext;
         private Command _wordPressImportWindowCommand;
+        private WindowIconStatus _windowStatus;
 
-        public AllItemsWithActionsContext(StatusControlContext statusContext)
+        public AllItemsWithActionsContext(StatusControlContext statusContext, WindowIconStatus windowStatus)
         {
             StatusContext = statusContext ?? new StatusControlContext();
 
+            WindowStatus = windowStatus;
+
             StatusContext.RunFireAndForgetBlockingTask(LoadData);
+        }
+
+        public WindowIconStatus WindowStatus
+        {
+            get => _windowStatus;
+            set
+            {
+                if (Equals(value, _windowStatus)) return;
+                _windowStatus = value;
+                OnPropertyChanged();
+            }
         }
 
         public ContentListContext ListContext
@@ -54,7 +68,7 @@ namespace PointlessWaymarks.CmsWpfControls.AllContentList
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            ListContext ??= new ContentListContext(StatusContext, new ContentListLoaderAllItems(100));
+            ListContext ??= new ContentListContext(StatusContext, new ContentListLoaderAllItems(100), WindowStatus);
 
             WordPressImportWindowCommand = StatusContext.RunNonBlockingTaskCommand(WordPressImportWindow);
 

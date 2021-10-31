@@ -9,6 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Data;
+using System.Windows.Shell;
 using System.Windows.Threading;
 using GongSolutions.Wpf.DragDrop;
 using JetBrains.Annotations;
@@ -17,6 +18,7 @@ using MetadataExtractor.Formats.Exif;
 using Microsoft.EntityFrameworkCore;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.CommonHtml;
+using PointlessWaymarks.CmsData.ContentHtml;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsWpfControls.ColumnSort;
@@ -55,6 +57,7 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList
         private Command _generateChangedHtmlAndStartUploadCommand;
         private Command _generateChangedHtmlCommand;
         private Command _generateHtmlSelectedCommand;
+        private Command _generateSiteHtmlFromChangesAndShowSitePreviewCommand;
         private GeoJsonContentActions _geoJsonItemActions;
         private ImageContentActions _imageItemActions;
         private Command _importFromExcelFileCommand;
@@ -77,10 +80,13 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList
         private StatusControlContext _statusContext;
         private string _userFilterText;
         private Command _viewHistorySelectedCommand;
+        private WindowIconStatus _windowStatus;
 
-        public ContentListContext(StatusControlContext statusContext, IContentListLoader loader)
+        public ContentListContext(StatusControlContext statusContext, IContentListLoader loader,
+            WindowIconStatus windowStatus = null)
         {
             StatusContext = statusContext ?? new StatusControlContext();
+            WindowStatus = windowStatus;
 
             ContentListLoader = loader;
 
@@ -127,13 +133,24 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList
                 await ExcelHelpers.SelectedToExcel(ListSelection.SelectedItems?.Cast<dynamic>().ToList(),
                     StatusContext));
 
-            GenerateChangedHtmlAndStartUploadCommand =
-                StatusContext.RunBlockingTaskCommand(async () =>
-                    await S3UploadHelpers.GenerateChangedHtmlAndStartUpload(StatusContext));
-            GenerateChangedHtmlCommand =
-                StatusContext.RunBlockingTaskCommand(async () =>
-                    await GenerationHelpers.GenerateChangedHtml(StatusContext.ProgressTracker()));
+            GenerateChangedHtmlAndStartUploadCommand = StatusContext.RunBlockingTaskCommand(async () =>
+                await S3UploadHelpers.GenerateChangedHtmlAndStartUpload(StatusContext));
+            GenerateChangedHtmlCommand = StatusContext.RunBlockingTaskCommand(async () =>
+                await GenerationHelpers.GenerateChangedHtml(StatusContext.ProgressTracker()));
             ShowSiteBrowserWindowCommand = StatusContext.RunNonBlockingTaskCommand(ShowSiteBrowserWindow);
+            GenerateSiteHtmlFromChangesAndShowSitePreviewCommand =
+                StatusContext.RunBlockingTaskCommand(GenerateSiteHtmlFromChangesAndShowSitePreview);
+        }
+
+        public WindowIconStatus WindowStatus
+        {
+            get => _windowStatus;
+            set
+            {
+                if (Equals(value, _windowStatus)) return;
+                _windowStatus = value;
+                OnPropertyChanged();
+            }
         }
 
         public Command BracketCodeToClipboardSelectedCommand
@@ -235,6 +252,17 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList
             {
                 if (Equals(value, _generateHtmlSelectedCommand)) return;
                 _generateHtmlSelectedCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public Command GenerateSiteHtmlFromChangesAndShowSitePreviewCommand
+        {
+            get => _generateSiteHtmlFromChangesAndShowSitePreviewCommand;
+            set
+            {
+                if (Equals(value, _generateSiteHtmlFromChangesAndShowSitePreviewCommand)) return;
+                _generateSiteHtmlFromChangesAndShowSitePreviewCommand = value;
                 OnPropertyChanged();
             }
         }
@@ -816,17 +844,17 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList
                 if (o is not IContentListItem toFilter) return false;
 
                 if ((toFilter.Content().Title ?? string.Empty).Contains(UserFilterText,
-                    StringComparison.OrdinalIgnoreCase)) return true;
+                        StringComparison.OrdinalIgnoreCase)) return true;
                 if ((toFilter.Content().Tags ?? string.Empty).Contains(UserFilterText,
-                    StringComparison.OrdinalIgnoreCase)) return true;
+                        StringComparison.OrdinalIgnoreCase)) return true;
                 if ((toFilter.Content().Summary ?? string.Empty).Contains(UserFilterText,
-                    StringComparison.OrdinalIgnoreCase)) return true;
+                        StringComparison.OrdinalIgnoreCase)) return true;
                 if ((toFilter.Content().CreatedBy ?? string.Empty).Contains(UserFilterText,
-                    StringComparison.OrdinalIgnoreCase)) return true;
+                        StringComparison.OrdinalIgnoreCase)) return true;
                 if ((toFilter.Content().LastUpdatedBy ?? string.Empty).Contains(UserFilterText,
-                    StringComparison.OrdinalIgnoreCase)) return true;
+                        StringComparison.OrdinalIgnoreCase)) return true;
                 if (toFilter.ContentId() != null && toFilter.ContentId().ToString()
-                    .Contains(UserFilterText, StringComparison.OrdinalIgnoreCase)) return true;
+                        .Contains(UserFilterText, StringComparison.OrdinalIgnoreCase)) return true;
                 return false;
             };
         }
@@ -849,6 +877,30 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList
 
                 await loopSelected.GenerateHtml();
             }
+        }
+
+        private async Task GenerateSiteHtmlFromChangesAndShowSitePreview()
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            try
+            {
+                WindowStatus?.AddRequest(new WindowIconStatusRequest(StatusContext.StatusControlContextId,
+                    TaskbarItemProgressState.Indeterminate));
+
+                await HtmlGenerationGroups.GenerateChangedToHtml(StatusContext.ProgressTracker());
+            }
+            finally
+            {
+                WindowStatus?.AddRequest(new WindowIconStatusRequest(StatusContext.StatusControlContextId,
+                    TaskbarItemProgressState.None));
+            }
+
+            await ThreadSwitcher.ResumeForegroundAsync();
+
+
+            var sitePreviewWindow = new SiteOnDiskPreviewWindow();
+            sitePreviewWindow.Show();
         }
 
         public static string GetSmallImageUrl(IMainImage content)

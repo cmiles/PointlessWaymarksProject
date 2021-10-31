@@ -516,13 +516,13 @@ namespace PointlessWaymarks.CmsWpfControls.S3Uploads
             {
                 if (UploadBatch is not { Uploading: true })
                 {
-                    OsStatusIndicator.AddRequest(new WindowIconStatusRequest(DateTime.Now,
-                        StatusContext.StatusControlContextId, TaskbarItemProgressState.None, null));
+                    OsStatusIndicator.AddRequest(new WindowIconStatusRequest(StatusContext.StatusControlContextId,
+                        TaskbarItemProgressState.None));
                     return;
                 }
 
-                OsStatusIndicator.AddRequest(new WindowIconStatusRequest(DateTime.Now,
-                    StatusContext.StatusControlContextId, TaskbarItemProgressState.Normal,
+                OsStatusIndicator.AddRequest(new WindowIconStatusRequest(StatusContext.StatusControlContextId,
+                    TaskbarItemProgressState.Normal,
                     (UploadBatch.CompletedSizePercent + UploadBatch.CompletedItemPercent) / 2));
             }
         }
