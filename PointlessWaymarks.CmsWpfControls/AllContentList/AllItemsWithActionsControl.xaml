@@ -7,6 +7,7 @@
     xmlns:local="clr-namespace:PointlessWaymarks.CmsWpfControls.AllContentList"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:status="clr-namespace:PointlessWaymarks.WpfCommon.Status;assembly=PointlessWaymarks.WpfCommon"
+    xmlns:collections="clr-namespace:System.Collections;assembly=System.Runtime"
     d:DataContext="{d:DesignInstance local:AllItemsWithActionsContext}"
     d:DesignHeight="300"
     d:DesignWidth="300"
@@ -16,6 +17,7 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="../WpfControlsResourceDictionary.xaml" />
             </ResourceDictionary.MergedDictionaries>
+
         </ResourceDictionary>
     </UserControl.Resources>
     <Grid>
@@ -26,34 +28,34 @@
         </Grid.RowDefinitions>
         <Menu>
             <MenuItem Header="New">
-                <MenuItem Command="{Binding ListContext.NewActions.NewFileContentFromFilesCommand}" Header="File from File" />
+                <MenuItem Command="{Binding ListContext.NewActions.NewFileContentFromFilesCommand}"
+                          Header="File from File" />
                 <MenuItem Command="{Binding ListContext.NewActions.NewFileContentCommand}" Header="File" />
                 <MenuItem Command="{Binding ListContext.NewActions.NewGeoJsonContentCommand}" Header="GeoJson" />
-                <MenuItem Command="{Binding ListContext.NewActions.NewImageContentFromFilesCommand}" Header="Image from File" />
+                <MenuItem Command="{Binding ListContext.NewActions.NewImageContentFromFilesCommand}"
+                          Header="Image from File" />
                 <MenuItem Command="{Binding ListContext.NewActions.NewImageContentCommand}" Header="Image" />
                 <MenuItem Command="{Binding ListContext.NewActions.NewLineContentCommand}" Header="Line" />
                 <MenuItem Command="{Binding ListContext.NewActions.NewLinkContentCommand}" Header="Link" />
                 <MenuItem Command="{Binding ListContext.NewActions.NewMapContentCommand}" Header="Map Component" />
                 <MenuItem Command="{Binding ListContext.NewActions.NewNoteContentCommand}" Header="Note" />
-                <MenuItem Command="{Binding ListContext.NewActions.NewPhotoContentFromFilesWithAutosaveCommand}" Header="Photo from File - Auto-Save" />
-                <MenuItem Command="{Binding ListContext.NewActions.NewPhotoContentFromFilesCommand}" Header="Photo from File" />
+                <MenuItem Command="{Binding ListContext.NewActions.NewPhotoContentFromFilesWithAutosaveCommand}"
+                          Header="Photo from File - Auto-Save" />
+                <MenuItem Command="{Binding ListContext.NewActions.NewPhotoContentFromFilesCommand}"
+                          Header="Photo from File" />
                 <MenuItem Command="{Binding ListContext.NewActions.NewPhotoContentCommand}" Header="Photo" />
                 <MenuItem Command="{Binding ListContext.NewActions.NewPostContentCommand}" Header="Post" />
             </MenuItem>
             <MenuItem Header="Excel">
                 <MenuItem Command="{Binding ListContext.SelectedToExcelCommand}" Header="Selected To Excel" />
                 <MenuItem Command="{Binding ListContext.ImportFromExcelFileCommand}" Header="Import From Excel File" />
-                <MenuItem Command="{Binding ListContext.ImportFromOpenExcelInstanceCommand}" Header="Import From Open Excel Application" />
+                <MenuItem Command="{Binding ListContext.ImportFromOpenExcelInstanceCommand}"
+                          Header="Import From Open Excel Application" />
             </MenuItem>
             <MenuItem Header="Import">
                 <MenuItem Command="{Binding WordPressImportWindowCommand}" Header="WordPress XML Import Helper" />
             </MenuItem>
-            <MenuItem Header="Site">
-                <MenuItem Command="{Binding ListContext.GenerateChangedHtmlAndStartUploadCommand}" Header="Generate Site and Start Upload" />
-                <MenuItem Command="{Binding ListContext.GenerateSiteHtmlFromChangesAndShowSitePreviewCommand}" Header="Generate Site and Show Preview" />
-                <MenuItem Command="{Binding ListContext.GenerateChangedHtmlCommand}" Header="Generate Site" />
-                <MenuItem Command="{Binding ListContext.ShowSiteBrowserWindowCommand}" Header="Preview Site from Disk" />
-            </MenuItem>
+            <StaticResource ResourceKey="SiteMenu"/>
         </Menu>
         <contentList:ContentListControl
             Grid.Row="1"

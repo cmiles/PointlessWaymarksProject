@@ -18,7 +18,8 @@
     xmlns:tagsEditor="clr-namespace:PointlessWaymarks.CmsWpfControls.TagsEditor"
     xmlns:utility="clr-namespace:PointlessWaymarks.CmsWpfControls.Utility"
     xmlns:wpfBehavior="clr-namespace:PointlessWaymarks.WpfCommon.Behaviors;assembly=PointlessWaymarks.WpfCommon"
-    xmlns:wpfConverter="clr-namespace:PointlessWaymarks.WpfCommon.ValueConverters;assembly=PointlessWaymarks.WpfCommon">
+    xmlns:wpfConverter="clr-namespace:PointlessWaymarks.WpfCommon.ValueConverters;assembly=PointlessWaymarks.WpfCommon"
+    xmlns:collections="clr-namespace:System.Collections;assembly=System.Runtime">
     <wpfConverter:NullOrWhiteSpaceStringToCollapsedVisibilityConverter x:Key="NullOrWhiteSpaceStringToCollapsed" />
     <wpfConverter:NullOrWhiteSpaceStringToDefaultConverter x:Key="StringDefault" />
     <wpfConverter:IsoConverter x:Key="IsoWithDefault" />
@@ -805,4 +806,15 @@
             </Grid>
         </Border>
     </DataTemplate>
+    <collections:ArrayList x:Key="SiteMenuItemValues" x:Shared="False">
+        <MenuItem Command="{Binding ListContext.GenerateChangedHtmlAndStartUploadCommand}"
+                  Header="Generate Site and Start Upload" />
+        <MenuItem Command="{Binding ListContext.GenerateSiteHtmlFromChangesAndShowSitePreviewCommand}"
+                  Header="Generate Site and Show Preview" />
+        <MenuItem Command="{Binding ListContext.GenerateChangedHtmlCommand}" Header="Generate Site" />
+        <MenuItem Command="{Binding ListContext.ShowSiteBrowserWindowCommand}" Header="Preview Site from Disk" />
+    </collections:ArrayList>
+    <MenuItem x:Key="SiteMenu" x:Shared="False"
+              ItemsSource="{StaticResource SiteMenuItemValues}"
+              Header="Site"/>
 </ResourceDictionary>
