@@ -87,7 +87,7 @@ namespace PointlessWaymarks.CmsContentEditor
 
             if (Width < 900) Width = 900;
             if (Height < 650) Height = 650;
-            
+
             WindowInitialPositionHelpers.EnsureWindowIsVisible(this);
 
             InfoTitle =
@@ -770,25 +770,25 @@ namespace PointlessWaymarks.CmsContentEditor
             if (SelectedTab == null) return;
 
             if (SelectedTab.Header.ToString() == "Posts" && TabPostListContext == null)
-                TabPostListContext = new PostListWithActionsContext(null);
+                TabPostListContext = new PostListWithActionsContext(null, WindowStatus);
             if (SelectedTab.Header.ToString() == "Photos" && TabPhotoListContext == null)
-                TabPhotoListContext = new PhotoListWithActionsContext(null);
+                TabPhotoListContext = new PhotoListWithActionsContext(null, WindowStatus);
             if (SelectedTab.Header.ToString() == "Images" && TabImageListContext == null)
-                TabImageListContext = new ImageListWithActionsContext(null);
+                TabImageListContext = new ImageListWithActionsContext(null, WindowStatus);
             if (SelectedTab.Header.ToString() == "Files" && TabFileListContext == null)
-                TabFileListContext = new FileListWithActionsContext(null);
+                TabFileListContext = new FileListWithActionsContext(null, WindowStatus);
             if (SelectedTab.Header.ToString() == "Points" && TabPointListContext == null)
-                TabPointListContext = new PointListWithActionsContext(null);
+                TabPointListContext = new PointListWithActionsContext(null, WindowStatus);
             if (SelectedTab.Header.ToString() == "Lines" && TabLineListContext == null)
-                TabLineListContext = new LineListWithActionsContext(null);
+                TabLineListContext = new LineListWithActionsContext(null, WindowStatus);
             if (SelectedTab.Header.ToString() == "GeoJson" && TabGeoJsonListContext == null)
-                TabGeoJsonListContext = new GeoJsonListWithActionsContext(null);
+                TabGeoJsonListContext = new GeoJsonListWithActionsContext(null, WindowStatus);
             if (SelectedTab.Header.ToString() == "Maps" && TabMapListContext == null)
-                TabMapListContext = new MapComponentListWithActionsContext(null);
+                TabMapListContext = new MapComponentListWithActionsContext(null, WindowStatus);
             if (SelectedTab.Header.ToString() == "Notes" && TabNoteListContext == null)
-                TabNoteListContext = new NoteListWithActionsContext(null);
+                TabNoteListContext = new NoteListWithActionsContext(null, WindowStatus);
             if (SelectedTab.Header.ToString() == "Links" && TabLinkContext == null)
-                TabLinkContext = new LinkListWithActionsContext(null);
+                TabLinkContext = new LinkListWithActionsContext(null, WindowStatus);
             if (SelectedTab.Header.ToString() == "Tag Search Exclusions" && TabTagExclusionContext == null)
                 TabTagExclusionContext = new TagExclusionEditorContext(null);
             if (SelectedTab.Header.ToString() == "Menu Links" && TabMenuLinkContext == null)

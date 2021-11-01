@@ -9,8 +9,8 @@
     xmlns:wpf="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
     xmlns:wpf1="clr-namespace:Markdig.Wpf;assembly=Markdig.Wpf"
     Title="{Binding PreviewContext.WindowTitle}"
-    Width="900"
-    Height="700"
+    Width="1000"
+    Height="800"
     d:DataContext="{d:DesignInstance local:SiteOnDiskPreviewWindow}"
     mc:Ignorable="d">
     <Grid>

@@ -809,10 +809,10 @@
     <collections:ArrayList x:Key="SiteMenuItemValues" x:Shared="False">
         <MenuItem Command="{Binding ListContext.GenerateChangedHtmlAndStartUploadCommand}"
                   Header="Generate Site and Start Upload" />
-        <MenuItem Command="{Binding ListContext.GenerateSiteHtmlFromChangesAndShowSitePreviewCommand}"
+        <MenuItem Command="{Binding ListContext.GenerateChangedHtmlAndShowSitePreviewCommand}"
                   Header="Generate Site and Show Preview" />
         <MenuItem Command="{Binding ListContext.GenerateChangedHtmlCommand}" Header="Generate Site" />
-        <MenuItem Command="{Binding ListContext.ShowSiteBrowserWindowCommand}" Header="Preview Site from Disk" />
+        <MenuItem Command="{Binding ListContext.ShowSitePreviewWindowCommand}" Header="Preview Site from Disk" />
     </collections:ArrayList>
     <MenuItem x:Key="SiteMenu" x:Shared="False"
               ItemsSource="{StaticResource SiteMenuItemValues}"

@@ -30,10 +30,12 @@ namespace PointlessWaymarks.CmsWpfControls.ImageList
         private Command _refreshDataCommand;
         private Command _regenerateHtmlAndReprocessImageForSelectedCommand;
         private Command _viewFilesCommand;
+        private WindowIconStatus _windowStatus;
 
-        public ImageListWithActionsContext(StatusControlContext statusContext)
+        public ImageListWithActionsContext(StatusControlContext statusContext, WindowIconStatus windowStatus = null)
         {
             StatusContext = statusContext ?? new StatusControlContext();
+            WindowStatus = windowStatus;
 
             StatusContext.RunFireAndForgetBlockingTask(LoadData);
         }
@@ -126,6 +128,17 @@ namespace PointlessWaymarks.CmsWpfControls.ImageList
             }
         }
 
+        public WindowIconStatus WindowStatus
+        {
+            get => _windowStatus;
+            set
+            {
+                if (Equals(value, _windowStatus)) return;
+                _windowStatus = value;
+                OnPropertyChanged();
+            }
+        }
+
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -186,8 +199,8 @@ namespace PointlessWaymarks.CmsWpfControls.ImageList
                 if (currentLoop < totalCount)
                 {
                     if (await StatusContext.ShowMessage("Error Resizing",
-                        $"There was an error resizing the image {loopSelected.DbEntry.OriginalFileName} in {loopSelected.DbEntry.Title}{Environment.NewLine}{Environment.NewLine}{resizeResult.GenerationNote}{Environment.NewLine}{Environment.NewLine}Continue?",
-                        new List<string> {"Yes", "No"}) == "No") return;
+                            $"There was an error resizing the image {loopSelected.DbEntry.OriginalFileName} in {loopSelected.DbEntry.Title}{Environment.NewLine}{Environment.NewLine}{resizeResult.GenerationNote}{Environment.NewLine}{Environment.NewLine}Continue?",
+                            new List<string> { "Yes", "No" }) == "No") return;
                 }
                 else
                 {
@@ -222,7 +235,7 @@ namespace PointlessWaymarks.CmsWpfControls.ImageList
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            ListContext ??= new ContentListContext(StatusContext, new ImageListLoader(100));
+            ListContext ??= new ContentListContext(StatusContext, new ImageListLoader(100), WindowStatus);
 
             RefreshDataCommand = StatusContext.RunBlockingTaskCommand(ListContext.LoadData);
 
@@ -241,7 +254,7 @@ namespace PointlessWaymarks.CmsWpfControls.ImageList
 
             ListContext.ContextMenuItems = new List<ContextMenuItemData>
             {
-                new() {ItemName = "Edit", ItemCommand = ListContext.EditSelectedCommand},
+                new() { ItemName = "Edit", ItemCommand = ListContext.EditSelectedCommand },
                 new()
                 {
                     ItemName = "Image Code to Clipboard",
@@ -252,19 +265,19 @@ namespace PointlessWaymarks.CmsWpfControls.ImageList
                     ItemName = "Text Code to Clipboard",
                     ItemCommand = ImageBracketLinkCodesToClipboardForSelectedCommand
                 },
-                new() {ItemName = "Email Html to Clipboard", ItemCommand = EmailHtmlToClipboardCommand},
-                new() {ItemName = "View Images", ItemCommand = ViewFilesCommand},
-                new() {ItemName = "Open URLs", ItemCommand = ListContext.OpenUrlSelectedCommand},
-                new() {ItemName = "Extract New Links", ItemCommand = ListContext.ExtractNewLinksSelectedCommand},
-                new() {ItemName = "Process/Resize Selected", ItemCommand = ForcedResizeCommand},
+                new() { ItemName = "Email Html to Clipboard", ItemCommand = EmailHtmlToClipboardCommand },
+                new() { ItemName = "View Images", ItemCommand = ViewFilesCommand },
+                new() { ItemName = "Open URLs", ItemCommand = ListContext.OpenUrlSelectedCommand },
+                new() { ItemName = "Extract New Links", ItemCommand = ListContext.ExtractNewLinksSelectedCommand },
+                new() { ItemName = "Process/Resize Selected", ItemCommand = ForcedResizeCommand },
                 new()
                 {
                     ItemName = "Generate Html/Process/Resize Selected",
                     ItemCommand = RegenerateHtmlAndReprocessImageForSelectedCommand
                 },
-                new() {ItemName = "Delete", ItemCommand = ListContext.DeleteSelectedCommand},
-                new() {ItemName = "View History", ItemCommand = ListContext.ViewHistorySelectedCommand},
-                new() {ItemName = "Refresh Data", ItemCommand = RefreshDataCommand}
+                new() { ItemName = "Delete", ItemCommand = ListContext.DeleteSelectedCommand },
+                new() { ItemName = "View History", ItemCommand = ListContext.ViewHistorySelectedCommand },
+                new() { ItemName = "Refresh Data", ItemCommand = RefreshDataCommand }
             };
 
             await ListContext.LoadData();

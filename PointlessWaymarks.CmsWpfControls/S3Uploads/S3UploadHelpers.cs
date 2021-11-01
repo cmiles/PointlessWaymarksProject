@@ -14,6 +14,7 @@ using PointlessWaymarks.CmsWpfControls.FilesWrittenLogList;
 using PointlessWaymarks.CmsWpfControls.Utility.Aws;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
+using PointlessWaymarks.WpfCommon.Utility;
 
 namespace PointlessWaymarks.CmsWpfControls.S3Uploads
 {
@@ -120,7 +121,7 @@ namespace PointlessWaymarks.CmsWpfControls.S3Uploads
             }
 
             await ThreadSwitcher.ResumeForegroundAsync();
-            new S3UploadsWindow(toUpload.uploadItems, true).Show();
+            new S3UploadsWindow(toUpload.uploadItems, true).PositionWindowAndShow();
         }
 
         /// <summary>

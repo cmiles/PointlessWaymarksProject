@@ -57,7 +57,7 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList
         private Command _generateChangedHtmlAndStartUploadCommand;
         private Command _generateChangedHtmlCommand;
         private Command _generateHtmlSelectedCommand;
-        private Command _generateSiteHtmlFromChangesAndShowSitePreviewCommand;
+        private Command _generateChangedHtmlAndShowSitePreviewCommand;
         private GeoJsonContentActions _geoJsonItemActions;
         private ImageContentActions _imageItemActions;
         private Command _importFromExcelFileCommand;
@@ -76,7 +76,7 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList
         private PointContentActions _pointItemActions;
         private PostContentActions _postItemActions;
         private Command _selectedToExcelCommand;
-        private Command _showSiteBrowserWindowCommand;
+        private Command _showSitePreviewWindowCommand;
         private StatusControlContext _statusContext;
         private string _userFilterText;
         private Command _viewHistorySelectedCommand;
@@ -133,13 +133,11 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList
                 await ExcelHelpers.SelectedToExcel(ListSelection.SelectedItems?.Cast<dynamic>().ToList(),
                     StatusContext));
 
-            GenerateChangedHtmlAndStartUploadCommand = StatusContext.RunBlockingTaskCommand(async () =>
-                await S3UploadHelpers.GenerateChangedHtmlAndStartUpload(StatusContext));
-            GenerateChangedHtmlCommand = StatusContext.RunBlockingTaskCommand(async () =>
-                await GenerationHelpers.GenerateChangedHtml(StatusContext.ProgressTracker()));
-            ShowSiteBrowserWindowCommand = StatusContext.RunNonBlockingTaskCommand(ShowSiteBrowserWindow);
-            GenerateSiteHtmlFromChangesAndShowSitePreviewCommand =
-                StatusContext.RunBlockingTaskCommand(GenerateSiteHtmlFromChangesAndShowSitePreview);
+            GenerateChangedHtmlAndStartUploadCommand = StatusContext.RunBlockingTaskCommand(GenerateChangedHtmlAndStartUpload);
+            GenerateChangedHtmlCommand = StatusContext.RunBlockingTaskCommand(GenerateChangedHtml);
+            ShowSitePreviewWindowCommand = StatusContext.RunNonBlockingTaskCommand(ShowSitePreviewWindow);
+            GenerateChangedHtmlAndShowSitePreviewCommand =
+                StatusContext.RunBlockingTaskCommand(GenerateChangedHtmlAndShowSitePreview);
         }
 
         public WindowIconStatus WindowStatus
@@ -256,13 +254,13 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList
             }
         }
 
-        public Command GenerateSiteHtmlFromChangesAndShowSitePreviewCommand
+        public Command GenerateChangedHtmlAndShowSitePreviewCommand
         {
-            get => _generateSiteHtmlFromChangesAndShowSitePreviewCommand;
+            get => _generateChangedHtmlAndShowSitePreviewCommand;
             set
             {
-                if (Equals(value, _generateSiteHtmlFromChangesAndShowSitePreviewCommand)) return;
-                _generateSiteHtmlFromChangesAndShowSitePreviewCommand = value;
+                if (Equals(value, _generateChangedHtmlAndShowSitePreviewCommand)) return;
+                _generateChangedHtmlAndShowSitePreviewCommand = value;
                 OnPropertyChanged();
             }
         }
@@ -466,13 +464,13 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList
             }
         }
 
-        public Command ShowSiteBrowserWindowCommand
+        public Command ShowSitePreviewWindowCommand
         {
-            get => _showSiteBrowserWindowCommand;
+            get => _showSitePreviewWindowCommand;
             set
             {
-                if (Equals(value, _showSiteBrowserWindowCommand)) return;
-                _showSiteBrowserWindowCommand = value;
+                if (Equals(value, _showSitePreviewWindowCommand)) return;
+                _showSitePreviewWindowCommand = value;
                 OnPropertyChanged();
             }
         }
@@ -879,7 +877,7 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList
             }
         }
 
-        private async Task GenerateSiteHtmlFromChangesAndShowSitePreview()
+        private async Task GenerateChangedHtmlAndShowSitePreview()
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -900,7 +898,43 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList
 
 
             var sitePreviewWindow = new SiteOnDiskPreviewWindow();
-            sitePreviewWindow.Show();
+            sitePreviewWindow.PositionWindowAndShow();
+        }
+
+        private async Task GenerateChangedHtml()
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            try
+            {
+                WindowStatus?.AddRequest(new WindowIconStatusRequest(StatusContext.StatusControlContextId,
+                    TaskbarItemProgressState.Indeterminate));
+
+                await HtmlGenerationGroups.GenerateChangedToHtml(StatusContext.ProgressTracker());
+            }
+            finally
+            {
+                WindowStatus?.AddRequest(new WindowIconStatusRequest(StatusContext.StatusControlContextId,
+                    TaskbarItemProgressState.None));
+            }
+        }
+
+        private async Task GenerateChangedHtmlAndStartUpload()
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            try
+            {
+                WindowStatus?.AddRequest(new WindowIconStatusRequest(StatusContext.StatusControlContextId,
+                    TaskbarItemProgressState.Indeterminate));
+
+                await S3UploadHelpers.GenerateChangedHtmlAndStartUpload(StatusContext, WindowStatus);
+            }
+            finally
+            {
+                WindowStatus?.AddRequest(new WindowIconStatusRequest(StatusContext.StatusControlContextId,
+                    TaskbarItemProgressState.None));
+            }
         }
 
         public static string GetSmallImageUrl(IMainImage content)
@@ -1035,13 +1069,13 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList
                     loopListItem.SmallImageUrl = GetSmallImageUrl(dbMainImageEntry);
         }
 
-        private async Task ShowSiteBrowserWindow()
+        private async Task ShowSitePreviewWindow()
         {
             await ThreadSwitcher.ResumeForegroundAsync();
 
             var sitePreviewWindow = new SiteOnDiskPreviewWindow();
 
-            sitePreviewWindow.Show();
+            sitePreviewWindow.PositionWindowAndShow();
         }
 
         private async Task TryOpenEditorsForDroppedFiles(List<string> files, StatusControlContext statusContext)
@@ -1058,7 +1092,7 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList
                     await ThreadSwitcher.ResumeForegroundAsync();
 
                     var newEditor = new FileContentEditorWindow(new FileInfo(loopFile));
-                    newEditor.Show();
+                    newEditor.PositionWindowAndShow();
 
                     await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -1092,7 +1126,7 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList
                         await ThreadSwitcher.ResumeForegroundAsync();
 
                         var photoEditorWindow = new PhotoContentEditorWindow(new FileInfo(loopFile));
-                        photoEditorWindow.Show();
+                        photoEditorWindow.PositionWindowAndShow();
 
                         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -1104,7 +1138,7 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList
                         await ThreadSwitcher.ResumeForegroundAsync();
 
                         var imageEditorWindow = new PhotoContentEditorWindow(new FileInfo(loopFile));
-                        imageEditorWindow.Show();
+                        imageEditorWindow.PositionWindowAndShow();
 
                         await ThreadSwitcher.ResumeBackgroundAsync();
 

@@ -21,10 +21,12 @@ namespace PointlessWaymarks.CmsWpfControls.GeoJsonList
         private ContentListContext _listContext;
         private Command _refreshDataCommand;
         private StatusControlContext _statusContext;
+        private WindowIconStatus _windowStatus;
 
-        public GeoJsonListWithActionsContext(StatusControlContext statusContext)
+        public GeoJsonListWithActionsContext(StatusControlContext statusContext, WindowIconStatus windowStatus = null)
         {
             StatusContext = statusContext ?? new StatusControlContext();
+            WindowStatus = windowStatus;
 
             StatusContext.RunFireAndForgetBlockingTask(LoadData);
         }
@@ -74,6 +76,17 @@ namespace PointlessWaymarks.CmsWpfControls.GeoJsonList
             }
         }
 
+        public WindowIconStatus WindowStatus
+        {
+            get => _windowStatus;
+            set
+            {
+                if (Equals(value, _windowStatus)) return;
+                _windowStatus = value;
+                OnPropertyChanged();
+            }
+        }
+
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -102,7 +115,7 @@ namespace PointlessWaymarks.CmsWpfControls.GeoJsonList
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            ListContext ??= new ContentListContext(StatusContext, new GeoJsonListLoader(100));
+            ListContext ??= new ContentListContext(StatusContext, new GeoJsonListLoader(100), WindowStatus);
 
             GeoJsonLinkCodesToClipboardForSelectedCommand =
                 StatusContext.RunBlockingTaskCommand(LinkBracketCodesToClipboardForSelected);
@@ -110,22 +123,22 @@ namespace PointlessWaymarks.CmsWpfControls.GeoJsonList
 
             ListContext.ContextMenuItems = new List<ContextMenuItemData>
             {
-                new() {ItemName = "Edit", ItemCommand = ListContext.EditSelectedCommand},
+                new() { ItemName = "Edit", ItemCommand = ListContext.EditSelectedCommand },
                 new()
                 {
-                    ItemName = "Map Code to Clipboard", ItemCommand = ListContext.BracketCodeToClipboardSelectedCommand
+                    ItemName = "Map Code to Clipboard",
+                    ItemCommand = ListContext.BracketCodeToClipboardSelectedCommand
                 },
                 new()
                 {
-                    ItemName = "Text Code to Clipboard", ItemCommand = GeoJsonLinkCodesToClipboardForSelectedCommand
+                    ItemName = "Text Code to Clipboard",
+                    ItemCommand = GeoJsonLinkCodesToClipboardForSelectedCommand
                 },
-                new()
-                    {ItemName = "Extract New Links", ItemCommand = ListContext.ExtractNewLinksSelectedCommand},
-                new() {ItemName = "Open URL", ItemCommand = ListContext.OpenUrlSelectedCommand},
-                new() {ItemName = "Delete", ItemCommand = ListContext.DeleteSelectedCommand},
-                new()
-                    {ItemName = "View History", ItemCommand = ListContext.ViewHistorySelectedCommand},
-                new() {ItemName = "Refresh Data", ItemCommand = RefreshDataCommand}
+                new() { ItemName = "Extract New Links", ItemCommand = ListContext.ExtractNewLinksSelectedCommand },
+                new() { ItemName = "Open URL", ItemCommand = ListContext.OpenUrlSelectedCommand },
+                new() { ItemName = "Delete", ItemCommand = ListContext.DeleteSelectedCommand },
+                new() { ItemName = "View History", ItemCommand = ListContext.ViewHistorySelectedCommand },
+                new() { ItemName = "Refresh Data", ItemCommand = RefreshDataCommand }
             };
 
             await ListContext.LoadData();

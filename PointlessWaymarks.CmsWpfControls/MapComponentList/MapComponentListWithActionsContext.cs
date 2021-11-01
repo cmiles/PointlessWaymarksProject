@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
-using System.Windows;
 using JetBrains.Annotations;
-using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsWpfControls.ContentList;
 using PointlessWaymarks.WpfCommon.Commands;
 using PointlessWaymarks.WpfCommon.Status;
@@ -20,10 +17,13 @@ namespace PointlessWaymarks.CmsWpfControls.MapComponentList
         private readonly StatusControlContext _statusContext;
         private ContentListContext _listContext;
         private Command _refreshDataCommand;
+        private WindowIconStatus _windowStatus;
 
-        public MapComponentListWithActionsContext(StatusControlContext statusContext)
+        public MapComponentListWithActionsContext(StatusControlContext statusContext,
+            WindowIconStatus windowStatus = null)
         {
             StatusContext = statusContext ?? new StatusControlContext();
+            WindowStatus = windowStatus;
 
             StatusContext.RunFireAndForgetBlockingTask(LoadData);
         }
@@ -61,6 +61,17 @@ namespace PointlessWaymarks.CmsWpfControls.MapComponentList
             }
         }
 
+        public WindowIconStatus WindowStatus
+        {
+            get => _windowStatus;
+            set
+            {
+                if (Equals(value, _windowStatus)) return;
+                _windowStatus = value;
+                OnPropertyChanged();
+            }
+        }
+
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -68,24 +79,23 @@ namespace PointlessWaymarks.CmsWpfControls.MapComponentList
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            ListContext ??= new ContentListContext(StatusContext, new MapComponentListLoader(100));
+            ListContext ??= new ContentListContext(StatusContext, new MapComponentListLoader(100), WindowStatus);
 
             RefreshDataCommand = StatusContext.RunBlockingTaskCommand(ListContext.LoadData);
 
             ListContext.ContextMenuItems = new List<ContextMenuItemData>
             {
-                new() {ItemName = "Edit", ItemCommand = ListContext.EditSelectedCommand},
+                new() { ItemName = "Edit", ItemCommand = ListContext.EditSelectedCommand },
                 new()
                 {
-                    ItemName = "Map Code to Clipboard", ItemCommand = ListContext.BracketCodeToClipboardSelectedCommand
+                    ItemName = "Map Code to Clipboard",
+                    ItemCommand = ListContext.BracketCodeToClipboardSelectedCommand
                 },
-                new()
-                    {ItemName = "Extract New Links", ItemCommand = ListContext.ExtractNewLinksSelectedCommand},
-                new() {ItemName = "Open URL", ItemCommand = ListContext.OpenUrlSelectedCommand},
-                new() {ItemName = "Delete", ItemCommand = ListContext.DeleteSelectedCommand},
-                new()
-                    {ItemName = "View History", ItemCommand = ListContext.ViewHistorySelectedCommand},
-                new() {ItemName = "Refresh Data", ItemCommand = RefreshDataCommand}
+                new() { ItemName = "Extract New Links", ItemCommand = ListContext.ExtractNewLinksSelectedCommand },
+                new() { ItemName = "Open URL", ItemCommand = ListContext.OpenUrlSelectedCommand },
+                new() { ItemName = "Delete", ItemCommand = ListContext.DeleteSelectedCommand },
+                new() { ItemName = "View History", ItemCommand = ListContext.ViewHistorySelectedCommand },
+                new() { ItemName = "Refresh Data", ItemCommand = RefreshDataCommand }
             };
 
             await ListContext.LoadData();

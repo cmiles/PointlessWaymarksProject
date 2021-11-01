@@ -23,10 +23,12 @@ namespace PointlessWaymarks.CmsWpfControls.PostList
         private ContentListContext _listContext;
         private Command _postImageCodesToClipboardForSelectedCommand;
         private Command _refreshDataCommand;
+        private WindowIconStatus _windowStatus;
 
-        public PostListWithActionsContext(StatusControlContext statusContext)
+        public PostListWithActionsContext(StatusControlContext statusContext, WindowIconStatus windowStatus = null)
         {
             StatusContext = statusContext ?? new StatusControlContext();
+            WindowStatus = windowStatus;
 
             StatusContext.RunFireAndForgetBlockingTask(LoadData);
         }
@@ -86,6 +88,17 @@ namespace PointlessWaymarks.CmsWpfControls.PostList
             }
         }
 
+        public WindowIconStatus WindowStatus
+        {
+            get => _windowStatus;
+            set
+            {
+                if (Equals(value, _windowStatus)) return;
+                _windowStatus = value;
+                OnPropertyChanged();
+            }
+        }
+
         public event PropertyChangedEventHandler PropertyChanged;
 
         private async Task BracketCodesToClipboardForSelected()
@@ -140,7 +153,7 @@ namespace PointlessWaymarks.CmsWpfControls.PostList
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            ListContext ??= new ContentListContext(StatusContext, new PostListLoader(100));
+            ListContext ??= new ContentListContext(StatusContext, new PostListLoader(100), WindowStatus);
 
             PostImageCodesToClipboardForSelectedCommand =
                 StatusContext.RunBlockingTaskCommand(BracketCodesToClipboardForSelected);
@@ -149,7 +162,7 @@ namespace PointlessWaymarks.CmsWpfControls.PostList
 
             ListContext.ContextMenuItems = new List<ContextMenuItemData>
             {
-                new() {ItemName = "Edit", ItemCommand = ListContext.EditSelectedCommand},
+                new() { ItemName = "Edit", ItemCommand = ListContext.EditSelectedCommand },
                 new()
                 {
                     ItemName = "Text Code to Clipboard",
@@ -157,16 +170,15 @@ namespace PointlessWaymarks.CmsWpfControls.PostList
                 },
                 new()
                 {
-                    ItemName = "Image Code to Clipboard", ItemCommand = PostImageCodesToClipboardForSelectedCommand
+                    ItemName = "Image Code to Clipboard",
+                    ItemCommand = PostImageCodesToClipboardForSelectedCommand
                 },
-                new() {ItemName = "Email Html to Clipboard", ItemCommand = EmailHtmlToClipboardCommand},
-                new()
-                    {ItemName = "Extract New Links", ItemCommand = ListContext.ExtractNewLinksSelectedCommand},
-                new() {ItemName = "Open URL", ItemCommand = ListContext.OpenUrlSelectedCommand},
-                new() {ItemName = "Delete", ItemCommand = ListContext.DeleteSelectedCommand},
-                new()
-                    {ItemName = "View History", ItemCommand = ListContext.ViewHistorySelectedCommand},
-                new() {ItemName = "Refresh Data", ItemCommand = RefreshDataCommand}
+                new() { ItemName = "Email Html to Clipboard", ItemCommand = EmailHtmlToClipboardCommand },
+                new() { ItemName = "Extract New Links", ItemCommand = ListContext.ExtractNewLinksSelectedCommand },
+                new() { ItemName = "Open URL", ItemCommand = ListContext.OpenUrlSelectedCommand },
+                new() { ItemName = "Delete", ItemCommand = ListContext.DeleteSelectedCommand },
+                new() { ItemName = "View History", ItemCommand = ListContext.ViewHistorySelectedCommand },
+                new() { ItemName = "Refresh Data", ItemCommand = RefreshDataCommand }
             };
 
             await ListContext.LoadData();

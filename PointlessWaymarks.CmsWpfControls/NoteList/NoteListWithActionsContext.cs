@@ -1,10 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
-using System.Windows;
 using JetBrains.Annotations;
 using PointlessWaymarks.CmsData.ContentHtml.NoteHtml;
 using PointlessWaymarks.CmsWpfControls.ContentList;
@@ -21,10 +19,12 @@ namespace PointlessWaymarks.CmsWpfControls.NoteList
         private Command _emailHtmlToClipboardCommand;
         private ContentListContext _listContext;
         private Command _refreshDataCommand;
+        private WindowIconStatus _windowStatus;
 
-        public NoteListWithActionsContext(StatusControlContext statusContext)
+        public NoteListWithActionsContext(StatusControlContext statusContext, WindowIconStatus windowStatus = null)
         {
             StatusContext = statusContext ?? new StatusControlContext();
+            WindowStatus = windowStatus;
 
             StatusContext.RunFireAndForgetBlockingTask(LoadData);
         }
@@ -74,6 +74,17 @@ namespace PointlessWaymarks.CmsWpfControls.NoteList
             }
         }
 
+        public WindowIconStatus WindowStatus
+        {
+            get => _windowStatus;
+            set
+            {
+                if (Equals(value, _windowStatus)) return;
+                _windowStatus = value;
+                OnPropertyChanged();
+            }
+        }
+
         public event PropertyChangedEventHandler PropertyChanged;
 
         private async Task EmailHtmlToClipboard()
@@ -107,26 +118,25 @@ namespace PointlessWaymarks.CmsWpfControls.NoteList
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            ListContext ??= new ContentListContext(StatusContext, new NoteListLoader(100));
+            ListContext ??= new ContentListContext(StatusContext, new NoteListLoader(100), WindowStatus);
 
             RefreshDataCommand = StatusContext.RunBlockingTaskCommand(ListContext.LoadData);
             EmailHtmlToClipboardCommand = StatusContext.RunBlockingTaskCommand(EmailHtmlToClipboard);
 
             ListContext.ContextMenuItems = new List<ContextMenuItemData>
             {
-                new() {ItemName = "Edit", ItemCommand = ListContext.EditSelectedCommand},
+                new() { ItemName = "Edit", ItemCommand = ListContext.EditSelectedCommand },
                 new()
                 {
-                    ItemName = "Text Code to Clipboard", ItemCommand = ListContext.BracketCodeToClipboardSelectedCommand
+                    ItemName = "Text Code to Clipboard",
+                    ItemCommand = ListContext.BracketCodeToClipboardSelectedCommand
                 },
-                new() {ItemName = "Email Html to Clipboard", ItemCommand = EmailHtmlToClipboardCommand},
-                new()
-                    {ItemName = "Extract New Links", ItemCommand = ListContext.ExtractNewLinksSelectedCommand},
-                new() {ItemName = "Open URL", ItemCommand = ListContext.OpenUrlSelectedCommand},
-                new() {ItemName = "Delete", ItemCommand = ListContext.DeleteSelectedCommand},
-                new()
-                    {ItemName = "View History", ItemCommand = ListContext.ViewHistorySelectedCommand},
-                new() {ItemName = "Refresh Data", ItemCommand = RefreshDataCommand}
+                new() { ItemName = "Email Html to Clipboard", ItemCommand = EmailHtmlToClipboardCommand },
+                new() { ItemName = "Extract New Links", ItemCommand = ListContext.ExtractNewLinksSelectedCommand },
+                new() { ItemName = "Open URL", ItemCommand = ListContext.OpenUrlSelectedCommand },
+                new() { ItemName = "Delete", ItemCommand = ListContext.DeleteSelectedCommand },
+                new() { ItemName = "View History", ItemCommand = ListContext.ViewHistorySelectedCommand },
+                new() { ItemName = "Refresh Data", ItemCommand = RefreshDataCommand }
             };
 
             await ListContext.LoadData();

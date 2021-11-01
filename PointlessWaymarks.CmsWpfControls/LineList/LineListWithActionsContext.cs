@@ -21,12 +21,25 @@ namespace PointlessWaymarks.CmsWpfControls.LineList
         private Command _lineLinkCodesToClipboardForSelectedCommand;
         private ContentListContext _listContext;
         private Command _refreshDataCommand;
+        private WindowIconStatus _windowStatus;
 
-        public LineListWithActionsContext(StatusControlContext statusContext)
+        public LineListWithActionsContext(StatusControlContext statusContext, WindowIconStatus windowStatus = null)
         {
             StatusContext = statusContext ?? new StatusControlContext();
+            WindowStatus = windowStatus;
 
             StatusContext.RunFireAndForgetBlockingTask(LoadData);
+        }
+
+        public WindowIconStatus WindowStatus
+        {
+            get => _windowStatus;
+            set
+            {
+                if (Equals(value, _windowStatus)) return;
+                _windowStatus = value;
+                OnPropertyChanged();
+            }
         }
 
         public Command LineLinkCodesToClipboardForSelectedCommand
@@ -101,7 +114,7 @@ namespace PointlessWaymarks.CmsWpfControls.LineList
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            ListContext ??= new ContentListContext(StatusContext, new LineListLoader(100));
+            ListContext ??= new ContentListContext(StatusContext, new LineListLoader(100), WindowStatus);
 
             LineLinkCodesToClipboardForSelectedCommand =
                 StatusContext.RunBlockingTaskCommand(LinkBracketCodesToClipboardForSelected);

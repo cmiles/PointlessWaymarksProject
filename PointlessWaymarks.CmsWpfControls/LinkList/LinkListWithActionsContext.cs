@@ -27,10 +27,12 @@ namespace PointlessWaymarks.CmsWpfControls.LinkList
         private Command _listSelectedLinksNotOnPinboardCommand;
         private Command _postCodesToClipboardForSelectedCommand;
         private Command _refreshDataCommand;
+        private WindowIconStatus _windowStatus;
 
-        public LinkListWithActionsContext(StatusControlContext statusContext)
+        public LinkListWithActionsContext(StatusControlContext statusContext, WindowIconStatus windowStatus = null)
         {
             StatusContext = statusContext ?? new StatusControlContext();
+            WindowStatus = windowStatus;
 
             StatusContext.RunFireAndForgetBlockingTask(LoadData);
         }
@@ -87,6 +89,17 @@ namespace PointlessWaymarks.CmsWpfControls.LinkList
             {
                 if (Equals(value, _statusContext)) return;
                 _statusContext = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public WindowIconStatus WindowStatus
+        {
+            get => _windowStatus;
+            set
+            {
+                if (Equals(value, _windowStatus)) return;
+                _windowStatus = value;
                 OnPropertyChanged();
             }
         }
@@ -160,7 +173,7 @@ namespace PointlessWaymarks.CmsWpfControls.LinkList
                 x.CreatedOn,
                 x.LastUpdatedBy,
                 x.LastUpdatedOn
-            }).ToHtmlTable(new {@class = "pure-table pure-table-striped"});
+            }).ToHtmlTable(new { @class = "pure-table pure-table-striped" });
 
             await ThreadSwitcher.ResumeForegroundAsync();
 
@@ -174,7 +187,7 @@ namespace PointlessWaymarks.CmsWpfControls.LinkList
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            ListContext ??= new ContentListContext(StatusContext, new LinkListLoader(100));
+            ListContext ??= new ContentListContext(StatusContext, new LinkListLoader(100), WindowStatus);
 
             RefreshDataCommand = StatusContext.RunBlockingTaskCommand(ListContext.LoadData);
             MdLinkCodesToClipboardForSelectedCommand =
@@ -185,18 +198,17 @@ namespace PointlessWaymarks.CmsWpfControls.LinkList
 
             ListContext.ContextMenuItems = new List<ContextMenuItemData>
             {
-                new() {ItemName = "Edit", ItemCommand = ListContext.EditSelectedCommand},
+                new() { ItemName = "Edit", ItemCommand = ListContext.EditSelectedCommand },
                 new()
                 {
-                    ItemName = "[] Code to Clipboard", ItemCommand = ListContext.BracketCodeToClipboardSelectedCommand
+                    ItemName = "[] Code to Clipboard",
+                    ItemCommand = ListContext.BracketCodeToClipboardSelectedCommand
                 },
-                new()
-                    {ItemName = "Extract New Links", ItemCommand = ListContext.ExtractNewLinksSelectedCommand},
-                new() {ItemName = "Open URL", ItemCommand = ListContext.OpenUrlSelectedCommand},
-                new() {ItemName = "Delete", ItemCommand = ListContext.DeleteSelectedCommand},
-                new()
-                    {ItemName = "View History", ItemCommand = ListContext.ViewHistorySelectedCommand},
-                new() {ItemName = "Refresh Data", ItemCommand = RefreshDataCommand}
+                new() { ItemName = "Extract New Links", ItemCommand = ListContext.ExtractNewLinksSelectedCommand },
+                new() { ItemName = "Open URL", ItemCommand = ListContext.OpenUrlSelectedCommand },
+                new() { ItemName = "Delete", ItemCommand = ListContext.DeleteSelectedCommand },
+                new() { ItemName = "View History", ItemCommand = ListContext.ViewHistorySelectedCommand },
+                new() { ItemName = "Refresh Data", ItemCommand = RefreshDataCommand }
             };
 
             await ListContext.LoadData();
