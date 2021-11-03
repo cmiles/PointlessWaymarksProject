@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows.Shell;
 using JetBrains.Annotations;
 using Ookii.Dialogs.Wpf;
 using PointlessWaymarks.CmsData.Content;
@@ -28,15 +29,21 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList
 {
     public class NewContent : INotifyPropertyChanged
     {
-        private StatusControlContext _statusContext;
+        private readonly StatusControlContext _statusContext;
 
-        public NewContent(StatusControlContext statusContext)
+        public NewContent(StatusControlContext statusContext, WindowIconStatus windowStatus = null)
         {
             StatusContext = statusContext;
+            WindowStatus = windowStatus;
+
             NewFileContentCommand = StatusContext.RunNonBlockingTaskCommand(NewFileContent);
             NewFileContentFromFilesCommand =
-                StatusContext.RunBlockingTaskWithCancellationCommand(async x => await NewFileContentFromFiles(x),
-                    "Cancel File Import");
+                StatusContext.RunBlockingTaskWithCancellationCommand(async x =>
+                {
+                    await WindowIconStatus.IndeterminateTask(WindowStatus,
+                        async () => await NewFileContentFromFiles(x),
+                        StatusContext.StatusControlContextId);
+                }, "Cancel File Import");
             NewGeoJsonContentCommand = StatusContext.RunNonBlockingTaskCommand(NewGeoJsonContent);
             NewImageContentCommand = StatusContext.RunNonBlockingTaskCommand(NewImageContent);
             NewImageContentFromFilesCommand =
@@ -48,11 +55,19 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList
             NewNoteContentCommand = StatusContext.RunNonBlockingTaskCommand(NewNoteContent);
             NewPhotoContentCommand = StatusContext.RunNonBlockingTaskCommand(NewPhotoContent);
             NewPhotoContentFromFilesCommand =
-                StatusContext.RunBlockingTaskWithCancellationCommand(
-                    async x => await NewPhotoContentFromFiles(false, x), "Cancel Photo Import");
+                StatusContext.RunBlockingTaskWithCancellationCommand(async x =>
+                {
+                    await WindowIconStatus.IndeterminateTask(WindowStatus,
+                        async () => await NewPhotoContentFromFiles(false, x),
+                        StatusContext.StatusControlContextId);
+                }, "Cancel Photo Import");
             NewPhotoContentFromFilesWithAutosaveCommand =
-                StatusContext.RunBlockingTaskWithCancellationCommand(async x => await NewPhotoContentFromFiles(true, x),
-                    "Cancel Photo Import");
+                StatusContext.RunBlockingTaskWithCancellationCommand(async x =>
+                {
+                    await WindowIconStatus.IndeterminateTask(WindowStatus,
+                        async () => await NewPhotoContentFromFiles(true, x),
+                        StatusContext.StatusControlContextId);
+                }, "Cancel Photo Import");
             NewPointContentCommand = StatusContext.RunNonBlockingTaskCommand(NewPointContent);
             NewPostContentCommand = StatusContext.RunNonBlockingTaskCommand(NewPostContent);
         }
@@ -96,6 +111,8 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList
             }
         }
 
+        public WindowIconStatus WindowStatus { get; set; }
+
         public event PropertyChangedEventHandler PropertyChanged;
 
         public async Task NewFileContent()
@@ -113,7 +130,7 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList
 
             StatusContext.Progress("Starting File load.");
 
-            var dialog = new VistaOpenFileDialog {Multiselect = true};
+            var dialog = new VistaOpenFileDialog { Multiselect = true };
 
             if (!(dialog.ShowDialog() ?? false)) return;
 
@@ -178,7 +195,7 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList
 
             StatusContext.Progress("Starting Image load.");
 
-            var dialog = new VistaOpenFileDialog {Multiselect = true};
+            var dialog = new VistaOpenFileDialog { Multiselect = true };
 
             if (!(dialog.ShowDialog() ?? false)) return;
 
@@ -282,7 +299,7 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList
 
             StatusContext.Progress("Starting photo load.");
 
-            var dialog = new VistaOpenFileDialog {Multiselect = true};
+            var dialog = new VistaOpenFileDialog { Multiselect = true };
 
             if (!(dialog.ShowDialog() ?? false)) return;
 
@@ -321,9 +338,16 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList
 
             var validFiles = selectedFileInfos.Where(FileHelpers.PhotoFileTypeIsSupported).ToList();
 
+            var loopCount = 0;
+
             foreach (var loopFile in validFiles)
             {
                 cancellationToken.ThrowIfCancellationRequested();
+
+                loopCount++;
+
+                WindowStatus?.AddRequest(new WindowIconStatusRequest(StatusContext.StatusControlContextId,
+                    TaskbarItemProgressState.Normal, (decimal)loopCount / validFiles.Count));
 
                 await ThreadSwitcher.ResumeBackgroundAsync();
 

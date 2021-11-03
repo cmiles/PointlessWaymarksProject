@@ -101,7 +101,7 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList
             PhotoItemActions = new PhotoContentActions(StatusContext);
             PostItemActions = new PostContentActions(StatusContext);
 
-            NewActions = new NewContent(StatusContext);
+            NewActions = new NewContent(StatusContext, WindowStatus);
 
             DataNotificationsProcessor = new DataNotificationsWorkQueue { Processor = DataNotificationReceived };
 
