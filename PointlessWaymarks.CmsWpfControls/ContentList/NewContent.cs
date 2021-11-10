@@ -347,7 +347,7 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList
                 loopCount++;
 
                 WindowStatus?.AddRequest(new WindowIconStatusRequest(StatusContext.StatusControlContextId,
-                    TaskbarItemProgressState.Normal, (decimal)loopCount / validFiles.Count));
+                    TaskbarItemProgressState.Normal, (decimal)loopCount  / (validFiles.Count + 1)));
 
                 await ThreadSwitcher.ResumeBackgroundAsync();
 
