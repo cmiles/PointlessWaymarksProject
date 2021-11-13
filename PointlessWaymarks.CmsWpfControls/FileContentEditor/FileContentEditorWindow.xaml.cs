@@ -7,94 +7,93 @@ using PointlessWaymarks.CmsWpfControls.Utility.ChangesAndValidation;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 
-namespace PointlessWaymarks.CmsWpfControls.FileContentEditor
+namespace PointlessWaymarks.CmsWpfControls.FileContentEditor;
+
+public partial class FileContentEditorWindow : INotifyPropertyChanged
 {
-    public partial class FileContentEditorWindow : INotifyPropertyChanged
+    private FileContentEditorContext _postContent;
+    private StatusControlContext _statusContext;
+
+    public FileContentEditorWindow()
     {
-        private FileContentEditorContext _postContent;
-        private StatusControlContext _statusContext;
+        InitializeComponent();
+        StatusContext = new StatusControlContext();
 
-        public FileContentEditorWindow()
+        StatusContext.RunFireAndForgetBlockingTask(async () =>
         {
-            InitializeComponent();
-            StatusContext = new StatusControlContext();
+            FileContent = await FileContentEditorContext.CreateInstance(StatusContext);
 
-            StatusContext.RunFireAndForgetBlockingTask(async () =>
-            {
-                FileContent = await FileContentEditorContext.CreateInstance(StatusContext);
+            FileContent.RequestContentEditorWindowClose += (_, _) => { Dispatcher?.Invoke(Close); };
+            AccidentalCloserHelper = new WindowAccidentalClosureHelper(this, StatusContext, FileContent);
 
-                FileContent.RequestContentEditorWindowClose += (_, _) => { Dispatcher?.Invoke(Close); };
-                AccidentalCloserHelper = new WindowAccidentalClosureHelper(this, StatusContext, FileContent);
+            await ThreadSwitcher.ResumeForegroundAsync();
+            DataContext = this;
+        });
+    }
 
-                await ThreadSwitcher.ResumeForegroundAsync();
-                DataContext = this;
-            });
-        }
+    public FileContentEditorWindow(FileInfo initialFile)
+    {
+        InitializeComponent();
+        StatusContext = new StatusControlContext();
 
-        public FileContentEditorWindow(FileInfo initialFile)
+        StatusContext.RunFireAndForgetBlockingTask(async () =>
         {
-            InitializeComponent();
-            StatusContext = new StatusControlContext();
+            FileContent = await FileContentEditorContext.CreateInstance(StatusContext, initialFile);
 
-            StatusContext.RunFireAndForgetBlockingTask(async () =>
-            {
-                FileContent = await FileContentEditorContext.CreateInstance(StatusContext, initialFile);
+            FileContent.RequestContentEditorWindowClose += (_, _) => { Dispatcher?.Invoke(Close); };
+            AccidentalCloserHelper = new WindowAccidentalClosureHelper(this, StatusContext, FileContent);
 
-                FileContent.RequestContentEditorWindowClose += (_, _) => { Dispatcher?.Invoke(Close); };
-                AccidentalCloserHelper = new WindowAccidentalClosureHelper(this, StatusContext, FileContent);
+            await ThreadSwitcher.ResumeForegroundAsync();
+            DataContext = this;
+        });
+    }
 
-                await ThreadSwitcher.ResumeForegroundAsync();
-                DataContext = this;
-            });
-        }
+    public FileContentEditorWindow(FileContent toLoad)
+    {
+        InitializeComponent();
+        StatusContext = new StatusControlContext();
 
-        public FileContentEditorWindow(FileContent toLoad)
+        StatusContext.RunFireAndForgetBlockingTask(async () =>
         {
-            InitializeComponent();
-            StatusContext = new StatusControlContext();
+            FileContent = await FileContentEditorContext.CreateInstance(StatusContext, toLoad);
 
-            StatusContext.RunFireAndForgetBlockingTask(async () =>
-            {
-                FileContent = await FileContentEditorContext.CreateInstance(StatusContext, toLoad);
+            FileContent.RequestContentEditorWindowClose += (_, _) => { Dispatcher?.Invoke(Close); };
+            AccidentalCloserHelper = new WindowAccidentalClosureHelper(this, StatusContext, FileContent);
 
-                FileContent.RequestContentEditorWindowClose += (_, _) => { Dispatcher?.Invoke(Close); };
-                AccidentalCloserHelper = new WindowAccidentalClosureHelper(this, StatusContext, FileContent);
+            await ThreadSwitcher.ResumeForegroundAsync();
+            DataContext = this;
+        });
+    }
 
-                await ThreadSwitcher.ResumeForegroundAsync();
-                DataContext = this;
-            });
-        }
+    public WindowAccidentalClosureHelper AccidentalCloserHelper { get; set; }
 
-        public WindowAccidentalClosureHelper AccidentalCloserHelper { get; set; }
-
-        public FileContentEditorContext FileContent
+    public FileContentEditorContext FileContent
+    {
+        get => _postContent;
+        set
         {
-            get => _postContent;
-            set
-            {
-                if (Equals(value, _postContent)) return;
-                _postContent = value;
-                OnPropertyChanged();
-            }
+            if (Equals(value, _postContent)) return;
+            _postContent = value;
+            OnPropertyChanged();
         }
+    }
 
-        public StatusControlContext StatusContext
+    public StatusControlContext StatusContext
+    {
+        get => _statusContext;
+        set
         {
-            get => _statusContext;
-            set
-            {
-                if (Equals(value, _statusContext)) return;
-                _statusContext = value;
-                OnPropertyChanged();
-            }
+            if (Equals(value, _statusContext)) return;
+            _statusContext = value;
+            OnPropertyChanged();
         }
+    }
 
-        public event PropertyChangedEventHandler PropertyChanged;
+    public event PropertyChangedEventHandler PropertyChanged;
 
-        [NotifyPropertyChangedInvocator]
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
+    [NotifyPropertyChangedInvocator]
+    protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+    {
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 }

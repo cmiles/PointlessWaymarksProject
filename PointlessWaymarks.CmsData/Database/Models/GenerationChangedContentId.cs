@@ -1,9 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace PointlessWaymarks.CmsData.Database.Models
+namespace PointlessWaymarks.CmsData.Database.Models;
+
+public class GenerationChangedContentId
 {
-    public class GenerationChangedContentId
-    {
-        [Key] public Guid ContentId { get; set; }
-    }
+    [Key] public Guid ContentId { get; set; }
 }

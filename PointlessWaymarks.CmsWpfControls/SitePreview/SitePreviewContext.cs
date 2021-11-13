@@ -8,244 +8,243 @@ using PointlessWaymarks.WpfCommon.Commands;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 
-namespace PointlessWaymarks.CmsWpfControls.SitePreview
+namespace PointlessWaymarks.CmsWpfControls.SitePreview;
+
+public class SitePreviewContext : DependencyObject, INotifyPropertyChanged
 {
-    public class SitePreviewContext : DependencyObject, INotifyPropertyChanged
+    private string _currentAddress;
+    private string _initialPage;
+    private string _localSiteFolder;
+    private string _previewServerHost;
+    private string _siteName;
+    private string _siteUrl;
+    private StatusControlContext _statusContext;
+    private string _textBarAddress;
+
+    private Command _tryGoBackNavigationCommand;
+    private Command _tryGoForwardNavigationCommand;
+    private Command _tryNavigateHomeCommand;
+    private Command _tryRefreshCommand;
+    private Command _tryUserNavigationCommand;
+    private string _windowTitle;
+
+    public SitePreviewContext(string siteUrl, string localSiteFolder, string siteName, string previewServerHost,
+        StatusControlContext statusContext)
     {
-        private string _currentAddress;
-        private string _initialPage;
-        private string _localSiteFolder;
-        private string _previewServerHost;
-        private string _siteName;
-        private string _siteUrl;
-        private StatusControlContext _statusContext;
-        private string _textBarAddress;
+        StatusContext = statusContext ?? new StatusControlContext();
+        SiteUrl = siteUrl;
+        LocalSiteFolder = localSiteFolder;
+        SiteName = siteName;
+        PreviewServerHost = previewServerHost;
 
-        private Command _tryGoBackNavigationCommand;
-        private Command _tryGoForwardNavigationCommand;
-        private Command _tryNavigateHomeCommand;
-        private Command _tryRefreshCommand;
-        private Command _tryUserNavigationCommand;
-        private string _windowTitle;
+        InitialPage = string.IsNullOrEmpty(InitialPage)
+            ? $"http://{previewServerHost}/index.html"
+            : InitialPage;
 
-        public SitePreviewContext(string siteUrl, string localSiteFolder, string siteName, string previewServerHost,
-            StatusControlContext statusContext)
+        WindowTitle = string.IsNullOrWhiteSpace(SiteName)
+            ? $"Preview - {LocalSiteFolder} is mapped to {SiteUrl}"
+            : $"{SiteName} - {LocalSiteFolder} is mapped to {SiteUrl}";
+
+        CurrentAddress = InitialPage;
+
+        TryUserNavigationCommand = StatusContext.RunBlockingTaskCommand(TryUserNavigation);
+        TryGoBackNavigationCommand = StatusContext.RunBlockingTaskCommand(TryGoBackNavigation);
+        TryGoForwardNavigationCommand = StatusContext.RunBlockingTaskCommand(TryGoForwardNavigation);
+        TryRefreshCommand = StatusContext.RunBlockingTaskCommand(TryRefresh);
+        TryNavigateHomeCommand = StatusContext.RunBlockingTaskCommand(TryNavigateHome);
+    }
+
+    public string CurrentAddress
+    {
+        get => _currentAddress;
+        set
         {
-            StatusContext = statusContext ?? new StatusControlContext();
-            SiteUrl = siteUrl;
-            LocalSiteFolder = localSiteFolder;
-            SiteName = siteName;
-            PreviewServerHost = previewServerHost;
-
-            InitialPage = string.IsNullOrEmpty(InitialPage)
-                ? $"http://{previewServerHost}/index.html"
-                : InitialPage;
-
-            WindowTitle = string.IsNullOrWhiteSpace(SiteName)
-                ? $"Preview - {LocalSiteFolder} is mapped to {SiteUrl}"
-                : $"{SiteName} - {LocalSiteFolder} is mapped to {SiteUrl}";
-
-            CurrentAddress = InitialPage;
-
-            TryUserNavigationCommand = StatusContext.RunBlockingTaskCommand(TryUserNavigation);
-            TryGoBackNavigationCommand = StatusContext.RunBlockingTaskCommand(TryGoBackNavigation);
-            TryGoForwardNavigationCommand = StatusContext.RunBlockingTaskCommand(TryGoForwardNavigation);
-            TryRefreshCommand = StatusContext.RunBlockingTaskCommand(TryRefresh);
-            TryNavigateHomeCommand = StatusContext.RunBlockingTaskCommand(TryNavigateHome);
+            if (value == _currentAddress) return;
+            _currentAddress = value;
+            OnPropertyChanged();
         }
+    }
 
-        public string CurrentAddress
+    public string InitialPage
+    {
+        get => _initialPage;
+        set
         {
-            get => _currentAddress;
-            set
-            {
-                if (value == _currentAddress) return;
-                _currentAddress = value;
-                OnPropertyChanged();
-            }
+            if (value == _initialPage) return;
+            _initialPage = value;
+            OnPropertyChanged();
         }
+    }
 
-        public string InitialPage
+    public string LocalSiteFolder
+    {
+        get => _localSiteFolder;
+        set
         {
-            get => _initialPage;
-            set
-            {
-                if (value == _initialPage) return;
-                _initialPage = value;
-                OnPropertyChanged();
-            }
+            if (value == _localSiteFolder) return;
+            _localSiteFolder = value;
+            OnPropertyChanged();
         }
+    }
 
-        public string LocalSiteFolder
+    public string PreviewServerHost
+    {
+        get => _previewServerHost;
+        set
         {
-            get => _localSiteFolder;
-            set
-            {
-                if (value == _localSiteFolder) return;
-                _localSiteFolder = value;
-                OnPropertyChanged();
-            }
+            if (value == _previewServerHost) return;
+            _previewServerHost = value;
+            OnPropertyChanged();
         }
+    }
 
-        public string PreviewServerHost
+    public string SiteName
+    {
+        get => _siteName;
+        set
         {
-            get => _previewServerHost;
-            set
-            {
-                if (value == _previewServerHost) return;
-                _previewServerHost = value;
-                OnPropertyChanged();
-            }
+            if (value == _siteName) return;
+            _siteName = value;
+            OnPropertyChanged();
         }
+    }
 
-        public string SiteName
+    public string SiteUrl
+    {
+        get => _siteUrl;
+        set
         {
-            get => _siteName;
-            set
-            {
-                if (value == _siteName) return;
-                _siteName = value;
-                OnPropertyChanged();
-            }
+            if (value == _siteUrl) return;
+            _siteUrl = value;
+            OnPropertyChanged();
         }
+    }
 
-        public string SiteUrl
+    public StatusControlContext StatusContext
+    {
+        get => _statusContext;
+        set
         {
-            get => _siteUrl;
-            set
-            {
-                if (value == _siteUrl) return;
-                _siteUrl = value;
-                OnPropertyChanged();
-            }
+            if (Equals(value, _statusContext)) return;
+            _statusContext = value;
+            OnPropertyChanged();
         }
+    }
 
-        public StatusControlContext StatusContext
+    public string TextBarAddress
+    {
+        get => _textBarAddress;
+        set
         {
-            get => _statusContext;
-            set
-            {
-                if (Equals(value, _statusContext)) return;
-                _statusContext = value;
-                OnPropertyChanged();
-            }
+            if (value == _textBarAddress) return;
+            _textBarAddress = value;
+            OnPropertyChanged();
         }
+    }
 
-        public string TextBarAddress
+    public Command TryGoBackNavigationCommand
+    {
+        get => _tryGoBackNavigationCommand;
+        set
         {
-            get => _textBarAddress;
-            set
-            {
-                if (value == _textBarAddress) return;
-                _textBarAddress = value;
-                OnPropertyChanged();
-            }
+            if (Equals(value, _tryGoBackNavigationCommand)) return;
+            _tryGoBackNavigationCommand = value;
+            OnPropertyChanged();
         }
+    }
 
-        public Command TryGoBackNavigationCommand
+    public Command TryGoForwardNavigationCommand
+    {
+        get => _tryGoForwardNavigationCommand;
+        set
         {
-            get => _tryGoBackNavigationCommand;
-            set
-            {
-                if (Equals(value, _tryGoBackNavigationCommand)) return;
-                _tryGoBackNavigationCommand = value;
-                OnPropertyChanged();
-            }
+            if (Equals(value, _tryGoForwardNavigationCommand)) return;
+            _tryGoForwardNavigationCommand = value;
+            OnPropertyChanged();
         }
+    }
 
-        public Command TryGoForwardNavigationCommand
+    public Command TryNavigateHomeCommand
+    {
+        get => _tryNavigateHomeCommand;
+        set
         {
-            get => _tryGoForwardNavigationCommand;
-            set
-            {
-                if (Equals(value, _tryGoForwardNavigationCommand)) return;
-                _tryGoForwardNavigationCommand = value;
-                OnPropertyChanged();
-            }
+            if (Equals(value, _tryNavigateHomeCommand)) return;
+            _tryNavigateHomeCommand = value;
+            OnPropertyChanged();
         }
+    }
 
-        public Command TryNavigateHomeCommand
+    public Command TryRefreshCommand
+    {
+        get => _tryRefreshCommand;
+        set
         {
-            get => _tryNavigateHomeCommand;
-            set
-            {
-                if (Equals(value, _tryNavigateHomeCommand)) return;
-                _tryNavigateHomeCommand = value;
-                OnPropertyChanged();
-            }
+            if (Equals(value, _tryRefreshCommand)) return;
+            _tryRefreshCommand = value;
+            OnPropertyChanged();
         }
+    }
 
-        public Command TryRefreshCommand
+    public Command TryUserNavigationCommand
+    {
+        get => _tryUserNavigationCommand;
+        set
         {
-            get => _tryRefreshCommand;
-            set
-            {
-                if (Equals(value, _tryRefreshCommand)) return;
-                _tryRefreshCommand = value;
-                OnPropertyChanged();
-            }
+            if (Equals(value, _tryUserNavigationCommand)) return;
+            _tryUserNavigationCommand = value;
+            OnPropertyChanged();
         }
+    }
 
-        public Command TryUserNavigationCommand
+    public WebView2 WebViewGui { get; set; }
+
+    public string WindowTitle
+    {
+        get => _windowTitle;
+        set
         {
-            get => _tryUserNavigationCommand;
-            set
-            {
-                if (Equals(value, _tryUserNavigationCommand)) return;
-                _tryUserNavigationCommand = value;
-                OnPropertyChanged();
-            }
+            if (value == _windowTitle) return;
+            _windowTitle = value;
+            OnPropertyChanged();
         }
+    }
 
-        public WebView2 WebViewGui { get; set; }
+    public event PropertyChangedEventHandler PropertyChanged;
 
-        public string WindowTitle
-        {
-            get => _windowTitle;
-            set
-            {
-                if (value == _windowTitle) return;
-                _windowTitle = value;
-                OnPropertyChanged();
-            }
-        }
+    [NotifyPropertyChangedInvocator]
+    protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+    {
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+    }
 
-        public event PropertyChangedEventHandler PropertyChanged;
+    private async Task TryGoBackNavigation()
+    {
+        await ThreadSwitcher.ResumeForegroundAsync();
+        if (WebViewGui.CoreWebView2.CanGoBack) WebViewGui.CoreWebView2.GoBack();
+    }
 
-        [NotifyPropertyChangedInvocator]
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
+    private async Task TryGoForwardNavigation()
+    {
+        await ThreadSwitcher.ResumeForegroundAsync();
+        if (WebViewGui.CoreWebView2.CanGoForward) WebViewGui.CoreWebView2.GoForward();
+    }
 
-        private async Task TryGoBackNavigation()
-        {
-            await ThreadSwitcher.ResumeForegroundAsync();
-            if (WebViewGui.CoreWebView2.CanGoBack) WebViewGui.CoreWebView2.GoBack();
-        }
+    private async Task TryNavigateHome()
+    {
+        await ThreadSwitcher.ResumeForegroundAsync();
+        WebViewGui.CoreWebView2.Navigate(InitialPage);
+    }
 
-        private async Task TryGoForwardNavigation()
-        {
-            await ThreadSwitcher.ResumeForegroundAsync();
-            if (WebViewGui.CoreWebView2.CanGoForward) WebViewGui.CoreWebView2.GoForward();
-        }
+    private async Task TryRefresh()
+    {
+        await ThreadSwitcher.ResumeForegroundAsync();
+        WebViewGui.CoreWebView2.Reload();
+    }
 
-        private async Task TryNavigateHome()
-        {
-            await ThreadSwitcher.ResumeForegroundAsync();
-            WebViewGui.CoreWebView2.Navigate(InitialPage);
-        }
-
-        private async Task TryRefresh()
-        {
-            await ThreadSwitcher.ResumeForegroundAsync();
-            WebViewGui.CoreWebView2.Reload();
-        }
-
-        private async Task TryUserNavigation()
-        {
-            await ThreadSwitcher.ResumeForegroundAsync();
-            WebViewGui.CoreWebView2.Navigate($"http://{StringHelpers.UrlCombine(SiteUrl, TextBarAddress)}");
-        }
+    private async Task TryUserNavigation()
+    {
+        await ThreadSwitcher.ResumeForegroundAsync();
+        WebViewGui.CoreWebView2.Navigate($"http://{StringHelpers.UrlCombine(SiteUrl, TextBarAddress)}");
     }
 }

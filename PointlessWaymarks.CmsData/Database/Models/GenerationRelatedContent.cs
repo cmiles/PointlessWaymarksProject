@@ -1,10 +1,9 @@
-﻿namespace PointlessWaymarks.CmsData.Database.Models
+﻿namespace PointlessWaymarks.CmsData.Database.Models;
+
+public class GenerationRelatedContent
 {
-    public class GenerationRelatedContent
-    {
-        public Guid ContentOne { get; set; }
-        public Guid ContentTwo { get; set; }
-        public DateTime GenerationVersion { get; set; }
-        public int Id { get; set; }
-    }
+    public Guid ContentOne { get; set; }
+    public Guid ContentTwo { get; set; }
+    public DateTime GenerationVersion { get; set; }
+    public int Id { get; set; }
 }

@@ -1,10 +1,9 @@
-﻿namespace PointlessWaymarks.CmsWpfControls.ImageContentEditor
+﻿namespace PointlessWaymarks.CmsWpfControls.ImageContentEditor;
+
+public partial class ImageContentEditorControl
 {
-    public partial class ImageContentEditorControl
+    public ImageContentEditorControl()
     {
-        public ImageContentEditorControl()
-        {
-            InitializeComponent();
-        }
+        InitializeComponent();
     }
 }

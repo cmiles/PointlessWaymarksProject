@@ -1,7 +1,6 @@
-﻿namespace PointlessWaymarks.CmsWpfControls.ContentList
+﻿namespace PointlessWaymarks.CmsWpfControls.ContentList;
+
+public interface IContentListSmallImage
 {
-    public interface IContentListSmallImage
-    {
-        string SmallImageUrl { get; set; }
-    }
+    string SmallImageUrl { get; set; }
 }

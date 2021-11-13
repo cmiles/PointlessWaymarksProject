@@ -5,22 +5,22 @@ using Microsoft.Extensions.FileProviders;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.Content;
 
-namespace PointlessWaymarks.CmsWpfControls.WpfHtml
+namespace PointlessWaymarks.CmsWpfControls.WpfHtml;
+
+public static class WpfHtmlDocument
 {
-    public static class WpfHtmlDocument
+    private static string LeafletDocumentOpening(string title, string styleBlock)
     {
-        private static string LeafletDocumentOpening(string title, string styleBlock)
+        var embeddedProvider = new EmbeddedFileProvider(Assembly.GetExecutingAssembly());
+
+        string bingScript;
+        using (var embeddedAsStream = embeddedProvider.GetFileInfo("leaflet-bing-layer.js").CreateReadStream())
         {
-            var embeddedProvider = new EmbeddedFileProvider(Assembly.GetExecutingAssembly());
+            var reader = new StreamReader(embeddedAsStream);
+            bingScript = reader.ReadToEnd();
+        }
 
-            string bingScript;
-            using (var embeddedAsStream = embeddedProvider.GetFileInfo("leaflet-bing-layer.js").CreateReadStream())
-            {
-                var reader = new StreamReader(embeddedAsStream);
-                bingScript = reader.ReadToEnd();
-            }
-
-            return $@"
+        return $@"
 <!doctype html>
 <html lang=en>
 <head>
@@ -39,24 +39,24 @@ namespace PointlessWaymarks.CmsWpfControls.WpfHtml
     </script>
     <style>{styleBlock}</style>
 </head>";
-        }
+    }
 
-        private static List<LayerEntry> LeafletLayerList()
+    private static List<LayerEntry> LeafletLayerList()
+    {
+        var layers = new List<LayerEntry>
         {
-            var layers = new List<LayerEntry>
-            {
-                new("openTopoMap", "OSM Topo", @"
+            new("openTopoMap", "OSM Topo", @"
         var openTopoMap = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
             maxZoom: 17,
             id: 'osmTopo',
             attribution: 'Map data: &copy; <a href=""https://www.openstreetmap.org/copyright"">OpenStreetMap</a> contributors, <a href=""http://viewfinderpanoramas.org"">SRTM</a> | Map style: &copy; <a href=""https://opentopomap.org"">OpenTopoMap</a> (<a href=""https://creativecommons.org/licenses/by-sa/3.0/"">CC-BY-SA</a>)'
         });")
-            };
+        };
 
 
-            if (!string.IsNullOrWhiteSpace(UserSettingsSingleton.CurrentSettings().CalTopoApiKey))
-            {
-                layers.Add(new LayerEntry("calTopoTopoLayer", "CalTopo Topo", $@"
+        if (!string.IsNullOrWhiteSpace(UserSettingsSingleton.CurrentSettings().CalTopoApiKey))
+        {
+            layers.Add(new LayerEntry("calTopoTopoLayer", "CalTopo Topo", $@"
                  var calTopoTopoLayer = L.tileLayer('http://caltopo.com/api/{{accessToken}}/wmts/tile/t/{{z}}/{{x}}/{{y}}.png', {{
             attribution: 'CalTopo',
             maxZoom: 16,
@@ -64,38 +64,38 @@ namespace PointlessWaymarks.CmsWpfControls.WpfHtml
             accessToken: '{UserSettingsSingleton.CurrentSettings().CalTopoApiKey}'
         }});"));
 
-                layers.Add(new LayerEntry("calTopoFsLayer", "CalTopo FS", $@"
+            layers.Add(new LayerEntry("calTopoFsLayer", "CalTopo FS", $@"
                  var calTopoFsLayer = L.tileLayer('http://caltopo.com/api/{{accessToken}}/wmts/tile/f16a/{{z}}/{{x}}/{{y}}.png', {{
             attribution: 'CalTopo',
             maxZoom: 16,
             id: 'caltopoF16a',
             accessToken: '{UserSettingsSingleton.CurrentSettings().CalTopoApiKey}'
         }});"));
-            }
+        }
 
-            if (!string.IsNullOrWhiteSpace(UserSettingsSingleton.CurrentSettings().BingApiKey))
-            {
-                layers.Add(new LayerEntry("bingAerialTileLayer", "Bing Aerial", $@"
+        if (!string.IsNullOrWhiteSpace(UserSettingsSingleton.CurrentSettings().BingApiKey))
+        {
+            layers.Add(new LayerEntry("bingAerialTileLayer", "Bing Aerial", $@"
                           var bingAerialTileLayer = L.tileLayer.bing({{
             bingMapsKey: '{UserSettingsSingleton.CurrentSettings().BingApiKey}', // Required
             imagerySet: 'AerialWithLabels',
         }});"));
 
-                layers.Add(new LayerEntry("bingRoadTileLayer", "Bing Roads", $@"
+            layers.Add(new LayerEntry("bingRoadTileLayer", "Bing Roads", $@"
                           var bingRoadTileLayer = L.tileLayer.bing({{
             bingMapsKey: '{UserSettingsSingleton.CurrentSettings().BingApiKey}', // Required
             imagerySet: 'RoadOnDemand',
         }});"));
-            }
-
-            return layers;
         }
 
-        public static string ToHtmlDocument(this string body, string title, string styleBlock)
-        {
-            var spatialScript = FileManagement.SpatialScriptsAsString().Result;
+        return layers;
+    }
 
-            var htmlDoc = $@"
+    public static string ToHtmlDocument(this string body, string title, string styleBlock)
+    {
+        var spatialScript = FileManagement.SpatialScriptsAsString().Result;
+
+        var htmlDoc = $@"
 <!doctype html>
 <html lang=en>
 <head>
@@ -119,21 +119,21 @@ namespace PointlessWaymarks.CmsWpfControls.WpfHtml
 </body>
 </html>";
 
-            return htmlDoc;
+        return htmlDoc;
+    }
+
+    public static string ToHtmlDocumentWithPureCss(this string body, string title, string styleBlock)
+    {
+        var embeddedProvider = new EmbeddedFileProvider(Assembly.GetExecutingAssembly());
+
+        string pureCss;
+        using (var embeddedAsStream = embeddedProvider.GetFileInfo("leaflet-bing-layer.js").CreateReadStream())
+        {
+            var reader = new StreamReader(embeddedAsStream);
+            pureCss = reader.ReadToEnd();
         }
 
-        public static string ToHtmlDocumentWithPureCss(this string body, string title, string styleBlock)
-        {
-            var embeddedProvider = new EmbeddedFileProvider(Assembly.GetExecutingAssembly());
-
-            string pureCss;
-            using (var embeddedAsStream = embeddedProvider.GetFileInfo("leaflet-bing-layer.js").CreateReadStream())
-            {
-                var reader = new StreamReader(embeddedAsStream);
-                pureCss = reader.ReadToEnd();
-            }
-
-            var htmlDoc = $@"
+        var htmlDoc = $@"
 <!doctype html>
 <html lang=en>
 <head>
@@ -148,15 +148,15 @@ namespace PointlessWaymarks.CmsWpfControls.WpfHtml
 </body>
 </html>";
 
-            return htmlDoc;
-        }
+        return htmlDoc;
+    }
 
-        public static string ToHtmlLeafletGeoJsonDocument(string title, double initialLatitude, double initialLongitude,
-            string styleBlock)
-        {
-            var layers = LeafletLayerList();
+    public static string ToHtmlLeafletGeoJsonDocument(string title, double initialLatitude, double initialLongitude,
+        string styleBlock)
+    {
+        var layers = LeafletLayerList();
 
-            var htmlDoc = $@"
+        var htmlDoc = $@"
 {LeafletDocumentOpening(title, styleBlock)}
 <body>
      <div id=""mainMap"" class=""leaflet-container leaflet-retina leaflet-fade-anim leaflet-grab leaflet-touch-drag""
@@ -226,15 +226,15 @@ namespace PointlessWaymarks.CmsWpfControls.WpfHtml
 </body>
 </html>";
 
-            return htmlDoc;
-        }
+        return htmlDoc;
+    }
 
-        public static string ToHtmlLeafletLineDocument(string title, double initialLatitude, double initialLongitude,
-            string styleBlock)
-        {
-            var layers = LeafletLayerList();
+    public static string ToHtmlLeafletLineDocument(string title, double initialLatitude, double initialLongitude,
+        string styleBlock)
+    {
+        var layers = LeafletLayerList();
 
-            var htmlDoc = $@"
+        var htmlDoc = $@"
 {LeafletDocumentOpening(title, styleBlock)}
 <body>
      <div id=""mainMap"" class=""leaflet-container leaflet-retina leaflet-fade-anim leaflet-grab leaflet-touch-drag""
@@ -293,15 +293,15 @@ namespace PointlessWaymarks.CmsWpfControls.WpfHtml
 </body>
 </html>";
 
-            return htmlDoc;
-        }
+        return htmlDoc;
+    }
 
-        public static string ToHtmlLeafletMapDocument(string title, double initialLatitude, double initialLongitude,
-            string styleBlock)
-        {
-            var layers = LeafletLayerList();
+    public static string ToHtmlLeafletMapDocument(string title, double initialLatitude, double initialLongitude,
+        string styleBlock)
+    {
+        var layers = LeafletLayerList();
 
-            var htmlDoc = $@"
+        var htmlDoc = $@"
 {LeafletDocumentOpening(title, styleBlock)}
 <body>
      <div id=""mainMap"" class=""leaflet-container leaflet-retina leaflet-fade-anim leaflet-grab leaflet-touch-drag""
@@ -363,15 +363,15 @@ namespace PointlessWaymarks.CmsWpfControls.WpfHtml
 </body>
 </html>";
 
-            return htmlDoc;
-        }
+        return htmlDoc;
+    }
 
-        public static string ToHtmlLeafletPointDocument(string title, double initialLatitude, double initialLongitude,
-            string styleBlock)
-        {
-            var layers = LeafletLayerList();
+    public static string ToHtmlLeafletPointDocument(string title, double initialLatitude, double initialLongitude,
+        string styleBlock)
+    {
+        var layers = LeafletLayerList();
 
-            var htmlDoc = $@"
+        var htmlDoc = $@"
 {LeafletDocumentOpening(title, styleBlock)}
 <body>
      <div id=""mainMap"" class=""leaflet-container leaflet-retina leaflet-fade-anim leaflet-grab leaflet-touch-drag""
@@ -413,10 +413,9 @@ namespace PointlessWaymarks.CmsWpfControls.WpfHtml
 </body>
 </html>";
 
-            return htmlDoc;
-        }
-
-
-        private record LayerEntry(string LayerVariableName, string LayerName, string LayerDeclaration);
+        return htmlDoc;
     }
+
+
+    private record LayerEntry(string LayerVariableName, string LayerName, string LayerDeclaration);
 }

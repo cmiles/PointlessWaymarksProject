@@ -1,10 +1,9 @@
 ﻿using PointlessWaymarks.WpfCommon.Commands;
 
-namespace PointlessWaymarks.WpfCommon.Utility
+namespace PointlessWaymarks.WpfCommon.Utility;
+
+public class ContextMenuItemData
 {
-    public class ContextMenuItemData
-    {
-        public Command ItemCommand { get; set; }
-        public string ItemName { get; set; }
-    }
+    public Command ItemCommand { get; set; }
+    public string ItemName { get; set; }
 }

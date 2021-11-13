@@ -1,7 +1,6 @@
-﻿namespace PointlessWaymarks.CmsData.Database.Models
+﻿namespace PointlessWaymarks.CmsData.Database.Models;
+
+public interface ITag
 {
-    public interface ITag
-    {
-        public string? Tags { get; }
-    }
+    public string? Tags { get; }
 }

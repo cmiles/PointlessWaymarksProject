@@ -5,54 +5,53 @@ using JetBrains.Annotations;
 using PointlessWaymarks.WpfCommon.Commands;
 using PointlessWaymarks.WpfCommon.Status;
 
-namespace PointlessWaymarks.WpfCommon.WindowScreenShot
+namespace PointlessWaymarks.WpfCommon.WindowScreenShot;
+
+/// <summary>
+///     Interaction logic for WindowScreenShotControl.xaml
+/// </summary>
+public partial class WindowScreenShotControl : INotifyPropertyChanged
 {
-    /// <summary>
-    ///     Interaction logic for WindowScreenShotControl.xaml
-    /// </summary>
-    public partial class WindowScreenShotControl : INotifyPropertyChanged
+    public WindowScreenShotControl()
     {
-        public WindowScreenShotControl()
-        {
-            InitializeComponent();
+        InitializeComponent();
 
-            WindowScreenShotCommand = new Command<Window>(async x =>
+        WindowScreenShotCommand = new Command<Window>(async x =>
+        {
+            if (x == null) return;
+
+            StatusControlContext statusContext = null;
+
+            try
             {
-                if (x == null) return;
+                statusContext = (StatusControlContext) ((dynamic) x.DataContext).StatusContext;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
 
-                StatusControlContext statusContext = null;
+            var result = await NativeCapture.TryWindowScreenShotToClipboardAsync(x);
 
-                try
-                {
-                    statusContext = (StatusControlContext) ((dynamic) x.DataContext).StatusContext;
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine(e);
-                }
+            if (statusContext != null)
+            {
+                if (result)
+                    statusContext.ToastSuccess("Window copied to Clipboard");
+                else
+                    statusContext.ToastError("Problem Copying Window to Clipboard");
+            }
+        });
 
-                var result = await NativeCapture.TryWindowScreenShotToClipboardAsync(x);
+        DataContext = this;
+    }
 
-                if (statusContext != null)
-                {
-                    if (result)
-                        statusContext.ToastSuccess("Window copied to Clipboard");
-                    else
-                        statusContext.ToastError("Problem Copying Window to Clipboard");
-                }
-            });
+    public Command WindowScreenShotCommand { get; }
 
-            DataContext = this;
-        }
+    public event PropertyChangedEventHandler PropertyChanged;
 
-        public Command WindowScreenShotCommand { get; }
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        [NotifyPropertyChangedInvocator]
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
+    [NotifyPropertyChangedInvocator]
+    protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+    {
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 }

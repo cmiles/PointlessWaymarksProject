@@ -1,13 +1,12 @@
-﻿namespace PointlessWaymarks.CmsWpfControls.PointDetailEditor
+﻿namespace PointlessWaymarks.CmsWpfControls.PointDetailEditor;
+
+/// <summary>
+///     Interaction logic for CampgroundPointDetailControl.xaml
+/// </summary>
+public partial class CampgroundPointDetailControl
 {
-    /// <summary>
-    ///     Interaction logic for CampgroundPointDetailControl.xaml
-    /// </summary>
-    public partial class CampgroundPointDetailControl
+    public CampgroundPointDetailControl()
     {
-        public CampgroundPointDetailControl()
-        {
-            InitializeComponent();
-        }
+        InitializeComponent();
     }
 }

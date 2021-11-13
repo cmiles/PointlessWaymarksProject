@@ -1,8 +1,7 @@
-﻿namespace PointlessWaymarks.CmsData.Database.Models
+﻿namespace PointlessWaymarks.CmsData.Database.Models;
+
+public interface IUpdateNotes
 {
-    public interface IUpdateNotes
-    {
-        public string? UpdateNotes { get; }
-        public string? UpdateNotesFormat { get; }
-    }
+    public string? UpdateNotes { get; }
+    public string? UpdateNotesFormat { get; }
 }

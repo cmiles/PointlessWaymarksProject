@@ -1,7 +1,6 @@
-﻿namespace PointlessWaymarks.CmsWpfControls.Utility
+﻿namespace PointlessWaymarks.CmsWpfControls.Utility;
+
+public interface ISelectedTextTracker
 {
-    public interface ISelectedTextTracker
-    {
-        CurrentSelectedTextTracker SelectedTextTracker { get; set; }
-    }
+    CurrentSelectedTextTracker SelectedTextTracker { get; set; }
 }

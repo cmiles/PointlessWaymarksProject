@@ -1,13 +1,12 @@
-﻿namespace PointlessWaymarks.CmsWpfControls.ConversionDataEntry
+﻿namespace PointlessWaymarks.CmsWpfControls.ConversionDataEntry;
+
+/// <summary>
+///     Interaction logic for ConversionDataEntryControl.xaml
+/// </summary>
+public partial class ConversionDataEntryControl
 {
-    /// <summary>
-    ///     Interaction logic for ConversionDataEntryControl.xaml
-    /// </summary>
-    public partial class ConversionDataEntryControl
+    public ConversionDataEntryControl()
     {
-        public ConversionDataEntryControl()
-        {
-            InitializeComponent();
-        }
+        InitializeComponent();
     }
 }

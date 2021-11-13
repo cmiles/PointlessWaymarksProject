@@ -1,8 +1,7 @@
-﻿namespace PointlessWaymarks.CmsWpfControls.Utility
+﻿namespace PointlessWaymarks.CmsWpfControls.Utility;
+
+[Serializable]
+public class SerializableContentCommonIdList
 {
-    [Serializable]
-    public class SerializableContentCommonIdList
-    {
-        public List<Guid> ContentIdList { get; set; }
-    }
+    public List<Guid> ContentIdList { get; set; }
 }

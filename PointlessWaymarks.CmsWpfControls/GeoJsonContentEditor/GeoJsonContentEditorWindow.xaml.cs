@@ -6,63 +6,62 @@ using PointlessWaymarks.CmsWpfControls.Utility.ChangesAndValidation;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 
-namespace PointlessWaymarks.CmsWpfControls.GeoJsonContentEditor
+namespace PointlessWaymarks.CmsWpfControls.GeoJsonContentEditor;
+
+/// <summary>
+///     Interaction logic for GeoJsonContentEditorWindow.xaml
+/// </summary>
+public partial class GeoJsonContentEditorWindow : INotifyPropertyChanged
 {
-    /// <summary>
-    ///     Interaction logic for GeoJsonContentEditorWindow.xaml
-    /// </summary>
-    public partial class GeoJsonContentEditorWindow : INotifyPropertyChanged
+    private GeoJsonContentEditorContext _geoJsonContent;
+    private StatusControlContext _statusContext;
+
+    public GeoJsonContentEditorWindow(GeoJsonContent toLoad)
     {
-        private GeoJsonContentEditorContext _geoJsonContent;
-        private StatusControlContext _statusContext;
+        InitializeComponent();
+        StatusContext = new StatusControlContext();
 
-        public GeoJsonContentEditorWindow(GeoJsonContent toLoad)
+        StatusContext.RunFireAndForgetBlockingTask(async () =>
         {
-            InitializeComponent();
-            StatusContext = new StatusControlContext();
+            GeoJsonContent = await GeoJsonContentEditorContext.CreateInstance(StatusContext, toLoad);
 
-            StatusContext.RunFireAndForgetBlockingTask(async () =>
-            {
-                GeoJsonContent = await GeoJsonContentEditorContext.CreateInstance(StatusContext, toLoad);
+            GeoJsonContent.RequestContentEditorWindowClose += (_, _) => { Dispatcher?.Invoke(Close); };
+            AccidentalCloserHelper = new WindowAccidentalClosureHelper(this, StatusContext, GeoJsonContent);
 
-                GeoJsonContent.RequestContentEditorWindowClose += (_, _) => { Dispatcher?.Invoke(Close); };
-                AccidentalCloserHelper = new WindowAccidentalClosureHelper(this, StatusContext, GeoJsonContent);
+            await ThreadSwitcher.ResumeForegroundAsync();
+            DataContext = this;
+        });
+    }
 
-                await ThreadSwitcher.ResumeForegroundAsync();
-                DataContext = this;
-            });
-        }
+    public WindowAccidentalClosureHelper AccidentalCloserHelper { get; set; }
 
-        public WindowAccidentalClosureHelper AccidentalCloserHelper { get; set; }
-
-        public GeoJsonContentEditorContext GeoJsonContent
+    public GeoJsonContentEditorContext GeoJsonContent
+    {
+        get => _geoJsonContent;
+        set
         {
-            get => _geoJsonContent;
-            set
-            {
-                if (Equals(value, _geoJsonContent)) return;
-                _geoJsonContent = value;
-                OnPropertyChanged();
-            }
+            if (Equals(value, _geoJsonContent)) return;
+            _geoJsonContent = value;
+            OnPropertyChanged();
         }
+    }
 
-        public StatusControlContext StatusContext
+    public StatusControlContext StatusContext
+    {
+        get => _statusContext;
+        set
         {
-            get => _statusContext;
-            set
-            {
-                if (Equals(value, _statusContext)) return;
-                _statusContext = value;
-                OnPropertyChanged();
-            }
+            if (Equals(value, _statusContext)) return;
+            _statusContext = value;
+            OnPropertyChanged();
         }
+    }
 
-        public event PropertyChangedEventHandler PropertyChanged;
+    public event PropertyChangedEventHandler PropertyChanged;
 
-        [NotifyPropertyChangedInvocator]
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
+    [NotifyPropertyChangedInvocator]
+    protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+    {
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 }

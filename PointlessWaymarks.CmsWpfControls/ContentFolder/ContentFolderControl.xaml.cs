@@ -1,13 +1,12 @@
-﻿namespace PointlessWaymarks.CmsWpfControls.ContentFolder
+﻿namespace PointlessWaymarks.CmsWpfControls.ContentFolder;
+
+/// <summary>
+///     Interaction logic for ContentFolderControl.xaml
+/// </summary>
+public partial class ContentFolderControl
 {
-    /// <summary>
-    ///     Interaction logic for ContentFolderControl.xaml
-    /// </summary>
-    public partial class ContentFolderControl
+    public ContentFolderControl()
     {
-        public ContentFolderControl()
-        {
-            InitializeComponent();
-        }
+        InitializeComponent();
     }
 }

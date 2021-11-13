@@ -1,13 +1,12 @@
-﻿namespace PointlessWaymarks.CmsWpfControls.ContentFormat
+﻿namespace PointlessWaymarks.CmsWpfControls.ContentFormat;
+
+/// <summary>
+///     Interaction logic for ContentFormatChooserControl.xaml
+/// </summary>
+public partial class ContentFormatChooserControl
 {
-    /// <summary>
-    ///     Interaction logic for ContentFormatChooserControl.xaml
-    /// </summary>
-    public partial class ContentFormatChooserControl
+    public ContentFormatChooserControl()
     {
-        public ContentFormatChooserControl()
-        {
-            InitializeComponent();
-        }
+        InitializeComponent();
     }
 }

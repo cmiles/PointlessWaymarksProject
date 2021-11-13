@@ -3,46 +3,45 @@ using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
 using PointlessWaymarks.WpfCommon.Status;
 
-namespace PointlessWaymarks.CmsWpfControls.HtmlViewer
+namespace PointlessWaymarks.CmsWpfControls.HtmlViewer;
+
+public class HtmlViewerContext : INotifyPropertyChanged
 {
-    public class HtmlViewerContext : INotifyPropertyChanged
+    private string _htmlString;
+    private StatusControlContext _statusContext;
+
+    public HtmlViewerContext()
     {
-        private string _htmlString;
-        private StatusControlContext _statusContext;
+        StatusContext = new StatusControlContext();
+    }
 
-        public HtmlViewerContext()
+    public string HtmlString
+    {
+        get => _htmlString;
+        set
         {
-            StatusContext = new StatusControlContext();
+            if (value == _htmlString) return;
+            _htmlString = value;
+            OnPropertyChanged();
         }
+    }
 
-        public string HtmlString
+    public StatusControlContext StatusContext
+    {
+        get => _statusContext;
+        set
         {
-            get => _htmlString;
-            set
-            {
-                if (value == _htmlString) return;
-                _htmlString = value;
-                OnPropertyChanged();
-            }
+            if (Equals(value, _statusContext)) return;
+            _statusContext = value;
+            OnPropertyChanged();
         }
+    }
 
-        public StatusControlContext StatusContext
-        {
-            get => _statusContext;
-            set
-            {
-                if (Equals(value, _statusContext)) return;
-                _statusContext = value;
-                OnPropertyChanged();
-            }
-        }
+    public event PropertyChangedEventHandler PropertyChanged;
 
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        [NotifyPropertyChangedInvocator]
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
+    [NotifyPropertyChangedInvocator]
+    protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+    {
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 }

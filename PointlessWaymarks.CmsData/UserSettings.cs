@@ -2,282 +2,281 @@
 using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
 
-namespace PointlessWaymarks.CmsData
+namespace PointlessWaymarks.CmsData;
+
+public class UserSettings : INotifyPropertyChanged
 {
-    public class UserSettings : INotifyPropertyChanged
+    private string _bingApiKey = string.Empty;
+    private string _calTopoApiKey = string.Empty;
+    private string _databaseFile = string.Empty;
+    private string _defaultCreatedBy = string.Empty;
+    private double _latitudeDefault;
+    private string _localMediaArchiveDirectory = string.Empty;
+    private string _localSiteRootDirectory = string.Empty;
+    private double _longitudeDefault;
+    private string _pdfToCairoExeDirectory = string.Empty;
+    private string _pinboardApiToken = string.Empty;
+    private Guid _settingsId;
+    private string _siteAuthors = string.Empty;
+    private string _siteDirectionAttribute = string.Empty;
+    private string _siteEmailTo = string.Empty;
+    private string _siteKeywords = string.Empty;
+    private string _siteLangAttribute = string.Empty;
+    private string _siteName = string.Empty;
+    private string _siteS3Bucket = string.Empty;
+    private string _siteS3BucketRegion = string.Empty;
+    private string _siteSummary = string.Empty;
+    private string _siteUrl = string.Empty;
+
+    public string BingApiKey
     {
-        private string _bingApiKey = string.Empty;
-        private string _calTopoApiKey = string.Empty;
-        private string _databaseFile = string.Empty;
-        private string _defaultCreatedBy = string.Empty;
-        private double _latitudeDefault;
-        private string _localMediaArchiveDirectory = string.Empty;
-        private string _localSiteRootDirectory = string.Empty;
-        private double _longitudeDefault;
-        private string _pdfToCairoExeDirectory = string.Empty;
-        private string _pinboardApiToken = string.Empty;
-        private Guid _settingsId;
-        private string _siteAuthors = string.Empty;
-        private string _siteDirectionAttribute = string.Empty;
-        private string _siteEmailTo = string.Empty;
-        private string _siteKeywords = string.Empty;
-        private string _siteLangAttribute = string.Empty;
-        private string _siteName = string.Empty;
-        private string _siteS3Bucket = string.Empty;
-        private string _siteS3BucketRegion = string.Empty;
-        private string _siteSummary = string.Empty;
-        private string _siteUrl = string.Empty;
-
-        public string BingApiKey
+        get => _bingApiKey;
+        set
         {
-            get => _bingApiKey;
-            set
-            {
-                if (value == _bingApiKey) return;
-                _bingApiKey = value;
-                OnPropertyChanged();
-            }
+            if (value == _bingApiKey) return;
+            _bingApiKey = value;
+            OnPropertyChanged();
         }
+    }
 
-        public string CalTopoApiKey
+    public string CalTopoApiKey
+    {
+        get => _calTopoApiKey;
+        set
         {
-            get => _calTopoApiKey;
-            set
-            {
-                if (value == _calTopoApiKey) return;
-                _calTopoApiKey = value;
-                OnPropertyChanged();
-            }
+            if (value == _calTopoApiKey) return;
+            _calTopoApiKey = value;
+            OnPropertyChanged();
         }
+    }
 
-        /// <summary>
-        /// Database File Name Setting - this may be relative or absolute, prefer the DatabaseFileFullName in the
-        /// UserSettingsUtilities for general purpose use.
-        /// </summary>
-        public string DatabaseFile
+    /// <summary>
+    /// Database File Name Setting - this may be relative or absolute, prefer the DatabaseFileFullName in the
+    /// UserSettingsUtilities for general purpose use.
+    /// </summary>
+    public string DatabaseFile
+    {
+        get => _databaseFile;
+        set
         {
-            get => _databaseFile;
-            set
-            {
-                if (value == _databaseFile) return;
-                _databaseFile = value;
-                OnPropertyChanged();
-            }
+            if (value == _databaseFile) return;
+            _databaseFile = value;
+            OnPropertyChanged();
         }
+    }
 
-        public string DefaultCreatedBy
+    public string DefaultCreatedBy
+    {
+        get => _defaultCreatedBy;
+        set
         {
-            get => _defaultCreatedBy;
-            set
-            {
-                if (value == _defaultCreatedBy) return;
-                _defaultCreatedBy = value;
-                OnPropertyChanged();
-            }
+            if (value == _defaultCreatedBy) return;
+            _defaultCreatedBy = value;
+            OnPropertyChanged();
         }
+    }
 
-        public double LatitudeDefault
+    public double LatitudeDefault
+    {
+        get => _latitudeDefault;
+        set
         {
-            get => _latitudeDefault;
-            set
-            {
-                if (value.Equals(_latitudeDefault)) return;
-                _latitudeDefault = value;
-                OnPropertyChanged();
-            }
+            if (value.Equals(_latitudeDefault)) return;
+            _latitudeDefault = value;
+            OnPropertyChanged();
         }
+    }
 
-        /// <summary>
-        /// Relative or Absolute Local Media Archive Directory - prefer the LocalMediaArchiveFullDirectory
-        /// in UserSettingsUtilities as it will always represent the full path.
-        /// </summary>
-        public string LocalMediaArchiveDirectory
+    /// <summary>
+    /// Relative or Absolute Local Media Archive Directory - prefer the LocalMediaArchiveFullDirectory
+    /// in UserSettingsUtilities as it will always represent the full path.
+    /// </summary>
+    public string LocalMediaArchiveDirectory
+    {
+        get => _localMediaArchiveDirectory;
+        set
         {
-            get => _localMediaArchiveDirectory;
-            set
-            {
-                if (value == _localMediaArchiveDirectory) return;
-                _localMediaArchiveDirectory = value;
-                OnPropertyChanged();
-            }
+            if (value == _localMediaArchiveDirectory) return;
+            _localMediaArchiveDirectory = value;
+            OnPropertyChanged();
         }
+    }
 
-        /// <summary>
-        /// Relative or Absolute Local Site Root Directory (the directory html will be generated into)
-        /// - prefer the LocalSiteRootFullDirectory in UserSettingsUtilities as it will always
-        /// represent the full path.
-        /// </summary>
-        public string LocalSiteRootDirectory
+    /// <summary>
+    /// Relative or Absolute Local Site Root Directory (the directory html will be generated into)
+    /// - prefer the LocalSiteRootFullDirectory in UserSettingsUtilities as it will always
+    /// represent the full path.
+    /// </summary>
+    public string LocalSiteRootDirectory
+    {
+        get => _localSiteRootDirectory;
+        set
         {
-            get => _localSiteRootDirectory;
-            set
-            {
-                if (value == _localSiteRootDirectory) return;
-                _localSiteRootDirectory = value;
-                OnPropertyChanged();
-            }
+            if (value == _localSiteRootDirectory) return;
+            _localSiteRootDirectory = value;
+            OnPropertyChanged();
         }
+    }
 
-        public double LongitudeDefault
+    public double LongitudeDefault
+    {
+        get => _longitudeDefault;
+        set
         {
-            get => _longitudeDefault;
-            set
-            {
-                if (value.Equals(_longitudeDefault)) return;
-                _longitudeDefault = value;
-                OnPropertyChanged();
-            }
+            if (value.Equals(_longitudeDefault)) return;
+            _longitudeDefault = value;
+            OnPropertyChanged();
         }
+    }
 
-        public string PdfToCairoExeDirectory
+    public string PdfToCairoExeDirectory
+    {
+        get => _pdfToCairoExeDirectory;
+        set
         {
-            get => _pdfToCairoExeDirectory;
-            set
-            {
-                if (value == _pdfToCairoExeDirectory) return;
-                _pdfToCairoExeDirectory = value;
-                OnPropertyChanged();
-            }
+            if (value == _pdfToCairoExeDirectory) return;
+            _pdfToCairoExeDirectory = value;
+            OnPropertyChanged();
         }
+    }
 
-        public string PinboardApiToken
+    public string PinboardApiToken
+    {
+        get => _pinboardApiToken;
+        set
         {
-            get => _pinboardApiToken;
-            set
-            {
-                if (value == _pinboardApiToken) return;
-                _pinboardApiToken = value;
-                OnPropertyChanged();
-            }
+            if (value == _pinboardApiToken) return;
+            _pinboardApiToken = value;
+            OnPropertyChanged();
         }
+    }
 
-        public Guid SettingsId
+    public Guid SettingsId
+    {
+        get => _settingsId;
+        set
         {
-            get => _settingsId;
-            set
-            {
-                if (value.Equals(_settingsId)) return;
-                _settingsId = value;
-                OnPropertyChanged();
-            }
+            if (value.Equals(_settingsId)) return;
+            _settingsId = value;
+            OnPropertyChanged();
         }
+    }
 
-        public string SiteAuthors
+    public string SiteAuthors
+    {
+        get => _siteAuthors;
+        set
         {
-            get => _siteAuthors;
-            set
-            {
-                if (value == _siteAuthors) return;
-                _siteAuthors = value;
-                OnPropertyChanged();
-            }
+            if (value == _siteAuthors) return;
+            _siteAuthors = value;
+            OnPropertyChanged();
         }
+    }
 
-        public string SiteDirectionAttribute
+    public string SiteDirectionAttribute
+    {
+        get => _siteDirectionAttribute;
+        set
         {
-            get => _siteDirectionAttribute;
-            set
-            {
-                if (value == _siteDirectionAttribute) return;
-                _siteDirectionAttribute = value;
-                OnPropertyChanged();
-            }
+            if (value == _siteDirectionAttribute) return;
+            _siteDirectionAttribute = value;
+            OnPropertyChanged();
         }
+    }
 
-        public string SiteEmailTo
+    public string SiteEmailTo
+    {
+        get => _siteEmailTo;
+        set
         {
-            get => _siteEmailTo;
-            set
-            {
-                if (value == _siteEmailTo) return;
-                _siteEmailTo = value;
-                OnPropertyChanged();
-            }
+            if (value == _siteEmailTo) return;
+            _siteEmailTo = value;
+            OnPropertyChanged();
         }
+    }
 
-        public string SiteKeywords
+    public string SiteKeywords
+    {
+        get => _siteKeywords;
+        set
         {
-            get => _siteKeywords;
-            set
-            {
-                if (value == _siteKeywords) return;
-                _siteKeywords = value;
-                OnPropertyChanged();
-            }
+            if (value == _siteKeywords) return;
+            _siteKeywords = value;
+            OnPropertyChanged();
         }
+    }
 
-        public string SiteLangAttribute
+    public string SiteLangAttribute
+    {
+        get => _siteLangAttribute;
+        set
         {
-            get => _siteLangAttribute;
-            set
-            {
-                if (value == _siteLangAttribute) return;
-                _siteLangAttribute = value;
-                OnPropertyChanged();
-            }
+            if (value == _siteLangAttribute) return;
+            _siteLangAttribute = value;
+            OnPropertyChanged();
         }
+    }
 
-        public string SiteName
+    public string SiteName
+    {
+        get => _siteName;
+        set
         {
-            get => _siteName;
-            set
-            {
-                if (value == _siteName) return;
-                _siteName = value;
-                OnPropertyChanged();
-            }
+            if (value == _siteName) return;
+            _siteName = value;
+            OnPropertyChanged();
         }
+    }
 
-        public string SiteS3Bucket
+    public string SiteS3Bucket
+    {
+        get => _siteS3Bucket;
+        set
         {
-            get => _siteS3Bucket;
-            set
-            {
-                if (value == _siteS3Bucket) return;
-                _siteS3Bucket = value;
-                OnPropertyChanged();
-            }
+            if (value == _siteS3Bucket) return;
+            _siteS3Bucket = value;
+            OnPropertyChanged();
         }
+    }
 
-        public string SiteS3BucketRegion
+    public string SiteS3BucketRegion
+    {
+        get => _siteS3BucketRegion;
+        set
         {
-            get => _siteS3BucketRegion;
-            set
-            {
-                if (value == _siteS3BucketRegion) return;
-                _siteS3BucketRegion = value;
-                OnPropertyChanged();
-            }
+            if (value == _siteS3BucketRegion) return;
+            _siteS3BucketRegion = value;
+            OnPropertyChanged();
         }
+    }
 
-        public string SiteSummary
+    public string SiteSummary
+    {
+        get => _siteSummary;
+        set
         {
-            get => _siteSummary;
-            set
-            {
-                if (value == _siteSummary) return;
-                _siteSummary = value;
-                OnPropertyChanged();
-            }
+            if (value == _siteSummary) return;
+            _siteSummary = value;
+            OnPropertyChanged();
         }
+    }
 
-        public string SiteUrl
+    public string SiteUrl
+    {
+        get => _siteUrl;
+        set
         {
-            get => _siteUrl;
-            set
-            {
-                if (value == _siteUrl) return;
-                _siteUrl = value;
-                OnPropertyChanged();
-            }
+            if (value == _siteUrl) return;
+            _siteUrl = value;
+            OnPropertyChanged();
         }
+    }
 
-        public event PropertyChangedEventHandler? PropertyChanged;
+    public event PropertyChangedEventHandler? PropertyChanged;
 
-        [NotifyPropertyChangedInvocator]
-        protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
+    [NotifyPropertyChangedInvocator]
+    protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
+    {
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 }

@@ -1,9 +1,9 @@
-﻿namespace PointlessWaymarks.CmsWpfControls.HelpDisplay
+﻿namespace PointlessWaymarks.CmsWpfControls.HelpDisplay;
+
+public static class SoftwareUsedHelpMarkdown
 {
-    public static class SoftwareUsedHelpMarkdown
-    {
-        public static string HelpBlock =>
-            @"
+    public static string HelpBlock =>
+        @"
 ### Software Used By and In Building Pointless Waymarks CMS
  - [cmiles/PointlessWaymarksCms: A .NET Core WPF Gui for Static Site Generation](https://github.com/cmiles/PointlessWaymarksCms) - The code for this project is hosted on GitHub. MIT License.
 
@@ -58,5 +58,4 @@ Packages/Libraries/Services:
    - [serilog/serilog-formatting-compact: Compact JSON event format for Serilog](https://github.com/serilog/serilog-formatting-compact). Apache-2.0 License.
    - [serilog/serilog-sinks-console: Write log events to System.Console as text or JSON, with ANSI theme support](https://github.com/serilog/serilog-sinks-console). Apache-2.0 License.
 ";
-    }
 }

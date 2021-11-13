@@ -6,63 +6,62 @@ using PointlessWaymarks.CmsWpfControls.Utility.ChangesAndValidation;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 
-namespace PointlessWaymarks.CmsWpfControls.NoteContentEditor
+namespace PointlessWaymarks.CmsWpfControls.NoteContentEditor;
+
+/// <summary>
+///     Interaction logic for NoteContentEditorWindow.xaml
+/// </summary>
+public partial class NoteContentEditorWindow : INotifyPropertyChanged
 {
-    /// <summary>
-    ///     Interaction logic for NoteContentEditorWindow.xaml
-    /// </summary>
-    public partial class NoteContentEditorWindow : INotifyPropertyChanged
+    private NoteContentEditorContext _noteContent;
+    private StatusControlContext _statusContext;
+
+    public NoteContentEditorWindow(NoteContent toLoad)
     {
-        private NoteContentEditorContext _noteContent;
-        private StatusControlContext _statusContext;
+        InitializeComponent();
+        StatusContext = new StatusControlContext();
 
-        public NoteContentEditorWindow(NoteContent toLoad)
+        StatusContext.RunFireAndForgetBlockingTask(async () =>
         {
-            InitializeComponent();
-            StatusContext = new StatusControlContext();
+            NoteContent = await NoteContentEditorContext.CreateInstance(StatusContext, toLoad);
 
-            StatusContext.RunFireAndForgetBlockingTask(async () =>
-            {
-                NoteContent = await NoteContentEditorContext.CreateInstance(StatusContext, toLoad);
+            NoteContent.RequestContentEditorWindowClose += (_, _) => { Dispatcher?.Invoke(Close); };
+            AccidentalCloserHelper = new WindowAccidentalClosureHelper(this, StatusContext, NoteContent);
 
-                NoteContent.RequestContentEditorWindowClose += (_, _) => { Dispatcher?.Invoke(Close); };
-                AccidentalCloserHelper = new WindowAccidentalClosureHelper(this, StatusContext, NoteContent);
+            await ThreadSwitcher.ResumeForegroundAsync();
+            DataContext = this;
+        });
+    }
 
-                await ThreadSwitcher.ResumeForegroundAsync();
-                DataContext = this;
-            });
-        }
+    public WindowAccidentalClosureHelper AccidentalCloserHelper { get; set; }
 
-        public WindowAccidentalClosureHelper AccidentalCloserHelper { get; set; }
-
-        public NoteContentEditorContext NoteContent
+    public NoteContentEditorContext NoteContent
+    {
+        get => _noteContent;
+        set
         {
-            get => _noteContent;
-            set
-            {
-                if (Equals(value, _noteContent)) return;
-                _noteContent = value;
-                OnPropertyChanged();
-            }
+            if (Equals(value, _noteContent)) return;
+            _noteContent = value;
+            OnPropertyChanged();
         }
+    }
 
-        public StatusControlContext StatusContext
+    public StatusControlContext StatusContext
+    {
+        get => _statusContext;
+        set
         {
-            get => _statusContext;
-            set
-            {
-                if (Equals(value, _statusContext)) return;
-                _statusContext = value;
-                OnPropertyChanged();
-            }
+            if (Equals(value, _statusContext)) return;
+            _statusContext = value;
+            OnPropertyChanged();
         }
+    }
 
-        public event PropertyChangedEventHandler PropertyChanged;
+    public event PropertyChangedEventHandler PropertyChanged;
 
-        [NotifyPropertyChangedInvocator]
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
+    [NotifyPropertyChangedInvocator]
+    protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+    {
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 }

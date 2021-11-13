@@ -1,35 +1,34 @@
 ﻿using PointlessWaymarks.CmsWpfControls.ColumnSort;
 
-namespace PointlessWaymarks.CmsWpfControls.ContentList
+namespace PointlessWaymarks.CmsWpfControls.ContentList;
+
+public class ContentListLoaderReport : ContentListLoaderBase, IContentListLoader
 {
-    public class ContentListLoaderReport : ContentListLoaderBase, IContentListLoader
+    private readonly ColumnSortControlContext _columnSort;
+    private readonly Func<Task<List<object>>> _loaderFunc;
+
+    public ContentListLoaderReport(Func<Task<List<object>>> loaderFunc,
+        ColumnSortControlContext sorting = null) :
+        base("Report Results", null)
     {
-        private readonly ColumnSortControlContext _columnSort;
-        private readonly Func<Task<List<object>>> _loaderFunc;
+        _loaderFunc = loaderFunc;
+        _columnSort = sorting;
+        AddNewItemsFromDataNotifications = false;
+    }
 
-        public ContentListLoaderReport(Func<Task<List<object>>> loaderFunc,
-            ColumnSortControlContext sorting = null) :
-            base("Report Results", null)
-        {
-            _loaderFunc = loaderFunc;
-            _columnSort = sorting;
-            AddNewItemsFromDataNotifications = false;
-        }
+    public override async Task<List<object>> LoadItems(IProgress<string> progress = null)
+    {
+        var listItems = new List<object>();
 
-        public override async Task<List<object>> LoadItems(IProgress<string> progress = null)
-        {
-            var listItems = new List<object>();
+        if (_loaderFunc != null) listItems.AddRange(await _loaderFunc());
 
-            if (_loaderFunc != null) listItems.AddRange(await _loaderFunc());
+        AllItemsLoaded = true;
 
-            AllItemsLoaded = true;
+        return listItems;
+    }
 
-            return listItems;
-        }
-
-        public ColumnSortControlContext SortContext()
-        {
-            return _columnSort ?? SortContextDefault();
-        }
+    public ColumnSortControlContext SortContext()
+    {
+        return _columnSort ?? SortContextDefault();
     }
 }

@@ -1,7 +1,6 @@
-﻿namespace PointlessWaymarks.CmsData.Database.Models
+﻿namespace PointlessWaymarks.CmsData.Database.Models;
+
+public interface IShowInSearch
 {
-    public interface IShowInSearch
-    {
-        bool ShowInSearch { get; }
-    }
+    bool ShowInSearch { get; }
 }

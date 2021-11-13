@@ -4,137 +4,136 @@ using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
 using PointlessWaymarks.CmsWpfControls.Utility;
 
-namespace PointlessWaymarks.CmsWpfControls.WordPressXmlImport
+namespace PointlessWaymarks.CmsWpfControls.WordPressXmlImport;
+
+public class WordPressXmlImportListItem : INotifyPropertyChanged, ISelectedTextTracker
 {
-    public class WordPressXmlImportListItem : INotifyPropertyChanged, ISelectedTextTracker
+    private string _category = string.Empty;
+    private string _content = string.Empty;
+    private string _createdBy = string.Empty;
+    private DateTime _createdOn = DateTime.Now;
+    private CurrentSelectedTextTracker _selectedTextTracker = new();
+    private string _slug = string.Empty;
+    private string _summary = string.Empty;
+    private string _tags = string.Empty;
+    private string _title = string.Empty;
+    private string _wordPressType = string.Empty;
+
+    public string Category
     {
-        private string _category = string.Empty;
-        private string _content = string.Empty;
-        private string _createdBy = string.Empty;
-        private DateTime _createdOn = DateTime.Now;
-        private CurrentSelectedTextTracker _selectedTextTracker = new();
-        private string _slug = string.Empty;
-        private string _summary = string.Empty;
-        private string _tags = string.Empty;
-        private string _title = string.Empty;
-        private string _wordPressType = string.Empty;
-
-        public string Category
+        get => _category;
+        set
         {
-            get => _category;
-            set
-            {
-                if (value == _category) return;
-                _category = value;
-                OnPropertyChanged();
-            }
+            if (value == _category) return;
+            _category = value;
+            OnPropertyChanged();
         }
+    }
 
-        public string Content
+    public string Content
+    {
+        get => _content;
+        set
         {
-            get => _content;
-            set
-            {
-                if (value == _content) return;
-                _content = value;
-                OnPropertyChanged();
-            }
+            if (value == _content) return;
+            _content = value;
+            OnPropertyChanged();
         }
+    }
 
-        public string CreatedBy
+    public string CreatedBy
+    {
+        get => _createdBy;
+        set
         {
-            get => _createdBy;
-            set
-            {
-                if (value == _createdBy) return;
-                _createdBy = value;
-                OnPropertyChanged();
-            }
+            if (value == _createdBy) return;
+            _createdBy = value;
+            OnPropertyChanged();
         }
+    }
 
-        public DateTime CreatedOn
+    public DateTime CreatedOn
+    {
+        get => _createdOn;
+        set
         {
-            get => _createdOn;
-            set
-            {
-                if (value.Equals(_createdOn)) return;
-                _createdOn = value;
-                OnPropertyChanged();
-            }
+            if (value.Equals(_createdOn)) return;
+            _createdOn = value;
+            OnPropertyChanged();
         }
+    }
 
-        public string Slug
+    public string Slug
+    {
+        get => _slug;
+        set
         {
-            get => _slug;
-            set
-            {
-                if (value == _slug) return;
-                _slug = value;
-                OnPropertyChanged();
-            }
+            if (value == _slug) return;
+            _slug = value;
+            OnPropertyChanged();
         }
+    }
 
-        public string Summary
+    public string Summary
+    {
+        get => _summary;
+        set
         {
-            get => _summary;
-            set
-            {
-                if (value == _summary) return;
-                _summary = value;
-                OnPropertyChanged();
-            }
+            if (value == _summary) return;
+            _summary = value;
+            OnPropertyChanged();
         }
+    }
 
-        public string Tags
+    public string Tags
+    {
+        get => _tags;
+        set
         {
-            get => _tags;
-            set
-            {
-                if (value == _tags) return;
-                _tags = value;
-                OnPropertyChanged();
-            }
+            if (value == _tags) return;
+            _tags = value;
+            OnPropertyChanged();
         }
+    }
 
-        public string Title
+    public string Title
+    {
+        get => _title;
+        set
         {
-            get => _title;
-            set
-            {
-                if (value == _title) return;
-                _title = value;
-                OnPropertyChanged();
-            }
+            if (value == _title) return;
+            _title = value;
+            OnPropertyChanged();
         }
+    }
 
-        public string WordPressType
+    public string WordPressType
+    {
+        get => _wordPressType;
+        set
         {
-            get => _wordPressType;
-            set
-            {
-                if (value == _wordPressType) return;
-                _wordPressType = value;
-                OnPropertyChanged();
-            }
+            if (value == _wordPressType) return;
+            _wordPressType = value;
+            OnPropertyChanged();
         }
+    }
 
-        public event PropertyChangedEventHandler? PropertyChanged;
+    public event PropertyChangedEventHandler? PropertyChanged;
 
-        public CurrentSelectedTextTracker SelectedTextTracker
+    public CurrentSelectedTextTracker SelectedTextTracker
+    {
+        get => _selectedTextTracker;
+        set
         {
-            get => _selectedTextTracker;
-            set
-            {
-                if (Equals(value, _selectedTextTracker)) return;
-                _selectedTextTracker = value;
-                OnPropertyChanged();
-            }
+            if (Equals(value, _selectedTextTracker)) return;
+            _selectedTextTracker = value;
+            OnPropertyChanged();
         }
+    }
 
-        [NotifyPropertyChangedInvocator]
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = "")
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
+    [NotifyPropertyChangedInvocator]
+    protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = "")
+    {
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 }

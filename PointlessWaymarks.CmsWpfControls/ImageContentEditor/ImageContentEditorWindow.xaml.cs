@@ -7,80 +7,79 @@ using PointlessWaymarks.CmsWpfControls.Utility.ChangesAndValidation;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 
-namespace PointlessWaymarks.CmsWpfControls.ImageContentEditor
+namespace PointlessWaymarks.CmsWpfControls.ImageContentEditor;
+
+public partial class ImageContentEditorWindow : INotifyPropertyChanged
 {
-    public partial class ImageContentEditorWindow : INotifyPropertyChanged
+    private ImageContentEditorContext _imageEditor;
+    private StatusControlContext _statusContext;
+
+    public ImageContentEditorWindow()
     {
-        private ImageContentEditorContext _imageEditor;
-        private StatusControlContext _statusContext;
+        InitializeComponent();
 
-        public ImageContentEditorWindow()
+        StatusContext = new StatusControlContext();
+
+        StatusContext.RunFireAndForgetBlockingTask(async () =>
         {
-            InitializeComponent();
+            ImageEditor = await ImageContentEditorContext.CreateInstance(StatusContext);
 
-            StatusContext = new StatusControlContext();
+            ImageEditor.RequestContentEditorWindowClose += (_, _) => { Dispatcher?.Invoke(Close); };
+            AccidentalCloserHelper = new WindowAccidentalClosureHelper(this, StatusContext, ImageEditor);
 
-            StatusContext.RunFireAndForgetBlockingTask(async () =>
-            {
-                ImageEditor = await ImageContentEditorContext.CreateInstance(StatusContext);
+            await ThreadSwitcher.ResumeForegroundAsync();
+            DataContext = this;
+        });
+    }
 
-                ImageEditor.RequestContentEditorWindowClose += (_, _) => { Dispatcher?.Invoke(Close); };
-                AccidentalCloserHelper = new WindowAccidentalClosureHelper(this, StatusContext, ImageEditor);
+    public ImageContentEditorWindow(ImageContent contentToLoad = null, FileInfo initialImage = null)
+    {
+        InitializeComponent();
 
-                await ThreadSwitcher.ResumeForegroundAsync();
-                DataContext = this;
-            });
-        }
+        StatusContext = new StatusControlContext();
 
-        public ImageContentEditorWindow(ImageContent contentToLoad = null, FileInfo initialImage = null)
+        StatusContext.RunFireAndForgetBlockingTask(async () =>
         {
-            InitializeComponent();
+            ImageEditor =
+                await ImageContentEditorContext.CreateInstance(StatusContext, contentToLoad, initialImage);
 
-            StatusContext = new StatusControlContext();
+            ImageEditor.RequestContentEditorWindowClose += (_, _) => { Dispatcher?.Invoke(Close); };
+            AccidentalCloserHelper = new WindowAccidentalClosureHelper(this, StatusContext, ImageEditor);
 
-            StatusContext.RunFireAndForgetBlockingTask(async () =>
-            {
-                ImageEditor =
-                    await ImageContentEditorContext.CreateInstance(StatusContext, contentToLoad, initialImage);
+            await ThreadSwitcher.ResumeForegroundAsync();
+            DataContext = this;
+        });
+    }
 
-                ImageEditor.RequestContentEditorWindowClose += (_, _) => { Dispatcher?.Invoke(Close); };
-                AccidentalCloserHelper = new WindowAccidentalClosureHelper(this, StatusContext, ImageEditor);
+    public WindowAccidentalClosureHelper AccidentalCloserHelper { get; set; }
 
-                await ThreadSwitcher.ResumeForegroundAsync();
-                DataContext = this;
-            });
-        }
-
-        public WindowAccidentalClosureHelper AccidentalCloserHelper { get; set; }
-
-        public ImageContentEditorContext ImageEditor
+    public ImageContentEditorContext ImageEditor
+    {
+        get => _imageEditor;
+        set
         {
-            get => _imageEditor;
-            set
-            {
-                if (Equals(value, _imageEditor)) return;
-                _imageEditor = value;
-                OnPropertyChanged();
-            }
+            if (Equals(value, _imageEditor)) return;
+            _imageEditor = value;
+            OnPropertyChanged();
         }
+    }
 
-        public StatusControlContext StatusContext
+    public StatusControlContext StatusContext
+    {
+        get => _statusContext;
+        set
         {
-            get => _statusContext;
-            set
-            {
-                if (Equals(value, _statusContext)) return;
-                _statusContext = value;
-                OnPropertyChanged();
-            }
+            if (Equals(value, _statusContext)) return;
+            _statusContext = value;
+            OnPropertyChanged();
         }
+    }
 
-        public event PropertyChangedEventHandler PropertyChanged;
+    public event PropertyChangedEventHandler PropertyChanged;
 
-        [NotifyPropertyChangedInvocator]
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
+    [NotifyPropertyChangedInvocator]
+    protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+    {
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 }

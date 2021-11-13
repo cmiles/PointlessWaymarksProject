@@ -1,10 +1,9 @@
-﻿namespace PointlessWaymarks.CmsWpfControls.PostList
+﻿namespace PointlessWaymarks.CmsWpfControls.PostList;
+
+public partial class PostListWithActionsControl
 {
-    public partial class PostListWithActionsControl
+    public PostListWithActionsControl()
     {
-        public PostListWithActionsControl()
-        {
-            InitializeComponent();
-        }
+        InitializeComponent();
     }
 }

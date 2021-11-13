@@ -1,20 +1,19 @@
 ﻿using System.Globalization;
 using System.Windows.Data;
 
-namespace PointlessWaymarks.WpfCommon.ValueConverters
+namespace PointlessWaymarks.WpfCommon.ValueConverters;
+
+public class NullOrWhiteSpaceStringToDefaultConverter : IValueConverter
 {
-    public class NullOrWhiteSpaceStringToDefaultConverter : IValueConverter
+    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
     {
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            if (string.IsNullOrWhiteSpace(value?.ToString())) return parameter;
+        if (string.IsNullOrWhiteSpace(value?.ToString())) return parameter;
 
-            return value;
-        }
+        return value;
+    }
 
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            throw new NotSupportedException();
-        }
+    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+        throw new NotSupportedException();
     }
 }

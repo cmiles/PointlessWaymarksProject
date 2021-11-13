@@ -1,10 +1,9 @@
-﻿namespace PointlessWaymarks.CmsWpfControls.LinkContentEditor
+﻿namespace PointlessWaymarks.CmsWpfControls.LinkContentEditor;
+
+public partial class LinkContentEditorControl
 {
-    public partial class LinkContentEditorControl
+    public LinkContentEditorControl()
     {
-        public LinkContentEditorControl()
-        {
-            InitializeComponent();
-        }
+        InitializeComponent();
     }
 }

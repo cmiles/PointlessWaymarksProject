@@ -7,97 +7,96 @@ using PointlessWaymarks.CmsWpfControls.Utility.ChangesAndValidation;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 
-namespace PointlessWaymarks.CmsWpfControls.PhotoContentEditor
+namespace PointlessWaymarks.CmsWpfControls.PhotoContentEditor;
+
+public partial class PhotoContentEditorWindow : INotifyPropertyChanged
 {
-    public partial class PhotoContentEditorWindow : INotifyPropertyChanged
+    private PhotoContentEditorContext _photoEditor;
+    private StatusControlContext _statusContext;
+
+    public PhotoContentEditorWindow()
     {
-        private PhotoContentEditorContext _photoEditor;
-        private StatusControlContext _statusContext;
+        InitializeComponent();
 
-        public PhotoContentEditorWindow()
+        StatusContext = new StatusControlContext();
+
+        StatusContext.RunFireAndForgetBlockingTask(async () =>
         {
-            InitializeComponent();
+            PhotoEditor = await PhotoContentEditorContext.CreateInstance(StatusContext);
 
-            StatusContext = new StatusControlContext();
+            PhotoEditor.RequestContentEditorWindowClose += (_, _) => { Dispatcher?.Invoke(Close); };
+            AccidentalCloserHelper = new WindowAccidentalClosureHelper(this, StatusContext, PhotoEditor);
 
-            StatusContext.RunFireAndForgetBlockingTask(async () =>
-            {
-                PhotoEditor = await PhotoContentEditorContext.CreateInstance(StatusContext);
+            await ThreadSwitcher.ResumeForegroundAsync();
+            DataContext = this;
+        });
+    }
 
-                PhotoEditor.RequestContentEditorWindowClose += (_, _) => { Dispatcher?.Invoke(Close); };
-                AccidentalCloserHelper = new WindowAccidentalClosureHelper(this, StatusContext, PhotoEditor);
+    public PhotoContentEditorWindow(FileInfo initialPhoto)
+    {
+        InitializeComponent();
 
-                await ThreadSwitcher.ResumeForegroundAsync();
-                DataContext = this;
-            });
-        }
+        StatusContext = new StatusControlContext();
 
-        public PhotoContentEditorWindow(FileInfo initialPhoto)
+        StatusContext.RunFireAndForgetBlockingTask(async () =>
         {
-            InitializeComponent();
+            PhotoEditor = await PhotoContentEditorContext.CreateInstance(StatusContext, initialPhoto);
 
-            StatusContext = new StatusControlContext();
+            PhotoEditor.RequestContentEditorWindowClose += (_, _) => { Dispatcher?.Invoke(Close); };
+            AccidentalCloserHelper = new WindowAccidentalClosureHelper(this, StatusContext, PhotoEditor);
 
-            StatusContext.RunFireAndForgetBlockingTask(async () =>
-            {
-                PhotoEditor = await PhotoContentEditorContext.CreateInstance(StatusContext, initialPhoto);
+            await ThreadSwitcher.ResumeForegroundAsync();
+            DataContext = this;
+        });
+    }
 
-                PhotoEditor.RequestContentEditorWindowClose += (_, _) => { Dispatcher?.Invoke(Close); };
-                AccidentalCloserHelper = new WindowAccidentalClosureHelper(this, StatusContext, PhotoEditor);
+    public PhotoContentEditorWindow(PhotoContent toLoad)
+    {
+        InitializeComponent();
 
-                await ThreadSwitcher.ResumeForegroundAsync();
-                DataContext = this;
-            });
-        }
+        StatusContext = new StatusControlContext();
 
-        public PhotoContentEditorWindow(PhotoContent toLoad)
+        StatusContext.RunFireAndForgetBlockingTask(async () =>
         {
-            InitializeComponent();
+            PhotoEditor = await PhotoContentEditorContext.CreateInstance(StatusContext, toLoad);
 
-            StatusContext = new StatusControlContext();
+            PhotoEditor.RequestContentEditorWindowClose += (_, _) => { Dispatcher?.Invoke(Close); };
+            AccidentalCloserHelper = new WindowAccidentalClosureHelper(this, StatusContext, PhotoEditor);
 
-            StatusContext.RunFireAndForgetBlockingTask(async () =>
-            {
-                PhotoEditor = await PhotoContentEditorContext.CreateInstance(StatusContext, toLoad);
+            await ThreadSwitcher.ResumeForegroundAsync();
+            DataContext = this;
+        });
+    }
 
-                PhotoEditor.RequestContentEditorWindowClose += (_, _) => { Dispatcher?.Invoke(Close); };
-                AccidentalCloserHelper = new WindowAccidentalClosureHelper(this, StatusContext, PhotoEditor);
+    public WindowAccidentalClosureHelper AccidentalCloserHelper { get; set; }
 
-                await ThreadSwitcher.ResumeForegroundAsync();
-                DataContext = this;
-            });
-        }
-
-        public WindowAccidentalClosureHelper AccidentalCloserHelper { get; set; }
-
-        public PhotoContentEditorContext PhotoEditor
+    public PhotoContentEditorContext PhotoEditor
+    {
+        get => _photoEditor;
+        set
         {
-            get => _photoEditor;
-            set
-            {
-                if (Equals(value, _photoEditor)) return;
-                _photoEditor = value;
-                OnPropertyChanged();
-            }
+            if (Equals(value, _photoEditor)) return;
+            _photoEditor = value;
+            OnPropertyChanged();
         }
+    }
 
-        public StatusControlContext StatusContext
+    public StatusControlContext StatusContext
+    {
+        get => _statusContext;
+        set
         {
-            get => _statusContext;
-            set
-            {
-                if (Equals(value, _statusContext)) return;
-                _statusContext = value;
-                OnPropertyChanged();
-            }
+            if (Equals(value, _statusContext)) return;
+            _statusContext = value;
+            OnPropertyChanged();
         }
+    }
 
-        public event PropertyChangedEventHandler PropertyChanged;
+    public event PropertyChangedEventHandler PropertyChanged;
 
-        [NotifyPropertyChangedInvocator]
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
+    [NotifyPropertyChangedInvocator]
+    protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+    {
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 }

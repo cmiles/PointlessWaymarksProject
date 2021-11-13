@@ -1,13 +1,12 @@
-﻿namespace PointlessWaymarks.CmsWpfControls.NoteContentEditor
+﻿namespace PointlessWaymarks.CmsWpfControls.NoteContentEditor;
+
+/// <summary>
+///     Interaction logic for NoteContentEditorControl.xaml
+/// </summary>
+public partial class NoteContentEditorControl
 {
-    /// <summary>
-    ///     Interaction logic for NoteContentEditorControl.xaml
-    /// </summary>
-    public partial class NoteContentEditorControl
+    public NoteContentEditorControl()
     {
-        public NoteContentEditorControl()
-        {
-            InitializeComponent();
-        }
+        InitializeComponent();
     }
 }

@@ -1,9 +1,9 @@
-﻿namespace PointlessWaymarks.CmsWpfControls.HelpDisplay
+﻿namespace PointlessWaymarks.CmsWpfControls.HelpDisplay;
+
+public static class TagExclusionHelpMarkdown
 {
-    public static class TagExclusionHelpMarkdown
-    {
-        public static string HelpBlock =>
-            @"
+    public static string HelpBlock =>
+        @"
 ### Tag Search Exclusions
 
 For most content you will enter tags into this program with the intent to display them with the content you are 
@@ -22,5 +22,4 @@ INTO THIS SOFTWARE!!!!! While these exclusions allow a tag to be more discrete i
 absolutely still be generated and present/visible on the public version of the site - and while the header of the Tag Page
 may 'ask' search engines not to index that page search engines DO NOT always respect that request...
 ";
-    }
 }

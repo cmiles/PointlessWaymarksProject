@@ -2,586 +2,585 @@
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 
-namespace PointlessWaymarks.CmsData.CommonHtml
+namespace PointlessWaymarks.CmsData.CommonHtml;
+
+public static class Tags
 {
-    public static class Tags
+    public static async Task<HtmlTag> CoreLinksDiv(IProgress<string>? progress = null)
     {
-        public static async Task<HtmlTag> CoreLinksDiv(IProgress<string>? progress = null)
+        var db = Db.Context().Result;
+
+        var items = db.MenuLinks.OrderBy(x => x.MenuOrder).ToList();
+
+        if (!items.Any()) return HtmlTag.Empty();
+
+        var coreLinksDiv = new HtmlTag("nav").AddClass("core-links-container");
+
+        foreach (var loopItems in items)
         {
-            var db = Db.Context().Result;
+            var html = ContentProcessing.ProcessContent(
+                await BracketCodeCommon.ProcessCodesForSite(loopItems.LinkTag ?? string.Empty, progress)
+                    .ConfigureAwait(false),
+                ContentFormatEnum.MarkdigMarkdown01);
 
-            var items = db.MenuLinks.OrderBy(x => x.MenuOrder).ToList();
+            var coreLinkContainer = new DivTag().AddClass("core-links-item").Text(html).Encoded(false);
+            coreLinksDiv.Children.Add(coreLinkContainer);
+        }
 
-            if (!items.Any()) return HtmlTag.Empty();
+        return coreLinksDiv;
+    }
 
-            var coreLinksDiv = new HtmlTag("nav").AddClass("core-links-container");
+    public static HtmlTag CreatedByAndUpdatedOnDiv(ICreatedAndLastUpdateOnAndBy dbEntry)
+    {
+        var titleContainer = new DivTag().AddClass("created-and-updated-container");
+        titleContainer.Children.Add(new DivTag().AddClass("created-and-updated-content")
+            .Text(CreatedByAndUpdatedOnString(dbEntry)));
+        return titleContainer;
+    }
 
-            foreach (var loopItems in items)
+    public static string CreatedByAndUpdatedOnFormattedDateTimeString(DateTime toFormat)
+    {
+        return toFormat.ToString("M/d/yyyy");
+    }
+
+    public static string CreatedByAndUpdatedOnString(ICreatedAndLastUpdateOnAndBy dbEntry)
+    {
+        var createdUpdatedString = $"Created by {dbEntry.CreatedBy}";
+
+        var onlyCreated = false;
+
+        if (dbEntry.LastUpdatedOn != null && dbEntry.CreatedOn.Date == dbEntry.LastUpdatedOn.Value.Date)
+            if (string.Equals(dbEntry.CreatedBy, dbEntry.LastUpdatedBy, StringComparison.OrdinalIgnoreCase))
             {
-                var html = ContentProcessing.ProcessContent(
-                    await BracketCodeCommon.ProcessCodesForSite(loopItems.LinkTag ?? string.Empty, progress)
-                        .ConfigureAwait(false),
-                    ContentFormatEnum.MarkdigMarkdown01);
-
-                var coreLinkContainer = new DivTag().AddClass("core-links-item").Text(html).Encoded(false);
-                coreLinksDiv.Children.Add(coreLinkContainer);
+                createdUpdatedString = $"Created and Updated by {dbEntry.LastUpdatedBy}";
+                onlyCreated = true;
             }
 
-            return coreLinksDiv;
+        createdUpdatedString += $" on {CreatedByAndUpdatedOnFormattedDateTimeString(dbEntry.CreatedOn)}.";
+
+        if (onlyCreated) return createdUpdatedString.Trim();
+
+        if (string.IsNullOrWhiteSpace(dbEntry.LastUpdatedBy) && dbEntry.LastUpdatedOn == null)
+            return createdUpdatedString;
+
+        var updatedString = " Updated";
+
+        if (!string.IsNullOrWhiteSpace(dbEntry.LastUpdatedBy) && dbEntry.CreatedBy != dbEntry.LastUpdatedBy)
+            updatedString += $" by {dbEntry.LastUpdatedBy}";
+
+        if (dbEntry.LastUpdatedOn != null)
+            updatedString += $" on {CreatedByAndUpdatedOnFormattedDateTimeString(dbEntry.LastUpdatedOn.Value)}";
+
+        updatedString += ".";
+
+        return (createdUpdatedString + updatedString).Trim();
+    }
+
+    public static string CssStyleFileString()
+    {
+        var settings = UserSettingsSingleton.CurrentSettings();
+        return $"<link rel=\"stylesheet\" href=\"https:{settings.CssMainStyleFileUrl()}?v=1.0\">";
+    }
+
+    public static HtmlTag EmailCenterTableTag(HtmlTag tagToCenter)
+    {
+        if (tagToCenter.IsEmpty()) return HtmlTag.Empty();
+
+        var emailCenterTable = new TableTag();
+        emailCenterTable.Attr("width", "94%");
+        emailCenterTable.Attr("margin", "10");
+        emailCenterTable.Attr("border", "0");
+        emailCenterTable.Attr("cellspacing", "0");
+        emailCenterTable.Attr("cellpadding", "0");
+
+        var topMarginRow = emailCenterTable.AddBodyRow();
+        topMarginRow.Attr("height", "10");
+        var topMarginCell = topMarginRow.Cell();
+        topMarginCell.Text("&nbsp;").Encoded(false);
+
+        var emailImageRow = emailCenterTable.AddBodyRow();
+
+        var emailImageCenterLeftCell = emailImageRow.Cell();
+        emailImageCenterLeftCell.Attr("max-width", "1%");
+        emailImageCenterLeftCell.Attr("align", "center");
+        emailImageCenterLeftCell.Attr("valign", "top");
+        emailImageCenterLeftCell.Text("&nbsp;").Encoded(false);
+
+        var emailCenterContentCell = emailImageRow.Cell();
+        emailCenterContentCell.Attr("width", "100%");
+        emailCenterContentCell.Attr("align", "center");
+        emailCenterContentCell.Attr("valign", "top");
+
+        emailCenterContentCell.Children.Add(tagToCenter);
+
+        var emailCenterRightCell = emailImageRow.Cell();
+        emailCenterRightCell.Attr("max-width", "1%");
+        emailCenterRightCell.Attr("align", "center");
+        emailCenterRightCell.Attr("valign", "top");
+        emailCenterRightCell.Text("&nbsp;").Encoded(false);
+
+        //var bottomMarginRow = emailCenterTable.AddBodyRow();
+        //bottomMarginRow.Attr("height", "10");
+        //var bottomMarginCell = bottomMarginRow.Cell();
+        //bottomMarginCell.Text("&nbsp;").Encoded(false);
+
+        return emailCenterTable;
+    }
+
+    public static string FavIconFileString()
+    {
+        var settings = UserSettingsSingleton.CurrentSettings();
+        return $"<link rel=\"shortcut icon\" href=\"https:{settings.FaviconUrl()}\"/>";
+    }
+
+    public static string ImageCaptionText(ImageContent dbEntry, bool includeTitle = false)
+    {
+        var summaryString = (includeTitle ? dbEntry.Title : string.Empty).TrimNullToEmpty();
+
+        if (!string.IsNullOrWhiteSpace(dbEntry.Summary))
+        {
+            if (includeTitle) summaryString += ": ";
+            summaryString += $"{dbEntry.Summary.Trim()}";
         }
 
-        public static HtmlTag CreatedByAndUpdatedOnDiv(ICreatedAndLastUpdateOnAndBy dbEntry)
+        if (!char.IsPunctuation(summaryString[^1]))
+            summaryString += ".";
+
+        return summaryString;
+    }
+
+    public static HtmlTag ImageFigCaptionTag(ImageContent dbEntry, bool includeTitle = false)
+    {
+        if (string.IsNullOrWhiteSpace(dbEntry.Summary)) return HtmlTag.Empty();
+
+        var figCaptionTag = new HtmlTag("figcaption");
+        figCaptionTag.AddClass("single-image-caption");
+
+        figCaptionTag.Text(ImageCaptionText(dbEntry, includeTitle));
+
+        return figCaptionTag;
+    }
+
+    public static HtmlTag InfoDivTag(string? contents, string className, string dataType, string? dataValue)
+    {
+        if (string.IsNullOrWhiteSpace(contents)) return HtmlTag.Empty();
+        var divTag = new HtmlTag("div");
+        divTag.AddClass(className);
+
+        var spanTag = new HtmlTag("div");
+        spanTag.Text(contents.Trim());
+        spanTag.AddClass($"{className}-content");
+        spanTag.Data(dataType, dataValue);
+
+        divTag.Children.Add(spanTag);
+
+        return divTag;
+    }
+
+    public static bool IsEmpty(this HtmlTag toCheck)
+    {
+        return string.IsNullOrWhiteSpace(toCheck.ToHtmlString());
+    }
+
+    public static DateTime? LatestCreatedOnOrUpdatedOn(ICreatedAndLastUpdateOnAndBy? dbEntry)
+    {
+        if (dbEntry == null) return null;
+
+        return dbEntry.LastUpdatedOn ?? dbEntry.CreatedOn;
+    }
+
+    public static (List<IContentCommon> previousContent, List<IContentCommon> laterContent)
+        MainFeedPreviousAndLaterContent(int numberOfPreviousAndLater, DateTime createdOn)
+    {
+        var previousContent = Db.MainFeedCommonContentBefore(createdOn, numberOfPreviousAndLater).Result;
+        var laterContent = Db.MainFeedCommonContentAfter(createdOn, numberOfPreviousAndLater).Result;
+
+        return (previousContent, laterContent);
+    }
+
+    public static string OpenGraphImageMetaTags(PictureSiteInformation? mainImage)
+    {
+        if (mainImage?.Pictures?.DisplayPicture == null) return string.Empty;
+
+        var metaString = "";
+        metaString +=
+            $"<meta property=\"og:image\" content=\"https:{mainImage.Pictures.DisplayPicture.SiteUrl}\" />";
+        metaString +=
+            $"<meta property=\"og:image:secure_url\" content=\"https:{mainImage.Pictures.DisplayPicture.SiteUrl}\" />";
+        metaString += "<meta property=\"og:image:type\" content=\"image/jpeg\" />";
+        metaString += $"<meta property=\"og:image:width\" content=\"{mainImage.Pictures.DisplayPicture.Width}\" />";
+        metaString +=
+            $"<meta property=\"og:image:height\" content=\"{mainImage.Pictures.DisplayPicture.Height}\" />";
+        metaString += $"<meta property=\"og:image:alt\" content=\"{mainImage.Pictures.DisplayPicture.AltText}\" />";
+
+        return metaString;
+    }
+
+    public static string PhotoCaptionText(PhotoContent dbEntry, bool includeTitle = false)
+    {
+        var summaryStringList = new List<string>();
+
+        string titleSummaryString;
+
+        var summaryHasValue = !string.IsNullOrWhiteSpace(dbEntry.Summary);
+
+        if (includeTitle || !summaryHasValue)
         {
-            var titleContainer = new DivTag().AddClass("created-and-updated-container");
-            titleContainer.Children.Add(new DivTag().AddClass("created-and-updated-content")
-                .Text(CreatedByAndUpdatedOnString(dbEntry)));
-            return titleContainer;
-        }
+            titleSummaryString = dbEntry.Title.TrimNullToEmpty();
 
-        public static string CreatedByAndUpdatedOnFormattedDateTimeString(DateTime toFormat)
-        {
-            return toFormat.ToString("M/d/yyyy");
-        }
-
-        public static string CreatedByAndUpdatedOnString(ICreatedAndLastUpdateOnAndBy dbEntry)
-        {
-            var createdUpdatedString = $"Created by {dbEntry.CreatedBy}";
-
-            var onlyCreated = false;
-
-            if (dbEntry.LastUpdatedOn != null && dbEntry.CreatedOn.Date == dbEntry.LastUpdatedOn.Value.Date)
-                if (string.Equals(dbEntry.CreatedBy, dbEntry.LastUpdatedBy, StringComparison.OrdinalIgnoreCase))
-                {
-                    createdUpdatedString = $"Created and Updated by {dbEntry.LastUpdatedBy}";
-                    onlyCreated = true;
-                }
-
-            createdUpdatedString += $" on {CreatedByAndUpdatedOnFormattedDateTimeString(dbEntry.CreatedOn)}.";
-
-            if (onlyCreated) return createdUpdatedString.Trim();
-
-            if (string.IsNullOrWhiteSpace(dbEntry.LastUpdatedBy) && dbEntry.LastUpdatedOn == null)
-                return createdUpdatedString;
-
-            var updatedString = " Updated";
-
-            if (!string.IsNullOrWhiteSpace(dbEntry.LastUpdatedBy) && dbEntry.CreatedBy != dbEntry.LastUpdatedBy)
-                updatedString += $" by {dbEntry.LastUpdatedBy}";
-
-            if (dbEntry.LastUpdatedOn != null)
-                updatedString += $" on {CreatedByAndUpdatedOnFormattedDateTimeString(dbEntry.LastUpdatedOn.Value)}";
-
-            updatedString += ".";
-
-            return (createdUpdatedString + updatedString).Trim();
-        }
-
-        public static string CssStyleFileString()
-        {
-            var settings = UserSettingsSingleton.CurrentSettings();
-            return $"<link rel=\"stylesheet\" href=\"https:{settings.CssMainStyleFileUrl()}?v=1.0\">";
-        }
-
-        public static HtmlTag EmailCenterTableTag(HtmlTag tagToCenter)
-        {
-            if (tagToCenter.IsEmpty()) return HtmlTag.Empty();
-
-            var emailCenterTable = new TableTag();
-            emailCenterTable.Attr("width", "94%");
-            emailCenterTable.Attr("margin", "10");
-            emailCenterTable.Attr("border", "0");
-            emailCenterTable.Attr("cellspacing", "0");
-            emailCenterTable.Attr("cellpadding", "0");
-
-            var topMarginRow = emailCenterTable.AddBodyRow();
-            topMarginRow.Attr("height", "10");
-            var topMarginCell = topMarginRow.Cell();
-            topMarginCell.Text("&nbsp;").Encoded(false);
-
-            var emailImageRow = emailCenterTable.AddBodyRow();
-
-            var emailImageCenterLeftCell = emailImageRow.Cell();
-            emailImageCenterLeftCell.Attr("max-width", "1%");
-            emailImageCenterLeftCell.Attr("align", "center");
-            emailImageCenterLeftCell.Attr("valign", "top");
-            emailImageCenterLeftCell.Text("&nbsp;").Encoded(false);
-
-            var emailCenterContentCell = emailImageRow.Cell();
-            emailCenterContentCell.Attr("width", "100%");
-            emailCenterContentCell.Attr("align", "center");
-            emailCenterContentCell.Attr("valign", "top");
-
-            emailCenterContentCell.Children.Add(tagToCenter);
-
-            var emailCenterRightCell = emailImageRow.Cell();
-            emailCenterRightCell.Attr("max-width", "1%");
-            emailCenterRightCell.Attr("align", "center");
-            emailCenterRightCell.Attr("valign", "top");
-            emailCenterRightCell.Text("&nbsp;").Encoded(false);
-
-            //var bottomMarginRow = emailCenterTable.AddBodyRow();
-            //bottomMarginRow.Attr("height", "10");
-            //var bottomMarginCell = bottomMarginRow.Cell();
-            //bottomMarginCell.Text("&nbsp;").Encoded(false);
-
-            return emailCenterTable;
-        }
-
-        public static string FavIconFileString()
-        {
-            var settings = UserSettingsSingleton.CurrentSettings();
-            return $"<link rel=\"shortcut icon\" href=\"https:{settings.FaviconUrl()}\"/>";
-        }
-
-        public static string ImageCaptionText(ImageContent dbEntry, bool includeTitle = false)
-        {
-            var summaryString = (includeTitle ? dbEntry.Title : string.Empty).TrimNullToEmpty();
-
-            if (!string.IsNullOrWhiteSpace(dbEntry.Summary))
+            if (summaryHasValue)
             {
-                if (includeTitle) summaryString += ": ";
-                summaryString += $"{dbEntry.Summary.Trim()}";
+                var summaryIsInTitle = titleSummaryString.Replace(".", string.Empty)
+                    .Contains(dbEntry.Summary.TrimNullToEmpty().Replace(".", string.Empty),
+                        StringComparison.OrdinalIgnoreCase);
+
+                if (!summaryIsInTitle) titleSummaryString += $": {dbEntry.Summary.TrimNullToEmpty()}";
             }
-
-            if (!char.IsPunctuation(summaryString[^1]))
-                summaryString += ".";
-
-            return summaryString;
+        }
+        else
+        {
+            titleSummaryString = dbEntry.Summary.TrimNullToEmpty();
         }
 
-        public static HtmlTag ImageFigCaptionTag(ImageContent dbEntry, bool includeTitle = false)
+        if (!string.IsNullOrWhiteSpace(titleSummaryString) && !char.IsPunctuation(titleSummaryString[^1]))
+            titleSummaryString += ".";
+
+        summaryStringList.Add(titleSummaryString);
+
+        if (!string.IsNullOrWhiteSpace(dbEntry.PhotoCreatedBy)) summaryStringList.Add($"{dbEntry.PhotoCreatedBy}.");
+        summaryStringList.Add($"{dbEntry.PhotoCreatedOn:M/d/yyyy}.");
+
+        return string.Join(" ", summaryStringList);
+    }
+
+    public static HtmlTag PhotoFigCaptionTag(PhotoContent dbEntry, bool includeTitle = false)
+    {
+        if (string.IsNullOrWhiteSpace(dbEntry.Summary)) return HtmlTag.Empty();
+
+        var figCaptionTag = new HtmlTag("figcaption");
+        figCaptionTag.AddClass("single-photo-caption");
+        figCaptionTag.Text(string.Join(" ", PhotoCaptionText(dbEntry, includeTitle)));
+
+        return figCaptionTag;
+    }
+
+    public static HtmlTag PictureEmailImgTag(PictureAsset pictureDirectoryInfo, bool willHaveVisibleCaption)
+    {
+        var emailSize = pictureDirectoryInfo.SrcsetImages.Where(x => x.Width < 800).OrderByDescending(x => x.Width)
+            .First();
+
+        var stringWidth = "94%";
+        if (emailSize.Width < emailSize.Height)
+            stringWidth = emailSize.Height > 600
+                ? ((int)(600M / emailSize.Height * emailSize.Width)).ToString("F0")
+                : emailSize.Width.ToString("F0");
+
+        var imageTag = new HtmlTag("img").Attr("src", $"https:{emailSize.SiteUrl}")
+            .Attr("max-height", emailSize.Height).Attr("max-width", emailSize.Width).Attr("width", stringWidth);
+
+        if (!string.IsNullOrWhiteSpace(emailSize.AltText))
+            imageTag.Attr("alt", emailSize.AltText);
+
+        if (!willHaveVisibleCaption && string.IsNullOrWhiteSpace(emailSize.AltText) &&
+            pictureDirectoryInfo.DbEntry != null &&
+            !string.IsNullOrWhiteSpace(((ITitleSummarySlugFolder)pictureDirectoryInfo.DbEntry).Summary))
+            imageTag.Attr("alt", ((ITitleSummarySlugFolder)pictureDirectoryInfo.DbEntry).Summary);
+
+        return imageTag;
+    }
+
+    public static HtmlTag PictureImgTag(PictureAsset pictureDirectoryInfo, string sizes,
+        bool willHaveVisibleCaption)
+    {
+        if (pictureDirectoryInfo.DisplayPicture == null) return HtmlTag.Empty();
+
+        var imageTag = new HtmlTag("img").AddClass("single-photo")
+            .Attr("srcset", pictureDirectoryInfo.SrcSetString())
+            .Attr("src", pictureDirectoryInfo.DisplayPicture.SiteUrl)
+            .Attr("height", pictureDirectoryInfo.DisplayPicture.Height)
+            .Attr("width", pictureDirectoryInfo.DisplayPicture.Width).Attr("loading", "lazy");
+
+        imageTag.Attr("sizes", !string.IsNullOrWhiteSpace(sizes) ? sizes : "100vw");
+
+        if (!string.IsNullOrWhiteSpace(pictureDirectoryInfo.DisplayPicture.AltText))
+            imageTag.Attr("alt", pictureDirectoryInfo.DisplayPicture.AltText);
+
+        if (!willHaveVisibleCaption && string.IsNullOrWhiteSpace(pictureDirectoryInfo.DisplayPicture.AltText) &&
+            pictureDirectoryInfo.DbEntry != null &&
+            !string.IsNullOrWhiteSpace(((ITitleSummarySlugFolder)pictureDirectoryInfo.DbEntry).Summary))
+            imageTag.Attr("alt", ((ITitleSummarySlugFolder)pictureDirectoryInfo.DbEntry).Summary);
+
+        return imageTag;
+    }
+
+    public static HtmlTag PictureImgTagDisplayImageOnly(PictureAsset pictureDirectoryInfo)
+    {
+        if (pictureDirectoryInfo.DisplayPicture == null) return HtmlTag.Empty();
+
+        var imageTag = new HtmlTag("img").AddClass("single-photo")
+            .Attr("src", $"https:{pictureDirectoryInfo.DisplayPicture.SiteUrl}")
+            .Attr("height", pictureDirectoryInfo.DisplayPicture.Height)
+            .Attr("width", pictureDirectoryInfo.DisplayPicture.Width);
+
+        if (!string.IsNullOrWhiteSpace(pictureDirectoryInfo.DisplayPicture.AltText))
+            imageTag.Attr("alt", pictureDirectoryInfo.DisplayPicture.AltText);
+
+        return imageTag;
+    }
+
+    public static HtmlTag PictureImgTagWithSmallestDefaultSrc(PictureAsset? pictureAsset)
+    {
+        if (pictureAsset?.SmallPicture == null || pictureAsset.DisplayPicture == null) return HtmlTag.Empty();
+
+        var imageTag = new HtmlTag("img").AddClass("thumb-photo").Attr("srcset", pictureAsset.SrcSetString())
+            .Attr("src", pictureAsset.SmallPicture.SiteUrl).Attr("height", pictureAsset.SmallPicture.Height)
+            .Attr("width", pictureAsset.SmallPicture.Width).Attr("loading", "lazy");
+
+        var smallestGreaterThan100 = pictureAsset.SrcsetImages.Where(x => x.Width > 100).OrderBy(x => x.Width)
+            .FirstOrDefault();
+
+        imageTag.Attr("sizes", smallestGreaterThan100 == null ? "100px" : $"{smallestGreaterThan100.Width}px");
+
+        if (!string.IsNullOrWhiteSpace(pictureAsset.DisplayPicture?.AltText))
+            imageTag.Attr("alt", pictureAsset.DisplayPicture.AltText);
+
+        return imageTag;
+    }
+
+    public static HtmlTag PictureImgThumbWithLink(PictureAsset? pictureAsset, string linkTo)
+    {
+        if (pictureAsset?.SmallPicture == null) return HtmlTag.Empty();
+
+        var imgTag = PictureImgTagWithSmallestDefaultSrc(pictureAsset);
+
+        if (imgTag.IsEmpty()) return HtmlTag.Empty();
+
+        imgTag.AddClass(pictureAsset.SmallPicture.Height > pictureAsset.SmallPicture.Width
+            ? "thumb-vertical"
+            : "thumb-horizontal");
+
+        if (string.IsNullOrWhiteSpace(linkTo)) return imgTag;
+
+        var outerLink = new LinkTag(string.Empty, linkTo);
+        outerLink.Children.Add(imgTag);
+
+        return outerLink;
+    }
+
+    public static async Task<HtmlTag> PostBodyDiv(IBodyContent dbEntry, IProgress<string>? progress = null)
+    {
+        if (string.IsNullOrWhiteSpace(dbEntry.BodyContent)) return HtmlTag.Empty();
+
+        var bodyContainer = new HtmlTag("div").AddClass("post-body-container");
+
+        var bodyText = ContentProcessing.ProcessContent(
+            await BracketCodeCommon.ProcessCodesForSite(dbEntry.BodyContent, progress).ConfigureAwait(false),
+            dbEntry.BodyContentFormat);
+
+        bodyContainer.Children.Add(new HtmlTag("div").AddClass("post-body-content").Encoded(false).Text(bodyText));
+
+        return bodyContainer;
+    }
+
+    public static async Task<HtmlTag> PostBodyDivFromMarkdown(string bodyContent,
+        IProgress<string>? progress = null)
+    {
+        if (string.IsNullOrWhiteSpace(bodyContent)) return HtmlTag.Empty();
+
+        var bodyContainer = new HtmlTag("div").AddClass("post-body-container");
+
+        var bodyText = ContentProcessing.ProcessContent(
+            await BracketCodeCommon.ProcessCodesForSite(bodyContent, progress).ConfigureAwait(false),
+            ContentFormatEnum.MarkdigMarkdown01);
+
+        bodyContainer.Children.Add(new HtmlTag("div").AddClass("post-body-content").Encoded(false).Text(bodyText));
+
+        return bodyContainer;
+    }
+
+    public static HtmlTag PostCreatedByAndUpdatedOnDiv(ICreatedAndLastUpdateOnAndBy dbEntry)
+    {
+        var titleContainer = new HtmlTag("div").AddClass("post-title-area-created-and-updated-container");
+        titleContainer.Children.Add(new HtmlTag("h3").AddClass("post-title-area-created-and-updated-content")
+            .Text(CreatedByAndUpdatedOnString(dbEntry)));
+        return titleContainer;
+    }
+
+    public static HtmlTag PreviousAndNextPostsDiv(List<IContentCommon> previousPosts,
+        List<IContentCommon> laterPosts)
+    {
+        if (!laterPosts.Any() && !previousPosts.Any()) return HtmlTag.Empty();
+
+        var hasPreviousPosts = previousPosts.Any();
+        var hasLaterPosts = laterPosts.Any();
+        var hasBothEarlierAndLaterPosts = hasPreviousPosts && hasLaterPosts;
+
+        var relatedPostsContainer = new DivTag().AddClass("post-related-posts-container");
+        relatedPostsContainer.Children.Add(new DivTag()
+            .Text($"Posts {(hasPreviousPosts ? "Before" : "")}" +
+                  $"{(hasBothEarlierAndLaterPosts ? "/" : "")}{(hasLaterPosts ? "After" : "")}:")
+            .AddClass("post-related-posts-label-tag"));
+
+        if (hasPreviousPosts)
+            foreach (var loopPosts in previousPosts)
+                relatedPostsContainer.Children.Add(BodyContentReferences.RelatedContentDiv(loopPosts));
+
+        if (hasLaterPosts)
+            foreach (var loopPosts in laterPosts)
+                relatedPostsContainer.Children.Add(BodyContentReferences.RelatedContentDiv(loopPosts));
+
+        return relatedPostsContainer;
+    }
+
+    public static HtmlTag SiteMainRss()
+    {
+        return new HtmlTag("Link").Attr("rel", "alternate").Attr("type", "application/rss+xml")
+            .Attr("title", $"Main RSS Feed for {UserSettingsSingleton.CurrentSettings().SiteName}").Attr("href",
+                $"https:{UserSettingsSingleton.CurrentSettings().RssIndexFeedUrl()}");
+    }
+
+    public static async Task<HtmlTag> StandardHeader()
+    {
+        var titleContainer = new DivTag().AddClass("site-header-container");
+
+        var titleHeader = new HtmlTag("H1").AddClass("site-header-title");
+        titleHeader.Children.Add(new LinkTag(UserSettingsSingleton.CurrentSettings().SiteName,
+            $"https://{UserSettingsSingleton.CurrentSettings().SiteUrl}", "site-header-title-link"));
+
+        titleContainer.Children.Add(titleHeader);
+
+        var siteSummary = UserSettingsSingleton.CurrentSettings().SiteSummary;
+
+        if (!string.IsNullOrWhiteSpace(siteSummary))
         {
-            if (string.IsNullOrWhiteSpace(dbEntry.Summary)) return HtmlTag.Empty();
-
-            var figCaptionTag = new HtmlTag("figcaption");
-            figCaptionTag.AddClass("single-image-caption");
-
-            figCaptionTag.Text(ImageCaptionText(dbEntry, includeTitle));
-
-            return figCaptionTag;
+            var titleSiteSummary = new HtmlTag("H5").AddClass("site-header-subtitle").Text(siteSummary);
+            titleContainer.Children.Add(titleSiteSummary);
         }
 
-        public static HtmlTag InfoDivTag(string? contents, string className, string dataType, string? dataValue)
+        titleContainer.Children.Add(await CoreLinksDiv().ConfigureAwait(false));
+
+        return titleContainer;
+    }
+
+    public static HtmlTag TagList(ITag dbEntry)
+    {
+        if (string.IsNullOrWhiteSpace(dbEntry.Tags)) return HtmlTag.Empty();
+
+        var tags = Db.TagListParseToSlugsAndIsExcluded(dbEntry);
+
+        return TagList(tags);
+    }
+
+    public static HtmlTag TagList(List<Db.TagSlugAndIsExcluded> tags)
+    {
+        if (!tags.Any()) return HtmlTag.Empty();
+
+        var tagsContainer = new DivTag().AddClass("tags-container");
+
+        tagsContainer.Children.Add(new DivTag().Text("Tags:").AddClass("tag-detail-label-tag"));
+
+        foreach (var loopTag in tags)
         {
-            if (string.IsNullOrWhiteSpace(contents)) return HtmlTag.Empty();
-            var divTag = new HtmlTag("div");
-            divTag.AddClass(className);
-
-            var spanTag = new HtmlTag("div");
-            spanTag.Text(contents.Trim());
-            spanTag.AddClass($"{className}-content");
-            spanTag.Data(dataType, dataValue);
-
-            divTag.Children.Add(spanTag);
-
-            return divTag;
-        }
-
-        public static bool IsEmpty(this HtmlTag toCheck)
-        {
-            return string.IsNullOrWhiteSpace(toCheck.ToHtmlString());
-        }
-
-        public static DateTime? LatestCreatedOnOrUpdatedOn(ICreatedAndLastUpdateOnAndBy? dbEntry)
-        {
-            if (dbEntry == null) return null;
-
-            return dbEntry.LastUpdatedOn ?? dbEntry.CreatedOn;
-        }
-
-        public static (List<IContentCommon> previousContent, List<IContentCommon> laterContent)
-            MainFeedPreviousAndLaterContent(int numberOfPreviousAndLater, DateTime createdOn)
-        {
-            var previousContent = Db.MainFeedCommonContentBefore(createdOn, numberOfPreviousAndLater).Result;
-            var laterContent = Db.MainFeedCommonContentAfter(createdOn, numberOfPreviousAndLater).Result;
-
-            return (previousContent, laterContent);
-        }
-
-        public static string OpenGraphImageMetaTags(PictureSiteInformation? mainImage)
-        {
-            if (mainImage?.Pictures?.DisplayPicture == null) return string.Empty;
-
-            var metaString = "";
-            metaString +=
-                $"<meta property=\"og:image\" content=\"https:{mainImage.Pictures.DisplayPicture.SiteUrl}\" />";
-            metaString +=
-                $"<meta property=\"og:image:secure_url\" content=\"https:{mainImage.Pictures.DisplayPicture.SiteUrl}\" />";
-            metaString += "<meta property=\"og:image:type\" content=\"image/jpeg\" />";
-            metaString += $"<meta property=\"og:image:width\" content=\"{mainImage.Pictures.DisplayPicture.Width}\" />";
-            metaString +=
-                $"<meta property=\"og:image:height\" content=\"{mainImage.Pictures.DisplayPicture.Height}\" />";
-            metaString += $"<meta property=\"og:image:alt\" content=\"{mainImage.Pictures.DisplayPicture.AltText}\" />";
-
-            return metaString;
-        }
-
-        public static string PhotoCaptionText(PhotoContent dbEntry, bool includeTitle = false)
-        {
-            var summaryStringList = new List<string>();
-
-            string titleSummaryString;
-
-            var summaryHasValue = !string.IsNullOrWhiteSpace(dbEntry.Summary);
-
-            if (includeTitle || !summaryHasValue)
+            var tagLinkContainer = new DivTag().AddClasses("tags-detail-link-container", "box-container");
+            if (loopTag.IsExcluded)
             {
-                titleSummaryString = dbEntry.Title.TrimNullToEmpty();
-
-                if (summaryHasValue)
-                {
-                    var summaryIsInTitle = titleSummaryString.Replace(".", string.Empty)
-                        .Contains(dbEntry.Summary.TrimNullToEmpty().Replace(".", string.Empty),
-                            StringComparison.OrdinalIgnoreCase);
-
-                    if (!summaryIsInTitle) titleSummaryString += $": {dbEntry.Summary.TrimNullToEmpty()}";
-                }
+                var tagP = new HtmlTag("p").AddClass("tag-detail-text");
+                tagP.Text(loopTag.TagSlug.Replace("-", " "));
+                tagLinkContainer.Children.Add(tagP);
+                tagsContainer.Children.Add(tagLinkContainer);
             }
             else
             {
-                titleSummaryString = dbEntry.Summary.TrimNullToEmpty();
-            }
-
-            if (!string.IsNullOrWhiteSpace(titleSummaryString) && !char.IsPunctuation(titleSummaryString[^1]))
-                titleSummaryString += ".";
-
-            summaryStringList.Add(titleSummaryString);
-
-            if (!string.IsNullOrWhiteSpace(dbEntry.PhotoCreatedBy)) summaryStringList.Add($"{dbEntry.PhotoCreatedBy}.");
-            summaryStringList.Add($"{dbEntry.PhotoCreatedOn:M/d/yyyy}.");
-
-            return string.Join(" ", summaryStringList);
-        }
-
-        public static HtmlTag PhotoFigCaptionTag(PhotoContent dbEntry, bool includeTitle = false)
-        {
-            if (string.IsNullOrWhiteSpace(dbEntry.Summary)) return HtmlTag.Empty();
-
-            var figCaptionTag = new HtmlTag("figcaption");
-            figCaptionTag.AddClass("single-photo-caption");
-            figCaptionTag.Text(string.Join(" ", PhotoCaptionText(dbEntry, includeTitle)));
-
-            return figCaptionTag;
-        }
-
-        public static HtmlTag PictureEmailImgTag(PictureAsset pictureDirectoryInfo, bool willHaveVisibleCaption)
-        {
-            var emailSize = pictureDirectoryInfo.SrcsetImages.Where(x => x.Width < 800).OrderByDescending(x => x.Width)
-                .First();
-
-            var stringWidth = "94%";
-            if (emailSize.Width < emailSize.Height)
-                stringWidth = emailSize.Height > 600
-                    ? ((int)(600M / emailSize.Height * emailSize.Width)).ToString("F0")
-                    : emailSize.Width.ToString("F0");
-
-            var imageTag = new HtmlTag("img").Attr("src", $"https:{emailSize.SiteUrl}")
-                .Attr("max-height", emailSize.Height).Attr("max-width", emailSize.Width).Attr("width", stringWidth);
-
-            if (!string.IsNullOrWhiteSpace(emailSize.AltText))
-                imageTag.Attr("alt", emailSize.AltText);
-
-            if (!willHaveVisibleCaption && string.IsNullOrWhiteSpace(emailSize.AltText) &&
-                pictureDirectoryInfo.DbEntry != null &&
-                !string.IsNullOrWhiteSpace(((ITitleSummarySlugFolder)pictureDirectoryInfo.DbEntry).Summary))
-                imageTag.Attr("alt", ((ITitleSummarySlugFolder)pictureDirectoryInfo.DbEntry).Summary);
-
-            return imageTag;
-        }
-
-        public static HtmlTag PictureImgTag(PictureAsset pictureDirectoryInfo, string sizes,
-            bool willHaveVisibleCaption)
-        {
-            if (pictureDirectoryInfo.DisplayPicture == null) return HtmlTag.Empty();
-
-            var imageTag = new HtmlTag("img").AddClass("single-photo")
-                .Attr("srcset", pictureDirectoryInfo.SrcSetString())
-                .Attr("src", pictureDirectoryInfo.DisplayPicture.SiteUrl)
-                .Attr("height", pictureDirectoryInfo.DisplayPicture.Height)
-                .Attr("width", pictureDirectoryInfo.DisplayPicture.Width).Attr("loading", "lazy");
-
-            imageTag.Attr("sizes", !string.IsNullOrWhiteSpace(sizes) ? sizes : "100vw");
-
-            if (!string.IsNullOrWhiteSpace(pictureDirectoryInfo.DisplayPicture.AltText))
-                imageTag.Attr("alt", pictureDirectoryInfo.DisplayPicture.AltText);
-
-            if (!willHaveVisibleCaption && string.IsNullOrWhiteSpace(pictureDirectoryInfo.DisplayPicture.AltText) &&
-                pictureDirectoryInfo.DbEntry != null &&
-                !string.IsNullOrWhiteSpace(((ITitleSummarySlugFolder)pictureDirectoryInfo.DbEntry).Summary))
-                imageTag.Attr("alt", ((ITitleSummarySlugFolder)pictureDirectoryInfo.DbEntry).Summary);
-
-            return imageTag;
-        }
-
-        public static HtmlTag PictureImgTagDisplayImageOnly(PictureAsset pictureDirectoryInfo)
-        {
-            if (pictureDirectoryInfo.DisplayPicture == null) return HtmlTag.Empty();
-
-            var imageTag = new HtmlTag("img").AddClass("single-photo")
-                .Attr("src", $"https:{pictureDirectoryInfo.DisplayPicture.SiteUrl}")
-                .Attr("height", pictureDirectoryInfo.DisplayPicture.Height)
-                .Attr("width", pictureDirectoryInfo.DisplayPicture.Width);
-
-            if (!string.IsNullOrWhiteSpace(pictureDirectoryInfo.DisplayPicture.AltText))
-                imageTag.Attr("alt", pictureDirectoryInfo.DisplayPicture.AltText);
-
-            return imageTag;
-        }
-
-        public static HtmlTag PictureImgTagWithSmallestDefaultSrc(PictureAsset? pictureAsset)
-        {
-            if (pictureAsset?.SmallPicture == null || pictureAsset.DisplayPicture == null) return HtmlTag.Empty();
-
-            var imageTag = new HtmlTag("img").AddClass("thumb-photo").Attr("srcset", pictureAsset.SrcSetString())
-                .Attr("src", pictureAsset.SmallPicture.SiteUrl).Attr("height", pictureAsset.SmallPicture.Height)
-                .Attr("width", pictureAsset.SmallPicture.Width).Attr("loading", "lazy");
-
-            var smallestGreaterThan100 = pictureAsset.SrcsetImages.Where(x => x.Width > 100).OrderBy(x => x.Width)
-                .FirstOrDefault();
-
-            imageTag.Attr("sizes", smallestGreaterThan100 == null ? "100px" : $"{smallestGreaterThan100.Width}px");
-
-            if (!string.IsNullOrWhiteSpace(pictureAsset.DisplayPicture?.AltText))
-                imageTag.Attr("alt", pictureAsset.DisplayPicture.AltText);
-
-            return imageTag;
-        }
-
-        public static HtmlTag PictureImgThumbWithLink(PictureAsset? pictureAsset, string linkTo)
-        {
-            if (pictureAsset?.SmallPicture == null) return HtmlTag.Empty();
-
-            var imgTag = PictureImgTagWithSmallestDefaultSrc(pictureAsset);
-
-            if (imgTag.IsEmpty()) return HtmlTag.Empty();
-
-            imgTag.AddClass(pictureAsset.SmallPicture.Height > pictureAsset.SmallPicture.Width
-                ? "thumb-vertical"
-                : "thumb-horizontal");
-
-            if (string.IsNullOrWhiteSpace(linkTo)) return imgTag;
-
-            var outerLink = new LinkTag(string.Empty, linkTo);
-            outerLink.Children.Add(imgTag);
-
-            return outerLink;
-        }
-
-        public static async Task<HtmlTag> PostBodyDiv(IBodyContent dbEntry, IProgress<string>? progress = null)
-        {
-            if (string.IsNullOrWhiteSpace(dbEntry.BodyContent)) return HtmlTag.Empty();
-
-            var bodyContainer = new HtmlTag("div").AddClass("post-body-container");
-
-            var bodyText = ContentProcessing.ProcessContent(
-                await BracketCodeCommon.ProcessCodesForSite(dbEntry.BodyContent, progress).ConfigureAwait(false),
-                dbEntry.BodyContentFormat);
-
-            bodyContainer.Children.Add(new HtmlTag("div").AddClass("post-body-content").Encoded(false).Text(bodyText));
-
-            return bodyContainer;
-        }
-
-        public static async Task<HtmlTag> PostBodyDivFromMarkdown(string bodyContent,
-            IProgress<string>? progress = null)
-        {
-            if (string.IsNullOrWhiteSpace(bodyContent)) return HtmlTag.Empty();
-
-            var bodyContainer = new HtmlTag("div").AddClass("post-body-container");
-
-            var bodyText = ContentProcessing.ProcessContent(
-                await BracketCodeCommon.ProcessCodesForSite(bodyContent, progress).ConfigureAwait(false),
-                ContentFormatEnum.MarkdigMarkdown01);
-
-            bodyContainer.Children.Add(new HtmlTag("div").AddClass("post-body-content").Encoded(false).Text(bodyText));
-
-            return bodyContainer;
-        }
-
-        public static HtmlTag PostCreatedByAndUpdatedOnDiv(ICreatedAndLastUpdateOnAndBy dbEntry)
-        {
-            var titleContainer = new HtmlTag("div").AddClass("post-title-area-created-and-updated-container");
-            titleContainer.Children.Add(new HtmlTag("h3").AddClass("post-title-area-created-and-updated-content")
-                .Text(CreatedByAndUpdatedOnString(dbEntry)));
-            return titleContainer;
-        }
-
-        public static HtmlTag PreviousAndNextPostsDiv(List<IContentCommon> previousPosts,
-            List<IContentCommon> laterPosts)
-        {
-            if (!laterPosts.Any() && !previousPosts.Any()) return HtmlTag.Empty();
-
-            var hasPreviousPosts = previousPosts.Any();
-            var hasLaterPosts = laterPosts.Any();
-            var hasBothEarlierAndLaterPosts = hasPreviousPosts && hasLaterPosts;
-
-            var relatedPostsContainer = new DivTag().AddClass("post-related-posts-container");
-            relatedPostsContainer.Children.Add(new DivTag()
-                .Text($"Posts {(hasPreviousPosts ? "Before" : "")}" +
-                      $"{(hasBothEarlierAndLaterPosts ? "/" : "")}{(hasLaterPosts ? "After" : "")}:")
-                .AddClass("post-related-posts-label-tag"));
-
-            if (hasPreviousPosts)
-                foreach (var loopPosts in previousPosts)
-                    relatedPostsContainer.Children.Add(BodyContentReferences.RelatedContentDiv(loopPosts));
-
-            if (hasLaterPosts)
-                foreach (var loopPosts in laterPosts)
-                    relatedPostsContainer.Children.Add(BodyContentReferences.RelatedContentDiv(loopPosts));
-
-            return relatedPostsContainer;
-        }
-
-        public static HtmlTag SiteMainRss()
-        {
-            return new HtmlTag("Link").Attr("rel", "alternate").Attr("type", "application/rss+xml")
-                .Attr("title", $"Main RSS Feed for {UserSettingsSingleton.CurrentSettings().SiteName}").Attr("href",
-                    $"https:{UserSettingsSingleton.CurrentSettings().RssIndexFeedUrl()}");
-        }
-
-        public static async Task<HtmlTag> StandardHeader()
-        {
-            var titleContainer = new DivTag().AddClass("site-header-container");
-
-            var titleHeader = new HtmlTag("H1").AddClass("site-header-title");
-            titleHeader.Children.Add(new LinkTag(UserSettingsSingleton.CurrentSettings().SiteName,
-                $"https://{UserSettingsSingleton.CurrentSettings().SiteUrl}", "site-header-title-link"));
-
-            titleContainer.Children.Add(titleHeader);
-
-            var siteSummary = UserSettingsSingleton.CurrentSettings().SiteSummary;
-
-            if (!string.IsNullOrWhiteSpace(siteSummary))
-            {
-                var titleSiteSummary = new HtmlTag("H5").AddClass("site-header-subtitle").Text(siteSummary);
-                titleContainer.Children.Add(titleSiteSummary);
-            }
-
-            titleContainer.Children.Add(await CoreLinksDiv().ConfigureAwait(false));
-
-            return titleContainer;
-        }
-
-        public static HtmlTag TagList(ITag dbEntry)
-        {
-            if (string.IsNullOrWhiteSpace(dbEntry.Tags)) return HtmlTag.Empty();
-
-            var tags = Db.TagListParseToSlugsAndIsExcluded(dbEntry);
-
-            return TagList(tags);
-        }
-
-        public static HtmlTag TagList(List<Db.TagSlugAndIsExcluded> tags)
-        {
-            if (!tags.Any()) return HtmlTag.Empty();
-
-            var tagsContainer = new DivTag().AddClass("tags-container");
-
-            tagsContainer.Children.Add(new DivTag().Text("Tags:").AddClass("tag-detail-label-tag"));
-
-            foreach (var loopTag in tags)
-            {
-                var tagLinkContainer = new DivTag().AddClasses("tags-detail-link-container", "box-container");
-                if (loopTag.IsExcluded)
-                {
-                    var tagP = new HtmlTag("p").AddClass("tag-detail-text");
-                    tagP.Text(loopTag.TagSlug.Replace("-", " "));
-                    tagLinkContainer.Children.Add(tagP);
-                    tagsContainer.Children.Add(tagLinkContainer);
-                }
-                else
-                {
-                    var tagLink =
-                        new LinkTag(loopTag.TagSlug.Replace("-", " "),
-                                UserSettingsSingleton.CurrentSettings().TagPageUrl(loopTag.TagSlug))
-                            .AddClass("tag-detail-link");
-                    tagLinkContainer.Children.Add(tagLink);
-                    tagsContainer.Children.Add(tagLinkContainer);
-                }
-            }
-
-            return tagsContainer;
-        }
-
-        public static HtmlTag TagListTextLinkList(ITag dbEntry)
-        {
-            if (string.IsNullOrWhiteSpace(dbEntry.Tags)) return HtmlTag.Empty();
-
-            var tags = Db.TagListParseToSlugs(dbEntry, true);
-
-            return TagListTextLinkList(tags);
-        }
-
-        public static HtmlTag TagListTextLinkList(List<string> tags)
-        {
-            tags = tags.Where(x => !string.IsNullOrWhiteSpace(x)).Select(x => x.Trim()).ToList();
-
-            if (!tags.Any()) return HtmlTag.Empty();
-
-            var tagsContainer = new HtmlTag("p");
-
-            var innerContent = new List<string>();
-
-            foreach (var loopTag in tags)
-            {
                 var tagLink =
-                    new LinkTag(loopTag.Replace("-", " "), UserSettingsSingleton.CurrentSettings().TagPageUrl(loopTag))
+                    new LinkTag(loopTag.TagSlug.Replace("-", " "),
+                            UserSettingsSingleton.CurrentSettings().TagPageUrl(loopTag.TagSlug))
                         .AddClass("tag-detail-link");
-                innerContent.Add(tagLink.ToString());
+                tagLinkContainer.Children.Add(tagLink);
+                tagsContainer.Children.Add(tagLinkContainer);
             }
-
-            tagsContainer.Text($"Tags: {string.Join(", ", innerContent)}").Encoded(false);
-
-            return tagsContainer;
         }
 
-        public static HtmlTag TitleDiv(ITitleSummarySlugFolder content)
+        return tagsContainer;
+    }
+
+    public static HtmlTag TagListTextLinkList(ITag dbEntry)
+    {
+        if (string.IsNullOrWhiteSpace(dbEntry.Tags)) return HtmlTag.Empty();
+
+        var tags = Db.TagListParseToSlugs(dbEntry, true);
+
+        return TagListTextLinkList(tags);
+    }
+
+    public static HtmlTag TagListTextLinkList(List<string> tags)
+    {
+        tags = tags.Where(x => !string.IsNullOrWhiteSpace(x)).Select(x => x.Trim()).ToList();
+
+        if (!tags.Any()) return HtmlTag.Empty();
+
+        var tagsContainer = new HtmlTag("p");
+
+        var innerContent = new List<string>();
+
+        foreach (var loopTag in tags)
         {
-            var titleContainer = new HtmlTag("div").AddClass("title-container");
-            titleContainer.Children.Add(new HtmlTag("h1").AddClass("title-content").Text(content.Title));
-            return titleContainer;
+            var tagLink =
+                new LinkTag(loopTag.Replace("-", " "), UserSettingsSingleton.CurrentSettings().TagPageUrl(loopTag))
+                    .AddClass("tag-detail-link");
+            innerContent.Add(tagLink.ToString());
         }
 
-        public static HtmlTag TitleDiv(string stringTitle)
-        {
-            var titleContainer = new HtmlTag("div").AddClass("title-container");
-            titleContainer.Children.Add(new HtmlTag("h1").AddClass("title-content").Text(stringTitle));
-            return titleContainer;
-        }
+        tagsContainer.Text($"Tags: {string.Join(", ", innerContent)}").Encoded(false);
 
-        public static HtmlTag TitleLinkDiv(ITitleSummarySlugFolder content, IContentId id)
-        {
-            var titleContainer = new HtmlTag("div").AddClass("title-link-container");
+        return tagsContainer;
+    }
 
-            var header = new HtmlTag("h1").AddClass("title-link-content");
-            var linkToFullPost = new LinkTag(content.Title,
-                UserSettingsSingleton.CurrentSettings().ContentUrl(id.ContentId).Result);
-            header.Children.Add(linkToFullPost);
+    public static HtmlTag TitleDiv(ITitleSummarySlugFolder content)
+    {
+        var titleContainer = new HtmlTag("div").AddClass("title-container");
+        titleContainer.Children.Add(new HtmlTag("h1").AddClass("title-content").Text(content.Title));
+        return titleContainer;
+    }
 
-            titleContainer.Children.Add(header);
+    public static HtmlTag TitleDiv(string stringTitle)
+    {
+        var titleContainer = new HtmlTag("div").AddClass("title-container");
+        titleContainer.Children.Add(new HtmlTag("h1").AddClass("title-content").Text(stringTitle));
+        return titleContainer;
+    }
 
-            return titleContainer;
-        }
+    public static HtmlTag TitleLinkDiv(ITitleSummarySlugFolder content, IContentId id)
+    {
+        var titleContainer = new HtmlTag("div").AddClass("title-link-container");
 
-        public static async Task<HtmlTag> UpdateNotesDiv(IUpdateNotes dbEntry)
-        {
-            if (string.IsNullOrWhiteSpace(dbEntry.UpdateNotes)) return HtmlTag.Empty();
+        var header = new HtmlTag("h1").AddClass("title-link-content");
+        var linkToFullPost = new LinkTag(content.Title,
+            UserSettingsSingleton.CurrentSettings().ContentUrl(id.ContentId).Result);
+        header.Children.Add(linkToFullPost);
 
-            var updateNotesDiv = new DivTag().AddClass("update-notes-container");
+        titleContainer.Children.Add(header);
 
-            updateNotesDiv.Children.Add(new DivTag().AddClass("update-notes-title").Text("Updates:"));
+        return titleContainer;
+    }
 
-            var updateNotesContentContainer = new DivTag().AddClass("update-notes-content");
+    public static async Task<HtmlTag> UpdateNotesDiv(IUpdateNotes dbEntry)
+    {
+        if (string.IsNullOrWhiteSpace(dbEntry.UpdateNotes)) return HtmlTag.Empty();
 
-            var updateNotesHtml = ContentProcessing.ProcessContent(
-                await BracketCodeCommon.ProcessCodesForSite(dbEntry.UpdateNotes).ConfigureAwait(false),
-                dbEntry.UpdateNotesFormat);
+        var updateNotesDiv = new DivTag().AddClass("update-notes-container");
 
-            updateNotesContentContainer.Encoded(false).Text(updateNotesHtml);
+        updateNotesDiv.Children.Add(new DivTag().AddClass("update-notes-title").Text("Updates:"));
 
-            updateNotesDiv.Children.Add(updateNotesContentContainer);
+        var updateNotesContentContainer = new DivTag().AddClass("update-notes-content");
 
-            return updateNotesDiv;
-        }
+        var updateNotesHtml = ContentProcessing.ProcessContent(
+            await BracketCodeCommon.ProcessCodesForSite(dbEntry.UpdateNotes).ConfigureAwait(false),
+            dbEntry.UpdateNotesFormat);
+
+        updateNotesContentContainer.Encoded(false).Text(updateNotesHtml);
+
+        updateNotesDiv.Children.Add(updateNotesContentContainer);
+
+        return updateNotesDiv;
     }
 }

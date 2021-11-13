@@ -1,13 +1,12 @@
-﻿namespace PointlessWaymarks.CmsWpfControls.MapComponentEditor
+﻿namespace PointlessWaymarks.CmsWpfControls.MapComponentEditor;
+
+/// <summary>
+///     Interaction logic for MapComponentEditorControl.xaml
+/// </summary>
+public partial class MapComponentEditorControl
 {
-    /// <summary>
-    ///     Interaction logic for MapComponentEditorControl.xaml
-    /// </summary>
-    public partial class MapComponentEditorControl
+    public MapComponentEditorControl()
     {
-        public MapComponentEditorControl()
-        {
-            InitializeComponent();
-        }
+        InitializeComponent();
     }
 }

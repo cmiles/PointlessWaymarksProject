@@ -17,312 +17,311 @@ using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 using PointlessWaymarks.WpfCommon.Utility;
 
-namespace PointlessWaymarks.CmsWpfControls.LinkList
+namespace PointlessWaymarks.CmsWpfControls.LinkList;
+
+public class LinkContentActions : IContentActions<LinkContent>
 {
-    public class LinkContentActions : IContentActions<LinkContent>
+    private Command<string> _copyUrlCommand;
+
+    private Command<LinkContent> _deleteCommand;
+    private Command<LinkContent> _editCommand;
+    private Command<LinkContent> _extractNewLinksCommand;
+    private Command<LinkContent> _generateHtmlCommand;
+    private Command<LinkContent> _linkCodeToClipboardCommand;
+    private Command<LinkContent> _openUrlCommand;
+    private StatusControlContext _statusContext;
+    private Command<LinkContent> _viewHistoryCommand;
+
+    public LinkContentActions(StatusControlContext statusContext)
     {
-        private Command<string> _copyUrlCommand;
+        StatusContext = statusContext;
+        DeleteCommand = StatusContext.RunBlockingTaskCommand<LinkContent>(Delete);
+        EditCommand = StatusContext.RunNonBlockingTaskCommand<LinkContent>(Edit);
+        ExtractNewLinksCommand = StatusContext.RunBlockingTaskCommand<LinkContent>(ExtractNewLinks);
+        GenerateHtmlCommand = StatusContext.RunBlockingTaskCommand<LinkContent>(GenerateHtml);
+        LinkCodeToClipboardCommand =
+            StatusContext.RunBlockingTaskCommand<LinkContent>(DefaultBracketCodeToClipboard);
+        OpenUrlCommand = StatusContext.RunBlockingTaskCommand<LinkContent>(OpenUrl);
+        ViewHistoryCommand = StatusContext.RunNonBlockingTaskCommand<LinkContent>(ViewHistory);
 
-        private Command<LinkContent> _deleteCommand;
-        private Command<LinkContent> _editCommand;
-        private Command<LinkContent> _extractNewLinksCommand;
-        private Command<LinkContent> _generateHtmlCommand;
-        private Command<LinkContent> _linkCodeToClipboardCommand;
-        private Command<LinkContent> _openUrlCommand;
-        private StatusControlContext _statusContext;
-        private Command<LinkContent> _viewHistoryCommand;
-
-        public LinkContentActions(StatusControlContext statusContext)
+        CopyUrlCommand = StatusContext.RunNonBlockingTaskCommand<string>(async x =>
         {
-            StatusContext = statusContext;
-            DeleteCommand = StatusContext.RunBlockingTaskCommand<LinkContent>(Delete);
-            EditCommand = StatusContext.RunNonBlockingTaskCommand<LinkContent>(Edit);
-            ExtractNewLinksCommand = StatusContext.RunBlockingTaskCommand<LinkContent>(ExtractNewLinks);
-            GenerateHtmlCommand = StatusContext.RunBlockingTaskCommand<LinkContent>(GenerateHtml);
-            LinkCodeToClipboardCommand =
-                StatusContext.RunBlockingTaskCommand<LinkContent>(DefaultBracketCodeToClipboard);
-            OpenUrlCommand = StatusContext.RunBlockingTaskCommand<LinkContent>(OpenUrl);
-            ViewHistoryCommand = StatusContext.RunNonBlockingTaskCommand<LinkContent>(ViewHistory);
-
-            CopyUrlCommand = StatusContext.RunNonBlockingTaskCommand<string>(async x =>
-            {
-                await ThreadSwitcher.ResumeForegroundAsync();
-
-                Clipboard.SetText(x);
-
-                StatusContext.ToastSuccess($"To Clipboard {x}");
-            });
-        }
-
-
-        public Command<string> CopyUrlCommand
-        {
-            get => _copyUrlCommand;
-            set
-            {
-                if (Equals(value, _copyUrlCommand)) return;
-                _copyUrlCommand = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public string DefaultBracketCode(LinkContent content)
-        {
-            return content?.ContentId == null ? string.Empty : $"[{content.Title}]({content.Url})";
-        }
-
-        public async Task DefaultBracketCodeToClipboard(LinkContent content)
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            if (content == null)
-            {
-                StatusContext.ToastError("Nothing Selected?");
-                return;
-            }
-
-            var finalString = $"[{content.Title}]({content.Url})";
-
             await ThreadSwitcher.ResumeForegroundAsync();
 
-            Clipboard.SetText(finalString);
+            Clipboard.SetText(x);
 
-            StatusContext.ToastSuccess($"To Clipboard {finalString}");
-        }
+            StatusContext.ToastSuccess($"To Clipboard {x}");
+        });
+    }
 
-        public async Task Delete(LinkContent content)
+
+    public Command<string> CopyUrlCommand
+    {
+        get => _copyUrlCommand;
+        set
         {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            if (content == null)
-            {
-                StatusContext.ToastError("Nothing Selected?");
-                return;
-            }
-
-            if (content.Id < 1)
-            {
-                StatusContext.ToastError($"Link {content.Title} - Entry is not saved - Skipping?");
-                return;
-            }
-
-            await Db.DeleteLinkContent(content.ContentId, StatusContext.ProgressTracker());
+            if (Equals(value, _copyUrlCommand)) return;
+            _copyUrlCommand = value;
+            OnPropertyChanged();
         }
+    }
 
-        public Command<LinkContent> DeleteCommand
+    public string DefaultBracketCode(LinkContent content)
+    {
+        return content?.ContentId == null ? string.Empty : $"[{content.Title}]({content.Url})";
+    }
+
+    public async Task DefaultBracketCodeToClipboard(LinkContent content)
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (content == null)
         {
-            get => _deleteCommand;
-            set
-            {
-                if (Equals(value, _deleteCommand)) return;
-                _deleteCommand = value;
-                OnPropertyChanged();
-            }
+            StatusContext.ToastError("Nothing Selected?");
+            return;
         }
 
-        public async Task Edit(LinkContent content)
+        var finalString = $"[{content.Title}]({content.Url})";
+
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        Clipboard.SetText(finalString);
+
+        StatusContext.ToastSuccess($"To Clipboard {finalString}");
+    }
+
+    public async Task Delete(LinkContent content)
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (content == null)
         {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            if (content == null) return;
-
-            var context = await Db.Context();
-
-            var refreshedData = context.LinkContents.SingleOrDefault(x => x.ContentId == content.ContentId);
-
-            if (refreshedData == null)
-                StatusContext.ToastError(
-                    $"{content.Title} is no longer active in the database? Can not edit - look for a historic version...");
-
-            await ThreadSwitcher.ResumeForegroundAsync();
-
-            var newContentWindow = new LinkContentEditorWindow(refreshedData);
-
-            newContentWindow.PositionWindowAndShow();
-
-            await ThreadSwitcher.ResumeBackgroundAsync();
+            StatusContext.ToastError("Nothing Selected?");
+            return;
         }
 
-        public Command<LinkContent> EditCommand
+        if (content.Id < 1)
         {
-            get => _editCommand;
-            set
-            {
-                if (Equals(value, _editCommand)) return;
-                _editCommand = value;
-                OnPropertyChanged();
-            }
+            StatusContext.ToastError($"Link {content.Title} - Entry is not saved - Skipping?");
+            return;
         }
 
-        public async Task ExtractNewLinks(LinkContent content)
+        await Db.DeleteLinkContent(content.ContentId, StatusContext.ProgressTracker());
+    }
+
+    public Command<LinkContent> DeleteCommand
+    {
+        get => _deleteCommand;
+        set
         {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            if (content == null)
-            {
-                StatusContext.ToastError("Nothing Selected?");
-                return;
-            }
-
-            var context = await Db.Context();
-
-            var refreshedData = context.LinkContents.SingleOrDefault(x => x.ContentId == content.ContentId);
-
-            if (refreshedData == null) return;
-
-            await LinkExtraction.ExtractNewAndShowLinkContentEditors(
-                $"{refreshedData.Comments} {refreshedData.Description}", StatusContext.ProgressTracker());
+            if (Equals(value, _deleteCommand)) return;
+            _deleteCommand = value;
+            OnPropertyChanged();
         }
+    }
 
-        public Command<LinkContent> ExtractNewLinksCommand
+    public async Task Edit(LinkContent content)
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (content == null) return;
+
+        var context = await Db.Context();
+
+        var refreshedData = context.LinkContents.SingleOrDefault(x => x.ContentId == content.ContentId);
+
+        if (refreshedData == null)
+            StatusContext.ToastError(
+                $"{content.Title} is no longer active in the database? Can not edit - look for a historic version...");
+
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        var newContentWindow = new LinkContentEditorWindow(refreshedData);
+
+        newContentWindow.PositionWindowAndShow();
+
+        await ThreadSwitcher.ResumeBackgroundAsync();
+    }
+
+    public Command<LinkContent> EditCommand
+    {
+        get => _editCommand;
+        set
         {
-            get => _extractNewLinksCommand;
-            set
-            {
-                if (Equals(value, _extractNewLinksCommand)) return;
-                _extractNewLinksCommand = value;
-                OnPropertyChanged();
-            }
+            if (Equals(value, _editCommand)) return;
+            _editCommand = value;
+            OnPropertyChanged();
         }
+    }
 
+    public async Task ExtractNewLinks(LinkContent content)
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
 
-        public async Task GenerateHtml(LinkContent content)
+        if (content == null)
         {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            StatusContext.Progress("Generating Html for Link List");
-
-            var htmlContext = new LinkListPage();
-
-            await htmlContext.WriteLocalHtmlRssAndJson();
-
-            var settings = UserSettingsSingleton.CurrentSettings();
-
-            StatusContext.ToastSuccess($"Generated {settings.LinkListUrl()}");
+            StatusContext.ToastError("Nothing Selected?");
+            return;
         }
 
-        public Command<LinkContent> GenerateHtmlCommand
+        var context = await Db.Context();
+
+        var refreshedData = context.LinkContents.SingleOrDefault(x => x.ContentId == content.ContentId);
+
+        if (refreshedData == null) return;
+
+        await LinkExtraction.ExtractNewAndShowLinkContentEditors(
+            $"{refreshedData.Comments} {refreshedData.Description}", StatusContext.ProgressTracker());
+    }
+
+    public Command<LinkContent> ExtractNewLinksCommand
+    {
+        get => _extractNewLinksCommand;
+        set
         {
-            get => _generateHtmlCommand;
-            set
-            {
-                if (Equals(value, _generateHtmlCommand)) return;
-                _generateHtmlCommand = value;
-                OnPropertyChanged();
-            }
+            if (Equals(value, _extractNewLinksCommand)) return;
+            _extractNewLinksCommand = value;
+            OnPropertyChanged();
         }
+    }
 
-        public Command<LinkContent> LinkCodeToClipboardCommand
+
+    public async Task GenerateHtml(LinkContent content)
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        StatusContext.Progress("Generating Html for Link List");
+
+        var htmlContext = new LinkListPage();
+
+        await htmlContext.WriteLocalHtmlRssAndJson();
+
+        var settings = UserSettingsSingleton.CurrentSettings();
+
+        StatusContext.ToastSuccess($"Generated {settings.LinkListUrl()}");
+    }
+
+    public Command<LinkContent> GenerateHtmlCommand
+    {
+        get => _generateHtmlCommand;
+        set
         {
-            get => _linkCodeToClipboardCommand;
-            set
-            {
-                if (Equals(value, _linkCodeToClipboardCommand)) return;
-                _linkCodeToClipboardCommand = value;
-                OnPropertyChanged();
-            }
+            if (Equals(value, _generateHtmlCommand)) return;
+            _generateHtmlCommand = value;
+            OnPropertyChanged();
         }
+    }
 
-        public async Task OpenUrl(LinkContent content)
+    public Command<LinkContent> LinkCodeToClipboardCommand
+    {
+        get => _linkCodeToClipboardCommand;
+        set
         {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            if (content == null)
-            {
-                StatusContext.ToastError("Nothing Selected?");
-                return;
-            }
-
-            if (string.IsNullOrWhiteSpace(content.Url))
-            {
-                StatusContext.ToastError("URL is Blank?");
-                return;
-            }
-
-            var url = content.Url;
-
-            var ps = new ProcessStartInfo(url) { UseShellExecute = true, Verb = "open" };
-            Process.Start(ps);
+            if (Equals(value, _linkCodeToClipboardCommand)) return;
+            _linkCodeToClipboardCommand = value;
+            OnPropertyChanged();
         }
+    }
 
-        public Command<LinkContent> OpenUrlCommand
+    public async Task OpenUrl(LinkContent content)
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (content == null)
         {
-            get => _openUrlCommand;
-            set
-            {
-                if (Equals(value, _openUrlCommand)) return;
-                _openUrlCommand = value;
-                OnPropertyChanged();
-            }
+            StatusContext.ToastError("Nothing Selected?");
+            return;
         }
 
-        public StatusControlContext StatusContext
+        if (string.IsNullOrWhiteSpace(content.Url))
         {
-            get => _statusContext;
-            set
-            {
-                if (Equals(value, _statusContext)) return;
-                _statusContext = value;
-                OnPropertyChanged();
-            }
+            StatusContext.ToastError("URL is Blank?");
+            return;
         }
 
-        public async Task ViewHistory(LinkContent content)
+        var url = content.Url;
+
+        var ps = new ProcessStartInfo(url) { UseShellExecute = true, Verb = "open" };
+        Process.Start(ps);
+    }
+
+    public Command<LinkContent> OpenUrlCommand
+    {
+        get => _openUrlCommand;
+        set
         {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            if (content == null)
-            {
-                StatusContext.ToastError("Nothing Selected?");
-                return;
-            }
-
-            var db = await Db.Context();
-
-            StatusContext.Progress($"Looking up Historic Entries for {content.Title}");
-
-            var historicItems = await db.HistoricLinkContents
-                .Where(x => x.ContentId == content.ContentId).ToListAsync();
-
-            StatusContext.Progress($"Found {historicItems.Count} Historic Entries");
-
-            if (historicItems.Count < 1)
-            {
-                StatusContext.ToastWarning("No History to Show...");
-                return;
-            }
-
-            var historicView = new ContentViewHistoryPage($"Historic Entries - {content.Title}",
-                UserSettingsSingleton.CurrentSettings().SiteName, $"Historic Entries - {content.Title}",
-                historicItems.OrderByDescending(x => x.LastUpdatedOn.HasValue).ThenByDescending(x => x.LastUpdatedOn)
-                    .Select(LogHelpers.SafeObjectDump).ToList());
-
-            historicView.WriteHtmlToTempFolderAndShow(StatusContext.ProgressTracker());
+            if (Equals(value, _openUrlCommand)) return;
+            _openUrlCommand = value;
+            OnPropertyChanged();
         }
+    }
 
-        public Command<LinkContent> ViewHistoryCommand
+    public StatusControlContext StatusContext
+    {
+        get => _statusContext;
+        set
         {
-            get => _viewHistoryCommand;
-            set
-            {
-                if (Equals(value, _viewHistoryCommand)) return;
-                _viewHistoryCommand = value;
-                OnPropertyChanged();
-            }
+            if (Equals(value, _statusContext)) return;
+            _statusContext = value;
+            OnPropertyChanged();
         }
+    }
 
-        public event PropertyChangedEventHandler PropertyChanged;
+    public async Task ViewHistory(LinkContent content)
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
 
-        public static LinkListListItem ListItemFromDbItem(LinkContent content, LinkContentActions itemActions,
-            bool showType)
+        if (content == null)
         {
-            return new LinkListListItem { DbEntry = content, ItemActions = itemActions, ShowType = showType };
+            StatusContext.ToastError("Nothing Selected?");
+            return;
         }
 
-        [NotifyPropertyChangedInvocator]
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        var db = await Db.Context();
+
+        StatusContext.Progress($"Looking up Historic Entries for {content.Title}");
+
+        var historicItems = await db.HistoricLinkContents
+            .Where(x => x.ContentId == content.ContentId).ToListAsync();
+
+        StatusContext.Progress($"Found {historicItems.Count} Historic Entries");
+
+        if (historicItems.Count < 1)
         {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            StatusContext.ToastWarning("No History to Show...");
+            return;
         }
+
+        var historicView = new ContentViewHistoryPage($"Historic Entries - {content.Title}",
+            UserSettingsSingleton.CurrentSettings().SiteName, $"Historic Entries - {content.Title}",
+            historicItems.OrderByDescending(x => x.LastUpdatedOn.HasValue).ThenByDescending(x => x.LastUpdatedOn)
+                .Select(LogHelpers.SafeObjectDump).ToList());
+
+        historicView.WriteHtmlToTempFolderAndShow(StatusContext.ProgressTracker());
+    }
+
+    public Command<LinkContent> ViewHistoryCommand
+    {
+        get => _viewHistoryCommand;
+        set
+        {
+            if (Equals(value, _viewHistoryCommand)) return;
+            _viewHistoryCommand = value;
+            OnPropertyChanged();
+        }
+    }
+
+    public event PropertyChangedEventHandler PropertyChanged;
+
+    public static LinkListListItem ListItemFromDbItem(LinkContent content, LinkContentActions itemActions,
+        bool showType)
+    {
+        return new LinkListListItem { DbEntry = content, ItemActions = itemActions, ShowType = showType };
+    }
+
+    [NotifyPropertyChangedInvocator]
+    protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+    {
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 }

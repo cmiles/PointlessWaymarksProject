@@ -1,13 +1,12 @@
-﻿namespace PointlessWaymarks.CmsWpfControls.ColumnSort
+﻿namespace PointlessWaymarks.CmsWpfControls.ColumnSort;
+
+/// <summary>
+///     Interaction logic for ColumnSortControl.xaml
+/// </summary>
+public partial class ColumnSortControl
 {
-    /// <summary>
-    ///     Interaction logic for ColumnSortControl.xaml
-    /// </summary>
-    public partial class ColumnSortControl
+    public ColumnSortControl()
     {
-        public ColumnSortControl()
-        {
-            InitializeComponent();
-        }
+        InitializeComponent();
     }
 }

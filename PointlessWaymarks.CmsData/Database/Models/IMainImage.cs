@@ -1,7 +1,6 @@
-﻿namespace PointlessWaymarks.CmsData.Database.Models
+﻿namespace PointlessWaymarks.CmsData.Database.Models;
+
+public interface IMainImage
 {
-    public interface IMainImage
-    {
-        public Guid? MainPicture { get; }
-    }
+    public Guid? MainPicture { get; }
 }

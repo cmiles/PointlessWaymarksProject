@@ -1,13 +1,12 @@
-﻿namespace PointlessWaymarks.CmsWpfControls.BoolDataEntry
+﻿namespace PointlessWaymarks.CmsWpfControls.BoolDataEntry;
+
+/// <summary>
+///     Interaction logic for BoolDataEntryControl.xaml
+/// </summary>
+public partial class BoolDataEntryControl
 {
-    /// <summary>
-    ///     Interaction logic for BoolDataEntryControl.xaml
-    /// </summary>
-    public partial class BoolDataEntryControl
+    public BoolDataEntryControl()
     {
-        public BoolDataEntryControl()
-        {
-            InitializeComponent();
-        }
+        InitializeComponent();
     }
 }

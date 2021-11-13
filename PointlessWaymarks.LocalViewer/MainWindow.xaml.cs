@@ -8,124 +8,123 @@ using PointlessWaymarks.CmsWpfControls.SitePreview;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 
-namespace PointlessWaymarks.LocalViewer
+namespace PointlessWaymarks.LocalViewer;
+
+/// <summary>
+///     Interaction logic for MainWindow.xaml
+/// </summary>
+public partial class MainWindow : INotifyPropertyChanged
 {
-    /// <summary>
-    ///     Interaction logic for MainWindow.xaml
-    /// </summary>
-    public partial class MainWindow : INotifyPropertyChanged
+    private SitePreviewContext _previewContext;
+    private StatusControlContext _statusContext;
+
+    public MainWindow()
     {
-        private SitePreviewContext _previewContext;
-        private StatusControlContext _statusContext;
+        InitializeComponent();
 
-        public MainWindow()
+        StatusContext = new StatusControlContext { BlockUi = false };
+
+        DataContext = this;
+    }
+
+    public MainWindow(string siteUrl, string localFolder, string siteName)
+    {
+        InitializeComponent();
+
+        StatusContext = new StatusControlContext { BlockUi = false };
+
+        DataContext = this;
+
+        if (string.IsNullOrWhiteSpace(localFolder)) localFolder = Environment.CurrentDirectory;
+
+        if (string.IsNullOrWhiteSpace(siteUrl) || string.IsNullOrWhiteSpace(siteName))
         {
-            InitializeComponent();
+            var possibleFile = Directory.EnumerateFiles(localFolder, "index.htm*")
+                .OrderBy(x => x.Length).FirstOrDefault();
 
-            StatusContext = new StatusControlContext { BlockUi = false };
-
-            DataContext = this;
-        }
-
-        public MainWindow(string siteUrl, string localFolder, string siteName)
-        {
-            InitializeComponent();
-
-            StatusContext = new StatusControlContext { BlockUi = false };
-
-            DataContext = this;
-
-            if (string.IsNullOrWhiteSpace(localFolder)) localFolder = Environment.CurrentDirectory;
-
-            if (string.IsNullOrWhiteSpace(siteUrl) || string.IsNullOrWhiteSpace(siteName))
+            if (!string.IsNullOrWhiteSpace(possibleFile))
             {
-                var possibleFile = Directory.EnumerateFiles(localFolder, "index.htm*")
-                    .OrderBy(x => x.Length).FirstOrDefault();
+                var urlFound = !string.IsNullOrWhiteSpace(siteUrl);
+                var siteNameFound = !string.IsNullOrWhiteSpace(siteName);
 
-                if (!string.IsNullOrWhiteSpace(possibleFile))
+                foreach (var loopLine in File.ReadLines(possibleFile))
                 {
-                    var urlFound = !string.IsNullOrWhiteSpace(siteUrl);
-                    var siteNameFound = !string.IsNullOrWhiteSpace(siteName);
-
-                    foreach (var loopLine in File.ReadLines(possibleFile))
+                    if (!urlFound)
                     {
-                        if (!urlFound)
-                        {
-                            var urlString = Regex
-                                .Match(loopLine, "<meta property=\"og:url\" content=\"(?<contentUrl>.*)\">",
-                                    RegexOptions.IgnoreCase).Groups["contentUrl"].Value;
-
-                            if (!string.IsNullOrWhiteSpace(urlString))
-                            {
-                                urlFound = true;
-                                siteUrl = new Uri(urlString).Host;
-                            }
-                        }
-
-                        if (!siteNameFound)
-                        {
-                            var siteNameString = Regex.Match(loopLine,
-                                "<meta property=\"og:site_name\" content=\"(?<contentUrl>.*)\">",
+                        var urlString = Regex
+                            .Match(loopLine, "<meta property=\"og:url\" content=\"(?<contentUrl>.*)\">",
                                 RegexOptions.IgnoreCase).Groups["contentUrl"].Value;
 
-                            if (!string.IsNullOrWhiteSpace(siteNameString))
-                            {
-                                siteNameFound = true;
-                                siteName = siteNameString;
-                            }
+                        if (!string.IsNullOrWhiteSpace(urlString))
+                        {
+                            urlFound = true;
+                            siteUrl = new Uri(urlString).Host;
                         }
-
-                        if (urlFound && siteNameFound) break;
-
-                        if (loopLine.Contains("</head>", StringComparison.OrdinalIgnoreCase)) break;
                     }
+
+                    if (!siteNameFound)
+                    {
+                        var siteNameString = Regex.Match(loopLine,
+                            "<meta property=\"og:site_name\" content=\"(?<contentUrl>.*)\">",
+                            RegexOptions.IgnoreCase).Groups["contentUrl"].Value;
+
+                        if (!string.IsNullOrWhiteSpace(siteNameString))
+                        {
+                            siteNameFound = true;
+                            siteName = siteNameString;
+                        }
+                    }
+
+                    if (urlFound && siteNameFound) break;
+
+                    if (loopLine.Contains("</head>", StringComparison.OrdinalIgnoreCase)) break;
                 }
             }
-
-            var freePort = PreviewServer.FreeTcpPort();
-
-            var server = PreviewServer.CreateHostBuilder(
-                siteUrl, localFolder, freePort).Build();
-
-            StatusContext.RunFireAndForgetWithToastOnError(async () =>
-            {
-                await ThreadSwitcher.ResumeBackgroundAsync();
-                await server.RunAsync();
-            });
-
-            PreviewContext = new SitePreviewContext(siteUrl,
-                localFolder,
-                siteName, $"localhost:{freePort}", StatusContext);
         }
 
-        public SitePreviewContext PreviewContext
+        var freePort = PreviewServer.FreeTcpPort();
+
+        var server = PreviewServer.CreateHostBuilder(
+            siteUrl, localFolder, freePort).Build();
+
+        StatusContext.RunFireAndForgetWithToastOnError(async () =>
         {
-            get => _previewContext;
-            set
-            {
-                if (Equals(value, _previewContext)) return;
-                _previewContext = value;
-                OnPropertyChanged();
-            }
-        }
+            await ThreadSwitcher.ResumeBackgroundAsync();
+            await server.RunAsync();
+        });
 
-        public StatusControlContext StatusContext
+        PreviewContext = new SitePreviewContext(siteUrl,
+            localFolder,
+            siteName, $"localhost:{freePort}", StatusContext);
+    }
+
+    public SitePreviewContext PreviewContext
+    {
+        get => _previewContext;
+        set
         {
-            get => _statusContext;
-            set
-            {
-                if (Equals(value, _statusContext)) return;
-                _statusContext = value;
-                OnPropertyChanged();
-            }
+            if (Equals(value, _previewContext)) return;
+            _previewContext = value;
+            OnPropertyChanged();
         }
+    }
 
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        [NotifyPropertyChangedInvocator]
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+    public StatusControlContext StatusContext
+    {
+        get => _statusContext;
+        set
         {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            if (Equals(value, _statusContext)) return;
+            _statusContext = value;
+            OnPropertyChanged();
         }
+    }
+
+    public event PropertyChangedEventHandler PropertyChanged;
+
+    [NotifyPropertyChangedInvocator]
+    protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+    {
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 }

@@ -1,13 +1,12 @@
-﻿namespace PointlessWaymarks.CmsWpfControls.ContentSiteFeedAndIsDraft
+﻿namespace PointlessWaymarks.CmsWpfControls.ContentSiteFeedAndIsDraft;
+
+/// <summary>
+/// Interaction logic for ContentInMainSiteFeedControl.xaml
+/// </summary>
+public partial class ContentSiteFeedAndIsDraftControl
 {
-    /// <summary>
-    /// Interaction logic for ContentInMainSiteFeedControl.xaml
-    /// </summary>
-    public partial class ContentSiteFeedAndIsDraftControl
+    public ContentSiteFeedAndIsDraftControl()
     {
-        public ContentSiteFeedAndIsDraftControl()
-        {
-            InitializeComponent();
-        }
+        InitializeComponent();
     }
 }

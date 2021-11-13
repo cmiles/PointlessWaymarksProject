@@ -1,8 +1,7 @@
-﻿namespace PointlessWaymarks.CmsData.Database.Models
+﻿namespace PointlessWaymarks.CmsData.Database.Models;
+
+public interface IBodyContent
 {
-    public interface IBodyContent
-    {
-        public string? BodyContent { get; }
-        public string? BodyContentFormat { get; }
-    }
+    public string? BodyContent { get; }
+    public string? BodyContentFormat { get; }
 }

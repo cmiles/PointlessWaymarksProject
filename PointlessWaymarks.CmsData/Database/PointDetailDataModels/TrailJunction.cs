@@ -1,20 +1,19 @@
 ﻿using PointlessWaymarks.CmsData.Content;
 
-namespace PointlessWaymarks.CmsData.Database.PointDetailDataModels
+namespace PointlessWaymarks.CmsData.Database.PointDetailDataModels;
+
+public class TrailJunction : IPointDetailData
 {
-    public class TrailJunction : IPointDetailData
+    public string? Notes { get; set; }
+    public string NotesContentFormat { get; set; } = ContentFormatDefaults.Content.ToString();
+    public bool? Sign { get; set; }
+    public string DataTypeIdentifier => "Trail Junction";
+
+    public IsValid Validate()
     {
-        public string? Notes { get; set; }
-        public string NotesContentFormat { get; set; } = ContentFormatDefaults.Content.ToString();
-        public bool? Sign { get; set; }
-        public string DataTypeIdentifier => "Trail Junction";
+        var formatValidation = CommonContentValidation.ValidateBodyContentFormat(NotesContentFormat);
+        if (!formatValidation.Valid) return new IsValid(false, formatValidation.Explanation);
 
-        public IsValid Validate()
-        {
-            var formatValidation = CommonContentValidation.ValidateBodyContentFormat(NotesContentFormat);
-            if (!formatValidation.Valid) return new IsValid(false, formatValidation.Explanation);
-
-            return new IsValid(true, string.Empty);
-        }
+        return new IsValid(true, string.Empty);
     }
 }

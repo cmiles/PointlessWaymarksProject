@@ -1,8 +1,7 @@
-﻿namespace PointlessWaymarks.CmsData.Database.PointDetailDataModels
+﻿namespace PointlessWaymarks.CmsData.Database.PointDetailDataModels;
+
+public interface IPointDetailData
 {
-    public interface IPointDetailData
-    {
-        string DataTypeIdentifier { get; }
-        public IsValid Validate();
-    }
+    string DataTypeIdentifier { get; }
+    public IsValid Validate();
 }

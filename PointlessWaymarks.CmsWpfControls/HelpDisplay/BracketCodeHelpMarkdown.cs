@@ -1,9 +1,9 @@
-﻿namespace PointlessWaymarks.CmsWpfControls.HelpDisplay
+﻿namespace PointlessWaymarks.CmsWpfControls.HelpDisplay;
+
+public static class BracketCodeHelpMarkdown
 {
-    public static class BracketCodeHelpMarkdown
-    {
-        public static string HelpBlock =>
-            @"
+    public static string HelpBlock =>
+        @"
 ### Content Codes
 
 #### User Content Codes
@@ -60,5 +60,4 @@ Link Types:
  - noterss, Notes RSS Feed
  - photorss, Photo Gallery RSS Feed
 ";
-    }
 }

@@ -17,276 +17,275 @@ using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 using PointlessWaymarks.WpfCommon.Utility;
 
-namespace PointlessWaymarks.CmsWpfControls.MapComponentList
+namespace PointlessWaymarks.CmsWpfControls.MapComponentList;
+
+public class MapComponentContentActions : IContentActions<MapComponent>
 {
-    public class MapComponentContentActions : IContentActions<MapComponent>
+    private Command<MapComponent> _deleteCommand;
+    private Command<MapComponent> _editCommand;
+    private Command<MapComponent> _extractNewLinksCommand;
+    private Command<MapComponent> _generateHtmlCommand;
+    private Command<MapComponent> _linkCodeToClipboardCommand;
+    private Command<MapComponent> _openUrlCommand;
+    private StatusControlContext _statusContext;
+    private Command<MapComponent> _viewHistoryCommand;
+
+    public MapComponentContentActions(StatusControlContext statusContext)
     {
-        private Command<MapComponent> _deleteCommand;
-        private Command<MapComponent> _editCommand;
-        private Command<MapComponent> _extractNewLinksCommand;
-        private Command<MapComponent> _generateHtmlCommand;
-        private Command<MapComponent> _linkCodeToClipboardCommand;
-        private Command<MapComponent> _openUrlCommand;
-        private StatusControlContext _statusContext;
-        private Command<MapComponent> _viewHistoryCommand;
+        StatusContext = statusContext;
+        DeleteCommand = StatusContext.RunBlockingTaskCommand<MapComponent>(Delete);
+        EditCommand = StatusContext.RunNonBlockingTaskCommand<MapComponent>(Edit);
+        ExtractNewLinksCommand = StatusContext.RunBlockingTaskCommand<MapComponent>(ExtractNewLinks);
+        GenerateHtmlCommand = StatusContext.RunBlockingTaskCommand<MapComponent>(GenerateHtml);
+        LinkCodeToClipboardCommand =
+            StatusContext.RunBlockingTaskCommand<MapComponent>(DefaultBracketCodeToClipboard);
+        OpenUrlCommand = StatusContext.RunBlockingTaskCommand<MapComponent>(OpenUrl);
+        ViewHistoryCommand = StatusContext.RunNonBlockingTaskCommand<MapComponent>(ViewHistory);
+    }
 
-        public MapComponentContentActions(StatusControlContext statusContext)
+    public string DefaultBracketCode(MapComponent content)
+    {
+        return content?.ContentId == null ? string.Empty : @$"{BracketCodeMapComponents.Create(content)}";
+    }
+
+    public async Task DefaultBracketCodeToClipboard(MapComponent content)
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (content == null)
         {
-            StatusContext = statusContext;
-            DeleteCommand = StatusContext.RunBlockingTaskCommand<MapComponent>(Delete);
-            EditCommand = StatusContext.RunNonBlockingTaskCommand<MapComponent>(Edit);
-            ExtractNewLinksCommand = StatusContext.RunBlockingTaskCommand<MapComponent>(ExtractNewLinks);
-            GenerateHtmlCommand = StatusContext.RunBlockingTaskCommand<MapComponent>(GenerateHtml);
-            LinkCodeToClipboardCommand =
-                StatusContext.RunBlockingTaskCommand<MapComponent>(DefaultBracketCodeToClipboard);
-            OpenUrlCommand = StatusContext.RunBlockingTaskCommand<MapComponent>(OpenUrl);
-            ViewHistoryCommand = StatusContext.RunNonBlockingTaskCommand<MapComponent>(ViewHistory);
+            StatusContext.ToastError("Nothing Selected?");
+            return;
         }
 
-        public string DefaultBracketCode(MapComponent content)
+        var finalString = @$"{BracketCodeMapComponents.Create(content)}{Environment.NewLine}";
+
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        Clipboard.SetText(finalString);
+
+        StatusContext.ToastSuccess($"To Clipboard {finalString}");
+    }
+
+    public async Task Delete(MapComponent content)
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (content == null)
         {
-            return content?.ContentId == null ? string.Empty : @$"{BracketCodeMapComponents.Create(content)}";
+            StatusContext.ToastError("Nothing Selected?");
+            return;
         }
 
-        public async Task DefaultBracketCodeToClipboard(MapComponent content)
+        if (content.Id < 1)
         {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            if (content == null)
-            {
-                StatusContext.ToastError("Nothing Selected?");
-                return;
-            }
-
-            var finalString = @$"{BracketCodeMapComponents.Create(content)}{Environment.NewLine}";
-
-            await ThreadSwitcher.ResumeForegroundAsync();
-
-            Clipboard.SetText(finalString);
-
-            StatusContext.ToastSuccess($"To Clipboard {finalString}");
+            StatusContext.ToastError($"Map {content.Title} - Entry is not saved - Skipping?");
+            return;
         }
 
-        public async Task Delete(MapComponent content)
+        await Db.DeleteMapComponent(content.ContentId, StatusContext.ProgressTracker());
+    }
+
+    public Command<MapComponent> DeleteCommand
+    {
+        get => _deleteCommand;
+        set
         {
-            await ThreadSwitcher.ResumeBackgroundAsync();
+            if (Equals(value, _deleteCommand)) return;
+            _deleteCommand = value;
+            OnPropertyChanged();
+        }
+    }
 
-            if (content == null)
-            {
-                StatusContext.ToastError("Nothing Selected?");
-                return;
-            }
+    public async Task Edit(MapComponent content)
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
 
-            if (content.Id < 1)
-            {
-                StatusContext.ToastError($"Map {content.Title} - Entry is not saved - Skipping?");
-                return;
-            }
+        if (content == null) return;
 
-            await Db.DeleteMapComponent(content.ContentId, StatusContext.ProgressTracker());
+        var context = await Db.Context();
+
+        var refreshedData = context.MapComponents.SingleOrDefault(x => x.ContentId == content.ContentId);
+
+        if (refreshedData == null)
+            StatusContext.ToastError(
+                $"{content.Title} is no longer active in the database? Can not edit - look for a historic version...");
+
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        var newContentWindow = new MapComponentEditorWindow(refreshedData);
+
+        newContentWindow.PositionWindowAndShow();
+
+        await ThreadSwitcher.ResumeBackgroundAsync();
+    }
+
+    public Command<MapComponent> EditCommand
+    {
+        get => _editCommand;
+        set
+        {
+            if (Equals(value, _editCommand)) return;
+            _editCommand = value;
+            OnPropertyChanged();
+        }
+    }
+
+    public async Task ExtractNewLinks(MapComponent content)
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (content == null)
+        {
+            StatusContext.ToastError("Nothing Selected?");
+            return;
         }
 
-        public Command<MapComponent> DeleteCommand
+        var context = await Db.Context();
+
+        var refreshedData = context.MapComponents.SingleOrDefault(x => x.ContentId == content.ContentId);
+
+        if (refreshedData == null) return;
+
+        await LinkExtraction.ExtractNewAndShowLinkContentEditors($"{refreshedData.UpdateNotes}",
+            StatusContext.ProgressTracker());
+    }
+
+    public Command<MapComponent> ExtractNewLinksCommand
+    {
+        get => _extractNewLinksCommand;
+        set
         {
-            get => _deleteCommand;
-            set
-            {
-                if (Equals(value, _deleteCommand)) return;
-                _deleteCommand = value;
-                OnPropertyChanged();
-            }
+            if (Equals(value, _extractNewLinksCommand)) return;
+            _extractNewLinksCommand = value;
+            OnPropertyChanged();
+        }
+    }
+
+
+    public async Task GenerateHtml(MapComponent content)
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (content == null)
+        {
+            StatusContext.ToastError("Nothing Selected?");
+            return;
         }
 
-        public async Task Edit(MapComponent content)
+        StatusContext.Progress($"Generating Html for {content.Title}");
+
+        await MapData.WriteJsonData(content.ContentId);
+
+        StatusContext.ToastSuccess("Generated Map Data");
+    }
+
+    public Command<MapComponent> GenerateHtmlCommand
+    {
+        get => _generateHtmlCommand;
+        set
         {
-            await ThreadSwitcher.ResumeBackgroundAsync();
+            if (Equals(value, _generateHtmlCommand)) return;
+            _generateHtmlCommand = value;
+            OnPropertyChanged();
+        }
+    }
 
-            if (content == null) return;
+    public Command<MapComponent> LinkCodeToClipboardCommand
+    {
+        get => _linkCodeToClipboardCommand;
+        set
+        {
+            if (Equals(value, _linkCodeToClipboardCommand)) return;
+            _linkCodeToClipboardCommand = value;
+            OnPropertyChanged();
+        }
+    }
 
-            var context = await Db.Context();
+    public async Task OpenUrl(MapComponent content)
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
 
-            var refreshedData = context.MapComponents.SingleOrDefault(x => x.ContentId == content.ContentId);
+        StatusContext.ToastWarning("Maps don't have a direct URL to open...");
+    }
 
-            if (refreshedData == null)
-                StatusContext.ToastError(
-                    $"{content.Title} is no longer active in the database? Can not edit - look for a historic version...");
+    public Command<MapComponent> OpenUrlCommand
+    {
+        get => _openUrlCommand;
+        set
+        {
+            if (Equals(value, _openUrlCommand)) return;
+            _openUrlCommand = value;
+            OnPropertyChanged();
+        }
+    }
 
-            await ThreadSwitcher.ResumeForegroundAsync();
+    public StatusControlContext StatusContext
+    {
+        get => _statusContext;
+        set
+        {
+            if (Equals(value, _statusContext)) return;
+            _statusContext = value;
+            OnPropertyChanged();
+        }
+    }
 
-            var newContentWindow = new MapComponentEditorWindow(refreshedData);
+    public async Task ViewHistory(MapComponent content)
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
 
-            newContentWindow.PositionWindowAndShow();
-
-            await ThreadSwitcher.ResumeBackgroundAsync();
+        if (content == null)
+        {
+            StatusContext.ToastError("Nothing Selected?");
+            return;
         }
 
-        public Command<MapComponent> EditCommand
+        var db = await Db.Context();
+
+        StatusContext.Progress($"Looking up Historic Entries for {content.Title}");
+
+        var historicItems = await db.HistoricMapComponents
+            .Where(x => x.ContentId == content.ContentId).ToListAsync();
+
+        StatusContext.Progress($"Found {historicItems.Count} Historic Entries");
+
+        if (historicItems.Count < 1)
         {
-            get => _editCommand;
-            set
-            {
-                if (Equals(value, _editCommand)) return;
-                _editCommand = value;
-                OnPropertyChanged();
-            }
+            StatusContext.ToastWarning("No History to Show...");
+            return;
         }
 
-        public async Task ExtractNewLinks(MapComponent content)
+        var historicView = new ContentViewHistoryPage($"Historic Entries - {content.Title}",
+            UserSettingsSingleton.CurrentSettings().SiteName, $"Historic Entries - {content.Title}",
+            historicItems.OrderByDescending(x => x.LastUpdatedOn.HasValue).ThenByDescending(x => x.LastUpdatedOn)
+                .Select(LogHelpers.SafeObjectDump).ToList());
+
+        historicView.WriteHtmlToTempFolderAndShow(StatusContext.ProgressTracker());
+    }
+
+    public Command<MapComponent> ViewHistoryCommand
+    {
+        get => _viewHistoryCommand;
+        set
         {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            if (content == null)
-            {
-                StatusContext.ToastError("Nothing Selected?");
-                return;
-            }
-
-            var context = await Db.Context();
-
-            var refreshedData = context.MapComponents.SingleOrDefault(x => x.ContentId == content.ContentId);
-
-            if (refreshedData == null) return;
-
-            await LinkExtraction.ExtractNewAndShowLinkContentEditors($"{refreshedData.UpdateNotes}",
-                StatusContext.ProgressTracker());
+            if (Equals(value, _viewHistoryCommand)) return;
+            _viewHistoryCommand = value;
+            OnPropertyChanged();
         }
+    }
 
-        public Command<MapComponent> ExtractNewLinksCommand
-        {
-            get => _extractNewLinksCommand;
-            set
-            {
-                if (Equals(value, _extractNewLinksCommand)) return;
-                _extractNewLinksCommand = value;
-                OnPropertyChanged();
-            }
-        }
+    public event PropertyChangedEventHandler PropertyChanged;
 
+    public static MapComponentListListItem ListItemFromDbItem(MapComponent content,
+        MapComponentContentActions itemActions, bool showType)
+    {
+        return new() {DbEntry = content, ItemActions = itemActions, ShowType = showType};
+    }
 
-        public async Task GenerateHtml(MapComponent content)
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            if (content == null)
-            {
-                StatusContext.ToastError("Nothing Selected?");
-                return;
-            }
-
-            StatusContext.Progress($"Generating Html for {content.Title}");
-
-            await MapData.WriteJsonData(content.ContentId);
-
-            StatusContext.ToastSuccess("Generated Map Data");
-        }
-
-        public Command<MapComponent> GenerateHtmlCommand
-        {
-            get => _generateHtmlCommand;
-            set
-            {
-                if (Equals(value, _generateHtmlCommand)) return;
-                _generateHtmlCommand = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public Command<MapComponent> LinkCodeToClipboardCommand
-        {
-            get => _linkCodeToClipboardCommand;
-            set
-            {
-                if (Equals(value, _linkCodeToClipboardCommand)) return;
-                _linkCodeToClipboardCommand = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public async Task OpenUrl(MapComponent content)
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            StatusContext.ToastWarning("Maps don't have a direct URL to open...");
-        }
-
-        public Command<MapComponent> OpenUrlCommand
-        {
-            get => _openUrlCommand;
-            set
-            {
-                if (Equals(value, _openUrlCommand)) return;
-                _openUrlCommand = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public StatusControlContext StatusContext
-        {
-            get => _statusContext;
-            set
-            {
-                if (Equals(value, _statusContext)) return;
-                _statusContext = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public async Task ViewHistory(MapComponent content)
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            if (content == null)
-            {
-                StatusContext.ToastError("Nothing Selected?");
-                return;
-            }
-
-            var db = await Db.Context();
-
-            StatusContext.Progress($"Looking up Historic Entries for {content.Title}");
-
-            var historicItems = await db.HistoricMapComponents
-                .Where(x => x.ContentId == content.ContentId).ToListAsync();
-
-            StatusContext.Progress($"Found {historicItems.Count} Historic Entries");
-
-            if (historicItems.Count < 1)
-            {
-                StatusContext.ToastWarning("No History to Show...");
-                return;
-            }
-
-            var historicView = new ContentViewHistoryPage($"Historic Entries - {content.Title}",
-                UserSettingsSingleton.CurrentSettings().SiteName, $"Historic Entries - {content.Title}",
-                historicItems.OrderByDescending(x => x.LastUpdatedOn.HasValue).ThenByDescending(x => x.LastUpdatedOn)
-                    .Select(LogHelpers.SafeObjectDump).ToList());
-
-            historicView.WriteHtmlToTempFolderAndShow(StatusContext.ProgressTracker());
-        }
-
-        public Command<MapComponent> ViewHistoryCommand
-        {
-            get => _viewHistoryCommand;
-            set
-            {
-                if (Equals(value, _viewHistoryCommand)) return;
-                _viewHistoryCommand = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        public static MapComponentListListItem ListItemFromDbItem(MapComponent content,
-            MapComponentContentActions itemActions, bool showType)
-        {
-            return new() {DbEntry = content, ItemActions = itemActions, ShowType = showType};
-        }
-
-        [NotifyPropertyChangedInvocator]
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
+    [NotifyPropertyChangedInvocator]
+    protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+    {
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 }

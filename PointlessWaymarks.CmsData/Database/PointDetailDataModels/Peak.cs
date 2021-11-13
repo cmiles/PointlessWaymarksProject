@@ -1,19 +1,18 @@
 ﻿using PointlessWaymarks.CmsData.Content;
 
-namespace PointlessWaymarks.CmsData.Database.PointDetailDataModels
+namespace PointlessWaymarks.CmsData.Database.PointDetailDataModels;
+
+public class Peak : IPointDetailData
 {
-    public class Peak : IPointDetailData
+    public string? Notes { get; set; }
+    public string NotesContentFormat { get; set; } = ContentFormatDefaults.Content.ToString();
+    public string DataTypeIdentifier => "Peak";
+
+    public IsValid Validate()
     {
-        public string? Notes { get; set; }
-        public string NotesContentFormat { get; set; } = ContentFormatDefaults.Content.ToString();
-        public string DataTypeIdentifier => "Peak";
+        var formatValidation = CommonContentValidation.ValidateBodyContentFormat(NotesContentFormat);
+        if (!formatValidation.Valid) return new IsValid(false, formatValidation.Explanation);
 
-        public IsValid Validate()
-        {
-            var formatValidation = CommonContentValidation.ValidateBodyContentFormat(NotesContentFormat);
-            if (!formatValidation.Valid) return new IsValid(false, formatValidation.Explanation);
-
-            return new IsValid(true, string.Empty);
-        }
+        return new IsValid(true, string.Empty);
     }
 }

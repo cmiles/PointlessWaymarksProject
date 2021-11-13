@@ -1,10 +1,9 @@
-﻿namespace PointlessWaymarks.WpfCommon.ToastControl
+﻿namespace PointlessWaymarks.WpfCommon.ToastControl;
+
+public enum ToastType
 {
-    public enum ToastType
-    {
-        Information,
-        Success,
-        Warning,
-        Error
-    }
+    Information,
+    Success,
+    Warning,
+    Error
 }

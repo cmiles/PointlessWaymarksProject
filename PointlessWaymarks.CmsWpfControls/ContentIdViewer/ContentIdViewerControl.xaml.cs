@@ -1,10 +1,9 @@
-﻿namespace PointlessWaymarks.CmsWpfControls.ContentIdViewer
+﻿namespace PointlessWaymarks.CmsWpfControls.ContentIdViewer;
+
+public partial class ContentIdViewerControl
 {
-    public partial class ContentIdViewerControl
+    public ContentIdViewerControl()
     {
-        public ContentIdViewerControl()
-        {
-            InitializeComponent();
-        }
+        InitializeComponent();
     }
 }

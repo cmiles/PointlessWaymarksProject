@@ -1,13 +1,12 @@
-﻿namespace PointlessWaymarks.CmsWpfControls.PointList
+﻿namespace PointlessWaymarks.CmsWpfControls.PointList;
+
+/// <summary>
+///     Interaction logic for PointListWithActionsControl.xaml
+/// </summary>
+public partial class PointListWithActionsControl
 {
-    /// <summary>
-    ///     Interaction logic for PointListWithActionsControl.xaml
-    /// </summary>
-    public partial class PointListWithActionsControl
+    public PointListWithActionsControl()
     {
-        public PointListWithActionsControl()
-        {
-            InitializeComponent();
-        }
+        InitializeComponent();
     }
 }

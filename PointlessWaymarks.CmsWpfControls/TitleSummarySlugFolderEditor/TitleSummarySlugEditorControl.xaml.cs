@@ -1,10 +1,9 @@
-﻿namespace PointlessWaymarks.CmsWpfControls.TitleSummarySlugFolderEditor
+﻿namespace PointlessWaymarks.CmsWpfControls.TitleSummarySlugFolderEditor;
+
+public partial class TitleSummarySlugEditorControl
 {
-    public partial class TitleSummarySlugEditorControl
+    public TitleSummarySlugEditorControl()
     {
-        public TitleSummarySlugEditorControl()
-        {
-            InitializeComponent();
-        }
+        InitializeComponent();
     }
 }

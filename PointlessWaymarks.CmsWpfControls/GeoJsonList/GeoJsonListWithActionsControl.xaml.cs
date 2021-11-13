@@ -1,10 +1,9 @@
-﻿namespace PointlessWaymarks.CmsWpfControls.GeoJsonList
+﻿namespace PointlessWaymarks.CmsWpfControls.GeoJsonList;
+
+public partial class GeoJsonListWithActionsControl
 {
-    public partial class GeoJsonListWithActionsControl
+    public GeoJsonListWithActionsControl()
     {
-        public GeoJsonListWithActionsControl()
-        {
-            InitializeComponent();
-        }
+        InitializeComponent();
     }
 }

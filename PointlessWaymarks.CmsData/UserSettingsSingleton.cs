@@ -1,12 +1,11 @@
-﻿namespace PointlessWaymarks.CmsData
-{
-    public static class UserSettingsSingleton
-    {
-        private static UserSettings? _userSettings;
+﻿namespace PointlessWaymarks.CmsData;
 
-        public static UserSettings CurrentSettings()
-        {
-            return _userSettings ??= UserSettingsUtilities.ReadSettings().Result;
-        }
+public static class UserSettingsSingleton
+{
+    private static UserSettings? _userSettings;
+
+    public static UserSettings CurrentSettings()
+    {
+        return _userSettings ??= UserSettingsUtilities.ReadSettings().Result;
     }
 }

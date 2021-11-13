@@ -1,54 +1,53 @@
 ﻿using HtmlTags;
 
-namespace PointlessWaymarks.CmsData.CommonHtml
+namespace PointlessWaymarks.CmsData.CommonHtml;
+
+public static class BracketCodeSpecialPages
 {
-    public static class BracketCodeSpecialPages
+    public static string Process(string toProcess, IProgress<string>? progress = null)
     {
-        public static string Process(string toProcess, IProgress<string>? progress = null)
+        if (string.IsNullOrWhiteSpace(toProcess)) return string.Empty;
+
+        progress?.Report("Searching for Special Page Codes");
+
+        var specialPageLookup = new List<(string bracketCode, string defaultDisplayString, string url)>
         {
-            if (string.IsNullOrWhiteSpace(toProcess)) return string.Empty;
+            ("index", "Main", $"https:{UserSettingsSingleton.CurrentSettings().IndexPageUrl()}"),
+            // ReSharper disable StringLiteralTypo
+            ("indexrss", "Main Page RSS Feed",
+                $"https:{UserSettingsSingleton.CurrentSettings().RssIndexFeedUrl()}"),
+            ("filerss", "Files RSS Feed", $"https:{UserSettingsSingleton.CurrentSettings().FileRssUrl()}"),
+            ("imagerss", "Images RSS Feed", $"https:{UserSettingsSingleton.CurrentSettings().ImageRssUrl()}"),
+            ("linkrss", "Links RSS Feed", $"https:{UserSettingsSingleton.CurrentSettings().LinkRssUrl()}"),
+            ("noterss", "Notes RSS Feed", $"https:{UserSettingsSingleton.CurrentSettings().NoteRssUrl()}"),
+            ("photorss", "Photo Gallery RSS Feed",
+                $"https:{UserSettingsSingleton.CurrentSettings().PhotoRssUrl()}"),
+            ("photogallerypage", "Photos",
+                $"https:{UserSettingsSingleton.CurrentSettings().CameraRollPhotoGalleryUrl()}"),
+            ("searchpage", "Search", $"https:{UserSettingsSingleton.CurrentSettings().AllContentListUrl()}"),
+            ("tagspage", "Tags", $"https:{UserSettingsSingleton.CurrentSettings().AllTagsListUrl()}"),
+            ("linklistpage", "Links", $"https:{UserSettingsSingleton.CurrentSettings().LinkListUrl()}")
+            // ReSharper restore StringLiteralTypo
+        };
 
-            progress?.Report("Searching for Special Page Codes");
+        foreach (var loopLookups in specialPageLookup)
+        {
+            var matches = BracketCodeCommon.SpecialPageBracketCodeMatches(toProcess, loopLookups.bracketCode);
 
-            var specialPageLookup = new List<(string bracketCode, string defaultDisplayString, string url)>
+            foreach (var loopMatch in matches)
             {
-                ("index", "Main", $"https:{UserSettingsSingleton.CurrentSettings().IndexPageUrl()}"),
-                // ReSharper disable StringLiteralTypo
-                ("indexrss", "Main Page RSS Feed",
-                    $"https:{UserSettingsSingleton.CurrentSettings().RssIndexFeedUrl()}"),
-                ("filerss", "Files RSS Feed", $"https:{UserSettingsSingleton.CurrentSettings().FileRssUrl()}"),
-                ("imagerss", "Images RSS Feed", $"https:{UserSettingsSingleton.CurrentSettings().ImageRssUrl()}"),
-                ("linkrss", "Links RSS Feed", $"https:{UserSettingsSingleton.CurrentSettings().LinkRssUrl()}"),
-                ("noterss", "Notes RSS Feed", $"https:{UserSettingsSingleton.CurrentSettings().NoteRssUrl()}"),
-                ("photorss", "Photo Gallery RSS Feed",
-                    $"https:{UserSettingsSingleton.CurrentSettings().PhotoRssUrl()}"),
-                ("photogallerypage", "Photos",
-                    $"https:{UserSettingsSingleton.CurrentSettings().CameraRollPhotoGalleryUrl()}"),
-                ("searchpage", "Search", $"https:{UserSettingsSingleton.CurrentSettings().AllContentListUrl()}"),
-                ("tagspage", "Tags", $"https:{UserSettingsSingleton.CurrentSettings().AllTagsListUrl()}"),
-                ("linklistpage", "Links", $"https:{UserSettingsSingleton.CurrentSettings().LinkListUrl()}")
-                // ReSharper restore StringLiteralTypo
-            };
+                progress?.Report($"Adding Special Page {loopLookups.bracketCode} from Code");
 
-            foreach (var loopLookups in specialPageLookup)
-            {
-                var matches = BracketCodeCommon.SpecialPageBracketCodeMatches(toProcess, loopLookups.bracketCode);
+                var linkTag =
+                    new LinkTag(
+                        string.IsNullOrWhiteSpace(loopMatch.displayText)
+                            ? loopLookups.defaultDisplayString
+                            : loopMatch.displayText.Trim(), loopLookups.url, "special-page-link");
 
-                foreach (var loopMatch in matches)
-                {
-                    progress?.Report($"Adding Special Page {loopLookups.bracketCode} from Code");
-
-                    var linkTag =
-                        new LinkTag(
-                            string.IsNullOrWhiteSpace(loopMatch.displayText)
-                                ? loopLookups.defaultDisplayString
-                                : loopMatch.displayText.Trim(), loopLookups.url, "special-page-link");
-
-                    toProcess = toProcess.Replace(loopMatch.bracketCodeText, linkTag.ToString());
-                }
+                toProcess = toProcess.Replace(loopMatch.bracketCodeText, linkTag.ToString());
             }
-
-            return toProcess;
         }
+
+        return toProcess;
     }
 }

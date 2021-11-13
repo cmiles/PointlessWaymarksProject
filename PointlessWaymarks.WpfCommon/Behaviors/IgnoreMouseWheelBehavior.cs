@@ -2,37 +2,36 @@
 using System.Windows.Input;
 using Microsoft.Xaml.Behaviors;
 
-namespace PointlessWaymarks.WpfCommon.Behaviors
+namespace PointlessWaymarks.WpfCommon.Behaviors;
+
+/// <summary>
+///     Captures and eats MouseWheel events so that a nested ListBox does not
+///     prevent an outer scrollable control from scrolling.
+/// </summary>
+public sealed class IgnoreMouseWheelBehavior : Behavior<UIElement>
 {
-    /// <summary>
-    ///     Captures and eats MouseWheel events so that a nested ListBox does not
-    ///     prevent an outer scrollable control from scrolling.
-    /// </summary>
-    public sealed class IgnoreMouseWheelBehavior : Behavior<UIElement>
+    private void AssociatedObject_PreviewMouseWheel(object sender, MouseWheelEventArgs e)
     {
-        private void AssociatedObject_PreviewMouseWheel(object sender, MouseWheelEventArgs e)
+        e.Handled = true;
+
+        var e2 = new MouseWheelEventArgs(e.MouseDevice, e.Timestamp, e.Delta)
         {
-            e.Handled = true;
+            RoutedEvent = UIElement.MouseWheelEvent
+        };
 
-            var e2 = new MouseWheelEventArgs(e.MouseDevice, e.Timestamp, e.Delta)
-            {
-                RoutedEvent = UIElement.MouseWheelEvent
-            };
+        AssociatedObject.RaiseEvent(e2);
+    }
 
-            AssociatedObject.RaiseEvent(e2);
-        }
+    //http://stackoverflow.com/questions/2189053/disable-mouse-wheel-on-itemscontrol-in-wpf
+    protected override void OnAttached()
+    {
+        base.OnAttached();
+        AssociatedObject.PreviewMouseWheel += AssociatedObject_PreviewMouseWheel;
+    }
 
-        //http://stackoverflow.com/questions/2189053/disable-mouse-wheel-on-itemscontrol-in-wpf
-        protected override void OnAttached()
-        {
-            base.OnAttached();
-            AssociatedObject.PreviewMouseWheel += AssociatedObject_PreviewMouseWheel;
-        }
-
-        protected override void OnDetaching()
-        {
-            AssociatedObject.PreviewMouseWheel -= AssociatedObject_PreviewMouseWheel;
-            base.OnDetaching();
-        }
+    protected override void OnDetaching()
+    {
+        AssociatedObject.PreviewMouseWheel -= AssociatedObject_PreviewMouseWheel;
+        base.OnDetaching();
     }
 }

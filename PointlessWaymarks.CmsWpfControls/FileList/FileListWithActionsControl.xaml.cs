@@ -1,10 +1,9 @@
-﻿namespace PointlessWaymarks.CmsWpfControls.FileList
+﻿namespace PointlessWaymarks.CmsWpfControls.FileList;
+
+public partial class FileListWithActionsControl
 {
-    public partial class FileListWithActionsControl
+    public FileListWithActionsControl()
     {
-        public FileListWithActionsControl()
-        {
-            InitializeComponent();
-        }
+        InitializeComponent();
     }
 }

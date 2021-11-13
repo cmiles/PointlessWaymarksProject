@@ -2,41 +2,40 @@
 using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
 
-namespace PointlessWaymarks.WpfCommon.Status
+namespace PointlessWaymarks.WpfCommon.Status;
+
+public class StatusControlMessageButton : INotifyPropertyChanged
 {
-    public class StatusControlMessageButton : INotifyPropertyChanged
+    private string _messageText;
+    private bool _isDefault;
+
+    public string MessageText
     {
-        private string _messageText;
-        private bool _isDefault;
-
-        public string MessageText
+        get => _messageText;
+        set
         {
-            get => _messageText;
-            set
-            {
-                if (value == _messageText) return;
-                _messageText = value;
-                OnPropertyChanged();
-            }
+            if (value == _messageText) return;
+            _messageText = value;
+            OnPropertyChanged();
         }
+    }
 
-        public bool IsDefault
+    public bool IsDefault
+    {
+        get => _isDefault;
+        set
         {
-            get => _isDefault;
-            set
-            {
-                if (value == _isDefault) return;
-                _isDefault = value;
-                OnPropertyChanged();
-            }
+            if (value == _isDefault) return;
+            _isDefault = value;
+            OnPropertyChanged();
         }
+    }
 
-        public event PropertyChangedEventHandler PropertyChanged;
+    public event PropertyChangedEventHandler PropertyChanged;
 
-        [NotifyPropertyChangedInvocator]
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
+    [NotifyPropertyChangedInvocator]
+    protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+    {
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 }

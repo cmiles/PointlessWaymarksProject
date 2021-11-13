@@ -1,13 +1,12 @@
-﻿namespace PointlessWaymarks.CmsWpfControls.GeoJsonContentEditor
+﻿namespace PointlessWaymarks.CmsWpfControls.GeoJsonContentEditor;
+
+/// <summary>
+///     Interaction logic for GeoJsonContentEditorControl.xaml
+/// </summary>
+public partial class GeoJsonContentEditorControl
 {
-    /// <summary>
-    ///     Interaction logic for GeoJsonContentEditorControl.xaml
-    /// </summary>
-    public partial class GeoJsonContentEditorControl
+    public GeoJsonContentEditorControl()
     {
-        public GeoJsonContentEditorControl()
-        {
-            InitializeComponent();
-        }
+        InitializeComponent();
     }
 }

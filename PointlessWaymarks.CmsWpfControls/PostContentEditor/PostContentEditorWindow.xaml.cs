@@ -6,60 +6,59 @@ using PointlessWaymarks.CmsWpfControls.Utility.ChangesAndValidation;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 
-namespace PointlessWaymarks.CmsWpfControls.PostContentEditor
+namespace PointlessWaymarks.CmsWpfControls.PostContentEditor;
+
+public partial class PostContentEditorWindow : INotifyPropertyChanged
 {
-    public partial class PostContentEditorWindow : INotifyPropertyChanged
+    private PostContentEditorContext _postContent;
+    private StatusControlContext _statusContext;
+
+    public PostContentEditorWindow(PostContent toLoad = null)
     {
-        private PostContentEditorContext _postContent;
-        private StatusControlContext _statusContext;
+        InitializeComponent();
+        StatusContext = new StatusControlContext();
 
-        public PostContentEditorWindow(PostContent toLoad = null)
+        StatusContext.RunFireAndForgetBlockingTask(async () =>
         {
-            InitializeComponent();
-            StatusContext = new StatusControlContext();
+            PostContent = await PostContentEditorContext.CreateInstance(StatusContext, toLoad);
 
-            StatusContext.RunFireAndForgetBlockingTask(async () =>
-            {
-                PostContent = await PostContentEditorContext.CreateInstance(StatusContext, toLoad);
+            PostContent.RequestContentEditorWindowClose += (_, _) => { Dispatcher?.Invoke(Close); };
+            AccidentalCloserHelper = new WindowAccidentalClosureHelper(this, StatusContext, PostContent);
 
-                PostContent.RequestContentEditorWindowClose += (_, _) => { Dispatcher?.Invoke(Close); };
-                AccidentalCloserHelper = new WindowAccidentalClosureHelper(this, StatusContext, PostContent);
+            await ThreadSwitcher.ResumeForegroundAsync();
+            DataContext = this;
+        });
+    }
 
-                await ThreadSwitcher.ResumeForegroundAsync();
-                DataContext = this;
-            });
-        }
+    public WindowAccidentalClosureHelper AccidentalCloserHelper { get; set; }
 
-        public WindowAccidentalClosureHelper AccidentalCloserHelper { get; set; }
-
-        public PostContentEditorContext PostContent
+    public PostContentEditorContext PostContent
+    {
+        get => _postContent;
+        set
         {
-            get => _postContent;
-            set
-            {
-                if (Equals(value, _postContent)) return;
-                _postContent = value;
-                OnPropertyChanged();
-            }
+            if (Equals(value, _postContent)) return;
+            _postContent = value;
+            OnPropertyChanged();
         }
+    }
 
-        public StatusControlContext StatusContext
+    public StatusControlContext StatusContext
+    {
+        get => _statusContext;
+        set
         {
-            get => _statusContext;
-            set
-            {
-                if (Equals(value, _statusContext)) return;
-                _statusContext = value;
-                OnPropertyChanged();
-            }
+            if (Equals(value, _statusContext)) return;
+            _statusContext = value;
+            OnPropertyChanged();
         }
+    }
 
-        public event PropertyChangedEventHandler PropertyChanged;
+    public event PropertyChangedEventHandler PropertyChanged;
 
-        [NotifyPropertyChangedInvocator]
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
+    [NotifyPropertyChangedInvocator]
+    protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+    {
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 }

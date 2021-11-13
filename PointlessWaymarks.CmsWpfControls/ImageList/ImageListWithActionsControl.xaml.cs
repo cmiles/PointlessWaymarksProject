@@ -1,10 +1,9 @@
-﻿namespace PointlessWaymarks.CmsWpfControls.ImageList
+﻿namespace PointlessWaymarks.CmsWpfControls.ImageList;
+
+public partial class ImageListWithActionsControl
 {
-    public partial class ImageListWithActionsControl
+    public ImageListWithActionsControl()
     {
-        public ImageListWithActionsControl()
-        {
-            InitializeComponent();
-        }
+        InitializeComponent();
     }
 }

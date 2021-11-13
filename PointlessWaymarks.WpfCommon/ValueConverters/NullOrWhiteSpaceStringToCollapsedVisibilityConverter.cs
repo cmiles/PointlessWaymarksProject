@@ -2,20 +2,19 @@
 using System.Windows;
 using System.Windows.Data;
 
-namespace PointlessWaymarks.WpfCommon.ValueConverters
+namespace PointlessWaymarks.WpfCommon.ValueConverters;
+
+public class NullOrWhiteSpaceStringToCollapsedVisibilityConverter : IValueConverter
 {
-    public class NullOrWhiteSpaceStringToCollapsedVisibilityConverter : IValueConverter
+    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
     {
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            if (string.IsNullOrWhiteSpace(value?.ToString())) return Visibility.Collapsed;
+        if (string.IsNullOrWhiteSpace(value?.ToString())) return Visibility.Collapsed;
 
-            return Visibility.Visible;
-        }
+        return Visibility.Visible;
+    }
 
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            throw new NotSupportedException();
-        }
+    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+        throw new NotSupportedException();
     }
 }

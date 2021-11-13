@@ -1,6 +1,5 @@
-﻿namespace PointlessWaymarks.WpfCommon.WindowScreenShot
+﻿namespace PointlessWaymarks.WpfCommon.WindowScreenShot;
+
+internal class WindowScreenShotContext
 {
-    internal class WindowScreenShotContext
-    {
-    }
 }

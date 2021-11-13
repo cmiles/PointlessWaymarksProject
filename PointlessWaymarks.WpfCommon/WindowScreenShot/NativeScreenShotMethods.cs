@@ -13,100 +13,99 @@ using System.Runtime.InteropServices;
 // ReSharper disable FieldCanBeMadeReadOnly.Global
 // ReSharper disable InconsistentNaming
 
-namespace PointlessWaymarks.WpfCommon.WindowScreenShot
+namespace PointlessWaymarks.WpfCommon.WindowScreenShot;
+
+public static class NativeScreenShotMethods
 {
-    public static class NativeScreenShotMethods
+    [Flags]
+    public enum RasterOperations
     {
-        [Flags]
-        public enum RasterOperations
-        {
-            SRCCOPY = 0x00CC0020,
+        SRCCOPY = 0x00CC0020,
 
-            // ReSharper disable UnusedMember.Global
-            SRCPAINT = 0x00EE0086,
+        // ReSharper disable UnusedMember.Global
+        SRCPAINT = 0x00EE0086,
 
-            SRCAND = 0x008800C6,
+        SRCAND = 0x008800C6,
 
-            SRCINVERT = 0x00660046,
+        SRCINVERT = 0x00660046,
 
-            SRCERASE = 0x00440328,
+        SRCERASE = 0x00440328,
 
-            NOTSRCCOPY = 0x00330008,
+        NOTSRCCOPY = 0x00330008,
 
-            NOTSRCERASE = 0x001100A6,
+        NOTSRCERASE = 0x001100A6,
 
-            MERGECOPY = 0x00C000CA,
+        MERGECOPY = 0x00C000CA,
 
-            MERGEPAINT = 0x00BB0226,
+        MERGEPAINT = 0x00BB0226,
 
-            PATCOPY = 0x00F00021,
+        PATCOPY = 0x00F00021,
 
-            PATPAINT = 0x00FB0A09,
+        PATPAINT = 0x00FB0A09,
 
-            PATINVERT = 0x005A0049,
+        PATINVERT = 0x005A0049,
 
-            DSTINVERT = 0x00550009,
+        DSTINVERT = 0x00550009,
 
-            BLACKNESS = 0x00000042,
+        BLACKNESS = 0x00000042,
 
-            WHITENESS = 0x00FF0062,
-            // ReSharper restore UnusedMember.Global
+        WHITENESS = 0x00FF0062,
+        // ReSharper restore UnusedMember.Global
 
-            // ReSharper disable once CommentTypo
-            CAPTUREBLT = 0x40000000 //only if WinVer >= 5.0.0 (see wingdi.h)
-        }
+        // ReSharper disable once CommentTypo
+        CAPTUREBLT = 0x40000000 //only if WinVer >= 5.0.0 (see wingdi.h)
+    }
 
-        public const int DWMWA_EXTENDED_FRAME_BOUNDS = 9;
+    public const int DWMWA_EXTENDED_FRAME_BOUNDS = 9;
 
-        [DllImport("gdi32.dll")]
-        public static extern bool BitBlt(IntPtr hdcDest, int nxDest, int nyDest, int nWidth, int nHeight, IntPtr hdcSrc,
-            int nXSrc, int nYSrc, RasterOperations dwRop);
+    [DllImport("gdi32.dll")]
+    public static extern bool BitBlt(IntPtr hdcDest, int nxDest, int nyDest, int nWidth, int nHeight, IntPtr hdcSrc,
+        int nXSrc, int nYSrc, RasterOperations dwRop);
 
-        [DllImport("gdi32.dll")]
-        public static extern IntPtr CreateCompatibleBitmap(IntPtr hdc, int nWidth, int nHeight);
+    [DllImport("gdi32.dll")]
+    public static extern IntPtr CreateCompatibleBitmap(IntPtr hdc, int nWidth, int nHeight);
 
-        [DllImport("gdi32.dll")]
-        public static extern IntPtr CreateCompatibleDC(IntPtr hdc);
+    [DllImport("gdi32.dll")]
+    public static extern IntPtr CreateCompatibleDC(IntPtr hdc);
 
-        [DllImport("gdi32.dll")]
-        public static extern IntPtr DeleteDC(IntPtr hdc);
+    [DllImport("gdi32.dll")]
+    public static extern IntPtr DeleteDC(IntPtr hdc);
 
-        [DllImport("gdi32.dll")]
-        public static extern IntPtr DeleteObject(IntPtr hObject);
+    [DllImport("gdi32.dll")]
+    public static extern IntPtr DeleteObject(IntPtr hObject);
 
-        // ReSharper disable once StringLiteralTypo
-        [DllImport("dwmapi.dll")]
-        public static extern int DwmGetWindowAttribute(IntPtr hwnd, int dwAttribute, out RECT pvAttribute,
-            int cbAttribute);
+    // ReSharper disable once StringLiteralTypo
+    [DllImport("dwmapi.dll")]
+    public static extern int DwmGetWindowAttribute(IntPtr hwnd, int dwAttribute, out RECT pvAttribute,
+        int cbAttribute);
 
-        [DllImport("user32.dll")]
-        public static extern IntPtr GetDesktopWindow();
+    [DllImport("user32.dll")]
+    public static extern IntPtr GetDesktopWindow();
 
-        [DllImport("user32.dll")]
-        public static extern IntPtr GetForegroundWindow();
+    [DllImport("user32.dll")]
+    public static extern IntPtr GetForegroundWindow();
 
-        [DllImport("user32.dll")]
-        public static extern IntPtr GetWindowDC(IntPtr hWnd);
+    [DllImport("user32.dll")]
+    public static extern IntPtr GetWindowDC(IntPtr hWnd);
 
-        [DllImport("user32.dll", SetLastError = true)]
-        public static extern bool GetWindowRect(IntPtr hwnd, out RECT lpRect);
+    [DllImport("user32.dll", SetLastError = true)]
+    public static extern bool GetWindowRect(IntPtr hwnd, out RECT lpRect);
 
-        [DllImport("user32.dll")]
-        public static extern bool ReleaseDC(IntPtr hWnd, IntPtr hDc);
+    [DllImport("user32.dll")]
+    public static extern bool ReleaseDC(IntPtr hWnd, IntPtr hDc);
 
-        [DllImport("gdi32.dll")]
-        public static extern IntPtr SelectObject(IntPtr hdc, IntPtr hObject);
+    [DllImport("gdi32.dll")]
+    public static extern IntPtr SelectObject(IntPtr hdc, IntPtr hObject);
 
-        [StructLayout(LayoutKind.Sequential)]
-        public struct RECT
-        {
-            public int left;
+    [StructLayout(LayoutKind.Sequential)]
+    public struct RECT
+    {
+        public int left;
 
-            public int top;
+        public int top;
 
-            public int right;
+        public int right;
 
-            public int bottom;
-        }
+        public int bottom;
     }
 }

@@ -1,12 +1,11 @@
-﻿namespace PointlessWaymarks.CmsWpfControls.HtmlViewer
-{
-    public partial class HtmlViewerWindow
-    {
-        public HtmlViewerWindow(string htmlString)
-        {
-            InitializeComponent();
+﻿namespace PointlessWaymarks.CmsWpfControls.HtmlViewer;
 
-            DataContext = new HtmlViewerContext {HtmlString = htmlString};
-        }
+public partial class HtmlViewerWindow
+{
+    public HtmlViewerWindow(string htmlString)
+    {
+        InitializeComponent();
+
+        DataContext = new HtmlViewerContext {HtmlString = htmlString};
     }
 }

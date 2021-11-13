@@ -1,7 +1,6 @@
-﻿namespace PointlessWaymarks.CmsWpfControls.Utility.ChangesAndValidation
+﻿namespace PointlessWaymarks.CmsWpfControls.Utility.ChangesAndValidation;
+
+public interface IHasValidationIssues
 {
-    public interface IHasValidationIssues
-    {
-        bool HasValidationIssues { get; }
-    }
+    bool HasValidationIssues { get; }
 }

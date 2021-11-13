@@ -1,13 +1,12 @@
-﻿namespace PointlessWaymarks.WpfCommon.Status
+﻿namespace PointlessWaymarks.WpfCommon.Status;
+
+/// <summary>
+///     Interaction logic for ControlStatus.xaml
+/// </summary>
+public partial class StatusControl
 {
-    /// <summary>
-    ///     Interaction logic for ControlStatus.xaml
-    /// </summary>
-    public partial class StatusControl
+    public StatusControl()
     {
-        public StatusControl()
-        {
-            InitializeComponent();
-        }
+        InitializeComponent();
     }
 }

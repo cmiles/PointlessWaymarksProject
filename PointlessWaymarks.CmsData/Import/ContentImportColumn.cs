@@ -1,8 +1,7 @@
-﻿namespace PointlessWaymarks.CmsData.Import
+﻿namespace PointlessWaymarks.CmsData.Import;
+
+public class ContentImportColumn
 {
-    public class ContentImportColumn
-    {
-        public string? ColumnHeader { get; set; }
-        public int ColumnNumber { get; set; }
-    }
+    public string? ColumnHeader { get; set; }
+    public int ColumnNumber { get; set; }
 }

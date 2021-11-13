@@ -1,66 +1,65 @@
 ﻿using PhotoSauce.MagicScaler;
 using PhotoSauce.MagicScaler.Transforms;
 
-namespace PointlessWaymarks.CmsData.Content
+namespace PointlessWaymarks.CmsData.Content;
+
+public class MagicScalerImageResizer : IPictureResizer
 {
-    public class MagicScalerImageResizer : IPictureResizer
+    public async Task<FileInfo?> ResizeTo(FileInfo toResize, int width, int quality, string imageTypeString,
+        bool addSizeString,
+        IProgress<string>? progress = null)
     {
-        public async Task<FileInfo?> ResizeTo(FileInfo toResize, int width, int quality, string imageTypeString,
-            bool addSizeString,
-            IProgress<string>? progress = null)
-        {
-            if (!toResize.Exists) return null;
+        if (!toResize.Exists) return null;
 
-            var newFile = Path.Combine(toResize.Directory?.FullName ?? string.Empty, $"{Guid.NewGuid()}.jpg");
+        var newFile = Path.Combine(toResize.Directory?.FullName ?? string.Empty, $"{Guid.NewGuid()}.jpg");
 
-            var newFileInfo = new FileInfo(newFile);
-            if (newFileInfo.Exists) newFileInfo.Delete();
+        var newFileInfo = new FileInfo(newFile);
+        if (newFileInfo.Exists) newFileInfo.Delete();
 
-            var settings = new ProcessImageSettings {Width = width, JpegQuality = quality};
+        var settings = new ProcessImageSettings {Width = width, JpegQuality = quality};
 
-            await using var outStream = new FileStream(newFileInfo.FullName, FileMode.Create);
-            var results = MagicImageProcessor.ProcessImage(toResize.FullNameWithLongFilePrefix(), outStream, settings);
+        await using var outStream = new FileStream(newFileInfo.FullName, FileMode.Create);
+        var results = MagicImageProcessor.ProcessImage(toResize.FullNameWithLongFilePrefix(), outStream, settings);
 
-            await outStream.DisposeAsync().ConfigureAwait(false);
+        await outStream.DisposeAsync().ConfigureAwait(false);
 
-            var finalFileName = Path.Combine(toResize.Directory?.FullName ?? string.Empty,
-                $"{Path.GetFileNameWithoutExtension(toResize.Name)}--{imageTypeString}{(addSizeString ? $"--{width}w--{results.Settings.Height}h" : string.Empty)}.jpg");
+        var finalFileName = Path.Combine(toResize.Directory?.FullName ?? string.Empty,
+            $"{Path.GetFileNameWithoutExtension(toResize.Name)}--{imageTypeString}{(addSizeString ? $"--{width}w--{results.Settings.Height}h" : string.Empty)}.jpg");
 
-            await FileManagement.MoveFileAndLog(newFileInfo.FullName, finalFileName).ConfigureAwait(false);
+        await FileManagement.MoveFileAndLog(newFileInfo.FullName, finalFileName).ConfigureAwait(false);
 
-            newFileInfo = new FileInfo(finalFileName);
+        newFileInfo = new FileInfo(finalFileName);
 
-            return newFileInfo;
-        }
+        return newFileInfo;
+    }
 
-        public static async Task<FileInfo?> Rotate(FileInfo toRotate, Orientation orientation)
-        {
-            if (!toRotate.Exists) return null;
+    public static async Task<FileInfo?> Rotate(FileInfo toRotate, Orientation orientation)
+    {
+        if (!toRotate.Exists) return null;
 
-            var newFile = Path.Combine(toRotate.Directory?.FullName ?? string.Empty, $"{Guid.NewGuid()}.jpg");
+        var newFile = Path.Combine(toRotate.Directory?.FullName ?? string.Empty, $"{Guid.NewGuid()}.jpg");
 
-            var newFileInfo = new FileInfo(newFile);
-            if (newFileInfo.Exists) newFileInfo.Delete();
+        var newFileInfo = new FileInfo(newFile);
+        if (newFileInfo.Exists) newFileInfo.Delete();
 
-            using var pl =
-                MagicImageProcessor.BuildPipeline(toRotate.FullNameWithLongFilePrefix(), new ProcessImageSettings());
-            pl.AddTransform(new OrientationTransform(orientation));
-            await using var outStream = new FileStream(newFileInfo.FullName, FileMode.Create);
+        using var pl =
+            MagicImageProcessor.BuildPipeline(toRotate.FullNameWithLongFilePrefix(), new ProcessImageSettings());
+        pl.AddTransform(new OrientationTransform(orientation));
+        await using var outStream = new FileStream(newFileInfo.FullName, FileMode.Create);
 
-            pl.WriteOutput(outStream);
+        pl.WriteOutput(outStream);
 
-            pl.Dispose();
-            await outStream.DisposeAsync().ConfigureAwait(false);
+        pl.Dispose();
+        await outStream.DisposeAsync().ConfigureAwait(false);
 
-            var finalFileName = toRotate.FullName;
+        var finalFileName = toRotate.FullName;
 
-            toRotate.Delete();
+        toRotate.Delete();
 
-            await FileManagement.MoveFileAndLog(newFileInfo.FullName, finalFileName).ConfigureAwait(false);
+        await FileManagement.MoveFileAndLog(newFileInfo.FullName, finalFileName).ConfigureAwait(false);
 
-            newFileInfo = new FileInfo(finalFileName);
+        newFileInfo = new FileInfo(finalFileName);
 
-            return newFileInfo;
-        }
+        return newFileInfo;
     }
 }

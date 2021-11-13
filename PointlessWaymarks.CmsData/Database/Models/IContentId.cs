@@ -1,9 +1,8 @@
-﻿namespace PointlessWaymarks.CmsData.Database.Models
+﻿namespace PointlessWaymarks.CmsData.Database.Models;
+
+public interface IContentId
 {
-    public interface IContentId
-    {
-        public Guid ContentId { get; }
-        public DateTime ContentVersion { get; }
-        public int Id { get; }
-    }
+    public Guid ContentId { get; }
+    public DateTime ContentVersion { get; }
+    public int Id { get; }
 }

@@ -1,10 +1,9 @@
-﻿namespace PointlessWaymarks.CmsWpfControls.TagsEditor
+﻿namespace PointlessWaymarks.CmsWpfControls.TagsEditor;
+
+public partial class TagsEditorControl
 {
-    public partial class TagsEditorControl
+    public TagsEditorControl()
     {
-        public TagsEditorControl()
-        {
-            InitializeComponent();
-        }
+        InitializeComponent();
     }
 }

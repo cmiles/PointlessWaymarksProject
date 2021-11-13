@@ -1,101 +1,100 @@
 ﻿using System.Text.RegularExpressions;
 
-namespace PointlessWaymarks.CmsData.Content
+namespace PointlessWaymarks.CmsData.Content;
+
+public static class FolderFileUtility
 {
-    public static class FolderFileUtility
+    /// <summary>
+    ///     Appends the Long File Prefix \\?\ to the FileInfo FullName - this should only be used to interop in situations
+    ///     not related to .NET Core - .NET Core handles this automatically. Only tested with absolute file paths.
+    /// </summary>
+    /// <param name="forName"></param>
+    /// <returns></returns>
+    public static string FullNameWithLongFilePrefix(this FileInfo forName)
     {
-        /// <summary>
-        ///     Appends the Long File Prefix \\?\ to the FileInfo FullName - this should only be used to interop in situations
-        ///     not related to .NET Core - .NET Core handles this automatically. Only tested with absolute file paths.
-        /// </summary>
-        /// <param name="forName"></param>
-        /// <returns></returns>
-        public static string FullNameWithLongFilePrefix(this FileInfo forName)
-        {
-            //See https://stackoverflow.com/questions/5188527/how-to-deal-with-files-with-a-name-longer-than-259-characters for a good summary
-            //and for some library and other alternatives.
+        //See https://stackoverflow.com/questions/5188527/how-to-deal-with-files-with-a-name-longer-than-259-characters for a good summary
+        //and for some library and other alternatives.
 
-            return forName.FullName.Length > 240 ? $"\\\\?\\{forName.FullName}" : forName.FullName;
-        }
+        return forName.FullName.Length > 240 ? $"\\\\?\\{forName.FullName}" : forName.FullName;
+    }
 
-        /// <summary>
-        ///     Appends the Long File Prefix \\?\ to the FileInfo FullName - this should only be used to interop in situations
-        ///     not related to .NET Core - .NET Core handles this automatically. Only tested with absolute file paths.
-        /// </summary>
-        /// <param name="forName"></param>
-        /// <returns></returns>
-        public static string? FullNameWithLongFilePrefixForPossibleNull(this FileInfo? forName)
-        {
-            //See https://stackoverflow.com/questions/5188527/how-to-deal-with-files-with-a-name-longer-than-259-characters for a good summary
-            //and for some library and other alternatives.
-            if (forName == null) return null;
+    /// <summary>
+    ///     Appends the Long File Prefix \\?\ to the FileInfo FullName - this should only be used to interop in situations
+    ///     not related to .NET Core - .NET Core handles this automatically. Only tested with absolute file paths.
+    /// </summary>
+    /// <param name="forName"></param>
+    /// <returns></returns>
+    public static string? FullNameWithLongFilePrefixForPossibleNull(this FileInfo? forName)
+    {
+        //See https://stackoverflow.com/questions/5188527/how-to-deal-with-files-with-a-name-longer-than-259-characters for a good summary
+        //and for some library and other alternatives.
+        if (forName == null) return null;
 
-            return forName.FullName.Length > 240 ? $"\\\\?\\{forName.FullName}" : forName.FullName;
-        }
+        return forName.FullName.Length > 240 ? $"\\\\?\\{forName.FullName}" : forName.FullName;
+    }
 
-        public static string InvalidFileNameCharsRegexPattern()
-        {
-            return $"[{Regex.Escape(new string(Path.GetInvalidFileNameChars()))}]";
-        }
+    public static string InvalidFileNameCharsRegexPattern()
+    {
+        return $"[{Regex.Escape(new string(Path.GetInvalidFileNameChars()))}]";
+    }
 
-        /// <summary>
-        ///     This checks if a string is 'no url encoding needed'
-        /// </summary>
-        /// <param name="testName"></param>
-        /// <returns></returns>
-        public static bool IsNoUrlEncodingNeeded(string testName)
-        {
-            if (string.IsNullOrWhiteSpace(testName)) return false;
+    /// <summary>
+    ///     This checks if a string is 'no url encoding needed'
+    /// </summary>
+    /// <param name="testName"></param>
+    /// <returns></returns>
+    public static bool IsNoUrlEncodingNeeded(string testName)
+    {
+        if (string.IsNullOrWhiteSpace(testName)) return false;
 
-            return Regex.IsMatch(testName, @"^[a-zA-Z\d_\-]+$");
-        }
+        return Regex.IsMatch(testName, @"^[a-zA-Z\d_\-]+$");
+    }
 
-        /// <summary>
-        ///     This checks if a string is 'no url encoding needed'
-        /// </summary>
-        /// <param name="testName"></param>
-        /// <returns></returns>
-        public static bool IsNoUrlEncodingNeededLowerCase(string testName)
-        {
-            if (string.IsNullOrWhiteSpace(testName)) return false;
+    /// <summary>
+    ///     This checks if a string is 'no url encoding needed'
+    /// </summary>
+    /// <param name="testName"></param>
+    /// <returns></returns>
+    public static bool IsNoUrlEncodingNeededLowerCase(string testName)
+    {
+        if (string.IsNullOrWhiteSpace(testName)) return false;
 
-            return Regex.IsMatch(testName, @"^[a-z\d_\-]+$");
-        }
+        return Regex.IsMatch(testName, @"^[a-z\d_\-]+$");
+    }
 
-        /// <summary>
-        ///     This checks if a string is 'no url encoding needed' with the exception of spaces which are allowed
-        /// </summary>
-        /// <param name="testName"></param>
-        /// <returns></returns>
-        public static bool IsNoUrlEncodingNeededLowerCaseSpacesOk(string testName)
-        {
-            if (string.IsNullOrWhiteSpace(testName)) return false;
+    /// <summary>
+    ///     This checks if a string is 'no url encoding needed' with the exception of spaces which are allowed
+    /// </summary>
+    /// <param name="testName"></param>
+    /// <returns></returns>
+    public static bool IsNoUrlEncodingNeededLowerCaseSpacesOk(string testName)
+    {
+        if (string.IsNullOrWhiteSpace(testName)) return false;
 
-            return Regex.IsMatch(testName, @"^[a-z \d_\-]+$");
-        }
+        return Regex.IsMatch(testName, @"^[a-z \d_\-]+$");
+    }
 
-        public static bool IsValidWindowsFileSystemFilename(string testName)
-        {
-            //https://stackoverflow.com/questions/62771/how-do-i-check-if-a-given-string-is-a-legal-valid-file-name-under-windows
-            var containsABadCharacter = new Regex(InvalidFileNameCharsRegexPattern());
-            if (containsABadCharacter.IsMatch(testName)) return false;
+    public static bool IsValidWindowsFileSystemFilename(string testName)
+    {
+        //https://stackoverflow.com/questions/62771/how-do-i-check-if-a-given-string-is-a-legal-valid-file-name-under-windows
+        var containsABadCharacter = new Regex(InvalidFileNameCharsRegexPattern());
+        if (containsABadCharacter.IsMatch(testName)) return false;
 
-            return true;
-        }
+        return true;
+    }
 
-        public static bool PictureFileTypeIsSupported(FileInfo toCheck)
-        {
-            if (!toCheck.Exists) return false;
+    public static bool PictureFileTypeIsSupported(FileInfo toCheck)
+    {
+        if (!toCheck.Exists) return false;
 
-            return toCheck.Extension.ToUpperInvariant().Contains("JPG") ||
-                   toCheck.Extension.ToUpperInvariant().Contains("JPEG");
-        }
+        return toCheck.Extension.ToUpperInvariant().Contains("JPG") ||
+               toCheck.Extension.ToUpperInvariant().Contains("JPEG");
+    }
 
-        public static string TryMakeFilenameValid(string filenameWithoutExtensionToTransform)
-        {
-            return string.IsNullOrWhiteSpace(filenameWithoutExtensionToTransform)
-                ? string.Empty
-                : Regex.Replace(filenameWithoutExtensionToTransform, InvalidFileNameCharsRegexPattern(), string.Empty);
-        }
+    public static string TryMakeFilenameValid(string filenameWithoutExtensionToTransform)
+    {
+        return string.IsNullOrWhiteSpace(filenameWithoutExtensionToTransform)
+            ? string.Empty
+            : Regex.Replace(filenameWithoutExtensionToTransform, InvalidFileNameCharsRegexPattern(), string.Empty);
     }
 }

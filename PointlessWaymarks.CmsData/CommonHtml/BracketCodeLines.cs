@@ -4,134 +4,133 @@ using PointlessWaymarks.CmsData.ContentHtml.LineHtml;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 
-namespace PointlessWaymarks.CmsData.CommonHtml
+namespace PointlessWaymarks.CmsData.CommonHtml;
+
+public static class BracketCodeLines
 {
-    public static class BracketCodeLines
+    public const string BracketCodeToken = "line";
+
+    public static string Create(LineContent content)
     {
-        public const string BracketCodeToken = "line";
+        return $@"{{{{{BracketCodeToken} {content.ContentId}; {content.Title}}}}}";
+    }
 
-        public static string Create(LineContent content)
+    public static async Task<List<LineContent>> DbContentFromBracketCodes(string toProcess,
+        IProgress<string>? progress = null)
+    {
+        if (string.IsNullOrWhiteSpace(toProcess)) return new List<LineContent>();
+
+        progress?.Report("Searching for Point Codes...");
+
+        var guidList = BracketCodeCommon.ContentBracketCodeMatches(toProcess, BracketCodeToken)
+            .Select(x => x.contentGuid).Distinct().ToList();
+
+        var returnList = new List<LineContent>();
+
+        if (!guidList.Any()) return returnList;
+
+        var context = await Db.Context().ConfigureAwait(false);
+
+        foreach (var loopMatch in guidList)
         {
-            return $@"{{{{{BracketCodeToken} {content.ContentId}; {content.Title}}}}}";
+            var dbContent = await context.LineContents.FirstOrDefaultAsync(x => x.ContentId == loopMatch).ConfigureAwait(false);
+            if (dbContent == null) continue;
+
+            progress?.Report($"Line Code - Adding DbContent For {dbContent.Title}");
+
+            returnList.Add(dbContent);
         }
 
-        public static async Task<List<LineContent>> DbContentFromBracketCodes(string toProcess,
-            IProgress<string>? progress = null)
+        return returnList;
+    }
+
+    public static async Task<string> Process(string toProcess, IProgress<string>? progress = null)
+    {
+        if (string.IsNullOrWhiteSpace(toProcess)) return string.Empty;
+
+        progress?.Report("Searching for Line Codes...");
+
+        var resultList = BracketCodeCommon.ContentBracketCodeMatches(toProcess, BracketCodeToken);
+
+        if (!resultList.Any()) return toProcess;
+
+        var context = await Db.Context().ConfigureAwait(false);
+
+        foreach (var loopMatch in resultList)
         {
-            if (string.IsNullOrWhiteSpace(toProcess)) return new List<LineContent>();
+            var dbContent =
+                await context.LineContents.FirstOrDefaultAsync(x => x.ContentId == loopMatch.contentGuid).ConfigureAwait(false);
+            if (dbContent == null) continue;
 
-            progress?.Report("Searching for Point Codes...");
+            progress?.Report($"Adding Line {dbContent.Title} from Code");
 
-            var guidList = BracketCodeCommon.ContentBracketCodeMatches(toProcess, BracketCodeToken)
-                .Select(x => x.contentGuid).Distinct().ToList();
-
-            var returnList = new List<LineContent>();
-
-            if (!guidList.Any()) return returnList;
-
-            var context = await Db.Context().ConfigureAwait(false);
-
-            foreach (var loopMatch in guidList)
-            {
-                var dbContent = await context.LineContents.FirstOrDefaultAsync(x => x.ContentId == loopMatch).ConfigureAwait(false);
-                if (dbContent == null) continue;
-
-                progress?.Report($"Line Code - Adding DbContent For {dbContent.Title}");
-
-                returnList.Add(dbContent);
-            }
-
-            return returnList;
+            toProcess = toProcess.ReplaceEach(loopMatch.bracketCodeText,
+                () => LineParts.LineDivAndScriptWithCaption(dbContent));
         }
 
-        public static async Task<string> Process(string toProcess, IProgress<string>? progress = null)
+        return toProcess;
+    }
+
+    public static async Task<string> ProcessForDirectLocalAccess(string toProcess,
+        IProgress<string>? progress = null)
+    {
+        if (string.IsNullOrWhiteSpace(toProcess)) return string.Empty;
+
+        progress?.Report("Searching for Line Codes...");
+
+        var resultList = BracketCodeCommon.ContentBracketCodeMatches(toProcess, BracketCodeToken);
+
+        if (!resultList.Any()) return toProcess;
+
+        var context = await Db.Context().ConfigureAwait(false);
+
+        foreach (var loopMatch in resultList)
         {
-            if (string.IsNullOrWhiteSpace(toProcess)) return string.Empty;
+            var dbContent =
+                await context.LineContents.FirstOrDefaultAsync(x => x.ContentId == loopMatch.contentGuid).ConfigureAwait(false);
+            if (dbContent == null) continue;
 
-            progress?.Report("Searching for Line Codes...");
+            progress?.Report($"Adding Line {dbContent.Title} from Code");
 
-            var resultList = BracketCodeCommon.ContentBracketCodeMatches(toProcess, BracketCodeToken);
-
-            if (!resultList.Any()) return toProcess;
-
-            var context = await Db.Context().ConfigureAwait(false);
-
-            foreach (var loopMatch in resultList)
-            {
-                var dbContent =
-                    await context.LineContents.FirstOrDefaultAsync(x => x.ContentId == loopMatch.contentGuid).ConfigureAwait(false);
-                if (dbContent == null) continue;
-
-                progress?.Report($"Adding Line {dbContent.Title} from Code");
-
-                toProcess = toProcess.ReplaceEach(loopMatch.bracketCodeText,
-                    () => LineParts.LineDivAndScriptWithCaption(dbContent));
-            }
-
-            return toProcess;
+            toProcess = toProcess.ReplaceEach(loopMatch.bracketCodeText,
+                () => LineParts.LineDivAndScriptWithCaptionForDirectLocalAccess(dbContent));
         }
 
-        public static async Task<string> ProcessForDirectLocalAccess(string toProcess,
-            IProgress<string>? progress = null)
+        return toProcess;
+    }
+
+    public static async Task<string> ProcessForEmail(string toProcess, IProgress<string>? progress = null)
+    {
+        if (string.IsNullOrWhiteSpace(toProcess)) return string.Empty;
+
+        progress?.Report("Searching for Line Codes...");
+
+        var resultList = BracketCodeCommon.ContentBracketCodeMatches(toProcess, BracketCodeToken);
+
+        if (!resultList.Any()) return toProcess;
+
+        var context = await Db.Context().ConfigureAwait(false);
+
+        foreach (var loopMatch in resultList)
         {
-            if (string.IsNullOrWhiteSpace(toProcess)) return string.Empty;
+            var dbContent =
+                await context.LineContents.FirstOrDefaultAsync(x => x.ContentId == loopMatch.contentGuid).ConfigureAwait(false);
+            if (dbContent == null) continue;
 
-            progress?.Report("Searching for Line Codes...");
+            progress?.Report($"For Email Subbing Line Map for Link {dbContent.Title} from Code");
 
-            var resultList = BracketCodeCommon.ContentBracketCodeMatches(toProcess, BracketCodeToken);
+            var linkTag =
+                new LinkTag(
+                    string.IsNullOrWhiteSpace(loopMatch.displayText)
+                        ? dbContent.Title
+                        : loopMatch.displayText.Trim(),
+                    UserSettingsSingleton.CurrentSettings().LinePageUrl(dbContent), "line-page-link");
 
-            if (!resultList.Any()) return toProcess;
+            var centeredEmailTag = Tags.EmailCenterTableTag(linkTag);
 
-            var context = await Db.Context().ConfigureAwait(false);
-
-            foreach (var loopMatch in resultList)
-            {
-                var dbContent =
-                    await context.LineContents.FirstOrDefaultAsync(x => x.ContentId == loopMatch.contentGuid).ConfigureAwait(false);
-                if (dbContent == null) continue;
-
-                progress?.Report($"Adding Line {dbContent.Title} from Code");
-
-                toProcess = toProcess.ReplaceEach(loopMatch.bracketCodeText,
-                    () => LineParts.LineDivAndScriptWithCaptionForDirectLocalAccess(dbContent));
-            }
-
-            return toProcess;
+            toProcess = toProcess.Replace(loopMatch.bracketCodeText, centeredEmailTag.ToString());
         }
 
-        public static async Task<string> ProcessForEmail(string toProcess, IProgress<string>? progress = null)
-        {
-            if (string.IsNullOrWhiteSpace(toProcess)) return string.Empty;
-
-            progress?.Report("Searching for Line Codes...");
-
-            var resultList = BracketCodeCommon.ContentBracketCodeMatches(toProcess, BracketCodeToken);
-
-            if (!resultList.Any()) return toProcess;
-
-            var context = await Db.Context().ConfigureAwait(false);
-
-            foreach (var loopMatch in resultList)
-            {
-                var dbContent =
-                    await context.LineContents.FirstOrDefaultAsync(x => x.ContentId == loopMatch.contentGuid).ConfigureAwait(false);
-                if (dbContent == null) continue;
-
-                progress?.Report($"For Email Subbing Line Map for Link {dbContent.Title} from Code");
-
-                var linkTag =
-                    new LinkTag(
-                        string.IsNullOrWhiteSpace(loopMatch.displayText)
-                            ? dbContent.Title
-                            : loopMatch.displayText.Trim(),
-                        UserSettingsSingleton.CurrentSettings().LinePageUrl(dbContent), "line-page-link");
-
-                var centeredEmailTag = Tags.EmailCenterTableTag(linkTag);
-
-                toProcess = toProcess.Replace(loopMatch.bracketCodeText, centeredEmailTag.ToString());
-            }
-
-            return toProcess;
-        }
+        return toProcess;
     }
 }

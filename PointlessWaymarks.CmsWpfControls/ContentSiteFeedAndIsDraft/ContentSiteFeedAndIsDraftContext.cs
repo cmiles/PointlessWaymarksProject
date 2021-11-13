@@ -8,151 +8,150 @@ using PointlessWaymarks.CmsWpfControls.Utility.ChangesAndValidation;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 
-namespace PointlessWaymarks.CmsWpfControls.ContentSiteFeedAndIsDraft
+namespace PointlessWaymarks.CmsWpfControls.ContentSiteFeedAndIsDraft;
+
+public class ContentSiteFeedAndIsDraftContext : INotifyPropertyChanged, IHasChanges, IHasValidationIssues,
+    ICheckForChangesAndValidation
 {
-    public class ContentSiteFeedAndIsDraftContext : INotifyPropertyChanged, IHasChanges, IHasValidationIssues,
-        ICheckForChangesAndValidation
+    private IMainSiteFeed _dbEntry;
+    private bool _hasChanges;
+    private bool _hasValidationIssues;
+    private BoolDataEntryContext _isDraftEntry;
+    private BoolDataEntryContext _showInMainSiteFeedEntry;
+    private ConversionDataEntryContext<DateTime> _feedOnEntry;
+    private StatusControlContext _statusContext;
+
+    public ContentSiteFeedAndIsDraftContext(StatusControlContext statusContext)
     {
-        private IMainSiteFeed _dbEntry;
-        private bool _hasChanges;
-        private bool _hasValidationIssues;
-        private BoolDataEntryContext _isDraftEntry;
-        private BoolDataEntryContext _showInMainSiteFeedEntry;
-        private ConversionDataEntryContext<DateTime> _feedOnEntry;
-        private StatusControlContext _statusContext;
+        StatusContext = statusContext ?? new();
+    }
 
-        public ContentSiteFeedAndIsDraftContext(StatusControlContext statusContext)
+    public IMainSiteFeed DbEntry
+    {
+        get => _dbEntry;
+        set
         {
-            StatusContext = statusContext ?? new();
+            if (Equals(value, _dbEntry)) return;
+            _dbEntry = value;
+            OnPropertyChanged();
         }
+    }
 
-        public IMainSiteFeed DbEntry
+    public BoolDataEntryContext IsDraftEntry
+    {
+        get => _isDraftEntry;
+        set
         {
-            get => _dbEntry;
-            set
-            {
-                if (Equals(value, _dbEntry)) return;
-                _dbEntry = value;
-                OnPropertyChanged();
-            }
+            if (Equals(value, _isDraftEntry)) return;
+            _isDraftEntry = value;
+            OnPropertyChanged();
         }
+    }
 
-        public BoolDataEntryContext IsDraftEntry
+    public BoolDataEntryContext ShowInMainSiteFeedEntry
+    {
+        get => _showInMainSiteFeedEntry;
+        set
         {
-            get => _isDraftEntry;
-            set
-            {
-                if (Equals(value, _isDraftEntry)) return;
-                _isDraftEntry = value;
-                OnPropertyChanged();
-            }
+            if (Equals(value, _showInMainSiteFeedEntry)) return;
+            _showInMainSiteFeedEntry = value;
+            OnPropertyChanged();
         }
+    }
 
-        public BoolDataEntryContext ShowInMainSiteFeedEntry
+    public ConversionDataEntryContext<DateTime> FeedOnEntry
+    {
+        get => _feedOnEntry;
+        set
         {
-            get => _showInMainSiteFeedEntry;
-            set
-            {
-                if (Equals(value, _showInMainSiteFeedEntry)) return;
-                _showInMainSiteFeedEntry = value;
-                OnPropertyChanged();
-            }
+            if (Equals(value, _feedOnEntry)) return;
+            _feedOnEntry = value;
+            OnPropertyChanged();
         }
+    }
 
-        public ConversionDataEntryContext<DateTime> FeedOnEntry
+    public StatusControlContext StatusContext
+    {
+        get => _statusContext;
+        set
         {
-            get => _feedOnEntry;
-            set
-            {
-                if (Equals(value, _feedOnEntry)) return;
-                _feedOnEntry = value;
-                OnPropertyChanged();
-            }
+            if (Equals(value, _statusContext)) return;
+            _statusContext = value;
+            OnPropertyChanged();
         }
+    }
 
-        public StatusControlContext StatusContext
+    public void CheckForChangesAndValidationIssues()
+    {
+        HasChanges = PropertyScanners.ChildPropertiesHaveChanges(this);
+
+        HasValidationIssues = PropertyScanners.ChildPropertiesHaveValidationIssues(this);
+    }
+
+    public bool HasChanges
+    {
+        get => _hasChanges;
+        set
         {
-            get => _statusContext;
-            set
-            {
-                if (Equals(value, _statusContext)) return;
-                _statusContext = value;
-                OnPropertyChanged();
-            }
+            if (value == _hasChanges) return;
+            _hasChanges = value;
+            OnPropertyChanged();
         }
+    }
 
-        public void CheckForChangesAndValidationIssues()
+    public bool HasValidationIssues
+    {
+        get => _hasValidationIssues;
+        set
         {
-            HasChanges = PropertyScanners.ChildPropertiesHaveChanges(this);
-
-            HasValidationIssues = PropertyScanners.ChildPropertiesHaveValidationIssues(this);
+            if (value == _hasValidationIssues) return;
+            _hasValidationIssues = value;
+            OnPropertyChanged();
         }
+    }
 
-        public bool HasChanges
-        {
-            get => _hasChanges;
-            set
-            {
-                if (value == _hasChanges) return;
-                _hasChanges = value;
-                OnPropertyChanged();
-            }
-        }
+    public event PropertyChangedEventHandler PropertyChanged;
 
-        public bool HasValidationIssues
-        {
-            get => _hasValidationIssues;
-            set
-            {
-                if (value == _hasValidationIssues) return;
-                _hasValidationIssues = value;
-                OnPropertyChanged();
-            }
-        }
+    public static async Task<ContentSiteFeedAndIsDraftContext> CreateInstance(StatusControlContext statusContext,
+        IMainSiteFeed dbEntry)
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
 
-        public event PropertyChangedEventHandler PropertyChanged;
+        var newItem = new ContentSiteFeedAndIsDraftContext(statusContext);
+        await newItem.LoadData(dbEntry);
 
-        public static async Task<ContentSiteFeedAndIsDraftContext> CreateInstance(StatusControlContext statusContext,
-            IMainSiteFeed dbEntry)
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
+        return newItem;
+    }
 
-            var newItem = new ContentSiteFeedAndIsDraftContext(statusContext);
-            await newItem.LoadData(dbEntry);
+    public async Task LoadData(IMainSiteFeed dbEntry)
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
 
-            return newItem;
-        }
+        DbEntry = dbEntry;
 
-        public async Task LoadData(IMainSiteFeed dbEntry)
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
+        ShowInMainSiteFeedEntry = BoolDataEntryContext.CreateInstanceForShowInMainSiteFeed(DbEntry, false);
 
-            DbEntry = dbEntry;
+        FeedOnEntry =
+            ConversionDataEntryContext<DateTime>.CreateInstance(ConversionDataEntryHelpers.DateTimeConversion);
+        FeedOnEntry.Title = "Show in Site Feeds On";
+        FeedOnEntry.HelpText =
+            "Sets when (if enabled) the content will appear on the Front Page and in RSS Feeds";
+        FeedOnEntry.ReferenceValue = DbEntry.FeedOn;
+        FeedOnEntry.UserText = DbEntry.FeedOn.ToString("MM/dd/yyyy h:mm:ss tt");
 
-            ShowInMainSiteFeedEntry = BoolDataEntryContext.CreateInstanceForShowInMainSiteFeed(DbEntry, false);
+        IsDraftEntry = BoolDataEntryContext.CreateInstanceForIsDraft(DbEntry, false);
 
-            FeedOnEntry =
-                ConversionDataEntryContext<DateTime>.CreateInstance(ConversionDataEntryHelpers.DateTimeConversion);
-            FeedOnEntry.Title = "Show in Site Feeds On";
-            FeedOnEntry.HelpText =
-                "Sets when (if enabled) the content will appear on the Front Page and in RSS Feeds";
-            FeedOnEntry.ReferenceValue = DbEntry.FeedOn;
-            FeedOnEntry.UserText = DbEntry.FeedOn.ToString("MM/dd/yyyy h:mm:ss tt");
+        PropertyScanners.SubscribeToChildHasChangesAndHasValidationIssues(this, CheckForChangesAndValidationIssues);
+    }
 
-            IsDraftEntry = BoolDataEntryContext.CreateInstanceForIsDraft(DbEntry, false);
+    [NotifyPropertyChangedInvocator]
+    protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+    {
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 
-            PropertyScanners.SubscribeToChildHasChangesAndHasValidationIssues(this, CheckForChangesAndValidationIssues);
-        }
+        if (string.IsNullOrWhiteSpace(propertyName)) return;
 
-        [NotifyPropertyChangedInvocator]
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-
-            if (string.IsNullOrWhiteSpace(propertyName)) return;
-
-            if (!propertyName.Contains("HasChanges") && !propertyName.Contains("Validation"))
-                CheckForChangesAndValidationIssues();
-        }
+        if (!propertyName.Contains("HasChanges") && !propertyName.Contains("Validation"))
+            CheckForChangesAndValidationIssues();
     }
 }

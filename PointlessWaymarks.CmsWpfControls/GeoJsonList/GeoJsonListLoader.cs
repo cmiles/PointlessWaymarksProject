@@ -3,39 +3,38 @@ using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsWpfControls.ContentList;
 
-namespace PointlessWaymarks.CmsWpfControls.GeoJsonList
+namespace PointlessWaymarks.CmsWpfControls.GeoJsonList;
+
+public class GeoJsonListLoader : ContentListLoaderBase
 {
-    public class GeoJsonListLoader : ContentListLoaderBase
+    public GeoJsonListLoader(int? partialLoadQuantity) : base("GeoJson", partialLoadQuantity)
     {
-        public GeoJsonListLoader(int? partialLoadQuantity) : base("GeoJson", partialLoadQuantity)
+        DataNotificationTypesToRespondTo = new List<DataNotificationContentType>
         {
-            DataNotificationTypesToRespondTo = new List<DataNotificationContentType>
-            {
-                DataNotificationContentType.GeoJson
-            };
+            DataNotificationContentType.GeoJson
+        };
+    }
+
+    public override async Task<List<object>> LoadItems(IProgress<string> progress = null)
+    {
+        var db = await Db.Context();
+
+        if (PartialLoadQuantity != null)
+        {
+            progress?.Report($"Loading GeoJson Content from DB - Max {PartialLoadQuantity} Items");
+            var returnItems = (await db.GeoJsonContents.OrderByDescending(x => x.LastUpdatedOn ?? x.CreatedOn)
+                .Take(PartialLoadQuantity.Value).ToListAsync()).Cast<object>().ToList();
+
+            AllItemsLoaded = await db.GeoJsonContents.CountAsync() <= returnItems.Count;
+
+            return returnItems;
         }
 
-        public override async Task<List<object>> LoadItems(IProgress<string> progress = null)
-        {
-            var db = await Db.Context();
+        progress?.Report("Loading All GeoJson Content from DB");
 
-            if (PartialLoadQuantity != null)
-            {
-                progress?.Report($"Loading GeoJson Content from DB - Max {PartialLoadQuantity} Items");
-                var returnItems = (await db.GeoJsonContents.OrderByDescending(x => x.LastUpdatedOn ?? x.CreatedOn)
-                    .Take(PartialLoadQuantity.Value).ToListAsync()).Cast<object>().ToList();
+        AllItemsLoaded = true;
 
-                AllItemsLoaded = await db.GeoJsonContents.CountAsync() <= returnItems.Count;
-
-                return returnItems;
-            }
-
-            progress?.Report("Loading All GeoJson Content from DB");
-
-            AllItemsLoaded = true;
-
-            return (await db.GeoJsonContents.OrderByDescending(x => x.LastUpdatedOn ?? x.CreatedOn)
-                .ToListAsync()).Cast<object>().ToList();
-        }
+        return (await db.GeoJsonContents.OrderByDescending(x => x.LastUpdatedOn ?? x.CreatedOn)
+            .ToListAsync()).Cast<object>().ToList();
     }
 }

@@ -1,70 +1,69 @@
 ﻿using System.ComponentModel;
 using Omu.ValueInjecter.Utils;
 
-namespace PointlessWaymarks.CmsWpfControls.Utility.ChangesAndValidation
+namespace PointlessWaymarks.CmsWpfControls.Utility.ChangesAndValidation;
+
+public static class PropertyScanners
 {
-    public static class PropertyScanners
+    public static bool ChildPropertiesHaveChanges(object toScan)
     {
-        public static bool ChildPropertiesHaveChanges(object toScan)
+        var allProperties = toScan.GetProps().ToList();
+
+        var hasChanges = false;
+
+        foreach (var loopProperties in allProperties)
         {
-            var allProperties = toScan.GetProps().ToList();
+            if (!typeof(IHasChanges).IsAssignableFrom(loopProperties.PropertyType)) continue;
 
-            var hasChanges = false;
+            var value = loopProperties.GetValue(toScan);
 
-            foreach (var loopProperties in allProperties)
-            {
-                if (!typeof(IHasChanges).IsAssignableFrom(loopProperties.PropertyType)) continue;
+            if (value == null) continue;
 
-                var value = loopProperties.GetValue(toScan);
-
-                if (value == null) continue;
-
-                hasChanges = hasChanges || ((IHasChanges) value).HasChanges;
-            }
-
-            return hasChanges;
+            hasChanges = hasChanges || ((IHasChanges) value).HasChanges;
         }
 
-        public static bool ChildPropertiesHaveValidationIssues(object toScan)
+        return hasChanges;
+    }
+
+    public static bool ChildPropertiesHaveValidationIssues(object toScan)
+    {
+        var allProperties = toScan.GetProps().ToList();
+
+        var hasValidationIssues = false;
+
+        foreach (var loopProperties in allProperties)
         {
-            var allProperties = toScan.GetProps().ToList();
+            if (!typeof(IHasValidationIssues).IsAssignableFrom(loopProperties.PropertyType)) continue;
 
-            var hasValidationIssues = false;
+            var value = loopProperties.GetValue(toScan);
 
-            foreach (var loopProperties in allProperties)
-            {
-                if (!typeof(IHasValidationIssues).IsAssignableFrom(loopProperties.PropertyType)) continue;
+            if (value == null) continue;
 
-                var value = loopProperties.GetValue(toScan);
-
-                if (value == null) continue;
-
-                hasValidationIssues = hasValidationIssues || ((IHasValidationIssues) value).HasValidationIssues;
-            }
-
-            return hasValidationIssues;
+            hasValidationIssues = hasValidationIssues || ((IHasValidationIssues) value).HasValidationIssues;
         }
 
-        public static void SubscribeToChildHasChangesAndHasValidationIssues(object toScan, Action actionOnStatusChange)
-        {
-            var allProperties = toScan.GetProps().ToList();
+        return hasValidationIssues;
+    }
 
-            foreach (var loopProperties in allProperties)
-                if (typeof(IHasChanges).IsAssignableFrom(loopProperties.PropertyType) &&
-                    typeof(INotifyPropertyChanged).IsAssignableFrom(loopProperties.PropertyType))
+    public static void SubscribeToChildHasChangesAndHasValidationIssues(object toScan, Action actionOnStatusChange)
+    {
+        var allProperties = toScan.GetProps().ToList();
+
+        foreach (var loopProperties in allProperties)
+            if (typeof(IHasChanges).IsAssignableFrom(loopProperties.PropertyType) &&
+                typeof(INotifyPropertyChanged).IsAssignableFrom(loopProperties.PropertyType))
+            {
+                var value = loopProperties.GetValue(toScan);
+                if (value == null) continue;
+
+                ((INotifyPropertyChanged) value).PropertyChanged += (_, args) =>
                 {
-                    var value = loopProperties.GetValue(toScan);
-                    if (value == null) continue;
+                    if (string.IsNullOrWhiteSpace(args?.PropertyName) || actionOnStatusChange == null) return;
+                    if (args.PropertyName == "HasChanges" || args.PropertyName == "HasValidationIssues")
+                        actionOnStatusChange();
+                };
+            }
 
-                    ((INotifyPropertyChanged) value).PropertyChanged += (_, args) =>
-                    {
-                        if (string.IsNullOrWhiteSpace(args?.PropertyName) || actionOnStatusChange == null) return;
-                        if (args.PropertyName == "HasChanges" || args.PropertyName == "HasValidationIssues")
-                            actionOnStatusChange();
-                    };
-                }
-
-            actionOnStatusChange.Invoke();
-        }
+        actionOnStatusChange.Invoke();
     }
 }

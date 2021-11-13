@@ -1,13 +1,12 @@
-﻿namespace PointlessWaymarks.CmsWpfControls.TagExclusionEditor
+﻿namespace PointlessWaymarks.CmsWpfControls.TagExclusionEditor;
+
+/// <summary>
+///     Interaction logic for TagExclusionEditorControl.xaml
+/// </summary>
+public partial class TagExclusionEditorControl
 {
-    /// <summary>
-    ///     Interaction logic for TagExclusionEditorControl.xaml
-    /// </summary>
-    public partial class TagExclusionEditorControl
+    public TagExclusionEditorControl()
     {
-        public TagExclusionEditorControl()
-        {
-            InitializeComponent();
-        }
+        InitializeComponent();
     }
 }

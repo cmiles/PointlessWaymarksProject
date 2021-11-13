@@ -5,52 +5,51 @@ using System.Windows.Controls;
 using JetBrains.Annotations;
 using PointlessWaymarks.WpfCommon.Commands;
 
-namespace PointlessWaymarks.CmsWpfControls.Utility
+namespace PointlessWaymarks.CmsWpfControls.Utility;
+
+public class CurrentSelectedTextTracker : INotifyPropertyChanged
 {
-    public class CurrentSelectedTextTracker : INotifyPropertyChanged
+    private string _currentSelectedText;
+    private Command<RoutedEventArgs> _selectedTextChangedCommand;
+
+    public CurrentSelectedTextTracker()
     {
-        private string _currentSelectedText;
-        private Command<RoutedEventArgs> _selectedTextChangedCommand;
+        SelectedTextChangedCommand = new Command<RoutedEventArgs>(SelectedTextChanged);
+    }
 
-        public CurrentSelectedTextTracker()
+    public string CurrentSelectedText
+    {
+        get => _currentSelectedText;
+        set
         {
-            SelectedTextChangedCommand = new Command<RoutedEventArgs>(SelectedTextChanged);
+            if (value == _currentSelectedText) return;
+            _currentSelectedText = value;
+            OnPropertyChanged();
         }
+    }
 
-        public string CurrentSelectedText
+    public Command<RoutedEventArgs> SelectedTextChangedCommand
+    {
+        get => _selectedTextChangedCommand;
+        set
         {
-            get => _currentSelectedText;
-            set
-            {
-                if (value == _currentSelectedText) return;
-                _currentSelectedText = value;
-                OnPropertyChanged();
-            }
+            if (Equals(value, _selectedTextChangedCommand)) return;
+            _selectedTextChangedCommand = value;
+            OnPropertyChanged();
         }
+    }
 
-        public Command<RoutedEventArgs> SelectedTextChangedCommand
-        {
-            get => _selectedTextChangedCommand;
-            set
-            {
-                if (Equals(value, _selectedTextChangedCommand)) return;
-                _selectedTextChangedCommand = value;
-                OnPropertyChanged();
-            }
-        }
+    public event PropertyChangedEventHandler PropertyChanged;
 
-        public event PropertyChangedEventHandler PropertyChanged;
+    [NotifyPropertyChangedInvocator]
+    protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+    {
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+    }
 
-        [NotifyPropertyChangedInvocator]
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
-
-        private void SelectedTextChanged(RoutedEventArgs obj)
-        {
-            var source = obj.Source as TextBox;
-            CurrentSelectedText = source?.SelectedText;
-        }
+    private void SelectedTextChanged(RoutedEventArgs obj)
+    {
+        var source = obj.Source as TextBox;
+        CurrentSelectedText = source?.SelectedText;
     }
 }

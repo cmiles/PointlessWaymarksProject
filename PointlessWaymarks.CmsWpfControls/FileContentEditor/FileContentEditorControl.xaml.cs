@@ -1,10 +1,9 @@
-﻿namespace PointlessWaymarks.CmsWpfControls.FileContentEditor
+﻿namespace PointlessWaymarks.CmsWpfControls.FileContentEditor;
+
+public partial class FileContentEditorControl
 {
-    public partial class FileContentEditorControl
+    public FileContentEditorControl()
     {
-        public FileContentEditorControl()
-        {
-            InitializeComponent();
-        }
+        InitializeComponent();
     }
 }

@@ -8,197 +8,196 @@ using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsData.Json;
 
-namespace PointlessWaymarks.CmsTests
+namespace PointlessWaymarks.CmsTests;
+
+public static class TestFileInfo
 {
-    public static class TestFileInfo
+    public static FileContent GrandviewContent01 =>
+        new()
+        {
+            BodyContentFormat = ContentFormatDefaults.Content.ToString(),
+            BodyContent =
+                "NPS Overview Information on the Grandview Trail including a map but lacking" +
+                "detailed information on the day hike 'full' loops.",
+            ContentId = Guid.NewGuid(),
+            CreatedBy = "GC File Test",
+            CreatedOn = new DateTime(2020, 10, 6, 6, 18, 00),
+            FeedOn = new DateTime(2020, 10, 6, 6, 18, 00),
+            Folder = "Trails",
+            PublicDownloadLink = true,
+            Title = "Grandview Trail",
+            ShowInMainSiteFeed = true,
+            Slug = SlugUtility.Create(true, "Grandview Trail"),
+            Summary = "NPS Grandview Overview.",
+            Tags = "grand canyon national park, grandview trail, nps",
+            UpdateNotesFormat = ContentFormatDefaults.Content.ToString()
+        };
+
+    public static FileContent MapContent01 =>
+        new()
+        {
+            BodyContentFormat = ContentFormatDefaults.Content.ToString(),
+            BodyContent = "A map of Ironwood Forest National Monument",
+            ContentId = Guid.NewGuid(),
+            CreatedBy = "File Test",
+            CreatedOn = new DateTime(2020, 7, 24, 5, 55, 55),
+            FeedOn = new DateTime(2020, 7, 24, 5, 55, 55),
+            Folder = "Maps",
+            PublicDownloadLink = true,
+            Title = "Ironwood Forest National Monument Map",
+            ShowInMainSiteFeed = true,
+            Slug = SlugUtility.Create(true, "Ironwood Forest National Monument Map"),
+            Summary = "A map of Ironwood.",
+            Tags = "ironwood forest national monument,map",
+            UpdateNotesFormat = ContentFormatDefaults.Content.ToString()
+        };
+
+    public static string MapFilename => "AZ_IronwoodForest_NM_map.pdf";
+    public static string ProclamationFilename => "ironwood_proc.pdf";
+    public static string TrailInfoGrandviewFilename => "GrandviewTrail.pdf";
+
+    public static async Task CheckForExpectedFilesAfterHtmlGeneration(FileContent newContent)
     {
-        public static FileContent GrandviewContent01 =>
-            new()
-            {
-                BodyContentFormat = ContentFormatDefaults.Content.ToString(),
-                BodyContent =
-                    "NPS Overview Information on the Grandview Trail including a map but lacking" +
-                    "detailed information on the day hike 'full' loops.",
-                ContentId = Guid.NewGuid(),
-                CreatedBy = "GC File Test",
-                CreatedOn = new DateTime(2020, 10, 6, 6, 18, 00),
-                FeedOn = new DateTime(2020, 10, 6, 6, 18, 00),
-                Folder = "Trails",
-                PublicDownloadLink = true,
-                Title = "Grandview Trail",
-                ShowInMainSiteFeed = true,
-                Slug = SlugUtility.Create(true, "Grandview Trail"),
-                Summary = "NPS Grandview Overview.",
-                Tags = "grand canyon national park, grandview trail, nps",
-                UpdateNotesFormat = ContentFormatDefaults.Content.ToString()
-            };
+        var contentDirectory = UserSettingsSingleton.CurrentSettings()
+            .LocalSiteFileContentDirectory(newContent, false);
+        Assert.True(contentDirectory.Exists, "Content Directory Not Found?");
 
-        public static FileContent MapContent01 =>
-            new()
-            {
-                BodyContentFormat = ContentFormatDefaults.Content.ToString(),
-                BodyContent = "A map of Ironwood Forest National Monument",
-                ContentId = Guid.NewGuid(),
-                CreatedBy = "File Test",
-                CreatedOn = new DateTime(2020, 7, 24, 5, 55, 55),
-                FeedOn = new DateTime(2020, 7, 24, 5, 55, 55),
-                Folder = "Maps",
-                PublicDownloadLink = true,
-                Title = "Ironwood Forest National Monument Map",
-                ShowInMainSiteFeed = true,
-                Slug = SlugUtility.Create(true, "Ironwood Forest National Monument Map"),
-                Summary = "A map of Ironwood.",
-                Tags = "ironwood forest national monument,map",
-                UpdateNotesFormat = ContentFormatDefaults.Content.ToString()
-            };
+        var filesInDirectory = contentDirectory.GetFiles().ToList();
 
-        public static string MapFilename => "AZ_IronwoodForest_NM_map.pdf";
-        public static string ProclamationFilename => "ironwood_proc.pdf";
-        public static string TrailInfoGrandviewFilename => "GrandviewTrail.pdf";
+        var fileFile = filesInDirectory.SingleOrDefault(x => x.Name == newContent.OriginalFileName);
 
-        public static async Task CheckForExpectedFilesAfterHtmlGeneration(FileContent newContent)
+        Assert.NotNull(fileFile, "Original File not Found in File Content Directory");
+
+        filesInDirectory.Remove(fileFile);
+
+        var htmlFile = filesInDirectory.SingleOrDefault(x => x.Name == $"{newContent.Slug}.html");
+
+        Assert.NotNull(htmlFile, "File Content HTML File not Found");
+
+        filesInDirectory.Remove(htmlFile);
+
+        var jsonFile =
+            filesInDirectory.SingleOrDefault(x =>
+                x.Name == $"{Names.FileContentPrefix}{newContent.ContentId}.json");
+
+        Assert.NotNull(jsonFile, "Json File not Found in File Content Directory");
+
+        filesInDirectory.Remove(jsonFile);
+
+        var db = await Db.Context();
+        if (db.HistoricFileContents.Any(x => x.ContentId == newContent.ContentId))
         {
-            var contentDirectory = UserSettingsSingleton.CurrentSettings()
-                .LocalSiteFileContentDirectory(newContent, false);
-            Assert.True(contentDirectory.Exists, "Content Directory Not Found?");
+            var historicJsonFile = filesInDirectory.SingleOrDefault(x =>
+                x.Name == $"{Names.HistoricFileContentPrefix}{newContent.ContentId}.json");
 
-            var filesInDirectory = contentDirectory.GetFiles().ToList();
+            Assert.NotNull(historicJsonFile, "Historic Json File not Found in File Content Directory");
 
-            var fileFile = filesInDirectory.SingleOrDefault(x => x.Name == newContent.OriginalFileName);
+            filesInDirectory.Remove(historicJsonFile);
+        }
 
-            Assert.NotNull(fileFile, "Original File not Found in File Content Directory");
+        Assert.AreEqual(0, filesInDirectory.Count,
+            $"Unexpected files in File Content Directory: {string.Join(",", filesInDirectory)}");
+    }
 
-            filesInDirectory.Remove(fileFile);
+    public static void CheckOriginalFileInContentAndMediaArchiveAfterHtmlGeneration(FileContent newContent)
+    {
+        var expectedDirectory = UserSettingsSingleton.CurrentSettings().LocalSiteFileContentDirectory(newContent);
+        Assert.IsTrue(expectedDirectory.Exists, $"Expected directory {expectedDirectory.FullName} does not exist");
 
-            var htmlFile = filesInDirectory.SingleOrDefault(x => x.Name == $"{newContent.Slug}.html");
+        var expectedFile = UserSettingsSingleton.CurrentSettings().LocalSiteFileHtmlFile(newContent);
+        Assert.IsTrue(expectedFile.Exists, $"Expected html file {expectedFile.FullName} does not exist");
 
-            Assert.NotNull(htmlFile, "File Content HTML File not Found");
+        var expectedOriginalFileInContent =
+            new FileInfo(Path.Combine(expectedDirectory.FullName, newContent.OriginalFileName));
+        Assert.IsTrue(expectedOriginalFileInContent.Exists,
+            $"Expected to find original file in content directory but {expectedOriginalFileInContent.FullName} does not exist");
 
-            filesInDirectory.Remove(htmlFile);
+        var expectedOriginalFileInMediaArchive = new FileInfo(Path.Combine(
+            UserSettingsSingleton.CurrentSettings().LocalMediaArchiveFileDirectory().FullName,
+            expectedOriginalFileInContent.Name));
+        Assert.IsTrue(expectedOriginalFileInMediaArchive.Exists,
+            $"Expected to find original file in media archive file directory but {expectedOriginalFileInMediaArchive.FullName} does not exist");
+    }
 
-            var jsonFile =
-                filesInDirectory.SingleOrDefault(x =>
-                    x.Name == $"{Names.FileContentPrefix}{newContent.ContentId}.json");
+    public static (bool areEqual, string comparisonNotes) CompareContent(FileContent reference,
+        FileContent toCompare)
+    {
+        Db.DefaultPropertyCleanup(reference);
+        reference.Tags = Db.TagListCleanup(reference.Tags);
+        if (string.IsNullOrWhiteSpace(reference.CreatedBy))
+            reference.CreatedBy = UserSettingsSingleton.CurrentSettings().DefaultCreatedBy;
 
-            Assert.NotNull(jsonFile, "Json File not Found in File Content Directory");
+        Db.DefaultPropertyCleanup(toCompare);
+        toCompare.Tags = Db.TagListCleanup(toCompare.Tags);
 
-            filesInDirectory.Remove(jsonFile);
-
-            var db = await Db.Context();
-            if (db.HistoricFileContents.Any(x => x.ContentId == newContent.ContentId))
+        var compareLogic = new CompareLogic
+        {
+            Config =
             {
-                var historicJsonFile = filesInDirectory.SingleOrDefault(x =>
-                    x.Name == $"{Names.HistoricFileContentPrefix}{newContent.ContentId}.json");
-
-                Assert.NotNull(historicJsonFile, "Historic Json File not Found in File Content Directory");
-
-                filesInDirectory.Remove(historicJsonFile);
+                MembersToIgnore =
+                    new List<string> { "ContentId", "ContentVersion", "Id", "OriginalFileName" }
             }
+        };
 
-            Assert.AreEqual(0, filesInDirectory.Count,
-                $"Unexpected files in File Content Directory: {string.Join(",", filesInDirectory)}");
-        }
+        var compareResult = compareLogic.Compare(reference, toCompare);
 
-        public static void CheckOriginalFileInContentAndMediaArchiveAfterHtmlGeneration(FileContent newContent)
-        {
-            var expectedDirectory = UserSettingsSingleton.CurrentSettings().LocalSiteFileContentDirectory(newContent);
-            Assert.IsTrue(expectedDirectory.Exists, $"Expected directory {expectedDirectory.FullName} does not exist");
+        return (compareResult.AreEqual, compareResult.DifferencesString);
+    }
 
-            var expectedFile = UserSettingsSingleton.CurrentSettings().LocalSiteFileHtmlFile(newContent);
-            Assert.IsTrue(expectedFile.Exists, $"Expected html file {expectedFile.FullName} does not exist");
+    public static async Task<FileContent> FileTest(string fileName, FileContent contentReference)
+    {
+        var testFile = new FileInfo(Path.Combine(Directory.GetCurrentDirectory(), "TestMedia", fileName));
+        Assert.True(testFile.Exists, "Test File Found");
 
-            var expectedOriginalFileInContent =
-                new FileInfo(Path.Combine(expectedDirectory.FullName, newContent.OriginalFileName));
-            Assert.IsTrue(expectedOriginalFileInContent.Exists,
-                $"Expected to find original file in content directory but {expectedOriginalFileInContent.FullName} does not exist");
+        var contentToSave = new FileContent();
+        contentToSave.InjectFrom(contentReference);
 
-            var expectedOriginalFileInMediaArchive = new FileInfo(Path.Combine(
-                UserSettingsSingleton.CurrentSettings().LocalMediaArchiveFileDirectory().FullName,
-                expectedOriginalFileInContent.Name));
-            Assert.IsTrue(expectedOriginalFileInMediaArchive.Exists,
-                $"Expected to find original file in media archive file directory but {expectedOriginalFileInMediaArchive.FullName} does not exist");
-        }
+        var validationReturn = await FileGenerator.Validate(contentToSave, testFile);
+        Assert.False(validationReturn.HasError, $"Unexpected Validation Error - {validationReturn.GenerationNote}");
 
-        public static (bool areEqual, string comparisonNotes) CompareContent(FileContent reference,
-            FileContent toCompare)
-        {
-            Db.DefaultPropertyCleanup(reference);
-            reference.Tags = Db.TagListCleanup(reference.Tags);
-            if (string.IsNullOrWhiteSpace(reference.CreatedBy))
-                reference.CreatedBy = UserSettingsSingleton.CurrentSettings().DefaultCreatedBy;
+        var (generationReturn, newContent) = await FileGenerator.SaveAndGenerateHtml(contentToSave, testFile, true,
+            null, DebugTrackers.DebugProgressTracker());
+        Assert.False(generationReturn.HasError, $"Unexpected Save Error - {generationReturn.GenerationNote}");
 
-            Db.DefaultPropertyCleanup(toCompare);
-            toCompare.Tags = Db.TagListCleanup(toCompare.Tags);
+        var contentComparison = CompareContent(contentReference, newContent);
+        Assert.True(contentComparison.areEqual, contentComparison.comparisonNotes);
 
-            var compareLogic = new CompareLogic
-            {
-                Config =
-                {
-                    MembersToIgnore =
-                        new List<string> { "ContentId", "ContentVersion", "Id", "OriginalFileName" }
-                }
-            };
+        CheckOriginalFileInContentAndMediaArchiveAfterHtmlGeneration(newContent);
 
-            var compareResult = compareLogic.Compare(reference, toCompare);
+        await CheckForExpectedFilesAfterHtmlGeneration(newContent);
 
-            return (compareResult.AreEqual, compareResult.DifferencesString);
-        }
+        JsonTest(newContent);
 
-        public static async Task<FileContent> FileTest(string fileName, FileContent contentReference)
-        {
-            var testFile = new FileInfo(Path.Combine(Directory.GetCurrentDirectory(), "TestMedia", fileName));
-            Assert.True(testFile.Exists, "Test File Found");
+        await HtmlChecks(newContent);
 
-            var contentToSave = new FileContent();
-            contentToSave.InjectFrom(contentReference);
+        return newContent;
+    }
 
-            var validationReturn = await FileGenerator.Validate(contentToSave, testFile);
-            Assert.False(validationReturn.HasError, $"Unexpected Validation Error - {validationReturn.GenerationNote}");
+    public static async Task HtmlChecks(FileContent newFileContent)
+    {
+        var htmlFile = UserSettingsSingleton.CurrentSettings().LocalSiteFileHtmlFile(newFileContent);
 
-            var (generationReturn, newContent) = await FileGenerator.SaveAndGenerateHtml(contentToSave, testFile, true,
-                null, DebugTrackers.DebugProgressTracker());
-            Assert.False(generationReturn.HasError, $"Unexpected Save Error - {generationReturn.GenerationNote}");
+        Assert.True(htmlFile.Exists, "Html File not Found for Html Checks?");
 
-            var contentComparison = CompareContent(contentReference, newContent);
-            Assert.True(contentComparison.areEqual, contentComparison.comparisonNotes);
+        var document = IronwoodHtmlHelpers.DocumentFromFile(htmlFile);
 
-            CheckOriginalFileInContentAndMediaArchiveAfterHtmlGeneration(newContent);
+        await IronwoodHtmlHelpers.CommonContentChecks(document, newFileContent);
+    }
 
-            await CheckForExpectedFilesAfterHtmlGeneration(newContent);
+    public static void JsonTest(FileContent newContent)
+    {
+        //Check JSON File
+        var jsonFile =
+            new FileInfo(Path.Combine(
+                UserSettingsSingleton.CurrentSettings().LocalSiteFileContentDirectory(newContent).FullName,
+                $"{Names.FileContentPrefix}{newContent.ContentId}.json"));
+        Assert.True(jsonFile.Exists, $"Json file {jsonFile.FullName} does not exist?");
 
-            JsonTest(newContent);
-
-            await HtmlChecks(newContent);
-
-            return newContent;
-        }
-
-        public static async Task HtmlChecks(FileContent newFileContent)
-        {
-            var htmlFile = UserSettingsSingleton.CurrentSettings().LocalSiteFileHtmlFile(newFileContent);
-
-            Assert.True(htmlFile.Exists, "Html File not Found for Html Checks?");
-
-            var document = IronwoodHtmlHelpers.DocumentFromFile(htmlFile);
-
-            await IronwoodHtmlHelpers.CommonContentChecks(document, newFileContent);
-        }
-
-        public static void JsonTest(FileContent newContent)
-        {
-            //Check JSON File
-            var jsonFile =
-                new FileInfo(Path.Combine(
-                    UserSettingsSingleton.CurrentSettings().LocalSiteFileContentDirectory(newContent).FullName,
-                    $"{Names.FileContentPrefix}{newContent.ContentId}.json"));
-            Assert.True(jsonFile.Exists, $"Json file {jsonFile.FullName} does not exist?");
-
-            var jsonFileImported = Import.ContentFromFiles<FileContent>(
-                new List<string> { jsonFile.FullName }, Names.FileContentPrefix).Single();
-            var compareLogic = new CompareLogic();
-            var comparisonResult = compareLogic.Compare(newContent, jsonFileImported);
-            Assert.True(comparisonResult.AreEqual,
-                $"Json Import does not match expected File Content {comparisonResult.DifferencesString}");
-        }
+        var jsonFileImported = Import.ContentFromFiles<FileContent>(
+            new List<string> { jsonFile.FullName }, Names.FileContentPrefix).Single();
+        var compareLogic = new CompareLogic();
+        var comparisonResult = compareLogic.Compare(newContent, jsonFileImported);
+        Assert.True(comparisonResult.AreEqual,
+            $"Json Import does not match expected File Content {comparisonResult.DifferencesString}");
     }
 }

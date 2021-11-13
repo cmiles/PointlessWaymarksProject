@@ -1,10 +1,9 @@
-﻿namespace PointlessWaymarks.CmsWpfControls.NoteList
+﻿namespace PointlessWaymarks.CmsWpfControls.NoteList;
+
+public partial class NoteListWithActionsControl
 {
-    public partial class NoteListWithActionsControl
+    public NoteListWithActionsControl()
     {
-        public NoteListWithActionsControl()
-        {
-            InitializeComponent();
-        }
+        InitializeComponent();
     }
 }

@@ -1,28 +1,27 @@
 using System.Windows;
 using System.Windows.Controls;
 
-namespace PointlessWaymarks.WpfCommon.ToastControl
+namespace PointlessWaymarks.WpfCommon.ToastControl;
+
+internal class ToastTypeTemplateSelector : DataTemplateSelector
 {
-    internal class ToastTypeTemplateSelector : DataTemplateSelector
+    public DataTemplate ErrorTemplate { get; set; }
+    public DataTemplate InformationTemplate { get; set; }
+    public DataTemplate SuccessTemplate { get; set; }
+    public DataTemplate WarningTemplate { get; set; }
+
+    public override DataTemplate SelectTemplate(object item, DependencyObject container)
     {
-        public DataTemplate ErrorTemplate { get; set; }
-        public DataTemplate InformationTemplate { get; set; }
-        public DataTemplate SuccessTemplate { get; set; }
-        public DataTemplate WarningTemplate { get; set; }
+        if (item is not ToastViewModel toastViewModel)
+            return null;
 
-        public override DataTemplate SelectTemplate(object item, DependencyObject container)
+        return toastViewModel.Type switch
         {
-            if (item is not ToastViewModel toastViewModel)
-                return null;
-
-            return toastViewModel.Type switch
-            {
-                ToastType.Information => InformationTemplate,
-                ToastType.Success => SuccessTemplate,
-                ToastType.Warning => WarningTemplate,
-                ToastType.Error => ErrorTemplate,
-                _ => null
-            };
-        }
+            ToastType.Information => InformationTemplate,
+            ToastType.Success => SuccessTemplate,
+            ToastType.Warning => WarningTemplate,
+            ToastType.Error => ErrorTemplate,
+            _ => null
+        };
     }
 }

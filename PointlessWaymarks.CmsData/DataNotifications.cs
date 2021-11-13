@@ -3,133 +3,132 @@ using pinboard.net.Models;
 using PointlessWaymarks.CmsData.Database.Models;
 using TinyIpc.Messaging;
 
-namespace PointlessWaymarks.CmsData
+namespace PointlessWaymarks.CmsData;
+
+public static class DataNotifications
 {
-    public static class DataNotifications
+    private static readonly string ChannelName =
+        $"PointlessWaymarksCMS-{UserSettingsSingleton.CurrentSettings().SettingsId}";
+
+    private static readonly TinyMessageBus DataNotificationTransmissionChannel =
+        new(ChannelName);
+
+    private static readonly WorkQueue<string> SendMessageQueue = new()
     {
-        private static readonly string ChannelName =
-            $"PointlessWaymarksCMS-{UserSettingsSingleton.CurrentSettings().SettingsId}";
+        Processor = async x => await DataNotificationTransmissionChannel.PublishAsync(Encoding.UTF8.GetBytes(x)).ConfigureAwait(false)
+    };
 
-        private static readonly TinyMessageBus DataNotificationTransmissionChannel =
-            new(ChannelName);
+    public static bool SuspendNotifications { get; set; }
 
-        private static readonly WorkQueue<string> SendMessageQueue = new()
+    public static TinyMessageBus NewDataNotificationChannel()
+    {
+        return new(ChannelName);
+    }
+
+    public static DataNotificationContentType NotificationContentTypeFromContent(dynamic content)
+    {
+        return content switch
         {
-            Processor = async x => await DataNotificationTransmissionChannel.PublishAsync(Encoding.UTF8.GetBytes(x)).ConfigureAwait(false)
+            FileContent => DataNotificationContentType.File,
+            GeoJsonContent => DataNotificationContentType.GeoJson,
+            ImageContent => DataNotificationContentType.Image,
+            LineContent => DataNotificationContentType.Line,
+            LinkContent => DataNotificationContentType.Link,
+            Note => DataNotificationContentType.Note,
+            PhotoContent => DataNotificationContentType.Photo,
+            PointContent => DataNotificationContentType.Point,
+            PointDetail => DataNotificationContentType.PointDetail,
+            PostContent => DataNotificationContentType.Post,
+            _ => DataNotificationContentType.Unknown
         };
+    }
 
-        public static bool SuspendNotifications { get; set; }
+    public static void PublishDataNotification(string sender, DataNotificationContentType contentType,
+        DataNotificationUpdateType updateType, List<Guid>? contentGuidList)
+    {
+        if (SuspendNotifications) return;
 
-        public static TinyMessageBus NewDataNotificationChannel()
+        if (contentType != DataNotificationContentType.FileTransferScriptLog &&
+            contentType != DataNotificationContentType.GenerationLog &&
+            contentType != DataNotificationContentType.TagExclusion &&
+            (contentGuidList == null || !contentGuidList.Any())) return;
+
+        var cleanedSender = string.IsNullOrWhiteSpace(sender) ? "No Sender Specified" : sender.TrimNullToEmpty();
+
+        SendMessageQueue.Enqueue(
+            $"{cleanedSender.Replace("|", " ")}|{(int) contentType}|{(int) updateType}|{string.Join(",", contentGuidList ?? new List<Guid>())}");
+    }
+
+    public static InterProcessDataNotification TranslateDataNotification(byte[]? received)
+    {
+        if (received == null || received.Length == 0)
+            return new InterProcessDataNotification {HasError = true, ErrorNote = "No Data"};
+
+        try
         {
-            return new(ChannelName);
-        }
+            var asString = Encoding.UTF8.GetString(received);
 
-        public static DataNotificationContentType NotificationContentTypeFromContent(dynamic content)
-        {
-            return content switch
-            {
-                FileContent => DataNotificationContentType.File,
-                GeoJsonContent => DataNotificationContentType.GeoJson,
-                ImageContent => DataNotificationContentType.Image,
-                LineContent => DataNotificationContentType.Line,
-                LinkContent => DataNotificationContentType.Link,
-                Note => DataNotificationContentType.Note,
-                PhotoContent => DataNotificationContentType.Photo,
-                PointContent => DataNotificationContentType.Point,
-                PointDetail => DataNotificationContentType.PointDetail,
-                PostContent => DataNotificationContentType.Post,
-                _ => DataNotificationContentType.Unknown
-            };
-        }
+            if (string.IsNullOrWhiteSpace(asString))
+                return new InterProcessDataNotification {HasError = true, ErrorNote = "Data is Blank"};
 
-        public static void PublishDataNotification(string sender, DataNotificationContentType contentType,
-            DataNotificationUpdateType updateType, List<Guid>? contentGuidList)
-        {
-            if (SuspendNotifications) return;
+            var parsedString = asString.Split("|").ToList();
 
-            if (contentType != DataNotificationContentType.FileTransferScriptLog &&
-                contentType != DataNotificationContentType.GenerationLog &&
-                contentType != DataNotificationContentType.TagExclusion &&
-                (contentGuidList == null || !contentGuidList.Any())) return;
-
-            var cleanedSender = string.IsNullOrWhiteSpace(sender) ? "No Sender Specified" : sender.TrimNullToEmpty();
-
-            SendMessageQueue.Enqueue(
-                $"{cleanedSender.Replace("|", " ")}|{(int) contentType}|{(int) updateType}|{string.Join(",", contentGuidList ?? new List<Guid>())}");
-        }
-
-        public static InterProcessDataNotification TranslateDataNotification(byte[]? received)
-        {
-            if (received == null || received.Length == 0)
-                return new InterProcessDataNotification {HasError = true, ErrorNote = "No Data"};
-
-            try
-            {
-                var asString = Encoding.UTF8.GetString(received);
-
-                if (string.IsNullOrWhiteSpace(asString))
-                    return new InterProcessDataNotification {HasError = true, ErrorNote = "Data is Blank"};
-
-                var parsedString = asString.Split("|").ToList();
-
-                if (!parsedString.Any() || parsedString.Count != 4)
-                    return new InterProcessDataNotification
-                    {
-                        HasError = true, ErrorNote = $"Data appears to be in the wrong format - {asString}"
-                    };
-
+            if (!parsedString.Any() || parsedString.Count != 4)
                 return new InterProcessDataNotification
                 {
-                    Sender = parsedString[0],
-                    ContentType = (DataNotificationContentType) int.Parse(parsedString[1]),
-                    UpdateType = (DataNotificationUpdateType) int.Parse(parsedString[2]),
-                    ContentIds = parsedString[3].Split(",", StringSplitOptions.RemoveEmptyEntries)
-                        .Select(Guid.Parse).ToList()
+                    HasError = true, ErrorNote = $"Data appears to be in the wrong format - {asString}"
                 };
-            }
-            catch (Exception e)
+
+            return new InterProcessDataNotification
             {
-                return new InterProcessDataNotification {HasError = true, ErrorNote = e.Message};
-            }
+                Sender = parsedString[0],
+                ContentType = (DataNotificationContentType) int.Parse(parsedString[1]),
+                UpdateType = (DataNotificationUpdateType) int.Parse(parsedString[2]),
+                ContentIds = parsedString[3].Split(",", StringSplitOptions.RemoveEmptyEntries)
+                    .Select(Guid.Parse).ToList()
+            };
+        }
+        catch (Exception e)
+        {
+            return new InterProcessDataNotification {HasError = true, ErrorNote = e.Message};
         }
     }
+}
 
-    public record InterProcessDataNotification
-    {
-        public List<Guid>? ContentIds { get; init; }
-        public DataNotificationContentType ContentType { get; init; }
-        public string? ErrorNote { get; init; }
-        public bool HasError { get; init; }
-        public string? Sender { get; init; }
-        public DataNotificationUpdateType UpdateType { get; init; }
-    }
+public record InterProcessDataNotification
+{
+    public List<Guid>? ContentIds { get; init; }
+    public DataNotificationContentType ContentType { get; init; }
+    public string? ErrorNote { get; init; }
+    public bool HasError { get; init; }
+    public string? Sender { get; init; }
+    public DataNotificationUpdateType UpdateType { get; init; }
+}
 
-    public enum DataNotificationUpdateType
-    {
-        New,
-        Update,
-        Delete,
-        LocalContent
-    }
+public enum DataNotificationUpdateType
+{
+    New,
+    Update,
+    Delete,
+    LocalContent
+}
 
-    public enum DataNotificationContentType
-    {
-        File,
-        GenerationLog,
-        FileTransferScriptLog,
-        GeoJson,
-        Image,
-        Line,
-        Link,
-        Map,
-        MapElement,
-        Note,
-        Photo,
-        Point,
-        PointDetail,
-        Post,
-        TagExclusion,
-        Unknown
-    }
+public enum DataNotificationContentType
+{
+    File,
+    GenerationLog,
+    FileTransferScriptLog,
+    GeoJson,
+    Image,
+    Line,
+    Link,
+    Map,
+    MapElement,
+    Note,
+    Photo,
+    Point,
+    PointDetail,
+    Post,
+    TagExclusion,
+    Unknown
 }

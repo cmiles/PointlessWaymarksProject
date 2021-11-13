@@ -39,1127 +39,1126 @@ using PointlessWaymarks.WpfCommon.Utility;
 using Serilog;
 using TinyIpc.Messaging;
 
-namespace PointlessWaymarks.CmsWpfControls.ContentList
+namespace PointlessWaymarks.CmsWpfControls.ContentList;
+
+public class ContentListContext : INotifyPropertyChanged, IDragSource, IDropTarget
 {
-    public class ContentListContext : INotifyPropertyChanged, IDragSource, IDropTarget
+    private Command _bracketCodeToClipboardSelectedCommand;
+    private IContentListLoader _contentListLoader;
+    private List<ContextMenuItemData> _contextMenuItems;
+    private Command _deleteSelectedCommand;
+    private Command _editSelectedCommand;
+    private FileContentActions _fileItemActions;
+    private Command _generateChangedHtmlAndStartUploadCommand;
+    private Command _generateChangedHtmlCommand;
+    private Command _generateHtmlSelectedCommand;
+    private Command _generateChangedHtmlAndShowSitePreviewCommand;
+    private GeoJsonContentActions _geoJsonItemActions;
+    private ImageContentActions _imageItemActions;
+    private Command _importFromExcelFileCommand;
+    private Command _importFromOpenExcelInstanceCommand;
+    private ObservableCollection<IContentListItem> _items;
+    private LineContentActions _lineItemActions;
+    private LinkContentActions _linkItemActions;
+    private ContentListSelected<IContentListItem> _listSelection;
+    private ColumnSortControlContext _listSort;
+    private Command _loadAllCommand;
+    private MapComponentContentActions _mapComponentItemActions;
+    private NewContent _newActions;
+    private NoteContentActions _noteItemActions;
+    private Command _openUrlSelectedCommand;
+    private PhotoContentActions _photoItemActions;
+    private PointContentActions _pointItemActions;
+    private PostContentActions _postItemActions;
+    private Command _selectedToExcelCommand;
+    private Command _showSitePreviewWindowCommand;
+    private StatusControlContext _statusContext;
+    private string _userFilterText;
+    private Command _viewHistorySelectedCommand;
+    private WindowIconStatus _windowStatus;
+
+    public ContentListContext(StatusControlContext statusContext, IContentListLoader loader,
+        WindowIconStatus windowStatus = null)
     {
-        private Command _bracketCodeToClipboardSelectedCommand;
-        private IContentListLoader _contentListLoader;
-        private List<ContextMenuItemData> _contextMenuItems;
-        private Command _deleteSelectedCommand;
-        private Command _editSelectedCommand;
-        private FileContentActions _fileItemActions;
-        private Command _generateChangedHtmlAndStartUploadCommand;
-        private Command _generateChangedHtmlCommand;
-        private Command _generateHtmlSelectedCommand;
-        private Command _generateChangedHtmlAndShowSitePreviewCommand;
-        private GeoJsonContentActions _geoJsonItemActions;
-        private ImageContentActions _imageItemActions;
-        private Command _importFromExcelFileCommand;
-        private Command _importFromOpenExcelInstanceCommand;
-        private ObservableCollection<IContentListItem> _items;
-        private LineContentActions _lineItemActions;
-        private LinkContentActions _linkItemActions;
-        private ContentListSelected<IContentListItem> _listSelection;
-        private ColumnSortControlContext _listSort;
-        private Command _loadAllCommand;
-        private MapComponentContentActions _mapComponentItemActions;
-        private NewContent _newActions;
-        private NoteContentActions _noteItemActions;
-        private Command _openUrlSelectedCommand;
-        private PhotoContentActions _photoItemActions;
-        private PointContentActions _pointItemActions;
-        private PostContentActions _postItemActions;
-        private Command _selectedToExcelCommand;
-        private Command _showSitePreviewWindowCommand;
-        private StatusControlContext _statusContext;
-        private string _userFilterText;
-        private Command _viewHistorySelectedCommand;
-        private WindowIconStatus _windowStatus;
+        StatusContext = statusContext ?? new StatusControlContext();
+        WindowStatus = windowStatus;
 
-        public ContentListContext(StatusControlContext statusContext, IContentListLoader loader,
-            WindowIconStatus windowStatus = null)
+        ContentListLoader = loader;
+
+        FileItemActions = new FileContentActions(StatusContext);
+        GeoJsonItemActions = new GeoJsonContentActions(StatusContext);
+        ImageItemActions = new ImageContentActions(StatusContext);
+        LineItemActions = new LineContentActions(StatusContext);
+        LinkItemActions = new LinkContentActions(StatusContext);
+        MapComponentItemActions = new MapComponentContentActions(StatusContext);
+        NoteItemActions = new NoteContentActions(StatusContext);
+        PointItemActions = new PointContentActions(StatusContext);
+        PhotoItemActions = new PhotoContentActions(StatusContext);
+        PostItemActions = new PostContentActions(StatusContext);
+
+        NewActions = new NewContent(StatusContext, WindowStatus);
+
+        DataNotificationsProcessor = new DataNotificationsWorkQueue { Processor = DataNotificationReceived };
+
+        LoadAllCommand = StatusContext.RunBlockingTaskCommand(async () =>
         {
-            StatusContext = statusContext ?? new StatusControlContext();
-            WindowStatus = windowStatus;
+            ContentListLoader.PartialLoadQuantity = null;
+            await LoadData();
+        });
 
-            ContentListLoader = loader;
+        DeleteSelectedCommand =
+            StatusContext.RunBlockingTaskWithCancellationCommand(DeleteSelected, "Cancel Delete");
+        BracketCodeToClipboardSelectedCommand =
+            StatusContext.RunBlockingTaskWithCancellationCommand(BracketCodeToClipboardSelected, "Cancel Delete");
+        EditSelectedCommand = StatusContext.RunBlockingTaskWithCancellationCommand(EditSelected, "Cancel Edit");
+        ExtractNewLinksSelectedCommand =
+            StatusContext.RunBlockingTaskWithCancellationCommand(ExtractNewLinksSelected, "Cancel Link Extraction");
+        GenerateHtmlSelectedCommand =
+            StatusContext.RunBlockingTaskWithCancellationCommand(GenerateHtmlSelected, "Cancel Generate Html");
+        OpenUrlSelectedCommand =
+            StatusContext.RunBlockingTaskWithCancellationCommand(OpenUrlSelected, "Cancel Open Url");
+        ViewHistorySelectedCommand =
+            StatusContext.RunBlockingTaskWithCancellationCommand(ViewHistorySelected, "Cancel View History");
 
-            FileItemActions = new FileContentActions(StatusContext);
-            GeoJsonItemActions = new GeoJsonContentActions(StatusContext);
-            ImageItemActions = new ImageContentActions(StatusContext);
-            LineItemActions = new LineContentActions(StatusContext);
-            LinkItemActions = new LinkContentActions(StatusContext);
-            MapComponentItemActions = new MapComponentContentActions(StatusContext);
-            NoteItemActions = new NoteContentActions(StatusContext);
-            PointItemActions = new PointContentActions(StatusContext);
-            PhotoItemActions = new PhotoContentActions(StatusContext);
-            PostItemActions = new PostContentActions(StatusContext);
+        ImportFromExcelFileCommand =
+            StatusContext.RunBlockingTaskCommand(async () => await ExcelHelpers.ImportFromExcelFile(StatusContext));
+        ImportFromOpenExcelInstanceCommand = StatusContext.RunBlockingTaskCommand(async () =>
+            await ExcelHelpers.ImportFromOpenExcelInstance(StatusContext));
+        SelectedToExcelCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
+            await ExcelHelpers.SelectedToExcel(ListSelection.SelectedItems?.Cast<dynamic>().ToList(),
+                StatusContext));
 
-            NewActions = new NewContent(StatusContext, WindowStatus);
+        GenerateChangedHtmlAndStartUploadCommand = StatusContext.RunBlockingTaskCommand(GenerateChangedHtmlAndStartUpload);
+        GenerateChangedHtmlCommand = StatusContext.RunBlockingTaskCommand(GenerateChangedHtml);
+        ShowSitePreviewWindowCommand = StatusContext.RunNonBlockingTaskCommand(ShowSitePreviewWindow);
+        GenerateChangedHtmlAndShowSitePreviewCommand =
+            StatusContext.RunBlockingTaskCommand(GenerateChangedHtmlAndShowSitePreview);
+    }
 
-            DataNotificationsProcessor = new DataNotificationsWorkQueue { Processor = DataNotificationReceived };
-
-            LoadAllCommand = StatusContext.RunBlockingTaskCommand(async () =>
-            {
-                ContentListLoader.PartialLoadQuantity = null;
-                await LoadData();
-            });
-
-            DeleteSelectedCommand =
-                StatusContext.RunBlockingTaskWithCancellationCommand(DeleteSelected, "Cancel Delete");
-            BracketCodeToClipboardSelectedCommand =
-                StatusContext.RunBlockingTaskWithCancellationCommand(BracketCodeToClipboardSelected, "Cancel Delete");
-            EditSelectedCommand = StatusContext.RunBlockingTaskWithCancellationCommand(EditSelected, "Cancel Edit");
-            ExtractNewLinksSelectedCommand =
-                StatusContext.RunBlockingTaskWithCancellationCommand(ExtractNewLinksSelected, "Cancel Link Extraction");
-            GenerateHtmlSelectedCommand =
-                StatusContext.RunBlockingTaskWithCancellationCommand(GenerateHtmlSelected, "Cancel Generate Html");
-            OpenUrlSelectedCommand =
-                StatusContext.RunBlockingTaskWithCancellationCommand(OpenUrlSelected, "Cancel Open Url");
-            ViewHistorySelectedCommand =
-                StatusContext.RunBlockingTaskWithCancellationCommand(ViewHistorySelected, "Cancel View History");
-
-            ImportFromExcelFileCommand =
-                StatusContext.RunBlockingTaskCommand(async () => await ExcelHelpers.ImportFromExcelFile(StatusContext));
-            ImportFromOpenExcelInstanceCommand = StatusContext.RunBlockingTaskCommand(async () =>
-                await ExcelHelpers.ImportFromOpenExcelInstance(StatusContext));
-            SelectedToExcelCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
-                await ExcelHelpers.SelectedToExcel(ListSelection.SelectedItems?.Cast<dynamic>().ToList(),
-                    StatusContext));
-
-            GenerateChangedHtmlAndStartUploadCommand = StatusContext.RunBlockingTaskCommand(GenerateChangedHtmlAndStartUpload);
-            GenerateChangedHtmlCommand = StatusContext.RunBlockingTaskCommand(GenerateChangedHtml);
-            ShowSitePreviewWindowCommand = StatusContext.RunNonBlockingTaskCommand(ShowSitePreviewWindow);
-            GenerateChangedHtmlAndShowSitePreviewCommand =
-                StatusContext.RunBlockingTaskCommand(GenerateChangedHtmlAndShowSitePreview);
+    public WindowIconStatus WindowStatus
+    {
+        get => _windowStatus;
+        set
+        {
+            if (Equals(value, _windowStatus)) return;
+            _windowStatus = value;
+            OnPropertyChanged();
         }
+    }
 
-        public WindowIconStatus WindowStatus
+    public Command BracketCodeToClipboardSelectedCommand
+    {
+        get => _bracketCodeToClipboardSelectedCommand;
+        set
         {
-            get => _windowStatus;
-            set
-            {
-                if (Equals(value, _windowStatus)) return;
-                _windowStatus = value;
-                OnPropertyChanged();
-            }
+            if (Equals(value, _bracketCodeToClipboardSelectedCommand)) return;
+            _bracketCodeToClipboardSelectedCommand = value;
+            OnPropertyChanged();
         }
+    }
 
-        public Command BracketCodeToClipboardSelectedCommand
+    public IContentListLoader ContentListLoader
+    {
+        get => _contentListLoader;
+        set
         {
-            get => _bracketCodeToClipboardSelectedCommand;
-            set
-            {
-                if (Equals(value, _bracketCodeToClipboardSelectedCommand)) return;
-                _bracketCodeToClipboardSelectedCommand = value;
-                OnPropertyChanged();
-            }
+            if (Equals(value, _contentListLoader)) return;
+            _contentListLoader = value;
+            OnPropertyChanged();
         }
+    }
 
-        public IContentListLoader ContentListLoader
+    public List<ContextMenuItemData> ContextMenuItems
+    {
+        get => _contextMenuItems;
+        set
         {
-            get => _contentListLoader;
-            set
-            {
-                if (Equals(value, _contentListLoader)) return;
-                _contentListLoader = value;
-                OnPropertyChanged();
-            }
+            if (Equals(value, _contextMenuItems)) return;
+            _contextMenuItems = value;
+            OnPropertyChanged();
         }
+    }
 
-        public List<ContextMenuItemData> ContextMenuItems
+    public DataNotificationsWorkQueue DataNotificationsProcessor { get; set; }
+
+    public Command DeleteSelectedCommand
+    {
+        get => _deleteSelectedCommand;
+        set
         {
-            get => _contextMenuItems;
-            set
-            {
-                if (Equals(value, _contextMenuItems)) return;
-                _contextMenuItems = value;
-                OnPropertyChanged();
-            }
+            if (Equals(value, _deleteSelectedCommand)) return;
+            _deleteSelectedCommand = value;
+            OnPropertyChanged();
         }
+    }
 
-        public DataNotificationsWorkQueue DataNotificationsProcessor { get; set; }
-
-        public Command DeleteSelectedCommand
+    public Command EditSelectedCommand
+    {
+        get => _editSelectedCommand;
+        set
         {
-            get => _deleteSelectedCommand;
-            set
-            {
-                if (Equals(value, _deleteSelectedCommand)) return;
-                _deleteSelectedCommand = value;
-                OnPropertyChanged();
-            }
+            if (Equals(value, _editSelectedCommand)) return;
+            _editSelectedCommand = value;
+            OnPropertyChanged();
         }
+    }
 
-        public Command EditSelectedCommand
+    public Command ExtractNewLinksSelectedCommand { get; set; }
+
+    public FileContentActions FileItemActions
+    {
+        get => _fileItemActions;
+        set
         {
-            get => _editSelectedCommand;
-            set
-            {
-                if (Equals(value, _editSelectedCommand)) return;
-                _editSelectedCommand = value;
-                OnPropertyChanged();
-            }
+            if (Equals(value, _fileItemActions)) return;
+            _fileItemActions = value;
+            OnPropertyChanged();
         }
+    }
 
-        public Command ExtractNewLinksSelectedCommand { get; set; }
-
-        public FileContentActions FileItemActions
+    public Command GenerateChangedHtmlAndStartUploadCommand
+    {
+        get => _generateChangedHtmlAndStartUploadCommand;
+        set
         {
-            get => _fileItemActions;
-            set
-            {
-                if (Equals(value, _fileItemActions)) return;
-                _fileItemActions = value;
-                OnPropertyChanged();
-            }
+            if (Equals(value, _generateChangedHtmlAndStartUploadCommand)) return;
+            _generateChangedHtmlAndStartUploadCommand = value;
+            OnPropertyChanged();
         }
+    }
 
-        public Command GenerateChangedHtmlAndStartUploadCommand
+    public Command GenerateChangedHtmlCommand
+    {
+        get => _generateChangedHtmlCommand;
+        set
         {
-            get => _generateChangedHtmlAndStartUploadCommand;
-            set
-            {
-                if (Equals(value, _generateChangedHtmlAndStartUploadCommand)) return;
-                _generateChangedHtmlAndStartUploadCommand = value;
-                OnPropertyChanged();
-            }
+            if (Equals(value, _generateChangedHtmlCommand)) return;
+            _generateChangedHtmlCommand = value;
+            OnPropertyChanged();
         }
+    }
 
-        public Command GenerateChangedHtmlCommand
+    public Command GenerateHtmlSelectedCommand
+    {
+        get => _generateHtmlSelectedCommand;
+        set
         {
-            get => _generateChangedHtmlCommand;
-            set
-            {
-                if (Equals(value, _generateChangedHtmlCommand)) return;
-                _generateChangedHtmlCommand = value;
-                OnPropertyChanged();
-            }
+            if (Equals(value, _generateHtmlSelectedCommand)) return;
+            _generateHtmlSelectedCommand = value;
+            OnPropertyChanged();
         }
+    }
 
-        public Command GenerateHtmlSelectedCommand
+    public Command GenerateChangedHtmlAndShowSitePreviewCommand
+    {
+        get => _generateChangedHtmlAndShowSitePreviewCommand;
+        set
         {
-            get => _generateHtmlSelectedCommand;
-            set
-            {
-                if (Equals(value, _generateHtmlSelectedCommand)) return;
-                _generateHtmlSelectedCommand = value;
-                OnPropertyChanged();
-            }
+            if (Equals(value, _generateChangedHtmlAndShowSitePreviewCommand)) return;
+            _generateChangedHtmlAndShowSitePreviewCommand = value;
+            OnPropertyChanged();
         }
+    }
 
-        public Command GenerateChangedHtmlAndShowSitePreviewCommand
+    public GeoJsonContentActions GeoJsonItemActions
+    {
+        get => _geoJsonItemActions;
+        set
         {
-            get => _generateChangedHtmlAndShowSitePreviewCommand;
-            set
-            {
-                if (Equals(value, _generateChangedHtmlAndShowSitePreviewCommand)) return;
-                _generateChangedHtmlAndShowSitePreviewCommand = value;
-                OnPropertyChanged();
-            }
+            if (Equals(value, _geoJsonItemActions)) return;
+            _geoJsonItemActions = value;
+            OnPropertyChanged();
         }
+    }
 
-        public GeoJsonContentActions GeoJsonItemActions
+    public ImageContentActions ImageItemActions
+    {
+        get => _imageItemActions;
+        set
         {
-            get => _geoJsonItemActions;
-            set
-            {
-                if (Equals(value, _geoJsonItemActions)) return;
-                _geoJsonItemActions = value;
-                OnPropertyChanged();
-            }
+            if (Equals(value, _imageItemActions)) return;
+            _imageItemActions = value;
+            OnPropertyChanged();
         }
+    }
 
-        public ImageContentActions ImageItemActions
+    public Command ImportFromExcelFileCommand
+    {
+        get => _importFromExcelFileCommand;
+        set
         {
-            get => _imageItemActions;
-            set
-            {
-                if (Equals(value, _imageItemActions)) return;
-                _imageItemActions = value;
-                OnPropertyChanged();
-            }
+            if (Equals(value, _importFromExcelFileCommand)) return;
+            _importFromExcelFileCommand = value;
+            OnPropertyChanged();
         }
+    }
 
-        public Command ImportFromExcelFileCommand
+    public Command ImportFromOpenExcelInstanceCommand
+    {
+        get => _importFromOpenExcelInstanceCommand;
+        set
         {
-            get => _importFromExcelFileCommand;
-            set
-            {
-                if (Equals(value, _importFromExcelFileCommand)) return;
-                _importFromExcelFileCommand = value;
-                OnPropertyChanged();
-            }
+            if (Equals(value, _importFromOpenExcelInstanceCommand)) return;
+            _importFromOpenExcelInstanceCommand = value;
+            OnPropertyChanged();
         }
+    }
 
-        public Command ImportFromOpenExcelInstanceCommand
+    public ObservableCollection<IContentListItem> Items
+    {
+        get => _items;
+        set
         {
-            get => _importFromOpenExcelInstanceCommand;
-            set
-            {
-                if (Equals(value, _importFromOpenExcelInstanceCommand)) return;
-                _importFromOpenExcelInstanceCommand = value;
-                OnPropertyChanged();
-            }
+            if (Equals(value, _items)) return;
+            _items = value;
+            OnPropertyChanged();
         }
+    }
 
-        public ObservableCollection<IContentListItem> Items
+    public LineContentActions LineItemActions
+    {
+        get => _lineItemActions;
+        set
         {
-            get => _items;
-            set
-            {
-                if (Equals(value, _items)) return;
-                _items = value;
-                OnPropertyChanged();
-            }
+            if (Equals(value, _lineItemActions)) return;
+            _lineItemActions = value;
+            OnPropertyChanged();
         }
+    }
 
-        public LineContentActions LineItemActions
+    public LinkContentActions LinkItemActions
+    {
+        get => _linkItemActions;
+        set
         {
-            get => _lineItemActions;
-            set
-            {
-                if (Equals(value, _lineItemActions)) return;
-                _lineItemActions = value;
-                OnPropertyChanged();
-            }
+            if (Equals(value, _linkItemActions)) return;
+            _linkItemActions = value;
+            OnPropertyChanged();
         }
+    }
 
-        public LinkContentActions LinkItemActions
+    public ContentListSelected<IContentListItem> ListSelection
+    {
+        get => _listSelection;
+        set
         {
-            get => _linkItemActions;
-            set
-            {
-                if (Equals(value, _linkItemActions)) return;
-                _linkItemActions = value;
-                OnPropertyChanged();
-            }
+            if (Equals(value, _listSelection)) return;
+            _listSelection = value;
+            OnPropertyChanged();
         }
+    }
 
-        public ContentListSelected<IContentListItem> ListSelection
+    public ColumnSortControlContext ListSort
+    {
+        get => _listSort;
+        set
         {
-            get => _listSelection;
-            set
-            {
-                if (Equals(value, _listSelection)) return;
-                _listSelection = value;
-                OnPropertyChanged();
-            }
+            if (Equals(value, _listSort)) return;
+            _listSort = value;
+            OnPropertyChanged();
         }
+    }
 
-        public ColumnSortControlContext ListSort
+    public Command LoadAllCommand
+    {
+        get => _loadAllCommand;
+        set
         {
-            get => _listSort;
-            set
-            {
-                if (Equals(value, _listSort)) return;
-                _listSort = value;
-                OnPropertyChanged();
-            }
+            if (Equals(value, _loadAllCommand)) return;
+            _loadAllCommand = value;
+            OnPropertyChanged();
         }
+    }
 
-        public Command LoadAllCommand
+    public MapComponentContentActions MapComponentItemActions
+    {
+        get => _mapComponentItemActions;
+        set
         {
-            get => _loadAllCommand;
-            set
-            {
-                if (Equals(value, _loadAllCommand)) return;
-                _loadAllCommand = value;
-                OnPropertyChanged();
-            }
+            if (Equals(value, _mapComponentItemActions)) return;
+            _mapComponentItemActions = value;
+            OnPropertyChanged();
         }
+    }
 
-        public MapComponentContentActions MapComponentItemActions
+    public NewContent NewActions
+    {
+        get => _newActions;
+        set
         {
-            get => _mapComponentItemActions;
-            set
-            {
-                if (Equals(value, _mapComponentItemActions)) return;
-                _mapComponentItemActions = value;
-                OnPropertyChanged();
-            }
+            if (Equals(value, _newActions)) return;
+            _newActions = value;
+            OnPropertyChanged();
         }
+    }
 
-        public NewContent NewActions
+    public NoteContentActions NoteItemActions
+    {
+        get => _noteItemActions;
+        set
         {
-            get => _newActions;
-            set
-            {
-                if (Equals(value, _newActions)) return;
-                _newActions = value;
-                OnPropertyChanged();
-            }
+            if (Equals(value, _noteItemActions)) return;
+            _noteItemActions = value;
+            OnPropertyChanged();
         }
+    }
 
-        public NoteContentActions NoteItemActions
+    public Command OpenUrlSelectedCommand
+    {
+        get => _openUrlSelectedCommand;
+        set
         {
-            get => _noteItemActions;
-            set
-            {
-                if (Equals(value, _noteItemActions)) return;
-                _noteItemActions = value;
-                OnPropertyChanged();
-            }
+            if (Equals(value, _openUrlSelectedCommand)) return;
+            _openUrlSelectedCommand = value;
+            OnPropertyChanged();
         }
+    }
 
-        public Command OpenUrlSelectedCommand
+
+    public PhotoContentActions PhotoItemActions
+    {
+        get => _photoItemActions;
+        set
         {
-            get => _openUrlSelectedCommand;
-            set
-            {
-                if (Equals(value, _openUrlSelectedCommand)) return;
-                _openUrlSelectedCommand = value;
-                OnPropertyChanged();
-            }
+            if (Equals(value, _photoItemActions)) return;
+            _photoItemActions = value;
+            OnPropertyChanged();
         }
+    }
 
-
-        public PhotoContentActions PhotoItemActions
+    public PointContentActions PointItemActions
+    {
+        get => _pointItemActions;
+        set
         {
-            get => _photoItemActions;
-            set
-            {
-                if (Equals(value, _photoItemActions)) return;
-                _photoItemActions = value;
-                OnPropertyChanged();
-            }
+            if (Equals(value, _pointItemActions)) return;
+            _pointItemActions = value;
+            OnPropertyChanged();
         }
+    }
 
-        public PointContentActions PointItemActions
+    public PostContentActions PostItemActions
+    {
+        get => _postItemActions;
+        set
         {
-            get => _pointItemActions;
-            set
-            {
-                if (Equals(value, _pointItemActions)) return;
-                _pointItemActions = value;
-                OnPropertyChanged();
-            }
+            if (Equals(value, _postItemActions)) return;
+            _postItemActions = value;
+            OnPropertyChanged();
         }
+    }
 
-        public PostContentActions PostItemActions
+    public Command SelectedToExcelCommand
+    {
+        get => _selectedToExcelCommand;
+        set
         {
-            get => _postItemActions;
-            set
-            {
-                if (Equals(value, _postItemActions)) return;
-                _postItemActions = value;
-                OnPropertyChanged();
-            }
+            if (Equals(value, _selectedToExcelCommand)) return;
+            _selectedToExcelCommand = value;
+            OnPropertyChanged();
         }
+    }
 
-        public Command SelectedToExcelCommand
+    public Command ShowSitePreviewWindowCommand
+    {
+        get => _showSitePreviewWindowCommand;
+        set
         {
-            get => _selectedToExcelCommand;
-            set
-            {
-                if (Equals(value, _selectedToExcelCommand)) return;
-                _selectedToExcelCommand = value;
-                OnPropertyChanged();
-            }
+            if (Equals(value, _showSitePreviewWindowCommand)) return;
+            _showSitePreviewWindowCommand = value;
+            OnPropertyChanged();
         }
+    }
 
-        public Command ShowSitePreviewWindowCommand
+    public StatusControlContext StatusContext
+    {
+        get => _statusContext;
+        set
         {
-            get => _showSitePreviewWindowCommand;
-            set
-            {
-                if (Equals(value, _showSitePreviewWindowCommand)) return;
-                _showSitePreviewWindowCommand = value;
-                OnPropertyChanged();
-            }
+            if (Equals(value, _statusContext)) return;
+            _statusContext = value;
+            OnPropertyChanged();
         }
+    }
 
-        public StatusControlContext StatusContext
+    public string UserFilterText
+    {
+        get => _userFilterText;
+        set
         {
-            get => _statusContext;
-            set
-            {
-                if (Equals(value, _statusContext)) return;
-                _statusContext = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public string UserFilterText
-        {
-            get => _userFilterText;
-            set
-            {
-                if (value == _userFilterText) return;
-                _userFilterText = value;
-                OnPropertyChanged();
-
-                StatusContext.RunFireAndForgetNonBlockingTask(FilterList);
-            }
-        }
-
-
-        public Command ViewHistorySelectedCommand
-        {
-            get => _viewHistorySelectedCommand;
-            set
-            {
-                if (Equals(value, _viewHistorySelectedCommand)) return;
-                _viewHistorySelectedCommand = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public bool CanStartDrag(IDragInfo dragInfo)
-        {
-            return (ListSelection.SelectedItems?.Count ?? 0) > 0;
-        }
-
-        public void DragCancelled()
-        {
-        }
-
-        public void DragDropOperationFinished(DragDropEffects operationResult, IDragInfo dragInfo)
-        {
-        }
-
-        public void Dropped(IDropInfo dropInfo)
-        {
-        }
-
-        public void StartDrag(IDragInfo dragInfo)
-        {
-            var defaultBracketCodeList = ListSelection.SelectedItems.Select(x => x.DefaultBracketCode()).ToList();
-            dragInfo.Data = string.Join(Environment.NewLine, defaultBracketCodeList);
-            dragInfo.DataFormat = DataFormats.GetDataFormat(DataFormats.UnicodeText);
-            dragInfo.Effects = DragDropEffects.Copy;
-        }
-
-        public bool TryCatchOccurredException(Exception exception)
-        {
-            return false;
-        }
-
-        public void DragOver(IDropInfo dropInfo)
-        {
-            if (dropInfo.Data is IDataObject systemDataObject && systemDataObject.GetDataPresent(DataFormats.FileDrop))
-            {
-                var possibleFileInfo = systemDataObject.GetData(DataFormats.FileDrop) as string[];
-
-                if (possibleFileInfo == null || !possibleFileInfo.Any()) return;
-
-                var validFileExtensions = new List<string>
-                {
-                    ".PDF",
-                    ".MPG",
-                    ".MPEG",
-                    ".WAV",
-                    ".JPG",
-                    ".JPEG"
-                };
-
-                if (possibleFileInfo.Any(x => validFileExtensions.Contains(Path.GetExtension(x).ToUpperInvariant())))
-                    dropInfo.Effects = DragDropEffects.Link;
-            }
-        }
-
-        public void Drop(IDropInfo dropInfo)
-        {
-            if (dropInfo.Data is IDataObject systemDataObject && systemDataObject.GetDataPresent(DataFormats.FileDrop))
-            {
-                if (systemDataObject.GetData(DataFormats.FileDrop) is not string[] possibleFileInfo)
-                {
-                    StatusContext.ToastError("Couldn't understand the dropped files?");
-                    return;
-                }
-
-                StatusContext.RunBlockingTask(async () =>
-                    await TryOpenEditorsForDroppedFiles(possibleFileInfo.ToList(), StatusContext));
-            }
-        }
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        public async Task BracketCodeToClipboardSelected(CancellationToken cancelToken)
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            if (ListSelection?.SelectedItems == null || ListSelection.SelectedItems.Count < 1)
-            {
-                StatusContext.ToastWarning("Nothing Selected to Edit?");
-                return;
-            }
-
-            var currentSelected = ListSelection.SelectedItems;
-
-            var bracketCodes = new List<string>();
-
-            foreach (var loopSelected in currentSelected)
-            {
-                cancelToken.ThrowIfCancellationRequested();
-
-                bracketCodes.Add(loopSelected.DefaultBracketCode());
-            }
-
-            var finalString = string.Join(Environment.NewLine, bracketCodes.Where(x => !string.IsNullOrWhiteSpace(x)));
-
-            if (string.IsNullOrWhiteSpace(finalString))
-            {
-                StatusContext.ToastSuccess("No Bracket Codes Found?");
-                return;
-            }
-
-            await ThreadSwitcher.ResumeForegroundAsync();
-
-            Clipboard.SetText(finalString);
-
-            StatusContext.ToastSuccess("Bracket Codes copied to Clipboard");
-        }
-
-        private async Task DataNotificationReceived(TinyMessageReceivedEventArgs e)
-        {
-            var translatedMessage = DataNotifications.TranslateDataNotification(e.Message);
-
-            if (translatedMessage.HasError)
-            {
-                Log.Error("Data Notification Failure. Error Note {0}. Status Control Context Id {1}",
-                    translatedMessage.ErrorNote, StatusContext.StatusControlContextId);
-                return;
-            }
-
-            if (translatedMessage.ContentIds == null || !translatedMessage.ContentIds.Any()) return;
-
-            var existingListItemsMatchingNotification = new List<IContentListItem>();
-
-            foreach (var loopItem in Items)
-            {
-                var id = loopItem?.ContentId();
-                if (id == null) continue;
-                if (translatedMessage.ContentIds.Contains(id.Value))
-                    existingListItemsMatchingNotification.Add(loopItem);
-            }
-
-            if (ContentListLoader.DataNotificationTypesToRespondTo != null &&
-                ContentListLoader.DataNotificationTypesToRespondTo.Any())
-                if (!ContentListLoader.DataNotificationTypesToRespondTo.Contains(translatedMessage.ContentType))
-                {
-                    await PossibleMainImageUpdateDataNotificationReceived(translatedMessage);
-                    return;
-                }
-
-
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-
-            if (translatedMessage.UpdateType == DataNotificationUpdateType.Delete)
-            {
-                await ThreadSwitcher.ResumeForegroundAsync();
-
-                existingListItemsMatchingNotification.ForEach(x => Items.Remove(x));
-
-                return;
-            }
-
-            var context = await Db.Context();
-            var dbItems = new List<IContentId>();
-
-            switch (translatedMessage.ContentType)
-            {
-                case DataNotificationContentType.File:
-                    dbItems = (await context.FileContents.Where(x => translatedMessage.ContentIds.Contains(x.ContentId))
-                        .ToListAsync()).Cast<IContentId>().ToList();
-                    break;
-                case DataNotificationContentType.GeoJson:
-                    dbItems = (await context.GeoJsonContents
-                            .Where(x => translatedMessage.ContentIds.Contains(x.ContentId)).ToListAsync())
-                        .Cast<IContentId>().ToList();
-                    break;
-                case DataNotificationContentType.Image:
-                    dbItems = (await context.ImageContents
-                            .Where(x => translatedMessage.ContentIds.Contains(x.ContentId)).ToListAsync())
-                        .Cast<IContentId>().ToList();
-                    break;
-                case DataNotificationContentType.Line:
-                    dbItems = (await context.LineContents.Where(x => translatedMessage.ContentIds.Contains(x.ContentId))
-                        .ToListAsync()).Cast<IContentId>().ToList();
-                    break;
-                case DataNotificationContentType.Link:
-                    dbItems = (await context.LinkContents.Where(x => translatedMessage.ContentIds.Contains(x.ContentId))
-                        .ToListAsync()).Cast<IContentId>().ToList();
-                    break;
-                case DataNotificationContentType.Map:
-                    dbItems = (await context.MapComponents
-                            .Where(x => translatedMessage.ContentIds.Contains(x.ContentId)).ToListAsync())
-                        .Cast<IContentId>().ToList();
-                    break;
-                case DataNotificationContentType.Note:
-                    dbItems = (await context.NoteContents.Where(x => translatedMessage.ContentIds.Contains(x.ContentId))
-                        .ToListAsync()).Cast<IContentId>().ToList();
-                    break;
-                case DataNotificationContentType.Photo:
-                    dbItems = (await context.PhotoContents
-                            .Where(x => translatedMessage.ContentIds.Contains(x.ContentId)).ToListAsync())
-                        .Cast<IContentId>().ToList();
-                    break;
-                case DataNotificationContentType.Point:
-                    dbItems = (await context.PointContents
-                            .Where(x => translatedMessage.ContentIds.Contains(x.ContentId)).ToListAsync())
-                        .Cast<IContentId>().ToList();
-                    break;
-                case DataNotificationContentType.Post:
-                    dbItems = (await context.PostContents.Where(x => translatedMessage.ContentIds.Contains(x.ContentId))
-                        .ToListAsync()).Cast<IContentId>().ToList();
-                    break;
-            }
-
-            if (!dbItems.Any()) return;
-
-            foreach (var loopItem in dbItems)
-            {
-                var existingItems = existingListItemsMatchingNotification
-                    .Where(x => x.ContentId() == loopItem.ContentId).ToList();
-
-                if (existingItems.Count > 1)
-                {
-                    await ThreadSwitcher.ResumeForegroundAsync();
-
-                    foreach (var loopDelete in existingItems.Skip(1).ToList()) Items.Remove(loopDelete);
-
-                    await ThreadSwitcher.ResumeBackgroundAsync();
-                }
-
-                var existingItem = existingItems.FirstOrDefault();
-
-                if (existingItem == null)
-                {
-                    if (!ContentListLoader.AddNewItemsFromDataNotifications) continue;
-
-                    await ThreadSwitcher.ResumeForegroundAsync();
-
-                    Items.Add(ListItemFromDbItem(loopItem));
-
-                    await ThreadSwitcher.ResumeBackgroundAsync();
-
-                    continue;
-                }
-
-                if (translatedMessage.UpdateType == DataNotificationUpdateType.Update)
-                    // ReSharper disable All
-                    ((dynamic)existingItem).DbEntry = (dynamic)loopItem;
-                // ReSharper restore All
-
-                if (loopItem is IMainImage mainImage && existingItem is IContentListSmallImage itemWithSmallImage)
-                    itemWithSmallImage.SmallImageUrl = GetSmallImageUrl(mainImage);
-            }
+            if (value == _userFilterText) return;
+            _userFilterText = value;
+            OnPropertyChanged();
 
             StatusContext.RunFireAndForgetNonBlockingTask(FilterList);
         }
+    }
 
-        public async Task DeleteSelected(CancellationToken cancelToken)
+
+    public Command ViewHistorySelectedCommand
+    {
+        get => _viewHistorySelectedCommand;
+        set
         {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            if (ListSelection?.SelectedItems == null || ListSelection.SelectedItems.Count < 1)
-            {
-                StatusContext.ToastWarning("Nothing Selected to Edit?");
-                return;
-            }
-
-            if (ListSelection.SelectedItems.Count > 20)
-                if (await StatusContext.ShowMessage("Delete Multiple Items",
-                        $"You are about to delete {ListSelection.SelectedItems.Count} items - do you really want to delete all of these items?" +
-                        $"{Environment.NewLine}{Environment.NewLine}{string.Join(Environment.NewLine, ListSelection.SelectedItems.Select(x => x.Content().Title))}",
-                        new List<string> { "Yes", "No" }) == "No")
-                    return;
-
-            var currentSelected = ListSelection.SelectedItems;
-
-            foreach (var loopSelected in currentSelected)
-            {
-                cancelToken.ThrowIfCancellationRequested();
-
-                await loopSelected.Delete();
-            }
+            if (Equals(value, _viewHistorySelectedCommand)) return;
+            _viewHistorySelectedCommand = value;
+            OnPropertyChanged();
         }
+    }
 
-        public async Task EditSelected(CancellationToken cancelToken)
+    public bool CanStartDrag(IDragInfo dragInfo)
+    {
+        return (ListSelection.SelectedItems?.Count ?? 0) > 0;
+    }
+
+    public void DragCancelled()
+    {
+    }
+
+    public void DragDropOperationFinished(DragDropEffects operationResult, IDragInfo dragInfo)
+    {
+    }
+
+    public void Dropped(IDropInfo dropInfo)
+    {
+    }
+
+    public void StartDrag(IDragInfo dragInfo)
+    {
+        var defaultBracketCodeList = ListSelection.SelectedItems.Select(x => x.DefaultBracketCode()).ToList();
+        dragInfo.Data = string.Join(Environment.NewLine, defaultBracketCodeList);
+        dragInfo.DataFormat = DataFormats.GetDataFormat(DataFormats.UnicodeText);
+        dragInfo.Effects = DragDropEffects.Copy;
+    }
+
+    public bool TryCatchOccurredException(Exception exception)
+    {
+        return false;
+    }
+
+    public void DragOver(IDropInfo dropInfo)
+    {
+        if (dropInfo.Data is IDataObject systemDataObject && systemDataObject.GetDataPresent(DataFormats.FileDrop))
         {
-            await ThreadSwitcher.ResumeBackgroundAsync();
+            var possibleFileInfo = systemDataObject.GetData(DataFormats.FileDrop) as string[];
 
-            if (ListSelection?.SelectedItems == null || ListSelection.SelectedItems.Count < 1)
+            if (possibleFileInfo == null || !possibleFileInfo.Any()) return;
+
+            var validFileExtensions = new List<string>
             {
-                StatusContext.ToastWarning("Nothing Selected to Edit?");
-                return;
-            }
-
-            if (ListSelection.SelectedItems.Count > 20)
-            {
-                StatusContext.ToastWarning("Sorry - please select less than 20 items to edit...");
-                return;
-            }
-
-            var currentSelected = ListSelection.SelectedItems;
-
-            foreach (var loopSelected in currentSelected)
-            {
-                cancelToken.ThrowIfCancellationRequested();
-
-                await loopSelected.Edit();
-            }
-        }
-
-        public async Task ExtractNewLinksSelected(CancellationToken cancelToken)
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            if (ListSelection?.SelectedItems == null || ListSelection.SelectedItems.Count < 1)
-            {
-                StatusContext.ToastWarning("Nothing Selected to Edit?");
-                return;
-            }
-
-            var currentSelected = ListSelection.SelectedItems;
-
-            foreach (var loopSelected in currentSelected)
-            {
-                cancelToken.ThrowIfCancellationRequested();
-
-                await loopSelected.ExtractNewLinks();
-            }
-        }
-
-        private async Task FilterList()
-        {
-            if (Items == null || !Items.Any()) return;
-
-            await ThreadSwitcher.ResumeForegroundAsync();
-
-            ((CollectionView)CollectionViewSource.GetDefaultView(Items)).Filter = o =>
-            {
-                if (string.IsNullOrWhiteSpace(UserFilterText)) return true;
-
-                if (o is not IContentListItem toFilter) return false;
-
-                if ((toFilter.Content().Title ?? string.Empty).Contains(UserFilterText,
-                        StringComparison.OrdinalIgnoreCase)) return true;
-                if ((toFilter.Content().Tags ?? string.Empty).Contains(UserFilterText,
-                        StringComparison.OrdinalIgnoreCase)) return true;
-                if ((toFilter.Content().Summary ?? string.Empty).Contains(UserFilterText,
-                        StringComparison.OrdinalIgnoreCase)) return true;
-                if ((toFilter.Content().CreatedBy ?? string.Empty).Contains(UserFilterText,
-                        StringComparison.OrdinalIgnoreCase)) return true;
-                if ((toFilter.Content().LastUpdatedBy ?? string.Empty).Contains(UserFilterText,
-                        StringComparison.OrdinalIgnoreCase)) return true;
-                if (toFilter.ContentId() != null && toFilter.ContentId().ToString()
-                        .Contains(UserFilterText, StringComparison.OrdinalIgnoreCase)) return true;
-                return false;
+                ".PDF",
+                ".MPG",
+                ".MPEG",
+                ".WAV",
+                ".JPG",
+                ".JPEG"
             };
+
+            if (possibleFileInfo.Any(x => validFileExtensions.Contains(Path.GetExtension(x).ToUpperInvariant())))
+                dropInfo.Effects = DragDropEffects.Link;
         }
+    }
 
-        public async Task GenerateHtmlSelected(CancellationToken cancelToken)
+    public void Drop(IDropInfo dropInfo)
+    {
+        if (dropInfo.Data is IDataObject systemDataObject && systemDataObject.GetDataPresent(DataFormats.FileDrop))
         {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            if (ListSelection?.SelectedItems == null || ListSelection.SelectedItems.Count < 1)
+            if (systemDataObject.GetData(DataFormats.FileDrop) is not string[] possibleFileInfo)
             {
-                StatusContext.ToastWarning("Nothing Selected to Generate?");
+                StatusContext.ToastError("Couldn't understand the dropped files?");
                 return;
             }
 
-            var currentSelected = ListSelection.SelectedItems;
+            StatusContext.RunBlockingTask(async () =>
+                await TryOpenEditorsForDroppedFiles(possibleFileInfo.ToList(), StatusContext));
+        }
+    }
 
-            foreach (var loopSelected in currentSelected)
-            {
-                cancelToken.ThrowIfCancellationRequested();
+    public event PropertyChangedEventHandler PropertyChanged;
 
-                await loopSelected.GenerateHtml();
-            }
+    public async Task BracketCodeToClipboardSelected(CancellationToken cancelToken)
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (ListSelection?.SelectedItems == null || ListSelection.SelectedItems.Count < 1)
+        {
+            StatusContext.ToastWarning("Nothing Selected to Edit?");
+            return;
         }
 
-        private async Task GenerateChangedHtmlAndShowSitePreview()
+        var currentSelected = ListSelection.SelectedItems;
+
+        var bracketCodes = new List<string>();
+
+        foreach (var loopSelected in currentSelected)
         {
-            await ThreadSwitcher.ResumeBackgroundAsync();
+            cancelToken.ThrowIfCancellationRequested();
 
-            try
-            {
-                WindowStatus?.AddRequest(new WindowIconStatusRequest(StatusContext.StatusControlContextId,
-                    TaskbarItemProgressState.Indeterminate));
-
-                await HtmlGenerationGroups.GenerateChangedToHtml(StatusContext.ProgressTracker());
-            }
-            finally
-            {
-                WindowStatus?.AddRequest(new WindowIconStatusRequest(StatusContext.StatusControlContextId,
-                    TaskbarItemProgressState.None));
-            }
-
-            await ThreadSwitcher.ResumeForegroundAsync();
-
-
-            var sitePreviewWindow = new SiteOnDiskPreviewWindow();
-            sitePreviewWindow.PositionWindowAndShow();
+            bracketCodes.Add(loopSelected.DefaultBracketCode());
         }
 
-        private async Task GenerateChangedHtml()
+        var finalString = string.Join(Environment.NewLine, bracketCodes.Where(x => !string.IsNullOrWhiteSpace(x)));
+
+        if (string.IsNullOrWhiteSpace(finalString))
         {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            try
-            {
-                WindowStatus?.AddRequest(new WindowIconStatusRequest(StatusContext.StatusControlContextId,
-                    TaskbarItemProgressState.Indeterminate));
-
-                await HtmlGenerationGroups.GenerateChangedToHtml(StatusContext.ProgressTracker());
-            }
-            finally
-            {
-                WindowStatus?.AddRequest(new WindowIconStatusRequest(StatusContext.StatusControlContextId,
-                    TaskbarItemProgressState.None));
-            }
+            StatusContext.ToastSuccess("No Bracket Codes Found?");
+            return;
         }
 
-        private async Task GenerateChangedHtmlAndStartUpload()
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        Clipboard.SetText(finalString);
+
+        StatusContext.ToastSuccess("Bracket Codes copied to Clipboard");
+    }
+
+    private async Task DataNotificationReceived(TinyMessageReceivedEventArgs e)
+    {
+        var translatedMessage = DataNotifications.TranslateDataNotification(e.Message);
+
+        if (translatedMessage.HasError)
         {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            try
-            {
-                WindowStatus?.AddRequest(new WindowIconStatusRequest(StatusContext.StatusControlContextId,
-                    TaskbarItemProgressState.Indeterminate));
-
-                await S3UploadHelpers.GenerateChangedHtmlAndStartUpload(StatusContext, WindowStatus);
-            }
-            finally
-            {
-                WindowStatus?.AddRequest(new WindowIconStatusRequest(StatusContext.StatusControlContextId,
-                    TaskbarItemProgressState.None));
-            }
+            Log.Error("Data Notification Failure. Error Note {0}. Status Control Context Id {1}",
+                translatedMessage.ErrorNote, StatusContext.StatusControlContextId);
+            return;
         }
 
-        public static string GetSmallImageUrl(IMainImage content)
+        if (translatedMessage.ContentIds == null || !translatedMessage.ContentIds.Any()) return;
+
+        var existingListItemsMatchingNotification = new List<IContentListItem>();
+
+        foreach (var loopItem in Items)
         {
-            if (content?.MainPicture == null) return null;
-
-            string smallImageUrl;
-
-            try
-            {
-                smallImageUrl = PictureAssetProcessing.ProcessPictureDirectory(content.MainPicture.Value).SmallPicture
-                    ?.File.FullName;
-            }
-            catch
-            {
-                smallImageUrl = null;
-            }
-
-            return smallImageUrl;
+            var id = loopItem?.ContentId();
+            if (id == null) continue;
+            if (translatedMessage.ContentIds.Contains(id.Value))
+                existingListItemsMatchingNotification.Add(loopItem);
         }
 
-        public IContentListItem ListItemFromDbItem(object dbItem)
-        {
-            return dbItem switch
+        if (ContentListLoader.DataNotificationTypesToRespondTo != null &&
+            ContentListLoader.DataNotificationTypesToRespondTo.Any())
+            if (!ContentListLoader.DataNotificationTypesToRespondTo.Contains(translatedMessage.ContentType))
             {
-                FileContent f => FileContentActions.ListItemFromDbItem(f, FileItemActions, ContentListLoader.ShowType),
-                GeoJsonContent g => GeoJsonContentActions.ListItemFromDbItem(g, GeoJsonItemActions,
-                    ContentListLoader.ShowType),
-                ImageContent g => ImageContentActions.ListItemFromDbItem(g, ImageItemActions,
-                    ContentListLoader.ShowType),
-                LineContent l => LineContentActions.ListItemFromDbItem(l, LineItemActions, ContentListLoader.ShowType),
-                LinkContent k => LinkContentActions.ListItemFromDbItem(k, LinkItemActions, ContentListLoader.ShowType),
-                MapComponent m => MapComponentContentActions.ListItemFromDbItem(m, MapComponentItemActions,
-                    ContentListLoader.ShowType),
-                NoteContent n => NoteContentActions.ListItemFromDbItem(n, NoteItemActions, ContentListLoader.ShowType),
-                PhotoContent ph => PhotoContentActions.ListItemFromDbItem(ph, PhotoItemActions,
-                    ContentListLoader.ShowType),
-                PointContent pt => PointContentActions.ListItemFromDbItem(pt, PointItemActions,
-                    ContentListLoader.ShowType),
-                PostContent po => PostContentActions.ListItemFromDbItem(po, PostItemActions,
-                    ContentListLoader.ShowType),
-                _ => null
-            };
-        }
-
-        public async Task LoadData()
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            ListSelection = await ContentListSelected<IContentListItem>.CreateInstance(StatusContext);
-
-            DataNotifications.NewDataNotificationChannel().MessageReceived -= OnDataNotificationReceived;
-
-            StatusContext.Progress("Setting up Sorting");
-
-            ListSort = ContentListLoader.SortContext();
-
-            ListSort.SortUpdated += (_, list) =>
-                Dispatcher.CurrentDispatcher.Invoke(() => { ListContextSortHelpers.SortList(list, Items); });
-
-            StatusContext.Progress("Starting Item Load");
-
-            var dbItems = await ContentListLoader.LoadItems(StatusContext.ProgressTracker());
-
-            StatusContext.Progress($"All Items Loaded from Db: {ContentListLoader.AllItemsLoaded}");
-
-            var contentListItems = new List<IContentListItem>();
-
-            StatusContext.Progress("Creating List Items");
-
-            var loopCounter = 0;
-
-            Parallel.ForEach(dbItems, loopDbItem =>
-            {
-                Interlocked.Increment(ref loopCounter);
-
-                if (loopCounter % 250 == 0)
-                    StatusContext.Progress($"Created List Item {loopCounter} of {dbItems.Count}");
-
-                contentListItems.Add(ListItemFromDbItem(loopDbItem));
-            });
-
-            await ThreadSwitcher.ResumeForegroundAsync();
-
-            StatusContext.Progress("Loading Display List of Items");
-
-            Items = new ObservableCollection<IContentListItem>(contentListItems);
-
-            ListContextSortHelpers.SortList(ListSort.SortDescriptions(), Items);
-            await FilterList();
-
-            DataNotifications.NewDataNotificationChannel().MessageReceived += OnDataNotificationReceived;
-        }
-
-        private void OnDataNotificationReceived(object sender, TinyMessageReceivedEventArgs e)
-        {
-            DataNotificationsProcessor.Enqueue(e);
-        }
-
-        [NotifyPropertyChangedInvocator]
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
-
-        public async Task OpenUrlSelected(CancellationToken cancelToken)
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            if (ListSelection?.SelectedItems == null || ListSelection.SelectedItems.Count < 1)
-            {
-                StatusContext.ToastWarning("Nothing Selected to Edit?");
+                await PossibleMainImageUpdateDataNotificationReceived(translatedMessage);
                 return;
             }
 
-            var currentSelected = ListSelection.SelectedItems;
 
-            foreach (var loopSelected in currentSelected) await loopSelected.OpenUrl();
-        }
+        await ThreadSwitcher.ResumeBackgroundAsync();
 
-        private async Task PossibleMainImageUpdateDataNotificationReceived(
-            InterProcessDataNotification translatedMessage)
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
 
-            var smallImageListItems =
-                Items.Where(x => x is IContentListSmallImage).Cast<IContentListSmallImage>().ToList();
-
-            foreach (var loopListItem in smallImageListItems)
-                if (((dynamic)loopListItem).DbEntry is IMainImage { MainPicture: { } } dbMainImageEntry &&
-                    translatedMessage.ContentIds.Contains(dbMainImageEntry.MainPicture.Value))
-                    loopListItem.SmallImageUrl = GetSmallImageUrl(dbMainImageEntry);
-        }
-
-        private async Task ShowSitePreviewWindow()
+        if (translatedMessage.UpdateType == DataNotificationUpdateType.Delete)
         {
             await ThreadSwitcher.ResumeForegroundAsync();
 
-            var sitePreviewWindow = new SiteOnDiskPreviewWindow();
+            existingListItemsMatchingNotification.ForEach(x => Items.Remove(x));
 
-            sitePreviewWindow.PositionWindowAndShow();
+            return;
         }
 
-        private async Task TryOpenEditorsForDroppedFiles(List<string> files, StatusControlContext statusContext)
+        var context = await Db.Context();
+        var dbItems = new List<IContentId>();
+
+        switch (translatedMessage.ContentType)
         {
-            await ThreadSwitcher.ResumeBackgroundAsync();
+            case DataNotificationContentType.File:
+                dbItems = (await context.FileContents.Where(x => translatedMessage.ContentIds.Contains(x.ContentId))
+                    .ToListAsync()).Cast<IContentId>().ToList();
+                break;
+            case DataNotificationContentType.GeoJson:
+                dbItems = (await context.GeoJsonContents
+                        .Where(x => translatedMessage.ContentIds.Contains(x.ContentId)).ToListAsync())
+                    .Cast<IContentId>().ToList();
+                break;
+            case DataNotificationContentType.Image:
+                dbItems = (await context.ImageContents
+                        .Where(x => translatedMessage.ContentIds.Contains(x.ContentId)).ToListAsync())
+                    .Cast<IContentId>().ToList();
+                break;
+            case DataNotificationContentType.Line:
+                dbItems = (await context.LineContents.Where(x => translatedMessage.ContentIds.Contains(x.ContentId))
+                    .ToListAsync()).Cast<IContentId>().ToList();
+                break;
+            case DataNotificationContentType.Link:
+                dbItems = (await context.LinkContents.Where(x => translatedMessage.ContentIds.Contains(x.ContentId))
+                    .ToListAsync()).Cast<IContentId>().ToList();
+                break;
+            case DataNotificationContentType.Map:
+                dbItems = (await context.MapComponents
+                        .Where(x => translatedMessage.ContentIds.Contains(x.ContentId)).ToListAsync())
+                    .Cast<IContentId>().ToList();
+                break;
+            case DataNotificationContentType.Note:
+                dbItems = (await context.NoteContents.Where(x => translatedMessage.ContentIds.Contains(x.ContentId))
+                    .ToListAsync()).Cast<IContentId>().ToList();
+                break;
+            case DataNotificationContentType.Photo:
+                dbItems = (await context.PhotoContents
+                        .Where(x => translatedMessage.ContentIds.Contains(x.ContentId)).ToListAsync())
+                    .Cast<IContentId>().ToList();
+                break;
+            case DataNotificationContentType.Point:
+                dbItems = (await context.PointContents
+                        .Where(x => translatedMessage.ContentIds.Contains(x.ContentId)).ToListAsync())
+                    .Cast<IContentId>().ToList();
+                break;
+            case DataNotificationContentType.Post:
+                dbItems = (await context.PostContents.Where(x => translatedMessage.ContentIds.Contains(x.ContentId))
+                    .ToListAsync()).Cast<IContentId>().ToList();
+                break;
+        }
 
-            var fileContentExtensions = new List<string> { ".PDF", ".MPG", ".MPEG", ".WAV" };
-            var pictureContentExtensions = new List<string> { ".JPG", ".JPEG" };
+        if (!dbItems.Any()) return;
 
-            foreach (var loopFile in files)
+        foreach (var loopItem in dbItems)
+        {
+            var existingItems = existingListItemsMatchingNotification
+                .Where(x => x.ContentId() == loopItem.ContentId).ToList();
+
+            if (existingItems.Count > 1)
             {
-                if (fileContentExtensions.Contains(Path.GetExtension(loopFile).ToUpperInvariant()))
+                await ThreadSwitcher.ResumeForegroundAsync();
+
+                foreach (var loopDelete in existingItems.Skip(1).ToList()) Items.Remove(loopDelete);
+
+                await ThreadSwitcher.ResumeBackgroundAsync();
+            }
+
+            var existingItem = existingItems.FirstOrDefault();
+
+            if (existingItem == null)
+            {
+                if (!ContentListLoader.AddNewItemsFromDataNotifications) continue;
+
+                await ThreadSwitcher.ResumeForegroundAsync();
+
+                Items.Add(ListItemFromDbItem(loopItem));
+
+                await ThreadSwitcher.ResumeBackgroundAsync();
+
+                continue;
+            }
+
+            if (translatedMessage.UpdateType == DataNotificationUpdateType.Update)
+                // ReSharper disable All
+                ((dynamic)existingItem).DbEntry = (dynamic)loopItem;
+            // ReSharper restore All
+
+            if (loopItem is IMainImage mainImage && existingItem is IContentListSmallImage itemWithSmallImage)
+                itemWithSmallImage.SmallImageUrl = GetSmallImageUrl(mainImage);
+        }
+
+        StatusContext.RunFireAndForgetNonBlockingTask(FilterList);
+    }
+
+    public async Task DeleteSelected(CancellationToken cancelToken)
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (ListSelection?.SelectedItems == null || ListSelection.SelectedItems.Count < 1)
+        {
+            StatusContext.ToastWarning("Nothing Selected to Edit?");
+            return;
+        }
+
+        if (ListSelection.SelectedItems.Count > 20)
+            if (await StatusContext.ShowMessage("Delete Multiple Items",
+                    $"You are about to delete {ListSelection.SelectedItems.Count} items - do you really want to delete all of these items?" +
+                    $"{Environment.NewLine}{Environment.NewLine}{string.Join(Environment.NewLine, ListSelection.SelectedItems.Select(x => x.Content().Title))}",
+                    new List<string> { "Yes", "No" }) == "No")
+                return;
+
+        var currentSelected = ListSelection.SelectedItems;
+
+        foreach (var loopSelected in currentSelected)
+        {
+            cancelToken.ThrowIfCancellationRequested();
+
+            await loopSelected.Delete();
+        }
+    }
+
+    public async Task EditSelected(CancellationToken cancelToken)
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (ListSelection?.SelectedItems == null || ListSelection.SelectedItems.Count < 1)
+        {
+            StatusContext.ToastWarning("Nothing Selected to Edit?");
+            return;
+        }
+
+        if (ListSelection.SelectedItems.Count > 20)
+        {
+            StatusContext.ToastWarning("Sorry - please select less than 20 items to edit...");
+            return;
+        }
+
+        var currentSelected = ListSelection.SelectedItems;
+
+        foreach (var loopSelected in currentSelected)
+        {
+            cancelToken.ThrowIfCancellationRequested();
+
+            await loopSelected.Edit();
+        }
+    }
+
+    public async Task ExtractNewLinksSelected(CancellationToken cancelToken)
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (ListSelection?.SelectedItems == null || ListSelection.SelectedItems.Count < 1)
+        {
+            StatusContext.ToastWarning("Nothing Selected to Edit?");
+            return;
+        }
+
+        var currentSelected = ListSelection.SelectedItems;
+
+        foreach (var loopSelected in currentSelected)
+        {
+            cancelToken.ThrowIfCancellationRequested();
+
+            await loopSelected.ExtractNewLinks();
+        }
+    }
+
+    private async Task FilterList()
+    {
+        if (Items == null || !Items.Any()) return;
+
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        ((CollectionView)CollectionViewSource.GetDefaultView(Items)).Filter = o =>
+        {
+            if (string.IsNullOrWhiteSpace(UserFilterText)) return true;
+
+            if (o is not IContentListItem toFilter) return false;
+
+            if ((toFilter.Content().Title ?? string.Empty).Contains(UserFilterText,
+                    StringComparison.OrdinalIgnoreCase)) return true;
+            if ((toFilter.Content().Tags ?? string.Empty).Contains(UserFilterText,
+                    StringComparison.OrdinalIgnoreCase)) return true;
+            if ((toFilter.Content().Summary ?? string.Empty).Contains(UserFilterText,
+                    StringComparison.OrdinalIgnoreCase)) return true;
+            if ((toFilter.Content().CreatedBy ?? string.Empty).Contains(UserFilterText,
+                    StringComparison.OrdinalIgnoreCase)) return true;
+            if ((toFilter.Content().LastUpdatedBy ?? string.Empty).Contains(UserFilterText,
+                    StringComparison.OrdinalIgnoreCase)) return true;
+            if (toFilter.ContentId() != null && toFilter.ContentId().ToString()
+                    .Contains(UserFilterText, StringComparison.OrdinalIgnoreCase)) return true;
+            return false;
+        };
+    }
+
+    public async Task GenerateHtmlSelected(CancellationToken cancelToken)
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (ListSelection?.SelectedItems == null || ListSelection.SelectedItems.Count < 1)
+        {
+            StatusContext.ToastWarning("Nothing Selected to Generate?");
+            return;
+        }
+
+        var currentSelected = ListSelection.SelectedItems;
+
+        foreach (var loopSelected in currentSelected)
+        {
+            cancelToken.ThrowIfCancellationRequested();
+
+            await loopSelected.GenerateHtml();
+        }
+    }
+
+    private async Task GenerateChangedHtmlAndShowSitePreview()
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        try
+        {
+            WindowStatus?.AddRequest(new WindowIconStatusRequest(StatusContext.StatusControlContextId,
+                TaskbarItemProgressState.Indeterminate));
+
+            await HtmlGenerationGroups.GenerateChangedToHtml(StatusContext.ProgressTracker());
+        }
+        finally
+        {
+            WindowStatus?.AddRequest(new WindowIconStatusRequest(StatusContext.StatusControlContextId,
+                TaskbarItemProgressState.None));
+        }
+
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+
+        var sitePreviewWindow = new SiteOnDiskPreviewWindow();
+        sitePreviewWindow.PositionWindowAndShow();
+    }
+
+    private async Task GenerateChangedHtml()
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        try
+        {
+            WindowStatus?.AddRequest(new WindowIconStatusRequest(StatusContext.StatusControlContextId,
+                TaskbarItemProgressState.Indeterminate));
+
+            await HtmlGenerationGroups.GenerateChangedToHtml(StatusContext.ProgressTracker());
+        }
+        finally
+        {
+            WindowStatus?.AddRequest(new WindowIconStatusRequest(StatusContext.StatusControlContextId,
+                TaskbarItemProgressState.None));
+        }
+    }
+
+    private async Task GenerateChangedHtmlAndStartUpload()
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        try
+        {
+            WindowStatus?.AddRequest(new WindowIconStatusRequest(StatusContext.StatusControlContextId,
+                TaskbarItemProgressState.Indeterminate));
+
+            await S3UploadHelpers.GenerateChangedHtmlAndStartUpload(StatusContext, WindowStatus);
+        }
+        finally
+        {
+            WindowStatus?.AddRequest(new WindowIconStatusRequest(StatusContext.StatusControlContextId,
+                TaskbarItemProgressState.None));
+        }
+    }
+
+    public static string GetSmallImageUrl(IMainImage content)
+    {
+        if (content?.MainPicture == null) return null;
+
+        string smallImageUrl;
+
+        try
+        {
+            smallImageUrl = PictureAssetProcessing.ProcessPictureDirectory(content.MainPicture.Value).SmallPicture
+                ?.File.FullName;
+        }
+        catch
+        {
+            smallImageUrl = null;
+        }
+
+        return smallImageUrl;
+    }
+
+    public IContentListItem ListItemFromDbItem(object dbItem)
+    {
+        return dbItem switch
+        {
+            FileContent f => FileContentActions.ListItemFromDbItem(f, FileItemActions, ContentListLoader.ShowType),
+            GeoJsonContent g => GeoJsonContentActions.ListItemFromDbItem(g, GeoJsonItemActions,
+                ContentListLoader.ShowType),
+            ImageContent g => ImageContentActions.ListItemFromDbItem(g, ImageItemActions,
+                ContentListLoader.ShowType),
+            LineContent l => LineContentActions.ListItemFromDbItem(l, LineItemActions, ContentListLoader.ShowType),
+            LinkContent k => LinkContentActions.ListItemFromDbItem(k, LinkItemActions, ContentListLoader.ShowType),
+            MapComponent m => MapComponentContentActions.ListItemFromDbItem(m, MapComponentItemActions,
+                ContentListLoader.ShowType),
+            NoteContent n => NoteContentActions.ListItemFromDbItem(n, NoteItemActions, ContentListLoader.ShowType),
+            PhotoContent ph => PhotoContentActions.ListItemFromDbItem(ph, PhotoItemActions,
+                ContentListLoader.ShowType),
+            PointContent pt => PointContentActions.ListItemFromDbItem(pt, PointItemActions,
+                ContentListLoader.ShowType),
+            PostContent po => PostContentActions.ListItemFromDbItem(po, PostItemActions,
+                ContentListLoader.ShowType),
+            _ => null
+        };
+    }
+
+    public async Task LoadData()
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        ListSelection = await ContentListSelected<IContentListItem>.CreateInstance(StatusContext);
+
+        DataNotifications.NewDataNotificationChannel().MessageReceived -= OnDataNotificationReceived;
+
+        StatusContext.Progress("Setting up Sorting");
+
+        ListSort = ContentListLoader.SortContext();
+
+        ListSort.SortUpdated += (_, list) =>
+            Dispatcher.CurrentDispatcher.Invoke(() => { ListContextSortHelpers.SortList(list, Items); });
+
+        StatusContext.Progress("Starting Item Load");
+
+        var dbItems = await ContentListLoader.LoadItems(StatusContext.ProgressTracker());
+
+        StatusContext.Progress($"All Items Loaded from Db: {ContentListLoader.AllItemsLoaded}");
+
+        var contentListItems = new List<IContentListItem>();
+
+        StatusContext.Progress("Creating List Items");
+
+        var loopCounter = 0;
+
+        Parallel.ForEach(dbItems, loopDbItem =>
+        {
+            Interlocked.Increment(ref loopCounter);
+
+            if (loopCounter % 250 == 0)
+                StatusContext.Progress($"Created List Item {loopCounter} of {dbItems.Count}");
+
+            contentListItems.Add(ListItemFromDbItem(loopDbItem));
+        });
+
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        StatusContext.Progress("Loading Display List of Items");
+
+        Items = new ObservableCollection<IContentListItem>(contentListItems);
+
+        ListContextSortHelpers.SortList(ListSort.SortDescriptions(), Items);
+        await FilterList();
+
+        DataNotifications.NewDataNotificationChannel().MessageReceived += OnDataNotificationReceived;
+    }
+
+    private void OnDataNotificationReceived(object sender, TinyMessageReceivedEventArgs e)
+    {
+        DataNotificationsProcessor.Enqueue(e);
+    }
+
+    [NotifyPropertyChangedInvocator]
+    protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+    {
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+    }
+
+    public async Task OpenUrlSelected(CancellationToken cancelToken)
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (ListSelection?.SelectedItems == null || ListSelection.SelectedItems.Count < 1)
+        {
+            StatusContext.ToastWarning("Nothing Selected to Edit?");
+            return;
+        }
+
+        var currentSelected = ListSelection.SelectedItems;
+
+        foreach (var loopSelected in currentSelected) await loopSelected.OpenUrl();
+    }
+
+    private async Task PossibleMainImageUpdateDataNotificationReceived(
+        InterProcessDataNotification translatedMessage)
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        var smallImageListItems =
+            Items.Where(x => x is IContentListSmallImage).Cast<IContentListSmallImage>().ToList();
+
+        foreach (var loopListItem in smallImageListItems)
+            if (((dynamic)loopListItem).DbEntry is IMainImage { MainPicture: { } } dbMainImageEntry &&
+                translatedMessage.ContentIds.Contains(dbMainImageEntry.MainPicture.Value))
+                loopListItem.SmallImageUrl = GetSmallImageUrl(dbMainImageEntry);
+    }
+
+    private async Task ShowSitePreviewWindow()
+    {
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        var sitePreviewWindow = new SiteOnDiskPreviewWindow();
+
+        sitePreviewWindow.PositionWindowAndShow();
+    }
+
+    private async Task TryOpenEditorsForDroppedFiles(List<string> files, StatusControlContext statusContext)
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        var fileContentExtensions = new List<string> { ".PDF", ".MPG", ".MPEG", ".WAV" };
+        var pictureContentExtensions = new List<string> { ".JPG", ".JPEG" };
+
+        foreach (var loopFile in files)
+        {
+            if (fileContentExtensions.Contains(Path.GetExtension(loopFile).ToUpperInvariant()))
+            {
+                await ThreadSwitcher.ResumeForegroundAsync();
+
+                var newEditor = new FileContentEditorWindow(new FileInfo(loopFile));
+                newEditor.PositionWindowAndShow();
+
+                await ThreadSwitcher.ResumeBackgroundAsync();
+
+                statusContext.ToastSuccess($"{Path.GetFileName(loopFile)} sent to File Editor");
+
+                continue;
+            }
+
+            if (pictureContentExtensions.Contains(Path.GetExtension(loopFile).ToUpperInvariant()))
+            {
+                string make;
+                string model;
+
+                try
+                {
+                    var exifDirectory = ImageMetadataReader.ReadMetadata(loopFile).OfType<ExifIfd0Directory>()
+                        .FirstOrDefault();
+
+                    make = exifDirectory?.GetDescription(ExifDirectoryBase.TagMake) ?? string.Empty;
+                    model = exifDirectory?.GetDescription(ExifDirectoryBase.TagModel) ?? string.Empty;
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                    throw;
+                }
+
+
+                if (!string.IsNullOrWhiteSpace(make) || !string.IsNullOrWhiteSpace(model))
                 {
                     await ThreadSwitcher.ResumeForegroundAsync();
 
-                    var newEditor = new FileContentEditorWindow(new FileInfo(loopFile));
-                    newEditor.PositionWindowAndShow();
+                    var photoEditorWindow = new PhotoContentEditorWindow(new FileInfo(loopFile));
+                    photoEditorWindow.PositionWindowAndShow();
 
                     await ThreadSwitcher.ResumeBackgroundAsync();
 
-                    statusContext.ToastSuccess($"{Path.GetFileName(loopFile)} sent to File Editor");
 
-                    continue;
+                    statusContext.ToastSuccess($"{Path.GetFileName(loopFile)} sent to Photo Editor");
                 }
-
-                if (pictureContentExtensions.Contains(Path.GetExtension(loopFile).ToUpperInvariant()))
+                else
                 {
-                    string make;
-                    string model;
+                    await ThreadSwitcher.ResumeForegroundAsync();
 
-                    try
-                    {
-                        var exifDirectory = ImageMetadataReader.ReadMetadata(loopFile).OfType<ExifIfd0Directory>()
-                            .FirstOrDefault();
+                    var imageEditorWindow = new PhotoContentEditorWindow(new FileInfo(loopFile));
+                    imageEditorWindow.PositionWindowAndShow();
 
-                        make = exifDirectory?.GetDescription(ExifDirectoryBase.TagMake) ?? string.Empty;
-                        model = exifDirectory?.GetDescription(ExifDirectoryBase.TagModel) ?? string.Empty;
-                    }
-                    catch (Exception e)
-                    {
-                        Console.WriteLine(e);
-                        throw;
-                    }
+                    await ThreadSwitcher.ResumeBackgroundAsync();
 
-
-                    if (!string.IsNullOrWhiteSpace(make) || !string.IsNullOrWhiteSpace(model))
-                    {
-                        await ThreadSwitcher.ResumeForegroundAsync();
-
-                        var photoEditorWindow = new PhotoContentEditorWindow(new FileInfo(loopFile));
-                        photoEditorWindow.PositionWindowAndShow();
-
-                        await ThreadSwitcher.ResumeBackgroundAsync();
-
-
-                        statusContext.ToastSuccess($"{Path.GetFileName(loopFile)} sent to Photo Editor");
-                    }
-                    else
-                    {
-                        await ThreadSwitcher.ResumeForegroundAsync();
-
-                        var imageEditorWindow = new PhotoContentEditorWindow(new FileInfo(loopFile));
-                        imageEditorWindow.PositionWindowAndShow();
-
-                        await ThreadSwitcher.ResumeBackgroundAsync();
-
-                        statusContext.ToastSuccess($"{Path.GetFileName(loopFile)} sent to Image Editor");
-                    }
+                    statusContext.ToastSuccess($"{Path.GetFileName(loopFile)} sent to Image Editor");
                 }
             }
         }
+    }
 
-        public async Task ViewHistorySelected(CancellationToken cancelToken)
+    public async Task ViewHistorySelected(CancellationToken cancelToken)
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (ListSelection?.SelectedItems == null || ListSelection.SelectedItems.Count < 1)
         {
-            await ThreadSwitcher.ResumeBackgroundAsync();
+            StatusContext.ToastWarning("Nothing Selected to Edit?");
+            return;
+        }
 
-            if (ListSelection?.SelectedItems == null || ListSelection.SelectedItems.Count < 1)
-            {
-                StatusContext.ToastWarning("Nothing Selected to Edit?");
-                return;
-            }
+        var currentSelected = ListSelection.SelectedItems;
 
-            var currentSelected = ListSelection.SelectedItems;
-
-            foreach (var loopSelected in currentSelected)
-            {
-                cancelToken.ThrowIfCancellationRequested();
-                await loopSelected.ViewHistory();
-            }
+        foreach (var loopSelected in currentSelected)
+        {
+            cancelToken.ThrowIfCancellationRequested();
+            await loopSelected.ViewHistory();
         }
     }
 }

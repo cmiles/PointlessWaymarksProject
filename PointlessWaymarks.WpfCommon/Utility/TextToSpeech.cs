@@ -4,97 +4,96 @@ using Windows.Foundation;
 using Windows.Media.Playback;
 using Windows.Media.SpeechSynthesis;
 
-namespace PointlessWaymarks.WpfCommon.Utility
+namespace PointlessWaymarks.WpfCommon.Utility;
+
+/// <summary>
+///     Text To Speech Implementation Windows - modified from
+///     https://github.com/jamesmontemagno/TextToSpeechPlugin/blob/master/src/TextToSpeech.Plugin/TextToSpeech.uwp.cs - MIT
+///     License
+/// </summary>
+public class TextToSpeech : IDisposable
 {
+    private readonly SemaphoreSlim _semaphore = new(1, 1);
+    private readonly SpeechSynthesizer _speechSynthesizer;
+
+
     /// <summary>
-    ///     Text To Speech Implementation Windows - modified from
-    ///     https://github.com/jamesmontemagno/TextToSpeechPlugin/blob/master/src/TextToSpeech.Plugin/TextToSpeech.uwp.cs - MIT
-    ///     License
+    ///     SpeechSynthesizer
     /// </summary>
-    public class TextToSpeech : IDisposable
+    public TextToSpeech()
     {
-        private readonly SemaphoreSlim _semaphore = new(1, 1);
-        private readonly SpeechSynthesizer _speechSynthesizer;
+        _speechSynthesizer = new SpeechSynthesizer();
+    }
+
+    /// <summary>
+    ///     Dispose of TTS
+    /// </summary>
+    public void Dispose()
+    {
+        _speechSynthesizer?.Dispose();
+    }
 
 
-        /// <summary>
-        ///     SpeechSynthesizer
-        /// </summary>
-        public TextToSpeech()
+    /// <summary>
+    ///     Speak back text
+    /// </summary>
+    /// <param name="text">Text to speak</param>
+    /// <param name="cancelToken">Cancellation token to stop speak</param>
+    /// <exception cref="ArgumentNullException">Thrown if text is null</exception>
+    /// <exception cref="ArgumentException">Thrown if text length is greater than maximum allowed</exception>
+    public async Task Speak(string text, CancellationToken cancelToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(text)) return;
+
+        try
         {
-            _speechSynthesizer = new SpeechSynthesizer();
-        }
+            await _semaphore.WaitAsync(cancelToken);
 
-        /// <summary>
-        ///     Dispose of TTS
-        /// </summary>
-        public void Dispose()
-        {
-            _speechSynthesizer?.Dispose();
-        }
+            _speechSynthesizer.Voice = SpeechSynthesizer.DefaultVoice;
 
+            var localCode = SpeechSynthesizer.DefaultVoice.Language;
 
-        /// <summary>
-        ///     Speak back text
-        /// </summary>
-        /// <param name="text">Text to speak</param>
-        /// <param name="cancelToken">Cancellation token to stop speak</param>
-        /// <exception cref="ArgumentNullException">Thrown if text is null</exception>
-        /// <exception cref="ArgumentException">Thrown if text length is greater than maximum allowed</exception>
-        public async Task Speak(string text, CancellationToken cancelToken = default)
-        {
-            if (string.IsNullOrWhiteSpace(text)) return;
+            var pitchProsody = "default";
+
+            var ssml = @"<speak version='1.0' " +
+                       $"xmlns='http://www.w3.org/2001/10/synthesis' xml:lang='{localCode}'>" +
+                       $"<prosody pitch='{pitchProsody}' rate='1.0'>{SecurityElement.Escape(text)}</prosody> " +
+                       "</speak>";
+
+            var tcs = new TaskCompletionSource<object>();
+            var handler = new TypedEventHandler<MediaPlayer, object>((_, _) => tcs.TrySetResult(null));
 
             try
             {
-                await _semaphore.WaitAsync(cancelToken);
+                var player = BackgroundMediaPlayer.Current;
+                var stream = await _speechSynthesizer.SynthesizeSsmlToStreamAsync(ssml);
 
-                _speechSynthesizer.Voice = SpeechSynthesizer.DefaultVoice;
+                player.MediaEnded += handler;
+                player.SetStreamSource(stream);
+                player.Play();
 
-                var localCode = SpeechSynthesizer.DefaultVoice.Language;
-
-                var pitchProsody = "default";
-
-                var ssml = @"<speak version='1.0' " +
-                           $"xmlns='http://www.w3.org/2001/10/synthesis' xml:lang='{localCode}'>" +
-                           $"<prosody pitch='{pitchProsody}' rate='1.0'>{SecurityElement.Escape(text)}</prosody> " +
-                           "</speak>";
-
-                var tcs = new TaskCompletionSource<object>();
-                var handler = new TypedEventHandler<MediaPlayer, object>((_, _) => tcs.TrySetResult(null));
-
-                try
+                void OnCancel()
                 {
-                    var player = BackgroundMediaPlayer.Current;
-                    var stream = await _speechSynthesizer.SynthesizeSsmlToStreamAsync(ssml);
-
-                    player.MediaEnded += handler;
-                    player.SetStreamSource(stream);
-                    player.Play();
-
-                    void OnCancel()
-                    {
-                        player.PlaybackRate = 0;
-                        tcs.TrySetResult(null);
-                    }
-
-                    await using (cancelToken.Register(OnCancel))
-                    {
-                        await tcs.Task;
-                    }
-
-                    player.MediaEnded -= handler;
+                    player.PlaybackRate = 0;
+                    tcs.TrySetResult(null);
                 }
-                catch (Exception ex)
+
+                await using (cancelToken.Register(OnCancel))
                 {
-                    Debug.WriteLine("Unable to playback stream: " + ex);
+                    await tcs.Task;
                 }
+
+                player.MediaEnded -= handler;
             }
-            finally
+            catch (Exception ex)
             {
-                if (_semaphore.CurrentCount == 0)
-                    _semaphore.Release();
+                Debug.WriteLine("Unable to playback stream: " + ex);
             }
+        }
+        finally
+        {
+            if (_semaphore.CurrentCount == 0)
+                _semaphore.Release();
         }
     }
 }

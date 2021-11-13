@@ -5,113 +5,112 @@ using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsData.Json;
 using Serilog;
 
-namespace PointlessWaymarks.CmsData.Content
+namespace PointlessWaymarks.CmsData.Content;
+
+public static class FileGenerator
 {
-    public static class FileGenerator
+    public static async Task GenerateHtml(FileContent toGenerate, DateTime? generationVersion,
+        IProgress<string>? progress = null)
     {
-        public static async Task GenerateHtml(FileContent toGenerate, DateTime? generationVersion,
-            IProgress<string>? progress = null)
+        progress?.Report($"File Content - Generate HTML for {toGenerate.Title}");
+
+        var htmlContext = new SingleFilePage(toGenerate) { GenerationVersion = generationVersion };
+
+        await htmlContext.WriteLocalHtml().ConfigureAwait(false);
+    }
+
+
+    public static async Task<(GenerationReturn generationReturn, FileContent? fileContent)> SaveAndGenerateHtml(
+        FileContent toSave, FileInfo selectedFile, bool overwriteExistingFiles, DateTime? generationVersion,
+        IProgress<string>? progress = null)
+    {
+        var validationReturn = await Validate(toSave, selectedFile).ConfigureAwait(false);
+
+        if (validationReturn.HasError) return (validationReturn, null);
+
+        Db.DefaultPropertyCleanup(toSave);
+        toSave.Tags = Db.TagListCleanup(toSave.Tags);
+
+        toSave.OriginalFileName = selectedFile.Name;
+        await FileManagement.WriteSelectedFileContentFileToMediaArchive(selectedFile).ConfigureAwait(false);
+        await Db.SaveFileContent(toSave).ConfigureAwait(false);
+        await WriteFileFromMediaArchiveToLocalSite(toSave, overwriteExistingFiles).ConfigureAwait(false);
+        await GenerateHtml(toSave, generationVersion, progress).ConfigureAwait(false);
+        await Export.WriteLocalDbJson(toSave, progress).ConfigureAwait(false);
+
+        DataNotifications.PublishDataNotification("File Generator", DataNotificationContentType.File,
+            DataNotificationUpdateType.LocalContent, new List<Guid> { toSave.ContentId });
+
+        return (GenerationReturn.Success($"Saved and Generated Content And Html for {toSave.Title}"), toSave);
+    }
+
+    public static async Task<GenerationReturn> Validate(FileContent? fileContent, FileInfo? selectedFile)
+    {
+        if (fileContent == null)
+            return GenerationReturn.Error("Null File Content submitted to Validate?");
+
+        if (selectedFile == null)
+            return GenerationReturn.Error("No File submitted to Validate?", fileContent.ContentId);
+
+        var rootDirectoryCheck = UserSettingsUtilities.ValidateLocalSiteRootDirectory();
+
+        if (!rootDirectoryCheck.Valid)
+            return GenerationReturn.Error($"Problem with Root Directory: {rootDirectoryCheck.Explanation}",
+                fileContent.ContentId);
+
+        var mediaArchiveCheck = UserSettingsUtilities.ValidateLocalMediaArchive();
+        if (!mediaArchiveCheck.Valid)
+            return GenerationReturn.Error($"Problem with Media Archive: {mediaArchiveCheck.Explanation}",
+                fileContent.ContentId);
+
+        var (valid, explanation) =
+            await CommonContentValidation.ValidateContentCommon(fileContent).ConfigureAwait(false);
+        if (!valid)
+            return GenerationReturn.Error(explanation, fileContent.ContentId);
+
+        var (isValid, s) = CommonContentValidation.ValidateUpdateContentFormat(fileContent.UpdateNotesFormat);
+        if (!isValid)
+            return GenerationReturn.Error(s, fileContent.ContentId);
+
+        selectedFile.Refresh();
+
+        if (!selectedFile.Exists)
+            return GenerationReturn.Error("Selected File doesn't exist?", fileContent.ContentId);
+
+        if (!FolderFileUtility.IsNoUrlEncodingNeeded(Path.GetFileNameWithoutExtension(selectedFile.Name)))
+            return GenerationReturn.Error("Limit File Names to A-Z a-z - . _", fileContent.ContentId);
+
+        if (await (await Db.Context().ConfigureAwait(false))
+            .FileFilenameExistsInDatabase(selectedFile.Name, fileContent.ContentId).ConfigureAwait(false))
+            return GenerationReturn.Error(
+                "This filename already exists in the database - file names must be unique.", fileContent.ContentId);
+
+        return GenerationReturn.Success("File Content Validation Successful");
+    }
+
+    public static async Task WriteFileFromMediaArchiveToLocalSite(FileContent fileContent, bool overwriteExisting)
+    {
+        if (string.IsNullOrWhiteSpace(fileContent.OriginalFileName))
         {
-            progress?.Report($"File Content - Generate HTML for {toGenerate.Title}");
-
-            var htmlContext = new SingleFilePage(toGenerate) { GenerationVersion = generationVersion };
-
-            await htmlContext.WriteLocalHtml().ConfigureAwait(false);
+            Log.Warning(
+                $"FileContent with a blank {nameof(fileContent.OriginalFileName)} was submitted to WriteFileFromMediaArchiveToLocalSite");
+            return;
         }
 
+        var userSettings = UserSettingsSingleton.CurrentSettings();
 
-        public static async Task<(GenerationReturn generationReturn, FileContent? fileContent)> SaveAndGenerateHtml(
-            FileContent toSave, FileInfo selectedFile, bool overwriteExistingFiles, DateTime? generationVersion,
-            IProgress<string>? progress = null)
+        var sourceFile = new FileInfo(Path.Combine(userSettings.LocalMediaArchiveFileDirectory().FullName,
+            fileContent.OriginalFileName));
+
+        var targetFile = new FileInfo(Path.Combine(userSettings.LocalSiteFileContentDirectory(fileContent).FullName,
+            fileContent.OriginalFileName));
+
+        if (targetFile.Exists && overwriteExisting)
         {
-            var validationReturn = await Validate(toSave, selectedFile).ConfigureAwait(false);
-
-            if (validationReturn.HasError) return (validationReturn, null);
-
-            Db.DefaultPropertyCleanup(toSave);
-            toSave.Tags = Db.TagListCleanup(toSave.Tags);
-
-            toSave.OriginalFileName = selectedFile.Name;
-            await FileManagement.WriteSelectedFileContentFileToMediaArchive(selectedFile).ConfigureAwait(false);
-            await Db.SaveFileContent(toSave).ConfigureAwait(false);
-            await WriteFileFromMediaArchiveToLocalSite(toSave, overwriteExistingFiles).ConfigureAwait(false);
-            await GenerateHtml(toSave, generationVersion, progress).ConfigureAwait(false);
-            await Export.WriteLocalDbJson(toSave, progress).ConfigureAwait(false);
-
-            DataNotifications.PublishDataNotification("File Generator", DataNotificationContentType.File,
-                DataNotificationUpdateType.LocalContent, new List<Guid> { toSave.ContentId });
-
-            return (GenerationReturn.Success($"Saved and Generated Content And Html for {toSave.Title}"), toSave);
+            targetFile.Delete();
+            targetFile.Refresh();
         }
 
-        public static async Task<GenerationReturn> Validate(FileContent? fileContent, FileInfo? selectedFile)
-        {
-            if (fileContent == null)
-                return GenerationReturn.Error("Null File Content submitted to Validate?");
-
-            if (selectedFile == null)
-                return GenerationReturn.Error("No File submitted to Validate?", fileContent.ContentId);
-
-            var rootDirectoryCheck = UserSettingsUtilities.ValidateLocalSiteRootDirectory();
-
-            if (!rootDirectoryCheck.Valid)
-                return GenerationReturn.Error($"Problem with Root Directory: {rootDirectoryCheck.Explanation}",
-                    fileContent.ContentId);
-
-            var mediaArchiveCheck = UserSettingsUtilities.ValidateLocalMediaArchive();
-            if (!mediaArchiveCheck.Valid)
-                return GenerationReturn.Error($"Problem with Media Archive: {mediaArchiveCheck.Explanation}",
-                    fileContent.ContentId);
-
-            var (valid, explanation) =
-                await CommonContentValidation.ValidateContentCommon(fileContent).ConfigureAwait(false);
-            if (!valid)
-                return GenerationReturn.Error(explanation, fileContent.ContentId);
-
-            var (isValid, s) = CommonContentValidation.ValidateUpdateContentFormat(fileContent.UpdateNotesFormat);
-            if (!isValid)
-                return GenerationReturn.Error(s, fileContent.ContentId);
-
-            selectedFile.Refresh();
-
-            if (!selectedFile.Exists)
-                return GenerationReturn.Error("Selected File doesn't exist?", fileContent.ContentId);
-
-            if (!FolderFileUtility.IsNoUrlEncodingNeeded(Path.GetFileNameWithoutExtension(selectedFile.Name)))
-                return GenerationReturn.Error("Limit File Names to A-Z a-z - . _", fileContent.ContentId);
-
-            if (await (await Db.Context().ConfigureAwait(false))
-                .FileFilenameExistsInDatabase(selectedFile.Name, fileContent.ContentId).ConfigureAwait(false))
-                return GenerationReturn.Error(
-                    "This filename already exists in the database - file names must be unique.", fileContent.ContentId);
-
-            return GenerationReturn.Success("File Content Validation Successful");
-        }
-
-        public static async Task WriteFileFromMediaArchiveToLocalSite(FileContent fileContent, bool overwriteExisting)
-        {
-            if (string.IsNullOrWhiteSpace(fileContent.OriginalFileName))
-            {
-                Log.Warning(
-                    $"FileContent with a blank {nameof(fileContent.OriginalFileName)} was submitted to WriteFileFromMediaArchiveToLocalSite");
-                return;
-            }
-
-            var userSettings = UserSettingsSingleton.CurrentSettings();
-
-            var sourceFile = new FileInfo(Path.Combine(userSettings.LocalMediaArchiveFileDirectory().FullName,
-                fileContent.OriginalFileName));
-
-            var targetFile = new FileInfo(Path.Combine(userSettings.LocalSiteFileContentDirectory(fileContent).FullName,
-                fileContent.OriginalFileName));
-
-            if (targetFile.Exists && overwriteExisting)
-            {
-                targetFile.Delete();
-                targetFile.Refresh();
-            }
-
-            if (!targetFile.Exists) await sourceFile.CopyToAndLog(targetFile.FullName).ConfigureAwait(false);
-        }
+        if (!targetFile.Exists) await sourceFile.CopyToAndLog(targetFile.FullName).ConfigureAwait(false);
     }
 }

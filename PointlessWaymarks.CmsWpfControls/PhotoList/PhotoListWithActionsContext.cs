@@ -19,653 +19,652 @@ using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 using PointlessWaymarks.WpfCommon.Utility;
 
-namespace PointlessWaymarks.CmsWpfControls.PhotoList
+namespace PointlessWaymarks.CmsWpfControls.PhotoList;
+
+public class PhotoListWithActionsContext : INotifyPropertyChanged
 {
-    public class PhotoListWithActionsContext : INotifyPropertyChanged
+    private readonly StatusControlContext _statusContext;
+    private Command _emailHtmlToClipboardCommand;
+    private Command _forcedResizeCommand;
+    private ContentListContext _listContext;
+    private Command _openUrlForPhotoListCommand;
+    private Command _photoLinkCodesToClipboardForSelectedCommand;
+    private Command _refreshDataCommand;
+    private Command _regenerateHtmlAndReprocessPhotoForSelectedCommand;
+    private Command _reportAllPhotosCommand;
+    private Command _reportBlankLicenseCommand;
+    private Command _reportMultiSpacesInTitleCommand;
+    private Command _reportNoTagsCommand;
+    private Command _reportPhotoMetadataCommand;
+    private Command _reportTakenAndLicenseYearDoNotMatchCommand;
+    private Command _reportTitleAndTakenDoNotMatchCommand;
+    private Command _viewFilesCommand;
+    private WindowIconStatus _windowStatus;
+
+    public PhotoListWithActionsContext(StatusControlContext statusContext, WindowIconStatus windowStatus = null)
     {
-        private readonly StatusControlContext _statusContext;
-        private Command _emailHtmlToClipboardCommand;
-        private Command _forcedResizeCommand;
-        private ContentListContext _listContext;
-        private Command _openUrlForPhotoListCommand;
-        private Command _photoLinkCodesToClipboardForSelectedCommand;
-        private Command _refreshDataCommand;
-        private Command _regenerateHtmlAndReprocessPhotoForSelectedCommand;
-        private Command _reportAllPhotosCommand;
-        private Command _reportBlankLicenseCommand;
-        private Command _reportMultiSpacesInTitleCommand;
-        private Command _reportNoTagsCommand;
-        private Command _reportPhotoMetadataCommand;
-        private Command _reportTakenAndLicenseYearDoNotMatchCommand;
-        private Command _reportTitleAndTakenDoNotMatchCommand;
-        private Command _viewFilesCommand;
-        private WindowIconStatus _windowStatus;
+        StatusContext = statusContext ?? new StatusControlContext();
+        WindowStatus = windowStatus;
 
-        public PhotoListWithActionsContext(StatusControlContext statusContext, WindowIconStatus windowStatus = null)
+        StatusContext.RunFireAndForgetBlockingTask(LoadData);
+    }
+
+    public PhotoListWithActionsContext(StatusControlContext statusContext, IContentListLoader reportFilter)
+    {
+        StatusContext = statusContext ?? new StatusControlContext();
+
+        ListContext ??= new ContentListContext(StatusContext, reportFilter);
+
+        SetupCommands();
+
+        StatusContext.RunFireAndForgetBlockingTask(ListContext.LoadData);
+    }
+
+    public Command EmailHtmlToClipboardCommand
+    {
+        get => _emailHtmlToClipboardCommand;
+        set
         {
-            StatusContext = statusContext ?? new StatusControlContext();
-            WindowStatus = windowStatus;
+            if (Equals(value, _emailHtmlToClipboardCommand)) return;
+            _emailHtmlToClipboardCommand = value;
+            OnPropertyChanged();
+        }
+    }
 
-            StatusContext.RunFireAndForgetBlockingTask(LoadData);
+    public Command ForcedResizeCommand
+    {
+        get => _forcedResizeCommand;
+        set
+        {
+            if (Equals(value, _forcedResizeCommand)) return;
+            _forcedResizeCommand = value;
+            OnPropertyChanged();
+        }
+    }
+
+
+    public ContentListContext ListContext
+    {
+        get => _listContext;
+        set
+        {
+            if (Equals(value, _listContext)) return;
+            _listContext = value;
+            OnPropertyChanged();
+        }
+    }
+
+    public Command OpenUrlForPhotoListCommand
+    {
+        get => _openUrlForPhotoListCommand;
+        set
+        {
+            if (Equals(value, _openUrlForPhotoListCommand)) return;
+            _openUrlForPhotoListCommand = value;
+            OnPropertyChanged();
+        }
+    }
+
+    public Command PhotoLinkCodesToClipboardForSelectedCommand
+    {
+        get => _photoLinkCodesToClipboardForSelectedCommand;
+        set
+        {
+            if (Equals(value, _photoLinkCodesToClipboardForSelectedCommand)) return;
+            _photoLinkCodesToClipboardForSelectedCommand = value;
+            OnPropertyChanged();
+        }
+    }
+
+    public Command RefreshDataCommand
+    {
+        get => _refreshDataCommand;
+        set
+        {
+            if (Equals(value, _refreshDataCommand)) return;
+            _refreshDataCommand = value;
+            OnPropertyChanged();
+        }
+    }
+
+    public Command RegenerateHtmlAndReprocessPhotoForSelectedCommand
+    {
+        get => _regenerateHtmlAndReprocessPhotoForSelectedCommand;
+        set
+        {
+            if (Equals(value, _regenerateHtmlAndReprocessPhotoForSelectedCommand)) return;
+            _regenerateHtmlAndReprocessPhotoForSelectedCommand = value;
+            OnPropertyChanged();
+        }
+    }
+
+    public Command ReportAllPhotosCommand
+    {
+        get => _reportAllPhotosCommand;
+        set
+        {
+            if (Equals(value, _reportAllPhotosCommand)) return;
+            _reportAllPhotosCommand = value;
+            OnPropertyChanged();
+        }
+    }
+
+    public Command ReportBlankLicenseCommand
+    {
+        get => _reportBlankLicenseCommand;
+        set
+        {
+            if (Equals(value, _reportBlankLicenseCommand)) return;
+            _reportBlankLicenseCommand = value;
+            OnPropertyChanged();
+        }
+    }
+
+    public Command ReportMultiSpacesInTitleCommand
+    {
+        get => _reportMultiSpacesInTitleCommand;
+        set
+        {
+            if (Equals(value, _reportMultiSpacesInTitleCommand)) return;
+            _reportMultiSpacesInTitleCommand = value;
+            OnPropertyChanged();
+        }
+    }
+
+    public Command ReportNoTagsCommand
+    {
+        get => _reportNoTagsCommand;
+        set
+        {
+            if (Equals(value, _reportNoTagsCommand)) return;
+            _reportNoTagsCommand = value;
+            OnPropertyChanged();
+        }
+    }
+
+    public Command ReportPhotoMetadataCommand
+    {
+        get => _reportPhotoMetadataCommand;
+        set
+        {
+            if (Equals(value, _reportPhotoMetadataCommand)) return;
+            _reportPhotoMetadataCommand = value;
+            OnPropertyChanged();
+        }
+    }
+
+    public Command ReportTakenAndLicenseYearDoNotMatchCommand
+    {
+        get => _reportTakenAndLicenseYearDoNotMatchCommand;
+        set
+        {
+            if (Equals(value, _reportTakenAndLicenseYearDoNotMatchCommand)) return;
+            _reportTakenAndLicenseYearDoNotMatchCommand = value;
+            OnPropertyChanged();
+        }
+    }
+
+    public Command ReportTitleAndTakenDoNotMatchCommand
+    {
+        get => _reportTitleAndTakenDoNotMatchCommand;
+        set
+        {
+            if (Equals(value, _reportTitleAndTakenDoNotMatchCommand)) return;
+            _reportTitleAndTakenDoNotMatchCommand = value;
+            OnPropertyChanged();
+        }
+    }
+
+    public StatusControlContext StatusContext
+    {
+        get => _statusContext;
+        private init
+        {
+            if (Equals(value, _statusContext)) return;
+            _statusContext = value;
+            OnPropertyChanged();
+        }
+    }
+
+    public Command ViewFilesCommand
+    {
+        get => _viewFilesCommand;
+        set
+        {
+            if (Equals(value, _viewFilesCommand)) return;
+            _viewFilesCommand = value;
+            OnPropertyChanged();
+        }
+    }
+
+    public WindowIconStatus WindowStatus
+    {
+        get => _windowStatus;
+        set
+        {
+            if (Equals(value, _windowStatus)) return;
+            _windowStatus = value;
+            OnPropertyChanged();
+        }
+    }
+
+    public event PropertyChangedEventHandler PropertyChanged;
+
+    private async Task EmailHtmlToClipboard()
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (SelectedItems() == null || !SelectedItems().Any())
+        {
+            StatusContext.ToastError("Nothing Selected?");
+            return;
         }
 
-        public PhotoListWithActionsContext(StatusControlContext statusContext, IContentListLoader reportFilter)
+        if (SelectedItems().Count > 1)
         {
-            StatusContext = statusContext ?? new StatusControlContext();
-
-            ListContext ??= new ContentListContext(StatusContext, reportFilter);
-
-            SetupCommands();
-
-            StatusContext.RunFireAndForgetBlockingTask(ListContext.LoadData);
+            StatusContext.ToastError("Please select only 1 item...");
+            return;
         }
 
-        public Command EmailHtmlToClipboardCommand
+        var frozenSelected = SelectedItems().First();
+
+        var emailHtml = await Email.ToHtmlEmail(frozenSelected.DbEntry, StatusContext.ProgressTracker());
+
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        HtmlClipboardHelpers.CopyToClipboard(emailHtml, emailHtml);
+
+        StatusContext.ToastSuccess("Email Html on Clipboard");
+    }
+
+
+    private async Task ForcedResize(CancellationToken cancellationToken)
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (SelectedItems() == null || !SelectedItems().Any())
         {
-            get => _emailHtmlToClipboardCommand;
-            set
+            StatusContext.ToastError("Nothing Selected?");
+            return;
+        }
+
+        var totalCount = SelectedItems().Count;
+        var currentLoop = 0;
+
+        foreach (var loopSelected in SelectedItems())
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            if (++currentLoop % 10 == 0)
+                StatusContext.Progress($"Cleaning Generated Images And Resizing {currentLoop} of {totalCount} - " +
+                                       $"{loopSelected.DbEntry.Title}");
+            var resizeResult =
+                await PictureResizing.CopyCleanResizePhoto(loopSelected.DbEntry, StatusContext.ProgressTracker());
+
+            if (!resizeResult.HasError) continue;
+
+            LogHelpers.LogGenerationReturn(resizeResult, "Photo Forced Resizing");
+
+            if (currentLoop < totalCount)
             {
-                if (Equals(value, _emailHtmlToClipboardCommand)) return;
-                _emailHtmlToClipboardCommand = value;
-                OnPropertyChanged();
+                if (await StatusContext.ShowMessage("Error Resizing",
+                        $"There was an error resizing the image {loopSelected.DbEntry.OriginalFileName} in {loopSelected.DbEntry.Title}{Environment.NewLine}{Environment.NewLine}{resizeResult.GenerationNote}{Environment.NewLine}{Environment.NewLine}Continue?",
+                        new List<string> { "Yes", "No" }) == "No") return;
+            }
+            else
+            {
+                await StatusContext.ShowMessageWithOkButton("Error Resizing",
+                    $"There was an error resizing the image {loopSelected.DbEntry.OriginalFileName} in {loopSelected.DbEntry.Title}{Environment.NewLine}{Environment.NewLine}{resizeResult.GenerationNote}");
             }
         }
+    }
 
-        public Command ForcedResizeCommand
+
+    public async Task LoadData()
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        ListContext ??= new ContentListContext(StatusContext, new PhotoListLoader(100), WindowStatus);
+
+        SetupCommands();
+
+        ListContext.ContextMenuItems = new List<ContextMenuItemData>
         {
-            get => _forcedResizeCommand;
-            set
+            new() { ItemName = "Edit", ItemCommand = ListContext.EditSelectedCommand },
+            new()
             {
-                if (Equals(value, _forcedResizeCommand)) return;
-                _forcedResizeCommand = value;
-                OnPropertyChanged();
-            }
+                ItemName = "Image Code to Clipboard",
+                ItemCommand = ListContext.BracketCodeToClipboardSelectedCommand
+            },
+            new()
+            {
+                ItemName = "Text Code to Clipboard",
+                ItemCommand = PhotoLinkCodesToClipboardForSelectedCommand
+            },
+            new() { ItemName = "Email Html to Clipboard", ItemCommand = EmailHtmlToClipboardCommand },
+            new() { ItemName = "View Photos", ItemCommand = ViewFilesCommand },
+            new() { ItemName = "Open URLs", ItemCommand = ListContext.OpenUrlSelectedCommand },
+            new() { ItemName = "Extract New Links", ItemCommand = ListContext.ExtractNewLinksSelectedCommand },
+            new() { ItemName = "Process/Resize Selected", ItemCommand = ForcedResizeCommand },
+            new()
+            {
+                ItemName = "Generate Html/Process/Resize Selected",
+                ItemCommand = RegenerateHtmlAndReprocessPhotoForSelectedCommand
+            },
+            new() { ItemName = "Delete", ItemCommand = ListContext.DeleteSelectedCommand },
+            new() { ItemName = "View History", ItemCommand = ListContext.ViewHistorySelectedCommand },
+            new() { ItemName = "Refresh Data", ItemCommand = RefreshDataCommand }
+        };
+
+        await ListContext.LoadData();
+    }
+
+
+    [NotifyPropertyChangedInvocator]
+    protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+    {
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+    }
+
+    private async Task PhotoLinkCodesToClipboardForSelected()
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (SelectedItems() == null || !SelectedItems().Any())
+        {
+            StatusContext.ToastError("Nothing Selected?");
+            return;
         }
 
+        var finalString = SelectedItems().Aggregate(string.Empty,
+            (current, loopSelected) =>
+                current + BracketCodePhotos.Create(loopSelected.DbEntry) + Environment.NewLine);
 
-        public ContentListContext ListContext
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        Clipboard.SetText(finalString);
+
+        StatusContext.ToastSuccess($"To Clipboard {finalString}");
+    }
+
+    private async Task RegenerateHtmlAndReprocessPhotoForSelected(CancellationToken cancellationToken)
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (SelectedItems() == null || !SelectedItems().Any())
         {
-            get => _listContext;
-            set
-            {
-                if (Equals(value, _listContext)) return;
-                _listContext = value;
-                OnPropertyChanged();
-            }
+            StatusContext.ToastError("Nothing Selected?");
+            return;
         }
 
-        public Command OpenUrlForPhotoListCommand
+        var loopCount = 0;
+        var totalCount = SelectedItems().Count;
+
+        var db = await Db.Context();
+
+        var errorList = new List<string>();
+
+        foreach (var loopSelected in SelectedItems())
         {
-            get => _openUrlForPhotoListCommand;
-            set
+            if (cancellationToken.IsCancellationRequested) break;
+
+            loopCount++;
+
+            if (loopSelected.DbEntry == null)
             {
-                if (Equals(value, _openUrlForPhotoListCommand)) return;
-                _openUrlForPhotoListCommand = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public Command PhotoLinkCodesToClipboardForSelectedCommand
-        {
-            get => _photoLinkCodesToClipboardForSelectedCommand;
-            set
-            {
-                if (Equals(value, _photoLinkCodesToClipboardForSelectedCommand)) return;
-                _photoLinkCodesToClipboardForSelectedCommand = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public Command RefreshDataCommand
-        {
-            get => _refreshDataCommand;
-            set
-            {
-                if (Equals(value, _refreshDataCommand)) return;
-                _refreshDataCommand = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public Command RegenerateHtmlAndReprocessPhotoForSelectedCommand
-        {
-            get => _regenerateHtmlAndReprocessPhotoForSelectedCommand;
-            set
-            {
-                if (Equals(value, _regenerateHtmlAndReprocessPhotoForSelectedCommand)) return;
-                _regenerateHtmlAndReprocessPhotoForSelectedCommand = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public Command ReportAllPhotosCommand
-        {
-            get => _reportAllPhotosCommand;
-            set
-            {
-                if (Equals(value, _reportAllPhotosCommand)) return;
-                _reportAllPhotosCommand = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public Command ReportBlankLicenseCommand
-        {
-            get => _reportBlankLicenseCommand;
-            set
-            {
-                if (Equals(value, _reportBlankLicenseCommand)) return;
-                _reportBlankLicenseCommand = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public Command ReportMultiSpacesInTitleCommand
-        {
-            get => _reportMultiSpacesInTitleCommand;
-            set
-            {
-                if (Equals(value, _reportMultiSpacesInTitleCommand)) return;
-                _reportMultiSpacesInTitleCommand = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public Command ReportNoTagsCommand
-        {
-            get => _reportNoTagsCommand;
-            set
-            {
-                if (Equals(value, _reportNoTagsCommand)) return;
-                _reportNoTagsCommand = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public Command ReportPhotoMetadataCommand
-        {
-            get => _reportPhotoMetadataCommand;
-            set
-            {
-                if (Equals(value, _reportPhotoMetadataCommand)) return;
-                _reportPhotoMetadataCommand = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public Command ReportTakenAndLicenseYearDoNotMatchCommand
-        {
-            get => _reportTakenAndLicenseYearDoNotMatchCommand;
-            set
-            {
-                if (Equals(value, _reportTakenAndLicenseYearDoNotMatchCommand)) return;
-                _reportTakenAndLicenseYearDoNotMatchCommand = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public Command ReportTitleAndTakenDoNotMatchCommand
-        {
-            get => _reportTitleAndTakenDoNotMatchCommand;
-            set
-            {
-                if (Equals(value, _reportTitleAndTakenDoNotMatchCommand)) return;
-                _reportTitleAndTakenDoNotMatchCommand = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public StatusControlContext StatusContext
-        {
-            get => _statusContext;
-            private init
-            {
-                if (Equals(value, _statusContext)) return;
-                _statusContext = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public Command ViewFilesCommand
-        {
-            get => _viewFilesCommand;
-            set
-            {
-                if (Equals(value, _viewFilesCommand)) return;
-                _viewFilesCommand = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public WindowIconStatus WindowStatus
-        {
-            get => _windowStatus;
-            set
-            {
-                if (Equals(value, _windowStatus)) return;
-                _windowStatus = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        private async Task EmailHtmlToClipboard()
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            if (SelectedItems() == null || !SelectedItems().Any())
-            {
-                StatusContext.ToastError("Nothing Selected?");
-                return;
-            }
-
-            if (SelectedItems().Count > 1)
-            {
-                StatusContext.ToastError("Please select only 1 item...");
-                return;
-            }
-
-            var frozenSelected = SelectedItems().First();
-
-            var emailHtml = await Email.ToHtmlEmail(frozenSelected.DbEntry, StatusContext.ProgressTracker());
-
-            await ThreadSwitcher.ResumeForegroundAsync();
-
-            HtmlClipboardHelpers.CopyToClipboard(emailHtml, emailHtml);
-
-            StatusContext.ToastSuccess("Email Html on Clipboard");
-        }
-
-
-        private async Task ForcedResize(CancellationToken cancellationToken)
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            if (SelectedItems() == null || !SelectedItems().Any())
-            {
-                StatusContext.ToastError("Nothing Selected?");
-                return;
-            }
-
-            var totalCount = SelectedItems().Count;
-            var currentLoop = 0;
-
-            foreach (var loopSelected in SelectedItems())
-            {
-                cancellationToken.ThrowIfCancellationRequested();
-
-                if (++currentLoop % 10 == 0)
-                    StatusContext.Progress($"Cleaning Generated Images And Resizing {currentLoop} of {totalCount} - " +
-                                           $"{loopSelected.DbEntry.Title}");
-                var resizeResult =
-                    await PictureResizing.CopyCleanResizePhoto(loopSelected.DbEntry, StatusContext.ProgressTracker());
-
-                if (!resizeResult.HasError) continue;
-
-                LogHelpers.LogGenerationReturn(resizeResult, "Photo Forced Resizing");
-
-                if (currentLoop < totalCount)
-                {
-                    if (await StatusContext.ShowMessage("Error Resizing",
-                            $"There was an error resizing the image {loopSelected.DbEntry.OriginalFileName} in {loopSelected.DbEntry.Title}{Environment.NewLine}{Environment.NewLine}{resizeResult.GenerationNote}{Environment.NewLine}{Environment.NewLine}Continue?",
-                            new List<string> { "Yes", "No" }) == "No") return;
-                }
-                else
-                {
-                    await StatusContext.ShowMessageWithOkButton("Error Resizing",
-                        $"There was an error resizing the image {loopSelected.DbEntry.OriginalFileName} in {loopSelected.DbEntry.Title}{Environment.NewLine}{Environment.NewLine}{resizeResult.GenerationNote}");
-                }
-            }
-        }
-
-
-        public async Task LoadData()
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            ListContext ??= new ContentListContext(StatusContext, new PhotoListLoader(100), WindowStatus);
-
-            SetupCommands();
-
-            ListContext.ContextMenuItems = new List<ContextMenuItemData>
-            {
-                new() { ItemName = "Edit", ItemCommand = ListContext.EditSelectedCommand },
-                new()
-                {
-                    ItemName = "Image Code to Clipboard",
-                    ItemCommand = ListContext.BracketCodeToClipboardSelectedCommand
-                },
-                new()
-                {
-                    ItemName = "Text Code to Clipboard",
-                    ItemCommand = PhotoLinkCodesToClipboardForSelectedCommand
-                },
-                new() { ItemName = "Email Html to Clipboard", ItemCommand = EmailHtmlToClipboardCommand },
-                new() { ItemName = "View Photos", ItemCommand = ViewFilesCommand },
-                new() { ItemName = "Open URLs", ItemCommand = ListContext.OpenUrlSelectedCommand },
-                new() { ItemName = "Extract New Links", ItemCommand = ListContext.ExtractNewLinksSelectedCommand },
-                new() { ItemName = "Process/Resize Selected", ItemCommand = ForcedResizeCommand },
-                new()
-                {
-                    ItemName = "Generate Html/Process/Resize Selected",
-                    ItemCommand = RegenerateHtmlAndReprocessPhotoForSelectedCommand
-                },
-                new() { ItemName = "Delete", ItemCommand = ListContext.DeleteSelectedCommand },
-                new() { ItemName = "View History", ItemCommand = ListContext.ViewHistorySelectedCommand },
-                new() { ItemName = "Refresh Data", ItemCommand = RefreshDataCommand }
-            };
-
-            await ListContext.LoadData();
-        }
-
-
-        [NotifyPropertyChangedInvocator]
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
-
-        private async Task PhotoLinkCodesToClipboardForSelected()
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            if (SelectedItems() == null || !SelectedItems().Any())
-            {
-                StatusContext.ToastError("Nothing Selected?");
-                return;
-            }
-
-            var finalString = SelectedItems().Aggregate(string.Empty,
-                (current, loopSelected) =>
-                    current + BracketCodePhotos.Create(loopSelected.DbEntry) + Environment.NewLine);
-
-            await ThreadSwitcher.ResumeForegroundAsync();
-
-            Clipboard.SetText(finalString);
-
-            StatusContext.ToastSuccess($"To Clipboard {finalString}");
-        }
-
-        private async Task RegenerateHtmlAndReprocessPhotoForSelected(CancellationToken cancellationToken)
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            if (SelectedItems() == null || !SelectedItems().Any())
-            {
-                StatusContext.ToastError("Nothing Selected?");
-                return;
-            }
-
-            var loopCount = 0;
-            var totalCount = SelectedItems().Count;
-
-            var db = await Db.Context();
-
-            var errorList = new List<string>();
-
-            foreach (var loopSelected in SelectedItems())
-            {
-                if (cancellationToken.IsCancellationRequested) break;
-
-                loopCount++;
-
-                if (loopSelected.DbEntry == null)
-                {
-                    StatusContext.Progress(
-                        $"Re-processing Photo and Generating Html for {loopCount} of {totalCount} failed - no DB Entry?");
-                    errorList.Add("There was a list item without a DB entry? This should never happen...");
-                    continue;
-                }
-
-                var currentVersion =
-                    db.PhotoContents.SingleOrDefault(x => x.ContentId == loopSelected.DbEntry.ContentId);
-
-                if (currentVersion == null)
-                {
-                    StatusContext.Progress(
-                        $"Re-processing Photo and Generating Html for {loopSelected.DbEntry.Title} failed - not found in DB, {loopCount} of {totalCount}");
-                    errorList.Add($"Photo Titled {loopSelected.DbEntry.Title} was not found in the database?");
-                    continue;
-                }
-
-                if (string.IsNullOrWhiteSpace(currentVersion.LastUpdatedBy))
-                    currentVersion.LastUpdatedBy = currentVersion.CreatedBy;
-                currentVersion.LastUpdatedOn = DateTime.Now;
-
                 StatusContext.Progress(
-                    $"Re-processing Photo and Generating Html for {loopSelected.DbEntry.Title}, {loopCount} of {totalCount}");
-
-                var (generationReturn, _) = await PhotoGenerator.SaveAndGenerateHtml(currentVersion,
-                    UserSettingsSingleton.CurrentSettings().LocalMediaArchivePhotoContentFile(currentVersion), true,
-                    null, StatusContext.ProgressTracker());
-
-                if (generationReturn.HasError)
-                {
-                    StatusContext.Progress(
-                        $"Re-processing Photo and Generating Html for {loopSelected.DbEntry.Title} Error {generationReturn.GenerationNote}, {generationReturn.Exception}, {loopCount} of {totalCount}");
-                    errorList.Add($"Error processing Photo Titled {loopSelected.DbEntry.Title}...");
-                }
+                    $"Re-processing Photo and Generating Html for {loopCount} of {totalCount} failed - no DB Entry?");
+                errorList.Add("There was a list item without a DB entry? This should never happen...");
+                continue;
             }
 
-            if (errorList.Any())
+            var currentVersion =
+                db.PhotoContents.SingleOrDefault(x => x.ContentId == loopSelected.DbEntry.ContentId);
+
+            if (currentVersion == null)
             {
-                errorList.Reverse();
-                await StatusContext.ShowMessageWithOkButton("Errors Resizing and Regenerating HTML",
-                    string.Join($"{Environment.NewLine}{Environment.NewLine}", errorList));
+                StatusContext.Progress(
+                    $"Re-processing Photo and Generating Html for {loopSelected.DbEntry.Title} failed - not found in DB, {loopCount} of {totalCount}");
+                errorList.Add($"Photo Titled {loopSelected.DbEntry.Title} was not found in the database?");
+                continue;
+            }
+
+            if (string.IsNullOrWhiteSpace(currentVersion.LastUpdatedBy))
+                currentVersion.LastUpdatedBy = currentVersion.CreatedBy;
+            currentVersion.LastUpdatedOn = DateTime.Now;
+
+            StatusContext.Progress(
+                $"Re-processing Photo and Generating Html for {loopSelected.DbEntry.Title}, {loopCount} of {totalCount}");
+
+            var (generationReturn, _) = await PhotoGenerator.SaveAndGenerateHtml(currentVersion,
+                UserSettingsSingleton.CurrentSettings().LocalMediaArchivePhotoContentFile(currentVersion), true,
+                null, StatusContext.ProgressTracker());
+
+            if (generationReturn.HasError)
+            {
+                StatusContext.Progress(
+                    $"Re-processing Photo and Generating Html for {loopSelected.DbEntry.Title} Error {generationReturn.GenerationNote}, {generationReturn.Exception}, {loopCount} of {totalCount}");
+                errorList.Add($"Error processing Photo Titled {loopSelected.DbEntry.Title}...");
             }
         }
 
-        private async Task<List<object>> ReportAllPhotosGenerator()
+        if (errorList.Any())
         {
-            var db = await Db.Context();
-
-            return (await db.PhotoContents.OrderByDescending(x => x.PhotoCreatedOn).ToListAsync()).Cast<object>()
-                .ToList();
+            errorList.Reverse();
+            await StatusContext.ShowMessageWithOkButton("Errors Resizing and Regenerating HTML",
+                string.Join($"{Environment.NewLine}{Environment.NewLine}", errorList));
         }
+    }
 
-        private async Task<List<object>> ReportBlankLicenseGenerator()
-        {
-            var db = await Db.Context();
+    private async Task<List<object>> ReportAllPhotosGenerator()
+    {
+        var db = await Db.Context();
 
-            var allContents = await db.PhotoContents.OrderByDescending(x => x.PhotoCreatedOn).ToListAsync();
+        return (await db.PhotoContents.OrderByDescending(x => x.PhotoCreatedOn).ToListAsync()).Cast<object>()
+            .ToList();
+    }
 
-            var returnList = new List<PhotoContent>();
+    private async Task<List<object>> ReportBlankLicenseGenerator()
+    {
+        var db = await Db.Context();
 
-            foreach (var loopContents in allContents)
-                if (string.IsNullOrWhiteSpace(loopContents.License))
-                    returnList.Add(loopContents);
+        var allContents = await db.PhotoContents.OrderByDescending(x => x.PhotoCreatedOn).ToListAsync();
 
-            return returnList.Cast<object>().ToList();
-        }
+        var returnList = new List<PhotoContent>();
 
-        private async Task<List<object>> ReportMultiSpacesInTitleGenerator()
-        {
-            var db = await Db.Context();
-
-            return (await db.PhotoContents.Where(x => x.Title.Contains("  ")).OrderByDescending(x => x.PhotoCreatedOn)
-                .ToListAsync()).Cast<object>().ToList();
-        }
-
-        private async Task<List<object>> ReportNoTagsGenerator()
-        {
-            var db = await Db.Context();
-
-            return (await db.PhotoContents.Where(x => x.Tags == "").ToListAsync()).Cast<object>().ToList();
-        }
-
-        private async Task ReportPhotoMetadata()
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            var selected = SelectedItems();
-
-            if (selected == null || !selected.Any())
-            {
-                StatusContext.ToastError("Nothing Selected?");
-                return;
-            }
-
-            if (selected.Count > 1)
-            {
-                StatusContext.ToastError("Please Select a Single Item");
-                return;
-            }
-
-            var singleSelected = selected.Single();
-
-            var archiveFile = new FileInfo(Path.Combine(
-                UserSettingsSingleton.CurrentSettings().LocalMediaArchivePhotoDirectory().ToString(),
-                singleSelected.DbEntry.OriginalFileName));
-
-            await PhotoMetadataReport.AllPhotoMetadataToHtml(archiveFile, StatusContext);
-        }
-
-        private async Task<List<object>> ReportTakenAndLicenseYearDoNotMatchGenerator()
-        {
-            var db = await Db.Context();
-
-            var allContents = await db.PhotoContents.OrderByDescending(x => x.PhotoCreatedOn).ToListAsync();
-
-            var returnList = new List<PhotoContent>();
-
-            foreach (var loopContents in allContents)
-            {
-                if (string.IsNullOrWhiteSpace(loopContents.License))
-                {
-                    returnList.Add(loopContents);
-                    continue;
-                }
-
-                var possibleYear = Regex.Match(loopContents.License, @"(?<PossibleYear>[12]\d\d\d)",
-                    RegexOptions.IgnoreCase).Value;
-
-                if (string.IsNullOrWhiteSpace(possibleYear)) continue;
-
-                if (!int.TryParse(possibleYear, out var licenseYear)) continue;
-
-                var createdOn = loopContents.PhotoCreatedOn.Year;
-
-                if (createdOn == licenseYear) continue;
-
+        foreach (var loopContents in allContents)
+            if (string.IsNullOrWhiteSpace(loopContents.License))
                 returnList.Add(loopContents);
-            }
 
-            return returnList.Cast<object>().ToList();
+        return returnList.Cast<object>().ToList();
+    }
+
+    private async Task<List<object>> ReportMultiSpacesInTitleGenerator()
+    {
+        var db = await Db.Context();
+
+        return (await db.PhotoContents.Where(x => x.Title.Contains("  ")).OrderByDescending(x => x.PhotoCreatedOn)
+            .ToListAsync()).Cast<object>().ToList();
+    }
+
+    private async Task<List<object>> ReportNoTagsGenerator()
+    {
+        var db = await Db.Context();
+
+        return (await db.PhotoContents.Where(x => x.Tags == "").ToListAsync()).Cast<object>().ToList();
+    }
+
+    private async Task ReportPhotoMetadata()
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        var selected = SelectedItems();
+
+        if (selected == null || !selected.Any())
+        {
+            StatusContext.ToastError("Nothing Selected?");
+            return;
         }
 
-        private async Task<List<object>> ReportTitleAndTakenDoNotMatchGenerator()
+        if (selected.Count > 1)
         {
-            var db = await Db.Context();
+            StatusContext.ToastError("Please Select a Single Item");
+            return;
+        }
 
-            var allContents = await db.PhotoContents.OrderByDescending(x => x.PhotoCreatedOn).ToListAsync();
+        var singleSelected = selected.Single();
 
-            var returnList = new List<PhotoContent>();
+        var archiveFile = new FileInfo(Path.Combine(
+            UserSettingsSingleton.CurrentSettings().LocalMediaArchivePhotoDirectory().ToString(),
+            singleSelected.DbEntry.OriginalFileName));
 
-            foreach (var loopContents in allContents)
+        await PhotoMetadataReport.AllPhotoMetadataToHtml(archiveFile, StatusContext);
+    }
+
+    private async Task<List<object>> ReportTakenAndLicenseYearDoNotMatchGenerator()
+    {
+        var db = await Db.Context();
+
+        var allContents = await db.PhotoContents.OrderByDescending(x => x.PhotoCreatedOn).ToListAsync();
+
+        var returnList = new List<PhotoContent>();
+
+        foreach (var loopContents in allContents)
+        {
+            if (string.IsNullOrWhiteSpace(loopContents.License))
             {
-                if (string.IsNullOrWhiteSpace(loopContents.Title)) continue;
-
-                var splitName = loopContents.Title.Split(" ");
-
-                if (splitName.Length < 2) continue;
-
-                if (!splitName[0].All(x => x.IsDigit())) continue;
-
-                if (!int.TryParse(splitName[0], out var titleYear)) continue;
-
-                var dateInfo = new DateTimeFormatInfo();
-
-                if (!dateInfo.MonthNames.Contains(splitName[1])) continue;
-
-                var titleMonth = dateInfo.MonthNames.ToList().IndexOf(splitName[1]) + 1;
-
-                if (titleYear == loopContents.PhotoCreatedOn.Year &&
-                    titleMonth == loopContents.PhotoCreatedOn.Month) continue;
-
                 returnList.Add(loopContents);
+                continue;
             }
 
-            return returnList.Cast<object>().ToList();
+            var possibleYear = Regex.Match(loopContents.License, @"(?<PossibleYear>[12]\d\d\d)",
+                RegexOptions.IgnoreCase).Value;
+
+            if (string.IsNullOrWhiteSpace(possibleYear)) continue;
+
+            if (!int.TryParse(possibleYear, out var licenseYear)) continue;
+
+            var createdOn = loopContents.PhotoCreatedOn.Year;
+
+            if (createdOn == licenseYear) continue;
+
+            returnList.Add(loopContents);
         }
 
-        private static async Task RunReport(Func<Task<List<object>>> toRun, string title)
+        return returnList.Cast<object>().ToList();
+    }
+
+    private async Task<List<object>> ReportTitleAndTakenDoNotMatchGenerator()
+    {
+        var db = await Db.Context();
+
+        var allContents = await db.PhotoContents.OrderByDescending(x => x.PhotoCreatedOn).ToListAsync();
+
+        var returnList = new List<PhotoContent>();
+
+        foreach (var loopContents in allContents)
         {
-            await ThreadSwitcher.ResumeBackgroundAsync();
+            if (string.IsNullOrWhiteSpace(loopContents.Title)) continue;
 
-            var reportLoader = new ContentListLoaderReport(toRun);
+            var splitName = loopContents.Title.Split(" ");
 
-            var context = new PhotoListWithActionsContext(null, reportLoader);
+            if (splitName.Length < 2) continue;
 
-            await ThreadSwitcher.ResumeForegroundAsync();
+            if (!splitName[0].All(x => x.IsDigit())) continue;
 
-            var newWindow = new PhotoListWindow { PhotoListContext = context, WindowTitle = title };
+            if (!int.TryParse(splitName[0], out var titleYear)) continue;
 
-            newWindow.PositionWindowAndShow();
+            var dateInfo = new DateTimeFormatInfo();
 
-            await context.LoadData();
+            if (!dateInfo.MonthNames.Contains(splitName[1])) continue;
+
+            var titleMonth = dateInfo.MonthNames.ToList().IndexOf(splitName[1]) + 1;
+
+            if (titleYear == loopContents.PhotoCreatedOn.Year &&
+                titleMonth == loopContents.PhotoCreatedOn.Month) continue;
+
+            returnList.Add(loopContents);
         }
 
-        public List<PhotoListListItem> SelectedItems()
+        return returnList.Cast<object>().ToList();
+    }
+
+    private static async Task RunReport(Func<Task<List<object>>> toRun, string title)
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        var reportLoader = new ContentListLoaderReport(toRun);
+
+        var context = new PhotoListWithActionsContext(null, reportLoader);
+
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        var newWindow = new PhotoListWindow { PhotoListContext = context, WindowTitle = title };
+
+        newWindow.PositionWindowAndShow();
+
+        await context.LoadData();
+    }
+
+    public List<PhotoListListItem> SelectedItems()
+    {
+        return ListContext?.ListSelection?.SelectedItems?.Where(x => x is PhotoListListItem)
+            .Cast<PhotoListListItem>().ToList() ?? new List<PhotoListListItem>();
+    }
+
+    private void SetupCommands()
+    {
+        RegenerateHtmlAndReprocessPhotoForSelectedCommand =
+            StatusContext.RunBlockingTaskWithCancellationCommand(RegenerateHtmlAndReprocessPhotoForSelected,
+                "Cancel HTML Generation and Photo Resizing");
+        PhotoLinkCodesToClipboardForSelectedCommand =
+            StatusContext.RunBlockingTaskCommand(PhotoLinkCodesToClipboardForSelected);
+        RefreshDataCommand = StatusContext.RunBlockingTaskCommand(ListContext.LoadData);
+        ForcedResizeCommand = StatusContext.RunBlockingTaskWithCancellationCommand(ForcedResize, "Cancel Resizing");
+        ViewFilesCommand =
+            StatusContext.RunBlockingTaskWithCancellationCommand(ViewFilesSelected, "Cancel File View");
+
+        EmailHtmlToClipboardCommand = StatusContext.RunBlockingTaskCommand(EmailHtmlToClipboard);
+
+        ReportPhotoMetadataCommand = StatusContext.RunBlockingTaskCommand(ReportPhotoMetadata);
+        ReportNoTagsCommand = StatusContext.RunBlockingTaskCommand(async () =>
+            await RunReport(ReportNoTagsGenerator, "No Tags Photo List"));
+        ReportTitleAndTakenDoNotMatchCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
+            await RunReport(ReportTitleAndTakenDoNotMatchGenerator, "Title and Created Mismatch Photo List"));
+        ReportTakenAndLicenseYearDoNotMatchCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
+            await RunReport(ReportTakenAndLicenseYearDoNotMatchGenerator, "Title and Created Mismatch Photo List"));
+        ReportAllPhotosCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
+            await RunReport(ReportAllPhotosGenerator, "Title and Created Mismatch Photo List"));
+        ReportBlankLicenseCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
+            await RunReport(ReportBlankLicenseGenerator, "Title and Created Mismatch Photo List"));
+        ReportMultiSpacesInTitleCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
+            await RunReport(ReportMultiSpacesInTitleGenerator, "Title with Multiple Spaces"));
+    }
+
+    public async Task ViewFilesSelected(CancellationToken cancelToken)
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (ListContext.ListSelection?.SelectedItems == null || ListContext.ListSelection.SelectedItems.Count < 1)
         {
-            return ListContext?.ListSelection?.SelectedItems?.Where(x => x is PhotoListListItem)
-                .Cast<PhotoListListItem>().ToList() ?? new List<PhotoListListItem>();
+            StatusContext.ToastWarning("Nothing Selected to View?");
+            return;
         }
 
-        private void SetupCommands()
+        if (ListContext.ListSelection.SelectedItems.Count > 20)
         {
-            RegenerateHtmlAndReprocessPhotoForSelectedCommand =
-                StatusContext.RunBlockingTaskWithCancellationCommand(RegenerateHtmlAndReprocessPhotoForSelected,
-                    "Cancel HTML Generation and Photo Resizing");
-            PhotoLinkCodesToClipboardForSelectedCommand =
-                StatusContext.RunBlockingTaskCommand(PhotoLinkCodesToClipboardForSelected);
-            RefreshDataCommand = StatusContext.RunBlockingTaskCommand(ListContext.LoadData);
-            ForcedResizeCommand = StatusContext.RunBlockingTaskWithCancellationCommand(ForcedResize, "Cancel Resizing");
-            ViewFilesCommand =
-                StatusContext.RunBlockingTaskWithCancellationCommand(ViewFilesSelected, "Cancel File View");
-
-            EmailHtmlToClipboardCommand = StatusContext.RunBlockingTaskCommand(EmailHtmlToClipboard);
-
-            ReportPhotoMetadataCommand = StatusContext.RunBlockingTaskCommand(ReportPhotoMetadata);
-            ReportNoTagsCommand = StatusContext.RunBlockingTaskCommand(async () =>
-                await RunReport(ReportNoTagsGenerator, "No Tags Photo List"));
-            ReportTitleAndTakenDoNotMatchCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
-                await RunReport(ReportTitleAndTakenDoNotMatchGenerator, "Title and Created Mismatch Photo List"));
-            ReportTakenAndLicenseYearDoNotMatchCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
-                await RunReport(ReportTakenAndLicenseYearDoNotMatchGenerator, "Title and Created Mismatch Photo List"));
-            ReportAllPhotosCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
-                await RunReport(ReportAllPhotosGenerator, "Title and Created Mismatch Photo List"));
-            ReportBlankLicenseCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
-                await RunReport(ReportBlankLicenseGenerator, "Title and Created Mismatch Photo List"));
-            ReportMultiSpacesInTitleCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
-                await RunReport(ReportMultiSpacesInTitleGenerator, "Title with Multiple Spaces"));
+            StatusContext.ToastWarning("Sorry - please select less than 20 items to view...");
+            return;
         }
 
-        public async Task ViewFilesSelected(CancellationToken cancelToken)
+        var currentSelected = ListContext.ListSelection.SelectedItems;
+
+        foreach (var loopSelected in currentSelected)
         {
-            await ThreadSwitcher.ResumeBackgroundAsync();
+            cancelToken.ThrowIfCancellationRequested();
 
-            if (ListContext.ListSelection?.SelectedItems == null || ListContext.ListSelection.SelectedItems.Count < 1)
-            {
-                StatusContext.ToastWarning("Nothing Selected to View?");
-                return;
-            }
-
-            if (ListContext.ListSelection.SelectedItems.Count > 20)
-            {
-                StatusContext.ToastWarning("Sorry - please select less than 20 items to view...");
-                return;
-            }
-
-            var currentSelected = ListContext.ListSelection.SelectedItems;
-
-            foreach (var loopSelected in currentSelected)
-            {
-                cancelToken.ThrowIfCancellationRequested();
-
-                if (loopSelected is PhotoListListItem photoItem)
-                    await photoItem.ItemActions.ViewFile(photoItem.DbEntry);
-            }
+            if (loopSelected is PhotoListListItem photoItem)
+                await photoItem.ItemActions.ViewFile(photoItem.DbEntry);
         }
     }
 }

@@ -1,13 +1,12 @@
-﻿namespace PointlessWaymarks.CmsWpfControls.UpdateNotesEditor
+﻿namespace PointlessWaymarks.CmsWpfControls.UpdateNotesEditor;
+
+/// <summary>
+///     Interaction logic for UpdateNotesEditorHorizontalControl.xaml
+/// </summary>
+public partial class UpdateNotesEditorHorizontalControl
 {
-    /// <summary>
-    ///     Interaction logic for UpdateNotesEditorHorizontalControl.xaml
-    /// </summary>
-    public partial class UpdateNotesEditorHorizontalControl
+    public UpdateNotesEditorHorizontalControl()
     {
-        public UpdateNotesEditorHorizontalControl()
-        {
-            InitializeComponent();
-        }
+        InitializeComponent();
     }
 }

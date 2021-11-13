@@ -6,68 +6,67 @@ using PointlessWaymarks.CmsData;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 
-namespace PointlessWaymarks.CmsWpfControls.SitePreview
+namespace PointlessWaymarks.CmsWpfControls.SitePreview;
+
+/// <summary>
+///     Interaction logic for SiteOnDiskPreviewWindow.xaml
+/// </summary>
+public partial class SiteOnDiskPreviewWindow : INotifyPropertyChanged
 {
-    /// <summary>
-    ///     Interaction logic for SiteOnDiskPreviewWindow.xaml
-    /// </summary>
-    public partial class SiteOnDiskPreviewWindow : INotifyPropertyChanged
+    private SitePreviewContext _previewContext;
+    private StatusControlContext _statusContext;
+
+    public SiteOnDiskPreviewWindow()
     {
-        private SitePreviewContext _previewContext;
-        private StatusControlContext _statusContext;
+        InitializeComponent();
 
-        public SiteOnDiskPreviewWindow()
+        StatusContext = new StatusControlContext();
+
+        DataContext = this;
+
+        var freePort = PreviewServer.FreeTcpPort();
+
+        var server = PreviewServer.CreateHostBuilder(
+            UserSettingsSingleton.CurrentSettings().SiteUrl, UserSettingsSingleton.CurrentSettings().LocalSiteRootFullDirectory().FullName, freePort).Build();
+
+        StatusContext.RunFireAndForgetWithToastOnError(async () =>
         {
-            InitializeComponent();
+            await ThreadSwitcher.ResumeBackgroundAsync();
+            await server.RunAsync();
+        });
 
-            StatusContext = new StatusControlContext();
+        PreviewContext = new SitePreviewContext(UserSettingsSingleton.CurrentSettings().SiteUrl,
+            UserSettingsSingleton.CurrentSettings().LocalSiteRootFullDirectory().FullName,
+            UserSettingsSingleton.CurrentSettings().SiteName, $"localhost:{freePort}", StatusContext);
+    }
 
-            DataContext = this;
-
-            var freePort = PreviewServer.FreeTcpPort();
-
-            var server = PreviewServer.CreateHostBuilder(
-                UserSettingsSingleton.CurrentSettings().SiteUrl, UserSettingsSingleton.CurrentSettings().LocalSiteRootFullDirectory().FullName, freePort).Build();
-
-            StatusContext.RunFireAndForgetWithToastOnError(async () =>
-            {
-                await ThreadSwitcher.ResumeBackgroundAsync();
-                await server.RunAsync();
-            });
-
-            PreviewContext = new SitePreviewContext(UserSettingsSingleton.CurrentSettings().SiteUrl,
-                UserSettingsSingleton.CurrentSettings().LocalSiteRootFullDirectory().FullName,
-                UserSettingsSingleton.CurrentSettings().SiteName, $"localhost:{freePort}", StatusContext);
-        }
-
-        public SitePreviewContext PreviewContext
+    public SitePreviewContext PreviewContext
+    {
+        get => _previewContext;
+        set
         {
-            get => _previewContext;
-            set
-            {
-                if (Equals(value, _previewContext)) return;
-                _previewContext = value;
-                OnPropertyChanged();
-            }
+            if (Equals(value, _previewContext)) return;
+            _previewContext = value;
+            OnPropertyChanged();
         }
+    }
 
-        public StatusControlContext StatusContext
+    public StatusControlContext StatusContext
+    {
+        get => _statusContext;
+        set
         {
-            get => _statusContext;
-            set
-            {
-                if (Equals(value, _statusContext)) return;
-                _statusContext = value;
-                OnPropertyChanged();
-            }
+            if (Equals(value, _statusContext)) return;
+            _statusContext = value;
+            OnPropertyChanged();
         }
+    }
 
-        public event PropertyChangedEventHandler PropertyChanged;
+    public event PropertyChangedEventHandler PropertyChanged;
 
-        [NotifyPropertyChangedInvocator]
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
+    [NotifyPropertyChangedInvocator]
+    protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+    {
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 }

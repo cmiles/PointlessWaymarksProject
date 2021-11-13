@@ -1,9 +1,9 @@
-﻿namespace PointlessWaymarks.CmsWpfControls.HelpDisplay
+﻿namespace PointlessWaymarks.CmsWpfControls.HelpDisplay;
+
+public static class GeoJsonContentHelpMarkdown
 {
-    public static class GeoJsonContentHelpMarkdown
-    {
-        public static string HelpBlock =>
-            @"
+    public static string HelpBlock =>
+        @"
 ### GeoJson Content
 
 GeoJson content can be loaded from a file or from the clipboard. This content editor doesn't provide any way to edit GeoJson but you can find a number of good online editing solutions and for a full featured open source geographic information system see [QGIS](https://www.qgis.org/en/site/).
@@ -21,5 +21,4 @@ There is support for a limited set of formatting options, all of these should be
  - fill - the interior color of a polygon
  - fill-opacity - the opacity of the interior of a polygon - from 0 (transparent) to 1 (fully opaque)
 ";
-    }
 }

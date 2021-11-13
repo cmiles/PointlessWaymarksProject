@@ -1,13 +1,12 @@
-﻿namespace PointlessWaymarks.CmsWpfControls.BodyContentEditor
+﻿namespace PointlessWaymarks.CmsWpfControls.BodyContentEditor;
+
+/// <summary>
+///     Interaction logic for BodyContentEditorHorizontalControl.xaml
+/// </summary>
+public partial class BodyContentEditorHorizontalControl
 {
-    /// <summary>
-    ///     Interaction logic for BodyContentEditorHorizontalControl.xaml
-    /// </summary>
-    public partial class BodyContentEditorHorizontalControl
+    public BodyContentEditorHorizontalControl()
     {
-        public BodyContentEditorHorizontalControl()
-        {
-            InitializeComponent();
-        }
+        InitializeComponent();
     }
 }

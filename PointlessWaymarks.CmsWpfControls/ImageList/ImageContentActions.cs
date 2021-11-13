@@ -18,347 +18,346 @@ using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 using PointlessWaymarks.WpfCommon.Utility;
 
-namespace PointlessWaymarks.CmsWpfControls.ImageList
+namespace PointlessWaymarks.CmsWpfControls.ImageList;
+
+public class ImageContentActions : IContentActions<ImageContent>
 {
-    public class ImageContentActions : IContentActions<ImageContent>
+    private Command<ImageContent> _deleteCommand;
+    private Command<ImageContent> _editCommand;
+    private Command<ImageContent> _extractNewLinksCommand;
+    private Command<ImageContent> _generateHtmlCommand;
+    private Command<ImageContent> _linkCodeToClipboardCommand;
+    private Command<ImageContent> _openUrlCommand;
+    private StatusControlContext _statusContext;
+    private Command<ImageContent> _viewFileCommand;
+    private Command<ImageContent> _viewHistoryCommand;
+
+    public ImageContentActions(StatusControlContext statusContext)
     {
-        private Command<ImageContent> _deleteCommand;
-        private Command<ImageContent> _editCommand;
-        private Command<ImageContent> _extractNewLinksCommand;
-        private Command<ImageContent> _generateHtmlCommand;
-        private Command<ImageContent> _linkCodeToClipboardCommand;
-        private Command<ImageContent> _openUrlCommand;
-        private StatusControlContext _statusContext;
-        private Command<ImageContent> _viewFileCommand;
-        private Command<ImageContent> _viewHistoryCommand;
+        StatusContext = statusContext;
+        DeleteCommand = StatusContext.RunBlockingTaskCommand<ImageContent>(Delete);
+        EditCommand = StatusContext.RunNonBlockingTaskCommand<ImageContent>(Edit);
+        ExtractNewLinksCommand = StatusContext.RunBlockingTaskCommand<ImageContent>(ExtractNewLinks);
+        GenerateHtmlCommand = StatusContext.RunBlockingTaskCommand<ImageContent>(GenerateHtml);
+        LinkCodeToClipboardCommand =
+            StatusContext.RunBlockingTaskCommand<ImageContent>(DefaultBracketCodeToClipboard);
+        OpenUrlCommand = StatusContext.RunBlockingTaskCommand<ImageContent>(OpenUrl);
+        ViewFileCommand = StatusContext.RunNonBlockingTaskCommand<ImageContent>(ViewFile);
+        ViewHistoryCommand = StatusContext.RunNonBlockingTaskCommand<ImageContent>(ViewHistory);
+    }
 
-        public ImageContentActions(StatusControlContext statusContext)
+    public Command<ImageContent> ViewFileCommand
+    {
+        get => _viewFileCommand;
+        set
         {
-            StatusContext = statusContext;
-            DeleteCommand = StatusContext.RunBlockingTaskCommand<ImageContent>(Delete);
-            EditCommand = StatusContext.RunNonBlockingTaskCommand<ImageContent>(Edit);
-            ExtractNewLinksCommand = StatusContext.RunBlockingTaskCommand<ImageContent>(ExtractNewLinks);
-            GenerateHtmlCommand = StatusContext.RunBlockingTaskCommand<ImageContent>(GenerateHtml);
-            LinkCodeToClipboardCommand =
-                StatusContext.RunBlockingTaskCommand<ImageContent>(DefaultBracketCodeToClipboard);
-            OpenUrlCommand = StatusContext.RunBlockingTaskCommand<ImageContent>(OpenUrl);
-            ViewFileCommand = StatusContext.RunNonBlockingTaskCommand<ImageContent>(ViewFile);
-            ViewHistoryCommand = StatusContext.RunNonBlockingTaskCommand<ImageContent>(ViewHistory);
+            if (Equals(value, _viewFileCommand)) return;
+            _viewFileCommand = value;
+            OnPropertyChanged();
+        }
+    }
+
+    public string DefaultBracketCode(ImageContent content)
+    {
+        return content?.ContentId == null ? string.Empty : @$"{BracketCodeImages.Create(content)}";
+    }
+
+    public async Task DefaultBracketCodeToClipboard(ImageContent content)
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (content == null)
+        {
+            StatusContext.ToastError("Nothing Selected?");
+            return;
         }
 
-        public Command<ImageContent> ViewFileCommand
+        var finalString = @$"{BracketCodeImages.Create(content)}{Environment.NewLine}";
+
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        Clipboard.SetText(finalString);
+
+        StatusContext.ToastSuccess($"To Clipboard {finalString}");
+    }
+
+    public async Task Delete(ImageContent content)
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (content == null)
         {
-            get => _viewFileCommand;
-            set
-            {
-                if (Equals(value, _viewFileCommand)) return;
-                _viewFileCommand = value;
-                OnPropertyChanged();
-            }
+            StatusContext.ToastError("Nothing Selected?");
+            return;
         }
 
-        public string DefaultBracketCode(ImageContent content)
+        if (content.Id < 1)
         {
-            return content?.ContentId == null ? string.Empty : @$"{BracketCodeImages.Create(content)}";
+            StatusContext.ToastError($"Image {content.Title} - Entry is not saved - Skipping?");
+            return;
         }
 
-        public async Task DefaultBracketCodeToClipboard(ImageContent content)
+        var settings = UserSettingsSingleton.CurrentSettings();
+
+        await Db.DeleteImageContent(content.ContentId, StatusContext.ProgressTracker());
+
+        var possibleContentDirectory = settings.LocalSiteImageContentDirectory(content, false);
+        if (possibleContentDirectory.Exists)
         {
-            await ThreadSwitcher.ResumeBackgroundAsync();
+            StatusContext.Progress($"Deleting Generated Folder {possibleContentDirectory.FullName}");
+            possibleContentDirectory.Delete(true);
+        }
+    }
 
-            if (content == null)
-            {
-                StatusContext.ToastError("Nothing Selected?");
-                return;
-            }
+    public Command<ImageContent> DeleteCommand
+    {
+        get => _deleteCommand;
+        set
+        {
+            if (Equals(value, _deleteCommand)) return;
+            _deleteCommand = value;
+            OnPropertyChanged();
+        }
+    }
 
-            var finalString = @$"{BracketCodeImages.Create(content)}{Environment.NewLine}";
+    public async Task Edit(ImageContent content)
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
 
-            await ThreadSwitcher.ResumeForegroundAsync();
+        if (content == null) return;
 
-            Clipboard.SetText(finalString);
+        var context = await Db.Context();
 
-            StatusContext.ToastSuccess($"To Clipboard {finalString}");
+        var refreshedData = context.ImageContents.SingleOrDefault(x => x.ContentId == content.ContentId);
+
+        if (refreshedData == null)
+            StatusContext.ToastError(
+                $"{content.Title} is no longer active in the database? Can not edit - look for a historic version...");
+
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        var newContentWindow = new ImageContentEditorWindow(refreshedData);
+
+        newContentWindow.PositionWindowAndShow();
+
+        await ThreadSwitcher.ResumeBackgroundAsync();
+    }
+
+    public Command<ImageContent> EditCommand
+    {
+        get => _editCommand;
+        set
+        {
+            if (Equals(value, _editCommand)) return;
+            _editCommand = value;
+            OnPropertyChanged();
+        }
+    }
+
+    public async Task ExtractNewLinks(ImageContent content)
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (content == null)
+        {
+            StatusContext.ToastError("Nothing Selected?");
+            return;
         }
 
-        public async Task Delete(ImageContent content)
+        var context = await Db.Context();
+        var refreshedData = context.ImageContents.SingleOrDefault(x => x.ContentId == content.ContentId);
+
+        if (refreshedData == null) return;
+
+        await LinkExtraction.ExtractNewAndShowLinkContentEditors(
+            $"{refreshedData.BodyContent} {refreshedData.UpdateNotes}", StatusContext.ProgressTracker());
+    }
+
+    public Command<ImageContent> ExtractNewLinksCommand
+    {
+        get => _extractNewLinksCommand;
+        set
         {
-            await ThreadSwitcher.ResumeBackgroundAsync();
+            if (Equals(value, _extractNewLinksCommand)) return;
+            _extractNewLinksCommand = value;
+            OnPropertyChanged();
+        }
+    }
 
-            if (content == null)
-            {
-                StatusContext.ToastError("Nothing Selected?");
-                return;
-            }
 
-            if (content.Id < 1)
-            {
-                StatusContext.ToastError($"Image {content.Title} - Entry is not saved - Skipping?");
-                return;
-            }
+    public async Task GenerateHtml(ImageContent content)
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
 
-            var settings = UserSettingsSingleton.CurrentSettings();
-
-            await Db.DeleteImageContent(content.ContentId, StatusContext.ProgressTracker());
-
-            var possibleContentDirectory = settings.LocalSiteImageContentDirectory(content, false);
-            if (possibleContentDirectory.Exists)
-            {
-                StatusContext.Progress($"Deleting Generated Folder {possibleContentDirectory.FullName}");
-                possibleContentDirectory.Delete(true);
-            }
+        if (content == null)
+        {
+            StatusContext.ToastError("Nothing Selected?");
+            return;
         }
 
-        public Command<ImageContent> DeleteCommand
+        StatusContext.Progress($"Generating Html for {content.Title}");
+
+        var htmlContext = new SingleImagePage(content);
+
+        await htmlContext.WriteLocalHtml();
+
+        StatusContext.ToastSuccess($"Generated {htmlContext.PageUrl}");
+    }
+
+    public Command<ImageContent> GenerateHtmlCommand
+    {
+        get => _generateHtmlCommand;
+        set
         {
-            get => _deleteCommand;
-            set
-            {
-                if (Equals(value, _deleteCommand)) return;
-                _deleteCommand = value;
-                OnPropertyChanged();
-            }
+            if (Equals(value, _generateHtmlCommand)) return;
+            _generateHtmlCommand = value;
+            OnPropertyChanged();
+        }
+    }
+
+    public Command<ImageContent> LinkCodeToClipboardCommand
+    {
+        get => _linkCodeToClipboardCommand;
+        set
+        {
+            if (Equals(value, _linkCodeToClipboardCommand)) return;
+            _linkCodeToClipboardCommand = value;
+            OnPropertyChanged();
+        }
+    }
+
+    public async Task OpenUrl(ImageContent content)
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (content == null)
+        {
+            StatusContext.ToastError("Nothing Selected?");
+            return;
         }
 
-        public async Task Edit(ImageContent content)
+        var settings = UserSettingsSingleton.CurrentSettings();
+
+        var url = $@"http://{settings.ImagePageUrl(content)}";
+
+        var ps = new ProcessStartInfo(url) {UseShellExecute = true, Verb = "open"};
+        Process.Start(ps);
+    }
+
+    public Command<ImageContent> OpenUrlCommand
+    {
+        get => _openUrlCommand;
+        set
         {
-            await ThreadSwitcher.ResumeBackgroundAsync();
+            if (Equals(value, _openUrlCommand)) return;
+            _openUrlCommand = value;
+            OnPropertyChanged();
+        }
+    }
 
-            if (content == null) return;
+    public StatusControlContext StatusContext
+    {
+        get => _statusContext;
+        set
+        {
+            if (Equals(value, _statusContext)) return;
+            _statusContext = value;
+            OnPropertyChanged();
+        }
+    }
 
-            var context = await Db.Context();
+    public async Task ViewHistory(ImageContent content)
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
 
-            var refreshedData = context.ImageContents.SingleOrDefault(x => x.ContentId == content.ContentId);
-
-            if (refreshedData == null)
-                StatusContext.ToastError(
-                    $"{content.Title} is no longer active in the database? Can not edit - look for a historic version...");
-
-            await ThreadSwitcher.ResumeForegroundAsync();
-
-            var newContentWindow = new ImageContentEditorWindow(refreshedData);
-
-            newContentWindow.PositionWindowAndShow();
-
-            await ThreadSwitcher.ResumeBackgroundAsync();
+        if (content == null)
+        {
+            StatusContext.ToastError("Nothing Selected?");
+            return;
         }
 
-        public Command<ImageContent> EditCommand
+        var db = await Db.Context();
+
+        StatusContext.Progress($"Looking up Historic Entries for {content.Title}");
+
+        var historicItems = await db.HistoricImageContents
+            .Where(x => x.ContentId == content.ContentId).ToListAsync();
+
+        StatusContext.Progress($"Found {historicItems.Count} Historic Entries");
+
+        if (historicItems.Count < 1)
         {
-            get => _editCommand;
-            set
-            {
-                if (Equals(value, _editCommand)) return;
-                _editCommand = value;
-                OnPropertyChanged();
-            }
+            StatusContext.ToastWarning("No History to Show...");
+            return;
         }
 
-        public async Task ExtractNewLinks(ImageContent content)
+        var historicView = new ContentViewHistoryPage($"Historic Entries - {content.Title}",
+            UserSettingsSingleton.CurrentSettings().SiteName, $"Historic Entries - {content.Title}",
+            historicItems.OrderByDescending(x => x.LastUpdatedOn.HasValue).ThenByDescending(x => x.LastUpdatedOn)
+                .Select(LogHelpers.SafeObjectDump).ToList());
+
+        historicView.WriteHtmlToTempFolderAndShow(StatusContext.ProgressTracker());
+    }
+
+    public Command<ImageContent> ViewHistoryCommand
+    {
+        get => _viewHistoryCommand;
+        set
         {
-            await ThreadSwitcher.ResumeBackgroundAsync();
+            if (Equals(value, _viewHistoryCommand)) return;
+            _viewHistoryCommand = value;
+            OnPropertyChanged();
+        }
+    }
 
-            if (content == null)
-            {
-                StatusContext.ToastError("Nothing Selected?");
-                return;
-            }
+    public event PropertyChangedEventHandler PropertyChanged;
 
-            var context = await Db.Context();
-            var refreshedData = context.ImageContents.SingleOrDefault(x => x.ContentId == content.ContentId);
+    public static ImageListListItem ListItemFromDbItem(ImageContent content, ImageContentActions itemActions,
+        bool showType)
+    {
+        return new()
+        {
+            DbEntry = content,
+            SmallImageUrl = ContentListContext.GetSmallImageUrl(content),
+            ItemActions = itemActions,
+            ShowType = showType
+        };
+    }
 
-            if (refreshedData == null) return;
+    [NotifyPropertyChangedInvocator]
+    protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+    {
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+    }
 
-            await LinkExtraction.ExtractNewAndShowLinkContentEditors(
-                $"{refreshedData.BodyContent} {refreshedData.UpdateNotes}", StatusContext.ProgressTracker());
+
+    public async Task ViewFile(ImageContent listItem)
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (listItem == null)
+        {
+            StatusContext.ToastError("Nothing Items to Open?");
+            return;
         }
 
-        public Command<ImageContent> ExtractNewLinksCommand
+        if (string.IsNullOrWhiteSpace(listItem.OriginalFileName))
         {
-            get => _extractNewLinksCommand;
-            set
-            {
-                if (Equals(value, _extractNewLinksCommand)) return;
-                _extractNewLinksCommand = value;
-                OnPropertyChanged();
-            }
+            StatusContext.ToastError("No Image?");
+            return;
         }
 
+        var toOpen = UserSettingsSingleton.CurrentSettings().LocalSiteImageContentFile(listItem);
 
-        public async Task GenerateHtml(ImageContent content)
+        if (toOpen is not {Exists: true})
         {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            if (content == null)
-            {
-                StatusContext.ToastError("Nothing Selected?");
-                return;
-            }
-
-            StatusContext.Progress($"Generating Html for {content.Title}");
-
-            var htmlContext = new SingleImagePage(content);
-
-            await htmlContext.WriteLocalHtml();
-
-            StatusContext.ToastSuccess($"Generated {htmlContext.PageUrl}");
+            StatusContext.ToastError("Image doesn't exist?");
+            return;
         }
 
-        public Command<ImageContent> GenerateHtmlCommand
-        {
-            get => _generateHtmlCommand;
-            set
-            {
-                if (Equals(value, _generateHtmlCommand)) return;
-                _generateHtmlCommand = value;
-                OnPropertyChanged();
-            }
-        }
+        var url = toOpen.FullName;
 
-        public Command<ImageContent> LinkCodeToClipboardCommand
-        {
-            get => _linkCodeToClipboardCommand;
-            set
-            {
-                if (Equals(value, _linkCodeToClipboardCommand)) return;
-                _linkCodeToClipboardCommand = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public async Task OpenUrl(ImageContent content)
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            if (content == null)
-            {
-                StatusContext.ToastError("Nothing Selected?");
-                return;
-            }
-
-            var settings = UserSettingsSingleton.CurrentSettings();
-
-            var url = $@"http://{settings.ImagePageUrl(content)}";
-
-            var ps = new ProcessStartInfo(url) {UseShellExecute = true, Verb = "open"};
-            Process.Start(ps);
-        }
-
-        public Command<ImageContent> OpenUrlCommand
-        {
-            get => _openUrlCommand;
-            set
-            {
-                if (Equals(value, _openUrlCommand)) return;
-                _openUrlCommand = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public StatusControlContext StatusContext
-        {
-            get => _statusContext;
-            set
-            {
-                if (Equals(value, _statusContext)) return;
-                _statusContext = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public async Task ViewHistory(ImageContent content)
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            if (content == null)
-            {
-                StatusContext.ToastError("Nothing Selected?");
-                return;
-            }
-
-            var db = await Db.Context();
-
-            StatusContext.Progress($"Looking up Historic Entries for {content.Title}");
-
-            var historicItems = await db.HistoricImageContents
-                .Where(x => x.ContentId == content.ContentId).ToListAsync();
-
-            StatusContext.Progress($"Found {historicItems.Count} Historic Entries");
-
-            if (historicItems.Count < 1)
-            {
-                StatusContext.ToastWarning("No History to Show...");
-                return;
-            }
-
-            var historicView = new ContentViewHistoryPage($"Historic Entries - {content.Title}",
-                UserSettingsSingleton.CurrentSettings().SiteName, $"Historic Entries - {content.Title}",
-                historicItems.OrderByDescending(x => x.LastUpdatedOn.HasValue).ThenByDescending(x => x.LastUpdatedOn)
-                    .Select(LogHelpers.SafeObjectDump).ToList());
-
-            historicView.WriteHtmlToTempFolderAndShow(StatusContext.ProgressTracker());
-        }
-
-        public Command<ImageContent> ViewHistoryCommand
-        {
-            get => _viewHistoryCommand;
-            set
-            {
-                if (Equals(value, _viewHistoryCommand)) return;
-                _viewHistoryCommand = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        public static ImageListListItem ListItemFromDbItem(ImageContent content, ImageContentActions itemActions,
-            bool showType)
-        {
-            return new()
-            {
-                DbEntry = content,
-                SmallImageUrl = ContentListContext.GetSmallImageUrl(content),
-                ItemActions = itemActions,
-                ShowType = showType
-            };
-        }
-
-        [NotifyPropertyChangedInvocator]
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
-
-
-        public async Task ViewFile(ImageContent listItem)
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            if (listItem == null)
-            {
-                StatusContext.ToastError("Nothing Items to Open?");
-                return;
-            }
-
-            if (string.IsNullOrWhiteSpace(listItem.OriginalFileName))
-            {
-                StatusContext.ToastError("No Image?");
-                return;
-            }
-
-            var toOpen = UserSettingsSingleton.CurrentSettings().LocalSiteImageContentFile(listItem);
-
-            if (toOpen is not {Exists: true})
-            {
-                StatusContext.ToastError("Image doesn't exist?");
-                return;
-            }
-
-            var url = toOpen.FullName;
-
-            var ps = new ProcessStartInfo(url) {UseShellExecute = true, Verb = "open"};
-            Process.Start(ps);
-        }
+        var ps = new ProcessStartInfo(url) {UseShellExecute = true, Verb = "open"};
+        Process.Start(ps);
     }
 }

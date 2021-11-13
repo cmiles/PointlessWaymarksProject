@@ -1,10 +1,9 @@
-﻿namespace PointlessWaymarks.CmsWpfControls.PostContentEditor
+﻿namespace PointlessWaymarks.CmsWpfControls.PostContentEditor;
+
+public partial class PostContentEditorControl
 {
-    public partial class PostContentEditorControl
+    public PostContentEditorControl()
     {
-        public PostContentEditorControl()
-        {
-            InitializeComponent();
-        }
+        InitializeComponent();
     }
 }

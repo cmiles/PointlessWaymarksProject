@@ -5,110 +5,109 @@ using JetBrains.Annotations;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 
-namespace PointlessWaymarks.CmsWpfControls.S3Uploads
+namespace PointlessWaymarks.CmsWpfControls.S3Uploads;
+
+/// <summary>
+///     Interaction logic for S3UploadsWindow.xaml
+/// </summary>
+public partial class S3UploadsWindow : INotifyPropertyChanged
 {
-    /// <summary>
-    ///     Interaction logic for S3UploadsWindow.xaml
-    /// </summary>
-    public partial class S3UploadsWindow : INotifyPropertyChanged
+    private bool _forceClose;
+    private WindowIconStatus _windowStatus;
+    private StatusControlContext _statusContext;
+    private S3UploadsContext? _uploadContext;
+
+    public S3UploadsWindow(List<S3Upload> toLoad, bool autoStartUpload)
     {
-        private bool _forceClose;
-        private WindowIconStatus _windowStatus;
-        private StatusControlContext _statusContext;
-        private S3UploadsContext? _uploadContext;
+        InitializeComponent();
 
-        public S3UploadsWindow(List<S3Upload> toLoad, bool autoStartUpload)
+        _statusContext = new StatusControlContext();
+        _windowStatus = new WindowIconStatus();
+
+        DataContext = this;
+
+        StatusContext.RunFireAndForgetBlockingTask(async () =>
         {
-            InitializeComponent();
+            UploadContext = await S3UploadsContext.CreateInstance(StatusContext, toLoad, WindowStatus);
+            if (autoStartUpload) UploadContext.StatusContext.RunNonBlockingTask(UploadContext.StartAllUploads);
+        });
+    }
 
-            _statusContext = new StatusControlContext();
-            _windowStatus = new WindowIconStatus();
+    public WindowIconStatus WindowStatus
+    {
+        get => _windowStatus;
+        set
+        {
+            if (Equals(value, _windowStatus)) return;
+            _windowStatus = value;
+            OnPropertyChanged();
+        }
+    }
 
-            DataContext = this;
+    public StatusControlContext StatusContext
+    {
+        get => _statusContext;
+        set
+        {
+            if (Equals(value, _statusContext)) return;
+            _statusContext = value;
+            OnPropertyChanged();
+        }
+    }
 
-            StatusContext.RunFireAndForgetBlockingTask(async () =>
-            {
-                UploadContext = await S3UploadsContext.CreateInstance(StatusContext, toLoad, WindowStatus);
-                if (autoStartUpload) UploadContext.StatusContext.RunNonBlockingTask(UploadContext.StartAllUploads);
-            });
+    public S3UploadsContext? UploadContext
+    {
+        get => _uploadContext;
+        set
+        {
+            if (Equals(value, _uploadContext)) return;
+            _uploadContext = value;
+            OnPropertyChanged();
+        }
+    }
+
+    public event PropertyChangedEventHandler? PropertyChanged;
+
+    [NotifyPropertyChangedInvocator]
+    protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
+    {
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+    }
+
+    private void S3UploadsWindow_OnClosing(object sender, CancelEventArgs e)
+    {
+        if (_forceClose) return;
+
+        StatusContext.RunFireAndForgetNonBlockingTask(WindowCloseOverload);
+        e.Cancel = true;
+    }
+
+    public async Task WindowCloseOverload()
+    {
+        if (UploadContext?.UploadBatch == null || !UploadContext.UploadBatch.Uploading)
+        {
+            _forceClose = true;
+            await ThreadSwitcher.ResumeForegroundAsync();
+            Close();
         }
 
-        public WindowIconStatus WindowStatus
+        var userAction = await StatusContext.ShowMessage("Running Upload...",
+            "Exiting this window with an upload running could create errors on S3:",
+            new List<string> { "Close Immediately", "Cancel and Close", "Return to Upload" });
+
+        switch (userAction)
         {
-            get => _windowStatus;
-            set
-            {
-                if (Equals(value, _windowStatus)) return;
-                _windowStatus = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public StatusControlContext StatusContext
-        {
-            get => _statusContext;
-            set
-            {
-                if (Equals(value, _statusContext)) return;
-                _statusContext = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public S3UploadsContext? UploadContext
-        {
-            get => _uploadContext;
-            set
-            {
-                if (Equals(value, _uploadContext)) return;
-                _uploadContext = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public event PropertyChangedEventHandler? PropertyChanged;
-
-        [NotifyPropertyChangedInvocator]
-        protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
-
-        private void S3UploadsWindow_OnClosing(object sender, CancelEventArgs e)
-        {
-            if (_forceClose) return;
-
-            StatusContext.RunFireAndForgetNonBlockingTask(WindowCloseOverload);
-            e.Cancel = true;
-        }
-
-        public async Task WindowCloseOverload()
-        {
-            if (UploadContext?.UploadBatch == null || !UploadContext.UploadBatch.Uploading)
+            case "Close Immediately":
             {
                 _forceClose = true;
                 await ThreadSwitcher.ResumeForegroundAsync();
                 Close();
+                break;
             }
-
-            var userAction = await StatusContext.ShowMessage("Running Upload...",
-                "Exiting this window with an upload running could create errors on S3:",
-                new List<string> { "Close Immediately", "Cancel and Close", "Return to Upload" });
-
-            switch (userAction)
+            case "Return and Cancel":
             {
-                case "Close Immediately":
-                {
-                    _forceClose = true;
-                    await ThreadSwitcher.ResumeForegroundAsync();
-                    Close();
-                    break;
-                }
-                case "Return and Cancel":
-                {
-                    UploadContext?.UploadBatch?.Cancellation?.Cancel();
-                    break;
-                }
+                UploadContext?.UploadBatch?.Cancellation?.Cancel();
+                break;
             }
         }
     }

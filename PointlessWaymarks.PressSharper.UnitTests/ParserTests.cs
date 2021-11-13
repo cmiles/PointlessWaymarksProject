@@ -1,11 +1,11 @@
 ﻿using NUnit.Framework;
 
-namespace PointlessWaymarks.PressSharper.UnitTests
+namespace PointlessWaymarks.PressSharper.UnitTests;
+
+[TestFixture]
+public class BlogTests
 {
-    [TestFixture]
-    public class BlogTests
-    {
-        private const string WordPressXml = @"<?xml version=""1.0"" encoding=""UTF-8"" ?>
+    private const string WordPressXml = @"<?xml version=""1.0"" encoding=""UTF-8"" ?>
                 <rss version=""2.0""
 	                xmlns:excerpt=""http://wordpress.org/export/1.2/excerpt/""
 	                xmlns:content=""http://purl.org/rss/1.0/modules/content/""
@@ -86,125 +86,124 @@ namespace PointlessWaymarks.PressSharper.UnitTests
                     </channel>
                 </rss>";
 
-        [Test]
-        public void Can_Parse_Blog_Title()
-        {
-            var blog = new Blog(WordPressXml);
+    [Test]
+    public void Can_Parse_Blog_Title()
+    {
+        var blog = new Blog(WordPressXml);
 
-            Assert.AreEqual("foo title", blog.Title);
-        }
+        Assert.AreEqual("foo title", blog.Title);
+    }
 
-        [Test]
-        public void Can_Parse_Blog_Description()
-        {
-            var blog = new Blog(WordPressXml);
+    [Test]
+    public void Can_Parse_Blog_Description()
+    {
+        var blog = new Blog(WordPressXml);
 
-            Assert.AreEqual("foo description", blog.Description);
-        }
+        Assert.AreEqual("foo description", blog.Description);
+    }
 
-        [Test]
-        public void Can_Parse_Authors()
-        {
-            var blog = new Blog(WordPressXml);
-            var authors = blog.Authors.ToList();
+    [Test]
+    public void Can_Parse_Authors()
+    {
+        var blog = new Blog(WordPressXml);
+        var authors = blog.Authors.ToList();
 
-            Assert.AreEqual(2, authors.Count);
+        Assert.AreEqual(2, authors.Count);
 
-            Assert.AreEqual(1, authors[0].Id);
-            Assert.AreEqual("johndoe", authors[0].Username);
-            Assert.AreEqual("johndoe@gmail.com", authors[0].Email);
+        Assert.AreEqual(1, authors[0].Id);
+        Assert.AreEqual("johndoe", authors[0].Username);
+        Assert.AreEqual("johndoe@gmail.com", authors[0].Email);
 
-            Assert.AreEqual(2, authors[1].Id);
-            Assert.AreEqual("bobsmith", authors[1].Username);
-            Assert.AreEqual("bobsmith@gmail.com", authors[1].Email);
-        }
+        Assert.AreEqual(2, authors[1].Id);
+        Assert.AreEqual("bobsmith", authors[1].Username);
+        Assert.AreEqual("bobsmith@gmail.com", authors[1].Email);
+    }
 
-        [Test]
-        public void Can_Parse_Attachments()
-        {
-            var blog = new Blog(WordPressXml);
-            var attachments = blog.Attachments.ToList();
+    [Test]
+    public void Can_Parse_Attachments()
+    {
+        var blog = new Blog(WordPressXml);
+        var attachments = blog.Attachments.ToList();
 
-            Assert.AreEqual(1, attachments.Count);
+        Assert.AreEqual(1, attachments.Count);
 
-            Assert.AreEqual(3, attachments[0].Id);
-            Assert.AreEqual("Featured Image", attachments[0].Title);
-            Assert.AreEqual("http://www.example.com/featured.jpg", attachments[0].Url);
-        }
+        Assert.AreEqual(3, attachments[0].Id);
+        Assert.AreEqual("Featured Image", attachments[0].Title);
+        Assert.AreEqual("http://www.example.com/featured.jpg", attachments[0].Url);
+    }
 
-        [Test]
-        public void Can_Parse_Posts()
-        {
-            var blog = new Blog(WordPressXml);
-            var posts = blog.GetPosts().ToList();
+    [Test]
+    public void Can_Parse_Posts()
+    {
+        var blog = new Blog(WordPressXml);
+        var posts = blog.GetPosts().ToList();
 
-            Assert.AreEqual(2, posts.Count);
+        Assert.AreEqual(2, posts.Count);
 
-            // post 1
-            Assert.AreEqual("test title 1", posts[0].Title);
-            Assert.AreEqual("johndoe", posts[0].Author.Username);
-            Assert.AreEqual("test body 1", posts[0].Body);
-            Assert.AreEqual("3/5/2010", posts[0].PublishDate.ToShortDateString());
-            Assert.AreEqual("test-title-1", posts[0].Slug);
-            Assert.AreEqual(2, posts[0].Categories.Count);
-            Assert.AreEqual("category-one", posts[0].Categories[0].Slug);
-            Assert.AreEqual("Category One", posts[0].Categories[0].Name);
-            Assert.AreEqual("category-two", posts[0].Categories[1].Slug);
-            Assert.AreEqual("Category Two", posts[0].Categories[1].Name);
-            Assert.AreEqual(1, posts[0].Tags.Count);
-            Assert.AreEqual("tag-one", posts[0].Tags[0].Slug);
-            Assert.AreEqual("Tag One", posts[0].Tags[0].Name);
+        // post 1
+        Assert.AreEqual("test title 1", posts[0].Title);
+        Assert.AreEqual("johndoe", posts[0].Author.Username);
+        Assert.AreEqual("test body 1", posts[0].Body);
+        Assert.AreEqual("3/5/2010", posts[0].PublishDate.ToShortDateString());
+        Assert.AreEqual("test-title-1", posts[0].Slug);
+        Assert.AreEqual(2, posts[0].Categories.Count);
+        Assert.AreEqual("category-one", posts[0].Categories[0].Slug);
+        Assert.AreEqual("Category One", posts[0].Categories[0].Name);
+        Assert.AreEqual("category-two", posts[0].Categories[1].Slug);
+        Assert.AreEqual("Category Two", posts[0].Categories[1].Name);
+        Assert.AreEqual(1, posts[0].Tags.Count);
+        Assert.AreEqual("tag-one", posts[0].Tags[0].Slug);
+        Assert.AreEqual("Tag One", posts[0].Tags[0].Name);
 
-            // post 1 featured image
-            Assert.NotNull(posts[0].FeaturedImage);
-            Assert.AreEqual(3, posts[0].FeaturedImage.Id);
-            Assert.AreEqual("Featured Image", posts[0].FeaturedImage.Title);
-            Assert.AreEqual("http://www.example.com/featured.jpg", posts[0].FeaturedImage.Url);
+        // post 1 featured image
+        Assert.NotNull(posts[0].FeaturedImage);
+        Assert.AreEqual(3, posts[0].FeaturedImage.Id);
+        Assert.AreEqual("Featured Image", posts[0].FeaturedImage.Title);
+        Assert.AreEqual("http://www.example.com/featured.jpg", posts[0].FeaturedImage.Url);
 
-            // post 2
-            Assert.AreEqual("test title 2", posts[1].Title);
-            Assert.AreEqual("bobsmith", posts[1].Author.Username);
-            Assert.AreEqual("test body 2", posts[1].Body);
-            Assert.AreEqual("4/8/2011", posts[1].PublishDate.ToShortDateString());
-            Assert.AreEqual("test-title-2", posts[1].Slug);
-            Assert.AreEqual(1, posts[1].Categories.Count);
-            Assert.AreEqual("category-three", posts[1].Categories[0].Slug);
-            Assert.AreEqual("Category Three", posts[1].Categories[0].Name);
-            Assert.AreEqual(2, posts[1].Tags.Count);
-            Assert.AreEqual("tag-two", posts[1].Tags[0].Slug);
-            Assert.AreEqual("Tag Two", posts[1].Tags[0].Name);
-            Assert.AreEqual("tag-three", posts[1].Tags[1].Slug);
-            Assert.AreEqual("Tag Three", posts[1].Tags[1].Name);
+        // post 2
+        Assert.AreEqual("test title 2", posts[1].Title);
+        Assert.AreEqual("bobsmith", posts[1].Author.Username);
+        Assert.AreEqual("test body 2", posts[1].Body);
+        Assert.AreEqual("4/8/2011", posts[1].PublishDate.ToShortDateString());
+        Assert.AreEqual("test-title-2", posts[1].Slug);
+        Assert.AreEqual(1, posts[1].Categories.Count);
+        Assert.AreEqual("category-three", posts[1].Categories[0].Slug);
+        Assert.AreEqual("Category Three", posts[1].Categories[0].Name);
+        Assert.AreEqual(2, posts[1].Tags.Count);
+        Assert.AreEqual("tag-two", posts[1].Tags[0].Slug);
+        Assert.AreEqual("Tag Two", posts[1].Tags[0].Name);
+        Assert.AreEqual("tag-three", posts[1].Tags[1].Slug);
+        Assert.AreEqual("Tag Three", posts[1].Tags[1].Name);
 
-            // post 2 featured image
-            Assert.Null(posts[1].FeaturedImage);
-        }
+        // post 2 featured image
+        Assert.Null(posts[1].FeaturedImage);
+    }
 
-        [Test]
-        public void Can_Parse_Pages()
-        {
-            var blog = new Blog(WordPressXml);
-            var pages = blog.GetPages().ToList();
+    [Test]
+    public void Can_Parse_Pages()
+    {
+        var blog = new Blog(WordPressXml);
+        var pages = blog.GetPages().ToList();
 
-            Assert.AreEqual(2, pages.Count);
+        Assert.AreEqual(2, pages.Count);
 
-            // page 1
-            Assert.AreEqual(1, pages[0].Id);
-            Assert.Null(pages[0].ParentId);
-            Assert.AreEqual("About", pages[0].Title);
-            Assert.AreEqual("johndoe", pages[0].Author.Username);
-            Assert.AreEqual("This is the about page", pages[0].Body);
-            Assert.AreEqual("5/9/2012", pages[0].PublishDate.ToShortDateString());
-            Assert.AreEqual("about", pages[0].Slug);
+        // page 1
+        Assert.AreEqual(1, pages[0].Id);
+        Assert.Null(pages[0].ParentId);
+        Assert.AreEqual("About", pages[0].Title);
+        Assert.AreEqual("johndoe", pages[0].Author.Username);
+        Assert.AreEqual("This is the about page", pages[0].Body);
+        Assert.AreEqual("5/9/2012", pages[0].PublishDate.ToShortDateString());
+        Assert.AreEqual("about", pages[0].Slug);
 
-            // page 2
-            Assert.AreEqual(2, pages[1].Id);
-            Assert.AreEqual(1, pages[1].ParentId);
-            Assert.AreEqual("Contact Us", pages[1].Title);
-            Assert.AreEqual("bobsmith", pages[1].Author.Username);
-            Assert.AreEqual("This is the contact page", pages[1].Body);
-            Assert.AreEqual("6/13/2013", pages[1].PublishDate.ToShortDateString());
-            Assert.AreEqual("contact-us", pages[1].Slug);
-        }
+        // page 2
+        Assert.AreEqual(2, pages[1].Id);
+        Assert.AreEqual(1, pages[1].ParentId);
+        Assert.AreEqual("Contact Us", pages[1].Title);
+        Assert.AreEqual("bobsmith", pages[1].Author.Username);
+        Assert.AreEqual("This is the contact page", pages[1].Body);
+        Assert.AreEqual("6/13/2013", pages[1].PublishDate.ToShortDateString());
+        Assert.AreEqual("contact-us", pages[1].Slug);
     }
 }

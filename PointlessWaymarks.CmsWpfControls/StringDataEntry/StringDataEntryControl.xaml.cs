@@ -1,13 +1,12 @@
-﻿namespace PointlessWaymarks.CmsWpfControls.StringDataEntry
+﻿namespace PointlessWaymarks.CmsWpfControls.StringDataEntry;
+
+/// <summary>
+///     Interaction logic for StringDataEntryControl.xaml
+/// </summary>
+public partial class StringDataEntryControl
 {
-    /// <summary>
-    ///     Interaction logic for StringDataEntryControl.xaml
-    /// </summary>
-    public partial class StringDataEntryControl
+    public StringDataEntryControl()
     {
-        public StringDataEntryControl()
-        {
-            InitializeComponent();
-        }
+        InitializeComponent();
     }
 }

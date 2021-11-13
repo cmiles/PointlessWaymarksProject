@@ -4,48 +4,47 @@ using Microsoft.Web.WebView2.Core;
 using Microsoft.Web.WebView2.Wpf;
 using Microsoft.Xaml.Behaviors;
 
-namespace PointlessWaymarks.CmsWpfControls.WpfHtml
+namespace PointlessWaymarks.CmsWpfControls.WpfHtml;
+
+public class WebViewSelectedTextBehavior : Behavior<WebView2>
 {
-    public class WebViewSelectedTextBehavior : Behavior<WebView2>
+    public static readonly DependencyProperty WebViewSelectedTextProperty =
+        DependencyProperty.Register("WebViewSelectedText", typeof(string), typeof(WebViewSelectedTextBehavior),
+            new FrameworkPropertyMetadata(string.Empty, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault));
+
+    public string WebViewSelectedText
     {
-        public static readonly DependencyProperty WebViewSelectedTextProperty =
-            DependencyProperty.Register("WebViewSelectedText", typeof(string), typeof(WebViewSelectedTextBehavior),
-                new FrameworkPropertyMetadata(string.Empty, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault));
+        get => (string) GetValue(WebViewSelectedTextProperty);
+        set => SetValue(WebViewSelectedTextProperty, value);
+    }
 
-        public string WebViewSelectedText
+    private void MessageReceived(object sender, CoreWebView2WebMessageReceivedEventArgs e)
+    {
+        var possibleString = e.TryGetWebMessageAsString();
+        if (possibleString.StartsWith("document.onselectionchange:"))
         {
-            get => (string) GetValue(WebViewSelectedTextProperty);
-            set => SetValue(WebViewSelectedTextProperty, value);
+            possibleString = possibleString.Length <= 27
+                ? string.Empty
+                : possibleString.Substring(27, possibleString.Length - 27);
+            SetValue(WebViewSelectedTextProperty, possibleString);
+            Debug.Print(possibleString);
         }
+    }
 
-        private void MessageReceived(object sender, CoreWebView2WebMessageReceivedEventArgs e)
-        {
-            var possibleString = e.TryGetWebMessageAsString();
-            if (possibleString.StartsWith("document.onselectionchange:"))
-            {
-                possibleString = possibleString.Length <= 27
-                    ? string.Empty
-                    : possibleString.Substring(27, possibleString.Length - 27);
-                SetValue(WebViewSelectedTextProperty, possibleString);
-                Debug.Print(possibleString);
-            }
-        }
+    protected override void OnAttached()
+    {
+        AssociatedObject.CoreWebView2InitializationCompleted += OnReady;
+        AssociatedObject.WebMessageReceived += MessageReceived;
+    }
 
-        protected override void OnAttached()
-        {
-            AssociatedObject.CoreWebView2InitializationCompleted += OnReady;
-            AssociatedObject.WebMessageReceived += MessageReceived;
-        }
-
-        private void OnReady(object sender, EventArgs e)
-        {
-            if (sender is WebView2 webView)
-                webView.CoreWebView2.AddScriptToExecuteOnDocumentCreatedAsync(@"
+    private void OnReady(object sender, EventArgs e)
+    {
+        if (sender is WebView2 webView)
+            webView.CoreWebView2.AddScriptToExecuteOnDocumentCreatedAsync(@"
 document.onselectionchange = () => {
   console.log(`document.onselectionchange:${document.getSelection().toString()}`);
   window.chrome.webview.postMessage(`document.onselectionchange:${document.getSelection().toString()}`);
 };
 ");
-        }
     }
 }

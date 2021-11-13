@@ -1,13 +1,12 @@
-﻿namespace PointlessWaymarks.CmsWpfControls.PointDetailEditor
+﻿namespace PointlessWaymarks.CmsWpfControls.PointDetailEditor;
+
+/// <summary>
+///     Interaction logic for DrivingDirectionsPointDetailControl.xaml
+/// </summary>
+public partial class DrivingDirectionsPointDetailControl
 {
-    /// <summary>
-    ///     Interaction logic for DrivingDirectionsPointDetailControl.xaml
-    /// </summary>
-    public partial class DrivingDirectionsPointDetailControl
+    public DrivingDirectionsPointDetailControl()
     {
-        public DrivingDirectionsPointDetailControl()
-        {
-            InitializeComponent();
-        }
+        InitializeComponent();
     }
 }

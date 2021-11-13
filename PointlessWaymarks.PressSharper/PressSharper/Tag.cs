@@ -1,6 +1,5 @@
-﻿namespace PointlessWaymarks.PressSharper
+﻿namespace PointlessWaymarks.PressSharper;
+
+public class Tag : Category
 {
-    public class Tag : Category
-    {
-    }
 }

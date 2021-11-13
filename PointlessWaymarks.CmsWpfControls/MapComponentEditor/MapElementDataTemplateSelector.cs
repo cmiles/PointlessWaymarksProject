@@ -1,23 +1,22 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
 
-namespace PointlessWaymarks.CmsWpfControls.MapComponentEditor
-{
-    public class MapElementDataTemplateSelector : DataTemplateSelector
-    {
-        public DataTemplate GeoJsonTemplate { get; set; }
-        public DataTemplate LineTemplate { get; set; }
-        public DataTemplate PointTemplate { get; set; }
+namespace PointlessWaymarks.CmsWpfControls.MapComponentEditor;
 
-        public override DataTemplate SelectTemplate(object item, DependencyObject container)
+public class MapElementDataTemplateSelector : DataTemplateSelector
+{
+    public DataTemplate GeoJsonTemplate { get; set; }
+    public DataTemplate LineTemplate { get; set; }
+    public DataTemplate PointTemplate { get; set; }
+
+    public override DataTemplate SelectTemplate(object item, DependencyObject container)
+    {
+        return item switch
         {
-            return item switch
-            {
-                MapElementListGeoJsonItem _ => GeoJsonTemplate,
-                MapElementListLineItem _ => LineTemplate,
-                MapElementListPointItem _ => PointTemplate,
-                _ => null
-            };
-        }
+            MapElementListGeoJsonItem _ => GeoJsonTemplate,
+            MapElementListLineItem _ => LineTemplate,
+            MapElementListPointItem _ => PointTemplate,
+            _ => null
+        };
     }
 }

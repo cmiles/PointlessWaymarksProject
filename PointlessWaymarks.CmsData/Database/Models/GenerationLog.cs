@@ -1,9 +1,8 @@
-﻿namespace PointlessWaymarks.CmsData.Database.Models
+﻿namespace PointlessWaymarks.CmsData.Database.Models;
+
+public class GenerationLog
 {
-    public class GenerationLog
-    {
-        public string? GenerationSettings { get; set; }
-        public DateTime GenerationVersion { get; set; }
-        public int Id { get; set; }
-    }
+    public string? GenerationSettings { get; set; }
+    public DateTime GenerationVersion { get; set; }
+    public int Id { get; set; }
 }

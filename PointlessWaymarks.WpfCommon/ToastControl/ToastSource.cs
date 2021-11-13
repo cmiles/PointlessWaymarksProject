@@ -4,128 +4,127 @@ using System.Runtime.CompilerServices;
 using System.Windows.Threading;
 using JetBrains.Annotations;
 
-namespace PointlessWaymarks.WpfCommon.ToastControl
+namespace PointlessWaymarks.WpfCommon.ToastControl;
+
+public class ToastSource : INotifyPropertyChanged
 {
-    public class ToastSource : INotifyPropertyChanged
+    public const int UnlimitedNotifications = -1;
+
+    public static readonly TimeSpan NeverEndingNotification = TimeSpan.MaxValue;
+
+    private readonly DispatcherTimer _timer;
+    private bool _isOpen;
+
+    public ToastSource(Dispatcher dispatcher)
     {
-        public const int UnlimitedNotifications = -1;
+        NotificationMessages = new ObservableCollection<ToastViewModel>();
 
-        public static readonly TimeSpan NeverEndingNotification = TimeSpan.MaxValue;
+        MaximumNotificationCount = 5;
+        NotificationLifeTime = TimeSpan.FromSeconds(6);
 
-        private readonly DispatcherTimer _timer;
-        private bool _isOpen;
-
-        public ToastSource(Dispatcher dispatcher)
+        _timer = new DispatcherTimer(DispatcherPriority.Normal, dispatcher)
         {
-            NotificationMessages = new ObservableCollection<ToastViewModel>();
+            Interval = TimeSpan.FromMilliseconds(200)
+        };
+    }
 
-            MaximumNotificationCount = 5;
-            NotificationLifeTime = TimeSpan.FromSeconds(6);
+    public bool IsOpen
+    {
+        get => _isOpen;
+        set
+        {
+            if (value == _isOpen) return;
+            _isOpen = value;
+            OnPropertyChanged();
+        }
+    }
 
-            _timer = new DispatcherTimer(DispatcherPriority.Normal, dispatcher)
-            {
-                Interval = TimeSpan.FromMilliseconds(200)
-            };
+    public long MaximumNotificationCount { get; set; }
+    public TimeSpan NotificationLifeTime { get; set; }
+    public ObservableCollection<ToastViewModel> NotificationMessages { get; }
+
+    public event PropertyChangedEventHandler PropertyChanged;
+
+    public void Hide(Guid id)
+    {
+        var n = NotificationMessages.SingleOrDefault(x => x.Id == id);
+        if (n?.InvokeHideAnimation == null)
+            return;
+
+        n.InvokeHideAnimation();
+
+        var timer = new DispatcherTimer {Interval = TimeSpan.FromMilliseconds(200), Tag = n};
+        timer.Tick += RemoveNotificationsTimer_OnTick;
+        timer.Start();
+    }
+
+    private void InternalStartTimer()
+    {
+        _timer.Tick += TimerOnTick;
+        _timer.Start();
+    }
+
+    private void InternalStopTimer()
+    {
+        _timer.Stop();
+        _timer.Tick -= TimerOnTick;
+    }
+
+    [NotifyPropertyChangedInvocator]
+    protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = "")
+    {
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+    }
+
+    private void RemoveNotificationsTimer_OnTick(object sender, EventArgs eventArgs)
+    {
+        if (sender is not DispatcherTimer timer) return;
+
+        // Stop the timer and cleanup for GC
+        timer.Tick += RemoveNotificationsTimer_OnTick;
+        timer.Stop();
+
+        if (timer.Tag is not ToastViewModel n) return;
+
+        NotificationMessages.Remove(n);
+
+        if (NotificationMessages.Any()) return;
+
+        InternalStopTimer();
+        IsOpen = false;
+    }
+
+    public void Show(string message, ToastType type)
+    {
+        if (NotificationMessages.Any() == false)
+        {
+            InternalStartTimer();
+            IsOpen = true;
         }
 
-        public bool IsOpen
-        {
-            get => _isOpen;
-            set
+        if (MaximumNotificationCount != UnlimitedNotifications)
+            if (NotificationMessages.Count >= MaximumNotificationCount)
             {
-                if (value == _isOpen) return;
-                _isOpen = value;
-                OnPropertyChanged();
+                var removeCount = (int) (NotificationMessages.Count - MaximumNotificationCount) + 1;
+
+                var itemsToRemove = NotificationMessages.OrderBy(x => x.CreateTime).Take(removeCount)
+                    .Select(x => x.Id).ToList();
+                foreach (var id in itemsToRemove)
+                    Hide(id);
             }
-        }
 
-        public long MaximumNotificationCount { get; set; }
-        public TimeSpan NotificationLifeTime { get; set; }
-        public ObservableCollection<ToastViewModel> NotificationMessages { get; }
+        NotificationMessages.Add(new ToastViewModel {Message = message, Type = type});
+    }
 
-        public event PropertyChangedEventHandler PropertyChanged;
+    private void TimerOnTick(object sender, EventArgs eventArgs)
+    {
+        if (NotificationLifeTime == NeverEndingNotification)
+            return;
 
-        public void Hide(Guid id)
-        {
-            var n = NotificationMessages.SingleOrDefault(x => x.Id == id);
-            if (n?.InvokeHideAnimation == null)
-                return;
+        var currentTime = DateTime.Now;
+        var itemsToRemove = NotificationMessages.Where(x => currentTime - x.CreateTime >= NotificationLifeTime)
+            .Select(x => x.Id).ToList();
 
-            n.InvokeHideAnimation();
-
-            var timer = new DispatcherTimer {Interval = TimeSpan.FromMilliseconds(200), Tag = n};
-            timer.Tick += RemoveNotificationsTimer_OnTick;
-            timer.Start();
-        }
-
-        private void InternalStartTimer()
-        {
-            _timer.Tick += TimerOnTick;
-            _timer.Start();
-        }
-
-        private void InternalStopTimer()
-        {
-            _timer.Stop();
-            _timer.Tick -= TimerOnTick;
-        }
-
-        [NotifyPropertyChangedInvocator]
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = "")
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
-
-        private void RemoveNotificationsTimer_OnTick(object sender, EventArgs eventArgs)
-        {
-            if (sender is not DispatcherTimer timer) return;
-
-            // Stop the timer and cleanup for GC
-            timer.Tick += RemoveNotificationsTimer_OnTick;
-            timer.Stop();
-
-            if (timer.Tag is not ToastViewModel n) return;
-
-            NotificationMessages.Remove(n);
-
-            if (NotificationMessages.Any()) return;
-
-            InternalStopTimer();
-            IsOpen = false;
-        }
-
-        public void Show(string message, ToastType type)
-        {
-            if (NotificationMessages.Any() == false)
-            {
-                InternalStartTimer();
-                IsOpen = true;
-            }
-
-            if (MaximumNotificationCount != UnlimitedNotifications)
-                if (NotificationMessages.Count >= MaximumNotificationCount)
-                {
-                    var removeCount = (int) (NotificationMessages.Count - MaximumNotificationCount) + 1;
-
-                    var itemsToRemove = NotificationMessages.OrderBy(x => x.CreateTime).Take(removeCount)
-                        .Select(x => x.Id).ToList();
-                    foreach (var id in itemsToRemove)
-                        Hide(id);
-                }
-
-            NotificationMessages.Add(new ToastViewModel {Message = message, Type = type});
-        }
-
-        private void TimerOnTick(object sender, EventArgs eventArgs)
-        {
-            if (NotificationLifeTime == NeverEndingNotification)
-                return;
-
-            var currentTime = DateTime.Now;
-            var itemsToRemove = NotificationMessages.Where(x => currentTime - x.CreateTime >= NotificationLifeTime)
-                .Select(x => x.Id).ToList();
-
-            foreach (var id in itemsToRemove) Hide(id);
-        }
+        foreach (var id in itemsToRemove) Hide(id);
     }
 }

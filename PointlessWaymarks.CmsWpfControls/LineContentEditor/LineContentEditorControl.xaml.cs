@@ -1,13 +1,12 @@
-﻿namespace PointlessWaymarks.CmsWpfControls.LineContentEditor
+﻿namespace PointlessWaymarks.CmsWpfControls.LineContentEditor;
+
+/// <summary>
+///     Interaction logic for LineContentEditorControl.xaml
+/// </summary>
+public partial class LineContentEditorControl
 {
-    /// <summary>
-    ///     Interaction logic for LineContentEditorControl.xaml
-    /// </summary>
-    public partial class LineContentEditorControl
+    public LineContentEditorControl()
     {
-        public LineContentEditorControl()
-        {
-            InitializeComponent();
-        }
+        InitializeComponent();
     }
 }

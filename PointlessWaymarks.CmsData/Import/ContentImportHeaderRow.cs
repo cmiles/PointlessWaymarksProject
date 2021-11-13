@@ -1,43 +1,42 @@
 ﻿using ClosedXML.Excel;
 
-namespace PointlessWaymarks.CmsData.Import
+namespace PointlessWaymarks.CmsData.Import;
+
+public class ContentImportHeaderRow
 {
-    public class ContentImportHeaderRow
+    public ContentImportHeaderRow(List<string> headerRow)
     {
-        public ContentImportHeaderRow(List<string> headerRow)
+        Columns = new List<ContentImportColumn>();
+        if (!headerRow.Any()) return;
+
+        foreach (var loopCells in headerRow)
         {
-            Columns = new List<ContentImportColumn>();
-            if (!headerRow.Any()) return;
+            if (string.IsNullOrWhiteSpace(loopCells)) continue;
 
-            foreach (var loopCells in headerRow)
+            Columns.Add(new ContentImportColumn
             {
-                if (string.IsNullOrWhiteSpace(loopCells)) continue;
-
-                Columns.Add(new ContentImportColumn
-                {
-                    ColumnHeader = loopCells, ColumnNumber = headerRow.IndexOf(loopCells)
-                });
-            }
+                ColumnHeader = loopCells, ColumnNumber = headerRow.IndexOf(loopCells)
+            });
         }
-
-        public ContentImportHeaderRow(IXLRangeRow headerRow)
-        {
-            Columns = new List<ContentImportColumn>();
-            if (!headerRow.Cells().Any()) return;
-
-            foreach (var loopCells in headerRow.Cells())
-            {
-                var columnStringValue = loopCells.Value.ToString();
-
-                if (string.IsNullOrWhiteSpace(columnStringValue)) continue;
-
-                Columns.Add(new ContentImportColumn
-                {
-                    ColumnHeader = columnStringValue, ColumnNumber = loopCells.WorksheetColumn().ColumnNumber()
-                });
-            }
-        }
-
-        public List<ContentImportColumn> Columns { get; }
     }
+
+    public ContentImportHeaderRow(IXLRangeRow headerRow)
+    {
+        Columns = new List<ContentImportColumn>();
+        if (!headerRow.Cells().Any()) return;
+
+        foreach (var loopCells in headerRow.Cells())
+        {
+            var columnStringValue = loopCells.Value.ToString();
+
+            if (string.IsNullOrWhiteSpace(columnStringValue)) continue;
+
+            Columns.Add(new ContentImportColumn
+            {
+                ColumnHeader = columnStringValue, ColumnNumber = loopCells.WorksheetColumn().ColumnNumber()
+            });
+        }
+    }
+
+    public List<ContentImportColumn> Columns { get; }
 }

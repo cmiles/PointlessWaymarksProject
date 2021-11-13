@@ -5,208 +5,207 @@ using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsWpfControls.Utility.ChangesAndValidation;
 
-namespace PointlessWaymarks.CmsWpfControls.BoolDataEntry
+namespace PointlessWaymarks.CmsWpfControls.BoolDataEntry;
+
+public class BoolDataEntryContext : INotifyPropertyChanged, IHasChanges, IHasValidationIssues
 {
-    public class BoolDataEntryContext : INotifyPropertyChanged, IHasChanges, IHasValidationIssues
+    private bool _hasChanges;
+    private bool _hasValidationIssues;
+    private string _helpText;
+    private bool _isEnabled = true;
+    private bool _referenceValue;
+    private string _title;
+    private bool _userValue;
+
+    private List<Func<bool, IsValid>> _validationFunctions = new();
+
+    private string _validationMessage;
+
+    private BoolDataEntryContext()
     {
-        private bool _hasChanges;
-        private bool _hasValidationIssues;
-        private string _helpText;
-        private bool _isEnabled = true;
-        private bool _referenceValue;
-        private string _title;
-        private bool _userValue;
+    }
 
-        private List<Func<bool, IsValid>> _validationFunctions = new();
-
-        private string _validationMessage;
-
-        private BoolDataEntryContext()
+    public string HelpText
+    {
+        get => _helpText;
+        set
         {
+            if (value == _helpText) return;
+            _helpText = value;
+            OnPropertyChanged();
         }
+    }
 
-        public string HelpText
+    public bool IsEnabled
+    {
+        get => _isEnabled;
+        set
         {
-            get => _helpText;
-            set
+            if (value == _isEnabled) return;
+            _isEnabled = value;
+            OnPropertyChanged();
+        }
+    }
+
+    public bool ReferenceValue
+    {
+        get => _referenceValue;
+        set
+        {
+            if (value == _referenceValue) return;
+            _referenceValue = value;
+            OnPropertyChanged();
+        }
+    }
+
+    public string Title
+    {
+        get => _title;
+        set
+        {
+            if (value == _title) return;
+            _title = value;
+            OnPropertyChanged();
+        }
+    }
+
+    public bool UserValue
+    {
+        get => _userValue;
+        set
+        {
+            if (value == _userValue) return;
+            _userValue = value;
+            OnPropertyChanged();
+        }
+    }
+
+    public bool UserValueIsNullable => false;
+
+    public List<Func<bool, IsValid>> ValidationFunctions
+    {
+        get => _validationFunctions;
+        set
+        {
+            if (Equals(value, _validationFunctions)) return;
+            _validationFunctions = value;
+            OnPropertyChanged();
+        }
+    }
+
+    public string ValidationMessage
+    {
+        get => _validationMessage;
+        set
+        {
+            if (value == _validationMessage) return;
+            _validationMessage = value;
+            OnPropertyChanged();
+        }
+    }
+
+    public bool HasChanges
+    {
+        get => _hasChanges;
+        set
+        {
+            if (value == _hasChanges) return;
+            _hasChanges = value;
+            OnPropertyChanged();
+        }
+    }
+
+    public bool HasValidationIssues
+    {
+        get => _hasValidationIssues;
+        set
+        {
+            if (value == _hasValidationIssues) return;
+            _hasValidationIssues = value;
+            OnPropertyChanged();
+        }
+    }
+
+    public event PropertyChangedEventHandler PropertyChanged;
+
+    private void CheckForChangesAndValidate()
+    {
+        HasChanges = UserValue != ReferenceValue;
+
+        if (ValidationFunctions != null && ValidationFunctions.Any())
+            foreach (var loopValidations in ValidationFunctions)
             {
-                if (value == _helpText) return;
-                _helpText = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public bool IsEnabled
-        {
-            get => _isEnabled;
-            set
-            {
-                if (value == _isEnabled) return;
-                _isEnabled = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public bool ReferenceValue
-        {
-            get => _referenceValue;
-            set
-            {
-                if (value == _referenceValue) return;
-                _referenceValue = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public string Title
-        {
-            get => _title;
-            set
-            {
-                if (value == _title) return;
-                _title = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public bool UserValue
-        {
-            get => _userValue;
-            set
-            {
-                if (value == _userValue) return;
-                _userValue = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public bool UserValueIsNullable => false;
-
-        public List<Func<bool, IsValid>> ValidationFunctions
-        {
-            get => _validationFunctions;
-            set
-            {
-                if (Equals(value, _validationFunctions)) return;
-                _validationFunctions = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public string ValidationMessage
-        {
-            get => _validationMessage;
-            set
-            {
-                if (value == _validationMessage) return;
-                _validationMessage = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public bool HasChanges
-        {
-            get => _hasChanges;
-            set
-            {
-                if (value == _hasChanges) return;
-                _hasChanges = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public bool HasValidationIssues
-        {
-            get => _hasValidationIssues;
-            set
-            {
-                if (value == _hasValidationIssues) return;
-                _hasValidationIssues = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        private void CheckForChangesAndValidate()
-        {
-            HasChanges = UserValue != ReferenceValue;
-
-            if (ValidationFunctions != null && ValidationFunctions.Any())
-                foreach (var loopValidations in ValidationFunctions)
+                var validationResult = loopValidations(UserValue);
+                if (!validationResult.Valid)
                 {
-                    var validationResult = loopValidations(UserValue);
-                    if (!validationResult.Valid)
-                    {
-                        HasValidationIssues = true;
-                        ValidationMessage = validationResult.Explanation;
-                        return;
-                    }
+                    HasValidationIssues = true;
+                    ValidationMessage = validationResult.Explanation;
+                    return;
                 }
+            }
 
-            HasValidationIssues = false;
-            ValidationMessage = string.Empty;
-        }
+        HasValidationIssues = false;
+        ValidationMessage = string.Empty;
+    }
 
-        public static BoolDataEntryContext CreateInstance()
+    public static BoolDataEntryContext CreateInstance()
+    {
+        return new BoolDataEntryContext();
+    }
+
+    public static BoolDataEntryContext CreateInstanceForIsDraft(IMainSiteFeed dbEntry, bool defaultSetting)
+    {
+        var newContext = new BoolDataEntryContext
         {
-            return new BoolDataEntryContext();
-        }
+            ReferenceValue = dbEntry?.IsDraft ?? defaultSetting,
+            UserValue = dbEntry?.IsDraft ?? defaultSetting,
+            Title = "Draft",
+            HelpText =
+                "'Draft' content will not appear in the Main Site Feed, Search or RSS Feeds - however html will " +
+                "still be generated for the content, this is NOT a way to keep content hidden or secret!"
+        };
 
-        public static BoolDataEntryContext CreateInstanceForIsDraft(IMainSiteFeed dbEntry, bool defaultSetting)
+        return newContext;
+    }
+
+    public static BoolDataEntryContext CreateInstanceForShowInMainSiteFeed(IMainSiteFeed dbEntry,
+        bool defaultSetting)
+    {
+        var newContext = new BoolDataEntryContext
         {
-            var newContext = new BoolDataEntryContext
-            {
-                ReferenceValue = dbEntry?.IsDraft ?? defaultSetting,
-                UserValue = dbEntry?.IsDraft ?? defaultSetting,
-                Title = "Draft",
-                HelpText =
-                    "'Draft' content will not appear in the Main Site Feed, Search or RSS Feeds - however html will " +
-                    "still be generated for the content, this is NOT a way to keep content hidden or secret!"
-            };
+            ReferenceValue = dbEntry?.ShowInMainSiteFeed ?? defaultSetting,
+            UserValue = dbEntry?.ShowInMainSiteFeed ?? defaultSetting,
+            Title = "Show in Main Site Feed",
+            HelpText =
+                "Checking this box will make the content appear in the Main Site RSS Feed and - if the content is recent - on the site's homepage"
+        };
 
-            return newContext;
-        }
+        return newContext;
+    }
 
-        public static BoolDataEntryContext CreateInstanceForShowInMainSiteFeed(IMainSiteFeed dbEntry,
-            bool defaultSetting)
+    public static BoolDataEntryContext CreateInstanceForShowInSearch(IShowInSearch dbEntry, bool defaultSetting)
+    {
+        var newContext = new BoolDataEntryContext
         {
-            var newContext = new BoolDataEntryContext
-            {
-                ReferenceValue = dbEntry?.ShowInMainSiteFeed ?? defaultSetting,
-                UserValue = dbEntry?.ShowInMainSiteFeed ?? defaultSetting,
-                Title = "Show in Main Site Feed",
-                HelpText =
-                    "Checking this box will make the content appear in the Main Site RSS Feed and - if the content is recent - on the site's homepage"
-            };
+            ReferenceValue = dbEntry?.ShowInSearch ?? defaultSetting,
+            UserValue = dbEntry?.ShowInSearch ?? defaultSetting,
+            Title = "Show in Search",
+            HelpText =
+                "If checked the content will appear in Site, Tag and other search screens - otherwise the content will still be " +
+                "on the site and publicly available but it will not show in search"
+        };
 
-            return newContext;
-        }
+        return newContext;
+    }
 
-        public static BoolDataEntryContext CreateInstanceForShowInSearch(IShowInSearch dbEntry, bool defaultSetting)
-        {
-            var newContext = new BoolDataEntryContext
-            {
-                ReferenceValue = dbEntry?.ShowInSearch ?? defaultSetting,
-                UserValue = dbEntry?.ShowInSearch ?? defaultSetting,
-                Title = "Show in Search",
-                HelpText =
-                    "If checked the content will appear in Site, Tag and other search screens - otherwise the content will still be " +
-                    "on the site and publicly available but it will not show in search"
-            };
+    [NotifyPropertyChangedInvocator]
+    protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+    {
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 
-            return newContext;
-        }
+        if (string.IsNullOrWhiteSpace(propertyName)) return;
 
-        [NotifyPropertyChangedInvocator]
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-
-            if (string.IsNullOrWhiteSpace(propertyName)) return;
-
-            if (!propertyName.Contains("HasChanges") && !propertyName.Contains("Validation"))
-                CheckForChangesAndValidate();
-        }
+        if (!propertyName.Contains("HasChanges") && !propertyName.Contains("Validation"))
+            CheckForChangesAndValidate();
     }
 }

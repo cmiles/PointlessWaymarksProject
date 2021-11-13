@@ -1,10 +1,9 @@
-﻿namespace PointlessWaymarks.CmsWpfControls.CreatedAndUpdatedByAndOnDisplay
+﻿namespace PointlessWaymarks.CmsWpfControls.CreatedAndUpdatedByAndOnDisplay;
+
+public partial class CreatedAndUpdatedByAndOnDisplayControl
 {
-    public partial class CreatedAndUpdatedByAndOnDisplayControl
+    public CreatedAndUpdatedByAndOnDisplayControl()
     {
-        public CreatedAndUpdatedByAndOnDisplayControl()
-        {
-            InitializeComponent();
-        }
+        InitializeComponent();
     }
 }

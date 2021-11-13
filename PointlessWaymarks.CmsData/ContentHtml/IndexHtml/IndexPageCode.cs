@@ -17,306 +17,233 @@ using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsData.Rss;
 
-namespace PointlessWaymarks.CmsData.ContentHtml.IndexHtml
+namespace PointlessWaymarks.CmsData.ContentHtml.IndexHtml;
+
+public partial class IndexPage
 {
-    public partial class IndexPage
+    private const int NumberOfContentItemsToDisplay = 4;
+
+    public IndexPage()
     {
-        private const int NumberOfContentItemsToDisplay = 4;
+        var settings = UserSettingsSingleton.CurrentSettings();
+        SiteUrl = settings.SiteUrl;
+        SiteName = settings.SiteName;
+        SiteKeywords = settings.SiteKeywords;
+        SiteSummary = settings.SiteSummary;
+        SiteAuthors = settings.SiteAuthors;
+        PageUrl = settings.IndexPageUrl();
+        LangAttribute = settings.SiteLangAttribute;
+        DirAttribute = settings.SiteDirectionAttribute;
 
-        public IndexPage()
+        IndexContent = Db.MainFeedRecentDynamicContent(20).Result.OrderByDescending(x => x.FeedOn).ToList();
+
+        var mainImageGuid = IndexContent
+            .FirstOrDefault(x => x.GetType() == typeof(PostContent) && x.MainPicture != null)?.MainPicture;
+
+        if (mainImageGuid != null) MainImage = new PictureSiteInformation(mainImageGuid);
+
+        if (!IndexContent.Any() || IndexContent.Count <= NumberOfContentItemsToDisplay)
         {
-            var settings = UserSettingsSingleton.CurrentSettings();
-            SiteUrl = settings.SiteUrl;
-            SiteName = settings.SiteName;
-            SiteKeywords = settings.SiteKeywords;
-            SiteSummary = settings.SiteSummary;
-            SiteAuthors = settings.SiteAuthors;
-            PageUrl = settings.IndexPageUrl();
-            LangAttribute = settings.SiteLangAttribute;
-            DirAttribute = settings.SiteDirectionAttribute;
+            PreviousPosts = new List<IContentCommon>();
+        }
+        else
+        {
+            DateTime previousDate = IndexContent.Skip(NumberOfContentItemsToDisplay - 1).Max(x => x.CreatedOn);
 
-            IndexContent = Db.MainFeedRecentDynamicContent(20).Result.OrderByDescending(x => x.FeedOn).ToList();
+            var previousLater = Tags.MainFeedPreviousAndLaterContent(6, previousDate);
 
-            var mainImageGuid = IndexContent
-                .FirstOrDefault(x => x.GetType() == typeof(PostContent) && x.MainPicture != null)?.MainPicture;
+            PreviousPosts = previousLater.previousContent;
+        }
+    }
 
-            if (mainImageGuid != null) MainImage = new PictureSiteInformation(mainImageGuid);
+    public string DirAttribute { get; set; }
 
-            if (!IndexContent.Any() || IndexContent.Count <= NumberOfContentItemsToDisplay)
+    public DateTime? GenerationVersion { get; set; }
+    public bool IncludeSpatialScripts { get; set; }
+    public List<dynamic> IndexContent { get; }
+
+    public string LangAttribute { get; set; }
+    public PictureSiteInformation? MainImage { get; }
+    public string PageUrl { get; }
+    public List<IContentCommon> PreviousPosts { get; }
+    public string SiteAuthors { get; }
+    public string SiteKeywords { get; }
+    public string SiteName { get; }
+    public string SiteSummary { get; }
+    public string SiteUrl { get; }
+
+    public HtmlTag IndexPosts()
+    {
+        if (!IndexContent.Any()) return HtmlTag.Empty();
+
+        var indexBodyContainer = new DivTag().AddClass("index-posts-container");
+
+        //!!Content Type List!!
+        foreach (var loopPosts in IndexContent.Take(NumberOfContentItemsToDisplay))
+        {
+            if (loopPosts.GetType() == typeof(PostContent))
             {
-                PreviousPosts = new List<IContentCommon>();
+                var post = new SinglePostDiv(loopPosts);
+                var indexPostContentDiv = new DivTag().AddClass("index-posts-content");
+                indexPostContentDiv.Encoded(false).Text(post.TransformText());
+                indexBodyContainer.Children.Add(indexPostContentDiv);
+                indexBodyContainer.Children.Add(HorizontalRule.StandardRule());
             }
-            else
+
+            if (loopPosts.GetType() == typeof(NoteContent))
             {
-                DateTime previousDate = IndexContent.Skip(NumberOfContentItemsToDisplay - 1).Max(x => x.CreatedOn);
+                var post = new SingleNoteDiv(loopPosts);
+                var indexPostContentDiv = new DivTag().AddClass("index-posts-content");
+                indexPostContentDiv.Encoded(false).Text(post.TransformText());
+                indexBodyContainer.Children.Add(indexPostContentDiv);
+                indexBodyContainer.Children.Add(HorizontalRule.StandardRule());
+            }
 
-                var previousLater = Tags.MainFeedPreviousAndLaterContent(6, previousDate);
+            if (loopPosts.GetType() == typeof(PhotoContent))
+            {
+                var post = new SinglePhotoDiv(loopPosts);
+                var indexPostContentDiv = new DivTag().AddClass("index-posts-content");
+                indexPostContentDiv.Encoded(false).Text(post.TransformText());
+                indexBodyContainer.Children.Add(indexPostContentDiv);
+                indexBodyContainer.Children.Add(HorizontalRule.StandardRule());
+            }
 
-                PreviousPosts = previousLater.previousContent;
+            if (loopPosts.GetType() == typeof(ImageContent))
+            {
+                var post = new SingleImageDiv(loopPosts);
+                var indexPostContentDiv = new DivTag().AddClass("index-posts-content");
+                indexPostContentDiv.Encoded(false).Text(post.TransformText());
+                indexBodyContainer.Children.Add(indexPostContentDiv);
+                indexBodyContainer.Children.Add(HorizontalRule.StandardRule());
+            }
+
+            if (loopPosts.GetType() == typeof(FileContent))
+            {
+                var post = new SingleFileDiv(loopPosts);
+                var indexPostContentDiv = new DivTag().AddClass("index-posts-content");
+                indexPostContentDiv.Encoded(false).Text(post.TransformText());
+                indexBodyContainer.Children.Add(indexPostContentDiv);
+                indexBodyContainer.Children.Add(HorizontalRule.StandardRule());
+            }
+
+            if (loopPosts.GetType() == typeof(PointContentDto))
+            {
+                var post = new SinglePointDiv(loopPosts);
+                var indexPostContentDiv = new DivTag().AddClass("index-posts-content");
+                indexPostContentDiv.Encoded(false).Text(post.TransformText());
+                indexBodyContainer.Children.Add(indexPostContentDiv);
+                indexBodyContainer.Children.Add(HorizontalRule.StandardRule());
+            }
+
+            if (loopPosts.GetType() == typeof(GeoJsonContent))
+            {
+                var post = new SingleGeoJsonDiv(loopPosts);
+                var indexPostContentDiv = new DivTag().AddClass("index-posts-content");
+                indexPostContentDiv.Encoded(false).Text(post.TransformText());
+                indexBodyContainer.Children.Add(indexPostContentDiv);
+                indexBodyContainer.Children.Add(HorizontalRule.StandardRule());
+            }
+
+            if (loopPosts.GetType() == typeof(LineContent))
+            {
+                var post = new SingleLineDiv(loopPosts);
+                var indexPostContentDiv = new DivTag().AddClass("index-posts-content");
+                indexPostContentDiv.Encoded(false).Text(post.TransformText());
+                indexBodyContainer.Children.Add(indexPostContentDiv);
+                indexBodyContainer.Children.Add(HorizontalRule.StandardRule());
             }
         }
 
-        public string DirAttribute { get; set; }
+        return indexBodyContainer;
+    }
 
-        public DateTime? GenerationVersion { get; set; }
-        public bool IncludeSpatialScripts { get; set; }
-        public List<dynamic> IndexContent { get; }
+    public async Task WriteLocalHtml()
+    {
+        await WriteRss().ConfigureAwait(false);
 
-        public string LangAttribute { get; set; }
-        public PictureSiteInformation? MainImage { get; }
-        public string PageUrl { get; }
-        public List<IContentCommon> PreviousPosts { get; }
-        public string SiteAuthors { get; }
-        public string SiteKeywords { get; }
-        public string SiteName { get; }
-        public string SiteSummary { get; }
-        public string SiteUrl { get; }
+        foreach (var loopPosts in IndexContent.Take(NumberOfContentItemsToDisplay))
+            if (BracketCodeCommon.ContainsSpatialBracketCodes(loopPosts) ||
+                loopPosts.GetType() == typeof(PointContentDto) || loopPosts.GetType() == typeof(GeoJsonContent) ||
+                loopPosts.GetType() == typeof(LineContent))
+                IncludeSpatialScripts = true;
 
-        public HtmlTag IndexPosts()
+        var parser = new HtmlParser();
+        var htmlDoc = parser.ParseDocument(TransformText());
+
+        var stringWriter = new StringWriter();
+        htmlDoc.ToHtml(stringWriter, new PrettyMarkupFormatter());
+
+        var htmlString = stringWriter.ToString();
+
+        var htmlFileInfo =
+            new FileInfo($@"{UserSettingsSingleton.CurrentSettings().LocalSiteRootFullDirectory().FullName}\index.html");
+
+        if (htmlFileInfo.Exists)
         {
-            if (!IndexContent.Any()) return HtmlTag.Empty();
-
-            var indexBodyContainer = new DivTag().AddClass("index-posts-container");
-
-            //!!Content Type List!!
-            foreach (var loopPosts in IndexContent.Take(NumberOfContentItemsToDisplay))
-            {
-                if (loopPosts.GetType() == typeof(PostContent))
-                {
-                    var post = new SinglePostDiv(loopPosts);
-                    var indexPostContentDiv = new DivTag().AddClass("index-posts-content");
-                    indexPostContentDiv.Encoded(false).Text(post.TransformText());
-                    indexBodyContainer.Children.Add(indexPostContentDiv);
-                    indexBodyContainer.Children.Add(HorizontalRule.StandardRule());
-                }
-
-                if (loopPosts.GetType() == typeof(NoteContent))
-                {
-                    var post = new SingleNoteDiv(loopPosts);
-                    var indexPostContentDiv = new DivTag().AddClass("index-posts-content");
-                    indexPostContentDiv.Encoded(false).Text(post.TransformText());
-                    indexBodyContainer.Children.Add(indexPostContentDiv);
-                    indexBodyContainer.Children.Add(HorizontalRule.StandardRule());
-                }
-
-                if (loopPosts.GetType() == typeof(PhotoContent))
-                {
-                    var post = new SinglePhotoDiv(loopPosts);
-                    var indexPostContentDiv = new DivTag().AddClass("index-posts-content");
-                    indexPostContentDiv.Encoded(false).Text(post.TransformText());
-                    indexBodyContainer.Children.Add(indexPostContentDiv);
-                    indexBodyContainer.Children.Add(HorizontalRule.StandardRule());
-                }
-
-                if (loopPosts.GetType() == typeof(ImageContent))
-                {
-                    var post = new SingleImageDiv(loopPosts);
-                    var indexPostContentDiv = new DivTag().AddClass("index-posts-content");
-                    indexPostContentDiv.Encoded(false).Text(post.TransformText());
-                    indexBodyContainer.Children.Add(indexPostContentDiv);
-                    indexBodyContainer.Children.Add(HorizontalRule.StandardRule());
-                }
-
-                if (loopPosts.GetType() == typeof(FileContent))
-                {
-                    var post = new SingleFileDiv(loopPosts);
-                    var indexPostContentDiv = new DivTag().AddClass("index-posts-content");
-                    indexPostContentDiv.Encoded(false).Text(post.TransformText());
-                    indexBodyContainer.Children.Add(indexPostContentDiv);
-                    indexBodyContainer.Children.Add(HorizontalRule.StandardRule());
-                }
-
-                if (loopPosts.GetType() == typeof(PointContentDto))
-                {
-                    var post = new SinglePointDiv(loopPosts);
-                    var indexPostContentDiv = new DivTag().AddClass("index-posts-content");
-                    indexPostContentDiv.Encoded(false).Text(post.TransformText());
-                    indexBodyContainer.Children.Add(indexPostContentDiv);
-                    indexBodyContainer.Children.Add(HorizontalRule.StandardRule());
-                }
-
-                if (loopPosts.GetType() == typeof(GeoJsonContent))
-                {
-                    var post = new SingleGeoJsonDiv(loopPosts);
-                    var indexPostContentDiv = new DivTag().AddClass("index-posts-content");
-                    indexPostContentDiv.Encoded(false).Text(post.TransformText());
-                    indexBodyContainer.Children.Add(indexPostContentDiv);
-                    indexBodyContainer.Children.Add(HorizontalRule.StandardRule());
-                }
-
-                if (loopPosts.GetType() == typeof(LineContent))
-                {
-                    var post = new SingleLineDiv(loopPosts);
-                    var indexPostContentDiv = new DivTag().AddClass("index-posts-content");
-                    indexPostContentDiv.Encoded(false).Text(post.TransformText());
-                    indexBodyContainer.Children.Add(indexPostContentDiv);
-                    indexBodyContainer.Children.Add(HorizontalRule.StandardRule());
-                }
-            }
-
-            return indexBodyContainer;
+            htmlFileInfo.Delete();
+            htmlFileInfo.Refresh();
         }
 
-        public async Task WriteLocalHtml()
+        await FileManagement.WriteAllTextToFileAndLog(htmlFileInfo.FullName, htmlString).ConfigureAwait(false);
+    }
+
+
+    public async Task WriteRss()
+    {
+        var items = new List<string>();
+
+        //!!Content Type List!!
+        foreach (var loopPosts in IndexContent)
         {
-            await WriteRss().ConfigureAwait(false);
-
-            foreach (var loopPosts in IndexContent.Take(NumberOfContentItemsToDisplay))
-                if (BracketCodeCommon.ContainsSpatialBracketCodes(loopPosts) ||
-                    loopPosts.GetType() == typeof(PointContentDto) || loopPosts.GetType() == typeof(GeoJsonContent) ||
-                    loopPosts.GetType() == typeof(LineContent))
-                    IncludeSpatialScripts = true;
-
-            var parser = new HtmlParser();
-            var htmlDoc = parser.ParseDocument(TransformText());
-
-            var stringWriter = new StringWriter();
-            htmlDoc.ToHtml(stringWriter, new PrettyMarkupFormatter());
-
-            var htmlString = stringWriter.ToString();
-
-            var htmlFileInfo =
-                new FileInfo($@"{UserSettingsSingleton.CurrentSettings().LocalSiteRootFullDirectory().FullName}\index.html");
-
-            if (htmlFileInfo.Exists)
+            if (loopPosts.GetType() == typeof(PostContent))
             {
-                htmlFileInfo.Delete();
-                htmlFileInfo.Refresh();
+                var post = new SinglePostDiv(loopPosts);
+
+                string? content = null;
+
+                if (post.DbEntry.MainPicture != null)
+                {
+                    var imageInfo = PictureAssetProcessing.ProcessPictureDirectory(post.DbEntry.MainPicture.Value);
+
+                    if (imageInfo != null)
+                        content =
+                            $"{Tags.PictureImgTagDisplayImageOnly(imageInfo)}<p>{HttpUtility.HtmlEncode(post.DbEntry.Summary)}</p>" +
+                            $"<p>Read more at <a href=\"https:{post.PageUrl}\">{UserSettingsSingleton.CurrentSettings().SiteName}</a></p>";
+                }
+
+                if (string.IsNullOrWhiteSpace(content))
+                    content = $"<p>{HttpUtility.HtmlEncode(post.DbEntry.Summary)}</p>" +
+                              $"<p>Read more at <a href=\"https:{post.PageUrl}\">{UserSettingsSingleton.CurrentSettings().SiteName}</a></p>";
+
+                items.Add(RssBuilder.RssItemString(post.DbEntry.Title, $"https:{post.PageUrl}", content,
+                    post.DbEntry.CreatedOn, post.DbEntry.ContentId.ToString()));
             }
 
-            await FileManagement.WriteAllTextToFileAndLog(htmlFileInfo.FullName, htmlString).ConfigureAwait(false);
-        }
-
-
-        public async Task WriteRss()
-        {
-            var items = new List<string>();
-
-            //!!Content Type List!!
-            foreach (var loopPosts in IndexContent)
+            if (loopPosts.GetType() == typeof(NoteContent))
             {
-                if (loopPosts.GetType() == typeof(PostContent))
+                var post = new SingleNoteDiv(loopPosts);
+
+                var content = $"<p>{HttpUtility.HtmlEncode(post.DbEntry.Summary)}</p>" +
+                              $"<p>Read more at <a href=\"https:{post.PageUrl}\">{UserSettingsSingleton.CurrentSettings().SiteName}</a></p>";
+
+                items.Add(RssBuilder.RssItemString(post.DbEntry.Title, $"https:{post.PageUrl}", content,
+                    post.DbEntry.CreatedOn, post.DbEntry.ContentId.ToString()));
+            }
+
+            if (loopPosts.GetType() == typeof(PhotoContent))
+            {
+                var post = new SinglePhotoDiv(loopPosts);
+
+                string? content = null;
+
+                if (post.DbEntry.MainPicture != null)
                 {
-                    var post = new SinglePostDiv(loopPosts);
+                    var imageInfo = PictureAssetProcessing.ProcessPictureDirectory(post.DbEntry.MainPicture.Value);
 
-                    string? content = null;
-
-                    if (post.DbEntry.MainPicture != null)
-                    {
-                        var imageInfo = PictureAssetProcessing.ProcessPictureDirectory(post.DbEntry.MainPicture.Value);
-
-                        if (imageInfo != null)
-                            content =
-                                $"{Tags.PictureImgTagDisplayImageOnly(imageInfo)}<p>{HttpUtility.HtmlEncode(post.DbEntry.Summary)}</p>" +
-                                $"<p>Read more at <a href=\"https:{post.PageUrl}\">{UserSettingsSingleton.CurrentSettings().SiteName}</a></p>";
-                    }
-
-                    if (string.IsNullOrWhiteSpace(content))
-                        content = $"<p>{HttpUtility.HtmlEncode(post.DbEntry.Summary)}</p>" +
-                                  $"<p>Read more at <a href=\"https:{post.PageUrl}\">{UserSettingsSingleton.CurrentSettings().SiteName}</a></p>";
-
-                    items.Add(RssBuilder.RssItemString(post.DbEntry.Title, $"https:{post.PageUrl}", content,
-                        post.DbEntry.CreatedOn, post.DbEntry.ContentId.ToString()));
-                }
-
-                if (loopPosts.GetType() == typeof(NoteContent))
-                {
-                    var post = new SingleNoteDiv(loopPosts);
-
-                    var content = $"<p>{HttpUtility.HtmlEncode(post.DbEntry.Summary)}</p>" +
-                                  $"<p>Read more at <a href=\"https:{post.PageUrl}\">{UserSettingsSingleton.CurrentSettings().SiteName}</a></p>";
-
-                    items.Add(RssBuilder.RssItemString(post.DbEntry.Title, $"https:{post.PageUrl}", content,
-                        post.DbEntry.CreatedOn, post.DbEntry.ContentId.ToString()));
-                }
-
-                if (loopPosts.GetType() == typeof(PhotoContent))
-                {
-                    var post = new SinglePhotoDiv(loopPosts);
-
-                    string? content = null;
-
-                    if (post.DbEntry.MainPicture != null)
-                    {
-                        var imageInfo = PictureAssetProcessing.ProcessPictureDirectory(post.DbEntry.MainPicture.Value);
-
-                        if (imageInfo != null)
-                            content =
-                                $"{Tags.PictureImgTagDisplayImageOnly(imageInfo)}<p>{HttpUtility.HtmlEncode(post.DbEntry.Summary)}</p>" +
-                                $"<p>Read more at <a href=\"https:{post.PageUrl}\">{UserSettingsSingleton.CurrentSettings().SiteName}</a></p>";
-
-                        if (string.IsNullOrWhiteSpace(content))
-                            content = $"<p>{HttpUtility.HtmlEncode(post.DbEntry.Summary)}</p>" +
-                                      $"<p>Read more at <a href=\"https:{post.PageUrl}\">{UserSettingsSingleton.CurrentSettings().SiteName}</a></p>";
-
-                        items.Add(RssBuilder.RssItemString(post.DbEntry.Title, $"https:{post.PageUrl}", content,
-                            post.DbEntry.CreatedOn, post.DbEntry.ContentId.ToString()));
-                    }
-                }
-
-                if (loopPosts.GetType() == typeof(ImageContent))
-                {
-                    var post = new SingleImageDiv(loopPosts);
-
-                    string? content = null;
-
-                    if (post.DbEntry.MainPicture != null)
-                    {
-                        var imageInfo = PictureAssetProcessing.ProcessPictureDirectory(post.DbEntry.MainPicture.Value);
-
-                        if (imageInfo != null)
-                            content =
-                                $"{Tags.PictureImgTagDisplayImageOnly(imageInfo)}<p>{HttpUtility.HtmlEncode(post.DbEntry.Summary)}</p>" +
-                                $"<p>Read more at <a href=\"https:{post.PageUrl}\">{UserSettingsSingleton.CurrentSettings().SiteName}</a></p>";
-                    }
-
-                    if (string.IsNullOrWhiteSpace(content))
-                        content = $"<p>{HttpUtility.HtmlEncode(post.DbEntry.Summary)}</p>" +
-                                  $"<p>Read more at <a href=\"https:{post.PageUrl}\">{UserSettingsSingleton.CurrentSettings().SiteName}</a></p>";
-
-                    items.Add(RssBuilder.RssItemString(post.DbEntry.Title, $"https:{post.PageUrl}", content,
-                        post.DbEntry.CreatedOn, post.DbEntry.ContentId.ToString()));
-                }
-
-                if (loopPosts.GetType() == typeof(FileContent))
-                {
-                    var post = new SingleFileDiv(loopPosts);
-
-                    string? content = null;
-
-                    if (post.DbEntry.MainPicture != null)
-                    {
-                        var imageInfo = PictureAssetProcessing.ProcessPictureDirectory(post.DbEntry.MainPicture.Value);
-
-                        if (imageInfo != null)
-                            content =
-                                $"{Tags.PictureImgTagDisplayImageOnly(imageInfo)}<p>{HttpUtility.HtmlEncode(post.DbEntry.Summary)}</p>" +
-                                $"<p>Read more at <a href=\"https:{post.PageUrl}\">{UserSettingsSingleton.CurrentSettings().SiteName}</a></p>";
-                    }
-
-                    if (string.IsNullOrWhiteSpace(content))
-                        content = $"<p>{HttpUtility.HtmlEncode(post.DbEntry.Summary)}</p>" +
-                                  $"<p>Read more at <a href=\"https:{post.PageUrl}\">{UserSettingsSingleton.CurrentSettings().SiteName}</a></p>";
-
-                    items.Add(RssBuilder.RssItemString(post.DbEntry.Title, $"https:{post.PageUrl}", content,
-                        post.DbEntry.CreatedOn, post.DbEntry.ContentId.ToString()));
-                }
-
-                if (loopPosts.GetType() == typeof(PointContentDto))
-                {
-                    var post = new SinglePointDiv(loopPosts);
-
-                    string? content = null;
-
-                    if (post.DbEntry.MainPicture != null)
-                    {
-                        var imageInfo = PictureAssetProcessing.ProcessPictureDirectory(post.DbEntry.MainPicture.Value);
-
-                        if (imageInfo != null)
-                            content =
-                                $"{Tags.PictureImgTagDisplayImageOnly(imageInfo)}<p>{HttpUtility.HtmlEncode(post.DbEntry.Summary)}</p>" +
-                                $"<p>Read more at <a href=\"https:{post.PageUrl}\">{UserSettingsSingleton.CurrentSettings().SiteName}</a></p>";
-                    }
+                    if (imageInfo != null)
+                        content =
+                            $"{Tags.PictureImgTagDisplayImageOnly(imageInfo)}<p>{HttpUtility.HtmlEncode(post.DbEntry.Summary)}</p>" +
+                            $"<p>Read more at <a href=\"https:{post.PageUrl}\">{UserSettingsSingleton.CurrentSettings().SiteName}</a></p>";
 
                     if (string.IsNullOrWhiteSpace(content))
                         content = $"<p>{HttpUtility.HtmlEncode(post.DbEntry.Summary)}</p>" +
@@ -327,17 +254,89 @@ namespace PointlessWaymarks.CmsData.ContentHtml.IndexHtml
                 }
             }
 
-            var localIndexFile = UserSettingsSingleton.CurrentSettings().LocalSiteRssIndexFeedListFile();
-
-            if (localIndexFile.Exists)
+            if (loopPosts.GetType() == typeof(ImageContent))
             {
-                localIndexFile.Delete();
-                localIndexFile.Refresh();
+                var post = new SingleImageDiv(loopPosts);
+
+                string? content = null;
+
+                if (post.DbEntry.MainPicture != null)
+                {
+                    var imageInfo = PictureAssetProcessing.ProcessPictureDirectory(post.DbEntry.MainPicture.Value);
+
+                    if (imageInfo != null)
+                        content =
+                            $"{Tags.PictureImgTagDisplayImageOnly(imageInfo)}<p>{HttpUtility.HtmlEncode(post.DbEntry.Summary)}</p>" +
+                            $"<p>Read more at <a href=\"https:{post.PageUrl}\">{UserSettingsSingleton.CurrentSettings().SiteName}</a></p>";
+                }
+
+                if (string.IsNullOrWhiteSpace(content))
+                    content = $"<p>{HttpUtility.HtmlEncode(post.DbEntry.Summary)}</p>" +
+                              $"<p>Read more at <a href=\"https:{post.PageUrl}\">{UserSettingsSingleton.CurrentSettings().SiteName}</a></p>";
+
+                items.Add(RssBuilder.RssItemString(post.DbEntry.Title, $"https:{post.PageUrl}", content,
+                    post.DbEntry.CreatedOn, post.DbEntry.ContentId.ToString()));
             }
 
-            await FileManagement.WriteAllTextToFileAndLog(localIndexFile.FullName,
-                RssBuilder.RssFileString($"{UserSettingsSingleton.CurrentSettings().SiteName}",
-                    string.Join(Environment.NewLine, items)), Encoding.UTF8).ConfigureAwait(false);
+            if (loopPosts.GetType() == typeof(FileContent))
+            {
+                var post = new SingleFileDiv(loopPosts);
+
+                string? content = null;
+
+                if (post.DbEntry.MainPicture != null)
+                {
+                    var imageInfo = PictureAssetProcessing.ProcessPictureDirectory(post.DbEntry.MainPicture.Value);
+
+                    if (imageInfo != null)
+                        content =
+                            $"{Tags.PictureImgTagDisplayImageOnly(imageInfo)}<p>{HttpUtility.HtmlEncode(post.DbEntry.Summary)}</p>" +
+                            $"<p>Read more at <a href=\"https:{post.PageUrl}\">{UserSettingsSingleton.CurrentSettings().SiteName}</a></p>";
+                }
+
+                if (string.IsNullOrWhiteSpace(content))
+                    content = $"<p>{HttpUtility.HtmlEncode(post.DbEntry.Summary)}</p>" +
+                              $"<p>Read more at <a href=\"https:{post.PageUrl}\">{UserSettingsSingleton.CurrentSettings().SiteName}</a></p>";
+
+                items.Add(RssBuilder.RssItemString(post.DbEntry.Title, $"https:{post.PageUrl}", content,
+                    post.DbEntry.CreatedOn, post.DbEntry.ContentId.ToString()));
+            }
+
+            if (loopPosts.GetType() == typeof(PointContentDto))
+            {
+                var post = new SinglePointDiv(loopPosts);
+
+                string? content = null;
+
+                if (post.DbEntry.MainPicture != null)
+                {
+                    var imageInfo = PictureAssetProcessing.ProcessPictureDirectory(post.DbEntry.MainPicture.Value);
+
+                    if (imageInfo != null)
+                        content =
+                            $"{Tags.PictureImgTagDisplayImageOnly(imageInfo)}<p>{HttpUtility.HtmlEncode(post.DbEntry.Summary)}</p>" +
+                            $"<p>Read more at <a href=\"https:{post.PageUrl}\">{UserSettingsSingleton.CurrentSettings().SiteName}</a></p>";
+                }
+
+                if (string.IsNullOrWhiteSpace(content))
+                    content = $"<p>{HttpUtility.HtmlEncode(post.DbEntry.Summary)}</p>" +
+                              $"<p>Read more at <a href=\"https:{post.PageUrl}\">{UserSettingsSingleton.CurrentSettings().SiteName}</a></p>";
+
+                items.Add(RssBuilder.RssItemString(post.DbEntry.Title, $"https:{post.PageUrl}", content,
+                    post.DbEntry.CreatedOn, post.DbEntry.ContentId.ToString()));
+            }
         }
+
+        var localIndexFile = UserSettingsSingleton.CurrentSettings().LocalSiteRssIndexFeedListFile();
+
+        if (localIndexFile.Exists)
+        {
+            localIndexFile.Delete();
+            localIndexFile.Refresh();
+        }
+
+        await FileManagement.WriteAllTextToFileAndLog(localIndexFile.FullName,
+            RssBuilder.RssFileString($"{UserSettingsSingleton.CurrentSettings().SiteName}",
+                string.Join(Environment.NewLine, items)), Encoding.UTF8).ConfigureAwait(false);
     }
 }
