@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using PointlessWaymarks.CmsData.ContentHtml.MapComponentData;
+﻿using PointlessWaymarks.CmsData.ContentHtml.MapComponentData;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsData.Json;

@@ -1,9 +1,4 @@
-﻿using System;
-using System.IO;
-using System.IO.Enumeration;
-using System.Text.Json;
-using System.Text.Json.Serialization;
-using PointlessWaymarks.CmsData.Content;
+﻿using PointlessWaymarks.CmsData.Content;
 using Serilog;
 using Serilog.Formatting.Compact;
 

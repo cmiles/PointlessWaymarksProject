@@ -4,7 +4,7 @@
     <TargetFramework>net6.0-windows10.0.17763.0</TargetFramework>
     <Platforms>x64</Platforms>
     <IsPackable>false</IsPackable>
-    <LangVersion>9.0</LangVersion>
+    <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
   <ItemGroup>

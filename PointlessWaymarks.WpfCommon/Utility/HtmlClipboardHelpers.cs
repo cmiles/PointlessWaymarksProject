@@ -1,5 +1,4 @@
-﻿using System;
-using System.Text;
+﻿using System.Text;
 using System.Windows;
 
 namespace PointlessWaymarks.WpfCommon.Utility

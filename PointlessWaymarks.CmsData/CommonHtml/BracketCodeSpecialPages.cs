@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using HtmlTags;
+﻿using HtmlTags;
 
 namespace PointlessWaymarks.CmsData.CommonHtml
 {

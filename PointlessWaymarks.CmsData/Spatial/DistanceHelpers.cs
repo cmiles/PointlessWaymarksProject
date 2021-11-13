@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace PointlessWaymarks.CmsData.Spatial
+﻿namespace PointlessWaymarks.CmsData.Spatial
 {
     public static class DistanceHelpers
     {

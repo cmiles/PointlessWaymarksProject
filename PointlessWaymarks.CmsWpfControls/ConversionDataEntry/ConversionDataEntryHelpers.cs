@@ -1,5 +1,4 @@
-﻿using System;
-using PointlessWaymarks.CmsData;
+﻿using PointlessWaymarks.CmsData;
 
 namespace PointlessWaymarks.CmsWpfControls.ConversionDataEntry
 {

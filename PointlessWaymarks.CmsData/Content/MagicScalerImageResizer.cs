@@ -1,7 +1,4 @@
-﻿using System;
-using System.IO;
-using System.Threading.Tasks;
-using PhotoSauce.MagicScaler;
+﻿using PhotoSauce.MagicScaler;
 using PhotoSauce.MagicScaler.Transforms;
 
 namespace PointlessWaymarks.CmsData.Content

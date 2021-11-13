@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-
-namespace PointlessWaymarks.CmsData.CommonHtml
+﻿namespace PointlessWaymarks.CmsData.CommonHtml
 {
     public class PictureAsset
     {

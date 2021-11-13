@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using HtmlTableHelper;
@@ -108,14 +104,14 @@ namespace PointlessWaymarks.CmsContentEditor
 
             GenerateChangedHtmlAndShowPreviewCommand = StatusContext.RunBlockingTaskCommand(async () =>
             {
-                    await ThreadSwitcher.ResumeBackgroundAsync();
+                await ThreadSwitcher.ResumeBackgroundAsync();
 
-                    await HtmlGenerationGroups.GenerateChangedToHtml(StatusContext.ProgressTracker());
+                await HtmlGenerationGroups.GenerateChangedToHtml(StatusContext.ProgressTracker());
 
-                    await ThreadSwitcher.ResumeForegroundAsync();
+                await ThreadSwitcher.ResumeForegroundAsync();
 
-                    var sitePreviewWindow = new SiteOnDiskPreviewWindow();
-                    sitePreviewWindow.Show();
+                var sitePreviewWindow = new SiteOnDiskPreviewWindow();
+                sitePreviewWindow.Show();
             });
 
             GenerateChangedHtmlAndStartUploadCommand = StatusContext.RunBlockingTaskCommand(async () =>
@@ -200,8 +196,6 @@ namespace PointlessWaymarks.CmsContentEditor
 
             StatusContext.RunFireAndForgetNonBlockingTask(CleanupTemporaryFiles);
         }
-
-        public WindowIconStatus WindowStatus { get; set; }
 
         public Command CheckAllContentForInvalidBracketCodeContentIdsCommand { get; set; }
 
@@ -510,6 +504,8 @@ namespace PointlessWaymarks.CmsContentEditor
                 OnPropertyChanged();
             }
         }
+
+        public WindowIconStatus WindowStatus { get; set; }
 
         public Command WriteStyleCssFileCommand { get; set; }
 

@@ -1,6 +1,4 @@
-﻿using System;
-using System.IO;
-using HtmlTags;
+﻿using HtmlTags;
 using PointlessWaymarks.CmsData.Database.Models;
 
 // ReSharper disable MustUseReturnValue

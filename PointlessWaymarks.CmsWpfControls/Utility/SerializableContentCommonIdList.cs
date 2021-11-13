@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace PointlessWaymarks.CmsWpfControls.Utility
+﻿namespace PointlessWaymarks.CmsWpfControls.Utility
 {
     [Serializable]
     public class SerializableContentCommonIdList

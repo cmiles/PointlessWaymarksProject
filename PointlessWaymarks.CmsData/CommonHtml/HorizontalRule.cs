@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using HtmlTags;
+﻿using HtmlTags;
 
 namespace PointlessWaymarks.CmsData.CommonHtml
 {

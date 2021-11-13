@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace PointlessWaymarks.PressSharper
+﻿namespace PointlessWaymarks.PressSharper
 {
     public class Page
     {

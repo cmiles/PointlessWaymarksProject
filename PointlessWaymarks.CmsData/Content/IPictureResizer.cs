@@ -1,8 +1,4 @@
-﻿using System;
-using System.IO;
-using System.Threading.Tasks;
-
-namespace PointlessWaymarks.CmsData.Content
+﻿namespace PointlessWaymarks.CmsData.Content
 {
     public interface IPictureResizer
     {

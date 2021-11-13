@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using Windows.Security.Credentials;
+﻿using Windows.Security.Credentials;
 using PointlessWaymarks.CmsData;
 
 namespace PointlessWaymarks.CmsWpfControls.Utility.Aws

@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace PointlessWaymarks.CmsData.Database.Models
+﻿namespace PointlessWaymarks.CmsData.Database.Models
 {
     public interface ICreatedAndLastUpdateOnAndBy
     {

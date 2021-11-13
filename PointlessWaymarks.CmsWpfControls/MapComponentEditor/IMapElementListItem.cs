@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace PointlessWaymarks.CmsWpfControls.MapComponentEditor
+﻿namespace PointlessWaymarks.CmsWpfControls.MapComponentEditor
 {
     public interface IMapElementListItem
     {

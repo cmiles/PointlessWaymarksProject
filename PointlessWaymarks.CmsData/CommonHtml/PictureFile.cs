@@ -1,6 +1,4 @@
-﻿using System.IO;
-
-namespace PointlessWaymarks.CmsData.CommonHtml
+﻿namespace PointlessWaymarks.CmsData.CommonHtml
 {
     public class PictureFile
     {

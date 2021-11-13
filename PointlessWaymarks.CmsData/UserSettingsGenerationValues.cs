@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace PointlessWaymarks.CmsData
+﻿namespace PointlessWaymarks.CmsData
 {
     public class UserSettingsGenerationValues
     {

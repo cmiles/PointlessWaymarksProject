@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Globalization;
+﻿using System.Data;
 using FluentMigrator;
 
 namespace PointlessWaymarks.CmsData.Database.Migrations

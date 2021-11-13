@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace PointlessWaymarks.WpfCommon.Commands
+﻿namespace PointlessWaymarks.WpfCommon.Commands
 {
     /// <summary>
     ///     Represents errors that occur during IAsyncCommand execution.

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-
-namespace PointlessWaymarks.PressSharper
+﻿namespace PointlessWaymarks.PressSharper
 {
     public class Post
     {

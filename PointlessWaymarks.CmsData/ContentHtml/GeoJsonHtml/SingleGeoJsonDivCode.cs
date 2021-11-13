@@ -1,5 +1,4 @@
-﻿using System;
-using PointlessWaymarks.CmsData.Database.Models;
+﻿using PointlessWaymarks.CmsData.Database.Models;
 
 namespace PointlessWaymarks.CmsData.ContentHtml.GeoJsonHtml
 {

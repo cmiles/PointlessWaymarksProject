@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.IO;
-using System.Threading.Tasks;
+﻿using System.IO;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using PhotoSauce.MagicScaler;

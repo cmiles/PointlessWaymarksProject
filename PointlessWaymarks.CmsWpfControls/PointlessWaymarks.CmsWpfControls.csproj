@@ -5,7 +5,7 @@
     <Platforms>x64</Platforms>
     <UseWPF>true</UseWPF>
     <ApplicationIcon>PointlessWaymarksCmsIcons\favicon.ico</ApplicationIcon>
-    <LangVersion>9.0</LangVersion>
+    <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
   

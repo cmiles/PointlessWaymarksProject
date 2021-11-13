@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace PointlessWaymarks.CmsData.Database.Models
+﻿namespace PointlessWaymarks.CmsData.Database.Models
 {
     public class PointContentDto : IUpdateNotes, IContentCommon
     {

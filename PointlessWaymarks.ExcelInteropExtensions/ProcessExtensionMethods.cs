@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
+﻿using System.Diagnostics;
 using XL = Microsoft.Office.Interop.Excel;
 
 namespace PointlessWaymarks.ExcelInteropExtensions

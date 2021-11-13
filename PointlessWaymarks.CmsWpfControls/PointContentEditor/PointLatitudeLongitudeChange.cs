@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace PointlessWaymarks.CmsWpfControls.PointContentEditor
+﻿namespace PointlessWaymarks.CmsWpfControls.PointContentEditor
 {
     public class PointLatitudeLongitudeChange : EventArgs
     {

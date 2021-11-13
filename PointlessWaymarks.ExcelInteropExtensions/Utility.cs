@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace PointlessWaymarks.ExcelInteropExtensions
+﻿namespace PointlessWaymarks.ExcelInteropExtensions
 {
     public static class ExcelUtilities
     {

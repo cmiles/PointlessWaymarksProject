@@ -1,8 +1,4 @@
-﻿using System;
-using System.Threading;
-using System.Threading.Tasks;
-
-namespace PointlessWaymarks.WpfCommon.Utility
+﻿namespace PointlessWaymarks.WpfCommon.Utility
 {
     public static class TaskHelpers
     {

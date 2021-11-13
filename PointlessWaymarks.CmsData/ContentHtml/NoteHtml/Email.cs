@@ -1,6 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
-using PointlessWaymarks.CmsData.CommonHtml;
+﻿using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.Database.Models;
 
 namespace PointlessWaymarks.CmsData.ContentHtml.NoteHtml

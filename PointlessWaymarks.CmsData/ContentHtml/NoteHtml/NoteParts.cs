@@ -1,5 +1,4 @@
-﻿using System;
-using HtmlTags;
+﻿using HtmlTags;
 using PointlessWaymarks.CmsData.Database.Models;
 
 namespace PointlessWaymarks.CmsData.ContentHtml.NoteHtml

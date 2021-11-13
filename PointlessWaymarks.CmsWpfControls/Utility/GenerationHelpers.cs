@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using PointlessWaymarks.CmsData.ContentHtml;
+﻿using PointlessWaymarks.CmsData.ContentHtml;
 using PointlessWaymarks.CmsWpfControls.Diagnostics;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 

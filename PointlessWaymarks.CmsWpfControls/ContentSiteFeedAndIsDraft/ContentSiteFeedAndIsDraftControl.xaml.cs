@@ -1,6 +1,4 @@
-﻿using System.Windows.Controls;
-
-namespace PointlessWaymarks.CmsWpfControls.ContentSiteFeedAndIsDraft
+﻿namespace PointlessWaymarks.CmsWpfControls.ContentSiteFeedAndIsDraft
 {
     /// <summary>
     /// Interaction logic for ContentInMainSiteFeedControl.xaml

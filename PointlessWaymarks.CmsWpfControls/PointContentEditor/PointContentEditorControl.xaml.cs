@@ -1,5 +1,4 @@
-﻿using System;
-using System.Windows;
+﻿using System.Windows;
 using Microsoft.Web.WebView2.Core;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsWpfControls.WpfHtml;

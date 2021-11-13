@@ -1,8 +1,5 @@
-﻿using System;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Security;
-using System.Threading;
-using System.Threading.Tasks;
 using Windows.Foundation;
 using Windows.Media.Playback;
 using Windows.Media.SpeechSynthesis;

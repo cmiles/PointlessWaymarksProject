@@ -1,5 +1,4 @@
-﻿using System;
-using MetadataExtractor;
+﻿using MetadataExtractor;
 
 namespace PointlessWaymarks.CmsData.Content
 {

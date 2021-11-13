@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Linq;
-using System.Net.Http;
+﻿using System.Data;
 using System.Text.Json;
-using System.Threading.Tasks;
 using NetTopologySuite.Geometries;
 using Serilog;
 
