@@ -3,7 +3,7 @@
 public static class DateTimeHelpers
 {
     /// <summary>
-    ///     Uses reflection to truncate all DateTime and DateTime? properties to the second
+    ///     Uses reflection to truncate all DateTime and DateTime? properties in the input to the second
     /// </summary>
     /// <typeparam name="T"></typeparam>
     /// <param name="toProcess"></param>
@@ -36,9 +36,15 @@ public static class DateTimeHelpers
         return toProcess;
     }
 
-    public static DateTime TrimDateTimeToSeconds(this DateTime currentDateTime)
+
+    /// <summary>
+    /// Trims a DateTime to seconds
+    /// </summary>
+    /// <param name="toTrim"></param>
+    /// <returns></returns>
+    public static DateTime TrimDateTimeToSeconds(this DateTime toTrim)
     {
-        return new(currentDateTime.Year, currentDateTime.Month, currentDateTime.Day, currentDateTime.Hour,
-            currentDateTime.Minute, currentDateTime.Second, currentDateTime.Kind);
+        return new(toTrim.Year, toTrim.Month, toTrim.Day, toTrim.Hour,
+            toTrim.Minute, toTrim.Second, toTrim.Kind);
     }
 }

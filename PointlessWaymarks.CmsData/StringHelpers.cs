@@ -50,6 +50,12 @@ public static class StringHelpers
         return string.IsNullOrWhiteSpace(toEncode) ? string.Empty : HttpUtility.HtmlEncode(toEncode);
     }
 
+    /// <summary>
+    ///     Given a List of String "Joe", "Jorge" and "Jeff" joins to "Joe, Jorge and Jeff" - performs as expected with single
+    ///     items lists remaining single items.
+    /// </summary>
+    /// <param name="toJoin"></param>
+    /// <returns></returns>
     public static string JoinListOfNullableStringsToListWithAnd(this List<string?> toJoin)
     {
         //https://stackoverflow.com/questions/17560201/join-liststring-together-with-commas-plus-and-for-last-element
@@ -57,11 +63,7 @@ public static class StringHelpers
         var cleanedList = toJoin.Where(x => !string.IsNullOrWhiteSpace(x)).Select(x => x.TrimNullToEmpty())
             .ToList();
 
-        if (!cleanedList.Any()) return string.Empty;
-
-        if (cleanedList.Count == 1) return cleanedList.First();
-
-        return string.Join(", ", toJoin.Take(toJoin.Count - 1)) + " and " + toJoin.Last();
+        return JoinListOfStringsToListWithAnd(cleanedList);
     }
 
     /// <summary>
@@ -94,6 +96,11 @@ public static class StringHelpers
         return string.IsNullOrWhiteSpace(toTrim) ? string.Empty : toTrim.Trim();
     }
 
+    /// <summary>
+    /// Removes all \n and \r to remove all common newline types.
+    /// </summary>
+    /// <param name="toProcess"></param>
+    /// <returns></returns>
     public static string RemoveNewLines(this string toProcess)
     {
         return toProcess.Replace("\n", "").Replace("\r", "");
