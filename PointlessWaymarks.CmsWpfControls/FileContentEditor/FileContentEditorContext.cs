@@ -1,9 +1,8 @@
 ﻿using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
-using System.Runtime.CompilerServices;
 using System.Windows;
-using JetBrains.Annotations;
+using Microsoft.Toolkit.Mvvm.ComponentModel;
 using Ookii.Dialogs.Wpf;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.CommonHtml;
@@ -26,46 +25,51 @@ using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 
 namespace PointlessWaymarks.CmsWpfControls.FileContentEditor;
 
-public class FileContentEditorContext : INotifyPropertyChanged, IHasChanges, IHasValidationIssues,
-    ICheckForChangesAndValidation
+[ObservableObject]
+public partial class FileContentEditorContext : IHasChanges, IHasValidationIssues, ICheckForChangesAndValidation
 {
-    private Command _autoRenameSelectedFileCommand;
-    private BodyContentEditorContext _bodyContent;
-    private Command _chooseFileCommand;
-    private ContentIdViewerControlContext _contentId;
-    private CreatedAndUpdatedByAndOnDisplayContext _createdUpdatedDisplay;
-    private FileContent _dbEntry;
-    private BoolDataEntryContext _embedFile;
-    private Command _extractNewLinksCommand;
-    private bool _hasChanges;
-    private bool _hasValidationIssues;
-    private HelpDisplayContext _helpContext;
-    private FileInfo _initialFile;
-    private FileInfo _loadedFile;
-    private ContentSiteFeedAndIsDraftContext _mainSiteFeed;
-    private Command _openSelectedFileDirectoryCommand;
-    private string _pdfToImagePageToExtract = "1";
-    private BoolDataEntryContext _publicDownloadLink;
-    private Command _renameSelectedFileCommand;
-    private Command _saveAndCloseCommand;
-    private Command _saveAndExtractImageFromPdfCommand;
-    private Command _saveCommand;
-    private FileInfo _selectedFile;
-    private bool _selectedFileHasPathOrNameChanges;
-    private bool _selectedFileHasValidationIssues;
-    private bool _selectedFileNameHasInvalidCharacters;
-    private string _selectedFileValidationMessage;
-    private StatusControlContext _statusContext;
-    private TagsEditorContext _tagEdit;
-    private TitleSummarySlugEditorContext _titleSummarySlugFolder;
-    private UpdateNotesEditorContext _updateNotes;
-    private Command _viewOnSiteCommand;
+    [ObservableProperty] private Command _autoRenameSelectedFileCommand;
+    [ObservableProperty] private BodyContentEditorContext _bodyContent;
+    [ObservableProperty] private Command _chooseFileCommand;
+    [ObservableProperty] private ContentIdViewerControlContext _contentId;
+    [ObservableProperty] private CreatedAndUpdatedByAndOnDisplayContext _createdUpdatedDisplay;
+    [ObservableProperty] private FileContent _dbEntry;
+    [ObservableProperty] private Command _downloadLinkToClipboardCommand;
+    [ObservableProperty] private BoolDataEntryContext _embedFile;
+    [ObservableProperty] private Command _extractNewLinksCommand;
+    [ObservableProperty] private bool _hasChanges;
+    [ObservableProperty] private bool _hasValidationIssues;
+    [ObservableProperty] private HelpDisplayContext _helpContext;
+    [ObservableProperty] private FileInfo _initialFile;
+    [ObservableProperty] private Command _linkToClipboardCommand;
+    [ObservableProperty] private FileInfo _loadedFile;
+    [ObservableProperty] private ContentSiteFeedAndIsDraftContext _mainSiteFeed;
+    [ObservableProperty] private Command _openSelectedFileCommand;
+    [ObservableProperty] private Command _openSelectedFileDirectoryCommand;
+    [ObservableProperty] private string _pdfToImagePageToExtract = "1";
+    [ObservableProperty] private BoolDataEntryContext _publicDownloadLink;
+    [ObservableProperty] private Command _renameSelectedFileCommand;
+    [ObservableProperty] private Command _saveAndCloseCommand;
+    [ObservableProperty] private Command _saveAndExtractImageFromPdfCommand;
+    [ObservableProperty] private Command _saveCommand;
+    [ObservableProperty] private FileInfo _selectedFile;
+    [ObservableProperty] private bool _selectedFileHasPathOrNameChanges;
+    [ObservableProperty] private bool _selectedFileHasValidationIssues;
+    [ObservableProperty] private bool _selectedFileNameHasInvalidCharacters;
+    [ObservableProperty] private string _selectedFileValidationMessage;
+    [ObservableProperty] private StatusControlContext _statusContext;
+    [ObservableProperty] private TagsEditorContext _tagEdit;
+    [ObservableProperty] private TitleSummarySlugEditorContext _titleSummarySlugFolder;
+    [ObservableProperty] private UpdateNotesEditorContext _updateNotes;
+    [ObservableProperty] private Command _viewOnSiteCommand;
 
     public EventHandler RequestContentEditorWindowClose;
 
     private FileContentEditorContext(StatusControlContext statusContext, FileInfo initialFile = null)
     {
         if (initialFile is { Exists: true }) _initialFile = initialFile;
+
+        PropertyChanged += OnPropertyChanged;
 
         SetupStatusContextAndCommands(statusContext);
     }
@@ -75,95 +79,6 @@ public class FileContentEditorContext : INotifyPropertyChanged, IHasChanges, IHa
         SetupStatusContextAndCommands(statusContext);
     }
 
-    public Command AutoRenameSelectedFileCommand
-    {
-        get => _autoRenameSelectedFileCommand;
-        set
-        {
-            if (Equals(value, _autoRenameSelectedFileCommand)) return;
-            _autoRenameSelectedFileCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public BodyContentEditorContext BodyContent
-    {
-        get => _bodyContent;
-        set
-        {
-            if (Equals(value, _bodyContent)) return;
-            _bodyContent = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command ChooseFileCommand
-    {
-        get => _chooseFileCommand;
-        set
-        {
-            if (Equals(value, _chooseFileCommand)) return;
-            _chooseFileCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public ContentIdViewerControlContext ContentId
-    {
-        get => _contentId;
-        set
-        {
-            if (Equals(value, _contentId)) return;
-            _contentId = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public CreatedAndUpdatedByAndOnDisplayContext CreatedUpdatedDisplay
-    {
-        get => _createdUpdatedDisplay;
-        set
-        {
-            if (Equals(value, _createdUpdatedDisplay)) return;
-            _createdUpdatedDisplay = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public FileContent DbEntry
-    {
-        get => _dbEntry;
-        set
-        {
-            if (Equals(value, _dbEntry)) return;
-            _dbEntry = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command DownloadLinkToClipboardCommand { get; set; }
-
-    public BoolDataEntryContext EmbedFile
-    {
-        get => _embedFile;
-        set
-        {
-            if (Equals(value, _embedFile)) return;
-            _embedFile = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command ExtractNewLinksCommand
-    {
-        get => _extractNewLinksCommand;
-        set
-        {
-            if (Equals(value, _extractNewLinksCommand)) return;
-            _extractNewLinksCommand = value;
-            OnPropertyChanged();
-        }
-    }
 
     public string FileEditorHelpText =>
         @"
@@ -187,220 +102,6 @@ Notes:
  - If what you are writing about is a 'file' but you don't want/need to store the file itself on your site you should probably just create a Post (or other content type like and Image) - use File Content when you want to store the file. 
 ";
 
-    public HelpDisplayContext HelpContext
-    {
-        get => _helpContext;
-        set
-        {
-            if (Equals(value, _helpContext)) return;
-            _helpContext = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command LinkToClipboardCommand { get; set; }
-
-    public ContentSiteFeedAndIsDraftContext MainSiteFeed
-    {
-        get => _mainSiteFeed;
-        set
-        {
-            if (Equals(value, _mainSiteFeed)) return;
-            _mainSiteFeed = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command OpenSelectedFileCommand { get; set; }
-
-    public Command OpenSelectedFileDirectoryCommand
-    {
-        get => _openSelectedFileDirectoryCommand;
-        set
-        {
-            if (Equals(value, _openSelectedFileDirectoryCommand)) return;
-            _openSelectedFileDirectoryCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public string PdfToImagePageToExtract
-    {
-        get => _pdfToImagePageToExtract;
-        set
-        {
-            if (value == _pdfToImagePageToExtract) return;
-            _pdfToImagePageToExtract = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public BoolDataEntryContext PublicDownloadLink
-    {
-        get => _publicDownloadLink;
-        set
-        {
-            if (value == _publicDownloadLink) return;
-            _publicDownloadLink = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command RenameSelectedFileCommand
-    {
-        get => _renameSelectedFileCommand;
-        set
-        {
-            if (Equals(value, _renameSelectedFileCommand)) return;
-            _renameSelectedFileCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command SaveAndCloseCommand
-    {
-        get => _saveAndCloseCommand;
-        set
-        {
-            if (Equals(value, _saveAndCloseCommand)) return;
-            _saveAndCloseCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command SaveAndExtractImageFromPdfCommand
-    {
-        get => _saveAndExtractImageFromPdfCommand;
-        set
-        {
-            if (Equals(value, _saveAndExtractImageFromPdfCommand)) return;
-            _saveAndExtractImageFromPdfCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command SaveCommand
-    {
-        get => _saveCommand;
-        set
-        {
-            if (Equals(value, _saveCommand)) return;
-            _saveCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public FileInfo SelectedFile
-    {
-        get => _selectedFile;
-        set
-        {
-            if (Equals(value, _selectedFile)) return;
-            _selectedFile = value;
-            OnPropertyChanged();
-
-            StatusContext.RunFireAndForgetNonBlockingTask(SelectedFileChanged);
-        }
-    }
-
-    public bool SelectedFileHasPathOrNameChanges
-    {
-        get => _selectedFileHasPathOrNameChanges;
-        set
-        {
-            if (value == _selectedFileHasPathOrNameChanges) return;
-            _selectedFileHasPathOrNameChanges = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public bool SelectedFileHasValidationIssues
-    {
-        get => _selectedFileHasValidationIssues;
-        set
-        {
-            if (value == _selectedFileHasValidationIssues) return;
-            _selectedFileHasValidationIssues = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public bool SelectedFileNameHasInvalidCharacters
-    {
-        get => _selectedFileNameHasInvalidCharacters;
-        set
-        {
-            if (value == _selectedFileNameHasInvalidCharacters) return;
-            _selectedFileNameHasInvalidCharacters = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public string SelectedFileValidationMessage
-    {
-        get => _selectedFileValidationMessage;
-        set
-        {
-            if (value == _selectedFileValidationMessage) return;
-            _selectedFileValidationMessage = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public StatusControlContext StatusContext
-    {
-        get => _statusContext;
-        set
-        {
-            if (Equals(value, _statusContext)) return;
-            _statusContext = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public TagsEditorContext TagEdit
-    {
-        get => _tagEdit;
-        set
-        {
-            if (Equals(value, _tagEdit)) return;
-            _tagEdit = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public TitleSummarySlugEditorContext TitleSummarySlugFolder
-    {
-        get => _titleSummarySlugFolder;
-        set
-        {
-            if (Equals(value, _titleSummarySlugFolder)) return;
-            _titleSummarySlugFolder = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public UpdateNotesEditorContext UpdateNotes
-    {
-        get => _updateNotes;
-        set
-        {
-            if (Equals(value, _updateNotes)) return;
-            _updateNotes = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command ViewOnSiteCommand
-    {
-        get => _viewOnSiteCommand;
-        set
-        {
-            if (Equals(value, _viewOnSiteCommand)) return;
-            _viewOnSiteCommand = value;
-            OnPropertyChanged();
-        }
-    }
 
     public void CheckForChangesAndValidationIssues()
     {
@@ -410,30 +111,6 @@ Notes:
         HasValidationIssues = PropertyScanners.ChildPropertiesHaveValidationIssues(this) ||
                               SelectedFileHasValidationIssues;
     }
-
-    public bool HasChanges
-    {
-        get => _hasChanges;
-        set
-        {
-            if (value == _hasChanges) return;
-            _hasChanges = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public bool HasValidationIssues
-    {
-        get => _hasValidationIssues;
-        set
-        {
-            if (value == _hasValidationIssues) return;
-            _hasValidationIssues = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public event PropertyChangedEventHandler PropertyChanged;
 
     public async Task ChooseFile()
     {
@@ -577,7 +254,7 @@ Notes:
             "If checked there will be a hyperlink will on the File Content Page to download the content. NOTE! The File" +
             "will be copied into the generated HTML for the site regardless of this setting - this setting is only about " +
             "whether a download link is shown.";
-        PublicDownloadLink.PropertyChanged += (sender, args) =>
+        PublicDownloadLink.PropertyChanged += (_, args) =>
         {
             if (args.PropertyName == "UserValue" && PublicDownloadLink != null && EmbedFile != null)
             {
@@ -618,8 +295,7 @@ Notes:
                 UserSettingsSingleton.CurrentSettings().LocalMediaArchiveFileDirectory().FullName,
                 DbEntry.OriginalFileName));
 
-            var fileContentDirectory =
-                UserSettingsSingleton.CurrentSettings().LocalSiteFileContentDirectory(toLoad);
+            var fileContentDirectory = UserSettingsSingleton.CurrentSettings().LocalSiteFileContentDirectory(toLoad);
 
             var contentFile = new FileInfo(Path.Combine(fileContentDirectory.FullName, toLoad.OriginalFileName));
 
@@ -648,22 +324,22 @@ Notes:
         await SelectedFileChanged();
     }
 
-    [NotifyPropertyChangedInvocator]
-    protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+    private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
     {
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        if (e == null) return;
+        if (string.IsNullOrWhiteSpace(e.PropertyName)) return;
 
-        if (string.IsNullOrWhiteSpace(propertyName)) return;
-
-        if (!propertyName.Contains("HasChanges") && !propertyName.Contains("Validation"))
+        if (!e.PropertyName.Contains("HasChanges") && !e.PropertyName.Contains("Validation"))
             CheckForChangesAndValidationIssues();
+
+        if (e.PropertyName == nameof(SelectedFile)) StatusContext.RunFireAndForgetNonBlockingTask(SelectedFileChanged);
     }
 
     private async Task OpenSelectedFile()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        if (SelectedFile is not { Exists: true, Directory: { Exists: true } })
+        if (SelectedFile is not { Exists: true, Directory.Exists: true })
         {
             StatusContext.ToastError("No Selected File or Selected File no longer exists?");
             return;
@@ -679,7 +355,7 @@ Notes:
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        if (SelectedFile is not { Exists: true, Directory: { Exists: true } })
+        if (SelectedFile is not { Exists: true, Directory.Exists: true })
         {
             StatusContext.ToastWarning("No Selected File or Selected File no longer exists?");
             return;
@@ -784,8 +460,7 @@ Notes:
 
         ChooseFileCommand = StatusContext.RunBlockingTaskCommand(async () => await ChooseFile());
         SaveCommand = StatusContext.RunBlockingTaskCommand(async () => await SaveAndGenerateHtml(true, false));
-        SaveAndCloseCommand =
-            StatusContext.RunBlockingTaskCommand(async () => await SaveAndGenerateHtml(true, true));
+        SaveAndCloseCommand = StatusContext.RunBlockingTaskCommand(async () => await SaveAndGenerateHtml(true, true));
         OpenSelectedFileDirectoryCommand = StatusContext.RunBlockingTaskCommand(OpenSelectedFileDirectory);
         OpenSelectedFileCommand = StatusContext.RunBlockingTaskCommand(OpenSelectedFile);
         ViewOnSiteCommand = StatusContext.RunBlockingTaskCommand(ViewOnSite);
@@ -794,8 +469,8 @@ Notes:
         AutoRenameSelectedFileCommand = StatusContext.RunBlockingTaskCommand(async () =>
             await FileHelpers.TryAutoCleanRenameSelectedFile(SelectedFile, StatusContext, x => SelectedFile = x));
         ExtractNewLinksCommand = StatusContext.RunBlockingTaskCommand(() =>
-            LinkExtraction.ExtractNewAndShowLinkContentEditors(
-                $"{BodyContent.BodyContent} {UpdateNotes.UpdateNotes}", StatusContext.ProgressTracker()));
+            LinkExtraction.ExtractNewAndShowLinkContentEditors($"{BodyContent.BodyContent} {UpdateNotes.UpdateNotes}",
+                StatusContext.ProgressTracker()));
         SaveAndExtractImageFromPdfCommand = StatusContext.RunBlockingTaskCommand(SaveAndExtractImageFromPdf);
         LinkToClipboardCommand = StatusContext.RunNonBlockingTaskCommand(LinkToClipboard);
         DownloadLinkToClipboardCommand = StatusContext.RunNonBlockingTaskCommand(DownloadLinkToClipboard);

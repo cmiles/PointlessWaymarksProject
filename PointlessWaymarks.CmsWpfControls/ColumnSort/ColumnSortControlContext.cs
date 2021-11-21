@@ -1,13 +1,15 @@
 ﻿using System.ComponentModel;
-using System.Runtime.CompilerServices;
-using JetBrains.Annotations;
+using Microsoft.Toolkit.Mvvm.ComponentModel;
 using PointlessWaymarks.WpfCommon.Commands;
 
 namespace PointlessWaymarks.CmsWpfControls.ColumnSort;
 
-public class ColumnSortControlContext : INotifyPropertyChanged
+[ObservableObject]
+public partial class ColumnSortControlContext
 {
-    private List<ColumnSortControlSortItem> _items;
+    [ObservableProperty] private Command<ColumnSortControlSortItem> _columnSortAddCommand;
+    [ObservableProperty] private Command<ColumnSortControlSortItem> _columnSortToggleCommand;
+    [ObservableProperty] private List<ColumnSortControlSortItem> _items;
 
     public ColumnSortControlContext()
     {
@@ -24,24 +26,7 @@ public class ColumnSortControlContext : INotifyPropertyChanged
         });
     }
 
-    public Command<ColumnSortControlSortItem> ColumnSortAddCommand { get; set; }
-
-    public Command<ColumnSortControlSortItem> ColumnSortToggleCommand { get; set; }
-
-    public List<ColumnSortControlSortItem> Items
-    {
-        get => _items;
-        set
-        {
-            if (Equals(value, _items)) return;
-            _items = value;
-            OnPropertyChanged();
-        }
-    }
-
     public EventHandler<List<SortDescription>> SortUpdated { get; set; }
-
-    public event PropertyChangedEventHandler PropertyChanged;
 
     private void AddItem(ColumnSortControlSortItem sortItem)
     {
@@ -74,12 +59,6 @@ public class ColumnSortControlContext : INotifyPropertyChanged
     {
         if (currentDirection == ListSortDirection.Ascending) return ListSortDirection.Descending;
         return ListSortDirection.Ascending;
-    }
-
-    [NotifyPropertyChangedInvocator]
-    protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-    {
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 
     private void OrderSorts()

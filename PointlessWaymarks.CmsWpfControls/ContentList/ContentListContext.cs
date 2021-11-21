@@ -1,16 +1,14 @@
 ﻿using System.Collections.ObjectModel;
-using System.ComponentModel;
 using System.IO;
-using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Data;
 using System.Windows.Shell;
 using System.Windows.Threading;
 using GongSolutions.Wpf.DragDrop;
-using JetBrains.Annotations;
 using MetadataExtractor;
 using MetadataExtractor.Formats.Exif;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Toolkit.Mvvm.ComponentModel;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.ContentHtml;
@@ -41,41 +39,78 @@ using TinyIpc.Messaging;
 
 namespace PointlessWaymarks.CmsWpfControls.ContentList;
 
-public class ContentListContext : INotifyPropertyChanged, IDragSource, IDropTarget
+[ObservableObject]
+public partial class ContentListContext : IDragSource, IDropTarget
 {
-    private Command _bracketCodeToClipboardSelectedCommand;
-    private IContentListLoader _contentListLoader;
-    private List<ContextMenuItemData> _contextMenuItems;
-    private Command _deleteSelectedCommand;
-    private Command _editSelectedCommand;
-    private FileContentActions _fileItemActions;
-    private Command _generateChangedHtmlAndStartUploadCommand;
-    private Command _generateChangedHtmlCommand;
-    private Command _generateHtmlSelectedCommand;
-    private Command _generateChangedHtmlAndShowSitePreviewCommand;
-    private GeoJsonContentActions _geoJsonItemActions;
-    private ImageContentActions _imageItemActions;
-    private Command _importFromExcelFileCommand;
-    private Command _importFromOpenExcelInstanceCommand;
-    private ObservableCollection<IContentListItem> _items;
-    private LineContentActions _lineItemActions;
-    private LinkContentActions _linkItemActions;
-    private ContentListSelected<IContentListItem> _listSelection;
-    private ColumnSortControlContext _listSort;
-    private Command _loadAllCommand;
-    private MapComponentContentActions _mapComponentItemActions;
-    private NewContent _newActions;
-    private NoteContentActions _noteItemActions;
-    private Command _openUrlSelectedCommand;
-    private PhotoContentActions _photoItemActions;
-    private PointContentActions _pointItemActions;
-    private PostContentActions _postItemActions;
-    private Command _selectedToExcelCommand;
-    private Command _showSitePreviewWindowCommand;
-    private StatusControlContext _statusContext;
-    private string _userFilterText;
-    private Command _viewHistorySelectedCommand;
-    private WindowIconStatus _windowStatus;
+    [ObservableProperty] private Command bracketCodeToClipboardSelectedCommand;
+
+    [ObservableProperty] private IContentListLoader contentListLoader;
+
+    [ObservableProperty] private List<ContextMenuItemData> contextMenuItems;
+
+    [ObservableProperty] private DataNotificationsWorkQueue dataNotificationsProcessor;
+
+    [ObservableProperty] private Command deleteSelectedCommand;
+
+    [ObservableProperty] private Command editSelectedCommand;
+
+    [ObservableProperty] private Command extractNewLinksSelectedCommand;
+
+    [ObservableProperty] private FileContentActions fileItemActions;
+
+    [ObservableProperty] private Command generateChangedHtmlAndShowSitePreviewCommand;
+
+    [ObservableProperty] private Command generateChangedHtmlAndStartUploadCommand;
+
+    [ObservableProperty] private Command generateChangedHtmlCommand;
+
+    [ObservableProperty] private Command generateHtmlSelectedCommand;
+
+    [ObservableProperty] private GeoJsonContentActions geoJsonItemActions;
+
+    [ObservableProperty] private ImageContentActions imageItemActions;
+
+    [ObservableProperty] private Command importFromExcelFileCommand;
+
+    [ObservableProperty] private Command importFromOpenExcelInstanceCommand;
+
+    [ObservableProperty] private ObservableCollection<IContentListItem> items;
+
+    [ObservableProperty] private LineContentActions lineItemActions;
+
+    [ObservableProperty] private LinkContentActions linkItemActions;
+
+    [ObservableProperty] private ContentListSelected<IContentListItem> listSelection;
+
+    [ObservableProperty] private ColumnSortControlContext listSort;
+
+    [ObservableProperty] private Command loadAllCommand;
+
+    [ObservableProperty] private MapComponentContentActions mapComponentItemActions;
+
+    [ObservableProperty] private NewContent newActions;
+
+    [ObservableProperty] private NoteContentActions noteItemActions;
+
+    [ObservableProperty] private Command openUrlSelectedCommand;
+
+    [ObservableProperty] private PhotoContentActions photoItemActions;
+
+    [ObservableProperty] private PointContentActions pointItemActions;
+
+    [ObservableProperty] private PostContentActions postItemActions;
+
+    [ObservableProperty] private Command selectedToExcelCommand;
+
+    [ObservableProperty] private Command showSitePreviewWindowCommand;
+
+    [ObservableProperty] private StatusControlContext statusContext;
+
+    [ObservableProperty] private string userFilterText;
+
+    [ObservableProperty] private Command viewHistorySelectedCommand;
+
+    [ObservableProperty] private WindowIconStatus windowStatus;
 
     public ContentListContext(StatusControlContext statusContext, IContentListLoader loader,
         WindowIconStatus windowStatus = null)
@@ -106,8 +141,7 @@ public class ContentListContext : INotifyPropertyChanged, IDragSource, IDropTarg
             await LoadData();
         });
 
-        DeleteSelectedCommand =
-            StatusContext.RunBlockingTaskWithCancellationCommand(DeleteSelected, "Cancel Delete");
+        DeleteSelectedCommand = StatusContext.RunBlockingTaskWithCancellationCommand(DeleteSelected, "Cancel Delete");
         BracketCodeToClipboardSelectedCommand =
             StatusContext.RunBlockingTaskWithCancellationCommand(BracketCodeToClipboardSelected, "Cancel Delete");
         EditSelectedCommand = StatusContext.RunBlockingTaskWithCancellationCommand(EditSelected, "Cancel Edit");
@@ -125,386 +159,16 @@ public class ContentListContext : INotifyPropertyChanged, IDragSource, IDropTarg
         ImportFromOpenExcelInstanceCommand = StatusContext.RunBlockingTaskCommand(async () =>
             await ExcelHelpers.ImportFromOpenExcelInstance(StatusContext));
         SelectedToExcelCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
-            await ExcelHelpers.SelectedToExcel(ListSelection.SelectedItems?.Cast<dynamic>().ToList(),
-                StatusContext));
+            await ExcelHelpers.SelectedToExcel(ListSelection.SelectedItems?.Cast<dynamic>().ToList(), StatusContext));
 
-        GenerateChangedHtmlAndStartUploadCommand = StatusContext.RunBlockingTaskCommand(GenerateChangedHtmlAndStartUpload);
+        GenerateChangedHtmlAndStartUploadCommand =
+            StatusContext.RunBlockingTaskCommand(GenerateChangedHtmlAndStartUpload);
         GenerateChangedHtmlCommand = StatusContext.RunBlockingTaskCommand(GenerateChangedHtml);
         ShowSitePreviewWindowCommand = StatusContext.RunNonBlockingTaskCommand(ShowSitePreviewWindow);
         GenerateChangedHtmlAndShowSitePreviewCommand =
             StatusContext.RunBlockingTaskCommand(GenerateChangedHtmlAndShowSitePreview);
     }
 
-    public WindowIconStatus WindowStatus
-    {
-        get => _windowStatus;
-        set
-        {
-            if (Equals(value, _windowStatus)) return;
-            _windowStatus = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command BracketCodeToClipboardSelectedCommand
-    {
-        get => _bracketCodeToClipboardSelectedCommand;
-        set
-        {
-            if (Equals(value, _bracketCodeToClipboardSelectedCommand)) return;
-            _bracketCodeToClipboardSelectedCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public IContentListLoader ContentListLoader
-    {
-        get => _contentListLoader;
-        set
-        {
-            if (Equals(value, _contentListLoader)) return;
-            _contentListLoader = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public List<ContextMenuItemData> ContextMenuItems
-    {
-        get => _contextMenuItems;
-        set
-        {
-            if (Equals(value, _contextMenuItems)) return;
-            _contextMenuItems = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public DataNotificationsWorkQueue DataNotificationsProcessor { get; set; }
-
-    public Command DeleteSelectedCommand
-    {
-        get => _deleteSelectedCommand;
-        set
-        {
-            if (Equals(value, _deleteSelectedCommand)) return;
-            _deleteSelectedCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command EditSelectedCommand
-    {
-        get => _editSelectedCommand;
-        set
-        {
-            if (Equals(value, _editSelectedCommand)) return;
-            _editSelectedCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command ExtractNewLinksSelectedCommand { get; set; }
-
-    public FileContentActions FileItemActions
-    {
-        get => _fileItemActions;
-        set
-        {
-            if (Equals(value, _fileItemActions)) return;
-            _fileItemActions = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command GenerateChangedHtmlAndStartUploadCommand
-    {
-        get => _generateChangedHtmlAndStartUploadCommand;
-        set
-        {
-            if (Equals(value, _generateChangedHtmlAndStartUploadCommand)) return;
-            _generateChangedHtmlAndStartUploadCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command GenerateChangedHtmlCommand
-    {
-        get => _generateChangedHtmlCommand;
-        set
-        {
-            if (Equals(value, _generateChangedHtmlCommand)) return;
-            _generateChangedHtmlCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command GenerateHtmlSelectedCommand
-    {
-        get => _generateHtmlSelectedCommand;
-        set
-        {
-            if (Equals(value, _generateHtmlSelectedCommand)) return;
-            _generateHtmlSelectedCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command GenerateChangedHtmlAndShowSitePreviewCommand
-    {
-        get => _generateChangedHtmlAndShowSitePreviewCommand;
-        set
-        {
-            if (Equals(value, _generateChangedHtmlAndShowSitePreviewCommand)) return;
-            _generateChangedHtmlAndShowSitePreviewCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public GeoJsonContentActions GeoJsonItemActions
-    {
-        get => _geoJsonItemActions;
-        set
-        {
-            if (Equals(value, _geoJsonItemActions)) return;
-            _geoJsonItemActions = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public ImageContentActions ImageItemActions
-    {
-        get => _imageItemActions;
-        set
-        {
-            if (Equals(value, _imageItemActions)) return;
-            _imageItemActions = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command ImportFromExcelFileCommand
-    {
-        get => _importFromExcelFileCommand;
-        set
-        {
-            if (Equals(value, _importFromExcelFileCommand)) return;
-            _importFromExcelFileCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command ImportFromOpenExcelInstanceCommand
-    {
-        get => _importFromOpenExcelInstanceCommand;
-        set
-        {
-            if (Equals(value, _importFromOpenExcelInstanceCommand)) return;
-            _importFromOpenExcelInstanceCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public ObservableCollection<IContentListItem> Items
-    {
-        get => _items;
-        set
-        {
-            if (Equals(value, _items)) return;
-            _items = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public LineContentActions LineItemActions
-    {
-        get => _lineItemActions;
-        set
-        {
-            if (Equals(value, _lineItemActions)) return;
-            _lineItemActions = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public LinkContentActions LinkItemActions
-    {
-        get => _linkItemActions;
-        set
-        {
-            if (Equals(value, _linkItemActions)) return;
-            _linkItemActions = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public ContentListSelected<IContentListItem> ListSelection
-    {
-        get => _listSelection;
-        set
-        {
-            if (Equals(value, _listSelection)) return;
-            _listSelection = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public ColumnSortControlContext ListSort
-    {
-        get => _listSort;
-        set
-        {
-            if (Equals(value, _listSort)) return;
-            _listSort = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command LoadAllCommand
-    {
-        get => _loadAllCommand;
-        set
-        {
-            if (Equals(value, _loadAllCommand)) return;
-            _loadAllCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public MapComponentContentActions MapComponentItemActions
-    {
-        get => _mapComponentItemActions;
-        set
-        {
-            if (Equals(value, _mapComponentItemActions)) return;
-            _mapComponentItemActions = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public NewContent NewActions
-    {
-        get => _newActions;
-        set
-        {
-            if (Equals(value, _newActions)) return;
-            _newActions = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public NoteContentActions NoteItemActions
-    {
-        get => _noteItemActions;
-        set
-        {
-            if (Equals(value, _noteItemActions)) return;
-            _noteItemActions = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command OpenUrlSelectedCommand
-    {
-        get => _openUrlSelectedCommand;
-        set
-        {
-            if (Equals(value, _openUrlSelectedCommand)) return;
-            _openUrlSelectedCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-
-    public PhotoContentActions PhotoItemActions
-    {
-        get => _photoItemActions;
-        set
-        {
-            if (Equals(value, _photoItemActions)) return;
-            _photoItemActions = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public PointContentActions PointItemActions
-    {
-        get => _pointItemActions;
-        set
-        {
-            if (Equals(value, _pointItemActions)) return;
-            _pointItemActions = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public PostContentActions PostItemActions
-    {
-        get => _postItemActions;
-        set
-        {
-            if (Equals(value, _postItemActions)) return;
-            _postItemActions = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command SelectedToExcelCommand
-    {
-        get => _selectedToExcelCommand;
-        set
-        {
-            if (Equals(value, _selectedToExcelCommand)) return;
-            _selectedToExcelCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command ShowSitePreviewWindowCommand
-    {
-        get => _showSitePreviewWindowCommand;
-        set
-        {
-            if (Equals(value, _showSitePreviewWindowCommand)) return;
-            _showSitePreviewWindowCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public StatusControlContext StatusContext
-    {
-        get => _statusContext;
-        set
-        {
-            if (Equals(value, _statusContext)) return;
-            _statusContext = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public string UserFilterText
-    {
-        get => _userFilterText;
-        set
-        {
-            if (value == _userFilterText) return;
-            _userFilterText = value;
-            OnPropertyChanged();
-
-            StatusContext.RunFireAndForgetNonBlockingTask(FilterList);
-        }
-    }
-
-
-    public Command ViewHistorySelectedCommand
-    {
-        get => _viewHistorySelectedCommand;
-        set
-        {
-            if (Equals(value, _viewHistorySelectedCommand)) return;
-            _viewHistorySelectedCommand = value;
-            OnPropertyChanged();
-        }
-    }
 
     public bool CanStartDrag(IDragInfo dragInfo)
     {
@@ -573,8 +237,6 @@ public class ContentListContext : INotifyPropertyChanged, IDragSource, IDropTarg
                 await TryOpenEditorsForDroppedFiles(possibleFileInfo.ToList(), StatusContext));
         }
     }
-
-    public event PropertyChangedEventHandler PropertyChanged;
 
     public async Task BracketCodeToClipboardSelected(CancellationToken cancelToken)
     {
@@ -666,14 +328,12 @@ public class ContentListContext : INotifyPropertyChanged, IDragSource, IDropTarg
                     .ToListAsync()).Cast<IContentId>().ToList();
                 break;
             case DataNotificationContentType.GeoJson:
-                dbItems = (await context.GeoJsonContents
-                        .Where(x => translatedMessage.ContentIds.Contains(x.ContentId)).ToListAsync())
-                    .Cast<IContentId>().ToList();
+                dbItems = (await context.GeoJsonContents.Where(x => translatedMessage.ContentIds.Contains(x.ContentId))
+                    .ToListAsync()).Cast<IContentId>().ToList();
                 break;
             case DataNotificationContentType.Image:
-                dbItems = (await context.ImageContents
-                        .Where(x => translatedMessage.ContentIds.Contains(x.ContentId)).ToListAsync())
-                    .Cast<IContentId>().ToList();
+                dbItems = (await context.ImageContents.Where(x => translatedMessage.ContentIds.Contains(x.ContentId))
+                    .ToListAsync()).Cast<IContentId>().ToList();
                 break;
             case DataNotificationContentType.Line:
                 dbItems = (await context.LineContents.Where(x => translatedMessage.ContentIds.Contains(x.ContentId))
@@ -684,23 +344,20 @@ public class ContentListContext : INotifyPropertyChanged, IDragSource, IDropTarg
                     .ToListAsync()).Cast<IContentId>().ToList();
                 break;
             case DataNotificationContentType.Map:
-                dbItems = (await context.MapComponents
-                        .Where(x => translatedMessage.ContentIds.Contains(x.ContentId)).ToListAsync())
-                    .Cast<IContentId>().ToList();
+                dbItems = (await context.MapComponents.Where(x => translatedMessage.ContentIds.Contains(x.ContentId))
+                    .ToListAsync()).Cast<IContentId>().ToList();
                 break;
             case DataNotificationContentType.Note:
                 dbItems = (await context.NoteContents.Where(x => translatedMessage.ContentIds.Contains(x.ContentId))
                     .ToListAsync()).Cast<IContentId>().ToList();
                 break;
             case DataNotificationContentType.Photo:
-                dbItems = (await context.PhotoContents
-                        .Where(x => translatedMessage.ContentIds.Contains(x.ContentId)).ToListAsync())
-                    .Cast<IContentId>().ToList();
+                dbItems = (await context.PhotoContents.Where(x => translatedMessage.ContentIds.Contains(x.ContentId))
+                    .ToListAsync()).Cast<IContentId>().ToList();
                 break;
             case DataNotificationContentType.Point:
-                dbItems = (await context.PointContents
-                        .Where(x => translatedMessage.ContentIds.Contains(x.ContentId)).ToListAsync())
-                    .Cast<IContentId>().ToList();
+                dbItems = (await context.PointContents.Where(x => translatedMessage.ContentIds.Contains(x.ContentId))
+                    .ToListAsync()).Cast<IContentId>().ToList();
                 break;
             case DataNotificationContentType.Post:
                 dbItems = (await context.PostContents.Where(x => translatedMessage.ContentIds.Contains(x.ContentId))
@@ -712,8 +369,8 @@ public class ContentListContext : INotifyPropertyChanged, IDragSource, IDropTarg
 
         foreach (var loopItem in dbItems)
         {
-            var existingItems = existingListItemsMatchingNotification
-                .Where(x => x.ContentId() == loopItem.ContentId).ToList();
+            var existingItems = existingListItemsMatchingNotification.Where(x => x.ContentId() == loopItem.ContentId)
+                .ToList();
 
             if (existingItems.Count > 1)
             {
@@ -836,10 +493,10 @@ public class ContentListContext : INotifyPropertyChanged, IDragSource, IDropTarg
 
             if (o is not IContentListItem toFilter) return false;
 
-            if ((toFilter.Content().Title ?? string.Empty).Contains(UserFilterText,
-                    StringComparison.OrdinalIgnoreCase)) return true;
-            if ((toFilter.Content().Tags ?? string.Empty).Contains(UserFilterText,
-                    StringComparison.OrdinalIgnoreCase)) return true;
+            if ((toFilter.Content().Title ?? string.Empty).Contains(UserFilterText, StringComparison.OrdinalIgnoreCase))
+                return true;
+            if ((toFilter.Content().Tags ?? string.Empty).Contains(UserFilterText, StringComparison.OrdinalIgnoreCase))
+                return true;
             if ((toFilter.Content().Summary ?? string.Empty).Contains(UserFilterText,
                     StringComparison.OrdinalIgnoreCase)) return true;
             if ((toFilter.Content().CreatedBy ?? string.Empty).Contains(UserFilterText,
@@ -852,23 +509,21 @@ public class ContentListContext : INotifyPropertyChanged, IDragSource, IDropTarg
         };
     }
 
-    public async Task GenerateHtmlSelected(CancellationToken cancelToken)
+    private async Task GenerateChangedHtml()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        if (ListSelection?.SelectedItems == null || ListSelection.SelectedItems.Count < 1)
+        try
         {
-            StatusContext.ToastWarning("Nothing Selected to Generate?");
-            return;
+            WindowStatus?.AddRequest(new WindowIconStatusRequest(StatusContext.StatusControlContextId,
+                TaskbarItemProgressState.Indeterminate));
+
+            await HtmlGenerationGroups.GenerateChangedToHtml(StatusContext.ProgressTracker());
         }
-
-        var currentSelected = ListSelection.SelectedItems;
-
-        foreach (var loopSelected in currentSelected)
+        finally
         {
-            cancelToken.ThrowIfCancellationRequested();
-
-            await loopSelected.GenerateHtml();
+            WindowStatus?.AddRequest(new WindowIconStatusRequest(StatusContext.StatusControlContextId,
+                TaskbarItemProgressState.None));
         }
     }
 
@@ -896,24 +551,6 @@ public class ContentListContext : INotifyPropertyChanged, IDragSource, IDropTarg
         sitePreviewWindow.PositionWindowAndShow();
     }
 
-    private async Task GenerateChangedHtml()
-    {
-        await ThreadSwitcher.ResumeBackgroundAsync();
-
-        try
-        {
-            WindowStatus?.AddRequest(new WindowIconStatusRequest(StatusContext.StatusControlContextId,
-                TaskbarItemProgressState.Indeterminate));
-
-            await HtmlGenerationGroups.GenerateChangedToHtml(StatusContext.ProgressTracker());
-        }
-        finally
-        {
-            WindowStatus?.AddRequest(new WindowIconStatusRequest(StatusContext.StatusControlContextId,
-                TaskbarItemProgressState.None));
-        }
-    }
-
     private async Task GenerateChangedHtmlAndStartUpload()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -932,6 +569,26 @@ public class ContentListContext : INotifyPropertyChanged, IDragSource, IDropTarg
         }
     }
 
+    public async Task GenerateHtmlSelected(CancellationToken cancelToken)
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (ListSelection?.SelectedItems == null || ListSelection.SelectedItems.Count < 1)
+        {
+            StatusContext.ToastWarning("Nothing Selected to Generate?");
+            return;
+        }
+
+        var currentSelected = ListSelection.SelectedItems;
+
+        foreach (var loopSelected in currentSelected)
+        {
+            cancelToken.ThrowIfCancellationRequested();
+
+            await loopSelected.GenerateHtml();
+        }
+    }
+
     public static string GetSmallImageUrl(IMainImage content)
     {
         if (content?.MainPicture == null) return null;
@@ -940,8 +597,8 @@ public class ContentListContext : INotifyPropertyChanged, IDragSource, IDropTarg
 
         try
         {
-            smallImageUrl = PictureAssetProcessing.ProcessPictureDirectory(content.MainPicture.Value).SmallPicture
-                ?.File.FullName;
+            smallImageUrl = PictureAssetProcessing.ProcessPictureDirectory(content.MainPicture.Value).SmallPicture?.File
+                .FullName;
         }
         catch
         {
@@ -958,19 +615,15 @@ public class ContentListContext : INotifyPropertyChanged, IDragSource, IDropTarg
             FileContent f => FileContentActions.ListItemFromDbItem(f, FileItemActions, ContentListLoader.ShowType),
             GeoJsonContent g => GeoJsonContentActions.ListItemFromDbItem(g, GeoJsonItemActions,
                 ContentListLoader.ShowType),
-            ImageContent g => ImageContentActions.ListItemFromDbItem(g, ImageItemActions,
-                ContentListLoader.ShowType),
+            ImageContent g => ImageContentActions.ListItemFromDbItem(g, ImageItemActions, ContentListLoader.ShowType),
             LineContent l => LineContentActions.ListItemFromDbItem(l, LineItemActions, ContentListLoader.ShowType),
             LinkContent k => LinkContentActions.ListItemFromDbItem(k, LinkItemActions, ContentListLoader.ShowType),
             MapComponent m => MapComponentContentActions.ListItemFromDbItem(m, MapComponentItemActions,
                 ContentListLoader.ShowType),
             NoteContent n => NoteContentActions.ListItemFromDbItem(n, NoteItemActions, ContentListLoader.ShowType),
-            PhotoContent ph => PhotoContentActions.ListItemFromDbItem(ph, PhotoItemActions,
-                ContentListLoader.ShowType),
-            PointContent pt => PointContentActions.ListItemFromDbItem(pt, PointItemActions,
-                ContentListLoader.ShowType),
-            PostContent po => PostContentActions.ListItemFromDbItem(po, PostItemActions,
-                ContentListLoader.ShowType),
+            PhotoContent ph => PhotoContentActions.ListItemFromDbItem(ph, PhotoItemActions, ContentListLoader.ShowType),
+            PointContent pt => PointContentActions.ListItemFromDbItem(pt, PointItemActions, ContentListLoader.ShowType),
+            PostContent po => PostContentActions.ListItemFromDbItem(po, PostItemActions, ContentListLoader.ShowType),
             _ => null
         };
     }
@@ -1029,12 +682,6 @@ public class ContentListContext : INotifyPropertyChanged, IDragSource, IDropTarg
         DataNotificationsProcessor.Enqueue(e);
     }
 
-    [NotifyPropertyChangedInvocator]
-    protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-    {
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-    }
-
     public async Task OpenUrlSelected(CancellationToken cancelToken)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -1050,13 +697,11 @@ public class ContentListContext : INotifyPropertyChanged, IDragSource, IDropTarg
         foreach (var loopSelected in currentSelected) await loopSelected.OpenUrl();
     }
 
-    private async Task PossibleMainImageUpdateDataNotificationReceived(
-        InterProcessDataNotification translatedMessage)
+    private async Task PossibleMainImageUpdateDataNotificationReceived(InterProcessDataNotification translatedMessage)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        var smallImageListItems =
-            Items.Where(x => x is IContentListSmallImage).Cast<IContentListSmallImage>().ToList();
+        var smallImageListItems = Items.Where(x => x is IContentListSmallImage).Cast<IContentListSmallImage>().ToList();
 
         foreach (var loopListItem in smallImageListItems)
             if (((dynamic)loopListItem).DbEntry is IMainImage { MainPicture: { } } dbMainImageEntry &&

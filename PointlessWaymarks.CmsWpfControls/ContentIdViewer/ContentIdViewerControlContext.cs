@@ -1,57 +1,21 @@
-﻿using System.ComponentModel;
-using System.Runtime.CompilerServices;
-using JetBrains.Annotations;
+﻿using Microsoft.Toolkit.Mvvm.ComponentModel;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 
 namespace PointlessWaymarks.CmsWpfControls.ContentIdViewer;
 
-public class ContentIdViewerControlContext : INotifyPropertyChanged
+[ObservableObject]
+public partial class ContentIdViewerControlContext
 {
-    private string _contentIdInformation;
-    private IContentId _dbEntry;
-    private StatusControlContext _statusContext;
+    [ObservableProperty] private string _contentIdInformation;
+    [ObservableProperty] private IContentId _dbEntry;
+    [ObservableProperty] private StatusControlContext _statusContext;
 
     private ContentIdViewerControlContext(StatusControlContext statusContext)
     {
         StatusContext = statusContext ?? new StatusControlContext();
     }
-
-    public string ContentIdInformation
-    {
-        get => _contentIdInformation;
-        set
-        {
-            if (value == _contentIdInformation) return;
-            _contentIdInformation = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public IContentId DbEntry
-    {
-        get => _dbEntry;
-        set
-        {
-            if (Equals(value, _dbEntry)) return;
-            _dbEntry = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public StatusControlContext StatusContext
-    {
-        get => _statusContext;
-        set
-        {
-            if (Equals(value, _statusContext)) return;
-            _statusContext = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public event PropertyChangedEventHandler PropertyChanged;
 
     public static async Task<ContentIdViewerControlContext> CreateInstance(StatusControlContext statusContext,
         IContentId dbEntry)
@@ -76,11 +40,5 @@ public class ContentIdViewerControlContext : INotifyPropertyChanged
         }
 
         ContentIdInformation = $" Fingerprint: {dbEntry.ContentId} Db Id: {dbEntry.Id}";
-    }
-
-    [NotifyPropertyChangedInvocator]
-    protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-    {
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 }

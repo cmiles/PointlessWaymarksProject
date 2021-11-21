@@ -37,7 +37,7 @@
   <ItemGroup>
     <PackageReference Include="AngleSharp" Version="1.0.0-alpha-844" />
     <PackageReference Include="AngleSharp.Js" Version="0.15.0" />
-    <PackageReference Include="AWSSDK.S3" Version="3.7.4.1" />
+    <PackageReference Include="AWSSDK.S3" Version="3.7.4.9" />
     <PackageReference Include="ClosedXML" Version="0.95.4" />
     <PackageReference Include="CompareNETObjects" Version="4.74.0" />
     <PackageReference Include="FluentMigrator" Version="3.3.1" />
@@ -69,14 +69,14 @@
     <PackageReference Include="Serilog.Enrichers.Thread" Version="3.1.0" />
     <PackageReference Include="Serilog.Exceptions" Version="8.0.0" />
     <PackageReference Include="Serilog.Formatting.Compact" Version="1.1.0" />
-    <PackageReference Include="Serilog.Sinks.Console" Version="4.0.0" />
+    <PackageReference Include="Serilog.Sinks.Console" Version="4.0.1" />
     <PackageReference Include="Serilog.Sinks.File" Version="5.0.0" />
     <PackageReference Include="System.CodeDom" Version="6.0.0" />
     <PackageReference Include="System.Data.SQLite.Core" Version="1.0.115.5" />
     <PackageReference Include="System.Drawing.Common" Version="6.0.0" />
     <PackageReference Include="System.ServiceModel.Syndication" Version="6.0.0" />
     <PackageReference Include="System.Text.Json" Version="6.0.0" />
-    <PackageReference Include="TinyIpc" Version="3.0.1" />
+    <PackageReference Include="TinyIpc" Version="3.1.0" />
     <PackageReference Include="ValueInjecter" Version="3.2.0" />
   </ItemGroup>
 

@@ -1,9 +1,8 @@
 ﻿using System.ComponentModel;
 using System.IO;
-using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using System.Web;
-using JetBrains.Annotations;
+using Microsoft.Toolkit.Mvvm.ComponentModel;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.Database.Models;
@@ -17,163 +16,31 @@ using PointlessWaymarks.WpfCommon.Utility;
 
 namespace PointlessWaymarks.CmsWpfControls.BodyContentEditor;
 
-public class BodyContentEditorContext : INotifyPropertyChanged, IHasChanges, IHasValidationIssues,
-    ICheckForChangesAndValidation
+[ObservableObject]
+public partial class BodyContentEditorContext : IHasChanges, IHasValidationIssues, ICheckForChangesAndValidation
 {
-    private ContentFormatChooserContext _bodyContentFormat;
-    private bool _bodyContentHasChanges;
-    private string _bodyContentHtmlOutput;
-    private IBodyContent _dbEntry;
-    private bool _hasChanges;
-    private bool _hasValidationIssues;
-    private Command _refreshPreviewCommand;
-    private string _selectedBodyText;
-    private Command _speakSelectedTextCommand;
-    private StatusControlContext _statusContext;
-    private string _userBodyContent = string.Empty;
-    private int _userBodyContentUserSelectionLength;
-    private int _userBodyContentUserSelectionStart;
-    private string _userHtmlSelectedText;
+    [ObservableProperty] private string _bodyContent;
+    [ObservableProperty] private ContentFormatChooserContext _bodyContentFormat;
+    [ObservableProperty] private bool _bodyContentHasChanges;
+    [ObservableProperty] private string _bodyContentHtmlOutput;
+    [ObservableProperty] private IBodyContent _dbEntry;
+    [ObservableProperty] private bool _hasChanges;
+    [ObservableProperty] private bool _hasValidationIssues;
+    [ObservableProperty] private Command _refreshPreviewCommand;
+    [ObservableProperty] private Command _removeLineBreaksFromSelectedCommand;
+    [ObservableProperty] private string _selectedBodyText;
+    [ObservableProperty] private Command _speakSelectedTextCommand;
+    [ObservableProperty] private StatusControlContext _statusContext;
+    [ObservableProperty] private string _userBodyContent = string.Empty;
+    [ObservableProperty] private int _userBodyContentUserSelectionLength;
+    [ObservableProperty] private int _userBodyContentUserSelectionStart;
+    [ObservableProperty] private string _userHtmlSelectedText;
 
     private BodyContentEditorContext(StatusControlContext statusContext)
     {
         StatusContext = statusContext ?? new StatusControlContext();
-    }
 
-    public string BodyContent
-    {
-        get => _userBodyContent;
-        set
-        {
-            if (value == _userBodyContent) return;
-            _userBodyContent = value;
-            OnPropertyChanged();
-
-            BodyContentHasChanges = !StringHelpers.AreEqual(DbEntry.BodyContent, BodyContent);
-        }
-    }
-
-    public ContentFormatChooserContext BodyContentFormat
-    {
-        get => _bodyContentFormat;
-        set
-        {
-            if (Equals(value, _bodyContentFormat)) return;
-            _bodyContentFormat = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public bool BodyContentHasChanges
-    {
-        get => _bodyContentHasChanges;
-        set
-        {
-            if (value == _bodyContentHasChanges) return;
-            _bodyContentHasChanges = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public string BodyContentHtmlOutput
-    {
-        get => _bodyContentHtmlOutput;
-        set
-        {
-            if (value == _bodyContentHtmlOutput) return;
-            _bodyContentHtmlOutput = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public IBodyContent DbEntry
-    {
-        get => _dbEntry;
-        set
-        {
-            if (Equals(value, _dbEntry)) return;
-            _dbEntry = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command RefreshPreviewCommand
-    {
-        get => _refreshPreviewCommand;
-        set
-        {
-            if (Equals(value, _refreshPreviewCommand)) return;
-            _refreshPreviewCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command RemoveLineBreaksFromSelectedCommand { get; set; }
-
-    public string SelectedBodyText
-    {
-        get => _selectedBodyText;
-        set
-        {
-            if (value == _selectedBodyText) return;
-            _selectedBodyText = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command SpeakSelectedTextCommand
-    {
-        get => _speakSelectedTextCommand;
-        set
-        {
-            if (Equals(value, _speakSelectedTextCommand)) return;
-            _speakSelectedTextCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public StatusControlContext StatusContext
-    {
-        get => _statusContext;
-        set
-        {
-            if (Equals(value, _statusContext)) return;
-            _statusContext = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public int UserBodyContentUserSelectionLength
-    {
-        get => _userBodyContentUserSelectionLength;
-        set
-        {
-            if (value == _userBodyContentUserSelectionLength) return;
-            _userBodyContentUserSelectionLength = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public int UserBodyContentUserSelectionStart
-    {
-        get => _userBodyContentUserSelectionStart;
-        set
-        {
-            if (value == _userBodyContentUserSelectionStart) return;
-            _userBodyContentUserSelectionStart = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public string UserHtmlSelectedText
-    {
-        get => _userHtmlSelectedText;
-        set
-        {
-            if (value == _userHtmlSelectedText) return;
-            _userHtmlSelectedText = value;
-            OnPropertyChanged();
-        }
+        PropertyChanged += OnPropertyChanged;
     }
 
     public void CheckForChangesAndValidationIssues()
@@ -183,30 +50,6 @@ public class BodyContentEditorContext : INotifyPropertyChanged, IHasChanges, IHa
         HasChanges = BodyContentHasChanges || PropertyScanners.ChildPropertiesHaveValidationIssues(this);
         HasValidationIssues = PropertyScanners.ChildPropertiesHaveChanges(this);
     }
-
-    public bool HasChanges
-    {
-        get => _hasChanges;
-        set
-        {
-            if (value == _hasChanges) return;
-            _hasChanges = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public bool HasValidationIssues
-    {
-        get => _hasValidationIssues;
-        set
-        {
-            if (value == _hasValidationIssues) return;
-            _hasValidationIssues = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public event PropertyChangedEventHandler PropertyChanged;
 
     public static async Task<BodyContentEditorContext> CreateInstance(StatusControlContext statusContext,
         IBodyContent dbEntry)
@@ -257,16 +100,13 @@ public class BodyContentEditorContext : INotifyPropertyChanged, IHasChanges, IHa
         PropertyScanners.SubscribeToChildHasChangesAndHasValidationIssues(this, CheckForChangesAndValidationIssues);
     }
 
-
-    [NotifyPropertyChangedInvocator]
-    protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+    private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
     {
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        if (e == null) return;
+        if (string.IsNullOrWhiteSpace(e.PropertyName)) return;
 
-        if (string.IsNullOrWhiteSpace(propertyName)) return;
-
-        if (!propertyName.Contains("HasChanges") && !propertyName.Contains("Validation") &&
-            propertyName != nameof(BodyContent))
+        if (!e.PropertyName.Contains("HasChanges") && !e.PropertyName.Contains("Validation") &&
+            e.PropertyName != nameof(BodyContent))
             CheckForChangesAndValidationIssues();
     }
 

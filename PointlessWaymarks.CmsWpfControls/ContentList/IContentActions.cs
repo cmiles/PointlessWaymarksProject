@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel;
+using Microsoft.Toolkit.Mvvm.ComponentModel;
 using PointlessWaymarks.WpfCommon.Commands;
 using PointlessWaymarks.WpfCommon.Status;
 

@@ -1,8 +1,6 @@
-﻿using System.ComponentModel;
-using System.IO;
-using System.Runtime.CompilerServices;
+﻿using System.IO;
 using System.Windows.Shell;
-using JetBrains.Annotations;
+using Microsoft.Toolkit.Mvvm.ComponentModel;
 using Ookii.Dialogs.Wpf;
 using PointlessWaymarks.CmsData.Content;
 using PointlessWaymarks.CmsWpfControls.FileContentEditor;
@@ -23,9 +21,10 @@ using PointlessWaymarks.WpfCommon.Utility;
 
 namespace PointlessWaymarks.CmsWpfControls.ContentList;
 
-public class NewContent : INotifyPropertyChanged
+[ObservableObject]
+public partial class NewContent
 {
-    private readonly StatusControlContext _statusContext;
+    [ObservableProperty] private StatusControlContext _statusContext;
 
     public NewContent(StatusControlContext statusContext, WindowIconStatus windowStatus = null)
     {
@@ -33,11 +32,10 @@ public class NewContent : INotifyPropertyChanged
         WindowStatus = windowStatus;
 
         NewFileContentCommand = StatusContext.RunNonBlockingTaskCommand(NewFileContent);
-        NewFileContentFromFilesCommand =
-            StatusContext.RunBlockingTaskWithCancellationCommand(async x =>
+        NewFileContentFromFilesCommand = StatusContext.RunBlockingTaskWithCancellationCommand(
+            async x =>
             {
-                await WindowIconStatus.IndeterminateTask(WindowStatus,
-                    async () => await NewFileContentFromFiles(x),
+                await WindowIconStatus.IndeterminateTask(WindowStatus, async () => await NewFileContentFromFiles(x),
                     StatusContext.StatusControlContextId);
             }, "Cancel File Import");
         NewGeoJsonContentCommand = StatusContext.RunNonBlockingTaskCommand(NewGeoJsonContent);
@@ -50,19 +48,17 @@ public class NewContent : INotifyPropertyChanged
         NewMapContentCommand = StatusContext.RunNonBlockingTaskCommand(NewMapContent);
         NewNoteContentCommand = StatusContext.RunNonBlockingTaskCommand(NewNoteContent);
         NewPhotoContentCommand = StatusContext.RunNonBlockingTaskCommand(NewPhotoContent);
-        NewPhotoContentFromFilesCommand =
-            StatusContext.RunBlockingTaskWithCancellationCommand(async x =>
+        NewPhotoContentFromFilesCommand = StatusContext.RunBlockingTaskWithCancellationCommand(
+            async x =>
             {
                 await WindowIconStatus.IndeterminateTask(WindowStatus,
-                    async () => await NewPhotoContentFromFiles(false, x),
-                    StatusContext.StatusControlContextId);
+                    async () => await NewPhotoContentFromFiles(false, x), StatusContext.StatusControlContextId);
             }, "Cancel Photo Import");
-        NewPhotoContentFromFilesWithAutosaveCommand =
-            StatusContext.RunBlockingTaskWithCancellationCommand(async x =>
+        NewPhotoContentFromFilesWithAutosaveCommand = StatusContext.RunBlockingTaskWithCancellationCommand(
+            async x =>
             {
                 await WindowIconStatus.IndeterminateTask(WindowStatus,
-                    async () => await NewPhotoContentFromFiles(true, x),
-                    StatusContext.StatusControlContextId);
+                    async () => await NewPhotoContentFromFiles(true, x), StatusContext.StatusControlContextId);
             }, "Cancel Photo Import");
         NewPointContentCommand = StatusContext.RunNonBlockingTaskCommand(NewPointContent);
         NewPostContentCommand = StatusContext.RunNonBlockingTaskCommand(NewPostContent);
@@ -96,20 +92,7 @@ public class NewContent : INotifyPropertyChanged
 
     public Command NewPostContentCommand { get; }
 
-    public StatusControlContext StatusContext
-    {
-        get => _statusContext;
-        init
-        {
-            if (Equals(value, _statusContext)) return;
-            _statusContext = value;
-            OnPropertyChanged();
-        }
-    }
-
     public WindowIconStatus WindowStatus { get; set; }
-
-    public event PropertyChangedEventHandler PropertyChanged;
 
     public async Task NewFileContent()
     {
@@ -305,8 +288,7 @@ public class NewContent : INotifyPropertyChanged
 
         if (!autoSaveAndClose && selectedFiles.Count > 10)
         {
-            StatusContext.ToastError(
-                "Opening new content in an editor window is limited to 10 photos at a time...");
+            StatusContext.ToastError("Opening new content in an editor window is limited to 10 photos at a time...");
             return;
         }
 
@@ -343,7 +325,7 @@ public class NewContent : INotifyPropertyChanged
             loopCount++;
 
             WindowStatus?.AddRequest(new WindowIconStatusRequest(StatusContext.StatusControlContextId,
-                TaskbarItemProgressState.Normal, (decimal)loopCount  / (validFiles.Count + 1)));
+                TaskbarItemProgressState.Normal, (decimal)loopCount / (validFiles.Count + 1)));
 
             await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -366,8 +348,8 @@ public class NewContent : INotifyPropertyChanged
                     continue;
                 }
 
-                var (saveGenerationReturn, _) = await PhotoGenerator.SaveAndGenerateHtml(metaContent, loopFile,
-                    true, null, StatusContext.ProgressTracker());
+                var (saveGenerationReturn, _) = await PhotoGenerator.SaveAndGenerateHtml(metaContent, loopFile, true,
+                    null, StatusContext.ProgressTracker());
 
                 if (saveGenerationReturn.HasError)
                 {
@@ -377,8 +359,7 @@ public class NewContent : INotifyPropertyChanged
                     editor.PositionWindowAndShow();
 #pragma warning disable 4014
                     //Allow execution to continue so Automation can continue
-                    editor.StatusContext.ShowMessageWithOkButton("Problem Saving",
-                        saveGenerationReturn.GenerationNote);
+                    editor.StatusContext.ShowMessageWithOkButton("Problem Saving", saveGenerationReturn.GenerationNote);
 #pragma warning restore 4014
                     continue;
                 }
@@ -413,11 +394,5 @@ public class NewContent : INotifyPropertyChanged
         var newContentWindow = new PostContentEditorWindow();
 
         newContentWindow.PositionWindowAndShow();
-    }
-
-    [NotifyPropertyChangedInvocator]
-    protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-    {
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 }

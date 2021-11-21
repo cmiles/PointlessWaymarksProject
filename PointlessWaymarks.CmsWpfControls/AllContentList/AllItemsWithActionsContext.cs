@@ -1,6 +1,4 @@
-﻿using System.ComponentModel;
-using System.Runtime.CompilerServices;
-using JetBrains.Annotations;
+﻿using Microsoft.Toolkit.Mvvm.ComponentModel;
 using PointlessWaymarks.CmsWpfControls.ContentList;
 using PointlessWaymarks.CmsWpfControls.WordPressXmlImport;
 using PointlessWaymarks.WpfCommon.Commands;
@@ -10,11 +8,13 @@ using PointlessWaymarks.WpfCommon.Utility;
 
 namespace PointlessWaymarks.CmsWpfControls.AllContentList;
 
-public class AllItemsWithActionsContext : INotifyPropertyChanged
+[ObservableObject]
+public partial class AllItemsWithActionsContext
 {
-    private ContentListContext _listContext;
-    private Command _wordPressImportWindowCommand;
-    private WindowIconStatus _windowStatus;
+    [ObservableProperty] private ContentListContext listContext;
+    [ObservableProperty] private StatusControlContext statusContext;
+    [ObservableProperty] private WindowIconStatus windowStatus;
+    [ObservableProperty] private Command wordPressImportWindowCommand;
 
     public AllItemsWithActionsContext(StatusControlContext statusContext, WindowIconStatus windowStatus)
     {
@@ -24,43 +24,6 @@ public class AllItemsWithActionsContext : INotifyPropertyChanged
 
         StatusContext.RunFireAndForgetBlockingTask(LoadData);
     }
-
-    public WindowIconStatus WindowStatus
-    {
-        get => _windowStatus;
-        set
-        {
-            if (Equals(value, _windowStatus)) return;
-            _windowStatus = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public ContentListContext ListContext
-    {
-        get => _listContext;
-        set
-        {
-            if (Equals(value, _listContext)) return;
-            _listContext = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public StatusControlContext StatusContext { get; set; }
-
-    public Command WordPressImportWindowCommand
-    {
-        get => _wordPressImportWindowCommand;
-        set
-        {
-            if (Equals(value, _wordPressImportWindowCommand)) return;
-            _wordPressImportWindowCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public event PropertyChangedEventHandler PropertyChanged;
 
     public async Task LoadData()
     {
@@ -77,23 +40,14 @@ public class AllItemsWithActionsContext : INotifyPropertyChanged
             {
                 ItemName = "Code to Clipboard", ItemCommand = ListContext.BracketCodeToClipboardSelectedCommand
             },
-            new()
-                { ItemName = "Extract New Links", ItemCommand = ListContext.ExtractNewLinksSelectedCommand },
+            new() { ItemName = "Extract New Links", ItemCommand = ListContext.ExtractNewLinksSelectedCommand },
             new() { ItemName = "Open URL", ItemCommand = ListContext.OpenUrlSelectedCommand },
             new() { ItemName = "Delete", ItemCommand = ListContext.DeleteSelectedCommand },
-            new()
-                { ItemName = "View History", ItemCommand = ListContext.ViewHistorySelectedCommand }
+            new() { ItemName = "View History", ItemCommand = ListContext.ViewHistorySelectedCommand }
         };
 
         await ListContext.LoadData();
     }
-
-    [NotifyPropertyChangedInvocator]
-    protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-    {
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-    }
-
 
     private async Task WordPressImportWindow()
     {

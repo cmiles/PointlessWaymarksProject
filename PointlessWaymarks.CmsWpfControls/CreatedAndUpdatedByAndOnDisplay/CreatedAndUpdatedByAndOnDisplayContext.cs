@@ -1,6 +1,5 @@
 ﻿using System.ComponentModel;
-using System.Runtime.CompilerServices;
-using JetBrains.Annotations;
+using Microsoft.Toolkit.Mvvm.ComponentModel;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.Content;
 using PointlessWaymarks.CmsData.Database.Models;
@@ -11,126 +10,30 @@ using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 
 namespace PointlessWaymarks.CmsWpfControls.CreatedAndUpdatedByAndOnDisplay;
 
-public class CreatedAndUpdatedByAndOnDisplayContext : INotifyPropertyChanged, IHasChanges, IHasValidationIssues,
+[ObservableObject]
+public partial class CreatedAndUpdatedByAndOnDisplayContext : IHasChanges, IHasValidationIssues,
     ICheckForChangesAndValidation
 {
-    private string _createdAndUpdatedByAndOn;
-    private StringDataEntryContext _createdByEntry;
-    private DateTime? _createdOn;
-    private ICreatedAndLastUpdateOnAndBy _dbEntry;
-    private bool _hasChanges;
-    private bool _hasValidationIssues;
-    private bool _isNewEntry;
-    private bool _showCreatedByEditor;
-    private bool _showUpdatedByEditor;
-    private StringDataEntryContext _updatedByEntry;
-    private DateTime? _updatedOn;
+    [ObservableProperty] private string _createdAndUpdatedByAndOn;
+    [ObservableProperty] private StringDataEntryContext _createdByEntry;
+    [ObservableProperty] private DateTime? _createdOn;
+    [ObservableProperty] private ICreatedAndLastUpdateOnAndBy _dbEntry;
+    [ObservableProperty] private bool _hasChanges;
+    [ObservableProperty] private bool _hasValidationIssues;
+    [ObservableProperty] private bool _isNewEntry;
+    [ObservableProperty] private bool _showCreatedByEditor;
+    [ObservableProperty] private bool _showUpdatedByEditor;
+
+
+    [ObservableProperty] private StatusControlContext _statusContext;
+    [ObservableProperty] private StringDataEntryContext _updatedByEntry;
+    [ObservableProperty] private DateTime? _updatedOn;
 
     private CreatedAndUpdatedByAndOnDisplayContext(StatusControlContext statusContext)
     {
         StatusContext = statusContext ?? new StatusControlContext();
-    }
 
-    public string CreatedAndUpdatedByAndOn
-    {
-        get => _createdAndUpdatedByAndOn;
-        set
-        {
-            if (value == _createdAndUpdatedByAndOn) return;
-            _createdAndUpdatedByAndOn = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public StringDataEntryContext CreatedByEntry
-    {
-        get => _createdByEntry;
-        set
-        {
-            if (Equals(value, _createdByEntry)) return;
-            _createdByEntry = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public DateTime? CreatedOn
-    {
-        get => _createdOn;
-        set
-        {
-            if (Nullable.Equals(value, _createdOn)) return;
-            _createdOn = value;
-            OnPropertyChanged();
-        }
-    }
-
-
-    public ICreatedAndLastUpdateOnAndBy DbEntry
-    {
-        get => _dbEntry;
-        set
-        {
-            if (Equals(value, _dbEntry)) return;
-            _dbEntry = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public bool IsNewEntry
-    {
-        get => _isNewEntry;
-        set
-        {
-            if (value == _isNewEntry) return;
-            _isNewEntry = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public bool ShowCreatedByEditor
-    {
-        get => _showCreatedByEditor;
-        set
-        {
-            if (value == _showCreatedByEditor) return;
-            _showCreatedByEditor = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public bool ShowUpdatedByEditor
-    {
-        get => _showUpdatedByEditor;
-        set
-        {
-            if (value == _showUpdatedByEditor) return;
-            _showUpdatedByEditor = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public StatusControlContext StatusContext { get; set; }
-
-    public StringDataEntryContext UpdatedByEntry
-    {
-        get => _updatedByEntry;
-        set
-        {
-            if (Equals(value, _updatedByEntry)) return;
-            _updatedByEntry = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public DateTime? UpdatedOn
-    {
-        get => _updatedOn;
-        set
-        {
-            if (Nullable.Equals(value, _updatedOn)) return;
-            _updatedOn = value;
-            OnPropertyChanged();
-        }
+        PropertyChanged += OnPropertyChanged;
     }
 
     public void CheckForChangesAndValidationIssues()
@@ -139,33 +42,8 @@ public class CreatedAndUpdatedByAndOnDisplayContext : INotifyPropertyChanged, IH
         HasValidationIssues = PropertyScanners.ChildPropertiesHaveValidationIssues(this);
     }
 
-    public bool HasChanges
-    {
-        get => _hasChanges;
-        set
-        {
-            if (value == _hasChanges) return;
-            _hasChanges = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public bool HasValidationIssues
-    {
-        get => _hasValidationIssues;
-        set
-        {
-            if (value == _hasValidationIssues) return;
-            _hasValidationIssues = value;
-            OnPropertyChanged();
-        }
-    }
-
-
-    public event PropertyChangedEventHandler PropertyChanged;
-
-    public static async Task<CreatedAndUpdatedByAndOnDisplayContext> CreateInstance(
-        StatusControlContext statusContext, ICreatedAndLastUpdateOnAndBy dbEntry)
+    public static async Task<CreatedAndUpdatedByAndOnDisplayContext> CreateInstance(StatusControlContext statusContext,
+        ICreatedAndLastUpdateOnAndBy dbEntry)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -185,7 +63,7 @@ public class CreatedAndUpdatedByAndOnDisplayContext : INotifyPropertyChanged, IH
 
         if (toLoad == null)
             IsNewEntry = true;
-        else if (((IContentId) DbEntry).Id < 1) IsNewEntry = true;
+        else if (((IContentId)DbEntry).Id < 1) IsNewEntry = true;
 
         CreatedByEntry = StringDataEntryContext.CreateInstance();
         CreatedByEntry.ValidationFunctions = new List<Func<string, IsValid>>
@@ -194,16 +72,14 @@ public class CreatedAndUpdatedByAndOnDisplayContext : INotifyPropertyChanged, IH
         };
         CreatedByEntry.Title = "Created By";
         CreatedByEntry.HelpText = "Created By Name";
-        CreatedByEntry.ReferenceValue = string.IsNullOrWhiteSpace(toLoad?.CreatedBy)
-            ? string.Empty
-            : DbEntry.CreatedBy;
+        CreatedByEntry.ReferenceValue = string.IsNullOrWhiteSpace(toLoad?.CreatedBy) ? string.Empty : DbEntry.CreatedBy;
         CreatedByEntry.UserValue = string.IsNullOrWhiteSpace(toLoad?.CreatedBy)
             ? UserSettingsSingleton.CurrentSettings().DefaultCreatedBy
             : DbEntry.CreatedBy;
 
 
         UpdatedByEntry = StringDataEntryContext.CreateInstance();
-        UpdatedByEntry.ValidationFunctions = new List<Func<string, IsValid>> {ValidateUpdatedBy};
+        UpdatedByEntry.ValidationFunctions = new List<Func<string, IsValid>> { ValidateUpdatedBy };
         UpdatedByEntry.Title = "Updated By";
         UpdatedByEntry.HelpText = "Last Updated By Name";
         UpdatedByEntry.ReferenceValue = toLoad?.LastUpdatedBy ?? string.Empty;
@@ -253,17 +129,14 @@ public class CreatedAndUpdatedByAndOnDisplayContext : INotifyPropertyChanged, IH
         CreatedAndUpdatedByAndOn = string.Join(" ", newStringParts);
     }
 
-    [NotifyPropertyChangedInvocator]
-    protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+    private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
     {
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        if (e == null) return;
+        if (string.IsNullOrWhiteSpace(e.PropertyName)) return;
 
-        if (string.IsNullOrWhiteSpace(propertyName)) return;
-
-        if (!propertyName.Contains("HasChanges") && !propertyName.Contains("Validation"))
+        if (!e.PropertyName.Contains("HasChanges") && !e.PropertyName.Contains("Validation"))
             CheckForChangesAndValidationIssues();
     }
-
 
     public IsValid ValidateUpdatedBy(string updatedBy)
     {

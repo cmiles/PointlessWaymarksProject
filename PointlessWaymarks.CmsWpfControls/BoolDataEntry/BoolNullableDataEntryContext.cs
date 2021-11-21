@@ -1,119 +1,28 @@
 ﻿using System.ComponentModel;
-using System.Runtime.CompilerServices;
-using JetBrains.Annotations;
+using Microsoft.Toolkit.Mvvm.ComponentModel;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsWpfControls.Utility.ChangesAndValidation;
 
 namespace PointlessWaymarks.CmsWpfControls.BoolDataEntry;
 
-public class BoolNullableDataEntryContext : INotifyPropertyChanged, IHasChanges, IHasValidationIssues
+[ObservableObject]
+public partial class BoolNullableDataEntryContext : IHasChanges, IHasValidationIssues
 {
-    private bool _hasChanges;
-    private bool _hasValidationIssues;
-    private string _helpText;
-    private bool? _referenceValue;
-    private string _title;
-    private bool? _userValue;
-
-    private List<Func<bool?, IsValid>> _validationFunctions = new();
-
-    private string _validationMessage;
+    [ObservableProperty] private bool _hasChanges;
+    [ObservableProperty] private bool _hasValidationIssues;
+    [ObservableProperty] private string _helpText;
+    [ObservableProperty] private bool? _referenceValue;
+    [ObservableProperty] private string _title;
+    [ObservableProperty] private bool? _userValue;
+    [ObservableProperty] private List<Func<bool?, IsValid>> _validationFunctions = new();
+    [ObservableProperty] private string _validationMessage;
 
     private BoolNullableDataEntryContext()
     {
-    }
-
-    public string HelpText
-    {
-        get => _helpText;
-        set
-        {
-            if (value == _helpText) return;
-            _helpText = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public bool? ReferenceValue
-    {
-        get => _referenceValue;
-        set
-        {
-            if (value == _referenceValue) return;
-            _referenceValue = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public string Title
-    {
-        get => _title;
-        set
-        {
-            if (value == _title) return;
-            _title = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public bool? UserValue
-    {
-        get => _userValue;
-        set
-        {
-            if (value == _userValue) return;
-            _userValue = value;
-            OnPropertyChanged();
-        }
+        PropertyChanged += OnPropertyChanged;
     }
 
     public bool UserValueIsNullable => true;
-
-    public List<Func<bool?, IsValid>> ValidationFunctions
-    {
-        get => _validationFunctions;
-        set
-        {
-            if (Equals(value, _validationFunctions)) return;
-            _validationFunctions = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public string ValidationMessage
-    {
-        get => _validationMessage;
-        set
-        {
-            if (value == _validationMessage) return;
-            _validationMessage = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public bool HasChanges
-    {
-        get => _hasChanges;
-        set
-        {
-            if (value == _hasChanges) return;
-            _hasChanges = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public bool HasValidationIssues
-    {
-        get => _hasValidationIssues;
-        set
-        {
-            if (value == _hasValidationIssues) return;
-            _hasValidationIssues = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public event PropertyChangedEventHandler PropertyChanged;
 
     private void CheckForChangesAndValidate()
     {
@@ -140,14 +49,12 @@ public class BoolNullableDataEntryContext : INotifyPropertyChanged, IHasChanges,
         return new();
     }
 
-    [NotifyPropertyChangedInvocator]
-    protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+    private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
     {
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        if (e == null) return;
+        if (string.IsNullOrWhiteSpace(e.PropertyName)) return;
 
-        if (string.IsNullOrWhiteSpace(propertyName)) return;
-
-        if (!propertyName.Contains("HasChanges") && !propertyName.Contains("Validation"))
+        if (!e.PropertyName.Contains("HasChanges") && !e.PropertyName.Contains("Validation"))
             CheckForChangesAndValidate();
     }
 }
