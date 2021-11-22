@@ -1,7 +1,5 @@
-﻿using System.ComponentModel;
-using System.Runtime.CompilerServices;
-using System.Windows;
-using JetBrains.Annotations;
+﻿using System.Windows;
+using Microsoft.Toolkit.Mvvm.ComponentModel;
 using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsWpfControls.ContentList;
 using PointlessWaymarks.WpfCommon.Commands;
@@ -11,13 +9,14 @@ using PointlessWaymarks.WpfCommon.Utility;
 
 namespace PointlessWaymarks.CmsWpfControls.GeoJsonList;
 
-public class GeoJsonListWithActionsContext : INotifyPropertyChanged
+[ObservableObject]
+public partial class GeoJsonListWithActionsContext
 {
-    private Command _geoJsonLinkCodesToClipboardForSelectedCommand;
-    private ContentListContext _listContext;
-    private Command _refreshDataCommand;
-    private StatusControlContext _statusContext;
-    private WindowIconStatus _windowStatus;
+    [ObservableProperty] private Command _geoJsonLinkCodesToClipboardForSelectedCommand;
+    [ObservableProperty] private ContentListContext _listContext;
+    [ObservableProperty] private Command _refreshDataCommand;
+    [ObservableProperty] private StatusControlContext _statusContext;
+    [ObservableProperty] private WindowIconStatus _windowStatus;
 
     public GeoJsonListWithActionsContext(StatusControlContext statusContext, WindowIconStatus windowStatus = null)
     {
@@ -26,65 +25,6 @@ public class GeoJsonListWithActionsContext : INotifyPropertyChanged
 
         StatusContext.RunFireAndForgetBlockingTask(LoadData);
     }
-
-    public Command GeoJsonLinkCodesToClipboardForSelectedCommand
-    {
-        get => _geoJsonLinkCodesToClipboardForSelectedCommand;
-        set
-        {
-            if (Equals(value, _geoJsonLinkCodesToClipboardForSelectedCommand)) return;
-            _geoJsonLinkCodesToClipboardForSelectedCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public ContentListContext ListContext
-    {
-        get => _listContext;
-        set
-        {
-            if (Equals(value, _listContext)) return;
-            _listContext = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command RefreshDataCommand
-    {
-        get => _refreshDataCommand;
-        set
-        {
-            if (Equals(value, _refreshDataCommand)) return;
-            _refreshDataCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-
-    public StatusControlContext StatusContext
-    {
-        get => _statusContext;
-        set
-        {
-            if (Equals(value, _statusContext)) return;
-            _statusContext = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public WindowIconStatus WindowStatus
-    {
-        get => _windowStatus;
-        set
-        {
-            if (Equals(value, _windowStatus)) return;
-            _windowStatus = value;
-            OnPropertyChanged();
-        }
-    }
-
-
-    public event PropertyChangedEventHandler PropertyChanged;
 
     private async Task LinkBracketCodesToClipboardForSelected()
     {
@@ -127,8 +67,7 @@ public class GeoJsonListWithActionsContext : INotifyPropertyChanged
             },
             new()
             {
-                ItemName = "Text Code to Clipboard",
-                ItemCommand = GeoJsonLinkCodesToClipboardForSelectedCommand
+                ItemName = "Text Code to Clipboard", ItemCommand = GeoJsonLinkCodesToClipboardForSelectedCommand
             },
             new() { ItemName = "Extract New Links", ItemCommand = ListContext.ExtractNewLinksSelectedCommand },
             new() { ItemName = "Open URL", ItemCommand = ListContext.OpenUrlSelectedCommand },
@@ -138,12 +77,6 @@ public class GeoJsonListWithActionsContext : INotifyPropertyChanged
         };
 
         await ListContext.LoadData();
-    }
-
-    [NotifyPropertyChangedInvocator]
-    protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-    {
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 
     public List<GeoJsonListListItem> SelectedItems()

@@ -2,11 +2,10 @@
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
-using System.Runtime.CompilerServices;
 using System.Text.Json;
 using System.Windows;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Toolkit.Mvvm.ComponentModel;
 using Ookii.Dialogs.Wpf;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.Database;
@@ -24,37 +23,38 @@ using TinyIpc.Messaging;
 
 namespace PointlessWaymarks.CmsWpfControls.FilesWrittenLogList;
 
-public class FilesWrittenLogListContext : INotifyPropertyChanged
+[ObservableObject]
+public partial class FilesWrittenLogListContext
 {
-    private Command? _allFilesToExcelCommand;
-    private Command? _allScriptStringsToClipboardCommand;
-    private Command? _allScriptStringsToPowerShellScriptCommand;
-    private Command? _allWrittenFilesToClipboardCommand;
-    private Command _allWrittenFilesToRunningS3UploaderCommand;
-    private Command? _allWrittenFilesToS3UploaderCommand;
-    private Command? _allWrittenFilesToS3UploaderJsonFileCommand;
-    private bool _changeSlashes = true;
-    private DataNotificationsWorkQueue _dataNotificationsProcessor;
-    private bool _filterForFilesInCurrentGenerationDirectory = true;
-    private Command? _generateItemsCommand;
-    private ObservableCollection<FileWrittenLogListDateTimeFilterChoice>? _generationChoices;
-    private ObservableCollection<FilesWrittenLogListListItem>? _items;
-    private Command? _openUploaderJsonFileCommand;
-    private Command? _selectedFilesToExcelCommand;
-    private FileWrittenLogListDateTimeFilterChoice? _selectedGenerationChoice;
-    private List<FilesWrittenLogListListItem> _selectedItems = new();
-    private Command? _selectedScriptStringsToClipboardCommand;
-    private Command? _selectedScriptStringsToPowerShellScriptCommand;
-    private Command? _selectedWrittenFilesToClipboardCommand;
-    private Command _selectedWrittenFilesToRunningS3UploaderCommand;
-    private Command? _selectedWrittenFilesToS3UploaderCommand;
-    private Command? _selectedWrittenFilesToS3UploaderJsonFileCommand;
-    private Command? _siteDeletedFilesReportCommand;
-    private Command? _siteMissingFilesReportCommand;
-    private StatusControlContext _statusContext;
-    private string _userBucketName = string.Empty;
-    private string _userBucketRegion = string.Empty;
-    private string _userScriptPrefix = "aws s3 cp";
+    [ObservableProperty] private Command? _allFilesToExcelCommand;
+    [ObservableProperty] private Command? _allScriptStringsToClipboardCommand;
+    [ObservableProperty] private Command? _allScriptStringsToPowerShellScriptCommand;
+    [ObservableProperty] private Command? _allWrittenFilesToClipboardCommand;
+    [ObservableProperty] private Command _allWrittenFilesToRunningS3UploaderCommand;
+    [ObservableProperty] private Command? _allWrittenFilesToS3UploaderCommand;
+    [ObservableProperty] private Command? _allWrittenFilesToS3UploaderJsonFileCommand;
+    [ObservableProperty] private bool _changeSlashes = true;
+    [ObservableProperty] private DataNotificationsWorkQueue _dataNotificationsProcessor;
+    [ObservableProperty] private bool _filterForFilesInCurrentGenerationDirectory = true;
+    [ObservableProperty] private Command? _generateItemsCommand;
+    [ObservableProperty] private ObservableCollection<FileWrittenLogListDateTimeFilterChoice>? _generationChoices;
+    [ObservableProperty] private ObservableCollection<FilesWrittenLogListListItem>? _items;
+    [ObservableProperty] private Command? _openUploaderJsonFileCommand;
+    [ObservableProperty] private Command? _selectedFilesToExcelCommand;
+    [ObservableProperty] private FileWrittenLogListDateTimeFilterChoice? _selectedGenerationChoice;
+    [ObservableProperty] private List<FilesWrittenLogListListItem> _selectedItems = new();
+    [ObservableProperty] private Command? _selectedScriptStringsToClipboardCommand;
+    [ObservableProperty] private Command? _selectedScriptStringsToPowerShellScriptCommand;
+    [ObservableProperty] private Command? _selectedWrittenFilesToClipboardCommand;
+    [ObservableProperty] private Command _selectedWrittenFilesToRunningS3UploaderCommand;
+    [ObservableProperty] private Command? _selectedWrittenFilesToS3UploaderCommand;
+    [ObservableProperty] private Command? _selectedWrittenFilesToS3UploaderJsonFileCommand;
+    [ObservableProperty] private Command? _siteDeletedFilesReportCommand;
+    [ObservableProperty] private Command? _siteMissingFilesReportCommand;
+    [ObservableProperty] private StatusControlContext _statusContext;
+    [ObservableProperty] private string _userBucketName = string.Empty;
+    [ObservableProperty] private string _userBucketRegion = string.Empty;
+    [ObservableProperty] private string _userScriptPrefix = "aws s3 cp";
 
     public FilesWrittenLogListContext(StatusControlContext? statusContext, bool loadInBackground)
     {
@@ -65,8 +65,7 @@ public class FilesWrittenLogListContext : INotifyPropertyChanged
         SelectedScriptStringsToClipboardCommand =
             StatusContext.RunBlockingTaskCommand(SelectedScriptStringsToClipboard);
         AllWrittenFilesToClipboardCommand = StatusContext.RunBlockingTaskCommand(AllWrittenFilesToClipboard);
-        SelectedWrittenFilesToClipboardCommand =
-            StatusContext.RunBlockingTaskCommand(SelectedWrittenFilesToClipboard);
+        SelectedWrittenFilesToClipboardCommand = StatusContext.RunBlockingTaskCommand(SelectedWrittenFilesToClipboard);
         SelectedScriptStringsToPowerShellScriptCommand =
             StatusContext.RunBlockingTaskCommand(SelectedScriptStringsToPowerShellScript);
         AllScriptStringsToPowerShellScriptCommand =
@@ -89,332 +88,13 @@ public class FilesWrittenLogListContext : INotifyPropertyChanged
             StatusContext.RunNonBlockingTaskCommand(AllWrittenFilesToS3UploaderJsonFile);
         OpenUploaderJsonFileCommand = StatusContext.RunNonBlockingTaskCommand(OpenUploaderJsonFile);
 
+        PropertyChanged += OnPropertyChanged;
+
         if (loadInBackground) StatusContext.RunFireAndForgetBlockingTask(LoadData);
 
         _dataNotificationsProcessor = new DataNotificationsWorkQueue { Processor = DataNotificationReceived };
         DataNotifications.NewDataNotificationChannel().MessageReceived += OnDataNotificationReceived;
     }
-
-    public Command? AllFilesToExcelCommand
-    {
-        get => _allFilesToExcelCommand;
-        set
-        {
-            if (Equals(value, _allFilesToExcelCommand)) return;
-            _allFilesToExcelCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command? AllScriptStringsToClipboardCommand
-    {
-        get => _allScriptStringsToClipboardCommand;
-        set
-        {
-            if (Equals(value, _allScriptStringsToClipboardCommand)) return;
-            _allScriptStringsToClipboardCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command? AllScriptStringsToPowerShellScriptCommand
-    {
-        get => _allScriptStringsToPowerShellScriptCommand;
-        set
-        {
-            if (Equals(value, _allScriptStringsToPowerShellScriptCommand)) return;
-            _allScriptStringsToPowerShellScriptCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command? AllWrittenFilesToClipboardCommand
-    {
-        get => _allWrittenFilesToClipboardCommand;
-        set
-        {
-            if (Equals(value, _allWrittenFilesToClipboardCommand)) return;
-            _allWrittenFilesToClipboardCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command AllWrittenFilesToRunningS3UploaderCommand
-    {
-        get => _allWrittenFilesToRunningS3UploaderCommand;
-        set
-        {
-            if (Equals(value, _allWrittenFilesToRunningS3UploaderCommand)) return;
-            _allWrittenFilesToRunningS3UploaderCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command? AllWrittenFilesToS3UploaderCommand
-    {
-        get => _allWrittenFilesToS3UploaderCommand;
-        set
-        {
-            if (Equals(value, _allWrittenFilesToS3UploaderCommand)) return;
-            _allWrittenFilesToS3UploaderCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command? AllWrittenFilesToS3UploaderJsonFileCommand
-    {
-        get => _allWrittenFilesToS3UploaderJsonFileCommand;
-        set
-        {
-            if (Equals(value, _allWrittenFilesToS3UploaderJsonFileCommand)) return;
-            _allWrittenFilesToS3UploaderJsonFileCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public bool ChangeSlashes
-    {
-        get => _changeSlashes;
-        set
-        {
-            if (value == _changeSlashes) return;
-            _changeSlashes = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public DataNotificationsWorkQueue DataNotificationsProcessor
-    {
-        get => _dataNotificationsProcessor;
-        set
-        {
-            if (Equals(value, _dataNotificationsProcessor)) return;
-            _dataNotificationsProcessor = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public bool FilterForFilesInCurrentGenerationDirectory
-    {
-        get => _filterForFilesInCurrentGenerationDirectory;
-        set
-        {
-            if (value == _filterForFilesInCurrentGenerationDirectory) return;
-            _filterForFilesInCurrentGenerationDirectory = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command? GenerateItemsCommand
-    {
-        get => _generateItemsCommand;
-        set
-        {
-            if (Equals(value, _generateItemsCommand)) return;
-            _generateItemsCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public ObservableCollection<FileWrittenLogListDateTimeFilterChoice>? GenerationChoices
-    {
-        get => _generationChoices;
-        set
-        {
-            if (Equals(value, _generationChoices)) return;
-            _generationChoices = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public ObservableCollection<FilesWrittenLogListListItem>? Items
-    {
-        get => _items;
-        set
-        {
-            if (Equals(value, _items)) return;
-            _items = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command? OpenUploaderJsonFileCommand
-    {
-        get => _openUploaderJsonFileCommand;
-        set
-        {
-            if (Equals(value, _openUploaderJsonFileCommand)) return;
-            _openUploaderJsonFileCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command? SelectedFilesToExcelCommand
-    {
-        get => _selectedFilesToExcelCommand;
-        set
-        {
-            if (Equals(value, _selectedFilesToExcelCommand)) return;
-            _selectedFilesToExcelCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public FileWrittenLogListDateTimeFilterChoice? SelectedGenerationChoice
-    {
-        get => _selectedGenerationChoice;
-        set
-        {
-            if (value == _selectedGenerationChoice) return;
-            _selectedGenerationChoice = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public List<FilesWrittenLogListListItem> SelectedItems
-    {
-        get => _selectedItems;
-        set
-        {
-            if (Equals(value, _selectedItems)) return;
-            _selectedItems = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command? SelectedScriptStringsToClipboardCommand
-    {
-        get => _selectedScriptStringsToClipboardCommand;
-        set
-        {
-            if (Equals(value, _selectedScriptStringsToClipboardCommand)) return;
-            _selectedScriptStringsToClipboardCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command? SelectedScriptStringsToPowerShellScriptCommand
-    {
-        get => _selectedScriptStringsToPowerShellScriptCommand;
-        set
-        {
-            if (Equals(value, _selectedScriptStringsToPowerShellScriptCommand)) return;
-            _selectedScriptStringsToPowerShellScriptCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command? SelectedWrittenFilesToClipboardCommand
-    {
-        get => _selectedWrittenFilesToClipboardCommand;
-        set
-        {
-            if (Equals(value, _selectedWrittenFilesToClipboardCommand)) return;
-            _selectedWrittenFilesToClipboardCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command SelectedWrittenFilesToRunningS3UploaderCommand
-    {
-        get => _selectedWrittenFilesToRunningS3UploaderCommand;
-        set
-        {
-            if (Equals(value, _selectedWrittenFilesToRunningS3UploaderCommand)) return;
-            _selectedWrittenFilesToRunningS3UploaderCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command? SelectedWrittenFilesToS3UploaderCommand
-    {
-        get => _selectedWrittenFilesToS3UploaderCommand;
-        set
-        {
-            if (Equals(value, _selectedWrittenFilesToS3UploaderCommand)) return;
-            _selectedWrittenFilesToS3UploaderCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command? SelectedWrittenFilesToS3UploaderJsonFileCommand
-    {
-        get => _selectedWrittenFilesToS3UploaderJsonFileCommand;
-        set
-        {
-            if (Equals(value, _selectedWrittenFilesToS3UploaderJsonFileCommand)) return;
-            _selectedWrittenFilesToS3UploaderJsonFileCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command? SiteDeletedFilesReportCommand
-    {
-        get => _siteDeletedFilesReportCommand;
-        set
-        {
-            if (Equals(value, _siteDeletedFilesReportCommand)) return;
-            _siteDeletedFilesReportCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command? SiteMissingFilesReportCommand
-    {
-        get => _siteMissingFilesReportCommand;
-        set
-        {
-            if (Equals(value, _siteMissingFilesReportCommand)) return;
-            _siteMissingFilesReportCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public StatusControlContext StatusContext
-    {
-        get => _statusContext;
-        set
-        {
-            if (Equals(value, _statusContext)) return;
-            _statusContext = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public string UserBucketName
-    {
-        get => _userBucketName;
-        set
-        {
-            if (value == _userBucketName) return;
-            _userBucketName = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public string UserBucketRegion
-    {
-        get => _userBucketRegion;
-        set
-        {
-            if (value == _userBucketRegion) return;
-            _userBucketRegion = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public string UserScriptPrefix
-    {
-        get => _userScriptPrefix;
-        set
-        {
-            if (value == _userScriptPrefix) return;
-            _userScriptPrefix = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public event PropertyChangedEventHandler? PropertyChanged;
 
     private async Task AllFilesToExcel()
     {
@@ -577,8 +257,7 @@ public class FilesWrittenLogListContext : INotifyPropertyChanged
     {
         var scriptString = FileItemsToScriptString(toWrite);
 
-        var file = new FileInfo(Path.Combine(
-            UserSettingsSingleton.CurrentSettings().LocalScriptsDirectory().FullName,
+        var file = new FileInfo(Path.Combine(UserSettingsSingleton.CurrentSettings().LocalScriptsDirectory().FullName,
             $"{DateTime.Now:yyyy-MM-dd--HH-mm-ss}---File-Upload-Script.ps1"));
 
         await File.WriteAllTextAsync(file.FullName, scriptString);
@@ -649,14 +328,13 @@ public class FilesWrittenLogListContext : INotifyPropertyChanged
 
         var db = await Db.Context();
 
-        var generationDirectory = new DirectoryInfo(UserSettingsSingleton.CurrentSettings().LocalSiteRootFullDirectory().FullName)
-            .FullName;
+        var generationDirectory =
+            new DirectoryInfo(UserSettingsSingleton.CurrentSettings().LocalSiteRootFullDirectory().FullName).FullName;
 
         StatusContext.Progress($"Filtering for Generation Directory: {FilterForFilesInCurrentGenerationDirectory}");
 
         var searchQuery = FilterForFilesInCurrentGenerationDirectory
-            ? db.GenerationFileWriteLogs.Where(
-                x => x.FileName != null && x.FileName.StartsWith(generationDirectory))
+            ? db.GenerationFileWriteLogs.Where(x => x.FileName != null && x.FileName.StartsWith(generationDirectory))
             : db.GenerationFileWriteLogs;
 
         if (SelectedGenerationChoice.FilterDateTimeUtc != null)
@@ -672,7 +350,8 @@ public class FilesWrittenLogListContext : INotifyPropertyChanged
         StatusContext.Progress($"Processing {dbItems.Count} items for display");
         foreach (var loopDbItems in dbItems.Where(x => !string.IsNullOrWhiteSpace(x.FileName)).ToList())
         {
-            var directory = new DirectoryInfo(UserSettingsSingleton.CurrentSettings().LocalSiteRootFullDirectory().FullName);
+            var directory =
+                new DirectoryInfo(UserSettingsSingleton.CurrentSettings().LocalSiteRootFullDirectory().FullName);
             var fileBase = loopDbItems.FileName!.Replace(directory.FullName, string.Empty);
             var isInGenerationDirectory = loopDbItems.FileName.StartsWith(generationDirectory);
             var transformedFileName = ToTransformedFileString(fileBase);
@@ -754,9 +433,7 @@ public class FilesWrittenLogListContext : INotifyPropertyChanged
 
         if (SelectedGenerationChoice == null)
         {
-            var possibleLastScript =
-                logChoiceList.FirstOrDefault(x =>
-                    x.DisplayText.EndsWith("  - Upload Generated"));
+            var possibleLastScript = logChoiceList.FirstOrDefault(x => x.DisplayText.EndsWith("  - Upload Generated"));
 
             toSelect = possibleLastScript ?? logChoiceList[0];
         }
@@ -785,12 +462,12 @@ public class FilesWrittenLogListContext : INotifyPropertyChanged
         DataNotificationsProcessor.Enqueue(e);
     }
 
-    [NotifyPropertyChangedInvocator]
-    protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = "")
+    private void OnPropertyChanged(object? sender, PropertyChangedEventArgs? e)
     {
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        if (e == null) return;
+        if (string.IsNullOrWhiteSpace(e.PropertyName)) return;
 
-        if (propertyName is nameof(UserBucketName) or nameof(UserScriptPrefix) or nameof(ChangeSlashes))
+        if (e.PropertyName is nameof(UserBucketName) or nameof(UserScriptPrefix) or nameof(ChangeSlashes))
             StatusContext.RunBlockingAction(() =>
             {
                 var currentItems = Items?.ToList();
@@ -839,9 +516,11 @@ public class FilesWrittenLogListContext : INotifyPropertyChanged
 
             await ThreadSwitcher.ResumeForegroundAsync();
 
-            var newUploaderWindow = new S3UploadsWindow(items.Select(x =>
-                    new S3Upload(new FileInfo(x.FileFullName), x.S3Key, x.BucketName, x.Region, x.Note)).ToList(),
-                false);
+            var newUploaderWindow =
+                new S3UploadsWindow(
+                    items.Select(x =>
+                        new S3Upload(new FileInfo(x.FileFullName), x.S3Key, x.BucketName, x.Region, x.Note)).ToList(),
+                    false);
             newUploaderWindow.PositionWindowAndShow();
         }
         catch (Exception e)

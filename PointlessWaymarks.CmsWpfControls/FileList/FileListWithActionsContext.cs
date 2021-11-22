@@ -1,7 +1,5 @@
-﻿using System.ComponentModel;
-using System.Runtime.CompilerServices;
-using System.Windows;
-using JetBrains.Annotations;
+﻿using System.Windows;
+using Microsoft.Toolkit.Mvvm.ComponentModel;
 using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.ContentHtml.FileHtml;
 using PointlessWaymarks.CmsWpfControls.ContentList;
@@ -13,18 +11,19 @@ using PointlessWaymarks.WpfCommon.Utility;
 
 namespace PointlessWaymarks.CmsWpfControls.FileList;
 
-public class FileListWithActionsContext : INotifyPropertyChanged
+[ObservableObject]
+public partial class FileListWithActionsContext
 {
-    private readonly StatusControlContext _statusContext;
-    private Command _emailHtmlToClipboardCommand;
-    private Command _fileDownloadLinkCodesToClipboardForSelectedCommand;
-    private Command _filePageLinkCodesToClipboardForSelectedCommand;
-    private Command _fileUrlLinkCodesToClipboardForSelectedCommand;
-    private Command _firstPagePreviewFromPdfToCairoCommand;
-    private ContentListContext _listContext;
-    private Command _refreshDataCommand;
-    private Command _viewFilesCommand;
-    private WindowIconStatus _windowStatus;
+    [ObservableProperty] private StatusControlContext _statusContext;
+    [ObservableProperty] private Command _emailHtmlToClipboardCommand;
+    [ObservableProperty] private Command _fileDownloadLinkCodesToClipboardForSelectedCommand;
+    [ObservableProperty] private Command _filePageLinkCodesToClipboardForSelectedCommand;
+    [ObservableProperty] private Command _fileUrlLinkCodesToClipboardForSelectedCommand;
+    [ObservableProperty] private Command _firstPagePreviewFromPdfToCairoCommand;
+    [ObservableProperty] private ContentListContext _listContext;
+    [ObservableProperty] private Command _refreshDataCommand;
+    [ObservableProperty] private Command _viewFilesCommand;
+    [ObservableProperty] private WindowIconStatus _windowStatus;
 
     public FileListWithActionsContext(StatusControlContext statusContext, WindowIconStatus windowStatus = null)
     {
@@ -33,118 +32,6 @@ public class FileListWithActionsContext : INotifyPropertyChanged
 
         StatusContext.RunFireAndForgetBlockingTask(LoadData);
     }
-
-    public Command EmailHtmlToClipboardCommand
-    {
-        get => _emailHtmlToClipboardCommand;
-        set
-        {
-            if (Equals(value, _emailHtmlToClipboardCommand)) return;
-            _emailHtmlToClipboardCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command FileDownloadLinkCodesToClipboardForSelectedCommand
-    {
-        get => _fileDownloadLinkCodesToClipboardForSelectedCommand;
-        set
-        {
-            if (Equals(value, _fileDownloadLinkCodesToClipboardForSelectedCommand)) return;
-            _fileDownloadLinkCodesToClipboardForSelectedCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command FilePageLinkCodesToClipboardForSelectedCommand
-    {
-        get => _filePageLinkCodesToClipboardForSelectedCommand;
-        set
-        {
-            if (Equals(value, _filePageLinkCodesToClipboardForSelectedCommand)) return;
-            _filePageLinkCodesToClipboardForSelectedCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command FileUrlLinkCodesToClipboardForSelectedCommand
-    {
-        get => _fileUrlLinkCodesToClipboardForSelectedCommand;
-        set
-        {
-            if (Equals(value, _fileUrlLinkCodesToClipboardForSelectedCommand)) return;
-            _fileUrlLinkCodesToClipboardForSelectedCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command FirstPagePreviewFromPdfToCairoCommand
-    {
-        get => _firstPagePreviewFromPdfToCairoCommand;
-        set
-        {
-            if (Equals(value, _firstPagePreviewFromPdfToCairoCommand)) return;
-            _firstPagePreviewFromPdfToCairoCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public ContentListContext ListContext
-    {
-        get => _listContext;
-        set
-        {
-            if (Equals(value, _listContext)) return;
-            _listContext = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command RefreshDataCommand
-    {
-        get => _refreshDataCommand;
-        set
-        {
-            if (Equals(value, _refreshDataCommand)) return;
-            _refreshDataCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public StatusControlContext StatusContext
-    {
-        get => _statusContext;
-        private init
-        {
-            if (Equals(value, _statusContext)) return;
-            _statusContext = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command ViewFilesCommand
-    {
-        get => _viewFilesCommand;
-        set
-        {
-            if (Equals(value, _viewFilesCommand)) return;
-            _viewFilesCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public WindowIconStatus WindowStatus
-    {
-        get => _windowStatus;
-        set
-        {
-            if (Equals(value, _windowStatus)) return;
-            _windowStatus = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public event PropertyChangedEventHandler PropertyChanged;
 
     private async Task EmailHtmlToClipboard()
     {
@@ -265,11 +152,9 @@ public class FileListWithActionsContext : INotifyPropertyChanged
             StatusContext.RunBlockingTaskCommand(FileDownloadLinkCodesToClipboardForSelected);
         FileUrlLinkCodesToClipboardForSelectedCommand =
             StatusContext.RunBlockingTaskCommand(FileDownloadLinkCodesToClipboardForSelected);
-        ViewFilesCommand =
-            StatusContext.RunBlockingTaskWithCancellationCommand(ViewFilesSelected, "Cancel File View");
+        ViewFilesCommand = StatusContext.RunBlockingTaskWithCancellationCommand(ViewFilesSelected, "Cancel File View");
 
-        FirstPagePreviewFromPdfToCairoCommand =
-            StatusContext.RunBlockingTaskCommand(FirstPagePreviewFromPdfToCairo);
+        FirstPagePreviewFromPdfToCairoCommand = StatusContext.RunBlockingTaskCommand(FirstPagePreviewFromPdfToCairo);
 
         EmailHtmlToClipboardCommand = StatusContext.RunBlockingTaskCommand(EmailHtmlToClipboard);
 
@@ -293,8 +178,7 @@ public class FileListWithActionsContext : INotifyPropertyChanged
             },
             new()
             {
-                ItemName = "URL Code to Clipboard",
-                ItemCommand = FileUrlLinkCodesToClipboardForSelectedCommand
+                ItemName = "URL Code to Clipboard", ItemCommand = FileUrlLinkCodesToClipboardForSelectedCommand
             },
             new() { ItemName = "Email Html to Clipboard", ItemCommand = EmailHtmlToClipboardCommand },
             new() { ItemName = "View Files", ItemCommand = ViewFilesCommand },
@@ -307,12 +191,6 @@ public class FileListWithActionsContext : INotifyPropertyChanged
         };
 
         await ListContext.LoadData();
-    }
-
-    [NotifyPropertyChangedInvocator]
-    protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-    {
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 
     public List<FileListListItem> SelectedItems()

@@ -1,10 +1,11 @@
 ﻿using System.ComponentModel;
+using Microsoft.Toolkit.Mvvm.ComponentModel;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsWpfControls.Utility;
 
 namespace PointlessWaymarks.CmsWpfControls.ContentList;
 
-public interface IContentListItem : INotifyPropertyChanged, ISelectedTextTracker
+public interface IContentListItem : ISelectedTextTracker
 {
     IContentCommon Content();
     Guid? ContentId();

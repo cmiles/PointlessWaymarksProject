@@ -1,7 +1,5 @@
-﻿using System.ComponentModel;
-using System.Runtime.CompilerServices;
-using System.Windows;
-using JetBrains.Annotations;
+﻿using System.Windows;
+using Microsoft.Toolkit.Mvvm.ComponentModel;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.Content;
@@ -15,17 +13,18 @@ using PointlessWaymarks.WpfCommon.Utility;
 
 namespace PointlessWaymarks.CmsWpfControls.ImageList;
 
-public class ImageListWithActionsContext : INotifyPropertyChanged
+[ObservableObject]
+public partial class ImageListWithActionsContext
 {
-    private readonly StatusControlContext _statusContext;
-    private Command _emailHtmlToClipboardCommand;
-    private Command _forcedResizeCommand;
-    private Command _imageBracketLinkCodesToClipboardForSelectedCommand;
-    private ContentListContext _listContext;
-    private Command _refreshDataCommand;
-    private Command _regenerateHtmlAndReprocessImageForSelectedCommand;
-    private Command _viewFilesCommand;
-    private WindowIconStatus _windowStatus;
+    [ObservableProperty] private Command _emailHtmlToClipboardCommand;
+    [ObservableProperty] private Command _forcedResizeCommand;
+    [ObservableProperty] private Command _imageBracketLinkCodesToClipboardForSelectedCommand;
+    [ObservableProperty] private ContentListContext _listContext;
+    [ObservableProperty] private Command _refreshDataCommand;
+    [ObservableProperty] private Command _regenerateHtmlAndReprocessImageForSelectedCommand;
+    [ObservableProperty] private StatusControlContext _statusContext;
+    [ObservableProperty] private Command _viewFilesCommand;
+    [ObservableProperty] private WindowIconStatus _windowStatus;
 
     public ImageListWithActionsContext(StatusControlContext statusContext, WindowIconStatus windowStatus = null)
     {
@@ -34,108 +33,6 @@ public class ImageListWithActionsContext : INotifyPropertyChanged
 
         StatusContext.RunFireAndForgetBlockingTask(LoadData);
     }
-
-    public Command EmailHtmlToClipboardCommand
-    {
-        get => _emailHtmlToClipboardCommand;
-        set
-        {
-            if (Equals(value, _emailHtmlToClipboardCommand)) return;
-            _emailHtmlToClipboardCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command ForcedResizeCommand
-    {
-        get => _forcedResizeCommand;
-        set
-        {
-            if (Equals(value, _forcedResizeCommand)) return;
-            _forcedResizeCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command ImageBracketLinkCodesToClipboardForSelectedCommand
-    {
-        get => _imageBracketLinkCodesToClipboardForSelectedCommand;
-        set
-        {
-            if (Equals(value, _imageBracketLinkCodesToClipboardForSelectedCommand)) return;
-            _imageBracketLinkCodesToClipboardForSelectedCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public ContentListContext ListContext
-    {
-        get => _listContext;
-        set
-        {
-            if (Equals(value, _listContext)) return;
-            _listContext = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command RefreshDataCommand
-    {
-        get => _refreshDataCommand;
-        set
-        {
-            if (Equals(value, _refreshDataCommand)) return;
-            _refreshDataCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command RegenerateHtmlAndReprocessImageForSelectedCommand
-    {
-        get => _regenerateHtmlAndReprocessImageForSelectedCommand;
-        set
-        {
-            if (Equals(value, _regenerateHtmlAndReprocessImageForSelectedCommand)) return;
-            _regenerateHtmlAndReprocessImageForSelectedCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public StatusControlContext StatusContext
-    {
-        get => _statusContext;
-        private init
-        {
-            if (Equals(value, _statusContext)) return;
-            _statusContext = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command ViewFilesCommand
-    {
-        get => _viewFilesCommand;
-        set
-        {
-            if (Equals(value, _viewFilesCommand)) return;
-            _viewFilesCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public WindowIconStatus WindowStatus
-    {
-        get => _windowStatus;
-        set
-        {
-            if (Equals(value, _windowStatus)) return;
-            _windowStatus = value;
-            OnPropertyChanged();
-        }
-    }
-
-
-    public event PropertyChangedEventHandler PropertyChanged;
 
     private async Task EmailHtmlToClipboard()
     {
@@ -242,8 +139,7 @@ public class ImageListWithActionsContext : INotifyPropertyChanged
             StatusContext.RunBlockingTaskWithCancellationCommand(RegenerateHtmlAndReprocessImageForSelected,
                 "Cancel HTML Generation and Image Resizing");
 
-        ViewFilesCommand =
-            StatusContext.RunBlockingTaskWithCancellationCommand(ViewFilesSelected, "Cancel File View");
+        ViewFilesCommand = StatusContext.RunBlockingTaskWithCancellationCommand(ViewFilesSelected, "Cancel File View");
 
         EmailHtmlToClipboardCommand = StatusContext.RunBlockingTaskCommand(EmailHtmlToClipboard);
 
@@ -278,13 +174,6 @@ public class ImageListWithActionsContext : INotifyPropertyChanged
         await ListContext.LoadData();
     }
 
-
-    [NotifyPropertyChangedInvocator]
-    protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-    {
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-    }
-
     private async Task RegenerateHtmlAndReprocessImageForSelected(CancellationToken cancellationToken)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -316,8 +205,7 @@ public class ImageListWithActionsContext : INotifyPropertyChanged
                 continue;
             }
 
-            var currentVersion =
-                db.ImageContents.SingleOrDefault(x => x.ContentId == loopSelected.DbEntry.ContentId);
+            var currentVersion = db.ImageContents.SingleOrDefault(x => x.ContentId == loopSelected.DbEntry.ContentId);
 
             if (currentVersion == null)
             {
@@ -335,8 +223,8 @@ public class ImageListWithActionsContext : INotifyPropertyChanged
                 $"Re-processing Image and Generating Html for {loopSelected.DbEntry.Title}, {loopCount} of {totalCount}");
 
             var (generationReturn, _) = await ImageGenerator.SaveAndGenerateHtml(currentVersion,
-                UserSettingsSingleton.CurrentSettings().LocalMediaArchiveImageContentFile(currentVersion), true,
-                null, StatusContext.ProgressTracker());
+                UserSettingsSingleton.CurrentSettings().LocalMediaArchiveImageContentFile(currentVersion), true, null,
+                StatusContext.ProgressTracker());
 
             if (generationReturn.HasError)
             {
@@ -358,8 +246,8 @@ public class ImageListWithActionsContext : INotifyPropertyChanged
 
     public List<ImageListListItem> SelectedItems()
     {
-        return ListContext?.ListSelection?.SelectedItems?.Where(x => x is ImageListListItem)
-            .Cast<ImageListListItem>().ToList() ?? new List<ImageListListItem>();
+        return ListContext?.ListSelection?.SelectedItems?.Where(x => x is ImageListListItem).Cast<ImageListListItem>()
+            .ToList() ?? new List<ImageListListItem>();
     }
 
     public async Task ViewFilesSelected(CancellationToken cancelToken)

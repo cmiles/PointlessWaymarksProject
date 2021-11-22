@@ -1,10 +1,8 @@
-﻿using System.ComponentModel;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.IO;
-using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Media.Imaging;
-using JetBrains.Annotations;
+using Microsoft.Toolkit.Mvvm.ComponentModel;
 using Ookii.Dialogs.Wpf;
 using PhotoSauce.MagicScaler;
 using PointlessWaymarks.CmsData;
@@ -30,41 +28,42 @@ using PointlessWaymarks.WpfCommon.Utility;
 
 namespace PointlessWaymarks.CmsWpfControls.ImageContentEditor;
 
-public class ImageContentEditorContext : INotifyPropertyChanged, IHasChanges
+[ObservableObject]
+public partial class ImageContentEditorContext : IHasChanges
 {
-    private StringDataEntryContext _altText;
-    private Command _autoRenameSelectedFileCommand;
-    private BodyContentEditorContext _bodyContent;
-    private Command _chooseFileCommand;
-    private ContentIdViewerControlContext _contentId;
-    private CreatedAndUpdatedByAndOnDisplayContext _createdUpdatedDisplay;
-    private ImageContent _dbEntry;
-    private Command _extractNewLinksCommand;
-    private HelpDisplayContext _helpContext;
-    private FileInfo _initialImage;
-    private Command _linkToClipboardCommand;
-    private FileInfo _loadedFile;
-    private ContentSiteFeedAndIsDraftContext _mainSiteFeed;
-    private Command _renameSelectedFileCommand;
-    private bool _resizeSelectedFile;
-    private Command _rotateImageLeftCommand;
-    private Command _rotateImageRightCommand;
-    private Command _saveAndCloseCommand;
-    private Command _saveAndReprocessImageCommand;
-    private Command _saveCommand;
-    private FileInfo _selectedFile;
-    private BitmapSource _selectedFileBitmapSource;
-    private bool _selectedFileHasPathOrNameChanges;
-    private bool _selectedFileHasValidationIssues;
-    private bool _selectedFileNameHasInvalidCharacters;
-    private string _selectedFileValidationMessage;
-    private BoolDataEntryContext _showInSearch;
-    private StatusControlContext _statusContext;
-    private TagsEditorContext _tagEdit;
-    private TitleSummarySlugEditorContext _titleSummarySlugFolder;
-    private UpdateNotesEditorContext _updateNotes;
-    private Command _viewOnSiteCommand;
-    private Command _viewSelectedFileCommand;
+    [ObservableProperty] private StringDataEntryContext _altTextEntry;
+    [ObservableProperty] private Command _autoRenameSelectedFileCommand;
+    [ObservableProperty] private BodyContentEditorContext _bodyContent;
+    [ObservableProperty] private Command _chooseFileCommand;
+    [ObservableProperty] private ContentIdViewerControlContext _contentId;
+    [ObservableProperty] private CreatedAndUpdatedByAndOnDisplayContext _createdUpdatedDisplay;
+    [ObservableProperty] private ImageContent _dbEntry;
+    [ObservableProperty] private Command _extractNewLinksCommand;
+    [ObservableProperty] private HelpDisplayContext _helpContext;
+    [ObservableProperty] private FileInfo _initialImage;
+    [ObservableProperty] private Command _linkToClipboardCommand;
+    [ObservableProperty] private FileInfo _loadedFile;
+    [ObservableProperty] private ContentSiteFeedAndIsDraftContext _mainSiteFeed;
+    [ObservableProperty] private Command _renameSelectedFileCommand;
+    [ObservableProperty] private bool _resizeSelectedFile;
+    [ObservableProperty] private Command _rotateImageLeftCommand;
+    [ObservableProperty] private Command _rotateImageRightCommand;
+    [ObservableProperty] private Command _saveAndCloseCommand;
+    [ObservableProperty] private Command _saveAndReprocessImageCommand;
+    [ObservableProperty] private Command _saveCommand;
+    [ObservableProperty] private FileInfo _selectedFile;
+    [ObservableProperty] private BitmapSource _selectedFileBitmapSource;
+    [ObservableProperty] private bool _selectedFileHasPathOrNameChanges;
+    [ObservableProperty] private bool _selectedFileHasValidationIssues;
+    [ObservableProperty] private bool _selectedFileNameHasInvalidCharacters;
+    [ObservableProperty] private string _selectedFileValidationMessage;
+    [ObservableProperty] private BoolDataEntryContext _showInSearch;
+    [ObservableProperty] private StatusControlContext _statusContext;
+    [ObservableProperty] private TagsEditorContext _tagEdit;
+    [ObservableProperty] private TitleSummarySlugEditorContext _titleSummarySlugFolder;
+    [ObservableProperty] private UpdateNotesEditorContext _updateNotes;
+    [ObservableProperty] private Command _viewOnSiteCommand;
+    [ObservableProperty] private Command _viewSelectedFileCommand;
 
     public EventHandler RequestContentEditorWindowClose;
 
@@ -73,352 +72,7 @@ public class ImageContentEditorContext : INotifyPropertyChanged, IHasChanges
         SetupContextAndCommands(statusContext);
     }
 
-    public StringDataEntryContext AltTextEntry
-    {
-        get => _altText;
-        set
-        {
-            if (Equals(value, _altText)) return;
-            _altText = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command AutoRenameSelectedFileCommand
-    {
-        get => _autoRenameSelectedFileCommand;
-        set
-        {
-            if (Equals(value, _autoRenameSelectedFileCommand)) return;
-            _autoRenameSelectedFileCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public BodyContentEditorContext BodyContent
-    {
-        get => _bodyContent;
-        set
-        {
-            if (Equals(value, _bodyContent)) return;
-            _bodyContent = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command ChooseFileCommand
-    {
-        get => _chooseFileCommand;
-        set
-        {
-            if (Equals(value, _chooseFileCommand)) return;
-            _chooseFileCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public ContentIdViewerControlContext ContentId
-    {
-        get => _contentId;
-        set
-        {
-            if (Equals(value, _contentId)) return;
-            _contentId = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public CreatedAndUpdatedByAndOnDisplayContext CreatedUpdatedDisplay
-    {
-        get => _createdUpdatedDisplay;
-        set
-        {
-            if (Equals(value, _createdUpdatedDisplay)) return;
-            _createdUpdatedDisplay = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public ImageContent DbEntry
-    {
-        get => _dbEntry;
-        set
-        {
-            if (Equals(value, _dbEntry)) return;
-            _dbEntry = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command ExtractNewLinksCommand
-    {
-        get => _extractNewLinksCommand;
-        set
-        {
-            if (Equals(value, _extractNewLinksCommand)) return;
-            _extractNewLinksCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public HelpDisplayContext HelpContext
-    {
-        get => _helpContext;
-        set
-        {
-            if (Equals(value, _helpContext)) return;
-            _helpContext = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command LinkToClipboardCommand
-    {
-        get => _linkToClipboardCommand;
-        set
-        {
-            if (Equals(value, _linkToClipboardCommand)) return;
-            _linkToClipboardCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public ContentSiteFeedAndIsDraftContext MainSiteFeed
-    {
-        get => _mainSiteFeed;
-        set
-        {
-            if (Equals(value, _mainSiteFeed)) return;
-            _mainSiteFeed = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command RenameSelectedFileCommand
-    {
-        get => _renameSelectedFileCommand;
-        set
-        {
-            if (Equals(value, _renameSelectedFileCommand)) return;
-            _renameSelectedFileCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public bool ResizeSelectedFile
-    {
-        get => _resizeSelectedFile;
-        set
-        {
-            if (value == _resizeSelectedFile) return;
-            _resizeSelectedFile = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command RotateImageLeftCommand
-    {
-        get => _rotateImageLeftCommand;
-        set
-        {
-            if (Equals(value, _rotateImageLeftCommand)) return;
-            _rotateImageLeftCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command RotateImageRightCommand
-    {
-        get => _rotateImageRightCommand;
-        set
-        {
-            if (Equals(value, _rotateImageRightCommand)) return;
-            _rotateImageRightCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command SaveAndCloseCommand
-    {
-        get => _saveAndCloseCommand;
-        set
-        {
-            if (Equals(value, _saveAndCloseCommand)) return;
-            _saveAndCloseCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command SaveAndReprocessImageCommand
-    {
-        get => _saveAndReprocessImageCommand;
-        set
-        {
-            if (Equals(value, _saveAndReprocessImageCommand)) return;
-            _saveAndReprocessImageCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command SaveCommand
-    {
-        get => _saveCommand;
-        set
-        {
-            if (Equals(value, _saveCommand)) return;
-            _saveCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public FileInfo SelectedFile
-    {
-        get => _selectedFile;
-        set
-        {
-            if (Equals(value, _selectedFile)) return;
-            _selectedFile = value;
-            OnPropertyChanged();
-
-            StatusContext.RunFireAndForgetNonBlockingTask(SelectedFileChanged);
-        }
-    }
-
-    public BitmapSource SelectedFileBitmapSource
-    {
-        get => _selectedFileBitmapSource;
-        set
-        {
-            if (Equals(value, _selectedFileBitmapSource)) return;
-            _selectedFileBitmapSource = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public bool SelectedFileHasPathOrNameChanges
-    {
-        get => _selectedFileHasPathOrNameChanges;
-        set
-        {
-            if (value == _selectedFileHasPathOrNameChanges) return;
-            _selectedFileHasPathOrNameChanges = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public bool SelectedFileHasValidationIssues
-    {
-        get => _selectedFileHasValidationIssues;
-        set
-        {
-            if (value == _selectedFileHasValidationIssues) return;
-            _selectedFileHasValidationIssues = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public bool SelectedFileNameHasInvalidCharacters
-    {
-        get => _selectedFileNameHasInvalidCharacters;
-        set
-        {
-            if (value == _selectedFileNameHasInvalidCharacters) return;
-            _selectedFileNameHasInvalidCharacters = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public string SelectedFileValidationMessage
-    {
-        get => _selectedFileValidationMessage;
-        set
-        {
-            if (value == _selectedFileValidationMessage) return;
-            _selectedFileValidationMessage = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public BoolDataEntryContext ShowInSearch
-    {
-        get => _showInSearch;
-        set
-        {
-            if (Equals(value, _showInSearch)) return;
-            _showInSearch = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public StatusControlContext StatusContext
-    {
-        get => _statusContext;
-        set
-        {
-            if (Equals(value, _statusContext)) return;
-            _statusContext = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public TagsEditorContext TagEdit
-    {
-        get => _tagEdit;
-        set
-        {
-            if (Equals(value, _tagEdit)) return;
-            _tagEdit = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public TitleSummarySlugEditorContext TitleSummarySlugFolder
-    {
-        get => _titleSummarySlugFolder;
-        set
-        {
-            if (Equals(value, _titleSummarySlugFolder)) return;
-            _titleSummarySlugFolder = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public UpdateNotesEditorContext UpdateNotes
-    {
-        get => _updateNotes;
-        set
-        {
-            if (Equals(value, _updateNotes)) return;
-            _updateNotes = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command ViewOnSiteCommand
-    {
-        get => _viewOnSiteCommand;
-        set
-        {
-            if (Equals(value, _viewOnSiteCommand)) return;
-            _viewOnSiteCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command ViewSelectedFileCommand
-    {
-        get => _viewSelectedFileCommand;
-        set
-        {
-            if (Equals(value, _viewSelectedFileCommand)) return;
-            _viewSelectedFileCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
     public bool HasChanges => PropertyScanners.ChildPropertiesHaveChanges(this) || SelectedFileHasPathOrNameChanges;
-
-    public event PropertyChangedEventHandler PropertyChanged;
 
     public async Task ChooseFile()
     {
@@ -575,19 +229,12 @@ public class ImageContentEditorContext : INotifyPropertyChanged, IHasChanges
         AltTextEntry.ReferenceValue = DbEntry.AltText ?? string.Empty;
         AltTextEntry.UserValue = DbEntry.AltText.TrimNullToEmpty();
 
-        if (DbEntry.Id < 1 && _initialImage is { Exists: true } &&
-            FileHelpers.ImageFileTypeIsSupported(_initialImage))
+        if (DbEntry.Id < 1 && _initialImage is { Exists: true } && FileHelpers.ImageFileTypeIsSupported(_initialImage))
         {
             SelectedFile = _initialImage;
             ResizeSelectedFile = true;
             _initialImage = null;
         }
-    }
-
-    [NotifyPropertyChangedInvocator]
-    protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-    {
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 
     private async Task RotateImage(Orientation rotationType)
@@ -607,8 +254,6 @@ public class ImageContentEditorContext : INotifyPropertyChanged, IHasChanges
             StatusContext.ToastError("File doesn't appear to exist?");
             return;
         }
-
-        var rotate = new MagicScalerImageResizer();
 
         await MagicScalerImageResizer.Rotate(SelectedFile, rotationType);
         ResizeSelectedFile = true;
@@ -704,7 +349,6 @@ public class ImageContentEditorContext : INotifyPropertyChanged, IHasChanges
         LinkToClipboardCommand = StatusContext.RunBlockingTaskCommand(LinkToClipboard);
     }
 
-
     private async Task ViewOnSite()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -727,7 +371,7 @@ public class ImageContentEditorContext : INotifyPropertyChanged, IHasChanges
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        if (SelectedFile is not { Exists: true, Directory: { Exists: true } })
+        if (SelectedFile is not { Exists: true, Directory.Exists: true })
         {
             StatusContext.ToastError("No Selected File or Selected File no longer exists?");
             return;

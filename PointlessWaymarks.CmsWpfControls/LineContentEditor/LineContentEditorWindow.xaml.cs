@@ -1,6 +1,4 @@
-﻿using System.ComponentModel;
-using System.Runtime.CompilerServices;
-using JetBrains.Annotations;
+﻿using Microsoft.Toolkit.Mvvm.ComponentModel;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsWpfControls.Utility.ChangesAndValidation;
 using PointlessWaymarks.WpfCommon.Status;
@@ -11,10 +9,11 @@ namespace PointlessWaymarks.CmsWpfControls.LineContentEditor;
 /// <summary>
 ///     Interaction logic for LineContentEditorWindow.xaml
 /// </summary>
-public partial class LineContentEditorWindow : INotifyPropertyChanged
+[ObservableObject]
+public partial class LineContentEditorWindow
 {
-    private LineContentEditorContext _postContent;
-    private StatusControlContext _statusContext;
+    [ObservableProperty] private LineContentEditorContext _lineContent;
+    [ObservableProperty] private StatusControlContext _statusContext;
 
     public LineContentEditorWindow(LineContent toLoad)
     {
@@ -34,34 +33,4 @@ public partial class LineContentEditorWindow : INotifyPropertyChanged
     }
 
     public WindowAccidentalClosureHelper AccidentalCloserHelper { get; set; }
-
-    public LineContentEditorContext LineContent
-    {
-        get => _postContent;
-        set
-        {
-            if (Equals(value, _postContent)) return;
-            _postContent = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public StatusControlContext StatusContext
-    {
-        get => _statusContext;
-        set
-        {
-            if (Equals(value, _statusContext)) return;
-            _statusContext = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public event PropertyChangedEventHandler PropertyChanged;
-
-    [NotifyPropertyChangedInvocator]
-    protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-    {
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-    }
 }

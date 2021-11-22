@@ -4,6 +4,7 @@ using System.IO;
 using System.Runtime.CompilerServices;
 using System.Windows;
 using JetBrains.Annotations;
+using Microsoft.Toolkit.Mvvm.ComponentModel;
 using NetTopologySuite.Geometries;
 using Ookii.Dialogs.Wpf;
 using PointlessWaymarks.CmsData;
@@ -29,39 +30,42 @@ using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 
 namespace PointlessWaymarks.CmsWpfControls.LineContentEditor;
 
-public class LineContentEditorContext : INotifyPropertyChanged, IHasChanges, IHasValidationIssues,
+[ObservableObject]
+public partial class LineContentEditorContext : IHasChanges, IHasValidationIssues,
     ICheckForChangesAndValidation
 {
-    private BodyContentEditorContext _bodyContent;
-    private ContentIdViewerControlContext _contentId;
-    private CreatedAndUpdatedByAndOnDisplayContext _createdUpdatedDisplay;
-    private LineContent _dbEntry;
-    private Command _extractNewLinksCommand;
-    private bool _hasChanges;
-    private bool _hasValidationIssues;
-    private HelpDisplayContext _helpContext;
-    private Command _importFromGpxCommand;
-    private string _lineGeoJson;
-    private Command _linkToClipboardCommand;
-    private ContentSiteFeedAndIsDraftContext _mainSiteFeed;
-    private string _previewHtml;
-    private string _previewLineJsonDto;
-    private Command _refreshMapPreviewCommand;
-    private bool _replaceElevationOnImport;
-    private Command _replaceElevationsCommand;
-    private Command _saveAndCloseCommand;
-    private Command _saveCommand;
-    private StatusControlContext _statusContext;
-    private TagsEditorContext _tagEdit;
-    private TitleSummarySlugEditorContext _titleSummarySlugFolder;
-    private UpdateNotesEditorContext _updateNotes;
-    private Command _viewOnSiteCommand;
+    [ObservableProperty] private BodyContentEditorContext _bodyContent;
+    [ObservableProperty] private ContentIdViewerControlContext _contentId;
+    [ObservableProperty] private CreatedAndUpdatedByAndOnDisplayContext _createdUpdatedDisplay;
+    [ObservableProperty] private LineContent _dbEntry;
+    [ObservableProperty] private Command _extractNewLinksCommand;
+    [ObservableProperty] private bool _hasChanges;
+    [ObservableProperty] private bool _hasValidationIssues;
+    [ObservableProperty] private HelpDisplayContext _helpContext;
+    [ObservableProperty] private Command _importFromGpxCommand;
+    [ObservableProperty] private string _lineGeoJson;
+    [ObservableProperty] private Command _linkToClipboardCommand;
+    [ObservableProperty] private ContentSiteFeedAndIsDraftContext _mainSiteFeed;
+    [ObservableProperty] private string _previewHtml;
+    [ObservableProperty] private string _previewLineJsonDto;
+    [ObservableProperty] private Command _refreshMapPreviewCommand;
+    [ObservableProperty] private bool _replaceElevationOnImport;
+    [ObservableProperty] private Command _replaceElevationsCommand;
+    [ObservableProperty] private Command _saveAndCloseCommand;
+    [ObservableProperty] private Command _saveCommand;
+    [ObservableProperty] private StatusControlContext _statusContext;
+    [ObservableProperty] private TagsEditorContext _tagEdit;
+    [ObservableProperty] private TitleSummarySlugEditorContext _titleSummarySlugFolder;
+    [ObservableProperty] private UpdateNotesEditorContext _updateNotes;
+    [ObservableProperty] private Command _viewOnSiteCommand;
 
     public EventHandler RequestContentEditorWindowClose;
 
     private LineContentEditorContext(StatusControlContext statusContext)
     {
         StatusContext = statusContext ?? new StatusControlContext();
+
+        PropertyChanged += OnPropertyChanged;
 
         SaveCommand = StatusContext.RunBlockingTaskCommand(async () => await SaveAndGenerateHtml(false));
         SaveAndCloseCommand = StatusContext.RunBlockingTaskCommand(async () => await SaveAndGenerateHtml(true));
@@ -85,246 +89,15 @@ public class LineContentEditorContext : INotifyPropertyChanged, IHasChanges, IHa
             UserSettingsSingleton.CurrentSettings().LongitudeDefault, string.Empty);
     }
 
-    public BodyContentEditorContext BodyContent
+    private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
     {
-        get => _bodyContent;
-        set
-        {
-            if (Equals(value, _bodyContent)) return;
-            _bodyContent = value;
-            OnPropertyChanged();
-        }
-    }
+        if (e == null) return;
+        if (string.IsNullOrWhiteSpace(e.PropertyName)) return;
 
-    public ContentIdViewerControlContext ContentId
-    {
-        get => _contentId;
-        set
-        {
-            if (Equals(value, _contentId)) return;
-            _contentId = value;
-            OnPropertyChanged();
-        }
-    }
+        if (!e.PropertyName.Contains("HasChanges") && !e.PropertyName.Contains("Validation"))
+            CheckForChangesAndValidationIssues();
 
-    public CreatedAndUpdatedByAndOnDisplayContext CreatedUpdatedDisplay
-    {
-        get => _createdUpdatedDisplay;
-        set
-        {
-            if (Equals(value, _createdUpdatedDisplay)) return;
-            _createdUpdatedDisplay = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public LineContent DbEntry
-    {
-        get => _dbEntry;
-        set
-        {
-            if (Equals(value, _dbEntry)) return;
-            _dbEntry = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command ExtractNewLinksCommand
-    {
-        get => _extractNewLinksCommand;
-        set
-        {
-            if (Equals(value, _extractNewLinksCommand)) return;
-            _extractNewLinksCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public HelpDisplayContext HelpContext
-    {
-        get => _helpContext;
-        set
-        {
-            if (Equals(value, _helpContext)) return;
-            _helpContext = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command ImportFromGpxCommand
-    {
-        get => _importFromGpxCommand;
-        set
-        {
-            if (Equals(value, _importFromGpxCommand)) return;
-            _importFromGpxCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public string LineGeoJson
-    {
-        get => _lineGeoJson;
-        set
-        {
-            if (value == _lineGeoJson) return;
-            _lineGeoJson = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command LinkToClipboardCommand
-    {
-        get => _linkToClipboardCommand;
-        set
-        {
-            if (Equals(value, _linkToClipboardCommand)) return;
-            _linkToClipboardCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public ContentSiteFeedAndIsDraftContext MainSiteFeed
-    {
-        get => _mainSiteFeed;
-        set
-        {
-            if (Equals(value, _mainSiteFeed)) return;
-            _mainSiteFeed = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public string PreviewHtml
-    {
-        get => _previewHtml;
-        set
-        {
-            if (value == _previewHtml) return;
-            _previewHtml = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public string PreviewLineJsonDto
-    {
-        get => _previewLineJsonDto;
-        set
-        {
-            if (Equals(value, _previewLineJsonDto)) return;
-            _previewLineJsonDto = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command RefreshMapPreviewCommand
-    {
-        get => _refreshMapPreviewCommand;
-        set
-        {
-            if (Equals(value, _refreshMapPreviewCommand)) return;
-            _refreshMapPreviewCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public bool ReplaceElevationOnImport
-    {
-        get => _replaceElevationOnImport;
-        set
-        {
-            if (value == _replaceElevationOnImport) return;
-            _replaceElevationOnImport = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command ReplaceElevationsCommand
-    {
-        get => _replaceElevationsCommand;
-        set
-        {
-            if (Equals(value, _replaceElevationsCommand)) return;
-            _replaceElevationsCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command SaveAndCloseCommand
-    {
-        get => _saveAndCloseCommand;
-        set
-        {
-            if (Equals(value, _saveAndCloseCommand)) return;
-            _saveAndCloseCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command SaveCommand
-    {
-        get => _saveCommand;
-        set
-        {
-            if (Equals(value, _saveCommand)) return;
-            _saveCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public StatusControlContext StatusContext
-    {
-        get => _statusContext;
-        set
-        {
-            if (Equals(value, _statusContext)) return;
-            _statusContext = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public TagsEditorContext TagEdit
-    {
-        get => _tagEdit;
-        set
-        {
-            if (Equals(value, _tagEdit)) return;
-            _tagEdit = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public TitleSummarySlugEditorContext TitleSummarySlugFolder
-    {
-        get => _titleSummarySlugFolder;
-        set
-        {
-            if (Equals(value, _titleSummarySlugFolder)) return;
-            _titleSummarySlugFolder = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public UpdateNotesEditorContext UpdateNotes
-    {
-        get => _updateNotes;
-        set
-        {
-            if (Equals(value, _updateNotes)) return;
-            _updateNotes = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command ViewOnSiteCommand
-    {
-        get => _viewOnSiteCommand;
-        set
-        {
-            if (Equals(value, _viewOnSiteCommand)) return;
-            _viewOnSiteCommand = value;
-            OnPropertyChanged();
-        }
+        if (e.PropertyName == nameof(LineGeoJson)) StatusContext.RunNonBlockingTask(RefreshMapPreview);
     }
 
     public void CheckForChangesAndValidationIssues()
@@ -332,30 +105,6 @@ public class LineContentEditorContext : INotifyPropertyChanged, IHasChanges, IHa
         HasChanges = PropertyScanners.ChildPropertiesHaveChanges(this);
         HasValidationIssues = PropertyScanners.ChildPropertiesHaveValidationIssues(this);
     }
-
-    public bool HasChanges
-    {
-        get => _hasChanges;
-        set
-        {
-            if (value == _hasChanges) return;
-            _hasChanges = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public bool HasValidationIssues
-    {
-        get => _hasValidationIssues;
-        set
-        {
-            if (value == _hasValidationIssues) return;
-            _hasValidationIssues = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public event PropertyChangedEventHandler PropertyChanged;
 
     public static async Task<LineContentEditorContext> CreateInstance(StatusControlContext statusContext,
         LineContent lineContent)
@@ -499,19 +248,6 @@ public class LineContentEditorContext : INotifyPropertyChanged, IHasChanges, IHa
         LineGeoJson = toLoad?.Line ?? string.Empty;
 
         PropertyScanners.SubscribeToChildHasChangesAndHasValidationIssues(this, CheckForChangesAndValidationIssues);
-    }
-
-    [NotifyPropertyChangedInvocator]
-    protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-    {
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-
-        if (string.IsNullOrWhiteSpace(propertyName)) return;
-
-        if (!propertyName.Contains("HasChanges") && !propertyName.Contains("Validation"))
-            CheckForChangesAndValidationIssues();
-
-        if (propertyName == nameof(LineGeoJson)) StatusContext.RunNonBlockingTask(RefreshMapPreview);
     }
 
     public async Task RefreshMapPreview()

@@ -1,53 +1,21 @@
 ﻿using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
+using Microsoft.Toolkit.Mvvm.ComponentModel;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsWpfControls.ContentList;
 using PointlessWaymarks.CmsWpfControls.Utility;
 
 namespace PointlessWaymarks.CmsWpfControls.FileList;
 
-public class FileListListItem : IContentListItem, IContentListSmallImage
+[ObservableObject]
+public partial class FileListListItem : IContentListItem, IContentListSmallImage
 {
-    private FileContent _dbEntry;
-    private FileContentActions _itemActions;
-    private CurrentSelectedTextTracker _selectedTextTracker = new();
-
-    private bool _showType;
-    private string _smallImageUrl;
-
-    public FileContent DbEntry
-    {
-        get => _dbEntry;
-        set
-        {
-            if (Equals(value, _dbEntry)) return;
-            _dbEntry = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public FileContentActions ItemActions
-    {
-        get => _itemActions;
-        set
-        {
-            if (Equals(value, _itemActions)) return;
-            _itemActions = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public bool ShowType
-    {
-        get => _showType;
-        set
-        {
-            if (value == _showType) return;
-            _showType = value;
-            OnPropertyChanged();
-        }
-    }
+    [ObservableProperty] private FileContent _dbEntry;
+    [ObservableProperty] private FileContentActions _itemActions;
+    [ObservableProperty] private CurrentSelectedTextTracker _selectedTextTracker = new();
+    [ObservableProperty] private bool _showType;
+    [ObservableProperty] private string _smallImageUrl;
 
     public IContentCommon Content()
     {
@@ -97,35 +65,5 @@ public class FileListListItem : IContentListItem, IContentListSmallImage
     public async Task ViewHistory()
     {
         await ItemActions.ViewHistory(DbEntry);
-    }
-
-    public string SmallImageUrl
-    {
-        get => _smallImageUrl;
-        set
-        {
-            if (value == _smallImageUrl) return;
-            _smallImageUrl = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public event PropertyChangedEventHandler PropertyChanged;
-
-    public CurrentSelectedTextTracker SelectedTextTracker
-    {
-        get => _selectedTextTracker;
-        set
-        {
-            if (Equals(value, _selectedTextTracker)) return;
-            _selectedTextTracker = value;
-            OnPropertyChanged();
-        }
-    }
-
-    [NotifyPropertyChangedInvocator]
-    protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-    {
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 }

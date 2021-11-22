@@ -64,7 +64,6 @@ public partial class FileContentEditorContext : IHasChanges, IHasValidationIssue
     [ObservableProperty] private Command _viewOnSiteCommand;
 
     public EventHandler RequestContentEditorWindowClose;
-
     private FileContentEditorContext(StatusControlContext statusContext, FileInfo initialFile = null)
     {
         if (initialFile is { Exists: true }) _initialFile = initialFile;
@@ -76,6 +75,8 @@ public partial class FileContentEditorContext : IHasChanges, IHasValidationIssue
 
     private FileContentEditorContext(StatusControlContext statusContext)
     {
+        PropertyChanged += OnPropertyChanged;
+
         SetupStatusContextAndCommands(statusContext);
     }
 
