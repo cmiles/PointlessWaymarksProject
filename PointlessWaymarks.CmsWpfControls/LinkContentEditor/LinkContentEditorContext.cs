@@ -1,7 +1,6 @@
 ﻿using System.ComponentModel;
 using System.Diagnostics;
-using System.Runtime.CompilerServices;
-using JetBrains.Annotations;
+using Microsoft.Toolkit.Mvvm.ComponentModel;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.Content;
 using PointlessWaymarks.CmsData.Database.Models;
@@ -18,34 +17,36 @@ using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 
 namespace PointlessWaymarks.CmsWpfControls.LinkContentEditor;
 
-public class LinkContentEditorContext : INotifyPropertyChanged, IHasChanges, IHasValidationIssues,
-    ICheckForChangesAndValidation
+[ObservableObject]
+public partial class LinkContentEditorContext : IHasChanges, IHasValidationIssues, ICheckForChangesAndValidation
 {
-    private StringDataEntryContext _authorEntry;
-    private StringDataEntryContext _commentsEntry;
-    private CreatedAndUpdatedByAndOnDisplayContext _createdUpdatedDisplay;
-    private LinkContent _dbEntry;
-    private StringDataEntryContext _descriptionEntry;
-    private Command _extractDataCommand;
-    private bool _hasChanges;
-    private bool _hasValidationIssues;
-    private HelpDisplayContext _helpContext;
-    private ConversionDataEntryContext<DateTime?> _linkDateTimeEntry;
-    private StringDataEntryContext _linkUrlEntry;
-    private Command _openUrlInBrowserCommand;
-    private Command _saveAndCloseCommand;
-    private Command _saveCommand;
-    private BoolDataEntryContext _showInLinkRssEntry;
-    private StringDataEntryContext _siteEntry;
-    private StatusControlContext _statusContext;
-    private TagsEditorContext _tagEdit;
-    private StringDataEntryContext _titleEntry;
+    [ObservableProperty] private StringDataEntryContext _authorEntry;
+    [ObservableProperty] private StringDataEntryContext _commentsEntry;
+    [ObservableProperty] private CreatedAndUpdatedByAndOnDisplayContext _createdUpdatedDisplay;
+    [ObservableProperty] private LinkContent _dbEntry;
+    [ObservableProperty] private StringDataEntryContext _descriptionEntry;
+    [ObservableProperty] private Command _extractDataCommand;
+    [ObservableProperty] private bool _hasChanges;
+    [ObservableProperty] private bool _hasValidationIssues;
+    [ObservableProperty] private HelpDisplayContext _helpContext;
+    [ObservableProperty] private ConversionDataEntryContext<DateTime?> _linkDateTimeEntry;
+    [ObservableProperty] private StringDataEntryContext _linkUrlEntry;
+    [ObservableProperty] private Command _openUrlInBrowserCommand;
+    [ObservableProperty] private Command _saveAndCloseCommand;
+    [ObservableProperty] private Command _saveCommand;
+    [ObservableProperty] private BoolDataEntryContext _showInLinkRssEntry;
+    [ObservableProperty] private StringDataEntryContext _siteEntry;
+    [ObservableProperty] private StatusControlContext _statusContext;
+    [ObservableProperty] private TagsEditorContext _tagEdit;
+    [ObservableProperty] private StringDataEntryContext _titleEntry;
 
     public EventHandler RequestContentEditorWindowClose;
 
     private LinkContentEditorContext(StatusControlContext statusContext)
     {
         StatusContext = statusContext ?? new StatusControlContext();
+
+        PropertyChanged += OnPropertyChanged;
 
         SaveCommand = StatusContext.RunBlockingTaskCommand(async () => await SaveAndGenerateHtml(false));
         SaveAndCloseCommand = StatusContext.RunBlockingTaskCommand(async () => await SaveAndGenerateHtml(true));
@@ -55,7 +56,7 @@ public class LinkContentEditorContext : INotifyPropertyChanged, IHasChanges, IHa
             try
             {
                 if (string.IsNullOrWhiteSpace(LinkUrlEntry.UserValue)) StatusContext.ToastWarning("Link is Blank?");
-                var ps = new ProcessStartInfo(LinkUrlEntry.UserValue) {UseShellExecute = true, Verb = "open"};
+                var ps = new ProcessStartInfo(LinkUrlEntry.UserValue) { UseShellExecute = true, Verb = "open" };
                 Process.Start(ps);
             }
             catch (Exception e)
@@ -70,222 +71,11 @@ public class LinkContentEditorContext : INotifyPropertyChanged, IHasChanges, IHa
         });
     }
 
-    public StringDataEntryContext AuthorEntry
-    {
-        get => _authorEntry;
-        set
-        {
-            if (Equals(value, _authorEntry)) return;
-            _authorEntry = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public StringDataEntryContext CommentsEntry
-    {
-        get => _commentsEntry;
-        set
-        {
-            if (Equals(value, _commentsEntry)) return;
-            _commentsEntry = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public CreatedAndUpdatedByAndOnDisplayContext CreatedUpdatedDisplay
-    {
-        get => _createdUpdatedDisplay;
-        set
-        {
-            if (Equals(value, _createdUpdatedDisplay)) return;
-            _createdUpdatedDisplay = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public LinkContent DbEntry
-    {
-        get => _dbEntry;
-        set
-        {
-            if (Equals(value, _dbEntry)) return;
-            _dbEntry = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public StringDataEntryContext DescriptionEntry
-    {
-        get => _descriptionEntry;
-        set
-        {
-            if (Equals(value, _descriptionEntry)) return;
-            _descriptionEntry = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command ExtractDataCommand
-    {
-        get => _extractDataCommand;
-        set
-        {
-            if (Equals(value, _extractDataCommand)) return;
-            _extractDataCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public HelpDisplayContext HelpContext
-    {
-        get => _helpContext;
-        set
-        {
-            if (Equals(value, _helpContext)) return;
-            _helpContext = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public ConversionDataEntryContext<DateTime?> LinkDateTimeEntry
-    {
-        get => _linkDateTimeEntry;
-        set
-        {
-            if (Equals(value, _linkDateTimeEntry)) return;
-            _linkDateTimeEntry = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public StringDataEntryContext LinkUrlEntry
-    {
-        get => _linkUrlEntry;
-        set
-        {
-            if (Equals(value, _linkUrlEntry)) return;
-            _linkUrlEntry = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command OpenUrlInBrowserCommand
-    {
-        get => _openUrlInBrowserCommand;
-        set
-        {
-            if (Equals(value, _openUrlInBrowserCommand)) return;
-            _openUrlInBrowserCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command SaveAndCloseCommand
-    {
-        get => _saveAndCloseCommand;
-        set
-        {
-            if (Equals(value, _saveAndCloseCommand)) return;
-            _saveAndCloseCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command SaveCommand
-    {
-        get => _saveCommand;
-        set
-        {
-            if (Equals(value, _saveCommand)) return;
-            _saveCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public BoolDataEntryContext ShowInLinkRssEntry
-    {
-        get => _showInLinkRssEntry;
-        set
-        {
-            if (Equals(value, _showInLinkRssEntry)) return;
-            _showInLinkRssEntry = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public StringDataEntryContext SiteEntry
-    {
-        get => _siteEntry;
-        set
-        {
-            if (Equals(value, _siteEntry)) return;
-            _siteEntry = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public StatusControlContext StatusContext
-    {
-        get => _statusContext;
-        set
-        {
-            if (Equals(value, _statusContext)) return;
-            _statusContext = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public TagsEditorContext TagEdit
-    {
-        get => _tagEdit;
-        set
-        {
-            if (Equals(value, _tagEdit)) return;
-            _tagEdit = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public StringDataEntryContext TitleEntry
-    {
-        get => _titleEntry;
-        set
-        {
-            if (Equals(value, _titleEntry)) return;
-            _titleEntry = value;
-            OnPropertyChanged();
-        }
-    }
-
     public void CheckForChangesAndValidationIssues()
     {
         HasChanges = PropertyScanners.ChildPropertiesHaveChanges(this);
         HasValidationIssues = PropertyScanners.ChildPropertiesHaveValidationIssues(this);
     }
-
-    public bool HasChanges
-    {
-        get => _hasChanges;
-        set
-        {
-            if (value == _hasChanges) return;
-            _hasChanges = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public bool HasValidationIssues
-    {
-        get => _hasValidationIssues;
-        set
-        {
-            if (value == _hasValidationIssues) return;
-            _hasValidationIssues = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public event PropertyChangedEventHandler PropertyChanged;
 
     public static async Task<LinkContentEditorContext> CreateInstance(StatusControlContext statusContext,
         LinkContent linkContent, bool extractDataOnLoad = false)
@@ -364,7 +154,7 @@ public class LinkContentEditorContext : INotifyPropertyChanged, IHasChanges, IHa
         LinkUrlEntry = StringDataEntryContext.CreateInstance();
         LinkUrlEntry.Title = "URL";
         LinkUrlEntry.HelpText = "Link address";
-        LinkUrlEntry.ValidationFunctions = new List<Func<string, IsValid>> {ValidateUrl};
+        LinkUrlEntry.ValidationFunctions = new List<Func<string, IsValid>> { ValidateUrl };
         LinkUrlEntry.ReferenceValue = DbEntry.Url.TrimNullToEmpty();
         LinkUrlEntry.UserValue = DbEntry.Url.TrimNullToEmpty();
 
@@ -379,7 +169,7 @@ public class LinkContentEditorContext : INotifyPropertyChanged, IHasChanges, IHa
         TitleEntry.HelpText = "Title Text";
         TitleEntry.ReferenceValue = DbEntry.Title.TrimNullToEmpty();
         TitleEntry.UserValue = DbEntry.Title.TrimNullToEmpty();
-        TitleEntry.ValidationFunctions = new List<Func<string, IsValid>> {CommonContentValidation.ValidateTitle};
+        TitleEntry.ValidationFunctions = new List<Func<string, IsValid>> { CommonContentValidation.ValidateTitle };
 
         SiteEntry = StringDataEntryContext.CreateInstance();
         SiteEntry.Title = "Site";
@@ -406,8 +196,7 @@ public class LinkContentEditorContext : INotifyPropertyChanged, IHasChanges, IHa
         ShowInLinkRssEntry.UserValue = DbEntry.ShowInLinkRss;
 
         LinkDateTimeEntry =
-            ConversionDataEntryContext<DateTime?>.CreateInstance(ConversionDataEntryHelpers
-                .DateTimeNullableConversion);
+            ConversionDataEntryContext<DateTime?>.CreateInstance(ConversionDataEntryHelpers.DateTimeNullableConversion);
         LinkDateTimeEntry.Title = "Link Date";
         LinkDateTimeEntry.HelpText = "Date the Link Content was Created or Updated";
         LinkDateTimeEntry.ReferenceValue = DbEntry.LinkDate;
@@ -423,14 +212,12 @@ public class LinkContentEditorContext : INotifyPropertyChanged, IHasChanges, IHa
         PropertyScanners.SubscribeToChildHasChangesAndHasValidationIssues(this, CheckForChangesAndValidationIssues);
     }
 
-    [NotifyPropertyChangedInvocator]
-    protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+    private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
     {
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        if (e == null) return;
+        if (string.IsNullOrWhiteSpace(e.PropertyName)) return;
 
-        if (string.IsNullOrWhiteSpace(propertyName)) return;
-
-        if (!propertyName.Contains("HasChanges") && !propertyName.Contains("Validation"))
+        if (!e.PropertyName.Contains("HasChanges") && !e.PropertyName.Contains("Validation"))
             CheckForChangesAndValidationIssues();
     }
 

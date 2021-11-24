@@ -1,6 +1,4 @@
-﻿using System.ComponentModel;
-using System.Runtime.CompilerServices;
-using JetBrains.Annotations;
+﻿using Microsoft.Toolkit.Mvvm.ComponentModel;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsWpfControls.Utility.ChangesAndValidation;
 using PointlessWaymarks.WpfCommon.Status;
@@ -11,10 +9,11 @@ namespace PointlessWaymarks.CmsWpfControls.MapComponentEditor;
 /// <summary>
 ///     Interaction logic for MapComponentEditorWindow.xaml
 /// </summary>
+[ObservableObject]
 public partial class MapComponentEditorWindow
 {
-    private MapComponentEditorContext _mapComponentContent;
-    private StatusControlContext _statusContext;
+    [ObservableProperty] private MapComponentEditorContext _mapComponentContent;
+    [ObservableProperty] private StatusControlContext _statusContext;
 
     public MapComponentEditorWindow(MapComponent toLoad)
     {
@@ -34,34 +33,4 @@ public partial class MapComponentEditorWindow
     }
 
     public WindowAccidentalClosureHelper AccidentalCloserHelper { get; set; }
-
-    public MapComponentEditorContext MapComponentContent
-    {
-        get => _mapComponentContent;
-        set
-        {
-            if (Equals(value, _mapComponentContent)) return;
-            _mapComponentContent = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public StatusControlContext StatusContext
-    {
-        get => _statusContext;
-        set
-        {
-            if (Equals(value, _statusContext)) return;
-            _statusContext = value;
-            OnPropertyChanged();
-        }
-    }
-
-    [NotifyPropertyChangedInvocator]
-    protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-    {
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-    }
-
-    public event PropertyChangedEventHandler PropertyChanged;
 }

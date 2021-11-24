@@ -1,7 +1,5 @@
-﻿using System.ComponentModel;
-using System.Runtime.CompilerServices;
-using System.Windows;
-using JetBrains.Annotations;
+﻿using System.Windows;
+using Microsoft.Toolkit.Mvvm.ComponentModel;
 using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsWpfControls.ContentList;
 using PointlessWaymarks.WpfCommon.Commands;
@@ -11,13 +9,14 @@ using PointlessWaymarks.WpfCommon.Utility;
 
 namespace PointlessWaymarks.CmsWpfControls.LineList;
 
-public class LineListWithActionsContext : INotifyPropertyChanged
+[ObservableObject]
+public partial class LineListWithActionsContext
 {
-    private readonly StatusControlContext _statusContext;
-    private Command _lineLinkCodesToClipboardForSelectedCommand;
-    private ContentListContext _listContext;
-    private Command _refreshDataCommand;
-    private WindowIconStatus _windowStatus;
+    [ObservableProperty] private readonly StatusControlContext _statusContext;
+    [ObservableProperty] private Command _lineLinkCodesToClipboardForSelectedCommand;
+    [ObservableProperty] private ContentListContext _listContext;
+    [ObservableProperty] private Command _refreshDataCommand;
+    [ObservableProperty] private WindowIconStatus _windowStatus;
 
     public LineListWithActionsContext(StatusControlContext statusContext, WindowIconStatus windowStatus = null)
     {
@@ -26,64 +25,6 @@ public class LineListWithActionsContext : INotifyPropertyChanged
 
         StatusContext.RunFireAndForgetBlockingTask(LoadData);
     }
-
-    public WindowIconStatus WindowStatus
-    {
-        get => _windowStatus;
-        set
-        {
-            if (Equals(value, _windowStatus)) return;
-            _windowStatus = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command LineLinkCodesToClipboardForSelectedCommand
-    {
-        get => _lineLinkCodesToClipboardForSelectedCommand;
-        set
-        {
-            if (Equals(value, _lineLinkCodesToClipboardForSelectedCommand)) return;
-            _lineLinkCodesToClipboardForSelectedCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public ContentListContext ListContext
-    {
-        get => _listContext;
-        set
-        {
-            if (Equals(value, _listContext)) return;
-            _listContext = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command RefreshDataCommand
-    {
-        get => _refreshDataCommand;
-        set
-        {
-            if (Equals(value, _refreshDataCommand)) return;
-            _refreshDataCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public StatusControlContext StatusContext
-    {
-        get => _statusContext;
-        private init
-        {
-            if (Equals(value, _statusContext)) return;
-            _statusContext = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public event PropertyChangedEventHandler PropertyChanged;
-
 
     private async Task LinkBracketCodesToClipboardForSelected()
     {
@@ -118,31 +59,21 @@ public class LineListWithActionsContext : INotifyPropertyChanged
 
         ListContext.ContextMenuItems = new List<ContextMenuItemData>
         {
-            new() {ItemName = "Edit", ItemCommand = ListContext.EditSelectedCommand},
+            new() { ItemName = "Edit", ItemCommand = ListContext.EditSelectedCommand },
             new()
             {
-                ItemName = "Map Code to Clipboard", ItemCommand = ListContext.BracketCodeToClipboardSelectedCommand
+                ItemName = "Map Code to Clipboard",
+                ItemCommand = ListContext.BracketCodeToClipboardSelectedCommand
             },
-            new()
-            {
-                ItemName = "Text Code to Clipboard", ItemCommand = LineLinkCodesToClipboardForSelectedCommand
-            },
-            new()
-                {ItemName = "Extract New Links", ItemCommand = ListContext.ExtractNewLinksSelectedCommand},
-            new() {ItemName = "Open URL", ItemCommand = ListContext.OpenUrlSelectedCommand},
-            new() {ItemName = "Delete", ItemCommand = ListContext.DeleteSelectedCommand},
-            new()
-                {ItemName = "View History", ItemCommand = ListContext.ViewHistorySelectedCommand},
-            new() {ItemName = "Refresh Data", ItemCommand = RefreshDataCommand}
+            new() { ItemName = "Text Code to Clipboard", ItemCommand = LineLinkCodesToClipboardForSelectedCommand },
+            new() { ItemName = "Extract New Links", ItemCommand = ListContext.ExtractNewLinksSelectedCommand },
+            new() { ItemName = "Open URL", ItemCommand = ListContext.OpenUrlSelectedCommand },
+            new() { ItemName = "Delete", ItemCommand = ListContext.DeleteSelectedCommand },
+            new() { ItemName = "View History", ItemCommand = ListContext.ViewHistorySelectedCommand },
+            new() { ItemName = "Refresh Data", ItemCommand = RefreshDataCommand }
         };
 
         await ListContext.LoadData();
-    }
-
-    [NotifyPropertyChangedInvocator]
-    protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-    {
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 
     public List<LineListListItem> SelectedItems()

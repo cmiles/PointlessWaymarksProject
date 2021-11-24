@@ -2,66 +2,21 @@
 using System.Runtime.CompilerServices;
 using System.Text;
 using JetBrains.Annotations;
+using Microsoft.Toolkit.Mvvm.ComponentModel;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsWpfControls.ContentList;
 using PointlessWaymarks.CmsWpfControls.Utility;
 
 namespace PointlessWaymarks.CmsWpfControls.LinkList;
 
-public class LinkListListItem : IContentListItem
+[ObservableObject]
+public partial class LinkListListItem : IContentListItem
 {
-    private LinkContent _dbEntry;
-    private LinkContentActions _itemActions;
-    private string _linkContentString;
-    private CurrentSelectedTextTracker _selectedTextTracker = new();
-
-    private bool _showType;
-
-    public LinkContent DbEntry
-    {
-        get => _dbEntry;
-        set
-        {
-            if (Equals(value, _dbEntry)) return;
-            _dbEntry = value;
-            OnPropertyChanged();
-
-            ConstructContentString();
-        }
-    }
-
-    public LinkContentActions ItemActions
-    {
-        get => _itemActions;
-        set
-        {
-            if (Equals(value, _itemActions)) return;
-            _itemActions = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public string LinkContentString
-    {
-        get => _linkContentString;
-        private set
-        {
-            if (value == _linkContentString) return;
-            _linkContentString = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public bool ShowType
-    {
-        get => _showType;
-        set
-        {
-            if (value == _showType) return;
-            _showType = value;
-            OnPropertyChanged();
-        }
-    }
+    [ObservableProperty] private LinkContent _dbEntry;
+    [ObservableProperty] private LinkContentActions _itemActions;
+    [ObservableProperty] private string _linkContentString;
+    [ObservableProperty] private CurrentSelectedTextTracker _selectedTextTracker = new();
+    [ObservableProperty] private bool _showType;
 
     public IContentCommon Content()
     {
@@ -135,19 +90,6 @@ public class LinkListListItem : IContentListItem
         await ItemActions.ViewHistory(DbEntry);
     }
 
-    public event PropertyChangedEventHandler PropertyChanged;
-
-    public CurrentSelectedTextTracker SelectedTextTracker
-    {
-        get => _selectedTextTracker;
-        set
-        {
-            if (Equals(value, _selectedTextTracker)) return;
-            _selectedTextTracker = value;
-            OnPropertyChanged();
-        }
-    }
-
     private void ConstructContentString()
     {
         if (DbEntry == null)
@@ -172,11 +114,5 @@ public class LinkListListItem : IContentListItem
             newContentString.Append($"Tags: {DbEntry.Tags}");
 
         LinkContentString = newContentString.ToString();
-    }
-
-    [NotifyPropertyChangedInvocator]
-    protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-    {
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 }

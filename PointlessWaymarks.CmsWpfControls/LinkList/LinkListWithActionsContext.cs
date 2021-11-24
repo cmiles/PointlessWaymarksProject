@@ -3,6 +3,7 @@ using System.Runtime.CompilerServices;
 using System.Windows;
 using HtmlTableHelper;
 using JetBrains.Annotations;
+using Microsoft.Toolkit.Mvvm.ComponentModel;
 using pinboard.net;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.Database.Models;
@@ -16,14 +17,15 @@ using PointlessWaymarks.WpfCommon.Utility;
 
 namespace PointlessWaymarks.CmsWpfControls.LinkList;
 
-public class LinkListWithActionsContext : INotifyPropertyChanged
+[ObservableObject]
+public partial class LinkListWithActionsContext
 {
-    private readonly StatusControlContext _statusContext;
-    private ContentListContext _listContext;
-    private Command _listSelectedLinksNotOnPinboardCommand;
-    private Command _postCodesToClipboardForSelectedCommand;
-    private Command _refreshDataCommand;
-    private WindowIconStatus _windowStatus;
+    [ObservableProperty] private readonly StatusControlContext _statusContext;
+    [ObservableProperty] private ContentListContext _listContext;
+    [ObservableProperty] private Command _listSelectedLinksNotOnPinboardCommand;
+    [ObservableProperty] private Command _mdLinkCodesToClipboardForSelectedCommand;
+    [ObservableProperty] private Command _refreshDataCommand;
+    [ObservableProperty] private WindowIconStatus _windowStatus;
 
     public LinkListWithActionsContext(StatusControlContext statusContext, WindowIconStatus windowStatus = null)
     {
@@ -32,75 +34,6 @@ public class LinkListWithActionsContext : INotifyPropertyChanged
 
         StatusContext.RunFireAndForgetBlockingTask(LoadData);
     }
-
-    public ContentListContext ListContext
-    {
-        get => _listContext;
-        set
-        {
-            if (Equals(value, _listContext)) return;
-            _listContext = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command ListSelectedLinksNotOnPinboardCommand
-    {
-        get => _listSelectedLinksNotOnPinboardCommand;
-        set
-        {
-            if (Equals(value, _listSelectedLinksNotOnPinboardCommand)) return;
-            _listSelectedLinksNotOnPinboardCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command MdLinkCodesToClipboardForSelectedCommand
-    {
-        get => _postCodesToClipboardForSelectedCommand;
-        set
-        {
-            if (Equals(value, _postCodesToClipboardForSelectedCommand)) return;
-            _postCodesToClipboardForSelectedCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command RefreshDataCommand
-    {
-        get => _refreshDataCommand;
-        set
-        {
-            if (Equals(value, _refreshDataCommand)) return;
-            _refreshDataCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-
-    public StatusControlContext StatusContext
-    {
-        get => _statusContext;
-        private init
-        {
-            if (Equals(value, _statusContext)) return;
-            _statusContext = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public WindowIconStatus WindowStatus
-    {
-        get => _windowStatus;
-        set
-        {
-            if (Equals(value, _windowStatus)) return;
-            _windowStatus = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public event PropertyChangedEventHandler PropertyChanged;
 
     private async Task ListSelectedLinksNotOnPinboard(IProgress<string> progress)
     {
@@ -227,12 +160,6 @@ public class LinkListWithActionsContext : INotifyPropertyChanged
         Clipboard.SetText(finalString);
 
         StatusContext.ToastSuccess($"To Clipboard {finalString}");
-    }
-
-    [NotifyPropertyChangedInvocator]
-    protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-    {
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 
     public List<LinkListListItem> SelectedItems()
