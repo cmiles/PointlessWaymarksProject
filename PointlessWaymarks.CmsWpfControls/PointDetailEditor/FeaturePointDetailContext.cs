@@ -15,7 +15,7 @@ using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 
 namespace PointlessWaymarks.CmsWpfControls.PointDetailEditor;
 
-internal class FeaturePointDetailContext : IHasChanges, IHasValidationIssues, IPointDetailEditor
+internal class FeaturePointDetailContext : IHasChanges, IHasValidationIssues, IPointDetailEditor, ICheckForChangesAndValidation
 {
     private PointDetail _dbEntry;
     private Feature _detailData;

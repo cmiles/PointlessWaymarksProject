@@ -12,6 +12,7 @@ namespace PointlessWaymarks.CmsWpfControls.GeoJsonContentEditor;
 [ObservableObject]
 public partial class GeoJsonContentEditorWindow
 {
+    [ObservableProperty] private WindowAccidentalClosureHelper _accidentalCloserHelper;
     [ObservableProperty] private GeoJsonContentEditorContext _geoJsonContent;
     [ObservableProperty] private StatusControlContext _statusContext;
 
@@ -31,6 +32,4 @@ public partial class GeoJsonContentEditorWindow
             DataContext = this;
         });
     }
-
-    public WindowAccidentalClosureHelper AccidentalCloserHelper { get; set; }
 }

@@ -1,52 +1,17 @@
-﻿using System.ComponentModel;
-using System.Runtime.CompilerServices;
-using JetBrains.Annotations;
+﻿using Microsoft.Toolkit.Mvvm.ComponentModel;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsWpfControls.ContentList;
 using PointlessWaymarks.CmsWpfControls.Utility;
 
 namespace PointlessWaymarks.CmsWpfControls.MapComponentList;
 
-public class MapComponentListListItem : IContentListItem
+[ObservableObject]
+public partial class MapComponentListListItem : IContentListItem
 {
-    private MapComponent _dbEntry;
-    private MapComponentContentActions _itemActions;
-    private CurrentSelectedTextTracker _selectedTextTracker = new();
-
-    private bool _showType;
-
-    public MapComponent DbEntry
-    {
-        get => _dbEntry;
-        set
-        {
-            if (Equals(value, _dbEntry)) return;
-            _dbEntry = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public MapComponentContentActions ItemActions
-    {
-        get => _itemActions;
-        set
-        {
-            if (Equals(value, _itemActions)) return;
-            _itemActions = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public bool ShowType
-    {
-        get => _showType;
-        set
-        {
-            if (value == _showType) return;
-            _showType = value;
-            OnPropertyChanged();
-        }
-    }
+    [ObservableProperty] private MapComponent _dbEntry;
+    [ObservableProperty] private MapComponentContentActions _itemActions;
+    [ObservableProperty] private CurrentSelectedTextTracker _selectedTextTracker = new();
+    [ObservableProperty] private bool _showType;
 
     public IContentCommon Content()
     {
@@ -109,24 +74,5 @@ public class MapComponentListListItem : IContentListItem
     public async Task ViewHistory()
     {
         await ItemActions.ViewHistory(DbEntry);
-    }
-
-    public event PropertyChangedEventHandler PropertyChanged;
-
-    public CurrentSelectedTextTracker SelectedTextTracker
-    {
-        get => _selectedTextTracker;
-        set
-        {
-            if (Equals(value, _selectedTextTracker)) return;
-            _selectedTextTracker = value;
-            OnPropertyChanged();
-        }
-    }
-
-    [NotifyPropertyChangedInvocator]
-    protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-    {
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 }

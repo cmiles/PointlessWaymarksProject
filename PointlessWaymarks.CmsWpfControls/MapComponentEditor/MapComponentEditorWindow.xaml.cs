@@ -12,6 +12,7 @@ namespace PointlessWaymarks.CmsWpfControls.MapComponentEditor;
 [ObservableObject]
 public partial class MapComponentEditorWindow
 {
+    [ObservableProperty] private WindowAccidentalClosureHelper _accidentalCloserHelper;
     [ObservableProperty] private MapComponentEditorContext _mapComponentContent;
     [ObservableProperty] private StatusControlContext _statusContext;
 
@@ -31,6 +32,4 @@ public partial class MapComponentEditorWindow
             DataContext = this;
         });
     }
-
-    public WindowAccidentalClosureHelper AccidentalCloserHelper { get; set; }
 }

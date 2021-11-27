@@ -1,9 +1,8 @@
 ﻿using System.ComponentModel;
 using System.Diagnostics;
 using System.Net.Http;
-using System.Runtime.CompilerServices;
 using System.Windows;
-using JetBrains.Annotations;
+using Microsoft.Toolkit.Mvvm.ComponentModel;
 using Omu.ValueInjecter;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.CommonHtml;
@@ -31,32 +30,32 @@ using Serilog;
 
 namespace PointlessWaymarks.CmsWpfControls.PointContentEditor;
 
-public class PointContentEditorContext : INotifyPropertyChanged, IHasChanges, ICheckForChangesAndValidation,
-    IHasValidationIssues
+[ObservableObject]
+public partial class PointContentEditorContext : IHasChanges, ICheckForChangesAndValidation, IHasValidationIssues
 {
-    private BodyContentEditorContext _bodyContent;
-    private bool _broadcastLatLongChange = true;
-    private ContentIdViewerControlContext _contentId;
-    private CreatedAndUpdatedByAndOnDisplayContext _createdUpdatedDisplay;
-    private PointContent _dbEntry;
-    private ConversionDataEntryContext<double?> _elevationEntry;
-    private Command _extractNewLinksCommand;
-    private Command _getElevationCommand;
-    private bool _hasChanges;
-    private bool _hasValidationIssues;
-    private HelpDisplayContext _helpContext;
-    private ConversionDataEntryContext<double> _latitudeEntry;
-    private Command _linkToClipboardCommand;
-    private ConversionDataEntryContext<double> _longitudeEntry;
-    private ContentSiteFeedAndIsDraftContext _mainSiteFeed;
-    private PointDetailListContext _pointDetails;
-    private Command _saveAndCloseCommand;
-    private Command _saveCommand;
-    private StatusControlContext _statusContext;
-    private TagsEditorContext _tagEdit;
-    private TitleSummarySlugEditorContext _titleSummarySlugFolder;
-    private UpdateNotesEditorContext _updateNotes;
-    private Command _viewOnSiteCommand;
+    [ObservableProperty] private BodyContentEditorContext _bodyContent;
+    [ObservableProperty] private bool _broadcastLatLongChange = true;
+    [ObservableProperty] private ContentIdViewerControlContext _contentId;
+    [ObservableProperty] private CreatedAndUpdatedByAndOnDisplayContext _createdUpdatedDisplay;
+    [ObservableProperty] private PointContent _dbEntry;
+    [ObservableProperty] private ConversionDataEntryContext<double?> _elevationEntry;
+    [ObservableProperty] private Command _extractNewLinksCommand;
+    [ObservableProperty] private Command _getElevationCommand;
+    [ObservableProperty] private bool _hasChanges;
+    [ObservableProperty] private bool _hasValidationIssues;
+    [ObservableProperty] private HelpDisplayContext _helpContext;
+    [ObservableProperty] private ConversionDataEntryContext<double> _latitudeEntry;
+    [ObservableProperty] private Command _linkToClipboardCommand;
+    [ObservableProperty] private ConversionDataEntryContext<double> _longitudeEntry;
+    [ObservableProperty] private ContentSiteFeedAndIsDraftContext _mainSiteFeed;
+    [ObservableProperty] private PointDetailListContext _pointDetails;
+    [ObservableProperty] private Command _saveAndCloseCommand;
+    [ObservableProperty] private Command _saveCommand;
+    [ObservableProperty] private StatusControlContext _statusContext;
+    [ObservableProperty] private TagsEditorContext _tagEdit;
+    [ObservableProperty] private TitleSummarySlugEditorContext _titleSummarySlugFolder;
+    [ObservableProperty] private UpdateNotesEditorContext _updateNotes;
+    [ObservableProperty] private Command _viewOnSiteCommand;
 
     public EventHandler RequestContentEditorWindowClose;
 
@@ -64,12 +63,14 @@ public class PointContentEditorContext : INotifyPropertyChanged, IHasChanges, IC
     {
         StatusContext = statusContext ?? new StatusControlContext();
 
+        PropertyChanged += OnPropertyChanged;
+
         SaveCommand = StatusContext.RunBlockingTaskCommand(async () => await SaveAndGenerateHtml(false));
         SaveAndCloseCommand = StatusContext.RunBlockingTaskCommand(async () => await SaveAndGenerateHtml(true));
         ViewOnSiteCommand = StatusContext.RunBlockingTaskCommand(ViewOnSite);
         ExtractNewLinksCommand = StatusContext.RunBlockingTaskCommand(() =>
-            LinkExtraction.ExtractNewAndShowLinkContentEditors(
-                $"{BodyContent.BodyContent} {UpdateNotes.UpdateNotes}", StatusContext.ProgressTracker()));
+            LinkExtraction.ExtractNewAndShowLinkContentEditors($"{BodyContent.BodyContent} {UpdateNotes.UpdateNotes}",
+                StatusContext.ProgressTracker()));
         GetElevationCommand = StatusContext.RunBlockingTaskCommand(GetElevation);
         LinkToClipboardCommand = StatusContext.RunBlockingTaskCommand(LinkToClipboard);
 
@@ -79,255 +80,11 @@ public class PointContentEditorContext : INotifyPropertyChanged, IHasChanges, IC
         });
     }
 
-    public BodyContentEditorContext BodyContent
-    {
-        get => _bodyContent;
-        set
-        {
-            if (Equals(value, _bodyContent)) return;
-            _bodyContent = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public ContentIdViewerControlContext ContentId
-    {
-        get => _contentId;
-        set
-        {
-            if (Equals(value, _contentId)) return;
-            _contentId = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public CreatedAndUpdatedByAndOnDisplayContext CreatedUpdatedDisplay
-    {
-        get => _createdUpdatedDisplay;
-        set
-        {
-            if (Equals(value, _createdUpdatedDisplay)) return;
-            _createdUpdatedDisplay = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public PointContent DbEntry
-    {
-        get => _dbEntry;
-        set
-        {
-            if (Equals(value, _dbEntry)) return;
-            _dbEntry = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public ConversionDataEntryContext<double?> ElevationEntry
-    {
-        get => _elevationEntry;
-        set
-        {
-            if (Equals(value, _elevationEntry)) return;
-            _elevationEntry = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command ExtractNewLinksCommand
-    {
-        get => _extractNewLinksCommand;
-        set
-        {
-            if (Equals(value, _extractNewLinksCommand)) return;
-            _extractNewLinksCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command GetElevationCommand
-    {
-        get => _getElevationCommand;
-        set
-        {
-            if (Equals(value, _getElevationCommand)) return;
-            _getElevationCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public HelpDisplayContext HelpContext
-    {
-        get => _helpContext;
-        set
-        {
-            if (Equals(value, _helpContext)) return;
-            _helpContext = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public ConversionDataEntryContext<double> LatitudeEntry
-    {
-        get => _latitudeEntry;
-        set
-        {
-            if (Equals(value, _latitudeEntry)) return;
-            _latitudeEntry = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command LinkToClipboardCommand
-    {
-        get => _linkToClipboardCommand;
-        set
-        {
-            if (Equals(value, _linkToClipboardCommand)) return;
-            _linkToClipboardCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public ConversionDataEntryContext<double> LongitudeEntry
-    {
-        get => _longitudeEntry;
-        set
-        {
-            if (Equals(value, _longitudeEntry)) return;
-            _longitudeEntry = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public ContentSiteFeedAndIsDraftContext MainSiteFeed
-    {
-        get => _mainSiteFeed;
-        set
-        {
-            if (Equals(value, _mainSiteFeed)) return;
-            _mainSiteFeed = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public PointDetailListContext PointDetails
-    {
-        get => _pointDetails;
-        set
-        {
-            if (Equals(value, _pointDetails)) return;
-            _pointDetails = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command SaveAndCloseCommand
-    {
-        get => _saveAndCloseCommand;
-        set
-        {
-            if (Equals(value, _saveAndCloseCommand)) return;
-            _saveAndCloseCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command SaveCommand
-    {
-        get => _saveCommand;
-        set
-        {
-            if (Equals(value, _saveCommand)) return;
-            _saveCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public StatusControlContext StatusContext
-    {
-        get => _statusContext;
-        set
-        {
-            if (Equals(value, _statusContext)) return;
-            _statusContext = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public TagsEditorContext TagEdit
-    {
-        get => _tagEdit;
-        set
-        {
-            if (Equals(value, _tagEdit)) return;
-            _tagEdit = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public TitleSummarySlugEditorContext TitleSummarySlugFolder
-    {
-        get => _titleSummarySlugFolder;
-        set
-        {
-            if (Equals(value, _titleSummarySlugFolder)) return;
-            _titleSummarySlugFolder = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public UpdateNotesEditorContext UpdateNotes
-    {
-        get => _updateNotes;
-        set
-        {
-            if (Equals(value, _updateNotes)) return;
-            _updateNotes = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command ViewOnSiteCommand
-    {
-        get => _viewOnSiteCommand;
-        set
-        {
-            if (Equals(value, _viewOnSiteCommand)) return;
-            _viewOnSiteCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
     public void CheckForChangesAndValidationIssues()
     {
         HasChanges = PropertyScanners.ChildPropertiesHaveChanges(this);
         HasValidationIssues = PropertyScanners.ChildPropertiesHaveValidationIssues(this);
     }
-
-    public bool HasChanges
-    {
-        get => _hasChanges;
-        set
-        {
-            if (value == _hasChanges) return;
-            _hasChanges = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public bool HasValidationIssues
-    {
-        get => _hasValidationIssues;
-        set
-        {
-            if (value == _hasValidationIssues) return;
-            _hasValidationIssues = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public event PropertyChangedEventHandler PropertyChanged;
 
     public static async Task<PointContentEditorContext> CreateInstance(StatusControlContext statusContext,
         PointContent pointContent)
@@ -419,8 +176,8 @@ public class PointContentEditorContext : INotifyPropertyChanged, IHasChanges, IC
 
         try
         {
-            var elevationResult = await ElevationService.OpenTopoMapZenElevation(httpClient,
-                LatitudeEntry.UserValue, LongitudeEntry.UserValue, StatusContext.ProgressTracker());
+            var elevationResult = await ElevationService.OpenTopoMapZenElevation(httpClient, LatitudeEntry.UserValue,
+                LongitudeEntry.UserValue, StatusContext.ProgressTracker());
 
             if (elevationResult == null)
             {
@@ -504,8 +261,7 @@ public class PointContentEditorContext : INotifyPropertyChanged, IHasChanges, IC
         ElevationEntry.ReferenceValue = DbEntry.Elevation;
         ElevationEntry.UserText = DbEntry.Elevation?.ToString("F2") ?? string.Empty;
 
-        LatitudeEntry =
-            ConversionDataEntryContext<double>.CreateInstance(ConversionDataEntryHelpers.DoubleConversion);
+        LatitudeEntry = ConversionDataEntryContext<double>.CreateInstance(ConversionDataEntryHelpers.DoubleConversion);
         LatitudeEntry.ValidationFunctions = new List<Func<double, IsValid>>
         {
             CommonContentValidation.LatitudeValidation
@@ -521,8 +277,7 @@ public class PointContentEditorContext : INotifyPropertyChanged, IHasChanges, IC
             if (args.PropertyName == nameof(LatitudeEntry.UserValue)) LatitudeLongitudeChangeBroadcast();
         };
 
-        LongitudeEntry =
-            ConversionDataEntryContext<double>.CreateInstance(ConversionDataEntryHelpers.DoubleConversion);
+        LongitudeEntry = ConversionDataEntryContext<double>.CreateInstance(ConversionDataEntryHelpers.DoubleConversion);
         LongitudeEntry.ValidationFunctions = new List<Func<double, IsValid>>
         {
             CommonContentValidation.LongitudeValidation
@@ -543,14 +298,12 @@ public class PointContentEditorContext : INotifyPropertyChanged, IHasChanges, IC
         PropertyScanners.SubscribeToChildHasChangesAndHasValidationIssues(this, CheckForChangesAndValidationIssues);
     }
 
-    [NotifyPropertyChangedInvocator]
-    protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+    private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
     {
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        if (e == null) return;
+        if (string.IsNullOrWhiteSpace(e.PropertyName)) return;
 
-        if (string.IsNullOrWhiteSpace(propertyName)) return;
-
-        if (!propertyName.Contains("HasChanges") && !propertyName.Contains("Validation"))
+        if (!e.PropertyName.Contains("HasChanges") && !e.PropertyName.Contains("Validation"))
             CheckForChangesAndValidationIssues();
     }
 
@@ -570,9 +323,8 @@ public class PointContentEditorContext : INotifyPropertyChanged, IHasChanges, IC
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        var (generationReturn, newContent) =
-            await PointGenerator.SaveAndGenerateHtml(CurrentStateToPointContentDto(), null,
-                StatusContext.ProgressTracker());
+        var (generationReturn, newContent) = await PointGenerator.SaveAndGenerateHtml(CurrentStateToPointContentDto(),
+            null, StatusContext.ProgressTracker());
 
         if (generationReturn.HasError || newContent == null)
         {

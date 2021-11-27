@@ -1,7 +1,5 @@
-﻿using System.ComponentModel;
-using System.IO;
-using System.Runtime.CompilerServices;
-using JetBrains.Annotations;
+﻿using System.IO;
+using Microsoft.Toolkit.Mvvm.ComponentModel;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsWpfControls.Utility.ChangesAndValidation;
 using PointlessWaymarks.WpfCommon.Status;
@@ -9,10 +7,12 @@ using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 
 namespace PointlessWaymarks.CmsWpfControls.PhotoContentEditor;
 
-public partial class PhotoContentEditorWindow : INotifyPropertyChanged
+[ObservableObject]
+public partial class PhotoContentEditorWindow
 {
-    private PhotoContentEditorContext _photoEditor;
-    private StatusControlContext _statusContext;
+    [ObservableProperty] private WindowAccidentalClosureHelper _accidentalCloserHelper;
+    [ObservableProperty] private PhotoContentEditorContext _photoEditor;
+    [ObservableProperty] private StatusControlContext _statusContext;
 
     public PhotoContentEditorWindow()
     {
@@ -66,37 +66,5 @@ public partial class PhotoContentEditorWindow : INotifyPropertyChanged
             await ThreadSwitcher.ResumeForegroundAsync();
             DataContext = this;
         });
-    }
-
-    public WindowAccidentalClosureHelper AccidentalCloserHelper { get; set; }
-
-    public PhotoContentEditorContext PhotoEditor
-    {
-        get => _photoEditor;
-        set
-        {
-            if (Equals(value, _photoEditor)) return;
-            _photoEditor = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public StatusControlContext StatusContext
-    {
-        get => _statusContext;
-        set
-        {
-            if (Equals(value, _statusContext)) return;
-            _statusContext = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public event PropertyChangedEventHandler PropertyChanged;
-
-    [NotifyPropertyChangedInvocator]
-    protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-    {
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 }

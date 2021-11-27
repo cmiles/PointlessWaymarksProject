@@ -12,6 +12,7 @@ namespace PointlessWaymarks.CmsWpfControls.LineContentEditor;
 [ObservableObject]
 public partial class LineContentEditorWindow
 {
+    [ObservableProperty] private WindowAccidentalClosureHelper _accidentalCloserHelper;
     [ObservableProperty] private LineContentEditorContext _lineContent;
     [ObservableProperty] private StatusControlContext _statusContext;
 
@@ -31,6 +32,4 @@ public partial class LineContentEditorWindow
             DataContext = this;
         });
     }
-
-    public WindowAccidentalClosureHelper AccidentalCloserHelper { get; set; }
 }

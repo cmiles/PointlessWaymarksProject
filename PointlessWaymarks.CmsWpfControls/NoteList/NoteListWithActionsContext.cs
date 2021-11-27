@@ -1,6 +1,5 @@
 ﻿using System.ComponentModel;
-using System.Runtime.CompilerServices;
-using JetBrains.Annotations;
+using Microsoft.Toolkit.Mvvm.ComponentModel;
 using PointlessWaymarks.CmsData.ContentHtml.NoteHtml;
 using PointlessWaymarks.CmsWpfControls.ContentList;
 using PointlessWaymarks.WpfCommon.Commands;
@@ -10,13 +9,14 @@ using PointlessWaymarks.WpfCommon.Utility;
 
 namespace PointlessWaymarks.CmsWpfControls.NoteList;
 
-public class NoteListWithActionsContext : INotifyPropertyChanged
+[ObservableObject]
+public partial class NoteListWithActionsContext : INotifyPropertyChanged
 {
-    private readonly StatusControlContext _statusContext;
-    private Command _emailHtmlToClipboardCommand;
-    private ContentListContext _listContext;
-    private Command _refreshDataCommand;
-    private WindowIconStatus _windowStatus;
+    [ObservableProperty] private readonly StatusControlContext _statusContext;
+    [ObservableProperty] private Command _emailHtmlToClipboardCommand;
+    [ObservableProperty] private ContentListContext _listContext;
+    [ObservableProperty] private Command _refreshDataCommand;
+    [ObservableProperty] private WindowIconStatus _windowStatus;
 
     public NoteListWithActionsContext(StatusControlContext statusContext, WindowIconStatus windowStatus = null)
     {
@@ -25,64 +25,6 @@ public class NoteListWithActionsContext : INotifyPropertyChanged
 
         StatusContext.RunFireAndForgetBlockingTask(LoadData);
     }
-
-    public Command EmailHtmlToClipboardCommand
-    {
-        get => _emailHtmlToClipboardCommand;
-        set
-        {
-            if (Equals(value, _emailHtmlToClipboardCommand)) return;
-            _emailHtmlToClipboardCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-
-    public ContentListContext ListContext
-    {
-        get => _listContext;
-        set
-        {
-            if (Equals(value, _listContext)) return;
-            _listContext = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command RefreshDataCommand
-    {
-        get => _refreshDataCommand;
-        set
-        {
-            if (Equals(value, _refreshDataCommand)) return;
-            _refreshDataCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public StatusControlContext StatusContext
-    {
-        get => _statusContext;
-        private init
-        {
-            if (Equals(value, _statusContext)) return;
-            _statusContext = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public WindowIconStatus WindowStatus
-    {
-        get => _windowStatus;
-        set
-        {
-            if (Equals(value, _windowStatus)) return;
-            _windowStatus = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public event PropertyChangedEventHandler PropertyChanged;
 
     private async Task EmailHtmlToClipboard()
     {
@@ -137,12 +79,6 @@ public class NoteListWithActionsContext : INotifyPropertyChanged
         };
 
         await ListContext.LoadData();
-    }
-
-    [NotifyPropertyChangedInvocator]
-    protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-    {
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 
     public List<NoteListListItem> SelectedItems()

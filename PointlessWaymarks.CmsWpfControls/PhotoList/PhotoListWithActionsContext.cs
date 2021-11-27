@@ -1,12 +1,10 @@
-﻿using System.ComponentModel;
-using System.Globalization;
+﻿using System.Globalization;
 using System.IO;
-using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using System.Windows;
 using AngleSharp.Text;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Toolkit.Mvvm.ComponentModel;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.Content;
@@ -21,25 +19,26 @@ using PointlessWaymarks.WpfCommon.Utility;
 
 namespace PointlessWaymarks.CmsWpfControls.PhotoList;
 
-public class PhotoListWithActionsContext : INotifyPropertyChanged
+[ObservableObject]
+public partial class PhotoListWithActionsContext
 {
-    private readonly StatusControlContext _statusContext;
-    private Command _emailHtmlToClipboardCommand;
-    private Command _forcedResizeCommand;
-    private ContentListContext _listContext;
-    private Command _openUrlForPhotoListCommand;
-    private Command _photoLinkCodesToClipboardForSelectedCommand;
-    private Command _refreshDataCommand;
-    private Command _regenerateHtmlAndReprocessPhotoForSelectedCommand;
-    private Command _reportAllPhotosCommand;
-    private Command _reportBlankLicenseCommand;
-    private Command _reportMultiSpacesInTitleCommand;
-    private Command _reportNoTagsCommand;
-    private Command _reportPhotoMetadataCommand;
-    private Command _reportTakenAndLicenseYearDoNotMatchCommand;
-    private Command _reportTitleAndTakenDoNotMatchCommand;
-    private Command _viewFilesCommand;
-    private WindowIconStatus _windowStatus;
+    [ObservableProperty] private readonly StatusControlContext _statusContext;
+    [ObservableProperty] private Command _emailHtmlToClipboardCommand;
+    [ObservableProperty] private Command _forcedResizeCommand;
+    [ObservableProperty] private ContentListContext _listContext;
+    [ObservableProperty] private Command _openUrlForPhotoListCommand;
+    [ObservableProperty] private Command _photoLinkCodesToClipboardForSelectedCommand;
+    [ObservableProperty] private Command _refreshDataCommand;
+    [ObservableProperty] private Command _regenerateHtmlAndReprocessPhotoForSelectedCommand;
+    [ObservableProperty] private Command _reportAllPhotosCommand;
+    [ObservableProperty] private Command _reportBlankLicenseCommand;
+    [ObservableProperty] private Command _reportMultiSpacesInTitleCommand;
+    [ObservableProperty] private Command _reportNoTagsCommand;
+    [ObservableProperty] private Command _reportPhotoMetadataCommand;
+    [ObservableProperty] private Command _reportTakenAndLicenseYearDoNotMatchCommand;
+    [ObservableProperty] private Command _reportTitleAndTakenDoNotMatchCommand;
+    [ObservableProperty] private Command _viewFilesCommand;
+    [ObservableProperty] private WindowIconStatus _windowStatus;
 
     public PhotoListWithActionsContext(StatusControlContext statusContext, WindowIconStatus windowStatus = null)
     {
@@ -60,195 +59,6 @@ public class PhotoListWithActionsContext : INotifyPropertyChanged
         StatusContext.RunFireAndForgetBlockingTask(ListContext.LoadData);
     }
 
-    public Command EmailHtmlToClipboardCommand
-    {
-        get => _emailHtmlToClipboardCommand;
-        set
-        {
-            if (Equals(value, _emailHtmlToClipboardCommand)) return;
-            _emailHtmlToClipboardCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command ForcedResizeCommand
-    {
-        get => _forcedResizeCommand;
-        set
-        {
-            if (Equals(value, _forcedResizeCommand)) return;
-            _forcedResizeCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-
-    public ContentListContext ListContext
-    {
-        get => _listContext;
-        set
-        {
-            if (Equals(value, _listContext)) return;
-            _listContext = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command OpenUrlForPhotoListCommand
-    {
-        get => _openUrlForPhotoListCommand;
-        set
-        {
-            if (Equals(value, _openUrlForPhotoListCommand)) return;
-            _openUrlForPhotoListCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command PhotoLinkCodesToClipboardForSelectedCommand
-    {
-        get => _photoLinkCodesToClipboardForSelectedCommand;
-        set
-        {
-            if (Equals(value, _photoLinkCodesToClipboardForSelectedCommand)) return;
-            _photoLinkCodesToClipboardForSelectedCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command RefreshDataCommand
-    {
-        get => _refreshDataCommand;
-        set
-        {
-            if (Equals(value, _refreshDataCommand)) return;
-            _refreshDataCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command RegenerateHtmlAndReprocessPhotoForSelectedCommand
-    {
-        get => _regenerateHtmlAndReprocessPhotoForSelectedCommand;
-        set
-        {
-            if (Equals(value, _regenerateHtmlAndReprocessPhotoForSelectedCommand)) return;
-            _regenerateHtmlAndReprocessPhotoForSelectedCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command ReportAllPhotosCommand
-    {
-        get => _reportAllPhotosCommand;
-        set
-        {
-            if (Equals(value, _reportAllPhotosCommand)) return;
-            _reportAllPhotosCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command ReportBlankLicenseCommand
-    {
-        get => _reportBlankLicenseCommand;
-        set
-        {
-            if (Equals(value, _reportBlankLicenseCommand)) return;
-            _reportBlankLicenseCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command ReportMultiSpacesInTitleCommand
-    {
-        get => _reportMultiSpacesInTitleCommand;
-        set
-        {
-            if (Equals(value, _reportMultiSpacesInTitleCommand)) return;
-            _reportMultiSpacesInTitleCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command ReportNoTagsCommand
-    {
-        get => _reportNoTagsCommand;
-        set
-        {
-            if (Equals(value, _reportNoTagsCommand)) return;
-            _reportNoTagsCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command ReportPhotoMetadataCommand
-    {
-        get => _reportPhotoMetadataCommand;
-        set
-        {
-            if (Equals(value, _reportPhotoMetadataCommand)) return;
-            _reportPhotoMetadataCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command ReportTakenAndLicenseYearDoNotMatchCommand
-    {
-        get => _reportTakenAndLicenseYearDoNotMatchCommand;
-        set
-        {
-            if (Equals(value, _reportTakenAndLicenseYearDoNotMatchCommand)) return;
-            _reportTakenAndLicenseYearDoNotMatchCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command ReportTitleAndTakenDoNotMatchCommand
-    {
-        get => _reportTitleAndTakenDoNotMatchCommand;
-        set
-        {
-            if (Equals(value, _reportTitleAndTakenDoNotMatchCommand)) return;
-            _reportTitleAndTakenDoNotMatchCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public StatusControlContext StatusContext
-    {
-        get => _statusContext;
-        private init
-        {
-            if (Equals(value, _statusContext)) return;
-            _statusContext = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command ViewFilesCommand
-    {
-        get => _viewFilesCommand;
-        set
-        {
-            if (Equals(value, _viewFilesCommand)) return;
-            _viewFilesCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public WindowIconStatus WindowStatus
-    {
-        get => _windowStatus;
-        set
-        {
-            if (Equals(value, _windowStatus)) return;
-            _windowStatus = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public event PropertyChangedEventHandler PropertyChanged;
 
     private async Task EmailHtmlToClipboard()
     {
@@ -338,8 +148,7 @@ public class PhotoListWithActionsContext : INotifyPropertyChanged
             },
             new()
             {
-                ItemName = "Text Code to Clipboard",
-                ItemCommand = PhotoLinkCodesToClipboardForSelectedCommand
+                ItemName = "Text Code to Clipboard", ItemCommand = PhotoLinkCodesToClipboardForSelectedCommand
             },
             new() { ItemName = "Email Html to Clipboard", ItemCommand = EmailHtmlToClipboardCommand },
             new() { ItemName = "View Photos", ItemCommand = ViewFilesCommand },
@@ -359,13 +168,6 @@ public class PhotoListWithActionsContext : INotifyPropertyChanged
         await ListContext.LoadData();
     }
 
-
-    [NotifyPropertyChangedInvocator]
-    protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-    {
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-    }
-
     private async Task PhotoLinkCodesToClipboardForSelected()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -377,8 +179,7 @@ public class PhotoListWithActionsContext : INotifyPropertyChanged
         }
 
         var finalString = SelectedItems().Aggregate(string.Empty,
-            (current, loopSelected) =>
-                current + BracketCodePhotos.Create(loopSelected.DbEntry) + Environment.NewLine);
+            (current, loopSelected) => current + BracketCodePhotos.Create(loopSelected.DbEntry) + Environment.NewLine);
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
@@ -418,8 +219,7 @@ public class PhotoListWithActionsContext : INotifyPropertyChanged
                 continue;
             }
 
-            var currentVersion =
-                db.PhotoContents.SingleOrDefault(x => x.ContentId == loopSelected.DbEntry.ContentId);
+            var currentVersion = db.PhotoContents.SingleOrDefault(x => x.ContentId == loopSelected.DbEntry.ContentId);
 
             if (currentVersion == null)
             {
@@ -437,8 +237,8 @@ public class PhotoListWithActionsContext : INotifyPropertyChanged
                 $"Re-processing Photo and Generating Html for {loopSelected.DbEntry.Title}, {loopCount} of {totalCount}");
 
             var (generationReturn, _) = await PhotoGenerator.SaveAndGenerateHtml(currentVersion,
-                UserSettingsSingleton.CurrentSettings().LocalMediaArchivePhotoContentFile(currentVersion), true,
-                null, StatusContext.ProgressTracker());
+                UserSettingsSingleton.CurrentSettings().LocalMediaArchivePhotoContentFile(currentVersion), true, null,
+                StatusContext.ProgressTracker());
 
             if (generationReturn.HasError)
             {
@@ -460,8 +260,7 @@ public class PhotoListWithActionsContext : INotifyPropertyChanged
     {
         var db = await Db.Context();
 
-        return (await db.PhotoContents.OrderByDescending(x => x.PhotoCreatedOn).ToListAsync()).Cast<object>()
-            .ToList();
+        return (await db.PhotoContents.OrderByDescending(x => x.PhotoCreatedOn).ToListAsync()).Cast<object>().ToList();
     }
 
     private async Task<List<object>> ReportBlankLicenseGenerator()
@@ -608,8 +407,8 @@ public class PhotoListWithActionsContext : INotifyPropertyChanged
 
     public List<PhotoListListItem> SelectedItems()
     {
-        return ListContext?.ListSelection?.SelectedItems?.Where(x => x is PhotoListListItem)
-            .Cast<PhotoListListItem>().ToList() ?? new List<PhotoListListItem>();
+        return ListContext?.ListSelection?.SelectedItems?.Where(x => x is PhotoListListItem).Cast<PhotoListListItem>()
+            .ToList() ?? new List<PhotoListListItem>();
     }
 
     private void SetupCommands()
@@ -621,8 +420,7 @@ public class PhotoListWithActionsContext : INotifyPropertyChanged
             StatusContext.RunBlockingTaskCommand(PhotoLinkCodesToClipboardForSelected);
         RefreshDataCommand = StatusContext.RunBlockingTaskCommand(ListContext.LoadData);
         ForcedResizeCommand = StatusContext.RunBlockingTaskWithCancellationCommand(ForcedResize, "Cancel Resizing");
-        ViewFilesCommand =
-            StatusContext.RunBlockingTaskWithCancellationCommand(ViewFilesSelected, "Cancel File View");
+        ViewFilesCommand = StatusContext.RunBlockingTaskWithCancellationCommand(ViewFilesSelected, "Cancel File View");
 
         EmailHtmlToClipboardCommand = StatusContext.RunBlockingTaskCommand(EmailHtmlToClipboard);
 

@@ -1,7 +1,5 @@
-﻿using System.ComponentModel;
-using System.Runtime.CompilerServices;
-using System.Windows;
-using JetBrains.Annotations;
+﻿using System.Windows;
+using Microsoft.Toolkit.Mvvm.ComponentModel;
 using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsWpfControls.ContentList;
 using PointlessWaymarks.WpfCommon.Commands;
@@ -11,13 +9,14 @@ using PointlessWaymarks.WpfCommon.Utility;
 
 namespace PointlessWaymarks.CmsWpfControls.PointList;
 
-public class PointListWithActionsContext : INotifyPropertyChanged
+[ObservableObject]
+public partial class PointListWithActionsContext
 {
-    private readonly StatusControlContext _statusContext;
-    private ContentListContext _listContext;
-    private Command _pointLinkBracketCodesToClipboardForSelectedCommand;
-    private Command _refreshDataCommand;
-    private WindowIconStatus _windowStatus;
+    [ObservableProperty] private readonly StatusControlContext _statusContext;
+    [ObservableProperty] private ContentListContext _listContext;
+    [ObservableProperty] private Command _pointLinkBracketCodesToClipboardForSelectedCommand;
+    [ObservableProperty] private Command _refreshDataCommand;
+    [ObservableProperty] private WindowIconStatus _windowStatus;
 
     public PointListWithActionsContext(StatusControlContext statusContext, WindowIconStatus windowStatus = null)
     {
@@ -26,64 +25,6 @@ public class PointListWithActionsContext : INotifyPropertyChanged
 
         StatusContext.RunFireAndForgetBlockingTask(LoadData);
     }
-
-    public ContentListContext ListContext
-    {
-        get => _listContext;
-        set
-        {
-            if (Equals(value, _listContext)) return;
-            _listContext = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command PointLinkBracketCodesToClipboardForSelectedCommand
-    {
-        get => _pointLinkBracketCodesToClipboardForSelectedCommand;
-        set
-        {
-            if (Equals(value, _pointLinkBracketCodesToClipboardForSelectedCommand)) return;
-            _pointLinkBracketCodesToClipboardForSelectedCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command RefreshDataCommand
-    {
-        get => _refreshDataCommand;
-        set
-        {
-            if (Equals(value, _refreshDataCommand)) return;
-            _refreshDataCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-
-    public StatusControlContext StatusContext
-    {
-        get => _statusContext;
-        private init
-        {
-            if (Equals(value, _statusContext)) return;
-            _statusContext = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public WindowIconStatus WindowStatus
-    {
-        get => _windowStatus;
-        set
-        {
-            if (Equals(value, _windowStatus)) return;
-            _windowStatus = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public event PropertyChangedEventHandler PropertyChanged;
 
     private async Task LoadData()
     {
@@ -118,12 +59,6 @@ public class PointListWithActionsContext : INotifyPropertyChanged
         await ListContext.LoadData();
     }
 
-    [NotifyPropertyChangedInvocator]
-    protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-    {
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-    }
-
     private async Task PointLinkBracketCodesToClipboardForSelected()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -147,7 +82,7 @@ public class PointListWithActionsContext : INotifyPropertyChanged
 
     public List<PointListListItem> SelectedItems()
     {
-        return ListContext?.ListSelection?.SelectedItems?.Where(x => x is PointListListItem)
-            .Cast<PointListListItem>().ToList() ?? new List<PointListListItem>();
+        return ListContext?.ListSelection?.SelectedItems?.Where(x => x is PointListListItem).Cast<PointListListItem>()
+            .ToList() ?? new List<PointListListItem>();
     }
 }

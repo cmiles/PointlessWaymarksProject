@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Windows;
 using System.Windows.Media.Imaging;
@@ -29,7 +30,7 @@ using PointlessWaymarks.WpfCommon.Utility;
 namespace PointlessWaymarks.CmsWpfControls.ImageContentEditor;
 
 [ObservableObject]
-public partial class ImageContentEditorContext : IHasChanges
+public partial class ImageContentEditorContext : IHasChanges, IHasValidationIssues, ICheckForChangesAndValidation
 {
     [ObservableProperty] private StringDataEntryContext _altTextEntry;
     [ObservableProperty] private Command _autoRenameSelectedFileCommand;
@@ -39,6 +40,8 @@ public partial class ImageContentEditorContext : IHasChanges
     [ObservableProperty] private CreatedAndUpdatedByAndOnDisplayContext _createdUpdatedDisplay;
     [ObservableProperty] private ImageContent _dbEntry;
     [ObservableProperty] private Command _extractNewLinksCommand;
+    [ObservableProperty] private bool _hasChanges;
+    [ObservableProperty] private bool _hasValidationIssues;
     [ObservableProperty] private HelpDisplayContext _helpContext;
     [ObservableProperty] private FileInfo _initialImage;
     [ObservableProperty] private Command _linkToClipboardCommand;
@@ -70,9 +73,16 @@ public partial class ImageContentEditorContext : IHasChanges
     private ImageContentEditorContext(StatusControlContext statusContext)
     {
         SetupContextAndCommands(statusContext);
+
+        PropertyChanged += OnPropertyChanged;
     }
 
-    public bool HasChanges => PropertyScanners.ChildPropertiesHaveChanges(this) || SelectedFileHasPathOrNameChanges;
+    public void CheckForChangesAndValidationIssues()
+    {
+        HasChanges = PropertyScanners.ChildPropertiesHaveChanges(this) || SelectedFileHasPathOrNameChanges;
+        HasValidationIssues = PropertyScanners.ChildPropertiesHaveValidationIssues(this) ||
+                              SelectedFileHasValidationIssues;
+    }
 
     public async Task ChooseFile()
     {
@@ -235,6 +245,17 @@ public partial class ImageContentEditorContext : IHasChanges
             ResizeSelectedFile = true;
             _initialImage = null;
         }
+    }
+
+    private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
+    {
+        if (e == null) return;
+        if (string.IsNullOrWhiteSpace(e.PropertyName)) return;
+
+        if (!e.PropertyName.Contains("HasChanges") && !e.PropertyName.Contains("Validation"))
+            CheckForChangesAndValidationIssues();
+
+        if (e.PropertyName == nameof(SelectedFile)) StatusContext.RunFireAndForgetNonBlockingTask(SelectedFileChanged);
     }
 
     private async Task RotateImage(Orientation rotationType)

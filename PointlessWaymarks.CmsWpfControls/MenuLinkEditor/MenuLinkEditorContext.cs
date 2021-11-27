@@ -1,8 +1,6 @@
 ﻿using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Toolkit.Mvvm.ComponentModel;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
@@ -13,13 +11,13 @@ using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 
 namespace PointlessWaymarks.CmsWpfControls.MenuLinkEditor;
 
-public class MenuLinkEditorContext : INotifyPropertyChanged
+[ObservableObject]
+public partial class MenuLinkEditorContext
 {
-    private Command _addItemCommand;
-    private string _helpMarkdown;
-    private ObservableCollection<MenuLinkListItem> _items = new();
-    private List<MenuLinkListItem> _selectedItems;
-    private StatusControlContext _statusContext;
+    [ObservableProperty] private string _helpMarkdown;
+    [ObservableProperty] private ObservableCollection<MenuLinkListItem> _items = new();
+    [ObservableProperty] private List<MenuLinkListItem> _selectedItems;
+    [ObservableProperty] private StatusControlContext _statusContext;
 
     public MenuLinkEditorContext(StatusControlContext statusContext)
     {
@@ -31,8 +29,8 @@ public class MenuLinkEditorContext : INotifyPropertyChanged
         MoveItemDownCommand = StatusContext.RunNonBlockingTaskCommand<MenuLinkListItem>(MoveItemDown);
         SaveCommand = StatusContext.RunBlockingTaskCommand(Save);
         InsertIndexTagIndexCommand =
-            StatusContext.RunNonBlockingTaskCommand<MenuLinkListItem>(x =>
-                InsertIntoLinkTag(x, "{{index; text Main;}}"));
+            StatusContext.RunNonBlockingTaskCommand<MenuLinkListItem>(
+                x => InsertIntoLinkTag(x, "{{index; text Main;}}"));
         InsertTagSearchCommand =
             StatusContext.RunNonBlockingTaskCommand<MenuLinkListItem>(x =>
                 InsertIntoLinkTag(x, "{{tagspage; text Tags;}}"));
@@ -51,86 +49,31 @@ public class MenuLinkEditorContext : INotifyPropertyChanged
         StatusContext.RunFireAndForgetBlockingTask(LoadData);
     }
 
-    public Command AddItemCommand
-    {
-        get => _addItemCommand;
-        set
-        {
-            if (Equals(value, _addItemCommand)) return;
-            _addItemCommand = value;
-            OnPropertyChanged();
-        }
-    }
+    public Command AddItemCommand { get; init; }
 
-    public Command DeleteItemCommand { get; set; }
+    public Command DeleteItemCommand { get; init; }
 
-    public string HelpMarkdown
-    {
-        get => _helpMarkdown;
-        set
-        {
-            if (value == _helpMarkdown) return;
-            _helpMarkdown = value;
-            OnPropertyChanged();
-        }
-    }
+    public Command<MenuLinkListItem> InsertIndexTagIndexCommand { get; init; }
 
-    public Command<MenuLinkListItem> InsertIndexTagIndexCommand { get; set; }
+    public Command<MenuLinkListItem> InsertLinkListCommand { get; init; }
 
-    public Command<MenuLinkListItem> InsertLinkListCommand { get; set; }
+    public Command<MenuLinkListItem> InsertPhotoGalleryCommand { get; init; }
 
-    public Command<MenuLinkListItem> InsertPhotoGalleryCommand { get; set; }
+    public Command<MenuLinkListItem> InsertSearchPageCommand { get; init; }
 
-    public Command<MenuLinkListItem> InsertSearchPageCommand { get; set; }
+    public Command<MenuLinkListItem> InsertTagSearchCommand { get; init; }
 
-    public Command<MenuLinkListItem> InsertTagSearchCommand { get; set; }
+    public Command<MenuLinkListItem> MoveItemDownCommand { get; init; }
 
-    public ObservableCollection<MenuLinkListItem> Items
-    {
-        get => _items;
-        set
-        {
-            if (Equals(value, _items)) return;
-            _items = value;
-            OnPropertyChanged();
-        }
-    }
+    public Command MoveItemUpCommand { get; init; }
 
-    public Command<MenuLinkListItem> MoveItemDownCommand { get; set; }
-
-    public Command MoveItemUpCommand { get; set; }
-
-    public Command SaveCommand { get; set; }
-
-    public List<MenuLinkListItem> SelectedItems
-    {
-        get => _selectedItems;
-        set
-        {
-            if (Equals(value, _selectedItems)) return;
-            _selectedItems = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public StatusControlContext StatusContext
-    {
-        get => _statusContext;
-        set
-        {
-            if (Equals(value, _statusContext)) return;
-            _statusContext = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public event PropertyChangedEventHandler PropertyChanged;
+    public Command SaveCommand { get; init; }
 
     private async Task AddItem()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        var newItem = new MenuLinkListItem {DbEntry = new MenuLink(), UserOrder = Items.Count};
+        var newItem = new MenuLinkListItem { DbEntry = new MenuLink(), UserOrder = Items.Count };
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
@@ -178,7 +121,7 @@ public class MenuLinkEditorContext : INotifyPropertyChanged
         var context = await Db.Context();
         var existingEntries = await context.MenuLinks.ToListAsync();
         var listItems = existingEntries.Select(x =>
-                new MenuLinkListItem {DbEntry = x, UserLink = x.LinkTag?.Trim() ?? string.Empty})
+                new MenuLinkListItem { DbEntry = x, UserLink = x.LinkTag?.Trim() ?? string.Empty })
             .OrderBy(x => x.UserOrder).ThenBy(x => x.UserLink).ToList();
 
         await ThreadSwitcher.ResumeForegroundAsync();
@@ -222,12 +165,6 @@ public class MenuLinkEditorContext : INotifyPropertyChanged
         Items.Move(currentItemIndex, currentItemIndex - 1);
 
         await RenumberItems();
-    }
-
-    [NotifyPropertyChangedInvocator]
-    protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-    {
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 
     private async Task RenumberItems()

@@ -1,7 +1,5 @@
-﻿using System.ComponentModel;
-using System.Runtime.CompilerServices;
-using System.Windows;
-using JetBrains.Annotations;
+﻿using System.Windows;
+using Microsoft.Toolkit.Mvvm.ComponentModel;
 using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.ContentHtml.PostHtml;
 using PointlessWaymarks.CmsWpfControls.ContentList;
@@ -12,14 +10,15 @@ using PointlessWaymarks.WpfCommon.Utility;
 
 namespace PointlessWaymarks.CmsWpfControls.PostList;
 
-public class PostListWithActionsContext : INotifyPropertyChanged
+[ObservableObject]
+public partial class PostListWithActionsContext
 {
-    private readonly StatusControlContext _statusContext;
-    private Command _emailHtmlToClipboardCommand;
-    private ContentListContext _listContext;
-    private Command _postImageCodesToClipboardForSelectedCommand;
-    private Command _refreshDataCommand;
-    private WindowIconStatus _windowStatus;
+    [ObservableProperty] private readonly StatusControlContext _statusContext;
+    [ObservableProperty] private Command _emailHtmlToClipboardCommand;
+    [ObservableProperty] private ContentListContext _listContext;
+    [ObservableProperty] private Command _postImageCodesToClipboardForSelectedCommand;
+    [ObservableProperty] private Command _refreshDataCommand;
+    [ObservableProperty] private WindowIconStatus _windowStatus;
 
     public PostListWithActionsContext(StatusControlContext statusContext, WindowIconStatus windowStatus = null)
     {
@@ -28,74 +27,6 @@ public class PostListWithActionsContext : INotifyPropertyChanged
 
         StatusContext.RunFireAndForgetBlockingTask(LoadData);
     }
-
-    public Command EmailHtmlToClipboardCommand
-    {
-        get => _emailHtmlToClipboardCommand;
-        set
-        {
-            if (Equals(value, _emailHtmlToClipboardCommand)) return;
-            _emailHtmlToClipboardCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public ContentListContext ListContext
-    {
-        get => _listContext;
-        set
-        {
-            if (Equals(value, _listContext)) return;
-            _listContext = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command PostImageCodesToClipboardForSelectedCommand
-    {
-        get => _postImageCodesToClipboardForSelectedCommand;
-        set
-        {
-            if (Equals(value, _postImageCodesToClipboardForSelectedCommand)) return;
-            _postImageCodesToClipboardForSelectedCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command RefreshDataCommand
-    {
-        get => _refreshDataCommand;
-        set
-        {
-            if (Equals(value, _refreshDataCommand)) return;
-            _refreshDataCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public StatusControlContext StatusContext
-    {
-        get => _statusContext;
-        private init
-        {
-            if (Equals(value, _statusContext)) return;
-            _statusContext = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public WindowIconStatus WindowStatus
-    {
-        get => _windowStatus;
-        set
-        {
-            if (Equals(value, _windowStatus)) return;
-            _windowStatus = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public event PropertyChangedEventHandler PropertyChanged;
 
     private async Task BracketCodesToClipboardForSelected()
     {
@@ -166,8 +97,7 @@ public class PostListWithActionsContext : INotifyPropertyChanged
             },
             new()
             {
-                ItemName = "Image Code to Clipboard",
-                ItemCommand = PostImageCodesToClipboardForSelectedCommand
+                ItemName = "Image Code to Clipboard", ItemCommand = PostImageCodesToClipboardForSelectedCommand
             },
             new() { ItemName = "Email Html to Clipboard", ItemCommand = EmailHtmlToClipboardCommand },
             new() { ItemName = "Extract New Links", ItemCommand = ListContext.ExtractNewLinksSelectedCommand },
@@ -179,14 +109,6 @@ public class PostListWithActionsContext : INotifyPropertyChanged
 
         await ListContext.LoadData();
     }
-
-
-    [NotifyPropertyChangedInvocator]
-    protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-    {
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-    }
-
 
     public List<PostListListItem> SelectedItems()
     {

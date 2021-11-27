@@ -1,7 +1,4 @@
-﻿using System.ComponentModel;
-using System.Runtime.CompilerServices;
-using JetBrains.Annotations;
-using Microsoft.Toolkit.Mvvm.ComponentModel;
+﻿using Microsoft.Toolkit.Mvvm.ComponentModel;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsWpfControls.Utility.ChangesAndValidation;
 using PointlessWaymarks.WpfCommon.Status;
@@ -12,6 +9,7 @@ namespace PointlessWaymarks.CmsWpfControls.LinkContentEditor;
 [ObservableObject]
 public partial class LinkContentEditorWindow
 {
+    [ObservableProperty] private WindowAccidentalClosureHelper _accidentalCloserHelper;
     [ObservableProperty] private LinkContentEditorContext _editorContent;
     [ObservableProperty] private StatusControlContext _statusContext;
 
@@ -22,8 +20,7 @@ public partial class LinkContentEditorWindow
 
         StatusContext.RunFireAndForgetBlockingTask(async () =>
         {
-            EditorContent =
-                await LinkContentEditorContext.CreateInstance(StatusContext, toLoad, extractDataFromLink);
+            EditorContent = await LinkContentEditorContext.CreateInstance(StatusContext, toLoad, extractDataFromLink);
 
             EditorContent.RequestContentEditorWindowClose += (_, _) => { Dispatcher?.Invoke(Close); };
             AccidentalCloserHelper = new WindowAccidentalClosureHelper(this, StatusContext, EditorContent);
@@ -32,6 +29,4 @@ public partial class LinkContentEditorWindow
             DataContext = this;
         });
     }
-
-    public WindowAccidentalClosureHelper AccidentalCloserHelper { get; set; }
 }

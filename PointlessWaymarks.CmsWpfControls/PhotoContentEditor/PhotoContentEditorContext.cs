@@ -1,10 +1,9 @@
 ﻿using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
-using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Media.Imaging;
-using JetBrains.Annotations;
+using Microsoft.Toolkit.Mvvm.ComponentModel;
 using Ookii.Dialogs.Wpf;
 using PhotoSauce.MagicScaler;
 using PointlessWaymarks.CmsData;
@@ -32,304 +31,64 @@ using PointlessWaymarks.WpfCommon.Utility;
 
 namespace PointlessWaymarks.CmsWpfControls.PhotoContentEditor;
 
-public class PhotoContentEditorContext : INotifyPropertyChanged, IHasChanges, IHasValidationIssues,
-    ICheckForChangesAndValidation
+[ObservableObject]
+public partial class PhotoContentEditorContext : IHasChanges, IHasValidationIssues, ICheckForChangesAndValidation
 {
-    private StringDataEntryContext _altTextEntry;
-    private StringDataEntryContext _apertureEntry;
-    private Command _autoCleanRenameSelectedFileCommand;
-    private Command _autoRenameSelectedFileBasedOnTitleCommand;
-    private BodyContentEditorContext _bodyContent;
-    private StringDataEntryContext _cameraMakeEntry;
-    private StringDataEntryContext _cameraModelEntry;
-    private Command _chooseFileAndFillMetadataCommand;
-    private Command _chooseFileCommand;
-    private ContentIdViewerControlContext _contentId;
-    private CreatedAndUpdatedByAndOnDisplayContext _createdUpdatedDisplay;
-    private PhotoContent _dbEntry;
-    private Command _extractNewLinksCommand;
-    private StringDataEntryContext _focalLengthEntry;
-    private bool _hasChanges;
-    private bool _hasValidationIssues;
-    private HelpDisplayContext _helpContext;
-    private FileInfo _initialPhoto;
-    private ConversionDataEntryContext<int?> _isoEntry;
-    private StringDataEntryContext _lensEntry;
-    private StringDataEntryContext _licenseEntry;
-    private Command _linkToClipboardCommand;
-    private FileInfo _loadedFile;
-    private ContentSiteFeedAndIsDraftContext _mainSiteFeed;
-    private StringDataEntryContext _photoCreatedByEntry;
-    private ConversionDataEntryContext<DateTime> _photoCreatedOnEntry;
-    private Command _renameSelectedFileCommand;
-    private bool _resizeSelectedFile;
-    private Command _rotatePhotoLeftCommand;
-    private Command _rotatePhotoRightCommand;
-    private Command _saveAndCloseCommand;
-    private Command _saveAndReprocessPhotoCommand;
-    private Command _saveCommand;
-    private FileInfo _selectedFile;
-    private BitmapSource _selectedFileBitmapSource;
-    private bool _selectedFileHasPathOrNameChanges;
-    private bool _selectedFileHasValidationIssues;
-    private bool _selectedFileNameHasInvalidCharacters;
-    private string _selectedFileValidationMessage;
-    private StringDataEntryContext _shutterSpeedEntry;
-    private StatusControlContext _statusContext;
-    private TagsEditorContext _tagEdit;
-    private TitleSummarySlugEditorContext _titleSummarySlugFolder;
-    private UpdateNotesEditorContext _updateNotes;
-    private Command _viewOnSiteCommand;
-    private Command _viewPhotoMetadataCommand;
-    private Command _viewSelectedFileCommand;
+    [ObservableProperty] private StringDataEntryContext _altTextEntry;
+    [ObservableProperty] private StringDataEntryContext _apertureEntry;
+    [ObservableProperty] private Command _autoCleanRenameSelectedFileCommand;
+    [ObservableProperty] private Command _autoRenameSelectedFileBasedOnTitleCommand;
+    [ObservableProperty] private BodyContentEditorContext _bodyContent;
+    [ObservableProperty] private StringDataEntryContext _cameraMakeEntry;
+    [ObservableProperty] private StringDataEntryContext _cameraModelEntry;
+    [ObservableProperty] private Command _chooseFileAndFillMetadataCommand;
+    [ObservableProperty] private Command _chooseFileCommand;
+    [ObservableProperty] private ContentIdViewerControlContext _contentId;
+    [ObservableProperty] private CreatedAndUpdatedByAndOnDisplayContext _createdUpdatedDisplay;
+    [ObservableProperty] private PhotoContent _dbEntry;
+    [ObservableProperty] private Command _extractNewLinksCommand;
+    [ObservableProperty] private StringDataEntryContext _focalLengthEntry;
+    [ObservableProperty] private bool _hasChanges;
+    [ObservableProperty] private bool _hasValidationIssues;
+    [ObservableProperty] private HelpDisplayContext _helpContext;
+    [ObservableProperty] private FileInfo _initialPhoto;
+    [ObservableProperty] private ConversionDataEntryContext<int?> _isoEntry;
+    [ObservableProperty] private StringDataEntryContext _lensEntry;
+    [ObservableProperty] private StringDataEntryContext _licenseEntry;
+    [ObservableProperty] private Command _linkToClipboardCommand;
+    [ObservableProperty] private FileInfo _loadedFile;
+    [ObservableProperty] private ContentSiteFeedAndIsDraftContext _mainSiteFeed;
+    [ObservableProperty] private StringDataEntryContext _photoCreatedByEntry;
+    [ObservableProperty] private ConversionDataEntryContext<DateTime> _photoCreatedOnEntry;
+    [ObservableProperty] private Command _renameSelectedFileCommand;
+    [ObservableProperty] private bool _resizeSelectedFile;
+    [ObservableProperty] private Command _rotatePhotoLeftCommand;
+    [ObservableProperty] private Command _rotatePhotoRightCommand;
+    [ObservableProperty] private Command _saveAndCloseCommand;
+    [ObservableProperty] private Command _saveAndReprocessPhotoCommand;
+    [ObservableProperty] private Command _saveCommand;
+    [ObservableProperty] private FileInfo _selectedFile;
+    [ObservableProperty] private BitmapSource _selectedFileBitmapSource;
+    [ObservableProperty] private bool _selectedFileHasPathOrNameChanges;
+    [ObservableProperty] private bool _selectedFileHasValidationIssues;
+    [ObservableProperty] private bool _selectedFileNameHasInvalidCharacters;
+    [ObservableProperty] private string _selectedFileValidationMessage;
+    [ObservableProperty] private StringDataEntryContext _shutterSpeedEntry;
+    [ObservableProperty] private StatusControlContext _statusContext;
+    [ObservableProperty] private TagsEditorContext _tagEdit;
+    [ObservableProperty] private TitleSummarySlugEditorContext _titleSummarySlugFolder;
+    [ObservableProperty] private UpdateNotesEditorContext _updateNotes;
+    [ObservableProperty] private Command _viewOnSiteCommand;
+    [ObservableProperty] private Command _viewPhotoMetadataCommand;
+    [ObservableProperty] private Command _viewSelectedFileCommand;
 
     public EventHandler RequestContentEditorWindowClose;
 
     private PhotoContentEditorContext(StatusControlContext statusContext)
     {
         SetupContextAndCommands(statusContext);
-    }
 
-    public StringDataEntryContext AltTextEntry
-    {
-        get => _altTextEntry;
-        set
-        {
-            if (Equals(value, _altTextEntry)) return;
-            _altTextEntry = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public StringDataEntryContext ApertureEntry
-    {
-        get => _apertureEntry;
-        set
-        {
-            if (Equals(value, _apertureEntry)) return;
-            _apertureEntry = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command AutoCleanRenameSelectedFileCommand
-    {
-        get => _autoCleanRenameSelectedFileCommand;
-        set
-        {
-            if (Equals(value, _autoCleanRenameSelectedFileCommand)) return;
-            _autoCleanRenameSelectedFileCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command AutoRenameSelectedFileBasedOnTitleCommand
-    {
-        get => _autoRenameSelectedFileBasedOnTitleCommand;
-        set
-        {
-            if (Equals(value, _autoRenameSelectedFileBasedOnTitleCommand)) return;
-            _autoRenameSelectedFileBasedOnTitleCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public BodyContentEditorContext BodyContent
-    {
-        get => _bodyContent;
-        set
-        {
-            if (Equals(value, _bodyContent)) return;
-            _bodyContent = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public StringDataEntryContext CameraMakeEntry
-    {
-        get => _cameraMakeEntry;
-        set
-        {
-            if (Equals(value, _cameraMakeEntry)) return;
-            _cameraMakeEntry = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public StringDataEntryContext CameraModelEntry
-    {
-        get => _cameraModelEntry;
-        set
-        {
-            if (Equals(value, _cameraModelEntry)) return;
-            _cameraModelEntry = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command ChooseFileAndFillMetadataCommand
-    {
-        get => _chooseFileAndFillMetadataCommand;
-        set
-        {
-            if (Equals(value, _chooseFileAndFillMetadataCommand)) return;
-            _chooseFileAndFillMetadataCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command ChooseFileCommand
-    {
-        get => _chooseFileCommand;
-        set
-        {
-            if (Equals(value, _chooseFileCommand)) return;
-            _chooseFileCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public ContentIdViewerControlContext ContentId
-    {
-        get => _contentId;
-        set
-        {
-            if (Equals(value, _contentId)) return;
-            _contentId = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public CreatedAndUpdatedByAndOnDisplayContext CreatedUpdatedDisplay
-    {
-        get => _createdUpdatedDisplay;
-        set
-        {
-            if (Equals(value, _createdUpdatedDisplay)) return;
-            _createdUpdatedDisplay = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public PhotoContent DbEntry
-    {
-        get => _dbEntry;
-        set
-        {
-            if (Equals(value, _dbEntry)) return;
-            _dbEntry = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command ExtractNewLinksCommand
-    {
-        get => _extractNewLinksCommand;
-        set
-        {
-            if (Equals(value, _extractNewLinksCommand)) return;
-            _extractNewLinksCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public StringDataEntryContext FocalLengthEntry
-    {
-        get => _focalLengthEntry;
-        set
-        {
-            if (Equals(value, _focalLengthEntry)) return;
-            _focalLengthEntry = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public HelpDisplayContext HelpContext
-    {
-        get => _helpContext;
-        set
-        {
-            if (Equals(value, _helpContext)) return;
-            _helpContext = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public ConversionDataEntryContext<int?> IsoEntry
-    {
-        get => _isoEntry;
-        set
-        {
-            if (Equals(value, _isoEntry)) return;
-            _isoEntry = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public StringDataEntryContext LensEntry
-    {
-        get => _lensEntry;
-        set
-        {
-            if (Equals(value, _lensEntry)) return;
-            _lensEntry = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public StringDataEntryContext LicenseEntry
-    {
-        get => _licenseEntry;
-        set
-        {
-            if (Equals(value, _licenseEntry)) return;
-            _licenseEntry = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command LinkToClipboardCommand
-    {
-        get => _linkToClipboardCommand;
-        set
-        {
-            if (Equals(value, _linkToClipboardCommand)) return;
-            _linkToClipboardCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public ContentSiteFeedAndIsDraftContext MainSiteFeed
-    {
-        get => _mainSiteFeed;
-        set
-        {
-            if (Equals(value, _mainSiteFeed)) return;
-            _mainSiteFeed = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public StringDataEntryContext PhotoCreatedByEntry
-    {
-        get => _photoCreatedByEntry;
-        set
-        {
-            if (Equals(value, _photoCreatedByEntry)) return;
-            _photoCreatedByEntry = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public ConversionDataEntryContext<DateTime> PhotoCreatedOnEntry
-    {
-        get => _photoCreatedOnEntry;
-        set
-        {
-            if (Equals(value, _photoCreatedOnEntry)) return;
-            _photoCreatedOnEntry = value;
-            OnPropertyChanged();
-        }
+        PropertyChanged += OnPropertyChanged;
     }
 
     public string PhotoEditorHelpText =>
@@ -343,269 +102,12 @@ Photo Content Notes:
  - Photo and Image Content both work with jpg files - main differences include the photo specific data that is stored (aperture, shutter speed, ISO, etc.), Photos are organized into generated Daily Photos pages and Photos
 ";
 
-    public Command RenameSelectedFileCommand
-    {
-        get => _renameSelectedFileCommand;
-        set
-        {
-            if (Equals(value, _renameSelectedFileCommand)) return;
-            _renameSelectedFileCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public bool ResizeSelectedFile
-    {
-        get => _resizeSelectedFile;
-        set
-        {
-            if (value == _resizeSelectedFile) return;
-            _resizeSelectedFile = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command RotatePhotoLeftCommand
-    {
-        get => _rotatePhotoLeftCommand;
-        set
-        {
-            if (Equals(value, _rotatePhotoLeftCommand)) return;
-            _rotatePhotoLeftCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command RotatePhotoRightCommand
-    {
-        get => _rotatePhotoRightCommand;
-        set
-        {
-            if (Equals(value, _rotatePhotoRightCommand)) return;
-            _rotatePhotoRightCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command SaveAndCloseCommand
-    {
-        get => _saveAndCloseCommand;
-        set
-        {
-            if (Equals(value, _saveAndCloseCommand)) return;
-            _saveAndCloseCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command SaveAndReprocessPhotoCommand
-    {
-        get => _saveAndReprocessPhotoCommand;
-        set
-        {
-            if (Equals(value, _saveAndReprocessPhotoCommand)) return;
-            _saveAndReprocessPhotoCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command SaveCommand
-    {
-        get => _saveCommand;
-        set
-        {
-            if (Equals(value, _saveCommand)) return;
-            _saveCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public FileInfo SelectedFile
-    {
-        get => _selectedFile;
-        set
-        {
-            if (Equals(value, _selectedFile)) return;
-            _selectedFile = value;
-            OnPropertyChanged();
-
-            StatusContext.RunFireAndForgetNonBlockingTask(SelectedFileChanged);
-        }
-    }
-
-    public BitmapSource SelectedFileBitmapSource
-    {
-        get => _selectedFileBitmapSource;
-        set
-        {
-            if (Equals(value, _selectedFileBitmapSource)) return;
-            _selectedFileBitmapSource = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public bool SelectedFileHasPathOrNameChanges
-    {
-        get => _selectedFileHasPathOrNameChanges;
-        set
-        {
-            if (value == _selectedFileHasPathOrNameChanges) return;
-            _selectedFileHasPathOrNameChanges = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public bool SelectedFileHasValidationIssues
-    {
-        get => _selectedFileHasValidationIssues;
-        set
-        {
-            if (value == _selectedFileHasValidationIssues) return;
-            _selectedFileHasValidationIssues = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public bool SelectedFileNameHasInvalidCharacters
-    {
-        get => _selectedFileNameHasInvalidCharacters;
-        set
-        {
-            if (value == _selectedFileNameHasInvalidCharacters) return;
-            _selectedFileNameHasInvalidCharacters = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public string SelectedFileValidationMessage
-    {
-        get => _selectedFileValidationMessage;
-        set
-        {
-            if (value == _selectedFileValidationMessage) return;
-            _selectedFileValidationMessage = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public StringDataEntryContext ShutterSpeedEntry
-    {
-        get => _shutterSpeedEntry;
-        set
-        {
-            if (Equals(value, _shutterSpeedEntry)) return;
-            _shutterSpeedEntry = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public StatusControlContext StatusContext
-    {
-        get => _statusContext;
-        set
-        {
-            if (Equals(value, _statusContext)) return;
-            _statusContext = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public TagsEditorContext TagEdit
-    {
-        get => _tagEdit;
-        set
-        {
-            if (Equals(value, _tagEdit)) return;
-            _tagEdit = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public TitleSummarySlugEditorContext TitleSummarySlugFolder
-    {
-        get => _titleSummarySlugFolder;
-        set
-        {
-            if (Equals(value, _titleSummarySlugFolder)) return;
-            _titleSummarySlugFolder = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public UpdateNotesEditorContext UpdateNotes
-    {
-        get => _updateNotes;
-        set
-        {
-            if (Equals(value, _updateNotes)) return;
-            _updateNotes = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command ViewOnSiteCommand
-    {
-        get => _viewOnSiteCommand;
-        set
-        {
-            if (Equals(value, _viewOnSiteCommand)) return;
-            _viewOnSiteCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command ViewPhotoMetadataCommand
-    {
-        get => _viewPhotoMetadataCommand;
-        set
-        {
-            if (Equals(value, _viewPhotoMetadataCommand)) return;
-            _viewPhotoMetadataCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command ViewSelectedFileCommand
-    {
-        get => _viewSelectedFileCommand;
-        set
-        {
-            if (Equals(value, _viewSelectedFileCommand)) return;
-            _viewSelectedFileCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
     public void CheckForChangesAndValidationIssues()
     {
         HasChanges = PropertyScanners.ChildPropertiesHaveChanges(this) || SelectedFileHasPathOrNameChanges;
         HasValidationIssues = PropertyScanners.ChildPropertiesHaveValidationIssues(this) ||
                               SelectedFileHasValidationIssues;
     }
-
-    public bool HasChanges
-    {
-        get => _hasChanges;
-        set
-        {
-            if (value == _hasChanges) return;
-            _hasChanges = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public bool HasValidationIssues
-    {
-        get => _hasValidationIssues;
-        set
-        {
-            if (value == _hasValidationIssues) return;
-            _hasValidationIssues = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public event PropertyChangedEventHandler PropertyChanged;
 
     public async Task ChooseFile(bool loadMetadata)
     {
@@ -645,8 +147,7 @@ Photo Content Notes:
 
         if (generationReturn.HasError)
         {
-            await StatusContext.ShowMessageWithOkButton("Photo Metadata Load Issue",
-                generationReturn.GenerationNote);
+            await StatusContext.ShowMessageWithOkButton("Photo Metadata Load Issue", generationReturn.GenerationNote);
             return;
         }
 
@@ -854,8 +355,7 @@ Photo Content Notes:
         PhotoCreatedByEntry.ReferenceValue = DbEntry.PhotoCreatedBy ?? string.Empty;
         PhotoCreatedByEntry.UserValue = DbEntry.PhotoCreatedBy.TrimNullToEmpty();
 
-        IsoEntry = ConversionDataEntryContext<int?>.CreateInstance(ConversionDataEntryHelpers
-            .IntNullableConversion);
+        IsoEntry = ConversionDataEntryContext<int?>.CreateInstance(ConversionDataEntryHelpers.IntNullableConversion);
         IsoEntry.Title = "ISO";
         IsoEntry.HelpText = "A measure of a sensor films sensitivity to light, 100 is a typical value";
         IsoEntry.ReferenceValue = DbEntry.Iso;
@@ -868,8 +368,7 @@ Photo Content Notes:
         PhotoCreatedOnEntry.ReferenceValue = DbEntry.PhotoCreatedOn;
         PhotoCreatedOnEntry.UserText = DbEntry.PhotoCreatedOn.ToString("MM/dd/yyyy h:mm:ss tt");
 
-        if (DbEntry.Id < 1 && _initialPhoto is { Exists: true } &&
-            FileHelpers.PhotoFileTypeIsSupported(_initialPhoto))
+        if (DbEntry.Id < 1 && _initialPhoto is { Exists: true } && FileHelpers.PhotoFileTypeIsSupported(_initialPhoto))
         {
             SelectedFile = _initialPhoto;
             ResizeSelectedFile = true;
@@ -882,15 +381,15 @@ Photo Content Notes:
         PropertyScanners.SubscribeToChildHasChangesAndHasValidationIssues(this, CheckForChangesAndValidationIssues);
     }
 
-    [NotifyPropertyChangedInvocator]
-    protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+    private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
     {
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        if (e == null) return;
+        if (string.IsNullOrWhiteSpace(e.PropertyName)) return;
 
-        if (string.IsNullOrWhiteSpace(propertyName)) return;
-
-        if (!propertyName.Contains("HasChanges") && !propertyName.Contains("Validation"))
+        if (!e.PropertyName.Contains("HasChanges") && !e.PropertyName.Contains("Validation"))
             CheckForChangesAndValidationIssues();
+
+        if (e.PropertyName == nameof(SelectedFile)) StatusContext.RunFireAndForgetNonBlockingTask(SelectedFileChanged);
     }
 
     public void PhotoMetadataToCurrentContent(PhotoMetadata metadata)
@@ -1019,8 +518,8 @@ Photo Content Notes:
             await FileHelpers.TryAutoCleanRenameSelectedFile(SelectedFile, StatusContext, x => SelectedFile = x));
         AutoRenameSelectedFileBasedOnTitleCommand = StatusContext.RunBlockingTaskCommand(async () =>
         {
-            await FileHelpers.TryAutoRenameSelectedFile(SelectedFile,
-                TitleSummarySlugFolder.TitleEntry.UserValue, StatusContext, x => SelectedFile = x);
+            await FileHelpers.TryAutoRenameSelectedFile(SelectedFile, TitleSummarySlugFolder.TitleEntry.UserValue,
+                StatusContext, x => SelectedFile = x);
         });
         ExtractNewLinksCommand = StatusContext.RunBlockingTaskCommand(() =>
             LinkExtraction.ExtractNewAndShowLinkContentEditors(BodyContent.BodyContent,
@@ -1059,7 +558,7 @@ Photo Content Notes:
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        if (SelectedFile is not { Exists: true, Directory: { Exists: true } })
+        if (SelectedFile is not { Exists: true, Directory.Exists: true })
         {
             StatusContext.ToastError("No Selected Photo or Selected Photo no longer exists?");
             return;

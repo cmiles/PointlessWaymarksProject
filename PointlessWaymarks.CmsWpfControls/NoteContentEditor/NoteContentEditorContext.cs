@@ -1,8 +1,7 @@
 ﻿using System.ComponentModel;
 using System.Diagnostics;
-using System.Runtime.CompilerServices;
 using System.Windows;
-using JetBrains.Annotations;
+using Microsoft.Toolkit.Mvvm.ComponentModel;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.Content;
@@ -23,32 +22,35 @@ using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 
 namespace PointlessWaymarks.CmsWpfControls.NoteContentEditor;
 
-public class NoteContentEditorContext : INotifyPropertyChanged, IHasChanges, IHasValidationIssues,
-    ICheckForChangesAndValidation
+[ObservableObject]
+public partial class NoteContentEditorContext : IHasChanges, IHasValidationIssues, ICheckForChangesAndValidation
 {
-    private BodyContentEditorContext _bodyContent;
-    private ContentIdViewerControlContext _contentId;
-    private CreatedAndUpdatedByAndOnDisplayContext _createdUpdatedDisplay;
-    private NoteContent _dbEntry;
-    private Command _extractNewLinksCommand;
-    private ContentFolderContext _folderEntry;
-    private bool _hasChanges;
-    private bool _hasValidationIssues;
-    private HelpDisplayContext _helpContext;
-    private Command _linkToClipboardCommand;
-    private ContentSiteFeedAndIsDraftContext _mainSiteFeed;
-    private Command _saveAndCloseCommand;
-    private Command _saveCommand;
-    private string _slug;
-    private StringDataEntryContext _summary;
-    private TagsEditorContext _tagEdit;
-    private Command _viewOnSiteCommand;
+    [ObservableProperty] private BodyContentEditorContext _bodyContent;
+    [ObservableProperty] private ContentIdViewerControlContext _contentId;
+    [ObservableProperty] private CreatedAndUpdatedByAndOnDisplayContext _createdUpdatedDisplay;
+    [ObservableProperty] private NoteContent _dbEntry;
+    [ObservableProperty] private Command _extractNewLinksCommand;
+    [ObservableProperty] private ContentFolderContext _folderEntry;
+    [ObservableProperty] private bool _hasChanges;
+    [ObservableProperty] private bool _hasValidationIssues;
+    [ObservableProperty] private HelpDisplayContext _helpContext;
+    [ObservableProperty] private Command _linkToClipboardCommand;
+    [ObservableProperty] private ContentSiteFeedAndIsDraftContext _mainSiteFeed;
+    [ObservableProperty] private Command _saveAndCloseCommand;
+    [ObservableProperty] private Command _saveCommand;
+    [ObservableProperty] private string _slug;
+    [ObservableProperty] private StatusControlContext _statusContext;
+    [ObservableProperty] private StringDataEntryContext _summary;
+    [ObservableProperty] private TagsEditorContext _tagEdit;
+    [ObservableProperty] private Command _viewOnSiteCommand;
 
     public EventHandler RequestContentEditorWindowClose;
 
     private NoteContentEditorContext(StatusControlContext statusContext)
     {
         StatusContext = statusContext ?? new StatusControlContext();
+
+        PropertyChanged += OnPropertyChanged;
 
         SaveCommand = StatusContext.RunBlockingTaskCommand(async () => await SaveAndGenerateHtml(false));
         SaveAndCloseCommand = StatusContext.RunBlockingTaskCommand(async () => await SaveAndGenerateHtml(true));
@@ -68,105 +70,6 @@ public class NoteContentEditorContext : INotifyPropertyChanged, IHasChanges, IHa
         });
     }
 
-    public BodyContentEditorContext BodyContent
-    {
-        get => _bodyContent;
-        set
-        {
-            if (Equals(value, _bodyContent)) return;
-            _bodyContent = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public ContentIdViewerControlContext ContentId
-    {
-        get => _contentId;
-        set
-        {
-            if (Equals(value, _contentId)) return;
-            _contentId = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public CreatedAndUpdatedByAndOnDisplayContext CreatedUpdatedDisplay
-    {
-        get => _createdUpdatedDisplay;
-        set
-        {
-            if (Equals(value, _createdUpdatedDisplay)) return;
-            _createdUpdatedDisplay = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public NoteContent DbEntry
-    {
-        get => _dbEntry;
-        set
-        {
-            if (Equals(value, _dbEntry)) return;
-            _dbEntry = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command ExtractNewLinksCommand
-    {
-        get => _extractNewLinksCommand;
-        set
-        {
-            if (Equals(value, _extractNewLinksCommand)) return;
-            _extractNewLinksCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public ContentFolderContext FolderEntry
-    {
-        get => _folderEntry;
-        set
-        {
-            if (Equals(value, _folderEntry)) return;
-            _folderEntry = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public HelpDisplayContext HelpContext
-    {
-        get => _helpContext;
-        set
-        {
-            if (Equals(value, _helpContext)) return;
-            _helpContext = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command LinkToClipboardCommand
-    {
-        get => _linkToClipboardCommand;
-        set
-        {
-            if (Equals(value, _linkToClipboardCommand)) return;
-            _linkToClipboardCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public ContentSiteFeedAndIsDraftContext MainSiteFeed
-    {
-        get => _mainSiteFeed;
-        set
-        {
-            if (Equals(value, _mainSiteFeed)) return;
-            _mainSiteFeed = value;
-            OnPropertyChanged();
-        }
-    }
-
     public string NoteEditorHelpText =>
         @"
 ### Note Content
@@ -174,104 +77,11 @@ public class NoteContentEditorContext : INotifyPropertyChanged, IHasChanges, IHa
 Note Content is like a simplified Post - no title and slug to edit or maintain and no Updates data to maintain. You can always use a Post instead of a note - but you might find it convenient if trying to quickly post a news item or a couple of links to do it as a Note rather than a Post.
 ";
 
-    public Command SaveAndCloseCommand
-    {
-        get => _saveAndCloseCommand;
-        set
-        {
-            if (Equals(value, _saveAndCloseCommand)) return;
-            _saveAndCloseCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-
-    public Command SaveCommand
-    {
-        get => _saveCommand;
-        set
-        {
-            if (Equals(value, _saveCommand)) return;
-            _saveCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public string Slug
-    {
-        get => _slug;
-        set
-        {
-            if (value == _slug) return;
-            _slug = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public StatusControlContext StatusContext { get; set; }
-
-    public StringDataEntryContext Summary
-    {
-        get => _summary;
-        set
-        {
-            if (value == _summary) return;
-            _summary = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public TagsEditorContext TagEdit
-    {
-        get => _tagEdit;
-        set
-        {
-            if (Equals(value, _tagEdit)) return;
-            _tagEdit = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command ViewOnSiteCommand
-    {
-        get => _viewOnSiteCommand;
-        set
-        {
-            if (Equals(value, _viewOnSiteCommand)) return;
-            _viewOnSiteCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
     public void CheckForChangesAndValidationIssues()
     {
         HasChanges = PropertyScanners.ChildPropertiesHaveChanges(this);
         HasValidationIssues = PropertyScanners.ChildPropertiesHaveValidationIssues(this);
     }
-
-    public bool HasChanges
-    {
-        get => _hasChanges;
-        set
-        {
-            if (value == _hasChanges) return;
-            _hasChanges = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public bool HasValidationIssues
-    {
-        get => _hasValidationIssues;
-        set
-        {
-            if (value == _hasValidationIssues) return;
-            _hasValidationIssues = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public event PropertyChangedEventHandler PropertyChanged;
 
     public static async Task<NoteContentEditorContext> CreateInstance(StatusControlContext statusContext,
         NoteContent noteContent)
@@ -359,14 +169,11 @@ Note Content is like a simplified Post - no title and slug to edit or maintain a
         PropertyScanners.SubscribeToChildHasChangesAndHasValidationIssues(this, CheckForChangesAndValidationIssues);
     }
 
-    [NotifyPropertyChangedInvocator]
-    protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+    private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
     {
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        if (string.IsNullOrWhiteSpace(e.PropertyName)) return;
 
-        if (string.IsNullOrWhiteSpace(propertyName)) return;
-
-        if (!propertyName.Contains("HasChanges") && !propertyName.Contains("Validation"))
+        if (!e.PropertyName.Contains("HasChanges") && !e.PropertyName.Contains("Validation"))
             CheckForChangesAndValidationIssues();
     }
 

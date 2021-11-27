@@ -1,26 +1,30 @@
 ﻿using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
+using Microsoft.Toolkit.Mvvm.ComponentModel;
 using PointlessWaymarks.CmsData.Database.Models;
 
 namespace PointlessWaymarks.CmsWpfControls.MenuLinkEditor;
 
-public class MenuLinkListItem : INotifyPropertyChanged
+[ObservableObject]
+public partial class MenuLinkListItem
 {
-    private MenuLink _dbEntry;
-    private bool _hasChanges;
-    private string _userLink;
-    private int _userOrder;
+    [ObservableProperty] private MenuLink _dbEntry;
+    [ObservableProperty] private bool _hasChanges;
+    [ObservableProperty] private string _userLink;
+    [ObservableProperty] private int _userOrder;
 
-    public MenuLink DbEntry
+    public MenuLinkListItem()
     {
-        get => _dbEntry;
-        set
-        {
-            if (Equals(value, _dbEntry)) return;
-            _dbEntry = value;
-            OnPropertyChanged();
+        PropertyChanged += OnPropertyChanged;
+    }
 
+    private void OnPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (string.IsNullOrWhiteSpace(e.PropertyName)) return;
+
+        if (e.PropertyName == nameof(DbEntry))
+        {
             if (DbEntry == null)
             {
                 UserLink = string.Empty;
@@ -32,42 +36,10 @@ public class MenuLinkListItem : INotifyPropertyChanged
                 UserOrder = DbEntry.MenuOrder;
             }
         }
-    }
 
-    public bool HasChanges
-    {
-        get => _hasChanges;
-        set
-        {
-            if (value == _hasChanges) return;
-            _hasChanges = value;
-            OnPropertyChanged();
-        }
+        if (!e.PropertyName.Contains("HasChanges") && !e.PropertyName.Contains("Validation"))
+            CheckForChanges();
     }
-
-    public string UserLink
-    {
-        get => _userLink;
-        set
-        {
-            if (value == _userLink) return;
-            _userLink = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public int UserOrder
-    {
-        get => _userOrder;
-        set
-        {
-            if (value == _userOrder) return;
-            _userOrder = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public event PropertyChangedEventHandler PropertyChanged;
 
     public void CheckForChanges()
     {
@@ -87,13 +59,4 @@ public class MenuLinkListItem : INotifyPropertyChanged
         return toReturn.Trim();
     }
 
-    [NotifyPropertyChangedInvocator]
-    protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-    {
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-
-        if (string.IsNullOrWhiteSpace(propertyName)) return;
-
-        if (!propertyName.Contains("HasChanges") && !propertyName.Contains("Validation")) CheckForChanges();
-    }
 }

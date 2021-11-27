@@ -1,6 +1,4 @@
-﻿using System.ComponentModel;
-using System.Runtime.CompilerServices;
-using JetBrains.Annotations;
+﻿using Microsoft.Toolkit.Mvvm.ComponentModel;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsWpfControls.Utility.ChangesAndValidation;
 using PointlessWaymarks.WpfCommon.Status;
@@ -11,10 +9,12 @@ namespace PointlessWaymarks.CmsWpfControls.NoteContentEditor;
 /// <summary>
 ///     Interaction logic for NoteContentEditorWindow.xaml
 /// </summary>
-public partial class NoteContentEditorWindow : INotifyPropertyChanged
+[ObservableObject]
+public partial class NoteContentEditorWindow
 {
-    private NoteContentEditorContext _noteContent;
-    private StatusControlContext _statusContext;
+    [ObservableProperty] private WindowAccidentalClosureHelper _accidentalCloserHelper;
+    [ObservableProperty] private NoteContentEditorContext _noteContent;
+    [ObservableProperty] private StatusControlContext _statusContext;
 
     public NoteContentEditorWindow(NoteContent toLoad)
     {
@@ -31,37 +31,5 @@ public partial class NoteContentEditorWindow : INotifyPropertyChanged
             await ThreadSwitcher.ResumeForegroundAsync();
             DataContext = this;
         });
-    }
-
-    public WindowAccidentalClosureHelper AccidentalCloserHelper { get; set; }
-
-    public NoteContentEditorContext NoteContent
-    {
-        get => _noteContent;
-        set
-        {
-            if (Equals(value, _noteContent)) return;
-            _noteContent = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public StatusControlContext StatusContext
-    {
-        get => _statusContext;
-        set
-        {
-            if (Equals(value, _statusContext)) return;
-            _statusContext = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public event PropertyChangedEventHandler PropertyChanged;
-
-    [NotifyPropertyChangedInvocator]
-    protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-    {
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 }

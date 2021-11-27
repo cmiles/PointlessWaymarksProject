@@ -1,7 +1,5 @@
-﻿using System.ComponentModel;
-using System.IO;
-using System.Runtime.CompilerServices;
-using JetBrains.Annotations;
+﻿using System.IO;
+using Microsoft.Toolkit.Mvvm.ComponentModel;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsWpfControls.Utility.ChangesAndValidation;
 using PointlessWaymarks.WpfCommon.Status;
@@ -9,10 +7,12 @@ using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 
 namespace PointlessWaymarks.CmsWpfControls.ImageContentEditor;
 
-public partial class ImageContentEditorWindow : INotifyPropertyChanged
+[ObservableObject]
+public partial class ImageContentEditorWindow
 {
-    private ImageContentEditorContext _imageEditor;
-    private StatusControlContext _statusContext;
+    [ObservableProperty] private WindowAccidentalClosureHelper _accidentalCloserHelper;
+    [ObservableProperty] private ImageContentEditorContext _imageEditor;
+    [ObservableProperty] private StatusControlContext _statusContext;
 
     public ImageContentEditorWindow()
     {
@@ -40,8 +40,7 @@ public partial class ImageContentEditorWindow : INotifyPropertyChanged
 
         StatusContext.RunFireAndForgetBlockingTask(async () =>
         {
-            ImageEditor =
-                await ImageContentEditorContext.CreateInstance(StatusContext, contentToLoad, initialImage);
+            ImageEditor = await ImageContentEditorContext.CreateInstance(StatusContext, contentToLoad, initialImage);
 
             ImageEditor.RequestContentEditorWindowClose += (_, _) => { Dispatcher?.Invoke(Close); };
             AccidentalCloserHelper = new WindowAccidentalClosureHelper(this, StatusContext, ImageEditor);
@@ -49,37 +48,5 @@ public partial class ImageContentEditorWindow : INotifyPropertyChanged
             await ThreadSwitcher.ResumeForegroundAsync();
             DataContext = this;
         });
-    }
-
-    public WindowAccidentalClosureHelper AccidentalCloserHelper { get; set; }
-
-    public ImageContentEditorContext ImageEditor
-    {
-        get => _imageEditor;
-        set
-        {
-            if (Equals(value, _imageEditor)) return;
-            _imageEditor = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public StatusControlContext StatusContext
-    {
-        get => _statusContext;
-        set
-        {
-            if (Equals(value, _statusContext)) return;
-            _statusContext = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public event PropertyChangedEventHandler PropertyChanged;
-
-    [NotifyPropertyChangedInvocator]
-    protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-    {
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 }

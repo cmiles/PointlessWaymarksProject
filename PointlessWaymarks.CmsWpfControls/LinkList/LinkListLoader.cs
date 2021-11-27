@@ -9,7 +9,7 @@ public class LinkListLoader : ContentListLoaderBase
 {
     public LinkListLoader(int? partialLoadQuantity) : base("Links", partialLoadQuantity)
     {
-        DataNotificationTypesToRespondTo = new List<DataNotificationContentType> {DataNotificationContentType.Link};
+        DataNotificationTypesToRespondTo = new List<DataNotificationContentType> { DataNotificationContentType.Link };
     }
 
     public override async Task<List<object>> LoadItems(IProgress<string> progress = null)
@@ -31,7 +31,7 @@ public class LinkListLoader : ContentListLoaderBase
 
         AllItemsLoaded = true;
 
-        return (await db.LinkContents.OrderByDescending(x => x.LastUpdatedOn ?? x.CreatedOn)
-            .ToListAsync()).Cast<object>().ToList();
+        return (await db.LinkContents.OrderByDescending(x => x.LastUpdatedOn ?? x.CreatedOn).ToListAsync())
+            .Cast<object>().ToList();
     }
 }

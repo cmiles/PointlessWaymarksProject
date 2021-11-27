@@ -9,7 +9,7 @@ public class MapComponentListLoader : ContentListLoaderBase
 {
     public MapComponentListLoader(int? partialLoadQuantity) : base("Maps", partialLoadQuantity)
     {
-        DataNotificationTypesToRespondTo = new List<DataNotificationContentType> {DataNotificationContentType.Map};
+        DataNotificationTypesToRespondTo = new List<DataNotificationContentType> { DataNotificationContentType.Map };
     }
 
     public override async Task<List<object>> LoadItems(IProgress<string> progress = null)
@@ -31,7 +31,7 @@ public class MapComponentListLoader : ContentListLoaderBase
 
         AllItemsLoaded = true;
 
-        return (await db.MapComponents.OrderByDescending(x => x.LastUpdatedOn ?? x.CreatedOn)
-            .ToListAsync()).Cast<object>().ToList();
+        return (await db.MapComponents.OrderByDescending(x => x.LastUpdatedOn ?? x.CreatedOn).ToListAsync())
+            .Cast<object>().ToList();
     }
 }
