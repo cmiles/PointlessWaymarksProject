@@ -12,7 +12,7 @@ namespace PointlessWaymarks.CmsWpfControls.LineList;
 [ObservableObject]
 public partial class LineListWithActionsContext
 {
-    [ObservableProperty] private readonly StatusControlContext _statusContext;
+    [ObservableProperty] private StatusControlContext _statusContext;
     [ObservableProperty] private Command _lineLinkCodesToClipboardForSelectedCommand;
     [ObservableProperty] private ContentListContext _listContext;
     [ObservableProperty] private Command _refreshDataCommand;

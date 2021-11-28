@@ -1,9 +1,7 @@
 ﻿using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
-using System.Runtime.CompilerServices;
 using System.Windows;
-using JetBrains.Annotations;
 using Microsoft.Toolkit.Mvvm.ComponentModel;
 using NetTopologySuite.Geometries;
 using Ookii.Dialogs.Wpf;

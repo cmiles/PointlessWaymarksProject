@@ -1,8 +1,5 @@
-﻿using System.ComponentModel;
-using System.Runtime.CompilerServices;
-using System.Windows;
+﻿using System.Windows;
 using HtmlTableHelper;
-using JetBrains.Annotations;
 using Microsoft.Toolkit.Mvvm.ComponentModel;
 using pinboard.net;
 using PointlessWaymarks.CmsData;
@@ -20,7 +17,7 @@ namespace PointlessWaymarks.CmsWpfControls.LinkList;
 [ObservableObject]
 public partial class LinkListWithActionsContext
 {
-    [ObservableProperty] private readonly StatusControlContext _statusContext;
+    [ObservableProperty] private StatusControlContext _statusContext;
     [ObservableProperty] private ContentListContext _listContext;
     [ObservableProperty] private Command _listSelectedLinksNotOnPinboardCommand;
     [ObservableProperty] private Command _mdLinkCodesToClipboardForSelectedCommand;

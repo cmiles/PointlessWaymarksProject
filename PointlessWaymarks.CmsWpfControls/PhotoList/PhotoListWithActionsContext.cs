@@ -22,7 +22,7 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList;
 [ObservableObject]
 public partial class PhotoListWithActionsContext
 {
-    [ObservableProperty] private readonly StatusControlContext _statusContext;
+    [ObservableProperty] private StatusControlContext _statusContext;
     [ObservableProperty] private Command _emailHtmlToClipboardCommand;
     [ObservableProperty] private Command _forcedResizeCommand;
     [ObservableProperty] private ContentListContext _listContext;

@@ -12,7 +12,7 @@ namespace PointlessWaymarks.CmsWpfControls.PointList;
 [ObservableObject]
 public partial class PointListWithActionsContext
 {
-    [ObservableProperty] private readonly StatusControlContext _statusContext;
+    [ObservableProperty] private StatusControlContext _statusContext;
     [ObservableProperty] private ContentListContext _listContext;
     [ObservableProperty] private Command _pointLinkBracketCodesToClipboardForSelectedCommand;
     [ObservableProperty] private Command _refreshDataCommand;

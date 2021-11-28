@@ -1,51 +1,21 @@
 ﻿using System.ComponentModel;
-using System.Runtime.CompilerServices;
-using JetBrains.Annotations;
+using Microsoft.Toolkit.Mvvm.ComponentModel;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.Database.Models;
 
 namespace PointlessWaymarks.CmsWpfControls.TagExclusionEditor;
 
-public class TagExclusionEditorListItem : INotifyPropertyChanged
+[ObservableObject]
+public partial class TagExclusionEditorListItem
 {
-    private TagExclusion _dbEntry;
-    private bool _hasChanges;
-    private string _tagValue;
+    [ObservableProperty] private TagExclusion _dbEntry;
+    [ObservableProperty] private bool _hasChanges;
+    [ObservableProperty] private string _tagValue;
 
-    public TagExclusion DbEntry
+    public TagExclusionEditorListItem()
     {
-        get => _dbEntry;
-        set
-        {
-            if (Equals(value, _dbEntry)) return;
-            _dbEntry = value;
-            OnPropertyChanged();
-        }
+        PropertyChanged += OnPropertyChanged;
     }
-
-    public bool HasChanges
-    {
-        get => _hasChanges;
-        set
-        {
-            if (value == _hasChanges) return;
-            _hasChanges = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public string TagValue
-    {
-        get => _tagValue;
-        set
-        {
-            if (value == _tagValue) return;
-            _tagValue = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public event PropertyChangedEventHandler PropertyChanged;
 
     public void CheckForChanges()
     {
@@ -59,13 +29,12 @@ public class TagExclusionEditorListItem : INotifyPropertyChanged
         HasChanges = !StringHelpers.AreEqualWithTrim(TagValue, DbEntry.Tag);
     }
 
-    [NotifyPropertyChangedInvocator]
-    protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+    private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
     {
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        if (e == null) return;
+        if (string.IsNullOrWhiteSpace(e.PropertyName)) return;
 
-        if (string.IsNullOrWhiteSpace(propertyName)) return;
-
-        if (!propertyName.Contains("HasChanges") && !propertyName.Contains("Validation")) CheckForChanges();
+        if (!e.PropertyName.Contains("HasChanges"))
+            CheckForChanges();
     }
 }

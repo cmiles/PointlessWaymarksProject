@@ -1,5 +1,4 @@
-﻿using System.ComponentModel;
-using Microsoft.Toolkit.Mvvm.ComponentModel;
+﻿using Microsoft.Toolkit.Mvvm.ComponentModel;
 using PointlessWaymarks.CmsData.ContentHtml.NoteHtml;
 using PointlessWaymarks.CmsWpfControls.ContentList;
 using PointlessWaymarks.WpfCommon.Commands;
@@ -10,9 +9,9 @@ using PointlessWaymarks.WpfCommon.Utility;
 namespace PointlessWaymarks.CmsWpfControls.NoteList;
 
 [ObservableObject]
-public partial class NoteListWithActionsContext : INotifyPropertyChanged
+public partial class NoteListWithActionsContext
 {
-    [ObservableProperty] private readonly StatusControlContext _statusContext;
+    [ObservableProperty] private StatusControlContext _statusContext;
     [ObservableProperty] private Command _emailHtmlToClipboardCommand;
     [ObservableProperty] private ContentListContext _listContext;
     [ObservableProperty] private Command _refreshDataCommand;

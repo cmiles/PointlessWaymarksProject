@@ -1,7 +1,6 @@
 ﻿using System.ComponentModel;
-using System.Runtime.CompilerServices;
 using System.Web;
-using JetBrains.Annotations;
+using Microsoft.Toolkit.Mvvm.ComponentModel;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.Database.Models;
@@ -14,93 +13,26 @@ using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 
 namespace PointlessWaymarks.CmsWpfControls.UpdateNotesEditor;
 
-public class UpdateNotesEditorContext : INotifyPropertyChanged, IHasChanges, IHasValidationIssues,
-    ICheckForChangesAndValidation
+[ObservableObject]
+public partial class UpdateNotesEditorContext : IHasChanges, IHasValidationIssues, ICheckForChangesAndValidation
 {
-    private IUpdateNotes _dbEntry;
-    private bool _hasChanges;
-    private bool _hasValidationIssues;
-    private Command _refreshPreviewCommand;
-    private ContentFormatChooserContext _updateNotesFormat;
-    private bool _updateNotesHasChanges;
-    private string _updateNotesHtmlOutput;
-    private string _userUpdateNotes = string.Empty;
+    [ObservableProperty] private IUpdateNotes _dbEntry;
+    [ObservableProperty] private bool _hasChanges;
+    [ObservableProperty] private bool _hasValidationIssues;
+    [ObservableProperty] private Command _refreshPreviewCommand;
+
+
+    [ObservableProperty] private StatusControlContext _statusContext;
+    [ObservableProperty] private string _updateNotes = string.Empty;
+    [ObservableProperty] private ContentFormatChooserContext _updateNotesFormat;
+    [ObservableProperty] private bool _updateNotesHasChanges;
+    [ObservableProperty] private string _updateNotesHtmlOutput;
 
     private UpdateNotesEditorContext(StatusControlContext statusContext)
     {
         StatusContext = statusContext ?? new StatusControlContext();
-    }
 
-    public IUpdateNotes DbEntry
-    {
-        get => _dbEntry;
-        set
-        {
-            if (Equals(value, _dbEntry)) return;
-            _dbEntry = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command RefreshPreviewCommand
-    {
-        get => _refreshPreviewCommand;
-        set
-        {
-            if (Equals(value, _refreshPreviewCommand)) return;
-            _refreshPreviewCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public StatusControlContext StatusContext { get; set; }
-
-    public string UpdateNotes
-    {
-        get => _userUpdateNotes;
-        set
-        {
-            if (value == _userUpdateNotes) return;
-            _userUpdateNotes = value;
-            OnPropertyChanged();
-
-            UpdateNotesHasChanges = !StringHelpers.AreEqual(DbEntry.UpdateNotes, UpdateNotes);
-        }
-    }
-
-    public ContentFormatChooserContext UpdateNotesFormat
-    {
-        get => _updateNotesFormat;
-        set
-        {
-            if (Equals(value, _updateNotesFormat)) return;
-            _updateNotesFormat = value;
-            OnPropertyChanged();
-
-            StatusContext.RunFireAndForgetNonBlockingTask(UpdateUpdateNotesContentHtml);
-        }
-    }
-
-    public bool UpdateNotesHasChanges
-    {
-        get => _updateNotesHasChanges;
-        set
-        {
-            if (value == _updateNotesHasChanges) return;
-            _updateNotesHasChanges = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public string UpdateNotesHtmlOutput
-    {
-        get => _updateNotesHtmlOutput;
-        set
-        {
-            if (value == _updateNotesHtmlOutput) return;
-            _updateNotesHtmlOutput = value;
-            OnPropertyChanged();
-        }
+        PropertyChanged += OnPropertyChanged;
     }
 
     public void CheckForChangesAndValidationIssues()
@@ -110,30 +42,6 @@ public class UpdateNotesEditorContext : INotifyPropertyChanged, IHasChanges, IHa
         HasChanges = UpdateNotesHasChanges || PropertyScanners.ChildPropertiesHaveChanges(this);
         HasValidationIssues = PropertyScanners.ChildPropertiesHaveValidationIssues(this);
     }
-
-    public bool HasChanges
-    {
-        get => _hasChanges;
-        set
-        {
-            if (value == _hasChanges) return;
-            _hasChanges = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public bool HasValidationIssues
-    {
-        get => _hasValidationIssues;
-        set
-        {
-            if (value == _hasValidationIssues) return;
-            _hasValidationIssues = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public event PropertyChangedEventHandler PropertyChanged;
 
     public static async Task<UpdateNotesEditorContext> CreateInstance(StatusControlContext statusContext,
         IUpdateNotes dbEntry)
@@ -173,15 +81,18 @@ public class UpdateNotesEditorContext : INotifyPropertyChanged, IHasChanges, IHa
         PropertyScanners.SubscribeToChildHasChangesAndHasValidationIssues(this, CheckForChangesAndValidationIssues);
     }
 
-    [NotifyPropertyChangedInvocator]
-    protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+    private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
     {
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        if (e == null) return;
+        if (string.IsNullOrWhiteSpace(e.PropertyName)) return;
 
-        if (string.IsNullOrWhiteSpace(propertyName)) return;
-
-        if (!propertyName.Contains("HasChanges") && !propertyName.Contains("Validation"))
+        if (!e.PropertyName.Contains("HasChanges") && !e.PropertyName.Contains("Validation"))
             CheckForChangesAndValidationIssues();
+
+        if (e.PropertyName == nameof(UpdateNotes))
+            UpdateNotesHasChanges = !StringHelpers.AreEqual(DbEntry.UpdateNotes, UpdateNotes);
+        if (e.PropertyName == nameof(UpdateNotesFormat))
+            StatusContext.RunFireAndForgetNonBlockingTask(UpdateUpdateNotesContentHtml);
     }
 
     public async Task UpdateUpdateNotesContentHtml()
@@ -190,8 +101,8 @@ public class UpdateNotesEditorContext : INotifyPropertyChanged, IHasChanges, IHa
 
         try
         {
-            var preprocessResults = await
-                BracketCodeCommon.ProcessCodesForLocalDisplay(UpdateNotes, StatusContext.ProgressTracker());
+            var preprocessResults =
+                await BracketCodeCommon.ProcessCodesForLocalDisplay(UpdateNotes, StatusContext.ProgressTracker());
             var processResults =
                 ContentProcessing.ProcessContent(preprocessResults, UpdateNotesFormat.SelectedContentFormat);
             UpdateNotesHtmlOutput = processResults.ToHtmlDocument("Update Notes", string.Empty);

@@ -1,6 +1,5 @@
 ﻿using System.ComponentModel;
-using System.Runtime.CompilerServices;
-using JetBrains.Annotations;
+using Microsoft.Toolkit.Mvvm.ComponentModel;
 using PointlessWaymarks.CmsData.ContentHtml;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsWpfControls.ContentFolder;
@@ -12,30 +11,31 @@ using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 
 namespace PointlessWaymarks.CmsWpfControls.TitleSummarySlugFolderEditor;
 
-public class TitleSummarySlugEditorContext : INotifyPropertyChanged, IHasChanges, IHasValidationIssues,
-    ICheckForChangesAndValidation
+[ObservableObject]
+public partial class TitleSummarySlugEditorContext : IHasChanges, IHasValidationIssues, ICheckForChangesAndValidation
 {
-    private Func<TitleSummarySlugEditorContext, bool> _customTitleCheckToEnable;
-    private Command _customTitleCommand;
-    private bool _customTitleFunctionEnabled;
-    private string _customTitleFunctionText;
-    private bool _customTitleFunctionVisible;
-    private ITitleSummarySlugFolder _dbEntry;
-    private ContentFolderContext _folderEntry;
-    private bool _hasChanges;
-    private bool _hasValidationIssues;
-    private StringDataEntryContext _slugEntry;
-    private StatusControlContext _statusContext;
-    private StringDataEntryContext _summaryEntry;
-    private StringDataEntryContext _titleEntry;
-    private Command _titleToSlugCommand;
-    private bool _titleToSlugEnabled = true;
-    private Command _titleToSummaryCommand;
-    private bool _titleToSummaryEnabled = true;
+    [ObservableProperty] private Func<TitleSummarySlugEditorContext, bool> _customTitleCheckToEnable;
+    [ObservableProperty] private Command _customTitleCommand;
+    [ObservableProperty] private bool _customTitleFunctionEnabled;
+    [ObservableProperty] private string _customTitleFunctionText;
+    [ObservableProperty] private bool _customTitleFunctionVisible;
+    [ObservableProperty] private ITitleSummarySlugFolder _dbEntry;
+    [ObservableProperty] private ContentFolderContext _folderEntry;
+    [ObservableProperty] private bool _hasChanges;
+    [ObservableProperty] private bool _hasValidationIssues;
+    [ObservableProperty] private StringDataEntryContext _slugEntry;
+    [ObservableProperty] private StatusControlContext _statusContext;
+    [ObservableProperty] private StringDataEntryContext _summaryEntry;
+    [ObservableProperty] private StringDataEntryContext _titleEntry;
+    [ObservableProperty] private Command _titleToSlugCommand;
+    [ObservableProperty] private bool _titleToSlugEnabled = true;
+    [ObservableProperty] private Command _titleToSummaryCommand;
+    [ObservableProperty] private bool _titleToSummaryEnabled = true;
 
     private TitleSummarySlugEditorContext(StatusControlContext statusContext)
     {
         StatusContext = statusContext ?? new StatusControlContext();
+        PropertyChanged += OnPropertyChanged;
     }
 
     private TitleSummarySlugEditorContext(StatusControlContext statusContext, string customTitleCommandText,
@@ -49,203 +49,12 @@ public class TitleSummarySlugEditorContext : INotifyPropertyChanged, IHasChanges
         CustomTitleFunctionVisible = true;
     }
 
-    public Func<TitleSummarySlugEditorContext, bool> CustomTitleCheckToEnable
-    {
-        get => _customTitleCheckToEnable;
-        set
-        {
-            if (Equals(value, _customTitleCheckToEnable)) return;
-            _customTitleCheckToEnable = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command CustomTitleCommand
-    {
-        get => _customTitleCommand;
-        set
-        {
-            if (Equals(value, _customTitleCommand)) return;
-            _customTitleCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public bool CustomTitleFunctionEnabled
-    {
-        get => _customTitleFunctionEnabled;
-        set
-        {
-            if (value == _customTitleFunctionEnabled) return;
-            _customTitleFunctionEnabled = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public string CustomTitleFunctionText
-    {
-        get => _customTitleFunctionText;
-        set
-        {
-            if (value == _customTitleFunctionText) return;
-            _customTitleFunctionText = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public bool CustomTitleFunctionVisible
-    {
-        get => _customTitleFunctionVisible;
-        set
-        {
-            if (value == _customTitleFunctionVisible) return;
-            _customTitleFunctionVisible = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public ITitleSummarySlugFolder DbEntry
-    {
-        get => _dbEntry;
-        set
-        {
-            if (Equals(value, _dbEntry)) return;
-            _dbEntry = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public ContentFolderContext FolderEntry
-    {
-        get => _folderEntry;
-        set
-        {
-            if (Equals(value, _folderEntry)) return;
-            _folderEntry = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public StringDataEntryContext SlugEntry
-    {
-        get => _slugEntry;
-        set
-        {
-            if (Equals(value, _slugEntry)) return;
-            _slugEntry = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public StatusControlContext StatusContext
-    {
-        get => _statusContext;
-        set
-        {
-            if (Equals(value, _statusContext)) return;
-            _statusContext = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public StringDataEntryContext SummaryEntry
-    {
-        get => _summaryEntry;
-        set
-        {
-            if (Equals(value, _summaryEntry)) return;
-            _summaryEntry = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public StringDataEntryContext TitleEntry
-    {
-        get => _titleEntry;
-        set
-        {
-            if (Equals(value, _titleEntry)) return;
-            _titleEntry = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command TitleToSlugCommand
-    {
-        get => _titleToSlugCommand;
-        set
-        {
-            if (Equals(value, _titleToSlugCommand)) return;
-            _titleToSlugCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public bool TitleToSlugEnabled
-    {
-        get => _titleToSlugEnabled;
-        set
-        {
-            if (value == _titleToSlugEnabled) return;
-            _titleToSlugEnabled = value;
-            OnPropertyChanged();
-        }
-    }
-
-
-    public Command TitleToSummaryCommand
-    {
-        get => _titleToSummaryCommand;
-        set
-        {
-            if (Equals(value, _titleToSummaryCommand)) return;
-            _titleToSummaryCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public bool TitleToSummaryEnabled
-    {
-        get => _titleToSummaryEnabled;
-        set
-        {
-            if (value == _titleToSummaryEnabled) return;
-            _titleToSummaryEnabled = value;
-            OnPropertyChanged();
-        }
-    }
-
     public void CheckForChangesAndValidationIssues()
     {
         HasChanges = PropertyScanners.ChildPropertiesHaveChanges(this);
 
         HasValidationIssues = PropertyScanners.ChildPropertiesHaveValidationIssues(this);
     }
-
-    public bool HasChanges
-    {
-        get => _hasChanges;
-        set
-        {
-            if (value == _hasChanges) return;
-            _hasChanges = value;
-            OnPropertyChanged();
-        }
-    }
-
-
-    public bool HasValidationIssues
-    {
-        get => _hasValidationIssues;
-        set
-        {
-            if (value == _hasValidationIssues) return;
-            _hasValidationIssues = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public event PropertyChangedEventHandler PropertyChanged;
 
     public void CheckForChangesToTitleToFunctionStates()
     {
@@ -313,14 +122,12 @@ public class TitleSummarySlugEditorContext : INotifyPropertyChanged, IHasChanges
         PropertyScanners.SubscribeToChildHasChangesAndHasValidationIssues(this, CheckForChangesAndValidationIssues);
     }
 
-    [NotifyPropertyChangedInvocator]
-    protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+    private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
     {
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        if (e == null) return;
+        if (string.IsNullOrWhiteSpace(e.PropertyName)) return;
 
-        if (string.IsNullOrWhiteSpace(propertyName)) return;
-
-        if (!propertyName.Contains("HasChanges") && !propertyName.Contains("Validation"))
+        if (!e.PropertyName.Contains("HasChanges") && !e.PropertyName.Contains("Validation"))
             CheckForChangesAndValidationIssues();
     }
 
@@ -335,7 +142,6 @@ public class TitleSummarySlugEditorContext : INotifyPropertyChanged, IHasChanges
     {
         SlugEntry.UserValue = SlugUtility.Create(true, TitleEntry.UserValue);
     }
-
 
     public void TitleToSummary()
     {

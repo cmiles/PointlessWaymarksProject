@@ -1,9 +1,7 @@
-﻿using System.ComponentModel;
-using System.IO;
-using System.Runtime.CompilerServices;
+﻿using System.IO;
 using System.Text.Json;
 using Amazon;
-using JetBrains.Annotations;
+using Microsoft.Toolkit.Mvvm.ComponentModel;
 using Omu.ValueInjecter;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsWpfControls.Utility.Aws;
@@ -13,53 +11,21 @@ using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 
 namespace PointlessWaymarks.CmsWpfControls.UserSettingsEditor;
 
-public class UserSettingsEditorContext : INotifyPropertyChanged
+[ObservableObject]
+public partial class UserSettingsEditorContext
 {
-    private Command _deleteAwsCredentials;
-    private UserSettings _editorSettings;
-    private Command _enterAwsCredentials;
-    private List<string> _regionChoices;
-    private Command _saveSettingsCommand;
-    private StatusControlContext _statusContext;
+    [ObservableProperty] private Command _deleteAwsCredentials;
+    [ObservableProperty] private UserSettings _editorSettings;
+    [ObservableProperty] private Command _enterAwsCredentials;
+    [ObservableProperty] private List<string> _regionChoices;
+    [ObservableProperty] private Command _saveSettingsCommand;
+    [ObservableProperty] private StatusControlContext _statusContext;
 
     public UserSettingsEditorContext(StatusControlContext statusContext, UserSettings toLoad)
     {
         StatusContext = statusContext ?? new StatusControlContext();
 
         StatusContext.RunFireAndForgetNonBlockingTask(async () => await LoadData(toLoad));
-    }
-
-    public Command DeleteAwsCredentials
-    {
-        get => _deleteAwsCredentials;
-        set
-        {
-            if (Equals(value, _deleteAwsCredentials)) return;
-            _deleteAwsCredentials = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public UserSettings EditorSettings
-    {
-        get => _editorSettings;
-        set
-        {
-            if (Equals(value, _editorSettings)) return;
-            _editorSettings = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command EnterAwsCredentials
-    {
-        get => _enterAwsCredentials;
-        set
-        {
-            if (Equals(value, _enterAwsCredentials)) return;
-            _enterAwsCredentials = value;
-            OnPropertyChanged();
-        }
     }
 
     public static string HelpMarkdownBingMapsApiKey =>
@@ -103,14 +69,12 @@ public class UserSettingsEditorContext : INotifyPropertyChanged
         "This is NOT required. Amazon S3 - especially behind a service like Cloudflare - can be an excellent way to host a static site like this program generates. This program can help you upload files and maintain files on S3, but to do so you must provide some information - S3 Bucket Name (this will often match your domain name), S3 Bucket Region and AWS Site Credentials (these are not shown and are stored securely by windows - these are NOT stored in the database or in the settings file).";
 
     public static string HelpMarkdownSiteAuthors =>
-        "A value for the site creators/authors - for example " +
-        "'Pointless Waymarks Team'.";
+        "A value for the site creators/authors - for example " + "'Pointless Waymarks Team'.";
 
     public static string HelpMarkdownSiteDirAttribute =>
         "Dir attribute indicating text direction for the site - see the [dir attribute on MDN](https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/dir) for more information.";
 
-    public static string HelpMarkdownSiteEmailTo =>
-        "An Email To for the site - example 'PointlessWaymarks@gmail.com'.";
+    public static string HelpMarkdownSiteEmailTo => "An Email To for the site - example 'PointlessWaymarks@gmail.com'.";
 
     public static string HelpMarkdownSiteKeywords =>
         "Used in as the tags for the overall/entire site - for example " +
@@ -119,46 +83,10 @@ public class UserSettingsEditorContext : INotifyPropertyChanged
     public static string HelpMarkdownSiteLangAttribute =>
         "Lang attribute indicating the default language for the site - see [lang attribute on MDN](https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/lang) for more information.";
 
-    public static string HelpMarkdownSiteName =>
-        "The 'human readable' Site Name - for example 'Pointless Waymarks'.";
+    public static string HelpMarkdownSiteName => "The 'human readable' Site Name - for example 'Pointless Waymarks'.";
 
     public static string HelpMarkdownSubtitleSummary =>
         "Used as a sub-title and site summary - example 'Ramblings, Questionable Geographics, Photographic Half-truths'.";
-
-    public List<string> RegionChoices
-    {
-        get => _regionChoices;
-        set
-        {
-            if (Equals(value, _regionChoices)) return;
-            _regionChoices = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command SaveSettingsCommand
-    {
-        get => _saveSettingsCommand;
-        set
-        {
-            if (Equals(value, _saveSettingsCommand)) return;
-            _saveSettingsCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public StatusControlContext StatusContext
-    {
-        get => _statusContext;
-        set
-        {
-            if (Equals(value, _statusContext)) return;
-            _statusContext = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public event PropertyChangedEventHandler PropertyChanged;
 
     private async Task LoadData(UserSettings toLoad)
     {
@@ -171,12 +99,6 @@ public class UserSettingsEditorContext : INotifyPropertyChanged
         DeleteAwsCredentials = StatusContext.RunBlockingActionCommand(AwsCredentials.RemoveAwsSiteCredentials);
 
         EditorSettings = toLoad;
-    }
-
-    [NotifyPropertyChangedInvocator]
-    protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-    {
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 
     public async Task SaveSettings()

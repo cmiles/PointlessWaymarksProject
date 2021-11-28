@@ -245,6 +245,8 @@ public partial class ImageContentEditorContext : IHasChanges, IHasValidationIssu
             ResizeSelectedFile = true;
             _initialImage = null;
         }
+
+        PropertyScanners.SubscribeToChildHasChangesAndHasValidationIssues(this, CheckForChangesAndValidationIssues);
     }
 
     private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)

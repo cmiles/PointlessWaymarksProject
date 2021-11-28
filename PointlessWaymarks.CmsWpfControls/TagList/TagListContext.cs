@@ -1,9 +1,8 @@
 ﻿using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Data;
-using System.Runtime.CompilerServices;
 using System.Windows.Data;
-using JetBrains.Annotations;
+using Microsoft.Toolkit.Mvvm.ComponentModel;
 using Omu.ValueInjecter;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.Content;
@@ -25,31 +24,34 @@ using TinyIpc.Messaging;
 
 namespace PointlessWaymarks.CmsWpfControls.TagList;
 
-public class TagListContext : INotifyPropertyChanged
+[ObservableObject]
+public partial class TagListContext
 {
-    private Command _allDetailItemsToExcelCommand;
-    private DataNotificationsWorkQueue _dataNotificationsProcessor;
-    private List<TagItemContentInformation> _detailsList;
-    private List<TagItemContentInformation> _detailsSelectedItems;
-    private Command<Guid> _editContentCommand;
-    private Command _importFromExcelFileCommand;
-    private Command _importFromOpenExcelInstanceCommand;
-    private ObservableCollection<TagListListItem> _items;
-    private Command<TagListListItem> _makeExcludedTagCommand;
-    private Command _refreshDataCommand;
-    private Command<TagListListItem> _removeExcludedTagCommand;
-    private Command _selectedDetailItemsToExcelCommand;
-    private List<TagListListItem> _selectedItems;
-
-    private StatusControlContext _statusContext;
-    private string _userFilterText;
-    private Command _visibleTagsToExcelCommand;
+    [ObservableProperty] private Command _allDetailItemsToExcelCommand;
+    [ObservableProperty] private DataNotificationsWorkQueue _dataNotificationsProcessor;
+    [ObservableProperty] private List<TagItemContentInformation> _detailsList;
+    [ObservableProperty] private List<TagItemContentInformation> _detailsSelectedItems;
+    [ObservableProperty] private Command<Guid> _editContentCommand;
+    [ObservableProperty] private Command _importFromExcelFileCommand;
+    [ObservableProperty] private Command _importFromOpenExcelInstanceCommand;
+    [ObservableProperty] private ObservableCollection<TagListListItem> _items;
+    [ObservableProperty] private Command<TagListListItem> _makeExcludedTagCommand;
+    [ObservableProperty] private Command _refreshDataCommand;
+    [ObservableProperty] private Command<TagListListItem> _removeExcludedTagCommand;
+    [ObservableProperty] private Command _selectedDetailItemsToExcelCommand;
+    [ObservableProperty] private List<TagListListItem> _selectedItems;
+    [ObservableProperty] private Command _selectedTagsToExcelCommand;
+    [ObservableProperty] private StatusControlContext _statusContext;
+    [ObservableProperty] private string _userFilterText;
+    [ObservableProperty] private Command _visibleTagsToExcelCommand;
 
     public TagListContext(StatusControlContext context)
     {
         StatusContext = context ?? new StatusControlContext();
 
-        DataNotificationsProcessor = new DataNotificationsWorkQueue {Processor = DataNotificationReceived};
+        PropertyChanged += OnPropertyChanged;
+
+        DataNotificationsProcessor = new DataNotificationsWorkQueue { Processor = DataNotificationReceived };
 
         RefreshDataCommand = StatusContext.RunBlockingTaskCommand(LoadData);
 
@@ -72,190 +74,6 @@ public class TagListContext : INotifyPropertyChanged
 
         StatusContext.RunFireAndForgetBlockingTask(LoadData);
     }
-
-    public Command AllDetailItemsToExcelCommand
-    {
-        get => _allDetailItemsToExcelCommand;
-        set
-        {
-            if (Equals(value, _allDetailItemsToExcelCommand)) return;
-            _allDetailItemsToExcelCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public DataNotificationsWorkQueue DataNotificationsProcessor
-    {
-        get => _dataNotificationsProcessor;
-        set
-        {
-            if (Equals(value, _dataNotificationsProcessor)) return;
-            _dataNotificationsProcessor = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public List<TagItemContentInformation> DetailsList
-    {
-        get => _detailsList;
-        set
-        {
-            if (Equals(value, _detailsList)) return;
-            _detailsList = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public List<TagItemContentInformation> DetailsSelectedItems
-    {
-        get => _detailsSelectedItems;
-        set
-        {
-            if (Equals(value, _detailsSelectedItems)) return;
-            _detailsSelectedItems = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command<Guid> EditContentCommand
-    {
-        get => _editContentCommand;
-        set
-        {
-            if (Equals(value, _editContentCommand)) return;
-            _editContentCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command ImportFromExcelFileCommand
-    {
-        get => _importFromExcelFileCommand;
-        set
-        {
-            if (Equals(value, _importFromExcelFileCommand)) return;
-            _importFromExcelFileCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command ImportFromOpenExcelInstanceCommand
-    {
-        get => _importFromOpenExcelInstanceCommand;
-        set
-        {
-            if (Equals(value, _importFromOpenExcelInstanceCommand)) return;
-            _importFromOpenExcelInstanceCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public ObservableCollection<TagListListItem> Items
-    {
-        get => _items;
-        set
-        {
-            if (Equals(value, _items)) return;
-            _items = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command<TagListListItem> MakeExcludedTagCommand
-    {
-        get => _makeExcludedTagCommand;
-        set
-        {
-            if (Equals(value, _makeExcludedTagCommand)) return;
-            _makeExcludedTagCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command RefreshDataCommand
-    {
-        get => _refreshDataCommand;
-        set
-        {
-            if (Equals(value, _refreshDataCommand)) return;
-            _refreshDataCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command<TagListListItem> RemoveExcludedTagCommand
-    {
-        get => _removeExcludedTagCommand;
-        set
-        {
-            if (Equals(value, _removeExcludedTagCommand)) return;
-            _removeExcludedTagCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command SelectedDetailItemsToExcelCommand
-    {
-        get => _selectedDetailItemsToExcelCommand;
-        set
-        {
-            if (Equals(value, _selectedDetailItemsToExcelCommand)) return;
-            _selectedDetailItemsToExcelCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public List<TagListListItem> SelectedItems
-    {
-        get => _selectedItems;
-        set
-        {
-            if (Equals(value, _selectedItems)) return;
-            _selectedItems = value;
-            OnPropertyChanged();
-
-            UpdateDetails();
-        }
-    }
-
-    public Command SelectedTagsToExcelCommand { get; set; }
-
-    public StatusControlContext StatusContext
-    {
-        get => _statusContext;
-        set
-        {
-            if (Equals(value, _statusContext)) return;
-            _statusContext = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public string UserFilterText
-    {
-        get => _userFilterText;
-        set
-        {
-            if (value == _userFilterText) return;
-            _userFilterText = value;
-            OnPropertyChanged();
-
-            StatusContext.RunFireAndForgetNonBlockingTask(FilterList);
-        }
-    }
-
-    public Command VisibleTagsToExcelCommand
-    {
-        get => _visibleTagsToExcelCommand;
-        set
-        {
-            if (Equals(value, _visibleTagsToExcelCommand)) return;
-            _visibleTagsToExcelCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public event PropertyChangedEventHandler PropertyChanged;
 
     private string ContentTypeString(dynamic content)
     {
@@ -286,7 +104,7 @@ public class TagListContext : INotifyPropertyChanged
 
         if (translatedMessage.ContentType == DataNotificationContentType.TagExclusion)
         {
-            //Tag Exclusions data notifications don't enough information to do anything but process the whole list                
+            //Tag Exclusions data notifications don't enough information to do anything but process the whole list
             var currentExclusions = (await Db.TagExclusions()).Select(x => x.Tag).ToList();
 
             var items = Items.ToList();
@@ -333,7 +151,7 @@ public class TagListContext : INotifyPropertyChanged
         foreach (var loopContent in translatedMessage.ContentIds)
         {
             var content = await db.ContentFromContentId(loopContent);
-            var tags = Db.TagListParseToSlugs((ITag) content, false);
+            var tags = Db.TagListParseToSlugs((ITag)content, false);
 
             var listContent = ListItemsWithContentIds(loopContent.AsList());
 
@@ -442,11 +260,11 @@ public class TagListContext : INotifyPropertyChanged
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
-        ((CollectionView) CollectionViewSource.GetDefaultView(Items)).Filter = o =>
+        ((CollectionView)CollectionViewSource.GetDefaultView(Items)).Filter = o =>
         {
             if (string.IsNullOrWhiteSpace(UserFilterText)) return true;
 
-            var itemToFilter = (TagListListItem) o;
+            var itemToFilter = (TagListListItem)o;
 
             return ListFilter(itemToFilter);
         };
@@ -496,7 +314,7 @@ public class TagListContext : INotifyPropertyChanged
 
             foreach (var loopContent in contentObjects)
             {
-                var detailToAdd = new TagItemContentInformation {ContentId = loopContent.ContentId};
+                var detailToAdd = new TagItemContentInformation { ContentId = loopContent.ContentId };
 
                 detailToAdd.ContentId = loopContent.ContentId;
                 detailToAdd.Title = loopContent.Title;
@@ -540,7 +358,7 @@ public class TagListContext : INotifyPropertyChanged
             return;
         }
 
-        var saveResult = await TagExclusionGenerator.Save(new TagExclusion {Tag = toExclude});
+        var saveResult = await TagExclusionGenerator.Save(new TagExclusion { Tag = toExclude });
 
         if (saveResult.generationReturn.HasError)
         {
@@ -561,10 +379,17 @@ public class TagListContext : INotifyPropertyChanged
         DataNotificationsProcessor.Enqueue(e);
     }
 
-    [NotifyPropertyChangedInvocator]
-    protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+
+    private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
     {
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        if (e == null) return;
+        if (string.IsNullOrWhiteSpace(e.PropertyName)) return;
+
+        if (e.PropertyName == nameof(SelectedItems))
+            UpdateDetails();
+
+        if (e.PropertyName == nameof(UserFilterText))
+            StatusContext.RunFireAndForgetNonBlockingTask(FilterList);
     }
 
     private async Task RemoveExcludedTag(TagListListItem arg)
@@ -601,7 +426,7 @@ public class TagListContext : INotifyPropertyChanged
             return;
         }
 
-        var tagsProjection = SelectedItems.Select(x => new {x.TagName, x.ContentCount}).Cast<object>().ToList();
+        var tagsProjection = SelectedItems.Select(x => new { x.TagName, x.ContentCount }).Cast<object>().ToList();
 
         if (!tagsProjection.Any())
         {
@@ -618,7 +443,7 @@ public class TagListContext : INotifyPropertyChanged
     {
         await ThreadSwitcher.ResumeForegroundAsync();
 
-        var collectionView = (CollectionView) CollectionViewSource.GetDefaultView(Items);
+        var collectionView = (CollectionView)CollectionViewSource.GetDefaultView(Items);
         collectionView.SortDescriptions.Clear();
 
         if (string.IsNullOrWhiteSpace(sortColumn)) return;
@@ -642,8 +467,7 @@ public class TagListContext : INotifyPropertyChanged
 
         var toTransfer = content.Select(x => StaticValueInjecter.InjectFrom(new ContentCommonShell(), x)).ToList();
 
-        ExcelHelpers.ContentToExcelFileAsTable(toTransfer, "TagDetails",
-            progress: StatusContext?.ProgressTracker());
+        ExcelHelpers.ContentToExcelFileAsTable(toTransfer, "TagDetails", progress: StatusContext?.ProgressTracker());
     }
 
     private void UpdateDetails()
@@ -667,7 +491,7 @@ public class TagListContext : INotifyPropertyChanged
             return;
         }
 
-        var tagsProjection = Items.Where(ListFilter).Select(x => new {x.TagName, x.ContentCount}).Cast<object>()
+        var tagsProjection = Items.Where(ListFilter).Select(x => new { x.TagName, x.ContentCount }).Cast<object>()
             .ToList();
 
         if (!tagsProjection.Any())

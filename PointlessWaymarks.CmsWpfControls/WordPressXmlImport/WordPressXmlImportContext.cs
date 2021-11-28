@@ -2,11 +2,10 @@
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
-using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using System.Windows.Data;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Toolkit.Mvvm.ComponentModel;
 using Ookii.Dialogs.Wpf;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.Database;
@@ -23,27 +22,30 @@ using PointlessWaymarks.WpfCommon.Utility;
 
 namespace PointlessWaymarks.CmsWpfControls.WordPressXmlImport;
 
-public class WordPressXmlImportContext : INotifyPropertyChanged
+[ObservableObject]
+public partial class WordPressXmlImportContext
 {
-    private bool _filterOutExistingPostUrls = true;
-    private bool _folderFromCategory;
-    private bool _folderFromYear = true;
-    private bool _importPages = true;
-    private bool _importPosts = true;
-    private ObservableCollection<WordPressXmlImportListItem>? _items;
-    private ContentListSelected<WordPressXmlImportListItem>? _listSelection;
-    private Command _loadWordPressXmlFileCommand;
-    private List<WordPressXmlImportListItem> _selectedItems = new();
-    private Command _selectedToFileContentEditorCommand;
-    private Command _selectedToLinkContentEditorCommand;
-    private Command _selectedToPostContentEditorCommand;
-    private StatusControlContext _statusContext;
-    private string _userFilterText = string.Empty;
-    private Blog? _wordPressData;
+    [ObservableProperty] private bool _filterOutExistingPostUrls = true;
+    [ObservableProperty] private bool _folderFromCategory;
+    [ObservableProperty] private bool _folderFromYear = true;
+    [ObservableProperty] private bool _importPages = true;
+    [ObservableProperty] private bool _importPosts = true;
+    [ObservableProperty] private ObservableCollection<WordPressXmlImportListItem>? _items;
+    [ObservableProperty] private ContentListSelected<WordPressXmlImportListItem>? _listSelection;
+    [ObservableProperty] private Command _loadWordPressXmlFileCommand;
+    [ObservableProperty] private List<WordPressXmlImportListItem> _selectedItems = new();
+    [ObservableProperty] private Command _selectedToFileContentEditorCommand;
+    [ObservableProperty] private Command _selectedToLinkContentEditorCommand;
+    [ObservableProperty] private Command _selectedToPostContentEditorCommand;
+    [ObservableProperty] private StatusControlContext _statusContext;
+    [ObservableProperty] private string _userFilterText = string.Empty;
+    [ObservableProperty] private Blog? _wordPressData;
 
     public WordPressXmlImportContext(StatusControlContext? statusContext)
     {
         _statusContext = statusContext ?? new StatusControlContext();
+
+        PropertyChanged += OnPropertyChanged;
 
         _loadWordPressXmlFileCommand = StatusContext.RunBlockingTaskCommand(LoadWordPressXmlFile);
         _selectedToPostContentEditorCommand = StatusContext.RunBlockingTaskCommand(SelectedToPostContentEditor);
@@ -51,172 +53,13 @@ public class WordPressXmlImportContext : INotifyPropertyChanged
         _selectedToLinkContentEditorCommand = StatusContext.RunBlockingTaskCommand(SelectedToLinkContentEditor);
     }
 
-
-    public bool FilterOutExistingPostUrls
-    {
-        get => _filterOutExistingPostUrls;
-        set
-        {
-            if (value == _filterOutExistingPostUrls) return;
-            _filterOutExistingPostUrls = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public bool FolderFromCategory
-    {
-        get => _folderFromCategory;
-        set
-        {
-            if (value == _folderFromCategory) return;
-            _folderFromCategory = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public bool FolderFromYear
-    {
-        get => _folderFromYear;
-        set
-        {
-            if (value == _folderFromYear) return;
-            _folderFromYear = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public bool ImportPages
-    {
-        get => _importPages;
-        set
-        {
-            if (value == _importPages) return;
-            _importPages = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public bool ImportPosts
-    {
-        get => _importPosts;
-        set
-        {
-            if (value == _importPosts) return;
-            _importPosts = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public ObservableCollection<WordPressXmlImportListItem>? Items
-    {
-        get => _items;
-        set
-        {
-            if (Equals(value, _items)) return;
-            _items = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public ContentListSelected<WordPressXmlImportListItem>? ListSelection
-    {
-        get => _listSelection;
-        set
-        {
-            if (Equals(value, _listSelection)) return;
-            _listSelection = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command LoadWordPressXmlFileCommand
-    {
-        get => _loadWordPressXmlFileCommand;
-        set
-        {
-            if (Equals(value, _loadWordPressXmlFileCommand)) return;
-            _loadWordPressXmlFileCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public List<WordPressXmlImportListItem> SelectedItems
-    {
-        get => _selectedItems;
-        set
-        {
-            if (Equals(value, _selectedItems)) return;
-            _selectedItems = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command SelectedToFileContentEditorCommand
-    {
-        get => _selectedToFileContentEditorCommand;
-        set
-        {
-            if (Equals(value, _selectedToFileContentEditorCommand)) return;
-            _selectedToFileContentEditorCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command SelectedToLinkContentEditorCommand
-    {
-        get => _selectedToLinkContentEditorCommand;
-        set
-        {
-            if (Equals(value, _selectedToLinkContentEditorCommand)) return;
-            _selectedToLinkContentEditorCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command SelectedToPostContentEditorCommand
-    {
-        get => _selectedToPostContentEditorCommand;
-        set
-        {
-            if (Equals(value, _selectedToPostContentEditorCommand)) return;
-            _selectedToPostContentEditorCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public StatusControlContext StatusContext
-    {
-        get => _statusContext;
-        set
-        {
-            if (Equals(value, _statusContext)) return;
-            _statusContext = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public string UserFilterText
-    {
-        get => _userFilterText;
-        set
-        {
-            if (value == _userFilterText) return;
-            _userFilterText = value;
-            OnPropertyChanged();
-
-            StatusContext.RunFireAndForgetNonBlockingTask(FilterList);
-        }
-    }
-
-    public event PropertyChangedEventHandler? PropertyChanged;
-
     private async Task FilterList()
     {
         if (Items == null || !Items.Any()) return;
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
-        ((CollectionView) CollectionViewSource.GetDefaultView(Items)).Filter = o =>
+        ((CollectionView)CollectionViewSource.GetDefaultView(Items)).Filter = o =>
         {
             if (string.IsNullOrWhiteSpace(UserFilterText)) return true;
 
@@ -351,10 +194,11 @@ public class WordPressXmlImportContext : INotifyPropertyChanged
         await FilterList();
     }
 
-    [NotifyPropertyChangedInvocator]
-    protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = "")
+    private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
     {
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        if (string.IsNullOrWhiteSpace(e.PropertyName)) return;
+
+        if (e.PropertyName == nameof(UserFilterText)) StatusContext.RunFireAndForgetNonBlockingTask(FilterList);
     }
 
     public async Task SelectedToFileContentEditor()
@@ -377,9 +221,8 @@ public class WordPressXmlImportContext : INotifyPropertyChanged
                 BodyContent = loopItems.Content,
                 CreatedBy = loopItems.CreatedBy,
                 CreatedOn = loopItems.CreatedOn,
-                Folder = FolderFromYear
-                    ? loopItems.CreatedOn.Year.ToString()
-                    : loopItems.Category.Replace(" ", "-"),
+                Folder =
+                    FolderFromYear ? loopItems.CreatedOn.Year.ToString() : loopItems.Category.Replace(" ", "-"),
                 Slug = loopItems.Slug,
                 Tags = loopItems.Tags,
                 Title = loopItems.Title
@@ -445,9 +288,8 @@ public class WordPressXmlImportContext : INotifyPropertyChanged
                 BodyContent = loopItems.Content,
                 CreatedBy = loopItems.CreatedBy,
                 CreatedOn = loopItems.CreatedOn,
-                Folder = FolderFromYear
-                    ? loopItems.CreatedOn.Year.ToString()
-                    : loopItems.Category.Replace(" ", "-"),
+                Folder =
+                    FolderFromYear ? loopItems.CreatedOn.Year.ToString() : loopItems.Category.Replace(" ", "-"),
                 Slug = loopItems.Slug,
                 Tags = loopItems.Tags,
                 Title = loopItems.Title

@@ -10,7 +10,7 @@ namespace PointlessWaymarks.CmsWpfControls.MapComponentList;
 [ObservableObject]
 public partial class MapComponentListWithActionsContext
 {
-    [ObservableProperty] private readonly StatusControlContext _statusContext;
+    [ObservableProperty] private StatusControlContext _statusContext;
     [ObservableProperty] private ContentListContext _listContext;
     [ObservableProperty] private Command _refreshDataCommand;
     [ObservableProperty] private WindowIconStatus _windowStatus;

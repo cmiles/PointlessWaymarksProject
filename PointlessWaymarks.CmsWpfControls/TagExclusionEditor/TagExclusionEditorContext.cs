@@ -1,7 +1,5 @@
 ﻿using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
-using JetBrains.Annotations;
+using Microsoft.Toolkit.Mvvm.ComponentModel;
 using Omu.ValueInjecter;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.Content;
@@ -16,17 +14,22 @@ using TinyIpc.Messaging;
 
 namespace PointlessWaymarks.CmsWpfControls.TagExclusionEditor;
 
-public class TagExclusionEditorContext : INotifyPropertyChanged
+[ObservableObject]
+public partial class TagExclusionEditorContext
 {
-    private string _helpMarkdown;
-    private ObservableCollection<TagExclusionEditorListItem> _items;
-    private StatusControlContext _statusContext;
+    [ObservableProperty] private Command _addNewItemCommand;
+    [ObservableProperty] private DataNotificationsWorkQueue _dataNotificationsProcessor;
+    [ObservableProperty] private Command<TagExclusionEditorListItem> _deleteItemCommand;
+    [ObservableProperty] private string _helpMarkdown;
+    [ObservableProperty] private ObservableCollection<TagExclusionEditorListItem> _items;
+    [ObservableProperty] private Command<TagExclusionEditorListItem> _saveItemCommand;
+    [ObservableProperty] private StatusControlContext _statusContext;
 
     public TagExclusionEditorContext(StatusControlContext statusContext)
     {
         StatusContext = statusContext ?? new StatusControlContext();
 
-        DataNotificationsProcessor = new DataNotificationsWorkQueue {Processor = DataNotificationReceived};
+        DataNotificationsProcessor = new DataNotificationsWorkQueue { Processor = DataNotificationReceived };
 
         HelpMarkdown = TagExclusionHelpMarkdown.HelpBlock;
         AddNewItemCommand = StatusContext.RunBlockingTaskCommand(async () => await AddNewItem());
@@ -36,54 +39,11 @@ public class TagExclusionEditorContext : INotifyPropertyChanged
         StatusContext.RunFireAndForgetBlockingTask(LoadData);
     }
 
-    public Command AddNewItemCommand { get; set; }
-
-    public DataNotificationsWorkQueue DataNotificationsProcessor { get; set; }
-
-    public Command<TagExclusionEditorListItem> DeleteItemCommand { get; set; }
-
-    public string HelpMarkdown
-    {
-        get => _helpMarkdown;
-        set
-        {
-            if (value == _helpMarkdown) return;
-            _helpMarkdown = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public ObservableCollection<TagExclusionEditorListItem> Items
-    {
-        get => _items;
-        set
-        {
-            if (Equals(value, _items)) return;
-            _items = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command<TagExclusionEditorListItem> SaveItemCommand { get; set; }
-
-    public StatusControlContext StatusContext
-    {
-        get => _statusContext;
-        set
-        {
-            if (Equals(value, _statusContext)) return;
-            _statusContext = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public event PropertyChangedEventHandler PropertyChanged;
-
     public async Task AddNewItem()
     {
         await ThreadSwitcher.ResumeForegroundAsync();
 
-        Items.Add(new TagExclusionEditorListItem {DbEntry = new TagExclusion()});
+        Items.Add(new TagExclusionEditorListItem { DbEntry = new TagExclusion() });
     }
 
     private async Task DataNotificationReceived(TinyMessageReceivedEventArgs e)
@@ -126,7 +86,7 @@ public class TagExclusionEditorContext : INotifyPropertyChanged
 
         var dbItems = await Db.TagExclusions();
 
-        var listItems = dbItems.Select(x => new TagExclusionEditorListItem {DbEntry = x, TagValue = x.Tag})
+        var listItems = dbItems.Select(x => new TagExclusionEditorListItem { DbEntry = x, TagValue = x.Tag })
             .OrderBy(x => x.TagValue).ToList();
 
         if (Items == null)
@@ -155,7 +115,7 @@ public class TagExclusionEditorContext : INotifyPropertyChanged
             }
         }
 
-        var currentItemsWithDbEntry = currentItems.Where(x => x.DbEntry is {Id: >= 0}).ToList();
+        var currentItemsWithDbEntry = currentItems.Where(x => x.DbEntry is { Id: >= 0 }).ToList();
         var newItemIds = listItems.Select(x => x.DbEntry.Id);
 
         var deletedItems = currentItemsWithDbEntry.Where(x => !newItemIds.Contains(x.DbEntry.Id)).ToList();
@@ -177,12 +137,6 @@ public class TagExclusionEditorContext : INotifyPropertyChanged
     private void OnDataNotificationReceived(object sender, TinyMessageReceivedEventArgs e)
     {
         DataNotificationsProcessor.Enqueue(e);
-    }
-
-    [NotifyPropertyChangedInvocator]
-    protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-    {
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 
     private async Task SaveItem(TagExclusionEditorListItem tagItem)

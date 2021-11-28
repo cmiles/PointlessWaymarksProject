@@ -13,7 +13,7 @@ namespace PointlessWaymarks.CmsWpfControls.PostList;
 [ObservableObject]
 public partial class PostListWithActionsContext
 {
-    [ObservableProperty] private readonly StatusControlContext _statusContext;
+    [ObservableProperty] private StatusControlContext _statusContext;
     [ObservableProperty] private Command _emailHtmlToClipboardCommand;
     [ObservableProperty] private ContentListContext _listContext;
     [ObservableProperty] private Command _postImageCodesToClipboardForSelectedCommand;
