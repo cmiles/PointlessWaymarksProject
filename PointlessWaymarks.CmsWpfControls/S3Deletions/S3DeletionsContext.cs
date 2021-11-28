@@ -1,11 +1,9 @@
 ﻿#nullable enable
 using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
 using System.Windows;
 using Amazon.S3;
 using Amazon.S3.Model;
-using JetBrains.Annotations;
+using Microsoft.Toolkit.Mvvm.ComponentModel;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsWpfControls.Utility;
 using PointlessWaymarks.CmsWpfControls.Utility.Aws;
@@ -15,17 +13,18 @@ using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 
 namespace PointlessWaymarks.CmsWpfControls.S3Deletions;
 
-public class S3DeletionsContext : INotifyPropertyChanged
+[ObservableObject]
+public partial class S3DeletionsContext
 {
-    private Command _deleteAllCommand;
-    private Command _deleteSelectedCommand;
-    private ObservableCollection<S3DeletionsItem>? _items;
-    private List<S3DeletionsItem> _selectedItems = new();
-    private StatusControlContext _statusContext;
-    private Command _toClipboardAllItemsCommand;
-    private Command _toClipboardSelectedItemsCommand;
-    private Command _toExcelAllItemsCommand;
-    private Command _toExcelSelectedItemsCommand;
+    [ObservableProperty] private Command _deleteAllCommand;
+    [ObservableProperty] private Command _deleteSelectedCommand;
+    [ObservableProperty] private ObservableCollection<S3DeletionsItem>? _items;
+    [ObservableProperty] private List<S3DeletionsItem> _selectedItems = new();
+    [ObservableProperty] private StatusControlContext _statusContext;
+    [ObservableProperty] private Command _toClipboardAllItemsCommand;
+    [ObservableProperty] private Command _toClipboardSelectedItemsCommand;
+    [ObservableProperty] private Command _toExcelAllItemsCommand;
+    [ObservableProperty] private Command _toExcelSelectedItemsCommand;
 
     public S3DeletionsContext(StatusControlContext? statusContext)
     {
@@ -45,107 +44,6 @@ public class S3DeletionsContext : INotifyPropertyChanged
         _toClipboardSelectedItemsCommand =
             StatusContext.RunNonBlockingTaskCommand(async () => await ItemsToClipboard(SelectedItems.ToList()));
     }
-
-    public Command DeleteAllCommand
-    {
-        get => _deleteAllCommand;
-        set
-        {
-            if (Equals(value, _deleteAllCommand)) return;
-            _deleteAllCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command DeleteSelectedCommand
-    {
-        get => _deleteSelectedCommand;
-        set
-        {
-            if (Equals(value, _deleteSelectedCommand)) return;
-            _deleteSelectedCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public ObservableCollection<S3DeletionsItem>? Items
-    {
-        get => _items;
-        set
-        {
-            if (Equals(value, _items)) return;
-            _items = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public List<S3DeletionsItem> SelectedItems
-    {
-        get => _selectedItems;
-        set
-        {
-            if (Equals(value, _selectedItems)) return;
-            _selectedItems = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public StatusControlContext StatusContext
-    {
-        get => _statusContext;
-        set
-        {
-            if (Equals(value, _statusContext)) return;
-            _statusContext = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command ToClipboardAllItemsCommand
-    {
-        get => _toClipboardAllItemsCommand;
-        set
-        {
-            if (Equals(value, _toClipboardAllItemsCommand)) return;
-            _toClipboardAllItemsCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command ToClipboardSelectedItemsCommand
-    {
-        get => _toClipboardSelectedItemsCommand;
-        set
-        {
-            if (Equals(value, _toClipboardSelectedItemsCommand)) return;
-            _toClipboardSelectedItemsCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command ToExcelAllItemsCommand
-    {
-        get => _toExcelAllItemsCommand;
-        set
-        {
-            if (Equals(value, _toExcelAllItemsCommand)) return;
-            _toExcelAllItemsCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command ToExcelSelectedItemsCommand
-    {
-        get => _toExcelSelectedItemsCommand;
-        set
-        {
-            if (Equals(value, _toExcelSelectedItemsCommand)) return;
-            _toExcelSelectedItemsCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public event PropertyChangedEventHandler? PropertyChanged;
 
     public static async Task<S3DeletionsContext> CreateInstance(StatusControlContext? statusContext,
         List<S3DeletionsItem> itemsToDelete)
@@ -244,8 +142,7 @@ public class S3DeletionsContext : INotifyPropertyChanged
         }
 
         var itemsForClipboard = string.Join(Environment.NewLine,
-            items.Select(x =>
-                    $"{x.BucketName}\t{x.AmazonObjectKey}\tHas Error: {x.HasError}\t Error: {x.ErrorMessage}")
+            items.Select(x => $"{x.BucketName}\t{x.AmazonObjectKey}\tHas Error: {x.HasError}\t Error: {x.ErrorMessage}")
                 .ToList());
 
         await ThreadSwitcher.ResumeForegroundAsync();
@@ -263,7 +160,7 @@ public class S3DeletionsContext : INotifyPropertyChanged
             return;
         }
 
-        var itemsForExcel = items.Select(x => new {x.BucketName, x.AmazonObjectKey, x.HasError, x.ErrorMessage})
+        var itemsForExcel = items.Select(x => new { x.BucketName, x.AmazonObjectKey, x.HasError, x.ErrorMessage })
             .ToList();
 
         ExcelHelpers.ContentToExcelFileAsTable(itemsForExcel.Cast<object>().ToList(), "UploadItemsList");
@@ -274,11 +171,5 @@ public class S3DeletionsContext : INotifyPropertyChanged
         await ThreadSwitcher.ResumeForegroundAsync();
 
         Items = new ObservableCollection<S3DeletionsItem>(toDelete);
-    }
-
-    [NotifyPropertyChangedInvocator]
-    protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
-    {
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 }

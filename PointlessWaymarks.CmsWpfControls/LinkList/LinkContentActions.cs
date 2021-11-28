@@ -1,9 +1,7 @@
-﻿using System.ComponentModel;
-using System.Diagnostics;
-using System.Runtime.CompilerServices;
+﻿using System.Diagnostics;
 using System.Windows;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Toolkit.Mvvm.ComponentModel;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.ContentHtml.LinkListHtml;
 using PointlessWaymarks.CmsData.Database;
@@ -19,18 +17,17 @@ using PointlessWaymarks.WpfCommon.Utility;
 
 namespace PointlessWaymarks.CmsWpfControls.LinkList;
 
-public class LinkContentActions : IContentActions<LinkContent>
+public partial class LinkContentActions : ObservableObject, IContentActions<LinkContent>
 {
-    private Command<string> _copyUrlCommand;
-
-    private Command<LinkContent> _deleteCommand;
-    private Command<LinkContent> _editCommand;
-    private Command<LinkContent> _extractNewLinksCommand;
-    private Command<LinkContent> _generateHtmlCommand;
-    private Command<LinkContent> _linkCodeToClipboardCommand;
-    private Command<LinkContent> _openUrlCommand;
-    private StatusControlContext _statusContext;
-    private Command<LinkContent> _viewHistoryCommand;
+    [ObservableProperty] private Command<string> _copyUrlCommand;
+    [ObservableProperty] private Command<LinkContent> _deleteCommand;
+    [ObservableProperty] private Command<LinkContent> _editCommand;
+    [ObservableProperty] private Command<LinkContent> _extractNewLinksCommand;
+    [ObservableProperty] private Command<LinkContent> _generateHtmlCommand;
+    [ObservableProperty] private Command<LinkContent> _linkCodeToClipboardCommand;
+    [ObservableProperty] private Command<LinkContent> _openUrlCommand;
+    [ObservableProperty] private StatusControlContext _statusContext;
+    [ObservableProperty] private Command<LinkContent> _viewHistoryCommand;
 
     public LinkContentActions(StatusControlContext statusContext)
     {
@@ -39,8 +36,7 @@ public class LinkContentActions : IContentActions<LinkContent>
         EditCommand = StatusContext.RunNonBlockingTaskCommand<LinkContent>(Edit);
         ExtractNewLinksCommand = StatusContext.RunBlockingTaskCommand<LinkContent>(ExtractNewLinks);
         GenerateHtmlCommand = StatusContext.RunBlockingTaskCommand<LinkContent>(GenerateHtml);
-        LinkCodeToClipboardCommand =
-            StatusContext.RunBlockingTaskCommand<LinkContent>(DefaultBracketCodeToClipboard);
+        LinkCodeToClipboardCommand = StatusContext.RunBlockingTaskCommand<LinkContent>(DefaultBracketCodeToClipboard);
         OpenUrlCommand = StatusContext.RunBlockingTaskCommand<LinkContent>(OpenUrl);
         ViewHistoryCommand = StatusContext.RunNonBlockingTaskCommand<LinkContent>(ViewHistory);
 
@@ -52,18 +48,6 @@ public class LinkContentActions : IContentActions<LinkContent>
 
             StatusContext.ToastSuccess($"To Clipboard {x}");
         });
-    }
-
-
-    public Command<string> CopyUrlCommand
-    {
-        get => _copyUrlCommand;
-        set
-        {
-            if (Equals(value, _copyUrlCommand)) return;
-            _copyUrlCommand = value;
-            OnPropertyChanged();
-        }
     }
 
     public string DefaultBracketCode(LinkContent content)
@@ -109,17 +93,6 @@ public class LinkContentActions : IContentActions<LinkContent>
         await Db.DeleteLinkContent(content.ContentId, StatusContext.ProgressTracker());
     }
 
-    public Command<LinkContent> DeleteCommand
-    {
-        get => _deleteCommand;
-        set
-        {
-            if (Equals(value, _deleteCommand)) return;
-            _deleteCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
     public async Task Edit(LinkContent content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -143,17 +116,6 @@ public class LinkContentActions : IContentActions<LinkContent>
         await ThreadSwitcher.ResumeBackgroundAsync();
     }
 
-    public Command<LinkContent> EditCommand
-    {
-        get => _editCommand;
-        set
-        {
-            if (Equals(value, _editCommand)) return;
-            _editCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
     public async Task ExtractNewLinks(LinkContent content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -174,18 +136,6 @@ public class LinkContentActions : IContentActions<LinkContent>
             $"{refreshedData.Comments} {refreshedData.Description}", StatusContext.ProgressTracker());
     }
 
-    public Command<LinkContent> ExtractNewLinksCommand
-    {
-        get => _extractNewLinksCommand;
-        set
-        {
-            if (Equals(value, _extractNewLinksCommand)) return;
-            _extractNewLinksCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-
     public async Task GenerateHtml(LinkContent content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -199,28 +149,6 @@ public class LinkContentActions : IContentActions<LinkContent>
         var settings = UserSettingsSingleton.CurrentSettings();
 
         StatusContext.ToastSuccess($"Generated {settings.LinkListUrl()}");
-    }
-
-    public Command<LinkContent> GenerateHtmlCommand
-    {
-        get => _generateHtmlCommand;
-        set
-        {
-            if (Equals(value, _generateHtmlCommand)) return;
-            _generateHtmlCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command<LinkContent> LinkCodeToClipboardCommand
-    {
-        get => _linkCodeToClipboardCommand;
-        set
-        {
-            if (Equals(value, _linkCodeToClipboardCommand)) return;
-            _linkCodeToClipboardCommand = value;
-            OnPropertyChanged();
-        }
     }
 
     public async Task OpenUrl(LinkContent content)
@@ -245,28 +173,6 @@ public class LinkContentActions : IContentActions<LinkContent>
         Process.Start(ps);
     }
 
-    public Command<LinkContent> OpenUrlCommand
-    {
-        get => _openUrlCommand;
-        set
-        {
-            if (Equals(value, _openUrlCommand)) return;
-            _openUrlCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public StatusControlContext StatusContext
-    {
-        get => _statusContext;
-        set
-        {
-            if (Equals(value, _statusContext)) return;
-            _statusContext = value;
-            OnPropertyChanged();
-        }
-    }
-
     public async Task ViewHistory(LinkContent content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -281,8 +187,7 @@ public class LinkContentActions : IContentActions<LinkContent>
 
         StatusContext.Progress($"Looking up Historic Entries for {content.Title}");
 
-        var historicItems = await db.HistoricLinkContents
-            .Where(x => x.ContentId == content.ContentId).ToListAsync();
+        var historicItems = await db.HistoricLinkContents.Where(x => x.ContentId == content.ContentId).ToListAsync();
 
         StatusContext.Progress($"Found {historicItems.Count} Historic Entries");
 
@@ -300,28 +205,9 @@ public class LinkContentActions : IContentActions<LinkContent>
         historicView.WriteHtmlToTempFolderAndShow(StatusContext.ProgressTracker());
     }
 
-    public Command<LinkContent> ViewHistoryCommand
-    {
-        get => _viewHistoryCommand;
-        set
-        {
-            if (Equals(value, _viewHistoryCommand)) return;
-            _viewHistoryCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public event PropertyChangedEventHandler PropertyChanged;
-
     public static LinkListListItem ListItemFromDbItem(LinkContent content, LinkContentActions itemActions,
         bool showType)
     {
         return new LinkListListItem { DbEntry = content, ItemActions = itemActions, ShowType = showType };
-    }
-
-    [NotifyPropertyChangedInvocator]
-    protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-    {
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 }

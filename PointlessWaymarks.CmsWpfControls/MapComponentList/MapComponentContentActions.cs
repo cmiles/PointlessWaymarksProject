@@ -1,8 +1,6 @@
-﻿using System.ComponentModel;
-using System.Runtime.CompilerServices;
-using System.Windows;
-using JetBrains.Annotations;
+﻿using System.Windows;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Toolkit.Mvvm.ComponentModel;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.ContentHtml.MapComponentData;
@@ -19,16 +17,16 @@ using PointlessWaymarks.WpfCommon.Utility;
 
 namespace PointlessWaymarks.CmsWpfControls.MapComponentList;
 
-public class MapComponentContentActions : IContentActions<MapComponent>
+public partial class MapComponentContentActions : ObservableObject, IContentActions<MapComponent>
 {
-    private Command<MapComponent> _deleteCommand;
-    private Command<MapComponent> _editCommand;
-    private Command<MapComponent> _extractNewLinksCommand;
-    private Command<MapComponent> _generateHtmlCommand;
-    private Command<MapComponent> _linkCodeToClipboardCommand;
-    private Command<MapComponent> _openUrlCommand;
-    private StatusControlContext _statusContext;
-    private Command<MapComponent> _viewHistoryCommand;
+    [ObservableProperty] private Command<MapComponent> _deleteCommand;
+    [ObservableProperty] private Command<MapComponent> _editCommand;
+    [ObservableProperty] private Command<MapComponent> _extractNewLinksCommand;
+    [ObservableProperty] private Command<MapComponent> _generateHtmlCommand;
+    [ObservableProperty] private Command<MapComponent> _linkCodeToClipboardCommand;
+    [ObservableProperty] private Command<MapComponent> _openUrlCommand;
+    [ObservableProperty] private StatusControlContext _statusContext;
+    [ObservableProperty] private Command<MapComponent> _viewHistoryCommand;
 
     public MapComponentContentActions(StatusControlContext statusContext)
     {
@@ -37,8 +35,7 @@ public class MapComponentContentActions : IContentActions<MapComponent>
         EditCommand = StatusContext.RunNonBlockingTaskCommand<MapComponent>(Edit);
         ExtractNewLinksCommand = StatusContext.RunBlockingTaskCommand<MapComponent>(ExtractNewLinks);
         GenerateHtmlCommand = StatusContext.RunBlockingTaskCommand<MapComponent>(GenerateHtml);
-        LinkCodeToClipboardCommand =
-            StatusContext.RunBlockingTaskCommand<MapComponent>(DefaultBracketCodeToClipboard);
+        LinkCodeToClipboardCommand = StatusContext.RunBlockingTaskCommand<MapComponent>(DefaultBracketCodeToClipboard);
         OpenUrlCommand = StatusContext.RunBlockingTaskCommand<MapComponent>(OpenUrl);
         ViewHistoryCommand = StatusContext.RunNonBlockingTaskCommand<MapComponent>(ViewHistory);
     }
@@ -86,17 +83,6 @@ public class MapComponentContentActions : IContentActions<MapComponent>
         await Db.DeleteMapComponent(content.ContentId, StatusContext.ProgressTracker());
     }
 
-    public Command<MapComponent> DeleteCommand
-    {
-        get => _deleteCommand;
-        set
-        {
-            if (Equals(value, _deleteCommand)) return;
-            _deleteCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
     public async Task Edit(MapComponent content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -120,17 +106,6 @@ public class MapComponentContentActions : IContentActions<MapComponent>
         await ThreadSwitcher.ResumeBackgroundAsync();
     }
 
-    public Command<MapComponent> EditCommand
-    {
-        get => _editCommand;
-        set
-        {
-            if (Equals(value, _editCommand)) return;
-            _editCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
     public async Task ExtractNewLinks(MapComponent content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -151,18 +126,6 @@ public class MapComponentContentActions : IContentActions<MapComponent>
             StatusContext.ProgressTracker());
     }
 
-    public Command<MapComponent> ExtractNewLinksCommand
-    {
-        get => _extractNewLinksCommand;
-        set
-        {
-            if (Equals(value, _extractNewLinksCommand)) return;
-            _extractNewLinksCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-
     public async Task GenerateHtml(MapComponent content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -180,55 +143,11 @@ public class MapComponentContentActions : IContentActions<MapComponent>
         StatusContext.ToastSuccess("Generated Map Data");
     }
 
-    public Command<MapComponent> GenerateHtmlCommand
-    {
-        get => _generateHtmlCommand;
-        set
-        {
-            if (Equals(value, _generateHtmlCommand)) return;
-            _generateHtmlCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command<MapComponent> LinkCodeToClipboardCommand
-    {
-        get => _linkCodeToClipboardCommand;
-        set
-        {
-            if (Equals(value, _linkCodeToClipboardCommand)) return;
-            _linkCodeToClipboardCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
     public async Task OpenUrl(MapComponent content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
         StatusContext.ToastWarning("Maps don't have a direct URL to open...");
-    }
-
-    public Command<MapComponent> OpenUrlCommand
-    {
-        get => _openUrlCommand;
-        set
-        {
-            if (Equals(value, _openUrlCommand)) return;
-            _openUrlCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public StatusControlContext StatusContext
-    {
-        get => _statusContext;
-        set
-        {
-            if (Equals(value, _statusContext)) return;
-            _statusContext = value;
-            OnPropertyChanged();
-        }
     }
 
     public async Task ViewHistory(MapComponent content)
@@ -245,8 +164,7 @@ public class MapComponentContentActions : IContentActions<MapComponent>
 
         StatusContext.Progress($"Looking up Historic Entries for {content.Title}");
 
-        var historicItems = await db.HistoricMapComponents
-            .Where(x => x.ContentId == content.ContentId).ToListAsync();
+        var historicItems = await db.HistoricMapComponents.Where(x => x.ContentId == content.ContentId).ToListAsync();
 
         StatusContext.Progress($"Found {historicItems.Count} Historic Entries");
 
@@ -264,28 +182,9 @@ public class MapComponentContentActions : IContentActions<MapComponent>
         historicView.WriteHtmlToTempFolderAndShow(StatusContext.ProgressTracker());
     }
 
-    public Command<MapComponent> ViewHistoryCommand
-    {
-        get => _viewHistoryCommand;
-        set
-        {
-            if (Equals(value, _viewHistoryCommand)) return;
-            _viewHistoryCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public event PropertyChangedEventHandler PropertyChanged;
-
     public static MapComponentListListItem ListItemFromDbItem(MapComponent content,
         MapComponentContentActions itemActions, bool showType)
     {
-        return new() {DbEntry = content, ItemActions = itemActions, ShowType = showType};
-    }
-
-    [NotifyPropertyChangedInvocator]
-    protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-    {
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        return new() { DbEntry = content, ItemActions = itemActions, ShowType = showType };
     }
 }

@@ -1,9 +1,7 @@
-﻿using System.ComponentModel;
-using System.Diagnostics;
-using System.Runtime.CompilerServices;
+﻿using System.Diagnostics;
 using System.Windows;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Toolkit.Mvvm.ComponentModel;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.ContentHtml.PointHtml;
@@ -20,16 +18,16 @@ using PointlessWaymarks.WpfCommon.Utility;
 
 namespace PointlessWaymarks.CmsWpfControls.PointList;
 
-public class PointContentActions : IContentActions<PointContent>
+public partial class PointContentActions : ObservableObject, IContentActions<PointContent>
 {
-    private Command<PointContent> _deleteCommand;
-    private Command<PointContent> _editCommand;
-    private Command<PointContent> _extractNewLinksCommand;
-    private Command<PointContent> _generateHtmlCommand;
-    private Command<PointContent> _linkCodeToClipboardCommand;
-    private Command<PointContent> _openUrlCommand;
-    private StatusControlContext _statusContext;
-    private Command<PointContent> _viewHistoryCommand;
+    [ObservableProperty] private Command<PointContent> _deleteCommand;
+    [ObservableProperty] private Command<PointContent> _editCommand;
+    [ObservableProperty] private Command<PointContent> _extractNewLinksCommand;
+    [ObservableProperty] private Command<PointContent> _generateHtmlCommand;
+    [ObservableProperty] private Command<PointContent> _linkCodeToClipboardCommand;
+    [ObservableProperty] private Command<PointContent> _openUrlCommand;
+    [ObservableProperty] private StatusControlContext _statusContext;
+    [ObservableProperty] private Command<PointContent> _viewHistoryCommand;
 
     public PointContentActions(StatusControlContext statusContext)
     {
@@ -38,8 +36,7 @@ public class PointContentActions : IContentActions<PointContent>
         EditCommand = StatusContext.RunNonBlockingTaskCommand<PointContent>(Edit);
         ExtractNewLinksCommand = StatusContext.RunBlockingTaskCommand<PointContent>(ExtractNewLinks);
         GenerateHtmlCommand = StatusContext.RunBlockingTaskCommand<PointContent>(GenerateHtml);
-        LinkCodeToClipboardCommand =
-            StatusContext.RunBlockingTaskCommand<PointContent>(DefaultBracketCodeToClipboard);
+        LinkCodeToClipboardCommand = StatusContext.RunBlockingTaskCommand<PointContent>(DefaultBracketCodeToClipboard);
         OpenUrlCommand = StatusContext.RunBlockingTaskCommand<PointContent>(OpenUrl);
         ViewHistoryCommand = StatusContext.RunNonBlockingTaskCommand<PointContent>(ViewHistory);
     }
@@ -97,17 +94,6 @@ public class PointContentActions : IContentActions<PointContent>
         }
     }
 
-    public Command<PointContent> DeleteCommand
-    {
-        get => _deleteCommand;
-        set
-        {
-            if (Equals(value, _deleteCommand)) return;
-            _deleteCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
     public async Task Edit(PointContent content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -131,17 +117,6 @@ public class PointContentActions : IContentActions<PointContent>
         await ThreadSwitcher.ResumeBackgroundAsync();
     }
 
-    public Command<PointContent> EditCommand
-    {
-        get => _editCommand;
-        set
-        {
-            if (Equals(value, _editCommand)) return;
-            _editCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
     public async Task ExtractNewLinks(PointContent content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -161,18 +136,6 @@ public class PointContentActions : IContentActions<PointContent>
         await LinkExtraction.ExtractNewAndShowLinkContentEditors(
             $"{refreshedData.BodyContent} {refreshedData.UpdateNotes}", StatusContext.ProgressTracker());
     }
-
-    public Command<PointContent> ExtractNewLinksCommand
-    {
-        get => _extractNewLinksCommand;
-        set
-        {
-            if (Equals(value, _extractNewLinksCommand)) return;
-            _extractNewLinksCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
 
     public async Task GenerateHtml(PointContent content)
     {
@@ -201,28 +164,6 @@ public class PointContentActions : IContentActions<PointContent>
         StatusContext.ToastSuccess($"Generated {htmlContext.PageUrl}");
     }
 
-    public Command<PointContent> GenerateHtmlCommand
-    {
-        get => _generateHtmlCommand;
-        set
-        {
-            if (Equals(value, _generateHtmlCommand)) return;
-            _generateHtmlCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command<PointContent> LinkCodeToClipboardCommand
-    {
-        get => _linkCodeToClipboardCommand;
-        set
-        {
-            if (Equals(value, _linkCodeToClipboardCommand)) return;
-            _linkCodeToClipboardCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
     public async Task OpenUrl(PointContent content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -241,28 +182,6 @@ public class PointContentActions : IContentActions<PointContent>
         Process.Start(ps);
     }
 
-    public Command<PointContent> OpenUrlCommand
-    {
-        get => _openUrlCommand;
-        set
-        {
-            if (Equals(value, _openUrlCommand)) return;
-            _openUrlCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public StatusControlContext StatusContext
-    {
-        get => _statusContext;
-        set
-        {
-            if (Equals(value, _statusContext)) return;
-            _statusContext = value;
-            OnPropertyChanged();
-        }
-    }
-
     public async Task ViewHistory(PointContent content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -277,8 +196,7 @@ public class PointContentActions : IContentActions<PointContent>
 
         StatusContext.Progress($"Looking up Historic Entries for {content.Title}");
 
-        var historicItems = await db.HistoricPointContents
-            .Where(x => x.ContentId == content.ContentId).ToListAsync();
+        var historicItems = await db.HistoricPointContents.Where(x => x.ContentId == content.ContentId).ToListAsync();
 
         StatusContext.Progress($"Found {historicItems.Count} Historic Entries");
 
@@ -296,19 +214,6 @@ public class PointContentActions : IContentActions<PointContent>
         historicView.WriteHtmlToTempFolderAndShow(StatusContext.ProgressTracker());
     }
 
-    public Command<PointContent> ViewHistoryCommand
-    {
-        get => _viewHistoryCommand;
-        set
-        {
-            if (Equals(value, _viewHistoryCommand)) return;
-            _viewHistoryCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public event PropertyChangedEventHandler PropertyChanged;
-
     public static PointListListItem ListItemFromDbItem(PointContent content, PointContentActions itemActions,
         bool showType)
     {
@@ -319,11 +224,5 @@ public class PointContentActions : IContentActions<PointContent>
             ItemActions = itemActions,
             ShowType = showType
         };
-    }
-
-    [NotifyPropertyChangedInvocator]
-    protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-    {
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 }

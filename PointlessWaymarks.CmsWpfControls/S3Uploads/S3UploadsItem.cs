@@ -1,10 +1,8 @@
 ﻿#nullable enable
-using System.ComponentModel;
 using System.IO;
-using System.Runtime.CompilerServices;
 using Amazon.S3;
 using Amazon.S3.Transfer;
-using JetBrains.Annotations;
+using Microsoft.Toolkit.Mvvm.ComponentModel;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsWpfControls.Utility;
 using PointlessWaymarks.CmsWpfControls.Utility.Aws;
@@ -12,21 +10,22 @@ using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 
 namespace PointlessWaymarks.CmsWpfControls.S3Uploads;
 
-public class S3UploadsItem : INotifyPropertyChanged, ISelectedTextTracker
+[ObservableObject]
+public partial class S3UploadsItem : ISelectedTextTracker
 {
-    private string _amazonObjectKey;
-    private string _bucketName;
-    private string _bucketRegion;
-    private bool _completed;
-    private string _errorMessage = string.Empty;
-    private bool _fileNoLongerExistsOnDisk;
-    private FileInfo _fileToUpload;
-    private bool _hasError;
-    private bool _isUploading;
-    private string _note;
-    private bool _queued;
-    private CurrentSelectedTextTracker _selectedTextTracker = new();
-    private string _status = string.Empty;
+    [ObservableProperty] private string _amazonObjectKey;
+    [ObservableProperty] private string _bucketName;
+    [ObservableProperty] private string _bucketRegion;
+    [ObservableProperty] private bool _completed;
+    [ObservableProperty] private string _errorMessage = string.Empty;
+    [ObservableProperty] private bool _fileNoLongerExistsOnDisk;
+    [ObservableProperty] private FileInfo _fileToUpload;
+    [ObservableProperty] private bool _hasError;
+    [ObservableProperty] private bool _isUploading;
+    [ObservableProperty] private string _note;
+    [ObservableProperty] private bool _queued;
+    [ObservableProperty] private CurrentSelectedTextTracker _selectedTextTracker = new();
+    [ObservableProperty] private string _status = string.Empty;
 
     public S3UploadsItem(FileInfo fileToUpload, string amazonObjectKey, string bucket, string region, string note)
     {
@@ -35,158 +34,6 @@ public class S3UploadsItem : INotifyPropertyChanged, ISelectedTextTracker
         _bucketName = bucket;
         _note = note;
         _bucketRegion = region;
-    }
-
-    public string AmazonObjectKey
-    {
-        get => _amazonObjectKey;
-        set
-        {
-            if (value == _amazonObjectKey) return;
-            _amazonObjectKey = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public string BucketName
-    {
-        get => _bucketName;
-        set
-        {
-            if (value == _bucketName) return;
-            _bucketName = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public string BucketRegion
-    {
-        get => _bucketRegion;
-        set
-        {
-            if (value == _bucketRegion) return;
-            _bucketRegion = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public bool Completed
-    {
-        get => _completed;
-        set
-        {
-            if (value == _completed) return;
-            _completed = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public string ErrorMessage
-    {
-        get => _errorMessage;
-        set
-        {
-            if (value == _errorMessage) return;
-            _errorMessage = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public bool FileNoLongerExistsOnDisk
-    {
-        get => _fileNoLongerExistsOnDisk;
-        set
-        {
-            if (value == _fileNoLongerExistsOnDisk) return;
-            _fileNoLongerExistsOnDisk = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public FileInfo FileToUpload
-    {
-        get => _fileToUpload;
-        set
-        {
-            if (Equals(value, _fileToUpload)) return;
-            _fileToUpload = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public bool HasError
-    {
-        get => _hasError;
-        set
-        {
-            if (value == _hasError) return;
-            _hasError = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public bool IsUploading
-    {
-        get => _isUploading;
-        set
-        {
-            if (value == _isUploading) return;
-            _isUploading = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public string Note
-    {
-        get => _note;
-        set
-        {
-            if (value == _note) return;
-            _note = value;
-            OnPropertyChanged();
-        }
-    }
-
-
-    public bool Queued
-    {
-        get => _queued;
-        set
-        {
-            if (value == _queued) return;
-            _queued = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public string Status
-    {
-        get => _status;
-        set
-        {
-            if (value == _status) return;
-            _status = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public event PropertyChangedEventHandler? PropertyChanged;
-
-    public CurrentSelectedTextTracker SelectedTextTracker
-    {
-        get => _selectedTextTracker;
-        set
-        {
-            if (Equals(value, _selectedTextTracker)) return;
-            _selectedTextTracker = value;
-            OnPropertyChanged();
-        }
-    }
-
-    [NotifyPropertyChangedInvocator]
-    protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
-    {
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 
     public async Task StartUpload()

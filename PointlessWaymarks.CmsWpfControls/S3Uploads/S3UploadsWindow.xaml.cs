@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
+using Microsoft.Toolkit.Mvvm.ComponentModel;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 
@@ -10,12 +11,13 @@ namespace PointlessWaymarks.CmsWpfControls.S3Uploads;
 /// <summary>
 ///     Interaction logic for S3UploadsWindow.xaml
 /// </summary>
-public partial class S3UploadsWindow : INotifyPropertyChanged
+[ObservableObject]
+public partial class S3UploadsWindow
 {
-    private bool _forceClose;
-    private WindowIconStatus _windowStatus;
-    private StatusControlContext _statusContext;
-    private S3UploadsContext? _uploadContext;
+    [ObservableProperty] private bool _forceClose;
+    [ObservableProperty] private WindowIconStatus _windowStatus;
+    [ObservableProperty] private StatusControlContext _statusContext;
+    [ObservableProperty] private S3UploadsContext? _uploadContext;
 
     public S3UploadsWindow(List<S3Upload> toLoad, bool autoStartUpload)
     {
@@ -31,47 +33,6 @@ public partial class S3UploadsWindow : INotifyPropertyChanged
             UploadContext = await S3UploadsContext.CreateInstance(StatusContext, toLoad, WindowStatus);
             if (autoStartUpload) UploadContext.StatusContext.RunNonBlockingTask(UploadContext.StartAllUploads);
         });
-    }
-
-    public WindowIconStatus WindowStatus
-    {
-        get => _windowStatus;
-        set
-        {
-            if (Equals(value, _windowStatus)) return;
-            _windowStatus = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public StatusControlContext StatusContext
-    {
-        get => _statusContext;
-        set
-        {
-            if (Equals(value, _statusContext)) return;
-            _statusContext = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public S3UploadsContext? UploadContext
-    {
-        get => _uploadContext;
-        set
-        {
-            if (Equals(value, _uploadContext)) return;
-            _uploadContext = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public event PropertyChangedEventHandler? PropertyChanged;
-
-    [NotifyPropertyChangedInvocator]
-    protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
-    {
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 
     private void S3UploadsWindow_OnClosing(object sender, CancelEventArgs e)

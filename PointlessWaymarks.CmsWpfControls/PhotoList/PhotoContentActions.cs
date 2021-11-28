@@ -1,9 +1,7 @@
-﻿using System.ComponentModel;
-using System.Diagnostics;
-using System.Runtime.CompilerServices;
+﻿using System.Diagnostics;
 using System.Windows;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Toolkit.Mvvm.ComponentModel;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.ContentHtml.PhotoHtml;
@@ -20,24 +18,24 @@ using PointlessWaymarks.WpfCommon.Utility;
 
 namespace PointlessWaymarks.CmsWpfControls.PhotoList;
 
-public class PhotoContentActions : IContentActions<PhotoContent>
+public partial class PhotoContentActions : ObservableObject, IContentActions<PhotoContent>
 {
-    private Command<PhotoContent> _apertureSearchCommand;
-    private Command<PhotoContent> _cameraMakeSearchCommand;
-    private Command<PhotoContent> _cameraModelSearchCommand;
-    private Command<PhotoContent> _deleteCommand;
-    private Command<PhotoContent> _editCommand;
-    private Command<PhotoContent> _extractNewLinksCommand;
-    private Command<PhotoContent> _focalLengthSearchCommand;
-    private Command<PhotoContent> _generateHtmlCommand;
-    private Command<PhotoContent> _isoSearchCommand;
-    private Command<PhotoContent> _lensSearchCommand;
-    private Command<PhotoContent> _linkCodeToClipboardCommand;
-    private Command<PhotoContent> _openUrlCommand;
-    private Command<PhotoContent> _photoTakenOnSearchCommand;
-    private Command<PhotoContent> _shutterSpeedSearchCommand;
-    private StatusControlContext _statusContext;
-    private Command<PhotoContent> _viewFileCommand;
+    [ObservableProperty] private Command<PhotoContent> _apertureSearchCommand;
+    [ObservableProperty] private Command<PhotoContent> _cameraMakeSearchCommand;
+    [ObservableProperty] private Command<PhotoContent> _cameraModelSearchCommand;
+    [ObservableProperty] private Command<PhotoContent> _deleteCommand;
+    [ObservableProperty] private Command<PhotoContent> _editCommand;
+    [ObservableProperty] private Command<PhotoContent> _extractNewLinksCommand;
+    [ObservableProperty] private Command<PhotoContent> _focalLengthSearchCommand;
+    [ObservableProperty] private Command<PhotoContent> _generateHtmlCommand;
+    [ObservableProperty] private Command<PhotoContent> _isoSearchCommand;
+    [ObservableProperty] private Command<PhotoContent> _lensSearchCommand;
+    [ObservableProperty] private Command<PhotoContent> _linkCodeToClipboardCommand;
+    [ObservableProperty] private Command<PhotoContent> _openUrlCommand;
+    [ObservableProperty] private Command<PhotoContent> _photoTakenOnSearchCommand;
+    [ObservableProperty] private Command<PhotoContent> _shutterSpeedSearchCommand;
+    [ObservableProperty] private StatusControlContext _statusContext;
+    [ObservableProperty] private Command<PhotoContent> _viewFileCommand;
 
     public PhotoContentActions(StatusControlContext statusContext)
     {
@@ -47,8 +45,7 @@ public class PhotoContentActions : IContentActions<PhotoContent>
         EditCommand = StatusContext.RunNonBlockingTaskCommand<PhotoContent>(Edit);
         ExtractNewLinksCommand = StatusContext.RunBlockingTaskCommand<PhotoContent>(ExtractNewLinks);
         GenerateHtmlCommand = StatusContext.RunBlockingTaskCommand<PhotoContent>(GenerateHtml);
-        LinkCodeToClipboardCommand =
-            StatusContext.RunBlockingTaskCommand<PhotoContent>(DefaultBracketCodeToClipboard);
+        LinkCodeToClipboardCommand = StatusContext.RunBlockingTaskCommand<PhotoContent>(DefaultBracketCodeToClipboard);
         OpenUrlCommand = StatusContext.RunBlockingTaskCommand<PhotoContent>(OpenUrl);
         ViewFileCommand = StatusContext.RunNonBlockingTaskCommand<PhotoContent>(ViewFile);
         ViewHistoryCommand = StatusContext.RunNonBlockingTaskCommand<PhotoContent>(ViewHistory);
@@ -66,110 +63,9 @@ public class PhotoContentActions : IContentActions<PhotoContent>
         LensSearchCommand = StatusContext.RunNonBlockingTaskCommand<PhotoContent>(async x =>
             await RunReport(async () => await LensSearch(x), $"Lens - {x.Lens}"));
         PhotoTakenOnSearchCommand = StatusContext.RunNonBlockingTaskCommand<PhotoContent>(async x =>
-            await RunReport(async () => await PhotoTakenOnSearch(x),
-                $"Photo Created On - {x.PhotoCreatedOn.Date:D}"));
+            await RunReport(async () => await PhotoTakenOnSearch(x), $"Photo Created On - {x.PhotoCreatedOn.Date:D}"));
         ShutterSpeedSearchCommand = StatusContext.RunNonBlockingTaskCommand<PhotoContent>(async x =>
             await RunReport(async () => await ShutterSpeedSearch(x), $"Shutter Speed - {x.ShutterSpeed}"));
-    }
-
-
-    public Command<PhotoContent> ApertureSearchCommand
-    {
-        get => _apertureSearchCommand;
-        set
-        {
-            if (Equals(value, _apertureSearchCommand)) return;
-            _apertureSearchCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command<PhotoContent> CameraMakeSearchCommand
-    {
-        get => _cameraMakeSearchCommand;
-        set
-        {
-            if (Equals(value, _cameraMakeSearchCommand)) return;
-            _cameraMakeSearchCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command<PhotoContent> CameraModelSearchCommand
-    {
-        get => _cameraModelSearchCommand;
-        set
-        {
-            if (Equals(value, _cameraModelSearchCommand)) return;
-            _cameraModelSearchCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command<PhotoContent> FocalLengthSearchCommand
-    {
-        get => _focalLengthSearchCommand;
-        set
-        {
-            if (Equals(value, _focalLengthSearchCommand)) return;
-            _focalLengthSearchCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command<PhotoContent> IsoSearchCommand
-    {
-        get => _isoSearchCommand;
-        set
-        {
-            if (Equals(value, _isoSearchCommand)) return;
-            _isoSearchCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command<PhotoContent> LensSearchCommand
-    {
-        get => _lensSearchCommand;
-        set
-        {
-            if (Equals(value, _lensSearchCommand)) return;
-            _lensSearchCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command<PhotoContent> PhotoTakenOnSearchCommand
-    {
-        get => _photoTakenOnSearchCommand;
-        set
-        {
-            if (Equals(value, _photoTakenOnSearchCommand)) return;
-            _photoTakenOnSearchCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command<PhotoContent> ShutterSpeedSearchCommand
-    {
-        get => _shutterSpeedSearchCommand;
-        set
-        {
-            if (Equals(value, _shutterSpeedSearchCommand)) return;
-            _shutterSpeedSearchCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command<PhotoContent> ViewFileCommand
-    {
-        get => _viewFileCommand;
-        set
-        {
-            if (Equals(value, _viewFileCommand)) return;
-            _viewFileCommand = value;
-            OnPropertyChanged();
-        }
     }
 
     public string DefaultBracketCode(PhotoContent content)
@@ -225,17 +121,6 @@ public class PhotoContentActions : IContentActions<PhotoContent>
         }
     }
 
-    public Command<PhotoContent> DeleteCommand
-    {
-        get => _deleteCommand;
-        set
-        {
-            if (Equals(value, _deleteCommand)) return;
-            _deleteCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
     public async Task Edit(PhotoContent content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -259,17 +144,6 @@ public class PhotoContentActions : IContentActions<PhotoContent>
         await ThreadSwitcher.ResumeBackgroundAsync();
     }
 
-    public Command<PhotoContent> EditCommand
-    {
-        get => _editCommand;
-        set
-        {
-            if (Equals(value, _editCommand)) return;
-            _editCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
     public async Task ExtractNewLinks(PhotoContent content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -287,17 +161,6 @@ public class PhotoContentActions : IContentActions<PhotoContent>
 
         await LinkExtraction.ExtractNewAndShowLinkContentEditors(
             $"{refreshedData.BodyContent} {refreshedData.UpdateNotes}", StatusContext.ProgressTracker());
-    }
-
-    public Command<PhotoContent> ExtractNewLinksCommand
-    {
-        get => _extractNewLinksCommand;
-        set
-        {
-            if (Equals(value, _extractNewLinksCommand)) return;
-            _extractNewLinksCommand = value;
-            OnPropertyChanged();
-        }
     }
 
     public async Task GenerateHtml(PhotoContent content)
@@ -319,28 +182,6 @@ public class PhotoContentActions : IContentActions<PhotoContent>
         StatusContext.ToastSuccess($"Generated {htmlContext.PageUrl}");
     }
 
-    public Command<PhotoContent> GenerateHtmlCommand
-    {
-        get => _generateHtmlCommand;
-        set
-        {
-            if (Equals(value, _generateHtmlCommand)) return;
-            _generateHtmlCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command<PhotoContent> LinkCodeToClipboardCommand
-    {
-        get => _linkCodeToClipboardCommand;
-        set
-        {
-            if (Equals(value, _linkCodeToClipboardCommand)) return;
-            _linkCodeToClipboardCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
     public async Task OpenUrl(PhotoContent content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -359,28 +200,6 @@ public class PhotoContentActions : IContentActions<PhotoContent>
         Process.Start(ps);
     }
 
-    public Command<PhotoContent> OpenUrlCommand
-    {
-        get => _openUrlCommand;
-        set
-        {
-            if (Equals(value, _openUrlCommand)) return;
-            _openUrlCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public StatusControlContext StatusContext
-    {
-        get => _statusContext;
-        set
-        {
-            if (Equals(value, _statusContext)) return;
-            _statusContext = value;
-            OnPropertyChanged();
-        }
-    }
-
     public async Task ViewHistory(PhotoContent content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -395,8 +214,7 @@ public class PhotoContentActions : IContentActions<PhotoContent>
 
         StatusContext.Progress($"Looking up Historic Entries for {content.Title}");
 
-        var historicItems = await db.HistoricPhotoContents
-            .Where(x => x.ContentId == content.ContentId).ToListAsync();
+        var historicItems = await db.HistoricPhotoContents.Where(x => x.ContentId == content.ContentId).ToListAsync();
 
         StatusContext.Progress($"Found {historicItems.Count} Historic Entries");
 
@@ -415,8 +233,6 @@ public class PhotoContentActions : IContentActions<PhotoContent>
     }
 
     public Command<PhotoContent> ViewHistoryCommand { get; set; }
-
-    public event PropertyChangedEventHandler PropertyChanged;
 
     private static async Task<List<object>> ApertureSearch(PhotoContent content)
     {
@@ -444,8 +260,8 @@ public class PhotoContentActions : IContentActions<PhotoContent>
 
         var db = await Db.Context();
 
-        return (await db.PhotoContents.Where(x => x.CameraModel == content.CameraModel).ToListAsync())
-            .Cast<object>().ToList();
+        return (await db.PhotoContents.Where(x => x.CameraModel == content.CameraModel).ToListAsync()).Cast<object>()
+            .ToList();
     }
 
     public static async Task<List<object>> FocalLengthSearch(PhotoContent content)
@@ -454,8 +270,8 @@ public class PhotoContentActions : IContentActions<PhotoContent>
 
         var db = await Db.Context();
 
-        return (await db.PhotoContents.Where(x => x.FocalLength == content.FocalLength).ToListAsync())
-            .Cast<object>().ToList();
+        return (await db.PhotoContents.Where(x => x.FocalLength == content.FocalLength).ToListAsync()).Cast<object>()
+            .ToList();
     }
 
     public static async Task<List<object>> IsoSearch(PhotoContent content)
@@ -476,8 +292,8 @@ public class PhotoContentActions : IContentActions<PhotoContent>
         return (await db.PhotoContents.Where(x => x.Lens == content.Lens).ToListAsync()).Cast<object>().ToList();
     }
 
-    public static PhotoListListItem ListItemFromDbItem(PhotoContent content,
-        PhotoContentActions photoContentActions, bool showType)
+    public static PhotoListListItem ListItemFromDbItem(PhotoContent content, PhotoContentActions photoContentActions,
+        bool showType)
     {
         return new PhotoListListItem
         {
@@ -488,12 +304,6 @@ public class PhotoContentActions : IContentActions<PhotoContent>
         };
     }
 
-
-    [NotifyPropertyChangedInvocator]
-    protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-    {
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-    }
 
     public static async Task<List<object>> PhotoTakenOnSearch(PhotoContent content)
     {
@@ -528,17 +338,15 @@ public class PhotoContentActions : IContentActions<PhotoContent>
         await context.LoadData();
     }
 
-
     public static async Task<List<object>> ShutterSpeedSearch(PhotoContent content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
         var db = await Db.Context();
 
-        return (await db.PhotoContents.Where(x => x.ShutterSpeed == content.ShutterSpeed).ToListAsync())
-            .Cast<object>().ToList();
+        return (await db.PhotoContents.Where(x => x.ShutterSpeed == content.ShutterSpeed).ToListAsync()).Cast<object>()
+            .ToList();
     }
-
 
     public async Task ViewFile(PhotoContent content)
     {
@@ -552,8 +360,7 @@ public class PhotoContentActions : IContentActions<PhotoContent>
 
             var refreshedData = context.PhotoContents.SingleOrDefault(x => x.ContentId == content.ContentId);
 
-            var possibleFile = UserSettingsSingleton.CurrentSettings()
-                .LocalMediaArchivePhotoContentFile(refreshedData);
+            var possibleFile = UserSettingsSingleton.CurrentSettings().LocalMediaArchivePhotoContentFile(refreshedData);
 
             if (possibleFile is not { Exists: true })
             {

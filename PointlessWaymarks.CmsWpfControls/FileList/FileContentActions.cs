@@ -1,9 +1,7 @@
-﻿using System.ComponentModel;
-using System.Diagnostics;
-using System.Runtime.CompilerServices;
+﻿using System.Diagnostics;
 using System.Windows;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Toolkit.Mvvm.ComponentModel;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.ContentHtml.FileHtml;
@@ -20,17 +18,17 @@ using PointlessWaymarks.WpfCommon.Utility;
 
 namespace PointlessWaymarks.CmsWpfControls.FileList;
 
-public class FileContentActions : IContentActions<FileContent>
+public partial class FileContentActions : ObservableObject, IContentActions<FileContent>
 {
-    private Command<FileContent> _deleteCommand;
-    private Command<FileContent> _editCommand;
-    private Command<FileContent> _extractNewLinksCommand;
-    private Command<FileContent> _generateHtmlCommand;
-    private Command<FileContent> _linkCodeToClipboardCommand;
-    private Command<FileContent> _openUrlCommand;
-    private StatusControlContext _statusContext;
-    private Command<FileContent> _viewFileCommand;
-    private Command<FileContent> _viewHistoryCommand;
+    [ObservableProperty] private Command<FileContent> _deleteCommand;
+    [ObservableProperty] private Command<FileContent> _editCommand;
+    [ObservableProperty] private Command<FileContent> _extractNewLinksCommand;
+    [ObservableProperty] private Command<FileContent> _generateHtmlCommand;
+    [ObservableProperty] private Command<FileContent> _linkCodeToClipboardCommand;
+    [ObservableProperty] private Command<FileContent> _openUrlCommand;
+    [ObservableProperty] private StatusControlContext _statusContext;
+    [ObservableProperty] private Command<FileContent> _viewFileCommand;
+    [ObservableProperty] private Command<FileContent> _viewHistoryCommand;
 
     public FileContentActions(StatusControlContext statusContext)
     {
@@ -39,22 +37,10 @@ public class FileContentActions : IContentActions<FileContent>
         EditCommand = StatusContext.RunNonBlockingTaskCommand<FileContent>(Edit);
         ExtractNewLinksCommand = StatusContext.RunBlockingTaskCommand<FileContent>(ExtractNewLinks);
         GenerateHtmlCommand = StatusContext.RunBlockingTaskCommand<FileContent>(GenerateHtml);
-        LinkCodeToClipboardCommand =
-            StatusContext.RunBlockingTaskCommand<FileContent>(DefaultBracketCodeToClipboard);
+        LinkCodeToClipboardCommand = StatusContext.RunBlockingTaskCommand<FileContent>(DefaultBracketCodeToClipboard);
         OpenUrlCommand = StatusContext.RunBlockingTaskCommand<FileContent>(OpenUrl);
         ViewFileCommand = StatusContext.RunNonBlockingTaskCommand<FileContent>(ViewFile);
         ViewHistoryCommand = StatusContext.RunNonBlockingTaskCommand<FileContent>(ViewHistory);
-    }
-
-    public Command<FileContent> ViewFileCommand
-    {
-        get => _viewFileCommand;
-        set
-        {
-            if (Equals(value, _viewFileCommand)) return;
-            _viewFileCommand = value;
-            OnPropertyChanged();
-        }
     }
 
     public string DefaultBracketCode(FileContent content)
@@ -114,17 +100,6 @@ public class FileContentActions : IContentActions<FileContent>
         }
     }
 
-    public Command<FileContent> DeleteCommand
-    {
-        get => _deleteCommand;
-        set
-        {
-            if (Equals(value, _deleteCommand)) return;
-            _deleteCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
     public async Task Edit(FileContent content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -148,17 +123,6 @@ public class FileContentActions : IContentActions<FileContent>
         await ThreadSwitcher.ResumeBackgroundAsync();
     }
 
-    public Command<FileContent> EditCommand
-    {
-        get => _editCommand;
-        set
-        {
-            if (Equals(value, _editCommand)) return;
-            _editCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
     public async Task ExtractNewLinks(FileContent content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -177,18 +141,6 @@ public class FileContentActions : IContentActions<FileContent>
         await LinkExtraction.ExtractNewAndShowLinkContentEditors(
             $"{refreshedData.BodyContent} {refreshedData.UpdateNotes}", StatusContext.ProgressTracker());
     }
-
-    public Command<FileContent> ExtractNewLinksCommand
-    {
-        get => _extractNewLinksCommand;
-        set
-        {
-            if (Equals(value, _extractNewLinksCommand)) return;
-            _extractNewLinksCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
 
     public async Task GenerateHtml(FileContent content)
     {
@@ -209,28 +161,6 @@ public class FileContentActions : IContentActions<FileContent>
         StatusContext.ToastSuccess($"Generated {htmlContext.PageUrl}");
     }
 
-    public Command<FileContent> GenerateHtmlCommand
-    {
-        get => _generateHtmlCommand;
-        set
-        {
-            if (Equals(value, _generateHtmlCommand)) return;
-            _generateHtmlCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command<FileContent> LinkCodeToClipboardCommand
-    {
-        get => _linkCodeToClipboardCommand;
-        set
-        {
-            if (Equals(value, _linkCodeToClipboardCommand)) return;
-            _linkCodeToClipboardCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
     public async Task OpenUrl(FileContent content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -245,30 +175,8 @@ public class FileContentActions : IContentActions<FileContent>
 
         var url = $@"http://{settings.FilePageUrl(content)}";
 
-        var ps = new ProcessStartInfo(url) {UseShellExecute = true, Verb = "open"};
+        var ps = new ProcessStartInfo(url) { UseShellExecute = true, Verb = "open" };
         Process.Start(ps);
-    }
-
-    public Command<FileContent> OpenUrlCommand
-    {
-        get => _openUrlCommand;
-        set
-        {
-            if (Equals(value, _openUrlCommand)) return;
-            _openUrlCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public StatusControlContext StatusContext
-    {
-        get => _statusContext;
-        set
-        {
-            if (Equals(value, _statusContext)) return;
-            _statusContext = value;
-            OnPropertyChanged();
-        }
     }
 
     public async Task ViewHistory(FileContent content)
@@ -285,8 +193,7 @@ public class FileContentActions : IContentActions<FileContent>
 
         StatusContext.Progress($"Looking up Historic Entries for {content.Title}");
 
-        var historicItems = await db.HistoricFileContents
-            .Where(x => x.ContentId == content.ContentId).ToListAsync();
+        var historicItems = await db.HistoricFileContents.Where(x => x.ContentId == content.ContentId).ToListAsync();
 
         StatusContext.Progress($"Found {historicItems.Count} Historic Entries");
 
@@ -304,19 +211,6 @@ public class FileContentActions : IContentActions<FileContent>
         historicView.WriteHtmlToTempFolderAndShow(StatusContext.ProgressTracker());
     }
 
-    public Command<FileContent> ViewHistoryCommand
-    {
-        get => _viewHistoryCommand;
-        set
-        {
-            if (Equals(value, _viewHistoryCommand)) return;
-            _viewHistoryCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public event PropertyChangedEventHandler PropertyChanged;
-
     public static FileListListItem ListItemFromDbItem(FileContent content, FileContentActions itemActions,
         bool showType)
     {
@@ -328,13 +222,6 @@ public class FileContentActions : IContentActions<FileContent>
             ShowType = showType
         };
     }
-
-    [NotifyPropertyChangedInvocator]
-    protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-    {
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-    }
-
 
     public async Task ViewFile(FileContent listItem)
     {
@@ -354,7 +241,7 @@ public class FileContentActions : IContentActions<FileContent>
 
         var toOpen = UserSettingsSingleton.CurrentSettings().LocalSiteFileContentFile(listItem);
 
-        if (toOpen is not {Exists: true})
+        if (toOpen is not { Exists: true })
         {
             StatusContext.ToastError("File doesn't exist?");
             return;
@@ -362,7 +249,7 @@ public class FileContentActions : IContentActions<FileContent>
 
         var url = toOpen.FullName;
 
-        var ps = new ProcessStartInfo(url) {UseShellExecute = true, Verb = "open"};
+        var ps = new ProcessStartInfo(url) { UseShellExecute = true, Verb = "open" };
         Process.Start(ps);
     }
 }

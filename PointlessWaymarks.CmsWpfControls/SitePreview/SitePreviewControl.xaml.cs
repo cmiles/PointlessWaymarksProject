@@ -1,8 +1,6 @@
-﻿using System.ComponentModel;
-using System.IO;
-using System.Runtime.CompilerServices;
+﻿using System.IO;
 using System.Windows;
-using JetBrains.Annotations;
+using Microsoft.Toolkit.Mvvm.ComponentModel;
 using Microsoft.Web.WebView2.Core;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 using PointlessWaymarks.WpfCommon.Utility;
@@ -12,10 +10,10 @@ namespace PointlessWaymarks.CmsWpfControls.SitePreview;
 /// <summary>
 ///     Interaction logic for SitePreviewControl.xaml
 /// </summary>
-public partial class SitePreviewControl : INotifyPropertyChanged
+[ObservableObject]
+public partial class SitePreviewControl
 {
-    private SitePreviewContext _previewContext;
-    private bool _loaded;
+    [ObservableProperty] private SitePreviewContext _previewContext;
 
     public SitePreviewControl()
     {
@@ -24,19 +22,6 @@ public partial class SitePreviewControl : INotifyPropertyChanged
         DataContext = PreviewContext;
     }
 
-    public SitePreviewContext PreviewContext
-    {
-        get => _previewContext;
-        set
-        {
-            if (Equals(value, _previewContext)) return;
-            _previewContext = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public event PropertyChangedEventHandler PropertyChanged;
-
     private async void InitializeAsync()
     {
         //if (!_loaded)
@@ -44,8 +29,8 @@ public partial class SitePreviewControl : INotifyPropertyChanged
         //    _loaded = true;
 
         // must create a data folder if running out of a secured folder that can't write like Program Files
-        var env = await CoreWebView2Environment.CreateAsync(
-            userDataFolder: Path.Combine(Path.GetTempPath(), "PointWaymarksCms_SitePreviewBrowserData"));
+        var env = await CoreWebView2Environment.CreateAsync(userDataFolder: Path.Combine(Path.GetTempPath(),
+            "PointWaymarksCms_SitePreviewBrowserData"));
 
         await ThreadSwitcher.ResumeForegroundAsync();
         // Note this waits until the first page is navigated!
@@ -59,13 +44,6 @@ public partial class SitePreviewControl : INotifyPropertyChanged
     {
         InitializeAsync();
     }
-
-    [NotifyPropertyChangedInvocator]
-    protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-    {
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-    }
-
 
     private void SitePreviewControl_OnDataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
     {

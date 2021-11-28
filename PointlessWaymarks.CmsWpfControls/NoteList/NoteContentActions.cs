@@ -1,9 +1,7 @@
-﻿using System.ComponentModel;
-using System.Diagnostics;
-using System.Runtime.CompilerServices;
+﻿using System.Diagnostics;
 using System.Windows;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Toolkit.Mvvm.ComponentModel;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.ContentHtml.NoteHtml;
@@ -20,16 +18,16 @@ using PointlessWaymarks.WpfCommon.Utility;
 
 namespace PointlessWaymarks.CmsWpfControls.NoteList;
 
-public class NoteContentActions : IContentActions<NoteContent>
+public partial class NoteContentActions : ObservableObject, IContentActions<NoteContent>
 {
-    private Command<NoteContent> _deleteCommand;
-    private Command<NoteContent> _editCommand;
-    private Command<NoteContent> _extractNewLinksCommand;
-    private Command<NoteContent> _generateHtmlCommand;
-    private Command<NoteContent> _linkCodeToClipboardCommand;
-    private Command<NoteContent> _openUrlCommand;
-    private StatusControlContext _statusContext;
-    private Command<NoteContent> _viewHistoryCommand;
+    [ObservableProperty] private Command<NoteContent> _deleteCommand;
+    [ObservableProperty] private Command<NoteContent> _editCommand;
+    [ObservableProperty] private Command<NoteContent> _extractNewLinksCommand;
+    [ObservableProperty] private Command<NoteContent> _generateHtmlCommand;
+    [ObservableProperty] private Command<NoteContent> _linkCodeToClipboardCommand;
+    [ObservableProperty] private Command<NoteContent> _openUrlCommand;
+    [ObservableProperty] private StatusControlContext _statusContext;
+    [ObservableProperty] private Command<NoteContent> _viewHistoryCommand;
 
     public NoteContentActions(StatusControlContext statusContext)
     {
@@ -38,8 +36,7 @@ public class NoteContentActions : IContentActions<NoteContent>
         EditCommand = StatusContext.RunNonBlockingTaskCommand<NoteContent>(Edit);
         ExtractNewLinksCommand = StatusContext.RunBlockingTaskCommand<NoteContent>(ExtractNewLinks);
         GenerateHtmlCommand = StatusContext.RunBlockingTaskCommand<NoteContent>(GenerateHtml);
-        LinkCodeToClipboardCommand =
-            StatusContext.RunBlockingTaskCommand<NoteContent>(DefaultBracketCodeToClipboard);
+        LinkCodeToClipboardCommand = StatusContext.RunBlockingTaskCommand<NoteContent>(DefaultBracketCodeToClipboard);
         OpenUrlCommand = StatusContext.RunBlockingTaskCommand<NoteContent>(OpenUrl);
         ViewHistoryCommand = StatusContext.RunNonBlockingTaskCommand<NoteContent>(ViewHistory);
     }
@@ -96,17 +93,6 @@ public class NoteContentActions : IContentActions<NoteContent>
         }
     }
 
-    public Command<NoteContent> DeleteCommand
-    {
-        get => _deleteCommand;
-        set
-        {
-            if (Equals(value, _deleteCommand)) return;
-            _deleteCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
     public async Task Edit(NoteContent content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -130,17 +116,6 @@ public class NoteContentActions : IContentActions<NoteContent>
         await ThreadSwitcher.ResumeBackgroundAsync();
     }
 
-    public Command<NoteContent> EditCommand
-    {
-        get => _editCommand;
-        set
-        {
-            if (Equals(value, _editCommand)) return;
-            _editCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
     public async Task ExtractNewLinks(NoteContent content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -161,18 +136,6 @@ public class NoteContentActions : IContentActions<NoteContent>
             StatusContext.ProgressTracker());
     }
 
-    public Command<NoteContent> ExtractNewLinksCommand
-    {
-        get => _extractNewLinksCommand;
-        set
-        {
-            if (Equals(value, _extractNewLinksCommand)) return;
-            _extractNewLinksCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-
     public async Task GenerateHtml(NoteContent content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -190,28 +153,6 @@ public class NoteContentActions : IContentActions<NoteContent>
         await htmlContext.WriteLocalHtml();
 
         StatusContext.ToastSuccess($"Generated {htmlContext.PageUrl}");
-    }
-
-    public Command<NoteContent> GenerateHtmlCommand
-    {
-        get => _generateHtmlCommand;
-        set
-        {
-            if (Equals(value, _generateHtmlCommand)) return;
-            _generateHtmlCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command<NoteContent> LinkCodeToClipboardCommand
-    {
-        get => _linkCodeToClipboardCommand;
-        set
-        {
-            if (Equals(value, _linkCodeToClipboardCommand)) return;
-            _linkCodeToClipboardCommand = value;
-            OnPropertyChanged();
-        }
     }
 
     public async Task OpenUrl(NoteContent content)
@@ -232,28 +173,6 @@ public class NoteContentActions : IContentActions<NoteContent>
         Process.Start(ps);
     }
 
-    public Command<NoteContent> OpenUrlCommand
-    {
-        get => _openUrlCommand;
-        set
-        {
-            if (Equals(value, _openUrlCommand)) return;
-            _openUrlCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public StatusControlContext StatusContext
-    {
-        get => _statusContext;
-        set
-        {
-            if (Equals(value, _statusContext)) return;
-            _statusContext = value;
-            OnPropertyChanged();
-        }
-    }
-
     public async Task ViewHistory(NoteContent content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -268,8 +187,7 @@ public class NoteContentActions : IContentActions<NoteContent>
 
         StatusContext.Progress($"Looking up Historic Entries for {content.Title}");
 
-        var historicItems = await db.HistoricNoteContents
-            .Where(x => x.ContentId == content.ContentId).ToListAsync();
+        var historicItems = await db.HistoricNoteContents.Where(x => x.ContentId == content.ContentId).ToListAsync();
 
         StatusContext.Progress($"Found {historicItems.Count} Historic Entries");
 
@@ -287,28 +205,9 @@ public class NoteContentActions : IContentActions<NoteContent>
         historicView.WriteHtmlToTempFolderAndShow(StatusContext.ProgressTracker());
     }
 
-    public Command<NoteContent> ViewHistoryCommand
-    {
-        get => _viewHistoryCommand;
-        set
-        {
-            if (Equals(value, _viewHistoryCommand)) return;
-            _viewHistoryCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public event PropertyChangedEventHandler PropertyChanged;
-
     public static NoteListListItem ListItemFromDbItem(NoteContent content, NoteContentActions itemActions,
         bool showType)
     {
         return new NoteListListItem { DbEntry = content, ItemActions = itemActions, ShowType = showType };
-    }
-
-    [NotifyPropertyChangedInvocator]
-    protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-    {
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 }

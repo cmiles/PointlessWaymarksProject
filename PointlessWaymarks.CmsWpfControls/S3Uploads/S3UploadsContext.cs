@@ -2,11 +2,10 @@
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
-using System.Runtime.CompilerServices;
 using System.Text.Json;
 using System.Windows;
 using System.Windows.Shell;
-using JetBrains.Annotations;
+using Microsoft.Toolkit.Mvvm.ComponentModel;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsWpfControls.Utility;
 using PointlessWaymarks.WpfCommon.Commands;
@@ -16,26 +15,27 @@ using PointlessWaymarks.WpfCommon.Utility;
 
 namespace PointlessWaymarks.CmsWpfControls.S3Uploads;
 
-public class S3UploadsContext : INotifyPropertyChanged
+[ObservableObject]
+public partial class S3UploadsContext
 {
-    private Command _clearCompletedUploadBatch;
-    private Command _clearUploadedCommand;
-    private ObservableCollection<S3UploadsItem>? _items;
-    private ContentListSelected<S3UploadsItem>? _listSelection;
-    private Command<S3UploadsItem> _openLocalFileInExplorerCommand;
-    private WindowIconStatus _osStatusIndicator;
-    private Command _removeSelectedItemsCommand;
-    private Command _saveAllToUploadJsonFileCommand;
-    private Command _saveNotUploadedToUploadJsonFileCommand;
-    private Command _saveSelectedToUploadJsonFileCommand;
-    private Command _startAllUploadsCommand;
-    private Command _startSelectedUploadsCommand;
-    private StatusControlContext _statusContext;
-    private Command _toClipboardAllItemsCommand;
-    private Command _toClipboardSelectedItemsCommand;
-    private Command _toExcelAllItemsCommand;
-    private Command _toExcelSelectedItemsCommand;
-    private S3UploadsUploadBatch? _uploadBatch;
+    [ObservableProperty] private Command _clearCompletedUploadBatch;
+    [ObservableProperty] private Command _clearUploadedCommand;
+    [ObservableProperty] private ObservableCollection<S3UploadsItem>? _items;
+    [ObservableProperty] private ContentListSelected<S3UploadsItem>? _listSelection;
+    [ObservableProperty] private Command<S3UploadsItem> _openLocalFileInExplorerCommand;
+    [ObservableProperty] private WindowIconStatus _osStatusIndicator;
+    [ObservableProperty] private Command _removeSelectedItemsCommand;
+    [ObservableProperty] private Command _saveAllToUploadJsonFileCommand;
+    [ObservableProperty] private Command _saveNotUploadedToUploadJsonFileCommand;
+    [ObservableProperty] private Command _saveSelectedToUploadJsonFileCommand;
+    [ObservableProperty] private Command _startAllUploadsCommand;
+    [ObservableProperty] private Command _startSelectedUploadsCommand;
+    [ObservableProperty] private StatusControlContext _statusContext;
+    [ObservableProperty] private Command _toClipboardAllItemsCommand;
+    [ObservableProperty] private Command _toClipboardSelectedItemsCommand;
+    [ObservableProperty] private Command _toExcelAllItemsCommand;
+    [ObservableProperty] private Command _toExcelSelectedItemsCommand;
+    [ObservableProperty] private S3UploadsUploadBatch? _uploadBatch;
 
     public S3UploadsContext(StatusControlContext? statusContext, WindowIconStatus osStatusIndicator)
     {
@@ -47,8 +47,7 @@ public class S3UploadsContext : INotifyPropertyChanged
         _clearUploadedCommand = StatusContext.RunNonBlockingTaskCommand(ClearUploaded);
 
         _saveAllToUploadJsonFileCommand = StatusContext.RunNonBlockingTaskCommand(SaveAllToUploadJsonFile);
-        _saveSelectedToUploadJsonFileCommand =
-            StatusContext.RunNonBlockingTaskCommand(SaveSelectedToUploadJsonFile);
+        _saveSelectedToUploadJsonFileCommand = StatusContext.RunNonBlockingTaskCommand(SaveSelectedToUploadJsonFile);
         _saveNotUploadedToUploadJsonFileCommand =
             StatusContext.RunNonBlockingTaskCommand(SaveNotUploadedToUploadJsonFile);
         _openLocalFileInExplorerCommand =
@@ -69,206 +68,6 @@ public class S3UploadsContext : INotifyPropertyChanged
             if (UploadBatch is { Completed: true }) UploadBatch = null;
         });
     }
-
-    public Command ClearCompletedUploadBatch
-    {
-        get => _clearCompletedUploadBatch;
-        set
-        {
-            if (Equals(value, _clearCompletedUploadBatch)) return;
-            _clearCompletedUploadBatch = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command ClearUploadedCommand
-    {
-        get => _clearUploadedCommand;
-        set
-        {
-            if (Equals(value, _clearUploadedCommand)) return;
-            _clearUploadedCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public ObservableCollection<S3UploadsItem>? Items
-    {
-        get => _items;
-        set
-        {
-            if (Equals(value, _items)) return;
-            _items = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public ContentListSelected<S3UploadsItem>? ListSelection
-    {
-        get => _listSelection;
-        set
-        {
-            if (Equals(value, _listSelection)) return;
-            _listSelection = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command<S3UploadsItem> OpenLocalFileInExplorerCommand
-    {
-        get => _openLocalFileInExplorerCommand;
-        set
-        {
-            if (Equals(value, _openLocalFileInExplorerCommand)) return;
-            _openLocalFileInExplorerCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public WindowIconStatus OsStatusIndicator
-    {
-        get => _osStatusIndicator;
-        set
-        {
-            if (Equals(value, _osStatusIndicator)) return;
-            _osStatusIndicator = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command RemoveSelectedItemsCommand
-    {
-        get => _removeSelectedItemsCommand;
-        set
-        {
-            if (Equals(value, _removeSelectedItemsCommand)) return;
-            _removeSelectedItemsCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command SaveAllToUploadJsonFileCommand
-    {
-        get => _saveAllToUploadJsonFileCommand;
-        set
-        {
-            if (Equals(value, _saveAllToUploadJsonFileCommand)) return;
-            _saveAllToUploadJsonFileCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command SaveNotUploadedToUploadJsonFileCommand
-    {
-        get => _saveNotUploadedToUploadJsonFileCommand;
-        set
-        {
-            if (Equals(value, _saveNotUploadedToUploadJsonFileCommand)) return;
-            _saveNotUploadedToUploadJsonFileCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command SaveSelectedToUploadJsonFileCommand
-    {
-        get => _saveSelectedToUploadJsonFileCommand;
-        set
-        {
-            if (Equals(value, _saveSelectedToUploadJsonFileCommand)) return;
-            _saveSelectedToUploadJsonFileCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command StartAllUploadsCommand
-    {
-        get => _startAllUploadsCommand;
-        set
-        {
-            if (Equals(value, _startAllUploadsCommand)) return;
-            _startAllUploadsCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command StartSelectedUploadsCommand
-    {
-        get => _startSelectedUploadsCommand;
-        set
-        {
-            if (Equals(value, _startSelectedUploadsCommand)) return;
-            _startSelectedUploadsCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public StatusControlContext StatusContext
-    {
-        get => _statusContext;
-        set
-        {
-            if (Equals(value, _statusContext)) return;
-            _statusContext = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command ToClipboardAllItemsCommand
-    {
-        get => _toClipboardAllItemsCommand;
-        set
-        {
-            if (Equals(value, _toClipboardAllItemsCommand)) return;
-            _toClipboardAllItemsCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command ToClipboardSelectedItemsCommand
-    {
-        get => _toClipboardSelectedItemsCommand;
-        set
-        {
-            if (Equals(value, _toClipboardSelectedItemsCommand)) return;
-            _toClipboardSelectedItemsCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command ToExcelAllItemsCommand
-    {
-        get => _toExcelAllItemsCommand;
-        set
-        {
-            if (Equals(value, _toExcelAllItemsCommand)) return;
-            _toExcelAllItemsCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command ToExcelSelectedItemsCommand
-    {
-        get => _toExcelSelectedItemsCommand;
-        set
-        {
-            if (Equals(value, _toExcelSelectedItemsCommand)) return;
-            _toExcelSelectedItemsCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public S3UploadsUploadBatch? UploadBatch
-    {
-        get => _uploadBatch;
-        set
-        {
-            if (Equals(value, _uploadBatch)) return;
-            _uploadBatch = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public event PropertyChangedEventHandler? PropertyChanged;
 
     public async Task ClearUploaded()
     {
@@ -300,8 +99,7 @@ public class S3UploadsContext : INotifyPropertyChanged
             $"{DateTime.Now:yyyy-MM-dd--HH-mm-ss}---File-Upload-Data.json");
 
         var jsonInfo = JsonSerializer.Serialize(items.Select(x =>
-            new S3UploadFileRecord(x.FileToUpload.FullName, x.AmazonObjectKey, x.BucketName, x.BucketRegion,
-                x.Note)));
+            new S3UploadFileRecord(x.FileToUpload.FullName, x.AmazonObjectKey, x.BucketName, x.BucketRegion, x.Note)));
 
         var file = new FileInfo(fileName);
 
@@ -367,8 +165,8 @@ public class S3UploadsContext : INotifyPropertyChanged
 
         var newItemsList = uploadList
             .Select(x => new S3UploadsItem(x.ToUpload, x.S3Key, x.BucketName, x.Region, x.Note))
-            .OrderByDescending(x => x.FileToUpload.FullName.Count(y => y == '\\'))
-            .ThenBy(x => x.FileToUpload.FullName).ToList();
+            .OrderByDescending(x => x.FileToUpload.FullName.Count(y => y == '\\')).ThenBy(x => x.FileToUpload.FullName)
+            .ToList();
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
@@ -381,12 +179,6 @@ public class S3UploadsContext : INotifyPropertyChanged
             Items.Clear();
             newItemsList.ForEach(x => Items.Add(x));
         }
-    }
-
-    [NotifyPropertyChangedInvocator]
-    protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
-    {
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 
     public async Task OpenLocalFileInExplorer(S3UploadsItem toOpen)

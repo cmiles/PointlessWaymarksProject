@@ -1,9 +1,7 @@
-﻿using System.ComponentModel;
-using System.Diagnostics;
-using System.Runtime.CompilerServices;
+﻿using System.Diagnostics;
 using System.Windows;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Toolkit.Mvvm.ComponentModel;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.ContentHtml.ImageHtml;
@@ -20,17 +18,17 @@ using PointlessWaymarks.WpfCommon.Utility;
 
 namespace PointlessWaymarks.CmsWpfControls.ImageList;
 
-public class ImageContentActions : IContentActions<ImageContent>
+public partial class ImageContentActions : ObservableObject, IContentActions<ImageContent>
 {
-    private Command<ImageContent> _deleteCommand;
-    private Command<ImageContent> _editCommand;
-    private Command<ImageContent> _extractNewLinksCommand;
-    private Command<ImageContent> _generateHtmlCommand;
-    private Command<ImageContent> _linkCodeToClipboardCommand;
-    private Command<ImageContent> _openUrlCommand;
-    private StatusControlContext _statusContext;
-    private Command<ImageContent> _viewFileCommand;
-    private Command<ImageContent> _viewHistoryCommand;
+    [ObservableProperty] private Command<ImageContent> _deleteCommand;
+    [ObservableProperty] private Command<ImageContent> _editCommand;
+    [ObservableProperty] private Command<ImageContent> _extractNewLinksCommand;
+    [ObservableProperty] private Command<ImageContent> _generateHtmlCommand;
+    [ObservableProperty] private Command<ImageContent> _linkCodeToClipboardCommand;
+    [ObservableProperty] private Command<ImageContent> _openUrlCommand;
+    [ObservableProperty] private StatusControlContext _statusContext;
+    [ObservableProperty] private Command<ImageContent> _viewFileCommand;
+    [ObservableProperty] private Command<ImageContent> _viewHistoryCommand;
 
     public ImageContentActions(StatusControlContext statusContext)
     {
@@ -39,22 +37,10 @@ public class ImageContentActions : IContentActions<ImageContent>
         EditCommand = StatusContext.RunNonBlockingTaskCommand<ImageContent>(Edit);
         ExtractNewLinksCommand = StatusContext.RunBlockingTaskCommand<ImageContent>(ExtractNewLinks);
         GenerateHtmlCommand = StatusContext.RunBlockingTaskCommand<ImageContent>(GenerateHtml);
-        LinkCodeToClipboardCommand =
-            StatusContext.RunBlockingTaskCommand<ImageContent>(DefaultBracketCodeToClipboard);
+        LinkCodeToClipboardCommand = StatusContext.RunBlockingTaskCommand<ImageContent>(DefaultBracketCodeToClipboard);
         OpenUrlCommand = StatusContext.RunBlockingTaskCommand<ImageContent>(OpenUrl);
         ViewFileCommand = StatusContext.RunNonBlockingTaskCommand<ImageContent>(ViewFile);
         ViewHistoryCommand = StatusContext.RunNonBlockingTaskCommand<ImageContent>(ViewHistory);
-    }
-
-    public Command<ImageContent> ViewFileCommand
-    {
-        get => _viewFileCommand;
-        set
-        {
-            if (Equals(value, _viewFileCommand)) return;
-            _viewFileCommand = value;
-            OnPropertyChanged();
-        }
     }
 
     public string DefaultBracketCode(ImageContent content)
@@ -109,17 +95,6 @@ public class ImageContentActions : IContentActions<ImageContent>
         }
     }
 
-    public Command<ImageContent> DeleteCommand
-    {
-        get => _deleteCommand;
-        set
-        {
-            if (Equals(value, _deleteCommand)) return;
-            _deleteCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
     public async Task Edit(ImageContent content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -143,17 +118,6 @@ public class ImageContentActions : IContentActions<ImageContent>
         await ThreadSwitcher.ResumeBackgroundAsync();
     }
 
-    public Command<ImageContent> EditCommand
-    {
-        get => _editCommand;
-        set
-        {
-            if (Equals(value, _editCommand)) return;
-            _editCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
     public async Task ExtractNewLinks(ImageContent content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -172,18 +136,6 @@ public class ImageContentActions : IContentActions<ImageContent>
         await LinkExtraction.ExtractNewAndShowLinkContentEditors(
             $"{refreshedData.BodyContent} {refreshedData.UpdateNotes}", StatusContext.ProgressTracker());
     }
-
-    public Command<ImageContent> ExtractNewLinksCommand
-    {
-        get => _extractNewLinksCommand;
-        set
-        {
-            if (Equals(value, _extractNewLinksCommand)) return;
-            _extractNewLinksCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
 
     public async Task GenerateHtml(ImageContent content)
     {
@@ -204,28 +156,6 @@ public class ImageContentActions : IContentActions<ImageContent>
         StatusContext.ToastSuccess($"Generated {htmlContext.PageUrl}");
     }
 
-    public Command<ImageContent> GenerateHtmlCommand
-    {
-        get => _generateHtmlCommand;
-        set
-        {
-            if (Equals(value, _generateHtmlCommand)) return;
-            _generateHtmlCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command<ImageContent> LinkCodeToClipboardCommand
-    {
-        get => _linkCodeToClipboardCommand;
-        set
-        {
-            if (Equals(value, _linkCodeToClipboardCommand)) return;
-            _linkCodeToClipboardCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
     public async Task OpenUrl(ImageContent content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -240,30 +170,8 @@ public class ImageContentActions : IContentActions<ImageContent>
 
         var url = $@"http://{settings.ImagePageUrl(content)}";
 
-        var ps = new ProcessStartInfo(url) {UseShellExecute = true, Verb = "open"};
+        var ps = new ProcessStartInfo(url) { UseShellExecute = true, Verb = "open" };
         Process.Start(ps);
-    }
-
-    public Command<ImageContent> OpenUrlCommand
-    {
-        get => _openUrlCommand;
-        set
-        {
-            if (Equals(value, _openUrlCommand)) return;
-            _openUrlCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public StatusControlContext StatusContext
-    {
-        get => _statusContext;
-        set
-        {
-            if (Equals(value, _statusContext)) return;
-            _statusContext = value;
-            OnPropertyChanged();
-        }
     }
 
     public async Task ViewHistory(ImageContent content)
@@ -280,8 +188,7 @@ public class ImageContentActions : IContentActions<ImageContent>
 
         StatusContext.Progress($"Looking up Historic Entries for {content.Title}");
 
-        var historicItems = await db.HistoricImageContents
-            .Where(x => x.ContentId == content.ContentId).ToListAsync();
+        var historicItems = await db.HistoricImageContents.Where(x => x.ContentId == content.ContentId).ToListAsync();
 
         StatusContext.Progress($"Found {historicItems.Count} Historic Entries");
 
@@ -299,19 +206,6 @@ public class ImageContentActions : IContentActions<ImageContent>
         historicView.WriteHtmlToTempFolderAndShow(StatusContext.ProgressTracker());
     }
 
-    public Command<ImageContent> ViewHistoryCommand
-    {
-        get => _viewHistoryCommand;
-        set
-        {
-            if (Equals(value, _viewHistoryCommand)) return;
-            _viewHistoryCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public event PropertyChangedEventHandler PropertyChanged;
-
     public static ImageListListItem ListItemFromDbItem(ImageContent content, ImageContentActions itemActions,
         bool showType)
     {
@@ -323,13 +217,6 @@ public class ImageContentActions : IContentActions<ImageContent>
             ShowType = showType
         };
     }
-
-    [NotifyPropertyChangedInvocator]
-    protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-    {
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-    }
-
 
     public async Task ViewFile(ImageContent listItem)
     {
@@ -349,7 +236,7 @@ public class ImageContentActions : IContentActions<ImageContent>
 
         var toOpen = UserSettingsSingleton.CurrentSettings().LocalSiteImageContentFile(listItem);
 
-        if (toOpen is not {Exists: true})
+        if (toOpen is not { Exists: true })
         {
             StatusContext.ToastError("Image doesn't exist?");
             return;
@@ -357,7 +244,7 @@ public class ImageContentActions : IContentActions<ImageContent>
 
         var url = toOpen.FullName;
 
-        var ps = new ProcessStartInfo(url) {UseShellExecute = true, Verb = "open"};
+        var ps = new ProcessStartInfo(url) { UseShellExecute = true, Verb = "open" };
         Process.Start(ps);
     }
 }
