@@ -17,7 +17,7 @@ public partial class MenuLinkListItem
         PropertyChanged += OnPropertyChanged;
     }
 
-    private void OnPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
     {
         if (string.IsNullOrWhiteSpace(e.PropertyName)) return;
 

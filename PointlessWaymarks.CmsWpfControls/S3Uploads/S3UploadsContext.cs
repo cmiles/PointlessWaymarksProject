@@ -298,9 +298,7 @@ public partial class S3UploadsContext
 
     private void UploadBatchOnPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
-        if (e.PropertyName == nameof(UploadBatch) || e.PropertyName == nameof(UploadBatch.Uploading) ||
-            e.PropertyName == nameof(UploadBatch.CompletedSizePercent) ||
-            e.PropertyName == nameof(UploadBatch.CompletedItemPercent))
+        if (e.PropertyName is nameof(UploadBatch) or nameof(UploadBatch.Uploading) or nameof(UploadBatch.CompletedSizePercent) or nameof(UploadBatch.CompletedItemPercent))
         {
             if (UploadBatch is not { Uploading: true })
             {

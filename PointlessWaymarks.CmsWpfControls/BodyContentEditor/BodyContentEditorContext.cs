@@ -105,8 +105,7 @@ public partial class BodyContentEditorContext : IHasChanges, IHasValidationIssue
         if (e == null) return;
         if (string.IsNullOrWhiteSpace(e.PropertyName)) return;
 
-        if (!e.PropertyName.Contains("HasChanges") && !e.PropertyName.Contains("Validation") &&
-            e.PropertyName != nameof(BodyContent))
+        if (!e.PropertyName.Contains("HasChanges") && !e.PropertyName.Contains("Validation"))
             CheckForChangesAndValidationIssues();
     }
 

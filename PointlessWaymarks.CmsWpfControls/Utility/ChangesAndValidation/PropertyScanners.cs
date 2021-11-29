@@ -59,7 +59,7 @@ public static class PropertyScanners
                 ((INotifyPropertyChanged) value).PropertyChanged += (_, args) =>
                 {
                     if (string.IsNullOrWhiteSpace(args?.PropertyName) || actionOnStatusChange == null) return;
-                    if (args.PropertyName == "HasChanges" || args.PropertyName == "HasValidationIssues")
+                    if (args.PropertyName is "HasChanges" or "HasValidationIssues")
                         actionOnStatusChange();
                 };
             }

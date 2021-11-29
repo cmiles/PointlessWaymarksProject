@@ -200,8 +200,7 @@ public partial class FilesWrittenLogListContext
             return;
         }
 
-        if (translatedMessage.ContentType == DataNotificationContentType.FileTransferScriptLog ||
-            translatedMessage.ContentType == DataNotificationContentType.GenerationLog)
+        if (translatedMessage.ContentType is DataNotificationContentType.FileTransferScriptLog or DataNotificationContentType.GenerationLog)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
