@@ -1,4 +1,5 @@
 ﻿using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.IO;
 using System.Windows;
 using System.Windows.Data;
@@ -118,6 +119,8 @@ public partial class ContentListContext : IDragSource, IDropTarget
         StatusContext = statusContext ?? new StatusControlContext();
         WindowStatus = windowStatus;
 
+        PropertyChanged += OnPropertyChanged;
+
         ContentListLoader = loader;
 
         FileItemActions = new FileContentActions(StatusContext);
@@ -168,7 +171,6 @@ public partial class ContentListContext : IDragSource, IDropTarget
         GenerateChangedHtmlAndShowSitePreviewCommand =
             StatusContext.RunBlockingTaskCommand(GenerateChangedHtmlAndShowSitePreview);
     }
-
 
     public bool CanStartDrag(IDragInfo dragInfo)
     {
@@ -680,6 +682,15 @@ public partial class ContentListContext : IDragSource, IDropTarget
     private void OnDataNotificationReceived(object sender, TinyMessageReceivedEventArgs e)
     {
         DataNotificationsProcessor.Enqueue(e);
+    }
+
+    private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
+    {
+        if (e == null) return;
+        if (string.IsNullOrWhiteSpace(e.PropertyName)) return;
+
+        if (e.PropertyName == nameof(UserFilterText))
+            StatusContext.RunFireAndForgetNonBlockingTask(FilterList);
     }
 
     public async Task OpenUrlSelected(CancellationToken cancelToken)
