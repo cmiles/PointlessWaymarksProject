@@ -247,7 +247,7 @@ async function singlePointMapInitFromPointData(mapElement, displayedPointSlug, p
 
     for (let circlePoint of pointData) {
         if (circlePoint.Slug == displayedPointSlug) continue;
-        let toAdd = L.circle([circlePoint.Latitude, circlePoint.Longitude],
+        let toAdd = L.circleMarker([circlePoint.Latitude, circlePoint.Longitude],
             80,
             { color: "blue", fillColor: "blue", fillOpacity: .5 });
 
