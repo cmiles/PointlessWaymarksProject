@@ -1,9 +1,13 @@
 ﻿using System.IO;
 using System.Reflection;
+using System.Text;
 using System.Text.Encodings.Web;
+using System.Text.Json;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.Content;
+using PointlessWaymarks.CmsData.Database;
 
 namespace PointlessWaymarks.CmsWpfControls.WpfHtml;
 
@@ -47,7 +51,8 @@ public static class WpfHtmlDocument
         {
             new("openTopoMap", "OSM Topo", @"
         var openTopoMap = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
-            maxZoom: 17,
+            maxNativeZoom: 17,
+            maxZoom: 24,
             id: 'osmTopo',
             attribution: 'Map data: &copy; <a href=""https://www.openstreetmap.org/copyright"">OpenStreetMap</a> contributors, <a href=""http://viewfinderpanoramas.org"">SRTM</a> | Map style: &copy; <a href=""https://opentopomap.org"">OpenTopoMap</a> (<a href=""https://creativecommons.org/licenses/by-sa/3.0/"">CC-BY-SA</a>)'
         });")
@@ -59,7 +64,8 @@ public static class WpfHtmlDocument
             layers.Add(new LayerEntry("calTopoTopoLayer", "CalTopo Topo", $@"
                  var calTopoTopoLayer = L.tileLayer('http://caltopo.com/api/{{accessToken}}/wmts/tile/t/{{z}}/{{x}}/{{y}}.png', {{
             attribution: 'CalTopo',
-            maxZoom: 16,
+            maxNativeZoom: 16,
+            maxZoom: 24,
             id: 'caltopoT',
             accessToken: '{UserSettingsSingleton.CurrentSettings().CalTopoApiKey}'
         }});"));
@@ -67,7 +73,8 @@ public static class WpfHtmlDocument
             layers.Add(new LayerEntry("calTopoFsLayer", "CalTopo FS", $@"
                  var calTopoFsLayer = L.tileLayer('http://caltopo.com/api/{{accessToken}}/wmts/tile/f16a/{{z}}/{{x}}/{{y}}.png', {{
             attribution: 'CalTopo',
-            maxZoom: 16,
+            maxNativeZoom: 16,
+            maxZoom: 24,
             id: 'caltopoF16a',
             accessToken: '{UserSettingsSingleton.CurrentSettings().CalTopoApiKey}'
         }});"));
@@ -79,12 +86,14 @@ public static class WpfHtmlDocument
                           var bingAerialTileLayer = L.tileLayer.bing({{
             bingMapsKey: '{UserSettingsSingleton.CurrentSettings().BingApiKey}', // Required
             imagerySet: 'AerialWithLabels',
+            maxZoom: 24
         }});"));
 
             layers.Add(new LayerEntry("bingRoadTileLayer", "Bing Roads", $@"
                           var bingRoadTileLayer = L.tileLayer.bing({{
             bingMapsKey: '{UserSettingsSingleton.CurrentSettings().BingApiKey}', // Required
             imagerySet: 'RoadOnDemand',
+            maxZoom: 24
         }});"));
         }
 
@@ -366,9 +375,16 @@ public static class WpfHtmlDocument
         return htmlDoc;
     }
 
-    public static string ToHtmlLeafletPointDocument(string title, double initialLatitude, double initialLongitude,
+    public static async Task<string> ToHtmlLeafletPointDocument(string title, Guid? contentId, double initialLatitude, double initialLongitude,
         string styleBlock)
     {
+        var db = await Db.Context();
+
+        var otherPoints = (await db.PointContents.Where(x => x.ContentId != contentId).OrderBy(x => x.Slug).AsNoTracking()
+            .ToListAsync()).Select(x => new {x.Latitude, x.Longitude, x.Title}).ToList();
+
+        var otherPointsJsonData = JsonSerializer.Serialize(otherPoints);
+
         var layers = LeafletLayerList();
 
         var htmlDoc = $@"
@@ -408,6 +424,19 @@ public static class WpfHtmlDocument
             console.log(e);
             window.chrome.webview.postMessage(e.target._latlng.lat + "";"" + e.target._latlng.lng);
         }});
+
+        const pointData = {otherPointsJsonData};
+
+        for (let circlePoint of pointData) {{
+            let toAdd = L.circleMarker([circlePoint.Latitude, circlePoint.Longitude],
+                40, {{ color: ""blue"", fillColor: ""blue"", fillOpacity: .5 }});
+
+            const circlePopup = L.popup({{ autoClose: false, autoPan: false }})
+                .setContent(`<p>${{circlePoint.Title}}</p>`);
+            const boundCirclePopup = toAdd.bindPopup(circlePopup);
+
+            toAdd.addTo(map);
+        }};
 
     </script>
 </body>

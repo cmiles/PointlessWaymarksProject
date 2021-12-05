@@ -28,7 +28,7 @@ public partial class PointContentEditorControl
             {
                 await ThreadSwitcher.ResumeForegroundAsync();
 
-                PointContentWebView.NavigateToString(WpfHtmlDocument.ToHtmlLeafletPointDocument("Point Map",
+                PointContentWebView.NavigateToString(await WpfHtmlDocument.ToHtmlLeafletPointDocument("Point Map", pointContext.DbEntry.ContentId,
                     pointContext.LatitudeEntry.UserValue, pointContext.LongitudeEntry.UserValue, string.Empty));
             });
 
