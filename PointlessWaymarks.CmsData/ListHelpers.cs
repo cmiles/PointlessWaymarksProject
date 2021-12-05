@@ -4,7 +4,7 @@ namespace PointlessWaymarks.CmsData;
 
 public static class ListHelpers
 {
-    public static List<T> AddIfNotNull<T>(this List<T> thisList, T toAdd)
+    public static List<T> AddIfNotNull<T>(this List<T> thisList, T? toAdd)
     {
         if (toAdd is null) return thisList;
         thisList.Add(toAdd);

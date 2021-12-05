@@ -257,7 +257,5 @@ async function singlePointMapInitFromPointData(mapElement, displayedPointSlug, p
         const boundCirclePopup = toAdd.bindPopup(circlePopup);
 
         toAdd.addTo(map);
-
-        //boundCirclePopup.openPopup();
     };
 }

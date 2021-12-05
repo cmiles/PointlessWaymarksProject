@@ -17,7 +17,7 @@ public partial class ColumnSortControlSortItem
         PropertyChanged += OnPropertyChanged;
     }
 
-    private void OnPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
     {
         if (e == null) return;
         if (string.IsNullOrWhiteSpace(e.PropertyName)) return;

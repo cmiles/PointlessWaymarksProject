@@ -11,10 +11,10 @@ namespace PointlessWaymarks.CmsWpfControls.AllContentList;
 [ObservableObject]
 public partial class AllItemsWithActionsContext
 {
-    [ObservableProperty] private ContentListContext listContext;
-    [ObservableProperty] private StatusControlContext statusContext;
-    [ObservableProperty] private WindowIconStatus windowStatus;
-    [ObservableProperty] private Command wordPressImportWindowCommand;
+    [ObservableProperty] private ContentListContext _listContext;
+    [ObservableProperty] private StatusControlContext _statusContext;
+    [ObservableProperty] private WindowIconStatus _windowStatus;
+    [ObservableProperty] private Command _wordPressImportWindowCommand;
 
     public AllItemsWithActionsContext(StatusControlContext statusContext, WindowIconStatus windowStatus)
     {
