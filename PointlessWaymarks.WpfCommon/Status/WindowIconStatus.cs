@@ -1,7 +1,5 @@
-﻿using System.ComponentModel;
-using System.Runtime.CompilerServices;
-using System.Windows.Shell;
-using JetBrains.Annotations;
+﻿using System.Windows.Shell;
+using Microsoft.Toolkit.Mvvm.ComponentModel;
 
 namespace PointlessWaymarks.WpfCommon.Status;
 
@@ -9,35 +7,12 @@ namespace PointlessWaymarks.WpfCommon.Status;
 ///     Provides management for the Windows Icon TaskbarItemInfo with properties to Bind and processing
 ///     of requests from multiple sources.
 /// </summary>
-public class WindowIconStatus : INotifyPropertyChanged
+[ObservableObject]
+public partial class WindowIconStatus
 {
     private readonly List<WindowIconStatusRequest> _statusList = new();
-    private decimal _windowProgress;
-    private TaskbarItemProgressState _windowState;
-
-    public decimal WindowProgress
-    {
-        get => _windowProgress;
-        set
-        {
-            if (value == _windowProgress) return;
-            _windowProgress = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public TaskbarItemProgressState WindowState
-    {
-        get => _windowState;
-        private set
-        {
-            if (value == _windowState) return;
-            _windowState = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public event PropertyChangedEventHandler PropertyChanged;
+    [ObservableProperty] private decimal _windowProgress;
+    [ObservableProperty] private TaskbarItemProgressState _windowState;
 
     public void AddRequest(WindowIconStatusRequest request)
     {
@@ -66,8 +41,7 @@ public class WindowIconStatus : INotifyPropertyChanged
 
         if (_statusList.Any(x => x.StateRequest == TaskbarItemProgressState.Normal))
         {
-            var progressEntries =
-                _statusList.Where(x => x.StateRequest == TaskbarItemProgressState.Normal).ToList();
+            var progressEntries = _statusList.Where(x => x.StateRequest == TaskbarItemProgressState.Normal).ToList();
             WindowProgress = progressEntries.Sum(x => x.Progress ?? 0) / progressEntries.Count;
             WindowState = TaskbarItemProgressState.Normal;
             return;
@@ -92,26 +66,18 @@ public class WindowIconStatus : INotifyPropertyChanged
 
         try
         {
-            windowStatus.AddRequest(new WindowIconStatusRequest(statusContextId,
-                TaskbarItemProgressState.Indeterminate));
+            windowStatus.AddRequest(
+                new WindowIconStatusRequest(statusContextId, TaskbarItemProgressState.Indeterminate));
             await toRun();
         }
         finally
         {
-            windowStatus.AddRequest(new WindowIconStatusRequest(statusContextId,
-                TaskbarItemProgressState.None));
+            windowStatus.AddRequest(new WindowIconStatusRequest(statusContextId, TaskbarItemProgressState.None));
         }
-    }
-
-    [NotifyPropertyChangedInvocator]
-    protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-    {
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 }
 
-public record WindowIconStatusRequest(Guid RequestedBy, TaskbarItemProgressState StateRequest,
-    decimal? Progress = null)
+public record WindowIconStatusRequest(Guid RequestedBy, TaskbarItemProgressState StateRequest, decimal? Progress = null)
 {
     public DateTime RequestedOn { get; set; }
 }

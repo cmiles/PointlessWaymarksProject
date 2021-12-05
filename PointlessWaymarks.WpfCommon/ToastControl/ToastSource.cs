@@ -3,17 +3,20 @@ using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows.Threading;
 using JetBrains.Annotations;
+using Microsoft.Toolkit.Mvvm.ComponentModel;
 
 namespace PointlessWaymarks.WpfCommon.ToastControl;
 
-public class ToastSource : INotifyPropertyChanged
+[ObservableObject]
+public partial class ToastSource
 {
     public const int UnlimitedNotifications = -1;
-
     public static readonly TimeSpan NeverEndingNotification = TimeSpan.MaxValue;
-
     private readonly DispatcherTimer _timer;
-    private bool _isOpen;
+
+    [ObservableProperty] private bool _isOpen;
+    [ObservableProperty] private TimeSpan _notificationLifeTime;
+    [ObservableProperty] private int _maximumNotificationCount;
 
     public ToastSource(Dispatcher dispatcher)
     {
@@ -28,22 +31,7 @@ public class ToastSource : INotifyPropertyChanged
         };
     }
 
-    public bool IsOpen
-    {
-        get => _isOpen;
-        set
-        {
-            if (value == _isOpen) return;
-            _isOpen = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public long MaximumNotificationCount { get; set; }
-    public TimeSpan NotificationLifeTime { get; set; }
     public ObservableCollection<ToastViewModel> NotificationMessages { get; }
-
-    public event PropertyChangedEventHandler PropertyChanged;
 
     public void Hide(Guid id)
     {
@@ -53,7 +41,7 @@ public class ToastSource : INotifyPropertyChanged
 
         n.InvokeHideAnimation();
 
-        var timer = new DispatcherTimer {Interval = TimeSpan.FromMilliseconds(200), Tag = n};
+        var timer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(200), Tag = n };
         timer.Tick += RemoveNotificationsTimer_OnTick;
         timer.Start();
     }
@@ -68,12 +56,6 @@ public class ToastSource : INotifyPropertyChanged
     {
         _timer.Stop();
         _timer.Tick -= TimerOnTick;
-    }
-
-    [NotifyPropertyChangedInvocator]
-    protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = "")
-    {
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 
     private void RemoveNotificationsTimer_OnTick(object sender, EventArgs eventArgs)
@@ -105,15 +87,15 @@ public class ToastSource : INotifyPropertyChanged
         if (MaximumNotificationCount != UnlimitedNotifications)
             if (NotificationMessages.Count >= MaximumNotificationCount)
             {
-                var removeCount = (int) (NotificationMessages.Count - MaximumNotificationCount) + 1;
+                var removeCount = NotificationMessages.Count - MaximumNotificationCount + 1;
 
-                var itemsToRemove = NotificationMessages.OrderBy(x => x.CreateTime).Take(removeCount)
-                    .Select(x => x.Id).ToList();
+                var itemsToRemove = NotificationMessages.OrderBy(x => x.CreateTime).Take(removeCount).Select(x => x.Id)
+                    .ToList();
                 foreach (var id in itemsToRemove)
                     Hide(id);
             }
 
-        NotificationMessages.Add(new ToastViewModel {Message = message, Type = type});
+        NotificationMessages.Add(new ToastViewModel { Message = message, Type = type });
     }
 
     private void TimerOnTick(object sender, EventArgs eventArgs)

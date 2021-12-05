@@ -1,9 +1,7 @@
 ﻿using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Threading;
-using JetBrains.Annotations;
+using Microsoft.Toolkit.Mvvm.ComponentModel;
 using PointlessWaymarks.WpfCommon.Commands;
 using PointlessWaymarks.WpfCommon.ToastControl;
 using PointlessWaymarks.WpfCommon.Utility;
@@ -11,27 +9,32 @@ using Serilog;
 
 namespace PointlessWaymarks.WpfCommon.Status;
 
-public class StatusControlContext : INotifyPropertyChanged
+[ObservableObject]
+public partial class StatusControlContext
 {
-    private bool _blockUi;
-    private ObservableCollection<UserCancellations> _cancellationList;
-    private int _countOfRunningBlockingTasks;
-    private int _countOfRunningNonBlockingTasks;
-
-    private CancellationTokenSource _currentFullScreenCancellationSource;
-    private List<StatusControlMessageButton> _messageBoxButtonList;
-    private string _messageBoxMessage;
-    private string _messageBoxTitle;
-    private bool _messageBoxVisible;
-    private bool _nonBlockingTaskAreRunning;
-    private bool _showCancellations;
-    private ObservableCollection<string> _statusLog;
-    private bool _stringEntryApproved;
-    private string _stringEntryMessage;
-    private string _stringEntryTitle;
-    private string _stringEntryUserText;
-    private bool _stringEntryVisible;
-    private ToastSource _toast;
+    [ObservableProperty] private bool _blockUi;
+    [ObservableProperty] private ObservableCollection<UserCancellations> _cancellationList;
+    [ObservableProperty] private Dispatcher _contextDispatcher;
+    [ObservableProperty] private int _countOfRunningBlockingTasks;
+    [ObservableProperty] private int _countOfRunningNonBlockingTasks;
+    [ObservableProperty] private CancellationTokenSource _currentFullScreenCancellationSource;
+    [ObservableProperty] private List<StatusControlMessageButton> _messageBoxButtonList;
+    [ObservableProperty] private string _messageBoxMessage;
+    [ObservableProperty] private string _messageBoxTitle;
+    [ObservableProperty] private bool _messageBoxVisible;
+    [ObservableProperty] private bool _nonBlockingTaskAreRunning;
+    [ObservableProperty] private bool _showCancellations;
+    [ObservableProperty] private string _showMessageResponse;
+    [ObservableProperty] private ObservableCollection<string> _statusLog;
+    [ObservableProperty] private bool _stringEntryApproved;
+    [ObservableProperty] private string _stringEntryMessage;
+    [ObservableProperty] private string _stringEntryTitle;
+    [ObservableProperty] private string _stringEntryUserText;
+    [ObservableProperty] private bool _stringEntryVisible;
+    [ObservableProperty] private ToastSource _toast;
+    [ObservableProperty] private Command<string> _userMessageBoxResponseCommand;
+    [ObservableProperty] private Command _userStringEntryApprovedResponseCommand;
+    [ObservableProperty] private Command _userStringEntryCancelledResponseCommand;
 
     public StatusControlContext()
     {
@@ -47,182 +50,9 @@ public class StatusControlContext : INotifyPropertyChanged
         UserStringEntryCancelledResponseCommand = new Command(UserStringEntryCanceledResponse);
     }
 
-    public bool BlockUi
-    {
-        get => _blockUi;
-        set
-        {
-            if (value == _blockUi) return;
-            _blockUi = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public ObservableCollection<UserCancellations> CancellationList
-    {
-        get => _cancellationList;
-        set
-        {
-            if (Equals(value, _cancellationList)) return;
-            _cancellationList = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Dispatcher ContextDispatcher { get; set; }
-
-    public List<StatusControlMessageButton> MessageBoxButtonList
-    {
-        get => _messageBoxButtonList;
-        set
-        {
-            if (Equals(value, _messageBoxButtonList)) return;
-            _messageBoxButtonList = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public string MessageBoxMessage
-    {
-        get => _messageBoxMessage;
-        set
-        {
-            if (value == _messageBoxMessage) return;
-            _messageBoxMessage = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public string MessageBoxTitle
-    {
-        get => _messageBoxTitle;
-        set
-        {
-            if (value == _messageBoxTitle) return;
-            _messageBoxTitle = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public bool MessageBoxVisible
-    {
-        get => _messageBoxVisible;
-        set
-        {
-            if (value == _messageBoxVisible) return;
-            _messageBoxVisible = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public bool NonBlockingTaskAreRunning
-    {
-        get => _nonBlockingTaskAreRunning;
-        set
-        {
-            if (value == _nonBlockingTaskAreRunning) return;
-            _nonBlockingTaskAreRunning = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public bool ShowCancellations
-    {
-        get => _showCancellations;
-        set
-        {
-            if (value == _showCancellations) return;
-            _showCancellations = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public string ShowMessageResponse { get; set; }
 
     public Guid StatusControlContextId { get; } = Guid.NewGuid();
 
-    public ObservableCollection<string> StatusLog
-    {
-        get => _statusLog;
-        set
-        {
-            if (Equals(value, _statusLog)) return;
-            _statusLog = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public bool StringEntryApproved
-    {
-        get => _stringEntryApproved;
-        set
-        {
-            if (value == _stringEntryApproved) return;
-            _stringEntryApproved = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public string StringEntryMessage
-    {
-        get => _stringEntryMessage;
-        set
-        {
-            if (value == _stringEntryMessage) return;
-            _stringEntryMessage = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public string StringEntryTitle
-    {
-        get => _stringEntryTitle;
-        set
-        {
-            if (value == _stringEntryTitle) return;
-            _stringEntryTitle = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public string StringEntryUserText
-    {
-        get => _stringEntryUserText;
-        set
-        {
-            if (value == _stringEntryUserText) return;
-            _stringEntryUserText = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public bool StringEntryVisible
-    {
-        get => _stringEntryVisible;
-        set
-        {
-            if (value == _stringEntryVisible) return;
-            _stringEntryVisible = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public ToastSource Toast
-    {
-        get => _toast;
-        set
-        {
-            if (Equals(value, _toast)) return;
-            _toast = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command<string> UserMessageBoxResponseCommand { get; set; }
-    public Command UserStringEntryApprovedResponseCommand { get; set; }
-    public Command UserStringEntryCancelledResponseCommand { get; set; }
-
-    public event PropertyChangedEventHandler PropertyChanged;
 
     private void BlockTaskCompleted(Task obj)
     {
@@ -360,15 +190,9 @@ public class StatusControlContext : INotifyPropertyChanged
         {
             ToastError($"Error: {obj.Exception?.Message}");
 
-            Task.Run(() => Log.Error(obj.Exception,
-                "NonBlockTaskCompleted Exception - Status Context Id: {ContextId}", StatusControlContextId));
+            Task.Run(() => Log.Error(obj.Exception, "NonBlockTaskCompleted Exception - Status Context Id: {ContextId}",
+                StatusControlContextId));
         }
-    }
-
-    [NotifyPropertyChangedInvocator]
-    protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = "")
-    {
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 
     public void Progress(string e)
@@ -440,10 +264,7 @@ public class StatusControlContext : INotifyPropertyChanged
 
         ContextDispatcher?.InvokeAsync(() =>
         {
-            CancellationList.Add(new UserCancellations
-            {
-                CancelSource = tokenSource, Description = cancelDescription
-            });
+            CancellationList.Add(new UserCancellations { CancelSource = tokenSource, Description = cancelDescription });
             ShowCancellations = CancellationList.Any();
         });
 
@@ -452,8 +273,7 @@ public class StatusControlContext : INotifyPropertyChanged
         Task.Run(async () => await toRun(token), token).ContinueWith(x => BlockTaskCompleted(x, tokenSource));
     }
 
-    public Command RunBlockingTaskWithCancellationCommand(Func<CancellationToken, Task> toRun,
-        string cancelDescription)
+    public Command RunBlockingTaskWithCancellationCommand(Func<CancellationToken, Task> toRun, string cancelDescription)
     {
         return new Command(() => RunBlockingTaskWithCancellation(toRun, cancelDescription));
     }
@@ -487,8 +307,7 @@ public class StatusControlContext : INotifyPropertyChanged
             DecrementNonBlockingTasks();
             ToastError($"Error: {e.Message}");
 
-            Task.Run(() => Log.Error(e,
-                "RunFireAndForgetNonBlockingTask Exception - Status Context Id: {ContextId}",
+            Task.Run(() => Log.Error(e, "RunFireAndForgetNonBlockingTask Exception - Status Context Id: {ContextId}",
                 StatusControlContextId));
         }
     }
@@ -504,8 +323,7 @@ public class StatusControlContext : INotifyPropertyChanged
             DecrementNonBlockingTasks();
             ToastError($"Error: {e.Message}");
 
-            Task.Run(() => Log.Error(e,
-                "RunFireAndForgetNonBlockingTask Exception - Status Context Id: {ContextId}",
+            Task.Run(() => Log.Error(e, "RunFireAndForgetNonBlockingTask Exception - Status Context Id: {ContextId}",
                 StatusControlContextId));
         }
     }
@@ -563,8 +381,7 @@ public class StatusControlContext : INotifyPropertyChanged
         MessageBoxVisible = true;
 
         Log.ForContext("MessageBoxTitle", title).ForContext("MessageBoxMessage", body)
-            .ForContext("MessageBoxButtonList", buttons)
-            .ForContext("StatusControlContextId", StatusControlContextId)
+            .ForContext("MessageBoxButtonList", buttons).ForContext("StatusControlContextId", StatusControlContextId)
             .Information("StatusControlContext Showing Message Box");
 
         await ThreadSwitcher.ThreadSwitcher.ResumeBackgroundAsync();
@@ -673,8 +490,7 @@ public class StatusControlContext : INotifyPropertyChanged
     public void ToastWarning(string toastText)
     {
         ContextDispatcher?.InvokeAsync(() => Toast.Show(toastText, ToastType.Warning));
-        Task.Run(
-            () => Log.Warning("Toast Warning: {0} - Status Context Id: {1}", toastText, StatusControlContextId));
+        Task.Run(() => Log.Warning("Toast Warning: {0} - Status Context Id: {1}", toastText, StatusControlContextId));
     }
 
     private void UserMessageBoxResponse(string responseString)

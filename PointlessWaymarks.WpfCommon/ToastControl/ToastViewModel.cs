@@ -1,13 +1,13 @@
-﻿using System.ComponentModel;
-using System.Runtime.CompilerServices;
-using JetBrains.Annotations;
+﻿using Microsoft.Toolkit.Mvvm.ComponentModel;
 
 namespace PointlessWaymarks.WpfCommon.ToastControl;
 
-public class ToastViewModel : INotifyPropertyChanged
+[ObservableObject]
+public partial class ToastViewModel
 {
-    private string _message = "";
-    private ToastType _type;
+    [ObservableProperty] private string _message = "";
+    [ObservableProperty] private ToastType _type;
+
     public Action InvokeHideAnimation;
 
     public ToastViewModel()
@@ -18,34 +18,4 @@ public class ToastViewModel : INotifyPropertyChanged
 
     public DateTime CreateTime { get; }
     public Guid Id { get; }
-
-    public string Message
-    {
-        get => _message;
-        set
-        {
-            if (value == _message) return;
-            _message = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public ToastType Type
-    {
-        get => _type;
-        set
-        {
-            if (value == _type) return;
-            _type = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public event PropertyChangedEventHandler PropertyChanged;
-
-    [NotifyPropertyChangedInvocator]
-    protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = "")
-    {
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-    }
 }

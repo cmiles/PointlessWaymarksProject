@@ -1,9 +1,7 @@
-﻿using System.ComponentModel;
-using System.IO;
-using System.Runtime.CompilerServices;
+﻿using System.IO;
 using System.Text.RegularExpressions;
-using JetBrains.Annotations;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Toolkit.Mvvm.ComponentModel;
 using PointlessWaymarks.CmsWpfControls.SitePreview;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
@@ -13,10 +11,11 @@ namespace PointlessWaymarks.LocalViewer;
 /// <summary>
 ///     Interaction logic for MainWindow.xaml
 /// </summary>
-public partial class MainWindow : INotifyPropertyChanged
+[ObservableObject]
+public partial class MainWindow
 {
-    private SitePreviewContext _previewContext;
-    private StatusControlContext _statusContext;
+    [ObservableProperty] private SitePreviewContext _previewContext;
+    [ObservableProperty] private StatusControlContext _statusContext;
 
     public MainWindow()
     {
@@ -96,35 +95,5 @@ public partial class MainWindow : INotifyPropertyChanged
         PreviewContext = new SitePreviewContext(siteUrl,
             localFolder,
             siteName, $"localhost:{freePort}", StatusContext);
-    }
-
-    public SitePreviewContext PreviewContext
-    {
-        get => _previewContext;
-        set
-        {
-            if (Equals(value, _previewContext)) return;
-            _previewContext = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public StatusControlContext StatusContext
-    {
-        get => _statusContext;
-        set
-        {
-            if (Equals(value, _statusContext)) return;
-            _statusContext = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public event PropertyChangedEventHandler PropertyChanged;
-
-    [NotifyPropertyChangedInvocator]
-    protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-    {
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 }

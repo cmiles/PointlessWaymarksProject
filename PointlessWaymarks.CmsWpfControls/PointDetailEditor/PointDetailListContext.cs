@@ -1,8 +1,7 @@
 ﻿using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Runtime.CompilerServices;
-using JetBrains.Annotations;
 using KellermanSoftware.CompareNetObjects;
+using Microsoft.Toolkit.Mvvm.ComponentModel;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsData.Database.PointDetailDataModels;
@@ -13,23 +12,25 @@ using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 
 namespace PointlessWaymarks.CmsWpfControls.PointDetailEditor;
 
-public class PointDetailListContext : IHasChanges, IHasValidationIssues, INotifyPropertyChanged,
-    ICheckForChangesAndValidation
+[ObservableObject]
+public partial class PointDetailListContext : IHasChanges, IHasValidationIssues, ICheckForChangesAndValidation
 {
-    private ObservableCollection<string> _additionalPointDetailTypes;
-    private List<PointDetail> _dbEntries;
-    private Command<IPointDetailEditor> _deleteDetailCommand;
-    private List<IPointDetailEditor> _deletedPointDetails;
-    private bool _hasChanges;
-    private bool _hasValidationIssues;
-    private ObservableCollection<IPointDetailEditor> _items;
-    private Command<string> _loadNewDetailCommand;
-    private List<(string typeIdentifierAttribute, Type reflectedType)> _pointDetailTypeList;
-    private StatusControlContext _statusContext;
+    [ObservableProperty] private ObservableCollection<string> _additionalPointDetailTypes;
+    [ObservableProperty] private List<PointDetail> _dbEntries;
+    [ObservableProperty] private Command<IPointDetailEditor> _deleteDetailCommand;
+    [ObservableProperty] private List<IPointDetailEditor> _deletedPointDetails;
+    [ObservableProperty] private bool _hasChanges;
+    [ObservableProperty] private bool _hasValidationIssues;
+    [ObservableProperty] private ObservableCollection<IPointDetailEditor> _items;
+    [ObservableProperty] private Command<string> _loadNewDetailCommand;
+    [ObservableProperty] private List<(string typeIdentifierAttribute, Type reflectedType)> _pointDetailTypeList;
+    [ObservableProperty] private StatusControlContext _statusContext;
 
     private PointDetailListContext(StatusControlContext statusContext)
     {
         StatusContext = statusContext ?? new StatusControlContext();
+
+        PropertyChanged += OnPropertyChanged;
 
         DeletedPointDetails = new List<IPointDetailEditor>();
 
@@ -38,95 +39,16 @@ public class PointDetailListContext : IHasChanges, IHasValidationIssues, INotify
             StatusContext.RunNonBlockingTaskCommand<IPointDetailEditor>(async x => await DeleteDetail(x));
     }
 
-    public ObservableCollection<string> AdditionalPointDetailTypes
-    {
-        get => _additionalPointDetailTypes;
-        set
-        {
-            if (Equals(value, _additionalPointDetailTypes)) return;
-            _additionalPointDetailTypes = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public List<PointDetail> DbEntries
-    {
-        get => _dbEntries;
-        set
-        {
-            if (Equals(value, _dbEntries)) return;
-            _dbEntries = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command<IPointDetailEditor> DeleteDetailCommand
-    {
-        get => _deleteDetailCommand;
-        set
-        {
-            if (Equals(value, _deleteDetailCommand)) return;
-            _deleteDetailCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public List<IPointDetailEditor> DeletedPointDetails
-    {
-        get => _deletedPointDetails;
-        set
-        {
-            if (Equals(value, _deletedPointDetails)) return;
-            _deletedPointDetails = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public ObservableCollection<IPointDetailEditor> Items
-    {
-        get => _items;
-        set
-        {
-            if (Equals(value, _items)) return;
-            _items = value;
-            OnPropertyChanged();
-        }
-    }
-
-
-    public Command<string> LoadNewDetailCommand
-    {
-        get => _loadNewDetailCommand;
-        set
-        {
-            if (Equals(value, _loadNewDetailCommand)) return;
-            _loadNewDetailCommand = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public StatusControlContext StatusContext
-    {
-        get => _statusContext;
-        set
-        {
-            if (Equals(value, _statusContext)) return;
-            _statusContext = value;
-            OnPropertyChanged();
-        }
-    }
-
     public void CheckForChangesAndValidationIssues()
     {
-        var hasChanges = PropertyScanners.ChildPropertiesHaveChanges(this) ||
-                         (Items?.Any(x => x.HasChanges) ?? false);
+        var hasChanges = PropertyScanners.ChildPropertiesHaveChanges(this) || (Items?.Any(x => x.HasChanges) ?? false);
 
         if (!hasChanges && Items != null && DbEntries != null)
         {
             var originalItems = DbEntries.Select(x => x.ContentId).ToList();
             var listItems = Items.Select(x => x.DbEntry.ContentId).ToList();
 
-            var logic = new CompareLogic {Config = {IgnoreCollectionOrder = true}};
+            var logic = new CompareLogic { Config = { IgnoreCollectionOrder = true } };
             hasChanges = !logic.Compare(originalItems, listItems).AreEqual;
         }
 
@@ -135,30 +57,6 @@ public class PointDetailListContext : IHasChanges, IHasValidationIssues, INotify
         HasValidationIssues = PropertyScanners.ChildPropertiesHaveValidationIssues(this) ||
                               (Items?.Any(x => x.HasValidationIssues) ?? false);
     }
-
-    public bool HasChanges
-    {
-        get => _hasChanges;
-        set
-        {
-            if (value == _hasChanges) return;
-            _hasChanges = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public bool HasValidationIssues
-    {
-        get => _hasValidationIssues;
-        set
-        {
-            if (value == _hasValidationIssues) return;
-            _hasValidationIssues = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public event PropertyChangedEventHandler PropertyChanged;
 
     public static async Task<PointDetailListContext> CreateInstance(StatusControlContext statusContext,
         PointContent dbEntry)
@@ -210,7 +108,7 @@ public class PointDetailListContext : IHasChanges, IHasValidationIssues, INotify
 
         var toLoad = new List<PointDetail>();
 
-        if (dbEntry is {Id: > 0})
+        if (dbEntry is { Id: > 0 })
         {
             var db = await Db.Context();
 
@@ -231,7 +129,7 @@ public class PointDetailListContext : IHasChanges, IHasValidationIssues, INotify
 
             foreach (var loopTypes in pointDetailTypes)
             {
-                var typeExample = (IPointDetailData) Activator.CreateInstance(loopTypes);
+                var typeExample = (IPointDetailData)Activator.CreateInstance(loopTypes);
 
                 if (typeExample == null) continue;
 
@@ -309,7 +207,7 @@ public class PointDetailListContext : IHasChanges, IHasValidationIssues, INotify
             return;
         }
 
-        var newPointDetail = new PointDetail {DataType = newDetailEntry.First().typeIdentifierAttribute};
+        var newPointDetail = new PointDetail { DataType = newDetailEntry.First().typeIdentifierAttribute };
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
@@ -327,14 +225,12 @@ public class PointDetailListContext : IHasChanges, IHasValidationIssues, INotify
         if (e.PropertyName.Contains("Changes")) CheckForChangesAndValidationIssues();
     }
 
-    [NotifyPropertyChangedInvocator]
-    protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+    private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
     {
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        if (e == null) return;
+        if (string.IsNullOrWhiteSpace(e.PropertyName)) return;
 
-        if (string.IsNullOrWhiteSpace(propertyName)) return;
-
-        if (!propertyName.Contains("HasChanges") && !propertyName.Contains("Validation"))
+        if (!e.PropertyName.Contains("HasChanges") && !e.PropertyName.Contains("Validation"))
             CheckForChangesAndValidationIssues();
     }
 }
