@@ -336,7 +336,7 @@
         ToolTip="Shift Double Click to Edit Post">
         <Image.InputBindings>
             <MouseBinding
-                Command="{Binding ItemActions.EditContentCommand}"
+                Command="{Binding ItemActions.EditCommand}"
                 CommandParameter="{Binding DbEntry}"
                 Gesture="Shift+LeftDoubleClick" />
         </Image.InputBindings>
@@ -353,7 +353,7 @@
                 CommandParameter="{Binding DbEntry}"
                 MouseAction="LeftDoubleClick" />
             <MouseBinding
-                Command="{Binding ItemActions.EditContentCommand}"
+                Command="{Binding ItemActions.EditCommand}"
                 CommandParameter="{Binding DbEntry}"
                 Gesture="Shift+LeftDoubleClick" />
         </Image.InputBindings>
