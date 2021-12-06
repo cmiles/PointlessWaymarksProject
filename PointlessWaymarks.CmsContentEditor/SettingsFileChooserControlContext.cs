@@ -1,9 +1,7 @@
 ﻿using System.Collections.ObjectModel;
-using System.ComponentModel;
 using System.IO;
-using System.Runtime.CompilerServices;
 using System.Text.Json;
-using JetBrains.Annotations;
+using Microsoft.Toolkit.Mvvm.ComponentModel;
 using Ookii.Dialogs.Wpf;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.Content;
@@ -13,10 +11,11 @@ using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 
 namespace PointlessWaymarks.CmsContentEditor;
 
-public class SettingsFileChooserControlContext : INotifyPropertyChanged
+[ObservableObject]
+public partial class SettingsFileChooserControlContext
 {
-    private StatusControlContext _statusContext;
-    private string _userNewFileName;
+    [ObservableProperty] private StatusControlContext _statusContext;
+    [ObservableProperty] private string _userNewFileName;
 
     public SettingsFileChooserControlContext(StatusControlContext statusContext, string recentSettingFiles)
     {
@@ -40,33 +39,9 @@ public class SettingsFileChooserControlContext : INotifyPropertyChanged
 
     public List<string> RecentSettingFilesNames { get; set; }
 
-    public StatusControlContext StatusContext
-    {
-        get => _statusContext;
-        set
-        {
-            if (Equals(value, _statusContext)) return;
-            _statusContext = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public string UserNewFileName
-    {
-        get => _userNewFileName;
-        set
-        {
-            if (value == _userNewFileName) return;
-            _userNewFileName = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public event PropertyChangedEventHandler PropertyChanged;
-
     private void ChooseFile()
     {
-        var filePicker = new VistaOpenFileDialog {Filter = "json files (*.json)|*.json|All files (*.*)|*.*"};
+        var filePicker = new VistaOpenFileDialog { Filter = "json files (*.json)|*.json|All files (*.*)|*.*" };
 
         var result = filePicker.ShowDialog();
 
@@ -118,7 +93,7 @@ public class SettingsFileChooserControlContext : INotifyPropertyChanged
                     await JsonSerializer.DeserializeAsync<UserSettings>(File.OpenRead(loopFileInfo.FullName));
 
                 await ThreadSwitcher.ResumeForegroundAsync();
-                Items.Add(new SettingsFileListItem {ParsedSettings = readResult, SettingsFile = loopFileInfo});
+                Items.Add(new SettingsFileListItem { ParsedSettings = readResult, SettingsFile = loopFileInfo });
                 await ThreadSwitcher.ResumeBackgroundAsync();
             }
             catch (Exception e)
@@ -150,47 +125,5 @@ public class SettingsFileChooserControlContext : INotifyPropertyChanged
         SettingsFileUpdated?.Invoke(this, (true, UserNewFileName));
     }
 
-    [NotifyPropertyChangedInvocator]
-    protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-    {
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-    }
-
     public event EventHandler<(bool isNew, string userString)> SettingsFileUpdated;
-
-    public class SettingsFileListItem : INotifyPropertyChanged
-    {
-        private UserSettings _parsedSettings;
-        private FileInfo _settingsFile;
-
-        public UserSettings ParsedSettings
-        {
-            get => _parsedSettings;
-            set
-            {
-                if (Equals(value, _parsedSettings)) return;
-                _parsedSettings = value;
-                OnPropertyChanged1();
-            }
-        }
-
-        public FileInfo SettingsFile
-        {
-            get => _settingsFile;
-            set
-            {
-                if (Equals(value, _settingsFile)) return;
-                _settingsFile = value;
-                OnPropertyChanged1();
-            }
-        }
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        [NotifyPropertyChangedInvocator]
-        protected virtual void OnPropertyChanged1([CallerMemberName] string propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
-    }
 }

@@ -1,15 +1,15 @@
-﻿using System.ComponentModel;
-using System.Runtime.CompilerServices;
-using JetBrains.Annotations;
+﻿using Microsoft.Toolkit.Mvvm.ComponentModel;
 using PointlessWaymarks.WpfCommon.Commands;
 
 namespace PointlessWaymarks.WpfCommon.Status;
 
-public class UserCancellations : INotifyPropertyChanged
+[ObservableObject]
+public partial class UserCancellations
 {
-    private CancellationTokenSource _cancelSource;
-    private string _description;
-    private bool _isEnabled = true;
+    [ObservableProperty] private Command _cancel;
+    [ObservableProperty] private CancellationTokenSource _cancelSource;
+    [ObservableProperty] private string _description;
+    [ObservableProperty] private bool _isEnabled = true;
 
     public UserCancellations()
     {
@@ -19,48 +19,5 @@ public class UserCancellations : INotifyPropertyChanged
             IsEnabled = false;
             Description = "Canceling...";
         });
-    }
-
-    public Command Cancel { get; set; }
-
-    public CancellationTokenSource CancelSource
-    {
-        get => _cancelSource;
-        set
-        {
-            if (Equals(value, _cancelSource)) return;
-            _cancelSource = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public string Description
-    {
-        get => _description;
-        set
-        {
-            if (value == _description) return;
-            _description = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public bool IsEnabled
-    {
-        get => _isEnabled;
-        set
-        {
-            if (value == _isEnabled) return;
-            _isEnabled = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public event PropertyChangedEventHandler PropertyChanged;
-
-    [NotifyPropertyChangedInvocator]
-    protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-    {
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 }

@@ -1,11 +1,8 @@
-﻿using System.ComponentModel;
-using System.Runtime.CompilerServices;
-using System.Windows;
-using JetBrains.Annotations;
+﻿using System.Windows;
 
 namespace PointlessWaymarks.WpfCommon.ToastControl;
 
-public partial class ToastTray : INotifyPropertyChanged
+public partial class ToastTray
 {
     public ToastTray()
     {
@@ -13,19 +10,11 @@ public partial class ToastTray : INotifyPropertyChanged
         DataContext = this;
     }
 
-    public event PropertyChangedEventHandler PropertyChanged;
-
     private void Notification_OnNotificationClosed(object sender, RoutedEventArgs e)
     {
         if (sender is not ToastControl control)
             return;
 
         (DataContext as ToastSource)?.Hide(control.Toast.Id);
-    }
-
-    [NotifyPropertyChangedInvocator]
-    protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-    {
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 }

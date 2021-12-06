@@ -35,8 +35,8 @@ public partial class App
         var msg = $"Something went wrong...\r\n\r\n{ex.Message}\r\n\r\n" + "The error has been logged...\r\n\r\n" +
                   "Do you want to continue?";
 
-        var res = MessageBox.Show(msg, "PointlessWaymarksCms App Error", MessageBoxButton.YesNo,
-            MessageBoxImage.Error, MessageBoxResult.Yes);
+        var res = MessageBox.Show(msg, "PointlessWaymarksCms App Error", MessageBoxButton.YesNo, MessageBoxImage.Error,
+            MessageBoxResult.Yes);
 
 
         return res != MessageBoxResult.No;

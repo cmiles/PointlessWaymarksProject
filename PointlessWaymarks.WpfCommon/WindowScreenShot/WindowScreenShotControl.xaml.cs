@@ -1,7 +1,4 @@
-﻿using System.ComponentModel;
-using System.Runtime.CompilerServices;
-using System.Windows;
-using JetBrains.Annotations;
+﻿using System.Windows;
 using PointlessWaymarks.WpfCommon.Commands;
 using PointlessWaymarks.WpfCommon.Status;
 
@@ -10,7 +7,7 @@ namespace PointlessWaymarks.WpfCommon.WindowScreenShot;
 /// <summary>
 ///     Interaction logic for WindowScreenShotControl.xaml
 /// </summary>
-public partial class WindowScreenShotControl : INotifyPropertyChanged
+public partial class WindowScreenShotControl
 {
     public WindowScreenShotControl()
     {
@@ -24,7 +21,7 @@ public partial class WindowScreenShotControl : INotifyPropertyChanged
 
             try
             {
-                statusContext = (StatusControlContext) ((dynamic) x.DataContext).StatusContext;
+                statusContext = (StatusControlContext)((dynamic)x.DataContext).StatusContext;
             }
             catch (Exception e)
             {
@@ -46,12 +43,4 @@ public partial class WindowScreenShotControl : INotifyPropertyChanged
     }
 
     public Command WindowScreenShotCommand { get; }
-
-    public event PropertyChangedEventHandler PropertyChanged;
-
-    [NotifyPropertyChangedInvocator]
-    protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-    {
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-    }
 }

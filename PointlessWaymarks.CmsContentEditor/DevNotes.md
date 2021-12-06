@@ -1,4 +1,4 @@
-﻿## Todos
+## Todos
  - Embed Front End Check/Test for 'beyond PDF'
  - Test if excluded tags are properly picked up for changed html  
  - All Items Tab - reports for no tags, etc.
@@ -25,6 +25,14 @@ Site:
  - Could all font sizes be controlled by slider or setting? I like the control in the editor but maybe everywhere would be more useful? And persist in Settings?
 
 ## Notes
+
+12/6/2021
+
+Recent Work:
+
+INotifyPropertyChanged via SourceGenerators! I have been tracking this option for awhile - but wasn't so excited that I was willing to jump in without good tooling support (tooling is always an interesting discussion for developers - for me with C# the tooling support in VS/Resharper/Rider is so good that I am uninterested in giving it up...) and past trys had ended in either complete failure or very lacking IDE support. This try was different! I was quickly able to get up and running with the MVVM Toolkit Source Generators! Recent code changes show the remarkable reduction in boiler plate this causes in many cases!!
+
+Map work - on a private site I have been adding points and the points are quite close together - as a result I switched out the points from circle to circleMarker and added both zoom and native zoom settings to the layers to allow zooming in much closer.
 
 10/26/2021
 

@@ -2,12 +2,11 @@
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Controls;
 using HtmlTableHelper;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Toolkit.Mvvm.ComponentModel;
 using Ookii.Dialogs.Wpf;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.CommonHtml;
@@ -47,31 +46,32 @@ namespace PointlessWaymarks.CmsContentEditor;
 /// <summary>
 ///     Interaction logic for MainWindow.xaml
 /// </summary>
-public partial class MainWindow : INotifyPropertyChanged
+[ObservableObject]
+public partial class MainWindow
 {
-    private FilesWrittenLogListContext _filesWrittenContext;
-    private string _infoTitle;
-    private string _recentSettingsFilesNames;
-    private TabItem _selectedTab;
-    private UserSettingsEditorContext _settingsEditorContext;
-    private SettingsFileChooserControlContext _settingsFileChooser;
-    private bool _showSettingsFileChooser;
-    private HelpDisplayContext _softwareComponentsHelpContext;
-    private StatusControlContext _statusContext;
-    private AllItemsWithActionsContext _tabAllListContext;
-    private FileListWithActionsContext _tabFileListContext;
-    private GeoJsonListWithActionsContext _tabGeoJsonListContext;
-    private ImageListWithActionsContext _tabImageListContext;
-    private LineListWithActionsContext _tabLineListContext;
-    private LinkListWithActionsContext _tabLinkContext;
-    private MapComponentListWithActionsContext _tabMapListContext;
-    private MenuLinkEditorContext _tabMenuLinkContext;
-    private NoteListWithActionsContext _tabNoteListContext;
-    private PhotoListWithActionsContext _tabPhotoListContext;
-    private PointListWithActionsContext _tabPointListContext;
-    private PostListWithActionsContext _tabPostListContext;
-    private TagExclusionEditorContext _tabTagExclusionContext;
-    private TagListContext _tabTagListContext;
+    [ObservableProperty] private FilesWrittenLogListContext _filesWrittenContext;
+    [ObservableProperty] private string _infoTitle;
+    [ObservableProperty] private string _recentSettingsFilesNames;
+    [ObservableProperty] private TabItem _selectedTab;
+    [ObservableProperty] private UserSettingsEditorContext _settingsEditorContext;
+    [ObservableProperty] private SettingsFileChooserControlContext _settingsFileChooser;
+    [ObservableProperty] private bool _showSettingsFileChooser;
+    [ObservableProperty] private HelpDisplayContext _softwareComponentsHelpContext;
+    [ObservableProperty] private StatusControlContext _statusContext;
+    [ObservableProperty] private AllItemsWithActionsContext _tabAllListContext;
+    [ObservableProperty] private FileListWithActionsContext _tabFileListContext;
+    [ObservableProperty] private GeoJsonListWithActionsContext _tabGeoJsonListContext;
+    [ObservableProperty] private ImageListWithActionsContext _tabImageListContext;
+    [ObservableProperty] private LineListWithActionsContext _tabLineListContext;
+    [ObservableProperty] private LinkListWithActionsContext _tabLinkContext;
+    [ObservableProperty] private MapComponentListWithActionsContext _tabMapListContext;
+    [ObservableProperty] private MenuLinkEditorContext _tabMenuLinkContext;
+    [ObservableProperty] private NoteListWithActionsContext _tabNoteListContext;
+    [ObservableProperty] private PhotoListWithActionsContext _tabPhotoListContext;
+    [ObservableProperty] private PointListWithActionsContext _tabPointListContext;
+    [ObservableProperty] private PostListWithActionsContext _tabPostListContext;
+    [ObservableProperty] private TagExclusionEditorContext _tabTagExclusionContext;
+    [ObservableProperty] private TagListContext _tabTagListContext;
 
     public MainWindow()
     {
@@ -94,8 +94,6 @@ public partial class MainWindow : INotifyPropertyChanged
             $"Pointless Waymarks CMS - Built On {GetBuildDate(Assembly.GetEntryAssembly())} - Commit {ThisAssembly.Git.Commit} {(ThisAssembly.Git.IsDirty ? "(Has Local Changes)" : string.Empty)}";
 #pragma warning restore CS0162
 
-        OsStatusIndicator = new WindowIconStatus();
-
         ShowSettingsFileChooser = true;
 
         DataContext = this;
@@ -103,6 +101,8 @@ public partial class MainWindow : INotifyPropertyChanged
         StatusContext = new StatusControlContext();
 
         WindowStatus = new WindowIconStatus();
+
+        PropertyChanged += OnPropertyChanged;
 
         //Common
 
@@ -207,17 +207,6 @@ public partial class MainWindow : INotifyPropertyChanged
 
     public Command DeleteAndResizePicturesCommand { get; set; }
 
-    public FilesWrittenLogListContext FilesWrittenContext
-    {
-        get => _filesWrittenContext;
-        set
-        {
-            if (Equals(value, _filesWrittenContext)) return;
-            _filesWrittenContext = value;
-            OnPropertyChanged();
-        }
-    }
-
     public Command GenerateAllHtmlCommand { get; set; }
 
     public Command GenerateAllListHtmlCommand { get; set; }
@@ -258,262 +247,13 @@ public partial class MainWindow : INotifyPropertyChanged
 
     public Command ImportJsonFromDirectoryCommand { get; set; }
 
-    public string InfoTitle
-    {
-        get => _infoTitle;
-        set
-        {
-            if (value == _infoTitle) return;
-            _infoTitle = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public WindowIconStatus OsStatusIndicator { get; set; }
-
-    public string RecentSettingsFilesNames
-    {
-        get => _recentSettingsFilesNames;
-        set
-        {
-            if (Equals(value, _recentSettingsFilesNames)) return;
-            _recentSettingsFilesNames = value;
-            OnPropertyChanged();
-        }
-    }
-
     public Command RemoveUnusedFilesFromMediaArchiveCommand { get; set; }
 
-
     public Command RemoveUnusedFoldersAndFilesFromContentCommand { get; set; }
-
-    public TabItem SelectedTab
-    {
-        get => _selectedTab;
-        set
-        {
-            if (Equals(value, _selectedTab)) return;
-            _selectedTab = value;
-            OnPropertyChanged();
-
-            LoadSelectedTabAsNeeded();
-        }
-    }
-
-    public UserSettingsEditorContext SettingsEditorContext
-    {
-        get => _settingsEditorContext;
-        set
-        {
-            if (Equals(value, _settingsEditorContext)) return;
-            _settingsEditorContext = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public SettingsFileChooserControlContext SettingsFileChooser
-    {
-        get => _settingsFileChooser;
-        set
-        {
-            if (Equals(value, _settingsFileChooser)) return;
-            _settingsFileChooser = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public bool ShowSettingsFileChooser
-    {
-        get => _showSettingsFileChooser;
-        set
-        {
-            if (value == _showSettingsFileChooser) return;
-            _showSettingsFileChooser = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public HelpDisplayContext SoftwareComponentsHelpContext
-    {
-        get => _softwareComponentsHelpContext;
-        set
-        {
-            if (Equals(value, _softwareComponentsHelpContext)) return;
-            _softwareComponentsHelpContext = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public StatusControlContext StatusContext
-    {
-        get => _statusContext;
-        set
-        {
-            if (Equals(value, _statusContext)) return;
-            _statusContext = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public AllItemsWithActionsContext TabAllListContext
-    {
-        get => _tabAllListContext;
-        set
-        {
-            if (Equals(value, _tabAllListContext)) return;
-            _tabAllListContext = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public FileListWithActionsContext TabFileListContext
-    {
-        get => _tabFileListContext;
-        set
-        {
-            if (Equals(value, _tabFileListContext)) return;
-            _tabFileListContext = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public GeoJsonListWithActionsContext TabGeoJsonListContext
-    {
-        get => _tabGeoJsonListContext;
-        set
-        {
-            if (Equals(value, _tabGeoJsonListContext)) return;
-            _tabGeoJsonListContext = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public ImageListWithActionsContext TabImageListContext
-    {
-        get => _tabImageListContext;
-        set
-        {
-            if (Equals(value, _tabImageListContext)) return;
-            _tabImageListContext = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public LineListWithActionsContext TabLineListContext
-    {
-        get => _tabLineListContext;
-        set
-        {
-            if (Equals(value, _tabLineListContext)) return;
-            _tabLineListContext = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public LinkListWithActionsContext TabLinkContext
-    {
-        get => _tabLinkContext;
-        set
-        {
-            if (Equals(value, _tabLinkContext)) return;
-            _tabLinkContext = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public MapComponentListWithActionsContext TabMapListContext
-    {
-        get => _tabMapListContext;
-        set
-        {
-            if (Equals(value, _tabMapListContext)) return;
-            _tabMapListContext = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public MenuLinkEditorContext TabMenuLinkContext
-    {
-        get => _tabMenuLinkContext;
-        set
-        {
-            if (Equals(value, _tabMenuLinkContext)) return;
-            _tabMenuLinkContext = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public NoteListWithActionsContext TabNoteListContext
-    {
-        get => _tabNoteListContext;
-        set
-        {
-            if (Equals(value, _tabNoteListContext)) return;
-            _tabNoteListContext = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public PhotoListWithActionsContext TabPhotoListContext
-    {
-        get => _tabPhotoListContext;
-        set
-        {
-            if (Equals(value, _tabPhotoListContext)) return;
-            _tabPhotoListContext = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public PointListWithActionsContext TabPointListContext
-    {
-        get => _tabPointListContext;
-        set
-        {
-            if (Equals(value, _tabPointListContext)) return;
-            _tabPointListContext = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public PostListWithActionsContext TabPostListContext
-    {
-        get => _tabPostListContext;
-        set
-        {
-            if (Equals(value, _tabPostListContext)) return;
-            _tabPostListContext = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public TagExclusionEditorContext TabTagExclusionContext
-    {
-        get => _tabTagExclusionContext;
-        set
-        {
-            if (Equals(value, _tabTagExclusionContext)) return;
-            _tabTagExclusionContext = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public TagListContext TabTagListContext
-    {
-        get => _tabTagListContext;
-        set
-        {
-            if (Equals(value, _tabTagListContext)) return;
-            _tabTagListContext = value;
-            OnPropertyChanged();
-        }
-    }
 
     public WindowIconStatus WindowStatus { get; set; }
 
     public Command WriteStyleCssFileCommand { get; set; }
-
-    public event PropertyChangedEventHandler PropertyChanged;
 
     private async Task CheckAllContentForInvalidBracketCodeContentIds()
     {
@@ -807,17 +547,21 @@ public partial class MainWindow : INotifyPropertyChanged
         {
             //The Visual Studio in window WPF debug tool appear to the application as an
             //AdornerWindow - this exception allows closing as expecting when debugging.
-            if (Application.Current.Windows is { Count: 2 } && Application.Current.Windows[1] != null && Application.Current.Windows[1].GetType().Name.Contains("AdornerWindow")) return;
+            if (Application.Current.Windows is { Count: 2 } && Application.Current.Windows[1] != null &&
+                Application.Current.Windows[1].GetType().Name.Contains("AdornerWindow")) return;
 
             StatusContext.ToastError("Please close child windows first...");
             e.Cancel = true;
         }
     }
 
-    [NotifyPropertyChangedInvocator]
-    protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+    private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
     {
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        if (e == null) return;
+        if (string.IsNullOrWhiteSpace(e.PropertyName)) return;
+
+        if (e.PropertyName == nameof(SelectedTab))
+            LoadSelectedTabAsNeeded();
     }
 
     private async Task RemoveUnusedFilesFromMediaArchive()

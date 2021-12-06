@@ -39,8 +39,8 @@ public static class PhotoGenerator
 
         progress?.Report("Getting Directories");
 
-        var exifSubIfDirectory = ImageMetadataReader.ReadMetadata(selectedFile.FullName)
-            .OfType<ExifSubIfdDirectory>().FirstOrDefault();
+        var exifSubIfDirectory = ImageMetadataReader.ReadMetadata(selectedFile.FullName).OfType<ExifSubIfdDirectory>()
+            .FirstOrDefault();
         var exifDirectory = ImageMetadataReader.ReadMetadata(selectedFile.FullName).OfType<ExifIfd0Directory>()
             .FirstOrDefault();
         var iptcDirectory = ImageMetadataReader.ReadMetadata(selectedFile.FullName).OfType<IptcDirectory>()
@@ -62,8 +62,7 @@ public static class PhotoGenerator
         var createdOn = exifSubIfDirectory?.GetDescription(ExifDirectoryBase.TagDateTimeOriginal);
         if (string.IsNullOrWhiteSpace(createdOn))
         {
-            var gpsDateTime = DateTime.MinValue;
-            if (gpsDirectory?.TryGetGpsDate(out gpsDateTime) ?? false)
+            if (gpsDirectory?.TryGetGpsDate(out var gpsDateTime) ?? false)
             {
                 if (gpsDateTime != DateTime.MinValue) toReturn.PhotoCreatedOn = gpsDateTime.ToLocalTime();
             }
@@ -91,13 +90,11 @@ public static class PhotoGenerator
         toReturn.Lens = exifSubIfDirectory?.GetDescription(ExifDirectoryBase.TagLensModel) ?? string.Empty;
 
         if (toReturn.Lens is "" or "----")
-            toReturn.Lens = xmpDirectory?.XmpMeta?.GetProperty(XmpConstants.NsExifAux, "Lens")?.Value ??
-                            string.Empty;
+            toReturn.Lens = xmpDirectory?.XmpMeta?.GetProperty(XmpConstants.NsExifAux, "Lens")?.Value ?? string.Empty;
         if (toReturn.Lens is "" or "----")
         {
-            toReturn.Lens =
-                xmpDirectory?.XmpMeta?.GetProperty(XmpConstants.NsCameraraw, "LensProfileName")?.Value ??
-                string.Empty;
+            toReturn.Lens = xmpDirectory?.XmpMeta?.GetProperty(XmpConstants.NsCameraraw, "LensProfileName")?.Value ??
+                            string.Empty;
 
             if (toReturn.Lens.StartsWith("Adobe ("))
             {
@@ -120,8 +117,8 @@ public static class PhotoGenerator
         if (string.IsNullOrWhiteSpace(toReturn.License))
             toReturn.License = iptcDirectory?.GetDescription(IptcDirectory.TagCopyrightNotice) ?? string.Empty;
 
-        // ReSharper disable once InlineOutVariableDeclaration - Better to establish type and value of shutterValue explicitly
-        var shutterValue = new Rational();
+        // ReSharper disable once InlineOutVariableDeclaration - Better to establish type of shutterValue explicitly
+        Rational shutterValue;
         if (exifSubIfDirectory?.TryGetRational(37377, out shutterValue) ?? false)
             toReturn.ShutterSpeed = ExifHelpers.ShutterSpeedToHumanReadableString(shutterValue);
         else
@@ -152,8 +149,8 @@ public static class PhotoGenerator
         if (!string.IsNullOrWhiteSpace(toReturn.Title) && toReturn.Title.StartsWith("2"))
         {
             var possibleTitleDate =
-                Regex.Match(toReturn.Title, @"\A(?<possibleDate>\d\d\d\d[\s-]\d\d[\s-]*).*",
-                    RegexOptions.IgnoreCase).Groups["possibleDate"].Value;
+                Regex.Match(toReturn.Title, @"\A(?<possibleDate>\d\d\d\d[\s-]\d\d[\s-]*).*", RegexOptions.IgnoreCase)
+                    .Groups["possibleDate"].Value;
             if (!string.IsNullOrWhiteSpace(possibleTitleDate))
                 try
                 {
@@ -161,8 +158,7 @@ public static class PhotoGenerator
                         int.Parse(possibleTitleDate.Substring(5, 2)), 1);
 
                     toReturn.Summary = $"{toReturn.Title[possibleTitleDate.Length..]}";
-                    toReturn.Title =
-                        $"{tempDate:yyyy} {tempDate:MMMM} {toReturn.Title[possibleTitleDate.Length..]}";
+                    toReturn.Title = $"{tempDate:yyyy} {tempDate:MMMM} {toReturn.Title[possibleTitleDate.Length..]}";
 
                     progress?.Report("Title updated based on 2yyy MM start pattern for file name");
                 }
@@ -203,9 +199,7 @@ public static class PhotoGenerator
                 var year = int.Parse(toReturn.Title.Substring(toReturn.Title.Length - 4, 2));
                 var month = int.Parse(toReturn.Title.Substring(toReturn.Title.Length - 2, 2));
 
-                var tempDate = year < 20
-                    ? new DateTime(2000 + year, month, 1)
-                    : new DateTime(1900 + year, month, 1);
+                var tempDate = year < 20 ? new DateTime(2000 + year, month, 1) : new DateTime(1900 + year, month, 1);
 
                 toReturn.Summary = $"{toReturn.Title[..^5]}";
                 toReturn.Title = $"{tempDate:yyyy} {tempDate:MMMM} {toReturn.Title[..^5]}";
@@ -228,10 +222,8 @@ public static class PhotoGenerator
                     var tempDate = new DateTime(int.Parse(possibleTitleDate[..4]),
                         int.Parse(possibleTitleDate.Substring(5, 2)), 1);
 
-                    toReturn.Summary =
-                        $"{toReturn.Title[..^possibleTitleDate.Length]}";
-                    toReturn.Title =
-                        $"{tempDate:yyyy} {tempDate:MMMM} {toReturn.Title[..^possibleTitleDate.Length]}";
+                    toReturn.Summary = $"{toReturn.Title[..^possibleTitleDate.Length]}";
+                    toReturn.Title = $"{tempDate:yyyy} {tempDate:MMMM} {toReturn.Title[..^possibleTitleDate.Length]}";
 
                     progress?.Report("Title updated based on 2yyy MM end pattern for file name");
                 }
@@ -256,7 +248,8 @@ public static class PhotoGenerator
             toReturn.Summary = description;
 
         //Add a trailing . to the summary if it doesn't end with ! ? .
-        if (!string.IsNullOrWhiteSpace(toReturn.Summary) && !toReturn.Summary.EndsWith(".") && !toReturn.Summary.EndsWith("!") && !toReturn.Summary.EndsWith("?"))
+        if (!string.IsNullOrWhiteSpace(toReturn.Summary) && !toReturn.Summary.EndsWith(".") &&
+            !toReturn.Summary.EndsWith("!") && !toReturn.Summary.EndsWith("?"))
             toReturn.Summary = $"{toReturn.Summary}.";
 
         //Remove multi space from title and summary
@@ -283,12 +276,11 @@ public static class PhotoGenerator
 
         var keywordTagList = new List<string>();
 
-        var keywordValue = iptcDirectory?.GetDescription(IptcDirectory.TagKeywords)?.Replace(";", ",") ??
-                           string.Empty;
+        var keywordValue = iptcDirectory?.GetDescription(IptcDirectory.TagKeywords)?.Replace(";", ",") ?? string.Empty;
 
         if (!string.IsNullOrWhiteSpace(keywordValue))
-            keywordTagList.AddRange(keywordValue.Replace(";", ",").Split(",")
-                .Where(x => !string.IsNullOrWhiteSpace(x)).Select(x => x.Trim()));
+            keywordTagList.AddRange(keywordValue.Replace(";", ",").Split(",").Where(x => !string.IsNullOrWhiteSpace(x))
+                .Select(x => x.Trim()));
 
         if (xmpSubjectKeywordList.Count == 0 && keywordTagList.Count == 0)
             toReturn.Tags = string.Empty;
@@ -300,8 +292,7 @@ public static class PhotoGenerator
         if (!string.IsNullOrWhiteSpace(toReturn.Tags))
             toReturn.Tags = Db.TagListJoin(Db.TagListParse(toReturn.Tags));
 
-        return (GenerationReturn.Success($"Parsed Photo Metadata for {selectedFile.FullName} without error"),
-            toReturn);
+        return (GenerationReturn.Success($"Parsed Photo Metadata for {selectedFile.FullName} without error"), toReturn);
     }
 
     public static (GenerationReturn, PhotoContent?) PhotoMetadataToNewPhotoContent(FileInfo selectedFile,
@@ -343,8 +334,7 @@ public static class PhotoGenerator
         if (string.IsNullOrWhiteSpace(toReturn.Folder))
             toReturn.Folder = toReturn.PhotoCreatedOn.Year.ToString("F0");
 
-        return (GenerationReturn.Success($"Parsed Photo Metadata for {selectedFile.FullName} without error"),
-            toReturn);
+        return (GenerationReturn.Success($"Parsed Photo Metadata for {selectedFile.FullName} without error"), toReturn);
     }
 
 
@@ -414,9 +404,8 @@ public static class PhotoGenerator
 
         selectedFile.Refresh();
 
-        var photoFileValidation =
-            await CommonContentValidation.PhotoFileValidation(selectedFile, photoContent.ContentId)
-                .ConfigureAwait(false);
+        var photoFileValidation = await CommonContentValidation
+            .PhotoFileValidation(selectedFile, photoContent.ContentId).ConfigureAwait(false);
 
         if (!photoFileValidation.Valid)
             return GenerationReturn.Error(photoFileValidation.Explanation, photoContent.ContentId);
@@ -434,8 +423,8 @@ public static class PhotoGenerator
         var sourceFile = new FileInfo(Path.Combine(userSettings.LocalMediaArchivePhotoDirectory().FullName,
             photoContent.OriginalFileName));
 
-        var targetFile = new FileInfo(Path.Combine(
-            userSettings.LocalSitePhotoContentDirectory(photoContent).FullName, photoContent.OriginalFileName));
+        var targetFile = new FileInfo(Path.Combine(userSettings.LocalSitePhotoContentDirectory(photoContent).FullName,
+            photoContent.OriginalFileName));
 
         if (targetFile.Exists && forcedResizeOverwriteExistingFiles)
         {
