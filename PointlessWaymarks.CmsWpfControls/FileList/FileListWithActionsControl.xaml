@@ -68,7 +68,6 @@
             DataContext="{Binding ListContext}" />
         <Border Grid.Row="2" Style="{StaticResource ActionPanelBorderStyle}">
             <WrapPanel HorizontalAlignment="Center" Orientation="Horizontal">
-
                 <Button
                     Command="{Binding ListContext.EditSelectedCommand}"
                     Content="_Edit"

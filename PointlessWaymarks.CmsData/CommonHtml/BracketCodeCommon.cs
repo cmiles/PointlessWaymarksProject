@@ -121,6 +121,7 @@ public static class BracketCodeCommon
 
         input = await BracketCodeFileUrl.Process(input, progress).ConfigureAwait(false);
         input = await BracketCodeFileDownloads.Process(input, progress).ConfigureAwait(false);
+        input = await BracketCodeFileEmbed.Process(input, progress).ConfigureAwait(false);
         input = await BracketCodeFiles.Process(input, progress).ConfigureAwait(false);
         input = await BracketCodeFileImage.ProcessForEmail(input, progress).ConfigureAwait(false);
         input = await BracketCodeGeoJsonLinks.Process(input, progress).ConfigureAwait(false);
@@ -149,6 +150,7 @@ public static class BracketCodeCommon
     {
         input = await BracketCodeFileUrl.Process(input, progress).ConfigureAwait(false);
         input = await BracketCodeFileDownloads.Process(input, progress).ConfigureAwait(false);
+        input = await BracketCodeFileEmbed.Process(input, progress).ConfigureAwait(false);
         input = await BracketCodeFiles.Process(input, progress).ConfigureAwait(false);
         input = await BracketCodeFileImage.ProcessForDirectLocalAccess(input, progress).ConfigureAwait(false);
         input = await BracketCodeGeoJson.ProcessForDirectLocalAccess(input, progress).ConfigureAwait(false);
@@ -173,6 +175,7 @@ public static class BracketCodeCommon
     {
         input = await BracketCodeFileUrl.Process(input, progress).ConfigureAwait(false);
         input = await BracketCodeFileDownloads.Process(input, progress).ConfigureAwait(false);
+        input = await BracketCodeFileEmbed.Process(input, progress).ConfigureAwait(false);
         input = await BracketCodeFiles.Process(input, progress).ConfigureAwait(false);
         input = await BracketCodeFileImage.ProcessToFigureWithLink(input, progress).ConfigureAwait(false);
         input = await BracketCodeGeoJson.Process(input, progress).ConfigureAwait(false);

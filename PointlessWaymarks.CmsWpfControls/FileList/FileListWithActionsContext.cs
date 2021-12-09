@@ -14,14 +14,15 @@ namespace PointlessWaymarks.CmsWpfControls.FileList;
 [ObservableObject]
 public partial class FileListWithActionsContext
 {
-    [ObservableProperty] private StatusControlContext _statusContext;
     [ObservableProperty] private Command _emailHtmlToClipboardCommand;
     [ObservableProperty] private Command _fileDownloadLinkCodesToClipboardForSelectedCommand;
+    [ObservableProperty] private Command _fileEmbedCodesToClipboardForSelectedCommand;
     [ObservableProperty] private Command _filePageLinkCodesToClipboardForSelectedCommand;
     [ObservableProperty] private Command _fileUrlLinkCodesToClipboardForSelectedCommand;
     [ObservableProperty] private Command _firstPagePreviewFromPdfToCairoCommand;
     [ObservableProperty] private ContentListContext _listContext;
     [ObservableProperty] private Command _refreshDataCommand;
+    [ObservableProperty] private StatusControlContext _statusContext;
     [ObservableProperty] private Command _viewFilesCommand;
     [ObservableProperty] private WindowIconStatus _windowStatus;
 
@@ -74,6 +75,28 @@ public partial class FileListWithActionsContext
 
         foreach (var loopSelected in SelectedItems())
             finalString += @$"{BracketCodeFileDownloads.Create(loopSelected.DbEntry)}{Environment.NewLine}";
+
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        Clipboard.SetText(finalString);
+
+        StatusContext.ToastSuccess($"To Clipboard {finalString}");
+    }
+
+    private async Task FileEmbedCodesToClipboardForSelected()
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (SelectedItems() == null || !SelectedItems().Any())
+        {
+            StatusContext.ToastError("Nothing Selected?");
+            return;
+        }
+
+        var finalString = string.Empty;
+
+        foreach (var loopSelected in SelectedItems())
+            finalString += @$"{BracketCodeFileEmbed.Create(loopSelected.DbEntry)}{Environment.NewLine}";
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
@@ -150,6 +173,8 @@ public partial class FileListWithActionsContext
             StatusContext.RunBlockingTaskCommand(FilePageLinkCodesToClipboardForSelected);
         FileDownloadLinkCodesToClipboardForSelectedCommand =
             StatusContext.RunBlockingTaskCommand(FileDownloadLinkCodesToClipboardForSelected);
+        FileEmbedCodesToClipboardForSelectedCommand =
+            StatusContext.RunBlockingTaskCommand(FileEmbedCodesToClipboardForSelected);
         FileUrlLinkCodesToClipboardForSelectedCommand =
             StatusContext.RunBlockingTaskCommand(FileDownloadLinkCodesToClipboardForSelected);
         ViewFilesCommand = StatusContext.RunBlockingTaskWithCancellationCommand(ViewFilesSelected, "Cancel File View");
@@ -175,6 +200,11 @@ public partial class FileListWithActionsContext
             {
                 ItemName = "Download Code to Clipboard",
                 ItemCommand = FileDownloadLinkCodesToClipboardForSelectedCommand
+            },
+            new()
+            {
+                ItemName = "Embed Code to Clipboard",
+                ItemCommand = FileEmbedCodesToClipboardForSelectedCommand
             },
             new()
             {

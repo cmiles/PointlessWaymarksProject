@@ -21,6 +21,7 @@ Basic code formats - the [*description*] blocks should be replaced:
 Link Types:
  - filelink - text link to the File Page
  - fileimagelink - image link to the File Page
+ - fileembed - if possible/supported 'embeds' the file into a player/viewer - pdf, common video and common sound files are supported
  - filedownloadlink - text link to the File itself - this is a 'download' link and will only work correctly if direct downloads are enabled for the file
  - fileurl - the url for the file referenced by the file content - this does not create a link or do anything other than return the url for the referenced file as text - this can be used to use the file in something like an html audio tag
  - geojson - map with GeoJson

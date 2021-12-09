@@ -124,7 +124,7 @@ async function singleLineMapInitFromLineData(mapElement, lineData) {
 
 async function mapComponentInit(mapElement, contentId) {
 
-    let mapComponentResponse = await fetch(`/Maps/Data/Map-${contentId}.json`);
+    let mapComponentResponse = await window.fetch(`/Maps/Data/Map-${contentId}.json`);
     if (!mapComponentResponse.ok)
         throw new Error(mapComponentResponse.statusText);
 
@@ -143,7 +143,7 @@ async function mapComponentInit(mapElement, contentId) {
         [mapComponent.MapComponent.InitialViewBoundsMaxLatitude, mapComponent.MapComponent.InitialViewBoundsMaxLongitude]
     ]);
 
-    if (mapComponent.PointGuids?.length) {
+    if (mapComponent.PointGuids != null && mapComponent.PointGuids.length > 0) {
 
         let response = await fetch("/Points/Data/pointdata.json");
         if (!response.ok)
@@ -170,11 +170,11 @@ async function mapComponentInit(mapElement, contentId) {
         };
     }
 
-    if (mapComponent.GeoJsonGuids?.length) {
+    if (mapComponent.GeoJsonGuids != null && mapComponent.GeoJsonGuids.length > 0) {
 
         for (let loopGeoJson of mapComponent.GeoJsonGuids) {
 
-            let response = await fetch(`/GeoJson/Data/GeoJson-${loopGeoJson}.json`);
+            let response = await window.fetch(`/GeoJson/Data/GeoJson-${loopGeoJson}.json`);
 
             if (!response.ok)
                 throw new Error(response.statusText);
@@ -189,11 +189,11 @@ async function mapComponentInit(mapElement, contentId) {
         };
     }
 
-    if (mapComponent.LineGuids?.length) {
+    if (mapComponent.LineGuids != null && mapComponent.LineGuids.length > 0) {
 
         for (let loopGeoJson of mapComponent.LineGuids) {
 
-            let response = await fetch(`/Lines/Data/Line-${loopGeoJson}.json`);
+            let response = await window.fetch(`/Lines/Data/Line-${loopGeoJson}.json`);
 
             if (!response.ok)
                 throw new Error(response.statusText);
