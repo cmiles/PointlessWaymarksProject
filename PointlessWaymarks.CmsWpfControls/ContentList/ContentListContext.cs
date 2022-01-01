@@ -43,75 +43,75 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList;
 [ObservableObject]
 public partial class ContentListContext : IDragSource, IDropTarget
 {
-    [ObservableProperty] private Command bracketCodeToClipboardSelectedCommand;
+    [ObservableProperty] private Command _bracketCodeToClipboardSelectedCommand;
 
-    [ObservableProperty] private IContentListLoader contentListLoader;
+    [ObservableProperty] private IContentListLoader _contentListLoader;
 
-    [ObservableProperty] private List<ContextMenuItemData> contextMenuItems;
+    [ObservableProperty] private List<ContextMenuItemData> _contextMenuItems;
 
-    [ObservableProperty] private DataNotificationsWorkQueue dataNotificationsProcessor;
+    [ObservableProperty] private DataNotificationsWorkQueue _dataNotificationsProcessor;
 
-    [ObservableProperty] private Command deleteSelectedCommand;
+    [ObservableProperty] private Command _deleteSelectedCommand;
 
-    [ObservableProperty] private Command editSelectedCommand;
+    [ObservableProperty] private Command _editSelectedCommand;
 
-    [ObservableProperty] private Command extractNewLinksSelectedCommand;
+    [ObservableProperty] private Command _extractNewLinksSelectedCommand;
 
-    [ObservableProperty] private FileContentActions fileItemActions;
+    [ObservableProperty] private FileContentActions _fileItemActions;
 
-    [ObservableProperty] private Command generateChangedHtmlAndShowSitePreviewCommand;
+    [ObservableProperty] private Command _generateChangedHtmlAndShowSitePreviewCommand;
 
-    [ObservableProperty] private Command generateChangedHtmlAndStartUploadCommand;
+    [ObservableProperty] private Command _generateChangedHtmlAndStartUploadCommand;
 
-    [ObservableProperty] private Command generateChangedHtmlCommand;
+    [ObservableProperty] private Command _generateChangedHtmlCommand;
 
-    [ObservableProperty] private Command generateHtmlSelectedCommand;
+    [ObservableProperty] private Command _generateHtmlSelectedCommand;
 
-    [ObservableProperty] private GeoJsonContentActions geoJsonItemActions;
+    [ObservableProperty] private GeoJsonContentActions _geoJsonItemActions;
 
-    [ObservableProperty] private ImageContentActions imageItemActions;
+    [ObservableProperty] private ImageContentActions _imageItemActions;
 
-    [ObservableProperty] private Command importFromExcelFileCommand;
+    [ObservableProperty] private Command _importFromExcelFileCommand;
 
-    [ObservableProperty] private Command importFromOpenExcelInstanceCommand;
+    [ObservableProperty] private Command _importFromOpenExcelInstanceCommand;
 
-    [ObservableProperty] private ObservableCollection<IContentListItem> items;
+    [ObservableProperty] private ObservableCollection<IContentListItem> _items;
 
-    [ObservableProperty] private LineContentActions lineItemActions;
+    [ObservableProperty] private LineContentActions _lineItemActions;
 
-    [ObservableProperty] private LinkContentActions linkItemActions;
+    [ObservableProperty] private LinkContentActions _linkItemActions;
 
-    [ObservableProperty] private ContentListSelected<IContentListItem> listSelection;
+    [ObservableProperty] private ContentListSelected<IContentListItem> _listSelection;
 
-    [ObservableProperty] private ColumnSortControlContext listSort;
+    [ObservableProperty] private ColumnSortControlContext _listSort;
 
-    [ObservableProperty] private Command loadAllCommand;
+    [ObservableProperty] private Command _loadAllCommand;
 
-    [ObservableProperty] private MapComponentContentActions mapComponentItemActions;
+    [ObservableProperty] private MapComponentContentActions _mapComponentItemActions;
 
-    [ObservableProperty] private NewContent newActions;
+    [ObservableProperty] private NewContent _newActions;
 
-    [ObservableProperty] private NoteContentActions noteItemActions;
+    [ObservableProperty] private NoteContentActions _noteItemActions;
 
-    [ObservableProperty] private Command openUrlSelectedCommand;
+    [ObservableProperty] private Command _viewOnSiteCommand;
 
-    [ObservableProperty] private PhotoContentActions photoItemActions;
+    [ObservableProperty] private PhotoContentActions _photoItemActions;
 
-    [ObservableProperty] private PointContentActions pointItemActions;
+    [ObservableProperty] private PointContentActions _pointItemActions;
 
-    [ObservableProperty] private PostContentActions postItemActions;
+    [ObservableProperty] private PostContentActions _postItemActions;
 
-    [ObservableProperty] private Command selectedToExcelCommand;
+    [ObservableProperty] private Command _selectedToExcelCommand;
 
-    [ObservableProperty] private Command showSitePreviewWindowCommand;
+    [ObservableProperty] private Command _showSitePreviewWindowCommand;
 
-    [ObservableProperty] private StatusControlContext statusContext;
+    [ObservableProperty] private StatusControlContext _statusContext;
 
-    [ObservableProperty] private string userFilterText;
+    [ObservableProperty] private string _userFilterText;
 
-    [ObservableProperty] private Command viewHistorySelectedCommand;
+    [ObservableProperty] private Command _viewHistorySelectedCommand;
 
-    [ObservableProperty] private WindowIconStatus windowStatus;
+    [ObservableProperty] private WindowIconStatus _windowStatus;
 
     public ContentListContext(StatusControlContext statusContext, IContentListLoader loader,
         WindowIconStatus windowStatus = null)
@@ -152,8 +152,8 @@ public partial class ContentListContext : IDragSource, IDropTarget
             StatusContext.RunBlockingTaskWithCancellationCommand(ExtractNewLinksSelected, "Cancel Link Extraction");
         GenerateHtmlSelectedCommand =
             StatusContext.RunBlockingTaskWithCancellationCommand(GenerateHtmlSelected, "Cancel Generate Html");
-        OpenUrlSelectedCommand =
-            StatusContext.RunBlockingTaskWithCancellationCommand(OpenUrlSelected, "Cancel Open Url");
+        ViewOnSiteCommand =
+            StatusContext.RunBlockingTaskWithCancellationCommand(ViewOnSiteSelected, "Cancel Open Url");
         ViewHistorySelectedCommand =
             StatusContext.RunBlockingTaskWithCancellationCommand(ViewHistorySelected, "Cancel View History");
 
@@ -599,7 +599,7 @@ public partial class ContentListContext : IDragSource, IDropTarget
 
         try
         {
-            smallImageUrl = PictureAssetProcessing.ProcessPictureDirectory(content.MainPicture.Value).SmallPicture?.File
+            smallImageUrl = PictureAssetProcessing.ProcessPictureDirectory(content.MainPicture.Value)?.SmallPicture?.File?
                 .FullName;
         }
         catch
@@ -693,7 +693,7 @@ public partial class ContentListContext : IDragSource, IDropTarget
             StatusContext.RunFireAndForgetNonBlockingTask(FilterList);
     }
 
-    public async Task OpenUrlSelected(CancellationToken cancelToken)
+    public async Task ViewOnSiteSelected(CancellationToken cancelToken)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -705,12 +705,14 @@ public partial class ContentListContext : IDragSource, IDropTarget
 
         var currentSelected = ListSelection.SelectedItems;
 
-        foreach (var loopSelected in currentSelected) await loopSelected.OpenUrl();
+        foreach (var loopSelected in currentSelected) await loopSelected.ViewOnSite();
     }
 
     private async Task PossibleMainImageUpdateDataNotificationReceived(InterProcessDataNotification translatedMessage)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (translatedMessage?.ContentIds == null) return;
 
         var smallImageListItems = Items.Where(x => x is IContentListSmallImage).Cast<IContentListSmallImage>().ToList();
 

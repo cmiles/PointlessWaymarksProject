@@ -355,7 +355,7 @@ public partial class PointContentEditorContext : IHasChanges, ICheckForChangesAn
 
         var settings = UserSettingsSingleton.CurrentSettings();
 
-        var url = $@"http://{settings.PointPageUrl(DbEntry)}";
+        var url = $@"https:{settings.PointPageUrl(DbEntry)}";
 
         var ps = new ProcessStartInfo(url) { UseShellExecute = true, Verb = "open" };
         Process.Start(ps);

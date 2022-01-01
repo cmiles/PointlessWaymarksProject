@@ -37,28 +37,26 @@ public partial class ColumnSortControlContext
             return;
         }
 
-        if (sortItem.Order > 0 && sortItem.SortDirection != sortItem.DefaultSortDirection)
+        switch (sortItem.Order)
         {
-            sortItem.SortDirection = sortItem.DefaultSortDirection;
-            sortItem.Order = 0;
-            OrderSorts();
-            return;
+            case > 0 when sortItem.SortDirection != sortItem.DefaultSortDirection:
+                sortItem.SortDirection = sortItem.DefaultSortDirection;
+                sortItem.Order = 0;
+                OrderSorts();
+                return;
+            case > 0:
+                sortItem.SortDirection = ChangeSortDirection(sortItem.SortDirection);
+                return;
+            default:
+                sortItem.SortDirection = sortItem.DefaultSortDirection;
+                sortItem.Order = Items.Max(y => y.Order) + 1;
+                break;
         }
-
-        if (sortItem.Order > 0)
-        {
-            sortItem.SortDirection = ChangeSortDirection(sortItem.SortDirection);
-            return;
-        }
-
-        sortItem.SortDirection = sortItem.DefaultSortDirection;
-        sortItem.Order = Items.Max(y => y.Order) + 1;
     }
 
-    public ListSortDirection ChangeSortDirection(ListSortDirection currentDirection)
+    private ListSortDirection ChangeSortDirection(ListSortDirection currentDirection)
     {
-        if (currentDirection == ListSortDirection.Ascending) return ListSortDirection.Descending;
-        return ListSortDirection.Ascending;
+        return currentDirection == ListSortDirection.Ascending ? ListSortDirection.Descending : ListSortDirection.Ascending;
     }
 
     private void OrderSorts()

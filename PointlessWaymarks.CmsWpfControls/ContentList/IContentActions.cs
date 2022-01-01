@@ -11,7 +11,7 @@ public interface IContentActions<T> : INotifyPropertyChanged
     Command<T> ExtractNewLinksCommand { get; set; }
     Command<T> GenerateHtmlCommand { get; set; }
     Command<T> LinkCodeToClipboardCommand { get; set; }
-    Command<T> OpenUrlCommand { get; set; }
+    Command<T> ViewOnSiteCommand { get; set; }
     StatusControlContext StatusContext { get; set; }
     Command<T> ViewHistoryCommand { get; set; }
     string DefaultBracketCode(T content);
@@ -20,6 +20,6 @@ public interface IContentActions<T> : INotifyPropertyChanged
     Task Edit(T content);
     Task ExtractNewLinks(T content);
     Task GenerateHtml(T content);
-    Task OpenUrl(T content);
+    Task ViewOnSite(T content);
     Task ViewHistory(T content);
 }

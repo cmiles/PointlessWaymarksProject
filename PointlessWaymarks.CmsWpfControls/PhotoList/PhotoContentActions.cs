@@ -31,7 +31,7 @@ public partial class PhotoContentActions : ObservableObject, IContentActions<Pho
     [ObservableProperty] private Command<PhotoContent> _isoSearchCommand;
     [ObservableProperty] private Command<PhotoContent> _lensSearchCommand;
     [ObservableProperty] private Command<PhotoContent> _linkCodeToClipboardCommand;
-    [ObservableProperty] private Command<PhotoContent> _openUrlCommand;
+    [ObservableProperty] private Command<PhotoContent> _viewOnSiteCommand;
     [ObservableProperty] private Command<PhotoContent> _photoTakenOnSearchCommand;
     [ObservableProperty] private Command<PhotoContent> _shutterSpeedSearchCommand;
     [ObservableProperty] private StatusControlContext _statusContext;
@@ -46,7 +46,7 @@ public partial class PhotoContentActions : ObservableObject, IContentActions<Pho
         ExtractNewLinksCommand = StatusContext.RunBlockingTaskCommand<PhotoContent>(ExtractNewLinks);
         GenerateHtmlCommand = StatusContext.RunBlockingTaskCommand<PhotoContent>(GenerateHtml);
         LinkCodeToClipboardCommand = StatusContext.RunBlockingTaskCommand<PhotoContent>(DefaultBracketCodeToClipboard);
-        OpenUrlCommand = StatusContext.RunBlockingTaskCommand<PhotoContent>(OpenUrl);
+        ViewOnSiteCommand = StatusContext.RunBlockingTaskCommand<PhotoContent>(ViewOnSite);
         ViewFileCommand = StatusContext.RunNonBlockingTaskCommand<PhotoContent>(ViewFile);
         ViewHistoryCommand = StatusContext.RunNonBlockingTaskCommand<PhotoContent>(ViewHistory);
 
@@ -182,7 +182,7 @@ public partial class PhotoContentActions : ObservableObject, IContentActions<Pho
         StatusContext.ToastSuccess($"Generated {htmlContext.PageUrl}");
     }
 
-    public async Task OpenUrl(PhotoContent content)
+    public async Task ViewOnSite(PhotoContent content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -194,7 +194,7 @@ public partial class PhotoContentActions : ObservableObject, IContentActions<Pho
 
         var settings = UserSettingsSingleton.CurrentSettings();
 
-        var url = $@"http://{settings.PhotoPageUrl(content)}";
+        var url = $@"https:{settings.PhotoPageUrl(content)}";
 
         var ps = new ProcessStartInfo(url) { UseShellExecute = true, Verb = "open" };
         Process.Start(ps);

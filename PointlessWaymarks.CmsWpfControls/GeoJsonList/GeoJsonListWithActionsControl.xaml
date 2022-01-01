@@ -48,7 +48,7 @@
                 <MenuItem Command="{Binding ListContext.ImportFromOpenExcelInstanceCommand}" Header="Import From Open Excel Application" />
             </MenuItem>
             <MenuItem Header="On the Web">
-                <MenuItem Command="{Binding ListContext.OpenUrlSelectedCommand}" Header="Open Selected on Public Site In Browser" />
+                <MenuItem Command="{Binding ListContext.ViewOnSiteCommand}" Header="Open Selected on Public Site In Browser" />
             </MenuItem>
             <MenuItem Header="History">
                 <MenuItem Command="{Binding ListContext.ViewHistorySelectedCommand}" Header="View History" />

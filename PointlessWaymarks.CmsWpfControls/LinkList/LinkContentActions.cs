@@ -25,7 +25,7 @@ public partial class LinkContentActions : ObservableObject, IContentActions<Link
     [ObservableProperty] private Command<LinkContent> _extractNewLinksCommand;
     [ObservableProperty] private Command<LinkContent> _generateHtmlCommand;
     [ObservableProperty] private Command<LinkContent> _linkCodeToClipboardCommand;
-    [ObservableProperty] private Command<LinkContent> _openUrlCommand;
+    [ObservableProperty] private Command<LinkContent> _viewOnSiteCommand;
     [ObservableProperty] private StatusControlContext _statusContext;
     [ObservableProperty] private Command<LinkContent> _viewHistoryCommand;
 
@@ -37,7 +37,7 @@ public partial class LinkContentActions : ObservableObject, IContentActions<Link
         ExtractNewLinksCommand = StatusContext.RunBlockingTaskCommand<LinkContent>(ExtractNewLinks);
         GenerateHtmlCommand = StatusContext.RunBlockingTaskCommand<LinkContent>(GenerateHtml);
         LinkCodeToClipboardCommand = StatusContext.RunBlockingTaskCommand<LinkContent>(DefaultBracketCodeToClipboard);
-        OpenUrlCommand = StatusContext.RunBlockingTaskCommand<LinkContent>(OpenUrl);
+        ViewOnSiteCommand = StatusContext.RunBlockingTaskCommand<LinkContent>(ViewOnSite);
         ViewHistoryCommand = StatusContext.RunNonBlockingTaskCommand<LinkContent>(ViewHistory);
 
         CopyUrlCommand = StatusContext.RunNonBlockingTaskCommand<string>(async x =>
@@ -151,7 +151,7 @@ public partial class LinkContentActions : ObservableObject, IContentActions<Link
         StatusContext.ToastSuccess($"Generated {settings.LinkListUrl()}");
     }
 
-    public async Task OpenUrl(LinkContent content)
+    public async Task ViewOnSite(LinkContent content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 

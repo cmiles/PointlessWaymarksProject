@@ -54,9 +54,9 @@ public partial class ImageListListItem : IContentListItem, IContentListSmallImag
         await ItemActions.GenerateHtml(DbEntry);
     }
 
-    public async Task OpenUrl()
+    public async Task ViewOnSite()
     {
-        await ItemActions.OpenUrl(DbEntry);
+        await ItemActions.ViewOnSite(DbEntry);
     }
 
     public async Task ViewHistory()

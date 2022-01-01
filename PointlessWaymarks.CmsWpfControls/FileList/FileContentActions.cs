@@ -25,7 +25,7 @@ public partial class FileContentActions : ObservableObject, IContentActions<File
     [ObservableProperty] private Command<FileContent> _extractNewLinksCommand;
     [ObservableProperty] private Command<FileContent> _generateHtmlCommand;
     [ObservableProperty] private Command<FileContent> _linkCodeToClipboardCommand;
-    [ObservableProperty] private Command<FileContent> _openUrlCommand;
+    [ObservableProperty] private Command<FileContent> _viewOnSiteCommand;
     [ObservableProperty] private StatusControlContext _statusContext;
     [ObservableProperty] private Command<FileContent> _viewFileCommand;
     [ObservableProperty] private Command<FileContent> _viewHistoryCommand;
@@ -38,7 +38,7 @@ public partial class FileContentActions : ObservableObject, IContentActions<File
         ExtractNewLinksCommand = StatusContext.RunBlockingTaskCommand<FileContent>(ExtractNewLinks);
         GenerateHtmlCommand = StatusContext.RunBlockingTaskCommand<FileContent>(GenerateHtml);
         LinkCodeToClipboardCommand = StatusContext.RunBlockingTaskCommand<FileContent>(DefaultBracketCodeToClipboard);
-        OpenUrlCommand = StatusContext.RunBlockingTaskCommand<FileContent>(OpenUrl);
+        ViewOnSiteCommand = StatusContext.RunBlockingTaskCommand<FileContent>(ViewOnSite);
         ViewFileCommand = StatusContext.RunNonBlockingTaskCommand<FileContent>(ViewFile);
         ViewHistoryCommand = StatusContext.RunNonBlockingTaskCommand<FileContent>(ViewHistory);
     }
@@ -161,7 +161,7 @@ public partial class FileContentActions : ObservableObject, IContentActions<File
         StatusContext.ToastSuccess($"Generated {htmlContext.PageUrl}");
     }
 
-    public async Task OpenUrl(FileContent content)
+    public async Task ViewOnSite(FileContent content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -173,7 +173,7 @@ public partial class FileContentActions : ObservableObject, IContentActions<File
 
         var settings = UserSettingsSingleton.CurrentSettings();
 
-        var url = $@"http://{settings.FilePageUrl(content)}";
+        var url = $@"https:{settings.FilePageUrl(content)}";
 
         var ps = new ProcessStartInfo(url) { UseShellExecute = true, Verb = "open" };
         Process.Start(ps);

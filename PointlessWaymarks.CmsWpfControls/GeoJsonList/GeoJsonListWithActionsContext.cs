@@ -70,7 +70,7 @@ public partial class GeoJsonListWithActionsContext
                 ItemName = "Text Code to Clipboard", ItemCommand = GeoJsonLinkCodesToClipboardForSelectedCommand
             },
             new() { ItemName = "Extract New Links", ItemCommand = ListContext.ExtractNewLinksSelectedCommand },
-            new() { ItemName = "Open URL", ItemCommand = ListContext.OpenUrlSelectedCommand },
+            new() { ItemName = "Open URL", ItemCommand = ListContext.ViewOnSiteCommand },
             new() { ItemName = "Delete", ItemCommand = ListContext.DeleteSelectedCommand },
             new() { ItemName = "View History", ItemCommand = ListContext.ViewHistorySelectedCommand },
             new() { ItemName = "Refresh Data", ItemCommand = RefreshDataCommand }

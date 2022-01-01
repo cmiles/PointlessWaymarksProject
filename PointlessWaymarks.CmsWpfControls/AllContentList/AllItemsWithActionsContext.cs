@@ -41,7 +41,7 @@ public partial class AllItemsWithActionsContext
                 ItemName = "Code to Clipboard", ItemCommand = ListContext.BracketCodeToClipboardSelectedCommand
             },
             new() { ItemName = "Extract New Links", ItemCommand = ListContext.ExtractNewLinksSelectedCommand },
-            new() { ItemName = "Open URL", ItemCommand = ListContext.OpenUrlSelectedCommand },
+            new() { ItemName = "Open URL", ItemCommand = ListContext.ViewOnSiteCommand },
             new() { ItemName = "Delete", ItemCommand = ListContext.DeleteSelectedCommand },
             new() { ItemName = "View History", ItemCommand = ListContext.ViewHistorySelectedCommand }
         };

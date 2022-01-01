@@ -13,6 +13,6 @@ public interface IContentListItem : ISelectedTextTracker
     Task Edit();
     Task ExtractNewLinks();
     Task GenerateHtml();
-    Task OpenUrl();
+    Task ViewOnSite();
     Task ViewHistory();
 }

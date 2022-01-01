@@ -212,7 +212,7 @@ public partial class FileListWithActionsContext
             },
             new() { ItemName = "Email Html to Clipboard", ItemCommand = EmailHtmlToClipboardCommand },
             new() { ItemName = "View Files", ItemCommand = ViewFilesCommand },
-            new() { ItemName = "Open URLs", ItemCommand = ListContext.OpenUrlSelectedCommand },
+            new() { ItemName = "Open URL", ItemCommand = ListContext.ViewOnSiteCommand },
             new() { ItemName = "Extract New Links", ItemCommand = ListContext.ExtractNewLinksSelectedCommand },
             new() { ItemName = "Generate Html", ItemCommand = ListContext.GenerateHtmlSelectedCommand },
             new() { ItemName = "Delete", ItemCommand = ListContext.DeleteSelectedCommand },

@@ -25,7 +25,7 @@ public partial class PointContentActions : ObservableObject, IContentActions<Poi
     [ObservableProperty] private Command<PointContent> _extractNewLinksCommand;
     [ObservableProperty] private Command<PointContent> _generateHtmlCommand;
     [ObservableProperty] private Command<PointContent> _linkCodeToClipboardCommand;
-    [ObservableProperty] private Command<PointContent> _openUrlCommand;
+    [ObservableProperty] private Command<PointContent> _viewOnSiteCommand;
     [ObservableProperty] private StatusControlContext _statusContext;
     [ObservableProperty] private Command<PointContent> _viewHistoryCommand;
 
@@ -37,7 +37,7 @@ public partial class PointContentActions : ObservableObject, IContentActions<Poi
         ExtractNewLinksCommand = StatusContext.RunBlockingTaskCommand<PointContent>(ExtractNewLinks);
         GenerateHtmlCommand = StatusContext.RunBlockingTaskCommand<PointContent>(GenerateHtml);
         LinkCodeToClipboardCommand = StatusContext.RunBlockingTaskCommand<PointContent>(DefaultBracketCodeToClipboard);
-        OpenUrlCommand = StatusContext.RunBlockingTaskCommand<PointContent>(OpenUrl);
+        ViewOnSiteCommand = StatusContext.RunBlockingTaskCommand<PointContent>(ViewOnSite);
         ViewHistoryCommand = StatusContext.RunNonBlockingTaskCommand<PointContent>(ViewHistory);
     }
 
@@ -164,7 +164,7 @@ public partial class PointContentActions : ObservableObject, IContentActions<Poi
         StatusContext.ToastSuccess($"Generated {htmlContext.PageUrl}");
     }
 
-    public async Task OpenUrl(PointContent content)
+    public async Task ViewOnSite(PointContent content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -176,7 +176,7 @@ public partial class PointContentActions : ObservableObject, IContentActions<Poi
 
         var settings = UserSettingsSingleton.CurrentSettings();
 
-        var url = $@"http://{settings.PointPageUrl(content)}";
+        var url = $@"https:{settings.PointPageUrl(content)}";
 
         var ps = new ProcessStartInfo(url) { UseShellExecute = true, Verb = "open" };
         Process.Start(ps);

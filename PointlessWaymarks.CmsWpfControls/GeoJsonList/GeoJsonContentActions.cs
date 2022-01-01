@@ -25,7 +25,7 @@ public partial class GeoJsonContentActions : ObservableObject, IContentActions<G
     [ObservableProperty] private Command<GeoJsonContent> _extractNewLinksCommand;
     [ObservableProperty] private Command<GeoJsonContent> _generateHtmlCommand;
     [ObservableProperty] private Command<GeoJsonContent> _linkCodeToClipboardCommand;
-    [ObservableProperty] private Command<GeoJsonContent> _openUrlCommand;
+    [ObservableProperty] private Command<GeoJsonContent> _viewOnSiteCommand;
     [ObservableProperty] private StatusControlContext _statusContext;
     [ObservableProperty] private Command<GeoJsonContent> _viewHistoryCommand;
 
@@ -38,7 +38,7 @@ public partial class GeoJsonContentActions : ObservableObject, IContentActions<G
         GenerateHtmlCommand = StatusContext.RunBlockingTaskCommand<GeoJsonContent>(GenerateHtml);
         LinkCodeToClipboardCommand =
             StatusContext.RunBlockingTaskCommand<GeoJsonContent>(DefaultBracketCodeToClipboard);
-        OpenUrlCommand = StatusContext.RunBlockingTaskCommand<GeoJsonContent>(OpenUrl);
+        ViewOnSiteCommand = StatusContext.RunBlockingTaskCommand<GeoJsonContent>(ViewOnSite);
         ViewHistoryCommand = StatusContext.RunNonBlockingTaskCommand<GeoJsonContent>(ViewHistory);
     }
 
@@ -156,7 +156,7 @@ public partial class GeoJsonContentActions : ObservableObject, IContentActions<G
         StatusContext.ToastSuccess($"Generated {htmlContext.PageUrl}");
     }
 
-    public async Task OpenUrl(GeoJsonContent content)
+    public async Task ViewOnSite(GeoJsonContent content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -168,7 +168,7 @@ public partial class GeoJsonContentActions : ObservableObject, IContentActions<G
 
         var settings = UserSettingsSingleton.CurrentSettings();
 
-        var url = $@"http://{settings.GeoJsonPageUrl(content)}";
+        var url = $@"https:{settings.GeoJsonPageUrl(content)}";
 
         var ps = new ProcessStartInfo(url) { UseShellExecute = true, Verb = "open" };
         Process.Start(ps);

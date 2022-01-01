@@ -25,7 +25,7 @@ public partial class ImageContentActions : ObservableObject, IContentActions<Ima
     [ObservableProperty] private Command<ImageContent> _extractNewLinksCommand;
     [ObservableProperty] private Command<ImageContent> _generateHtmlCommand;
     [ObservableProperty] private Command<ImageContent> _linkCodeToClipboardCommand;
-    [ObservableProperty] private Command<ImageContent> _openUrlCommand;
+    [ObservableProperty] private Command<ImageContent> _viewOnSiteCommand;
     [ObservableProperty] private StatusControlContext _statusContext;
     [ObservableProperty] private Command<ImageContent> _viewFileCommand;
     [ObservableProperty] private Command<ImageContent> _viewHistoryCommand;
@@ -38,7 +38,7 @@ public partial class ImageContentActions : ObservableObject, IContentActions<Ima
         ExtractNewLinksCommand = StatusContext.RunBlockingTaskCommand<ImageContent>(ExtractNewLinks);
         GenerateHtmlCommand = StatusContext.RunBlockingTaskCommand<ImageContent>(GenerateHtml);
         LinkCodeToClipboardCommand = StatusContext.RunBlockingTaskCommand<ImageContent>(DefaultBracketCodeToClipboard);
-        OpenUrlCommand = StatusContext.RunBlockingTaskCommand<ImageContent>(OpenUrl);
+        ViewOnSiteCommand = StatusContext.RunBlockingTaskCommand<ImageContent>(ViewOnSite);
         ViewFileCommand = StatusContext.RunNonBlockingTaskCommand<ImageContent>(ViewFile);
         ViewHistoryCommand = StatusContext.RunNonBlockingTaskCommand<ImageContent>(ViewHistory);
     }
@@ -156,7 +156,7 @@ public partial class ImageContentActions : ObservableObject, IContentActions<Ima
         StatusContext.ToastSuccess($"Generated {htmlContext.PageUrl}");
     }
 
-    public async Task OpenUrl(ImageContent content)
+    public async Task ViewOnSite(ImageContent content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -168,7 +168,7 @@ public partial class ImageContentActions : ObservableObject, IContentActions<Ima
 
         var settings = UserSettingsSingleton.CurrentSettings();
 
-        var url = $@"http://{settings.ImagePageUrl(content)}";
+        var url = $@"https:{settings.ImagePageUrl(content)}";
 
         var ps = new ProcessStartInfo(url) { UseShellExecute = true, Verb = "open" };
         Process.Start(ps);

@@ -548,7 +548,7 @@ Photo Content Notes:
 
         var settings = UserSettingsSingleton.CurrentSettings();
 
-        var url = $@"http://{settings.PhotoPageUrl(DbEntry)}";
+        var url = $@"https:{settings.PhotoPageUrl(DbEntry)}";
 
         var ps = new ProcessStartInfo(url) { UseShellExecute = true, Verb = "open" };
         Process.Start(ps);

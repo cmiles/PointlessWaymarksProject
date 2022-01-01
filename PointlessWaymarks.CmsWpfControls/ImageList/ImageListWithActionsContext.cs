@@ -158,7 +158,7 @@ public partial class ImageListWithActionsContext
             },
             new() { ItemName = "Email Html to Clipboard", ItemCommand = EmailHtmlToClipboardCommand },
             new() { ItemName = "View Images", ItemCommand = ViewFilesCommand },
-            new() { ItemName = "Open URLs", ItemCommand = ListContext.OpenUrlSelectedCommand },
+            new() { ItemName = "Open URL", ItemCommand = ListContext.ViewOnSiteCommand },
             new() { ItemName = "Extract New Links", ItemCommand = ListContext.ExtractNewLinksSelectedCommand },
             new() { ItemName = "Process/Resize Selected", ItemCommand = ForcedResizeCommand },
             new()

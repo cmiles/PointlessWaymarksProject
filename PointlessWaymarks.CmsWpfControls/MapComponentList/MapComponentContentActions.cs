@@ -24,7 +24,7 @@ public partial class MapComponentContentActions : ObservableObject, IContentActi
     [ObservableProperty] private Command<MapComponent> _extractNewLinksCommand;
     [ObservableProperty] private Command<MapComponent> _generateHtmlCommand;
     [ObservableProperty] private Command<MapComponent> _linkCodeToClipboardCommand;
-    [ObservableProperty] private Command<MapComponent> _openUrlCommand;
+    [ObservableProperty] private Command<MapComponent> _viewOnSiteCommand;
     [ObservableProperty] private StatusControlContext _statusContext;
     [ObservableProperty] private Command<MapComponent> _viewHistoryCommand;
 
@@ -36,7 +36,7 @@ public partial class MapComponentContentActions : ObservableObject, IContentActi
         ExtractNewLinksCommand = StatusContext.RunBlockingTaskCommand<MapComponent>(ExtractNewLinks);
         GenerateHtmlCommand = StatusContext.RunBlockingTaskCommand<MapComponent>(GenerateHtml);
         LinkCodeToClipboardCommand = StatusContext.RunBlockingTaskCommand<MapComponent>(DefaultBracketCodeToClipboard);
-        OpenUrlCommand = StatusContext.RunBlockingTaskCommand<MapComponent>(OpenUrl);
+        ViewOnSiteCommand = StatusContext.RunBlockingTaskCommand<MapComponent>(ViewOnSite);
         ViewHistoryCommand = StatusContext.RunNonBlockingTaskCommand<MapComponent>(ViewHistory);
     }
 
@@ -143,7 +143,7 @@ public partial class MapComponentContentActions : ObservableObject, IContentActi
         StatusContext.ToastSuccess("Generated Map Data");
     }
 
-    public async Task OpenUrl(MapComponent content)
+    public async Task ViewOnSite(MapComponent content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 

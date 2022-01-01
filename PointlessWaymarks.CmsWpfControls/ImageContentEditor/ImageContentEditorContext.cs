@@ -384,7 +384,7 @@ public partial class ImageContentEditorContext : IHasChanges, IHasValidationIssu
 
         var settings = UserSettingsSingleton.CurrentSettings();
 
-        var url = $@"http://{settings.ImagePageUrl(DbEntry)}";
+        var url = $@"https:{settings.ImagePageUrl(DbEntry)}";
 
         var ps = new ProcessStartInfo(url) { UseShellExecute = true, Verb = "open" };
         Process.Start(ps);

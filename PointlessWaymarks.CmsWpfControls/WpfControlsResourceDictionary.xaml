@@ -782,7 +782,7 @@
                     </TextBox>
                     <WrapPanel Margin="0,6,0,0" Orientation="Horizontal">
                         <TextBlock VerticalAlignment="Center" TextWrapping="Wrap">
-                            <Hyperlink Command="{Binding ItemActions.OpenUrlCommand}" CommandParameter="{Binding DbEntry.Url}">
+                            <Hyperlink Command="{Binding ItemActions.ViewOnSiteCommand}" CommandParameter="{Binding DbEntry.Url}">
                                 <Hyperlink.Inlines>
                                     <Run Text="{Binding DbEntry.Url}" />
                                 </Hyperlink.Inlines>

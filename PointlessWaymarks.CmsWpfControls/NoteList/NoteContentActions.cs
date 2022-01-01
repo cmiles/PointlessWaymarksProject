@@ -25,7 +25,7 @@ public partial class NoteContentActions : ObservableObject, IContentActions<Note
     [ObservableProperty] private Command<NoteContent> _extractNewLinksCommand;
     [ObservableProperty] private Command<NoteContent> _generateHtmlCommand;
     [ObservableProperty] private Command<NoteContent> _linkCodeToClipboardCommand;
-    [ObservableProperty] private Command<NoteContent> _openUrlCommand;
+    [ObservableProperty] private Command<NoteContent> _viewOnSiteCommand;
     [ObservableProperty] private StatusControlContext _statusContext;
     [ObservableProperty] private Command<NoteContent> _viewHistoryCommand;
 
@@ -37,7 +37,7 @@ public partial class NoteContentActions : ObservableObject, IContentActions<Note
         ExtractNewLinksCommand = StatusContext.RunBlockingTaskCommand<NoteContent>(ExtractNewLinks);
         GenerateHtmlCommand = StatusContext.RunBlockingTaskCommand<NoteContent>(GenerateHtml);
         LinkCodeToClipboardCommand = StatusContext.RunBlockingTaskCommand<NoteContent>(DefaultBracketCodeToClipboard);
-        OpenUrlCommand = StatusContext.RunBlockingTaskCommand<NoteContent>(OpenUrl);
+        ViewOnSiteCommand = StatusContext.RunBlockingTaskCommand<NoteContent>(ViewOnSite);
         ViewHistoryCommand = StatusContext.RunNonBlockingTaskCommand<NoteContent>(ViewHistory);
     }
 
@@ -155,7 +155,7 @@ public partial class NoteContentActions : ObservableObject, IContentActions<Note
         StatusContext.ToastSuccess($"Generated {htmlContext.PageUrl}");
     }
 
-    public async Task OpenUrl(NoteContent content)
+    public async Task ViewOnSite(NoteContent content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -167,7 +167,7 @@ public partial class NoteContentActions : ObservableObject, IContentActions<Note
 
         var settings = UserSettingsSingleton.CurrentSettings();
 
-        var url = $@"http://{settings.NotePageUrl(content)}";
+        var url = $@"https:{settings.NotePageUrl(content)}";
 
         var ps = new ProcessStartInfo(url) { UseShellExecute = true, Verb = "open" };
         Process.Start(ps);

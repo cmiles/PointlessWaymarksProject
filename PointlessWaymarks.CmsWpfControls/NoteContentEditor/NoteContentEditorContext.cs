@@ -212,7 +212,7 @@ Note Content is like a simplified Post - no title and slug to edit or maintain a
 
         var settings = UserSettingsSingleton.CurrentSettings();
 
-        var url = $@"http://{settings.NotePageUrl(DbEntry)}";
+        var url = $@"https:{settings.NotePageUrl(DbEntry)}";
 
         var ps = new ProcessStartInfo(url) { UseShellExecute = true, Verb = "open" };
         Process.Start(ps);
