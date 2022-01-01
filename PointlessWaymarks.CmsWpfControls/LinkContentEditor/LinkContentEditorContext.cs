@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel;
 using System.Diagnostics;
 using Microsoft.Toolkit.Mvvm.ComponentModel;
+using Microsoft.Toolkit.Mvvm.Input;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.Content;
 using PointlessWaymarks.CmsData.Database.Models;
@@ -11,7 +12,7 @@ using PointlessWaymarks.CmsWpfControls.HelpDisplay;
 using PointlessWaymarks.CmsWpfControls.StringDataEntry;
 using PointlessWaymarks.CmsWpfControls.TagsEditor;
 using PointlessWaymarks.CmsWpfControls.Utility.ChangesAndValidation;
-using PointlessWaymarks.WpfCommon.Commands;
+
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 
@@ -25,15 +26,15 @@ public partial class LinkContentEditorContext : IHasChanges, IHasValidationIssue
     [ObservableProperty] private CreatedAndUpdatedByAndOnDisplayContext _createdUpdatedDisplay;
     [ObservableProperty] private LinkContent _dbEntry;
     [ObservableProperty] private StringDataEntryContext _descriptionEntry;
-    [ObservableProperty] private Command _extractDataCommand;
+    [ObservableProperty] private RelayCommand _extractDataCommand;
     [ObservableProperty] private bool _hasChanges;
     [ObservableProperty] private bool _hasValidationIssues;
     [ObservableProperty] private HelpDisplayContext _helpContext;
     [ObservableProperty] private ConversionDataEntryContext<DateTime?> _linkDateTimeEntry;
     [ObservableProperty] private StringDataEntryContext _linkUrlEntry;
-    [ObservableProperty] private Command _openUrlInBrowserCommand;
-    [ObservableProperty] private Command _saveAndCloseCommand;
-    [ObservableProperty] private Command _saveCommand;
+    [ObservableProperty] private RelayCommand _openUrlInBrowserCommand;
+    [ObservableProperty] private RelayCommand _saveAndCloseCommand;
+    [ObservableProperty] private RelayCommand _saveCommand;
     [ObservableProperty] private BoolDataEntryContext _showInLinkRssEntry;
     [ObservableProperty] private StringDataEntryContext _siteEntry;
     [ObservableProperty] private StatusControlContext _statusContext;

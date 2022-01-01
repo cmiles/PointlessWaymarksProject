@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.Windows;
 using Microsoft.Toolkit.Mvvm.ComponentModel;
+using Microsoft.Toolkit.Mvvm.Input;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.Content;
@@ -16,7 +17,7 @@ using PointlessWaymarks.CmsWpfControls.TitleSummarySlugFolderEditor;
 using PointlessWaymarks.CmsWpfControls.UpdateNotesEditor;
 using PointlessWaymarks.CmsWpfControls.Utility;
 using PointlessWaymarks.CmsWpfControls.Utility.ChangesAndValidation;
-using PointlessWaymarks.WpfCommon.Commands;
+
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 
@@ -29,19 +30,19 @@ public partial class PostContentEditorContext : IHasChanges, IHasValidationIssue
     [ObservableProperty] private ContentIdViewerControlContext _contentId;
     [ObservableProperty] private CreatedAndUpdatedByAndOnDisplayContext _createdUpdatedDisplay;
     [ObservableProperty] private PostContent _dbEntry;
-    [ObservableProperty] private Command _extractNewLinksCommand;
+    [ObservableProperty] private RelayCommand _extractNewLinksCommand;
     [ObservableProperty] private bool _hasChanges;
     [ObservableProperty] private bool _hasValidationIssues;
     [ObservableProperty] private HelpDisplayContext _helpContext;
-    [ObservableProperty] private Command _linkToClipboardCommand;
+    [ObservableProperty] private RelayCommand _linkToClipboardCommand;
     [ObservableProperty] private ContentSiteFeedAndIsDraftContext _mainSiteFeed;
-    [ObservableProperty] private Command _saveAndCloseCommand;
-    [ObservableProperty] private Command _saveCommand;
+    [ObservableProperty] private RelayCommand _saveAndCloseCommand;
+    [ObservableProperty] private RelayCommand _saveCommand;
     [ObservableProperty] private StatusControlContext _statusContext;
     [ObservableProperty] private TagsEditorContext _tagEdit;
     [ObservableProperty] private TitleSummarySlugEditorContext _titleSummarySlugFolder;
     [ObservableProperty] private UpdateNotesEditorContext _updateNotes;
-    [ObservableProperty] private Command _viewOnSiteCommand;
+    [ObservableProperty] private RelayCommand _viewOnSiteCommand;
 
     public EventHandler RequestContentEditorWindowClose;
 

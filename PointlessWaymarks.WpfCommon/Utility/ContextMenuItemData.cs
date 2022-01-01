@@ -1,9 +1,9 @@
-﻿using PointlessWaymarks.WpfCommon.Commands;
+﻿using Microsoft.Toolkit.Mvvm.Input;
 
 namespace PointlessWaymarks.WpfCommon.Utility;
 
 public class ContextMenuItemData
 {
-    public Command ItemCommand { get; set; }
+    public RelayCommand ItemCommand { get; set; }
     public string ItemName { get; set; }
 }

@@ -1,5 +1,5 @@
 ﻿using System.Windows;
-using PointlessWaymarks.WpfCommon.Commands;
+using Microsoft.Toolkit.Mvvm.Input;
 using PointlessWaymarks.WpfCommon.Status;
 
 namespace PointlessWaymarks.WpfCommon.WindowScreenShot;
@@ -13,7 +13,7 @@ public partial class WindowScreenShotControl
     {
         InitializeComponent();
 
-        WindowScreenShotCommand = new Command<Window>(async x =>
+        WindowScreenShotCommand = new AsyncRelayCommand<Window>(async x =>
         {
             if (x == null) return;
 
@@ -42,5 +42,5 @@ public partial class WindowScreenShotControl
         DataContext = this;
     }
 
-    public Command WindowScreenShotCommand { get; }
+    public AsyncRelayCommand<Window> WindowScreenShotCommand { get; }
 }

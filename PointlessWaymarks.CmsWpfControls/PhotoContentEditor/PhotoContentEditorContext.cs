@@ -4,6 +4,7 @@ using System.IO;
 using System.Windows;
 using System.Windows.Media.Imaging;
 using Microsoft.Toolkit.Mvvm.ComponentModel;
+using Microsoft.Toolkit.Mvvm.Input;
 using Ookii.Dialogs.Wpf;
 using PhotoSauce.MagicScaler;
 using PointlessWaymarks.CmsData;
@@ -24,7 +25,7 @@ using PointlessWaymarks.CmsWpfControls.TitleSummarySlugFolderEditor;
 using PointlessWaymarks.CmsWpfControls.UpdateNotesEditor;
 using PointlessWaymarks.CmsWpfControls.Utility;
 using PointlessWaymarks.CmsWpfControls.Utility.ChangesAndValidation;
-using PointlessWaymarks.WpfCommon.Commands;
+
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 using PointlessWaymarks.WpfCommon.Utility;
@@ -36,17 +37,17 @@ public partial class PhotoContentEditorContext : IHasChanges, IHasValidationIssu
 {
     [ObservableProperty] private StringDataEntryContext _altTextEntry;
     [ObservableProperty] private StringDataEntryContext _apertureEntry;
-    [ObservableProperty] private Command _autoCleanRenameSelectedFileCommand;
-    [ObservableProperty] private Command _autoRenameSelectedFileBasedOnTitleCommand;
+    [ObservableProperty] private RelayCommand _autoCleanRenameSelectedFileCommand;
+    [ObservableProperty] private RelayCommand _autoRenameSelectedFileBasedOnTitleCommand;
     [ObservableProperty] private BodyContentEditorContext _bodyContent;
     [ObservableProperty] private StringDataEntryContext _cameraMakeEntry;
     [ObservableProperty] private StringDataEntryContext _cameraModelEntry;
-    [ObservableProperty] private Command _chooseFileAndFillMetadataCommand;
-    [ObservableProperty] private Command _chooseFileCommand;
+    [ObservableProperty] private RelayCommand _chooseFileAndFillMetadataCommand;
+    [ObservableProperty] private RelayCommand _chooseFileCommand;
     [ObservableProperty] private ContentIdViewerControlContext _contentId;
     [ObservableProperty] private CreatedAndUpdatedByAndOnDisplayContext _createdUpdatedDisplay;
     [ObservableProperty] private PhotoContent _dbEntry;
-    [ObservableProperty] private Command _extractNewLinksCommand;
+    [ObservableProperty] private RelayCommand _extractNewLinksCommand;
     [ObservableProperty] private StringDataEntryContext _focalLengthEntry;
     [ObservableProperty] private bool _hasChanges;
     [ObservableProperty] private bool _hasValidationIssues;
@@ -55,18 +56,18 @@ public partial class PhotoContentEditorContext : IHasChanges, IHasValidationIssu
     [ObservableProperty] private ConversionDataEntryContext<int?> _isoEntry;
     [ObservableProperty] private StringDataEntryContext _lensEntry;
     [ObservableProperty] private StringDataEntryContext _licenseEntry;
-    [ObservableProperty] private Command _linkToClipboardCommand;
+    [ObservableProperty] private RelayCommand _linkToClipboardCommand;
     [ObservableProperty] private FileInfo _loadedFile;
     [ObservableProperty] private ContentSiteFeedAndIsDraftContext _mainSiteFeed;
     [ObservableProperty] private StringDataEntryContext _photoCreatedByEntry;
     [ObservableProperty] private ConversionDataEntryContext<DateTime> _photoCreatedOnEntry;
-    [ObservableProperty] private Command _renameSelectedFileCommand;
+    [ObservableProperty] private RelayCommand _renameSelectedFileCommand;
     [ObservableProperty] private bool _resizeSelectedFile;
-    [ObservableProperty] private Command _rotatePhotoLeftCommand;
-    [ObservableProperty] private Command _rotatePhotoRightCommand;
-    [ObservableProperty] private Command _saveAndCloseCommand;
-    [ObservableProperty] private Command _saveAndReprocessPhotoCommand;
-    [ObservableProperty] private Command _saveCommand;
+    [ObservableProperty] private RelayCommand _rotatePhotoLeftCommand;
+    [ObservableProperty] private RelayCommand _rotatePhotoRightCommand;
+    [ObservableProperty] private RelayCommand _saveAndCloseCommand;
+    [ObservableProperty] private RelayCommand _saveAndReprocessPhotoCommand;
+    [ObservableProperty] private RelayCommand _saveCommand;
     [ObservableProperty] private FileInfo _selectedFile;
     [ObservableProperty] private BitmapSource _selectedFileBitmapSource;
     [ObservableProperty] private bool _selectedFileHasPathOrNameChanges;
@@ -78,9 +79,9 @@ public partial class PhotoContentEditorContext : IHasChanges, IHasValidationIssu
     [ObservableProperty] private TagsEditorContext _tagEdit;
     [ObservableProperty] private TitleSummarySlugEditorContext _titleSummarySlugFolder;
     [ObservableProperty] private UpdateNotesEditorContext _updateNotes;
-    [ObservableProperty] private Command _viewOnSiteCommand;
-    [ObservableProperty] private Command _viewPhotoMetadataCommand;
-    [ObservableProperty] private Command _viewSelectedFileCommand;
+    [ObservableProperty] private RelayCommand _viewOnSiteCommand;
+    [ObservableProperty] private RelayCommand _viewPhotoMetadataCommand;
+    [ObservableProperty] private RelayCommand _viewSelectedFileCommand;
 
     public EventHandler RequestContentEditorWindowClose;
 

@@ -5,6 +5,7 @@ using System.Windows;
 using AngleSharp.Text;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Toolkit.Mvvm.ComponentModel;
+using Microsoft.Toolkit.Mvvm.Input;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.Content;
@@ -12,7 +13,7 @@ using PointlessWaymarks.CmsData.ContentHtml.PhotoHtml;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsWpfControls.ContentList;
-using PointlessWaymarks.WpfCommon.Commands;
+
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 using PointlessWaymarks.WpfCommon.Utility;
@@ -23,21 +24,21 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList;
 public partial class PhotoListWithActionsContext
 {
     [ObservableProperty] private StatusControlContext _statusContext;
-    [ObservableProperty] private Command _emailHtmlToClipboardCommand;
-    [ObservableProperty] private Command _forcedResizeCommand;
+    [ObservableProperty] private RelayCommand _emailHtmlToClipboardCommand;
+    [ObservableProperty] private RelayCommand _forcedResizeCommand;
     [ObservableProperty] private ContentListContext _listContext;
-    [ObservableProperty] private Command _openUrlForPhotoListCommand;
-    [ObservableProperty] private Command _photoLinkCodesToClipboardForSelectedCommand;
-    [ObservableProperty] private Command _refreshDataCommand;
-    [ObservableProperty] private Command _regenerateHtmlAndReprocessPhotoForSelectedCommand;
-    [ObservableProperty] private Command _reportAllPhotosCommand;
-    [ObservableProperty] private Command _reportBlankLicenseCommand;
-    [ObservableProperty] private Command _reportMultiSpacesInTitleCommand;
-    [ObservableProperty] private Command _reportNoTagsCommand;
-    [ObservableProperty] private Command _reportPhotoMetadataCommand;
-    [ObservableProperty] private Command _reportTakenAndLicenseYearDoNotMatchCommand;
-    [ObservableProperty] private Command _reportTitleAndTakenDoNotMatchCommand;
-    [ObservableProperty] private Command _viewFilesCommand;
+    [ObservableProperty] private RelayCommand _openUrlForPhotoListCommand;
+    [ObservableProperty] private RelayCommand _photoLinkCodesToClipboardForSelectedCommand;
+    [ObservableProperty] private RelayCommand _refreshDataCommand;
+    [ObservableProperty] private RelayCommand _regenerateHtmlAndReprocessPhotoForSelectedCommand;
+    [ObservableProperty] private RelayCommand _reportAllPhotosCommand;
+    [ObservableProperty] private RelayCommand _reportBlankLicenseCommand;
+    [ObservableProperty] private RelayCommand _reportMultiSpacesInTitleCommand;
+    [ObservableProperty] private RelayCommand _reportNoTagsCommand;
+    [ObservableProperty] private RelayCommand _reportPhotoMetadataCommand;
+    [ObservableProperty] private RelayCommand _reportTakenAndLicenseYearDoNotMatchCommand;
+    [ObservableProperty] private RelayCommand _reportTitleAndTakenDoNotMatchCommand;
+    [ObservableProperty] private RelayCommand _viewFilesCommand;
     [ObservableProperty] private WindowIconStatus _windowStatus;
 
     public PhotoListWithActionsContext(StatusControlContext statusContext, WindowIconStatus windowStatus = null)

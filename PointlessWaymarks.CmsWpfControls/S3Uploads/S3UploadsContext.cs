@@ -6,9 +6,10 @@ using System.Text.Json;
 using System.Windows;
 using System.Windows.Shell;
 using Microsoft.Toolkit.Mvvm.ComponentModel;
+using Microsoft.Toolkit.Mvvm.Input;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsWpfControls.Utility;
-using PointlessWaymarks.WpfCommon.Commands;
+
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 using PointlessWaymarks.WpfCommon.Utility;
@@ -18,23 +19,23 @@ namespace PointlessWaymarks.CmsWpfControls.S3Uploads;
 [ObservableObject]
 public partial class S3UploadsContext
 {
-    [ObservableProperty] private Command _clearCompletedUploadBatch;
-    [ObservableProperty] private Command _clearUploadedCommand;
+    [ObservableProperty] private RelayCommand _clearCompletedUploadBatch;
+    [ObservableProperty] private RelayCommand _clearUploadedCommand;
     [ObservableProperty] private ObservableCollection<S3UploadsItem>? _items;
     [ObservableProperty] private ContentListSelected<S3UploadsItem>? _listSelection;
-    [ObservableProperty] private Command<S3UploadsItem> _openLocalFileInExplorerCommand;
+    [ObservableProperty] private RelayCommand<S3UploadsItem> _openLocalFileInExplorerCommand;
     [ObservableProperty] private WindowIconStatus _osStatusIndicator;
-    [ObservableProperty] private Command _removeSelectedItemsCommand;
-    [ObservableProperty] private Command _saveAllToUploadJsonFileCommand;
-    [ObservableProperty] private Command _saveNotUploadedToUploadJsonFileCommand;
-    [ObservableProperty] private Command _saveSelectedToUploadJsonFileCommand;
-    [ObservableProperty] private Command _startAllUploadsCommand;
-    [ObservableProperty] private Command _startSelectedUploadsCommand;
+    [ObservableProperty] private RelayCommand _removeSelectedItemsCommand;
+    [ObservableProperty] private RelayCommand _saveAllToUploadJsonFileCommand;
+    [ObservableProperty] private RelayCommand _saveNotUploadedToUploadJsonFileCommand;
+    [ObservableProperty] private RelayCommand _saveSelectedToUploadJsonFileCommand;
+    [ObservableProperty] private RelayCommand _startAllUploadsCommand;
+    [ObservableProperty] private RelayCommand _startSelectedUploadsCommand;
     [ObservableProperty] private StatusControlContext _statusContext;
-    [ObservableProperty] private Command _toClipboardAllItemsCommand;
-    [ObservableProperty] private Command _toClipboardSelectedItemsCommand;
-    [ObservableProperty] private Command _toExcelAllItemsCommand;
-    [ObservableProperty] private Command _toExcelSelectedItemsCommand;
+    [ObservableProperty] private RelayCommand _toClipboardAllItemsCommand;
+    [ObservableProperty] private RelayCommand _toClipboardSelectedItemsCommand;
+    [ObservableProperty] private RelayCommand _toExcelAllItemsCommand;
+    [ObservableProperty] private RelayCommand _toExcelSelectedItemsCommand;
     [ObservableProperty] private S3UploadsUploadBatch? _uploadBatch;
 
     public S3UploadsContext(StatusControlContext? statusContext, WindowIconStatus osStatusIndicator)

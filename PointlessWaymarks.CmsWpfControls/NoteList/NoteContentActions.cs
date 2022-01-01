@@ -2,6 +2,7 @@
 using System.Windows;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Toolkit.Mvvm.ComponentModel;
+using Microsoft.Toolkit.Mvvm.Input;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.ContentHtml.NoteHtml;
@@ -11,7 +12,7 @@ using PointlessWaymarks.CmsWpfControls.ContentHistoryView;
 using PointlessWaymarks.CmsWpfControls.ContentList;
 using PointlessWaymarks.CmsWpfControls.NoteContentEditor;
 using PointlessWaymarks.CmsWpfControls.Utility;
-using PointlessWaymarks.WpfCommon.Commands;
+
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 using PointlessWaymarks.WpfCommon.Utility;
@@ -20,14 +21,14 @@ namespace PointlessWaymarks.CmsWpfControls.NoteList;
 
 public partial class NoteContentActions : ObservableObject, IContentActions<NoteContent>
 {
-    [ObservableProperty] private Command<NoteContent> _deleteCommand;
-    [ObservableProperty] private Command<NoteContent> _editCommand;
-    [ObservableProperty] private Command<NoteContent> _extractNewLinksCommand;
-    [ObservableProperty] private Command<NoteContent> _generateHtmlCommand;
-    [ObservableProperty] private Command<NoteContent> _linkCodeToClipboardCommand;
-    [ObservableProperty] private Command<NoteContent> _viewOnSiteCommand;
+    [ObservableProperty] private RelayCommand<NoteContent> _deleteCommand;
+    [ObservableProperty] private RelayCommand<NoteContent> _editCommand;
+    [ObservableProperty] private RelayCommand<NoteContent> _extractNewLinksCommand;
+    [ObservableProperty] private RelayCommand<NoteContent> _generateHtmlCommand;
+    [ObservableProperty] private RelayCommand<NoteContent> _linkCodeToClipboardCommand;
+    [ObservableProperty] private RelayCommand<NoteContent> _viewOnSiteCommand;
     [ObservableProperty] private StatusControlContext _statusContext;
-    [ObservableProperty] private Command<NoteContent> _viewHistoryCommand;
+    [ObservableProperty] private RelayCommand<NoteContent> _viewHistoryCommand;
 
     public NoteContentActions(StatusControlContext statusContext)
     {

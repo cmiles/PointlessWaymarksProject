@@ -1,7 +1,8 @@
 ﻿#nullable enable
 using System.Collections.ObjectModel;
 using Microsoft.Toolkit.Mvvm.ComponentModel;
-using PointlessWaymarks.WpfCommon.Commands;
+using Microsoft.Toolkit.Mvvm.Input;
+
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 
 namespace PointlessWaymarks.CmsWpfControls.S3Uploads;
@@ -9,7 +10,7 @@ namespace PointlessWaymarks.CmsWpfControls.S3Uploads;
 [ObservableObject]
 public partial class S3UploadsUploadBatch
 {
-    [ObservableProperty] private Command? _cancelCommand;
+    [ObservableProperty] private RelayCommand? _cancelCommand;
     [ObservableProperty] private CancellationTokenSource? _cancellation;
     [ObservableProperty] private bool _completed;
     [ObservableProperty] private decimal _completedItemPercent;
@@ -27,7 +28,7 @@ public partial class S3UploadsUploadBatch
 
     public S3UploadsUploadBatch()
     {
-        CancelCommand = new Command(() => { Cancellation?.Cancel(); }, () => Cancellation != null);
+        CancelCommand = new RelayCommand(() => { Cancellation?.Cancel(); }, () => Cancellation != null);
     }
 
     public static async Task<S3UploadsUploadBatch> CreateInstance(List<S3UploadsItem> toUpload)

@@ -2,6 +2,7 @@
 using System.Windows;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Toolkit.Mvvm.ComponentModel;
+using Microsoft.Toolkit.Mvvm.Input;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.ContentHtml.PointHtml;
@@ -11,7 +12,7 @@ using PointlessWaymarks.CmsWpfControls.ContentHistoryView;
 using PointlessWaymarks.CmsWpfControls.ContentList;
 using PointlessWaymarks.CmsWpfControls.PointContentEditor;
 using PointlessWaymarks.CmsWpfControls.Utility;
-using PointlessWaymarks.WpfCommon.Commands;
+
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 using PointlessWaymarks.WpfCommon.Utility;
@@ -20,14 +21,14 @@ namespace PointlessWaymarks.CmsWpfControls.PointList;
 
 public partial class PointContentActions : ObservableObject, IContentActions<PointContent>
 {
-    [ObservableProperty] private Command<PointContent> _deleteCommand;
-    [ObservableProperty] private Command<PointContent> _editCommand;
-    [ObservableProperty] private Command<PointContent> _extractNewLinksCommand;
-    [ObservableProperty] private Command<PointContent> _generateHtmlCommand;
-    [ObservableProperty] private Command<PointContent> _linkCodeToClipboardCommand;
-    [ObservableProperty] private Command<PointContent> _viewOnSiteCommand;
+    [ObservableProperty] private RelayCommand<PointContent> _deleteCommand;
+    [ObservableProperty] private RelayCommand<PointContent> _editCommand;
+    [ObservableProperty] private RelayCommand<PointContent> _extractNewLinksCommand;
+    [ObservableProperty] private RelayCommand<PointContent> _generateHtmlCommand;
+    [ObservableProperty] private RelayCommand<PointContent> _linkCodeToClipboardCommand;
+    [ObservableProperty] private RelayCommand<PointContent> _viewOnSiteCommand;
     [ObservableProperty] private StatusControlContext _statusContext;
-    [ObservableProperty] private Command<PointContent> _viewHistoryCommand;
+    [ObservableProperty] private RelayCommand<PointContent> _viewHistoryCommand;
 
     public PointContentActions(StatusControlContext statusContext)
     {

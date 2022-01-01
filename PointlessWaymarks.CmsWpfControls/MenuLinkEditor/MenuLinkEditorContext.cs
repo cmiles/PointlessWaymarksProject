@@ -1,11 +1,12 @@
 ﻿using System.Collections.ObjectModel;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Toolkit.Mvvm.ComponentModel;
+using Microsoft.Toolkit.Mvvm.Input;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsWpfControls.HelpDisplay;
-using PointlessWaymarks.WpfCommon.Commands;
+
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 
@@ -49,25 +50,25 @@ public partial class MenuLinkEditorContext
         StatusContext.RunFireAndForgetBlockingTask(LoadData);
     }
 
-    public Command AddItemCommand { get; init; }
+    public RelayCommand AddItemCommand { get; init; }
 
-    public Command DeleteItemCommand { get; init; }
+    public RelayCommand DeleteItemCommand { get; init; }
 
-    public Command<MenuLinkListItem> InsertIndexTagIndexCommand { get; init; }
+    public RelayCommand<MenuLinkListItem> InsertIndexTagIndexCommand { get; init; }
 
-    public Command<MenuLinkListItem> InsertLinkListCommand { get; init; }
+    public RelayCommand<MenuLinkListItem> InsertLinkListCommand { get; init; }
 
-    public Command<MenuLinkListItem> InsertPhotoGalleryCommand { get; init; }
+    public RelayCommand<MenuLinkListItem> InsertPhotoGalleryCommand { get; init; }
 
-    public Command<MenuLinkListItem> InsertSearchPageCommand { get; init; }
+    public RelayCommand<MenuLinkListItem> InsertSearchPageCommand { get; init; }
 
-    public Command<MenuLinkListItem> InsertTagSearchCommand { get; init; }
+    public RelayCommand<MenuLinkListItem> InsertTagSearchCommand { get; init; }
 
-    public Command<MenuLinkListItem> MoveItemDownCommand { get; init; }
+    public RelayCommand<MenuLinkListItem> MoveItemDownCommand { get; init; }
 
-    public Command MoveItemUpCommand { get; init; }
+    public RelayCommand<MenuLinkListItem> MoveItemUpCommand { get; init; }
 
-    public Command SaveCommand { get; init; }
+    public RelayCommand SaveCommand { get; init; }
 
     private async Task AddItem()
     {

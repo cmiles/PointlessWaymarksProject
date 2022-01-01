@@ -1,8 +1,9 @@
 ﻿using System.Windows;
 using Microsoft.Toolkit.Mvvm.ComponentModel;
+using Microsoft.Toolkit.Mvvm.Input;
 using Microsoft.Web.WebView2.Wpf;
 using PointlessWaymarks.CmsData;
-using PointlessWaymarks.WpfCommon.Commands;
+
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 
@@ -19,11 +20,11 @@ public partial class SitePreviewContext : DependencyObject
     [ObservableProperty] private string _siteUrl;
     [ObservableProperty] private StatusControlContext _statusContext;
     [ObservableProperty] private string _textBarAddress;
-    [ObservableProperty] private Command _tryGoBackNavigationCommand;
-    [ObservableProperty] private Command _tryGoForwardNavigationCommand;
-    [ObservableProperty] private Command _tryNavigateHomeCommand;
-    [ObservableProperty] private Command _tryRefreshCommand;
-    [ObservableProperty] private Command _tryUserNavigationCommand;
+    [ObservableProperty] private RelayCommand _tryGoBackNavigationCommand;
+    [ObservableProperty] private RelayCommand _tryGoForwardNavigationCommand;
+    [ObservableProperty] private RelayCommand _tryNavigateHomeCommand;
+    [ObservableProperty] private RelayCommand _tryRefreshCommand;
+    [ObservableProperty] private RelayCommand _tryUserNavigationCommand;
     [ObservableProperty] private WebView2 _webViewGui;
     [ObservableProperty] private string _windowTitle;
 

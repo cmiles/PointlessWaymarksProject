@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.Windows;
 using Microsoft.Toolkit.Mvvm.ComponentModel;
+using Microsoft.Toolkit.Mvvm.Input;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.Content;
@@ -16,7 +17,7 @@ using PointlessWaymarks.CmsWpfControls.StringDataEntry;
 using PointlessWaymarks.CmsWpfControls.TagsEditor;
 using PointlessWaymarks.CmsWpfControls.Utility;
 using PointlessWaymarks.CmsWpfControls.Utility.ChangesAndValidation;
-using PointlessWaymarks.WpfCommon.Commands;
+
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 
@@ -29,20 +30,20 @@ public partial class NoteContentEditorContext : IHasChanges, IHasValidationIssue
     [ObservableProperty] private ContentIdViewerControlContext _contentId;
     [ObservableProperty] private CreatedAndUpdatedByAndOnDisplayContext _createdUpdatedDisplay;
     [ObservableProperty] private NoteContent _dbEntry;
-    [ObservableProperty] private Command _extractNewLinksCommand;
+    [ObservableProperty] private RelayCommand _extractNewLinksCommand;
     [ObservableProperty] private ContentFolderContext _folderEntry;
     [ObservableProperty] private bool _hasChanges;
     [ObservableProperty] private bool _hasValidationIssues;
     [ObservableProperty] private HelpDisplayContext _helpContext;
-    [ObservableProperty] private Command _linkToClipboardCommand;
+    [ObservableProperty] private RelayCommand _linkToClipboardCommand;
     [ObservableProperty] private ContentSiteFeedAndIsDraftContext _mainSiteFeed;
-    [ObservableProperty] private Command _saveAndCloseCommand;
-    [ObservableProperty] private Command _saveCommand;
+    [ObservableProperty] private RelayCommand _saveAndCloseCommand;
+    [ObservableProperty] private RelayCommand _saveCommand;
     [ObservableProperty] private string _slug;
     [ObservableProperty] private StatusControlContext _statusContext;
     [ObservableProperty] private StringDataEntryContext _summary;
     [ObservableProperty] private TagsEditorContext _tagEdit;
-    [ObservableProperty] private Command _viewOnSiteCommand;
+    [ObservableProperty] private RelayCommand _viewOnSiteCommand;
 
     public EventHandler RequestContentEditorWindowClose;
 

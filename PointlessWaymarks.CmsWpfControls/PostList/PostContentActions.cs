@@ -2,6 +2,7 @@
 using System.Windows;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Toolkit.Mvvm.ComponentModel;
+using Microsoft.Toolkit.Mvvm.Input;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.ContentHtml.PostHtml;
@@ -11,7 +12,7 @@ using PointlessWaymarks.CmsWpfControls.ContentHistoryView;
 using PointlessWaymarks.CmsWpfControls.ContentList;
 using PointlessWaymarks.CmsWpfControls.PostContentEditor;
 using PointlessWaymarks.CmsWpfControls.Utility;
-using PointlessWaymarks.WpfCommon.Commands;
+
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 using PointlessWaymarks.WpfCommon.Utility;
@@ -20,14 +21,14 @@ namespace PointlessWaymarks.CmsWpfControls.PostList;
 
 public partial class PostContentActions : ObservableObject, IContentActions<PostContent>
 {
-    [ObservableProperty] private Command<PostContent> _deleteCommand;
-    [ObservableProperty] private Command<PostContent> _editCommand;
-    [ObservableProperty] private Command<PostContent> _extractNewLinksCommand;
-    [ObservableProperty] private Command<PostContent> _generateHtmlCommand;
-    [ObservableProperty] private Command<PostContent> _linkCodeToClipboardCommand;
-    [ObservableProperty] private Command<PostContent> _viewOnSiteCommand;
+    [ObservableProperty] private RelayCommand<PostContent> _deleteCommand;
+    [ObservableProperty] private RelayCommand<PostContent> _editCommand;
+    [ObservableProperty] private RelayCommand<PostContent> _extractNewLinksCommand;
+    [ObservableProperty] private RelayCommand<PostContent> _generateHtmlCommand;
+    [ObservableProperty] private RelayCommand<PostContent> _linkCodeToClipboardCommand;
+    [ObservableProperty] private RelayCommand<PostContent> _viewOnSiteCommand;
     [ObservableProperty] private StatusControlContext _statusContext;
-    [ObservableProperty] private Command<PostContent> _viewHistoryCommand;
+    [ObservableProperty] private RelayCommand<PostContent> _viewHistoryCommand;
 
     public PostContentActions(StatusControlContext statusContext)
     {

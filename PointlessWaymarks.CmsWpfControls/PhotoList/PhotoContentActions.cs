@@ -2,6 +2,7 @@
 using System.Windows;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Toolkit.Mvvm.ComponentModel;
+using Microsoft.Toolkit.Mvvm.Input;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.ContentHtml.PhotoHtml;
@@ -11,7 +12,7 @@ using PointlessWaymarks.CmsWpfControls.ContentHistoryView;
 using PointlessWaymarks.CmsWpfControls.ContentList;
 using PointlessWaymarks.CmsWpfControls.PhotoContentEditor;
 using PointlessWaymarks.CmsWpfControls.Utility;
-using PointlessWaymarks.WpfCommon.Commands;
+
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 using PointlessWaymarks.WpfCommon.Utility;
@@ -20,22 +21,22 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList;
 
 public partial class PhotoContentActions : ObservableObject, IContentActions<PhotoContent>
 {
-    [ObservableProperty] private Command<PhotoContent> _apertureSearchCommand;
-    [ObservableProperty] private Command<PhotoContent> _cameraMakeSearchCommand;
-    [ObservableProperty] private Command<PhotoContent> _cameraModelSearchCommand;
-    [ObservableProperty] private Command<PhotoContent> _deleteCommand;
-    [ObservableProperty] private Command<PhotoContent> _editCommand;
-    [ObservableProperty] private Command<PhotoContent> _extractNewLinksCommand;
-    [ObservableProperty] private Command<PhotoContent> _focalLengthSearchCommand;
-    [ObservableProperty] private Command<PhotoContent> _generateHtmlCommand;
-    [ObservableProperty] private Command<PhotoContent> _isoSearchCommand;
-    [ObservableProperty] private Command<PhotoContent> _lensSearchCommand;
-    [ObservableProperty] private Command<PhotoContent> _linkCodeToClipboardCommand;
-    [ObservableProperty] private Command<PhotoContent> _viewOnSiteCommand;
-    [ObservableProperty] private Command<PhotoContent> _photoTakenOnSearchCommand;
-    [ObservableProperty] private Command<PhotoContent> _shutterSpeedSearchCommand;
+    [ObservableProperty] private RelayCommand<PhotoContent> _apertureSearchCommand;
+    [ObservableProperty] private RelayCommand<PhotoContent> _cameraMakeSearchCommand;
+    [ObservableProperty] private RelayCommand<PhotoContent> _cameraModelSearchCommand;
+    [ObservableProperty] private RelayCommand<PhotoContent> _deleteCommand;
+    [ObservableProperty] private RelayCommand<PhotoContent> _editCommand;
+    [ObservableProperty] private RelayCommand<PhotoContent> _extractNewLinksCommand;
+    [ObservableProperty] private RelayCommand<PhotoContent> _focalLengthSearchCommand;
+    [ObservableProperty] private RelayCommand<PhotoContent> _generateHtmlCommand;
+    [ObservableProperty] private RelayCommand<PhotoContent> _isoSearchCommand;
+    [ObservableProperty] private RelayCommand<PhotoContent> _lensSearchCommand;
+    [ObservableProperty] private RelayCommand<PhotoContent> _linkCodeToClipboardCommand;
+    [ObservableProperty] private RelayCommand<PhotoContent> _viewOnSiteCommand;
+    [ObservableProperty] private RelayCommand<PhotoContent> _photoTakenOnSearchCommand;
+    [ObservableProperty] private RelayCommand<PhotoContent> _shutterSpeedSearchCommand;
     [ObservableProperty] private StatusControlContext _statusContext;
-    [ObservableProperty] private Command<PhotoContent> _viewFileCommand;
+    [ObservableProperty] private RelayCommand<PhotoContent> _viewFileCommand;
 
     public PhotoContentActions(StatusControlContext statusContext)
     {
@@ -232,7 +233,7 @@ public partial class PhotoContentActions : ObservableObject, IContentActions<Pho
         historicView.WriteHtmlToTempFolderAndShow(StatusContext.ProgressTracker());
     }
 
-    public Command<PhotoContent> ViewHistoryCommand { get; set; }
+    public RelayCommand<PhotoContent> ViewHistoryCommand { get; set; }
 
     private static async Task<List<object>> ApertureSearch(PhotoContent content)
     {

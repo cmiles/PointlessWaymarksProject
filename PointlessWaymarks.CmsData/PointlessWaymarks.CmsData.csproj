@@ -38,7 +38,7 @@
   <ItemGroup>
     <PackageReference Include="AngleSharp" Version="1.0.0-alpha-844" />
     <PackageReference Include="AngleSharp.Js" Version="0.15.0" />
-    <PackageReference Include="AWSSDK.S3" Version="3.7.7.1" />
+    <PackageReference Include="AWSSDK.S3" Version="3.7.7.5" />
     <PackageReference Include="ClosedXML" Version="0.95.4" />
     <PackageReference Include="CompareNETObjects" Version="4.74.0" />
     <PackageReference Include="FluentMigrator" Version="3.3.1" />
@@ -54,8 +54,8 @@
     <PackageReference Include="JetBrains.Annotations" Version="2021.3.0" />
     <PackageReference Include="Markdig" Version="0.26.0" />
     <PackageReference Include="MetadataExtractor" Version="2.7.1" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.0" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="6.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.1" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="6.0.1" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0" />
     <PackageReference Include="Microsoft.Toolkit.Mvvm" Version="7.1.2" />
     <PackageReference Include="NetTopologySuite" Version="2.4.0" />
@@ -77,7 +77,7 @@
     <PackageReference Include="System.Data.SQLite.Core" Version="1.0.115.5" />
     <PackageReference Include="System.Drawing.Common" Version="6.0.0" />
     <PackageReference Include="System.ServiceModel.Syndication" Version="6.0.0" />
-    <PackageReference Include="System.Text.Json" Version="6.0.0" />
+    <PackageReference Include="System.Text.Json" Version="6.0.1" />
     <PackageReference Include="TinyIpc" Version="3.1.0" />
     <PackageReference Include="ValueInjecter" Version="3.2.0" />
   </ItemGroup>

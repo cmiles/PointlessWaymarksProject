@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Windows;
 using Microsoft.Toolkit.Mvvm.ComponentModel;
+using Microsoft.Toolkit.Mvvm.Input;
 using Ookii.Dialogs.Wpf;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.CommonHtml;
@@ -19,7 +20,7 @@ using PointlessWaymarks.CmsWpfControls.TitleSummarySlugFolderEditor;
 using PointlessWaymarks.CmsWpfControls.UpdateNotesEditor;
 using PointlessWaymarks.CmsWpfControls.Utility;
 using PointlessWaymarks.CmsWpfControls.Utility.ChangesAndValidation;
-using PointlessWaymarks.WpfCommon.Commands;
+
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 
@@ -28,30 +29,30 @@ namespace PointlessWaymarks.CmsWpfControls.FileContentEditor;
 [ObservableObject]
 public partial class FileContentEditorContext : IHasChanges, IHasValidationIssues, ICheckForChangesAndValidation
 {
-    [ObservableProperty] private Command _autoRenameSelectedFileCommand;
+    [ObservableProperty] private RelayCommand _autoRenameSelectedFileCommand;
     [ObservableProperty] private BodyContentEditorContext _bodyContent;
-    [ObservableProperty] private Command _chooseFileCommand;
+    [ObservableProperty] private RelayCommand _chooseFileCommand;
     [ObservableProperty] private ContentIdViewerControlContext _contentId;
     [ObservableProperty] private CreatedAndUpdatedByAndOnDisplayContext _createdUpdatedDisplay;
     [ObservableProperty] private FileContent _dbEntry;
-    [ObservableProperty] private Command _downloadLinkToClipboardCommand;
+    [ObservableProperty] private RelayCommand _downloadLinkToClipboardCommand;
     [ObservableProperty] private BoolDataEntryContext _embedFile;
-    [ObservableProperty] private Command _extractNewLinksCommand;
+    [ObservableProperty] private RelayCommand _extractNewLinksCommand;
     [ObservableProperty] private bool _hasChanges;
     [ObservableProperty] private bool _hasValidationIssues;
     [ObservableProperty] private HelpDisplayContext _helpContext;
     [ObservableProperty] private FileInfo _initialFile;
-    [ObservableProperty] private Command _linkToClipboardCommand;
+    [ObservableProperty] private RelayCommand _linkToClipboardCommand;
     [ObservableProperty] private FileInfo _loadedFile;
     [ObservableProperty] private ContentSiteFeedAndIsDraftContext _mainSiteFeed;
-    [ObservableProperty] private Command _openSelectedFileCommand;
-    [ObservableProperty] private Command _openSelectedFileDirectoryCommand;
+    [ObservableProperty] private RelayCommand _openSelectedFileCommand;
+    [ObservableProperty] private RelayCommand _openSelectedFileDirectoryCommand;
     [ObservableProperty] private string _pdfToImagePageToExtract = "1";
     [ObservableProperty] private BoolDataEntryContext _publicDownloadLink;
-    [ObservableProperty] private Command _renameSelectedFileCommand;
-    [ObservableProperty] private Command _saveAndCloseCommand;
-    [ObservableProperty] private Command _saveAndExtractImageFromPdfCommand;
-    [ObservableProperty] private Command _saveCommand;
+    [ObservableProperty] private RelayCommand _renameSelectedFileCommand;
+    [ObservableProperty] private RelayCommand _saveAndCloseCommand;
+    [ObservableProperty] private RelayCommand _saveAndExtractImageFromPdfCommand;
+    [ObservableProperty] private RelayCommand _saveCommand;
     [ObservableProperty] private FileInfo _selectedFile;
     [ObservableProperty] private bool _selectedFileHasPathOrNameChanges;
     [ObservableProperty] private bool _selectedFileHasValidationIssues;
@@ -61,7 +62,7 @@ public partial class FileContentEditorContext : IHasChanges, IHasValidationIssue
     [ObservableProperty] private TagsEditorContext _tagEdit;
     [ObservableProperty] private TitleSummarySlugEditorContext _titleSummarySlugFolder;
     [ObservableProperty] private UpdateNotesEditorContext _updateNotes;
-    [ObservableProperty] private Command _viewOnSiteCommand;
+    [ObservableProperty] private RelayCommand _viewOnSiteCommand;
 
     public EventHandler RequestContentEditorWindowClose;
     private FileContentEditorContext(StatusControlContext statusContext, FileInfo initialFile = null)

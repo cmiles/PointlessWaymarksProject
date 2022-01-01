@@ -1,6 +1,7 @@
 ﻿using System.IO;
 using System.Windows.Shell;
 using Microsoft.Toolkit.Mvvm.ComponentModel;
+using Microsoft.Toolkit.Mvvm.Input;
 using Ookii.Dialogs.Wpf;
 using PointlessWaymarks.CmsData.Content;
 using PointlessWaymarks.CmsWpfControls.FileContentEditor;
@@ -14,7 +15,7 @@ using PointlessWaymarks.CmsWpfControls.PhotoContentEditor;
 using PointlessWaymarks.CmsWpfControls.PointContentEditor;
 using PointlessWaymarks.CmsWpfControls.PostContentEditor;
 using PointlessWaymarks.CmsWpfControls.Utility;
-using PointlessWaymarks.WpfCommon.Commands;
+
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 using PointlessWaymarks.WpfCommon.Utility;
@@ -64,33 +65,33 @@ public partial class NewContent
         NewPostContentCommand = StatusContext.RunNonBlockingTaskCommand(NewPostContent);
     }
 
-    public Command NewFileContentCommand { get; }
+    public RelayCommand NewFileContentCommand { get; }
 
-    public Command NewFileContentFromFilesCommand { get; }
+    public RelayCommand NewFileContentFromFilesCommand { get; }
 
-    public Command NewGeoJsonContentCommand { get; }
+    public RelayCommand NewGeoJsonContentCommand { get; }
 
-    public Command NewImageContentCommand { get; }
+    public RelayCommand NewImageContentCommand { get; }
 
-    public Command NewImageContentFromFilesCommand { get; }
+    public RelayCommand NewImageContentFromFilesCommand { get; }
 
-    public Command NewLineContentCommand { get; }
+    public RelayCommand NewLineContentCommand { get; }
 
-    public Command NewLinkContentCommand { get; }
+    public RelayCommand NewLinkContentCommand { get; }
 
-    public Command NewMapContentCommand { get; }
+    public RelayCommand NewMapContentCommand { get; }
 
-    public Command NewNoteContentCommand { get; }
+    public RelayCommand NewNoteContentCommand { get; }
 
-    public Command NewPhotoContentCommand { get; }
+    public RelayCommand NewPhotoContentCommand { get; }
 
-    public Command NewPhotoContentFromFilesCommand { get; }
+    public RelayCommand NewPhotoContentFromFilesCommand { get; }
 
-    public Command NewPhotoContentFromFilesWithAutosaveCommand { get; }
+    public RelayCommand NewPhotoContentFromFilesWithAutosaveCommand { get; }
 
-    public Command NewPointContentCommand { get; }
+    public RelayCommand NewPointContentCommand { get; }
 
-    public Command NewPostContentCommand { get; }
+    public RelayCommand NewPostContentCommand { get; }
 
     public WindowIconStatus WindowStatus { get; set; }
 

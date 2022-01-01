@@ -1,8 +1,9 @@
 ﻿using System.Windows;
 using Microsoft.Toolkit.Mvvm.ComponentModel;
+using Microsoft.Toolkit.Mvvm.Input;
 using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsWpfControls.ContentList;
-using PointlessWaymarks.WpfCommon.Commands;
+
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 using PointlessWaymarks.WpfCommon.Utility;
@@ -13,9 +14,9 @@ namespace PointlessWaymarks.CmsWpfControls.LineList;
 public partial class LineListWithActionsContext
 {
     [ObservableProperty] private StatusControlContext _statusContext;
-    [ObservableProperty] private Command _lineLinkCodesToClipboardForSelectedCommand;
+    [ObservableProperty] private RelayCommand _lineLinkCodesToClipboardForSelectedCommand;
     [ObservableProperty] private ContentListContext _listContext;
-    [ObservableProperty] private Command _refreshDataCommand;
+    [ObservableProperty] private RelayCommand _refreshDataCommand;
     [ObservableProperty] private WindowIconStatus _windowStatus;
 
     public LineListWithActionsContext(StatusControlContext statusContext, WindowIconStatus windowStatus = null)

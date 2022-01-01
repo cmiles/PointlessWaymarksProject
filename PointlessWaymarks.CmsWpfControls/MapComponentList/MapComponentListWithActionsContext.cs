@@ -1,6 +1,7 @@
 ﻿using Microsoft.Toolkit.Mvvm.ComponentModel;
+using Microsoft.Toolkit.Mvvm.Input;
 using PointlessWaymarks.CmsWpfControls.ContentList;
-using PointlessWaymarks.WpfCommon.Commands;
+
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 using PointlessWaymarks.WpfCommon.Utility;
@@ -12,7 +13,7 @@ public partial class MapComponentListWithActionsContext
 {
     [ObservableProperty] private StatusControlContext _statusContext;
     [ObservableProperty] private ContentListContext _listContext;
-    [ObservableProperty] private Command _refreshDataCommand;
+    [ObservableProperty] private RelayCommand _refreshDataCommand;
     [ObservableProperty] private WindowIconStatus _windowStatus;
 
     public MapComponentListWithActionsContext(StatusControlContext statusContext, WindowIconStatus windowStatus = null)

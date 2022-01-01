@@ -1,10 +1,11 @@
 ﻿using System.Windows;
 using Microsoft.Toolkit.Mvvm.ComponentModel;
+using Microsoft.Toolkit.Mvvm.Input;
 using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.ContentHtml.FileHtml;
 using PointlessWaymarks.CmsWpfControls.ContentList;
 using PointlessWaymarks.CmsWpfControls.Utility;
-using PointlessWaymarks.WpfCommon.Commands;
+
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 using PointlessWaymarks.WpfCommon.Utility;
@@ -14,16 +15,16 @@ namespace PointlessWaymarks.CmsWpfControls.FileList;
 [ObservableObject]
 public partial class FileListWithActionsContext
 {
-    [ObservableProperty] private Command _emailHtmlToClipboardCommand;
-    [ObservableProperty] private Command _fileDownloadLinkCodesToClipboardForSelectedCommand;
-    [ObservableProperty] private Command _fileEmbedCodesToClipboardForSelectedCommand;
-    [ObservableProperty] private Command _filePageLinkCodesToClipboardForSelectedCommand;
-    [ObservableProperty] private Command _fileUrlLinkCodesToClipboardForSelectedCommand;
-    [ObservableProperty] private Command _firstPagePreviewFromPdfToCairoCommand;
+    [ObservableProperty] private RelayCommand _emailHtmlToClipboardCommand;
+    [ObservableProperty] private RelayCommand _fileDownloadLinkCodesToClipboardForSelectedCommand;
+    [ObservableProperty] private RelayCommand _fileEmbedCodesToClipboardForSelectedCommand;
+    [ObservableProperty] private RelayCommand _filePageLinkCodesToClipboardForSelectedCommand;
+    [ObservableProperty] private RelayCommand _fileUrlLinkCodesToClipboardForSelectedCommand;
+    [ObservableProperty] private RelayCommand _firstPagePreviewFromPdfToCairoCommand;
     [ObservableProperty] private ContentListContext _listContext;
-    [ObservableProperty] private Command _refreshDataCommand;
+    [ObservableProperty] private RelayCommand _refreshDataCommand;
     [ObservableProperty] private StatusControlContext _statusContext;
-    [ObservableProperty] private Command _viewFilesCommand;
+    [ObservableProperty] private RelayCommand _viewFilesCommand;
     [ObservableProperty] private WindowIconStatus _windowStatus;
 
     public FileListWithActionsContext(StatusControlContext statusContext, WindowIconStatus windowStatus = null)

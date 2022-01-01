@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.Data;
 using System.Windows.Data;
 using Microsoft.Toolkit.Mvvm.ComponentModel;
+using Microsoft.Toolkit.Mvvm.Input;
 using Omu.ValueInjecter;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.Content;
@@ -15,7 +16,7 @@ using PointlessWaymarks.CmsWpfControls.NoteContentEditor;
 using PointlessWaymarks.CmsWpfControls.PhotoContentEditor;
 using PointlessWaymarks.CmsWpfControls.PostContentEditor;
 using PointlessWaymarks.CmsWpfControls.Utility;
-using PointlessWaymarks.WpfCommon.Commands;
+
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 using PointlessWaymarks.WpfCommon.Utility;
@@ -27,23 +28,23 @@ namespace PointlessWaymarks.CmsWpfControls.TagList;
 [ObservableObject]
 public partial class TagListContext
 {
-    [ObservableProperty] private Command _allDetailItemsToExcelCommand;
+    [ObservableProperty] private RelayCommand _allDetailItemsToExcelCommand;
     [ObservableProperty] private DataNotificationsWorkQueue _dataNotificationsProcessor;
     [ObservableProperty] private List<TagItemContentInformation> _detailsList;
     [ObservableProperty] private List<TagItemContentInformation> _detailsSelectedItems;
-    [ObservableProperty] private Command<Guid> _editContentCommand;
-    [ObservableProperty] private Command _importFromExcelFileCommand;
-    [ObservableProperty] private Command _importFromOpenExcelInstanceCommand;
+    [ObservableProperty] private RelayCommand<Guid> _editContentCommand;
+    [ObservableProperty] private RelayCommand _importFromExcelFileCommand;
+    [ObservableProperty] private RelayCommand _importFromOpenExcelInstanceCommand;
     [ObservableProperty] private ObservableCollection<TagListListItem> _items;
-    [ObservableProperty] private Command<TagListListItem> _makeExcludedTagCommand;
-    [ObservableProperty] private Command _refreshDataCommand;
-    [ObservableProperty] private Command<TagListListItem> _removeExcludedTagCommand;
-    [ObservableProperty] private Command _selectedDetailItemsToExcelCommand;
+    [ObservableProperty] private RelayCommand<TagListListItem> _makeExcludedTagCommand;
+    [ObservableProperty] private RelayCommand _refreshDataCommand;
+    [ObservableProperty] private RelayCommand<TagListListItem> _removeExcludedTagCommand;
+    [ObservableProperty] private RelayCommand _selectedDetailItemsToExcelCommand;
     [ObservableProperty] private List<TagListListItem> _selectedItems;
-    [ObservableProperty] private Command _selectedTagsToExcelCommand;
+    [ObservableProperty] private RelayCommand _selectedTagsToExcelCommand;
     [ObservableProperty] private StatusControlContext _statusContext;
     [ObservableProperty] private string _userFilterText;
-    [ObservableProperty] private Command _visibleTagsToExcelCommand;
+    [ObservableProperty] private RelayCommand _visibleTagsToExcelCommand;
 
     public TagListContext(StatusControlContext context)
     {

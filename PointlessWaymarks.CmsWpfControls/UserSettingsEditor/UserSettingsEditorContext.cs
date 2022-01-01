@@ -2,10 +2,11 @@
 using System.Text.Json;
 using Amazon;
 using Microsoft.Toolkit.Mvvm.ComponentModel;
+using Microsoft.Toolkit.Mvvm.Input;
 using Omu.ValueInjecter;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsWpfControls.Utility.Aws;
-using PointlessWaymarks.WpfCommon.Commands;
+
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 
@@ -14,11 +15,11 @@ namespace PointlessWaymarks.CmsWpfControls.UserSettingsEditor;
 [ObservableObject]
 public partial class UserSettingsEditorContext
 {
-    [ObservableProperty] private Command _deleteAwsCredentials;
+    [ObservableProperty] private RelayCommand _deleteAwsCredentials;
     [ObservableProperty] private UserSettings _editorSettings;
-    [ObservableProperty] private Command _enterAwsCredentials;
+    [ObservableProperty] private RelayCommand _enterAwsCredentials;
     [ObservableProperty] private List<string> _regionChoices;
-    [ObservableProperty] private Command _saveSettingsCommand;
+    [ObservableProperty] private RelayCommand _saveSettingsCommand;
     [ObservableProperty] private StatusControlContext _statusContext;
 
     public UserSettingsEditorContext(StatusControlContext statusContext, UserSettings toLoad)

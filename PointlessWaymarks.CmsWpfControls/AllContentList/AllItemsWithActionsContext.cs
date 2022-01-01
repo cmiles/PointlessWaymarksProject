@@ -1,7 +1,8 @@
 ﻿using Microsoft.Toolkit.Mvvm.ComponentModel;
+using Microsoft.Toolkit.Mvvm.Input;
 using PointlessWaymarks.CmsWpfControls.ContentList;
 using PointlessWaymarks.CmsWpfControls.WordPressXmlImport;
-using PointlessWaymarks.WpfCommon.Commands;
+
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 using PointlessWaymarks.WpfCommon.Utility;
@@ -14,7 +15,7 @@ public partial class AllItemsWithActionsContext
     [ObservableProperty] private ContentListContext _listContext;
     [ObservableProperty] private StatusControlContext _statusContext;
     [ObservableProperty] private WindowIconStatus _windowStatus;
-    [ObservableProperty] private Command _wordPressImportWindowCommand;
+    [ObservableProperty] private RelayCommand _wordPressImportWindowCommand;
 
     public AllItemsWithActionsContext(StatusControlContext statusContext, WindowIconStatus windowStatus)
     {

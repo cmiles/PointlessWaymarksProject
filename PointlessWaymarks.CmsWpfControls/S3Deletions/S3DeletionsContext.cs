@@ -4,10 +4,11 @@ using System.Windows;
 using Amazon.S3;
 using Amazon.S3.Model;
 using Microsoft.Toolkit.Mvvm.ComponentModel;
+using Microsoft.Toolkit.Mvvm.Input;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsWpfControls.Utility;
 using PointlessWaymarks.CmsWpfControls.Utility.Aws;
-using PointlessWaymarks.WpfCommon.Commands;
+
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 
@@ -16,15 +17,15 @@ namespace PointlessWaymarks.CmsWpfControls.S3Deletions;
 [ObservableObject]
 public partial class S3DeletionsContext
 {
-    [ObservableProperty] private Command _deleteAllCommand;
-    [ObservableProperty] private Command _deleteSelectedCommand;
+    [ObservableProperty] private RelayCommand _deleteAllCommand;
+    [ObservableProperty] private RelayCommand _deleteSelectedCommand;
     [ObservableProperty] private ObservableCollection<S3DeletionsItem>? _items;
     [ObservableProperty] private List<S3DeletionsItem> _selectedItems = new();
     [ObservableProperty] private StatusControlContext _statusContext;
-    [ObservableProperty] private Command _toClipboardAllItemsCommand;
-    [ObservableProperty] private Command _toClipboardSelectedItemsCommand;
-    [ObservableProperty] private Command _toExcelAllItemsCommand;
-    [ObservableProperty] private Command _toExcelSelectedItemsCommand;
+    [ObservableProperty] private RelayCommand _toClipboardAllItemsCommand;
+    [ObservableProperty] private RelayCommand _toClipboardSelectedItemsCommand;
+    [ObservableProperty] private RelayCommand _toExcelAllItemsCommand;
+    [ObservableProperty] private RelayCommand _toExcelSelectedItemsCommand;
 
     public S3DeletionsContext(StatusControlContext? statusContext)
     {

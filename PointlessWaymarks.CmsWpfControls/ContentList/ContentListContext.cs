@@ -10,6 +10,7 @@ using MetadataExtractor;
 using MetadataExtractor.Formats.Exif;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Toolkit.Mvvm.ComponentModel;
+using Microsoft.Toolkit.Mvvm.Input;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.ContentHtml;
@@ -31,7 +32,7 @@ using PointlessWaymarks.CmsWpfControls.PostList;
 using PointlessWaymarks.CmsWpfControls.S3Uploads;
 using PointlessWaymarks.CmsWpfControls.SitePreview;
 using PointlessWaymarks.CmsWpfControls.Utility;
-using PointlessWaymarks.WpfCommon.Commands;
+
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 using PointlessWaymarks.WpfCommon.Utility;
@@ -43,7 +44,7 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList;
 [ObservableObject]
 public partial class ContentListContext : IDragSource, IDropTarget
 {
-    [ObservableProperty] private Command _bracketCodeToClipboardSelectedCommand;
+    [ObservableProperty] private RelayCommand _bracketCodeToClipboardSelectedCommand;
 
     [ObservableProperty] private IContentListLoader _contentListLoader;
 
@@ -51,29 +52,29 @@ public partial class ContentListContext : IDragSource, IDropTarget
 
     [ObservableProperty] private DataNotificationsWorkQueue _dataNotificationsProcessor;
 
-    [ObservableProperty] private Command _deleteSelectedCommand;
+    [ObservableProperty] private RelayCommand _deleteSelectedCommand;
 
-    [ObservableProperty] private Command _editSelectedCommand;
+    [ObservableProperty] private RelayCommand _editSelectedCommand;
 
-    [ObservableProperty] private Command _extractNewLinksSelectedCommand;
+    [ObservableProperty] private RelayCommand _extractNewLinksSelectedCommand;
 
     [ObservableProperty] private FileContentActions _fileItemActions;
 
-    [ObservableProperty] private Command _generateChangedHtmlAndShowSitePreviewCommand;
+    [ObservableProperty] private RelayCommand _generateChangedHtmlAndShowSitePreviewCommand;
 
-    [ObservableProperty] private Command _generateChangedHtmlAndStartUploadCommand;
+    [ObservableProperty] private RelayCommand _generateChangedHtmlAndStartUploadCommand;
 
-    [ObservableProperty] private Command _generateChangedHtmlCommand;
+    [ObservableProperty] private RelayCommand _generateChangedHtmlCommand;
 
-    [ObservableProperty] private Command _generateHtmlSelectedCommand;
+    [ObservableProperty] private RelayCommand _generateHtmlSelectedCommand;
 
     [ObservableProperty] private GeoJsonContentActions _geoJsonItemActions;
 
     [ObservableProperty] private ImageContentActions _imageItemActions;
 
-    [ObservableProperty] private Command _importFromExcelFileCommand;
+    [ObservableProperty] private RelayCommand _importFromExcelFileCommand;
 
-    [ObservableProperty] private Command _importFromOpenExcelInstanceCommand;
+    [ObservableProperty] private RelayCommand _importFromOpenExcelInstanceCommand;
 
     [ObservableProperty] private ObservableCollection<IContentListItem> _items;
 
@@ -85,7 +86,7 @@ public partial class ContentListContext : IDragSource, IDropTarget
 
     [ObservableProperty] private ColumnSortControlContext _listSort;
 
-    [ObservableProperty] private Command _loadAllCommand;
+    [ObservableProperty] private RelayCommand _loadAllCommand;
 
     [ObservableProperty] private MapComponentContentActions _mapComponentItemActions;
 
@@ -93,7 +94,7 @@ public partial class ContentListContext : IDragSource, IDropTarget
 
     [ObservableProperty] private NoteContentActions _noteItemActions;
 
-    [ObservableProperty] private Command _viewOnSiteCommand;
+    [ObservableProperty] private RelayCommand _viewOnSiteCommand;
 
     [ObservableProperty] private PhotoContentActions _photoItemActions;
 
@@ -101,15 +102,15 @@ public partial class ContentListContext : IDragSource, IDropTarget
 
     [ObservableProperty] private PostContentActions _postItemActions;
 
-    [ObservableProperty] private Command _selectedToExcelCommand;
+    [ObservableProperty] private RelayCommand _selectedToExcelCommand;
 
-    [ObservableProperty] private Command _showSitePreviewWindowCommand;
+    [ObservableProperty] private RelayCommand _showSitePreviewWindowCommand;
 
     [ObservableProperty] private StatusControlContext _statusContext;
 
     [ObservableProperty] private string _userFilterText;
 
-    [ObservableProperty] private Command _viewHistorySelectedCommand;
+    [ObservableProperty] private RelayCommand _viewHistorySelectedCommand;
 
     [ObservableProperty] private WindowIconStatus _windowStatus;
 

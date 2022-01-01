@@ -2,11 +2,12 @@
 using System.ComponentModel;
 using KellermanSoftware.CompareNetObjects;
 using Microsoft.Toolkit.Mvvm.ComponentModel;
+using Microsoft.Toolkit.Mvvm.Input;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsData.Database.PointDetailDataModels;
 using PointlessWaymarks.CmsWpfControls.Utility.ChangesAndValidation;
-using PointlessWaymarks.WpfCommon.Commands;
+
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 
@@ -17,12 +18,12 @@ public partial class PointDetailListContext : IHasChanges, IHasValidationIssues,
 {
     [ObservableProperty] private ObservableCollection<string> _additionalPointDetailTypes;
     [ObservableProperty] private List<PointDetail> _dbEntries;
-    [ObservableProperty] private Command<IPointDetailEditor> _deleteDetailCommand;
+    [ObservableProperty] private RelayCommand<IPointDetailEditor> _deleteDetailCommand;
     [ObservableProperty] private List<IPointDetailEditor> _deletedPointDetails;
     [ObservableProperty] private bool _hasChanges;
     [ObservableProperty] private bool _hasValidationIssues;
     [ObservableProperty] private ObservableCollection<IPointDetailEditor> _items;
-    [ObservableProperty] private Command<string> _loadNewDetailCommand;
+    [ObservableProperty] private RelayCommand<string> _loadNewDetailCommand;
     [ObservableProperty] private List<(string typeIdentifierAttribute, Type reflectedType)> _pointDetailTypeList;
     [ObservableProperty] private StatusControlContext _statusContext;
 

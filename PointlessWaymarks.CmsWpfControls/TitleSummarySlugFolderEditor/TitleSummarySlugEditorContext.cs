@@ -1,11 +1,12 @@
 ﻿using System.ComponentModel;
 using Microsoft.Toolkit.Mvvm.ComponentModel;
+using Microsoft.Toolkit.Mvvm.Input;
 using PointlessWaymarks.CmsData.ContentHtml;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsWpfControls.ContentFolder;
 using PointlessWaymarks.CmsWpfControls.StringDataEntry;
 using PointlessWaymarks.CmsWpfControls.Utility.ChangesAndValidation;
-using PointlessWaymarks.WpfCommon.Commands;
+
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 
@@ -15,7 +16,7 @@ namespace PointlessWaymarks.CmsWpfControls.TitleSummarySlugFolderEditor;
 public partial class TitleSummarySlugEditorContext : IHasChanges, IHasValidationIssues, ICheckForChangesAndValidation
 {
     [ObservableProperty] private Func<TitleSummarySlugEditorContext, bool> _customTitleCheckToEnable;
-    [ObservableProperty] private Command _customTitleCommand;
+    [ObservableProperty] private RelayCommand _customTitleCommand;
     [ObservableProperty] private bool _customTitleFunctionEnabled;
     [ObservableProperty] private string _customTitleFunctionText;
     [ObservableProperty] private bool _customTitleFunctionVisible;
@@ -27,9 +28,9 @@ public partial class TitleSummarySlugEditorContext : IHasChanges, IHasValidation
     [ObservableProperty] private StatusControlContext _statusContext;
     [ObservableProperty] private StringDataEntryContext _summaryEntry;
     [ObservableProperty] private StringDataEntryContext _titleEntry;
-    [ObservableProperty] private Command _titleToSlugCommand;
+    [ObservableProperty] private RelayCommand _titleToSlugCommand;
     [ObservableProperty] private bool _titleToSlugEnabled = true;
-    [ObservableProperty] private Command _titleToSummaryCommand;
+    [ObservableProperty] private RelayCommand _titleToSummaryCommand;
     [ObservableProperty] private bool _titleToSummaryEnabled = true;
 
     private TitleSummarySlugEditorContext(StatusControlContext statusContext)
@@ -39,7 +40,7 @@ public partial class TitleSummarySlugEditorContext : IHasChanges, IHasValidation
     }
 
     private TitleSummarySlugEditorContext(StatusControlContext statusContext, string customTitleCommandText,
-        Command customTitleCommand, Func<TitleSummarySlugEditorContext, bool> customTitleCheckToEnable)
+        RelayCommand customTitleCommand, Func<TitleSummarySlugEditorContext, bool> customTitleCheckToEnable)
     {
         StatusContext = statusContext ?? new StatusControlContext();
 
@@ -87,7 +88,7 @@ public partial class TitleSummarySlugEditorContext : IHasChanges, IHasValidation
     }
 
     public static async Task<TitleSummarySlugEditorContext> CreateInstance(StatusControlContext statusContext,
-        string customTitleCommandText, Command customTitleCommand,
+        string customTitleCommandText, RelayCommand customTitleCommand,
         Func<TitleSummarySlugEditorContext, bool> customTitleCheckToEnable, ITitleSummarySlugFolder dbEntry)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();

@@ -2,6 +2,7 @@
 using System.Windows;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Toolkit.Mvvm.ComponentModel;
+using Microsoft.Toolkit.Mvvm.Input;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.ContentHtml.LinkListHtml;
 using PointlessWaymarks.CmsData.Database;
@@ -10,7 +11,7 @@ using PointlessWaymarks.CmsWpfControls.ContentHistoryView;
 using PointlessWaymarks.CmsWpfControls.ContentList;
 using PointlessWaymarks.CmsWpfControls.LinkContentEditor;
 using PointlessWaymarks.CmsWpfControls.Utility;
-using PointlessWaymarks.WpfCommon.Commands;
+
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 using PointlessWaymarks.WpfCommon.Utility;
@@ -19,15 +20,15 @@ namespace PointlessWaymarks.CmsWpfControls.LinkList;
 
 public partial class LinkContentActions : ObservableObject, IContentActions<LinkContent>
 {
-    [ObservableProperty] private Command<string> _copyUrlCommand;
-    [ObservableProperty] private Command<LinkContent> _deleteCommand;
-    [ObservableProperty] private Command<LinkContent> _editCommand;
-    [ObservableProperty] private Command<LinkContent> _extractNewLinksCommand;
-    [ObservableProperty] private Command<LinkContent> _generateHtmlCommand;
-    [ObservableProperty] private Command<LinkContent> _linkCodeToClipboardCommand;
-    [ObservableProperty] private Command<LinkContent> _viewOnSiteCommand;
+    [ObservableProperty] private RelayCommand<string> _copyUrlCommand;
+    [ObservableProperty] private RelayCommand<LinkContent> _deleteCommand;
+    [ObservableProperty] private RelayCommand<LinkContent> _editCommand;
+    [ObservableProperty] private RelayCommand<LinkContent> _extractNewLinksCommand;
+    [ObservableProperty] private RelayCommand<LinkContent> _generateHtmlCommand;
+    [ObservableProperty] private RelayCommand<LinkContent> _linkCodeToClipboardCommand;
+    [ObservableProperty] private RelayCommand<LinkContent> _viewOnSiteCommand;
     [ObservableProperty] private StatusControlContext _statusContext;
-    [ObservableProperty] private Command<LinkContent> _viewHistoryCommand;
+    [ObservableProperty] private RelayCommand<LinkContent> _viewHistoryCommand;
 
     public LinkContentActions(StatusControlContext statusContext)
     {

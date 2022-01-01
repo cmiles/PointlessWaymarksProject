@@ -2,6 +2,7 @@
 using System.Windows;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Toolkit.Mvvm.ComponentModel;
+using Microsoft.Toolkit.Mvvm.Input;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.ContentHtml.ImageHtml;
@@ -11,7 +12,7 @@ using PointlessWaymarks.CmsWpfControls.ContentHistoryView;
 using PointlessWaymarks.CmsWpfControls.ContentList;
 using PointlessWaymarks.CmsWpfControls.ImageContentEditor;
 using PointlessWaymarks.CmsWpfControls.Utility;
-using PointlessWaymarks.WpfCommon.Commands;
+
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 using PointlessWaymarks.WpfCommon.Utility;
@@ -20,15 +21,15 @@ namespace PointlessWaymarks.CmsWpfControls.ImageList;
 
 public partial class ImageContentActions : ObservableObject, IContentActions<ImageContent>
 {
-    [ObservableProperty] private Command<ImageContent> _deleteCommand;
-    [ObservableProperty] private Command<ImageContent> _editCommand;
-    [ObservableProperty] private Command<ImageContent> _extractNewLinksCommand;
-    [ObservableProperty] private Command<ImageContent> _generateHtmlCommand;
-    [ObservableProperty] private Command<ImageContent> _linkCodeToClipboardCommand;
-    [ObservableProperty] private Command<ImageContent> _viewOnSiteCommand;
+    [ObservableProperty] private RelayCommand<ImageContent> _deleteCommand;
+    [ObservableProperty] private RelayCommand<ImageContent> _editCommand;
+    [ObservableProperty] private RelayCommand<ImageContent> _extractNewLinksCommand;
+    [ObservableProperty] private RelayCommand<ImageContent> _generateHtmlCommand;
+    [ObservableProperty] private RelayCommand<ImageContent> _linkCodeToClipboardCommand;
+    [ObservableProperty] private RelayCommand<ImageContent> _viewOnSiteCommand;
     [ObservableProperty] private StatusControlContext _statusContext;
-    [ObservableProperty] private Command<ImageContent> _viewFileCommand;
-    [ObservableProperty] private Command<ImageContent> _viewHistoryCommand;
+    [ObservableProperty] private RelayCommand<ImageContent> _viewFileCommand;
+    [ObservableProperty] private RelayCommand<ImageContent> _viewHistoryCommand;
 
     public ImageContentActions(StatusControlContext statusContext)
     {

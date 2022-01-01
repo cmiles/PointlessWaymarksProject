@@ -1,13 +1,14 @@
 ﻿using System.Windows;
 using HtmlTableHelper;
 using Microsoft.Toolkit.Mvvm.ComponentModel;
+using Microsoft.Toolkit.Mvvm.Input;
 using pinboard.net;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsWpfControls.ContentList;
 using PointlessWaymarks.CmsWpfControls.HtmlViewer;
 using PointlessWaymarks.CmsWpfControls.WpfHtml;
-using PointlessWaymarks.WpfCommon.Commands;
+
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 using PointlessWaymarks.WpfCommon.Utility;
@@ -19,9 +20,9 @@ public partial class LinkListWithActionsContext
 {
     [ObservableProperty] private StatusControlContext _statusContext;
     [ObservableProperty] private ContentListContext _listContext;
-    [ObservableProperty] private Command _listSelectedLinksNotOnPinboardCommand;
-    [ObservableProperty] private Command _mdLinkCodesToClipboardForSelectedCommand;
-    [ObservableProperty] private Command _refreshDataCommand;
+    [ObservableProperty] private RelayCommand _listSelectedLinksNotOnPinboardCommand;
+    [ObservableProperty] private RelayCommand _mdLinkCodesToClipboardForSelectedCommand;
+    [ObservableProperty] private RelayCommand _refreshDataCommand;
     [ObservableProperty] private WindowIconStatus _windowStatus;
 
     public LinkListWithActionsContext(StatusControlContext statusContext, WindowIconStatus windowStatus = null)

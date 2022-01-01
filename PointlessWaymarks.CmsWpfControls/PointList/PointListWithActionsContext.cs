@@ -1,8 +1,9 @@
 ﻿using System.Windows;
 using Microsoft.Toolkit.Mvvm.ComponentModel;
+using Microsoft.Toolkit.Mvvm.Input;
 using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsWpfControls.ContentList;
-using PointlessWaymarks.WpfCommon.Commands;
+
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 using PointlessWaymarks.WpfCommon.Utility;
@@ -14,8 +15,8 @@ public partial class PointListWithActionsContext
 {
     [ObservableProperty] private StatusControlContext _statusContext;
     [ObservableProperty] private ContentListContext _listContext;
-    [ObservableProperty] private Command _pointLinkBracketCodesToClipboardForSelectedCommand;
-    [ObservableProperty] private Command _refreshDataCommand;
+    [ObservableProperty] private RelayCommand _pointLinkBracketCodesToClipboardForSelectedCommand;
+    [ObservableProperty] private RelayCommand _refreshDataCommand;
     [ObservableProperty] private WindowIconStatus _windowStatus;
 
     public PointListWithActionsContext(StatusControlContext statusContext, WindowIconStatus windowStatus = null)

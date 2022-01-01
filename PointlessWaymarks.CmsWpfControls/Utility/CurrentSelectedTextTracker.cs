@@ -1,7 +1,8 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
 using Microsoft.Toolkit.Mvvm.ComponentModel;
-using PointlessWaymarks.WpfCommon.Commands;
+using Microsoft.Toolkit.Mvvm.Input;
+
 
 namespace PointlessWaymarks.CmsWpfControls.Utility;
 
@@ -9,11 +10,11 @@ namespace PointlessWaymarks.CmsWpfControls.Utility;
 public partial class CurrentSelectedTextTracker
 {
     [ObservableProperty] private string _currentSelectedText;
-    [ObservableProperty] private Command<RoutedEventArgs> _selectedTextChangedCommand;
+    [ObservableProperty] private RelayCommand<RoutedEventArgs> _selectedTextChangedCommand;
 
     public CurrentSelectedTextTracker()
     {
-        SelectedTextChangedCommand = new Command<RoutedEventArgs>(SelectedTextChanged);
+        SelectedTextChangedCommand = new RelayCommand<RoutedEventArgs>(SelectedTextChanged);
     }
 
     private void SelectedTextChanged(RoutedEventArgs obj)

@@ -1,13 +1,14 @@
 ﻿using System.ComponentModel;
 using System.Web;
 using Microsoft.Toolkit.Mvvm.ComponentModel;
+using Microsoft.Toolkit.Mvvm.Input;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsWpfControls.ContentFormat;
 using PointlessWaymarks.CmsWpfControls.Utility.ChangesAndValidation;
 using PointlessWaymarks.CmsWpfControls.WpfHtml;
-using PointlessWaymarks.WpfCommon.Commands;
+
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 
@@ -19,7 +20,7 @@ public partial class UpdateNotesEditorContext : IHasChanges, IHasValidationIssue
     [ObservableProperty] private IUpdateNotes _dbEntry;
     [ObservableProperty] private bool _hasChanges;
     [ObservableProperty] private bool _hasValidationIssues;
-    [ObservableProperty] private Command _refreshPreviewCommand;
+    [ObservableProperty] private RelayCommand _refreshPreviewCommand;
 
 
     [ObservableProperty] private StatusControlContext _statusContext;

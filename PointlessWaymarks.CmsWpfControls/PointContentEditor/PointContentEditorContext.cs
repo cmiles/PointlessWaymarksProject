@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Net.Http;
 using System.Windows;
 using Microsoft.Toolkit.Mvvm.ComponentModel;
+using Microsoft.Toolkit.Mvvm.Input;
 using Omu.ValueInjecter;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.CommonHtml;
@@ -23,7 +24,7 @@ using PointlessWaymarks.CmsWpfControls.TitleSummarySlugFolderEditor;
 using PointlessWaymarks.CmsWpfControls.UpdateNotesEditor;
 using PointlessWaymarks.CmsWpfControls.Utility;
 using PointlessWaymarks.CmsWpfControls.Utility.ChangesAndValidation;
-using PointlessWaymarks.WpfCommon.Commands;
+
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 using Serilog;
@@ -39,23 +40,23 @@ public partial class PointContentEditorContext : IHasChanges, ICheckForChangesAn
     [ObservableProperty] private CreatedAndUpdatedByAndOnDisplayContext _createdUpdatedDisplay;
     [ObservableProperty] private PointContent _dbEntry;
     [ObservableProperty] private ConversionDataEntryContext<double?> _elevationEntry;
-    [ObservableProperty] private Command _extractNewLinksCommand;
-    [ObservableProperty] private Command _getElevationCommand;
+    [ObservableProperty] private RelayCommand _extractNewLinksCommand;
+    [ObservableProperty] private RelayCommand _getElevationCommand;
     [ObservableProperty] private bool _hasChanges;
     [ObservableProperty] private bool _hasValidationIssues;
     [ObservableProperty] private HelpDisplayContext _helpContext;
     [ObservableProperty] private ConversionDataEntryContext<double> _latitudeEntry;
-    [ObservableProperty] private Command _linkToClipboardCommand;
+    [ObservableProperty] private RelayCommand _linkToClipboardCommand;
     [ObservableProperty] private ConversionDataEntryContext<double> _longitudeEntry;
     [ObservableProperty] private ContentSiteFeedAndIsDraftContext _mainSiteFeed;
     [ObservableProperty] private PointDetailListContext _pointDetails;
-    [ObservableProperty] private Command _saveAndCloseCommand;
-    [ObservableProperty] private Command _saveCommand;
+    [ObservableProperty] private RelayCommand _saveAndCloseCommand;
+    [ObservableProperty] private RelayCommand _saveCommand;
     [ObservableProperty] private StatusControlContext _statusContext;
     [ObservableProperty] private TagsEditorContext _tagEdit;
     [ObservableProperty] private TitleSummarySlugEditorContext _titleSummarySlugFolder;
     [ObservableProperty] private UpdateNotesEditorContext _updateNotes;
-    [ObservableProperty] private Command _viewOnSiteCommand;
+    [ObservableProperty] private RelayCommand _viewOnSiteCommand;
 
     public EventHandler RequestContentEditorWindowClose;
 

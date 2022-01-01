@@ -7,6 +7,7 @@ using System.Windows.Controls;
 using HtmlTableHelper;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Toolkit.Mvvm.ComponentModel;
+using Microsoft.Toolkit.Mvvm.Input;
 using Ookii.Dialogs.Wpf;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.CommonHtml;
@@ -36,7 +37,7 @@ using PointlessWaymarks.CmsWpfControls.TagList;
 using PointlessWaymarks.CmsWpfControls.UserSettingsEditor;
 using PointlessWaymarks.CmsWpfControls.Utility;
 using PointlessWaymarks.CmsWpfControls.WpfHtml;
-using PointlessWaymarks.WpfCommon.Commands;
+
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 using PointlessWaymarks.WpfCommon.Utility;
@@ -201,59 +202,59 @@ public partial class MainWindow
         StatusContext.RunFireAndForgetNonBlockingTask(CleanupTemporaryFiles);
     }
 
-    public Command CheckAllContentForInvalidBracketCodeContentIdsCommand { get; set; }
+    public RelayCommand CheckAllContentForInvalidBracketCodeContentIdsCommand { get; set; }
 
-    public Command ConfirmOrGenerateAllPhotosImagesFilesCommand { get; set; }
+    public RelayCommand ConfirmOrGenerateAllPhotosImagesFilesCommand { get; set; }
 
-    public Command DeleteAndResizePicturesCommand { get; set; }
+    public RelayCommand DeleteAndResizePicturesCommand { get; set; }
 
-    public Command GenerateAllHtmlCommand { get; set; }
+    public RelayCommand GenerateAllHtmlCommand { get; set; }
 
-    public Command GenerateAllListHtmlCommand { get; set; }
+    public RelayCommand GenerateAllListHtmlCommand { get; set; }
 
-    public Command GenerateAllTagHtmlCommand { get; set; }
+    public RelayCommand GenerateAllTagHtmlCommand { get; set; }
 
-    public Command GenerateCameraRollCommand { get; set; }
+    public RelayCommand GenerateCameraRollCommand { get; set; }
 
-    public Command GenerateChangedHtmlAndShowPreviewCommand { get; set; }
+    public RelayCommand GenerateChangedHtmlAndShowPreviewCommand { get; set; }
 
-    public Command GenerateChangedHtmlAndStartUploadCommand { get; set; }
+    public RelayCommand GenerateChangedHtmlAndStartUploadCommand { get; set; }
 
-    public Command GenerateChangedHtmlCommand { get; set; }
+    public RelayCommand GenerateChangedHtmlCommand { get; set; }
 
-    public Command GenerateDailyGalleryHtmlCommand { get; set; }
+    public RelayCommand GenerateDailyGalleryHtmlCommand { get; set; }
 
-    public Command GenerateHtmlForAllFileContentCommand { get; set; }
+    public RelayCommand GenerateHtmlForAllFileContentCommand { get; set; }
 
-    public Command GenerateHtmlForAllGeoJsonContentCommand { get; set; }
+    public RelayCommand GenerateHtmlForAllGeoJsonContentCommand { get; set; }
 
-    public Command GenerateHtmlForAllImageContentCommand { get; set; }
+    public RelayCommand GenerateHtmlForAllImageContentCommand { get; set; }
 
-    public Command GenerateHtmlForAllLineContentCommand { get; set; }
+    public RelayCommand GenerateHtmlForAllLineContentCommand { get; set; }
 
-    public Command GenerateHtmlForAllMapContentCommand { get; set; }
+    public RelayCommand GenerateHtmlForAllMapContentCommand { get; set; }
 
-    public Command GenerateHtmlForAllNoteContentCommand { get; set; }
+    public RelayCommand GenerateHtmlForAllNoteContentCommand { get; set; }
 
-    public Command GenerateHtmlForAllPhotoContentCommand { get; set; }
+    public RelayCommand GenerateHtmlForAllPhotoContentCommand { get; set; }
 
-    public Command GenerateHtmlForAllPointContentCommand { get; set; }
+    public RelayCommand GenerateHtmlForAllPointContentCommand { get; set; }
 
-    public Command GenerateHtmlForAllPostContentCommand { get; set; }
+    public RelayCommand GenerateHtmlForAllPostContentCommand { get; set; }
 
-    public Command GenerateIndexCommand { get; set; }
+    public RelayCommand GenerateIndexCommand { get; set; }
 
-    public Command GenerateSiteResourcesCommand { get; set; }
+    public RelayCommand GenerateSiteResourcesCommand { get; set; }
 
-    public Command ImportJsonFromDirectoryCommand { get; set; }
+    public RelayCommand ImportJsonFromDirectoryCommand { get; set; }
 
-    public Command RemoveUnusedFilesFromMediaArchiveCommand { get; set; }
+    public RelayCommand RemoveUnusedFilesFromMediaArchiveCommand { get; set; }
 
-    public Command RemoveUnusedFoldersAndFilesFromContentCommand { get; set; }
+    public RelayCommand RemoveUnusedFoldersAndFilesFromContentCommand { get; set; }
 
     public WindowIconStatus WindowStatus { get; set; }
 
-    public Command WriteStyleCssFileCommand { get; set; }
+    public RelayCommand WriteStyleCssFileCommand { get; set; }
 
     private async Task CheckAllContentForInvalidBracketCodeContentIds()
     {

@@ -2,7 +2,7 @@
 using System.Windows;
 using System.Windows.Threading;
 using Microsoft.Toolkit.Mvvm.ComponentModel;
-using PointlessWaymarks.WpfCommon.Commands;
+using Microsoft.Toolkit.Mvvm.Input;
 using PointlessWaymarks.WpfCommon.ToastControl;
 using PointlessWaymarks.WpfCommon.Utility;
 using Serilog;
@@ -32,9 +32,9 @@ public partial class StatusControlContext
     [ObservableProperty] private string _stringEntryUserText;
     [ObservableProperty] private bool _stringEntryVisible;
     [ObservableProperty] private ToastSource _toast;
-    [ObservableProperty] private Command<string> _userMessageBoxResponseCommand;
-    [ObservableProperty] private Command _userStringEntryApprovedResponseCommand;
-    [ObservableProperty] private Command _userStringEntryCancelledResponseCommand;
+    [ObservableProperty] private RelayCommand<string> _userMessageBoxResponseCommand;
+    [ObservableProperty] private RelayCommand _userStringEntryApprovedResponseCommand;
+    [ObservableProperty] private RelayCommand _userStringEntryCancelledResponseCommand;
 
     public StatusControlContext()
     {
@@ -45,9 +45,9 @@ public partial class StatusControlContext
         StatusLog = new ObservableCollection<string>();
         CancellationList = new ObservableCollection<UserCancellations>();
 
-        UserMessageBoxResponseCommand = new Command<string>(UserMessageBoxResponse);
-        UserStringEntryApprovedResponseCommand = new Command(UserStringEntryApprovedResponse);
-        UserStringEntryCancelledResponseCommand = new Command(UserStringEntryCanceledResponse);
+        UserMessageBoxResponseCommand = new RelayCommand<string>(UserMessageBoxResponse);
+        UserStringEntryApprovedResponseCommand = new RelayCommand(UserStringEntryApprovedResponse);
+        UserStringEntryCancelledResponseCommand = new RelayCommand(UserStringEntryCanceledResponse);
     }
 
 
@@ -229,9 +229,9 @@ public partial class StatusControlContext
         RunBlockingTask(() => Task.Run(() => toRun(parameter)));
     }
 
-    public Command RunBlockingActionCommand(Action toRun)
+    public RelayCommand RunBlockingActionCommand(Action toRun)
     {
-        return new Command(() => RunBlockingAction(toRun));
+        return new RelayCommand(() => RunBlockingAction(toRun));
     }
 
     public void RunBlockingTask(Func<Task> toRun)
@@ -246,14 +246,14 @@ public partial class StatusControlContext
         Task.Run(async () => await toRun(parameter)).ContinueWith(BlockTaskCompleted);
     }
 
-    public Command<T> RunBlockingTaskCommand<T>(Func<T, Task> toRun)
+    public RelayCommand<T> RunBlockingTaskCommand<T>(Func<T, Task> toRun)
     {
-        return new Command<T>(x => RunBlockingTask(async () => await toRun(x)));
+        return new RelayCommand<T>(x => RunBlockingTask(async () => await toRun(x)));
     }
 
-    public Command RunBlockingTaskCommand(Func<Task> toRun)
+    public RelayCommand RunBlockingTaskCommand(Func<Task> toRun)
     {
-        return new Command(() => RunBlockingTask(toRun));
+        return new RelayCommand(() => RunBlockingTask(toRun));
     }
 
     public void RunBlockingTaskWithCancellation(Func<CancellationToken, Task> toRun, string cancelDescription)
@@ -273,9 +273,9 @@ public partial class StatusControlContext
         Task.Run(async () => await toRun(token), token).ContinueWith(x => BlockTaskCompleted(x, tokenSource));
     }
 
-    public Command RunBlockingTaskWithCancellationCommand(Func<CancellationToken, Task> toRun, string cancelDescription)
+    public RelayCommand RunBlockingTaskWithCancellationCommand(Func<CancellationToken, Task> toRun, string cancelDescription)
     {
-        return new Command(() => RunBlockingTaskWithCancellation(toRun, cancelDescription));
+        return new RelayCommand(() => RunBlockingTaskWithCancellation(toRun, cancelDescription));
     }
 
     public void RunFireAndForgetBlockingTask(Func<Task> toRun)
@@ -333,9 +333,9 @@ public partial class StatusControlContext
         RunNonBlockingTask(() => Task.Run(toRun));
     }
 
-    public Command RunNonBlockingActionCommand(Action toRun)
+    public RelayCommand RunNonBlockingActionCommand(Action toRun)
     {
-        return new Command(() => RunNonBlockingAction(toRun));
+        return new RelayCommand(() => RunNonBlockingAction(toRun));
     }
 
     public void RunNonBlockingTask(Func<Task> toRun)
@@ -344,14 +344,14 @@ public partial class StatusControlContext
         Task.Run(toRun).ContinueWith(NonBlockTaskCompleted);
     }
 
-    public Command<T> RunNonBlockingTaskCommand<T>(Func<T, Task> toRun)
+    public RelayCommand<T> RunNonBlockingTaskCommand<T>(Func<T, Task> toRun)
     {
-        return new Command<T>(x => RunNonBlockingTask(async () => await toRun(x)));
+        return new RelayCommand<T>(x => RunNonBlockingTask(async () => await toRun(x)));
     }
 
-    public Command RunNonBlockingTaskCommand(Func<Task> toRun)
+    public RelayCommand RunNonBlockingTaskCommand(Func<Task> toRun)
     {
-        return new Command(() => RunNonBlockingTask(toRun));
+        return new RelayCommand(() => RunNonBlockingTask(toRun));
     }
 
     public async Task<string> ShowMessage(string title, string body, List<string> buttons)

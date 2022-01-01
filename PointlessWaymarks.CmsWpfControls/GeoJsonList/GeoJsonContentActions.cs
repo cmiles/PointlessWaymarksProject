@@ -2,6 +2,7 @@
 using System.Windows;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Toolkit.Mvvm.ComponentModel;
+using Microsoft.Toolkit.Mvvm.Input;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.ContentHtml.GeoJsonHtml;
@@ -11,7 +12,7 @@ using PointlessWaymarks.CmsWpfControls.ContentHistoryView;
 using PointlessWaymarks.CmsWpfControls.ContentList;
 using PointlessWaymarks.CmsWpfControls.GeoJsonContentEditor;
 using PointlessWaymarks.CmsWpfControls.Utility;
-using PointlessWaymarks.WpfCommon.Commands;
+
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 using PointlessWaymarks.WpfCommon.Utility;
@@ -20,14 +21,14 @@ namespace PointlessWaymarks.CmsWpfControls.GeoJsonList;
 
 public partial class GeoJsonContentActions : ObservableObject, IContentActions<GeoJsonContent>
 {
-    [ObservableProperty] private Command<GeoJsonContent> _deleteCommand;
-    [ObservableProperty] private Command<GeoJsonContent> _editCommand;
-    [ObservableProperty] private Command<GeoJsonContent> _extractNewLinksCommand;
-    [ObservableProperty] private Command<GeoJsonContent> _generateHtmlCommand;
-    [ObservableProperty] private Command<GeoJsonContent> _linkCodeToClipboardCommand;
-    [ObservableProperty] private Command<GeoJsonContent> _viewOnSiteCommand;
+    [ObservableProperty] private RelayCommand<GeoJsonContent> _deleteCommand;
+    [ObservableProperty] private RelayCommand<GeoJsonContent> _editCommand;
+    [ObservableProperty] private RelayCommand<GeoJsonContent> _extractNewLinksCommand;
+    [ObservableProperty] private RelayCommand<GeoJsonContent> _generateHtmlCommand;
+    [ObservableProperty] private RelayCommand<GeoJsonContent> _linkCodeToClipboardCommand;
+    [ObservableProperty] private RelayCommand<GeoJsonContent> _viewOnSiteCommand;
     [ObservableProperty] private StatusControlContext _statusContext;
-    [ObservableProperty] private Command<GeoJsonContent> _viewHistoryCommand;
+    [ObservableProperty] private RelayCommand<GeoJsonContent> _viewHistoryCommand;
 
     public GeoJsonContentActions(StatusControlContext statusContext)
     {

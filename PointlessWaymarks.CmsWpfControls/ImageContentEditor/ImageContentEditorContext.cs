@@ -4,6 +4,7 @@ using System.IO;
 using System.Windows;
 using System.Windows.Media.Imaging;
 using Microsoft.Toolkit.Mvvm.ComponentModel;
+using Microsoft.Toolkit.Mvvm.Input;
 using Ookii.Dialogs.Wpf;
 using PhotoSauce.MagicScaler;
 using PointlessWaymarks.CmsData;
@@ -22,7 +23,7 @@ using PointlessWaymarks.CmsWpfControls.TitleSummarySlugFolderEditor;
 using PointlessWaymarks.CmsWpfControls.UpdateNotesEditor;
 using PointlessWaymarks.CmsWpfControls.Utility;
 using PointlessWaymarks.CmsWpfControls.Utility.ChangesAndValidation;
-using PointlessWaymarks.WpfCommon.Commands;
+
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 using PointlessWaymarks.WpfCommon.Utility;
@@ -33,27 +34,27 @@ namespace PointlessWaymarks.CmsWpfControls.ImageContentEditor;
 public partial class ImageContentEditorContext : IHasChanges, IHasValidationIssues, ICheckForChangesAndValidation
 {
     [ObservableProperty] private StringDataEntryContext _altTextEntry;
-    [ObservableProperty] private Command _autoRenameSelectedFileCommand;
+    [ObservableProperty] private RelayCommand _autoRenameSelectedFileCommand;
     [ObservableProperty] private BodyContentEditorContext _bodyContent;
-    [ObservableProperty] private Command _chooseFileCommand;
+    [ObservableProperty] private RelayCommand _chooseFileCommand;
     [ObservableProperty] private ContentIdViewerControlContext _contentId;
     [ObservableProperty] private CreatedAndUpdatedByAndOnDisplayContext _createdUpdatedDisplay;
     [ObservableProperty] private ImageContent _dbEntry;
-    [ObservableProperty] private Command _extractNewLinksCommand;
+    [ObservableProperty] private RelayCommand _extractNewLinksCommand;
     [ObservableProperty] private bool _hasChanges;
     [ObservableProperty] private bool _hasValidationIssues;
     [ObservableProperty] private HelpDisplayContext _helpContext;
     [ObservableProperty] private FileInfo _initialImage;
-    [ObservableProperty] private Command _linkToClipboardCommand;
+    [ObservableProperty] private RelayCommand _linkToClipboardCommand;
     [ObservableProperty] private FileInfo _loadedFile;
     [ObservableProperty] private ContentSiteFeedAndIsDraftContext _mainSiteFeed;
-    [ObservableProperty] private Command _renameSelectedFileCommand;
+    [ObservableProperty] private RelayCommand _renameSelectedFileCommand;
     [ObservableProperty] private bool _resizeSelectedFile;
-    [ObservableProperty] private Command _rotateImageLeftCommand;
-    [ObservableProperty] private Command _rotateImageRightCommand;
-    [ObservableProperty] private Command _saveAndCloseCommand;
-    [ObservableProperty] private Command _saveAndReprocessImageCommand;
-    [ObservableProperty] private Command _saveCommand;
+    [ObservableProperty] private RelayCommand _rotateImageLeftCommand;
+    [ObservableProperty] private RelayCommand _rotateImageRightCommand;
+    [ObservableProperty] private RelayCommand _saveAndCloseCommand;
+    [ObservableProperty] private RelayCommand _saveAndReprocessImageCommand;
+    [ObservableProperty] private RelayCommand _saveCommand;
     [ObservableProperty] private FileInfo _selectedFile;
     [ObservableProperty] private BitmapSource _selectedFileBitmapSource;
     [ObservableProperty] private bool _selectedFileHasPathOrNameChanges;
@@ -65,8 +66,8 @@ public partial class ImageContentEditorContext : IHasChanges, IHasValidationIssu
     [ObservableProperty] private TagsEditorContext _tagEdit;
     [ObservableProperty] private TitleSummarySlugEditorContext _titleSummarySlugFolder;
     [ObservableProperty] private UpdateNotesEditorContext _updateNotes;
-    [ObservableProperty] private Command _viewOnSiteCommand;
-    [ObservableProperty] private Command _viewSelectedFileCommand;
+    [ObservableProperty] private RelayCommand _viewOnSiteCommand;
+    [ObservableProperty] private RelayCommand _viewSelectedFileCommand;
 
     public EventHandler RequestContentEditorWindowClose;
 

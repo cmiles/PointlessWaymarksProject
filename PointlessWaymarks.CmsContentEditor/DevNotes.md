@@ -26,6 +26,20 @@ Site:
 
 ## Notes
 
+1/1/2022
+
+Happy New Year! 
+
+Notes:
+ - In the last half of last year progress commits to this project slowed some with real life projects (new house) taking over - but some progress continued because I have been using this code to post content for a private site (private using Cloudflare workers to do simple basic auth) that is a little different from https://pointlesswaymarks.com/ so the code has benefited because I'm using the software in a slightly different way.
+ - I am of course attracted to the various frameworks, technologies, approaches and software that whiz by on https://www.alvinashcraft.com/ and https://news.ycombinator.com/ - so many beautiful and interesting things... But so far I haven't found tech to switch to that I think better meets the goals of the project. Front of my mind is cost and maintenance - putting static files on S3 behind Cloudflare still seems to hit a sweet spot with no server/VM/container to manage and minimal cost for the traffic I support (and cloudflare to help mitigate cost). Currently for S22 I'm most curious about Cloudflare's R2, client side Blazor and GitHub actions...
+
+Lately:
+
+Changed from the Command Classes based on MvvmHelpers to the RelayCommand in the MVVM Toolkit - this change is less code to support and with the use of the Source Generators from that package I'm already tightly tied to that package so this seems like a win.
+
+fileembed Bracket Code added so the file embeds are available in all Content Types.
+
 12/6/2021
 
 Recent Work:

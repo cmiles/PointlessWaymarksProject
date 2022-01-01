@@ -1,7 +1,8 @@
 ﻿using Microsoft.Toolkit.Mvvm.ComponentModel;
+using Microsoft.Toolkit.Mvvm.Input;
 using PointlessWaymarks.CmsData.ContentHtml.NoteHtml;
 using PointlessWaymarks.CmsWpfControls.ContentList;
-using PointlessWaymarks.WpfCommon.Commands;
+
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 using PointlessWaymarks.WpfCommon.Utility;
@@ -12,9 +13,9 @@ namespace PointlessWaymarks.CmsWpfControls.NoteList;
 public partial class NoteListWithActionsContext
 {
     [ObservableProperty] private StatusControlContext _statusContext;
-    [ObservableProperty] private Command _emailHtmlToClipboardCommand;
+    [ObservableProperty] private RelayCommand _emailHtmlToClipboardCommand;
     [ObservableProperty] private ContentListContext _listContext;
-    [ObservableProperty] private Command _refreshDataCommand;
+    [ObservableProperty] private RelayCommand _refreshDataCommand;
     [ObservableProperty] private WindowIconStatus _windowStatus;
 
     public NoteListWithActionsContext(StatusControlContext statusContext, WindowIconStatus windowStatus = null)

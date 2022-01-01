@@ -1,25 +1,26 @@
 ﻿using System.ComponentModel;
 using Microsoft.Toolkit.Mvvm.ComponentModel;
-using PointlessWaymarks.WpfCommon.Commands;
+using Microsoft.Toolkit.Mvvm.Input;
+
 
 namespace PointlessWaymarks.CmsWpfControls.ColumnSort;
 
 [ObservableObject]
 public partial class ColumnSortControlContext
 {
-    [ObservableProperty] private Command<ColumnSortControlSortItem> _columnSortAddCommand;
-    [ObservableProperty] private Command<ColumnSortControlSortItem> _columnSortToggleCommand;
+    [ObservableProperty] private RelayCommand<ColumnSortControlSortItem> _columnSortAddCommand;
+    [ObservableProperty] private RelayCommand<ColumnSortControlSortItem> _columnSortToggleCommand;
     [ObservableProperty] private List<ColumnSortControlSortItem> _items;
 
     public ColumnSortControlContext()
     {
-        ColumnSortToggleCommand = new Command<ColumnSortControlSortItem>(x =>
+        ColumnSortToggleCommand = new RelayCommand<ColumnSortControlSortItem>(x =>
         {
             ToggleItem(x);
             SortUpdated?.Invoke(this, SortDescriptions());
         });
 
-        ColumnSortAddCommand = new Command<ColumnSortControlSortItem>(x =>
+        ColumnSortAddCommand = new RelayCommand<ColumnSortControlSortItem>(x =>
         {
             AddItem(x);
             SortUpdated?.Invoke(this, SortDescriptions());

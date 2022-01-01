@@ -2,6 +2,7 @@
 using System.Windows;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Toolkit.Mvvm.ComponentModel;
+using Microsoft.Toolkit.Mvvm.Input;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.ContentHtml.FileHtml;
@@ -11,7 +12,7 @@ using PointlessWaymarks.CmsWpfControls.ContentHistoryView;
 using PointlessWaymarks.CmsWpfControls.ContentList;
 using PointlessWaymarks.CmsWpfControls.FileContentEditor;
 using PointlessWaymarks.CmsWpfControls.Utility;
-using PointlessWaymarks.WpfCommon.Commands;
+
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 using PointlessWaymarks.WpfCommon.Utility;
@@ -20,15 +21,15 @@ namespace PointlessWaymarks.CmsWpfControls.FileList;
 
 public partial class FileContentActions : ObservableObject, IContentActions<FileContent>
 {
-    [ObservableProperty] private Command<FileContent> _deleteCommand;
-    [ObservableProperty] private Command<FileContent> _editCommand;
-    [ObservableProperty] private Command<FileContent> _extractNewLinksCommand;
-    [ObservableProperty] private Command<FileContent> _generateHtmlCommand;
-    [ObservableProperty] private Command<FileContent> _linkCodeToClipboardCommand;
-    [ObservableProperty] private Command<FileContent> _viewOnSiteCommand;
+    [ObservableProperty] private RelayCommand<FileContent> _deleteCommand;
+    [ObservableProperty] private RelayCommand<FileContent> _editCommand;
+    [ObservableProperty] private RelayCommand<FileContent> _extractNewLinksCommand;
+    [ObservableProperty] private RelayCommand<FileContent> _generateHtmlCommand;
+    [ObservableProperty] private RelayCommand<FileContent> _linkCodeToClipboardCommand;
+    [ObservableProperty] private RelayCommand<FileContent> _viewOnSiteCommand;
     [ObservableProperty] private StatusControlContext _statusContext;
-    [ObservableProperty] private Command<FileContent> _viewFileCommand;
-    [ObservableProperty] private Command<FileContent> _viewHistoryCommand;
+    [ObservableProperty] private RelayCommand<FileContent> _viewFileCommand;
+    [ObservableProperty] private RelayCommand<FileContent> _viewHistoryCommand;
 
     public FileContentActions(StatusControlContext statusContext)
     {

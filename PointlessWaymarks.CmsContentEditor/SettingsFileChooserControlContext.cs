@@ -2,10 +2,11 @@
 using System.IO;
 using System.Text.Json;
 using Microsoft.Toolkit.Mvvm.ComponentModel;
+using Microsoft.Toolkit.Mvvm.Input;
 using Ookii.Dialogs.Wpf;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.Content;
-using PointlessWaymarks.WpfCommon.Commands;
+
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 
@@ -22,20 +23,20 @@ public partial class SettingsFileChooserControlContext
         StatusContext = statusContext ?? new StatusControlContext();
         RecentSettingFilesNames = recentSettingFiles?.Split("|").ToList() ?? new List<string>();
 
-        NewFileCommand = new Command(NewFile);
-        ChooseFileCommand = new Command(ChooseFile);
-        ChooseRecentFileCommand = new Command<SettingsFileListItem>(LaunchRecentFile);
+        NewFileCommand = new RelayCommand(NewFile);
+        ChooseFileCommand = new RelayCommand(ChooseFile);
+        ChooseRecentFileCommand = new RelayCommand<SettingsFileListItem>(LaunchRecentFile);
 
         StatusContext.RunFireAndForgetBlockingTask(LoadData);
     }
 
-    public Command ChooseFileCommand { get; set; }
+    public RelayCommand ChooseFileCommand { get; set; }
 
-    public Command<SettingsFileListItem> ChooseRecentFileCommand { get; set; }
+    public RelayCommand<SettingsFileListItem> ChooseRecentFileCommand { get; set; }
 
     public ObservableCollection<SettingsFileListItem> Items { get; } = new();
 
-    public Command NewFileCommand { get; set; }
+    public RelayCommand NewFileCommand { get; set; }
 
     public List<string> RecentSettingFilesNames { get; set; }
 

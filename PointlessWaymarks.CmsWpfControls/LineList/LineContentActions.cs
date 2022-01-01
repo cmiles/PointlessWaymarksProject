@@ -2,6 +2,7 @@
 using System.Windows;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Toolkit.Mvvm.ComponentModel;
+using Microsoft.Toolkit.Mvvm.Input;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.ContentHtml.LineHtml;
@@ -11,7 +12,7 @@ using PointlessWaymarks.CmsWpfControls.ContentHistoryView;
 using PointlessWaymarks.CmsWpfControls.ContentList;
 using PointlessWaymarks.CmsWpfControls.LineContentEditor;
 using PointlessWaymarks.CmsWpfControls.Utility;
-using PointlessWaymarks.WpfCommon.Commands;
+
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 using PointlessWaymarks.WpfCommon.Utility;
@@ -20,14 +21,14 @@ namespace PointlessWaymarks.CmsWpfControls.LineList;
 
 public partial class LineContentActions : ObservableObject, IContentActions<LineContent>
 {
-    [ObservableProperty] private Command<LineContent> _deleteCommand;
-    [ObservableProperty] private Command<LineContent> _editCommand;
-    [ObservableProperty] private Command<LineContent> _extractNewLinksCommand;
-    [ObservableProperty] private Command<LineContent> _generateHtmlCommand;
-    [ObservableProperty] private Command<LineContent> _linkCodeToClipboardCommand;
-    [ObservableProperty] private Command<LineContent> _viewOnSiteCommand;
+    [ObservableProperty] private RelayCommand<LineContent> _deleteCommand;
+    [ObservableProperty] private RelayCommand<LineContent> _editCommand;
+    [ObservableProperty] private RelayCommand<LineContent> _extractNewLinksCommand;
+    [ObservableProperty] private RelayCommand<LineContent> _generateHtmlCommand;
+    [ObservableProperty] private RelayCommand<LineContent> _linkCodeToClipboardCommand;
+    [ObservableProperty] private RelayCommand<LineContent> _viewOnSiteCommand;
     [ObservableProperty] private StatusControlContext _statusContext;
-    [ObservableProperty] private Command<LineContent> _viewHistoryCommand;
+    [ObservableProperty] private RelayCommand<LineContent> _viewHistoryCommand;
 
     public LineContentActions(StatusControlContext statusContext)
     {
