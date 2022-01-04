@@ -1,8 +1,5 @@
 using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
 using System.Windows.Threading;
-using JetBrains.Annotations;
 using Microsoft.Toolkit.Mvvm.ComponentModel;
 
 namespace PointlessWaymarks.WpfCommon.ToastControl;
