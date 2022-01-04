@@ -13,11 +13,11 @@ This is not an 'all purpose static site generation solution' - the focus is easi
 [Pointless Waymarks](https://PointlessWaymarks.com) is generated with the Pointless Waymarks CMS and is a good example of both the output and intent.
 
 Some details:
- - A Static Site - low cost, low maintenance and high durability
+ - A Static Site - low cost, low maintenance, high durability.
  - Integrated Local Viewer - not all content should be online!
- - Database driven - flexibility in creating and updating content and the potential to support the generation of multiple output formats
- - Custom software - optimized support for a limited set of content types and a specific set of workflows without
- - Windows Desktop WPF GUI Editor - no hosting to pay for, no server to maintain... WPF because it is my favorite Windows GUI technology atm and because the experimentation/learning/coding I do here flows back into my day job where I help to create and maintain an Inventory Management and Reporting system that has a WPF Front End.
+ - Database Driven - flexibility in creating and updating content with the potential to other output formats.
+ - Custom Software - optimized support for a limited set of content types and a specific set of workflows.
+ - Windows Desktop WPF GUI Editor - no hosting to pay for, no server to maintain... WPF because it is my favorite Windows GUI technology atm and because the experimentation/learning/coding I do here flows back into my day job where I help to create and maintain a Retail Inventory Management and Reporting system that has a WPF Front End.
  - Focus on Content and Simple Functional Presentation - my experience is that websites that focus on a simple presentations of meaningful/personal/interesting content can survive, have impact and be meaningful for many many years without heavy revisions into the 'latest' style or newest framework.
 
 Todo Lists, Idea Lists and a Development Log are [found in a DevNotes.md file that is versioned along with the code](PointlessWaymarksCmsContentEditor/DevNotes.md).
@@ -34,17 +34,17 @@ Options to launch recent projects or create a new project.
 
 ### Content Lists
 
-The first tab in the application is an 'All Content' list. Like all of the lists you can sort and filter the list and  import/export from excel - the list will update automatically in the background as content changes. In the All Content list menus, buttons and context menus allow you to take a limited set of actions that apply to all content types. It is possible to do quite a bit of work without ever needing to switch back-and-forth between the tabs for specific content types - especially when everything you are working on is recent.
+The first tab in the application is an 'All Content' list. Like all of the lists you can sort and filter the list and import to/export from excel - the list will update automatically in the background as content changes. In the All Content list a menu bar, buttons and context menus allow you to apply a limited set of actions to any list item. It is possible to efficiently do quite a bit of work without ever needing to switch back-and-forth between other tabs - especially when everything you are working on is recently added.
 
 ![Posts List](PointlessWaymarks.CmsScreenShots/AllContentList.jpg "All Content List")
 
-Each Content Type has a dedicated list interface - these lists have more content type specific functions that are not found in the All Content List. Content lists start by loading a limited number of recent entries and present an option to load all entries - while this requires an extra step to load the full list this simple compromise allows the lists to always quickly load the recent items you are most likely to want to work with regardless of the amount of content.
+Each Content Type has a dedicated list interface - these lists have content type specific functions that are not found in the All Content list. Content lists start by loading a limited number of recent entries and present an option to load all entries - while this requires an extra step to load the full list it is a simple compromise that allows the lists to quickly load the recent items you are most likely to want to work.
 
-The ability to export to Excel, edit and import the changes is provided for all content types and most fields. Many updates are more easily made in the program but Excel provides a powerful interface for complicated/bulk edits.
+The ability to export to Excel, edit and import the changes back into the Pointless Waymarks CMS is provided for all content types and most fields. Many updates are more easily made in the program but Excel provides a powerful interface for complicated/bulk edits.
 
 ![Posts List](PointlessWaymarks.CmsScreenShots/PostsList.jpg "Posts List")
 
-Photographs are a central content type in this program and there is decent support for importing/filling information from the photo's metadata. This often allows the painless import of batches of photographs with minimal clean up afterwards.
+Photographs are a central content type and there is decent support for importing/filling information from the photo's metadata. This often allows the painless import of batches of photographs with minimal clean up afterwards.
 
 The Photo List items have buttons to quickly find other similar photos based on details such as Camera Make, Lens, Aperture, Shutter Speed, etc. Not shown but available in the Photo List under the Reports menu are reports on photos with potential problems such as 'No Tags' or 'Blank License' and an option to export all of a photo's 'raw' metadata to an html file.
 
@@ -63,7 +63,7 @@ The content editors are intended to be simple, helpful and functional. Change an
 
 Tags are a primary way of connecting and organizing content - a Tag Editor along with Excel Export/Import provide support for organizing/correcting/updating tags.
 
-This software has no support for storing 'completely private' content - but it does have support for excluding Tags from the site's various search pages and indicating to search engines not to index excluded Tag Pages. This can be a good way of providing some 'modesty' for tags that you might not want to delete - but that you also don't want to be prominent.
+This software has no support for storing completely private content - but it does have support for excluding Tags from the site's various search pages and indicating to search engines not to index excluded Tag Pages. This can be a good way of providing some 'modesty' for tags that you might not want to delete - but that you also don't want to be prominent.
 
 ![Tag List](PointlessWaymarks.CmsScreenShots/TagList.jpg "Tag List")
 
