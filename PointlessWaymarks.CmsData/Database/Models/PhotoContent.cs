@@ -15,6 +15,7 @@ public class PhotoContent : IUpdateNotes, IContentCommon
     public string? OriginalFileName { get; set; }
     public string? PhotoCreatedBy { get; set; }
     public DateTime PhotoCreatedOn { get; set; }
+    public bool ShowPhotoSizes { get; set; }
     public string? ShutterSpeed { get; set; }
     public string? BodyContent { get; set; }
     public string? BodyContentFormat { get; set; }

@@ -13,6 +13,7 @@ using PointlessWaymarks.CmsData.Content;
 using PointlessWaymarks.CmsData.ContentHtml;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsWpfControls.BodyContentEditor;
+using PointlessWaymarks.CmsWpfControls.BoolDataEntry;
 using PointlessWaymarks.CmsWpfControls.ContentIdViewer;
 using PointlessWaymarks.CmsWpfControls.ContentSiteFeedAndIsDraft;
 using PointlessWaymarks.CmsWpfControls.ConversionDataEntry;
@@ -73,6 +74,7 @@ public partial class PhotoContentEditorContext : IHasChanges, IHasValidationIssu
     [ObservableProperty] private bool _selectedFileHasValidationIssues;
     [ObservableProperty] private bool _selectedFileNameHasInvalidCharacters;
     [ObservableProperty] private string _selectedFileValidationMessage;
+    [ObservableProperty] private BoolDataEntryContext _showSizes;
     [ObservableProperty] private StringDataEntryContext _shutterSpeedEntry;
     [ObservableProperty] private StatusControlContext _statusContext;
     [ObservableProperty] private TagsEditorContext _tagEdit;
@@ -226,6 +228,7 @@ Photo Content Notes:
         newEntry.PhotoCreatedOn = PhotoCreatedOnEntry.UserValue;
         newEntry.BodyContent = BodyContent.BodyContent.TrimNullToEmpty();
         newEntry.BodyContentFormat = BodyContent.BodyContentFormat.SelectedContentFormatAsString;
+        newEntry.ShowPhotoSizes = ShowSizes.UserValue;
 
         return newEntry;
     }
@@ -260,7 +263,7 @@ Photo Content Notes:
             BodyContentFormat = UserSettingsUtilities.DefaultContentFormatChoice(),
             UpdateNotesFormat = UserSettingsUtilities.DefaultContentFormatChoice(),
             CreatedOn = created,
-            FeedOn = created,
+            FeedOn = created
         };
 
         TitleSummarySlugFolder = await TitleSummarySlugEditorContext.CreateInstance(StatusContext, "To File Name",
@@ -274,6 +277,13 @@ Photo Content Notes:
         UpdateNotes = await UpdateNotesEditorContext.CreateInstance(StatusContext, DbEntry);
         TagEdit = TagsEditorContext.CreateInstance(StatusContext, DbEntry);
         BodyContent = await BodyContentEditorContext.CreateInstance(StatusContext, DbEntry);
+
+        ShowSizes = BoolDataEntryContext.CreateInstance();
+        ShowSizes.Title = "Show Photo Sizes";
+        ShowSizes.HelpText = "If enabled the page users be shown a list of all available sizes";
+        ShowSizes.ReferenceValue = DbEntry.ShowPhotoSizes;
+        ShowSizes.UserValue = DbEntry.ShowPhotoSizes;
+
         LinkToClipboardCommand = StatusContext.RunBlockingTaskCommand(LinkToClipboard);
 
         if (!skipMediaDirectoryCheck && toLoad != null && !string.IsNullOrWhiteSpace(DbEntry.OriginalFileName))

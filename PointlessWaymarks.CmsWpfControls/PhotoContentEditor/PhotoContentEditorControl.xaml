@@ -3,8 +3,8 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
-    xmlns:bodyContentEditor1="clr-namespace:PointlessWaymarks.CmsWpfControls.BodyContentEditor"
-    xmlns:boolDataEntry1="clr-namespace:PointlessWaymarks.CmsWpfControls.BoolDataEntry"
+    xmlns:bodyContentEditor="clr-namespace:PointlessWaymarks.CmsWpfControls.BodyContentEditor"
+    xmlns:boolDataEntry="clr-namespace:PointlessWaymarks.CmsWpfControls.BoolDataEntry"
     xmlns:contentIdViewer="clr-namespace:PointlessWaymarks.CmsWpfControls.ContentIdViewer"
     xmlns:conversionDataEntry="clr-namespace:PointlessWaymarks.CmsWpfControls.ConversionDataEntry"
     xmlns:createdAndUpdatedByAndOnDisplay="clr-namespace:PointlessWaymarks.CmsWpfControls.CreatedAndUpdatedByAndOnDisplay"
@@ -151,6 +151,7 @@
                         <StackPanel Margin="4" CanHorizontallyScroll="False">
                             <titleSummarySlugFolderEditor:TitleSummarySlugEditorControl DataContext="{Binding TitleSummarySlugFolder}" />
                             <contentSiteFeedAndIsDraft:ContentSiteFeedAndIsDraftControl DataContext="{Binding MainSiteFeed}" />
+                            <boolDataEntry:BoolDataEntryControl  Margin="4,8,0,0" DataContext="{Binding ShowSizes}"></boolDataEntry:BoolDataEntryControl>
                             <tagsEditor:TagsEditorControl DataContext="{Binding TagEdit}" Style="{StaticResource TagsEditorInPanelStyle}" />
                             <createdAndUpdatedByAndOnDisplay:CreatedAndUpdatedByAndOnDisplayControl DataContext="{Binding CreatedUpdatedDisplay}" Style="{StaticResource CreatedUpdatedInPanelStyle}" />
                             <contentIdViewer:ContentIdViewerControl DataContext="{Binding ContentId}" Style="{StaticResource ContentIdInPanelStyle}" />
@@ -179,7 +180,7 @@
             </TabItem>
             <TabItem Header="Body">
                 <Grid>
-                    <bodyContentEditor1:BodyContentEditorHorizontalControl DataContext="{Binding BodyContent}" />
+                    <bodyContentEditor:BodyContentEditorHorizontalControl DataContext="{Binding BodyContent}" />
                 </Grid>
             </TabItem>
             <TabItem Header="Update Notes">
