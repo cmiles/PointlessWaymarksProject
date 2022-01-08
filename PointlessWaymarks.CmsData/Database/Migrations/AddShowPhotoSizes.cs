@@ -3,27 +3,23 @@ using FluentMigrator;
 
 namespace PointlessWaymarks.CmsData.Database.Migrations;
 
-[Migration(202201070000)]
+[Migration(202201080000)]
 public class AddShowPhotoSizes : Migration
 {
     public override void Down()
     {
-        throw new DataException("No Down Available for Migration AddAndReviseGenerationSupportTables");
+        throw new DataException("No Down Available for Migration AddShowPhotoSizes");
     }
 
     public override void Up()
     {
-        if (Schema.Table("FileContents").Column("FeedOn").Exists())
-            return;
+        if (!Schema.Table("PhotoContents").Column("ShowPhotoSizes").Exists())
+            Execute.Sql(@$"ALTER TABLE PhotoContents 
+                    ADD COLUMN ShowPhotoSizes INTEGER 
+                    NOT NULL DEFAULT 0");
 
-        var tableList = new List<string>
-        {
-            "HistoricPhotoContents",
-            "PhotoContents"
-        };
-
-        foreach (var loopTable in tableList)
-            Execute.Sql(@$"ALTER TABLE {loopTable} 
+        if (!Schema.Table("HistoricPhotoContents").Column("ShowPhotoSizes").Exists())
+            Execute.Sql(@$"ALTER TABLE HistoricPhotoContents 
                     ADD COLUMN ShowPhotoSizes INTEGER 
                     NOT NULL DEFAULT 0");
     }

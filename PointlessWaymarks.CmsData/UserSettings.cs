@@ -33,7 +33,7 @@ public partial class UserSettings
     [ObservableProperty] private double _longitudeDefault;
     [ObservableProperty] private string _pdfToCairoExeDirectory = string.Empty;
 
-    [ObservableProperty] private bool _photoPagesHaveLinksToPhotoSizes;
+    [ObservableProperty] private bool _photoPagesHaveLinksToPhotoSizesByDefault;
     [ObservableProperty] private string _pinboardApiToken = string.Empty;
     [ObservableProperty] private Guid _settingsId;
     [ObservableProperty] private string _siteAuthors = string.Empty;

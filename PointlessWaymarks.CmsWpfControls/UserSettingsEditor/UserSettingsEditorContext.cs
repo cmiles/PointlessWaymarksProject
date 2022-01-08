@@ -80,6 +80,9 @@ public partial class UserSettingsEditorContext
         "Used in as the tags for the overall/entire site - for example " +
         "'outdoors,hiking,running,landscape,photography,history'.";
 
+    public static string HelpMarkdownShowPhotoSizesByDefault =>
+        "Used as the default value for a Photos 'Show Sizes' setting - if this is checked by default photo pages will have links to every photo size available. ALL PHOTO FILES are 'public', but unless this is checked the user is never shown a direct link to any image file.";
+
     public static string HelpMarkdownSiteLangAttribute =>
         "Lang attribute indicating the default language for the site - see [lang attribute on MDN](https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/lang) for more information.";
 

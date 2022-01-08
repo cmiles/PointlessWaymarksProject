@@ -7,9 +7,9 @@ public static class PhotoDetails
 {
     public static HtmlTag PhotoDetailsDiv(PhotoContent dbEntry)
     {
-        var outerContainer = new DivTag().AddClass("photo-details-container");
+        var outerContainer = new DivTag().AddClasses("photo-details-container", "info-list-container");
 
-        outerContainer.Children.Add(new DivTag().AddClass("photo-detail-label-tag").Text("Details:"));
+        outerContainer.Children.Add(new DivTag().AddClasses("photo-detail-label-tag", "info-list-label").Text("Details:"));
 
         outerContainer.Children.Add(Tags.InfoDivTag(dbEntry.Aperture, "photo-detail", "aperture",
             dbEntry.Aperture));

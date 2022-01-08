@@ -475,16 +475,16 @@ public static class Tags
     {
         if (!tags.Any()) return HtmlTag.Empty();
 
-        var tagsContainer = new DivTag().AddClass("tags-container");
+        var tagsContainer = new DivTag().AddClasses("tags-container", "info-list-container");
 
-        tagsContainer.Children.Add(new DivTag().Text("Tags:").AddClass("tag-detail-label-tag"));
+        tagsContainer.Children.Add(new DivTag().Text("Tags:").AddClasses("tag-detail-label-tag", "info-list-label"));
 
         foreach (var loopTag in tags)
         {
-            var tagLinkContainer = new DivTag().AddClasses("tags-detail-link-container", "box-container");
+            var tagLinkContainer = new DivTag().AddClasses("tags-detail-link-container", "info-list-link-container");
             if (loopTag.IsExcluded)
             {
-                var tagP = new HtmlTag("p").AddClass("tag-detail-text");
+                var tagP = new HtmlTag("p").AddClasses("tag-detail-text", "info-list-text-item");
                 tagP.Text(loopTag.TagSlug.Replace("-", " "));
                 tagLinkContainer.Children.Add(tagP);
                 tagsContainer.Children.Add(tagLinkContainer);
@@ -494,7 +494,7 @@ public static class Tags
                 var tagLink =
                     new LinkTag(loopTag.TagSlug.Replace("-", " "),
                             UserSettingsSingleton.CurrentSettings().TagPageUrl(loopTag.TagSlug))
-                        .AddClass("tag-detail-link");
+                        .AddClasses("tag-detail-link", "info-list-link-item");
                 tagLinkContainer.Children.Add(tagLink);
                 tagsContainer.Children.Add(tagLinkContainer);
             }

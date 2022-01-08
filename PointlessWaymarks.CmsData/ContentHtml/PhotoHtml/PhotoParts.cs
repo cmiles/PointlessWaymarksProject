@@ -13,18 +13,18 @@ public static class PhotoParts
         var outerContainer = new DivTag().AddClasses("photo-sizes-container", "info-list-container");
 
         outerContainer.Children.Add(new DivTag().AddClasses("photo-sizes-label-tag", "info-list-label")
-            .Text("Specific Sizes:"));
+            .Text("Sizes:"));
 
         var sizes = photoInformation.Pictures.SrcsetImages.OrderBy(x => x.Height * x.Width).ToList();
 
         foreach (var loopSizes in sizes)
         {
-            var tagLinkContainer = new DivTag().AddClasses("tags-detail-link-container", "info-list-item-container");
+            var tagLinkContainer = new DivTag().AddClasses("tags-detail-link-container", "info-list-link-container");
 
             var tagLink =
                 new LinkTag($"{loopSizes.Width}x{loopSizes.Height}",
                         loopSizes.SiteUrl)
-                    .AddClasses("tag-detail-link", "info-list-item-link");
+                    .AddClasses("tag-detail-link", "info-list-link-item");
             tagLinkContainer.Children.Add(tagLink);
             outerContainer.Children.Add(tagLinkContainer);
         }
