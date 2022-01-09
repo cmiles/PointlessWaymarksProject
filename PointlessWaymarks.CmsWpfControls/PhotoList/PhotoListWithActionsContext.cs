@@ -179,7 +179,7 @@ public partial class PhotoListWithActionsContext
         }
 
         var finalString = SelectedItems().Aggregate(string.Empty,
-            (current, loopSelected) => current + BracketCodePhotos.Create(loopSelected.DbEntry) + Environment.NewLine);
+            (current, loopSelected) => current + BracketCodePhotoLinks.Create(loopSelected.DbEntry) + Environment.NewLine);
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
