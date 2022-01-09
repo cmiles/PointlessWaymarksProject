@@ -7,7 +7,7 @@ public static class ContentCompact
 {
     public static HtmlTag FromContentCommon(IContentCommon content)
     {
-        var compactContentContainerDiv = new DivTag().AddClasses("content-compact-container", "box-container");
+        var compactContentContainerDiv = new DivTag().AddClasses("content-compact-container", "info-box");
 
         var linkTo = UserSettingsSingleton.CurrentSettings().ContentUrl(content.ContentId).Result;
 
@@ -55,7 +55,7 @@ public static class ContentCompact
 
     public static HtmlTag FromLinkContent(LinkContent content)
     {
-        var compactContentContainerDiv = new DivTag().AddClasses("content-compact-container", "box-container");
+        var compactContentContainerDiv = new DivTag().AddClasses("content-compact-container", "info-box");
 
         var compactContentMainTextContentDiv = new DivTag().AddClass("link-compact-text-content-container");
 

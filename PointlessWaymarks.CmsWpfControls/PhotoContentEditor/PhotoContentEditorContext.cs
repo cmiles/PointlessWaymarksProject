@@ -263,7 +263,8 @@ Photo Content Notes:
             BodyContentFormat = UserSettingsUtilities.DefaultContentFormatChoice(),
             UpdateNotesFormat = UserSettingsUtilities.DefaultContentFormatChoice(),
             CreatedOn = created,
-            FeedOn = created
+            FeedOn = created,
+            ShowPhotoSizes = UserSettingsSingleton.CurrentSettings().PhotoPagesHaveLinksToPhotoSizesByDefault
         };
 
         TitleSummarySlugFolder = await TitleSummarySlugEditorContext.CreateInstance(StatusContext, "To File Name",

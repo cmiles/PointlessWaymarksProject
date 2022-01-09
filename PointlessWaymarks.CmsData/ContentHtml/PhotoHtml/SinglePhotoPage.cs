@@ -235,7 +235,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml.PhotoHtml
             this.Write("\r\n        ");
             
             #line 63 "C:\Code\PointlessWaymarksCms03\PointlessWaymarks.CmsData\ContentHtml\PhotoHtml\SinglePhotoPage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(PhotoParts.SizeList(DbEntry, PictureInformation).ToString()));
+            this.Write(this.ToStringHelper.ToStringWithCulture(Tags.PictureSizeList(DbEntry.ShowPhotoSizes, PictureInformation).ToString()));
             
             #line default
             #line hidden

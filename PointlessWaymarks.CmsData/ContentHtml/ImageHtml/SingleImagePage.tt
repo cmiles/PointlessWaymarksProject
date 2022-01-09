@@ -59,10 +59,12 @@
                     Tags.PostBodyDiv(DbEntry).Result.ToString() #>
     <div class="information-section">
         <#= Tags.TagList(DbEntry).ToString() #>
+        <#= Tags.PictureSizeList(DbEntry.ShowImageSizes, PictureInformation).ToString() #>
         <#=
                 BodyContentReferences.RelatedContentTag(DbEntry, GenerationVersion).Result #>
         <#=
                 Tags.CreatedByAndUpdatedOnDiv(DbEntry).ToString() #>
+
         <#=
                     Tags.UpdateNotesDiv(DbEntry).Result.ToString() #>
     </div>

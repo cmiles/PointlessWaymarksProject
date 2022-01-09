@@ -25,7 +25,7 @@ public partial class TagListPage
 
         foreach (var loopTagGroup in toProcess)
         {
-            var contentContainer = new DivTag().AddClasses("tag-list-item", "box-container");
+            var contentContainer = new DivTag().AddClasses("tag-list-item", "info-box");
             contentContainer.Data("tagname", loopTagGroup.tagName.Replace("-", " "));
             contentContainer.Data("tagslug", loopTagGroup.tagName);
 

@@ -6,6 +6,7 @@ public class ImageContent : IUpdateNotes, IContentCommon, IShowInSearch
 {
     public string? AltText { get; set; }
     public string? OriginalFileName { get; set; }
+    public bool ShowImageSizes { get; set; }
     public string? BodyContent { get; set; }
     public string? BodyContentFormat { get; set; }
     public Guid ContentId { get; set; }

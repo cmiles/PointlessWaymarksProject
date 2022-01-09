@@ -11,7 +11,7 @@ public static class BodyContentReferences
     public static HtmlTag RelatedContentDiv(IContentCommon? post)
     {
         if (post == null) return HtmlTag.Empty();
-        var relatedPostContainerDiv = new DivTag().AddClasses("related-post-container", "box-container");
+        var relatedPostContainerDiv = new DivTag().AddClasses("related-post-container", "info-box");
         if (post.MainPicture != null)
         {
             var relatedPostMainPictureContentDiv = new DivTag().AddClass("related-post-image-content-container");

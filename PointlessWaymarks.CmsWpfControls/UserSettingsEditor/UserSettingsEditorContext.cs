@@ -68,8 +68,11 @@ public partial class UserSettingsEditorContext
     public static string HelpMarkdownS3Information =>
         "This is NOT required. Amazon S3 - especially behind a service like Cloudflare - can be an excellent way to host a static site like this program generates. This program can help you upload files and maintain files on S3, but to do so you must provide some information - S3 Bucket Name (this will often match your domain name), S3 Bucket Region and AWS Site Credentials (these are not shown and are stored securely by windows - these are NOT stored in the database or in the settings file).";
 
+    public static string HelpMarkdownShowImageSizesByDefault =>
+        "Used as the default value for a Image's 'Show Sizes' setting - if this is checked by default image pages will have links to every image size available. ALL IMAGE FILES are 'public', but unless this is checked the user is never shown a direct link to any image file.";
+
     public static string HelpMarkdownShowPhotoSizesByDefault =>
-        "Used as the default value for a Photos 'Show Sizes' setting - if this is checked by default photo pages will have links to every photo size available. ALL PHOTO FILES are 'public', but unless this is checked the user is never shown a direct link to any image file.";
+        "Used as the default value for a Photo's 'Show Sizes' setting - if this is checked by default photo pages will have links to every photo size available. ALL PHOTO FILES are 'public', but unless this is checked the user is never shown a direct link to any photo file.";
 
     public static string HelpMarkdownSiteAuthors =>
         "A value for the site creators/authors - for example " + "'Pointless Waymarks Team'.";

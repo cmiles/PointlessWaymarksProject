@@ -60,7 +60,7 @@
                 PhotoDetails.PhotoDetailsDiv(DbEntry).ToString() #>
         <#=
                     Tags.PostBodyDiv(DbEntry).Result.ToString() #>
-        <#= PhotoParts.SizeList(DbEntry, PictureInformation).ToString() #>
+        <#= Tags.PictureSizeList(DbEntry.ShowPhotoSizes, PictureInformation).ToString() #>
         <#= Tags.TagList(DbEntry).ToString() #>
         <#=
                 BodyContentReferences.RelatedContentTag(DbEntry, GenerationVersion).Result #>

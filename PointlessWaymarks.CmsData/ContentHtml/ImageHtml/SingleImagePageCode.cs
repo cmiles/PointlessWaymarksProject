@@ -23,10 +23,8 @@ public partial class SingleImagePage
     }
 
     public ImageContent DbEntry { get; }
-
     public string DirAttribute { get; set; }
     public DateTime? GenerationVersion { get; set; }
-
     public string LangAttribute { get; set; }
     public string PageUrl { get; }
     public PictureSiteInformation PictureInformation { get; }

@@ -367,6 +367,32 @@ public static class Tags
         return outerLink;
     }
 
+    public static HtmlTag PictureSizeList(bool showSizeList, PictureSiteInformation? pictureInformation)
+    {
+        if (!showSizeList || pictureInformation?.Pictures == null) return HtmlTag.Empty();
+
+        var outerContainer = new DivTag().AddClasses("picture-sizes-container", "info-list-container");
+
+        outerContainer.Children.Add(new DivTag().AddClasses("picture-sizes-label-tag", "info-list-label")
+            .Text("Sizes:"));
+
+        var sizes = pictureInformation.Pictures.SrcsetImages.OrderBy(x => x.Height * x.Width).ToList();
+
+        foreach (var loopSizes in sizes)
+        {
+            var tagLinkContainer = new DivTag().AddClasses("tags-detail-link-container", "info-box");
+
+            var tagLink =
+                new LinkTag($"{loopSizes.Width}x{loopSizes.Height}",
+                        loopSizes.SiteUrl)
+                    .AddClasses("tag-detail-link", "info-list-link-item");
+            tagLinkContainer.Children.Add(tagLink);
+            outerContainer.Children.Add(tagLinkContainer);
+        }
+
+        return outerContainer;
+    }
+
     public static async Task<HtmlTag> PostBodyDiv(IBodyContent dbEntry, IProgress<string>? progress = null)
     {
         if (string.IsNullOrWhiteSpace(dbEntry.BodyContent)) return HtmlTag.Empty();
@@ -481,7 +507,7 @@ public static class Tags
 
         foreach (var loopTag in tags)
         {
-            var tagLinkContainer = new DivTag().AddClasses("tags-detail-link-container", "info-list-link-container");
+            var tagLinkContainer = new DivTag().AddClasses("tags-detail-link-container", "info-box");
             if (loopTag.IsExcluded)
             {
                 var tagP = new HtmlTag("p").AddClasses("tag-detail-text", "info-list-text-item");

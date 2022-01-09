@@ -3,6 +3,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
     xmlns:boolDataEntry1="clr-namespace:PointlessWaymarks.CmsWpfControls.BoolDataEntry"
+    xmlns:collections="clr-namespace:System.Collections;assembly=System.Runtime"
     xmlns:contentIdViewer="clr-namespace:PointlessWaymarks.CmsWpfControls.ContentIdViewer"
     xmlns:createdAndUpdatedByAndOnDisplay="clr-namespace:PointlessWaymarks.CmsWpfControls.CreatedAndUpdatedByAndOnDisplay"
     xmlns:fileList="clr-namespace:PointlessWaymarks.CmsWpfControls.FileList"
@@ -18,8 +19,7 @@
     xmlns:tagsEditor="clr-namespace:PointlessWaymarks.CmsWpfControls.TagsEditor"
     xmlns:utility="clr-namespace:PointlessWaymarks.CmsWpfControls.Utility"
     xmlns:wpfBehavior="clr-namespace:PointlessWaymarks.WpfCommon.Behaviors;assembly=PointlessWaymarks.WpfCommon"
-    xmlns:wpfConverter="clr-namespace:PointlessWaymarks.WpfCommon.ValueConverters;assembly=PointlessWaymarks.WpfCommon"
-    xmlns:collections="clr-namespace:System.Collections;assembly=System.Runtime">
+    xmlns:wpfConverter="clr-namespace:PointlessWaymarks.WpfCommon.ValueConverters;assembly=PointlessWaymarks.WpfCommon">
     <wpfConverter:NullOrWhiteSpaceStringToCollapsedVisibilityConverter x:Key="NullOrWhiteSpaceStringToCollapsed" />
     <wpfConverter:NullOrWhiteSpaceStringToDefaultConverter x:Key="StringDefault" />
     <wpfConverter:IsoConverter x:Key="IsoWithDefault" />
@@ -807,14 +807,14 @@
         </Border>
     </DataTemplate>
     <collections:ArrayList x:Key="SiteMenuItemValues" x:Shared="False">
-        <MenuItem Command="{Binding ListContext.GenerateChangedHtmlAndStartUploadCommand}"
-                  Header="Generate Site and Start Upload" />
-        <MenuItem Command="{Binding ListContext.GenerateChangedHtmlAndShowSitePreviewCommand}"
-                  Header="Generate Site and Show Preview" />
+        <MenuItem Command="{Binding ListContext.GenerateChangedHtmlAndStartUploadCommand}" Header="Generate Site and Start Upload" />
+        <MenuItem Command="{Binding ListContext.GenerateChangedHtmlAndShowSitePreviewCommand}" Header="Generate Site and Show Preview" />
         <MenuItem Command="{Binding ListContext.GenerateChangedHtmlCommand}" Header="Generate Site" />
         <MenuItem Command="{Binding ListContext.ShowSitePreviewWindowCommand}" Header="Preview Site from Disk" />
     </collections:ArrayList>
-    <MenuItem x:Key="SiteMenu" x:Shared="False"
-              ItemsSource="{StaticResource SiteMenuItemValues}"
-              Header="Site"/>
+    <MenuItem
+        x:Key="SiteMenu"
+        x:Shared="False"
+        Header="Site"
+        ItemsSource="{StaticResource SiteMenuItemValues}" />
 </ResourceDictionary>

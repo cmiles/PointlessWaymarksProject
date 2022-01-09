@@ -61,6 +61,7 @@ public partial class ImageContentEditorContext : IHasChanges, IHasValidationIssu
     [ObservableProperty] private bool _selectedFileNameHasInvalidCharacters;
     [ObservableProperty] private string _selectedFileValidationMessage;
     [ObservableProperty] private BoolDataEntryContext _showInSearch;
+    [ObservableProperty] private BoolDataEntryContext _showSizes;
     [ObservableProperty] private StatusControlContext _statusContext;
     [ObservableProperty] private TagsEditorContext _tagEdit;
     [ObservableProperty] private TitleSummarySlugEditorContext _titleSummarySlugFolder;
@@ -160,6 +161,7 @@ public partial class ImageContentEditorContext : IHasChanges, IHasValidationIssu
         newEntry.OriginalFileName = SelectedFile.Name;
         newEntry.BodyContent = BodyContent.BodyContent.TrimNullToEmpty();
         newEntry.BodyContentFormat = BodyContent.BodyContentFormat.SelectedContentFormatAsString;
+        newEntry.ShowImageSizes = ShowSizes.UserValue;
 
         return newEntry;
     }
@@ -195,7 +197,8 @@ public partial class ImageContentEditorContext : IHasChanges, IHasValidationIssu
             BodyContentFormat = UserSettingsUtilities.DefaultContentFormatChoice(),
             UpdateNotesFormat = UserSettingsUtilities.DefaultContentFormatChoice(),
             CreatedOn = created,
-            FeedOn = created
+            FeedOn = created,
+            ShowImageSizes = UserSettingsSingleton.CurrentSettings().ImagePagesHaveLinksToImageSizesByDefault
         };
 
         TitleSummarySlugFolder = await TitleSummarySlugEditorContext.CreateInstance(StatusContext, DbEntry);
@@ -206,6 +209,12 @@ public partial class ImageContentEditorContext : IHasChanges, IHasValidationIssu
         UpdateNotes = await UpdateNotesEditorContext.CreateInstance(StatusContext, DbEntry);
         TagEdit = TagsEditorContext.CreateInstance(StatusContext, DbEntry);
         BodyContent = await BodyContentEditorContext.CreateInstance(StatusContext, DbEntry);
+
+        ShowSizes = BoolDataEntryContext.CreateInstance();
+        ShowSizes.Title = "Show Image Sizes";
+        ShowSizes.HelpText = "If enabled the page users be shown a list of all available sizes";
+        ShowSizes.ReferenceValue = DbEntry.ShowImageSizes;
+        ShowSizes.UserValue = DbEntry.ShowImageSizes;
 
         if (!skipMediaDirectoryCheck && toLoad != null && !string.IsNullOrWhiteSpace(DbEntry.OriginalFileName))
 

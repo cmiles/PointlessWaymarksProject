@@ -10,7 +10,7 @@ public static class DailyPhotosPageParts
     {
         if (photoPage == null) return HtmlTag.Empty();
 
-        var relatedPostContainerDiv = new DivTag().AddClasses("related-post-container", "box-container");
+        var relatedPostContainerDiv = new DivTag().AddClasses("related-post-container", "info-box");
 
         var relatedPostMainPictureContentDiv = new DivTag().AddClass("related-post-image-content-container");
 
