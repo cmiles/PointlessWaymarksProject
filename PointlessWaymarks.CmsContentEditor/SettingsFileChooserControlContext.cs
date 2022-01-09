@@ -1,6 +1,5 @@
 ﻿using System.Collections.ObjectModel;
 using System.IO;
-using System.Text.Json;
 using Microsoft.Toolkit.Mvvm.ComponentModel;
 using Microsoft.Toolkit.Mvvm.Input;
 using Ookii.Dialogs.Wpf;
@@ -25,6 +24,7 @@ public partial class SettingsFileChooserControlContext
         NewFileCommand = new RelayCommand(NewFile);
         ChooseFileCommand = new RelayCommand(ChooseFile);
         ChooseRecentFileCommand = new RelayCommand<SettingsFileListItem>(LaunchRecentFile);
+        RemoveSelectedFileCommand = StatusContext.RunNonBlockingTaskCommand<SettingsFileListItem>(RemoveSelectedFile);
 
         StatusContext.RunFireAndForgetBlockingTask(LoadData);
     }
@@ -39,9 +39,11 @@ public partial class SettingsFileChooserControlContext
 
     public List<string> RecentSettingFilesNames { get; set; }
 
+    public RelayCommand<SettingsFileListItem> RemoveSelectedFileCommand { get; set; }
+
     private void ChooseFile()
     {
-        var filePicker = new VistaOpenFileDialog { Filter = "json files (*.json)|*.json|All files (*.*)|*.*" };
+        var filePicker = new VistaOpenFileDialog { Filter = "ini files (*.ini)|*.ini|All files (*.*)|*.*" };
 
         var result = filePicker.ShowDialog();
 
@@ -55,7 +57,8 @@ public partial class SettingsFileChooserControlContext
             return;
         }
 
-        SettingsFileUpdated?.Invoke(this, (false, possibleFile.FullName));
+        SettingsFileUpdated?.Invoke(this,
+            (false, possibleFile.FullName, Items.Select(x => x.SettingsFile.FullName).ToList()));
     }
 
     private void LaunchRecentFile(SettingsFileListItem settingsFileListItem)
@@ -68,7 +71,8 @@ public partial class SettingsFileChooserControlContext
             return;
         }
 
-        SettingsFileUpdated?.Invoke(this, (false, settingsFileListItem.SettingsFile.FullName));
+        SettingsFileUpdated?.Invoke(this,
+            (false, settingsFileListItem.SettingsFile.FullName, Items.Select(x => x.SettingsFile.FullName).ToList()));
     }
 
     private async Task LoadData()
@@ -89,8 +93,8 @@ public partial class SettingsFileChooserControlContext
             {
                 StatusContext.Progress($"Recent Files - getting info from {loopFileInfo.FullName}");
 
-                var readResult =
-                    await JsonSerializer.DeserializeAsync<UserSettings>(File.OpenRead(loopFileInfo.FullName));
+                var readResult = await UserSettingsUtilities.ReadFromSettingsFile(new FileInfo(loopFileInfo.FullName),
+                    StatusContext.ProgressTracker());
 
                 await ThreadSwitcher.ResumeForegroundAsync();
                 Items.Add(new SettingsFileListItem { ParsedSettings = readResult, SettingsFile = loopFileInfo });
@@ -99,7 +103,6 @@ public partial class SettingsFileChooserControlContext
             catch (Exception e)
             {
                 Console.WriteLine(e);
-                throw;
             }
         }
     }
@@ -122,8 +125,15 @@ public partial class SettingsFileChooserControlContext
 
         StatusContext.Progress($"New File Selected - {UserNewFileName}");
 
-        SettingsFileUpdated?.Invoke(this, (true, UserNewFileName));
+        SettingsFileUpdated?.Invoke(this, (true, UserNewFileName, Items.Select(x => x.SettingsFile.FullName).ToList()));
     }
 
-    public event EventHandler<(bool isNew, string userString)> SettingsFileUpdated;
+    private async Task RemoveSelectedFile(SettingsFileListItem settingsFileListItem)
+    {
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        Items.Remove(settingsFileListItem);
+    }
+
+    public event EventHandler<(bool isNew, string userString, List<string> recentFiles)> SettingsFileUpdated;
 }

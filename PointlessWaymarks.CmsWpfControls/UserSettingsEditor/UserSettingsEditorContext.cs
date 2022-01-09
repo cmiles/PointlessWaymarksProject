@@ -68,6 +68,9 @@ public partial class UserSettingsEditorContext
     public static string HelpMarkdownS3Information =>
         "This is NOT required. Amazon S3 - especially behind a service like Cloudflare - can be an excellent way to host a static site like this program generates. This program can help you upload files and maintain files on S3, but to do so you must provide some information - S3 Bucket Name (this will often match your domain name), S3 Bucket Region and AWS Site Credentials (these are not shown and are stored securely by windows - these are NOT stored in the database or in the settings file).";
 
+    public static string HelpMarkdownShowPhotoSizesByDefault =>
+        "Used as the default value for a Photos 'Show Sizes' setting - if this is checked by default photo pages will have links to every photo size available. ALL PHOTO FILES are 'public', but unless this is checked the user is never shown a direct link to any image file.";
+
     public static string HelpMarkdownSiteAuthors =>
         "A value for the site creators/authors - for example " + "'Pointless Waymarks Team'.";
 
@@ -79,9 +82,6 @@ public partial class UserSettingsEditorContext
     public static string HelpMarkdownSiteKeywords =>
         "Used in as the tags for the overall/entire site - for example " +
         "'outdoors,hiking,running,landscape,photography,history'.";
-
-    public static string HelpMarkdownShowPhotoSizesByDefault =>
-        "Used as the default value for a Photos 'Show Sizes' setting - if this is checked by default photo pages will have links to every photo size available. ALL PHOTO FILES are 'public', but unless this is checked the user is never shown a direct link to any image file.";
 
     public static string HelpMarkdownSiteLangAttribute =>
         "Lang attribute indicating the default language for the site - see [lang attribute on MDN](https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/lang) for more information.";
@@ -126,26 +126,18 @@ public partial class UserSettingsEditorContext
 
         if (!newKeyEntry.Item1)
         {
-            StatusContext.ToastWarning("AWS Credential Entry Canceled");
+            StatusContext.ToastWarning("Amazon Credential Entry Cancelled");
             return;
         }
 
         var cleanedKey = newKeyEntry.Item2.TrimNullToEmpty();
 
-        if (string.IsNullOrWhiteSpace(cleanedKey))
-        {
-            StatusContext.ToastError("AWS Credential Entry Canceled - key can not be blank");
-            return;
-        }
+        if (string.IsNullOrWhiteSpace(cleanedKey)) return;
 
         var newSecretEntry = await StatusContext.ShowStringEntry("AWS Secret Access Key",
             "Enter the AWS Secret Access Key", string.Empty);
 
-        if (!newSecretEntry.Item1)
-        {
-            StatusContext.ToastWarning("AWS Credential Entry Canceled");
-            return;
-        }
+        if (!newSecretEntry.Item1) return;
 
         var cleanedSecret = newSecretEntry.Item2.TrimNullToEmpty();
 

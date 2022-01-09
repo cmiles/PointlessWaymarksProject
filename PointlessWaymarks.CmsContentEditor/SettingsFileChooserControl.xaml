@@ -45,7 +45,7 @@
                             BorderBrush="DarkGreen"
                             BorderThickness="1"
                             CornerRadius="5">
-                            <Grid Margin="6">
+                            <Grid Margin="6,6,6,12">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="90" />
                                     <ColumnDefinition />
@@ -66,6 +66,11 @@
                                         Text="{Binding SettingsFile.FullName}"
                                         TextWrapping="Wrap" />
                                 </StackPanel>
+                                <Button Grid.Column="1" Height="17" Width="13" FontSize="10" VerticalAlignment="Bottom"
+                                        Margin="-2,0,0,-6" HorizontalAlignment="Right" CommandParameter="{Binding .}"
+                                        Command="{Binding ElementName=SettingsFileChooserControlXaml, Path=DataContext.RemoveSelectedFileCommand}">
+                                    X
+                                </Button>
                             </Grid>
                         </Border>
                     </DataTemplate>

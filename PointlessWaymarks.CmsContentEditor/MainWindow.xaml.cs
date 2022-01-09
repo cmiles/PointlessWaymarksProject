@@ -480,7 +480,7 @@ public partial class MainWindow
 
         ShowSettingsFileChooser = false;
 
-        var settings = await UserSettingsUtilities.ReadSettings(StatusContext.ProgressTracker());
+        var settings = await UserSettingsUtilities.ReadFromCurrentSettingsFile(StatusContext.ProgressTracker());
         settings.VerifyOrCreateAllTopLevelFolders();
 
         await UserSettingsUtilities.EnsureDbIsPresent(StatusContext.ProgressTracker());
@@ -491,7 +491,7 @@ public partial class MainWindow
 
         TabAllListContext = new AllItemsWithActionsContext(null, WindowStatus);
 
-        SettingsEditorContext = new UserSettingsEditorContext(StatusContext, UserSettingsSingleton.CurrentSettings());
+        SettingsEditorContext = new UserSettingsEditorContext(null, UserSettingsSingleton.CurrentSettings());
         SoftwareComponentsHelpContext = new HelpDisplayContext(new List<string> { SoftwareUsedHelpMarkdown.HelpBlock });
 
         await ThreadSwitcher.ResumeForegroundAsync();
@@ -576,7 +576,8 @@ public partial class MainWindow
         await FileManagement.RemoveContentDirectoriesAndFilesNotFoundInCurrentDatabase(StatusContext.ProgressTracker());
     }
 
-    private async Task SettingsFileChooserOnSettingsFileUpdated((bool isNew, string userInput) settingReturn)
+    private async Task SettingsFileChooserOnSettingsFileUpdated(
+        (bool isNew, string userInput, List<string> fileList) settingReturn)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -593,7 +594,7 @@ public partial class MainWindow
 
         StatusContext.Progress($"Using {UserSettingsUtilities.SettingsFileFullName}");
 
-        var fileList = RecentSettingsFilesNames?.Split("|").ToList() ?? new List<string>();
+        var fileList = settingReturn.fileList ?? new List<string>();
 
         if (fileList.Contains(UserSettingsUtilities.SettingsFileFullName))
             fileList.Remove(UserSettingsUtilities.SettingsFileFullName);
@@ -608,7 +609,8 @@ public partial class MainWindow
         StatusContext.RunFireAndForgetBlockingTask(LoadData);
     }
 
-    private void SettingsFileChooserOnSettingsFileUpdatedEvent(object sender, (bool isNew, string userString) e)
+    private void SettingsFileChooserOnSettingsFileUpdatedEvent(object sender,
+        (bool isNew, string userString, List<string> recentFiles) e)
     {
         StatusContext.RunFireAndForgetBlockingTask(async () => await SettingsFileChooserOnSettingsFileUpdated(e));
     }

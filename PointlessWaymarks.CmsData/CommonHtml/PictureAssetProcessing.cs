@@ -59,7 +59,7 @@ public static class PictureAssetProcessing
     public static PictureAsset? ProcessImageDirectory(ImageContent dbEntry, DirectoryInfo directoryInfo,
         string siteUrl)
     {
-        var toReturn = new PictureAsset {DbEntry = dbEntry};
+        var toReturn = new PictureAsset { DbEntry = dbEntry };
 
         if (dbEntry.OriginalFileName == null) return null;
 
@@ -74,7 +74,7 @@ public static class PictureAssetProcessing
 
         var displayImageFile = possibleDisplayImageFile.FirstOrDefault();
 
-        if (displayImageFile is {Exists: true})
+        if (displayImageFile is { Exists: true })
             toReturn.DisplayPicture = new PictureFile
             {
                 FileName = displayImageFile.Name,
@@ -140,7 +140,7 @@ public static class PictureAssetProcessing
     public static PictureAsset? ProcessPhotoDirectory(PhotoContent dbEntry, DirectoryInfo directoryInfo,
         string siteUrl)
     {
-        var toReturn = new PictureAsset {DbEntry = dbEntry};
+        var toReturn = new PictureAsset { DbEntry = dbEntry };
 
         if (dbEntry.OriginalFileName == null) return null;
 
@@ -155,7 +155,7 @@ public static class PictureAssetProcessing
 
         var displayImageFile = possibleDisplayImageFile.FirstOrDefault();
 
-        if (displayImageFile is {Exists: true})
+        if (displayImageFile is { Exists: true })
             toReturn.DisplayPicture = new PictureFile
             {
                 FileName = displayImageFile.Name,

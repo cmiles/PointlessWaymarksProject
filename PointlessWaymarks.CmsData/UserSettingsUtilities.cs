@@ -1,8 +1,8 @@
 ﻿using System.Data;
 using System.Globalization;
-using System.Text.Json;
 using Amazon;
 using FluentMigrator.Runner;
+using IniParser;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Omu.ValueInjecter;
@@ -16,13 +16,14 @@ namespace PointlessWaymarks.CmsData;
 
 public static class UserSettingsUtilities
 {
-    public static string SettingsFileFullName { get; set; } = "PointlessWaymarksCmsSettings.json";
+    public static string SettingsFileFullName { get; set; } = "PointlessWaymarksCmsSettings.ini";
 
     private static string AddSettingsFileRootDirectoryIfNeeded(this string fileName)
     {
         if (Path.IsPathFullyQualified(fileName)) return fileName;
 
-        return Path.Combine(SettingsFile().DirectoryName ?? string.Empty, fileName.TrimStart(Path.DirectorySeparatorChar));
+        return Path.Combine(SettingsFile().DirectoryName ?? string.Empty,
+            fileName.TrimStart(Path.DirectorySeparatorChar));
     }
 
     public static string AllContentListUrl(this UserSettings settings)
@@ -159,7 +160,9 @@ public static class UserSettingsUtilities
         if (possibleDbFile.Exists)
         {
             var sc = new ServiceCollection().AddFluentMigratorCore().ConfigureRunner(rb =>
-                    rb.AddSQLite().WithGlobalConnectionString($"Data Source={UserSettingsSingleton.CurrentSettings().DatabaseFileFullName()}")
+                    rb.AddSQLite()
+                        .WithGlobalConnectionString(
+                            $"Data Source={UserSettingsSingleton.CurrentSettings().DatabaseFileFullName()}")
                         .ScanIn(typeof(PointlessWaymarksContext).Assembly).For.Migrations())
                 .AddLogging(lb => lb.AddFluentMigratorConsole()).BuildServiceProvider(false);
 
@@ -1155,24 +1158,76 @@ public static class UserSettingsUtilities
         return $"//{settings.SiteUrl}/Posts/PostRss.xml";
     }
 
-    public static async Task<UserSettings> ReadSettings(IProgress<string>? progress = null)
+    public static async Task<UserSettings> ReadFromCurrentSettingsFile(IProgress<string>? progress = null)
     {
         var currentFile = SettingsFile();
 
-        if (!currentFile.Exists)
-            throw new InvalidDataException($"Settings file {currentFile.FullName} doesn't exist?");
+        return await ReadFromSettingsFile(currentFile, progress);
+    }
 
-        if (currentFile.Directory == null)
-            throw new InvalidDataException($"Settings file {currentFile.FullName} doesn't have a valid directory?");
+    public static async Task<UserSettings> ReadFromSettingsFile(FileInfo fileToRead, IProgress<string>? progress = null)
+    {
+        if (!fileToRead.Exists)
+            throw new InvalidDataException($"Settings file {fileToRead.FullName} doesn't exist?");
 
-        UserSettings readResult;
+        if (fileToRead.Directory == null)
+            throw new InvalidDataException($"Settings file {fileToRead.FullName} doesn't have a valid directory?");
 
-        progress?.Report($"Reading and deserializing {currentFile.FullName}");
+        progress?.Report($"Reading and deserializing {fileToRead.FullName}");
 
-        await using (var fs = new FileStream(currentFile.FullName, FileMode.Open, FileAccess.Read))
+        await using var fs = new FileStream(fileToRead.FullName, FileMode.Open, FileAccess.Read);
+        var sr = new StreamReader(fs);
+        var iniFileReader = new StreamIniDataParser();
+        var iniResult = iniFileReader.ReadData(sr);
+
+        var currentProperties = typeof(UserSettings).GetProperties();
+
+        var readResult = new UserSettings();
+
+        foreach (var loopProperties in currentProperties)
         {
-            readResult = await JsonSerializer.DeserializeAsync<UserSettings>(fs).ConfigureAwait(false) ??
-                         new UserSettings();
+            var propertyExists = iniResult.TryGetKey(loopProperties.Name, out var existingValue);
+
+            if (!propertyExists) continue;
+
+            if (loopProperties.PropertyType == typeof(string))
+            {
+                loopProperties.SetValue(readResult, existingValue.TrimNullToEmpty());
+                continue;
+            }
+
+            if (loopProperties.PropertyType == typeof(bool))
+            {
+                var valueTranslated = bool.TryParse(existingValue, out var translated);
+
+                if (valueTranslated)
+                    loopProperties.SetValue(readResult, translated);
+
+                continue;
+            }
+
+            if (loopProperties.PropertyType == typeof(double))
+            {
+                var valueTranslated = double.TryParse(existingValue, out var translated);
+
+                if (valueTranslated)
+                    loopProperties.SetValue(readResult, translated);
+
+                continue;
+            }
+
+            if (loopProperties.PropertyType == typeof(Guid))
+            {
+                var valueTranslated = Guid.TryParse(existingValue, out var translated);
+
+                if (valueTranslated)
+                    loopProperties.SetValue(readResult, translated);
+
+                continue;
+            }
+
+            throw new NotSupportedException(
+                $"The use of the type {loopProperties.PropertyType} in User Settings is not supported...");
         }
 
         var timeStampForMissingValues = $"{DateTime.Now:yyyy-MM-dd--HH-mm-ss-fff}";
@@ -1192,22 +1247,22 @@ public static class UserSettingsUtilities
 
         if (string.IsNullOrWhiteSpace(readResult.LocalSiteRootDirectory))
         {
-            var newLocalSiteRoot = new DirectoryInfo(Path.Combine(currentFile.Directory.FullName,
+            var newLocalSiteRoot = new DirectoryInfo(Path.Combine(fileToRead.Directory.FullName,
                 timeStampForMissingValues, $"PointlessWaymarks-Site-{timeStampForMissingValues}"));
 
             newLocalSiteRoot.CreateIfItDoesNotExist();
-            readResult.LocalSiteRootDirectory = Path.GetRelativePath(currentFile.DirectoryName ?? string.Empty,
+            readResult.LocalSiteRootDirectory = Path.GetRelativePath(fileToRead.DirectoryName ?? string.Empty,
                 newLocalSiteRoot.FullName);
             hasUpdates = true;
         }
 
         if (string.IsNullOrWhiteSpace(readResult.LocalMediaArchiveDirectory))
         {
-            var newMediaArchive = new DirectoryInfo(Path.Combine(currentFile.Directory.FullName,
+            var newMediaArchive = new DirectoryInfo(Path.Combine(fileToRead.Directory.FullName,
                 timeStampForMissingValues, $"PointlessWaymarks-MediaArchive-{timeStampForMissingValues}"));
 
             newMediaArchive.CreateIfItDoesNotExist();
-            readResult.LocalMediaArchiveDirectory = Path.GetRelativePath(currentFile.DirectoryName ?? string.Empty,
+            readResult.LocalMediaArchiveDirectory = Path.GetRelativePath(fileToRead.DirectoryName ?? string.Empty,
                 newMediaArchive.FullName);
             hasUpdates = true;
         }
@@ -1294,7 +1349,7 @@ public static class UserSettingsUtilities
 
     public static FileInfo SettingsFile()
     {
-        return new(SettingsFileFullName);
+        return new FileInfo(SettingsFileFullName);
     }
 
     /// <summary>
@@ -1350,7 +1405,7 @@ public static class UserSettingsUtilities
         newSettings.SettingsId = Guid.NewGuid();
 
         SettingsFileFullName =
-            Path.Combine(rootDirectory.FullName, $"PointlessWaymarksCmsSettings-{userFilename}.json");
+            Path.Combine(rootDirectory.FullName, $"PointlessWaymarksCmsSettings-{userFilename}.ini");
 
         progress?.Report("Writing Settings");
 
@@ -1470,6 +1525,28 @@ public static class UserSettingsUtilities
     public static async Task WriteSettings(this UserSettings toWrite)
     {
         var currentFile = SettingsFile();
-        await File.WriteAllTextAsync(currentFile.FullName, JsonSerializer.Serialize(toWrite, new JsonSerializerOptions() {WriteIndented = true})).ConfigureAwait(false);
+
+        if (!currentFile.Exists)
+        {
+            var fileStream = currentFile.Create();
+            fileStream.Close();
+        }
+
+        var iniFileReader = new FileIniDataParser();
+        var iniResult = iniFileReader.ReadFile(currentFile.FullName);
+
+        var currentProperties = typeof(UserSettings).GetProperties();
+
+        foreach (var loopProperties in currentProperties)
+        {
+            var propertyExists = iniResult.TryGetKey(loopProperties.Name, out var existingValue);
+
+            if (propertyExists)
+                iniResult.Global[loopProperties.Name] = loopProperties.GetValue(toWrite)?.ToString();
+            else
+                iniResult.Global.AddKey(loopProperties.Name, loopProperties.GetValue(toWrite)?.ToString());
+        }
+
+        iniFileReader.WriteFile(currentFile.FullName, iniResult);
     }
 }
