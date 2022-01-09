@@ -82,14 +82,14 @@
                     </GroupBox.Header>
                     <TextBox
                         x:Name="BodyContentTextBox"
-                        behaviors:TextBoxHelper.SelectedText="{Binding SelectedBodyText}"
-                        dd:DragDrop.DropHandler="{Binding .}"
-                        dd:DragDrop.IsDropTarget="True"
+                        wpfBehavior:TextBoxHelper.SelectedText="{Binding SelectedBodyText}"
                         AcceptsReturn="True"
                         BorderThickness="0"
                         FontSize="{Binding ElementName=BodyMarkDownFontSizeSlider, Path=Value}"
+                        PreviewDragOver="TextBoxPreviewDragOver"
+                        SelectionChanged="BodyContentTextBox_OnSelectionChanged"
                         SpellCheck.IsEnabled="True"
-                        Text="{Binding BodyContent, UpdateSourceTrigger=PropertyChanged}"
+                        Text="{Binding BodyContent, UpdateSourceTrigger=PropertyChanged, Delay=350}"
                         TextWrapping="Wrap"
                         VerticalScrollBarVisibility="Visible">
                         <b:Interaction.Behaviors>
