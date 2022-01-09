@@ -26,6 +26,12 @@ Site:
 
 ## Notes
 
+1/9/2022
+
+Photo Sizes - srcscet provides appropriate images for the site and takes advantage of larger images for larger screens. Especially on a public site this creates a decent compromise - nice photos both for load times and for resolution but rarely would someone right clicking the image save out the highest resolution image (so slight protection for your photo) - of course a user with some html knowledge can search thru the code for the srcset links but that is going to be a small percentage of users who you likely aren't going to 'stop' anyway... A nice default compromise but what about support for enabling downloads of various sizes (large sizes for zooming in - smaller sizes for emailing an image) if you did want users to have easy access? To cover this I added an optional block for photos that lists the available sizes of a photo as links and a setting so you can enable/disable by default for new items on a site.
+
+Switched the settings from json to ini - the JSON settings file worked but it was awkward when you want to add/remove a setting since what made it so attractive was deserializing the whole file into a settings object. The JSON could have been parsed differently, but I think at that point it looses its advantages - it was a nice experiment but it seems like an ini file better targets what I want to do.
+
 1/1/2022
 
 Happy New Year! 
