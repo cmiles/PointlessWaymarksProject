@@ -1,6 +1,4 @@
-﻿using System.IO;
-using System.Text.Json;
-using Amazon;
+﻿using Amazon;
 using Microsoft.Toolkit.Mvvm.ComponentModel;
 using Microsoft.Toolkit.Mvvm.Input;
 using Omu.ValueInjecter;
@@ -109,15 +107,7 @@ public partial class UserSettingsEditorContext
 
     public async Task SaveSettings()
     {
-        var currentFile = UserSettingsUtilities.SettingsFile();
-
-        if (currentFile.Exists) currentFile.Delete();
-
-        currentFile.Refresh();
-
-        var writeStream = File.Create(currentFile.FullName);
-
-        await JsonSerializer.SerializeAsync(writeStream, EditorSettings, options: null, CancellationToken.None);
+        await EditorSettings.WriteSettings();
 
         UserSettingsSingleton.CurrentSettings().InjectFrom(EditorSettings);
     }
