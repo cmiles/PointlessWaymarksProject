@@ -322,6 +322,7 @@ public static class PhotoGenerator
         toReturn.Slug = SlugUtility.Create(true, toReturn.Title);
         toReturn.BodyContentFormat = ContentFormatDefaults.Content.ToString();
         toReturn.UpdateNotesFormat = ContentFormatDefaults.Content.ToString();
+        toReturn.ShowPhotoSizes = UserSettingsSingleton.CurrentSettings().PhotoPagesHaveLinksToPhotoSizesByDefault;
 
         var possibleTitleYear = Regex.Match(toReturn.Title ?? string.Empty,
             @"\A(?<possibleYear>\d\d\d\d) (?<possibleMonth>January?|February?|March?|April?|May|June?|July?|August?|September?|October?|November?|December?) .*",
