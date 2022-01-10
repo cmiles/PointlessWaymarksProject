@@ -157,6 +157,12 @@
             Style="{StaticResource ReadOnlyTextBoxStyle}"
             Text="{Binding DbEntry.Title, Mode=OneWay}"
             TextWrapping="Wrap">
+            <TextBox.InputBindings>
+                <MouseBinding
+                    Command="{Binding DataContext.ItemActions.EditCommand, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}"
+                    CommandParameter="{Binding DataContext.DbEntry, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}"
+                    Gesture="Shift+LeftDoubleClick" />
+            </TextBox.InputBindings>
             <b:Interaction.Behaviors>
                 <wpfBehavior:ReadOnlyTextBoxClickKeyboardAndDragPass />
             </b:Interaction.Behaviors>
@@ -172,6 +178,12 @@
             Text="{Binding ., Mode=OneWay, Converter={StaticResource ListItemTypeToReadableName}}"
             TextWrapping="Wrap"
             Visibility="{Binding ShowType, Converter={StaticResource BooleanToVisibility}}">
+            <TextBox.InputBindings>
+                <MouseBinding
+                    Command="{Binding DataContext.ItemActions.EditCommand, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}"
+                    CommandParameter="{Binding DataContext.DbEntry, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}"
+                    Gesture="Shift+LeftDoubleClick" />
+            </TextBox.InputBindings>
             <b:Interaction.Behaviors>
                 <wpfBehavior:ReadOnlyTextBoxClickKeyboardAndDragPass />
             </b:Interaction.Behaviors>
@@ -186,6 +198,12 @@
             Style="{StaticResource ReadOnlyTextBoxStyle}"
             Text="{Binding DbEntry.CreatedBy, Mode=OneWay, StringFormat='Created By: {0}'}"
             TextWrapping="Wrap">
+            <TextBox.InputBindings>
+                <MouseBinding
+                    Command="{Binding DataContext.ItemActions.EditCommand, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}"
+                    CommandParameter="{Binding DataContext.DbEntry, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}"
+                    Gesture="Shift+LeftDoubleClick" />
+            </TextBox.InputBindings>
             <b:Interaction.Behaviors>
                 <wpfBehavior:ReadOnlyTextBoxClickKeyboardAndDragPass />
             </b:Interaction.Behaviors>
@@ -201,6 +219,12 @@
             Text="{Binding DbEntry.LastUpdatedBy, Mode=OneWay, StringFormat='- Updated by: {0}'}"
             TextWrapping="Wrap"
             Visibility="{Binding DbEntry.LastUpdatedBy, Converter={StaticResource NullOrWhiteSpaceStringToCollapsed}}">
+            <TextBox.InputBindings>
+                <MouseBinding
+                    Command="{Binding DataContext.ItemActions.EditCommand, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}"
+                    CommandParameter="{Binding DataContext.DbEntry, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}"
+                    Gesture="Shift+LeftDoubleClick" />
+            </TextBox.InputBindings>
             <b:Interaction.Behaviors>
                 <wpfBehavior:ReadOnlyTextBoxClickKeyboardAndDragPass />
             </b:Interaction.Behaviors>
@@ -218,6 +242,12 @@
         Style="{StaticResource ReadOnlyTextBoxStyle}"
         Text="{Binding DbEntry.Summary, Mode=OneWay}"
         TextWrapping="Wrap">
+        <TextBox.InputBindings>
+            <MouseBinding
+                Command="{Binding DataContext.ItemActions.EditCommand, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}"
+                CommandParameter="{Binding DataContext.DbEntry, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}"
+                Gesture="Shift+LeftDoubleClick" />
+        </TextBox.InputBindings>
         <b:Interaction.Behaviors>
             <wpfBehavior:ReadOnlyTextBoxClickKeyboardAndDragPass />
         </b:Interaction.Behaviors>
@@ -234,6 +264,12 @@
         Style="{StaticResource ReadOnlyTextBoxStyle}"
         Text="{Binding DbEntry.Tags, Mode=OneWay, StringFormat='Tags: {0}'}"
         TextWrapping="Wrap">
+        <TextBox.InputBindings>
+            <MouseBinding
+                Command="{Binding DataContext.ItemActions.EditCommand, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}"
+                CommandParameter="{Binding DataContext.DbEntry, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}"
+                Gesture="Shift+LeftDoubleClick" />
+        </TextBox.InputBindings>
         <b:Interaction.Behaviors>
             <wpfBehavior:ReadOnlyTextBoxClickKeyboardAndDragPass />
         </b:Interaction.Behaviors>
@@ -253,6 +289,12 @@
             Style="{StaticResource ReadOnlyTextBoxStyle}"
             Text="{Binding DbEntry.Folder, Mode=OneWay, StringFormat='Folder: {0}'}"
             TextWrapping="Wrap">
+            <TextBox.InputBindings>
+                <MouseBinding
+                    Command="{Binding DataContext.ItemActions.EditCommand, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}"
+                    CommandParameter="{Binding DataContext.DbEntry, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}"
+                    Gesture="Shift+LeftDoubleClick" />
+            </TextBox.InputBindings>
             <b:Interaction.Behaviors>
                 <wpfBehavior:ReadOnlyTextBoxClickKeyboardAndDragPass />
             </b:Interaction.Behaviors>
@@ -285,6 +327,12 @@
         Style="{StaticResource ReadOnlyTextBoxStyle}"
         Text="{Binding DbEntry.OriginalFileName, Mode=OneWay, StringFormat='File: {0}'}"
         TextWrapping="Wrap">
+        <TextBox.InputBindings>
+            <MouseBinding
+                Command="{Binding DataContext.ItemActions.EditCommand, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}"
+                CommandParameter="{Binding DataContext.DbEntry, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}"
+                Gesture="Shift+LeftDoubleClick" />
+        </TextBox.InputBindings>
         <b:Interaction.Behaviors>
             <wpfBehavior:ReadOnlyTextBoxClickKeyboardAndDragPass />
         </b:Interaction.Behaviors>
@@ -302,6 +350,12 @@
             Style="{StaticResource ReadOnlyTextBoxStyle}"
             Text="{Binding DbEntry.ContentVersion, Mode=OneWay, StringFormat='Content Version (UTC): {0:r}'}"
             TextWrapping="Wrap">
+            <TextBox.InputBindings>
+                <MouseBinding
+                    Command="{Binding DataContext.ItemActions.EditCommand, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}"
+                    CommandParameter="{Binding DataContext.DbEntry, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}"
+                    Gesture="Shift+LeftDoubleClick" />
+            </TextBox.InputBindings>
             <b:Interaction.Behaviors>
                 <wpfBehavior:ReadOnlyTextBoxClickKeyboardAndDragPass />
             </b:Interaction.Behaviors>
@@ -316,6 +370,12 @@
             Style="{StaticResource ReadOnlyTextBoxStyle}"
             Text="{Binding DbEntry.ContentId, Mode=OneWay, StringFormat='Content Id: {0}'}"
             TextWrapping="Wrap">
+            <TextBox.InputBindings>
+                <MouseBinding
+                    Command="{Binding DataContext.ItemActions.EditCommand, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}"
+                    CommandParameter="{Binding DataContext.DbEntry, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}"
+                    Gesture="Shift+LeftDoubleClick" />
+            </TextBox.InputBindings>
             <b:Interaction.Behaviors>
                 <wpfBehavior:ReadOnlyTextBoxClickKeyboardAndDragPass />
             </b:Interaction.Behaviors>
