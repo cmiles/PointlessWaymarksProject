@@ -21,9 +21,9 @@ public partial class SettingsFileChooserControlContext
         StatusContext = statusContext ?? new StatusControlContext();
         RecentSettingFilesNames = recentSettingFiles?.Split("|").ToList() ?? new List<string>();
 
-        NewFileCommand = new RelayCommand(NewFile);
-        ChooseFileCommand = new RelayCommand(ChooseFile);
-        ChooseRecentFileCommand = new RelayCommand<SettingsFileListItem>(LaunchRecentFile);
+        NewFileCommand = StatusContext.RunNonBlockingTaskCommand(NewFile);
+        ChooseFileCommand = StatusContext.RunNonBlockingTaskCommand(ChooseFile);
+        ChooseRecentFileCommand = StatusContext.RunNonBlockingTaskCommand<SettingsFileListItem>(LaunchRecentFile);
         RemoveSelectedFileCommand = StatusContext.RunNonBlockingTaskCommand<SettingsFileListItem>(RemoveSelectedFile);
 
         StatusContext.RunFireAndForgetBlockingTask(LoadData);
@@ -41,13 +41,17 @@ public partial class SettingsFileChooserControlContext
 
     public RelayCommand<SettingsFileListItem> RemoveSelectedFileCommand { get; set; }
 
-    private void ChooseFile()
+    private async Task ChooseFile()
     {
+        await ThreadSwitcher.ResumeForegroundAsync();
+
         var filePicker = new VistaOpenFileDialog { Filter = "ini files (*.ini)|*.ini|All files (*.*)|*.*" };
 
         var result = filePicker.ShowDialog();
 
         if (!result ?? false) return;
+
+        await ThreadSwitcher.ResumeBackgroundAsync();
 
         var possibleFile = new FileInfo(filePicker.FileName);
 
@@ -61,8 +65,10 @@ public partial class SettingsFileChooserControlContext
             (false, possibleFile.FullName, Items.Select(x => x.SettingsFile.FullName).ToList()));
     }
 
-    private void LaunchRecentFile(SettingsFileListItem settingsFileListItem)
+    private async Task LaunchRecentFile(SettingsFileListItem settingsFileListItem)
     {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
         settingsFileListItem.SettingsFile.Refresh();
 
         if (!settingsFileListItem.SettingsFile.Exists)
@@ -107,8 +113,10 @@ public partial class SettingsFileChooserControlContext
         }
     }
 
-    private void NewFile()
+    private async Task NewFile()
     {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
         if (string.IsNullOrWhiteSpace(UserNewFileName))
         {
             StatusContext.ToastError("Please fill in a file name...");
