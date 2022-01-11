@@ -310,6 +310,12 @@
             Style="{StaticResource ReadOnlyTextBoxStyle}"
             Text="{Binding DbEntry.Slug, Mode=OneWay, StringFormat='Slug: {0}'}"
             TextWrapping="Wrap">
+            <TextBox.InputBindings>
+                <MouseBinding
+                    Command="{Binding DataContext.ItemActions.EditCommand, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}"
+                    CommandParameter="{Binding DataContext.DbEntry, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}"
+                    Gesture="Shift+LeftDoubleClick" />
+            </TextBox.InputBindings>
             <b:Interaction.Behaviors>
                 <wpfBehavior:ReadOnlyTextBoxClickKeyboardAndDragPass />
             </b:Interaction.Behaviors>
