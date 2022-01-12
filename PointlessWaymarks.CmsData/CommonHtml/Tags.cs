@@ -445,7 +445,7 @@ public static class Tags
         relatedPostsContainer.Children.Add(new DivTag()
             .Text($"Posts {(hasPreviousPosts ? "Before" : "")}" +
                   $"{(hasBothEarlierAndLaterPosts ? "/" : "")}{(hasLaterPosts ? "After" : "")}:")
-            .AddClass("post-related-posts-label-tag"));
+            .AddClasses("post-related-posts-label-tag", "compact-content-list-label"));
 
         if (hasPreviousPosts)
             foreach (var loopPosts in previousPosts)

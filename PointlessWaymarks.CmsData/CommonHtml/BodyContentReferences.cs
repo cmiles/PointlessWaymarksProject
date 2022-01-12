@@ -186,7 +186,7 @@ public static class BodyContentReferences
 
         var relatedPostsList = new DivTag().AddClass("related-posts-list-container");
 
-        relatedPostsList.Children.Add(new DivTag().Text("Related:").AddClass("related-post-label-tag"));
+        relatedPostsList.Children.Add(new DivTag().Text("Related:").AddClasses("related-post-label-tag", "compact-content-list-label"));
 
         foreach (var loopPost in relatedTags) relatedPostsList.Children.Add(loopPost);
 
@@ -209,7 +209,7 @@ public static class BodyContentReferences
 
         var relatedPostsList = new DivTag().AddClass("related-posts-list-container");
 
-        relatedPostsList.Children.Add(new DivTag().Text("Related:").AddClass("related-post-label-tag"));
+        relatedPostsList.Children.Add(new DivTag().Text("Related:").AddClasses("related-post-label-tag", "compact-content-list-label"));
 
         foreach (var loopPost in allRelated) relatedPostsList.Children.Add(RelatedContentDiv(loopPost));
 

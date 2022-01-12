@@ -72,7 +72,7 @@ public static class DailyPhotosPageParts
         relatedPostsContainer.Children.Add(new DivTag()
             .Text($"Daily Photos {(hasPreviousPosts ? "Before" : "")}" +
                   $"{(hasBothEarlierAndLaterPosts ? "/" : "")}{(hasLaterPosts ? "After" : "")}:")
-            .AddClass("post-related-posts-label-tag"));
+            .AddClasses("post-related-posts-label-tag", "compact-content-list-label"));
 
         if (hasPreviousPosts)
             relatedPostsContainer.Children.Add(DailyPhotosPageRelatedContentDiv(photoPage.PreviousDailyPhotosPage));
