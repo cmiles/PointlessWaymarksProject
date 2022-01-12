@@ -48,7 +48,7 @@ html {
 
 body {
     font-family: charter, Cambria, Georgia, Times, "Times New Roman", serif;
-    font-size: 1rem;
+    font-size: 16px;
 }
 
 .wait-cursor {
@@ -181,6 +181,10 @@ p.info-list-text-item {
     display: block;
     color: var(--foreground-secondary-color);
     text-decoration: none;
+}
+
+.info-list-label {
+    margin-right: .4rem;
 }
 
 .footer-container {
@@ -448,6 +452,7 @@ a.site-header-title-link:active {
 .related-post-label-tag {
     margin-top: auto;
     margin-bottom: auto;
+    margin-right: 0.4rem;
 }
 
 .related-post-text-content-title-container {
@@ -707,7 +712,7 @@ a.tag-list-link {
     .post-body-content h5,
     .post-body-content h6 {
         max-width: 1100px;
-        width: 80ch;
+        width: 60rem;
         margin-left: auto;
         margin-right: auto;
     }
