@@ -16,7 +16,7 @@
     <#= Tags.StandardHeader().Result.ToString() #>
     <#= HorizontalRule.StandardRule() #>
     <div class="search-input-container">
-        <input type="text" class="search-input" id="userSearchText" onkeyup="searchContent()" placeholder="Search Tags...">
+        <input type="text" class="search-input" id="userSearchText" onkeyup="searchContent()" placeholder="Search Tags..." autocomplete="off">
     </div>
     <#= TagList() #>
     <#= HorizontalRule.StandardRule() #>
