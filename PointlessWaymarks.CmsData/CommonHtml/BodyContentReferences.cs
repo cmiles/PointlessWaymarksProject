@@ -184,7 +184,7 @@ public static class BodyContentReferences
 
         if (!relatedTags.Any()) return HtmlTag.Empty();
 
-        var relatedPostsList = new DivTag().AddClass("related-posts-list-container");
+        var relatedPostsList = new DivTag().AddClasses("related-posts-list-container", "content-compact-container");
 
         relatedPostsList.Children.Add(new DivTag().Text("Related:").AddClasses("related-post-label-tag", "compact-content-list-label"));
 
@@ -207,7 +207,7 @@ public static class BodyContentReferences
         allRelated = allRelated.GroupBy(x => x.ContentId).Select(x => x.First())
             .OrderByDescending(x => x.LastUpdatedOn ?? x.CreatedOn).ToList();
 
-        var relatedPostsList = new DivTag().AddClass("related-posts-list-container");
+        var relatedPostsList = new DivTag().AddClasses("related-posts-list-container", "content-compact-container");
 
         relatedPostsList.Children.Add(new DivTag().Text("Related:").AddClasses("related-post-label-tag", "compact-content-list-label"));
 

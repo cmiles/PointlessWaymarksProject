@@ -20,14 +20,22 @@ public partial class SinglePhotoPage
         DirAttribute = settings.SiteDirectionAttribute;
 
         PictureInformation = new PictureSiteInformation(DbEntry.ContentId);
+
+        var (previousPhoto, nextPhoto) = Tags.PhotoPreviousAndNextContent(dbEntry.PhotoCreatedOn);
+        PreviousPhoto = previousPhoto;
+        NextPhoto = nextPhoto;
     }
 
     public PhotoContent DbEntry { get; }
     public string DirAttribute { get; set; }
     public DateTime? GenerationVersion { get; set; }
     public string LangAttribute { get; set; }
+
+    public PhotoContent? NextPhoto { get; set; }
     public string PageUrl { get; }
     public PictureSiteInformation PictureInformation { get; }
+
+    public PhotoContent? PreviousPhoto { get; set; }
     public string SiteName { get; }
     public string SiteUrl { get; }
 

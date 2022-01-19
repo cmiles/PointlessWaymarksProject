@@ -27,10 +27,8 @@ public partial class SinglePostPage
     }
 
     public PostContent DbEntry { get; }
-
     public string DirAttribute { get; set; }
     public DateTime? GenerationVersion { get; set; }
-
     public string LangAttribute { get; set; }
     public List<IContentCommon> LaterPosts { get; }
     public PictureSiteInformation? MainImage { get; }

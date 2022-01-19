@@ -256,27 +256,34 @@ namespace PointlessWaymarks.CmsData.ContentHtml.PhotoHtml
             this.Write("\r\n        ");
             
             #line 67 "C:\Code\PointlessWaymarksCms03\PointlessWaymarks.CmsData\ContentHtml\PhotoHtml\SinglePhotoPage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(Tags.CreatedByAndUpdatedOnDiv(DbEntry).ToString()));
+            this.Write(this.ToStringHelper.ToStringWithCulture(Tags.PreviousAndNextPhotoDiv(PreviousPhoto, NextPhoto)));
             
             #line default
             #line hidden
             this.Write("\r\n        ");
             
             #line 69 "C:\Code\PointlessWaymarksCms03\PointlessWaymarks.CmsData\ContentHtml\PhotoHtml\SinglePhotoPage.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(Tags.CreatedByAndUpdatedOnDiv(DbEntry).ToString()));
+            
+            #line default
+            #line hidden
+            this.Write("\r\n        ");
+            
+            #line 71 "C:\Code\PointlessWaymarksCms03\PointlessWaymarks.CmsData\ContentHtml\PhotoHtml\SinglePhotoPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Tags.UpdateNotesDiv(DbEntry).Result.ToString()));
             
             #line default
             #line hidden
             this.Write("\r\n    </div>\r\n    ");
             
-            #line 72 "C:\Code\PointlessWaymarksCms03\PointlessWaymarks.CmsData\ContentHtml\PhotoHtml\SinglePhotoPage.tt"
+            #line 74 "C:\Code\PointlessWaymarksCms03\PointlessWaymarks.CmsData\ContentHtml\PhotoHtml\SinglePhotoPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(HorizontalRule.StandardRule()));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 73 "C:\Code\PointlessWaymarksCms03\PointlessWaymarks.CmsData\ContentHtml\PhotoHtml\SinglePhotoPage.tt"
+            #line 75 "C:\Code\PointlessWaymarksCms03\PointlessWaymarks.CmsData\ContentHtml\PhotoHtml\SinglePhotoPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Footer.StandardFooterDiv().Result));
             
             #line default

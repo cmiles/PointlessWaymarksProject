@@ -65,6 +65,8 @@
         <#=
                 BodyContentReferences.RelatedContentTag(DbEntry, GenerationVersion).Result #>
         <#=
+                Tags.PreviousAndNextPhotoDiv(PreviousPhoto, NextPhoto) #>
+        <#=
                 Tags.CreatedByAndUpdatedOnDiv(DbEntry).ToString() #>
         <#=
                     Tags.UpdateNotesDiv(DbEntry).Result.ToString() #>

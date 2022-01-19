@@ -954,6 +954,31 @@ public static class Db
     }
 
     /// <summary>
+    ///     Finds the previous photo based on PhotoDate, CreatedDate and ContentId.
+    /// </summary>
+    /// <returns></returns>
+    public static async Task<PhotoContent?> PhotoCommonContentPrevious(DateTime photoDate)
+    {
+        var db = await Context().ConfigureAwait(false);
+
+        return await db.PhotoContents
+            .Where(x => !x.IsDraft && x.PhotoCreatedOn < photoDate)
+            .OrderByDescending(x => x.PhotoCreatedOn).ThenByDescending(x => x.CreatedOn).ThenByDescending(x => x.ContentId).FirstOrDefaultAsync().ConfigureAwait(false);
+    }
+
+    /// <summary>
+    ///     Finds the next photo based on PhotoDate, CreatedDate and ContentId.
+    /// </summary>
+    public static async Task<PhotoContent?> PhotoCommonContentNext(DateTime photoDate)
+    {
+        var db = await Context().ConfigureAwait(false);
+
+        return await db.PhotoContents
+            .Where(x => !x.IsDraft && x.PhotoCreatedOn > photoDate)
+            .OrderBy(x => x.PhotoCreatedOn).ThenBy(x => x.CreatedOn).ThenBy(x => x.ContentId).FirstOrDefaultAsync().ConfigureAwait(false);
+    }
+
+    /// <summary>
     ///     Queries the 'Contents' Tables for entries marked ShowInMainSiteFeed, not IsDraft and having a FeedOn date before
     ///     the input datetime and before now and the returns the most recent entries.
     /// </summary>
@@ -1972,7 +1997,7 @@ public static class Db
     {
         progress?.Report("Starting Parse of Tag Content");
 
-        var tagBag = new List<List<(string tag, List<dynamic> contentObjects)>>();
+        var tagBag = new ConcurrentBag<(string tag, List<dynamic> contentObjects)>();
 
         var taskSet = new List<Func<Task>>
         {
@@ -1980,82 +2005,91 @@ public static class Db
             {
                 progress?.Report("Process File Content Tags");
                 var db = await Context().ConfigureAwait(false);
-                tagBag.Add(ParseToTagSlugsAndContentList(
+                var toAdd = ParseToTagSlugsAndContentList(
                     (await db.FileContents.Where(x => !x.IsDraft).ToListAsync().ConfigureAwait(false)).Cast<ITag>()
-                    .ToList(), removeExcludedTags, progress));
+                    .ToList(), removeExcludedTags, progress);
+                toAdd.ForEach(x => tagBag.Add(x));
             },
             async () =>
             {
                 progress?.Report("Process GeoJson Content Tags");
                 var db = await Context().ConfigureAwait(false);
-                tagBag.Add(ParseToTagSlugsAndContentList(
+                var toAdd = ParseToTagSlugsAndContentList(
                     (await db.GeoJsonContents.Where(x => !x.IsDraft).ToListAsync().ConfigureAwait(false))
-                    .Cast<ITag>().ToList(), removeExcludedTags, progress));
+                    .Cast<ITag>().ToList(), removeExcludedTags, progress);
+                toAdd.ForEach(x => tagBag.Add(x));
             },
             async () =>
             {
                 progress?.Report("Process Image Content Tags");
                 var db = await Context().ConfigureAwait(false);
-                tagBag.Add(ParseToTagSlugsAndContentList(
+                var toAdd = ParseToTagSlugsAndContentList(
                     includePagesExcludedFromSearch
                         ? (await db.ImageContents.Where(x => !x.IsDraft).ToListAsync().ConfigureAwait(false))
                         .Cast<ITag>().ToList()
                         : (await db.ImageContents.Where(y => !y.IsDraft && y.ShowInSearch).ToListAsync()
-                            .ConfigureAwait(false)).Cast<ITag>().ToList(), removeExcludedTags, progress));
+                            .ConfigureAwait(false)).Cast<ITag>().ToList(), removeExcludedTags, progress);
+                toAdd.ForEach(x => tagBag.Add(x));
             },
             async () =>
             {
                 progress?.Report("Process Line Content Tags");
                 var db = await Context().ConfigureAwait(false);
-                tagBag.Add(ParseToTagSlugsAndContentList(
+                var toAdd = ParseToTagSlugsAndContentList(
                     (await db.LineContents.Where(x => !x.IsDraft).ToListAsync().ConfigureAwait(false)).Cast<ITag>()
-                    .ToList(), removeExcludedTags, progress));
+                    .ToList(), removeExcludedTags, progress);
+                toAdd.ForEach(x => tagBag.Add(x));
             },
             async () =>
             {
                 progress?.Report("Process Link Content Tags");
                 var db = await Context().ConfigureAwait(false);
-                tagBag.Add(ParseToTagSlugsAndContentList(
+                var toAdd = ParseToTagSlugsAndContentList(
                     (await db.LinkContents.ToListAsync().ConfigureAwait(false)).Cast<ITag>().ToList(),
-                    removeExcludedTags, progress));
+                    removeExcludedTags, progress);
+                toAdd.ForEach(x => tagBag.Add(x));
             },
             async () =>
             {
                 progress?.Report("Process Note Content Tags");
                 var db = await Context().ConfigureAwait(false);
-                tagBag.Add(ParseToTagSlugsAndContentList(
+                var toAdd = ParseToTagSlugsAndContentList(
                     (await db.NoteContents.Where(x => !x.IsDraft).ToListAsync().ConfigureAwait(false)).Cast<ITag>()
-                    .ToList(), removeExcludedTags, progress));
+                    .ToList(), removeExcludedTags, progress);
+                toAdd.ForEach(x => tagBag.Add(x));
             },
             async () =>
             {
                 progress?.Report("Process Photo Content Tags");
                 var db = await Context().ConfigureAwait(false);
-                tagBag.Add(ParseToTagSlugsAndContentList(
+                var toAdd = ParseToTagSlugsAndContentList(
                     (await db.PhotoContents.Where(x => !x.IsDraft).ToListAsync().ConfigureAwait(false)).Cast<ITag>()
-                    .ToList(), removeExcludedTags, progress));
+                    .ToList(), removeExcludedTags, progress);
+                toAdd.ForEach(x => tagBag.Add(x));
             },
             async () =>
             {
                 progress?.Report("Process Point Content Tags");
                 var db = await Context().ConfigureAwait(false);
-                tagBag.Add(ParseToTagSlugsAndContentList(
+                var toAdd = ParseToTagSlugsAndContentList(
                     (await db.PointContents.Where(x => !x.IsDraft).ToListAsync().ConfigureAwait(false)).Cast<ITag>()
-                    .ToList(), removeExcludedTags, progress));
+                    .ToList(), removeExcludedTags, progress);
+                toAdd.ForEach(x => tagBag.Add(x));
             },
             async () =>
             {
                 progress?.Report("Process Post Content Tags");
                 var db = await Context().ConfigureAwait(false);
-                tagBag.Add(ParseToTagSlugsAndContentList(
+                var toAdd = ParseToTagSlugsAndContentList(
                     (await db.PostContents.Where(x => !x.IsDraft).ToListAsync().ConfigureAwait(false)).Cast<ITag>()
-                    .ToList(), removeExcludedTags, progress));
+                    .ToList(), removeExcludedTags, progress);
+                toAdd.ForEach(x => tagBag.Add(x));
             }
         };
 
         await Parallel.ForEachAsync(taskSet, async (x, _) => await x()).ConfigureAwait(false);
 
-        var flattened = tagBag.Where(x => x.Count > 0).SelectMany(x => x).ToList();
+        var flattened = tagBag.ToList();
 
         var grouped = flattened.GroupBy(x => x.tag)
             .Select(x => (x.Key, x.SelectMany(y => y.contentObjects).ToList())).OrderBy(x => x.Key).ToList();
