@@ -10,25 +10,25 @@ public static class DailyPhotosPageParts
     {
         if (photoPage == null) return HtmlTag.Empty();
 
-        var relatedPostContainerDiv = new DivTag().AddClasses("related-post-container", "info-box");
+        var relatedPostContainerDiv = new DivTag().AddClasses("compact-content-container", "info-box");
 
-        var relatedPostMainPictureContentDiv = new DivTag().AddClass("related-post-image-content-container");
+        var relatedPostMainPictureContentDiv = new DivTag().AddClass("compact-content-image-content-container");
 
         relatedPostMainPictureContentDiv.Children.Add(Tags.PictureImgThumbWithLink(photoPage.MainImage?.Pictures,
             photoPage.PageUrl ?? string.Empty));
 
         relatedPostContainerDiv.Children.Add(relatedPostMainPictureContentDiv);
 
-        var relatedPostMainTextContentDiv = new DivTag().AddClass("related-post-text-content-container");
+        var relatedPostMainTextContentDiv = new DivTag().AddClass("compact-content-text-content-container");
 
-        var relatedPostMainTextTitleTextDiv = new DivTag().AddClass("related-post-text-content-title-container");
+        var relatedPostMainTextTitleTextDiv = new DivTag().AddClass("compact-content-text-content-title-container");
 
         var relatedPostMainTextTitleLink =
-            new LinkTag(photoPage.Title, photoPage.PageUrl).AddClass("related-post-text-content-title-link");
+            new LinkTag(photoPage.Title, photoPage.PageUrl).AddClass("compact-content-text-content-title-link");
 
         relatedPostMainTextTitleTextDiv.Children.Add(relatedPostMainTextTitleLink);
 
-        var relatedPostMainTextCreatedOrUpdatedTextDiv = new DivTag().AddClass("related-post-text-content-date")
+        var relatedPostMainTextCreatedOrUpdatedTextDiv = new DivTag().AddClass("compact-content-text-content-date")
             .Text(Tags.LatestCreatedOnOrUpdatedOn(
                           photoPage.MainImage?.Pictures?.DbEntry as ICreatedAndLastUpdateOnAndBy)
                       ?.ToString("M/d/yyyy") ??
@@ -68,7 +68,7 @@ public static class DailyPhotosPageParts
         var hasLaterPosts = photoPage.NextDailyPhotosPage != null;
         var hasBothEarlierAndLaterPosts = hasPreviousPosts && hasLaterPosts;
 
-        var relatedPostsContainer = new DivTag().AddClass("post-related-posts-container");
+        var relatedPostsContainer = new DivTag().AddClasses("post-related-posts-container", "compact-content-list-container");
         relatedPostsContainer.Children.Add(new DivTag()
             .Text($"Daily Photos {(hasPreviousPosts ? "Before" : "")}" +
                   $"{(hasBothEarlierAndLaterPosts ? "/" : "")}{(hasLaterPosts ? "After" : "")}:")

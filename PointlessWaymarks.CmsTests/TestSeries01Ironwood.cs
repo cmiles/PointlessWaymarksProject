@@ -633,12 +633,12 @@ public class TestSeries01Ironwood
         //Just get the DOM representation
         var document = await context.OpenAsync(x => x.Content(File.ReadAllText(multiPictureTestFile.FullName)));
 
-        var relatedItems = document.QuerySelectorAll(".related-posts-list-container .related-post-container");
+        var relatedItems = document.QuerySelectorAll(".related-posts-list-container .compact-content-container");
 
         Assert.AreEqual(1, relatedItems.Length);
 
         var dailyBeforeAfterItems =
-            document.QuerySelectorAll(".post-related-posts-container .related-post-container");
+            document.QuerySelectorAll(".post-related-posts-container .compact-content-container");
 
         Assert.AreEqual(2, dailyBeforeAfterItems.Length);
     }

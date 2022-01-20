@@ -450,7 +450,7 @@ public static class Tags
         var hasLaterPosts = laterPosts.Any();
         var hasBothEarlierAndLaterPosts = hasPreviousPosts && hasLaterPosts;
 
-        var relatedPostsContainer = new DivTag().AddClasses("post-related-posts-container", "content-compact-container");
+        var relatedPostsContainer = new DivTag().AddClasses("post-related-posts-container", "compact-content-list-container");
         relatedPostsContainer.Children.Add(new DivTag()
             .Text($"Posts {(hasPreviousPosts ? "Before" : "")}" +
                   $"{(hasBothEarlierAndLaterPosts ? "/" : "")}{(hasLaterPosts ? "After" : "")}:")
@@ -476,7 +476,7 @@ public static class Tags
         var hasLaterPosts = nextPhoto != null;
         var hasBothEarlierAndLaterPosts = hasPreviousPosts && hasLaterPosts;
 
-        var relatedPostsContainer = new DivTag().AddClasses("photo-previous-next-container", "content-compact-container");
+        var relatedPostsContainer = new DivTag().AddClasses("photo-previous-next-container", "compact-content-list-container");
         relatedPostsContainer.Children.Add(new DivTag()
             .Text($"{(hasPreviousPosts ? "Previous" : "")}" +
                   $"{(hasBothEarlierAndLaterPosts ? "/" : "")}{(hasLaterPosts ? "Next" : "")}:")

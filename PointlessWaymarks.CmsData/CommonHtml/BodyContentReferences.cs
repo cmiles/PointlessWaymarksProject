@@ -11,30 +11,30 @@ public static class BodyContentReferences
     public static HtmlTag RelatedContentDiv(IContentCommon? post)
     {
         if (post == null) return HtmlTag.Empty();
-        var relatedPostContainerDiv = new DivTag().AddClasses("related-post-container", "info-box");
+        var relatedPostContainerDiv = new DivTag().AddClasses("compact-content-container", "info-box");
         if (post.MainPicture != null)
         {
-            var relatedPostMainPictureContentDiv = new DivTag().AddClass("related-post-image-content-container");
+            var relatedPostMainPictureContentDiv = new DivTag().AddClass("compact-content-image-content-container");
             var image = new PictureSiteInformation(post.MainPicture.Value);
             relatedPostMainPictureContentDiv.Children.Add(Tags.PictureImgThumbWithLink(image.Pictures,
                 UserSettingsSingleton.CurrentSettings().ContentUrl(post.ContentId).Result));
             relatedPostContainerDiv.Children.Add(relatedPostMainPictureContentDiv);
         }
 
-        var relatedPostMainTextContentDiv = new DivTag().AddClass("related-post-text-content-container");
-        var relatedPostMainTextTitleTextDiv = new DivTag().AddClass("related-post-text-content-title-container");
+        var relatedPostMainTextContentDiv = new DivTag().AddClass("compact-content-text-content-container");
+        var relatedPostMainTextTitleTextDiv = new DivTag().AddClass("compact-content-text-content-title-container");
         HtmlTag relatedPostMainTextTitleLink;
         if (post.MainPicture == null)
             relatedPostMainTextTitleLink =
                 new LinkTag($"{post.Title} - {post.Summary}",
                         UserSettingsSingleton.CurrentSettings().ContentUrl(post.ContentId).Result)
-                    .AddClass("related-post-text-content-title-link");
+                    .AddClass("compact-content-text-content-title-link");
         else
             relatedPostMainTextTitleLink =
                 new LinkTag(post.Title, UserSettingsSingleton.CurrentSettings().ContentUrl(post.ContentId).Result)
-                    .AddClass("related-post-text-content-title-link");
+                    .AddClass("compact-content-text-content-title-link");
         relatedPostMainTextTitleTextDiv.Children.Add(relatedPostMainTextTitleLink);
-        var relatedPostMainTextCreatedOrUpdatedTextDiv = new DivTag().AddClass("related-post-text-content-date")
+        var relatedPostMainTextCreatedOrUpdatedTextDiv = new DivTag().AddClass("compact-content-text-content-date")
             .Text(Tags.LatestCreatedOnOrUpdatedOn(post)?.ToString("M/d/yyyy") ?? string.Empty);
         relatedPostMainTextContentDiv.Children.Add(relatedPostMainTextTitleTextDiv);
         relatedPostMainTextContentDiv.Children.Add(relatedPostMainTextCreatedOrUpdatedTextDiv);
@@ -184,9 +184,9 @@ public static class BodyContentReferences
 
         if (!relatedTags.Any()) return HtmlTag.Empty();
 
-        var relatedPostsList = new DivTag().AddClasses("related-posts-list-container", "content-compact-container");
+        var relatedPostsList = new DivTag().AddClasses("related-posts-list-container", "compact-content-list-container");
 
-        relatedPostsList.Children.Add(new DivTag().Text("Related:").AddClasses("related-post-label-tag", "compact-content-list-label"));
+        relatedPostsList.Children.Add(new DivTag().Text("Related:").AddClasses("compact-content-label-tag", "compact-content-list-label"));
 
         foreach (var loopPost in relatedTags) relatedPostsList.Children.Add(loopPost);
 
@@ -207,9 +207,9 @@ public static class BodyContentReferences
         allRelated = allRelated.GroupBy(x => x.ContentId).Select(x => x.First())
             .OrderByDescending(x => x.LastUpdatedOn ?? x.CreatedOn).ToList();
 
-        var relatedPostsList = new DivTag().AddClasses("related-posts-list-container", "content-compact-container");
+        var relatedPostsList = new DivTag().AddClasses("related-posts-list-container", "compact-content-list-container");
 
-        relatedPostsList.Children.Add(new DivTag().Text("Related:").AddClasses("related-post-label-tag", "compact-content-list-label"));
+        relatedPostsList.Children.Add(new DivTag().Text("Related:").AddClasses("compact-content-label-tag", "compact-content-list-label"));
 
         foreach (var loopPost in allRelated) relatedPostsList.Children.Add(RelatedContentDiv(loopPost));
 

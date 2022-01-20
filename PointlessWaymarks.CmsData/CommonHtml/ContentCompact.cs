@@ -7,14 +7,14 @@ public static class ContentCompact
 {
     public static HtmlTag FromContentCommon(IContentCommon content)
     {
-        var compactContentContainerDiv = new DivTag().AddClasses("content-compact-container", "info-box");
+        var compactContentContainerDiv = new DivTag().AddClasses("compact-content-list-container", "info-box");
 
         var linkTo = UserSettingsSingleton.CurrentSettings().ContentUrl(content.ContentId).Result;
 
         if (content.MainPicture != null)
         {
             var compactContentMainPictureContentDiv =
-                new DivTag().AddClass("content-compact-image-content-container");
+                new DivTag().AddClass("compact-content-image-content-container");
 
             var image = new PictureSiteInformation(content.MainPicture.Value);
 
@@ -23,25 +23,25 @@ public static class ContentCompact
             compactContentContainerDiv.Children.Add(compactContentMainPictureContentDiv);
         }
 
-        var compactContentMainTextContentDiv = new DivTag().AddClass("content-compact-text-content-container");
+        var compactContentMainTextContentDiv = new DivTag().AddClass("compact-content-text-content-container");
 
         var compactContentMainTextTitleTextDiv =
-            new DivTag().AddClass("content-compact-text-content-title-container");
+            new DivTag().AddClass("compact-content-text-content-title-container");
         var compactContentMainTextTitleLink =
-            new LinkTag(content.Title, linkTo).AddClass("content-compact-text-content-title-link");
+            new LinkTag(content.Title, linkTo).AddClass("compact-content-text-content-title-link");
         compactContentMainTextTitleTextDiv.Children.Add(compactContentMainTextTitleLink);
 
         HtmlTag compactContentSummaryTextDiv;
 
         if (content.MainPicture == null)
-            compactContentSummaryTextDiv = new DivTag().AddClass("content-compact-text-content-summary")
+            compactContentSummaryTextDiv = new DivTag().AddClass("compact-content-text-content-summary")
                 .Text(content.Summary);
         else
-            compactContentSummaryTextDiv = new DivTag().AddClass("content-compact-text-content-optional-summary")
+            compactContentSummaryTextDiv = new DivTag().AddClass("compact-content-text-content-optional-summary")
                 .Text(content.Summary);
 
         var compactContentMainTextCreatedOrUpdatedTextDiv = new DivTag()
-            .AddClass("content-compact-text-content-date")
+            .AddClass("compact-content-text-content-date")
             .Text(Tags.LatestCreatedOnOrUpdatedOn(content)?.ToString("M/d/yyyy") ?? string.Empty);
 
         compactContentMainTextContentDiv.Children.Add(compactContentMainTextTitleTextDiv);
@@ -55,15 +55,15 @@ public static class ContentCompact
 
     public static HtmlTag FromLinkContent(LinkContent content)
     {
-        var compactContentContainerDiv = new DivTag().AddClasses("content-compact-container", "info-box");
+        var compactContentContainerDiv = new DivTag().AddClasses("compact-content-list-container", "info-box");
 
         var compactContentMainTextContentDiv = new DivTag().AddClass("link-compact-text-content-container");
 
         var compactContentMainTextTitleTextDiv =
-            new DivTag().AddClass("content-compact-text-content-title-container");
+            new DivTag().AddClass("compact-content-text-content-title-container");
         var compactContentMainTextTitleLink =
             new LinkTag(string.IsNullOrWhiteSpace(content.Title) ? content.Url : content.Title, content.Url)
-                .AddClass("content-compact-text-content-title-link");
+                .AddClass("compact-content-text-content-title-link");
 
         compactContentMainTextTitleTextDiv.Children.Add(compactContentMainTextTitleLink);
 
@@ -76,21 +76,21 @@ public static class ContentCompact
 
         if (itemsPartOne.Any())
         {
-            var textPartOneDiv = new DivTag().AddClass("content-compact-text-content-link-summary")
+            var textPartOneDiv = new DivTag().AddClass("compact-content-text-content-link-summary")
                 .Text(string.Join(" - ", itemsPartOne));
             compactContentSummaryTextDiv.Children.Add(textPartOneDiv);
         }
 
         if (!string.IsNullOrWhiteSpace(content.Description))
         {
-            var textPartThreeDiv = new DivTag().AddClass("content-compact-text-content-link-summary")
+            var textPartThreeDiv = new DivTag().AddClass("compact-content-text-content-link-summary")
                 .Text(content.Description);
             compactContentSummaryTextDiv.Children.Add(textPartThreeDiv);
         }
 
         if (!string.IsNullOrWhiteSpace(content.Comments))
         {
-            var textPartTwoDiv = new DivTag().AddClass("content-compact-text-content-link-summary")
+            var textPartTwoDiv = new DivTag().AddClass("compact-content-text-content-link-summary")
                 .Text(content.Comments);
             compactContentSummaryTextDiv.Children.Add(textPartTwoDiv);
         }
