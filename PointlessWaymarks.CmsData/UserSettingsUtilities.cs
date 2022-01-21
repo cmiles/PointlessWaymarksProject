@@ -28,22 +28,22 @@ public static class UserSettingsUtilities
 
     public static string AllContentListUrl(this UserSettings settings)
     {
-        return $"//{settings.SiteUrl}/AllContentList.html";
+        return $"{settings.SiteUrl()}/AllContentList.html";
     }
 
     public static string AllContentRssUrl(this UserSettings settings)
     {
-        return $"//{settings.SiteUrl}/AllContentRss.xml";
+        return $"{settings.SiteUrl()}/AllContentRss.xml";
     }
 
     public static string AllTagsListUrl(this UserSettings settings)
     {
-        return $"//{settings.SiteUrl}/Tags/AllTagsList.html";
+        return $"{settings.SiteUrl()}/Tags/AllTagsList.html";
     }
 
     public static string CameraRollPhotoGalleryUrl(this UserSettings settings)
     {
-        return $"//{settings.SiteUrl}/Photos/Galleries/CameraRoll.html";
+        return $"{settings.SiteUrl()}/Photos/Galleries/CameraRoll.html";
     }
 
     public static async Task<string> ContentUrl(this UserSettings settings, Guid toLink)
@@ -111,12 +111,17 @@ public static class UserSettingsUtilities
 
     public static string CssMainStyleFileUrl(this UserSettings settings)
     {
-        return $"//{settings.SiteUrl}/style.css";
+        return $"{settings.SiteUrl()}/style.css";
     }
 
     public static string DailyPhotoGalleryUrl(this UserSettings settings, DateTime galleryDate)
     {
-        return $"//{settings.SiteUrl}/Photos/Galleries/Daily/DailyPhotos-{galleryDate:yyyy-MM-dd}.html";
+        return $"{settings.SiteUrl()}/Photos/Galleries/Daily/DailyPhotos-{galleryDate:yyyy-MM-dd}.html";
+    }
+
+    public static string SiteUrl(this UserSettings settings)
+    {
+        return $"https://{settings.SiteDomainName}";
     }
 
     /// <summary>
@@ -181,27 +186,27 @@ public static class UserSettingsUtilities
 
     public static string FaviconUrl(this UserSettings settings)
     {
-        return $"//{settings.SiteUrl}/favicon.ico";
+        return $"{settings.SiteUrl()}/favicon.ico";
     }
 
     public static string FileDownloadUrl(this UserSettings settings, FileContent content)
     {
-        return $"//{settings.SiteUrl}/Files/{content.Folder}/{content.Slug}/{content.OriginalFileName}";
+        return $"{settings.SiteUrl()}/Files/{content.Folder}/{content.Slug}/{content.OriginalFileName}";
     }
 
     public static string FileListUrl(this UserSettings settings)
     {
-        return $"//{settings.SiteUrl}/Files/FileList.html";
+        return $"{settings.SiteUrl()}/Files/FileList.html";
     }
 
     public static string FilePageUrl(this UserSettings settings, FileContent content)
     {
-        return $"//{settings.SiteUrl}/Files/{content.Folder}/{content.Slug}/{content.Slug}.html";
+        return $"{settings.SiteUrl()}/Files/{content.Folder}/{content.Slug}/{content.Slug}.html";
     }
 
     public static string FileRssUrl(this UserSettings settings)
     {
-        return $"//{settings.SiteUrl}/Files/FileRss.xml";
+        return $"{settings.SiteUrl()}/Files/FileRss.xml";
     }
 
     public static UserSettingsGenerationValues GenerationValues(this UserSettings settings)
@@ -211,62 +216,62 @@ public static class UserSettingsUtilities
 
     public static string GeoJsonListUrl(this UserSettings settings)
     {
-        return $"//{settings.SiteUrl}/GeoJson/GeoJsonList.html";
+        return $"{settings.SiteUrl()}/GeoJson/GeoJsonList.html";
     }
 
     public static string GeoJsonPageUrl(this UserSettings settings, GeoJsonContent content)
     {
-        return $"//{settings.SiteUrl}/GeoJson/{content.Folder}/{content.Slug}/{content.Slug}.html";
+        return $"{settings.SiteUrl()}/GeoJson/{content.Folder}/{content.Slug}/{content.Slug}.html";
     }
 
     public static string GeoJsonRssUrl(this UserSettings settings)
     {
-        return $"//{settings.SiteUrl}/GeoJson/GeoJsonRss.xml";
+        return $"{settings.SiteUrl()}/GeoJson/GeoJsonRss.xml";
     }
 
     public static string ImageListUrl(this UserSettings settings)
     {
-        return $"//{settings.SiteUrl}/Images/ImageList.html";
+        return $"{settings.SiteUrl()}/Images/ImageList.html";
     }
 
     public static string ImagePageUrl(this UserSettings settings, ImageContent content)
     {
-        return $"//{settings.SiteUrl}/Images/{content.Folder}/{content.Slug}/{content.Slug}.html";
+        return $"{settings.SiteUrl()}/Images/{content.Folder}/{content.Slug}/{content.Slug}.html";
     }
 
     public static string ImageRssUrl(this UserSettings settings)
     {
-        return $"//{settings.SiteUrl}/Images/ImageRss.xml";
+        return $"{settings.SiteUrl()}/Images/ImageRss.xml";
     }
 
     public static string IndexPageUrl(this UserSettings settings)
     {
-        return $"//{settings.SiteUrl}/index.html";
+        return $"{settings.SiteUrl()}/index.html";
     }
 
     public static string LinePageUrl(this UserSettings settings, LineContent content)
     {
-        return $"//{settings.SiteUrl}/Lines/{content.Folder}/{content.Slug}/{content.Slug}.html";
+        return $"{settings.SiteUrl()}/Lines/{content.Folder}/{content.Slug}/{content.Slug}.html";
     }
 
     public static string LinesListUrl(this UserSettings settings)
     {
-        return $"//{settings.SiteUrl}/Lines/LineList.html";
+        return $"{settings.SiteUrl()}/Lines/LineList.html";
     }
 
     public static string LinesRssUrl(this UserSettings settings)
     {
-        return $"//{settings.SiteUrl}/Lines/LineRss.xml";
+        return $"{settings.SiteUrl()}/Lines/LineRss.xml";
     }
 
     public static string LinkListUrl(this UserSettings settings)
     {
-        return $"//{settings.SiteUrl}/Links/LinkList.html";
+        return $"{settings.SiteUrl()}/Links/LinkList.html";
     }
 
     public static string LinkRssUrl(this UserSettings settings)
     {
-        return $"//{settings.SiteUrl}/Links/LinkRss.xml";
+        return $"{settings.SiteUrl()}/Links/LinkRss.xml";
     }
 
     public static FileInfo? LocalMediaArchiveFileContentFile(this UserSettings settings, FileContent? content)
@@ -1054,17 +1059,17 @@ public static class UserSettingsUtilities
 
     public static string NoteListUrl(this UserSettings settings)
     {
-        return $"//{settings.SiteUrl}/Notes/NoteList.html";
+        return $"{settings.SiteUrl()}/Notes/NoteList.html";
     }
 
     public static string NotePageUrl(this UserSettings settings, NoteContent content)
     {
-        return $"//{settings.SiteUrl}/Notes/{content.Folder}/{content.Slug}.html";
+        return $"{settings.SiteUrl()}/Notes/{content.Folder}/{content.Slug}.html";
     }
 
     public static string NoteRssUrl(this UserSettings settings)
     {
-        return $"//{settings.SiteUrl}/Notes/NoteRss.xml";
+        return $"{settings.SiteUrl()}/Notes/NoteRss.xml";
     }
 
     public static async Task<string> PageUrl(this UserSettings settings, Guid contentGuid)
@@ -1092,17 +1097,17 @@ public static class UserSettingsUtilities
 
     public static string PhotoListUrl(this UserSettings settings)
     {
-        return $"//{settings.SiteUrl}/Photos/PhotoList.html";
+        return $"{settings.SiteUrl()}/Photos/PhotoList.html";
     }
 
     public static string PhotoPageUrl(this UserSettings settings, PhotoContent content)
     {
-        return $"//{settings.SiteUrl}/Photos/{content.Folder}/{content.Slug}/{content.Slug}.html";
+        return $"{settings.SiteUrl()}/Photos/{content.Folder}/{content.Slug}/{content.Slug}.html";
     }
 
     public static string PhotoRssUrl(this UserSettings settings)
     {
-        return $"//{settings.SiteUrl}/Photos/PhotoRss.xml";
+        return $"{settings.SiteUrl()}/Photos/PhotoRss.xml";
     }
 
     public static string PicturePageUrl(this UserSettings settings, Guid contentGuid)
@@ -1120,42 +1125,42 @@ public static class UserSettingsUtilities
 
     public static string PointDataUrl(this UserSettings settings)
     {
-        return $"//{settings.SiteUrl}/Points/Data/pointdata.json";
+        return $"{settings.SiteUrl()}/Points/Data/pointdata.json";
     }
 
     public static string PointPageUrl(this UserSettings settings, PointContent content)
     {
-        return $"//{settings.SiteUrl}/Points/{content.Folder}/{content.Slug}/{content.Slug}.html";
+        return $"{settings.SiteUrl()}/Points/{content.Folder}/{content.Slug}/{content.Slug}.html";
     }
 
     public static string PointPageUrl(this UserSettings settings, PointContentDto content)
     {
-        return $"//{settings.SiteUrl}/Points/{content.Folder}/{content.Slug}/{content.Slug}.html";
+        return $"{settings.SiteUrl()}/Points/{content.Folder}/{content.Slug}/{content.Slug}.html";
     }
 
     public static string PointsListUrl(this UserSettings settings)
     {
-        return $"//{settings.SiteUrl}/Points/PointList.html";
+        return $"{settings.SiteUrl()}/Points/PointList.html";
     }
 
     public static string PointsRssUrl(this UserSettings settings)
     {
-        return $"//{settings.SiteUrl}/Points/PointRss.xml";
+        return $"{settings.SiteUrl()}/Points/PointRss.xml";
     }
 
     public static string PostPageUrl(this UserSettings settings, PostContent content)
     {
-        return $"//{settings.SiteUrl}/Posts/{content.Folder}/{content.Slug}/{content.Slug}.html";
+        return $"{settings.SiteUrl()}/Posts/{content.Folder}/{content.Slug}/{content.Slug}.html";
     }
 
     public static string PostsListUrl(this UserSettings settings)
     {
-        return $"//{settings.SiteUrl}/Posts/PostList.html";
+        return $"{settings.SiteUrl()}/Posts/PostList.html";
     }
 
     public static string PostsRssUrl(this UserSettings settings)
     {
-        return $"//{settings.SiteUrl}/Posts/PostRss.xml";
+        return $"{settings.SiteUrl()}/Posts/PostRss.xml";
     }
 
     public static async Task<UserSettings> ReadFromCurrentSettingsFile(IProgress<string>? progress = null)
@@ -1279,9 +1284,9 @@ public static class UserSettingsUtilities
             hasUpdates = true;
         }
 
-        if (string.IsNullOrWhiteSpace(readResult.SiteUrl))
+        if (string.IsNullOrWhiteSpace(readResult.SiteDomainName))
         {
-            readResult.SiteUrl = "localhost.com";
+            readResult.SiteDomainName = "localhost.com";
             hasUpdates = true;
         }
 
@@ -1338,7 +1343,7 @@ public static class UserSettingsUtilities
 
     public static string RssIndexFeedUrl(this UserSettings settings)
     {
-        return $"//{settings.SiteUrl}/RssIndexFeed.xml";
+        return $"{settings.SiteUrl()}/RssIndexFeed.xml";
     }
 
     public static string SearchListJavascriptUrl()
@@ -1393,7 +1398,7 @@ public static class UserSettingsUtilities
 
         newSettings.DefaultCreatedBy = "Pointless Waymarks CMS";
         newSettings.SiteName = userFilename;
-        newSettings.SiteUrl = "localhost.com";
+        newSettings.SiteDomainName = "localhost.com";
         newSettings.SiteDirectionAttribute = "ltr";
         newSettings.SiteLangAttribute = "en";
         newSettings.SiteKeywords = "new,site";
@@ -1425,7 +1430,7 @@ public static class UserSettingsUtilities
 
     public static string SiteResourcesUrl(this UserSettings settings)
     {
-        return $"//{settings.SiteUrl}/SiteResources/";
+        return $"{settings.SiteUrl()}/SiteResources/";
     }
 
     public static RegionEndpoint? SiteS3BucketEndpoint(this UserSettings settings)
@@ -1450,7 +1455,7 @@ public static class UserSettingsUtilities
     public static string TagPageUrl(this UserSettings settings, string tag)
     {
         var sluggedTag = SlugUtility.Create(true, tag, 200);
-        return $"//{settings.SiteUrl}/Tags/TagList-{sluggedTag}.html";
+        return $"{settings.SiteUrl()}/Tags/TagList-{sluggedTag}.html";
     }
 
     public static DirectoryInfo TempStorageDirectory()

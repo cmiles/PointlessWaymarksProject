@@ -8,34 +8,34 @@ namespace PointlessWaymarks.CmsData.CommonHtml;
 
 public static class BodyContentReferences
 {
-    public static HtmlTag RelatedContentDiv(IContentCommon? post)
+    public static HtmlTag CompactContentDiv(IContentCommon? content)
     {
-        if (post == null) return HtmlTag.Empty();
+        if (content == null) return HtmlTag.Empty();
         var relatedPostContainerDiv = new DivTag().AddClasses("compact-content-container", "info-box");
-        if (post.MainPicture != null)
+        if (content.MainPicture != null)
         {
             var relatedPostMainPictureContentDiv = new DivTag().AddClass("compact-content-image-content-container");
-            var image = new PictureSiteInformation(post.MainPicture.Value);
+            var image = new PictureSiteInformation(content.MainPicture.Value);
             relatedPostMainPictureContentDiv.Children.Add(Tags.PictureImgThumbWithLink(image.Pictures,
-                UserSettingsSingleton.CurrentSettings().ContentUrl(post.ContentId).Result));
+                UserSettingsSingleton.CurrentSettings().ContentUrl(content.ContentId).Result));
             relatedPostContainerDiv.Children.Add(relatedPostMainPictureContentDiv);
         }
 
         var relatedPostMainTextContentDiv = new DivTag().AddClass("compact-content-text-content-container");
         var relatedPostMainTextTitleTextDiv = new DivTag().AddClass("compact-content-text-content-title-container");
         HtmlTag relatedPostMainTextTitleLink;
-        if (post.MainPicture == null)
+        if (content.MainPicture == null)
             relatedPostMainTextTitleLink =
-                new LinkTag($"{post.Title} - {post.Summary}",
-                        UserSettingsSingleton.CurrentSettings().ContentUrl(post.ContentId).Result)
+                new LinkTag($"{content.Title} - {content.Summary}",
+                        UserSettingsSingleton.CurrentSettings().ContentUrl(content.ContentId).Result)
                     .AddClass("compact-content-text-content-title-link");
         else
             relatedPostMainTextTitleLink =
-                new LinkTag(post.Title, UserSettingsSingleton.CurrentSettings().ContentUrl(post.ContentId).Result)
+                new LinkTag(content.Title, UserSettingsSingleton.CurrentSettings().ContentUrl(content.ContentId).Result)
                     .AddClass("compact-content-text-content-title-link");
         relatedPostMainTextTitleTextDiv.Children.Add(relatedPostMainTextTitleLink);
         var relatedPostMainTextCreatedOrUpdatedTextDiv = new DivTag().AddClass("compact-content-text-content-date")
-            .Text(Tags.LatestCreatedOnOrUpdatedOn(post)?.ToString("M/d/yyyy") ?? string.Empty);
+            .Text(Tags.LatestCreatedOnOrUpdatedOn(content)?.ToString("M/d/yyyy") ?? string.Empty);
         relatedPostMainTextContentDiv.Children.Add(relatedPostMainTextTitleTextDiv);
         relatedPostMainTextContentDiv.Children.Add(relatedPostMainTextCreatedOrUpdatedTextDiv);
         relatedPostContainerDiv.Children.Add(relatedPostMainTextContentDiv);
@@ -155,7 +155,7 @@ public static class BodyContentReferences
 
             foreach (var loopContent in contentCommonList)
             {
-                var toAdd = RelatedContentDiv(loopContent);
+                var toAdd = CompactContentDiv(loopContent);
                 if (!toAdd.IsEmpty())
                     transformedList.Add((loopContent.LastUpdatedOn ?? loopContent.CreatedOn, toAdd));
             }
@@ -211,7 +211,7 @@ public static class BodyContentReferences
 
         relatedPostsList.Children.Add(new DivTag().Text("Related:").AddClasses("compact-content-label-tag", "compact-content-list-label"));
 
-        foreach (var loopPost in allRelated) relatedPostsList.Children.Add(RelatedContentDiv(loopPost));
+        foreach (var loopPost in allRelated) relatedPostsList.Children.Add(CompactContentDiv(loopPost));
 
         return relatedPostsList;
     }

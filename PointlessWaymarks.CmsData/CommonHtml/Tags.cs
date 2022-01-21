@@ -79,7 +79,7 @@ public static class Tags
     public static string CssStyleFileString()
     {
         var settings = UserSettingsSingleton.CurrentSettings();
-        return $"<link rel=\"stylesheet\" href=\"https:{settings.CssMainStyleFileUrl()}?v=1.0\">";
+        return $"<link rel=\"stylesheet\" href=\"{settings.CssMainStyleFileUrl()}?v=1.0\">";
     }
 
     public static HtmlTag EmailCenterTableTag(HtmlTag tagToCenter)
@@ -130,7 +130,7 @@ public static class Tags
     public static string FavIconFileString()
     {
         var settings = UserSettingsSingleton.CurrentSettings();
-        return $"<link rel=\"shortcut icon\" href=\"https:{settings.FaviconUrl()}\"/>";
+        return $"<link rel=\"shortcut icon\" href=\"{settings.FaviconUrl()}\"/>";
     }
 
     public static string ImageCaptionText(ImageContent dbEntry, bool includeTitle = false)
@@ -213,9 +213,9 @@ public static class Tags
 
         var metaString = "";
         metaString +=
-            $"<meta property=\"og:image\" content=\"https:{mainImage.Pictures.DisplayPicture.SiteUrl}\" />";
+            $"<meta property=\"og:image\" content=\"{mainImage.Pictures.DisplayPicture.SiteUrl}\" />";
         metaString +=
-            $"<meta property=\"og:image:secure_url\" content=\"https:{mainImage.Pictures.DisplayPicture.SiteUrl}\" />";
+            $"<meta property=\"og:image:secure_url\" content=\"{mainImage.Pictures.DisplayPicture.SiteUrl}\" />";
         metaString += "<meta property=\"og:image:type\" content=\"image/jpeg\" />";
         metaString += $"<meta property=\"og:image:width\" content=\"{mainImage.Pictures.DisplayPicture.Width}\" />";
         metaString +=
@@ -284,7 +284,7 @@ public static class Tags
                 ? ((int)(600M / emailSize.Height * emailSize.Width)).ToString("F0")
                 : emailSize.Width.ToString("F0");
 
-        var imageTag = new HtmlTag("img").Attr("src", $"https:{emailSize.SiteUrl}")
+        var imageTag = new HtmlTag("img").Attr("src", $"{emailSize.SiteUrl}")
             .Attr("max-height", emailSize.Height).Attr("max-width", emailSize.Width).Attr("width", stringWidth);
 
         if (!string.IsNullOrWhiteSpace(emailSize.AltText))
@@ -327,7 +327,7 @@ public static class Tags
         if (pictureDirectoryInfo.DisplayPicture == null) return HtmlTag.Empty();
 
         var imageTag = new HtmlTag("img").AddClass("single-photo")
-            .Attr("src", $"https:{pictureDirectoryInfo.DisplayPicture.SiteUrl}")
+            .Attr("src", $"{pictureDirectoryInfo.DisplayPicture.SiteUrl}")
             .Attr("height", pictureDirectoryInfo.DisplayPicture.Height)
             .Attr("width", pictureDirectoryInfo.DisplayPicture.Width);
 
@@ -458,11 +458,11 @@ public static class Tags
 
         if (hasPreviousPosts)
             foreach (var loopPosts in previousPosts)
-                relatedPostsContainer.Children.Add(BodyContentReferences.RelatedContentDiv(loopPosts));
+                relatedPostsContainer.Children.Add(BodyContentReferences.CompactContentDiv(loopPosts));
 
         if (hasLaterPosts)
             foreach (var loopPosts in laterPosts)
-                relatedPostsContainer.Children.Add(BodyContentReferences.RelatedContentDiv(loopPosts));
+                relatedPostsContainer.Children.Add(BodyContentReferences.CompactContentDiv(loopPosts));
 
         return relatedPostsContainer;
     }
@@ -483,10 +483,10 @@ public static class Tags
             .AddClasses("photo-previous-next-label-tag", "compact-content-list-label"));
 
         if (hasPreviousPosts)
-                relatedPostsContainer.Children.Add(BodyContentReferences.RelatedContentDiv(previousPhoto));
+                relatedPostsContainer.Children.Add(BodyContentReferences.CompactContentDiv(previousPhoto));
 
         if (hasLaterPosts)
-                relatedPostsContainer.Children.Add(BodyContentReferences.RelatedContentDiv(nextPhoto));
+                relatedPostsContainer.Children.Add(BodyContentReferences.CompactContentDiv(nextPhoto));
 
         return relatedPostsContainer;
     }
@@ -495,7 +495,7 @@ public static class Tags
     {
         return new HtmlTag("Link").Attr("rel", "alternate").Attr("type", "application/rss+xml")
             .Attr("title", $"Main RSS Feed for {UserSettingsSingleton.CurrentSettings().SiteName}").Attr("href",
-                $"https:{UserSettingsSingleton.CurrentSettings().RssIndexFeedUrl()}");
+                $"{UserSettingsSingleton.CurrentSettings().RssIndexFeedUrl()}");
     }
 
     public static async Task<HtmlTag> StandardHeader()
@@ -504,7 +504,7 @@ public static class Tags
 
         var titleHeader = new HtmlTag("H1").AddClass("site-header-title");
         titleHeader.Children.Add(new LinkTag(UserSettingsSingleton.CurrentSettings().SiteName,
-            $"https://{UserSettingsSingleton.CurrentSettings().SiteUrl}", "site-header-title-link"));
+            $"{UserSettingsSingleton.CurrentSettings().SiteUrl()}", "site-header-title-link"));
 
         titleContainer.Children.Add(titleHeader);
 

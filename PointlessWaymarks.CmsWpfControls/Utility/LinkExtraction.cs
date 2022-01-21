@@ -28,7 +28,7 @@ public static class LinkExtraction
         progressTracker?.Report("Looking for URLs");
 
         var allMatches = StringHelpers.UrlsFromText(toExtractFrom).Where(x =>
-            !x.Contains(UserSettingsSingleton.CurrentSettings().SiteUrl, StringComparison.OrdinalIgnoreCase) &&
+            !x.Contains(UserSettingsSingleton.CurrentSettings().SiteUrl(), StringComparison.OrdinalIgnoreCase) &&
             !excludedUrls.Contains(x.ToLower())).ToList();
 
         progressTracker?.Report($"Found {allMatches.Count} Matches");

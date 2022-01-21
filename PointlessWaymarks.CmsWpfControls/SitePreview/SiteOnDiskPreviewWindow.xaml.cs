@@ -25,7 +25,7 @@ public partial class SiteOnDiskPreviewWindow
 
         var freePort = PreviewServer.FreeTcpPort();
 
-        var server = PreviewServer.CreateHostBuilder(UserSettingsSingleton.CurrentSettings().SiteUrl,
+        var server = PreviewServer.CreateHostBuilder(UserSettingsSingleton.CurrentSettings().SiteDomainName,
             UserSettingsSingleton.CurrentSettings().LocalSiteRootFullDirectory().FullName, freePort).Build();
 
         StatusContext.RunFireAndForgetWithToastOnError(async () =>
@@ -34,7 +34,7 @@ public partial class SiteOnDiskPreviewWindow
             await server.RunAsync();
         });
 
-        PreviewContext = new SitePreviewContext(UserSettingsSingleton.CurrentSettings().SiteUrl,
+        PreviewContext = new SitePreviewContext(UserSettingsSingleton.CurrentSettings().SiteDomainName,
             UserSettingsSingleton.CurrentSettings().LocalSiteRootFullDirectory().FullName,
             UserSettingsSingleton.CurrentSettings().SiteName, $"localhost:{freePort}", StatusContext);
     }

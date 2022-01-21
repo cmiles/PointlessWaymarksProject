@@ -41,36 +41,11 @@ public partial class SearchListPage
         foreach (var loopContent in allContent)
             if (loopContent is IContentCommon loopContentCommon)
             {
-                var photoListPhotoEntryDiv = new DivTag().AddClass("content-list-item-container");
-                photoListPhotoEntryDiv.Data("title", loopContentCommon.Title);
-                photoListPhotoEntryDiv.Data("tags",
-                    string.Join(",", Db.TagListParseToSlugs(loopContentCommon, false)));
-                photoListPhotoEntryDiv.Data("summary", loopContentCommon.Summary);
-                photoListPhotoEntryDiv.Data("contenttype", TypeToFilterTag(loopContentCommon));
-
-                photoListPhotoEntryDiv.Children.Add(ContentCompact.FromContentCommon(loopContentCommon));
-
-                allContentContainer.Children.Add(photoListPhotoEntryDiv);
+                allContentContainer.Children.Add(ContentList.FromContentCommon(loopContentCommon));
             }
             else if (loopContent is LinkContent loopLinkContent)
             {
-                var photoListPhotoEntryDiv = new DivTag().AddClass("content-list-item-container");
-
-                var titleList = new List<string>();
-
-                if (!string.IsNullOrWhiteSpace(loopLinkContent.Title)) titleList.Add(loopLinkContent.Title);
-                if (!string.IsNullOrWhiteSpace(loopLinkContent.Site)) titleList.Add(loopLinkContent.Site);
-                if (!string.IsNullOrWhiteSpace(loopLinkContent.Author)) titleList.Add(loopLinkContent.Author);
-
-                photoListPhotoEntryDiv.Data("title", string.Join(" - ", titleList));
-                photoListPhotoEntryDiv.Data("tags",
-                    string.Join(",", Db.TagListParseToSlugs(loopLinkContent.Tags, false)));
-                photoListPhotoEntryDiv.Data("summary", $"{loopLinkContent.Description} {loopLinkContent.Comments}");
-                photoListPhotoEntryDiv.Data("contenttype", TypeToFilterTag(loopLinkContent));
-
-                photoListPhotoEntryDiv.Children.Add(ContentCompact.FromLinkContent(loopLinkContent));
-
-                allContentContainer.Children.Add(photoListPhotoEntryDiv);
+                allContentContainer.Children.Add(ContentList.FromLinkContent(loopLinkContent));
             }
 
         return allContentContainer;
@@ -80,7 +55,7 @@ public partial class SearchListPage
     {
         var allContent = ContentFunction();
 
-        var filterTags = allContent.Select(TypeToFilterTag).Distinct().ToList();
+        var filterTags = allContent.Select(ContentList.ContentTypeToContentListItemFilterTag).Distinct().ToList();
 
         if (filterTags.Count < 2) return HtmlTag.Empty();
 
@@ -105,19 +80,6 @@ public partial class SearchListPage
         return filterContainer;
     }
 
-    private static string TypeToFilterTag(object content)
-    {
-        return content switch
-        {
-            NoteContent => "post",
-            PostContent => "post",
-            ImageContent => "image",
-            PhotoContent => "image",
-            FileContent => "file",
-            LinkContent => "link",
-            _ => "other"
-        };
-    }
 
     public async Task WriteLocalHtml()
     {

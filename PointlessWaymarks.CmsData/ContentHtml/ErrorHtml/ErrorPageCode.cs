@@ -11,7 +11,7 @@ public partial class ErrorPage
     public ErrorPage()
     {
         var settings = UserSettingsSingleton.CurrentSettings();
-        SiteUrl = settings.SiteUrl;
+        SiteUrl = settings.SiteUrl();
         SiteName = settings.SiteName;
         SiteKeywords = settings.SiteKeywords;
         SiteSummary = settings.SiteSummary;

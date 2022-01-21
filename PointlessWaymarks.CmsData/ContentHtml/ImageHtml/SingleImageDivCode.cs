@@ -10,7 +10,7 @@ public partial class SingleImageDiv
         DbEntry = dbEntry;
 
         var settings = UserSettingsSingleton.CurrentSettings();
-        SiteUrl = settings.SiteUrl;
+        SiteUrl = settings.SiteUrl();
         SiteName = settings.SiteName;
         PageUrl = settings.ImagePageUrl(DbEntry);
 

@@ -13,7 +13,7 @@ public partial class SingleNotePage
         DbEntry = dbEntry;
 
         var settings = UserSettingsSingleton.CurrentSettings();
-        SiteUrl = settings.SiteUrl;
+        SiteUrl = settings.SiteUrl();
         SiteName = settings.SiteName;
         PageUrl = settings.NotePageUrl(DbEntry);
         Title = DbEntry.Title;

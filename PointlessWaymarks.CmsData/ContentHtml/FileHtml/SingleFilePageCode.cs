@@ -13,7 +13,7 @@ public partial class SingleFilePage
         DbEntry = dbEntry;
 
         var settings = UserSettingsSingleton.CurrentSettings();
-        SiteUrl = settings.SiteUrl;
+        SiteUrl = settings.SiteUrl();
         SiteName = settings.SiteName;
         PageUrl = settings.FilePageUrl(DbEntry);
         LangAttribute = settings.SiteLangAttribute;

@@ -20,7 +20,7 @@ public static class RssBuilder
         rssBuilder.AppendLine("<rss version=\"2.0\">");
         rssBuilder.AppendLine("<channel>");
         rssBuilder.AppendLine($"<title>{channelTitle}</title>");
-        rssBuilder.AppendLine($"<link>https://{settings.SiteUrl}</link>");
+        rssBuilder.AppendLine($"<link>{settings.SiteUrl()}</link>");
         rssBuilder.AppendLine($"<description>{settings.SiteSummary}</description>");
         rssBuilder.AppendLine("<language>en-us</language>");
         rssBuilder.AppendLine($"<copyright>{DateTime.Now.Year} {settings.SiteAuthors}</copyright>");

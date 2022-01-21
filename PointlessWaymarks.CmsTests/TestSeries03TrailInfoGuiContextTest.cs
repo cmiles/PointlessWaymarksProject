@@ -51,7 +51,7 @@ public class TestSeries03TrailInfoGuiContextTest
         TestSiteSettings.SiteEmailTo = TestSiteEmailTo;
         TestSiteSettings.SiteKeywords = TestSiteKeywords;
         TestSiteSettings.SiteSummary = TestSummary;
-        TestSiteSettings.SiteUrl = "localhost";
+        TestSiteSettings.SiteDomainName = "localhost";
         await UserSettingsUtilities.EnsureDbIsPresent(DebugTrackers.DebugProgressTracker());
         await TestSiteSettings.WriteSettings();
         UserSettingsSingleton.CurrentSettings().InjectFrom(TestSiteSettings);

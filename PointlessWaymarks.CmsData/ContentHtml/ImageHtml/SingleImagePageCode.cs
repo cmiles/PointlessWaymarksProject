@@ -13,7 +13,7 @@ public partial class SingleImagePage
         DbEntry = dbEntry;
 
         var settings = UserSettingsSingleton.CurrentSettings();
-        SiteUrl = settings.SiteUrl;
+        SiteUrl = settings.SiteUrl();
         SiteName = settings.SiteName;
         PageUrl = settings.ImagePageUrl(DbEntry);
         LangAttribute = settings.SiteLangAttribute;

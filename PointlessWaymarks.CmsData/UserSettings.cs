@@ -46,5 +46,5 @@ public partial class UserSettings
     [ObservableProperty] private string _siteS3Bucket = string.Empty;
     [ObservableProperty] private string _siteS3BucketRegion = string.Empty;
     [ObservableProperty] private string _siteSummary = string.Empty;
-    [ObservableProperty] private string _siteUrl = string.Empty;
+    [ObservableProperty] private string _siteDomainName = string.Empty;
 }

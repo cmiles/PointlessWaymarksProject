@@ -23,7 +23,7 @@ public static class Footer
         }
 
         footerDiv.Children.Add(
-            new LinkTag(settings.SiteName, @$"//{settings.SiteUrl}").AddClass("footer-site-link-content"));
+            new LinkTag(settings.SiteName, @$"{settings.SiteUrl()}").AddClass("footer-site-link-content"));
 
         return footerDiv;
     }

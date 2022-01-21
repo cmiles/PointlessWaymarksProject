@@ -30,8 +30,8 @@ public static class HtmlEmail
     {
         var footer = new HtmlTag("h4");
         footer.Style("text-align", "center");
-        var siteLink = new LinkTag(UserSettingsSingleton.CurrentSettings().SiteUrl,
-            @$"https://{UserSettingsSingleton.CurrentSettings().SiteUrl}");
+        var siteLink = new LinkTag(UserSettingsSingleton.CurrentSettings().SiteUrl(),
+            @$"{UserSettingsSingleton.CurrentSettings().SiteUrl()}");
         footer.Children.Add(siteLink);
 
         return footer;

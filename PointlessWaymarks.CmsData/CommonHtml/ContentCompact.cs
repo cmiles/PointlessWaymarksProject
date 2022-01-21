@@ -1,13 +1,19 @@
 ﻿using HtmlTags;
+using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 
 namespace PointlessWaymarks.CmsData.CommonHtml;
 
-public static class ContentCompact
+public static class ContentList
 {
     public static HtmlTag FromContentCommon(IContentCommon content)
     {
-        var compactContentContainerDiv = new DivTag().AddClasses("compact-content-list-container", "info-box");
+        var listItemContainerDiv = new DivTag().AddClasses("content-list-item-container", "info-box");
+        listItemContainerDiv.Data("title", content.Title);
+        listItemContainerDiv.Data("tags",
+            string.Join(",", Db.TagListParseToSlugs(content, false)));
+        listItemContainerDiv.Data("summary", content.Summary);
+        listItemContainerDiv.Data("contenttype", ContentTypeToContentListItemFilterTag(content));
 
         var linkTo = UserSettingsSingleton.CurrentSettings().ContentUrl(content.ContentId).Result;
 
@@ -20,7 +26,7 @@ public static class ContentCompact
 
             compactContentMainPictureContentDiv.Children.Add(Tags.PictureImgThumbWithLink(image.Pictures, linkTo));
 
-            compactContentContainerDiv.Children.Add(compactContentMainPictureContentDiv);
+            listItemContainerDiv.Children.Add(compactContentMainPictureContentDiv);
         }
 
         var compactContentMainTextContentDiv = new DivTag().AddClass("compact-content-text-content-container");
@@ -48,14 +54,40 @@ public static class ContentCompact
         compactContentMainTextContentDiv.Children.Add(compactContentSummaryTextDiv);
         compactContentMainTextContentDiv.Children.Add(compactContentMainTextCreatedOrUpdatedTextDiv);
 
-        compactContentContainerDiv.Children.Add(compactContentMainTextContentDiv);
+        listItemContainerDiv.Children.Add(compactContentMainTextContentDiv);
 
-        return compactContentContainerDiv;
+        return listItemContainerDiv;
+    }
+
+    public static string ContentTypeToContentListItemFilterTag(object content)
+    {
+        return content switch
+        {
+            NoteContent => "post",
+            PostContent => "post",
+            ImageContent => "image",
+            PhotoContent => "image",
+            FileContent => "file",
+            LinkContent => "link",
+            _ => "other"
+        };
     }
 
     public static HtmlTag FromLinkContent(LinkContent content)
     {
-        var compactContentContainerDiv = new DivTag().AddClasses("compact-content-list-container", "info-box");
+        var photoListPhotoEntryDiv = new DivTag().AddClasses("content-list-item-container", "info-box");
+
+        var titleList = new List<string>();
+
+        if (!string.IsNullOrWhiteSpace(content.Title)) titleList.Add(content.Title);
+        if (!string.IsNullOrWhiteSpace(content.Site)) titleList.Add(content.Site);
+        if (!string.IsNullOrWhiteSpace(content.Author)) titleList.Add(content.Author);
+
+        photoListPhotoEntryDiv.Data("title", string.Join(" - ", titleList));
+        photoListPhotoEntryDiv.Data("tags",
+            string.Join(",", Db.TagListParseToSlugs(content.Tags, false)));
+        photoListPhotoEntryDiv.Data("summary", $"{content.Description} {content.Comments}");
+        photoListPhotoEntryDiv.Data("contenttype", ContentTypeToContentListItemFilterTag(content));
 
         var compactContentMainTextContentDiv = new DivTag().AddClass("link-compact-text-content-container");
 
@@ -98,8 +130,8 @@ public static class ContentCompact
         compactContentMainTextContentDiv.Children.Add(compactContentMainTextTitleTextDiv);
         compactContentMainTextContentDiv.Children.Add(compactContentSummaryTextDiv);
 
-        compactContentContainerDiv.Children.Add(compactContentMainTextContentDiv);
+        photoListPhotoEntryDiv.Children.Add(compactContentMainTextContentDiv);
 
-        return compactContentContainerDiv;
+        return photoListPhotoEntryDiv;
     }
 }

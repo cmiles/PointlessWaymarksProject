@@ -50,7 +50,7 @@ public partial class LinkListPage
             photoListPhotoEntryDiv.Data("description", loopContent.Description);
             photoListPhotoEntryDiv.Data("comment", loopContent.Comments);
 
-            photoListPhotoEntryDiv.Children.Add(ContentCompact.FromLinkContent(loopContent));
+            photoListPhotoEntryDiv.Children.Add(ContentList.FromLinkContent(loopContent));
 
             allContentContainer.Children.Add(photoListPhotoEntryDiv);
         }

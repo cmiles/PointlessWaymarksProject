@@ -9,7 +9,7 @@ public partial class SingleLineDiv
         DbEntry = dbEntry;
 
         var settings = UserSettingsSingleton.CurrentSettings();
-        SiteUrl = settings.SiteUrl;
+        SiteUrl = settings.SiteUrl();
         SiteName = settings.SiteName;
         PageUrl = settings.LinePageUrl(DbEntry);
     }
