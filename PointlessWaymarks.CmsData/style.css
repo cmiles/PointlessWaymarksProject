@@ -506,6 +506,15 @@ a.site-header-title-link:active {
     color: var(--foreground-secondary-color);
 }
 
+.content-list-item-container {
+    margin: 10px 2px;
+    transition: all 0.3s cubic-bezier(.25,.8,.25,1);
+    border-radius: 4px;
+    display: flex;
+    width: 300px;
+    min-width: 300px;
+}
+
 .thumb-vertical {
 }
 
@@ -772,6 +781,10 @@ a.tag-list-link {
         width: 600px;
         min-width: 600px;
     }
+
+    .content-list-item-container .compact-content-text-content-optional-summary {
+            display: block;
+    }
 }
 
 @media screen and (min-width: 1200px) {
@@ -841,12 +854,12 @@ a.tag-list-link {
         max-width: 1200px;
     }
 
-    .compact-content-text-content-optional-summary {
-        display: block;
-    }
-
     .search-input {
         width: 900px;
     }
 
+    .content-list-item-container {
+        width: 900px;
+        min-width: 900px;
+    }
 }
