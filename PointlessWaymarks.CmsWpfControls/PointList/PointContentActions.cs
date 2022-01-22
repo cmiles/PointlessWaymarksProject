@@ -176,7 +176,7 @@ public partial class PointContentActions : ObservableObject, IContentActions<Poi
 
         var settings = UserSettingsSingleton.CurrentSettings();
 
-        var url = $@"https:{settings.PointPageUrl(content)}";
+        var url = $@"{settings.PointPageUrl(content)}";
 
         var ps = new ProcessStartInfo(url) { UseShellExecute = true, Verb = "open" };
         Process.Start(ps);

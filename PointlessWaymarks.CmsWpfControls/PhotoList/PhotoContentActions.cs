@@ -194,7 +194,7 @@ public partial class PhotoContentActions : ObservableObject, IContentActions<Pho
 
         var settings = UserSettingsSingleton.CurrentSettings();
 
-        var url = $@"https:{settings.PhotoPageUrl(content)}";
+        var url = $@"{settings.PhotoPageUrl(content)}";
 
         var ps = new ProcessStartInfo(url) { UseShellExecute = true, Verb = "open" };
         Process.Start(ps);

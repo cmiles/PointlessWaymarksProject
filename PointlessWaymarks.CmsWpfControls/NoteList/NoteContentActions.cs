@@ -167,7 +167,7 @@ public partial class NoteContentActions : ObservableObject, IContentActions<Note
 
         var settings = UserSettingsSingleton.CurrentSettings();
 
-        var url = $@"https:{settings.NotePageUrl(content)}";
+        var url = $@"{settings.NotePageUrl(content)}";
 
         var ps = new ProcessStartInfo(url) { UseShellExecute = true, Verb = "open" };
         Process.Start(ps);

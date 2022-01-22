@@ -173,7 +173,7 @@ public partial class FileContentActions : ObservableObject, IContentActions<File
 
         var settings = UserSettingsSingleton.CurrentSettings();
 
-        var url = $@"https:{settings.FilePageUrl(content)}";
+        var url = $@"{settings.FilePageUrl(content)}";
 
         var ps = new ProcessStartInfo(url) { UseShellExecute = true, Verb = "open" };
         Process.Start(ps);

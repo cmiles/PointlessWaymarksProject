@@ -15,9 +15,9 @@ This is not an 'all purpose static site generation solution' - the focus is easi
 Some details:
  - A Static Site - low cost, low maintenance, high durability.
  - Integrated Local Viewer - not all content should be online!
- - Database Driven - flexibility in creating and updating content with the potential to other output formats.
+ - Database Driven - flexibility in creating and updating content with the potential to generate other output formats.
  - Custom Software - optimized support for a limited set of content types and a specific set of workflows.
- - Windows Desktop WPF GUI Editor - no hosting to pay for, no server to maintain... WPF because it is my favorite Windows GUI technology atm and because the experimentation/learning/coding I do here flows back into my day job where I help to create and maintain a Retail Inventory Management and Reporting system that has a WPF Front End.
+ - Windows Desktop WPF GUI Editor - no hosting to pay for, no server to maintain, no containers to orchestrate... WPF because it is my favorite Windows GUI technology atm and because the experimentation/learning/coding I do here flows back into my day job where I help to create and maintain a Retail Inventory Management and Reporting system that has a WPF Front End.
  - Focus on Content and Simple Functional Presentation - my experience is that websites that focus on a simple presentations of meaningful/personal/interesting content can survive, have impact and be meaningful for many many years without heavy revisions into the 'latest' style or newest framework.
 
 Todo Lists, Idea Lists and a Development Log are [found in a DevNotes.md file that is versioned along with the code](PointlessWaymarksCmsContentEditor/DevNotes.md).

@@ -33,8 +33,7 @@
     Closing="MainWindow_OnClosing"
     mc:Ignorable="d">
     <Window.TaskbarItemInfo>
-        <TaskbarItemInfo ProgressState="{Binding WindowStatus.WindowState}"
-                         ProgressValue="{Binding WindowStatus.WindowProgress}" />
+        <TaskbarItemInfo ProgressState="{Binding WindowStatus.WindowState}" ProgressValue="{Binding WindowStatus.WindowProgress}" />
     </Window.TaskbarItemInfo>
     <Window.Resources>
         <ResourceDictionary>
@@ -52,6 +51,7 @@
     <Grid>
         <TabControl
             x:Name="MainTabControl"
+            Margin="4"
             BorderBrush="Green"
             SelectedItem="{Binding SelectedTab}">
             <TabItem Header="All Items">

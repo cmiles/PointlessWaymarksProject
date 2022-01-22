@@ -168,7 +168,7 @@ public partial class PostContentActions : ObservableObject, IContentActions<Post
 
         var settings = UserSettingsSingleton.CurrentSettings();
 
-        var url = $@"https:{settings.PostPageUrl(content)}";
+        var url = $@"{settings.PostPageUrl(content)}";
 
         var ps = new ProcessStartInfo(url) { UseShellExecute = true, Verb = "open" };
         Process.Start(ps);

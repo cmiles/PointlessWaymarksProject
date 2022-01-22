@@ -214,7 +214,7 @@ Notes:
 
         var settings = UserSettingsSingleton.CurrentSettings();
 
-        var url = $@"https:{settings.PostPageUrl(DbEntry)}";
+        var url = $@"{settings.PostPageUrl(DbEntry)}";
 
         var ps = new ProcessStartInfo(url) { UseShellExecute = true, Verb = "open" };
         Process.Start(ps);

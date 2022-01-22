@@ -12,21 +12,21 @@ public static class BracketCodeSpecialPages
 
         var specialPageLookup = new List<(string bracketCode, string defaultDisplayString, string url)>
         {
-            ("index", "Main", $"https:{UserSettingsSingleton.CurrentSettings().IndexPageUrl()}"),
+            ("index", "Main", $"{UserSettingsSingleton.CurrentSettings().IndexPageUrl()}"),
             // ReSharper disable StringLiteralTypo
             ("indexrss", "Main Page RSS Feed",
-                $"https:{UserSettingsSingleton.CurrentSettings().RssIndexFeedUrl()}"),
-            ("filerss", "Files RSS Feed", $"https:{UserSettingsSingleton.CurrentSettings().FileRssUrl()}"),
-            ("imagerss", "Images RSS Feed", $"https:{UserSettingsSingleton.CurrentSettings().ImageRssUrl()}"),
-            ("linkrss", "Links RSS Feed", $"https:{UserSettingsSingleton.CurrentSettings().LinkRssUrl()}"),
-            ("noterss", "Notes RSS Feed", $"https:{UserSettingsSingleton.CurrentSettings().NoteRssUrl()}"),
+                $"{UserSettingsSingleton.CurrentSettings().RssIndexFeedUrl()}"),
+            ("filerss", "Files RSS Feed", $"{UserSettingsSingleton.CurrentSettings().FileRssUrl()}"),
+            ("imagerss", "Images RSS Feed", $"{UserSettingsSingleton.CurrentSettings().ImageRssUrl()}"),
+            ("linkrss", "Links RSS Feed", $"{UserSettingsSingleton.CurrentSettings().LinkRssUrl()}"),
+            ("noterss", "Notes RSS Feed", $"{UserSettingsSingleton.CurrentSettings().NoteRssUrl()}"),
             ("photorss", "Photo Gallery RSS Feed",
-                $"https:{UserSettingsSingleton.CurrentSettings().PhotoRssUrl()}"),
+                $"{UserSettingsSingleton.CurrentSettings().PhotoRssUrl()}"),
             ("photogallerypage", "Photos",
-                $"https:{UserSettingsSingleton.CurrentSettings().CameraRollPhotoGalleryUrl()}"),
-            ("searchpage", "Search", $"https:{UserSettingsSingleton.CurrentSettings().AllContentListUrl()}"),
-            ("tagspage", "Tags", $"https:{UserSettingsSingleton.CurrentSettings().AllTagsListUrl()}"),
-            ("linklistpage", "Links", $"https:{UserSettingsSingleton.CurrentSettings().LinkListUrl()}")
+                $"{UserSettingsSingleton.CurrentSettings().CameraRollPhotoGalleryUrl()}"),
+            ("searchpage", "Search", $"{UserSettingsSingleton.CurrentSettings().AllContentListUrl()}"),
+            ("tagspage", "Tags", $"{UserSettingsSingleton.CurrentSettings().AllTagsListUrl()}"),
+            ("linklistpage", "Links", $"{UserSettingsSingleton.CurrentSettings().LinkListUrl()}")
             // ReSharper restore StringLiteralTypo
         };
 

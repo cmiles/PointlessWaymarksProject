@@ -78,7 +78,7 @@
                         <TextBox
                             Name="SiteUrlTextBox"
                             Style="{StaticResource DataEntryTextBoxSingleLineStyle}"
-                            Text="{Binding EditorSettings.SiteUrl, UpdateSourceTrigger=PropertyChanged}" />
+                            Text="{Binding EditorSettings.SiteDomainName, UpdateSourceTrigger=PropertyChanged}" />
                         <wpf:MarkdownViewer Markdown="{Binding HelpMarkdownDomain}">
                             <b:Interaction.Behaviors>
                                 <behaviors:IgnoreMouseWheelBehavior />

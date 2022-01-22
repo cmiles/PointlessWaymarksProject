@@ -168,7 +168,7 @@ public partial class ImageContentActions : ObservableObject, IContentActions<Ima
 
         var settings = UserSettingsSingleton.CurrentSettings();
 
-        var url = $@"https:{settings.ImagePageUrl(content)}";
+        var url = $@"{settings.ImagePageUrl(content)}";
 
         var ps = new ProcessStartInfo(url) { UseShellExecute = true, Verb = "open" };
         Process.Start(ps);

@@ -167,7 +167,7 @@ public partial class LineContentActions : ObservableObject, IContentActions<Line
 
         var settings = UserSettingsSingleton.CurrentSettings();
 
-        var url = $@"https:{settings.LinePageUrl(content)}";
+        var url = $@"{settings.LinePageUrl(content)}";
 
         var ps = new ProcessStartInfo(url) { UseShellExecute = true, Verb = "open" };
         Process.Start(ps);

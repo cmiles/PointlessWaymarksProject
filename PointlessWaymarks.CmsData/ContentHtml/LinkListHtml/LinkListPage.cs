@@ -63,7 +63,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml.LinkListHtml
             
             #line default
             #line hidden
-            this.Write("\"     \r\n      href=\"https:");
+            this.Write("\"     \r\n      href=\"");
             
             #line 15 "C:\Code\PointlessWaymarksCms03\PointlessWaymarks.CmsData\ContentHtml\LinkListHtml\LinkListPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(RssUrl));

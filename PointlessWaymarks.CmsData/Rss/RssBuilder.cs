@@ -73,14 +73,14 @@ public static class RssBuilder
                 if (imageInfo != null)
                     itemDescription =
                         $"{Tags.PictureImgTagDisplayImageOnly(imageInfo)}<p>{HttpUtility.HtmlEncode(loopContent.Summary)}</p>" +
-                        $"<p>Read more at <a href=\"https:{contentUrl}\">{UserSettingsSingleton.CurrentSettings().SiteName}</a></p>";
+                        $"<p>Read more at <a href=\"{contentUrl}\">{UserSettingsSingleton.CurrentSettings().SiteName}</a></p>";
             }
 
             if (string.IsNullOrWhiteSpace(itemDescription))
                 itemDescription = $"<p>{HttpUtility.HtmlEncode(loopContent.Summary)}</p>" +
-                                  $"<p>Read more at <a href=\"https:{contentUrl}\">{UserSettingsSingleton.CurrentSettings().SiteName}</a></p>";
+                                  $"<p>Read more at <a href=\"{contentUrl}\">{UserSettingsSingleton.CurrentSettings().SiteName}</a></p>";
 
-            items.Add(RssItemString(loopContent.Title, $"https:{contentUrl}", itemDescription,
+            items.Add(RssItemString(loopContent.Title, $"{contentUrl}", itemDescription,
                 loopContent.CreatedOn, loopContent.ContentId.ToString()));
         }
 

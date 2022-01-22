@@ -184,7 +184,11 @@ p.info-list-text-item {
 }
 
 .info-list-label {
-    margin-right: .4rem;
+    margin-top: 1rem;
+    margin-bottom: .6rem;
+    margin-right: 0.4rem;
+    width: 100vw;
+    text-align: center;
 }
 
 .footer-container {
@@ -451,7 +455,7 @@ a.site-header-title-link:active {
 
 .compact-content-list-container {
     display: flex;
-    margin: 10px auto;
+    margin: 1rem auto;
     transition: all 0.3s cubic-bezier(.25,.8,.25,1);
     border-radius: 4px;
     justify-content: center;

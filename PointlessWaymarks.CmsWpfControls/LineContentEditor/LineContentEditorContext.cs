@@ -311,7 +311,7 @@ public partial class LineContentEditorContext : IHasChanges, IHasValidationIssue
 
         var settings = UserSettingsSingleton.CurrentSettings();
 
-        var url = $@"https:{settings.LinePageUrl(DbEntry)}";
+        var url = $@"{settings.LinePageUrl(DbEntry)}";
 
         var ps = new ProcessStartInfo(url) { UseShellExecute = true, Verb = "open" };
         Process.Start(ps);

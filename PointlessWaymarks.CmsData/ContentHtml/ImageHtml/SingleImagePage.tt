@@ -41,7 +41,7 @@
     <link rel="alternate" type="application/rss+xml" 
       title="<#=
                 $"RSS Feed for {UserSettingsSingleton.CurrentSettings().SiteName} - Images".HtmlEncode() #>"
-      href="https:<#=
+      href="<#=
                 UserSettingsSingleton.CurrentSettings().ImageRssUrl() #>" />
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0">

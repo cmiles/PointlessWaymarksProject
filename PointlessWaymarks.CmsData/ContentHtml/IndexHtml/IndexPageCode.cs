@@ -208,14 +208,14 @@ public partial class IndexPage
                     if (imageInfo != null)
                         content =
                             $"{Tags.PictureImgTagDisplayImageOnly(imageInfo)}<p>{HttpUtility.HtmlEncode(post.DbEntry.Summary)}</p>" +
-                            $"<p>Read more at <a href=\"https:{post.PageUrl}\">{UserSettingsSingleton.CurrentSettings().SiteName}</a></p>";
+                            $"<p>Read more at <a href=\"{post.PageUrl}\">{UserSettingsSingleton.CurrentSettings().SiteName}</a></p>";
                 }
 
                 if (string.IsNullOrWhiteSpace(content))
                     content = $"<p>{HttpUtility.HtmlEncode(post.DbEntry.Summary)}</p>" +
-                              $"<p>Read more at <a href=\"https:{post.PageUrl}\">{UserSettingsSingleton.CurrentSettings().SiteName}</a></p>";
+                              $"<p>Read more at <a href=\"{post.PageUrl}\">{UserSettingsSingleton.CurrentSettings().SiteName}</a></p>";
 
-                items.Add(RssBuilder.RssItemString(post.DbEntry.Title, $"https:{post.PageUrl}", content,
+                items.Add(RssBuilder.RssItemString(post.DbEntry.Title, $"{post.PageUrl}", content,
                     post.DbEntry.CreatedOn, post.DbEntry.ContentId.ToString()));
             }
 
@@ -224,9 +224,9 @@ public partial class IndexPage
                 var post = new SingleNoteDiv(loopPosts);
 
                 var content = $"<p>{HttpUtility.HtmlEncode(post.DbEntry.Summary)}</p>" +
-                              $"<p>Read more at <a href=\"https:{post.PageUrl}\">{UserSettingsSingleton.CurrentSettings().SiteName}</a></p>";
+                              $"<p>Read more at <a href=\"{post.PageUrl}\">{UserSettingsSingleton.CurrentSettings().SiteName}</a></p>";
 
-                items.Add(RssBuilder.RssItemString(post.DbEntry.Title, $"https:{post.PageUrl}", content,
+                items.Add(RssBuilder.RssItemString(post.DbEntry.Title, $"{post.PageUrl}", content,
                     post.DbEntry.CreatedOn, post.DbEntry.ContentId.ToString()));
             }
 
@@ -243,13 +243,13 @@ public partial class IndexPage
                     if (imageInfo != null)
                         content =
                             $"{Tags.PictureImgTagDisplayImageOnly(imageInfo)}<p>{HttpUtility.HtmlEncode(post.DbEntry.Summary)}</p>" +
-                            $"<p>Read more at <a href=\"https:{post.PageUrl}\">{UserSettingsSingleton.CurrentSettings().SiteName}</a></p>";
+                            $"<p>Read more at <a href=\"{post.PageUrl}\">{UserSettingsSingleton.CurrentSettings().SiteName}</a></p>";
 
                     if (string.IsNullOrWhiteSpace(content))
                         content = $"<p>{HttpUtility.HtmlEncode(post.DbEntry.Summary)}</p>" +
-                                  $"<p>Read more at <a href=\"https:{post.PageUrl}\">{UserSettingsSingleton.CurrentSettings().SiteName}</a></p>";
+                                  $"<p>Read more at <a href=\"{post.PageUrl}\">{UserSettingsSingleton.CurrentSettings().SiteName}</a></p>";
 
-                    items.Add(RssBuilder.RssItemString(post.DbEntry.Title, $"https:{post.PageUrl}", content,
+                    items.Add(RssBuilder.RssItemString(post.DbEntry.Title, $"{post.PageUrl}", content,
                         post.DbEntry.CreatedOn, post.DbEntry.ContentId.ToString()));
                 }
             }
@@ -267,14 +267,14 @@ public partial class IndexPage
                     if (imageInfo != null)
                         content =
                             $"{Tags.PictureImgTagDisplayImageOnly(imageInfo)}<p>{HttpUtility.HtmlEncode(post.DbEntry.Summary)}</p>" +
-                            $"<p>Read more at <a href=\"https:{post.PageUrl}\">{UserSettingsSingleton.CurrentSettings().SiteName}</a></p>";
+                            $"<p>Read more at <a href=\"{post.PageUrl}\">{UserSettingsSingleton.CurrentSettings().SiteName}</a></p>";
                 }
 
                 if (string.IsNullOrWhiteSpace(content))
                     content = $"<p>{HttpUtility.HtmlEncode(post.DbEntry.Summary)}</p>" +
-                              $"<p>Read more at <a href=\"https:{post.PageUrl}\">{UserSettingsSingleton.CurrentSettings().SiteName}</a></p>";
+                              $"<p>Read more at <a href=\"{post.PageUrl}\">{UserSettingsSingleton.CurrentSettings().SiteName}</a></p>";
 
-                items.Add(RssBuilder.RssItemString(post.DbEntry.Title, $"https:{post.PageUrl}", content,
+                items.Add(RssBuilder.RssItemString(post.DbEntry.Title, $"{post.PageUrl}", content,
                     post.DbEntry.CreatedOn, post.DbEntry.ContentId.ToString()));
             }
 
@@ -291,14 +291,14 @@ public partial class IndexPage
                     if (imageInfo != null)
                         content =
                             $"{Tags.PictureImgTagDisplayImageOnly(imageInfo)}<p>{HttpUtility.HtmlEncode(post.DbEntry.Summary)}</p>" +
-                            $"<p>Read more at <a href=\"https:{post.PageUrl}\">{UserSettingsSingleton.CurrentSettings().SiteName}</a></p>";
+                            $"<p>Read more at <a href=\"{post.PageUrl}\">{UserSettingsSingleton.CurrentSettings().SiteName}</a></p>";
                 }
 
                 if (string.IsNullOrWhiteSpace(content))
                     content = $"<p>{HttpUtility.HtmlEncode(post.DbEntry.Summary)}</p>" +
-                              $"<p>Read more at <a href=\"https:{post.PageUrl}\">{UserSettingsSingleton.CurrentSettings().SiteName}</a></p>";
+                              $"<p>Read more at <a href=\"{post.PageUrl}\">{UserSettingsSingleton.CurrentSettings().SiteName}</a></p>";
 
-                items.Add(RssBuilder.RssItemString(post.DbEntry.Title, $"https:{post.PageUrl}", content,
+                items.Add(RssBuilder.RssItemString(post.DbEntry.Title, $"{post.PageUrl}", content,
                     post.DbEntry.CreatedOn, post.DbEntry.ContentId.ToString()));
             }
 
@@ -315,14 +315,14 @@ public partial class IndexPage
                     if (imageInfo != null)
                         content =
                             $"{Tags.PictureImgTagDisplayImageOnly(imageInfo)}<p>{HttpUtility.HtmlEncode(post.DbEntry.Summary)}</p>" +
-                            $"<p>Read more at <a href=\"https:{post.PageUrl}\">{UserSettingsSingleton.CurrentSettings().SiteName}</a></p>";
+                            $"<p>Read more at <a href=\"{post.PageUrl}\">{UserSettingsSingleton.CurrentSettings().SiteName}</a></p>";
                 }
 
                 if (string.IsNullOrWhiteSpace(content))
                     content = $"<p>{HttpUtility.HtmlEncode(post.DbEntry.Summary)}</p>" +
-                              $"<p>Read more at <a href=\"https:{post.PageUrl}\">{UserSettingsSingleton.CurrentSettings().SiteName}</a></p>";
+                              $"<p>Read more at <a href=\"{post.PageUrl}\">{UserSettingsSingleton.CurrentSettings().SiteName}</a></p>";
 
-                items.Add(RssBuilder.RssItemString(post.DbEntry.Title, $"https:{post.PageUrl}", content,
+                items.Add(RssBuilder.RssItemString(post.DbEntry.Title, $"{post.PageUrl}", content,
                     post.DbEntry.CreatedOn, post.DbEntry.ContentId.ToString()));
             }
         }
