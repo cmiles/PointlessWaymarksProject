@@ -108,7 +108,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml.GeoJsonHtml
             
             #line default
             #line hidden
-            this.Write("\" />\r\n    <meta property=\"og:url\" content=\"https:");
+            this.Write("\" />\r\n    <meta property=\"og:url\" content=\"");
             
             #line 23 "C:\Code\PointlessWaymarksCms06\PointlessWaymarks.CmsData\ContentHtml\GeoJsonHtml\SingleGeoJsonPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(PageUrl));
@@ -262,7 +262,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml.GeoJsonHtml
             this.Write("\r\n        ");
             
             #line 62 "C:\Code\PointlessWaymarksCms06\PointlessWaymarks.CmsData\ContentHtml\GeoJsonHtml\SingleGeoJsonPage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(BodyContentReferences.RelatedContentTag(DbEntry, GenerationVersion).Result));
+            this.Write(this.ToStringHelper.ToStringWithCulture(BodyContentReferences.CompactContentTag(DbEntry, GenerationVersion).Result));
             
             #line default
             #line hidden

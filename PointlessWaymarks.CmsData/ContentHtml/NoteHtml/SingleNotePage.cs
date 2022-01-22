@@ -101,7 +101,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml.NoteHtml
             
             #line default
             #line hidden
-            this.Write("\" />\r\n    <meta property=\"og:url\" content=\"https:");
+            this.Write("\" />\r\n    <meta property=\"og:url\" content=\"");
             
             #line 22 "C:\Code\PointlessWaymarksCms06\PointlessWaymarks.CmsData\ContentHtml\NoteHtml\SingleNotePage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(PageUrl));
@@ -235,7 +235,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml.NoteHtml
             this.Write("\r\n        ");
             
             #line 59 "C:\Code\PointlessWaymarksCms06\PointlessWaymarks.CmsData\ContentHtml\NoteHtml\SingleNotePage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(BodyContentReferences.RelatedContentTag(DbEntry, GenerationVersion).Result));
+            this.Write(this.ToStringHelper.ToStringWithCulture(BodyContentReferences.CompactContentTag(DbEntry, GenerationVersion).Result));
             
             #line default
             #line hidden

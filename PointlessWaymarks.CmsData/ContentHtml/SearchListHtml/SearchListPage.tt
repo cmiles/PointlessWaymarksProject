@@ -41,7 +41,7 @@
         <input type="text" class="search-input enable-after-loading wait-cursor" id="userSearchText" onkeyup="searchContent()" disabled placeholder="Search <#= ListTitle #>..." autocomplete="off">
     </div>
     <#= FilterCheckboxesTag() #>
-    <#= ContentTableTag() #>
+    <#= ContentListTag() #>
     <#= HorizontalRule.StandardRule() #>
     <#= Footer.StandardFooterDiv().Result #>
 </body>

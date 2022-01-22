@@ -7,5 +7,5 @@
     <#= Tags.PostBodyDiv(DbEntry).Result.ToString() #>
     <#= FileParts.DownloadLinkTag(DbEntry) #>
     <#= FileParts.EmbedFileTag(DbEntry) #>
-    <#= BodyContentReferences.RelatedContentTag(DbEntry, GenerationVersion).Result #>
+    <#= BodyContentReferences.CompactContentTag(DbEntry, GenerationVersion).Result #>
 </div>

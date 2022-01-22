@@ -101,7 +101,7 @@ public static class BodyContentReferences
         return typeFilteredReferences.OrderByDescending(x => x.LastUpdatedOn ?? x.CreatedOn).ToList();
     }
 
-    public static async Task<HtmlTag> RelatedContentTag(IContentCommon content, DateTime? generationVersion,
+    public static async Task<HtmlTag> CompactContentTag(IContentCommon content, DateTime? generationVersion,
         IProgress<string>? progress = null)
     {
         var toSearch = string.Empty;
@@ -110,10 +110,10 @@ public static class BodyContentReferences
 
         if (content is IUpdateNotes updateContent) toSearch += updateContent.UpdateNotes;
 
-        return await RelatedContentTag(content.ContentId, toSearch, generationVersion, progress).ConfigureAwait(false);
+        return await CompactContentTag(content.ContentId, toSearch, generationVersion, progress).ConfigureAwait(false);
     }
 
-    public static async Task<HtmlTag> RelatedContentTag(Guid toCheckFor, string bodyContentToCheckIn,
+    public static async Task<HtmlTag> CompactContentTag(Guid toCheckFor, string bodyContentToCheckIn,
         DateTime? generationVersion, IProgress<string>? progress = null)
     {
         var contentCommonList = new List<IContentCommon>();
@@ -193,7 +193,7 @@ public static class BodyContentReferences
         return relatedPostsList;
     }
 
-    public static async Task<HtmlTag> RelatedContentTag(List<Guid> toCheckFor, DateTime? generationVersion)
+    public static async Task<HtmlTag> CompactContentTag(List<Guid> toCheckFor, DateTime? generationVersion)
     {
         var db = await Db.Context().ConfigureAwait(false);
 

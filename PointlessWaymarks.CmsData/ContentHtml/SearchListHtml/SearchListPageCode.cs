@@ -32,7 +32,7 @@ public partial class SearchListPage
     public string ListTitle { get; }
     public string RssUrl { get; }
 
-    public HtmlTag ContentTableTag()
+    public HtmlTag ContentListTag()
     {
         var allContent = ContentFunction();
 

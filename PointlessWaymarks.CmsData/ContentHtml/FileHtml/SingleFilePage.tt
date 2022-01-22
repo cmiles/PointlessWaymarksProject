@@ -67,7 +67,7 @@
     <div class="information-section">
         <#= Tags.TagList(DbEntry).ToString() #>
         <#=
-                BodyContentReferences.RelatedContentTag(DbEntry, GenerationVersion).Result #>
+                BodyContentReferences.CompactContentTag(DbEntry, GenerationVersion).Result #>
         <#=
                 Tags.CreatedByAndUpdatedOnDiv(DbEntry).ToString() #>
         <#=

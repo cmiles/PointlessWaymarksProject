@@ -63,7 +63,7 @@
         <#= Tags.PictureSizeList(DbEntry.ShowPhotoSizes, PictureInformation).ToString() #>
         <#= Tags.TagList(DbEntry).ToString() #>
         <#=
-                BodyContentReferences.RelatedContentTag(DbEntry, GenerationVersion).Result #>
+                BodyContentReferences.CompactContentTag(DbEntry, GenerationVersion).Result #>
         <#=
                 Tags.PreviousAndNextPhotoDiv(PreviousPhoto, NextPhoto) #>
         <#=

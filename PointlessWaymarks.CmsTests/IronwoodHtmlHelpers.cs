@@ -89,7 +89,7 @@ public static class IronwoodHtmlHelpers
             document.QuerySelector("meta[property='og:site_name']")?.Attributes
                 .FirstOrDefault(x => x.LocalName == "content")?.Value);
 
-        Assert.AreEqual($"https:{await UserSettingsSingleton.CurrentSettings().PageUrl(toCheck.ContentId)}",
+        Assert.AreEqual($"{await UserSettingsSingleton.CurrentSettings().PageUrl(toCheck.ContentId)}",
             document.QuerySelector("meta[property='og:url']")?.Attributes
                 .FirstOrDefault(x => x.LocalName == "content")?.Value);
 

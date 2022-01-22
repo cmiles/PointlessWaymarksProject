@@ -55,7 +55,7 @@
     <div class="information-section">
         <#= Tags.TagList(PhotoTags).ToString() #>
         <#=
-                BodyContentReferences.RelatedContentTag(
+                BodyContentReferences.CompactContentTag(
                     ImageList.Select(x => ((IContentId) x.Pictures.DbEntry).ContentId).ToList(), GenerationVersion)
                     .Result #>
         <#=

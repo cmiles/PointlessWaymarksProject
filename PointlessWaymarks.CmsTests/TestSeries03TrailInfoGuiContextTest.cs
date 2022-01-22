@@ -26,7 +26,7 @@ public class TestSeries03TrailInfoGuiContextTest
     [OneTimeSetUp]
     public async Task A00_CreateTestSite()
     {
-        //This is one of the lower answers from the StackOverflow question below - I found this 
+        //This is one of the lower answers from the StackOverflow question below - I found this
         //to be a very easy and understandable way to allow WPF GUI oriented code that contains
         //sections that must run on the GUI thread to run without issue.
         //

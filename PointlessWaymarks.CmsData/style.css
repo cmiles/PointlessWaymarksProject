@@ -388,6 +388,14 @@ a.site-header-title-link:active {
     height: 80vh;
 }
 
+.created-and-updated-container {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    align-items: center;
+    margin-top: 2.5rem;
+}
+
 .compact-content-container {
     margin: 3px;
     width: 316px;
@@ -439,14 +447,6 @@ a.site-header-title-link:active {
 .compact-content-text-content-date {
     font-size: 12px;
     text-align: end;
-}
-
-.created-and-updated-container {
-    display: flex;
-    justify-content: center;
-    flex-wrap: wrap;
-    align-items: center;
-    margin-top: 2.5rem;
 }
 
 .compact-content-list-container {
@@ -687,7 +687,6 @@ a.tag-list-link {
     margin: 0 .4rem;
 }
 
-
 .link-compact-text-content-container {
     height: 100px;
     width: 100%;
@@ -767,6 +766,11 @@ a.tag-list-link {
 
     .search-input {
         width: 600px;
+    }
+
+    .content-list-item-container {
+        width: 600px;
+        min-width: 600px;
     }
 }
 

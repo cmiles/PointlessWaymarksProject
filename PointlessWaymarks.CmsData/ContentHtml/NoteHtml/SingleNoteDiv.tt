@@ -5,5 +5,5 @@
     <#= NoteParts.NoteTitleLinkDiv(DbEntry) #>
     <#= Tags.PostBodyDiv(DbEntry).Result #>
     <#=
-                BodyContentReferences.RelatedContentTag(DbEntry, GenerationVersion).Result #>
+                BodyContentReferences.CompactContentTag(DbEntry, GenerationVersion).Result #>
 </div>
