@@ -559,7 +559,7 @@ a.site-header-title-link:active {
 
 .camera-roll-photo-item-container {
     width: 120px;
-    margin: 4vw;
+    margin: 2vw;
 }
 
 .camera-roll-info-item-container {
@@ -846,8 +846,8 @@ a.tag-list-link {
     }
 
     .camera-roll-photo-item-container {
-        width: 10vw;
-        margin: 4vw;
+        width: 14vw;
+        margin: 1vw;
     }
 
     .roll-month-list-container {
