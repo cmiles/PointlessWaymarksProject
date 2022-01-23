@@ -1,4 +1,5 @@
-﻿using System.Collections.ObjectModel;
+﻿using System.Collections.Concurrent;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
 using System.Windows;
@@ -651,7 +652,7 @@ public partial class ContentListContext : IDragSource, IDropTarget
 
         StatusContext.Progress($"All Items Loaded from Db: {ContentListLoader.AllItemsLoaded}");
 
-        var contentListItems = new List<IContentListItem>();
+        var contentListItems = new ConcurrentBag<IContentListItem>();
 
         StatusContext.Progress("Creating List Items");
 
