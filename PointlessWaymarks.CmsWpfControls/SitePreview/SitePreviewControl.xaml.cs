@@ -103,7 +103,7 @@ public partial class SitePreviewControl
         {
             e.Cancel = true;
             ProcessHelpers.OpenUrlInExternalBrowser(e.Uri);
-            PreviewContext.StatusContext.ToastError($"Sending external link {e.Uri} to the default browser.");
+            //PreviewContext.StatusContext.ToastSuccess($"Sending external link {e.Uri} to the default browser.");
             PreviewContext.TextBarAddress = new Uri(PreviewContext.CurrentAddress).PathAndQuery;
             return;
         }

@@ -17,7 +17,7 @@ public static class IronwoodPostInfo
             Title = "First Post",
             Slug = "first-post",
             BodyContent = @"A Test Post for Ironwood Forest National Monument. From
-Wikipedia:
+[Wikipedia](https://en.wikipedia.org/wiki/Ironwood_Forest_National_Monument):
 > Ironwood Forest National Monument is located in the Sonoran Desert of Arizona. Created by Bill Clinton by Presidential Proclamation 7320 on June 9, 2000, the monument is managed by the Bureau of Land Management, an agency within the United States Department of the Interior. The monument covers 129,055 acres (52,227 ha),[2] of which 59,573 acres (24,108 ha) are non-federal and include private land holdings and Arizona State School Trust lands.
 
 A significant concentration of ironwood (also known as desert ironwood, Olneya tesota) trees is found in the monument, along with two federally recognized endangered animal and plant species. More than 200 Hohokam and Paleo-Indian archaeological sites have been identified in the monument, dated between 600 and 1450.",
