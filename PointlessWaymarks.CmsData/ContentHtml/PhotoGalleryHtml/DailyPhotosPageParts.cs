@@ -6,6 +6,9 @@ namespace PointlessWaymarks.CmsData.ContentHtml.PhotoGalleryHtml;
 
 public static class DailyPhotosPageParts
 {
+    public static string DailyPhotosPageHeader(DateTime photoCreatedOn) =>
+        $"Photographs - {photoCreatedOn:MMMM d, dddd, yyyy}";
+
     public static HtmlTag DailyPhotosPageRelatedContentDiv(DailyPhotosPage? photoPage)
     {
         if (photoPage == null) return HtmlTag.Empty();

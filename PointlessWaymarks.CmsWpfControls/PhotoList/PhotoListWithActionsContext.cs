@@ -28,6 +28,7 @@ public partial class PhotoListWithActionsContext
     [ObservableProperty] private ContentListContext _listContext;
     [ObservableProperty] private RelayCommand _openUrlForPhotoListCommand;
     [ObservableProperty] private RelayCommand _photoLinkCodesToClipboardForSelectedCommand;
+    [ObservableProperty] private RelayCommand _dailyPhotoLinkCodesToClipboardForSelectedCommand;
     [ObservableProperty] private RelayCommand _refreshDataCommand;
     [ObservableProperty] private RelayCommand _regenerateHtmlAndReprocessPhotoForSelectedCommand;
     [ObservableProperty] private RelayCommand _reportAllPhotosCommand;
@@ -150,6 +151,7 @@ public partial class PhotoListWithActionsContext
             {
                 ItemName = "Text Code to Clipboard", ItemCommand = PhotoLinkCodesToClipboardForSelectedCommand
             },
+            new() { ItemName = "Daily Photo Page Code to Clipboard", ItemCommand = DailyPhotoLinkCodesToClipboardForSelectedCommand}, 
             new() { ItemName = "Email Html to Clipboard", ItemCommand = EmailHtmlToClipboardCommand },
             new() { ItemName = "View Photos", ItemCommand = ViewFilesCommand },
             new() { ItemName = "Open URL", ItemCommand = ListContext.ViewOnSiteCommand },
@@ -180,6 +182,26 @@ public partial class PhotoListWithActionsContext
 
         var finalString = SelectedItems().Aggregate(string.Empty,
             (current, loopSelected) => current + BracketCodePhotoLinks.Create(loopSelected.DbEntry) + Environment.NewLine);
+
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        Clipboard.SetText(finalString);
+
+        StatusContext.ToastSuccess($"To Clipboard {finalString}");
+    }
+
+    private async Task DailyPhotoLinkCodesToClipboardForSelected()
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (SelectedItems() == null || !SelectedItems().Any())
+        {
+            StatusContext.ToastError("Nothing Selected?");
+            return;
+        }
+
+        var finalString = SelectedItems().Aggregate(string.Empty,
+            (current, loopSelected) => current + BracketCodeDailyPhotoPage.Create(loopSelected.DbEntry) + Environment.NewLine);
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
@@ -418,6 +440,8 @@ public partial class PhotoListWithActionsContext
                 "Cancel HTML Generation and Photo Resizing");
         PhotoLinkCodesToClipboardForSelectedCommand =
             StatusContext.RunBlockingTaskCommand(PhotoLinkCodesToClipboardForSelected);
+        DailyPhotoLinkCodesToClipboardForSelectedCommand =
+            StatusContext.RunBlockingTaskCommand(DailyPhotoLinkCodesToClipboardForSelected);
         RefreshDataCommand = StatusContext.RunBlockingTaskCommand(ListContext.LoadData);
         ForcedResizeCommand = StatusContext.RunBlockingTaskWithCancellationCommand(ForcedResize, "Cancel Resizing");
         ViewFilesCommand = StatusContext.RunBlockingTaskWithCancellationCommand(ViewFilesSelected, "Cancel File View");

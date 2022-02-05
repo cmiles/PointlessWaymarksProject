@@ -105,7 +105,7 @@ public static class DailyPhotoPageGenerators
         {
             MainImage = new PictureSiteInformation(datePhotos.First().ContentId),
             ImageList = datePhotos.Select(x => new PictureSiteInformation(x.ContentId)).ToList(),
-            Title = $"Photographs - {dateTimeForPictures:MMMM d, dddd, yyyy}",
+            Title = DailyPhotosPageParts.DailyPhotosPageHeader(dateTimeForPictures),
             Summary =
                 $"Photographs taken on {dateTimeForPictures:M/d/yyyy}{(photographersList.Any() ? " by " : "")}{photographersString}.",
             CreatedBy = photographersAndCreatedByString,

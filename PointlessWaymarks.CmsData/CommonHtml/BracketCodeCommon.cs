@@ -131,6 +131,7 @@ public static class BracketCodeCommon
         input = await BracketCodeNotes.Process(input, progress).ConfigureAwait(false);
         input = await BracketCodePhotos.ProcessForEmail(input, progress).ConfigureAwait(false);
         input = await BracketCodePhotoLinks.Process(input, progress).ConfigureAwait(false);
+        input = await BracketCodeDailyPhotoPage.Process(input, progress).ConfigureAwait(false);
         input = await BracketCodePointLinks.Process(input, progress).ConfigureAwait(false);
         input = await BracketCodePosts.Process(input, progress).ConfigureAwait(false);
         input = await BracketCodePostImage.ProcessForEmail(input, progress).ConfigureAwait(false);
@@ -162,6 +163,7 @@ public static class BracketCodeCommon
         input = await BracketCodeNotes.Process(input, progress).ConfigureAwait(false);
         input = await BracketCodePhotos.ProcessForDirectLocalAccess(input, progress).ConfigureAwait(false);
         input = await BracketCodePhotoLinks.Process(input, progress).ConfigureAwait(false);
+        input = await BracketCodeDailyPhotoPage.Process(input, progress).ConfigureAwait(false);
         input = await BracketCodePointLinks.Process(input, progress).ConfigureAwait(false);
         input = await BracketCodePoints.ProcessForDirectLocalAccess(input, progress).ConfigureAwait(false);
         input = await BracketCodePosts.Process(input, progress).ConfigureAwait(false);
@@ -188,6 +190,7 @@ public static class BracketCodeCommon
         input = await BracketCodeNotes.Process(input, progress).ConfigureAwait(false);
         input = await BracketCodePhotos.ProcessToFigureWithLink(input, progress).ConfigureAwait(false);
         input = await BracketCodePhotoLinks.Process(input, progress).ConfigureAwait(false);
+        input = await BracketCodeDailyPhotoPage.Process(input, progress).ConfigureAwait(false);
         input = await BracketCodePoints.Process(input, progress).ConfigureAwait(false);
         input = await BracketCodePointLinks.Process(input, progress).ConfigureAwait(false);
         input = await BracketCodePosts.Process(input, progress).ConfigureAwait(false);
