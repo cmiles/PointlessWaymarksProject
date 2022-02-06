@@ -6,23 +6,21 @@ There is plenty of traditional ReadMe information below about this project - but
 
 At this point this project is not intended for general use - it is made public under the MIT License to share with friends, colleagues and anyone who finds the code interesting or useful.
 
-Pointless Waymarks CMS is a .NET Core 6 Windows WPF GUI for generating a static website based on database information and a settings file.
-
-This is not an 'all purpose static site generation solution' - the focus is easily creating durable, rich, low maintenance, free, long-lasting, organized content about the landscape, life, place, history and nature with support for posts, photographs, images, files and maps...
+Pointless Waymarks CMS is a .NET Core 6 Windows WPF GUI for generating a static website based on database information and a settings file. It is not an 'all purpose static site generation solution'. The focus is easily creating durable, rich, low maintenance, free, long-lasting, organized content about the landscape, place, life, history and nature with support for posts, photographs, images, files and maps...
 
 [Pointless Waymarks](https://PointlessWaymarks.com) is generated with the Pointless Waymarks CMS and is a good example of both the output and intent.
 
-Some details:
- - A Static Site - low cost, low maintenance, high durability.
- - Integrated Local Viewer - not all content should be online!
+Details:
+ - Locally Generated Static Site - low cost, low maintenance, high durability, easy backup.
+ - Integrated Local Viewer - review changes without publishing content - not all content should be online!
  - Database Driven - flexibility in creating and updating content with the potential to generate other output formats.
  - Custom Software - optimized support for a limited set of content types and a specific set of workflows.
  - Windows Desktop WPF GUI Editor - no hosting to pay for, no server to maintain, no containers to orchestrate... WPF because it is my favorite Windows GUI technology atm and because the experimentation/learning/coding I do here flows back into my day job where I help to create and maintain a Retail Inventory Management and Reporting system that has a WPF Front End.
- - Focus on Content and Simple Functional Presentation - my experience is that websites that focus on a simple presentations of meaningful/personal/interesting content can survive, have impact and be meaningful for many many years without heavy revisions into the 'latest' style or newest framework.
+ - Focus on Content and Simple Functional Presentation - my experience is that websites that focus on a simple presentations of interesting content can survive, have impact and be meaningful for many many years (indefinitely?) without heavy revisions into the latest style or newest framework.
 
 Todo Lists, Idea Lists and a Development Log are [found in a DevNotes.md file that is versioned along with the code](PointlessWaymarksCmsContentEditor/DevNotes.md).
 
-If you have questions or comments please contact me at PointlessWaymarks@gmail.com - as noted above there is currently no intent to create 'public releases' and using this software is probably only reasonable if you don't mind (enjoy!) a little debugging and bug fixing...
+If you have questions or comments please contact me at PointlessWaymarks@gmail.com - as noted above there is currently no intent to create public releases. Using this software is probably only reasonable if you don't mind (enjoy!) a little debugging and bug fixing...
 
 ## Application Screen Shots
 
@@ -34,19 +32,19 @@ Options to launch recent projects or create a new project.
 
 ### Content Lists
 
-The first tab in the application is an 'All Content' list. Like all of the lists you can sort and filter the list and import to/export from excel - the list will update automatically in the background as content changes. In the All Content list a menu bar, buttons and context menus allow you to apply a limited set of actions to any list item. It is possible to efficiently do quite a bit of work without ever needing to switch back-and-forth between other tabs - especially when everything you are working on is recently added.
+The first tab in the application is an All Content list. Like all of the lists you can sort and filter to find content and then use commands from the menu bar, context menu and quick action buttons to edit, update and create content. The default sorting puts the most recently updated/created items at the top which often means this list all you need to work efficiently. All lists update automatically in the background to reflect the latest changes.
 
 ![Posts List](PointlessWaymarks.CmsScreenShots/AllContentList.jpg "All Content List")
 
-Each Content Type has a dedicated list interface - these lists have content type specific functions that are not found in the All Content list. Content lists start by loading a limited number of recent entries and present an option to load all entries - while this requires an extra step to load the full list it is a simple compromise that allows the lists to quickly load the recent items you are most likely to want to work.
+Each Content Type has a dedicated list that allows access to content-specific commands not available in the All Content list. Content lists start by loading a limited number of recent entries - this allows even very large lists to load quickly and show the content you are likely to be actively working on, with the full list only a quick button click away.
 
-The ability to export to Excel, edit and import the changes back into the Pointless Waymarks CMS is provided for all content types and most fields. Many updates are more easily made in the program but Excel provides a powerful interface for complicated/bulk edits.
+The ability to export to Excel, edit, and import the changes back into the Pointless Waymarks CMS is provided for all content types and most fields. Many updates are more easily made inside the program but Excel provides a powerful interface for complicated/bulk edits.
 
 ![Posts List](PointlessWaymarks.CmsScreenShots/PostsList.jpg "Posts List")
 
-Photographs are a central content type and there is decent support for importing/filling information from the photo's metadata. This often allows the painless import of batches of photographs with minimal clean up afterwards.
+Photographs are a central content type and there is support for filling information from the photo's metadata. This often allows the painless import of large batches of photographs with minimal clean up afterwards.
 
-The Photo List items have buttons to quickly find other similar photos based on details such as Camera Make, Lens, Aperture, Shutter Speed, etc. Not shown but available in the Photo List under the Reports menu are reports on photos with potential problems such as 'No Tags' or 'Blank License' and an option to export all of a photo's 'raw' metadata to an html file.
+The Photo List items have buttons to quickly find other similar photos based on details such as Camera Make, Lens, Aperture, Shutter Speed, etc. The Reports menu allows you to quickly potential problems such as 'No Tags' or 'Blank License' and has an option to export all of a photo's raw metadata to an html file.
 
 ![Photos List](PointlessWaymarks.CmsScreenShots/PhotoList.jpg "Photos List")
 
@@ -61,7 +59,7 @@ The content editors are intended to be simple, helpful and functional. Change an
 
 ### Tags
 
-Tags are a primary way of connecting and organizing content - a Tag Editor along with Excel Export/Import provide support for organizing/correcting/updating tags.
+Tags are a primary way of connecting and organizing content - a Tag Editor, along with Excel Export/Import, provide support for organizing/correcting/updating tags.
 
 This software has no support for storing completely private content - but it does have support for excluding Tags from the site's various search pages and indicating to search engines not to index excluded Tag Pages. This can be a good way of providing some 'modesty' for tags that you might not want to delete - but that you also don't want to be prominent.
 
@@ -69,20 +67,22 @@ This software has no support for storing completely private content - but it doe
 
 ### Menu Links
 
-Content is the focus of the project and admin/widget/header/menu options are kept as minimal as possible - but some options are needed such as a very simple menu editor. 
+Content is the focus of this project and admin/widget/header/menu options are intentionally minimal. One of the few options is to use the Menu Links editor to create a very simple menu for the site.
 
 ![Menu Links](PointlessWaymarks.CmsScreenShots/MenuLinksEditor.jpg "Menu Links Editor")
 
 ### File Change Tracking
 
-Deploying the site is simply a matter of syncing the content from the generated local site to its destination. To help with that process the program tracks written files and has options to export a list of files, create very basic S3 cli scripts or use the simple built in S3 uploader. There is also support to detect changed and no longer needed files on S3.
+Deploying the site is simply a matter of syncing the content from the generated local site to its destination. To help with that process the program tracks written files and has options to export a list of files, create very basic S3 cli scripts or use the built in S3 uploader. There is also support to detect changed and no longer needed files on S3.
 
 ![Written Files List](PointlessWaymarks.CmsScreenShots/WrittenFilesList.jpg "Written Files List")
 ![S3 Uploader](PointlessWaymarks.CmsScreenShots/S3Uploader.jpg "S3 Uploader")
 
 ### Local Site Preview
 
-A viewer for the on-disk version of the site is available both in the editor and as a stand alone program. Making use of Microsoft's Webview2 this makes it possible to browse your local site in an intuitive way and provides good access to the browsers dev tools.
+A viewer for the on-disk version of the site is available both in the editor and as a stand alone program. This makes it possible to browse your local site without configuring a local web server or publishing your changes.
+
+One important reason that a local viewer is included is that not all content needs to be online!
 
 ![Local Site Viewer](PointlessWaymarks.CmsScreenShots/LocalViewerWindow.jpg "Local Site Viewer")
 
@@ -94,12 +94,12 @@ Not currently incorporated into the program in any way, but included in this rep
 
 Hopefully there are many interesting details in this software - but I think there are a few details worth calling out as potentially re-usable.
 
-**ExcelInteropExtensions** - A very useful approach to getting user data from Excel is reading directly from the Excel application. This can be messy (for example put any message you want in the GUI but you will still spend time explaining to users that they have a cell open for editing and that is why reading from Excel isn't working...) - but especially for power users it can avoid confusion over what data is saved vs on screen right now and can reduce repetitive steps like saving/picking-dragging/etc. This is not my first .NET journey into Excel interop code and if you are exploring this approach I encourage you to look at and/or reuse this code. It is very heavily based on [Automate multiple Excel instances - CodeProject](https://www.codeproject.com/articles/1157395/automate-multiple-excel-instances) by James Faix. Faix's code, and other code in this vein, all ultimately link back to [Andrew Whitechapel : Getting the Application Object in a Shimmed Automation Add-in (archived link)](https://web.archive.org/web/20130518152056/http://blogs.officezealot.com/whitechapel/archive/2005/04/10/4514.aspx) (the source I used in the mid-2000s when I first started to do .NET Excel Interop!).
+**ExcelInteropExtensions** - A very useful approach to getting user data from Excel is reading directly from the Excel application. This can be messy (give the user any message/help you want but you will still spend time explaining that reading from Excel isn't working because they have a cell open for editing...) - but especially for power users it can avoid confusion over what data is saved vs on screen right now and can reduce repetitive steps like saving/picking/dragging/etc. This is not my first .NET journey into Excel interop code and if you are exploring this approach I encourage you to look at and/or reuse this code. It is very heavily based on [Automate multiple Excel instances - CodeProject](https://www.codeproject.com/articles/1157395/automate-multiple-excel-instances) by James Faix. Faix's code, and other code in this vein, all ultimately link back to [Andrew Whitechapel : Getting the Application Object in a Shimmed Automation Add-in (archived link)](https://web.archive.org/web/20130518152056/http://blogs.officezealot.com/whitechapel/archive/2005/04/10/4514.aspx) (the source I used in the mid-2000s when I first started to do .NET Excel Interop!).
 
-**WPFCommon** - Nothing here is revolutionary and you should consider using some of the larger well-supported WPF MVVM libraries as the basis for your app. But I believe the code noted below has value for small to medium WPF applications built by single coders/small teams where there is a heavy emphasis functionality over styling. Some pieces to consider:
-  - ThreadSwitcher - based on Raymond Chen's [C++/WinRT envy: Bringing thread switching tasks to C# (WPF and WinForms edition)](https://devblogs.microsoft.com/oldnewthing/20190329-00/?p=102373) -  this adds the ability to write 'await ThreadSwitcher.ResumeForegroundAsync();' and 'await ThreadSwitcher.ResumeBackgroundAsync();' to get onto/off of the UI Thread. While MVVM/Binding can help you write code that doesn't have to be aware of which thread you are on I have found it impractical to produce a user friendly/focused WPF GUI without occasionally need to interact with the main UI thread... If you have code where you need to carefully control running on/off the main UI thread ThreadSwitcher is an incredibly pleasant and productive pattern.
-  - StatusControl - I find it useful to have an easy reusable way to: block the UI, do work in the background, show cancellation buttons, show text progress messages, keep the app responsive, run non-blocking background tasks with an indicator they are running, give full screen feedback to a user and show in-app toast messages. For me this control helps me quickly meet all those goals with a minimal amount of code. This approach is simplistic and heavy handed if you have a tiny application or a large team with the resources to style/customize/program every control for every application state - but imho it is quite a productive and practical approach for many applications.
-  - WindowScreenShot - It turns out that it is quite nice to get screen shots of your app's window but also quite tricky to get this to happen 'correctly'. This is based on code from [Capturing screenshots using C# and p/invoke](https://www.cyotek.com/blog/capturing-screenshots-using-csharp-and-p-invoke) - nice to find code help to do this!
+**WPFCommon** - Nothing here is revolutionary and you should consider using some of the larger well-supported WPF MVVM libraries as the basis for your app. But I believe the code noted below has value for small to medium WPF applications built by single devs or small teams where there is a heavy emphasis functionality over styling. Some pieces to consider:
+  - ThreadSwitcher - based on Raymond Chen's [C++/WinRT envy: Bringing thread switching tasks to C# (WPF and WinForms edition)](https://devblogs.microsoft.com/oldnewthing/20190329-00/?p=102373) -  this adds the ability to write 'await ThreadSwitcher.ResumeForegroundAsync();' and 'await ThreadSwitcher.ResumeBackgroundAsync();' to get onto/off of the UI Thread. While MVVM/Binding can help you write code that doesn't have to be aware of which thread you are on I have found it impractical to produce a user friendly/focused WPF GUI without occasionally need to interact with the main UI thread... If you have code where you need to control running on/off the main UI thread ThreadSwitcher is a pleasant and productive pattern.
+  - StatusControl - Over time I've found that with Desktop Apps I want to have an easy, generic, way to run tasks in the background, block the UI, show cancellation buttons, stream text progress information, display messages and show in-app toast. The StatusControl in this project has a Context and Control that can be added to a control/page/window to handle these scenarios. This is a compromise - this single control won't help you produce an infinite variety of intricate UI interactions, but it does provide a good-enough solution that can be applied quickly and easily in a wide variety of situations.
+  - WindowScreenShot - It turns out that it is quite nice to get screen shots of your app's window but also quite tricky to get this to happen correctly in all situations... The ScreenShot control in this project is based on code from [Capturing screenshots using C# and p/invoke](https://www.cyotek.com/blog/capturing-screenshots-using-csharp-and-p-invoke).
   
 Tools:
  - [Visual Studio IDE](https://visualstudio.microsoft.com/), [.NET Core (Linux, macOS, and Windows)](https://dotnet.microsoft.com/download/dotnet-core)
