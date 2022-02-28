@@ -508,15 +508,18 @@ public static class Tags
 
         titleContainer.Children.Add(titleHeader);
 
+		var secondaryDiv = new DivTag().AddClass("site-header-subtitle-menu-container");
+		titleContainer.Children.Add(secondaryDiv);
+
         var siteSummary = UserSettingsSingleton.CurrentSettings().SiteSummary;
 
         if (!string.IsNullOrWhiteSpace(siteSummary))
         {
             var titleSiteSummary = new HtmlTag("H5").AddClass("site-header-subtitle").Text(siteSummary);
-            titleContainer.Children.Add(titleSiteSummary);
+            secondaryDiv.Children.Add(titleSiteSummary);
         }
 
-        titleContainer.Children.Add(await CoreLinksDiv().ConfigureAwait(false));
+        secondaryDiv.Children.Add(await CoreLinksDiv().ConfigureAwait(false));
 
         return titleContainer;
     }
