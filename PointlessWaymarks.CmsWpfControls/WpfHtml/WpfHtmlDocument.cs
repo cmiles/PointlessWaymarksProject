@@ -333,12 +333,33 @@ public static class WpfHtmlDocument
         window.chrome.webview.addEventListener('message', postGeoJsonDataHandler);
 
         function onEachMapGeoJsonFeature(feature, layer) {{
-            if (feature.properties && feature.properties.PopupContent) {{
-                layer.bindPopup(feature.properties.PopupContent);
+
+            if (feature.properties && (feature.properties.title || feature.properties.description)) {{
+                let popupHtml = """";
+
+                if (feature.properties.title) {{
+                    popupHtml += feature.properties.title;
+                }}
+
+                if (feature.properties.description) {{
+                    popupHtml += `<p>${{feature.properties.description}}</p>`;
+                }}
+
+                if(popupHtml !== """") layer.bindPopup(popupHtml);
             }}
-            if (feature.properties && feature.properties.popupContent) {{
-                layer.bindPopup(feature.properties.PopupContent);
-            }}
+        }}
+
+        function geoJsonLayerStyle(feature) {{
+            //see https://github.com/mapbox/simplestyle-spec/tree/master/1.1.0
+            var newStyle = {{}};
+
+            if (feature.properties.hasOwnProperty(""stroke"")) newStyle.color = feature.properties[""stroke""];
+            if (feature.properties.hasOwnProperty(""stroke-width"")) newStyle.weight = feature.properties[""stroke-width""];
+            if (feature.properties.hasOwnProperty(""stroke-opacity"")) newStyle.opacity = feature.properties[""stroke-opacity""];
+            if (feature.properties.hasOwnProperty(""fill"")) newStyle.fillColor = feature.properties[""fill""];
+            if (feature.properties.hasOwnProperty(""fill-opacity"")) newStyle.fillOpacity = feature.properties[""fill-opacity""];
+
+            return newStyle;
         }}
 
         var mapLayers = [];
@@ -360,7 +381,7 @@ public static class WpfHtmlDocument
             ]);
 
             mapData.GeoJsonLayers.forEach(item => {{
-                let newLayer = new L.geoJSON(item, {{onEachFeature: onEachMapGeoJsonFeature}});
+                let newLayer = new L.geoJSON(item, {{onEachFeature: onEachMapGeoJsonFeature, style: geoJsonLayerStyle}});
                 mapLayers.push(newLayer);
                 map.addLayer(newLayer); }});
         }};

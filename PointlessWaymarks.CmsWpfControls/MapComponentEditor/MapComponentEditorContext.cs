@@ -382,7 +382,7 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
 
                 featureCollection.Add(new Feature(
                     SpatialHelpers.Wgs84Point(loopElements.DbEntry.Longitude, loopElements.DbEntry.Latitude,
-                        loopElements.DbEntry.Elevation ?? 0), new AttributesTable()));
+                        loopElements.DbEntry.Elevation ?? 0), new AttributesTable(new Dictionary<string, object> {{"title", loopElements.DbEntry.Title ?? string.Empty}})));
                 boundsKeeper.Add(new Point(loopElements.DbEntry.Longitude, loopElements.DbEntry.Latitude));
             }
 
