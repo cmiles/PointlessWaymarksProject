@@ -14,9 +14,11 @@
         --foreground-color: rgb(var(--foreground-component-color), var(--foreground-component-color), var(--foreground-component-color));
         --foreground-secondary-color: rgb(180, 180, 180);
     }
+
     .info-box {
         box-shadow: 0px 0px 0px 1px rgb(var(--foreground-component-color), var(--foreground-component-color), var(--foreground-component-color));
     }
+
     .photo-detail {
         box-shadow: 0px 0px 0px 1px rgb(var(--foreground-component-color), var(--foreground-component-color), var(--foreground-component-color));
     }
@@ -33,9 +35,11 @@
         --foreground-color: rgb(var(--foreground-component-color), var(--foreground-component-color), var(--foreground-component-color));
         --foreground-secondary-color: rgb(180, 180, 180);
     }
+
     .info-box {
         box-shadow: 0 1px 3px rgba(var(--foreground-component-color), var(--foreground-component-color), var(--foreground-component-color),0.12), 0 1px 2px rgba(var(--foreground-component-color), var(--foreground-component-color), var(--foreground-component-color),0.24);
     }
+
     .photo-detail {
         box-shadow: 0 1px 3px rgba(var(--foreground-component-color), var(--foreground-component-color), var(--foreground-component-color),0.12), 0 1px 2px rgba(var(--foreground-component-color), var(--foreground-component-color), var(--foreground-component-color),0.24);
     }
@@ -229,11 +233,16 @@ p.info-list-text-item {
     margin-right: 1rem;
 }
 
+.site-header-container {
+    display: block;
+    margin: 1rem;
+}
+
 .site-header-title {
     text-align: center;
     font-weight: normal;
     font-size: 2.4rem;
-    margin-bottom: 0;
+    margin: 0;
 }
 
 a.site-header-title-link {
@@ -241,20 +250,20 @@ a.site-header-title-link {
     text-decoration: none;
 }
 
-a.site-header-title-link:visited {
-    color: var(--foreground-color);
-    text-decoration: none;
-}
+    a.site-header-title-link:visited {
+        color: var(--foreground-color);
+        text-decoration: none;
+    }
 
-a.site-header-title-link:hover {
-    color: var(--foreground-color);
-    text-decoration: underline;
-}
+    a.site-header-title-link:hover {
+        color: var(--foreground-color);
+        text-decoration: underline;
+    }
 
-a.site-header-title-link:active {
-    color: var(--foreground-color);
-    text-decoration: none;
-}
+    a.site-header-title-link:active {
+        color: var(--foreground-color);
+        text-decoration: none;
+    }
 
 .note-title-content {
     text-align: center;
@@ -267,7 +276,7 @@ a.site-header-title-link:active {
 .site-header-subtitle {
     color: var(--foreground-secondary-color);
     text-align: center;
-    margin: .8rem .4rem 0 1rem;
+    margin: .3rem;
     font-weight: normal;
     font-size: 1.1rem;
 }
@@ -282,25 +291,25 @@ a.site-header-title-link:active {
     margin-bottom: 0;
 }
 
-.title-link-content a {
-    text-decoration: none;
-    color: var(--foreground-color);
-}
+    .title-link-content a {
+        text-decoration: none;
+        color: var(--foreground-color);
+    }
 
-.title-link-content a:visited {
-    text-decoration: none;
-    color: var(--foreground-color);
-}
+        .title-link-content a:visited {
+            text-decoration: none;
+            color: var(--foreground-color);
+        }
 
-.title-link-content a:hover {
-    text-decoration: underline;
-    color: var(--foreground-color);
-}
+        .title-link-content a:hover {
+            text-decoration: underline;
+            color: var(--foreground-color);
+        }
 
-.title-link-content a:active {
-    text-decoration: none;
-    color: var(--foreground-color);
-}
+        .title-link-content a:active {
+            text-decoration: none;
+            color: var(--foreground-color);
+        }
 
 .post-title-area-created-and-updated-content {
     font-weight: normal;
@@ -786,15 +795,41 @@ a.tag-list-link {
         min-width: 600px;
     }
 
-    .content-list-item-container .compact-content-text-content-optional-summary {
+        .content-list-item-container .compact-content-text-content-optional-summary {
             display: block;
-    }
+        }
 }
+
 
 @media screen and (min-width: 1200px) {
     .title-link-content, .title-content {
         font-size: 2rem;
         line-height: calc(1ex / 0.42);
+    }
+
+    .site-header-container {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .site-header-title {
+        justify-self: flex-end;
+    }
+
+    .site-header-subtitle-menu-container {
+        grid-column-start: 2;
+        justify-self: flex-start;
+        margin-left: 2rem;
+        display: grid;
+        align-content: center;
+    }
+
+    .core-links-container {
+        margin: 0;
+    }
+
+    .site-header-subtitle {
+        margin: 0;
     }
 
     .post-body-content p,
