@@ -32,6 +32,7 @@
                 <MenuItem Command="{Binding ListContext.NewActions.NewFileContentCommand}" Header="File" />
                 <MenuItem Command="{Binding ListContext.NewActions.NewImageContentFromFilesCommand}" Header="Image from File" />
                 <MenuItem Command="{Binding ListContext.NewActions.NewImageContentCommand}" Header="Image" />
+                <MenuItem Command="{Binding ListContext.NewActions.NewLineContentFromFilesCommand}" Header="Line from File" />
                 <MenuItem Command="{Binding ListContext.NewActions.NewLineContentCommand}" Header="Line" />
                 <MenuItem Command="{Binding ListContext.NewActions.NewLinkContentCommand}" Header="Link" />
                 <MenuItem Command="{Binding ListContext.NewActions.NewMapContentCommand}" Header="Map Component" />

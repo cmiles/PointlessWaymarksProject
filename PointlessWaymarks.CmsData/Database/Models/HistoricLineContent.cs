@@ -14,6 +14,8 @@ public class HistoricLineContent : IUpdateNotes, IContentCommon
     public double LineDistance { get; set; }
     public double MaximumElevation { get; set; }
     public double MinimumElevation { get; set; }
+    public DateTime? RecordingEndedOn { get; set; }
+    public DateTime? RecordingStartedOn { get; set; }
     public string? BodyContent { get; set; }
     public string? BodyContentFormat { get; set; }
     public Guid ContentId { get; set; }

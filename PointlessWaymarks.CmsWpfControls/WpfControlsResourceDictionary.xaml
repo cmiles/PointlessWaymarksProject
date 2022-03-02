@@ -25,6 +25,7 @@
     <wpfConverter:IsoConverter x:Key="IsoWithDefault" />
     <wpfConverter:CreatedOnDayConverter x:Key="CreatedOnDay" />
     <wpfConverter:BooleanToVisibilityConverter x:Key="BooleanToVisibility" />
+    <wpfConverter:BooleanNotToVisibilityConverter x:Key="BooleanNotToVisibility" />
     <utility:ListItemTypeToReadableNameConverter x:Key="ListItemTypeToReadableName" />
     <Style x:Key="ActionPanelButtonStyle" TargetType="Button">
         <Setter Property="Margin" Value="4" />

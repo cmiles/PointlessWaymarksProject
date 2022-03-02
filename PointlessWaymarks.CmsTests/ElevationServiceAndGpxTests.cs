@@ -130,7 +130,7 @@ public class ElevationServiceAndGpxTests
 
         Assert.AreEqual(1, tracks.Count, "Should find 1 track");
 
-        var coordinateList = tracks.First().track;
+        var coordinateList = tracks.First().Track;
 
         var metricStats = SpatialHelpers.LineStatsInMetricFromCoordinateList(coordinateList);
         var imperialStats = SpatialHelpers.LineStatsInImperialFromMetricStats(metricStats);
@@ -157,10 +157,10 @@ public class ElevationServiceAndGpxTests
         var tracks = await SpatialHelpers.TracksFromGpxFile(testFile, DebugTrackers.DebugProgressTracker());
 
         Assert.AreEqual(2, tracks.Count, "Should find 2 tracks");
-        Assert.True(tracks.All(x => !string.IsNullOrWhiteSpace(x.description)),
+        Assert.True(tracks.All(x => !string.IsNullOrWhiteSpace(x.Description)),
             "Found Tracks with Blank Description?");
 
-        var shortTrack = tracks.OrderBy(x => x.track.Count).First().track;
+        var shortTrack = tracks.OrderBy(x => x.Track.Count).First().Track;
 
         Assert.AreEqual(214, shortTrack.Count, "Unexpected Point Count");
 
@@ -207,10 +207,10 @@ public class ElevationServiceAndGpxTests
         var tracks = await SpatialHelpers.TracksFromGpxFile(testFile, DebugTrackers.DebugProgressTracker());
 
         Assert.AreEqual(2, tracks.Count, "Should find 2 tracks");
-        Assert.True(tracks.All(x => !string.IsNullOrWhiteSpace(x.description)),
+        Assert.True(tracks.All(x => !string.IsNullOrWhiteSpace(x.Description)),
             "Found Tracks with Blank Description?");
 
-        var shortTrack = tracks.OrderBy(x => x.track.Count).First().track;
+        var shortTrack = tracks.OrderBy(x => x.Track.Count).First().Track;
         var geoJson =
             await SpatialHelpers.GeoJsonWithLineStringFromCoordinateList(shortTrack, false,
                 DebugTrackers.DebugProgressTracker());

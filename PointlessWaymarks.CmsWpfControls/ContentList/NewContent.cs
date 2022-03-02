@@ -4,6 +4,7 @@ using Microsoft.Toolkit.Mvvm.ComponentModel;
 using Microsoft.Toolkit.Mvvm.Input;
 using Ookii.Dialogs.Wpf;
 using PointlessWaymarks.CmsData.Content;
+using PointlessWaymarks.CmsData.Spatial;
 using PointlessWaymarks.CmsWpfControls.FileContentEditor;
 using PointlessWaymarks.CmsWpfControls.GeoJsonContentEditor;
 using PointlessWaymarks.CmsWpfControls.ImageContentEditor;
@@ -44,6 +45,12 @@ public partial class NewContent
             StatusContext.RunBlockingTaskWithCancellationCommand(async x => await NewImageContentFromFiles(x),
                 "Cancel Image Import");
         NewLineContentCommand = StatusContext.RunNonBlockingTaskCommand(NewLineContent);
+        NewLineContentFromFilesCommand = StatusContext.RunBlockingTaskWithCancellationCommand(
+            async x =>
+            {
+                await WindowIconStatus.IndeterminateTask(WindowStatus,
+                    async () => await NewLineContentFromFiles(x), StatusContext.StatusControlContextId);
+            }, "Cancel Line Import");
         NewLinkContentCommand = StatusContext.RunNonBlockingTaskCommand(NewLinkContent);
         NewMapContentCommand = StatusContext.RunNonBlockingTaskCommand(NewMapContent);
         NewNoteContentCommand = StatusContext.RunNonBlockingTaskCommand(NewNoteContent);
@@ -54,6 +61,7 @@ public partial class NewContent
                 await WindowIconStatus.IndeterminateTask(WindowStatus,
                     async () => await NewPhotoContentFromFiles(false, x), StatusContext.StatusControlContextId);
             }, "Cancel Photo Import");
+
         NewPhotoContentFromFilesWithAutosaveCommand = StatusContext.RunBlockingTaskWithCancellationCommand(
             async x =>
             {
@@ -75,6 +83,8 @@ public partial class NewContent
     public RelayCommand NewImageContentFromFilesCommand { get; }
 
     public RelayCommand NewLineContentCommand { get; }
+
+    public RelayCommand NewLineContentFromFilesCommand { get; set; }
 
     public RelayCommand NewLinkContentCommand { get; }
 
@@ -232,6 +242,91 @@ public partial class NewContent
         var newContentWindow = new LineContentEditorWindow(null);
 
         newContentWindow.PositionWindowAndShow();
+    }
+
+    public async Task NewLineContentFromFiles(CancellationToken cancellationToken)
+    {
+        await NewLineContentFromFiles(cancellationToken, StatusContext, WindowStatus);
+    }
+
+    public static async Task NewLineContentFromFiles(CancellationToken cancellationToken,
+        StatusControlContext statusContext, WindowIconStatus windowStatus)
+    {
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        statusContext.Progress("Starting Line load.");
+
+        var dialog = new VistaOpenFileDialog { Multiselect = true };
+
+        if (!(dialog.ShowDialog() ?? false)) return;
+
+        var selectedFiles = dialog.FileNames?.ToList() ?? new List<string>();
+
+        if (!selectedFiles.Any()) return;
+
+        if (selectedFiles.Count > 10)
+        {
+            statusContext.ToastError("Opening new content in an editor window is limited to 10 files at a time...");
+            return;
+        }
+
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        var selectedFileInfos = selectedFiles.Select(x => new FileInfo(x)).ToList();
+
+        if (!selectedFileInfos.Any(x => x.Exists))
+        {
+            statusContext.ToastError("Files don't exist?");
+            return;
+        }
+
+        selectedFileInfos = selectedFileInfos.Where(x => x.Exists).ToList();
+
+        await NewLineContentFromFiles(selectedFileInfos, cancellationToken, statusContext, windowStatus);
+    }
+
+    public static async Task NewLineContentFromFiles(List<FileInfo> selectedFileInfos,
+        CancellationToken cancellationToken,
+        StatusControlContext statusContext, WindowIconStatus windowStatus)
+    {
+        var outerLoopCounter = 0;
+
+        foreach (var loopFile in selectedFileInfos)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            outerLoopCounter++;
+
+            windowStatus?.AddRequest(new WindowIconStatusRequest(statusContext.StatusControlContextId,
+                TaskbarItemProgressState.Normal, (decimal)outerLoopCounter / (selectedFileInfos.Count + 1)));
+
+            var tracksList = await SpatialHelpers.TracksFromGpxFile(loopFile, statusContext.ProgressTracker());
+
+            if (tracksList.Count < 1)
+            {
+                statusContext.ToastWarning($"No Tracks in {loopFile.Name}? Skipping...");
+                return;
+            }
+
+            var innerLoopCounter = 0;
+
+            foreach (var loopTracks in tracksList)
+            {
+                innerLoopCounter++;
+
+                var newEntry = await LineGenerator.NewFromGpxTrack(loopTracks, false, statusContext.ProgressTracker());
+
+                await ThreadSwitcher.ResumeForegroundAsync();
+
+                var editor = new LineContentEditorWindow(newEntry);
+                editor.PositionWindowAndShow();
+
+                await ThreadSwitcher.ResumeBackgroundAsync();
+
+                statusContext.Progress(
+                    $"New Line Editor - {loopFile.FullName} - Track {innerLoopCounter} of {tracksList.Count}");
+            }
+        }
     }
 
     public async Task NewLinkContent()

@@ -94,8 +94,6 @@ public partial class ContentListContext : IDragSource, IDropTarget
 
     [ObservableProperty] private NoteContentActions _noteItemActions;
 
-    [ObservableProperty] private RelayCommand _viewOnSiteCommand;
-
     [ObservableProperty] private PhotoContentActions _photoItemActions;
 
     [ObservableProperty] private PointContentActions _pointItemActions;
@@ -111,6 +109,8 @@ public partial class ContentListContext : IDragSource, IDropTarget
     [ObservableProperty] private string _userFilterText;
 
     [ObservableProperty] private RelayCommand _viewHistorySelectedCommand;
+
+    [ObservableProperty] private RelayCommand _viewOnSiteCommand;
 
     [ObservableProperty] private WindowIconStatus _windowStatus;
 
@@ -218,7 +218,10 @@ public partial class ContentListContext : IDragSource, IDropTarget
                 ".MPEG",
                 ".WAV",
                 ".JPG",
-                ".JPEG"
+                ".JPEG",
+                ".GPX",
+                ".TCX",
+                ".FIT"
             };
 
             if (possibleFileInfo.Any(x => validFileExtensions.Contains(Path.GetExtension(x).ToUpperInvariant())))
@@ -600,7 +603,8 @@ public partial class ContentListContext : IDragSource, IDropTarget
 
         try
         {
-            smallImageUrl = PictureAssetProcessing.ProcessPictureDirectory(content.MainPicture.Value)?.SmallPicture?.File?
+            smallImageUrl = PictureAssetProcessing.ProcessPictureDirectory(content.MainPicture.Value)?.SmallPicture
+                ?.File?
                 .FullName;
         }
         catch
@@ -694,21 +698,6 @@ public partial class ContentListContext : IDragSource, IDropTarget
             StatusContext.RunFireAndForgetNonBlockingTask(FilterList);
     }
 
-    public async Task ViewOnSiteSelected(CancellationToken cancelToken)
-    {
-        await ThreadSwitcher.ResumeBackgroundAsync();
-
-        if (ListSelection?.SelectedItems == null || ListSelection.SelectedItems.Count < 1)
-        {
-            StatusContext.ToastWarning("Nothing Selected to Edit?");
-            return;
-        }
-
-        var currentSelected = ListSelection.SelectedItems;
-
-        foreach (var loopSelected in currentSelected) await loopSelected.ViewOnSite();
-    }
-
     private async Task PossibleMainImageUpdateDataNotificationReceived(InterProcessDataNotification translatedMessage)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -738,9 +727,18 @@ public partial class ContentListContext : IDragSource, IDropTarget
 
         var fileContentExtensions = new List<string> { ".PDF", ".MPG", ".MPEG", ".WAV" };
         var pictureContentExtensions = new List<string> { ".JPG", ".JPEG" };
+        var lineContentExtensions = new List<string> { ".GPX", ".TCX", ".FIT" };
 
         foreach (var loopFile in files)
         {
+            var fileInfo = new FileInfo(loopFile);
+
+            if (!fileInfo.Exists)
+            {
+                StatusContext.ToastError($"File {loopFile} doesn't exist?");
+                continue;
+            }
+
             if (fileContentExtensions.Contains(Path.GetExtension(loopFile).ToUpperInvariant()))
             {
                 await ThreadSwitcher.ResumeForegroundAsync();
@@ -752,6 +750,13 @@ public partial class ContentListContext : IDragSource, IDropTarget
 
                 statusContext.ToastSuccess($"{Path.GetFileName(loopFile)} sent to File Editor");
 
+                continue;
+            }
+
+            if (lineContentExtensions.Contains(Path.GetExtension(loopFile).ToUpperInvariant()))
+            {
+                await NewContent.NewLineContentFromFiles(fileInfo.AsList(), CancellationToken.None, StatusContext,
+                    WindowStatus);
                 continue;
             }
 
@@ -819,5 +824,20 @@ public partial class ContentListContext : IDragSource, IDropTarget
             cancelToken.ThrowIfCancellationRequested();
             await loopSelected.ViewHistory();
         }
+    }
+
+    public async Task ViewOnSiteSelected(CancellationToken cancelToken)
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (ListSelection?.SelectedItems == null || ListSelection.SelectedItems.Count < 1)
+        {
+            StatusContext.ToastWarning("Nothing Selected to Edit?");
+            return;
+        }
+
+        var currentSelected = ListSelection.SelectedItems;
+
+        foreach (var loopSelected in currentSelected) await loopSelected.ViewOnSite();
     }
 }

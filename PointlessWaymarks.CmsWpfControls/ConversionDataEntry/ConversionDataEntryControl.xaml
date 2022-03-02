@@ -15,7 +15,6 @@
                 <ResourceDictionary Source="../WpfControlsResourceDictionary.xaml" />
                 <ResourceDictionary Source="/PointlessWaymarks.WpfCommon;component/Utility/Icons.xaml" />
             </ResourceDictionary.MergedDictionaries>
-            <BooleanToVisibilityConverter x:Key="BooleanToVisibility" />
             <utility1:TrueIsRightTextAlignmentConverter x:Key="TrueIsRightAlign" />
         </ResourceDictionary>
     </UserControl.Resources>

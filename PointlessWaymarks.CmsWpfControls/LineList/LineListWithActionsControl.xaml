@@ -26,6 +26,7 @@
         </Grid.RowDefinitions>
         <Menu>
             <MenuItem Header="New">
+                <MenuItem Command="{Binding ListContext.NewActions.NewLineContentFromFilesCommand}" Header="Line from File" />
                 <MenuItem Command="{Binding ListContext.NewActions.NewLineContentCommand}" Header="Line" />
                 <Separator />
                 <MenuItem Command="{Binding ListContext.NewActions.NewFileContentFromFilesCommand}" Header="File from File" />

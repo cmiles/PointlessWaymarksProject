@@ -33,6 +33,7 @@
                 <MenuItem Command="{Binding ListContext.NewActions.NewGeoJsonContentCommand}" Header="GeoJson" />
                 <MenuItem Command="{Binding ListContext.NewActions.NewImageContentFromFilesCommand}" Header="Image from File" />
                 <MenuItem Command="{Binding ListContext.NewActions.NewImageContentCommand}" Header="Image" />
+                <MenuItem Command="{Binding ListContext.NewActions.NewLineContentFromFilesCommand}" Header="Line from File" />
                 <MenuItem Command="{Binding ListContext.NewActions.NewLineContentCommand}" Header="Line" />
                 <MenuItem Command="{Binding ListContext.NewActions.NewMapContentCommand}" Header="Map Component" />
                 <MenuItem Command="{Binding ListContext.NewActions.NewNoteContentCommand}" Header="Note" />

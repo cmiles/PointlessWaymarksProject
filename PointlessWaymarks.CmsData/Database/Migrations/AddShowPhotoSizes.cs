@@ -14,12 +14,12 @@ public class AddShowPhotoSizes : Migration
     public override void Up()
     {
         if (!Schema.Table("PhotoContents").Column("ShowPhotoSizes").Exists())
-            Execute.Sql(@$"ALTER TABLE PhotoContents 
+            Execute.Sql(@"ALTER TABLE PhotoContents 
                     ADD COLUMN ShowPhotoSizes INTEGER 
                     NOT NULL DEFAULT 0");
 
         if (!Schema.Table("HistoricPhotoContents").Column("ShowPhotoSizes").Exists())
-            Execute.Sql(@$"ALTER TABLE HistoricPhotoContents 
+            Execute.Sql(@"ALTER TABLE HistoricPhotoContents 
                     ADD COLUMN ShowPhotoSizes INTEGER 
                     NOT NULL DEFAULT 0");
     }

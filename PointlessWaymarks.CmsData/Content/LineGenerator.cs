@@ -2,6 +2,7 @@
 using NetTopologySuite.Geometries;
 using NetTopologySuite.IO;
 using Newtonsoft.Json;
+using PointlessWaymarks.CmsData.ContentHtml;
 using PointlessWaymarks.CmsData.ContentHtml.LineHtml;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
@@ -17,9 +18,40 @@ public static class LineGenerator
     {
         progress?.Report($"Line Content - Generate HTML for {toGenerate.Title}");
 
-        var htmlContext = new SingleLinePage(toGenerate) {GenerationVersion = generationVersion};
+        var htmlContext = new SingleLinePage(toGenerate) { GenerationVersion = generationVersion };
 
         await htmlContext.WriteLocalHtml().ConfigureAwait(false);
+    }
+
+    public static async Task<LineContent> NewFromGpxTrack(SpatialHelpers.GpxTrackInformation trackInformation,
+        bool replaceElevations, IProgress<string> progress)
+    {
+        var lineStatistics = SpatialHelpers.LineStatsInImperialFromCoordinateList(trackInformation.Track);
+
+        var newEntry = new LineContent
+        {
+            BodyContentFormat = UserSettingsUtilities.DefaultContentFormatChoice(),
+            UpdateNotesFormat = UserSettingsUtilities.DefaultContentFormatChoice(),
+            CreatedOn = trackInformation.StartsOn ?? DateTime.Now,
+            FeedOn = trackInformation.StartsOn ?? DateTime.Now,
+            Line = await SpatialHelpers.GeoJsonWithLineStringFromCoordinateList(trackInformation.Track,
+                replaceElevations, progress),
+            Title = trackInformation.Name ?? string.Empty,
+            Summary = trackInformation.Description ?? string.Empty,
+            LineDistance = lineStatistics.Length,
+            MaximumElevation = lineStatistics.MaximumElevation,
+            MinimumElevation = lineStatistics.MinimumElevation,
+            ClimbElevation = lineStatistics.ElevationClimb,
+            DescentElevation = lineStatistics.ElevationDescent,
+            RecordingStartedOn = trackInformation.StartsOn,
+            RecordingEndedOn = trackInformation.EndsOn
+        };
+
+        if (!string.IsNullOrWhiteSpace(trackInformation.Name))
+            newEntry.Slug = SlugUtility.Create(true, trackInformation.Name);
+        if (trackInformation.StartsOn != null) newEntry.Folder = trackInformation.StartsOn.Value.Year.ToString();
+
+        return newEntry;
     }
 
     public static async Task<(GenerationReturn generationReturn, LineContent? lineContent)> SaveAndGenerateHtml(
@@ -37,7 +69,7 @@ public static class LineGenerator
         await Export.WriteLocalDbJson(toSave).ConfigureAwait(false);
 
         DataNotifications.PublishDataNotification("Line Generator", DataNotificationContentType.Line,
-            DataNotificationUpdateType.LocalContent, new List<Guid> {toSave.ContentId});
+            DataNotificationUpdateType.LocalContent, new List<Guid> { toSave.ContentId });
 
         return (GenerationReturn.Success($"Saved and Generated Content And Html for {toSave.Title}"), toSave);
     }
@@ -63,7 +95,7 @@ public static class LineGenerator
 
         try
         {
-            var serializer = GeoJsonSerializer.Create(new JsonSerializerSettings {Formatting = Formatting.Indented},
+            var serializer = GeoJsonSerializer.Create(new JsonSerializerSettings { Formatting = Formatting.Indented },
                 SpatialHelpers.Wgs84GeometryFactory(), 3);
 
             using var stringReader = new StringReader(lineContent.Line);

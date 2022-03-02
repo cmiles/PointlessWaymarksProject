@@ -4,7 +4,6 @@ using System.IO;
 using System.Windows;
 using Microsoft.Toolkit.Mvvm.ComponentModel;
 using Microsoft.Toolkit.Mvvm.Input;
-using NetTopologySuite.Geometries;
 using Ookii.Dialogs.Wpf;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.CommonHtml;
@@ -15,6 +14,7 @@ using PointlessWaymarks.CmsData.Spatial;
 using PointlessWaymarks.CmsWpfControls.BodyContentEditor;
 using PointlessWaymarks.CmsWpfControls.ContentIdViewer;
 using PointlessWaymarks.CmsWpfControls.ContentSiteFeedAndIsDraft;
+using PointlessWaymarks.CmsWpfControls.ConversionDataEntry;
 using PointlessWaymarks.CmsWpfControls.CreatedAndUpdatedByAndOnDisplay;
 using PointlessWaymarks.CmsWpfControls.HelpDisplay;
 using PointlessWaymarks.CmsWpfControls.TagsEditor;
@@ -33,9 +33,12 @@ public partial class LineContentEditorContext : IHasChanges, IHasValidationIssue
     ICheckForChangesAndValidation
 {
     [ObservableProperty] private BodyContentEditorContext _bodyContent;
+    [ObservableProperty] private ConversionDataEntryContext<double> _climbElevationEntry;
     [ObservableProperty] private ContentIdViewerControlContext _contentId;
     [ObservableProperty] private CreatedAndUpdatedByAndOnDisplayContext _createdUpdatedDisplay;
     [ObservableProperty] private LineContent _dbEntry;
+    [ObservableProperty] private ConversionDataEntryContext<double> _descentElevationEntry;
+    [ObservableProperty] private ConversionDataEntryContext<double> _distanceEntry;
     [ObservableProperty] private RelayCommand _extractNewLinksCommand;
     [ObservableProperty] private bool _hasChanges;
     [ObservableProperty] private bool _hasValidationIssues;
@@ -44,8 +47,12 @@ public partial class LineContentEditorContext : IHasChanges, IHasValidationIssue
     [ObservableProperty] private string _lineGeoJson;
     [ObservableProperty] private RelayCommand _linkToClipboardCommand;
     [ObservableProperty] private ContentSiteFeedAndIsDraftContext _mainSiteFeed;
+    [ObservableProperty] private ConversionDataEntryContext<double> _maximumElevationEntry;
+    [ObservableProperty] private ConversionDataEntryContext<double> _minimumElevationEntry;
     [ObservableProperty] private string _previewHtml;
     [ObservableProperty] private string _previewLineJsonDto;
+    [ObservableProperty] private ConversionDataEntryContext<DateTime?> _recordingEndedOnEntry;
+    [ObservableProperty] private ConversionDataEntryContext<DateTime?> _recordingStartedOnEntry;
     [ObservableProperty] private RelayCommand _refreshMapPreviewCommand;
     [ObservableProperty] private bool _replaceElevationOnImport;
     [ObservableProperty] private RelayCommand _replaceElevationsCommand;
@@ -55,6 +62,8 @@ public partial class LineContentEditorContext : IHasChanges, IHasValidationIssue
     [ObservableProperty] private TagsEditorContext _tagEdit;
     [ObservableProperty] private TitleSummarySlugEditorContext _titleSummarySlugFolder;
     [ObservableProperty] private UpdateNotesEditorContext _updateNotes;
+    [ObservableProperty] private RelayCommand _updateStatisticsCommand;
+    [ObservableProperty] private bool _updateStatsOnImport = true;
     [ObservableProperty] private RelayCommand _viewOnSiteCommand;
 
     public EventHandler RequestContentEditorWindowClose;
@@ -72,10 +81,12 @@ public partial class LineContentEditorContext : IHasChanges, IHasValidationIssue
             LinkExtraction.ExtractNewAndShowLinkContentEditors(
                 $"{BodyContent.BodyContent} {UpdateNotes.UpdateNotes}", StatusContext.ProgressTracker()));
         ImportFromGpxCommand =
-            StatusContext.RunBlockingTaskCommand(async () => await ImportFromGpx(ReplaceElevationOnImport));
+            StatusContext.RunBlockingTaskCommand(async () =>
+                await ImportFromGpx(ReplaceElevationOnImport, UpdateStatsOnImport));
         ReplaceElevationsCommand = StatusContext.RunBlockingTaskCommand(async () => await ReplaceElevations());
         RefreshMapPreviewCommand = StatusContext.RunBlockingTaskCommand(RefreshMapPreview);
         LinkToClipboardCommand = StatusContext.RunBlockingTaskCommand(LinkToClipboard);
+        UpdateStatisticsCommand = StatusContext.RunBlockingTaskCommand(UpdateStatistics);
 
         HelpContext = new HelpDisplayContext(new List<string>
         {
@@ -85,17 +96,6 @@ public partial class LineContentEditorContext : IHasChanges, IHasValidationIssue
         PreviewHtml = WpfHtmlDocument.ToHtmlLeafletLineDocument("Line",
             UserSettingsSingleton.CurrentSettings().LatitudeDefault,
             UserSettingsSingleton.CurrentSettings().LongitudeDefault, string.Empty);
-    }
-
-    private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
-    {
-        if (e == null) return;
-        if (string.IsNullOrWhiteSpace(e.PropertyName)) return;
-
-        if (!e.PropertyName.Contains("HasChanges") && !e.PropertyName.Contains("Validation"))
-            CheckForChangesAndValidationIssues();
-
-        if (e.PropertyName == nameof(LineGeoJson)) StatusContext.RunNonBlockingTask(RefreshMapPreview);
     }
 
     public void CheckForChangesAndValidationIssues()
@@ -145,14 +145,23 @@ public partial class LineContentEditorContext : IHasChanges, IHasValidationIssue
         newEntry.BodyContentFormat = BodyContent.BodyContentFormat.SelectedContentFormatAsString;
         newEntry.Line = LineGeoJson;
 
+        newEntry.RecordingStartedOn = RecordingStartedOnEntry.UserValue;
+        newEntry.RecordingEndedOn = RecordingEndedOnEntry.UserValue;
+
+        newEntry.LineDistance = DistanceEntry.UserValue;
+        newEntry.MaximumElevation = MaximumElevationEntry.UserValue;
+        newEntry.MinimumElevation = MinimumElevationEntry.UserValue;
+        newEntry.ClimbElevation = ClimbElevationEntry.UserValue;
+        newEntry.DescentElevation = DescentElevationEntry.UserValue;
+
         return newEntry;
     }
 
-    public async Task ImportFromGpx(bool replaceElevations)
+    public async Task ImportFromGpx(bool replaceElevations, bool updateStats)
     {
         await ThreadSwitcher.ResumeForegroundAsync();
 
-        StatusContext.Progress("Starting image load.");
+        StatusContext.Progress("Starting Line load.");
 
         var dialog = new VistaOpenFileDialog();
 
@@ -174,19 +183,19 @@ public partial class LineContentEditorContext : IHasChanges, IHasValidationIssue
             return;
         }
 
-        List<CoordinateZ> importTrackPoints;
+        SpatialHelpers.GpxTrackInformation trackToImport;
 
         if (tracksList.Count > 1)
         {
             var importTrackName = await StatusContext.ShowMessage("Choose Track",
                 "The GPX file contains more than 1 track - choose the track to import:",
-                tracksList.Select(x => x.description).ToList());
+                tracksList.Select(x => x.Name).ToList());
 
-            var possibleSelectedTrack = tracksList.Where(x => x.description == importTrackName).ToList();
+            var possibleSelectedTrack = tracksList.Where(x => x.Name == importTrackName).ToList();
 
             if (possibleSelectedTrack.Count == 1)
             {
-                importTrackPoints = possibleSelectedTrack.Single().track;
+                trackToImport = possibleSelectedTrack.Single();
             }
             else
             {
@@ -196,11 +205,27 @@ public partial class LineContentEditorContext : IHasChanges, IHasValidationIssue
         }
         else
         {
-            importTrackPoints = tracksList.First().track;
+            trackToImport = tracksList.First();
         }
 
-        LineGeoJson = await SpatialHelpers.GeoJsonWithLineStringFromCoordinateList(importTrackPoints,
+        if (string.IsNullOrWhiteSpace(TitleSummarySlugFolder.TitleEntry.UserValue))
+            TitleSummarySlugFolder.TitleEntry.UserValue = trackToImport.Name;
+        if (string.IsNullOrWhiteSpace(TitleSummarySlugFolder.SummaryEntry.UserValue))
+            TitleSummarySlugFolder.SummaryEntry.UserValue = trackToImport.Description;
+        if (string.IsNullOrWhiteSpace(TitleSummarySlugFolder.FolderEntry.UserValue) && trackToImport.StartsOn != null)
+            TitleSummarySlugFolder.FolderEntry.UserValue = trackToImport.StartsOn.Value.Year.ToString();
+
+        LineGeoJson = await SpatialHelpers.GeoJsonWithLineStringFromCoordinateList(trackToImport.Track,
             replaceElevations, StatusContext.ProgressTracker());
+
+        if (updateStats)
+        {
+            await UpdateStatistics();
+
+            RecordingStartedOnEntry.UserText =
+                trackToImport.StartsOn?.ToString("MM/dd/yyyy h:mm:ss tt") ?? string.Empty;
+            RecordingEndedOnEntry.UserText = trackToImport.EndsOn?.ToString("MM/dd/yyyy h:mm:ss tt") ?? string.Empty;
+        }
     }
 
     private async Task LinkToClipboard()
@@ -245,7 +270,67 @@ public partial class LineContentEditorContext : IHasChanges, IHasValidationIssue
         BodyContent = await BodyContentEditorContext.CreateInstance(StatusContext, DbEntry);
         LineGeoJson = toLoad?.Line ?? string.Empty;
 
+        RecordingStartedOnEntry =
+            ConversionDataEntryContext<DateTime?>.CreateInstance(ConversionDataEntryHelpers.DateTimeNullableConversion);
+        RecordingStartedOnEntry.Title = "Line Recording Starts On";
+        RecordingStartedOnEntry.HelpText = "Date and, optionally, Time for the Start of the Line";
+        RecordingStartedOnEntry.ReferenceValue = DbEntry.RecordingStartedOn;
+        RecordingStartedOnEntry.UserText =
+            DbEntry.RecordingStartedOn?.ToString("MM/dd/yyyy h:mm:ss tt") ?? string.Empty;
+
+        RecordingEndedOnEntry =
+            ConversionDataEntryContext<DateTime?>.CreateInstance(ConversionDataEntryHelpers.DateTimeNullableConversion);
+        RecordingEndedOnEntry.Title = "Line Recording Ends On";
+        RecordingEndedOnEntry.HelpText = "Date and, optionally, Time for the Start of the Line";
+        RecordingEndedOnEntry.ReferenceValue = DbEntry.RecordingEndedOn;
+        RecordingEndedOnEntry.UserText = DbEntry.RecordingEndedOn?.ToString("MM/dd/yyyy h:mm:ss tt") ?? string.Empty;
+
+        ClimbElevationEntry =
+            ConversionDataEntryContext<double>.CreateInstance(ConversionDataEntryHelpers.DoubleConversion);
+        ClimbElevationEntry.Title = "Climb Elevation - Feet";
+        ClimbElevationEntry.HelpText = "Total amount of Climbing";
+        ClimbElevationEntry.ReferenceValue = DbEntry.ClimbElevation;
+        ClimbElevationEntry.UserText = DbEntry.ClimbElevation.ToString("F0");
+
+        DescentElevationEntry =
+            ConversionDataEntryContext<double>.CreateInstance(ConversionDataEntryHelpers.DoubleConversion);
+        DescentElevationEntry.Title = "Descent Elevation - Feet";
+        DescentElevationEntry.HelpText = "Total amount of Descent";
+        DescentElevationEntry.ReferenceValue = DbEntry.DescentElevation;
+        DescentElevationEntry.UserText = DbEntry.DescentElevation.ToString("F0");
+
+        MaximumElevationEntry =
+            ConversionDataEntryContext<double>.CreateInstance(ConversionDataEntryHelpers.DoubleConversion);
+        MaximumElevationEntry.Title = "Maximum Elevation - Feet";
+        MaximumElevationEntry.HelpText = "Highest Elevation the Line Reaches";
+        MaximumElevationEntry.ReferenceValue = DbEntry.MaximumElevation;
+        MaximumElevationEntry.UserText = DbEntry.MaximumElevation.ToString("F0");
+
+        MinimumElevationEntry =
+            ConversionDataEntryContext<double>.CreateInstance(ConversionDataEntryHelpers.DoubleConversion);
+        MinimumElevationEntry.Title = "Minimum Elevation - Feet";
+        MinimumElevationEntry.HelpText = "Lowest Elevation the Line Reaches";
+        MinimumElevationEntry.ReferenceValue = DbEntry.MinimumElevation;
+        MinimumElevationEntry.UserText = DbEntry.MinimumElevation.ToString("F0");
+
+        DistanceEntry = ConversionDataEntryContext<double>.CreateInstance(ConversionDataEntryHelpers.DoubleConversion);
+        DistanceEntry.Title = "Distance - Miles";
+        DistanceEntry.HelpText = "Total Distance of the Line";
+        DistanceEntry.ReferenceValue = DbEntry.LineDistance;
+        DistanceEntry.UserText = DbEntry.LineDistance.ToString("F2");
+
         PropertyScanners.SubscribeToChildHasChangesAndHasValidationIssues(this, CheckForChangesAndValidationIssues);
+    }
+
+    private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
+    {
+        if (e == null) return;
+        if (string.IsNullOrWhiteSpace(e.PropertyName)) return;
+
+        if (!e.PropertyName.Contains("HasChanges") && !e.PropertyName.Contains("Validation"))
+            CheckForChangesAndValidationIssues();
+
+        if (e.PropertyName == nameof(LineGeoJson)) StatusContext.RunNonBlockingTask(RefreshMapPreview);
     }
 
     public async Task RefreshMapPreview()
@@ -297,6 +382,27 @@ public partial class LineContentEditorContext : IHasChanges, IHasValidationIssue
             await ThreadSwitcher.ResumeForegroundAsync();
             RequestContentEditorWindowClose?.Invoke(this, EventArgs.Empty);
         }
+    }
+
+    public async Task UpdateStatistics()
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (string.IsNullOrWhiteSpace(LineGeoJson))
+        {
+            StatusContext.ToastError("No Line to Update Stats From?");
+            return;
+        }
+
+        var coordinateList = SpatialHelpers.CoordinateListFromGeoJsonFeatureCollectionWithLinestring(LineGeoJson);
+
+        var lineStatistics = SpatialHelpers.LineStatsInImperialFromCoordinateList(coordinateList);
+
+        DistanceEntry.UserText = lineStatistics.Length.ToString("F2");
+        MaximumElevationEntry.UserText = lineStatistics.MaximumElevation.ToString("F0");
+        MinimumElevationEntry.UserText = lineStatistics.MinimumElevation.ToString("F0");
+        ClimbElevationEntry.UserText = lineStatistics.ElevationClimb.ToString("F0");
+        DescentElevationEntry.UserText = lineStatistics.ElevationDescent.ToString("F0");
     }
 
     private async Task ViewOnSite()

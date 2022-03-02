@@ -205,7 +205,7 @@ public class TestSeries02GrandCanyonPoints
         var track = (await SpatialHelpers.TracksFromGpxFile(testFile, DebugTrackers.DebugProgressTracker()))
             .First();
 
-        var stats = SpatialHelpers.LineStatsInMetricFromCoordinateList(track.track);
+        var stats = SpatialHelpers.LineStatsInMetricFromCoordinateList(track.Track);
 
         lineTest.ClimbElevation = stats.ElevationClimb;
         lineTest.DescentElevation = stats.ElevationDescent;
@@ -214,7 +214,7 @@ public class TestSeries02GrandCanyonPoints
         lineTest.LineDistance = stats.Length;
 
         lineTest.Line =
-            await SpatialHelpers.GeoJsonWithLineStringFromCoordinateList(track.track, false,
+            await SpatialHelpers.GeoJsonWithLineStringFromCoordinateList(track.Track, false,
                 DebugTrackers.DebugProgressTracker());
 
         var validationResult = await LineGenerator.Validate(lineTest);

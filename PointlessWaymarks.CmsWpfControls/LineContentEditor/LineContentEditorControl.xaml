@@ -6,6 +6,8 @@
     xmlns:bodyContentEditor1="clr-namespace:PointlessWaymarks.CmsWpfControls.BodyContentEditor"
     xmlns:boolDataEntry1="clr-namespace:PointlessWaymarks.CmsWpfControls.BoolDataEntry"
     xmlns:contentIdViewer="clr-namespace:PointlessWaymarks.CmsWpfControls.ContentIdViewer"
+    xmlns:contentSiteFeedAndIsDraft="clr-namespace:PointlessWaymarks.CmsWpfControls.ContentSiteFeedAndIsDraft"
+    xmlns:conversionDataEntry="clr-namespace:PointlessWaymarks.CmsWpfControls.ConversionDataEntry"
     xmlns:createdAndUpdatedByAndOnDisplay="clr-namespace:PointlessWaymarks.CmsWpfControls.CreatedAndUpdatedByAndOnDisplay"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:helpDisplay="clr-namespace:PointlessWaymarks.CmsWpfControls.HelpDisplay"
@@ -18,7 +20,6 @@
     xmlns:wpf="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
     xmlns:wpfConverter="clr-namespace:PointlessWaymarks.WpfCommon.ValueConverters;assembly=PointlessWaymarks.WpfCommon"
     xmlns:wpfHtml="clr-namespace:PointlessWaymarks.CmsWpfControls.WpfHtml"
-    xmlns:contentSiteFeedAndIsDraft="clr-namespace:PointlessWaymarks.CmsWpfControls.ContentSiteFeedAndIsDraft"
     d:DataContext="{d:DesignInstance lineContentEditor:LineContentEditorContext}"
     d:DesignHeight="450"
     d:DesignWidth="800"
@@ -27,6 +28,7 @@
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="../WpfControlsResourceDictionary.xaml" />
+                <ResourceDictionary Source="/PointlessWaymarks.WpfCommon;component/Utility/Icons.xaml" />
             </ResourceDictionary.MergedDictionaries>
             <wpfConverter:BooleanNotToVisibilityConverter x:Key="BooleanNotToVisibility" />
         </ResourceDictionary>
@@ -63,6 +65,7 @@
                                 Content="Load File"
                                 Style="{StaticResource ActionPanelButtonStyle}" />
                             <CheckBox VerticalAlignment="Center" IsChecked="{Binding ReplaceElevationOnImport}">Replace Elevation when Importing</CheckBox>
+                            <CheckBox VerticalAlignment="Center" IsChecked="{Binding UpdateStatsOnImport}">Update Stats when Importing</CheckBox>
                             <Button
                                 Command="{Binding ReplaceElevationsCommand}"
                                 Content="Replace Elevations"
@@ -83,6 +86,52 @@
                         </b:Interaction.Behaviors>
                     </wpf:WebView2>
                 </Grid>
+            </TabItem>
+            <TabItem Header="Stats">
+                <ScrollViewer
+                    HorizontalContentAlignment="Left"
+                    HorizontalScrollBarVisibility="Disabled"
+                    VerticalScrollBarVisibility="Auto">
+                    <Grid
+                        Margin="4"
+                        HorizontalAlignment="Left"
+                        VerticalAlignment="Top">
+                        <Grid.Resources>
+                            <Style TargetType="conversionDataEntry:ConversionDataEntryControl">
+                                <Setter Property="Width" Value="180" />
+                            </Style>
+                        </Grid.Resources>
+                        <Grid.RowDefinitions>
+                            <RowDefinition />
+                            <RowDefinition />
+                            <RowDefinition />
+                            <RowDefinition />
+                            <RowDefinition />
+                        </Grid.RowDefinitions>
+                        <conversionDataEntry:ConversionDataEntryControl HorizontalAlignment="Left" DataContext="{Binding DistanceEntry}" />
+                        <WrapPanel Grid.Row="1">
+                            <conversionDataEntry:ConversionDataEntryControl DataContext="{Binding MinimumElevationEntry}" />
+                            <conversionDataEntry:ConversionDataEntryControl Margin="12,0,0,0" DataContext="{Binding MaximumElevationEntry}" />
+                        </WrapPanel>
+                        <WrapPanel Grid.Row="2">
+                            <conversionDataEntry:ConversionDataEntryControl DataContext="{Binding ClimbElevationEntry}" />
+
+                            <conversionDataEntry:ConversionDataEntryControl Margin="12,0,0,0" DataContext="{Binding DescentElevationEntry}" />
+                        </WrapPanel>
+
+                        <Button
+                            Grid.Row="3"
+                            Margin="6,12,1,24"
+                            HorizontalAlignment="Stretch"
+                            Command="{Binding UpdateStatisticsCommand}">
+                            Update Stats Above from Current Line Data
+                        </Button>
+                        <WrapPanel Grid.Row="4">
+                            <conversionDataEntry:ConversionDataEntryControl DataContext="{Binding RecordingStartedOnEntry}" />
+                            <conversionDataEntry:ConversionDataEntryControl Margin="12,0,0,0" DataContext="{Binding RecordingEndedOnEntry}" />
+                        </WrapPanel>
+                    </Grid>
+                </ScrollViewer>
             </TabItem>
             <TabItem Header="Body">
                 <Grid>
@@ -134,6 +183,7 @@
             Grid.RowSpan="2"
             Grid.Column="0"
             HorizontalContentAlignment="Right"
-            VerticalContentAlignment="Bottom" />
+            VerticalContentAlignment="Bottom"
+            d:IsHidden="true" />
     </Grid>
 </UserControl>
