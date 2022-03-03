@@ -18,10 +18,6 @@
     .info-box {
         box-shadow: 0px 0px 0px 1px rgb(var(--foreground-component-color), var(--foreground-component-color), var(--foreground-component-color));
     }
-
-    .photo-detail {
-        box-shadow: 0px 0px 0px 1px rgb(var(--foreground-component-color), var(--foreground-component-color), var(--foreground-component-color));
-    }
 }
 
 @media (prefers-color-scheme: light) {
@@ -37,10 +33,6 @@
     }
 
     .info-box {
-        box-shadow: 0 1px 3px rgba(var(--foreground-component-color), var(--foreground-component-color), var(--foreground-component-color),0.12), 0 1px 2px rgba(var(--foreground-component-color), var(--foreground-component-color), var(--foreground-component-color),0.24);
-    }
-
-    .photo-detail {
         box-shadow: 0 1px 3px rgba(var(--foreground-component-color), var(--foreground-component-color), var(--foreground-component-color),0.12), 0 1px 2px rgba(var(--foreground-component-color), var(--foreground-component-color), var(--foreground-component-color),0.24);
     }
 }
@@ -372,20 +364,6 @@ a.site-header-title-link {
     color: var(--foreground-secondary-color);
 }
 
-.photo-detail {
-    margin: 3px;
-    transition: all 0.3s cubic-bezier(.25,.8,.25,1);
-    border-radius: 4px;
-    text-align: center;
-}
-
-.photo-detail-content {
-    margin: .5rem 1.5rem;
-    display: block;
-    color: var(--foreground-secondary-color);
-    text-decoration: none;
-}
-
 .file-download-container {
     text-align: center;
     margin: 1rem;
@@ -455,6 +433,11 @@ a.site-header-title-link {
 .compact-content-text-content-title-link {
     text-decoration: none;
     color: var(--foreground-secondary-color);
+    display: inline-block;
+    text-overflow: ellipsis;
+    word-wrap: break-word;
+    overflow: auto;
+    max-height: 70px;
 }
 
 .compact-content-text-content-date {
@@ -492,14 +475,6 @@ a.site-header-title-link {
     justify-content: space-between;
     flex-direction: column;
     overflow: hidden;
-}
-
-.compact-content-text-content-title-container {
-    font-size: 14px;
-}
-
-.compact-content-text-content-title-link {
-    text-decoration: none;
 }
 
 .compact-content-text-content-summary {
@@ -756,11 +731,6 @@ a.tag-list-link {
         margin-right: 4%;
     }
 
-    .photo-details-container {
-        margin-left: 4%;
-        margin-right: 4%;
-    }
-
     .daily-photo-gallery-photo-container {
         width: 46vw;
         margin: 1vw;
@@ -864,12 +834,6 @@ a.tag-list-link {
     }
 
     .tags-container {
-        width: 1100px;
-        margin-left: auto;
-        margin-right: auto;
-    }
-
-    .photo-details-container {
         width: 1100px;
         margin-left: auto;
         margin-right: auto;

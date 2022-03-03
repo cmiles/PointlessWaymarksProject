@@ -64,6 +64,13 @@ namespace PointlessWaymarks.CmsData.ContentHtml.LineHtml
             this.Write("\r\n    ");
             
             #line 9 "C:\Code\PointlessWaymarksCms06\PointlessWaymarks.CmsData\ContentHtml\LineHtml\SingleLineDiv.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(LineParts.LineStatisticsDiv(DbEntry).ToString()));
+            
+            #line default
+            #line hidden
+            this.Write("\r\n    ");
+            
+            #line 10 "C:\Code\PointlessWaymarksCms06\PointlessWaymarks.CmsData\ContentHtml\LineHtml\SingleLineDiv.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(BodyContentReferences.CompactContentTag(DbEntry, GenerationVersion).Result));
             
             #line default

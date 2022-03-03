@@ -161,15 +161,15 @@ public static class Tags
         return figCaptionTag;
     }
 
-    public static HtmlTag InfoDivTag(string? contents, string className, string dataType, string? dataValue)
+    public static HtmlTag InfoTextDivTag(string? contents, string className, string dataType, string? dataValue)
     {
         if (string.IsNullOrWhiteSpace(contents)) return HtmlTag.Empty();
         var divTag = new HtmlTag("div");
-        divTag.AddClass(className);
+        divTag.AddClasses(className, "info-box");
 
-        var spanTag = new HtmlTag("div");
+        var spanTag = new HtmlTag("p");
         spanTag.Text(contents.Trim());
-        spanTag.AddClass($"{className}-content");
+        spanTag.AddClasses("info-list-text-item", $"{className}-content");
         spanTag.Data(dataType, dataValue);
 
         divTag.Children.Add(spanTag);

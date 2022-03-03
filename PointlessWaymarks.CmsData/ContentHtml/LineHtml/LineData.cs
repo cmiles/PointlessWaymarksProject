@@ -12,7 +12,7 @@ public static class LineData
 {
     public static async Task<string> GenerateLineJson(string geoJsonContent, string pageUrl)
     {
-        var serializer = GeoJsonSerializer.Create(new JsonSerializerSettings {Formatting = Formatting.Indented},
+        var serializer = GeoJsonSerializer.Create(new JsonSerializerSettings { Formatting = Formatting.Indented },
             SpatialHelpers.Wgs84GeometryFactory(), 3);
 
         using var stringReader = new StringReader(geoJsonContent);
@@ -49,8 +49,9 @@ public static class LineData
         }
 
         await FileManagement.WriteAllTextToFileAndLogAsync(dataFileInfo.FullName,
-            await GenerateLineJson(geoJsonContent.Line,
-                UserSettingsSingleton.CurrentSettings().LinePageUrl(geoJsonContent)).ConfigureAwait(false)).ConfigureAwait(false);
+                await GenerateLineJson(geoJsonContent.Line,
+                    UserSettingsSingleton.CurrentSettings().LinePageUrl(geoJsonContent)).ConfigureAwait(false))
+            .ConfigureAwait(false);
     }
 
     public record LineSiteJsonData(string PageUrl, GeoJsonData.SpatialBounds Bounds, FeatureCollection GeoJson);
