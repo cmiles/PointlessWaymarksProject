@@ -27,7 +27,9 @@
     <wpfConverter:BooleanToVisibilityConverter x:Key="BooleanToVisibility" />
     <wpfConverter:BooleanNotToVisibilityConverter x:Key="BooleanNotToVisibility" />
     <utility:ListItemTypeToReadableNameConverter x:Key="ListItemTypeToReadableName" />
-    <Style x:Key="ActionPanelButtonStyle" TargetType="Button">
+    <lineList:LineHasRecordedOnVisibilityConverter x:Key="LineListHasRecordedOnVisibility"/>
+    <lineList:LineRecordedOnSearchLabelConverter x:Key="LineRecordedOnSearchLabel" />
+        <Style x:Key="ActionPanelButtonStyle" TargetType="Button">
         <Setter Property="Margin" Value="4" />
         <Setter Property="Height" Value="24" />
         <Setter Property="Width" Value="150" />
@@ -517,6 +519,23 @@
                         <ContentPresenter Content="{StaticResource ContentListSummaryDisplay}" />
                         <ContentPresenter Content="{StaticResource ContentListTagsDisplay}" />
                         <ContentPresenter Content="{StaticResource ContentListFolderAndSlugDisplay}" />
+                        <WrapPanel Margin="0,4,0,0" Orientation="Horizontal" Visibility="{Binding DbEntry, Converter={StaticResource LineListHasRecordedOnVisibility}}">
+                            <WrapPanel.Resources>
+                                <Style TargetType="Button">
+                                    <Setter Property="Padding" Value="6,0,6,0" />
+                                    <Setter Property="Margin" Value="2,3,2,0" />
+                                </Style>
+                            </WrapPanel.Resources>
+                            <TextBlock Margin="0,3,4,0">Search:</TextBlock>
+                            <Button Content="{Binding DbEntry, Converter={StaticResource LineRecordedOnSearchLabel}}">
+                                <Button.InputBindings>
+                                    <MouseBinding
+                                        Command="{Binding ItemActions.SearchRecordedDatesForPhotoContentCommand}"
+                                        CommandParameter="{Binding DbEntry}"
+                                        MouseAction="LeftClick" />
+                                </Button.InputBindings>
+                            </Button>
+                            </WrapPanel>
                     </StackPanel>
                     <ContentPresenter
                         Grid.Row="1"

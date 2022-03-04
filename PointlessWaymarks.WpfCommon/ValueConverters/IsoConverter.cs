@@ -7,9 +7,7 @@ public class IsoConverter : IValueConverter
 {
     public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
     {
-        if (string.IsNullOrWhiteSpace(value?.ToString())) return "(No Iso)";
-
-        return $"ISO: {value}";
+        return string.IsNullOrWhiteSpace(value?.ToString()) ? "(No Iso)" : $"ISO: {value}";
     }
 
     public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

@@ -185,37 +185,24 @@ public class TestSeries02GrandCanyonPoints
             "GrandCanyonHorseShoeMesaEastSideLoop.gpx"));
         Assert.True(testFile.Exists, "GPX Test File Found");
 
-        var lineTest = new LineContent
-        {
-            ContentId = Guid.NewGuid(),
-            BodyContent = "Horseshoe Mesa East Side Loop",
-            BodyContentFormat = ContentFormatDefaults.Content.ToString(),
-            CreatedOn = DateTime.Now,
-            FeedOn = DateTime.Now,
-            CreatedBy = "GPX Import Test",
-            Folder = "GrandCanyon",
-            Title = "Horseshoe Mesa East Side Loop",
-            Slug = "horseshoe-mesa-east-side-loop",
-            ShowInMainSiteFeed = true,
-            Summary = "Horseshoe Mesa East Side Loop",
-            Tags = "grand-canyon, horse-shoe-mesa",
-            UpdateNotesFormat = ContentFormatDefaults.Content.ToString()
-        };
-
         var track = (await SpatialHelpers.TracksFromGpxFile(testFile, DebugTrackers.DebugProgressTracker()))
             .First();
 
+        var lineTest = await LineGenerator.NewFromGpxTrack(track, false, null);
+
         var stats = SpatialHelpers.LineStatsInMetricFromCoordinateList(track.Track);
 
-        lineTest.ClimbElevation = stats.ElevationClimb;
-        lineTest.DescentElevation = stats.ElevationDescent;
-        lineTest.MinimumElevation = stats.MinimumElevation;
-        lineTest.MaximumElevation = stats.MaximumElevation;
-        lineTest.LineDistance = stats.Length;
-
-        lineTest.Line =
-            await SpatialHelpers.GeoJsonWithLineStringFromCoordinateList(track.Track, false,
-                DebugTrackers.DebugProgressTracker());
+        lineTest.ContentId = Guid.NewGuid();
+        lineTest.BodyContent = "Horseshoe Mesa East Side Loop";
+        lineTest.BodyContentFormat = ContentFormatDefaults.Content.ToString();
+        lineTest.CreatedBy = "GPX Import Test";
+        lineTest.Folder = "GrandCanyon";
+        lineTest.Title = "Horseshoe Mesa East Side Loop";
+        lineTest.Slug = "horseshoe-mesa-east-side-loop";
+        lineTest.ShowInMainSiteFeed = true;
+        lineTest.Summary = "Horseshoe Mesa East Side Loop";
+        lineTest.Tags = "grand-canyon; horse-shoe-mesa";
+        lineTest.UpdateNotesFormat = ContentFormatDefaults.Content.ToString();
 
         var validationResult = await LineGenerator.Validate(lineTest);
 

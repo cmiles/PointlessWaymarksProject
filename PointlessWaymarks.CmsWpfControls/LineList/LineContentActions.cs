@@ -11,6 +11,7 @@ using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsWpfControls.ContentHistoryView;
 using PointlessWaymarks.CmsWpfControls.ContentList;
 using PointlessWaymarks.CmsWpfControls.LineContentEditor;
+using PointlessWaymarks.CmsWpfControls.PhotoList;
 using PointlessWaymarks.CmsWpfControls.Utility;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
@@ -25,9 +26,10 @@ public partial class LineContentActions : ObservableObject, IContentActions<Line
     [ObservableProperty] private RelayCommand<LineContent> _extractNewLinksCommand;
     [ObservableProperty] private RelayCommand<LineContent> _generateHtmlCommand;
     [ObservableProperty] private RelayCommand<LineContent> _linkCodeToClipboardCommand;
-    [ObservableProperty] private RelayCommand<LineContent> _viewOnSiteCommand;
+    [ObservableProperty] private RelayCommand<LineContent> _searchRecordedDatesForPhotoContentCommand;
     [ObservableProperty] private StatusControlContext _statusContext;
     [ObservableProperty] private RelayCommand<LineContent> _viewHistoryCommand;
+    [ObservableProperty] private RelayCommand<LineContent> _viewOnSiteCommand;
 
     public LineContentActions(StatusControlContext statusContext)
     {
@@ -39,6 +41,9 @@ public partial class LineContentActions : ObservableObject, IContentActions<Line
         LinkCodeToClipboardCommand = StatusContext.RunBlockingTaskCommand<LineContent>(DefaultBracketCodeToClipboard);
         ViewOnSiteCommand = StatusContext.RunBlockingTaskCommand<LineContent>(ViewOnSite);
         ViewHistoryCommand = StatusContext.RunNonBlockingTaskCommand<LineContent>(ViewHistory);
+        SearchRecordedDatesForPhotoContentCommand = StatusContext.RunNonBlockingTaskCommand<LineContent>(async x =>
+            await PhotoContentActions.RunReport(async () => await SearchRecordedDatesForPhotoContent(x),
+                $"Line {x.Title ?? string.Empty} - {SearchRecordedDatesForPhotoContentDateRange(x).start:M/d/yyyy hh:mm:ss tt} to {SearchRecordedDatesForPhotoContentDateRange(x).end:M/d/yyyy hh:mm:ss tt}"));
     }
 
     public string DefaultBracketCode(LineContent content)
@@ -155,24 +160,6 @@ public partial class LineContentActions : ObservableObject, IContentActions<Line
         StatusContext.ToastSuccess($"Generated {htmlContext.PageUrl}");
     }
 
-    public async Task ViewOnSite(LineContent content)
-    {
-        await ThreadSwitcher.ResumeBackgroundAsync();
-
-        if (content == null)
-        {
-            StatusContext.ToastError("Nothing Selected?");
-            return;
-        }
-
-        var settings = UserSettingsSingleton.CurrentSettings();
-
-        var url = $@"{settings.LinePageUrl(content)}";
-
-        var ps = new ProcessStartInfo(url) { UseShellExecute = true, Verb = "open" };
-        Process.Start(ps);
-    }
-
     public async Task ViewHistory(LineContent content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -205,15 +192,75 @@ public partial class LineContentActions : ObservableObject, IContentActions<Line
         historicView.WriteHtmlToTempFolderAndShow(StatusContext.ProgressTracker());
     }
 
+    public async Task ViewOnSite(LineContent content)
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (content == null)
+        {
+            StatusContext.ToastError("Nothing Selected?");
+            return;
+        }
+
+        var settings = UserSettingsSingleton.CurrentSettings();
+
+        var url = $@"{settings.LinePageUrl(content)}";
+
+        var ps = new ProcessStartInfo(url) { UseShellExecute = true, Verb = "open" };
+        Process.Start(ps);
+    }
+
     public static LineListListItem ListItemFromDbItem(LineContent content, LineContentActions itemActions,
         bool showType)
     {
-        return new()
+        return new LineListListItem
         {
             DbEntry = content,
             SmallImageUrl = ContentListContext.GetSmallImageUrl(content),
             ItemActions = itemActions,
             ShowType = showType
         };
+    }
+
+    public async Task<List<object>> SearchRecordedDatesForPhotoContent(LineContent content)
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (content == null)
+        {
+            StatusContext.ToastError("Nothing Selected?");
+            return new List<object>();
+        }
+
+        if (content.RecordingStartedOn == null && content.RecordingEndedOn == null)
+        {
+            StatusContext.ToastError("Line doesn't have Recorded On dates to work with?");
+            return new List<object>();
+        }
+
+        var dateSearchRange = SearchRecordedDatesForPhotoContentDateRange(content);
+
+        var db = await Db.Context();
+
+        return
+            (await db.PhotoContents
+                .Where(x => x.PhotoCreatedOn >= dateSearchRange.start && x.PhotoCreatedOn <= dateSearchRange.end)
+                .ToListAsync()).Cast<object>().ToList();
+    }
+
+    /// <summary>
+    ///     Uses the recorded on values of the Line Content to create a date range to search - this will always return a
+    ///     valid date range but if you pass in LineContent with null for both Recorded on values you will get a 'Now' date
+    ///     range (which is valid, but doesn't make sense) - you should guard against that in calling code
+    /// </summary>
+    /// <param name="content"></param>
+    /// <returns></returns>
+    public static (DateTime start, DateTime end) SearchRecordedDatesForPhotoContentDateRange(LineContent content)
+    {
+        var dateSearchStart = content.RecordingStartedOn?.Date ?? content.RecordingEndedOn?.Date ?? DateTime.Now.Date;
+        var dateSearchEnd = content.RecordingEndedOn?.Date.AddDays(1) ??
+                            content.RecordingStartedOn?.Date.AddDays(1) ?? DateTime.Now.Date.AddDays(1);
+
+        return (dateSearchStart, dateSearchEnd);
     }
 }
