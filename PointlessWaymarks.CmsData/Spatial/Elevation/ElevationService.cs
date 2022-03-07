@@ -7,7 +7,9 @@ namespace PointlessWaymarks.CmsData.Spatial.Elevation;
 
 public static class ElevationService
 {
-    private static async Task<List<CoordinateZ>> OpenTopoElevation(HttpClient client, string openTopoDataSet,
+    private static readonly HttpClient ElevationHttpClient = new();
+
+    private static async Task<List<CoordinateZ>> OpenTopoElevation(string openTopoDataSet,
         List<CoordinateZ> coordinates, IProgress<string>? progress)
     {
         if (!coordinates.Any()) return coordinates;
@@ -26,7 +28,7 @@ public static class ElevationService
 
             progress?.Report($"Sending request to {requestUri}");
 
-            var elevationReturn = await client.GetStringAsync(requestUri).ConfigureAwait(false);
+            var elevationReturn = await ElevationHttpClient.GetStringAsync(requestUri).ConfigureAwait(false);
 
             progress?.Report($"Parsing Return from {requestUri}");
 
@@ -58,14 +60,14 @@ public static class ElevationService
         return coordinates;
     }
 
-    private static async Task<double?> OpenTopoElevation(HttpClient client, string openTopoDataSet, double latitude,
-        double longitude, IProgress<string>? progress)
+    private static async Task<double?> OpenTopoElevation(string openTopoDataSet, double latitude, double longitude,
+        IProgress<string>? progress)
     {
         var requestUri = $"https://api.opentopodata.org/v1/{openTopoDataSet}?locations={latitude},{longitude}";
 
         progress?.Report($"Sending request to {requestUri}");
 
-        var elevationReturn = await client.GetStringAsync(requestUri).ConfigureAwait(false);
+        var elevationReturn = await ElevationHttpClient.GetStringAsync(requestUri).ConfigureAwait(false);
 
         progress?.Report($"Parsing Return from {requestUri}");
 
@@ -74,27 +76,27 @@ public static class ElevationService
         return elevationParsed?.Elevations.First().Elevation;
     }
 
-    public static async Task<List<CoordinateZ>> OpenTopoMapZenElevation(HttpClient client,
-        List<CoordinateZ> coordinates, IProgress<string>? progress)
-    {
-        return await OpenTopoElevation(client, "mapzen", coordinates, progress).ConfigureAwait(false);
-    }
-
-    public static async Task<double?> OpenTopoMapZenElevation(HttpClient client, double latitude, double longitude,
+    public static async Task<List<CoordinateZ>> OpenTopoMapZenElevation(List<CoordinateZ> coordinates,
         IProgress<string>? progress)
     {
-        return await OpenTopoElevation(client, "mapzen", latitude, longitude, progress).ConfigureAwait(false);
+        return await OpenTopoElevation("mapzen", coordinates, progress).ConfigureAwait(false);
     }
 
-    public static async Task<List<CoordinateZ>> OpenTopoNedElevation(HttpClient client,
-        List<CoordinateZ> coordinates, IProgress<string>? progress)
-    {
-        return await OpenTopoElevation(client, "ned10m", coordinates, progress).ConfigureAwait(false);
-    }
-
-    public static async Task<double?> OpenTopoNedElevation(HttpClient client, double latitude, double longitude,
+    public static async Task<double?> OpenTopoMapZenElevation(double latitude, double longitude,
         IProgress<string>? progress)
     {
-        return await OpenTopoElevation(client, "ned10m", latitude, longitude, progress).ConfigureAwait(false);
+        return await OpenTopoElevation("mapzen", latitude, longitude, progress).ConfigureAwait(false);
+    }
+
+    public static async Task<List<CoordinateZ>> OpenTopoNedElevation(List<CoordinateZ> coordinates,
+        IProgress<string>? progress)
+    {
+        return await OpenTopoElevation("ned10m", coordinates, progress).ConfigureAwait(false);
+    }
+
+    public static async Task<double?> OpenTopoNedElevation(double latitude, double longitude,
+        IProgress<string>? progress)
+    {
+        return await OpenTopoElevation("ned10m", latitude, longitude, progress).ConfigureAwait(false);
     }
 }

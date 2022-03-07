@@ -1,6 +1,5 @@
 ﻿using System.ComponentModel;
 using System.Diagnostics;
-using System.Net.Http;
 using System.Windows;
 using Microsoft.Toolkit.Mvvm.ComponentModel;
 using Microsoft.Toolkit.Mvvm.Input;
@@ -11,7 +10,6 @@ using PointlessWaymarks.CmsData.Content;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsData.Spatial;
-using PointlessWaymarks.CmsData.Spatial.Elevation;
 using PointlessWaymarks.CmsWpfControls.BodyContentEditor;
 using PointlessWaymarks.CmsWpfControls.ContentIdViewer;
 using PointlessWaymarks.CmsWpfControls.ContentSiteFeedAndIsDraft;
@@ -26,7 +24,6 @@ using PointlessWaymarks.CmsWpfControls.Utility;
 using PointlessWaymarks.CmsWpfControls.Utility.ChangesAndValidation;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
-using Serilog;
 
 namespace PointlessWaymarks.CmsWpfControls.PointContentEditor;
 
@@ -151,53 +148,10 @@ public partial class PointContentEditorContext : IHasChanges, ICheckForChangesAn
             return;
         }
 
-        var httpClient = new HttpClient();
+        var possibleElevation =
+            await ElevationGuiHelper.GetElevation(LongitudeEntry.UserValue, LongitudeEntry.UserValue, StatusContext);
 
-        try
-        {
-            var elevationResult = await ElevationService.OpenTopoNedElevation(httpClient, LatitudeEntry.UserValue,
-                LongitudeEntry.UserValue, StatusContext.ProgressTracker());
-
-            if (elevationResult != null)
-            {
-                ElevationEntry.UserText = elevationResult?.ToString("F2");
-
-                StatusContext.ToastSuccess(
-                    $"Set elevation of {ElevationEntry.UserValue} from Open Topo Data - www.opentopodata.org - NED data set");
-
-                return;
-            }
-        }
-        catch (Exception e)
-        {
-            Log.Error(e, "GetElevation Error - Open Topo Data NED Request for {0}, {1}", LatitudeEntry.UserValue,
-                LongitudeEntry.UserValue);
-        }
-
-        try
-        {
-            var elevationResult = await ElevationService.OpenTopoMapZenElevation(httpClient, LatitudeEntry.UserValue,
-                LongitudeEntry.UserValue, StatusContext.ProgressTracker());
-
-            if (elevationResult == null)
-            {
-                Log.Error("Unexpected Null return from an Open Topo Data Mapzen Request to {0}, {1}",
-                    LatitudeEntry.UserValue, LongitudeEntry.UserValue);
-                StatusContext.ToastError("Elevation Exception - unexpected Null return...");
-                return;
-            }
-
-            ElevationEntry.UserText = elevationResult?.ToString("F2");
-
-            StatusContext.ToastSuccess(
-                $"Set elevation of {ElevationEntry.UserValue} from Open Topo Data - www.opentopodata.org - Mapzen data set");
-        }
-        catch (Exception e)
-        {
-            Log.Error(e, "Open Topo Data Mapzen Request for {0}, {1}", LatitudeEntry.UserValue,
-                LongitudeEntry.UserValue);
-            StatusContext.ToastError($"Elevation Exception - {e.Message}");
-        }
+        if (possibleElevation != null) ElevationEntry.UserText = possibleElevation.Value.ToString("F2");
     }
 
     private void LatitudeLongitudeChangeBroadcast()

@@ -10,6 +10,7 @@ using PointlessWaymarks.CmsData.ContentHtml.PhotoHtml;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsData.Json;
+using PointlessWaymarks.CmsData.Spatial.Elevation;
 using XmpCore;
 
 namespace PointlessWaymarks.CmsData.Content;
@@ -26,7 +27,7 @@ public static class PhotoGenerator
         await htmlContext.WriteLocalHtml().ConfigureAwait(false);
     }
 
-    public static (GenerationReturn generationReturn, PhotoMetadata? metadata) PhotoMetadataFromFile(
+    public static async Task<(GenerationReturn generationReturn, PhotoMetadata? metadata)> PhotoMetadataFromFile(
         FileInfo selectedFile, IProgress<string>? progress = null)
     {
         progress?.Report("Starting Metadata Processing");
@@ -80,6 +81,63 @@ public static class PhotoGenerator
             toReturn.PhotoCreatedOn = createdOnParsed ? parsedDate : DateTime.Now;
         }
 
+        if (gpsDirectory != null)
+        {
+            var geoLocation = gpsDirectory.GetGeoLocation();
+
+            if (geoLocation?.IsZero ?? true)
+            {
+                toReturn.Longitude = null;
+                toReturn.Latitude = null;
+            }
+            else
+            {
+                toReturn.Latitude = gpsDirectory.GetGeoLocation()?.Latitude;
+                toReturn.Longitude = gpsDirectory.GetGeoLocation()?.Longitude;
+            }
+
+            if (toReturn.Latitude != null && toReturn.Longitude != null)
+            {
+                var foundAltitude = false;
+
+                if (toReturn.Latitude != null && toReturn.Longitude != null)
+                {
+                    var hasSeaLevelIndicator =
+                        gpsDirectory.TryGetByte(GpsDirectory.TagAltitudeRef, out var seaLevelIndicator);
+                    var hasElevation = gpsDirectory.TryGetRational(GpsDirectory.TagAltitude, out var altitudeRational);
+
+                    if (hasElevation)
+                    {
+                        var isBelowSeaLevel = false;
+
+                        if (hasSeaLevelIndicator) isBelowSeaLevel = seaLevelIndicator == 1;
+
+                        if (altitudeRational.Denominator != 0 ||
+                            (altitudeRational.Denominator == 0 && altitudeRational.Numerator == 0))
+                        {
+                            toReturn.Elevation = Spatial.DistanceHelpers.MetersToFeet(isBelowSeaLevel
+                                ? altitudeRational.ToDouble() * -1
+                                : altitudeRational.ToDouble());
+                        }
+                    }
+
+                    if (!foundAltitude)
+                    {
+                        try
+                        {
+                            toReturn.Elevation = await ElevationService.OpenTopoNedElevation(toReturn.Latitude.Value,
+                                toReturn.Longitude.Value, progress);
+                        }
+                        catch (Exception e)
+                        {
+                            Console.WriteLine(e);
+                        }
+                    }
+                }
+            }
+        }
+
+
         var isoString = exifSubIfDirectory?.GetDescription(ExifDirectoryBase.TagIsoEquivalent);
         if (!string.IsNullOrWhiteSpace(isoString)) toReturn.Iso = int.Parse(isoString);
 
@@ -119,7 +177,7 @@ public static class PhotoGenerator
 
         // ReSharper disable once InlineOutVariableDeclaration - Better to establish type of shutterValue explicitly
         Rational shutterValue;
-        if (exifSubIfDirectory?.TryGetRational(37377, out shutterValue) ?? false)
+        if (exifSubIfDirectory?.TryGetRational(ExifDirectoryBase.TagShutterSpeed, out shutterValue) ?? false)
             toReturn.ShutterSpeed = ExifHelpers.ShutterSpeedToHumanReadableString(shutterValue);
         else
             toReturn.ShutterSpeed = string.Empty;
@@ -295,14 +353,14 @@ public static class PhotoGenerator
         return (GenerationReturn.Success($"Parsed Photo Metadata for {selectedFile.FullName} without error"), toReturn);
     }
 
-    public static (GenerationReturn, PhotoContent?) PhotoMetadataToNewPhotoContent(FileInfo selectedFile,
+    public static async Task<(GenerationReturn, PhotoContent?)> PhotoMetadataToNewPhotoContent(FileInfo selectedFile,
         IProgress<string> progress, string? photoContentCreatedBy = null)
     {
         selectedFile.Refresh();
 
         if (!selectedFile.Exists) return (GenerationReturn.Error("File Does Not Exist?"), null);
 
-        var (generationReturn, metadata) = PhotoMetadataFromFile(selectedFile, progress);
+        var (generationReturn, metadata) = await PhotoMetadataFromFile(selectedFile, progress);
 
         if (generationReturn.HasError) return (generationReturn, null);
 
@@ -398,6 +456,14 @@ public static class PhotoGenerator
             await CommonContentValidation.ValidateContentCommon(photoContent).ConfigureAwait(false);
         if (!commonContentCheck.Valid)
             return GenerationReturn.Error(commonContentCheck.Explanation, photoContent.ContentId);
+
+        var latitudeCheck = CommonContentValidation.LatitudeValidationWithNullOk(photoContent.Latitude);
+        if (!latitudeCheck.Valid)
+            return GenerationReturn.Error(latitudeCheck.Explanation, photoContent.ContentId);
+
+        var longitudeCheck = CommonContentValidation.LongitudeValidationWithNullOk(photoContent.Longitude);
+        if (!longitudeCheck.Valid)
+            return GenerationReturn.Error(longitudeCheck.Explanation, photoContent.ContentId);
 
         var updateFormatCheck = CommonContentValidation.ValidateUpdateContentFormat(photoContent.UpdateNotesFormat);
         if (!updateFormatCheck.Valid)

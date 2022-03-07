@@ -426,7 +426,7 @@ public partial class NewContent
 
             if (autoSaveAndClose)
             {
-                var (metaGenerationReturn, metaContent) =
+                var (metaGenerationReturn, metaContent) = await
                     PhotoGenerator.PhotoMetadataToNewPhotoContent(loopFile, StatusContext.ProgressTracker());
 
                 if (metaGenerationReturn.HasError)

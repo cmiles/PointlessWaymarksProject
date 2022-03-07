@@ -67,7 +67,7 @@ public class TestSeries02GrandCanyonPoints
     {
         var httpClient = new HttpClient();
 
-        var elevation = await ElevationService.OpenTopoNedElevation(httpClient,
+        var elevation = await ElevationService.OpenTopoNedElevation(
             GrandCanyonPointInfo.YumaPointContent02.Latitude, GrandCanyonPointInfo.YumaPointContent02.Longitude,
             DebugTrackers.DebugProgressTracker());
 

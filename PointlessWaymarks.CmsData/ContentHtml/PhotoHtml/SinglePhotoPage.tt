@@ -59,7 +59,7 @@
                     Tags.PostBodyDiv(DbEntry).Result.ToString() #>
         <div class="information-section">
         <#=
-                PhotoDetails.PhotoDetailsDiv(DbEntry).ToString() #>
+                PhotoParts.PhotoDetailsDiv(DbEntry).ToString() #>
         <#= Tags.TagList(DbEntry).ToString() #>
         <#= Tags.PictureSizeList(DbEntry.ShowPhotoSizes, PictureInformation).ToString() #>
         <#=

@@ -12,10 +12,10 @@ public class ElevationServiceAndGpxTests
     {
         var client = new HttpClient();
 
-        var testData = GrandCanyonPointsWithMapZenElevations()
-            .Select(x => new CoordinateZ(x.Longitude, x.Latitude, 0)).ToList();
+        var testData = GrandCanyonPointsWithMapZenElevations().Select(x => new CoordinateZ(x.Longitude, x.Latitude, 0))
+            .ToList();
 
-        await ElevationService.OpenTopoMapZenElevation(client, testData, DebugTrackers.DebugProgressTracker());
+        await ElevationService.OpenTopoMapZenElevation(testData, DebugTrackers.DebugProgressTracker());
 
         Assert.IsTrue(testData.All(x => x.Z > 0), "Not all point have an elevation greater than zero.");
 
@@ -35,10 +35,10 @@ public class ElevationServiceAndGpxTests
     {
         var client = new HttpClient();
 
-        var testData = GrandCanyonPointsWithNed10Elevations()
-            .Select(x => new CoordinateZ(x.Longitude, x.Latitude, 0)).ToList();
+        var testData = GrandCanyonPointsWithNed10Elevations().Select(x => new CoordinateZ(x.Longitude, x.Latitude, 0))
+            .ToList();
 
-        await ElevationService.OpenTopoNedElevation(client, testData, DebugTrackers.DebugProgressTracker());
+        await ElevationService.OpenTopoNedElevation(testData, DebugTrackers.DebugProgressTracker());
 
         Assert.IsTrue(testData.All(x => x.Z > 0), "Not all point have an elevation greater than zero.");
 
@@ -62,8 +62,8 @@ public class ElevationServiceAndGpxTests
 
         foreach (var loopTests in testData)
         {
-            var result = await ElevationService.OpenTopoMapZenElevation(client, loopTests.Latitude,
-                loopTests.Longitude, DebugTrackers.DebugProgressTracker());
+            var result = await ElevationService.OpenTopoMapZenElevation(loopTests.Latitude, loopTests.Longitude,
+                DebugTrackers.DebugProgressTracker());
 
             Assert.NotNull(result, $"Null result from {loopTests.Name}");
             Assert.AreEqual(loopTests.RoundedElevationInMeters, Math.Round(result.Value, 0), $"{loopTests.Name}");
@@ -79,8 +79,8 @@ public class ElevationServiceAndGpxTests
 
         foreach (var loopTests in testData)
         {
-            var result = await ElevationService.OpenTopoNedElevation(client, loopTests.Latitude,
-                loopTests.Longitude, DebugTrackers.DebugProgressTracker());
+            var result = await ElevationService.OpenTopoNedElevation(loopTests.Latitude, loopTests.Longitude,
+                DebugTrackers.DebugProgressTracker());
 
             Assert.NotNull(result, $"Null result from {loopTests.Name}");
             Assert.AreEqual(loopTests.RoundedElevationInMeters, Math.Round(result.Value, 2), $"{loopTests.Name}");
@@ -157,8 +157,7 @@ public class ElevationServiceAndGpxTests
         var tracks = await SpatialHelpers.TracksFromGpxFile(testFile, DebugTrackers.DebugProgressTracker());
 
         Assert.AreEqual(2, tracks.Count, "Should find 2 tracks");
-        Assert.True(tracks.All(x => !string.IsNullOrWhiteSpace(x.Description)),
-            "Found Tracks with Blank Description?");
+        Assert.True(tracks.All(x => !string.IsNullOrWhiteSpace(x.Description)), "Found Tracks with Blank Description?");
 
         var shortTrack = tracks.OrderBy(x => x.Track.Count).First().Track;
 
@@ -177,7 +176,7 @@ public class ElevationServiceAndGpxTests
         Assert.IsTrue(preElevationReplacementStats.MaximumElevation.IsApproximatelyEqualTo(3944, 1),
             $"ExpertGPS Max Elevation 3944.76, Measured {preElevationReplacementStats.MaximumElevation}");
 
-        await ElevationService.OpenTopoMapZenElevation(new HttpClient(), shortTrack,
+        await ElevationService.OpenTopoMapZenElevation(shortTrack,
             DebugTrackers.DebugProgressTracker());
 
         Assert.True(shortTrack.All(x => x.Z > 0), "After Elevation replacement some 0 values found");
@@ -207,15 +206,13 @@ public class ElevationServiceAndGpxTests
         var tracks = await SpatialHelpers.TracksFromGpxFile(testFile, DebugTrackers.DebugProgressTracker());
 
         Assert.AreEqual(2, tracks.Count, "Should find 2 tracks");
-        Assert.True(tracks.All(x => !string.IsNullOrWhiteSpace(x.Description)),
-            "Found Tracks with Blank Description?");
+        Assert.True(tracks.All(x => !string.IsNullOrWhiteSpace(x.Description)), "Found Tracks with Blank Description?");
 
         var shortTrack = tracks.OrderBy(x => x.Track.Count).First().Track;
         var geoJson =
             await SpatialHelpers.GeoJsonWithLineStringFromCoordinateList(shortTrack, false,
                 DebugTrackers.DebugProgressTracker());
-        var shortTrackFromGeoJson =
-            SpatialHelpers.CoordinateListFromGeoJsonFeatureCollectionWithLinestring(geoJson);
+        var shortTrackFromGeoJson = SpatialHelpers.CoordinateListFromGeoJsonFeatureCollectionWithLinestring(geoJson);
 
         Assert.AreEqual(shortTrack.Count, shortTrackFromGeoJson.Count, "Count of Track Points does not match");
 
@@ -227,6 +224,5 @@ public class ElevationServiceAndGpxTests
         }
     }
 
-    public record ElevationTestData(string Name, double Latitude, double Longitude,
-        double RoundedElevationInMeters);
+    public record ElevationTestData(string Name, double Latitude, double Longitude, double RoundedElevationInMeters);
 }

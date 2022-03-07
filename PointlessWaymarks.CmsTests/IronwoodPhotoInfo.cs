@@ -379,7 +379,7 @@ public static class IronwoodPhotoInfo
         Assert.True(originalFile.Exists, "Test File Found");
 
         var (metadataGenerationReturn, newContent) =
-            PhotoGenerator.PhotoMetadataToNewPhotoContent(originalFile, DebugTrackers.DebugProgressTracker());
+            await PhotoGenerator.PhotoMetadataToNewPhotoContent(originalFile, DebugTrackers.DebugProgressTracker());
         Assert.False(metadataGenerationReturn.HasError, metadataGenerationReturn.GenerationNote);
 
         var (areEqual, comparisonNotes) = CompareContent(contentReference, newContent);

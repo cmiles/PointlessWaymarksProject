@@ -19,29 +19,36 @@ public static class CommonContentValidation
         var db = await Db.Context().ConfigureAwait(false);
 
         returnList.AddRange(await CheckForBadContentReferences(
-            (await db.FileContents.ToListAsync().ConfigureAwait(false)).Cast<IContentCommon>().ToList(), db,
-            progress).ConfigureAwait(false));
+                (await db.FileContents.ToListAsync().ConfigureAwait(false)).Cast<IContentCommon>().ToList(), db,
+                progress)
+            .ConfigureAwait(false));
         returnList.AddRange(await CheckForBadContentReferences(
             (await db.GeoJsonContents.ToListAsync().ConfigureAwait(false)).Cast<IContentCommon>().ToList(), db,
             progress).ConfigureAwait(false));
         returnList.AddRange(await CheckForBadContentReferences(
-            (await db.ImageContents.ToListAsync().ConfigureAwait(false)).Cast<IContentCommon>().ToList(), db,
-            progress).ConfigureAwait(false));
+                (await db.ImageContents.ToListAsync().ConfigureAwait(false)).Cast<IContentCommon>().ToList(), db,
+                progress)
+            .ConfigureAwait(false));
         returnList.AddRange(await CheckForBadContentReferences(
-            (await db.LineContents.ToListAsync().ConfigureAwait(false)).Cast<IContentCommon>().ToList(), db,
-            progress).ConfigureAwait(false));
+                (await db.LineContents.ToListAsync().ConfigureAwait(false)).Cast<IContentCommon>().ToList(), db,
+                progress)
+            .ConfigureAwait(false));
         returnList.AddRange(await CheckForBadContentReferences(
-            (await db.NoteContents.ToListAsync().ConfigureAwait(false)).Cast<IContentCommon>().ToList(), db,
-            progress).ConfigureAwait(false));
+                (await db.NoteContents.ToListAsync().ConfigureAwait(false)).Cast<IContentCommon>().ToList(), db,
+                progress)
+            .ConfigureAwait(false));
         returnList.AddRange(await CheckForBadContentReferences(
-            (await db.PhotoContents.ToListAsync().ConfigureAwait(false)).Cast<IContentCommon>().ToList(), db,
-            progress).ConfigureAwait(false));
+                (await db.PhotoContents.ToListAsync().ConfigureAwait(false)).Cast<IContentCommon>().ToList(), db,
+                progress)
+            .ConfigureAwait(false));
         returnList.AddRange(await CheckForBadContentReferences(
-            (await db.PointContents.ToListAsync().ConfigureAwait(false)).Cast<IContentCommon>().ToList(), db,
-            progress).ConfigureAwait(false));
+                (await db.PointContents.ToListAsync().ConfigureAwait(false)).Cast<IContentCommon>().ToList(), db,
+                progress)
+            .ConfigureAwait(false));
         returnList.AddRange(await CheckForBadContentReferences(
-            (await db.PostContents.ToListAsync().ConfigureAwait(false)).Cast<IContentCommon>().ToList(), db,
-            progress).ConfigureAwait(false));
+                (await db.PostContents.ToListAsync().ConfigureAwait(false)).Cast<IContentCommon>().ToList(), db,
+                progress)
+            .ConfigureAwait(false));
 
         return returnList;
     }
@@ -145,8 +152,7 @@ public static class CommonContentValidation
         }
 
         if (notFoundList.Any())
-            return GenerationReturn.Error(
-                $"Invalid ContentIds in Bracket Codes - {string.Join(", ", notFoundList)}");
+            return GenerationReturn.Error($"Invalid ContentIds in Bracket Codes - {string.Join(", ", notFoundList)}");
 
         return GenerationReturn.Success("No Invalid Content Ids Found");
     }
@@ -166,8 +172,7 @@ public static class CommonContentValidation
         return new IsValid(true, "Elevation is Valid");
     }
 
-    public static bool FileContentFileFileNameHasInvalidCharacters(FileInfo? fileContentFile,
-        Guid? currentContentId)
+    public static bool FileContentFileFileNameHasInvalidCharacters(FileInfo? fileContentFile, Guid? currentContentId)
     {
         if (fileContentFile == null) return false;
 
@@ -248,17 +253,32 @@ public static class CommonContentValidation
         return new IsValid(true, "Latitude is Valid");
     }
 
+    public static IsValid LatitudeValidationWithNullOk(double? latitude)
+    {
+        if (latitude == null) return new IsValid(true, "No Latitude is Ok...");
+
+        return LatitudeValidation(latitude.Value);
+    }
+
     public static IsValid LongitudeValidation(double longitude)
     {
         if (longitude is > 180 or < -180)
-            return new IsValid(false,
-                $"Longitude on Earth must be between -180 and 180 - {longitude} is not valid.");
+            return new IsValid(false, $"Longitude on Earth must be between -180 and 180 - {longitude} is not valid.");
 
         return new IsValid(true, "Longitude is Valid");
     }
 
-    public static async Task<IsValid> PhotoFileValidation(FileInfo photoFile, Guid? currentContentId)
+    public static IsValid LongitudeValidationWithNullOk(double? longitude)
     {
+        if (longitude == null) return new IsValid(true, "No Longitude is Ok...");
+
+        return LongitudeValidation(longitude.Value);
+    }
+
+    public static async Task<IsValid> PhotoFileValidation(FileInfo? photoFile, Guid? currentContentId)
+    {
+        if (photoFile == null) return new IsValid(false, "File is Null?");
+
         photoFile.Refresh();
 
         if (!photoFile.Exists) return new IsValid(false, "File does not Exist?");
@@ -332,8 +352,7 @@ public static class CommonContentValidation
             errorMessage.Add(mainSiteFeedOnValidation.Explanation);
         }
 
-        var slugValidation =
-            await ValidateSlugLocalAndDb(toValidate.Slug, toValidate.ContentId).ConfigureAwait(false);
+        var slugValidation = await ValidateSlugLocalAndDb(toValidate.Slug, toValidate.ContentId).ConfigureAwait(false);
 
         if (!slugValidation.Valid)
         {
@@ -403,7 +422,7 @@ public static class CommonContentValidation
             errorMessage.Add("Updated by can not be blank when updating an entry");
         }
 
-        if (!isNewEntry && toValidate.LastUpdatedOn == null || toValidate.LastUpdatedOn == DateTime.MinValue)
+        if ((!isNewEntry && toValidate.LastUpdatedOn == null) || toValidate.LastUpdatedOn == DateTime.MinValue)
         {
             isValid = false;
             errorMessage.Add("Last Updated On can not be blank/empty when updating an entry");
@@ -436,8 +455,7 @@ public static class CommonContentValidation
             return new IsValid(false, "Limit folder names to a-z A-Z 0-9 _ -");
 
         if (string.Equals(folder, "data", StringComparison.OrdinalIgnoreCase))
-            return new IsValid(false,
-                "Folders can not be named 'Data' - this folder is reserved for use by the CMS");
+            return new IsValid(false, "Folders can not be named 'Data' - this folder is reserved for use by the CMS");
         if (string.Equals(folder, "galleries", StringComparison.OrdinalIgnoreCase))
             return new IsValid(false,
                 "Folders can not be named 'Galleries' - this folder is reserved for use by the CMS");
@@ -454,8 +472,7 @@ public static class CommonContentValidation
         if (contentGuid == null)
         {
             var duplicateUrl = await db.LinkContents.Where(x => x.Url != null)
-                .AnyAsync(x => string.Equals(x.Url!, url, StringComparison.OrdinalIgnoreCase))
-                .ConfigureAwait(false);
+                .AnyAsync(x => string.Equals(x.Url!, url, StringComparison.OrdinalIgnoreCase)).ConfigureAwait(false);
             if (duplicateUrl)
                 return new IsValid(false,
                     "URL Already exists in the database - duplicates are not allowed, try editing the existing entry to add new/updated information.");
@@ -463,8 +480,7 @@ public static class CommonContentValidation
         else
         {
             var duplicateUrl = await db.LinkContents.Where(x => x.Url != null).AnyAsync(x =>
-                    x.ContentId != contentGuid.Value &&
-                    string.Equals(x.Url!, url, StringComparison.OrdinalIgnoreCase))
+                    x.ContentId != contentGuid.Value && string.Equals(x.Url!, url, StringComparison.OrdinalIgnoreCase))
                 .ConfigureAwait(false);
             if (duplicateUrl)
                 return new IsValid(false,
@@ -472,20 +488,6 @@ public static class CommonContentValidation
         }
 
         return new IsValid(true, string.Empty);
-    }
-
-    public static IsValid ValidateSiteFeedOn(IMainSiteFeed toValidate, bool isNewEntry)
-    {
-        var isValid = true;
-        var errorMessage = new List<string>();
-
-        if (toValidate.FeedOn == DateTime.MinValue)
-        {
-            isValid = false;
-            errorMessage.Add($"A Feed On date of {toValidate.FeedOn} is not valid.");
-        }
-
-        return new IsValid(isValid, string.Join(Environment.NewLine, errorMessage));
     }
 
     public static async Task<IsValid> ValidateMapComponent(MapComponentDto mapComponent)
@@ -550,12 +552,25 @@ public static class CommonContentValidation
 
         foreach (var loopElements in mapComponent.Elements)
         {
-            if (loopElements.Id < 1 ||
-                await Db.ContentIdIsSpatialContentInDatabase(loopElements.MapComponentContentId)
+            if (loopElements.Id < 1 || await Db.ContentIdIsSpatialContentInDatabase(loopElements.MapComponentContentId)
                     .ConfigureAwait(false)) continue;
             isValid = false;
             errorMessage.Add("Could not find all Elements Content Items in Db?");
             break;
+        }
+
+        return new IsValid(isValid, string.Join(Environment.NewLine, errorMessage));
+    }
+
+    public static IsValid ValidateSiteFeedOn(IMainSiteFeed toValidate, bool isNewEntry)
+    {
+        var isValid = true;
+        var errorMessage = new List<string>();
+
+        if (toValidate.FeedOn == DateTime.MinValue)
+        {
+            isValid = false;
+            errorMessage.Add($"A Feed On date of {toValidate.FeedOn} is not valid.");
         }
 
         return new IsValid(isValid, string.Join(Environment.NewLine, errorMessage));

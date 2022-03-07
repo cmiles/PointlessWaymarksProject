@@ -12,6 +12,7 @@ using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.Content;
 using PointlessWaymarks.CmsData.ContentHtml;
 using PointlessWaymarks.CmsData.Database.Models;
+using PointlessWaymarks.CmsData.Spatial;
 using PointlessWaymarks.CmsWpfControls.BodyContentEditor;
 using PointlessWaymarks.CmsWpfControls.BoolDataEntry;
 using PointlessWaymarks.CmsWpfControls.ContentIdViewer;
@@ -20,6 +21,7 @@ using PointlessWaymarks.CmsWpfControls.ConversionDataEntry;
 using PointlessWaymarks.CmsWpfControls.CreatedAndUpdatedByAndOnDisplay;
 using PointlessWaymarks.CmsWpfControls.HelpDisplay;
 using PointlessWaymarks.CmsWpfControls.PhotoList;
+using PointlessWaymarks.CmsWpfControls.PointContentEditor;
 using PointlessWaymarks.CmsWpfControls.StringDataEntry;
 using PointlessWaymarks.CmsWpfControls.TagsEditor;
 using PointlessWaymarks.CmsWpfControls.TitleSummarySlugFolderEditor;
@@ -47,17 +49,21 @@ public partial class PhotoContentEditorContext : IHasChanges, IHasValidationIssu
     [ObservableProperty] private ContentIdViewerControlContext _contentId;
     [ObservableProperty] private CreatedAndUpdatedByAndOnDisplayContext _createdUpdatedDisplay;
     [ObservableProperty] private PhotoContent _dbEntry;
+    [ObservableProperty] private ConversionDataEntryContext<double?> _elevationEntry;
     [ObservableProperty] private RelayCommand _extractNewLinksCommand;
     [ObservableProperty] private StringDataEntryContext _focalLengthEntry;
+    [ObservableProperty] private RelayCommand _getElevationCommand;
     [ObservableProperty] private bool _hasChanges;
     [ObservableProperty] private bool _hasValidationIssues;
     [ObservableProperty] private HelpDisplayContext _helpContext;
     [ObservableProperty] private FileInfo _initialPhoto;
     [ObservableProperty] private ConversionDataEntryContext<int?> _isoEntry;
+    [ObservableProperty] private ConversionDataEntryContext<double?> _latitudeEntry;
     [ObservableProperty] private StringDataEntryContext _lensEntry;
     [ObservableProperty] private StringDataEntryContext _licenseEntry;
     [ObservableProperty] private RelayCommand _linkToClipboardCommand;
     [ObservableProperty] private FileInfo _loadedFile;
+    [ObservableProperty] private ConversionDataEntryContext<double?> _longitudeEntry;
     [ObservableProperty] private ContentSiteFeedAndIsDraftContext _mainSiteFeed;
     [ObservableProperty] private StringDataEntryContext _photoCreatedByEntry;
     [ObservableProperty] private ConversionDataEntryContext<DateTime> _photoCreatedOnEntry;
@@ -145,7 +151,7 @@ Photo Content Notes:
         if (!loadMetadata) return;
 
         var (generationReturn, metadata) =
-            PhotoGenerator.PhotoMetadataFromFile(SelectedFile, StatusContext.ProgressTracker());
+            await PhotoGenerator.PhotoMetadataFromFile(SelectedFile, StatusContext.ProgressTracker());
 
         if (generationReturn.HasError)
         {
@@ -229,8 +235,31 @@ Photo Content Notes:
         newEntry.BodyContent = BodyContent.BodyContent.TrimNullToEmpty();
         newEntry.BodyContentFormat = BodyContent.BodyContentFormat.SelectedContentFormatAsString;
         newEntry.ShowPhotoSizes = ShowSizes.UserValue;
+        newEntry.Latitude = LatitudeEntry.UserValue;
+        newEntry.Longitude = LongitudeEntry.UserValue;
+        newEntry.Elevation = ElevationEntry.UserValue;
 
         return newEntry;
+    }
+
+    public async Task GetElevation()
+    {
+        if (LatitudeEntry.HasValidationIssues || LongitudeEntry.HasValidationIssues)
+        {
+            StatusContext.ToastError("Lat Long is not valid");
+            return;
+        }
+
+        if (LatitudeEntry.UserValue == null || LongitudeEntry.UserValue == null)
+        {
+            StatusContext.ToastError("Lat Long is not set");
+            return;
+        }
+
+        var possibleElevation = await ElevationGuiHelper.GetElevation(LongitudeEntry.UserValue.Value,
+            LongitudeEntry.UserValue.Value, StatusContext);
+
+        if (possibleElevation != null) ElevationEntry.UserText = possibleElevation.Value.ToString("F2");
     }
 
     private async Task LinkToClipboard()
@@ -379,13 +408,48 @@ Photo Content Notes:
         PhotoCreatedOnEntry.ReferenceValue = DbEntry.PhotoCreatedOn;
         PhotoCreatedOnEntry.UserText = DbEntry.PhotoCreatedOn.ToString("MM/dd/yyyy h:mm:ss tt");
 
+        LatitudeEntry =
+            ConversionDataEntryContext<double?>.CreateInstance(ConversionDataEntryHelpers.DoubleNullableConversion);
+        LatitudeEntry.ValidationFunctions = new List<Func<double?, IsValid>>
+        {
+            CommonContentValidation.LatitudeValidationWithNullOk
+        };
+        LatitudeEntry.ComparisonFunction = (o, u) => o.IsApproximatelyEqualTo(u, .000001);
+        LatitudeEntry.Title = "Latitude";
+        LatitudeEntry.HelpText = "In DDD.DDDDDD°";
+        LatitudeEntry.ReferenceValue = DbEntry.Latitude;
+        LatitudeEntry.UserText = DbEntry.Latitude?.ToString("F6");
+
+        LongitudeEntry =
+            ConversionDataEntryContext<double?>.CreateInstance(ConversionDataEntryHelpers.DoubleNullableConversion);
+        LongitudeEntry.ValidationFunctions = new List<Func<double?, IsValid>>
+        {
+            CommonContentValidation.LongitudeValidationWithNullOk
+        };
+        LongitudeEntry.ComparisonFunction = (o, u) => o.IsApproximatelyEqualTo(u, .000001);
+        LongitudeEntry.Title = "Longitude";
+        LongitudeEntry.HelpText = "In DDD.DDDDDD°";
+        LongitudeEntry.ReferenceValue = DbEntry.Longitude;
+        LongitudeEntry.UserText = DbEntry.Longitude?.ToString("F6");
+
+        ElevationEntry =
+            ConversionDataEntryContext<double?>.CreateInstance(ConversionDataEntryHelpers.DoubleNullableConversion);
+        ElevationEntry.ValidationFunctions = new List<Func<double?, IsValid>>
+        {
+            CommonContentValidation.ElevationValidation
+        };
+        ElevationEntry.Title = "Elevation";
+        ElevationEntry.HelpText = "Elevation in Feet";
+        ElevationEntry.ReferenceValue = DbEntry.Elevation;
+        ElevationEntry.UserText = DbEntry.Elevation?.ToString("F2") ?? string.Empty;
+
         if (DbEntry.Id < 1 && _initialPhoto is { Exists: true } && FileHelpers.PhotoFileTypeIsSupported(_initialPhoto))
         {
             SelectedFile = _initialPhoto;
             ResizeSelectedFile = true;
             _initialPhoto = null;
             var (generationReturn, metadataReturn) =
-                PhotoGenerator.PhotoMetadataFromFile(SelectedFile, StatusContext.ProgressTracker());
+                await PhotoGenerator.PhotoMetadataFromFile(SelectedFile, StatusContext.ProgressTracker());
             if (!generationReturn.HasError) PhotoMetadataToCurrentContent(metadataReturn);
         }
 
@@ -410,6 +474,8 @@ Photo Content Notes:
         CameraModelEntry.UserValue = metadata.CameraModel;
         FocalLengthEntry.UserValue = metadata.FocalLength;
         IsoEntry.UserText = metadata.Iso?.ToString("F0") ?? string.Empty;
+        LatitudeEntry.UserText = metadata.Latitude?.ToString("F2") ?? string.Empty;
+        LongitudeEntry.UserText = metadata.Longitude?.ToString("F2") ?? string.Empty;
         LensEntry.UserValue = metadata.Lens;
         LicenseEntry.UserValue = metadata.License;
         PhotoCreatedByEntry.UserValue = metadata.PhotoCreatedBy;
@@ -439,8 +505,6 @@ Photo Content Notes:
             StatusContext.ToastError("File doesn't appear to exist?");
             return;
         }
-
-        var rotate = new MagicScalerImageResizer();
 
         await MagicScalerImageResizer.Rotate(SelectedFile, rotationType);
         ResizeSelectedFile = true;
@@ -540,6 +604,7 @@ Photo Content Notes:
         RotatePhotoLeftCommand =
             StatusContext.RunBlockingTaskCommand(async () => await RotateImage(Orientation.Rotate270));
 
+        GetElevationCommand = StatusContext.RunBlockingTaskCommand(GetElevation);
 
         HelpContext = new HelpDisplayContext(new List<string>
         {

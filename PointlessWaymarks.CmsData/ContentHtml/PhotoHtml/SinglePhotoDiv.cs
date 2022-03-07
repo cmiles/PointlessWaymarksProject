@@ -43,7 +43,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml.PhotoHtml
             this.Write("\r\n    ");
             
             #line 7 "C:\Code\PointlessWaymarksCms06\PointlessWaymarks.CmsData\ContentHtml\PhotoHtml\SinglePhotoDiv.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(PhotoDetails.PhotoDetailsDiv(DbEntry).ToString()));
+            this.Write(this.ToStringHelper.ToStringWithCulture(PhotoParts.PhotoDetailsDiv(DbEntry).ToString()));
             
             #line default
             #line hidden
