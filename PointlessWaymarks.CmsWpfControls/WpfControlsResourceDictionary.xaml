@@ -287,16 +287,11 @@
         Margin="0,3,0,0"
         x:Shared="False"
         Orientation="Horizontal">
-        <Button
-            Height="Auto"
-            VerticalAlignment="Center"
-            VerticalContentAlignment="Center"
-            Command="{Binding DataContext.FolderSearchCommand, RelativeSource={RelativeSource AncestorType={x:Type ListBox}}}"
-            CommandParameter="{Binding DbEntry.Folder}">
-            <Button.Content>
-                <TextBlock Margin="4,0,4,0" Text="{Binding DbEntry.Folder, StringFormat='Folder: {0}'}" />
-            </Button.Content>
-        </Button>
+        <WrapPanel.Resources>
+            <Style TargetType="Button">
+                <Setter Property="Margin" Value="2,3,2,0" />
+            </Style>
+        </WrapPanel.Resources>
         <TextBox
             Margin="8,0,0,0"
             HorizontalAlignment="Right"
@@ -319,6 +314,36 @@
                 </b:EventTrigger>
             </b:Interaction.Triggers>
         </TextBox>
+        <Button
+            Height="Auto"
+            VerticalAlignment="Center"
+            VerticalContentAlignment="Center"
+            Command="{Binding DataContext.FolderSearchCommand, RelativeSource={RelativeSource AncestorType={x:Type ListBox}}}"
+            CommandParameter="{Binding DbEntry.Folder}">
+            <Button.Content>
+                <TextBlock Margin="6,0,6,0" Text="{Binding DbEntry.Folder, StringFormat='Folder: {0}'}" />
+            </Button.Content>
+        </Button>
+        <Button
+            Height="Auto"
+            VerticalAlignment="Center"
+            VerticalContentAlignment="Center"
+            Command="{Binding DataContext.CreatedOnDaySearchCommand, RelativeSource={RelativeSource AncestorType={x:Type ListBox}}}"
+            CommandParameter="{Binding DbEntry.CreatedOn}">
+            <Button.Content>
+                <TextBlock Margin="6,0,6,0" Text="{Binding DbEntry.CreatedOn, StringFormat='Created: {0}'}" />
+            </Button.Content>
+        </Button>
+        <Button
+            Height="Auto"
+            VerticalAlignment="Center"
+            VerticalContentAlignment="Center"
+            Command="{Binding DataContext.LastUpdatedOnDaySearchCommand, RelativeSource={RelativeSource AncestorType={x:Type ListBox}}}"
+            CommandParameter="{Binding DbEntry.LastUpdatedOn}">
+            <Button.Content>
+                <TextBlock Margin="6,0,6,0" Text="{Binding DbEntry.LastUpdatedOn, StringFormat='Last Updated: {0}', FallbackValue='(Never Updated)'}" />
+            </Button.Content>
+        </Button>
     </WrapPanel>
     <TextBox
         x:Key="ContentListOriginalFileNameDisplay"

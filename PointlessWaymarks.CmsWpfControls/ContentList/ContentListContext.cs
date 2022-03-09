@@ -48,6 +48,7 @@ public partial class ContentListContext : IDragSource, IDropTarget
     [ObservableProperty] private RelayCommand _bracketCodeToClipboardSelectedCommand;
     [ObservableProperty] private IContentListLoader _contentListLoader;
     [ObservableProperty] private List<ContextMenuItemData> _contextMenuItems;
+    [ObservableProperty] private RelayCommand<DateTime?> _createdOnDaySearchCommand;
     [ObservableProperty] private DataNotificationsWorkQueue _dataNotificationsProcessor;
     [ObservableProperty] private RelayCommand _deleteSelectedCommand;
     [ObservableProperty] private RelayCommand _editSelectedCommand;
@@ -63,6 +64,7 @@ public partial class ContentListContext : IDragSource, IDropTarget
     [ObservableProperty] private RelayCommand _importFromExcelFileCommand;
     [ObservableProperty] private RelayCommand _importFromOpenExcelInstanceCommand;
     [ObservableProperty] private ObservableCollection<IContentListItem> _items;
+    [ObservableProperty] private RelayCommand<DateTime?> _lastUpdatedOnDaySearchCommand;
     [ObservableProperty] private LineContentActions _lineItemActions;
     [ObservableProperty] private LinkContentActions _linkItemActions;
     [ObservableProperty] private ContentListSelected<IContentListItem> _listSelection;
@@ -141,6 +143,10 @@ public partial class ContentListContext : IDragSource, IDropTarget
 
         FolderSearchCommand = StatusContext.RunNonBlockingTaskCommand<string>(async x =>
             await RunReport(async () => await FolderSearch(x), $"Folder Search - {x}"));
+        CreatedOnDaySearchCommand = StatusContext.RunNonBlockingTaskCommand<DateTime?>(async x =>
+            await RunReport(async () => await CreatedOnDaySearch(x), $"Created On Search - {x}"));
+        LastUpdatedOnDaySearchCommand = StatusContext.RunNonBlockingTaskCommand<DateTime?>(async x =>
+            await RunReport(async () => await UpdatedOnDaySearch(x), $"Last Updated On Search - {x}"));
     }
 
     public bool CanStartDrag(IDragInfo dragInfo)
@@ -248,6 +254,15 @@ public partial class ContentListContext : IDragSource, IDropTarget
         Clipboard.SetText(finalString);
 
         StatusContext.ToastSuccess("Bracket Codes copied to Clipboard");
+    }
+
+    public static async Task<List<object>> CreatedOnDaySearch(DateTime? createdOn)
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (createdOn == null) return new List<object>();
+
+        return (await Db.ContentCreatedOnDay(createdOn.Value)).ToList();
     }
 
     private async Task DataNotificationReceived(TinyMessageReceivedEventArgs e)
@@ -798,6 +813,15 @@ public partial class ContentListContext : IDragSource, IDropTarget
                 }
             }
         }
+    }
+
+    public static async Task<List<object>> UpdatedOnDaySearch(DateTime? createdOn)
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        return createdOn == null
+            ? (await Db.ContentNeverUpdated()).ToList()
+            : (await Db.ContentUpdatedOnDay(createdOn.Value)).ToList();
     }
 
     public async Task ViewHistorySelected(CancellationToken cancelToken)

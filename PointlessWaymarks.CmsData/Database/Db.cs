@@ -81,6 +81,38 @@ public static class Db
         return returnList;
     }
 
+
+    public static async Task<List<object>> ContentCreatedOnDay(DateTime createdOn)
+    {
+        var createdOnOnOrAfter = createdOn.Date;
+        var createdOnBefore = createdOn.AddDays(1).Date;
+
+        var returnList = new List<object>();
+
+        var context = await Context();
+
+        returnList.AddRange(context.FileContents
+            .Where(x => x.CreatedOn >= createdOnOnOrAfter && x.CreatedOn < createdOnBefore).Cast<object>());
+        returnList.AddRange(context.GeoJsonContents
+            .Where(x => x.CreatedOn >= createdOnOnOrAfter && x.CreatedOn < createdOnBefore).Cast<object>());
+        returnList.AddRange(context.ImageContents
+            .Where(x => x.CreatedOn >= createdOnOnOrAfter && x.CreatedOn < createdOnBefore).Cast<object>());
+        returnList.AddRange(context.LineContents
+            .Where(x => x.CreatedOn >= createdOnOnOrAfter && x.CreatedOn < createdOnBefore).Cast<object>());
+        returnList.AddRange(context.LinkContents
+            .Where(x => x.CreatedOn >= createdOnOnOrAfter && x.CreatedOn < createdOnBefore).Cast<object>());
+        returnList.AddRange(context.NoteContents
+            .Where(x => x.CreatedOn >= createdOnOnOrAfter && x.CreatedOn < createdOnBefore).Cast<object>());
+        returnList.AddRange(context.PhotoContents
+            .Where(x => x.CreatedOn >= createdOnOnOrAfter && x.CreatedOn < createdOnBefore).Cast<object>());
+        returnList.AddRange(context.PointContents
+            .Where(x => x.CreatedOn >= createdOnOnOrAfter && x.CreatedOn < createdOnBefore).Cast<object>());
+        returnList.AddRange(context.PostContents
+            .Where(x => x.CreatedOn >= createdOnOnOrAfter && x.CreatedOn < createdOnBefore).Cast<object>());
+
+        return returnList;
+    }
+
     /// <summary>
     ///     Takes in a ContentId and returns the Entry as a dynamic, or null if not found. Points are returned as
     ///     a PointContentDto (as dynamic). Because the ContentIds are unique this allows finding content regardless
@@ -197,6 +229,25 @@ public static class Db
         return returnList;
     }
 
+    public static async Task<List<object>> ContentNeverUpdated()
+    {
+        var returnList = new List<object>();
+
+        var context = await Context();
+
+        returnList.AddRange(context.FileContents.Where(x => x.LastUpdatedOn == null).Cast<object>());
+        returnList.AddRange(context.GeoJsonContents.Where(x => x.LastUpdatedOn == null).Cast<object>());
+        returnList.AddRange(context.ImageContents.Where(x => x.LastUpdatedOn == null).Cast<object>());
+        returnList.AddRange(context.LineContents.Where(x => x.LastUpdatedOn == null).Cast<object>());
+        returnList.AddRange(context.LinkContents.Where(x => x.LastUpdatedOn == null).Cast<object>());
+        returnList.AddRange(context.NoteContents.Where(x => x.LastUpdatedOn == null).Cast<object>());
+        returnList.AddRange(context.PhotoContents.Where(x => x.LastUpdatedOn == null).Cast<object>());
+        returnList.AddRange(context.PointContents.Where(x => x.LastUpdatedOn == null).Cast<object>());
+        returnList.AddRange(context.PostContents.Where(x => x.LastUpdatedOn == null).Cast<object>());
+
+        return returnList;
+    }
+
     /// <summary>
     ///     A standardized conversion of a Content Type into a simple standard display string. Both Point and
     ///     PointDto will return the same string.
@@ -220,6 +271,37 @@ public static class Db
             PointContentDto => "Point",
             _ => string.Empty
         };
+    }
+
+    public static async Task<List<object>> ContentUpdatedOnDay(DateTime updatedOn)
+    {
+        var updatedOnOnOrAfter = updatedOn.Date;
+        var updatedOnBefore = updatedOn.AddDays(1).Date;
+
+        var returnList = new List<object>();
+
+        var context = await Context();
+
+        returnList.AddRange(context.FileContents
+            .Where(x => x.LastUpdatedOn >= updatedOnOnOrAfter && x.LastUpdatedOn < updatedOnBefore).Cast<object>());
+        returnList.AddRange(context.GeoJsonContents
+            .Where(x => x.LastUpdatedOn >= updatedOnOnOrAfter && x.LastUpdatedOn < updatedOnBefore).Cast<object>());
+        returnList.AddRange(context.ImageContents
+            .Where(x => x.LastUpdatedOn >= updatedOnOnOrAfter && x.LastUpdatedOn < updatedOnBefore).Cast<object>());
+        returnList.AddRange(context.LineContents
+            .Where(x => x.LastUpdatedOn >= updatedOnOnOrAfter && x.LastUpdatedOn < updatedOnBefore).Cast<object>());
+        returnList.AddRange(context.LinkContents
+            .Where(x => x.LastUpdatedOn >= updatedOnOnOrAfter && x.LastUpdatedOn < updatedOnBefore).Cast<object>());
+        returnList.AddRange(context.NoteContents
+            .Where(x => x.LastUpdatedOn >= updatedOnOnOrAfter && x.LastUpdatedOn < updatedOnBefore).Cast<object>());
+        returnList.AddRange(context.PhotoContents
+            .Where(x => x.LastUpdatedOn >= updatedOnOnOrAfter && x.LastUpdatedOn < updatedOnBefore).Cast<object>());
+        returnList.AddRange(context.PointContents
+            .Where(x => x.LastUpdatedOn >= updatedOnOnOrAfter && x.LastUpdatedOn < updatedOnBefore).Cast<object>());
+        returnList.AddRange(context.PostContents
+            .Where(x => x.LastUpdatedOn >= updatedOnOnOrAfter && x.LastUpdatedOn < updatedOnBefore).Cast<object>());
+
+        return returnList;
     }
 
     /// <summary>
