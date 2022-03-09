@@ -17,6 +17,7 @@ using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.ContentHtml;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
+using PointlessWaymarks.CmsWpfControls.AllContentList;
 using PointlessWaymarks.CmsWpfControls.ColumnSort;
 using PointlessWaymarks.CmsWpfControls.FileContentEditor;
 using PointlessWaymarks.CmsWpfControls.FileList;
@@ -45,73 +46,40 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList;
 public partial class ContentListContext : IDragSource, IDropTarget
 {
     [ObservableProperty] private RelayCommand _bracketCodeToClipboardSelectedCommand;
-
     [ObservableProperty] private IContentListLoader _contentListLoader;
-
     [ObservableProperty] private List<ContextMenuItemData> _contextMenuItems;
-
     [ObservableProperty] private DataNotificationsWorkQueue _dataNotificationsProcessor;
-
     [ObservableProperty] private RelayCommand _deleteSelectedCommand;
-
     [ObservableProperty] private RelayCommand _editSelectedCommand;
-
     [ObservableProperty] private RelayCommand _extractNewLinksSelectedCommand;
-
     [ObservableProperty] private FileContentActions _fileItemActions;
-
+    [ObservableProperty] private RelayCommand<string> _folderSearchCommand;
     [ObservableProperty] private RelayCommand _generateChangedHtmlAndShowSitePreviewCommand;
-
     [ObservableProperty] private RelayCommand _generateChangedHtmlAndStartUploadCommand;
-
     [ObservableProperty] private RelayCommand _generateChangedHtmlCommand;
-
     [ObservableProperty] private RelayCommand _generateHtmlSelectedCommand;
-
     [ObservableProperty] private GeoJsonContentActions _geoJsonItemActions;
-
     [ObservableProperty] private ImageContentActions _imageItemActions;
-
     [ObservableProperty] private RelayCommand _importFromExcelFileCommand;
-
     [ObservableProperty] private RelayCommand _importFromOpenExcelInstanceCommand;
-
     [ObservableProperty] private ObservableCollection<IContentListItem> _items;
-
     [ObservableProperty] private LineContentActions _lineItemActions;
-
     [ObservableProperty] private LinkContentActions _linkItemActions;
-
     [ObservableProperty] private ContentListSelected<IContentListItem> _listSelection;
-
     [ObservableProperty] private ColumnSortControlContext _listSort;
-
     [ObservableProperty] private RelayCommand _loadAllCommand;
-
     [ObservableProperty] private MapComponentContentActions _mapComponentItemActions;
-
     [ObservableProperty] private NewContent _newActions;
-
     [ObservableProperty] private NoteContentActions _noteItemActions;
-
     [ObservableProperty] private PhotoContentActions _photoItemActions;
-
     [ObservableProperty] private PointContentActions _pointItemActions;
-
     [ObservableProperty] private PostContentActions _postItemActions;
-
     [ObservableProperty] private RelayCommand _selectedToExcelCommand;
-
     [ObservableProperty] private RelayCommand _showSitePreviewWindowCommand;
-
     [ObservableProperty] private StatusControlContext _statusContext;
-
     [ObservableProperty] private string _userFilterText;
-
     [ObservableProperty] private RelayCommand _viewHistorySelectedCommand;
-
     [ObservableProperty] private RelayCommand _viewOnSiteCommand;
-
     [ObservableProperty] private WindowIconStatus _windowStatus;
 
     public ContentListContext(StatusControlContext statusContext, IContentListLoader loader,
@@ -153,8 +121,7 @@ public partial class ContentListContext : IDragSource, IDropTarget
             StatusContext.RunBlockingTaskWithCancellationCommand(ExtractNewLinksSelected, "Cancel Link Extraction");
         GenerateHtmlSelectedCommand =
             StatusContext.RunBlockingTaskWithCancellationCommand(GenerateHtmlSelected, "Cancel Generate Html");
-        ViewOnSiteCommand =
-            StatusContext.RunBlockingTaskWithCancellationCommand(ViewOnSiteSelected, "Cancel Open Url");
+        ViewOnSiteCommand = StatusContext.RunBlockingTaskWithCancellationCommand(ViewOnSiteSelected, "Cancel Open Url");
         ViewHistorySelectedCommand =
             StatusContext.RunBlockingTaskWithCancellationCommand(ViewHistorySelected, "Cancel View History");
 
@@ -171,6 +138,9 @@ public partial class ContentListContext : IDragSource, IDropTarget
         ShowSitePreviewWindowCommand = StatusContext.RunNonBlockingTaskCommand(ShowSitePreviewWindow);
         GenerateChangedHtmlAndShowSitePreviewCommand =
             StatusContext.RunBlockingTaskCommand(GenerateChangedHtmlAndShowSitePreview);
+
+        FolderSearchCommand = StatusContext.RunNonBlockingTaskCommand<string>(async x =>
+            await RunReport(async () => await FolderSearch(x), $"Folder Search - {x}"));
     }
 
     public bool CanStartDrag(IDragInfo dragInfo)
@@ -515,6 +485,13 @@ public partial class ContentListContext : IDragSource, IDropTarget
         };
     }
 
+    public static async Task<List<object>> FolderSearch(string folderName)
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        return (await Db.ContentInFolder(folderName ?? string.Empty)).ToList();
+    }
+
     private async Task GenerateChangedHtml()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -604,8 +581,7 @@ public partial class ContentListContext : IDragSource, IDropTarget
         try
         {
             smallImageUrl = PictureAssetProcessing.ProcessPictureDirectory(content.MainPicture.Value)?.SmallPicture
-                ?.File?
-                .FullName;
+                ?.File?.FullName;
         }
         catch
         {
@@ -710,6 +686,23 @@ public partial class ContentListContext : IDragSource, IDropTarget
             if (((dynamic)loopListItem).DbEntry is IMainImage { MainPicture: { } } dbMainImageEntry &&
                 translatedMessage.ContentIds.Contains(dbMainImageEntry.MainPicture.Value))
                 loopListItem.SmallImageUrl = GetSmallImageUrl(dbMainImageEntry);
+    }
+
+    public static async Task RunReport(Func<Task<List<object>>> toRun, string title)
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        var reportLoader = new ContentListLoaderReport(toRun, ContentListLoaderBase.SortContextDefault());
+
+        var context = new AllItemsWithActionsContext(null, reportLoader);
+
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        var newWindow = new AllItemsWithActionsWindow { AllItemsListContext = context, WindowTitle = title };
+
+        newWindow.PositionWindowAndShow();
+
+        await context.LoadData();
     }
 
     private async Task ShowSitePreviewWindow()

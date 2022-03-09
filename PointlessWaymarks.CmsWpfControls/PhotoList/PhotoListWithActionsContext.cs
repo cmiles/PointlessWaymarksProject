@@ -151,7 +151,7 @@ public partial class PhotoListWithActionsContext
             {
                 ItemName = "Text Code to Clipboard", ItemCommand = PhotoLinkCodesToClipboardForSelectedCommand
             },
-            new() { ItemName = "Daily Photo Page Code to Clipboard", ItemCommand = DailyPhotoLinkCodesToClipboardForSelectedCommand}, 
+            new() { ItemName = "Daily Photo Page Code to Clipboard", ItemCommand = DailyPhotoLinkCodesToClipboardForSelectedCommand},
             new() { ItemName = "Email Html to Clipboard", ItemCommand = EmailHtmlToClipboardCommand },
             new() { ItemName = "View Photos", ItemCommand = ViewFilesCommand },
             new() { ItemName = "Open URL", ItemCommand = ListContext.ViewOnSiteCommand },

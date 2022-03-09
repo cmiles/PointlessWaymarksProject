@@ -25,6 +25,15 @@ public partial class AllItemsWithActionsContext
         StatusContext.RunFireAndForgetBlockingTask(LoadData);
     }
 
+    public AllItemsWithActionsContext(StatusControlContext statusContext, IContentListLoader reportFilter)
+    {
+        StatusContext = statusContext ?? new StatusControlContext();
+
+        ListContext ??= new ContentListContext(StatusContext, reportFilter);
+
+        StatusContext.RunFireAndForgetBlockingTask(ListContext.LoadData);
+    }
+
     public async Task LoadData()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();

@@ -177,6 +177,26 @@ public static class Db
         return false;
     }
 
+    public static async Task<List<object>> ContentInFolder(string folderName)
+    {
+        if (string.IsNullOrWhiteSpace(folderName)) return new List<object>();
+
+        var returnList = new List<object>();
+
+        var context = await Context();
+
+        returnList.AddRange(context.FileContents.Where(x => x.Folder == folderName).Cast<object>());
+        returnList.AddRange(context.GeoJsonContents.Where(x => x.Folder == folderName).Cast<object>());
+        returnList.AddRange(context.ImageContents.Where(x => x.Folder == folderName).Cast<object>());
+        returnList.AddRange(context.LineContents.Where(x => x.Folder == folderName).Cast<object>());
+        returnList.AddRange(context.NoteContents.Where(x => x.Folder == folderName).Cast<object>());
+        returnList.AddRange(context.PhotoContents.Where(x => x.Folder == folderName).Cast<object>());
+        returnList.AddRange(context.PointContents.Where(x => x.Folder == folderName).Cast<object>());
+        returnList.AddRange(context.PostContents.Where(x => x.Folder == folderName).Cast<object>());
+
+        return returnList;
+    }
+
     /// <summary>
     ///     A standardized conversion of a Content Type into a simple standard display string. Both Point and
     ///     PointDto will return the same string.
@@ -253,8 +273,8 @@ public static class Db
             where !db.FileContents.Any(x => x.ContentId == h.ContentId)
             select h).ToListAsync().ConfigureAwait(false);
 
-        return deletedContent.GroupBy(x => x.ContentId)
-            .Select(x => x.OrderByDescending(y => y.ContentVersion).First()).ToList();
+        return deletedContent.GroupBy(x => x.ContentId).Select(x => x.OrderByDescending(y => y.ContentVersion).First())
+            .ToList();
     }
 
     /// <summary>
@@ -270,8 +290,8 @@ public static class Db
             where !db.GeoJsonContents.Any(x => x.ContentId == h.ContentId)
             select h).ToListAsync().ConfigureAwait(false);
 
-        return deletedContent.GroupBy(x => x.ContentId)
-            .Select(x => x.OrderByDescending(y => y.ContentVersion).First()).ToList();
+        return deletedContent.GroupBy(x => x.ContentId).Select(x => x.OrderByDescending(y => y.ContentVersion).First())
+            .ToList();
     }
 
     /// <summary>
@@ -287,8 +307,8 @@ public static class Db
             where !db.ImageContents.Any(x => x.ContentId == h.ContentId)
             select h).ToListAsync().ConfigureAwait(false);
 
-        return deletedContent.GroupBy(x => x.ContentId)
-            .Select(x => x.OrderByDescending(y => y.ContentVersion).First()).ToList();
+        return deletedContent.GroupBy(x => x.ContentId).Select(x => x.OrderByDescending(y => y.ContentVersion).First())
+            .ToList();
     }
 
     /// <summary>
@@ -304,8 +324,8 @@ public static class Db
             where !db.LineContents.Any(x => x.ContentId == h.ContentId)
             select h).ToListAsync().ConfigureAwait(false);
 
-        return deletedContent.GroupBy(x => x.ContentId)
-            .Select(x => x.OrderByDescending(y => y.ContentVersion).First()).ToList();
+        return deletedContent.GroupBy(x => x.ContentId).Select(x => x.OrderByDescending(y => y.ContentVersion).First())
+            .ToList();
     }
 
     /// <summary>
@@ -321,8 +341,8 @@ public static class Db
             where !db.LinkContents.Any(x => x.ContentId == h.ContentId)
             select h).ToListAsync().ConfigureAwait(false);
 
-        return deletedContent.GroupBy(x => x.ContentId)
-            .Select(x => x.OrderByDescending(y => y.ContentVersion).First()).ToList();
+        return deletedContent.GroupBy(x => x.ContentId).Select(x => x.OrderByDescending(y => y.ContentVersion).First())
+            .ToList();
     }
 
     /// <summary>
@@ -338,8 +358,8 @@ public static class Db
             where !db.NoteContents.Any(x => x.ContentId == h.ContentId)
             select h).ToListAsync().ConfigureAwait(false);
 
-        return deletedContent.GroupBy(x => x.ContentId)
-            .Select(x => x.OrderByDescending(y => y.ContentVersion).First()).ToList();
+        return deletedContent.GroupBy(x => x.ContentId).Select(x => x.OrderByDescending(y => y.ContentVersion).First())
+            .ToList();
     }
 
     /// <summary>
@@ -355,8 +375,8 @@ public static class Db
             where !db.PhotoContents.Any(x => x.ContentId == h.ContentId)
             select h).ToListAsync().ConfigureAwait(false);
 
-        return deletedContent.GroupBy(x => x.ContentId)
-            .Select(x => x.OrderByDescending(y => y.ContentVersion).First()).ToList();
+        return deletedContent.GroupBy(x => x.ContentId).Select(x => x.OrderByDescending(y => y.ContentVersion).First())
+            .ToList();
     }
 
     /// <summary>
@@ -372,8 +392,8 @@ public static class Db
             where !db.PointContents.Any(x => x.ContentId == h.ContentId)
             select h).ToListAsync().ConfigureAwait(false);
 
-        return deletedContent.GroupBy(x => x.ContentId)
-            .Select(x => x.OrderByDescending(y => y.ContentVersion).First()).ToList();
+        return deletedContent.GroupBy(x => x.ContentId).Select(x => x.OrderByDescending(y => y.ContentVersion).First())
+            .ToList();
     }
 
     /// <summary>
@@ -389,8 +409,8 @@ public static class Db
             where !db.PostContents.Any(x => x.ContentId == h.ContentId)
             select h).ToListAsync().ConfigureAwait(false);
 
-        return deletedContent.GroupBy(x => x.ContentId)
-            .Select(x => x.OrderByDescending(y => y.ContentVersion).First()).ToList();
+        return deletedContent.GroupBy(x => x.ContentId).Select(x => x.OrderByDescending(y => y.ContentVersion).First())
+            .ToList();
     }
 
     /// <summary>
@@ -603,8 +623,7 @@ public static class Db
             context.MapComponents.Remove(loopToHistoric);
         }
 
-        var elementsToDelete =
-            context.MapComponentElements.Where(x => x.MapComponentContentId == contentId).ToList();
+        var elementsToDelete = context.MapComponentElements.Where(x => x.MapComponentContentId == contentId).ToList();
         var elementsToDeleteContentIds = elementsToDelete.Select(x => x.ElementContentId).ToList();
 
         foreach (var loopElements in elementsToDelete)
@@ -835,8 +854,8 @@ public static class Db
         {
             FileContent => db.FileContents.Where(x => !string.IsNullOrWhiteSpace(x.Folder)).Select(x => x.Folder)
                 .Distinct().OrderBy(x => x).Cast<string>().ToList(),
-            GeoJsonContent => db.GeoJsonContents.Where(x => !string.IsNullOrWhiteSpace(x.Folder))
-                .Select(x => x.Folder).Distinct().OrderBy(x => x).Cast<string>().ToList(),
+            GeoJsonContent => db.GeoJsonContents.Where(x => !string.IsNullOrWhiteSpace(x.Folder)).Select(x => x.Folder)
+                .Distinct().OrderBy(x => x).Cast<string>().ToList(),
             ImageContent => db.ImageContents.Where(x => !string.IsNullOrWhiteSpace(x.Folder)).Select(x => x.Folder)
                 .Distinct().OrderBy(x => x).Cast<string>().ToList(),
             LineContent => db.LineContents.Where(x => !string.IsNullOrWhiteSpace(x.Folder)).Select(x => x.Folder)
@@ -847,8 +866,8 @@ public static class Db
                 .Distinct().OrderBy(x => x).Cast<string>().ToList(),
             PointContent => db.PointContents.Where(x => !string.IsNullOrWhiteSpace(x.Folder)).Select(x => x.Folder)
                 .Distinct().OrderBy(x => x).Cast<string>().ToList(),
-            PointContentDto => db.PointContents.Where(x => !string.IsNullOrWhiteSpace(x.Folder))
-                .Select(x => x.Folder).Distinct().OrderBy(x => x).Cast<string>().ToList(),
+            PointContentDto => db.PointContents.Where(x => !string.IsNullOrWhiteSpace(x.Folder)).Select(x => x.Folder)
+                .Distinct().OrderBy(x => x).Cast<string>().ToList(),
             PostContent => db.PostContents.Where(x => !string.IsNullOrWhiteSpace(x.Folder)).Select(x => x.Folder)
                 .Distinct().OrderBy(x => x).Cast<string>().ToList(),
             _ => new List<string>()
@@ -880,34 +899,26 @@ public static class Db
 
         var nowCutoff = DateTime.Now;
 
-        var fileContent = await db.FileContents
-            .Where(x => x.ShowInMainSiteFeed && !x.IsDraft && x.FeedOn < nowCutoff).Cast<IContentCommon>()
-            .ToListAsync().ConfigureAwait(false);
+        var fileContent = await db.FileContents.Where(x => x.ShowInMainSiteFeed && !x.IsDraft && x.FeedOn < nowCutoff)
+            .Cast<IContentCommon>().ToListAsync().ConfigureAwait(false);
         var geoJsonContent = await db.GeoJsonContents
-            .Where(x => x.ShowInMainSiteFeed && !x.IsDraft && x.FeedOn < nowCutoff).Cast<IContentCommon>()
-            .ToListAsync().ConfigureAwait(false);
-        var imageContent = await db.ImageContents
-            .Where(x => x.ShowInMainSiteFeed && !x.IsDraft && x.FeedOn < nowCutoff).Cast<IContentCommon>()
-            .ToListAsync().ConfigureAwait(false);
-        var lineContent = await db.LineContents
-            .Where(x => x.ShowInMainSiteFeed && !x.IsDraft && x.FeedOn < nowCutoff).Cast<IContentCommon>()
-            .ToListAsync().ConfigureAwait(false);
-        var noteContent = await db.NoteContents
-            .Where(x => x.ShowInMainSiteFeed && !x.IsDraft && x.FeedOn < nowCutoff).Cast<IContentCommon>()
-            .ToListAsync().ConfigureAwait(false);
-        var photoContent = await db.PhotoContents
-            .Where(x => x.ShowInMainSiteFeed && !x.IsDraft && x.FeedOn < nowCutoff).Cast<IContentCommon>()
-            .ToListAsync().ConfigureAwait(false);
-        var pointContent = await db.PointContents
-            .Where(x => x.ShowInMainSiteFeed && !x.IsDraft && x.FeedOn < nowCutoff).Cast<IContentCommon>()
-            .ToListAsync().ConfigureAwait(false);
-        var postContent = await db.PostContents
-            .Where(x => x.ShowInMainSiteFeed && !x.IsDraft && x.FeedOn < nowCutoff).Cast<IContentCommon>()
-            .ToListAsync().ConfigureAwait(false);
+            .Where(x => x.ShowInMainSiteFeed && !x.IsDraft && x.FeedOn < nowCutoff).Cast<IContentCommon>().ToListAsync()
+            .ConfigureAwait(false);
+        var imageContent = await db.ImageContents.Where(x => x.ShowInMainSiteFeed && !x.IsDraft && x.FeedOn < nowCutoff)
+            .Cast<IContentCommon>().ToListAsync().ConfigureAwait(false);
+        var lineContent = await db.LineContents.Where(x => x.ShowInMainSiteFeed && !x.IsDraft && x.FeedOn < nowCutoff)
+            .Cast<IContentCommon>().ToListAsync().ConfigureAwait(false);
+        var noteContent = await db.NoteContents.Where(x => x.ShowInMainSiteFeed && !x.IsDraft && x.FeedOn < nowCutoff)
+            .Cast<IContentCommon>().ToListAsync().ConfigureAwait(false);
+        var photoContent = await db.PhotoContents.Where(x => x.ShowInMainSiteFeed && !x.IsDraft && x.FeedOn < nowCutoff)
+            .Cast<IContentCommon>().ToListAsync().ConfigureAwait(false);
+        var pointContent = await db.PointContents.Where(x => x.ShowInMainSiteFeed && !x.IsDraft && x.FeedOn < nowCutoff)
+            .Cast<IContentCommon>().ToListAsync().ConfigureAwait(false);
+        var postContent = await db.PostContents.Where(x => x.ShowInMainSiteFeed && !x.IsDraft && x.FeedOn < nowCutoff)
+            .Cast<IContentCommon>().ToListAsync().ConfigureAwait(false);
 
         return fileContent.Concat(geoJsonContent).Concat(imageContent).Concat(lineContent).Concat(noteContent)
-            .Concat(postContent).Concat(photoContent).Concat(pointContent).OrderByDescending(x => x.FeedOn)
-            .ToList();
+            .Concat(postContent).Concat(photoContent).Concat(pointContent).OrderByDescending(x => x.FeedOn).ToList();
     }
 
     /// <summary>
@@ -949,33 +960,8 @@ public static class Db
             .OrderByDescending(x => x.FeedOn).Cast<IContentCommon>().ToListAsync().ConfigureAwait(false);
 
         return fileContent.Concat(geoJsonContent).Concat(imageContent).Concat(lineContent).Concat(noteContent)
-            .Concat(photoContent).Concat(postContent).Concat(pointContent).OrderBy(x => x.FeedOn)
-            .Take(numberOfEntries).ToList();
-    }
-
-    /// <summary>
-    ///     Finds the previous photo based on PhotoDate, CreatedDate and ContentId.
-    /// </summary>
-    /// <returns></returns>
-    public static async Task<PhotoContent?> PhotoCommonContentPrevious(DateTime photoDate)
-    {
-        var db = await Context().ConfigureAwait(false);
-
-        return await db.PhotoContents
-            .Where(x => !x.IsDraft && x.PhotoCreatedOn < photoDate)
-            .OrderByDescending(x => x.PhotoCreatedOn).ThenByDescending(x => x.CreatedOn).ThenByDescending(x => x.ContentId).FirstOrDefaultAsync().ConfigureAwait(false);
-    }
-
-    /// <summary>
-    ///     Finds the next photo based on PhotoDate, CreatedDate and ContentId.
-    /// </summary>
-    public static async Task<PhotoContent?> PhotoCommonContentNext(DateTime photoDate)
-    {
-        var db = await Context().ConfigureAwait(false);
-
-        return await db.PhotoContents
-            .Where(x => !x.IsDraft && x.PhotoCreatedOn > photoDate)
-            .OrderBy(x => x.PhotoCreatedOn).ThenBy(x => x.CreatedOn).ThenBy(x => x.ContentId).FirstOrDefaultAsync().ConfigureAwait(false);
+            .Concat(photoContent).Concat(postContent).Concat(pointContent).OrderBy(x => x.FeedOn).Take(numberOfEntries)
+            .ToList();
     }
 
     /// <summary>
@@ -1115,6 +1101,31 @@ public static class Db
             : tags.Select(loopTags => (loopTags, (object)toAdd)).ToList();
     }
 
+    /// <summary>
+    ///     Finds the next photo based on PhotoDate, CreatedDate and ContentId.
+    /// </summary>
+    public static async Task<PhotoContent?> PhotoCommonContentNext(DateTime photoDate)
+    {
+        var db = await Context().ConfigureAwait(false);
+
+        return await db.PhotoContents.Where(x => !x.IsDraft && x.PhotoCreatedOn > photoDate)
+            .OrderBy(x => x.PhotoCreatedOn).ThenBy(x => x.CreatedOn).ThenBy(x => x.ContentId).FirstOrDefaultAsync()
+            .ConfigureAwait(false);
+    }
+
+    /// <summary>
+    ///     Finds the previous photo based on PhotoDate, CreatedDate and ContentId.
+    /// </summary>
+    /// <returns></returns>
+    public static async Task<PhotoContent?> PhotoCommonContentPrevious(DateTime photoDate)
+    {
+        var db = await Context().ConfigureAwait(false);
+
+        return await db.PhotoContents.Where(x => !x.IsDraft && x.PhotoCreatedOn < photoDate)
+            .OrderByDescending(x => x.PhotoCreatedOn).ThenByDescending(x => x.CreatedOn)
+            .ThenByDescending(x => x.ContentId).FirstOrDefaultAsync().ConfigureAwait(false);
+    }
+
     public static async Task<PointContentDto?> PointAndPointDetails(Guid pointContentId)
     {
         var db = await Context().ConfigureAwait(false);
@@ -1122,8 +1133,7 @@ public static class Db
         return await PointAndPointDetails(pointContentId, db).ConfigureAwait(false);
     }
 
-    public static async Task<PointContentDto?> PointAndPointDetails(Guid pointContentId,
-        PointlessWaymarksContext db)
+    public static async Task<PointContentDto?> PointAndPointDetails(Guid pointContentId, PointlessWaymarksContext db)
     {
         var point = await db.PointContents.SingleAsync(x => x.ContentId == pointContentId).ConfigureAwait(false);
         var details = await db.PointDetails.Where(x => x.PointContentId == pointContentId).ToListAsync()
@@ -1207,8 +1217,7 @@ public static class Db
         return false;
     }
 
-    public static async Task<List<PointDetail>> PointDetailsForPoint(Guid pointContentId,
-        PointlessWaymarksContext db)
+    public static async Task<List<PointDetail>> PointDetailsForPoint(Guid pointContentId, PointlessWaymarksContext db)
     {
         var details = await db.PointDetails.Where(x => x.PointContentId == pointContentId).ToListAsync()
             .ConfigureAwait(false);
@@ -1298,8 +1307,7 @@ public static class Db
     {
         var db = await Context().ConfigureAwait(false);
 
-        var serializedSettings =
-            JsonSerializer.Serialize(UserSettingsSingleton.CurrentSettings().GenerationValues());
+        var serializedSettings = JsonSerializer.Serialize(UserSettingsSingleton.CurrentSettings().GenerationValues());
         var dbGenerationRecord = new GenerationLog
         {
             GenerationSettings = serializedSettings, GenerationVersion = generationVersion
@@ -1489,8 +1497,8 @@ public static class Db
         var groupLastUpdateOn = DateTime.Now;
         var updateGroup = Guid.NewGuid();
 
-        var toHistoric = await context.MapComponents.Where(x => x.ContentId == toSaveDto.Map.ContentId)
-            .ToListAsync().ConfigureAwait(false);
+        var toHistoric = await context.MapComponents.Where(x => x.ContentId == toSaveDto.Map.ContentId).ToListAsync()
+            .ConfigureAwait(false);
 
         var isUpdate = toHistoric.Any();
 
@@ -1546,8 +1554,8 @@ public static class Db
 
         await context.SaveChangesAsync().ConfigureAwait(false);
 
-        var points = await context.PointContents.Where(x => newElementsContentIds.Contains(x.ContentId))
-            .ToListAsync().ConfigureAwait(false);
+        var points = await context.PointContents.Where(x => newElementsContentIds.Contains(x.ContentId)).ToListAsync()
+            .ConfigureAwait(false);
         var boundingBox = SpatialConverters.PointBoundingBox(points);
 
         var geoJsonLines = await context.LineContents.Where(x => newElementsContentIds.Contains(x.ContentId))
@@ -1697,8 +1705,7 @@ public static class Db
         await SavePointDetailContent(relatedDetails).ConfigureAwait(false);
 
         DataNotifications.PublishDataNotification("Db", DataNotificationContentType.Point,
-            isUpdate ? DataNotificationUpdateType.Update : DataNotificationUpdateType.New,
-            toSave.ContentId.AsList());
+            isUpdate ? DataNotificationUpdateType.Update : DataNotificationUpdateType.New, toSave.ContentId.AsList());
 
         return await PointAndPointDetails(toSaveDto.ContentId).ConfigureAwait(false);
     }
@@ -1771,7 +1778,6 @@ public static class Db
         if (newDetailIds.Any())
             DataNotifications.PublishDataNotification("Db", DataNotificationContentType.PointDetail,
                 DataNotificationUpdateType.New, updatedDetailIds);
-            
     }
 
     /// <summary>
@@ -1789,8 +1795,8 @@ public static class Db
         var groupLastUpdateOn = DateTime.Now;
         var updateGroup = Guid.NewGuid();
 
-        var currentEntriesFromPoint = await context.PointDetails
-            .Where(x => x.PointContentId == toSave.PointContentId).ToListAsync().ConfigureAwait(false);
+        var currentEntriesFromPoint = await context.PointDetails.Where(x => x.PointContentId == toSave.PointContentId)
+            .ToListAsync().ConfigureAwait(false);
         var detailsToReplace = currentEntriesFromPoint.Where(x => x.ContentId == toSave.ContentId).ToList();
         var isUpdate = detailsToReplace.Any();
 
@@ -1940,8 +1946,8 @@ public static class Db
         if (rawTagString == null) return new List<string>();
         if (string.IsNullOrWhiteSpace(rawTagString)) return new List<string>();
 
-        return rawTagString.Split(",").Select(TagListItemCleanup).Where(x => !string.IsNullOrWhiteSpace(x))
-            .Distinct().OrderBy(x => x).ToList();
+        return rawTagString.Split(",").Select(TagListItemCleanup).Where(x => !string.IsNullOrWhiteSpace(x)).Distinct()
+            .OrderBy(x => x).ToList();
     }
 
     public static List<string> TagListParseToSlugs(string? rawTagString, bool removeExcludedTags)
@@ -2015,8 +2021,8 @@ public static class Db
                 progress?.Report("Process GeoJson Content Tags");
                 var db = await Context().ConfigureAwait(false);
                 var toAdd = ParseToTagSlugsAndContentList(
-                    (await db.GeoJsonContents.Where(x => !x.IsDraft).ToListAsync().ConfigureAwait(false))
-                    .Cast<ITag>().ToList(), removeExcludedTags, progress);
+                    (await db.GeoJsonContents.Where(x => !x.IsDraft).ToListAsync().ConfigureAwait(false)).Cast<ITag>()
+                    .ToList(), removeExcludedTags, progress);
                 toAdd.ForEach(x => tagBag.Add(x));
             },
             async () =>
@@ -2091,8 +2097,8 @@ public static class Db
 
         var flattened = tagBag.ToList();
 
-        var grouped = flattened.GroupBy(x => x.tag)
-            .Select(x => (x.Key, x.SelectMany(y => y.contentObjects).ToList())).OrderBy(x => x.Key).ToList();
+        var grouped = flattened.GroupBy(x => x.tag).Select(x => (x.Key, x.SelectMany(y => y.contentObjects).ToList()))
+            .OrderBy(x => x.Key).ToList();
 
         progress?.Report("Finished Parsing Tag Content");
 
