@@ -12,7 +12,7 @@ Pointless Waymarks CMS is a .NET Core 6 Windows WPF GUI for generating a static 
 
 Details:
  - Locally Generated Static Site - low cost, low maintenance, high durability, easy backup.
- - Integrated Local Viewer - review changes without publishing content - not all content should be online!
+ - Integrated Local Viewer - not all content should be online! In addition to making 'local only' sites pleasant this allows good review of a site before publishing and easy inspection/debugging of a site.
  - Database Driven - flexibility in creating and updating content with the potential to generate other output formats.
  - Custom Software - optimized support for a limited set of content types and a specific set of workflows.
  - Windows Desktop WPF GUI Editor - no hosting to pay for, no server to maintain, no containers to orchestrate... WPF because it is my favorite Windows GUI technology atm and because the experimentation/learning/coding I do here flows back into my day job where I help to create and maintain a Retail Inventory Management and Reporting system that has a WPF Front End.
