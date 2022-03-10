@@ -484,19 +484,85 @@ public partial class ContentListContext : IDragSource, IDropTarget
 
             if (o is not IContentListItem toFilter) return false;
 
-            if ((toFilter.Content().Title ?? string.Empty).Contains(UserFilterText, StringComparison.OrdinalIgnoreCase))
-                return true;
-            if ((toFilter.Content().Tags ?? string.Empty).Contains(UserFilterText, StringComparison.OrdinalIgnoreCase))
-                return true;
-            if ((toFilter.Content().Summary ?? string.Empty).Contains(UserFilterText,
-                    StringComparison.OrdinalIgnoreCase)) return true;
-            if ((toFilter.Content().CreatedBy ?? string.Empty).Contains(UserFilterText,
-                    StringComparison.OrdinalIgnoreCase)) return true;
-            if ((toFilter.Content().LastUpdatedBy ?? string.Empty).Contains(UserFilterText,
-                    StringComparison.OrdinalIgnoreCase)) return true;
-            if (toFilter.ContentId() != null && toFilter.ContentId().ToString()
-                    .Contains(UserFilterText, StringComparison.OrdinalIgnoreCase)) return true;
-            return false;
+            var filterLineResults = new List<bool>();
+
+            using var sr = new StringReader(UserFilterText);
+
+            while (sr.ReadLine() is { } line)
+            {
+                if (string.IsNullOrWhiteSpace(line)) continue;
+
+                var searchString = line.Trim();
+                Func<bool, bool> searchResultModifier = x => x;
+
+                if (line.ToUpper().StartsWith("-"))
+                {
+                    searchResultModifier = x => !x;
+                    searchString = line.Substring(1, line.Length - 1);
+                    searchString = searchString.Trim();
+                }
+
+                if (string.IsNullOrWhiteSpace(searchString)) continue;
+
+                if (searchString.ToUpper().StartsWith("TITLE:"))
+                {
+                    searchString = searchString.Substring(6, searchString.Length - 6);
+                    if (string.IsNullOrWhiteSpace(searchString)) continue;
+                    searchString = searchString.Trim();
+
+                    filterLineResults.Add(searchResultModifier(
+                        (toFilter.Content().Title ?? string.Empty).Contains(searchString,
+                            StringComparison.OrdinalIgnoreCase)));
+                    continue;
+                }
+
+                if (searchString.ToUpper().StartsWith("SUMMARY:"))
+                {
+                    searchString = searchString.Substring(6, searchString.Length - 8);
+                    if (string.IsNullOrWhiteSpace(searchString)) continue;
+                    searchString = searchString.Trim();
+
+                    filterLineResults.Add(searchResultModifier(
+                        (toFilter.Content().Summary ?? string.Empty).Contains(searchString,
+                            StringComparison.OrdinalIgnoreCase)));
+                    continue;
+                }
+
+                if (searchString.ToUpper().StartsWith("TAGS:"))
+                {
+                    searchString = searchString.Substring(5, searchString.Length - 5);
+                    if (string.IsNullOrWhiteSpace(searchString)) continue;
+                    searchString = searchString.Trim();
+
+                    filterLineResults.Add(searchResultModifier(
+                        (toFilter.Content().Tags ?? string.Empty).Contains(searchString,
+                            StringComparison.OrdinalIgnoreCase)));
+                    continue;
+                }
+
+                bool AllFieldsSearch(string stringToSearch)
+                {
+                    if ((toFilter.Content().Title ?? string.Empty).Contains(stringToSearch,
+                            StringComparison.OrdinalIgnoreCase))
+                        return true;
+                    if ((toFilter.Content().Tags ?? string.Empty).Contains(stringToSearch,
+                            StringComparison.OrdinalIgnoreCase))
+                        return true;
+                    if ((toFilter.Content().Summary ?? string.Empty).Contains(stringToSearch,
+                            StringComparison.OrdinalIgnoreCase)) return true;
+                    if ((toFilter.Content().CreatedBy ?? string.Empty).Contains(stringToSearch,
+                            StringComparison.OrdinalIgnoreCase)) return true;
+                    if ((toFilter.Content().LastUpdatedBy ?? string.Empty).Contains(stringToSearch,
+                            StringComparison.OrdinalIgnoreCase)) return true;
+                    if (toFilter.ContentId() != null && toFilter.ContentId().ToString()
+                            .Contains(stringToSearch, StringComparison.OrdinalIgnoreCase)) return true;
+                    return false;
+                }
+
+                filterLineResults.Add(searchResultModifier(AllFieldsSearch(searchString)));
+            }
+
+            return !filterLineResults.Any() || filterLineResults.All(x => x);
         };
     }
 

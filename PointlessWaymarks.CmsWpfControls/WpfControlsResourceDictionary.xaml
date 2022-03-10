@@ -45,7 +45,6 @@
         <Setter Property="BorderBrush" Value="Green" />
     </Style>
     <Style x:Key="UiComponentGroupBoxStyle" TargetType="GroupBox">
-        <Setter Property="Header" Value="Filter" />
         <Setter Property="BorderThickness" Value="1" />
         <Setter Property="BorderBrush" Value="Green" />
     </Style>
