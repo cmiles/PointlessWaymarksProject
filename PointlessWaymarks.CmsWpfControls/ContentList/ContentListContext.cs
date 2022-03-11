@@ -528,6 +528,18 @@ public partial class ContentListContext : IDragSource, IDropTarget
                     continue;
                 }
 
+                if (searchString.ToUpper().StartsWith("FOLDER:"))
+                {
+                    searchString = searchString.Substring(5, searchString.Length - 5);
+                    if (string.IsNullOrWhiteSpace(searchString)) continue;
+                    searchString = searchString.Trim();
+
+                    filterLineResults.Add(searchResultModifier(
+                        (toFilter.Content().Folder ?? string.Empty).Contains(searchString,
+                            StringComparison.OrdinalIgnoreCase)));
+                    continue;
+                }
+
                 if (searchString.ToUpper().StartsWith("TAGS:"))
                 {
                     searchString = searchString.Substring(5, searchString.Length - 5);
@@ -549,6 +561,8 @@ public partial class ContentListContext : IDragSource, IDropTarget
                             StringComparison.OrdinalIgnoreCase))
                         return true;
                     if ((toFilter.Content().Summary ?? string.Empty).Contains(stringToSearch,
+                            StringComparison.OrdinalIgnoreCase)) return true;
+                    if ((toFilter.Content().Folder ?? string.Empty).Contains(stringToSearch,
                             StringComparison.OrdinalIgnoreCase)) return true;
                     if ((toFilter.Content().CreatedBy ?? string.Empty).Contains(stringToSearch,
                             StringComparison.OrdinalIgnoreCase)) return true;
