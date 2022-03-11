@@ -108,12 +108,13 @@ public static class CameraRollGalleryPageGenerator
                 for (var j = 1; j < 13; j++)
                 {
                     var monthContainer =
-                        new DivTag($"{currentYear}-{currentMonth}").AddClass("camera-roll-month-list-item");
+                        new DivTag().AddClass("camera-roll-month-list-item");
 
                     var monthText = CultureInfo.CurrentCulture.DateTimeFormat.GetAbbreviatedMonthName(j);
 
                     if (j == currentMonth)
                     {
+                        monthContainer.Id($"{currentYear}-{currentMonth}");
                         var activeMonthContent = new DivTag().Text(monthText)
                             .AddClass("camera-roll-month-list-content")
                             .AddClass("camera-roll-nav-current-selection");
