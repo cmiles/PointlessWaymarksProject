@@ -15,8 +15,9 @@ public static class CameraRollGalleryPageGenerator
 
         progress?.Report("Starting Camera Roll Generation");
 
-        var allDates = (await db.PhotoContents.Where(x => !x.IsDraft).Select(x => x.PhotoCreatedOn).ToListAsync().ConfigureAwait(false)).Select(x => x.Date)
-            .Distinct().OrderByDescending(x => x).ToList();
+        var allDates =
+            (await db.PhotoContents.Where(x => !x.IsDraft).Select(x => x.PhotoCreatedOn).ToListAsync()
+                .ConfigureAwait(false)).Select(x => x.Date).Distinct().OrderByDescending(x => x).ToList();
 
         progress?.Report($"Found {allDates.Count} Dates with Photos for Camera Roll");
 
@@ -71,15 +72,13 @@ public static class CameraRollGalleryPageGenerator
                     if (loopYear == currentYear)
                     {
                         var activeYearContent = new DivTag().Text(loopYear.ToString())
-                            .AddClass("camera-roll-year-list-content")
-                            .AddClass("camera-roll-nav-current-selection");
+                            .AddClass("camera-roll-year-list-content").AddClass("camera-roll-nav-current-selection");
                         yearContainer.Children.Add(activeYearContent);
                     }
                     else
                     {
                         var activeYearContent =
-                            new LinkTag(loopYear.ToString(), $"#{loopYear}").AddClass(
-                                "camera-roll-year-list-content");
+                            new LinkTag(loopYear.ToString(), $"#{loopYear}").AddClass("camera-roll-year-list-content");
                         yearContainer.Children.Add(activeYearContent);
                     }
 
@@ -107,31 +106,27 @@ public static class CameraRollGalleryPageGenerator
 
                 for (var j = 1; j < 13; j++)
                 {
-                    var monthContainer =
-                        new DivTag().AddClass("camera-roll-month-list-item");
+                    var monthContainer = new DivTag().AddClass("camera-roll-month-list-item");
 
                     var monthText = CultureInfo.CurrentCulture.DateTimeFormat.GetAbbreviatedMonthName(j);
 
                     if (j == currentMonth)
                     {
                         monthContainer.Id($"{currentYear}-{currentMonth}");
-                        var activeMonthContent = new DivTag().Text(monthText)
-                            .AddClass("camera-roll-month-list-content")
+                        var activeMonthContent = new DivTag().Text(monthText).AddClass("camera-roll-month-list-content")
                             .AddClass("camera-roll-nav-current-selection");
                         monthContainer.Children.Add(activeMonthContent);
                     }
                     else if (!currentYearMonths.Contains(j))
                     {
-                        var activeMonthContent = new DivTag().Text(monthText)
-                            .AddClass("camera-roll-month-list-content")
+                        var activeMonthContent = new DivTag().Text(monthText).AddClass("camera-roll-month-list-content")
                             .AddClass("camera-roll-nav-unused-selection");
                         monthContainer.Children.Add(activeMonthContent);
                     }
                     else
                     {
                         var activeMonthContent =
-                            new LinkTag(monthText, $"#{currentYear}-{j}").AddClass(
-                                "camera-roll-month-list-content");
+                            new LinkTag(monthText, $"#{currentYear}-{j}").AddClass("camera-roll-month-list-content");
                         monthContainer.Children.Add(activeMonthContent);
                     }
 
@@ -153,8 +148,7 @@ public static class CameraRollGalleryPageGenerator
             var infoItem = new DivTag().AddClass("camera-roll-info-item-container");
 
             var dateLink = new LinkTag($"{loopDate:yyyy MMMM d, dddd}",
-                UserSettingsSingleton.CurrentSettings().DailyPhotoGalleryUrl(loopDate),
-                "camera-roll-info-date-link");
+                UserSettingsSingleton.CurrentSettings().DailyPhotoGalleryUrl(loopDate), "camera-roll-info-date-link");
             var dateDiv = new DivTag().AddClass("camera-roll-info-date");
 
             if (newMonth) dateDiv.Id($"{currentYear}-{currentMonth}");
@@ -192,8 +186,9 @@ public static class CameraRollGalleryPageGenerator
         }
 
         var createdByEntries =
-            (await db.PhotoContents.GroupBy(x => x.PhotoCreatedBy).Select(x => x.Key).ToListAsync().ConfigureAwait(false))
-            .Where(x => !string.IsNullOrWhiteSpace(x)).Select(x => x!.Trim()).OrderBy(x => x).ToList();
+            (await db.PhotoContents.GroupBy(x => x.PhotoCreatedBy).Select(x => x.Key).ToListAsync()
+                .ConfigureAwait(false)).Where(x => !string.IsNullOrWhiteSpace(x)).Select(x => x!.Trim()).OrderBy(x => x)
+            .ToList();
 
         var toReturn = new CameraRollGalleryPage
         {
