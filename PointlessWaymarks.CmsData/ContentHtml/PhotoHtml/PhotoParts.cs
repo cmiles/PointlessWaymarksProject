@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using HtmlTags;
 using PointlessWaymarks.CmsData.CommonHtml;
+using PointlessWaymarks.CmsData.ContentHtml.PointHtml;
 using PointlessWaymarks.CmsData.Database.Models;
 
 namespace PointlessWaymarks.CmsData.ContentHtml.PhotoHtml
@@ -34,6 +35,10 @@ namespace PointlessWaymarks.CmsData.ContentHtml.PhotoHtml
             outerContainer.Children.Add(Tags.InfoTextDivTag(dbEntry.CameraModel, "photo-detail", "camera-model",
                 dbEntry.CameraModel));
             outerContainer.Children.Add(Tags.InfoTextDivTag(dbEntry.License, "photo-detail", "license", dbEntry.License));
+            if (dbEntry.Latitude != null && dbEntry.Longitude != null)
+            {
+                outerContainer.Children.Add(Tags.InfoLinkDivTag(PointParts.CalTopoMapsLatLongUrl(dbEntry.Latitude.Value, dbEntry.Longitude.Value), $"{dbEntry.Latitude.Value:F5}, {dbEntry.Longitude.Value:F5}", "photo-detail", "geotag", $"{dbEntry.Latitude.Value:F5}, {dbEntry.Longitude.Value:F5}"));
+            }
 
             //Return empty if there are no details
             return outerContainer.Children.Count(x => !x.IsEmpty()) > 1 ? outerContainer : HtmlTag.Empty();

@@ -16,8 +16,13 @@ public static class PointParts
 
     public static string CalTopoMapsLatLongUrl(PointContentDto point)
     {
+        return CalTopoMapsLatLongUrl(point.Latitude, point.Longitude);
+    }
+
+    public static string CalTopoMapsLatLongUrl(double latitude, double longitude)
+    {
         return
-            $"https://caltopo.com/map.html#ll={Math.Round(point.Latitude, 5)},{Math.Round(point.Longitude, 5)}&z=12&b=mbt&a=sma";
+            $"https://caltopo.com/map.html#ll={Math.Round(latitude, 5)},{Math.Round(longitude, 5)}&z=12&b=mbt&a=sma";
     }
 
     public static HtmlTag GoogleMapsLatLongLink(PointContentDto point)

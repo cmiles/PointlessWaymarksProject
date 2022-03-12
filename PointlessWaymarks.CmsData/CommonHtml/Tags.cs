@@ -161,6 +161,22 @@ public static class Tags
         return figCaptionTag;
     }
 
+    public static HtmlTag InfoLinkDivTag(string url, string linkText, string className, string dataType,
+        string? dataValue)
+    {
+        if (string.IsNullOrWhiteSpace(linkText) || string.IsNullOrWhiteSpace(url)) return HtmlTag.Empty();
+        var divTag = new HtmlTag("div");
+        divTag.AddClasses(className, "info-box");
+
+        var spanTag = new LinkTag(linkText, url);
+        spanTag.AddClasses("info-list-link-item", $"{className}-content");
+        spanTag.Data(dataType, dataValue);
+
+        divTag.Children.Add(spanTag);
+
+        return divTag;
+    }
+
     public static HtmlTag InfoTextDivTag(string? contents, string className, string dataType, string? dataValue)
     {
         if (string.IsNullOrWhiteSpace(contents)) return HtmlTag.Empty();
@@ -196,15 +212,6 @@ public static class Tags
         var laterContent = Db.MainFeedCommonContentAfter(createdOn, numberOfPreviousAndLater).Result;
 
         return (previousContent, laterContent);
-    }
-
-    public static (PhotoContent? previousContent, PhotoContent? laterContent)
-        PhotoPreviousAndNextContent(DateTime photoDateTime)
-    {
-        var previousContent = Db.PhotoCommonContentPrevious(photoDateTime).Result;
-        var nextContent = Db.PhotoCommonContentNext(photoDateTime).Result;
-
-        return (previousContent, nextContent);
     }
 
     public static string OpenGraphImageMetaTags(PictureSiteInformation? mainImage)
@@ -271,6 +278,15 @@ public static class Tags
         figCaptionTag.Text(string.Join(" ", PhotoCaptionText(dbEntry, includeTitle)));
 
         return figCaptionTag;
+    }
+
+    public static (PhotoContent? previousContent, PhotoContent? laterContent)
+        PhotoPreviousAndNextContent(DateTime photoDateTime)
+    {
+        var previousContent = Db.PhotoCommonContentPrevious(photoDateTime).Result;
+        var nextContent = Db.PhotoCommonContentNext(photoDateTime).Result;
+
+        return (previousContent, nextContent);
     }
 
     public static HtmlTag PictureEmailImgTag(PictureAsset pictureDirectoryInfo, bool willHaveVisibleCaption)
@@ -345,8 +361,7 @@ public static class Tags
             .Attr("src", pictureAsset.SmallPicture.SiteUrl).Attr("height", pictureAsset.SmallPicture.Height)
             .Attr("width", pictureAsset.SmallPicture.Width).Attr("loading", "lazy");
 
-        var smallestGreaterThan100 = pictureAsset.SrcsetImages.Where(x => x.Width > 100).OrderBy(x => x.Width)
-            .FirstOrDefault();
+        var smallestGreaterThan100 = pictureAsset.SrcsetImages.Where(x => x.Width > 100).MinBy(x => x.Width);
 
         imageTag.Attr("sizes", smallestGreaterThan100 == null ? "100px" : $"{smallestGreaterThan100.Width}px");
 
@@ -389,6 +404,7 @@ public static class Tags
 
         foreach (var loopSizes in sizes)
         {
+            //Todo: look at abstracting to InfoLinkDivTag
             var tagLinkContainer = new DivTag().AddClasses("tags-detail-link-container", "info-box");
 
             var tagLink =
@@ -441,6 +457,31 @@ public static class Tags
         return titleContainer;
     }
 
+    public static HtmlTag PreviousAndNextPhotoDiv(PhotoContent? previousPhoto,
+        PhotoContent? nextPhoto)
+    {
+        if (previousPhoto is null && nextPhoto is null) return HtmlTag.Empty();
+
+        var hasPreviousPosts = previousPhoto != null;
+        var hasLaterPosts = nextPhoto != null;
+        var hasBothEarlierAndLaterPosts = hasPreviousPosts && hasLaterPosts;
+
+        var relatedPostsContainer =
+            new DivTag().AddClasses("photo-previous-next-container", "compact-content-list-container");
+        relatedPostsContainer.Children.Add(new DivTag()
+            .Text($"{(hasPreviousPosts ? "Previous" : "")}" +
+                  $"{(hasBothEarlierAndLaterPosts ? "/" : "")}{(hasLaterPosts ? "Next" : "")}:")
+            .AddClasses("photo-previous-next-label-tag", "compact-content-list-label"));
+
+        if (hasPreviousPosts)
+            relatedPostsContainer.Children.Add(BodyContentReferences.CompactContentDiv(previousPhoto));
+
+        if (hasLaterPosts)
+            relatedPostsContainer.Children.Add(BodyContentReferences.CompactContentDiv(nextPhoto));
+
+        return relatedPostsContainer;
+    }
+
     public static HtmlTag PreviousAndNextPostsDiv(List<IContentCommon> previousPosts,
         List<IContentCommon> laterPosts)
     {
@@ -450,7 +491,8 @@ public static class Tags
         var hasLaterPosts = laterPosts.Any();
         var hasBothEarlierAndLaterPosts = hasPreviousPosts && hasLaterPosts;
 
-        var relatedPostsContainer = new DivTag().AddClasses("post-related-posts-container", "compact-content-list-container");
+        var relatedPostsContainer =
+            new DivTag().AddClasses("post-related-posts-container", "compact-content-list-container");
         relatedPostsContainer.Children.Add(new DivTag()
             .Text($"Posts {(hasPreviousPosts ? "Before" : "")}" +
                   $"{(hasBothEarlierAndLaterPosts ? "/" : "")}{(hasLaterPosts ? "After" : "")}:")
@@ -463,30 +505,6 @@ public static class Tags
         if (hasLaterPosts)
             foreach (var loopPosts in laterPosts)
                 relatedPostsContainer.Children.Add(BodyContentReferences.CompactContentDiv(loopPosts));
-
-        return relatedPostsContainer;
-    }
-
-    public static HtmlTag PreviousAndNextPhotoDiv(PhotoContent? previousPhoto,
-        PhotoContent? nextPhoto)
-    {
-        if (previousPhoto is null && nextPhoto is null) return HtmlTag.Empty();
-
-        var hasPreviousPosts = previousPhoto != null;
-        var hasLaterPosts = nextPhoto != null;
-        var hasBothEarlierAndLaterPosts = hasPreviousPosts && hasLaterPosts;
-
-        var relatedPostsContainer = new DivTag().AddClasses("photo-previous-next-container", "compact-content-list-container");
-        relatedPostsContainer.Children.Add(new DivTag()
-            .Text($"{(hasPreviousPosts ? "Previous" : "")}" +
-                  $"{(hasBothEarlierAndLaterPosts ? "/" : "")}{(hasLaterPosts ? "Next" : "")}:")
-            .AddClasses("photo-previous-next-label-tag", "compact-content-list-label"));
-
-        if (hasPreviousPosts)
-                relatedPostsContainer.Children.Add(BodyContentReferences.CompactContentDiv(previousPhoto));
-
-        if (hasLaterPosts)
-                relatedPostsContainer.Children.Add(BodyContentReferences.CompactContentDiv(nextPhoto));
 
         return relatedPostsContainer;
     }
@@ -508,8 +526,8 @@ public static class Tags
 
         titleContainer.Children.Add(titleHeader);
 
-		var secondaryDiv = new DivTag().AddClass("site-header-subtitle-menu-container");
-		titleContainer.Children.Add(secondaryDiv);
+        var secondaryDiv = new DivTag().AddClass("site-header-subtitle-menu-container");
+        titleContainer.Children.Add(secondaryDiv);
 
         var siteSummary = UserSettingsSingleton.CurrentSettings().SiteSummary;
 
@@ -546,6 +564,7 @@ public static class Tags
             var tagLinkContainer = new DivTag().AddClasses("tags-detail-link-container", "info-box");
             if (loopTag.IsExcluded)
             {
+                //Todo: look at abstracting to InfoTextDivTag
                 var tagP = new HtmlTag("p").AddClasses("tag-detail-text", "info-list-text-item");
                 tagP.Text(loopTag.TagSlug.Replace("-", " "));
                 tagLinkContainer.Children.Add(tagP);
@@ -553,6 +572,7 @@ public static class Tags
             }
             else
             {
+                //Todo: look at abstracting to InfoLinkDivTag
                 var tagLink =
                     new LinkTag(loopTag.TagSlug.Replace("-", " "),
                             UserSettingsSingleton.CurrentSettings().TagPageUrl(loopTag.TagSlug))
