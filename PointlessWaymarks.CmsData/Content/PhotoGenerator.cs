@@ -123,7 +123,6 @@ public static class PhotoGenerator
                     }
 
                     if (!foundAltitude)
-                    {
                         try
                         {
                             toReturn.Elevation = await ElevationService.OpenTopoNedElevation(toReturn.Latitude.Value,
@@ -133,7 +132,6 @@ public static class PhotoGenerator
                         {
                             Console.WriteLine(e);
                         }
-                    }
                 }
             }
         }
@@ -205,10 +203,20 @@ public static class PhotoGenerator
         //title is blank the photo created on is put as a timestamp into the title. One of the ideas here is to give photos as much of a chance
         //as possible to have valid data for an automated import even when a detail like timestamp title is probably better replaced with something
         //more descriptive.
-        if (!string.IsNullOrWhiteSpace(toReturn.Title) && toReturn.Title.StartsWith("2"))
+
+        var fourDigitYearAndTwoDigitMonthAtStart =
+            new Regex(@"\A(?<possibleDate>\d\d\d\d[\s-]\d\d[\s-]*).*", RegexOptions.IgnoreCase);
+        var fourDigitYearAndTwoDigitMonthAtEnd =
+            new Regex(@".*[\s-](?<possibleDate>\d\d\d\d[\s-]\d\d)\z", RegexOptions.IgnoreCase);
+        var twoDigitYearAndTwoDigitMonthAtStart = new Regex(@"\A[01]\d\d\d\s.*", RegexOptions.IgnoreCase);
+        var twoDigitYearAndTwoDigitMonthAtEnd = new Regex(@".*[\s-][01]\d\d\d\z", RegexOptions.IgnoreCase);
+
+        if (!string.IsNullOrWhiteSpace(toReturn.Title) &&
+            (toReturn.Title.StartsWith("1") || toReturn.Title.StartsWith("2")) &&
+            fourDigitYearAndTwoDigitMonthAtStart.IsMatch(toReturn.Title))
         {
             var possibleTitleDate =
-                Regex.Match(toReturn.Title, @"\A(?<possibleDate>\d\d\d\d[\s-]\d\d[\s-]*).*", RegexOptions.IgnoreCase)
+                fourDigitYearAndTwoDigitMonthAtStart.Match(toReturn.Title)
                     .Groups["possibleDate"].Value;
             if (!string.IsNullOrWhiteSpace(possibleTitleDate))
                 try
@@ -216,8 +224,9 @@ public static class PhotoGenerator
                     var tempDate = new DateTime(int.Parse(possibleTitleDate[..4]),
                         int.Parse(possibleTitleDate.Substring(5, 2)), 1);
 
-                    toReturn.Summary = $"{toReturn.Title[possibleTitleDate.Length..]}";
-                    toReturn.Title = $"{tempDate:yyyy} {tempDate:MMMM} {toReturn.Title[possibleTitleDate.Length..]}";
+                    toReturn.Summary = $"{toReturn.Title[possibleTitleDate.Length..]}".TrimNullToEmpty();
+                    toReturn.Title =
+                        $"{tempDate:yyyy} {tempDate:MMMM} {toReturn.Title[possibleTitleDate.Length..].TrimNullToEmpty()}";
 
                     progress?.Report("Title updated based on 2yyy MM start pattern for file name");
                 }
@@ -227,31 +236,29 @@ public static class PhotoGenerator
                 }
         }
         else if (!string.IsNullOrWhiteSpace(toReturn.Title) &&
-                 (toReturn.Title.StartsWith("0") || toReturn.Title.StartsWith("1")))
+                 (toReturn.Title.StartsWith("0") || toReturn.Title.StartsWith("1")) &&
+                 twoDigitYearAndTwoDigitMonthAtStart.IsMatch(toReturn.Title))
         {
             try
             {
-                if (Regex.IsMatch(toReturn.Title, @"\A[01]\d\d\d\s.*", RegexOptions.IgnoreCase))
-                {
-                    var year = int.Parse(toReturn.Title[..2]);
-                    var month = int.Parse(toReturn.Title.Substring(2, 2));
+                var year = int.Parse(toReturn.Title[..2]);
+                var month = int.Parse(toReturn.Title.Substring(2, 2));
 
-                    var tempDate = year < 20
-                        ? new DateTime(2000 + year, month, 1)
-                        : new DateTime(1900 + year, month, 1);
+                var tempDate = year < 20
+                    ? new DateTime(2000 + year, month, 1)
+                    : new DateTime(1900 + year, month, 1);
 
-                    toReturn.Summary = $"{toReturn.Title[5..]}";
-                    toReturn.Title = $"{tempDate:yyyy} {tempDate:MMMM} {toReturn.Title[5..]}";
+                toReturn.Summary = $"{toReturn.Title[5..]}".TrimNullToEmpty();
+                toReturn.Title = $"{tempDate:yyyy} {tempDate:MMMM} {toReturn.Title[5..].TrimNullToEmpty()}";
 
-                    progress?.Report("Title updated based on YYMM start pattern for file name");
-                }
+                progress?.Report("Title updated based on YYMM start pattern for file name");
             }
             catch
             {
                 progress?.Report("Did not successfully parse YYMM start pattern for file name");
             }
         }
-        else if (Regex.IsMatch(toReturn.Title, @".*[\s-][01]\d\d\d\z", RegexOptions.IgnoreCase))
+        else if (twoDigitYearAndTwoDigitMonthAtEnd.IsMatch(toReturn.Title))
         {
             try
             {
@@ -260,8 +267,8 @@ public static class PhotoGenerator
 
                 var tempDate = year < 20 ? new DateTime(2000 + year, month, 1) : new DateTime(1900 + year, month, 1);
 
-                toReturn.Summary = $"{toReturn.Title[..^5]}";
-                toReturn.Title = $"{tempDate:yyyy} {tempDate:MMMM} {toReturn.Title[..^5]}";
+                toReturn.Summary = $"{toReturn.Title[..^5]}".TrimNullToEmpty();
+                toReturn.Title = $"{tempDate:yyyy} {tempDate:MMMM} {toReturn.Title[..^5].TrimNullToEmpty()}";
 
                 progress?.Report("Title updated based on YYMM end pattern for file name");
             }
@@ -270,10 +277,10 @@ public static class PhotoGenerator
                 progress?.Report("Did not successfully parse YYMM end pattern for file name");
             }
         }
-        else if (Regex.IsMatch(toReturn.Title, @".*[\s-]\d\d\d\d[\s-]\d\d\z", RegexOptions.IgnoreCase))
+        else if (fourDigitYearAndTwoDigitMonthAtEnd.IsMatch(toReturn.Title))
         {
             var possibleTitleDate =
-                Regex.Match(toReturn.Title, @".*[\s-](?<possibleDate>\d\d\d\d[\s-]\d\d)\z", RegexOptions.IgnoreCase)
+                fourDigitYearAndTwoDigitMonthAtEnd.Match(toReturn.Title)
                     .Groups["possibleDate"].Value;
             if (!string.IsNullOrWhiteSpace(possibleTitleDate))
                 try
@@ -281,8 +288,9 @@ public static class PhotoGenerator
                     var tempDate = new DateTime(int.Parse(possibleTitleDate[..4]),
                         int.Parse(possibleTitleDate.Substring(5, 2)), 1);
 
-                    toReturn.Summary = $"{toReturn.Title[..^possibleTitleDate.Length]}";
-                    toReturn.Title = $"{tempDate:yyyy} {tempDate:MMMM} {toReturn.Title[..^possibleTitleDate.Length]}";
+                    toReturn.Summary = $"{toReturn.Title[..^possibleTitleDate.Length]}.TrimNullToEmpty()";
+                    toReturn.Title =
+                        $"{tempDate:yyyy} {tempDate:MMMM} {toReturn.Title[..^possibleTitleDate.Length].TrimNullToEmpty()}";
 
                     progress?.Report("Title updated based on 2yyy MM end pattern for file name");
                 }
@@ -295,7 +303,7 @@ public static class PhotoGenerator
         {
             toReturn.Title = string.IsNullOrWhiteSpace(toReturn.Title)
                 ? toReturn.PhotoCreatedOn.ToString("yyyy MMMM dd h-mm-ss tt")
-                : $"{toReturn.PhotoCreatedOn:yyyy} {toReturn.PhotoCreatedOn:MMMM} {toReturn.Title}";
+                : $"{toReturn.PhotoCreatedOn:yyyy} {toReturn.PhotoCreatedOn:MMMM} {toReturn.Title}.TrimNullToEmpty()";
         }
 
         if (string.IsNullOrWhiteSpace(toReturn.Summary)) toReturn.Summary = toReturn.Title;

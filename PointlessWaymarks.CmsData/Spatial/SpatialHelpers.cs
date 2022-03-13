@@ -1,5 +1,4 @@
 ﻿using System.Globalization;
-using JetBrains.Annotations;
 using NetTopologySuite;
 using NetTopologySuite.Features;
 using NetTopologySuite.Geometries;
@@ -25,7 +24,7 @@ public static class SpatialHelpers
         if (initialValue != null && value == null) return true;
         if (initialValue == null /*&& value != null*/) return true;
         // ReSharper disable PossibleInvalidOperationException Checked above
-        return !initialValue.Value.IsApproximatelyEqualTo(value!.Value, maximumDifferenceAllowed);
+        return initialValue.Value.IsApproximatelyEqualTo(value!.Value, maximumDifferenceAllowed);
         // ReSharper restore PossibleInvalidOperationException
     }
 
@@ -157,7 +156,7 @@ public static class SpatialHelpers
     }
 
     public static async Task<string> ReplaceElevationsInGeoJsonWithLineString(string geoJson,
-        [CanBeNull] IProgress<string>? progress = null)
+        IProgress<string>? progress = null)
     {
         if (string.IsNullOrWhiteSpace(geoJson)) return string.Empty;
 
