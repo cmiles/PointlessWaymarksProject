@@ -414,7 +414,7 @@ Photo Content Notes:
         {
             CommonContentValidation.LatitudeValidationWithNullOk
         };
-        LatitudeEntry.ComparisonFunction = (o, u) => o.IsApproximatelyEqualTo(u, .000001);
+        LatitudeEntry.ComparisonFunction = (o, u) => o.IsApproximatelyEqualTo(u, .0000001);
         LatitudeEntry.Title = "Latitude";
         LatitudeEntry.HelpText = "In DDD.DDDDDD°";
         LatitudeEntry.ReferenceValue = DbEntry.Latitude;
@@ -426,7 +426,7 @@ Photo Content Notes:
         {
             CommonContentValidation.LongitudeValidationWithNullOk
         };
-        LongitudeEntry.ComparisonFunction = (o, u) => o.IsApproximatelyEqualTo(u, .000001);
+        LongitudeEntry.ComparisonFunction = (o, u) => o.IsApproximatelyEqualTo(u, .0000001);
         LongitudeEntry.Title = "Longitude";
         LongitudeEntry.HelpText = "In DDD.DDDDDD°";
         LongitudeEntry.ReferenceValue = DbEntry.Longitude;
@@ -438,6 +438,7 @@ Photo Content Notes:
         {
             CommonContentValidation.ElevationValidation
         };
+        ElevationEntry.ComparisonFunction = (o, u) => o.IsApproximatelyEqualTo(u, .001);
         ElevationEntry.Title = "Elevation";
         ElevationEntry.HelpText = "Elevation in Feet";
         ElevationEntry.ReferenceValue = DbEntry.Elevation;
@@ -474,8 +475,9 @@ Photo Content Notes:
         CameraModelEntry.UserValue = metadata.CameraModel;
         FocalLengthEntry.UserValue = metadata.FocalLength;
         IsoEntry.UserText = metadata.Iso?.ToString("F0") ?? string.Empty;
-        LatitudeEntry.UserText = metadata.Latitude?.ToString("F2") ?? string.Empty;
-        LongitudeEntry.UserText = metadata.Longitude?.ToString("F2") ?? string.Empty;
+        LatitudeEntry.UserText = metadata.Latitude?.ToString("F6") ?? string.Empty;
+        LongitudeEntry.UserText = metadata.Longitude?.ToString("F6") ?? string.Empty;
+        ElevationEntry.UserText = metadata.Elevation?.ToString("F2") ?? string.Empty;
         LensEntry.UserValue = metadata.Lens;
         LicenseEntry.UserValue = metadata.License;
         PhotoCreatedByEntry.UserValue = metadata.PhotoCreatedBy;

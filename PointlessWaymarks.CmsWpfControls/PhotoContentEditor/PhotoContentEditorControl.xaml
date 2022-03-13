@@ -18,6 +18,7 @@
     xmlns:titleSummarySlugFolderEditor="clr-namespace:PointlessWaymarks.CmsWpfControls.TitleSummarySlugFolderEditor"
     xmlns:updateNotesEditor="clr-namespace:PointlessWaymarks.CmsWpfControls.UpdateNotesEditor"
     xmlns:utility="clr-namespace:PointlessWaymarks.WpfCommon.Utility;assembly=PointlessWaymarks.WpfCommon"
+    xmlns:utility1="clr-namespace:PointlessWaymarks.CmsWpfControls.Utility"
     xmlns:windowScreenShot="clr-namespace:PointlessWaymarks.WpfCommon.WindowScreenShot;assembly=PointlessWaymarks.WpfCommon"
     xmlns:wpfBehavior="clr-namespace:PointlessWaymarks.WpfCommon.Behaviors;assembly=PointlessWaymarks.WpfCommon"
     d:DataContext="{d:DesignInstance photoContentEditor:PhotoContentEditorContext}"
@@ -30,6 +31,7 @@
                 <ResourceDictionary Source="../WpfControlsResourceDictionary.xaml" />
                 <ResourceDictionary Source="/PointlessWaymarks.WpfCommon;component/Utility/Icons.xaml" />
             </ResourceDictionary.MergedDictionaries>
+            <utility1:MetersToFeetValueConverter x:Key="MetersToFeet" />
         </ResourceDictionary>
     </UserControl.Resources>
     <Grid Margin="4">
@@ -174,8 +176,24 @@
                             <conversionDataEntry:ConversionDataEntryControl DataContext="{Binding IsoEntry}" />
                             <conversionDataEntry:ConversionDataEntryControl DataContext="{Binding LatitudeEntry}" />
                             <conversionDataEntry:ConversionDataEntryControl DataContext="{Binding LongitudeEntry}" />
-                            <conversionDataEntry:ConversionDataEntryControl DataContext="{Binding ElevationEntry}" />
-                            <Button Command="{Binding GetElevationCommand}">Get Elevation from Latitude and Longitude</Button>
+                            <StackPanel HorizontalAlignment="Left" Orientation="Horizontal">
+                                <conversionDataEntry:ConversionDataEntryControl Width="120" DataContext="{Binding ElevationEntry}" />
+                                <Label Margin="0,0,0,-3" VerticalAlignment="Bottom">meters</Label>
+                                <TextBox
+                                    Margin="0,0,10,2"
+                                    VerticalAlignment="Bottom"
+                                    Style="{StaticResource ReadOnlyTextBoxStyle}"
+                                    Text="{Binding ElevationEntry.UserText, Converter={StaticResource MetersToFeet}, StringFormat='{}({0:N0} feet)'}"
+                                    TextAlignment="Right"
+                                    Visibility="{Binding ElevationEntry.UserText, Converter={StaticResource NullOrWhiteSpaceStringToCollapsed}}" />
+                                <Button
+                                    Width="90"
+                                    Margin="2,2,0,1"
+                                    VerticalAlignment="Bottom"
+                                    Command="{Binding GetElevationCommand}">
+                                    Get Elevation
+                                </Button>
+                            </StackPanel>
                         </StackPanel>
                     </Grid>
                 </ScrollViewer>

@@ -5,6 +5,7 @@
     xmlns:bodyContentEditor1="clr-namespace:PointlessWaymarks.CmsWpfControls.BodyContentEditor"
     xmlns:boolDataEntry1="clr-namespace:PointlessWaymarks.CmsWpfControls.BoolDataEntry"
     xmlns:contentIdViewer="clr-namespace:PointlessWaymarks.CmsWpfControls.ContentIdViewer"
+    xmlns:contentSiteFeedAndIsDraft="clr-namespace:PointlessWaymarks.CmsWpfControls.ContentSiteFeedAndIsDraft"
     xmlns:conversionDataEntry="clr-namespace:PointlessWaymarks.CmsWpfControls.ConversionDataEntry"
     xmlns:createdAndUpdatedByAndOnDisplay="clr-namespace:PointlessWaymarks.CmsWpfControls.CreatedAndUpdatedByAndOnDisplay"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -19,7 +20,6 @@
     xmlns:windowScreenShot="clr-namespace:PointlessWaymarks.WpfCommon.WindowScreenShot;assembly=PointlessWaymarks.WpfCommon"
     xmlns:wpf="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
     xmlns:wpfConverter="clr-namespace:PointlessWaymarks.WpfCommon.ValueConverters;assembly=PointlessWaymarks.WpfCommon"
-    xmlns:contentSiteFeedAndIsDraft="clr-namespace:PointlessWaymarks.CmsWpfControls.ContentSiteFeedAndIsDraft"
     d:DataContext="{d:DesignInstance pointContentEditor:PointContentEditorContext}"
     d:DesignHeight="300"
     d:DesignWidth="300"
@@ -32,7 +32,6 @@
                 <ResourceDictionary Source="../WpfControlsResourceDictionary.xaml" />
                 <ResourceDictionary Source="/PointlessWaymarks.WpfCommon;component/Utility/Icons.xaml" />
             </ResourceDictionary.MergedDictionaries>
-            <wpfConverter:BooleanNotToVisibilityConverter x:Key="BooleanNotToVisibility" />
             <utility:MetersToFeetValueConverter x:Key="MetersToFeet" />
         </ResourceDictionary>
     </UserControl.Resources>
@@ -74,7 +73,7 @@
                                 Margin="0,0,10,2"
                                 VerticalAlignment="Bottom"
                                 Style="{StaticResource ReadOnlyTextBoxStyle}"
-                                Text="{Binding ElevationEntry.UserText, Converter={StaticResource MetersToFeet}, StringFormat='{}({0:F0} feet)'}"
+                                Text="{Binding ElevationEntry.UserText, Converter={StaticResource MetersToFeet}, StringFormat='{}({0:N0} feet)'}"
                                 TextAlignment="Right"
                                 Visibility="{Binding ElevationEntry.UserText, Converter={StaticResource NullOrWhiteSpaceStringToCollapsed}}" />
                             <Button

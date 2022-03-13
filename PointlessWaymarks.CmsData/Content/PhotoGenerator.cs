@@ -115,9 +115,10 @@ public static class PhotoGenerator
                         if (altitudeRational.Denominator != 0 ||
                             (altitudeRational.Denominator == 0 && altitudeRational.Numerator == 0))
                         {
-                            toReturn.Elevation = Spatial.DistanceHelpers.MetersToFeet(isBelowSeaLevel
+                            toReturn.Elevation = isBelowSeaLevel
                                 ? altitudeRational.ToDouble() * -1
-                                : altitudeRational.ToDouble());
+                                : altitudeRational.ToDouble();
+                            foundAltitude = true;
                         }
                     }
 
