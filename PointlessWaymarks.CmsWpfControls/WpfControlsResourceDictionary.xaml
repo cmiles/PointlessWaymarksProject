@@ -921,4 +921,21 @@
         x:Shared="False"
         Header="Site"
         ItemsSource="{StaticResource SiteMenuItemValues}" />
+    <collections:ArrayList x:Key="ViewMenuItemValues" x:Shared="False">
+        <MenuItem Command="{Binding ListContext.NewAllContentListWindowCommand}" Header="New All Content List Window" />
+        <MenuItem Command="{Binding ListContext.NewFileListWindowCommand}" Header="New File List Window" />
+        <MenuItem Command="{Binding ListContext.NewGeoJsonListWindowCommand}" Header="New GeoJson List Window" />
+        <MenuItem Command="{Binding ListContext.NewImageListWindowCommand}" Header="New Image List Window" />
+        <MenuItem Command="{Binding ListContext.NewLinkListWindowCommand}" Header="New Link List Window" />
+        <MenuItem Command="{Binding ListContext.NewMapComponentListWindowCommand}" Header="New Map Component List Window" />
+        <MenuItem Command="{Binding ListContext.NewNoteListWindowCommand}" Header="New Note List Window" />
+        <MenuItem Command="{Binding ListContext.NewPhotoListWindowCommand}" Header="New Photo List Window" />
+        <MenuItem Command="{Binding ListContext.NewPointListWindowCommand}" Header="New Point List Window" />
+        <MenuItem Command="{Binding ListContext.NewPostListWindowCommand}" Header="New Post List Window" />
+    </collections:ArrayList>
+    <MenuItem
+        x:Key="ViewMenu"
+        x:Shared="False"
+        Header="View"
+        ItemsSource="{StaticResource ViewMenuItemValues}" />
 </ResourceDictionary>

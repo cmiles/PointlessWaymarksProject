@@ -55,7 +55,7 @@
             BorderBrush="Green"
             SelectedItem="{Binding SelectedTab}">
             <TabItem Header="All Items">
-                <allContentList:AllItemsWithActionsControl DataContext="{Binding TabAllListContext}" />
+                <allContentList:AllContentItemsWithActionsControl DataContext="{Binding TabAllListContext}" />
             </TabItem>
             <TabItem Header="Posts">
                 <postList:PostListWithActionsControl DataContext="{Binding TabPostListContext}" />

@@ -55,7 +55,8 @@
                 <MenuItem Command="{Binding ListContext.GenerateHtmlSelectedCommand}" Header="Generate Html" />
                 <MenuItem Command="{Binding ListContext.ExtractNewLinksSelectedCommand}" Header="Extract Links" />
             </MenuItem>
-            <StaticResource ResourceKey="SiteMenu"/>
+            <StaticResource ResourceKey="ViewMenu" />
+            <StaticResource ResourceKey="SiteMenu" />
         </Menu>
         <contentList:ContentListControl
             Grid.Row="1"

@@ -9,14 +9,14 @@ using PointlessWaymarks.WpfCommon.Utility;
 namespace PointlessWaymarks.CmsWpfControls.AllContentList;
 
 [ObservableObject]
-public partial class AllItemsWithActionsContext
+public partial class AllContentListWithActionsContext
 {
     [ObservableProperty] private ContentListContext _listContext;
     [ObservableProperty] private StatusControlContext _statusContext;
     [ObservableProperty] private WindowIconStatus _windowStatus;
     [ObservableProperty] private RelayCommand _wordPressImportWindowCommand;
 
-    public AllItemsWithActionsContext(StatusControlContext statusContext, WindowIconStatus windowStatus)
+    public AllContentListWithActionsContext(StatusControlContext statusContext, WindowIconStatus windowStatus)
     {
         StatusContext = statusContext ?? new StatusControlContext();
 
@@ -25,7 +25,7 @@ public partial class AllItemsWithActionsContext
         StatusContext.RunFireAndForgetBlockingTask(LoadData);
     }
 
-    public AllItemsWithActionsContext(StatusControlContext statusContext, IContentListLoader reportFilter)
+    public AllContentListWithActionsContext(StatusControlContext statusContext, IContentListLoader reportFilter)
     {
         StatusContext = statusContext ?? new StatusControlContext();
 
@@ -38,7 +38,7 @@ public partial class AllItemsWithActionsContext
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        ListContext ??= new ContentListContext(StatusContext, new ContentListLoaderAllItems(100), WindowStatus);
+        ListContext ??= new ContentListContext(StatusContext, new AllContentListLoader(100), WindowStatus);
 
         WordPressImportWindowCommand = StatusContext.RunNonBlockingTaskCommand(WordPressImportWindow);
 

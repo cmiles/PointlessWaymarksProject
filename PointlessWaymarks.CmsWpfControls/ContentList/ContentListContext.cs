@@ -84,6 +84,19 @@ public partial class ContentListContext : IDragSource, IDropTarget
     [ObservableProperty] private RelayCommand _viewOnSiteCommand;
     [ObservableProperty] private WindowIconStatus _windowStatus;
 
+    [ObservableProperty] private RelayCommand _newAllContentListWindowCommand;
+    [ObservableProperty] private RelayCommand _newFileListWindowCommand;
+    [ObservableProperty] private RelayCommand _newGeoJsonListWindowCommand;
+    [ObservableProperty] private RelayCommand _newImageListWindowCommand;
+    [ObservableProperty] private RelayCommand _newLineListWindowCommand;
+    [ObservableProperty] private RelayCommand _newLinkListWindowCommand;
+    [ObservableProperty] private RelayCommand _newMapComponentListWindowCommand;
+    [ObservableProperty] private RelayCommand _newNoteListWindowCommand;
+    [ObservableProperty] private RelayCommand _newPhotoListWindowCommand;
+    [ObservableProperty] private RelayCommand _newPointListWindowCommand;
+    [ObservableProperty] private RelayCommand _newPostListWindowCommand;
+
+
     public ContentListContext(StatusControlContext statusContext, IContentListLoader loader,
         WindowIconStatus windowStatus = null)
     {
@@ -147,6 +160,74 @@ public partial class ContentListContext : IDragSource, IDropTarget
             await RunReport(async () => await CreatedOnDaySearch(x), $"Created On Search - {x}"));
         LastUpdatedOnDaySearchCommand = StatusContext.RunNonBlockingTaskCommand<DateTime?>(async x =>
             await RunReport(async () => await UpdatedOnDaySearch(x), $"Last Updated On Search - {x}"));
+
+        NewAllContentListWindowCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
+        {
+            await ThreadSwitcher.ResumeForegroundAsync();
+            var newWindow = new AllContentListWindow { ListContext = new AllContentListWithActionsContext(null, WindowStatus) };
+            newWindow.PositionWindowAndShow();
+        });
+        NewFileListWindowCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
+        {
+            await ThreadSwitcher.ResumeForegroundAsync();
+            var newWindow = new FileListWindow { ListContext = new FileListWithActionsContext(null, WindowStatus) };
+            newWindow.PositionWindowAndShow();
+        });
+        NewGeoJsonListWindowCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
+        {
+            await ThreadSwitcher.ResumeForegroundAsync();
+            var newWindow = new GeoJsonListWindow { ListContext = new GeoJsonListWithActionsContext(null, WindowStatus) };
+            newWindow.PositionWindowAndShow();
+        });
+        NewImageListWindowCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
+        {
+            await ThreadSwitcher.ResumeForegroundAsync();
+            var newWindow = new ImageListWindow { ListContext = new ImageListWithActionsContext(null, WindowStatus) };
+            newWindow.PositionWindowAndShow();
+        });
+        NewLineListWindowCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
+        {
+            await ThreadSwitcher.ResumeForegroundAsync();
+            var newWindow = new LineListWindow { ListContext = new LineListWithActionsContext(null, WindowStatus) };
+            newWindow.PositionWindowAndShow();
+        });
+        NewLinkListWindowCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
+        {
+            await ThreadSwitcher.ResumeForegroundAsync();
+            var newWindow = new LinkListWindow { ListContext = new LinkListWithActionsContext(null, WindowStatus) };
+            newWindow.PositionWindowAndShow();
+        });
+        NewMapComponentListWindowCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
+        {
+            await ThreadSwitcher.ResumeForegroundAsync();
+            var newWindow = new MapComponentListWindow { ListContext = new MapComponentListWithActionsContext(null, WindowStatus) };
+            newWindow.PositionWindowAndShow();
+        });
+        NewNoteListWindowCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
+        {
+            await ThreadSwitcher.ResumeForegroundAsync();
+            var newWindow = new NoteListWindow { ListContext = new NoteListWithActionsContext(null, WindowStatus) };
+            newWindow.PositionWindowAndShow();
+        });
+        NewPhotoListWindowCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
+        {
+            await ThreadSwitcher.ResumeForegroundAsync();
+            var newWindow = new PhotoListWindow { ListContext = new PhotoListWithActionsContext(null, WindowStatus) };
+            newWindow.PositionWindowAndShow();
+        });
+        NewPointListWindowCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
+        {
+            await ThreadSwitcher.ResumeForegroundAsync();
+            var newWindow = new PointListWindow { ListContext = new PointListWithActionsContext(null, WindowStatus) };
+            newWindow.PositionWindowAndShow();
+        });
+        NewPostListWindowCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
+        {
+            await ThreadSwitcher.ResumeForegroundAsync();
+            var newWindow = new PostListWindow { ListContext = new PostListWithActionsContext(null, WindowStatus) };
+            newWindow.PositionWindowAndShow();
+        });
+
     }
 
     public bool CanStartDrag(IDragInfo dragInfo)
@@ -181,28 +262,27 @@ public partial class ContentListContext : IDragSource, IDropTarget
 
     public void DragOver(IDropInfo dropInfo)
     {
-        if (dropInfo.Data is IDataObject systemDataObject && systemDataObject.GetDataPresent(DataFormats.FileDrop))
+        if (dropInfo.Data is not IDataObject systemDataObject ||
+            !systemDataObject.GetDataPresent(DataFormats.FileDrop)) return;
+
+        if (systemDataObject.GetData(DataFormats.FileDrop) is not string[] possibleFileInfo ||
+            !possibleFileInfo.Any()) return;
+
+        var validFileExtensions = new List<string>
         {
-            var possibleFileInfo = systemDataObject.GetData(DataFormats.FileDrop) as string[];
+            ".PDF",
+            ".MPG",
+            ".MPEG",
+            ".WAV",
+            ".JPG",
+            ".JPEG",
+            ".GPX",
+            ".TCX",
+            ".FIT"
+        };
 
-            if (possibleFileInfo == null || !possibleFileInfo.Any()) return;
-
-            var validFileExtensions = new List<string>
-            {
-                ".PDF",
-                ".MPG",
-                ".MPEG",
-                ".WAV",
-                ".JPG",
-                ".JPEG",
-                ".GPX",
-                ".TCX",
-                ".FIT"
-            };
-
-            if (possibleFileInfo.Any(x => validFileExtensions.Contains(Path.GetExtension(x).ToUpperInvariant())))
-                dropInfo.Effects = DragDropEffects.Link;
-        }
+        if (possibleFileInfo.Any(x => validFileExtensions.Contains(Path.GetExtension(x).ToUpperInvariant())))
+            dropInfo.Effects = DragDropEffects.Link;
     }
 
     public void Drop(IDropInfo dropInfo)
@@ -498,7 +578,7 @@ public partial class ContentListContext : IDragSource, IDropTarget
                 if (line.ToUpper().StartsWith("-"))
                 {
                     searchResultModifier = x => !x;
-                    searchString = line.Substring(1, line.Length - 1);
+                    searchString = line[1..];
                     searchString = searchString.Trim();
                 }
 
@@ -506,7 +586,7 @@ public partial class ContentListContext : IDragSource, IDropTarget
 
                 if (searchString.ToUpper().StartsWith("TITLE:"))
                 {
-                    searchString = searchString.Substring(6, searchString.Length - 6);
+                    searchString = searchString[6..];
                     if (string.IsNullOrWhiteSpace(searchString)) continue;
                     searchString = searchString.Trim();
 
@@ -518,7 +598,7 @@ public partial class ContentListContext : IDragSource, IDropTarget
 
                 if (searchString.ToUpper().StartsWith("SUMMARY:"))
                 {
-                    searchString = searchString.Substring(6, searchString.Length - 8);
+                    searchString = searchString[8..];
                     if (string.IsNullOrWhiteSpace(searchString)) continue;
                     searchString = searchString.Trim();
 
@@ -530,7 +610,7 @@ public partial class ContentListContext : IDragSource, IDropTarget
 
                 if (searchString.ToUpper().StartsWith("FOLDER:"))
                 {
-                    searchString = searchString.Substring(5, searchString.Length - 5);
+                    searchString = searchString[7..];
                     if (string.IsNullOrWhiteSpace(searchString)) continue;
                     searchString = searchString.Trim();
 
@@ -542,7 +622,7 @@ public partial class ContentListContext : IDragSource, IDropTarget
 
                 if (searchString.ToUpper().StartsWith("TAGS:"))
                 {
-                    searchString = searchString.Substring(5, searchString.Length - 5);
+                    searchString = searchString[5..];
                     if (string.IsNullOrWhiteSpace(searchString)) continue;
                     searchString = searchString.Trim();
 
@@ -789,11 +869,11 @@ public partial class ContentListContext : IDragSource, IDropTarget
 
         var reportLoader = new ContentListLoaderReport(toRun, ContentListLoaderBase.SortContextDefault());
 
-        var context = new AllItemsWithActionsContext(null, reportLoader);
+        var context = new AllContentListWithActionsContext(null, reportLoader);
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
-        var newWindow = new AllItemsWithActionsWindow { AllItemsListContext = context, WindowTitle = title };
+        var newWindow = new AllContentListWindow { ListContext = context, WindowTitle = title };
 
         newWindow.PositionWindowAndShow();
 

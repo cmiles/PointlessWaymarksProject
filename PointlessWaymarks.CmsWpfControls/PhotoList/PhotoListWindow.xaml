@@ -11,6 +11,6 @@
     d:DataContext="{d:DesignInstance photoList:PhotoListWindow}"
     mc:Ignorable="d">
     <Grid>
-        <photoList:PhotoListWithActionsControl x:Name="PhotoListControl" DataContext="{Binding PhotoListContext}" />
+        <photoList:PhotoListWithActionsControl DataContext="{Binding ListContext}" />
     </Grid>
 </Window>

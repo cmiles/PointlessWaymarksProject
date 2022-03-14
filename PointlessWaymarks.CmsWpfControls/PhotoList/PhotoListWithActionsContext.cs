@@ -420,7 +420,7 @@ public partial class PhotoListWithActionsContext
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
-        var newWindow = new PhotoListWindow { PhotoListContext = context, WindowTitle = title };
+        var newWindow = new PhotoListWindow { ListContext = context, WindowTitle = title };
 
         newWindow.PositionWindowAndShow();
 

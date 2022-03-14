@@ -1,8 +1,8 @@
 ﻿namespace PointlessWaymarks.CmsWpfControls.AllContentList;
 
-public partial class AllItemsWithActionsControl
+public partial class AllContentItemsWithActionsControl
 {
-    public AllItemsWithActionsControl()
+    public AllContentItemsWithActionsControl()
     {
         InitializeComponent();
     }

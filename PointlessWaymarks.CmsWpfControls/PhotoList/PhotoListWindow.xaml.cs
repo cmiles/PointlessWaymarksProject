@@ -8,7 +8,7 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList;
 [ObservableObject]
 public partial class PhotoListWindow
 {
-    [ObservableProperty] private PhotoListWithActionsContext _photoListContext;
+    [ObservableProperty] private PhotoListWithActionsContext _listContext;
     [ObservableProperty] private string _windowTitle = "Photo List";
 
     public PhotoListWindow()

@@ -58,7 +58,7 @@ public partial class MainWindow
     [ObservableProperty] private bool _showSettingsFileChooser;
     [ObservableProperty] private HelpDisplayContext _softwareComponentsHelpContext;
     [ObservableProperty] private StatusControlContext _statusContext;
-    [ObservableProperty] private AllItemsWithActionsContext _tabAllListContext;
+    [ObservableProperty] private AllContentListWithActionsContext _tabAllListContext;
     [ObservableProperty] private FileListWithActionsContext _tabFileListContext;
     [ObservableProperty] private GeoJsonListWithActionsContext _tabGeoJsonListContext;
     [ObservableProperty] private ImageListWithActionsContext _tabImageListContext;
@@ -489,7 +489,7 @@ public partial class MainWindow
 
         StatusContext.Progress("Setting up UI Controls");
 
-        TabAllListContext = new AllItemsWithActionsContext(null, WindowStatus);
+        TabAllListContext = new AllContentListWithActionsContext(null, WindowStatus);
 
         SettingsEditorContext = new UserSettingsEditorContext(null, UserSettingsSingleton.CurrentSettings());
         SoftwareComponentsHelpContext = new HelpDisplayContext(new List<string> { SoftwareUsedHelpMarkdown.HelpBlock });

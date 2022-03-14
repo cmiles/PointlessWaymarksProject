@@ -5,11 +5,11 @@ using PointlessWaymarks.CmsWpfControls.ContentList;
 
 namespace PointlessWaymarks.CmsWpfControls.AllContentList;
 
-public class ContentListLoaderAllItems : ContentListLoaderBase
+public class AllContentListLoader : ContentListLoaderBase
 {
     private int _partialLoadCount;
 
-    public ContentListLoaderAllItems(int? partialLoadQuantity) : base("Items", partialLoadQuantity)
+    public AllContentListLoader(int? partialLoadQuantity) : base("Items", partialLoadQuantity)
     {
         ShowType = true;
     }

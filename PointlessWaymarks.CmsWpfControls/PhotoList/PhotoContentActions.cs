@@ -331,7 +331,7 @@ public partial class PhotoContentActions : ObservableObject, IContentActions<Pho
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
-        var newWindow = new PhotoListWindow { PhotoListContext = context, WindowTitle = title };
+        var newWindow = new PhotoListWindow { ListContext = context, WindowTitle = title };
 
         newWindow.PositionWindowAndShow();
 
