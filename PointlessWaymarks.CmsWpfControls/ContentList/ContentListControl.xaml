@@ -65,7 +65,7 @@
                 <TextBox
                     VerticalAlignment="Stretch"
                     AcceptsReturn="True"
-                    Text="{Binding UserFilterText, UpdateSourceTrigger=PropertyChanged, Delay=500}"
+                    Text="{Binding UserFilterText, UpdateSourceTrigger=PropertyChanged, Delay=1000}"
                     TextWrapping="Wrap" />
             </GroupBox>
             <GroupBox

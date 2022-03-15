@@ -72,17 +72,6 @@ public partial class ContentListContext : IDragSource, IDropTarget
     [ObservableProperty] private RelayCommand _loadAllCommand;
     [ObservableProperty] private MapComponentContentActions _mapComponentItemActions;
     [ObservableProperty] private NewContent _newActions;
-    [ObservableProperty] private NoteContentActions _noteItemActions;
-    [ObservableProperty] private PhotoContentActions _photoItemActions;
-    [ObservableProperty] private PointContentActions _pointItemActions;
-    [ObservableProperty] private PostContentActions _postItemActions;
-    [ObservableProperty] private RelayCommand _selectedToExcelCommand;
-    [ObservableProperty] private RelayCommand _showSitePreviewWindowCommand;
-    [ObservableProperty] private StatusControlContext _statusContext;
-    [ObservableProperty] private string _userFilterText;
-    [ObservableProperty] private RelayCommand _viewHistorySelectedCommand;
-    [ObservableProperty] private RelayCommand _viewOnSiteCommand;
-    [ObservableProperty] private WindowIconStatus _windowStatus;
 
     [ObservableProperty] private RelayCommand _newAllContentListWindowCommand;
     [ObservableProperty] private RelayCommand _newFileListWindowCommand;
@@ -95,6 +84,17 @@ public partial class ContentListContext : IDragSource, IDropTarget
     [ObservableProperty] private RelayCommand _newPhotoListWindowCommand;
     [ObservableProperty] private RelayCommand _newPointListWindowCommand;
     [ObservableProperty] private RelayCommand _newPostListWindowCommand;
+    [ObservableProperty] private NoteContentActions _noteItemActions;
+    [ObservableProperty] private PhotoContentActions _photoItemActions;
+    [ObservableProperty] private PointContentActions _pointItemActions;
+    [ObservableProperty] private PostContentActions _postItemActions;
+    [ObservableProperty] private RelayCommand _selectedToExcelCommand;
+    [ObservableProperty] private RelayCommand _showSitePreviewWindowCommand;
+    [ObservableProperty] private StatusControlContext _statusContext;
+    [ObservableProperty] private string _userFilterText;
+    [ObservableProperty] private RelayCommand _viewHistorySelectedCommand;
+    [ObservableProperty] private RelayCommand _viewOnSiteCommand;
+    [ObservableProperty] private WindowIconStatus _windowStatus;
 
 
     public ContentListContext(StatusControlContext statusContext, IContentListLoader loader,
@@ -164,7 +164,8 @@ public partial class ContentListContext : IDragSource, IDropTarget
         NewAllContentListWindowCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
         {
             await ThreadSwitcher.ResumeForegroundAsync();
-            var newWindow = new AllContentListWindow { ListContext = new AllContentListWithActionsContext(null, WindowStatus) };
+            var newWindow = new AllContentListWindow
+                { ListContext = new AllContentListWithActionsContext(null, WindowStatus) };
             newWindow.PositionWindowAndShow();
         });
         NewFileListWindowCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
@@ -176,7 +177,8 @@ public partial class ContentListContext : IDragSource, IDropTarget
         NewGeoJsonListWindowCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
         {
             await ThreadSwitcher.ResumeForegroundAsync();
-            var newWindow = new GeoJsonListWindow { ListContext = new GeoJsonListWithActionsContext(null, WindowStatus) };
+            var newWindow = new GeoJsonListWindow
+                { ListContext = new GeoJsonListWithActionsContext(null, WindowStatus) };
             newWindow.PositionWindowAndShow();
         });
         NewImageListWindowCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
@@ -200,7 +202,8 @@ public partial class ContentListContext : IDragSource, IDropTarget
         NewMapComponentListWindowCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
         {
             await ThreadSwitcher.ResumeForegroundAsync();
-            var newWindow = new MapComponentListWindow { ListContext = new MapComponentListWithActionsContext(null, WindowStatus) };
+            var newWindow = new MapComponentListWindow
+                { ListContext = new MapComponentListWithActionsContext(null, WindowStatus) };
             newWindow.PositionWindowAndShow();
         });
         NewNoteListWindowCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
@@ -227,7 +230,6 @@ public partial class ContentListContext : IDragSource, IDropTarget
             var newWindow = new PostListWindow { ListContext = new PostListWithActionsContext(null, WindowStatus) };
             newWindow.PositionWindowAndShow();
         });
-
     }
 
     public bool CanStartDrag(IDragInfo dragInfo)
@@ -629,6 +631,113 @@ public partial class ContentListContext : IDragSource, IDropTarget
                     filterLineResults.Add(searchResultModifier(
                         (toFilter.Content().Tags ?? string.Empty).Contains(searchString,
                             StringComparison.OrdinalIgnoreCase)));
+                    continue;
+                }
+
+                if (searchString.ToUpper().StartsWith("CAMERA:"))
+                {
+                    searchString = searchString[7..];
+                    if (string.IsNullOrWhiteSpace(searchString)) continue;
+
+                    if (o is not PhotoListListItem photoItem) return false;
+                    if (string.IsNullOrWhiteSpace(photoItem.DbEntry.CameraMake) && string.IsNullOrWhiteSpace(photoItem.DbEntry.CameraModel)) return searchResultModifier(false);
+
+                    var cameraMakeModel =
+                        $"{photoItem.DbEntry.CameraMake.TrimNullToEmpty()} {photoItem.DbEntry.CameraModel.TrimNullToEmpty()}";
+                    searchString = searchString.Trim();
+
+                    filterLineResults.Add(searchResultModifier(
+                        (cameraMakeModel).Contains(searchString,
+                            StringComparison.OrdinalIgnoreCase)));
+                    continue;
+                }
+
+                if (searchString.ToUpper().StartsWith("ISO:"))
+                {
+                    //As soon as we designate an ISO search limit the search to photos with Iso
+                    if (o is not PhotoListListItem photoItem) return false;
+                    if (photoItem.DbEntry.Iso == null) return searchResultModifier(false);
+
+                    searchString = searchString[4..];
+                    if (string.IsNullOrWhiteSpace(searchString)) continue;
+                    var spaceSplitTokens = searchString.Split(" ").Select(x => x.TrimNullToEmpty())
+                        .Where(x => !string.IsNullOrWhiteSpace(x)).Select(x => x == "=" ? "==" : x).ToList();
+
+                    var tokens = new List<string>();
+
+                    var singleCharacterOperators = new List<char> { '>', '=', '<' };
+                    var twoCharacterOperators = new List<string> { ">=", "==", "<=" };
+                    var operators = new List<string> { "==", ">", "<", ">=", "<=" };
+
+
+                    foreach (var loopTokens in spaceSplitTokens)
+                    {
+                        if (twoCharacterOperators.Contains(loopTokens[..1]) && loopTokens.Length > 2)
+                        {
+                            tokens.Add(loopTokens[..1]);
+                            tokens.Add(loopTokens[2..]);
+                            continue;
+                        }
+
+                        if (singleCharacterOperators.Contains(loopTokens[0]) && loopTokens.Length > 1)
+                        {
+                            tokens.Add(loopTokens[0].ToString());
+                            tokens.Add(loopTokens[1..]);
+                            continue;
+                        }
+
+                        tokens.Add(loopTokens);
+                    }
+
+                    if (!tokens.Any()) continue;
+                    if (tokens.Count == 1)
+                    {
+                        if (!int.TryParse(tokens.First(), out var parsedIso)) continue;
+                        filterLineResults.Add(searchResultModifier(photoItem.DbEntry.Iso == parsedIso));
+                    }
+
+                    var isoSearchResults = new List<bool>();
+
+                    for (var i = 0; i < tokens.Count; i++)
+                    {
+                        var scanValue = tokens[i];
+                        if (!operators.Contains(scanValue))
+                        {
+                            if (!int.TryParse(scanValue, out var parsedIso)) continue;
+                            isoSearchResults.Add(photoItem.DbEntry.Iso == parsedIso);
+                            continue;
+                        }
+
+                        i++;
+                        if (i >= tokens.Count) continue;
+
+                        var lookaheadValue = tokens[i];
+
+                        if (!int.TryParse(lookaheadValue, out var parsedIsoForExpression)) continue;
+                        switch (scanValue)
+                        {
+                            case "==":
+                                isoSearchResults.Add(photoItem.DbEntry.Iso == parsedIsoForExpression);
+                                break;
+                            case ">":
+                                isoSearchResults.Add(photoItem.DbEntry.Iso > parsedIsoForExpression);
+                                break;
+                            case ">=":
+                                isoSearchResults.Add(photoItem.DbEntry.Iso >= parsedIsoForExpression);
+                                break;
+                            case "<":
+                                isoSearchResults.Add(photoItem.DbEntry.Iso < parsedIsoForExpression);
+                                break;
+                            case "<=":
+                                isoSearchResults.Add(photoItem.DbEntry.Iso <= parsedIsoForExpression);
+                                break;
+                        }
+                    }
+
+                    filterLineResults.Add(!isoSearchResults.Any()
+                        ? searchResultModifier(false)
+                        : searchResultModifier(isoSearchResults.All(x => x)));
+
                     continue;
                 }
 
