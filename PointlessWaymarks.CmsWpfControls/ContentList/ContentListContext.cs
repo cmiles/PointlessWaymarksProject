@@ -232,6 +232,8 @@ public partial class ContentListContext : IDragSource, IDropTarget
         });
     }
 
+    private List<string> FilterListTokenOperatorList => new() { "==", ">", "<", ">=", "<=" };
+
     public bool CanStartDrag(IDragInfo dragInfo)
     {
         return (ListSelection.SelectedItems?.Count ?? 0) > 0;
@@ -640,14 +642,43 @@ public partial class ContentListContext : IDragSource, IDropTarget
                     if (string.IsNullOrWhiteSpace(searchString)) continue;
 
                     if (o is not PhotoListListItem photoItem) return false;
-                    if (string.IsNullOrWhiteSpace(photoItem.DbEntry.CameraMake) && string.IsNullOrWhiteSpace(photoItem.DbEntry.CameraModel)) return searchResultModifier(false);
+                    if (string.IsNullOrWhiteSpace(photoItem.DbEntry.CameraMake) &&
+                        string.IsNullOrWhiteSpace(photoItem.DbEntry.CameraModel)) return searchResultModifier(false);
 
                     var cameraMakeModel =
                         $"{photoItem.DbEntry.CameraMake.TrimNullToEmpty()} {photoItem.DbEntry.CameraModel.TrimNullToEmpty()}";
                     searchString = searchString.Trim();
 
                     filterLineResults.Add(searchResultModifier(
-                        (cameraMakeModel).Contains(searchString,
+                        cameraMakeModel.Contains(searchString,
+                            StringComparison.OrdinalIgnoreCase)));
+                    continue;
+                }
+
+                if (searchString.ToUpper().StartsWith("LENS:"))
+                {
+                    searchString = searchString[5..];
+                    if (string.IsNullOrWhiteSpace(searchString)) continue;
+
+                    if (o is not PhotoListListItem photoItem) return false;
+                    if (string.IsNullOrWhiteSpace(photoItem.DbEntry.Lens)) return searchResultModifier(false);
+
+                    filterLineResults.Add(searchResultModifier(
+                        photoItem.DbEntry.Lens.Contains(searchString,
+                            StringComparison.OrdinalIgnoreCase)));
+                    continue;
+                }
+
+                if (searchString.ToUpper().StartsWith("LICENSE:"))
+                {
+                    searchString = searchString[8..];
+                    if (string.IsNullOrWhiteSpace(searchString)) continue;
+
+                    if (o is not PhotoListListItem photoItem) return false;
+                    if (string.IsNullOrWhiteSpace(photoItem.DbEntry.License)) return searchResultModifier(false);
+
+                    filterLineResults.Add(searchResultModifier(
+                        photoItem.DbEntry.License.Contains(searchString,
                             StringComparison.OrdinalIgnoreCase)));
                     continue;
                 }
@@ -660,40 +691,15 @@ public partial class ContentListContext : IDragSource, IDropTarget
 
                     searchString = searchString[4..];
                     if (string.IsNullOrWhiteSpace(searchString)) continue;
-                    var spaceSplitTokens = searchString.Split(" ").Select(x => x.TrimNullToEmpty())
-                        .Where(x => !string.IsNullOrWhiteSpace(x)).Select(x => x == "=" ? "==" : x).ToList();
 
-                    var tokens = new List<string>();
-
-                    var singleCharacterOperators = new List<char> { '>', '=', '<' };
-                    var twoCharacterOperators = new List<string> { ">=", "==", "<=" };
-                    var operators = new List<string> { "==", ">", "<", ">=", "<=" };
-
-
-                    foreach (var loopTokens in spaceSplitTokens)
-                    {
-                        if (twoCharacterOperators.Contains(loopTokens[..1]) && loopTokens.Length > 2)
-                        {
-                            tokens.Add(loopTokens[..1]);
-                            tokens.Add(loopTokens[2..]);
-                            continue;
-                        }
-
-                        if (singleCharacterOperators.Contains(loopTokens[0]) && loopTokens.Length > 1)
-                        {
-                            tokens.Add(loopTokens[0].ToString());
-                            tokens.Add(loopTokens[1..]);
-                            continue;
-                        }
-
-                        tokens.Add(loopTokens);
-                    }
+                    var tokens = FilterListTokenList(searchString);
 
                     if (!tokens.Any()) continue;
                     if (tokens.Count == 1)
                     {
                         if (!int.TryParse(tokens.First(), out var parsedIso)) continue;
                         filterLineResults.Add(searchResultModifier(photoItem.DbEntry.Iso == parsedIso));
+                        continue;
                     }
 
                     var isoSearchResults = new List<bool>();
@@ -701,7 +707,7 @@ public partial class ContentListContext : IDragSource, IDropTarget
                     for (var i = 0; i < tokens.Count; i++)
                     {
                         var scanValue = tokens[i];
-                        if (!operators.Contains(scanValue))
+                        if (!FilterListTokenOperatorList.Contains(scanValue))
                         {
                             if (!int.TryParse(scanValue, out var parsedIso)) continue;
                             isoSearchResults.Add(photoItem.DbEntry.Iso == parsedIso);
@@ -767,6 +773,38 @@ public partial class ContentListContext : IDragSource, IDropTarget
 
             return !filterLineResults.Any() || filterLineResults.All(x => x);
         };
+    }
+
+    private List<string> FilterListTokenList(string searchString)
+    {
+        var spaceSplitTokens = searchString.Split(" ").Select(x => x.TrimNullToEmpty())
+            .Where(x => !string.IsNullOrWhiteSpace(x)).Select(x => x == "=" ? "==" : x).ToList();
+
+        var tokens = new List<string>();
+
+        var singleCharacterOperators = new List<char> { '>', '=', '<' };
+        var twoCharacterOperators = new List<string> { ">=", "==", "<=" };
+
+        foreach (var loopTokens in spaceSplitTokens)
+        {
+            if (twoCharacterOperators.Contains(loopTokens[..1]) && loopTokens.Length > 2)
+            {
+                tokens.Add(loopTokens[..1]);
+                tokens.Add(loopTokens[2..]);
+                continue;
+            }
+
+            if (singleCharacterOperators.Contains(loopTokens[0]) && loopTokens.Length > 1)
+            {
+                tokens.Add(loopTokens[0].ToString());
+                tokens.Add(loopTokens[1..]);
+                continue;
+            }
+
+            tokens.Add(loopTokens);
+        }
+
+        return tokens;
     }
 
     public static async Task<List<object>> FolderSearch(string folderName)
