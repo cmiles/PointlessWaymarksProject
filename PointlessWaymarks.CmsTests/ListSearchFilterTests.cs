@@ -88,8 +88,93 @@ public class ListSearchFilterTests
     }
 
     [Test]
-    public void FocalLengthSearchAndBlankFocalLength_DoNotInclude()
+    public void IsoSearchAndBlankIso_DoNotInclude()
     {
-        Assert.IsFalse(ContentListSearchFunctions.FilterFocalLength(string.Empty, "== 99").Include);
+        Assert.IsFalse(ContentListSearchFunctions.FilterIso(string.Empty, "== 99").Include);
     }
+    
+       [Test]
+    public void IsoBlankSearchAndBlankIso_Include()
+    {
+        Assert.IsTrue(ContentListSearchFunctions.FilterIso(null, string.Empty).Include);
+    }
+
+    [Test]
+    public void IsoBlankSearchAndIso_DoNotInclude()
+    {
+        Assert.IsFalse(ContentListSearchFunctions.FilterIso("99", null).Include);
+    }
+
+    [Test]
+    public void IsoIs100_Simple100String()
+    {
+        Assert.IsTrue(ContentListSearchFunctions.FilterIso("100", "Iso: 100").Include);
+    }
+    
+    [TestCase("50")]
+    [TestCase("100")]
+    [TestCase("1000")]
+    [TestCase("500")]
+    [TestCase("500 ")]
+    [TestCase(" 500")]
+    public void IsoIsGreaterThan100AndLessThan500_DoNotInclude(string photoIso)
+    {
+        Assert.IsFalse(ContentListSearchFunctions.FilterIso(photoIso, ">100 < 500").Include);
+    }
+
+    [TestCase("50")]
+    [TestCase("100")]
+    [TestCase("100 ")]
+    [TestCase(" 100")]
+    [TestCase("75")]
+    [TestCase(" 75")]
+    [TestCase("75 ")]
+    public void IsoIsGreaterThan100AndLessThan500_Include(string photoIso)
+    {
+        Assert.IsTrue(ContentListSearchFunctions.FilterIso(photoIso, "Iso: >= 50 <=100")
+            .Include);
+    }
+
+    [Test]
+    public void StringContainsBlankItemAndBlankSearch_Include()
+    {
+        Assert.IsTrue(ContentListSearchFunctions.FilterStringContains(string.Empty, null, "Test String").Include);
+    }
+    
+    [Test]
+    public void StringContainsNotBlankItemAndBlankSearch_DoNotInclude()
+    {
+        Assert.IsFalse(ContentListSearchFunctions.FilterStringContains("A Nice String", null, "Test String").Include);
+    }
+    
+    [Test]
+    public void StringContainsBlankItemAndNotBlankSearch_DoNotInclude()
+    {
+        Assert.IsFalse(ContentListSearchFunctions.FilterStringContains(string.Empty, "Mountains ", "Test String").Include);
+    }
+
+    [TestCase("A")]
+    [TestCase("    mountain ")]
+    [TestCase("sce ")]
+    [TestCase(" .")]
+    [TestCase("(")]
+    [TestCase("g)")]
+    [TestCase("interesting")]
+    public void StringContains_Include(string searchString)
+    {
+        Assert.IsTrue(ContentListSearchFunctions.FilterStringContains("An (interesting) MOUNTAIN scene. ", searchString, "Summary")
+            .Include);
+    }
+    
+    [TestCase("Ocean")]
+    [TestCase("    () ")]
+    [TestCase("   river")]
+    [TestCase("canyon   ")]
+    [TestCase("z")]
+    public void StringContains_DoNotInclude(string searchString)
+    {
+        Assert.IsFalse(ContentListSearchFunctions.FilterStringContains("An (interesting) MOUNTAIN scene. ", searchString, "Summary")
+            .Include);
+    }
+    
 }

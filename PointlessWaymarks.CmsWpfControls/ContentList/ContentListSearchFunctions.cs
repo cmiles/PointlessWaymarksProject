@@ -6,6 +6,31 @@ public static class ContentListSearchFunctions
 {
     public static List<string> FilterListTokenOperatorList => new() { "==", ">", "<", ">=", "<=" };
 
+    public static ContentListSearchReturn FilterStringContains(string itemString, string searchString,
+        string searchLabel)
+    {
+        if (!string.IsNullOrWhiteSpace(searchLabel) && !string.IsNullOrWhiteSpace(searchString) &&
+            searchString.StartsWith(searchLabel.Trim(), StringComparison.OrdinalIgnoreCase))
+            searchString = searchString[($"{searchLabel.Trim().Replace(":", string.Empty)}:".Length)..];
+
+        if (string.IsNullOrWhiteSpace(itemString) && string.IsNullOrWhiteSpace(searchString))
+            return new ContentListSearchReturn(true, $"Blank {searchLabel} and Blank Search String (true).");
+
+        if (string.IsNullOrWhiteSpace(itemString))
+            return new ContentListSearchReturn(false, $"Blank {searchLabel} with Not Blank Search String (false).");
+
+        if (string.IsNullOrWhiteSpace(searchString))
+            return new ContentListSearchReturn(false, $"Blank Search String with Not Blank {searchLabel} (false).");
+
+        itemString = itemString.Trim();
+        searchString = searchString.Trim();
+
+        var contains = itemString.Contains(searchString, StringComparison.OrdinalIgnoreCase);
+
+        return new ContentListSearchReturn(itemString.Contains(searchString, StringComparison.OrdinalIgnoreCase),
+            $"{searchLabel} contains {searchString} ({contains})");
+    }
+
     public static ContentListSearchReturn FilterFocalLength(string itemFocalLengthString, string searchString)
     {
         if (!string.IsNullOrWhiteSpace(searchString) &&
@@ -134,6 +159,130 @@ public static class ContentListSearchFunctions
             : new ContentListSearchReturn(focalLengthSearchResults.All(x => x.Include),
                 string.Join(Environment.NewLine,
                     focalLengthSearchResults.Select(x => $"{x.Explanation} ({x.Include}).")));
+    }
+
+    public static ContentListSearchReturn FilterIso(string itemIsoString, string searchString)
+    {
+        if (!string.IsNullOrWhiteSpace(searchString) &&
+            searchString.StartsWith("ISO:", StringComparison.OrdinalIgnoreCase))
+            searchString = searchString[4..];
+
+        if (string.IsNullOrWhiteSpace(itemIsoString) && string.IsNullOrWhiteSpace(searchString))
+            return new ContentListSearchReturn(true, "Blank ISO and Blank Search String (true).");
+
+        if (string.IsNullOrWhiteSpace(itemIsoString))
+            return new ContentListSearchReturn(false, "Blank ISO with Not Blank Search String (false).");
+
+        if (string.IsNullOrWhiteSpace(searchString))
+            return new ContentListSearchReturn(false, "Blank Search String with Not Blank ISO (false).");
+
+        itemIsoString = itemIsoString.Trim();
+        searchString = searchString.Trim();
+
+        if (!int.TryParse(
+                itemIsoString.TrimNullToEmpty(),
+                out var listItemIso))
+            //Couldn't parse a value from the list item's ISO - compare as string to the search string
+            return new ContentListSearchReturn(itemIsoString.Equals(searchString),
+                $"ISO input of '{itemIsoString}' could not " +
+                $"be parsed into a numeric ISO to search - instead checking if the ISO as a string to is equal to '{searchString}'");
+
+        var tokens = FilterListTokenList(searchString);
+
+        if (tokens.Count == 1)
+        {
+            if (!int.TryParse(tokens.First(), out var parsedIso))
+                return new ContentListSearchReturn(itemIsoString.Contains(searchString),
+                    $"Search input of {tokens.First()} could not " +
+                    $"be parsed into a numeric ISO to search - instead checking if the item ISO '{itemIsoString}' " +
+                    $"contains '{tokens.First()}'");
+
+            return new ContentListSearchReturn(listItemIso == parsedIso,
+                $"Search ISO of {parsedIso} compared to {listItemIso}");
+        }
+
+        var isoSearchResults = new List<ContentListSearchReturn>();
+
+        for (var i = 0; i < tokens.Count; i++)
+        {
+            var scanValue = tokens[i];
+
+            if (!FilterListTokenOperatorList.Contains(scanValue))
+            {
+                if (!int.TryParse(tokens.First(), out var parsedIso))
+                {
+                    isoSearchResults.Add(new ContentListSearchReturn(itemIsoString.Contains(scanValue),
+                        $"Search input of {scanValue} could not " +
+                        $"be parsed into a numeric ISO to search - instead checking if the item ISO '{itemIsoString}' " +
+                        $"contains '{tokens.First()}'"));
+                    continue;
+                }
+
+                isoSearchResults.Add(new ContentListSearchReturn(
+                    listItemIso == parsedIso,
+                    $"Search ISO of {parsedIso} compared to " +
+                    $"{listItemIso}"));
+                continue;
+            }
+
+            i++;
+
+            //Last token is a operator - this isn't valid, just continue...
+            if (i >= tokens.Count) continue;
+
+            var lookaheadValue = tokens[i];
+
+            if (!int.TryParse(lookaheadValue, out var parsedIsoForExpression))
+            {
+                isoSearchResults.Add(new ContentListSearchReturn(itemIsoString.Contains(scanValue),
+                    $"Search input of {scanValue} could not " +
+                    $"be parsed into a numeric ISO to search - instead checking if the item ISO '{itemIsoString}' " +
+                    $"contains '{tokens.First()}'"));
+                continue;
+            }
+
+            switch (scanValue)
+            {
+                case "==":
+                    isoSearchResults.Add(new ContentListSearchReturn(
+                        listItemIso == parsedIsoForExpression,
+                        $"Search ISO of {parsedIsoForExpression} compared to " +
+                        $"{listItemIso}"));
+                    break;
+                case "!=":
+                    isoSearchResults.Add(new ContentListSearchReturn(
+                        listItemIso != parsedIsoForExpression,
+                        $"Search ISO of {parsedIsoForExpression} not equal to " +
+                        $"{listItemIso}"));
+                    break;
+                case ">":
+                    isoSearchResults.Add(new ContentListSearchReturn(
+                        listItemIso > parsedIsoForExpression,
+                        $"Evaluated Search ISO of {parsedIsoForExpression} greater than {listItemIso}"));
+                    break;
+                case ">=":
+                    isoSearchResults.Add(new ContentListSearchReturn(
+                        listItemIso >= parsedIsoForExpression,
+                        $"Evaluated Search ISO of {parsedIsoForExpression} greater than or equal to {listItemIso}"));
+                    break;
+                case "<":
+                    isoSearchResults.Add(new ContentListSearchReturn(
+                        listItemIso < parsedIsoForExpression,
+                        $"Evaluated Search ISO of {parsedIsoForExpression} less than {listItemIso}"));
+                    break;
+                case "<=":
+                    isoSearchResults.Add(new ContentListSearchReturn(
+                        listItemIso <= parsedIsoForExpression,
+                        $"Evaluated Search ISO of {parsedIsoForExpression} less than or equal to {listItemIso}"));
+                    break;
+            }
+        }
+
+        return !isoSearchResults.Any()
+            ? new ContentListSearchReturn(false, "No Search String Parse Results?")
+            : new ContentListSearchReturn(isoSearchResults.All(x => x.Include),
+                string.Join(Environment.NewLine,
+                    isoSearchResults.Select(x => $"{x.Explanation} ({x.Include}).")));
     }
 
     private static List<string> FilterListTokenList(string searchString)
