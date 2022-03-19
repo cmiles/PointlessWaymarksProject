@@ -53,12 +53,12 @@ public static class ContentListSearchFunctions
         if (!double.TryParse(
                 itemFocalLengthString.Replace("mm", string.Empty, StringComparison.OrdinalIgnoreCase).TrimNullToEmpty(),
                 out var listItemFocalLength))
-            //Couldn't parse a value from the list item's focal length - compare as string to the search string
+            //Couldn't parse a value from the list item's Focal Length - compare as string to the search string
             return new ContentListSearchReturn(itemFocalLengthString.Equals(searchString),
                 $"Focal Length input of '{itemFocalLengthString}' could not " +
-                $"be parsed into a numeric focal length to search - instead checking if the focal length as a string to is equal to '{searchString}'");
+                $"be parsed into a numeric Focal Length to search - instead checking if the Focal Length as a string to is equal to '{searchString}'");
 
-        //Remove mm at this point - not currently aware of another valid focal length measurement so removing this should be 
+        //Remove mm at this point - not currently aware of another valid Focal Length measurement so removing this should be 
         //a nice way to make this optional for the user
         var tokens = FilterListTokenList(searchString.Replace("mm", string.Empty, StringComparison.OrdinalIgnoreCase));
 
@@ -69,7 +69,7 @@ public static class ContentListSearchFunctions
             if (!double.TryParse(tokens.First(), out var parsedFocalLength))
                 return new ContentListSearchReturn(itemFocalLengthString.Contains(searchString),
                     $"Search input of {tokens.First()} could not " +
-                    $"be parsed into a numeric focal length to search - instead checking if the item focal length '{itemFocalLengthString}' " +
+                    $"be parsed into a numeric Focal Length to search - instead checking if the item Focal Length '{itemFocalLengthString}' " +
                     $"contains '{tokens.First()}'");
 
             return new ContentListSearchReturn(
@@ -89,7 +89,7 @@ public static class ContentListSearchFunctions
                 {
                     focalLengthSearchResults.Add(new ContentListSearchReturn(itemFocalLengthString.Contains(scanValue),
                         $"Search input of {scanValue} could not " +
-                        $"be parsed into a numeric focal length to search - instead checking if the item focal length '{itemFocalLengthString}' " +
+                        $"be parsed into a numeric Focal Length to search - instead checking if the item Focal Length '{itemFocalLengthString}' " +
                         $"contains '{tokens.First()}'"));
                     continue;
                 }
@@ -108,11 +108,11 @@ public static class ContentListSearchFunctions
 
             var lookaheadValue = tokens[i];
 
-            if (!int.TryParse(lookaheadValue, out var parsedFocalLengthForExpression))
+            if (!double.TryParse(lookaheadValue, out var parsedFocalLengthForExpression))
             {
                 focalLengthSearchResults.Add(new ContentListSearchReturn(itemFocalLengthString.Contains(scanValue),
                     $"Search input of {scanValue} could not " +
-                    $"be parsed into a numeric focal length to search - instead checking if the item focal length '{itemFocalLengthString}' " +
+                    $"be parsed into a numeric Focal Length to search - instead checking if the item Focal Length '{itemFocalLengthString}' " +
                     $"contains '{tokens.First()}'"));
                 continue;
             }
@@ -183,7 +183,7 @@ public static class ContentListSearchFunctions
         if (!Fraction.TryParse(itemShutterSpeedString, out var translatedItemShutterSpeed))
             return new ContentListSearchReturn(itemShutterSpeedString.Equals(searchString),
                 $"Shutter Speed of '{itemShutterSpeedString}' could not " +
-                $"be parsed into a numeric focal length to search - instead checking if the shutter speed as a string to is equal to '{searchString}'");
+                $"be parsed into a numeric focal length to search - instead checking if the Shutter Speed as a string to is equal to '{searchString}'");
 
         var tokens = FilterListTokenList(searchString);
 
@@ -192,7 +192,7 @@ public static class ContentListSearchFunctions
             if (!Fraction.TryParse(tokens[0].Replace(" ", string.Empty), out var translatedSingleInputToken))
                 return new ContentListSearchReturn(itemShutterSpeedString.Contains(searchString),
                     $"Search input of {tokens[0]} could not " +
-                    $"be parsed into a numeric focal length to search - instead checking if the item shutter speed '{itemShutterSpeedString}' " +
+                    $"be parsed into a numeric focal length to search - instead checking if the item Shutter Speed '{itemShutterSpeedString}' " +
                     $"contains '{tokens[0]}'");
 
             return new ContentListSearchReturn(translatedSingleInputToken.IsEquivalentTo(translatedItemShutterSpeed),
@@ -212,7 +212,7 @@ public static class ContentListSearchFunctions
                     shutterSpeedSearchResults.Add(new ContentListSearchReturn(
                         itemShutterSpeedString.Contains(scanValue),
                         $"Search input of {scanValue} could not " +
-                        $"be parsed into a numeric shutter speed to search - instead checking if the item shutter speed '{itemShutterSpeedString}' " +
+                        $"be parsed into a numeric Shutter Speed to search - instead checking if the item Shutter Speed '{itemShutterSpeedString}' " +
                         $"contains '{tokens.First()}'"));
                     continue;
                 }
@@ -235,7 +235,7 @@ public static class ContentListSearchFunctions
             {
                 shutterSpeedSearchResults.Add(new ContentListSearchReturn(itemShutterSpeedString.Contains(scanValue),
                     $"Search input of {scanValue} could not " +
-                    $"be parsed into a numeric shutter speed to search - instead checking if the item shutter speed '{itemShutterSpeedString}' contains '{scanValue}'"));
+                    $"be parsed into a numeric Shutter Speed to search - instead checking if the item Shutter Speed '{itemShutterSpeedString}' contains '{scanValue}'"));
                 continue;
             }
 
@@ -439,6 +439,135 @@ public static class ContentListSearchFunctions
         }
 
         return tokens;
+    }
+
+    public static ContentListSearchReturn FilterAperture(string itemApertureString, string searchString)
+    {
+        if (!string.IsNullOrWhiteSpace(searchString) &&
+            searchString.StartsWith("APERTURE:", StringComparison.OrdinalIgnoreCase))
+            searchString = searchString[9..];
+
+        if (string.IsNullOrWhiteSpace(itemApertureString) && string.IsNullOrWhiteSpace(searchString))
+            return new ContentListSearchReturn(true, "Blank Aperture and Blank Search String (true).");
+
+        if (string.IsNullOrWhiteSpace(itemApertureString))
+            return new ContentListSearchReturn(false, "Blank Aperture with Not Blank Search String (false).");
+
+        if (string.IsNullOrWhiteSpace(searchString))
+            return new ContentListSearchReturn(false, "Blank Search String with Not Blank Aperture (false).");
+
+        itemApertureString = itemApertureString.Trim();
+        searchString = searchString.Trim();
+
+        if (!decimal.TryParse(
+                itemApertureString.Replace("f", string.Empty, StringComparison.OrdinalIgnoreCase)
+                    .Replace("\uD835\uDC53", string.Empty, StringComparison.OrdinalIgnoreCase).TrimNullToEmpty(),
+                out var listItemAperture))
+            //Couldn't parse a value from the list item's Aperture - compare as string to the search string
+            return new ContentListSearchReturn(itemApertureString.Equals(searchString),
+                $"Aperture input of '{itemApertureString}' could not " +
+                $"be parsed into a numeric Aperture to search - instead checking if the Aperture as a string to is equal to '{searchString}'");
+
+        //Remove f at this point - not currently aware of another valid Aperture measurement so removing this should be 
+        //a nice way to make this optional for the user
+        var tokens = FilterListTokenList(searchString.Replace("f", string.Empty, StringComparison.OrdinalIgnoreCase)
+            .Replace("\uD835\uDC53", string.Empty, StringComparison.OrdinalIgnoreCase));
+
+        if (tokens.Count == 1)
+        {
+            if (!decimal.TryParse(tokens.First(), out var parsedAperture))
+                return new ContentListSearchReturn(itemApertureString.Contains(searchString),
+                    $"Search input of {tokens.First()} could not " +
+                    $"be parsed into a numeric Aperture to search - instead checking if the item Aperture '{itemApertureString}' " +
+                    $"contains '{tokens.First()}'");
+
+            return new ContentListSearchReturn(
+                listItemAperture == parsedAperture,
+                $"Search Aperture of {parsedAperture} compared to {listItemAperture}");
+        }
+
+        var apertureSearchResults = new List<ContentListSearchReturn>();
+
+        for (var i = 0; i < tokens.Count; i++)
+        {
+            var scanValue = tokens[i];
+
+            if (!FilterListTokenOperatorList.Contains(scanValue))
+            {
+                if (!decimal.TryParse(tokens.First(), out var parsedAperture))
+                {
+                    apertureSearchResults.Add(new ContentListSearchReturn(itemApertureString.Contains(scanValue),
+                        $"Search input of {scanValue} could not " +
+                        $"be parsed into a numeric Aperture to search - instead checking if the item Aperture '{itemApertureString}' " +
+                        $"contains '{tokens.First()}'"));
+                    continue;
+                }
+
+                apertureSearchResults.Add(new ContentListSearchReturn(
+                    listItemAperture == parsedAperture,
+                    $"Search Aperture of {parsedAperture} compared to " +
+                    $"{listItemAperture}"));
+                continue;
+            }
+
+            i++;
+
+            //Last token is a operator - this isn't valid, just continue...
+            if (i >= tokens.Count) continue;
+
+            var lookaheadValue = tokens[i];
+
+            if (!decimal.TryParse(lookaheadValue, out var parsedApertureForExpression))
+            {
+                apertureSearchResults.Add(new ContentListSearchReturn(itemApertureString.Contains(scanValue),
+                    $"Search input of {scanValue} could not " +
+                    $"be parsed into a numeric Aperture to search - instead checking if the item Aperture '{itemApertureString}' " +
+                    $"contains '{tokens.First()}'"));
+                continue;
+            }
+
+            switch (scanValue)
+            {
+                case "==":
+                    apertureSearchResults.Add(new ContentListSearchReturn(
+                        listItemAperture == parsedApertureForExpression,
+                        $"Search Aperture of {parsedApertureForExpression} compared to " +
+                        $"{listItemAperture}"));
+                    break;
+                case "!=":
+                    apertureSearchResults.Add(new ContentListSearchReturn(
+                        listItemAperture != parsedApertureForExpression,
+                        $"Search Aperture of {parsedApertureForExpression} not equal to " +
+                        $"{listItemAperture}"));
+                    break;
+                case ">":
+                    apertureSearchResults.Add(new ContentListSearchReturn(
+                        listItemAperture < parsedApertureForExpression,
+                        $"Evaluated Search Aperture of {parsedApertureForExpression} greater than {listItemAperture}"));
+                    break;
+                case ">=":
+                    apertureSearchResults.Add(new ContentListSearchReturn(
+                        listItemAperture <= parsedApertureForExpression,
+                        $"Evaluated Search Aperture of {parsedApertureForExpression} greater than or equal to {listItemAperture}"));
+                    break;
+                case "<":
+                    apertureSearchResults.Add(new ContentListSearchReturn(
+                        listItemAperture > parsedApertureForExpression,
+                        $"Evaluated Search Aperture of {parsedApertureForExpression} less than {listItemAperture}"));
+                    break;
+                case "<=":
+                    apertureSearchResults.Add(new ContentListSearchReturn(
+                        listItemAperture >= parsedApertureForExpression,
+                        $"Evaluated Search Aperture of {parsedApertureForExpression} less than or equal to {listItemAperture}"));
+                    break;
+            }
+        }
+
+        return !apertureSearchResults.Any()
+            ? new ContentListSearchReturn(false, "No Search String Parse Results?")
+            : new ContentListSearchReturn(apertureSearchResults.All(x => x.Include),
+                string.Join(Environment.NewLine,
+                    apertureSearchResults.Select(x => $"{x.Explanation} ({x.Include}).")));
     }
 }
 
