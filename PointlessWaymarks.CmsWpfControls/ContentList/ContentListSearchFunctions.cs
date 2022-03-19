@@ -1,4 +1,5 @@
-﻿using PointlessWaymarks.CmsData;
+﻿using Fractions;
+using PointlessWaymarks.CmsData;
 
 namespace PointlessWaymarks.CmsWpfControls.ContentList;
 
@@ -159,6 +160,127 @@ public static class ContentListSearchFunctions
             : new ContentListSearchReturn(focalLengthSearchResults.All(x => x.Include),
                 string.Join(Environment.NewLine,
                     focalLengthSearchResults.Select(x => $"{x.Explanation} ({x.Include}).")));
+    }
+
+    public static ContentListSearchReturn FilterShutterSpeedLength(string itemShutterSpeedString, string searchString)
+    {
+        if (!string.IsNullOrWhiteSpace(searchString) &&
+            searchString.StartsWith("SHUTTER SPEED:", StringComparison.OrdinalIgnoreCase))
+            searchString = searchString[14..];
+
+        if (string.IsNullOrWhiteSpace(itemShutterSpeedString) && string.IsNullOrWhiteSpace(searchString))
+            return new ContentListSearchReturn(true, "Blank Shutter Speed and Blank Search String (true).");
+
+        if (string.IsNullOrWhiteSpace(itemShutterSpeedString))
+            return new ContentListSearchReturn(false, "Blank Shutter Speed with Not Blank Search String (false).");
+
+        if (string.IsNullOrWhiteSpace(searchString))
+            return new ContentListSearchReturn(false, "Blank Search String with Not Blank Shutter Speed (false).");
+
+        itemShutterSpeedString = itemShutterSpeedString.Replace(" ", string.Empty).Trim();
+        searchString = searchString.Trim();
+
+        if (!Fraction.TryParse(itemShutterSpeedString, out var translatedItemShutterSpeed))
+            return new ContentListSearchReturn(itemShutterSpeedString.Equals(searchString),
+                $"Shutter Speed of '{itemShutterSpeedString}' could not " +
+                $"be parsed into a numeric focal length to search - instead checking if the shutter speed as a string to is equal to '{searchString}'");
+
+        var tokens = FilterListTokenList(searchString);
+
+        if (tokens.Count == 1)
+        {
+            if (!Fraction.TryParse(tokens[0].Replace(" ", string.Empty), out var translatedSingleInputToken))
+                return new ContentListSearchReturn(itemShutterSpeedString.Contains(searchString),
+                    $"Search input of {tokens[0]} could not " +
+                    $"be parsed into a numeric focal length to search - instead checking if the item shutter speed '{itemShutterSpeedString}' " +
+                    $"contains '{tokens[0]}'");
+
+            return new ContentListSearchReturn(translatedSingleInputToken.IsEquivalentTo(translatedItemShutterSpeed),
+                $"Search Shutter Speed of {tokens[0]} equals {itemShutterSpeedString}");
+        }
+
+        var shutterSpeedSearchResults = new List<ContentListSearchReturn>();
+
+        for (var i = 0; i < tokens.Count; i++)
+        {
+            var scanValue = tokens[i];
+
+            if (!FilterListTokenOperatorList.Contains(scanValue))
+            {
+                if (!Fraction.TryParse(scanValue.Replace(" ", string.Empty), out var translatedToken))
+                {
+                    shutterSpeedSearchResults.Add(new ContentListSearchReturn(
+                        itemShutterSpeedString.Contains(scanValue),
+                        $"Search input of {scanValue} could not " +
+                        $"be parsed into a numeric shutter speed to search - instead checking if the item shutter speed '{itemShutterSpeedString}' " +
+                        $"contains '{tokens.First()}'"));
+                    continue;
+                }
+
+                shutterSpeedSearchResults.Add(new ContentListSearchReturn(
+                    translatedToken.IsEquivalentTo(translatedItemShutterSpeed),
+                    $"Search Shutter Speed of {scanValue} compared to " +
+                    $"{itemShutterSpeedString}"));
+                continue;
+            }
+
+            i++;
+
+            //Last token is a operator - this isn't valid, just continue...
+            if (i >= tokens.Count) continue;
+
+            var lookAheadValue = tokens[i];
+
+            if (!Fraction.TryParse(lookAheadValue, out var translatedLookAheadValue))
+            {
+                shutterSpeedSearchResults.Add(new ContentListSearchReturn(itemShutterSpeedString.Contains(scanValue),
+                    $"Search input of {scanValue} could not " +
+                    $"be parsed into a numeric shutter speed to search - instead checking if the item shutter speed '{itemShutterSpeedString}' contains '{scanValue}'"));
+                continue;
+            }
+
+            switch (scanValue)
+            {
+                case "==":
+                    shutterSpeedSearchResults.Add(new ContentListSearchReturn(
+                        translatedItemShutterSpeed.IsEquivalentTo(translatedLookAheadValue),
+                        $"Search Shutter Speed of {lookAheadValue} compared to " +
+                        $"{itemShutterSpeedString}"));
+                    break;
+                case "!=":
+                    shutterSpeedSearchResults.Add(new ContentListSearchReturn(
+                        !(translatedItemShutterSpeed.IsEquivalentTo(translatedLookAheadValue)),
+                        $"Search Shutter Speed of {lookAheadValue} not equal to " +
+                        $"{itemShutterSpeedString}"));
+                    break;
+                case ">":
+                    shutterSpeedSearchResults.Add(new ContentListSearchReturn(
+                        translatedLookAheadValue.CompareTo(translatedItemShutterSpeed) < 0,
+                        $"Evaluated Search Shutter Speed of {lookAheadValue} greater than {itemShutterSpeedString}"));
+                    break;
+                case ">=":
+                    shutterSpeedSearchResults.Add(new ContentListSearchReturn(
+                        translatedLookAheadValue.CompareTo(translatedItemShutterSpeed) <= 0,
+                        $"Evaluated Search Shutter Speed of {lookAheadValue} greater than or equal to {itemShutterSpeedString}"));
+                    break;
+                case "<":
+                    shutterSpeedSearchResults.Add(new ContentListSearchReturn(
+                        translatedLookAheadValue.CompareTo(translatedItemShutterSpeed) > 0,
+                        $"Evaluated Search Shutter Speed of {lookAheadValue} less than {itemShutterSpeedString}"));
+                    break;
+                case "<=":
+                    shutterSpeedSearchResults.Add(new ContentListSearchReturn(
+                        translatedLookAheadValue.CompareTo(translatedItemShutterSpeed) >= 0,
+                        $"Evaluated Search Shutter Speed of {lookAheadValue} less than or equal to {itemShutterSpeedString}"));
+                    break;
+            }
+        }
+
+        return !shutterSpeedSearchResults.Any()
+            ? new ContentListSearchReturn(false, "No Search String Parse Results?")
+            : new ContentListSearchReturn(shutterSpeedSearchResults.All(x => x.Include),
+                string.Join(Environment.NewLine,
+                    shutterSpeedSearchResults.Select(x => $"{x.Explanation} ({x.Include}).")));
     }
 
     public static ContentListSearchReturn FilterIso(string itemIsoString, string searchString)

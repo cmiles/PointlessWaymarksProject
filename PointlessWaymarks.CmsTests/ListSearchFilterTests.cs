@@ -6,6 +6,50 @@ namespace PointlessWaymarks.CmsTests;
 public class ListSearchFilterTests
 {
     [Test]
+    public void ShutterSpeedBlankSearchAndBlankShutterSpeed_Include()
+    {
+        Assert.IsTrue(ContentListSearchFunctions.FilterShutterSpeedLength(null, string.Empty).Include);
+    }
+
+    [Test]
+    public void ShutterSpeedBlankSearchAndShutterSpeed_DoNotInclude()
+    {
+        Assert.IsFalse(ContentListSearchFunctions.FilterShutterSpeedLength("99", null).Include);
+    }
+
+    [TestCase("Shutter Speed: .004")]
+    [TestCase("1/250")]
+    public void ShutterSpeedIsEqual_Include(string searchString)
+    {
+        Assert.IsTrue(ContentListSearchFunctions.FilterShutterSpeedLength("1/250", searchString).Include);
+    }
+
+    [TestCase("Shutter Speed: .5")]
+    [TestCase("1/50")]
+    [TestCase("1/800")]
+    [TestCase("shutter speed:1/25")]
+    public void ShutterSpeedIsEqual_DoNotInclude(string searchString)
+    {
+        Assert.IsFalse(ContentListSearchFunctions.FilterShutterSpeedLength("1/250", searchString).Include);
+    }
+
+    [TestCase("shutter speed: > 1/25 < 10.021")]
+    [TestCase("shutter speed: > 1/32000 <= 2/1")]
+    [TestCase("shutter speed: >= 2 <= 8")]
+    public void ShutterSpeedIsInRange_Include(string searchString)
+    {
+        Assert.IsTrue(ContentListSearchFunctions.FilterShutterSpeedLength("2.0", searchString).Include);
+    }
+
+    [TestCase("shutter speed: > 1/250 < 1/1000")]
+    [TestCase("shutter speed: > 1/25 <= 1/999")]
+    [TestCase("shutter speed: >= 2 <= 8")]
+    public void ShutterSpeedIsOutOfRange_DoNotInclude(string searchString)
+    {
+        Assert.IsFalse(ContentListSearchFunctions.FilterShutterSpeedLength("1/1000", searchString).Include);
+    }
+
+    [Test]
     public void FocalLengthBlankSearchAndBlankFocalLength_Include()
     {
         Assert.IsTrue(ContentListSearchFunctions.FilterFocalLength(null, string.Empty).Include);
@@ -92,8 +136,8 @@ public class ListSearchFilterTests
     {
         Assert.IsFalse(ContentListSearchFunctions.FilterIso(string.Empty, "== 99").Include);
     }
-    
-       [Test]
+
+    [Test]
     public void IsoBlankSearchAndBlankIso_Include()
     {
         Assert.IsTrue(ContentListSearchFunctions.FilterIso(null, string.Empty).Include);
@@ -110,7 +154,7 @@ public class ListSearchFilterTests
     {
         Assert.IsTrue(ContentListSearchFunctions.FilterIso("100", "Iso: 100").Include);
     }
-    
+
     [TestCase("50")]
     [TestCase("100")]
     [TestCase("1000")]
@@ -140,17 +184,18 @@ public class ListSearchFilterTests
     {
         Assert.IsTrue(ContentListSearchFunctions.FilterStringContains(string.Empty, null, "Test String").Include);
     }
-    
+
     [Test]
     public void StringContainsNotBlankItemAndBlankSearch_DoNotInclude()
     {
         Assert.IsFalse(ContentListSearchFunctions.FilterStringContains("A Nice String", null, "Test String").Include);
     }
-    
+
     [Test]
     public void StringContainsBlankItemAndNotBlankSearch_DoNotInclude()
     {
-        Assert.IsFalse(ContentListSearchFunctions.FilterStringContains(string.Empty, "Mountains ", "Test String").Include);
+        Assert.IsFalse(ContentListSearchFunctions.FilterStringContains(string.Empty, "Mountains ", "Test String")
+            .Include);
     }
 
     [TestCase("A")]
@@ -162,10 +207,11 @@ public class ListSearchFilterTests
     [TestCase("interesting")]
     public void StringContains_Include(string searchString)
     {
-        Assert.IsTrue(ContentListSearchFunctions.FilterStringContains("An (interesting) MOUNTAIN scene. ", searchString, "Summary")
+        Assert.IsTrue(ContentListSearchFunctions
+            .FilterStringContains("An (interesting) MOUNTAIN scene. ", searchString, "Summary")
             .Include);
     }
-    
+
     [TestCase("Ocean")]
     [TestCase("    () ")]
     [TestCase("   river")]
@@ -173,8 +219,8 @@ public class ListSearchFilterTests
     [TestCase("z")]
     public void StringContains_DoNotInclude(string searchString)
     {
-        Assert.IsFalse(ContentListSearchFunctions.FilterStringContains("An (interesting) MOUNTAIN scene. ", searchString, "Summary")
+        Assert.IsFalse(ContentListSearchFunctions
+            .FilterStringContains("An (interesting) MOUNTAIN scene. ", searchString, "Summary")
             .Include);
     }
-    
 }
