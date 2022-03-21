@@ -562,13 +562,18 @@ public partial class ContentListContext : IDragSource, IDropTarget
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
+        if (string.IsNullOrWhiteSpace(UserFilterText))
+        {
+            ((CollectionView)CollectionViewSource.GetDefaultView(Items)).Filter = o => true;
+            return;
+        }
+
         ((CollectionView)CollectionViewSource.GetDefaultView(Items)).Filter = o =>
         {
-            if (string.IsNullOrWhiteSpace(UserFilterText)) return true;
-
             if (o is not IContentListItem toFilter) return false;
 
-            var filterLineResults = new List<bool>();
+            var filterLineResults =
+                new List<(ContentListSearchReturn searchReturn, Func<bool, bool> modifierFunction)>();
 
             using var sr = new StringReader(UserFilterText);
 
@@ -579,7 +584,7 @@ public partial class ContentListContext : IDragSource, IDropTarget
                 var searchString = line.Trim();
                 Func<bool, bool> searchResultModifier = x => x;
 
-                if (line.ToUpper().StartsWith("-"))
+                if (line.ToUpper().StartsWith("!"))
                 {
                     searchResultModifier = x => !x;
                     searchString = line[1..];
@@ -594,9 +599,8 @@ public partial class ContentListContext : IDragSource, IDropTarget
                     if (string.IsNullOrWhiteSpace(searchString)) continue;
                     searchString = searchString.Trim();
 
-                    filterLineResults.Add(searchResultModifier(
-                        (toFilter.Content().Title ?? string.Empty).Contains(searchString,
-                            StringComparison.OrdinalIgnoreCase)));
+                    filterLineResults.Add((ContentListSearchFunctions.FilterStringContains(
+                        toFilter.Content().Title ?? string.Empty, searchString, "Title"), searchResultModifier));
                     continue;
                 }
 
@@ -606,9 +610,8 @@ public partial class ContentListContext : IDragSource, IDropTarget
                     if (string.IsNullOrWhiteSpace(searchString)) continue;
                     searchString = searchString.Trim();
 
-                    filterLineResults.Add(searchResultModifier(
-                        (toFilter.Content().Summary ?? string.Empty).Contains(searchString,
-                            StringComparison.OrdinalIgnoreCase)));
+                    filterLineResults.Add((ContentListSearchFunctions.FilterStringContains(
+                        toFilter.Content().Summary ?? string.Empty, searchString, "Summary"), searchResultModifier));
                     continue;
                 }
 
@@ -618,9 +621,8 @@ public partial class ContentListContext : IDragSource, IDropTarget
                     if (string.IsNullOrWhiteSpace(searchString)) continue;
                     searchString = searchString.Trim();
 
-                    filterLineResults.Add(searchResultModifier(
-                        (toFilter.Content().Folder ?? string.Empty).Contains(searchString,
-                            StringComparison.OrdinalIgnoreCase)));
+                    filterLineResults.Add((ContentListSearchFunctions.FilterStringContains(
+                        toFilter.Content().Folder ?? string.Empty, searchString, "Folder"), searchResultModifier));
                     continue;
                 }
 
@@ -630,9 +632,8 @@ public partial class ContentListContext : IDragSource, IDropTarget
                     if (string.IsNullOrWhiteSpace(searchString)) continue;
                     searchString = searchString.Trim();
 
-                    filterLineResults.Add(searchResultModifier(
-                        (toFilter.Content().Tags ?? string.Empty).Contains(searchString,
-                            StringComparison.OrdinalIgnoreCase)));
+                    filterLineResults.Add((ContentListSearchFunctions.FilterStringContains(
+                        toFilter.Content().Tags ?? string.Empty, searchString, "Tags"), searchResultModifier));
                     continue;
                 }
 
@@ -642,16 +643,14 @@ public partial class ContentListContext : IDragSource, IDropTarget
                     if (string.IsNullOrWhiteSpace(searchString)) continue;
 
                     if (o is not PhotoListListItem photoItem) return false;
-                    if (string.IsNullOrWhiteSpace(photoItem.DbEntry.CameraMake) &&
-                        string.IsNullOrWhiteSpace(photoItem.DbEntry.CameraModel)) return searchResultModifier(false);
 
                     var cameraMakeModel =
                         $"{photoItem.DbEntry.CameraMake.TrimNullToEmpty()} {photoItem.DbEntry.CameraModel.TrimNullToEmpty()}";
                     searchString = searchString.Trim();
 
-                    filterLineResults.Add(searchResultModifier(
-                        cameraMakeModel.Contains(searchString,
-                            StringComparison.OrdinalIgnoreCase)));
+                    filterLineResults.Add(
+                        (ContentListSearchFunctions.FilterStringContains(cameraMakeModel, searchString, "Camera"),
+                            searchResultModifier));
                     continue;
                 }
 
@@ -661,11 +660,10 @@ public partial class ContentListContext : IDragSource, IDropTarget
                     if (string.IsNullOrWhiteSpace(searchString)) continue;
 
                     if (o is not PhotoListListItem photoItem) return false;
-                    if (string.IsNullOrWhiteSpace(photoItem.DbEntry.Lens)) return searchResultModifier(false);
 
-                    filterLineResults.Add(searchResultModifier(
-                        photoItem.DbEntry.Lens.Contains(searchString,
-                            StringComparison.OrdinalIgnoreCase)));
+                    filterLineResults.Add(
+                        (ContentListSearchFunctions.FilterStringContains(photoItem.DbEntry.Lens, searchString, "Lens"),
+                            searchResultModifier));
                     continue;
                 }
 
@@ -675,11 +673,9 @@ public partial class ContentListContext : IDragSource, IDropTarget
                     if (string.IsNullOrWhiteSpace(searchString)) continue;
 
                     if (o is not PhotoListListItem photoItem) return false;
-                    if (string.IsNullOrWhiteSpace(photoItem.DbEntry.License)) return searchResultModifier(false);
 
-                    filterLineResults.Add(searchResultModifier(
-                        photoItem.DbEntry.License.Contains(searchString,
-                            StringComparison.OrdinalIgnoreCase)));
+                    filterLineResults.Add((ContentListSearchFunctions.FilterStringContains(photoItem.DbEntry.License,
+                        searchString, "License"), searchResultModifier));
                     continue;
                 }
 
@@ -687,91 +683,99 @@ public partial class ContentListContext : IDragSource, IDropTarget
                 {
                     //As soon as we designate an ISO search limit the search to photos with Iso
                     if (o is not PhotoListListItem photoItem) return false;
-                    if (photoItem.DbEntry.Iso == null) return searchResultModifier(false);
 
                     searchString = searchString[4..];
                     if (string.IsNullOrWhiteSpace(searchString)) continue;
 
-                    var tokens = FilterListTokenList(searchString);
-
-                    if (!tokens.Any()) continue;
-                    if (tokens.Count == 1)
-                    {
-                        if (!int.TryParse(tokens.First(), out var parsedIso)) continue;
-                        filterLineResults.Add(searchResultModifier(photoItem.DbEntry.Iso == parsedIso));
-                        continue;
-                    }
-
-                    var isoSearchResults = new List<bool>();
-
-                    for (var i = 0; i < tokens.Count; i++)
-                    {
-                        var scanValue = tokens[i];
-                        if (!FilterListTokenOperatorList.Contains(scanValue))
-                        {
-                            if (!int.TryParse(scanValue, out var parsedIso)) continue;
-                            isoSearchResults.Add(photoItem.DbEntry.Iso == parsedIso);
-                            continue;
-                        }
-
-                        i++;
-                        if (i >= tokens.Count) continue;
-
-                        var lookaheadValue = tokens[i];
-
-                        if (!int.TryParse(lookaheadValue, out var parsedIsoForExpression)) continue;
-                        switch (scanValue)
-                        {
-                            case "==":
-                                isoSearchResults.Add(photoItem.DbEntry.Iso == parsedIsoForExpression);
-                                break;
-                            case ">":
-                                isoSearchResults.Add(photoItem.DbEntry.Iso > parsedIsoForExpression);
-                                break;
-                            case ">=":
-                                isoSearchResults.Add(photoItem.DbEntry.Iso >= parsedIsoForExpression);
-                                break;
-                            case "<":
-                                isoSearchResults.Add(photoItem.DbEntry.Iso < parsedIsoForExpression);
-                                break;
-                            case "<=":
-                                isoSearchResults.Add(photoItem.DbEntry.Iso <= parsedIsoForExpression);
-                                break;
-                        }
-                    }
-
-                    filterLineResults.Add(!isoSearchResults.Any()
-                        ? searchResultModifier(false)
-                        : searchResultModifier(isoSearchResults.All(x => x)));
+                    filterLineResults.Add(
+                        (ContentListSearchFunctions.FilterIso(photoItem.DbEntry.Iso.ToString(), searchString),
+                            searchResultModifier));
 
                     continue;
                 }
 
-                bool AllFieldsSearch(string stringToSearch)
+                if (searchString.ToUpper().StartsWith("APERTURE:"))
+                {
+                    //As soon as we designate an ISO search limit the search to photos with Iso
+                    if (o is not PhotoListListItem photoItem) return false;
+
+                    searchString = searchString[9..];
+                    if (string.IsNullOrWhiteSpace(searchString)) continue;
+
+                    filterLineResults.Add(
+                        (ContentListSearchFunctions.FilterAperture(photoItem.DbEntry.Aperture ?? string.Empty,
+                            searchString), searchResultModifier));
+
+                    continue;
+                }
+
+                if (searchString.ToUpper().StartsWith("FOCAL LENGTH:"))
+                {
+                    //As soon as we designate an ISO search limit the search to photos with Iso
+                    if (o is not PhotoListListItem photoItem) return false;
+
+                    searchString = searchString[13..];
+                    if (string.IsNullOrWhiteSpace(searchString)) continue;
+
+                    filterLineResults.Add(
+                        (ContentListSearchFunctions.FilterFocalLength(photoItem.DbEntry.FocalLength ?? string.Empty,
+                            searchString), searchResultModifier));
+
+                    continue;
+                }
+
+                if (searchString.ToUpper().StartsWith("SHUTTER SPEED:"))
+                {
+                    //As soon as we designate an ISO search limit the search to photos with Iso
+                    if (o is not PhotoListListItem photoItem) return false;
+
+                    searchString = searchString[14..];
+                    if (string.IsNullOrWhiteSpace(searchString)) continue;
+
+                    filterLineResults.Add(
+                        (ContentListSearchFunctions.FilterShutterSpeedLength(
+                            photoItem.DbEntry.ShutterSpeed ?? string.Empty, searchString), searchResultModifier));
+
+                    continue;
+                }
+
+                ContentListSearchReturn GeneralContentSearch(string stringToSearch)
                 {
                     if ((toFilter.Content().Title ?? string.Empty).Contains(stringToSearch,
                             StringComparison.OrdinalIgnoreCase))
-                        return true;
+                        return new ContentListSearchReturn(true, $"{stringToSearch} found in Title");
                     if ((toFilter.Content().Tags ?? string.Empty).Contains(stringToSearch,
                             StringComparison.OrdinalIgnoreCase))
-                        return true;
+                        return new ContentListSearchReturn(true, $"{stringToSearch} found in Tags");
+
                     if ((toFilter.Content().Summary ?? string.Empty).Contains(stringToSearch,
-                            StringComparison.OrdinalIgnoreCase)) return true;
+                            StringComparison.OrdinalIgnoreCase))
+                        return new ContentListSearchReturn(true, $"{stringToSearch} found in Summary");
+
                     if ((toFilter.Content().Folder ?? string.Empty).Contains(stringToSearch,
-                            StringComparison.OrdinalIgnoreCase)) return true;
+                            StringComparison.OrdinalIgnoreCase))
+                        return new ContentListSearchReturn(true, $"{stringToSearch} found in Folder");
+
                     if ((toFilter.Content().CreatedBy ?? string.Empty).Contains(stringToSearch,
-                            StringComparison.OrdinalIgnoreCase)) return true;
+                            StringComparison.OrdinalIgnoreCase))
+                        return new ContentListSearchReturn(true, $"{stringToSearch} found in Created By");
+
                     if ((toFilter.Content().LastUpdatedBy ?? string.Empty).Contains(stringToSearch,
-                            StringComparison.OrdinalIgnoreCase)) return true;
+                            StringComparison.OrdinalIgnoreCase))
+                        return new ContentListSearchReturn(true, $"{stringToSearch} found in Last Updated By");
+
                     if (toFilter.ContentId() != null && toFilter.ContentId().ToString()
-                            .Contains(stringToSearch, StringComparison.OrdinalIgnoreCase)) return true;
-                    return false;
+                            .Contains(stringToSearch, StringComparison.OrdinalIgnoreCase))
+                        return new ContentListSearchReturn(true, $"{stringToSearch} found in Content Id");
+
+                    return new ContentListSearchReturn(false,
+                        $"{stringToSearch} not found in a General Content Search");
                 }
 
-                filterLineResults.Add(searchResultModifier(AllFieldsSearch(searchString)));
+                filterLineResults.Add((GeneralContentSearch(searchString), searchResultModifier));
             }
 
-            return !filterLineResults.Any() || filterLineResults.All(x => x);
+            return !filterLineResults.Any() || filterLineResults.All(x => x.modifierFunction(x.searchReturn.Include));
         };
     }
 

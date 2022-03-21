@@ -36,8 +36,10 @@ public static class ContentListSearchFunctions
         searchString = searchString.Trim();
 
         if (!decimal.TryParse(
-                itemApertureString.Replace("f", string.Empty, StringComparison.OrdinalIgnoreCase)
-                    .Replace("\uD835\uDC53", string.Empty, StringComparison.OrdinalIgnoreCase).TrimNullToEmpty(),
+                itemApertureString
+                    .Replace(" ", string.Empty, StringComparison.OrdinalIgnoreCase)
+                    .Replace("f/", string.Empty, StringComparison.OrdinalIgnoreCase)
+                    .Replace("\uD835\uDC53/", string.Empty, StringComparison.OrdinalIgnoreCase).TrimNullToEmpty(),
                 out var listItemAperture))
             //Couldn't parse a value from the list item's Aperture - compare as string to the search string
             return new ContentListSearchReturn(itemApertureString.Equals(searchString),
@@ -47,7 +49,11 @@ public static class ContentListSearchFunctions
         //Remove f at this point - not currently aware of another valid Aperture measurement so removing this should be 
         //a nice way to make this optional for the user
         var tokens = FilterListSpaceDividedTokenList(searchString
+            .Replace("f /", string.Empty, StringComparison.OrdinalIgnoreCase)
+            .Replace("f/", string.Empty, StringComparison.OrdinalIgnoreCase)
             .Replace("f", string.Empty, StringComparison.OrdinalIgnoreCase)
+            .Replace("\uD835\uDC53 /", string.Empty, StringComparison.OrdinalIgnoreCase)
+            .Replace("\uD835\uDC53/", string.Empty, StringComparison.OrdinalIgnoreCase)
             .Replace("\uD835\uDC53", string.Empty, StringComparison.OrdinalIgnoreCase));
 
         if (tokens.Count == 1)

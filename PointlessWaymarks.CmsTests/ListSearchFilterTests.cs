@@ -8,7 +8,7 @@ public class ListSearchFilterTests
     [Test]
     public void ApertureBlankSearchAndAperture_DoNotInclude()
     {
-        Assert.IsFalse(ContentListSearchFunctions.FilterAperture("f 8.0", null).Include);
+        Assert.IsFalse(ContentListSearchFunctions.FilterAperture("f/ 8.0", null).Include);
     }
 
     [Test]
@@ -17,55 +17,57 @@ public class ListSearchFilterTests
         Assert.IsTrue(ContentListSearchFunctions.FilterAperture(null, string.Empty).Include);
     }
 
-    [TestCase("Aperture: <4 >16")]
-    [TestCase("Aperture: < f8.0 > f64")]
-    [TestCase("Aperture: > 64.0 <4")]
-    [TestCase("Aperture:<=f11.00 >f13")]
+    [TestCase("Aperture: <f/4 > f / 16")]
+    [TestCase("Aperture: < f / 8.0 > f / 64")]
+    [TestCase("Aperture: > f64.0 <4")]
+    [TestCase("Aperture:<=f11.00 >f/13")]
     public void ApertureIsBetween_Include(string searchString)
     {
-        Assert.IsTrue(ContentListSearchFunctions.FilterAperture("f 11.0", searchString).Include);
+        Assert.IsTrue(ContentListSearchFunctions.FilterAperture("f /11.0", searchString).Include);
     }
 
     [TestCase("Aperture: 11")]
-    [TestCase("f11")]
-    [TestCase("11")]
-    [TestCase("11.00")]
+    [TestCase("f/11")]
+    [TestCase("f / 11")]
+    [TestCase("f /11.00")]
     public void ApertureIsEqual_Include(string searchString)
     {
-        Assert.IsTrue(ContentListSearchFunctions.FilterAperture("f 11", searchString).Include);
+        Assert.IsTrue(ContentListSearchFunctions.FilterAperture("f/11", searchString).Include);
     }
 
     [TestCase("Aperture: >11")]
     [TestCase("Aperture: > f64")]
-    [TestCase("Aperture: > f 64")]
+    [TestCase("Aperture: > f /64")]
+    [TestCase("Aperture: > f / 64")]
+    [TestCase("Aperture: > f/64")]
     [TestCase("Aperture:>=f8")]
     [TestCase(">f9 ")]
-    [TestCase(" >16")]
+    [TestCase(" >f/16")]
     [TestCase(">  11.00  ")]
     public void ApertureIsGreaterThan_Include(string searchString)
     {
-        Assert.IsTrue(ContentListSearchFunctions.FilterAperture("f 8.0", searchString).Include);
+        Assert.IsTrue(ContentListSearchFunctions.FilterAperture("f / 8.0", searchString).Include);
     }
 
     [TestCase("Aperture: <4")]
     [TestCase("Aperture: < f8.0")]
-    [TestCase("Aperture: < f 11")]
-    [TestCase("Aperture:<=f16.00")]
+    [TestCase("Aperture: < f / 11")]
+    [TestCase("Aperture:<=f/16.00")]
     [TestCase("<f 9 ")]
-    [TestCase(" < 8")]
+    [TestCase(" < f/ 8")]
     [TestCase("<  11.00  ")]
     public void ApertureIsLessThan_Include(string searchString)
     {
-        Assert.IsTrue(ContentListSearchFunctions.FilterAperture("f16", searchString).Include);
+        Assert.IsTrue(ContentListSearchFunctions.FilterAperture("f/16", searchString).Include);
     }
 
     [TestCase("Aperture: <4 >16")]
     [TestCase("Aperture: < f8.0 > f64")]
-    [TestCase("Aperture: > 64.0 <4")]
-    [TestCase("Aperture:<=f11.00 >f13")]
+    [TestCase("Aperture: > f/ 64.0 <4")]
+    [TestCase("Aperture:<=f/11.00 >f/13")]
     public void ApertureIsNotBetween_Include(string searchString)
     {
-        Assert.IsFalse(ContentListSearchFunctions.FilterAperture("f 4", searchString).Include);
+        Assert.IsFalse(ContentListSearchFunctions.FilterAperture("f/ 4", searchString).Include);
     }
 
     [Test]
