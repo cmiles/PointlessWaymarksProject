@@ -69,6 +69,74 @@ public class ListSearchFilterTests
     }
 
     [Test]
+    public void DateTimeSearchBlankItemAndBlankSearch_Include()
+    {
+        Assert.IsTrue(ContentListSearchFunctions.FilterDateTime(null, null, "Test DateTime").Include);
+    }
+
+    [Test]
+    public void DateTimeSearchBlankItemAndNotBlankSearch_DoNotInclude()
+    {
+        Assert.IsFalse(ContentListSearchFunctions.FilterDateTime(null, "2020/1/1", "Test DateTime").Include);
+    }
+
+    [Test]
+    public void DateTimeSearchNotBlankItemAndBlankSearch_DoNotInclude()
+    {
+        Assert.IsFalse(ContentListSearchFunctions
+            .FilterDateTime(new DateTime(2020, 1, 1, 1, 1, 1), null, "Test DateTime").Include);
+    }
+
+    [Test]
+    public void DateTimeSearchSingleDateEquals_Include()
+    {
+        var frozenNow = DateTime.Now;
+        var monthTextString = $"{frozenNow:MMM d}";
+
+        Assert.IsTrue(ContentListSearchFunctions.FilterDateTime(frozenNow, monthTextString, "Test DateTime").Include);
+    }
+
+
+    [Test]
+    public void DateTimeSimpleExcludesSearch_DoesNotInclude()
+    {
+        var frozenNow = DateTime.Now;
+        var searchString = $" > {frozenNow.AddDays(-23):MMM d} < {frozenNow.AddDays(23):f} ";
+
+        Assert.IsFalse(ContentListSearchFunctions.FilterDateTime(frozenNow.AddDays(96), searchString, "Test DateTime")
+            .Include);
+        Assert.IsFalse(ContentListSearchFunctions.FilterDateTime(frozenNow.AddDays(-96), searchString, "Test DateTime")
+            .Include);
+    }
+
+    [Test]
+    public void DateTimeSimpleIncludesSearch_Include()
+    {
+        var frozenNow = DateTime.Now;
+        var searchString = $" > {frozenNow.AddDays(-23):MMM d} < {frozenNow.AddDays(23):f} ";
+
+        Assert.IsTrue(ContentListSearchFunctions.FilterDateTime(frozenNow, searchString, "Test DateTime").Include);
+    }
+
+    [Test]
+    public void DateTimeTimeExcludes_DoesNotInclude()
+    {
+        var searchString = " > 9am < 18:00 ";
+
+        Assert.IsFalse(ContentListSearchFunctions
+            .FilterDateTime(new DateTime(2019, 1, 1, 20, 23, 9), searchString, "Test DateTime").Include);
+    }
+
+    [Test]
+    public void DateTimeTimeIncludes_Include()
+    {
+        var searchString = " > 9am < 18:00 ";
+
+        Assert.IsTrue(ContentListSearchFunctions
+            .FilterDateTime(new DateTime(2019, 1, 1, 11, 23, 9), searchString, "Test DateTime").Include);
+    }
+
+    [Test]
     public void FocalLengthBlankSearchAndBlankFocalLength_Include()
     {
         Assert.IsTrue(ContentListSearchFunctions.FilterFocalLength(null, string.Empty).Include);
@@ -212,7 +280,7 @@ public class ListSearchFilterTests
     [TestCase(" >    3pm ", ">")]
     [TestCase("Jan 1 2022", "")]
     [TestCase(" <Jan 1 2022", "<")]
-    [TestCase(" =Jan 1 2022", "=")]
+    [TestCase(" =Jan 1 2022", "==")]
     [TestCase(" != Jan 1 2022", "!=")]
     [TestCase(" >=   Jan 1 2022 2pm   ", ">=")]
     [TestCase(" <= Jan 1 2022 2pm", "<=")]

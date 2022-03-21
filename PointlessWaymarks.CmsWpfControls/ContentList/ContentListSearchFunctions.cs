@@ -1,4 +1,6 @@
 ﻿using Fractions;
+using Microsoft.Recognizers.Text;
+using Microsoft.Recognizers.Text.DateTime;
 using PointlessWaymarks.CmsData;
 
 namespace PointlessWaymarks.CmsWpfControls.ContentList;
@@ -137,6 +139,210 @@ public static class ContentListSearchFunctions
             ? new ContentListSearchReturn(false, "No Search String Parse Results?")
             : new ContentListSearchReturn(apertureSearchResults.All(x => x.Include),
                 string.Join(Environment.NewLine, apertureSearchResults.Select(x => $"{x.Explanation} ({x.Include}).")));
+    }
+
+
+    public static ContentListSearchReturn FilterDateTime(DateTime? itemDateTime, string searchString,
+        string searchLabel)
+    {
+        if (!string.IsNullOrWhiteSpace(searchLabel) && !string.IsNullOrWhiteSpace(searchString) &&
+            searchString.StartsWith(searchLabel.Trim(), StringComparison.OrdinalIgnoreCase))
+            searchString = searchString[$"{searchLabel.Trim().Replace(":", string.Empty)}:".Length..];
+
+        if (itemDateTime == null && string.IsNullOrWhiteSpace(searchString))
+            return new ContentListSearchReturn(true, $"Blank {searchLabel} and Blank Search String (true).");
+
+        if (itemDateTime == null)
+            return new ContentListSearchReturn(false, $"Blank {searchLabel} with Not Blank Search String (false).");
+
+        if (string.IsNullOrWhiteSpace(searchString))
+            return new ContentListSearchReturn(false, $"Blank Search String with Not Blank {searchLabel} (false).");
+
+        searchString = searchString.Trim();
+
+        var tokens = FilterListOperatorDividedTokenList(searchString);
+
+        var dateTimeSearchResults = new List<ContentListSearchReturn>();
+
+        foreach (var loopDateTimeSearches in tokens)
+        {
+            var dateTimeParse = DateTimeRecognizer.RecognizeDateTime(loopDateTimeSearches.searchString, Culture.English,
+                DateTimeOptions.None, DateTime.Now);
+
+            if (dateTimeParse.Count == 0 || dateTimeParse[0].Resolution.Count == 0)
+            {
+                dateTimeSearchResults.Add(new ContentListSearchReturn(true,
+                    $"Search input of {loopDateTimeSearches.searchString} could not " +
+                    "be parsed into a DateTime to search"));
+                continue;
+            }
+
+            if (dateTimeParse[0].TypeName == "datetimeV2.date")
+            {
+                var valuesFound = dateTimeParse[0].Resolution.TryGetValue("values", out var valuesObject);
+                if (!valuesFound || valuesObject is not List<Dictionary<string, string>> valuesDictionary ||
+                    valuesDictionary.Count < 1 ||
+                    !valuesDictionary[0].TryGetValue("value", out var searchDateTimeString) ||
+                    !DateTime.TryParse(searchDateTimeString, out var searchDateTime))
+                {
+                    dateTimeSearchResults.Add(new ContentListSearchReturn(true,
+                        $"{loopDateTimeSearches.searchString} could not be parsed into a valid DateTime for Comparison (true)."));
+                    continue;
+                }
+
+                switch (loopDateTimeSearches.operatorString)
+                {
+                    case "":
+                        dateTimeSearchResults.Add(new ContentListSearchReturn(
+                            itemDateTime.Value.Date == searchDateTime.Date,
+                            $"Search {searchLabel} of {itemDateTime.Value.Date} compared to {searchDateTime.Date}"));
+                        break;
+                    case "==":
+                        dateTimeSearchResults.Add(new ContentListSearchReturn(
+                            itemDateTime.Value.Date == searchDateTime.Date,
+                            $"Search {searchLabel} of {itemDateTime.Value.Date} compared to {searchDateTime.Date}"));
+                        break;
+                    case "!=":
+                        dateTimeSearchResults.Add(new ContentListSearchReturn(
+                            itemDateTime.Value.Date != searchDateTime.Date,
+                            $"Search {searchLabel} of {itemDateTime.Value.Date} does not equal {searchDateTime.Date}"));
+                        break;
+                    case ">":
+                        dateTimeSearchResults.Add(new ContentListSearchReturn(
+                            itemDateTime.Value.Date > searchDateTime.Date,
+                            $"Search {searchLabel} of {itemDateTime.Value.Date} is greater than {searchDateTime.Date}"));
+                        break;
+                    case ">=":
+                        dateTimeSearchResults.Add(new ContentListSearchReturn(
+                            itemDateTime.Value.Date >= searchDateTime.Date,
+                            $"Search {searchLabel} of {itemDateTime.Value.Date} is great than or equal to {searchDateTime.Date}"));
+                        break;
+                    case "<":
+                        dateTimeSearchResults.Add(new ContentListSearchReturn(
+                            itemDateTime.Value.Date < searchDateTime.Date,
+                            $"Search {searchLabel} of {itemDateTime.Value.Date} is less than {searchDateTime.Date}"));
+                        break;
+                    case "<=":
+                        dateTimeSearchResults.Add(new ContentListSearchReturn(
+                            itemDateTime.Value.Date <= searchDateTime.Date,
+                            $"Search {searchLabel} of {itemDateTime.Value.Date} is less than or equal to {searchDateTime.Date}"));
+                        break;
+                }
+
+                continue;
+            }
+
+            if (dateTimeParse[0].TypeName == "datetimeV2.datetime")
+            {
+                var valuesFound = dateTimeParse[0].Resolution.TryGetValue("values", out var valuesObject);
+                if (!valuesFound || valuesObject is not List<Dictionary<string, string>> valuesDictionary ||
+                    valuesDictionary.Count < 1 ||
+                    !valuesDictionary[0].TryGetValue("value", out var searchDateTimeString) ||
+                    !DateTime.TryParse(searchDateTimeString, out var searchDateTime))
+                {
+                    dateTimeSearchResults.Add(new ContentListSearchReturn(true,
+                        $"{loopDateTimeSearches.searchString} could not be parsed into a valid DateTime for Comparison (true)."));
+                    continue;
+                }
+
+                switch (loopDateTimeSearches.operatorString)
+                {
+                    case "":
+                        dateTimeSearchResults.Add(new ContentListSearchReturn(itemDateTime == searchDateTime.Date,
+                            $"Search {searchLabel} of {itemDateTime} compared to {searchDateTime}"));
+                        break;
+                    case "==":
+                        dateTimeSearchResults.Add(new ContentListSearchReturn(itemDateTime == searchDateTime,
+                            $"Search {searchLabel} of {itemDateTime} compared to {searchDateTime}"));
+                        break;
+                    case "!=":
+                        dateTimeSearchResults.Add(new ContentListSearchReturn(itemDateTime != searchDateTime,
+                            $"Search {searchLabel} of {itemDateTime} does not equal {searchDateTime}"));
+                        break;
+                    case ">":
+                        dateTimeSearchResults.Add(new ContentListSearchReturn(itemDateTime > searchDateTime,
+                            $"Search {searchLabel} of {itemDateTime} is greater than {searchDateTime}"));
+                        break;
+                    case ">=":
+                        dateTimeSearchResults.Add(new ContentListSearchReturn(itemDateTime >= searchDateTime,
+                            $"Search {searchLabel} of {itemDateTime} is great than or equal to {searchDateTime}"));
+                        break;
+                    case "<":
+                        dateTimeSearchResults.Add(new ContentListSearchReturn(itemDateTime < searchDateTime,
+                            $"Search {searchLabel} of {itemDateTime} is less than {searchDateTime}"));
+                        break;
+                    case "<=":
+                        dateTimeSearchResults.Add(new ContentListSearchReturn(itemDateTime <= searchDateTime,
+                            $"Search {searchLabel} of {itemDateTime} is less than or equal to {searchDateTime}"));
+                        break;
+                }
+
+                continue;
+            }
+
+            if (dateTimeParse[0].TypeName == "datetimeV2.time")
+            {
+                var valuesFound = dateTimeParse[0].Resolution.TryGetValue("values", out var valuesObject);
+                if (!valuesFound || valuesObject is not List<Dictionary<string, string>> valuesDictionary ||
+                    valuesDictionary.Count < 1 ||
+                    !valuesDictionary[0].TryGetValue("value", out var searchDateTimeString) ||
+                    !DateTime.TryParse(searchDateTimeString, out var searchTime))
+                {
+                    dateTimeSearchResults.Add(new ContentListSearchReturn(true,
+                        $"{loopDateTimeSearches.searchString} could not be parsed into a valid DateTime for Comparison (true)."));
+                    continue;
+                }
+
+                switch (loopDateTimeSearches.operatorString)
+                {
+                    case "":
+                        dateTimeSearchResults.Add(new ContentListSearchReturn(
+                            itemDateTime.Value.TimeOfDay == searchTime.TimeOfDay,
+                            $"Search {searchLabel} of {itemDateTime:T} compared to {searchTime:T}"));
+                        break;
+                    case "==":
+                        dateTimeSearchResults.Add(new ContentListSearchReturn(
+                            itemDateTime.Value.TimeOfDay == searchTime.TimeOfDay,
+                            $"Search {searchLabel} of {itemDateTime:T} compared to {searchTime:T}"));
+                        break;
+                    case "!=":
+                        dateTimeSearchResults.Add(new ContentListSearchReturn(
+                            itemDateTime.Value.TimeOfDay != searchTime.TimeOfDay,
+                            $"Search {searchLabel} of {itemDateTime:T} does not equal {searchTime:T}"));
+                        break;
+                    case ">":
+                        dateTimeSearchResults.Add(new ContentListSearchReturn(
+                            itemDateTime.Value.TimeOfDay > searchTime.TimeOfDay,
+                            $"Search {searchLabel} of {itemDateTime:T} is greater than {searchTime:T}"));
+                        break;
+                    case ">=":
+                        dateTimeSearchResults.Add(new ContentListSearchReturn(
+                            itemDateTime.Value.TimeOfDay >= searchTime.TimeOfDay,
+                            $"Search {searchLabel} of {itemDateTime:T} is greater than or equal to {searchTime:T}"));
+                        break;
+                    case "<":
+                        dateTimeSearchResults.Add(new ContentListSearchReturn(
+                            itemDateTime.Value.TimeOfDay < searchTime.TimeOfDay,
+                            $"Search {searchLabel} of {itemDateTime:T} is less than {searchTime:T}"));
+                        break;
+                    case "<=":
+                        dateTimeSearchResults.Add(new ContentListSearchReturn(
+                            itemDateTime.Value.TimeOfDay <= searchTime.TimeOfDay,
+                            $"Search {searchLabel} of {itemDateTime:T} is less than or equal to {searchTime:T}"));
+                        break;
+
+                        continue;
+                }
+
+                dateTimeSearchResults.Add(new ContentListSearchReturn(true,
+                    $"{loopDateTimeSearches.searchString} could not be parsed into a valid DateTime for Comparison (true)."));
+            }
+        }
+
+        return !dateTimeSearchResults.Any()
+            ? new ContentListSearchReturn(false, "No Search String Parse Results?")
+            : new ContentListSearchReturn(dateTimeSearchResults.All(x => x.Include),
+                string.Join(Environment.NewLine, dateTimeSearchResults.Select(x => $"{x.Explanation} ({x.Include}).")));
     }
 
     public static ContentListSearchReturn FilterFocalLength(string itemFocalLengthString, string searchString)
