@@ -36,8 +36,7 @@ public static class ContentListSearchFunctions
         searchString = searchString.Trim();
 
         if (!decimal.TryParse(
-                itemApertureString
-                    .Replace(" ", string.Empty, StringComparison.OrdinalIgnoreCase)
+                itemApertureString.Replace(" ", string.Empty, StringComparison.OrdinalIgnoreCase)
                     .Replace("f/", string.Empty, StringComparison.OrdinalIgnoreCase)
                     .Replace("\uD835\uDC53/", string.Empty, StringComparison.OrdinalIgnoreCase).TrimNullToEmpty(),
                 out var listItemAperture))
@@ -180,6 +179,59 @@ public static class ContentListSearchFunctions
                 dateTimeSearchResults.Add(new ContentListSearchReturn(true,
                     $"Search input of {loopDateTimeSearches.searchString} could not " +
                     "be parsed into a DateTime to search"));
+                continue;
+            }
+
+            if (dateTimeParse[0].TypeName == "datetimeV2.daterange")
+            {
+                var valuesFound = dateTimeParse[0].Resolution.TryGetValue("values", out var valuesObject);
+                if (!valuesFound || valuesObject is not List<Dictionary<string, string>> valuesDictionary ||
+                    valuesDictionary.Count < 1 ||
+                    !valuesDictionary[0].TryGetValue("start", out var searchStartDateTimeString) ||
+                    !DateTime.TryParse(searchStartDateTimeString, out var searchStartDateTime) ||
+                    !valuesDictionary[0].TryGetValue("end", out var searchEndDateTimeString) ||
+                    !DateTime.TryParse(searchEndDateTimeString, out var searchEndDateTime))
+                {
+                    dateTimeSearchResults.Add(new ContentListSearchReturn(true,
+                        $"{loopDateTimeSearches.searchString} could not be parsed into a valid DateTime for Comparison (true)."));
+                    continue;
+                }
+
+                switch (loopDateTimeSearches.operatorString)
+                {
+                    case "":
+                        dateTimeSearchResults.Add(new ContentListSearchReturn(
+                            itemDateTime.Value >= searchStartDateTime && itemDateTime.Value < searchEndDateTime,
+                            $"Search {searchLabel} of {itemDateTime.Value} is >= {searchStartDateTime} and < {searchEndDateTime}"));
+                        break;
+                    case "==":
+                        dateTimeSearchResults.Add(new ContentListSearchReturn(
+                            itemDateTime.Value >= searchStartDateTime && itemDateTime.Value < searchEndDateTime,
+                            $"Search {searchLabel} of {itemDateTime.Value} is >= {searchStartDateTime} and < {searchEndDateTime}"));
+                        break;
+                    case "!=":
+                        dateTimeSearchResults.Add(new ContentListSearchReturn(
+                            itemDateTime.Value < searchStartDateTime && itemDateTime.Value >= searchEndDateTime,
+                            $"Search {searchLabel} of {itemDateTime.Value} is < {searchStartDateTime} and >= {searchEndDateTime}"));
+                        break;
+                    case ">":
+                        dateTimeSearchResults.Add(new ContentListSearchReturn(itemDateTime.Value > searchEndDateTime,
+                            $"Search {searchLabel} of {itemDateTime.Value} is greater than {searchEndDateTime}"));
+                        break;
+                    case ">=":
+                        dateTimeSearchResults.Add(new ContentListSearchReturn(itemDateTime.Value >= searchEndDateTime,
+                            $"Search {searchLabel} of {itemDateTime.Value} is great than or equal to {searchEndDateTime}"));
+                        break;
+                    case "<":
+                        dateTimeSearchResults.Add(new ContentListSearchReturn(itemDateTime.Value < searchEndDateTime,
+                            $"Search {searchLabel} of {itemDateTime.Value} is less than {searchEndDateTime}"));
+                        break;
+                    case "<=":
+                        dateTimeSearchResults.Add(new ContentListSearchReturn(itemDateTime.Value <= searchEndDateTime,
+                            $"Search {searchLabel} of {itemDateTime.Value} is less than or equal to {searchEndDateTime}"));
+                        break;
+                }
+
                 continue;
             }
 

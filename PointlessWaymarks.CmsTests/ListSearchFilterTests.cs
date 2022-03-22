@@ -71,6 +71,39 @@ public class ListSearchFilterTests
     }
 
     [Test]
+    public void DateTimeRangeExcludes_DoesNotInclude()
+    {
+        var searchString = " 2021 ";
+
+        Assert.IsFalse(ContentListSearchFunctions
+            .FilterDateTime(new DateTime(2022, 1, 1, 11, 23, 9), searchString, "Test DateTime").Include);
+        Assert.IsFalse(ContentListSearchFunctions
+            .FilterDateTime(new DateTime(2022, 12, 29, 11, 23, 9), searchString, "Test DateTime").Include);
+    }
+
+    [Test]
+    public void DateTimeRangeIncludes_Include()
+    {
+        var searchString = " 2022 ";
+
+        Assert.IsTrue(ContentListSearchFunctions
+            .FilterDateTime(new DateTime(2022, 1, 1, 11, 23, 9), searchString, "Test DateTime").Include);
+        Assert.IsTrue(ContentListSearchFunctions
+            .FilterDateTime(new DateTime(2022, 12, 29, 11, 23, 9), searchString, "Test DateTime").Include);
+    }
+
+    [Test]
+    public void DateTimeRangeIsGreaterThan_DoesNotInclude()
+    {
+        var searchString = " > 2021 ";
+
+        Assert.IsTrue(ContentListSearchFunctions
+            .FilterDateTime(new DateTime(2022, 1, 1, 11, 23, 9), searchString, "Test DateTime").Include);
+        Assert.IsTrue(ContentListSearchFunctions
+            .FilterDateTime(new DateTime(2022, 12, 29, 11, 23, 9), searchString, "Test DateTime").Include);
+    }
+
+    [Test]
     public void DateTimeSearchBlankItemAndBlankSearch_Include()
     {
         Assert.IsTrue(ContentListSearchFunctions.FilterDateTime(null, null, "Test DateTime").Include);

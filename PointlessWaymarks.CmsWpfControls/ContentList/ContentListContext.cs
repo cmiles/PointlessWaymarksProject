@@ -232,8 +232,6 @@ public partial class ContentListContext : IDragSource, IDropTarget
         });
     }
 
-    private List<string> FilterListTokenOperatorList => new() { "==", ">", "<", ">=", "<=" };
-
     public bool CanStartDrag(IDragInfo dragInfo)
     {
         return (ListSelection.SelectedItems?.Count ?? 0) > 0;
@@ -564,7 +562,7 @@ public partial class ContentListContext : IDragSource, IDropTarget
 
         if (string.IsNullOrWhiteSpace(UserFilterText))
         {
-            ((CollectionView)CollectionViewSource.GetDefaultView(Items)).Filter = o => true;
+            ((CollectionView)CollectionViewSource.GetDefaultView(Items)).Filter = _ => true;
             return;
         }
 
@@ -625,6 +623,28 @@ public partial class ContentListContext : IDragSource, IDropTarget
                         toFilter.Content().Folder ?? string.Empty, searchString, "Folder"), searchResultModifier));
                     continue;
                 }
+                
+                if (searchString.ToUpper().StartsWith("CREATED ON:"))
+                {
+                    searchString = searchString[8..];
+                    if (string.IsNullOrWhiteSpace(searchString)) continue;
+                    searchString = searchString.Trim();
+
+                    filterLineResults.Add((ContentListSearchFunctions.FilterDateTime(
+                        toFilter.Content().CreatedOn, searchString, "Created On"), searchResultModifier));
+                    continue;
+                }
+                
+                if (searchString.ToUpper().StartsWith("LAST UPDATED ON:"))
+                {
+                    searchString = searchString[16..];
+                    if (string.IsNullOrWhiteSpace(searchString)) continue;
+                    searchString = searchString.Trim();
+
+                    filterLineResults.Add((ContentListSearchFunctions.FilterDateTime(
+                        toFilter.Content().LastUpdatedOn, searchString, "Last Updated On"), searchResultModifier));
+                    continue;
+                }
 
                 if (searchString.ToUpper().StartsWith("TAGS:"))
                 {
@@ -650,6 +670,19 @@ public partial class ContentListContext : IDragSource, IDropTarget
 
                     filterLineResults.Add(
                         (ContentListSearchFunctions.FilterStringContains(cameraMakeModel, searchString, "Camera"),
+                            searchResultModifier));
+                    continue;
+                }
+                
+                if (searchString.ToUpper().StartsWith("PHOTO CREATED ON:"))
+                {
+                    searchString = searchString[17..];
+                    if (string.IsNullOrWhiteSpace(searchString)) continue;
+
+                    if (o is not PhotoListListItem photoItem) return false;
+
+                    filterLineResults.Add(
+                        (ContentListSearchFunctions.FilterDateTime(photoItem.DbEntry.PhotoCreatedOn, searchString, "Photo Created On"),
                             searchResultModifier));
                     continue;
                 }
@@ -777,38 +810,6 @@ public partial class ContentListContext : IDragSource, IDropTarget
 
             return !filterLineResults.Any() || filterLineResults.All(x => x.modifierFunction(x.searchReturn.Include));
         };
-    }
-
-    private List<string> FilterListTokenList(string searchString)
-    {
-        var spaceSplitTokens = searchString.Split(" ").Select(x => x.TrimNullToEmpty())
-            .Where(x => !string.IsNullOrWhiteSpace(x)).Select(x => x == "=" ? "==" : x).ToList();
-
-        var tokens = new List<string>();
-
-        var singleCharacterOperators = new List<char> { '>', '=', '<' };
-        var twoCharacterOperators = new List<string> { ">=", "==", "<=" };
-
-        foreach (var loopTokens in spaceSplitTokens)
-        {
-            if (twoCharacterOperators.Contains(loopTokens[..1]) && loopTokens.Length > 2)
-            {
-                tokens.Add(loopTokens[..1]);
-                tokens.Add(loopTokens[2..]);
-                continue;
-            }
-
-            if (singleCharacterOperators.Contains(loopTokens[0]) && loopTokens.Length > 1)
-            {
-                tokens.Add(loopTokens[0].ToString());
-                tokens.Add(loopTokens[1..]);
-                continue;
-            }
-
-            tokens.Add(loopTokens);
-        }
-
-        return tokens;
     }
 
     public static async Task<List<object>> FolderSearch(string folderName)
