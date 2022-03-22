@@ -17,20 +17,20 @@ public static class ContentListSearchFunctions
             "<="
         };
 
-    public static ContentListSearchReturn FilterAperture(string itemApertureString, string searchString)
+    public static ContentListSearchFunctionReturn FilterAperture(string itemApertureString, string searchString)
     {
         if (!string.IsNullOrWhiteSpace(searchString) &&
             searchString.StartsWith("APERTURE:", StringComparison.OrdinalIgnoreCase))
             searchString = searchString[9..];
 
         if (string.IsNullOrWhiteSpace(itemApertureString) && string.IsNullOrWhiteSpace(searchString))
-            return new ContentListSearchReturn(true, "Blank Aperture and Blank Search String (true).");
+            return new ContentListSearchFunctionReturn(true, "Blank Aperture and Blank Search String (true).");
 
         if (string.IsNullOrWhiteSpace(itemApertureString))
-            return new ContentListSearchReturn(false, "Blank Aperture with Not Blank Search String (false).");
+            return new ContentListSearchFunctionReturn(false, "Blank Aperture with Not Blank Search String (false).");
 
         if (string.IsNullOrWhiteSpace(searchString))
-            return new ContentListSearchReturn(false, "Blank Search String with Not Blank Aperture (false).");
+            return new ContentListSearchFunctionReturn(false, "Blank Search String with Not Blank Aperture (false).");
 
         itemApertureString = itemApertureString.Trim();
         searchString = searchString.Trim();
@@ -41,7 +41,7 @@ public static class ContentListSearchFunctions
                     .Replace("\uD835\uDC53/", string.Empty, StringComparison.OrdinalIgnoreCase).TrimNullToEmpty(),
                 out var listItemAperture))
             //Couldn't parse a value from the list item's Aperture - compare as string to the search string
-            return new ContentListSearchReturn(itemApertureString.Equals(searchString),
+            return new ContentListSearchFunctionReturn(itemApertureString.Equals(searchString),
                 $"Aperture input of '{itemApertureString}' could not " +
                 $"be parsed into a numeric Aperture to search - instead checking if the Aperture as a string to is equal to '{searchString}'");
 
@@ -58,16 +58,16 @@ public static class ContentListSearchFunctions
         if (tokens.Count == 1)
         {
             if (!decimal.TryParse(tokens.First(), out var parsedAperture))
-                return new ContentListSearchReturn(itemApertureString.Contains(searchString),
+                return new ContentListSearchFunctionReturn(itemApertureString.Contains(searchString),
                     $"Search input of {tokens.First()} could not " +
                     $"be parsed into a numeric Aperture to search - instead checking if the item Aperture '{itemApertureString}' " +
                     $"contains '{tokens.First()}'");
 
-            return new ContentListSearchReturn(listItemAperture == parsedAperture,
+            return new ContentListSearchFunctionReturn(listItemAperture == parsedAperture,
                 $"Search Aperture of {parsedAperture} compared to {listItemAperture}");
         }
 
-        var apertureSearchResults = new List<ContentListSearchReturn>();
+        var apertureSearchResults = new List<ContentListSearchFunctionReturn>();
 
         for (var i = 0; i < tokens.Count; i++)
         {
@@ -77,14 +77,15 @@ public static class ContentListSearchFunctions
             {
                 if (!decimal.TryParse(tokens.First(), out var parsedAperture))
                 {
-                    apertureSearchResults.Add(new ContentListSearchReturn(itemApertureString.Contains(scanValue),
+                    apertureSearchResults.Add(new ContentListSearchFunctionReturn(
+                        itemApertureString.Contains(scanValue),
                         $"Search input of {scanValue} could not " +
                         $"be parsed into a numeric Aperture to search - instead checking if the item Aperture '{itemApertureString}' " +
                         $"contains '{tokens.First()}'"));
                     continue;
                 }
 
-                apertureSearchResults.Add(new ContentListSearchReturn(listItemAperture == parsedAperture,
+                apertureSearchResults.Add(new ContentListSearchFunctionReturn(listItemAperture == parsedAperture,
                     $"Search Aperture of {parsedAperture} compared to " + $"{listItemAperture}"));
                 continue;
             }
@@ -98,7 +99,7 @@ public static class ContentListSearchFunctions
 
             if (!decimal.TryParse(lookaheadValue, out var parsedApertureForExpression))
             {
-                apertureSearchResults.Add(new ContentListSearchReturn(itemApertureString.Contains(scanValue),
+                apertureSearchResults.Add(new ContentListSearchFunctionReturn(itemApertureString.Contains(scanValue),
                     $"Search input of {scanValue} could not " +
                     $"be parsed into a numeric Aperture to search - instead checking if the item Aperture '{itemApertureString}' " +
                     $"contains '{tokens.First()}'"));
@@ -108,32 +109,32 @@ public static class ContentListSearchFunctions
             switch (scanValue)
             {
                 case "==":
-                    apertureSearchResults.Add(new ContentListSearchReturn(
+                    apertureSearchResults.Add(new ContentListSearchFunctionReturn(
                         listItemAperture == parsedApertureForExpression,
                         $"Search Aperture of {parsedApertureForExpression} compared to " + $"{listItemAperture}"));
                     break;
                 case "!=":
-                    apertureSearchResults.Add(new ContentListSearchReturn(
+                    apertureSearchResults.Add(new ContentListSearchFunctionReturn(
                         listItemAperture != parsedApertureForExpression,
                         $"Search Aperture of {parsedApertureForExpression} not equal to " + $"{listItemAperture}"));
                     break;
                 case ">":
-                    apertureSearchResults.Add(new ContentListSearchReturn(
+                    apertureSearchResults.Add(new ContentListSearchFunctionReturn(
                         listItemAperture < parsedApertureForExpression,
                         $"Evaluated Search Aperture of {parsedApertureForExpression} greater than {listItemAperture}"));
                     break;
                 case ">=":
-                    apertureSearchResults.Add(new ContentListSearchReturn(
+                    apertureSearchResults.Add(new ContentListSearchFunctionReturn(
                         listItemAperture <= parsedApertureForExpression,
                         $"Evaluated Search Aperture of {parsedApertureForExpression} greater than or equal to {listItemAperture}"));
                     break;
                 case "<":
-                    apertureSearchResults.Add(new ContentListSearchReturn(
+                    apertureSearchResults.Add(new ContentListSearchFunctionReturn(
                         listItemAperture > parsedApertureForExpression,
                         $"Evaluated Search Aperture of {parsedApertureForExpression} less than {listItemAperture}"));
                     break;
                 case "<=":
-                    apertureSearchResults.Add(new ContentListSearchReturn(
+                    apertureSearchResults.Add(new ContentListSearchFunctionReturn(
                         listItemAperture >= parsedApertureForExpression,
                         $"Evaluated Search Aperture of {parsedApertureForExpression} less than or equal to {listItemAperture}"));
                     break;
@@ -141,13 +142,13 @@ public static class ContentListSearchFunctions
         }
 
         return !apertureSearchResults.Any()
-            ? new ContentListSearchReturn(false, "No Search String Parse Results?")
-            : new ContentListSearchReturn(apertureSearchResults.All(x => x.Include),
+            ? new ContentListSearchFunctionReturn(false, "No Search String Parse Results?")
+            : new ContentListSearchFunctionReturn(apertureSearchResults.All(x => x.Include),
                 string.Join(Environment.NewLine, apertureSearchResults.Select(x => $"{x.Explanation} ({x.Include}).")));
     }
 
 
-    public static ContentListSearchReturn FilterDateTime(DateTime? itemDateTime, string searchString,
+    public static ContentListSearchFunctionReturn FilterDateTime(DateTime? itemDateTime, string searchString,
         string searchLabel)
     {
         if (!string.IsNullOrWhiteSpace(searchLabel) && !string.IsNullOrWhiteSpace(searchString) &&
@@ -155,19 +156,21 @@ public static class ContentListSearchFunctions
             searchString = searchString[$"{searchLabel.Trim().Replace(":", string.Empty)}:".Length..];
 
         if (itemDateTime == null && string.IsNullOrWhiteSpace(searchString))
-            return new ContentListSearchReturn(true, $"Blank {searchLabel} and Blank Search String (true).");
+            return new ContentListSearchFunctionReturn(true, $"Blank {searchLabel} and Blank Search String (true).");
 
         if (itemDateTime == null)
-            return new ContentListSearchReturn(false, $"Blank {searchLabel} with Not Blank Search String (false).");
+            return new ContentListSearchFunctionReturn(false,
+                $"Blank {searchLabel} with Not Blank Search String (false).");
 
         if (string.IsNullOrWhiteSpace(searchString))
-            return new ContentListSearchReturn(false, $"Blank Search String with Not Blank {searchLabel} (false).");
+            return new ContentListSearchFunctionReturn(false,
+                $"Blank Search String with Not Blank {searchLabel} (false).");
 
         searchString = searchString.Trim();
 
         var tokens = FilterListOperatorDividedTokenList(searchString);
 
-        var dateTimeSearchResults = new List<ContentListSearchReturn>();
+        var dateTimeSearchResults = new List<ContentListSearchFunctionReturn>();
 
         foreach (var loopDateTimeSearches in tokens)
         {
@@ -176,7 +179,7 @@ public static class ContentListSearchFunctions
 
             if (dateTimeParse.Count == 0 || dateTimeParse[0].Resolution.Count == 0)
             {
-                dateTimeSearchResults.Add(new ContentListSearchReturn(true,
+                dateTimeSearchResults.Add(new ContentListSearchFunctionReturn(true,
                     $"Search input of {loopDateTimeSearches.searchString} could not " +
                     "be parsed into a DateTime to search"));
                 continue;
@@ -192,7 +195,7 @@ public static class ContentListSearchFunctions
                     !valuesDictionary[0].TryGetValue("end", out var searchEndDateTimeString) ||
                     !DateTime.TryParse(searchEndDateTimeString, out var searchEndDateTime))
                 {
-                    dateTimeSearchResults.Add(new ContentListSearchReturn(true,
+                    dateTimeSearchResults.Add(new ContentListSearchFunctionReturn(true,
                         $"{loopDateTimeSearches.searchString} could not be parsed into a valid DateTime for Comparison (true)."));
                     continue;
                 }
@@ -200,34 +203,38 @@ public static class ContentListSearchFunctions
                 switch (loopDateTimeSearches.operatorString)
                 {
                     case "":
-                        dateTimeSearchResults.Add(new ContentListSearchReturn(
+                        dateTimeSearchResults.Add(new ContentListSearchFunctionReturn(
                             itemDateTime.Value >= searchStartDateTime && itemDateTime.Value < searchEndDateTime,
                             $"Search {searchLabel} of {itemDateTime.Value} is >= {searchStartDateTime} and < {searchEndDateTime}"));
                         break;
                     case "==":
-                        dateTimeSearchResults.Add(new ContentListSearchReturn(
+                        dateTimeSearchResults.Add(new ContentListSearchFunctionReturn(
                             itemDateTime.Value >= searchStartDateTime && itemDateTime.Value < searchEndDateTime,
                             $"Search {searchLabel} of {itemDateTime.Value} is >= {searchStartDateTime} and < {searchEndDateTime}"));
                         break;
                     case "!=":
-                        dateTimeSearchResults.Add(new ContentListSearchReturn(
+                        dateTimeSearchResults.Add(new ContentListSearchFunctionReturn(
                             itemDateTime.Value < searchStartDateTime && itemDateTime.Value >= searchEndDateTime,
                             $"Search {searchLabel} of {itemDateTime.Value} is < {searchStartDateTime} and >= {searchEndDateTime}"));
                         break;
                     case ">":
-                        dateTimeSearchResults.Add(new ContentListSearchReturn(itemDateTime.Value > searchEndDateTime,
+                        dateTimeSearchResults.Add(new ContentListSearchFunctionReturn(
+                            itemDateTime.Value > searchEndDateTime,
                             $"Search {searchLabel} of {itemDateTime.Value} is greater than {searchEndDateTime}"));
                         break;
                     case ">=":
-                        dateTimeSearchResults.Add(new ContentListSearchReturn(itemDateTime.Value >= searchEndDateTime,
+                        dateTimeSearchResults.Add(new ContentListSearchFunctionReturn(
+                            itemDateTime.Value >= searchEndDateTime,
                             $"Search {searchLabel} of {itemDateTime.Value} is great than or equal to {searchEndDateTime}"));
                         break;
                     case "<":
-                        dateTimeSearchResults.Add(new ContentListSearchReturn(itemDateTime.Value < searchEndDateTime,
+                        dateTimeSearchResults.Add(new ContentListSearchFunctionReturn(
+                            itemDateTime.Value < searchEndDateTime,
                             $"Search {searchLabel} of {itemDateTime.Value} is less than {searchEndDateTime}"));
                         break;
                     case "<=":
-                        dateTimeSearchResults.Add(new ContentListSearchReturn(itemDateTime.Value <= searchEndDateTime,
+                        dateTimeSearchResults.Add(new ContentListSearchFunctionReturn(
+                            itemDateTime.Value <= searchEndDateTime,
                             $"Search {searchLabel} of {itemDateTime.Value} is less than or equal to {searchEndDateTime}"));
                         break;
                 }
@@ -243,7 +250,7 @@ public static class ContentListSearchFunctions
                     !valuesDictionary[0].TryGetValue("value", out var searchDateTimeString) ||
                     !DateTime.TryParse(searchDateTimeString, out var searchDateTime))
                 {
-                    dateTimeSearchResults.Add(new ContentListSearchReturn(true,
+                    dateTimeSearchResults.Add(new ContentListSearchFunctionReturn(true,
                         $"{loopDateTimeSearches.searchString} could not be parsed into a valid DateTime for Comparison (true)."));
                     continue;
                 }
@@ -251,37 +258,37 @@ public static class ContentListSearchFunctions
                 switch (loopDateTimeSearches.operatorString)
                 {
                     case "":
-                        dateTimeSearchResults.Add(new ContentListSearchReturn(
+                        dateTimeSearchResults.Add(new ContentListSearchFunctionReturn(
                             itemDateTime.Value.Date == searchDateTime.Date,
                             $"Search {searchLabel} of {itemDateTime.Value.Date} compared to {searchDateTime.Date}"));
                         break;
                     case "==":
-                        dateTimeSearchResults.Add(new ContentListSearchReturn(
+                        dateTimeSearchResults.Add(new ContentListSearchFunctionReturn(
                             itemDateTime.Value.Date == searchDateTime.Date,
                             $"Search {searchLabel} of {itemDateTime.Value.Date} compared to {searchDateTime.Date}"));
                         break;
                     case "!=":
-                        dateTimeSearchResults.Add(new ContentListSearchReturn(
+                        dateTimeSearchResults.Add(new ContentListSearchFunctionReturn(
                             itemDateTime.Value.Date != searchDateTime.Date,
                             $"Search {searchLabel} of {itemDateTime.Value.Date} does not equal {searchDateTime.Date}"));
                         break;
                     case ">":
-                        dateTimeSearchResults.Add(new ContentListSearchReturn(
+                        dateTimeSearchResults.Add(new ContentListSearchFunctionReturn(
                             itemDateTime.Value.Date > searchDateTime.Date,
                             $"Search {searchLabel} of {itemDateTime.Value.Date} is greater than {searchDateTime.Date}"));
                         break;
                     case ">=":
-                        dateTimeSearchResults.Add(new ContentListSearchReturn(
+                        dateTimeSearchResults.Add(new ContentListSearchFunctionReturn(
                             itemDateTime.Value.Date >= searchDateTime.Date,
                             $"Search {searchLabel} of {itemDateTime.Value.Date} is great than or equal to {searchDateTime.Date}"));
                         break;
                     case "<":
-                        dateTimeSearchResults.Add(new ContentListSearchReturn(
+                        dateTimeSearchResults.Add(new ContentListSearchFunctionReturn(
                             itemDateTime.Value.Date < searchDateTime.Date,
                             $"Search {searchLabel} of {itemDateTime.Value.Date} is less than {searchDateTime.Date}"));
                         break;
                     case "<=":
-                        dateTimeSearchResults.Add(new ContentListSearchReturn(
+                        dateTimeSearchResults.Add(new ContentListSearchFunctionReturn(
                             itemDateTime.Value.Date <= searchDateTime.Date,
                             $"Search {searchLabel} of {itemDateTime.Value.Date} is less than or equal to {searchDateTime.Date}"));
                         break;
@@ -298,7 +305,7 @@ public static class ContentListSearchFunctions
                     !valuesDictionary[0].TryGetValue("value", out var searchDateTimeString) ||
                     !DateTime.TryParse(searchDateTimeString, out var searchDateTime))
                 {
-                    dateTimeSearchResults.Add(new ContentListSearchReturn(true,
+                    dateTimeSearchResults.Add(new ContentListSearchFunctionReturn(true,
                         $"{loopDateTimeSearches.searchString} could not be parsed into a valid DateTime for Comparison (true)."));
                     continue;
                 }
@@ -306,31 +313,32 @@ public static class ContentListSearchFunctions
                 switch (loopDateTimeSearches.operatorString)
                 {
                     case "":
-                        dateTimeSearchResults.Add(new ContentListSearchReturn(itemDateTime == searchDateTime.Date,
+                        dateTimeSearchResults.Add(new ContentListSearchFunctionReturn(
+                            itemDateTime == searchDateTime.Date,
                             $"Search {searchLabel} of {itemDateTime} compared to {searchDateTime}"));
                         break;
                     case "==":
-                        dateTimeSearchResults.Add(new ContentListSearchReturn(itemDateTime == searchDateTime,
+                        dateTimeSearchResults.Add(new ContentListSearchFunctionReturn(itemDateTime == searchDateTime,
                             $"Search {searchLabel} of {itemDateTime} compared to {searchDateTime}"));
                         break;
                     case "!=":
-                        dateTimeSearchResults.Add(new ContentListSearchReturn(itemDateTime != searchDateTime,
+                        dateTimeSearchResults.Add(new ContentListSearchFunctionReturn(itemDateTime != searchDateTime,
                             $"Search {searchLabel} of {itemDateTime} does not equal {searchDateTime}"));
                         break;
                     case ">":
-                        dateTimeSearchResults.Add(new ContentListSearchReturn(itemDateTime > searchDateTime,
+                        dateTimeSearchResults.Add(new ContentListSearchFunctionReturn(itemDateTime > searchDateTime,
                             $"Search {searchLabel} of {itemDateTime} is greater than {searchDateTime}"));
                         break;
                     case ">=":
-                        dateTimeSearchResults.Add(new ContentListSearchReturn(itemDateTime >= searchDateTime,
+                        dateTimeSearchResults.Add(new ContentListSearchFunctionReturn(itemDateTime >= searchDateTime,
                             $"Search {searchLabel} of {itemDateTime} is great than or equal to {searchDateTime}"));
                         break;
                     case "<":
-                        dateTimeSearchResults.Add(new ContentListSearchReturn(itemDateTime < searchDateTime,
+                        dateTimeSearchResults.Add(new ContentListSearchFunctionReturn(itemDateTime < searchDateTime,
                             $"Search {searchLabel} of {itemDateTime} is less than {searchDateTime}"));
                         break;
                     case "<=":
-                        dateTimeSearchResults.Add(new ContentListSearchReturn(itemDateTime <= searchDateTime,
+                        dateTimeSearchResults.Add(new ContentListSearchFunctionReturn(itemDateTime <= searchDateTime,
                             $"Search {searchLabel} of {itemDateTime} is less than or equal to {searchDateTime}"));
                         break;
                 }
@@ -346,7 +354,7 @@ public static class ContentListSearchFunctions
                     !valuesDictionary[0].TryGetValue("value", out var searchDateTimeString) ||
                     !DateTime.TryParse(searchDateTimeString, out var searchTime))
                 {
-                    dateTimeSearchResults.Add(new ContentListSearchReturn(true,
+                    dateTimeSearchResults.Add(new ContentListSearchFunctionReturn(true,
                         $"{loopDateTimeSearches.searchString} could not be parsed into a valid DateTime for Comparison (true)."));
                     continue;
                 }
@@ -354,69 +362,71 @@ public static class ContentListSearchFunctions
                 switch (loopDateTimeSearches.operatorString)
                 {
                     case "":
-                        dateTimeSearchResults.Add(new ContentListSearchReturn(
+                        dateTimeSearchResults.Add(new ContentListSearchFunctionReturn(
                             itemDateTime.Value.TimeOfDay == searchTime.TimeOfDay,
                             $"Search {searchLabel} of {itemDateTime:T} compared to {searchTime:T}"));
                         break;
                     case "==":
-                        dateTimeSearchResults.Add(new ContentListSearchReturn(
+                        dateTimeSearchResults.Add(new ContentListSearchFunctionReturn(
                             itemDateTime.Value.TimeOfDay == searchTime.TimeOfDay,
                             $"Search {searchLabel} of {itemDateTime:T} compared to {searchTime:T}"));
                         break;
                     case "!=":
-                        dateTimeSearchResults.Add(new ContentListSearchReturn(
+                        dateTimeSearchResults.Add(new ContentListSearchFunctionReturn(
                             itemDateTime.Value.TimeOfDay != searchTime.TimeOfDay,
                             $"Search {searchLabel} of {itemDateTime:T} does not equal {searchTime:T}"));
                         break;
                     case ">":
-                        dateTimeSearchResults.Add(new ContentListSearchReturn(
+                        dateTimeSearchResults.Add(new ContentListSearchFunctionReturn(
                             itemDateTime.Value.TimeOfDay > searchTime.TimeOfDay,
                             $"Search {searchLabel} of {itemDateTime:T} is greater than {searchTime:T}"));
                         break;
                     case ">=":
-                        dateTimeSearchResults.Add(new ContentListSearchReturn(
+                        dateTimeSearchResults.Add(new ContentListSearchFunctionReturn(
                             itemDateTime.Value.TimeOfDay >= searchTime.TimeOfDay,
                             $"Search {searchLabel} of {itemDateTime:T} is greater than or equal to {searchTime:T}"));
                         break;
                     case "<":
-                        dateTimeSearchResults.Add(new ContentListSearchReturn(
+                        dateTimeSearchResults.Add(new ContentListSearchFunctionReturn(
                             itemDateTime.Value.TimeOfDay < searchTime.TimeOfDay,
                             $"Search {searchLabel} of {itemDateTime:T} is less than {searchTime:T}"));
                         break;
                     case "<=":
-                        dateTimeSearchResults.Add(new ContentListSearchReturn(
+                        dateTimeSearchResults.Add(new ContentListSearchFunctionReturn(
                             itemDateTime.Value.TimeOfDay <= searchTime.TimeOfDay,
                             $"Search {searchLabel} of {itemDateTime:T} is less than or equal to {searchTime:T}"));
                         break;
 
-                        continue;
+                    //continue;
                 }
 
-                dateTimeSearchResults.Add(new ContentListSearchReturn(true,
+                dateTimeSearchResults.Add(new ContentListSearchFunctionReturn(true,
                     $"{loopDateTimeSearches.searchString} could not be parsed into a valid DateTime for Comparison (true)."));
             }
         }
 
         return !dateTimeSearchResults.Any()
-            ? new ContentListSearchReturn(false, "No Search String Parse Results?")
-            : new ContentListSearchReturn(dateTimeSearchResults.All(x => x.Include),
+            ? new ContentListSearchFunctionReturn(false, "No Search String Parse Results?")
+            : new ContentListSearchFunctionReturn(dateTimeSearchResults.All(x => x.Include),
                 string.Join(Environment.NewLine, dateTimeSearchResults.Select(x => $"{x.Explanation} ({x.Include}).")));
     }
 
-    public static ContentListSearchReturn FilterFocalLength(string itemFocalLengthString, string searchString)
+    public static ContentListSearchFunctionReturn FilterFocalLength(string itemFocalLengthString, string searchString)
     {
         if (!string.IsNullOrWhiteSpace(searchString) &&
             searchString.StartsWith("FOCAL LENGTH:", StringComparison.OrdinalIgnoreCase))
             searchString = searchString[13..];
 
         if (string.IsNullOrWhiteSpace(itemFocalLengthString) && string.IsNullOrWhiteSpace(searchString))
-            return new ContentListSearchReturn(true, "Blank Focal Length and Blank Search String (true).");
+            return new ContentListSearchFunctionReturn(true, "Blank Focal Length and Blank Search String (true).");
 
         if (string.IsNullOrWhiteSpace(itemFocalLengthString))
-            return new ContentListSearchReturn(false, "Blank Focal Length with Not Blank Search String (false).");
+            return new ContentListSearchFunctionReturn(false,
+                "Blank Focal Length with Not Blank Search String (false).");
 
         if (string.IsNullOrWhiteSpace(searchString))
-            return new ContentListSearchReturn(false, "Blank Search String with Not Blank Focal Length (false).");
+            return new ContentListSearchFunctionReturn(false,
+                "Blank Search String with Not Blank Focal Length (false).");
 
         itemFocalLengthString = itemFocalLengthString.Trim();
         searchString = searchString.Trim();
@@ -425,7 +435,7 @@ public static class ContentListSearchFunctions
                 itemFocalLengthString.Replace("mm", string.Empty, StringComparison.OrdinalIgnoreCase).TrimNullToEmpty(),
                 out var listItemFocalLength))
             //Couldn't parse a value from the list item's Focal Length - compare as string to the search string
-            return new ContentListSearchReturn(itemFocalLengthString.Equals(searchString),
+            return new ContentListSearchFunctionReturn(itemFocalLengthString.Equals(searchString),
                 $"Focal Length input of '{itemFocalLengthString}' could not " +
                 $"be parsed into a numeric Focal Length to search - instead checking if the Focal Length as a string to is equal to '{searchString}'");
 
@@ -440,17 +450,17 @@ public static class ContentListSearchFunctions
         if (tokens.Count == 1)
         {
             if (!double.TryParse(tokens.First(), out var parsedFocalLength))
-                return new ContentListSearchReturn(itemFocalLengthString.Contains(searchString),
+                return new ContentListSearchFunctionReturn(itemFocalLengthString.Contains(searchString),
                     $"Search input of {tokens.First()} could not " +
                     $"be parsed into a numeric Focal Length to search - instead checking if the item Focal Length '{itemFocalLengthString}' " +
                     $"contains '{tokens.First()}'");
 
-            return new ContentListSearchReturn(
+            return new ContentListSearchFunctionReturn(
                 Math.Abs(listItemFocalLength - parsedFocalLength) < focalLengthComparisonTolerance,
                 $"Search Focal Length of {parsedFocalLength} compared to {listItemFocalLength} with a tolerance of {focalLengthComparisonTolerance}");
         }
 
-        var focalLengthSearchResults = new List<ContentListSearchReturn>();
+        var focalLengthSearchResults = new List<ContentListSearchFunctionReturn>();
 
         for (var i = 0; i < tokens.Count; i++)
         {
@@ -460,14 +470,15 @@ public static class ContentListSearchFunctions
             {
                 if (!double.TryParse(tokens.First(), out var parsedFocalLength))
                 {
-                    focalLengthSearchResults.Add(new ContentListSearchReturn(itemFocalLengthString.Contains(scanValue),
+                    focalLengthSearchResults.Add(new ContentListSearchFunctionReturn(
+                        itemFocalLengthString.Contains(scanValue),
                         $"Search input of {scanValue} could not " +
                         $"be parsed into a numeric Focal Length to search - instead checking if the item Focal Length '{itemFocalLengthString}' " +
                         $"contains '{tokens.First()}'"));
                     continue;
                 }
 
-                focalLengthSearchResults.Add(new ContentListSearchReturn(
+                focalLengthSearchResults.Add(new ContentListSearchFunctionReturn(
                     Math.Abs(listItemFocalLength - parsedFocalLength) < focalLengthComparisonTolerance,
                     $"Search Focal Length of {parsedFocalLength} compared to " +
                     $"{listItemFocalLength} with a tolerance of {focalLengthComparisonTolerance}"));
@@ -483,7 +494,8 @@ public static class ContentListSearchFunctions
 
             if (!double.TryParse(lookaheadValue, out var parsedFocalLengthForExpression))
             {
-                focalLengthSearchResults.Add(new ContentListSearchReturn(itemFocalLengthString.Contains(scanValue),
+                focalLengthSearchResults.Add(new ContentListSearchFunctionReturn(
+                    itemFocalLengthString.Contains(scanValue),
                     $"Search input of {scanValue} could not " +
                     $"be parsed into a numeric Focal Length to search - instead checking if the item Focal Length '{itemFocalLengthString}' " +
                     $"contains '{tokens.First()}'"));
@@ -493,35 +505,35 @@ public static class ContentListSearchFunctions
             switch (scanValue)
             {
                 case "==":
-                    focalLengthSearchResults.Add(new ContentListSearchReturn(
+                    focalLengthSearchResults.Add(new ContentListSearchFunctionReturn(
                         Math.Abs(listItemFocalLength - parsedFocalLengthForExpression) < focalLengthComparisonTolerance,
                         $"Search Focal Length of {parsedFocalLengthForExpression} compared to " +
                         $"{listItemFocalLength} with a tolerance of {focalLengthComparisonTolerance}"));
                     break;
                 case "!=":
-                    focalLengthSearchResults.Add(new ContentListSearchReturn(
+                    focalLengthSearchResults.Add(new ContentListSearchFunctionReturn(
                         !(Math.Abs(listItemFocalLength - parsedFocalLengthForExpression) <
                           focalLengthComparisonTolerance),
                         $"Search Focal Length of {parsedFocalLengthForExpression} not equal to " +
                         $"{listItemFocalLength} with a tolerance of {focalLengthComparisonTolerance}"));
                     break;
                 case ">":
-                    focalLengthSearchResults.Add(new ContentListSearchReturn(
+                    focalLengthSearchResults.Add(new ContentListSearchFunctionReturn(
                         listItemFocalLength > parsedFocalLengthForExpression,
                         $"Evaluated Search Focal Length of {parsedFocalLengthForExpression} greater than {listItemFocalLength}"));
                     break;
                 case ">=":
-                    focalLengthSearchResults.Add(new ContentListSearchReturn(
+                    focalLengthSearchResults.Add(new ContentListSearchFunctionReturn(
                         listItemFocalLength >= parsedFocalLengthForExpression,
                         $"Evaluated Search Focal Length of {parsedFocalLengthForExpression} greater than or equal to {listItemFocalLength}"));
                     break;
                 case "<":
-                    focalLengthSearchResults.Add(new ContentListSearchReturn(
+                    focalLengthSearchResults.Add(new ContentListSearchFunctionReturn(
                         listItemFocalLength < parsedFocalLengthForExpression,
                         $"Evaluated Search Focal Length of {parsedFocalLengthForExpression} less than {listItemFocalLength}"));
                     break;
                 case "<=":
-                    focalLengthSearchResults.Add(new ContentListSearchReturn(
+                    focalLengthSearchResults.Add(new ContentListSearchFunctionReturn(
                         listItemFocalLength <= parsedFocalLengthForExpression,
                         $"Evaluated Search Focal Length of {parsedFocalLengthForExpression} less than or equal to {listItemFocalLength}"));
                     break;
@@ -529,33 +541,33 @@ public static class ContentListSearchFunctions
         }
 
         return !focalLengthSearchResults.Any()
-            ? new ContentListSearchReturn(false, "No Search String Parse Results?")
-            : new ContentListSearchReturn(focalLengthSearchResults.All(x => x.Include),
+            ? new ContentListSearchFunctionReturn(false, "No Search String Parse Results?")
+            : new ContentListSearchFunctionReturn(focalLengthSearchResults.All(x => x.Include),
                 string.Join(Environment.NewLine,
                     focalLengthSearchResults.Select(x => $"{x.Explanation} ({x.Include}).")));
     }
 
-    public static ContentListSearchReturn FilterIso(string itemIsoString, string searchString)
+    public static ContentListSearchFunctionReturn FilterIso(string itemIsoString, string searchString)
     {
         if (!string.IsNullOrWhiteSpace(searchString) &&
             searchString.StartsWith("ISO:", StringComparison.OrdinalIgnoreCase))
             searchString = searchString[4..];
 
         if (string.IsNullOrWhiteSpace(itemIsoString) && string.IsNullOrWhiteSpace(searchString))
-            return new ContentListSearchReturn(true, "Blank ISO and Blank Search String (true).");
+            return new ContentListSearchFunctionReturn(true, "Blank ISO and Blank Search String (true).");
 
         if (string.IsNullOrWhiteSpace(itemIsoString))
-            return new ContentListSearchReturn(false, "Blank ISO with Not Blank Search String (false).");
+            return new ContentListSearchFunctionReturn(false, "Blank ISO with Not Blank Search String (false).");
 
         if (string.IsNullOrWhiteSpace(searchString))
-            return new ContentListSearchReturn(false, "Blank Search String with Not Blank ISO (false).");
+            return new ContentListSearchFunctionReturn(false, "Blank Search String with Not Blank ISO (false).");
 
         itemIsoString = itemIsoString.Trim();
         searchString = searchString.Trim();
 
         if (!int.TryParse(itemIsoString.TrimNullToEmpty(), out var listItemIso))
             //Couldn't parse a value from the list item's ISO - compare as string to the search string
-            return new ContentListSearchReturn(itemIsoString.Equals(searchString),
+            return new ContentListSearchFunctionReturn(itemIsoString.Equals(searchString),
                 $"ISO input of '{itemIsoString}' could not " +
                 $"be parsed into a numeric ISO to search - instead checking if the ISO as a string to is equal to '{searchString}'");
 
@@ -564,16 +576,16 @@ public static class ContentListSearchFunctions
         if (tokens.Count == 1)
         {
             if (!int.TryParse(tokens.First(), out var parsedIso))
-                return new ContentListSearchReturn(itemIsoString.Contains(searchString),
+                return new ContentListSearchFunctionReturn(itemIsoString.Contains(searchString),
                     $"Search input of {tokens.First()} could not " +
                     $"be parsed into a numeric ISO to search - instead checking if the item ISO '{itemIsoString}' " +
                     $"contains '{tokens.First()}'");
 
-            return new ContentListSearchReturn(listItemIso == parsedIso,
+            return new ContentListSearchFunctionReturn(listItemIso == parsedIso,
                 $"Search ISO of {parsedIso} compared to {listItemIso}");
         }
 
-        var isoSearchResults = new List<ContentListSearchReturn>();
+        var isoSearchResults = new List<ContentListSearchFunctionReturn>();
 
         for (var i = 0; i < tokens.Count; i++)
         {
@@ -583,14 +595,14 @@ public static class ContentListSearchFunctions
             {
                 if (!int.TryParse(tokens.First(), out var parsedIso))
                 {
-                    isoSearchResults.Add(new ContentListSearchReturn(itemIsoString.Contains(scanValue),
+                    isoSearchResults.Add(new ContentListSearchFunctionReturn(itemIsoString.Contains(scanValue),
                         $"Search input of {scanValue} could not " +
                         $"be parsed into a numeric ISO to search - instead checking if the item ISO '{itemIsoString}' " +
                         $"contains '{tokens.First()}'"));
                     continue;
                 }
 
-                isoSearchResults.Add(new ContentListSearchReturn(listItemIso == parsedIso,
+                isoSearchResults.Add(new ContentListSearchFunctionReturn(listItemIso == parsedIso,
                     $"Search ISO of {parsedIso} compared to " + $"{listItemIso}"));
                 continue;
             }
@@ -604,7 +616,7 @@ public static class ContentListSearchFunctions
 
             if (!int.TryParse(lookaheadValue, out var parsedIsoForExpression))
             {
-                isoSearchResults.Add(new ContentListSearchReturn(itemIsoString.Contains(scanValue),
+                isoSearchResults.Add(new ContentListSearchFunctionReturn(itemIsoString.Contains(scanValue),
                     $"Search input of {scanValue} could not " +
                     $"be parsed into a numeric ISO to search - instead checking if the item ISO '{itemIsoString}' " +
                     $"contains '{tokens.First()}'"));
@@ -614,35 +626,35 @@ public static class ContentListSearchFunctions
             switch (scanValue)
             {
                 case "==":
-                    isoSearchResults.Add(new ContentListSearchReturn(listItemIso == parsedIsoForExpression,
+                    isoSearchResults.Add(new ContentListSearchFunctionReturn(listItemIso == parsedIsoForExpression,
                         $"Search ISO of {parsedIsoForExpression} compared to " + $"{listItemIso}"));
                     break;
                 case "!=":
-                    isoSearchResults.Add(new ContentListSearchReturn(listItemIso != parsedIsoForExpression,
+                    isoSearchResults.Add(new ContentListSearchFunctionReturn(listItemIso != parsedIsoForExpression,
                         $"Search ISO of {parsedIsoForExpression} not equal to " + $"{listItemIso}"));
                     break;
                 case ">":
-                    isoSearchResults.Add(new ContentListSearchReturn(listItemIso > parsedIsoForExpression,
+                    isoSearchResults.Add(new ContentListSearchFunctionReturn(listItemIso > parsedIsoForExpression,
                         $"Evaluated Search ISO of {parsedIsoForExpression} greater than {listItemIso}"));
                     break;
                 case ">=":
-                    isoSearchResults.Add(new ContentListSearchReturn(listItemIso >= parsedIsoForExpression,
+                    isoSearchResults.Add(new ContentListSearchFunctionReturn(listItemIso >= parsedIsoForExpression,
                         $"Evaluated Search ISO of {parsedIsoForExpression} greater than or equal to {listItemIso}"));
                     break;
                 case "<":
-                    isoSearchResults.Add(new ContentListSearchReturn(listItemIso < parsedIsoForExpression,
+                    isoSearchResults.Add(new ContentListSearchFunctionReturn(listItemIso < parsedIsoForExpression,
                         $"Evaluated Search ISO of {parsedIsoForExpression} less than {listItemIso}"));
                     break;
                 case "<=":
-                    isoSearchResults.Add(new ContentListSearchReturn(listItemIso <= parsedIsoForExpression,
+                    isoSearchResults.Add(new ContentListSearchFunctionReturn(listItemIso <= parsedIsoForExpression,
                         $"Evaluated Search ISO of {parsedIsoForExpression} less than or equal to {listItemIso}"));
                     break;
             }
         }
 
         return !isoSearchResults.Any()
-            ? new ContentListSearchReturn(false, "No Search String Parse Results?")
-            : new ContentListSearchReturn(isoSearchResults.All(x => x.Include),
+            ? new ContentListSearchFunctionReturn(false, "No Search String Parse Results?")
+            : new ContentListSearchFunctionReturn(isoSearchResults.All(x => x.Include),
                 string.Join(Environment.NewLine, isoSearchResults.Select(x => $"{x.Explanation} ({x.Include}).")));
     }
 
@@ -732,26 +744,29 @@ public static class ContentListSearchFunctions
         return tokens;
     }
 
-    public static ContentListSearchReturn FilterShutterSpeedLength(string itemShutterSpeedString, string searchString)
+    public static ContentListSearchFunctionReturn FilterShutterSpeedLength(string itemShutterSpeedString,
+        string searchString)
     {
         if (!string.IsNullOrWhiteSpace(searchString) &&
             searchString.StartsWith("SHUTTER SPEED:", StringComparison.OrdinalIgnoreCase))
             searchString = searchString[14..];
 
         if (string.IsNullOrWhiteSpace(itemShutterSpeedString) && string.IsNullOrWhiteSpace(searchString))
-            return new ContentListSearchReturn(true, "Blank Shutter Speed and Blank Search String (true).");
+            return new ContentListSearchFunctionReturn(true, "Blank Shutter Speed and Blank Search String (true).");
 
         if (string.IsNullOrWhiteSpace(itemShutterSpeedString))
-            return new ContentListSearchReturn(false, "Blank Shutter Speed with Not Blank Search String (false).");
+            return new ContentListSearchFunctionReturn(false,
+                "Blank Shutter Speed with Not Blank Search String (false).");
 
         if (string.IsNullOrWhiteSpace(searchString))
-            return new ContentListSearchReturn(false, "Blank Search String with Not Blank Shutter Speed (false).");
+            return new ContentListSearchFunctionReturn(false,
+                "Blank Search String with Not Blank Shutter Speed (false).");
 
         itemShutterSpeedString = itemShutterSpeedString.Replace(" ", string.Empty).Trim();
         searchString = searchString.Trim();
 
         if (!Fraction.TryParse(itemShutterSpeedString, out var translatedItemShutterSpeed))
-            return new ContentListSearchReturn(itemShutterSpeedString.Equals(searchString),
+            return new ContentListSearchFunctionReturn(itemShutterSpeedString.Equals(searchString),
                 $"Shutter Speed of '{itemShutterSpeedString}' could not " +
                 $"be parsed into a numeric focal length to search - instead checking if the Shutter Speed as a string to is equal to '{searchString}'");
 
@@ -760,16 +775,17 @@ public static class ContentListSearchFunctions
         if (tokens.Count == 1)
         {
             if (!Fraction.TryParse(tokens[0].Replace(" ", string.Empty), out var translatedSingleInputToken))
-                return new ContentListSearchReturn(itemShutterSpeedString.Contains(searchString),
+                return new ContentListSearchFunctionReturn(itemShutterSpeedString.Contains(searchString),
                     $"Search input of {tokens[0]} could not " +
                     $"be parsed into a numeric focal length to search - instead checking if the item Shutter Speed '{itemShutterSpeedString}' " +
                     $"contains '{tokens[0]}'");
 
-            return new ContentListSearchReturn(translatedSingleInputToken.IsEquivalentTo(translatedItemShutterSpeed),
+            return new ContentListSearchFunctionReturn(
+                translatedSingleInputToken.IsEquivalentTo(translatedItemShutterSpeed),
                 $"Search Shutter Speed of {tokens[0]} equals {itemShutterSpeedString}");
         }
 
-        var shutterSpeedSearchResults = new List<ContentListSearchReturn>();
+        var shutterSpeedSearchResults = new List<ContentListSearchFunctionReturn>();
 
         for (var i = 0; i < tokens.Count; i++)
         {
@@ -779,7 +795,7 @@ public static class ContentListSearchFunctions
             {
                 if (!Fraction.TryParse(scanValue.Replace(" ", string.Empty), out var translatedToken))
                 {
-                    shutterSpeedSearchResults.Add(new ContentListSearchReturn(
+                    shutterSpeedSearchResults.Add(new ContentListSearchFunctionReturn(
                         itemShutterSpeedString.Contains(scanValue),
                         $"Search input of {scanValue} could not " +
                         $"be parsed into a numeric Shutter Speed to search - instead checking if the item Shutter Speed '{itemShutterSpeedString}' " +
@@ -787,7 +803,7 @@ public static class ContentListSearchFunctions
                     continue;
                 }
 
-                shutterSpeedSearchResults.Add(new ContentListSearchReturn(
+                shutterSpeedSearchResults.Add(new ContentListSearchFunctionReturn(
                     translatedToken.IsEquivalentTo(translatedItemShutterSpeed),
                     $"Search Shutter Speed of {scanValue} compared to " + $"{itemShutterSpeedString}"));
                 continue;
@@ -802,7 +818,8 @@ public static class ContentListSearchFunctions
 
             if (!Fraction.TryParse(lookAheadValue, out var translatedLookAheadValue))
             {
-                shutterSpeedSearchResults.Add(new ContentListSearchReturn(itemShutterSpeedString.Contains(scanValue),
+                shutterSpeedSearchResults.Add(new ContentListSearchFunctionReturn(
+                    itemShutterSpeedString.Contains(scanValue),
                     $"Search input of {scanValue} could not " +
                     $"be parsed into a numeric Shutter Speed to search - instead checking if the item Shutter Speed '{itemShutterSpeedString}' contains '{scanValue}'"));
                 continue;
@@ -811,32 +828,32 @@ public static class ContentListSearchFunctions
             switch (scanValue)
             {
                 case "==":
-                    shutterSpeedSearchResults.Add(new ContentListSearchReturn(
+                    shutterSpeedSearchResults.Add(new ContentListSearchFunctionReturn(
                         translatedItemShutterSpeed.IsEquivalentTo(translatedLookAheadValue),
                         $"Search Shutter Speed of {lookAheadValue} compared to " + $"{itemShutterSpeedString}"));
                     break;
                 case "!=":
-                    shutterSpeedSearchResults.Add(new ContentListSearchReturn(
+                    shutterSpeedSearchResults.Add(new ContentListSearchFunctionReturn(
                         !translatedItemShutterSpeed.IsEquivalentTo(translatedLookAheadValue),
                         $"Search Shutter Speed of {lookAheadValue} not equal to " + $"{itemShutterSpeedString}"));
                     break;
                 case ">":
-                    shutterSpeedSearchResults.Add(new ContentListSearchReturn(
+                    shutterSpeedSearchResults.Add(new ContentListSearchFunctionReturn(
                         translatedLookAheadValue.CompareTo(translatedItemShutterSpeed) < 0,
                         $"Evaluated Search Shutter Speed of {lookAheadValue} greater than {itemShutterSpeedString}"));
                     break;
                 case ">=":
-                    shutterSpeedSearchResults.Add(new ContentListSearchReturn(
+                    shutterSpeedSearchResults.Add(new ContentListSearchFunctionReturn(
                         translatedLookAheadValue.CompareTo(translatedItemShutterSpeed) <= 0,
                         $"Evaluated Search Shutter Speed of {lookAheadValue} greater than or equal to {itemShutterSpeedString}"));
                     break;
                 case "<":
-                    shutterSpeedSearchResults.Add(new ContentListSearchReturn(
+                    shutterSpeedSearchResults.Add(new ContentListSearchFunctionReturn(
                         translatedLookAheadValue.CompareTo(translatedItemShutterSpeed) > 0,
                         $"Evaluated Search Shutter Speed of {lookAheadValue} less than {itemShutterSpeedString}"));
                     break;
                 case "<=":
-                    shutterSpeedSearchResults.Add(new ContentListSearchReturn(
+                    shutterSpeedSearchResults.Add(new ContentListSearchFunctionReturn(
                         translatedLookAheadValue.CompareTo(translatedItemShutterSpeed) >= 0,
                         $"Evaluated Search Shutter Speed of {lookAheadValue} less than or equal to {itemShutterSpeedString}"));
                     break;
@@ -844,13 +861,13 @@ public static class ContentListSearchFunctions
         }
 
         return !shutterSpeedSearchResults.Any()
-            ? new ContentListSearchReturn(false, "No Search String Parse Results?")
-            : new ContentListSearchReturn(shutterSpeedSearchResults.All(x => x.Include),
+            ? new ContentListSearchFunctionReturn(false, "No Search String Parse Results?")
+            : new ContentListSearchFunctionReturn(shutterSpeedSearchResults.All(x => x.Include),
                 string.Join(Environment.NewLine,
                     shutterSpeedSearchResults.Select(x => $"{x.Explanation} ({x.Include}).")));
     }
 
-    public static ContentListSearchReturn FilterStringContains(string itemString, string searchString,
+    public static ContentListSearchFunctionReturn FilterStringContains(string itemString, string searchString,
         string searchLabel)
     {
         if (!string.IsNullOrWhiteSpace(searchLabel) && !string.IsNullOrWhiteSpace(searchString) &&
@@ -858,22 +875,25 @@ public static class ContentListSearchFunctions
             searchString = searchString[$"{searchLabel.Trim().Replace(":", string.Empty)}:".Length..];
 
         if (string.IsNullOrWhiteSpace(itemString) && string.IsNullOrWhiteSpace(searchString))
-            return new ContentListSearchReturn(true, $"Blank {searchLabel} and Blank Search String (true).");
+            return new ContentListSearchFunctionReturn(true, $"Blank {searchLabel} and Blank Search String (true).");
 
         if (string.IsNullOrWhiteSpace(itemString))
-            return new ContentListSearchReturn(false, $"Blank {searchLabel} with Not Blank Search String (false).");
+            return new ContentListSearchFunctionReturn(false,
+                $"Blank {searchLabel} with Not Blank Search String (false).");
 
         if (string.IsNullOrWhiteSpace(searchString))
-            return new ContentListSearchReturn(false, $"Blank Search String with Not Blank {searchLabel} (false).");
+            return new ContentListSearchFunctionReturn(false,
+                $"Blank Search String with Not Blank {searchLabel} (false).");
 
         itemString = itemString.Trim();
         searchString = searchString.Trim();
 
         var contains = itemString.Contains(searchString, StringComparison.OrdinalIgnoreCase);
 
-        return new ContentListSearchReturn(itemString.Contains(searchString, StringComparison.OrdinalIgnoreCase),
+        return new ContentListSearchFunctionReturn(
+            itemString.Contains(searchString, StringComparison.OrdinalIgnoreCase),
             $"{searchLabel} contains {searchString} ({contains})");
     }
 }
 
-public record ContentListSearchReturn(bool Include, string Explanation);
+public record ContentListSearchFunctionReturn(bool Include, string Explanation);

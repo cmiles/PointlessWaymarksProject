@@ -165,7 +165,9 @@ public partial class ContentListContext : IDragSource, IDropTarget
         {
             await ThreadSwitcher.ResumeForegroundAsync();
             var newWindow = new AllContentListWindow
-                { ListContext = new AllContentListWithActionsContext(null, WindowStatus) };
+            {
+                ListContext = new AllContentListWithActionsContext(null, WindowStatus)
+            };
             newWindow.PositionWindowAndShow();
         });
         NewFileListWindowCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
@@ -178,7 +180,9 @@ public partial class ContentListContext : IDragSource, IDropTarget
         {
             await ThreadSwitcher.ResumeForegroundAsync();
             var newWindow = new GeoJsonListWindow
-                { ListContext = new GeoJsonListWithActionsContext(null, WindowStatus) };
+            {
+                ListContext = new GeoJsonListWithActionsContext(null, WindowStatus)
+            };
             newWindow.PositionWindowAndShow();
         });
         NewImageListWindowCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
@@ -203,7 +207,9 @@ public partial class ContentListContext : IDragSource, IDropTarget
         {
             await ThreadSwitcher.ResumeForegroundAsync();
             var newWindow = new MapComponentListWindow
-                { ListContext = new MapComponentListWithActionsContext(null, WindowStatus) };
+            {
+                ListContext = new MapComponentListWithActionsContext(null, WindowStatus)
+            };
             newWindow.PositionWindowAndShow();
         });
         NewNoteListWindowCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
@@ -566,249 +572,73 @@ public partial class ContentListContext : IDragSource, IDropTarget
             return;
         }
 
+        var searchFilterStack =
+            new List<(Func<IContentListItem, string, Func<bool, bool>, ContentListSearch.ContentListSearchReturn> filter
+                , string searchString, Func<bool, bool> searchModifier)>();
+
+        using var sr = new StringReader(UserFilterText);
+
+        while (await sr.ReadLineAsync() is { } line)
+        {
+            if (string.IsNullOrWhiteSpace(line)) continue;
+
+            var searchString = line.Trim();
+            Func<bool, bool> searchResultModifier = x => x;
+
+            if (line.ToUpper().StartsWith("!"))
+            {
+                searchResultModifier = x => !x;
+                searchString = line[1..];
+                searchString = searchString.Trim();
+            }
+
+            if (string.IsNullOrWhiteSpace(searchString)) continue;
+
+            Func<IContentListItem, string, Func<bool, bool>, ContentListSearch.ContentListSearchReturn>
+                searchFilterFunction;
+
+            if (searchString.ToUpper().StartsWith("SUMMARY:")) searchFilterFunction = ContentListSearch.SearchSummary;
+            else if (searchString.ToUpper().StartsWith("TITLE:")) searchFilterFunction = ContentListSearch.SearchTitle;
+            else if (searchString.ToUpper().StartsWith("FOLDER:"))
+                searchFilterFunction = ContentListSearch.SearchFolder;
+            else if (searchString.ToUpper().StartsWith("CREATED ON:"))
+                searchFilterFunction = ContentListSearch.SearchCreatedOn;
+            else if (searchString.ToUpper().StartsWith("LAST UPDATED ON:"))
+                searchFilterFunction = ContentListSearch.SearchLastUpdatedOn;
+            else if (searchString.ToUpper().StartsWith("TAGS:")) searchFilterFunction = ContentListSearch.SearchTags;
+            else if (searchString.ToUpper().StartsWith("CAMERA:"))
+                searchFilterFunction = ContentListSearch.SearchCamera;
+            else if (searchString.ToUpper().StartsWith("LENS:")) searchFilterFunction = ContentListSearch.SearchLens;
+            else if (searchString.ToUpper().StartsWith("LICENSE:"))
+                searchFilterFunction = ContentListSearch.SearchLicense;
+            else if (searchString.ToUpper().StartsWith("PHOTO CREATED ON:"))
+                searchFilterFunction = ContentListSearch.SearchPhotoCreatedOn;
+            else if (searchString.ToUpper().StartsWith("APERTURE:"))
+                searchFilterFunction = ContentListSearch.SearchAperture;
+            else if (searchString.ToUpper().StartsWith("SHUTTER SPEED:"))
+                searchFilterFunction = ContentListSearch.SearchShutterSpeed;
+            else if (searchString.ToUpper().StartsWith("ISO:")) searchFilterFunction = ContentListSearch.SearchIso;
+            else if (searchString.ToUpper().StartsWith("FOCAL LENGTH:"))
+                searchFilterFunction = ContentListSearch.SearchFocalLength;
+            else searchFilterFunction = ContentListSearch.SearchGeneral;
+
+            searchFilterStack.Add((searchFilterFunction, searchString, searchResultModifier));
+        }
+
+        if (!searchFilterStack.Any())
+        {
+            ((CollectionView)CollectionViewSource.GetDefaultView(Items)).Filter = _ => true;
+            return;
+        }
+
         ((CollectionView)CollectionViewSource.GetDefaultView(Items)).Filter = o =>
         {
             if (o is not IContentListItem toFilter) return false;
 
-            var filterLineResults =
-                new List<(ContentListSearchReturn searchReturn, Func<bool, bool> modifierFunction)>();
+            var filterResults = searchFilterStack.Select(x => x.filter(toFilter, x.searchString, x.searchModifier))
+                .ToList();
 
-            using var sr = new StringReader(UserFilterText);
-
-            while (sr.ReadLine() is { } line)
-            {
-                if (string.IsNullOrWhiteSpace(line)) continue;
-
-                var searchString = line.Trim();
-                Func<bool, bool> searchResultModifier = x => x;
-
-                if (line.ToUpper().StartsWith("!"))
-                {
-                    searchResultModifier = x => !x;
-                    searchString = line[1..];
-                    searchString = searchString.Trim();
-                }
-
-                if (string.IsNullOrWhiteSpace(searchString)) continue;
-
-                if (searchString.ToUpper().StartsWith("TITLE:"))
-                {
-                    searchString = searchString[6..];
-                    if (string.IsNullOrWhiteSpace(searchString)) continue;
-                    searchString = searchString.Trim();
-
-                    filterLineResults.Add((ContentListSearchFunctions.FilterStringContains(
-                        toFilter.Content().Title ?? string.Empty, searchString, "Title"), searchResultModifier));
-                    continue;
-                }
-
-                if (searchString.ToUpper().StartsWith("SUMMARY:"))
-                {
-                    searchString = searchString[8..];
-                    if (string.IsNullOrWhiteSpace(searchString)) continue;
-                    searchString = searchString.Trim();
-
-                    filterLineResults.Add((ContentListSearchFunctions.FilterStringContains(
-                        toFilter.Content().Summary ?? string.Empty, searchString, "Summary"), searchResultModifier));
-                    continue;
-                }
-
-                if (searchString.ToUpper().StartsWith("FOLDER:"))
-                {
-                    searchString = searchString[7..];
-                    if (string.IsNullOrWhiteSpace(searchString)) continue;
-                    searchString = searchString.Trim();
-
-                    filterLineResults.Add((ContentListSearchFunctions.FilterStringContains(
-                        toFilter.Content().Folder ?? string.Empty, searchString, "Folder"), searchResultModifier));
-                    continue;
-                }
-                
-                if (searchString.ToUpper().StartsWith("CREATED ON:"))
-                {
-                    searchString = searchString[8..];
-                    if (string.IsNullOrWhiteSpace(searchString)) continue;
-                    searchString = searchString.Trim();
-
-                    filterLineResults.Add((ContentListSearchFunctions.FilterDateTime(
-                        toFilter.Content().CreatedOn, searchString, "Created On"), searchResultModifier));
-                    continue;
-                }
-                
-                if (searchString.ToUpper().StartsWith("LAST UPDATED ON:"))
-                {
-                    searchString = searchString[16..];
-                    if (string.IsNullOrWhiteSpace(searchString)) continue;
-                    searchString = searchString.Trim();
-
-                    filterLineResults.Add((ContentListSearchFunctions.FilterDateTime(
-                        toFilter.Content().LastUpdatedOn, searchString, "Last Updated On"), searchResultModifier));
-                    continue;
-                }
-
-                if (searchString.ToUpper().StartsWith("TAGS:"))
-                {
-                    searchString = searchString[5..];
-                    if (string.IsNullOrWhiteSpace(searchString)) continue;
-                    searchString = searchString.Trim();
-
-                    filterLineResults.Add((ContentListSearchFunctions.FilterStringContains(
-                        toFilter.Content().Tags ?? string.Empty, searchString, "Tags"), searchResultModifier));
-                    continue;
-                }
-
-                if (searchString.ToUpper().StartsWith("CAMERA:"))
-                {
-                    searchString = searchString[7..];
-                    if (string.IsNullOrWhiteSpace(searchString)) continue;
-
-                    if (o is not PhotoListListItem photoItem) return false;
-
-                    var cameraMakeModel =
-                        $"{photoItem.DbEntry.CameraMake.TrimNullToEmpty()} {photoItem.DbEntry.CameraModel.TrimNullToEmpty()}";
-                    searchString = searchString.Trim();
-
-                    filterLineResults.Add(
-                        (ContentListSearchFunctions.FilterStringContains(cameraMakeModel, searchString, "Camera"),
-                            searchResultModifier));
-                    continue;
-                }
-                
-                if (searchString.ToUpper().StartsWith("PHOTO CREATED ON:"))
-                {
-                    searchString = searchString[17..];
-                    if (string.IsNullOrWhiteSpace(searchString)) continue;
-
-                    if (o is not PhotoListListItem photoItem) return false;
-
-                    filterLineResults.Add(
-                        (ContentListSearchFunctions.FilterDateTime(photoItem.DbEntry.PhotoCreatedOn, searchString, "Photo Created On"),
-                            searchResultModifier));
-                    continue;
-                }
-
-                if (searchString.ToUpper().StartsWith("LENS:"))
-                {
-                    searchString = searchString[5..];
-                    if (string.IsNullOrWhiteSpace(searchString)) continue;
-
-                    if (o is not PhotoListListItem photoItem) return false;
-
-                    filterLineResults.Add(
-                        (ContentListSearchFunctions.FilterStringContains(photoItem.DbEntry.Lens, searchString, "Lens"),
-                            searchResultModifier));
-                    continue;
-                }
-
-                if (searchString.ToUpper().StartsWith("LICENSE:"))
-                {
-                    searchString = searchString[8..];
-                    if (string.IsNullOrWhiteSpace(searchString)) continue;
-
-                    if (o is not PhotoListListItem photoItem) return false;
-
-                    filterLineResults.Add((ContentListSearchFunctions.FilterStringContains(photoItem.DbEntry.License,
-                        searchString, "License"), searchResultModifier));
-                    continue;
-                }
-
-                if (searchString.ToUpper().StartsWith("ISO:"))
-                {
-                    //As soon as we designate an ISO search limit the search to photos with Iso
-                    if (o is not PhotoListListItem photoItem) return false;
-
-                    searchString = searchString[4..];
-                    if (string.IsNullOrWhiteSpace(searchString)) continue;
-
-                    filterLineResults.Add(
-                        (ContentListSearchFunctions.FilterIso(photoItem.DbEntry.Iso.ToString(), searchString),
-                            searchResultModifier));
-
-                    continue;
-                }
-
-                if (searchString.ToUpper().StartsWith("APERTURE:"))
-                {
-                    //As soon as we designate an ISO search limit the search to photos with Iso
-                    if (o is not PhotoListListItem photoItem) return false;
-
-                    searchString = searchString[9..];
-                    if (string.IsNullOrWhiteSpace(searchString)) continue;
-
-                    filterLineResults.Add(
-                        (ContentListSearchFunctions.FilterAperture(photoItem.DbEntry.Aperture ?? string.Empty,
-                            searchString), searchResultModifier));
-
-                    continue;
-                }
-
-                if (searchString.ToUpper().StartsWith("FOCAL LENGTH:"))
-                {
-                    //As soon as we designate an ISO search limit the search to photos with Iso
-                    if (o is not PhotoListListItem photoItem) return false;
-
-                    searchString = searchString[13..];
-                    if (string.IsNullOrWhiteSpace(searchString)) continue;
-
-                    filterLineResults.Add(
-                        (ContentListSearchFunctions.FilterFocalLength(photoItem.DbEntry.FocalLength ?? string.Empty,
-                            searchString), searchResultModifier));
-
-                    continue;
-                }
-
-                if (searchString.ToUpper().StartsWith("SHUTTER SPEED:"))
-                {
-                    //As soon as we designate an ISO search limit the search to photos with Iso
-                    if (o is not PhotoListListItem photoItem) return false;
-
-                    searchString = searchString[14..];
-                    if (string.IsNullOrWhiteSpace(searchString)) continue;
-
-                    filterLineResults.Add(
-                        (ContentListSearchFunctions.FilterShutterSpeedLength(
-                            photoItem.DbEntry.ShutterSpeed ?? string.Empty, searchString), searchResultModifier));
-
-                    continue;
-                }
-
-                ContentListSearchReturn GeneralContentSearch(string stringToSearch)
-                {
-                    if ((toFilter.Content().Title ?? string.Empty).Contains(stringToSearch,
-                            StringComparison.OrdinalIgnoreCase))
-                        return new ContentListSearchReturn(true, $"{stringToSearch} found in Title");
-                    if ((toFilter.Content().Tags ?? string.Empty).Contains(stringToSearch,
-                            StringComparison.OrdinalIgnoreCase))
-                        return new ContentListSearchReturn(true, $"{stringToSearch} found in Tags");
-
-                    if ((toFilter.Content().Summary ?? string.Empty).Contains(stringToSearch,
-                            StringComparison.OrdinalIgnoreCase))
-                        return new ContentListSearchReturn(true, $"{stringToSearch} found in Summary");
-
-                    if ((toFilter.Content().Folder ?? string.Empty).Contains(stringToSearch,
-                            StringComparison.OrdinalIgnoreCase))
-                        return new ContentListSearchReturn(true, $"{stringToSearch} found in Folder");
-
-                    if ((toFilter.Content().CreatedBy ?? string.Empty).Contains(stringToSearch,
-                            StringComparison.OrdinalIgnoreCase))
-                        return new ContentListSearchReturn(true, $"{stringToSearch} found in Created By");
-
-                    if ((toFilter.Content().LastUpdatedBy ?? string.Empty).Contains(stringToSearch,
-                            StringComparison.OrdinalIgnoreCase))
-                        return new ContentListSearchReturn(true, $"{stringToSearch} found in Last Updated By");
-
-                    if (toFilter.ContentId() != null && toFilter.ContentId().ToString()
-                            .Contains(stringToSearch, StringComparison.OrdinalIgnoreCase))
-                        return new ContentListSearchReturn(true, $"{stringToSearch} found in Content Id");
-
-                    return new ContentListSearchReturn(false,
-                        $"{stringToSearch} not found in a General Content Search");
-                }
-
-                filterLineResults.Add((GeneralContentSearch(searchString), searchResultModifier));
-            }
-
-            return !filterLineResults.Any() || filterLineResults.All(x => x.modifierFunction(x.searchReturn.Include));
+            return !filterResults.Any() || filterResults.All(x => x.ResultModifier(x.SearchFunctionReturn.Include));
         };
     }
 
