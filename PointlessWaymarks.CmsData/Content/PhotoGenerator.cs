@@ -288,7 +288,7 @@ public static class PhotoGenerator
                     var tempDate = new DateTime(int.Parse(possibleTitleDate[..4]),
                         int.Parse(possibleTitleDate.Substring(5, 2)), 1);
 
-                    toReturn.Summary = $"{toReturn.Title[..^possibleTitleDate.Length]}.TrimNullToEmpty()";
+                    toReturn.Summary = $"{toReturn.Title[..^possibleTitleDate.Length].TrimNullToEmpty()}";
                     toReturn.Title =
                         $"{tempDate:yyyy} {tempDate:MMMM} {toReturn.Title[..^possibleTitleDate.Length].TrimNullToEmpty()}";
 
@@ -303,7 +303,7 @@ public static class PhotoGenerator
         {
             toReturn.Title = string.IsNullOrWhiteSpace(toReturn.Title)
                 ? toReturn.PhotoCreatedOn.ToString("yyyy MMMM dd h-mm-ss tt")
-                : $"{toReturn.PhotoCreatedOn:yyyy} {toReturn.PhotoCreatedOn:MMMM} {toReturn.Title}.TrimNullToEmpty()";
+                : $"{toReturn.PhotoCreatedOn:yyyy} {toReturn.PhotoCreatedOn:MMMM} {toReturn.Title.TrimNullToEmpty()}";
         }
 
         if (string.IsNullOrWhiteSpace(toReturn.Summary)) toReturn.Summary = toReturn.Title;

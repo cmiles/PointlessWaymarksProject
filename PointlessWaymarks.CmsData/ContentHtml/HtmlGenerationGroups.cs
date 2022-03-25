@@ -204,13 +204,15 @@ public static class HtmlGenerationGroups
         await GenerateAllPhotoHtml(generationVersion, progress).ConfigureAwait(false);
         await GenerateAllImageHtml(generationVersion, progress).ConfigureAwait(false);
 
+        //The All Map generation also regenerates the Point Data Json - to avoid conflicts run points before the group...
+        await GenerateAllPointHtml(generationVersion, progress);
+
         var generationTasks = new List<Task>
         {
             GenerateAllFileHtml(generationVersion, progress),
             GenerateAllMapData(generationVersion, progress),
             GenerateAllNoteHtml(generationVersion, progress),
             GenerateAllPostHtml(generationVersion, progress),
-            GenerateAllPointHtml(generationVersion, progress),
             GenerateAllLineHtml(generationVersion, progress),
             GenerateAllGeoJsonHtml(generationVersion, progress),
             GenerateAllDailyPhotoGalleriesHtml(generationVersion, progress),
@@ -1018,6 +1020,10 @@ public static class HtmlGenerationGroups
         await GenerateChangeFilteredPhotoHtml(generationVersion, progress).ConfigureAwait(false);
         await GenerateChangeFilteredImageHtml(generationVersion, progress).ConfigureAwait(false);
 
+        //Both Maps and Points update the Point Json file - update the Points outside of the task list to avoid
+        //both processing trying to write to the file.
+        await GenerateChangeFilteredPointHtml(generationVersion, progress);
+
         var changedPartsList = new List<Task>
         {
             GenerateChangeFilteredFileHtml(generationVersion, progress),
@@ -1025,7 +1031,6 @@ public static class HtmlGenerationGroups
             GenerateChangeFilteredLineHtml(generationVersion, progress),
             GenerateChangeFilteredMapData(generationVersion, progress),
             GenerateChangeFilteredNoteHtml(generationVersion, progress),
-            GenerateChangeFilteredPointHtml(generationVersion, progress),
             GenerateChangeFilteredPostHtml(generationVersion, progress)
         };
 
