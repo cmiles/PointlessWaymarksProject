@@ -102,8 +102,7 @@
     <Style x:Key="TagsEditorInPanelStyle" TargetType="tagsEditor:TagsEditorControl">
         <Setter Property="Margin" Value="0,4,0,0" />
     </Style>
-    <Style x:Key="CreatedUpdatedInPanelStyle"
-           TargetType="createdAndUpdatedByAndOnDisplay:CreatedAndUpdatedByAndOnDisplayControl">
+    <Style x:Key="CreatedUpdatedInPanelStyle" TargetType="createdAndUpdatedByAndOnDisplay:CreatedAndUpdatedByAndOnDisplayControl">
         <Setter Property="Margin" Value="0,4,0,0" />
     </Style>
     <Style x:Key="ContentIdInPanelStyle" TargetType="contentIdViewer:ContentIdViewerControl">
@@ -150,8 +149,7 @@
         </b:Interaction.Behaviors>
         <b:Interaction.Triggers>
             <b:EventTrigger EventName="SelectionChanged">
-                <wpfBehavior:EventToCommand Command="{Binding SelectedTextTracker.SelectedTextChangedCommand}"
-                                            PassEventArgsToCommand="True" />
+                <wpfBehavior:EventToCommand Command="{Binding SelectedTextTracker.SelectedTextChangedCommand}" PassEventArgsToCommand="True" />
             </b:EventTrigger>
         </b:Interaction.Triggers>
     </TextBox>
@@ -172,8 +170,7 @@
             </b:Interaction.Behaviors>
             <b:Interaction.Triggers>
                 <b:EventTrigger EventName="SelectionChanged">
-                    <wpfBehavior:EventToCommand Command="{Binding SelectedTextTracker.SelectedTextChangedCommand}"
-                                                PassEventArgsToCommand="True" />
+                    <wpfBehavior:EventToCommand Command="{Binding SelectedTextTracker.SelectedTextChangedCommand}" PassEventArgsToCommand="True" />
                 </b:EventTrigger>
             </b:Interaction.Triggers>
         </TextBox>
@@ -194,8 +191,7 @@
             </b:Interaction.Behaviors>
             <b:Interaction.Triggers>
                 <b:EventTrigger EventName="SelectionChanged">
-                    <wpfBehavior:EventToCommand Command="{Binding SelectedTextTracker.SelectedTextChangedCommand}"
-                                                PassEventArgsToCommand="True" />
+                    <wpfBehavior:EventToCommand Command="{Binding SelectedTextTracker.SelectedTextChangedCommand}" PassEventArgsToCommand="True" />
                 </b:EventTrigger>
             </b:Interaction.Triggers>
         </TextBox>
@@ -215,8 +211,7 @@
             </b:Interaction.Behaviors>
             <b:Interaction.Triggers>
                 <b:EventTrigger EventName="SelectionChanged">
-                    <wpfBehavior:EventToCommand Command="{Binding SelectedTextTracker.SelectedTextChangedCommand}"
-                                                PassEventArgsToCommand="True" />
+                    <wpfBehavior:EventToCommand Command="{Binding SelectedTextTracker.SelectedTextChangedCommand}" PassEventArgsToCommand="True" />
                 </b:EventTrigger>
             </b:Interaction.Triggers>
         </TextBox>
@@ -237,8 +232,7 @@
             </b:Interaction.Behaviors>
             <b:Interaction.Triggers>
                 <b:EventTrigger EventName="SelectionChanged">
-                    <wpfBehavior:EventToCommand Command="{Binding SelectedTextTracker.SelectedTextChangedCommand}"
-                                                PassEventArgsToCommand="True" />
+                    <wpfBehavior:EventToCommand Command="{Binding SelectedTextTracker.SelectedTextChangedCommand}" PassEventArgsToCommand="True" />
                 </b:EventTrigger>
             </b:Interaction.Triggers>
         </TextBox>
@@ -261,8 +255,7 @@
         </b:Interaction.Behaviors>
         <b:Interaction.Triggers>
             <b:EventTrigger EventName="SelectionChanged">
-                <wpfBehavior:EventToCommand Command="{Binding SelectedTextTracker.SelectedTextChangedCommand}"
-                                            PassEventArgsToCommand="True" />
+                <wpfBehavior:EventToCommand Command="{Binding SelectedTextTracker.SelectedTextChangedCommand}" PassEventArgsToCommand="True" />
             </b:EventTrigger>
         </b:Interaction.Triggers>
     </TextBox>
@@ -284,8 +277,7 @@
         </b:Interaction.Behaviors>
         <b:Interaction.Triggers>
             <b:EventTrigger EventName="SelectionChanged">
-                <wpfBehavior:EventToCommand Command="{Binding SelectedTextTracker.SelectedTextChangedCommand}"
-                                            PassEventArgsToCommand="True" />
+                <wpfBehavior:EventToCommand Command="{Binding SelectedTextTracker.SelectedTextChangedCommand}" PassEventArgsToCommand="True" />
             </b:EventTrigger>
         </b:Interaction.Triggers>
     </TextBox>
@@ -303,42 +295,33 @@
                 <Setter Property="Height" Value="Auto" />
             </Style>
             <Style TargetType="TextBlock">
-                <Setter Property="Margin" Value="6,0,6,0"></Setter>
+                <Setter Property="Margin" Value="6,0,6,0" />
             </Style>
         </WrapPanel.Resources>
-        <Button
-            Command="{Binding DataContext.FolderSearchCommand, RelativeSource={RelativeSource AncestorType={x:Type ListBox}}}"
-            CommandParameter="{Binding DbEntry.Folder}">
+        <Button Command="{Binding DataContext.FolderSearchCommand, RelativeSource={RelativeSource AncestorType={x:Type ListBox}}}" CommandParameter="{Binding DbEntry.Folder}">
             <Button.Content>
-                <TextBlock
-                    ToolTip="Folder - click to search for other content in folders with the same name"
-                    Text="{Binding DbEntry.Folder, StringFormat='Folder: {0}'}" />
+                <TextBlock Text="{Binding DbEntry.Folder, StringFormat='Folder: {0}'}" ToolTip="Folder - click to search for other content in folders with the same name" />
             </Button.Content>
         </Button>
-        <Button
-            Command="{Binding DataContext.CreatedOnDaySearchCommand, RelativeSource={RelativeSource AncestorType={x:Type ListBox}}}"
-            CommandParameter="{Binding DbEntry.CreatedOn}">
+        <Button Command="{Binding DataContext.CreatedOnDaySearchCommand, RelativeSource={RelativeSource AncestorType={x:Type ListBox}}}" CommandParameter="{Binding DbEntry.CreatedOn}">
             <Button.Content>
-                <TextBlock 
-                    ToolTip="Created On - click to search for other content created on the same date"
-                    Text="{Binding DbEntry.CreatedOn, StringFormat='Created: {0}'}" />
+                <TextBlock Text="{Binding DbEntry.CreatedOn, StringFormat='Created: {0}'}" ToolTip="Created On - click to search for other content created on the same date" />
             </Button.Content>
         </Button>
-        <Button
-            Command="{Binding DataContext.LastUpdatedOnDaySearchCommand, RelativeSource={RelativeSource AncestorType={x:Type ListBox}}}"
-            CommandParameter="{Binding DbEntry.LastUpdatedOn}">
+        <Button Command="{Binding DataContext.LastUpdatedOnDaySearchCommand, RelativeSource={RelativeSource AncestorType={x:Type ListBox}}}" CommandParameter="{Binding DbEntry.LastUpdatedOn}">
             <Button.Content>
                 <TextBlock
-                    ToolTipService.ShowOnDisabled="True"
+                    Text="{Binding DbEntry.LastUpdatedOn, StringFormat='Updated: {0}', FallbackValue='(Never Updated)', TargetNullValue='(Never Updated)'}"
                     ToolTip="Last Updated On - click to search for other content last updated on the same date"
-                    Text="{Binding DbEntry.LastUpdatedOn, StringFormat='Updated: {0}', FallbackValue='(Never Updated)', TargetNullValue='(Never Updated)'}" />
+                    ToolTipService.ShowOnDisabled="True" />
             </Button.Content>
         </Button>
     </WrapPanel>
-    <WrapPanel x:Key="ContentListOriginalFileNameAndSlugDisplay"
-               Margin="0,3,0,0"
-               x:Shared="False"
-               Orientation="Horizontal">
+    <WrapPanel
+        x:Key="ContentListOriginalFileNameAndSlugDisplay"
+        Margin="0,3,0,0"
+        x:Shared="False"
+        Orientation="Horizontal">
         <TextBox
             Style="{StaticResource ReadOnlyTextBoxStyle}"
             Text="{Binding DbEntry.OriginalFileName, Mode=OneWay, StringFormat='File: {0}'}"
@@ -354,8 +337,7 @@
             </b:Interaction.Behaviors>
             <b:Interaction.Triggers>
                 <b:EventTrigger EventName="SelectionChanged">
-                    <wpfBehavior:EventToCommand Command="{Binding SelectedTextTracker.SelectedTextChangedCommand}"
-                                                PassEventArgsToCommand="True" />
+                    <wpfBehavior:EventToCommand Command="{Binding SelectedTextTracker.SelectedTextChangedCommand}" PassEventArgsToCommand="True" />
                 </b:EventTrigger>
             </b:Interaction.Triggers>
         </TextBox>
@@ -377,8 +359,7 @@
             </b:Interaction.Behaviors>
             <b:Interaction.Triggers>
                 <b:EventTrigger EventName="SelectionChanged">
-                    <wpfBehavior:EventToCommand Command="{Binding SelectedTextTracker.SelectedTextChangedCommand}"
-                                                PassEventArgsToCommand="True" />
+                    <wpfBehavior:EventToCommand Command="{Binding SelectedTextTracker.SelectedTextChangedCommand}" PassEventArgsToCommand="True" />
                 </b:EventTrigger>
             </b:Interaction.Triggers>
         </TextBox>
@@ -401,8 +382,7 @@
         </b:Interaction.Behaviors>
         <b:Interaction.Triggers>
             <b:EventTrigger EventName="SelectionChanged">
-                <wpfBehavior:EventToCommand Command="{Binding SelectedTextTracker.SelectedTextChangedCommand}"
-                                            PassEventArgsToCommand="True" />
+                <wpfBehavior:EventToCommand Command="{Binding SelectedTextTracker.SelectedTextChangedCommand}" PassEventArgsToCommand="True" />
             </b:EventTrigger>
         </b:Interaction.Triggers>
     </TextBox>
@@ -425,8 +405,7 @@
             </b:Interaction.Behaviors>
             <b:Interaction.Triggers>
                 <b:EventTrigger EventName="SelectionChanged">
-                    <wpfBehavior:EventToCommand Command="{Binding SelectedTextTracker.SelectedTextChangedCommand}"
-                                                PassEventArgsToCommand="True" />
+                    <wpfBehavior:EventToCommand Command="{Binding SelectedTextTracker.SelectedTextChangedCommand}" PassEventArgsToCommand="True" />
                 </b:EventTrigger>
             </b:Interaction.Triggers>
         </TextBox>
@@ -446,8 +425,7 @@
             </b:Interaction.Behaviors>
             <b:Interaction.Triggers>
                 <b:EventTrigger EventName="SelectionChanged">
-                    <wpfBehavior:EventToCommand Command="{Binding SelectedTextTracker.SelectedTextChangedCommand}"
-                                                PassEventArgsToCommand="True" />
+                    <wpfBehavior:EventToCommand Command="{Binding SelectedTextTracker.SelectedTextChangedCommand}" PassEventArgsToCommand="True" />
                 </b:EventTrigger>
             </b:Interaction.Triggers>
         </TextBox>
@@ -624,8 +602,7 @@
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="*" />
                     </Grid.RowDefinitions>
-                    <ContentPresenter VerticalAlignment="Top"
-                                      Content="{StaticResource ContentListSmallImageContentDisplay}" />
+                    <ContentPresenter VerticalAlignment="Top" Content="{StaticResource ContentListSmallImageContentDisplay}" />
                     <Button Grid.Row="1" Style="{StaticResource ContentListItemViewFileButtonStyle}">
                         view
                     </Button>
@@ -668,8 +645,7 @@
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="*" />
                     </Grid.RowDefinitions>
-                    <ContentPresenter VerticalAlignment="Top"
-                                      Content="{StaticResource ContentListSmallImageContentDisplay}" />
+                    <ContentPresenter VerticalAlignment="Top" Content="{StaticResource ContentListSmallImageContentDisplay}" />
                     <Button Grid.Row="1" Style="{StaticResource ContentListItemViewFileButtonStyle}">
                         view
                     </Button>
@@ -741,8 +717,7 @@
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="*" />
                     </Grid.RowDefinitions>
-                    <ContentPresenter VerticalAlignment="Top"
-                                      Content="{StaticResource ContentListSmallImageContentDisplay}" />
+                    <ContentPresenter VerticalAlignment="Top" Content="{StaticResource ContentListSmallImageContentDisplay}" />
                     <Button Grid.Row="1" Style="{StaticResource ContentListItemViewFileButtonStyle}">
                         view
                     </Button>
@@ -767,37 +742,34 @@
                                     <Setter Property="Height" Value="Auto" />
                                 </Style>
                                 <Style TargetType="TextBlock">
-                                    <Setter Property="Margin" Value="6,0,6,0"></Setter>
+                                    <Setter Property="Margin" Value="6,0,6,0" />
                                 </Style>
                             </WrapPanel.Resources>
                             <Button
-                                ToolTip="Folder - click to search for other content in folders with the same name"
                                 Command="{Binding DataContext.FolderSearchCommand, RelativeSource={RelativeSource AncestorType={x:Type ListBox}}}"
-                                CommandParameter="{Binding DbEntry.Folder}">
+                                CommandParameter="{Binding DbEntry.Folder}"
+                                ToolTip="Folder - click to search for other content in folders with the same name">
                                 <Button.Content>
-                                    <TextBlock
-                                        Text="{Binding DbEntry.Folder, StringFormat='Folder: {0}'}" />
+                                    <TextBlock Text="{Binding DbEntry.Folder, StringFormat='Folder: {0}'}" />
                                 </Button.Content>
                             </Button>
                             <Button
-                                ToolTip="Created On - click to search for other content created on the same date"
                                 Command="{Binding DataContext.CreatedOnDaySearchCommand, RelativeSource={RelativeSource AncestorType={x:Type ListBox}}}"
-                                CommandParameter="{Binding DbEntry.CreatedOn}">
+                                CommandParameter="{Binding DbEntry.CreatedOn}"
+                                ToolTip="Created On - click to search for other content created on the same date">
                                 <Button.Content>
                                     <TextBlock Text="{Binding DbEntry.CreatedOn, StringFormat='Created: {0}'}" />
                                 </Button.Content>
                             </Button>
                             <Button
-                                ToolTip="Last Updated On - click to search for other content last updated on the same date"
                                 Command="{Binding DataContext.LastUpdatedOnDaySearchCommand, RelativeSource={RelativeSource AncestorType={x:Type ListBox}}}"
-                                CommandParameter="{Binding DbEntry.LastUpdatedOn}">
+                                CommandParameter="{Binding DbEntry.LastUpdatedOn}"
+                                ToolTip="Last Updated On - click to search for other content last updated on the same date">
                                 <Button.Content>
-                                    <TextBlock
-                                        Text="{Binding DbEntry.LastUpdatedOn, StringFormat='Updated: {0}', FallbackValue='(Never Updated)', TargetNullValue='(Never Updated)'}" />
+                                    <TextBlock Text="{Binding DbEntry.LastUpdatedOn, StringFormat='Updated: {0}', FallbackValue='(Never Updated)', TargetNullValue='(Never Updated)'}" />
                                 </Button.Content>
                             </Button>
-                            <Button
-                                ToolTip="Photo Created On - click to search for other content created on the same date">
+                            <Button ToolTip="Photo Created On - click to search for other content created on the same date">
                                 <Button.InputBindings>
                                     <MouseBinding
                                         Command="{Binding ItemActions.PhotoTakenOnSearchCommand}"
@@ -805,12 +777,10 @@
                                         MouseAction="LeftClick" />
                                 </Button.InputBindings>
                                 <Button.Content>
-                                    <TextBlock
-                                        Text="{Binding DbEntry.PhotoCreatedOn, StringFormat='Photo: {0}', TargetNullValue='(No Photo Date)'}" />
+                                    <TextBlock Text="{Binding DbEntry.PhotoCreatedOn, StringFormat='Photo: {0}', TargetNullValue='(No Photo Date)'}" />
                                 </Button.Content>
                             </Button>
-                            <Button
-                                ToolTip="Camera Make - click to search for other photos with this Camera Make">
+                            <Button ToolTip="Camera Make - click to search for other photos with this Camera Make">
                                 <Button.InputBindings>
                                     <MouseBinding
                                         Command="{Binding ItemActions.CameraMakeSearchCommand}"
@@ -818,12 +788,10 @@
                                         MouseAction="LeftClick" />
                                 </Button.InputBindings>
                                 <Button.Content>
-                                    <TextBlock
-                                        Text="{Binding DbEntry.CameraMake,  StringFormat='Make: {0}',Converter={StaticResource StringDefault}, ConverterParameter='(No Camera Make)'}" />
+                                    <TextBlock Text="{Binding DbEntry.CameraMake, StringFormat='Make: {0}', Converter={StaticResource StringDefault}, ConverterParameter='(No Camera Make)'}" />
                                 </Button.Content>
                             </Button>
-                            <Button
-                                ToolTip="Camera Model - click to search for other photos with this Camera Model">
+                            <Button ToolTip="Camera Model - click to search for other photos with this Camera Model">
                                 <Button.InputBindings>
                                     <MouseBinding
                                         Command="{Binding ItemActions.CameraModelSearchCommand}"
@@ -831,12 +799,10 @@
                                         MouseAction="LeftClick" />
                                 </Button.InputBindings>
                                 <Button.Content>
-                                    <TextBlock
-                                        Text="{Binding DbEntry.CameraModel,  StringFormat='Model: {0}',Converter={StaticResource StringDefault}, ConverterParameter='(No Camera Model)'}" />
+                                    <TextBlock Text="{Binding DbEntry.CameraModel, StringFormat='Model: {0}', Converter={StaticResource StringDefault}, ConverterParameter='(No Camera Model)'}" />
                                 </Button.Content>
                             </Button>
-                            <Button
-                                ToolTip="Lens - click to search for other photos taken with this lens">
+                            <Button ToolTip="Lens - click to search for other photos taken with this lens">
                                 <Button.InputBindings>
                                     <MouseBinding
                                         Command="{Binding ItemActions.LensSearchCommand}"
@@ -844,12 +810,10 @@
                                         MouseAction="LeftClick" />
                                 </Button.InputBindings>
                                 <Button.Content>
-                                    <TextBlock
-                                        Text="{Binding DbEntry.Lens,  StringFormat='Lens: {0}',Converter={StaticResource StringDefault}, ConverterParameter='(No Lens)'}" />
+                                    <TextBlock Text="{Binding DbEntry.Lens, StringFormat='Lens: {0}', Converter={StaticResource StringDefault}, ConverterParameter='(No Lens)'}" />
                                 </Button.Content>
                             </Button>
-                            <Button
-                                ToolTip="Focal Length - click to search for other photos with this focal length">
+                            <Button ToolTip="Focal Length - click to search for other photos with this focal length">
                                 <Button.InputBindings>
                                     <MouseBinding
                                         Command="{Binding ItemActions.FocalLengthSearchCommand}"
@@ -857,12 +821,10 @@
                                         MouseAction="LeftClick" />
                                 </Button.InputBindings>
                                 <Button.Content>
-                                    <TextBlock
-                                        Text="{Binding DbEntry.FocalLength, Converter={StaticResource StringDefault}, ConverterParameter='(No Focal Length)'}" />
+                                    <TextBlock Text="{Binding DbEntry.FocalLength, Converter={StaticResource StringDefault}, ConverterParameter='(No Focal Length)'}" />
                                 </Button.Content>
                             </Button>
-                            <Button
-                                ToolTip="Aperture - click to search for other photos taken with this Aperture">
+                            <Button ToolTip="Aperture - click to search for other photos taken with this Aperture">
                                 <Button.InputBindings>
                                     <MouseBinding
                                         Command="{Binding ItemActions.ApertureSearchCommand}"
@@ -870,12 +832,10 @@
                                         MouseAction="LeftClick" />
                                 </Button.InputBindings>
                                 <Button.Content>
-                                    <TextBlock
-                                        Text="{Binding DbEntry.Aperture, Converter={StaticResource StringDefault}, ConverterParameter='(No Aperture)'}" />
+                                    <TextBlock Text="{Binding DbEntry.Aperture, Converter={StaticResource StringDefault}, ConverterParameter='(No Aperture)'}" />
                                 </Button.Content>
                             </Button>
-                            <Button
-                                ToolTip="Shutter Speed - click to search for other photos take with this Shutter Speed">
+                            <Button ToolTip="Shutter Speed - click to search for other photos take with this Shutter Speed">
                                 <Button.InputBindings>
                                     <MouseBinding
                                         Command="{Binding ItemActions.ShutterSpeedSearchCommand}"
@@ -883,12 +843,10 @@
                                         MouseAction="LeftClick" />
                                 </Button.InputBindings>
                                 <Button.Content>
-                                    <TextBlock
-                                        Text="{Binding DbEntry.ShutterSpeed, Converter={StaticResource StringDefault}, ConverterParameter='(No Shutter Speed)'}" />
+                                    <TextBlock Text="{Binding DbEntry.ShutterSpeed, Converter={StaticResource StringDefault}, ConverterParameter='(No Shutter Speed)'}" />
                                 </Button.Content>
                             </Button>
-                            <Button
-                                ToolTip="ISO - click to search for other pictures taken at this ISO">
+                            <Button ToolTip="ISO - click to search for other pictures taken at this ISO">
                                 <Button.InputBindings>
                                     <MouseBinding
                                         Command="{Binding ItemActions.IsoSearchCommand}"
@@ -995,16 +953,13 @@
                         </b:Interaction.Behaviors>
                         <b:Interaction.Triggers>
                             <b:EventTrigger EventName="SelectionChanged">
-                                <wpfBehavior:EventToCommand
-                                    Command="{Binding SelectedTextTracker.SelectedTextChangedCommand}"
-                                    PassEventArgsToCommand="True" />
+                                <wpfBehavior:EventToCommand Command="{Binding SelectedTextTracker.SelectedTextChangedCommand}" PassEventArgsToCommand="True" />
                             </b:EventTrigger>
                         </b:Interaction.Triggers>
                     </TextBox>
                     <WrapPanel Margin="0,6,0,0" Orientation="Horizontal">
                         <TextBlock VerticalAlignment="Center" TextWrapping="Wrap">
-                            <Hyperlink Command="{Binding ItemActions.ViewOnSiteCommand}"
-                                       CommandParameter="{Binding DbEntry.Url}">
+                            <Hyperlink Command="{Binding ItemActions.ViewOnSiteCommand}" CommandParameter="{Binding DbEntry.Url}">
                                 <Hyperlink.Inlines>
                                     <Run Text="{Binding DbEntry.Url}" />
                                 </Hyperlink.Inlines>
@@ -1029,10 +984,8 @@
         </Border>
     </DataTemplate>
     <collections:ArrayList x:Key="SiteMenuItemValues" x:Shared="False">
-        <MenuItem Command="{Binding ListContext.GenerateChangedHtmlAndStartUploadCommand}"
-                  Header="Generate Site and Start Upload" />
-        <MenuItem Command="{Binding ListContext.GenerateChangedHtmlAndShowSitePreviewCommand}"
-                  Header="Generate Site and Show Preview" />
+        <MenuItem Command="{Binding ListContext.GenerateChangedHtmlAndStartUploadCommand}" Header="Generate Site and Start Upload" />
+        <MenuItem Command="{Binding ListContext.GenerateChangedHtmlAndShowSitePreviewCommand}" Header="Generate Site and Show Preview" />
         <MenuItem Command="{Binding ListContext.GenerateChangedHtmlCommand}" Header="Generate Site" />
         <MenuItem Command="{Binding ListContext.ShowSitePreviewWindowCommand}" Header="Preview Site from Disk" />
     </collections:ArrayList>
@@ -1047,8 +1000,7 @@
         <MenuItem Command="{Binding ListContext.NewGeoJsonListWindowCommand}" Header="New GeoJson List Window" />
         <MenuItem Command="{Binding ListContext.NewImageListWindowCommand}" Header="New Image List Window" />
         <MenuItem Command="{Binding ListContext.NewLinkListWindowCommand}" Header="New Link List Window" />
-        <MenuItem Command="{Binding ListContext.NewMapComponentListWindowCommand}"
-                  Header="New Map Component List Window" />
+        <MenuItem Command="{Binding ListContext.NewMapComponentListWindowCommand}" Header="New Map Component List Window" />
         <MenuItem Command="{Binding ListContext.NewNoteListWindowCommand}" Header="New Note List Window" />
         <MenuItem Command="{Binding ListContext.NewPhotoListWindowCommand}" Header="New Photo List Window" />
         <MenuItem Command="{Binding ListContext.NewPointListWindowCommand}" Header="New Point List Window" />

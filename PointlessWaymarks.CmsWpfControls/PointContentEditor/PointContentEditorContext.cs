@@ -149,7 +149,7 @@ public partial class PointContentEditorContext : IHasChanges, ICheckForChangesAn
         }
 
         var possibleElevation =
-            await ElevationGuiHelper.GetElevation(LongitudeEntry.UserValue, LongitudeEntry.UserValue, StatusContext);
+            await ElevationGuiHelper.GetElevation(LatitudeEntry.UserValue, LongitudeEntry.UserValue, StatusContext);
 
         if (possibleElevation != null) ElevationEntry.UserText = possibleElevation.Value.ToString("F2");
     }
@@ -210,7 +210,7 @@ public partial class PointContentEditorContext : IHasChanges, ICheckForChangesAn
         {
             CommonContentValidation.ElevationValidation
         };
-        ElevationEntry.ComparisonFunction = (o, u) => o == null && u == null || o.IsApproximatelyEqualTo(u, .001);
+        ElevationEntry.ComparisonFunction = (o, u) => (o == null && u == null) || o.IsApproximatelyEqualTo(u, .001);
         ElevationEntry.Title = "Elevation";
         ElevationEntry.HelpText = "Elevation in Feet";
         ElevationEntry.ReferenceValue = DbEntry.Elevation;

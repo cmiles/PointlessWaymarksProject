@@ -32,4 +32,30 @@ public partial class PointContentEditorWindow
             DataContext = this;
         });
     }
+
+    public PointContentEditorWindow(double latitude, double longitude, double? elevation, string initialTitleText,
+        string initialBodyText)
+    {
+        InitializeComponent();
+        StatusContext = new StatusControlContext();
+
+        StatusContext.RunFireAndForgetBlockingTask(async () =>
+        {
+            PointContent = await PointContentEditorContext.CreateInstance(StatusContext, null);
+
+            PointContent.RequestContentEditorWindowClose += (_, _) => { Dispatcher?.Invoke(Close); };
+            AccidentalCloserHelper = new WindowAccidentalClosureHelper(this, StatusContext, PointContent);
+
+            if (!string.IsNullOrWhiteSpace(initialTitleText))
+                PointContent.TitleSummarySlugFolder.TitleEntry.UserValue = initialTitleText;
+            if (!string.IsNullOrWhiteSpace(initialBodyText)) PointContent.BodyContent.BodyContent = initialBodyText;
+
+            PointContent.LatitudeEntry.UserText = latitude.ToString("F6");
+            PointContent.LongitudeEntry.UserText = longitude.ToString("F6");
+            if (elevation != null) PointContent.ElevationEntry.UserText = elevation.Value.ToString("F2");
+
+            await ThreadSwitcher.ResumeForegroundAsync();
+            DataContext = this;
+        });
+    }
 }

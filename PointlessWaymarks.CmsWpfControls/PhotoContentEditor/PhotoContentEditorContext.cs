@@ -67,6 +67,7 @@ public partial class PhotoContentEditorContext : IHasChanges, IHasValidationIssu
     [ObservableProperty] private ContentSiteFeedAndIsDraftContext _mainSiteFeed;
     [ObservableProperty] private StringDataEntryContext _photoCreatedByEntry;
     [ObservableProperty] private ConversionDataEntryContext<DateTime> _photoCreatedOnEntry;
+    [ObservableProperty] private RelayCommand _pointFromPhotoLocationCommand;
     [ObservableProperty] private RelayCommand _renameSelectedFileCommand;
     [ObservableProperty] private bool _resizeSelectedFile;
     [ObservableProperty] private RelayCommand _rotatePhotoLeftCommand;
@@ -490,6 +491,40 @@ Photo Content Notes:
         TitleSummarySlugFolder.FolderEntry.UserValue = metadata.PhotoCreatedOn.Year.ToString("F0");
     }
 
+    private async Task PointFromPhotoLocation()
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (LatitudeEntry.UserValue == null || LongitudeEntry.UserValue == null)
+        {
+            StatusContext.ToastError("Latitude or Longitude is missing?");
+            return;
+        }
+
+        var latitudeValidation = CommonContentValidation.LatitudeValidation(LatitudeEntry.UserValue.Value);
+        var longitudeValidation = CommonContentValidation.LongitudeValidation(LongitudeEntry.UserValue.Value);
+
+        if (!latitudeValidation.Valid || !longitudeValidation.Valid)
+        {
+            StatusContext.ToastError("Latitude/Longitude is not valid?");
+            return;
+        }
+
+        var initialBody = DbEntry != null && DbEntry.ContentId != Guid.Empty
+            ? BracketCodePhotos.Create(DbEntry)
+            : string.Empty;
+
+        var initialTitle = string.IsNullOrWhiteSpace(TitleSummarySlugFolder.TitleEntry.UserValue)
+            ? string.Empty
+            : $"Point From {TitleSummarySlugFolder.TitleEntry.UserValue}";
+
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        var pointWindow = new PointContentEditorWindow(LatitudeEntry.UserValue.Value, LongitudeEntry.UserValue.Value,
+            ElevationEntry.UserValue, initialTitle, initialBody);
+        pointWindow.PositionWindowAndShow();
+    }
+
     private async Task RotateImage(Orientation rotationType)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -605,6 +640,8 @@ Photo Content Notes:
             StatusContext.RunBlockingTaskCommand(async () => await RotateImage(Orientation.Rotate90));
         RotatePhotoLeftCommand =
             StatusContext.RunBlockingTaskCommand(async () => await RotateImage(Orientation.Rotate270));
+
+        PointFromPhotoLocationCommand = StatusContext.RunBlockingTaskCommand(PointFromPhotoLocation);
 
         GetElevationCommand = StatusContext.RunBlockingTaskCommand(GetElevation);
 

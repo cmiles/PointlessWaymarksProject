@@ -32,6 +32,7 @@
                 <ResourceDictionary Source="/PointlessWaymarks.WpfCommon;component/Utility/Icons.xaml" />
             </ResourceDictionary.MergedDictionaries>
             <utility1:MetersToFeetValueConverter x:Key="MetersToFeet" />
+            <photoContentEditor:PhotoHasLatLongVisibilityConverter x:Key="PhotoHasLatLong" />
         </ResourceDictionary>
     </UserControl.Resources>
     <Grid Margin="4">
@@ -136,8 +137,7 @@
                         Show Metadata
                     </Button>
                     <Button Command="{Binding ViewSelectedFileCommand}">View Photo</Button>
-                    <Button Command="{Binding AutoRenameSelectedFileBasedOnTitleCommand}"
-                            IsEnabled="{Binding TitleSummarySlugFolder.CustomTitleFunctionEnabled}">
+                    <Button Command="{Binding AutoRenameSelectedFileBasedOnTitleCommand}" IsEnabled="{Binding TitleSummarySlugFolder.CustomTitleFunctionEnabled}">
                         Title-&gt;Name
                     </Button>
                     <Button Command="{Binding RenameSelectedFileCommand}">Rename</Button>
@@ -152,18 +152,12 @@
                 <Grid>
                     <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
                         <StackPanel Margin="4" CanHorizontallyScroll="False">
-                            <titleSummarySlugFolderEditor:TitleSummarySlugEditorControl
-                                DataContext="{Binding TitleSummarySlugFolder}" />
-                            <contentSiteFeedAndIsDraft:ContentSiteFeedAndIsDraftControl
-                                DataContext="{Binding MainSiteFeed}" />
+                            <titleSummarySlugFolderEditor:TitleSummarySlugEditorControl DataContext="{Binding TitleSummarySlugFolder}" />
+                            <contentSiteFeedAndIsDraft:ContentSiteFeedAndIsDraftControl DataContext="{Binding MainSiteFeed}" />
                             <boolDataEntry:BoolDataEntryControl Margin="4,8,0,0" DataContext="{Binding ShowSizes}" />
-                            <tagsEditor:TagsEditorControl DataContext="{Binding TagEdit}"
-                                                          Style="{StaticResource TagsEditorInPanelStyle}" />
-                            <createdAndUpdatedByAndOnDisplay:CreatedAndUpdatedByAndOnDisplayControl
-                                DataContext="{Binding CreatedUpdatedDisplay}"
-                                Style="{StaticResource CreatedUpdatedInPanelStyle}" />
-                            <contentIdViewer:ContentIdViewerControl DataContext="{Binding ContentId}"
-                                                                    Style="{StaticResource ContentIdInPanelStyle}" />
+                            <tagsEditor:TagsEditorControl DataContext="{Binding TagEdit}" Style="{StaticResource TagsEditorInPanelStyle}" />
+                            <createdAndUpdatedByAndOnDisplay:CreatedAndUpdatedByAndOnDisplayControl DataContext="{Binding CreatedUpdatedDisplay}" Style="{StaticResource CreatedUpdatedInPanelStyle}" />
+                            <contentIdViewer:ContentIdViewerControl DataContext="{Binding ContentId}" Style="{StaticResource ContentIdInPanelStyle}" />
                         </StackPanel>
                     </ScrollViewer>
                 </Grid>
@@ -180,41 +174,47 @@
                             <stringDataEntry:StringDataEntryControl DataContext="{Binding CameraModelEntry}" />
                             <stringDataEntry:StringDataEntryControl DataContext="{Binding LensEntry}" />
                             <WrapPanel Margin="0,8,0,0" Orientation="Horizontal">
-                                <stringDataEntry:StringDataEntryControl Width="120"
-                                                                        DataContext="{Binding FocalLengthEntry}" />
-                                <stringDataEntry:StringDataEntryControl Width="120"
-                                                                        DataContext="{Binding ApertureEntry}" />
-                                <stringDataEntry:StringDataEntryControl Width="120"
-                                                                        DataContext="{Binding ShutterSpeedEntry}" />
-                                <conversionDataEntry:ConversionDataEntryControl Width="120" HorizontalAlignment="Left"
+                                <stringDataEntry:StringDataEntryControl Width="120" DataContext="{Binding FocalLengthEntry}" />
+                                <stringDataEntry:StringDataEntryControl Width="120" DataContext="{Binding ApertureEntry}" />
+                                <stringDataEntry:StringDataEntryControl Width="120" DataContext="{Binding ShutterSpeedEntry}" />
+                                <conversionDataEntry:ConversionDataEntryControl
+                                    Width="120"
+                                    HorizontalAlignment="Left"
                                     DataContext="{Binding IsoEntry}" />
                             </WrapPanel>
-                            <WrapPanel Orientation="Horizontal" Margin="0,8,0,0">
-                                <conversionDataEntry:ConversionDataEntryControl Width="120"
-                                    DataContext="{Binding LatitudeEntry}" />
-                                <conversionDataEntry:ConversionDataEntryControl Width="120"
-                                    DataContext="{Binding LongitudeEntry}" />
-                            
-
-                            <StackPanel HorizontalAlignment="Left" Orientation="Horizontal">
-                                <conversionDataEntry:ConversionDataEntryControl Width="120"
-                                    DataContext="{Binding ElevationEntry}" />
-                                <Label Margin="0,0,0,-3" VerticalAlignment="Bottom">meters</Label>
-                                <TextBox
-                                    Margin="0,0,10,2"
-                                    VerticalAlignment="Bottom"
-                                    Style="{StaticResource ReadOnlyTextBoxStyle}"
-                                    Text="{Binding ElevationEntry.UserText, Converter={StaticResource MetersToFeet}, StringFormat='{}({0:N0} feet)'}"
-                                    TextAlignment="Right"
-                                    Visibility="{Binding ElevationEntry.UserText, Converter={StaticResource NullOrWhiteSpaceStringToCollapsed}}" />
+                            <WrapPanel Margin="0,8,0,0" Orientation="Horizontal">
+                                <conversionDataEntry:ConversionDataEntryControl Width="120" DataContext="{Binding LatitudeEntry}" />
+                                <conversionDataEntry:ConversionDataEntryControl Width="120" DataContext="{Binding LongitudeEntry}" />
+                                <StackPanel HorizontalAlignment="Left" Orientation="Horizontal">
+                                    <conversionDataEntry:ConversionDataEntryControl Width="120" DataContext="{Binding ElevationEntry}" />
+                                    <Label Margin="0,0,0,-3" VerticalAlignment="Bottom">meters</Label>
+                                    <TextBox
+                                        Margin="0,0,10,2"
+                                        VerticalAlignment="Bottom"
+                                        Style="{StaticResource ReadOnlyTextBoxStyle}"
+                                        Text="{Binding ElevationEntry.UserText, Converter={StaticResource MetersToFeet}, StringFormat='{}({0:N0} feet)'}"
+                                        TextAlignment="Right"
+                                        Visibility="{Binding ElevationEntry.UserText, Converter={StaticResource NullOrWhiteSpaceStringToCollapsed}}" />
+                                    <Button
+                                        Width="90"
+                                        Margin="2,2,0,1"
+                                        VerticalAlignment="Bottom"
+                                        Command="{Binding GetElevationCommand}">
+                                        Get Elevation
+                                    </Button>
+                                </StackPanel>
                                 <Button
-                                    Width="90"
-                                    Margin="2,2,0,1"
-                                    VerticalAlignment="Bottom"
-                                    Command="{Binding GetElevationCommand}">
-                                    Get Elevation
+                                    Width="326"
+                                    Margin="6,16,0,0"
+                                    Command="{Binding PointFromPhotoLocationCommand}">
+                                    <Button.Visibility>
+                                        <MultiBinding Converter="{StaticResource PhotoHasLatLong}">
+                                            <Binding Path="LatitudeEntry.UserValue" />
+                                            <Binding Path="LongitudeEntry.UserValue" />
+                                        </MultiBinding>
+                                    </Button.Visibility>
+                                    Point From Photo Location
                                 </Button>
-                            </StackPanel>
                             </WrapPanel>
                         </StackPanel>
                     </Grid>
