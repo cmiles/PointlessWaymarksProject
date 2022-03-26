@@ -22,13 +22,12 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList;
 [ObservableObject]
 public partial class PhotoListWithActionsContext
 {
-    [ObservableProperty] private StatusControlContext _statusContext;
+    [ObservableProperty] private RelayCommand _dailyPhotoLinkCodesToClipboardForSelectedCommand;
     [ObservableProperty] private RelayCommand _emailHtmlToClipboardCommand;
     [ObservableProperty] private RelayCommand _forcedResizeCommand;
     [ObservableProperty] private ContentListContext _listContext;
     [ObservableProperty] private RelayCommand _openUrlForPhotoListCommand;
     [ObservableProperty] private RelayCommand _photoLinkCodesToClipboardForSelectedCommand;
-    [ObservableProperty] private RelayCommand _dailyPhotoLinkCodesToClipboardForSelectedCommand;
     [ObservableProperty] private RelayCommand _refreshDataCommand;
     [ObservableProperty] private RelayCommand _regenerateHtmlAndReprocessPhotoForSelectedCommand;
     [ObservableProperty] private RelayCommand _reportAllPhotosCommand;
@@ -38,6 +37,7 @@ public partial class PhotoListWithActionsContext
     [ObservableProperty] private RelayCommand _reportPhotoMetadataCommand;
     [ObservableProperty] private RelayCommand _reportTakenAndLicenseYearDoNotMatchCommand;
     [ObservableProperty] private RelayCommand _reportTitleAndTakenDoNotMatchCommand;
+    [ObservableProperty] private StatusControlContext _statusContext;
     [ObservableProperty] private RelayCommand _viewFilesCommand;
     [ObservableProperty] private WindowIconStatus _windowStatus;
 
@@ -58,6 +58,27 @@ public partial class PhotoListWithActionsContext
         SetupCommands();
 
         StatusContext.RunFireAndForgetBlockingTask(ListContext.LoadData);
+    }
+
+    private async Task DailyPhotoLinkCodesToClipboardForSelected()
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (SelectedItems() == null || !SelectedItems().Any())
+        {
+            StatusContext.ToastError("Nothing Selected?");
+            return;
+        }
+
+        var finalString = SelectedItems().Aggregate(string.Empty,
+            (current, loopSelected) =>
+                current + BracketCodeDailyPhotoPage.Create(loopSelected.DbEntry) + Environment.NewLine);
+
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        Clipboard.SetText(finalString);
+
+        StatusContext.ToastSuccess($"To Clipboard {finalString}");
     }
 
 
@@ -151,7 +172,11 @@ public partial class PhotoListWithActionsContext
             {
                 ItemName = "Text Code to Clipboard", ItemCommand = PhotoLinkCodesToClipboardForSelectedCommand
             },
-            new() { ItemName = "Daily Photo Page Code to Clipboard", ItemCommand = DailyPhotoLinkCodesToClipboardForSelectedCommand},
+            new()
+            {
+                ItemName = "Daily Photo Page Code to Clipboard",
+                ItemCommand = DailyPhotoLinkCodesToClipboardForSelectedCommand
+            },
             new() { ItemName = "Email Html to Clipboard", ItemCommand = EmailHtmlToClipboardCommand },
             new() { ItemName = "View Photos", ItemCommand = ViewFilesCommand },
             new() { ItemName = "Open URL", ItemCommand = ListContext.ViewOnSiteCommand },
@@ -181,27 +206,8 @@ public partial class PhotoListWithActionsContext
         }
 
         var finalString = SelectedItems().Aggregate(string.Empty,
-            (current, loopSelected) => current + BracketCodePhotoLinks.Create(loopSelected.DbEntry) + Environment.NewLine);
-
-        await ThreadSwitcher.ResumeForegroundAsync();
-
-        Clipboard.SetText(finalString);
-
-        StatusContext.ToastSuccess($"To Clipboard {finalString}");
-    }
-
-    private async Task DailyPhotoLinkCodesToClipboardForSelected()
-    {
-        await ThreadSwitcher.ResumeBackgroundAsync();
-
-        if (SelectedItems() == null || !SelectedItems().Any())
-        {
-            StatusContext.ToastError("Nothing Selected?");
-            return;
-        }
-
-        var finalString = SelectedItems().Aggregate(string.Empty,
-            (current, loopSelected) => current + BracketCodeDailyPhotoPage.Create(loopSelected.DbEntry) + Environment.NewLine);
+            (current, loopSelected) =>
+                current + BracketCodePhotoLinks.Create(loopSelected.DbEntry) + Environment.NewLine);
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
