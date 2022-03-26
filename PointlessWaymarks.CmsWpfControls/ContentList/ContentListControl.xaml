@@ -9,7 +9,6 @@
     xmlns:dd="urn:gong-wpf-dragdrop"
     xmlns:local="clr-namespace:PointlessWaymarks.CmsWpfControls.ContentList"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:valueConverters="clr-namespace:PointlessWaymarks.WpfCommon.ValueConverters;assembly=PointlessWaymarks.WpfCommon"
     d:DataContext="{d:DesignInstance local:ContentListContext}"
     d:DesignHeight="300"
     d:DesignWidth="300"
@@ -20,7 +19,6 @@
                 <ResourceDictionary Source="../WpfControlsResourceDictionary.xaml" />
                 <ResourceDictionary Source="/PointlessWaymarks.WpfCommon;component/Utility/Icons.xaml" />
             </ResourceDictionary.MergedDictionaries>
-            <valueConverters:BooleanNotToVisibilityConverter x:Key="BooleanNotVisibility" />
             <local:ContentListDataTemplateSelector
                 x:Key="ContentListTemplateSelector"
                 FileTemplate="{StaticResource FileListItemTemplate}"
@@ -50,7 +48,7 @@
             <GroupBox
                 Header="Load All Items"
                 Style="{StaticResource UiComponentGroupBoxStyle}"
-                Visibility="{Binding ContentListLoader.AllItemsLoaded, Converter={StaticResource BooleanNotVisibility}}">
+                Visibility="{Binding ContentListLoader.AllItemsLoaded, Converter={StaticResource BooleanNotToVisibility}}">
                 <Button
                     Height="24"
                     VerticalAlignment="Center"
