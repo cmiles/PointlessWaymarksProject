@@ -1,6 +1,13 @@
-﻿using System.Windows;
+﻿using System.Collections.Immutable;
+using System.IO;
+using System.Text;
+using System.Windows;
+using System.Xml;
+using FluentMigrator.Builders.Alter.Table;
 using Microsoft.Toolkit.Mvvm.ComponentModel;
 using Microsoft.Toolkit.Mvvm.Input;
+using NetTopologySuite.IO;
+using Ookii.Dialogs.Wpf;
 using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsWpfControls.ContentList;
 using PointlessWaymarks.WpfCommon.Status;
@@ -16,6 +23,7 @@ public partial class PointListWithActionsContext
     [ObservableProperty] private ContentListContext _listContext;
     [ObservableProperty] private RelayCommand _pointLinkBracketCodesToClipboardForSelectedCommand;
     [ObservableProperty] private RelayCommand _refreshDataCommand;
+    [ObservableProperty] private RelayCommand _selectedToGpxFileCommand;
     [ObservableProperty] private WindowIconStatus _windowStatus;
 
     public PointListWithActionsContext(StatusControlContext statusContext, WindowIconStatus windowStatus = null)
@@ -24,6 +32,51 @@ public partial class PointListWithActionsContext
         WindowStatus = windowStatus;
 
         StatusContext.RunFireAndForgetBlockingTask(LoadData);
+    }
+
+    private async Task SelectedToGpxFile()
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (SelectedItems() == null || !SelectedItems().Any())
+        {
+            StatusContext.ToastError("Nothing Selected?");
+            return;
+        }
+
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        var fileDialog = new VistaSaveFileDialog
+        {
+            Filter = "gpx|*.gpx;",
+            AddExtension = true,
+            OverwritePrompt = true,
+            DefaultExt = ".gpx"
+        };
+        var fileDialogResult = fileDialog.ShowDialog();
+
+        var fileName = fileDialog.FileName;
+
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (!fileDialogResult ?? false) return;
+
+        var waypointList = new List<GpxWaypoint>();
+
+        foreach (var loopItems in SelectedItems())
+        {
+            var toAdd = new GpxWaypoint(new GpxLongitude(loopItems.DbEntry.Longitude), new GpxLatitude(loopItems.DbEntry.Latitude),
+                loopItems.DbEntry.Elevation, loopItems.DbEntry.LastUpdatedOn?.ToUniversalTime() ?? loopItems.DbEntry.CreatedOn.ToUniversalTime(), null, null,
+                loopItems.DbEntry.Title, null, loopItems.DbEntry.Summary, null, new ImmutableArray<GpxWebLink>(), null, null, null, null, null, null, null, null, null, null);
+            waypointList.Add(toAdd);
+        }
+
+        var fileStream = new FileStream(fileName, FileMode.OpenOrCreate);
+
+        var writerSettings = new XmlWriterSettings { Encoding = Encoding.UTF8, Indent = true, CloseOutput = true };
+        await using var xmlWriter = XmlWriter.Create(fileStream, writerSettings);
+        GpxWriter.Write(xmlWriter, null, new GpxMetadata("Pointless Waymarks CMS"), waypointList, null, null, null);
+        xmlWriter.Close();
     }
 
     private async Task LoadData()
@@ -35,6 +88,8 @@ public partial class PointListWithActionsContext
         RefreshDataCommand = StatusContext.RunBlockingTaskCommand(ListContext.LoadData);
         PointLinkBracketCodesToClipboardForSelectedCommand =
             StatusContext.RunNonBlockingTaskCommand(PointLinkBracketCodesToClipboardForSelected);
+        SelectedToGpxFileCommand = StatusContext.RunBlockingTaskCommand(SelectedToGpxFile);
+
 
         ListContext.ContextMenuItems = new List<ContextMenuItemData>
         {
@@ -49,6 +104,7 @@ public partial class PointListWithActionsContext
                 ItemName = "Text Code to Clipboard",
                 ItemCommand = PointLinkBracketCodesToClipboardForSelectedCommand
             },
+            new() { ItemName = "Selected Points to GPX File", ItemCommand = SelectedToGpxFileCommand },
             new() { ItemName = "Extract New Links", ItemCommand = ListContext.ExtractNewLinksSelectedCommand },
             new() { ItemName = "Open URL", ItemCommand = ListContext.ViewOnSiteCommand },
             new() { ItemName = "Delete", ItemCommand = ListContext.DeleteSelectedCommand },
