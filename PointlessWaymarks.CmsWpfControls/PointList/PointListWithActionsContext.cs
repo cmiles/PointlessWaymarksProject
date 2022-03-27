@@ -110,7 +110,7 @@ public partial class PointListWithActionsContext
 
         var fileDialog = new VistaSaveFileDialog
         {
-            Filter = "gpx|*.gpx;",
+            Filter = "gpx file (*.gpx)|*.gpx;",
             AddExtension = true,
             OverwritePrompt = true,
             DefaultExt = ".gpx"
