@@ -6,6 +6,6 @@ namespace PointlessWaymarks.CmsWpfControls.GpxImport;
 [ObservableObject]
 public partial class GpxImportTrack : IGpxImportListItem
 {
-    [ObservableProperty] private GpxTrack _gpxTrack;
     [ObservableProperty] private bool _markedForImport;
+    [ObservableProperty] private GpxTrack _track;
 }

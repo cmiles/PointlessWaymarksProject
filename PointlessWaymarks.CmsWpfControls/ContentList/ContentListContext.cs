@@ -72,7 +72,6 @@ public partial class ContentListContext : IDragSource, IDropTarget
     [ObservableProperty] private RelayCommand _loadAllCommand;
     [ObservableProperty] private MapComponentContentActions _mapComponentItemActions;
     [ObservableProperty] private NewContent _newActions;
-
     [ObservableProperty] private RelayCommand _newAllContentListWindowCommand;
     [ObservableProperty] private RelayCommand _newFileListWindowCommand;
     [ObservableProperty] private RelayCommand _newGeoJsonListWindowCommand;
