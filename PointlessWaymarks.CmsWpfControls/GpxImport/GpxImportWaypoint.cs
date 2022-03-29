@@ -8,4 +8,5 @@ public partial class GpxImportWaypoint : IGpxImportListItem
 {
     [ObservableProperty] private GpxWaypoint _waypoint;
     [ObservableProperty] private bool _markedForImport;
+    [ObservableProperty] private bool _replaceElevationOnImport;
 }

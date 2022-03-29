@@ -23,7 +23,14 @@ public partial class GpxImportWindow
         StatusContext.RunBlockingTask(async () =>
         {
             ImportContext = new GpxImportContext(StatusContext);
-            if (!string.IsNullOrWhiteSpace(initialImportFile)) await ImportContext.LoadFile(initialImportFile);
+            if (string.IsNullOrWhiteSpace(initialImportFile))
+            {
+                await ImportContext.ChooseAndLoadFile();
+            }
+            else
+            {
+                await ImportContext.LoadFile(initialImportFile);
+            }
         });
     }
 }

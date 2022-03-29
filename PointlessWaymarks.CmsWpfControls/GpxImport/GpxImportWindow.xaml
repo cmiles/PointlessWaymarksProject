@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:PointlessWaymarks.CmsWpfControls.GpxImport"
         mc:Ignorable="d"
-        Title="GpxImportWindow" Height="450" Width="800" d:DataContext="{d:DesignInstance local:GpxImportWindow}">
+        Title="GPX Import" Height="750" Width="1000" d:DataContext="{d:DesignInstance local:GpxImportWindow}">
     <Grid Margin="4">
         <local:GpxImportControl DataContext="{Binding ImportContext}"></local:GpxImportControl>
     </Grid>
