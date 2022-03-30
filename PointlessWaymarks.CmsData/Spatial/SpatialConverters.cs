@@ -44,6 +44,12 @@ public static class SpatialConverters
         return GeometryBoundingBox(geometryList, envelope);
     }
 
+    public static Envelope GeometryBoundingBox(string lineString, Envelope? envelope = null)
+    {
+        var geometryList = LineStringToGeometries(lineString);
+        return GeometryBoundingBox(geometryList, envelope);
+    }
+
     public static Envelope GeometryBoundingBox(GeoJsonContent content, Envelope? envelope = null)
     {
         var geometryList = GeoJsonContentToGeometries(content);
@@ -72,12 +78,17 @@ public static class SpatialConverters
 
     public static List<Geometry> LineContentToGeometries(LineContent content)
     {
-        if (string.IsNullOrWhiteSpace(content.Line)) return new List<Geometry>();
+        return LineStringToGeometries(content.Line ?? string.Empty);
+    }
+
+    public static List<Geometry> LineStringToGeometries(string lineString)
+    {
+        if (string.IsNullOrWhiteSpace(lineString)) return new List<Geometry>();
 
         var serializer = GeoJsonSerializer.Create(new JsonSerializerSettings { Formatting = Formatting.Indented },
             SpatialHelpers.Wgs84GeometryFactory(), 3);
 
-        using var stringReader = new StringReader(content.Line);
+        using var stringReader = new StringReader(lineString);
         using var jsonReader = new JsonTextReader(stringReader);
         var featureCollection = serializer.Deserialize<FeatureCollection>(jsonReader);
 

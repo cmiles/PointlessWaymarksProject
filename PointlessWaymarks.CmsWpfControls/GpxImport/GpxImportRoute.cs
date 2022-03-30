@@ -7,15 +7,17 @@ namespace PointlessWaymarks.CmsWpfControls.GpxImport;
 [ObservableObject]
 public partial class GpxImportRoute : IGpxImportListItem
 {
+    [ObservableProperty] private Guid _displayId;
+    [ObservableProperty] private string _lineGeoJson;
     [ObservableProperty] private bool _markedForImport;
+    [ObservableProperty] private bool _replaceElevationOnImport;
     [ObservableProperty] private GpxRoute _route;
     [ObservableProperty] private SpatialHelpers.GpxRouteInformation _routeInformation;
     [ObservableProperty] private SpatialHelpers.LineStatsInImperial _statistics;
-    [ObservableProperty] private string _lineGeoJson;
-    [ObservableProperty] private bool _replaceElevationOnImport;
 
-    public async Task LoadTrack(GpxRoute toLoad, IProgress<string> progress = null)
+    public async Task Load(GpxRoute toLoad, IProgress<string> progress = null)
     {
+        DisplayId = Guid.NewGuid();
         Route = toLoad;
         RouteInformation = SpatialHelpers.RouteInformationFromGpxRoute(toLoad);
         LineGeoJson =
