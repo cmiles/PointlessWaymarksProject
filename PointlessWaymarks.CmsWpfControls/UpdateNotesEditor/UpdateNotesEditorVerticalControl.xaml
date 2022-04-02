@@ -104,7 +104,7 @@
                             Visibility="{Binding StatusContext.BlockUi, Converter={StaticResource BooleanNotToVisibility}}">
                             <b:Interaction.Behaviors>
                                 <wpfHtml:WebViewHtmlStringBindingBehavior HtmlString="{Binding UpdateNotesHtmlOutput}" />
-                                <wpfHtml:WebViewRedirectLinksToBrowser />
+                                <wpfHtml:WebViewRedirectLinksToBrowserBehavior />
                             </b:Interaction.Behaviors>
                         </wpf:WebView2>
                     </Grid>

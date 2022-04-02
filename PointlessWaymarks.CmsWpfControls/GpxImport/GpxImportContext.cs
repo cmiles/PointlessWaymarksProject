@@ -1,14 +1,19 @@
 ﻿using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.IO;
+using System.Text.Json.Nodes;
 using Microsoft.Toolkit.Mvvm.ComponentModel;
 using Microsoft.Toolkit.Mvvm.Input;
+using Microsoft.Web.WebView2.Core;
 using NetTopologySuite.Features;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.IO;
 using Ookii.Dialogs.Wpf;
+using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.ContentHtml.GeoJsonHtml;
 using PointlessWaymarks.CmsData.Spatial;
 using PointlessWaymarks.CmsWpfControls.MapComponentEditor;
+using PointlessWaymarks.CmsWpfControls.WpfHtml;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 
@@ -18,6 +23,7 @@ namespace PointlessWaymarks.CmsWpfControls.GpxImport;
 public partial class GpxImportContext
 {
     [ObservableProperty] private RelayCommand _chooseAndLoadFileCommand;
+    [ObservableProperty] private RelayCommand<CoreWebView2WebMessageReceivedEventArgs> _mapMessageReceivedCommand;
     [ObservableProperty] private string _importFileName;
     [ObservableProperty] private ObservableCollection<IGpxImportListItem> _items;
     [ObservableProperty] private ObservableCollection<IGpxImportListItem> _listSelection;
@@ -25,12 +31,39 @@ public partial class GpxImportContext
     [ObservableProperty] private IGpxImportListItem _selectedItem;
     [ObservableProperty] private List<IGpxImportListItem> _selectedItems;
     [ObservableProperty] private StatusControlContext _statusContext;
+    [ObservableProperty] private string _previewHtml;
+
 
     public GpxImportContext(StatusControlContext statusContext)
     {
         StatusContext = statusContext ?? new StatusControlContext();
 
         ChooseAndLoadFileCommand = StatusContext.RunBlockingTaskCommand(ChooseAndLoadFile);
+        MapMessageReceivedCommand = StatusContext.RunNonBlockingTaskCommand<CoreWebView2WebMessageReceivedEventArgs>(MapMessageReceived);
+
+        PreviewHtml = WpfHtmlDocument.ToHtmlLeafletMapDocument("Map",
+            UserSettingsSingleton.CurrentSettings().LatitudeDefault,
+            UserSettingsSingleton.CurrentSettings().LongitudeDefault, string.Empty);
+
+    }
+
+    private async Task MapMessageReceived(CoreWebView2WebMessageReceivedEventArgs mapMessage)
+    {
+        await ThreadSwitcher.ResumeForegroundAsync();
+        
+        var rawMessage = mapMessage.WebMessageAsJson;
+
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        var parsedJson = JsonNode.Parse(rawMessage);
+
+        if (parsedJson == null) return;
+
+        if ((string)parsedJson["messageType"] != "messageType") return;
+
+        Console.WriteLine();
+
+
     }
 
     public async Task BuildMap()
@@ -58,7 +91,7 @@ public partial class GpxImportContext
             featureCollection.Add(new Feature(
                 SpatialHelpers.Wgs84GeometryFactory().CreateLineString(loopItem.TrackInformation.Track.ToArray()),
                 new AttributesTable(new Dictionary<string, object>
-                    { { "title", loopItem.TrackInformation.Name } })));
+                    { { "title", loopItem.TrackInformation.Name }, { "displayId", loopItem.DisplayId } })));
 
             var boundingBox = SpatialConverters.GeometryBoundingBox(loopItem.LineGeoJson);
             boundsKeeper.Add(new Point(boundingBox.MaxX,
@@ -71,7 +104,7 @@ public partial class GpxImportContext
             featureCollection.Add(new Feature(
                 SpatialHelpers.Wgs84GeometryFactory().CreateLineString(loopItem.RouteInformation.Track.ToArray()),
                 new AttributesTable(new Dictionary<string, object>
-                    { { "title", loopItem.RouteInformation.Name } })));
+                    { { "title", loopItem.RouteInformation.Name }, { "displayId", loopItem.DisplayId } })));
 
             var boundingBox = SpatialConverters.GeometryBoundingBox(loopItem.LineGeoJson);
             boundsKeeper.Add(new Point(boundingBox.MaxX,
@@ -85,7 +118,7 @@ public partial class GpxImportContext
                 SpatialHelpers.Wgs84Point(loopItem.Waypoint.Longitude, loopItem.Waypoint.Latitude,
                     loopItem.Waypoint.ElevationInMeters ?? 0),
                 new AttributesTable(new Dictionary<string, object>
-                    { { "title", loopItem.Waypoint.Name ?? string.Empty } })));
+                    { { "title", loopItem.Waypoint.Name ?? string.Empty }, { "displayId", loopItem.DisplayId } })));
             boundsKeeper.Add(new Point(loopItem.Waypoint.Longitude, loopItem.Waypoint.Latitude));
         }
 
@@ -199,5 +232,7 @@ public partial class GpxImportContext
         waypoints.ForEach(x => Items.Add(x));
         tracks.ForEach(x => Items.Add(x));
         routes.ForEach(x => Items.Add(x));
+
+        await BuildMap();
     }
 }

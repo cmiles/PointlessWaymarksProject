@@ -136,7 +136,7 @@
                         Visibility="{Binding StatusContext.BlockUi, Converter={StaticResource BooleanNotToVisibility}}">
                         <b:Interaction.Behaviors>
                             <wpfHtml:WebViewHtmlStringBindingBehavior HtmlString="{Binding BodyContentHtmlOutput}" />
-                            <wpfHtml:WebViewRedirectLinksToBrowser />
+                            <wpfHtml:WebViewRedirectLinksToBrowserBehavior />
                             <wpfHtml:WebViewSelectedTextBehavior WebViewSelectedText="{Binding UserHtmlSelectedText}" />
                         </b:Interaction.Behaviors>
                     </wpf:WebView2>

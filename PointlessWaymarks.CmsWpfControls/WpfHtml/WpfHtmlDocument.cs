@@ -228,7 +228,7 @@ public static class WpfHtmlDocument
             map.addLayer(geoMapLayer);
         }};
 
-        window.chrome.webview.postMessage('script_finished');
+        window.chrome.webview.postMessage( {{ ""messageType"": ""script-finished"" }} );
 
     </script>
 </body>
@@ -295,7 +295,7 @@ public static class WpfHtmlDocument
             map.addLayer(geoMapLayer);
         }};
 
-        window.chrome.webview.postMessage('script_finished');
+        window.chrome.webview.postMessage( {{ ""messageType"": ""script-finished"" }} );
 
     </script>
 </body>
@@ -332,7 +332,7 @@ public static class WpfHtmlDocument
 
         window.chrome.webview.addEventListener('message', postGeoJsonDataHandler);
 
-        function onEachMapGeoJsonFeature(feature, layer) {{
+         function onEachMapGeoJsonFeature(feature, layer) {{
 
             if (feature.properties && (feature.properties.title || feature.properties.description)) {{
                 let popupHtml = """";
@@ -346,8 +346,12 @@ public static class WpfHtmlDocument
                 }}
 
                 if(popupHtml !== """") layer.bindPopup(popupHtml);
+
+                layer.on('click', function (e) {{
+                    console.log(e);
+                    window.chrome.webview.postMessage({{ ""messageType"": ""featureClicked"", ""data"": e.target.feature.properties }}); }});
             }}
-        }}
+        }} 
 
         function geoJsonLayerStyle(feature) {{
             //see https://github.com/mapbox/simplestyle-spec/tree/master/1.1.0
@@ -386,7 +390,7 @@ public static class WpfHtmlDocument
                 map.addLayer(newLayer); }});
         }};
 
-        window.chrome.webview.postMessage('script_finished');
+        window.chrome.webview.postMessage( {{ ""messageType"": ""script-finished"" }} );
 
     </script>
 </body>
@@ -432,7 +436,6 @@ public static class WpfHtmlDocument
             console.log(e);
             pointContentMarker.setLatLng(e.latlng);
             window.chrome.webview.postMessage(e.latlng.lat + "";"" + e.latlng.lng);
-
         }});
 
         var pointContentMarker = new L.marker([{initialLatitude},{initialLongitude}],{{
