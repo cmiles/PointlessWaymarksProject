@@ -336,13 +336,13 @@ public static class WpfHtmlDocument
             if(e.data.MessageType === 'CenterFeatureRequest') {{
                 console.log('Center Feature Request');
                 map.eachLayer(function (l) {{ 
-                    console.log(`layer loop ${{l}}`);
                     if (l.feature?.properties?.displayId === e.data.DisplayId) {{
-                        console.log(`e.Data ${{e.Data}}`); 
                         console.log(`l.feature?.geometry?.type ${{l.feature?.geometry?.type}}`); 
                         if(l.feature?.geometry?.type === 'Point') {{
-                            console.log(`flying try ${{l.feature.geometry.coordinates[1]}} ${{l.feature.geometry.coordinates[0]}}`);
                             map.flyTo([l.feature.geometry.coordinates[1], l.feature.geometry.coordinates[0]]);
+                        }}
+                        if(l.feature?.geometry?.type === 'LineString') {{
+                            map.flyToBounds([[l.feature.bbox[1], l.feature.bbox[0]], [l.feature.bbox[3], l.feature.bbox[2]]]);
                         }}
                     }}
                 }})
