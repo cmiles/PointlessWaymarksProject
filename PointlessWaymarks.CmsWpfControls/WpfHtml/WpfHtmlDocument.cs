@@ -330,7 +330,24 @@ public static class WpfHtmlDocument
 
         L.control.layers(baseMaps).addTo(map);
 
-        window.chrome.webview.addEventListener('message', postGeoJsonDataHandler);
+        window.chrome.webview.addEventListener('message', function (e) {{
+            console.log(e);
+            if(e.data.MessageType === 'MapJsonDto') postGeoJsonDataHandler(e);
+            if(e.data.MessageType === 'CenterFeatureRequest') {{
+                console.log('Center Feature Request');
+                map.eachLayer(function (l) {{ 
+                    console.log(`layer loop ${{l}}`);
+                    if (l.feature?.properties?.displayId === e.data.DisplayId) {{
+                        console.log(`e.Data ${{e.Data}}`); 
+                        console.log(`l.feature?.geometry?.type ${{l.feature?.geometry?.type}}`); 
+                        if(l.feature?.geometry?.type === 'Point') {{
+                            console.log(`flying try ${{l.feature.geometry.coordinates[1]}} ${{l.feature.geometry.coordinates[0]}}`);
+                            map.flyTo([l.feature.geometry.coordinates[1], l.feature.geometry.coordinates[0]]);
+                        }}
+                    }}
+                }})
+            }}
+        }});
 
          function onEachMapGeoJsonFeature(feature, layer) {{
 
@@ -399,13 +416,15 @@ public static class WpfHtmlDocument
         return htmlDoc;
     }
 
-    public static async Task<string> ToHtmlLeafletPointDocument(string title, Guid? contentId, double initialLatitude, double initialLongitude,
+    public static async Task<string> ToHtmlLeafletPointDocument(string title, Guid? contentId, double initialLatitude,
+        double initialLongitude,
         string styleBlock)
     {
         var db = await Db.Context();
 
-        var otherPoints = (await db.PointContents.Where(x => x.ContentId != contentId).OrderBy(x => x.Slug).AsNoTracking()
-            .ToListAsync()).Select(x => new {x.Latitude, x.Longitude, x.Title}).ToList();
+        var otherPoints = (await db.PointContents.Where(x => x.ContentId != contentId).OrderBy(x => x.Slug)
+            .AsNoTracking()
+            .ToListAsync()).Select(x => new { x.Latitude, x.Longitude, x.Title }).ToList();
 
         var otherPointsJsonData = JsonSerializer.Serialize(otherPoints);
 

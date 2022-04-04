@@ -382,7 +382,9 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
 
                 featureCollection.Add(new Feature(
                     SpatialHelpers.Wgs84Point(loopElements.DbEntry.Longitude, loopElements.DbEntry.Latitude,
-                        loopElements.DbEntry.Elevation ?? 0), new AttributesTable(new Dictionary<string, object> {{"title", loopElements.DbEntry.Title ?? string.Empty}})));
+                        loopElements.DbEntry.Elevation ?? 0),
+                    new AttributesTable(new Dictionary<string, object>
+                        { { "title", loopElements.DbEntry.Title ?? string.Empty } })));
                 boundsKeeper.Add(new Point(loopElements.DbEntry.Longitude, loopElements.DbEntry.Latitude));
             }
 
@@ -534,5 +536,6 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
         UserGeoContentInput = string.Empty;
     }
 
-    public record MapJsonDto(Guid Identifier, GeoJsonData.SpatialBounds Bounds, List<FeatureCollection> GeoJsonLayers);
+    public record MapJsonDto(Guid Identifier, GeoJsonData.SpatialBounds Bounds, List<FeatureCollection> GeoJsonLayers,
+        string MessageType = "MapJsonDto");
 }

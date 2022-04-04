@@ -1,6 +1,7 @@
 ﻿using System.Collections.ObjectModel;
-using System.Diagnostics;
+using System.Dynamic;
 using System.IO;
+using System.Text.Json;
 using System.Text.Json.Nodes;
 using Microsoft.Toolkit.Mvvm.ComponentModel;
 using Microsoft.Toolkit.Mvvm.Input;
@@ -23,15 +24,23 @@ namespace PointlessWaymarks.CmsWpfControls.GpxImport;
 public partial class GpxImportContext
 {
     [ObservableProperty] private RelayCommand _chooseAndLoadFileCommand;
-    [ObservableProperty] private RelayCommand<CoreWebView2WebMessageReceivedEventArgs> _mapMessageReceivedCommand;
+    [ObservableProperty] private RelayCommand _clearAllForElevationReplacementCommand;
+    [ObservableProperty] private RelayCommand _clearAllForImportCommand;
     [ObservableProperty] private string _importFileName;
     [ObservableProperty] private ObservableCollection<IGpxImportListItem> _items;
     [ObservableProperty] private ObservableCollection<IGpxImportListItem> _listSelection;
+    [ObservableProperty] private RelayCommand<CoreWebView2WebMessageReceivedEventArgs> _mapMessageReceivedCommand;
+    [ObservableProperty] private RelayCommand _markAllForElevationReplacementCommand;
+    [ObservableProperty] private RelayCommand _markAllForImportCommand;
+    [ObservableProperty] private string _previewHtml;
     [ObservableProperty] private string _previewMapJsonDto;
+    [ObservableProperty] private RelayCommand<IGpxImportListItem> _requestMapCenterCommand;
     [ObservableProperty] private IGpxImportListItem _selectedItem;
     [ObservableProperty] private List<IGpxImportListItem> _selectedItems;
     [ObservableProperty] private StatusControlContext _statusContext;
-    [ObservableProperty] private string _previewHtml;
+    [ObservableProperty] private string _tagsForAllImports;
+    [ObservableProperty] private RelayCommand _toggleSelectedForElevationReplacementCommand;
+    [ObservableProperty] private RelayCommand _toggleSelectedForImportCommand;
 
 
     public GpxImportContext(StatusControlContext statusContext)
@@ -39,31 +48,24 @@ public partial class GpxImportContext
         StatusContext = statusContext ?? new StatusControlContext();
 
         ChooseAndLoadFileCommand = StatusContext.RunBlockingTaskCommand(ChooseAndLoadFile);
-        MapMessageReceivedCommand = StatusContext.RunNonBlockingTaskCommand<CoreWebView2WebMessageReceivedEventArgs>(MapMessageReceived);
+
+        MarkAllForImportCommand = StatusContext.RunBlockingTaskCommand(MarkAllForImport);
+        ClearAllForImportCommand = StatusContext.RunBlockingTaskCommand(ClearAllForImport);
+        ToggleSelectedForImportCommand = StatusContext.RunBlockingTaskCommand(ToggleSelectedForImport);
+
+        MarkAllForElevationReplacementCommand = StatusContext.RunBlockingTaskCommand(MarkAllForElevationReplacement);
+        ClearAllForElevationReplacementCommand = StatusContext.RunBlockingTaskCommand(ClearAllForElevationReplacement);
+        ToggleSelectedForElevationReplacementCommand =
+            StatusContext.RunBlockingTaskCommand(ToggleSelectedForElevationReplacement);
+
+        MapMessageReceivedCommand =
+            StatusContext.RunNonBlockingTaskCommand<CoreWebView2WebMessageReceivedEventArgs>(MapMessageReceived);
+
+        RequestMapCenterCommand = StatusContext.RunNonBlockingTaskCommand<IGpxImportListItem>(RequestMapCenter);
 
         PreviewHtml = WpfHtmlDocument.ToHtmlLeafletMapDocument("Map",
             UserSettingsSingleton.CurrentSettings().LatitudeDefault,
             UserSettingsSingleton.CurrentSettings().LongitudeDefault, string.Empty);
-
-    }
-
-    private async Task MapMessageReceived(CoreWebView2WebMessageReceivedEventArgs mapMessage)
-    {
-        await ThreadSwitcher.ResumeForegroundAsync();
-        
-        var rawMessage = mapMessage.WebMessageAsJson;
-
-        await ThreadSwitcher.ResumeBackgroundAsync();
-
-        var parsedJson = JsonNode.Parse(rawMessage);
-
-        if (parsedJson == null) return;
-
-        if ((string)parsedJson["messageType"] != "messageType") return;
-
-        Console.WriteLine();
-
-
     }
 
     public async Task BuildMap()
@@ -112,6 +114,7 @@ public partial class GpxImportContext
             boundsKeeper.Add(new Point(boundingBox.MinX, boundingBox.MinY));
         }
 
+
         foreach (var loopItem in itemList.Where(x => x is GpxImportWaypoint).Cast<GpxImportWaypoint>().ToList())
         {
             featureCollection.Add(new Feature(
@@ -158,6 +161,24 @@ public partial class GpxImportContext
         }
 
         await LoadFile(possibleFile.FullName);
+    }
+
+    public async Task ClearAllForElevationReplacement()
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (!SelectedItems?.Any() ?? true) return;
+
+        foreach (var loopItems in Items) loopItems.ReplaceElevationOnImport = false;
+    }
+
+    public async Task ClearAllForImport()
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (!SelectedItems?.Any() ?? true) return;
+
+        foreach (var loopItems in Items) loopItems.MarkedForImport = false;
     }
 
     public async Task LoadFile(string fileName)
@@ -234,5 +255,90 @@ public partial class GpxImportContext
         routes.ForEach(x => Items.Add(x));
 
         await BuildMap();
+    }
+
+    private async Task MapMessageReceived(CoreWebView2WebMessageReceivedEventArgs mapMessage)
+    {
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        var rawMessage = mapMessage.WebMessageAsJson;
+
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        var parsedJson = JsonNode.Parse(rawMessage);
+
+        if (parsedJson == null) return;
+
+        if ((string)parsedJson["messageType"] != "featureClicked") return;
+
+        Console.WriteLine("clicked");
+    }
+
+    public event EventHandler<string> MapRequest;
+
+    public async Task MarkAllForElevationReplacement()
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (!Items?.Any() ?? true) return;
+
+        foreach (var loopItems in Items) loopItems.ReplaceElevationOnImport = true;
+    }
+
+    public async Task MarkAllForImport()
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (!Items?.Any() ?? true) return;
+
+        foreach (var loopItems in Items) loopItems.MarkedForImport = true;
+    }
+
+    public async Task RequestMapCenter(IGpxImportListItem toCenter)
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        dynamic foo = new ExpandoObject();
+        foo.MessageType = "CenterFeatureRequest";
+        foo.DisplayId = toCenter.DisplayId;
+
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        MapRequest?.Invoke(this, JsonSerializer.Serialize(foo));
+    }
+
+    public async Task ToggleSelectedForElevationReplacement()
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (!SelectedItems?.Any() ?? true) return;
+
+        if (!SelectedItems?.Any() ?? true)
+        {
+            StatusContext.ToastWarning("Nothing Selected?");
+            return;
+        }
+
+        ;
+
+        foreach (var loopItems in SelectedItems)
+            loopItems.ReplaceElevationOnImport = !loopItems.ReplaceElevationOnImport;
+    }
+
+    public async Task ToggleSelectedForImport()
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (!SelectedItems?.Any() ?? true) return;
+
+        if (!SelectedItems?.Any() ?? true)
+        {
+            StatusContext.ToastWarning("Nothing Selected?");
+            return;
+        }
+
+        ;
+
+        foreach (var loopItems in SelectedItems) loopItems.MarkedForImport = !loopItems.MarkedForImport;
     }
 }

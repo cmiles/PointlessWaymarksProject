@@ -10,13 +10,14 @@ namespace PointlessWaymarks.CmsWpfControls.WpfHtml;
 public class WebViewPostJsonOnChangeBehavior : Behavior<WebView2>
 {
     public static readonly DependencyProperty JsonDataProperty = DependencyProperty.Register("JsonData",
-        typeof(string), typeof(WebViewPostJsonOnChangeBehavior), new PropertyMetadata(default(string), OnJsonDataChanged));
+        typeof(string), typeof(WebViewPostJsonOnChangeBehavior),
+        new PropertyMetadata(default(string), OnJsonDataChanged));
 
     public string CachedData { get; set; } = string.Empty;
 
     public string JsonData
     {
-        get => (string) GetValue(JsonDataProperty);
+        get => (string)GetValue(JsonDataProperty);
         set => SetValue(JsonDataProperty, value);
     }
 
@@ -25,7 +26,7 @@ public class WebViewPostJsonOnChangeBehavior : Behavior<WebView2>
         if (!(e?.WebMessageAsJson?.Contains("script-finished") ?? false)) return;
 
         if (string.IsNullOrWhiteSpace(CachedData)) return;
-        
+
         await ThreadSwitcher.ResumeForegroundAsync();
         await PostNewJson(this, CachedData);
     }
@@ -38,7 +39,8 @@ public class WebViewPostJsonOnChangeBehavior : Behavior<WebView2>
 
     private static async void OnJsonDataChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
     {
-        if (d is WebViewPostJsonOnChangeBehavior bindingBehavior) await PostNewJson(bindingBehavior, e.NewValue as string);
+        if (d is WebViewPostJsonOnChangeBehavior bindingBehavior)
+            await PostNewJson(bindingBehavior, e.NewValue as string);
     }
 
     private async void OnLoaded(object sender, RoutedEventArgs e)

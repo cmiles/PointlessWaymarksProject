@@ -1,4 +1,5 @@
-﻿using System.Windows.Controls;
+﻿using System.Windows;
+using System.Windows.Controls;
 
 namespace PointlessWaymarks.CmsWpfControls.GpxImport;
 
@@ -10,6 +11,29 @@ public partial class GpxImportControl
     public GpxImportControl()
     {
         InitializeComponent();
+    }
+
+    private void GpxImportControl_OnLoaded(object sender, RoutedEventArgs e)
+    {
+        if (DataContext is GpxImportContext gpxContext)
+        {
+            gpxContext.MapRequest -= OnGpxContextOnMapRequest;
+            gpxContext.MapRequest += OnGpxContextOnMapRequest;
+        }
+    }
+
+    private void OnGpxContextOnMapRequest(object _, string json)
+    {
+        GpxImportWebView.CoreWebView2.PostWebMessageAsJson(json);
+    }
+
+    private void PointContentEditorControl_OnDataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
+    {
+        if (e.NewValue is GpxImportContext gpxContext)
+        {
+            gpxContext.MapRequest -= OnGpxContextOnMapRequest;
+            gpxContext.MapRequest += OnGpxContextOnMapRequest;
+        }
     }
 
     private void Selector_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
