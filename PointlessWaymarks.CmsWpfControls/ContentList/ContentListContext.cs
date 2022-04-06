@@ -685,7 +685,6 @@ public partial class ContentListContext : IDragSource, IDropTarget
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
-
         var sitePreviewWindow = new SiteOnDiskPreviewWindow();
         sitePreviewWindow.PositionWindowAndShow();
     }

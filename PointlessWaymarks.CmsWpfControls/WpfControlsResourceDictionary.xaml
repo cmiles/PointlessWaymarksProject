@@ -21,7 +21,8 @@
     xmlns:wpfBehavior="clr-namespace:PointlessWaymarks.WpfCommon.Behaviors;assembly=PointlessWaymarks.WpfCommon"
     xmlns:wpfConverter="clr-namespace:PointlessWaymarks.WpfCommon.ValueConverters;assembly=PointlessWaymarks.WpfCommon">
     <wpfConverter:NullOrWhiteSpaceStringToCollapsedVisibilityConverter x:Key="NullOrWhiteSpaceStringToCollapsed" />
-    <wpfConverter:NullOrWhiteSpaceStringToDefaultConverter x:Key="StringDefault" />
+    <wpfConverter:NullOrWhiteSpaceStringToVisibleVisibilityConverter x:Key="NullOrWhiteSpaceStringToVisible" />
+    <wpfConverter:NullOrWhiteSpaceStringToDefaultConverter x:Key="NullOrWhiteSpaceStringToDefault" />
     <wpfConverter:IsoConverter x:Key="IsoWithDefault" />
     <wpfConverter:CreatedOnDayConverter x:Key="CreatedOnDay" />
     <wpfConverter:BooleanToVisibilityConverter x:Key="BooleanToVisibility" />
@@ -788,7 +789,7 @@
                                         MouseAction="LeftClick" />
                                 </Button.InputBindings>
                                 <Button.Content>
-                                    <TextBlock Text="{Binding DbEntry.CameraMake, StringFormat='Make: {0}', Converter={StaticResource StringDefault}, ConverterParameter='(No Camera Make)'}" />
+                                    <TextBlock Text="{Binding DbEntry.CameraMake, StringFormat='Make: {0}', Converter={StaticResource NullOrWhiteSpaceStringToDefault}, ConverterParameter='(No Camera Make)'}" />
                                 </Button.Content>
                             </Button>
                             <Button ToolTip="Camera Model - click to search for other photos with this Camera Model">
@@ -799,7 +800,7 @@
                                         MouseAction="LeftClick" />
                                 </Button.InputBindings>
                                 <Button.Content>
-                                    <TextBlock Text="{Binding DbEntry.CameraModel, StringFormat='Model: {0}', Converter={StaticResource StringDefault}, ConverterParameter='(No Camera Model)'}" />
+                                    <TextBlock Text="{Binding DbEntry.CameraModel, StringFormat='Model: {0}', Converter={StaticResource NullOrWhiteSpaceStringToDefault}, ConverterParameter='(No Camera Model)'}" />
                                 </Button.Content>
                             </Button>
                             <Button ToolTip="Lens - click to search for other photos taken with this lens">
@@ -810,7 +811,7 @@
                                         MouseAction="LeftClick" />
                                 </Button.InputBindings>
                                 <Button.Content>
-                                    <TextBlock Text="{Binding DbEntry.Lens, StringFormat='Lens: {0}', Converter={StaticResource StringDefault}, ConverterParameter='(No Lens)'}" />
+                                    <TextBlock Text="{Binding DbEntry.Lens, StringFormat='Lens: {0}', Converter={StaticResource NullOrWhiteSpaceStringToDefault}, ConverterParameter='(No Lens)'}" />
                                 </Button.Content>
                             </Button>
                             <Button ToolTip="Focal Length - click to search for other photos with this focal length">
@@ -821,7 +822,7 @@
                                         MouseAction="LeftClick" />
                                 </Button.InputBindings>
                                 <Button.Content>
-                                    <TextBlock Text="{Binding DbEntry.FocalLength, Converter={StaticResource StringDefault}, ConverterParameter='(No Focal Length)'}" />
+                                    <TextBlock Text="{Binding DbEntry.FocalLength, Converter={StaticResource NullOrWhiteSpaceStringToDefault}, ConverterParameter='(No Focal Length)'}" />
                                 </Button.Content>
                             </Button>
                             <Button ToolTip="Aperture - click to search for other photos taken with this Aperture">
@@ -832,7 +833,7 @@
                                         MouseAction="LeftClick" />
                                 </Button.InputBindings>
                                 <Button.Content>
-                                    <TextBlock Text="{Binding DbEntry.Aperture, Converter={StaticResource StringDefault}, ConverterParameter='(No Aperture)'}" />
+                                    <TextBlock Text="{Binding DbEntry.Aperture, Converter={StaticResource NullOrWhiteSpaceStringToDefault}, ConverterParameter='(No Aperture)'}" />
                                 </Button.Content>
                             </Button>
                             <Button ToolTip="Shutter Speed - click to search for other photos take with this Shutter Speed">
@@ -843,7 +844,7 @@
                                         MouseAction="LeftClick" />
                                 </Button.InputBindings>
                                 <Button.Content>
-                                    <TextBlock Text="{Binding DbEntry.ShutterSpeed, Converter={StaticResource StringDefault}, ConverterParameter='(No Shutter Speed)'}" />
+                                    <TextBlock Text="{Binding DbEntry.ShutterSpeed, Converter={StaticResource NullOrWhiteSpaceStringToDefault}, ConverterParameter='(No Shutter Speed)'}" />
                                 </Button.Content>
                             </Button>
                             <Button ToolTip="ISO - click to search for other pictures taken at this ISO">

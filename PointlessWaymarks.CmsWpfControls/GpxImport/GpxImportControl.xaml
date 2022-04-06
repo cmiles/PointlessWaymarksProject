@@ -27,15 +27,23 @@
             <Style x:Key="ImportWrapTextBlockItem" TargetType="TextBlock">
                 <Setter Property="Margin" Value="0,0,12,0" />
             </Style>
+            <Style x:Key="ImportWrapTextBoxNameContent" TargetType="TextBox">
+                <Setter Property="Margin" Value="0,0,12,0" />
+                <Setter Property="Padding" Value="2,0,8,0" />
+            </Style>
             <Style x:Key="ImportWrapContainer" TargetType="WrapPanel">
-                <Setter Property="Margin" Value="0,6,0,0" />
+                <Setter Property="Margin" Value="10,6,0,0" />
             </Style>
             <Style x:Key="ImportImportChoiceContainer" TargetType="WrapPanel">
-                <Setter Property="Margin" Value="6,12,0,12" />
+                <Setter Property="Margin" Value="10,12,0,6" />
                 <Setter Property="Orientation" Value="Horizontal" />
             </Style>
             <Style x:Key="ImportImportChoiceItem" TargetType="CheckBox">
                 <Setter Property="Margin" Value="0,0,12,0" />
+            </Style>
+            <Style x:Key="MapCenterButton" TargetType="Button">
+                <Setter Property="VerticalAlignment" Value="Bottom" />
+                <Setter Property="HorizontalAlignment" Value="Right" />
             </Style>
             <DataTemplate x:Key="GpxImportWaypointItemTemplate" DataType="local:GpxImportWaypoint">
                 <Border Style="{StaticResource ContentListOuterBorderStyle}">
@@ -43,36 +51,48 @@
                         <StackPanel Margin="4" Orientation="Vertical">
                             <WrapPanel Orientation="Horizontal">
                                 <TextBlock Style="{StaticResource ImportWrapTextBlockItem}">Waypoint</TextBlock>
-                                <TextBlock
+                                <TextBox
                                     FontWeight="Bold"
+                                    Style="{StaticResource ImportWrapTextBoxNameContent}"
+                                    Text="{Binding UserContentName}" />
+                                <TextBlock
                                     Style="{StaticResource ImportWrapTextBlockItem}"
-                                    Text="{Binding Waypoint.Name}" />
+                                    Text="{Binding Waypoint.ElevationInMeters, StringFormat='Elevation {0:F2} (m)'}"
+                                    Visibility="{Binding Waypoint.ElevationInMeters, Converter={StaticResource NullOrWhiteSpaceStringToCollapsed}}" />
+                                <TextBlock
+                                    Style="{StaticResource ImportWrapTextBlockItem}"
+                                    Text="(No Elevation)"
+                                    Visibility="{Binding Waypoint.ElevationInMeters, Converter={StaticResource NullOrWhiteSpaceStringToVisible}}" />
+                                <TextBlock
+                                    Style="{StaticResource ImportWrapTextBlockItem}"
+                                    Text="{Binding CreatedOn, StringFormat='{}{0:G}'}"
+                                    Visibility="{Binding CreatedOn, Converter={StaticResource NullOrWhiteSpaceStringToCollapsed}}" />
                             </WrapPanel>
-                            <TextBlock
-                                Margin="0,6,0,0"
-                                Text="{Binding Waypoint.Description}"
-                                TextWrapping="Wrap"
-                                Visibility="{Binding Waypoint.Description, Converter={StaticResource NullOrWhiteSpaceStringToCollapsed}}" />
-                            <TextBlock
-                                Text="{Binding Waypoint.Comment}"
-                                TextWrapping="Wrap"
-                                Visibility="{Binding Waypoint.Comment, Converter={StaticResource NullOrWhiteSpaceStringToCollapsed}}" />
+                            <Grid Margin="0,12,0,6">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition />
+                                </Grid.ColumnDefinitions>
+                                <Label>Summary:</Label>
+                                <TextBox
+                                    Grid.Column="1"
+                                    AcceptsReturn="True"
+                                    Text="{Binding UserSummary}"
+                                    TextWrapping="Wrap" />
+                            </Grid>
                             <WrapPanel Style="{StaticResource ImportImportChoiceContainer}">
-                                <CheckBox IsChecked="{Binding MarkedForImport}"
-                                          Style="{StaticResource ImportImportChoiceItem}">
+                                <CheckBox IsChecked="{Binding MarkedForImport}" Style="{StaticResource ImportImportChoiceItem}">
                                     Import
                                 </CheckBox>
-                                <CheckBox IsChecked="{Binding ReplaceElevationOnImport}"
-                                          Style="{StaticResource ImportImportChoiceItem}">
+                                <CheckBox IsChecked="{Binding ReplaceElevationOnImport}" Style="{StaticResource ImportImportChoiceItem}">
                                     Replace Elevation on Import
                                 </CheckBox>
                             </WrapPanel>
                         </StackPanel>
                         <Button
-                            HorizontalAlignment="Right"
-                            VerticalAlignment="Top"
                             Command="{Binding Data.RequestMapCenterCommand, Source={StaticResource proxy}}"
-                            CommandParameter="{Binding .}">
+                            CommandParameter="{Binding .}"
+                            Style="{StaticResource MapCenterButton}">
                             Center
                         </Button>
                     </Grid>
@@ -84,50 +104,45 @@
                         <StackPanel Margin="4" Orientation="Vertical">
                             <WrapPanel Orientation="Horizontal">
                                 <TextBlock Style="{StaticResource ImportWrapTextBlockItem}">Track</TextBlock>
-                                <TextBlock
+                                <TextBox
                                     FontWeight="Bold"
-                                    Style="{StaticResource ImportWrapTextBlockItem}"
-                                    Text="{Binding Track.Name}" />
-                                <TextBlock Style="{StaticResource ImportWrapTextBlockItem}"
-                                           Text="{Binding Statistics.Length, StringFormat='{}{0:F2} Miles'}" />
+                                    Style="{StaticResource ImportWrapTextBoxNameContent}"
+                                    Text="{Binding UserContentName}" />
+                                <TextBlock Style="{StaticResource ImportWrapTextBlockItem}" Text="{Binding Statistics.Length, StringFormat='{}{0:F2} Miles'}" />
                             </WrapPanel>
-                            <TextBlock
-                                Margin="0,6,0,0"
-                                Text="{Binding Track.Description}"
-                                TextWrapping="Wrap"
-                                Visibility="{Binding Track.Description, Converter={StaticResource NullOrWhiteSpaceStringToCollapsed}}" />
-                            <TextBlock
-                                Text="{Binding Track.Comment}"
-                                TextWrapping="Wrap"
-                                Visibility="{Binding Track.Comment, Converter={StaticResource NullOrWhiteSpaceStringToCollapsed}}" />
+                            <Grid Margin="0,12,0,6">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition />
+                                </Grid.ColumnDefinitions>
+                                <Label>Summary:</Label>
+                                <TextBox
+                                    Grid.Column="1"
+                                    AcceptsReturn="True"
+                                    Text="{Binding UserSummary}"
+                                    TextWrapping="Wrap" />
+                            </Grid>
                             <WrapPanel Orientation="Horizontal" Style="{StaticResource ImportWrapContainer}">
-                                <TextBlock Style="{StaticResource ImportWrapTextBlockItem}"
-                                           Text="{Binding Statistics.MinimumElevation, StringFormat='{}{0:F2} Min Elevation (m)'}" />
-                                <TextBlock Style="{StaticResource ImportWrapTextBlockItem}"
-                                           Text="{Binding Statistics.MaximumElevation, StringFormat='{}{0:F2} Max Elevation (m)'}" />
+                                <TextBlock Style="{StaticResource ImportWrapTextBlockItem}" Text="{Binding Statistics.MinimumElevation, StringFormat='{}{0:F2} Min Elevation (m)'}" />
+                                <TextBlock Style="{StaticResource ImportWrapTextBlockItem}" Text="{Binding Statistics.MaximumElevation, StringFormat='{}{0:F2} Max Elevation (m)'}" />
                             </WrapPanel>
                             <WrapPanel Orientation="Horizontal" Style="{StaticResource ImportWrapContainer}">
-                                <TextBlock Style="{StaticResource ImportWrapTextBlockItem}"
-                                           Text="{Binding TrackInformation.StartsOn, StringFormat='Starts: {0}'}" />
-                                <TextBlock Style="{StaticResource ImportWrapTextBlockItem}"
-                                           Text="{Binding TrackInformation.EndsOn, StringFormat='Ends: {0}'}" />
+                                <TextBlock Style="{StaticResource ImportWrapTextBlockItem}" Text="{Binding TrackInformation.StartsOn, StringFormat='Starts: {0}'}" />
+                                <TextBlock Style="{StaticResource ImportWrapTextBlockItem}" Text="{Binding TrackInformation.EndsOn, StringFormat='Ends: {0}'}" />
                             </WrapPanel>
                             <WrapPanel Style="{StaticResource ImportImportChoiceContainer}">
-                                <CheckBox IsChecked="{Binding MarkedForImport}"
-                                          Style="{StaticResource ImportImportChoiceItem}">
+                                <CheckBox IsChecked="{Binding MarkedForImport}" Style="{StaticResource ImportImportChoiceItem}">
                                     Import
                                 </CheckBox>
-                                <CheckBox IsChecked="{Binding ReplaceElevationOnImport}"
-                                          Style="{StaticResource ImportImportChoiceItem}">
+                                <CheckBox IsChecked="{Binding ReplaceElevationOnImport}" Style="{StaticResource ImportImportChoiceItem}">
                                     Replace Elevation on Import
                                 </CheckBox>
                             </WrapPanel>
                         </StackPanel>
                         <Button
-                            HorizontalAlignment="Right"
-                            VerticalAlignment="Top"
                             Command="{Binding Data.RequestMapCenterCommand, Source={StaticResource proxy}}"
-                            CommandParameter="{Binding .}">
+                            CommandParameter="{Binding .}"
+                            Style="{StaticResource MapCenterButton}">
                             Center
                         </Button>
                     </Grid>
@@ -139,44 +154,45 @@
                         <StackPanel Margin="4" Orientation="Vertical">
                             <WrapPanel Orientation="Horizontal">
                                 <TextBlock Style="{StaticResource ImportWrapTextBlockItem}">Track</TextBlock>
-                                <TextBlock
+                                <TextBox
                                     FontWeight="Bold"
+                                    Style="{StaticResource ImportWrapTextBoxNameContent}"
+                                    Text="{Binding UserContentName}" />
+                                <TextBlock Style="{StaticResource ImportWrapTextBlockItem}" Text="{Binding Statistics.Length, StringFormat='{}{0:F2} Miles'}" />
+                                <TextBlock
                                     Style="{StaticResource ImportWrapTextBlockItem}"
-                                    Text="{Binding Route.Name}" />
-                                <TextBlock Style="{StaticResource ImportWrapTextBlockItem}"
-                                           Text="{Binding Statistics.Length, StringFormat='{}{0:F2} Miles'}" />
+                                    Text="{Binding CreatedOn, StringFormat='{}{0:G}'}"
+                                    Visibility="{Binding CreatedOn, Converter={StaticResource NullOrWhiteSpaceStringToCollapsed}}" />
                             </WrapPanel>
-                            <TextBlock
-                                Margin="0,6,0,0"
-                                Text="{Binding Route.Description}"
-                                TextWrapping="Wrap"
-                                Visibility="{Binding Route.Description, Converter={StaticResource NullOrWhiteSpaceStringToCollapsed}}" />
-                            <TextBlock
-                                Text="{Binding Route.Comment}"
-                                TextWrapping="Wrap"
-                                Visibility="{Binding Route.Comment, Converter={StaticResource NullOrWhiteSpaceStringToCollapsed}}" />
+                            <Grid Margin="0,12,0,6">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition />
+                                </Grid.ColumnDefinitions>
+                                <Label>Summary:</Label>
+                                <TextBox
+                                    Grid.Column="1"
+                                    AcceptsReturn="True"
+                                    Text="{Binding UserSummary}"
+                                    TextWrapping="Wrap" />
+                            </Grid>
                             <WrapPanel Orientation="Horizontal" Style="{StaticResource ImportWrapContainer}">
-                                <TextBlock Style="{StaticResource ImportWrapTextBlockItem}"
-                                           Text="{Binding Statistics.MinimumElevation, StringFormat='{}{0:F2} Min Elevation (m)'}" />
-                                <TextBlock Style="{StaticResource ImportWrapTextBlockItem}"
-                                           Text="{Binding Statistics.MaximumElevation, StringFormat='{}{0:F2} Max Elevation (m)'}" />
+                                <TextBlock Style="{StaticResource ImportWrapTextBlockItem}" Text="{Binding Statistics.MinimumElevation, StringFormat='{}{0:F2} Min Elevation (m)'}" />
+                                <TextBlock Style="{StaticResource ImportWrapTextBlockItem}" Text="{Binding Statistics.MaximumElevation, StringFormat='{}{0:F2} Max Elevation (m)'}" />
                             </WrapPanel>
                             <WrapPanel Style="{StaticResource ImportImportChoiceContainer}">
-                                <CheckBox IsChecked="{Binding MarkedForImport}"
-                                          Style="{StaticResource ImportImportChoiceItem}">
+                                <CheckBox IsChecked="{Binding MarkedForImport}" Style="{StaticResource ImportImportChoiceItem}">
                                     ImportS
                                 </CheckBox>
-                                <CheckBox IsChecked="{Binding ReplaceElevationOnImport}"
-                                          Style="{StaticResource ImportImportChoiceItem}">
+                                <CheckBox IsChecked="{Binding ReplaceElevationOnImport}" Style="{StaticResource ImportImportChoiceItem}">
                                     Replace Elevation on Import
                                 </CheckBox>
                             </WrapPanel>
                         </StackPanel>
                         <Button
-                            HorizontalAlignment="Right"
-                            VerticalAlignment="Top"
                             Command="{Binding Data.RequestMapCenterCommand, Source={StaticResource proxy}}"
-                            CommandParameter="{Binding .}">
+                            CommandParameter="{Binding .}"
+                            Style="{StaticResource MapCenterButton}">
                             Center
                         </Button>
                     </Grid>
@@ -203,12 +219,10 @@
             Grid.Column="0"
             Header="Import Data"
             Style="{StaticResource UiComponentGroupBoxStyle}">
-            <wpf:WebView2 x:Name="GpxImportWebView"
-                          Visibility="{Binding StatusContext.BlockUi, Converter={StaticResource BooleanNotToVisibility}}">
+            <wpf:WebView2 x:Name="GpxImportWebView" Visibility="{Binding StatusContext.BlockUi, Converter={StaticResource BooleanNotToVisibility}}">
                 <b:Interaction.Triggers>
                     <b:EventTrigger EventName="WebMessageReceived">
-                        <behaviors:EventToCommand Command="{Binding MapMessageReceivedCommand, Mode=OneWay}"
-                                                  PassEventArgsToCommand="True" />
+                        <behaviors:EventToCommand Command="{Binding MapMessageReceivedCommand, Mode=OneWay}" PassEventArgsToCommand="True" />
                     </b:EventTrigger>
                 </b:Interaction.Triggers>
                 <b:Interaction.Behaviors>
@@ -239,16 +253,12 @@
                     Style="{StaticResource ContentListListBoxStyle}">
                     <ListBox.ContextMenu>
                         <ContextMenu>
-                            <MenuItem Command="{Binding ToggleSelectedForImportCommand}"
-                                      Header="Toggle Selected For Import" />
+                            <MenuItem Command="{Binding ToggleSelectedForImportCommand}" Header="Toggle Selected For Import" />
                             <MenuItem Command="{Binding MarkAllForImportCommand}" Header="Mark All For Import" />
                             <MenuItem Command="{Binding ClearAllForImportCommand}" Header="Clear All For Import" />
-                            <MenuItem Command="{Binding ToggleSelectedForElevationReplacementCommand}"
-                                      Header="Toggle Selected For Elevation Replacement" />
-                            <MenuItem Command="{Binding MarkAllForElevationReplacementCommand}"
-                                      Header="Mark All For Elevation Replacement" />
-                            <MenuItem Command="{Binding ClearAllForElevationReplacementCommand}"
-                                      Header="Clear All For Elevation Replacement" />
+                            <MenuItem Command="{Binding ToggleSelectedForElevationReplacementCommand}" Header="Toggle Selected For Elevation Replacement" />
+                            <MenuItem Command="{Binding MarkAllForElevationReplacementCommand}" Header="Mark All For Elevation Replacement" />
+                            <MenuItem Command="{Binding ClearAllForElevationReplacementCommand}" Header="Clear All For Elevation Replacement" />
                         </ContextMenu>
                     </ListBox.ContextMenu>
                 </ListBox>
@@ -256,10 +266,13 @@
             <GroupBox
                 Grid.Row="1"
                 VerticalAlignment="Stretch"
-                Header="Tags for All Imports"
+                Header="Import Options"
                 Style="{StaticResource UiComponentGroupBoxStyle}">
-                <TextBox Style="{StaticResource DataEntryTextBoxMultiLineStyle}"
-                         Text="{Binding TagsForAllImports, UpdateSourceTrigger=PropertyChanged}" />
+                <StackPanel Margin="0,6,0,8" Orientation="Vertical">
+                    <CheckBox Margin="4,0,0,0" IsChecked="{Binding AutoSaveImports}">Try to Auto-Save Imports</CheckBox>
+                    <Label Margin="0,2,0,0">Tags for All Import Items:</Label>
+                    <TextBox Style="{StaticResource DataEntryTextBoxMultiLineStyle}" Text="{Binding TagsForAllImports, UpdateSourceTrigger=PropertyChanged}" />
+                </StackPanel>
             </GroupBox>
         </Grid>
         <Border
