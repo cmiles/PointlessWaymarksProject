@@ -1,5 +1,6 @@
 ﻿using Microsoft.Toolkit.Mvvm.ComponentModel;
 using NetTopologySuite.IO;
+using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.Spatial;
 
 namespace PointlessWaymarks.CmsWpfControls.GpxImport;
@@ -26,9 +27,19 @@ public partial class GpxImportTrack : IGpxImportListItem
         LineGeoJson =
             await SpatialHelpers.GeoJsonWithLineStringFromCoordinateList(TrackInformation.Track, false, progress);
         Statistics = SpatialHelpers.LineStatsInImperialFromCoordinateList(TrackInformation.Track);
-        UserContentName = toLoad.Name ?? string.Empty;
+
         CreatedOn = toLoad.Segments.FirstOrDefault()?.Waypoints.FirstOrDefault()?.TimestampUtc
             ?.ToLocalTime();
+
+        UserContentName = toLoad.Name.TrimNullToEmpty();
+        if (string.IsNullOrWhiteSpace(UserContentName))
+        {
+            if (CreatedOn != null) UserContentName = $"{CreatedOn:yyyy MMMM} ";
+            UserContentName = $"{UserContentName}Track";
+            if (TrackInformation.Track.Any())
+                UserContentName =
+                    $"{UserContentName} Starting {TrackInformation.Track.First().Y:F2}, {TrackInformation.Track.First().X:F2}";
+        }
 
         var userSummary = string.Empty;
 

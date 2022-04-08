@@ -9,8 +9,10 @@ using Microsoft.Web.WebView2.Core;
 using NetTopologySuite.Features;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.IO;
+using Omu.ValueInjecter;
 using Ookii.Dialogs.Wpf;
 using PointlessWaymarks.CmsData;
+using PointlessWaymarks.CmsData.Content;
 using PointlessWaymarks.CmsData.ContentHtml;
 using PointlessWaymarks.CmsData.ContentHtml.GeoJsonHtml;
 using PointlessWaymarks.CmsData.Database;
@@ -18,9 +20,11 @@ using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsData.Spatial;
 using PointlessWaymarks.CmsData.Spatial.Elevation;
 using PointlessWaymarks.CmsWpfControls.MapComponentEditor;
+using PointlessWaymarks.CmsWpfControls.PointContentEditor;
 using PointlessWaymarks.CmsWpfControls.WpfHtml;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
+using PointlessWaymarks.WpfCommon.Utility;
 using Serilog;
 
 namespace PointlessWaymarks.CmsWpfControls.GpxImport;
@@ -32,6 +36,7 @@ public partial class GpxImportContext
     [ObservableProperty] private RelayCommand _chooseAndLoadFileCommand;
     [ObservableProperty] private RelayCommand _clearAllForElevationReplacementCommand;
     [ObservableProperty] private RelayCommand _clearAllForImportCommand;
+    [ObservableProperty] private RelayCommand _importCommand;
     [ObservableProperty] private string _importFileName;
     [ObservableProperty] private ObservableCollection<IGpxImportListItem> _items;
     [ObservableProperty] private ObservableCollection<IGpxImportListItem> _listSelection;
@@ -40,6 +45,7 @@ public partial class GpxImportContext
     [ObservableProperty] private RelayCommand _markAllForImportCommand;
     [ObservableProperty] private string _previewHtml;
     [ObservableProperty] private string _previewMapJsonDto;
+    [ObservableProperty] private RelayCommand _removeSelectedFromListCommand;
     [ObservableProperty] private RelayCommand<IGpxImportListItem> _requestMapCenterCommand;
     [ObservableProperty] private IGpxImportListItem _selectedItem;
     [ObservableProperty] private List<IGpxImportListItem> _selectedItems;
@@ -58,6 +64,8 @@ public partial class GpxImportContext
         MarkAllForImportCommand = StatusContext.RunBlockingTaskCommand(MarkAllForImport);
         ClearAllForImportCommand = StatusContext.RunBlockingTaskCommand(ClearAllForImport);
         ToggleSelectedForImportCommand = StatusContext.RunBlockingTaskCommand(ToggleSelectedForImport);
+        RemoveSelectedFromListCommand = StatusContext.RunBlockingTaskCommand(RemoveSelectedFromList);
+        ImportCommand = StatusContext.RunBlockingTaskCommand(Import);
 
         MarkAllForElevationReplacementCommand = StatusContext.RunBlockingTaskCommand(MarkAllForElevationReplacement);
         ClearAllForElevationReplacementCommand = StatusContext.RunBlockingTaskCommand(ClearAllForElevationReplacement);
@@ -72,35 +80,6 @@ public partial class GpxImportContext
         PreviewHtml = WpfHtmlDocument.ToHtmlLeafletMapDocument("Map",
             UserSettingsSingleton.CurrentSettings().LatitudeDefault,
             UserSettingsSingleton.CurrentSettings().LongitudeDefault, string.Empty);
-    }
-
-    public async Task AutoSavePoint(GpxImportWaypoint toImport, List<CoordinateZ> elevationLookupCache)
-    {
-        var newPoint = new PointContent();
-        newPoint.ContentId = Guid.NewGuid();
-        newPoint.Title = string.IsNullOrWhiteSpace(toImport.Waypoint.Name)
-            ? $"Waypoint {toImport.Waypoint.Latitude:F2}, {toImport.Waypoint.Longitude:F2}"
-            : toImport.Waypoint.Name;
-        newPoint.Slug = SlugUtility.Create(true);
-        newPoint.Summary = string.IsNullOrWhiteSpace(toImport.Waypoint.Comment)
-            ? string.IsNullOrWhiteSpace(toImport.Waypoint.Description)
-                ? "Imported Waypoint"
-                : toImport.Waypoint.Description
-            : toImport.Waypoint.Comment;
-        newPoint.BodyContent = string.IsNullOrWhiteSpace(toImport.Waypoint.Comment)
-            ? string.Empty
-            : toImport.Waypoint.Description;
-        newPoint.BodyContentFormat = ContentFormatDefaults.Content.ToString();
-        newPoint.CreatedOn = DateTime.Now;
-        newPoint.CreatedBy = string.IsNullOrWhiteSpace(UserSettingsSingleton.CurrentSettings().DefaultCreatedBy)
-            ? "GPX Importer"
-            : UserSettingsSingleton.CurrentSettings().DefaultCreatedBy;
-
-        newPoint.Latitude = toImport.Waypoint.Latitude;
-        newPoint.Longitude = toImport.Waypoint.Longitude;
-        newPoint.Elevation = toImport.Waypoint.ElevationInMeters.MetersToFeet();
-
-        //use elevation Lookup Cache
     }
 
     public async Task BuildMap()
@@ -216,6 +195,64 @@ public partial class GpxImportContext
         foreach (var loopItems in Items) loopItems.MarkedForImport = false;
     }
 
+    public async Task<(PointContentDto newPoint, bool validationError, string validationErrorNote)> GpxImportToPoint(
+        GpxImportWaypoint toImport, List<CoordinateZ> elevationLookupCache)
+    {
+        StatusContext.Progress($"Processing {toImport.UserContentName} into Point Content");
+
+        var frozenNow = DateTime.Now;
+
+        var newPoint = new PointContentDto
+        {
+            ContentId = Guid.NewGuid(),
+            Title = toImport.UserContentName,
+            Slug = SlugUtility.Create(true, toImport.UserContentName),
+            Summary = string.IsNullOrWhiteSpace(toImport.Waypoint.Comment)
+                ? string.IsNullOrWhiteSpace(toImport.Waypoint.Description)
+                    ? "Imported Waypoint"
+                    : toImport.Waypoint.Description
+                : toImport.Waypoint.Comment,
+            BodyContent = string.IsNullOrWhiteSpace(toImport.Waypoint.Comment)
+                ? string.Empty
+                : toImport.Waypoint.Description,
+            BodyContentFormat = ContentFormatDefaults.Content.ToString(),
+            CreatedOn = frozenNow,
+            CreatedBy = string.IsNullOrWhiteSpace(UserSettingsSingleton.CurrentSettings().DefaultCreatedBy)
+                ? "GPX Importer"
+                : UserSettingsSingleton.CurrentSettings().DefaultCreatedBy,
+            FeedOn = frozenNow,
+            Latitude = toImport.Waypoint.Latitude,
+            Longitude = toImport.Waypoint.Longitude,
+            Elevation = toImport.Waypoint.ElevationInMeters.MetersToFeet(),
+            Folder =
+                toImport.CreatedOn == null ? frozenNow.ToString("yyyy") : toImport.CreatedOn.Value.ToString("yyyy"),
+            UpdateNotesFormat = ContentFormatDefaults.Content.ToString()
+        };
+
+        if (toImport.CreatedOn != null)
+            newPoint.BodyContent =
+                $"{newPoint.BodyContent}{Environment.NewLine}Point Dated {toImport.CreatedOn.Value:dddd, M/d/yyy h:mm:ss tt}.";
+
+        if (!string.IsNullOrWhiteSpace(TagsForAllImports))
+            newPoint.Tags = Db.TagListParseCleanAndJoin(TagsForAllImports);
+
+        //use elevation Lookup Cache
+        if (toImport.ReplaceElevationOnImport)
+        {
+            StatusContext.Progress($"Checking for replacement Elevation for {toImport.UserContentName}");
+
+            var newElevation =
+                elevationLookupCache.FirstOrDefault(x =>
+                    x.Equals2D(new Coordinate(newPoint.Longitude, newPoint.Latitude)));
+            if (newElevation != null) newPoint.Elevation = newElevation.Z;
+            else StatusContext.Progress($"Elevation NOT FOUND for replacement for {newPoint.Title}...");
+        }
+
+        var validationResult = await PointGenerator.Validate(newPoint);
+
+        return (newPoint, validationResult.HasError, validationResult.GenerationNote);
+    }
+
     public async Task Import()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -228,10 +265,30 @@ public partial class GpxImportContext
 
         var importItems = Items.Where(x => x.MarkedForImport).ToList();
 
+        if (!importItems.Any())
+        {
+            StatusContext.ToastError("Nothing marked to Import?");
+            return;
+        }
+
         if (importItems.Count > 10 && !AutoSaveImports)
         {
             await StatusContext.ShowMessageWithOkButton("Import Overload",
                 $"You have selected {importItems.Count} items to import but don't have 'Auto-Save' selected - each item will open a new editor window and you are currently trying to open more than 10 editor windows at once. Either select fewer items or retry your import with 'Auto-Save' selected.");
+            return;
+        }
+
+        if (AutoSaveImports && importItems.Any(x => !CommonContentValidation.ValidateTitle(x.UserContentName).Valid))
+        {
+            await StatusContext.ShowMessageWithOkButton("Import Validation Error",
+                "With Auto-Save selected all items for import must have a Name that isn't blank.");
+            return;
+        }
+
+        if (AutoSaveImports && importItems.Any(x => string.IsNullOrWhiteSpace(x.UserSummary)))
+        {
+            await StatusContext.ShowMessageWithOkButton("Import Validation Error",
+                "With Auto-Save selected all items for import must have a Summary that isn't blank.");
             return;
         }
 
@@ -244,7 +301,7 @@ public partial class GpxImportContext
         if (importItems.Any(x => x.ReplaceElevationOnImport))
         {
             var elevationsToReplace = new List<CoordinateZ>();
-            ;
+
             var elevationItems = importItems.Where(x => x.ReplaceElevationOnImport).ToList();
 
             foreach (var loopItems in elevationItems)
@@ -267,10 +324,75 @@ public partial class GpxImportContext
                 }
 
             elevationCache =
-                await ElevationService.OpenTopoNedElevation(elevationCache, StatusContext.ProgressTracker());
+                await ElevationService.OpenTopoNedElevation(elevationsToReplace, StatusContext.ProgressTracker());
         }
 
-        //loop imports
+        var pointReturns =
+            new List<(PointContentDto point, GpxImportWaypoint listWaypoint, bool hasError, string validationNote)>();
+
+        foreach (var gpxImportWaypoints in importItems.Where(x => x is GpxImportWaypoint).Cast<GpxImportWaypoint>()
+                     .ToList())
+        {
+            var convertedPoint = await GpxImportToPoint(gpxImportWaypoints, elevationCache);
+            pointReturns.Add((convertedPoint.newPoint, gpxImportWaypoints, convertedPoint.validationError,
+                convertedPoint.validationErrorNote));
+        }
+
+        if (AutoSaveImports)
+        {
+            var failedValidationReturns = pointReturns.Where(x => x.hasError).ToList();
+
+            if (failedValidationReturns.Any())
+            {
+                var errorString = string.Join(Environment.NewLine, failedValidationReturns.Select(x =>
+                    $"Point: Title '{x.point.Title}', {x.point.Latitude:F2}, {x.point.Longitude:F2}:{Environment.NewLine}{x.validationNote}"));
+
+                await StatusContext.ShowMessageWithOkButton("Import Auto-Save Failure",
+                    $"There were validation problems - nothing was saved - errors: {Environment.NewLine}{errorString}");
+                return;
+            }
+
+            var importTime = DateTime.Now;
+
+            foreach (var loopPoints in pointReturns)
+            {
+                var saveResult =
+                    await PointGenerator.SaveAndGenerateHtml(loopPoints.point, importTime,
+                        StatusContext.ProgressTracker());
+
+                if (saveResult.generationReturn.HasError)
+                {
+                    var editorPoint = new PointContent();
+                    editorPoint.InjectFrom(loopPoints.point);
+
+                    await ThreadSwitcher.ResumeForegroundAsync();
+
+                    var editor = new PointContentEditorWindow(editorPoint);
+                    editor.PositionWindowAndShow();
+
+                    await ThreadSwitcher.ResumeBackgroundAsync();
+                }
+
+                await RemoveFromList(loopPoints.listWaypoint.DisplayId);
+            }
+        }
+        else
+        {
+            foreach (var loopPoints in pointReturns)
+            {
+                var editorPoint = new PointContent();
+                editorPoint.InjectFrom(loopPoints.point);
+
+                await ThreadSwitcher.ResumeForegroundAsync();
+
+                var editor = new PointContentEditorWindow(editorPoint);
+                editor.PositionWindowAndShow();
+
+                await ThreadSwitcher.ResumeBackgroundAsync();
+
+                await RemoveFromList(loopPoints.listWaypoint.DisplayId);
+            }
+        }
     }
 
     public async Task LoadFile(string fileName)
@@ -418,6 +540,37 @@ public partial class GpxImportContext
         foreach (var loopItems in Items) loopItems.MarkedForImport = true;
     }
 
+    public async Task RemoveFromList(Guid displayId)
+    {
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        await RemoveFromList(Items.Where(x => x.DisplayId == displayId).Select(x => x.DisplayId).ToList());
+    }
+
+    public async Task RemoveFromList(List<Guid> displayIds)
+    {
+        if (displayIds == null || !displayIds.Any()) return;
+
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        var toRemove = Items.Where(x => displayIds.Contains(x.DisplayId)).ToList();
+
+        toRemove.ForEach(x => Items.Remove(x));
+    }
+
+    public async Task RemoveSelectedFromList()
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (!SelectedItems.Any())
+        {
+            StatusContext.ToastWarning("Nothing to Remove?");
+            return;
+        }
+
+        await RemoveFromList(SelectedItems.Select(x => x.DisplayId).ToList());
+    }
+
     public async Task RequestMapCenter(IGpxImportListItem toCenter)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -443,8 +596,6 @@ public partial class GpxImportContext
             return;
         }
 
-        ;
-
         foreach (var loopItems in SelectedItems)
             loopItems.ReplaceElevationOnImport = !loopItems.ReplaceElevationOnImport;
     }
@@ -460,8 +611,6 @@ public partial class GpxImportContext
             StatusContext.ToastWarning("Nothing Selected?");
             return;
         }
-
-        ;
 
         foreach (var loopItems in SelectedItems) loopItems.MarkedForImport = !loopItems.MarkedForImport;
     }

@@ -1,5 +1,6 @@
 ﻿using Microsoft.Toolkit.Mvvm.ComponentModel;
 using NetTopologySuite.IO;
+using PointlessWaymarks.CmsData;
 
 namespace PointlessWaymarks.CmsWpfControls.GpxImport;
 
@@ -19,7 +20,15 @@ public partial class GpxImportWaypoint : IGpxImportListItem
     {
         DisplayId = Guid.NewGuid();
         Waypoint = toLoad;
-        UserContentName = toLoad.Name ?? string.Empty;
+
+        UserContentName = toLoad.Name.TrimNullToEmpty();
+        if (string.IsNullOrWhiteSpace(toLoad.Name))
+        {
+            UserContentName = toLoad.TimestampUtc != null
+                ? $"{toLoad.TimestampUtc:yyyy MMMM} Waypoint {toLoad.Latitude:F2}, {toLoad.Longitude:F2}"
+                : $"Waypoint {toLoad.Latitude:F2}, {toLoad.Longitude:F2}";
+        }
+
         CreatedOn = toLoad.TimestampUtc?.ToLocalTime();
 
         var userSummary = string.Empty;

@@ -1994,6 +1994,13 @@ public static class Db
             .ToLower();
     }
 
+
+    /// <summary>
+    ///     Cleans and joins a list of tags into a string suitable for use as a database Tag value with this programs
+    ///     conventions.
+    /// </summary>
+    /// <param name="tagList"></param>
+    /// <returns></returns>
     public static string TagListJoin(List<string> tagList)
     {
         if (tagList.Count < 1) return string.Empty;
@@ -2023,6 +2030,11 @@ public static class Db
         return string.Join(",", cleanedList);
     }
 
+    /// <summary>
+    ///     Converts a string into a List of Tags - resulting tags will be cleaned/converted according to program conventions
+    /// </summary>
+    /// <param name="rawTagString"></param>
+    /// <returns></returns>
     public static List<string> TagListParse(string? rawTagString)
     {
         if (rawTagString == null) return new List<string>();
@@ -2030,6 +2042,20 @@ public static class Db
 
         return rawTagString.Split(",").Select(TagListItemCleanup).Where(x => !string.IsNullOrWhiteSpace(x)).Distinct()
             .OrderBy(x => x).ToList();
+    }
+
+    /// <summary>
+    ///     Takes an incoming string, parses and cleans tags according to program conventions, joins the tags
+    ///     back into a string. This can be used to convert user input into a database
+    ///     appropriate tag value. Note: the output of this method will be clean and correctly formatted but may not
+    ///     be what the user intended - this method may be best used in a situation where the user has had
+    ///     a preview of the converted content.
+    /// </summary>
+    /// <param name="toClean"></param>
+    /// <returns></returns>
+    public static string TagListParseCleanAndJoin(string? toClean)
+    {
+        return TagListJoin(TagListParse(toClean));
     }
 
     public static List<string> TagListParseToSlugs(string? rawTagString, bool removeExcludedTags)

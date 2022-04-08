@@ -522,6 +522,9 @@ Photo Content Notes:
 
         var pointWindow = new PointContentEditorWindow(LatitudeEntry.UserValue.Value, LongitudeEntry.UserValue.Value,
             ElevationEntry.UserValue, initialTitle, initialBody);
+
+        pointWindow.PointContent.TitleSummarySlugFolder.SlugEntry.UserValue = SlugUtility.Create(true, initialTitle);
+
         pointWindow.PositionWindowAndShow();
     }
 
