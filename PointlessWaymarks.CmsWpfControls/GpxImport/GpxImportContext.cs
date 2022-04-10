@@ -1,6 +1,7 @@
 ﻿using System.Collections.ObjectModel;
 using System.Dynamic;
 using System.IO;
+using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using Microsoft.Toolkit.Mvvm.ComponentModel;
@@ -19,6 +20,7 @@ using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsData.Spatial;
 using PointlessWaymarks.CmsData.Spatial.Elevation;
+using PointlessWaymarks.CmsWpfControls.LineContentEditor;
 using PointlessWaymarks.CmsWpfControls.MapComponentEditor;
 using PointlessWaymarks.CmsWpfControls.PointContentEditor;
 using PointlessWaymarks.CmsWpfControls.WpfHtml;
@@ -195,10 +197,63 @@ public partial class GpxImportContext
         foreach (var loopItems in Items) loopItems.MarkedForImport = false;
     }
 
+    public async Task<(LineContent newLine, bool validationError, string validationErrorNote)> GpxImportRouteToLine(
+        GpxImportRoute toImport, List<CoordinateZ> elevationLookupCache)
+    {
+        StatusContext.Progress($"Processing Route {toImport.UserContentName} into Line Content");
+
+        var frozenNow = DateTime.Now;
+
+        //use elevation Lookup Cache
+        if (toImport.ReplaceElevationOnImport)
+        {
+            StatusContext.Progress($"Replacing Elevations for Route {toImport.UserContentName}");
+
+            foreach (var loopRoutePoint in toImport.RouteInformation.Track)
+            {
+                var newElevation =
+                    elevationLookupCache.FirstOrDefault(x =>
+                        x.Equals2D(loopRoutePoint));
+                if (newElevation != null) loopRoutePoint.Z = newElevation.Z;
+            }
+        }
+
+        var newLine =
+            await LineGenerator.NewFromGpxTrack(toImport.RouteInformation, false, StatusContext.ProgressTracker());
+
+        newLine.ContentId = Guid.NewGuid();
+        newLine.Title = toImport.UserContentName;
+        newLine.Slug = SlugUtility.Create(true, toImport.UserContentName);
+        newLine.Summary = string.IsNullOrWhiteSpace(toImport.Route.Comment)
+            ? string.IsNullOrWhiteSpace(toImport.Route.Description)
+                ? "Imported Route"
+                : toImport.Route.Description
+            : toImport.Route.Comment;
+        newLine.BodyContent = string.IsNullOrWhiteSpace(toImport.Route.Comment)
+            ? string.Empty
+            : toImport.Route.Description;
+        newLine.CreatedBy = string.IsNullOrWhiteSpace(UserSettingsSingleton.CurrentSettings().DefaultCreatedBy)
+            ? "GPX Importer"
+            : UserSettingsSingleton.CurrentSettings().DefaultCreatedBy;
+        newLine.Folder =
+            toImport.CreatedOn == null ? frozenNow.ToString("yyyy") : toImport.CreatedOn.Value.ToString("yyyy");
+
+        if (toImport.CreatedOn != null)
+            newLine.BodyContent =
+                $"{newLine.BodyContent}{Environment.NewLine}Point Dated {toImport.CreatedOn.Value:dddd, M/d/yyy h:mm:ss tt}.";
+
+        if (!string.IsNullOrWhiteSpace(TagsForAllImports))
+            newLine.Tags = Db.TagListParseCleanAndJoin(TagsForAllImports);
+
+        var validationResult = await LineGenerator.Validate(newLine);
+
+        return (newLine, validationResult.HasError, validationResult.GenerationNote);
+    }
+
     public async Task<(PointContentDto newPoint, bool validationError, string validationErrorNote)> GpxImportToPoint(
         GpxImportWaypoint toImport, List<CoordinateZ> elevationLookupCache)
     {
-        StatusContext.Progress($"Processing {toImport.UserContentName} into Point Content");
+        StatusContext.Progress($"Processing Waypoint {toImport.UserContentName} into Point Content");
 
         var frozenNow = DateTime.Now;
 
@@ -251,6 +306,59 @@ public partial class GpxImportContext
         var validationResult = await PointGenerator.Validate(newPoint);
 
         return (newPoint, validationResult.HasError, validationResult.GenerationNote);
+    }
+
+    public async Task<(LineContent newLine, bool validationError, string validationErrorNote)> GpxImportTrackToLine(
+        GpxImportTrack toImport, List<CoordinateZ> elevationLookupCache)
+    {
+        StatusContext.Progress($"Processing Track {toImport.UserContentName} into Line Content");
+
+        var frozenNow = DateTime.Now;
+
+        //use elevation Lookup Cache
+        if (toImport.ReplaceElevationOnImport)
+        {
+            StatusContext.Progress($"Replacing Elevations for Track {toImport.UserContentName}");
+
+            foreach (var loopTrackPoint in toImport.TrackInformation.Track)
+            {
+                var newElevation =
+                    elevationLookupCache.FirstOrDefault(x =>
+                        x.Equals2D(loopTrackPoint));
+                if (newElevation != null) loopTrackPoint.Z = newElevation.Z;
+            }
+        }
+
+        var newLine =
+            await LineGenerator.NewFromGpxTrack(toImport.TrackInformation, false, StatusContext.ProgressTracker());
+
+        newLine.ContentId = Guid.NewGuid();
+        newLine.Title = toImport.UserContentName;
+        newLine.Slug = SlugUtility.Create(true, toImport.UserContentName);
+        newLine.Summary = string.IsNullOrWhiteSpace(toImport.Track.Comment)
+            ? string.IsNullOrWhiteSpace(toImport.Track.Description)
+                ? "Imported Track"
+                : toImport.Track.Description
+            : toImport.Track.Comment;
+        newLine.BodyContent = string.IsNullOrWhiteSpace(toImport.Track.Comment)
+            ? string.Empty
+            : toImport.Track.Description;
+        newLine.CreatedBy = string.IsNullOrWhiteSpace(UserSettingsSingleton.CurrentSettings().DefaultCreatedBy)
+            ? "GPX Importer"
+            : UserSettingsSingleton.CurrentSettings().DefaultCreatedBy;
+        newLine.Folder =
+            toImport.CreatedOn == null ? frozenNow.ToString("yyyy") : toImport.CreatedOn.Value.ToString("yyyy");
+
+        if (toImport.CreatedOn != null)
+            newLine.BodyContent =
+                $"{newLine.BodyContent}{Environment.NewLine}Point Dated {toImport.CreatedOn.Value:dddd, M/d/yyy h:mm:ss tt}.";
+
+        if (!string.IsNullOrWhiteSpace(TagsForAllImports))
+            newLine.Tags = Db.TagListParseCleanAndJoin(TagsForAllImports);
+
+        var validationResult = await LineGenerator.Validate(newLine);
+
+        return (newLine, validationResult.HasError, validationResult.GenerationNote);
     }
 
     public async Task Import()
@@ -338,17 +446,57 @@ public partial class GpxImportContext
                 convertedPoint.validationErrorNote));
         }
 
+        var trackReturns =
+            new List<(LineContent line, GpxImportTrack listTrack, bool hasError, string validationNote)>();
+
+        foreach (var gpxImportTrack in importItems.Where(x => x is GpxImportTrack).Cast<GpxImportTrack>()
+                     .ToList())
+        {
+            var convertedPoint = await GpxImportTrackToLine(gpxImportTrack, elevationCache);
+            trackReturns.Add((convertedPoint.newLine, gpxImportTrack, convertedPoint.validationError,
+                convertedPoint.validationErrorNote));
+        }
+
+        var routeReturns =
+            new List<(LineContent line, GpxImportRoute listRoute, bool hasError, string validationNote)>();
+
+        foreach (var gpxImportRoute in importItems.Where(x => x is GpxImportRoute).Cast<GpxImportRoute>()
+                     .ToList())
+        {
+            var convertedPoint = await GpxImportRouteToLine(gpxImportRoute, elevationCache);
+            routeReturns.Add((convertedPoint.newLine, gpxImportRoute, convertedPoint.validationError,
+                convertedPoint.validationErrorNote));
+        }
+
         if (AutoSaveImports)
         {
-            var failedValidationReturns = pointReturns.Where(x => x.hasError).ToList();
+            var failedPointValidationReturns = pointReturns.Where(x => x.hasError).ToList();
+            var failedTrackValidationReturns = trackReturns.Where(x => x.hasError).ToList();
+            var failedRouteValidationReturns = routeReturns.Where(x => x.hasError).ToList();
 
-            if (failedValidationReturns.Any())
+            if (failedPointValidationReturns.Any() || failedTrackValidationReturns.Any() ||
+                failedRouteValidationReturns.Any())
             {
-                var errorString = string.Join(Environment.NewLine, failedValidationReturns.Select(x =>
-                    $"Point: Title '{x.point.Title}', {x.point.Latitude:F2}, {x.point.Longitude:F2}:{Environment.NewLine}{x.validationNote}"));
+                var errorBuilder = new StringBuilder();
+
+                if (failedPointValidationReturns.Any())
+                    errorBuilder.AppendLine(string.Join($"{Environment.NewLine}{Environment.NewLine}",
+                        failedPointValidationReturns.Select(x =>
+                            $"Point: Title '{x.point.Title}', {x.point.Latitude:F2}, {x.point.Longitude:F2}:{Environment.NewLine}{x.validationNote}")));
+
+                if (failedTrackValidationReturns.Any())
+                    errorBuilder.AppendLine(string.Join($"{Environment.NewLine}{Environment.NewLine}",
+                        failedTrackValidationReturns.Select(x =>
+                            $"Track: Title '{x.line.Title}', Distance: {x.line.LineDistance:F2} miles:{Environment.NewLine}{x.validationNote}")));
+
+                if (failedRouteValidationReturns.Any())
+                    errorBuilder.AppendLine(string.Join($"{Environment.NewLine}{Environment.NewLine}",
+                        failedTrackValidationReturns.Select(x =>
+                            $"Route: Title '{x.line.Title}', Distance: {x.line.LineDistance:F2} miles:{Environment.NewLine}{x.validationNote}")));
 
                 await StatusContext.ShowMessageWithOkButton("Import Auto-Save Failure",
-                    $"There were validation problems - nothing was saved - errors: {Environment.NewLine}{errorString}");
+                    $"There were validation problems - nothing was saved - errors: {Environment.NewLine}{errorBuilder}");
+
                 return;
             }
 
@@ -375,6 +523,50 @@ public partial class GpxImportContext
 
                 await RemoveFromList(loopPoints.listWaypoint.DisplayId);
             }
+
+            foreach (var loopTrack in trackReturns)
+            {
+                var saveResult =
+                    await LineGenerator.SaveAndGenerateHtml(loopTrack.line, importTime,
+                        StatusContext.ProgressTracker());
+
+                if (saveResult.generationReturn.HasError)
+                {
+                    var editorLine = new LineContent();
+                    editorLine.InjectFrom(loopTrack.line);
+
+                    await ThreadSwitcher.ResumeForegroundAsync();
+
+                    var editor = new LineContentEditorWindow(editorLine);
+                    editor.PositionWindowAndShow();
+
+                    await ThreadSwitcher.ResumeBackgroundAsync();
+                }
+
+                await RemoveFromList(loopTrack.listTrack.DisplayId);
+            }
+
+            foreach (var loopRoute in routeReturns)
+            {
+                var saveResult =
+                    await LineGenerator.SaveAndGenerateHtml(loopRoute.line, importTime,
+                        StatusContext.ProgressTracker());
+
+                if (saveResult.generationReturn.HasError)
+                {
+                    var editorLine = new LineContent();
+                    editorLine.InjectFrom(loopRoute.line);
+
+                    await ThreadSwitcher.ResumeForegroundAsync();
+
+                    var editor = new LineContentEditorWindow(editorLine);
+                    editor.PositionWindowAndShow();
+
+                    await ThreadSwitcher.ResumeBackgroundAsync();
+                }
+
+                await RemoveFromList(loopRoute.listRoute.DisplayId);
+            }
         }
         else
         {
@@ -391,6 +583,36 @@ public partial class GpxImportContext
                 await ThreadSwitcher.ResumeBackgroundAsync();
 
                 await RemoveFromList(loopPoints.listWaypoint.DisplayId);
+            }
+
+            foreach (var loopTrack in trackReturns)
+            {
+                var editorLine = new LineContent();
+                editorLine.InjectFrom(loopTrack.line);
+
+                await ThreadSwitcher.ResumeForegroundAsync();
+
+                var editor = new LineContentEditorWindow(editorLine);
+                editor.PositionWindowAndShow();
+
+                await ThreadSwitcher.ResumeBackgroundAsync();
+
+                await RemoveFromList(loopTrack.listTrack.DisplayId);
+            }
+
+            foreach (var loopRoute in routeReturns)
+            {
+                var editorLine = new LineContent();
+                editorLine.InjectFrom(loopRoute.line);
+
+                await ThreadSwitcher.ResumeForegroundAsync();
+
+                var editor = new LineContentEditorWindow(editorLine);
+                editor.PositionWindowAndShow();
+
+                await ThreadSwitcher.ResumeBackgroundAsync();
+
+                await RemoveFromList(loopRoute.listRoute.DisplayId);
             }
         }
     }
