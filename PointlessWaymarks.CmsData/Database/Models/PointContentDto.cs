@@ -6,6 +6,7 @@ public class PointContentDto : IUpdateNotes, IContentCommon
     public double Latitude { get; set; }
     public double Longitude { get; set; }
     public List<PointDetail> PointDetails { get; set; } = new();
+    public string? TextMarkerText { get; set; }
     public string? BodyContent { get; set; }
     public string? BodyContentFormat { get; set; }
     public Guid ContentId { get; set; }

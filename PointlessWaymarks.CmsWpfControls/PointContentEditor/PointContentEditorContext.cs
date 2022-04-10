@@ -17,6 +17,7 @@ using PointlessWaymarks.CmsWpfControls.ConversionDataEntry;
 using PointlessWaymarks.CmsWpfControls.CreatedAndUpdatedByAndOnDisplay;
 using PointlessWaymarks.CmsWpfControls.HelpDisplay;
 using PointlessWaymarks.CmsWpfControls.PointDetailEditor;
+using PointlessWaymarks.CmsWpfControls.StringDataEntry;
 using PointlessWaymarks.CmsWpfControls.TagsEditor;
 using PointlessWaymarks.CmsWpfControls.TitleSummarySlugFolderEditor;
 using PointlessWaymarks.CmsWpfControls.UpdateNotesEditor;
@@ -50,6 +51,7 @@ public partial class PointContentEditorContext : IHasChanges, ICheckForChangesAn
     [ObservableProperty] private RelayCommand _saveCommand;
     [ObservableProperty] private StatusControlContext _statusContext;
     [ObservableProperty] private TagsEditorContext _tagEdit;
+    [ObservableProperty] private StringDataEntryContext _textMarkerTextContent;
     [ObservableProperty] private TitleSummarySlugEditorContext _titleSummarySlugFolder;
     [ObservableProperty] private UpdateNotesEditorContext _updateNotes;
     [ObservableProperty] private RelayCommand _viewOnSiteCommand;
@@ -203,6 +205,13 @@ public partial class PointContentEditorContext : IHasChanges, ICheckForChangesAn
         UpdateNotes = await UpdateNotesEditorContext.CreateInstance(StatusContext, DbEntry);
         TagEdit = TagsEditorContext.CreateInstance(StatusContext, DbEntry);
         BodyContent = await BodyContentEditorContext.CreateInstance(StatusContext, DbEntry);
+
+        TextMarkerTextContent = StringDataEntryContext.CreateInstance();
+        TextMarkerTextContent.Title = "Text Marker";
+        TextMarkerTextContent.HelpText =
+            "This text will be used as the 'marker' on the map instead of a standard symbol. A very short string is likely best...";
+        TextMarkerTextContent.ReferenceValue = DbEntry.TextMarkerText ?? string.Empty;
+        TextMarkerTextContent.UserValue = StringHelpers.NullToEmptyTrim(DbEntry?.TextMarkerText);
 
         ElevationEntry =
             ConversionDataEntryContext<double?>.CreateInstance(ConversionDataEntryHelpers.DoubleNullableConversion);
