@@ -4,21 +4,21 @@ using FluentMigrator;
 namespace PointlessWaymarks.CmsData.Database.Migrations;
 
 [Migration(202204100000)]
-public class AddPointTextMarkerText : Migration
+public class AddPointContentMapLabel : Migration
 {
     public override void Down()
     {
-        throw new DataException("No Down Available for Migration AddPointMarkerText");
+        throw new DataException("No Down Available for Migration AddPointContentMapLabel");
     }
 
     public override void Up()
     {
-        if (!Schema.Table("PointContents").Column("TextMarkerText").Exists())
+        if (!Schema.Table("PointContents").Column("MapLabel").Exists())
             Execute.Sql(@"ALTER TABLE PointContents 
-                    ADD COLUMN TextMarkerText TEXT");
+                    ADD COLUMN MapLabel TEXT");
 
-        if (!Schema.Table("HistoricPointContents").Column("TextMarkerText").Exists())
+        if (!Schema.Table("HistoricPointContents").Column("MapLabel").Exists())
             Execute.Sql(@"ALTER TABLE HistoricPointContents 
-                    ADD COLUMN TextMarkerText TEXT");
+                    ADD COLUMN MapLabel TEXT");
     }
 }

@@ -28,7 +28,7 @@ public static class GrandCanyonPointInfo
             UpdateNotesFormat = ContentFormatDefaults.Content.ToString(),
             Latitude = 36.079982,
             Longitude = -112.229061,
-            TextMarkerText = "vp",
+            MapLabel = "vp",
             PointDetails = new List<PointDetail>
             {
                 new()
@@ -62,7 +62,7 @@ public static class GrandCanyonPointInfo
             Latitude = 36.079982,
             Longitude = -112.229061,
             Elevation = 6630,
-            TextMarkerText = "vp",
+            MapLabel = "vp",
             LastUpdatedBy = "Elevation Updater",
             LastUpdatedOn = new DateTime(2020, 9, 21, 8, 20, 16),
             PointDetails = new List<PointDetail>

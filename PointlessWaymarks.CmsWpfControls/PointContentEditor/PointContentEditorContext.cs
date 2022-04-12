@@ -46,12 +46,12 @@ public partial class PointContentEditorContext : IHasChanges, ICheckForChangesAn
     [ObservableProperty] private RelayCommand _linkToClipboardCommand;
     [ObservableProperty] private ConversionDataEntryContext<double> _longitudeEntry;
     [ObservableProperty] private ContentSiteFeedAndIsDraftContext _mainSiteFeed;
+    [ObservableProperty] private StringDataEntryContext _mapLabelContent;
     [ObservableProperty] private PointDetailListContext _pointDetails;
     [ObservableProperty] private RelayCommand _saveAndCloseCommand;
     [ObservableProperty] private RelayCommand _saveCommand;
     [ObservableProperty] private StatusControlContext _statusContext;
     [ObservableProperty] private TagsEditorContext _tagEdit;
-    [ObservableProperty] private StringDataEntryContext _textMarkerTextContent;
     [ObservableProperty] private TitleSummarySlugEditorContext _titleSummarySlugFolder;
     [ObservableProperty] private UpdateNotesEditorContext _updateNotes;
     [ObservableProperty] private RelayCommand _viewOnSiteCommand;
@@ -206,12 +206,12 @@ public partial class PointContentEditorContext : IHasChanges, ICheckForChangesAn
         TagEdit = TagsEditorContext.CreateInstance(StatusContext, DbEntry);
         BodyContent = await BodyContentEditorContext.CreateInstance(StatusContext, DbEntry);
 
-        TextMarkerTextContent = StringDataEntryContext.CreateInstance();
-        TextMarkerTextContent.Title = "Text Marker";
-        TextMarkerTextContent.HelpText =
-            "This text will be used as the 'marker' on the map instead of a standard symbol. A very short string is likely best...";
-        TextMarkerTextContent.ReferenceValue = DbEntry.TextMarkerText ?? string.Empty;
-        TextMarkerTextContent.UserValue = StringHelpers.NullToEmptyTrim(DbEntry?.TextMarkerText);
+        MapLabelContent = StringDataEntryContext.CreateInstance();
+        MapLabelContent.Title = "Map Label";
+        MapLabelContent.HelpText =
+            "This text will be used to identify the point on a map. A very short string is likely best...";
+        MapLabelContent.ReferenceValue = DbEntry.MapLabel ?? string.Empty;
+        MapLabelContent.UserValue = StringHelpers.NullToEmptyTrim(DbEntry?.MapLabel);
 
         ElevationEntry =
             ConversionDataEntryContext<double?>.CreateInstance(ConversionDataEntryHelpers.DoubleNullableConversion);

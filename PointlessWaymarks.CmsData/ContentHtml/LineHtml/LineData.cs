@@ -10,16 +10,18 @@ namespace PointlessWaymarks.CmsData.ContentHtml.LineHtml;
 
 public static class LineData
 {
-    public static async Task<string> GenerateLineJson(string geoJsonContent, string pageUrl)
+    public static async Task<string> GenerateLineJson(string lineGeoJson, string title, string pageUrl)
     {
         var serializer = GeoJsonSerializer.Create(new JsonSerializerSettings { Formatting = Formatting.Indented },
             SpatialHelpers.Wgs84GeometryFactory(), 3);
 
-        using var stringReader = new StringReader(geoJsonContent);
+        using var stringReader = new StringReader(lineGeoJson);
         using var jsonReader = new JsonTextReader(stringReader);
         var contentFeatureCollection = serializer.Deserialize<FeatureCollection>(jsonReader);
 
-        var bounds = SpatialConverters.GeometryBoundingBox(SpatialConverters.GeoJsonToGeometries(geoJsonContent));
+        foreach (var loopFeature in contentFeatureCollection) loopFeature.Attributes.Add("title", title);
+
+        var bounds = SpatialConverters.GeometryBoundingBox(SpatialConverters.GeoJsonToGeometries(lineGeoJson));
 
         var jsonDto = new LineSiteJsonData(pageUrl,
             new GeoJsonData.SpatialBounds(bounds.MaxY, bounds.MaxX, bounds.MinY, bounds.MinX),
@@ -32,15 +34,15 @@ public static class LineData
         return stringWriter.ToString();
     }
 
-    public static async Task WriteJsonData(LineContent geoJsonContent)
+    public static async Task WriteJsonData(LineContent lineContent)
     {
-        if (string.IsNullOrWhiteSpace(geoJsonContent.Line))
+        if (string.IsNullOrWhiteSpace(lineContent.Line))
             throw new ArgumentException(
                 "WriteJsonData in LineData was given a LineContent with a null/blank/empty Line");
 
         var dataFileInfo = new FileInfo(Path.Combine(
             UserSettingsSingleton.CurrentSettings().LocalSiteLineDataDirectory().FullName,
-            $"Line-{geoJsonContent.ContentId}.json"));
+            $"Line-{lineContent.ContentId}.json"));
 
         if (dataFileInfo.Exists)
         {
@@ -49,8 +51,8 @@ public static class LineData
         }
 
         await FileManagement.WriteAllTextToFileAndLogAsync(dataFileInfo.FullName,
-                await GenerateLineJson(geoJsonContent.Line,
-                    UserSettingsSingleton.CurrentSettings().LinePageUrl(geoJsonContent)).ConfigureAwait(false))
+                await GenerateLineJson(lineContent.Line, lineContent.Title ?? string.Empty,
+                    UserSettingsSingleton.CurrentSettings().LinePageUrl(lineContent)).ConfigureAwait(false))
             .ConfigureAwait(false);
     }
 

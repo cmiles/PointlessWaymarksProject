@@ -23,6 +23,7 @@ public static class PointData
             x.Latitude,
             x.Slug,
             PointPageUrl = settings.PointPageUrl(x),
+            x.MapLabel,
             DetailTypeString = string.Join(", ", PointDetailUtilities.PointDtoTypeList(x))
         }).ToList());
     }
