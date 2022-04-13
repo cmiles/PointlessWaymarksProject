@@ -7,26 +7,28 @@ using Serilog;
 
 namespace PointlessWaymarks.CmsWpfControls.WpfHtml;
 
-public class WebViewPostJsonOnChange : Behavior<WebView2>
+public class WebViewPostJsonOnChangeBehavior : Behavior<WebView2>
 {
     public static readonly DependencyProperty JsonDataProperty = DependencyProperty.Register("JsonData",
-        typeof(string), typeof(WebViewPostJsonOnChange), new PropertyMetadata(default(string), OnJsonDataChanged));
+        typeof(string), typeof(WebViewPostJsonOnChangeBehavior),
+        new PropertyMetadata(default(string), OnJsonDataChanged));
 
     public string CachedData { get; set; } = string.Empty;
 
     public string JsonData
     {
-        get => (string) GetValue(JsonDataProperty);
+        get => (string)GetValue(JsonDataProperty);
         set => SetValue(JsonDataProperty, value);
     }
 
     private async void CoreWebView2OnWebMessageReceived(object sender, CoreWebView2WebMessageReceivedEventArgs e)
     {
-        if (!string.IsNullOrWhiteSpace(CachedData))
-        {
-            await ThreadSwitcher.ResumeForegroundAsync();
-            await PostNewJson(this, CachedData);
-        }
+        if (!(e?.WebMessageAsJson?.Contains("script-finished") ?? false)) return;
+
+        if (string.IsNullOrWhiteSpace(CachedData)) return;
+
+        await ThreadSwitcher.ResumeForegroundAsync();
+        await PostNewJson(this, CachedData);
     }
 
     protected override void OnAttached()
@@ -37,7 +39,8 @@ public class WebViewPostJsonOnChange : Behavior<WebView2>
 
     private static async void OnJsonDataChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
     {
-        if (d is WebViewPostJsonOnChange bindingBehavior) await PostNewJson(bindingBehavior, e.NewValue as string);
+        if (d is WebViewPostJsonOnChangeBehavior bindingBehavior)
+            await PostNewJson(bindingBehavior, e.NewValue as string);
     }
 
     private async void OnLoaded(object sender, RoutedEventArgs e)
@@ -51,7 +54,7 @@ public class WebViewPostJsonOnChange : Behavior<WebView2>
         AssociatedObject.CoreWebView2.WebMessageReceived += CoreWebView2OnWebMessageReceived;
     }
 
-    private static async Task PostNewJson(WebViewPostJsonOnChange bindingBehavior, string toPost)
+    private static async Task PostNewJson(WebViewPostJsonOnChangeBehavior bindingBehavior, string toPost)
     {
         await ThreadSwitcher.ResumeForegroundAsync();
 

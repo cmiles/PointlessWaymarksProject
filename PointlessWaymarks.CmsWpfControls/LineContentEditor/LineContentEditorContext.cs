@@ -344,7 +344,8 @@ public partial class LineContentEditorContext : IHasChanges, IHasValidationIssue
         }
 
         //Using the new Guid as the page URL forces a changed value into the LineJsonDto
-        PreviewLineJsonDto = await LineData.GenerateLineJson(LineGeoJson, Guid.NewGuid().ToString());
+        PreviewLineJsonDto = await LineData.GenerateLineJson(LineGeoJson,
+            TitleSummarySlugFolder.TitleEntry.UserValue ?? string.Empty, Guid.NewGuid().ToString());
     }
 
     public async Task ReplaceElevations()

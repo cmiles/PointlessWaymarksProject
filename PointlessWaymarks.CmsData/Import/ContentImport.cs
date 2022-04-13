@@ -348,6 +348,11 @@ public static class ContentImport
 
         foreach (var loopRow in toProcess.Skip(1))
         {
+            //I can be tricky getting the correct range back from Excel - this may need more feedback or should
+            //be done earlier in the process but I think this should be pretty safe to skip rows with all
+            //blanks as that is likely the either the user intent or it is bad row detection...
+            if (loopRow.Values.All(string.IsNullOrWhiteSpace)) continue;
+            
             var importResult = await ImportContentFromExcelRow(headerInfo, loopRow).ConfigureAwait(false);
 
             if (importResult.hasError)

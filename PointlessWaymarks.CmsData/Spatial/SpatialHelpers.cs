@@ -218,6 +218,100 @@ public static class SpatialHelpers
     public record GpxTrackInformation(string Name, string Description, DateTime? StartsOn, DateTime? EndsOn,
         List<CoordinateZ> Track);
 
+    public record GpxRouteInformation(string Name, string Description, List<CoordinateZ> Track);
+
+    public static GpxTrackInformation TrackInformationFromGpxTrack(GpxTrack toConvert)
+    {
+        var name = toConvert.Name ?? string.Empty;
+
+        var description = toConvert.Description ?? string.Empty;
+        var comment = toConvert.Comment ?? string.Empty;
+        var type = string.Empty;
+        var label = string.Empty;
+
+
+        var extensions = toConvert.Extensions;
+
+        if (extensions is ImmutableXElementContainer extensionsContainer)
+        {
+            label = extensionsContainer
+                .FirstOrDefault(x => x.Name.LocalName.ToLower() == "label")?.Value ?? string.Empty;
+            type = extensionsContainer
+                .FirstOrDefault(x => x.Name.LocalName.ToLower() == "type")?.Value ?? string.Empty;
+
+            if (!string.IsNullOrWhiteSpace(type))
+            {
+                var caseTextInfo = new CultureInfo("en-US", false).TextInfo;
+                type = caseTextInfo.ToTitleCase(type.Replace("_", " "));
+            }
+        }
+
+        var pointList = new List<CoordinateZ>();
+
+        foreach (var loopSegments in toConvert.Segments)
+            pointList.AddRange(loopSegments.Waypoints.Select(x =>
+                new CoordinateZ(x.Longitude.Value, x.Latitude.Value, x.ElevationInMeters ?? 0)));
+
+        var startDateTime = toConvert.Segments.FirstOrDefault()?.Waypoints.FirstOrDefault()?.TimestampUtc
+            ?.ToLocalTime();
+        var endDateTime = toConvert.Segments.LastOrDefault()?.Waypoints.LastOrDefault()?.TimestampUtc
+            ?.ToLocalTime();
+
+        var nameAndLabelAndTypeList =
+            new List<string> { name, label, type, startDateTime?.ToString("M/d/yyyy") ?? string.Empty }
+                .Where(x => !string.IsNullOrWhiteSpace(x)).ToList();
+        var nameAndLabelAndType = string.Join(" - ", nameAndLabelAndTypeList);
+
+        var descriptionAndCommentList = new List<string> { description, comment }
+            .Where(x => !string.IsNullOrWhiteSpace(x)).ToList();
+        var descriptionAndComment = string.Join(". ", descriptionAndCommentList);
+
+        return new GpxTrackInformation(nameAndLabelAndType, descriptionAndComment, startDateTime,
+            endDateTime, pointList);
+    }
+
+    public static GpxRouteInformation RouteInformationFromGpxRoute(GpxRoute toConvert)
+    {
+        var name = toConvert.Name ?? string.Empty;
+
+        var description = toConvert.Description ?? string.Empty;
+        var comment = toConvert.Comment ?? string.Empty;
+        var type = string.Empty;
+        var label = string.Empty;
+
+        var extensions = toConvert.Extensions;
+
+        if (extensions is ImmutableXElementContainer extensionsContainer)
+        {
+            label = extensionsContainer
+                .FirstOrDefault(x => x.Name.LocalName.ToLower() == "label")?.Value ?? string.Empty;
+            type = extensionsContainer
+                .FirstOrDefault(x => x.Name.LocalName.ToLower() == "type")?.Value ?? string.Empty;
+
+            if (!string.IsNullOrWhiteSpace(type))
+            {
+                var caseTextInfo = new CultureInfo("en-US", false).TextInfo;
+                type = caseTextInfo.ToTitleCase(type.Replace("_", " "));
+            }
+        }
+
+        var pointList = new List<CoordinateZ>();
+
+        pointList.AddRange(toConvert.Waypoints.Select(x =>
+            new CoordinateZ(x.Longitude.Value, x.Latitude.Value, x.ElevationInMeters ?? 0)));
+
+        var nameAndLabelAndTypeList =
+            new List<string> { name, label, type }
+                .Where(x => !string.IsNullOrWhiteSpace(x)).ToList();
+        var nameAndLabelAndType = string.Join(" - ", nameAndLabelAndTypeList);
+
+        var descriptionAndCommentList = new List<string> { description, comment }
+            .Where(x => !string.IsNullOrWhiteSpace(x)).ToList();
+        var descriptionAndComment = string.Join(". ", descriptionAndCommentList);
+
+        return new GpxRouteInformation(nameAndLabelAndType, descriptionAndComment, pointList);
+    }
+
     public static async Task<List<GpxTrackInformation>> TracksFromGpxFile(
         FileInfo gpxFile, IProgress<string>? progress = null)
     {
@@ -247,53 +341,7 @@ public static class SpatialHelpers
         {
             trackCounter++;
             progress?.Report($"Extracting Track {trackCounter} of {parsedGpx.Tracks.Count} in {gpxFile.FullName}");
-
-            var name = loopTracks.Name ?? string.Empty;
-
-            var description = loopTracks.Description ?? string.Empty;
-            var comment = loopTracks.Comment ?? string.Empty;
-            var type = string.Empty;
-            var label = string.Empty;
-
-
-            var extensions = loopTracks.Extensions;
-
-            if (extensions is ImmutableXElementContainer extensionsContainer)
-            {
-                label = extensionsContainer
-                    .FirstOrDefault(x => x.Name.LocalName.ToLower() == "label")?.Value ?? string.Empty;
-                type = extensionsContainer
-                    .FirstOrDefault(x => x.Name.LocalName.ToLower() == "type")?.Value ?? string.Empty;
-
-                if (!string.IsNullOrWhiteSpace(type))
-                {
-                    var caseTextInfo = new CultureInfo("en-US", false).TextInfo;
-                    type = caseTextInfo.ToTitleCase(type.Replace("_", " "));
-                }
-            }
-
-            var pointList = new List<CoordinateZ>();
-
-            foreach (var loopSegments in loopTracks.Segments)
-                pointList.AddRange(loopSegments.Waypoints.Select(x =>
-                    new CoordinateZ(x.Longitude.Value, x.Latitude.Value, x.ElevationInMeters ?? 0)));
-
-            var startDateTime = loopTracks.Segments.FirstOrDefault()?.Waypoints.FirstOrDefault()?.TimestampUtc
-                ?.ToLocalTime();
-            var endDateTime = loopTracks.Segments.LastOrDefault()?.Waypoints.LastOrDefault()?.TimestampUtc
-                ?.ToLocalTime();
-
-            var nameAndLabelAndTypeList =
-                new List<string> { name, label, type, startDateTime?.ToString("M/d/yyyy") ?? string.Empty }
-                    .Where(x => !string.IsNullOrWhiteSpace(x)).ToList();
-            var nameAndLabelAndType = string.Join(" - ", nameAndLabelAndTypeList);
-
-            var descriptionAndCommentList = new List<string> { description, comment }
-                .Where(x => !string.IsNullOrWhiteSpace(x)).ToList();
-            var descriptionAndComment = string.Join(". ", descriptionAndCommentList);
-
-            returnList.Add(new GpxTrackInformation(nameAndLabelAndType, descriptionAndComment, startDateTime,
-                endDateTime, pointList));
+            returnList.Add(TrackInformationFromGpxTrack(loopTracks));
         }
 
         return returnList;

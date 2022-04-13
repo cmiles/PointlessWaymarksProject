@@ -228,7 +228,7 @@ public static class WpfHtmlDocument
             map.addLayer(geoMapLayer);
         }};
 
-        window.chrome.webview.postMessage('script_finished');
+        window.chrome.webview.postMessage( {{ ""messageType"": ""script-finished"" }} );
 
     </script>
 </body>
@@ -295,7 +295,7 @@ public static class WpfHtmlDocument
             map.addLayer(geoMapLayer);
         }};
 
-        window.chrome.webview.postMessage('script_finished');
+        window.chrome.webview.postMessage( {{ ""messageType"": ""script-finished"" }} );
 
     </script>
 </body>
@@ -330,9 +330,26 @@ public static class WpfHtmlDocument
 
         L.control.layers(baseMaps).addTo(map);
 
-        window.chrome.webview.addEventListener('message', postGeoJsonDataHandler);
+        window.chrome.webview.addEventListener('message', function (e) {{
+            console.log(e);
+            if(e.data.MessageType === 'MapJsonDto') postGeoJsonDataHandler(e);
+            if(e.data.MessageType === 'CenterFeatureRequest') {{
+                console.log('Center Feature Request');
+                map.eachLayer(function (l) {{ 
+                    if (l.feature?.properties?.displayId === e.data.DisplayId) {{
+                        console.log(`l.feature?.geometry?.type ${{l.feature?.geometry?.type}}`); 
+                        if(l.feature?.geometry?.type === 'Point') {{
+                            map.flyTo([l.feature.geometry.coordinates[1], l.feature.geometry.coordinates[0]]);
+                        }}
+                        if(l.feature?.geometry?.type === 'LineString') {{
+                            map.flyToBounds([[l.feature.bbox[1], l.feature.bbox[0]], [l.feature.bbox[3], l.feature.bbox[2]]]);
+                        }}
+                    }}
+                }})
+            }}
+        }});
 
-        function onEachMapGeoJsonFeature(feature, layer) {{
+         function onEachMapGeoJsonFeature(feature, layer) {{
 
             if (feature.properties && (feature.properties.title || feature.properties.description)) {{
                 let popupHtml = """";
@@ -346,8 +363,12 @@ public static class WpfHtmlDocument
                 }}
 
                 if(popupHtml !== """") layer.bindPopup(popupHtml);
+
+                layer.on('click', function (e) {{
+                    console.log(e);
+                    window.chrome.webview.postMessage({{ ""messageType"": ""featureClicked"", ""data"": e.target.feature.properties }}); }});
             }}
-        }}
+        }} 
 
         function geoJsonLayerStyle(feature) {{
             //see https://github.com/mapbox/simplestyle-spec/tree/master/1.1.0
@@ -386,7 +407,7 @@ public static class WpfHtmlDocument
                 map.addLayer(newLayer); }});
         }};
 
-        window.chrome.webview.postMessage('script_finished');
+        window.chrome.webview.postMessage( {{ ""messageType"": ""script-finished"" }} );
 
     </script>
 </body>
@@ -395,13 +416,15 @@ public static class WpfHtmlDocument
         return htmlDoc;
     }
 
-    public static async Task<string> ToHtmlLeafletPointDocument(string title, Guid? contentId, double initialLatitude, double initialLongitude,
+    public static async Task<string> ToHtmlLeafletPointDocument(string title, Guid? contentId, double initialLatitude,
+        double initialLongitude,
         string styleBlock)
     {
         var db = await Db.Context();
 
-        var otherPoints = (await db.PointContents.Where(x => x.ContentId != contentId).OrderBy(x => x.Slug).AsNoTracking()
-            .ToListAsync()).Select(x => new {x.Latitude, x.Longitude, x.Title}).ToList();
+        var otherPoints = (await db.PointContents.Where(x => x.ContentId != contentId).OrderBy(x => x.Slug)
+            .AsNoTracking()
+            .ToListAsync()).Select(x => new { x.Latitude, x.Longitude, x.Title }).ToList();
 
         var otherPointsJsonData = JsonSerializer.Serialize(otherPoints);
 
@@ -432,7 +455,6 @@ public static class WpfHtmlDocument
             console.log(e);
             pointContentMarker.setLatLng(e.latlng);
             window.chrome.webview.postMessage(e.latlng.lat + "";"" + e.latlng.lng);
-
         }});
 
         var pointContentMarker = new L.marker([{initialLatitude},{initialLongitude}],{{

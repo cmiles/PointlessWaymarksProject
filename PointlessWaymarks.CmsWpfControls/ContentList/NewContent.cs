@@ -7,6 +7,7 @@ using PointlessWaymarks.CmsData.Content;
 using PointlessWaymarks.CmsData.Spatial;
 using PointlessWaymarks.CmsWpfControls.FileContentEditor;
 using PointlessWaymarks.CmsWpfControls.GeoJsonContentEditor;
+using PointlessWaymarks.CmsWpfControls.GpxImport;
 using PointlessWaymarks.CmsWpfControls.ImageContentEditor;
 using PointlessWaymarks.CmsWpfControls.LineContentEditor;
 using PointlessWaymarks.CmsWpfControls.LinkContentEditor;
@@ -70,6 +71,8 @@ public partial class NewContent
             }, "Cancel Photo Import");
         NewPointContentCommand = StatusContext.RunNonBlockingTaskCommand(NewPointContent);
         NewPostContentCommand = StatusContext.RunNonBlockingTaskCommand(NewPostContent);
+
+        NewGpxImportWindow = StatusContext.RunNonBlockingTaskCommand(NewGpxImport);
     }
 
     public RelayCommand NewFileContentCommand { get; }
@@ -77,6 +80,8 @@ public partial class NewContent
     public RelayCommand NewFileContentFromFilesCommand { get; }
 
     public RelayCommand NewGeoJsonContentCommand { get; }
+
+    public RelayCommand NewGpxImportWindow { get; set; }
 
     public RelayCommand NewImageContentCommand { get; }
 
@@ -165,6 +170,15 @@ public partial class NewContent
         await ThreadSwitcher.ResumeForegroundAsync();
 
         var newContentWindow = new GeoJsonContentEditorWindow(null);
+
+        newContentWindow.PositionWindowAndShow();
+    }
+
+    public async Task NewGpxImport()
+    {
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        var newContentWindow = new GpxImportWindow(null);
 
         newContentWindow.PositionWindowAndShow();
     }

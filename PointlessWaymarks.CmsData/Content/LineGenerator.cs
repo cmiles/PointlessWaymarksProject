@@ -54,6 +54,36 @@ public static class LineGenerator
         return newEntry;
     }
 
+    public static async Task<LineContent> NewFromGpxTrack(SpatialHelpers.GpxRouteInformation trackInformation,
+        bool replaceElevations, IProgress<string> progress)
+    {
+        var lineStatistics = SpatialHelpers.LineStatsInImperialFromCoordinateList(trackInformation.Track);
+
+        var newEntry = new LineContent
+        {
+            BodyContentFormat = UserSettingsUtilities.DefaultContentFormatChoice(),
+            UpdateNotesFormat = UserSettingsUtilities.DefaultContentFormatChoice(),
+            CreatedOn = DateTime.Now,
+            FeedOn = DateTime.Now,
+            Line = await SpatialHelpers.GeoJsonWithLineStringFromCoordinateList(trackInformation.Track,
+                replaceElevations, progress),
+            Title = trackInformation.Name ?? string.Empty,
+            Summary = trackInformation.Description ?? string.Empty,
+            LineDistance = lineStatistics.Length,
+            MaximumElevation = lineStatistics.MaximumElevation,
+            MinimumElevation = lineStatistics.MinimumElevation,
+            ClimbElevation = lineStatistics.ElevationClimb,
+            DescentElevation = lineStatistics.ElevationDescent,
+            RecordingStartedOn = null,
+            RecordingEndedOn = null
+        };
+
+        if (!string.IsNullOrWhiteSpace(trackInformation.Name))
+            newEntry.Slug = SlugUtility.Create(true, trackInformation.Name);
+
+        return newEntry;
+    }
+
     public static async Task<(GenerationReturn generationReturn, LineContent? lineContent)> SaveAndGenerateHtml(
         LineContent toSave, DateTime? generationVersion, IProgress<string>? progress = null)
     {

@@ -7,6 +7,7 @@ public class PointContent : IUpdateNotes, IContentCommon
     public double? Elevation { get; set; }
     public double Latitude { get; set; }
     public double Longitude { get; set; }
+    public string? MapLabel { get; set; }
     public string? BodyContent { get; set; }
     public string? BodyContentFormat { get; set; }
     public Guid ContentId { get; set; }

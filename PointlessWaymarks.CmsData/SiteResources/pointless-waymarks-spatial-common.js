@@ -154,19 +154,7 @@ async function mapComponentInit(mapElement, contentId) {
         let includedPoints = pointData.filter(x => mapComponent.PointGuids.includes(x.ContentId));
 
         for (let pagePoint of includedPoints) {
-            const pointContentMarker = new L.marker([pagePoint.Latitude, pagePoint.Longitude],
-                {
-                    draggable: false,
-                    autoPan: true
-                }).addTo(map);
-
-            const pointPopup = L.popup({ autoClose: false })
-                .setContent(`<a href="https:${pagePoint.PointPageUrl}">${pagePoint.Title}</a>`);
-            let boundPopup = pointContentMarker.bindPopup(pointPopup);
-
-            if (mapComponent.ShowDetailsGuid.includes(pagePoint.ContentId)) {
-                boundPopup.openPopup();
-            }
+            AddTextOrCircleMarkerToMap(map, pagePoint);
         };
     }
 
@@ -234,28 +222,75 @@ async function singlePointMapInitFromPointData(mapElement, displayedPointSlug, p
             closePopupOnClick: false
         });
 
-    let pointContentMarker = new L.marker([pagePoint.Latitude, pagePoint.Longitude],
-        {
-            draggable: false,
-            autoPan: true
-        }).addTo(map);
-
-    const pointPopup = L.popup({ autoClose: false })
-        .setContent(`<a href="https:${pagePoint.PointPageUrl}">${pagePoint.Title}</a>`);
-    const boundPopup = pointContentMarker.bindPopup(pointPopup);
-
-    boundPopup.openPopup();
+    AddMarkerToMap(map, pagePoint);
 
     for (let circlePoint of pointData) {
         if (circlePoint.Slug == displayedPointSlug) continue;
-        let toAdd = L.circleMarker([circlePoint.Latitude, circlePoint.Longitude],
-            80,
-            { color: "blue", fillColor: "blue", fillOpacity: .5 });
+
+        AddTextOrCircleMarkerToMap(map, circlePoint);
+    };
+}
+
+function AddTextOrCircleMarkerToMap(map, pointToAdd) {
+
+    if (pointToAdd.MapLabel) {
+        let toAdd = L.marker([pointToAdd.Latitude, pointToAdd.Longitude],
+            {
+                icon: L.divIcon({
+                    className: 'point-map-label',
+                    html: pointToAdd.MapLabel,
+                    iconAnchor: [0, 0]
+                })
+            });
+        const textMarkerPopup = L.popup({ autoClose: false, autoPan: false })
+            .setContent(`<a href="${pointToAdd.PointPageUrl}">${pointToAdd.Title}</a>`);
+        const boundTextMarkerPopup = toAdd.bindPopup(textMarkerPopup);
+        toAdd.addTo(map);
+
+        let labelMarker = L.circleMarker([pointToAdd.Latitude, pointToAdd.Longitude],
+            { radius: 1, color: "blue", fillColor: "blue", fillOpacity: .5 });
+
+        labelMarker.addTo(map);
+    }
+    else {
+        let toAdd = L.circleMarker([pointToAdd.Latitude, pointToAdd.Longitude],
+            { radius: 10, color: "blue", fillColor: "blue", fillOpacity: .5 });
 
         const circlePopup = L.popup({ autoClose: false, autoPan: false })
-            .setContent(`<a href="https:${circlePoint.PointPageUrl}">${circlePoint.Title}</a>`);
+            .setContent(`<a href="${pointToAdd.PointPageUrl}">${pointToAdd.Title}</a>`);
         const boundCirclePopup = toAdd.bindPopup(circlePopup);
-
         toAdd.addTo(map);
-    };
+    }
+}
+
+function AddMarkerToMap(map, pointToAdd) {
+
+    if (pointToAdd.MapLabel) {
+        let toAdd = L.marker([pointToAdd.Latitude, pointToAdd.Longitude],
+            {
+                icon: L.divIcon({
+                    className: 'point-map-label',
+                    html: pointToAdd.MapLabel,
+                    iconAnchor: [0, 0]
+                })
+            });
+        const textMarkerPopup = L.popup({ autoClose: false, autoPan: false })
+            .setContent(`<a href="${pointToAdd.PointPageUrl}">${pointToAdd.Title}</a>`);
+        const boundTextMarkerPopup = toAdd.bindPopup(textMarkerPopup);
+        toAdd.addTo(map);
+
+        let labelMarker = L.marker([pointToAdd.Latitude, pointToAdd.Longitude],
+            { draggable: false, autoPan: true, iconAnchor: [0, 0] });
+
+        labelMarker.addTo(map);
+    }
+    else {
+        let toAdd = L.marker([pointToAdd.Latitude, pointToAdd.Longitude],
+            { draggable: false, autoPan: true, iconAnchor: [0, 0] });
+
+        const circlePopup = L.popup({ autoClose: false, autoPan: false })
+            .setContent(`<a href="${pointToAdd.PointPageUrl}">${pointToAdd.Title}</a>`);
+        const boundCirclePopup = toAdd.bindPopup(circlePopup);
+        toAdd.addTo(map);
+    }
 }

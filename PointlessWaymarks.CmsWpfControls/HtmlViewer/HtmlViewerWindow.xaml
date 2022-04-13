@@ -27,7 +27,7 @@
         <wpf:WebView2 Visibility="{Binding StatusContext.BlockUi, Converter={StaticResource BooleanNotToVisibility}}">
             <b:Interaction.Behaviors>
                 <wpfHtml:WebViewHtmlStringBindingBehavior HtmlString="{Binding HtmlString}" />
-                <wpfHtml:WebViewRedirectLinksToBrowser />
+                <wpfHtml:WebViewRedirectLinksToBrowserBehavior />
             </b:Interaction.Behaviors>
         </wpf:WebView2>
         <status:StatusControl

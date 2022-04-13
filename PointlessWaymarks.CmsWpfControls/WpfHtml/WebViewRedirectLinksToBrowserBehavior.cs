@@ -6,7 +6,7 @@ using PointlessWaymarks.WpfCommon.Utility;
 
 namespace PointlessWaymarks.CmsWpfControls.WpfHtml;
 
-public class WebViewRedirectLinksToBrowser : Behavior<WebView2>
+public class WebViewRedirectLinksToBrowserBehavior : Behavior<WebView2>
 {
     protected override void OnAttached()
     {

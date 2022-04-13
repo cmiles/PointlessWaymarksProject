@@ -82,7 +82,7 @@
                         Visibility="{Binding StatusContext.BlockUi, Converter={StaticResource BooleanNotToVisibility}}">
                         <b:Interaction.Behaviors>
                             <wpfHtml:WebViewHtmlStringBindingBehavior HtmlString="{Binding PreviewHtml}" />
-                            <wpfHtml:WebViewPostJsonOnChange JsonData="{Binding PreviewLineJsonDto}" />
+                            <wpfHtml:WebViewPostJsonOnChangeBehavior JsonData="{Binding PreviewLineJsonDto}" />
                         </b:Interaction.Behaviors>
                     </wpf:WebView2>
                 </Grid>

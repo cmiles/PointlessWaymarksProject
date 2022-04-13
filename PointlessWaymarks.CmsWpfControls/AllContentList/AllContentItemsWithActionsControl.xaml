@@ -31,6 +31,7 @@
                 <MenuItem Command="{Binding ListContext.NewActions.NewFileContentFromFilesCommand}" Header="File from File" />
                 <MenuItem Command="{Binding ListContext.NewActions.NewFileContentCommand}" Header="File" />
                 <MenuItem Command="{Binding ListContext.NewActions.NewGeoJsonContentCommand}" Header="GeoJson" />
+                <MenuItem Command="{Binding ListContext.NewActions.NewGpxImportWindow}" Header="Gpx Import" />
                 <MenuItem Command="{Binding ListContext.NewActions.NewImageContentFromFilesCommand}" Header="Image from File" />
                 <MenuItem Command="{Binding ListContext.NewActions.NewImageContentCommand}" Header="Image" />
                 <MenuItem Command="{Binding ListContext.NewActions.NewLineContentFromFilesCommand}" Header="Line from File" />

@@ -132,6 +132,12 @@ body {
     height: 90vh;
 }
 
+.point-map-label {
+    font-size: 1rem;
+    color: rgb(51, 136, 255);
+    font-weight: bold;
+}
+
 .info-list-container {
     display: flex;
     justify-content: center;

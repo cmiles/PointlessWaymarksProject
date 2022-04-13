@@ -9,10 +9,12 @@ using Microsoft.Toolkit.Mvvm.Input;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.Content;
+using PointlessWaymarks.CmsData.ContentHtml;
 using PointlessWaymarks.CmsData.ContentHtml.PhotoHtml;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsWpfControls.ContentList;
+using PointlessWaymarks.CmsWpfControls.PointContentEditor;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 using PointlessWaymarks.WpfCommon.Utility;
@@ -39,6 +41,7 @@ public partial class PhotoListWithActionsContext
     [ObservableProperty] private RelayCommand _reportTitleAndTakenDoNotMatchCommand;
     [ObservableProperty] private StatusControlContext _statusContext;
     [ObservableProperty] private RelayCommand _viewFilesCommand;
+    [ObservableProperty] private RelayCommand _photoToPointContentEditorCommand;
     [ObservableProperty] private WindowIconStatus _windowStatus;
 
     public PhotoListWithActionsContext(StatusControlContext statusContext, WindowIconStatus windowStatus = null)
@@ -178,6 +181,7 @@ public partial class PhotoListWithActionsContext
                 ItemCommand = DailyPhotoLinkCodesToClipboardForSelectedCommand
             },
             new() { ItemName = "Email Html to Clipboard", ItemCommand = EmailHtmlToClipboardCommand },
+            new() { ItemName = "Photos to Point Content Editors", ItemCommand = PhotoToPointContentEditorCommand },
             new() { ItemName = "View Photos", ItemCommand = ViewFilesCommand },
             new() { ItemName = "Open URL", ItemCommand = ListContext.ViewOnSiteCommand },
             new() { ItemName = "Extract New Links", ItemCommand = ListContext.ExtractNewLinksSelectedCommand },
@@ -214,6 +218,60 @@ public partial class PhotoListWithActionsContext
         Clipboard.SetText(finalString);
 
         StatusContext.ToastSuccess($"To Clipboard {finalString}");
+    }
+
+    private async Task PhotoToPointContentEditor(CancellationToken cancellationToken)
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (SelectedItems() == null || !SelectedItems().Any())
+        {
+            StatusContext.ToastError("Nothing Selected?");
+            return;
+        }
+
+        if (SelectedItems().Count > 10)
+            if (await StatusContext.ShowMessage("Too Many Editors?",
+                    $"You are about to open {SelectedItems().Count} Point Content Editors - do you really want to do that?",
+                    new List<string> { "Yes", "No" }) == "No")
+                return;
+
+        var count = 1;
+
+        var frozenNow = DateTime.Now;
+
+        foreach (var loopPhoto in SelectedItems())
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            StatusContext.Progress(
+                $"Opening Point Content Editor for '{loopPhoto.DbEntry.Title}' - {count++} of {SelectedItems().Count}");
+
+            var newPartialPoint = new PointContent
+            {
+                BodyContentFormat = UserSettingsUtilities.DefaultContentFormatChoice(),
+                UpdateNotesFormat = UserSettingsUtilities.DefaultContentFormatChoice(),
+                Latitude = UserSettingsSingleton.CurrentSettings().LatitudeDefault,
+                Longitude = UserSettingsSingleton.CurrentSettings().LongitudeDefault,
+                CreatedOn = frozenNow,
+                FeedOn = frozenNow,
+                BodyContent = BracketCodePhotos.Create(loopPhoto.DbEntry),
+                Title = $"Point From {loopPhoto.DbEntry.Title}",
+                Tags = loopPhoto.DbEntry.Tags
+            };
+
+            newPartialPoint.Slug = SlugUtility.Create(true, newPartialPoint.Title);
+
+            if (loopPhoto.DbEntry.Latitude != null) newPartialPoint.Latitude = loopPhoto.DbEntry.Latitude.Value;
+            if (loopPhoto.DbEntry.Longitude != null) newPartialPoint.Longitude = loopPhoto.DbEntry.Longitude.Value;
+            if (loopPhoto.DbEntry.Elevation != null) newPartialPoint.Elevation = loopPhoto.DbEntry.Elevation.Value;
+
+            await ThreadSwitcher.ResumeForegroundAsync();
+
+            var pointWindow = new PointContentEditorWindow(newPartialPoint);
+
+            pointWindow.PositionWindowAndShow();
+        }
     }
 
     private async Task RegenerateHtmlAndReprocessPhotoForSelected(CancellationToken cancellationToken)
@@ -451,6 +509,9 @@ public partial class PhotoListWithActionsContext
         RefreshDataCommand = StatusContext.RunBlockingTaskCommand(ListContext.LoadData);
         ForcedResizeCommand = StatusContext.RunBlockingTaskWithCancellationCommand(ForcedResize, "Cancel Resizing");
         ViewFilesCommand = StatusContext.RunBlockingTaskWithCancellationCommand(ViewFilesSelected, "Cancel File View");
+        PhotoToPointContentEditorCommand =
+            StatusContext.RunBlockingTaskWithCancellationCommand(PhotoToPointContentEditor,
+                "Cancel Photos to Point Editors");
 
         EmailHtmlToClipboardCommand = StatusContext.RunBlockingTaskCommand(EmailHtmlToClipboard);
 

@@ -17,6 +17,7 @@ using PointlessWaymarks.CmsWpfControls.ConversionDataEntry;
 using PointlessWaymarks.CmsWpfControls.CreatedAndUpdatedByAndOnDisplay;
 using PointlessWaymarks.CmsWpfControls.HelpDisplay;
 using PointlessWaymarks.CmsWpfControls.PointDetailEditor;
+using PointlessWaymarks.CmsWpfControls.StringDataEntry;
 using PointlessWaymarks.CmsWpfControls.TagsEditor;
 using PointlessWaymarks.CmsWpfControls.TitleSummarySlugFolderEditor;
 using PointlessWaymarks.CmsWpfControls.UpdateNotesEditor;
@@ -45,6 +46,7 @@ public partial class PointContentEditorContext : IHasChanges, ICheckForChangesAn
     [ObservableProperty] private RelayCommand _linkToClipboardCommand;
     [ObservableProperty] private ConversionDataEntryContext<double> _longitudeEntry;
     [ObservableProperty] private ContentSiteFeedAndIsDraftContext _mainSiteFeed;
+    [ObservableProperty] private StringDataEntryContext _mapLabelContent;
     [ObservableProperty] private PointDetailListContext _pointDetails;
     [ObservableProperty] private RelayCommand _saveAndCloseCommand;
     [ObservableProperty] private RelayCommand _saveCommand;
@@ -203,6 +205,13 @@ public partial class PointContentEditorContext : IHasChanges, ICheckForChangesAn
         UpdateNotes = await UpdateNotesEditorContext.CreateInstance(StatusContext, DbEntry);
         TagEdit = TagsEditorContext.CreateInstance(StatusContext, DbEntry);
         BodyContent = await BodyContentEditorContext.CreateInstance(StatusContext, DbEntry);
+
+        MapLabelContent = StringDataEntryContext.CreateInstance();
+        MapLabelContent.Title = "Map Label";
+        MapLabelContent.HelpText =
+            "This text will be used to identify the point on a map. A very short string is likely best...";
+        MapLabelContent.ReferenceValue = DbEntry.MapLabel ?? string.Empty;
+        MapLabelContent.UserValue = StringHelpers.NullToEmptyTrim(DbEntry?.MapLabel);
 
         ElevationEntry =
             ConversionDataEntryContext<double?>.CreateInstance(ConversionDataEntryHelpers.DoubleNullableConversion);

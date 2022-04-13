@@ -510,6 +510,32 @@ Photo Content Notes:
             return;
         }
 
+        var frozenNow = DateTime.Now;
+
+        var newPartialPoint = new PointContent
+        {
+            BodyContentFormat = UserSettingsUtilities.DefaultContentFormatChoice(),
+            UpdateNotesFormat = UserSettingsUtilities.DefaultContentFormatChoice(),
+            Latitude = UserSettingsSingleton.CurrentSettings().LatitudeDefault,
+            Longitude = UserSettingsSingleton.CurrentSettings().LongitudeDefault,
+            CreatedOn = frozenNow,
+            FeedOn = frozenNow,
+            BodyContent = DbEntry != null && DbEntry.ContentId != Guid.Empty
+                ? BracketCodePhotos.Create(DbEntry)
+                : string.Empty,
+            Title = string.IsNullOrWhiteSpace(TitleSummarySlugFolder.TitleEntry.UserValue)
+                ? string.Empty
+                : $"Point From {TitleSummarySlugFolder.TitleEntry.UserValue}",
+            Tags = TagEdit.TagListString(),
+        };
+
+        newPartialPoint.Slug = SlugUtility.Create(true, newPartialPoint.Title);
+
+        newPartialPoint.Latitude = LatitudeEntry.UserValue.Value;
+        newPartialPoint.Longitude = LongitudeEntry.UserValue.Value;
+        newPartialPoint.Elevation = ElevationEntry.UserValue;
+
+
         var initialBody = DbEntry != null && DbEntry.ContentId != Guid.Empty
             ? BracketCodePhotos.Create(DbEntry)
             : string.Empty;
@@ -520,8 +546,8 @@ Photo Content Notes:
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
-        var pointWindow = new PointContentEditorWindow(LatitudeEntry.UserValue.Value, LongitudeEntry.UserValue.Value,
-            ElevationEntry.UserValue, initialTitle, initialBody);
+        var pointWindow = new PointContentEditorWindow(newPartialPoint);
+
         pointWindow.PositionWindowAndShow();
     }
 

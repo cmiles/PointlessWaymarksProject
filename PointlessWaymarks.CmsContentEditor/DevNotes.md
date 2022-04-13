@@ -1,8 +1,14 @@
 ## Todos
- - Embed Front End Check/Test for 'beyond PDF'
- - Test if excluded tags are properly picked up for changed html  
- - All Items Tab - reports for no tags, etc.
+ - GPX Import
+   - Remove Item from Map when removed from List
+   - ?Filter List
+   - Show Marker Label if not visible when centering
+   - Folder Picker for Auto Save Imports
+   - Text Marker Text
+ - Photo Location Map Chooser
+ - Document Search in List Filters
  - For geo types and notes review local file cleanup on delete
+ - Is File Content being detected as changing more than intended?
  - Appium GUI Test
  - Check whole site import - test(s)?
  - Deleted Content Report so it is possible to restore completely deleted
@@ -10,21 +16,26 @@
    - Cancellation
    - in Update Notes
    - Potentially in editor
- - Should temp files be auto-deleted or live forever? Review.
- - Figure out a system to allow StatusContext to help out positioning a new window vs the launch window
-  - All Items list needs access to fuller item level menus, how? 
+
 Site:
- - Could Tag List javascript be abstracted to site resources easily?
- - Better loading indication on the search lists site pages
- - In Search it might be nice to have the content type on the line with date?
- - Class name cleanup
+ - Improve Search Pages!
 
 ## Ideas
- - Should the code record a checksum of media archive files to be able to check if they change on disk rather than thru the program?
  - Could I successfully tuck away a copy of the current edits to help in unexpected shut downs? No good if I can't expose these in a helpful way...
- - Could all font sizes be controlled by slider or setting? I like the control in the editor but maybe everywhere would be more useful? And persist in Settings?
+ - Could all in app font sizes be controlled by slider or setting? I like the control in the editor but maybe everywhere would be more useful? And persist in Settings?
 
 ## Notes
+
+4/10/2022
+
+It has been a couple of months since I have written here - I have continued coding for and using this project but haven't had so many features that I was debating about while coding and technology for the site has remained about the same - various notes:
+ - Conversations with friend and links he sent me links to Carl Seibert - https://www.youtube.com/channel/UChHJAV_5jbqmPpDsNkeS9XQ/videos and https://www.carlseibert.com/blog/ - led me to:
+   - Content List Search Improvements - made a massive improvement with not tooo much code in part by making the decision to have a somewhat strict search format for extended searches. This means that this is in large part a 'power user' feature, it would be interesting to provide a middle ground serving non-power-users but the most interesting would be finding the right tech to serve non-power-users with minimal/reasonable code additions since I believe it would take much more advanced analysis of user input than what I am doing for the current feature. Tests added for the filters as well.
+   - Photographs now import lat/long/elevation metadata if provided. This is part of a larger discussion but to quickly boil it down: I feel very sensitive to the way social media has impacted visitation of some areas but I also feel that trying to hide your secret locations is quite a bit more complicated and a deeper subject than many people want to engage with. So like so many things the best answer is probably in the grey area in the middle and it is a about 'appropriate' sharing of locations. In the context of this site that partly means engaging not only with sharing but with personal memory - geo-located photos are interesting because even looking back over decades of your own photos may reveal locations that you just don't remember any more, or locations you wish you could go back to but that you can only recall a general area... So in the first version of the site I didn't include photo location even though I made a real effort to extract metadata nicely because in many cases I am happy to share tags that hint at locations but not 'where I stood' - this is that grey area and not right/wrong, just what I have come to after quite a few years of agonizing... But in conversation there are so many locations where I can share where I stood without reservation and use cases like the private site I have been spending quite a bit of time on where it is not shared with the public so location is added back...
+   - In the world of metadata I added start and end time to lines in part to support a search that pulls up content created during that time - I thought this was a really interesting idea in a sort of 'geo-tagging lite' kind of way!
+   - Site CSS and visual improvements
+
+Current big in process feature is GPX Import. This was inspired in part by metadata work and in part by an informal plant survey that my wife had the idea to do.
 
 1/9/2022
 
