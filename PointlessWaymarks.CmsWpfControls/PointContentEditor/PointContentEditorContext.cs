@@ -124,6 +124,7 @@ public partial class PointContentEditorContext : IHasChanges, ICheckForChangesAn
         newEntry.UpdateNotesFormat = UpdateNotes.UpdateNotesFormat.SelectedContentFormatAsString;
         newEntry.BodyContent = BodyContent.BodyContent.TrimNullToEmpty();
         newEntry.BodyContentFormat = BodyContent.BodyContentFormat.SelectedContentFormatAsString;
+        newEntry.MapLabel = MapLabelContent.UserValue.TrimNullToEmpty();
 
         newEntry.Latitude = LatitudeEntry.UserValue;
         newEntry.Longitude = LongitudeEntry.UserValue;
