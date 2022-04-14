@@ -78,6 +78,12 @@ async function singleGeoJsonMapInitFromGeoJson(mapElement, geoJsonData) {
             gestureHandling: true
         });
 
+    map.addControl(L.control.locate({
+        locateOptions: {
+            enableHighAccuracy: true
+        }
+    }));
+
     map.fitBounds([
         [geoJsonData.Bounds.InitialViewBoundsMinLatitude, geoJsonData.Bounds.InitialViewBoundsMinLongitude],
         [geoJsonData.Bounds.InitialViewBoundsMaxLatitude, geoJsonData.Bounds.InitialViewBoundsMaxLongitude]
@@ -110,6 +116,12 @@ async function singleLineMapInitFromLineData(mapElement, lineData) {
             gestureHandling: true
         });
 
+    map.addControl(L.control.locate({
+        locateOptions: {
+            enableHighAccuracy: true
+        }
+    }));
+
     map.fitBounds([
         [lineData.Bounds.InitialViewBoundsMinLatitude, lineData.Bounds.InitialViewBoundsMinLongitude],
         [lineData.Bounds.InitialViewBoundsMaxLatitude, lineData.Bounds.InitialViewBoundsMaxLongitude]
@@ -137,6 +149,12 @@ async function mapComponentInit(mapElement, contentId) {
             gestureHandling: true,
             closePopupOnClick: false
         });
+
+    map.addControl(L.control.locate({
+        locateOptions: {
+            enableHighAccuracy: true
+        }
+    }));
 
     map.fitBounds([
         [mapComponent.MapComponent.InitialViewBoundsMinLatitude, mapComponent.MapComponent.InitialViewBoundsMinLongitude],
@@ -222,6 +240,12 @@ async function singlePointMapInitFromPointData(mapElement, displayedPointSlug, p
             closePopupOnClick: false
         });
 
+    map.addControl(L.control.locate({
+        locateOptions: {
+            enableHighAccuracy: true
+        }
+    }));
+
     AddMarkerToMap(map, pagePoint);
 
     for (let circlePoint of pointData) {
@@ -243,7 +267,7 @@ function AddTextOrCircleMarkerToMap(map, pointToAdd) {
                 })
             });
         const textMarkerPopup = L.popup({ autoClose: false, autoPan: false })
-            .setContent(`<a href="${pointToAdd.PointPageUrl}">${pointToAdd.Title}</a>`);
+            .setContent(`<a href="${pointToAdd.PointPageUrl}">${pointToAdd.Title}</a><p>${pointToAdd.Summary}</p>`);
         const boundTextMarkerPopup = toAdd.bindPopup(textMarkerPopup);
         toAdd.addTo(map);
 
@@ -257,7 +281,7 @@ function AddTextOrCircleMarkerToMap(map, pointToAdd) {
             { radius: 10, color: "blue", fillColor: "blue", fillOpacity: .5 });
 
         const circlePopup = L.popup({ autoClose: false, autoPan: false })
-            .setContent(`<a href="${pointToAdd.PointPageUrl}">${pointToAdd.Title}</a>`);
+            .setContent(`<a href="${pointToAdd.PointPageUrl}">${pointToAdd.Title}</a><p>${pointToAdd.Summary}</p>`);
         const boundCirclePopup = toAdd.bindPopup(circlePopup);
         toAdd.addTo(map);
     }
@@ -275,7 +299,7 @@ function AddMarkerToMap(map, pointToAdd) {
                 })
             });
         const textMarkerPopup = L.popup({ autoClose: false, autoPan: false })
-            .setContent(`<a href="${pointToAdd.PointPageUrl}">${pointToAdd.Title}</a>`);
+            .setContent(`<a href="${pointToAdd.PointPageUrl}">${pointToAdd.Title}</a><p>${pointToAdd.Summary}</p>`);
         const boundTextMarkerPopup = toAdd.bindPopup(textMarkerPopup);
         toAdd.addTo(map);
 
@@ -289,7 +313,7 @@ function AddMarkerToMap(map, pointToAdd) {
             { draggable: false, autoPan: true, iconAnchor: [0, 0] });
 
         const circlePopup = L.popup({ autoClose: false, autoPan: false })
-            .setContent(`<a href="${pointToAdd.PointPageUrl}">${pointToAdd.Title}</a>`);
+            .setContent(`<a href="${pointToAdd.PointPageUrl}">${pointToAdd.Title}</a><p>${pointToAdd.Summary}</p>`);
         const boundCirclePopup = toAdd.bindPopup(circlePopup);
         toAdd.addTo(map);
     }

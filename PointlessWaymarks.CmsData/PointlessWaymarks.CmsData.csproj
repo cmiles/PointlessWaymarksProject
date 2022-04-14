@@ -28,11 +28,16 @@
     <None Remove="SiteResources\images\marker-icon-2x.png" />
     <None Remove="SiteResources\images\marker-icon.png" />
     <None Remove="SiteResources\images\marker-shadow.png" />
+    <None Remove="SiteResources\L.Control.Locate.min.css" />
+    <None Remove="SiteResources\L.Control.Locate.min.js" />
+    <None Remove="SiteResources\L.Control.Locate.min.js.map" />
     <None Remove="SiteResources\leaflet-gesture-handling.min.css" />
     <None Remove="SiteResources\leaflet-gesture-handling.min.js" />
     <None Remove="SiteResources\leaflet-gesture-handling.min.js.map" />
+    <None Remove="SiteResources\location-arrow-solid.svg" />
     <None Remove="SiteResources\pointless-waymarks-content-list-search.js" />
     <None Remove="SiteResources\pointless-waymarks-spatial-common.js" />
+    <None Remove="SiteResources\spinner-solid.svg" />
   </ItemGroup>
 
   <ItemGroup>
@@ -347,13 +352,18 @@
     <EmbeddedResource Include="SiteResources\images\marker-icon-2x.png" />
     <EmbeddedResource Include="SiteResources\images\marker-icon.png" />
     <EmbeddedResource Include="SiteResources\images\marker-shadow.png" />
+    <EmbeddedResource Include="SiteResources\L.Control.Locate.min.css" />
+    <EmbeddedResource Include="SiteResources\L.Control.Locate.min.js" />
+    <EmbeddedResource Include="SiteResources\L.Control.Locate.min.js.map" />
     <EmbeddedResource Include="SiteResources\leaflet-gesture-handling.min.css" />
     <EmbeddedResource Include="SiteResources\leaflet-gesture-handling.min.js" />
     <EmbeddedResource Include="SiteResources\leaflet-gesture-handling.min.js.map" />
     <EmbeddedResource Include="SiteResources\leaflet.css" />
     <EmbeddedResource Include="SiteResources\leaflet.js" />
+    <EmbeddedResource Include="SiteResources\location-arrow-solid.svg" />
     <EmbeddedResource Include="SiteResources\pointless-waymarks-content-list-search.js" />
     <EmbeddedResource Include="SiteResources\pointless-waymarks-spatial-common.js" />
+    <EmbeddedResource Include="SiteResources\spinner-solid.svg" />
     <EmbeddedResource Include="style.css" />
   </ItemGroup>
 

@@ -21,6 +21,8 @@ public static class SpatialScripts
             $"<script src=\"{UserSettingsSingleton.CurrentSettings().SiteResourcesUrl()}leaflet.js\"></script>\r\n" +
             $"<link rel=\"stylesheet\" href=\"{UserSettingsSingleton.CurrentSettings().SiteResourcesUrl()}leaflet-gesture-handling.min.css\" type=\"text/css\">\r\n" +
             $"<script src=\"{UserSettingsSingleton.CurrentSettings().SiteResourcesUrl()}leaflet-gesture-handling.min.js\"></script>\r\n" +
+            $"<link rel=\"stylesheet\" href=\"{UserSettingsSingleton.CurrentSettings().SiteResourcesUrl()}L.Control.Locate.min.css\" type=\"text/css\">\r\n" +
+            $"<script src=\"{UserSettingsSingleton.CurrentSettings().SiteResourcesUrl()}L.Control.Locate.min.js\"></script>\r\n" +
             $"<script src=\"{UserSettingsSingleton.CurrentSettings().SiteResourcesUrl()}pointless-waymarks-spatial-common.js\"></script>";
     }
 }

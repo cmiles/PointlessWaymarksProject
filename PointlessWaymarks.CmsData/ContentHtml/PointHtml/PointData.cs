@@ -19,6 +19,7 @@ public static class PointData
         {
             x.ContentId,
             x.Title,
+            x.Summary,
             x.Longitude,
             x.Latitude,
             x.Slug,
