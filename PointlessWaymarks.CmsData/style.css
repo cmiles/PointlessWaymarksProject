@@ -136,6 +136,8 @@ body {
     font-size: 1rem;
     color: rgb(51, 136, 255);
     font-weight: bold;
+    width: max-content !important;
+    height: auto !important;
 }
 
 .info-list-container {

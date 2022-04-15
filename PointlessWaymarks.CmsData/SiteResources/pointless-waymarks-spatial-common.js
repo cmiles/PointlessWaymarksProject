@@ -263,7 +263,7 @@ function AddTextOrCircleMarkerToMap(map, pointToAdd) {
                 icon: L.divIcon({
                     className: 'point-map-label',
                     html: pointToAdd.MapLabel,
-                    iconAnchor: [0, 0]
+                    iconAnchor: [-6, 12]
                 })
             });
         const textMarkerPopup = L.popup({ autoClose: false, autoPan: false })
