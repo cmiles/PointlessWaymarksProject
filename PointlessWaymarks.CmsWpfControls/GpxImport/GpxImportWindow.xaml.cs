@@ -22,15 +22,12 @@ public partial class GpxImportWindow
 
         StatusContext.RunBlockingTask(async () =>
         {
-            ImportContext = new GpxImportContext(StatusContext);
+            ImportContext = await GpxImportContext.CreateInstance(StatusContext);
+
             if (string.IsNullOrWhiteSpace(initialImportFile))
-            {
                 await ImportContext.ChooseAndLoadFile();
-            }
             else
-            {
                 await ImportContext.LoadFile(initialImportFile);
-            }
         });
     }
 }

@@ -17,9 +17,9 @@ namespace PointlessWaymarks.CmsWpfControls.ContentFolder;
 public partial class ContentFolderContext : IHasChanges, IHasValidationIssues
 {
     [ObservableProperty] private DataNotificationsWorkQueue _dataNotificationsProcessor;
-    [ObservableProperty] private DataNotificationContentType _dataNotificationType;
-    [ObservableProperty] private ITitleSummarySlugFolder _dbEntry;
+    [ObservableProperty] private List<DataNotificationContentType> _dataNotificationType;
     [ObservableProperty] private ObservableCollection<string> _existingFolderChoices;
+    [ObservableProperty] private Func<Task<List<string>>> _getCurrentFolderNames;
     [ObservableProperty] private bool _hasChanges;
     [ObservableProperty] private bool _hasValidationIssues;
     [ObservableProperty] private string _helpText;
@@ -72,6 +72,18 @@ public partial class ContentFolderContext : IHasChanges, IHasValidationIssues
         return newControl;
     }
 
+    public static async Task<ContentFolderContext> CreateInstanceForAllGeoTypes(StatusControlContext statusContext)
+    {
+        var newControl = new ContentFolderContext(statusContext)
+        {
+            ValidationFunctions = new List<Func<string, IsValid>> { CommonContentValidation.ValidateFolder }
+        };
+
+        await newControl.LoadDataForAllGeoTypes();
+
+        return newControl;
+    }
+
     private async Task DataNotificationReceived(TinyMessageReceivedEventArgs e)
     {
         var translatedMessage = DataNotifications.TranslateDataNotification(e.Message);
@@ -85,11 +97,11 @@ public partial class ContentFolderContext : IHasChanges, IHasValidationIssues
         }
 
         if (translatedMessage.UpdateType == DataNotificationUpdateType.LocalContent ||
-            translatedMessage.ContentType != _dataNotificationType) return;
+            !DataNotificationType.Contains(translatedMessage.ContentType)) return;
 
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        var currentDbFolders = await Db.FolderNamesFromContent(DbEntry);
+        var currentDbFolders = await GetCurrentFolderNames();
 
         var newFolderNames = currentDbFolders.Except(ExistingFolderChoices).ToList();
 
@@ -110,17 +122,44 @@ public partial class ContentFolderContext : IHasChanges, IHasValidationIssues
         HelpText =
             "The Parent Folder for the Content - this will appear in the URL and allows grouping similar content together.";
 
-        DbEntry = dbEntry;
+        GetCurrentFolderNames = async () => await Db.FolderNamesFromContent(dbEntry);
 
-        var folderChoices = await Db.FolderNamesFromContent(DbEntry);
+        var folderChoices = await Db.FolderNamesFromContent(dbEntry);
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
         ExistingFolderChoices = new ObservableCollection<string>(folderChoices);
-        _dataNotificationType = DataNotifications.NotificationContentTypeFromContent(DbEntry);
+        DataNotificationType = new List<DataNotificationContentType>
+            { DataNotifications.NotificationContentTypeFromContent(dbEntry) };
 
         ReferenceValue = dbEntry?.Folder ?? string.Empty;
         UserValue = dbEntry?.Folder ?? string.Empty;
+
+        DataNotifications.NewDataNotificationChannel().MessageReceived += OnDataNotificationReceived;
+    }
+
+    public async Task LoadDataForAllGeoTypes()
+    {
+        DataNotifications.NewDataNotificationChannel().MessageReceived -= OnDataNotificationReceived;
+
+        Title = "Folder";
+        HelpText =
+            "The Parent Folder for the Content - this will appear in the URL and allows grouping similar content together.";
+
+        GetCurrentFolderNames = null;
+
+        var folderChoices = await Db.FolderNamesFromGeoContent();
+
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        ExistingFolderChoices = new ObservableCollection<string>(folderChoices);
+        DataNotificationType = new List<DataNotificationContentType>
+        {
+            DataNotificationContentType.GeoJson, DataNotificationContentType.Line, DataNotificationContentType.Point
+        };
+
+        ReferenceValue = string.Empty;
+        UserValue = string.Empty;
 
         DataNotifications.NewDataNotificationChannel().MessageReceived += OnDataNotificationReceived;
     }

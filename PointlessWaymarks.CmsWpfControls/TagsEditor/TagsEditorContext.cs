@@ -47,7 +47,7 @@ public partial class TagsEditorContext : IHasChanges, IHasValidationIssues, IChe
 
     public static TagsEditorContext CreateInstance(StatusControlContext statusContext, ITag dbEntry)
     {
-        return new(statusContext, dbEntry);
+        return new TagsEditorContext(statusContext, dbEntry);
     }
 
     private List<string> DbTagList()

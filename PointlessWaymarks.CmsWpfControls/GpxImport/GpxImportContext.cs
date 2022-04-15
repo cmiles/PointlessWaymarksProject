@@ -20,9 +20,11 @@ using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsData.Spatial;
 using PointlessWaymarks.CmsData.Spatial.Elevation;
+using PointlessWaymarks.CmsWpfControls.ContentFolder;
 using PointlessWaymarks.CmsWpfControls.LineContentEditor;
 using PointlessWaymarks.CmsWpfControls.MapComponentEditor;
 using PointlessWaymarks.CmsWpfControls.PointContentEditor;
+using PointlessWaymarks.CmsWpfControls.TagsEditor;
 using PointlessWaymarks.CmsWpfControls.WpfHtml;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
@@ -38,6 +40,7 @@ public partial class GpxImportContext
     [ObservableProperty] private RelayCommand _chooseAndLoadFileCommand;
     [ObservableProperty] private RelayCommand _clearAllForElevationReplacementCommand;
     [ObservableProperty] private RelayCommand _clearAllForImportCommand;
+    [ObservableProperty] private ContentFolderContext _folderEntry;
     [ObservableProperty] private RelayCommand _importCommand;
     [ObservableProperty] private string _importFileName;
     [ObservableProperty] private ObservableCollection<IGpxImportListItem> _items;
@@ -52,12 +55,12 @@ public partial class GpxImportContext
     [ObservableProperty] private IGpxImportListItem _selectedItem;
     [ObservableProperty] private List<IGpxImportListItem> _selectedItems;
     [ObservableProperty] private StatusControlContext _statusContext;
-    [ObservableProperty] private string _tagsForAllImports;
+    [ObservableProperty] private TagsEditorContext _tagEntry;
     [ObservableProperty] private RelayCommand _toggleSelectedForElevationReplacementCommand;
     [ObservableProperty] private RelayCommand _toggleSelectedForImportCommand;
 
 
-    public GpxImportContext(StatusControlContext statusContext)
+    private GpxImportContext(StatusControlContext statusContext)
     {
         StatusContext = statusContext ?? new StatusControlContext();
 
@@ -197,6 +200,13 @@ public partial class GpxImportContext
         foreach (var loopItems in Items) loopItems.MarkedForImport = false;
     }
 
+    public static async Task<GpxImportContext> CreateInstance(StatusControlContext statusContext)
+    {
+        var newContext = new GpxImportContext(statusContext);
+        await newContext.Load();
+        return newContext;
+    }
+
     public async Task<(LineContent newLine, bool validationError, string validationErrorNote)> GpxImportRouteToLine(
         GpxImportRoute toImport, List<CoordinateZ> elevationLookupCache)
     {
@@ -242,8 +252,8 @@ public partial class GpxImportContext
             newLine.BodyContent =
                 $"{newLine.BodyContent}{Environment.NewLine}Point Dated {toImport.CreatedOn.Value:dddd, M/d/yyy h:mm:ss tt}.";
 
-        if (!string.IsNullOrWhiteSpace(TagsForAllImports))
-            newLine.Tags = Db.TagListParseCleanAndJoin(TagsForAllImports);
+        if (!string.IsNullOrWhiteSpace(TagEntry.TagListString()))
+            newLine.Tags = TagEntry.TagListString();
 
         var validationResult = await LineGenerator.Validate(newLine);
 
@@ -288,8 +298,8 @@ public partial class GpxImportContext
             newPoint.BodyContent =
                 $"{newPoint.BodyContent}{Environment.NewLine}Point Dated {toImport.CreatedOn.Value:dddd, M/d/yyy h:mm:ss tt}.";
 
-        if (!string.IsNullOrWhiteSpace(TagsForAllImports))
-            newPoint.Tags = Db.TagListParseCleanAndJoin(TagsForAllImports);
+        if (!string.IsNullOrWhiteSpace(TagEntry.TagsValidationMessage))
+            newPoint.Tags = TagEntry.TagsValidationMessage;
 
         //use elevation Lookup Cache
         if (toImport.ReplaceElevationOnImport)
@@ -353,8 +363,8 @@ public partial class GpxImportContext
             newLine.BodyContent =
                 $"{newLine.BodyContent}{Environment.NewLine}Point Dated {toImport.CreatedOn.Value:dddd, M/d/yyy h:mm:ss tt}.";
 
-        if (!string.IsNullOrWhiteSpace(TagsForAllImports))
-            newLine.Tags = Db.TagListParseCleanAndJoin(TagsForAllImports);
+        if (!string.IsNullOrWhiteSpace(TagEntry.TagsValidationMessage))
+            newLine.Tags = TagEntry.TagsValidationMessage;
 
         var validationResult = await LineGenerator.Validate(newLine);
 
@@ -400,7 +410,7 @@ public partial class GpxImportContext
             return;
         }
 
-        if (AutoSaveImports && string.IsNullOrWhiteSpace(TagsForAllImports))
+        if (AutoSaveImports && string.IsNullOrWhiteSpace(TagEntry.TagsValidationMessage))
             await StatusContext.ShowMessageWithOkButton("Auto-Save without Tags",
                 "Auto-Save will fill in many blank details but you must provide at least on Tag.");
 
@@ -615,6 +625,14 @@ public partial class GpxImportContext
                 await RemoveFromList(loopRoute.listRoute.DisplayId);
             }
         }
+    }
+
+    public async Task Load()
+    {
+        FolderEntry = await ContentFolderContext.CreateInstanceForAllGeoTypes(StatusContext);
+        FolderEntry.Title = "Folder for All Imports";
+
+        TagEntry = TagsEditorContext.CreateInstance(StatusContext, null);
     }
 
     public async Task LoadFile(string fileName)

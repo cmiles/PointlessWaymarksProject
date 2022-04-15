@@ -11,6 +11,8 @@
     xmlns:windowScreenShot="clr-namespace:PointlessWaymarks.WpfCommon.WindowScreenShot;assembly=PointlessWaymarks.WpfCommon"
     xmlns:wpf="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
     xmlns:wpfHtml="clr-namespace:PointlessWaymarks.CmsWpfControls.WpfHtml"
+    xmlns:contentFolder="clr-namespace:PointlessWaymarks.CmsWpfControls.ContentFolder"
+    xmlns:tagsEditor="clr-namespace:PointlessWaymarks.CmsWpfControls.TagsEditor"
     d:DataContext="{d:DesignInstance local:GpxImportContext}"
     d:DesignHeight="450"
     d:DesignWidth="800"
@@ -273,8 +275,26 @@
                 Style="{StaticResource UiComponentGroupBoxStyle}">
                 <StackPanel Margin="0,6,0,8" Orientation="Vertical">
                     <CheckBox Margin="4,0,0,0" IsChecked="{Binding AutoSaveImports}">Try to Auto-Save Imports</CheckBox>
-                    <Label Margin="0,2,0,0">Tags for All Import Items:</Label>
-                    <TextBox Style="{StaticResource DataEntryTextBoxMultiLineStyle}" Text="{Binding TagsForAllImports, UpdateSourceTrigger=PropertyChanged}" />
+                    <Label
+                        Content="{Binding FolderEntry.Title}"
+                        Style="{StaticResource DataEntryLabelStyle}"
+                        Target="{Binding ElementName=FolderTextBox}"
+                        ToolTip="{Binding FolderEntry.HelpText}" />
+                    <ComboBox
+                        Name="FolderTextBox"
+                        IsEditable="True"
+                        ItemsSource="{Binding FolderEntry.ExistingFolderChoices}"
+                        Style="{StaticResource DataEntryComboBoxStyle}"
+                        Text="{Binding FolderEntry.UserValue, UpdateSourceTrigger=PropertyChanged}" />
+                    <Label
+                        Content="Tags For All Imports (Comma,Separated)"
+                        Style="{StaticResource DataEntryLabelStyle}"
+                        Target="{Binding ElementName=TagsTextBox}"
+                        ToolTip="{Binding TagEntry.HelpText}" />
+                    <TextBox
+                        Name="TagsTextBox"
+                        Style="{StaticResource DataEntryTextBoxMultiLineStyle}"
+                        Text="{Binding TagEntry.Tags, UpdateSourceTrigger=PropertyChanged, Delay=250}" />
                 </StackPanel>
             </GroupBox>
         </Grid>
