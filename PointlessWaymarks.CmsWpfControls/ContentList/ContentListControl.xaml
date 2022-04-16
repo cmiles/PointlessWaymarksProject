@@ -58,13 +58,24 @@
             </GroupBox>
             <GroupBox
                 Grid.Column="1"
-                Header="Filter"
+                Header="Search"
                 Style="{StaticResource UiComponentGroupBoxStyle}">
-                <TextBox
-                    VerticalAlignment="Stretch"
-                    AcceptsReturn="True"
-                    Text="{Binding UserFilterText, UpdateSourceTrigger=PropertyChanged, Delay=1000}"
-                    TextWrapping="Wrap" />
+                <Grid>
+                    <TextBox
+                        VerticalAlignment="Stretch"
+                        AcceptsReturn="True"
+                        Text="{Binding UserFilterText, UpdateSourceTrigger=PropertyChanged, Delay=1000}"
+                        TextWrapping="Wrap" />
+                    <Button
+                        Height="Auto"
+                        Padding="6,0,6,0"
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Bottom"
+                        Command="{Binding SearchHelpWindowCommand}"
+                        Opacity=".9">
+                        Help
+                    </Button>
+                </Grid>
             </GroupBox>
             <GroupBox
                 Grid.Column="2"

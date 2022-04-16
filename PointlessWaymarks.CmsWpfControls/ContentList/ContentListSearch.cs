@@ -229,6 +229,32 @@ public static class ContentListSearch
                 searchString.Trim(), "Title"), searchResultModifier);
     }
 
+    public static ContentListSearchReturn SearchCreatedBy(IContentListItem toFilter, string searchString,
+        Func<bool, bool> searchResultModifier)
+    {
+        if (string.IsNullOrWhiteSpace(searchString))
+            return new ContentListSearchReturn(
+                new ContentListSearchFunctionReturn(true, "Created By Search with no Search String - Including"),
+                searchResultModifier);
+
+        return new ContentListSearchReturn(
+            ContentListSearchFunctions.FilterStringContains(toFilter.Content().CreatedBy ?? string.Empty,
+                searchString.Trim(), "Created By"), searchResultModifier);
+    }
+
+    public static ContentListSearchReturn SearchLastUpdatedBy(IContentListItem toFilter, string searchString,
+        Func<bool, bool> searchResultModifier)
+    {
+        if (string.IsNullOrWhiteSpace(searchString))
+            return new ContentListSearchReturn(
+                new ContentListSearchFunctionReturn(true, "Last Updated By Search with no Search String - Including"),
+                searchResultModifier);
+
+        return new ContentListSearchReturn(
+            ContentListSearchFunctions.FilterStringContains(toFilter.Content().LastUpdatedBy ?? string.Empty,
+                searchString.Trim(), "Created By"), searchResultModifier);
+    }
+
     public record ContentListSearchReturn(ContentListSearchFunctionReturn SearchFunctionReturn,
         Func<bool, bool> ResultModifier);
 }

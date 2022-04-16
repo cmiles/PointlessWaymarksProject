@@ -22,10 +22,12 @@ using PointlessWaymarks.CmsWpfControls.ColumnSort;
 using PointlessWaymarks.CmsWpfControls.FileContentEditor;
 using PointlessWaymarks.CmsWpfControls.FileList;
 using PointlessWaymarks.CmsWpfControls.GeoJsonList;
+using PointlessWaymarks.CmsWpfControls.HelpDisplay;
 using PointlessWaymarks.CmsWpfControls.ImageList;
 using PointlessWaymarks.CmsWpfControls.LineList;
 using PointlessWaymarks.CmsWpfControls.LinkList;
 using PointlessWaymarks.CmsWpfControls.MapComponentList;
+using PointlessWaymarks.CmsWpfControls.MarkdownViewer;
 using PointlessWaymarks.CmsWpfControls.NoteList;
 using PointlessWaymarks.CmsWpfControls.PhotoContentEditor;
 using PointlessWaymarks.CmsWpfControls.PhotoList;
@@ -87,6 +89,7 @@ public partial class ContentListContext : IDragSource, IDropTarget
     [ObservableProperty] private PhotoContentActions _photoItemActions;
     [ObservableProperty] private PointContentActions _pointItemActions;
     [ObservableProperty] private PostContentActions _postItemActions;
+    [ObservableProperty] private RelayCommand _searchHelpWindowCommand;
     [ObservableProperty] private RelayCommand _selectedToExcelCommand;
     [ObservableProperty] private RelayCommand _showSitePreviewWindowCommand;
     [ObservableProperty] private StatusControlContext _statusContext;
@@ -233,6 +236,13 @@ public partial class ContentListContext : IDragSource, IDropTarget
         {
             await ThreadSwitcher.ResumeForegroundAsync();
             var newWindow = new PostListWindow { ListContext = new PostListWithActionsContext(null, WindowStatus) };
+            newWindow.PositionWindowAndShow();
+        });
+
+        SearchHelpWindowCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
+        {
+            await ThreadSwitcher.ResumeForegroundAsync();
+            var newWindow = new MarkdownViewerWindow("Search Help", SearchHelpMarkdown.HelpBlock);
             newWindow.PositionWindowAndShow();
         });
     }
@@ -602,8 +612,12 @@ public partial class ContentListContext : IDragSource, IDropTarget
                 searchFilterFunction = ContentListSearch.SearchFolder;
             else if (searchString.ToUpper().StartsWith("CREATED ON:"))
                 searchFilterFunction = ContentListSearch.SearchCreatedOn;
+            else if (searchString.ToUpper().StartsWith("CREATED BY:"))
+                searchFilterFunction = ContentListSearch.SearchCreatedBy;
             else if (searchString.ToUpper().StartsWith("LAST UPDATED ON:"))
                 searchFilterFunction = ContentListSearch.SearchLastUpdatedOn;
+            else if (searchString.ToUpper().StartsWith("LAST UPDATED BY:"))
+                searchFilterFunction = ContentListSearch.SearchLastUpdatedBy;
             else if (searchString.ToUpper().StartsWith("TAGS:")) searchFilterFunction = ContentListSearch.SearchTags;
             else if (searchString.ToUpper().StartsWith("CAMERA:"))
                 searchFilterFunction = ContentListSearch.SearchCamera;
