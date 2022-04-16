@@ -1,13 +1,30 @@
-﻿<Window x:Class="PointlessWaymarks.CmsWpfControls.MarkdownViewer.MarkdownViewerWindow"
-        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:PointlessWaymarks.CmsWpfControls.MarkdownViewer"
-        xmlns:wpf="clr-namespace:Markdig.Wpf;assembly=Markdig.Wpf"
-        mc:Ignorable="d"
-        Title="{Binding WindowTitle}" Height="600" Width="600" d:DataContext="{d:DesignInstance local:MarkdownViewerWindow}">
+﻿<Window
+    x:Class="PointlessWaymarks.CmsWpfControls.MarkdownViewer.MarkdownViewerWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="clr-namespace:PointlessWaymarks.CmsWpfControls.MarkdownViewer"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:windowScreenShot="clr-namespace:PointlessWaymarks.WpfCommon.WindowScreenShot;assembly=PointlessWaymarks.WpfCommon"
+    xmlns:wpf="clr-namespace:Markdig.Wpf;assembly=Markdig.Wpf"
+    xmlns:status="clr-namespace:PointlessWaymarks.WpfCommon.Status;assembly=PointlessWaymarks.WpfCommon"
+    Title="{Binding WindowTitle}"
+    Width="600"
+    Height="600"
+    d:DataContext="{d:DesignInstance local:MarkdownViewerWindow}"
+    mc:Ignorable="d">
     <Grid>
         <wpf:MarkdownViewer Markdown="{Binding MarkdownContent}" />
+        <status:StatusControl
+            Grid.Column="0"
+            d:IsHidden="true"
+            DataContext="{Binding StatusContext}" />
+        <windowScreenShot:WindowScreenShotControl
+            Grid.Row="0"
+            Grid.Column="0"
+            Margin="0,0,18,0"
+            HorizontalContentAlignment="Right"
+            VerticalContentAlignment="Bottom" />
+
     </Grid>
 </Window>
