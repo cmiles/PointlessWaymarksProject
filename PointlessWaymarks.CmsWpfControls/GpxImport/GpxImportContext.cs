@@ -1,9 +1,11 @@
 ﻿using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Dynamic;
 using System.IO;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using System.Windows.Data;
 using Microsoft.Toolkit.Mvvm.ComponentModel;
 using Microsoft.Toolkit.Mvvm.Input;
 using Microsoft.Web.WebView2.Core;
@@ -58,6 +60,7 @@ public partial class GpxImportContext
     [ObservableProperty] private TagsEditorContext _tagEntry;
     [ObservableProperty] private RelayCommand _toggleSelectedForElevationReplacementCommand;
     [ObservableProperty] private RelayCommand _toggleSelectedForImportCommand;
+    [ObservableProperty] private string _userFilterText;
 
 
     private GpxImportContext(StatusControlContext statusContext)
@@ -82,10 +85,13 @@ public partial class GpxImportContext
 
         RequestMapCenterCommand = StatusContext.RunNonBlockingTaskCommand<IGpxImportListItem>(RequestMapCenter);
 
+        PropertyChanged += OnPropertyChanged;
+
         PreviewHtml = WpfHtmlDocument.ToHtmlLeafletMapDocument("Map",
             UserSettingsSingleton.CurrentSettings().LatitudeDefault,
             UserSettingsSingleton.CurrentSettings().LongitudeDefault, string.Empty);
     }
+
 
     public async Task BuildMap()
     {
@@ -205,6 +211,27 @@ public partial class GpxImportContext
         var newContext = new GpxImportContext(statusContext);
         await newContext.Load();
         return newContext;
+    }
+
+    private async Task FilterList()
+    {
+        if (Items == null || !Items.Any()) return;
+
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        if (string.IsNullOrWhiteSpace(UserFilterText))
+        {
+            ((CollectionView)CollectionViewSource.GetDefaultView(Items)).Filter = _ => true;
+            return;
+        }
+
+        ((CollectionView)CollectionViewSource.GetDefaultView(Items)).Filter = o =>
+        {
+            if (o is not IGpxImportListItem listItem) return false;
+
+            return listItem.UserContentName.ToUpper().Contains(UserFilterText.ToUpper().Trim()) ||
+                   listItem.UserSummary.Contains(UserFilterText.ToUpper().Trim());
+        };
     }
 
     public async Task<(LineContent newLine, bool validationError, string validationErrorNote)> GpxImportRouteToLine(
@@ -778,6 +805,16 @@ public partial class GpxImportContext
         if (!Items?.Any() ?? true) return;
 
         foreach (var loopItems in Items) loopItems.MarkedForImport = true;
+    }
+
+    private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
+    {
+        PropertyChanged += OnPropertyChanged;
+        if (e == null) return;
+        if (string.IsNullOrWhiteSpace(e.PropertyName)) return;
+
+        if (e.PropertyName == nameof(UserFilterText))
+            StatusContext.RunFireAndForgetNonBlockingTask(FilterList);
     }
 
     public async Task RemoveFromList(Guid displayId)
