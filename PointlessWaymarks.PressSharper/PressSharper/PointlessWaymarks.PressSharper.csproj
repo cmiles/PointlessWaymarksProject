@@ -1,13 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
-    <Platforms>x64</Platforms>
     <AssemblyTitle>PressSharper</AssemblyTitle>
     <Company>Brandon Wood</Company>
     <Product>PressSharper</Product>
     <Description>A C# class library for parsing WordPress XML export data.</Description>
     <Copyright>Copyright 2012 Ben Lakey, 2016 Brandon Wood</Copyright>
-    <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="GitInfo" Version="2.2.0">

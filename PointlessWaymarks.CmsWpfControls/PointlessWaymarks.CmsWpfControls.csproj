@@ -1,11 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net6.0-windows10.0.17763.0</TargetFramework>
-    <Platforms>x64</Platforms>
     <UseWPF>true</UseWPF>
     <ApplicationIcon>PointlessWaymarksCmsIcons\favicon.ico</ApplicationIcon>
-    <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
   
@@ -27,7 +24,7 @@
     <PackageReference Include="Markdig.Wpf" Version="0.5.0.1" />
     <PackageReference Include="Microsoft.Recognizers.Text.DateTime" Version="1.8.3" />
     <PackageReference Include="Microsoft.Toolkit.Mvvm" Version="7.1.2" />
-    <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.1150.38" />
+    <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.1185.39" />
     <PackageReference Include="Ookii.Dialogs.Wpf" Version="5.0.1" />
     <PackageReference Include="System.Runtime.Caching" Version="6.0.0" />
     <PackageReference Include="TypeSupport" Version="1.1.12" />
