@@ -344,6 +344,7 @@ public static class WpfHtmlDocument
                         if(l.feature?.geometry?.type === 'LineString') {{
                             map.flyToBounds([[l.feature.bbox[1], l.feature.bbox[0]], [l.feature.bbox[3], l.feature.bbox[2]]]);
                         }}
+                        l.openPopup();
                     }}
                 }})
             }}
