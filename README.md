@@ -6,17 +6,17 @@ There is plenty of traditional ReadMe information below about this project - but
 
 At this point this project is not intended for general use - it is made public under the MIT License to share with friends, colleagues and anyone who finds the code interesting or useful.
 
-Pointless Waymarks CMS is a .NET Core 6 Windows WPF GUI for generating a static website based on database information and a settings file. It is not an 'all purpose static site generation solution'. The focus is easily creating durable, rich, low maintenance, free, long-lasting, organized content about the landscape, place, life, history and nature with support for posts, photographs, images, files and maps...
+Pointless Waymarks CMS is a .NET Core 7 Windows WPF GUI for generating a static website based on database information and a settings file. It is not an 'all purpose static site generation solution'. The focus is easily creating durable, rich, low maintenance, free, long-lasting, organized content about the landscape, place, life, history and nature with support for posts, photographs, images, files and maps...
 
 [Pointless Waymarks](https://PointlessWaymarks.com) is generated with the Pointless Waymarks CMS and is a good example of both the output and intent.
 
 Details:
  - Locally Generated Static Site - low cost, low maintenance, high durability, easy backup, doesn't have to be on the web.
- - Integrated Local Viewer - not all content should be online! In addition to making 'local only' sites pleasant this allows good review of a site before publishing and easy inspection/debugging.
+ - Integrated Local Viewer - not all content should be online! In addition to making 'local only' sites this allows easy review of a site before publishing.
  - Database Driven - flexibility in creating and updating content with the potential to generate other output formats.
  - Custom Software - optimized support for a limited set of content types and a specific set of workflows.
  - Windows Desktop WPF GUI Editor - no hosting to pay for, no server to maintain, no containers to orchestrate... WPF because it is my favorite Windows GUI technology atm and because the experimentation/learning/coding I do here flows back into my day job where I help to create and maintain a Retail Inventory Management and Reporting system that has a WPF Front End.
- - Focus on Content and Simple Functional Presentation - my experience is that websites that focus on a simple presentations of interesting content can survive, have impact and be meaningful for many many years (indefinitely?) without heavy revisions, constant updates and conversion into the latest style/newest framework.
+ - Focus on Content and Simple Functional Presentation - my experience is that websites that focus on a simple presentations of interesting content can survive, have impact and be meaningful for many many years (indefinitely?) without heavy revisions, constant updates or conversion into the latest style/newest framework.
 
 Todo Lists, Idea Lists and a Development Log are [found in a DevNotes.md file that is versioned along with the code](PointlessWaymarksCmsContentEditor/DevNotes.md).
 
