@@ -894,6 +894,36 @@ public static class ContentListSearchFunctions
             itemString.Contains(searchString, StringComparison.OrdinalIgnoreCase),
             $"{searchLabel} contains {searchString} ({contains})");
     }
+
+    public static ContentListSearchFunctionReturn FilterStringListContains(string itemString, string searchString,
+        string searchLabel)
+    {
+        if (!string.IsNullOrWhiteSpace(searchLabel) && !string.IsNullOrWhiteSpace(searchString) &&
+            searchString.StartsWith(searchLabel.Trim(), StringComparison.OrdinalIgnoreCase))
+            searchString = searchString[$"{searchLabel.Trim().Replace(":", string.Empty)}:".Length..];
+
+        if (string.IsNullOrWhiteSpace(itemString) && string.IsNullOrWhiteSpace(searchString))
+            return new ContentListSearchFunctionReturn(true, $"Blank {searchLabel} and Blank Search String (true).");
+
+        if (string.IsNullOrWhiteSpace(itemString))
+            return new ContentListSearchFunctionReturn(false,
+                $"Blank {searchLabel} with Not Blank Search String (false).");
+
+        if (string.IsNullOrWhiteSpace(searchString))
+            return new ContentListSearchFunctionReturn(false,
+                $"Blank Search String with Not Blank {searchLabel} (false).");
+
+        itemString = itemString.Trim();
+        searchString = searchString.Trim();
+
+        var searchList = FilterListSpaceDividedTokenList(searchString);
+
+        var contains = itemString.Contains(searchString, StringComparison.OrdinalIgnoreCase);
+
+        return new ContentListSearchFunctionReturn(
+            searchList.All(x => itemString.Contains(x, StringComparison.OrdinalIgnoreCase)),
+            $"{searchLabel} contains {searchString} ({contains})");
+    }
 }
 
 public record ContentListSearchFunctionReturn(bool Include, string Explanation);

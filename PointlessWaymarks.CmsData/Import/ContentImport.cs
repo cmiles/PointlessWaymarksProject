@@ -542,7 +542,7 @@ public static class ContentImport
         var rowLength = excelObjects.GetLength(0);
         var columnLength = excelObjects.GetLength(1);
 
-        var excelRow = ((Range)tableRange.Cells[1, 1]).Row;
+        var excelRowOffset = ((Range)tableRange.Cells[1, 1]).Row - 1;
 
         var translated = new List<ContentImportRow>();
 
@@ -551,9 +551,9 @@ public static class ContentImport
             var valuesToAdd = new List<string>();
             for (var c = 1; c <= columnLength; c++) valuesToAdd.Add(excelObjects[r, c]?.ToString() ?? string.Empty);
 
-            translated.Add(new ContentImportRow(valuesToAdd, $"Row {excelRow}"));
+            if(((Range)tableRange.Rows[r]).Hidden) continue;
 
-            excelRow++;
+            translated.Add(new ContentImportRow(valuesToAdd, $"Row {r + excelRowOffset}"));
         }
 
         return await ImportContentTable(translated, progress).ConfigureAwait(false);

@@ -9,6 +9,7 @@ using Microsoft.Toolkit.Mvvm.ComponentModel;
 using Microsoft.Toolkit.Mvvm.Input;
 using Ookii.Dialogs.Wpf;
 using PointlessWaymarks.CmsData;
+using PointlessWaymarks.CmsData.Content;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsWpfControls.FileContentEditor;
@@ -36,6 +37,7 @@ public partial class WordPressXmlImportContext
     [ObservableProperty] private List<WordPressXmlImportListItem> _selectedItems = new();
     [ObservableProperty] private RelayCommand _selectedToFileContentEditorCommand;
     [ObservableProperty] private RelayCommand _selectedToLinkContentEditorCommand;
+    [ObservableProperty] private RelayCommand _selectedToPostContentEditorAutoSaveCommand;
     [ObservableProperty] private RelayCommand _selectedToPostContentEditorCommand;
     [ObservableProperty] private StatusControlContext _statusContext;
     [ObservableProperty] private string _userFilterText = string.Empty;
@@ -48,7 +50,10 @@ public partial class WordPressXmlImportContext
         PropertyChanged += OnPropertyChanged;
 
         _loadWordPressXmlFileCommand = StatusContext.RunBlockingTaskCommand(LoadWordPressXmlFile);
-        _selectedToPostContentEditorCommand = StatusContext.RunBlockingTaskCommand(SelectedToPostContentEditor);
+        _selectedToPostContentEditorCommand =
+            StatusContext.RunBlockingTaskCommand(async () => await SelectedToPostContentEditor(false));
+        _selectedToPostContentEditorAutoSaveCommand =
+            StatusContext.RunBlockingTaskCommand(async () => await SelectedToPostContentEditor(true));
         _selectedToFileContentEditorCommand = StatusContext.RunBlockingTaskCommand(SelectedToFileContentEditor);
         _selectedToLinkContentEditorCommand = StatusContext.RunBlockingTaskCommand(SelectedToLinkContentEditor);
     }
@@ -221,6 +226,7 @@ public partial class WordPressXmlImportContext
                 BodyContent = loopItems.Content,
                 CreatedBy = loopItems.CreatedBy,
                 CreatedOn = loopItems.CreatedOn,
+                FeedOn = loopItems.CreatedOn,
                 Folder =
                     FolderFromYear ? loopItems.CreatedOn.Year.ToString() : loopItems.Category.Replace(" ", "-"),
                 Slug = loopItems.Slug,
@@ -268,7 +274,7 @@ public partial class WordPressXmlImportContext
         }
     }
 
-    public async Task SelectedToPostContentEditor()
+    public async Task SelectedToPostContentEditor(bool autoSave)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -278,16 +284,21 @@ public partial class WordPressXmlImportContext
             return;
         }
 
+        var frozenNow = DateTime.Now;
+
         foreach (var loopItems in SelectedItems)
         {
             var newPost = new PostContent
             {
+                ContentId = Guid.NewGuid(),
                 BodyContentFormat = UserSettingsUtilities.DefaultContentFormatChoice(),
                 UpdateNotesFormat = UserSettingsUtilities.DefaultContentFormatChoice(),
                 ShowInMainSiteFeed = true,
                 BodyContent = loopItems.Content,
                 CreatedBy = loopItems.CreatedBy,
                 CreatedOn = loopItems.CreatedOn,
+                FeedOn = loopItems.CreatedOn,
+                Summary = string.IsNullOrWhiteSpace(loopItems.Summary) ? loopItems.Title : loopItems.Summary,
                 Folder =
                     FolderFromYear ? loopItems.CreatedOn.Year.ToString() : loopItems.Category.Replace(" ", "-"),
                 Slug = loopItems.Slug,
@@ -295,9 +306,23 @@ public partial class WordPressXmlImportContext
                 Title = loopItems.Title
             };
 
+            if (autoSave)
+            {
+                var validationReturn = await PostGenerator.Validate(newPost);
+
+                if (!validationReturn.HasError)
+                {
+                    var saveResult =
+                        await PostGenerator.SaveAndGenerateHtml(newPost, frozenNow, StatusContext.ProgressTracker());
+
+                    if (!saveResult.generationReturn.HasError) continue;
+                }
+            }
 
             await ThreadSwitcher.ResumeForegroundAsync();
+
             new PostContentEditorWindow(newPost).PositionWindowAndShow();
+
             await ThreadSwitcher.ResumeBackgroundAsync();
         }
     }

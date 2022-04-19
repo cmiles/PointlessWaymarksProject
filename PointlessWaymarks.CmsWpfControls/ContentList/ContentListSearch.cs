@@ -34,6 +34,19 @@ public static class ContentListSearch
             searchResultModifier);
     }
 
+    public static ContentListSearchReturn SearchCreatedBy(IContentListItem toFilter, string searchString,
+        Func<bool, bool> searchResultModifier)
+    {
+        if (string.IsNullOrWhiteSpace(searchString))
+            return new ContentListSearchReturn(
+                new ContentListSearchFunctionReturn(true, "Created By Search with no Search String - Including"),
+                searchResultModifier);
+
+        return new ContentListSearchReturn(
+            ContentListSearchFunctions.FilterStringContains(toFilter.Content().CreatedBy ?? string.Empty,
+                searchString.Trim(), "Created By"), searchResultModifier);
+    }
+
     public static ContentListSearchReturn SearchCreatedOn(IContentListItem toFilter, string searchString,
         Func<bool, bool> searchResultModifier)
     {
@@ -125,6 +138,19 @@ public static class ContentListSearch
             ContentListSearchFunctions.FilterIso(photoItem.DbEntry.Iso.ToString(), searchString), searchResultModifier);
     }
 
+    public static ContentListSearchReturn SearchLastUpdatedBy(IContentListItem toFilter, string searchString,
+        Func<bool, bool> searchResultModifier)
+    {
+        if (string.IsNullOrWhiteSpace(searchString))
+            return new ContentListSearchReturn(
+                new ContentListSearchFunctionReturn(true, "Last Updated By Search with no Search String - Including"),
+                searchResultModifier);
+
+        return new ContentListSearchReturn(
+            ContentListSearchFunctions.FilterStringContains(toFilter.Content().LastUpdatedBy ?? string.Empty,
+                searchString.Trim(), "Created By"), searchResultModifier);
+    }
+
     public static ContentListSearchReturn SearchLastUpdatedOn(IContentListItem toFilter, string searchString,
         Func<bool, bool> searchResultModifier)
     {
@@ -212,7 +238,7 @@ public static class ContentListSearch
                 searchResultModifier);
 
         return new ContentListSearchReturn(
-            ContentListSearchFunctions.FilterStringContains(toFilter.Content().Tags ?? string.Empty,
+            ContentListSearchFunctions.FilterStringListContains(toFilter.Content().Tags ?? string.Empty,
                 searchString.Trim(), "Tags"), searchResultModifier);
     }
 
@@ -227,32 +253,6 @@ public static class ContentListSearch
         return new ContentListSearchReturn(
             ContentListSearchFunctions.FilterStringContains(toFilter.Content().Title ?? string.Empty,
                 searchString.Trim(), "Title"), searchResultModifier);
-    }
-
-    public static ContentListSearchReturn SearchCreatedBy(IContentListItem toFilter, string searchString,
-        Func<bool, bool> searchResultModifier)
-    {
-        if (string.IsNullOrWhiteSpace(searchString))
-            return new ContentListSearchReturn(
-                new ContentListSearchFunctionReturn(true, "Created By Search with no Search String - Including"),
-                searchResultModifier);
-
-        return new ContentListSearchReturn(
-            ContentListSearchFunctions.FilterStringContains(toFilter.Content().CreatedBy ?? string.Empty,
-                searchString.Trim(), "Created By"), searchResultModifier);
-    }
-
-    public static ContentListSearchReturn SearchLastUpdatedBy(IContentListItem toFilter, string searchString,
-        Func<bool, bool> searchResultModifier)
-    {
-        if (string.IsNullOrWhiteSpace(searchString))
-            return new ContentListSearchReturn(
-                new ContentListSearchFunctionReturn(true, "Last Updated By Search with no Search String - Including"),
-                searchResultModifier);
-
-        return new ContentListSearchReturn(
-            ContentListSearchFunctions.FilterStringContains(toFilter.Content().LastUpdatedBy ?? string.Empty,
-                searchString.Trim(), "Created By"), searchResultModifier);
     }
 
     public record ContentListSearchReturn(ContentListSearchFunctionReturn SearchFunctionReturn,
