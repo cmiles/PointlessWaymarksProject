@@ -81,6 +81,22 @@
                                     AcceptsReturn="True"
                                     Text="{Binding UserSummary, UpdateSourceTrigger=PropertyChanged}"
                                     TextWrapping="Wrap" />
+
+                            </Grid>
+                            <Grid Margin="0,0,0,6">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition />
+                                </Grid.ColumnDefinitions>
+                                <Label>Map Label:</Label>
+                                <TextBox
+                                    Grid.Column="1"
+                                    Width="90"
+                                    Height="Auto"
+                                    HorizontalAlignment="Left"
+                                    VerticalAlignment="Center"
+                                    Text="{Binding UserMapLabel, UpdateSourceTrigger=PropertyChanged}"
+                                    TextWrapping="Wrap" />
                             </Grid>
                             <WrapPanel Style="{StaticResource ImportImportChoiceContainer}">
                                 <CheckBox IsChecked="{Binding MarkedForImport}" Style="{StaticResource ImportImportChoiceItem}">

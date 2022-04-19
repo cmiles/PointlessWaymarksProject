@@ -975,7 +975,7 @@ public static class Db
         compiledList.AddRange(await db.PointContents.Where(x => !string.IsNullOrWhiteSpace(x.Folder)).Select(x => x.Folder)
             .Distinct().Cast<string>().ToListAsync());
 
-        compiledList = compiledList.OrderBy(x => x).ToList();
+        compiledList = compiledList.Distinct().OrderBy(x => x).ToList();
 
         return compiledList;
     }

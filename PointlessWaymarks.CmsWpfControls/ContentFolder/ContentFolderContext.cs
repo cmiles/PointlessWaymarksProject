@@ -146,13 +146,11 @@ public partial class ContentFolderContext : IHasChanges, IHasValidationIssues
         HelpText =
             "The Parent Folder for the Content - this will appear in the URL and allows grouping similar content together.";
 
-        GetCurrentFolderNames = null;
-
-        var folderChoices = await Db.FolderNamesFromGeoContent();
+        GetCurrentFolderNames = Db.FolderNamesFromGeoContent;
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
-        ExistingFolderChoices = new ObservableCollection<string>(folderChoices);
+        ExistingFolderChoices = new ObservableCollection<string>(await GetCurrentFolderNames());
         DataNotificationType = new List<DataNotificationContentType>
         {
             DataNotificationContentType.GeoJson, DataNotificationContentType.Line, DataNotificationContentType.Point

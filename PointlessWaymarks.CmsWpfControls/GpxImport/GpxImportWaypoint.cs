@@ -13,6 +13,7 @@ public partial class GpxImportWaypoint : IGpxImportListItem
     [ObservableProperty] private bool _replaceElevationOnImport;
     [ObservableProperty] private string _userContentName;
     [ObservableProperty] private string _userSummary;
+    [ObservableProperty] private string _userMapLabel;
     [ObservableProperty] private GpxWaypoint _waypoint;
 
 
@@ -41,5 +42,7 @@ public partial class GpxImportWaypoint : IGpxImportListItem
                 userSummary += $" {toLoad.Description.Trim()}";
 
         UserSummary = userSummary;
+
+        UserMapLabel = string.Empty;
     }
 }

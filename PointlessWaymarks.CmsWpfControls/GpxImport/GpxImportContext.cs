@@ -263,7 +263,7 @@ public partial class GpxImportContext
         newLine.Slug = SlugUtility.Create(true, toImport.UserContentName);
         newLine.Summary = string.IsNullOrWhiteSpace(toImport.Route.Comment)
             ? string.IsNullOrWhiteSpace(toImport.Route.Description)
-                ? "Imported Route"
+                ? toImport.UserContentName
                 : toImport.Route.Description
             : toImport.Route.Comment;
         newLine.BodyContent = string.IsNullOrWhiteSpace(toImport.Route.Comment)
@@ -272,15 +272,8 @@ public partial class GpxImportContext
         newLine.CreatedBy = string.IsNullOrWhiteSpace(UserSettingsSingleton.CurrentSettings().DefaultCreatedBy)
             ? "GPX Importer"
             : UserSettingsSingleton.CurrentSettings().DefaultCreatedBy;
-        newLine.Folder =
-            toImport.CreatedOn == null ? frozenNow.ToString("yyyy") : toImport.CreatedOn.Value.ToString("yyyy");
-
-        if (toImport.CreatedOn != null)
-            newLine.BodyContent =
-                $"{newLine.BodyContent}{Environment.NewLine}Point Dated {toImport.CreatedOn.Value:dddd, M/d/yyy h:mm:ss tt}.";
-
-        if (!string.IsNullOrWhiteSpace(TagEntry.TagListString()))
-            newLine.Tags = TagEntry.TagListString();
+        newLine.Folder = FolderEntry.UserValue;
+        newLine.Tags = TagEntry.TagListString();
 
         var validationResult = await LineGenerator.Validate(newLine);
 
@@ -301,14 +294,15 @@ public partial class GpxImportContext
             Slug = SlugUtility.Create(true, toImport.UserContentName),
             Summary = string.IsNullOrWhiteSpace(toImport.Waypoint.Comment)
                 ? string.IsNullOrWhiteSpace(toImport.Waypoint.Description)
-                    ? "Imported Waypoint"
+                    ? toImport.UserContentName
                     : toImport.Waypoint.Description
                 : toImport.Waypoint.Comment,
+            MapLabel = toImport.UserMapLabel,
             BodyContent = string.IsNullOrWhiteSpace(toImport.Waypoint.Comment)
                 ? string.Empty
                 : toImport.Waypoint.Description,
             BodyContentFormat = ContentFormatDefaults.Content.ToString(),
-            CreatedOn = frozenNow,
+            CreatedOn = toImport.CreatedOn ?? frozenNow,
             CreatedBy = string.IsNullOrWhiteSpace(UserSettingsSingleton.CurrentSettings().DefaultCreatedBy)
                 ? "GPX Importer"
                 : UserSettingsSingleton.CurrentSettings().DefaultCreatedBy,
@@ -316,17 +310,10 @@ public partial class GpxImportContext
             Latitude = toImport.Waypoint.Latitude,
             Longitude = toImport.Waypoint.Longitude,
             Elevation = toImport.Waypoint.ElevationInMeters.MetersToFeet(),
-            Folder =
-                toImport.CreatedOn == null ? frozenNow.ToString("yyyy") : toImport.CreatedOn.Value.ToString("yyyy"),
+            Tags = TagEntry.TagListString(),
+            Folder = FolderEntry.UserValue,
             UpdateNotesFormat = ContentFormatDefaults.Content.ToString()
         };
-
-        if (toImport.CreatedOn != null)
-            newPoint.BodyContent =
-                $"{newPoint.BodyContent}{Environment.NewLine}Point Dated {toImport.CreatedOn.Value:dddd, M/d/yyy h:mm:ss tt}.";
-
-        if (!string.IsNullOrWhiteSpace(TagEntry.TagsValidationMessage))
-            newPoint.Tags = TagEntry.TagsValidationMessage;
 
         //use elevation Lookup Cache
         if (toImport.ReplaceElevationOnImport)
@@ -374,7 +361,7 @@ public partial class GpxImportContext
         newLine.Slug = SlugUtility.Create(true, toImport.UserContentName);
         newLine.Summary = string.IsNullOrWhiteSpace(toImport.Track.Comment)
             ? string.IsNullOrWhiteSpace(toImport.Track.Description)
-                ? "Imported Track"
+                ? toImport.UserContentName
                 : toImport.Track.Description
             : toImport.Track.Comment;
         newLine.BodyContent = string.IsNullOrWhiteSpace(toImport.Track.Comment)
@@ -383,15 +370,8 @@ public partial class GpxImportContext
         newLine.CreatedBy = string.IsNullOrWhiteSpace(UserSettingsSingleton.CurrentSettings().DefaultCreatedBy)
             ? "GPX Importer"
             : UserSettingsSingleton.CurrentSettings().DefaultCreatedBy;
-        newLine.Folder =
-            toImport.CreatedOn == null ? frozenNow.ToString("yyyy") : toImport.CreatedOn.Value.ToString("yyyy");
-
-        if (toImport.CreatedOn != null)
-            newLine.BodyContent =
-                $"{newLine.BodyContent}{Environment.NewLine}Point Dated {toImport.CreatedOn.Value:dddd, M/d/yyy h:mm:ss tt}.";
-
-        if (!string.IsNullOrWhiteSpace(TagEntry.TagsValidationMessage))
-            newLine.Tags = TagEntry.TagsValidationMessage;
+        newLine.Folder = FolderEntry.UserValue;
+        newLine.Tags = TagEntry.TagListString();
 
         var validationResult = await LineGenerator.Validate(newLine);
 
@@ -430,16 +410,19 @@ public partial class GpxImportContext
             return;
         }
 
-        if (AutoSaveImports && importItems.Any(x => string.IsNullOrWhiteSpace(x.UserSummary)))
+        if (AutoSaveImports && FolderEntry.HasValidationIssues)
         {
-            await StatusContext.ShowMessageWithOkButton("Import Validation Error",
-                "With Auto-Save selected all items for import must have a Summary that isn't blank.");
+            await StatusContext.ShowMessageWithOkButton("Auto-Save Folder Validation",
+                $"Folder Validation Problems... {FolderEntry.ValidationMessage}");
             return;
         }
 
-        if (AutoSaveImports && string.IsNullOrWhiteSpace(TagEntry.TagsValidationMessage))
-            await StatusContext.ShowMessageWithOkButton("Auto-Save without Tags",
-                "Auto-Save will fill in many blank details but you must provide at least on Tag.");
+        if (AutoSaveImports && TagEntry.HasValidationIssues)
+        {
+            await StatusContext.ShowMessageWithOkButton("Auto-Save Tag Validation",
+                $"Tag Validation Problems... {TagEntry.TagsValidationMessage}");
+            return;
+        }
 
         var elevationCache = new List<CoordinateZ>();
 
@@ -555,6 +538,11 @@ public partial class GpxImportContext
                     var editor = new PointContentEditorWindow(editorPoint);
                     editor.PositionWindowAndShow();
 
+#pragma warning disable 4014
+                    //Allow execution to continue so Automation can continue
+                    editor.StatusContext.ShowMessageWithOkButton("Problem Saving", saveResult.generationReturn.GenerationNote);
+#pragma warning restore 4014
+
                     await ThreadSwitcher.ResumeBackgroundAsync();
                 }
 
@@ -577,6 +565,11 @@ public partial class GpxImportContext
                     var editor = new LineContentEditorWindow(editorLine);
                     editor.PositionWindowAndShow();
 
+#pragma warning disable 4014
+                    //Allow execution to continue so Automation can continue
+                    editor.StatusContext.ShowMessageWithOkButton("Problem Saving", saveResult.generationReturn.GenerationNote);
+#pragma warning restore 4014
+
                     await ThreadSwitcher.ResumeBackgroundAsync();
                 }
 
@@ -598,6 +591,11 @@ public partial class GpxImportContext
 
                     var editor = new LineContentEditorWindow(editorLine);
                     editor.PositionWindowAndShow();
+
+#pragma warning disable 4014
+                    //Allow execution to continue so Automation can continue
+                    editor.StatusContext.ShowMessageWithOkButton("Problem Saving", saveResult.generationReturn.GenerationNote);
+#pragma warning restore 4014
 
                     await ThreadSwitcher.ResumeBackgroundAsync();
                 }
