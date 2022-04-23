@@ -13,6 +13,7 @@
     xmlns:windowScreenShot="clr-namespace:PointlessWaymarks.WpfCommon.WindowScreenShot;assembly=PointlessWaymarks.WpfCommon"
     xmlns:wpf="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
     xmlns:wpfHtml="clr-namespace:PointlessWaymarks.CmsWpfControls.WpfHtml"
+    xmlns:columnSort="clr-namespace:PointlessWaymarks.CmsWpfControls.ColumnSort"
     d:DataContext="{d:DesignInstance local:GpxImportContext}"
     d:DesignHeight="450"
     d:DesignWidth="800"
@@ -258,15 +259,28 @@
                 <RowDefinition />
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
-            <GroupBox Header="Search" Style="{StaticResource UiComponentGroupBoxStyle}">
-                <Grid>
-                    <TextBox
-                        VerticalAlignment="Stretch"
-                        AcceptsReturn="True"
-                        Text="{Binding UserFilterText, UpdateSourceTrigger=PropertyChanged, Delay=1000}"
-                        TextWrapping="Wrap" />
-                </Grid>
-            </GroupBox>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"></ColumnDefinition>
+                    <ColumnDefinition Width="Auto"></ColumnDefinition>
+                </Grid.ColumnDefinitions>
+                <GroupBox Header="Search" Style="{StaticResource UiComponentGroupBoxStyle}">
+                    <Grid>
+                        <TextBox
+                            VerticalAlignment="Stretch"
+                            AcceptsReturn="True"
+                            Text="{Binding UserFilterText, UpdateSourceTrigger=PropertyChanged, Delay=1000}"
+                            TextWrapping="Wrap" />
+                    </Grid>
+                </GroupBox>
+                <GroupBox
+                    Grid.Column="1"
+                    Header="Sort"
+                    Style="{StaticResource UiComponentGroupBoxStyle}">
+                    <columnSort:ColumnSortControl DataContext="{Binding ListSort}" />
+                </GroupBox>
+            </Grid>
+
             <GroupBox
                 Grid.Row="1"
                 VerticalAlignment="Stretch"

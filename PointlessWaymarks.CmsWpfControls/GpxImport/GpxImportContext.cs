@@ -6,6 +6,7 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Windows.Data;
+using System.Windows.Threading;
 using Microsoft.Toolkit.Mvvm.ComponentModel;
 using Microsoft.Toolkit.Mvvm.Input;
 using Microsoft.Web.WebView2.Core;
@@ -22,6 +23,7 @@ using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsData.Spatial;
 using PointlessWaymarks.CmsData.Spatial.Elevation;
+using PointlessWaymarks.CmsWpfControls.ColumnSort;
 using PointlessWaymarks.CmsWpfControls.ContentFolder;
 using PointlessWaymarks.CmsWpfControls.LineContentEditor;
 using PointlessWaymarks.CmsWpfControls.MapComponentEditor;
@@ -47,6 +49,7 @@ public partial class GpxImportContext
     [ObservableProperty] private string _importFileName;
     [ObservableProperty] private ObservableCollection<IGpxImportListItem> _items;
     [ObservableProperty] private ObservableCollection<IGpxImportListItem> _listSelection;
+    [ObservableProperty] private ColumnSortControlContext _listSort;
     [ObservableProperty] private RelayCommand<CoreWebView2WebMessageReceivedEventArgs> _mapMessageReceivedCommand;
     [ObservableProperty] private RelayCommand _markAllForElevationReplacementCommand;
     [ObservableProperty] private RelayCommand _markAllForImportCommand;
@@ -90,6 +93,29 @@ public partial class GpxImportContext
         PreviewHtml = WpfHtmlDocument.ToHtmlLeafletMapDocument("Map",
             UserSettingsSingleton.CurrentSettings().LatitudeDefault,
             UserSettingsSingleton.CurrentSettings().LongitudeDefault, string.Empty);
+
+        ListSort = new ColumnSortControlContext
+        {
+            Items = new List<ColumnSortControlSortItem>
+            {
+                new()
+                {
+                    DisplayName = "Name",
+                    ColumnName = "UserContentName",
+                    DefaultSortDirection = ListSortDirection.Ascending,
+                    Order = 1
+                },
+                new()
+                {
+                    DisplayName = "Created",
+                    ColumnName = "CreatedOn",
+                    DefaultSortDirection = ListSortDirection.Descending
+                }
+            }
+        };
+
+        ListSort.SortUpdated += (_, list) =>
+            Dispatcher.CurrentDispatcher.Invoke(() => { ListContextSortHelpers.SortList(list, Items); });
     }
 
 
@@ -239,8 +265,6 @@ public partial class GpxImportContext
     {
         StatusContext.Progress($"Processing Route {toImport.UserContentName} into Line Content");
 
-        var frozenNow = DateTime.Now;
-
         //use elevation Lookup Cache
         if (toImport.ReplaceElevationOnImport)
         {
@@ -336,8 +360,6 @@ public partial class GpxImportContext
         GpxImportTrack toImport, List<CoordinateZ> elevationLookupCache)
     {
         StatusContext.Progress($"Processing Track {toImport.UserContentName} into Line Content");
-
-        var frozenNow = DateTime.Now;
 
         //use elevation Lookup Cache
         if (toImport.ReplaceElevationOnImport)
@@ -540,7 +562,8 @@ public partial class GpxImportContext
 
 #pragma warning disable 4014
                     //Allow execution to continue so Automation can continue
-                    editor.StatusContext.ShowMessageWithOkButton("Problem Saving", saveResult.generationReturn.GenerationNote);
+                    editor.StatusContext.ShowMessageWithOkButton("Problem Saving",
+                        saveResult.generationReturn.GenerationNote);
 #pragma warning restore 4014
 
                     await ThreadSwitcher.ResumeBackgroundAsync();
@@ -567,7 +590,8 @@ public partial class GpxImportContext
 
 #pragma warning disable 4014
                     //Allow execution to continue so Automation can continue
-                    editor.StatusContext.ShowMessageWithOkButton("Problem Saving", saveResult.generationReturn.GenerationNote);
+                    editor.StatusContext.ShowMessageWithOkButton("Problem Saving",
+                        saveResult.generationReturn.GenerationNote);
 #pragma warning restore 4014
 
                     await ThreadSwitcher.ResumeBackgroundAsync();
@@ -594,7 +618,8 @@ public partial class GpxImportContext
 
 #pragma warning disable 4014
                     //Allow execution to continue so Automation can continue
-                    editor.StatusContext.ShowMessageWithOkButton("Problem Saving", saveResult.generationReturn.GenerationNote);
+                    editor.StatusContext.ShowMessageWithOkButton("Problem Saving",
+                        saveResult.generationReturn.GenerationNote);
 #pragma warning restore 4014
 
                     await ThreadSwitcher.ResumeBackgroundAsync();
@@ -650,6 +675,9 @@ public partial class GpxImportContext
                 await RemoveFromList(loopRoute.listRoute.DisplayId);
             }
         }
+
+        ListContextSortHelpers.SortList(ListSort.SortDescriptions(), Items);
+        await FilterList();
     }
 
     public async Task Load()
