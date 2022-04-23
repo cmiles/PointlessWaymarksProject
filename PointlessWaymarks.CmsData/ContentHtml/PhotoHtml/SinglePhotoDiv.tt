@@ -3,7 +3,7 @@
 
 <div class="content-container" data-contentversion="<#=DbEntry.ContentVersion.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fffffff") #>">
     <#=
-                PictureInformation.PictureFigureWithCaptionTag("100vw") #>
+                PictureInformation.PictureFigureWithCaptionAndLinkToPicturePageTag("100vw") #>
     <#=
                 PhotoParts.PhotoDetailsDiv(DbEntry).ToString() #>
     <#= Tags.PostBodyDiv(DbEntry).Result.ToString() #>
