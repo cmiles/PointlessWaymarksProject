@@ -413,6 +413,9 @@ public static class ContentImport
                 var friendlyReport = new UserFriendlyReport();
                 differenceString = friendlyReport.OutputString(comparisonResult.Differences);
 
+                if (string.IsNullOrWhiteSpace(importResult.processContent.LastUpdatedBy))
+                    importResult.processContent.LastUpdatedBy =
+                        UserSettingsSingleton.CurrentSettings().DefaultCreatedBy;
                 importResult.processContent.LastUpdatedOn = DateTime.Now;
             }
             else
