@@ -65,7 +65,6 @@ public partial class GpxImportContext
     [ObservableProperty] private RelayCommand _toggleSelectedForImportCommand;
     [ObservableProperty] private string _userFilterText;
 
-
     private GpxImportContext(StatusControlContext statusContext)
     {
         StatusContext = statusContext ?? new StatusControlContext();

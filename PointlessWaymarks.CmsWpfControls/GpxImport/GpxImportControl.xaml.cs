@@ -27,7 +27,7 @@ public partial class GpxImportControl
         GpxImportWebView.CoreWebView2.PostWebMessageAsJson(json);
     }
 
-    private void PointContentEditorControl_OnDataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
+    private void GpxImportControl_OnDataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
     {
         if (e.NewValue is GpxImportContext gpxContext)
         {

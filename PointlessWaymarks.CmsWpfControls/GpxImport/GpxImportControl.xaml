@@ -17,7 +17,7 @@
     d:DataContext="{d:DesignInstance local:GpxImportContext}"
     d:DesignHeight="450"
     d:DesignWidth="800"
-    DataContextChanged="PointContentEditorControl_OnDataContextChanged"
+    DataContextChanged="GpxImportControl_OnDataContextChanged"
     Loaded="GpxImportControl_OnLoaded"
     mc:Ignorable="d">
     <UserControl.Resources>
