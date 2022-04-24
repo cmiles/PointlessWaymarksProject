@@ -15,7 +15,7 @@ public class DataNotificationsWorkQueue
 
     public DataNotificationsWorkQueue()
     {
-        var thread = new Thread(OnStart) {IsBackground = true};
+        var thread = new Thread(OnStart) { IsBackground = true };
         thread.Start();
     }
 
@@ -26,12 +26,12 @@ public class DataNotificationsWorkQueue
         _jobs.Add(job);
     }
 
-    private void OnStart()
+    private async void OnStart()
     {
         foreach (var job in _jobs.GetConsumingEnumerable(CancellationToken.None))
             try
             {
-                Processor?.Invoke(job).Wait();
+                if (Processor != null) await Processor.Invoke(job);
             }
             catch (Exception e)
             {
