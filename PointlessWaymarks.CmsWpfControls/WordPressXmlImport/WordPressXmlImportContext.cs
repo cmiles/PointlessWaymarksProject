@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.IO;
 using System.Text.RegularExpressions;
 using System.Windows.Data;
+using System.Windows.Threading;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Toolkit.Mvvm.ComponentModel;
 using Microsoft.Toolkit.Mvvm.Input;
@@ -12,6 +13,7 @@ using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.Content;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
+using PointlessWaymarks.CmsWpfControls.ColumnSort;
 using PointlessWaymarks.CmsWpfControls.FileContentEditor;
 using PointlessWaymarks.CmsWpfControls.LinkContentEditor;
 using PointlessWaymarks.CmsWpfControls.PostContentEditor;
@@ -33,6 +35,7 @@ public partial class WordPressXmlImportContext
     [ObservableProperty] private bool _importPosts = true;
     [ObservableProperty] private ObservableCollection<WordPressXmlImportListItem>? _items;
     [ObservableProperty] private ContentListSelected<WordPressXmlImportListItem>? _listSelection;
+    [ObservableProperty] private ColumnSortControlContext _listSort;
     [ObservableProperty] private RelayCommand _loadWordPressXmlFileCommand;
     [ObservableProperty] private List<WordPressXmlImportListItem> _selectedItems = new();
     [ObservableProperty] private RelayCommand _selectedToFileContentEditorCommand;
@@ -42,6 +45,7 @@ public partial class WordPressXmlImportContext
     [ObservableProperty] private StatusControlContext _statusContext;
     [ObservableProperty] private string _userFilterText = string.Empty;
     [ObservableProperty] private Blog? _wordPressData;
+
 
     public WordPressXmlImportContext(StatusControlContext? statusContext)
     {
@@ -56,6 +60,35 @@ public partial class WordPressXmlImportContext
             StatusContext.RunBlockingTaskCommand(async () => await SelectedToPostContentEditor(true));
         _selectedToFileContentEditorCommand = StatusContext.RunBlockingTaskCommand(SelectedToFileContentEditor);
         _selectedToLinkContentEditorCommand = StatusContext.RunBlockingTaskCommand(SelectedToLinkContentEditor);
+
+        _listSort = new ColumnSortControlContext
+        {
+            Items = new List<ColumnSortControlSortItem>
+            {
+                new()
+                {
+                    DisplayName = "Created",
+                    ColumnName = "CreatedOn",
+                    DefaultSortDirection = ListSortDirection.Descending,
+                    Order = 1
+                },
+                new()
+                {
+                    DisplayName = "Title",
+                    ColumnName = "Title",
+                    DefaultSortDirection = ListSortDirection.Ascending
+                },
+                new()
+                {
+                    DisplayName = "Category",
+                    ColumnName = "Category",
+                    DefaultSortDirection = ListSortDirection.Descending
+                }
+            }
+        };
+
+        ListSort.SortUpdated += (_, list) =>
+            Dispatcher.CurrentDispatcher.Invoke(() => { ListContextSortHelpers.SortList(list, Items); });
     }
 
     private async Task FilterList()
@@ -196,6 +229,7 @@ public partial class WordPressXmlImportContext
         Items.Clear();
         processedContent.ForEach(x => Items.Add(x));
 
+        ListContextSortHelpers.SortList(ListSort.SortDescriptions(), Items);
         await FilterList();
     }
 
