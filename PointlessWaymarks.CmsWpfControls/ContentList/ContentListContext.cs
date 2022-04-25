@@ -56,6 +56,7 @@ public partial class ContentListContext : IDragSource, IDropTarget
     [ObservableProperty] private RelayCommand _editSelectedCommand;
     [ObservableProperty] private RelayCommand _extractNewLinksSelectedCommand;
     [ObservableProperty] private FileContentActions _fileItemActions;
+    [ObservableProperty] private bool _filterOnUiShown;
     [ObservableProperty] private RelayCommand<string> _folderSearchCommand;
     [ObservableProperty] private RelayCommand _generateChangedHtmlAndShowSitePreviewCommand;
     [ObservableProperty] private RelayCommand _generateChangedHtmlAndStartUploadCommand;
@@ -98,11 +99,13 @@ public partial class ContentListContext : IDragSource, IDropTarget
     [ObservableProperty] private RelayCommand _viewOnSiteCommand;
     [ObservableProperty] private WindowIconStatus _windowStatus;
 
-
     public ContentListContext(StatusControlContext statusContext, IContentListLoader loader,
         WindowIconStatus windowStatus = null)
     {
         StatusContext = statusContext ?? new StatusControlContext();
+
+        StatusContext.PropertyChanged += StatusContextOnPropertyChanged;
+
         WindowStatus = windowStatus;
 
         PropertyChanged += OnPropertyChanged;
@@ -493,7 +496,8 @@ public partial class ContentListContext : IDragSource, IDropTarget
                 itemWithSmallImage.SmallImageUrl = GetSmallImageUrl(mainImage);
         }
 
-        StatusContext.RunFireAndForgetNonBlockingTask(FilterList);
+        if (StatusContext.BlockUi) FilterOnUiShown = true;
+        else StatusContext.RunFireAndForgetNonBlockingTask(FilterList);
     }
 
     public async Task DeleteSelected(CancellationToken cancelToken)
@@ -881,6 +885,16 @@ public partial class ContentListContext : IDragSource, IDropTarget
         var sitePreviewWindow = new SiteOnDiskPreviewWindow();
 
         sitePreviewWindow.PositionWindowAndShow();
+    }
+
+    private void StatusContextOnPropertyChanged(object sender, PropertyChangedEventArgs e)
+    {
+        if (string.IsNullOrWhiteSpace(e?.PropertyName)) return;
+        if (e.PropertyName == nameof(StatusContext.BlockUi) && !StatusContext.BlockUi && FilterOnUiShown)
+        {
+            FilterOnUiShown = !FilterOnUiShown;
+            StatusContext.RunFireAndForgetNonBlockingTask(FilterList);
+        }
     }
 
     private async Task TryOpenEditorsForDroppedFiles(List<string> files, StatusControlContext statusContext)
