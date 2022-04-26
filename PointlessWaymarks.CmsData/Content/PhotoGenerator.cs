@@ -60,7 +60,18 @@ public static class PhotoGenerator
         if (string.IsNullOrWhiteSpace(toReturn.PhotoCreatedBy))
             toReturn.PhotoCreatedBy = iptcDirectory?.GetDescription(IptcDirectory.TagByLine) ?? string.Empty;
 
+        //Created on stack of choices - this is a very anecdotal list and ordering based on photos I have seen that 
+        //are mostly mine - this could no doubt be improved with some research into what various open source 
+        //photo/media imports are doing and/or finding a great test set of photos
         var createdOn = exifSubIfDirectory?.GetDescription(ExifDirectoryBase.TagDateTimeOriginal);
+        if (string.IsNullOrWhiteSpace(createdOn))
+            createdOn = exifDirectory?.GetDescription(ExifDirectoryBase.TagDateTimeOriginal);
+        if (string.IsNullOrWhiteSpace(createdOn))
+            createdOn = exifSubIfDirectory?.GetDescription(ExifDirectoryBase.TagDateTime);
+        if (string.IsNullOrWhiteSpace(createdOn))
+            createdOn = exifDirectory?.GetDescription(ExifDirectoryBase.TagDateTime);
+
+        //If no string is returned from the EXIF then try for GPX information and fallback to now
         if (string.IsNullOrWhiteSpace(createdOn))
         {
             if (gpsDirectory?.TryGetGpsDate(out var gpsDateTime) ?? false)
@@ -72,10 +83,10 @@ public static class PhotoGenerator
                 toReturn.PhotoCreatedOn = DateTime.Now;
             }
         }
+        //If a string was found in the Exif try to parse it or fallback to now
         else
         {
-            var createdOnParsed = DateTime.TryParseExact(
-                exifSubIfDirectory?.GetDescription(ExifDirectoryBase.TagDateTimeOriginal), "yyyy:MM:dd HH:mm:ss",
+            var createdOnParsed = DateTime.TryParseExact(createdOn, "yyyy:MM:dd HH:mm:ss",
                 CultureInfo.InvariantCulture, DateTimeStyles.None, out var parsedDate);
 
             toReturn.PhotoCreatedOn = createdOnParsed ? parsedDate : DateTime.Now;
