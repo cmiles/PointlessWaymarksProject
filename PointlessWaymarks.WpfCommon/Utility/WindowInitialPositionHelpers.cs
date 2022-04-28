@@ -121,6 +121,13 @@ public static class WindowInitialPositionHelpers
         toPosition.Show();
     }
 
+    public static async Task PositionWindowAndShowOnUiThread(this Window toPosition)
+    {
+        await ThreadSwitcher.ThreadSwitcher.ResumeForegroundAsync();
+
+        toPosition.PositionWindowAndShow();
+    }
+
     public static IntPtr WindowToHwnd(Window window)
     {
         return new WindowInteropHelper(window).EnsureHandle();

@@ -917,12 +917,8 @@ public partial class ContentListContext : IDragSource, IDropTarget
 
             if (fileContentExtensions.Contains(Path.GetExtension(loopFile).ToUpperInvariant()))
             {
-                await ThreadSwitcher.ResumeForegroundAsync();
-
-                var newEditor = new FileContentEditorWindow(new FileInfo(loopFile));
-                newEditor.PositionWindowAndShow();
-
-                await ThreadSwitcher.ResumeBackgroundAsync();
+                var newEditor = await FileContentEditorWindow.CreateInstance(new FileInfo(loopFile));
+                await newEditor.PositionWindowAndShowOnUiThread();
 
                 statusContext.ToastSuccess($"{Path.GetFileName(loopFile)} sent to File Editor");
 

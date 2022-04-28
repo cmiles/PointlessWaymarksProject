@@ -114,13 +114,9 @@ public partial class FileContentActions : ObservableObject, IContentActions<File
             StatusContext.ToastError(
                 $"{content.Title} is no longer active in the database? Can not edit - look for a historic version...");
 
-        await ThreadSwitcher.ResumeForegroundAsync();
+        var newContentWindow = await FileContentEditorWindow.CreateInstance(refreshedData);
 
-        var newContentWindow = new FileContentEditorWindow(refreshedData);
-
-        newContentWindow.PositionWindowAndShow();
-
-        await ThreadSwitcher.ResumeBackgroundAsync();
+        await newContentWindow.PositionWindowAndShowOnUiThread();
     }
 
     public async Task ExtractNewLinks(FileContent content)

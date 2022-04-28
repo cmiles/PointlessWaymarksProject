@@ -270,7 +270,7 @@ public partial class WordPressXmlImportContext
 
 
             await ThreadSwitcher.ResumeForegroundAsync();
-            new FileContentEditorWindow(newContent).PositionWindowAndShow();
+            (await FileContentEditorWindow.CreateInstance(newContent)).PositionWindowAndShow();
             await ThreadSwitcher.ResumeBackgroundAsync();
         }
     }

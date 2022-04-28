@@ -231,7 +231,7 @@ public partial class TagListContext
         switch (content)
         {
             case FileContent c:
-                new FileContentEditorWindow(c).PositionWindowAndShow();
+                (await FileContentEditorWindow.CreateInstance(c)).PositionWindowAndShow();
                 break;
             case ImageContent c:
                 new ImageContentEditorWindow(c).PositionWindowAndShow();

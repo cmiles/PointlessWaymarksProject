@@ -111,11 +111,8 @@ public partial class NewContent
 
     public async Task NewFileContent()
     {
-        await ThreadSwitcher.ResumeForegroundAsync();
-
-        var newContentWindow = new FileContentEditorWindow();
-
-        newContentWindow.PositionWindowAndShow();
+        var newContentWindow = await FileContentEditorWindow.CreateInstance();
+        await newContentWindow.PositionWindowAndShowOnUiThread();
     }
 
     public async Task NewFileContentFromFiles(CancellationToken cancellationToken)
@@ -154,10 +151,8 @@ public partial class NewContent
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            await ThreadSwitcher.ResumeForegroundAsync();
-
-            var editor = new FileContentEditorWindow(loopFile);
-            editor.PositionWindowAndShow();
+            var editor = await FileContentEditorWindow.CreateInstance(loopFile);
+            await editor.PositionWindowAndShowOnUiThread();
 
             StatusContext.Progress($"New File Editor - {loopFile.FullName} ");
 

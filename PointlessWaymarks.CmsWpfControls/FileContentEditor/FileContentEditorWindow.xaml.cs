@@ -18,50 +18,69 @@ public partial class FileContentEditorWindow
     {
         InitializeComponent();
         StatusContext = new StatusControlContext();
-
-        StatusContext.RunFireAndForgetBlockingTask(async () =>
-        {
-            FileContent = await FileContentEditorContext.CreateInstance(StatusContext);
-
-            FileContent.RequestContentEditorWindowClose += (_, _) => { Dispatcher?.Invoke(Close); };
-            AccidentalCloserHelper = new WindowAccidentalClosureHelper(this, StatusContext, FileContent);
-
-            await ThreadSwitcher.ResumeForegroundAsync();
-            DataContext = this;
-        });
     }
 
-    public FileContentEditorWindow(FileInfo initialFile)
+    public static async Task<FileContentEditorWindow> CreateInstance()
     {
-        InitializeComponent();
-        StatusContext = new StatusControlContext();
+        await ThreadSwitcher.ResumeForegroundAsync();
 
-        StatusContext.RunFireAndForgetBlockingTask(async () =>
-        {
-            FileContent = await FileContentEditorContext.CreateInstance(StatusContext, initialFile);
+        var window = new FileContentEditorWindow();
 
-            FileContent.RequestContentEditorWindowClose += (_, _) => { Dispatcher?.Invoke(Close); };
-            AccidentalCloserHelper = new WindowAccidentalClosureHelper(this, StatusContext, FileContent);
+        await ThreadSwitcher.ResumeBackgroundAsync();
 
-            await ThreadSwitcher.ResumeForegroundAsync();
-            DataContext = this;
-        });
+        window.FileContent = await FileContentEditorContext.CreateInstance(window.StatusContext);
+
+        window.FileContent.RequestContentEditorWindowClose += (_, _) => { window.Dispatcher?.Invoke(window.Close); };
+
+        window.AccidentalCloserHelper = new WindowAccidentalClosureHelper(window, window.StatusContext, window.FileContent);
+
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        window.DataContext = window;
+
+        return window;
     }
 
-    public FileContentEditorWindow(FileContent toLoad)
+    public static async Task<FileContentEditorWindow> CreateInstance(FileInfo initialFile)
     {
-        InitializeComponent();
-        StatusContext = new StatusControlContext();
+        await ThreadSwitcher.ResumeForegroundAsync();
 
-        StatusContext.RunFireAndForgetBlockingTask(async () =>
-        {
-            FileContent = await FileContentEditorContext.CreateInstance(StatusContext, toLoad);
+        var window = new FileContentEditorWindow();
 
-            FileContent.RequestContentEditorWindowClose += (_, _) => { Dispatcher?.Invoke(Close); };
-            AccidentalCloserHelper = new WindowAccidentalClosureHelper(this, StatusContext, FileContent);
+        await ThreadSwitcher.ResumeBackgroundAsync();
 
-            await ThreadSwitcher.ResumeForegroundAsync();
-            DataContext = this;
-        });
+        window.FileContent = await FileContentEditorContext.CreateInstance(window.StatusContext, initialFile);
+
+        window.FileContent.RequestContentEditorWindowClose += (_, _) => { window.Dispatcher?.Invoke(window.Close); };
+
+        window.AccidentalCloserHelper = new WindowAccidentalClosureHelper(window, window.StatusContext, window.FileContent);
+
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        window.DataContext = window;
+
+        return window;
     }
+
+    public static async Task<FileContentEditorWindow> CreateInstance(FileContent toLoad)
+    {
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        var window = new FileContentEditorWindow();
+
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        window.FileContent = await FileContentEditorContext.CreateInstance(window.StatusContext, toLoad);
+
+        window.FileContent.RequestContentEditorWindowClose += (_, _) => { window.Dispatcher?.Invoke(window.Close); };
+
+        window.AccidentalCloserHelper = new WindowAccidentalClosureHelper(window, window.StatusContext, window.FileContent);
+
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        window.DataContext = window;
+
+        return window;
+    }
+
 }

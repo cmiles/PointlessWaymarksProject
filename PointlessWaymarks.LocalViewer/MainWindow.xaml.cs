@@ -38,8 +38,7 @@ public partial class MainWindow
 
         if (string.IsNullOrWhiteSpace(siteUrl) || string.IsNullOrWhiteSpace(siteName))
         {
-            var possibleFile = Directory.EnumerateFiles(localFolder, "index.htm*")
-                .OrderBy(x => x.Length).FirstOrDefault();
+            var possibleFile = Directory.EnumerateFiles(localFolder, "index.htm*").MinBy(x => x.Length);
 
             if (!string.IsNullOrWhiteSpace(possibleFile))
             {

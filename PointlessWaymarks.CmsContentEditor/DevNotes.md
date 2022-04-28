@@ -26,6 +26,10 @@ Site:
 
 ## Notes
 
+4/28/2022
+
+Starting a branch to try moving all Window Creation to Factory methods to better manage initialization using async methods. A few weeks ago I ran into a scenario where I wanted to 'manually' make a change to an editor value programmatically - most of the time this will probably work but occasionally the stack of async initializations mean that a call to a window component fails because the component is not initialized. Many of the components already use a asyn CreateInstance - my original thought had been that window initialization was 'simpler' and would not need that - in retrospect I am now wondering if in an Async world if a static CreateInstance style is just the better default.
+
 4/10/2022
 
 It has been a couple of months since I have written here - I have continued coding for and using this project but haven't had so many features that I was debating about while coding and technology for the site has remained about the same - various notes:
