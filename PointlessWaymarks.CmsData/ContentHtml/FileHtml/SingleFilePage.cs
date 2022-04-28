@@ -256,14 +256,14 @@ namespace PointlessWaymarks.CmsData.ContentHtml.FileHtml
             this.Write("\r\n    ");
             
             #line 63 "C:\Code\PointlessWaymarksCms03\PointlessWaymarks.CmsData\ContentHtml\FileHtml\SingleFilePage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(FileParts.DownloadLinkTag(DbEntry)));
+            this.Write(this.ToStringHelper.ToStringWithCulture(FileParts.EmbedFileTag(DbEntry)));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
             #line 64 "C:\Code\PointlessWaymarksCms03\PointlessWaymarks.CmsData\ContentHtml\FileHtml\SingleFilePage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(FileParts.EmbedFileTag(DbEntry)));
+            this.Write(this.ToStringHelper.ToStringWithCulture(FileParts.DownloadLinkTag(DbEntry)));
             
             #line default
             #line hidden

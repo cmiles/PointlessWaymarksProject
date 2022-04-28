@@ -1,12 +1,9 @@
 ## Todos
  - GPX Import
-   - Remove Item from Map when removed from List
-   - ?Filter List
-   - Show Marker Label if not visible when centering
-   - Folder Picker for Auto Save Imports
-   - Text Marker Text
+   - Remove Item from Map when removed from List - or is having it on the list useful?
+   - Sync Item names? Or is having the original name on the map useful?
+   - Button on map to select in list
  - Photo Location Map Chooser
- - Document Search in List Filters
  - For geo types and notes review local file cleanup on delete
  - Is File Content being detected as changing more than intended?
  - Appium GUI Test

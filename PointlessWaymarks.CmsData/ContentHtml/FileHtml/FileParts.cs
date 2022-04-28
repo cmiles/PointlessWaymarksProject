@@ -23,7 +23,7 @@ public static class FileParts
     {
         if (!content.EmbedFile) return HtmlTag.Empty();
 
-        var embedContainer = new DivTag().AddClass("file-embed-container");
+        var embedContainer = new HtmlTag("figure").AddClass("file-embed-container");
 
         var settings = UserSettingsSingleton.CurrentSettings();
 
@@ -68,6 +68,14 @@ public static class FileParts
             var embedTag = new HtmlTag("embed").Attr("src", settings.FileDownloadUrl(content))
                 .Attr("type", "audio/vnd.wav").Title(content.Title).AddClass("file-embed");
             embedContainer.Children.Add(embedTag);
+        }
+
+        if (!string.IsNullOrWhiteSpace(content.Summary))
+        {
+            var figCaptionTag = new HtmlTag("figcaption");
+            figCaptionTag.AddClass("file-embed-caption");
+            figCaptionTag.Text(content.Summary);
+            embedContainer.Children.Add(figCaptionTag);
         }
 
         return embedContainer;

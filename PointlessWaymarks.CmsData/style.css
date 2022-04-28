@@ -87,6 +87,12 @@ body {
     display: block;
 }
 
+.file-embed-caption {
+    text-align: center;
+    margin-top: .2rem;
+    display: block;
+}
+
 .single-image-body {
     font-family: Geneva, 'Lucida Sans', 'Lucida Grande', 'Lucida Sans Unicode', Verdana, sans-serif;
     color: var(--foreground-secondary-color);
