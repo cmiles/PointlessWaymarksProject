@@ -6,6 +6,6 @@ public partial class HtmlViewerWindow
     {
         InitializeComponent();
 
-        DataContext = new HtmlViewerContext {HtmlString = htmlString};
+        DataContext = new HtmlViewerContext { HtmlString = htmlString };
     }
 }

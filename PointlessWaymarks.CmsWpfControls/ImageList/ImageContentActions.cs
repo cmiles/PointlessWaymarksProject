@@ -111,7 +111,7 @@ public partial class ImageContentActions : ObservableObject, IContentActions<Ima
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
-        var newContentWindow = new ImageContentEditorWindow(refreshedData);
+        var newContentWindow = await ImageContentEditorWindow.CreateInstance(refreshedData);
 
         newContentWindow.PositionWindowAndShow();
 

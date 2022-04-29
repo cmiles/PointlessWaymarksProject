@@ -14,39 +14,30 @@ public partial class ImageContentEditorWindow
     [ObservableProperty] private ImageContentEditorContext _imageEditor;
     [ObservableProperty] private StatusControlContext _statusContext;
 
-    public ImageContentEditorWindow()
+    private ImageContentEditorWindow()
     {
         InitializeComponent();
-
         StatusContext = new StatusControlContext();
-
-        StatusContext.RunFireAndForgetBlockingTask(async () =>
-        {
-            ImageEditor = await ImageContentEditorContext.CreateInstance(StatusContext);
-
-            ImageEditor.RequestContentEditorWindowClose += (_, _) => { Dispatcher?.Invoke(Close); };
-            AccidentalCloserHelper = new WindowAccidentalClosureHelper(this, StatusContext, ImageEditor);
-
-            await ThreadSwitcher.ResumeForegroundAsync();
-            DataContext = this;
-        });
+        DataContext = this;
     }
 
-    public ImageContentEditorWindow(ImageContent contentToLoad = null, FileInfo initialImage = null)
+    public static async Task<ImageContentEditorWindow> CreateInstance(ImageContent contentToLoad = null,
+        FileInfo initialImage = null)
     {
-        InitializeComponent();
+        await ThreadSwitcher.ResumeForegroundAsync();
 
-        StatusContext = new StatusControlContext();
+        var window = new ImageContentEditorWindow();
 
-        StatusContext.RunFireAndForgetBlockingTask(async () =>
-        {
-            ImageEditor = await ImageContentEditorContext.CreateInstance(StatusContext, contentToLoad, initialImage);
+        await ThreadSwitcher.ResumeBackgroundAsync();
 
-            ImageEditor.RequestContentEditorWindowClose += (_, _) => { Dispatcher?.Invoke(Close); };
-            AccidentalCloserHelper = new WindowAccidentalClosureHelper(this, StatusContext, ImageEditor);
+        window.ImageEditor =
+            await ImageContentEditorContext.CreateInstance(window.StatusContext, contentToLoad, initialImage);
 
-            await ThreadSwitcher.ResumeForegroundAsync();
-            DataContext = this;
-        });
+        window.ImageEditor.RequestContentEditorWindowClose += (_, _) => { window.Dispatcher?.Invoke(window.Close); };
+
+        window.AccidentalCloserHelper =
+            new WindowAccidentalClosureHelper(window, window.StatusContext, window.ImageEditor);
+
+        return window;
     }
 }

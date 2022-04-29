@@ -234,7 +234,7 @@ public partial class TagListContext
                 (await FileContentEditorWindow.CreateInstance(c)).PositionWindowAndShow();
                 break;
             case ImageContent c:
-                new ImageContentEditorWindow(c).PositionWindowAndShow();
+                (await ImageContentEditorWindow.CreateInstance(c)).PositionWindowAndShow();
                 break;
             case NoteContent c:
                 new NoteContentEditorWindow(c).PositionWindowAndShow();

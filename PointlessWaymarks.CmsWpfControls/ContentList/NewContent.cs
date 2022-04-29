@@ -164,7 +164,7 @@ public partial class NewContent
     {
         await ThreadSwitcher.ResumeForegroundAsync();
 
-        var newContentWindow = new GeoJsonContentEditorWindow(null);
+        var newContentWindow = await GeoJsonContentEditorWindow.CreateInstance(null);
 
         newContentWindow.PositionWindowAndShow();
     }
@@ -173,7 +173,7 @@ public partial class NewContent
     {
         await ThreadSwitcher.ResumeForegroundAsync();
 
-        var newContentWindow = new GpxImportWindow(null);
+        var newContentWindow = await GpxImportWindow.CreateInstance(null);
 
         newContentWindow.PositionWindowAndShow();
     }
@@ -182,7 +182,7 @@ public partial class NewContent
     {
         await ThreadSwitcher.ResumeForegroundAsync();
 
-        var newContentWindow = new ImageContentEditorWindow();
+        var newContentWindow = ImageContentEditorWindow.CreateInstance();
 
         newContentWindow.PositionWindowAndShow();
     }
@@ -235,7 +235,7 @@ public partial class NewContent
 
             await ThreadSwitcher.ResumeForegroundAsync();
 
-            var editor = new ImageContentEditorWindow(initialImage: loopFile);
+            var editor = ImageContentEditorWindow.CreateInstance1(initialImage: loopFile);
             editor.PositionWindowAndShow();
 
             StatusContext.Progress($"New Image Editor - {loopFile.FullName} ");

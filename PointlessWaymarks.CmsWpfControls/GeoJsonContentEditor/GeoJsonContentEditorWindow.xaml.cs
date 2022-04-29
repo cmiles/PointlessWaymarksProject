@@ -16,20 +16,30 @@ public partial class GeoJsonContentEditorWindow
     [ObservableProperty] private GeoJsonContentEditorContext _geoJsonContent;
     [ObservableProperty] private StatusControlContext _statusContext;
 
-    public GeoJsonContentEditorWindow(GeoJsonContent toLoad)
+    private GeoJsonContentEditorWindow()
     {
         InitializeComponent();
         StatusContext = new StatusControlContext();
+        DataContext = this;
+    }
 
-        StatusContext.RunFireAndForgetBlockingTask(async () =>
-        {
-            GeoJsonContent = await GeoJsonContentEditorContext.CreateInstance(StatusContext, toLoad);
+    public static async Task<GeoJsonContentEditorWindow> CreateInstance(GeoJsonContent toLoad)
+    {
+        await ThreadSwitcher.ResumeForegroundAsync();
 
-            GeoJsonContent.RequestContentEditorWindowClose += (_, _) => { Dispatcher?.Invoke(Close); };
-            AccidentalCloserHelper = new WindowAccidentalClosureHelper(this, StatusContext, GeoJsonContent);
+        var window = new GeoJsonContentEditorWindow();
 
-            await ThreadSwitcher.ResumeForegroundAsync();
-            DataContext = this;
-        });
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        window.GeoJsonContent = await GeoJsonContentEditorContext.CreateInstance(window.StatusContext, toLoad);
+
+        window.GeoJsonContent.RequestContentEditorWindowClose += (_, _) => { window.Dispatcher?.Invoke(window.Close); };
+
+        window.AccidentalCloserHelper =
+            new WindowAccidentalClosureHelper(window, window.StatusContext, window.GeoJsonContent);
+
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        return window;
     }
 }

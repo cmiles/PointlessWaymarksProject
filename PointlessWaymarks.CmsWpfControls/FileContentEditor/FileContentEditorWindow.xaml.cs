@@ -18,6 +18,7 @@ public partial class FileContentEditorWindow
     {
         InitializeComponent();
         StatusContext = new StatusControlContext();
+        DataContext = this;
     }
 
     public static async Task<FileContentEditorWindow> CreateInstance()
@@ -32,11 +33,8 @@ public partial class FileContentEditorWindow
 
         window.FileContent.RequestContentEditorWindowClose += (_, _) => { window.Dispatcher?.Invoke(window.Close); };
 
-        window.AccidentalCloserHelper = new WindowAccidentalClosureHelper(window, window.StatusContext, window.FileContent);
-
-        await ThreadSwitcher.ResumeForegroundAsync();
-
-        window.DataContext = window;
+        window.AccidentalCloserHelper =
+            new WindowAccidentalClosureHelper(window, window.StatusContext, window.FileContent);
 
         return window;
     }
@@ -53,11 +51,8 @@ public partial class FileContentEditorWindow
 
         window.FileContent.RequestContentEditorWindowClose += (_, _) => { window.Dispatcher?.Invoke(window.Close); };
 
-        window.AccidentalCloserHelper = new WindowAccidentalClosureHelper(window, window.StatusContext, window.FileContent);
-
-        await ThreadSwitcher.ResumeForegroundAsync();
-
-        window.DataContext = window;
+        window.AccidentalCloserHelper =
+            new WindowAccidentalClosureHelper(window, window.StatusContext, window.FileContent);
 
         return window;
     }
@@ -74,13 +69,11 @@ public partial class FileContentEditorWindow
 
         window.FileContent.RequestContentEditorWindowClose += (_, _) => { window.Dispatcher?.Invoke(window.Close); };
 
-        window.AccidentalCloserHelper = new WindowAccidentalClosureHelper(window, window.StatusContext, window.FileContent);
+        window.AccidentalCloserHelper =
+            new WindowAccidentalClosureHelper(window, window.StatusContext, window.FileContent);
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
-        window.DataContext = window;
-
         return window;
     }
-
 }

@@ -25,9 +25,9 @@ public partial class GeoJsonContentActions : ObservableObject, IContentActions<G
     [ObservableProperty] private RelayCommand<GeoJsonContent> _extractNewLinksCommand;
     [ObservableProperty] private RelayCommand<GeoJsonContent> _generateHtmlCommand;
     [ObservableProperty] private RelayCommand<GeoJsonContent> _linkCodeToClipboardCommand;
-    [ObservableProperty] private RelayCommand<GeoJsonContent> _viewOnSiteCommand;
     [ObservableProperty] private StatusControlContext _statusContext;
     [ObservableProperty] private RelayCommand<GeoJsonContent> _viewHistoryCommand;
+    [ObservableProperty] private RelayCommand<GeoJsonContent> _viewOnSiteCommand;
 
     public GeoJsonContentActions(StatusControlContext statusContext)
     {
@@ -110,7 +110,7 @@ public partial class GeoJsonContentActions : ObservableObject, IContentActions<G
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
-        var newContentWindow = new GeoJsonContentEditorWindow(refreshedData);
+        var newContentWindow = await GeoJsonContentEditorWindow.CreateInstance(refreshedData);
 
         newContentWindow.PositionWindowAndShow();
 
@@ -156,24 +156,6 @@ public partial class GeoJsonContentActions : ObservableObject, IContentActions<G
         StatusContext.ToastSuccess($"Generated {htmlContext.PageUrl}");
     }
 
-    public async Task ViewOnSite(GeoJsonContent content)
-    {
-        await ThreadSwitcher.ResumeBackgroundAsync();
-
-        if (content == null)
-        {
-            StatusContext.ToastError("Nothing Selected?");
-            return;
-        }
-
-        var settings = UserSettingsSingleton.CurrentSettings();
-
-        var url = $@"{settings.GeoJsonPageUrl(content)}";
-
-        var ps = new ProcessStartInfo(url) { UseShellExecute = true, Verb = "open" };
-        Process.Start(ps);
-    }
-
     public async Task ViewHistory(GeoJsonContent content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -206,10 +188,28 @@ public partial class GeoJsonContentActions : ObservableObject, IContentActions<G
         historicView.WriteHtmlToTempFolderAndShow(StatusContext.ProgressTracker());
     }
 
+    public async Task ViewOnSite(GeoJsonContent content)
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (content == null)
+        {
+            StatusContext.ToastError("Nothing Selected?");
+            return;
+        }
+
+        var settings = UserSettingsSingleton.CurrentSettings();
+
+        var url = $@"{settings.GeoJsonPageUrl(content)}";
+
+        var ps = new ProcessStartInfo(url) { UseShellExecute = true, Verb = "open" };
+        Process.Start(ps);
+    }
+
     public static GeoJsonListListItem ListItemFromDbItem(GeoJsonContent content, GeoJsonContentActions itemActions,
         bool showType)
     {
-        return new()
+        return new GeoJsonListListItem
         {
             DbEntry = content,
             SmallImageUrl = ContentListContext.GetSmallImageUrl(content),

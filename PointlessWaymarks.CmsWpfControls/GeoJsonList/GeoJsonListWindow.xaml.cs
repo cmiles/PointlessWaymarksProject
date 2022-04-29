@@ -1,5 +1,4 @@
-﻿using System.Windows;
-using Microsoft.Toolkit.Mvvm.ComponentModel;
+﻿using Microsoft.Toolkit.Mvvm.ComponentModel;
 
 namespace PointlessWaymarks.CmsWpfControls.GeoJsonList;
 
