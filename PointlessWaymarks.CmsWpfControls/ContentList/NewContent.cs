@@ -182,7 +182,7 @@ public partial class NewContent
     {
         await ThreadSwitcher.ResumeForegroundAsync();
 
-        var newContentWindow = ImageContentEditorWindow.CreateInstance();
+        var newContentWindow = await ImageContentEditorWindow.CreateInstance();
 
         newContentWindow.PositionWindowAndShow();
     }
@@ -235,7 +235,7 @@ public partial class NewContent
 
             await ThreadSwitcher.ResumeForegroundAsync();
 
-            var editor = ImageContentEditorWindow.CreateInstance1(initialImage: loopFile);
+            var editor = await ImageContentEditorWindow.CreateInstance(initialImage: loopFile);
             editor.PositionWindowAndShow();
 
             StatusContext.Progress($"New Image Editor - {loopFile.FullName} ");
