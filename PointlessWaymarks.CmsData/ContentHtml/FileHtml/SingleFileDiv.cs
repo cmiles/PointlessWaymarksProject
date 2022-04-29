@@ -50,14 +50,14 @@ namespace PointlessWaymarks.CmsData.ContentHtml.FileHtml
             this.Write("\r\n    ");
             
             #line 7 "C:\Code\PointlessWaymarksCms03\PointlessWaymarks.CmsData\ContentHtml\FileHtml\SingleFileDiv.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(Tags.PostBodyDiv(DbEntry).Result.ToString()));
+            this.Write(this.ToStringHelper.ToStringWithCulture(FileParts.EmbedFileTag(DbEntry)));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
             #line 8 "C:\Code\PointlessWaymarksCms03\PointlessWaymarks.CmsData\ContentHtml\FileHtml\SingleFileDiv.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(FileParts.EmbedFileTag(DbEntry)));
+            this.Write(this.ToStringHelper.ToStringWithCulture(Tags.PostBodyDiv(DbEntry).Result.ToString()));
             
             #line default
             #line hidden

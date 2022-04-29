@@ -4,8 +4,8 @@
 <div class="content-container" data-contentversion="<#=DbEntry.ContentVersion.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fffffff") #>">
     <#= Tags.TitleLinkDiv(DbEntry, DbEntry).ToString() #>
     <#= Tags.PostCreatedByAndUpdatedOnDiv(DbEntry).ToString() #>
-    <#= Tags.PostBodyDiv(DbEntry).Result.ToString() #>
     <#= FileParts.EmbedFileTag(DbEntry) #>
+    <#= Tags.PostBodyDiv(DbEntry).Result.ToString() #>
     <#= FileParts.DownloadLinkTag(DbEntry) #>
     <#= BodyContentReferences.CompactContentTag(DbEntry, GenerationVersion).Result #>
 </div>

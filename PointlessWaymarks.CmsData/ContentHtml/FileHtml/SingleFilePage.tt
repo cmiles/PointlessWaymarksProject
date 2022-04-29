@@ -57,11 +57,11 @@
     <#= Tags.TitleDiv(DbEntry).ToString() #>
     <#=
                 Tags.PostCreatedByAndUpdatedOnDiv(DbEntry).ToString() #>
+    <#= FileParts.EmbedFileTag(DbEntry) #>
     <#=
                     Tags.PostBodyDiv(DbEntry).Result.ToString() #>
-    <#= HorizontalRule.StandardRule() #>
-    <#= FileParts.EmbedFileTag(DbEntry) #>
     <#= FileParts.DownloadLinkTag(DbEntry) #>
+    <#= HorizontalRule.StandardRule() #>
     <#=
                 HorizontalRule.StandardRuleIfAnyNotEmptyTags(FileParts.DownloadLinkTag(DbEntry), FileParts.EmbedFileTag(DbEntry)) #>
     <div class="information-section">
