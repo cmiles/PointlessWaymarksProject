@@ -97,13 +97,9 @@ public partial class MapComponentContentActions : ObservableObject, IContentActi
             StatusContext.ToastError(
                 $"{content.Title} is no longer active in the database? Can not edit - look for a historic version...");
 
-        await ThreadSwitcher.ResumeForegroundAsync();
+        var newContentWindow = await MapComponentEditorWindow.CreateInstance(refreshedData);
 
-        var newContentWindow = new MapComponentEditorWindow(refreshedData);
-
-        newContentWindow.PositionWindowAndShow();
-
-        await ThreadSwitcher.ResumeBackgroundAsync();
+        await newContentWindow.PositionWindowAndShowOnUiThread();
     }
 
     public async Task ExtractNewLinks(MapComponent content)

@@ -16,20 +16,33 @@ public partial class MapComponentEditorWindow
     [ObservableProperty] private MapComponentEditorContext _mapComponentContent;
     [ObservableProperty] private StatusControlContext _statusContext;
 
-    public MapComponentEditorWindow(MapComponent toLoad)
+    private MapComponentEditorWindow()
     {
         InitializeComponent();
         StatusContext = new StatusControlContext();
+        DataContext = this;
+    }
 
-        StatusContext.RunFireAndForgetBlockingTask(async () =>
+    public static async Task<MapComponentEditorWindow> CreateInstance(MapComponent toLoad)
+    {
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        var window = new MapComponentEditorWindow();
+
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        window.MapComponentContent = await MapComponentEditorContext.CreateInstance(window.StatusContext, toLoad);
+
+        window.MapComponentContent.RequestContentEditorWindowClose += (_, _) =>
         {
-            MapComponentContent = await MapComponentEditorContext.CreateInstance(StatusContext, toLoad);
+            window.Dispatcher?.Invoke(window.Close);
+        };
 
-            MapComponentContent.RequestContentEditorWindowClose += (_, _) => { Dispatcher?.Invoke(Close); };
-            AccidentalCloserHelper = new WindowAccidentalClosureHelper(this, StatusContext, MapComponentContent);
+        window.AccidentalCloserHelper =
+            new WindowAccidentalClosureHelper(window, window.StatusContext, window.MapComponentContent);
 
-            await ThreadSwitcher.ResumeForegroundAsync();
-            DataContext = this;
-        });
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        return window;
     }
 }

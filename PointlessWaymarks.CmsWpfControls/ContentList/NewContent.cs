@@ -246,11 +246,9 @@ public partial class NewContent
 
     public async Task NewLineContent()
     {
-        await ThreadSwitcher.ResumeForegroundAsync();
+        var newContentWindow = await LineContentEditorWindow.CreateInstance(null);
 
-        var newContentWindow = LineContentEditorWindow.CreateInstance(null);
-
-        newContentWindow.PositionWindowAndShow();
+        await newContentWindow.PositionWindowAndShowOnUiThread();
     }
 
     public async Task NewLineContentFromFiles(CancellationToken cancellationToken)
@@ -325,12 +323,8 @@ public partial class NewContent
 
                 var newEntry = await LineGenerator.NewFromGpxTrack(loopTracks, false, statusContext.ProgressTracker());
 
-                await ThreadSwitcher.ResumeForegroundAsync();
-
-                var editor = LineContentEditorWindow.CreateInstance(newEntry);
-                editor.PositionWindowAndShow();
-
-                await ThreadSwitcher.ResumeBackgroundAsync();
+                var editor = await LineContentEditorWindow.CreateInstance(newEntry);
+                await editor.PositionWindowAndShowOnUiThread();
 
                 statusContext.Progress(
                     $"New Line Editor - {loopFile.FullName} - Track {innerLoopCounter} of {tracksList.Count}");
@@ -340,20 +334,16 @@ public partial class NewContent
 
     public async Task NewLinkContent()
     {
-        await ThreadSwitcher.ResumeForegroundAsync();
+        var newContentWindow = await LinkContentEditorWindow.CreateInstance(null);
 
-        var newContentWindow = LinkContentEditorWindow.CreateInstance(null);
-
-        newContentWindow.PositionWindowAndShow();
+        await newContentWindow.PositionWindowAndShowOnUiThread();
     }
 
     public async Task NewMapContent()
     {
-        await ThreadSwitcher.ResumeForegroundAsync();
+        var newContentWindow = await MapComponentEditorWindow.CreateInstance(null);
 
-        var newContentWindow = new MapComponentEditorWindow(null);
-
-        newContentWindow.PositionWindowAndShow();
+        await newContentWindow.PositionWindowAndShowOnUiThread();
     }
 
 
