@@ -62,17 +62,16 @@ public static class LinkExtraction
         {
             progressTracker?.Report($"Launching an editor for {loopLinks}...");
 
-            var newWindow = new LinkContentEditorWindow(
-                new LinkContent
-                {
-                    ContentId = Guid.NewGuid(),
-                    CreatedBy = UserSettingsSingleton.CurrentSettings().DefaultCreatedBy,
-                    CreatedOn = DateTime.Now,
-                    Url = loopLinks,
-                    ShowInLinkRss = false
-                }, true);
+            var newWindow = LinkContentEditorWindow.CreateInstance(new LinkContent
+            {
+                ContentId = Guid.NewGuid(),
+                CreatedBy = UserSettingsSingleton.CurrentSettings().DefaultCreatedBy,
+                CreatedOn = DateTime.Now,
+                Url = loopLinks,
+                ShowInLinkRss = false
+            }, true);
 
-            newWindow.PositionWindowAndShow();
+            await newWindow.PositionWindowAndShow();
         }
     }
 }

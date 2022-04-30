@@ -16,20 +16,30 @@ public partial class LineContentEditorWindow
     [ObservableProperty] private LineContentEditorContext _lineContent;
     [ObservableProperty] private StatusControlContext _statusContext;
 
-    public LineContentEditorWindow(LineContent toLoad)
+    private LineContentEditorWindow()
     {
         InitializeComponent();
         StatusContext = new StatusControlContext();
+        DataContext = this;
+    }
 
-        StatusContext.RunFireAndForgetBlockingTask(async () =>
-        {
-            LineContent = await LineContentEditorContext.CreateInstance(StatusContext, toLoad);
+    public static async Task<LineContentEditorWindow> CreateInstance(LineContent toLoad)
+    {
+        await ThreadSwitcher.ResumeForegroundAsync();
 
-            LineContent.RequestContentEditorWindowClose += (_, _) => { Dispatcher?.Invoke(Close); };
-            AccidentalCloserHelper = new WindowAccidentalClosureHelper(this, StatusContext, LineContent);
+        var window = new LineContentEditorWindow();
 
-            await ThreadSwitcher.ResumeForegroundAsync();
-            DataContext = this;
-        });
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        window.LineContent = await LineContentEditorContext.CreateInstance(window.StatusContext, toLoad);
+
+        window.LineContent.RequestContentEditorWindowClose += (_, _) => { window.Dispatcher?.Invoke(window.Close); };
+
+        window.AccidentalCloserHelper =
+            new WindowAccidentalClosureHelper(window, window.StatusContext, window.LineContent);
+
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        return window;
     }
 }

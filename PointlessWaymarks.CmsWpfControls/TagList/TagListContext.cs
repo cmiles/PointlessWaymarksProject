@@ -246,7 +246,7 @@ public partial class TagListContext
                 new PostContentEditorWindow(c).PositionWindowAndShow();
                 break;
             case LinkContent c:
-                new LinkContentEditorWindow(c).PositionWindowAndShow();
+                (await LinkContentEditorWindow.CreateInstance(c)).PositionWindowAndShow();
                 break;
             default:
                 StatusContext.ToastError("Content Type is Unknown?");

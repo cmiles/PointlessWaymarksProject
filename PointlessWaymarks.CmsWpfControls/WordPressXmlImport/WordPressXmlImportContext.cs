@@ -302,9 +302,7 @@ public partial class WordPressXmlImportContext
                 Title = loopItems.Title
             };
 
-            await ThreadSwitcher.ResumeForegroundAsync();
-            new LinkContentEditorWindow(newPost).PositionWindowAndShow();
-            await ThreadSwitcher.ResumeBackgroundAsync();
+            await (await LinkContentEditorWindow.CreateInstance(newPost)).PositionWindowAndShowOnUiThread();
         }
     }
 

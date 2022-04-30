@@ -10,23 +10,33 @@ namespace PointlessWaymarks.CmsWpfControls.LinkContentEditor;
 public partial class LinkContentEditorWindow
 {
     [ObservableProperty] private WindowAccidentalClosureHelper _accidentalCloserHelper;
-    [ObservableProperty] private LinkContentEditorContext _editorContent;
+    [ObservableProperty] private LinkContentEditorContext _linkContent;
     [ObservableProperty] private StatusControlContext _statusContext;
 
-    public LinkContentEditorWindow(LinkContent toLoad, bool extractDataFromLink = false)
+    private LinkContentEditorWindow()
     {
         InitializeComponent();
         StatusContext = new StatusControlContext();
+        DataContext = this;
+    }
 
-        StatusContext.RunFireAndForgetBlockingTask(async () =>
-        {
-            EditorContent = await LinkContentEditorContext.CreateInstance(StatusContext, toLoad, extractDataFromLink);
+    public static async Task<LinkContentEditorWindow> CreateInstance(LinkContent toLoad, bool extractDataFromLink = false)
+    {
+        await ThreadSwitcher.ResumeForegroundAsync();
 
-            EditorContent.RequestContentEditorWindowClose += (_, _) => { Dispatcher?.Invoke(Close); };
-            AccidentalCloserHelper = new WindowAccidentalClosureHelper(this, StatusContext, EditorContent);
+        var window = new LinkContentEditorWindow();
 
-            await ThreadSwitcher.ResumeForegroundAsync();
-            DataContext = this;
-        });
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        window.LinkContent = await LinkContentEditorContext.CreateInstance(window.StatusContext, toLoad, extractDataFromLink);
+
+        window.LinkContent.RequestContentEditorWindowClose += (_, _) => { window.Dispatcher?.Invoke(window.Close); };
+
+        window.AccidentalCloserHelper =
+            new WindowAccidentalClosureHelper(window, window.StatusContext, window.LinkContent);
+
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        return window;
     }
 }

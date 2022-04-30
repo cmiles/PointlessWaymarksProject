@@ -584,8 +584,8 @@ public partial class GpxImportContext
 
                     await ThreadSwitcher.ResumeForegroundAsync();
 
-                    var editor = new LineContentEditorWindow(editorLine);
-                    editor.PositionWindowAndShow();
+                    var editor = await LineContentEditorWindow.CreateInstance(editorLine);
+                    await editor.PositionWindowAndShowOnUiThread();
 
 #pragma warning disable 4014
                     //Allow execution to continue so Automation can continue
@@ -612,8 +612,8 @@ public partial class GpxImportContext
 
                     await ThreadSwitcher.ResumeForegroundAsync();
 
-                    var editor = new LineContentEditorWindow(editorLine);
-                    editor.PositionWindowAndShow();
+                    var editor = await LineContentEditorWindow.CreateInstance(editorLine);
+                    await editor.PositionWindowAndShowOnUiThread();
 
 #pragma warning disable 4014
                     //Allow execution to continue so Automation can continue
@@ -634,12 +634,8 @@ public partial class GpxImportContext
                 var editorPoint = new PointContent();
                 editorPoint.InjectFrom(loopPoints.point);
 
-                await ThreadSwitcher.ResumeForegroundAsync();
-
                 var editor = new PointContentEditorWindow(editorPoint);
-                editor.PositionWindowAndShow();
-
-                await ThreadSwitcher.ResumeBackgroundAsync();
+                await editor.PositionWindowAndShowOnUiThread();
 
                 await RemoveFromList(loopPoints.listWaypoint.DisplayId);
             }
@@ -651,8 +647,8 @@ public partial class GpxImportContext
 
                 await ThreadSwitcher.ResumeForegroundAsync();
 
-                var editor = new LineContentEditorWindow(editorLine);
-                editor.PositionWindowAndShow();
+                var editor = await LineContentEditorWindow.CreateInstance(editorLine);
+                await editor.PositionWindowAndShowOnUiThread();
 
                 await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -664,12 +660,8 @@ public partial class GpxImportContext
                 var editorLine = new LineContent();
                 editorLine.InjectFrom(loopRoute.line);
 
-                await ThreadSwitcher.ResumeForegroundAsync();
-
-                var editor = new LineContentEditorWindow(editorLine);
-                editor.PositionWindowAndShow();
-
-                await ThreadSwitcher.ResumeBackgroundAsync();
+                var editor = await LineContentEditorWindow.CreateInstance(editorLine);
+                await editor.PositionWindowAndShowOnUiThread();
 
                 await RemoveFromList(loopRoute.listRoute.DisplayId);
             }

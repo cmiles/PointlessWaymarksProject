@@ -107,13 +107,9 @@ public partial class LinkContentActions : ObservableObject, IContentActions<Link
             StatusContext.ToastError(
                 $"{content.Title} is no longer active in the database? Can not edit - look for a historic version...");
 
-        await ThreadSwitcher.ResumeForegroundAsync();
+        var newContentWindow = await LinkContentEditorWindow.CreateInstance(refreshedData);
 
-        var newContentWindow = new LinkContentEditorWindow(refreshedData);
-
-        newContentWindow.PositionWindowAndShow();
-
-        await ThreadSwitcher.ResumeBackgroundAsync();
+        await newContentWindow.PositionWindowAndShowOnUiThread();
     }
 
     public async Task ExtractNewLinks(LinkContent content)

@@ -248,7 +248,7 @@ public partial class NewContent
     {
         await ThreadSwitcher.ResumeForegroundAsync();
 
-        var newContentWindow = new LineContentEditorWindow(null);
+        var newContentWindow = LineContentEditorWindow.CreateInstance(null);
 
         newContentWindow.PositionWindowAndShow();
     }
@@ -327,7 +327,7 @@ public partial class NewContent
 
                 await ThreadSwitcher.ResumeForegroundAsync();
 
-                var editor = new LineContentEditorWindow(newEntry);
+                var editor = LineContentEditorWindow.CreateInstance(newEntry);
                 editor.PositionWindowAndShow();
 
                 await ThreadSwitcher.ResumeBackgroundAsync();
@@ -342,7 +342,7 @@ public partial class NewContent
     {
         await ThreadSwitcher.ResumeForegroundAsync();
 
-        var newContentWindow = new LinkContentEditorWindow(null);
+        var newContentWindow = LinkContentEditorWindow.CreateInstance(null);
 
         newContentWindow.PositionWindowAndShow();
     }
