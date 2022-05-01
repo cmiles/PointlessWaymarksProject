@@ -1,5 +1,7 @@
 ﻿using System.Windows;
 using Microsoft.Toolkit.Mvvm.ComponentModel;
+using PointlessWaymarks.CmsWpfControls.FileList;
+using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 
 namespace PointlessWaymarks.CmsWpfControls.AllContentList;
 
@@ -12,10 +14,21 @@ public partial class AllContentListWindow
     [ObservableProperty] private AllContentListWithActionsContext _listContext;
     [ObservableProperty] private string _windowTitle = "All Content List";
 
-    public AllContentListWindow()
+    private AllContentListWindow()
     {
         InitializeComponent();
 
         DataContext = this;
+    }
+
+    public static async Task<AllContentListWindow> CreateInstance(AllContentListWithActionsContext toLoad)
+    {
+        await ThreadSwitcher.ResumeForegroundAsync();
+        var window = new AllContentListWindow
+        {
+            ListContext = toLoad ?? new AllContentListWithActionsContext(null, windowStatus: null)
+        };
+
+        return window;
     }
 }

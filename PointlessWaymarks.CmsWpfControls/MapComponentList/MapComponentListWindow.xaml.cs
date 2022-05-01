@@ -1,4 +1,5 @@
 ﻿using Microsoft.Toolkit.Mvvm.ComponentModel;
+using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 
 namespace PointlessWaymarks.CmsWpfControls.MapComponentList;
 
@@ -11,10 +12,25 @@ public partial class MapComponentListWindow
     [ObservableProperty] private MapComponentListWithActionsContext _listContext;
     [ObservableProperty] private string _windowTitle = "Map List";
 
-    public MapComponentListWindow()
+    private MapComponentListWindow()
     {
         InitializeComponent();
-
         DataContext = this;
+    }
+
+    /// <summary>
+    /// Creates a new instance - this method can be called from any thread and will
+    /// switch to the UI thread as needed.
+    /// </summary>
+    /// <returns></returns>
+    public static async Task<MapComponentListWindow> CreateInstance(MapComponentListWithActionsContext toLoad)
+    {
+        await ThreadSwitcher.ResumeForegroundAsync();
+        var window = new MapComponentListWindow
+        {
+            ListContext = toLoad ?? new MapComponentListWithActionsContext(null)
+        };
+
+        return window;
     }
 }

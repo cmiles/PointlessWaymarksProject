@@ -16,6 +16,10 @@ public partial class LineContentEditorWindow
     [ObservableProperty] private LineContentEditorContext _lineContent;
     [ObservableProperty] private StatusControlContext _statusContext;
 
+    /// <summary>
+    /// DO NOT USE - Use CreateInstance instead - using the constructor directly will result in
+    /// core functionality being uninitialized.
+    /// </summary>
     private LineContentEditorWindow()
     {
         InitializeComponent();
@@ -23,6 +27,12 @@ public partial class LineContentEditorWindow
         DataContext = this;
     }
 
+    /// <summary>
+    /// Creates a new instance - this method can be called from any thread and will
+    /// switch to the UI thread as needed. Does not show the window - consider using
+    /// PositionWindowAndShowOnUiThread() from the WindowInitialPositionHelpers.
+    /// </summary>
+    /// <returns></returns>
     public static async Task<LineContentEditorWindow> CreateInstance(LineContent toLoad)
     {
         await ThreadSwitcher.ResumeForegroundAsync();

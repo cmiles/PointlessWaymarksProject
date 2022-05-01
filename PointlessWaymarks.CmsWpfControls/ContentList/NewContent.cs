@@ -349,21 +349,17 @@ public partial class NewContent
 
     public async Task NewNoteContent()
     {
-        await ThreadSwitcher.ResumeForegroundAsync();
+        var newContentWindow = await NoteContentEditorWindow.CreateInstance(null);
 
-        var newContentWindow = new NoteContentEditorWindow(null);
-
-        newContentWindow.PositionWindowAndShow();
+        await newContentWindow.PositionWindowAndShowOnUiThread();
     }
 
 
     public async Task NewPhotoContent()
     {
-        await ThreadSwitcher.ResumeForegroundAsync();
+        var newContentWindow = await PhotoContentEditorWindow.CreateInstance();
 
-        var newContentWindow = new PhotoContentEditorWindow();
-
-        newContentWindow.PositionWindowAndShow();
+        await newContentWindow.PositionWindowAndShowOnUiThread();
     }
 
     public async Task NewPhotoContentFromFiles(bool autoSaveAndClose, CancellationToken cancellationToken)
@@ -430,10 +426,8 @@ public partial class NewContent
 
                 if (metaGenerationReturn.HasError)
                 {
-                    await ThreadSwitcher.ResumeForegroundAsync();
-
-                    var editor = new PhotoContentEditorWindow(loopFile);
-                    editor.PositionWindowAndShow();
+                    var editor = await PhotoContentEditorWindow.CreateInstance(loopFile);
+                    await editor.PositionWindowAndShowOnUiThread();
 #pragma warning disable 4014
                     //Allow execution to continue so Automation can continue
                     editor.StatusContext.ShowMessageWithOkButton("Problem Extracting Metadata",
@@ -447,10 +441,8 @@ public partial class NewContent
 
                 if (saveGenerationReturn.HasError)
                 {
-                    await ThreadSwitcher.ResumeForegroundAsync();
-
-                    var editor = new PhotoContentEditorWindow(loopFile);
-                    editor.PositionWindowAndShow();
+                    var editor = await PhotoContentEditorWindow.CreateInstance(loopFile);
+                    await editor.PositionWindowAndShowOnUiThread();
 #pragma warning disable 4014
                     //Allow execution to continue so Automation can continue
                     editor.StatusContext.ShowMessageWithOkButton("Problem Saving", saveGenerationReturn.GenerationNote);
@@ -460,10 +452,8 @@ public partial class NewContent
             }
             else
             {
-                await ThreadSwitcher.ResumeForegroundAsync();
-
-                var editor = new PhotoContentEditorWindow(loopFile);
-                editor.PositionWindowAndShow();
+                var editor = await PhotoContentEditorWindow.CreateInstance(loopFile);
+                await editor.PositionWindowAndShowOnUiThread();
             }
 
             StatusContext.Progress($"New Photo Editor - {loopFile.FullName} ");
@@ -474,19 +464,15 @@ public partial class NewContent
 
     public async Task NewPointContent()
     {
-        await ThreadSwitcher.ResumeForegroundAsync();
+        var newContentWindow = await PointContentEditorWindow.CreateInstance(null);
 
-        var newContentWindow = new PointContentEditorWindow(null);
-
-        newContentWindow.PositionWindowAndShow();
+        await newContentWindow.PositionWindowAndShowOnUiThread();
     }
 
     public async Task NewPostContent()
     {
-        await ThreadSwitcher.ResumeForegroundAsync();
+        var newContentWindow = await PostContentEditorWindow.CreateInstance();
 
-        var newContentWindow = new PostContentEditorWindow();
-
-        newContentWindow.PositionWindowAndShow();
+        await newContentWindow.PositionWindowAndShowOnUiThread();
     }
 }

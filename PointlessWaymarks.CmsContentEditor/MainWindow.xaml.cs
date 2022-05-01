@@ -87,12 +87,10 @@ public partial class MainWindow
         WindowInitialPositionHelpers.EnsureWindowIsVisible(this);
 
         // ReSharper disable once ConditionIsAlwaysTrueOrFalse for generated ThisAssembly.Git.IsDirty
-#pragma warning disable CS0162
         // ReSharper disable once HeuristicUnreachableCode
         //.Git IsDirty can change at runtime
         InfoTitle =
             $"Pointless Waymarks CMS - Built On {GetBuildDate(Assembly.GetEntryAssembly())} - Commit {ThisAssembly.Git.Commit} {(ThisAssembly.Git.IsDirty ? "(Has Local Changes)" : string.Empty)}";
-#pragma warning restore CS0162
 
         ShowSettingsFileChooser = true;
 
@@ -105,18 +103,6 @@ public partial class MainWindow
         PropertyChanged += OnPropertyChanged;
 
         //Common
-
-        GenerateChangedHtmlAndShowPreviewCommand = StatusContext.RunBlockingTaskCommand(async () =>
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            await HtmlGenerationGroups.GenerateChangedToHtml(StatusContext.ProgressTracker());
-
-            await ThreadSwitcher.ResumeForegroundAsync();
-
-            var sitePreviewWindow = new SiteOnDiskPreviewWindow();
-            sitePreviewWindow.Show();
-        });
 
         GenerateChangedHtmlAndStartUploadCommand = StatusContext.RunBlockingTaskCommand(async () =>
             await S3UploadHelpers.GenerateChangedHtmlAndStartUpload(StatusContext));
@@ -194,66 +180,68 @@ public partial class MainWindow
         //Rebuild
         ImportJsonFromDirectoryCommand = StatusContext.RunBlockingTaskCommand(ImportJsonFromDirectory);
 
-        SettingsFileChooser = new SettingsFileChooserControlContext(StatusContext, RecentSettingsFilesNames);
-
-        SettingsFileChooser.SettingsFileUpdated += SettingsFileChooserOnSettingsFileUpdatedEvent;
-
         StatusContext.RunFireAndForgetNonBlockingTask(CleanupTemporaryFiles);
+
+        StatusContext.RunFireAndForgetBlockingTask(async () =>
+        {
+            SettingsFileChooser =
+                await SettingsFileChooserControlContext.CreateInstance(StatusContext, RecentSettingsFilesNames);
+
+            SettingsFileChooser.SettingsFileUpdated += SettingsFileChooserOnSettingsFileUpdatedEvent;
+        });
     }
 
-    public RelayCommand CheckAllContentForInvalidBracketCodeContentIdsCommand { get; set; }
+    public RelayCommand CheckAllContentForInvalidBracketCodeContentIdsCommand { get; }
 
-    public RelayCommand ConfirmOrGenerateAllPhotosImagesFilesCommand { get; set; }
+    public RelayCommand ConfirmOrGenerateAllPhotosImagesFilesCommand { get; }
 
-    public RelayCommand DeleteAndResizePicturesCommand { get; set; }
+    public RelayCommand DeleteAndResizePicturesCommand { get; }
 
-    public RelayCommand GenerateAllHtmlCommand { get; set; }
+    public RelayCommand GenerateAllHtmlCommand { get; }
 
-    public RelayCommand GenerateAllListHtmlCommand { get; set; }
+    public RelayCommand GenerateAllListHtmlCommand { get; }
 
-    public RelayCommand GenerateAllTagHtmlCommand { get; set; }
+    public RelayCommand GenerateAllTagHtmlCommand { get; }
 
-    public RelayCommand GenerateCameraRollCommand { get; set; }
+    public RelayCommand GenerateCameraRollCommand { get; }
 
-    public RelayCommand GenerateChangedHtmlAndShowPreviewCommand { get; set; }
+    public RelayCommand GenerateChangedHtmlAndStartUploadCommand { get; }
 
-    public RelayCommand GenerateChangedHtmlAndStartUploadCommand { get; set; }
+    public RelayCommand GenerateChangedHtmlCommand { get; }
 
-    public RelayCommand GenerateChangedHtmlCommand { get; set; }
+    public RelayCommand GenerateDailyGalleryHtmlCommand { get; }
 
-    public RelayCommand GenerateDailyGalleryHtmlCommand { get; set; }
+    public RelayCommand GenerateHtmlForAllFileContentCommand { get; }
 
-    public RelayCommand GenerateHtmlForAllFileContentCommand { get; set; }
+    public RelayCommand GenerateHtmlForAllGeoJsonContentCommand { get; }
 
-    public RelayCommand GenerateHtmlForAllGeoJsonContentCommand { get; set; }
+    public RelayCommand GenerateHtmlForAllImageContentCommand { get; }
 
-    public RelayCommand GenerateHtmlForAllImageContentCommand { get; set; }
+    public RelayCommand GenerateHtmlForAllLineContentCommand { get; }
 
-    public RelayCommand GenerateHtmlForAllLineContentCommand { get; set; }
+    public RelayCommand GenerateHtmlForAllMapContentCommand { get; }
 
-    public RelayCommand GenerateHtmlForAllMapContentCommand { get; set; }
+    public RelayCommand GenerateHtmlForAllNoteContentCommand { get; }
 
-    public RelayCommand GenerateHtmlForAllNoteContentCommand { get; set; }
+    public RelayCommand GenerateHtmlForAllPhotoContentCommand { get; }
 
-    public RelayCommand GenerateHtmlForAllPhotoContentCommand { get; set; }
+    public RelayCommand GenerateHtmlForAllPointContentCommand { get; }
 
-    public RelayCommand GenerateHtmlForAllPointContentCommand { get; set; }
+    public RelayCommand GenerateHtmlForAllPostContentCommand { get; }
 
-    public RelayCommand GenerateHtmlForAllPostContentCommand { get; set; }
+    public RelayCommand GenerateIndexCommand { get; }
 
-    public RelayCommand GenerateIndexCommand { get; set; }
+    public RelayCommand GenerateSiteResourcesCommand { get; }
 
-    public RelayCommand GenerateSiteResourcesCommand { get; set; }
+    public RelayCommand ImportJsonFromDirectoryCommand { get; }
 
-    public RelayCommand ImportJsonFromDirectoryCommand { get; set; }
+    public RelayCommand RemoveUnusedFilesFromMediaArchiveCommand { get; }
 
-    public RelayCommand RemoveUnusedFilesFromMediaArchiveCommand { get; set; }
+    public RelayCommand RemoveUnusedFoldersAndFilesFromContentCommand { get; }
 
-    public RelayCommand RemoveUnusedFoldersAndFilesFromContentCommand { get; set; }
+    public WindowIconStatus WindowStatus { get; }
 
-    public WindowIconStatus WindowStatus { get; set; }
-
-    public RelayCommand WriteStyleCssFileCommand { get; set; }
+    public RelayCommand WriteStyleCssFileCommand { get; }
 
     private async Task CheckAllContentForInvalidBracketCodeContentIds()
     {
@@ -497,12 +485,10 @@ public partial class MainWindow
         await ThreadSwitcher.ResumeForegroundAsync();
 
         // ReSharper disable once ConditionIsAlwaysTrueOrFalse for generated ThisAssembly.Git.IsDirty
-#pragma warning disable CS0162
         // ReSharper disable once HeuristicUnreachableCode
         //.Git IsDirty can change at runtime
         InfoTitle =
             $"{UserSettingsSingleton.CurrentSettings().SiteName} - Pointless Waymarks CMS - Built On {GetBuildDate(Assembly.GetEntryAssembly())} - Commit {ThisAssembly.Git.Commit} {(ThisAssembly.Git.IsDirty ? "(Has Local Changes)" : string.Empty)}";
-#pragma warning restore CS0162
 
         MainTabControl.SelectedIndex = 0;
     }

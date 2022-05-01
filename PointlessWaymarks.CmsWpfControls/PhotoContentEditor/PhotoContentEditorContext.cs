@@ -544,11 +544,9 @@ Photo Content Notes:
             ? string.Empty
             : $"Point From {TitleSummarySlugFolder.TitleEntry.UserValue}";
 
-        await ThreadSwitcher.ResumeForegroundAsync();
+        var pointWindow = await PointContentEditorWindow.CreateInstance(newPartialPoint);
 
-        var pointWindow = new PointContentEditorWindow(newPartialPoint);
-
-        pointWindow.PositionWindowAndShow();
+        await pointWindow.PositionWindowAndShowOnUiThread();
     }
 
     private async Task RotateImage(Orientation rotationType)

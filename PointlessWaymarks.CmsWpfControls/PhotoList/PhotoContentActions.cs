@@ -135,13 +135,9 @@ public partial class PhotoContentActions : ObservableObject, IContentActions<Pho
             StatusContext.ToastError(
                 $"{content.Title} is no longer active in the database? Can not edit - look for a historic version...");
 
-        await ThreadSwitcher.ResumeForegroundAsync();
+        var newContentWindow = await PhotoContentEditorWindow.CreateInstance(refreshedData);
 
-        var newContentWindow = new PhotoContentEditorWindow(refreshedData);
-
-        newContentWindow.PositionWindowAndShow();
-
-        await ThreadSwitcher.ResumeBackgroundAsync();
+        await newContentWindow.PositionWindowAndShowOnUiThread();
     }
 
     public async Task ExtractNewLinks(PhotoContent content)
@@ -327,15 +323,8 @@ public partial class PhotoContentActions : ObservableObject, IContentActions<Pho
 
         var reportLoader = new ContentListLoaderReport(toRun, PhotoListLoader.SortContextPhotoDefault());
 
-        var context = new PhotoListWithActionsContext(null, reportLoader);
-
-        await ThreadSwitcher.ResumeForegroundAsync();
-
-        var newWindow = new PhotoListWindow { ListContext = context, WindowTitle = title };
-
-        newWindow.PositionWindowAndShow();
-
-        await context.LoadData();
+        var newWindow = await PhotoListWindow.CreateInstance(new PhotoListWithActionsContext(null, reportLoader));
+        await newWindow.PositionWindowAndShowOnUiThread();
     }
 
     public static async Task<List<object>> ShutterSpeedSearch(PhotoContent content)

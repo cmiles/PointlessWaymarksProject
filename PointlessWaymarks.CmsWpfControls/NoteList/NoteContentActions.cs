@@ -107,13 +107,9 @@ public partial class NoteContentActions : ObservableObject, IContentActions<Note
             StatusContext.ToastError(
                 $"{content.Title} is no longer active in the database? Can not edit - look for a historic version...");
 
-        await ThreadSwitcher.ResumeForegroundAsync();
+        var newContentWindow = await NoteContentEditorWindow.CreateInstance(refreshedData);
 
-        var newContentWindow = new NoteContentEditorWindow(refreshedData);
-
-        newContentWindow.PositionWindowAndShow();
-
-        await ThreadSwitcher.ResumeBackgroundAsync();
+        await newContentWindow.PositionWindowAndShowOnUiThread();
     }
 
     public async Task ExtractNewLinks(NoteContent content)

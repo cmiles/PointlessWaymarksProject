@@ -1,4 +1,5 @@
 ﻿using Microsoft.Toolkit.Mvvm.ComponentModel;
+using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 
 namespace PointlessWaymarks.CmsWpfControls.GeoJsonList;
 
@@ -11,10 +12,26 @@ public partial class GeoJsonListWindow
     [ObservableProperty] private GeoJsonListWithActionsContext _listContext;
     [ObservableProperty] private string _windowTitle = "GeoJson List";
 
-    public GeoJsonListWindow()
+    private GeoJsonListWindow()
     {
         InitializeComponent();
-
         DataContext = this;
+    }
+
+
+    /// <summary>
+    /// Creates a new instance - this method can be called from any thread and will
+    /// switch to the UI thread as needed.
+    /// </summary>
+    /// <returns></returns>
+    public static async Task<GeoJsonListWindow> CreateInstance(GeoJsonListWithActionsContext toLoad)
+    {
+        await ThreadSwitcher.ResumeForegroundAsync();
+        var window = new GeoJsonListWindow
+        {
+            ListContext = toLoad ?? new GeoJsonListWithActionsContext(null)
+        };
+
+        return window;
     }
 }

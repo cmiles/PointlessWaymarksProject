@@ -351,11 +351,7 @@ public partial class WordPressXmlImportContext
                 }
             }
 
-            await ThreadSwitcher.ResumeForegroundAsync();
-
-            new PostContentEditorWindow(newPost).PositionWindowAndShow();
-
-            await ThreadSwitcher.ResumeBackgroundAsync();
+            await (await PostContentEditorWindow.CreateInstance(newPost)).PositionWindowAndShowOnUiThread();
         }
     }
 }

@@ -13,33 +13,18 @@ namespace PointlessWaymarks.CmsContentEditor;
 [ObservableObject]
 public partial class SettingsFileChooserControlContext
 {
+    [ObservableProperty] private RelayCommand _chooseFileCommand;
+    [ObservableProperty] private RelayCommand<SettingsFileListItem> _chooseRecentFileCommand;
+    [ObservableProperty] private ObservableCollection<SettingsFileListItem> _items;
+    [ObservableProperty] private RelayCommand _newFileCommand;
+    [ObservableProperty] private List<string> _recentSettingFilesNames;
+    [ObservableProperty] private RelayCommand<SettingsFileListItem> _removeSelectedFileCommand;
     [ObservableProperty] private StatusControlContext _statusContext;
     [ObservableProperty] private string _userNewFileName;
 
-    public SettingsFileChooserControlContext(StatusControlContext statusContext, string recentSettingFiles)
+    private SettingsFileChooserControlContext()
     {
-        StatusContext = statusContext ?? new StatusControlContext();
-        RecentSettingFilesNames = recentSettingFiles?.Split("|").ToList() ?? new List<string>();
-
-        NewFileCommand = StatusContext.RunNonBlockingTaskCommand(NewFile);
-        ChooseFileCommand = StatusContext.RunNonBlockingTaskCommand(ChooseFile);
-        ChooseRecentFileCommand = StatusContext.RunNonBlockingTaskCommand<SettingsFileListItem>(LaunchRecentFile);
-        RemoveSelectedFileCommand = StatusContext.RunNonBlockingTaskCommand<SettingsFileListItem>(RemoveSelectedFile);
-
-        StatusContext.RunFireAndForgetBlockingTask(LoadData);
     }
-
-    public RelayCommand ChooseFileCommand { get; set; }
-
-    public RelayCommand<SettingsFileListItem> ChooseRecentFileCommand { get; set; }
-
-    public ObservableCollection<SettingsFileListItem> Items { get; } = new();
-
-    public RelayCommand NewFileCommand { get; set; }
-
-    public List<string> RecentSettingFilesNames { get; set; }
-
-    public RelayCommand<SettingsFileListItem> RemoveSelectedFileCommand { get; set; }
 
     private async Task ChooseFile()
     {
@@ -65,6 +50,22 @@ public partial class SettingsFileChooserControlContext
             (false, possibleFile.FullName, Items.Select(x => x.SettingsFile.FullName).ToList()));
     }
 
+    public static async Task<SettingsFileChooserControlContext> CreateInstance(StatusControlContext statusContext,
+        string recentSettingFiles)
+    {
+        var context = new SettingsFileChooserControlContext
+        {
+            StatusContext = statusContext ?? new StatusControlContext(),
+            RecentSettingFilesNames = recentSettingFiles?.Split("|").ToList() ?? new List<string>()
+        };
+
+        context.SetupCommands();
+
+        await context.LoadData();
+
+        return context;
+    }
+
     private async Task LaunchRecentFile(SettingsFileListItem settingsFileListItem)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -83,6 +84,12 @@ public partial class SettingsFileChooserControlContext
 
     private async Task LoadData()
     {
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        Items ??= new ObservableCollection<SettingsFileListItem>();
+
+        Items.Clear();
+
         await ThreadSwitcher.ResumeBackgroundAsync();
 
         StatusContext.Progress("Looking for recent files");
@@ -144,4 +151,12 @@ public partial class SettingsFileChooserControlContext
     }
 
     public event EventHandler<(bool isNew, string userString, List<string> recentFiles)> SettingsFileUpdated;
+
+    private void SetupCommands()
+    {
+        NewFileCommand = StatusContext.RunNonBlockingTaskCommand(NewFile);
+        ChooseFileCommand = StatusContext.RunNonBlockingTaskCommand(ChooseFile);
+        ChooseRecentFileCommand = StatusContext.RunNonBlockingTaskCommand<SettingsFileListItem>(LaunchRecentFile);
+        RemoveSelectedFileCommand = StatusContext.RunNonBlockingTaskCommand<SettingsFileListItem>(RemoveSelectedFile);
+    }
 }

@@ -6,25 +6,25 @@ using Point = System.Drawing.Point;
 
 namespace PointlessWaymarks.WpfCommon.Utility;
 
+/// <summary>
+/// Methods for 'safely' positioning a window to avoid pitfalls like the window being
+/// off screen. Heavily based on reading code from https://github.com/RickStrahl/MarkdownMonster/,
+/// https://github.com/anakic/Jot, https://github.com/microsoft/WPF-Samples/tree/master/Windows/SaveWindowState
+/// and https://github.com/micdenny/WpfScreenHelper
+/// </summary>
 public static class WindowInitialPositionHelpers
 {
-    //This file is based on:
-    //https://github.com/RickStrahl/MarkdownMonster/
-    //https://github.com/anakic/Jot
-    //https://github.com/microsoft/WPF-Samples/tree/master/Windows/SaveWindowState
-    //https://github.com/micdenny/WpfScreenHelper
-    //
-    //This borrows heavily esp. with EnsureWindowIsVisible being nearly a copy of the Markdown Monster with only a 
-    //few changes.
-    public enum DpiType
-    {
-        Effective = 0,
-        Angular = 1,
-        Raw = 2
-    }
-
+    /// <summary>
+    /// !! Only call this on the UI Thread !! Ensures that a window is visible on a screen (ie the window is not trapped off screen).
+    /// In general for anything other than the initial main window try to use PositionWindowAndShowOnUiThread
+    /// as it will both ensure calls are on the correct thread and will by default
+    /// position windows relative to the first active window in the application.
+    /// </summary>
+    /// <param name="window"></param>
     public static void EnsureWindowIsVisible(Window window)
     {
+        //This borrows heavily from https://github.com/RickStrahl/MarkdownMonster/
+
         if (window.WindowState == WindowState.Minimized) window.WindowState = WindowState.Normal;
 
         var hwnd = WindowToHwnd(window);
@@ -65,10 +65,10 @@ public static class WindowInitialPositionHelpers
         }
     }
 
-    public static uint GetDpi(IntPtr hwnd, DpiType dpiType)
+    private static uint GetDpi(IntPtr hwnd, DpiType dpiType)
     {
         var screen = Screen.FromHandle(hwnd);
-        var screenPoint = new Point((int) screen.Bounds.Left, (int) screen.Bounds.Top);
+        var screenPoint = new Point((int)screen.Bounds.Left, (int)screen.Bounds.Top);
         var monitor = MonitorFromPoint(screenPoint, 2 /*MONITOR_DEFAULTTONEAREST*/);
 
         uint dpiX = 96;
@@ -90,7 +90,7 @@ public static class WindowInitialPositionHelpers
     private static extern IntPtr GetDpiForMonitor([In] IntPtr hmonitor, [In] DpiType dpiType, [Out] out uint dpiX,
         [Out] out uint dpiY);
 
-    public static decimal GetDpiRatio(IntPtr hwnd)
+    private static decimal GetDpiRatio(IntPtr hwnd)
     {
         var dpi = GetDpi(hwnd, DpiType.Effective);
 
@@ -103,6 +103,14 @@ public static class WindowInitialPositionHelpers
     [DllImport("User32.dll")]
     private static extern IntPtr MonitorFromPoint([In] Point pt, [In] uint dwFlags);
 
+
+    /// <summary>
+    ///     !! Only call this on the UI Thread !! Positions a window attempting to avoid common pitfalls like being offscreen
+    ///     - this avoids the need to Dispatch this to or
+    ///     switch to the UI thread before interacting with the window.
+    /// </summary>
+    /// <param name="toPosition">If null the position is based on the first active window in the Application</param>
+    /// <returns></returns>
     public static void PositionWindowAndShow(this Window toPosition)
     {
         if (toPosition == null) return;
@@ -121,6 +129,13 @@ public static class WindowInitialPositionHelpers
         toPosition.Show();
     }
 
+    /// <summary>
+    ///     Positions a window on the UI Thread attempting to avoid common pitfalls like being offscreen
+    ///     - this avoids the need to Dispatch this to or
+    ///     switch to the UI thread before interacting with the window.
+    /// </summary>
+    /// <param name="toPosition">If null the position is based on the first active window in the Application</param>
+    /// <returns></returns>
     public static async Task PositionWindowAndShowOnUiThread(this Window toPosition)
     {
         await ThreadSwitcher.ThreadSwitcher.ResumeForegroundAsync();
@@ -128,8 +143,15 @@ public static class WindowInitialPositionHelpers
         toPosition.PositionWindowAndShow();
     }
 
-    public static IntPtr WindowToHwnd(Window window)
+    private static IntPtr WindowToHwnd(Window window)
     {
         return new WindowInteropHelper(window).EnsureHandle();
+    }
+
+    private enum DpiType
+    {
+        Effective = 0,
+        Angular = 1,
+        Raw = 2
     }
 }

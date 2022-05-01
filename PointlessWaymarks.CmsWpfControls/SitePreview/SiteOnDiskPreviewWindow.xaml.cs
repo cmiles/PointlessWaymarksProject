@@ -15,27 +15,42 @@ public partial class SiteOnDiskPreviewWindow
     [ObservableProperty] private SitePreviewContext _previewContext;
     [ObservableProperty] private StatusControlContext _statusContext;
 
-    public SiteOnDiskPreviewWindow()
+    private SiteOnDiskPreviewWindow()
     {
         InitializeComponent();
-
         StatusContext = new StatusControlContext();
-
         DataContext = this;
+    }
+
+    /// <summary>
+    /// Creates a new instance - this method can be called from any thread and will
+    /// switch to the UI thread as needed. Does not show the window - consider using
+    /// PositionWindowAndShowOnUiThread() from the WindowInitialPositionHelpers.
+    /// </summary>
+    /// <returns></returns>
+    public static async Task<SiteOnDiskPreviewWindow> CreateInstance()
+    {
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        var window = new SiteOnDiskPreviewWindow();
+
+        await ThreadSwitcher.ResumeBackgroundAsync();
 
         var freePort = PreviewServer.FreeTcpPort();
 
         var server = PreviewServer.CreateHostBuilder(UserSettingsSingleton.CurrentSettings().SiteDomainName,
             UserSettingsSingleton.CurrentSettings().LocalSiteRootFullDirectory().FullName, freePort).Build();
 
-        StatusContext.RunFireAndForgetWithToastOnError(async () =>
+        window.StatusContext.RunFireAndForgetWithToastOnError(async () =>
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
             await server.RunAsync();
         });
 
-        PreviewContext = new SitePreviewContext(UserSettingsSingleton.CurrentSettings().SiteDomainName,
+        window.PreviewContext = new SitePreviewContext(UserSettingsSingleton.CurrentSettings().SiteDomainName,
             UserSettingsSingleton.CurrentSettings().LocalSiteRootFullDirectory().FullName,
-            UserSettingsSingleton.CurrentSettings().SiteName, $"localhost:{freePort}", StatusContext);
+            UserSettingsSingleton.CurrentSettings().SiteName, $"localhost:{freePort}", window.StatusContext);
+
+        return window;
     }
 }

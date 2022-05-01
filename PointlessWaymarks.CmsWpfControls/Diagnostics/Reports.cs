@@ -18,11 +18,9 @@ public static class Reports
         bodyBuilder.AppendLine($"<p>{HttpUtility.HtmlEncode(intro)}</p>");
         bodyBuilder.AppendLine(generationReturns.ToHtmlTable(new {@class = "pure-table pure-table-striped"}));
 
-        await ThreadSwitcher.ResumeForegroundAsync();
-
         var reportWindow =
-            new HtmlViewerWindow(bodyBuilder.ToString().ToHtmlDocumentWithPureCss(title, string.Empty));
-        reportWindow.PositionWindowAndShow();
+            await HtmlViewerWindow.CreateInstance(bodyBuilder.ToString().ToHtmlDocumentWithPureCss(title, string.Empty));
+        await reportWindow.PositionWindowAndShowOnUiThread();
     }
 
     public static async Task InvalidBracketCodeContentIdsHtmlReport(List<GenerationReturn> generationReturns)

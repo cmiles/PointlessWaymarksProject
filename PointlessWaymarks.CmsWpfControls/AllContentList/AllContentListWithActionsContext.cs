@@ -60,8 +60,6 @@ public partial class AllContentListWithActionsContext
 
     private async Task WordPressImportWindow()
     {
-        await ThreadSwitcher.ResumeForegroundAsync();
-
-        new WordPressXmlImportWindow().PositionWindowAndShow();
+        await (await WordPressXmlImportWindow.CreateInstance()).PositionWindowAndShowOnUiThread();
     }
 }

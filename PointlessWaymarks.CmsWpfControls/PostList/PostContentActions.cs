@@ -108,13 +108,9 @@ public partial class PostContentActions : ObservableObject, IContentActions<Post
             StatusContext.ToastError(
                 $"{content.Title} is no longer active in the database? Can not edit - look for a historic version...");
 
-        await ThreadSwitcher.ResumeForegroundAsync();
+        var newContentWindow = await PostContentEditorWindow.CreateInstance(refreshedData);
 
-        var newContentWindow = new PostContentEditorWindow(refreshedData);
-
-        newContentWindow.PositionWindowAndShow();
-
-        await ThreadSwitcher.ResumeBackgroundAsync();
+        await newContentWindow.PositionWindowAndShowOnUiThread();
     }
 
     public async Task ExtractNewLinks(PostContent content)

@@ -13,20 +13,40 @@ public partial class PostContentEditorWindow
     [ObservableProperty] private PostContentEditorContext _postContent;
     [ObservableProperty] private StatusControlContext _statusContext;
 
-    public PostContentEditorWindow(PostContent toLoad = null)
+    /// <summary>
+    /// DO NOT USE - Use CreateInstance instead - using the constructor directly will result in
+    /// core functionality being uninitialized.
+    /// </summary>
+    private PostContentEditorWindow()
     {
         InitializeComponent();
         StatusContext = new StatusControlContext();
+        DataContext = this;
+    }
 
-        StatusContext.RunFireAndForgetBlockingTask(async () =>
-        {
-            PostContent = await PostContentEditorContext.CreateInstance(StatusContext, toLoad);
+    /// <summary>
+    /// Creates a new instance - this method can be called from any thread and will
+    /// switch to the UI thread as needed. Does not show the window - consider using
+    /// PositionWindowAndShowOnUiThread() from the WindowInitialPositionHelpers.
+    /// </summary>
+    /// <returns></returns>
+    public static async Task<PostContentEditorWindow> CreateInstance(PostContent toLoad = null)
+    {
+        await ThreadSwitcher.ResumeForegroundAsync();
 
-            PostContent.RequestContentEditorWindowClose += (_, _) => { Dispatcher?.Invoke(Close); };
-            AccidentalCloserHelper = new WindowAccidentalClosureHelper(this, StatusContext, PostContent);
+        var window = new PostContentEditorWindow();
 
-            await ThreadSwitcher.ResumeForegroundAsync();
-            DataContext = this;
-        });
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        window.PostContent = await PostContentEditorContext.CreateInstance(window.StatusContext, toLoad);
+
+        window.PostContent.RequestContentEditorWindowClose += (_, _) => { window.Dispatcher?.Invoke(window.Close); };
+
+        window.AccidentalCloserHelper =
+            new WindowAccidentalClosureHelper(window, window.StatusContext, window.PostContent);
+
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        return window;
     }
 }

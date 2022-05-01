@@ -108,13 +108,9 @@ public partial class PointContentActions : ObservableObject, IContentActions<Poi
             StatusContext.ToastError(
                 $"{content.Title} is no longer active in the database? Can not edit - look for a historic version...");
 
-        await ThreadSwitcher.ResumeForegroundAsync();
+        var newContentWindow = await PointContentEditorWindow.CreateInstance(refreshedData);
 
-        var newContentWindow = new PointContentEditorWindow(refreshedData);
-
-        newContentWindow.PositionWindowAndShow();
-
-        await ThreadSwitcher.ResumeBackgroundAsync();
+        await newContentWindow.PositionWindowAndShowOnUiThread();
     }
 
     public async Task ExtractNewLinks(PointContent content)

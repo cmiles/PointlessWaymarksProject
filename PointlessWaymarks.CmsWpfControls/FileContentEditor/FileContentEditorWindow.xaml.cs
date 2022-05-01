@@ -14,13 +14,22 @@ public partial class FileContentEditorWindow
     [ObservableProperty] private FileContentEditorContext _fileContent;
     [ObservableProperty] private StatusControlContext _statusContext;
 
-    public FileContentEditorWindow()
+    /// <summary>
+    /// DO NOT USE - Use CreateInstance instead - using the constructor directly will result in
+    /// core functionality being uninitialized.
+    /// </summary>
+    private FileContentEditorWindow()
     {
         InitializeComponent();
         StatusContext = new StatusControlContext();
         DataContext = this;
     }
 
+    /// <summary>
+    /// Creates a new instance - this method can be called from any thread and will
+    /// switch to the UI thread as needed.
+    /// </summary>
+    /// <returns></returns>
     public static async Task<FileContentEditorWindow> CreateInstance()
     {
         await ThreadSwitcher.ResumeForegroundAsync();
@@ -39,6 +48,11 @@ public partial class FileContentEditorWindow
         return window;
     }
 
+    /// <summary>
+    /// Creates a new instance - this method can be called from any thread and will
+    /// switch to the UI thread as needed.
+    /// </summary>
+    /// <returns></returns>
     public static async Task<FileContentEditorWindow> CreateInstance(FileInfo initialFile)
     {
         await ThreadSwitcher.ResumeForegroundAsync();
@@ -57,6 +71,12 @@ public partial class FileContentEditorWindow
         return window;
     }
 
+    /// <summary>
+    /// Creates a new instance - this method can be called from any thread and will
+    /// switch to the UI thread as needed. Does not show the window - consider using
+    /// PositionWindowAndShowOnUiThread() from the WindowInitialPositionHelpers.
+    /// </summary>
+    /// <returns></returns>
     public static async Task<FileContentEditorWindow> CreateInstance(FileContent toLoad)
     {
         await ThreadSwitcher.ResumeForegroundAsync();

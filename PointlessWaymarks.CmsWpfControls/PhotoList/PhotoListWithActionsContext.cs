@@ -266,11 +266,9 @@ public partial class PhotoListWithActionsContext
             if (loopPhoto.DbEntry.Longitude != null) newPartialPoint.Longitude = loopPhoto.DbEntry.Longitude.Value;
             if (loopPhoto.DbEntry.Elevation != null) newPartialPoint.Elevation = loopPhoto.DbEntry.Elevation.Value;
 
-            await ThreadSwitcher.ResumeForegroundAsync();
+            var pointWindow = await PointContentEditorWindow.CreateInstance(newPartialPoint);
 
-            var pointWindow = new PointContentEditorWindow(newPartialPoint);
-
-            pointWindow.PositionWindowAndShow();
+            await pointWindow.PositionWindowAndShowOnUiThread();
         }
     }
 
@@ -480,15 +478,9 @@ public partial class PhotoListWithActionsContext
 
         var reportLoader = new ContentListLoaderReport(toRun);
 
-        var context = new PhotoListWithActionsContext(null, reportLoader);
-
-        await ThreadSwitcher.ResumeForegroundAsync();
-
-        var newWindow = new PhotoListWindow { ListContext = context, WindowTitle = title };
-
-        newWindow.PositionWindowAndShow();
-
-        await context.LoadData();
+        var newWindow = await PhotoListWindow.CreateInstance(new PhotoListWithActionsContext(null, reportLoader));
+        newWindow.WindowTitle = title;
+        await newWindow.PositionWindowAndShowOnUiThread();
     }
 
     public List<PhotoListListItem> SelectedItems()

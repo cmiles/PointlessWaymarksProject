@@ -101,12 +101,9 @@ public partial class LinkListWithActionsContext
             x.LastUpdatedOn
         }).ToHtmlTable(new { @class = "pure-table pure-table-striped" });
 
-        await ThreadSwitcher.ResumeForegroundAsync();
-
         var htmlReportWindow =
-            new HtmlViewerWindow(
-                projectedNotFound.ToHtmlDocumentWithPureCss("Links Not In Pinboard", string.Empty));
-        htmlReportWindow.PositionWindowAndShow();
+            await HtmlViewerWindow.CreateInstance(projectedNotFound.ToHtmlDocumentWithPureCss("Links Not In Pinboard", string.Empty));
+        await htmlReportWindow.PositionWindowAndShowOnUiThread();
     }
 
     private async Task LoadData()

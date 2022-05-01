@@ -14,6 +14,10 @@ public partial class ImageContentEditorWindow
     [ObservableProperty] private ImageContentEditorContext _imageEditor;
     [ObservableProperty] private StatusControlContext _statusContext;
 
+    /// <summary>
+    /// DO NOT USE - Use CreateInstance instead - using the constructor directly will result in
+    /// core functionality being uninitialized.
+    /// </summary>
     private ImageContentEditorWindow()
     {
         InitializeComponent();
@@ -21,6 +25,12 @@ public partial class ImageContentEditorWindow
         DataContext = this;
     }
 
+    /// <summary>
+    /// Creates a new instance - this method can be called from any thread and will
+    /// switch to the UI thread as needed. Does not show the window - consider using
+    /// PositionWindowAndShowOnUiThread() from the WindowInitialPositionHelpers.
+    /// </summary>
+    /// <returns></returns>
     public static async Task<ImageContentEditorWindow> CreateInstance(ImageContent contentToLoad = null,
         FileInfo initialImage = null)
     {

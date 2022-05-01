@@ -11,60 +11,95 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoContentEditor;
 public partial class PhotoContentEditorWindow
 {
     [ObservableProperty] private WindowAccidentalClosureHelper _accidentalCloserHelper;
-    [ObservableProperty] private PhotoContentEditorContext _photoEditor;
+    [ObservableProperty] private PhotoContentEditorContext _photoContent;
     [ObservableProperty] private StatusControlContext _statusContext;
 
-    public PhotoContentEditorWindow()
+    /// <summary>
+    /// DO NOT USE - Use CreateInstance instead - using the constructor directly will result in
+    /// core functionality being uninitialized.
+    /// </summary>
+    private PhotoContentEditorWindow()
     {
         InitializeComponent();
-
         StatusContext = new StatusControlContext();
-
-        StatusContext.RunFireAndForgetBlockingTask(async () =>
-        {
-            PhotoEditor = await PhotoContentEditorContext.CreateInstance(StatusContext);
-
-            PhotoEditor.RequestContentEditorWindowClose += (_, _) => { Dispatcher?.Invoke(Close); };
-            AccidentalCloserHelper = new WindowAccidentalClosureHelper(this, StatusContext, PhotoEditor);
-
-            await ThreadSwitcher.ResumeForegroundAsync();
-            DataContext = this;
-        });
+        DataContext = this;
     }
 
-    public PhotoContentEditorWindow(FileInfo initialPhoto)
+    /// <summary>
+    /// Creates a new instance - this method can be called from any thread and will
+    /// switch to the UI thread as needed. Does not show the window - consider using
+    /// PositionWindowAndShowOnUiThread() from the WindowInitialPositionHelpers.
+    /// </summary>
+    /// <returns></returns>
+    public static async Task<PhotoContentEditorWindow> CreateInstance()
     {
-        InitializeComponent();
+        await ThreadSwitcher.ResumeForegroundAsync();
 
-        StatusContext = new StatusControlContext();
+        var window = new PhotoContentEditorWindow();
 
-        StatusContext.RunFireAndForgetBlockingTask(async () =>
-        {
-            PhotoEditor = await PhotoContentEditorContext.CreateInstance(StatusContext, initialPhoto);
+        await ThreadSwitcher.ResumeBackgroundAsync();
 
-            PhotoEditor.RequestContentEditorWindowClose += (_, _) => { Dispatcher?.Invoke(Close); };
-            AccidentalCloserHelper = new WindowAccidentalClosureHelper(this, StatusContext, PhotoEditor);
+        window.PhotoContent = await PhotoContentEditorContext.CreateInstance(window.StatusContext);
 
-            await ThreadSwitcher.ResumeForegroundAsync();
-            DataContext = this;
-        });
+        window.PhotoContent.RequestContentEditorWindowClose += (_, _) => { window.Dispatcher?.Invoke(window.Close); };
+
+        window.AccidentalCloserHelper =
+            new WindowAccidentalClosureHelper(window, window.StatusContext, window.PhotoContent);
+
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        return window;
     }
 
-    public PhotoContentEditorWindow(PhotoContent toLoad)
+    /// <summary>
+    /// Creates a new instance - this method can be called from any thread and will
+    /// switch to the UI thread as needed. Does not show the window - consider using
+    /// PositionWindowAndShowOnUiThread() from the WindowInitialPositionHelpers.
+    /// </summary>
+    /// <returns></returns>
+    public static async Task<PhotoContentEditorWindow> CreateInstance(FileInfo initialPhoto)
     {
-        InitializeComponent();
+        await ThreadSwitcher.ResumeForegroundAsync();
 
-        StatusContext = new StatusControlContext();
+        var window = new PhotoContentEditorWindow();
 
-        StatusContext.RunFireAndForgetBlockingTask(async () =>
-        {
-            PhotoEditor = await PhotoContentEditorContext.CreateInstance(StatusContext, toLoad);
+        await ThreadSwitcher.ResumeBackgroundAsync();
 
-            PhotoEditor.RequestContentEditorWindowClose += (_, _) => { Dispatcher?.Invoke(Close); };
-            AccidentalCloserHelper = new WindowAccidentalClosureHelper(this, StatusContext, PhotoEditor);
+        window.PhotoContent = await PhotoContentEditorContext.CreateInstance(window.StatusContext, initialPhoto);
 
-            await ThreadSwitcher.ResumeForegroundAsync();
-            DataContext = this;
-        });
+        window.PhotoContent.RequestContentEditorWindowClose += (_, _) => { window.Dispatcher?.Invoke(window.Close); };
+
+        window.AccidentalCloserHelper =
+            new WindowAccidentalClosureHelper(window, window.StatusContext, window.PhotoContent);
+
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        return window;
+    }
+
+    /// <summary>
+    /// Creates a new instance - this method can be called from any thread and will
+    /// switch to the UI thread as needed. Does not show the window - consider using
+    /// PositionWindowAndShowOnUiThread() from the WindowInitialPositionHelpers.
+    /// </summary>
+    /// <returns></returns>
+    public static async Task<PhotoContentEditorWindow> CreateInstance(PhotoContent toLoad)
+    {
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        var window = new PhotoContentEditorWindow();
+
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        window.PhotoContent = await PhotoContentEditorContext.CreateInstance(window.StatusContext, toLoad);
+
+        window.PhotoContent.RequestContentEditorWindowClose += (_, _) => { window.Dispatcher?.Invoke(window.Close); };
+
+        window.AccidentalCloserHelper =
+            new WindowAccidentalClosureHelper(window, window.StatusContext, window.PhotoContent);
+
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        return window;
     }
 }

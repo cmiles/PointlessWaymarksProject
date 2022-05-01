@@ -237,13 +237,13 @@ public partial class TagListContext
                 (await ImageContentEditorWindow.CreateInstance(c)).PositionWindowAndShow();
                 break;
             case NoteContent c:
-                new NoteContentEditorWindow(c).PositionWindowAndShow();
+                (await NoteContentEditorWindow.CreateInstance(c)).PositionWindowAndShow();
                 break;
             case PhotoContent c:
-                new PhotoContentEditorWindow(c).PositionWindowAndShow();
+                (await PhotoContentEditorWindow.CreateInstance(c)).PositionWindowAndShow();
                 break;
             case PostContent c:
-                new PostContentEditorWindow(c).PositionWindowAndShow();
+                (await PostContentEditorWindow.CreateInstance(c)).PositionWindowAndShow();
                 break;
             case LinkContent c:
                 (await LinkContentEditorWindow.CreateInstance(c)).PositionWindowAndShow();

@@ -1,5 +1,6 @@
 ﻿using System.Windows;
 using Microsoft.Toolkit.Mvvm.ComponentModel;
+using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 
 namespace PointlessWaymarks.CmsWpfControls.LineList;
 
@@ -12,10 +13,25 @@ public partial class LineListWindow
     [ObservableProperty] private LineListWithActionsContext _listContext;
     [ObservableProperty] private string _windowTitle = "Line List";
 
-    public LineListWindow()
+    private LineListWindow()
     {
         InitializeComponent();
-
         DataContext = this;
+    }
+
+    /// <summary>
+    /// Creates a new instance - this method can be called from any thread and will
+    /// switch to the UI thread as needed.
+    /// </summary>
+    /// <returns></returns>
+    public static async Task<LineListWindow> CreateInstance(LineListWithActionsContext toLoad)
+    {
+        await ThreadSwitcher.ResumeForegroundAsync();
+        var window = new LineListWindow
+        {
+            ListContext = toLoad ?? new LineListWithActionsContext(null)
+        };
+
+        return window;
     }
 }

@@ -20,6 +20,12 @@ public partial class GpxImportWindow
         DataContext = this;
     }
 
+    /// <summary>
+    /// Creates a new instance - this method can be called from any thread and will
+    /// switch to the UI thread as needed. Does not show the window - consider using
+    /// PositionWindowAndShowOnUiThread() from the WindowInitialPositionHelpers.
+    /// </summary>
+    /// <returns></returns>
     public static async Task<GpxImportWindow> CreateInstance(string initialImportFile)
     {
         await ThreadSwitcher.ResumeForegroundAsync();

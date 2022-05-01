@@ -554,10 +554,8 @@ public partial class GpxImportContext
                     var editorPoint = new PointContent();
                     editorPoint.InjectFrom(loopPoints.point);
 
-                    await ThreadSwitcher.ResumeForegroundAsync();
-
-                    var editor = new PointContentEditorWindow(editorPoint);
-                    editor.PositionWindowAndShow();
+                    var editor = await PointContentEditorWindow.CreateInstance(editorPoint);
+                    await editor.PositionWindowAndShowOnUiThread();
 
 #pragma warning disable 4014
                     //Allow execution to continue so Automation can continue
@@ -634,7 +632,7 @@ public partial class GpxImportContext
                 var editorPoint = new PointContent();
                 editorPoint.InjectFrom(loopPoints.point);
 
-                var editor = new PointContentEditorWindow(editorPoint);
+                var editor = await PointContentEditorWindow.CreateInstance(editorPoint);
                 await editor.PositionWindowAndShowOnUiThread();
 
                 await RemoveFromList(loopPoints.listWaypoint.DisplayId);
@@ -645,12 +643,8 @@ public partial class GpxImportContext
                 var editorLine = new LineContent();
                 editorLine.InjectFrom(loopTrack.line);
 
-                await ThreadSwitcher.ResumeForegroundAsync();
-
                 var editor = await LineContentEditorWindow.CreateInstance(editorLine);
                 await editor.PositionWindowAndShowOnUiThread();
-
-                await ThreadSwitcher.ResumeBackgroundAsync();
 
                 await RemoveFromList(loopTrack.listTrack.DisplayId);
             }

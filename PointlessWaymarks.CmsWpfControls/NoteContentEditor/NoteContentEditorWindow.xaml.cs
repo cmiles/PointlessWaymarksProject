@@ -16,20 +16,40 @@ public partial class NoteContentEditorWindow
     [ObservableProperty] private NoteContentEditorContext _noteContent;
     [ObservableProperty] private StatusControlContext _statusContext;
 
-    public NoteContentEditorWindow(NoteContent toLoad)
+    /// <summary>
+    /// DO NOT USE - Use CreateInstance instead - using the constructor directly will result in
+    /// core functionality being uninitialized.
+    /// </summary>
+    private NoteContentEditorWindow()
     {
         InitializeComponent();
         StatusContext = new StatusControlContext();
+        DataContext = this;
+    }
 
-        StatusContext.RunFireAndForgetBlockingTask(async () =>
-        {
-            NoteContent = await NoteContentEditorContext.CreateInstance(StatusContext, toLoad);
+    /// <summary>
+    /// Creates a new instance - this method can be called from any thread and will
+    /// switch to the UI thread as needed. Does not show the window - consider using
+    /// PositionWindowAndShowOnUiThread() from the WindowInitialPositionHelpers.
+    /// </summary>
+    /// <returns></returns>
+    public static async Task<NoteContentEditorWindow> CreateInstance(NoteContent toLoad)
+    {
+        await ThreadSwitcher.ResumeForegroundAsync();
 
-            NoteContent.RequestContentEditorWindowClose += (_, _) => { Dispatcher?.Invoke(Close); };
-            AccidentalCloserHelper = new WindowAccidentalClosureHelper(this, StatusContext, NoteContent);
+        var window = new NoteContentEditorWindow();
 
-            await ThreadSwitcher.ResumeForegroundAsync();
-            DataContext = this;
-        });
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        window.NoteContent = await NoteContentEditorContext.CreateInstance(window.StatusContext, toLoad);
+
+        window.NoteContent.RequestContentEditorWindowClose += (_, _) => { window.Dispatcher?.Invoke(window.Close); };
+
+        window.AccidentalCloserHelper =
+            new WindowAccidentalClosureHelper(window, window.StatusContext, window.NoteContent);
+
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        return window;
     }
 }

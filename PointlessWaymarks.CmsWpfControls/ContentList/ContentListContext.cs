@@ -23,6 +23,7 @@ using PointlessWaymarks.CmsWpfControls.FileContentEditor;
 using PointlessWaymarks.CmsWpfControls.FileList;
 using PointlessWaymarks.CmsWpfControls.GeoJsonList;
 using PointlessWaymarks.CmsWpfControls.HelpDisplay;
+using PointlessWaymarks.CmsWpfControls.ImageContentEditor;
 using PointlessWaymarks.CmsWpfControls.ImageList;
 using PointlessWaymarks.CmsWpfControls.LineList;
 using PointlessWaymarks.CmsWpfControls.LinkList;
@@ -168,85 +169,64 @@ public partial class ContentListContext : IDragSource, IDropTarget
 
         NewAllContentListWindowCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
         {
-            await ThreadSwitcher.ResumeForegroundAsync();
-            var newWindow = new AllContentListWindow
-            {
-                ListContext = new AllContentListWithActionsContext(null, WindowStatus)
-            };
-            newWindow.PositionWindowAndShow();
+            var newWindow = await AllContentListWindow.CreateInstance(new AllContentListWithActionsContext(null, WindowStatus));
+            await newWindow.PositionWindowAndShowOnUiThread();
         });
         NewFileListWindowCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
         {
-            await ThreadSwitcher.ResumeForegroundAsync();
-            var newWindow = new FileListWindow { ListContext = new FileListWithActionsContext(null, WindowStatus) };
-            newWindow.PositionWindowAndShow();
+            var newWindow = await FileListWindow.CreateInstance(new FileListWithActionsContext(null, WindowStatus));
+            await newWindow.PositionWindowAndShowOnUiThread();
         });
         NewGeoJsonListWindowCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
         {
-            await ThreadSwitcher.ResumeForegroundAsync();
-            var newWindow = new GeoJsonListWindow
-            {
-                ListContext = new GeoJsonListWithActionsContext(null, WindowStatus)
-            };
-            newWindow.PositionWindowAndShow();
+            var newWindow = await GeoJsonListWindow.CreateInstance(new GeoJsonListWithActionsContext(null, WindowStatus));
+            await newWindow.PositionWindowAndShowOnUiThread();
         });
         NewImageListWindowCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
         {
-            await ThreadSwitcher.ResumeForegroundAsync();
-            var newWindow = new ImageListWindow { ListContext = new ImageListWithActionsContext(null, WindowStatus) };
-            newWindow.PositionWindowAndShow();
+            var newWindow = await ImageListWindow.CreateInstance(new ImageListWithActionsContext(null, WindowStatus));
+            await newWindow.PositionWindowAndShowOnUiThread();
         });
         NewLineListWindowCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
         {
-            await ThreadSwitcher.ResumeForegroundAsync();
-            var newWindow = new LineListWindow { ListContext = new LineListWithActionsContext(null, WindowStatus) };
-            newWindow.PositionWindowAndShow();
+            var newWindow = await LineListWindow.CreateInstance(new LineListWithActionsContext(null, WindowStatus));
+            await newWindow.PositionWindowAndShowOnUiThread();
         });
         NewLinkListWindowCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
         {
-            await ThreadSwitcher.ResumeForegroundAsync();
-            var newWindow = new LinkListWindow { ListContext = new LinkListWithActionsContext(null, WindowStatus) };
-            newWindow.PositionWindowAndShow();
+            var newWindow = await LinkListWindow.CreateInstance(new LinkListWithActionsContext(null, WindowStatus));
+            await newWindow.PositionWindowAndShowOnUiThread();
         });
         NewMapComponentListWindowCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
         {
-            await ThreadSwitcher.ResumeForegroundAsync();
-            var newWindow = new MapComponentListWindow
-            {
-                ListContext = new MapComponentListWithActionsContext(null, WindowStatus)
-            };
-            newWindow.PositionWindowAndShow();
+            var newWindow = await MapComponentListWindow.CreateInstance(new MapComponentListWithActionsContext(null, WindowStatus));
+            await newWindow.PositionWindowAndShowOnUiThread();
         });
         NewNoteListWindowCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
         {
-            await ThreadSwitcher.ResumeForegroundAsync();
-            var newWindow = new NoteListWindow { ListContext = new NoteListWithActionsContext(null, WindowStatus) };
-            newWindow.PositionWindowAndShow();
+            var newWindow = await NoteListWindow.CreateInstance(new NoteListWithActionsContext(null, WindowStatus));
+            await newWindow.PositionWindowAndShowOnUiThread();
         });
         NewPhotoListWindowCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
         {
-            await ThreadSwitcher.ResumeForegroundAsync();
-            var newWindow = new PhotoListWindow { ListContext = new PhotoListWithActionsContext(null, WindowStatus) };
-            newWindow.PositionWindowAndShow();
+            var newWindow = await PhotoListWindow.CreateInstance(new PhotoListWithActionsContext(null, WindowStatus));
+            await newWindow.PositionWindowAndShowOnUiThread();
         });
         NewPointListWindowCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
         {
-            await ThreadSwitcher.ResumeForegroundAsync();
-            var newWindow = new PointListWindow { ListContext = new PointListWithActionsContext(null, WindowStatus) };
-            newWindow.PositionWindowAndShow();
+            var newWindow = await PointListWindow.CreateInstance(new PointListWithActionsContext(null, WindowStatus));
+            await newWindow.PositionWindowAndShowOnUiThread();
         });
         NewPostListWindowCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
         {
-            await ThreadSwitcher.ResumeForegroundAsync();
-            var newWindow = new PostListWindow { ListContext = new PostListWithActionsContext(null, WindowStatus) };
-            newWindow.PositionWindowAndShow();
+            var newWindow = await PostListWindow.CreateInstance(new PostListWithActionsContext(null, WindowStatus));
+            await newWindow.PositionWindowAndShowOnUiThread();
         });
 
         SearchHelpWindowCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
         {
-            await ThreadSwitcher.ResumeForegroundAsync();
-            var newWindow = new MarkdownViewerWindow("Search Help", SearchHelpMarkdown.HelpBlock);
-            newWindow.PositionWindowAndShow();
+            var newWindow = await MarkdownViewerWindow.CreateInstance("Search Help", SearchHelpMarkdown.HelpBlock);
+            await newWindow.PositionWindowAndShowOnUiThread();
         });
     }
 
@@ -701,10 +681,8 @@ public partial class ContentListContext : IDragSource, IDropTarget
                 TaskbarItemProgressState.None));
         }
 
-        await ThreadSwitcher.ResumeForegroundAsync();
-
-        var sitePreviewWindow = new SiteOnDiskPreviewWindow();
-        sitePreviewWindow.PositionWindowAndShow();
+        var sitePreviewWindow = await SiteOnDiskPreviewWindow.CreateInstance();
+        await sitePreviewWindow.PositionWindowAndShowOnUiThread();
     }
 
     private async Task GenerateChangedHtmlAndStartUpload()
@@ -867,24 +845,19 @@ public partial class ContentListContext : IDragSource, IDropTarget
 
         var reportLoader = new ContentListLoaderReport(toRun, ContentListLoaderBase.SortContextDefault());
 
-        var context = new AllContentListWithActionsContext(null, reportLoader);
+        var newWindow = await AllContentListWindow.CreateInstance(new AllContentListWithActionsContext(null, reportLoader));
+        newWindow.WindowTitle = title;
 
-        await ThreadSwitcher.ResumeForegroundAsync();
-
-        var newWindow = new AllContentListWindow { ListContext = context, WindowTitle = title };
-
-        newWindow.PositionWindowAndShow();
-
-        await context.LoadData();
+        await newWindow.PositionWindowAndShowOnUiThread();
     }
 
     private async Task ShowSitePreviewWindow()
     {
         await ThreadSwitcher.ResumeForegroundAsync();
 
-        var sitePreviewWindow = new SiteOnDiskPreviewWindow();
+        var sitePreviewWindow = await SiteOnDiskPreviewWindow.CreateInstance();
 
-        sitePreviewWindow.PositionWindowAndShow();
+        await sitePreviewWindow.PositionWindowAndShowOnUiThread();
     }
 
     private void StatusContextOnPropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -954,24 +927,15 @@ public partial class ContentListContext : IDragSource, IDropTarget
 
                 if (!string.IsNullOrWhiteSpace(make) || !string.IsNullOrWhiteSpace(model))
                 {
-                    await ThreadSwitcher.ResumeForegroundAsync();
-
-                    var photoEditorWindow = new PhotoContentEditorWindow(new FileInfo(loopFile));
-                    photoEditorWindow.PositionWindowAndShow();
-
-                    await ThreadSwitcher.ResumeBackgroundAsync();
-
+                    var photoEditorWindow = await PhotoContentEditorWindow.CreateInstance(new FileInfo(loopFile));
+                    await photoEditorWindow.PositionWindowAndShowOnUiThread();
 
                     statusContext.ToastSuccess($"{Path.GetFileName(loopFile)} sent to Photo Editor");
                 }
                 else
                 {
-                    await ThreadSwitcher.ResumeForegroundAsync();
-
-                    var imageEditorWindow = new PhotoContentEditorWindow(new FileInfo(loopFile));
-                    imageEditorWindow.PositionWindowAndShow();
-
-                    await ThreadSwitcher.ResumeBackgroundAsync();
+                    var imageEditorWindow = await ImageContentEditorWindow.CreateInstance(null, new FileInfo(loopFile));
+                    await imageEditorWindow.PositionWindowAndShowOnUiThread();
 
                     statusContext.ToastSuccess($"{Path.GetFileName(loopFile)} sent to Image Editor");
                 }
