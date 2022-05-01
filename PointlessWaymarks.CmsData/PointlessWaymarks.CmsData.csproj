@@ -40,9 +40,9 @@
   <ItemGroup>
     <PackageReference Include="AngleSharp" Version="1.0.0-alpha-844" />
     <PackageReference Include="AngleSharp.Js" Version="0.15.0" />
-    <PackageReference Include="AWSSDK.S3" Version="3.7.8.20" />
+    <PackageReference Include="AWSSDK.S3" Version="3.7.8.23" />
     <PackageReference Include="ClosedXML" Version="0.95.4" />
-    <PackageReference Include="CompareNETObjects" Version="4.76.0" />
+    <PackageReference Include="CompareNETObjects" Version="4.77.0" />
     <PackageReference Include="FluentMigrator" Version="3.3.2" />
     <PackageReference Include="FluentMigrator.Runner" Version="3.3.2" />
     <PackageReference Include="FluentMigrator.Runner.SQLite" Version="3.3.2" />
@@ -54,7 +54,7 @@
     <PackageReference Include="HtmlTableHelper" Version="1.2.2" />
     <PackageReference Include="HtmlTags" Version="8.1.1" />
     <PackageReference Include="ini-parser-netstandard" Version="2.5.2" />
-    <PackageReference Include="JetBrains.Annotations" Version="2021.3.0" />
+    <PackageReference Include="JetBrains.Annotations" Version="2022.1.0" />
     <PackageReference Include="Markdig" Version="0.27.0" />
     <PackageReference Include="MetadataExtractor" Version="2.7.2" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.4" />
@@ -64,11 +64,11 @@
     <PackageReference Include="NetTopologySuite" Version="2.4.0" />
     <PackageReference Include="NetTopologySuite.IO.GeoJSON" Version="2.0.4" />
     <PackageReference Include="NetTopologySuite.IO.GPX" Version="1.1.1" />
-    <PackageReference Include="ObjectDumper.NET" Version="3.3.13" />
-    <PackageReference Include="PhotoSauce.MagicScaler" Version="0.12.2" />
+    <PackageReference Include="ObjectDumper.NET" Version="3.3.20" />
+    <PackageReference Include="PhotoSauce.MagicScaler" Version="0.13.0" />
     <PackageReference Include="pinboard.net" Version="1.0.0" />
     <PackageReference Include="Polly" Version="7.2.3" />
-    <PackageReference Include="Serilog" Version="2.10.0" />
+    <PackageReference Include="Serilog" Version="2.11.0" />
     <PackageReference Include="Serilog.Enrichers.Environment" Version="2.2.0" />
     <PackageReference Include="Serilog.Enrichers.Process" Version="2.0.2" />
     <PackageReference Include="Serilog.Enrichers.Thread" Version="3.1.0" />

@@ -23,6 +23,10 @@ Site:
 
 ## Notes
 
+5/1/2022
+
+Moving windows to CreateInstance Factory Methods now seems like a very good idea - and in fact with async/await code so useful in the UI I'm now wondering if traditional constructors should all be private and everything in a UI project should be available only thru async CreateInstance calls? Leaving this on a branch until I have used everything a bit more to confirm there aren't unexpected problems.
+
 4/28/2022
 
 Starting a branch to try moving all Window Creation to Factory methods to better manage initialization using async methods. A few weeks ago I ran into a scenario where I wanted to 'manually' make a change to an editor value programmatically - most of the time this will probably work but occasionally the stack of async initializations mean that a call to a window component fails because the component is not initialized. Many of the components already use a asyn CreateInstance - my original thought had been that window initialization was 'simpler' and would not need that - in retrospect I am now wondering if in an Async world if a static CreateInstance style is just the better default.
