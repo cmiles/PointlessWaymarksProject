@@ -496,7 +496,7 @@ public static class PhotoGenerator
 
         if (!photoFileValidation.Valid)
             return GenerationReturn.Error(photoFileValidation.Explanation, photoContent.ContentId);
-
+        
         return GenerationReturn.Success("Photo Content Validation Successful");
     }
 

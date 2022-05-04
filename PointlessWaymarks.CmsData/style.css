@@ -186,7 +186,7 @@ a.info-list-link-item {
     text-decoration: none;
 }
 
-p.info-list-text-item {
+.info-list-text-item {
     margin: .5rem 1.5rem;
     display: block;
     color: var(--foreground-secondary-color);
@@ -256,20 +256,20 @@ a.site-header-title-link {
     text-decoration: none;
 }
 
-    a.site-header-title-link:visited {
-        color: var(--foreground-color);
-        text-decoration: none;
-    }
+a.site-header-title-link:visited {
+    color: var(--foreground-color);
+    text-decoration: none;
+}
 
-    a.site-header-title-link:hover {
-        color: var(--foreground-color);
-        text-decoration: underline;
-    }
+a.site-header-title-link:hover {
+    color: var(--foreground-color);
+    text-decoration: underline;
+}
 
-    a.site-header-title-link:active {
-        color: var(--foreground-color);
-        text-decoration: none;
-    }
+a.site-header-title-link:active {
+    color: var(--foreground-color);
+    text-decoration: none;
+}
 
 .note-title-content {
     text-align: center;
@@ -297,25 +297,25 @@ a.site-header-title-link {
     margin-bottom: 0;
 }
 
-    .title-link-content a {
-        text-decoration: none;
-        color: var(--foreground-color);
-    }
+.title-link-content a {
+    text-decoration: none;
+    color: var(--foreground-color);
+}
 
-        .title-link-content a:visited {
-            text-decoration: none;
-            color: var(--foreground-color);
-        }
+.title-link-content a:visited {
+    text-decoration: none;
+    color: var(--foreground-color);
+}
 
-        .title-link-content a:hover {
-            text-decoration: underline;
-            color: var(--foreground-color);
-        }
+.title-link-content a:hover {
+    text-decoration: underline;
+    color: var(--foreground-color);
+}
 
-        .title-link-content a:active {
-            text-decoration: none;
-            color: var(--foreground-color);
-        }
+.title-link-content a:active {
+    text-decoration: none;
+    color: var(--foreground-color);
+}
 
 .post-title-area-created-and-updated-content {
     font-weight: normal;
@@ -342,7 +342,14 @@ a.site-header-title-link {
     margin-top: 2rem;
 }
 
-.post-body-content p,
+.post-body-content p:not(.info-list-text-item) {
+    margin-left: 1%;
+    margin-right: 1%;
+    margin-top: 1rem;
+    margin-bottom: 2rem;
+    line-height: calc(1ex / 0.32);
+}
+
 .post-body-content ul,
 .post-body-content ol,
 .post-body-content h1,
@@ -715,7 +722,11 @@ a.tag-list-link {
 
 
 @media screen and (min-width: 640px) {
-    .post-body-content p,
+    .post-body-content p:not(.info-list-text-item) {
+        margin-left: 4%;
+        margin-right: 4%;
+    }
+
     .post-body-content ul,
     .post-body-content ol,
     .post-body-content h1,
@@ -816,7 +827,13 @@ a.tag-list-link {
         margin: 0;
     }
 
-    .post-body-content p,
+    .post-body-content p:not(.info-list-text-item) {
+        max-width: 1100px;
+        width: 60rem;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
     .post-body-content ul,
     .post-body-content ol,
     .post-body-content h1,

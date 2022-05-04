@@ -162,10 +162,14 @@ public partial class IndexPage
         await WriteRss().ConfigureAwait(false);
 
         foreach (var loopPosts in IndexContent.Take(NumberOfContentItemsToDisplay))
-            if (BracketCodeCommon.ContainsSpatialBracketCodes(loopPosts) ||
-                loopPosts.GetType() == typeof(PointContentDto) || loopPosts.GetType() == typeof(GeoJsonContent) ||
+        {
+            if (DynamicTypeHelpers.PropertyExists(loopPosts, "Body") &&
+                BracketCodeCommon.ContainsSpatialScriptDependentBracketCodes((string)loopPosts.Body))
+                IncludeSpatialScripts = true;
+            if (loopPosts.GetType() == typeof(PointContentDto) || loopPosts.GetType() == typeof(GeoJsonContent) ||
                 loopPosts.GetType() == typeof(LineContent))
                 IncludeSpatialScripts = true;
+        }
 
         var parser = new HtmlParser();
         var htmlDoc = parser.ParseDocument(TransformText());
@@ -176,7 +180,8 @@ public partial class IndexPage
         var htmlString = stringWriter.ToString();
 
         var htmlFileInfo =
-            new FileInfo($@"{UserSettingsSingleton.CurrentSettings().LocalSiteRootFullDirectory().FullName}\index.html");
+            new FileInfo(
+                $@"{UserSettingsSingleton.CurrentSettings().LocalSiteRootFullDirectory().FullName}\index.html");
 
         if (htmlFileInfo.Exists)
         {

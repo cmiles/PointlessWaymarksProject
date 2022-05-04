@@ -273,6 +273,18 @@ public static class Db
         };
     }
 
+    /// <summary>
+    ///     A standardized conversion of a Guid into a simple standard display string. Both Point and
+    ///     PointDto will return the same string.
+    /// </summary>
+    /// <param name="db"></param>
+    /// <param name="contentGuid"></param>
+    /// <returns></returns>
+    public static async Task<string> ContentTypeDisplayString(this PointlessWaymarksContext db, Guid contentGuid)
+    {
+        return ContentTypeDisplayString(await db.ContentFromContentId(contentGuid));
+    }
+
     public static async Task<List<object>> ContentUpdatedOnDay(DateTime updatedOn)
     {
         var updatedOnOnOrAfter = updatedOn.Date;
@@ -936,19 +948,24 @@ public static class Db
         {
             FileContent => await db.FileContents.Where(x => !string.IsNullOrWhiteSpace(x.Folder)).Select(x => x.Folder)
                 .Distinct().OrderBy(x => x).Cast<string>().ToListAsync(),
-            GeoJsonContent => await db.GeoJsonContents.Where(x => !string.IsNullOrWhiteSpace(x.Folder)).Select(x => x.Folder)
+            GeoJsonContent => await db.GeoJsonContents.Where(x => !string.IsNullOrWhiteSpace(x.Folder))
+                .Select(x => x.Folder)
                 .Distinct().OrderBy(x => x).Cast<string>().ToListAsync(),
-            ImageContent => await db.ImageContents.Where(x => !string.IsNullOrWhiteSpace(x.Folder)).Select(x => x.Folder)
+            ImageContent => await db.ImageContents.Where(x => !string.IsNullOrWhiteSpace(x.Folder))
+                .Select(x => x.Folder)
                 .Distinct().OrderBy(x => x).Cast<string>().ToListAsync(),
             LineContent => await db.LineContents.Where(x => !string.IsNullOrWhiteSpace(x.Folder)).Select(x => x.Folder)
                 .Distinct().OrderBy(x => x).Cast<string>().ToListAsync(),
             NoteContent => await db.NoteContents.Where(x => !string.IsNullOrWhiteSpace(x.Folder)).Select(x => x.Folder)
                 .Distinct().OrderBy(x => x).Cast<string>().ToListAsync(),
-            PhotoContent => await db.PhotoContents.Where(x => !string.IsNullOrWhiteSpace(x.Folder)).Select(x => x.Folder)
+            PhotoContent => await db.PhotoContents.Where(x => !string.IsNullOrWhiteSpace(x.Folder))
+                .Select(x => x.Folder)
                 .Distinct().OrderBy(x => x).Cast<string>().ToListAsync(),
-            PointContent => await db.PointContents.Where(x => !string.IsNullOrWhiteSpace(x.Folder)).Select(x => x.Folder)
+            PointContent => await db.PointContents.Where(x => !string.IsNullOrWhiteSpace(x.Folder))
+                .Select(x => x.Folder)
                 .Distinct().OrderBy(x => x).Cast<string>().ToListAsync(),
-            PointContentDto => await db.PointContents.Where(x => !string.IsNullOrWhiteSpace(x.Folder)).Select(x => x.Folder)
+            PointContentDto => await db.PointContents.Where(x => !string.IsNullOrWhiteSpace(x.Folder))
+                .Select(x => x.Folder)
                 .Distinct().OrderBy(x => x).Cast<string>().ToListAsync(),
             PostContent => await db.PostContents.Where(x => !string.IsNullOrWhiteSpace(x.Folder)).Select(x => x.Folder)
                 .Distinct().OrderBy(x => x).Cast<string>().ToListAsync(),
@@ -966,13 +983,16 @@ public static class Db
 
         var compiledList = new List<string>();
 
-        compiledList.AddRange(await db.GeoJsonContents.Where(x => !string.IsNullOrWhiteSpace(x.Folder)).Select(x => x.Folder)
+        compiledList.AddRange(await db.GeoJsonContents.Where(x => !string.IsNullOrWhiteSpace(x.Folder))
+            .Select(x => x.Folder)
             .Distinct().Cast<string>().ToListAsync());
 
-        compiledList.AddRange(await db.LineContents.Where(x => !string.IsNullOrWhiteSpace(x.Folder)).Select(x => x.Folder)
+        compiledList.AddRange(await db.LineContents.Where(x => !string.IsNullOrWhiteSpace(x.Folder))
+            .Select(x => x.Folder)
             .Distinct().Cast<string>().ToListAsync());
 
-        compiledList.AddRange(await db.PointContents.Where(x => !string.IsNullOrWhiteSpace(x.Folder)).Select(x => x.Folder)
+        compiledList.AddRange(await db.PointContents.Where(x => !string.IsNullOrWhiteSpace(x.Folder))
+            .Select(x => x.Folder)
             .Distinct().Cast<string>().ToListAsync());
 
         compiledList = compiledList.Distinct().OrderBy(x => x).ToList();

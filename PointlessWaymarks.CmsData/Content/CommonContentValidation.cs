@@ -123,6 +123,51 @@ public static class CommonContentValidation
             $"{Db.ContentTypeDisplayString(content)} {content.Title} - No Invalid Content Ids Found");
     }
 
+    public static async Task<GenerationReturn> CheckForIsDraftConflicts(IContentCommon content)
+    {
+        if (content.IsDraft)
+            return GenerationReturn.Success("Content is Draft - references to both Draft/Production content are OK",
+                content.ContentId);
+
+        var toSearch = string.Empty;
+
+        toSearch += content.BodyContent + content.Summary;
+
+        if (content is IUpdateNotes updateContent) toSearch += updateContent.UpdateNotes;
+
+        if (string.IsNullOrWhiteSpace(toSearch))
+            return GenerationReturn.Success(
+                "Production Content does not Reference Any Draft Content (No Content String)");
+
+        var db = await Db.Context().ConfigureAwait(false);
+
+        var bracketCodeContent = BracketCodeCommon.BracketCodeContentIds(toSearch);
+
+        if (!bracketCodeContent.Any())
+            return GenerationReturn.Success(
+                "Production Content does not Reference Any Draft Content (No Bracket Code Content References)");
+
+        var contentFromDb = await db.ContentCommonShellFromContentIds(bracketCodeContent);
+
+        if (contentFromDb.All(x => !x.IsDraft))
+            return GenerationReturn.Success(
+                $"All {contentFromDb.Count} Bracket Code Content References are Production");
+
+        var problems = contentFromDb.Where(x => x.IsDraft).OrderBy(x => x.Title).ToList();
+
+        var draftReferencesList = new List<string>();
+
+        foreach (var loopProblem in problems)
+        {
+            var contentDisplayName = Db.ContentTypeDisplayString(loopProblem.ContentId);
+
+            problems.ForEach(x => draftReferencesList.Add($"{contentDisplayName}: {x.Title} - Is Draft: {x.IsDraft}"));
+        }
+
+        return GenerationReturn.Error(
+            $"Production Content can not Reference Draft Content - this post references:{Environment.NewLine}{string.Join(Environment.NewLine, draftReferencesList)}");
+    }
+
     public static async Task<GenerationReturn> CheckStringForBadContentReferences(string? toSearch,
         PointlessWaymarksContext db, IProgress<string>? progress)
     {
@@ -382,6 +427,14 @@ public static class CommonContentValidation
         {
             isValid = false;
             errorMessage.Add(bodyContentFormatValidation.Explanation);
+        }
+
+        var draftContentInProductionCheck = await CheckForIsDraftConflicts(toValidate);
+
+        if (draftContentInProductionCheck.HasError)
+        {
+            isValid = false;
+            errorMessage.Add(draftContentInProductionCheck.GenerationNote);
         }
 
         var contentIdCheck =

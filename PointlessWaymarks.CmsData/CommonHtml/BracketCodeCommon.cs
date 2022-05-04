@@ -28,7 +28,7 @@ public static class BracketCodeCommon
         return returnList;
     }
 
-    public static bool ContainsSpatialBracketCodes(string toProcess)
+    public static bool ContainsSpatialScriptDependentBracketCodes(string toProcess)
     {
         var codeMatches = new List<string>
         {
@@ -41,7 +41,7 @@ public static class BracketCodeCommon
         return codeMatches.Any(toProcess.Contains);
     }
 
-    public static bool ContainsSpatialBracketCodes(IContentCommon? content)
+    public static bool ContainsSpatialScriptDependentBracketCodes(IContentCommon? content)
     {
         if (content == null) return false;
 
@@ -53,7 +53,7 @@ public static class BracketCodeCommon
 
         if (string.IsNullOrWhiteSpace(toSearch)) return false;
 
-        return ContainsSpatialBracketCodes(toSearch);
+        return ContainsSpatialScriptDependentBracketCodes(toSearch);
     }
 
     /// <summary>
@@ -128,6 +128,7 @@ public static class BracketCodeCommon
         input = await BracketCodeImages.ProcessForEmail(input, progress).ConfigureAwait(false);
         input = await BracketCodeImageLinks.Process(input, progress).ConfigureAwait(false);
         input = await BracketCodeLineLinks.Process(input, progress).ConfigureAwait(false);
+        input = await BracketCodeLineStats.Process(input, progress).ConfigureAwait(false);
         input = await BracketCodeNotes.Process(input, progress).ConfigureAwait(false);
         input = await BracketCodePhotos.ProcessForEmail(input, progress).ConfigureAwait(false);
         input = await BracketCodePhotoLinks.Process(input, progress).ConfigureAwait(false);
@@ -160,6 +161,7 @@ public static class BracketCodeCommon
         input = await BracketCodeImageLinks.Process(input, progress).ConfigureAwait(false);
         input = await BracketCodeLines.ProcessForDirectLocalAccess(input, progress).ConfigureAwait(false);
         input = await BracketCodeLineLinks.Process(input, progress).ConfigureAwait(false);
+        input = await BracketCodeLineStats.Process(input, progress).ConfigureAwait(false);
         input = await BracketCodeNotes.Process(input, progress).ConfigureAwait(false);
         input = await BracketCodePhotos.ProcessForDirectLocalAccess(input, progress).ConfigureAwait(false);
         input = await BracketCodePhotoLinks.Process(input, progress).ConfigureAwait(false);
@@ -186,6 +188,7 @@ public static class BracketCodeCommon
         input = await BracketCodeImageLinks.Process(input, progress).ConfigureAwait(false);
         input = await BracketCodeLines.Process(input, progress).ConfigureAwait(false);
         input = await BracketCodeLineLinks.Process(input, progress).ConfigureAwait(false);
+        input = await BracketCodeLineStats.Process(input, progress).ConfigureAwait(false);
         input = await BracketCodeMapComponents.Process(input, progress).ConfigureAwait(false);
         input = await BracketCodeNotes.Process(input, progress).ConfigureAwait(false);
         input = await BracketCodePhotos.ProcessToFigureWithLink(input, progress).ConfigureAwait(false);

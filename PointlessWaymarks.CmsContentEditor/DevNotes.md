@@ -4,9 +4,9 @@
    - Sync Item names? Or is having the original name on the map useful?
    - Button on map to select in list
  - Photo Location Map Chooser
+ - Better is draft conflict protection - perhaps a check in site generation?
  - For geo types and notes review local file cleanup on delete
  - Is File Content being detected as changing more than intended?
- - Appium GUI Test
  - Check whole site import - test(s)?
  - Deleted Content Report so it is possible to restore completely deleted
  - Text to Speech - abstract to better control:
@@ -18,10 +18,15 @@ Site:
  - Improve Search Pages!
 
 ## Ideas
+ - Appium GUI Test
  - Could I successfully tuck away a copy of the current edits to help in unexpected shut downs? No good if I can't expose these in a helpful way...
  - Could all in app font sizes be controlled by slider or setting? I like the control in the editor but maybe everywhere would be more useful? And persist in Settings?
 
 ## Notes
+
+5/3/2022
+
+My wife was editing a post on a private site and had left several photos marked as Drafts, changed a post using the photos to not be a draft and then published - the result was a error in the Daily Photos Page generation where the query to establish which days have photos didn't consider drafts but the query getting the photo content did (and the page failed because there were no photos for the page - not a condition the daily photo page is/was desgined for). This was partly a bug but pointed out that when I implemented drafts I didn't do a good job thinking about changes to the draft status and conflicts between is/is not a draft. Added a check when saving content to check for this condition and added a todo to check during site generation.
 
 5/1/2022
 

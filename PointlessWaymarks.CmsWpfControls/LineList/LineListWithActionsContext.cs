@@ -14,6 +14,7 @@ public partial class LineListWithActionsContext
 {
     [ObservableProperty] private StatusControlContext _statusContext;
     [ObservableProperty] private RelayCommand _lineLinkCodesToClipboardForSelectedCommand;
+    [ObservableProperty] private RelayCommand _lineStatsCodesToClipboardForSelectedCommand;
     [ObservableProperty] private ContentListContext _listContext;
     [ObservableProperty] private RelayCommand _refreshDataCommand;
     [ObservableProperty] private WindowIconStatus _windowStatus;
@@ -38,7 +39,28 @@ public partial class LineListWithActionsContext
 
         var finalString = SelectedItems().Aggregate(string.Empty,
             (current, loopSelected) =>
-                current + @$"{BracketCodeLines.Create(loopSelected.DbEntry)}{Environment.NewLine}");
+                current + @$"{BracketCodeLineLinks.Create(loopSelected.DbEntry)}{Environment.NewLine}");
+
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        Clipboard.SetText(finalString);
+
+        StatusContext.ToastSuccess($"To Clipboard {finalString}");
+    }
+
+    private async Task StatsBracketCodesToClipboardForSelected()
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (SelectedItems() == null || !SelectedItems().Any())
+        {
+            StatusContext.ToastError("Nothing Selected?");
+            return;
+        }
+
+        var finalString = SelectedItems().Aggregate(string.Empty,
+            (current, loopSelected) =>
+                current + @$"{BracketCodeLineStats.Create(loopSelected.DbEntry)}{Environment.NewLine}");
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
@@ -55,6 +77,8 @@ public partial class LineListWithActionsContext
 
         LineLinkCodesToClipboardForSelectedCommand =
             StatusContext.RunBlockingTaskCommand(LinkBracketCodesToClipboardForSelected);
+        LineStatsCodesToClipboardForSelectedCommand =
+            StatusContext.RunBlockingTaskCommand(StatsBracketCodesToClipboardForSelected);
         RefreshDataCommand = StatusContext.RunBlockingTaskCommand(ListContext.LoadData);
 
         ListContext.ContextMenuItems = new List<ContextMenuItemData>
@@ -66,6 +90,7 @@ public partial class LineListWithActionsContext
                 ItemCommand = ListContext.BracketCodeToClipboardSelectedCommand
             },
             new() { ItemName = "Text Code to Clipboard", ItemCommand = LineLinkCodesToClipboardForSelectedCommand },
+            new() { ItemName = "Stats Code to Clipboard", ItemCommand = LineStatsCodesToClipboardForSelectedCommand },
             new() { ItemName = "Extract New Links", ItemCommand = ListContext.ExtractNewLinksSelectedCommand },
             new() { ItemName = "Open URL", ItemCommand = ListContext.ViewOnSiteCommand },
             new() { ItemName = "Delete", ItemCommand = ListContext.DeleteSelectedCommand },

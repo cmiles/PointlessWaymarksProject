@@ -6,7 +6,7 @@ public static class SpatialScripts
 {
     public static string IncludeIfNeeded(IContentCommon content)
     {
-        return BracketCodeCommon.ContainsSpatialBracketCodes(content) ? ScriptsAndLinks() : string.Empty;
+        return BracketCodeCommon.ContainsSpatialScriptDependentBracketCodes(content) ? ScriptsAndLinks() : string.Empty;
     }
 
     public static string IncludeIfNeeded(bool isNeeded)

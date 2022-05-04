@@ -255,7 +255,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml.LineHtml
             this.Write("\r\n    <div class=\"information-section\">\r\n    ");
             
             #line 60 "C:\Code\PointlessWaymarksCms06\PointlessWaymarks.CmsData\ContentHtml\LineHtml\SingleLinePage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(LineParts.LineStatisticsDiv(DbEntry).ToString()));
+            this.Write(this.ToStringHelper.ToStringWithCulture(LineParts.LineStatisticsWithContentDiv(DbEntry).ToString()));
             
             #line default
             #line hidden

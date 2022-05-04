@@ -685,7 +685,7 @@ public static class HtmlGenerationGroups
             return;
         }
 
-        var changedPhotoDates = db.PhotoContents.Join(db.GenerationChangedContentIds, x => x.ContentId,
+        var changedPhotoDates = db.PhotoContents.Where(x => !x.IsDraft).Join(db.GenerationChangedContentIds, x => x.ContentId,
             x => x.ContentId, (x, y) => x).Select(x => x.PhotoCreatedOn.Date).Distinct().ToList();
 
         var datesToGenerate = new List<DateTime>();
