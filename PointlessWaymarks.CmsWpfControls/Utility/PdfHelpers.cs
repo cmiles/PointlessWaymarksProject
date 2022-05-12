@@ -161,6 +161,7 @@ public static class PdfHelpers
                 newImage.Summary = $"Page {pageNumber} from {content.Title}.";
             }
 
+            newImage.FeedOn = DateTime.Now;
             newImage.ShowInSearch = false;
             newImage.Folder = content.Folder;
             newImage.Tags = content.Tags;
