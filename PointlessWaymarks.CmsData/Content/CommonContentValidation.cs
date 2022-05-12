@@ -524,17 +524,14 @@ public static class CommonContentValidation
 
         if (contentGuid == null)
         {
-            var duplicateUrl = await db.LinkContents.Where(x => x.Url != null)
-                .AnyAsync(x => string.Equals(x.Url!, url, StringComparison.OrdinalIgnoreCase)).ConfigureAwait(false);
+            var duplicateUrl = (await db.LinkContents.Where(x => x.Url != null && x.Url! == url).ToListAsync().ConfigureAwait(false)).Any(x => x.Url.Equals(url, StringComparison.OrdinalIgnoreCase));
             if (duplicateUrl)
                 return new IsValid(false,
                     "URL Already exists in the database - duplicates are not allowed, try editing the existing entry to add new/updated information.");
         }
         else
         {
-            var duplicateUrl = await db.LinkContents.Where(x => x.Url != null).AnyAsync(x =>
-                    x.ContentId != contentGuid.Value && string.Equals(x.Url!, url, StringComparison.OrdinalIgnoreCase))
-                .ConfigureAwait(false);
+            var duplicateUrl = (await db.LinkContents.Where(x => x.Url != null && x.ContentId != contentGuid.Value && x.Url == url).ToListAsync().ConfigureAwait(false)).Any(x => x.Url!.Equals(url, StringComparison.OrdinalIgnoreCase));
             if (duplicateUrl)
                 return new IsValid(false,
                     "URL Already exists in the database - duplicates are not allowed, try editing the existing entry to add new/updated information.");
