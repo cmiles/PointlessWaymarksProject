@@ -18,6 +18,7 @@
     xmlns:utility="clr-namespace:PointlessWaymarks.WpfCommon.Utility;assembly=PointlessWaymarks.WpfCommon"
     xmlns:windowScreenShot="clr-namespace:PointlessWaymarks.WpfCommon.WindowScreenShot;assembly=PointlessWaymarks.WpfCommon"
     xmlns:wpfBehavior="clr-namespace:PointlessWaymarks.WpfCommon.Behaviors;assembly=PointlessWaymarks.WpfCommon"
+    xmlns:conversionDataEntry="clr-namespace:PointlessWaymarks.CmsWpfControls.ConversionDataEntry"
     d:DataContext="{d:DesignInstance fileContentEditor:FileContentEditorContext}"
     d:DesignHeight="300"
     d:DesignWidth="300"
@@ -125,6 +126,7 @@
                             <titleSummarySlugFolderEditor:TitleSummarySlugEditorControl Margin="0,4,0,0" DataContext="{Binding TitleSummarySlugFolder}" />
                             <contentSiteFeedAndIsDraft:ContentSiteFeedAndIsDraftControl DataContext="{Binding MainSiteFeed}" />
                             <tagsEditor:TagsEditorControl DataContext="{Binding TagEdit}" Style="{StaticResource TagsEditorInPanelStyle}" />
+                            <conversionDataEntry:ConversionDataEntryControl DataContext="{Binding UserMainPictureEntry}" />
                             <createdAndUpdatedByAndOnDisplay:CreatedAndUpdatedByAndOnDisplayControl DataContext="{Binding CreatedUpdatedDisplay}" Style="{StaticResource CreatedUpdatedInPanelStyle}" />
                             <contentIdViewer:ContentIdViewerControl DataContext="{Binding ContentId}" Style="{StaticResource ContentIdInPanelStyle}" />
                         </StackPanel>

@@ -32,7 +32,7 @@ public partial class ContentFormatChooserContext : IHasChanges, IHasValidationIs
         SelectedContentFormat = ContentFormatChoices.First();
     }
 
-    public void CheckForChangesAndValidationIssues()
+    public async Task CheckForChangesAndValidationIssues()
     {
         // ReSharper disable InvokeAsExtensionMethod - in this case TrimNullSage - which returns an
         //Empty string from null will not be invoked as an extension if DbEntry is null...
@@ -42,18 +42,18 @@ public partial class ContentFormatChooserContext : IHasChanges, IHasValidationIs
 
         HasChanges = SelectedContentFormatHasChanges;
         var validation =
-            CommonContentValidation.ValidateBodyContentFormat(SelectedContentFormatAsString.TrimNullToEmpty());
+            await CommonContentValidation.ValidateBodyContentFormat(SelectedContentFormatAsString.TrimNullToEmpty());
         HasValidationIssues = !validation.Valid;
         ValidationMessage = validation.Explanation;
     }
 
-    private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
+    private async void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
     {
         if (e == null) return;
         if (string.IsNullOrWhiteSpace(e.PropertyName)) return;
 
         if (!e.PropertyName.Contains("HasChanges") && !e.PropertyName.Contains("Validation"))
-            CheckForChangesAndValidationIssues();
+            await CheckForChangesAndValidationIssues();
     }
 
     public static ContentFormatChooserContext CreateInstance(StatusControlContext statusContext)

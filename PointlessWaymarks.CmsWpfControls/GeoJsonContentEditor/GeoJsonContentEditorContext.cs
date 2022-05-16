@@ -160,7 +160,7 @@ public partial class GeoJsonContentEditorContext : IHasChanges, IHasValidationIs
             geoJson = await sr.ReadToEndAsync();
         }
 
-        var (isValid, explanation) = CommonContentValidation.GeoJsonValidation(geoJson);
+        var (isValid, explanation) = await CommonContentValidation.GeoJsonValidation(geoJson);
 
         if (!isValid)
         {
@@ -187,7 +187,7 @@ public partial class GeoJsonContentEditorContext : IHasChanges, IHasValidationIs
             return;
         }
 
-        var (isValid, explanation) = CommonContentValidation.GeoJsonValidation(clipboardText);
+        var (isValid, explanation) = await CommonContentValidation.GeoJsonValidation(clipboardText);
 
         if (!isValid)
         {

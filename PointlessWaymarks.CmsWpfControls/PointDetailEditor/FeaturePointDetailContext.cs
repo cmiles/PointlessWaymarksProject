@@ -190,7 +190,7 @@ internal class FeaturePointDetailContext : IHasChanges, IHasValidationIssues, IP
         await NoteFormatEditor.TrySelectContentChoice(DetailData.NotesContentFormat);
 
         TypeEditor = StringDataEntryContext.CreateInstance();
-        TypeEditor.ValidationFunctions = new List<Func<string, IsValid>>
+        TypeEditor.ValidationFunctions = new List<Func<string, Task<IsValid>>>
         {
             CommonContentValidation.ValidateFeatureType
         };

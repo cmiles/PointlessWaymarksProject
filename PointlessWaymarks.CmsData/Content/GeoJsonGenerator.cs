@@ -53,7 +53,7 @@ public static class GeoJsonGenerator
         if (!b)
             return GenerationReturn.Error(s, geoJsonContent.ContentId);
 
-        var (isValid, explanation) = CommonContentValidation.GeoJsonValidation(geoJsonContent.GeoJson);
+        var (isValid, explanation) = await CommonContentValidation.GeoJsonValidation(geoJsonContent.GeoJson);
         if (!isValid)
             return GenerationReturn.Error(explanation, geoJsonContent.ContentId);
 

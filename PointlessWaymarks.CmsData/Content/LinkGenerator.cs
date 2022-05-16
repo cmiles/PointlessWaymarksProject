@@ -233,7 +233,7 @@ public static class LinkGenerator
                 linkContent.ContentId);
 
         var (createdUpdatedValid, createdUpdatedValidationMessage) =
-            CommonContentValidation.ValidateCreatedAndUpdatedBy(linkContent, linkContent.Id < 1);
+            await CommonContentValidation.ValidateCreatedAndUpdatedBy(linkContent, linkContent.Id < 1);
 
         if (!createdUpdatedValid)
             return GenerationReturn.Error(createdUpdatedValidationMessage, linkContent.ContentId);

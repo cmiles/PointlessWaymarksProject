@@ -12,8 +12,8 @@ public class PhotoHasLatLongVisibilityConverter : IMultiValueConverter
         if (values.Length != 2) return Visibility.Hidden;
         if (values[0] is not double latitude ||
             values[1] is not double longitude) return Visibility.Hidden;
-        var latitudeValidation = CommonContentValidation.LatitudeValidation(latitude);
-        var longitudeValidation = CommonContentValidation.LongitudeValidation(longitude);
+        var latitudeValidation =  CommonContentValidation.LatitudeValidation(latitude).Result;
+        var longitudeValidation =  CommonContentValidation.LongitudeValidation(longitude).Result;
         if (!latitudeValidation.Valid || !longitudeValidation.Valid) return Visibility.Hidden;
         return Visibility.Visible;
     }

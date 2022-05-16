@@ -21,7 +21,7 @@ public class ConversionDataEntryContext<T> : INotifyPropertyChanged, IHasChanges
     private string _userText;
     private T _userValue;
 
-    private List<Func<T, IsValid>> _validationFunctions = new();
+    private List<Func<T, Task<IsValid>>> _validationFunctions = new();
 
     private string _validationMessage;
 
@@ -119,7 +119,7 @@ public class ConversionDataEntryContext<T> : INotifyPropertyChanged, IHasChanges
         }
     }
 
-    public List<Func<T, IsValid>> ValidationFunctions
+    public List<Func<T, Task<IsValid>>> ValidationFunctions
     {
         get => _validationFunctions;
         set
@@ -165,14 +165,14 @@ public class ConversionDataEntryContext<T> : INotifyPropertyChanged, IHasChanges
 
     public event PropertyChangedEventHandler PropertyChanged;
 
-    private void CheckForChangesAndValidate()
+    private async Task CheckForChangesAndValidate()
     {
         HasChanges = !ComparisonFunction(ReferenceValue, UserValue);
 
         if (ValidationFunctions != null && ValidationFunctions.Any())
             foreach (var loopValidations in ValidationFunctions)
             {
-                var validationResult = loopValidations(UserValue);
+                var validationResult = await loopValidations(UserValue);
                 if (!validationResult.Valid)
                 {
                     HasValidationIssues = true;
@@ -192,7 +192,7 @@ public class ConversionDataEntryContext<T> : INotifyPropertyChanged, IHasChanges
     }
 
     [NotifyPropertyChangedInvocator]
-    protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+    protected virtual async void OnPropertyChanged([CallerMemberName] string propertyName = null)
     {
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 
@@ -202,7 +202,7 @@ public class ConversionDataEntryContext<T> : INotifyPropertyChanged, IHasChanges
 
         if (!propertyName.Contains("HasChanges") && !propertyName.Contains("Validation") &&
             !propertyName.Contains(nameof(UserText)))
-            CheckForChangesAndValidate();
+            await CheckForChangesAndValidate();
     }
 
     private void TryConvertUserText()
@@ -222,6 +222,9 @@ public class ConversionDataEntryContext<T> : INotifyPropertyChanged, IHasChanges
             ValidationMessage = conversionMessage;
             return;
         }
+
+        HasValidationIssues = false;
+        ValidationMessage = string.Empty;
 
         UserValue = result;
     }

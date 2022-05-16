@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Omu.ValueInjecter;
 using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.ContentHtml;
+using PointlessWaymarks.CmsData.Database.Migrations;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsData.Database.PointDetailDataModels;
 using PointlessWaymarks.CmsData.Spatial;
@@ -1404,7 +1405,7 @@ public static class Db
         if (toSave.Id > 0) toSave.Id = 0;
         toSave.ContentVersion = ContentVersionDateTime();
 
-        toSave.MainPicture = BracketCodeCommon.PhotoOrImageCodeFirstIdInContent(toSave.BodyContent);
+        toSave.MainPicture = toSave.UserMainPicture ?? BracketCodeCommon.PhotoOrImageCodeFirstIdInContent(toSave.BodyContent);
 
         await context.FileContents.AddAsync(toSave).ConfigureAwait(false);
 

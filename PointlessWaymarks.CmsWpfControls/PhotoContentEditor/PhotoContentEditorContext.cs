@@ -411,7 +411,7 @@ Photo Content Notes:
 
         LatitudeEntry =
             ConversionDataEntryContext<double?>.CreateInstance(ConversionDataEntryHelpers.DoubleNullableConversion);
-        LatitudeEntry.ValidationFunctions = new List<Func<double?, IsValid>>
+        LatitudeEntry.ValidationFunctions = new List<Func<double?, Task<IsValid>>>
         {
             CommonContentValidation.LatitudeValidationWithNullOk
         };
@@ -423,7 +423,7 @@ Photo Content Notes:
 
         LongitudeEntry =
             ConversionDataEntryContext<double?>.CreateInstance(ConversionDataEntryHelpers.DoubleNullableConversion);
-        LongitudeEntry.ValidationFunctions = new List<Func<double?, IsValid>>
+        LongitudeEntry.ValidationFunctions = new List<Func<double?, Task<IsValid>>>
         {
             CommonContentValidation.LongitudeValidationWithNullOk
         };
@@ -435,7 +435,7 @@ Photo Content Notes:
 
         ElevationEntry =
             ConversionDataEntryContext<double?>.CreateInstance(ConversionDataEntryHelpers.DoubleNullableConversion);
-        ElevationEntry.ValidationFunctions = new List<Func<double?, IsValid>>
+        ElevationEntry.ValidationFunctions = new List<Func<double?, Task<IsValid>>>
         {
             CommonContentValidation.ElevationValidation
         };
@@ -501,8 +501,8 @@ Photo Content Notes:
             return;
         }
 
-        var latitudeValidation = CommonContentValidation.LatitudeValidation(LatitudeEntry.UserValue.Value);
-        var longitudeValidation = CommonContentValidation.LongitudeValidation(LongitudeEntry.UserValue.Value);
+        var latitudeValidation = await CommonContentValidation.LatitudeValidation(LatitudeEntry.UserValue.Value);
+        var longitudeValidation = await CommonContentValidation.LongitudeValidation(LongitudeEntry.UserValue.Value);
 
         if (!latitudeValidation.Valid || !longitudeValidation.Valid)
         {
@@ -613,7 +613,7 @@ Photo Content Notes:
         SelectedFileValidationMessage = explanation;
 
         SelectedFileNameHasInvalidCharacters =
-            CommonContentValidation.FileContentFileFileNameHasInvalidCharacters(SelectedFile, DbEntry?.ContentId);
+            await CommonContentValidation.FileContentFileFileNameHasInvalidCharacters(SelectedFile, DbEntry?.ContentId);
 
         if (SelectedFile == null)
         {

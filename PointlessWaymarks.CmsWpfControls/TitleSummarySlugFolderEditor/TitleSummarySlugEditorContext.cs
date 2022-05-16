@@ -108,13 +108,13 @@ public partial class TitleSummarySlugEditorContext : IHasChanges, IHasValidation
 
         DbEntry = dbEntry;
 
-        TitleEntry = StringDataEntryContext.CreateTitleInstance(DbEntry);
+        TitleEntry = await StringDataEntryContext.CreateTitleInstance(DbEntry);
         TitleEntry.PropertyChanged += TitleChangedMonitor;
 
-        SlugEntry = StringDataEntryContext.CreateSlugInstance(DbEntry);
+        SlugEntry = await StringDataEntryContext.CreateSlugInstance(DbEntry);
         SlugEntry.PropertyChanged += TitleChangedMonitor;
 
-        SummaryEntry = StringDataEntryContext.CreateSummaryInstance(DbEntry);
+        SummaryEntry = await StringDataEntryContext.CreateSummaryInstance(DbEntry);
         SummaryEntry.PropertyChanged += TitleChangedMonitor;
 
         FolderEntry = await ContentFolderContext.CreateInstance(StatusContext, DbEntry);

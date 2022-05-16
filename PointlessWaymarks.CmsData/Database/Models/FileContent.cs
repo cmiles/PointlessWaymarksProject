@@ -7,6 +7,7 @@ public class FileContent : IUpdateNotes, IContentCommon
     public bool EmbedFile { get; set; }
     public string? OriginalFileName { get; set; }
     public bool PublicDownloadLink { get; set; }
+    public Guid? UserMainPicture { get; set; }
     public string? BodyContent { get; set; }
     public string? BodyContentFormat { get; set; }
     public Guid ContentId { get; set; }

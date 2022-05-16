@@ -154,7 +154,7 @@ public partial class LinkContentEditorContext : IHasChanges, IHasValidationIssue
         LinkUrlEntry = StringDataEntryContext.CreateInstance();
         LinkUrlEntry.Title = "URL";
         LinkUrlEntry.HelpText = "Link address";
-        LinkUrlEntry.ValidationFunctions = new List<Func<string, IsValid>> { ValidateUrl };
+        LinkUrlEntry.ValidationFunctions = new List<Func<string, Task<IsValid>>> { ValidateUrl };
         LinkUrlEntry.ReferenceValue = DbEntry.Url.TrimNullToEmpty();
         LinkUrlEntry.UserValue = DbEntry.Url.TrimNullToEmpty();
 
@@ -169,7 +169,7 @@ public partial class LinkContentEditorContext : IHasChanges, IHasValidationIssue
         TitleEntry.HelpText = "Title Text";
         TitleEntry.ReferenceValue = DbEntry.Title.TrimNullToEmpty();
         TitleEntry.UserValue = DbEntry.Title.TrimNullToEmpty();
-        TitleEntry.ValidationFunctions = new List<Func<string, IsValid>> { CommonContentValidation.ValidateTitle };
+        TitleEntry.ValidationFunctions = new List<Func<string, Task<IsValid>>> { CommonContentValidation.ValidateTitle };
 
         SiteEntry = StringDataEntryContext.CreateInstance();
         SiteEntry.Title = "Site";
@@ -244,8 +244,8 @@ public partial class LinkContentEditorContext : IHasChanges, IHasValidationIssue
         }
     }
 
-    public IsValid ValidateUrl(string linkUrl)
+    public async Task<IsValid> ValidateUrl(string linkUrl)
     {
-        return CommonContentValidation.ValidateLinkContentLinkUrl(linkUrl, DbEntry?.ContentId).Result;
+        return await CommonContentValidation.ValidateLinkContentLinkUrl(linkUrl, DbEntry?.ContentId);
     }
 }

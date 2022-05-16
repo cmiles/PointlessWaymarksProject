@@ -66,7 +66,7 @@ public partial class CreatedAndUpdatedByAndOnDisplayContext : IHasChanges, IHasV
         else if (((IContentId)DbEntry).Id < 1) IsNewEntry = true;
 
         CreatedByEntry = StringDataEntryContext.CreateInstance();
-        CreatedByEntry.ValidationFunctions = new List<Func<string, IsValid>>
+        CreatedByEntry.ValidationFunctions = new List<Func<string, Task<IsValid>>>
         {
             CommonContentValidation.ValidateCreatedBy
         };
@@ -79,7 +79,7 @@ public partial class CreatedAndUpdatedByAndOnDisplayContext : IHasChanges, IHasV
 
 
         UpdatedByEntry = StringDataEntryContext.CreateInstance();
-        UpdatedByEntry.ValidationFunctions = new List<Func<string, IsValid>> { ValidateUpdatedBy };
+        UpdatedByEntry.ValidationFunctions = new List<Func<string, Task<IsValid>>> { ValidateUpdatedBy };
         UpdatedByEntry.Title = "Updated By";
         UpdatedByEntry.HelpText = "Last Updated By Name";
         UpdatedByEntry.ReferenceValue = toLoad?.LastUpdatedBy ?? string.Empty;
@@ -138,7 +138,7 @@ public partial class CreatedAndUpdatedByAndOnDisplayContext : IHasChanges, IHasV
             CheckForChangesAndValidationIssues();
     }
 
-    public IsValid ValidateUpdatedBy(string updatedBy)
+    public async Task<IsValid> ValidateUpdatedBy(string updatedBy)
     {
         if (!IsNewEntry && string.IsNullOrWhiteSpace(updatedBy))
             return new IsValid(false, "Updated by can not be blank when updating an entry");

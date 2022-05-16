@@ -216,7 +216,7 @@ public partial class PointContentEditorContext : IHasChanges, ICheckForChangesAn
 
         ElevationEntry =
             ConversionDataEntryContext<double?>.CreateInstance(ConversionDataEntryHelpers.DoubleNullableConversion);
-        ElevationEntry.ValidationFunctions = new List<Func<double?, IsValid>>
+        ElevationEntry.ValidationFunctions = new List<Func<double?, Task<IsValid>>>
         {
             CommonContentValidation.ElevationValidation
         };
@@ -227,7 +227,7 @@ public partial class PointContentEditorContext : IHasChanges, ICheckForChangesAn
         ElevationEntry.UserText = DbEntry.Elevation?.ToString("F2") ?? string.Empty;
 
         LatitudeEntry = ConversionDataEntryContext<double>.CreateInstance(ConversionDataEntryHelpers.DoubleConversion);
-        LatitudeEntry.ValidationFunctions = new List<Func<double, IsValid>>
+        LatitudeEntry.ValidationFunctions = new List<Func<double, Task<IsValid>>>
         {
             CommonContentValidation.LatitudeValidation
         };
@@ -243,7 +243,7 @@ public partial class PointContentEditorContext : IHasChanges, ICheckForChangesAn
         };
 
         LongitudeEntry = ConversionDataEntryContext<double>.CreateInstance(ConversionDataEntryHelpers.DoubleConversion);
-        LongitudeEntry.ValidationFunctions = new List<Func<double, IsValid>>
+        LongitudeEntry.ValidationFunctions = new List<Func<double, Task<IsValid>>>
         {
             CommonContentValidation.LongitudeValidation
         };

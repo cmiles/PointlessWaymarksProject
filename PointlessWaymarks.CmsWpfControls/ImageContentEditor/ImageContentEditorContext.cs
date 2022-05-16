@@ -330,7 +330,7 @@ public partial class ImageContentEditorContext : IHasChanges, IHasValidationIssu
         SelectedFileValidationMessage = explanation;
 
         SelectedFileNameHasInvalidCharacters =
-            CommonContentValidation.FileContentFileFileNameHasInvalidCharacters(SelectedFile, DbEntry?.ContentId);
+            await CommonContentValidation.FileContentFileFileNameHasInvalidCharacters(SelectedFile, DbEntry?.ContentId);
 
         if (SelectedFile == null)
         {

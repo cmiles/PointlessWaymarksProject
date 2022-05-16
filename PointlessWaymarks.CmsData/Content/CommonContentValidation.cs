@@ -202,7 +202,7 @@ public static class CommonContentValidation
         return GenerationReturn.Success("No Invalid Content Ids Found");
     }
 
-    public static IsValid ElevationValidation(double? elevation)
+    public static async Task <IsValid> ElevationValidation(double? elevation)
     {
         if (elevation == null) return new IsValid(true, "Null Elevation is Valid");
 
@@ -217,7 +217,7 @@ public static class CommonContentValidation
         return new IsValid(true, "Elevation is Valid");
     }
 
-    public static bool FileContentFileFileNameHasInvalidCharacters(FileInfo? fileContentFile, Guid? currentContentId)
+    public static async Task<bool> FileContentFileFileNameHasInvalidCharacters(FileInfo? fileContentFile, Guid? currentContentId)
     {
         if (fileContentFile == null) return false;
 
@@ -247,7 +247,7 @@ public static class CommonContentValidation
         return new IsValid(true, "File is Valid");
     }
 
-    public static IsValid GeoJsonValidation(string? geoJsonString)
+    public static async Task<IsValid> GeoJsonValidation(string? geoJsonString)
     {
         if (string.IsNullOrWhiteSpace(geoJsonString)) return new IsValid(false, "Blank GeoJson is not Valid");
 
@@ -290,7 +290,7 @@ public static class CommonContentValidation
         return new IsValid(true, "File is Valid");
     }
 
-    public static IsValid LatitudeValidation(double latitude)
+    public static async Task<IsValid> LatitudeValidation(double latitude)
     {
         if (latitude is > 90 or < -90)
             return new IsValid(false, $"Latitude on Earth must be between -90 and 90 - {latitude} is not valid.");
@@ -298,14 +298,14 @@ public static class CommonContentValidation
         return new IsValid(true, "Latitude is Valid");
     }
 
-    public static IsValid LatitudeValidationWithNullOk(double? latitude)
+    public static async Task<IsValid> LatitudeValidationWithNullOk(double? latitude)
     {
         if (latitude == null) return new IsValid(true, "No Latitude is Ok...");
 
-        return LatitudeValidation(latitude.Value);
+        return await LatitudeValidation(latitude.Value);
     }
 
-    public static IsValid LongitudeValidation(double longitude)
+    public static async Task<IsValid> LongitudeValidation(double longitude)
     {
         if (longitude is > 180 or < -180)
             return new IsValid(false, $"Longitude on Earth must be between -180 and 180 - {longitude} is not valid.");
@@ -313,11 +313,11 @@ public static class CommonContentValidation
         return new IsValid(true, "Longitude is Valid");
     }
 
-    public static IsValid LongitudeValidationWithNullOk(double? longitude)
+    public static async Task<IsValid> LongitudeValidationWithNullOk(double? longitude)
     {
         if (longitude == null) return new IsValid(true, "No Longitude is Ok...");
 
-        return LongitudeValidation(longitude.Value);
+        return await LongitudeValidation(longitude.Value);
     }
 
     public static async Task<IsValid> PhotoFileValidation(FileInfo? photoFile, Guid? currentContentId)
@@ -342,7 +342,7 @@ public static class CommonContentValidation
         return new IsValid(true, "File is Valid");
     }
 
-    public static IsValid ValidateBodyContentFormat(string? contentFormat)
+    public static async Task<IsValid> ValidateBodyContentFormat(string? contentFormat)
     {
         if (string.IsNullOrWhiteSpace(contentFormat)) return new IsValid(false, "Body Content Format must be set");
 
@@ -365,7 +365,7 @@ public static class CommonContentValidation
             errorMessage.Add("Content ID is Empty");
         }
 
-        var titleValidation = ValidateTitle(toValidate.Title);
+        var titleValidation = await ValidateTitle(toValidate.Title);
 
         if (!titleValidation.Valid)
         {
@@ -373,7 +373,7 @@ public static class CommonContentValidation
             errorMessage.Add(titleValidation.Explanation);
         }
 
-        var summaryValidation = ValidateSummary(toValidate.Summary);
+        var summaryValidation = await ValidateSummary(toValidate.Summary);
 
         if (!summaryValidation.Valid)
         {
@@ -381,7 +381,7 @@ public static class CommonContentValidation
             errorMessage.Add(summaryValidation.Explanation);
         }
 
-        var createdUpdatedValidation = ValidateCreatedAndUpdatedBy(toValidate, isNewEntry);
+        var createdUpdatedValidation = await ValidateCreatedAndUpdatedBy(toValidate, isNewEntry);
 
         if (!createdUpdatedValidation.Valid)
         {
@@ -421,7 +421,7 @@ public static class CommonContentValidation
             errorMessage.Add(tagValidation.Explanation);
         }
 
-        var bodyContentFormatValidation = ValidateBodyContentFormat(toValidate.BodyContentFormat);
+        var bodyContentFormatValidation = await ValidateBodyContentFormat(toValidate.BodyContentFormat);
 
         if (!bodyContentFormatValidation.Valid)
         {
@@ -450,7 +450,7 @@ public static class CommonContentValidation
         return new IsValid(isValid, string.Join(Environment.NewLine, errorMessage));
     }
 
-    public static IsValid ValidateCreatedAndUpdatedBy(ICreatedAndLastUpdateOnAndBy toValidate, bool isNewEntry)
+    public static async Task<IsValid> ValidateCreatedAndUpdatedBy(ICreatedAndLastUpdateOnAndBy toValidate, bool isNewEntry)
     {
         var isValid = true;
         var errorMessage = new List<string>();
@@ -461,7 +461,7 @@ public static class CommonContentValidation
             errorMessage.Add($"Created on of {toValidate.CreatedOn} is not valid.");
         }
 
-        var (valid, explanation) = ValidateCreatedBy(toValidate.CreatedBy);
+        var (valid, explanation) = await ValidateCreatedBy(toValidate.CreatedBy);
 
         if (!valid)
         {
@@ -484,7 +484,7 @@ public static class CommonContentValidation
         return new IsValid(isValid, string.Join(Environment.NewLine, errorMessage));
     }
 
-    public static IsValid ValidateCreatedBy(string? createdBy)
+    public static async Task<IsValid> ValidateCreatedBy(string? createdBy)
     {
         if (string.IsNullOrWhiteSpace(createdBy.TrimNullToEmpty()))
             return new IsValid(false, "Created by can not be blank.");
@@ -492,7 +492,7 @@ public static class CommonContentValidation
         return new IsValid(true, "Created By is Ok");
     }
 
-    public static IsValid ValidateFeatureType(string? title)
+    public static async Task<IsValid> ValidateFeatureType(string? title)
     {
         if (string.IsNullOrWhiteSpace(title)) return new IsValid(false, "Type can not be blank");
 
@@ -553,7 +553,7 @@ public static class CommonContentValidation
             errorMessage.Add("Content ID is Empty");
         }
 
-        var titleValidation = ValidateTitle(mapComponent.Map.Title);
+        var titleValidation = await ValidateTitle(mapComponent.Map.Title);
 
         if (!titleValidation.Valid)
         {
@@ -561,7 +561,7 @@ public static class CommonContentValidation
             errorMessage.Add(titleValidation.Explanation);
         }
 
-        var summaryValidation = ValidateSummary(mapComponent.Map.Summary);
+        var summaryValidation = await ValidateSummary(mapComponent.Map.Summary);
 
         if (!summaryValidation.Valid)
         {
@@ -570,7 +570,7 @@ public static class CommonContentValidation
         }
 
         var (createdUpdatedIsValid, createdUpdatedExplanation) =
-            ValidateCreatedAndUpdatedBy(mapComponent.Map, isNewEntry);
+            await ValidateCreatedAndUpdatedBy(mapComponent.Map, isNewEntry);
 
         if (!createdUpdatedIsValid)
         {
@@ -626,7 +626,7 @@ public static class CommonContentValidation
         return new IsValid(isValid, string.Join(Environment.NewLine, errorMessage));
     }
 
-    public static IsValid ValidateSlugLocal(string? slug)
+    public static async Task<IsValid> ValidateSlugLocal(string? slug)
     {
         if (string.IsNullOrWhiteSpace(slug)) return new IsValid(false, "Slug can't be blank or only whitespace.");
 
@@ -638,9 +638,21 @@ public static class CommonContentValidation
         return new IsValid(true, string.Empty);
     }
 
+    public static async Task<IsValid> ValidateFileContentUserMainPicture(Guid? pictureContentId)
+    {
+        if (pictureContentId == null) return new IsValid(true, "No picture specified.");
+
+        var db = await Db.Context();
+
+        if(await db.PhotoContents.AnyAsync(x => x.ContentId == pictureContentId.Value)) return new IsValid(true, "Photo Found.");
+        if(await db.ImageContents.AnyAsync(x => x.ContentId == pictureContentId.Value)) return new IsValid(true, "Image Found.");
+
+        return new IsValid(false, $"No matching Photo or Image found for ContentId {pictureContentId}");
+    }
+
     public static async Task<IsValid> ValidateSlugLocalAndDb(string? slug, Guid contentId)
     {
-        var localValidation = ValidateSlugLocal(slug);
+        var localValidation = await ValidateSlugLocal(slug);
 
         if (!localValidation.Valid) return localValidation;
 
@@ -651,7 +663,7 @@ public static class CommonContentValidation
         return new IsValid(true, string.Empty);
     }
 
-    public static IsValid ValidateSummary(string? summary)
+    public static async Task<IsValid> ValidateSummary(string? summary)
     {
         if (string.IsNullOrWhiteSpace(summary)) return new IsValid(false, "Summary can not be blank");
 
@@ -670,7 +682,7 @@ public static class CommonContentValidation
         return new IsValid(true, string.Empty);
     }
 
-    public static IsValid ValidateTitle(string? title)
+    public static async Task<IsValid> ValidateTitle(string? title)
     {
         if (string.IsNullOrWhiteSpace(title)) return new IsValid(false, "Title can not be blank");
 

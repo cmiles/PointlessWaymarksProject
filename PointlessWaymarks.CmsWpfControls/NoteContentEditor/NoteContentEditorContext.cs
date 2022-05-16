@@ -158,7 +158,7 @@ Note Content is like a simplified Post - no title and slug to edit or maintain a
         };
 
         FolderEntry = await ContentFolderContext.CreateInstance(StatusContext, DbEntry);
-        Summary = StringDataEntryContext.CreateSummaryInstance(DbEntry);
+        Summary = await StringDataEntryContext.CreateSummaryInstance(DbEntry);
         CreatedUpdatedDisplay = await CreatedAndUpdatedByAndOnDisplayContext.CreateInstance(StatusContext, DbEntry);
         MainSiteFeed = await ContentSiteFeedAndIsDraftContext.CreateInstance(StatusContext, DbEntry);
         ContentId = await ContentIdViewerControlContext.CreateInstance(StatusContext, DbEntry);

@@ -246,7 +246,7 @@ public static class ContentImport
             {
                 var jsonString = splitList[2][5..];
                 var detailData = Db.PointDetailDataFromIdentifierAndJson(dataTypeString, jsonString);
-                var (isValid, _) = detailData == null ? new IsValid(false, "Null Value") : detailData.Validate();
+                var (isValid, _) = detailData == null ? new IsValid(false, "Null Value") : detailData.Validate().Result;
 
                 if (!isValid)
                 {

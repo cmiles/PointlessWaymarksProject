@@ -477,11 +477,11 @@ public static class PhotoGenerator
         if (!commonContentCheck.Valid)
             return GenerationReturn.Error(commonContentCheck.Explanation, photoContent.ContentId);
 
-        var latitudeCheck = CommonContentValidation.LatitudeValidationWithNullOk(photoContent.Latitude);
+        var latitudeCheck = await CommonContentValidation.LatitudeValidationWithNullOk(photoContent.Latitude);
         if (!latitudeCheck.Valid)
             return GenerationReturn.Error(latitudeCheck.Explanation, photoContent.ContentId);
 
-        var longitudeCheck = CommonContentValidation.LongitudeValidationWithNullOk(photoContent.Longitude);
+        var longitudeCheck = await CommonContentValidation.LongitudeValidationWithNullOk(photoContent.Longitude);
         if (!longitudeCheck.Valid)
             return GenerationReturn.Error(longitudeCheck.Explanation, photoContent.ContentId);
 

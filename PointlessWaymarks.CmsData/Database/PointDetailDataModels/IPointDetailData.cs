@@ -3,5 +3,5 @@
 public interface IPointDetailData
 {
     string DataTypeIdentifier { get; }
-    public IsValid Validate();
+    public Task<IsValid> Validate();
 }

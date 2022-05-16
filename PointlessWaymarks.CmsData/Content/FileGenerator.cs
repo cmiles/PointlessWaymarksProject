@@ -68,6 +68,11 @@ public static class FileGenerator
         if (!valid)
             return GenerationReturn.Error(explanation, fileContent.ContentId);
 
+        var (userMainImageIsValid, userMainImageExplanation) =
+            await CommonContentValidation.ValidateFileContentUserMainPicture(fileContent.UserMainPicture).ConfigureAwait(false);
+        if (!userMainImageIsValid)
+            return GenerationReturn.Error(userMainImageExplanation, fileContent.ContentId);
+
         var (isValid, s) = CommonContentValidation.ValidateUpdateContentFormat(fileContent.UpdateNotesFormat);
         if (!isValid)
             return GenerationReturn.Error(s, fileContent.ContentId);

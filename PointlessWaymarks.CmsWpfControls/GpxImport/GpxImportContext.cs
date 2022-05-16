@@ -424,7 +424,7 @@ public partial class GpxImportContext
             return;
         }
 
-        if (AutoSaveImports && importItems.Any(x => !CommonContentValidation.ValidateTitle(x.UserContentName).Valid))
+        if (AutoSaveImports && await importItems.AnyAsyncLoop(async (x) => !(await CommonContentValidation.ValidateTitle(x.UserContentName)).Valid))
         {
             await StatusContext.ShowMessageWithOkButton("Import Validation Error",
                 "With Auto-Save selected all items for import must have a Name that isn't blank.");

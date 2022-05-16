@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
+using System.Text.RegularExpressions;
 using System.Windows;
 using Microsoft.Toolkit.Mvvm.ComponentModel;
 using Microsoft.Toolkit.Mvvm.Input;
@@ -13,8 +14,10 @@ using PointlessWaymarks.CmsWpfControls.BodyContentEditor;
 using PointlessWaymarks.CmsWpfControls.BoolDataEntry;
 using PointlessWaymarks.CmsWpfControls.ContentIdViewer;
 using PointlessWaymarks.CmsWpfControls.ContentSiteFeedAndIsDraft;
+using PointlessWaymarks.CmsWpfControls.ConversionDataEntry;
 using PointlessWaymarks.CmsWpfControls.CreatedAndUpdatedByAndOnDisplay;
 using PointlessWaymarks.CmsWpfControls.HelpDisplay;
+using PointlessWaymarks.CmsWpfControls.StringDataEntry;
 using PointlessWaymarks.CmsWpfControls.TagsEditor;
 using PointlessWaymarks.CmsWpfControls.TitleSummarySlugFolderEditor;
 using PointlessWaymarks.CmsWpfControls.UpdateNotesEditor;
@@ -62,11 +65,15 @@ public partial class FileContentEditorContext : IHasChanges, IHasValidationIssue
     [ObservableProperty] private TitleSummarySlugEditorContext _titleSummarySlugFolder;
     [ObservableProperty] private UpdateNotesEditorContext _updateNotes;
     [ObservableProperty] private RelayCommand _viewOnSiteCommand;
+    [ObservableProperty] private ConversionDataEntryContext<Guid?> _userMainPictureEntry;
 
     public EventHandler RequestContentEditorWindowClose;
     private FileContentEditorContext(StatusControlContext statusContext, FileInfo initialFile = null)
     {
-        if (initialFile is { Exists: true }) _initialFile = initialFile;
+        if (initialFile is { Exists: true })
+        {
+            _initialFile = initialFile;
+        }
 
         PropertyChanged += OnPropertyChanged;
 
@@ -107,10 +114,17 @@ Notes:
     public void CheckForChangesAndValidationIssues()
     {
         HasChanges = PropertyScanners.ChildPropertiesHaveChanges(this) || SelectedFileHasPathOrNameChanges ||
-                     DbEntry?.MainPicture !=
-                     BracketCodeCommon.PhotoOrImageCodeFirstIdInContent(BodyContent?.BodyContent);
+                     DbEntry?.MainPicture != CurrentMainPicture();
         HasValidationIssues = PropertyScanners.ChildPropertiesHaveValidationIssues(this) ||
                               SelectedFileHasValidationIssues;
+    }
+
+    public Guid? CurrentMainPicture()
+    {
+        if (UserMainPictureEntry is { HasValidationIssues: false, UserValue: { } })
+            return UserMainPictureEntry.UserValue;
+
+        return BracketCodeCommon.PhotoOrImageCodeFirstIdInContent(BodyContent?.UserBodyContent);
     }
 
     public async Task ChooseFile()
@@ -188,6 +202,7 @@ Notes:
         newEntry.OriginalFileName = SelectedFile.Name;
         newEntry.PublicDownloadLink = PublicDownloadLink.UserValue;
         newEntry.EmbedFile = PublicDownloadLink.UserValue && EmbedFile.UserValue;
+        newEntry.UserMainPicture = UserMainPictureEntry.UserValue;
 
         return newEntry;
     }
@@ -287,6 +302,13 @@ Notes:
         UpdateNotes = await UpdateNotesEditorContext.CreateInstance(StatusContext, DbEntry);
         TagEdit = TagsEditorContext.CreateInstance(StatusContext, DbEntry);
         BodyContent = await BodyContentEditorContext.CreateInstance(StatusContext, DbEntry);
+        UserMainPictureEntry = ConversionDataEntryContext<Guid?>.CreateInstance(ConversionDataEntryHelpers.GuidNullableConversion);
+        UserMainPictureEntry.ValidationFunctions = new List<Func<Guid?, Task<IsValid>>>
+            { CommonContentValidation.ValidateFileContentUserMainPicture };
+        UserMainPictureEntry.UserText = DbEntry.UserMainPicture?.ToString() ?? string.Empty;
+        UserMainPictureEntry.Title = "Link Image";
+        UserMainPictureEntry.HelpText =
+            "Putting a Photo or Image ContentId here will cause that image to be used as the 'link' image for the file - very useful when the content is embedded and you don't have a photo or image in the Body Content.";
 
         if (!skipMediaDirectoryCheck && toLoad != null && !string.IsNullOrWhiteSpace(DbEntry.OriginalFileName))
         {
@@ -320,6 +342,8 @@ Notes:
         {
             SelectedFile = _initialFile;
             _initialFile = null;
+
+            TitleSummarySlugFolder.TitleEntry.UserValue = Regex.Replace(Path.GetFileNameWithoutExtension(SelectedFile.Name).Replace("-", " ").Replace("_", " ").SplitCamelCase(), @"\s+", " ");
         }
 
         await SelectedFileChanged();
@@ -447,7 +471,7 @@ Notes:
         SelectedFileValidationMessage = explanation;
 
         SelectedFileNameHasInvalidCharacters =
-            CommonContentValidation.FileContentFileFileNameHasInvalidCharacters(SelectedFile, DbEntry?.ContentId);
+            await CommonContentValidation.FileContentFileFileNameHasInvalidCharacters(SelectedFile, DbEntry?.ContentId);
     }
 
     public void SetupStatusContextAndCommands(StatusControlContext statusContext)

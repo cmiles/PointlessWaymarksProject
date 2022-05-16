@@ -51,15 +51,15 @@ public static class PointGenerator
         if (!commonContentCheck.Valid)
             return GenerationReturn.Error(commonContentCheck.Explanation, pointContent.ContentId);
 
-        var latitudeCheck = CommonContentValidation.LatitudeValidation(pointContent.Latitude);
+        var latitudeCheck = await CommonContentValidation.LatitudeValidation(pointContent.Latitude);
         if (!latitudeCheck.Valid)
             return GenerationReturn.Error(latitudeCheck.Explanation, pointContent.ContentId);
 
-        var longitudeCheck = CommonContentValidation.LongitudeValidation(pointContent.Longitude);
+        var longitudeCheck = await CommonContentValidation.LongitudeValidation(pointContent.Longitude);
         if (!longitudeCheck.Valid)
             return GenerationReturn.Error(longitudeCheck.Explanation, pointContent.ContentId);
 
-        var elevationCheck = CommonContentValidation.ElevationValidation(pointContent.Elevation);
+        var elevationCheck = await CommonContentValidation.ElevationValidation(pointContent.Elevation);
         if (!elevationCheck.Valid)
             return GenerationReturn.Error(elevationCheck.Explanation, pointContent.ContentId);
 
@@ -90,7 +90,7 @@ public static class PointGenerator
                     return GenerationReturn.Error($"{loopDetails.DataType} Point Detail returned null?",
                         pointContent.ContentId);
 
-                var (isValid, validationMessage) = content.Validate();
+                var (isValid, validationMessage) = await content.Validate();
 
                 if (!isValid)
                     return GenerationReturn.Error($"{loopDetails.DataType} Point Detail: {validationMessage}",
