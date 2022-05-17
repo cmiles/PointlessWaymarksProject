@@ -9,6 +9,7 @@ using Ookii.Dialogs.Wpf;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.Content;
+using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsWpfControls.BodyContentEditor;
 using PointlessWaymarks.CmsWpfControls.BoolDataEntry;
@@ -17,7 +18,8 @@ using PointlessWaymarks.CmsWpfControls.ContentSiteFeedAndIsDraft;
 using PointlessWaymarks.CmsWpfControls.ConversionDataEntry;
 using PointlessWaymarks.CmsWpfControls.CreatedAndUpdatedByAndOnDisplay;
 using PointlessWaymarks.CmsWpfControls.HelpDisplay;
-using PointlessWaymarks.CmsWpfControls.StringDataEntry;
+using PointlessWaymarks.CmsWpfControls.ImageContentEditor;
+using PointlessWaymarks.CmsWpfControls.PhotoContentEditor;
 using PointlessWaymarks.CmsWpfControls.TagsEditor;
 using PointlessWaymarks.CmsWpfControls.TitleSummarySlugFolderEditor;
 using PointlessWaymarks.CmsWpfControls.UpdateNotesEditor;
@@ -25,6 +27,8 @@ using PointlessWaymarks.CmsWpfControls.Utility;
 using PointlessWaymarks.CmsWpfControls.Utility.ChangesAndValidation;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
+using PointlessWaymarks.WpfCommon.Utility;
+using Serilog;
 
 namespace PointlessWaymarks.CmsWpfControls.FileContentEditor;
 
@@ -38,6 +42,7 @@ public partial class FileContentEditorContext : IHasChanges, IHasValidationIssue
     [ObservableProperty] private CreatedAndUpdatedByAndOnDisplayContext _createdUpdatedDisplay;
     [ObservableProperty] private FileContent _dbEntry;
     [ObservableProperty] private RelayCommand _downloadLinkToClipboardCommand;
+    [ObservableProperty] private RelayCommand _editUserMainPictureCommand;
     [ObservableProperty] private BoolDataEntryContext _embedFile;
     [ObservableProperty] private RelayCommand _extractNewLinksCommand;
     [ObservableProperty] private bool _hasChanges;
@@ -64,16 +69,18 @@ public partial class FileContentEditorContext : IHasChanges, IHasValidationIssue
     [ObservableProperty] private TagsEditorContext _tagEdit;
     [ObservableProperty] private TitleSummarySlugEditorContext _titleSummarySlugFolder;
     [ObservableProperty] private UpdateNotesEditorContext _updateNotes;
-    [ObservableProperty] private RelayCommand _viewOnSiteCommand;
     [ObservableProperty] private ConversionDataEntryContext<Guid?> _userMainPictureEntry;
+    [ObservableProperty] private IContentCommon _userMainPictureEntryContent;
+
+    [ObservableProperty] private string _userMainPictureEntrySmallImageUrl;
+    [ObservableProperty] private RelayCommand _viewOnSiteCommand;
+    [ObservableProperty] private RelayCommand _viewUserMainPictureCommand;
 
     public EventHandler RequestContentEditorWindowClose;
+
     private FileContentEditorContext(StatusControlContext statusContext, FileInfo initialFile = null)
     {
-        if (initialFile is { Exists: true })
-        {
-            _initialFile = initialFile;
-        }
+        if (initialFile is { Exists: true }) _initialFile = initialFile;
 
         PropertyChanged += OnPropertyChanged;
 
@@ -119,14 +126,6 @@ Notes:
                               SelectedFileHasValidationIssues;
     }
 
-    public Guid? CurrentMainPicture()
-    {
-        if (UserMainPictureEntry is { HasValidationIssues: false, UserValue: { } })
-            return UserMainPictureEntry.UserValue;
-
-        return BracketCodeCommon.PhotoOrImageCodeFirstIdInContent(BodyContent?.UserBodyContent);
-    }
-
     public async Task ChooseFile()
     {
         await ThreadSwitcher.ResumeForegroundAsync();
@@ -166,6 +165,14 @@ Notes:
         var newControl = new FileContentEditorContext(statusContext);
         await newControl.LoadData(initialContent);
         return newControl;
+    }
+
+    public Guid? CurrentMainPicture()
+    {
+        if (UserMainPictureEntry is { HasValidationIssues: false, UserValue: { } })
+            return UserMainPictureEntry.UserValue;
+
+        return BracketCodeCommon.PhotoOrImageCodeFirstIdInContent(BodyContent?.UserBodyContent);
     }
 
     public FileContent CurrentStateToFileContent()
@@ -224,6 +231,35 @@ Notes:
         Clipboard.SetText(linkString);
 
         StatusContext.ToastSuccess($"To Clipboard: {linkString}");
+    }
+
+    public async Task EditUserMainPicture()
+    {
+        if (UserMainPictureEntryContent == null)
+        {
+            StatusContext.ToastWarning("No Picture to View?");
+            return;
+        }
+
+        await SetUserMainPicture();
+
+        if (UserMainPictureEntryContent is PhotoContent photoToEdit)
+        {
+            var window =
+                await PhotoContentEditorWindow.CreateInstance(photoToEdit);
+            await window.PositionWindowAndShowOnUiThread();
+            return;
+        }
+
+        if (UserMainPictureEntryContent is ImageContent imageToEdit)
+        {
+            var window =
+                await ImageContentEditorWindow.CreateInstance(imageToEdit);
+            await window.PositionWindowAndShowOnUiThread();
+            return;
+        }
+
+        StatusContext.ToastWarning("Didn't find the expected Photo/Image to edit?");
     }
 
     private async Task LinkToClipboard()
@@ -302,13 +338,17 @@ Notes:
         UpdateNotes = await UpdateNotesEditorContext.CreateInstance(StatusContext, DbEntry);
         TagEdit = TagsEditorContext.CreateInstance(StatusContext, DbEntry);
         BodyContent = await BodyContentEditorContext.CreateInstance(StatusContext, DbEntry);
-        UserMainPictureEntry = ConversionDataEntryContext<Guid?>.CreateInstance(ConversionDataEntryHelpers.GuidNullableConversion);
+        UserMainPictureEntry =
+            ConversionDataEntryContext<Guid?>.CreateInstance(ConversionDataEntryHelpers.GuidNullableConversion);
         UserMainPictureEntry.ValidationFunctions = new List<Func<Guid?, Task<IsValid>>>
             { CommonContentValidation.ValidateFileContentUserMainPicture };
-        UserMainPictureEntry.UserText = DbEntry.UserMainPicture?.ToString() ?? string.Empty;
+        UserMainPictureEntry.ReferenceValue = DbEntry.UserMainPicture;
+        UserMainPictureEntry.UserText = DbEntry?.UserMainPicture.ToString() ?? string.Empty;
         UserMainPictureEntry.Title = "Link Image";
         UserMainPictureEntry.HelpText =
             "Putting a Photo or Image ContentId here will cause that image to be used as the 'link' image for the file - very useful when the content is embedded and you don't have a photo or image in the Body Content.";
+        UserMainPictureEntry.PropertyChanged += UserMainPictureEntryOnPropertyChanged;
+        SetUserMainPicture();
 
         if (!skipMediaDirectoryCheck && toLoad != null && !string.IsNullOrWhiteSpace(DbEntry.OriginalFileName))
         {
@@ -343,7 +383,9 @@ Notes:
             SelectedFile = _initialFile;
             _initialFile = null;
 
-            TitleSummarySlugFolder.TitleEntry.UserValue = Regex.Replace(Path.GetFileNameWithoutExtension(SelectedFile.Name).Replace("-", " ").Replace("_", " ").SplitCamelCase(), @"\s+", " ");
+            TitleSummarySlugFolder.TitleEntry.UserValue = Regex.Replace(
+                Path.GetFileNameWithoutExtension(SelectedFile.Name).Replace("-", " ").Replace("_", " ")
+                    .SplitCamelCase(), @"\s+", " ");
         }
 
         await SelectedFileChanged();
@@ -499,6 +541,42 @@ Notes:
         SaveAndExtractImageFromPdfCommand = StatusContext.RunBlockingTaskCommand(SaveAndExtractImageFromPdf);
         LinkToClipboardCommand = StatusContext.RunNonBlockingTaskCommand(LinkToClipboard);
         DownloadLinkToClipboardCommand = StatusContext.RunNonBlockingTaskCommand(DownloadLinkToClipboard);
+        ViewUserMainPictureCommand = StatusContext.RunNonBlockingTaskCommand(ViewUserMainPicture);
+        EditUserMainPictureCommand = StatusContext.RunNonBlockingTaskCommand(EditUserMainPicture);
+    }
+
+    public async Task SetUserMainPicture()
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (UserMainPictureEntry == null || UserMainPictureEntry.HasValidationIssues ||
+            UserMainPictureEntry.UserValue == null)
+        {
+            UserMainPictureEntrySmallImageUrl = null;
+            UserMainPictureEntryContent = null;
+            return;
+        }
+
+        try
+        {
+            var db = await Db.Context();
+            UserMainPictureEntryContent = await db.ContentFromContentId(UserMainPictureEntry.UserValue.Value);
+
+            UserMainPictureEntrySmallImageUrl = PictureAssetProcessing
+                .ProcessPictureDirectory(UserMainPictureEntry.UserValue.Value)?.SmallPicture
+                ?.File?.FullName;
+        }
+        catch (Exception e)
+        {
+            UserMainPictureEntrySmallImageUrl = null;
+            UserMainPictureEntryContent = null;
+            Log.Error(e, "Caught exception in FileContentEditorContext while trying to setup the User Main Picture.");
+        }
+    }
+
+    private void UserMainPictureEntryOnPropertyChanged(object sender, PropertyChangedEventArgs e)
+    {
+        StatusContext.RunFireAndForgetNonBlockingTask(SetUserMainPicture);
     }
 
     private async Task ViewOnSite()
@@ -517,5 +595,52 @@ Notes:
 
         var ps = new ProcessStartInfo(url) { UseShellExecute = true, Verb = "open" };
         Process.Start(ps);
+    }
+
+    public async Task ViewUserMainPicture()
+    {
+        if (UserMainPictureEntryContent == null)
+        {
+            StatusContext.ToastWarning("No Picture to View?");
+            return;
+        }
+
+        await SetUserMainPicture();
+
+        if (UserMainPictureEntryContent is PhotoContent photoToEdit)
+        {
+            var possibleFile = UserSettingsSingleton.CurrentSettings().LocalMediaArchivePhotoContentFile(photoToEdit);
+
+            if (possibleFile is not { Exists: true })
+            {
+                StatusContext.ToastWarning("No Media File Found?");
+                return;
+            }
+
+            await ThreadSwitcher.ResumeForegroundAsync();
+
+            var ps = new ProcessStartInfo(possibleFile.FullName) { UseShellExecute = true, Verb = "open" };
+            Process.Start(ps);
+            return;
+        }
+
+        if (UserMainPictureEntryContent is ImageContent imageToEdit)
+        {
+            var possibleFile = UserSettingsSingleton.CurrentSettings().LocalMediaArchiveImageContentFile(imageToEdit);
+
+            if (possibleFile is not { Exists: true })
+            {
+                StatusContext.ToastWarning("No Media File Found?");
+                return;
+            }
+
+            await ThreadSwitcher.ResumeForegroundAsync();
+
+            var ps = new ProcessStartInfo(possibleFile.FullName) { UseShellExecute = true, Verb = "open" };
+            Process.Start(ps);
+            return;
+        }
+
+        StatusContext.ToastWarning("Didn't find the expected Photo/Image to view?");
     }
 }

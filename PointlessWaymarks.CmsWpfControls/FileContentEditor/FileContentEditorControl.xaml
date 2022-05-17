@@ -70,7 +70,8 @@
                                         <RowDefinition Height="Auto" />
                                         <RowDefinition Height="Auto" />
                                     </Grid.RowDefinitions>
-                                    <Button Command="{Binding ChooseFileCommand}" Style="{StaticResource ActionPanelButtonStyle}">
+                                    <Button Command="{Binding ChooseFileCommand}"
+                                            Style="{StaticResource ActionPanelButtonStyle}">
                                         Choose File
                                     </Button>
                                     <Label Grid.Row="1" Style="{StaticResource DataEntryLabelStyle}">Selected File</Label>
@@ -123,12 +124,52 @@
                             </StackPanel>
                             <boolDataEntry1:BoolDataEntryControl DataContext="{Binding PublicDownloadLink}" />
                             <boolDataEntry1:BoolDataEntryControl DataContext="{Binding EmbedFile}" />
-                            <titleSummarySlugFolderEditor:TitleSummarySlugEditorControl Margin="0,4,0,0" DataContext="{Binding TitleSummarySlugFolder}" />
-                            <contentSiteFeedAndIsDraft:ContentSiteFeedAndIsDraftControl DataContext="{Binding MainSiteFeed}" />
-                            <tagsEditor:TagsEditorControl DataContext="{Binding TagEdit}" Style="{StaticResource TagsEditorInPanelStyle}" />
-                            <conversionDataEntry:ConversionDataEntryControl DataContext="{Binding UserMainPictureEntry}" />
-                            <createdAndUpdatedByAndOnDisplay:CreatedAndUpdatedByAndOnDisplayControl DataContext="{Binding CreatedUpdatedDisplay}" Style="{StaticResource CreatedUpdatedInPanelStyle}" />
-                            <contentIdViewer:ContentIdViewerControl DataContext="{Binding ContentId}" Style="{StaticResource ContentIdInPanelStyle}" />
+                            <titleSummarySlugFolderEditor:TitleSummarySlugEditorControl Margin="0,4,0,0"
+                                DataContext="{Binding TitleSummarySlugFolder}" />
+                            <contentSiteFeedAndIsDraft:ContentSiteFeedAndIsDraftControl
+                                DataContext="{Binding MainSiteFeed}" />
+                            <tagsEditor:TagsEditorControl DataContext="{Binding TagEdit}"
+                                                          Style="{StaticResource TagsEditorInPanelStyle}" />
+                            <conversionDataEntry:ConversionDataEntryControl
+                                DataContext="{Binding UserMainPictureEntry}" />
+                            <Grid Margin="24,2,2,2">
+                                <Grid.Style>
+                                    <Style TargetType="Grid">
+                                        <Style.Triggers>
+                                            <DataTrigger
+                                                Binding="{Binding UserMainPictureEntry.HasValidationIssues}"
+                                                Value="true">
+                                                <Setter Property="Visibility" Value="Collapsed"></Setter>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Grid.Style>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"></ColumnDefinition>
+                                    <ColumnDefinition></ColumnDefinition>
+                                </Grid.ColumnDefinitions>
+                                <Image
+                                    Grid.Column="0"
+                                    Margin="2"
+                                    Width="110"
+                                    VerticalAlignment="Top"
+                                    HorizontalAlignment="Left"
+                                    Source="{Binding UserMainPictureEntrySmallImageUrl, Mode=OneWay, Converter={StaticResource ImageCache}}">
+
+                                </Image>
+                                <StackPanel Margin="0,24,0,0" Grid.Column="1" Orientation="Vertical">
+                                    <TextBox Style="{StaticResource ReadOnlyTextBoxStyle}" Text="{Binding UserMainPictureEntryContent.Title}"></TextBox>
+                                    <StackPanel Orientation="Horizontal" Margin="4,12,4,4">
+                                    <Button Width="120" Command="{Binding EditUserMainPictureCommand}">Edit</Button>
+                                    <Button Width="120" Command="{Binding ViewUserMainPictureCommand}">View</Button>
+                                    </StackPanel>
+                                </StackPanel>
+                            </Grid>
+                            <createdAndUpdatedByAndOnDisplay:CreatedAndUpdatedByAndOnDisplayControl
+                                DataContext="{Binding CreatedUpdatedDisplay}"
+                                Style="{StaticResource CreatedUpdatedInPanelStyle}" />
+                            <contentIdViewer:ContentIdViewerControl DataContext="{Binding ContentId}"
+                                                                    Style="{StaticResource ContentIdInPanelStyle}" />
                         </StackPanel>
                     </ScrollViewer>
                 </Grid>
@@ -169,7 +210,8 @@
                     Command="{Binding DownloadLinkToClipboardCommand}"
                     Content="Download Code"
                     Style="{StaticResource ActionPanelButtonStyle}" />
-                <Button Command="{Binding SaveAndExtractImageFromPdfCommand}" Style="{StaticResource ActionPanelButtonStyle}">
+                <Button Command="{Binding SaveAndExtractImageFromPdfCommand}"
+                        Style="{StaticResource ActionPanelButtonStyle}">
                     <Viewbox StretchDirection="DownOnly">
                         <StackPanel Orientation="Horizontal">
                             <Label>Save, Extract Pdf Page</Label>
