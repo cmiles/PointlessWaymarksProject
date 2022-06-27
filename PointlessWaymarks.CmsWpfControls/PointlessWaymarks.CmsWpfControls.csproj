@@ -22,9 +22,9 @@
     </PackageReference>
     <PackageReference Include="gong-wpf-dragdrop" Version="3.1.1" />
     <PackageReference Include="Markdig.Wpf" Version="0.5.0.1" />
-    <PackageReference Include="Microsoft.Recognizers.Text.DateTime" Version="1.8.3" />
+    <PackageReference Include="Microsoft.Recognizers.Text.DateTime" Version="1.8.4" />
     <PackageReference Include="Microsoft.Toolkit.Mvvm" Version="7.1.2" />
-    <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.1210.39" />
+    <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.1245.22" />
     <PackageReference Include="Ookii.Dialogs.Wpf" Version="5.0.1" />
     <PackageReference Include="System.Runtime.Caching" Version="6.0.0" />
     <PackageReference Include="TypeSupport" Version="1.1.12" />
