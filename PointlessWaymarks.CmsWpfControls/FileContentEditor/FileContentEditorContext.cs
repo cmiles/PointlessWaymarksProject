@@ -348,7 +348,7 @@ Notes:
         UserMainPictureEntry.HelpText =
             "Putting a Photo or Image ContentId here will cause that image to be used as the 'link' image for the file - very useful when the content is embedded and you don't have a photo or image in the Body Content.";
         UserMainPictureEntry.PropertyChanged += UserMainPictureEntryOnPropertyChanged;
-        SetUserMainPicture();
+        await SetUserMainPicture();
 
         if (!skipMediaDirectoryCheck && toLoad != null && !string.IsNullOrWhiteSpace(DbEntry.OriginalFileName))
         {
@@ -383,9 +383,32 @@ Notes:
             SelectedFile = _initialFile;
             _initialFile = null;
 
-            TitleSummarySlugFolder.TitleEntry.UserValue = Regex.Replace(
-                Path.GetFileNameWithoutExtension(SelectedFile.Name).Replace("-", " ").Replace("_", " ")
-                    .SplitCamelCase(), @"\s+", " ");
+            if (SelectedFile.Extension == ".mp4")
+            {
+                var (generationReturn, metadata) =
+                    await PhotoGenerator.PhotoMetadataFromFile(SelectedFile, StatusContext.ProgressTracker());
+
+                if (!generationReturn.HasError)
+                {
+                    TitleSummarySlugFolder.SummaryEntry.UserValue = metadata.Summary;
+                    TagEdit.Tags = metadata.Tags;
+                    TitleSummarySlugFolder.TitleEntry.UserValue = metadata.Title;
+                    TitleSummarySlugFolder.TitleToSlug();
+                    TitleSummarySlugFolder.FolderEntry.UserValue = metadata.PhotoCreatedOn.Year.ToString("F0");
+                    EmbedFile.UserValue = true;
+                }
+            }
+            if (SelectedFile.Extension == ".pdf")
+            {
+                EmbedFile.UserValue = true;
+            }
+
+            if(string.IsNullOrWhiteSpace(TitleSummarySlugFolder.SummaryEntry.UserValue))
+            {
+                TitleSummarySlugFolder.TitleEntry.UserValue = Regex.Replace(
+                    Path.GetFileNameWithoutExtension(SelectedFile.Name).Replace("-", " ").Replace("_", " ")
+                        .SplitCamelCase(), @"\s+", " ");
+            }
         }
 
         await SelectedFileChanged();

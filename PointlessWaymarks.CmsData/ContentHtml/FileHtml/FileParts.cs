@@ -1,5 +1,11 @@
 ﻿using HtmlTags;
 using PointlessWaymarks.CmsData.Database.Models;
+using System.Text;
+using Windows.Storage.FileProperties;
+using Windows.Storage;
+using DocumentFormat.OpenXml.Drawing.Charts;
+using WinRT;
+using DocumentFormat.OpenXml.Wordprocessing;
 
 namespace PointlessWaymarks.CmsData.ContentHtml.FileHtml;
 
@@ -19,7 +25,7 @@ public static class FileParts
         return downloadLinkContainer;
     }
 
-    public static HtmlTag EmbedFileTag(FileContent content)
+    public static async Task<HtmlTag> EmbedFileTag(FileContent content)
     {
         if (!content.EmbedFile) return HtmlTag.Empty();
 
@@ -39,28 +45,31 @@ public static class FileParts
                 .Attr("type", "video/quicktime").Title(content.Title).AddClass("file-embed");
             embedContainer.Children.Add(embedTag);
         }
-        else if (content.OriginalFileName.TrimNullToEmpty().EndsWith(".webm", StringComparison.OrdinalIgnoreCase))
+        else if (content.OriginalFileName.TrimNullToEmpty().EndsWith(".mp4", StringComparison.OrdinalIgnoreCase) ||
+                 content.OriginalFileName.TrimNullToEmpty().EndsWith(".webm", StringComparison.OrdinalIgnoreCase) ||
+                 content.OriginalFileName.TrimNullToEmpty().EndsWith(".ogg", StringComparison.OrdinalIgnoreCase))
         {
-            var embedTag = new HtmlTag("embed").Attr("src", settings.FileDownloadUrl(content))
-                .Attr("type", "video/webm").Title(content.Title).AddClass("file-embed");
-            embedContainer.Children.Add(embedTag);
-        }
-        else if (content.OriginalFileName.TrimNullToEmpty().EndsWith(".mp4", StringComparison.OrdinalIgnoreCase))
-        {
-            var embedTag = new HtmlTag("embed").Attr("src", settings.FileDownloadUrl(content))
-                .Attr("type", "video/mp4").Title(content.Title).AddClass("file-embed");
-            embedContainer.Children.Add(embedTag);
+            var embedTag = new HtmlTag("video").Attr("src", settings.FileDownloadUrl(content))
+                .Attr("controls", "controls").Title(content.Title);
+
+            var siteFile = UserSettingsSingleton.CurrentSettings().LocalSiteFileContentFile(content);
+
+            if (siteFile is { Exists: true })
+            {
+                var file = await StorageFile.GetFileFromPathAsync(siteFile.FullName);
+                var videoProperties = await file.Properties.GetVideoPropertiesAsync();
+                var width = videoProperties.Width;
+
+                embedTag.Style("max-width", $"{width}px");
+                embedTag.AddClass("video-embed");
+
+                embedContainer.Children.Add(embedTag);
+            }
         }
         else if (content.OriginalFileName.TrimNullToEmpty().EndsWith(".mp3", StringComparison.OrdinalIgnoreCase))
         {
             var embedTag = new HtmlTag("embed").Attr("src", settings.FileDownloadUrl(content))
                 .Attr("type", "audio/mpeg").Title(content.Title).AddClass("file-embed");
-            embedContainer.Children.Add(embedTag);
-        }
-        else if (content.OriginalFileName.TrimNullToEmpty().EndsWith(".ogg", StringComparison.OrdinalIgnoreCase))
-        {
-            var embedTag = new HtmlTag("embed").Attr("src", settings.FileDownloadUrl(content))
-                .Attr("type", "audio/ogg").Title(content.Title).AddClass("file-embed");
             embedContainer.Children.Add(embedTag);
         }
         else if (content.OriginalFileName.TrimNullToEmpty().EndsWith(".wav", StringComparison.OrdinalIgnoreCase))

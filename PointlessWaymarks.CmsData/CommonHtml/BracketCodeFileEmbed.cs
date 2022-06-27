@@ -57,9 +57,7 @@ public static class BracketCodeFileEmbed
 
             progress?.Report($"Adding file embed link {dbContent.Title} from Code");
 
-            var settings = UserSettingsSingleton.CurrentSettings();
-
-            var linkTag = FileParts.EmbedFileTag(dbContent);
+            var linkTag = await FileParts.EmbedFileTag(dbContent);
 
             toProcess = toProcess.Replace(loopMatch.bracketCodeText, linkTag.ToString());
         }

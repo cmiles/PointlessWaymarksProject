@@ -57,7 +57,7 @@
     <#= Tags.TitleDiv(DbEntry).ToString() #>
     <#=
                 Tags.PostCreatedByAndUpdatedOnDiv(DbEntry).ToString() #>
-    <#= FileParts.EmbedFileTag(DbEntry) #>
+    <#= FileParts.EmbedFileTag(DbEntry).Result #>
     <#=
                     Tags.PostBodyDiv(DbEntry).Result.ToString() #>
     <#= FileParts.DownloadLinkTag(DbEntry) #>

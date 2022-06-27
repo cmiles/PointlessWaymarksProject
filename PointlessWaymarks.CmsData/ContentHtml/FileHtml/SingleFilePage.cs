@@ -242,7 +242,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml.FileHtml
             this.Write("\r\n    ");
             
             #line 60 "C:\Code\PointlessWaymarksCms03\PointlessWaymarks.CmsData\ContentHtml\FileHtml\SingleFilePage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(FileParts.EmbedFileTag(DbEntry)));
+            this.Write(this.ToStringHelper.ToStringWithCulture(FileParts.EmbedFileTag(DbEntry).Result));
             
             #line default
             #line hidden
