@@ -33,7 +33,7 @@
                 ScrollViewer.CanContentScroll="True"
                 ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                 SelectionMode="Single"
-                VirtualizingPanel.IsVirtualizing="True"
+                VirtualizingPanel.IsVirtualizing="False"
                 VirtualizingPanel.ScrollUnit="Pixel">
                 <b:Interaction.Behaviors>
                     <behaviors:ListBoxOneLineMouseWheelScroll />
