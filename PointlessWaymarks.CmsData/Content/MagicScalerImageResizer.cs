@@ -16,7 +16,7 @@ public class MagicScalerImageResizer : IPictureResizer
         var newFileInfo = new FileInfo(newFile);
         if (newFileInfo.Exists) newFileInfo.Delete();
 
-        var settings = new ProcessImageSettings {Width = width, JpegQuality = quality};
+        var settings = new ProcessImageSettings {Width = width, EncoderOptions = new JpegEncoderOptions(quality, ChromaSubsampleMode.Default, true) };
 
         await using var outStream = new FileStream(newFileInfo.FullName, FileMode.Create);
         var results = MagicImageProcessor.ProcessImage(toResize.FullNameWithLongFilePrefix(), outStream, settings);

@@ -17,7 +17,7 @@ public static class ImageHelpers
         await using var fileStream = new FileStream(file.FullName, FileMode.Open, FileAccess.Read);
         await using var outStream = new MemoryStream();
 
-        var settings = new ProcessImageSettings {Width = width, JpegQuality = quality};
+        var settings = new ProcessImageSettings {Width = width, EncoderOptions = new JpegEncoderOptions(quality, ChromaSubsampleMode.Default, true) };
         MagicImageProcessor.ProcessImage(fileStream, outStream, settings);
 
         outStream.Position = 0;
