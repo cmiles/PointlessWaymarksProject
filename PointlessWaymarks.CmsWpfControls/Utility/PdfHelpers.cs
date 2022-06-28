@@ -1,4 +1,9 @@
 ﻿using System.IO;
+using System.Windows.Media.Imaging;
+using Windows.Graphics.Imaging;
+using Windows.Media.Editing;
+using Windows.Storage;
+using Windows.Storage.Streams;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.ContentHtml;
@@ -8,6 +13,7 @@ using PointlessWaymarks.CmsWpfControls.ImageContentEditor;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 using PointlessWaymarks.WpfCommon.Utility;
+using BitmapDecoder = System.Windows.Media.Imaging.BitmapDecoder;
 
 namespace PointlessWaymarks.CmsWpfControls.Utility;
 
@@ -102,7 +108,7 @@ public static class PdfHelpers
             {
                 if (await statusContext.ShowMessage("PDF Generation Problem",
                         $"Execution Failed for {content.Title} - Continue??{Environment.NewLine}{errorOutput}",
-                        new List<string> {"Yes", "No"}) == "No")
+                        new List<string> { "Yes", "No" }) == "No")
                     return;
 
                 continue;
@@ -136,11 +142,11 @@ public static class PdfHelpers
                 }
             }
 
-            if (updatedDestination is not {Exists: true})
+            if (updatedDestination is not { Exists: true })
             {
                 if (await statusContext.ShowMessage("PDF Generation Problem",
                         $"Execution Failed for {content.Title} - Continue??{Environment.NewLine}{errorOutput}",
-                        new List<string> {"Yes", "No"}) == "No")
+                        new List<string> { "Yes", "No" }) == "No")
                     return;
 
                 continue;
@@ -148,7 +154,7 @@ public static class PdfHelpers
 
             await ThreadSwitcher.ResumeForegroundAsync();
 
-            var newImage = new ImageContent {ContentId = Guid.NewGuid()};
+            var newImage = new ImageContent { ContentId = Guid.NewGuid() };
 
             if (pageNumber == 1)
             {
@@ -171,6 +177,80 @@ public static class PdfHelpers
             newImage.UpdateNotesFormat = ContentFormatDefaults.Content.ToString();
 
             var editor = await ImageContentEditorWindow.CreateInstance(newImage, updatedDestination);
+            editor.PositionWindowAndShow();
+
+            await ThreadSwitcher.ResumeBackgroundAsync();
+        }
+    }
+
+    public static async Task VideoFrameToImage(StatusControlContext statusContext,
+        List<FileContent> selected)
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        var toProcess = new List<(FileInfo targetFile, FileInfo destinationFile, FileContent content)>();
+
+        foreach (var loopSelected in selected)
+        {
+            var targetFile = new FileInfo(Path.Combine(
+                UserSettingsSingleton.CurrentSettings().LocalSiteFileContentDirectory(loopSelected).FullName,
+                loopSelected.OriginalFileName));
+
+            if (!targetFile.Exists) continue;
+
+            if (!targetFile.Extension.ToLower().Contains("mp4"))
+                continue;
+
+            var file = await StorageFile.GetFileFromPathAsync(targetFile.FullName);
+            var mediaClip = await MediaClip.CreateFromFileAsync(file);
+            var mediaComposition = new MediaComposition();
+            mediaComposition.Clips.Add(mediaClip);
+            var imageStream = await mediaComposition.GetThumbnailAsync(
+                TimeSpan.FromMilliseconds(100), 0, 0, VideoFramePrecision.NearestFrame);
+            var decoder = await Windows.Graphics.Imaging.BitmapDecoder.CreateAsync(imageStream);
+            var softwareBitmap = await decoder.GetSoftwareBitmapAsync();
+
+            var destinationFile = new FileInfo(Path.Combine(UserSettingsUtilities.TempStorageDirectory().FullName,
+                $"{Path.GetFileNameWithoutExtension(targetFile.Name)}-Cover.jpg"));
+
+            var destinationStorageDirectory = await StorageFolder.GetFolderFromPathAsync(UserSettingsUtilities.TempStorageDirectory().FullName);
+
+            var thumbnailFile = await destinationStorageDirectory.CreateFileAsync($"{Path.GetFileNameWithoutExtension(targetFile.Name)}-Cover.jpg", CreationCollisionOption.ReplaceExisting);
+            using var stream = await thumbnailFile.OpenAsync(FileAccessMode.ReadWrite);
+            var encoder = await Windows.Graphics.Imaging.BitmapEncoder.CreateAsync(Windows.Graphics.Imaging.BitmapEncoder.JpegEncoderId, stream);
+            encoder.SetSoftwareBitmap(softwareBitmap);
+            await encoder.FlushAsync();
+            
+            toProcess.Add((targetFile, destinationFile, loopSelected));
+        }
+
+        if (!toProcess.Any())
+        {
+            statusContext.ToastError("No PDFs found? This process can only generate PDF previews...");
+            return;
+        }
+
+        foreach (var (targetFile, destinationFile, content) in toProcess)
+        {
+            await ThreadSwitcher.ResumeForegroundAsync();
+
+            var newImage = new ImageContent
+            {
+                ContentId = Guid.NewGuid(),
+                Title = $"{content.Title} Cover",
+                Summary = $"Cover from {content.Title}.",
+                FeedOn = DateTime.Now,
+                ShowInSearch = false,
+                Folder = content.Folder,
+                Tags = content.Tags
+            };
+
+            newImage.Slug = SlugUtility.Create(true, newImage.Title);
+            newImage.BodyContentFormat = ContentFormatDefaults.Content.ToString();
+            newImage.BodyContent = $"Image from {BracketCodeFiles.Create(content)}.";
+            newImage.UpdateNotesFormat = ContentFormatDefaults.Content.ToString();
+
+            var editor = await ImageContentEditorWindow.CreateInstance(newImage, destinationFile);
             editor.PositionWindowAndShow();
 
             await ThreadSwitcher.ResumeBackgroundAsync();

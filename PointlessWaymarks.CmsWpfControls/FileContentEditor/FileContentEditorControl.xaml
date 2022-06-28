@@ -210,6 +210,10 @@
                     Command="{Binding DownloadLinkToClipboardCommand}"
                     Content="Download Code"
                     Style="{StaticResource ActionPanelButtonStyle}" />
+                <Button
+                    Command="{Binding SaveAndExtractImageFromVideoCommand}"
+                    Content="Extract Video Frame"
+                    Style="{StaticResource ActionPanelButtonStyle}" />
                 <Button Command="{Binding SaveAndExtractImageFromPdfCommand}"
                         Style="{StaticResource ActionPanelButtonStyle}">
                     <Viewbox StretchDirection="DownOnly">

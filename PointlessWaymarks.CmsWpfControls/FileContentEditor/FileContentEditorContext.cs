@@ -59,6 +59,7 @@ public partial class FileContentEditorContext : IHasChanges, IHasValidationIssue
     [ObservableProperty] private RelayCommand _renameSelectedFileCommand;
     [ObservableProperty] private RelayCommand _saveAndCloseCommand;
     [ObservableProperty] private RelayCommand _saveAndExtractImageFromPdfCommand;
+    [ObservableProperty] private RelayCommand _saveAndExtractImageFromVideoCommand;
     [ObservableProperty] private RelayCommand _saveCommand;
     [ObservableProperty] private FileInfo _selectedFile;
     [ObservableProperty] private bool _selectedFileHasPathOrNameChanges;
@@ -498,6 +499,29 @@ Notes:
         await PdfHelpers.PdfPageToImageWithPdfToCairo(StatusContext, new List<FileContent> { DbEntry }, pageNumber);
     }
 
+    private async Task SaveAndExtractImageFromVideo()
+    {
+        if (SelectedFile is not { Exists: true } || !SelectedFile.Extension.ToUpperInvariant().Contains("MP4"))
+        {
+            StatusContext.ToastError("Please selected a valid pdf file");
+            return;
+        }
+
+        var (generationReturn, fileContent) = await FileGenerator.SaveAndGenerateHtml(CurrentStateToFileContent(),
+            SelectedFile, true, null, StatusContext.ProgressTracker());
+
+        if (generationReturn.HasError)
+        {
+            await StatusContext.ShowMessageWithOkButton("Trouble Saving",
+                $"Trouble saving - you must be able to save before extracting a page - {generationReturn.GenerationNote}");
+            return;
+        }
+
+        await LoadData(fileContent);
+
+        await PdfHelpers.VideoFrameToImage(StatusContext, new List<FileContent> { DbEntry });
+    }
+
     public async Task SaveAndGenerateHtml(bool overwriteExistingFiles, bool closeAfterSave)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -562,6 +586,7 @@ Notes:
             LinkExtraction.ExtractNewAndShowLinkContentEditors($"{BodyContent.BodyContent} {UpdateNotes.UpdateNotes}",
                 StatusContext.ProgressTracker()));
         SaveAndExtractImageFromPdfCommand = StatusContext.RunBlockingTaskCommand(SaveAndExtractImageFromPdf);
+        SaveAndExtractImageFromVideoCommand = StatusContext.RunBlockingTaskCommand(SaveAndExtractImageFromVideo);
         LinkToClipboardCommand = StatusContext.RunNonBlockingTaskCommand(LinkToClipboard);
         DownloadLinkToClipboardCommand = StatusContext.RunNonBlockingTaskCommand(DownloadLinkToClipboard);
         ViewUserMainPictureCommand = StatusContext.RunNonBlockingTaskCommand(ViewUserMainPicture);
