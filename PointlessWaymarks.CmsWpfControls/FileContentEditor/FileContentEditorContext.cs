@@ -45,6 +45,8 @@ public partial class FileContentEditorContext : IHasChanges, IHasValidationIssue
     [ObservableProperty] private RelayCommand _editUserMainPictureCommand;
     [ObservableProperty] private BoolDataEntryContext _embedFile;
     [ObservableProperty] private RelayCommand _extractNewLinksCommand;
+    [ObservableProperty] private bool _fileIsMp4;
+    [ObservableProperty] private bool _fileIsPdf;
     [ObservableProperty] private bool _hasChanges;
     [ObservableProperty] private bool _hasValidationIssues;
     [ObservableProperty] private HelpDisplayContext _helpContext;
@@ -72,7 +74,6 @@ public partial class FileContentEditorContext : IHasChanges, IHasValidationIssue
     [ObservableProperty] private UpdateNotesEditorContext _updateNotes;
     [ObservableProperty] private ConversionDataEntryContext<Guid?> _userMainPictureEntry;
     [ObservableProperty] private IContentCommon _userMainPictureEntryContent;
-
     [ObservableProperty] private string _userMainPictureEntrySmallImageUrl;
     [ObservableProperty] private RelayCommand _viewOnSiteCommand;
     [ObservableProperty] private RelayCommand _viewUserMainPictureCommand;
@@ -215,6 +216,12 @@ Notes:
         return newEntry;
     }
 
+    public void DetectGuiFileTypes()
+    {
+        FileIsPdf = SelectedFile?.FullName.EndsWith("pdf", StringComparison.InvariantCultureIgnoreCase) ?? false;
+        FileIsMp4 = SelectedFile?.FullName.EndsWith("mp4", StringComparison.InvariantCultureIgnoreCase) ?? false;
+    }
+
     private async Task DownloadLinkToClipboard()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -238,7 +245,7 @@ Notes:
     {
         if (UserMainPictureEntryContent == null)
         {
-            StatusContext.ToastWarning("No Picture to View?");
+            StatusContext.ToastWarning("No Picture to Edit?");
             return;
         }
 
@@ -399,17 +406,13 @@ Notes:
                     EmbedFile.UserValue = true;
                 }
             }
-            if (SelectedFile.Extension == ".pdf")
-            {
-                EmbedFile.UserValue = true;
-            }
 
-            if(string.IsNullOrWhiteSpace(TitleSummarySlugFolder.SummaryEntry.UserValue))
-            {
+            if (SelectedFile.Extension == ".pdf") EmbedFile.UserValue = true;
+
+            if (string.IsNullOrWhiteSpace(TitleSummarySlugFolder.SummaryEntry.UserValue))
                 TitleSummarySlugFolder.TitleEntry.UserValue = Regex.Replace(
                     Path.GetFileNameWithoutExtension(SelectedFile.Name).Replace("-", " ").Replace("_", " ")
                         .SplitCamelCase(), @"\s+", " ");
-            }
         }
 
         await SelectedFileChanged();
@@ -458,6 +461,33 @@ Notes:
         Process.Start(ps);
     }
 
+    private async Task SaveAndExtractImageFromMp4()
+    {
+        if (SelectedFile is not { Exists: true } || !SelectedFile.Extension.ToUpperInvariant().Contains("MP4"))
+        {
+            StatusContext.ToastError("Please selected a valid mp4 file");
+            return;
+        }
+
+        var (generationReturn, fileContent) = await FileGenerator.SaveAndGenerateHtml(CurrentStateToFileContent(),
+            SelectedFile, true, null, StatusContext.ProgressTracker());
+
+        if (generationReturn.HasError)
+        {
+            await StatusContext.ShowMessageWithOkButton("Trouble Saving",
+                $"Trouble saving - you must be able to save before extracting a frame - {generationReturn.GenerationNote}");
+            return;
+        }
+
+        await LoadData(fileContent);
+
+        var autoSaveResult = await ImageExtractionHelpers.VideoFrameToImageAutoSave(StatusContext, DbEntry);
+
+        if (autoSaveResult == null) return;
+
+        UserMainPictureEntry.UserText = autoSaveResult.Value.ToString();
+    }
+
     private async Task SaveAndExtractImageFromPdf()
     {
         if (SelectedFile is not { Exists: true } || !SelectedFile.Extension.ToUpperInvariant().Contains("PDF"))
@@ -496,30 +526,8 @@ Notes:
 
         await LoadData(fileContent);
 
-        await PdfHelpers.PdfPageToImageWithPdfToCairo(StatusContext, new List<FileContent> { DbEntry }, pageNumber);
-    }
-
-    private async Task SaveAndExtractImageFromVideo()
-    {
-        if (SelectedFile is not { Exists: true } || !SelectedFile.Extension.ToUpperInvariant().Contains("MP4"))
-        {
-            StatusContext.ToastError("Please selected a valid pdf file");
-            return;
-        }
-
-        var (generationReturn, fileContent) = await FileGenerator.SaveAndGenerateHtml(CurrentStateToFileContent(),
-            SelectedFile, true, null, StatusContext.ProgressTracker());
-
-        if (generationReturn.HasError)
-        {
-            await StatusContext.ShowMessageWithOkButton("Trouble Saving",
-                $"Trouble saving - you must be able to save before extracting a page - {generationReturn.GenerationNote}");
-            return;
-        }
-
-        await LoadData(fileContent);
-
-        await PdfHelpers.VideoFrameToImage(StatusContext, new List<FileContent> { DbEntry });
+        await ImageExtractionHelpers.PdfPageToImageWithPdfToCairo(StatusContext, new List<FileContent> { DbEntry },
+            pageNumber);
     }
 
     public async Task SaveAndGenerateHtml(bool overwriteExistingFiles, bool closeAfterSave)
@@ -561,6 +569,8 @@ Notes:
 
         SelectedFileNameHasInvalidCharacters =
             await CommonContentValidation.FileContentFileFileNameHasInvalidCharacters(SelectedFile, DbEntry?.ContentId);
+
+        DetectGuiFileTypes();
     }
 
     public void SetupStatusContextAndCommands(StatusControlContext statusContext)
@@ -586,7 +596,7 @@ Notes:
             LinkExtraction.ExtractNewAndShowLinkContentEditors($"{BodyContent.BodyContent} {UpdateNotes.UpdateNotes}",
                 StatusContext.ProgressTracker()));
         SaveAndExtractImageFromPdfCommand = StatusContext.RunBlockingTaskCommand(SaveAndExtractImageFromPdf);
-        SaveAndExtractImageFromVideoCommand = StatusContext.RunBlockingTaskCommand(SaveAndExtractImageFromVideo);
+        SaveAndExtractImageFromVideoCommand = StatusContext.RunBlockingTaskCommand(SaveAndExtractImageFromMp4);
         LinkToClipboardCommand = StatusContext.RunNonBlockingTaskCommand(LinkToClipboard);
         DownloadLinkToClipboardCommand = StatusContext.RunNonBlockingTaskCommand(DownloadLinkToClipboard);
         ViewUserMainPictureCommand = StatusContext.RunNonBlockingTaskCommand(ViewUserMainPicture);

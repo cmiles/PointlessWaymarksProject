@@ -24,6 +24,15 @@ Site:
 
 ## Notes
 
+6/28/2022
+
+Using this software now for cmiles.info, pointlesswaymarks.com and a private site. One change in my personal use pattern is an uptick in my interest in Video thanks in part thanks to a trail camera producing some interesting videos... With more scrutiny on videos:
+  - Switching the presentation for video files from an embed tag to a video tag immediately helped with how everything behaved, with a little CSS the videos are quite a bit more pleasant
+  - I found that I wanted Videos to use some of the same conventions as Photos in terms of Title and in fact found that at least for what I need I can apply the same metadata extraction - there may be some advantages in the future to pulling other data?
+  - Added a routine to grab the first frame of an mp4 video and autosave it as the link (cover) image (Note that this autosaves but that I didn't change the pdf page->image to autosave, the first frame of a video may not be the frame your heart desires but it is pretty predictable - the pdf page is a little trickier making sure you got what you intended and is more likely to also be used just as a way to get a single page display...)
+  - Found some UWP/WinRT classes that make getting the thumbnail easy for the limited MP4 case - there are many suggestions out there to use an ffmpeg wrapper, which I'm sure is more robust but involves an external program so I favored the built in classes. One downside is that since I don't normally work with these classes there could be pitfalls I'm not aware of...
+  - Torn about whether Video should be a 'type' to better support video specific data <-> or maybe leaving videos as files and then adding 'gallery' support for files of different types?
+
 5/16/2022
 
 The option to embed File Content in the page has made the site more functional and I like it - but it also 'defeated' a very simple mechanism I had in place where I would simply search the body content of most content types for the first image/photo and use that as the search/cover image. With the embed there is no longer a need on many content types to put an image of/from the file into the content... So for this version I added a first version of a UserMainPicture field that can be used to assign a cover/search image to File Content. The larger slightly humourous and slightly interesting detail here where details that I thought I could avoid creep back in, and likely for the same reasons they were other places, I thought I understood the functionality of 'manually' assigning a 'main' image - and I think I did but here is one of the longer tail cases and here I am adding it even though I thought it was a burden in other system.

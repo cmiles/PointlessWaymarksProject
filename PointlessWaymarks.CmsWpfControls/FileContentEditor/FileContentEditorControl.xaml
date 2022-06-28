@@ -212,10 +212,11 @@
                     Style="{StaticResource ActionPanelButtonStyle}" />
                 <Button
                     Command="{Binding SaveAndExtractImageFromVideoCommand}"
-                    Content="Extract Video Frame"
+                    Content="Extract 1st Video Frame"
+                    Visibility="{Binding FileIsMp4, Converter={StaticResource BooleanToVisibility}}"
                     Style="{StaticResource ActionPanelButtonStyle}" />
                 <Button Command="{Binding SaveAndExtractImageFromPdfCommand}"
-                        Style="{StaticResource ActionPanelButtonStyle}">
+                        Style="{StaticResource ActionPanelButtonStyle}" Visibility="{Binding FileIsPdf, Converter={StaticResource BooleanToVisibility}}">
                     <Viewbox StretchDirection="DownOnly">
                         <StackPanel Orientation="Horizontal">
                             <Label>Save, Extract Pdf Page</Label>

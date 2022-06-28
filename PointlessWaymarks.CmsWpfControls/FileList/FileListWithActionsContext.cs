@@ -159,7 +159,7 @@ public partial class FileListWithActionsContext
             return;
         }
 
-        await PdfHelpers.PdfPageToImageWithPdfToCairo(StatusContext, selected.Select(x => x.DbEntry).ToList(), 1);
+        await ImageExtractionHelpers.PdfPageToImageWithPdfToCairo(StatusContext, selected.Select(x => x.DbEntry).ToList(), 1);
     }
 
     private async Task LoadData()

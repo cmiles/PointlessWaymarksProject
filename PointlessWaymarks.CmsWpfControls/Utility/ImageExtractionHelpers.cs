@@ -1,11 +1,10 @@
 ﻿using System.IO;
-using System.Windows.Media.Imaging;
 using Windows.Graphics.Imaging;
 using Windows.Media.Editing;
 using Windows.Storage;
-using Windows.Storage.Streams;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.CommonHtml;
+using PointlessWaymarks.CmsData.Content;
 using PointlessWaymarks.CmsData.ContentHtml;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
@@ -13,11 +12,10 @@ using PointlessWaymarks.CmsWpfControls.ImageContentEditor;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 using PointlessWaymarks.WpfCommon.Utility;
-using BitmapDecoder = System.Windows.Media.Imaging.BitmapDecoder;
 
 namespace PointlessWaymarks.CmsWpfControls.Utility;
 
-public static class PdfHelpers
+public static class ImageExtractionHelpers
 {
     public static async Task PdfPageToImageWithPdfToCairo(StatusControlContext statusContext,
         List<FileContent> selected, int pageNumber)
@@ -207,26 +205,31 @@ public static class PdfHelpers
             mediaComposition.Clips.Add(mediaClip);
             var imageStream = await mediaComposition.GetThumbnailAsync(
                 TimeSpan.FromMilliseconds(100), 0, 0, VideoFramePrecision.NearestFrame);
-            var decoder = await Windows.Graphics.Imaging.BitmapDecoder.CreateAsync(imageStream);
+            var decoder = await BitmapDecoder.CreateAsync(imageStream);
             var softwareBitmap = await decoder.GetSoftwareBitmapAsync();
 
             var destinationFile = new FileInfo(Path.Combine(UserSettingsUtilities.TempStorageDirectory().FullName,
                 $"{Path.GetFileNameWithoutExtension(targetFile.Name)}-Cover.jpg"));
 
-            var destinationStorageDirectory = await StorageFolder.GetFolderFromPathAsync(UserSettingsUtilities.TempStorageDirectory().FullName);
+            var destinationStorageDirectory =
+                await StorageFolder.GetFolderFromPathAsync(UserSettingsUtilities.TempStorageDirectory().FullName);
 
-            var thumbnailFile = await destinationStorageDirectory.CreateFileAsync($"{Path.GetFileNameWithoutExtension(targetFile.Name)}-Cover.jpg", CreationCollisionOption.ReplaceExisting);
+            var thumbnailFile = await destinationStorageDirectory.CreateFileAsync(
+                $"{Path.GetFileNameWithoutExtension(targetFile.Name)}-Cover.jpg",
+                CreationCollisionOption.ReplaceExisting);
             using var stream = await thumbnailFile.OpenAsync(FileAccessMode.ReadWrite);
-            var encoder = await Windows.Graphics.Imaging.BitmapEncoder.CreateAsync(Windows.Graphics.Imaging.BitmapEncoder.JpegEncoderId, stream);
+            var encoder =
+                await BitmapEncoder.CreateAsync(
+                    BitmapEncoder.JpegEncoderId, stream);
             encoder.SetSoftwareBitmap(softwareBitmap);
             await encoder.FlushAsync();
-            
+
             toProcess.Add((targetFile, destinationFile, loopSelected));
         }
 
         if (!toProcess.Any())
         {
-            statusContext.ToastError("No PDFs found? This process can only generate PDF previews...");
+            statusContext.ToastError("No MP4s found? This process can only generate MP4 previews...");
             return;
         }
 
@@ -255,5 +258,81 @@ public static class PdfHelpers
 
             await ThreadSwitcher.ResumeBackgroundAsync();
         }
+    }
+
+    public static async Task<Guid?> VideoFrameToImageAutoSave(StatusControlContext statusContext,
+        FileContent selected)
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        var targetFile = new FileInfo(Path.Combine(
+            UserSettingsSingleton.CurrentSettings().LocalSiteFileContentDirectory(selected).FullName,
+            selected.OriginalFileName));
+
+        if (!targetFile.Exists) return null;
+
+        if (!targetFile.Extension.ToLower().Contains("mp4"))
+            return null;
+
+        var file = await StorageFile.GetFileFromPathAsync(targetFile.FullName);
+        var mediaClip = await MediaClip.CreateFromFileAsync(file);
+        var mediaComposition = new MediaComposition();
+        mediaComposition.Clips.Add(mediaClip);
+        var imageStream = await mediaComposition.GetThumbnailAsync(
+            TimeSpan.FromMilliseconds(100), 0, 0, VideoFramePrecision.NearestFrame);
+        var decoder = await BitmapDecoder.CreateAsync(imageStream);
+        var softwareBitmap = await decoder.GetSoftwareBitmapAsync();
+
+        var destinationFile = new FileInfo(Path.Combine(UserSettingsUtilities.TempStorageDirectory().FullName,
+            $"{Path.GetFileNameWithoutExtension(targetFile.Name)}-Video-Cover-Image.jpg"));
+
+        var destinationStorageDirectory =
+            await StorageFolder.GetFolderFromPathAsync(UserSettingsUtilities.TempStorageDirectory().FullName);
+
+        var thumbnailFile = await destinationStorageDirectory.CreateFileAsync(
+            $"{Path.GetFileNameWithoutExtension(targetFile.Name)}-Video-Cover-Image.jpg",
+            CreationCollisionOption.ReplaceExisting);
+        using (var stream = await thumbnailFile.OpenAsync(FileAccessMode.ReadWrite))
+        {
+            var encoder =
+                await BitmapEncoder.CreateAsync(
+                    BitmapEncoder.JpegEncoderId, stream);
+            encoder.SetSoftwareBitmap(softwareBitmap);
+            await encoder.FlushAsync();
+        }
+
+        var newImage = new ImageContent
+        {
+            ContentId = Guid.NewGuid(),
+            CreatedBy = selected.CreatedBy,
+            CreatedOn = DateTime.Now,
+            Title = $"{selected.Title} Video Cover Image",
+            Summary = $"Video Cover Image from {selected.Title}.",
+            FeedOn = DateTime.Now,
+            ShowInSearch = false,
+            Folder = selected.Folder,
+            Tags = selected.Tags,
+            Slug = SlugUtility.Create(true, $"{selected.Title} Video Cover Image"),
+            BodyContentFormat = ContentFormatDefaults.Content.ToString(),
+            BodyContent = $"Frame from {BracketCodeFiles.Create(selected)}.",
+            UpdateNotesFormat = ContentFormatDefaults.Content.ToString()
+        };
+
+        var autoSaveReturn =
+            await ImageGenerator.SaveAndGenerateHtml(newImage, destinationFile, true, null,
+                statusContext.ProgressTracker());
+
+
+        if (autoSaveReturn.generationReturn.HasError)
+        {
+            await ThreadSwitcher.ResumeForegroundAsync();
+
+            var editor = await ImageContentEditorWindow.CreateInstance(newImage, destinationFile);
+            editor.PositionWindowAndShow();
+
+            return null;
+        }
+
+        return autoSaveReturn.imageContent.ContentId;
     }
 }
