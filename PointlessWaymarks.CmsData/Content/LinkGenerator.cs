@@ -31,6 +31,11 @@ public static class LinkGenerator
         var context = BrowsingContext.New(config);
         var document = await context.OpenAsync(url).ConfigureAwait(false);
 
+        if (document == null)
+        {
+            return (GenerationReturn.Error($"{url} returned a null document - is this a valid/working URL?"), toReturn);
+        }
+
         progress?.Report("Looking for Title");
 
         var titleString = document.Head?.Children.FirstOrDefault(x => x.TagName == "TITLE")?.TextContent;
