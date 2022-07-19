@@ -15,6 +15,22 @@
         --foreground-secondary-color: rgb(180, 180, 180);
     }
 
+    a:link {
+        color: dodgerblue;
+    }
+
+    a:visited {
+        color: cornflowerblue;
+    }
+
+    a:hover {
+        color: deepskyblue;
+    }
+
+    core-links-item a:visited {
+        color: dodgerblue;
+    }
+
     .info-box {
         box-shadow: 0px 0px 0px 1px rgb(var(--foreground-component-color), var(--foreground-component-color), var(--foreground-component-color));
     }
@@ -30,6 +46,14 @@
         --foreground-component-color: calc((var(--foreground-brightness) - 128) * -1000);
         --foreground-color: rgb(var(--foreground-component-color), var(--foreground-component-color), var(--foreground-component-color));
         --foreground-secondary-color: rgb(180, 180, 180);
+    }
+
+    core-links-item a:link {
+        color: blue;
+    }
+
+    core-links-item a:visited {
+        color: blue;
     }
 
     .info-box {
