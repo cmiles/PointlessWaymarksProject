@@ -40,8 +40,7 @@ public class PreviewServerStartup
 
                 using (var sr = File.OpenText(Path.Join(previewFileRoot, possiblePath)))
                 {
-                    string streamLine;
-                    while ((streamLine = await sr.ReadLineAsync()) != null)
+                    while (await sr.ReadLineAsync() is { } streamLine)
                         rawFile.AppendLine(streamLine.Replace(
                             $"https://{previewHost}", $"http://{previewHost}",
                             StringComparison.OrdinalIgnoreCase).Replace($"//{previewHost}",

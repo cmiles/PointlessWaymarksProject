@@ -10,6 +10,8 @@ public static class ContentList
     {
         var listItemContainerDiv = new DivTag().AddClasses("content-list-item-container", "info-box");
         listItemContainerDiv.Data("title", content.Title);
+        listItemContainerDiv.Data("created-or-updated", (content.LastUpdatedOn ?? content.CreatedOn).ToString("s"));
+        listItemContainerDiv.Data("updated", content.LastUpdatedOn);
         listItemContainerDiv.Data("tags",
             string.Join(",", Db.TagListParseToSlugs(content, false)));
         listItemContainerDiv.Data("summary", content.Summary);

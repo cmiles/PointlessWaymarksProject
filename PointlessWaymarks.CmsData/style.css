@@ -535,6 +535,7 @@ a.site-header-title-link:active {
 .compact-content-text-content-optional-summary {
     font-size: 12px;
     color: var(--foreground-secondary-color);
+    overflow: auto;
     display: none;
 }
 

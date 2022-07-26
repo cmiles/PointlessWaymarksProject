@@ -30,6 +30,8 @@
     <#= Tags.CssStyleFileString() #>
     <#= Tags.FavIconFileString() #>
     <script src="<#=
+                    UserSettingsSingleton.CurrentSettings().SiteResourcesUrl() #>gsap.min.js"></script>
+    <script src="<#=
                     UserSettingsUtilities.SearchListJavascriptUrl() #>"></script>
 </head>
 

@@ -2,16 +2,56 @@
 
 function processEnableAfterLoadingElements() {
     Array.from(document.querySelectorAll('.enable-after-loading'))
-        .filter(x => x.disabled)
         .forEach(x => {
             x.disabled = false;
-            if (x.classList.contains('wait-cursor')) x.classList.remove('wait-cursor');
+            x.classList.remove('wait-cursor');
         });
+}
+
+function debounce(func, timeout = 500) {
+    let timer;
+    return (...args) => {
+        clearTimeout(timer);
+        timer = setTimeout(() => { func.apply(this, args); }, timeout);
+    };
+}
+
+function sortDateAscending() {
+    var list = document.querySelector('.content-list-container');
+
+    Array.from(document.querySelectorAll('.content-list-item-container'))
+        .sort((a, b) => a.getAttribute('data-created-or-updated') > b.getAttribute('data-created-or-updated') ? 1 : -1)
+        .forEach(node => list.appendChild(node));
+}
+
+function sortDateDescending() {
+    var list = document.querySelector('.content-list-container');
+
+    Array.from(document.querySelectorAll('.content-list-item-container'))
+        .sort((a, b) => a.getAttribute('data-created-or-updated') < b.getAttribute('data-created-or-updated') ? 1 : -1)
+        .forEach(node => list.appendChild(node));
+}
+
+function sortTitleAscending() {
+    var list = document.querySelector('.content-list-container');
+
+    Array.from(document.querySelectorAll('.content-list-item-container'))
+        .sort((a, b) => a.getAttribute('data-title') > b.getAttribute('data-title') ? 1 : -1)
+        .forEach(node => list.appendChild(node));
+}
+
+function sortTitleDescending() {
+    var list = document.querySelector('.content-list-container');
+
+    Array.from(document.querySelectorAll('.content-list-item-container'))
+        .sort((a, b) => a.getAttribute('data-title') < b.getAttribute('data-title') ? 1 : -1)
+        .forEach(node => list.appendChild(node));
 }
 
 function searchContent() {
 
     var filterText = document.querySelector('#userSearchText').value.toUpperCase();
+
     var contentTypes = Array.from(document.querySelectorAll('.content-list-filter-checkbox'))
         .filter(x => x.checked).map(x => x.value);
 
@@ -23,7 +63,8 @@ function searchContent() {
         var divDataContentType = loopDiv.getAttribute('data-contenttype');
 
         if (contentTypes.length && !contentTypes.includes(divDataContentType)) {
-            loopDiv.style.display = "none";
+            loopDiv.classList.remove("shown-list-item");
+            loopDiv.classList.add("hidden-list-item");
             continue;
         }
 
@@ -31,10 +72,21 @@ function searchContent() {
             loopDiv.getAttribute('data-summary'),
             loopDiv.getAttribute('data-tags')).toUpperCase();
 
-        if (divDataText.indexOf(filterText) > -1) {
-            loopDiv.style.display = '';
+        if (filterText == null || filterText.trim() === '') {
+            loopDiv.classList.remove("hidden-list-item");
+            loopDiv.classList.add("shown-list-item");
+        }
+        else if (divDataText.indexOf(filterText) > -1) {
+            loopDiv.classList.remove("hidden-list-item");
+            loopDiv.classList.add("shown-list-item");
         } else {
-            loopDiv.style.display = 'none';
+            loopDiv.classList.remove("shown-list-item");
+            loopDiv.classList.add("hidden-list-item");
         }
     }
+
+    TweenMax.to(".hidden-list-item", .5, { opacity: 0, display: "none" });
+    TweenMax.to(".shown-list-item", .5, { opacity: 1, display: "" });
 }
+
+const processSearchContent = debounce(() => searchContent());

@@ -20,6 +20,7 @@
   <ItemGroup>
     <None Remove="leaflet.css" />
     <None Remove="leaflet.js" />
+    <None Remove="SiteResources\gsap.min.js" />
     <None Remove="SiteResources\images\layers-2x.png" />
     <None Remove="SiteResources\images\layers.png" />
     <None Remove="SiteResources\images\marker-icon-2x.png" />
@@ -344,6 +345,7 @@
 
   <ItemGroup>
     <EmbeddedResource Include="favicon.ico" />
+    <EmbeddedResource Include="SiteResources\gsap.min.js" />
     <EmbeddedResource Include="SiteResources\images\layers-2x.png" />
     <EmbeddedResource Include="SiteResources\images\layers.png" />
     <EmbeddedResource Include="SiteResources\images\marker-icon-2x.png" />

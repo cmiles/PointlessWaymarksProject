@@ -124,27 +124,34 @@ namespace PointlessWaymarks.CmsData.ContentHtml.SearchListHtml
             this.Write("\r\n    <script src=\"");
             
             #line 32 "C:\Code\PointlessWaymarksCms03\PointlessWaymarks.CmsData\ContentHtml\SearchListHtml\SearchListPage.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(UserSettingsSingleton.CurrentSettings().SiteResourcesUrl()));
+            
+            #line default
+            #line hidden
+            this.Write("gsap.min.js\"></script>\r\n    <script src=\"");
+            
+            #line 34 "C:\Code\PointlessWaymarksCms03\PointlessWaymarks.CmsData\ContentHtml\SearchListHtml\SearchListPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(UserSettingsUtilities.SearchListJavascriptUrl()));
             
             #line default
             #line hidden
             this.Write("\"></script>\r\n</head>\r\n\r\n<body>\r\n    ");
             
-            #line 37 "C:\Code\PointlessWaymarksCms03\PointlessWaymarks.CmsData\ContentHtml\SearchListHtml\SearchListPage.tt"
+            #line 39 "C:\Code\PointlessWaymarksCms03\PointlessWaymarks.CmsData\ContentHtml\SearchListHtml\SearchListPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Tags.StandardHeader().Result.ToString()));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 38 "C:\Code\PointlessWaymarksCms03\PointlessWaymarks.CmsData\ContentHtml\SearchListHtml\SearchListPage.tt"
+            #line 40 "C:\Code\PointlessWaymarksCms03\PointlessWaymarks.CmsData\ContentHtml\SearchListHtml\SearchListPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(HorizontalRule.StandardRule()));
             
             #line default
             #line hidden
             this.Write("\r\n    <h1 class=\"site-header-title\">");
             
-            #line 39 "C:\Code\PointlessWaymarksCms03\PointlessWaymarks.CmsData\ContentHtml\SearchListHtml\SearchListPage.tt"
+            #line 41 "C:\Code\PointlessWaymarksCms03\PointlessWaymarks.CmsData\ContentHtml\SearchListHtml\SearchListPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture($"Search {ListTitle}"));
             
             #line default
@@ -153,35 +160,35 @@ namespace PointlessWaymarks.CmsData.ContentHtml.SearchListHtml
                     "=\"search-input enable-after-loading wait-cursor\" id=\"userSearchText\" onkeyup=\"se" +
                     "archContent()\" disabled placeholder=\"Search ");
             
-            #line 41 "C:\Code\PointlessWaymarksCms03\PointlessWaymarks.CmsData\ContentHtml\SearchListHtml\SearchListPage.tt"
+            #line 43 "C:\Code\PointlessWaymarksCms03\PointlessWaymarks.CmsData\ContentHtml\SearchListHtml\SearchListPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(ListTitle));
             
             #line default
             #line hidden
             this.Write("...\" autocomplete=\"off\">\r\n    </div>\r\n    ");
             
-            #line 43 "C:\Code\PointlessWaymarksCms03\PointlessWaymarks.CmsData\ContentHtml\SearchListHtml\SearchListPage.tt"
+            #line 45 "C:\Code\PointlessWaymarksCms03\PointlessWaymarks.CmsData\ContentHtml\SearchListHtml\SearchListPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(FilterCheckboxesTag()));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 44 "C:\Code\PointlessWaymarksCms03\PointlessWaymarks.CmsData\ContentHtml\SearchListHtml\SearchListPage.tt"
+            #line 46 "C:\Code\PointlessWaymarksCms03\PointlessWaymarks.CmsData\ContentHtml\SearchListHtml\SearchListPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(ContentListTag()));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 45 "C:\Code\PointlessWaymarksCms03\PointlessWaymarks.CmsData\ContentHtml\SearchListHtml\SearchListPage.tt"
+            #line 47 "C:\Code\PointlessWaymarksCms03\PointlessWaymarks.CmsData\ContentHtml\SearchListHtml\SearchListPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(HorizontalRule.StandardRule()));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 46 "C:\Code\PointlessWaymarksCms03\PointlessWaymarks.CmsData\ContentHtml\SearchListHtml\SearchListPage.tt"
+            #line 48 "C:\Code\PointlessWaymarksCms03\PointlessWaymarks.CmsData\ContentHtml\SearchListHtml\SearchListPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Footer.StandardFooterDiv().Result));
             
             #line default
