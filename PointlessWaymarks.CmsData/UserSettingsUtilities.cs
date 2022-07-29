@@ -119,11 +119,6 @@ public static class UserSettingsUtilities
         return $"{settings.SiteUrl()}/Photos/Galleries/Daily/DailyPhotos-{galleryDate:yyyy-MM-dd}.html";
     }
 
-    public static string SiteUrl(this UserSettings settings)
-    {
-        return $"https://{settings.SiteDomainName}";
-    }
-
     /// <summary>
     ///     This returns a fully qualified path for the Database File based on the given settings.
     /// </summary>
@@ -1095,6 +1090,12 @@ public static class UserSettingsUtilities
         };
     }
 
+    public static string CamerRollGalleryJavascriptUrl()
+    {
+        return
+            $"{UserSettingsSingleton.CurrentSettings().SiteResourcesUrl()}pointless-waymarks-photo-gallery.js";
+    }
+
     public static string PhotoListUrl(this UserSettings settings)
     {
         return $"{settings.SiteUrl()}/Photos/PhotoList.html";
@@ -1439,6 +1440,11 @@ public static class UserSettingsUtilities
 
         return RegionEndpoint.EnumerableAllRegions.SingleOrDefault(x =>
             x.SystemName == settings.SiteS3BucketRegion);
+    }
+
+    public static string SiteUrl(this UserSettings settings)
+    {
+        return $"https://{settings.SiteDomainName}";
     }
 
     public static string StylesCssFromLocalSiteRootDirectory()

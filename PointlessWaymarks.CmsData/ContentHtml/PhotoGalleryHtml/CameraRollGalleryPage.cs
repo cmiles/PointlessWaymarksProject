@@ -161,31 +161,24 @@ namespace PointlessWaymarks.CmsData.ContentHtml.PhotoGalleryHtml
             
             #line default
             #line hidden
-            this.Write("\r\n\r\n</head>\r\n\r\n<body>\r\n    ");
+            this.Write("\r\n\r\n    <script src=\"");
             
-            #line 46 "C:\Code\PointlessWaymarksCms03\PointlessWaymarks.CmsData\ContentHtml\PhotoGalleryHtml\CameraRollGalleryPage.tt"
+            #line 43 "C:\Code\PointlessWaymarksCms03\PointlessWaymarks.CmsData\ContentHtml\PhotoGalleryHtml\CameraRollGalleryPage.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(UserSettingsSingleton.CurrentSettings().SiteResourcesUrl()));
+            
+            #line default
+            #line hidden
+            this.Write("gsap.min.js\"></script>\r\n    <script src=\"");
+            
+            #line 45 "C:\Code\PointlessWaymarksCms03\PointlessWaymarks.CmsData\ContentHtml\PhotoGalleryHtml\CameraRollGalleryPage.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(UserSettingsUtilities.CamerRollGalleryJavascriptUrl()));
+            
+            #line default
+            #line hidden
+            this.Write("\"></script>\r\n\r\n</head>\r\n\r\n<body>\r\n    ");
+            
+            #line 51 "C:\Code\PointlessWaymarksCms03\PointlessWaymarks.CmsData\ContentHtml\PhotoGalleryHtml\CameraRollGalleryPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Tags.StandardHeader().Result.ToString()));
-            
-            #line default
-            #line hidden
-            this.Write("\r\n    ");
-            
-            #line 47 "C:\Code\PointlessWaymarksCms03\PointlessWaymarks.CmsData\ContentHtml\PhotoGalleryHtml\CameraRollGalleryPage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(HorizontalRule.StandardRule()));
-            
-            #line default
-            #line hidden
-            this.Write("\r\n    ");
-            
-            #line 48 "C:\Code\PointlessWaymarksCms03\PointlessWaymarks.CmsData\ContentHtml\PhotoGalleryHtml\CameraRollGalleryPage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(Tags.TitleDiv($"{SiteName} - Photographs").ToString()));
-            
-            #line default
-            #line hidden
-            this.Write("\r\n    ");
-            
-            #line 50 "C:\Code\PointlessWaymarksCms03\PointlessWaymarks.CmsData\ContentHtml\PhotoGalleryHtml\CameraRollGalleryPage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(CameraRollContentTag?.ToString() ?? string.Empty));
             
             #line default
             #line hidden
@@ -199,6 +192,30 @@ namespace PointlessWaymarks.CmsData.ContentHtml.PhotoGalleryHtml
             this.Write("\r\n    ");
             
             #line 53 "C:\Code\PointlessWaymarksCms03\PointlessWaymarks.CmsData\ContentHtml\PhotoGalleryHtml\CameraRollGalleryPage.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(Tags.TitleDiv($"{SiteName} - Photographs").ToString()));
+            
+            #line default
+            #line hidden
+            this.Write("\r\n    <div class=\"search-input-container\">\r\n        <input type=\"text\" class=\"sea" +
+                    "rch-input enable-after-loading wait-cursor\" id=\"userSearchText\" onkeyup=\"searchC" +
+                    "ontent()\" disabled placeholder=\"Search Photos...\" autocomplete=\"off\">\r\n    </div" +
+                    ">\r\n    ");
+            
+            #line 58 "C:\Code\PointlessWaymarksCms03\PointlessWaymarks.CmsData\ContentHtml\PhotoGalleryHtml\CameraRollGalleryPage.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(CameraRollContentTag?.ToString() ?? string.Empty));
+            
+            #line default
+            #line hidden
+            this.Write("\r\n    ");
+            
+            #line 60 "C:\Code\PointlessWaymarksCms03\PointlessWaymarks.CmsData\ContentHtml\PhotoGalleryHtml\CameraRollGalleryPage.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(HorizontalRule.StandardRule()));
+            
+            #line default
+            #line hidden
+            this.Write("\r\n    ");
+            
+            #line 61 "C:\Code\PointlessWaymarksCms03\PointlessWaymarks.CmsData\ContentHtml\PhotoGalleryHtml\CameraRollGalleryPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Footer.StandardFooterDiv().Result));
             
             #line default

@@ -40,6 +40,11 @@
     <#= Tags.CssStyleFileString() #>
     <#= Tags.FavIconFileString() #>
 
+    <script src="<#=
+                    UserSettingsSingleton.CurrentSettings().SiteResourcesUrl() #>gsap.min.js"></script>
+    <script src="<#=
+                    UserSettingsUtilities.CamerRollGalleryJavascriptUrl() #>"></script>
+
 </head>
 
 <body>
@@ -47,6 +52,9 @@
     <#= HorizontalRule.StandardRule() #>
     <#=
                 Tags.TitleDiv($"{SiteName} - Photographs").ToString() #>
+    <div class="search-input-container">
+        <input type="text" class="search-input enable-after-loading wait-cursor" id="userSearchText" onkeyup="searchContent()" disabled placeholder="Search Photos..." autocomplete="off">
+    </div>
     <#=
                     CameraRollContentTag?.ToString() ?? string.Empty #>
     <#= HorizontalRule.StandardRule() #>

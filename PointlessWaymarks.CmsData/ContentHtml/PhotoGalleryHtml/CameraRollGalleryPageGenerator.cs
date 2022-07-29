@@ -171,6 +171,11 @@ public static class CameraRollGalleryPageGenerator
             foreach (var loopPhotos in datePhotos)
             {
                 var listItemPhotoListItem = new DivTag().AddClass("camera-roll-photo-item-container");
+                listItemPhotoListItem.Data("title", loopPhotos.Title);
+                listItemPhotoListItem.Data("photo-created-on", loopPhotos.CreatedOn);
+                listItemPhotoListItem.Data("tags",
+                    string.Join(",", Db.TagListParseToSlugs(loopPhotos, false)));
+                listItemPhotoListItem.Data("summary", loopPhotos.Summary);
                 var photoItem = new PictureSiteInformation(loopPhotos.ContentId);
                 listItemPhotoListItem.Children.Add(
                     photoItem.PictureFigureWithLinkToPicturePageTag("(min-width: 1200px) 20vw, 120px"));

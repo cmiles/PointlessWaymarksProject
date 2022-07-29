@@ -16,19 +16,35 @@ function debounce(func, timeout = 500) {
     };
 }
 
-function sortDateAscending() {
+function sortCreatedAscending() {
     var list = document.querySelector('.content-list-container');
 
     Array.from(document.querySelectorAll('.content-list-item-container'))
-        .sort((a, b) => a.getAttribute('data-created-or-updated') > b.getAttribute('data-created-or-updated') ? 1 : -1)
+        .sort((a, b) => a.getAttribute('data-created') > b.getAttribute('data-created') ? 1 : -1)
         .forEach(node => list.appendChild(node));
 }
 
-function sortDateDescending() {
+function sortCreatedDescending() {
     var list = document.querySelector('.content-list-container');
 
     Array.from(document.querySelectorAll('.content-list-item-container'))
-        .sort((a, b) => a.getAttribute('data-created-or-updated') < b.getAttribute('data-created-or-updated') ? 1 : -1)
+        .sort((a, b) => a.getAttribute('data-created') < b.getAttribute('data-created') ? 1 : -1)
+        .forEach(node => list.appendChild(node));
+}
+
+function sortUpdatedAscending() {
+    var list = document.querySelector('.content-list-container');
+
+    Array.from(document.querySelectorAll('.content-list-item-container'))
+        .sort((a, b) => a.getAttribute('data-updated') > b.getAttribute('data-updated') ? 1 : -1)
+        .forEach(node => list.appendChild(node));
+}
+
+function sortUpdatedDescending() {
+    var list = document.querySelector('.content-list-container');
+
+    Array.from(document.querySelectorAll('.content-list-item-container'))
+        .sort((a, b) => a.getAttribute('data-updated') < b.getAttribute('data-updated') ? 1 : -1)
         .forEach(node => list.appendChild(node));
 }
 

@@ -34,6 +34,7 @@
     <None Remove="SiteResources\leaflet-gesture-handling.min.js.map" />
     <None Remove="SiteResources\location-arrow-solid.svg" />
     <None Remove="SiteResources\pointless-waymarks-content-list-search.js" />
+    <None Remove="SiteResources\pointless-waymarks-photo-gallery.js" />
     <None Remove="SiteResources\pointless-waymarks-spatial-common.js" />
     <None Remove="SiteResources\spinner-solid.svg" />
   </ItemGroup>
@@ -360,6 +361,7 @@
     <EmbeddedResource Include="SiteResources\leaflet.css" />
     <EmbeddedResource Include="SiteResources\leaflet.js" />
     <EmbeddedResource Include="SiteResources\location-arrow-solid.svg" />
+    <EmbeddedResource Include="SiteResources\pointless-waymarks-photo-gallery.js" />
     <EmbeddedResource Include="SiteResources\pointless-waymarks-content-list-search.js" />
     <EmbeddedResource Include="SiteResources\pointless-waymarks-spatial-common.js" />
     <EmbeddedResource Include="SiteResources\spinner-solid.svg" />

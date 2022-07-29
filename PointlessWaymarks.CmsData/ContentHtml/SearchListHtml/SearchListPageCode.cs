@@ -79,8 +79,10 @@ public partial class SearchListPage
         {
             ("Title ↑", "sortTitleAscending"),
             ("Title ↓", "sortTitleDescending"),
-            ("Date ↑", "sortDateAscending"),
-            ("Date ↓", "sortDateDescending")
+            ("Created ↑", "sortCreatedAscending"),
+            ("Created ↓", "sortCreatedDescending"),
+            ("Updated ↑", "sortUpdatedAscending"),
+            ("Updated ↓", "sortUpdatedDescending")
         };
 
         var first = true;

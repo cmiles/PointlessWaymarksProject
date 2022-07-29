@@ -10,8 +10,8 @@ public static class ContentList
     {
         var listItemContainerDiv = new DivTag().AddClasses("content-list-item-container", "info-box");
         listItemContainerDiv.Data("title", content.Title);
-        listItemContainerDiv.Data("created-or-updated", (content.LastUpdatedOn ?? content.CreatedOn).ToString("s"));
-        listItemContainerDiv.Data("updated", content.LastUpdatedOn);
+        listItemContainerDiv.Data("created", content.CreatedOn);
+        listItemContainerDiv.Data("updated", (content.LastUpdatedOn ?? content.CreatedOn).ToString("s"));
         listItemContainerDiv.Data("tags",
             string.Join(",", Db.TagListParseToSlugs(content, false)));
         listItemContainerDiv.Data("summary", content.Summary);
@@ -77,7 +77,7 @@ public static class ContentList
 
     public static HtmlTag FromLinkContent(LinkContent content)
     {
-        var photoListPhotoEntryDiv = new DivTag().AddClasses("content-list-item-container", "info-box");
+        var linkListContent = new DivTag().AddClasses("content-list-item-container", "info-box");
 
         var titleList = new List<string>();
 
@@ -85,11 +85,13 @@ public static class ContentList
         if (!string.IsNullOrWhiteSpace(content.Site)) titleList.Add(content.Site);
         if (!string.IsNullOrWhiteSpace(content.Author)) titleList.Add(content.Author);
 
-        photoListPhotoEntryDiv.Data("title", string.Join(" - ", titleList));
-        photoListPhotoEntryDiv.Data("tags",
+        linkListContent.Data("title", string.Join(" - ", titleList));
+        linkListContent.Data("created", content.CreatedOn);
+        linkListContent.Data("updated", (content.LastUpdatedOn ?? content.CreatedOn).ToString("s"));
+        linkListContent.Data("tags",
             string.Join(",", Db.TagListParseToSlugs(content.Tags, false)));
-        photoListPhotoEntryDiv.Data("summary", $"{content.Description} {content.Comments}");
-        photoListPhotoEntryDiv.Data("contenttype", ContentTypeToContentListItemFilterTag(content));
+        linkListContent.Data("summary", $"{content.Description} {content.Comments}");
+        linkListContent.Data("contenttype", ContentTypeToContentListItemFilterTag(content));
 
         var compactContentMainTextContentDiv = new DivTag().AddClass("link-compact-text-content-container");
 
@@ -132,8 +134,8 @@ public static class ContentList
         compactContentMainTextContentDiv.Children.Add(compactContentMainTextTitleTextDiv);
         compactContentMainTextContentDiv.Children.Add(compactContentSummaryTextDiv);
 
-        photoListPhotoEntryDiv.Children.Add(compactContentMainTextContentDiv);
+        linkListContent.Children.Add(compactContentMainTextContentDiv);
 
-        return photoListPhotoEntryDiv;
+        return linkListContent;
     }
 }

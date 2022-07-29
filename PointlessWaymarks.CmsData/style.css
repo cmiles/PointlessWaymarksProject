@@ -727,7 +727,6 @@ a.tag-list-link {
     display: flex;
     justify-content: center;
     flex-wrap: wrap;
-    margin-left: -50px;
     margin-bottom: 1rem;
 }
 
