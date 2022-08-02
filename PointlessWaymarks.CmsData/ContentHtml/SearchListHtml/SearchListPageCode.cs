@@ -52,9 +52,26 @@ public partial class SearchListPage
 
         var filterTypeTags = allContent.Select(ContentList.ContentTypeToContentListItemFilterTag).Distinct().ToList();
 
-        var filterContainer = new DivTag().AddClass("content-list-filter-container");
+        var filterContainer = new DivTag().AddClass("content-list-filter-container wait-cursor enable-after-loading");
 
         var textInfo = new CultureInfo("en-US", false).TextInfo;
+
+        var contentHasMainSiteFeedEntries = allContent.Any(x =>
+            x is IContentCommon { ShowInMainSiteFeed: true });
+
+        if (contentHasMainSiteFeedEntries)
+        {
+            var checkBoxContainer = new DivTag().AddClass("content-list-filter-item");
+            var checkbox = new CheckboxTag(false).Id("main-feed-filter-checkbox")
+                .AddClasses("site-main-feed-filter-checkbox").Value("site-main-feed")
+                .Attr("onclick", "searchContent()");
+            var label = new HtmlTag("label")
+                .AddClasses("content-list-filter-checkbox-label")
+                .Text("Main Page");
+            checkBoxContainer.Children.Add(checkbox);
+            checkBoxContainer.Children.Add(label);
+            filterContainer.Children.Add(checkBoxContainer);
+        }
 
         if (filterTypeTags.Count > 1)
         {
@@ -62,10 +79,10 @@ public partial class SearchListPage
             {
                 var checkBoxContainer = new DivTag().AddClass("content-list-filter-item");
                 var checkbox = new CheckboxTag(false).Id($"{loopTag}-content-list-filter-checkbox")
-                    .AddClasses("content-list-filter-checkbox", "enable-after-loading", "wait-cursor").Value(loopTag)
-                    .Attr("onclick", "searchContent()").BooleanAttr("disabled");
+                    .AddClasses("content-list-filter-checkbox").Value(loopTag)
+                    .Attr("onclick", "searchContent()");
                 var label = new HtmlTag("label")
-                    .AddClasses("content-list-filter-checkbox-label", "enable-after-loading", "wait-cursor")
+                    .AddClasses("content-list-filter-checkbox-label")
                     .Text(textInfo.ToTitleCase(loopTag));
                 checkBoxContainer.Children.Add(checkbox);
                 checkBoxContainer.Children.Add(label);
@@ -95,8 +112,7 @@ public partial class SearchListPage
                 .Attr("name", "content-sort-order")
                 .Attr("onclick", $"{radioLoop.sortMethod}()")
                 .AddClass("content-list-filter-item")
-                .AddClasses("content-list-filter-radio", "enable-after-loading", "wait-cursor")
-                .BooleanAttr("disabled");
+                .AddClasses("content-list-filter-radio");
             if (first)
             {
                 first = false;
@@ -104,7 +120,7 @@ public partial class SearchListPage
             }
 
             var label = new HtmlTag("label")
-                .AddClasses("content-list-filter-radio-label", "enable-after-loading", "wait-cursor")
+                .AddClasses("content-list-filter-radio-label")
                 .Text(textInfo.ToTitleCase(radioLoop.label));
             radioContainer.Children.Add(radio);
             radioContainer.Children.Add(label);

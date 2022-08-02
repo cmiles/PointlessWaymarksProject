@@ -15,6 +15,7 @@ public static class ContentList
         listItemContainerDiv.Data("tags",
             string.Join(",", Db.TagListParseToSlugs(content, false)));
         listItemContainerDiv.Data("summary", content.Summary);
+        listItemContainerDiv.Data("site-main-feed", content.ShowInMainSiteFeed);
         listItemContainerDiv.Data("contenttype", ContentTypeToContentListItemFilterTag(content));
 
         var linkTo = UserSettingsSingleton.CurrentSettings().ContentUrl(content.ContentId).Result;
@@ -91,6 +92,7 @@ public static class ContentList
         linkListContent.Data("tags",
             string.Join(",", Db.TagListParseToSlugs(content.Tags, false)));
         linkListContent.Data("summary", $"{content.Description} {content.Comments}");
+        linkListContent.Data("site-main-feed", false);
         linkListContent.Data("contenttype", ContentTypeToContentListItemFilterTag(content));
 
         var compactContentMainTextContentDiv = new DivTag().AddClass("link-compact-text-content-container");

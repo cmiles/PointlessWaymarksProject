@@ -156,9 +156,9 @@ namespace PointlessWaymarks.CmsData.ContentHtml.SearchListHtml
             
             #line default
             #line hidden
-            this.Write("</h1>\r\n    <div class=\"search-input-container\">\r\n        <input type=\"text\" class" +
-                    "=\"search-input enable-after-loading wait-cursor\" id=\"userSearchText\" onkeyup=\"se" +
-                    "archContent()\" disabled placeholder=\"Search ");
+            this.Write("</h1>\r\n    <div class=\"search-input-container enable-after-loading wait-cursor\">\r" +
+                    "\n        <input type=\"text\" class=\"search-input\" id=\"userSearchText\" onkeyup=\"se" +
+                    "archContent()\" placeholder=\"Search ");
             
             #line 43 "C:\Code\PointlessWaymarksCms03\PointlessWaymarks.CmsData\ContentHtml\SearchListHtml\SearchListPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(ListTitle));

@@ -75,6 +75,11 @@ body {
     cursor: wait;
 }
 
+.enable-after-loading {
+    pointer-events: none;
+    opacity: .2;
+}
+
 .single-photo-body {
     color: var(--foreground-secondary-color);
     margin-top: 0;

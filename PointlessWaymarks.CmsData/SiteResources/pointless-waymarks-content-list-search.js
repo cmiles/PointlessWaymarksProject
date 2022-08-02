@@ -3,9 +3,13 @@
 function processEnableAfterLoadingElements() {
     Array.from(document.querySelectorAll('.enable-after-loading'))
         .forEach(x => {
-            x.disabled = false;
             x.classList.remove('wait-cursor');
         });
+
+    gsap.to(".enable-after-loading", {
+        duration: .5, opacity: 1, onComplete: function () {
+            this.targets().forEach(x => x.style.pointerEvents = 'auto');
+        } });
 }
 
 function debounce(func, timeout = 500) {
@@ -71,11 +75,22 @@ function searchContent() {
     var contentTypes = Array.from(document.querySelectorAll('.content-list-filter-checkbox'))
         .filter(x => x.checked).map(x => x.value);
 
+    var mainSiteFeedFilter = Array.from(document.querySelectorAll('.site-main-feed-filter-checkbox')).some(x => x.checked);
+
     var contentDivs = Array.from(document.querySelectorAll('.content-list-item-container'));
 
     // Loop through all list items, and hide those who don't match the search query
     for (var i = 0; i < contentDivs.length; i++) {
         var loopDiv = contentDivs[i];
+
+        var divMainSiteFeed = loopDiv.getAttribute('data-site-main-feed');
+
+        if (mainSiteFeedFilter && divMainSiteFeed === 'false') {
+            loopDiv.classList.remove("shown-list-item");
+            loopDiv.classList.add("hidden-list-item");
+            continue;
+        }
+
         var divDataContentType = loopDiv.getAttribute('data-contenttype');
 
         if (contentTypes.length && !contentTypes.includes(divDataContentType)) {
@@ -101,8 +116,8 @@ function searchContent() {
         }
     }
 
-    TweenMax.to(".hidden-list-item", .5, { opacity: 0, display: "none" });
-    TweenMax.to(".shown-list-item", .5, { opacity: 1, display: "" });
+    gsap.to(".hidden-list-item", { duration: .5, opacity: 0, display: "none" });
+    gsap.to(".shown-list-item", { duration: .5, opacity: 1, display: "" });
 }
 
 const processSearchContent = debounce(() => searchContent());
