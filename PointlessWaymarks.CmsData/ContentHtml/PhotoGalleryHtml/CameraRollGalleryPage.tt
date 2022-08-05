@@ -52,8 +52,8 @@
     <#= HorizontalRule.StandardRule() #>
     <#=
                 Tags.TitleDiv($"{SiteName} - Photographs").ToString() #>
-    <div class="search-input-container">
-        <input type="text" class="search-input enable-after-loading wait-cursor" id="userSearchText" onkeyup="searchContent()" disabled placeholder="Search Photos..." autocomplete="off">
+    <div class="search-input-container enable-after-loading wait-cursor">
+        <input type="text" class="search-input" id="userSearchText" onkeyup="searchContent()" placeholder="Search Photographs..." autocomplete="off">
     </div>
     <#=
                     CameraRollContentTag?.ToString() ?? string.Empty #>

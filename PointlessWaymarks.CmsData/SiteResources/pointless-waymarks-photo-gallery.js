@@ -3,9 +3,14 @@
 function processEnableAfterLoadingElements() {
     Array.from(document.querySelectorAll('.enable-after-loading'))
         .forEach(x => {
-            x.disabled = false;
             x.classList.remove('wait-cursor');
         });
+
+    gsap.to(".enable-after-loading", {
+        duration: .5, opacity: 1, onComplete: function () {
+            this.targets().forEach(x => x.style.pointerEvents = 'auto');
+        }
+    });
 }
 
 function debounce(func, timeout = 500) {
@@ -56,8 +61,8 @@ function searchContent() {
         }
     }
 
-    TweenMax.to(".hidden-list-item", .5, { opacity: 0, display: "none" });
-    TweenMax.to(".shown-list-item", .5, { opacity: 1, display: "" });
+    gsap.to(".hidden-list-item", { duration: .5, opacity: 0, display: "none" });
+    gsap.to(".shown-list-item", { duration: .5, opacity: 1, display: "" });
 }
 
 const processSearchContent = debounce(() => searchContent());

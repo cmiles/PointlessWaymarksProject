@@ -196,10 +196,10 @@ namespace PointlessWaymarks.CmsData.ContentHtml.PhotoGalleryHtml
             
             #line default
             #line hidden
-            this.Write("\r\n    <div class=\"search-input-container\">\r\n        <input type=\"text\" class=\"sea" +
-                    "rch-input enable-after-loading wait-cursor\" id=\"userSearchText\" onkeyup=\"searchC" +
-                    "ontent()\" disabled placeholder=\"Search Photos...\" autocomplete=\"off\">\r\n    </div" +
-                    ">\r\n    ");
+            this.Write("\r\n    <div class=\"search-input-container enable-after-loading wait-cursor\">\r\n    " +
+                    "    <input type=\"text\" class=\"search-input\" id=\"userSearchText\" onkeyup=\"searchC" +
+                    "ontent()\" placeholder=\"Search Photographs...\" autocomplete=\"off\">\r\n    </div>\r\n " +
+                    "   ");
             
             #line 58 "C:\Code\PointlessWaymarksCms03\PointlessWaymarks.CmsData\ContentHtml\PhotoGalleryHtml\CameraRollGalleryPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(CameraRollContentTag?.ToString() ?? string.Empty));
