@@ -219,6 +219,10 @@ Notes:
     public void DetectGuiFileTypes()
     {
         FileIsPdf = SelectedFile?.FullName.EndsWith("pdf", StringComparison.InvariantCultureIgnoreCase) ?? false;
+        //8/6/2022 - This detection is mainly for extracting the first frame of a video - if changing/extending
+        //this beyond mp4 (verified for example that the frame extraction works for avi) remember that the
+        //there is a collision of concerns here and there may be merit in only encouraging formats that 
+        //will work with the html video tag - see the file html...
         FileIsMp4 = SelectedFile?.FullName.EndsWith("mp4", StringComparison.InvariantCultureIgnoreCase) ?? false;
     }
 
