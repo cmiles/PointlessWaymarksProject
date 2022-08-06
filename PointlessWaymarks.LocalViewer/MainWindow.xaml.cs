@@ -1,7 +1,7 @@
 ﻿using System.IO;
 using System.Text.RegularExpressions;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Toolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 using PointlessWaymarks.CmsWpfControls.SitePreview;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;

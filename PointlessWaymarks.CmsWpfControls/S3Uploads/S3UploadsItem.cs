@@ -2,7 +2,7 @@
 using System.IO;
 using Amazon.S3;
 using Amazon.S3.Transfer;
-using Microsoft.Toolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsWpfControls.Utility;
 using PointlessWaymarks.CmsWpfControls.Utility.Aws;

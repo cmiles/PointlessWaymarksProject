@@ -1,5 +1,5 @@
 ﻿using System.ComponentModel;
-using Microsoft.Toolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.Content;
 using PointlessWaymarks.CmsData.Database;

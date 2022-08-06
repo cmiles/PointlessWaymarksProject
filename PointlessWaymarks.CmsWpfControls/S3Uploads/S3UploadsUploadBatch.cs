@@ -1,7 +1,7 @@
 ﻿#nullable enable
 using System.Collections.ObjectModel;
-using Microsoft.Toolkit.Mvvm.ComponentModel;
-using Microsoft.Toolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 
 namespace PointlessWaymarks.CmsWpfControls.S3Uploads;

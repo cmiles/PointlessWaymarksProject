@@ -1,5 +1,5 @@
 ﻿using System.Windows;
-using Microsoft.Toolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Input;
 using PointlessWaymarks.WpfCommon.Status;
 
 namespace PointlessWaymarks.WpfCommon.WindowScreenShot;

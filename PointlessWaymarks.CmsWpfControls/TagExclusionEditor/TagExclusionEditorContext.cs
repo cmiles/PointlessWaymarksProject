@@ -1,6 +1,6 @@
 ﻿using System.Collections.ObjectModel;
-using Microsoft.Toolkit.Mvvm.ComponentModel;
-using Microsoft.Toolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using Omu.ValueInjecter;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.Content;

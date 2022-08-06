@@ -1,5 +1,5 @@
 ﻿using System.ComponentModel;
-using Microsoft.Toolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace PointlessWaymarks.CmsWpfControls.ColumnSort;
 

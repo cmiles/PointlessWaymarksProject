@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel;
-using Microsoft.Toolkit.Mvvm.ComponentModel;
-using Microsoft.Toolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 
 
 namespace PointlessWaymarks.CmsWpfControls.ColumnSort;

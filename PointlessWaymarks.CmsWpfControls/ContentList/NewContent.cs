@@ -1,7 +1,7 @@
 ﻿using System.IO;
 using System.Windows.Shell;
-using Microsoft.Toolkit.Mvvm.ComponentModel;
-using Microsoft.Toolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using Ookii.Dialogs.Wpf;
 using PointlessWaymarks.CmsData.Content;
 using PointlessWaymarks.CmsData.Spatial;

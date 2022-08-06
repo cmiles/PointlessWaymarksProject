@@ -1,7 +1,7 @@
 ﻿using System.Collections.ObjectModel;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Toolkit.Mvvm.ComponentModel;
-using Microsoft.Toolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;

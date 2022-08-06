@@ -44,6 +44,7 @@
     <PackageReference Include="AngleSharp.Js" Version="0.15.0" />
     <PackageReference Include="AWSSDK.S3" Version="3.7.9.36" />
     <PackageReference Include="ClosedXML" Version="0.96.0" />
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.0.0" />
     <PackageReference Include="CompareNETObjects" Version="4.77.0" />
     <PackageReference Include="FluentMigrator" Version="3.3.2" />
     <PackageReference Include="FluentMigrator.Runner" Version="3.3.2" />
@@ -62,7 +63,6 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.7" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="6.0.7" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0" />
-    <PackageReference Include="Microsoft.Toolkit.Mvvm" Version="7.1.2" />
     <PackageReference Include="NetTopologySuite" Version="2.5.0" />
     <PackageReference Include="NetTopologySuite.IO.GeoJSON" Version="2.0.4" />
     <PackageReference Include="NetTopologySuite.IO.GPX" Version="1.1.1" />

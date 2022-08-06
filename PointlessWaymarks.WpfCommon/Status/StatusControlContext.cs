@@ -1,8 +1,8 @@
 ﻿using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Threading;
-using Microsoft.Toolkit.Mvvm.ComponentModel;
-using Microsoft.Toolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using PointlessWaymarks.WpfCommon.ToastControl;
 using PointlessWaymarks.WpfCommon.Utility;
 using Serilog;
