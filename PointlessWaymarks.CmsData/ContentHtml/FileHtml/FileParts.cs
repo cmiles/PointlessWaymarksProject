@@ -1,11 +1,6 @@
 ﻿using HtmlTags;
 using PointlessWaymarks.CmsData.Database.Models;
-using System.Text;
-using Windows.Storage.FileProperties;
 using Windows.Storage;
-using DocumentFormat.OpenXml.Drawing.Charts;
-using WinRT;
-using DocumentFormat.OpenXml.Wordprocessing;
 
 namespace PointlessWaymarks.CmsData.ContentHtml.FileHtml;
 

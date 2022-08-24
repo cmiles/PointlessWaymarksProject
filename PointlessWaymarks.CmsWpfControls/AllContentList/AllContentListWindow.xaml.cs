@@ -1,6 +1,4 @@
-﻿using System.Windows;
-using CommunityToolkit.Mvvm.ComponentModel;
-using PointlessWaymarks.CmsWpfControls.FileList;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 
 namespace PointlessWaymarks.CmsWpfControls.AllContentList;

@@ -6,8 +6,6 @@ namespace PointlessWaymarks.CmsData.ContentHtml.ErrorHtml;
 
 public partial class ErrorPage
 {
-    private const int NumberOfContentItemsToDisplay = 4;
-
     public ErrorPage()
     {
         var settings = UserSettingsSingleton.CurrentSettings();

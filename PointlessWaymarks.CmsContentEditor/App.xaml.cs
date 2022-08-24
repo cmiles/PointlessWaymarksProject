@@ -20,7 +20,8 @@ public partial class App
     }
 
 
-    private void App_DispatcherUnhandledException(object _, DispatcherUnhandledExceptionEventArgs e)
+    // ReSharper disable once UnusedMember.Local - Used in #if in constructor
+    private void App_DispatcherUnhandledException(DispatcherUnhandledExceptionEventArgs e)
     {
         if (!HandleApplicationException(e.Exception))
             Environment.Exit(1);

@@ -42,7 +42,7 @@ public static class ListHelpers
     }
 
     /// <summary>
-    /// Like 'Any' but takes and Func<T, Task<bool>> and applies it in a For Each loop.
+    /// Like 'Any' but takes and Func T, Task bool and applies it in a For Each loop.
     /// </summary>
     /// <typeparam name="T"></typeparam>
     /// <param name="source"></param>

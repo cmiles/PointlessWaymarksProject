@@ -31,7 +31,6 @@ using PointlessWaymarks.CmsWpfControls.PhotoList;
 using PointlessWaymarks.CmsWpfControls.PointList;
 using PointlessWaymarks.CmsWpfControls.PostList;
 using PointlessWaymarks.CmsWpfControls.S3Uploads;
-using PointlessWaymarks.CmsWpfControls.SitePreview;
 using PointlessWaymarks.CmsWpfControls.TagExclusionEditor;
 using PointlessWaymarks.CmsWpfControls.TagList;
 using PointlessWaymarks.CmsWpfControls.UserSettingsEditor;
@@ -89,8 +88,10 @@ public partial class MainWindow
         // ReSharper disable once ConditionIsAlwaysTrueOrFalse for generated ThisAssembly.Git.IsDirty
         // ReSharper disable once HeuristicUnreachableCode
         //.Git IsDirty can change at runtime
+#pragma warning disable CS0162
         InfoTitle =
             $"Pointless Waymarks CMS - Built On {GetBuildDate(Assembly.GetEntryAssembly())} - Commit {ThisAssembly.Git.Commit} {(ThisAssembly.Git.IsDirty ? "(Has Local Changes)" : string.Empty)}";
+#pragma warning restore CS0162
 
         ShowSettingsFileChooser = true;
 
@@ -487,8 +488,10 @@ public partial class MainWindow
         // ReSharper disable once ConditionIsAlwaysTrueOrFalse for generated ThisAssembly.Git.IsDirty
         // ReSharper disable once HeuristicUnreachableCode
         //.Git IsDirty can change at runtime
+#pragma warning disable CS0162
         InfoTitle =
             $"{UserSettingsSingleton.CurrentSettings().SiteName} - Pointless Waymarks CMS - Built On {GetBuildDate(Assembly.GetEntryAssembly())} - Commit {ThisAssembly.Git.Commit} {(ThisAssembly.Git.IsDirty ? "(Has Local Changes)" : string.Empty)}";
+#pragma warning restore CS0162
 
         MainTabControl.SelectedIndex = 0;
     }

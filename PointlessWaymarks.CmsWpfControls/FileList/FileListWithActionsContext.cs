@@ -176,7 +176,7 @@ public partial class FileListWithActionsContext
         FileEmbedCodesToClipboardForSelectedCommand =
             StatusContext.RunBlockingTaskCommand(FileEmbedCodesToClipboardForSelected);
         FileUrlLinkCodesToClipboardForSelectedCommand =
-            StatusContext.RunBlockingTaskCommand(FileDownloadLinkCodesToClipboardForSelected);
+            StatusContext.RunBlockingTaskCommand(FileUrlLinkCodesToClipboardForSelected);
         ViewFilesCommand = StatusContext.RunBlockingTaskWithCancellationCommand(ViewFilesSelected, "Cancel File View");
 
         FirstPagePreviewFromPdfToCairoCommand = StatusContext.RunBlockingTaskCommand(FirstPagePreviewFromPdfToCairo);

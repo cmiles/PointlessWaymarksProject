@@ -4,7 +4,6 @@ using HtmlTableHelper;
 using PointlessWaymarks.CmsData.Content;
 using PointlessWaymarks.CmsWpfControls.HtmlViewer;
 using PointlessWaymarks.CmsWpfControls.WpfHtml;
-using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 using PointlessWaymarks.WpfCommon.Utility;
 
 namespace PointlessWaymarks.CmsWpfControls.Diagnostics;
