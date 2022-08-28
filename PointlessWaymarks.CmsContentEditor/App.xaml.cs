@@ -15,13 +15,11 @@ public partial class App
         LogHelpers.InitializeStaticLoggerAsStartupLogger();
 
 #if !DEBUG
-            DispatcherUnhandledException += App_DispatcherUnhandledException;
+            DispatcherUnhandledException += OnDispatcherUnhandledException;
 #endif
     }
 
-
-    // ReSharper disable once UnusedMember.Local - Used in #if in constructor
-    private void App_DispatcherUnhandledException(DispatcherUnhandledExceptionEventArgs e)
+    private void OnDispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
     {
         if (!HandleApplicationException(e.Exception))
             Environment.Exit(1);
