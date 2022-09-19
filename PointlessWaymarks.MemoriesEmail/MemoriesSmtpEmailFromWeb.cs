@@ -1,0 +1,316 @@
+﻿using HtmlAgilityPack;
+using System.Globalization;
+using System.Net.Mail;
+using System.Net.Mime;
+using System.Net;
+using Mjml.Net;
+using Serilog;
+using System.ComponentModel.DataAnnotations;
+using System.Text.Json;
+using ValidationContext = System.ComponentModel.DataAnnotations.ValidationContext;
+
+namespace PointlessWaymarks.MemoriesEmail
+{
+    public class MemoriesSmtpEmailFromWeb : IMemoriesSmtpEmailFromWeb
+    {
+        public async Task GenerateEmail(string settingsFile)
+        {
+            if (string.IsNullOrWhiteSpace(settingsFile))
+            {
+                Log.Error("Blank settings file is not valid...");
+                return;
+            }
+
+            var settingsFileInfo = new FileInfo(settingsFile.Trim());
+
+            if (!settingsFileInfo.Exists)
+            {
+                Log.Error("Could not find settings file: {settingsFile}", settingsFile);
+                return;
+            }
+
+            MemoriesSmtpEmailFromWebSettings? settings;
+            try
+            {
+                var settingsFileJsonString = await File.ReadAllTextAsync(settingsFileInfo.FullName);
+                var tryReadSettings = JsonSerializer.Deserialize<MemoriesSmtpEmailFromWebSettings>(settingsFileJsonString);
+
+                if (tryReadSettings == null)
+                {
+                    Log.Error("Settings file {settingsFile} deserialized into a null object - is the format correct?", settingsFile);
+                    return;
+                }
+
+                settings = tryReadSettings!;
+            }
+            catch (Exception e)
+            {
+                Log.Error(e, "Exception reading settings file {settingsFile}", settingsFile);
+                Console.WriteLine(e.Message);
+                return;
+            }
+
+            var validationContext = new ValidationContext(settings, serviceProvider: null, items: null);
+            var simpleValidationResults = new List<ValidationResult>();
+            var simpleValidationPassed = Validator.TryValidateObject(
+                settingsFile, validationContext, simpleValidationResults,
+                validateAllProperties: true
+            );
+
+            if (!simpleValidationPassed)
+            {
+                Log.ForContext("SimpleValidationErrors", simpleValidationResults.Dump()).Error("Validating data from {settingFile} failed.", settingsFile);
+                simpleValidationResults.ForEach(Console.WriteLine);
+                return;
+            }
+
+            Log.ForContext("settings", settings.Dump(new DumpOptions() {ExcludeProperties = new List<string> { nameof(settings.FromEmailPassword) } })).Information("Settings Passed Basic Validation - Settings File {settingsFile}", settingsFile);
+
+            var httpClient = new HttpClient();
+            if (!string.IsNullOrWhiteSpace(settings.BasicAuthUserName) && !string.IsNullOrWhiteSpace(settings.BasicAuthPassword))
+            {
+                Log.Information("Setting Up HttpClient with Basic Auth Headers");
+                httpClient.DefaultRequestHeaders.Authorization = new BasicAuthenticationHeaderValue(settings.BasicAuthUserName, settings.BasicAuthPassword);
+            }
+
+            var targetDate = settings.ReferenceDate.AddYears(-Math.Abs(settings.YearsBack));
+            var targetDateString = targetDate.ToString("yyyy-MM-dd");
+
+            Log.Information("Target Date Set To {targetDate}", targetDateString);
+
+            var credentials = new NetworkCredential(settings.BasicAuthUserName, settings.BasicAuthPassword);
+
+            var allContent = new HtmlWeb();
+            var indexDoc = await allContent.LoadFromWebAsync($"{settings.SiteUrl}", credentials);
+
+            Log.Verbose("Loaded {siteUrl} - Inner Length {indexInnerLength}", settings.SiteUrl, indexDoc.DocumentNode.InnerLength);
+
+            var siteTitleNode = indexDoc.DocumentNode.SelectSingleNode("//title");
+            var siteTitle = siteTitleNode == null ? string.Empty : HtmlEntity.DeEntitize(siteTitleNode.InnerText);
+
+            //Get the AllContentList from the site as a basis for finding items
+            var allContentUrl = $"{settings.SiteUrl}/AllContentList.html";
+            var allContentDoc = await allContent.LoadFromWebAsync(allContentUrl, credentials);
+
+            Log.Verbose("Loaded {allContentUrl} - Inner Length {allContentInnerLength}", allContentUrl, allContentDoc.DocumentNode.InnerLength);
+
+            //This should match the list nodes - FRAGILE, class changes will break this...
+            var items = allContentDoc.DocumentNode.SelectNodes("//div[contains(@class,'content-list-item-container')]");
+
+            if (items == null)
+            {
+                Log.Error("No Content List Items Found from {allContentUrl}?", allContentUrl);
+                return;
+            }
+
+            Log.Verbose("{allContentUrl} - Content List Items {contentItemCount}", allContentUrl, items.Count);
+
+            var targetDateMatchItems = new List<(string itemUrl, string imageUrl, string title, string itemType)>();
+
+            var currentItem = 0;
+
+            Console.WriteLine($"Content Processing - Starting - {items.Count} Items");
+
+            foreach (var loopNode in items)
+            {
+                currentItem++;
+
+                if(currentItem % (items.Count / 10) == 0) Console.WriteLine($"  Content Processing - {currentItem} of {items.Count}");
+
+                //Get the url for this item - if it isn't present continue (nothing to do, can't link to it...)
+                var linkToUrl = loopNode.GetAttributeValue("data-target-url", string.Empty);
+                if (string.IsNullOrWhiteSpace(linkToUrl)) continue;
+
+                //Get the Title for this item - if it isn't present continue (not sure what that would mean...)
+                var linkToTitle = loopNode.GetAttributeValue("data-title", string.Empty);
+                if (string.IsNullOrWhiteSpace(linkToTitle)) continue;
+
+                //Get the date and check for a match
+                var dateCreated = loopNode.GetAttributeValue("data-created", string.Empty);
+                var type = loopNode.GetAttributeValue("data-content-type", string.Empty);
+                if (string.IsNullOrWhiteSpace(dateCreated) || string.IsNullOrWhiteSpace(type)) continue;
+                if (!dateCreated.StartsWith(targetDateString)) continue;
+
+                //Try to find an image and extract the url of an appropriate 
+                var imageUrl = string.Empty;
+
+                var imgNode = loopNode.SelectSingleNode(".//img");
+                if (imgNode != null)
+                {
+                    var imgSrcSet = imgNode.GetAttributeValue("srcset", string.Empty);
+
+                    if (string.IsNullOrWhiteSpace(imgSrcSet)) return;
+
+                    var rawImageList = imgSrcSet.Split(",", StringSplitOptions.RemoveEmptyEntries).Select(n => n.Trim());
+
+                    var imageList = new List<(int size, string url)>();
+
+                    foreach (var loopImages in rawImageList)
+                    {
+                        var urlAndSize = loopImages.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+                        if (urlAndSize.Length != 2 || urlAndSize.Any(string.IsNullOrWhiteSpace)) continue;
+                        var sizeParsed = int.TryParse(urlAndSize[1][..^1], out var parsedSize);
+                        if (!sizeParsed) continue;
+                        imageList.Add((parsedSize, urlAndSize[0]));
+                    }
+
+                    imageUrl = imageList.Where(x => x.size <= 700).MaxBy(x => x.size).url;
+                }
+
+                targetDateMatchItems.Add((linkToUrl, imageUrl, linkToTitle, type));
+            }
+
+            if (!targetDateMatchItems.Any())
+            {
+                Log.Information("No Items Found on Target Date - Ending...");
+                return;
+            }
+
+            var textInfo = new CultureInfo("en-US", false).TextInfo;
+
+            var mjmlRenderer = new MjmlRenderer();
+
+            var fromAddress = new MailAddress(settings.FromEmailAddress, settings.FromDisplayName);
+            var toAddress = settings.ToAddressList.Split(";", StringSplitOptions.RemoveEmptyEntries)
+                .Select(x => new MailAddress(x.Trim())).ToList();
+
+            var subject = $"[{(string.IsNullOrWhiteSpace(siteTitle) ? settings.SiteUrl : siteTitle)}] {settings.YearsBack} Year{(settings.YearsBack > 1 ? "s" : "")} Ago...";
+
+
+            var message = new MailMessage()
+            {
+                Subject = subject,
+                IsBodyHtml = true
+            };
+
+            message.From = fromAddress;
+            toAddress.ForEach(x => message.To.Add(x));
+
+            var groupedItems = targetDateMatchItems.GroupBy(x => x.itemType).ToList();
+
+            var imageCarouselMjmlLines = new List<string>();
+
+            var contentSections = new List<string>();
+
+            long attachmentLimit = 24117248;
+            long attachmentTotal = 0;
+
+            var imageItems = groupedItems.Where(x => x.Key.Equals("image", StringComparison.OrdinalIgnoreCase))
+                .SelectMany(x => x).ToList();
+
+            Log.Information("Found {imageCount} Images to Add to the Email", imageItems);
+
+            var imagesProcessed = 0;
+
+            Console.WriteLine($"Image Processing - Starting - {imageItems.Count} Images");
+
+            foreach (var loopItems in imageItems)
+            {
+                imagesProcessed++;
+
+                if (attachmentTotal > attachmentLimit)
+                {
+                    Log.Information("Adding Images ended because the Current Size of the Attachments ({attachmentTotal}) exceeds the Limit set by the Program ({attachmentLimit}) - Image Number {imagesProcessed} of {totalImages} Total Images", attachmentTotal, attachmentLimit, imagesProcessed, imageItems.Count);
+                    break;
+                }
+
+                Console.WriteLine($"  Downloading {loopItems.imageUrl}");
+                var imageBytes = await httpClient.GetByteArrayAsync(loopItems.imageUrl);
+
+                attachmentTotal += imageBytes.Length;
+
+                var contentId = Guid.NewGuid().ToString();
+
+                var imageEmbed = new Attachment(new MemoryStream(imageBytes), new System.Net.Mime.ContentType("image/jpeg"));
+                imageEmbed.ContentId = contentId;
+                imageEmbed.ContentDisposition.Inline = true;
+                imageEmbed.ContentDisposition.DispositionType = DispositionTypeNames.Inline;
+
+                message.Attachments.Add(imageEmbed);
+
+                imageCarouselMjmlLines.Add($"""
+	<mj-carousel-image src="cid:{contentId}" />
+""");
+            }
+
+            if (imageCarouselMjmlLines.Any())
+            {
+                contentSections.Add($"""
+<mj-section>
+      <mj-column>
+        <mj-carousel>
+          {string.Join(Environment.NewLine, imageCarouselMjmlLines)}
+        </mj-carousel>
+      </mj-column>
+    </mj-section>
+""");
+            }
+
+            foreach (var loopItems in groupedItems)
+            {
+                Log.Information("Found {contentItemCount} {contentType} Items to Process", loopItems.Count(), loopItems.Key);
+
+                var itemTexts = new List<string>();
+                foreach (var loopItem in loopItems)
+                {
+                    itemTexts.Add($"""
+		<mj-text padding-left="14px" padding-top="2px"><a href="{loopItem.itemUrl}">{loopItem.title}</a></mj-text>
+		""");
+                }
+
+                contentSections.Add($"""
+<mj-section>
+	<mj-column>
+		<mj-text font-size="14px" padding-left="0px">{textInfo.ToTitleCase(loopItems.Key)}{(loopItems.Count() > 1 ? "s" : string.Empty)}:</mj-text>
+			{string.Join(Environment.NewLine, itemTexts)}
+	</mj-column>
+</mj-section>
+""");
+            }
+
+            var text = $"""
+<mjml>
+    <mj-head>
+        <mj-title>{(string.IsNullOrWhiteSpace(siteTitle) ? settings.SiteUrl : siteTitle)} Content from {targetDateString}</mj-title>
+    </mj-head>
+    <mj-body>
+	    <mj-section>
+      		<mj-column>
+        		<mj-text align="center" font-size="30px"><a href="{settings.SiteUrl}">{(string.IsNullOrWhiteSpace(siteTitle) ? settings.SiteUrl : siteTitle)}</a></mj-text>
+	      	</mj-column>
+	    </mj-section>
+	    <mj-section>
+            <mj-column>
+				<mj-text align="center" font-size="14px">
+                {(string.IsNullOrWhiteSpace(siteTitle) ? "C" : $"{siteTitle} c")}ontent created {settings.YearsBack} year{(settings.YearsBack > 1 ? "s" : "")} ago ({targetDateString}).
+				</mj-text>
+            </mj-column>
+        </mj-section>
+        {string.Join(Environment.NewLine, contentSections)}
+    </mj-body>
+</mjml>
+""";
+
+            Console.WriteLine("Rendering Email");
+            var html = mjmlRenderer.Render(text).Html;
+            message.Body = html;
+
+            Console.WriteLine("Sending Email");
+            var smtp = new SmtpClient
+            {
+                Host = settings.SmtpHost,
+                Port = settings.SmtpPort,
+                EnableSsl = settings.EnableSsl,
+                DeliveryMethod = SmtpDeliveryMethod.Network,
+                Credentials = new NetworkCredential(settings.FromEmailAddress, settings.FromEmailPassword),
+                Timeout = 60000
+            };
+
+            smtp.Send(message);
+
+            message.Dispose();
+
+            Log.Information("Sent Email!");
+        }
+    }
+}

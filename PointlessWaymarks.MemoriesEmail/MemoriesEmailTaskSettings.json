@@ -1,0 +1,13 @@
+{
+  "yearsBack": "1",
+  "siteUrl": "http://example.com",
+  "basicAuthUser": "",
+  "basicAuthPassword": "",
+  "smtpHost": "smtp.gmail.com",
+  "smtpPort": "587",
+  "enableSsl": "true",
+  "fromDisplayName":  "Pointless Waymarks Emailer",
+  "fromEmailAddress": "",
+  "fromEmailPassword": "",
+  "toAddressList":  ""
+}
