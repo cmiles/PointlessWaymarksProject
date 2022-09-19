@@ -40,7 +40,7 @@
     <#= HorizontalRule.StandardRule() #>
     <h1 class="site-header-title"><#= $"Search {ListTitle}" #></h1>
     <div class="search-input-container enable-after-loading wait-cursor">
-        <input type="text" class="search-input" id="userSearchText" onkeyup="searchContent()" placeholder="Search <#= ListTitle #>..." autocomplete="off">
+        <input type="text" class="search-input" id="userSearchText" onkeyup="processSearchContent()" placeholder="Search <#= ListTitle #>..." autocomplete="off">
     </div>
     <#= FilterCheckboxesTag() #>
     <#= ContentListTag() #>

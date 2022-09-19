@@ -24,6 +24,13 @@ Site:
 
 ## Notes
 
+9/18/2022
+
+My wife and I are actively editing on a private site we have for our 1 year old house and I just made my first road trip since we purchased the house so there are more photos coming for PointlessWaymarks.com. One feature that we are both missing is reminders of past content. We both look at email close to daily so that makes sense as a mechanism to deliver the information. Only a start of a rough version is in the code and to a large extent I think this will need some usage to determine the details but some early notes after the first coding:
+ - I built an early version with imgs linking to the site - but private, perhaps basic auth thru Cloudflare, sites are an important (to me) feature so changed to embedded images.
+ - Over the years I have built simple html emails by hand - once you get over your disbelief at all the things that are not supported I have found if you keep it very simple that works, but for this project I decided to try MJML - so far it has been a nice experience and really reflecting emails quite nicely the components are quite limited which made it a bit easier to get some work done quickly.
+ - I decided as a first try to parse the actual site rather than work from the DB - this is makes alot of sense for flexibility where it runs but I would like to circle around and see if I could write a similar service for local generated site.
+
 6/28/2022
 
 Using this software now for cmiles.info, pointlesswaymarks.com and a private site. One change in my personal use pattern is an uptick in my interest in Video thanks in part thanks to a trail camera producing some interesting videos... With more scrutiny on videos:

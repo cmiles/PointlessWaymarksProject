@@ -91,7 +91,7 @@ function searchContent() {
             continue;
         }
 
-        var divDataContentType = loopDiv.getAttribute('data-contenttype');
+        var divDataContentType = loopDiv.getAttribute('data-content-type');
 
         if (contentTypes.length && !contentTypes.includes(divDataContentType)) {
             loopDiv.classList.remove("shown-list-item");

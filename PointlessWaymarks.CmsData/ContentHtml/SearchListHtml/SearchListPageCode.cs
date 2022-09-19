@@ -80,7 +80,7 @@ public partial class SearchListPage
                 var checkBoxContainer = new DivTag().AddClass("content-list-filter-item");
                 var checkbox = new CheckboxTag(false).Id($"{loopTag}-content-list-filter-checkbox")
                     .AddClasses("content-list-filter-checkbox").Value(loopTag)
-                    .Attr("onclick", "searchContent()");
+                    .Attr("onclick", "processSearchContent()");
                 var label = new HtmlTag("label")
                     .AddClasses("content-list-filter-checkbox-label")
                     .Text(textInfo.ToTitleCase(loopTag));

@@ -59,14 +59,14 @@ public static class DataNotifications
             $"{cleanedSender.Replace("|", " ")}|{(int) contentType}|{(int) updateType}|{string.Join(",", contentGuidList ?? new List<Guid>())}");
     }
 
-    public static InterProcessDataNotification TranslateDataNotification(byte[]? received)
+    public static InterProcessDataNotification TranslateDataNotification(IReadOnlyList<byte>? received)
     {
-        if (received == null || received.Length == 0)
+        if (received == null || received.Count == 0)
             return new InterProcessDataNotification {HasError = true, ErrorNote = "No Data"};
 
         try
         {
-            var asString = Encoding.UTF8.GetString(received);
+            var asString = Encoding.UTF8.GetString(received.ToArray());
 
             if (string.IsNullOrWhiteSpace(asString))
                 return new InterProcessDataNotification {HasError = true, ErrorNote = "Data is Blank"};

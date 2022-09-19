@@ -8,9 +8,7 @@
   <Target Name="RemoveDuplicateAnalyzers" BeforeTargets="CoreCompile">
 
     <RemoveDuplicates Inputs="@(Analyzer)">
-      <Output
-        TaskParameter="Filtered"
-        ItemName="FilteredAnalyzer"/>
+      <Output TaskParameter="Filtered" ItemName="FilteredAnalyzer" />
     </RemoveDuplicates>
 
     <ItemGroup>
@@ -35,10 +33,10 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="gong-wpf-dragdrop" Version="3.1.1" />
+    <PackageReference Include="gong-wpf-dragdrop" Version="3.2.0" />
     <PackageReference Include="Markdig.Wpf" Version="0.5.0.1" />
     <PackageReference Include="Microsoft.Recognizers.Text.DateTime" Version="1.8.5" />
-    <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.1293.44" />
+    <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.1343.22" />
     <PackageReference Include="Ookii.Dialogs.Wpf" Version="5.0.1" />
     <PackageReference Include="System.Runtime.Caching" Version="6.0.0" />
     <PackageReference Include="TypeSupport" Version="1.1.12" />

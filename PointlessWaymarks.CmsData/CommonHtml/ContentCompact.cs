@@ -8,17 +8,25 @@ public static class ContentList
 {
     public static HtmlTag FromContentCommon(IContentCommon content)
     {
+        var linkTo = UserSettingsSingleton.CurrentSettings().ContentUrl(content.ContentId).Result;
+
         var listItemContainerDiv = new DivTag().AddClasses("content-list-item-container", "info-box");
         listItemContainerDiv.Data("title", content.Title);
-        listItemContainerDiv.Data("created", content.CreatedOn);
+        if (content is PhotoContent photoContent)
+        {
+            listItemContainerDiv.Data("created", photoContent.PhotoCreatedOn.ToString("s"));
+        }
+        else
+        {
+            listItemContainerDiv.Data("created", content.CreatedOn.ToString("s"));
+        }
         listItemContainerDiv.Data("updated", (content.LastUpdatedOn ?? content.CreatedOn).ToString("s"));
         listItemContainerDiv.Data("tags",
             string.Join(",", Db.TagListParseToSlugs(content, false)));
         listItemContainerDiv.Data("summary", content.Summary);
         listItemContainerDiv.Data("site-main-feed", content.ShowInMainSiteFeed);
-        listItemContainerDiv.Data("contenttype", ContentTypeToContentListItemFilterTag(content));
-
-        var linkTo = UserSettingsSingleton.CurrentSettings().ContentUrl(content.ContentId).Result;
+        listItemContainerDiv.Data("content-type", ContentTypeToContentListItemFilterTag(content));
+        listItemContainerDiv.Data("target-url", linkTo);
 
         if (content.MainPicture != null)
         {
@@ -87,13 +95,13 @@ public static class ContentList
         if (!string.IsNullOrWhiteSpace(content.Author)) titleList.Add(content.Author);
 
         linkListContent.Data("title", string.Join(" - ", titleList));
-        linkListContent.Data("created", content.CreatedOn);
+        linkListContent.Data("created", content.CreatedOn.ToString("s"));
         linkListContent.Data("updated", (content.LastUpdatedOn ?? content.CreatedOn).ToString("s"));
         linkListContent.Data("tags",
             string.Join(",", Db.TagListParseToSlugs(content.Tags, false)));
         linkListContent.Data("summary", $"{content.Description} {content.Comments}");
         linkListContent.Data("site-main-feed", false);
-        linkListContent.Data("contenttype", ContentTypeToContentListItemFilterTag(content));
+        linkListContent.Data("content-type", ContentTypeToContentListItemFilterTag(content));
 
         var compactContentMainTextContentDiv = new DivTag().AddClass("link-compact-text-content-container");
 
