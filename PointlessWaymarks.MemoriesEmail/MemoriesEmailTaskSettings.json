@@ -1,13 +1,13 @@
 {
-  "yearsBack": "1",
+  "yearsBack": [ 100, 90, 80, 70, 60, 50, 40, 30, 20, 10, 5, 3, 2, 1 ],
   "siteUrl": "http://example.com",
-  "basicAuthUser": "",
+  "basicAuthUserName": "",
   "basicAuthPassword": "",
   "smtpHost": "smtp.gmail.com",
-  "smtpPort": "587",
-  "enableSsl": "true",
-  "fromDisplayName":  "Pointless Waymarks Emailer",
+  "smtpPort": 587,
+  "enableSsl": true,
+  "fromDisplayName": "Pointless Waymarks Emailer",
   "fromEmailAddress": "",
   "fromEmailPassword": "",
-  "toAddressList":  ""
+  "toAddressList": ""
 }

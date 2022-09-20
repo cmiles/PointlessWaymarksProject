@@ -5,7 +5,7 @@ namespace PointlessWaymarks.MemoriesEmail;
 public record MemoriesSmtpEmailFromWebSettings
 {
 
-    public int YearsBack { get; set; } = 1;
+    public List<int> YearsBack { get; set; } = new() {10, 5, 2, 1};
 
     [Required(ErrorMessage = "Site Url Is Required - example: https://example.com")]
     public string SiteUrl { get; set; } = string.Empty;

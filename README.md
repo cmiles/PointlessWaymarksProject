@@ -18,7 +18,7 @@ Details:
  - Windows Desktop WPF GUI Editor - no hosting to pay for, no server to maintain, no containers to orchestrate... WPF because it is my favorite Windows GUI technology atm and because the experimentation/learning/coding I do here flows back into my day job where I help to create and maintain a Retail Inventory Management and Reporting system that has a WPF Front End.
  - Focus on Content and Simple Functional Presentation - my experience is that websites that focus on a simple presentations of interesting content can survive, have impact and be meaningful for many many years (indefinitely?) without heavy revisions, constant updates or conversion into the latest style/newest framework.
 
-Todo Lists, Idea Lists and a Development Log are [found in a DevNotes.md file that is versioned along with the code](PointlessWaymarksCmsContentEditor/DevNotes.md).
+Todo Lists, Idea Lists and a Development Log are [found in a DevNotes.md file that is versioned along with the code](/DevNotes.md).
 
 If you have questions or comments please contact me at PointlessWaymarks@gmail.com - as noted above there is currently no intent to create public releases. Using this software is probably only reasonable if you don't mind (enjoy!) a little debugging and bug fixing...
 
@@ -34,7 +34,7 @@ Options to launch recent projects or create a new project.
 
 The first tab in the application is an All Content list. Like all of the lists you can sort and filter to find content and then use commands from the menu bar, context menu and quick action buttons to edit, update and create content. The default sorting puts the most recently updated/created items at the top which often means this list all you need to work efficiently. All lists update automatically in the background to reflect the latest changes.
 
-![Posts List](PointlessWaymarks.CmsScreenShots/AllContentList.jpg "All Content List")
+![All Content List](PointlessWaymarks.CmsScreenShots/AllContentList.jpg "All Content List")
 
 Each Content Type has a dedicated list that allows access to content-specific commands not available in the All Content list. Content lists start by loading a limited number of recent entries - this allows even very large lists to load quickly and show the content you are likely to be actively working on, with the full list only a quick button click away.
 
@@ -88,7 +88,13 @@ One important reason that a local viewer is included is that not all content nee
 
 ### Password Protected Sites via Cloudflare Workers
 
-Not currently incorporated into the program in any way, but included in this repo, is a simple Cloudflare Worker script for Basic Auth (Use with caution! This is only lightly tested...). This provides a very simple zero cost (Cloudflare Workers are available on their free plan) way to password protect a site. There is no sense of 'user accounts' or options to change/recover passwords so this is only relevant in limited scenarios, but I have found this to be a nice way to put content online for myself, friends and family without making it public.
+Not currently incorporated into the program in any way, but included in this repo, is a simple Cloudflare Worker script for Basic Auth (I have used this successfully for over a year but Cloudflare Workers aren't my current passion so use with caution...). This provides a very simple zero cost (Cloudflare Workers are available on their free plan) way to password protect a site. There is no sense of 'user accounts' or options to change/recover passwords so this is only relevant in limited scenarios, but I have found this to be a nice way to put content online for myself, friends and family without making it public.
+
+## 'Memories' Email
+
+The 'PointlessWaymarks.MemoriesEmail' console app can generate an email with links to items created in previous years on the site. The app is driven by a settings file where you can setup the years back, email settings and what site to get information from. This can be setup in the Windows Task Scheduler to run daily for fun/interesting emails about past content!
+
+![Memories Email](PointlessWaymarks.CmsScreenShots/MemoriesEmail.jpg "Memories Email")
 
 ## Elements of this Software that might be Reused
 
@@ -150,6 +156,9 @@ Packages/Libraries/Services:
  - [replaysMike/TypeSupport: A CSharp library that makes it easier to work with Types dynamically.](https://github.com/replaysMike/TypeSupport) - When working with generic and dynamic types I appreciate some of the extension methods provided by this library to handle details like .IsNumericType that often seem to descend into endless edge cases when you try to write it yourself. GPL-3.0 License.
  - [Microsoft.Recognizers.Text provides recognition and resolution of numbers, units, and date/time expressed in multiple languages](https://github.com/microsoft/Recognizers-Text) - An impressive Date and Time parsing library - the output is detailed and uses generic string/object data types (rather than custom .NET types) so takes some work to parse, but the excellent results and ability to easily recognize when the user has only input a date, or only a time, or both, or a range... is powerful. MIT License. 
  - [Automate multiple Excel instances - CodeProject](https://www.codeproject.com/Articles/1157395/Automate-multiple-Excel-instances) - James Faix's excellent code for getting references to running Excel instances was pulled into this project, converted for style and upgraded to .NET 5. The basic approach in this article comes from a 2005 post by Andrew Whitechapel titled 'Getting the Application Object in a Shimmed Automation Add-in' - http://blogs.officezealot.com/whitechapel/archive/2005/04/10/4514.aspx. The post by Andrew Whitechapel is now only available thru the Wayback Machine - [Andrew Whitechapel : Getting the Application Object in a Shimmed Automation Add-in](https://web.archive.org/web/20130518152056/http://blogs.officezealot.com/whitechapel/archive/2005/04/10/4514.aspx)
+ - [zzzprojects/html-agility-pack: Html Agility Pack (HAP) is a free and open-source HTML parser written in C# to read/write DOM and supports plain XPATH or XSLT. It is a .NET code library that allows you to parse "out of the web" HTML files.](https://github.com/zzzprojects/html-agility-pack) - Used in the Memories email program to parse html. MIT License.
+ - [SebastianStehle/mjml-net](https://github.com/SebastianStehle/mjml-net) - An unofficial port of [Mailjet Markup Language](https://mjml.io/) for .NET - this is a good way to ease the pain of building HTML for email. MIT License.
+ - [IdentityModel/IdentityModel: .NET standard helper library for claims-based identity, OAuth 2.0 and OpenID Connect.](https://github.com/IdentityModel/IdentityModel) - Apache 2.0 License.
  - [serilog/serilog: Simple .NET logging with fully-structured events](https://github.com/serilog/serilog). Easy full featured logging. Apache-2.0 License.
    - [RehanSaeed/Serilog.Exceptions: Log exception details and custom properties that are not output in Exception.ToString().](https://github.com/RehanSaeed/Serilog.Exceptions) MIT License.
    - [serilog/serilog-formatting-compact: Compact JSON event format for Serilog](https://github.com/serilog/serilog-formatting-compact). Apache-2.0 License.

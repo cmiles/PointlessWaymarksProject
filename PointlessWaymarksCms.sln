@@ -20,15 +20,17 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{92A969F8-6B12-41B2-B393-C87402CCF53D}"
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
+		DevNotes.md = DevNotes.md
 		Directory.Build.props = Directory.Build.props
 		global.json = global.json
+		README.md = README.md
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PointlessWaymarks.ExcelInteropExtensions", "PointlessWaymarks.ExcelInteropExtensions\PointlessWaymarks.ExcelInteropExtensions.csproj", "{08337AB5-00B2-449D-8E64-1525E1F50CEE}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PointlessWaymarks.LocalViewer", "PointlessWaymarks.LocalViewer\PointlessWaymarks.LocalViewer.csproj", "{C913970C-2489-402D-9F3A-08F0BE806F6A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PointlessWaymarks.MemoriesEmail", "PointlessWaymarks.MemoriesEmail\PointlessWaymarks.MemoriesEmail.csproj", "{057D3F70-A452-4FCE-B9FC-90E0D9F8592A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PointlessWaymarks.MemoriesEmail", "PointlessWaymarks.MemoriesEmail\PointlessWaymarks.MemoriesEmail.csproj", "{057D3F70-A452-4FCE-B9FC-90E0D9F8592A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

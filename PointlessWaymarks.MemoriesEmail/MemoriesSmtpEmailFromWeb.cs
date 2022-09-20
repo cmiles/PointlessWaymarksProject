@@ -33,15 +33,17 @@ namespace PointlessWaymarks.MemoriesEmail
             try
             {
                 var settingsFileJsonString = await File.ReadAllTextAsync(settingsFileInfo.FullName);
-                var tryReadSettings = JsonSerializer.Deserialize<MemoriesSmtpEmailFromWebSettings>(settingsFileJsonString);
+                var tryReadSettings =
+                    JsonSerializer.Deserialize<MemoriesSmtpEmailFromWebSettings>(settingsFileJsonString, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 
                 if (tryReadSettings == null)
                 {
-                    Log.Error("Settings file {settingsFile} deserialized into a null object - is the format correct?", settingsFile);
+                    Log.Error("Settings file {settingsFile} deserialized into a null object - is the format correct?",
+                        settingsFile);
                     return;
                 }
 
-                settings = tryReadSettings!;
+                settings = tryReadSettings;
             }
             catch (Exception e)
             {
@@ -53,37 +55,39 @@ namespace PointlessWaymarks.MemoriesEmail
             var validationContext = new ValidationContext(settings, serviceProvider: null, items: null);
             var simpleValidationResults = new List<ValidationResult>();
             var simpleValidationPassed = Validator.TryValidateObject(
-                settingsFile, validationContext, simpleValidationResults,
+                settings, validationContext, simpleValidationResults,
                 validateAllProperties: true
             );
 
             if (!simpleValidationPassed)
             {
-                Log.ForContext("SimpleValidationErrors", simpleValidationResults.Dump()).Error("Validating data from {settingFile} failed.", settingsFile);
+                Log.ForContext("SimpleValidationErrors", simpleValidationResults.Dump())
+                    .Error("Validating data from {settingFile} failed.", settingsFile);
                 simpleValidationResults.ForEach(Console.WriteLine);
                 return;
             }
 
-            Log.ForContext("settings", settings.Dump(new DumpOptions() {ExcludeProperties = new List<string> { nameof(settings.FromEmailPassword) } })).Information("Settings Passed Basic Validation - Settings File {settingsFile}", settingsFile);
+            Log.ForContext("settings",
+                    settings.Dump(new DumpOptions()
+                        { ExcludeProperties = new List<string> { nameof(settings.FromEmailPassword) } }))
+                .Information("Settings Passed Basic Validation - Settings File {settingsFile}", settingsFile);
 
             var httpClient = new HttpClient();
-            if (!string.IsNullOrWhiteSpace(settings.BasicAuthUserName) && !string.IsNullOrWhiteSpace(settings.BasicAuthPassword))
+            if (!string.IsNullOrWhiteSpace(settings.BasicAuthUserName) &&
+                !string.IsNullOrWhiteSpace(settings.BasicAuthPassword))
             {
                 Log.Information("Setting Up HttpClient with Basic Auth Headers");
-                httpClient.DefaultRequestHeaders.Authorization = new BasicAuthenticationHeaderValue(settings.BasicAuthUserName, settings.BasicAuthPassword);
+                httpClient.DefaultRequestHeaders.Authorization =
+                    new BasicAuthenticationHeaderValue(settings.BasicAuthUserName, settings.BasicAuthPassword);
             }
-
-            var targetDate = settings.ReferenceDate.AddYears(-Math.Abs(settings.YearsBack));
-            var targetDateString = targetDate.ToString("yyyy-MM-dd");
-
-            Log.Information("Target Date Set To {targetDate}", targetDateString);
 
             var credentials = new NetworkCredential(settings.BasicAuthUserName, settings.BasicAuthPassword);
 
             var allContent = new HtmlWeb();
             var indexDoc = await allContent.LoadFromWebAsync($"{settings.SiteUrl}", credentials);
 
-            Log.Verbose("Loaded {siteUrl} - Inner Length {indexInnerLength}", settings.SiteUrl, indexDoc.DocumentNode.InnerLength);
+            Log.Verbose("Loaded {siteUrl} - Inner Length {indexInnerLength}", settings.SiteUrl,
+                indexDoc.DocumentNode.InnerLength);
 
             var siteTitleNode = indexDoc.DocumentNode.SelectSingleNode("//title");
             var siteTitle = siteTitleNode == null ? string.Empty : HtmlEntity.DeEntitize(siteTitleNode.InnerText);
@@ -92,7 +96,8 @@ namespace PointlessWaymarks.MemoriesEmail
             var allContentUrl = $"{settings.SiteUrl}/AllContentList.html";
             var allContentDoc = await allContent.LoadFromWebAsync(allContentUrl, credentials);
 
-            Log.Verbose("Loaded {allContentUrl} - Inner Length {allContentInnerLength}", allContentUrl, allContentDoc.DocumentNode.InnerLength);
+            Log.Verbose("Loaded {allContentUrl} - Inner Length {allContentInnerLength}", allContentUrl,
+                allContentDoc.DocumentNode.InnerLength);
 
             //This should match the list nodes - FRAGILE, class changes will break this...
             var items = allContentDoc.DocumentNode.SelectNodes("//div[contains(@class,'content-list-item-container')]");
@@ -105,137 +110,157 @@ namespace PointlessWaymarks.MemoriesEmail
 
             Log.Verbose("{allContentUrl} - Content List Items {contentItemCount}", allContentUrl, items.Count);
 
-            var targetDateMatchItems = new List<(string itemUrl, string imageUrl, string title, string itemType)>();
-
-            var currentItem = 0;
-
             Console.WriteLine($"Content Processing - Starting - {items.Count} Items");
 
-            foreach (var loopNode in items)
-            {
-                currentItem++;
-
-                if(currentItem % (items.Count / 10) == 0) Console.WriteLine($"  Content Processing - {currentItem} of {items.Count}");
-
-                //Get the url for this item - if it isn't present continue (nothing to do, can't link to it...)
-                var linkToUrl = loopNode.GetAttributeValue("data-target-url", string.Empty);
-                if (string.IsNullOrWhiteSpace(linkToUrl)) continue;
-
-                //Get the Title for this item - if it isn't present continue (not sure what that would mean...)
-                var linkToTitle = loopNode.GetAttributeValue("data-title", string.Empty);
-                if (string.IsNullOrWhiteSpace(linkToTitle)) continue;
-
-                //Get the date and check for a match
-                var dateCreated = loopNode.GetAttributeValue("data-created", string.Empty);
-                var type = loopNode.GetAttributeValue("data-content-type", string.Empty);
-                if (string.IsNullOrWhiteSpace(dateCreated) || string.IsNullOrWhiteSpace(type)) continue;
-                if (!dateCreated.StartsWith(targetDateString)) continue;
-
-                //Try to find an image and extract the url of an appropriate 
-                var imageUrl = string.Empty;
-
-                var imgNode = loopNode.SelectSingleNode(".//img");
-                if (imgNode != null)
-                {
-                    var imgSrcSet = imgNode.GetAttributeValue("srcset", string.Empty);
-
-                    if (string.IsNullOrWhiteSpace(imgSrcSet)) return;
-
-                    var rawImageList = imgSrcSet.Split(",", StringSplitOptions.RemoveEmptyEntries).Select(n => n.Trim());
-
-                    var imageList = new List<(int size, string url)>();
-
-                    foreach (var loopImages in rawImageList)
-                    {
-                        var urlAndSize = loopImages.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-                        if (urlAndSize.Length != 2 || urlAndSize.Any(string.IsNullOrWhiteSpace)) continue;
-                        var sizeParsed = int.TryParse(urlAndSize[1][..^1], out var parsedSize);
-                        if (!sizeParsed) continue;
-                        imageList.Add((parsedSize, urlAndSize[0]));
-                    }
-
-                    imageUrl = imageList.Where(x => x.size <= 700).MaxBy(x => x.size).url;
-                }
-
-                targetDateMatchItems.Add((linkToUrl, imageUrl, linkToTitle, type));
-            }
-
-            if (!targetDateMatchItems.Any())
-            {
-                Log.Information("No Items Found on Target Date - Ending...");
-                return;
-            }
-
             var textInfo = new CultureInfo("en-US", false).TextInfo;
-
-            var mjmlRenderer = new MjmlRenderer();
 
             var fromAddress = new MailAddress(settings.FromEmailAddress, settings.FromDisplayName);
             var toAddress = settings.ToAddressList.Split(";", StringSplitOptions.RemoveEmptyEntries)
                 .Select(x => new MailAddress(x.Trim())).ToList();
 
-            var subject = $"[{(string.IsNullOrWhiteSpace(siteTitle) ? settings.SiteUrl : siteTitle)}] {settings.YearsBack} Year{(settings.YearsBack > 1 ? "s" : "")} Ago...";
-
-
             var message = new MailMessage()
             {
-                Subject = subject,
                 IsBodyHtml = true
             };
 
             message.From = fromAddress;
             toAddress.ForEach(x => message.To.Add(x));
 
-            var groupedItems = targetDateMatchItems.GroupBy(x => x.itemType).ToList();
-
-            var imageCarouselMjmlLines = new List<string>();
-
             var contentSections = new List<string>();
+            var yearsWithContent = new List<int>();
 
             long attachmentLimit = 24117248;
             long attachmentTotal = 0;
 
-            var imageItems = groupedItems.Where(x => x.Key.Equals("image", StringComparison.OrdinalIgnoreCase))
-                .SelectMany(x => x).ToList();
-
-            Log.Information("Found {imageCount} Images to Add to the Email", imageItems);
-
-            var imagesProcessed = 0;
-
-            Console.WriteLine($"Image Processing - Starting - {imageItems.Count} Images");
-
-            foreach (var loopItems in imageItems)
+            foreach (var loopYearsBack in settings.YearsBack)
             {
-                imagesProcessed++;
+                var currentItem = 0;
 
-                if (attachmentTotal > attachmentLimit)
+                var targetDateMatchItems = new List<(string itemUrl, string imageUrl, string title, string itemType)>();
+
+                var targetDate = settings.ReferenceDate.AddYears(-Math.Abs(loopYearsBack));
+                var targetDateString = targetDate.ToString("yyyy-MM-dd");
+
+                Log.Information("Checking for Target Date {targetDate}", targetDateString);
+
+                foreach (var loopNode in items)
                 {
-                    Log.Information("Adding Images ended because the Current Size of the Attachments ({attachmentTotal}) exceeds the Limit set by the Program ({attachmentLimit}) - Image Number {imagesProcessed} of {totalImages} Total Images", attachmentTotal, attachmentLimit, imagesProcessed, imageItems.Count);
-                    break;
+                    currentItem++;
+
+                    if (currentItem % (items.Count / 10) == 0)
+                        Console.WriteLine($"  Content Processing - {currentItem} of {items.Count}");
+
+                    //Get the url for this item - if it isn't present continue (nothing to do, can't link to it...)
+                    var linkToUrl = loopNode.GetAttributeValue("data-target-url", string.Empty);
+                    if (string.IsNullOrWhiteSpace(linkToUrl)) continue;
+
+                    //Get the Title for this item - if it isn't present continue (not sure what that would mean...)
+                    var linkToTitle = loopNode.GetAttributeValue("data-title", string.Empty);
+                    if (string.IsNullOrWhiteSpace(linkToTitle)) continue;
+
+                    //Get the date and check for a match
+                    var dateCreated = loopNode.GetAttributeValue("data-created", string.Empty);
+                    var type = loopNode.GetAttributeValue("data-content-type", string.Empty);
+                    if (string.IsNullOrWhiteSpace(dateCreated) || string.IsNullOrWhiteSpace(type)) continue;
+                    if (!dateCreated.StartsWith(targetDateString)) continue;
+
+                    //Try to find an image and extract the url of an appropriate 
+                    var imageUrl = string.Empty;
+
+                    var imgNode = loopNode.SelectSingleNode(".//img");
+                    if (imgNode != null)
+                    {
+                        var imgSrcSet = imgNode.GetAttributeValue("srcset", string.Empty);
+
+                        if (string.IsNullOrWhiteSpace(imgSrcSet)) continue;
+
+                        var rawImageList = imgSrcSet.Split(",", StringSplitOptions.RemoveEmptyEntries)
+                            .Select(n => n.Trim());
+
+                        var imageList = new List<(int size, string url)>();
+
+                        foreach (var loopImages in rawImageList)
+                        {
+                            var urlAndSize = loopImages.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+                            if (urlAndSize.Length != 2 || urlAndSize.Any(string.IsNullOrWhiteSpace)) continue;
+                            var sizeParsed = int.TryParse(urlAndSize[1][..^1], out var parsedSize);
+                            if (!sizeParsed) continue;
+                            imageList.Add((parsedSize, urlAndSize[0]));
+                        }
+
+                        imageUrl = imageList.Where(x => x.size <= 700).MaxBy(x => x.size).url;
+                    }
+
+                    targetDateMatchItems.Add((linkToUrl, imageUrl, linkToTitle, type));
                 }
 
-                Console.WriteLine($"  Downloading {loopItems.imageUrl}");
-                var imageBytes = await httpClient.GetByteArrayAsync(loopItems.imageUrl);
+                if (!targetDateMatchItems.Any())
+                {
+                    Log.Information("No Items Found on Target Date {targetDate} - Ending...", targetDateString);
+                    continue;
+                }
 
-                attachmentTotal += imageBytes.Length;
+                yearsWithContent.Add(loopYearsBack);
 
-                var contentId = Guid.NewGuid().ToString();
+                contentSections.Add($"""               
+                            <mj-section>
+                                <mj-column>
+                    				<mj-text align="center" font-size="14px">
+                                    {(string.IsNullOrWhiteSpace(siteTitle) ? "C" : $"{siteTitle} c")}ontent created {loopYearsBack}
+                                     year{(loopYearsBack > 1 ? "s" : "")} ago ({targetDateString}).
+                    				</mj-text>
+                                </mj-column>
+                            </mj-section>
+                    """);
 
-                var imageEmbed = new Attachment(new MemoryStream(imageBytes), new System.Net.Mime.ContentType("image/jpeg"));
-                imageEmbed.ContentId = contentId;
-                imageEmbed.ContentDisposition.Inline = true;
-                imageEmbed.ContentDisposition.DispositionType = DispositionTypeNames.Inline;
+                var groupedItems = targetDateMatchItems.GroupBy(x => x.itemType).ToList();
 
-                message.Attachments.Add(imageEmbed);
+                var imageCarouselMjmlLines = new List<string>();
 
-                imageCarouselMjmlLines.Add($"""
+                var imageItems = groupedItems.Where(x => x.Key.Equals("image", StringComparison.OrdinalIgnoreCase))
+                    .SelectMany(x => x).ToList();
+
+                Log.Information("Found {imageCount} Images to Add to the Email", imageItems);
+
+                var imagesProcessed = 0;
+
+                Console.WriteLine($"Image Processing - Starting - {imageItems.Count} Images");
+
+                foreach (var loopItems in imageItems)
+                {
+                    imagesProcessed++;
+
+                    if (attachmentTotal > attachmentLimit)
+                    {
+                        Log.Information(
+                            "Adding Images ended because the Current Size of the Attachments ({attachmentTotal}) exceeds the Limit set by the Program ({attachmentLimit}) - Image Number {imagesProcessed} of {totalImages} Total Images",
+                            attachmentTotal, attachmentLimit, imagesProcessed, imageItems.Count);
+                        break;
+                    }
+
+                    Console.WriteLine($"  Downloading {loopItems.imageUrl}");
+                    var imageBytes = await httpClient.GetByteArrayAsync(loopItems.imageUrl);
+
+                    attachmentTotal += imageBytes.Length;
+
+                    var contentId = Guid.NewGuid().ToString();
+
+                    var imageEmbed = new Attachment(new MemoryStream(imageBytes),
+                        new System.Net.Mime.ContentType("image/jpeg"));
+                    imageEmbed.ContentId = contentId;
+                    imageEmbed.ContentDisposition.Inline = true;
+                    imageEmbed.ContentDisposition.DispositionType = DispositionTypeNames.Inline;
+
+                    message.Attachments.Add(imageEmbed);
+
+                    imageCarouselMjmlLines.Add($"""
 	<mj-carousel-image src="cid:{contentId}" />
-""");
-            }
+""" );
+                }
 
-            if (imageCarouselMjmlLines.Any())
-            {
-                contentSections.Add($"""
+                if (imageCarouselMjmlLines.Any())
+                {
+                    contentSections.Add($"""
 <mj-section>
       <mj-column>
         <mj-carousel>
@@ -243,55 +268,68 @@ namespace PointlessWaymarks.MemoriesEmail
         </mj-carousel>
       </mj-column>
     </mj-section>
-""");
-            }
-
-            foreach (var loopItems in groupedItems)
-            {
-                Log.Information("Found {contentItemCount} {contentType} Items to Process", loopItems.Count(), loopItems.Key);
-
-                var itemTexts = new List<string>();
-                foreach (var loopItem in loopItems)
-                {
-                    itemTexts.Add($"""
-		<mj-text padding-left="14px" padding-top="2px"><a href="{loopItem.itemUrl}">{loopItem.title}</a></mj-text>
-		""");
+""" );
                 }
 
-                contentSections.Add($"""
+                foreach (var loopItems in groupedItems)
+                {
+                    Log.Information("Found {contentItemCount} {contentType} Items to Process", loopItems.Count(),
+                        loopItems.Key);
+
+                    var itemTexts = new List<string>();
+                    foreach (var loopItem in loopItems)
+                    {
+                        itemTexts.Add($"""
+		<mj-text padding-left="14px" padding-top="2px"><a href="{ loopItem.itemUrl}">{ loopItem.title}</a></mj-text>
+		""" );
+                    }
+
+                    contentSections.Add($"""
 <mj-section>
 	<mj-column>
-		<mj-text font-size="14px" padding-left="0px">{textInfo.ToTitleCase(loopItems.Key)}{(loopItems.Count() > 1 ? "s" : string.Empty)}:</mj-text>
+		<mj-text font-size="14px" padding-left="0px">{ textInfo.ToTitleCase(loopItems.Key)}{(loopItems.Count() > 1
+            ? "s"
+            : string.Empty)}:</mj-text>
 			{string.Join(Environment.NewLine, itemTexts)}
 	</mj-column>
 </mj-section>
-""");
+""" );
+                }
             }
 
+            if (!contentSections.Any())
+            {
+                Log.Information("No Content Found for Any Referenced Year/Date");
+                return;
+            }
+
+            var yearTextList = yearsWithContent.Count > 1 ? string.Join(", ", yearsWithContent.Take(yearsWithContent.Count - 1)) + " and " + yearsWithContent.Last() : yearsWithContent.First().ToString();
+
+            var subject =
+            $"[{(string.IsNullOrWhiteSpace(siteTitle) ? settings.SiteUrl : siteTitle)}] {yearTextList} Year{(yearTextList.Equals("1") ? "" : "s")} Ago...";
+            message.Subject = subject;
+
             var text = $"""
-<mjml>
+
+            <mjml>
     <mj-head>
-        <mj-title>{(string.IsNullOrWhiteSpace(siteTitle) ? settings.SiteUrl : siteTitle)} Content from {targetDateString}</mj-title>
+        <mj-title>
+            { (string.IsNullOrWhiteSpace(siteTitle) ? settings.SiteUrl : siteTitle)} Content from {yearTextList} Year{(yearTextList.Equals("1") ? "" : "s")} Ago...</mj-title>
     </mj-head>
     <mj-body>
 	    <mj-section>
       		<mj-column>
-        		<mj-text align="center" font-size="30px"><a href="{settings.SiteUrl}">{(string.IsNullOrWhiteSpace(siteTitle) ? settings.SiteUrl : siteTitle)}</a></mj-text>
+        		<mj-text align="center" font-size="30px"><a href="{ settings.SiteUrl}">{
+                    (string.IsNullOrWhiteSpace(siteTitle) ? settings.SiteUrl : siteTitle)}</a></mj-text>
 	      	</mj-column>
 	    </mj-section>
-	    <mj-section>
-            <mj-column>
-				<mj-text align="center" font-size="14px">
-                {(string.IsNullOrWhiteSpace(siteTitle) ? "C" : $"{siteTitle} c")}ontent created {settings.YearsBack} year{(settings.YearsBack > 1 ? "s" : "")} ago ({targetDateString}).
-				</mj-text>
-            </mj-column>
-        </mj-section>
-        {string.Join(Environment.NewLine, contentSections)}
+        { string.Join(Environment.NewLine, contentSections)}
     </mj-body>
 </mjml>
-""";
+""" ;
 
             Console.WriteLine("Rendering Email");
+            var mjmlRenderer = new MjmlRenderer();
             var html = mjmlRenderer.Render(text).Html;
             message.Body = html;
 
