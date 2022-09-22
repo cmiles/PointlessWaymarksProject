@@ -19,7 +19,7 @@ public partial class FileListWithActionsContext
     [ObservableProperty] private RelayCommand _fileEmbedCodesToClipboardForSelectedCommand;
     [ObservableProperty] private RelayCommand _filePageLinkCodesToClipboardForSelectedCommand;
     [ObservableProperty] private RelayCommand _fileUrlLinkCodesToClipboardForSelectedCommand;
-    [ObservableProperty] private RelayCommand _firstPagePreviewFromPdfToCairoCommand;
+    [ObservableProperty] private RelayCommand _firstPagePreviewFromPdfCommand;
     [ObservableProperty] private ContentListContext _listContext;
     [ObservableProperty] private RelayCommand _refreshDataCommand;
     [ObservableProperty] private StatusControlContext _statusContext;
@@ -149,7 +149,7 @@ public partial class FileListWithActionsContext
         StatusContext.ToastSuccess($"To Clipboard {finalString}");
     }
 
-    private async Task FirstPagePreviewFromPdfToCairo()
+    private async Task FirstPagePreviewFromPdf()
     {
         var selected = SelectedItems();
 
@@ -159,7 +159,7 @@ public partial class FileListWithActionsContext
             return;
         }
 
-        await ImageExtractionHelpers.PdfPageToImageWithPdfToCairo(StatusContext, selected.Select(x => x.DbEntry).ToList(), 1);
+        await ImageExtractionHelpers.PdfPageToImage(StatusContext, selected.Select(x => x.DbEntry).ToList(), 1);
     }
 
     private async Task LoadData()
@@ -179,7 +179,7 @@ public partial class FileListWithActionsContext
             StatusContext.RunBlockingTaskCommand(FileUrlLinkCodesToClipboardForSelected);
         ViewFilesCommand = StatusContext.RunBlockingTaskWithCancellationCommand(ViewFilesSelected, "Cancel File View");
 
-        FirstPagePreviewFromPdfToCairoCommand = StatusContext.RunBlockingTaskCommand(FirstPagePreviewFromPdfToCairo);
+        FirstPagePreviewFromPdfCommand = StatusContext.RunBlockingTaskCommand(FirstPagePreviewFromPdf);
 
         EmailHtmlToClipboardCommand = StatusContext.RunBlockingTaskCommand(EmailHtmlToClipboard);
 

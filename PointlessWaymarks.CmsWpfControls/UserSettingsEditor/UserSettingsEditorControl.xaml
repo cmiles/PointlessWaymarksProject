@@ -288,20 +288,7 @@
                             </b:Interaction.Behaviors>
                         </wpf:MarkdownViewer>
                     </StackPanel>
-                    <StackPanel Orientation="Vertical">
-                        <Label Style="{StaticResource DataEntryLabelStyle}" Target="{Binding ElementName=PdfToCairoDirectoryTextBox}">
-                            pdftocairo.exe Directory (Can be found in the MiKTeX)
-                        </Label>
-                        <TextBox
-                            Name="PdfToCairoDirectoryTextBox"
-                            Style="{StaticResource DataEntryTextBoxSingleLineStyle}"
-                            Text="{Binding EditorSettings.PdfToCairoExeDirectory, UpdateSourceTrigger=PropertyChanged}" />
-                        <wpf:MarkdownViewer Markdown="{Binding HelpMarkdownPdfToCairo}">
-                            <b:Interaction.Behaviors>
-                                <behaviors:IgnoreMouseWheelBehavior />
-                            </b:Interaction.Behaviors>
-                        </wpf:MarkdownViewer>
-                    </StackPanel>
+                    
                     <StackPanel Orientation="Vertical">
                         <Label Style="{StaticResource DataEntryLabelStyle}" Target="{Binding ElementName=S3BucketTextBox}">
                             Amazon S3

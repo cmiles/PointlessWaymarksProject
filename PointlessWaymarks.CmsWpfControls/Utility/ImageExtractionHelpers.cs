@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System.Drawing;
+using System.IO;
 using Windows.Graphics.Imaging;
 using Windows.Media.Editing;
 using Windows.Storage;
@@ -12,40 +13,16 @@ using PointlessWaymarks.CmsWpfControls.ImageContentEditor;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 using PointlessWaymarks.WpfCommon.Utility;
+using Windows.Data.Pdf;
 
 namespace PointlessWaymarks.CmsWpfControls.Utility;
 
 public static class ImageExtractionHelpers
 {
-    public static async Task PdfPageToImageWithPdfToCairo(StatusControlContext statusContext,
+    public static async Task PdfPageToImage(StatusControlContext statusContext,
         List<FileContent> selected, int pageNumber)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
-
-
-        var pdfToCairoDirectoryString = UserSettingsSingleton.CurrentSettings().PdfToCairoExeDirectory;
-        if (string.IsNullOrWhiteSpace(pdfToCairoDirectoryString))
-        {
-            statusContext.ToastError(
-                "Sorry - this function requires that pdftocairo.exe be on the system - please set the directory... ");
-            return;
-        }
-
-        var pdfToCairoDirectory = new DirectoryInfo(pdfToCairoDirectoryString);
-        if (!pdfToCairoDirectory.Exists)
-        {
-            statusContext.ToastError(
-                $"{pdfToCairoDirectory.FullName} doesn't exist? Check your pdftocairo bin directory setting.");
-            return;
-        }
-
-        var pdfToCairoExe = new FileInfo(Path.Combine(pdfToCairoDirectory.FullName, "pdftocairo.exe"));
-        if (!pdfToCairoExe.Exists)
-        {
-            statusContext.ToastError(
-                $"{pdfToCairoExe.FullName} doesn't exist? Check your pdftocairo bin directory setting.");
-            return;
-        }
 
         var toProcess = new List<(FileInfo targetFile, FileInfo destinationFile, FileContent content)>();
 
@@ -65,17 +42,17 @@ public static class ImageExtractionHelpers
             {
                 destinationFile = new FileInfo(Path.Combine(UserSettingsUtilities.TempStorageDirectory().FullName,
                     $"{Path.GetFileNameWithoutExtension(targetFile.Name)}-CoverPage.jpg"));
-
-                if (destinationFile.Exists)
-                {
-                    destinationFile.Delete();
-                    destinationFile.Refresh();
-                }
             }
             else
             {
                 destinationFile = new FileInfo(Path.Combine(UserSettingsUtilities.TempStorageDirectory().FullName,
                     $"{Path.GetFileNameWithoutExtension(targetFile.Name)}-Page.jpg"));
+            }
+
+            if (destinationFile.Exists)
+            {
+                destinationFile.Delete();
+                destinationFile.Refresh();
             }
 
             toProcess.Add((targetFile, destinationFile, loopSelected));
@@ -95,60 +72,28 @@ public static class ImageExtractionHelpers
                 continue;
             }
 
-            var executionParameters = pageNumber == 1
-                ? $"-jpeg -singlefile \"{targetFile.FullName}\" \"{Path.Combine(destinationFile.Directory.FullName, Path.GetFileNameWithoutExtension(destinationFile.FullName))}\""
-                : $"-jpeg -f {pageNumber} -l {pageNumber} \"{targetFile.FullName}\" \"{Path.Combine(destinationFile.Directory.FullName, Path.GetFileNameWithoutExtension(destinationFile.FullName))}\"";
+            var file = await StorageFile.GetFileFromPathAsync(targetFile.FullName);
+            var pdfDocument = await PdfDocument.LoadFromFileAsync(file);
+            var pageIndex = (uint)pageNumber - 1;
 
-            var (success, _, errorOutput) = ProcessHelpers.ExecuteProcess(pdfToCairoExe.FullName,
-                executionParameters, statusContext.ProgressTracker());
+            var destinationStorageDirectory =
+                await StorageFolder.GetFolderFromPathAsync(destinationFile.Directory.FullName);
+            var destinationStorageFile = await destinationStorageDirectory.CreateFileAsync(destinationFile.Name);
 
-            if (!success)
+            using (var pdfPage = pdfDocument.GetPage(pageIndex))
+            using (var transaction = await destinationStorageFile.OpenTransactedWriteAsync())
             {
-                if (await statusContext.ShowMessage("PDF Generation Problem",
-                        $"Execution Failed for {content.Title} - Continue??{Environment.NewLine}{errorOutput}",
-                        new List<string> { "Yes", "No" }) == "No")
-                    return;
-
-                continue;
-            }
-
-            FileInfo updatedDestination = null;
-
-            if (pageNumber == 1)
-            {
-                //With the singlefile option pdftocairo uses your filename directly
-                destinationFile.Refresh();
-                updatedDestination = destinationFile;
-            }
-            else
-            {
-                var directoryToSearch = destinationFile.Directory;
-
-                var possibleFiles = directoryToSearch
-                    .EnumerateFiles($"{Path.GetFileNameWithoutExtension(destinationFile.Name)}-*.jpg").ToList();
-
-                foreach (var loopFiles in possibleFiles)
+                var pdfPageRenderOptions = new PdfPageRenderOptions
                 {
-                    var fileNamePageNumber = loopFiles.Name.Split("-Page-").ToList().Last().Replace(".jpg", "");
+                    DestinationHeight = (uint)pdfPage.Size.Height * 2,
+                    DestinationWidth = (uint)pdfPage.Size.Width * 2,
+                    BitmapEncoderId = BitmapEncoder.JpegEncoderId
+                };
 
-                    if (int.TryParse(fileNamePageNumber, out var possiblePageNumber) &&
-                        possiblePageNumber == pageNumber)
-                    {
-                        updatedDestination = loopFiles;
-                        break;
-                    }
-                }
+                await pdfPage.RenderToStreamAsync(transaction.Stream, pdfPageRenderOptions);
             }
 
-            if (updatedDestination is not { Exists: true })
-            {
-                if (await statusContext.ShowMessage("PDF Generation Problem",
-                        $"Execution Failed for {content.Title} - Continue??{Environment.NewLine}{errorOutput}",
-                        new List<string> { "Yes", "No" }) == "No")
-                    return;
-
-                continue;
-            }
+            destinationFile.Refresh();
 
             await ThreadSwitcher.ResumeForegroundAsync();
 
@@ -161,7 +106,7 @@ public static class ImageExtractionHelpers
             }
             else
             {
-                newImage.Title = $"{content.Title} - Page {pageNumber}";
+                newImage.Title = $"{content.Title} - Page {pageNumber}";;
                 newImage.Summary = $"Page {pageNumber} from {content.Title}.";
             }
 
@@ -171,10 +116,10 @@ public static class ImageExtractionHelpers
             newImage.Tags = content.Tags;
             newImage.Slug = SlugUtility.Create(true, newImage.Title);
             newImage.BodyContentFormat = ContentFormatDefaults.Content.ToString();
-            newImage.BodyContent = $"Generated by pdftocairo from {BracketCodeFiles.Create(content)}.";
+            newImage.BodyContent = $"Generated from {BracketCodeFiles.Create(content)}.";
             newImage.UpdateNotesFormat = ContentFormatDefaults.Content.ToString();
 
-            var editor = await ImageContentEditorWindow.CreateInstance(newImage, updatedDestination);
+            var editor = await ImageContentEditorWindow.CreateInstance(newImage, destinationFile);
             editor.PositionWindowAndShow();
 
             await ThreadSwitcher.ResumeBackgroundAsync();

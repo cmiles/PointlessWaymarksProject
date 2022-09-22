@@ -530,7 +530,7 @@ Notes:
 
         await LoadData(fileContent);
 
-        await ImageExtractionHelpers.PdfPageToImageWithPdfToCairo(StatusContext, new List<FileContent> { DbEntry },
+        await ImageExtractionHelpers.PdfPageToImage(StatusContext, new List<FileContent> { DbEntry },
             pageNumber);
     }
 

@@ -52,14 +52,6 @@ public partial class UserSettingsEditorContext
         "intention is that this program will create a local generated site to this directory and provide tools " +
         "to help you sync that to a server if you want to publish a public version of the site.";
 
-    public static string HelpMarkdownPdfToCairo =>
-        "pdftocairo transforms Pdf files to other formats including jpg files - this program " +
-        "can use it to automatically generate an image of a page of a pdf, very " +
-        "useful when adding PDFs to the File Content. However pdftocariro is not included with this " +
-        "program... On Windows the easiest way to get pdftocairo is to install [MiKTeX](https://miktex.org/download). " +
-        "Once installed the setting above should be the folder where pdftocairo.exe is located - " +
-        "for example C:\\MiKTeX 2.9\\miktex\\bin";
-
     public static string HelpMarkdownPinboardApiKey =>
         "Sites, pages and links on the internet are constantly disappearing - [Pinboard](https://pinboard.in/) is a bookmarking site that has options to archive links for your personal use and this software has some functions that help you send links to Pinboard if you enter your Api Key. This is OPTIONAL - nothing in this software requires Pinboard.";
 

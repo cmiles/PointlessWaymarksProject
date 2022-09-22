@@ -31,7 +31,6 @@ public partial class UserSettings
     [ObservableProperty] private string _localSiteRootDirectory = string.Empty;
 
     [ObservableProperty] private double _longitudeDefault;
-    [ObservableProperty] private string _pdfToCairoExeDirectory = string.Empty;
 
     [ObservableProperty] private bool _photoPagesHaveLinksToPhotoSizesByDefault;
     [ObservableProperty] private bool _imagePagesHaveLinksToImageSizesByDefault;

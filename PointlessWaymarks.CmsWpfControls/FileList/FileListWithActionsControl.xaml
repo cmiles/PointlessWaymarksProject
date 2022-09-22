@@ -81,7 +81,7 @@
                 <Button Command="{Binding ListContext.BracketCodeToClipboardSelectedCommand}" Style="{StaticResource ActionPanelButtonStyle}">
                     Image _Code
                 </Button>
-                <Button Command="{Binding FirstPagePreviewFromPdfToCairoCommand}" Style="{StaticResource ActionPanelButtonStyle}">
+                <Button Command="{Binding FirstPagePreviewFromPdfCommand}" Style="{StaticResource ActionPanelButtonStyle}">
                     Generate Cover Image
                 </Button>
             </WrapPanel>
