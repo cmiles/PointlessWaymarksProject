@@ -8,6 +8,7 @@ using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsData.Json;
 using PointlessWaymarks.CmsData.Spatial;
+using PointlessWaymarks.CmsData.Spatial.Elevation;
 
 namespace PointlessWaymarks.CmsData.Content;
 
@@ -27,6 +28,9 @@ public static class LineGenerator
         bool replaceElevations, IProgress<string> progress)
     {
         var lineStatistics = SpatialHelpers.LineStatsInImperialFromCoordinateList(trackInformation.Track);
+        var stateCounty =
+            await StateCountyService.GetStateCounty(trackInformation.Track.First().Y, trackInformation.Track.First().X);
+        var stateCountyTagList = new List<string> { stateCounty.state, stateCounty.county };
 
         var newEntry = new LineContent
         {
@@ -36,15 +40,18 @@ public static class LineGenerator
             FeedOn = trackInformation.StartsOn ?? DateTime.Now,
             Line = await SpatialHelpers.GeoJsonWithLineStringFromCoordinateList(trackInformation.Track,
                 replaceElevations, progress),
-            Title = trackInformation.Name ?? string.Empty,
-            Summary = trackInformation.Description ?? string.Empty,
+            Title = trackInformation.Name,
+            Summary = string.IsNullOrWhiteSpace(trackInformation.Description)
+                ? trackInformation.Name
+                : trackInformation.Description,
             LineDistance = lineStatistics.Length,
             MaximumElevation = lineStatistics.MaximumElevation,
             MinimumElevation = lineStatistics.MinimumElevation,
             ClimbElevation = lineStatistics.ElevationClimb,
             DescentElevation = lineStatistics.ElevationDescent,
             RecordingStartedOn = trackInformation.StartsOn,
-            RecordingEndedOn = trackInformation.EndsOn
+            RecordingEndedOn = trackInformation.EndsOn,
+            Tags = Db.TagListJoinAsSlugs(stateCountyTagList, false)
         };
 
         if (!string.IsNullOrWhiteSpace(trackInformation.Name))
@@ -67,8 +74,10 @@ public static class LineGenerator
             FeedOn = DateTime.Now,
             Line = await SpatialHelpers.GeoJsonWithLineStringFromCoordinateList(trackInformation.Track,
                 replaceElevations, progress),
-            Title = trackInformation.Name ?? string.Empty,
-            Summary = trackInformation.Description ?? string.Empty,
+            Title = trackInformation.Name,
+            Summary = string.IsNullOrWhiteSpace(trackInformation.Description)
+                ? trackInformation.Name
+                : trackInformation.Description,
             LineDistance = lineStatistics.Length,
             MaximumElevation = lineStatistics.MaximumElevation,
             MinimumElevation = lineStatistics.MinimumElevation,
