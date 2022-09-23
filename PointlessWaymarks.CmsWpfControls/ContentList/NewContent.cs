@@ -50,7 +50,15 @@ public partial class NewContent
             async x =>
             {
                 await WindowIconStatus.IndeterminateTask(WindowStatus,
-                    async () => await NewLineContentFromFiles(x), StatusContext.StatusControlContextId);
+                    async () => await NewLineContentFromFiles(x, false, StatusContext, WindowStatus),
+                    StatusContext.StatusControlContextId);
+            }, "Cancel Line Import");
+        NewLineContentFromFilesWithAutosaveCommand = StatusContext.RunBlockingTaskWithCancellationCommand(
+            async x =>
+            {
+                await WindowIconStatus.IndeterminateTask(WindowStatus,
+                    async () => await NewLineContentFromFiles(x, true, StatusContext, WindowStatus),
+                    StatusContext.StatusControlContextId);
             }, "Cancel Line Import");
         NewLinkContentCommand = StatusContext.RunNonBlockingTaskCommand(NewLinkContent);
         NewMapContentCommand = StatusContext.RunNonBlockingTaskCommand(NewMapContent);
@@ -90,6 +98,8 @@ public partial class NewContent
     public RelayCommand NewLineContentCommand { get; }
 
     public RelayCommand NewLineContentFromFilesCommand { get; set; }
+
+    public RelayCommand NewLineContentFromFilesWithAutosaveCommand { get; set; }
 
     public RelayCommand NewLinkContentCommand { get; }
 
@@ -251,12 +261,7 @@ public partial class NewContent
         await newContentWindow.PositionWindowAndShowOnUiThread();
     }
 
-    public async Task NewLineContentFromFiles(CancellationToken cancellationToken)
-    {
-        await NewLineContentFromFiles(cancellationToken, StatusContext, WindowStatus);
-    }
-
-    public static async Task NewLineContentFromFiles(CancellationToken cancellationToken,
+    public static async Task NewLineContentFromFiles(CancellationToken cancellationToken, bool autoSaveAndClose,
         StatusControlContext statusContext, WindowIconStatus windowStatus)
     {
         await ThreadSwitcher.ResumeForegroundAsync();
@@ -271,7 +276,7 @@ public partial class NewContent
 
         if (!selectedFiles.Any()) return;
 
-        if (selectedFiles.Count > 10)
+        if (!autoSaveAndClose && selectedFiles.Count > 10)
         {
             statusContext.ToastError("Opening new content in an editor window is limited to 10 files at a time...");
             return;
@@ -289,10 +294,11 @@ public partial class NewContent
 
         selectedFileInfos = selectedFileInfos.Where(x => x.Exists).ToList();
 
-        await NewLineContentFromFiles(selectedFileInfos, cancellationToken, statusContext, windowStatus);
+        await NewLineContentFromFiles(selectedFileInfos, autoSaveAndClose, cancellationToken, statusContext,
+            windowStatus);
     }
 
-    public static async Task NewLineContentFromFiles(List<FileInfo> selectedFileInfos,
+    public static async Task NewLineContentFromFiles(List<FileInfo> selectedFileInfos, bool autoSaveAndClose,
         CancellationToken cancellationToken,
         StatusControlContext statusContext, WindowIconStatus windowStatus)
     {
@@ -323,8 +329,29 @@ public partial class NewContent
 
                 var newEntry = await LineGenerator.NewFromGpxTrack(loopTracks, false, statusContext.ProgressTracker());
 
-                var editor = await LineContentEditorWindow.CreateInstance(newEntry);
-                await editor.PositionWindowAndShowOnUiThread();
+                if (autoSaveAndClose)
+                {
+                    var (saveGenerationReturn, _) =
+                        await LineGenerator.SaveAndGenerateHtml(newEntry, DateTime.Now,
+                            statusContext.ProgressTracker());
+
+                    if (saveGenerationReturn.HasError)
+                    {
+                        var editor = await LineContentEditorWindow.CreateInstance(newEntry);
+                        await editor.PositionWindowAndShowOnUiThread();
+#pragma warning disable 4014
+                        //Allow execution to continue so Automation can continue
+                        editor.StatusContext.ShowMessageWithOkButton("Problem Saving",
+                            saveGenerationReturn.GenerationNote);
+#pragma warning restore 4014
+                        continue;
+                    }
+                }
+                else
+                {
+                    var editor = await LineContentEditorWindow.CreateInstance(newEntry);
+                    await editor.PositionWindowAndShowOnUiThread();
+                }
 
                 statusContext.Progress(
                     $"New Line Editor - {loopFile.FullName} - Track {innerLoopCounter} of {tracksList.Count}");

@@ -423,6 +423,7 @@ public static class ContentImport
                 differenceString = "New Entry";
             }
 
+            //!!Content Type List!!
             var validationResult = importResult.processContent switch
             {
                 PhotoContent p => await PhotoGenerator.Validate(p,
@@ -438,6 +439,8 @@ public static class ContentImport
                 PostContent pc => await PostGenerator.Validate(pc).ConfigureAwait(false),
                 LinkContent l => await LinkGenerator.Validate(l).ConfigureAwait(false),
                 NoteContent n => await NoteGenerator.Validate(n).ConfigureAwait(false),
+                LineContent l => await LineGenerator.Validate(l).ConfigureAwait(false),
+                GeoJsonContent g => await GeoJsonGenerator.Validate(g).ConfigureAwait(false),
                 _ => GenerationReturn.Error("Excel Import - No Content Type Generator found?")
             };
 
@@ -587,6 +590,7 @@ public static class ContentImport
         var totalToUpdate = contentImportResult.ToUpdate.Count;
         var currentUpdate = 0;
 
+        //!!Content Type List!!
         foreach (var loopUpdates in contentImportResult.ToUpdate)
         {
             currentUpdate++;
@@ -671,6 +675,20 @@ public static class ContentImport
                 case LinkContent link:
                 {
                     generationResult = (await LinkGenerator.SaveAndGenerateHtml(link, null, progress)
+                            .ConfigureAwait(false))
+                        .generationReturn;
+                    break;
+                }
+                case LineContent line:
+                {
+                    generationResult = (await LineGenerator.SaveAndGenerateHtml(line, null, progress)
+                            .ConfigureAwait(false))
+                        .generationReturn;
+                    break;
+                }
+                case GeoJsonContent geoJson:
+                {
+                    generationResult = (await GeoJsonGenerator.SaveAndGenerateHtml(geoJson, null, progress)
                             .ConfigureAwait(false))
                         .generationReturn;
                     break;

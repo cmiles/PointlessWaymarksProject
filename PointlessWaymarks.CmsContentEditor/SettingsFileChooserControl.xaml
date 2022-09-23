@@ -106,7 +106,7 @@
             Header="New Settings File">
             <StackPanel Orientation="Vertical">
                 <Label FontSize="14" Target="{Binding ElementName=SettingsFileNameTextBox}">Settings File Name</Label>
-                <TextBlock Margin="12,0,0,0" FontSize="12">Any valid filename can be used - a simple suggestion: 'YourSiteNameSettings.json'</TextBlock>
+                <TextBlock Margin="12,0,0,0" FontSize="12">Any valid filename can be used - this will be a .ini file - a simple suggestion: 'YourSiteNameSettings'</TextBlock>
                 <TextBox
                     Name="SettingsFileNameTextBox"
                     Margin="6,8,4,12"

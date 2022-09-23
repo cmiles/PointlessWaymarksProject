@@ -28,12 +28,20 @@ public static class LineGenerator
         bool replaceElevations, IProgress<string> progress)
     {
         var lineStatistics = SpatialHelpers.LineStatsInImperialFromCoordinateList(trackInformation.Track);
-        var stateCounty =
-            await StateCountyService.GetStateCounty(trackInformation.Track.First().Y, trackInformation.Track.First().X);
-        var stateCountyTagList = new List<string> { stateCounty.state, stateCounty.county };
+
+        var stateCountyTagList = new List<string>();
+
+        if (trackInformation.Track.Any())
+        {
+            var stateCounty =
+                await StateCountyService.GetStateCounty(trackInformation.Track.First().Y, trackInformation.Track.First().X);
+            stateCountyTagList = new List<string> { stateCounty.state, stateCounty.county };
+        }
 
         var newEntry = new LineContent
         {
+            ContentId = Guid.NewGuid(),
+            CreatedBy = UserSettingsSingleton.CurrentSettings().DefaultCreatedBy,
             BodyContentFormat = UserSettingsUtilities.DefaultContentFormatChoice(),
             UpdateNotesFormat = UserSettingsUtilities.DefaultContentFormatChoice(),
             CreatedOn = trackInformation.StartsOn ?? DateTime.Now,
@@ -41,9 +49,8 @@ public static class LineGenerator
             Line = await SpatialHelpers.GeoJsonWithLineStringFromCoordinateList(trackInformation.Track,
                 replaceElevations, progress),
             Title = trackInformation.Name,
-            Summary = string.IsNullOrWhiteSpace(trackInformation.Description)
-                ? trackInformation.Name
-                : trackInformation.Description,
+            Summary = trackInformation.Name,
+            BodyContent = trackInformation.Description,
             LineDistance = lineStatistics.Length,
             MaximumElevation = lineStatistics.MaximumElevation,
             MinimumElevation = lineStatistics.MinimumElevation,
@@ -68,6 +75,8 @@ public static class LineGenerator
 
         var newEntry = new LineContent
         {
+            ContentId = Guid.NewGuid(),
+            CreatedBy = UserSettingsSingleton.CurrentSettings().DefaultCreatedBy,
             BodyContentFormat = UserSettingsUtilities.DefaultContentFormatChoice(),
             UpdateNotesFormat = UserSettingsUtilities.DefaultContentFormatChoice(),
             CreatedOn = DateTime.Now,
@@ -75,9 +84,8 @@ public static class LineGenerator
             Line = await SpatialHelpers.GeoJsonWithLineStringFromCoordinateList(trackInformation.Track,
                 replaceElevations, progress),
             Title = trackInformation.Name,
-            Summary = string.IsNullOrWhiteSpace(trackInformation.Description)
-                ? trackInformation.Name
-                : trackInformation.Description,
+            Summary = trackInformation.Name,
+            BodyContent = trackInformation.Description,
             LineDistance = lineStatistics.Length,
             MaximumElevation = lineStatistics.MaximumElevation,
             MinimumElevation = lineStatistics.MinimumElevation,
@@ -131,7 +139,7 @@ public static class LineGenerator
 
         if (string.IsNullOrWhiteSpace(lineContent.Line))
             return GenerationReturn.Error("LineContent Line can not be null of empty.");
-
+        
         try
         {
             var serializer = GeoJsonSerializer.Create(new JsonSerializerSettings { Formatting = Formatting.Indented },

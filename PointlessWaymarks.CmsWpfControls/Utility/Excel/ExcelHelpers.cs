@@ -11,7 +11,7 @@ using PointlessWaymarks.CmsData.Import;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 
-namespace PointlessWaymarks.CmsWpfControls.Utility;
+namespace PointlessWaymarks.CmsWpfControls.Utility.Excel;
 
 public static class ExcelHelpers
 {
@@ -287,7 +287,14 @@ public static class ExcelHelpers
             return;
         }
 
-        ContentToExcelFileAsTable(selected.Select(x => x.DbEntry).Cast<object>().ToList(), "SelectedItems",
+        List<object> excelObjects = new();
+
+        excelObjects.AddRange(selected.Where(x => x.DbEntry is LineContent).Select(x => x.DbEntry as LineContent).Select(x => (object)new LineContentForExcel().InjectFrom(x)));
+        excelObjects.AddRange(selected.Where(x => x.DbEntry is GeoJsonContent).Select(x => x.DbEntry as GeoJsonContent).Select(x => (object)new GeoJsonContentForExcel().InjectFrom(x)));
+
+        excelObjects.AddRange(selected.Where(x => x.DbEntry is not (LineContent or GeoJsonContent)).Select(x => x.DbEntry).Cast<object>().ToList());
+
+        ContentToExcelFileAsTable(excelObjects, "SelectedItems",
             progress: statusContext?.ProgressTracker());
     }
 }

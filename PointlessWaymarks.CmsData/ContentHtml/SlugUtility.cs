@@ -310,20 +310,29 @@ public static class SlugUtility
         if (excludedContentId == null)
         {
             var fileCheck = await context.FileContents.AnyAsync(x => x.Slug == slug).ConfigureAwait(false);
+            var geoJsonCheck = await context.GeoJsonContents.AnyAsync(x => x.Slug == slug).ConfigureAwait(false);
             var imageCheck = await context.ImageContents.AnyAsync(x => x.Slug == slug).ConfigureAwait(false);
+            var lineCheck = await context.LineContents.AnyAsync(x => x.Slug == slug).ConfigureAwait(false);
             var noteCheck = await context.NoteContents.AnyAsync(x => x.Slug == slug).ConfigureAwait(false);
             var photoCheck = await context.PhotoContents.AnyAsync(x => x.Slug == slug).ConfigureAwait(false);
             var pointCheck = await context.PointContents.AnyAsync(x => x.Slug == slug).ConfigureAwait(false);
             var postCheck = await context.PostContents.AnyAsync(x => x.Slug == slug).ConfigureAwait(false);
 
-            return photoCheck || postCheck || imageCheck || noteCheck || fileCheck || pointCheck;
+
+            return photoCheck || postCheck || imageCheck || noteCheck || fileCheck || pointCheck || geoJsonCheck || lineCheck;
         }
 
         var fileExcludeCheck =
             await context.FileContents.AnyAsync(x => x.Slug == slug && x.ContentId != excludedContentId)
                 .ConfigureAwait(false);
+        var geoJsonExcludeCheck =
+            await context.GeoJsonContents.AnyAsync(x => x.Slug == slug && x.ContentId != excludedContentId)
+                .ConfigureAwait(false);
         var imageExcludeCheck =
             await context.ImageContents.AnyAsync(x => x.Slug == slug && x.ContentId != excludedContentId)
+                .ConfigureAwait(false);
+        var lineExcludeCheck =
+            await context.LineContents.AnyAsync(x => x.Slug == slug && x.ContentId != excludedContentId)
                 .ConfigureAwait(false);
         var noteExcludeCheck =
             await context.NoteContents.AnyAsync(x => x.Slug == slug && x.ContentId != excludedContentId)
@@ -340,6 +349,6 @@ public static class SlugUtility
 
 
         return photoExcludeCheck || postExcludeCheck || imageExcludeCheck || noteExcludeCheck || fileExcludeCheck ||
-               pointExcludeCheck;
+               pointExcludeCheck || geoJsonExcludeCheck || lineExcludeCheck;
     }
 }

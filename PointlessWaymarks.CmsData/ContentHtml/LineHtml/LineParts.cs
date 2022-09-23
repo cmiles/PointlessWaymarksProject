@@ -74,6 +74,28 @@ public static class LineParts
         outerContainer.Children.Add(Tags.InfoTextDivTag($"{dbEntry.DescentElevation:F0}' Descent", "line-detail",
             "descent", dbEntry.DescentElevation.ToString("F0")));
 
+        if (dbEntry.RecordingStartedOn.HasValue && dbEntry.RecordingEndedOn.HasValue)
+        {
+            var minuteDuration = (int)dbEntry.RecordingEndedOn.Value.Subtract(dbEntry.RecordingStartedOn.Value).TotalMinutes;
+
+            if (minuteDuration > 1)
+            {
+                var hours = minuteDuration / 60;
+                var minutes = minuteDuration - (hours * 60);
+
+                if (hours == 0)
+                {
+                    outerContainer.Children.Add(Tags.InfoTextDivTag($"{minutes} Minutes",
+                        "line-detail", "duration", $"{minutes}"));
+                }
+                else
+                {
+                    outerContainer.Children.Add(Tags.InfoTextDivTag($"{hours} Hour{(hours > 1 ? "s" : "")} {minutes} Minute{(minutes > 1 ? "s" : "")}",
+                        "line-detail", "duration", $"{minutes}"));
+                }
+            }
+        }
+
         if (dbEntry.RecordingStartedOn.HasValue)
             outerContainer.Children.Add(Tags.InfoTextDivTag($"{dbEntry.RecordingStartedOn:M/d/yy h:mm:ss tt} Start",
                 "line-detail", "start-datetime", $"{dbEntry.RecordingStartedOn.Value:U}"));

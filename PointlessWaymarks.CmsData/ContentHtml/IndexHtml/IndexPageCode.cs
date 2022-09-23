@@ -330,6 +330,55 @@ public partial class IndexPage
                 items.Add(RssBuilder.RssItemString(post.DbEntry.Title, $"{post.PageUrl}", content,
                     post.DbEntry.CreatedOn, post.DbEntry.ContentId.ToString()));
             }
+
+            if (loopPosts.GetType() == typeof(LineContent))
+            {
+                var post = new SingleLineDiv(loopPosts);
+
+                string? content = null;
+
+                if (post.DbEntry.MainPicture != null)
+                {
+                    var imageInfo = PictureAssetProcessing.ProcessPictureDirectory(post.DbEntry.MainPicture.Value);
+
+                    if (imageInfo != null)
+                        content =
+                            $"{Tags.PictureImgTagDisplayImageOnly(imageInfo)}<p>{HttpUtility.HtmlEncode(post.DbEntry.Summary)}</p>" +
+                            $"<p>Read more at <a href=\"{post.PageUrl}\">{UserSettingsSingleton.CurrentSettings().SiteName}</a></p>";
+                }
+
+                if (string.IsNullOrWhiteSpace(content))
+                    content = $"<p>{HttpUtility.HtmlEncode(post.DbEntry.Summary)}</p>" +
+                              $"<p>Read more at <a href=\"{post.PageUrl}\">{UserSettingsSingleton.CurrentSettings().SiteName}</a></p>";
+
+                items.Add(RssBuilder.RssItemString(post.DbEntry.Title, $"{post.PageUrl}", content,
+                    post.DbEntry.CreatedOn, post.DbEntry.ContentId.ToString()));
+            }
+
+            if (loopPosts.GetType() == typeof(GeoJsonContent))
+            {
+                var post = new SingleGeoJsonDiv(loopPosts);
+
+                string? content = null;
+
+                if (post.DbEntry.MainPicture != null)
+                {
+                    var imageInfo = PictureAssetProcessing.ProcessPictureDirectory(post.DbEntry.MainPicture.Value);
+
+                    if (imageInfo != null)
+                        content =
+                            $"{Tags.PictureImgTagDisplayImageOnly(imageInfo)}<p>{HttpUtility.HtmlEncode(post.DbEntry.Summary)}</p>" +
+                            $"<p>Read more at <a href=\"{post.PageUrl}\">{UserSettingsSingleton.CurrentSettings().SiteName}</a></p>";
+                }
+
+                if (string.IsNullOrWhiteSpace(content))
+                    content = $"<p>{HttpUtility.HtmlEncode(post.DbEntry.Summary)}</p>" +
+                              $"<p>Read more at <a href=\"{post.PageUrl}\">{UserSettingsSingleton.CurrentSettings().SiteName}</a></p>";
+
+                items.Add(RssBuilder.RssItemString(post.DbEntry.Title, $"{post.PageUrl}", content,
+                    post.DbEntry.CreatedOn, post.DbEntry.ContentId.ToString()));
+            }
+
         }
 
         var localIndexFile = UserSettingsSingleton.CurrentSettings().LocalSiteRssIndexFeedListFile();

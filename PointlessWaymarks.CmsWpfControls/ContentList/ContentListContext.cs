@@ -37,6 +37,7 @@ using PointlessWaymarks.CmsWpfControls.PostList;
 using PointlessWaymarks.CmsWpfControls.S3Uploads;
 using PointlessWaymarks.CmsWpfControls.SitePreview;
 using PointlessWaymarks.CmsWpfControls.Utility;
+using PointlessWaymarks.CmsWpfControls.Utility.Excel;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 using PointlessWaymarks.WpfCommon.Utility;
@@ -900,7 +901,7 @@ public partial class ContentListContext : IDragSource, IDropTarget
 
             if (lineContentExtensions.Contains(Path.GetExtension(loopFile).ToUpperInvariant()))
             {
-                await NewContent.NewLineContentFromFiles(fileInfo.AsList(), CancellationToken.None, StatusContext,
+                await NewContent.NewLineContentFromFiles(fileInfo.AsList(), false, CancellationToken.None, StatusContext,
                     WindowStatus);
                 continue;
             }
