@@ -97,7 +97,7 @@ public static class StringHelpers
     }
 
     /// <summary>
-    /// Removes all \n and \r to remove all common newline types.
+    ///     Removes all \n and \r to remove all common newline types.
     /// </summary>
     /// <param name="toProcess"></param>
     /// <returns></returns>
@@ -158,6 +158,19 @@ public static class StringHelpers
             loopProperties.SetValue(toProcess, ((string?)loopProperties.GetValue(toProcess)).TrimNullToEmpty());
 
         return toProcess;
+    }
+
+    /// <summary>
+    ///     Truncates a string if it exceeds a maximum length - null inputs and maxLengths less than
+    ///     1 return empty strings.
+    /// </summary>
+    /// <param name="value"></param>
+    /// <param name="maxLength"></param>
+    /// <returns></returns>
+    public static string Truncate(this string? value, int maxLength)
+    {
+        if (string.IsNullOrEmpty(value) || maxLength < 1) return string.Empty;
+        return value.Length <= maxLength ? value : value[..maxLength];
     }
 
     /// <summary>

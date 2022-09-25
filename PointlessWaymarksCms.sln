@@ -30,7 +30,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PointlessWaymarks.ExcelInte
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PointlessWaymarks.LocalViewer", "PointlessWaymarks.LocalViewer\PointlessWaymarks.LocalViewer.csproj", "{C913970C-2489-402D-9F3A-08F0BE806F6A}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PointlessWaymarks.MemoriesEmail", "PointlessWaymarks.MemoriesEmail\PointlessWaymarks.MemoriesEmail.csproj", "{057D3F70-A452-4FCE-B9FC-90E0D9F8592A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PointlessWaymarks.Task.MemoriesEmail", "PointlessWaymarks.Task.MemoriesEmail\PointlessWaymarks.Task.MemoriesEmail.csproj", "{057D3F70-A452-4FCE-B9FC-90E0D9F8592A}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PointlessWaymarks.Task.GarminConnectGpxImport", "PointlessWaymarks.Task.GpxImport\PointlessWaymarks.Task.GarminConnectGpxImport.csproj", "{05C70B49-DF03-4ABA-A92D-124EF63A2F3E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -78,6 +80,10 @@ Global
 		{057D3F70-A452-4FCE-B9FC-90E0D9F8592A}.Debug|x64.Build.0 = Debug|x64
 		{057D3F70-A452-4FCE-B9FC-90E0D9F8592A}.Release|x64.ActiveCfg = Release|x64
 		{057D3F70-A452-4FCE-B9FC-90E0D9F8592A}.Release|x64.Build.0 = Release|x64
+		{05C70B49-DF03-4ABA-A92D-124EF63A2F3E}.Debug|x64.ActiveCfg = Debug|x64
+		{05C70B49-DF03-4ABA-A92D-124EF63A2F3E}.Debug|x64.Build.0 = Debug|x64
+		{05C70B49-DF03-4ABA-A92D-124EF63A2F3E}.Release|x64.ActiveCfg = Release|x64
+		{05C70B49-DF03-4ABA-A92D-124EF63A2F3E}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

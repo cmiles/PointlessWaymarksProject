@@ -13,18 +13,10 @@ public partial class App
     public App()
     {
         LogHelpers.InitializeStaticLoggerAsStartupLogger();
+        Log.Information(
+            $"Git Commit {ThisAssembly.Git.Commit} - Commit Date {ThisAssembly.Git.CommitDate} - Is Dirty {ThisAssembly.Git.IsDirty}");
 
-#if !DEBUG
-            DispatcherUnhandledException += OnDispatcherUnhandledException;
-#endif
-    }
-
-    private void OnDispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
-    {
-        if (!HandleApplicationException(e.Exception))
-            Environment.Exit(1);
-
-        e.Handled = true;
+        DispatcherUnhandledException += OnDispatcherUnhandledException;
     }
 
     public static bool HandleApplicationException(Exception ex)
@@ -39,5 +31,13 @@ public partial class App
 
 
         return res != MessageBoxResult.No;
+    }
+
+    private void OnDispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
+    {
+        if (!HandleApplicationException(e.Exception))
+            Environment.Exit(1);
+
+        e.Handled = true;
     }
 }

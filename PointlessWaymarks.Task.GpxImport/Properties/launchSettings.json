@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "PointlessWaymarks.Task.GpxImport": {
+      "commandName": "Project",
+      "commandLineArgs": "C:\\Code\\SomewhereGarminConnectGpxImportSettings.json"
+    }
+  }
+}

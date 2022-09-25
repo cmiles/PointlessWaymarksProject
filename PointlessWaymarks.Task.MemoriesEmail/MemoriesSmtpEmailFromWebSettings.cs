@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace PointlessWaymarks.MemoriesEmail;
+namespace PointlessWaymarks.Task.MemoriesEmail;
 
 public record MemoriesSmtpEmailFromWebSettings
 {

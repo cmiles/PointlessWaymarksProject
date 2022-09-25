@@ -39,6 +39,7 @@ using PointlessWaymarks.CmsWpfControls.WpfHtml;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 using PointlessWaymarks.WpfCommon.Utility;
+using Serilog;
 
 namespace PointlessWaymarks.CmsContentEditor;
 
@@ -462,7 +463,6 @@ public partial class MainWindow
 
         StatusContext.Progress("JSON Import Finished");
     }
-
     private async Task LoadData()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -475,6 +475,7 @@ public partial class MainWindow
         await UserSettingsUtilities.EnsureDbIsPresent(StatusContext.ProgressTracker());
 
         LogHelpers.InitializeStaticLoggerAsEventLogger();
+        Log.Information($"Git Commit {ThisAssembly.Git.Commit} - Commit Date {ThisAssembly.Git.CommitDate} - Is Dirty {ThisAssembly.Git.IsDirty}");
 
         StatusContext.Progress("Setting up UI Controls");
 

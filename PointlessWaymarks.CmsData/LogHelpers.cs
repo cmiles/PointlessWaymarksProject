@@ -1,5 +1,6 @@
 ﻿using PointlessWaymarks.CmsData.Content;
 using Serilog;
+using Serilog.Events;
 using Serilog.Formatting.Compact;
 
 namespace PointlessWaymarks.CmsData;
@@ -44,7 +45,7 @@ public static class LogHelpers
     public static LoggerConfiguration BasicLogConfiguration()
     {
         return new LoggerConfiguration().Enrich.WithProcessId().Enrich.WithProcessName().Enrich.WithThreadId()
-            .Enrich.WithThreadName().Enrich.WithMachineName().Enrich.WithEnvironmentUserName().WriteTo.Console();
+            .Enrich.WithThreadName().Enrich.WithMachineName().Enrich.WithEnvironmentUserName().MinimumLevel.Verbose().WriteTo.Console();
     }
 
     /// <summary>

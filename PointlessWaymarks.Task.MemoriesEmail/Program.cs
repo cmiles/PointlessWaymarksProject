@@ -1,15 +1,21 @@
 ﻿// See https://aka.ms/new-console-template for more information
 
+using PointlessWaymarks.Task.MemoriesEmail;
 using Serilog;
 using Serilog.Formatting.Compact;
-using PointlessWaymarks.MemoriesEmail;
 
 Log.Logger = new LoggerConfiguration().Enrich.FromLogContext().Enrich.WithProcessId().Enrich.WithProcessName().Enrich.WithThreadId()
     .Enrich.WithThreadName().Enrich.WithMachineName().Enrich.WithEnvironmentUserName().WriteTo.Console().WriteTo.File(new RenderedCompactJsonFormatter(),
         Path.Combine(AppContext.BaseDirectory,
-            "PointlessWaymarksCms-MemoriesEmail-.json"), rollingInterval: RollingInterval.Day, shared: true).CreateLogger();
+            "1_PointlessWaymarksCms-MemoriesEmail-.json"), rollingInterval: RollingInterval.Day, shared: true).CreateLogger();
 
-if(args.Length != 1) Console.WriteLine("Please provide a settings file name...");
+Log.ForContext("args", args.SafeObjectDump()).Information($"Git Commit {ThisAssembly.Git.Commit} - Commit Date {ThisAssembly.Git.CommitDate} - Is Dirty {ThisAssembly.Git.IsDirty}");
+
+if (args.Length != 1)
+{
+    Log.Error( "Please provide a settings file name...");
+    return;
+}
 
 try
 {
