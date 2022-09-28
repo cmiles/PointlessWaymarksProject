@@ -674,6 +674,14 @@ public static class UserSettingsUtilities
         return new FileInfo($"{Path.Combine(directory.FullName, content.Slug)}.html");
     }
 
+    public static FileInfo? LocalSiteLineDataFile(this UserSettings settings, LineContent? content)
+    {
+        if (content is null) return null;
+
+        var directory = settings.LocalSiteLineDataDirectory();
+        return new FileInfo($"{Path.Combine(directory.FullName, $"Line-{content.ContentId.ToString()}.json")}");
+    }
+
     public static FileInfo LocalSiteLineListFile(this UserSettings settings)
     {
         var directory = settings.LocalSiteLineDirectory();

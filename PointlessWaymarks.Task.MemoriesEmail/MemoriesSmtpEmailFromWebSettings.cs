@@ -13,7 +13,7 @@ public record MemoriesSmtpEmailFromWebSettings
     public string BasicAuthUserName { get; set; } = string.Empty;
     public string BasicAuthPassword { get; set; } = string.Empty;
 
-    [Required(ErrorMessage = "First Name Required")]
+    [Required(ErrorMessage = "Host Name Required")]
     public string SmtpHost { get; set; } = string.Empty;
     public int SmtpPort { get; set; } = 587;
 

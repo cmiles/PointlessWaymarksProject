@@ -229,7 +229,6 @@ public static class SpatialHelpers
         var type = string.Empty;
         var label = string.Empty;
 
-
         var extensions = toConvert.Extensions;
 
         if (extensions is ImmutableXElementContainer extensionsContainer)

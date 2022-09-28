@@ -3,9 +3,13 @@ using System.Text.Json.Serialization;
 using Garmin.Connect;
 using Garmin.Connect.Auth;
 using Garmin.Connect.Models;
+using NetTopologySuite.IO;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.Content;
 using PointlessWaymarks.CmsData.ContentHtml;
+using PointlessWaymarks.CmsData.Database;
+using PointlessWaymarks.CmsData.Spatial;
+using Polly;
 using Serilog;
 
 namespace PointlessWaymarks.Task.GarminConnectGpxImport;
@@ -60,23 +64,24 @@ public class GpxImport
             return;
         }
 
-        if (settings.ImportLines && string.IsNullOrWhiteSpace(settings.PointlessWaymarksSiteSettingsFileFullName))
+        if (settings.ImportActivitiesToSite &&
+            string.IsNullOrWhiteSpace(settings.PointlessWaymarksSiteSettingsFileFullName))
         {
             Log.Error(
-                $"The settings specify {nameof(settings.ImportLines)} but the Pointless Waymarks CMS Site Settings file is empty?");
+                $"The settings specify {nameof(settings.ImportActivitiesToSite)} but the Pointless Waymarks CMS Site Settings file is empty?");
             return;
         }
 
         FileInfo? siteSettingsFileInfo = null;
 
-        if (settings.ImportLines)
+        if (settings.ImportActivitiesToSite)
         {
             siteSettingsFileInfo = new FileInfo(settings.PointlessWaymarksSiteSettingsFileFullName);
 
             if (!siteSettingsFileInfo.Exists)
             {
                 Log.Error(
-                    $"The settings specify {nameof(settings.ImportLines)} but the Pointless Waymarks CMS Site Settings file is empty?");
+                    $"The settings specify {nameof(settings.ImportActivitiesToSite)} but the Pointless Waymarks CMS Site Settings file is empty?");
                 return;
             }
         }
@@ -90,7 +95,7 @@ public class GpxImport
             }
             catch (Exception e)
             {
-                Log.Error(e, 
+                Log.Error(e,
                     $"The specified GPX Archive Directory {settings.GpxArchiveDirectoryFullName} does not exist and could not be created.");
                 return;
             }
@@ -98,35 +103,36 @@ public class GpxImport
         //9/25/2022 - I haven't done any research or extensive testing but the assumption here is
         //that for large search ranges that it will be better to only query Garmin Connect for a limited
         //number of days...
-        var searchEndDate = settings.ImportEndDate.AddDays(1).Date.AddTicks(-1);
-        var searchStartDate = searchEndDate.AddDays(-(Math.Abs(settings.ImportPreviousDays) - 1)).Date;
+        var searchEndDate = settings.DownloadEndDate.AddDays(1).Date.AddTicks(-1);
+        var searchStartDate = searchEndDate.AddDays(-(Math.Abs(settings.DownloadDaysBack) - 1)).Date;
 
         var searchSegmentLength = 100;
 
         var searchDateRanges = new List<(DateTime startDate, DateTime endDate)>();
 
-        for (var i = 0; i < settings.ImportPreviousDays / searchSegmentLength; i++)
+        for (var i = 0; i < settings.DownloadDaysBack / searchSegmentLength; i++)
             searchDateRanges.Add((searchStartDate.AddDays(i * searchSegmentLength),
                 searchStartDate.AddDays((i + 1) * searchSegmentLength).AddTicks(-1)));
 
-        if (settings.ImportPreviousDays % searchSegmentLength != 0)
+        if (settings.DownloadDaysBack % searchSegmentLength != 0)
             searchDateRanges.Add((
-                settings.ImportEndDate.Date.AddDays(-(settings.ImportPreviousDays % searchSegmentLength) + 1),
-                settings.ImportEndDate.AddDays(1).Date.AddTicks(-1)));
+                settings.DownloadEndDate.Date.AddDays(-(settings.DownloadDaysBack % searchSegmentLength) + 1),
+                settings.DownloadEndDate.AddDays(1).Date.AddTicks(-1)));
 
 
         var authParameters = new BasicAuthParameters(settings.ConnectUserName, settings.ConnectPassword);
         var client = new GarminConnectClient(new GarminConnectContext(new HttpClient(), authParameters));
 
-        var gpxFiles = new List<FileInfo>();
+        var fileList = new List<(FileInfo activityFileInfo, FileInfo? gpxFileInfo)>();
 
         Log.Verbose($"Looping thru {searchDateRanges.Count} Date Range Search Periods");
-        int counter = 0;
+        var counter = 0;
 
         foreach (var loopDateSearchRange in searchDateRanges)
         {
             Console.WriteLine();
-            Log.Verbose($"Sending Query to Garmin Connect for From {loopDateSearchRange.startDate} to {loopDateSearchRange.endDate} - {++counter} of {searchDateRanges.Count}");
+            Log.Verbose(
+                $"Sending Query to Garmin Connect for From {loopDateSearchRange.startDate} to {loopDateSearchRange.endDate} - {++counter} of {searchDateRanges.Count}");
 
             var activityList = await client.GetActivitiesByDate(loopDateSearchRange.startDate,
                 loopDateSearchRange.endDate, string.Empty);
@@ -196,31 +202,131 @@ public class GpxImport
 
                 await File.WriteAllTextAsync(safeJsonFile.FullName,
                     JsonSerializer.Serialize(loopActivity,
-                        new JsonSerializerOptions { WriteIndented = true, ReferenceHandler = ReferenceHandler.IgnoreCycles, DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull }));
-                var file = await client.DownloadActivity(loopActivity.ActivityId, ActivityDownloadFormat.GPX);
-                
-                if (file == null) continue;
-                
-                await File.WriteAllBytesAsync(safeGpxFile.FullName, file);
-                gpxFiles.Add(safeGpxFile);
+                        new JsonSerializerOptions
+                        {
+                            WriteIndented = true, ReferenceHandler = ReferenceHandler.IgnoreCycles,
+                            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
+                        }));
+                safeJsonFile.Refresh();
+
+                byte[]? file = null;
+
+                try
+                {
+                    file = await Policy.Handle<Exception>().WaitAndRetryAsync(3, i => TimeSpan.FromMinutes(1 * i)).ExecuteAsync(async () => await client.DownloadActivity(loopActivity.ActivityId, ActivityDownloadFormat.GPX));
+                }
+                catch (Exception e)
+                {
+                    Log.Error(e,
+                        $"File Download Failed - ActivityId {loopActivity.ActivityId} - Activity File {safeJsonFile.FullName}");
+                }
+
+                if (file == null)
+                {
+                    fileList.Add((safeJsonFile, null));
+                }
+                else
+                {
+                    await File.WriteAllBytesAsync(safeGpxFile.FullName, file);
+                    safeGpxFile.Refresh();
+                    fileList.Add((safeJsonFile, safeGpxFile));
+                }
             }
         }
 
         Log.Information(
-            $"Downloading and Archiving Connect Activities has Finished - wrote {gpxFiles.Count} activities to {archiveDirectory.FullName}");
+            $"Downloading and Archiving Connect Activities has Finished - wrote {fileList.Count} activities to {archiveDirectory.FullName}");
 
-        if (!settings.ImportLines)
+        if (!settings.ImportActivitiesToSite)
         {
             Log.Information("Program Ending - no Import Requested");
             return;
         }
 
+        if (!fileList.Any())
+        {
+            Log.Information("Program Ending - no files to Import");
+            return;
+        }
+
         var consoleProgress = new ConsoleProgress();
 
-        UserSettingsUtilities.SettingsFileFullName = siteSettingsFileInfo.FullName;
+        UserSettingsUtilities.SettingsFileFullName = siteSettingsFileInfo!.FullName;
         var siteSettings = await UserSettingsUtilities.ReadFromCurrentSettingsFile(consoleProgress);
         siteSettings.VerifyOrCreateAllTopLevelFolders();
 
         await UserSettingsUtilities.EnsureDbIsPresent(consoleProgress);
+
+        Log.Information($"Starting import of {fileList.Count} GPX Files");
+
+        foreach (var loopFile in fileList.Where(x => x.gpxFileInfo != null))
+        {
+            var gpxFile = GpxFile.Parse(await File.ReadAllTextAsync(loopFile.gpxFileInfo!.FullName),
+                new GpxReaderSettings
+                {
+                    BuildWebLinksForVeryLongUriValues = true,
+                    IgnoreBadDateTime = true,
+                    IgnoreUnexpectedChildrenOfTopLevelElement = true,
+                    IgnoreVersionAttribute = true
+                });
+
+            if (!gpxFile.Tracks.Any(t => t.Segments.SelectMany(y => y.Waypoints).Count() > 1)) continue;
+
+            var tracksList = (await SpatialHelpers.TracksFromGpxFile(loopFile.gpxFileInfo, consoleProgress))
+                .Where(x => x.Track.Count > 0).ToList();
+
+            var innerLoopCounter = 0;
+
+            var errorList = new List<string>();
+
+            foreach (var loopTracks in tracksList)
+            {
+                innerLoopCounter++;
+
+                var newEntry = await LineGenerator.NewFromGpxTrack(loopTracks, false, consoleProgress);
+
+                var tagList = Db.TagListParseToSlugs(newEntry.Tags, true);
+                tagList.Add("garmin connect import");
+                newEntry.Tags = Db.TagListJoinAsSlugs(tagList, true);
+                newEntry.ShowInMainSiteFeed = settings.ShowInMainSiteFeed;
+
+                var validation = await CommonContentValidation.ValidateSlugLocalAndDb(newEntry.Slug, newEntry.ContentId);
+                var renameCount = 1;
+                var baseTitle = newEntry.Title;
+
+                while (!validation.Valid && renameCount < 101)
+                {
+                    renameCount++;
+                    newEntry.Title = $"{baseTitle} - {renameCount}";
+                    newEntry.Slug = SlugUtility.Create(true, newEntry.Title);
+                    validation = await CommonContentValidation.ValidateSlugLocalAndDb(newEntry.Slug, newEntry.ContentId);
+                }
+
+                var (saveGenerationReturn, _) =
+                    await LineGenerator.SaveAndGenerateHtml(newEntry, DateTime.Now,
+                        consoleProgress);
+
+                if (saveGenerationReturn.HasError)
+                    //TODO: Need alerting on this that would actually be seen...
+                {
+                    Log.Error(
+                        $"Save Failed! GPX: {loopFile.gpxFileInfo.FullName}, Activity: {loopFile.activityFileInfo.FullName}");
+                    errorList.Add(
+                        $"Save Failed! GPX: {loopFile.gpxFileInfo.FullName}, Activity: {loopFile.activityFileInfo.FullName}");
+                    continue;
+                }
+
+                Log.Verbose(
+                    $"New Line - {loopFile.gpxFileInfo.FullName} - Track {innerLoopCounter} of {tracksList.Count}");
+            }
+
+            if (errorList.Any())
+            {
+                Console.WriteLine("Save Errors:");
+                errorList.ForEach(Console.WriteLine);
+            }
+
+            Log.Information("Garmin Connect Gpx Import Finished");
+        }
     }
 }

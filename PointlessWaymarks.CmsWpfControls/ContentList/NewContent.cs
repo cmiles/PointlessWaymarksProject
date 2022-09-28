@@ -315,7 +315,7 @@ public partial class NewContent
 
             var tracksList = await SpatialHelpers.TracksFromGpxFile(loopFile, statusContext.ProgressTracker());
 
-            if (tracksList.Count < 1)
+            if (tracksList.Count < 1 || tracksList.All(x => x.Track.Count < 2))
             {
                 statusContext.ToastWarning($"No Tracks in {loopFile.Name}? Skipping...");
                 return;
@@ -323,7 +323,7 @@ public partial class NewContent
 
             var innerLoopCounter = 0;
 
-            foreach (var loopTracks in tracksList)
+            foreach (var loopTracks in tracksList.Where(x => x.Track.Count > 1))
             {
                 innerLoopCounter++;
 

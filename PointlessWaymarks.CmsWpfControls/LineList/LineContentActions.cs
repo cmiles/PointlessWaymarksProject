@@ -88,6 +88,8 @@ public partial class LineContentActions : ObservableObject, IContentActions<Line
 
         var settings = UserSettingsSingleton.CurrentSettings();
 
+        var dataFile = settings.LocalSiteLineDataFile(content);
+
         await Db.DeleteLineContent(content.ContentId, StatusContext.ProgressTracker());
 
         var possibleContentDirectory = settings.LocalSiteLineContentDirectory(content, false);
@@ -95,6 +97,12 @@ public partial class LineContentActions : ObservableObject, IContentActions<Line
         {
             StatusContext.Progress($"Deleting Generated Folder {possibleContentDirectory.FullName}");
             possibleContentDirectory.Delete(true);
+        }
+
+        if (dataFile?.Exists ?? false)
+        {
+            StatusContext.Progress($"Deleting Line Data File {dataFile.FullName}");
+            dataFile.Delete();
         }
     }
 
