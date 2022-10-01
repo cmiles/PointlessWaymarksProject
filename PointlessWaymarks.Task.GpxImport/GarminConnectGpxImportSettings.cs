@@ -14,7 +14,7 @@ public class GarminConnectGpxImportSettings
         ErrorMessage = "A non-zero value must be given (or use the default of 1)")]
     public int DownloadDaysBack { get; set; } = 1;
 
-    public DateTime DownloadEndDate { get; set; } = DateTime.Now;
+    public DateTime DownloadEndDate { get; set; } = DateTime.Now.AddDays(-1);
 
     [Required(ErrorMessage = "A location for archived GPX files must be given.")]
     public string GpxArchiveDirectoryFullName { get; set; } = string.Empty;
