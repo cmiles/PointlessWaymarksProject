@@ -69,6 +69,8 @@
         <#=
                 Tags.CreatedByAndUpdatedOnDiv(DbEntry).ToString() #>
         <#=
+                Tags.PreviousAndNextPostsDiv(PreviousPosts, LaterPosts) #>
+        <#=
                     Tags.UpdateNotesDiv(DbEntry).Result.ToString() #>
     </div>
     <#= HorizontalRule.StandardRule() #>

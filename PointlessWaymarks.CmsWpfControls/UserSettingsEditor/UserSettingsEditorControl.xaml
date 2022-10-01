@@ -126,6 +126,20 @@
                         </wpf:MarkdownViewer>
                     </StackPanel>
                     <StackPanel Orientation="Vertical">
+                        <Label Style="{StaticResource DataEntryLabelStyle}" Target="{Binding ElementName=NumberOfItemsOnMainPageTextBox}">
+                            Maximum Number of Items To Show on Main Page
+                        </Label>
+                        <TextBox
+                            Name="NumberOfItemsOnMainPageTextBox"
+                            Style="{StaticResource DataEntryTextBoxSingleLineStyle}"
+                            Text="{Binding EditorSettings.NumberOfItemsOnMainSitePage, UpdateSourceTrigger=PropertyChanged}" />
+                        <wpf:MarkdownViewer Markdown="{Binding HelpMarkdownNumberOfItemsOnTheMainPage}">
+                            <b:Interaction.Behaviors>
+                                <behaviors:IgnoreMouseWheelBehavior />
+                            </b:Interaction.Behaviors>
+                        </wpf:MarkdownViewer>
+                    </StackPanel>
+                    <StackPanel Orientation="Vertical">
                         <Label Style="{StaticResource DataEntryLabelStyle}" Target="{Binding ElementName=SiteSummaryTextBox}">
                             Site Sub-title/Summary
                         </Label>

@@ -21,8 +21,6 @@ namespace PointlessWaymarks.CmsData.ContentHtml.IndexHtml;
 
 public partial class IndexPage
 {
-    private const int NumberOfContentItemsToDisplay = 4;
-
     public IndexPage()
     {
         var settings = UserSettingsSingleton.CurrentSettings();
@@ -42,13 +40,13 @@ public partial class IndexPage
 
         if (mainImageGuid != null) MainImage = new PictureSiteInformation(mainImageGuid);
 
-        if (!IndexContent.Any() || IndexContent.Count <= NumberOfContentItemsToDisplay)
+        if (!IndexContent.Any() || IndexContent.Count <= settings.NumberOfItemsOnMainSitePage)
         {
             PreviousPosts = new List<IContentCommon>();
         }
         else
         {
-            DateTime previousDate = IndexContent.Skip(NumberOfContentItemsToDisplay - 1).Max(x => x.CreatedOn);
+            DateTime previousDate = IndexContent.Skip(settings.NumberOfItemsOnMainSitePage - 1).Max(x => x.CreatedOn);
 
             var previousLater = Tags.MainFeedPreviousAndLaterContent(6, previousDate);
 
@@ -79,7 +77,8 @@ public partial class IndexPage
         var indexBodyContainer = new DivTag().AddClass("index-posts-container");
 
         //!!Content Type List!!
-        foreach (var loopPosts in IndexContent.Take(NumberOfContentItemsToDisplay))
+        foreach (var loopPosts in
+                 IndexContent.Take(UserSettingsSingleton.CurrentSettings().NumberOfItemsOnMainSitePage))
         {
             if (loopPosts.GetType() == typeof(PostContent))
             {
@@ -161,7 +160,8 @@ public partial class IndexPage
     {
         await WriteRss().ConfigureAwait(false);
 
-        foreach (var loopPosts in IndexContent.Take(NumberOfContentItemsToDisplay))
+        foreach (var loopPosts in
+                 IndexContent.Take(UserSettingsSingleton.CurrentSettings().NumberOfItemsOnMainSitePage))
         {
             if (DynamicTypeHelpers.PropertyExists(loopPosts, "Body") &&
                 BracketCodeCommon.ContainsSpatialScriptDependentBracketCodes((string)loopPosts.Body))
@@ -378,7 +378,6 @@ public partial class IndexPage
                 items.Add(RssBuilder.RssItemString(post.DbEntry.Title, $"{post.PageUrl}", content,
                     post.DbEntry.CreatedOn, post.DbEntry.ContentId.ToString()));
             }
-
         }
 
         var localIndexFile = UserSettingsSingleton.CurrentSettings().LocalSiteRssIndexFeedListFile();

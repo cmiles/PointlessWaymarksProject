@@ -482,7 +482,7 @@ public static class Tags
         return relatedPostsContainer;
     }
 
-    public static HtmlTag PreviousAndNextPostsDiv(List<IContentCommon> previousPosts,
+    public static HtmlTag PreviousAndNextContentDiv(List<IContentCommon> previousPosts,
         List<IContentCommon> laterPosts)
     {
         if (!laterPosts.Any() && !previousPosts.Any()) return HtmlTag.Empty();

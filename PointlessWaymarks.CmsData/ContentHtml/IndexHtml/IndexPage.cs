@@ -192,14 +192,14 @@ namespace PointlessWaymarks.CmsData.ContentHtml.IndexHtml
             this.Write("\r\n    ");
             
             #line 46 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\IndexHtml\IndexPage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(Tags.PreviousAndNextPostsDiv(PreviousPosts, new List<IContentCommon>())));
+            this.Write(this.ToStringHelper.ToStringWithCulture(Tags.PreviousAndNextContentDiv(PreviousPosts, new List<IContentCommon>())));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
             #line 48 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\IndexHtml\IndexPage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(HorizontalRule.StandardRuleIfNotEmptyTag(Tags.PreviousAndNextPostsDiv(PreviousPosts,
+            this.Write(this.ToStringHelper.ToStringWithCulture(HorizontalRule.StandardRuleIfNotEmptyTag(Tags.PreviousAndNextContentDiv(PreviousPosts,
                         new List<IContentCommon>()))));
             
             #line default

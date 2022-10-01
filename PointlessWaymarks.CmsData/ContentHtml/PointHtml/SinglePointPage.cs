@@ -16,7 +16,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml.PointHtml
     /// Class to produce the template output
     /// </summary>
     
-    #line 1 "C:\Code\PointlessWaymarksCms06\PointlessWaymarks.CmsData\ContentHtml\PointHtml\SinglePointPage.tt"
+    #line 1 "C:\Code\PointlessWaymarksCms03\PointlessWaymarks.CmsData\ContentHtml\PointHtml\SinglePointPage.tt"
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.TextTemplating", "17.0.0.0")]
     public partial class SinglePointPage : SinglePointPageBase
     {
@@ -28,35 +28,35 @@ namespace PointlessWaymarks.CmsData.ContentHtml.PointHtml
         {
             this.Write("<!DOCTYPE html>\r\n<html lang=\"en\">\r\n<head data-contentversion=\"");
             
-            #line 5 "C:\Code\PointlessWaymarksCms06\PointlessWaymarks.CmsData\ContentHtml\PointHtml\SinglePointPage.tt"
+            #line 5 "C:\Code\PointlessWaymarksCms03\PointlessWaymarks.CmsData\ContentHtml\PointHtml\SinglePointPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(DbEntry.ContentVersion.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fffffff")));
             
             #line default
             #line hidden
             this.Write("\" data-generationversion=\"");
             
-            #line 6 "C:\Code\PointlessWaymarksCms06\PointlessWaymarks.CmsData\ContentHtml\PointHtml\SinglePointPage.tt"
+            #line 6 "C:\Code\PointlessWaymarksCms03\PointlessWaymarks.CmsData\ContentHtml\PointHtml\SinglePointPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(GenerationVersion?.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fffffff") ?? string.Empty));
             
             #line default
             #line hidden
             this.Write("\" lang=\"");
             
-            #line 7 "C:\Code\PointlessWaymarksCms06\PointlessWaymarks.CmsData\ContentHtml\PointHtml\SinglePointPage.tt"
+            #line 7 "C:\Code\PointlessWaymarksCms03\PointlessWaymarks.CmsData\ContentHtml\PointHtml\SinglePointPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(LangAttribute));
             
             #line default
             #line hidden
             this.Write("\" dir=\"");
             
-            #line 7 "C:\Code\PointlessWaymarksCms06\PointlessWaymarks.CmsData\ContentHtml\PointHtml\SinglePointPage.tt"
+            #line 7 "C:\Code\PointlessWaymarksCms03\PointlessWaymarks.CmsData\ContentHtml\PointHtml\SinglePointPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(DirAttribute));
             
             #line default
             #line hidden
             this.Write("\">\r\n    <meta charset=\"utf-8\">\r\n            ");
             
-            #line 9 "C:\Code\PointlessWaymarksCms06\PointlessWaymarks.CmsData\ContentHtml\PointHtml\SinglePointPage.tt"
+            #line 9 "C:\Code\PointlessWaymarksCms03\PointlessWaymarks.CmsData\ContentHtml\PointHtml\SinglePointPage.tt"
 
     if (DbEntry.IsDraft)
     {
@@ -66,7 +66,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml.PointHtml
             #line hidden
             this.Write("        <meta name=\"robots\" content=\"noindex\" />\r\n    ");
             
-            #line 14 "C:\Code\PointlessWaymarksCms06\PointlessWaymarks.CmsData\ContentHtml\PointHtml\SinglePointPage.tt"
+            #line 14 "C:\Code\PointlessWaymarksCms03\PointlessWaymarks.CmsData\ContentHtml\PointHtml\SinglePointPage.tt"
 
     }
 
@@ -75,42 +75,42 @@ namespace PointlessWaymarks.CmsData.ContentHtml.PointHtml
             #line hidden
             this.Write("    <title>");
             
-            #line 17 "C:\Code\PointlessWaymarksCms06\PointlessWaymarks.CmsData\ContentHtml\PointHtml\SinglePointPage.tt"
+            #line 17 "C:\Code\PointlessWaymarksCms03\PointlessWaymarks.CmsData\ContentHtml\PointHtml\SinglePointPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(DbEntry.Title.HtmlEncode()));
             
             #line default
             #line hidden
             this.Write("</title>\r\n    <meta name=\"description\" content=\"");
             
-            #line 18 "C:\Code\PointlessWaymarksCms06\PointlessWaymarks.CmsData\ContentHtml\PointHtml\SinglePointPage.tt"
+            #line 18 "C:\Code\PointlessWaymarksCms03\PointlessWaymarks.CmsData\ContentHtml\PointHtml\SinglePointPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(DbEntry.Summary.HtmlEncode()));
             
             #line default
             #line hidden
             this.Write("\">\r\n    <meta name=\"author\" content=\"");
             
-            #line 19 "C:\Code\PointlessWaymarksCms06\PointlessWaymarks.CmsData\ContentHtml\PointHtml\SinglePointPage.tt"
+            #line 19 "C:\Code\PointlessWaymarksCms03\PointlessWaymarks.CmsData\ContentHtml\PointHtml\SinglePointPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(DbEntry.CreatedBy.HtmlEncode()));
             
             #line default
             #line hidden
             this.Write("\">\r\n    <meta name=\"keywords\" content=\"");
             
-            #line 20 "C:\Code\PointlessWaymarksCms06\PointlessWaymarks.CmsData\ContentHtml\PointHtml\SinglePointPage.tt"
+            #line 20 "C:\Code\PointlessWaymarksCms03\PointlessWaymarks.CmsData\ContentHtml\PointHtml\SinglePointPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(DbEntry.Tags.HtmlEncode()));
             
             #line default
             #line hidden
             this.Write("\" >\r\n\r\n    <meta property=\"og:site_name\" content=\"");
             
-            #line 22 "C:\Code\PointlessWaymarksCms06\PointlessWaymarks.CmsData\ContentHtml\PointHtml\SinglePointPage.tt"
+            #line 22 "C:\Code\PointlessWaymarksCms03\PointlessWaymarks.CmsData\ContentHtml\PointHtml\SinglePointPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(SiteName.HtmlEncode()));
             
             #line default
             #line hidden
             this.Write("\" />\r\n    <meta property=\"og:url\" content=\"");
             
-            #line 23 "C:\Code\PointlessWaymarksCms06\PointlessWaymarks.CmsData\ContentHtml\PointHtml\SinglePointPage.tt"
+            #line 23 "C:\Code\PointlessWaymarksCms03\PointlessWaymarks.CmsData\ContentHtml\PointHtml\SinglePointPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(PageUrl));
             
             #line default
@@ -118,21 +118,21 @@ namespace PointlessWaymarks.CmsData.ContentHtml.PointHtml
             this.Write("\" />\r\n    <meta property=\"og:type\" content=\"article\" />\r\n    <meta property=\"og:t" +
                     "itle\" content=\"");
             
-            #line 25 "C:\Code\PointlessWaymarksCms06\PointlessWaymarks.CmsData\ContentHtml\PointHtml\SinglePointPage.tt"
+            #line 25 "C:\Code\PointlessWaymarksCms03\PointlessWaymarks.CmsData\ContentHtml\PointHtml\SinglePointPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(DbEntry.Title.HtmlEncode()));
             
             #line default
             #line hidden
             this.Write("\" />\r\n    <meta property=\"og:description\" content=\"");
             
-            #line 26 "C:\Code\PointlessWaymarksCms06\PointlessWaymarks.CmsData\ContentHtml\PointHtml\SinglePointPage.tt"
+            #line 26 "C:\Code\PointlessWaymarksCms03\PointlessWaymarks.CmsData\ContentHtml\PointHtml\SinglePointPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(DbEntry.Summary.HtmlEncode()));
             
             #line default
             #line hidden
             this.Write("\" />\r\n\r\n    ");
             
-            #line 28 "C:\Code\PointlessWaymarksCms06\PointlessWaymarks.CmsData\ContentHtml\PointHtml\SinglePointPage.tt"
+            #line 28 "C:\Code\PointlessWaymarksCms03\PointlessWaymarks.CmsData\ContentHtml\PointHtml\SinglePointPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Tags.OpenGraphImageMetaTags(MainImage)));
             
             #line default
@@ -140,35 +140,35 @@ namespace PointlessWaymarks.CmsData.ContentHtml.PointHtml
             this.Write("\r\n\r\n    <link rel = \"schema.DC\" href = \"http://purl.org/DC/elements/1.0/\">\r\n    <" +
                     "meta name=\"DC.Title\" content=\"");
             
-            #line 31 "C:\Code\PointlessWaymarksCms06\PointlessWaymarks.CmsData\ContentHtml\PointHtml\SinglePointPage.tt"
+            #line 31 "C:\Code\PointlessWaymarksCms03\PointlessWaymarks.CmsData\ContentHtml\PointHtml\SinglePointPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(DbEntry.Title.HtmlEncode()));
             
             #line default
             #line hidden
             this.Write("\">\r\n    <meta name=\"DC.Creator\" content=\"");
             
-            #line 32 "C:\Code\PointlessWaymarksCms06\PointlessWaymarks.CmsData\ContentHtml\PointHtml\SinglePointPage.tt"
+            #line 32 "C:\Code\PointlessWaymarksCms03\PointlessWaymarks.CmsData\ContentHtml\PointHtml\SinglePointPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(DbEntry.CreatedBy.HtmlEncode()));
             
             #line default
             #line hidden
             this.Write("\">\r\n    <meta name=\"DC.Publisher\" content=\"");
             
-            #line 33 "C:\Code\PointlessWaymarksCms06\PointlessWaymarks.CmsData\ContentHtml\PointHtml\SinglePointPage.tt"
+            #line 33 "C:\Code\PointlessWaymarksCms03\PointlessWaymarks.CmsData\ContentHtml\PointHtml\SinglePointPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(SiteName.HtmlEncode()));
             
             #line default
             #line hidden
             this.Write("\">\r\n    <meta name=\"DC.Description\" content=\"");
             
-            #line 34 "C:\Code\PointlessWaymarksCms06\PointlessWaymarks.CmsData\ContentHtml\PointHtml\SinglePointPage.tt"
+            #line 34 "C:\Code\PointlessWaymarksCms03\PointlessWaymarks.CmsData\ContentHtml\PointHtml\SinglePointPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(DbEntry.Summary.HtmlEncode()));
             
             #line default
             #line hidden
             this.Write("\">\r\n    <meta name=\"DC.Date\" content=\"");
             
-            #line 35 "C:\Code\PointlessWaymarksCms06\PointlessWaymarks.CmsData\ContentHtml\PointHtml\SinglePointPage.tt"
+            #line 35 "C:\Code\PointlessWaymarksCms03\PointlessWaymarks.CmsData\ContentHtml\PointHtml\SinglePointPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(DbEntry.CreatedOn.ToString("yyyy-MM-dd").HtmlEncode()));
             
             #line default
@@ -176,7 +176,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml.PointHtml
             this.Write("\">\r\n    <meta name=\"DC.Format\" content=\"text/html\">\r\n    <meta name=\"DC.Language\"" +
                     " content=\"en-US\">\r\n\r\n    ");
             
-            #line 40 "C:\Code\PointlessWaymarksCms06\PointlessWaymarks.CmsData\ContentHtml\PointHtml\SinglePointPage.tt"
+            #line 40 "C:\Code\PointlessWaymarksCms03\PointlessWaymarks.CmsData\ContentHtml\PointHtml\SinglePointPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Tags.SiteMainRss()));
             
             #line default
@@ -184,119 +184,126 @@ namespace PointlessWaymarks.CmsData.ContentHtml.PointHtml
             this.Write("\r\n\r\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\r\n\r" +
                     "\n    ");
             
-            #line 44 "C:\Code\PointlessWaymarksCms06\PointlessWaymarks.CmsData\ContentHtml\PointHtml\SinglePointPage.tt"
+            #line 44 "C:\Code\PointlessWaymarksCms03\PointlessWaymarks.CmsData\ContentHtml\PointHtml\SinglePointPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Tags.CssStyleFileString()));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 45 "C:\Code\PointlessWaymarksCms06\PointlessWaymarks.CmsData\ContentHtml\PointHtml\SinglePointPage.tt"
+            #line 45 "C:\Code\PointlessWaymarksCms03\PointlessWaymarks.CmsData\ContentHtml\PointHtml\SinglePointPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Tags.FavIconFileString()));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 46 "C:\Code\PointlessWaymarksCms06\PointlessWaymarks.CmsData\ContentHtml\PointHtml\SinglePointPage.tt"
+            #line 46 "C:\Code\PointlessWaymarksCms03\PointlessWaymarks.CmsData\ContentHtml\PointHtml\SinglePointPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(SpatialScripts.ScriptsAndLinks()));
             
             #line default
             #line hidden
             this.Write("\r\n</head>\r\n\r\n<body>\r\n    ");
             
-            #line 50 "C:\Code\PointlessWaymarksCms06\PointlessWaymarks.CmsData\ContentHtml\PointHtml\SinglePointPage.tt"
+            #line 50 "C:\Code\PointlessWaymarksCms03\PointlessWaymarks.CmsData\ContentHtml\PointHtml\SinglePointPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Tags.StandardHeader().Result.ToString()));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 51 "C:\Code\PointlessWaymarksCms06\PointlessWaymarks.CmsData\ContentHtml\PointHtml\SinglePointPage.tt"
+            #line 51 "C:\Code\PointlessWaymarksCms03\PointlessWaymarks.CmsData\ContentHtml\PointHtml\SinglePointPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(HorizontalRule.StandardRule()));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 52 "C:\Code\PointlessWaymarksCms06\PointlessWaymarks.CmsData\ContentHtml\PointHtml\SinglePointPage.tt"
+            #line 52 "C:\Code\PointlessWaymarksCms03\PointlessWaymarks.CmsData\ContentHtml\PointHtml\SinglePointPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Tags.TitleDiv(DbEntry).ToString()));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 53 "C:\Code\PointlessWaymarksCms06\PointlessWaymarks.CmsData\ContentHtml\PointHtml\SinglePointPage.tt"
+            #line 53 "C:\Code\PointlessWaymarksCms03\PointlessWaymarks.CmsData\ContentHtml\PointHtml\SinglePointPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Tags.PostCreatedByAndUpdatedOnDiv(DbEntry).ToString()));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 55 "C:\Code\PointlessWaymarksCms06\PointlessWaymarks.CmsData\ContentHtml\PointHtml\SinglePointPage.tt"
+            #line 55 "C:\Code\PointlessWaymarksCms03\PointlessWaymarks.CmsData\ContentHtml\PointHtml\SinglePointPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(PointParts.PointDivAndScript(DbEntry.Slug)));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 57 "C:\Code\PointlessWaymarksCms06\PointlessWaymarks.CmsData\ContentHtml\PointHtml\SinglePointPage.tt"
+            #line 57 "C:\Code\PointlessWaymarksCms03\PointlessWaymarks.CmsData\ContentHtml\PointHtml\SinglePointPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(PointParts.PointTextInfoDiv(DbEntry)));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 58 "C:\Code\PointlessWaymarksCms06\PointlessWaymarks.CmsData\ContentHtml\PointHtml\SinglePointPage.tt"
+            #line 58 "C:\Code\PointlessWaymarksCms03\PointlessWaymarks.CmsData\ContentHtml\PointHtml\SinglePointPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Tags.PostBodyDiv(DbEntry).Result.ToString()));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 60 "C:\Code\PointlessWaymarksCms06\PointlessWaymarks.CmsData\ContentHtml\PointHtml\SinglePointPage.tt"
+            #line 60 "C:\Code\PointlessWaymarksCms03\PointlessWaymarks.CmsData\ContentHtml\PointHtml\SinglePointPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(PointParts.PointDetailsDiv(DbEntry).Result.ToString()));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 62 "C:\Code\PointlessWaymarksCms06\PointlessWaymarks.CmsData\ContentHtml\PointHtml\SinglePointPage.tt"
+            #line 62 "C:\Code\PointlessWaymarksCms03\PointlessWaymarks.CmsData\ContentHtml\PointHtml\SinglePointPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(HorizontalRule.StandardRule()));
             
             #line default
             #line hidden
             this.Write("\r\n    <div class=\"information-section\">\r\n        ");
             
-            #line 64 "C:\Code\PointlessWaymarksCms06\PointlessWaymarks.CmsData\ContentHtml\PointHtml\SinglePointPage.tt"
+            #line 64 "C:\Code\PointlessWaymarksCms03\PointlessWaymarks.CmsData\ContentHtml\PointHtml\SinglePointPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Tags.TagList(DbEntry).ToString()));
             
             #line default
             #line hidden
             this.Write("\r\n        ");
             
-            #line 65 "C:\Code\PointlessWaymarksCms06\PointlessWaymarks.CmsData\ContentHtml\PointHtml\SinglePointPage.tt"
+            #line 65 "C:\Code\PointlessWaymarksCms03\PointlessWaymarks.CmsData\ContentHtml\PointHtml\SinglePointPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(BodyContentReferences.CompactContentTag(DbEntry, GenerationVersion).Result));
             
             #line default
             #line hidden
             this.Write("\r\n        ");
             
-            #line 67 "C:\Code\PointlessWaymarksCms06\PointlessWaymarks.CmsData\ContentHtml\PointHtml\SinglePointPage.tt"
+            #line 67 "C:\Code\PointlessWaymarksCms03\PointlessWaymarks.CmsData\ContentHtml\PointHtml\SinglePointPage.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(Tags.PreviousAndNextContentDiv(PreviousPosts, LaterPosts)));
+            
+            #line default
+            #line hidden
+            this.Write("\r\n        ");
+            
+            #line 69 "C:\Code\PointlessWaymarksCms03\PointlessWaymarks.CmsData\ContentHtml\PointHtml\SinglePointPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Tags.UpdateNotesDiv(DbEntry).Result.ToString()));
             
             #line default
             #line hidden
             this.Write("\r\n    </div>\r\n    ");
             
-            #line 70 "C:\Code\PointlessWaymarksCms06\PointlessWaymarks.CmsData\ContentHtml\PointHtml\SinglePointPage.tt"
+            #line 72 "C:\Code\PointlessWaymarksCms03\PointlessWaymarks.CmsData\ContentHtml\PointHtml\SinglePointPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(HorizontalRule.StandardRule()));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 71 "C:\Code\PointlessWaymarksCms06\PointlessWaymarks.CmsData\ContentHtml\PointHtml\SinglePointPage.tt"
+            #line 73 "C:\Code\PointlessWaymarksCms03\PointlessWaymarks.CmsData\ContentHtml\PointHtml\SinglePointPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Footer.StandardFooterDiv().Result));
             
             #line default

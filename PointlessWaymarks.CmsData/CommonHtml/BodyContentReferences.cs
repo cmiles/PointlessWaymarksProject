@@ -21,12 +21,23 @@ public static class BodyContentReferences
             relatedPostContainerDiv.Children.Add(relatedPostMainPictureContentDiv);
         }
 
+        string combinedTitleAndSummary;
+        if (content.Summary!.Equals(content.Title, StringComparison.OrdinalIgnoreCase) || content.Summary[..^1].ToString()
+                .Equals(content.Title, StringComparison.OrdinalIgnoreCase))
+        {
+            combinedTitleAndSummary = $"{content.Title}";
+        }
+        else
+        {
+            combinedTitleAndSummary = $"{content.Title} - {content.Summary}";
+        }
+
         var relatedPostMainTextContentDiv = new DivTag().AddClass("compact-content-text-content-container");
         var relatedPostMainTextTitleTextDiv = new DivTag().AddClass("compact-content-text-content-title-container");
         HtmlTag relatedPostMainTextTitleLink;
         if (content.MainPicture == null)
             relatedPostMainTextTitleLink =
-                new LinkTag($"{content.Title} - {content.Summary}",
+                new LinkTag(combinedTitleAndSummary,
                         UserSettingsSingleton.CurrentSettings().ContentUrl(content.ContentId).Result)
                     .AddClass("compact-content-text-content-title-link");
         else
@@ -129,13 +140,16 @@ public static class BodyContentReferences
             await BracketCodeFiles.DbContentFromBracketCodes(bodyContentToCheckIn, progress).ConfigureAwait(false));
         //contentCommonList.AddRange(BracketCodeFileImage.DbContentFromBracketCodes(bodyContentToCheckIn, progress));
         contentCommonList.AddRange(
-            await BracketCodeFileDownloads.DbContentFromBracketCodes(bodyContentToCheckIn, progress).ConfigureAwait(false));
+            await BracketCodeFileDownloads.DbContentFromBracketCodes(bodyContentToCheckIn, progress)
+                .ConfigureAwait(false));
         //contentCommonList.AddRange(BracketCodeGeoJson.DbContentFromBracketCodes(bodyContentToCheckIn, progress));
         contentCommonList.AddRange(
-            await BracketCodeGeoJsonLinks.DbContentFromBracketCodes(bodyContentToCheckIn, progress).ConfigureAwait(false));
+            await BracketCodeGeoJsonLinks.DbContentFromBracketCodes(bodyContentToCheckIn, progress)
+                .ConfigureAwait(false));
         //contentCommonList.AddRange(BracketCodeImages.DbContentFromBracketCodes(bodyContentToCheckIn, progress));
         contentCommonList.AddRange(
-            await BracketCodeImageLinks.DbContentFromBracketCodes(bodyContentToCheckIn, progress).ConfigureAwait(false));
+            await BracketCodeImageLinks.DbContentFromBracketCodes(bodyContentToCheckIn, progress)
+                .ConfigureAwait(false));
         //contentCommonList.AddRange(BracketCodeLines.DbContentFromBracketCodes(bodyContentToCheckIn, progress));
         contentCommonList.AddRange(
             await BracketCodeLineLinks.DbContentFromBracketCodes(bodyContentToCheckIn, progress).ConfigureAwait(false));
@@ -143,7 +157,8 @@ public static class BodyContentReferences
             await BracketCodeNotes.DbContentFromBracketCodes(bodyContentToCheckIn, progress).ConfigureAwait(false));
         //contentCommonList.AddRange(BracketCodePoints.DbContentFromBracketCodes(bodyContentToCheckIn, progress));
         contentCommonList.AddRange(
-            await BracketCodePointLinks.DbContentFromBracketCodes(bodyContentToCheckIn, progress).ConfigureAwait(false));
+            await BracketCodePointLinks.DbContentFromBracketCodes(bodyContentToCheckIn, progress)
+                .ConfigureAwait(false));
         contentCommonList.AddRange(
             await BracketCodePosts.DbContentFromBracketCodes(bodyContentToCheckIn, progress).ConfigureAwait(false));
 
@@ -161,12 +176,15 @@ public static class BodyContentReferences
             }
         }
 
-        var photoContent = await BracketCodePhotos.DbContentFromBracketCodes(bodyContentToCheckIn, progress).ConfigureAwait(false);
+        var photoContent = await BracketCodePhotos.DbContentFromBracketCodes(bodyContentToCheckIn, progress)
+            .ConfigureAwait(false);
         photoContent.AddRange(
-            await BracketCodePhotoLinks.DbContentFromBracketCodes(bodyContentToCheckIn, progress).ConfigureAwait(false));
+            await BracketCodePhotoLinks.DbContentFromBracketCodes(bodyContentToCheckIn, progress)
+                .ConfigureAwait(false));
 
         //If the object itself is a photo add it to the list
-        photoContent.AddIfNotNull(await db.PhotoContents.SingleOrDefaultAsync(x => x.ContentId == toCheckFor).ConfigureAwait(false));
+        photoContent.AddIfNotNull(await db.PhotoContents.SingleOrDefaultAsync(x => x.ContentId == toCheckFor)
+            .ConfigureAwait(false));
 
         if (photoContent.Any())
         {
@@ -184,9 +202,11 @@ public static class BodyContentReferences
 
         if (!relatedTags.Any()) return HtmlTag.Empty();
 
-        var relatedPostsList = new DivTag().AddClasses("related-posts-list-container", "compact-content-list-container");
+        var relatedPostsList =
+            new DivTag().AddClasses("related-posts-list-container", "compact-content-list-container");
 
-        relatedPostsList.Children.Add(new DivTag().Text("Related:").AddClasses("compact-content-label-tag", "compact-content-list-label"));
+        relatedPostsList.Children.Add(new DivTag().Text("Related:")
+            .AddClasses("compact-content-label-tag", "compact-content-list-label"));
 
         foreach (var loopPost in relatedTags) relatedPostsList.Children.Add(loopPost);
 
@@ -200,16 +220,19 @@ public static class BodyContentReferences
         var allRelated = new List<IContentCommon>();
 
         foreach (var loopGuid in toCheckFor)
-            allRelated.AddRange(await db.RelatedContentReferencesFromOtherContent(loopGuid, generationVersion).ConfigureAwait(false));
+            allRelated.AddRange(await db.RelatedContentReferencesFromOtherContent(loopGuid, generationVersion)
+                .ConfigureAwait(false));
 
         if (!allRelated.Any()) return HtmlTag.Empty();
 
         allRelated = allRelated.GroupBy(x => x.ContentId).Select(x => x.First())
             .OrderByDescending(x => x.LastUpdatedOn ?? x.CreatedOn).ToList();
 
-        var relatedPostsList = new DivTag().AddClasses("related-posts-list-container", "compact-content-list-container");
+        var relatedPostsList =
+            new DivTag().AddClasses("related-posts-list-container", "compact-content-list-container");
 
-        relatedPostsList.Children.Add(new DivTag().Text("Related:").AddClasses("compact-content-label-tag", "compact-content-list-label"));
+        relatedPostsList.Children.Add(new DivTag().Text("Related:")
+            .AddClasses("compact-content-label-tag", "compact-content-list-label"));
 
         foreach (var loopPost in allRelated) relatedPostsList.Children.Add(CompactContentDiv(loopPost));
 

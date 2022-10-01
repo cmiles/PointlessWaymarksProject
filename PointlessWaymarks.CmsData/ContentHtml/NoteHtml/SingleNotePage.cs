@@ -242,7 +242,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml.NoteHtml
             this.Write("\r\n        ");
             
             #line 61 "C:\Code\PointlessWaymarksCms03\PointlessWaymarks.CmsData\ContentHtml\NoteHtml\SingleNotePage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(Tags.PreviousAndNextPostsDiv(PreviousPosts, LaterPosts)));
+            this.Write(this.ToStringHelper.ToStringWithCulture(Tags.PreviousAndNextContentDiv(PreviousPosts, LaterPosts)));
             
             #line default
             #line hidden

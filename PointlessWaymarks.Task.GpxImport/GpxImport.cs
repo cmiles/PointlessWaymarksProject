@@ -213,7 +213,9 @@ public class GpxImport
 
                 try
                 {
-                    file = await Policy.Handle<Exception>().WaitAndRetryAsync(3, i => TimeSpan.FromMinutes(1 * i)).ExecuteAsync(async () => await client.DownloadActivity(loopActivity.ActivityId, ActivityDownloadFormat.GPX));
+                    file = await Policy.Handle<Exception>().WaitAndRetryAsync(3, i => TimeSpan.FromMinutes(1 * i))
+                        .ExecuteAsync(async () =>
+                            await client.DownloadActivity(loopActivity.ActivityId, ActivityDownloadFormat.GPX));
                 }
                 catch (Exception e)
                 {
@@ -290,7 +292,8 @@ public class GpxImport
                 newEntry.Tags = Db.TagListJoinAsSlugs(tagList, true);
                 newEntry.ShowInMainSiteFeed = settings.ShowInMainSiteFeed;
 
-                var validation = await CommonContentValidation.ValidateSlugLocalAndDb(newEntry.Slug, newEntry.ContentId);
+                var validation =
+                    await CommonContentValidation.ValidateSlugLocalAndDb(newEntry.Slug, newEntry.ContentId);
                 var renameCount = 1;
                 var baseTitle = newEntry.Title;
 
@@ -299,7 +302,8 @@ public class GpxImport
                     renameCount++;
                     newEntry.Title = $"{baseTitle} - {renameCount}";
                     newEntry.Slug = SlugUtility.Create(true, newEntry.Title);
-                    validation = await CommonContentValidation.ValidateSlugLocalAndDb(newEntry.Slug, newEntry.ContentId);
+                    validation =
+                        await CommonContentValidation.ValidateSlugLocalAndDb(newEntry.Slug, newEntry.ContentId);
                 }
 
                 var (saveGenerationReturn, _) =

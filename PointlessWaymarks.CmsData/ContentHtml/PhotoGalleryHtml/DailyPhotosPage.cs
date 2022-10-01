@@ -228,7 +228,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml.PhotoGalleryHtml
             this.Write("\r\n        ");
             
             #line 61 "C:\Code\PointlessWaymarksCms03\PointlessWaymarks.CmsData\ContentHtml\PhotoGalleryHtml\DailyPhotosPage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(DailyPhotosPageParts.PreviousAndNextPostsDiv(this)));
+            this.Write(this.ToStringHelper.ToStringWithCulture(DailyPhotosPageParts.PreviousAndNextDailyPhotosDiv(this)));
             
             #line default
             #line hidden

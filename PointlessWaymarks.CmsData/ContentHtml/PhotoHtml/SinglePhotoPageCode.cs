@@ -24,18 +24,33 @@ public partial class SinglePhotoPage
         var (previousPhoto, nextPhoto) = Tags.PhotoPreviousAndNextContent(dbEntry.PhotoCreatedOn);
         PreviousPhoto = previousPhoto;
         NextPhoto = nextPhoto;
+
+        if (DbEntry.ShowInMainSiteFeed && !DbEntry.IsDraft)
+        {
+            var (previousContent, laterContent) = Tags.MainFeedPreviousAndLaterContent(3, DbEntry.CreatedOn);
+            PreviousPosts = previousContent;
+            LaterPosts = laterContent;
+        }
+        else
+        {
+            PreviousPosts = new List<IContentCommon>();
+            LaterPosts = new List<IContentCommon>();
+        }
     }
 
     public PhotoContent DbEntry { get; }
     public string DirAttribute { get; set; }
     public DateTime? GenerationVersion { get; set; }
     public string LangAttribute { get; set; }
+    public List<IContentCommon> LaterPosts { get; }
 
     public PhotoContent? NextPhoto { get; set; }
     public string PageUrl { get; }
     public PictureSiteInformation PictureInformation { get; }
 
     public PhotoContent? PreviousPhoto { get; set; }
+
+    public List<IContentCommon> PreviousPosts { get; }
     public string SiteName { get; }
     public string SiteUrl { get; }
 

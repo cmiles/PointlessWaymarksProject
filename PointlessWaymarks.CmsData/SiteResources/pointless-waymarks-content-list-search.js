@@ -70,6 +70,8 @@ function sortTitleDescending() {
 
 function searchContent() {
 
+    gsap.to(".content-list-container", { duration: .5, opacity: 0, display: "none" });
+
     var filterText = document.querySelector('#userSearchText').value.toUpperCase();
 
     var contentTypes = Array.from(document.querySelectorAll('.content-list-filter-checkbox'))
@@ -116,8 +118,10 @@ function searchContent() {
         }
     }
 
-    gsap.to(".hidden-list-item", { duration: .5, opacity: 0, display: "none" });
-    gsap.to(".shown-list-item", { duration: .5, opacity: 1, display: "" });
+    document.querySelectorAll(".shown-list-item").forEach(x => x.style.display = '');
+    document.querySelectorAll(".hidden-list-item").forEach(x => x.style.display = 'none');
+
+    gsap.to(".content-list-container", { duration: .5, opacity: 1, display: "" });
 }
 
 const processSearchContent = debounce(() => searchContent());

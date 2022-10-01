@@ -20,14 +20,29 @@ public partial class SingleImagePage
         DirAttribute = settings.SiteDirectionAttribute;
 
         PictureInformation = new PictureSiteInformation(DbEntry.ContentId);
+
+        if (DbEntry.ShowInMainSiteFeed && !DbEntry.IsDraft)
+        {
+            var (previousContent, laterContent) = Tags.MainFeedPreviousAndLaterContent(3, DbEntry.CreatedOn);
+            PreviousPosts = previousContent;
+            LaterPosts = laterContent;
+        }
+        else
+        {
+            PreviousPosts = new List<IContentCommon>();
+            LaterPosts = new List<IContentCommon>();
+        }
     }
 
     public ImageContent DbEntry { get; }
     public string DirAttribute { get; set; }
     public DateTime? GenerationVersion { get; set; }
     public string LangAttribute { get; set; }
+    public List<IContentCommon> LaterPosts { get; }
     public string PageUrl { get; }
     public PictureSiteInformation PictureInformation { get; }
+
+    public List<IContentCommon> PreviousPosts { get; }
     public string SiteName { get; }
     public string SiteUrl { get; }
 

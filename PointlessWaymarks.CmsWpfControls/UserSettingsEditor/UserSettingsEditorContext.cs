@@ -83,6 +83,8 @@ public partial class UserSettingsEditorContext
 
     public static string HelpMarkdownSubtitleSummary =>
         "Used as a sub-title and site summary - example 'Ramblings, Questionable Geographics, Photographic Half-truths'.";
+    public static string HelpMarkdownNumberOfItemsOnTheMainPage =>
+        "Determines the maximum number of items that will be displayed on the main/home/index page of the site.";
 
     private async Task LoadData(UserSettings toLoad)
     {

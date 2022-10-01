@@ -62,7 +62,7 @@ public static class DailyPhotosPageParts
         return containerDiv;
     }
 
-    public static HtmlTag PreviousAndNextPostsDiv(DailyPhotosPage photoPage)
+    public static HtmlTag PreviousAndNextDailyPhotosDiv(DailyPhotosPage photoPage)
     {
         if (photoPage.PreviousDailyPhotosPage == null && photoPage.NextDailyPhotosPage == null)
             return HtmlTag.Empty();

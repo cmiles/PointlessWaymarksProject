@@ -50,12 +50,23 @@ public static class ContentList
 
         HtmlTag compactContentSummaryTextDiv;
 
+        //Especially in automated imports the summary and title could end up the same - if they are blank the 
+        //summary in the context of compact content.
+        var modifiedSummaryText = "";
+
+        if (!string.IsNullOrWhiteSpace(content.Summary) &&
+            content.Summary.Equals(content.Title, StringComparison.OrdinalIgnoreCase) || content.Summary![..^1].ToString()
+                .Equals(content.Title, StringComparison.OrdinalIgnoreCase))
+        {
+            modifiedSummaryText = string.Empty;
+        }
+
         if (content.MainPicture == null)
             compactContentSummaryTextDiv = new DivTag().AddClass("compact-content-text-content-summary")
-                .Text(content.Summary);
+                .Text(modifiedSummaryText);
         else
             compactContentSummaryTextDiv = new DivTag().AddClass("compact-content-text-content-optional-summary")
-                .Text(content.Summary);
+                .Text(modifiedSummaryText);
 
         var compactContentMainTextCreatedOrUpdatedTextDiv = new DivTag()
             .AddClass("compact-content-text-content-date")

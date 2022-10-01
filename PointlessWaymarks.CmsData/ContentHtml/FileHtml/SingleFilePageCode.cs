@@ -20,7 +20,20 @@ public partial class SingleFilePage
         DirAttribute = settings.SiteDirectionAttribute;
 
         if (DbEntry.MainPicture != null) MainImage = new PictureSiteInformation(DbEntry.MainPicture.Value);
+
+        if (DbEntry.ShowInMainSiteFeed && !DbEntry.IsDraft)
+        {
+            var (previousContent, laterContent) = Tags.MainFeedPreviousAndLaterContent(3, DbEntry.CreatedOn);
+            PreviousPosts = previousContent;
+            LaterPosts = laterContent;
+        }
+        else
+        {
+            PreviousPosts = new List<IContentCommon>();
+            LaterPosts = new List<IContentCommon>();
+        }
     }
+
 
     public FileContent DbEntry { get; set; }
 
@@ -28,8 +41,11 @@ public partial class SingleFilePage
     public DateTime? GenerationVersion { get; init; }
 
     public string LangAttribute { get; set; }
+    public List<IContentCommon> LaterPosts { get; }
     public PictureSiteInformation? MainImage { get; }
     public string PageUrl { get; set; }
+
+    public List<IContentCommon> PreviousPosts { get; }
     public string SiteName { get; set; }
     public string SiteUrl { get; set; }
 

@@ -1230,6 +1230,16 @@ public static class UserSettingsUtilities
                 continue;
             }
 
+            if (loopProperties.PropertyType == typeof(int))
+            {
+                var valueTranslated = int.TryParse(existingValue, out var translated);
+
+                if (valueTranslated)
+                    loopProperties.SetValue(readResult, translated);
+
+                continue;
+            }
+
             if (loopProperties.PropertyType == typeof(Guid))
             {
                 var valueTranslated = Guid.TryParse(existingValue, out var translated);
@@ -1416,6 +1426,7 @@ public static class UserSettingsUtilities
         newSettings.SiteEmailTo = "emailto@nowhere.com";
         newSettings.LatitudeDefault = 32.443131;
         newSettings.LongitudeDefault = -110.788429;
+        newSettings.NumberOfItemsOnMainSitePage = 4;
         newSettings.SettingsId = Guid.NewGuid();
 
         SettingsFileFullName =

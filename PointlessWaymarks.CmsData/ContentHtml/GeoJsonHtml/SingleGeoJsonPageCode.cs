@@ -20,6 +20,18 @@ public partial class SingleGeoJsonPage
         DirAttribute = settings.SiteDirectionAttribute;
 
         if (DbEntry.MainPicture != null) MainImage = new PictureSiteInformation(DbEntry.MainPicture.Value);
+
+        if (DbEntry.ShowInMainSiteFeed && !DbEntry.IsDraft)
+        {
+            var (previousContent, laterContent) = Tags.MainFeedPreviousAndLaterContent(3, DbEntry.CreatedOn);
+            PreviousPosts = previousContent;
+            LaterPosts = laterContent;
+        }
+        else
+        {
+            PreviousPosts = new List<IContentCommon>();
+            LaterPosts = new List<IContentCommon>();
+        }
     }
 
     public GeoJsonContent DbEntry { get; }
@@ -28,8 +40,11 @@ public partial class SingleGeoJsonPage
     public DateTime? GenerationVersion { get; set; }
 
     public string LangAttribute { get; set; }
+    public List<IContentCommon> LaterPosts { get; }
     public PictureSiteInformation? MainImage { get; }
     public string PageUrl { get; }
+
+    public List<IContentCommon> PreviousPosts { get; }
     public string SiteName { get; }
     public string SiteUrl { get; }
 

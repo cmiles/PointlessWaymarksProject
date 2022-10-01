@@ -21,9 +21,17 @@ public partial class SinglePostPage
 
         if (DbEntry.MainPicture != null) MainImage = new PictureSiteInformation(DbEntry.MainPicture.Value);
 
-        var (previousContent, laterContent) = Tags.MainFeedPreviousAndLaterContent(3, DbEntry.CreatedOn);
-        PreviousPosts = previousContent;
-        LaterPosts = laterContent;
+        if (DbEntry.ShowInMainSiteFeed && !DbEntry.IsDraft)
+        {
+            var (previousContent, laterContent) = Tags.MainFeedPreviousAndLaterContent(3, DbEntry.CreatedOn);
+            PreviousPosts = previousContent;
+            LaterPosts = laterContent;
+        }
+        else
+        {
+            PreviousPosts = new List<IContentCommon>();
+            LaterPosts = new List<IContentCommon>();
+        }
     }
 
     public PostContent DbEntry { get; }

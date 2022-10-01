@@ -58,10 +58,12 @@
     <#= HorizontalRule.StandardRule() #>
     <div class="information-section">
     <#=
-        LineParts.LineStatisticsDiv(DbEntry).ToString() #>
+        LineParts.LineStatisticsWithContentDiv(DbEntry).ToString() #>
     <#= Tags.TagList(DbEntry).ToString() #>
     <#=
             BodyContentReferences.CompactContentTag(DbEntry, GenerationVersion).Result #>
+    <#=
+                Tags.PreviousAndNextPostsDiv(PreviousPosts, LaterPosts) #>
     <#=
                 Tags.UpdateNotesDiv(DbEntry).Result.ToString() #>
     </div>

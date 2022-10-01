@@ -215,7 +215,9 @@ public partial class FilesWrittenLogListContext
 
         if (!items.Any()) return;
 
-        var toTransfer = FileItemsToUploaderItems(items);
+        var deduplicateItems = items.GroupBy(x => x.WrittenFile).Select(x => x.First()).ToList();
+        
+        var toTransfer = FileItemsToUploaderItems(deduplicateItems);
 
         if (!toTransfer.Any())
         {
@@ -243,7 +245,9 @@ public partial class FilesWrittenLogListContext
     {
         if (!items.Any()) return;
 
-        var toTransfer = FileItemsToUploaderItems(items);
+        var deduplicateItems = items.GroupBy(x => x.WrittenFile).Select(x => x.First()).ToList();
+
+        var toTransfer = FileItemsToUploaderItems(deduplicateItems);
 
         var fileName = Path.Combine(UserSettingsSingleton.CurrentSettings().LocalScriptsDirectory().FullName,
             $"{DateTime.Now:yyyy-MM-dd--HH-mm-ss}---File-Upload-Data.json");
