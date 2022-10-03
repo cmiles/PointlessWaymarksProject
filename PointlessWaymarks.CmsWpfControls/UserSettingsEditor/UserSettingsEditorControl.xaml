@@ -238,6 +238,20 @@
                         </wpf:MarkdownViewer>
                     </StackPanel>
                     <StackPanel Orientation="Vertical">
+                        <Label Style="{StaticResource DataEntryLabelStyle}" Target="{Binding ElementName=FeatureIntersectionTextBox}">
+                            Feature Intersection Settings File
+                        </Label>
+                        <TextBox
+                            Name="FeatureIntersectionTextBox"
+                            Style="{StaticResource DataEntryTextBoxSingleLineStyle}"
+                            Text="{Binding EditorSettings.FeatureIntersectionTagSettingsFile, UpdateSourceTrigger=PropertyChanged}" />
+                        <wpf:MarkdownViewer Markdown="{Binding HelpMarkdownFeatureIntersectionSettingsFile}">
+                            <b:Interaction.Behaviors>
+                                <behaviors:IgnoreMouseWheelBehavior />
+                            </b:Interaction.Behaviors>
+                        </wpf:MarkdownViewer>
+                    </StackPanel>
+                    <StackPanel Orientation="Vertical">
                         <Label Style="{StaticResource DataEntryLabelStyle}" Target="{Binding ElementName=LatitudeTextBox}">
                             Default Latitude
                         </Label>

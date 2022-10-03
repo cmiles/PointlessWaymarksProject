@@ -8,8 +8,6 @@ public record IntersectFile(
     [property: JsonPropertyName("attributesForTags")]
     IReadOnlyList<string> AttributesForTags,
     [property: JsonPropertyName("tagAll")] string TagAll,
-    [property: JsonPropertyName("downloaded")]
-    string Downloaded,
     [property: JsonPropertyName("fileName")]
     string FileName
 );

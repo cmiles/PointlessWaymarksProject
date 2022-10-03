@@ -3,6 +3,7 @@ using System.Text.Json.Serialization;
 using Garmin.Connect;
 using Garmin.Connect.Auth;
 using Garmin.Connect.Models;
+using NetTopologySuite.Features;
 using NetTopologySuite.IO;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.Content;
@@ -118,7 +119,6 @@ public class GpxImport
             searchDateRanges.Add((
                 settings.DownloadEndDate.Date.AddDays(-(settings.DownloadDaysBack % searchSegmentLength) + 1),
                 settings.DownloadEndDate.AddDays(1).Date.AddTicks(-1)));
-
 
         var authParameters = new BasicAuthParameters(settings.ConnectUserName, settings.ConnectPassword);
         var client = new GarminConnectClient(new GarminConnectContext(new HttpClient(), authParameters));
@@ -287,9 +287,9 @@ public class GpxImport
 
                 var newEntry = await LineGenerator.NewFromGpxTrack(loopTracks, false, consoleProgress);
 
-                var tagList = Db.TagListParseToSlugs(newEntry.Tags, true);
+                var tagList = Db.TagListParseToSlugs(newEntry.Tags, false);
                 tagList.Add("garmin connect import");
-                newEntry.Tags = Db.TagListJoinAsSlugs(tagList, true);
+                newEntry.Tags = Db.TagListJoinAsSlugs(tagList, false);
                 newEntry.ShowInMainSiteFeed = settings.ShowInMainSiteFeed;
 
                 var validation =
@@ -304,6 +304,24 @@ public class GpxImport
                     newEntry.Slug = SlugUtility.Create(true, newEntry.Title);
                     validation =
                         await CommonContentValidation.ValidateSlugLocalAndDb(newEntry.Slug, newEntry.ContentId);
+                }
+
+                if (!string.IsNullOrEmpty(settings.IntersectionTagSettings))
+                {
+                    var featureToCheck = newEntry.FeatureFromGeoJsonLine();
+
+                    if (featureToCheck != null)
+                    {
+                        var tagger = new FeatureIntersectionTags.Intersection();
+                        var taggerResult = tagger.FindTagsFromIntersections(settings.IntersectionTagSettings, featureToCheck.AsList());
+
+                        if (taggerResult.Any() && taggerResult.First().Tags.Any())
+                        {
+                            var tagListForIntersection = Db.TagListParseToSlugs(newEntry.Tags, false);
+                            tagListForIntersection.AddRange(taggerResult.First().Tags);
+                            newEntry.Tags = Db.TagListJoinAsSlugs(tagListForIntersection, false);
+                        }
+                    }
                 }
 
                 var (saveGenerationReturn, _) =

@@ -79,6 +79,9 @@ public partial class UserSettingsEditorContext
     public static string HelpMarkdownSiteLangAttribute =>
         "Lang attribute indicating the default language for the site - see [lang attribute on MDN](https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/lang) for more information.";
 
+    public static string HelpMarkdownFeatureIntersectionSettingsFile =>
+        "This program can check a Point or Line against a set of GeoJson files to generate tags. The settings file for that feature must be specified here.";
+
     public static string HelpMarkdownSiteName => "The 'human readable' Site Name - for example 'Pointless Waymarks'.";
 
     public static string HelpMarkdownSubtitleSummary =>

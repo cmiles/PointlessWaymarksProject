@@ -2,10 +2,12 @@
   "connectUserName": "",
   "connectPassword": "",
   "gpxArchiveDirectoryFullName": "C:\\GarminPointlessWaymarksArchive",
+  "intersectionTagSettings":  "",
   "downloadEndDate": "",
   "downloadDaysBack": 1,
   "overwriteExistingArchiveDirectoryFiles": false,
   "importActivitiesToSite": false,
   "pointlessWaymarksSiteSettingsFileFullName": "",
-  "showInMainSiteFeed": true
+  "showInMainSiteFeed": true,
+  "generateSiteAndUploadAfterImport":  false
 }

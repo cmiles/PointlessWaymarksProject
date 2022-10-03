@@ -27,4 +27,8 @@ public class GarminConnectGpxImportSettings
     public string PointlessWaymarksSiteSettingsFileFullName { get; set; } = string.Empty;
 
     public bool ShowInMainSiteFeed { get; set; }
+
+    public string IntersectionTagSettings { get; set;}
+
+    public bool GenerateSiteAndUploadAfterImport { get; set; }
 }

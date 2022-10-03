@@ -13,6 +13,13 @@
 
   <ItemGroup>
     <ProjectReference Include="..\PointlessWaymarks.CmsData\PointlessWaymarks.CmsData.csproj" />
+    <ProjectReference Include="..\PointlessWaymarks.FeatureIntersectionTags\PointlessWaymarks.FeatureIntersectionTags.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="README.md">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>
