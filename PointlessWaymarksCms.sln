@@ -34,6 +34,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PointlessWaymarks.Task.Memo
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PointlessWaymarks.Task.GarminConnectGpxImport", "PointlessWaymarks.Task.GpxImport\PointlessWaymarks.Task.GarminConnectGpxImport.csproj", "{05C70B49-DF03-4ABA-A92D-124EF63A2F3E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PointlessWaymarks.FeatureIntersectionTags", "PointlessWaymarks.FeatureIntersectionTags\PointlessWaymarks.FeatureIntersectionTags.csproj", "{83CAE91D-FE3E-4853-BB68-6A4A5E7742F7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -84,6 +86,10 @@ Global
 		{05C70B49-DF03-4ABA-A92D-124EF63A2F3E}.Debug|x64.Build.0 = Debug|x64
 		{05C70B49-DF03-4ABA-A92D-124EF63A2F3E}.Release|x64.ActiveCfg = Release|x64
 		{05C70B49-DF03-4ABA-A92D-124EF63A2F3E}.Release|x64.Build.0 = Release|x64
+		{83CAE91D-FE3E-4853-BB68-6A4A5E7742F7}.Debug|x64.ActiveCfg = Debug|x64
+		{83CAE91D-FE3E-4853-BB68-6A4A5E7742F7}.Debug|x64.Build.0 = Debug|x64
+		{83CAE91D-FE3E-4853-BB68-6A4A5E7742F7}.Release|x64.ActiveCfg = Release|x64
+		{83CAE91D-FE3E-4853-BB68-6A4A5E7742F7}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
