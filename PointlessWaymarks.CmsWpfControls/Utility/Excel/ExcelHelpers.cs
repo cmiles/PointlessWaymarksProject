@@ -58,7 +58,7 @@ public static class ExcelHelpers
         {
             progress?.Report($"Opening Excel File {file.FullName}");
 
-            var ps = new ProcessStartInfo(file.FullName) {UseShellExecute = true, Verb = "open"};
+            var ps = new ProcessStartInfo(file.FullName) { UseShellExecute = true, Verb = "open" };
             Process.Start(ps);
         }
 
@@ -107,7 +107,7 @@ public static class ExcelHelpers
         var shouldContinue = await statusContext.ShowMessage("Confirm Import",
             $"Continue?{Environment.NewLine}{Environment.NewLine}{contentImportResult.ToUpdate.Count} updates from {newFile.FullName} {Environment.NewLine}" +
             $"{string.Join(Environment.NewLine, contentImportResult.ToUpdate.Select(x => $"{Environment.NewLine}{x.Title}{Environment.NewLine}{x.DifferenceNotes}"))}",
-            new List<string> {"Yes", "No"});
+            new List<string> { "Yes", "No" });
 
         if (shouldContinue == "No") return;
 
@@ -156,7 +156,7 @@ public static class ExcelHelpers
         var shouldContinue = await statusContext.ShowMessage("Confirm Import",
             $"Continue?{Environment.NewLine}{Environment.NewLine}{contentImportResult.ToUpdate.Count} updates from Excel {Environment.NewLine}" +
             $"{string.Join(Environment.NewLine, contentImportResult.ToUpdate.Select(x => $"{Environment.NewLine}{x.Title}{Environment.NewLine}{x.DifferenceNotes}"))}",
-            new List<string> {"Yes", "No"});
+            new List<string> { "Yes", "No" });
 
         if (shouldContinue == "No") return;
 
@@ -270,7 +270,7 @@ public static class ExcelHelpers
         {
             progress?.Report($"Opening Excel File {file.FullName}");
 
-            var ps = new ProcessStartInfo(file.FullName) {UseShellExecute = true, Verb = "open"};
+            var ps = new ProcessStartInfo(file.FullName) { UseShellExecute = true, Verb = "open" };
             Process.Start(ps);
         }
 
@@ -289,10 +289,21 @@ public static class ExcelHelpers
 
         List<object> excelObjects = new();
 
-        excelObjects.AddRange(selected.Where(x => x.DbEntry is LineContent).Select(x => x.DbEntry as LineContent).Select(x => (object)new LineContentForExcel().InjectFrom(x)));
-        excelObjects.AddRange(selected.Where(x => x.DbEntry is GeoJsonContent).Select(x => x.DbEntry as GeoJsonContent).Select(x => (object)new GeoJsonContentForExcel().InjectFrom(x)));
+        var firstType = ((object)selected.First().DbEntry).GetType();
 
-        excelObjects.AddRange(selected.Where(x => x.DbEntry is not (LineContent or GeoJsonContent)).Select(x => x.DbEntry).Cast<object>().ToList());
+        if (selected.All(x => x.DbEntry is LineContent))
+            excelObjects.AddRange(selected.Where(x => x.DbEntry is LineContent).Select(x => x.DbEntry as LineContent)
+                .Select(x => new LineContentForExcel().InjectFrom(x)));
+        else if (selected.All(x => x.DbEntry is GeoJsonContent))
+            excelObjects.AddRange(selected.Where(x => x.DbEntry is GeoJsonContent)
+                .Select(x => x.DbEntry as GeoJsonContent)
+                .Select(x => new GeoJsonContentForExcel().InjectFrom(x)));
+        else if (selected.All(x => ((object)x).GetType() == firstType))
+            excelObjects.AddRange(selected
+                .Select(x => x.DbEntry).Cast<object>().ToList());
+        else
+            excelObjects.AddRange(selected.Select(x =>
+                StaticValueInjecter.InjectFrom(new ContentCommonShell(), x.DbEntry)));
 
         ContentToExcelFileAsTable(excelObjects, "SelectedItems",
             progress: statusContext?.ProgressTracker());
