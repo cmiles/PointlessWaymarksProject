@@ -1,0 +1,3 @@
+﻿This code was pulled from [bcwood/PressSharper: A C# class library for parsing WordPress XML export data.](https://github.com/bcwood/PressSharper) which was forked from [dreadwail/press_sharp: A C# class library for parsing Wordpress XML export data.](https://github.com/dreadwail/press_sharp). It has been lightly refactored and integrated into this project.
+
+This provides test coverage for the PressSharper project - see that project for more notes.
