@@ -2,8 +2,12 @@
 using System.Windows.Shell;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using NetTopologySuite.Features;
+using NetTopologySuite.Geometries;
 using Ookii.Dialogs.Wpf;
+using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.Content;
+using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Spatial;
 using PointlessWaymarks.CmsWpfControls.FileContentEditor;
 using PointlessWaymarks.CmsWpfControls.GeoJsonContentEditor;
@@ -435,6 +439,8 @@ public partial class NewContent
 
         var loopCount = 0;
 
+        var intersectionTagger = new FeatureIntersectionTags.Intersection();
+
         foreach (var loopFile in validFiles)
         {
             cancellationToken.ThrowIfCancellationRequested();
@@ -461,6 +467,24 @@ public partial class NewContent
                         metaGenerationReturn.GenerationNote);
 #pragma warning restore 4014
                     continue;
+                }
+
+                if (metaContent.Latitude != null && metaContent.Longitude != null)
+                {
+                    var intersectionTags = intersectionTagger.Tags(
+                        UserSettingsSingleton.CurrentSettings().FeatureIntersectionTagSettingsFile,
+                        new List<IFeature>()
+                        {
+                            new Feature(new Point(metaContent.Longitude.Value, metaContent.Latitude.Value),
+                                new AttributesTable())
+                        });
+
+                    if (intersectionTags.Any())
+                    {
+                        var allTags = intersectionTags.SelectMany(x => x.Tags.Select(y => y).ToList();
+                        var tagList = Db.TagListParse(metaContent.Tags).Union(allTags).ToList();
+                        metaContent.Tags = Db.TagListJoin(tagList);
+                    }
                 }
 
                 var (saveGenerationReturn, _) = await PhotoGenerator.SaveAndGenerateHtml(metaContent, loopFile, true,
