@@ -1,11 +1,17 @@
 ﻿using System.Globalization;
 using System.IO;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows;
 using AngleSharp.Text;
-using Microsoft.EntityFrameworkCore;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using KellermanSoftware.CompareNetObjects;
+using KellermanSoftware.CompareNetObjects.Reports;
+using Microsoft.EntityFrameworkCore;
+using NetTopologySuite.Features;
+using NetTopologySuite.Geometries;
+using Omu.ValueInjecter;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.Content;
@@ -13,11 +19,15 @@ using PointlessWaymarks.CmsData.ContentHtml;
 using PointlessWaymarks.CmsData.ContentHtml.PhotoHtml;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
+using PointlessWaymarks.CmsData.Spatial;
 using PointlessWaymarks.CmsWpfControls.ContentList;
 using PointlessWaymarks.CmsWpfControls.PointContentEditor;
+using PointlessWaymarks.FeatureIntersectionTags;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 using PointlessWaymarks.WpfCommon.Utility;
+using Serilog;
+using Point = NetTopologySuite.Geometries.Point;
 
 namespace PointlessWaymarks.CmsWpfControls.PhotoList;
 
@@ -30,18 +40,20 @@ public partial class PhotoListWithActionsContext
     [ObservableProperty] private ContentListContext _listContext;
     [ObservableProperty] private RelayCommand _openUrlForPhotoListCommand;
     [ObservableProperty] private RelayCommand _photoLinkCodesToClipboardForSelectedCommand;
+    [ObservableProperty] private RelayCommand _photoToPointContentEditorCommand;
     [ObservableProperty] private RelayCommand _refreshDataCommand;
     [ObservableProperty] private RelayCommand _regenerateHtmlAndReprocessPhotoForSelectedCommand;
     [ObservableProperty] private RelayCommand _reportAllPhotosCommand;
+    [ObservableProperty] private RelayCommand _addIntersectionTagsToSelectedCommand;
     [ObservableProperty] private RelayCommand _reportBlankLicenseCommand;
     [ObservableProperty] private RelayCommand _reportMultiSpacesInTitleCommand;
     [ObservableProperty] private RelayCommand _reportNoTagsCommand;
     [ObservableProperty] private RelayCommand _reportPhotoMetadataCommand;
     [ObservableProperty] private RelayCommand _reportTakenAndLicenseYearDoNotMatchCommand;
     [ObservableProperty] private RelayCommand _reportTitleAndTakenDoNotMatchCommand;
+    [ObservableProperty] private RelayCommand _rescanMetadataAndFillBlanksCommand;
     [ObservableProperty] private StatusControlContext _statusContext;
     [ObservableProperty] private RelayCommand _viewFilesCommand;
-    [ObservableProperty] private RelayCommand _photoToPointContentEditorCommand;
     [ObservableProperty] private WindowIconStatus _windowStatus;
 
     public PhotoListWithActionsContext(StatusControlContext statusContext, WindowIconStatus windowStatus = null)
@@ -185,7 +197,9 @@ public partial class PhotoListWithActionsContext
             new() { ItemName = "View Photos", ItemCommand = ViewFilesCommand },
             new() { ItemName = "Open URL", ItemCommand = ListContext.ViewOnSiteCommand },
             new() { ItemName = "Extract New Links", ItemCommand = ListContext.ExtractNewLinksSelectedCommand },
+            new() { ItemName = "Rescan Metadata/Fill Blanks Selected", ItemCommand = RescanMetadataAndFillBlanksCommand },
             new() { ItemName = "Process/Resize Selected", ItemCommand = ForcedResizeCommand },
+            new() { ItemName = "Add Intersection Tags", ItemCommand = AddIntersectionTagsToSelectedCommand },
             new()
             {
                 ItemName = "Generate Html/Process/Resize Selected",
@@ -472,6 +486,262 @@ public partial class PhotoListWithActionsContext
         return returnList.Cast<object>().ToList();
     }
 
+    private async Task AddIntersectionTagsToSelected(CancellationToken cancellationToken)
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (SelectedItems() == null || !SelectedItems().Any())
+        {
+            StatusContext.ToastError("Nothing Selected?");
+            return;
+        }
+
+        var frozenSelect = SelectedItems().ToList();
+
+        if (string.IsNullOrWhiteSpace(UserSettingsSingleton.CurrentSettings().FeatureIntersectionTagSettingsFile))
+        {
+            StatusContext.ToastError("The Settings File for the Feature Intersection is blank?");
+            return;
+        }
+
+        var settingsFileInfo = new FileInfo(UserSettingsSingleton.CurrentSettings().FeatureIntersectionTagSettingsFile);
+        if (!settingsFileInfo.Exists)
+        {
+            StatusContext.ToastError(
+                $"The Settings File for the Feature Intersection {settingsFileInfo.FullName} doesn't exist?");
+            return;
+        }
+
+        var tagger = new Intersection();
+
+        var errorList = new List<string>();
+        var successList = new List<string>();
+        var noTagsList = new List<string>();
+
+        var processedCount = 0;
+
+        cancellationToken.ThrowIfCancellationRequested();
+
+        var toProcess = new List<(PhotoContent dbClone, IFeature pointFeature)>();
+
+        foreach (var loopSelected in frozenSelect)
+        {
+            if(loopSelected.DbEntry.Latitude is null || loopSelected.DbEntry.Longitude is null) continue;
+
+            toProcess.Add((((PhotoContent)new PhotoContent().InjectFrom(loopSelected.DbEntry), new Feature(new Point(loopSelected.DbEntry.Longitude.Value, loopSelected.DbEntry.Latitude.Value), new AttributesTable()))));
+        }
+
+        var tagReturn = tagger.Tags(settingsFileInfo.FullName, toProcess.Select(x => x.pointFeature).ToList(), StatusContext.ProgressTracker());
+
+        var updateTime = DateTime.Now;
+
+        foreach (var loopSelected in toProcess)
+        {
+            processedCount++;
+
+            try
+            {
+                var taggerResult = tagReturn.Single(x => x.Feature == loopSelected.pointFeature);
+
+                if (!taggerResult.Tags.Any())
+                {
+                    noTagsList.Add($"{loopSelected.dbClone.Title} - no tags found");
+                    StatusContext.Progress(
+                        $"Processed - {loopSelected.dbClone.Title} - no tags found - Photo {processedCount} of {frozenSelect.Count}");
+                    continue;
+                }
+
+                var tagListForIntersection = Db.TagListParse(loopSelected.dbClone.Tags);
+                tagListForIntersection.AddRange(taggerResult.Tags);
+                loopSelected.dbClone.Tags = Db.TagListJoin(tagListForIntersection);
+                loopSelected.dbClone.LastUpdatedBy = "Feature Intersection Tagger";
+                loopSelected.dbClone.LastUpdatedOn = updateTime;
+
+                var (saveGenerationReturn, _) =
+                    await PhotoGenerator.SaveAndGenerateHtml(loopSelected.dbClone, UserSettingsSingleton.CurrentSettings().LocalSitePhotoContentFile(loopSelected.dbClone), false, DateTime.Now, StatusContext.ProgressTracker());
+
+                if (saveGenerationReturn.HasError)
+                //TODO: Need alerting on this that would actually be seen...
+                {
+                    Log.ForContext("generationError", saveGenerationReturn.GenerationNote)
+                        .ForContext("generationException", saveGenerationReturn.Exception?.ToString() ?? string.Empty)
+                        .Error(
+                            "Photo Save Error during Selected Photo Feature Intersection Tagging");
+                    errorList.Add(
+                        $"Save Failed! Photo: {loopSelected.dbClone.Title}, {saveGenerationReturn.GenerationNote}");
+                    continue;
+                }
+
+                successList.Add(
+                    $"{loopSelected.dbClone.Title} - found Tags {string.Join(", ", taggerResult.Tags)}");
+                StatusContext.Progress(
+                    $"Processed - {loopSelected.dbClone.Title} - found Tags {string.Join(", ", taggerResult.Tags)} - Photo {processedCount} of {frozenSelect.Count}");
+            }
+            catch (Exception e)
+            {
+                Log.Error(e,
+                    $"Photo Save Error during Selected Photo Feature Intersection Tagging {loopSelected.dbClone.Title}, {loopSelected.dbClone.ContentId}");
+                errorList.Add(
+                    $"Save Failed! Photo: {loopSelected.dbClone.Title}, {e.Message}");
+            }
+
+            if (cancellationToken.IsCancellationRequested) break;
+        }
+
+        if (errorList.Any())
+        {
+            var bodyBuilder = new StringBuilder();
+            bodyBuilder.AppendLine(
+                $"There were errors getting Feature Intersection Tags and saving items - Errors: {errorList.Count}, Success: {successList.Count}, No Tags: {noTagsList.Count}.");
+            bodyBuilder.AppendLine();
+            bodyBuilder.AppendFormat("Errors:");
+            bodyBuilder.AppendLine(string.Join(Environment.NewLine, errorList));
+            bodyBuilder.AppendLine();
+            bodyBuilder.AppendFormat("Successes:");
+            bodyBuilder.AppendLine(string.Join(Environment.NewLine, successList));
+            bodyBuilder.AppendLine();
+            bodyBuilder.AppendFormat("No Tags Found:");
+            bodyBuilder.AppendLine(string.Join(Environment.NewLine, noTagsList));
+
+            await StatusContext.ShowMessageWithOkButton("Feature Intersection Errors", bodyBuilder.ToString());
+        }
+    }
+
+    private async Task RescanMetadataAndFillBlanks(CancellationToken cancellationToken)
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (SelectedItems() == null || !SelectedItems().Any())
+        {
+            StatusContext.ToastError("Nothing Selected?");
+            return;
+        }
+
+        var frozenSelected = SelectedItems().ToList();
+
+        var errorMessages = new List<string>();
+        var updates = new List<(string updateMessage, PhotoContent toUpdate)>();
+
+        StatusContext.Progress($"Processing {frozenSelected.Count} Photo Files");
+
+        var counter = 0;
+
+        foreach (var loopSelected in frozenSelected)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            StatusContext.Progress(
+                $"Photo - {loopSelected.DbEntry.Title} - {++counter} of {frozenSelected.Count} - Checking Metadata");
+
+            var mediaFile = UserSettingsSingleton.CurrentSettings()
+                .LocalMediaArchivePhotoContentFile(loopSelected.DbEntry);
+
+            if (mediaFile is not { Exists: true })
+            {
+                errorMessages.Add($"{loopSelected.DbEntry.Title} - Media File Not Found? Something has gone wrong...");
+                continue;
+            }
+
+            var metadataReturn = await PhotoGenerator.PhotoMetadataFromFile(mediaFile);
+
+            if (metadataReturn.generationReturn.HasError)
+            {
+                errorMessages.Add(
+                    $"{loopSelected.DbEntry.Title} - error with metadata? {metadataReturn.generationReturn.GenerationNote}.");
+                continue;
+            }
+
+            var toModify = (PhotoContent)new PhotoContent().InjectFrom(loopSelected.DbEntry);
+
+            if (string.IsNullOrWhiteSpace(toModify.PhotoCreatedBy) &&
+                !string.IsNullOrWhiteSpace(metadataReturn.metadata.PhotoCreatedBy))
+                toModify.PhotoCreatedBy = metadataReturn.metadata.PhotoCreatedBy;
+            if (string.IsNullOrWhiteSpace(toModify.Aperture) &&
+                !string.IsNullOrWhiteSpace(metadataReturn.metadata.Aperture))
+                toModify.Aperture = metadataReturn.metadata.Aperture;
+            if (string.IsNullOrWhiteSpace(toModify.CameraMake) &&
+                !string.IsNullOrWhiteSpace(metadataReturn.metadata.CameraMake))
+                toModify.CameraMake = metadataReturn.metadata.CameraMake;
+            if (string.IsNullOrWhiteSpace(toModify.CameraModel) &&
+                !string.IsNullOrWhiteSpace(metadataReturn.metadata.CameraModel))
+                toModify.CameraModel = metadataReturn.metadata.CameraModel;
+            if (string.IsNullOrWhiteSpace(toModify.FocalLength) &&
+                !string.IsNullOrWhiteSpace(metadataReturn.metadata.FocalLength))
+                toModify.FocalLength = metadataReturn.metadata.FocalLength;
+            if (string.IsNullOrWhiteSpace(toModify.Lens) &&
+                !string.IsNullOrWhiteSpace(metadataReturn.metadata.Lens))
+                toModify.Lens = metadataReturn.metadata.Lens;
+            if (string.IsNullOrWhiteSpace(toModify.License) &&
+                !string.IsNullOrWhiteSpace(metadataReturn.metadata.License))
+                toModify.License = metadataReturn.metadata.License;
+            if (string.IsNullOrWhiteSpace(toModify.ShutterSpeed) &&
+                !string.IsNullOrWhiteSpace(metadataReturn.metadata.ShutterSpeed))
+                toModify.ShutterSpeed = metadataReturn.metadata.ShutterSpeed;
+            if (toModify.Iso == null && metadataReturn.metadata.Iso != null)
+                toModify.Iso = metadataReturn.metadata.Iso;
+            if (toModify.Latitude == null && metadataReturn.metadata.Latitude != null)
+                toModify.Latitude = metadataReturn.metadata.Latitude;
+            if (toModify.Longitude == null && metadataReturn.metadata.Longitude != null)
+                toModify.Longitude = metadataReturn.metadata.Longitude;
+            if (toModify.Elevation == null && metadataReturn.metadata.Elevation != null)
+                toModify.Elevation = metadataReturn.metadata.Elevation;
+
+            var comparisonResult =
+                new CompareLogic() { Config = { MaxDifferences = 100}}.Compare(loopSelected.DbEntry, toModify);
+
+            if (comparisonResult.AreEqual)
+            {
+                StatusContext.Progress($"Photo - {loopSelected.DbEntry.Title} - No Changes");
+                continue;
+            }
+
+            var friendlyReport = new UserFriendlyReport();
+            updates.Add((friendlyReport.OutputString(comparisonResult.Differences), toModify));
+        }
+
+        if (errorMessages.Any() && !updates.Any())
+        {
+            await StatusContext.ShowMessageWithOkButton("Errors getting Metadata",
+                $"No changes were found but there were errors during processing: {Environment.NewLine}{Environment.NewLine}{string.Join(Environment.NewLine, errorMessages)}");
+            return;
+        }
+
+        if (errorMessages.Any())
+            if (await StatusContext.ShowMessage("Errors getting Metadata",
+                    $"There were errors during processing, continue and see changes? {Environment.NewLine}{Environment.NewLine}{string.Join(Environment.NewLine, errorMessages)}",
+                    new List<string> { "Yes", "No" }) == "No")
+                return;
+
+        var changeMessages = string.Join(Environment.NewLine,
+            updates.Select(x => $"{Environment.NewLine}{x.toUpdate.Title}{Environment.NewLine}{x.updateMessage}"));
+
+        if (await StatusContext.ShowMessage("Metadata Updates",
+                $"Updates where blanks were replaced based on current Metadata? {Environment.NewLine}{Environment.NewLine}{string.Join(Environment.NewLine, changeMessages)}",
+                new List<string> { "Yes", "No" }) == "No") return;
+
+        var updateErrorMessages = new List<string>();
+        var successCount = 0;
+
+        foreach (var loopUpdate in updates)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            var result = await PhotoGenerator.SaveAndGenerateHtml(loopUpdate.toUpdate,
+                UserSettingsSingleton.CurrentSettings().LocalMediaArchivePhotoContentFile(loopUpdate.toUpdate), false,
+                DateTime.Now, StatusContext.ProgressTracker());
+
+            if (result.generationReturn.HasError)
+                updateErrorMessages.Add(
+                    $"{loopUpdate.toUpdate.Title} - {loopUpdate.toUpdate.ContentId} - {result.generationReturn.GenerationNote}");
+            else
+                successCount++;
+        }
+
+        if (updateErrorMessages.Any())
+            await StatusContext.ShowMessageWithOkButton("Errors Saving Photos",
+                $"Saved {successCount} Photos successfully but there were {updateErrorMessages.Count} failures: {Environment.NewLine}{string.Join(Environment.NewLine, updateErrorMessages)}");
+    }
+
     private static async Task RunReport(Func<Task<List<object>>> toRun, string title)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -504,6 +774,10 @@ public partial class PhotoListWithActionsContext
         PhotoToPointContentEditorCommand =
             StatusContext.RunBlockingTaskWithCancellationCommand(PhotoToPointContentEditor,
                 "Cancel Photos to Point Editors");
+        RescanMetadataAndFillBlanksCommand =
+            StatusContext.RunBlockingTaskWithCancellationCommand(RescanMetadataAndFillBlanks, "Cancel Metadata Update");
+        AddIntersectionTagsToSelectedCommand =
+            StatusContext.RunBlockingTaskWithCancellationCommand(AddIntersectionTagsToSelected, "Cancel Feature Intersection Tagging");
 
         EmailHtmlToClipboardCommand = StatusContext.RunBlockingTaskCommand(EmailHtmlToClipboard);
 

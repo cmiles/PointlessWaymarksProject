@@ -37,7 +37,8 @@ public static class Export
         if (jsonHistoricFile.Exists) jsonHistoricFile.Delete();
         jsonHistoricFile.Refresh();
 
-        await FileManagement.WriteAllTextToFileAndLog(jsonHistoricFile.FullName, jsonHistoricDbEntry).ConfigureAwait(false);
+        await FileManagement.WriteAllTextToFileAndLog(jsonHistoricFile.FullName, jsonHistoricDbEntry)
+            .ConfigureAwait(false);
     }
 
     public static async Task WriteLocalDbJson(FileContent dbEntry, IProgress<string>? progress = null)
@@ -46,7 +47,7 @@ public static class Export
 
         var settings = UserSettingsSingleton.CurrentSettings();
         var db = await Db.Context().ConfigureAwait(false);
-        var jsonDbEntry = JsonSerializer.Serialize(dbEntry, new JsonSerializerOptions {WriteIndented = true});
+        var jsonDbEntry = JsonSerializer.Serialize(dbEntry, new JsonSerializerOptions { WriteIndented = true });
 
         var jsonFile = new FileInfo(Path.Combine(settings.LocalSiteFileContentDirectory(dbEntry).FullName,
             $"{Names.FileContentPrefix}{dbEntry.ContentId}.json"));
@@ -73,14 +74,15 @@ public static class Export
         if (jsonHistoricFile.Exists) jsonHistoricFile.Delete();
         jsonHistoricFile.Refresh();
 
-        await FileManagement.WriteAllTextToFileAndLogAsync(jsonHistoricFile.FullName, jsonHistoricDbEntry).ConfigureAwait(false);
+        await FileManagement.WriteAllTextToFileAndLogAsync(jsonHistoricFile.FullName, jsonHistoricDbEntry)
+            .ConfigureAwait(false);
     }
 
     public static async Task WriteLocalDbJson(PostContent dbEntry)
     {
         var settings = UserSettingsSingleton.CurrentSettings();
         var db = await Db.Context().ConfigureAwait(false);
-        var jsonDbEntry = JsonSerializer.Serialize(dbEntry, new JsonSerializerOptions {WriteIndented = true});
+        var jsonDbEntry = JsonSerializer.Serialize(dbEntry, new JsonSerializerOptions { WriteIndented = true });
 
         var jsonFile = new FileInfo(Path.Combine(settings.LocalSitePostContentDirectory(dbEntry).FullName,
             $"{Names.PostContentPrefix}{dbEntry.ContentId}.json"));
@@ -103,14 +105,15 @@ public static class Export
         if (jsonHistoricFile.Exists) jsonHistoricFile.Delete();
         jsonHistoricFile.Refresh();
 
-        await FileManagement.WriteAllTextToFileAndLogAsync(jsonHistoricFile.FullName, jsonHistoricDbEntry).ConfigureAwait(false);
+        await FileManagement.WriteAllTextToFileAndLogAsync(jsonHistoricFile.FullName, jsonHistoricDbEntry)
+            .ConfigureAwait(false);
     }
 
     public static async Task WriteLocalDbJson(LineContent dbEntry)
     {
         var settings = UserSettingsSingleton.CurrentSettings();
         var db = await Db.Context().ConfigureAwait(false);
-        var jsonDbEntry = JsonSerializer.Serialize(dbEntry, new JsonSerializerOptions {WriteIndented = true});
+        var jsonDbEntry = JsonSerializer.Serialize(dbEntry, new JsonSerializerOptions { WriteIndented = true });
 
         var jsonFile = new FileInfo(Path.Combine(settings.LocalSiteLineContentDirectory(dbEntry).FullName,
             $"{Names.LineContentPrefix}{dbEntry.ContentId}.json"));
@@ -120,8 +123,10 @@ public static class Export
 
         await FileManagement.WriteAllTextToFileAndLogAsync(jsonFile.FullName, jsonDbEntry).ConfigureAwait(false);
 
+        //Other content types preserve more history - these content types can be quite large due to the
+        //GeoJson content so less history is kept.
         var latestHistoricEntries = db.HistoricLineContents.Where(x => x.ContentId == dbEntry.ContentId)
-            .OrderByDescending(x => x.LastUpdatedOn).Take(10);
+            .OrderByDescending(x => x.LastUpdatedOn).Take(2);
 
         if (!latestHistoricEntries.Any()) return;
 
@@ -133,14 +138,15 @@ public static class Export
         if (jsonHistoricFile.Exists) jsonHistoricFile.Delete();
         jsonHistoricFile.Refresh();
 
-        await FileManagement.WriteAllTextToFileAndLogAsync(jsonHistoricFile.FullName, jsonHistoricDbEntry).ConfigureAwait(false);
+        await FileManagement.WriteAllTextToFileAndLogAsync(jsonHistoricFile.FullName, jsonHistoricDbEntry)
+            .ConfigureAwait(false);
     }
 
     public static async Task WriteLocalDbJson(GeoJsonContent dbEntry)
     {
         var settings = UserSettingsSingleton.CurrentSettings();
         var db = await Db.Context().ConfigureAwait(false);
-        var jsonDbEntry = JsonSerializer.Serialize(dbEntry, new JsonSerializerOptions {WriteIndented = true});
+        var jsonDbEntry = JsonSerializer.Serialize(dbEntry, new JsonSerializerOptions { WriteIndented = true });
 
         var jsonFile = new FileInfo(Path.Combine(settings.LocalSiteGeoJsonContentDirectory(dbEntry).FullName,
             $"{Names.GeoJsonContentPrefix}{dbEntry.ContentId}.json"));
@@ -150,8 +156,10 @@ public static class Export
 
         await FileManagement.WriteAllTextToFileAndLogAsync(jsonFile.FullName, jsonDbEntry).ConfigureAwait(false);
 
+        //Other content types preserve more history - these content types can be quite large due to the
+        //GeoJson content so less history is kept.
         var latestHistoricEntries = db.HistoricGeoJsonContents.Where(x => x.ContentId == dbEntry.ContentId)
-            .OrderByDescending(x => x.LastUpdatedOn).Take(10);
+            .OrderByDescending(x => x.LastUpdatedOn).Take(2);
 
         if (!latestHistoricEntries.Any()) return;
 
@@ -164,14 +172,15 @@ public static class Export
         if (jsonHistoricFile.Exists) jsonHistoricFile.Delete();
         jsonHistoricFile.Refresh();
 
-        await FileManagement.WriteAllTextToFileAndLogAsync(jsonHistoricFile.FullName, jsonHistoricDbEntry).ConfigureAwait(false);
+        await FileManagement.WriteAllTextToFileAndLogAsync(jsonHistoricFile.FullName, jsonHistoricDbEntry)
+            .ConfigureAwait(false);
     }
 
     public static async Task WriteLocalDbJson(MapComponent dbEntry)
     {
         var settings = UserSettingsSingleton.CurrentSettings();
         var db = await Db.Context().ConfigureAwait(false);
-        var jsonDbEntry = JsonSerializer.Serialize(dbEntry, new JsonSerializerOptions {WriteIndented = true});
+        var jsonDbEntry = JsonSerializer.Serialize(dbEntry, new JsonSerializerOptions { WriteIndented = true });
 
         var jsonFile = new FileInfo(Path.Combine(settings.LocalSiteMapComponentDataDirectory().FullName,
             $"{Names.MapComponentContentPrefix}{dbEntry.ContentId}.json"));
@@ -209,7 +218,7 @@ public static class Export
     {
         var settings = UserSettingsSingleton.CurrentSettings();
         var db = await Db.Context().ConfigureAwait(false);
-        var jsonDbEntry = JsonSerializer.Serialize(dbEntry, new JsonSerializerOptions {WriteIndented = true});
+        var jsonDbEntry = JsonSerializer.Serialize(dbEntry, new JsonSerializerOptions { WriteIndented = true });
 
         var jsonFile = new FileInfo(Path.Combine(settings.LocalSitePointContentDirectory(dbEntry).FullName,
             $"{Names.PointContentPrefix}{dbEntry.ContentId}.json"));
@@ -231,7 +240,8 @@ public static class Export
         if (latestHistoricEntries.Any())
         {
             var jsonHistoricDbEntry = JsonSerializer.Serialize(latestHistoricEntries);
-            await FileManagement.WriteAllTextToFileAndLogAsync(jsonHistoricFile.FullName, jsonHistoricDbEntry).ConfigureAwait(false);
+            await FileManagement.WriteAllTextToFileAndLogAsync(jsonHistoricFile.FullName, jsonHistoricDbEntry)
+                .ConfigureAwait(false);
         }
 
         var pointDetailsFile = new FileInfo(Path.Combine(settings.LocalSitePointContentDirectory(dbEntry).FullName,
@@ -245,7 +255,8 @@ public static class Export
         if (pointDetails.Any())
         {
             var jsonPointDetails = JsonSerializer.Serialize(pointDetails);
-            await FileManagement.WriteAllTextToFileAndLogAsync(pointDetailsFile.FullName, jsonPointDetails).ConfigureAwait(false);
+            await FileManagement.WriteAllTextToFileAndLogAsync(pointDetailsFile.FullName, jsonPointDetails)
+                .ConfigureAwait(false);
         }
 
         var historicPointDetailsFile = new FileInfo(Path.Combine(
@@ -255,12 +266,14 @@ public static class Export
         if (historicPointDetailsFile.Exists) historicPointDetailsFile.Delete();
         historicPointDetailsFile.Refresh();
 
-        var historicPointDetails = await Db.HistoricPointDetailsForPoint(dbEntry.ContentId, db, 40).ConfigureAwait(false);
+        var historicPointDetails =
+            await Db.HistoricPointDetailsForPoint(dbEntry.ContentId, db, 40).ConfigureAwait(false);
 
         if (historicPointDetails.Any())
         {
             var jsonPointDetails = JsonSerializer.Serialize(historicPointDetails);
-            await FileManagement.WriteAllTextToFileAndLogAsync(historicPointDetailsFile.FullName, jsonPointDetails).ConfigureAwait(false);
+            await FileManagement.WriteAllTextToFileAndLogAsync(historicPointDetailsFile.FullName, jsonPointDetails)
+                .ConfigureAwait(false);
         }
     }
 
@@ -268,7 +281,7 @@ public static class Export
     {
         var settings = UserSettingsSingleton.CurrentSettings();
         var db = await Db.Context().ConfigureAwait(false);
-        var jsonDbEntry = JsonSerializer.Serialize(dbEntry, new JsonSerializerOptions {WriteIndented = true});
+        var jsonDbEntry = JsonSerializer.Serialize(dbEntry, new JsonSerializerOptions { WriteIndented = true });
 
         var jsonFile = new FileInfo(Path.Combine(settings.LocalSiteNoteContentDirectory(dbEntry).FullName,
             $"{Names.NoteContentPrefix}{dbEntry.ContentId}.json"));
@@ -291,14 +304,15 @@ public static class Export
         if (jsonHistoricFile.Exists) jsonHistoricFile.Delete();
         jsonHistoricFile.Refresh();
 
-        await FileManagement.WriteAllTextToFileAndLogAsync(jsonHistoricFile.FullName, jsonHistoricDbEntry).ConfigureAwait(false);
+        await FileManagement.WriteAllTextToFileAndLogAsync(jsonHistoricFile.FullName, jsonHistoricDbEntry)
+            .ConfigureAwait(false);
     }
 
     public static async Task WriteLocalDbJson(ImageContent dbEntry)
     {
         var settings = UserSettingsSingleton.CurrentSettings();
         var db = await Db.Context().ConfigureAwait(false);
-        var jsonDbEntry = JsonSerializer.Serialize(dbEntry, new JsonSerializerOptions {WriteIndented = true});
+        var jsonDbEntry = JsonSerializer.Serialize(dbEntry, new JsonSerializerOptions { WriteIndented = true });
 
         var jsonFile = new FileInfo(Path.Combine(settings.LocalSiteImageContentDirectory(dbEntry).FullName,
             $"{Names.ImageContentPrefix}{dbEntry.ContentId}.json"));
@@ -321,14 +335,15 @@ public static class Export
         if (jsonHistoricFile.Exists) jsonHistoricFile.Delete();
         jsonHistoricFile.Refresh();
 
-        await FileManagement.WriteAllTextToFileAndLogAsync(jsonHistoricFile.FullName, jsonHistoricDbEntry).ConfigureAwait(false);
+        await FileManagement.WriteAllTextToFileAndLogAsync(jsonHistoricFile.FullName, jsonHistoricDbEntry)
+            .ConfigureAwait(false);
     }
 
     public static async Task WriteLocalDbJson(PhotoContent dbEntry)
     {
         var settings = UserSettingsSingleton.CurrentSettings();
         var db = await Db.Context().ConfigureAwait(false);
-        var jsonDbEntry = JsonSerializer.Serialize(dbEntry, new JsonSerializerOptions {WriteIndented = true});
+        var jsonDbEntry = JsonSerializer.Serialize(dbEntry, new JsonSerializerOptions { WriteIndented = true });
 
         var jsonFile = new FileInfo(Path.Combine(settings.LocalSitePhotoContentDirectory(dbEntry).FullName,
             $"{Names.PhotoContentPrefix}{dbEntry.ContentId}.json"));
@@ -351,7 +366,8 @@ public static class Export
         if (jsonHistoricFile.Exists) jsonHistoricFile.Delete();
         jsonHistoricFile.Refresh();
 
-        await FileManagement.WriteAllTextToFileAndLogAsync(jsonHistoricFile.FullName, jsonHistoricDbEntry).ConfigureAwait(false);
+        await FileManagement.WriteAllTextToFileAndLogAsync(jsonHistoricFile.FullName, jsonHistoricDbEntry)
+            .ConfigureAwait(false);
     }
 
     public static async Task WriteMenuLinksJson()

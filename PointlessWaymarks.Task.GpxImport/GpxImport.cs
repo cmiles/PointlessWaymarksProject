@@ -287,9 +287,9 @@ public class GpxImport
 
                 var newEntry = await LineGenerator.NewFromGpxTrack(loopTracks, false, consoleProgress);
 
-                var tagList = Db.TagListParseToSlugs(newEntry.Tags, false);
+                var tagList = Db.TagListParse(newEntry.Tags);
                 tagList.Add("garmin connect import");
-                newEntry.Tags = Db.TagListJoinAsSlugs(tagList, false);
+                newEntry.Tags = Db.TagListJoin(tagList);
                 newEntry.ShowInMainSiteFeed = settings.ShowInMainSiteFeed;
 
                 var validation =
@@ -313,13 +313,13 @@ public class GpxImport
                     if (featureToCheck != null)
                     {
                         var tagger = new FeatureIntersectionTags.Intersection();
-                        var taggerResult = tagger.FindTagsFromIntersections(settings.IntersectionTagSettings, featureToCheck.AsList());
+                        var taggerResult = tagger.Tags(settings.IntersectionTagSettings, featureToCheck.AsList());
 
                         if (taggerResult.Any() && taggerResult.First().Tags.Any())
                         {
-                            var tagListForIntersection = Db.TagListParseToSlugs(newEntry.Tags, false);
+                            var tagListForIntersection = Db.TagListParse(newEntry.Tags);
                             tagListForIntersection.AddRange(taggerResult.First().Tags);
-                            newEntry.Tags = Db.TagListJoinAsSlugs(tagListForIntersection, false);
+                            newEntry.Tags = Db.TagListJoin(tagListForIntersection);
                         }
                     }
                 }

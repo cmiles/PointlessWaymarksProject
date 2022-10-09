@@ -9,6 +9,8 @@ using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsData.Json;
 using PointlessWaymarks.CmsData.Spatial;
 using PointlessWaymarks.CmsData.Spatial.Elevation;
+using PointlessWaymarks.FeatureIntersectionTags;
+using Serilog;
 
 namespace PointlessWaymarks.CmsData.Content;
 
@@ -29,14 +31,32 @@ public static class LineGenerator
     {
         var lineStatistics = SpatialHelpers.LineStatsInImperialFromCoordinateList(trackInformation.Track);
 
-        var stateCountyTagList = new List<string>();
+        var tagList = new List<string>();
 
         if (trackInformation.Track.Any())
         {
             var stateCounty =
                 await StateCountyService.GetStateCounty(trackInformation.Track.First().Y, trackInformation.Track.First().X);
-            stateCountyTagList = new List<string> { stateCounty.state, stateCounty.county };
+            tagList = new List<string> { stateCounty.state, stateCounty.county };
         }
+
+        if (trackInformation.Track.Any() &&
+            !string.IsNullOrWhiteSpace(UserSettingsSingleton.CurrentSettings().FeatureIntersectionTagSettingsFile))
+            try
+            {
+                var tagger = new Intersection();
+                tagList.AddRange(tagger.Tags(
+                    UserSettingsSingleton.CurrentSettings().FeatureIntersectionTagSettingsFile,
+                    new List<IFeature>
+                    {
+                        // ReSharper disable once CoVariantArrayConversion It appears from testing that a linestring will reflect CoordinateZ
+                        new Feature(new NetTopologySuite.Geometries.LineString(trackInformation.Track.ToArray()), new AttributesTable())
+                    }).SelectMany(x => x.Tags).ToList());
+            }
+            catch (Exception e)
+            {
+                Log.Error(e, "Silent Error with FeatureIntersectionTags in Photo Metadata Extraction");
+            }
 
         var newEntry = new LineContent
         {
@@ -58,7 +78,7 @@ public static class LineGenerator
             DescentElevation = lineStatistics.ElevationDescent,
             RecordingStartedOn = trackInformation.StartsOn,
             RecordingEndedOn = trackInformation.EndsOn,
-            Tags = Db.TagListJoinAsSlugs(stateCountyTagList, false)
+            Tags = Db.TagListJoin(tagList)
         };
 
         if (!string.IsNullOrWhiteSpace(trackInformation.Name))

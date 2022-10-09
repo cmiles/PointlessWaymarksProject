@@ -2040,7 +2040,7 @@ public static class Db
 
 
     /// <summary>
-    ///     Cleans and joins a list of tags into a string suitable for use as a database Tag value with this programs
+    ///     Cleans and joins a list of tags into a string suitable for use as a database Tag value with this program's
     ///     conventions.
     /// </summary>
     /// <param name="tagList"></param>

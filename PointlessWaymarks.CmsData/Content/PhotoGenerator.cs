@@ -4,6 +4,8 @@ using MetadataExtractor;
 using MetadataExtractor.Formats.Exif;
 using MetadataExtractor.Formats.Iptc;
 using MetadataExtractor.Formats.Xmp;
+using NetTopologySuite.Features;
+using NetTopologySuite.Geometries;
 using Omu.ValueInjecter;
 using PointlessWaymarks.CmsData.ContentHtml;
 using PointlessWaymarks.CmsData.ContentHtml.PhotoHtml;
@@ -11,6 +13,8 @@ using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsData.Json;
 using PointlessWaymarks.CmsData.Spatial.Elevation;
+using PointlessWaymarks.FeatureIntersectionTags;
+using Serilog;
 using XmpCore;
 
 namespace PointlessWaymarks.CmsData.Content;
@@ -147,6 +151,26 @@ public static class PhotoGenerator
             }
         }
 
+        var tags = new List<string>();
+
+        if (toReturn.Latitude != null && toReturn.Longitude != null &&
+            !string.IsNullOrWhiteSpace(UserSettingsSingleton.CurrentSettings().FeatureIntersectionTagSettingsFile))
+            try
+            {
+                var tagger = new Intersection();
+                tags.AddRange(tagger.Tags(
+                    UserSettingsSingleton.CurrentSettings().FeatureIntersectionTagSettingsFile,
+                    new List<IFeature>
+                    {
+                        new Feature(
+                            new Point(toReturn.Longitude.Value, toReturn.Latitude.Value),
+                            new AttributesTable())
+                    }).SelectMany(x => x.Tags).ToList());
+            }
+            catch (Exception e)
+            {
+                Log.Error(e, "Silent Error with FeatureIntersectionTags in Photo Metadata Extraction");
+            }
 
         var isoString = exifSubIfDirectory?.GetDescription(ExifDirectoryBase.TagIsoEquivalent);
         if (!string.IsNullOrWhiteSpace(isoString)) toReturn.Iso = int.Parse(isoString);
@@ -360,15 +384,15 @@ public static class PhotoGenerator
             keywordTagList.AddRange(keywordValue.Replace(";", ",").Split(",").Where(x => !string.IsNullOrWhiteSpace(x))
                 .Select(x => x.Trim()));
 
-        if (xmpSubjectKeywordList.Count == 0 && keywordTagList.Count == 0)
-            toReturn.Tags = string.Empty;
-        else if (xmpSubjectKeywordList.Count >= keywordTagList.Count)
-            toReturn.Tags = string.Join(",", xmpSubjectKeywordList);
-        else
-            toReturn.Tags = string.Join(",", keywordTagList);
+        if (xmpSubjectKeywordList.Count > 0 && keywordTagList.Count > 0 &&
+            xmpSubjectKeywordList.Count >= keywordTagList.Count)
+            tags.AddRange(xmpSubjectKeywordList.Where(x => !string.IsNullOrWhiteSpace(x)));
+        else if (xmpSubjectKeywordList.Count > 0 && keywordTagList.Count > 0)
+            tags.AddRange(keywordTagList.Where(x => !string.IsNullOrWhiteSpace(x)));
 
-        if (!string.IsNullOrWhiteSpace(toReturn.Tags))
-            toReturn.Tags = Db.TagListJoin(Db.TagListParse(toReturn.Tags));
+        if (tags.Any())
+            toReturn.Tags = Db.TagListJoin(tags);
+        else toReturn.Tags = string.Empty;
 
         return (GenerationReturn.Success($"Parsed Photo Metadata for {selectedFile.FullName} without error"), toReturn);
     }
@@ -496,7 +520,7 @@ public static class PhotoGenerator
 
         if (!photoFileValidation.Valid)
             return GenerationReturn.Error(photoFileValidation.Explanation, photoContent.ContentId);
-        
+
         return GenerationReturn.Success("Photo Content Validation Successful");
     }
 

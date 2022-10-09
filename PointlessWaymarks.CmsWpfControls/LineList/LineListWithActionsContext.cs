@@ -11,6 +11,7 @@ using PointlessWaymarks.CmsData.Content;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsWpfControls.ContentList;
+using PointlessWaymarks.CmsWpfControls.PhotoList;
 using PointlessWaymarks.FeatureIntersectionTags;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
@@ -81,7 +82,7 @@ public partial class LineListWithActionsContext
             toProcess.Add(((LineContent)new LineContent().InjectFrom(loopSelected.DbEntry), loopSelected.DbEntry.FeatureFromGeoJsonLine()));
         }
 
-        var tagReturn = tagger.FindTagsFromIntersections(settingsFileInfo.FullName, toProcess.Select(x => x.lineFeature).ToList(), StatusContext.ProgressTracker());
+        var tagReturn = tagger.Tags(settingsFileInfo.FullName, toProcess.Select(x => x.lineFeature).ToList(), StatusContext.ProgressTracker());
 
         var updateTime = DateTime.Now;
 
@@ -101,9 +102,9 @@ public partial class LineListWithActionsContext
                     continue;
                 }
 
-                var tagListForIntersection = Db.TagListParseToSlugs(loopSelected.dbClone.Tags, false);
+                var tagListForIntersection = Db.TagListParse(loopSelected.dbClone.Tags);
                 tagListForIntersection.AddRange(taggerResult.Tags);
-                loopSelected.dbClone.Tags = Db.TagListJoinAsSlugs(tagListForIntersection, false);
+                loopSelected.dbClone.Tags = Db.TagListJoin(tagListForIntersection);
                 loopSelected.dbClone.LastUpdatedBy = "Feature Intersection Tagger";
                 loopSelected.dbClone.LastUpdatedOn = updateTime;
 

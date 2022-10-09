@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace PointlessWaymarks.FeatureIntersectionTags;
+namespace PointlessWaymarks.FeatureIntersectionTags.Models;
 
 public record IntersectFile(
     [property: JsonPropertyName("source")] string Source,
