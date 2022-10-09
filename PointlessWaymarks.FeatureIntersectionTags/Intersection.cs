@@ -2,7 +2,6 @@
 using NetTopologySuite.IO;
 using Newtonsoft.Json;
 using PointlessWaymarks.FeatureIntersectionTags.Models;
-using System.Collections.Generic;
 using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace PointlessWaymarks.FeatureIntersectionTags;
@@ -12,28 +11,41 @@ public class Intersection
     public List<IntersectResults> Tags(string intersectSettingsFile,
         List<IFeature> toCheck, IProgress<string>? progress = null)
     {
+        if (string.IsNullOrEmpty(intersectSettingsFile))
+        {
+            progress?.Report("No Settings File Submitted - returning nothing...");
+
+            return new List<IntersectResults>();
+        }
+
+        if (!toCheck.Any())
+        {
+            progress?.Report("No Features to Check - returning nothing...");
+
+            return new List<IntersectResults>();
+        }
+
         progress?.Report($"Getting Settings from {intersectSettingsFile}");
         var settings = JsonSerializer.Deserialize<IntersectSettings>(File.ReadAllText(intersectSettingsFile));
 
         var compiledTags = new List<IntersectResults>();
 
         if (settings.IntersectFiles.Any())
-        {
             compiledTags.AddRange(TagsFromFileIntersections(toCheck, settings.IntersectFiles.ToList(), progress));
-        }
 
         if (!string.IsNullOrWhiteSpace(settings.PadUsDirectory)
             && !string.IsNullOrWhiteSpace(settings.PadUsDoiRegionFile)
             && !string.IsNullOrWhiteSpace(settings.PadUsFilePrefix)
             && settings.PadUsAttributesForTags.Any())
-        {
-            compiledTags.AddRange(TagsFromPadUsIntersections(toCheck, settings.PadUsAttributesForTags.ToList(), settings.PadUsDoiRegionFile, settings.PadUsDirectory, settings.PadUsFilePrefix, progress));
-        }
+            compiledTags.AddRange(TagsFromPadUsIntersections(toCheck, settings.PadUsAttributesForTags.ToList(),
+                settings.PadUsDoiRegionFile, settings.PadUsDirectory, settings.PadUsFilePrefix, progress));
 
-        return compiledTags.GroupBy(x => x.Feature).Select(x => new IntersectResults(x.Key, x.SelectMany(y => y.Tags).Distinct().ToList())).ToList();
+        return compiledTags.GroupBy(x => x.Feature)
+            .Select(x => new IntersectResults(x.Key, x.SelectMany(y => y.Tags).Distinct().ToList())).ToList();
     }
 
-    public List<IntersectResults> TagsFromFileIntersections(List<IFeature> toCheck, List<IntersectFile> intersectFiles, IProgress<string>? progress = null)
+    public List<IntersectResults> TagsFromFileIntersections(List<IFeature> toCheck, List<IntersectFile> intersectFiles,
+        IProgress<string>? progress = null)
     {
         var serializer = GeoJsonSerializer.Create();
 
