@@ -3,7 +3,7 @@
 This project creates a Console app intended to be run as a periodic 'Task' that will create emails with links to content created X years back.
 
 Notes:
-  - The settings file controls how the program works and the settings file must be passed on the command line to the program
+  - A JSON settings file controls how the program works and the settings file must be passed on the command line to the program
   - The settings file holds unsername and password information IN UNENCRYPTED PLAINTEXT FILES!!! For many uses/computers/locations this may make the program unsuitable and too insecure to use. Consider creating/using a dedicated email account for this program that you don't use for anything else and consider whether your storage location for the settings file is secure enough to use this program!
   - The program works by parsing data from a 'live' site - it can work with sites behind Basic Auth but is not setup to work from local only sites.
 
@@ -23,6 +23,6 @@ Can be omitted to use a default value:
   - "enableSsl": true -> Defaults to true
   - "fromDisplayName": "Pointless Waymarks Emailer" -> Email from display name - defaults to 'Pointless Waymarks Memories'
 
-  Optional Settings:
+Optional Settings:
   - "basicAuthUserName": "" -> Leave blank unless the site is using Basic Auth - this option is included in part because Cloudflare workers make putting and Amazon S3 Static Site behind basic auth free and easy.
   - "basicAuthPassword": "" -> As noted above this will be stored unencrypted for anyone who can open the file to read - see the notes above and decide for yourself if this is appropriate.
