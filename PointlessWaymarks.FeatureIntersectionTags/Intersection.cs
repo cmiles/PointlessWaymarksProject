@@ -68,24 +68,41 @@ public class Intersection
             using var intersectJsonReader = new JsonTextReader(intersectStreamReader);
             var intersectFeatures = serializer.Deserialize<FeatureCollection>(intersectJsonReader).ToList();
 
-            progress?.Report($" Processing {intersectFeatures.Count} Features...");
-            foreach (var loopIntersectFeature in intersectFeatures)
-            foreach (var loopCheck in featuresAndTags)
-                if (loopCheck.Feature.Geometry.Intersects(loopIntersectFeature.Geometry))
-                {
-                    foreach (var loopAttribute in loopIntersectFile.AttributesForTags)
-                        if (loopIntersectFeature.Attributes.GetNames().Any(a => a == loopAttribute))
-                        {
-                            var tagValue = (loopIntersectFeature.Attributes[loopAttribute]?.ToString() ??
-                                            string.Empty).Trim();
-                            if (!loopCheck.Tags.Any(x => x.Equals(tagValue, StringComparison.OrdinalIgnoreCase)))
-                                loopCheck.Tags.Add(tagValue);
-                        }
+            var referenceFeatureCounter = 0;
+            progress?.Report(
+                $" Processing {intersectFeatures.Count} Reference Features against {featuresAndTags.Count} Submitted Features");
 
-                    if (!string.IsNullOrWhiteSpace(loopIntersectFile.TagAll) && !loopCheck.Tags.Any(x =>
-                            x.Equals(loopIntersectFile.TagAll, StringComparison.OrdinalIgnoreCase)))
-                        loopCheck.Tags.Add(loopIntersectFile.TagAll);
+            foreach (var loopIntersectFeature in intersectFeatures)
+            {
+                if (++referenceFeatureCounter % 1000 == 0)
+                    progress?.Report(
+                        $" Processing {loopIntersectFile.Name} - Feature {referenceFeatureCounter} of {intersectFeatures.Count}");
+
+                var submittedCounter = 0;
+
+                foreach (var loopCheck in featuresAndTags)
+                {
+                    if (++submittedCounter % 1000 == 0)
+                        progress?.Report(
+                            $" Processing Submitted Features - {submittedCounter} of {featuresAndTags.Count}");
+
+                    if (loopCheck.Feature.Geometry.Intersects(loopIntersectFeature.Geometry))
+                    {
+                        foreach (var loopAttribute in loopIntersectFile.AttributesForTags)
+                            if (loopIntersectFeature.Attributes.GetNames().Any(a => a == loopAttribute))
+                            {
+                                var tagValue = (loopIntersectFeature.Attributes[loopAttribute]?.ToString() ??
+                                                string.Empty).Trim();
+                                if (!loopCheck.Tags.Any(x => x.Equals(tagValue, StringComparison.OrdinalIgnoreCase)))
+                                    loopCheck.Tags.Add(tagValue);
+                            }
+
+                        if (!string.IsNullOrWhiteSpace(loopIntersectFile.TagAll) && !loopCheck.Tags.Any(x =>
+                                x.Equals(loopIntersectFile.TagAll, StringComparison.OrdinalIgnoreCase)))
+                            loopCheck.Tags.Add(loopIntersectFile.TagAll);
+                    }
                 }
+            }
         }
 
         progress?.Report("Returning Features and Tags");
@@ -120,6 +137,7 @@ public class Intersection
 
         var regionIntersectionsGroupedByRegion = regionIntersections.GroupBy(x => x.region).ToList();
 
+
         foreach (var loopDoiRegionGroup in regionIntersectionsGroupedByRegion)
         {
             counter++;
@@ -135,16 +153,33 @@ public class Intersection
             using var regionJsonReader = new JsonTextReader(regionStreamReader);
             var regionFeatures = serializer.Deserialize<FeatureCollection>(regionJsonReader).ToList();
 
+            var referenceFeatureCounter = 0;
+            progress?.Report(
+                $" Processing {regionFeatures.Count} Reference Features against {toCheck.Count} Submitted Features");
+
             foreach (var loopRegionFeature in regionFeatures)
-            foreach (var loopCheckFeature in toCheck)
-                if (loopCheckFeature.Geometry.Intersects(loopRegionFeature.Geometry))
-                    foreach (var loopAttribute in attributesForTags)
-                        if (loopRegionFeature.Attributes.GetNames().Any(a => a == loopAttribute))
-                        {
-                            var tagValue = (loopRegionFeature.Attributes[loopAttribute]?.ToString() ??
-                                            string.Empty).Trim();
-                            featureTag.Add((loopCheckFeature, tagValue));
-                        }
+            {
+                if (++referenceFeatureCounter % 5000 == 0)
+                    progress?.Report(
+                        $" Processing {regionFile.Name} - Feature {referenceFeatureCounter} of {regionFeatures.Count}");
+
+                var submittedCounter = 0;
+
+                foreach (var loopCheckFeature in toCheck)
+                {
+                    if (++submittedCounter % 1000 == 0)
+                        progress?.Report($" Processing Submitted Features - {submittedCounter} of {toCheck.Count}");
+
+                    if (loopCheckFeature.Geometry.Intersects(loopRegionFeature.Geometry))
+                        foreach (var loopAttribute in attributesForTags)
+                            if (loopRegionFeature.Attributes.GetNames().Any(a => a == loopAttribute))
+                            {
+                                var tagValue = (loopRegionFeature.Attributes[loopAttribute]?.ToString() ??
+                                                string.Empty).Trim();
+                                featureTag.Add((loopCheckFeature, tagValue));
+                            }
+                }
+            }
         }
 
         progress?.Report("Returning PADUS Features and Tags");
