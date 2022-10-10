@@ -2,6 +2,8 @@
 
 The intended use is to extract 'Tag' values - for example to automatically tag a run with values like State, County, National Forest, Wilderness Areas -> 'arizona,coronado national forest,garmin connect import,pima county,pusch ridge wilderness,sabino canyon recreation area,santa catalina mountains,santa catalina ranger district'.
 
+### Data
+
 There are two possible sources of data that this code will use:
  - [PAD-US Data Overview | U.S. Geological Survey](https://www.usgs.gov/programs/gap-analysis-project/science/pad-us-data-overview) - the US Protected Areas Database is "America’s official national inventory of U.S. terrestrial and marine protected areas that are dedicated to the preservation of biological diversity and to other natural, recreation and cultural uses, managed for these purposes through legal or other effective means. PAD-US also includes the best available aggregation of federal land and marine areas provided directly by managing agencies, coordinated through the Federal Geographic Data Committee Federal Lands Working Group." This is an incredible resource if you are interested in the landscape of the US - National Parks, National Forests, BLM, Convervation Areas, County Parks, etc. are all included. In many cases this might be all you need - but it is also likely it won't have everything you personally care about.
  - GeoJson Files - this program can take advantage of individual GeoJson files - some examples:
@@ -14,9 +16,7 @@ There are two possible sources of data that this code will use:
 	 - [U.S. Fish & Wildlife Service GIS Data](https://gis-fws.opendata.arcgis.com/) - suggestion: FWS National Realty Boundaries
 	 - Regardless of the areas you are interested and the availability of pre-existing data part of the motivation of this library is to include a way to tag based on geographic locations based on your own data! [geojson.io](https://geojson.io/) is one simple way to produce a reference file - you could for example draw a polygon around a local trail area that has a well known local name that doesn't appear on any map and isn't officially recognized by any government agency and into the properties for the polygon "Name": "My Special Trail Area". Official recognition and public data almost certainly don't define everything you care about on the landscape!
 
-
-
-PAD-US Setup
+### PAD-US Setup
 
 The downside to using PAD-US as local files is that the data files are quite large. To deal with this a specific and somewhat extensive setup is needed...
  - On the [U.S. Department of the Interior Unified Interior Regional Boundaries](https://www.doi.gov/employees/reorg/unified-regional-boundaries)  site find and click the 'shapefiles (for mapping software)' link. Extract the contents of the zip file, use ogr2ogr to convert the data (rough template: \ogr2ogr.exe -f GeoJSON -t_srs crs:84 {path and name for destination GeoJson file} {path and name of the shapefile to convert}). Put the file somewhere that it can stay permanently - in the settings file you will need to enter this file as the "padUsDoiRegionFile".
@@ -26,7 +26,7 @@ The downside to using PAD-US as local files is that the data files are quite lar
  - See the settings file details below to complete the setup.
 
 
-Shapefiles
+### Shapefiles
 
 This program works exclusively with GeoJson files - if a data source you are interested in doesn't offer a GeoJson download a Shapefile download will almost certainly be offered. On Windows a great way to deal with this is to:
  - Install [QGIS](https://www.qgis.org/en/site/) - QGIS offers the ability to open a Shapefile as a Vector Layer and then export it as GeoJson
@@ -34,7 +34,7 @@ This program works exclusively with GeoJson files - if a data source you are int
  - If working directly in QGIS be careful of the CRS - best is to convert your layer/project to EPS 4326 before exporting GeoJson.
 
 
- Settings File
+### Settings File
 
 The settings file is a JSON file (see the sample included with the program):
  - "padUsDoiRegionFile" - path and filename for the GeoJson DOI Regions file
