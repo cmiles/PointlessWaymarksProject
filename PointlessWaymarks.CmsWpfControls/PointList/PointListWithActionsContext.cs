@@ -5,19 +5,27 @@ using System.Windows;
 using System.Xml;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using NetTopologySuite.Features;
 using NetTopologySuite.IO;
 using Ookii.Dialogs.Wpf;
+using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.CommonHtml;
+using PointlessWaymarks.CmsData.Content;
+using PointlessWaymarks.CmsData.Database;
+using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsWpfControls.ContentList;
+using PointlessWaymarks.FeatureIntersectionTags;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 using PointlessWaymarks.WpfCommon.Utility;
+using Serilog;
 
 namespace PointlessWaymarks.CmsWpfControls.PointList;
 
 [ObservableObject]
 public partial class PointListWithActionsContext
 {
+    [ObservableProperty] private RelayCommand _addIntersectionTagsToSelectedCommand;
     [ObservableProperty] private ContentListContext _listContext;
     [ObservableProperty] private RelayCommand _pointLinkBracketCodesToClipboardForSelectedCommand;
     [ObservableProperty] private RelayCommand _refreshDataCommand;
@@ -25,12 +33,134 @@ public partial class PointListWithActionsContext
     [ObservableProperty] private StatusControlContext _statusContext;
     [ObservableProperty] private WindowIconStatus _windowStatus;
 
+
     public PointListWithActionsContext(StatusControlContext statusContext, WindowIconStatus windowStatus = null)
     {
         StatusContext = statusContext ?? new StatusControlContext();
         WindowStatus = windowStatus;
 
         StatusContext.RunFireAndForgetBlockingTask(LoadData);
+    }
+
+    private async Task AddIntersectionTagsToSelected(CancellationToken cancellationToken)
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (SelectedItems() == null || !SelectedItems().Any())
+        {
+            StatusContext.ToastError("Nothing Selected?");
+            return;
+        }
+
+        var frozenSelect = SelectedItems();
+
+        if (string.IsNullOrWhiteSpace(UserSettingsSingleton.CurrentSettings().FeatureIntersectionTagSettingsFile))
+        {
+            StatusContext.ToastError("The Settings File for the Feature Intersection is blank?");
+            return;
+        }
+
+        var settingsFileInfo = new FileInfo(UserSettingsSingleton.CurrentSettings().FeatureIntersectionTagSettingsFile);
+        if (!settingsFileInfo.Exists)
+        {
+            StatusContext.ToastError(
+                $"The Settings File for the Feature Intersection {settingsFileInfo.FullName} doesn't exist?");
+            return;
+        }
+
+        var tagger = new Intersection();
+
+        var errorList = new List<string>();
+        var successList = new List<string>();
+        var noTagsList = new List<string>();
+
+        var processedCount = 0;
+
+        cancellationToken.ThrowIfCancellationRequested();
+
+        var toProcess = new List<(PointContentDto dbClone, IFeature pointFeature)>();
+
+        var pointDtos =
+            await Db.PointAndPointDetails(frozenSelect.Select(x => x.DbEntry.ContentId).ToList(), await Db.Context());
+
+        foreach (var loopSelected in pointDtos) toProcess.Add((loopSelected, loopSelected.FeatureFromPoint()));
+
+        var tagReturn = tagger.Tags(settingsFileInfo.FullName, toProcess.Select(x => x.pointFeature).ToList(),
+            StatusContext.ProgressTracker());
+
+        var updateTime = DateTime.Now;
+
+        foreach (var loopSelected in toProcess)
+        {
+            processedCount++;
+
+            try
+            {
+                var taggerResult = tagReturn.Single(x => x.Feature == loopSelected.pointFeature);
+
+                if (!taggerResult.Tags.Any())
+                {
+                    noTagsList.Add($"{loopSelected.dbClone.Title} - no tags found");
+                    StatusContext.Progress(
+                        $"Processed - {loopSelected.dbClone.Title} - no tags found - Point {processedCount} of {frozenSelect.Count}");
+                    continue;
+                }
+
+                var tagListForIntersection = Db.TagListParse(loopSelected.dbClone.Tags);
+                tagListForIntersection.AddRange(taggerResult.Tags);
+                loopSelected.dbClone.Tags = Db.TagListJoin(tagListForIntersection);
+                loopSelected.dbClone.LastUpdatedBy = "Feature Intersection Tagger";
+                loopSelected.dbClone.LastUpdatedOn = updateTime;
+
+                var (saveGenerationReturn, _) =
+                    await PointGenerator.SaveAndGenerateHtml(loopSelected.dbClone, DateTime.Now,
+                        StatusContext.ProgressTracker());
+
+                if (saveGenerationReturn.HasError)
+                    //TODO: Need alerting on this that would actually be seen...
+                {
+                    Log.ForContext("generationError", saveGenerationReturn.GenerationNote)
+                        .ForContext("generationException", saveGenerationReturn.Exception?.ToString() ?? string.Empty)
+                        .Error(
+                            "Point Save Error during Selected Point Feature Intersection Tagging");
+                    errorList.Add(
+                        $"Save Failed! Point: {loopSelected.dbClone.Title}, {saveGenerationReturn.GenerationNote}");
+                    continue;
+                }
+
+                successList.Add(
+                    $"{loopSelected.dbClone.Title} - found Tags {string.Join(", ", taggerResult.Tags)}");
+                StatusContext.Progress(
+                    $"Processed - {loopSelected.dbClone.Title} - found Tags {string.Join(", ", taggerResult.Tags)} - Point {processedCount} of {frozenSelect.Count}");
+            }
+            catch (Exception e)
+            {
+                Log.Error(e,
+                    $"Point Save Error during Selected Point Feature Intersection Tagging {loopSelected.dbClone.Title}, {loopSelected.dbClone.ContentId}");
+                errorList.Add(
+                    $"Save Failed! Point: {loopSelected.dbClone.Title}, {e.Message}");
+            }
+
+            if (cancellationToken.IsCancellationRequested) break;
+        }
+
+        if (errorList.Any())
+        {
+            var bodyBuilder = new StringBuilder();
+            bodyBuilder.AppendLine(
+                $"There were errors getting Feature Intersection Tags and saving items - Errors: {errorList.Count}, Success: {successList.Count}, No Tags: {noTagsList.Count}.");
+            bodyBuilder.AppendLine();
+            bodyBuilder.AppendFormat("Errors:");
+            bodyBuilder.AppendLine(string.Join(Environment.NewLine, errorList));
+            bodyBuilder.AppendLine();
+            bodyBuilder.AppendFormat("Successes:");
+            bodyBuilder.AppendLine(string.Join(Environment.NewLine, successList));
+            bodyBuilder.AppendLine();
+            bodyBuilder.AppendFormat("No Tags Found:");
+            bodyBuilder.AppendLine(string.Join(Environment.NewLine, noTagsList));
+
+            await StatusContext.ShowMessageWithOkButton("Feature Intersection Errors", bodyBuilder.ToString());
+        }
     }
 
     private async Task LoadData()
@@ -58,6 +188,7 @@ public partial class PointListWithActionsContext
                 ItemName = "Text Code to Clipboard",
                 ItemCommand = PointLinkBracketCodesToClipboardForSelectedCommand
             },
+            new() { ItemName = "Add Intersection Tags", ItemCommand = AddIntersectionTagsToSelectedCommand },
             new() { ItemName = "Selected Points to GPX File", ItemCommand = SelectedToGpxFileCommand },
             new() { ItemName = "Extract New Links", ItemCommand = ListContext.ExtractNewLinksSelectedCommand },
             new() { ItemName = "Open URL", ItemCommand = ListContext.ViewOnSiteCommand },

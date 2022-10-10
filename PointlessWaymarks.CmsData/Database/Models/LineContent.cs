@@ -44,28 +44,9 @@ public class LineContent : IUpdateNotes, IContentCommon
     public string? UpdateNotesFormat { get; set; }
 
     /// <summary>
-    /// Transforms the Line (stored as GeoJson) to an NTS LineString. The assumption is that
-    /// the Line is both valid Json and conforms to the conventions of this program - invalid
-    /// data will Throw and a null or empty line will return null.
-    /// </summary>
-    /// <returns></returns>
-    public LineString? LineStringFromGeoJsonLine()
-    {
-        if (string.IsNullOrWhiteSpace(Line)) return null;
-
-        var serializer = GeoJsonSerializer.Create(new JsonSerializerSettings { Formatting = Formatting.Indented },
-            SpatialHelpers.Wgs84GeometryFactory(), 3);
-
-        using var stringReader = new StringReader(Line);
-        using var jsonReader = new JsonTextReader(stringReader);
-        var featureCollection = serializer.Deserialize<FeatureCollection>(jsonReader);
-        return featureCollection[0].Geometry as LineString;
-    }
-
-    /// <summary>
-    /// Transforms the Line (stored as GeoJson) to an NTS Feature. The assumption is that
-    /// the Line is both valid Json and conforms to the conventions of this program - invalid
-    /// data will Throw and a null or empty line will return null.
+    ///     Transforms the Line (stored as GeoJson) to an NTS Feature. The assumption is that
+    ///     the Line is both valid Json and conforms to the conventions of this program - invalid
+    ///     data will Throw and a null or empty line will return null.
     /// </summary>
     /// <returns></returns>
     public IFeature? FeatureFromGeoJsonLine()
@@ -79,5 +60,24 @@ public class LineContent : IUpdateNotes, IContentCommon
         using var jsonReader = new JsonTextReader(stringReader);
         var featureCollection = serializer.Deserialize<FeatureCollection>(jsonReader);
         return featureCollection[0];
+    }
+
+    /// <summary>
+    ///     Transforms the Line (stored as GeoJson) to an NTS LineString. The assumption is that
+    ///     the Line is both valid Json and conforms to the conventions of this program - invalid
+    ///     data will Throw and a null or empty line will return null.
+    /// </summary>
+    /// <returns></returns>
+    public LineString? LineStringFromGeoJsonLine()
+    {
+        if (string.IsNullOrWhiteSpace(Line)) return null;
+
+        var serializer = GeoJsonSerializer.Create(new JsonSerializerSettings { Formatting = Formatting.Indented },
+            SpatialHelpers.Wgs84GeometryFactory(), 3);
+
+        using var stringReader = new StringReader(Line);
+        using var jsonReader = new JsonTextReader(stringReader);
+        var featureCollection = serializer.Deserialize<FeatureCollection>(jsonReader);
+        return featureCollection[0].Geometry as LineString;
     }
 }

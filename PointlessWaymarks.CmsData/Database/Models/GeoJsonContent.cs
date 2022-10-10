@@ -1,4 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
+using NetTopologySuite.Features;
+using NetTopologySuite.IO;
+using Newtonsoft.Json;
+using PointlessWaymarks.CmsData.Spatial;
 
 namespace PointlessWaymarks.CmsData.Database.Models;
 
@@ -30,4 +34,22 @@ public class GeoJsonContent : IUpdateNotes, IContentCommon
     public string? Title { get; set; }
     public string? UpdateNotes { get; set; }
     public string? UpdateNotesFormat { get; set; }
+
+    /// <summary>
+    ///     Returns the GeoJson as a List of NTS IFeature
+    /// </summary>
+    /// <returns></returns>
+    public List<IFeature> FeaturesFromGeoJson()
+    {
+        var returnList = new List<IFeature>();
+        if (string.IsNullOrWhiteSpace(GeoJson)) return returnList;
+
+        var serializer = GeoJsonSerializer.Create(new JsonSerializerSettings { Formatting = Formatting.Indented },
+            SpatialHelpers.Wgs84GeometryFactory(), 3);
+
+        using var stringReader = new StringReader(GeoJson);
+        using var jsonReader = new JsonTextReader(stringReader);
+        var featureCollection = serializer.Deserialize<FeatureCollection>(jsonReader);
+        return featureCollection.ToList();
+    }
 }

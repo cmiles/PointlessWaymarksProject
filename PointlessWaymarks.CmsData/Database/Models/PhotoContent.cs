@@ -1,4 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
+using NetTopologySuite.Features;
+using NetTopologySuite.Geometries;
 
 namespace PointlessWaymarks.CmsData.Database.Models;
 
@@ -41,4 +43,25 @@ public class PhotoContent : IUpdateNotes, IContentCommon
     public string? Title { get; set; }
     public string? UpdateNotes { get; set; }
     public string? UpdateNotesFormat { get; set; }
+
+    /// <summary>
+    ///     Returns a NTS Feature based on the Content data.
+    /// </summary>
+    /// <returns></returns>
+    public IFeature? FeatureFromPoint()
+    {
+        if (Longitude is null || Latitude is null) return null;
+        return new Feature(PointFromLatitudeLongitude(), new AttributesTable());
+    }
+
+    /// <summary>
+    ///     Returns either a Point or a PointZ from the Contents Values
+    /// </summary>
+    /// <returns></returns>
+    public Point? PointFromLatitudeLongitude()
+    {
+        if (Longitude is null || Latitude is null) return null;
+        if (Elevation is null) return new Point(Longitude.Value, Latitude.Value);
+        return new Point(Longitude.Value, Latitude.Value, Elevation.Value);
+    }
 }

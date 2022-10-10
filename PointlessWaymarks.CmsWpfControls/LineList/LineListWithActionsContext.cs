@@ -11,7 +11,6 @@ using PointlessWaymarks.CmsData.Content;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsWpfControls.ContentList;
-using PointlessWaymarks.CmsWpfControls.PhotoList;
 using PointlessWaymarks.FeatureIntersectionTags;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
@@ -78,11 +77,11 @@ public partial class LineListWithActionsContext
         var toProcess = new List<(LineContent dbClone, IFeature lineFeature)>();
 
         foreach (var loopSelected in frozenSelect)
-        {
-            toProcess.Add(((LineContent)new LineContent().InjectFrom(loopSelected.DbEntry), loopSelected.DbEntry.FeatureFromGeoJsonLine()));
-        }
+            toProcess.Add(((LineContent)new LineContent().InjectFrom(loopSelected.DbEntry),
+                loopSelected.DbEntry.FeatureFromGeoJsonLine()));
 
-        var tagReturn = tagger.Tags(settingsFileInfo.FullName, toProcess.Select(x => x.lineFeature).ToList(), StatusContext.ProgressTracker());
+        var tagReturn = tagger.Tags(settingsFileInfo.FullName, toProcess.Select(x => x.lineFeature).ToList(),
+            StatusContext.ProgressTracker());
 
         var updateTime = DateTime.Now;
 

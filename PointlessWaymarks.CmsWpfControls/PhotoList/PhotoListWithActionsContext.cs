@@ -10,7 +10,6 @@ using KellermanSoftware.CompareNetObjects;
 using KellermanSoftware.CompareNetObjects.Reports;
 using Microsoft.EntityFrameworkCore;
 using NetTopologySuite.Features;
-using NetTopologySuite.Geometries;
 using Omu.ValueInjecter;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.CommonHtml;
@@ -19,7 +18,6 @@ using PointlessWaymarks.CmsData.ContentHtml;
 using PointlessWaymarks.CmsData.ContentHtml.PhotoHtml;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
-using PointlessWaymarks.CmsData.Spatial;
 using PointlessWaymarks.CmsWpfControls.ContentList;
 using PointlessWaymarks.CmsWpfControls.PointContentEditor;
 using PointlessWaymarks.FeatureIntersectionTags;
@@ -34,6 +32,7 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList;
 [ObservableObject]
 public partial class PhotoListWithActionsContext
 {
+    [ObservableProperty] private RelayCommand _addIntersectionTagsToSelectedCommand;
     [ObservableProperty] private RelayCommand _dailyPhotoLinkCodesToClipboardForSelectedCommand;
     [ObservableProperty] private RelayCommand _emailHtmlToClipboardCommand;
     [ObservableProperty] private RelayCommand _forcedResizeCommand;
@@ -44,7 +43,6 @@ public partial class PhotoListWithActionsContext
     [ObservableProperty] private RelayCommand _refreshDataCommand;
     [ObservableProperty] private RelayCommand _regenerateHtmlAndReprocessPhotoForSelectedCommand;
     [ObservableProperty] private RelayCommand _reportAllPhotosCommand;
-    [ObservableProperty] private RelayCommand _addIntersectionTagsToSelectedCommand;
     [ObservableProperty] private RelayCommand _reportBlankLicenseCommand;
     [ObservableProperty] private RelayCommand _reportMultiSpacesInTitleCommand;
     [ObservableProperty] private RelayCommand _reportNoTagsCommand;
@@ -73,6 +71,132 @@ public partial class PhotoListWithActionsContext
         SetupCommands();
 
         StatusContext.RunFireAndForgetBlockingTask(ListContext.LoadData);
+    }
+
+    private async Task AddIntersectionTagsToSelected(CancellationToken cancellationToken)
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (SelectedItems() == null || !SelectedItems().Any())
+        {
+            StatusContext.ToastError("Nothing Selected?");
+            return;
+        }
+
+        var frozenSelect = SelectedItems().ToList();
+
+        if (string.IsNullOrWhiteSpace(UserSettingsSingleton.CurrentSettings().FeatureIntersectionTagSettingsFile))
+        {
+            StatusContext.ToastError("The Settings File for the Feature Intersection is blank?");
+            return;
+        }
+
+        var settingsFileInfo = new FileInfo(UserSettingsSingleton.CurrentSettings().FeatureIntersectionTagSettingsFile);
+        if (!settingsFileInfo.Exists)
+        {
+            StatusContext.ToastError(
+                $"The Settings File for the Feature Intersection {settingsFileInfo.FullName} doesn't exist?");
+            return;
+        }
+
+        var tagger = new Intersection();
+
+        var errorList = new List<string>();
+        var successList = new List<string>();
+        var noTagsList = new List<string>();
+
+        var processedCount = 0;
+
+        cancellationToken.ThrowIfCancellationRequested();
+
+        var toProcess = new List<(PhotoContent dbClone, IFeature pointFeature)>();
+
+        foreach (var loopSelected in frozenSelect)
+        {
+            if (loopSelected.DbEntry.Latitude is null || loopSelected.DbEntry.Longitude is null) continue;
+
+            toProcess.Add(((PhotoContent)new PhotoContent().InjectFrom(loopSelected.DbEntry),
+                new Feature(new Point(loopSelected.DbEntry.Longitude.Value, loopSelected.DbEntry.Latitude.Value),
+                    new AttributesTable())));
+        }
+
+        var tagReturn = tagger.Tags(settingsFileInfo.FullName, toProcess.Select(x => x.pointFeature).ToList(),
+            StatusContext.ProgressTracker());
+
+        var updateTime = DateTime.Now;
+
+        foreach (var loopSelected in toProcess)
+        {
+            processedCount++;
+
+            try
+            {
+                var taggerResult = tagReturn.Single(x => x.Feature == loopSelected.pointFeature);
+
+                if (!taggerResult.Tags.Any())
+                {
+                    noTagsList.Add($"{loopSelected.dbClone.Title} - no tags found");
+                    StatusContext.Progress(
+                        $"Processed - {loopSelected.dbClone.Title} - no tags found - Photo {processedCount} of {frozenSelect.Count}");
+                    continue;
+                }
+
+                var tagListForIntersection = Db.TagListParse(loopSelected.dbClone.Tags);
+                tagListForIntersection.AddRange(taggerResult.Tags);
+                loopSelected.dbClone.Tags = Db.TagListJoin(tagListForIntersection);
+                loopSelected.dbClone.LastUpdatedBy = "Feature Intersection Tagger";
+                loopSelected.dbClone.LastUpdatedOn = updateTime;
+
+                var (saveGenerationReturn, _) =
+                    await PhotoGenerator.SaveAndGenerateHtml(loopSelected.dbClone,
+                        UserSettingsSingleton.CurrentSettings().LocalSitePhotoContentFile(loopSelected.dbClone), false,
+                        DateTime.Now, StatusContext.ProgressTracker());
+
+                if (saveGenerationReturn.HasError)
+                    //TODO: Need alerting on this that would actually be seen...
+                {
+                    Log.ForContext("generationError", saveGenerationReturn.GenerationNote)
+                        .ForContext("generationException", saveGenerationReturn.Exception?.ToString() ?? string.Empty)
+                        .Error(
+                            "Photo Save Error during Selected Photo Feature Intersection Tagging");
+                    errorList.Add(
+                        $"Save Failed! Photo: {loopSelected.dbClone.Title}, {saveGenerationReturn.GenerationNote}");
+                    continue;
+                }
+
+                successList.Add(
+                    $"{loopSelected.dbClone.Title} - found Tags {string.Join(", ", taggerResult.Tags)}");
+                StatusContext.Progress(
+                    $"Processed - {loopSelected.dbClone.Title} - found Tags {string.Join(", ", taggerResult.Tags)} - Photo {processedCount} of {frozenSelect.Count}");
+            }
+            catch (Exception e)
+            {
+                Log.Error(e,
+                    $"Photo Save Error during Selected Photo Feature Intersection Tagging {loopSelected.dbClone.Title}, {loopSelected.dbClone.ContentId}");
+                errorList.Add(
+                    $"Save Failed! Photo: {loopSelected.dbClone.Title}, {e.Message}");
+            }
+
+            if (cancellationToken.IsCancellationRequested) break;
+        }
+
+        if (errorList.Any())
+        {
+            var bodyBuilder = new StringBuilder();
+            bodyBuilder.AppendLine(
+                $"There were errors getting Feature Intersection Tags and saving items - Errors: {errorList.Count}, Success: {successList.Count}, No Tags: {noTagsList.Count}.");
+            bodyBuilder.AppendLine();
+            bodyBuilder.AppendFormat("Errors:");
+            bodyBuilder.AppendLine(string.Join(Environment.NewLine, errorList));
+            bodyBuilder.AppendLine();
+            bodyBuilder.AppendFormat("Successes:");
+            bodyBuilder.AppendLine(string.Join(Environment.NewLine, successList));
+            bodyBuilder.AppendLine();
+            bodyBuilder.AppendFormat("No Tags Found:");
+            bodyBuilder.AppendLine(string.Join(Environment.NewLine, noTagsList));
+
+            await StatusContext.ShowMessageWithOkButton("Feature Intersection Errors", bodyBuilder.ToString());
+        }
     }
 
     private async Task DailyPhotoLinkCodesToClipboardForSelected()
@@ -197,7 +321,10 @@ public partial class PhotoListWithActionsContext
             new() { ItemName = "View Photos", ItemCommand = ViewFilesCommand },
             new() { ItemName = "Open URL", ItemCommand = ListContext.ViewOnSiteCommand },
             new() { ItemName = "Extract New Links", ItemCommand = ListContext.ExtractNewLinksSelectedCommand },
-            new() { ItemName = "Rescan Metadata/Fill Blanks Selected", ItemCommand = RescanMetadataAndFillBlanksCommand },
+            new()
+            {
+                ItemName = "Rescan Metadata/Fill Blanks Selected", ItemCommand = RescanMetadataAndFillBlanksCommand
+            },
             new() { ItemName = "Process/Resize Selected", ItemCommand = ForcedResizeCommand },
             new() { ItemName = "Add Intersection Tags", ItemCommand = AddIntersectionTagsToSelectedCommand },
             new()
@@ -486,127 +613,6 @@ public partial class PhotoListWithActionsContext
         return returnList.Cast<object>().ToList();
     }
 
-    private async Task AddIntersectionTagsToSelected(CancellationToken cancellationToken)
-    {
-        await ThreadSwitcher.ResumeBackgroundAsync();
-
-        if (SelectedItems() == null || !SelectedItems().Any())
-        {
-            StatusContext.ToastError("Nothing Selected?");
-            return;
-        }
-
-        var frozenSelect = SelectedItems().ToList();
-
-        if (string.IsNullOrWhiteSpace(UserSettingsSingleton.CurrentSettings().FeatureIntersectionTagSettingsFile))
-        {
-            StatusContext.ToastError("The Settings File for the Feature Intersection is blank?");
-            return;
-        }
-
-        var settingsFileInfo = new FileInfo(UserSettingsSingleton.CurrentSettings().FeatureIntersectionTagSettingsFile);
-        if (!settingsFileInfo.Exists)
-        {
-            StatusContext.ToastError(
-                $"The Settings File for the Feature Intersection {settingsFileInfo.FullName} doesn't exist?");
-            return;
-        }
-
-        var tagger = new Intersection();
-
-        var errorList = new List<string>();
-        var successList = new List<string>();
-        var noTagsList = new List<string>();
-
-        var processedCount = 0;
-
-        cancellationToken.ThrowIfCancellationRequested();
-
-        var toProcess = new List<(PhotoContent dbClone, IFeature pointFeature)>();
-
-        foreach (var loopSelected in frozenSelect)
-        {
-            if(loopSelected.DbEntry.Latitude is null || loopSelected.DbEntry.Longitude is null) continue;
-
-            toProcess.Add((((PhotoContent)new PhotoContent().InjectFrom(loopSelected.DbEntry), new Feature(new Point(loopSelected.DbEntry.Longitude.Value, loopSelected.DbEntry.Latitude.Value), new AttributesTable()))));
-        }
-
-        var tagReturn = tagger.Tags(settingsFileInfo.FullName, toProcess.Select(x => x.pointFeature).ToList(), StatusContext.ProgressTracker());
-
-        var updateTime = DateTime.Now;
-
-        foreach (var loopSelected in toProcess)
-        {
-            processedCount++;
-
-            try
-            {
-                var taggerResult = tagReturn.Single(x => x.Feature == loopSelected.pointFeature);
-
-                if (!taggerResult.Tags.Any())
-                {
-                    noTagsList.Add($"{loopSelected.dbClone.Title} - no tags found");
-                    StatusContext.Progress(
-                        $"Processed - {loopSelected.dbClone.Title} - no tags found - Photo {processedCount} of {frozenSelect.Count}");
-                    continue;
-                }
-
-                var tagListForIntersection = Db.TagListParse(loopSelected.dbClone.Tags);
-                tagListForIntersection.AddRange(taggerResult.Tags);
-                loopSelected.dbClone.Tags = Db.TagListJoin(tagListForIntersection);
-                loopSelected.dbClone.LastUpdatedBy = "Feature Intersection Tagger";
-                loopSelected.dbClone.LastUpdatedOn = updateTime;
-
-                var (saveGenerationReturn, _) =
-                    await PhotoGenerator.SaveAndGenerateHtml(loopSelected.dbClone, UserSettingsSingleton.CurrentSettings().LocalSitePhotoContentFile(loopSelected.dbClone), false, DateTime.Now, StatusContext.ProgressTracker());
-
-                if (saveGenerationReturn.HasError)
-                //TODO: Need alerting on this that would actually be seen...
-                {
-                    Log.ForContext("generationError", saveGenerationReturn.GenerationNote)
-                        .ForContext("generationException", saveGenerationReturn.Exception?.ToString() ?? string.Empty)
-                        .Error(
-                            "Photo Save Error during Selected Photo Feature Intersection Tagging");
-                    errorList.Add(
-                        $"Save Failed! Photo: {loopSelected.dbClone.Title}, {saveGenerationReturn.GenerationNote}");
-                    continue;
-                }
-
-                successList.Add(
-                    $"{loopSelected.dbClone.Title} - found Tags {string.Join(", ", taggerResult.Tags)}");
-                StatusContext.Progress(
-                    $"Processed - {loopSelected.dbClone.Title} - found Tags {string.Join(", ", taggerResult.Tags)} - Photo {processedCount} of {frozenSelect.Count}");
-            }
-            catch (Exception e)
-            {
-                Log.Error(e,
-                    $"Photo Save Error during Selected Photo Feature Intersection Tagging {loopSelected.dbClone.Title}, {loopSelected.dbClone.ContentId}");
-                errorList.Add(
-                    $"Save Failed! Photo: {loopSelected.dbClone.Title}, {e.Message}");
-            }
-
-            if (cancellationToken.IsCancellationRequested) break;
-        }
-
-        if (errorList.Any())
-        {
-            var bodyBuilder = new StringBuilder();
-            bodyBuilder.AppendLine(
-                $"There were errors getting Feature Intersection Tags and saving items - Errors: {errorList.Count}, Success: {successList.Count}, No Tags: {noTagsList.Count}.");
-            bodyBuilder.AppendLine();
-            bodyBuilder.AppendFormat("Errors:");
-            bodyBuilder.AppendLine(string.Join(Environment.NewLine, errorList));
-            bodyBuilder.AppendLine();
-            bodyBuilder.AppendFormat("Successes:");
-            bodyBuilder.AppendLine(string.Join(Environment.NewLine, successList));
-            bodyBuilder.AppendLine();
-            bodyBuilder.AppendFormat("No Tags Found:");
-            bodyBuilder.AppendLine(string.Join(Environment.NewLine, noTagsList));
-
-            await StatusContext.ShowMessageWithOkButton("Feature Intersection Errors", bodyBuilder.ToString());
-        }
-    }
-
     private async Task RescanMetadataAndFillBlanks(CancellationToken cancellationToken)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -625,6 +631,7 @@ public partial class PhotoListWithActionsContext
         StatusContext.Progress($"Processing {frozenSelected.Count} Photo Files");
 
         var counter = 0;
+        var updateSetTime = DateTime.Now;
 
         foreach (var loopSelected in frozenSelected)
         {
@@ -687,13 +694,16 @@ public partial class PhotoListWithActionsContext
                 toModify.Elevation = metadataReturn.metadata.Elevation;
 
             var comparisonResult =
-                new CompareLogic() { Config = { MaxDifferences = 100}}.Compare(loopSelected.DbEntry, toModify);
+                new CompareLogic { Config = { MaxDifferences = 100 } }.Compare(loopSelected.DbEntry, toModify);
 
             if (comparisonResult.AreEqual)
             {
                 StatusContext.Progress($"Photo - {loopSelected.DbEntry.Title} - No Changes");
                 continue;
             }
+
+            toModify.LastUpdatedOn = updateSetTime;
+            toModify.LastUpdatedBy = UserSettingsSingleton.CurrentSettings().DefaultCreatedBy;
 
             var friendlyReport = new UserFriendlyReport();
             updates.Add((friendlyReport.OutputString(comparisonResult.Differences), toModify));
@@ -716,7 +726,7 @@ public partial class PhotoListWithActionsContext
             updates.Select(x => $"{Environment.NewLine}{x.toUpdate.Title}{Environment.NewLine}{x.updateMessage}"));
 
         if (await StatusContext.ShowMessage("Metadata Updates",
-                $"Updates where blanks were replaced based on current Metadata? {Environment.NewLine}{Environment.NewLine}{string.Join(Environment.NewLine, changeMessages)}",
+                $"Update {updates.Count} Photos where blanks were replaced based on current Metadata? {Environment.NewLine}{Environment.NewLine}{string.Join(Environment.NewLine, changeMessages)}",
                 new List<string> { "Yes", "No" }) == "No") return;
 
         var updateErrorMessages = new List<string>();
@@ -777,7 +787,8 @@ public partial class PhotoListWithActionsContext
         RescanMetadataAndFillBlanksCommand =
             StatusContext.RunBlockingTaskWithCancellationCommand(RescanMetadataAndFillBlanks, "Cancel Metadata Update");
         AddIntersectionTagsToSelectedCommand =
-            StatusContext.RunBlockingTaskWithCancellationCommand(AddIntersectionTagsToSelected, "Cancel Feature Intersection Tagging");
+            StatusContext.RunBlockingTaskWithCancellationCommand(AddIntersectionTagsToSelected,
+                "Cancel Feature Intersection Tagging");
 
         EmailHtmlToClipboardCommand = StatusContext.RunBlockingTaskCommand(EmailHtmlToClipboard);
 

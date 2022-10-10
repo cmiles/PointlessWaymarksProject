@@ -481,7 +481,7 @@ public partial class NewContent
 
                     if (intersectionTags.Any())
                     {
-                        var allTags = intersectionTags.SelectMany(x => x.Tags.Select(y => y).ToList();
+                        var allTags = intersectionTags.SelectMany(x => x.Tags.Select(y => y).ToList());
                         var tagList = Db.TagListParse(metaContent.Tags).Union(allTags).ToList();
                         metaContent.Tags = Db.TagListJoin(tagList);
                     }
