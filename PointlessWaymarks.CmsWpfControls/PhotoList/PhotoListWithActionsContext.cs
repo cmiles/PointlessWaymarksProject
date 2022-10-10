@@ -323,7 +323,7 @@ public partial class PhotoListWithActionsContext
             new() { ItemName = "Extract New Links", ItemCommand = ListContext.ExtractNewLinksSelectedCommand },
             new()
             {
-                ItemName = "Rescan Metadata/Fill Blanks Selected", ItemCommand = RescanMetadataAndFillBlanksCommand
+                ItemName = "Rescan Metadata/Fill Blanks - Selected", ItemCommand = RescanMetadataAndFillBlanksCommand
             },
             new() { ItemName = "Process/Resize Selected", ItemCommand = ForcedResizeCommand },
             new() { ItemName = "Add Intersection Tags", ItemCommand = AddIntersectionTagsToSelectedCommand },
