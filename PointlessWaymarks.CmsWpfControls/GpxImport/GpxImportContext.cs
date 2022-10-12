@@ -30,6 +30,7 @@ using PointlessWaymarks.CmsWpfControls.MapComponentEditor;
 using PointlessWaymarks.CmsWpfControls.PointContentEditor;
 using PointlessWaymarks.CmsWpfControls.TagsEditor;
 using PointlessWaymarks.CmsWpfControls.WpfHtml;
+using PointlessWaymarks.FeatureIntersectionTags;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 using PointlessWaymarks.WpfCommon.Utility;
@@ -349,6 +350,29 @@ public partial class GpxImportContext
             if (newElevation != null) newPoint.Elevation = newElevation.Z;
             else StatusContext.Progress($"Elevation NOT FOUND for replacement for {newPoint.Title}...");
         }
+
+        var tagList = Db.TagListParse(newPoint.Tags);
+
+        var stateCounty =
+            await StateCountyService.GetStateCounty(newPoint.Latitude, newPoint.Longitude);
+        tagList = new List<string> { stateCounty.state, stateCounty.county };
+
+        try
+        {
+            var tagger = new Intersection();
+            tagList.AddRange(tagger.Tags(
+                UserSettingsSingleton.CurrentSettings().FeatureIntersectionTagSettingsFile,
+                new List<IFeature>
+                {
+                    new Feature(new Point(newPoint.Longitude, newPoint.Latitude), new AttributesTable())
+                }, CancellationToken.None, StatusContext.ProgressTracker()).SelectMany(x => x.Tags).ToList());
+        }
+        catch (Exception e)
+        {
+            Log.Error(e, "Silent Error with FeatureIntersectionTags in Point GPX Import");
+        }
+
+        newPoint.Tags = Db.TagListJoin(tagList);
 
         var validationResult = await PointGenerator.Validate(newPoint);
 

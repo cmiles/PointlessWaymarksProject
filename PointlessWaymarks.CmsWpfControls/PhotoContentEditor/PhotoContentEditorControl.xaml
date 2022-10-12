@@ -206,6 +206,18 @@
                                 <Button
                                     Width="326"
                                     Margin="6,16,0,0"
+                                    Command="{Binding AddFeatureIntersectTagsCommand}">
+                                    <Button.Visibility>
+                                        <MultiBinding Converter="{StaticResource PhotoHasLatLong}">
+                                            <Binding Path="LatitudeEntry.UserValue" />
+                                            <Binding Path="LongitudeEntry.UserValue" />
+                                        </MultiBinding>
+                                    </Button.Visibility>
+                                    Add Feature Intersect Tags
+                                </Button>
+                                <Button
+                                    Width="326"
+                                    Margin="6,16,0,0"
                                     Command="{Binding PointFromPhotoLocationCommand}">
                                     <Button.Visibility>
                                         <MultiBinding Converter="{StaticResource PhotoHasLatLong}">

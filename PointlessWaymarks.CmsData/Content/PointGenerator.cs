@@ -12,7 +12,7 @@ public static class PointGenerator
     {
         progress?.Report($"Point Content - Generate HTML for {toGenerate.Title}");
 
-        var htmlContext = new SinglePointPage(toGenerate) {GenerationVersion = generationVersion};
+        var htmlContext = new SinglePointPage(toGenerate) { GenerationVersion = generationVersion };
 
         await htmlContext.WriteLocalHtml().ConfigureAwait(false);
     }
@@ -30,10 +30,11 @@ public static class PointGenerator
         var savedPoint = await Db.SavePointContent(toSave).ConfigureAwait(false);
 
         await GenerateHtml(savedPoint!, generationVersion, progress).ConfigureAwait(false);
-        await Export.WriteLocalDbJson(Db.PointContentDtoToPointContentAndDetails(savedPoint!).content).ConfigureAwait(false);
+        await Export.WriteLocalDbJson(Db.PointContentDtoToPointContentAndDetails(savedPoint!).content)
+            .ConfigureAwait(false);
 
         DataNotifications.PublishDataNotification("Point Generator", DataNotificationContentType.Point,
-            DataNotificationUpdateType.LocalContent, new List<Guid> {savedPoint!.ContentId});
+            DataNotificationUpdateType.LocalContent, new List<Guid> { savedPoint!.ContentId });
 
         return (GenerationReturn.Success($"Saved and Generated Content And Html for {savedPoint.Title}"),
             savedPoint);
@@ -47,7 +48,8 @@ public static class PointGenerator
             return GenerationReturn.Error($"Problem with Root Directory: {rootDirectoryCheck.Explanation}",
                 pointContent.ContentId);
 
-        var commonContentCheck = await CommonContentValidation.ValidateContentCommon(pointContent).ConfigureAwait(false);
+        var commonContentCheck =
+            await CommonContentValidation.ValidateContentCommon(pointContent).ConfigureAwait(false);
         if (!commonContentCheck.Valid)
             return GenerationReturn.Error(commonContentCheck.Explanation, pointContent.ContentId);
 

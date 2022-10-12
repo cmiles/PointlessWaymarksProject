@@ -39,17 +39,26 @@ public class GeoJsonContent : IUpdateNotes, IContentCommon
     ///     Returns the GeoJson as a List of NTS IFeature
     /// </summary>
     /// <returns></returns>
-    public List<IFeature> FeaturesFromGeoJson()
+    public static List<IFeature> FeaturesFromGeoJson(string? geoJson)
     {
         var returnList = new List<IFeature>();
-        if (string.IsNullOrWhiteSpace(GeoJson)) return returnList;
+        if (string.IsNullOrWhiteSpace(geoJson)) return returnList;
 
         var serializer = GeoJsonSerializer.Create(new JsonSerializerSettings { Formatting = Formatting.Indented },
             SpatialHelpers.Wgs84GeometryFactory(), 3);
 
-        using var stringReader = new StringReader(GeoJson);
+        using var stringReader = new StringReader(geoJson);
         using var jsonReader = new JsonTextReader(stringReader);
         var featureCollection = serializer.Deserialize<FeatureCollection>(jsonReader);
         return featureCollection.ToList();
+    }
+
+    /// <summary>
+    ///     Returns the GeoJson as a List of NTS IFeature
+    /// </summary>
+    /// <returns></returns>
+    public List<IFeature> FeaturesFromGeoJson()
+    {
+        return FeaturesFromGeoJson(GeoJson);
     }
 }

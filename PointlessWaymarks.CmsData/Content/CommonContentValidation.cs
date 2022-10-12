@@ -1,11 +1,13 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using NetTopologySuite.Features;
+using NetTopologySuite.Geometries;
 using NetTopologySuite.IO;
 using Newtonsoft.Json;
 using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.ContentHtml;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
+using PointlessWaymarks.CmsData.Spatial;
 
 namespace PointlessWaymarks.CmsData.Content;
 
@@ -245,6 +247,39 @@ public static class CommonContentValidation
             return new IsValid(false, "This filename already exists in the database - file names must be unique.");
 
         return new IsValid(true, "File is Valid");
+    }
+
+    public static IsValid LineGeoJsonValidation(string? geoJsonString)
+    {
+        if (string.IsNullOrWhiteSpace(geoJsonString)) return new IsValid(false, "Blank Line GeoJson is not Valid");
+
+        try
+        {
+            var serializer = GeoJsonSerializer.Create(new JsonSerializerSettings { Formatting = Formatting.Indented },
+                SpatialHelpers.Wgs84GeometryFactory(), 3);
+
+            using var stringReader = new StringReader(geoJsonString);
+            using var jsonReader = new JsonTextReader(stringReader);
+            var featureCollection = serializer.Deserialize<FeatureCollection>(jsonReader);
+            if (featureCollection.Count < 1)
+                return new IsValid(false, 
+                    "The GeoJson for the line appears to have an empty Feature Collection?");
+            if (featureCollection.Count > 1)
+                 return new IsValid(false,
+                    "The GeoJson for the line appears to contain multiple elements? It should only contain 1 line...");
+            if (featureCollection[0].Geometry is not LineString)
+                return new IsValid(false, "The GeoJson for the line has one element but it isn't a LineString?");
+            var lineString = featureCollection[0].Geometry as LineString;
+            if (lineString == null || lineString.Count < 1 || lineString.Length == 0)
+                return new IsValid(false, "The LineString doesn't have any points or is zero length?");
+        }
+        catch (Exception e)
+        {
+            return new IsValid(false,
+               $"Error parsing the FeatureCollection and/or problems checking the LineString {e.Message}");
+        }
+
+        return new IsValid(true, string.Empty);
     }
 
     public static async Task<IsValid> GeoJsonValidation(string? geoJsonString)

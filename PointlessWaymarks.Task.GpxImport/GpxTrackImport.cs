@@ -15,7 +15,7 @@ using Serilog;
 
 namespace PointlessWaymarks.Task.GarminConnectGpxImport;
 
-public class GpxImport
+public class GpxTrackImport
 {
     public async System.Threading.Tasks.Task Import(string settingsFile)
     {
@@ -313,7 +313,7 @@ public class GpxImport
                     if (featureToCheck != null)
                     {
                         var tagger = new FeatureIntersectionTags.Intersection();
-                        var taggerResult = tagger.Tags(settings.IntersectionTagSettings, featureToCheck.AsList());
+                        var taggerResult = tagger.Tags(settings.IntersectionTagSettings, featureToCheck.AsList(), CancellationToken.None, new ConsoleProgress());
 
                         if (taggerResult.Any() && taggerResult.First().Tags.Any())
                         {

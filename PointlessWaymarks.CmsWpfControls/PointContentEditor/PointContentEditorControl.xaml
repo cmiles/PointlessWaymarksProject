@@ -3,7 +3,6 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:bodyContentEditor1="clr-namespace:PointlessWaymarks.CmsWpfControls.BodyContentEditor"
-    xmlns:boolDataEntry1="clr-namespace:PointlessWaymarks.CmsWpfControls.BoolDataEntry"
     xmlns:contentIdViewer="clr-namespace:PointlessWaymarks.CmsWpfControls.ContentIdViewer"
     xmlns:contentSiteFeedAndIsDraft="clr-namespace:PointlessWaymarks.CmsWpfControls.ContentSiteFeedAndIsDraft"
     xmlns:conversionDataEntry="clr-namespace:PointlessWaymarks.CmsWpfControls.ConversionDataEntry"
@@ -46,12 +45,18 @@
                 <Grid>
                     <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
                         <StackPanel Margin="4" CanHorizontallyScroll="False">
-                            <titleSummarySlugFolderEditor:TitleSummarySlugEditorControl DataContext="{Binding TitleSummarySlugFolder}" />
+                            <titleSummarySlugFolderEditor:TitleSummarySlugEditorControl
+                                DataContext="{Binding TitleSummarySlugFolder}" />
                             <stringDataEntry:StringDataEntryControl DataContext="{Binding MapLabelContent}" />
-                            <contentSiteFeedAndIsDraft:ContentSiteFeedAndIsDraftControl DataContext="{Binding MainSiteFeed}" />
-                            <tagsEditor:TagsEditorControl DataContext="{Binding TagEdit}" Style="{StaticResource TagsEditorInPanelStyle}" />
-                            <createdAndUpdatedByAndOnDisplay:CreatedAndUpdatedByAndOnDisplayControl DataContext="{Binding CreatedUpdatedDisplay}" Style="{StaticResource CreatedUpdatedInPanelStyle}" />
-                            <contentIdViewer:ContentIdViewerControl DataContext="{Binding ContentId}" Style="{StaticResource ContentIdInPanelStyle}" />
+                            <contentSiteFeedAndIsDraft:ContentSiteFeedAndIsDraftControl
+                                DataContext="{Binding MainSiteFeed}" />
+                            <tagsEditor:TagsEditorControl DataContext="{Binding TagEdit}"
+                                                          Style="{StaticResource TagsEditorInPanelStyle}" />
+                            <createdAndUpdatedByAndOnDisplay:CreatedAndUpdatedByAndOnDisplayControl
+                                DataContext="{Binding CreatedUpdatedDisplay}"
+                                Style="{StaticResource CreatedUpdatedInPanelStyle}" />
+                            <contentIdViewer:ContentIdViewerControl DataContext="{Binding ContentId}"
+                                                                    Style="{StaticResource ContentIdInPanelStyle}" />
                         </StackPanel>
                     </ScrollViewer>
                 </Grid>
@@ -67,9 +72,12 @@
                         Header="Location"
                         Style="{StaticResource UiComponentGroupBoxStyle}">
                         <WrapPanel HorizontalAlignment="Center" Orientation="Horizontal">
-                            <conversionDataEntry:ConversionDataEntryControl Width="120" DataContext="{Binding LatitudeEntry}" />
-                            <conversionDataEntry:ConversionDataEntryControl Width="120" DataContext="{Binding LongitudeEntry}" />
-                            <conversionDataEntry:ConversionDataEntryControl Width="120" DataContext="{Binding ElevationEntry}" />
+                            <conversionDataEntry:ConversionDataEntryControl Width="120"
+                                                                            DataContext="{Binding LatitudeEntry}" />
+                            <conversionDataEntry:ConversionDataEntryControl Width="120"
+                                                                            DataContext="{Binding LongitudeEntry}" />
+                            <conversionDataEntry:ConversionDataEntryControl Width="120"
+                                                                            DataContext="{Binding ElevationEntry}" />
                             <Label Margin="0,0,0,-3" VerticalAlignment="Bottom">meters</Label>
                             <TextBox
                                 Margin="0,0,10,2"
@@ -80,11 +88,19 @@
                                 Visibility="{Binding ElevationEntry.UserText, Converter={StaticResource NullOrWhiteSpaceStringToCollapsed}}" />
                             <Button
                                 Width="90"
-                                Height="32"
+                                Height="36"
                                 Margin="2,2,0,1"
                                 VerticalAlignment="Bottom"
                                 Command="{Binding GetElevationCommand}">
                                 Get Elevation
+                            </Button>
+                            <Button
+                                Width="180"
+                                Height="36"
+                                Margin="2,2,0,1"
+                                VerticalAlignment="Bottom"
+                                Command="{Binding AddFeatureIntersectTagsCommand}">
+                                Add Feature Intersect Tags
                             </Button>
                         </WrapPanel>
                     </GroupBox>

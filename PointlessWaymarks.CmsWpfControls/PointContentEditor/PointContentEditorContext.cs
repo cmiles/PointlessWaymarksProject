@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Windows;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using NetTopologySuite.Features;
 using Omu.ValueInjecter;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.CommonHtml;
@@ -23,14 +24,17 @@ using PointlessWaymarks.CmsWpfControls.TitleSummarySlugFolderEditor;
 using PointlessWaymarks.CmsWpfControls.UpdateNotesEditor;
 using PointlessWaymarks.CmsWpfControls.Utility;
 using PointlessWaymarks.CmsWpfControls.Utility.ChangesAndValidation;
+using PointlessWaymarks.FeatureIntersectionTags;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
+using Point = NetTopologySuite.Geometries.Point;
 
 namespace PointlessWaymarks.CmsWpfControls.PointContentEditor;
 
 [ObservableObject]
 public partial class PointContentEditorContext : IHasChanges, ICheckForChangesAndValidation, IHasValidationIssues
 {
+    [ObservableProperty] private RelayCommand _addFeatureIntersectTagsCommand;
     [ObservableProperty] private BodyContentEditorContext _bodyContent;
     [ObservableProperty] private bool _broadcastLatLongChange = true;
     [ObservableProperty] private ContentIdViewerControlContext _contentId;
@@ -72,6 +76,7 @@ public partial class PointContentEditorContext : IHasChanges, ICheckForChangesAn
                 StatusContext.ProgressTracker()));
         GetElevationCommand = StatusContext.RunBlockingTaskCommand(GetElevation);
         LinkToClipboardCommand = StatusContext.RunBlockingTaskCommand(LinkToClipboard);
+        AddFeatureIntersectTagsCommand = StatusContext.RunBlockingTaskCommand(AddFeatureIntersectTags);
 
         HelpContext = new HelpDisplayContext(new List<string>
         {
@@ -83,6 +88,37 @@ public partial class PointContentEditorContext : IHasChanges, ICheckForChangesAn
     {
         HasChanges = PropertyScanners.ChildPropertiesHaveChanges(this);
         HasValidationIssues = PropertyScanners.ChildPropertiesHaveValidationIssues(this);
+    }
+
+    private async Task AddFeatureIntersectTags()
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        var featureToCheck = await FeatureFromPoint();
+        if (featureToCheck == null)
+        {
+            StatusContext.ToastError("No valid Lat/Long to check?");
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(UserSettingsSingleton.CurrentSettings().FeatureIntersectionTagSettingsFile))
+        {
+            StatusContext.ToastError(
+                "To use this feature the Feature Intersect Settings file must be set in the Site Settings...");
+            return;
+        }
+
+        var tagger = new Intersection();
+        var possibleTags = tagger.Tags(UserSettingsSingleton.CurrentSettings().FeatureIntersectionTagSettingsFile,
+            new List<IFeature> { featureToCheck }, CancellationToken.None, StatusContext.ProgressTracker());
+
+        if (!possibleTags.Any())
+        {
+            StatusContext.ToastWarning("No tags found...");
+            return;
+        }
+
+        TagEdit.Tags = $"{TagEdit.Tags},{string.Join(",", possibleTags.SelectMany(x => x.Tags).Select(x => x))}";
     }
 
     public static async Task<PointContentEditorContext> CreateInstance(StatusControlContext statusContext,
@@ -141,6 +177,19 @@ public partial class PointContentEditorContext : IHasChanges, ICheckForChangesAn
         toReturn.PointDetails = PointDetails.CurrentStateToPointDetailsList() ?? new List<PointDetail>();
         toReturn.PointDetails.ForEach(x => x.PointContentId = toReturn.ContentId);
         return toReturn;
+    }
+
+    public async Task<IFeature?> FeatureFromPoint()
+    {
+        if (LatitudeEntry.HasValidationIssues || LongitudeEntry.HasValidationIssues) return null;
+
+        if (ElevationEntry.UserValue is null)
+            return new Feature(
+                new Point(LongitudeEntry.UserValue, LatitudeEntry.UserValue),
+                new AttributesTable());
+        return new Feature(
+            new Point(LongitudeEntry.UserValue, LatitudeEntry.UserValue, ElevationEntry.UserValue.Value),
+            new AttributesTable());
     }
 
     public async Task GetElevation()

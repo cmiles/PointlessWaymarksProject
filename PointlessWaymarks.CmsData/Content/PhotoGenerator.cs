@@ -165,7 +165,7 @@ public static class PhotoGenerator
                         new Feature(
                             new Point(toReturn.Longitude.Value, toReturn.Latitude.Value),
                             new AttributesTable())
-                    }).SelectMany(x => x.Tags).ToList());
+                    }, CancellationToken.None, progress).SelectMany(x => x.Tags).ToList());
             }
             catch (Exception e)
             {

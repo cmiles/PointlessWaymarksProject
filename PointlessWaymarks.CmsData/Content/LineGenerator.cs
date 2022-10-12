@@ -1,7 +1,5 @@
 ﻿using NetTopologySuite.Features;
 using NetTopologySuite.Geometries;
-using NetTopologySuite.IO;
-using Newtonsoft.Json;
 using PointlessWaymarks.CmsData.ContentHtml;
 using PointlessWaymarks.CmsData.ContentHtml.LineHtml;
 using PointlessWaymarks.CmsData.Database;
@@ -36,7 +34,8 @@ public static class LineGenerator
         if (trackInformation.Track.Any())
         {
             var stateCounty =
-                await StateCountyService.GetStateCounty(trackInformation.Track.First().Y, trackInformation.Track.First().X);
+                await StateCountyService.GetStateCounty(trackInformation.Track.First().Y,
+                    trackInformation.Track.First().X);
             tagList = new List<string> { stateCounty.state, stateCounty.county };
         }
 
@@ -50,8 +49,8 @@ public static class LineGenerator
                     new List<IFeature>
                     {
                         // ReSharper disable once CoVariantArrayConversion It appears from testing that a linestring will reflect CoordinateZ
-                        new Feature(new NetTopologySuite.Geometries.LineString(trackInformation.Track.ToArray()), new AttributesTable())
-                    }).SelectMany(x => x.Tags).ToList());
+                        new Feature(new LineString(trackInformation.Track.ToArray()), new AttributesTable())
+                    }, CancellationToken.None, progress).SelectMany(x => x.Tags).ToList());
             }
             catch (Exception e)
             {
@@ -157,38 +156,9 @@ public static class LineGenerator
         if (!updateFormatCheck.Valid)
             return GenerationReturn.Error(updateFormatCheck.Explanation, lineContent.ContentId);
 
-        if (string.IsNullOrWhiteSpace(lineContent.Line))
-            return GenerationReturn.Error("LineContent Line can not be null of empty.");
-        
-        try
-        {
-            var serializer = GeoJsonSerializer.Create(new JsonSerializerSettings { Formatting = Formatting.Indented },
-                SpatialHelpers.Wgs84GeometryFactory(), 3);
-
-            using var stringReader = new StringReader(lineContent.Line);
-            using var jsonReader = new JsonTextReader(stringReader);
-            var featureCollection = serializer.Deserialize<FeatureCollection>(jsonReader);
-            if (featureCollection.Count < 1)
-                return GenerationReturn.Error(
-                    "The GeoJson for the line appears to have an empty Feature Collection?", lineContent.ContentId);
-            if (featureCollection.Count > 1)
-                return GenerationReturn.Error(
-                    "The GeoJson for the line appears to contain multiple elements? It should only contain 1 line...",
-                    lineContent.ContentId);
-            if (featureCollection[0].Geometry is not LineString)
-                return GenerationReturn.Error("The GeoJson for the line has one element but it isn't a LineString?",
-                    lineContent.ContentId);
-            var lineString = featureCollection[0].Geometry as LineString;
-            if (lineString == null || lineString.Count < 1 || lineString.Length == 0)
-                return GenerationReturn.Error("The LineString doesn't have any points or is zero length?",
-                    lineContent.ContentId);
-        }
-        catch (Exception e)
-        {
-            return GenerationReturn.Error(
-                $"Error parsing the FeatureCollection and/or problems checking the LineString {e.Message}",
-                lineContent.ContentId);
-        }
+        var geoJsonCheck = CommonContentValidation.LineGeoJsonValidation(lineContent.Line);
+        if (!geoJsonCheck.Valid)
+            return GenerationReturn.Error(updateFormatCheck.Explanation, lineContent.ContentId);
 
         return GenerationReturn.Success("Line Content Validation Successful");
     }

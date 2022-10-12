@@ -81,7 +81,7 @@ public partial class GeoJsonListWithActionsContext
                 loopSelected.DbEntry.FeaturesFromGeoJson()));
 
         var tagReturn = tagger.Tags(settingsFileInfo.FullName, toProcess.SelectMany(x => x.geoJsonFeature).ToList(),
-            StatusContext.ProgressTracker());
+            cancellationToken, StatusContext.ProgressTracker());
 
         var updateTime = DateTime.Now;
 

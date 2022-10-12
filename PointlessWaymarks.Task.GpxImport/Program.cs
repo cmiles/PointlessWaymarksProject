@@ -17,7 +17,7 @@ if (args.Length != 1)
 
 try
 {
-    var runner = new GpxImport();
+    var runner = new GpxTrackImport();
     await runner.Import(args[0]);
 }
 catch (Exception e)

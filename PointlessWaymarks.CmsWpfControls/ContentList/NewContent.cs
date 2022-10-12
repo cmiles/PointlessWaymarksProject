@@ -477,7 +477,7 @@ public partial class NewContent
                         {
                             new Feature(new Point(metaContent.Longitude.Value, metaContent.Latitude.Value),
                                 new AttributesTable())
-                        });
+                        }, cancellationToken, StatusContext.ProgressTracker());
 
                     if (intersectionTags.Any())
                     {

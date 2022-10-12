@@ -9,7 +9,7 @@ namespace PointlessWaymarks.FeatureIntersectionTags;
 public class Intersection
 {
     public List<IntersectResults> Tags(string intersectSettingsFile,
-        List<IFeature> toCheck, IProgress<string>? progress = null)
+        List<IFeature> toCheck, CancellationToken cancellationToken, IProgress<string>? progress = null)
     {
         if (string.IsNullOrEmpty(intersectSettingsFile))
         {
@@ -30,21 +30,30 @@ public class Intersection
 
         var compiledTags = new List<IntersectResults>();
 
+        cancellationToken.ThrowIfCancellationRequested();
+
         if (settings.IntersectFiles.Any())
-            compiledTags.AddRange(TagsFromFileIntersections(toCheck, settings.IntersectFiles.ToList(), progress));
+            compiledTags.AddRange(TagsFromFileIntersections(toCheck, settings.IntersectFiles.ToList(),
+                cancellationToken, progress));
+
+        cancellationToken.ThrowIfCancellationRequested();
 
         if (!string.IsNullOrWhiteSpace(settings.PadUsDirectory)
             && !string.IsNullOrWhiteSpace(settings.PadUsDoiRegionFile)
             && !string.IsNullOrWhiteSpace(settings.PadUsFilePrefix)
             && settings.PadUsAttributesForTags.Any())
             compiledTags.AddRange(TagsFromPadUsIntersections(toCheck, settings.PadUsAttributesForTags.ToList(),
-                settings.PadUsDoiRegionFile, settings.PadUsDirectory, settings.PadUsFilePrefix, progress));
+                settings.PadUsDoiRegionFile, settings.PadUsDirectory, settings.PadUsFilePrefix, cancellationToken,
+                progress));
+
+        cancellationToken.ThrowIfCancellationRequested();
 
         return compiledTags.GroupBy(x => x.Feature)
             .Select(x => new IntersectResults(x.Key, x.SelectMany(y => y.Tags).Distinct().ToList())).ToList();
     }
 
     public List<IntersectResults> TagsFromFileIntersections(List<IFeature> toCheck, List<IntersectFile> intersectFiles,
+        CancellationToken cancellationToken,
         IProgress<string>? progress = null)
     {
         var serializer = GeoJsonSerializer.Create();
@@ -54,6 +63,8 @@ public class Intersection
         var counter = 0;
         foreach (var loopIntersectFile in intersectFiles)
         {
+            cancellationToken.ThrowIfCancellationRequested();
+
             counter++;
 
             progress?.Report(
@@ -63,7 +74,8 @@ public class Intersection
                 new StringReader(
                     File.ReadAllText(loopIntersectFile.FileName));
 
-            using var intersectFileStream = File.Open(loopIntersectFile.FileName, FileMode.Open);
+            using var intersectFileStream = File.Open(loopIntersectFile.FileName, FileMode.Open, FileAccess.Read,
+                FileShare.ReadWrite);
             using var intersectStreamReader = new StreamReader(intersectFileStream);
             using var intersectJsonReader = new JsonTextReader(intersectStreamReader);
             var intersectFeatures = serializer.Deserialize<FeatureCollection>(intersectJsonReader).ToList();
@@ -74,17 +86,15 @@ public class Intersection
 
             foreach (var loopIntersectFeature in intersectFeatures)
             {
+                cancellationToken.ThrowIfCancellationRequested();
+
                 if (++referenceFeatureCounter % 1000 == 0)
                     progress?.Report(
                         $" Processing {loopIntersectFile.Name} - Feature {referenceFeatureCounter} of {intersectFeatures.Count}");
 
-                var submittedCounter = 0;
-
                 foreach (var loopCheck in featuresAndTags)
                 {
-                    if (++submittedCounter % 1000 == 0)
-                        progress?.Report(
-                            $" Processing Submitted Features - {submittedCounter} of {featuresAndTags.Count}");
+                    cancellationToken.ThrowIfCancellationRequested();
 
                     if (loopCheck.Feature.Geometry.Intersects(loopIntersectFeature.Geometry))
                     {
@@ -111,7 +121,8 @@ public class Intersection
     }
 
     public List<IntersectResults> TagsFromPadUsIntersections(List<IFeature> toCheck, List<string> attributesForTags,
-        string padUsRegionFile, string padUsDirectory, string padUsFilePrefix, IProgress<string>? progress = null)
+        string padUsRegionFile, string padUsDirectory, string padUsFilePrefix, CancellationToken cancellationToken,
+        IProgress<string>? progress = null)
     {
         progress?.Report($"Processing DOI Regions from {padUsRegionFile}");
         var doiRegionsFile = new FileInfo(padUsRegionFile);
@@ -125,6 +136,8 @@ public class Intersection
         var doiRegionFeatures = serializer.Deserialize<FeatureCollection>(doiRegionJsonReader).ToList();
 
         var regionIntersections = new List<(string? region, IFeature feature)>();
+
+        cancellationToken.ThrowIfCancellationRequested();
 
         foreach (var loopCheck in toCheck)
         foreach (var loopDoiRegion in doiRegionFeatures)
@@ -140,6 +153,8 @@ public class Intersection
 
         foreach (var loopDoiRegionGroup in regionIntersectionsGroupedByRegion)
         {
+            cancellationToken.ThrowIfCancellationRequested();
+
             counter++;
 
             var regionFile =
@@ -148,7 +163,8 @@ public class Intersection
             progress?.Report(
                 $"Processing PADUS DOI Region File - {regionFile.Name} - {counter} of {regionIntersectionsGroupedByRegion.Count}");
 
-            using var regionFileStream = File.Open(regionFile.FullName, FileMode.Open);
+            using var regionFileStream =
+                File.Open(regionFile.FullName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
             using var regionStreamReader = new StreamReader(regionFileStream);
             using var regionJsonReader = new JsonTextReader(regionStreamReader);
             var regionFeatures = serializer.Deserialize<FeatureCollection>(regionJsonReader).ToList();
@@ -159,16 +175,15 @@ public class Intersection
 
             foreach (var loopRegionFeature in regionFeatures)
             {
+                cancellationToken.ThrowIfCancellationRequested();
+
                 if (++referenceFeatureCounter % 5000 == 0)
                     progress?.Report(
                         $" Processing {regionFile.Name} - Feature {referenceFeatureCounter} of {regionFeatures.Count}");
 
-                var submittedCounter = 0;
-
                 foreach (var loopCheckFeature in toCheck)
                 {
-                    if (++submittedCounter % 1000 == 0)
-                        progress?.Report($" Processing Submitted Features - {submittedCounter} of {toCheck.Count}");
+                    cancellationToken.ThrowIfCancellationRequested();
 
                     if (loopCheckFeature.Geometry.Intersects(loopRegionFeature.Geometry))
                         foreach (var loopAttribute in attributesForTags)

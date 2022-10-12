@@ -5,6 +5,7 @@ using System.Windows;
 using System.Windows.Media.Imaging;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using NetTopologySuite.Features;
 using Ookii.Dialogs.Wpf;
 using PhotoSauce.MagicScaler;
 using PointlessWaymarks.CmsData;
@@ -28,15 +29,18 @@ using PointlessWaymarks.CmsWpfControls.TitleSummarySlugFolderEditor;
 using PointlessWaymarks.CmsWpfControls.UpdateNotesEditor;
 using PointlessWaymarks.CmsWpfControls.Utility;
 using PointlessWaymarks.CmsWpfControls.Utility.ChangesAndValidation;
+using PointlessWaymarks.FeatureIntersectionTags;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 using PointlessWaymarks.WpfCommon.Utility;
+using Point = NetTopologySuite.Geometries.Point;
 
 namespace PointlessWaymarks.CmsWpfControls.PhotoContentEditor;
 
 [ObservableObject]
 public partial class PhotoContentEditorContext : IHasChanges, IHasValidationIssues, ICheckForChangesAndValidation
 {
+    [ObservableProperty] private RelayCommand _addFeatureIntersectTagsCommand;
     [ObservableProperty] private StringDataEntryContext _altTextEntry;
     [ObservableProperty] private StringDataEntryContext _apertureEntry;
     [ObservableProperty] private RelayCommand _autoCleanRenameSelectedFileCommand;
@@ -116,6 +120,37 @@ Photo Content Notes:
         HasChanges = PropertyScanners.ChildPropertiesHaveChanges(this) || SelectedFileHasPathOrNameChanges;
         HasValidationIssues = PropertyScanners.ChildPropertiesHaveValidationIssues(this) ||
                               SelectedFileHasValidationIssues;
+    }
+
+    private async Task AddFeatureIntersectTags()
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        var featureToCheck = await FeatureFromPoint();
+        if (featureToCheck == null)
+        {
+            StatusContext.ToastError("No valid Lat/Long to check?");
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(UserSettingsSingleton.CurrentSettings().FeatureIntersectionTagSettingsFile))
+        {
+            StatusContext.ToastError(
+                "To use this feature the Feature Intersect Settings file must be set in the Site Settings...");
+            return;
+        }
+
+        var tagger = new Intersection();
+        var possibleTags = tagger.Tags(UserSettingsSingleton.CurrentSettings().FeatureIntersectionTagSettingsFile,
+            new List<IFeature> { featureToCheck }, CancellationToken.None, StatusContext.ProgressTracker());
+
+        if (!possibleTags.Any())
+        {
+            StatusContext.ToastWarning("No tags found...");
+            return;
+        }
+
+        TagEdit.Tags = $"{TagEdit.Tags},{string.Join(",", possibleTags.SelectMany(x => x.Tags).Select(x => x))}";
     }
 
     public async Task ChooseFile(bool loadMetadata)
@@ -241,6 +276,29 @@ Photo Content Notes:
         newEntry.Elevation = ElevationEntry.UserValue;
 
         return newEntry;
+    }
+
+    /// <summary>
+    ///     Returns a NTS Feature based on the current Lat/Long - if values are null or invalid
+    ///     null is returned.
+    /// </summary>
+    /// <returns></returns>
+    public async Task<IFeature?> FeatureFromPoint()
+    {
+        if (LatitudeEntry.UserValue == null || LongitudeEntry.UserValue == null) return null;
+
+        var latitudeValidation = await CommonContentValidation.LatitudeValidation(LatitudeEntry.UserValue.Value);
+        var longitudeValidation = await CommonContentValidation.LongitudeValidation(LongitudeEntry.UserValue.Value);
+
+        if (!latitudeValidation.Valid || !longitudeValidation.Valid) return null;
+
+        if (ElevationEntry.UserValue is null)
+            return new Feature(
+                new Point(LongitudeEntry.UserValue.Value, LatitudeEntry.UserValue.Value),
+                new AttributesTable());
+        return new Feature(
+            new Point(LongitudeEntry.UserValue.Value, LatitudeEntry.UserValue.Value, ElevationEntry.UserValue.Value),
+            new AttributesTable());
     }
 
     public async Task GetElevation()
@@ -526,7 +584,7 @@ Photo Content Notes:
             Title = string.IsNullOrWhiteSpace(TitleSummarySlugFolder.TitleEntry.UserValue)
                 ? string.Empty
                 : $"Point From {TitleSummarySlugFolder.TitleEntry.UserValue}",
-            Tags = TagEdit.TagListString(),
+            Tags = TagEdit.TagListString()
         };
 
         newPartialPoint.Slug = SlugUtility.Create(true, newPartialPoint.Title);
@@ -666,6 +724,7 @@ Photo Content Notes:
             StatusContext.RunBlockingTaskCommand(async () => await RotateImage(Orientation.Rotate270));
 
         PointFromPhotoLocationCommand = StatusContext.RunBlockingTaskCommand(PointFromPhotoLocation);
+        AddFeatureIntersectTagsCommand = StatusContext.RunBlockingTaskCommand(AddFeatureIntersectTags);
 
         GetElevationCommand = StatusContext.RunBlockingTaskCommand(GetElevation);
 

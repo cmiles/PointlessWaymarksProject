@@ -4,6 +4,7 @@ using System.IO;
 using System.Windows;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using NetTopologySuite.Features;
 using Ookii.Dialogs.Wpf;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.CommonHtml;
@@ -23,6 +24,7 @@ using PointlessWaymarks.CmsWpfControls.UpdateNotesEditor;
 using PointlessWaymarks.CmsWpfControls.Utility;
 using PointlessWaymarks.CmsWpfControls.Utility.ChangesAndValidation;
 using PointlessWaymarks.CmsWpfControls.WpfHtml;
+using PointlessWaymarks.FeatureIntersectionTags;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 
@@ -32,6 +34,7 @@ namespace PointlessWaymarks.CmsWpfControls.LineContentEditor;
 public partial class LineContentEditorContext : IHasChanges, IHasValidationIssues,
     ICheckForChangesAndValidation
 {
+    [ObservableProperty] private RelayCommand _addFeatureIntersectTagsCommand;
     [ObservableProperty] private BodyContentEditorContext _bodyContent;
     [ObservableProperty] private ConversionDataEntryContext<double> _climbElevationEntry;
     [ObservableProperty] private ContentIdViewerControlContext _contentId;
@@ -44,7 +47,9 @@ public partial class LineContentEditorContext : IHasChanges, IHasValidationIssue
     [ObservableProperty] private bool _hasValidationIssues;
     [ObservableProperty] private HelpDisplayContext _helpContext;
     [ObservableProperty] private RelayCommand _importFromGpxCommand;
+    [ObservableProperty] private RelayCommand _importGeoJsonFromClipboardCommand;
     [ObservableProperty] private string _lineGeoJson;
+    [ObservableProperty] private RelayCommand _lineGeoJsonToClipboardCommand;
     [ObservableProperty] private RelayCommand _linkToClipboardCommand;
     [ObservableProperty] private ContentSiteFeedAndIsDraftContext _mainSiteFeed;
     [ObservableProperty] private ConversionDataEntryContext<double> _maximumElevationEntry;
@@ -87,6 +92,9 @@ public partial class LineContentEditorContext : IHasChanges, IHasValidationIssue
         RefreshMapPreviewCommand = StatusContext.RunBlockingTaskCommand(RefreshMapPreview);
         LinkToClipboardCommand = StatusContext.RunBlockingTaskCommand(LinkToClipboard);
         UpdateStatisticsCommand = StatusContext.RunBlockingTaskCommand(UpdateStatistics);
+        LineGeoJsonToClipboardCommand = StatusContext.RunNonBlockingTaskCommand(LineGeoJsonToClipboard);
+        ImportGeoJsonFromClipboardCommand = StatusContext.RunBlockingTaskCommand(ImportGeoJsonFromClipboard);
+        AddFeatureIntersectTagsCommand = StatusContext.RunBlockingTaskCommand(AddFeatureIntersectTags);
 
         HelpContext = new HelpDisplayContext(new List<string>
         {
@@ -102,6 +110,38 @@ public partial class LineContentEditorContext : IHasChanges, IHasValidationIssue
     {
         HasChanges = PropertyScanners.ChildPropertiesHaveChanges(this);
         HasValidationIssues = PropertyScanners.ChildPropertiesHaveValidationIssues(this);
+    }
+
+    private async Task AddFeatureIntersectTags()
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (string.IsNullOrWhiteSpace(LineGeoJson))
+        {
+            StatusContext.ToastError("No current line?");
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(UserSettingsSingleton.CurrentSettings().FeatureIntersectionTagSettingsFile))
+        {
+            StatusContext.ToastError(
+                "To use this feature the Feature Intersect Settings file must be set in the Site Settings...");
+            return;
+        }
+
+        var featureToCheck = LineContent.FeatureFromGeoJsonLine(LineGeoJson);
+
+        var tagger = new Intersection();
+        var possibleTags = tagger.Tags(UserSettingsSingleton.CurrentSettings().FeatureIntersectionTagSettingsFile,
+            new List<IFeature> { featureToCheck }, CancellationToken.None, StatusContext.ProgressTracker());
+
+        if (!possibleTags.Any())
+        {
+            StatusContext.ToastWarning("No tags found...");
+            return;
+        }
+
+        TagEdit.Tags = $"{TagEdit.Tags},{string.Join(",", possibleTags.SelectMany(x => x.Tags).Select(x => x))}";
     }
 
     public static async Task<LineContentEditorContext> CreateInstance(StatusControlContext statusContext,
@@ -226,6 +266,50 @@ public partial class LineContentEditorContext : IHasChanges, IHasValidationIssue
                 trackToImport.StartsOn?.ToString("MM/dd/yyyy h:mm:ss tt") ?? string.Empty;
             RecordingEndedOnEntry.UserText = trackToImport.EndsOn?.ToString("MM/dd/yyyy h:mm:ss tt") ?? string.Empty;
         }
+    }
+
+    public async Task ImportGeoJsonFromClipboard()
+    {
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        StatusContext.Progress("Getting GeoJson from Clipboard");
+
+        var clipboardText = Clipboard.GetText();
+
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (string.IsNullOrWhiteSpace(clipboardText))
+        {
+            StatusContext.ToastError("Blank/Empty Clipboard?");
+            return;
+        }
+
+        var (isValid, explanation) = CommonContentValidation.LineGeoJsonValidation(clipboardText);
+
+        if (!isValid)
+        {
+            await StatusContext.ShowMessageWithOkButton("Error with GeoJson Import", explanation);
+            return;
+        }
+
+        LineGeoJson = clipboardText;
+
+        await UpdateStatistics();
+    }
+
+    private async Task LineGeoJsonToClipboard()
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (string.IsNullOrWhiteSpace(LineGeoJson))
+        {
+            StatusContext.ToastWarning("No Line?");
+            return;
+        }
+
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        Clipboard.SetText(LineGeoJson);
     }
 
     private async Task LinkToClipboard()

@@ -10,7 +10,7 @@ public static class ConversionDataEntryHelpers
         var cleanedUserText = userText.TrimNullToEmpty();
 
         if (string.IsNullOrWhiteSpace(cleanedUserText))
-            return (false, "Please enter a valid number", DateTime.MinValue);
+            return (false, "Please enter a valid date", DateTime.MinValue);
 
         return DateTime.TryParse(cleanedUserText, out var parsedValue)
             ? (true, $"Converted {userText} to {parsedValue}", parsedValue.TrimDateTimeToSeconds())

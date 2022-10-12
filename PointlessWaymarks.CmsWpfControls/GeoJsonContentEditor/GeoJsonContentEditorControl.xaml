@@ -72,6 +72,10 @@
                                 Content="Load From Clipboard"
                                 Style="{StaticResource ActionPanelButtonStyle}" />
                             <Button
+                                Command="{Binding AddFeatureIntersectTagsCommand}"
+                                Content="Add Feature Intersect Tags"
+                                Style="{StaticResource ActionPanelButtonStyle}" />
+                            <Button
                                 Command="{Binding RefreshMapPreviewCommand}"
                                 Content="Refresh Map"
                                 Style="{StaticResource ActionPanelButtonStyle}" />

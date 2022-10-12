@@ -51,12 +51,23 @@ public class LineContent : IUpdateNotes, IContentCommon
     /// <returns></returns>
     public IFeature? FeatureFromGeoJsonLine()
     {
-        if (string.IsNullOrWhiteSpace(Line)) return null;
+        return FeatureFromGeoJsonLine(Line);
+    }
+
+    /// <summary>
+    ///     Transforms the Line (stored as GeoJson) to an NTS Feature. The assumption is that
+    ///     the Line is both valid Json and conforms to the conventions of this program - invalid
+    ///     data will Throw and a null or empty line will return null.
+    /// </summary>
+    /// <returns></returns>
+    public static IFeature? FeatureFromGeoJsonLine(string? lineString)
+    {
+        if (string.IsNullOrWhiteSpace(lineString)) return null;
 
         var serializer = GeoJsonSerializer.Create(new JsonSerializerSettings { Formatting = Formatting.Indented },
             SpatialHelpers.Wgs84GeometryFactory(), 3);
 
-        using var stringReader = new StringReader(Line);
+        using var stringReader = new StringReader(lineString);
         using var jsonReader = new JsonTextReader(stringReader);
         var featureCollection = serializer.Deserialize<FeatureCollection>(jsonReader);
         return featureCollection[0];

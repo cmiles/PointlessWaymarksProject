@@ -86,7 +86,7 @@ public partial class PointListWithActionsContext
         foreach (var loopSelected in pointDtos) toProcess.Add((loopSelected, loopSelected.FeatureFromPoint()));
 
         var tagReturn = tagger.Tags(settingsFileInfo.FullName, toProcess.Select(x => x.pointFeature).ToList(),
-            StatusContext.ProgressTracker());
+            cancellationToken, StatusContext.ProgressTracker());
 
         var updateTime = DateTime.Now;
 

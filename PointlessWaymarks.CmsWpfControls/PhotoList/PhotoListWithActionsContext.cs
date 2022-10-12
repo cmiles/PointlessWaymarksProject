@@ -121,7 +121,7 @@ public partial class PhotoListWithActionsContext
         }
 
         var tagReturn = tagger.Tags(settingsFileInfo.FullName, toProcess.Select(x => x.pointFeature).ToList(),
-            StatusContext.ProgressTracker());
+            cancellationToken, StatusContext.ProgressTracker());
 
         var updateTime = DateTime.Now;
 

@@ -4,7 +4,6 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
     xmlns:bodyContentEditor1="clr-namespace:PointlessWaymarks.CmsWpfControls.BodyContentEditor"
-    xmlns:boolDataEntry1="clr-namespace:PointlessWaymarks.CmsWpfControls.BoolDataEntry"
     xmlns:contentIdViewer="clr-namespace:PointlessWaymarks.CmsWpfControls.ContentIdViewer"
     xmlns:contentSiteFeedAndIsDraft="clr-namespace:PointlessWaymarks.CmsWpfControls.ContentSiteFeedAndIsDraft"
     xmlns:conversionDataEntry="clr-namespace:PointlessWaymarks.CmsWpfControls.ConversionDataEntry"
@@ -74,6 +73,18 @@
                                 Command="{Binding RefreshMapPreviewCommand}"
                                 Content="Refresh Map"
                                 Style="{StaticResource ActionPanelButtonStyle}" />
+                            <Button
+                                Command="{Binding AddFeatureIntersectTagsCommand}"
+                                Content="Add Feature Intersect Tags"
+                                Style="{StaticResource ActionPanelButtonStyle}" />
+                            <Button
+                                Command="{Binding LineGeoJsonToClipboardCommand}"
+                                Content="Line GeoJson to Clipboard"
+                                Style="{StaticResource ActionPanelButtonStyle}" />
+                            <Button
+                                Command="{Binding ImportGeoJsonFromClipboardCommand}"
+                                Content="Line GeoJson From Clipboard"
+                                Style="{StaticResource ActionPanelButtonStyle}" />
                         </WrapPanel>
                     </Border>
                     <wpf:WebView2
@@ -118,7 +129,6 @@
 
                             <conversionDataEntry:ConversionDataEntryControl Margin="12,0,0,0" DataContext="{Binding DescentElevationEntry}" />
                         </WrapPanel>
-
                         <Button
                             Grid.Row="3"
                             Margin="6,12,1,24"

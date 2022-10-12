@@ -81,7 +81,7 @@ public partial class LineListWithActionsContext
                 loopSelected.DbEntry.FeatureFromGeoJsonLine()));
 
         var tagReturn = tagger.Tags(settingsFileInfo.FullName, toProcess.Select(x => x.lineFeature).ToList(),
-            StatusContext.ProgressTracker());
+            cancellationToken, StatusContext.ProgressTracker());
 
         var updateTime = DateTime.Now;
 

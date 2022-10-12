@@ -22,6 +22,7 @@ using PointlessWaymarks.CmsWpfControls.UpdateNotesEditor;
 using PointlessWaymarks.CmsWpfControls.Utility;
 using PointlessWaymarks.CmsWpfControls.Utility.ChangesAndValidation;
 using PointlessWaymarks.CmsWpfControls.WpfHtml;
+using PointlessWaymarks.FeatureIntersectionTags;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 
@@ -30,6 +31,7 @@ namespace PointlessWaymarks.CmsWpfControls.GeoJsonContentEditor;
 [ObservableObject]
 public partial class GeoJsonContentEditorContext : IHasChanges, IHasValidationIssues, ICheckForChangesAndValidation
 {
+    [ObservableProperty] private RelayCommand _addFeatureIntersectTagsCommand;
     [ObservableProperty] private BodyContentEditorContext _bodyContent;
     [ObservableProperty] private ContentIdViewerControlContext _contentId;
     [ObservableProperty] private CreatedAndUpdatedByAndOnDisplayContext _createdUpdatedDisplay;
@@ -69,6 +71,7 @@ public partial class GeoJsonContentEditorContext : IHasChanges, IHasValidationIs
         ImportGeoJsonFromClipboardCommand = StatusContext.RunBlockingTaskCommand(ImportGeoJsonFromClipboard);
         RefreshMapPreviewCommand = StatusContext.RunBlockingTaskCommand(RefreshMapPreview);
         LinkToClipboardCommand = StatusContext.RunBlockingTaskCommand(LinkToClipboard);
+        AddFeatureIntersectTagsCommand = StatusContext.RunBlockingTaskCommand(AddFeatureIntersectTags);
 
         HelpContext = new HelpDisplayContext(new List<string>
         {
@@ -88,6 +91,38 @@ public partial class GeoJsonContentEditorContext : IHasChanges, IHasValidationIs
     {
         HasChanges = PropertyScanners.ChildPropertiesHaveChanges(this);
         HasValidationIssues = PropertyScanners.ChildPropertiesHaveValidationIssues(this);
+    }
+
+    private async Task AddFeatureIntersectTags()
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (string.IsNullOrWhiteSpace(GeoJsonText))
+        {
+            StatusContext.ToastError("No current line?");
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(UserSettingsSingleton.CurrentSettings().FeatureIntersectionTagSettingsFile))
+        {
+            StatusContext.ToastError(
+                "To use this feature the Feature Intersect Settings file must be set in the Site Settings...");
+            return;
+        }
+
+        var featuresToCheck = GeoJsonContent.FeaturesFromGeoJson(GeoJsonText);
+
+        var tagger = new Intersection();
+        var possibleTags = tagger.Tags(UserSettingsSingleton.CurrentSettings().FeatureIntersectionTagSettingsFile,
+            featuresToCheck, CancellationToken.None, StatusContext.ProgressTracker());
+
+        if (!possibleTags.Any())
+        {
+            StatusContext.ToastWarning("No tags found...");
+            return;
+        }
+
+        TagEdit.Tags = $"{TagEdit.Tags},{string.Join(",", possibleTags.SelectMany(x => x.Tags).Select(x => x))}";
     }
 
     public static async Task<GeoJsonContentEditorContext> CreateInstance(StatusControlContext statusContext,
