@@ -1,4 +1,5 @@
 ﻿using HtmlTags;
+using PointlessWaymarks.CmsData.ContentHtml.LineHtml;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 
@@ -6,6 +7,20 @@ namespace PointlessWaymarks.CmsData.CommonHtml;
 
 public static class ContentList
 {
+    public static string ContentTypeToContentListItemFilterTag(object content)
+    {
+        return content switch
+        {
+            NoteContent => "post",
+            PostContent => "post",
+            ImageContent => "image",
+            PhotoContent => "image",
+            FileContent => "file",
+            LinkContent => "link",
+            _ => "other"
+        };
+    }
+
     public static HtmlTag FromContentCommon(IContentCommon content)
     {
         var linkTo = UserSettingsSingleton.CurrentSettings().ContentUrl(content.ContentId).Result;
@@ -13,13 +28,9 @@ public static class ContentList
         var listItemContainerDiv = new DivTag().AddClasses("content-list-item-container", "info-box");
         listItemContainerDiv.Data("title", content.Title);
         if (content is PhotoContent photoContent)
-        {
             listItemContainerDiv.Data("created", photoContent.PhotoCreatedOn.ToString("s"));
-        }
         else
-        {
             listItemContainerDiv.Data("created", content.CreatedOn.ToString("s"));
-        }
         listItemContainerDiv.Data("updated", (content.LastUpdatedOn ?? content.CreatedOn).ToString("s"));
         listItemContainerDiv.Data("tags",
             string.Join(",", Db.TagListParseToSlugs(content, false)));
@@ -52,21 +63,36 @@ public static class ContentList
 
         //Especially in automated imports the summary and title could end up the same - if they are blank the 
         //summary in the context of compact content.
-        var modifiedSummaryText = "";
+        var summaryLines = new List<string>();
 
         if (!string.IsNullOrWhiteSpace(content.Summary) &&
-            content.Summary.Equals(content.Title, StringComparison.OrdinalIgnoreCase) || content.Summary![..^1].ToString()
-                .Equals(content.Title, StringComparison.OrdinalIgnoreCase))
+            !(content.Summary.Equals(content.Title, StringComparison.OrdinalIgnoreCase) || content.Summary![..^1]
+                .Equals(content.Title, StringComparison.OrdinalIgnoreCase)))
+            summaryLines.Add(content.Summary);
+
+        if (content is LineContent line)
         {
-            modifiedSummaryText = string.Empty;
+            var lineStats =
+                $"{line.LineDistance:N1} Miles, {line.ClimbElevation:N0}' Climbing, {line.DescentElevation:N0}' Descent";
+
+            var lineDuration = LineParts.LineDurationInHoursAndMinutes(line);
+
+            if (lineDuration.totalMinutes is not null) lineStats = $"{lineStats}, {lineDuration.presentationString}";
+
+            lineStats =
+                $"{lineStats}, {line.MinimumElevation:N0}' Min Elevation, {line.MaximumElevation:N0} Max Elevation";
+
+            summaryLines.Add(lineStats);
         }
+
+        if (!string.IsNullOrWhiteSpace(content.Tags)) summaryLines.Add($"Tags: {content.Tags}");
 
         if (content.MainPicture == null)
             compactContentSummaryTextDiv = new DivTag().AddClass("compact-content-text-content-summary")
-                .Text(modifiedSummaryText);
+                .Text(string.Join("<br>", summaryLines)).Encoded(false);
         else
             compactContentSummaryTextDiv = new DivTag().AddClass("compact-content-text-content-optional-summary")
-                .Text(modifiedSummaryText);
+                .Text(string.Join("<br>", summaryLines)).Encoded(false);
 
         var compactContentMainTextCreatedOrUpdatedTextDiv = new DivTag()
             .AddClass("compact-content-text-content-date")
@@ -79,20 +105,6 @@ public static class ContentList
         listItemContainerDiv.Children.Add(compactContentMainTextContentDiv);
 
         return listItemContainerDiv;
-    }
-
-    public static string ContentTypeToContentListItemFilterTag(object content)
-    {
-        return content switch
-        {
-            NoteContent => "post",
-            PostContent => "post",
-            ImageContent => "image",
-            PhotoContent => "image",
-            FileContent => "file",
-            LinkContent => "link",
-            _ => "other"
-        };
     }
 
     public static HtmlTag FromLinkContent(LinkContent content)

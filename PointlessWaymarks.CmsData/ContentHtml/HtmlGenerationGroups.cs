@@ -1,6 +1,5 @@
 ﻿using System.Collections.Concurrent;
 using System.Text.Json;
-using DocumentFormat.OpenXml.Presentation;
 using KellermanSoftware.CompareNetObjects;
 using KellermanSoftware.CompareNetObjects.Reports;
 using Microsoft.EntityFrameworkCore;
@@ -686,7 +685,8 @@ public static class HtmlGenerationGroups
             return;
         }
 
-        var changedPhotoDates = db.PhotoContents.Where(x => !x.IsDraft).Join(db.GenerationChangedContentIds, x => x.ContentId,
+        var changedPhotoDates = db.PhotoContents.Where(x => !x.IsDraft).Join(db.GenerationChangedContentIds,
+            x => x.ContentId,
             x => x.ContentId, (x, y) => x).Select(x => x.PhotoCreatedOn.Date).Distinct().ToList();
 
         var datesToGenerate = new List<DateTime>();
@@ -1167,6 +1167,8 @@ public static class HtmlGenerationGroups
             await htmlModel.WriteLocalHtml().ConfigureAwait(false);
             await Export.WriteLocalDbJson(loopItem).ConfigureAwait(false);
         }).ConfigureAwait(false);
+
+        if (allItems.Any()) await MapComponentGenerator.GenerateAllLinesData();
     }
 
     public static async Task GenerateChangeFilteredMapData(DateTime generationVersion,

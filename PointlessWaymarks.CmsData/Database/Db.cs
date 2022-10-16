@@ -321,7 +321,7 @@ public static class Db
     ///     for 'ContentVersion' and be used so that those are consistent.
     /// </summary>
     /// <returns></returns>
-    private static DateTime ContentVersionDateTime()
+    public static DateTime ContentVersionDateTime()
     {
         var frozenNow = DateTime.Now.ToUniversalTime();
         return new DateTime(frozenNow.Year, frozenNow.Month, frozenNow.Day, frozenNow.Hour, frozenNow.Minute,
@@ -1404,7 +1404,8 @@ public static class Db
         if (toSave.Id > 0) toSave.Id = 0;
         toSave.ContentVersion = ContentVersionDateTime();
 
-        toSave.MainPicture = toSave.UserMainPicture ?? BracketCodeCommon.PhotoOrImageCodeFirstIdInContent(toSave.BodyContent);
+        toSave.MainPicture = toSave.UserMainPicture ??
+                             BracketCodeCommon.PhotoOrImageCodeFirstIdInContent(toSave.BodyContent);
 
         await context.FileContents.AddAsync(toSave).ConfigureAwait(false);
 

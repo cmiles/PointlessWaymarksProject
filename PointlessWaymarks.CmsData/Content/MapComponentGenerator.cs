@@ -1,12 +1,83 @@
-﻿using PointlessWaymarks.CmsData.ContentHtml.MapComponentData;
+﻿using Microsoft.EntityFrameworkCore;
+using NetTopologySuite.Geometries;
+using PointlessWaymarks.CmsData.ContentHtml.MapComponentData;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsData.Json;
+using PointlessWaymarks.CmsData.Spatial;
 
 namespace PointlessWaymarks.CmsData.Content;
 
 public static class MapComponentGenerator
 {
+    public static async Task<(GenerationReturn generationReturn, MapComponentDto? mapDto)> GenerateAllLinesData(
+        Progress<string>? progress = null)
+    {
+        var frozenNow = DateTime.Now;
+        var allLines = new MapComponent
+        {
+            Summary = "All Lines",
+            Title = "All Lines",
+            ContentVersion = Db.ContentVersionDateTime(),
+            CreatedBy = "Map Generator",
+            CreatedOn = frozenNow,
+            ContentId = new Guid("00000000-0000-0000-0000-000000000001")
+        };
+
+        var boundsKeeper = new List<Point>();
+        var elementList = new List<MapElement>();
+
+        var db = await Db.Context();
+
+        var dbLines = await db.LineContents.Where(x => !x.IsDraft).AsNoTracking().ToListAsync();
+
+        foreach (var mapLine in dbLines)
+        {
+            var lineFeatureCollection = SpatialConverters.GeoJsonToFeatureCollection(mapLine.Line);
+
+            boundsKeeper.Add(new Point(mapLine.InitialViewBoundsMaxLongitude,
+                mapLine.InitialViewBoundsMaxLatitude));
+            boundsKeeper.Add(new Point(mapLine.InitialViewBoundsMinLongitude,
+                mapLine.InitialViewBoundsMinLatitude));
+
+            elementList.Add(new MapElement
+            {
+                ElementContentId = mapLine.ContentId,
+                IncludeInDefaultView = true,
+                IsFeaturedElement = false,
+                MapComponentContentId = allLines.ContentId
+            });
+        }
+
+        var bounds = SpatialConverters.PointBoundingBox(boundsKeeper);
+
+        allLines.InitialViewBoundsMaxLatitude = bounds.MaxY;
+        allLines.InitialViewBoundsMaxLongitude = bounds.MaxX;
+        allLines.InitialViewBoundsMinLatitude = bounds.MinY;
+        allLines.InitialViewBoundsMinLongitude = bounds.MinX;
+        allLines.UpdateNotesFormat = ContentFormatDefaults.Content.ToString();
+
+        var mapDto = new MapComponentDto(allLines, elementList);
+
+        var validationReturn = await Validate(mapDto).ConfigureAwait(false);
+
+        if (validationReturn.HasError) return (validationReturn, null);
+
+        Db.DefaultPropertyCleanup(mapDto);
+
+        var savedComponent = await Db.SaveMapComponent(mapDto).ConfigureAwait(false);
+
+        await Export.WriteLocalDbJson(savedComponent.Map).ConfigureAwait(false);
+
+        DataNotifications.PublishDataNotification("Map Component Generator", DataNotificationContentType.Map,
+            DataNotificationUpdateType.LocalContent, new List<Guid> { mapDto.Map.ContentId });
+
+        return (
+            GenerationReturn.Success(
+                $"Saved and Generated Map Component {mapDto.Map.ContentId} - {allLines.Title}"),
+            mapDto);
+    }
+
     public static async Task GenerateData(MapComponentDto toGenerate, IProgress<string>? progress = null)
     {
         progress?.Report($"Map Component - Generate Data for {toGenerate.Map.ContentId}, {toGenerate.Map.Title}");
@@ -30,7 +101,7 @@ public static class MapComponentGenerator
         await Export.WriteLocalDbJson(savedComponent.Map).ConfigureAwait(false);
 
         DataNotifications.PublishDataNotification("Map Component Generator", DataNotificationContentType.Map,
-            DataNotificationUpdateType.LocalContent, new List<Guid> {savedComponent.Map.ContentId});
+            DataNotificationUpdateType.LocalContent, new List<Guid> { savedComponent.Map.ContentId });
 
         return (
             GenerationReturn.Success(

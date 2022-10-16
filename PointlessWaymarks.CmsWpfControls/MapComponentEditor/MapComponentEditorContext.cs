@@ -3,10 +3,10 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Text.RegularExpressions;
 using System.Windows;
-using GongSolutions.Wpf.DragDrop;
-using Microsoft.EntityFrameworkCore;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using GongSolutions.Wpf.DragDrop;
+using Microsoft.EntityFrameworkCore;
 using NetTopologySuite.Features;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.CommonHtml;
@@ -373,6 +373,7 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
                         lineFeatureCollection.First().Attributes.Add("title", mapLine.DbEntry.Title);
                         lineFeatureCollection.First().Attributes.Add("description", mapLine.DbEntry.Summary);
                     }
+
                     geoJsonList.Add(lineFeatureCollection);
                     boundsKeeper.Add(new Point(mapLine.DbEntry.InitialViewBoundsMaxLongitude,
                         mapLine.DbEntry.InitialViewBoundsMaxLatitude));
@@ -453,7 +454,7 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
     }
 
     /// <summary>
-    /// Will add an item to the map if it is a point, line or geojson type - this does NOT refresh the map
+    ///     Will add an item to the map if it is a point, line or geojson type - this does NOT refresh the map
     /// </summary>
     /// <param name="toAdd"></param>
     /// <returns></returns>
