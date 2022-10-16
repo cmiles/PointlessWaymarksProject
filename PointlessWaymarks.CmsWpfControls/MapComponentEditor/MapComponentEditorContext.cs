@@ -108,6 +108,8 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
 
         var contentIds = BracketCodeCommon.BracketCodeContentIds(textToProcess);
         foreach (var loopGuids in contentIds) await TryAddSpatialType(loopGuids);
+
+        await RefreshMapPreview();
     }
 
     private async Task AddGeoJson(GeoJsonContent possibleGeoJson, MapElement? loopContent = null,
@@ -282,14 +284,16 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
         TitleEntry.HelpText = "Title Text";
         TitleEntry.ReferenceValue = DbEntry.Title.TrimNullToEmpty();
         TitleEntry.UserValue = DbEntry.Title.TrimNullToEmpty();
-        TitleEntry.ValidationFunctions = new List<Func<string, Task<IsValid>>> { CommonContentValidation.ValidateTitle };
+        TitleEntry.ValidationFunctions = new List<Func<string, Task<IsValid>>>
+            { CommonContentValidation.ValidateTitle };
 
         SummaryEntry = StringDataEntryContext.CreateInstance();
         SummaryEntry.Title = "Summary";
         SummaryEntry.HelpText = "A short text entry that will show in Search and short references to the content";
         SummaryEntry.ReferenceValue = DbEntry.Summary ?? string.Empty;
         SummaryEntry.UserValue = StringHelpers.NullToEmptyTrim(DbEntry.Summary);
-        SummaryEntry.ValidationFunctions = new List<Func<string, Task<IsValid>>> { CommonContentValidation.ValidateSummary };
+        SummaryEntry.ValidationFunctions = new List<Func<string, Task<IsValid>>>
+            { CommonContentValidation.ValidateSummary };
 
         CreatedUpdatedDisplay = await CreatedAndUpdatedByAndOnDisplayContext.CreateInstance(StatusContext, DbEntry);
         ContentId = await ContentIdViewerControlContext.CreateInstance(StatusContext, DbEntry);
@@ -363,7 +367,13 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
                         mapGeoJson.DbEntry.InitialViewBoundsMinLatitude));
                     break;
                 case MapElementListLineItem { DbEntry.Line: { } } mapLine:
-                    geoJsonList.Add(SpatialConverters.GeoJsonToFeatureCollection(mapLine.DbEntry.Line));
+                    var lineFeatureCollection = SpatialConverters.GeoJsonToFeatureCollection(mapLine.DbEntry.Line);
+                    if (lineFeatureCollection.Any())
+                    {
+                        lineFeatureCollection.First().Attributes.Add("title", mapLine.DbEntry.Title);
+                        lineFeatureCollection.First().Attributes.Add("description", mapLine.DbEntry.Summary);
+                    }
+                    geoJsonList.Add(lineFeatureCollection);
                     boundsKeeper.Add(new Point(mapLine.DbEntry.InitialViewBoundsMaxLongitude,
                         mapLine.DbEntry.InitialViewBoundsMaxLatitude));
                     boundsKeeper.Add(new Point(mapLine.DbEntry.InitialViewBoundsMinLongitude,
@@ -442,6 +452,11 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
         }
     }
 
+    /// <summary>
+    /// Will add an item to the map if it is a point, line or geojson type - this does NOT refresh the map
+    /// </summary>
+    /// <param name="toAdd"></param>
+    /// <returns></returns>
     private async Task TryAddSpatialType(Guid toAdd)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -450,22 +465,20 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
 
         if (db.PointContents.Any(x => x.ContentId == toAdd))
         {
-            await AddPoint((await Db.PointAndPointDetails(toAdd))!, guiNotificationAndMapRefreshWhenAdded: true)
+            await AddPoint((await Db.PointAndPointDetails(toAdd))!)
                 .ConfigureAwait(false);
             return;
         }
 
         if (db.GeoJsonContents.Any(x => x.ContentId == toAdd))
         {
-            await AddGeoJson(await db.GeoJsonContents.SingleAsync(x => x.ContentId == toAdd),
-                guiNotificationAndMapRefreshWhenAdded: true).ConfigureAwait(false);
+            await AddGeoJson(await db.GeoJsonContents.SingleAsync(x => x.ContentId == toAdd)).ConfigureAwait(false);
             return;
         }
 
         if (db.LineContents.Any(x => x.ContentId == toAdd))
         {
-            await AddLine(await db.LineContents.SingleAsync(x => x.ContentId == toAdd),
-                guiNotificationAndMapRefreshWhenAdded: true).ConfigureAwait(false);
+            await AddLine(await db.LineContents.SingleAsync(x => x.ContentId == toAdd)).ConfigureAwait(false);
             return;
         }
 
@@ -534,6 +547,8 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
         }
 
         UserGeoContentInput = string.Empty;
+
+        await RefreshMapPreview();
     }
 
     public record MapJsonDto(Guid Identifier, GeoJsonData.SpatialBounds Bounds, List<FeatureCollection> GeoJsonLayers,

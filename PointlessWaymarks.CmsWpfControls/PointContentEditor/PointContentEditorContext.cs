@@ -118,7 +118,7 @@ public partial class PointContentEditorContext : IHasChanges, ICheckForChangesAn
             return;
         }
 
-        TagEdit.Tags = $"{TagEdit.Tags},{string.Join(",", possibleTags.SelectMany(x => x.Tags).Select(x => x))}";
+        TagEdit.Tags = $"{TagEdit.Tags}{(string.IsNullOrWhiteSpace(TagEdit.Tags) ? "" : ",")}{string.Join(",", possibleTags.SelectMany(x => x.Tags).Select(x => x))}";
     }
 
     public static async Task<PointContentEditorContext> CreateInstance(StatusControlContext statusContext,

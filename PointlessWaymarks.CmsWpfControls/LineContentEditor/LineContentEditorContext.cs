@@ -141,7 +141,7 @@ public partial class LineContentEditorContext : IHasChanges, IHasValidationIssue
             return;
         }
 
-        TagEdit.Tags = $"{TagEdit.Tags},{string.Join(",", possibleTags.SelectMany(x => x.Tags).Select(x => x))}";
+        TagEdit.Tags = $"{TagEdit.Tags}{(string.IsNullOrWhiteSpace(TagEdit.Tags) ? "" : ",")}{string.Join(",", possibleTags.SelectMany(x => x.Tags).Select(x => x))}";
     }
 
     public static async Task<LineContentEditorContext> CreateInstance(StatusControlContext statusContext,
