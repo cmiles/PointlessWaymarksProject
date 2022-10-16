@@ -298,7 +298,7 @@ public static class ExcelHelpers
             excelObjects.AddRange(selected.Where(x => x.DbEntry is GeoJsonContent)
                 .Select(x => x.DbEntry as GeoJsonContent)
                 .Select(x => new GeoJsonContentForExcel().InjectFrom(x)));
-        else if (selected.All(x => ((object)x).GetType() == firstType))
+        else if (selected.All(x => ((object)x.DbEntry).GetType() == firstType))
             excelObjects.AddRange(selected
                 .Select(x => x.DbEntry).Cast<object>().ToList());
         else
