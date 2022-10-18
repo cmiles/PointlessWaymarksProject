@@ -1,13 +1,14 @@
 ﻿// See https://aka.ms/new-console-template for more information
 
 using PointlessWaymarks.CmsData;
+using PointlessWaymarks.LoggingTools;
 using PointlessWaymarks.Task.GarminConnectGpxImport;
 using Serilog;
 
-LogHelpers.InitializeStaticLoggerAsStartupLogger();
+Setup.ConfigureStandardStaticLogger("GarminConnectGpxImport");
 
 Log.ForContext("args", args.SafeObjectDump()).Information(
-    $"Git Commit {ThisAssembly.Git.Commit} - Commit Date {ThisAssembly.Git.CommitDate} - Is Dirty {ThisAssembly.Git.IsDirty}");
+    "PointlessWaymarks.Task.GarminConnectGpxImport Starting");
 
 if (args.Length != 1)
 {
