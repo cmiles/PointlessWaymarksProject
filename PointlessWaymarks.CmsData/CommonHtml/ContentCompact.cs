@@ -72,17 +72,7 @@ public static class ContentList
 
         if (content is LineContent line)
         {
-            var lineStats =
-                $"{line.LineDistance:N1} Miles, {line.ClimbElevation:N0}' Climbing, {line.DescentElevation:N0}' Descent";
-
-            var lineDuration = LineParts.LineDurationInHoursAndMinutes(line);
-
-            if (lineDuration.totalMinutes is not null) lineStats = $"{lineStats}, {lineDuration.presentationString}";
-
-            lineStats =
-                $"{lineStats}, {line.MinimumElevation:N0}' Min Elevation, {line.MaximumElevation:N0} Max Elevation";
-
-            summaryLines.Add(lineStats);
+            summaryLines.Add(LineParts.LineStatsString(line));
         }
 
         if (!string.IsNullOrWhiteSpace(content.Tags)) summaryLines.Add($"Tags: {content.Tags}");
