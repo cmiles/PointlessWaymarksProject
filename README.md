@@ -123,6 +123,7 @@ Tools:
    - [JetBrains/ForTea](https://github.com/jetbrains/fortea/) - ReSharper support for T4 Templates.
  - [LINQPad - The .NET Programmer's Playground](https://www.linqpad.net/)
  - [DB Browser for SQLite](https://sqlitebrowser.org/)
+ - [warrenbuckley/Compact-Log-Format-Viewer: A cross platform tool to read & query JSON aka CLEF log files created by Serilog](https://github.com/warrenbuckley/Compact-Log-Format-Viewer)
  - [RegexBuddy: Learn, Create, Understand, Test, Use and Save Regular Expression](https://www.regexbuddy.com/)
  - [Markdown Monster - A better Markdown Editor for Windows](https://markdownmonster.west-wind.com/)
  - [Material Design Icons](http://materialdesignicons.com/)
