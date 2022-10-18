@@ -8,6 +8,7 @@ using PointlessWaymarks.CmsData.ContentHtml;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsData.Spatial;
+using PointlessWaymarks.SpatialTools;
 
 namespace PointlessWaymarks.CmsData.Content;
 
@@ -255,12 +256,7 @@ public static class CommonContentValidation
 
         try
         {
-            var serializer = GeoJsonSerializer.Create(new JsonSerializerSettings { Formatting = Formatting.Indented },
-                SpatialHelpers.Wgs84GeometryFactory(), 3);
-
-            using var stringReader = new StringReader(geoJsonString);
-            using var jsonReader = new JsonTextReader(stringReader);
-            var featureCollection = serializer.Deserialize<FeatureCollection>(jsonReader);
+            var featureCollection = GeoJsonTools.DeserializeToFeatureCollection(geoJsonString);
             if (featureCollection.Count < 1)
                 return new IsValid(false, 
                     "The GeoJson for the line appears to have an empty Feature Collection?");
@@ -288,12 +284,8 @@ public static class CommonContentValidation
 
         try
         {
-            var serializer = GeoJsonSerializer.Create();
-
-            using var stringReader = new StringReader(geoJsonString);
-            using var jsonReader = new JsonTextReader(stringReader);
-            var featureCollection = serializer.Deserialize<FeatureCollection>(jsonReader);
-            if (featureCollection == null || featureCollection.Count < 1)
+            var featureCollection = GeoJsonTools.DeserializeToFeatureCollection(geoJsonString);
+            if (featureCollection.Count < 1)
                 return new IsValid(false, "The GeoJson appears to have an empty Feature Collection?");
         }
         catch (Exception e)

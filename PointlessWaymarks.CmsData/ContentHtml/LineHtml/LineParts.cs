@@ -48,6 +48,21 @@ public static class LineParts
         return $"<figure class=\"map-figure\">{LineDivAndScriptForDirectLocalAccess(content)}{titleCaption}</figure>";
     }
 
+    public static string LineStatsString(LineContent line)
+    {
+        var lineStats =
+            $"{line.LineDistance:N1} Miles, {line.ClimbElevation:N0}' Climbing, {line.DescentElevation:N0}' Descent";
+
+        var lineDuration = LineParts.LineDurationInHoursAndMinutes(line);
+
+        if (lineDuration.totalMinutes is not null) lineStats = $"{lineStats}, {lineDuration.presentationString}";
+
+        lineStats =
+            $"{lineStats}, {line.MinimumElevation:N0}' Min Elevation, {line.MaximumElevation:N0} Max Elevation";
+
+        return lineStats;
+    }
+
 
     /// <summary>
     ///     Returns the total minutes and a well formatted human readable string of a Lines duration in

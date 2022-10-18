@@ -12,8 +12,8 @@ using PointlessWaymarks.CmsData.ContentHtml.PhotoHtml;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsData.Json;
-using PointlessWaymarks.CmsData.Spatial.Elevation;
 using PointlessWaymarks.FeatureIntersectionTags;
+using PointlessWaymarks.SpatialTools;
 using Serilog;
 using XmpCore;
 

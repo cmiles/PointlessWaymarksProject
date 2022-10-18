@@ -23,6 +23,7 @@ using PointlessWaymarks.CmsWpfControls.StringDataEntry;
 using PointlessWaymarks.CmsWpfControls.UpdateNotesEditor;
 using PointlessWaymarks.CmsWpfControls.Utility.ChangesAndValidation;
 using PointlessWaymarks.CmsWpfControls.WpfHtml;
+using PointlessWaymarks.SpatialTools;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 using Point = NetTopologySuite.Geometries.Point;
@@ -347,7 +348,7 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
 
         if (MapElements == null || !MapElements.Any())
         {
-            PreviewMapJsonDto = await SpatialHelpers.SerializeAsGeoJson(new MapJsonDto(Guid.NewGuid(),
+            PreviewMapJsonDto = await SpatialHelpers.SerializeWithGeoJsonSerializer(new MapJsonDto(Guid.NewGuid(),
                 new GeoJsonData.SpatialBounds(0, 0, 0, 0), new List<FeatureCollection>()));
             return;
         }
@@ -368,12 +369,6 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
                     break;
                 case MapElementListLineItem { DbEntry.Line: { } } mapLine:
                     var lineFeatureCollection = SpatialConverters.GeoJsonToFeatureCollection(mapLine.DbEntry.Line);
-                    if (lineFeatureCollection.Any())
-                    {
-                        lineFeatureCollection.First().Attributes.Add("title", mapLine.DbEntry.Title);
-                        lineFeatureCollection.First().Attributes.Add("description", mapLine.DbEntry.Summary);
-                    }
-
                     geoJsonList.Add(lineFeatureCollection);
                     boundsKeeper.Add(new Point(mapLine.DbEntry.InitialViewBoundsMaxLongitude,
                         mapLine.DbEntry.InitialViewBoundsMaxLatitude));
@@ -392,7 +387,7 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
                 if (loopElements.DbEntry == null) continue;
 
                 featureCollection.Add(new Feature(
-                    SpatialHelpers.Wgs84Point(loopElements.DbEntry.Longitude, loopElements.DbEntry.Latitude,
+                    PointTools.Wgs84Point(loopElements.DbEntry.Longitude, loopElements.DbEntry.Latitude,
                         loopElements.DbEntry.Elevation ?? 0),
                     new AttributesTable(new Dictionary<string, object>
                         { { "title", loopElements.DbEntry.Title ?? string.Empty } })));
@@ -408,7 +403,7 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
             new GeoJsonData.SpatialBounds(bounds.MaxY, bounds.MaxX, bounds.MinY, bounds.MinX), geoJsonList);
 
         //Using the new Guid as the page URL forces a changed value into the LineJsonDto
-        PreviewMapJsonDto = await SpatialHelpers.SerializeAsGeoJson(dto);
+        PreviewMapJsonDto = await SpatialHelpers.SerializeWithGeoJsonSerializer(dto);
     }
 
     private async Task RemoveItem(IMapElementListItem toRemove)

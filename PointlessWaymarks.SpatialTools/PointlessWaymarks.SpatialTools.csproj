@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <ImplicitUsings>enable</ImplicitUsings>
@@ -7,11 +7,13 @@
 
   <ItemGroup>
     <PackageReference Include="GitInfo" Version="2.2.0" />
+    <PackageReference Include="NetTopologySuite" Version="2.5.0" />
     <PackageReference Include="NetTopologySuite.IO.GeoJSON" Version="2.0.4" />
+    <PackageReference Include="NetTopologySuite.IO.GPX" Version="1.1.1" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\PointlessWaymarks.SpatialTools\PointlessWaymarks.SpatialTools.csproj" />
+    <ProjectReference Include="..\PointlessWarmarks.LoggingTools\PointlessWaymarks.LoggingTools.csproj" />
   </ItemGroup>
 
 </Project>

@@ -1,4 +1,4 @@
-﻿using PointlessWaymarks.CmsData.Spatial.Elevation;
+﻿using PointlessWaymarks.SpatialTools;
 using PointlessWaymarks.WpfCommon.Status;
 using Serilog;
 

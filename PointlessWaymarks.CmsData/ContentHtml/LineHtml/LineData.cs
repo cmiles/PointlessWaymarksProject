@@ -5,6 +5,7 @@ using PointlessWaymarks.CmsData.Content;
 using PointlessWaymarks.CmsData.ContentHtml.GeoJsonHtml;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsData.Spatial;
+using PointlessWaymarks.SpatialTools;
 
 namespace PointlessWaymarks.CmsData.ContentHtml.LineHtml;
 
@@ -12,14 +13,7 @@ public static class LineData
 {
     public static async Task<string> GenerateLineJson(string lineGeoJson, string title, string pageUrl)
     {
-        var serializer = GeoJsonSerializer.Create(new JsonSerializerSettings { Formatting = Formatting.Indented },
-            SpatialHelpers.Wgs84GeometryFactory(), 3);
-
-        using var stringReader = new StringReader(lineGeoJson);
-        using var jsonReader = new JsonTextReader(stringReader);
-        var contentFeatureCollection = serializer.Deserialize<FeatureCollection>(jsonReader);
-
-        foreach (var loopFeature in contentFeatureCollection) loopFeature.Attributes.Add("title", title);
+        var contentFeatureCollection = GeoJsonTools.DeserializeToFeatureCollection(lineGeoJson);
 
         var bounds = SpatialConverters.GeometryBoundingBox(SpatialConverters.GeoJsonToGeometries(lineGeoJson));
 
@@ -27,11 +21,7 @@ public static class LineData
             new GeoJsonData.SpatialBounds(bounds.MaxY, bounds.MaxX, bounds.MinY, bounds.MinX),
             contentFeatureCollection);
 
-        await using var stringWriter = new StringWriter();
-        using var jsonWriter = new JsonTextWriter(stringWriter);
-        serializer.Serialize(jsonWriter, jsonDto);
-
-        return stringWriter.ToString();
+        return await SpatialHelpers.SerializeWithGeoJsonSerializer(jsonDto);
     }
 
     public static async Task WriteJsonData(LineContent lineContent)

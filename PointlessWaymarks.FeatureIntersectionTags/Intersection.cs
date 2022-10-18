@@ -1,7 +1,9 @@
-﻿using NetTopologySuite.Features;
+﻿using System.Reflection.Metadata.Ecma335;
+using NetTopologySuite.Features;
 using NetTopologySuite.IO;
 using Newtonsoft.Json;
 using PointlessWaymarks.FeatureIntersectionTags.Models;
+using PointlessWaymarks.SpatialTools;
 using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace PointlessWaymarks.FeatureIntersectionTags;
@@ -56,8 +58,6 @@ public class Intersection
         CancellationToken cancellationToken,
         IProgress<string>? progress = null)
     {
-        var serializer = GeoJsonSerializer.Create();
-
         var featuresAndTags = toCheck.Select(x => new IntersectResults(x, new List<string>())).ToList();
 
         var counter = 0;
@@ -70,15 +70,15 @@ public class Intersection
             progress?.Report(
                 $"Processing Feature Intersect - {loopIntersectFile.Name}, {loopIntersectFile.FileName} - {counter} of {intersectFiles.Count}");
 
-            using var stringReader =
-                new StringReader(
-                    File.ReadAllText(loopIntersectFile.FileName));
+            var intersectFileInfo = new FileInfo(loopIntersectFile.FileName);
 
-            using var intersectFileStream = File.Open(loopIntersectFile.FileName, FileMode.Open, FileAccess.Read,
-                FileShare.ReadWrite);
-            using var intersectStreamReader = new StreamReader(intersectFileStream);
-            using var intersectJsonReader = new JsonTextReader(intersectStreamReader);
-            var intersectFeatures = serializer.Deserialize<FeatureCollection>(intersectJsonReader).ToList();
+            if (!intersectFileInfo.Exists)
+            {
+                progress?.Report($"  Skipping file {loopIntersectFile.FileName} - Does Not Exist.");
+                continue;
+            }
+
+            var intersectFeatures = GeoJsonTools.DeserializeFileToFeatureCollection(loopIntersectFile.FileName);
 
             var referenceFeatureCounter = 0;
             progress?.Report(

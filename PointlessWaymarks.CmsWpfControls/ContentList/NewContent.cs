@@ -21,6 +21,7 @@ using PointlessWaymarks.CmsWpfControls.PhotoContentEditor;
 using PointlessWaymarks.CmsWpfControls.PointContentEditor;
 using PointlessWaymarks.CmsWpfControls.PostContentEditor;
 using PointlessWaymarks.CmsWpfControls.Utility;
+using PointlessWaymarks.SpatialTools;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 using PointlessWaymarks.WpfCommon.Utility;
@@ -317,7 +318,7 @@ public partial class NewContent
             windowStatus?.AddRequest(new WindowIconStatusRequest(statusContext.StatusControlContextId,
                 TaskbarItemProgressState.Normal, (decimal)outerLoopCounter / (selectedFileInfos.Count + 1)));
 
-            var tracksList = await SpatialHelpers.TracksFromGpxFile(loopFile, statusContext.ProgressTracker());
+            var tracksList = await GpxTools.TracksFromGpxFile(loopFile, statusContext.ProgressTracker());
 
             if (tracksList.Count < 1 || tracksList.All(x => x.Track.Count < 2))
             {

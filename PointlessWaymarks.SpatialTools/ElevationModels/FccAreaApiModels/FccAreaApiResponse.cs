@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace PointlessWaymarks.CmsData.Spatial.Elevation.FccAreaApiModels;
+namespace PointlessWaymarks.SpatialTools.ElevationModels.FccAreaApiModels;
 
 public record FccAreaApiResponse(
     [property: JsonPropertyName("input")] Input Input,

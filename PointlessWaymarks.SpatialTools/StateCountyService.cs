@@ -1,7 +1,7 @@
 ﻿using System.Text.Json;
-using PointlessWaymarks.CmsData.Spatial.Elevation.FccAreaApiModels;
+using PointlessWaymarks.SpatialTools.ElevationModels.FccAreaApiModels;
 
-namespace PointlessWaymarks.CmsData.Spatial.Elevation;
+namespace PointlessWaymarks.SpatialTools;
 
 public static class StateCountyService
 {

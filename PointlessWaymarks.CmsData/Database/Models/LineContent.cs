@@ -4,6 +4,7 @@ using NetTopologySuite.Geometries;
 using NetTopologySuite.IO;
 using Newtonsoft.Json;
 using PointlessWaymarks.CmsData.Spatial;
+using PointlessWaymarks.SpatialTools;
 
 namespace PointlessWaymarks.CmsData.Database.Models;
 
@@ -64,13 +65,9 @@ public class LineContent : IUpdateNotes, IContentCommon
     {
         if (string.IsNullOrWhiteSpace(lineString)) return null;
 
-        var serializer = GeoJsonSerializer.Create(new JsonSerializerSettings { Formatting = Formatting.Indented },
-            SpatialHelpers.Wgs84GeometryFactory(), 3);
+        var featureCollection = GeoJsonTools.DeserializeToFeatureCollection(lineString);
 
-        using var stringReader = new StringReader(lineString);
-        using var jsonReader = new JsonTextReader(stringReader);
-        var featureCollection = serializer.Deserialize<FeatureCollection>(jsonReader);
-        return featureCollection[0];
+        return featureCollection.FirstOrDefault();
     }
 
     /// <summary>
@@ -83,12 +80,8 @@ public class LineContent : IUpdateNotes, IContentCommon
     {
         if (string.IsNullOrWhiteSpace(Line)) return null;
 
-        var serializer = GeoJsonSerializer.Create(new JsonSerializerSettings { Formatting = Formatting.Indented },
-            SpatialHelpers.Wgs84GeometryFactory(), 3);
+        var featureCollection = GeoJsonTools.DeserializeToFeatureCollection(Line);
 
-        using var stringReader = new StringReader(Line);
-        using var jsonReader = new JsonTextReader(stringReader);
-        var featureCollection = serializer.Deserialize<FeatureCollection>(jsonReader);
-        return featureCollection[0].Geometry as LineString;
+        return featureCollection.FirstOrDefault()?.Geometry as LineString;
     }
 }

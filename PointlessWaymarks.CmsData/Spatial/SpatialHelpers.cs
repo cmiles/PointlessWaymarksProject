@@ -4,12 +4,14 @@ using NetTopologySuite.Features;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.IO;
 using Newtonsoft.Json;
-using PointlessWaymarks.CmsData.Spatial.Elevation;
+using PointlessWaymarks.SpatialTools;
 
 namespace PointlessWaymarks.CmsData.Spatial;
 
 public static class SpatialHelpers
 {
+
+
     public static bool IsApproximatelyEqualTo(this double initialValue, double value,
         double maximumDifferenceAllowed)
     {
@@ -28,10 +30,24 @@ public static class SpatialHelpers
         // ReSharper restore PossibleInvalidOperationException
     }
 
-    public static async Task<string> SerializeFeatureCollection(FeatureCollection featureCollection)
+    public static async Task<string> SerializeFeatureToGeoJson(IFeature feature)
+    {
+        var collection = new FeatureCollection { feature };
+
+        var serializer = GeoJsonSerializer.Create(new JsonSerializerSettings { Formatting = Formatting.Indented },
+            GeoJsonTools.Wgs84GeometryFactory(), 3);
+
+        await using var stringWriter = new StringWriter();
+        using var jsonWriter = new JsonTextWriter(stringWriter);
+        serializer.Serialize(jsonWriter, collection);
+
+        return stringWriter.ToString();
+    }
+
+    public static async Task<string> SerializeFeatureCollectionToGeoJson(FeatureCollection featureCollection)
     {
         var serializer = GeoJsonSerializer.Create(new JsonSerializerSettings { Formatting = Formatting.Indented },
-            Wgs84GeometryFactory(), 3);
+            GeoJsonTools.Wgs84GeometryFactory(), 3);
 
         await using var stringWriter = new StringWriter();
         using var jsonWriter = new JsonTextWriter(stringWriter);
@@ -40,10 +56,10 @@ public static class SpatialHelpers
         return stringWriter.ToString();
     }
 
-    public static async Task<string> SerializeAsGeoJson(object toSerialize)
+    public static async Task<string> SerializeWithGeoJsonSerializer(object toSerialize)
     {
         var serializer = GeoJsonSerializer.Create(new JsonSerializerSettings { Formatting = Formatting.Indented },
-            Wgs84GeometryFactory(), 3);
+            GeoJsonTools.Wgs84GeometryFactory(), 3);
 
         await using var stringWriter = new StringWriter();
         using var jsonWriter = new JsonTextWriter(stringWriter);
@@ -104,65 +120,15 @@ public static class SpatialHelpers
         return toProcess;
     }
 
-    public static GeometryFactory Wgs84GeometryFactory()
-    {
-        return NtsGeometryServices.Instance.CreateGeometryFactory(new PrecisionModel(), 4326);
-    }
-
-    public static Point Wgs84Point(double x, double y, double z)
-    {
-        return Wgs84GeometryFactory().CreatePoint(new CoordinateZ(x, y, z));
-    }
-
-    public static async Task<string> GeoJsonWithLineStringFromCoordinateList(List<CoordinateZ> pointList,
-        bool replaceElevations, IProgress<string>? progress = null)
-    {
-        if (replaceElevations)
-            await ElevationService.OpenTopoMapZenElevation(pointList, progress)
-                .ConfigureAwait(false);
-
-        // ReSharper disable once CoVariantArrayConversion It appears from testing that a linestring will reflect CoordinateZ
-        var newLineString = new LineString(pointList.ToArray());
-        var newFeature = new Feature(newLineString, new AttributesTable());
-        var featureCollection = new FeatureCollection { newFeature };
-
-        var serializer = GeoJsonSerializer.Create(new JsonSerializerSettings { Formatting = Formatting.Indented },
-            Wgs84GeometryFactory(), 3);
-        await using var stringWriter = new StringWriter();
-        using var jsonWriter = new JsonTextWriter(stringWriter);
-        serializer.Serialize(jsonWriter, featureCollection);
-        return stringWriter.ToString();
-    }
-
-    public static List<CoordinateZ> CoordinateListFromGeoJsonFeatureCollectionWithLinestring(string geoJson)
-    {
-        if (string.IsNullOrWhiteSpace(geoJson)) return new List<CoordinateZ>();
-
-        var serializer = GeoJsonSerializer.Create(new JsonSerializerSettings { Formatting = Formatting.Indented },
-            Wgs84GeometryFactory(), 3);
-
-        using var stringReader = new StringReader(geoJson);
-        using var jsonReader = new JsonTextReader(stringReader);
-        var featureCollection = serializer.Deserialize<FeatureCollection>(jsonReader);
-        if (featureCollection == null || featureCollection.Count < 1) return new List<CoordinateZ>();
-
-        var possibleLine = featureCollection.FirstOrDefault(x => x.Geometry is LineString);
-
-        if (possibleLine == null) return new List<CoordinateZ>();
-
-        var geoLine = (LineString)possibleLine.Geometry;
-
-        return geoLine.Coordinates.Select(x => new CoordinateZ(x.X, x.Y, x.Z)).ToList();
-    }
 
     public static async Task<string> ReplaceElevationsInGeoJsonWithLineString(string geoJson,
         IProgress<string>? progress = null)
     {
         if (string.IsNullOrWhiteSpace(geoJson)) return string.Empty;
 
-        var coordinateList = CoordinateListFromGeoJsonFeatureCollectionWithLinestring(geoJson);
+        var coordinateList = LineTools.CoordinateListFromGeoJsonFeatureCollectionWithLinestring(geoJson);
 
-        return await GeoJsonWithLineStringFromCoordinateList(coordinateList, true, progress).ConfigureAwait(false);
+        return await LineTools.GeoJsonWithLineStringFromCoordinateList(coordinateList, true, progress).ConfigureAwait(false);
     }
 
     public static LineStatsInImperial LineStatsInImperialFromCoordinateList(List<CoordinateZ> line)
@@ -215,134 +181,6 @@ public static class SpatialHelpers
     public record LineStatsInImperial(double Length, double ElevationClimb, double ElevationDescent,
         double MaximumElevation, double MinimumElevation);
 
-    public record GpxTrackInformation(string Name, string Description, DateTime? StartsOn, DateTime? EndsOn,
-        List<CoordinateZ> Track);
 
-    public record GpxRouteInformation(string Name, string Description, List<CoordinateZ> Track);
 
-    public static GpxTrackInformation TrackInformationFromGpxTrack(GpxTrack toConvert)
-    {
-        var name = toConvert.Name ?? string.Empty;
-
-        var description = toConvert.Description ?? string.Empty;
-        var comment = toConvert.Comment ?? string.Empty;
-        var type = string.Empty;
-        var label = string.Empty;
-
-        var extensions = toConvert.Extensions;
-
-        if (extensions is ImmutableXElementContainer extensionsContainer)
-        {
-            label = extensionsContainer
-                .FirstOrDefault(x => x.Name.LocalName.ToLower() == "label")?.Value ?? string.Empty;
-            type = extensionsContainer
-                .FirstOrDefault(x => x.Name.LocalName.ToLower() == "type")?.Value ?? string.Empty;
-
-            if (!string.IsNullOrWhiteSpace(type))
-            {
-                var caseTextInfo = new CultureInfo("en-US", false).TextInfo;
-                type = caseTextInfo.ToTitleCase(type.Replace("_", " "));
-            }
-        }
-
-        var pointList = new List<CoordinateZ>();
-
-        foreach (var loopSegments in toConvert.Segments)
-            pointList.AddRange(loopSegments.Waypoints.Select(x =>
-                new CoordinateZ(x.Longitude.Value, x.Latitude.Value, x.ElevationInMeters ?? 0)));
-
-        var startDateTime = toConvert.Segments.FirstOrDefault()?.Waypoints.FirstOrDefault()?.TimestampUtc
-            ?.ToLocalTime();
-        var endDateTime = toConvert.Segments.LastOrDefault()?.Waypoints.LastOrDefault()?.TimestampUtc
-            ?.ToLocalTime();
-
-        var nameAndLabelAndTypeList =
-            new List<string> { name, label, type, startDateTime?.ToString("M/d/yyyy") ?? string.Empty }
-                .Where(x => !string.IsNullOrWhiteSpace(x)).ToList();
-        var nameAndLabelAndType = string.Join(" - ", nameAndLabelAndTypeList);
-
-        var descriptionAndCommentList = new List<string> { description, comment }
-            .Where(x => !string.IsNullOrWhiteSpace(x)).ToList();
-        var descriptionAndComment = string.Join(". ", descriptionAndCommentList);
-
-        return new GpxTrackInformation(nameAndLabelAndType, descriptionAndComment, startDateTime,
-            endDateTime, pointList);
-    }
-
-    public static GpxRouteInformation RouteInformationFromGpxRoute(GpxRoute toConvert)
-    {
-        var name = toConvert.Name ?? string.Empty;
-
-        var description = toConvert.Description ?? string.Empty;
-        var comment = toConvert.Comment ?? string.Empty;
-        var type = string.Empty;
-        var label = string.Empty;
-
-        var extensions = toConvert.Extensions;
-
-        if (extensions is ImmutableXElementContainer extensionsContainer)
-        {
-            label = extensionsContainer
-                .FirstOrDefault(x => x.Name.LocalName.ToLower() == "label")?.Value ?? string.Empty;
-            type = extensionsContainer
-                .FirstOrDefault(x => x.Name.LocalName.ToLower() == "type")?.Value ?? string.Empty;
-
-            if (!string.IsNullOrWhiteSpace(type))
-            {
-                var caseTextInfo = new CultureInfo("en-US", false).TextInfo;
-                type = caseTextInfo.ToTitleCase(type.Replace("_", " "));
-            }
-        }
-
-        var pointList = new List<CoordinateZ>();
-
-        pointList.AddRange(toConvert.Waypoints.Select(x =>
-            new CoordinateZ(x.Longitude.Value, x.Latitude.Value, x.ElevationInMeters ?? 0)));
-
-        var nameAndLabelAndTypeList =
-            new List<string> { name, label, type }
-                .Where(x => !string.IsNullOrWhiteSpace(x)).ToList();
-        var nameAndLabelAndType = string.Join(" - ", nameAndLabelAndTypeList);
-
-        var descriptionAndCommentList = new List<string> { description, comment }
-            .Where(x => !string.IsNullOrWhiteSpace(x)).ToList();
-        var descriptionAndComment = string.Join(". ", descriptionAndCommentList);
-
-        return new GpxRouteInformation(nameAndLabelAndType, descriptionAndComment, pointList);
-    }
-
-    public static async Task<List<GpxTrackInformation>> TracksFromGpxFile(
-        FileInfo gpxFile, IProgress<string>? progress = null)
-    {
-        var returnList = new List<GpxTrackInformation>();
-
-        if (gpxFile is not { Exists: true }) return returnList;
-
-        GpxFile parsedGpx;
-
-        try
-        {
-            parsedGpx = GpxFile.Parse(await File.ReadAllTextAsync(gpxFile.FullName).ConfigureAwait(false),
-                new GpxReaderSettings
-                {
-                    IgnoreUnexpectedChildrenOfTopLevelElement = true, IgnoreVersionAttribute = true
-                });
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine(e);
-            throw;
-        }
-
-        var trackCounter = 0;
-
-        foreach (var loopTracks in parsedGpx.Tracks)
-        {
-            trackCounter++;
-            progress?.Report($"Extracting Track {trackCounter} of {parsedGpx.Tracks.Count} in {gpxFile.FullName}");
-            returnList.Add(TrackInformationFromGpxTrack(loopTracks));
-        }
-
-        return returnList;
-    }
 }

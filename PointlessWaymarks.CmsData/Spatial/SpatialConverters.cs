@@ -3,6 +3,7 @@ using NetTopologySuite.Geometries;
 using NetTopologySuite.IO;
 using Newtonsoft.Json;
 using PointlessWaymarks.CmsData.Database.Models;
+using PointlessWaymarks.SpatialTools;
 
 namespace PointlessWaymarks.CmsData.Spatial;
 
@@ -34,7 +35,7 @@ public static class SpatialConverters
         using var jsonReader = new JsonTextReader(stringReader);
         var featureCollection = serializer.Deserialize<FeatureCollection>(jsonReader);
 
-        return featureCollection.Select(x => SpatialHelpers.Wgs84GeometryFactory().CreateGeometry(x.Geometry))
+        return featureCollection.Select(x => GeoJsonTools.Wgs84GeometryFactory().CreateGeometry(x.Geometry))
             .ToList();
     }
 
@@ -86,13 +87,13 @@ public static class SpatialConverters
         if (string.IsNullOrWhiteSpace(lineString)) return new List<Geometry>();
 
         var serializer = GeoJsonSerializer.Create(new JsonSerializerSettings { Formatting = Formatting.Indented },
-            SpatialHelpers.Wgs84GeometryFactory(), 3);
+            GeoJsonTools.Wgs84GeometryFactory(), 3);
 
         using var stringReader = new StringReader(lineString);
         using var jsonReader = new JsonTextReader(stringReader);
         var featureCollection = serializer.Deserialize<FeatureCollection>(jsonReader);
 
-        return featureCollection.Select(x => SpatialHelpers.Wgs84GeometryFactory().CreateGeometry(x.Geometry))
+        return featureCollection.Select(x => GeoJsonTools.Wgs84GeometryFactory().CreateGeometry(x.Geometry))
             .ToList();
     }
 
@@ -112,7 +113,7 @@ public static class SpatialConverters
 
     public static Point PointContentToPoint(PointContent content)
     {
-        return SpatialHelpers.Wgs84GeometryFactory()
+        return GeoJsonTools.Wgs84GeometryFactory()
             .CreatePoint(new CoordinateZ(content.Longitude, content.Latitude, content.Elevation ?? 0));
     }
 }

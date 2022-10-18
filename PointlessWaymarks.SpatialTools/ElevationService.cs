@@ -1,9 +1,10 @@
 ﻿using System.Data;
 using System.Text.Json;
 using NetTopologySuite.Geometries;
+using PointlessWaymarks.SpatialTools.ElevationModels;
 using Serilog;
 
-namespace PointlessWaymarks.CmsData.Spatial.Elevation;
+namespace PointlessWaymarks.SpatialTools;
 
 public static class ElevationService
 {

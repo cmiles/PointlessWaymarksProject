@@ -2,6 +2,7 @@
 using NetTopologySuite.IO;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.Spatial;
+using PointlessWaymarks.SpatialTools;
 
 namespace PointlessWaymarks.CmsWpfControls.GpxImport;
 
@@ -14,7 +15,7 @@ public partial class GpxImportRoute : IGpxImportListItem
     [ObservableProperty] private bool _markedForImport;
     [ObservableProperty] private bool _replaceElevationOnImport;
     [ObservableProperty] private GpxRoute _route;
-    [ObservableProperty] private SpatialHelpers.GpxRouteInformation _routeInformation;
+    [ObservableProperty] private GpxTools.GpxRouteInformation _routeInformation;
     [ObservableProperty] private SpatialHelpers.LineStatsInImperial _statistics;
     [ObservableProperty] private string _userContentName;
     [ObservableProperty] private string _userSummary;
@@ -23,9 +24,9 @@ public partial class GpxImportRoute : IGpxImportListItem
     {
         DisplayId = Guid.NewGuid();
         Route = toLoad;
-        RouteInformation = SpatialHelpers.RouteInformationFromGpxRoute(toLoad);
+        RouteInformation = GpxTools.RouteInformationFromGpxRoute(toLoad);
         LineGeoJson =
-            await SpatialHelpers.GeoJsonWithLineStringFromCoordinateList(RouteInformation.Track, false, progress);
+            await LineTools.GeoJsonWithLineStringFromCoordinateList(RouteInformation.Track, false, progress);
         Statistics = SpatialHelpers.LineStatsInImperialFromCoordinateList(RouteInformation.Track);
         CreatedOn = toLoad.Waypoints?.FirstOrDefault()?.TimestampUtc?.ToLocalTime();
 

@@ -1,7 +1,7 @@
 ﻿using NetTopologySuite.Geometries;
 using NUnit.Framework;
 using PointlessWaymarks.CmsData.Spatial;
-using PointlessWaymarks.CmsData.Spatial.Elevation;
+using PointlessWaymarks.SpatialTools;
 
 namespace PointlessWaymarks.CmsTests;
 
@@ -126,7 +126,7 @@ public class ElevationServiceAndGpxTests
             "GrandCanyonHorseShoeMesaEastSideLoop.gpx"));
         Assert.True(testFile.Exists, "Test File Found");
 
-        var tracks = await SpatialHelpers.TracksFromGpxFile(testFile, DebugTrackers.DebugProgressTracker());
+        var tracks = await GpxTools.TracksFromGpxFile(testFile, DebugTrackers.DebugProgressTracker());
 
         Assert.AreEqual(1, tracks.Count, "Should find 1 track");
 
@@ -154,7 +154,7 @@ public class ElevationServiceAndGpxTests
             "TwoTrackGpxNearTheSanPedro.gpx"));
         Assert.True(testFile.Exists, "Test File Found");
 
-        var tracks = await SpatialHelpers.TracksFromGpxFile(testFile, DebugTrackers.DebugProgressTracker());
+        var tracks = await GpxTools.TracksFromGpxFile(testFile, DebugTrackers.DebugProgressTracker());
 
         Assert.AreEqual(2, tracks.Count, "Should find 2 tracks");
         Assert.True(tracks.All(x => !string.IsNullOrWhiteSpace(x.Description)), "Found Tracks with Blank Description?");
@@ -203,16 +203,16 @@ public class ElevationServiceAndGpxTests
             "TwoTrackGpxNearTheSanPedro.gpx"));
         Assert.True(testFile.Exists, "Test File Found");
 
-        var tracks = await SpatialHelpers.TracksFromGpxFile(testFile, DebugTrackers.DebugProgressTracker());
+        var tracks = await GpxTools.TracksFromGpxFile(testFile, DebugTrackers.DebugProgressTracker());
 
         Assert.AreEqual(2, tracks.Count, "Should find 2 tracks");
         Assert.True(tracks.All(x => !string.IsNullOrWhiteSpace(x.Description)), "Found Tracks with Blank Description?");
 
         var shortTrack = tracks.OrderBy(x => x.Track.Count).First().Track;
         var geoJson =
-            await SpatialHelpers.GeoJsonWithLineStringFromCoordinateList(shortTrack, false,
+            await LineTools.GeoJsonWithLineStringFromCoordinateList(shortTrack, false,
                 DebugTrackers.DebugProgressTracker());
-        var shortTrackFromGeoJson = SpatialHelpers.CoordinateListFromGeoJsonFeatureCollectionWithLinestring(geoJson);
+        var shortTrackFromGeoJson = LineTools.CoordinateListFromGeoJsonFeatureCollectionWithLinestring(geoJson);
 
         Assert.AreEqual(shortTrack.Count, shortTrackFromGeoJson.Count, "Count of Track Points does not match");
 

@@ -1,8 +1,9 @@
 ﻿using System.Text.Json.Serialization;
+
 // ReSharper disable StringLiteralTypo - names from Api
 // ReSharper disable IdentifierTypo
 
-namespace PointlessWaymarks.CmsData.Spatial.Elevation.FccAreaApiModels;
+namespace PointlessWaymarks.SpatialTools.ElevationModels.FccAreaApiModels;
 
 public record Result(
     [property: JsonPropertyName("block_fips")]

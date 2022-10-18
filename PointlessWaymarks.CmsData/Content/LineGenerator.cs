@@ -1,13 +1,17 @@
-﻿using NetTopologySuite.Features;
+﻿using DocumentFormat.OpenXml.Vml;
+using NetTopologySuite.Features;
 using NetTopologySuite.Geometries;
+using NetTopologySuite.IO;
+using Newtonsoft.Json;
 using PointlessWaymarks.CmsData.ContentHtml;
+using PointlessWaymarks.CmsData.ContentHtml.FileHtml;
 using PointlessWaymarks.CmsData.ContentHtml.LineHtml;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsData.Json;
 using PointlessWaymarks.CmsData.Spatial;
-using PointlessWaymarks.CmsData.Spatial.Elevation;
 using PointlessWaymarks.FeatureIntersectionTags;
+using PointlessWaymarks.SpatialTools;
 using Serilog;
 
 namespace PointlessWaymarks.CmsData.Content;
@@ -24,7 +28,7 @@ public static class LineGenerator
         await htmlContext.WriteLocalHtml().ConfigureAwait(false);
     }
 
-    public static async Task<LineContent> NewFromGpxTrack(SpatialHelpers.GpxTrackInformation trackInformation,
+    public static async Task<LineContent> NewFromGpxTrack(GpxTools.GpxTrackInformation trackInformation,
         bool replaceElevations, IProgress<string> progress)
     {
         var lineStatistics = SpatialHelpers.LineStatsInImperialFromCoordinateList(trackInformation.Track);
@@ -65,7 +69,7 @@ public static class LineGenerator
             UpdateNotesFormat = UserSettingsUtilities.DefaultContentFormatChoice(),
             CreatedOn = trackInformation.StartsOn ?? DateTime.Now,
             FeedOn = trackInformation.StartsOn ?? DateTime.Now,
-            Line = await SpatialHelpers.GeoJsonWithLineStringFromCoordinateList(trackInformation.Track,
+            Line = await LineTools.GeoJsonWithLineStringFromCoordinateList(trackInformation.Track,
                 replaceElevations, progress),
             Title = trackInformation.Name,
             Summary = trackInformation.Name,
@@ -87,7 +91,7 @@ public static class LineGenerator
         return newEntry;
     }
 
-    public static async Task<LineContent> NewFromGpxTrack(SpatialHelpers.GpxRouteInformation trackInformation,
+    public static async Task<LineContent> NewFromGpxTrack(GpxTools.GpxRouteInformation trackInformation,
         bool replaceElevations, IProgress<string> progress)
     {
         var lineStatistics = SpatialHelpers.LineStatsInImperialFromCoordinateList(trackInformation.Track);
@@ -100,7 +104,7 @@ public static class LineGenerator
             UpdateNotesFormat = UserSettingsUtilities.DefaultContentFormatChoice(),
             CreatedOn = DateTime.Now,
             FeedOn = DateTime.Now,
-            Line = await SpatialHelpers.GeoJsonWithLineStringFromCoordinateList(trackInformation.Track,
+            Line = await LineTools.GeoJsonWithLineStringFromCoordinateList(trackInformation.Track,
                 replaceElevations, progress),
             Title = trackInformation.Name,
             Summary = trackInformation.Name,
@@ -130,6 +134,25 @@ public static class LineGenerator
         Db.DefaultPropertyCleanup(toSave);
         toSave.Tags = Db.TagListCleanup(toSave.Tags);
 
+        var lineFeature = LineContent.FeatureFromGeoJsonLine(toSave.Line);
+        
+        var possibleTitle = lineFeature.Attributes.GetOptionalValue("title");
+        if (possibleTitle == null) lineFeature.Attributes.Add("title", toSave.Title);
+        else lineFeature.Attributes["title"] = toSave.Title;
+
+        var possibleTitleLink = lineFeature.Attributes.GetOptionalValue("title-link");
+        if (possibleTitleLink == null)
+            lineFeature.Attributes
+                .Add("title-link", UserSettingsSingleton.CurrentSettings().LinePageUrl(toSave));
+        else
+            lineFeature.Attributes["title-link"] = UserSettingsSingleton.CurrentSettings().LinePageUrl(toSave);
+
+        var possibleDescription = lineFeature.Attributes.GetOptionalValue("description");
+        if (possibleDescription == null) lineFeature.Attributes.Add("description", LineParts.LineStatsString(toSave));
+        else lineFeature.Attributes["description"] = LineParts.LineStatsString(toSave);
+
+        toSave.Line = await SpatialHelpers.SerializeFeatureToGeoJson(lineFeature);
+        
         await Db.SaveLineContent(toSave).ConfigureAwait(false);
         await GenerateHtml(toSave, generationVersion, progress).ConfigureAwait(false);
         await Export.WriteLocalDbJson(toSave).ConfigureAwait(false);

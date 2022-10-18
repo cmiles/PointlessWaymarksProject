@@ -25,6 +25,7 @@ using PointlessWaymarks.CmsWpfControls.Utility;
 using PointlessWaymarks.CmsWpfControls.Utility.ChangesAndValidation;
 using PointlessWaymarks.CmsWpfControls.WpfHtml;
 using PointlessWaymarks.FeatureIntersectionTags;
+using PointlessWaymarks.SpatialTools;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 
@@ -215,7 +216,7 @@ public partial class LineContentEditorContext : IHasChanges, IHasValidationIssue
             return;
         }
 
-        var tracksList = await SpatialHelpers.TracksFromGpxFile(newFile, StatusContext.ProgressTracker());
+        var tracksList = await GpxTools.TracksFromGpxFile(newFile, StatusContext.ProgressTracker());
 
         if (tracksList.Count < 1)
         {
@@ -223,7 +224,7 @@ public partial class LineContentEditorContext : IHasChanges, IHasValidationIssue
             return;
         }
 
-        SpatialHelpers.GpxTrackInformation trackToImport;
+        GpxTools.GpxTrackInformation trackToImport;
 
         if (tracksList.Count > 1)
         {
@@ -255,7 +256,7 @@ public partial class LineContentEditorContext : IHasChanges, IHasValidationIssue
         if (string.IsNullOrWhiteSpace(TitleSummarySlugFolder.FolderEntry.UserValue) && trackToImport.StartsOn != null)
             TitleSummarySlugFolder.FolderEntry.UserValue = trackToImport.StartsOn.Value.Year.ToString();
 
-        LineGeoJson = await SpatialHelpers.GeoJsonWithLineStringFromCoordinateList(trackToImport.Track,
+        LineGeoJson = await LineTools.GeoJsonWithLineStringFromCoordinateList(trackToImport.Track,
             replaceElevations, StatusContext.ProgressTracker());
 
         if (updateStats)
@@ -479,7 +480,7 @@ public partial class LineContentEditorContext : IHasChanges, IHasValidationIssue
             return;
         }
 
-        var coordinateList = SpatialHelpers.CoordinateListFromGeoJsonFeatureCollectionWithLinestring(LineGeoJson);
+        var coordinateList = LineTools.CoordinateListFromGeoJsonFeatureCollectionWithLinestring(LineGeoJson);
 
         var lineStatistics = SpatialHelpers.LineStatsInImperialFromCoordinateList(coordinateList);
 

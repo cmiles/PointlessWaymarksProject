@@ -34,7 +34,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PointlessWaymarks.Task.Memo
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PointlessWaymarks.Task.GarminConnectGpxImport", "PointlessWaymarks.Task.GpxImport\PointlessWaymarks.Task.GarminConnectGpxImport.csproj", "{05C70B49-DF03-4ABA-A92D-124EF63A2F3E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PointlessWaymarks.FeatureIntersectionTags", "PointlessWaymarks.FeatureIntersectionTags\PointlessWaymarks.FeatureIntersectionTags.csproj", "{83CAE91D-FE3E-4853-BB68-6A4A5E7742F7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PointlessWaymarks.FeatureIntersectionTags", "PointlessWaymarks.FeatureIntersectionTags\PointlessWaymarks.FeatureIntersectionTags.csproj", "{83CAE91D-FE3E-4853-BB68-6A4A5E7742F7}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PointlessWaymarks.SpatialTools", "PointlessWaymarks.SpatialTools\PointlessWaymarks.SpatialTools.csproj", "{CD620C67-0C5F-45AB-91C8-02A4D7C45152}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PointlessWaymarks.LoggingTools", "PointlessWaymarks.LoggingTools\PointlessWaymarks.LoggingTools.csproj", "{A4009BB0-DEB5-4FB2-B62E-834054F77362}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -90,6 +94,14 @@ Global
 		{83CAE91D-FE3E-4853-BB68-6A4A5E7742F7}.Debug|x64.Build.0 = Debug|x64
 		{83CAE91D-FE3E-4853-BB68-6A4A5E7742F7}.Release|x64.ActiveCfg = Release|x64
 		{83CAE91D-FE3E-4853-BB68-6A4A5E7742F7}.Release|x64.Build.0 = Release|x64
+		{CD620C67-0C5F-45AB-91C8-02A4D7C45152}.Debug|x64.ActiveCfg = Debug|x64
+		{CD620C67-0C5F-45AB-91C8-02A4D7C45152}.Debug|x64.Build.0 = Debug|x64
+		{CD620C67-0C5F-45AB-91C8-02A4D7C45152}.Release|x64.ActiveCfg = Release|x64
+		{CD620C67-0C5F-45AB-91C8-02A4D7C45152}.Release|x64.Build.0 = Release|x64
+		{A4009BB0-DEB5-4FB2-B62E-834054F77362}.Debug|x64.ActiveCfg = Debug|x64
+		{A4009BB0-DEB5-4FB2-B62E-834054F77362}.Debug|x64.Build.0 = Debug|x64
+		{A4009BB0-DEB5-4FB2-B62E-834054F77362}.Release|x64.ActiveCfg = Release|x64
+		{A4009BB0-DEB5-4FB2-B62E-834054F77362}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -22,7 +22,6 @@ using PointlessWaymarks.CmsData.ContentHtml.GeoJsonHtml;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsData.Spatial;
-using PointlessWaymarks.CmsData.Spatial.Elevation;
 using PointlessWaymarks.CmsWpfControls.ColumnSort;
 using PointlessWaymarks.CmsWpfControls.ContentFolder;
 using PointlessWaymarks.CmsWpfControls.LineContentEditor;
@@ -31,6 +30,7 @@ using PointlessWaymarks.CmsWpfControls.PointContentEditor;
 using PointlessWaymarks.CmsWpfControls.TagsEditor;
 using PointlessWaymarks.CmsWpfControls.WpfHtml;
 using PointlessWaymarks.FeatureIntersectionTags;
+using PointlessWaymarks.SpatialTools;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 using PointlessWaymarks.WpfCommon.Utility;
@@ -129,7 +129,7 @@ public partial class GpxImportContext
 
         if (!itemList.Any())
         {
-            PreviewMapJsonDto = await SpatialHelpers.SerializeAsGeoJson(new MapComponentEditorContext.MapJsonDto(
+            PreviewMapJsonDto = await SpatialHelpers.SerializeWithGeoJsonSerializer(new MapComponentEditorContext.MapJsonDto(
                 Guid.NewGuid(),
                 new GeoJsonData.SpatialBounds(0, 0, 0, 0), new List<FeatureCollection>()));
             return;
@@ -142,7 +142,7 @@ public partial class GpxImportContext
         foreach (var loopItem in itemList.Where(x => x is GpxImportTrack).Cast<GpxImportTrack>().ToList())
         {
             featureCollection.Add(new Feature(
-                SpatialHelpers.Wgs84GeometryFactory().CreateLineString(loopItem.TrackInformation.Track.ToArray()),
+                GeoJsonTools.Wgs84GeometryFactory().CreateLineString(loopItem.TrackInformation.Track.ToArray()),
                 new AttributesTable(new Dictionary<string, object>
                     { { "title", loopItem.TrackInformation.Name }, { "displayId", loopItem.DisplayId } })));
 
@@ -155,7 +155,7 @@ public partial class GpxImportContext
         foreach (var loopItem in itemList.Where(x => x is GpxImportRoute).Cast<GpxImportRoute>().ToList())
         {
             featureCollection.Add(new Feature(
-                SpatialHelpers.Wgs84GeometryFactory().CreateLineString(loopItem.RouteInformation.Track.ToArray()),
+                GeoJsonTools.Wgs84GeometryFactory().CreateLineString(loopItem.RouteInformation.Track.ToArray()),
                 new AttributesTable(new Dictionary<string, object>
                     { { "title", loopItem.RouteInformation.Name }, { "displayId", loopItem.DisplayId } })));
 
@@ -169,7 +169,7 @@ public partial class GpxImportContext
         foreach (var loopItem in itemList.Where(x => x is GpxImportWaypoint).Cast<GpxImportWaypoint>().ToList())
         {
             featureCollection.Add(new Feature(
-                SpatialHelpers.Wgs84Point(loopItem.Waypoint.Longitude, loopItem.Waypoint.Latitude,
+                PointTools.Wgs84Point(loopItem.Waypoint.Longitude, loopItem.Waypoint.Latitude,
                     loopItem.Waypoint.ElevationInMeters ?? 0),
                 new AttributesTable(new Dictionary<string, object>
                     { { "title", loopItem.Waypoint.Name ?? string.Empty }, { "displayId", loopItem.DisplayId } })));
@@ -183,7 +183,7 @@ public partial class GpxImportContext
             new List<FeatureCollection> { featureCollection });
 
         //Using the new Guid as the page URL forces a changed value into the LineJsonDto
-        PreviewMapJsonDto = await SpatialHelpers.SerializeAsGeoJson(dto);
+        PreviewMapJsonDto = await SpatialHelpers.SerializeWithGeoJsonSerializer(dto);
     }
 
     public async Task ChooseAndLoadFile()

@@ -9,7 +9,7 @@ using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsData.Import;
 using PointlessWaymarks.CmsData.Spatial;
-using PointlessWaymarks.CmsData.Spatial.Elevation;
+using PointlessWaymarks.SpatialTools;
 
 namespace PointlessWaymarks.CmsTests;
 
@@ -185,7 +185,7 @@ public class TestSeries02GrandCanyonPoints
             "GrandCanyonHorseShoeMesaEastSideLoop.gpx"));
         Assert.True(testFile.Exists, "GPX Test File Found");
 
-        var track = (await SpatialHelpers.TracksFromGpxFile(testFile, DebugTrackers.DebugProgressTracker()))
+        var track = (await GpxTools.TracksFromGpxFile(testFile, DebugTrackers.DebugProgressTracker()))
             .First();
 
         var lineTest = await LineGenerator.NewFromGpxTrack(track, false, null);
