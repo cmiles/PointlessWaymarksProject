@@ -30,44 +30,6 @@ public static class SpatialHelpers
         // ReSharper restore PossibleInvalidOperationException
     }
 
-    public static async Task<string> SerializeFeatureToGeoJson(IFeature feature)
-    {
-        var collection = new FeatureCollection { feature };
-
-        var serializer = GeoJsonSerializer.Create(new JsonSerializerSettings { Formatting = Formatting.Indented },
-            GeoJsonTools.Wgs84GeometryFactory(), 3);
-
-        await using var stringWriter = new StringWriter();
-        using var jsonWriter = new JsonTextWriter(stringWriter);
-        serializer.Serialize(jsonWriter, collection);
-
-        return stringWriter.ToString();
-    }
-
-    public static async Task<string> SerializeFeatureCollectionToGeoJson(FeatureCollection featureCollection)
-    {
-        var serializer = GeoJsonSerializer.Create(new JsonSerializerSettings { Formatting = Formatting.Indented },
-            GeoJsonTools.Wgs84GeometryFactory(), 3);
-
-        await using var stringWriter = new StringWriter();
-        using var jsonWriter = new JsonTextWriter(stringWriter);
-        serializer.Serialize(jsonWriter, featureCollection);
-
-        return stringWriter.ToString();
-    }
-
-    public static async Task<string> SerializeWithGeoJsonSerializer(object toSerialize)
-    {
-        var serializer = GeoJsonSerializer.Create(new JsonSerializerSettings { Formatting = Formatting.Indented },
-            GeoJsonTools.Wgs84GeometryFactory(), 3);
-
-        await using var stringWriter = new StringWriter();
-        using var jsonWriter = new JsonTextWriter(stringWriter);
-        serializer.Serialize(jsonWriter, toSerialize);
-
-        return stringWriter.ToString();
-    }
-
     /// <summary>
     ///     Uses reflection to look for Latitude, Longitude and Elevation properties on an object and rounds them to 6 digits.
     /// </summary>
@@ -121,66 +83,18 @@ public static class SpatialHelpers
     }
 
 
-    public static async Task<string> ReplaceElevationsInGeoJsonWithLineString(string geoJson,
-        IProgress<string>? progress = null)
+
+    public static async Task<string> SerializeFeatureToGeoJson(IFeature feature)
     {
-        if (string.IsNullOrWhiteSpace(geoJson)) return string.Empty;
+        var collection = new FeatureCollection { feature };
 
-        var coordinateList = LineTools.CoordinateListFromGeoJsonFeatureCollectionWithLinestring(geoJson);
+        var serializer = GeoJsonSerializer.Create(new JsonSerializerSettings { Formatting = Formatting.Indented },
+            GeoJsonTools.Wgs84GeometryFactory(), 3);
 
-        return await LineTools.GeoJsonWithLineStringFromCoordinateList(coordinateList, true, progress).ConfigureAwait(false);
+        await using var stringWriter = new StringWriter();
+        using var jsonWriter = new JsonTextWriter(stringWriter);
+        serializer.Serialize(jsonWriter, collection);
+
+        return stringWriter.ToString();
     }
-
-    public static LineStatsInImperial LineStatsInImperialFromCoordinateList(List<CoordinateZ> line)
-    {
-        return LineStatsInImperialFromMetricStats(LineStatsInMetricFromCoordinateList(line));
-    }
-
-    public static LineStatsInMeters LineStatsInMetricFromCoordinateList(List<CoordinateZ> line)
-    {
-        double climb = 0;
-        double descent = 0;
-        double length = 0;
-        double maxElevation = 0;
-        double minElevation = 0;
-
-        if (line.Count < 2)
-            return new LineStatsInMeters(length, climb, descent, maxElevation, minElevation);
-
-        var previousPoint = line[0];
-        maxElevation = previousPoint.Z;
-        minElevation = previousPoint.Z;
-
-        foreach (var loopPoint in line.Skip(1))
-        {
-            length += DistanceHelpers.GetDistanceInMeters(previousPoint.X, previousPoint.Y, previousPoint.Z,
-                loopPoint.X, loopPoint.Y, loopPoint.Z);
-            if (previousPoint.Z < loopPoint.Z) climb += loopPoint.Z - previousPoint.Z;
-            else descent += previousPoint.Z - loopPoint.Z;
-
-            maxElevation = Math.Max(loopPoint.Z, maxElevation);
-            minElevation = Math.Min(loopPoint.Z, minElevation);
-
-            previousPoint = loopPoint;
-        }
-
-        return new LineStatsInMeters(length, climb, descent, maxElevation, minElevation);
-    }
-
-    public static LineStatsInImperial LineStatsInImperialFromMetricStats(LineStatsInMeters metricStats)
-    {
-        return new LineStatsInImperial(metricStats.Length.MetersToMiles(),
-            metricStats.ElevationClimb.MetersToFeet(),
-            metricStats.ElevationDescent.MetersToFeet(), metricStats.MaximumElevation.MetersToFeet(),
-            metricStats.MinimumElevation.MetersToFeet());
-    }
-
-    public record LineStatsInMeters(double Length, double ElevationClimb, double ElevationDescent,
-        double MaximumElevation, double MinimumElevation);
-
-    public record LineStatsInImperial(double Length, double ElevationClimb, double ElevationDescent,
-        double MaximumElevation, double MinimumElevation);
-
-
-
 }

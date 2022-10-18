@@ -15,12 +15,12 @@ public static class GeoJsonData
     {
         var contentFeatureCollection = GeoJsonTools.DeserializeToFeatureCollection(geoJsonContent);
 
-        var bounds = SpatialConverters.GeometryBoundingBox(SpatialConverters.GeoJsonToGeometries(geoJsonContent));
+        var bounds = GeoJsonTools.GeometryBoundingBox(GeoJsonTools.GeoJsonToGeometries(geoJsonContent));
 
         var jsonDto = new GeoJsonSiteJsonData(pageUrl,
             new SpatialBounds(bounds.MaxY, bounds.MaxX, bounds.MinY, bounds.MinX), contentFeatureCollection);
 
-        var jsonString = await SpatialHelpers.SerializeWithGeoJsonSerializer(jsonDto);
+        var jsonString = await GeoJsonTools.SerializeWithGeoJsonSerializer(jsonDto);
 
         jsonString = jsonString.Replace("{{self}}", pageUrl);
 

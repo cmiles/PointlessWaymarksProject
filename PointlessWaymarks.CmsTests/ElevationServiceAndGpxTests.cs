@@ -132,8 +132,8 @@ public class ElevationServiceAndGpxTests
 
         var coordinateList = tracks.First().Track;
 
-        var metricStats = SpatialHelpers.LineStatsInMetricFromCoordinateList(coordinateList);
-        var imperialStats = SpatialHelpers.LineStatsInImperialFromMetricStats(metricStats);
+        var metricStats = DistanceTools.LineStatsInMetricFromCoordinateList(coordinateList);
+        var imperialStats = DistanceTools.LineStatsInImperialFromMetricStats(metricStats);
 
         Assert.IsTrue(imperialStats.Length.IsApproximatelyEqualTo(13, .3),
             $"ExpertGPS Length 13.03, Measured {imperialStats.Length}");
@@ -163,7 +163,7 @@ public class ElevationServiceAndGpxTests
 
         Assert.AreEqual(214, shortTrack.Count, "Unexpected Point Count");
 
-        var preElevationReplacementStats = SpatialHelpers.LineStatsInImperialFromCoordinateList(shortTrack);
+        var preElevationReplacementStats = DistanceTools.LineStatsInImperialFromCoordinateList(shortTrack);
 
         Assert.IsTrue(preElevationReplacementStats.Length.IsApproximatelyEqualTo(2.8, .05),
             $"ExpertGPS Length 2.79, Measured {preElevationReplacementStats.Length}");
@@ -181,7 +181,7 @@ public class ElevationServiceAndGpxTests
 
         Assert.True(shortTrack.All(x => x.Z > 0), "After Elevation replacement some 0 values found");
 
-        var postElevationReplacementStats = SpatialHelpers.LineStatsInImperialFromCoordinateList(shortTrack);
+        var postElevationReplacementStats = DistanceTools.LineStatsInImperialFromCoordinateList(shortTrack);
 
         Assert.IsTrue(postElevationReplacementStats.Length.IsApproximatelyEqualTo(2.8, .05),
             $"ExpertGPS Length 2.79, Measured {preElevationReplacementStats.Length}");

@@ -15,13 +15,13 @@ public static class LineData
     {
         var contentFeatureCollection = GeoJsonTools.DeserializeToFeatureCollection(lineGeoJson);
 
-        var bounds = SpatialConverters.GeometryBoundingBox(SpatialConverters.GeoJsonToGeometries(lineGeoJson));
+        var bounds = GeoJsonTools.GeometryBoundingBox(GeoJsonTools.GeoJsonToGeometries(lineGeoJson));
 
         var jsonDto = new LineSiteJsonData(pageUrl,
             new GeoJsonData.SpatialBounds(bounds.MaxY, bounds.MaxX, bounds.MinY, bounds.MinX),
             contentFeatureCollection);
 
-        return await SpatialHelpers.SerializeWithGeoJsonSerializer(jsonDto);
+        return await GeoJsonTools.SerializeWithGeoJsonSerializer(jsonDto);
     }
 
     public static async Task WriteJsonData(LineContent lineContent)

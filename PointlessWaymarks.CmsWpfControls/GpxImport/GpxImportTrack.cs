@@ -14,7 +14,7 @@ public partial class GpxImportTrack : IGpxImportListItem
     [ObservableProperty] private string _lineGeoJson;
     [ObservableProperty] private bool _markedForImport;
     [ObservableProperty] private bool _replaceElevationOnImport;
-    [ObservableProperty] private SpatialHelpers.LineStatsInImperial _statistics;
+    [ObservableProperty] private DistanceTools.LineStatsInImperial _statistics;
     [ObservableProperty] private GpxTrack _track;
     [ObservableProperty] private GpxTools.GpxTrackInformation _trackInformation;
     [ObservableProperty] private string _userContentName;
@@ -27,7 +27,7 @@ public partial class GpxImportTrack : IGpxImportListItem
         TrackInformation = GpxTools.TrackInformationFromGpxTrack(toLoad);
         LineGeoJson =
             await LineTools.GeoJsonWithLineStringFromCoordinateList(TrackInformation.Track, false, progress);
-        Statistics = SpatialHelpers.LineStatsInImperialFromCoordinateList(TrackInformation.Track);
+        Statistics = DistanceTools.LineStatsInImperialFromCoordinateList(TrackInformation.Track);
 
         CreatedOn = toLoad.Segments.FirstOrDefault()?.Waypoints.FirstOrDefault()?.TimestampUtc
             ?.ToLocalTime();

@@ -31,7 +31,7 @@ public static class LineGenerator
     public static async Task<LineContent> NewFromGpxTrack(GpxTools.GpxTrackInformation trackInformation,
         bool replaceElevations, IProgress<string> progress)
     {
-        var lineStatistics = SpatialHelpers.LineStatsInImperialFromCoordinateList(trackInformation.Track);
+        var lineStatistics = DistanceTools.LineStatsInImperialFromCoordinateList(trackInformation.Track);
 
         var tagList = new List<string>();
 
@@ -94,7 +94,7 @@ public static class LineGenerator
     public static async Task<LineContent> NewFromGpxTrack(GpxTools.GpxRouteInformation trackInformation,
         bool replaceElevations, IProgress<string> progress)
     {
-        var lineStatistics = SpatialHelpers.LineStatsInImperialFromCoordinateList(trackInformation.Track);
+        var lineStatistics = DistanceTools.LineStatsInImperialFromCoordinateList(trackInformation.Track);
 
         var newEntry = new LineContent
         {

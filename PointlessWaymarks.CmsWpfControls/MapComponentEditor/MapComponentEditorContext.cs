@@ -348,7 +348,7 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
 
         if (MapElements == null || !MapElements.Any())
         {
-            PreviewMapJsonDto = await SpatialHelpers.SerializeWithGeoJsonSerializer(new MapJsonDto(Guid.NewGuid(),
+            PreviewMapJsonDto = await GeoJsonTools.SerializeWithGeoJsonSerializer(new MapJsonDto(Guid.NewGuid(),
                 new GeoJsonData.SpatialBounds(0, 0, 0, 0), new List<FeatureCollection>()));
             return;
         }
@@ -361,14 +361,14 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
             switch (loopElements)
             {
                 case MapElementListGeoJsonItem { DbEntry.GeoJson: { } } mapGeoJson:
-                    geoJsonList.Add(SpatialConverters.GeoJsonToFeatureCollection(mapGeoJson.DbEntry.GeoJson));
+                    geoJsonList.Add(GeoJsonTools.DeserializeToFeatureCollection(mapGeoJson.DbEntry.GeoJson));
                     boundsKeeper.Add(new Point(mapGeoJson.DbEntry.InitialViewBoundsMaxLongitude,
                         mapGeoJson.DbEntry.InitialViewBoundsMaxLatitude));
                     boundsKeeper.Add(new Point(mapGeoJson.DbEntry.InitialViewBoundsMinLongitude,
                         mapGeoJson.DbEntry.InitialViewBoundsMinLatitude));
                     break;
                 case MapElementListLineItem { DbEntry.Line: { } } mapLine:
-                    var lineFeatureCollection = SpatialConverters.GeoJsonToFeatureCollection(mapLine.DbEntry.Line);
+                    var lineFeatureCollection = GeoJsonTools.DeserializeToFeatureCollection(mapLine.DbEntry.Line);
                     geoJsonList.Add(lineFeatureCollection);
                     boundsKeeper.Add(new Point(mapLine.DbEntry.InitialViewBoundsMaxLongitude,
                         mapLine.DbEntry.InitialViewBoundsMaxLatitude));
@@ -403,7 +403,7 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
             new GeoJsonData.SpatialBounds(bounds.MaxY, bounds.MaxX, bounds.MinY, bounds.MinX), geoJsonList);
 
         //Using the new Guid as the page URL forces a changed value into the LineJsonDto
-        PreviewMapJsonDto = await SpatialHelpers.SerializeWithGeoJsonSerializer(dto);
+        PreviewMapJsonDto = await GeoJsonTools.SerializeWithGeoJsonSerializer(dto);
     }
 
     private async Task RemoveItem(IMapElementListItem toRemove)

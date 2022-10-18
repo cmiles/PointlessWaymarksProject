@@ -190,7 +190,7 @@ public class TestSeries02GrandCanyonPoints
 
         var lineTest = await LineGenerator.NewFromGpxTrack(track, false, null);
 
-        var stats = SpatialHelpers.LineStatsInMetricFromCoordinateList(track.Track);
+        var stats = DistanceTools.LineStatsInMetricFromCoordinateList(track.Track);
 
         lineTest.ContentId = Guid.NewGuid();
         lineTest.BodyContent = "Horseshoe Mesa East Side Loop";

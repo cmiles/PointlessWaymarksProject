@@ -443,7 +443,7 @@ public partial class LineContentEditorContext : IHasChanges, IHasValidationIssue
             return;
         }
 
-        LineGeoJson = await SpatialHelpers.ReplaceElevationsInGeoJsonWithLineString(LineGeoJson,
+        LineGeoJson = await GeoJsonTools.ReplaceElevationsInGeoJsonWithLineString(LineGeoJson,
             StatusContext.ProgressTracker());
     }
 
@@ -482,7 +482,7 @@ public partial class LineContentEditorContext : IHasChanges, IHasValidationIssue
 
         var coordinateList = LineTools.CoordinateListFromGeoJsonFeatureCollectionWithLinestring(LineGeoJson);
 
-        var lineStatistics = SpatialHelpers.LineStatsInImperialFromCoordinateList(coordinateList);
+        var lineStatistics = DistanceTools.LineStatsInImperialFromCoordinateList(coordinateList);
 
         DistanceEntry.UserText = lineStatistics.Length.ToString("F2");
         MaximumElevationEntry.UserText = lineStatistics.MaximumElevation.ToString("F0");

@@ -32,6 +32,85 @@ public static class GeoJsonTools
         return serializer.Deserialize<FeatureCollection>(jsonReader);
     }
 
+    public static List<Geometry> GeoJsonToGeometries(string geoJson)
+    {
+        var serializer = GeoJsonSerializer.Create(new JsonSerializerSettings { Formatting = Formatting.Indented },
+            GeometryFactory.Default, 3);
+
+        using var stringReader = new StringReader(geoJson);
+        using var jsonReader = new JsonTextReader(stringReader);
+        var featureCollection = serializer.Deserialize<FeatureCollection>(jsonReader);
+
+        return featureCollection.Select(x => Wgs84GeometryFactory().CreateGeometry(x.Geometry))
+            .ToList();
+    }
+
+    public static Envelope GeometryBoundingBox(List<Geometry> geometries, Envelope? boundingBox = null)
+    {
+        boundingBox ??= new Envelope();
+        foreach (var feature in geometries) boundingBox.ExpandToInclude(feature.EnvelopeInternal);
+
+        return boundingBox;
+    }
+
+    public static Envelope GeometryBoundingBox(string lineString, Envelope? envelope = null)
+    {
+        var geometryList = LineStringToGeometries(lineString);
+        return GeometryBoundingBox(geometryList, envelope);
+    }
+
+    public static List<Geometry> LineStringToGeometries(string lineString)
+    {
+        if (string.IsNullOrWhiteSpace(lineString)) return new List<Geometry>();
+
+        var serializer = GeoJsonSerializer.Create(new JsonSerializerSettings { Formatting = Formatting.Indented },
+            Wgs84GeometryFactory(), 3);
+
+        using var stringReader = new StringReader(lineString);
+        using var jsonReader = new JsonTextReader(stringReader);
+        var featureCollection = serializer.Deserialize<FeatureCollection>(jsonReader);
+
+        return featureCollection.Select(x => Wgs84GeometryFactory().CreateGeometry(x.Geometry))
+            .ToList();
+    }
+
+
+    public static async Task<string> ReplaceElevationsInGeoJsonWithLineString(string geoJson,
+        IProgress<string>? progress = null)
+    {
+        if (string.IsNullOrWhiteSpace(geoJson)) return string.Empty;
+
+        var coordinateList = LineTools.CoordinateListFromGeoJsonFeatureCollectionWithLinestring(geoJson);
+
+        return await LineTools.GeoJsonWithLineStringFromCoordinateList(coordinateList, true, progress)
+            .ConfigureAwait(false);
+    }
+
+
+    public static async Task<string> SerializeFeatureCollectionToGeoJson(FeatureCollection featureCollection)
+    {
+        var serializer = GeoJsonSerializer.Create(new JsonSerializerSettings { Formatting = Formatting.Indented },
+            Wgs84GeometryFactory(), 3);
+
+        await using var stringWriter = new StringWriter();
+        using var jsonWriter = new JsonTextWriter(stringWriter);
+        serializer.Serialize(jsonWriter, featureCollection);
+
+        return stringWriter.ToString();
+    }
+
+    public static async Task<string> SerializeWithGeoJsonSerializer(object toSerialize)
+    {
+        var serializer = GeoJsonSerializer.Create(new JsonSerializerSettings { Formatting = Formatting.Indented },
+            Wgs84GeometryFactory(), 3);
+
+        await using var stringWriter = new StringWriter();
+        using var jsonWriter = new JsonTextWriter(stringWriter);
+        serializer.Serialize(jsonWriter, toSerialize);
+
+        return stringWriter.ToString();
+    }
+
 
     public static GeometryFactory Wgs84GeometryFactory()
     {

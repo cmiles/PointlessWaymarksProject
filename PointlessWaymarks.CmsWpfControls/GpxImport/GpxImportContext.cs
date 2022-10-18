@@ -129,7 +129,7 @@ public partial class GpxImportContext
 
         if (!itemList.Any())
         {
-            PreviewMapJsonDto = await SpatialHelpers.SerializeWithGeoJsonSerializer(new MapComponentEditorContext.MapJsonDto(
+            PreviewMapJsonDto = await GeoJsonTools.SerializeWithGeoJsonSerializer(new MapComponentEditorContext.MapJsonDto(
                 Guid.NewGuid(),
                 new GeoJsonData.SpatialBounds(0, 0, 0, 0), new List<FeatureCollection>()));
             return;
@@ -146,7 +146,7 @@ public partial class GpxImportContext
                 new AttributesTable(new Dictionary<string, object>
                     { { "title", loopItem.TrackInformation.Name }, { "displayId", loopItem.DisplayId } })));
 
-            var boundingBox = SpatialConverters.GeometryBoundingBox(loopItem.LineGeoJson);
+            var boundingBox = GeoJsonTools.GeometryBoundingBox(loopItem.LineGeoJson);
             boundsKeeper.Add(new Point(boundingBox.MaxX,
                 boundingBox.MaxY));
             boundsKeeper.Add(new Point(boundingBox.MinX, boundingBox.MinY));
@@ -159,7 +159,7 @@ public partial class GpxImportContext
                 new AttributesTable(new Dictionary<string, object>
                     { { "title", loopItem.RouteInformation.Name }, { "displayId", loopItem.DisplayId } })));
 
-            var boundingBox = SpatialConverters.GeometryBoundingBox(loopItem.LineGeoJson);
+            var boundingBox = GeoJsonTools.GeometryBoundingBox(loopItem.LineGeoJson);
             boundsKeeper.Add(new Point(boundingBox.MaxX,
                 boundingBox.MaxY));
             boundsKeeper.Add(new Point(boundingBox.MinX, boundingBox.MinY));
@@ -183,7 +183,7 @@ public partial class GpxImportContext
             new List<FeatureCollection> { featureCollection });
 
         //Using the new Guid as the page URL forces a changed value into the LineJsonDto
-        PreviewMapJsonDto = await SpatialHelpers.SerializeWithGeoJsonSerializer(dto);
+        PreviewMapJsonDto = await GeoJsonTools.SerializeWithGeoJsonSerializer(dto);
     }
 
     public async Task ChooseAndLoadFile()
