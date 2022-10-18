@@ -30,7 +30,7 @@ public static class MapComponentGenerator
 
         var db = await Db.Context();
 
-        var dbLines = await db.LineContents.Where(x => !x.IsDraft).AsNoTracking().ToListAsync();
+        var dbLines = await db.LineContents.Where(x => !x.IsDraft).OrderByDescending(x => x.CreatedOn).AsNoTracking().ToListAsync();
 
         foreach (var mapLine in dbLines)
         {
