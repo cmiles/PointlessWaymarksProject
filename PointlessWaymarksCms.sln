@@ -38,7 +38,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PointlessWaymarks.FeatureIn
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PointlessWaymarks.SpatialTools", "PointlessWaymarks.SpatialTools\PointlessWaymarks.SpatialTools.csproj", "{CD620C67-0C5F-45AB-91C8-02A4D7C45152}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PointlessWaymarks.LoggingTools", "PointlessWaymarks.LoggingTools\PointlessWaymarks.LoggingTools.csproj", "{A4009BB0-DEB5-4FB2-B62E-834054F77362}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PointlessWaymarks.LoggingTools", "PointlessWaymarks.LoggingTools\PointlessWaymarks.LoggingTools.csproj", "{A4009BB0-DEB5-4FB2-B62E-834054F77362}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PointlessWaymarks.Task.PhotoPickup", "PointlessWaymarks.Task.PhotoPickup\PointlessWaymarks.Task.PhotoPickup.csproj", "{69770B90-F127-45C3-ACAD-CB6629099F8D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PointlessWaymarks.GeoTaggingService", "PointlessWaymarks.GeoTaggingService\PointlessWaymarks.GeoTaggingService.csproj", "{FD87100A-D437-41FC-8645-06E826FF758F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -102,6 +106,14 @@ Global
 		{A4009BB0-DEB5-4FB2-B62E-834054F77362}.Debug|x64.Build.0 = Debug|x64
 		{A4009BB0-DEB5-4FB2-B62E-834054F77362}.Release|x64.ActiveCfg = Release|x64
 		{A4009BB0-DEB5-4FB2-B62E-834054F77362}.Release|x64.Build.0 = Release|x64
+		{69770B90-F127-45C3-ACAD-CB6629099F8D}.Debug|x64.ActiveCfg = Debug|x64
+		{69770B90-F127-45C3-ACAD-CB6629099F8D}.Debug|x64.Build.0 = Debug|x64
+		{69770B90-F127-45C3-ACAD-CB6629099F8D}.Release|x64.ActiveCfg = Release|x64
+		{69770B90-F127-45C3-ACAD-CB6629099F8D}.Release|x64.Build.0 = Release|x64
+		{FD87100A-D437-41FC-8645-06E826FF758F}.Debug|x64.ActiveCfg = Debug|x64
+		{FD87100A-D437-41FC-8645-06E826FF758F}.Debug|x64.Build.0 = Debug|x64
+		{FD87100A-D437-41FC-8645-06E826FF758F}.Release|x64.ActiveCfg = Release|x64
+		{FD87100A-D437-41FC-8645-06E826FF758F}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
