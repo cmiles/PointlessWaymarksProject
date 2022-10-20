@@ -13,7 +13,7 @@ public static class GeoJsonData
 {
     public static async Task<string> GenerateGeoJson(string geoJsonContent, string pageUrl)
     {
-        var contentFeatureCollection = GeoJsonTools.DeserializeToFeatureCollection(geoJsonContent);
+        var contentFeatureCollection = GeoJsonTools.DeserializeStringToFeatureCollection(geoJsonContent);
 
         var bounds = GeoJsonTools.GeometryBoundingBox(GeoJsonTools.GeoJsonToGeometries(geoJsonContent));
 

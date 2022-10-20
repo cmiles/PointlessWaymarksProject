@@ -256,7 +256,7 @@ public static class CommonContentValidation
 
         try
         {
-            var featureCollection = GeoJsonTools.DeserializeToFeatureCollection(geoJsonString);
+            var featureCollection = GeoJsonTools.DeserializeStringToFeatureCollection(geoJsonString);
             if (featureCollection.Count < 1)
                 return new IsValid(false, 
                     "The GeoJson for the line appears to have an empty Feature Collection?");
@@ -284,7 +284,7 @@ public static class CommonContentValidation
 
         try
         {
-            var featureCollection = GeoJsonTools.DeserializeToFeatureCollection(geoJsonString);
+            var featureCollection = GeoJsonTools.DeserializeStringToFeatureCollection(geoJsonString);
             if (featureCollection.Count < 1)
                 return new IsValid(false, "The GeoJson appears to have an empty Feature Collection?");
         }

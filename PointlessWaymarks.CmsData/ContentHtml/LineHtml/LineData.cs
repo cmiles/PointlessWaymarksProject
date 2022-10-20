@@ -13,7 +13,7 @@ public static class LineData
 {
     public static async Task<string> GenerateLineJson(string lineGeoJson, string title, string pageUrl)
     {
-        var contentFeatureCollection = GeoJsonTools.DeserializeToFeatureCollection(lineGeoJson);
+        var contentFeatureCollection = GeoJsonTools.DeserializeStringToFeatureCollection(lineGeoJson);
 
         var bounds = GeoJsonTools.GeometryBoundingBox(GeoJsonTools.GeoJsonToGeometries(lineGeoJson));
 

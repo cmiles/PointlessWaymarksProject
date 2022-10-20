@@ -1,6 +1,4 @@
-﻿using System.Reflection.Metadata.Ecma335;
-using NetTopologySuite.Features;
-using NetTopologySuite.IO;
+﻿using NetTopologySuite.Features;
 using Newtonsoft.Json;
 using PointlessWaymarks.FeatureIntersectionTags.Models;
 using PointlessWaymarks.SpatialTools;
@@ -127,13 +125,7 @@ public class Intersection
         progress?.Report($"Processing DOI Regions from {padUsRegionFile}");
         var doiRegionsFile = new FileInfo(padUsRegionFile);
 
-        var serializer = GeoJsonSerializer.Create();
-
-        using var doiRegionStringReader =
-            new StringReader(
-                File.ReadAllText(doiRegionsFile.FullName));
-        using var doiRegionJsonReader = new JsonTextReader(doiRegionStringReader);
-        var doiRegionFeatures = serializer.Deserialize<FeatureCollection>(doiRegionJsonReader).ToList();
+        var doiRegionFeatures = GeoJsonTools.DeserializeFileToFeatureCollection(doiRegionsFile.FullName);
 
         var regionIntersections = new List<(string? region, IFeature feature)>();
 
@@ -163,11 +155,7 @@ public class Intersection
             progress?.Report(
                 $"Processing PADUS DOI Region File - {regionFile.Name} - {counter} of {regionIntersectionsGroupedByRegion.Count}");
 
-            using var regionFileStream =
-                File.Open(regionFile.FullName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
-            using var regionStreamReader = new StreamReader(regionFileStream);
-            using var regionJsonReader = new JsonTextReader(regionStreamReader);
-            var regionFeatures = serializer.Deserialize<FeatureCollection>(regionJsonReader).ToList();
+            var regionFeatures = GeoJsonTools.DeserializeFileToFeatureCollection(regionFile.FullName).ToList();
 
             var referenceFeatureCounter = 0;
             progress?.Report(

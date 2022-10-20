@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace PointlessWaymarks.SpatialTools.ElevationModels.FccAreaApiModels;
+namespace PointlessWaymarks.SpatialTools.StateCountyServiceModels;
 
 public record Input(
     [property: JsonPropertyName("lat")] double Lat,

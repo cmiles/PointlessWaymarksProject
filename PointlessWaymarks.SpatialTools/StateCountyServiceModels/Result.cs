@@ -3,7 +3,7 @@
 // ReSharper disable StringLiteralTypo - names from Api
 // ReSharper disable IdentifierTypo
 
-namespace PointlessWaymarks.SpatialTools.ElevationModels.FccAreaApiModels;
+namespace PointlessWaymarks.SpatialTools.StateCountyServiceModels;
 
 public record Result(
     [property: JsonPropertyName("block_fips")]

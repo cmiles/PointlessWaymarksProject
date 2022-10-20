@@ -46,7 +46,7 @@ public class GeoJsonContent : IUpdateNotes, IContentCommon
 
         if (string.IsNullOrWhiteSpace(geoJson)) return returnList;
 
-        return GeoJsonTools.DeserializeToFeatureCollection(geoJson).ToList();
+        return GeoJsonTools.DeserializeStringToFeatureCollection(geoJson).ToList();
     }
 
     /// <summary>

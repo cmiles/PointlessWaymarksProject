@@ -11,13 +11,9 @@ public static class LineTools
     {
         if (string.IsNullOrWhiteSpace(geoJson)) return new List<CoordinateZ>();
 
-        var serializer = GeoJsonSerializer.Create(new JsonSerializerSettings { Formatting = Formatting.Indented },
-            GeoJsonTools.Wgs84GeometryFactory(), 3);
+        var featureCollection = GeoJsonTools.DeserializeStringToFeatureCollection(geoJson);
 
-        using var stringReader = new StringReader(geoJson);
-        using var jsonReader = new JsonTextReader(stringReader);
-        var featureCollection = serializer.Deserialize<FeatureCollection>(jsonReader);
-        if (featureCollection == null || featureCollection.Count < 1) return new List<CoordinateZ>();
+        if (featureCollection.Count < 1) return new List<CoordinateZ>();
 
         var possibleLine = featureCollection.FirstOrDefault(x => x.Geometry is LineString);
 
@@ -41,11 +37,6 @@ public static class LineTools
         var newFeature = new Feature(newLineString, new AttributesTable());
         var featureCollection = new FeatureCollection { newFeature };
 
-        var serializer = GeoJsonSerializer.Create(new JsonSerializerSettings { Formatting = Formatting.Indented },
-            GeoJsonTools.Wgs84GeometryFactory(), 3);
-        await using var stringWriter = new StringWriter();
-        using var jsonWriter = new JsonTextWriter(stringWriter);
-        serializer.Serialize(jsonWriter, featureCollection);
-        return stringWriter.ToString();
+        return await GeoJsonTools.SerializeFeatureCollectionToGeoJson(featureCollection);
     }
 }

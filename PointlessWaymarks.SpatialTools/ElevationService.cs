@@ -1,7 +1,7 @@
 ﻿using System.Data;
 using System.Text.Json;
 using NetTopologySuite.Geometries;
-using PointlessWaymarks.SpatialTools.ElevationModels;
+using PointlessWaymarks.SpatialTools.ElevationServiceModels;
 using Serilog;
 
 namespace PointlessWaymarks.SpatialTools;

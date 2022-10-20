@@ -151,7 +151,7 @@ public static class LineGenerator
         if (possibleDescription == null) lineFeature.Attributes.Add("description", LineParts.LineStatsString(toSave));
         else lineFeature.Attributes["description"] = LineParts.LineStatsString(toSave);
 
-        toSave.Line = await SpatialHelpers.SerializeFeatureToGeoJson(lineFeature);
+        toSave.Line = await GeoJsonTools.SerializeFeatureToGeoJson(lineFeature);
         
         await Db.SaveLineContent(toSave).ConfigureAwait(false);
         await GenerateHtml(toSave, generationVersion, progress).ConfigureAwait(false);

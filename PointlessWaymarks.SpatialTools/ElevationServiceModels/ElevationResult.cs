@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace PointlessWaymarks.SpatialTools.ElevationModels;
+namespace PointlessWaymarks.SpatialTools.ElevationServiceModels;
 
 public class ElevationResult
 {

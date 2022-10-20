@@ -65,7 +65,7 @@ public class LineContent : IUpdateNotes, IContentCommon
     {
         if (string.IsNullOrWhiteSpace(lineString)) return null;
 
-        var featureCollection = GeoJsonTools.DeserializeToFeatureCollection(lineString);
+        var featureCollection = GeoJsonTools.DeserializeStringToFeatureCollection(lineString);
 
         return featureCollection.FirstOrDefault();
     }
@@ -80,7 +80,7 @@ public class LineContent : IUpdateNotes, IContentCommon
     {
         if (string.IsNullOrWhiteSpace(Line)) return null;
 
-        var featureCollection = GeoJsonTools.DeserializeToFeatureCollection(Line);
+        var featureCollection = GeoJsonTools.DeserializeStringToFeatureCollection(Line);
 
         return featureCollection.FirstOrDefault()?.Geometry as LineString;
     }

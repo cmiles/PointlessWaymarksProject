@@ -20,7 +20,7 @@ public static class GeoJsonTools
         return serializer.Deserialize<FeatureCollection>(intersectJsonReader);
     }
 
-    public static FeatureCollection DeserializeToFeatureCollection(string geoJsonString)
+    public static FeatureCollection DeserializeStringToFeatureCollection(string geoJsonString)
     {
         if (string.IsNullOrEmpty(geoJsonString)) return new FeatureCollection();
 
@@ -34,12 +34,7 @@ public static class GeoJsonTools
 
     public static List<Geometry> GeoJsonToGeometries(string geoJson)
     {
-        var serializer = GeoJsonSerializer.Create(new JsonSerializerSettings { Formatting = Formatting.Indented },
-            GeometryFactory.Default, 3);
-
-        using var stringReader = new StringReader(geoJson);
-        using var jsonReader = new JsonTextReader(stringReader);
-        var featureCollection = serializer.Deserialize<FeatureCollection>(jsonReader);
+        var featureCollection = DeserializeStringToFeatureCollection(geoJson);
 
         return featureCollection.Select(x => Wgs84GeometryFactory().CreateGeometry(x.Geometry))
             .ToList();
@@ -63,12 +58,7 @@ public static class GeoJsonTools
     {
         if (string.IsNullOrWhiteSpace(lineString)) return new List<Geometry>();
 
-        var serializer = GeoJsonSerializer.Create(new JsonSerializerSettings { Formatting = Formatting.Indented },
-            Wgs84GeometryFactory(), 3);
-
-        using var stringReader = new StringReader(lineString);
-        using var jsonReader = new JsonTextReader(stringReader);
-        var featureCollection = serializer.Deserialize<FeatureCollection>(jsonReader);
+        var featureCollection = DeserializeStringToFeatureCollection(lineString);
 
         return featureCollection.Select(x => Wgs84GeometryFactory().CreateGeometry(x.Geometry))
             .ToList();
@@ -97,6 +87,13 @@ public static class GeoJsonTools
         serializer.Serialize(jsonWriter, featureCollection);
 
         return stringWriter.ToString();
+    }
+
+    public static async Task<string> SerializeFeatureToGeoJson(IFeature feature)
+    {
+        var collection = new FeatureCollection { feature };
+
+        return await SerializeFeatureCollectionToGeoJson(collection);
     }
 
     public static async Task<string> SerializeWithGeoJsonSerializer(object toSerialize)

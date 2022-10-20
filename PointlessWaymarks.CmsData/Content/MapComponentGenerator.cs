@@ -34,7 +34,7 @@ public static class MapComponentGenerator
 
         foreach (var mapLine in dbLines)
         {
-            var lineFeatureCollection = GeoJsonTools.DeserializeToFeatureCollection(mapLine.Line);
+            var lineFeatureCollection = GeoJsonTools.DeserializeStringToFeatureCollection(mapLine.Line);
 
             boundsKeeper.Add(new Point(mapLine.InitialViewBoundsMaxLongitude,
                 mapLine.InitialViewBoundsMaxLatitude));

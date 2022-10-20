@@ -361,14 +361,14 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
             switch (loopElements)
             {
                 case MapElementListGeoJsonItem { DbEntry.GeoJson: { } } mapGeoJson:
-                    geoJsonList.Add(GeoJsonTools.DeserializeToFeatureCollection(mapGeoJson.DbEntry.GeoJson));
+                    geoJsonList.Add(GeoJsonTools.DeserializeStringToFeatureCollection(mapGeoJson.DbEntry.GeoJson));
                     boundsKeeper.Add(new Point(mapGeoJson.DbEntry.InitialViewBoundsMaxLongitude,
                         mapGeoJson.DbEntry.InitialViewBoundsMaxLatitude));
                     boundsKeeper.Add(new Point(mapGeoJson.DbEntry.InitialViewBoundsMinLongitude,
                         mapGeoJson.DbEntry.InitialViewBoundsMinLatitude));
                     break;
                 case MapElementListLineItem { DbEntry.Line: { } } mapLine:
-                    var lineFeatureCollection = GeoJsonTools.DeserializeToFeatureCollection(mapLine.DbEntry.Line);
+                    var lineFeatureCollection = GeoJsonTools.DeserializeStringToFeatureCollection(mapLine.DbEntry.Line);
                     geoJsonList.Add(lineFeatureCollection);
                     boundsKeeper.Add(new Point(mapLine.DbEntry.InitialViewBoundsMaxLongitude,
                         mapLine.DbEntry.InitialViewBoundsMaxLatitude));

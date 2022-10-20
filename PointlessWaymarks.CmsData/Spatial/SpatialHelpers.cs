@@ -1,17 +1,7 @@
-﻿using System.Globalization;
-using NetTopologySuite;
-using NetTopologySuite.Features;
-using NetTopologySuite.Geometries;
-using NetTopologySuite.IO;
-using Newtonsoft.Json;
-using PointlessWaymarks.SpatialTools;
-
-namespace PointlessWaymarks.CmsData.Spatial;
+﻿namespace PointlessWaymarks.CmsData.Spatial;
 
 public static class SpatialHelpers
 {
-
-
     public static bool IsApproximatelyEqualTo(this double initialValue, double value,
         double maximumDifferenceAllowed)
     {
@@ -80,21 +70,5 @@ public static class SpatialHelpers
         }
 
         return toProcess;
-    }
-
-
-
-    public static async Task<string> SerializeFeatureToGeoJson(IFeature feature)
-    {
-        var collection = new FeatureCollection { feature };
-
-        var serializer = GeoJsonSerializer.Create(new JsonSerializerSettings { Formatting = Formatting.Indented },
-            GeoJsonTools.Wgs84GeometryFactory(), 3);
-
-        await using var stringWriter = new StringWriter();
-        using var jsonWriter = new JsonTextWriter(stringWriter);
-        serializer.Serialize(jsonWriter, collection);
-
-        return stringWriter.ToString();
     }
 }
