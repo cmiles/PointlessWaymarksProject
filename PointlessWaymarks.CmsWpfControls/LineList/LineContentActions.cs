@@ -1,8 +1,8 @@
 ﻿using System.Diagnostics;
 using System.Windows;
-using Microsoft.EntityFrameworkCore;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Microsoft.EntityFrameworkCore;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.ContentHtml.LineHtml;
@@ -242,13 +242,16 @@ public partial class LineContentActions : ObservableObject, IContentActions<Line
             return new List<object>();
         }
 
-        var dateSearchRange = SearchRecordedDatesForPhotoContentDateRange(content);
+        var dateSearchRange = SearchRecordedDatesForPhotoContentDateRangeUtc(content);
 
         var db = await Db.Context();
 
         return
             (await db.PhotoContents
-                .Where(x => x.PhotoCreatedOn >= dateSearchRange.start && x.PhotoCreatedOn <= dateSearchRange.end)
+                .Where(x =>
+                    x.PhotoCreatedOnUtc != null
+                        ? x.PhotoCreatedOnUtc >= dateSearchRange.start && x.PhotoCreatedOnUtc <= dateSearchRange.end
+                        : x.PhotoCreatedOn >= dateSearchRange.start && x.PhotoCreatedOn <= dateSearchRange.end)
                 .ToListAsync()).Cast<object>().ToList();
     }
 
@@ -264,6 +267,16 @@ public partial class LineContentActions : ObservableObject, IContentActions<Line
         var dateSearchStart = content.RecordingStartedOn?.Date ?? content.RecordingEndedOn?.Date ?? DateTime.Now.Date;
         var dateSearchEnd = content.RecordingEndedOn?.Date.AddDays(1) ??
                             content.RecordingStartedOn?.Date.AddDays(1) ?? DateTime.Now.Date.AddDays(1);
+
+        return (dateSearchStart, dateSearchEnd);
+    }
+
+    public static (DateTime start, DateTime end) SearchRecordedDatesForPhotoContentDateRangeUtc(LineContent content)
+    {
+        var dateSearchStart = content.RecordingStartedOnUtc?.Date ??
+                              content.RecordingEndedOnUtc?.Date ?? DateTime.Now.Date;
+        var dateSearchEnd = content.RecordingEndedOnUtc?.Date.AddDays(1) ??
+                            content.RecordingStartedOnUtc?.Date.AddDays(1) ?? DateTime.Now.Date.AddDays(1);
 
         return (dateSearchStart, dateSearchEnd);
     }

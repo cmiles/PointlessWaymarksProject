@@ -71,6 +71,7 @@ public partial class PhotoContentEditorContext : IHasChanges, IHasValidationIssu
     [ObservableProperty] private ContentSiteFeedAndIsDraftContext _mainSiteFeed;
     [ObservableProperty] private StringDataEntryContext _photoCreatedByEntry;
     [ObservableProperty] private ConversionDataEntryContext<DateTime> _photoCreatedOnEntry;
+    [ObservableProperty] private ConversionDataEntryContext<DateTime?> _photoCreatedOnUtcEntry;
     [ObservableProperty] private RelayCommand _pointFromPhotoLocationCommand;
     [ObservableProperty] private RelayCommand _renameSelectedFileCommand;
     [ObservableProperty] private bool _resizeSelectedFile;
@@ -268,6 +269,7 @@ Photo Content Notes:
         newEntry.OriginalFileName = SelectedFile.Name;
         newEntry.PhotoCreatedBy = PhotoCreatedByEntry.UserValue.TrimNullToEmpty();
         newEntry.PhotoCreatedOn = PhotoCreatedOnEntry.UserValue;
+        newEntry.PhotoCreatedOnUtc = PhotoCreatedOnUtcEntry.UserValue;
         newEntry.BodyContent = BodyContent.BodyContent.TrimNullToEmpty();
         newEntry.BodyContentFormat = BodyContent.BodyContentFormat.SelectedContentFormatAsString;
         newEntry.ShowPhotoSizes = ShowSizes.UserValue;
@@ -467,6 +469,13 @@ Photo Content Notes:
         PhotoCreatedOnEntry.ReferenceValue = DbEntry.PhotoCreatedOn;
         PhotoCreatedOnEntry.UserText = DbEntry.PhotoCreatedOn.ToString("MM/dd/yyyy h:mm:ss tt");
 
+        PhotoCreatedOnUtcEntry =
+            ConversionDataEntryContext<DateTime?>.CreateInstance(ConversionDataEntryHelpers.DateTimeNullableConversion);
+        PhotoCreatedOnUtcEntry.Title = "Photo Created On UTC Date/Time";
+        PhotoCreatedOnUtcEntry.HelpText = "UTC Date and Time the Photo was Created - the UTC Date Time is not displayed but is used to compare the Photo's Date Time to data like GPX Files/Lines.";
+        PhotoCreatedOnUtcEntry.ReferenceValue = DbEntry.PhotoCreatedOnUtc;
+        PhotoCreatedOnUtcEntry.UserText = DbEntry.PhotoCreatedOnUtc?.ToString("MM/dd/yyyy h:mm:ss tt");
+
         LatitudeEntry =
             ConversionDataEntryContext<double?>.CreateInstance(ConversionDataEntryHelpers.DoubleNullableConversion);
         LatitudeEntry.ValidationFunctions = new List<Func<double?, Task<IsValid>>>
@@ -541,6 +550,7 @@ Photo Content Notes:
         LicenseEntry.UserValue = metadata.License;
         PhotoCreatedByEntry.UserValue = metadata.PhotoCreatedBy;
         PhotoCreatedOnEntry.UserText = metadata.PhotoCreatedOn.ToString("MM/dd/yyyy h:mm:ss tt");
+        PhotoCreatedOnUtcEntry.UserText = metadata.PhotoCreatedOnUtc?.ToString("MM/dd/yyyy h:mm:ss tt") ?? string.Empty;
         ShutterSpeedEntry.UserValue = metadata.ShutterSpeed;
         TitleSummarySlugFolder.SummaryEntry.UserValue = metadata.Summary;
         TagEdit.Tags = metadata.Tags;

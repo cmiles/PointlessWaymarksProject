@@ -253,8 +253,8 @@ public partial class LineContentEditorContext : IHasChanges, IHasValidationIssue
             TitleSummarySlugFolder.TitleEntry.UserValue = trackToImport.Name;
         if (string.IsNullOrWhiteSpace(TitleSummarySlugFolder.SummaryEntry.UserValue))
             TitleSummarySlugFolder.SummaryEntry.UserValue = trackToImport.Description;
-        if (string.IsNullOrWhiteSpace(TitleSummarySlugFolder.FolderEntry.UserValue) && trackToImport.StartsOn != null)
-            TitleSummarySlugFolder.FolderEntry.UserValue = trackToImport.StartsOn.Value.Year.ToString();
+        if (string.IsNullOrWhiteSpace(TitleSummarySlugFolder.FolderEntry.UserValue) && trackToImport.StartsOnLocal != null)
+            TitleSummarySlugFolder.FolderEntry.UserValue = trackToImport.StartsOnLocal.Value.Year.ToString();
 
         LineGeoJson = await LineTools.GeoJsonWithLineStringFromCoordinateList(trackToImport.Track,
             replaceElevations, StatusContext.ProgressTracker());
@@ -264,8 +264,8 @@ public partial class LineContentEditorContext : IHasChanges, IHasValidationIssue
             await UpdateStatistics();
 
             RecordingStartedOnEntry.UserText =
-                trackToImport.StartsOn?.ToString("MM/dd/yyyy h:mm:ss tt") ?? string.Empty;
-            RecordingEndedOnEntry.UserText = trackToImport.EndsOn?.ToString("MM/dd/yyyy h:mm:ss tt") ?? string.Empty;
+                trackToImport.StartsOnLocal?.ToString("MM/dd/yyyy h:mm:ss tt") ?? string.Empty;
+            RecordingEndedOnEntry.UserText = trackToImport.EndsOnLocal?.ToString("MM/dd/yyyy h:mm:ss tt") ?? string.Empty;
         }
     }
 

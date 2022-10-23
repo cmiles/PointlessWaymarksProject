@@ -1,5 +1,6 @@
 ﻿using System.Globalization;
 using System.Text.RegularExpressions;
+using GeoTimeZone;
 using MetadataExtractor;
 using MetadataExtractor.Formats.Exif;
 using MetadataExtractor.Formats.Iptc;
@@ -75,12 +76,21 @@ public static class PhotoGenerator
         if (string.IsNullOrWhiteSpace(createdOn))
             createdOn = exifDirectory?.GetDescription(ExifDirectoryBase.TagDateTime);
 
+        var createdOnUtcOffsetString = exifSubIfDirectory?.GetDescription(ExifDirectoryBase.TagTimeZone);
+        var createOnUtcOffsetTimespan = new TimeSpan(0);
+        var createOnUtcOffsetIsValid = !string.IsNullOrWhiteSpace(createdOnUtcOffsetString) &&
+                                       TimeSpan.TryParse(createdOnUtcOffsetString, out createOnUtcOffsetTimespan);
+
         //If no string is returned from the EXIF then try for GPX information and fallback to now
         if (string.IsNullOrWhiteSpace(createdOn))
         {
             if (gpsDirectory?.TryGetGpsDate(out var gpsDateTime) ?? false)
             {
-                if (gpsDateTime != DateTime.MinValue) toReturn.PhotoCreatedOn = gpsDateTime.ToLocalTime();
+                if (gpsDateTime != DateTime.MinValue)
+                {
+                    toReturn.PhotoCreatedOn = gpsDateTime.ToLocalTime();
+                    toReturn.PhotoCreatedOnUtc = gpsDateTime;
+                }
             }
             else
             {
@@ -94,6 +104,9 @@ public static class PhotoGenerator
                 CultureInfo.InvariantCulture, DateTimeStyles.None, out var parsedDate);
 
             toReturn.PhotoCreatedOn = createdOnParsed ? parsedDate : DateTime.Now;
+
+            if (createdOnParsed && createOnUtcOffsetIsValid)
+                toReturn.PhotoCreatedOnUtc = toReturn.PhotoCreatedOn.Add(createOnUtcOffsetTimespan);
         }
 
         if (gpsDirectory != null)
@@ -149,6 +162,16 @@ public static class PhotoGenerator
                         }
                 }
             }
+        }
+
+        //If there is a UTC Time and a Lat/Long position try to move the local time to the position local time
+        if (toReturn.Latitude != null && toReturn.Longitude != null && toReturn.PhotoCreatedOnUtc != null)
+        {
+            var photoLocationTimezoneIanaIdentifier =
+                TimeZoneLookup.GetTimeZone(toReturn.Latitude.Value, toReturn.Longitude.Value);
+            var photoLocationTimeZone = TimeZoneInfo.FindSystemTimeZoneById(photoLocationTimezoneIanaIdentifier.Result);
+            var photoLocationUtcOffset = photoLocationTimeZone.GetUtcOffset(toReturn.PhotoCreatedOnUtc.Value);
+            toReturn.PhotoCreatedOn = toReturn.PhotoCreatedOnUtc.Value.Add(photoLocationUtcOffset);
         }
 
         var tags = new List<string>();

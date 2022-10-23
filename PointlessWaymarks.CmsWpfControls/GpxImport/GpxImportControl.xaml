@@ -146,8 +146,8 @@
                                 <TextBlock Style="{StaticResource ImportWrapTextBlockItem}" Text="{Binding Statistics.MaximumElevation, StringFormat='{}{0:F2} Max Elevation (m)'}" />
                             </WrapPanel>
                             <WrapPanel Orientation="Horizontal" Style="{StaticResource ImportWrapContainer}">
-                                <TextBlock Style="{StaticResource ImportWrapTextBlockItem}" Text="{Binding TrackInformation.StartsOn, StringFormat='Starts: {0}'}" />
-                                <TextBlock Style="{StaticResource ImportWrapTextBlockItem}" Text="{Binding TrackInformation.EndsOn, StringFormat='Ends: {0}'}" />
+                                <TextBlock Style="{StaticResource ImportWrapTextBlockItem}" Text="{Binding TrackInformation.StartsOnLocal, StringFormat='Starts: {0}'}" />
+                                <TextBlock Style="{StaticResource ImportWrapTextBlockItem}" Text="{Binding TrackInformation.EndsOnLocal, StringFormat='Ends: {0}'}" />
                             </WrapPanel>
                             <WrapPanel Style="{StaticResource ImportImportChoiceContainer}">
                                 <CheckBox IsChecked="{Binding MarkedForImport}" Style="{StaticResource ImportImportChoiceItem}">

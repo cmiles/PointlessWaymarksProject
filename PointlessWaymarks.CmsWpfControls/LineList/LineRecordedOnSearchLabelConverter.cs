@@ -14,7 +14,9 @@ public class LineRecordedOnSearchLabelConverter : IValueConverter
 
         var recordedOn = LineContentActions.SearchRecordedDatesForPhotoContentDateRange(content);
 
-        return $"Photos {recordedOn.start:M/d/yyyy hh:mm:ss tt} to {recordedOn.end:M/d/yyyy hh:mm:ss tt}";
+        if(recordedOn.start.Date == recordedOn.end.AddDays(-1).Date) return $"Photos from {recordedOn.start:M/d/yyyy}";
+
+        return $"Photos {recordedOn.start:M/d/yyyy} to {recordedOn.end:M/d/yyyy}";
     }
 
     public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

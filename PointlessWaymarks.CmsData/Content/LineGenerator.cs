@@ -1,4 +1,5 @@
 ﻿using DocumentFormat.OpenXml.Vml;
+using GeoTimeZone;
 using NetTopologySuite.Features;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.IO;
@@ -67,8 +68,8 @@ public static class LineGenerator
             CreatedBy = UserSettingsSingleton.CurrentSettings().DefaultCreatedBy,
             BodyContentFormat = UserSettingsUtilities.DefaultContentFormatChoice(),
             UpdateNotesFormat = UserSettingsUtilities.DefaultContentFormatChoice(),
-            CreatedOn = trackInformation.StartsOn ?? DateTime.Now,
-            FeedOn = trackInformation.StartsOn ?? DateTime.Now,
+            CreatedOn = trackInformation.StartsOnLocal ?? DateTime.Now,
+            FeedOn = trackInformation.StartsOnLocal ?? DateTime.Now,
             Line = await LineTools.GeoJsonWithLineStringFromCoordinateList(trackInformation.Track,
                 replaceElevations, progress),
             Title = trackInformation.Name,
@@ -79,14 +80,16 @@ public static class LineGenerator
             MinimumElevation = lineStatistics.MinimumElevation,
             ClimbElevation = lineStatistics.ElevationClimb,
             DescentElevation = lineStatistics.ElevationDescent,
-            RecordingStartedOn = trackInformation.StartsOn,
-            RecordingEndedOn = trackInformation.EndsOn,
+            RecordingStartedOn = trackInformation.StartsOnLocal,
+            RecordingStartedOnUtc = trackInformation.StartsOnUtc,
+            RecordingEndedOn = trackInformation.EndsOnLocal,
+            RecordingEndedOnUtc = trackInformation.EndsOnUtc,
             Tags = Db.TagListJoin(tagList)
         };
 
         if (!string.IsNullOrWhiteSpace(trackInformation.Name))
             newEntry.Slug = SlugUtility.Create(true, trackInformation.Name);
-        if (trackInformation.StartsOn != null) newEntry.Folder = trackInformation.StartsOn.Value.Year.ToString();
+        if (trackInformation.StartsOnLocal != null) newEntry.Folder = trackInformation.StartsOnLocal.Value.Year.ToString();
 
         return newEntry;
     }
@@ -150,6 +153,34 @@ public static class LineGenerator
         var possibleDescription = lineFeature.Attributes.GetOptionalValue("description");
         if (possibleDescription == null) lineFeature.Attributes.Add("description", LineParts.LineStatsString(toSave));
         else lineFeature.Attributes["description"] = LineParts.LineStatsString(toSave);
+
+        if(toSave.RecordingStartedOn.HasValue)
+        {
+            var asLineString = lineFeature.Geometry as LineString;
+            var startTimezoneIanaIdentifier =
+                TimeZoneLookup.GetTimeZone(asLineString.StartPoint.Y, asLineString.StartPoint.X);
+            var startTimeZone = TimeZoneInfo.FindSystemTimeZoneById(startTimezoneIanaIdentifier.Result);
+            var startUtcOffset = startTimeZone.GetUtcOffset(toSave.RecordingStartedOn.Value);
+            toSave.RecordingStartedOnUtc = toSave.RecordingStartedOn.Value.Subtract(startUtcOffset);
+        }
+        else
+        {
+            toSave.RecordingStartedOnUtc = null;
+        }
+
+        if (toSave.RecordingEndedOn.HasValue)
+        {
+            var asLineString = lineFeature.Geometry as LineString;
+            var endTimezoneIanaIdentifier =
+                TimeZoneLookup.GetTimeZone(asLineString.EndPoint.Y, asLineString.EndPoint.X);
+            var endTimeZone = TimeZoneInfo.FindSystemTimeZoneById(endTimezoneIanaIdentifier.Result);
+            var endUtcOffset = endTimeZone.GetUtcOffset(toSave.RecordingEndedOn.Value);
+            toSave.RecordingEndedOnUtc = toSave.RecordingEndedOn.Value.Subtract(endUtcOffset);
+        }
+        else
+        {
+            toSave.RecordingEndedOnUtc = null;
+        }
 
         toSave.Line = await GeoJsonTools.SerializeFeatureToGeoJson(lineFeature);
         

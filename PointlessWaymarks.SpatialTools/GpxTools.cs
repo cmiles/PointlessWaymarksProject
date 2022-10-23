@@ -1,4 +1,5 @@
 ﻿using System.Globalization;
+using GeoTimeZone;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.IO;
 
@@ -79,13 +80,34 @@ public static class GpxTools
             pointList.AddRange(loopSegments.Waypoints.Select(x =>
                 new CoordinateZ(x.Longitude.Value, x.Latitude.Value, x.ElevationInMeters ?? 0)));
 
-        var startDateTime = toConvert.Segments.FirstOrDefault()?.Waypoints.FirstOrDefault()?.TimestampUtc
-            ?.ToLocalTime();
-        var endDateTime = toConvert.Segments.LastOrDefault()?.Waypoints.LastOrDefault()?.TimestampUtc
-            ?.ToLocalTime();
+        var firstPoint = toConvert.Segments.FirstOrDefault()?.Waypoints.FirstOrDefault();
+        var lastPoint = toConvert.Segments.LastOrDefault()?.Waypoints.LastOrDefault();
+
+        DateTime? startDateTimeLocal = null;
+        DateTime? endDateTimeLocal = null;
+        DateTime? startDateTimeUtc = null;
+        DateTime? endDateTimeUtc = null;
+
+        if (firstPoint?.TimestampUtc != null && lastPoint?.TimestampUtc != null)
+        {
+            startDateTimeUtc = firstPoint.TimestampUtc;
+            endDateTimeUtc = lastPoint.TimestampUtc;
+
+            var startTimezoneIanaIdentifier
+                = TimeZoneLookup.GetTimeZone(firstPoint.Latitude, firstPoint.Longitude);
+            var startTimeZone = TimeZoneInfo.FindSystemTimeZoneById(startTimezoneIanaIdentifier.Result);
+            var startUtcOffset = startTimeZone.GetUtcOffset(firstPoint.TimestampUtc.Value);
+            startDateTimeLocal = startDateTimeUtc.Value.Add(startUtcOffset);
+
+            var endTimezoneIanaIdentifier
+                = TimeZoneLookup.GetTimeZone(lastPoint.Latitude, lastPoint.Longitude);
+            var endTimeZone = TimeZoneInfo.FindSystemTimeZoneById(endTimezoneIanaIdentifier.Result);
+            var endUtcOffset = endTimeZone.GetUtcOffset(lastPoint.TimestampUtc.Value);
+            endDateTimeLocal = endDateTimeUtc.Value.Add(endUtcOffset);
+        }
 
         var nameAndLabelAndTypeList =
-            new List<string> { name, label, type, startDateTime?.ToString("M/d/yyyy") ?? string.Empty }
+            new List<string> { name, label, type, startDateTimeLocal?.ToString("M/d/yyyy") ?? string.Empty }
                 .Where(x => !string.IsNullOrWhiteSpace(x)).ToList();
         var nameAndLabelAndType = string.Join(" - ", nameAndLabelAndTypeList);
 
@@ -93,8 +115,7 @@ public static class GpxTools
             .Where(x => !string.IsNullOrWhiteSpace(x)).ToList();
         var descriptionAndComment = string.Join(". ", descriptionAndCommentList);
 
-        return new GpxTrackInformation(nameAndLabelAndType, descriptionAndComment, startDateTime,
-            endDateTime, pointList);
+        return new GpxTrackInformation(nameAndLabelAndType, descriptionAndComment, startDateTimeLocal, endDateTimeLocal, startDateTimeUtc, endDateTimeUtc, pointList);
     }
 
     public static async Task<List<GpxTrackInformation>> TracksFromGpxFile(
@@ -135,6 +156,5 @@ public static class GpxTools
 
     public record GpxRouteInformation(string Name, string Description, List<CoordinateZ> Track);
 
-    public record GpxTrackInformation(string Name, string Description, DateTime? StartsOn, DateTime? EndsOn,
-        List<CoordinateZ> Track);
+    public record GpxTrackInformation(string Name, string Description, DateTime? StartsOnLocal, DateTime? EndsOnLocal, DateTime? StartsOnUtc, DateTime? EndsOnUtc, List<CoordinateZ> Track);
 }

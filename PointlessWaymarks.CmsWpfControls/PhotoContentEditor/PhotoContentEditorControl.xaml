@@ -169,6 +169,7 @@
                             <stringDataEntry:StringDataEntryControl DataContext="{Binding AltTextEntry}" />
                             <stringDataEntry:StringDataEntryControl DataContext="{Binding PhotoCreatedByEntry}" />
                             <conversionDataEntry:ConversionDataEntryControl DataContext="{Binding PhotoCreatedOnEntry}" />
+                            <conversionDataEntry:ConversionDataEntryControl DataContext="{Binding PhotoCreatedOnUtcEntry}" />
                             <stringDataEntry:StringDataEntryControl DataContext="{Binding LicenseEntry}" />
                             <stringDataEntry:StringDataEntryControl DataContext="{Binding CameraMakeEntry}" />
                             <stringDataEntry:StringDataEntryControl DataContext="{Binding CameraModelEntry}" />

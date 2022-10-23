@@ -14,6 +14,7 @@ public class PhotoMetadata
     public double? Longitude { get; set; }
     public string? PhotoCreatedBy { get; set; }
     public DateTime PhotoCreatedOn { get; set; }
+    public DateTime? PhotoCreatedOnUtc { get; set; }
     public string? ShutterSpeed { get; set; }
     public string? Summary { get; set; }
     public string? Tags { get; set; }

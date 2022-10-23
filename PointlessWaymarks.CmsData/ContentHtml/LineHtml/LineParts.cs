@@ -72,10 +72,10 @@ public static class LineParts
     /// <returns></returns>
     public static (int? totalMinutes, string? presentationString) LineDurationInHoursAndMinutes(LineContent dbEntry)
     {
-        if (dbEntry.RecordingStartedOn.HasValue && dbEntry.RecordingEndedOn.HasValue)
+        if (dbEntry.RecordingStartedOnUtc.HasValue && dbEntry.RecordingEndedOnUtc.HasValue)
         {
             var minuteDuration =
-                (int)dbEntry.RecordingEndedOn.Value.Subtract(dbEntry.RecordingStartedOn.Value).TotalMinutes;
+                (int)dbEntry.RecordingEndedOnUtc.Value.Subtract(dbEntry.RecordingStartedOnUtc.Value).TotalMinutes;
 
             if (minuteDuration > 1)
             {

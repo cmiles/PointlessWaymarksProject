@@ -21,7 +21,9 @@ public class LineContent : IUpdateNotes, IContentCommon
     public double MaximumElevation { get; set; }
     public double MinimumElevation { get; set; }
     public DateTime? RecordingEndedOn { get; set; }
+    public DateTime? RecordingEndedOnUtc { get; set; }
     public DateTime? RecordingStartedOn { get; set; }
+    public DateTime? RecordingStartedOnUtc { get; set; }
     public string? BodyContent { get; set; }
     public string? BodyContentFormat { get; set; }
     public Guid ContentId { get; set; }

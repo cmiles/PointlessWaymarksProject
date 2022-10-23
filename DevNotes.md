@@ -24,6 +24,16 @@ Site:
 
 ## Notes
 
+10/23/2022
+
+The last month has included some nice work on importing GPX files from Garmin Connect and a private site to store that data - ultimately this work inspired:
+ - The Feature Intersection Tagger - this has become incredibly interesting to me very quickly - the idea that your can tag from local GeoJson features when combined with available data downloads and the ease of creating your own files is awesome. I think some further work here will probably happen in terms of additional data and perhaps additional processing (for point I think).
+ - Better Line support - still needs work but the Line presentation has improved from this for sure!
+ - Future Photo Pickup support - I had trouble finding anyway to get uploaded images from the Garmin Connect API - and had a few images not upload (maybe I needed to wait for them to finish and didn't?) from the Garmin Connect app - while quite frustrating ultimately it did make me thing a generic photo pickup would be a better overall plan
+ - Future GeoTagging work
+
+ But it also showed me a weakness in my data storage and metadata processing for Photos and Lines. The photo support in this program has I think been quite solid driven in part by years of experience and a decent vision for how I wanted things to work. From my perspective I had never been interested in a Photos UTC time - this rather data is kind of slippery on many cameras with it being based on settings on the camera (phones help the situation however seem to offer very weak controls to help you include/exclude the information based on what the picture is for and privacy concerns). Now, with GeoTagging and Line support in mind UTC support for photos is crucial - easy enough but the details around this area terrible - do you record local and UTC times, do you allow editing of one or both, do you present local time and timezone, what do you do when you have a lat/long stored in the photo metadata do you show a local time based on that or on the user's camera time, and what to do with photos where metadata doesn't allow discovering a UTC time (and can you detect possible bad times?)... I haven't seen anything that really solves all that even if solving that is possible. I decided in photos to do the best possible on import and then present UTC time and local times as fields. In lines I decided to give local (display) values for editing and then write UTC times based on the line start and end. Idk - this moves into territory where I have less strong experiences so it will be interesting to see how this works out...
+
 9/18/2022
 
 My wife and I are actively editing on a private site we have for our 1 year old house and I just made my first road trip since we purchased the house so there are more photos coming for PointlessWaymarks.com. One feature that we are both missing is reminders of past content. We both look at email close to daily so that makes sense as a mechanism to deliver the information. Only a start of a rough version is in the code and to a large extent I think this will need some usage to determine the details but some early notes after the first coding:

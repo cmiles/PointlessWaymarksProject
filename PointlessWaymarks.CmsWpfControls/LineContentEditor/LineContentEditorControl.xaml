@@ -63,8 +63,8 @@
                                 Command="{Binding ImportFromGpxCommand}"
                                 Content="Load File"
                                 Style="{StaticResource ActionPanelButtonStyle}" />
-                            <CheckBox VerticalAlignment="Center" IsChecked="{Binding ReplaceElevationOnImport}">Replace Elevation when Importing</CheckBox>
-                            <CheckBox VerticalAlignment="Center" IsChecked="{Binding UpdateStatsOnImport}">Update Stats when Importing</CheckBox>
+                            <CheckBox Margin="4,0,0,0" VerticalAlignment="Center" IsChecked="{Binding ReplaceElevationOnImport}">Replace Elevation when Importing</CheckBox>
+                            <CheckBox Margin="6,0,2,0" VerticalAlignment="Center" IsChecked="{Binding UpdateStatsOnImport}">Update Stats when Importing</CheckBox>
                             <Button
                                 Command="{Binding ReplaceElevationsCommand}"
                                 Content="Replace Elevations"
@@ -79,11 +79,11 @@
                                 Style="{StaticResource ActionPanelButtonStyle}" />
                             <Button
                                 Command="{Binding LineGeoJsonToClipboardCommand}"
-                                Content="Line GeoJson to Clipboard"
+                                Content="GeoJson to Clipboard"
                                 Style="{StaticResource ActionPanelButtonStyle}" />
                             <Button
                                 Command="{Binding ImportGeoJsonFromClipboardCommand}"
-                                Content="Line GeoJson From Clipboard"
+                                Content="GeoJson From Clipboard"
                                 Style="{StaticResource ActionPanelButtonStyle}" />
                         </WrapPanel>
                     </Border>
