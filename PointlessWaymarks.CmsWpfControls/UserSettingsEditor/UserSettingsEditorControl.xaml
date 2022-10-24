@@ -206,6 +206,22 @@
                         </wpf:MarkdownViewer>
                     </StackPanel>
                     <StackPanel Orientation="Vertical">
+                        <Label Style="{StaticResource DataEntryLabelStyle}" Target="{Binding ElementName=DefaultPhotoShowPositionCheckBox}">
+                            Photo 'Show Position' Default Value
+                        </Label>
+                        <CheckBox
+                            Name="DefaultPhotoShowPositionCheckBox"
+                            Margin="6,0,0,0"
+                            IsChecked="{Binding EditorSettings.PhotoPagesShowPositionByDefault, UpdateSourceTrigger=PropertyChanged}">
+                            Show Position
+                        </CheckBox>
+                        <wpf:MarkdownViewer Markdown="{Binding HelpMarkdownShowPhotoPositionByDefault}">
+                            <b:Interaction.Behaviors>
+                                <behaviors:IgnoreMouseWheelBehavior />
+                            </b:Interaction.Behaviors>
+                        </wpf:MarkdownViewer>
+                    </StackPanel>
+                    <StackPanel Orientation="Vertical">
                         <Label Style="{StaticResource DataEntryLabelStyle}" Target="{Binding ElementName=DefaultPhotoShowSizesCheckBox}">
                             Photo 'Show Sizes' Default Value
                         </Label>

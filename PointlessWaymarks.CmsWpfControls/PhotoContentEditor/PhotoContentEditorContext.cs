@@ -86,6 +86,7 @@ public partial class PhotoContentEditorContext : IHasChanges, IHasValidationIssu
     [ObservableProperty] private bool _selectedFileHasValidationIssues;
     [ObservableProperty] private bool _selectedFileNameHasInvalidCharacters;
     [ObservableProperty] private string _selectedFileValidationMessage;
+    [ObservableProperty] private BoolDataEntryContext _showPosition;
     [ObservableProperty] private BoolDataEntryContext _showSizes;
     [ObservableProperty] private StringDataEntryContext _shutterSpeedEntry;
     [ObservableProperty] private StatusControlContext _statusContext;
@@ -354,7 +355,8 @@ Photo Content Notes:
             UpdateNotesFormat = UserSettingsUtilities.DefaultContentFormatChoice(),
             CreatedOn = created,
             FeedOn = created,
-            ShowPhotoSizes = UserSettingsSingleton.CurrentSettings().PhotoPagesHaveLinksToPhotoSizesByDefault
+            ShowPhotoSizes = UserSettingsSingleton.CurrentSettings().PhotoPagesHaveLinksToPhotoSizesByDefault,
+            ShowPhotoPosition = UserSettingsSingleton.CurrentSettings().PhotoPagesShowPositionByDefault
         };
 
         TitleSummarySlugFolder = await TitleSummarySlugEditorContext.CreateInstance(StatusContext, "To File Name",
@@ -369,9 +371,15 @@ Photo Content Notes:
         TagEdit = TagsEditorContext.CreateInstance(StatusContext, DbEntry);
         BodyContent = await BodyContentEditorContext.CreateInstance(StatusContext, DbEntry);
 
+        ShowPosition = BoolDataEntryContext.CreateInstance();
+        ShowPosition.Title = "Show Photo Position";
+        ShowPosition.HelpText = "If enabled the page users be shown a list of all available sizes";
+        ShowPosition.ReferenceValue = DbEntry.ShowPhotoPosition;
+        ShowPosition.UserValue = DbEntry.ShowPhotoPosition;
+
         ShowSizes = BoolDataEntryContext.CreateInstance();
         ShowSizes.Title = "Show Photo Sizes";
-        ShowSizes.HelpText = "If enabled the page users be shown a list of all available sizes";
+        ShowSizes.HelpText = "If enabled the page users are shown will have a list of all available sizes";
         ShowSizes.ReferenceValue = DbEntry.ShowPhotoSizes;
         ShowSizes.UserValue = DbEntry.ShowPhotoSizes;
 

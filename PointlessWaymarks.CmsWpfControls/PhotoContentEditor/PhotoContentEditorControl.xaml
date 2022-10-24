@@ -183,7 +183,8 @@
                                     HorizontalAlignment="Left"
                                     DataContext="{Binding IsoEntry}" />
                             </WrapPanel>
-                            <WrapPanel Margin="0,8,0,0" Orientation="Horizontal">
+                            <boolDataEntry:BoolDataEntryControl Margin="4,18,0,0" DataContext="{Binding ShowPosition}" />
+                            <WrapPanel Margin="0,6,0,0" Orientation="Horizontal">
                                 <conversionDataEntry:ConversionDataEntryControl Width="120" DataContext="{Binding LatitudeEntry}" />
                                 <conversionDataEntry:ConversionDataEntryControl Width="120" DataContext="{Binding LongitudeEntry}" />
                                 <StackPanel HorizontalAlignment="Left" Orientation="Horizontal">

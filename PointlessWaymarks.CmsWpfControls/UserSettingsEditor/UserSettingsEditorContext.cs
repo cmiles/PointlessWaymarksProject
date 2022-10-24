@@ -64,6 +64,9 @@ public partial class UserSettingsEditorContext
     public static string HelpMarkdownShowPhotoSizesByDefault =>
         "Used as the default value for a Photo's 'Show Sizes' setting - if this is checked by default photo pages will have links to every photo size available. ALL PHOTO FILES are 'public', but unless this is checked the user is never shown a direct link to any photo file.";
 
+    public static string HelpMarkdownShowPhotoPositionByDefault =>
+        "Used as the default value for a Photo's 'Show Position' setting - if this is checked by default photo pages will show and link the position of a photo if the photo's latitude and longitude have values. ALL PHOTO FILES are 'public' so a determined user can examine the source of a page, download the image and extract metadata present in the photo, but unless 'Show Position' is checked a photographs position will never be displayed.";
+
     public static string HelpMarkdownSiteAuthors =>
         "A value for the site creators/authors - for example " + "'Pointless Waymarks Team'.";
 

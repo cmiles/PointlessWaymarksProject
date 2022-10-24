@@ -21,6 +21,7 @@ public class PhotoContent : IUpdateNotes, IContentCommon
     public string? PhotoCreatedBy { get; set; }
     public DateTime PhotoCreatedOn { get; set; }
     public DateTime? PhotoCreatedOnUtc { get; set; }
+    public bool ShowPhotoPosition { get; set; }
     public bool ShowPhotoSizes { get; set; }
     public string? ShutterSpeed { get; set; }
     public string? BodyContent { get; set; }

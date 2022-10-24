@@ -15,6 +15,8 @@ public partial class UserSettings
     [ObservableProperty] private string _databaseFile = string.Empty;
 
     [ObservableProperty] private string _defaultCreatedBy = string.Empty;
+    [ObservableProperty] private string _featureIntersectionTagSettingsFile = string.Empty;
+    [ObservableProperty] private bool _imagePagesHaveLinksToImageSizesByDefault;
     [ObservableProperty] private double _latitudeDefault;
 
     /// <summary>
@@ -31,14 +33,14 @@ public partial class UserSettings
     [ObservableProperty] private string _localSiteRootDirectory = string.Empty;
 
     [ObservableProperty] private double _longitudeDefault;
-
-    [ObservableProperty] private bool _photoPagesHaveLinksToPhotoSizesByDefault;
-    [ObservableProperty] private bool _imagePagesHaveLinksToImageSizesByDefault;
     [ObservableProperty] private int _numberOfItemsOnMainSitePage;
+    [ObservableProperty] private bool _photoPagesHaveLinksToPhotoSizesByDefault;
+    [ObservableProperty] private bool _photoPagesShowPositionByDefault;
     [ObservableProperty] private string _pinboardApiToken = string.Empty;
     [ObservableProperty] private Guid _settingsId;
     [ObservableProperty] private string _siteAuthors = string.Empty;
     [ObservableProperty] private string _siteDirectionAttribute = string.Empty;
+    [ObservableProperty] private string _siteDomainName = string.Empty;
     [ObservableProperty] private string _siteEmailTo = string.Empty;
     [ObservableProperty] private string _siteKeywords = string.Empty;
     [ObservableProperty] private string _siteLangAttribute = string.Empty;
@@ -46,6 +48,4 @@ public partial class UserSettings
     [ObservableProperty] private string _siteS3Bucket = string.Empty;
     [ObservableProperty] private string _siteS3BucketRegion = string.Empty;
     [ObservableProperty] private string _siteSummary = string.Empty;
-    [ObservableProperty] private string _siteDomainName = string.Empty;
-    [ObservableProperty] private string _featureIntersectionTagSettingsFile = string.Empty;
 }
