@@ -188,7 +188,7 @@ public class TestSeries02GrandCanyonPoints
         var track = (await GpxTools.TracksFromGpxFile(testFile, DebugTrackers.DebugProgressTracker()))
             .First();
 
-        var lineTest = await LineGenerator.NewFromGpxTrack(track, false, null);
+        var lineTest = await LineGenerator.NewFromGpxTrack(track, false, true, null);
 
         var stats = DistanceTools.LineStatsInMetricFromCoordinateList(track.Track);
 

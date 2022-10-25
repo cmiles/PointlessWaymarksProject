@@ -8,6 +8,15 @@ namespace PointlessWaymarks.FeatureIntersectionTags;
 
 public class Intersection
 {
+    /// <summary>
+    /// Checks the submitted List of IFeatures for tags based on the submitted settings file - if the settings
+    /// file is blank of invalid an empty list is returned.
+    /// </summary>
+    /// <param name="intersectSettingsFile"></param>
+    /// <param name="toCheck"></param>
+    /// <param name="cancellationToken"></param>
+    /// <param name="progress"></param>
+    /// <returns></returns>
     public List<IntersectResults> Tags(string intersectSettingsFile,
         List<IFeature> toCheck, CancellationToken cancellationToken, IProgress<string>? progress = null)
     {

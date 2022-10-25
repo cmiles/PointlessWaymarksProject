@@ -222,22 +222,6 @@
                         </wpf:MarkdownViewer>
                     </StackPanel>
                     <StackPanel Orientation="Vertical">
-                        <Label Style="{StaticResource DataEntryLabelStyle}" Target="{Binding ElementName=DefaultPhotoShowSizesCheckBox}">
-                            Photo 'Show Sizes' Default Value
-                        </Label>
-                        <CheckBox
-                            Name="DefaultPhotoShowSizesCheckBox"
-                            Margin="6,0,0,0"
-                            IsChecked="{Binding EditorSettings.PhotoPagesHaveLinksToPhotoSizesByDefault, UpdateSourceTrigger=PropertyChanged}">
-                            Show Sizes
-                        </CheckBox>
-                        <wpf:MarkdownViewer Markdown="{Binding HelpMarkdownShowPhotoSizesByDefault}">
-                            <b:Interaction.Behaviors>
-                                <behaviors:IgnoreMouseWheelBehavior />
-                            </b:Interaction.Behaviors>
-                        </wpf:MarkdownViewer>
-                    </StackPanel>
-                    <StackPanel Orientation="Vertical">
                         <Label Style="{StaticResource DataEntryLabelStyle}" Target="{Binding ElementName=DefaultImageShowSizesCheckBox}">
                             Images 'Show Sizes' Default Value
                         </Label>

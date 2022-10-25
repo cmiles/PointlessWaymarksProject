@@ -286,7 +286,7 @@ public class GpxTrackImport
             {
                 innerLoopCounter++;
 
-                var newEntry = await LineGenerator.NewFromGpxTrack(loopTracks, false, consoleProgress);
+                var newEntry = await LineGenerator.NewFromGpxTrack(loopTracks, false, false, consoleProgress);
 
                 var tagList = Db.TagListParse(newEntry.Tags);
                 tagList.Add("garmin connect import");

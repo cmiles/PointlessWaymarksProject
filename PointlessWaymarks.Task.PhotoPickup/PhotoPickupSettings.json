@@ -1,3 +1,6 @@
 {
-
+  "photoPickupDirectory": "C:\\TestDirectory",
+  "photoPickupArchiveDirectory": "C:\\TestDirectory\\PickUpArchive",
+  "pointlessWaymarksSiteSettingsFileFullName": "C:\\Site\\SiteSettings.json",
+  "showInMainSiteFeed": false
 }

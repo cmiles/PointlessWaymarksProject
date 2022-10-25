@@ -33,7 +33,7 @@ public static class PhotoGenerator
     }
 
     public static async Task<(GenerationReturn generationReturn, PhotoMetadata? metadata)> PhotoMetadataFromFile(
-        FileInfo selectedFile, IProgress<string>? progress = null)
+        FileInfo selectedFile, bool skipAdditionalTagDiscovery = false, IProgress<string>? progress = null)
     {
         progress?.Report("Starting Metadata Processing");
 
@@ -88,6 +88,7 @@ public static class PhotoGenerator
             {
                 if (gpsDateTime != DateTime.MinValue)
                 {
+                    gpsDateTime = DateTime.SpecifyKind(gpsDateTime, DateTimeKind.Utc);
                     toReturn.PhotoCreatedOn = gpsDateTime.ToLocalTime();
                     toReturn.PhotoCreatedOnUtc = gpsDateTime;
                 }
@@ -106,7 +107,11 @@ public static class PhotoGenerator
             toReturn.PhotoCreatedOn = createdOnParsed ? parsedDate : DateTime.Now;
 
             if (createdOnParsed && createOnUtcOffsetIsValid)
-                toReturn.PhotoCreatedOnUtc = toReturn.PhotoCreatedOn.Add(createOnUtcOffsetTimespan);
+            {
+                var utcDateTime = toReturn.PhotoCreatedOn.Subtract(createOnUtcOffsetTimespan);
+                utcDateTime = DateTime.SpecifyKind(utcDateTime, DateTimeKind.Utc);
+                toReturn.PhotoCreatedOnUtc = utcDateTime;
+            }
         }
 
         if (gpsDirectory != null)
@@ -170,14 +175,22 @@ public static class PhotoGenerator
             var photoLocationTimezoneIanaIdentifier =
                 TimeZoneLookup.GetTimeZone(toReturn.Latitude.Value, toReturn.Longitude.Value);
             var photoLocationTimeZone = TimeZoneInfo.FindSystemTimeZoneById(photoLocationTimezoneIanaIdentifier.Result);
-            var photoLocationUtcOffset = photoLocationTimeZone.GetUtcOffset(toReturn.PhotoCreatedOnUtc.Value);
-            toReturn.PhotoCreatedOn = toReturn.PhotoCreatedOnUtc.Value.Add(photoLocationUtcOffset);
+            toReturn.PhotoCreatedOn = TimeZoneInfo.ConvertTime(toReturn.PhotoCreatedOnUtc.Value, photoLocationTimeZone);
         }
 
         var tags = new List<string>();
 
+        if (toReturn.Latitude != null && toReturn.Longitude != null && !skipAdditionalTagDiscovery)
+        {
+            var stateCounty =
+                await StateCountyService.GetStateCounty(toReturn.Latitude.Value,
+                    toReturn.Longitude.Value);
+            if(!string.IsNullOrWhiteSpace(stateCounty.state)) tags.Add(stateCounty.state);
+            if(!string.IsNullOrWhiteSpace(stateCounty.county)) tags.Add(stateCounty.county);
+        }
+
         if (toReturn.Latitude != null && toReturn.Longitude != null &&
-            !string.IsNullOrWhiteSpace(UserSettingsSingleton.CurrentSettings().FeatureIntersectionTagSettingsFile))
+            !string.IsNullOrWhiteSpace(UserSettingsSingleton.CurrentSettings().FeatureIntersectionTagSettingsFile) && !skipAdditionalTagDiscovery)
             try
             {
                 var tagger = new Intersection();
@@ -427,7 +440,7 @@ public static class PhotoGenerator
 
         if (!selectedFile.Exists) return (GenerationReturn.Error("File Does Not Exist?"), null);
 
-        var (generationReturn, metadata) = await PhotoMetadataFromFile(selectedFile, progress);
+        var (generationReturn, metadata) = await PhotoMetadataFromFile(selectedFile, false, progress);
 
         if (generationReturn.HasError) return (generationReturn, null);
 

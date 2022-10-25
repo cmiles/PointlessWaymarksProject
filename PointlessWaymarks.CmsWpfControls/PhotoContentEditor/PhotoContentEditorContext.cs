@@ -152,7 +152,8 @@ Photo Content Notes:
             return;
         }
 
-        TagEdit.Tags = $"{TagEdit.Tags}{(string.IsNullOrWhiteSpace(TagEdit.Tags) ? "" : ",")}{string.Join(",", possibleTags.SelectMany(x => x.Tags).Select(x => x))}";
+        TagEdit.Tags =
+            $"{TagEdit.Tags}{(string.IsNullOrWhiteSpace(TagEdit.Tags) ? "" : ",")}{string.Join(",", possibleTags.SelectMany(x => x.Tags).Select(x => x))}";
     }
 
     public async Task ChooseFile(bool loadMetadata)
@@ -189,7 +190,7 @@ Photo Content Notes:
         if (!loadMetadata) return;
 
         var (generationReturn, metadata) =
-            await PhotoGenerator.PhotoMetadataFromFile(SelectedFile, StatusContext.ProgressTracker());
+            await PhotoGenerator.PhotoMetadataFromFile(SelectedFile, false, StatusContext.ProgressTracker());
 
         if (generationReturn.HasError)
         {
@@ -480,7 +481,8 @@ Photo Content Notes:
         PhotoCreatedOnUtcEntry =
             ConversionDataEntryContext<DateTime?>.CreateInstance(ConversionDataEntryHelpers.DateTimeNullableConversion);
         PhotoCreatedOnUtcEntry.Title = "Photo Created On UTC Date/Time";
-        PhotoCreatedOnUtcEntry.HelpText = "UTC Date and Time the Photo was Created - the UTC Date Time is not displayed but is used to compare the Photo's Date Time to data like GPX Files/Lines.";
+        PhotoCreatedOnUtcEntry.HelpText =
+            "UTC Date and Time the Photo was Created - the UTC Date Time is not displayed but is used to compare the Photo's Date Time to data like GPX Files/Lines.";
         PhotoCreatedOnUtcEntry.ReferenceValue = DbEntry.PhotoCreatedOnUtc;
         PhotoCreatedOnUtcEntry.UserText = DbEntry.PhotoCreatedOnUtc?.ToString("MM/dd/yyyy h:mm:ss tt");
 
@@ -526,7 +528,7 @@ Photo Content Notes:
             ResizeSelectedFile = true;
             _initialPhoto = null;
             var (generationReturn, metadataReturn) =
-                await PhotoGenerator.PhotoMetadataFromFile(SelectedFile, StatusContext.ProgressTracker());
+                await PhotoGenerator.PhotoMetadataFromFile(SelectedFile, false,StatusContext.ProgressTracker());
             if (!generationReturn.HasError) PhotoMetadataToCurrentContent(metadataReturn);
         }
 

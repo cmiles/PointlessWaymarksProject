@@ -398,7 +398,7 @@ Notes:
             if (SelectedFile.Extension == ".mp4")
             {
                 var (generationReturn, metadata) =
-                    await PhotoGenerator.PhotoMetadataFromFile(SelectedFile, StatusContext.ProgressTracker());
+                    await PhotoGenerator.PhotoMetadataFromFile(SelectedFile, false, StatusContext.ProgressTracker());
 
                 if (!generationReturn.HasError)
                 {

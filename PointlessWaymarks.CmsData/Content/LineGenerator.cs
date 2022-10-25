@@ -30,7 +30,7 @@ public static class LineGenerator
     }
 
     public static async Task<LineContent> NewFromGpxTrack(GpxTools.GpxTrackInformation trackInformation,
-        bool replaceElevations, IProgress<string> progress)
+        bool replaceElevations, bool skipFeatureIntersectTagging, IProgress<string> progress)
     {
         var lineStatistics = DistanceTools.LineStatsInImperialFromCoordinateList(trackInformation.Track);
 
@@ -45,7 +45,7 @@ public static class LineGenerator
         }
 
         if (trackInformation.Track.Any() &&
-            !string.IsNullOrWhiteSpace(UserSettingsSingleton.CurrentSettings().FeatureIntersectionTagSettingsFile))
+            !string.IsNullOrWhiteSpace(UserSettingsSingleton.CurrentSettings().FeatureIntersectionTagSettingsFile) &&!skipFeatureIntersectTagging)
             try
             {
                 var tagger = new Intersection();

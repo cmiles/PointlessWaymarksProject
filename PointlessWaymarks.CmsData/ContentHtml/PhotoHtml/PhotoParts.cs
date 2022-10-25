@@ -37,7 +37,7 @@ public static class PhotoParts
                 $"{dbEntry.Latitude.Value:F5}, {dbEntry.Longitude.Value:F5}", "photo-detail",
                 "lat-long-decimal-degrees",
                 $"{dbEntry.Latitude.Value:F5}, {dbEntry.Longitude.Value:F5}"));
-        if (dbEntry.Elevation != null)
+        if (dbEntry.Elevation != null && dbEntry.ShowPhotoPosition)
             outerContainer.Children.Add(Tags.InfoTextDivTag($"{dbEntry.Elevation.Value.MetersToFeet():N0}'",
                 "photo-detail", "elevation-in-feet", dbEntry.Elevation.Value.MetersToFeet().ToString("F2")));
 

@@ -399,7 +399,7 @@ public partial class GpxImportContext
         }
 
         var newLine =
-            await LineGenerator.NewFromGpxTrack(toImport.TrackInformation, false, StatusContext.ProgressTracker());
+            await LineGenerator.NewFromGpxTrack(toImport.TrackInformation, false, true, StatusContext.ProgressTracker());
 
         newLine.ContentId = Guid.NewGuid();
         newLine.Title = toImport.UserContentName;

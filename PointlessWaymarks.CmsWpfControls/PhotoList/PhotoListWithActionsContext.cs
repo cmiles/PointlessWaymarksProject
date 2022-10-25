@@ -649,7 +649,7 @@ public partial class PhotoListWithActionsContext
                 continue;
             }
 
-            var metadataReturn = await PhotoGenerator.PhotoMetadataFromFile(mediaFile);
+            var metadataReturn = await PhotoGenerator.PhotoMetadataFromFile(mediaFile, true, StatusContext.ProgressTracker());
 
             if (metadataReturn.generationReturn.HasError)
             {
@@ -660,6 +660,8 @@ public partial class PhotoListWithActionsContext
 
             var toModify = (PhotoContent)new PhotoContent().InjectFrom(loopSelected.DbEntry);
 
+            if (toModify.PhotoCreatedOnUtc == null && metadataReturn.metadata.PhotoCreatedOnUtc != null)
+                toModify.PhotoCreatedOnUtc = metadataReturn.metadata.PhotoCreatedOnUtc;
             if (string.IsNullOrWhiteSpace(toModify.PhotoCreatedBy) &&
                 !string.IsNullOrWhiteSpace(metadataReturn.metadata.PhotoCreatedBy))
                 toModify.PhotoCreatedBy = metadataReturn.metadata.PhotoCreatedBy;
