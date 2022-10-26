@@ -6,6 +6,7 @@ using Garmin.Connect.Models;
 using NetTopologySuite.Features;
 using NetTopologySuite.IO;
 using PointlessWaymarks.CmsData;
+using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.Content;
 using PointlessWaymarks.CmsData.ContentHtml;
 using PointlessWaymarks.CmsData.Database;
@@ -322,6 +323,21 @@ public class GpxTrackImport
                             tagListForIntersection.AddRange(taggerResult.First().Tags);
                             newEntry.Tags = Db.TagListJoin(tagListForIntersection);
                         }
+                    }
+                }
+
+                if (newEntry.RecordingStartedOnUtc.HasValue && newEntry.RecordingEndedOnUtc.HasValue)
+                {
+                    var db = await Db.Context();
+                    var relatedPhotos = db.PhotoContents.Where(x => x.PhotoCreatedOnUtc != null && x.PhotoCreatedOnUtc >= newEntry.RecordingStartedOnUtc && x.PhotoCreatedOnUtc <= newEntry.RecordingEndedOnUtc).ToList();
+
+                    if (relatedPhotos.Any())
+                    {
+                        var photoBodyAddition = string.Join(Environment.NewLine,
+                            relatedPhotos.Select(x => $"{Environment.NewLine}{BracketCodePhotos.Create(x)}"));
+
+                        newEntry.BodyContent =
+                            $"{(string.IsNullOrWhiteSpace(newEntry.BodyContent) ? "" : Environment.NewLine)}{photoBodyAddition}";
                     }
                 }
 
