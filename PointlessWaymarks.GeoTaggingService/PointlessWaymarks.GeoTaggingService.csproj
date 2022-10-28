@@ -1,8 +1,18 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Polly" Version="7.2.3" />
+    <PackageReference Include="Unofficial.Garmin.Connect" Version="0.3.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\PointlessWaymarks.SpatialTools\PointlessWaymarks.SpatialTools.csproj" />
+    <ProjectReference Include="..\PointlessWaymarks.Task.GpxImport\PointlessWaymarks.Task.GarminConnectGpxImport.csproj" />
+  </ItemGroup>
 
 </Project>
