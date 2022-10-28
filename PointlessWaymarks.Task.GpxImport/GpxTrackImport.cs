@@ -1,18 +1,14 @@
 ﻿using System.Text.Json;
-using System.Text.Json.Serialization;
 using Garmin.Connect;
 using Garmin.Connect.Auth;
-using Garmin.Connect.Models;
-using NetTopologySuite.Features;
 using NetTopologySuite.IO;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.Content;
 using PointlessWaymarks.CmsData.ContentHtml;
 using PointlessWaymarks.CmsData.Database;
-using PointlessWaymarks.CmsData.Spatial;
+using PointlessWaymarks.FeatureIntersectionTags;
 using PointlessWaymarks.SpatialTools;
-using Polly;
 using Serilog;
 
 namespace PointlessWaymarks.Task.GarminConnectGpxImport;
@@ -152,88 +148,32 @@ public class GpxTrackImport
             foreach (var loopActivity in activityList)
             {
                 Console.Write(".");
-                var name = loopActivity.ActivityName;
-                var locationName = loopActivity.LocationName;
-                var activityDateString = loopActivity.StartTimeLocal.ToString("yyyy-MM-dd-hh-tt");
-                var activityIdString = loopActivity.ActivityId.ToString();
-                var nameMaxSafeLength = 240 - activityDateString.Length - activityIdString.Length;
-                var activitySafeName = $"{name}-{locationName}".Truncate(nameMaxSafeLength);
 
-                var safeFileName = SlugUtility.Create(false,
-                    $"{activityDateString}-{activitySafeName}--gc{activityIdString}", 250);
-                var safeGpxFile = new FileInfo(Path.Combine(archiveDirectory.FullName, $"{safeFileName}.gpx"));
-                var safeJsonFile = new FileInfo(Path.Combine(archiveDirectory.FullName, $"{safeFileName}.json"));
-
-                if (safeGpxFile.Exists && settings.OverwriteExistingArchiveDirectoryFiles)
-                    try
-                    {
-                        safeGpxFile.Delete();
-                        safeGpxFile.Refresh();
-                    }
-                    catch (Exception e)
-                    {
-                        Console.WriteLine();
-                        Log.ForContext("e", e.ToString())
-                            .Warning(
-                                $"Failed to Delete Existing File {safeGpxFile.FullName} - skipping and continuing...");
-                        continue;
-                    }
-
-                if (safeJsonFile.Exists && settings.OverwriteExistingArchiveDirectoryFiles)
-                    try
-                    {
-                        safeJsonFile.Delete();
-                        safeJsonFile.Refresh();
-                    }
-                    catch (Exception e)
-                    {
-                        Console.WriteLine();
-                        Log.ForContext("e", e.ToString())
-                            .Warning(
-                                $"Failed to Delete Existing File {safeJsonFile.FullName} - skipping and continuing...");
-                        continue;
-                    }
-
-                if (safeGpxFile.Exists || safeJsonFile.Exists)
-                {
-                    Console.WriteLine();
-                    Log.Verbose(
-                        $"Skipping {safeGpxFile.FullName} and {safeJsonFile.FullName} because of existing files.");
-                    continue;
-                }
-
-                await File.WriteAllTextAsync(safeJsonFile.FullName,
-                    JsonSerializer.Serialize(loopActivity,
-                        new JsonSerializerOptions
-                        {
-                            WriteIndented = true, ReferenceHandler = ReferenceHandler.IgnoreCycles,
-                            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
-                        }));
-                safeJsonFile.Refresh();
-
-                byte[]? file = null;
-
+                FileInfo jsonArchiveFile;
                 try
                 {
-                    file = await Policy.Handle<Exception>().WaitAndRetryAsync(3, i => TimeSpan.FromMinutes(1 * i))
-                        .ExecuteAsync(async () =>
-                            await client.DownloadActivity(loopActivity.ActivityId, ActivityDownloadFormat.GPX));
+                    jsonArchiveFile = await GarminConnectTools.WriteJsonActivityArchiveFile(loopActivity,
+                        archiveDirectory, settings.OverwriteExistingArchiveDirectoryFiles);
                 }
                 catch (Exception e)
                 {
                     Log.Error(e,
-                        $"File Download Failed - ActivityId {loopActivity.ActivityId} - Activity File {safeJsonFile.FullName}");
+                        $"Error Writing Json Activity file for Activity Id {loopActivity.ActivityId}, {loopActivity.ActivityName} - skipping and continuing...");
+                    continue;
                 }
 
-                if (file == null)
+                try
                 {
-                    fileList.Add((safeJsonFile, null));
+                    var gpxFile = await GarminConnectTools.GetGpx(loopActivity, archiveDirectory,
+                        settings.OverwriteExistingArchiveDirectoryFiles, settings.ConnectUserName,
+                        settings.ConnectPassword);
+
+                    fileList.Add((jsonArchiveFile, gpxFile));
                 }
-                else
+                catch (Exception e)
                 {
-                    await File.WriteAllBytesAsync(safeGpxFile.FullName, file);
-                    safeGpxFile.Refresh();
-                    fileList.Add((safeJsonFile, safeGpxFile));
+                    Log.Error(e,
+                        $"Error with the GPX for {loopActivity.ActivityId}, {loopActivity.ActivityName} - skipping and continuing...");
                 }
             }
         }
@@ -314,8 +254,9 @@ public class GpxTrackImport
 
                     if (featureToCheck != null)
                     {
-                        var tagger = new FeatureIntersectionTags.Intersection();
-                        var taggerResult = tagger.Tags(settings.IntersectionTagSettings, featureToCheck.AsList(), CancellationToken.None, new ConsoleProgress());
+                        var tagger = new Intersection();
+                        var taggerResult = tagger.Tags(settings.IntersectionTagSettings, featureToCheck.AsList(),
+                            CancellationToken.None, new ConsoleProgress());
 
                         if (taggerResult.Any() && taggerResult.First().Tags.Any())
                         {
@@ -329,7 +270,9 @@ public class GpxTrackImport
                 if (newEntry.RecordingStartedOnUtc.HasValue && newEntry.RecordingEndedOnUtc.HasValue)
                 {
                     var db = await Db.Context();
-                    var relatedPhotos = db.PhotoContents.Where(x => x.PhotoCreatedOnUtc != null && x.PhotoCreatedOnUtc >= newEntry.RecordingStartedOnUtc && x.PhotoCreatedOnUtc <= newEntry.RecordingEndedOnUtc).ToList();
+                    var relatedPhotos = db.PhotoContents.Where(x =>
+                        x.PhotoCreatedOnUtc != null && x.PhotoCreatedOnUtc >= newEntry.RecordingStartedOnUtc &&
+                        x.PhotoCreatedOnUtc <= newEntry.RecordingEndedOnUtc).ToList();
 
                     if (relatedPhotos.Any())
                     {
