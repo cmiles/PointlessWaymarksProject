@@ -184,11 +184,15 @@ public class GeoTag
     }
 
     public async System.Threading.Tasks.Task Tag(List<FileInfo> filesToTag, List<IGpxService> gpxServices,
-        int pointMustBeWithinMinutes, int adjustCreatedTimeInMinutes, bool overwriteExistingLatLong,
-        string? exifToolDirectory = null, IProgress<string>? progress = null)
+        bool createBackupBeforeWritingMetadata, int pointMustBeWithinMinutes, int adjustCreatedTimeInMinutes,
+        bool overwriteExistingLatLong, string? exifToolDirectory = null, IProgress<string>? progress = null)
     {
         Log.Information(
-            $"GeoTag - Starting - {filesToTag.Count} Files, {gpxServices.Count} GpxServices, {pointMustBeWithinMinutes} Within Minutes, {adjustCreatedTimeInMinutes} Adjustment, Overwrite {overwriteExistingLatLong}");
+            $"GeoTag - Starting - {filesToTag.Count} Files, {gpxServices.Count} GpxServices, Create Backup {createBackupBeforeWritingMetadata}, {pointMustBeWithinMinutes} Within Minutes, {adjustCreatedTimeInMinutes} Adjustment, Overwrite {overwriteExistingLatLong}");
+
+        if (!createBackupBeforeWritingMetadata)
+            progress?.Report(
+                "WARNING - writing metadata into files is never going to be 100% without errors - this method is running without creating backups ('in place updates only') - in the future consider allowing backups to be created to avoid any unfortunate incidents where metadata additions result in corrupted files!");
 
         if (!filesToTag.Any())
         {
@@ -298,7 +302,6 @@ public class GeoTag
                 pointsCollection.AddRange(
                     (await loopService.GetGpxTrack(loopUtc.createdUtc)).Where(x => x.TimestampUtc != null));
 
-
             var toAdd = (pointsCollection.MinBy(x => x.TimestampUtc!.Value).TimestampUtc.Value,
                 pointsCollection.MaxBy(x => x.TimestampUtc!.Value).TimestampUtc.Value, pointsCollection);
 
@@ -314,6 +317,7 @@ public class GeoTag
             $"Found a total of {allPoints.Count} points to check for files within {adjustCreatedTimeInMinutes} minutes of for location tagging");
 
         counter = 0;
+
         foreach (var loopFile in listOfUtcAndFileToProcess)
         {
             if (++counter % 50 == 0)
@@ -352,6 +356,15 @@ public class GeoTag
             progress?.Report(
                 $"GeoTag - For {loopFile.file.FullName} found Lat: {latitude} Long: {longitude} Elevation {elevation}");
 
+
+            if (createBackupBeforeWritingMetadata)
+            {
+                var backUpSuccessful = WriteFileToBackupDirectory(loopFile.file, progress);
+                if (!backUpSuccessful)
+                    progress?.Report(
+                        $"GeoTag - Skipping {loopFile.file.FullName} - Found GeoTag information but could not create a backup - skipping this file.");
+            }
+
             if (TagSharpSupportedExtensions.Contains(loopFile.file.Extension))
                 if (File.Create(loopFile.file.FullName) is TagLib.Image.File tagSharpFile)
                 {
@@ -379,5 +392,58 @@ public class GeoTag
             progress?.Report(
                 $"GeoTag - Wrote Metadata with ExifTool - {exifTool.exifToolFile.FullName} {exifToolParameters}");
         }
+    }
+
+    public static bool WriteFileToBackupDirectory(FileInfo fileToBackup, IProgress<string>? progress)
+    {
+        var directoryInfo = new DirectoryInfo(fileToBackup.DirectoryName ?? string.Empty);
+
+        var backupDirectory = new DirectoryInfo(Path.Combine(directoryInfo.FullName, "PwGeoTagBackup"));
+        if (!backupDirectory.Exists)
+            try
+            {
+                backupDirectory.Create();
+                backupDirectory.Refresh();
+            }
+            catch (Exception e)
+            {
+                Log.ForContext("backupFile", fileToBackup.SafeObjectDump())
+                    .ForContext("backupDirectory", backupDirectory.SafeObjectDump())
+                    .Error(e, "Error Creating Backup Directory");
+                progress?.Report($"Problem creating backup directory! {e.Message}");
+                return false;
+            }
+
+        var backupFile = new FileInfo(Path.Combine(backupDirectory.FullName,
+            $"{Path.GetFileNameWithoutExtension(fileToBackup.Name)}-PreGeoTag{DateTime.Now:yyyyMMdd-HHmm}{fileToBackup.Extension}"));
+
+        var counter = 0;
+        while (backupFile.Exists && counter < 10000)
+            backupFile = new FileInfo(Path.Combine(backupDirectory.FullName,
+                $"{Path.GetFileNameWithoutExtension(fileToBackup.Name)}-PreGeoTag{DateTime.Now:yyyyMMdd-HHmm}-{++counter:0000}{fileToBackup.Extension}"));
+
+        if (backupFile.Exists)
+        {
+            Log.ForContext("backupFileLastIteration", fileToBackup.SafeObjectDump())
+                .ForContext("backupDirectory", backupDirectory.SafeObjectDump())
+                .Error("Error Creating a Unique Backup File Name");
+            progress?.Report(
+                $"Could Not find a Unique File Name to backup {fileToBackup.FullName} in {backupDirectory.FullName}?");
+            return false;
+        }
+
+        try
+        {
+            fileToBackup.CopyTo(backupFile.FullName);
+        }
+        catch (Exception e)
+        {
+            Log.ForContext("backupFile", fileToBackup.SafeObjectDump())
+                .ForContext("backupDirectory", backupDirectory.SafeObjectDump()).Error(e, "Error Copying Backup File");
+            progress?.Report($"Problem creating backup file! {e.Message}");
+            return false;
+        }
+
+        return true;
     }
 }
