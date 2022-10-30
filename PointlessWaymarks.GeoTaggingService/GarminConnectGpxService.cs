@@ -17,7 +17,6 @@ public class GarminConnectGpxService : IGpxService
     public string ArchiveDirectory { get; }
     public string ConnectPassword { get; }
     public string ConnectUsername { get; }
-
     public int SearchSurroundingDays { get; set; } = 7;
 
     public async Task<List<GpxWaypoint>> GetGpxTrack(DateTime photoDateTimeUtc)
