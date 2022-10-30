@@ -114,7 +114,7 @@ public static class PhotoGenerator
             }
         }
 
-        if (gpsDirectory != null)
+        if (gpsDirectory != null && !gpsDirectory.IsEmpty)
         {
             var geoLocation = gpsDirectory.GetGeoLocation();
 
@@ -125,8 +125,8 @@ public static class PhotoGenerator
             }
             else
             {
-                toReturn.Latitude = gpsDirectory.GetGeoLocation()?.Latitude;
-                toReturn.Longitude = gpsDirectory.GetGeoLocation()?.Longitude;
+                toReturn.Latitude = geoLocation.Latitude;
+                toReturn.Longitude = geoLocation.Longitude;
             }
 
             if (toReturn.Latitude != null && toReturn.Longitude != null)
@@ -185,12 +185,13 @@ public static class PhotoGenerator
             var stateCounty =
                 await StateCountyService.GetStateCounty(toReturn.Latitude.Value,
                     toReturn.Longitude.Value);
-            if(!string.IsNullOrWhiteSpace(stateCounty.state)) tags.Add(stateCounty.state);
-            if(!string.IsNullOrWhiteSpace(stateCounty.county)) tags.Add(stateCounty.county);
+            if (!string.IsNullOrWhiteSpace(stateCounty.state)) tags.Add(stateCounty.state);
+            if (!string.IsNullOrWhiteSpace(stateCounty.county)) tags.Add(stateCounty.county);
         }
 
         if (toReturn.Latitude != null && toReturn.Longitude != null &&
-            !string.IsNullOrWhiteSpace(UserSettingsSingleton.CurrentSettings().FeatureIntersectionTagSettingsFile) && !skipAdditionalTagDiscovery)
+            !string.IsNullOrWhiteSpace(UserSettingsSingleton.CurrentSettings().FeatureIntersectionTagSettingsFile) &&
+            !skipAdditionalTagDiscovery)
             try
             {
                 var tagger = new Intersection();

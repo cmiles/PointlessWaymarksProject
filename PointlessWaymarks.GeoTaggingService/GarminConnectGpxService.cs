@@ -1,5 +1,4 @@
-﻿using System.Text;
-using Garmin.Connect;
+﻿using Garmin.Connect;
 using Garmin.Connect.Auth;
 using NetTopologySuite.IO;
 using PointlessWaymarks.Task.GarminConnectGpxImport;

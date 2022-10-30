@@ -16,10 +16,14 @@ public class GarminConnectGpxImportSettings
 
     public DateTime DownloadEndDate { get; set; } = DateTime.Now.AddDays(-1);
 
+    public bool GenerateSiteAndUploadAfterImport { get; set; }
+
     [Required(ErrorMessage = "A location for archived GPX files must be given.")]
     public string GpxArchiveDirectoryFullName { get; set; } = string.Empty;
 
     public bool ImportActivitiesToSite { get; set; } = true;
+
+    public string IntersectionTagSettings { get; set; }
 
     public bool OverwriteExistingArchiveDirectoryFiles { get; set; }
 
@@ -27,8 +31,4 @@ public class GarminConnectGpxImportSettings
     public string PointlessWaymarksSiteSettingsFileFullName { get; set; } = string.Empty;
 
     public bool ShowInMainSiteFeed { get; set; }
-
-    public string IntersectionTagSettings { get; set;}
-
-    public bool GenerateSiteAndUploadAfterImport { get; set; }
 }
