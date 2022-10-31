@@ -300,7 +300,7 @@ public class GeoTag
 
             foreach (var loopService in gpxServices)
                 pointsCollection.AddRange(
-                    (await loopService.GetGpxTrack(loopUtc.createdUtc)).Where(x => x.TimestampUtc != null));
+                    (await loopService.GetGpxTrack(loopUtc.createdUtc, progress)).Where(x => x.TimestampUtc != null));
 
             var toAdd = (pointsCollection.MinBy(x => x.TimestampUtc!.Value).TimestampUtc.Value,
                 pointsCollection.MaxBy(x => x.TimestampUtc!.Value).TimestampUtc.Value, pointsCollection);
@@ -350,7 +350,7 @@ public class GeoTag
                 }
                 catch (Exception e)
                 {
-                    Log.Verbose("GeoTag - Failed to get Elevation, Silent Error");
+                    Log.Verbose($"GeoTag - Failed to get Elevation, Silent Error - {e.Message}");
                 }
 
             progress?.Report(
