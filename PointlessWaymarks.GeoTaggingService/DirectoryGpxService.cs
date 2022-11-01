@@ -20,7 +20,7 @@ public class DirectoryGpxService : IGpxService
         _includeSubdirectories = includeSubdirectories;
     }
 
-    public async Task<List<GpxWaypoint>> GetGpxTrack(DateTime photoDateTimeUtc, IProgress<string>? progress)
+    public async Task<List<GpxWaypoint>> GetGpxPoints(DateTime photoDateTimeUtc, IProgress<string>? progress)
     {
         await VerifyFilesAndRescanIfNeeded(progress);
 

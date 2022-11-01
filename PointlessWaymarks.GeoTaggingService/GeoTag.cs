@@ -104,15 +104,11 @@ public class GeoTag
         ".BMP", ".GIF", ".JPEG", ".JPG", ".PBM", ".PGM", ".PPM", ".PNM", ".PCX", ".PNG", ".TIFF", ".DNG", ".SVG"
     }.Select(x => x.ToUpperInvariant()).OrderBy(x => x).ToList();
 
-    public static (bool isPresent, FileInfo? exifToolFile) ExifTool(string? exifToolDirectory)
+    public static (bool isPresent, FileInfo? exifToolFile) ExifTool(string? exifToolFullName)
     {
-        if (string.IsNullOrEmpty(exifToolDirectory)) return (false, null);
+        if (string.IsNullOrEmpty(exifToolFullName)) return (false, null);
 
-        var possibleDirectory = new DirectoryInfo(exifToolDirectory);
-
-        if (!possibleDirectory.Exists) return (false, null);
-
-        var possibleExifToolFile = new FileInfo(Path.Combine(possibleDirectory.FullName, "ExifTool.exe"));
+        var possibleExifToolFile = new FileInfo(exifToolFullName);
 
         if (!possibleExifToolFile.Exists) return (false, null);
 
@@ -124,7 +120,7 @@ public class GeoTag
         var gpsDirectory = ImageMetadataReader.ReadMetadata(loopFile.FullName).OfType<GpsDirectory>()
             .FirstOrDefault();
 
-        if (gpsDirectory is { IsEmpty: false }) return false;
+        if (gpsDirectory is null or { IsEmpty: false }) return false;
 
         var geoLocation = gpsDirectory.GetGeoLocation();
 
@@ -186,7 +182,7 @@ public class GeoTag
 
     public async Task<string> Tag(List<FileInfo> filesToTag, List<IGpxService> gpxServices, bool testRun,
         bool createBackupBeforeWritingMetadata, int pointMustBeWithinMinutes, int adjustCreatedTimeInMinutes,
-        bool overwriteExistingLatLong, string? exifToolDirectory = null, IProgress<string>? progress = null)
+        bool overwriteExistingLatLong, string? exifToolFullName = null, IProgress<string>? progress = null)
     {
         var returnReport = new StringBuilder();
 
@@ -222,7 +218,7 @@ public class GeoTag
             return returnReport.ToString();
         }
 
-        var exifTool = ExifTool(exifToolDirectory);
+        var exifTool = ExifTool(exifToolFullName);
 
         var supportedFileExtensions = exifTool.isPresent
             ? TagSharpSupportedExtensions.Union(ExifToolWriteSupportedExtensions).ToList()
@@ -331,7 +327,9 @@ public class GeoTag
 
             foreach (var loopService in gpxServices)
                 pointsCollection.AddRange(
-                    (await loopService.GetGpxTrack(loopUtc.createdUtc, progress)).Where(x => x.TimestampUtc != null));
+                    (await loopService.GetGpxPoints(loopUtc.createdUtc, progress)).Where(x => x.TimestampUtc != null));
+
+            if (!pointsCollection.Any()) continue;
 
             var toAdd = (pointsCollection.MinBy(x => x.TimestampUtc!.Value).TimestampUtc.Value,
                 pointsCollection.MaxBy(x => x.TimestampUtc!.Value).TimestampUtc.Value, pointsCollection);

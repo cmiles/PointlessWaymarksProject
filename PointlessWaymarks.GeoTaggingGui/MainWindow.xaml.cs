@@ -1,78 +1,63 @@
-﻿using PointlessWaymarks.WpfCommon.Utility;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Reflection;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using CommunityToolkit.Mvvm.ComponentModel;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.WpfCommon.Status;
+using PointlessWaymarks.WpfCommon.Utility;
 
-namespace PointlessWaymarks.GeoTaggingGui
+namespace PointlessWaymarks.GeoTaggingGui;
+
+/// <summary>
+///     Interaction logic for MainWindow.xaml
+/// </summary>
+[ObservableObject]
+public partial class MainWindow : Window
 {
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
-    [ObservableObject]
-    public partial class MainWindow : Window
+    [ObservableProperty] private ConnectBasedTaggerContext? _connectTaggerContext;
+    [ObservableProperty] private DirectoryBasedTaggerContext? _directoryTaggerContext;
+    [ObservableProperty] private string _infoTitle;
+    [ObservableProperty] private StatusControlContext _statusContext;
+    [ObservableProperty] private WindowIconStatus _windowStatus;
+
+    public MainWindow()
     {
-        [ObservableProperty] private string _infoTitle;
-        [ObservableProperty] private StatusControlContext _statusContext;
-        [ObservableProperty] private WindowIconStatus _windowStatus;
+        InitializeComponent();
 
-        [ObservableProperty] private ConnectBasedTaggerContext? _connectTaggerContext;
-        [ObservableProperty] private DirectoryBasedTaggerContext? _directoryTaggerContext;
+        //JotServices.Tracker.Configure<MainWindow>().Properties(x => new { x.RecentSettingsFilesNames });
 
-        public MainWindow()
-        {
-            InitializeComponent();
+        JotServices.Tracker.Track(this);
 
-            //JotServices.Tracker.Configure<MainWindow>().Properties(x => new { x.RecentSettingsFilesNames });
+        if (Width < 900) Width = 900;
+        if (Height < 650) Height = 650;
 
-            JotServices.Tracker.Track(this);
+        WindowInitialPositionHelpers.EnsureWindowIsVisible(this);
 
-            if (Width < 900) Width = 900;
-            if (Height < 650) Height = 650;
-
-            WindowInitialPositionHelpers.EnsureWindowIsVisible(this);
-
-            // ReSharper disable once ConditionIsAlwaysTrueOrFalse for generated ThisAssembly.Git.IsDirty
-            // ReSharper disable once HeuristicUnreachableCode
-            //.Git IsDirty can change at runtime
+        // ReSharper disable once ConditionIsAlwaysTrueOrFalse for generated ThisAssembly.Git.IsDirty
+        // ReSharper disable once HeuristicUnreachableCode
+        //.Git IsDirty can change at runtime
 #pragma warning disable CS0162
-            _infoTitle =
-                $"Pointless Waymarks CMS - Built On {GetBuildDate(Assembly.GetEntryAssembly())} - Commit {ThisAssembly.Git.Commit} {(ThisAssembly.Git.IsDirty ? "(Has Local Changes)" : string.Empty)}";
+        _infoTitle =
+            $"Pointless Waymarks GeoTagger - Built On {GetBuildDate(Assembly.GetEntryAssembly())} - Commit {ThisAssembly.Git.Commit} {(ThisAssembly.Git.IsDirty ? "(Has Local Changes)" : string.Empty)}";
 #pragma warning restore CS0162
 
-            DataContext = this;
+        DataContext = this;
 
-            _statusContext = new StatusControlContext();
+        _statusContext = new StatusControlContext();
 
-            _windowStatus = new WindowIconStatus();
+        _windowStatus = new WindowIconStatus();
 
-            StatusContext.RunBlockingTask(LoadData);
-        }
+        StatusContext.RunBlockingTask(LoadData);
+    }
 
-        private async System.Threading.Tasks.Task LoadData()
-        {
-            DirectoryTaggerContext = await DirectoryBasedTaggerContext.CreateInstance(StatusContext, WindowStatus);
-            ConnectTaggerContext = await ConnectBasedTaggerContext.CreateInstance(StatusContext, WindowStatus);
-        }
+    private static DateTime? GetBuildDate(Assembly assembly)
+    {
+        var attribute = assembly.GetCustomAttribute<BuildDateAttribute>();
+        return attribute?.DateTime;
+    }
 
-        private static DateTime? GetBuildDate(Assembly assembly)
-        {
-            var attribute = assembly.GetCustomAttribute<BuildDateAttribute>();
-            return attribute?.DateTime;
-        }
+    private async System.Threading.Tasks.Task LoadData()
+    {
+        DirectoryTaggerContext = await DirectoryBasedTaggerContext.CreateInstance(StatusContext, WindowStatus);
+        ConnectTaggerContext = await ConnectBasedTaggerContext.CreateInstance(StatusContext, WindowStatus);
     }
 }

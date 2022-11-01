@@ -22,7 +22,7 @@ public class GarminConnectGpxService : IGpxService
     public string ConnectUsername { get; }
     public int SearchSurroundingDays { get; set; } = 7;
 
-    public async Task<List<GpxWaypoint>> GetGpxTrack(DateTime photoDateTimeUtc, IProgress<string>? progress)
+    public async Task<List<GpxWaypoint>> GetGpxPoints(DateTime photoDateTimeUtc, IProgress<string>? progress)
     {
         var authParameters = new BasicAuthParameters(ConnectUsername, ConnectPassword);
         var client = new GarminConnectClient(new GarminConnectContext(new HttpClient(), authParameters));

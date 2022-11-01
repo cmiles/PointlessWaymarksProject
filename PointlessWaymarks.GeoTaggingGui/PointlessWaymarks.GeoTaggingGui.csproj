@@ -7,8 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Dirkster.NumericUpDownLib" Version="3.2.0" />
     <PackageReference Include="GitInfo" Version="2.2.0" />
     <PackageReference Include="Jot" Version="2.1.13" />
+    <PackageReference Include="Ookii.Dialogs.Wpf" Version="5.0.1" />
   </ItemGroup>
 
   <ItemGroup>
