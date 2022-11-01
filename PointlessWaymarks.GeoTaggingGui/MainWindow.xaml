@@ -1,0 +1,21 @@
+﻿<Window x:Class="PointlessWaymarks.GeoTaggingGui.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:PointlessWaymarks.GeoTaggingGui"
+        xmlns:status="clr-namespace:PointlessWaymarks.WpfCommon.Status;assembly=PointlessWaymarks.WpfCommon"
+        mc:Ignorable="d"
+        Title="{Binding InfoTitle}" Height="450" Width="800" d:DataContext="{d:DesignInstance local:MainWindow}">
+    <Grid>
+        <TabControl>
+            <TabItem Header="Directory">
+                <local:DirectoryBasedTaggerControl DataContext="{Binding DirectoryTaggerContext}" />
+            </TabItem>
+            <TabItem Header="Connect">
+                <local:ConnectBasedTaggerControl DataContext="{Binding ConnectTaggerContext}" />
+            </TabItem>
+        </TabControl>
+        <status:StatusControl DataContext="{Binding StatusContext}" />
+    </Grid>
+</Window>

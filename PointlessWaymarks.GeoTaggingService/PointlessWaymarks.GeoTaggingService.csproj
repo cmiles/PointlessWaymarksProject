@@ -6,6 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="GitInfo" Version="2.2.0" />
     <PackageReference Include="Polly" Version="7.2.3" />
     <PackageReference Include="TagLibSharp" Version="2.3.0" />
     <PackageReference Include="Unofficial.Garmin.Connect" Version="0.3.0" />

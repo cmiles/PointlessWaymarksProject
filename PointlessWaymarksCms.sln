@@ -42,7 +42,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PointlessWaymarks.LoggingTo
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PointlessWaymarks.Task.PhotoPickup", "PointlessWaymarks.Task.PhotoPickup\PointlessWaymarks.Task.PhotoPickup.csproj", "{69770B90-F127-45C3-ACAD-CB6629099F8D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PointlessWaymarks.GeoTaggingService", "PointlessWaymarks.GeoTaggingService\PointlessWaymarks.GeoTaggingService.csproj", "{FD87100A-D437-41FC-8645-06E826FF758F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PointlessWaymarks.GeoTaggingService", "PointlessWaymarks.GeoTaggingService\PointlessWaymarks.GeoTaggingService.csproj", "{FD87100A-D437-41FC-8645-06E826FF758F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PointlessWaymarks.GeoTaggingGui", "PointlessWaymarks.GeoTaggingGui\PointlessWaymarks.GeoTaggingGui.csproj", "{5D4DC0E4-3B1D-45B6-8DA4-024960924DCC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -114,6 +116,10 @@ Global
 		{FD87100A-D437-41FC-8645-06E826FF758F}.Debug|x64.Build.0 = Debug|x64
 		{FD87100A-D437-41FC-8645-06E826FF758F}.Release|x64.ActiveCfg = Release|x64
 		{FD87100A-D437-41FC-8645-06E826FF758F}.Release|x64.Build.0 = Release|x64
+		{5D4DC0E4-3B1D-45B6-8DA4-024960924DCC}.Debug|x64.ActiveCfg = Debug|x64
+		{5D4DC0E4-3B1D-45B6-8DA4-024960924DCC}.Debug|x64.Build.0 = Debug|x64
+		{5D4DC0E4-3B1D-45B6-8DA4-024960924DCC}.Release|x64.ActiveCfg = Release|x64
+		{5D4DC0E4-3B1D-45B6-8DA4-024960924DCC}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
