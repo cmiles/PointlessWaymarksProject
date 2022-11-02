@@ -18,10 +18,10 @@ public partial class DirectoryBasedTaggerContext
     [ObservableProperty] private ObservableCollection<FileInfo>? _filesToTag;
     [ObservableProperty] private ObservableCollection<FileInfo>? _gpxFiles;
 
-    [ObservableProperty] private string _lastTagOutput = string.Empty;
+    [ObservableProperty] private GeoTag.GeoTagResult? _lastTagOutput;
     [ObservableProperty] private int _offsetPhotoTimeInMinutes;
     [ObservableProperty] private bool _overwriteExistingGeoLocation;
-    [ObservableProperty] private int _pointsMustBeWithinMinutes = 5;
+    [ObservableProperty] private int _pointsMustBeWithinMinutes = 10;
     [ObservableProperty] private StatusControlContext _statusContext;
     [ObservableProperty] private bool _testRunOnly;
     [ObservableProperty] private WindowIconStatus? _windowStatus;
