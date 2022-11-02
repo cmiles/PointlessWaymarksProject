@@ -10,7 +10,7 @@
     <Grid>
         <TabControl>
             <TabItem Header="Directory">
-                <local:DirectoryBasedTaggerControl DataContext="{Binding DirectoryTaggerContext}" />
+                <local:FileBasedTaggerControl DataContext="{Binding DirectoryTaggerContext}" />
             </TabItem>
             <TabItem Header="Connect">
                 <local:ConnectBasedTaggerControl DataContext="{Binding ConnectTaggerContext}" />

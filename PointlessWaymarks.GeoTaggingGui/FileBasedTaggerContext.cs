@@ -10,7 +10,7 @@ using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 namespace PointlessWaymarks.GeoTaggingGui;
 
 [ObservableObject]
-public partial class DirectoryBasedTaggerContext
+public partial class FileBasedTaggerContext
 {
     [ObservableProperty] private bool _createBackups;
 
@@ -26,7 +26,7 @@ public partial class DirectoryBasedTaggerContext
     [ObservableProperty] private bool _testRunOnly;
     [ObservableProperty] private WindowIconStatus? _windowStatus;
 
-    public DirectoryBasedTaggerContext(StatusControlContext? statusContext, WindowIconStatus? windowStatus)
+    public FileBasedTaggerContext(StatusControlContext? statusContext, WindowIconStatus? windowStatus)
     {
         _statusContext = statusContext ?? new StatusControlContext();
         _windowStatus = windowStatus;
@@ -158,10 +158,10 @@ public partial class DirectoryBasedTaggerContext
         selectedFiles.ForEach(x => GpxFiles!.Add(x));
     }
 
-    public static async Task<DirectoryBasedTaggerContext> CreateInstance(StatusControlContext? statusContext,
+    public static async Task<FileBasedTaggerContext> CreateInstance(StatusControlContext? statusContext,
         WindowIconStatus? windowStatus)
     {
-        var control = new DirectoryBasedTaggerContext(statusContext, windowStatus);
+        var control = new FileBasedTaggerContext(statusContext, windowStatus);
         await control.LoadData();
         return control;
     }

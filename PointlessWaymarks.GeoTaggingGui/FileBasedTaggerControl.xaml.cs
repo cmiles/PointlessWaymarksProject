@@ -15,9 +15,9 @@ using System.Windows.Shapes;
 
 namespace PointlessWaymarks.GeoTaggingGui
 {
-    public partial class DirectoryBasedTaggerControl
+    public partial class FileBasedTaggerControl
     {
-        public DirectoryBasedTaggerControl()
+        public FileBasedTaggerControl()
         {
             InitializeComponent();
         }

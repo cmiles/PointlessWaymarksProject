@@ -14,7 +14,7 @@ namespace PointlessWaymarks.GeoTaggingGui;
 public partial class MainWindow : Window
 {
     [ObservableProperty] private ConnectBasedTaggerContext? _connectTaggerContext;
-    [ObservableProperty] private DirectoryBasedTaggerContext? _directoryTaggerContext;
+    [ObservableProperty] private FileBasedTaggerContext? _directoryTaggerContext;
     [ObservableProperty] private string _infoTitle;
     [ObservableProperty] private StatusControlContext _statusContext;
     [ObservableProperty] private WindowIconStatus _windowStatus;
@@ -57,7 +57,7 @@ public partial class MainWindow : Window
 
     private async System.Threading.Tasks.Task LoadData()
     {
-        DirectoryTaggerContext = await DirectoryBasedTaggerContext.CreateInstance(StatusContext, WindowStatus);
+        DirectoryTaggerContext = await FileBasedTaggerContext.CreateInstance(StatusContext, WindowStatus);
         ConnectTaggerContext = await ConnectBasedTaggerContext.CreateInstance(StatusContext, WindowStatus);
     }
 }
