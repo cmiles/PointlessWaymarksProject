@@ -1,10 +1,9 @@
 ﻿using Microsoft.Web.WebView2.Core;
 using Microsoft.Web.WebView2.Wpf;
 using Microsoft.Xaml.Behaviors;
-using PointlessWaymarks.CmsData;
 using PointlessWaymarks.WpfCommon.Utility;
 
-namespace PointlessWaymarks.CmsWpfControls.WpfHtml;
+namespace PointlessWaymarks.WpfCommon.WpfHtml;
 
 public class WebViewRedirectLinksToBrowserBehavior : Behavior<WebView2>
 {
@@ -25,7 +24,7 @@ public class WebViewRedirectLinksToBrowserBehavior : Behavior<WebView2>
 
         if (string.IsNullOrWhiteSpace(e.Uri)) return;
 
-        var localTempHtml = new Uri(UserSettingsUtilities.TempStorageHtmlDirectory().FullName).AbsoluteUri;
+        var localTempHtml = new Uri(FileSystemHelpers.TempStorageHtmlDirectory().FullName).AbsoluteUri;
 
         if (e.Uri.Contains(localTempHtml)) return;
 

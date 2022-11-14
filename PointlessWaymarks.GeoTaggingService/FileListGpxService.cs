@@ -1,4 +1,5 @@
 ﻿using NetTopologySuite.IO;
+using PointlessWaymarks.CmsData;
 
 namespace PointlessWaymarks.GeoTaggingService;
 
@@ -12,7 +13,7 @@ public class FileListGpxService : IGpxService
         _listOfGpxFiles = listOfGpxFiles;
     }
 
-    public async Task<List<GpxWaypoint>> GetGpxPoints(DateTime photoDateTimeUtc, IProgress<string>? progress)
+    public async Task<List<WaypointAndSource>> GetGpxPoints(DateTime photoDateTimeUtc, IProgress<string>? progress)
     {
         if (_gpxFiles == null) await ScanFiles(progress);
 
@@ -24,10 +25,10 @@ public class FileListGpxService : IGpxService
         if (!possibleFiles.Any())
         {
             progress?.Report("No Gpx Files Found");
-            return new List<GpxWaypoint>();
+            return new List<WaypointAndSource>();
         }
 
-        var allPointsList = new List<GpxWaypoint>();
+        var allPointsList = new List<WaypointAndSource>();
 
         foreach (var loopFile in possibleFiles)
         {
@@ -42,8 +43,8 @@ public class FileListGpxService : IGpxService
 
             if (!gpx.Tracks.Any(t => t.Segments.SelectMany(y => y.Waypoints).Count() > 1)) continue;
 
-            allPointsList.AddRange(gpx.Tracks.SelectMany(x => x.Segments).SelectMany(x => x.Waypoints)
-                .OrderBy(x => x.TimestampUtc)
+            allPointsList.AddRange(gpx.Tracks.SelectMany(x => x.Segments).SelectMany(x => x.Waypoints).Select(x => new WaypointAndSource(x, loopFile.file.Name))
+                .OrderBy(x => x.Waypoint.TimestampUtc)
                 .ToList());
         }
 

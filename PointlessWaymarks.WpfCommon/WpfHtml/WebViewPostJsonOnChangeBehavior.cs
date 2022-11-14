@@ -2,10 +2,9 @@
 using Microsoft.Web.WebView2.Core;
 using Microsoft.Web.WebView2.Wpf;
 using Microsoft.Xaml.Behaviors;
-using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 using Serilog;
 
-namespace PointlessWaymarks.CmsWpfControls.WpfHtml;
+namespace PointlessWaymarks.WpfCommon.WpfHtml;
 
 public class WebViewPostJsonOnChangeBehavior : Behavior<WebView2>
 {
@@ -27,7 +26,7 @@ public class WebViewPostJsonOnChangeBehavior : Behavior<WebView2>
 
         if (string.IsNullOrWhiteSpace(CachedData)) return;
 
-        await ThreadSwitcher.ResumeForegroundAsync();
+        await ThreadSwitcher.ThreadSwitcher.ResumeForegroundAsync();
         await PostNewJson(this, CachedData);
     }
 
@@ -45,7 +44,7 @@ public class WebViewPostJsonOnChangeBehavior : Behavior<WebView2>
 
     private async void OnLoaded(object sender, RoutedEventArgs e)
     {
-        await ThreadSwitcher.ResumeForegroundAsync();
+        await ThreadSwitcher.ThreadSwitcher.ResumeForegroundAsync();
         await AssociatedObject.EnsureCoreWebView2Async();
     }
 
@@ -56,7 +55,7 @@ public class WebViewPostJsonOnChangeBehavior : Behavior<WebView2>
 
     private static async Task PostNewJson(WebViewPostJsonOnChangeBehavior bindingBehavior, string toPost)
     {
-        await ThreadSwitcher.ResumeForegroundAsync();
+        await ThreadSwitcher.ThreadSwitcher.ResumeForegroundAsync();
 
         if (bindingBehavior.AssociatedObject.IsInitialized && bindingBehavior.AssociatedObject.CoreWebView2 != null)
         {

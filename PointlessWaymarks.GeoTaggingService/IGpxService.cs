@@ -4,5 +4,5 @@ namespace PointlessWaymarks.GeoTaggingService;
 
 public interface IGpxService
 {
-    Task<List<GpxWaypoint>> GetGpxPoints(DateTime photoDateTimeUtc, IProgress<string>? progress);
+    Task<List<WaypointAndSource>> GetGpxPoints(DateTime photoDateTimeUtc, IProgress<string>? progress);
 }

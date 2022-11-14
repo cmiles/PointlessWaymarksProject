@@ -4,7 +4,7 @@ using Microsoft.Web.WebView2.Core;
 using Microsoft.Web.WebView2.Wpf;
 using Microsoft.Xaml.Behaviors;
 
-namespace PointlessWaymarks.CmsWpfControls.WpfHtml;
+namespace PointlessWaymarks.WpfCommon.WpfHtml;
 
 public class WebViewSelectedTextBehavior : Behavior<WebView2>
 {

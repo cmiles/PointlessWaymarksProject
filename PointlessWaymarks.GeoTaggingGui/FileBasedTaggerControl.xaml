@@ -5,9 +5,18 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:local="clr-namespace:PointlessWaymarks.GeoTaggingGui"
              xmlns:numericUpDownLib="clr-namespace:NumericUpDownLib;assembly=NumericUpDownLib"
+             xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:wpf="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
+             xmlns:wpfHtml="clr-namespace:PointlessWaymarks.WpfCommon.WpfHtml;assembly=PointlessWaymarks.WpfCommon"
+             xmlns:valueConverters="clr-namespace:PointlessWaymarks.WpfCommon.ValueConverters;assembly=PointlessWaymarks.WpfCommon"
              mc:Ignorable="d"
              d:DesignHeight="450" d:DesignWidth="800"
              d:DataContext="{d:DesignInstance local:FileBasedTaggerContext}">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <valueConverters:BooleanNotToVisibilityConverter x:Key="BooleanNotToVisibility" />
+        </ResourceDictionary>
+    </UserControl.Resources>
     <Grid>
         <TabControl>
             <TabItem Header="GPX Files">
@@ -25,14 +34,14 @@
                                         <Setter Property="Width" Value="180" />
                                     </Style>
                                 </WrapPanel.Resources>
-                                <Button Command="{Binding AddFilesToTagFromDirectoryCommand}">Directory</Button>
-                                <Button Command="{Binding AddFilesToTagFromDirectoryAndSubdirectoriesCommand }">Directory with Subdirectories</Button>
-                                <Button Command="{Binding AddFilesToTagCommand}">Files</Button>
+                                <Button Command="{Binding AddGpxFilesFromDirectoryCommand}">Directory</Button>
+                                <Button Command="{Binding AddGpxFilesFromDirectoryAndSubdirectoriesCommand }">Directory with Subdirectories</Button>
+                                <Button Command="{Binding AddGpxFilesCommand}">Files</Button>
                             </WrapPanel>
                         </StackPanel>
                     </GroupBox>
                     <GroupBox Header="GPX Files - Location Data" Grid.Row="1">
-                        <DataGrid Margin="2" ItemsSource="{Binding FilesToTag}" CanUserAddRows="False"
+                        <DataGrid Margin="2" ItemsSource="{Binding GpxFiles}" CanUserAddRows="False"
                                   CanUserReorderColumns="true"
                                   CanUserDeleteRows="true" CanUserResizeColumns="true" CanUserResizeRows="False"
                                   CanUserSortColumns="true" AutoGenerateColumns="False">
@@ -58,14 +67,14 @@
                                         <Setter Property="Width" Value="180" />
                                     </Style>
                                 </WrapPanel.Resources>
-                                <Button Command="{Binding AddGpxFilesFromDirectoryCommand}">Directory</Button>
-                                <Button Command="{Binding AddGpxFilesFromDirectoryAndSubdirectoriesCommand }">Directory with Subdirectories</Button>
-                                <Button Command="{Binding AddGpxFilesCommand}">Files</Button>
+                                <Button Command="{Binding AddFilesToTagFromDirectoryCommand}">Directory</Button>
+                                <Button Command="{Binding AddFilesToTagFromDirectoryAndSubdirectoriesCommand }">Directory with Subdirectories</Button>
+                                <Button Command="{Binding AddFilesToTagCommand}">Files</Button>
                             </WrapPanel>
                         </StackPanel>
                     </GroupBox>
                     <GroupBox Grid.Row="1" Header="Files To Tag">
-                        <DataGrid Margin="2" ItemsSource="{Binding GpxFiles}" CanUserAddRows="False"
+                        <DataGrid Margin="2" ItemsSource="{Binding FilesToTag}" CanUserAddRows="False"
                                   CanUserReorderColumns="true"
                                   CanUserDeleteRows="true" CanUserResizeColumns="true" CanUserResizeRows="False"
                                   CanUserSortColumns="true" AutoGenerateColumns="False">
@@ -112,8 +121,8 @@
                                     </StackPanel>
                                 </GroupBox>
                                 <GroupBox Header="Adjust File Time by Minutes" Margin="0,4,4,4">
-                                    <StackPanel Orientation="Horizontal"  Margin="4,6,4,4">
-                                        <numericUpDownLib:ShortUpDown Value="{Binding OffsetPhotoTimeInMinutes}" />
+                                    <StackPanel Orientation="Vertical" Margin="4,6,4,4">
+                                        <numericUpDownLib:ShortUpDown HorizontalAlignment="Left"  Value="{Binding OffsetPhotoTimeInMinutes}" />
                                         <TextBlock TextWrapping="Wrap" Margin="4">Adjust File Time by Minutes - File times for photographs and other files can be created by devices that don't have accurate clocks - use this setting if you know that the created time for a file is offset by a consistent number of minutes (positive or negative).</TextBlock>
                                     </StackPanel>
                                 </GroupBox>
@@ -121,19 +130,35 @@
                             <Button Command="{Binding TagCommand}" Height="40" Margin="8">Tag</Button>
                         </StackPanel>
                     </GroupBox>
-                    <GroupBox Header="Last Tag Result">
-                        <StackPanel>
-                            <TextBox IsReadOnly="true" TextWrapping="Wrap"
-                                     Text="{Binding LastTagOutput.Title, FallbackValue='No Results Generated'}" />
-                            <TextBox IsReadOnly="true" TextWrapping="Wrap"
-                                     Text="{Binding LastTagOutput.Notes, FallbackValue=''}" />
-                            <DataGrid ItemsSource="{Binding LastTagOutput.FileResults}" CanUserAddRows="False"
-                                      CanUserReorderColumns="true"
-                                      CanUserDeleteRows="false" CanUserResizeColumns="true" CanUserResizeRows="false"
-                                      CanUserSortColumns="true" AutoGenerateColumns="true" />
-                        </StackPanel>
-                    </GroupBox>
+
                 </StackPanel>
+            </TabItem>
+            <TabItem Header="Result">
+                <GroupBox Header="Tag Result">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"></RowDefinition>
+                            <RowDefinition Height="Auto"></RowDefinition>
+                            <RowDefinition Height="*"></RowDefinition>
+                        </Grid.RowDefinitions>
+                        <TextBox IsReadOnly="true" TextWrapping="Wrap"
+                                 Text="{Binding LastTagOutput.Title, FallbackValue='No Results Generated'}" />
+                        <TextBox Grid.Row="1"  IsReadOnly="true" TextWrapping="Wrap"
+                                 Text="{Binding LastTagOutput.Notes, FallbackValue=''}" />
+                        <DataGrid Grid.Row="2"  ItemsSource="{Binding LastTagOutput.FileResults}" CanUserAddRows="False"
+                                  CanUserReorderColumns="true"
+                                  CanUserDeleteRows="false" CanUserResizeColumns="true" CanUserResizeRows="false"
+                                  CanUserSortColumns="true" AutoGenerateColumns="true" />
+                    </Grid>
+                </GroupBox>
+            </TabItem>
+            <TabItem Header="Result Map">
+                <wpf:WebView2 Grid.Row="1" Visibility="{Binding StatusContext.BlockUi, Converter={StaticResource BooleanNotToVisibility}}">
+                    <b:Interaction.Behaviors>
+                        <wpfHtml:WebViewHtmlStringBindingBehavior HtmlString="{Binding PreviewHtml}" />
+                        <wpfHtml:WebViewPostJsonOnChangeBehavior JsonData="{Binding PreviewGeoJsonDto}" />
+                    </b:Interaction.Behaviors>
+                </wpf:WebView2>
             </TabItem>
         </TabControl>
     </Grid>

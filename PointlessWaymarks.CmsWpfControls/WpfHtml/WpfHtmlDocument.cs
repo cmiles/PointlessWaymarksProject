@@ -12,7 +12,7 @@ namespace PointlessWaymarks.CmsWpfControls.WpfHtml;
 
 public static class WpfHtmlDocument
 {
-    private static string LeafletDocumentOpening(string title, string styleBlock)
+    public static string LeafletDocumentOpening(string title, string styleBlock)
     {
         var embeddedProvider = new EmbeddedFileProvider(Assembly.GetExecutingAssembly());
 
@@ -31,12 +31,12 @@ public static class WpfHtmlDocument
     <meta charset=""utf-8"">
     <meta name=""viewport"" content=""width=device-width, initial-scale=1.0"">
     <title>{HtmlEncoder.Default.Encode(title)}</title>
-    <link rel=""stylesheet"" href=""https://unpkg.com/leaflet@1.7.1/dist/leaflet.css""
-       integrity=""sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A==""
-       crossorigin=""""/>
-    <script src=""https://unpkg.com/leaflet@1.7.1/dist/leaflet.js""
-       integrity=""sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA==""
-       crossorigin=""""></script>
+    <link rel=""stylesheet"" href=""https://unpkg.com/leaflet@1.9.2/dist/leaflet.css""
+         integrity=""sha256-sA+zWATbFveLLNqWO2gtiw3HL/lh1giY/Inf1BJ0z14=""
+         crossorigin=""""/>
+    <script src=""https://unpkg.com/leaflet@1.9.2/dist/leaflet.js""
+         integrity=""sha256-o9N1jGDZrf5tS+Ft4gbIK7mYMipq9lqpVJ91xHSyKhg=""
+         crossorigin=""""></script>
     <script>
         {bingScript}
     </script>
@@ -44,9 +44,9 @@ public static class WpfHtmlDocument
 </head>";
     }
 
-    private static List<LayerEntry> LeafletLayerList()
+    public static List<WpfCommon.WpfHtml.WpfHtmlDocument.LeafletLayerEntry> LeafletLayerList()
     {
-        var layers = new List<LayerEntry>
+        var layers = new List<WpfCommon.WpfHtml.WpfHtmlDocument.LeafletLayerEntry>
         {
             new("openTopoMap", "OSM Topo", @"
         var openTopoMap = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
@@ -60,7 +60,7 @@ public static class WpfHtmlDocument
 
         if (!string.IsNullOrWhiteSpace(UserSettingsSingleton.CurrentSettings().CalTopoApiKey))
         {
-            layers.Add(new LayerEntry("calTopoTopoLayer", "CalTopo Topo", $@"
+            layers.Add(new WpfCommon.WpfHtml.WpfHtmlDocument.LeafletLayerEntry("calTopoTopoLayer", "CalTopo Topo", $@"
                  var calTopoTopoLayer = L.tileLayer('http://caltopo.com/api/{{accessToken}}/wmts/tile/t/{{z}}/{{x}}/{{y}}.png', {{
             attribution: 'CalTopo',
             maxNativeZoom: 16,
@@ -69,7 +69,7 @@ public static class WpfHtmlDocument
             accessToken: '{UserSettingsSingleton.CurrentSettings().CalTopoApiKey}'
         }});"));
 
-            layers.Add(new LayerEntry("calTopoFsLayer", "CalTopo FS", $@"
+            layers.Add(new WpfCommon.WpfHtml.WpfHtmlDocument.LeafletLayerEntry("calTopoFsLayer", "CalTopo FS", $@"
                  var calTopoFsLayer = L.tileLayer('http://caltopo.com/api/{{accessToken}}/wmts/tile/f16a/{{z}}/{{x}}/{{y}}.png', {{
             attribution: 'CalTopo',
             maxNativeZoom: 16,
@@ -81,14 +81,14 @@ public static class WpfHtmlDocument
 
         if (!string.IsNullOrWhiteSpace(UserSettingsSingleton.CurrentSettings().BingApiKey))
         {
-            layers.Add(new LayerEntry("bingAerialTileLayer", "Bing Aerial", $@"
+            layers.Add(new WpfCommon.WpfHtml.WpfHtmlDocument.LeafletLayerEntry("bingAerialTileLayer", "Bing Aerial", $@"
                           var bingAerialTileLayer = L.tileLayer.bing({{
             bingMapsKey: '{UserSettingsSingleton.CurrentSettings().BingApiKey}', // Required
             imagerySet: 'AerialWithLabels',
             maxZoom: 24
         }});"));
 
-            layers.Add(new LayerEntry("bingRoadTileLayer", "Bing Roads", $@"
+            layers.Add(new WpfCommon.WpfHtml.WpfHtmlDocument.LeafletLayerEntry("bingRoadTileLayer", "Bing Roads", $@"
                           var bingRoadTileLayer = L.tileLayer.bing({{
             bingMapsKey: '{UserSettingsSingleton.CurrentSettings().BingApiKey}', // Required
             imagerySet: 'RoadOnDemand',
@@ -97,66 +97,6 @@ public static class WpfHtmlDocument
         }
 
         return layers;
-    }
-
-    public static string ToHtmlDocument(this string body, string title, string styleBlock)
-    {
-        var spatialScript = FileManagement.SpatialScriptsAsString().Result;
-
-        var htmlDoc = $@"
-<!doctype html>
-<html lang=en>
-<head>
-    <meta http-equiv=""X-UA-Compatible"" content=""IE=edge"" />
-    <meta name=""viewport"" content=""width=device-width, initial-scale=1.0"">
-    <meta charset=""utf-8"">
-    <title>{HtmlEncoder.Default.Encode(title)}</title>
-    <style>{styleBlock}</style>
-    <link rel=""stylesheet"" href=""https://unpkg.com/leaflet@1.7.1/dist/leaflet.css""
-       integrity=""sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A==""
-       crossorigin=""""/>
-    <script src=""https://unpkg.com/leaflet@1.7.1/dist/leaflet.js""
-       integrity=""sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA==""
-       crossorigin=""""></script>
-    <script>
-{spatialScript}
-    </script>
-</head>
-<body>
-    {body}
-</body>
-</html>";
-
-        return htmlDoc;
-    }
-
-    public static string ToHtmlDocumentWithPureCss(this string body, string title, string styleBlock)
-    {
-        var embeddedProvider = new EmbeddedFileProvider(Assembly.GetExecutingAssembly());
-
-        string pureCss;
-        using (var embeddedAsStream = embeddedProvider.GetFileInfo("leaflet-bing-layer.js").CreateReadStream())
-        {
-            var reader = new StreamReader(embeddedAsStream);
-            pureCss = reader.ReadToEnd();
-        }
-
-        var htmlDoc = $@"
-<!doctype html>
-<html lang=en>
-<head>
-    <meta http-equiv=""X-UA-Compatible"" content=""IE=edge"" />
-    <meta name=""viewport"" content=""width=device-width, initial-scale=1.0"">
-    <meta charset=""utf-8"">
-    <title>{HtmlEncoder.Default.Encode(title)}</title>
-    <style>{pureCss}{styleBlock}</style>
-</head>
-<body>
-    {body}
-</body>
-</html>";
-
-        return htmlDoc;
     }
 
     public static string ToHtmlLeafletGeoJsonDocument(string title, double initialLatitude, double initialLongitude,
@@ -487,7 +427,4 @@ public static class WpfHtmlDocument
 
         return htmlDoc;
     }
-
-
-    private record LayerEntry(string LayerVariableName, string LayerName, string LayerDeclaration);
 }

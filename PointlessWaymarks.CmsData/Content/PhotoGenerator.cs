@@ -47,7 +47,7 @@ public static class PhotoGenerator
 
         var exifSubIfDirectory = ImageMetadataReader.ReadMetadata(selectedFile.FullName).OfType<ExifSubIfdDirectory>()
             .FirstOrDefault();
-        var exifDirectory = ImageMetadataReader.ReadMetadata(selectedFile.FullName).OfType<ExifIfd0Directory>()
+        var exifIfdDirectory = ImageMetadataReader.ReadMetadata(selectedFile.FullName).OfType<ExifIfd0Directory>()
             .FirstOrDefault();
         var iptcDirectory = ImageMetadataReader.ReadMetadata(selectedFile.FullName).OfType<IptcDirectory>()
             .FirstOrDefault();
@@ -56,127 +56,26 @@ public static class PhotoGenerator
         var xmpDirectory = ImageMetadataReader.ReadMetadata(selectedFile.FullName).OfType<XmpDirectory>()
             .FirstOrDefault();
 
-        toReturn.PhotoCreatedBy = exifDirectory?.GetDescription(ExifDirectoryBase.TagArtist) ?? string.Empty;
+        toReturn.PhotoCreatedBy = exifIfdDirectory?.GetDescription(ExifDirectoryBase.TagArtist) ?? string.Empty;
 
         if (string.IsNullOrWhiteSpace(toReturn.PhotoCreatedBy))
-            toReturn.PhotoCreatedBy = xmpDirectory?.XmpMeta?.GetArrayItem(XmpConstants.NsDC, "creator", 1)?.Value ??
-                                      string.Empty;
+            toReturn.PhotoCreatedBy = xmpDirectory?.XmpMeta?.GetArrayItem(XmpConstants.NsDC, "creator", 1)?.Value ?? string.Empty;
 
         if (string.IsNullOrWhiteSpace(toReturn.PhotoCreatedBy))
             toReturn.PhotoCreatedBy = iptcDirectory?.GetDescription(IptcDirectory.TagByLine) ?? string.Empty;
 
-        //Created on stack of choices - this is a very anecdotal list and ordering based on photos I have seen that 
-        //are mostly mine - this could no doubt be improved with some research into what various open source 
-        //photo/media imports are doing and/or finding a great test set of photos
-        var createdOn = exifSubIfDirectory?.GetDescription(ExifDirectoryBase.TagDateTimeOriginal);
-        if (string.IsNullOrWhiteSpace(createdOn))
-            createdOn = exifDirectory?.GetDescription(ExifDirectoryBase.TagDateTimeOriginal);
-        if (string.IsNullOrWhiteSpace(createdOn))
-            createdOn = exifSubIfDirectory?.GetDescription(ExifDirectoryBase.TagDateTime);
-        if (string.IsNullOrWhiteSpace(createdOn))
-            createdOn = exifDirectory?.GetDescription(ExifDirectoryBase.TagDateTime);
+        var createdOn =
+            await PhotoToolsFileMetadata.CreatedOnLocalAndUtc(exifSubIfDirectory, exifIfdDirectory, gpsDirectory,
+                xmpDirectory);
 
-        var createdOnUtcOffsetString = exifSubIfDirectory?.GetDescription(ExifDirectoryBase.TagTimeZone);
-        var createOnUtcOffsetTimespan = new TimeSpan(0);
-        var createOnUtcOffsetIsValid = !string.IsNullOrWhiteSpace(createdOnUtcOffsetString) &&
-                                       TimeSpan.TryParse(createdOnUtcOffsetString, out createOnUtcOffsetTimespan);
+        toReturn.PhotoCreatedOn = createdOn.createdOnLocal ?? DateTime.Now;
+        toReturn.PhotoCreatedOnUtc = createdOn.createdOnUtc;
 
-        //If no string is returned from the EXIF then try for GPX information and fallback to now
-        if (string.IsNullOrWhiteSpace(createdOn))
-        {
-            if (gpsDirectory?.TryGetGpsDate(out var gpsDateTime) ?? false)
-            {
-                if (gpsDateTime != DateTime.MinValue)
-                {
-                    gpsDateTime = DateTime.SpecifyKind(gpsDateTime, DateTimeKind.Utc);
-                    toReturn.PhotoCreatedOn = gpsDateTime.ToLocalTime();
-                    toReturn.PhotoCreatedOnUtc = gpsDateTime;
-                }
-            }
-            else
-            {
-                toReturn.PhotoCreatedOn = DateTime.Now;
-            }
-        }
-        //If a string was found in the Exif try to parse it or fallback to now
-        else
-        {
-            var createdOnParsed = DateTime.TryParseExact(createdOn, "yyyy:MM:dd HH:mm:ss",
-                CultureInfo.InvariantCulture, DateTimeStyles.None, out var parsedDate);
+        var locationInformation = await PhotoToolsFileMetadata.LocationFromExifGpsDirectoryMetadata(gpsDirectory, true, progress);
 
-            toReturn.PhotoCreatedOn = createdOnParsed ? parsedDate : DateTime.Now;
-
-            if (createdOnParsed && createOnUtcOffsetIsValid)
-            {
-                var utcDateTime = toReturn.PhotoCreatedOn.Subtract(createOnUtcOffsetTimespan);
-                utcDateTime = DateTime.SpecifyKind(utcDateTime, DateTimeKind.Utc);
-                toReturn.PhotoCreatedOnUtc = utcDateTime;
-            }
-        }
-
-        if (gpsDirectory != null && !gpsDirectory.IsEmpty)
-        {
-            var geoLocation = gpsDirectory.GetGeoLocation();
-
-            if (geoLocation?.IsZero ?? true)
-            {
-                toReturn.Longitude = null;
-                toReturn.Latitude = null;
-            }
-            else
-            {
-                toReturn.Latitude = geoLocation.Latitude;
-                toReturn.Longitude = geoLocation.Longitude;
-            }
-
-            if (toReturn.Latitude != null && toReturn.Longitude != null)
-            {
-                var foundAltitude = false;
-
-                if (toReturn.Latitude != null && toReturn.Longitude != null)
-                {
-                    var hasSeaLevelIndicator =
-                        gpsDirectory.TryGetByte(GpsDirectory.TagAltitudeRef, out var seaLevelIndicator);
-                    var hasElevation = gpsDirectory.TryGetRational(GpsDirectory.TagAltitude, out var altitudeRational);
-
-                    if (hasElevation)
-                    {
-                        var isBelowSeaLevel = false;
-
-                        if (hasSeaLevelIndicator) isBelowSeaLevel = seaLevelIndicator == 1;
-
-                        if (altitudeRational.Denominator != 0 ||
-                            (altitudeRational.Denominator == 0 && altitudeRational.Numerator == 0))
-                        {
-                            toReturn.Elevation = isBelowSeaLevel
-                                ? altitudeRational.ToDouble() * -1
-                                : altitudeRational.ToDouble();
-                            foundAltitude = true;
-                        }
-                    }
-
-                    if (!foundAltitude)
-                        try
-                        {
-                            toReturn.Elevation = await ElevationService.OpenTopoNedElevation(toReturn.Latitude.Value,
-                                toReturn.Longitude.Value, progress);
-                        }
-                        catch (Exception e)
-                        {
-                            Console.WriteLine(e);
-                        }
-                }
-            }
-        }
-
-        //If there is a UTC Time and a Lat/Long position try to move the local time to the position local time
-        if (toReturn.Latitude != null && toReturn.Longitude != null && toReturn.PhotoCreatedOnUtc != null)
-        {
-            var photoLocationTimezoneIanaIdentifier =
-                TimeZoneLookup.GetTimeZone(toReturn.Latitude.Value, toReturn.Longitude.Value);
-            var photoLocationTimeZone = TimeZoneInfo.FindSystemTimeZoneById(photoLocationTimezoneIanaIdentifier.Result);
-            toReturn.PhotoCreatedOn = TimeZoneInfo.ConvertTime(toReturn.PhotoCreatedOnUtc.Value, photoLocationTimeZone);
-        }
+        toReturn.Latitude = locationInformation.Latitude;
+        toReturn.Longitude = locationInformation.Longitude;
+        toReturn.Elevation = locationInformation.Elevation;
 
         var tags = new List<string>();
 
@@ -185,7 +84,11 @@ public static class PhotoGenerator
             var stateCounty =
                 await StateCountyService.GetStateCounty(toReturn.Latitude.Value,
                     toReturn.Longitude.Value);
-            if (!string.IsNullOrWhiteSpace(stateCounty.state)) tags.Add(stateCounty.state);
+            if (!string.IsNullOrWhiteSpace(stateCounty.state))
+            {
+                tags.Add(stateCounty.state);
+                tags.Add("United States");
+            }
             if (!string.IsNullOrWhiteSpace(stateCounty.county)) tags.Add(stateCounty.county);
         }
 
@@ -212,8 +115,8 @@ public static class PhotoGenerator
         var isoString = exifSubIfDirectory?.GetDescription(ExifDirectoryBase.TagIsoEquivalent);
         if (!string.IsNullOrWhiteSpace(isoString)) toReturn.Iso = int.Parse(isoString);
 
-        toReturn.CameraMake = exifDirectory?.GetDescription(ExifDirectoryBase.TagMake) ?? string.Empty;
-        toReturn.CameraModel = exifDirectory?.GetDescription(ExifDirectoryBase.TagModel) ?? string.Empty;
+        toReturn.CameraMake = exifIfdDirectory?.GetDescription(ExifDirectoryBase.TagMake) ?? string.Empty;
+        toReturn.CameraModel = exifIfdDirectory?.GetDescription(ExifDirectoryBase.TagModel) ?? string.Empty;
         toReturn.FocalLength = exifSubIfDirectory?.GetDescription(ExifDirectoryBase.TagFocalLength) ?? string.Empty;
 
         toReturn.Lens = exifSubIfDirectory?.GetDescription(ExifDirectoryBase.TagLensModel) ?? string.Empty;
@@ -237,7 +140,7 @@ public static class PhotoGenerator
 
         toReturn.Aperture = exifSubIfDirectory?.GetDescription(ExifDirectoryBase.TagAperture) ?? string.Empty;
 
-        toReturn.License = exifDirectory?.GetDescription(ExifDirectoryBase.TagCopyright) ?? string.Empty;
+        toReturn.License = exifIfdDirectory?.GetDescription(ExifDirectoryBase.TagCopyright) ?? string.Empty;
 
         if (string.IsNullOrWhiteSpace(toReturn.License))
             toReturn.License = xmpDirectory?.XmpMeta?.GetArrayItem(XmpConstants.NsDC, "rights", 1)?.Value ??
@@ -382,7 +285,7 @@ public static class PhotoGenerator
 
         //Order is important here - the title supplies the summary in the code above - but overwrite that if there is a
         //description.
-        var description = exifDirectory?.GetDescription(ExifDirectoryBase.TagImageDescription) ?? string.Empty;
+        var description = exifIfdDirectory?.GetDescription(ExifDirectoryBase.TagImageDescription) ?? string.Empty;
         if (!string.IsNullOrWhiteSpace(description))
             toReturn.Summary = description;
 

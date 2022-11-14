@@ -2,10 +2,14 @@
 using System.IO;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using NetTopologySuite.Features;
 using Ookii.Dialogs.Wpf;
 using PointlessWaymarks.GeoTaggingService;
+using PointlessWaymarks.SpatialTools;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
+using PointlessWaymarks.WpfCommon.WpfHtml;
+using static PointlessWaymarks.CmsData.ContentHtml.GeoJsonHtml.GeoJsonData;
 
 namespace PointlessWaymarks.GeoTaggingGui;
 
@@ -22,9 +26,12 @@ public partial class FileBasedTaggerContext
     [ObservableProperty] private int _offsetPhotoTimeInMinutes;
     [ObservableProperty] private bool _overwriteExistingGeoLocation;
     [ObservableProperty] private int _pointsMustBeWithinMinutes = 10;
+    [ObservableProperty] private string _previewGeoJsonDto;
+    [ObservableProperty] private string _previewHtml;
     [ObservableProperty] private StatusControlContext _statusContext;
     [ObservableProperty] private bool _testRunOnly;
     [ObservableProperty] private WindowIconStatus? _windowStatus;
+
 
     public FileBasedTaggerContext(StatusControlContext? statusContext, WindowIconStatus? windowStatus)
     {
@@ -60,12 +67,20 @@ public partial class FileBasedTaggerContext
 
     public async System.Threading.Tasks.Task AddFilesToTag()
     {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+        var lastDirectory = await LastTaggingDirectory();
+
         await ThreadSwitcher.ResumeForegroundAsync();
+
         var filePicker = new VistaOpenFileDialog
             { Title = "Add Files", Multiselect = true, CheckFileExists = true, ValidateNames = true };
+        if (lastDirectory != null) filePicker.FileName = $"{lastDirectory.FullName}\\";
+
         var result = filePicker.ShowDialog();
 
         if (!result ?? false) return;
+
+        await WriteLastTaggingDirectorySetting(Path.GetDirectoryName(filePicker.FileNames.FirstOrDefault()));
 
         var selectedFiles = filePicker.FileNames.Select(x => new FileInfo(x)).Where(x => !FilesToTag!.Contains(x))
             .ToList();
@@ -75,12 +90,20 @@ public partial class FileBasedTaggerContext
 
     public async System.Threading.Tasks.Task AddFilesToTagFromDirectory()
     {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+        var lastDirectory = await LastTaggingDirectory();
+
         await ThreadSwitcher.ResumeForegroundAsync();
         var folderPicker = new VistaFolderBrowserDialog
             { Description = "Directory to Add", Multiselect = false };
+
+        if (lastDirectory != null) folderPicker.SelectedPath = $"{lastDirectory.FullName}\\";
+
         var result = folderPicker.ShowDialog();
 
         if (!result ?? false) return;
+
+        await WriteLastTaggingDirectorySetting(folderPicker.SelectedPath);
 
         var selectedDirectory = new DirectoryInfo(folderPicker.SelectedPath);
         var selectedFiles = selectedDirectory.EnumerateFiles("*").ToList().Where(x => !FilesToTag!.Contains(x))
@@ -91,12 +114,19 @@ public partial class FileBasedTaggerContext
 
     public async System.Threading.Tasks.Task AddFilesToTagFromDirectoryAndSubdirectories()
     {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+        var lastDirectory = await LastTaggingDirectory();
+
         await ThreadSwitcher.ResumeForegroundAsync();
         var folderPicker = new VistaFolderBrowserDialog
             { Description = "Directory And Subdirectories to Add", Multiselect = false };
+        if (lastDirectory != null) folderPicker.SelectedPath = $"{lastDirectory.FullName}\\";
+
         var result = folderPicker.ShowDialog();
 
         if (!result ?? false) return;
+
+        await WriteLastTaggingDirectorySetting(folderPicker.SelectedPath);
 
         var selectedDirectory = new DirectoryInfo(folderPicker.SelectedPath);
         var selectedFiles = selectedDirectory.EnumerateFiles("*", SearchOption.AllDirectories)
@@ -107,15 +137,22 @@ public partial class FileBasedTaggerContext
 
     public async System.Threading.Tasks.Task AddGpxFiles()
     {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+        var lastDirectory = await LastGpxDirectory();
+
         await ThreadSwitcher.ResumeForegroundAsync();
         var filePicker = new VistaOpenFileDialog
         {
             Title = "Select Gpx Files", Multiselect = true, CheckFileExists = true, ValidateNames = true,
             DefaultExt = ".gpx"
         };
+        if (lastDirectory != null) filePicker.FileName = $"{lastDirectory.FullName}\\";
+
         var result = filePicker.ShowDialog();
 
         if (!result ?? false) return;
+
+        await WriteLastGpxDirectorySetting(Path.GetDirectoryName(filePicker.FileNames.FirstOrDefault()));
 
         var selectedFiles = filePicker.FileNames.Select(x => new FileInfo(x)).Where(x =>
                 x.Extension.Equals(".GPX", StringComparison.InvariantCultureIgnoreCase) && !GpxFiles!.Contains(x))
@@ -126,12 +163,18 @@ public partial class FileBasedTaggerContext
 
     public async System.Threading.Tasks.Task AddGpxFilesFromDirectory()
     {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+        var lastDirectory = await LastGpxDirectory();
+
         await ThreadSwitcher.ResumeForegroundAsync();
         var folderPicker = new VistaFolderBrowserDialog
             { Description = "Add gpx files in Directory", Multiselect = false };
+        if (lastDirectory != null) folderPicker.SelectedPath = $"{lastDirectory.FullName}\\";
         var result = folderPicker.ShowDialog();
 
         if (!result ?? false) return;
+
+        await WriteLastGpxDirectorySetting(folderPicker.SelectedPath);
 
         var selectedDirectory = new DirectoryInfo(folderPicker.SelectedPath);
         var selectedFiles = selectedDirectory.EnumerateFiles("*").ToList().Where(x =>
@@ -143,12 +186,18 @@ public partial class FileBasedTaggerContext
 
     public async System.Threading.Tasks.Task AddGpxFilesFromDirectoryAndSubdirectories()
     {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+        var lastDirectory = await LastGpxDirectory();
+
         await ThreadSwitcher.ResumeForegroundAsync();
         var folderPicker = new VistaFolderBrowserDialog
             { Description = "Add GPX Files in Directory And Subdirectories", Multiselect = false };
+        if (lastDirectory != null) folderPicker.SelectedPath = $"{lastDirectory.FullName}\\";
         var result = folderPicker.ShowDialog();
 
         if (!result ?? false) return;
+
+        await WriteLastGpxDirectorySetting(folderPicker.SelectedPath);
 
         var selectedDirectory = new DirectoryInfo(folderPicker.SelectedPath);
         var selectedFiles = selectedDirectory.EnumerateFiles("*", SearchOption.AllDirectories).Where(x =>
@@ -166,20 +215,97 @@ public partial class FileBasedTaggerContext
         return control;
     }
 
+    public async Task<DirectoryInfo?> LastGpxDirectory()
+    {
+        var lastDirectory = (await SettingTools.ReadSettings()).GpxLastDirectoryFullName;
+
+        if (string.IsNullOrWhiteSpace(lastDirectory)) return null;
+
+        var returnDirectory = new DirectoryInfo(lastDirectory);
+
+        if (!returnDirectory.Exists) return null;
+
+        return returnDirectory;
+    }
+
+    public async Task<DirectoryInfo?> LastTaggingDirectory()
+    {
+        var lastDirectory = (await SettingTools.ReadSettings()).PhotosLastDirectoryFullName;
+
+        if (string.IsNullOrWhiteSpace(lastDirectory)) return null;
+
+        var returnDirectory = new DirectoryInfo(lastDirectory);
+
+        if (!returnDirectory.Exists) return null;
+
+        return returnDirectory;
+    }
+
     public async System.Threading.Tasks.Task LoadData()
     {
         await ThreadSwitcher.ResumeForegroundAsync();
         FilesToTag = new ObservableCollection<FileInfo>();
         GpxFiles = new ObservableCollection<FileInfo>();
+
+        ExifToolFullName = (await SettingTools.ReadSettings()).ExifToolFullName;
+
+        PreviewHtml = WpfHtmlDocument.ToHtmlLeafletBasicGeoJsonDocument("GeoJson",
+            32.12063, -110.52313, string.Empty);
     }
 
     public async System.Threading.Tasks.Task Tag()
     {
+        await WriteExifToolSetting(ExifToolFullName);
+
         var fileListGpxService = new FileListGpxService(GpxFiles!.ToList());
         var tagger = new GeoTag();
         LastTagOutput = await tagger.Tag(FilesToTag!.ToList(), new List<IGpxService> { fileListGpxService },
             TestRunOnly, CreateBackups,
             PointsMustBeWithinMinutes, OffsetPhotoTimeInMinutes, OverwriteExistingGeoLocation, ExifToolFullName,
             StatusContext.ProgressTracker());
+
+        var resultsWithLocation =
+            LastTagOutput.FileResults.Where(x => x.Latitude != null && x.Longitude != null).ToList();
+
+        if (!resultsWithLocation.Any())
+            //Todo: Blank/Clear GeoJson
+            return;
+
+        var features = new FeatureCollection();
+
+        foreach (var loopResults in resultsWithLocation)
+            features.Add(new Feature(PointTools.Wgs84Point(loopResults.Longitude.Value, loopResults.Latitude.Value),
+                new AttributesTable(new Dictionary<string, object>
+                    { { "title", loopResults.FileName }, { "description", $"From {loopResults.Source}" } })));
+
+        //GeoJson Creation - ref the GeoJson control - boundaries?
+
+        var bounds = GeoJsonTools.GeometryBoundingBox(features.Select(x => x.Geometry).ToList());
+
+        var jsonDto = new GeoJsonSiteJsonData(Guid.NewGuid().ToString(),
+            new SpatialBounds(bounds.MaxY, bounds.MaxX, bounds.MinY, bounds.MinX), features);
+
+        PreviewGeoJsonDto = await GeoJsonTools.SerializeWithGeoJsonSerializer(jsonDto);
+    }
+
+    public async System.Threading.Tasks.Task WriteExifToolSetting(string? newDirectory)
+    {
+        var settings = await SettingTools.ReadSettings();
+        settings.ExifToolFullName = ExifToolFullName;
+        await SettingTools.WriteSettings(settings);
+    }
+
+    public async System.Threading.Tasks.Task WriteLastGpxDirectorySetting(string? newDirectory)
+    {
+        var settings = await SettingTools.ReadSettings();
+        settings.GpxLastDirectoryFullName = newDirectory ?? string.Empty;
+        await SettingTools.WriteSettings(settings);
+    }
+
+    public async System.Threading.Tasks.Task WriteLastTaggingDirectorySetting(string? newDirectory)
+    {
+        var settings = await SettingTools.ReadSettings();
+        settings.PhotosLastDirectoryFullName = newDirectory ?? string.Empty;
+        await SettingTools.WriteSettings(settings);
     }
 }

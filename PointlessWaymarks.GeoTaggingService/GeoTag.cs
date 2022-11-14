@@ -1,12 +1,11 @@
-﻿using System.Globalization;
-using System.Text;
+﻿using System.Text;
 using MetadataExtractor;
 using MetadataExtractor.Formats.Exif;
-using NetTopologySuite.IO;
+using MetadataExtractor.Formats.Xmp;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.SpatialTools;
 using Serilog;
-using File = TagLib.File;
+using XmpCore;
 
 namespace PointlessWaymarks.GeoTaggingService;
 
@@ -112,72 +111,102 @@ public class GeoTag
 
         if (!possibleExifToolFile.Exists) return (false, null);
 
-        return (false, possibleExifToolFile);
+        return (true, possibleExifToolFile);
     }
 
-    public static bool FileHasLatLong(FileInfo loopFile, IProgress<string>? progress)
+    public static async Task<bool> FileHasLatLong(FileInfo loopFile, IProgress<string>? progress)
     {
+        if (loopFile.Extension.Equals(".xmp", StringComparison.InvariantCultureIgnoreCase))
+        {
+            await using var stream = File.OpenRead(loopFile.FullName);
+            var xmp = XmpMetaFactory.Parse(stream);
+
+            var xmpLocation = await PhotoToolsXmpSidecar.PhotoLocationFromXmpSidecar(xmp, false, progress);
+
+            return xmpLocation.HasValidLocation();
+        }
+
         var gpsDirectory = ImageMetadataReader.ReadMetadata(loopFile.FullName).OfType<GpsDirectory>()
             .FirstOrDefault();
 
-        if (gpsDirectory is null or { IsEmpty: false }) return false;
+        var metaLocation =
+            await PhotoToolsFileMetadata.LocationFromExifGpsDirectoryMetadata(gpsDirectory, false, progress);
 
-        var geoLocation = gpsDirectory.GetGeoLocation();
-
-        if (geoLocation?.IsZero ?? true) return false;
-
-        return true;
+        return metaLocation.HasValidLocation();
     }
 
-    public static DateTime? FileUtcCreatedOn(FileInfo loopFile, IProgress<string>? progress)
+    public static async Task<PhotoLocation> FilePhotoLocation(FileInfo loopFile, bool tryGetElevationIfNotInMetadata,
+        IProgress<string>? progress)
     {
+        if (loopFile.Extension.Equals(".xmp", StringComparison.InvariantCultureIgnoreCase))
+        {
+            await using var stream = File.OpenRead(loopFile.FullName);
+            var xmp = XmpMetaFactory.Parse(stream);
+
+            var xmpLocation =
+                await PhotoToolsXmpSidecar.PhotoLocationFromXmpSidecar(xmp, tryGetElevationIfNotInMetadata, progress);
+
+            return xmpLocation;
+        }
+
+        var gpsDirectory = ImageMetadataReader.ReadMetadata(loopFile.FullName).OfType<GpsDirectory>()
+            .FirstOrDefault();
+
+        var metaLocation =
+            await PhotoToolsFileMetadata.LocationFromExifGpsDirectoryMetadata(gpsDirectory,
+                tryGetElevationIfNotInMetadata, progress);
+
+        return metaLocation;
+    }
+
+    public static async Task<DateTime?> FileUtcCreatedOn(FileInfo loopFile, IProgress<string>? progress)
+    {
+        if (loopFile.Extension.Equals(".xmp", StringComparison.InvariantCultureIgnoreCase))
+        {
+            await using var stream = File.OpenRead(loopFile.FullName);
+            var xmp = XmpMetaFactory.Parse(stream);
+
+            var xmpCreatedOn = await PhotoToolsXmpSidecar.CreatedOnLocalAndUtc(xmp);
+
+            if (xmpCreatedOn.createdOnUtc is null)
+            {
+                progress?.Report(
+                    $"GeoTag - No UTC Date/Time found in xmp sidecar file {loopFile.FullName} - skipping");
+                return null;
+            }
+
+            progress?.Report(
+                $"GeoTag - {loopFile.FullName} using UTC Time {xmpCreatedOn.createdOnUtc} from xmp sidecar file");
+            return xmpCreatedOn.createdOnUtc;
+        }
+
+
         var exifSubIfDirectory = ImageMetadataReader.ReadMetadata(loopFile.FullName)
             .OfType<ExifSubIfdDirectory>()
             .FirstOrDefault();
+        var exifIfd0Directory = ImageMetadataReader.ReadMetadata(loopFile.FullName)
+            .OfType<ExifIfd0Directory>()
+            .FirstOrDefault();
+        var xmpDirectory = ImageMetadataReader.ReadMetadata(loopFile.FullName)
+            .OfType<XmpDirectory>()
+            .FirstOrDefault();
         var gpsDirectory = ImageMetadataReader.ReadMetadata(loopFile.FullName).OfType<GpsDirectory>()
             .FirstOrDefault();
 
-        if (gpsDirectory?.TryGetGpsDate(out var gpsDateTime) ?? false)
-            if (gpsDateTime != DateTime.MinValue)
-            {
-                gpsDateTime = DateTime.SpecifyKind(gpsDateTime, DateTimeKind.Utc);
-                progress?.Report($"GeoTag - {loopFile.FullName} using GPS UTC Time {gpsDateTime}");
-                return gpsDateTime;
-            }
+        var metaCreatedOn =
+            await PhotoToolsFileMetadata.CreatedOnLocalAndUtc(exifSubIfDirectory, exifIfd0Directory, gpsDirectory,
+                xmpDirectory);
 
-        var createdOn = exifSubIfDirectory?.GetDescription(ExifDirectoryBase.TagDateTimeOriginal);
-
-        if (string.IsNullOrEmpty(createdOn))
+        if (metaCreatedOn.createdOnUtc is null)
         {
             progress?.Report(
-                $"GeoTag - No TagDateTimeOriginal found in ExifSubIfdDirectory for {loopFile.FullName} - skipping");
+                $"GeoTag - No UTC Date/Time found in file {loopFile.FullName} - skipping");
             return null;
         }
 
-        var createdOnParsed = DateTime.TryParseExact(createdOn, "yyyy:MM:dd HH:mm:ss",
-            CultureInfo.InvariantCulture, DateTimeStyles.None, out var parsedDate);
-
-        if (!createdOnParsed)
-        {
-            progress?.Report(
-                $"GeoTag - TagDateTimeOriginal - {createdOn} - could not be parsed into a valid DateTime - skipping");
-            return null;
-        }
-
-        var createdOnUtcOffsetString = exifSubIfDirectory?.GetDescription(ExifDirectoryBase.TagTimeZone);
-        var createOnUtcOffsetTimespan = new TimeSpan(0);
-        var createOnUtcOffsetIsValid = !string.IsNullOrWhiteSpace(createdOnUtcOffsetString) &&
-                                       TimeSpan.TryParse(createdOnUtcOffsetString,
-                                           out createOnUtcOffsetTimespan);
-
-        if (!createOnUtcOffsetIsValid)
-        {
-            progress?.Report(
-                $"GeoTag - Valid TagTimeZone not found in ExifSubIfdDirectory for {loopFile.FullName} - skipping");
-            return null;
-        }
-
-        return parsedDate.Subtract(createOnUtcOffsetTimespan);
+        progress?.Report(
+            $"GeoTag - {loopFile.FullName} using UTC Time {metaCreatedOn.createdOnUtc} from file metadata");
+        return metaCreatedOn.createdOnUtc;
     }
 
     public async Task<GeoTagResult> Tag(List<FileInfo> filesToTag, List<IGpxService> gpxServices, bool testRun,
@@ -241,7 +270,7 @@ public class GeoTag
                 supportedFiles.Select(x => x.Extension.ToUpperInvariant()).Distinct().OrderBy(x => x));
 
             progress?.Report(
-                $"GeoTag - Found {notSupportedFiles.Count} with extensions that are not in this program's  of supported extensions {(exifTool.isPresent ? "" : "(ExifTool was not found and expands considerably the supported file extensions) ")}.");
+                $"GeoTag - Found {notSupportedFiles.Count} with extensions that are not in this program's of supported extensions {(exifTool.isPresent ? "" : "(ExifTool was not found and expands considerably the supported file extensions) ")}.");
 
             progress?.Report(
                 $"GeoTag - {notSupportedFileExtensions.Length} Extensions without support: {notSupportedFileExtensions}");
@@ -255,6 +284,7 @@ public class GeoTag
                     : "There are files that are not supported by this program - this program can support additional file formats if you download and setup ExifTool - https://oliverbetz.de/pages/Artikel/ExifTool-for-Windows.");
 
             notSupportedFiles.ForEach(x => returnFileResults.Add(new GeoTagFileResult(x.FullName, "Not Supported",
+                string.Empty,
                 $"The file extension {x.Extension} is not supported - file not processed.")));
         }
 
@@ -273,30 +303,37 @@ public class GeoTag
             if (!loopFile.Exists)
             {
                 progress?.Report($"GeoTag - File {loopFile.FullName} doesn't exist - skipping");
-                returnFileResults.Add(new GeoTagFileResult(loopFile.FullName, "File Not Found",
+                returnFileResults.Add(new GeoTagFileResult(loopFile.FullName, "File Not Found", string.Empty,
                     "The file was not found - file not processed."));
                 continue;
             }
 
-            var hasExistingLatLong = FileHasLatLong(loopFile, progress);
+            var hasExistingLatLong = await FileHasLatLong(loopFile, progress);
 
             if (!overwriteExistingLatLong && hasExistingLatLong)
             {
                 progress?.Report(
                     $"GeoTag - File {loopFile.FullName} Already Has a GeoLocation and Overwrite Existing is Set to {overwriteExistingLatLong} - skipping");
+                var metadataLocation = await FilePhotoLocation(loopFile, false, progress);
+
                 returnFileResults.Add(new GeoTagFileResult(loopFile.FullName, "Skipped",
-                    "File has Geolocation Metadata and this run is not set to Overwrite existing data."));
+                    "File has Geolocation Metadata and this run is not set to Overwrite existing data.", string.Empty,
+                    metadataLocation.Latitude, metadataLocation.Longitude, metadataLocation.Elevation));
                 continue;
             }
 
-            var createdOnUtc = FileUtcCreatedOn(loopFile, progress);
+            var createdOnUtc = await FileUtcCreatedOn(loopFile, progress);
 
             if (createdOnUtc == null)
             {
                 progress?.Report(
                     $"GeoTag - Valid TagTimeZone not found in ExifSubIfdDirectory for {loopFile.FullName} - skipping");
+
+                var metadataLocation = await FilePhotoLocation(loopFile, false, progress);
+
                 returnFileResults.Add(new GeoTagFileResult(loopFile.FullName, "Skipped",
-                    "No Valid TagTimeZone found - this value is needed to determine the UTC time of a photo."));
+                    "No Valid TagTimeZone found - this value is needed to determine the UTC time of a photo.",
+                    string.Empty, metadataLocation.Latitude, metadataLocation.Longitude, metadataLocation.Elevation));
                 continue;
             }
 
@@ -306,7 +343,7 @@ public class GeoTag
         progress?.Report(
             $"Found {listOfUtcAndFileToProcess.Count} files to Process out of {supportedFiles.Count} supported Files");
 
-        var pointLists = new List<(DateTime start, DateTime end, List<GpxWaypoint> waypoints)>();
+        var pointLists = new List<(DateTime start, DateTime end, List<WaypointAndSource> waypoints)>();
 
         counter = 0;
 
@@ -322,16 +359,18 @@ public class GeoTag
                 continue;
             }
 
-            var pointsCollection = new List<GpxWaypoint>();
+            var pointsCollection = new List<WaypointAndSource>();
 
             foreach (var loopService in gpxServices)
                 pointsCollection.AddRange(
-                    (await loopService.GetGpxPoints(loopUtc.createdUtc, progress)).Where(x => x.TimestampUtc != null));
+                    (await loopService.GetGpxPoints(loopUtc.createdUtc, progress)).Where(x =>
+                        x.Waypoint.TimestampUtc != null));
 
             if (!pointsCollection.Any()) continue;
 
-            var toAdd = (pointsCollection.MinBy(x => x.TimestampUtc!.Value).TimestampUtc.Value,
-                pointsCollection.MaxBy(x => x.TimestampUtc!.Value).TimestampUtc.Value, pointsCollection);
+            var toAdd = (pointsCollection.MinBy(x => x.Waypoint.TimestampUtc!.Value).Waypoint.TimestampUtc.Value,
+                pointsCollection.MaxBy(x => x.Waypoint.TimestampUtc!.Value).Waypoint.TimestampUtc.Value,
+                pointsCollection);
 
             progress?.Report(
                 $"GeoTag - For {loopUtc.file} added {toAdd.pointsCollection.Count} points from UTC {toAdd.Item1} to {toAdd.Item2}");
@@ -355,29 +394,34 @@ public class GeoTag
                     $"GeoTag - Finding Location and Writing Metadata - File {counter} of {listOfUtcAndFileToProcess.Count}");
 
             var possibleTagPoints = allPoints.Where(x =>
-                loopFile.createdUtc.AddMinutes(-Math.Abs(pointMustBeWithinMinutes)) >= x.TimestampUtc &&
-                x.TimestampUtc <= loopFile.createdUtc.AddMinutes(Math.Abs(pointMustBeWithinMinutes))).ToList();
+                loopFile.createdUtc.AddMinutes(-Math.Abs(pointMustBeWithinMinutes)) >= x.Waypoint.TimestampUtc &&
+                x.Waypoint.TimestampUtc <= loopFile.createdUtc.AddMinutes(Math.Abs(pointMustBeWithinMinutes))).ToList();
 
             if (!possibleTagPoints.Any())
             {
                 progress?.Report(
                     $"GeoTag - No Matching Points Found for {loopFile.file.FullName}");
+
+                var metadataLocation = await FilePhotoLocation(loopFile.file, false, progress);
+
                 returnFileResults.Add(new GeoTagFileResult(loopFile.file.FullName, "No Matching GPX Data",
-                    "No Matching Points Found within {pointMustBeWithinMinutes} Minutes."));
+                    "No Matching Points Found within {pointMustBeWithinMinutes} Minutes.", string.Empty,
+                    metadataLocation.Latitude, metadataLocation.Longitude, metadataLocation.Elevation));
                 continue;
             }
 
             var closest = possibleTagPoints.MinBy(x =>
-                Math.Abs(loopFile.createdUtc.Subtract(x.TimestampUtc.Value).TotalMicroseconds));
+                Math.Abs(loopFile.createdUtc.Subtract(x.Waypoint.TimestampUtc.Value).TotalMicroseconds));
 
-            var latitude = closest.Latitude.Value;
-            var longitude = closest.Longitude.Value;
+            var latitude = closest.Waypoint.Latitude.Value;
+            var longitude = closest.Waypoint.Longitude.Value;
             double? elevation = null;
-            if (closest.ElevationInMeters is not null) elevation = closest.ElevationInMeters;
+            if (closest.Waypoint.ElevationInMeters is not null) elevation = closest.Waypoint.ElevationInMeters;
             else
                 try
                 {
-                    elevation = await ElevationService.OpenTopoNedElevation(closest.Latitude, closest.Longitude,
+                    elevation = await ElevationService.OpenTopoNedElevation(closest.Waypoint.Latitude,
+                        closest.Waypoint.Longitude,
                         progress);
                 }
                 catch (Exception e)
@@ -386,7 +430,7 @@ public class GeoTag
                 }
 
             progress?.Report(
-                $"GeoTag - For {loopFile.file.FullName} found Lat: {latitude} Long: {longitude} Elevation {elevation}");
+                $"GeoTag - For {loopFile.file.FullName} found Lat: {latitude} Long: {longitude} Elevation {elevation} from {closest.Source}");
 
 
             if (createBackupBeforeWritingMetadata && !testRun)
@@ -395,7 +439,8 @@ public class GeoTag
                 if (!backUpSuccessful)
                 {
                     returnFileResults.Add(new GeoTagFileResult(loopFile.file.FullName, "Backup Error",
-                        "Backup File could not be written - no attempt to write Geolocation made."));
+                        "Backup File could not be written - no attempt to write Geolocation made.", closest.Source,
+                        latitude, longitude, elevation));
                     progress?.Report(
                         $"GeoTag - Skipping {loopFile.file.FullName} - Found GeoTag information but could not create a backup - skipping this file.");
                 }
@@ -406,13 +451,14 @@ public class GeoTag
                 if (testRun)
                 {
                     returnFileResults.Add(new GeoTagFileResult(loopFile.file.FullName, "Test Success",
-                        "This is a Test Run - Would Write {latitude}, {longitude} - Elevation: {elevation} with TagSharp."));
+                        "This is a Test Run - Would Write {latitude}, {longitude} - Elevation: {elevation} with TagSharp.",
+                        closest.Source, latitude, longitude, elevation));
                     progress?.Report(
                         $"GeoTag - TestRun - would result in a TagSharp write of {latitude}, {longitude} - Elevation: {elevation} to {loopFile.file.FullName}");
                     continue;
                 }
 
-                if (File.Create(loopFile.file.FullName) is TagLib.Image.File tagSharpFile)
+                if (TagLib.File.Create(loopFile.file.FullName) is TagLib.Image.File tagSharpFile)
                     try
                     {
                         tagSharpFile.ImageTag.Latitude = latitude;
@@ -420,7 +466,8 @@ public class GeoTag
                         if (elevation is not null) tagSharpFile.ImageTag.Altitude = elevation;
                         tagSharpFile.Save();
                         returnFileResults.Add(new GeoTagFileResult(loopFile.file.FullName, "Success",
-                            $"Wrote {latitude}, {longitude} - Elevation: {elevation} with TagSharp"));
+                            $"Wrote {latitude}, {longitude} - Elevation: {elevation} with TagSharp", closest.Source,
+                            latitude, longitude, elevation));
                         progress?.Report("GeoTag - Wrote Metadata with TagSharp");
                         continue;
                     }
@@ -429,7 +476,8 @@ public class GeoTag
                         Log.Error(e,
                             $"Error Tagging {loopFile.file.FullName} with TagSharp - {latitude}, {longitude} - Elevation: {elevation}");
                         returnFileResults.Add(new GeoTagFileResult(loopFile.file.FullName, "Error",
-                            $"Trying to write {latitude}, {longitude} - Elevation: {elevation} with TagSharp resulted in an error - {e.Message}"));
+                            $"Trying to write {latitude}, {longitude} - Elevation: {elevation} with TagSharp resulted in an error - {e.Message}",
+                            closest.Source, latitude, longitude, elevation));
                         continue;
                     }
             }
@@ -442,7 +490,8 @@ public class GeoTag
                 if (testRun)
                 {
                     returnFileResults.Add(new GeoTagFileResult(loopFile.file.FullName, "Test Success",
-                        $"This is a Test Run - Would Write {latitude}, {longitude} - Elevation: {elevation} with ExifTool."));
+                        $"This is a Test Run - Would Write {latitude}, {longitude} - Elevation: {elevation} with ExifTool.",
+                        closest.Source, latitude, longitude, elevation));
                     continue;
                 }
 
@@ -459,7 +508,8 @@ public class GeoTag
                         .Error($"Writing with ExifTool did not Succeed - {loopFile.file.FullName}");
 
                     returnFileResults.Add(new GeoTagFileResult(loopFile.file.FullName, "ExifTool Failure",
-                        $"Trying to write {latitude}, {longitude} - Elevation: {elevation} with TagSharp resulted in an error."));
+                        $"Trying to write {latitude}, {longitude} - Elevation: {elevation} with TagSharp resulted in an error.",
+                        closest.Source, latitude, longitude, elevation));
 
                     continue;
                 }
@@ -469,12 +519,14 @@ public class GeoTag
                 Log.Error(e,
                     $"Error Tagging {loopFile.file.FullName} with ExifTool - {latitude}, {longitude} - Elevation: {elevation}");
                 returnFileResults.Add(new GeoTagFileResult(loopFile.file.FullName, "Error",
-                    $"Trying to write {latitude}, {longitude} - Elevation: {elevation} with ExifTool resulted in an error - {e.Message}"));
+                    $"Trying to write {latitude}, {longitude} - Elevation: {elevation} with ExifTool resulted in an error - {e.Message}",
+                    closest.Source, latitude, longitude, elevation));
                 continue;
             }
 
             returnFileResults.Add(new GeoTagFileResult(loopFile.file.FullName, "Success",
-                $"Wrote {latitude}, {longitude} - Elevation: {elevation} with ExifTool"));
+                $"Wrote {latitude}, {longitude} - Elevation: {elevation} with ExifTool", closest.Source, latitude,
+                longitude, elevation));
 
             progress?.Report(
                 $"GeoTag - Wrote Metadata with ExifTool - {exifTool.exifToolFile.FullName} {exifToolParameters}");
@@ -536,7 +588,8 @@ public class GeoTag
         return true;
     }
 
-    public record GeoTagFileResult(string FileName, string Result, string Notes);
+    public record GeoTagFileResult(string FileName, string Result, string Notes, string Source, double? Latitude = null,
+        double? Longitude = null, double? Elevation = null);
 
     public record GeoTagResult(string Title, string Notes, List<GeoTagFileResult> FileResults);
 }

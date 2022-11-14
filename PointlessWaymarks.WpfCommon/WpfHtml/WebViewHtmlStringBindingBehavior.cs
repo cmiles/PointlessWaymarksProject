@@ -3,11 +3,10 @@ using System.Windows;
 using Microsoft.Web.WebView2.Core;
 using Microsoft.Web.WebView2.Wpf;
 using Microsoft.Xaml.Behaviors;
-using PointlessWaymarks.CmsData;
-using PointlessWaymarks.WpfCommon.ThreadSwitcher;
+using PointlessWaymarks.WpfCommon.Utility;
 using Serilog;
 
-namespace PointlessWaymarks.CmsWpfControls.WpfHtml;
+namespace PointlessWaymarks.WpfCommon.WpfHtml;
 
 public class WebViewHtmlStringBindingBehavior : Behavior<WebView2>
 {
@@ -36,7 +35,7 @@ public class WebViewHtmlStringBindingBehavior : Behavior<WebView2>
     {
         if (d is WebViewHtmlStringBindingBehavior bindingBehavior)
         {
-            await ThreadSwitcher.ResumeForegroundAsync();
+            await ThreadSwitcher.ThreadSwitcher.ResumeForegroundAsync();
 
             if (bindingBehavior.AssociatedObject.IsInitialized &&
                 bindingBehavior.AssociatedObject.CoreWebView2 != null)
@@ -49,7 +48,7 @@ public class WebViewHtmlStringBindingBehavior : Behavior<WebView2>
                     if (!string.IsNullOrWhiteSpace(newString))
                     {
                         var newFile = new FileInfo(Path.Combine(
-                            UserSettingsUtilities.TempStorageHtmlDirectory().FullName,
+                            FileSystemHelpers.TempStorageHtmlDirectory().FullName,
                             $"TempHtml-{Guid.NewGuid()}.html"));
                         await File.WriteAllTextAsync(newFile.FullName, newString);
                         bindingBehavior.AssociatedObject.CoreWebView2.Navigate($"file:////{newFile.FullName}");
@@ -98,9 +97,9 @@ public class WebViewHtmlStringBindingBehavior : Behavior<WebView2>
             try
             {
                 var webViewEnvironment = await CoreWebView2Environment.CreateAsync(userDataFolder: Path.Combine(
-                    UserSettingsUtilities.TempStorageHtmlDirectory().FullName));
+                    FileSystemHelpers.TempStorageHtmlDirectory().FullName));
 
-                await ThreadSwitcher.ResumeForegroundAsync();
+                await ThreadSwitcher.ThreadSwitcher.ResumeForegroundAsync();
                 await AssociatedObject.EnsureCoreWebView2Async(webViewEnvironment);
             }
             catch (Exception exception)
@@ -115,7 +114,7 @@ public class WebViewHtmlStringBindingBehavior : Behavior<WebView2>
     {
         if (!string.IsNullOrWhiteSpace(CachedHtml))
         {
-            await ThreadSwitcher.ResumeForegroundAsync();
+            await ThreadSwitcher.ThreadSwitcher.ResumeForegroundAsync();
             AssociatedObject.NavigateToString(CachedHtml);
         }
     }

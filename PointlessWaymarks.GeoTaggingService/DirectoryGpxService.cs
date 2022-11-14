@@ -20,7 +20,7 @@ public class DirectoryGpxService : IGpxService
         _includeSubdirectories = includeSubdirectories;
     }
 
-    public async Task<List<GpxWaypoint>> GetGpxPoints(DateTime photoDateTimeUtc, IProgress<string>? progress)
+    public async Task<List<WaypointAndSource>> GetGpxPoints(DateTime photoDateTimeUtc, IProgress<string>? progress)
     {
         await VerifyFilesAndRescanIfNeeded(progress);
 
@@ -32,10 +32,10 @@ public class DirectoryGpxService : IGpxService
         if (!possibleFiles.Any())
         {
             progress?.Report("No Gpx Files Found");
-            return new List<GpxWaypoint>();
+            return new List<WaypointAndSource>();
         }
 
-        var allPointsList = new List<GpxWaypoint>();
+        var allPointsList = new List<WaypointAndSource>();
 
         foreach (var loopFile in possibleFiles)
         {
@@ -51,7 +51,8 @@ public class DirectoryGpxService : IGpxService
             if (!gpx.Tracks.Any(t => t.Segments.SelectMany(y => y.Waypoints).Count() > 1)) continue;
 
             allPointsList.AddRange(gpx.Tracks.SelectMany(x => x.Segments).SelectMany(x => x.Waypoints)
-                .OrderBy(x => x.TimestampUtc)
+                .Select(x => new WaypointAndSource(x, loopFile.file.Name))
+                .OrderBy(x => x.Waypoint.TimestampUtc)
                 .ToList());
         }
 

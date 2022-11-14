@@ -22,7 +22,7 @@ public class GarminConnectGpxService : IGpxService
     public string ConnectUsername { get; }
     public int SearchSurroundingDays { get; set; } = 7;
 
-    public async Task<List<GpxWaypoint>> GetGpxPoints(DateTime photoDateTimeUtc, IProgress<string>? progress)
+    public async Task<List<WaypointAndSource>> GetGpxPoints(DateTime photoDateTimeUtc, IProgress<string>? progress)
     {
         var authParameters = new BasicAuthParameters(ConnectUsername, ConnectPassword);
         var client = new GarminConnectClient(new GarminConnectContext(new HttpClient(), authParameters));
@@ -39,7 +39,7 @@ public class GarminConnectGpxService : IGpxService
         if (!activityList.Any())
         {
             progress?.Report("No Activities Found in Surrounding Time Period");
-            return new List<GpxWaypoint>();
+            return new();
         }
 
         var activities = activityList.Where(x =>
@@ -48,12 +48,12 @@ public class GarminConnectGpxService : IGpxService
         if (!activities.Any())
         {
             progress?.Report($"No Activities Found for Photo UTC Time - {photoDateTimeUtc}");
-            return new List<GpxWaypoint>();
+            return new ();
         }
 
         progress?.Report($"Found {activities.Count} Activity");
 
-        var allPointsList = new List<GpxWaypoint>();
+        var allPointsList = new List<WaypointAndSource>();
 
         foreach (var loopActivity in activities)
         {
@@ -73,8 +73,8 @@ public class GarminConnectGpxService : IGpxService
 
             if (!gpx.Tracks.Any(t => t.Segments.SelectMany(y => y.Waypoints).Count() > 1)) continue;
 
-            allPointsList.AddRange(gpx.Tracks.SelectMany(x => x.Segments).SelectMany(x => x.Waypoints)
-                .OrderBy(x => x.TimestampUtc)
+            allPointsList.AddRange(gpx.Tracks.SelectMany(x => x.Segments).SelectMany(x => x.Waypoints).Select(x => new WaypointAndSource(x, loopActivity.ActivityName))
+                .OrderBy(x => x.Waypoint.TimestampUtc)
                 .ToList());
         }
 
