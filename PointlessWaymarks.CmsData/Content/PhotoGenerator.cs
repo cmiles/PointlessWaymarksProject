@@ -45,6 +45,7 @@ public static class PhotoGenerator
 
         progress?.Report("Getting Directories");
 
+        var metadataDirectories = ImageMetadataReader.ReadMetadata(selectedFile.FullName);
         var exifSubIfDirectory = ImageMetadataReader.ReadMetadata(selectedFile.FullName).OfType<ExifSubIfdDirectory>()
             .FirstOrDefault();
         var exifIfdDirectory = ImageMetadataReader.ReadMetadata(selectedFile.FullName).OfType<ExifIfd0Directory>()
@@ -65,13 +66,12 @@ public static class PhotoGenerator
             toReturn.PhotoCreatedBy = iptcDirectory?.GetDescription(IptcDirectory.TagByLine) ?? string.Empty;
 
         var createdOn =
-            await PhotoToolsFileMetadata.CreatedOnLocalAndUtc(exifSubIfDirectory, exifIfdDirectory, gpsDirectory,
-                xmpDirectory);
+            await PhotoToolsFileMetadata.CreatedOnLocalAndUtc(metadataDirectories);
 
         toReturn.PhotoCreatedOn = createdOn.createdOnLocal ?? DateTime.Now;
         toReturn.PhotoCreatedOnUtc = createdOn.createdOnUtc;
 
-        var locationInformation = await PhotoToolsFileMetadata.LocationFromExifGpsDirectoryMetadata(gpsDirectory, true, progress);
+        var locationInformation = await PhotoToolsFileMetadata.LocationFromExif(metadataDirectories, true, progress);
 
         toReturn.Latitude = locationInformation.Latitude;
         toReturn.Longitude = locationInformation.Longitude;

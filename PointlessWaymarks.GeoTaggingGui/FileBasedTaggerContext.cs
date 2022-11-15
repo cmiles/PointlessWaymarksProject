@@ -1,9 +1,16 @@
 ﻿using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.IO;
+using System.Web;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using DocumentFormat.OpenXml.Spreadsheet;
+using HtmlTableHelper;
+using MetadataExtractor.Formats.Xmp;
+using MetadataExtractor;
 using NetTopologySuite.Features;
 using Ookii.Dialogs.Wpf;
+using PointlessWaymarks.CmsData;
 using PointlessWaymarks.GeoTaggingService;
 using PointlessWaymarks.SpatialTools;
 using PointlessWaymarks.WpfCommon.Status;
@@ -20,8 +27,9 @@ public partial class FileBasedTaggerContext
 
     [ObservableProperty] private string _exifToolFullName = string.Empty;
     [ObservableProperty] private ObservableCollection<FileInfo>? _filesToTag;
+    [ObservableProperty] private ObservableCollection<FileInfo>? _filesToTagSelected;
     [ObservableProperty] private ObservableCollection<FileInfo>? _gpxFiles;
-
+    [ObservableProperty] private ObservableCollection<FileInfo>? _gpxFilesSelected;
     [ObservableProperty] private GeoTag.GeoTagResult? _lastTagOutput;
     [ObservableProperty] private int _offsetPhotoTimeInMinutes;
     [ObservableProperty] private bool _overwriteExistingGeoLocation;
@@ -48,8 +56,12 @@ public partial class FileBasedTaggerContext
         AddGpxFilesFromDirectoryAndSubdirectoriesCommand =
             StatusContext.RunBlockingTaskCommand(AddGpxFilesFromDirectoryAndSubdirectories);
 
+        MetadataForSelectedFilesToTagCommand = StatusContext.RunBlockingTaskCommand(MetadataForSelectedFilesToTag);
+
         TagCommand = StatusContext.RunBlockingTaskCommand(Tag);
     }
+
+    public RelayCommand MetadataForSelectedFilesToTagCommand { get; set; }
 
     public RelayCommand AddFilesToTagCommand { get; set; }
 
@@ -80,6 +92,8 @@ public partial class FileBasedTaggerContext
 
         if (!result ?? false) return;
 
+        FilesToTag?.Clear();
+
         await WriteLastTaggingDirectorySetting(Path.GetDirectoryName(filePicker.FileNames.FirstOrDefault()));
 
         var selectedFiles = filePicker.FileNames.Select(x => new FileInfo(x)).Where(x => !FilesToTag!.Contains(x))
@@ -103,6 +117,8 @@ public partial class FileBasedTaggerContext
 
         if (!result ?? false) return;
 
+        FilesToTag?.Clear();
+
         await WriteLastTaggingDirectorySetting(folderPicker.SelectedPath);
 
         var selectedDirectory = new DirectoryInfo(folderPicker.SelectedPath);
@@ -125,6 +141,8 @@ public partial class FileBasedTaggerContext
         var result = folderPicker.ShowDialog();
 
         if (!result ?? false) return;
+
+        FilesToTag?.Clear();
 
         await WriteLastTaggingDirectorySetting(folderPicker.SelectedPath);
 
@@ -150,6 +168,8 @@ public partial class FileBasedTaggerContext
 
         var result = filePicker.ShowDialog();
 
+        GpxFiles?.Clear();
+
         if (!result ?? false) return;
 
         await WriteLastGpxDirectorySetting(Path.GetDirectoryName(filePicker.FileNames.FirstOrDefault()));
@@ -174,6 +194,8 @@ public partial class FileBasedTaggerContext
 
         if (!result ?? false) return;
 
+        GpxFiles?.Clear();
+
         await WriteLastGpxDirectorySetting(folderPicker.SelectedPath);
 
         var selectedDirectory = new DirectoryInfo(folderPicker.SelectedPath);
@@ -196,6 +218,8 @@ public partial class FileBasedTaggerContext
         var result = folderPicker.ShowDialog();
 
         if (!result ?? false) return;
+
+        GpxFiles?.Clear();
 
         await WriteLastGpxDirectorySetting(folderPicker.SelectedPath);
 
@@ -245,7 +269,9 @@ public partial class FileBasedTaggerContext
     {
         await ThreadSwitcher.ResumeForegroundAsync();
         FilesToTag = new ObservableCollection<FileInfo>();
+        FilesToTagSelected = new ObservableCollection<FileInfo>();
         GpxFiles = new ObservableCollection<FileInfo>();
+        GpxFilesSelected = new ObservableCollection<FileInfo>();
 
         ExifToolFullName = (await SettingTools.ReadSettings()).ExifToolFullName;
 
@@ -286,6 +312,72 @@ public partial class FileBasedTaggerContext
             new SpatialBounds(bounds.MaxY, bounds.MaxX, bounds.MinY, bounds.MinX), features);
 
         PreviewGeoJsonDto = await GeoJsonTools.SerializeWithGeoJsonSerializer(jsonDto);
+    }
+
+    public async System.Threading.Tasks.Task MetadataForSelectedFilesToTag()
+    {
+        if (FilesToTagSelected == null)
+        {
+            StatusContext.ToastWarning("Nothing Selected?");
+            return;
+        }
+
+        var frozenSelected = FilesToTagSelected.ToList();
+
+        if (!frozenSelected.Any())
+        {
+            StatusContext.ToastWarning("Nothing Selected?");
+            return;
+        }
+
+        if (frozenSelected.Count > 10)
+        {
+            StatusContext.ToastWarning("Sorry - dumping metadata limited to 10 files at once...");
+            return;
+        }
+
+        foreach (var loopFile in frozenSelected)
+        {
+            loopFile.Refresh();
+            if (!loopFile.Exists)
+            {
+                StatusContext.ToastWarning($"File {loopFile.FullName} no longer exists?");
+                continue;
+            }
+
+            var photoMetaTags = ImageMetadataReader.ReadMetadata(loopFile.FullName);
+
+            var tagHtml = photoMetaTags.SelectMany(x => x.Tags).OrderBy(x => x.DirectoryName).ThenBy(x => x.Name)
+                .ToList().Select(x => new
+                {
+                    DataType = x.Type.ToString(),
+                    x.DirectoryName,
+                    Tag = x.Name,
+                    TagValue = x.Description?.SafeObjectDump()
+                }).ToHtmlTable(new { @class = "pure-table pure-table-striped" });
+
+            var xmpDirectory = ImageMetadataReader.ReadMetadata(loopFile.FullName).OfType<XmpDirectory>()
+                .FirstOrDefault();
+
+            var xmpMetadata = xmpDirectory?.GetXmpProperties().Select(x => new { XmpKey = x.Key, XmpValue = x.Value })
+                .ToHtmlTable(new { @class = "pure-table pure-table-striped" });
+
+            await ThreadSwitcher.ResumeForegroundAsync();
+
+            var file = new FileInfo(Path.Combine(UserSettingsUtilities.TempStorageDirectory().FullName,
+                $"PhotoMetadata-{Path.GetFileNameWithoutExtension(loopFile.Name)}-{DateTime.Now:yyyy-MM-dd---HH-mm-ss}.htm"));
+
+            var htmlString =
+                ($"<h1>Metadata Report:</h1><h1>{HttpUtility.HtmlEncode(loopFile.FullName)}</h1><br><h1>Metadata - Part 1</h1><br>" +
+                 tagHtml + "<br><br><h1>XMP - Part 2</h1><br>" + xmpMetadata)
+                .ToHtmlDocumentWithPureCss("Photo Metadata", "body {margin: 12px;}");
+
+            await File.WriteAllTextAsync(file.FullName, htmlString);
+
+            var ps = new ProcessStartInfo(file.FullName) { UseShellExecute = true, Verb = "open" };
+            Process.Start(ps);
+        }
+
     }
 
     public async System.Threading.Tasks.Task WriteExifToolSetting(string? newDirectory)

@@ -9,12 +9,15 @@
              xmlns:wpf="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
              xmlns:wpfHtml="clr-namespace:PointlessWaymarks.WpfCommon.WpfHtml;assembly=PointlessWaymarks.WpfCommon"
              xmlns:valueConverters="clr-namespace:PointlessWaymarks.WpfCommon.ValueConverters;assembly=PointlessWaymarks.WpfCommon"
+             xmlns:behaviors="clr-namespace:PointlessWaymarks.WpfCommon.Behaviors;assembly=PointlessWaymarks.WpfCommon"
+             xmlns:utility="clr-namespace:PointlessWaymarks.WpfCommon.Utility;assembly=PointlessWaymarks.WpfCommon"
              mc:Ignorable="d"
              d:DesignHeight="450" d:DesignWidth="800"
              d:DataContext="{d:DesignInstance local:FileBasedTaggerContext}">
     <UserControl.Resources>
         <ResourceDictionary>
             <valueConverters:BooleanNotToVisibilityConverter x:Key="BooleanNotToVisibility" />
+            <utility:BindingProxy x:Key="Proxy" Data="{Binding}" />
         </ResourceDictionary>
     </UserControl.Resources>
     <Grid>
@@ -44,7 +47,7 @@
                         <DataGrid Margin="2" ItemsSource="{Binding GpxFiles}" CanUserAddRows="False"
                                   CanUserReorderColumns="true"
                                   CanUserDeleteRows="true" CanUserResizeColumns="true" CanUserResizeRows="False"
-                                  CanUserSortColumns="true" AutoGenerateColumns="False">
+                                  CanUserSortColumns="true" AutoGenerateColumns="False" IsReadOnly="True" behaviors:MultiSelectorBehaviours.SynchronizedSelectedItems="{Binding GpxFilesSelected}">
                             <DataGrid.Columns>
                                 <DataGridTextColumn Width="*" Header="File" Binding="{Binding FullName}" />
                             </DataGrid.Columns>
@@ -77,7 +80,12 @@
                         <DataGrid Margin="2" ItemsSource="{Binding FilesToTag}" CanUserAddRows="False"
                                   CanUserReorderColumns="true"
                                   CanUserDeleteRows="true" CanUserResizeColumns="true" CanUserResizeRows="False"
-                                  CanUserSortColumns="true" AutoGenerateColumns="False">
+                                  CanUserSortColumns="true" AutoGenerateColumns="False" IsReadOnly="True" behaviors:MultiSelectorBehaviours.SynchronizedSelectedItems="{Binding FilesToTagSelected}">
+                            <DataGrid.ContextMenu>
+                                <ContextMenu>
+                                    <MenuItem Command="{Binding MetadataForSelectedFilesToTagCommand}" Header="Metadata Report for Selected"></MenuItem>
+                                </ContextMenu>
+                            </DataGrid.ContextMenu>
                             <DataGrid.Columns>
                                 <DataGridTextColumn Width="*" Header="File" Binding="{Binding FullName}" />
                             </DataGrid.Columns>
