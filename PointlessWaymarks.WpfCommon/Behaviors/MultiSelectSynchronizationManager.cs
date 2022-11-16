@@ -4,6 +4,9 @@ using System.Windows.Controls.Primitives;
 
 namespace PointlessWaymarks.WpfCommon.Behaviors
 {
+    /// <summary>
+    /// MultiSelect Synchronization Manager from https://github.com/itsChris/WpfMvvmDataGridMultiselect
+    /// </summary>
     public class MultiSelectSynchronizationManager
     {
         private readonly Selector _multiSelector;

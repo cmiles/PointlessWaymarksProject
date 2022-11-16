@@ -5,7 +5,7 @@ using System.Windows.Controls.Primitives;
 namespace PointlessWaymarks.WpfCommon.Behaviors
 {
     /// <summary>
-    /// A sync behaviour for a multiselector.
+    /// A sync behaviour for a multiselector from https://github.com/itsChris/WpfMvvmDataGridMultiselect
     /// </summary>
     public static class MultiSelectorBehaviours
     {

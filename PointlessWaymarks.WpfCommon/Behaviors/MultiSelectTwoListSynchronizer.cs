@@ -5,7 +5,7 @@ using System.Windows;
 namespace PointlessWaymarks.WpfCommon.Behaviors
 {
     /// <summary>
-    /// Keeps two lists synchronized. 
+    /// Keeps two lists synchronized. From https://github.com/itsChris/WpfMvvmDataGridMultiselect
     /// </summary>
     public class MultiSelectTwoListSynchronizer : IWeakEventListener
     {
