@@ -77,9 +77,9 @@ public static class WpfHtmlDocument
         return htmlDoc;
     }
 
-    public static string ToHtmlDocumentWithPureCss(this string body, string title, string styleBlock)
+    public static async Task<string> ToHtmlDocumentWithPureCss(this string body, string title, string styleBlock)
     {
-        var pureCss = FileSystemHelpers.PureCssAsString();
+        var pureCss = await FileSystemHelpers.PureCssAsString();
 
         var htmlDoc = $@"
 <!doctype html>

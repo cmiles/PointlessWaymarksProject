@@ -103,7 +103,7 @@ public partial class LinkListWithActionsContext
         }).ToHtmlTable(new { @class = "pure-table pure-table-striped" });
 
         var htmlReportWindow =
-            await HtmlViewerWindow.CreateInstance(projectedNotFound.ToHtmlDocumentWithPureCss("Links Not In Pinboard", string.Empty));
+            await HtmlViewerWindow.CreateInstance(await projectedNotFound.ToHtmlDocumentWithPureCss("Links Not In Pinboard", string.Empty));
         await htmlReportWindow.PositionWindowAndShowOnUiThread();
     }
 

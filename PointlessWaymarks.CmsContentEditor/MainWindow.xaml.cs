@@ -276,7 +276,7 @@ public partial class MainWindow
                 $"CleanAndResizeAllImageFiles-ErrorReport-{frozenNow:yyyy-MM-dd---HH-mm-ss}.htm"));
 
             var htmlString =
-                ($"<h1>Clean and Resize All Image Files Error Report - {frozenNow:yyyy-MM-dd---HH-mm-ss}</h1><br>" +
+                await ($"<h1>Clean and Resize All Image Files Error Report - {frozenNow:yyyy-MM-dd---HH-mm-ss}</h1><br>" +
                  results.ToHtmlTable(new { @class = "pure-table pure-table-striped" }))
                 .ToHtmlDocumentWithPureCss("Clean and Resize Images Error Report", "body {margin: 12px;}");
 
@@ -308,7 +308,7 @@ public partial class MainWindow
                 $"CleanAndResizeAllPhotoFiles-ErrorReport-{frozenNow:yyyy-MM-dd---HH-mm-ss}.htm"));
 
             var htmlString =
-                ($"<h1>Clean and Resize All Photo Files Error Report - {frozenNow:yyyy-MM-dd---HH-mm-ss}</h1><br>" +
+                await ($"<h1>Clean and Resize All Photo Files Error Report - {frozenNow:yyyy-MM-dd---HH-mm-ss}</h1><br>" +
                  results.ToHtmlTable(new { @class = "pure-table pure-table-striped" }))
                 .ToHtmlDocumentWithPureCss("Clean and Resize Photos Error Report", "body {margin: 12px;}");
 
@@ -352,7 +352,7 @@ public partial class MainWindow
                 $"ConfirmFileContent-ErrorReport-{frozenNow:yyyy-MM-dd---HH-mm-ss}.htm"));
 
             var htmlString =
-                ($"<h1>Confirm All File Content Files Error Report - {frozenNow:yyyy-MM-dd---HH-mm-ss}</h1><br>" +
+                await ($"<h1>Confirm All File Content Files Error Report - {frozenNow:yyyy-MM-dd---HH-mm-ss}</h1><br>" +
                  results.ToHtmlTable(new { @class = "pure-table pure-table-striped" }))
                 .ToHtmlDocumentWithPureCss("Confirm Files Error Report", "body {margin: 12px;}");
 

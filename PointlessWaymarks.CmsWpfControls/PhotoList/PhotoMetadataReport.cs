@@ -55,7 +55,7 @@ public static class PhotoMetadataReport
             $"PhotoMetadata-{Path.GetFileNameWithoutExtension(selectedFile.Name)}-{DateTime.Now:yyyy-MM-dd---HH-mm-ss}.htm"));
 
         var htmlString =
-            ($"<h1>Metadata Report:</h1><h1>{HttpUtility.HtmlEncode(selectedFile.FullName)}</h1><br><h1>Metadata - Part 1</h1><br>" +
+            await ($"<h1>Metadata Report:</h1><h1>{HttpUtility.HtmlEncode(selectedFile.FullName)}</h1><br><h1>Metadata - Part 1</h1><br>" +
              tagHtml + "<br><br><h1>XMP - Part 2</h1><br>" + xmpMetadata)
             .ToHtmlDocumentWithPureCss("Photo Metadata", "body {margin: 12px;}");
 

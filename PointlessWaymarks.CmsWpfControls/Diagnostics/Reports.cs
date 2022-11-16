@@ -19,7 +19,7 @@ public static class Reports
         bodyBuilder.AppendLine(generationReturns.ToHtmlTable(new {@class = "pure-table pure-table-striped"}));
 
         var reportWindow =
-            await HtmlViewerWindow.CreateInstance(bodyBuilder.ToString().ToHtmlDocumentWithPureCss(title, string.Empty));
+            await HtmlViewerWindow.CreateInstance(await bodyBuilder.ToString().ToHtmlDocumentWithPureCss(title, string.Empty));
         await reportWindow.PositionWindowAndShowOnUiThread();
     }
 

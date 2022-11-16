@@ -17,6 +17,7 @@ using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 using PointlessWaymarks.WpfCommon.WpfHtml;
 using static PointlessWaymarks.CmsData.ContentHtml.GeoJsonHtml.GeoJsonData;
+using XmpCore;
 
 namespace PointlessWaymarks.GeoTaggingGui;
 
@@ -316,6 +317,8 @@ public partial class FileBasedTaggerContext
 
     public async System.Threading.Tasks.Task MetadataForSelectedFilesToTag()
     {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
         if (FilesToTagSelected == null)
         {
             StatusContext.ToastWarning("Nothing Selected?");
@@ -345,22 +348,38 @@ public partial class FileBasedTaggerContext
                 continue;
             }
 
-            var photoMetaTags = ImageMetadataReader.ReadMetadata(loopFile.FullName);
+            List<string> htmlParts = new List<string>();
 
-            var tagHtml = photoMetaTags.SelectMany(x => x.Tags).OrderBy(x => x.DirectoryName).ThenBy(x => x.Name)
-                .ToList().Select(x => new
-                {
-                    DataType = x.Type.ToString(),
-                    x.DirectoryName,
-                    Tag = x.Name,
-                    TagValue = x.Description?.SafeObjectDump()
-                }).ToHtmlTable(new { @class = "pure-table pure-table-striped" });
+            if (loopFile.Extension.Equals(".xmp", StringComparison.OrdinalIgnoreCase))
+            {
+                IXmpMeta xmp;
+                await using (var stream = File.OpenRead(loopFile.FullName))
+                    xmp = XmpMetaFactory.Parse(stream);
 
-            var xmpDirectory = ImageMetadataReader.ReadMetadata(loopFile.FullName).OfType<XmpDirectory>()
-                .FirstOrDefault();
+                htmlParts.Add(xmp.Properties.OrderBy(x => x.Namespace).ThenBy(x => x.Path).Select(x => new {x.Namespace, x.Path, x.Value}).ToHtmlTable(new { @class = "pure-table pure-table-striped" }));
+            }
+            else
+            {
+                var photoMetaTags = ImageMetadataReader.ReadMetadata(loopFile.FullName);
 
-            var xmpMetadata = xmpDirectory?.GetXmpProperties().Select(x => new { XmpKey = x.Key, XmpValue = x.Value })
-                .ToHtmlTable(new { @class = "pure-table pure-table-striped" });
+                htmlParts.Add(photoMetaTags.SelectMany(x => x.Tags).OrderBy(x => x.DirectoryName).ThenBy(x => x.Name)
+                    .ToList().Select(x => new
+                    {
+                        DataType = x.Type.ToString(),
+                        x.DirectoryName,
+                        Tag = x.Name,
+                        TagValue = x.Description?.SafeObjectDump()
+                    }).ToHtmlTable(new { @class = "pure-table pure-table-striped" }));
+
+                var xmpDirectory = ImageMetadataReader.ReadMetadata(loopFile.FullName).OfType<XmpDirectory>()
+                    .FirstOrDefault();
+
+                var xmpMetadata = xmpDirectory?.GetXmpProperties()
+                    .Select(x => new { XmpKey = x.Key, XmpValue = x.Value })
+                    .ToHtmlTable(new { @class = "pure-table pure-table-striped" });
+
+                if (!string.IsNullOrWhiteSpace(xmpMetadata)) htmlParts.Add(xmpMetadata);
+            }
 
             await ThreadSwitcher.ResumeForegroundAsync();
 
@@ -368,16 +387,14 @@ public partial class FileBasedTaggerContext
                 $"PhotoMetadata-{Path.GetFileNameWithoutExtension(loopFile.Name)}-{DateTime.Now:yyyy-MM-dd---HH-mm-ss}.htm"));
 
             var htmlString =
-                ($"<h1>Metadata Report:</h1><h1>{HttpUtility.HtmlEncode(loopFile.FullName)}</h1><br><h1>Metadata - Part 1</h1><br>" +
-                 tagHtml + "<br><br><h1>XMP - Part 2</h1><br>" + xmpMetadata)
-                .ToHtmlDocumentWithPureCss("Photo Metadata", "body {margin: 12px;}");
+                await ($"<h1>Metadata Report:</h1><h1>{HttpUtility.HtmlEncode(loopFile.FullName)}</h1><br><h1>Metadata</h1><br>{string.Join("<br><br>", htmlParts)}")
+                .ToHtmlDocumentWithPureCss("File Metadata", "body {margin: 12px;}");
 
             await File.WriteAllTextAsync(file.FullName, htmlString);
 
             var ps = new ProcessStartInfo(file.FullName) { UseShellExecute = true, Verb = "open" };
             Process.Start(ps);
         }
-
     }
 
     public async System.Threading.Tasks.Task WriteExifToolSetting(string? newDirectory)
