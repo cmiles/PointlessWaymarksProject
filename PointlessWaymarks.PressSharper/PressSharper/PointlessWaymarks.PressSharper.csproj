@@ -7,7 +7,7 @@
     <Copyright>Copyright 2012 Ben Lakey, 2016 Brandon Wood</Copyright>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="GitInfo" Version="2.2.0">
+    <PackageReference Include="GitInfo" Version="2.2.1">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>

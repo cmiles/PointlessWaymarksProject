@@ -7,7 +7,7 @@
 
   <ItemGroup>
     <PackageReference Include="GeoTimeZone" Version="5.1.0" />
-    <PackageReference Include="GitInfo" Version="2.2.0" />
+    <PackageReference Include="GitInfo" Version="2.2.1" />
     <PackageReference Include="MetadataExtractor" Version="2.7.2" />
     <PackageReference Include="NetTopologySuite" Version="2.5.0" />
     <PackageReference Include="NetTopologySuite.IO.GeoJSON" Version="2.0.4" />

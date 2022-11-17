@@ -7,7 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="GitInfo" Version="2.2.0" />
+    <PackageReference Include="GitInfo" Version="2.2.1" />
     <PackageReference Include="HtmlAgilityPack" Version="1.11.46" />
     <PackageReference Include="IdentityModel" Version="6.0.0" />
     <PackageReference Include="Mjml.Net" Version="1.11.0" />

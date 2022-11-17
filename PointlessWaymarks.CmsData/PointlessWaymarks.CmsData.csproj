@@ -50,7 +50,7 @@
     <PackageReference Include="FluentMigrator.Runner" Version="3.3.2" />
     <PackageReference Include="FluentMigrator.Runner.SQLite" Version="3.3.2" />
     <PackageReference Include="GeoAPI" Version="1.7.5" />
-    <PackageReference Include="GitInfo" Version="2.2.0">
+    <PackageReference Include="GitInfo" Version="2.2.1">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>

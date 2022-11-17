@@ -10,9 +10,7 @@
   <Target Name="RemoveDuplicateAnalyzers" BeforeTargets="CoreCompile">
 
     <RemoveDuplicates Inputs="@(Analyzer)">
-      <Output
-        TaskParameter="Filtered"
-        ItemName="FilteredAnalyzer"/>
+      <Output TaskParameter="Filtered" ItemName="FilteredAnalyzer" />
     </RemoveDuplicates>
 
     <ItemGroup>
@@ -24,7 +22,7 @@
   <ItemGroup>
     <PackageReference Include="CommandLineParser" Version="2.9.1" />
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.0.0" />
-    <PackageReference Include="GitInfo" Version="2.2.0">
+    <PackageReference Include="GitInfo" Version="2.2.1">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
