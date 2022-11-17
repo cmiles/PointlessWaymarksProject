@@ -17,11 +17,12 @@
     <UserControl.Resources>
         <ResourceDictionary>
             <valueConverters:BooleanNotToVisibilityConverter x:Key="BooleanNotToVisibility" />
+            <local:MetersToFeetValueConverter x:Key="MetersToFeet" />
             <utility:BindingProxy x:Key="Proxy" Data="{Binding}" />
         </ResourceDictionary>
     </UserControl.Resources>
     <Grid>
-        <TabControl>
+        <TabControl SelectedIndex="{Binding SelectedTab, Mode=TwoWay}">
             <TabItem Header="GPX Files">
                 <Grid Margin="4">
                     <Grid.RowDefinitions>
@@ -48,6 +49,11 @@
                                   CanUserReorderColumns="true"
                                   CanUserDeleteRows="true" CanUserResizeColumns="true" CanUserResizeRows="False"
                                   CanUserSortColumns="true" AutoGenerateColumns="False" IsReadOnly="True" behaviors:MultiSelectorBehaviours.SynchronizedSelectedItems="{Binding GpxFilesSelected}">
+                            <DataGrid.ContextMenu>
+                                <ContextMenu>
+                                    <MenuItem Command="{Binding ShowSelectedGpxFilesCommand}" Header="Show Selected Files"></MenuItem>
+                                </ContextMenu>
+                            </DataGrid.ContextMenu>
                             <DataGrid.Columns>
                                 <DataGridTextColumn Width="*" Header="File" Binding="{Binding FullName}" />
                             </DataGrid.Columns>
@@ -156,7 +162,18 @@
                         <DataGrid Grid.Row="2"  ItemsSource="{Binding LastTagOutput.FileResults}" CanUserAddRows="False"
                                   CanUserReorderColumns="true"
                                   CanUserDeleteRows="false" CanUserResizeColumns="true" CanUserResizeRows="false"
-                                  CanUserSortColumns="true" AutoGenerateColumns="true" />
+                                  CanUserSortColumns="true" AutoGenerateColumns="false" FrozenColumnCount="1">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="File Name" Binding="{Binding FileName}"></DataGridTextColumn>
+                                <DataGridTextColumn Header="Result" Binding="{Binding Result}"></DataGridTextColumn>
+                                <DataGridTextColumn Header="Notes" Binding="{Binding Notes}"></DataGridTextColumn>
+                                <DataGridTextColumn Header="Source" Binding="{Binding Source}"></DataGridTextColumn>
+                                <DataGridTextColumn Header="UTC" Binding="{Binding UtcDateTime}"></DataGridTextColumn>
+                                <DataGridTextColumn Header="Latitude" Binding="{Binding Latitude}"></DataGridTextColumn>
+                                <DataGridTextColumn Header="Longitude" Binding="{Binding Longitude}"></DataGridTextColumn>
+                                <DataGridTextColumn Header="Elevation" Binding="{Binding Elevation, Converter={StaticResource MetersToFeet}, StringFormat=N0}"></DataGridTextColumn>
+                            </DataGrid.Columns>
+                        </DataGrid>
                     </Grid>
                 </GroupBox>
             </TabItem>

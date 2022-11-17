@@ -76,6 +76,21 @@ public static class GeoJsonTools
             .ConfigureAwait(false);
     }
 
+    public static async Task<string> SerializeListOfFeaturesCollectionToGeoJson(List<Feature> features)
+    {
+        var collectionBoundingBox = new Envelope();
+        var collection = new FeatureCollection();
+
+        foreach (var loopFeature in features)
+        {
+            collectionBoundingBox.ExpandToInclude(loopFeature.Geometry.Coordinate);
+            collection.Add(loopFeature);
+        }
+
+        collection.BoundingBox = collectionBoundingBox;
+
+        return await SerializeFeatureCollectionToGeoJson(collection);
+    }
 
     public static async Task<string> SerializeFeatureCollectionToGeoJson(FeatureCollection featureCollection)
     {

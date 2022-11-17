@@ -1,5 +1,6 @@
 ﻿using System.Globalization;
 using GeoTimeZone;
+using NetTopologySuite.Features;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.IO;
 
@@ -47,6 +48,41 @@ public static class GpxTools
         var descriptionAndComment = string.Join(". ", descriptionAndCommentList);
 
         return new GpxRouteInformation(nameAndLabelAndType, descriptionAndComment, pointList);
+    }
+
+    public static async Task<(List<Feature> features, Envelope boundingBox)> LinesFromGpxFile(FileInfo gpxFile)
+    {
+        var gpxInfo = await TracksFromGpxFile(gpxFile);
+
+        var featureCollection = new List<Feature>();
+        var boundingBox = new Envelope();
+
+        foreach (var loopGpxInfo in gpxInfo)
+        {
+            var feature = LineFeatureFromGpxTrack(loopGpxInfo);
+            boundingBox.ExpandToInclude(feature.BoundingBox);
+            featureCollection.Add(feature);
+        }
+
+        return (featureCollection, boundingBox);
+    }
+
+    public static Feature LineFeatureFromGpxTrack(GpxTrackInformation trackInformation)
+    {
+        
+        var newLine = new LineString(trackInformation.Track.ToArray());
+        var feature = new Feature
+        {
+            Geometry = newLine,
+            BoundingBox = GeoJsonTools.GeometryBoundingBox(new List<Geometry> { newLine })
+        };
+
+        feature.Attributes = new AttributesTable();
+
+        feature.Attributes.Add("title", trackInformation.Name);
+        feature.Attributes.Add("description", trackInformation.Description);
+
+        return feature;
     }
 
     public static GpxTrackInformation TrackInformationFromGpxTrack(GpxTrack toConvert)

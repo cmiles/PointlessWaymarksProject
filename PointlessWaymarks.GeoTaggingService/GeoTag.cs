@@ -470,8 +470,8 @@ public class GeoTag
             }
 
             var exifToolParameters = elevation is null
-                ? $"-GPSLatitude*={latitude} -GPSLongitude*={longitude} \"{loopFile.file.FullName}\""
-                : $"-GPSLatitude*={latitude} -GPSLongitude*={longitude} -GPSAltitude*={elevation} \"{loopFile.file.FullName}\"";
+                ? $"-GPSLatitude*={latitude} -GPSLongitude*={longitude} -overwrite_original \"{loopFile.file.FullName}\" "
+                : $"-GPSLatitude*={latitude} -GPSLongitude*={longitude} -GPSAltitude*={elevation} -overwrite_original \"{loopFile.file.FullName}\"";
             try
             {
                 if (testRun)

@@ -99,8 +99,7 @@ public static class WpfHtmlDocument
         return htmlDoc;
     }
 
-    public static string ToHtmlLeafletBasicGeoJsonDocument(string title, double initialLatitude, double initialLongitude,
-        string styleBlock)
+    public static string ToHtmlLeafletBasicGeoJsonDocument(string title, double initialLatitude, double initialLongitude, string styleBlock)
     {
         var layers = LeafletBasicLayerList();
 
@@ -108,7 +107,7 @@ public static class WpfHtmlDocument
 {LeafletDocumentBasicOpening(title, styleBlock)}
 <body>
      <div id=""mainMap"" class=""leaflet-container leaflet-retina leaflet-fade-anim leaflet-grab leaflet-touch-drag""
-        style=""height: 92vh;""></div>
+        style=""height: 97.5vh;""></div>
     <script>
         {string.Join($"{Environment.NewLine}", layers.Select(x => x.LayerDeclaration))}
 

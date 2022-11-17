@@ -4,20 +4,21 @@ using System.IO;
 using System.Web;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using DocumentFormat.OpenXml.Spreadsheet;
 using HtmlTableHelper;
-using MetadataExtractor.Formats.Xmp;
 using MetadataExtractor;
+using MetadataExtractor.Formats.Xmp;
 using NetTopologySuite.Features;
+using NetTopologySuite.Geometries;
 using Ookii.Dialogs.Wpf;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.GeoTaggingService;
 using PointlessWaymarks.SpatialTools;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
+using PointlessWaymarks.WpfCommon.Utility;
 using PointlessWaymarks.WpfCommon.WpfHtml;
-using static PointlessWaymarks.CmsData.ContentHtml.GeoJsonHtml.GeoJsonData;
 using XmpCore;
+using static PointlessWaymarks.CmsData.ContentHtml.GeoJsonHtml.GeoJsonData;
 
 namespace PointlessWaymarks.GeoTaggingGui;
 
@@ -40,6 +41,7 @@ public partial class FileBasedTaggerContext
     [ObservableProperty] private StatusControlContext _statusContext;
     [ObservableProperty] private bool _testRunOnly;
     [ObservableProperty] private WindowIconStatus? _windowStatus;
+    [ObservableProperty] private int _selectedTab;
 
 
     public FileBasedTaggerContext(StatusControlContext? statusContext, WindowIconStatus? windowStatus)
@@ -58,11 +60,10 @@ public partial class FileBasedTaggerContext
             StatusContext.RunBlockingTaskCommand(AddGpxFilesFromDirectoryAndSubdirectories);
 
         MetadataForSelectedFilesToTagCommand = StatusContext.RunBlockingTaskCommand(MetadataForSelectedFilesToTag);
+        ShowSelectedGpxFilesCommand = StatusContext.RunBlockingTaskCommand(ShowSelectedGpxFiles);
 
         TagCommand = StatusContext.RunBlockingTaskCommand(Tag);
     }
-
-    public RelayCommand MetadataForSelectedFilesToTagCommand { get; set; }
 
     public RelayCommand AddFilesToTagCommand { get; set; }
 
@@ -75,6 +76,10 @@ public partial class FileBasedTaggerContext
     public RelayCommand AddGpxFilesFromDirectoryAndSubdirectoriesCommand { get; set; }
 
     public RelayCommand AddGpxFilesFromDirectoryCommand { get; set; }
+
+    public RelayCommand MetadataForSelectedFilesToTagCommand { get; set; }
+
+    public RelayCommand ShowSelectedGpxFilesCommand { get; set; }
 
     public RelayCommand TagCommand { get; set; }
 
@@ -280,41 +285,6 @@ public partial class FileBasedTaggerContext
             32.12063, -110.52313, string.Empty);
     }
 
-    public async System.Threading.Tasks.Task Tag()
-    {
-        await WriteExifToolSetting(ExifToolFullName);
-
-        var fileListGpxService = new FileListGpxService(GpxFiles!.ToList());
-        var tagger = new GeoTag();
-        LastTagOutput = await tagger.Tag(FilesToTag!.ToList(), new List<IGpxService> { fileListGpxService },
-            TestRunOnly, CreateBackups,
-            PointsMustBeWithinMinutes, OffsetPhotoTimeInMinutes, OverwriteExistingGeoLocation, ExifToolFullName,
-            StatusContext.ProgressTracker());
-
-        var resultsWithLocation =
-            LastTagOutput.FileResults.Where(x => x.Latitude != null && x.Longitude != null).ToList();
-
-        if (!resultsWithLocation.Any())
-            //Todo: Blank/Clear GeoJson
-            return;
-
-        var features = new FeatureCollection();
-
-        foreach (var loopResults in resultsWithLocation)
-            features.Add(new Feature(PointTools.Wgs84Point(loopResults.Longitude.Value, loopResults.Latitude.Value),
-                new AttributesTable(new Dictionary<string, object>
-                    { { "title", loopResults.FileName }, { "description", $"From {loopResults.Source}" } })));
-
-        //GeoJson Creation - ref the GeoJson control - boundaries?
-
-        var bounds = GeoJsonTools.GeometryBoundingBox(features.Select(x => x.Geometry).ToList());
-
-        var jsonDto = new GeoJsonSiteJsonData(Guid.NewGuid().ToString(),
-            new SpatialBounds(bounds.MaxY, bounds.MaxX, bounds.MinY, bounds.MinX), features);
-
-        PreviewGeoJsonDto = await GeoJsonTools.SerializeWithGeoJsonSerializer(jsonDto);
-    }
-
     public async System.Threading.Tasks.Task MetadataForSelectedFilesToTag()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -348,15 +318,19 @@ public partial class FileBasedTaggerContext
                 continue;
             }
 
-            List<string> htmlParts = new List<string>();
+            var htmlParts = new List<string>();
 
             if (loopFile.Extension.Equals(".xmp", StringComparison.OrdinalIgnoreCase))
             {
                 IXmpMeta xmp;
                 await using (var stream = File.OpenRead(loopFile.FullName))
+                {
                     xmp = XmpMetaFactory.Parse(stream);
+                }
 
-                htmlParts.Add(xmp.Properties.OrderBy(x => x.Namespace).ThenBy(x => x.Path).Select(x => new {x.Namespace, x.Path, x.Value}).ToHtmlTable(new { @class = "pure-table pure-table-striped" }));
+                htmlParts.Add(xmp.Properties.OrderBy(x => x.Namespace).ThenBy(x => x.Path)
+                    .Select(x => new { x.Namespace, x.Path, x.Value })
+                    .ToHtmlTable(new { @class = "pure-table pure-table-striped" }));
             }
             else
             {
@@ -387,14 +361,92 @@ public partial class FileBasedTaggerContext
                 $"PhotoMetadata-{Path.GetFileNameWithoutExtension(loopFile.Name)}-{DateTime.Now:yyyy-MM-dd---HH-mm-ss}.htm"));
 
             var htmlString =
-                await ($"<h1>Metadata Report:</h1><h1>{HttpUtility.HtmlEncode(loopFile.FullName)}</h1><br><h1>Metadata</h1><br>{string.Join("<br><br>", htmlParts)}")
-                .ToHtmlDocumentWithPureCss("File Metadata", "body {margin: 12px;}");
+                await
+                    $"<h1>Metadata Report:</h1><h1>{HttpUtility.HtmlEncode(loopFile.FullName)}</h1><br><h1>Metadata</h1><br>{string.Join("<br><br>", htmlParts)}"
+                        .ToHtmlDocumentWithPureCss("File Metadata", "body {margin: 12px;}");
 
             await File.WriteAllTextAsync(file.FullName, htmlString);
 
             var ps = new ProcessStartInfo(file.FullName) { UseShellExecute = true, Verb = "open" };
             Process.Start(ps);
         }
+    }
+
+    public async System.Threading.Tasks.Task ShowSelectedGpxFiles()
+    {
+        if (GpxFilesSelected == null || !GpxFilesSelected.Any())
+        {
+            StatusContext.ToastWarning("No gpx files selected?");
+            return;
+        }
+
+        var frozenSelected = GpxFilesSelected.ToList();
+
+        var featureList = new List<Feature>();
+        var bounds = new Envelope();
+
+        foreach (var loopFiles in frozenSelected)
+        {
+            var fileFeatures = await GpxTools.LinesFromGpxFile(loopFiles);
+            bounds.ExpandToInclude(fileFeatures.boundingBox);
+            featureList.AddRange(fileFeatures.features);
+        }
+
+        var newCollection = new FeatureCollection();
+        featureList.ForEach(x => newCollection.Add(x));
+
+        var jsonDto = new GeoJsonSiteJsonData(Guid.NewGuid().ToString(),
+            new SpatialBounds(bounds.MaxY, bounds.MaxX, bounds.MinY, bounds.MinX), newCollection);
+
+        var previewDto = await GeoJsonTools.SerializeWithGeoJsonSerializer(jsonDto);
+
+        var previewHtml = WpfHtmlDocument.ToHtmlLeafletBasicGeoJsonDocument("GeoJson",
+            32.12063, -110.52313, string.Empty);
+
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        var newPreviewWindow = new WebViewWindow();
+        newPreviewWindow.PositionWindowAndShow();
+        newPreviewWindow.WindowTitle = "GPX Preview";
+        newPreviewWindow.PreviewHtml = previewHtml;
+        newPreviewWindow.PreviewGeoJsonDto = previewDto;
+    }
+
+    public async System.Threading.Tasks.Task Tag()
+    {
+        await WriteExifToolSetting(ExifToolFullName);
+
+        var fileListGpxService = new FileListGpxService(GpxFiles!.ToList());
+        var tagger = new GeoTag();
+        LastTagOutput = await tagger.Tag(FilesToTag!.ToList(), new List<IGpxService> { fileListGpxService },
+            TestRunOnly, CreateBackups,
+            PointsMustBeWithinMinutes, OffsetPhotoTimeInMinutes, OverwriteExistingGeoLocation, ExifToolFullName,
+            StatusContext.ProgressTracker());
+
+        var resultsWithLocation =
+            LastTagOutput.FileResults.Where(x => x.Latitude != null && x.Longitude != null).ToList();
+
+        if (!resultsWithLocation.Any())
+            //Todo: Blank/Clear GeoJson
+            return;
+
+        var features = new FeatureCollection();
+
+        foreach (var loopResults in resultsWithLocation)
+            features.Add(new Feature(PointTools.Wgs84Point(loopResults.Longitude.Value, loopResults.Latitude.Value),
+                new AttributesTable(new Dictionary<string, object>
+                    { { "title", loopResults.FileName }, { "description", $"From {loopResults.Source}" } })));
+
+        //GeoJson Creation - ref the GeoJson control - boundaries?
+
+        var bounds = GeoJsonTools.GeometryBoundingBox(features.Select(x => x.Geometry).ToList());
+
+        var jsonDto = new GeoJsonSiteJsonData(Guid.NewGuid().ToString(),
+            new SpatialBounds(bounds.MaxY, bounds.MaxX, bounds.MinY, bounds.MinX), features);
+
+        PreviewGeoJsonDto = await GeoJsonTools.SerializeWithGeoJsonSerializer(jsonDto);
+
+        SelectedTab = 3;
     }
 
     public async System.Threading.Tasks.Task WriteExifToolSetting(string? newDirectory)
