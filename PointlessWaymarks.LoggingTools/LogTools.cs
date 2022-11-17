@@ -1,28 +1,41 @@
 ﻿using System.Reflection;
 using Serilog;
-using Serilog.Context;
 using Serilog.Formatting.Compact;
 
 namespace PointlessWaymarks.LoggingTools;
 
 public static class LogTools
 {
-    public static void StandardStaticLoggerForProgramDirectory(string fileNameFragment)
+    public static LoggerConfiguration LogToConsole(this LoggerConfiguration toConfigure)
     {
-        Log.Logger = new LoggerConfiguration().StandardEnrichers().LogToConsole()
-            .LogToFileInProgramDirectory(fileNameFragment).CreateLogger();
+        return new LoggerConfiguration().MinimumLevel.Verbose().WriteTo.Console();
+    }
 
-        try
-        {
-            Log.Information(
-                $"Git Commit {ThisAssembly.Git.Commit} - Commit Date {ThisAssembly.Git.CommitDate} - Is Dirty {ThisAssembly.Git.IsDirty}");
-            Log.Information($"{WindowTitleTools.GetEntryAssemblyBuildDate(Assembly.GetExecutingAssembly())}");
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine(e);
-        }
+    public static LoggerConfiguration LogToFileInDefaultLogDirectory(this LoggerConfiguration toConfigure,
+        string fileNameFragment)
+    {
+        var programDirectory = AppContext.BaseDirectory;
 
+        return new LoggerConfiguration().MinimumLevel.Verbose().WriteTo.File(new CompactJsonFormatter(),
+            Path.Combine(programDirectory, $"{fileNameFragment}-Log.json"), rollingInterval: RollingInterval.Day,
+            retainedFileCountLimit: 30);
+    }
+
+    public static LoggerConfiguration LogToFileInProgramDirectory(this LoggerConfiguration toConfigure,
+        string fileNameFragment)
+    {
+        var programDirectory = AppContext.BaseDirectory;
+
+        return new LoggerConfiguration().MinimumLevel.Verbose().WriteTo.File(new CompactJsonFormatter(),
+            Path.Combine(programDirectory, $"1_Log-{fileNameFragment}.json"), rollingInterval: RollingInterval.Day,
+            retainedFileCountLimit: 30);
+    }
+
+    public static LoggerConfiguration StandardEnrichers(this LoggerConfiguration toConfigure)
+    {
+        return toConfigure.Enrich.WithProcessId().Enrich.WithProcessName().Enrich.WithThreadId()
+            .Enrich.WithThreadName().Enrich.WithMachineName().Enrich.WithEnvironmentUserName().Enrich
+            .FromGlobalLogContext();
     }
 
     public static void StandardStaticLoggerForDefaultLogDirectory(string fileNameFragment)
@@ -42,35 +55,20 @@ public static class LogTools
         }
     }
 
-    public static LoggerConfiguration LogToConsole(this LoggerConfiguration toConfigure)
+    public static void StandardStaticLoggerForProgramDirectory(string fileNameFragment)
     {
-        return new LoggerConfiguration().MinimumLevel.Verbose().WriteTo.Console();
-    }
+        Log.Logger = new LoggerConfiguration().StandardEnrichers().LogToConsole()
+            .LogToFileInProgramDirectory(fileNameFragment).CreateLogger();
 
-    public static LoggerConfiguration LogToFileInProgramDirectory(this LoggerConfiguration toConfigure,
-        string fileNameFragment)
-    {
-        var programDirectory = AppContext.BaseDirectory;
-
-        return new LoggerConfiguration().MinimumLevel.Verbose().WriteTo.File(new CompactJsonFormatter(),
-            Path.Combine(programDirectory, $"1_Log-{fileNameFragment}.json"), rollingInterval: RollingInterval.Day,
-            retainedFileCountLimit: 30);
-    }
-
-    public static LoggerConfiguration LogToFileInDefaultLogDirectory(this LoggerConfiguration toConfigure,
-        string fileNameFragment)
-    {
-        var programDirectory = AppContext.BaseDirectory;
-
-        return new LoggerConfiguration().MinimumLevel.Verbose().WriteTo.File(new CompactJsonFormatter(),
-            Path.Combine(programDirectory, $"{fileNameFragment}-Log.json"), rollingInterval: RollingInterval.Day,
-            retainedFileCountLimit: 30);
-    }
-
-    public static LoggerConfiguration StandardEnrichers(this LoggerConfiguration toConfigure)
-    {
-        return toConfigure.Enrich.WithProcessId().Enrich.WithProcessName().Enrich.WithThreadId()
-            .Enrich.WithThreadName().Enrich.WithMachineName().Enrich.WithEnvironmentUserName().Enrich
-            .FromGlobalLogContext();
+        try
+        {
+            Log.Information(
+                $"Git Commit {ThisAssembly.Git.Commit} - Commit Date {ThisAssembly.Git.CommitDate} - Is Dirty {ThisAssembly.Git.IsDirty}");
+            Log.Information($"{WindowTitleTools.GetEntryAssemblyBuildDate(Assembly.GetExecutingAssembly())}");
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+        }
     }
 }

@@ -3,7 +3,7 @@
 namespace PointlessWaymarks.LoggingTools;
 
 /// <summary>
-/// This attribute can be used in a project file to write the Build Date into the Assembly info.
+///     This attribute can be used in a project file to write the Build Date into the Assembly info.
 /// </summary>
 [AttributeUsage(AttributeTargets.Assembly)]
 public class BuildDateAttribute : Attribute

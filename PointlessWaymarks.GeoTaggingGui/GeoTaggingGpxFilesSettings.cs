@@ -3,11 +3,11 @@ using PointlessWaymarks.WpfCommon.FileList;
 
 namespace PointlessWaymarks.GeoTaggingGui;
 
-public class FilesToTagSettings : IFileListSettings
+public class GeoTaggingGpxFilesSettings : IFileListSettings
 {
     public async Task<DirectoryInfo?> GetLastDirectory()
     {
-        var lastDirectory = (await GeoTaggingGuiSettingTools.ReadSettings()).FilesToTagLastDirectoryFullName;
+        var lastDirectory = (await GeoTaggingGuiSettingTools.ReadSettings()).GpxLastDirectoryFullName;
 
         if (string.IsNullOrWhiteSpace(lastDirectory)) return null;
 
@@ -21,7 +21,7 @@ public class FilesToTagSettings : IFileListSettings
     public async System.Threading.Tasks.Task SetLastDirectory(string newDirectory)
     {
         var settings = await GeoTaggingGuiSettingTools.ReadSettings();
-        settings.FilesToTagLastDirectoryFullName = newDirectory ?? string.Empty;
+        settings.GpxLastDirectoryFullName = newDirectory ?? string.Empty;
         await GeoTaggingGuiSettingTools.WriteSettings(settings);
     }
 }

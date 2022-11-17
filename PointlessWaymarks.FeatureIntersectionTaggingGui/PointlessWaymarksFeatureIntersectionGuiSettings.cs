@@ -1,4 +1,4 @@
-﻿namespace PointlessWaymarks.GeoTaggingGui;
+﻿namespace PointlessWaymarks.FeatureIntersectionTaggingGui;
 
 public class PointlessWaymarksFeatureIntersectionGuiSettings
 {

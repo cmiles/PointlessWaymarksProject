@@ -5,9 +5,27 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:PointlessWaymarks.FeatureIntersectionTaggingGui"
         xmlns:status="clr-namespace:PointlessWaymarks.WpfCommon.Status;assembly=PointlessWaymarks.WpfCommon"
+        xmlns:fileList="clr-namespace:PointlessWaymarks.WpfCommon.FileList;assembly=PointlessWaymarks.WpfCommon"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Title="MainWindow" Height="450" Width="800" d:DataContext="{d:DesignInstance local:MainWindow}">
     <Grid>
+        <TabControl>
+            <TabItem Header="Files to Tag">
+                <Grid Margin="4">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+                    <TextBlock Margin="4" HorizontalAlignment="Center" TextWrapping="Wrap">Use the buttons below to add all files in a Directory, all files in a Directory and all Subdirectories or to pick Files that will be compared to the GPX/location information in the previous tab. You can also delete items in the list below.</TextBlock>
+                    <fileList:FileListControl DataContext="{Binding FilesToTagFileList}" Grid.Row="1" Margin="4" />
+                </Grid>
+            </TabItem>
+            <TabItem Header="GeoJson Feature Files">
+                <Grid>
+                    <ListBox></ListBox>
+                </Grid>
+            </TabItem>
+        </TabControl>
         <status:StatusControl DataContext="{Binding StatusContext}" />
     </Grid>
 </Window>

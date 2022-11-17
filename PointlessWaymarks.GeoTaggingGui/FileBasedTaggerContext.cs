@@ -36,8 +36,8 @@ public partial class FileBasedTaggerContext
     [ObservableProperty] private string _previewGeoJsonDto;
     [ObservableProperty] private string _previewHtml;
     [ObservableProperty] private int _selectedTab;
-    [ObservableProperty] private FilesToTagSettings _settingsFilesToTag;
-    [ObservableProperty] private GpxFilesSettings _settingsGpxFiles;
+    [ObservableProperty] private GeoTaggingFilesToTagSettings _filesToTagSettings;
+    [ObservableProperty] private GeoTaggingGpxFilesSettings _gpxFilesSettings;
     [ObservableProperty] private StatusControlContext _statusContext;
     [ObservableProperty] private bool _testRunOnly;
     [ObservableProperty] private WindowIconStatus? _windowStatus;
@@ -48,8 +48,8 @@ public partial class FileBasedTaggerContext
         _statusContext = statusContext ?? new StatusControlContext();
         _windowStatus = windowStatus;
 
-        SettingsFilesToTag = new FilesToTagSettings();
-        SettingsGpxFiles = new GpxFilesSettings();
+        FilesToTagSettings = new GeoTaggingFilesToTagSettings();
+        GpxFilesSettings = new GeoTaggingGpxFilesSettings();
 
         MetadataForSelectedFilesToTagCommand = StatusContext.RunBlockingTaskCommand(MetadataForSelectedFilesToTag);
         ShowSelectedGpxFilesCommand = StatusContext.RunBlockingTaskCommand(ShowSelectedGpxFiles);
@@ -74,13 +74,13 @@ public partial class FileBasedTaggerContext
 
     public async System.Threading.Tasks.Task LoadData()
     {
-        FilesToTagFileList = await FileListViewModel.CreateInstance(StatusContext, SettingsFilesToTag,
+        FilesToTagFileList = await FileListViewModel.CreateInstance(StatusContext, FilesToTagSettings,
             new List<ContextMenuItemData>
             {
                 new() { ItemCommand = MetadataForSelectedFilesToTagCommand, ItemName = "Metadata Report for Selected" }
             });
 
-        GpxFileList = await FileListViewModel.CreateInstance(StatusContext, SettingsGpxFiles,
+        GpxFileList = await FileListViewModel.CreateInstance(StatusContext, GpxFilesSettings,
             new List<ContextMenuItemData>
                 { new() { ItemCommand = ShowSelectedGpxFilesCommand, ItemName = "Show  Selected" } });
 

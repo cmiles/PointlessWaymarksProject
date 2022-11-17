@@ -1,10 +1,9 @@
 ﻿using System.IO;
-using PointlessWaymarks.FeatureIntersectionTaggingGui;
 using PointlessWaymarks.WpfCommon.FileList;
 
-namespace PointlessWaymarks.GeoTaggingGui;
+namespace PointlessWaymarks.FeatureIntersectionTaggingGui;
 
-public class FilesToTagSettings : IFileListSettings
+public class FeatureIntersectionFilesToTagSettings : IFileListSettings
 {
     public async Task<DirectoryInfo?> GetLastDirectory()
     {
@@ -19,7 +18,7 @@ public class FilesToTagSettings : IFileListSettings
         return returnDirectory;
     }
 
-    public async System.Threading.Tasks.Task SetLastDirectory(string newDirectory)
+    public async Task SetLastDirectory(string newDirectory)
     {
         var settings = await FeatureIntersectionGuiSettingTools.ReadSettings();
         settings.FilesToTagLastDirectoryFullName = newDirectory ?? string.Empty;
