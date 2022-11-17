@@ -1,5 +1,4 @@
-﻿using System.Collections.ObjectModel;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.IO;
 using System.Web;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -9,10 +8,10 @@ using MetadataExtractor;
 using MetadataExtractor.Formats.Xmp;
 using NetTopologySuite.Features;
 using NetTopologySuite.Geometries;
-using Ookii.Dialogs.Wpf;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.GeoTaggingService;
 using PointlessWaymarks.SpatialTools;
+using PointlessWaymarks.WpfCommon.FileList;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 using PointlessWaymarks.WpfCommon.Utility;
@@ -28,20 +27,20 @@ public partial class FileBasedTaggerContext
     [ObservableProperty] private bool _createBackups;
 
     [ObservableProperty] private string _exifToolFullName = string.Empty;
-    [ObservableProperty] private ObservableCollection<FileInfo>? _filesToTag;
-    [ObservableProperty] private ObservableCollection<FileInfo>? _filesToTagSelected;
-    [ObservableProperty] private ObservableCollection<FileInfo>? _gpxFiles;
-    [ObservableProperty] private ObservableCollection<FileInfo>? _gpxFilesSelected;
+    [ObservableProperty] private FileListViewModel _filesToTagFileList;
+    [ObservableProperty] private FileListViewModel _gpxFileList;
     [ObservableProperty] private GeoTag.GeoTagResult? _lastTagOutput;
     [ObservableProperty] private int _offsetPhotoTimeInMinutes;
     [ObservableProperty] private bool _overwriteExistingGeoLocation;
     [ObservableProperty] private int _pointsMustBeWithinMinutes = 10;
     [ObservableProperty] private string _previewGeoJsonDto;
     [ObservableProperty] private string _previewHtml;
+    [ObservableProperty] private int _selectedTab;
+    [ObservableProperty] private FilesToTagSettings _settingsFilesToTag;
+    [ObservableProperty] private GpxFilesSettings _settingsGpxFiles;
     [ObservableProperty] private StatusControlContext _statusContext;
     [ObservableProperty] private bool _testRunOnly;
     [ObservableProperty] private WindowIconStatus? _windowStatus;
-    [ObservableProperty] private int _selectedTab;
 
 
     public FileBasedTaggerContext(StatusControlContext? statusContext, WindowIconStatus? windowStatus)
@@ -49,15 +48,8 @@ public partial class FileBasedTaggerContext
         _statusContext = statusContext ?? new StatusControlContext();
         _windowStatus = windowStatus;
 
-        AddFilesToTagFromDirectoryCommand = StatusContext.RunBlockingTaskCommand(AddFilesToTagFromDirectory);
-        AddFilesToTagCommand = StatusContext.RunBlockingTaskCommand(AddFilesToTag);
-        AddFilesToTagFromDirectoryAndSubdirectoriesCommand =
-            StatusContext.RunBlockingTaskCommand(AddFilesToTagFromDirectoryAndSubdirectories);
-
-        AddGpxFilesFromDirectoryCommand = StatusContext.RunBlockingTaskCommand(AddGpxFilesFromDirectory);
-        AddGpxFilesCommand = StatusContext.RunBlockingTaskCommand(AddGpxFiles);
-        AddGpxFilesFromDirectoryAndSubdirectoriesCommand =
-            StatusContext.RunBlockingTaskCommand(AddGpxFilesFromDirectoryAndSubdirectories);
+        SettingsFilesToTag = new FilesToTagSettings();
+        SettingsGpxFiles = new GpxFilesSettings();
 
         MetadataForSelectedFilesToTagCommand = StatusContext.RunBlockingTaskCommand(MetadataForSelectedFilesToTag);
         ShowSelectedGpxFilesCommand = StatusContext.RunBlockingTaskCommand(ShowSelectedGpxFiles);
@@ -65,177 +57,12 @@ public partial class FileBasedTaggerContext
         TagCommand = StatusContext.RunBlockingTaskCommand(Tag);
     }
 
-    public RelayCommand AddFilesToTagCommand { get; set; }
-
-    public RelayCommand AddFilesToTagFromDirectoryAndSubdirectoriesCommand { get; set; }
-
-    public RelayCommand AddFilesToTagFromDirectoryCommand { get; set; }
-
-    public RelayCommand AddGpxFilesCommand { get; set; }
-
-    public RelayCommand AddGpxFilesFromDirectoryAndSubdirectoriesCommand { get; set; }
-
-    public RelayCommand AddGpxFilesFromDirectoryCommand { get; set; }
-
     public RelayCommand MetadataForSelectedFilesToTagCommand { get; set; }
 
     public RelayCommand ShowSelectedGpxFilesCommand { get; set; }
 
     public RelayCommand TagCommand { get; set; }
 
-    public async System.Threading.Tasks.Task AddFilesToTag()
-    {
-        await ThreadSwitcher.ResumeBackgroundAsync();
-        var lastDirectory = await LastTaggingDirectory();
-
-        await ThreadSwitcher.ResumeForegroundAsync();
-
-        var filePicker = new VistaOpenFileDialog
-            { Title = "Add Files", Multiselect = true, CheckFileExists = true, ValidateNames = true };
-        if (lastDirectory != null) filePicker.FileName = $"{lastDirectory.FullName}\\";
-
-        var result = filePicker.ShowDialog();
-
-        if (!result ?? false) return;
-
-        FilesToTag?.Clear();
-
-        await WriteLastTaggingDirectorySetting(Path.GetDirectoryName(filePicker.FileNames.FirstOrDefault()));
-
-        var selectedFiles = filePicker.FileNames.Select(x => new FileInfo(x)).Where(x => !FilesToTag!.Contains(x))
-            .ToList();
-
-        selectedFiles.ForEach(x => FilesToTag!.Add(x));
-    }
-
-    public async System.Threading.Tasks.Task AddFilesToTagFromDirectory()
-    {
-        await ThreadSwitcher.ResumeBackgroundAsync();
-        var lastDirectory = await LastTaggingDirectory();
-
-        await ThreadSwitcher.ResumeForegroundAsync();
-        var folderPicker = new VistaFolderBrowserDialog
-            { Description = "Directory to Add", Multiselect = false };
-
-        if (lastDirectory != null) folderPicker.SelectedPath = $"{lastDirectory.FullName}\\";
-
-        var result = folderPicker.ShowDialog();
-
-        if (!result ?? false) return;
-
-        FilesToTag?.Clear();
-
-        await WriteLastTaggingDirectorySetting(folderPicker.SelectedPath);
-
-        var selectedDirectory = new DirectoryInfo(folderPicker.SelectedPath);
-        var selectedFiles = selectedDirectory.EnumerateFiles("*").ToList().Where(x => !FilesToTag!.Contains(x))
-            .ToList();
-
-        selectedFiles.ForEach(x => FilesToTag!.Add(x));
-    }
-
-    public async System.Threading.Tasks.Task AddFilesToTagFromDirectoryAndSubdirectories()
-    {
-        await ThreadSwitcher.ResumeBackgroundAsync();
-        var lastDirectory = await LastTaggingDirectory();
-
-        await ThreadSwitcher.ResumeForegroundAsync();
-        var folderPicker = new VistaFolderBrowserDialog
-            { Description = "Directory And Subdirectories to Add", Multiselect = false };
-        if (lastDirectory != null) folderPicker.SelectedPath = $"{lastDirectory.FullName}\\";
-
-        var result = folderPicker.ShowDialog();
-
-        if (!result ?? false) return;
-
-        FilesToTag?.Clear();
-
-        await WriteLastTaggingDirectorySetting(folderPicker.SelectedPath);
-
-        var selectedDirectory = new DirectoryInfo(folderPicker.SelectedPath);
-        var selectedFiles = selectedDirectory.EnumerateFiles("*", SearchOption.AllDirectories)
-            .Where(x => !FilesToTag!.Contains(x)).ToList();
-
-        selectedFiles.ForEach(x => FilesToTag!.Add(x));
-    }
-
-    public async System.Threading.Tasks.Task AddGpxFiles()
-    {
-        await ThreadSwitcher.ResumeBackgroundAsync();
-        var lastDirectory = await LastGpxDirectory();
-
-        await ThreadSwitcher.ResumeForegroundAsync();
-        var filePicker = new VistaOpenFileDialog
-        {
-            Title = "Select Gpx Files", Multiselect = true, CheckFileExists = true, ValidateNames = true,
-            DefaultExt = ".gpx"
-        };
-        if (lastDirectory != null) filePicker.FileName = $"{lastDirectory.FullName}\\";
-
-        var result = filePicker.ShowDialog();
-
-        GpxFiles?.Clear();
-
-        if (!result ?? false) return;
-
-        await WriteLastGpxDirectorySetting(Path.GetDirectoryName(filePicker.FileNames.FirstOrDefault()));
-
-        var selectedFiles = filePicker.FileNames.Select(x => new FileInfo(x)).Where(x =>
-                x.Extension.Equals(".GPX", StringComparison.InvariantCultureIgnoreCase) && !GpxFiles!.Contains(x))
-            .ToList();
-
-        selectedFiles.ForEach(x => GpxFiles!.Add(x));
-    }
-
-    public async System.Threading.Tasks.Task AddGpxFilesFromDirectory()
-    {
-        await ThreadSwitcher.ResumeBackgroundAsync();
-        var lastDirectory = await LastGpxDirectory();
-
-        await ThreadSwitcher.ResumeForegroundAsync();
-        var folderPicker = new VistaFolderBrowserDialog
-            { Description = "Add gpx files in Directory", Multiselect = false };
-        if (lastDirectory != null) folderPicker.SelectedPath = $"{lastDirectory.FullName}\\";
-        var result = folderPicker.ShowDialog();
-
-        if (!result ?? false) return;
-
-        GpxFiles?.Clear();
-
-        await WriteLastGpxDirectorySetting(folderPicker.SelectedPath);
-
-        var selectedDirectory = new DirectoryInfo(folderPicker.SelectedPath);
-        var selectedFiles = selectedDirectory.EnumerateFiles("*").ToList().Where(x =>
-                x.Extension.Equals(".GPX", StringComparison.InvariantCultureIgnoreCase) && !GpxFiles!.Contains(x))
-            .ToList();
-
-        selectedFiles.ForEach(x => GpxFiles!.Add(x));
-    }
-
-    public async System.Threading.Tasks.Task AddGpxFilesFromDirectoryAndSubdirectories()
-    {
-        await ThreadSwitcher.ResumeBackgroundAsync();
-        var lastDirectory = await LastGpxDirectory();
-
-        await ThreadSwitcher.ResumeForegroundAsync();
-        var folderPicker = new VistaFolderBrowserDialog
-            { Description = "Add GPX Files in Directory And Subdirectories", Multiselect = false };
-        if (lastDirectory != null) folderPicker.SelectedPath = $"{lastDirectory.FullName}\\";
-        var result = folderPicker.ShowDialog();
-
-        if (!result ?? false) return;
-
-        GpxFiles?.Clear();
-
-        await WriteLastGpxDirectorySetting(folderPicker.SelectedPath);
-
-        var selectedDirectory = new DirectoryInfo(folderPicker.SelectedPath);
-        var selectedFiles = selectedDirectory.EnumerateFiles("*", SearchOption.AllDirectories).Where(x =>
-                x.Extension.Equals(".GPX", StringComparison.InvariantCultureIgnoreCase) && !GpxFiles!.Contains(x))
-            .ToList();
-
-        selectedFiles.ForEach(x => GpxFiles!.Add(x));
-    }
 
     public static async Task<FileBasedTaggerContext> CreateInstance(StatusControlContext? statusContext,
         WindowIconStatus? windowStatus)
@@ -245,39 +72,19 @@ public partial class FileBasedTaggerContext
         return control;
     }
 
-    public async Task<DirectoryInfo?> LastGpxDirectory()
-    {
-        var lastDirectory = (await SettingTools.ReadSettings()).GpxLastDirectoryFullName;
-
-        if (string.IsNullOrWhiteSpace(lastDirectory)) return null;
-
-        var returnDirectory = new DirectoryInfo(lastDirectory);
-
-        if (!returnDirectory.Exists) return null;
-
-        return returnDirectory;
-    }
-
-    public async Task<DirectoryInfo?> LastTaggingDirectory()
-    {
-        var lastDirectory = (await SettingTools.ReadSettings()).PhotosLastDirectoryFullName;
-
-        if (string.IsNullOrWhiteSpace(lastDirectory)) return null;
-
-        var returnDirectory = new DirectoryInfo(lastDirectory);
-
-        if (!returnDirectory.Exists) return null;
-
-        return returnDirectory;
-    }
-
     public async System.Threading.Tasks.Task LoadData()
     {
+        FilesToTagFileList = await FileListViewModel.CreateInstance(StatusContext, SettingsFilesToTag,
+            new List<ContextMenuItemData>
+            {
+                new() { ItemCommand = MetadataForSelectedFilesToTagCommand, ItemName = "Metadata Report for Selected" }
+            });
+
+        GpxFileList = await FileListViewModel.CreateInstance(StatusContext, SettingsGpxFiles,
+            new List<ContextMenuItemData>
+                { new() { ItemCommand = ShowSelectedGpxFilesCommand, ItemName = "Show  Selected" } });
+
         await ThreadSwitcher.ResumeForegroundAsync();
-        FilesToTag = new ObservableCollection<FileInfo>();
-        FilesToTagSelected = new ObservableCollection<FileInfo>();
-        GpxFiles = new ObservableCollection<FileInfo>();
-        GpxFilesSelected = new ObservableCollection<FileInfo>();
 
         ExifToolFullName = (await SettingTools.ReadSettings()).ExifToolFullName;
 
@@ -289,13 +96,13 @@ public partial class FileBasedTaggerContext
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        if (FilesToTagSelected == null)
+        if (FilesToTagFileList.SelectedFiles == null)
         {
             StatusContext.ToastWarning("Nothing Selected?");
             return;
         }
 
-        var frozenSelected = FilesToTagSelected.ToList();
+        var frozenSelected = FilesToTagFileList.SelectedFiles.ToList();
 
         if (!frozenSelected.Any())
         {
@@ -374,13 +181,13 @@ public partial class FileBasedTaggerContext
 
     public async System.Threading.Tasks.Task ShowSelectedGpxFiles()
     {
-        if (GpxFilesSelected == null || !GpxFilesSelected.Any())
+        if (GpxFileList.SelectedFiles == null || !GpxFileList.SelectedFiles.Any())
         {
             StatusContext.ToastWarning("No gpx files selected?");
             return;
         }
 
-        var frozenSelected = GpxFilesSelected.ToList();
+        var frozenSelected = GpxFileList.SelectedFiles.ToList();
 
         var featureList = new List<Feature>();
         var bounds = new Envelope();
@@ -416,9 +223,10 @@ public partial class FileBasedTaggerContext
     {
         await WriteExifToolSetting(ExifToolFullName);
 
-        var fileListGpxService = new FileListGpxService(GpxFiles!.ToList());
+        var fileListGpxService = new FileListGpxService(GpxFileList.Files!.ToList());
         var tagger = new GeoTag();
-        LastTagOutput = await tagger.Tag(FilesToTag!.ToList(), new List<IGpxService> { fileListGpxService },
+        LastTagOutput = await tagger.Tag(FilesToTagFileList.Files!.ToList(),
+            new List<IGpxService> { fileListGpxService },
             TestRunOnly, CreateBackups,
             PointsMustBeWithinMinutes, OffsetPhotoTimeInMinutes, OverwriteExistingGeoLocation, ExifToolFullName,
             StatusContext.ProgressTracker());
@@ -453,20 +261,6 @@ public partial class FileBasedTaggerContext
     {
         var settings = await SettingTools.ReadSettings();
         settings.ExifToolFullName = ExifToolFullName;
-        await SettingTools.WriteSettings(settings);
-    }
-
-    public async System.Threading.Tasks.Task WriteLastGpxDirectorySetting(string? newDirectory)
-    {
-        var settings = await SettingTools.ReadSettings();
-        settings.GpxLastDirectoryFullName = newDirectory ?? string.Empty;
-        await SettingTools.WriteSettings(settings);
-    }
-
-    public async System.Threading.Tasks.Task WriteLastTaggingDirectorySetting(string? newDirectory)
-    {
-        var settings = await SettingTools.ReadSettings();
-        settings.PhotosLastDirectoryFullName = newDirectory ?? string.Empty;
         await SettingTools.WriteSettings(settings);
     }
 }

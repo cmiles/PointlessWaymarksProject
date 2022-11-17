@@ -15,8 +15,8 @@ namespace PointlessWaymarks.WpfCommon.FileList;
 public partial class FileListViewModel
 {
     [ObservableProperty] private List<ContextMenuItemData> _contextMenuItems;
-    [ObservableProperty] private ObservableCollection<FileInfo>? _filesToTag;
-    [ObservableProperty] private ObservableCollection<FileInfo>? _filesToTagSelected;
+    [ObservableProperty] private ObservableCollection<FileInfo>? _files;
+    [ObservableProperty] private ObservableCollection<FileInfo>? _selectedFiles;
     [ObservableProperty] private IFileListSettings _settings;
     [ObservableProperty] private StatusControlContext _statusContext;
 
@@ -55,14 +55,14 @@ public partial class FileListViewModel
 
         if (!result ?? false) return;
 
-        FilesToTag?.Clear();
+        Files?.Clear();
 
         await _settings.SetLastDirectory(Path.GetDirectoryName(filePicker.FileNames.FirstOrDefault()));
 
-        var selectedFiles = filePicker.FileNames.Select(x => new FileInfo(x)).Where(x => !FilesToTag!.Contains(x))
+        var selectedFiles = filePicker.FileNames.Select(x => new FileInfo(x)).Where(x => !Files!.Contains(x))
             .ToList();
 
-        selectedFiles.ForEach(x => FilesToTag!.Add(x));
+        selectedFiles.ForEach(x => Files!.Add(x));
     }
 
     public async Task AddFilesToTagFromDirectory()
@@ -80,15 +80,15 @@ public partial class FileListViewModel
 
         if (!result ?? false) return;
 
-        FilesToTag?.Clear();
+        Files?.Clear();
 
         await Settings.SetLastDirectory(folderPicker.SelectedPath);
 
         var selectedDirectory = new DirectoryInfo(folderPicker.SelectedPath);
-        var selectedFiles = selectedDirectory.EnumerateFiles("*").ToList().Where(x => !FilesToTag!.Contains(x))
+        var selectedFiles = selectedDirectory.EnumerateFiles("*").ToList().Where(x => !Files!.Contains(x))
             .ToList();
 
-        selectedFiles.ForEach(x => FilesToTag!.Add(x));
+        selectedFiles.ForEach(x => Files!.Add(x));
     }
 
     public async Task AddFilesToTagFromDirectoryAndSubdirectories()
@@ -105,15 +105,15 @@ public partial class FileListViewModel
 
         if (!result ?? false) return;
 
-        FilesToTag?.Clear();
+        Files?.Clear();
 
         await Settings.SetLastDirectory(folderPicker.SelectedPath);
 
         var selectedDirectory = new DirectoryInfo(folderPicker.SelectedPath);
         var selectedFiles = selectedDirectory.EnumerateFiles("*", SearchOption.AllDirectories)
-            .Where(x => !FilesToTag!.Contains(x)).ToList();
+            .Where(x => !Files!.Contains(x)).ToList();
 
-        selectedFiles.ForEach(x => FilesToTag!.Add(x));
+        selectedFiles.ForEach(x => Files!.Add(x));
     }
 
     public static async Task<FileListViewModel> CreateInstance(StatusControlContext statusContext,
@@ -123,8 +123,8 @@ public partial class FileListViewModel
 
         await ResumeForegroundAsync();
 
-        newInstance.FilesToTag = new ObservableCollection<FileInfo>();
-        newInstance.FilesToTagSelected = new ObservableCollection<FileInfo>();
+        newInstance.Files = new ObservableCollection<FileInfo>();
+        newInstance.SelectedFiles = new ObservableCollection<FileInfo>();
 
         return newInstance;
     }

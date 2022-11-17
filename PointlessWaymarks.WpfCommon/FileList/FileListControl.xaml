@@ -28,10 +28,10 @@
                 </StackPanel>
             </GroupBox>
             <GroupBox Grid.Row="1" Header="Files To Tag">
-                <DataGrid Margin="2" ItemsSource="{Binding FilesToTag}" CanUserAddRows="False"
+                <DataGrid Margin="2" ItemsSource="{Binding Files}" CanUserAddRows="False"
                                   CanUserReorderColumns="true"
                                   CanUserDeleteRows="true" CanUserResizeColumns="true" CanUserResizeRows="False"
-                                  CanUserSortColumns="true" AutoGenerateColumns="False" IsReadOnly="True" behaviors:MultiSelectorBehaviours.SynchronizedSelectedItems="{Binding FilesToTagSelected}">
+                                  CanUserSortColumns="true" AutoGenerateColumns="False" IsReadOnly="True" behaviors:MultiSelectorBehaviours.SynchronizedSelectedItems="{Binding SelectedFiles}">
                     <DataGrid.ContextMenu>
                         <ContextMenu ItemsSource="{Binding ContextMenuItems}">
                             <ContextMenu.ItemContainerStyle>

@@ -9,8 +9,8 @@
              xmlns:wpf="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
              xmlns:wpfHtml="clr-namespace:PointlessWaymarks.WpfCommon.WpfHtml;assembly=PointlessWaymarks.WpfCommon"
              xmlns:valueConverters="clr-namespace:PointlessWaymarks.WpfCommon.ValueConverters;assembly=PointlessWaymarks.WpfCommon"
-             xmlns:behaviors="clr-namespace:PointlessWaymarks.WpfCommon.Behaviors;assembly=PointlessWaymarks.WpfCommon"
              xmlns:utility="clr-namespace:PointlessWaymarks.WpfCommon.Utility;assembly=PointlessWaymarks.WpfCommon"
+             xmlns:fileList="clr-namespace:PointlessWaymarks.WpfCommon.FileList;assembly=PointlessWaymarks.WpfCommon"
              mc:Ignorable="d"
              d:DesignHeight="450" d:DesignWidth="800"
              d:DataContext="{d:DesignInstance local:FileBasedTaggerContext}">
@@ -18,7 +18,6 @@
         <ResourceDictionary>
             <valueConverters:BooleanNotToVisibilityConverter x:Key="BooleanNotToVisibility" />
             <local:MetersToFeetValueConverter x:Key="MetersToFeet" />
-            <utility:BindingProxy x:Key="Proxy" Data="{Binding}" />
         </ResourceDictionary>
     </UserControl.Resources>
     <Grid>
@@ -26,77 +25,21 @@
             <TabItem Header="GPX Files">
                 <Grid Margin="4">
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"></RowDefinition>
-                        <RowDefinition Height="*"></RowDefinition>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
                     </Grid.RowDefinitions>
-                    <GroupBox Header="Add">
-                        <StackPanel>
-                            <TextBlock TextWrapping="Wrap">Use the buttons below to add all files in a Directory, all files in a Directory and all Subdirectories or to pick Files to add to the GPX files that location information will be taken from. You can also delete items in the list below.</TextBlock>
-                            <WrapPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,8,0,8">
-                                <WrapPanel.Resources>
-                                    <Style TargetType="Button">
-                                        <Setter Property="Width" Value="180" />
-                                    </Style>
-                                </WrapPanel.Resources>
-                                <Button Command="{Binding AddGpxFilesFromDirectoryCommand}">Directory</Button>
-                                <Button Command="{Binding AddGpxFilesFromDirectoryAndSubdirectoriesCommand }">Directory with Subdirectories</Button>
-                                <Button Command="{Binding AddGpxFilesCommand}">Files</Button>
-                            </WrapPanel>
-                        </StackPanel>
-                    </GroupBox>
-                    <GroupBox Header="GPX Files - Location Data" Grid.Row="1">
-                        <DataGrid Margin="2" ItemsSource="{Binding GpxFiles}" CanUserAddRows="False"
-                                  CanUserReorderColumns="true"
-                                  CanUserDeleteRows="true" CanUserResizeColumns="true" CanUserResizeRows="False"
-                                  CanUserSortColumns="true" AutoGenerateColumns="False" IsReadOnly="True" behaviors:MultiSelectorBehaviours.SynchronizedSelectedItems="{Binding GpxFilesSelected}">
-                            <DataGrid.ContextMenu>
-                                <ContextMenu>
-                                    <MenuItem Command="{Binding ShowSelectedGpxFilesCommand}" Header="Show Selected Files"></MenuItem>
-                                </ContextMenu>
-                            </DataGrid.ContextMenu>
-                            <DataGrid.Columns>
-                                <DataGridTextColumn Width="*" Header="File" Binding="{Binding FullName}" />
-                            </DataGrid.Columns>
-                        </DataGrid>
-                    </GroupBox>
+                    <TextBlock Margin="4" HorizontalAlignment="Center" TextWrapping="Wrap">Use the buttons below to add all files in a Directory, all files in a Directory and all Subdirectories or to pick Files to add to the GPX files that location information will be taken from. You can also delete items in the list below.</TextBlock>
+                    <fileList:FileListControl DataContext="{Binding GpxFileList}" Grid.Row="1" Margin="4" />
                 </Grid>
             </TabItem>
             <TabItem Header="Files To Tag">
                 <Grid Margin="4">
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"></RowDefinition>
-                        <RowDefinition Height="*"></RowDefinition>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
                     </Grid.RowDefinitions>
-                    <GroupBox Header="Add">
-                        <StackPanel>
-                            <TextBlock TextWrapping="Wrap">Use the buttons below to add all files in a Directory, all files in a Directory and all Subdirectories or to pick Files that will be compared to the GPX/location information in the previous tab. You can also delete items in the list below.</TextBlock>
-                            <WrapPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,8,0,8">
-                                <WrapPanel.Resources>
-                                    <Style TargetType="Button">
-                                        <Setter Property="Width" Value="180" />
-                                    </Style>
-                                </WrapPanel.Resources>
-                                <Button Command="{Binding AddFilesToTagFromDirectoryCommand}">Directory</Button>
-                                <Button Command="{Binding AddFilesToTagFromDirectoryAndSubdirectoriesCommand }">Directory with Subdirectories</Button>
-                                <Button Command="{Binding AddFilesToTagCommand}">Files</Button>
-                            </WrapPanel>
-                        </StackPanel>
-                    </GroupBox>
-                    <GroupBox Grid.Row="1" Header="Files To Tag">
-                        <DataGrid Margin="2" ItemsSource="{Binding FilesToTag}" CanUserAddRows="False"
-                                  CanUserReorderColumns="true"
-                                  CanUserDeleteRows="true" CanUserResizeColumns="true" CanUserResizeRows="False"
-                                  CanUserSortColumns="true" AutoGenerateColumns="False" IsReadOnly="True" behaviors:MultiSelectorBehaviours.SynchronizedSelectedItems="{Binding FilesToTagSelected}">
-                            <DataGrid.ContextMenu>
-                                <ContextMenu>
-                                    <MenuItem Command="{Binding MetadataForSelectedFilesToTagCommand}" Header="Metadata Report for Selected"></MenuItem>
-                                </ContextMenu>
-                            </DataGrid.ContextMenu>
-                            <DataGrid.Columns>
-                                <DataGridTextColumn Width="*" Header="File" Binding="{Binding FullName}" />
-                            </DataGrid.Columns>
-                        </DataGrid>
-                    </GroupBox>
+                    <TextBlock Margin="4" HorizontalAlignment="Center" TextWrapping="Wrap">Use the buttons below to add all files in a Directory, all files in a Directory and all Subdirectories or to pick Files that will be compared to the GPX/location information in the previous tab. You can also delete items in the list below.</TextBlock>
+                    <fileList:FileListControl DataContext="{Binding FilesToTagFileList}" Grid.Row="1" Margin="4" />
                 </Grid>
             </TabItem>
             <TabItem Header="GeoTagging Settings">
@@ -112,7 +55,7 @@
                             <StackPanel Orientation="Vertical" Margin="4">
                                 <StackPanel.Resources>
                                     <Style TargetType="CheckBox">
-                                        <Setter Property="Margin" Value="4,8,4,4"></Setter>
+                                        <Setter Property="Margin" Value="4,8,4,4" />
                                     </Style>
                                 </StackPanel.Resources>
                                 <StackPanel Orientation="Vertical">
@@ -136,7 +79,8 @@
                                 </GroupBox>
                                 <GroupBox Header="Adjust File Time by Minutes" Margin="0,4,4,4">
                                     <StackPanel Orientation="Vertical" Margin="4,6,4,4">
-                                        <numericUpDownLib:ShortUpDown HorizontalAlignment="Left"  Value="{Binding OffsetPhotoTimeInMinutes}" />
+                                        <numericUpDownLib:ShortUpDown HorizontalAlignment="Left"
+                                                                      Value="{Binding OffsetPhotoTimeInMinutes}" />
                                         <TextBlock TextWrapping="Wrap" Margin="4">Adjust File Time by Minutes - File times for photographs and other files can be created by devices that don't have accurate clocks - use this setting if you know that the created time for a file is offset by a consistent number of minutes (positive or negative).</TextBlock>
                                     </StackPanel>
                                 </GroupBox>
@@ -151,34 +95,36 @@
                 <GroupBox Header="Tag Result">
                     <Grid>
                         <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"></RowDefinition>
-                            <RowDefinition Height="Auto"></RowDefinition>
-                            <RowDefinition Height="*"></RowDefinition>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
                         </Grid.RowDefinitions>
                         <TextBox IsReadOnly="true" TextWrapping="Wrap"
                                  Text="{Binding LastTagOutput.Title, FallbackValue='No Results Generated'}" />
-                        <TextBox Grid.Row="1"  IsReadOnly="true" TextWrapping="Wrap"
+                        <TextBox Grid.Row="1" IsReadOnly="true" TextWrapping="Wrap"
                                  Text="{Binding LastTagOutput.Notes, FallbackValue=''}" />
-                        <DataGrid Grid.Row="2"  ItemsSource="{Binding LastTagOutput.FileResults}" CanUserAddRows="False"
+                        <DataGrid Grid.Row="2" ItemsSource="{Binding LastTagOutput.FileResults}" CanUserAddRows="False"
                                   CanUserReorderColumns="true"
                                   CanUserDeleteRows="false" CanUserResizeColumns="true" CanUserResizeRows="false"
                                   CanUserSortColumns="true" AutoGenerateColumns="false" FrozenColumnCount="1">
                             <DataGrid.Columns>
-                                <DataGridTextColumn Header="File Name" Binding="{Binding FileName}"></DataGridTextColumn>
-                                <DataGridTextColumn Header="Result" Binding="{Binding Result}"></DataGridTextColumn>
-                                <DataGridTextColumn Header="Notes" Binding="{Binding Notes}"></DataGridTextColumn>
-                                <DataGridTextColumn Header="Source" Binding="{Binding Source}"></DataGridTextColumn>
-                                <DataGridTextColumn Header="UTC" Binding="{Binding UtcDateTime}"></DataGridTextColumn>
-                                <DataGridTextColumn Header="Latitude" Binding="{Binding Latitude}"></DataGridTextColumn>
-                                <DataGridTextColumn Header="Longitude" Binding="{Binding Longitude}"></DataGridTextColumn>
-                                <DataGridTextColumn Header="Elevation" Binding="{Binding Elevation, Converter={StaticResource MetersToFeet}, StringFormat=N0}"></DataGridTextColumn>
+                                <DataGridTextColumn Header="File Name" Binding="{Binding FileName}" />
+                                <DataGridTextColumn Header="Result" Binding="{Binding Result}" />
+                                <DataGridTextColumn Header="Notes" Binding="{Binding Notes}" />
+                                <DataGridTextColumn Header="Source" Binding="{Binding Source}" />
+                                <DataGridTextColumn Header="UTC" Binding="{Binding UtcDateTime}" />
+                                <DataGridTextColumn Header="Latitude" Binding="{Binding Latitude}" />
+                                <DataGridTextColumn Header="Longitude" Binding="{Binding Longitude}" />
+                                <DataGridTextColumn Header="Elevation"
+                                                    Binding="{Binding Elevation, Converter={StaticResource MetersToFeet}, StringFormat=N0}" />
                             </DataGrid.Columns>
                         </DataGrid>
                     </Grid>
                 </GroupBox>
             </TabItem>
             <TabItem Header="Result Map">
-                <wpf:WebView2 Grid.Row="1" Visibility="{Binding StatusContext.BlockUi, Converter={StaticResource BooleanNotToVisibility}}">
+                <wpf:WebView2
+                    Visibility="{Binding StatusContext.BlockUi, Converter={StaticResource BooleanNotToVisibility}}">
                     <b:Interaction.Behaviors>
                         <wpfHtml:WebViewHtmlStringBindingBehavior HtmlString="{Binding PreviewHtml}" />
                         <wpfHtml:WebViewPostJsonOnChangeBehavior JsonData="{Binding PreviewGeoJsonDto}" />
