@@ -12,7 +12,7 @@ public partial class App
 {
     public App()
     {
-        LogHelpers.InitializeStaticLoggerAsStartupLogger();
+        PointlessWaymarksLogTools.InitializeStaticLoggerAsStartupLogger();
         Log.Information(
             $"Git Commit {ThisAssembly.Git.Commit} - Commit Date {ThisAssembly.Git.CommitDate} - Is Dirty {ThisAssembly.Git.IsDirty}");
 

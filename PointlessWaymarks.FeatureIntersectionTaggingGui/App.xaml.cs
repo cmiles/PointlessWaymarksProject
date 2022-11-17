@@ -1,6 +1,7 @@
 ﻿using System.Windows;
 using System.Windows.Threading;
 using PointlessWaymarks.CmsData;
+using PointlessWaymarks.LoggingTools;
 using Serilog;
 
 namespace PointlessWaymarks.FeatureIntersectionTaggingGui;
@@ -12,9 +13,7 @@ public partial class App : Application
 {
     public App()
     {
-        LogHelpers.InitializeStaticLoggerAsStartupLogger();
-        Log.Information(
-            $"Git Commit {ThisAssembly.Git.Commit} - Commit Date {ThisAssembly.Git.CommitDate} - Is Dirty {ThisAssembly.Git.IsDirty}");
+        LogTools.StandardStaticLoggerForDefaultLogDirectory("PwFeatureIntersectionGui");
 
         DispatcherUnhandledException += OnDispatcherUnhandledException;
     }

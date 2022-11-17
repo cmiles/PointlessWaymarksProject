@@ -197,7 +197,7 @@ public partial class PostContentActions : ObservableObject, IContentActions<Post
         var historicView = new ContentViewHistoryPage($"Historic Entries - {content.Title}",
             UserSettingsSingleton.CurrentSettings().SiteName, $"Historic Entries - {content.Title}",
             historicItems.OrderByDescending(x => x.LastUpdatedOn.HasValue).ThenByDescending(x => x.LastUpdatedOn)
-                .Select(LogHelpers.SafeObjectDump).ToList());
+                .Select(PointlessWaymarksLogTools.SafeObjectDump).ToList());
 
         historicView.WriteHtmlToTempFolderAndShow(StatusContext.ProgressTracker());
     }

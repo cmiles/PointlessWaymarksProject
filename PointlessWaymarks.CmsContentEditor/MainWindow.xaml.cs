@@ -36,11 +36,13 @@ using PointlessWaymarks.CmsWpfControls.TagList;
 using PointlessWaymarks.CmsWpfControls.UserSettingsEditor;
 using PointlessWaymarks.CmsWpfControls.Utility;
 using PointlessWaymarks.CmsWpfControls.WpfHtml;
+using PointlessWaymarks.LoggingTools;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 using PointlessWaymarks.WpfCommon.Utility;
 using PointlessWaymarks.WpfCommon.WpfHtml;
 using Serilog;
+using BuildDateAttribute = PointlessWaymarks.CmsData.BuildDateAttribute;
 
 namespace PointlessWaymarks.CmsContentEditor;
 
@@ -91,8 +93,8 @@ public partial class MainWindow
         // ReSharper disable once HeuristicUnreachableCode
         //.Git IsDirty can change at runtime
 #pragma warning disable CS0162
-        InfoTitle =
-            $"Pointless Waymarks CMS - Built On {GetBuildDate(Assembly.GetEntryAssembly())} - Commit {ThisAssembly.Git.Commit} {(ThisAssembly.Git.IsDirty ? "(Has Local Changes)" : string.Empty)}";
+        InfoTitle = WindowTitleTools.StandardAppInformationString(Assembly.GetExecutingAssembly(),
+            "Pointless Waymarks CMS");
 #pragma warning restore CS0162
 
         ShowSettingsFileChooser = true;
@@ -475,7 +477,7 @@ public partial class MainWindow
 
         await UserSettingsUtilities.EnsureDbIsPresent(StatusContext.ProgressTracker());
 
-        LogHelpers.InitializeStaticLoggerAsEventLogger();
+        PointlessWaymarksLogTools.InitializeStaticLoggerAsEventLogger();
         Log.Information($"Git Commit {ThisAssembly.Git.Commit} - Commit Date {ThisAssembly.Git.CommitDate} - Is Dirty {ThisAssembly.Git.IsDirty}");
 
         StatusContext.Progress("Setting up UI Controls");

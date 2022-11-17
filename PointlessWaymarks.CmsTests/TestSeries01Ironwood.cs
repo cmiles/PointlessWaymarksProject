@@ -74,7 +74,7 @@ public class TestSeries01Ironwood
         await TestSiteSettings.WriteSettings();
         UserSettingsSingleton.CurrentSettings().InjectFrom(TestSiteSettings);
 
-        LogHelpers.InitializeStaticLoggerAsEventLogger();
+        PointlessWaymarksLogTools.InitializeStaticLoggerAsEventLogger();
     }
 
     [Test]

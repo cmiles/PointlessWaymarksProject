@@ -56,7 +56,7 @@ public class TestSeries03TrailInfoGuiContextTest
         await TestSiteSettings.WriteSettings();
         UserSettingsSingleton.CurrentSettings().InjectFrom(TestSiteSettings);
 
-        LogHelpers.InitializeStaticLoggerAsEventLogger();
+        PointlessWaymarksLogTools.InitializeStaticLoggerAsEventLogger();
     }
 
     [Test]

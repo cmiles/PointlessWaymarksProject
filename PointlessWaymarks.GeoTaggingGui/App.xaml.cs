@@ -8,6 +8,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Threading;
+using PointlessWaymarks.LoggingTools;
 
 namespace PointlessWaymarks.GeoTaggingGui
 {
@@ -18,9 +19,7 @@ namespace PointlessWaymarks.GeoTaggingGui
     {
         public App()
         {
-            LogHelpers.InitializeStaticLoggerAsStartupLogger();
-            Log.Information(
-                $"Git Commit {ThisAssembly.Git.Commit} - Commit Date {ThisAssembly.Git.CommitDate} - Is Dirty {ThisAssembly.Git.IsDirty}");
+            LogTools.StandardStaticLoggerForDefaultLogDirectory("PwGeoTaggingGui");
 
             DispatcherUnhandledException += OnDispatcherUnhandledException;
         }

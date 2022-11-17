@@ -2,8 +2,10 @@
 using System.Windows;
 using CommunityToolkit.Mvvm.ComponentModel;
 using PointlessWaymarks.CmsData;
+using PointlessWaymarks.LoggingTools;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.Utility;
+using Serilog;
 
 namespace PointlessWaymarks.GeoTaggingGui;
 
@@ -36,8 +38,8 @@ public partial class MainWindow : Window
         // ReSharper disable once HeuristicUnreachableCode
         //.Git IsDirty can change at runtime
 #pragma warning disable CS0162
-        _infoTitle =
-            $"Pointless Waymarks GeoTagger - Built On {GetBuildDate(Assembly.GetEntryAssembly())} - Commit {ThisAssembly.Git.Commit} {(ThisAssembly.Git.IsDirty ? "(Has Local Changes)" : string.Empty)}";
+        _infoTitle = WindowTitleTools.StandardAppInformationString(Assembly.GetExecutingAssembly(),
+            "Pointless Waymarks GeoTagger"); ;
 #pragma warning restore CS0162
 
         DataContext = this;
@@ -47,12 +49,6 @@ public partial class MainWindow : Window
         _windowStatus = new WindowIconStatus();
 
         StatusContext.RunBlockingTask(LoadData);
-    }
-
-    private static DateTime? GetBuildDate(Assembly assembly)
-    {
-        var attribute = assembly.GetCustomAttribute<BuildDateAttribute>();
-        return attribute?.DateTime;
     }
 
     private async System.Threading.Tasks.Task LoadData()

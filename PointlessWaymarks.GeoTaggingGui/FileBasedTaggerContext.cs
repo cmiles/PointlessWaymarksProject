@@ -86,7 +86,7 @@ public partial class FileBasedTaggerContext
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
-        ExifToolFullName = (await SettingTools.ReadSettings()).ExifToolFullName;
+        ExifToolFullName = (await GeoTaggingGuiSettingTools.ReadSettings()).ExifToolFullName;
 
         PreviewHtml = WpfHtmlDocument.ToHtmlLeafletBasicGeoJsonDocument("GeoJson",
             32.12063, -110.52313, string.Empty);
@@ -259,8 +259,8 @@ public partial class FileBasedTaggerContext
 
     public async System.Threading.Tasks.Task WriteExifToolSetting(string? newDirectory)
     {
-        var settings = await SettingTools.ReadSettings();
+        var settings = await GeoTaggingGuiSettingTools.ReadSettings();
         settings.ExifToolFullName = ExifToolFullName;
-        await SettingTools.WriteSettings(settings);
+        await GeoTaggingGuiSettingTools.WriteSettings(settings);
     }
 }

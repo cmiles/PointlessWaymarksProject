@@ -274,7 +274,7 @@ public partial class PhotoListWithActionsContext
 
             if (!resizeResult.HasError) continue;
 
-            LogHelpers.LogGenerationReturn(resizeResult, "Photo Forced Resizing");
+            PointlessWaymarksLogTools.LogGenerationReturn(resizeResult, "Photo Forced Resizing");
 
             if (currentLoop < totalCount)
             {

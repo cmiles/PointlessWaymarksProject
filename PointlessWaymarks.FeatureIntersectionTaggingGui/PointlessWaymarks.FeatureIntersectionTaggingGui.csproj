@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <PackageReference Include="GitInfo" Version="2.2.1" />
+    <PackageReference Include="Jot" Version="2.1.13" />
   </ItemGroup>
 
   <ItemGroup>
@@ -15,6 +16,12 @@
     <ProjectReference Include="..\PointlessWaymarks.FeatureIntersectionTags\PointlessWaymarks.FeatureIntersectionTags.csproj" />
     <ProjectReference Include="..\PointlessWaymarks.SpatialTools\PointlessWaymarks.SpatialTools.csproj" />
     <ProjectReference Include="..\PointlessWaymarks.WpfCommon\PointlessWaymarks.WpfCommon.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <AssemblyAttribute Include="PointlessWaymarks.LoggingTools.BuildDateAttribute">
+      <_Parameter1>$([System.DateTime]::UtcNow.ToString("yyyyMMddHHmmss"))</_Parameter1>
+    </AssemblyAttribute>
   </ItemGroup>
 
 </Project>

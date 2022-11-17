@@ -86,7 +86,7 @@ public partial class ImageListWithActionsContext
 
             if (!resizeResult.HasError) continue;
 
-            LogHelpers.LogGenerationReturn(resizeResult, "Image Forced Resizing");
+            PointlessWaymarksLogTools.LogGenerationReturn(resizeResult, "Image Forced Resizing");
 
             if (currentLoop < totalCount)
             {
@@ -228,7 +228,7 @@ public partial class ImageListWithActionsContext
 
             if (generationReturn.HasError)
             {
-                LogHelpers.LogGenerationReturn(generationReturn, "Error with Image Resizing and HTML Regeneration");
+                PointlessWaymarksLogTools.LogGenerationReturn(generationReturn, "Error with Image Resizing and HTML Regeneration");
                 StatusContext.Progress(
                     $"Re-processing Image and Generating Html for {loopSelected.DbEntry.Title} Error {generationReturn.GenerationNote}, {generationReturn.Exception}, {loopCount} of {totalCount}");
                 errorList.Add(

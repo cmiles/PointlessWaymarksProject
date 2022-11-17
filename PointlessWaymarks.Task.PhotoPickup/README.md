@@ -1,0 +1,1 @@
+﻿Photo Pickup Task for automatically adding photos from a directory.

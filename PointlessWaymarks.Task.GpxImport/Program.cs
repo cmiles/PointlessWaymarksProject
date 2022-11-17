@@ -5,7 +5,7 @@ using PointlessWaymarks.LoggingTools;
 using PointlessWaymarks.Task.GarminConnectGpxImport;
 using Serilog;
 
-Setup.ConfigureStandardStaticLogger("GarminConnectGpxImport");
+LogTools.StandardStaticLoggerForProgramDirectory("GarminConnectGpxImport");
 
 Log.ForContext("args", args.SafeObjectDump()).Information(
     "PointlessWaymarks.Task.GarminConnectGpxImport Starting");

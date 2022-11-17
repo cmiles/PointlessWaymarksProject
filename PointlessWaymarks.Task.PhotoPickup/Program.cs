@@ -5,7 +5,7 @@ using PointlessWaymarks.LoggingTools;
 using PointlessWaymarks.Task.PhotoPickup;
 using Serilog;
 
-Setup.ConfigureStandardStaticLogger("MemoriesEmail");
+LogTools.StandardStaticLoggerForProgramDirectory("PhotoPickup");
 
 Log.ForContext("args", args.SafeObjectDump()).Information(
     "PointlessWaymarks.Task.PhotoPickup Starting");

@@ -2,7 +2,7 @@
 
 namespace PointlessWaymarks.CmsData;
 
-public static class ListHelpers
+public static class ListTools
 {
     public static List<T> AddIfNotNull<T>(this List<T> thisList, T? toAdd)
     {

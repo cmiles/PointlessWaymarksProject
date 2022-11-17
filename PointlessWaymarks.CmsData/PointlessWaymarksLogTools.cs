@@ -1,11 +1,12 @@
 ﻿using PointlessWaymarks.CmsData.Content;
+using PointlessWaymarks.LoggingTools;
 using Serilog;
 using Serilog.Events;
 using Serilog.Formatting.Compact;
 
 namespace PointlessWaymarks.CmsData;
 
-public static class LogHelpers
+public static class PointlessWaymarksLogTools
 {
     /// <summary>
     ///     Adds File Logging to a Serilog LoggerConfiguration with a by convention file name and
@@ -21,20 +22,6 @@ public static class LogHelpers
         return toAddTo.WriteTo.File(new RenderedCompactJsonFormatter(),
             Path.Combine(UserSettingsSingleton.CurrentSettings().LocalMediaArchiveLogsDirectory().FullName,
                 "PointlessWaymarksCms-EventLog-.json"), rollingInterval: RollingInterval.Day, shared: true);
-    }
-
-    /// <summary>
-    ///     Adds File Logging to a Serilog LoggerConfiguration with a by convention file name into the
-    ///     current program directory. This is useful at the startup of the application (before UserSettings
-    ///     are created or loaded) or for testing.
-    /// </summary>
-    /// <param name="toAddTo"></param>
-    /// <returns></returns>
-    public static LoggerConfiguration AddStartupFileLogForLogFolderBasedOnCurrentSettings(
-        this LoggerConfiguration toAddTo)
-    {
-        return toAddTo.WriteTo.File(new RenderedCompactJsonFormatter(), "PointlessWaymarksStartupLog-.txt",
-            rollingInterval: RollingInterval.Day, shared: true);
     }
 
     /// <summary>
@@ -136,6 +123,6 @@ public static class LogHelpers
     /// <returns></returns>
     public static ILogger StartupLogger()
     {
-        return BasicLogConfiguration().AddStartupFileLogForLogFolderBasedOnCurrentSettings().CreateLogger();
+        return BasicLogConfiguration().LogToFileInDefaultLogDirectory("PointlessWaymarksStartupLog").CreateLogger();
     }
 }

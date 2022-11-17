@@ -4,7 +4,7 @@ using PointlessWaymarks.LoggingTools;
 using PointlessWaymarks.Task.MemoriesEmail;
 using Serilog;
 
-Setup.ConfigureStandardStaticLogger("MemoriesEmail");
+LogTools.StandardStaticLoggerForProgramDirectory("MemoriesEmail");
 
 Log.ForContext("args", args.SafeObjectDump()).Information(
     "PointlessWaymarks.Task.MemoriesEmail Starting");

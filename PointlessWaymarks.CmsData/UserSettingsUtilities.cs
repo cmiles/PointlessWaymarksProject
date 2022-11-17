@@ -11,6 +11,7 @@ using PointlessWaymarks.CmsData.ContentHtml;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsData.Json;
+using PointlessWaymarks.LoggingTools;
 
 namespace PointlessWaymarks.CmsData;
 
@@ -132,25 +133,6 @@ public static class UserSettingsUtilities
     public static string DefaultContentFormatChoice()
     {
         return Enum.GetNames(typeof(ContentFormatEnum)).First();
-    }
-
-    /// <summary>
-    ///     This returns the default Pointless Waymarks storage directory - currently in the users
-    ///     My Documents in a Pointless Waymarks Cms Folder - this will return the same value regardless
-    ///     of settings, site locations, etc...
-    /// </summary>
-    /// <returns></returns>
-    public static DirectoryInfo DefaultStorageDirectory()
-    {
-        var directory =
-            new DirectoryInfo(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
-                "Pointless Waymarks Cms"));
-
-        if (!directory.Exists) directory.Create();
-
-        directory.Refresh();
-
-        return directory;
     }
 
     public static async Task EnsureDbIsPresent(IProgress<string>? progress = null)
@@ -1388,7 +1370,7 @@ public static class UserSettingsUtilities
 
         var newSettings = new UserSettings();
 
-        var rootDirectory = new DirectoryInfo(Path.Combine(DefaultStorageDirectory().FullName, userFilename));
+        var rootDirectory = new DirectoryInfo(Path.Combine(CommonLocationTools.DefaultStorageDirectory().FullName, userFilename));
 
         progress?.Report("Creating new settings - looking for home...");
 
@@ -1397,7 +1379,7 @@ public static class UserSettingsUtilities
         while (rootDirectory.Exists)
         {
             rootDirectory =
-                new DirectoryInfo(Path.Combine(DefaultStorageDirectory().FullName, $"{userFilename}-{fileNumber}"));
+                new DirectoryInfo(Path.Combine(CommonLocationTools.DefaultStorageDirectory().FullName, $"{userFilename}-{fileNumber}"));
             rootDirectory.Refresh();
             progress?.Report($"Trying {rootDirectory.FullName}...");
             fileNumber++;

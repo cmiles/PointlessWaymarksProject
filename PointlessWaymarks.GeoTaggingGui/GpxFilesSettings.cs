@@ -7,7 +7,7 @@ public class GpxFilesSettings : IFileListSettings
 {
     public async Task<DirectoryInfo?> GetLastDirectory()
     {
-        var lastDirectory = (await SettingTools.ReadSettings()).GpxLastDirectoryFullName;
+        var lastDirectory = (await GeoTaggingGuiSettingTools.ReadSettings()).GpxLastDirectoryFullName;
 
         if (string.IsNullOrWhiteSpace(lastDirectory)) return null;
 
@@ -20,8 +20,8 @@ public class GpxFilesSettings : IFileListSettings
 
     public async System.Threading.Tasks.Task SetLastDirectory(string newDirectory)
     {
-        var settings = await SettingTools.ReadSettings();
+        var settings = await GeoTaggingGuiSettingTools.ReadSettings();
         settings.GpxLastDirectoryFullName = newDirectory ?? string.Empty;
-        await SettingTools.WriteSettings(settings);
+        await GeoTaggingGuiSettingTools.WriteSettings(settings);
     }
 }
