@@ -6,10 +6,20 @@
         xmlns:local="clr-namespace:PointlessWaymarks.FeatureIntersectionTaggingGui"
         xmlns:status="clr-namespace:PointlessWaymarks.WpfCommon.Status;assembly=PointlessWaymarks.WpfCommon"
         xmlns:fileList="clr-namespace:PointlessWaymarks.WpfCommon.FileList;assembly=PointlessWaymarks.WpfCommon"
+        xmlns:wpf="clr-namespace:Markdig.Wpf;assembly=Markdig.Wpf"
+        xmlns:wpf1="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
+        xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
+        xmlns:wpfHtml="clr-namespace:PointlessWaymarks.WpfCommon.WpfHtml;assembly=PointlessWaymarks.WpfCommon"
+        xmlns:valueConverters="clr-namespace:PointlessWaymarks.WpfCommon.ValueConverters;assembly=PointlessWaymarks.WpfCommon"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800" d:DataContext="{d:DesignInstance local:MainWindow}">
+    <Window.Resources>
+        <ResourceDictionary>
+            <valueConverters:BooleanNotToVisibilityConverter x:Key="BooleanNotToVisibility" />
+        </ResourceDictionary>
+    </Window.Resources>
     <Grid>
-        <TabControl>
+        <TabControl SelectedIndex="{Binding SelectedTab, Mode=TwoWay}">
             <TabItem Header="Files to Tag">
                 <Grid Margin="4">
                     <Grid.RowDefinitions>
@@ -20,10 +30,130 @@
                     <fileList:FileListControl DataContext="{Binding FilesToTagFileList}" Grid.Row="1" Margin="4" />
                 </Grid>
             </TabItem>
+            <TabItem Header="PAD-US">
+                <Grid>
+                    <StackPanel Orientation="Vertical">
+                        <wpf:MarkdownViewer Markdown="{Binding PadUsOverviewMarkdown}" />
+                        <Label>PAD-US GeoJson Data Directory</Label>
+                        <TextBox Text="{Binding PadUsDirectory}" />
+                        <Button>Select PAD-US Directory</Button>
+                        <Label>Attributes for Tags</Label>
+                        <ListBox ItemsSource="{Binding PadUsAttributes}"
+                                 SelectedItem="{Binding SelectedPadUsAttribute}" />
+                        <TextBox Text="{Binding PadUsAttributeToAdd, UpdateSourceTrigger=PropertyChanged}" />
+                        <Button>Add Attribute</Button>
+                    </StackPanel>
+                </Grid>
+            </TabItem>
             <TabItem Header="GeoJson Feature Files">
                 <Grid>
-                    <ListBox></ListBox>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <GroupBox Header="Feature Files">
+                        <ListBox ItemsSource="{Binding FeatureFiles}" SelectedItem="{Binding SelectedFeatureFile}" />
+                    </GroupBox>
+                    <GroupBox Grid.Row="1">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition />
+                                <ColumnDefinition />
+                                <ColumnDefinition />
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Orientation="Vertical">
+                                <Label>File</Label>
+                                <TextBox Text="{Binding FeatureToAdd.FileName, UpdateSourceTrigger=PropertyChanged}" />
+                                <Label>Tag All With</Label>
+                                <TextBox Text="{Binding FeatureToAdd.TagAll, UpdateSourceTrigger=PropertyChanged}" />
+                                <Label>Name</Label>
+                                <TextBox Text="{Binding FeatureToAdd.Name, UpdateSourceTrigger=PropertyChanged}" />
+                                <Label>Source</Label>
+                                <TextBox Text="{Binding FeatureToAdd.Source, UpdateSourceTrigger=PropertyChanged}" />
+                            </StackPanel>
+                            <Grid Grid.Column="1">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition />
+                                    <RowDefinition />
+                                </Grid.RowDefinitions>
+                                <ListBox />
+                                <StackPanel Orientation="Horizontal" Grid.Row="1">
+                                    <TextBox
+                                        Text="{Binding FeatureToAddAttributeToAdd, UpdateSourceTrigger=PropertyChanged}" />
+                                    <Button>Add</Button>
+                                </StackPanel>
+                            </Grid>
+                            <Button Grid.Column="2">Add</Button>
+                        </Grid>
+                    </GroupBox>
                 </Grid>
+            </TabItem>
+            <TabItem Header="Tag Settings">
+                <StackPanel>
+                    <GroupBox Header="ExifTool">
+                        <StackPanel Orientation="Vertical">
+                            <TextBox Text="{Binding ExifToolFullName, UpdateSourceTrigger=PropertyChanged}" />
+                            <TextBlock TextWrapping="Wrap" Margin="4">This program can write to a wider variety of file formats by using Phil Harvey's ExifTool - https://exiftool.org/. The recommended version of the program can be downloaded from https://oliverbetz.de/pages/Artikel/ExifTool-for-Windows - you must provide the full path and filename above for the program to use ExifTool.</TextBlock>
+                        </StackPanel>
+                    </GroupBox>
+                    <GroupBox Header="Tag">
+                        <StackPanel Orientation="Vertical">
+                            <StackPanel Orientation="Vertical" Margin="4">
+                                <StackPanel.Resources>
+                                    <Style TargetType="CheckBox">
+                                        <Setter Property="Margin" Value="4,8,4,4" />
+                                    </Style>
+                                </StackPanel.Resources>
+                                <StackPanel Orientation="Vertical">
+                                    <CheckBox IsChecked="{Binding CreateBackups}">Create Backups</CheckBox>
+                                    <TextBlock Margin="12,0,4,4" TextWrapping="Wrap">When Geolocation information is found for a file the original version will be copied into a backup directory.</TextBlock>
+                                </StackPanel>
+                                <StackPanel Orientation="Vertical">
+                                    <CheckBox IsChecked="{Binding TestRunOnly}">Test Run Only</CheckBox>
+                                    <TextBlock Margin="12,0,4,4" TextWrapping="Wrap">Results will be shown but NO Geolocation will be written, use this to see what changes the program would make without changing any files.</TextBlock>
+                                </StackPanel>
+                            </StackPanel>
+                            <Button Command="{Binding TagCommand}" Height="40" Margin="8">Tag</Button>
+                        </StackPanel>
+                    </GroupBox>
+                </StackPanel>
+            </TabItem>
+            <TabItem Header="Result">
+                <GroupBox Header="Tag Result">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+                        <TextBox IsReadOnly="true" TextWrapping="Wrap"
+                                 Text="{Binding LastTagOutput.Title, FallbackValue='No Results Generated'}" />
+                        <TextBox Grid.Row="1" IsReadOnly="true" TextWrapping="Wrap"
+                                 Text="{Binding LastTagOutput.Notes, FallbackValue=''}" />
+                        <DataGrid Grid.Row="2" ItemsSource="{Binding LastTagOutput.FileResults}" CanUserAddRows="False"
+                                  CanUserReorderColumns="true"
+                                  CanUserDeleteRows="false" CanUserResizeColumns="true" CanUserResizeRows="false"
+                                  CanUserSortColumns="true" AutoGenerateColumns="false" FrozenColumnCount="1">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="File Name" Binding="{Binding FileName}" />
+                                <DataGridTextColumn Header="Result" Binding="{Binding Result}" />
+                                <DataGridTextColumn Header="Notes" Binding="{Binding Notes}" />
+                                <DataGridTextColumn Header="Source" Binding="{Binding Source}" />
+                                <DataGridTextColumn Header="Latitude" Binding="{Binding Latitude}" />
+                                <DataGridTextColumn Header="Longitude" Binding="{Binding Longitude}" />
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </Grid>
+                </GroupBox>
+            </TabItem>
+            <TabItem Header="Result Map">
+                <wpf1:WebView2
+                    Visibility="{Binding StatusContext.BlockUi, Converter={StaticResource BooleanNotToVisibility}}">
+                    <b:Interaction.Behaviors>
+                        <wpfHtml:WebViewHtmlStringBindingBehavior HtmlString="{Binding PreviewHtml}" />
+                        <wpfHtml:WebViewPostJsonOnChangeBehavior JsonData="{Binding PreviewGeoJsonDto}" />
+                    </b:Interaction.Behaviors>
+                </wpf1:WebView2>
             </TabItem>
         </TabControl>
         <status:StatusControl DataContext="{Binding StatusContext}" />

@@ -25,10 +25,11 @@ namespace PointlessWaymarks.GeoTaggingGui;
 public partial class FileBasedTaggerContext
 {
     [ObservableProperty] private bool _createBackups;
-
     [ObservableProperty] private string _exifToolFullName = string.Empty;
     [ObservableProperty] private FileListViewModel _filesToTagFileList;
+    [ObservableProperty] private GeoTaggingFilesToTagSettings _filesToTagSettings;
     [ObservableProperty] private FileListViewModel _gpxFileList;
+    [ObservableProperty] private GeoTaggingGpxFilesSettings _gpxFilesSettings;
     [ObservableProperty] private GeoTag.GeoTagResult? _lastTagOutput;
     [ObservableProperty] private int _offsetPhotoTimeInMinutes;
     [ObservableProperty] private bool _overwriteExistingGeoLocation;
@@ -36,8 +37,6 @@ public partial class FileBasedTaggerContext
     [ObservableProperty] private string _previewGeoJsonDto;
     [ObservableProperty] private string _previewHtml;
     [ObservableProperty] private int _selectedTab;
-    [ObservableProperty] private GeoTaggingFilesToTagSettings _filesToTagSettings;
-    [ObservableProperty] private GeoTaggingGpxFilesSettings _gpxFilesSettings;
     [ObservableProperty] private StatusControlContext _statusContext;
     [ObservableProperty] private bool _testRunOnly;
     [ObservableProperty] private WindowIconStatus? _windowStatus;

@@ -1,8 +1,12 @@
-﻿using System.Reflection;
+﻿using System.Collections.ObjectModel;
+using System.Reflection;
 using CommunityToolkit.Mvvm.ComponentModel;
+using Omu.ValueInjecter;
+using PointlessWaymarks.FeatureIntersectionTaggingGui.Models;
 using PointlessWaymarks.LoggingTools;
 using PointlessWaymarks.WpfCommon.FileList;
 using PointlessWaymarks.WpfCommon.Status;
+using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 using PointlessWaymarks.WpfCommon.Utility;
 
 namespace PointlessWaymarks.FeatureIntersectionTaggingGui;
@@ -13,11 +17,25 @@ namespace PointlessWaymarks.FeatureIntersectionTaggingGui;
 [ObservableObject]
 public partial class MainWindow
 {
+    [ObservableProperty] private bool _createBackups;
+    [ObservableProperty] private string _exifToolFullName = string.Empty;
+    [ObservableProperty] private ObservableCollection<IntersectFileViewModel>? _featureFiles;
+    [ObservableProperty] private IntersectFileViewModel _featureToAdd;
+    [ObservableProperty] private string _featureToAddAttributeToAdd = string.Empty;
     [ObservableProperty] private FileListViewModel _filesToTagFileList;
     [ObservableProperty] private FeatureIntersectionFilesToTagSettings _filesToTagSettings;
     [ObservableProperty] private string _infoTitle;
+    [ObservableProperty] private ObservableCollection<string>? _padUsAttributes;
+    [ObservableProperty] private string _padUsAttributeToAdd = string.Empty;
+    [ObservableProperty] private string _padUsDirectory = string.Empty;
+    [ObservableProperty] private IntersectFileViewModel? _selectedFeatureFile;
+    [ObservableProperty] private string? _selectedPadUsAttribute;
     [ObservableProperty] private StatusControlContext _statusContext;
+    [ObservableProperty] private bool _testRunOnly;
     [ObservableProperty] private WindowIconStatus _windowStatus;
+    [ObservableProperty] private string _previewGeoJsonDto;
+    [ObservableProperty] private string _previewHtml;
+    [ObservableProperty] private int _selectedTab;
 
     public MainWindow()
     {
@@ -50,10 +68,41 @@ public partial class MainWindow
         StatusContext.RunBlockingTask(LoadData);
     }
 
+    public string PadUsOverviewMarkdown => """
+        From the [USGS PAD-US Data Overview](https://www.usgs.gov/programs/gap-analysis-project/science/pad-us-data-overview):
+
+        > PAD-US is America’s official national inventory of U.S. terrestrial and marine protected areas that are dedicated to the preservation of biological diversity and to other natural, recreation and cultural uses, managed for these purposes through legal or other effective means. PAD-US also includes the best available aggregation of federal land and marine areas provided directly by managing agencies, coordinated through the Federal Geographic Data Committee Federal Lands Working Group.
+
+        The Protected Areas Database is likely the best single source for land ownership and management information for the US Landscape and forms an excellent basis for automatically generating landscape oriented tags.
+
+        The large size of the PAD-US data is a challenge to using it efficiently. You can download State or Region files from PAD-US and enter them like you would any other GeoJson file in the next tab - but this program can use the PAD-US somewhat more efficiently if you take some time and download, setup and specifically configure the PAD-US data:
+          - Create a directory dedicated to the PAD-US data - place on the Region Boundaries GeoJson file and Region GeoJson files in this directory. Enter the directory in this screen.
+          - On the [U.S. Department of the Interior Unified Interior Regional Boundaries](https://www.doi.gov/employees/reorg/unified-regional-boundaries) site find and click the 'shapefiles (for mapping software)' link - this will download a zip file.
+              - Extract the contents of the zip file. 
+              - Use ogr2ogr (see the general help for information on this commandline program) to convert the data to GeoJson (rough template: \ogr2ogr.exe -f GeoJSON -t_srs crs:84 {path and name for destination GeoJson file} {path and name of the shapefile to convert}). 
+              - Put the GeoJson output file into your PAD-US data directory
+          - [PAD-US 3.0 Download data by Department of the Interior (DOI) Region GeoJSON - ScienceBase-Catalog](https://www.sciencebase.gov/catalog/item/622256afd34ee0c6b38b6bb7) - from this page click the 'Download data by Department of the Interior (DOI) Region GeoJSON' link, this will take you to a page where you can download any regions you are interested in. For each region:
+            - Extract the zip file and place the GeoJson file in your PAD-US data directory
+            - Ensure that the GeoJson has the expected coordinate reference system and format - for example  \ogr2ogr.exe -f GeoJSON -t_srs crs:84 C:\PointlessWaymarksPadUs\PADUS3_0Combined_Region1.geojson C:\PointlessWaymarksPadUs\PADUS3_0Combined_Region1.json.
+        """;
+
     private async Task LoadData()
     {
         FilesToTagFileList =
             await FileListViewModel.CreateInstance(StatusContext, FilesToTagSettings,
                 new List<ContextMenuItemData>());
+
+        var settings = await FeatureIntersectionGuiSettingTools.ReadSettings();
+        PadUsDirectory = settings.PadUsDirectory;
+
+        var featureFiles = settings.FeatureIntersectFiles.Select(x => new IntersectFileViewModel().InjectFrom(x))
+            .Cast<IntersectFileViewModel>().ToList();
+
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        PadUsAttributes = new ObservableCollection<string>();
+        settings.PadUsAttributes.OrderBy(x => x).ToList().ForEach(x => PadUsAttributes.Add(x));
+
+        FeatureFiles = new ObservableCollection<IntersectFileViewModel>(featureFiles);
     }
 }
