@@ -1,7 +1,9 @@
 ﻿using System.Collections.ObjectModel;
 using System.Reflection;
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using Omu.ValueInjecter;
+using Ookii.Dialogs.Wpf;
 using PointlessWaymarks.FeatureIntersectionTaggingGui.Models;
 using PointlessWaymarks.LoggingTools;
 using PointlessWaymarks.WpfCommon.FileList;
@@ -22,20 +24,21 @@ public partial class MainWindow
     [ObservableProperty] private ObservableCollection<IntersectFileViewModel>? _featureFiles;
     [ObservableProperty] private IntersectFileViewModel _featureToAdd;
     [ObservableProperty] private string _featureToAddAttributeToAdd = string.Empty;
+    [ObservableProperty] private string _featureToAddSelectedAttribute = string.Empty;
     [ObservableProperty] private FileListViewModel _filesToTagFileList;
     [ObservableProperty] private FeatureIntersectionFilesToTagSettings _filesToTagSettings;
     [ObservableProperty] private string _infoTitle;
     [ObservableProperty] private ObservableCollection<string>? _padUsAttributes;
     [ObservableProperty] private string _padUsAttributeToAdd = string.Empty;
     [ObservableProperty] private string _padUsDirectory = string.Empty;
+    [ObservableProperty] private string _previewGeoJsonDto;
+    [ObservableProperty] private string _previewHtml;
     [ObservableProperty] private IntersectFileViewModel? _selectedFeatureFile;
     [ObservableProperty] private string? _selectedPadUsAttribute;
+    [ObservableProperty] private int _selectedTab;
     [ObservableProperty] private StatusControlContext _statusContext;
     [ObservableProperty] private bool _testRunOnly;
     [ObservableProperty] private WindowIconStatus _windowStatus;
-    [ObservableProperty] private string _previewGeoJsonDto;
-    [ObservableProperty] private string _previewHtml;
-    [ObservableProperty] private int _selectedTab;
 
     public MainWindow()
     {
@@ -65,8 +68,16 @@ public partial class MainWindow
 
         FilesToTagSettings = new FeatureIntersectionFilesToTagSettings();
 
+        ChoosePadUsDirectoryCommand = StatusContext.RunBlockingTaskCommand(ChoosePadUsDirectory);
+        AddPadUsAttributeCommand = StatusContext.RunNonBlockingTaskCommand(AddPadUsAttribute);
+        RemovePadUsAttributeCommand = StatusContext.RunNonBlockingTaskCommand<string>(RemovePadUsAttribute);
+
         StatusContext.RunBlockingTask(LoadData);
     }
+
+    public RelayCommand AddPadUsAttributeCommand { get; set; }
+
+    public RelayCommand ChoosePadUsDirectoryCommand { get; set; }
 
     public string PadUsOverviewMarkdown => """
         From the [USGS PAD-US Data Overview](https://www.usgs.gov/programs/gap-analysis-project/science/pad-us-data-overview):
@@ -86,6 +97,45 @@ public partial class MainWindow
             - Ensure that the GeoJson has the expected coordinate reference system and format - for example  \ogr2ogr.exe -f GeoJSON -t_srs crs:84 C:\PointlessWaymarksPadUs\PADUS3_0Combined_Region1.geojson C:\PointlessWaymarksPadUs\PADUS3_0Combined_Region1.json.
         """;
 
+    public RelayCommand<string> RemovePadUsAttributeCommand { get; set; }
+
+    public async Task AddPadUsAttribute()
+    {
+        if (string.IsNullOrEmpty(PadUsAttributeToAdd))
+        {
+            StatusContext.ToastWarning("Can't Add a Blank/Whitespace Only Attribute");
+            return;
+        }
+
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        PadUsAttributes!.Add(PadUsAttributeToAdd.Trim());
+
+        PadUsAttributeToAdd = string.Empty;
+
+        await FeatureIntersectionGuiSettingTools.SetPadUsAttributes(PadUsAttributes.ToList());
+    }
+
+    public async Task ChoosePadUsDirectory()
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+        var lastDirectory = await FeatureIntersectionGuiSettingTools.GetPadUsDirectory();
+
+        await ThreadSwitcher.ResumeForegroundAsync();
+        var folderPicker = new VistaFolderBrowserDialog
+            { Description = "Directory to Add", Multiselect = false };
+
+        if (lastDirectory is { Exists: true }) folderPicker.SelectedPath = $"{lastDirectory.FullName}\\";
+
+        var result = folderPicker.ShowDialog();
+
+        if (!result ?? false) return;
+
+        PadUsDirectory = folderPicker.SelectedPath;
+
+        await FeatureIntersectionGuiSettingTools.SetPadUsDirectory(PadUsDirectory);
+    }
+
     private async Task LoadData()
     {
         FilesToTagFileList =
@@ -104,5 +154,16 @@ public partial class MainWindow
         settings.PadUsAttributes.OrderBy(x => x).ToList().ForEach(x => PadUsAttributes.Add(x));
 
         FeatureFiles = new ObservableCollection<IntersectFileViewModel>(featureFiles);
+    }
+
+    public async Task RemovePadUsAttribute(string toRemove)
+    {
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        if (PadUsAttributes!.Contains(toRemove))
+        {
+            PadUsAttributes.Remove(toRemove);
+            await FeatureIntersectionGuiSettingTools.SetPadUsAttributes(PadUsAttributes.ToList());
+        }
     }
 }

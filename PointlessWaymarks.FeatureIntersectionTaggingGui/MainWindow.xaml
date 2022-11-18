@@ -11,11 +11,13 @@
         xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
         xmlns:wpfHtml="clr-namespace:PointlessWaymarks.WpfCommon.WpfHtml;assembly=PointlessWaymarks.WpfCommon"
         xmlns:valueConverters="clr-namespace:PointlessWaymarks.WpfCommon.ValueConverters;assembly=PointlessWaymarks.WpfCommon"
+        xmlns:utility="clr-namespace:PointlessWaymarks.WpfCommon.Utility;assembly=PointlessWaymarks.WpfCommon"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800" d:DataContext="{d:DesignInstance local:MainWindow}">
     <Window.Resources>
         <ResourceDictionary>
             <valueConverters:BooleanNotToVisibilityConverter x:Key="BooleanNotToVisibility" />
+            <utility:BindingProxy x:Key="Proxy" Data="{Binding}" />
         </ResourceDictionary>
     </Window.Resources>
     <Grid>
@@ -32,17 +34,69 @@
             </TabItem>
             <TabItem Header="PAD-US">
                 <Grid>
-                    <StackPanel Orientation="Vertical">
-                        <wpf:MarkdownViewer Markdown="{Binding PadUsOverviewMarkdown}" />
-                        <Label>PAD-US GeoJson Data Directory</Label>
-                        <TextBox Text="{Binding PadUsDirectory}" />
-                        <Button>Select PAD-US Directory</Button>
-                        <Label>Attributes for Tags</Label>
-                        <ListBox ItemsSource="{Binding PadUsAttributes}"
-                                 SelectedItem="{Binding SelectedPadUsAttribute}" />
-                        <TextBox Text="{Binding PadUsAttributeToAdd, UpdateSourceTrigger=PropertyChanged}" />
-                        <Button>Add Attribute</Button>
-                    </StackPanel>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"></RowDefinition>
+                        <RowDefinition></RowDefinition>
+                    </Grid.RowDefinitions>
+                    <GroupBox Header="PAD-US Settings" Margin="4">
+                        <Grid Margin="4">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition></ColumnDefinition>
+                                <ColumnDefinition></ColumnDefinition>
+                            </Grid.ColumnDefinitions>
+                            <Border Margin="4" BorderBrush="LightGray" BorderThickness="1" CornerRadius="2">
+                                <StackPanel Margin="4" Orientation="Vertical">
+                                    <Label>PAD-US GeoJson Data Directory</Label>
+                                    <TextBox Margin="4" Text="{Binding PadUsDirectory}" />
+                                    <Button Margin="8" Command="{Binding ChoosePadUsDirectoryCommand}">Select PAD-US Directory</Button>
+                                </StackPanel>
+                            </Border>
+                            <Border Margin="4" BorderBrush="LightGray" BorderThickness="1" CornerRadius="2"
+                                    Grid.Column="1">
+                                <StackPanel Margin="4" Orientation="Vertical">
+                                    <Label>Attributes for Tags</Label>
+                                    <ListBox Margin="4" Height="80" ItemsSource="{Binding PadUsAttributes}"
+                                             SelectedItem="{Binding SelectedPadUsAttribute}" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                                        <ListBox.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                <WrapPanel IsItemsHost="True" Orientation="Horizontal"  />
+                                            </ItemsPanelTemplate>
+                                        </ListBox.ItemsPanel>
+                                        <ListBox.ItemTemplate>
+                                            <DataTemplate>
+                                                <Border BorderBrush="LightGray" BorderThickness="1" CornerRadius="2" >
+                                                <Grid Margin="2">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="*"></ColumnDefinition>
+                                                        <ColumnDefinition Width="Auto"></ColumnDefinition>
+                                                    </Grid.ColumnDefinitions>
+                                                    <TextBlock VerticalAlignment="Center" Text="{Binding .}"></TextBlock>
+                                                    <Button VerticalAlignment="Center" Grid.Column="1" Margin="12,0,0,0"
+                                                            Command="{Binding Data.RemovePadUsAttributeCommand, Source={StaticResource Proxy}}"
+                                                            CommandParameter="{Binding .}">
+                                                        Remove
+                                                    </Button>
+                                                </Grid>
+                                                </Border>
+                                            </DataTemplate>
+                                        </ListBox.ItemTemplate>
+                                    </ListBox>
+                                    <Grid Margin="4">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"></ColumnDefinition>
+                                            <ColumnDefinition Width="Auto"></ColumnDefinition>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBox Margin="4"
+                                                 Text="{Binding PadUsAttributeToAdd, UpdateSourceTrigger=PropertyChanged}" />
+                                        <Button Grid.Column="1" Margin="4" Command="{Binding AddPadUsAttributeCommand}">Add Attribute</Button>
+                                    </Grid>
+                                </StackPanel>
+                            </Border>
+                        </Grid>
+                    </GroupBox>
+                    <GroupBox Header="PAD-US Help and Instructions" Grid.Row="1" Margin="0,4,4,4">
+                        <wpf:MarkdownViewer Margin="4" Grid.Row="1" Markdown="{Binding PadUsOverviewMarkdown}" />
+                    </GroupBox>
                 </Grid>
             </TabItem>
             <TabItem Header="GeoJson Feature Files">
@@ -51,19 +105,20 @@
                         <RowDefinition Height="*" />
                         <RowDefinition Height="Auto" />
                     </Grid.RowDefinitions>
-                    <GroupBox Header="Feature Files">
+                    <GroupBox Header="GeoJson Feature Files">
                         <ListBox ItemsSource="{Binding FeatureFiles}" SelectedItem="{Binding SelectedFeatureFile}" />
                     </GroupBox>
-                    <GroupBox Grid.Row="1">
+                    <GroupBox Grid.Row="1" Header="Add GeoJson Feature File" Margin="4">
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition />
                                 <ColumnDefinition />
-                                <ColumnDefinition />
                             </Grid.ColumnDefinitions>
-                            <StackPanel Orientation="Vertical">
+
+                            <StackPanel Orientation="Vertical" Margin="4,4, 16,16">
                                 <Label>File</Label>
-                                <TextBox Text="{Binding FeatureToAdd.FileName, UpdateSourceTrigger=PropertyChanged}" />
+                                <TextBox
+                                    Text="{Binding FeatureToAdd.FileName, UpdateSourceTrigger=PropertyChanged}" />
                                 <Label>Tag All With</Label>
                                 <TextBox Text="{Binding FeatureToAdd.TagAll, UpdateSourceTrigger=PropertyChanged}" />
                                 <Label>Name</Label>
@@ -71,25 +126,28 @@
                                 <Label>Source</Label>
                                 <TextBox Text="{Binding FeatureToAdd.Source, UpdateSourceTrigger=PropertyChanged}" />
                             </StackPanel>
-                            <Grid Grid.Column="1">
-                                <Grid.RowDefinitions>
-                                    <RowDefinition />
-                                    <RowDefinition />
-                                </Grid.RowDefinitions>
-                                <ListBox />
-                                <StackPanel Orientation="Horizontal" Grid.Row="1">
-                                    <TextBox
-                                        Text="{Binding FeatureToAddAttributeToAdd, UpdateSourceTrigger=PropertyChanged}" />
-                                    <Button>Add</Button>
-                                </StackPanel>
-                            </Grid>
-                            <Button Grid.Column="2">Add</Button>
+
+                            <StackPanel Margin="4,8,4,8" Orientation="Vertical" Grid.Column="1">
+                                <Label>Attributes for Tags</Label>
+                                <ListBox Margin="4" Height="60" ItemsSource="{Binding PadUsAttributes}"
+                                         SelectedItem="{Binding FeatureToAddSelectedAttribute}" />
+                                <Grid Margin="4">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"></ColumnDefinition>
+                                        <ColumnDefinition Width="Auto"></ColumnDefinition>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBox Margin="4"
+                                             Text="{Binding FeatureToAddAttributeToAdd, UpdateSourceTrigger=PropertyChanged}" />
+                                    <Button Grid.Column="1" Margin="4">Add Attribute</Button>
+                                </Grid>
+                                <Button Margin="8" Height="30">Add</Button>
+                            </StackPanel>
                         </Grid>
                     </GroupBox>
                 </Grid>
             </TabItem>
             <TabItem Header="Tag Settings">
-                <StackPanel>
+                <StackPanel Margin="4">
                     <GroupBox Header="ExifTool">
                         <StackPanel Orientation="Vertical">
                             <TextBox Text="{Binding ExifToolFullName, UpdateSourceTrigger=PropertyChanged}" />

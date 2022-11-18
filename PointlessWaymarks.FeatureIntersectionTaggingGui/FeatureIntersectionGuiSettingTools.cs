@@ -24,6 +24,36 @@ public static class FeatureIntersectionGuiSettingTools
         return settingsFile;
     }
 
+    public static async Task<DirectoryInfo?> GetPadUsDirectory()
+    {
+        var directory = (await ReadSettings()).PadUsDirectory;
+
+        if (string.IsNullOrEmpty(directory)) return null;
+
+        return new DirectoryInfo(directory);
+    }
+
+    public static async Task<PointlessWaymarksFeatureIntersectionGuiSettings> SetPadUsDirectory(string directory)
+    {
+        var settings = await ReadSettings();
+
+        if (string.IsNullOrEmpty(directory)) directory =string.Empty;
+
+        settings.PadUsDirectory = directory;
+
+        return await WriteSettings(settings);
+    }
+
+    public static async Task<PointlessWaymarksFeatureIntersectionGuiSettings> SetPadUsAttributes(
+        List<string> attributes)
+    {
+        var settings = await ReadSettings();
+
+        settings.PadUsAttributes = attributes;
+
+        return await WriteSettings(settings);
+    }
+
     public static async Task<PointlessWaymarksFeatureIntersectionGuiSettings> ReadSettings()
     {
         PointlessWaymarksFeatureIntersectionGuiSettings? settings;
