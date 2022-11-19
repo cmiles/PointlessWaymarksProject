@@ -1,5 +1,6 @@
 ﻿using System.IO;
 using System.Text.Json;
+using PointlessWaymarks.FeatureIntersectionTaggingGui.Models;
 using PointlessWaymarks.LoggingTools;
 
 namespace PointlessWaymarks.FeatureIntersectionTaggingGui;
@@ -33,13 +34,22 @@ public static class FeatureIntersectionGuiSettingTools
         return new DirectoryInfo(directory);
     }
 
-    public static async Task<PointlessWaymarksFeatureIntersectionGuiSettings> SetPadUsDirectory(string directory)
+    public static async Task<PointlessWaymarksFeatureIntersectionGuiSettings> ReadSettings()
+    {
+        PointlessWaymarksFeatureIntersectionGuiSettings? settings;
+
+        return JsonSerializer.Deserialize<PointlessWaymarksFeatureIntersectionGuiSettings>(
+                   await File.ReadAllTextAsync((await DefaultSettingsFile()).FullName)) ??
+               new PointlessWaymarksFeatureIntersectionGuiSettings();
+    }
+
+    public static async Task<PointlessWaymarksFeatureIntersectionGuiSettings> SetFeatureFiles(
+        List<FeatureFileViewModel> featureFiles)
     {
         var settings = await ReadSettings();
 
-        if (string.IsNullOrEmpty(directory)) directory =string.Empty;
-
-        settings.PadUsDirectory = directory;
+        settings.FeatureIntersectFiles = featureFiles.OrderBy(x => x.FileName)
+            .ThenBy(x => x.Name).ToList();
 
         return await WriteSettings(settings);
     }
@@ -54,13 +64,15 @@ public static class FeatureIntersectionGuiSettingTools
         return await WriteSettings(settings);
     }
 
-    public static async Task<PointlessWaymarksFeatureIntersectionGuiSettings> ReadSettings()
+    public static async Task<PointlessWaymarksFeatureIntersectionGuiSettings> SetPadUsDirectory(string directory)
     {
-        PointlessWaymarksFeatureIntersectionGuiSettings? settings;
+        var settings = await ReadSettings();
 
-        return JsonSerializer.Deserialize<PointlessWaymarksFeatureIntersectionGuiSettings>(
-                   await File.ReadAllTextAsync((await DefaultSettingsFile()).FullName)) ??
-               new PointlessWaymarksFeatureIntersectionGuiSettings();
+        if (string.IsNullOrEmpty(directory)) directory = string.Empty;
+
+        settings.PadUsDirectory = directory;
+
+        return await WriteSettings(settings);
     }
 
     public static async Task<PointlessWaymarksFeatureIntersectionGuiSettings> WriteSettings(

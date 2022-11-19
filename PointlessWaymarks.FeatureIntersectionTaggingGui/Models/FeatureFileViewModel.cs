@@ -3,9 +3,10 @@
 namespace PointlessWaymarks.FeatureIntersectionTaggingGui.Models;
 
 [ObservableObject]
-public partial class IntersectFileViewModel
+public partial class FeatureFileViewModel
 {
     [ObservableProperty] private List<string> _attributesForTags = new();
+    [ObservableProperty] private Guid _contentId = Guid.NewGuid();
     [ObservableProperty] private string _fileName = string.Empty;
     [ObservableProperty] private string _name = string.Empty;
     [ObservableProperty] private string _source = string.Empty;

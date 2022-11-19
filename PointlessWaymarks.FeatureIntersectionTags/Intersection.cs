@@ -61,7 +61,7 @@ public class Intersection
             .Select(x => new IntersectResults(x.Key, x.SelectMany(y => y.Tags).Distinct().ToList())).ToList();
     }
 
-    public List<IntersectResults> TagsFromFileIntersections(List<IFeature> toCheck, List<IntersectFile> intersectFiles,
+    public List<IntersectResults> TagsFromFileIntersections(List<IFeature> toCheck, List<FeatureFile> intersectFiles,
         CancellationToken cancellationToken,
         IProgress<string>? progress = null)
     {

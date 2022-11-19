@@ -1,4 +1,5 @@
 ﻿using System.Collections.ObjectModel;
+using System.IO;
 using System.Reflection;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -21,10 +22,7 @@ public partial class MainWindow
 {
     [ObservableProperty] private bool _createBackups;
     [ObservableProperty] private string _exifToolFullName = string.Empty;
-    [ObservableProperty] private ObservableCollection<IntersectFileViewModel>? _featureFiles;
-    [ObservableProperty] private IntersectFileViewModel _featureToAdd;
-    [ObservableProperty] private string _featureToAddAttributeToAdd = string.Empty;
-    [ObservableProperty] private string _featureToAddSelectedAttribute = string.Empty;
+    [ObservableProperty] private ObservableCollection<FeatureFileViewModel>? _featureFiles;
     [ObservableProperty] private FileListViewModel _filesToTagFileList;
     [ObservableProperty] private FeatureIntersectionFilesToTagSettings _filesToTagSettings;
     [ObservableProperty] private string _infoTitle;
@@ -33,12 +31,13 @@ public partial class MainWindow
     [ObservableProperty] private string _padUsDirectory = string.Empty;
     [ObservableProperty] private string _previewGeoJsonDto;
     [ObservableProperty] private string _previewHtml;
-    [ObservableProperty] private IntersectFileViewModel? _selectedFeatureFile;
+    [ObservableProperty] private FeatureFileViewModel? _selectedFeatureFile;
     [ObservableProperty] private string? _selectedPadUsAttribute;
     [ObservableProperty] private int _selectedTab;
     [ObservableProperty] private StatusControlContext _statusContext;
     [ObservableProperty] private bool _testRunOnly;
     [ObservableProperty] private WindowIconStatus _windowStatus;
+    [ObservableProperty] private FeatureFileEditorViewModel _featureFileToEdit;
 
     public MainWindow()
     {
@@ -67,13 +66,20 @@ public partial class MainWindow
         _windowStatus = new WindowIconStatus();
 
         FilesToTagSettings = new FeatureIntersectionFilesToTagSettings();
+        FeatureFileToEdit = new FeatureFileEditorViewModel(StatusContext, new FeatureFileViewModel());
 
         ChoosePadUsDirectoryCommand = StatusContext.RunBlockingTaskCommand(ChoosePadUsDirectory);
         AddPadUsAttributeCommand = StatusContext.RunNonBlockingTaskCommand(AddPadUsAttribute);
         RemovePadUsAttributeCommand = StatusContext.RunNonBlockingTaskCommand<string>(RemovePadUsAttribute);
+        EditFeatureFileCommand = StatusContext.RunNonBlockingTaskCommand(EditFeatureFile);
+        NewFeatureFileCommand = StatusContext.RunNonBlockingTaskCommand(NewFeatureFile);
 
         StatusContext.RunBlockingTask(LoadData);
     }
+
+    public RelayCommand NewFeatureFileCommand { get; set; }
+
+    public RelayCommand EditFeatureFileCommand { get; set; }
 
     public RelayCommand AddPadUsAttributeCommand { get; set; }
 
@@ -98,6 +104,22 @@ public partial class MainWindow
         """;
 
     public RelayCommand<string> RemovePadUsAttributeCommand { get; set; }
+
+    public async Task EditFeatureFile()
+    {
+        if (SelectedFeatureFile == null)
+        {
+            StatusContext.ToastWarning("Nothing Selected To Edit?");
+            return;
+        }
+
+        FeatureFileToEdit.Show(SelectedFeatureFile);
+    }
+
+    public async Task NewFeatureFile()
+    {
+        FeatureFileToEdit.Show(new FeatureFileViewModel());
+    }
 
     public async Task AddPadUsAttribute()
     {
@@ -145,15 +167,15 @@ public partial class MainWindow
         var settings = await FeatureIntersectionGuiSettingTools.ReadSettings();
         PadUsDirectory = settings.PadUsDirectory;
 
-        var featureFiles = settings.FeatureIntersectFiles.Select(x => new IntersectFileViewModel().InjectFrom(x))
-            .Cast<IntersectFileViewModel>().ToList();
+        var featureFiles = settings.FeatureIntersectFiles.Select(x => new FeatureFileViewModel().InjectFrom(x))
+            .Cast<FeatureFileViewModel>().ToList();
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
         PadUsAttributes = new ObservableCollection<string>();
         settings.PadUsAttributes.OrderBy(x => x).ToList().ForEach(x => PadUsAttributes.Add(x));
 
-        FeatureFiles = new ObservableCollection<IntersectFileViewModel>(featureFiles);
+        FeatureFiles = new ObservableCollection<FeatureFileViewModel>(featureFiles);
     }
 
     public async Task RemovePadUsAttribute(string toRemove)

@@ -4,7 +4,7 @@ namespace PointlessWaymarks.FeatureIntersectionTags.Models;
 
 public record IntersectSettings(
     [property: JsonPropertyName("intersectFiles")]
-    IReadOnlyList<IntersectFile> IntersectFiles,
+    IReadOnlyList<FeatureFile> IntersectFiles,
     [property: JsonPropertyName("padUsDoiRegionFile")]
     string PadUsDoiRegionFile,
     [property: JsonPropertyName("padUsDirectory")]

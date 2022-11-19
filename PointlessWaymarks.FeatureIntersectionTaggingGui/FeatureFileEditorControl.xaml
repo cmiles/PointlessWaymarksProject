@@ -1,0 +1,71 @@
+﻿<UserControl x:Class="PointlessWaymarks.FeatureIntersectionTaggingGui.FeatureFileEditorControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="clr-namespace:PointlessWaymarks.FeatureIntersectionTaggingGui"
+             xmlns:valueConverters="clr-namespace:PointlessWaymarks.WpfCommon.ValueConverters;assembly=PointlessWaymarks.WpfCommon"
+             mc:Ignorable="d"
+             d:DesignHeight="450" d:DesignWidth="800"
+             d:DataContext="{d:DesignInstance local:FeatureFileEditorViewModel}">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <valueConverters:BooleanToVisibilityConverter x:Key="BooleanToVisibility" />
+        </ResourceDictionary>
+    </UserControl.Resources>
+    <Grid Visibility="{Binding IsVisible, Converter={StaticResource BooleanToVisibility}}" Background="LightGray"
+          Margin="0">
+        <Grid VerticalAlignment="Center" Margin="12,0">
+            <Border CornerRadius="6" Background="White" BorderThickness="2" BorderBrush="LightSkyBlue"></Border>
+            <Grid VerticalAlignment="Center" Margin="12">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"></RowDefinition>
+                    <RowDefinition Height="Auto"></RowDefinition>
+                </Grid.RowDefinitions>
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"></RowDefinition>
+                        <RowDefinition Height="*"></RowDefinition>
+                        <RowDefinition Height="Auto"></RowDefinition>
+                    </Grid.RowDefinitions>
+                    <TextBlock FontWeight="Bold" HorizontalAlignment="Center" Margin="4">Feature File Editor</TextBlock>
+                    <Grid Grid.Row="1">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition />
+                            <ColumnDefinition />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Orientation="Vertical" Margin="4,4, 16,16">
+                            <Label>File</Label>
+                            <TextBox
+                                Text="{Binding Model.FileName, UpdateSourceTrigger=PropertyChanged}" />
+                            <Label>Tag All With</Label>
+                            <TextBox Text="{Binding Model.TagAll, UpdateSourceTrigger=PropertyChanged}" />
+                            <Label>Name</Label>
+                            <TextBox Text="{Binding Model.Name, UpdateSourceTrigger=PropertyChanged}" />
+                            <Label>Source</Label>
+                            <TextBox Text="{Binding Model.Source, UpdateSourceTrigger=PropertyChanged}" />
+                        </StackPanel>
+                        <StackPanel Margin="4,8,4,8" Orientation="Vertical" Grid.Column="1">
+                            <Label>Attributes for Tags</Label>
+                            <ListBox Margin="4" Height="60" ItemsSource="{Binding Model.AttributesForTags}"
+                                     SelectedItem="{Binding SelectedAttribute}" />
+                            <Grid Margin="4">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"></ColumnDefinition>
+                                    <ColumnDefinition Width="Auto"></ColumnDefinition>
+                                </Grid.ColumnDefinitions>
+                                <TextBox Margin="4"
+                                         Text="{Binding AttributeToAdd, UpdateSourceTrigger=PropertyChanged}" />
+                                <Button Grid.Column="1" Margin="4" Command="{Binding AddAttributeCommand}">Add Attribute</Button>
+                            </Grid>
+                        </StackPanel>
+                    </Grid>
+                    <WrapPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center" Margin="4,0,4,6">
+                        <Button Height="30" Width="160" Command="{Binding FinishEditCommand}">Save</Button>
+                        <Button Height="30" Width="160" Command="{Binding CancelCommand}">Cancel</Button>
+                    </WrapPanel>
+                </Grid>
+            </Grid>
+        </Grid>
+    </Grid>
+</UserControl>
