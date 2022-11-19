@@ -1,16 +1,41 @@
-﻿using NetTopologySuite.Features;
-using Newtonsoft.Json;
+﻿using System.Text.Json;
+using System.Text.RegularExpressions;
+using NetTopologySuite.Features;
 using PointlessWaymarks.FeatureIntersectionTags.Models;
 using PointlessWaymarks.SpatialTools;
-using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace PointlessWaymarks.FeatureIntersectionTags;
 
 public class Intersection
 {
+    public List<IntersectResults> Tags(IntersectSettings settings,
+        List<IFeature> toCheck, CancellationToken cancellationToken, IProgress<string>? progress = null)
+    {
+        var compiledTags = new List<IntersectResults>();
+
+        cancellationToken.ThrowIfCancellationRequested();
+
+        if (settings.IntersectFiles.Any())
+            compiledTags.AddRange(TagsFromFileIntersections(toCheck, settings.IntersectFiles.ToList(),
+                cancellationToken, progress));
+
+        cancellationToken.ThrowIfCancellationRequested();
+
+        if (!string.IsNullOrWhiteSpace(settings.PadUsDirectory) && settings.PadUsAttributesForTags.Any())
+            compiledTags.AddRange(TagsFromPadUsIntersections(toCheck, settings.PadUsAttributesForTags.ToList(),
+                settings.PadUsDirectory, cancellationToken,
+                progress));
+
+        cancellationToken.ThrowIfCancellationRequested();
+
+        return compiledTags.GroupBy(x => x.Feature)
+            .Select(x => new IntersectResults(x.Key, x.SelectMany(y => y.Tags).Distinct().ToList(),
+                x.SelectMany(y => y.IntersectsWith).ToList())).ToList();
+    }
+
     /// <summary>
-    /// Checks the submitted List of IFeatures for tags based on the submitted settings file - if the settings
-    /// file is blank of invalid an empty list is returned.
+    ///     Checks the submitted List of IFeatures for tags based on the submitted settings file - if the settings
+    ///     file is blank of invalid an empty list is returned.
     /// </summary>
     /// <param name="intersectSettingsFile"></param>
     /// <param name="toCheck"></param>
@@ -37,35 +62,22 @@ public class Intersection
         progress?.Report($"Getting Settings from {intersectSettingsFile}");
         var settings = JsonSerializer.Deserialize<IntersectSettings>(File.ReadAllText(intersectSettingsFile));
 
-        var compiledTags = new List<IntersectResults>();
+        if (settings == null)
+        {
+            progress?.Report($"The settings file {intersectSettingsFile} did not deserialized to valid settings...");
 
-        cancellationToken.ThrowIfCancellationRequested();
+            return new List<IntersectResults>();
+        }
 
-        if (settings.IntersectFiles.Any())
-            compiledTags.AddRange(TagsFromFileIntersections(toCheck, settings.IntersectFiles.ToList(),
-                cancellationToken, progress));
-
-        cancellationToken.ThrowIfCancellationRequested();
-
-        if (!string.IsNullOrWhiteSpace(settings.PadUsDirectory)
-            && !string.IsNullOrWhiteSpace(settings.PadUsDoiRegionFile)
-            && !string.IsNullOrWhiteSpace(settings.PadUsFilePrefix)
-            && settings.PadUsAttributesForTags.Any())
-            compiledTags.AddRange(TagsFromPadUsIntersections(toCheck, settings.PadUsAttributesForTags.ToList(),
-                settings.PadUsDoiRegionFile, settings.PadUsDirectory, settings.PadUsFilePrefix, cancellationToken,
-                progress));
-
-        cancellationToken.ThrowIfCancellationRequested();
-
-        return compiledTags.GroupBy(x => x.Feature)
-            .Select(x => new IntersectResults(x.Key, x.SelectMany(y => y.Tags).Distinct().ToList())).ToList();
+        return Tags(settings, toCheck, cancellationToken, progress);
     }
 
     public List<IntersectResults> TagsFromFileIntersections(List<IFeature> toCheck, List<FeatureFile> intersectFiles,
         CancellationToken cancellationToken,
         IProgress<string>? progress = null)
     {
-        var featuresAndTags = toCheck.Select(x => new IntersectResults(x, new List<string>())).ToList();
+        var featuresAndTags = toCheck.Select(x => new IntersectResults(x, new List<string>(), new List<IFeature>()))
+            .ToList();
 
         var counter = 0;
         foreach (var loopIntersectFile in intersectFiles)
@@ -108,6 +120,8 @@ public class Intersection
                         foreach (var loopAttribute in loopIntersectFile.AttributesForTags)
                             if (loopIntersectFeature.Attributes.GetNames().Any(a => a == loopAttribute))
                             {
+                                loopCheck.IntersectsWith.Add(loopIntersectFeature);
+
                                 var tagValue = (loopIntersectFeature.Attributes[loopAttribute]?.ToString() ??
                                                 string.Empty).Trim();
                                 if (!loopCheck.Tags.Any(x => x.Equals(tagValue, StringComparison.OrdinalIgnoreCase)))
@@ -116,7 +130,11 @@ public class Intersection
 
                         if (!string.IsNullOrWhiteSpace(loopIntersectFile.TagAll) && !loopCheck.Tags.Any(x =>
                                 x.Equals(loopIntersectFile.TagAll, StringComparison.OrdinalIgnoreCase)))
+                        {
+                            loopCheck.IntersectsWith.Add(loopIntersectFeature);
+
                             loopCheck.Tags.Add(loopIntersectFile.TagAll);
+                        }
                     }
                 }
             }
@@ -128,11 +146,29 @@ public class Intersection
     }
 
     public List<IntersectResults> TagsFromPadUsIntersections(List<IFeature> toCheck, List<string> attributesForTags,
-        string padUsRegionFile, string padUsDirectory, string padUsFilePrefix, CancellationToken cancellationToken,
+        string padUsDirectory, CancellationToken cancellationToken,
         IProgress<string>? progress = null)
     {
-        progress?.Report($"Processing DOI Regions from {padUsRegionFile}");
-        var doiRegionsFile = new FileInfo(padUsRegionFile);
+        if (string.IsNullOrWhiteSpace(padUsDirectory)) return new List<IntersectResults>();
+
+        var padUsDirectoryInfo = new DirectoryInfo(padUsDirectory);
+
+        if (!padUsDirectoryInfo.Exists)
+        {
+            progress?.Report($"PAD-US directory {padUsDirectory} doesn't exist...");
+            return new List<IntersectResults>();
+        }
+
+        var regionsFile = padUsDirectoryInfo.EnumerateFiles("*Regions.geojson", SearchOption.TopDirectoryOnly).ToList();
+
+        if (regionsFile.Count != 1)
+        {
+            progress?.Report(
+                $"Couldn't find a single Region file matching *Regions.geojson in {padUsDirectoryInfo.FullName}");
+            return new List<IntersectResults>();
+        }
+
+        var doiRegionsFile = regionsFile.First();
 
         var doiRegionFeatures = GeoJsonTools.DeserializeFileToFeatureCollection(doiRegionsFile.FullName);
 
@@ -145,12 +181,17 @@ public class Intersection
             if (loopCheck.Geometry.Intersects(loopDoiRegion.Geometry))
                 regionIntersections.Add((loopDoiRegion.Attributes["REG_NUM"]?.ToString(), loopCheck));
 
-        var featureTag = new List<(IFeature Feature, string tag)>();
+        var featureTag = new List<(IFeature featureToTag, string tag, IFeature intersectsWith)>();
 
         var counter = 0;
 
         var regionIntersectionsGroupedByRegion = regionIntersections.GroupBy(x => x.region).ToList();
 
+        var geoJsonFiles = padUsDirectoryInfo.EnumerateFiles("*.geojson", SearchOption.TopDirectoryOnly).ToList();
+
+        var regionFiles = geoJsonFiles.Where(x =>
+                Regex.IsMatch(x.Name, ".*[0-9]{1,2}.geojson", RegexOptions.IgnoreCase | RegexOptions.ExplicitCapture))
+            .ToList();
 
         foreach (var loopDoiRegionGroup in regionIntersectionsGroupedByRegion)
         {
@@ -158,8 +199,14 @@ public class Intersection
 
             counter++;
 
-            var regionFile =
-                new FileInfo(Path.Combine(padUsDirectory, $"{padUsFilePrefix}{loopDoiRegionGroup.Key}.geojson"));
+            var regionFile = geoJsonFiles.FirstOrDefault(x =>
+                x.Name.EndsWith($"{loopDoiRegionGroup.Key}.geojson", StringComparison.OrdinalIgnoreCase));
+
+            if (regionFile == null)
+            {
+                progress?.Report($"A region file for Region {loopDoiRegionGroup.Key} was not found");
+                continue;
+            }
 
             progress?.Report(
                 $"Processing PADUS DOI Region File - {regionFile.Name} - {counter} of {regionIntersectionsGroupedByRegion.Count}");
@@ -188,7 +235,7 @@ public class Intersection
                             {
                                 var tagValue = (loopRegionFeature.Attributes[loopAttribute]?.ToString() ??
                                                 string.Empty).Trim();
-                                featureTag.Add((loopCheckFeature, tagValue));
+                                featureTag.Add((loopCheckFeature, tagValue, loopRegionFeature));
                             }
                 }
             }
@@ -197,7 +244,9 @@ public class Intersection
         progress?.Report("Returning PADUS Features and Tags");
 
         return toCheck.Select(x =>
-                new IntersectResults(x, featureTag.Where(y => y.Feature == x).Select(y => y.tag).Distinct().ToList()))
+                new IntersectResults(x,
+                    featureTag.Where(y => y.featureToTag == x).Select(y => y.tag).Distinct().ToList(),
+                    featureTag.Where(y => y.featureToTag == x).Select(y => y.intersectsWith).ToList()))
             .ToList();
     }
 }

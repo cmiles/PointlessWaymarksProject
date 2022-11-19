@@ -1,5 +1,4 @@
 ﻿using System.Collections.ObjectModel;
-using System.IO;
 using System.Reflection;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -23,6 +22,7 @@ public partial class MainWindow
     [ObservableProperty] private bool _createBackups;
     [ObservableProperty] private string _exifToolFullName = string.Empty;
     [ObservableProperty] private ObservableCollection<FeatureFileViewModel>? _featureFiles;
+    [ObservableProperty] private FeatureFileEditorViewModel _featureFileToEdit;
     [ObservableProperty] private FileListViewModel _filesToTagFileList;
     [ObservableProperty] private FeatureIntersectionFilesToTagSettings _filesToTagSettings;
     [ObservableProperty] private string _infoTitle;
@@ -37,7 +37,6 @@ public partial class MainWindow
     [ObservableProperty] private StatusControlContext _statusContext;
     [ObservableProperty] private bool _testRunOnly;
     [ObservableProperty] private WindowIconStatus _windowStatus;
-    [ObservableProperty] private FeatureFileEditorViewModel _featureFileToEdit;
 
     public MainWindow()
     {
@@ -67,6 +66,7 @@ public partial class MainWindow
 
         FilesToTagSettings = new FeatureIntersectionFilesToTagSettings();
         FeatureFileToEdit = new FeatureFileEditorViewModel(StatusContext, new FeatureFileViewModel());
+        FeatureFileToEdit.EndEdit += EndEdit;
 
         ChoosePadUsDirectoryCommand = StatusContext.RunBlockingTaskCommand(ChoosePadUsDirectory);
         AddPadUsAttributeCommand = StatusContext.RunNonBlockingTaskCommand(AddPadUsAttribute);
@@ -77,13 +77,13 @@ public partial class MainWindow
         StatusContext.RunBlockingTask(LoadData);
     }
 
-    public RelayCommand NewFeatureFileCommand { get; set; }
-
-    public RelayCommand EditFeatureFileCommand { get; set; }
-
     public RelayCommand AddPadUsAttributeCommand { get; set; }
 
     public RelayCommand ChoosePadUsDirectoryCommand { get; set; }
+
+    public RelayCommand EditFeatureFileCommand { get; set; }
+
+    public RelayCommand NewFeatureFileCommand { get; set; }
 
     public string PadUsOverviewMarkdown => """
         From the [USGS PAD-US Data Overview](https://www.usgs.gov/programs/gap-analysis-project/science/pad-us-data-overview):
@@ -104,22 +104,6 @@ public partial class MainWindow
         """;
 
     public RelayCommand<string> RemovePadUsAttributeCommand { get; set; }
-
-    public async Task EditFeatureFile()
-    {
-        if (SelectedFeatureFile == null)
-        {
-            StatusContext.ToastWarning("Nothing Selected To Edit?");
-            return;
-        }
-
-        FeatureFileToEdit.Show(SelectedFeatureFile);
-    }
-
-    public async Task NewFeatureFile()
-    {
-        FeatureFileToEdit.Show(new FeatureFileViewModel());
-    }
 
     public async Task AddPadUsAttribute()
     {
@@ -158,6 +142,24 @@ public partial class MainWindow
         await FeatureIntersectionGuiSettingTools.SetPadUsDirectory(PadUsDirectory);
     }
 
+    public async Task EditFeatureFile()
+    {
+        if (SelectedFeatureFile == null)
+        {
+            StatusContext.ToastWarning("Nothing Selected To Edit?");
+            return;
+        }
+
+        FeatureFileToEdit.Show(SelectedFeatureFile);
+    }
+
+    private void EndEdit(object? sender, FeatureFileEditorEndEditCondition e)
+    {
+        if (e == FeatureFileEditorEndEditCondition.Cancelled) return;
+
+        StatusContext.RunBlockingTask(RefreshFeatureFileList);
+    }
+
     private async Task LoadData()
     {
         FilesToTagFileList =
@@ -176,6 +178,21 @@ public partial class MainWindow
         settings.PadUsAttributes.OrderBy(x => x).ToList().ForEach(x => PadUsAttributes.Add(x));
 
         FeatureFiles = new ObservableCollection<FeatureFileViewModel>(featureFiles);
+    }
+
+    public async Task NewFeatureFile()
+    {
+        FeatureFileToEdit.Show(new FeatureFileViewModel());
+    }
+
+    public async Task RefreshFeatureFileList()
+    {
+        var currentList = (await FeatureIntersectionGuiSettingTools.ReadSettings()).FeatureIntersectFiles;
+
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        FeatureFiles!.Clear();
+        currentList.ForEach(x => FeatureFiles.Add(x));
     }
 
     public async Task RemovePadUsAttribute(string toRemove)

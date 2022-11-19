@@ -2,4 +2,4 @@
 
 namespace PointlessWaymarks.FeatureIntersectionTags.Models;
 
-public record IntersectResults(IFeature Feature, List<string> Tags);
+public record IntersectResults(IFeature Feature, List<string> Tags, List<IFeature> IntersectsWith);
