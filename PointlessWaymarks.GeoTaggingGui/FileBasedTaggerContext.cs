@@ -83,12 +83,25 @@ public partial class FileBasedTaggerContext
             new List<ContextMenuItemData>
                 { new() { ItemCommand = ShowSelectedGpxFilesCommand, ItemName = "Show  Selected" } });
 
+        await LoadTaggerSetting();
+
         await ThreadSwitcher.ResumeForegroundAsync();
 
         ExifToolFullName = (await GeoTaggingGuiSettingTools.ReadSettings()).ExifToolFullName;
 
         PreviewHtml = WpfHtmlDocument.ToHtmlLeafletBasicGeoJsonDocument("GeoJson",
             32.12063, -110.52313, string.Empty);
+    }
+
+    public async System.Threading.Tasks.Task LoadTaggerSetting()
+    {
+        var settings = await GeoTaggingGuiSettingTools.ReadSettings();
+        ExifToolFullName = settings.ExifToolFullName;
+        CreateBackups = settings.CreateBackups;
+        PointsMustBeWithinMinutes = settings.PointsMustBeWithinMinutes;
+        OverwriteExistingGeoLocation = settings.OverwriteExistingGeoLocation;
+        TestRunOnly = settings.TestRunOnly;
+        await GeoTaggingGuiSettingTools.WriteSettings(settings);
     }
 
     public async System.Threading.Tasks.Task MetadataForSelectedFilesToTag()
@@ -220,7 +233,7 @@ public partial class FileBasedTaggerContext
 
     public async System.Threading.Tasks.Task Tag()
     {
-        await WriteExifToolSetting(ExifToolFullName);
+        await WriteTaggerSetting();
 
         var fileListGpxService = new FileListGpxService(GpxFileList.Files!.ToList());
         var tagger = new GeoTag();
@@ -256,10 +269,14 @@ public partial class FileBasedTaggerContext
         SelectedTab = 3;
     }
 
-    public async System.Threading.Tasks.Task WriteExifToolSetting(string? newDirectory)
+    public async System.Threading.Tasks.Task WriteTaggerSetting()
     {
         var settings = await GeoTaggingGuiSettingTools.ReadSettings();
         settings.ExifToolFullName = ExifToolFullName;
+        settings.CreateBackups = CreateBackups;
+        settings.PointsMustBeWithinMinutes = PointsMustBeWithinMinutes;
+        settings.OverwriteExistingGeoLocation = OverwriteExistingGeoLocation;
+        settings.TestRunOnly = TestRunOnly;
         await GeoTaggingGuiSettingTools.WriteSettings(settings);
     }
 }
