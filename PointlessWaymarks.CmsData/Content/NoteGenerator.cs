@@ -5,6 +5,7 @@ using PointlessWaymarks.CmsData.ContentHtml.NoteHtml;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsData.Json;
+using PointlessWaymarks.LoggingTools;
 
 namespace PointlessWaymarks.CmsData.Content;
 
@@ -54,7 +55,7 @@ public static class NoteGenerator
             currentLength = dbMaxLength > currentLength ? dbMaxLength : currentLength;
         }
 
-        var possibleSlug = SlugUtility.RandomLowerCaseString(currentLength);
+        var possibleSlug = SlugTools.RandomLowerCaseString(currentLength);
 
         async Task<bool> SlugAlreadyExists(string slug)
         {
@@ -68,7 +69,7 @@ public static class NoteGenerator
                     "Could not create a unique note slug in 1000 iterations - this almost certainly represents an error.");
             if (attemptCount % 10 == 0) currentLength++;
             attemptCount++;
-            possibleSlug = SlugUtility.RandomLowerCaseString(currentLength);
+            possibleSlug = SlugTools.RandomLowerCaseString(currentLength);
         }
 
         return possibleSlug;

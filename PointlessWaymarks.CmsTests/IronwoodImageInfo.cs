@@ -8,6 +8,7 @@ using PointlessWaymarks.CmsData.ContentHtml;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsData.Json;
+using PointlessWaymarks.LoggingTools;
 
 namespace PointlessWaymarks.CmsTests;
 
@@ -26,7 +27,7 @@ public static class IronwoodImageInfo
             Title = "Ironwood Forest National Monument Map Cover Page",
             ShowInMainSiteFeed = false,
             ShowInSearch = false,
-            Slug = SlugUtility.Create(true, "Ironwood Forest National Monument Map Cover Page"),
+            Slug = SlugTools.Create(true, "Ironwood Forest National Monument Map Cover Page"),
             Summary = "Cover Page From Ironwood Forest National Monument Map.",
             Tags = "ironwood forest national monument,map",
             UpdateNotesFormat = ContentFormatDefaults.Content.ToString()

@@ -14,6 +14,7 @@ using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsData.Json;
 using PointlessWaymarks.FeatureIntersectionTags;
+using PointlessWaymarks.LoggingTools;
 using PointlessWaymarks.SpatialTools;
 using Serilog;
 using XmpCore;
@@ -66,12 +67,12 @@ public static class PhotoGenerator
             toReturn.PhotoCreatedBy = iptcDirectory?.GetDescription(IptcDirectory.TagByLine) ?? string.Empty;
 
         var createdOn =
-            await PhotoToolsFileMetadata.CreatedOnLocalAndUtc(metadataDirectories);
+            await FileMetadataEmbeddedTools.CreatedOnLocalAndUtc(metadataDirectories);
 
         toReturn.PhotoCreatedOn = createdOn.createdOnLocal ?? DateTime.Now;
         toReturn.PhotoCreatedOnUtc = createdOn.createdOnUtc;
 
-        var locationInformation = await PhotoToolsFileMetadata.LocationFromExif(metadataDirectories, true, progress);
+        var locationInformation = await FileMetadataEmbeddedTools.LocationFromExif(metadataDirectories, true, progress);
 
         toReturn.Latitude = locationInformation.Latitude;
         toReturn.Longitude = locationInformation.Longitude;
@@ -361,7 +362,7 @@ public static class PhotoGenerator
             : photoContentCreatedBy.Trim();
         toReturn.CreatedOn = created;
         toReturn.FeedOn = created;
-        toReturn.Slug = SlugUtility.Create(true, toReturn.Title);
+        toReturn.Slug = SlugTools.Create(true, toReturn.Title);
         toReturn.BodyContentFormat = ContentFormatDefaults.Content.ToString();
         toReturn.UpdateNotesFormat = ContentFormatDefaults.Content.ToString();
         toReturn.ShowPhotoPosition = UserSettingsSingleton.CurrentSettings().PhotoPagesShowPositionByDefault;

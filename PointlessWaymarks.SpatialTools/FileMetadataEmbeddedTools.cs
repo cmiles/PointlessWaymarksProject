@@ -3,37 +3,38 @@ using GeoTimeZone;
 using MetadataExtractor;
 using MetadataExtractor.Formats.Exif;
 using MetadataExtractor.Formats.Xmp;
+using Directory = MetadataExtractor.Directory;
 
 namespace PointlessWaymarks.SpatialTools;
 
-public static class PhotoToolsFileMetadata
+public static class FileMetadataEmbeddedTools
 {
     public static async Task<(DateTime? createdOnLocal, DateTime? createdOnUtc)> CreatedOnLocalAndUtc(
-        IReadOnlyList<MetadataExtractor.Directory> directories)
+        IReadOnlyList<Directory> directories)
     {
         var gpsLocal = await CreatedOnLocalFromGps(directories);
         var gpsUtc = await CreatedOnUtcFromGps(directories);
 
         if (gpsLocal != null && gpsUtc != null) return (gpsLocal, gpsUtc);
 
-        var photoLocation = await LocationFromExif(directories, false, null);
+        var location = await LocationFromExif(directories, false, null);
 
         var exifLocal = CreatedOnLocalFromExif(directories);
         var exifUtc = CreatedOnUtcFromExif(directories);
 
-        if (exifUtc != null && photoLocation.HasValidLocation())
-            return (TimeTools.LocalTimeFromUtcAndLocation(exifUtc.Value, photoLocation.Latitude!.Value,
-                photoLocation.Longitude!.Value), exifUtc);
+        if (exifUtc != null && location.HasValidLocation())
+            return (TimeTools.LocalTimeFromUtcAndLocation(exifUtc.Value, location.Latitude!.Value,
+                location.Longitude!.Value), exifUtc);
 
         if (exifUtc != null && exifLocal != null) return (exifLocal, exifUtc);
 
         var xmpLocal = CreatedOnLocalFromXmp(directories);
         var xmpUtc = CreatedOnUtcFromXmp(directories);
 
-        if (xmpUtc != null && photoLocation.HasValidLocation())
+        if (xmpUtc != null && location.HasValidLocation())
             return (
-                TimeTools.LocalTimeFromUtcAndLocation(xmpUtc.Value, photoLocation.Latitude!.Value,
-                    photoLocation.Longitude!.Value), xmpUtc);
+                TimeTools.LocalTimeFromUtcAndLocation(xmpUtc.Value, location.Latitude!.Value,
+                    location.Longitude!.Value), xmpUtc);
 
         if (xmpUtc != null && xmpLocal != null) return (xmpLocal, xmpLocal);
 
@@ -43,47 +44,35 @@ public static class PhotoToolsFileMetadata
         return (lastChanceLocal, lastChanceUtc);
     }
 
-    private static DateTime? CreatedOnUtcFromExif(
-        IReadOnlyList<MetadataExtractor.Directory> directories)
+    public static DateTime? CreatedOnLocalFromExif(IReadOnlyList<Directory> directories)
     {
-        var localTime = CreatedOnLocalFromExif(directories);
+        var subIfdDirectories = directories.OfType<ExifSubIfdDirectory>().ToList();
 
-        if (localTime == null) return null;
+        foreach (var loopSubIf in subIfdDirectories)
+        {
+            var result = CreateOnLocalFromExifSubIfdMetadata(loopSubIf);
+            if (result != null) return result;
+        }
 
-        localTime = DateTime.SpecifyKind(localTime.Value, DateTimeKind.Local);
+        var ifdDirectories = directories.OfType<ExifIfd0Directory>().ToList();
 
-        var offset = CreatedOnUtcOffsetFromExif(directories);
+        foreach (var loopIfd in ifdDirectories)
+        {
+            var result = CreateOnLocalDateTimeFromExifIfdMetadata(loopIfd);
+            if (result != null) return result;
+        }
 
-        if (!offset.validTimeZoneOffset) return null;
-
-        var utcDateTime = localTime.Value.Subtract(offset.offset);
-        utcDateTime = DateTime.SpecifyKind(utcDateTime, DateTimeKind.Utc);
-
-        return utcDateTime;
+        return null;
     }
 
     public static async Task<DateTime?> CreatedOnLocalFromGps(
-        IReadOnlyList<MetadataExtractor.Directory> directories)
+        IReadOnlyList<Directory> directories)
     {
         var allGpsDirectories = directories.OfType<GpsDirectory>().ToList();
 
         foreach (var loopDirectory in allGpsDirectories)
         {
             var result = await CreatedOnLocalFromGpsMetadata(loopDirectory);
-            if(result != null) return result;
-        }
-
-        return null;
-    }
-
-    public static async Task<DateTime?> CreatedOnUtcFromGps(
-        IReadOnlyList<MetadataExtractor.Directory> directories)
-    {
-        var allGpsDirectories = directories.OfType<GpsDirectory>().ToList();
-
-        foreach (var loopDirectory in allGpsDirectories)
-        {
-            var result = await CreatedOnUtcFromGpsMetadata(loopDirectory);
             if (result != null) return result;
         }
 
@@ -105,39 +94,16 @@ public static class PhotoToolsFileMetadata
 
         if (!gpsLocation.HasValidLocation()) return null;
 
-        var photoLocationTimezoneIanaIdentifier =
+        var locationTimezoneIanaIdentifier =
             TimeZoneLookup.GetTimeZone(gpsLocation.Latitude!.Value, gpsLocation.Longitude!.Value);
-        var photoLocationTimeZone = TimeZoneInfo.FindSystemTimeZoneById(photoLocationTimezoneIanaIdentifier.Result);
-        var localTime = TimeZoneInfo.ConvertTime(gpsDateTime, photoLocationTimeZone);
+        var locationTimeZone = TimeZoneInfo.FindSystemTimeZoneById(locationTimezoneIanaIdentifier.Result);
+        var localTime = TimeZoneInfo.ConvertTime(gpsDateTime, locationTimeZone);
 
         return localTime;
     }
 
-    private static async Task<DateTime?> CreatedOnUtcFromGpsMetadata(
-        GpsDirectory? gpsDirectory)
-    {
-        if (gpsDirectory == null) return null;
-
-        var hasGpsTime = gpsDirectory.TryGetGpsDate(out var gpsDateTime);
-
-        if (!hasGpsTime || gpsDateTime == DateTime.MinValue) return null;
-
-        gpsDateTime = DateTime.SpecifyKind(gpsDateTime, DateTimeKind.Utc);
-
-        var gpsLocation = await LocationFromExifGpsMetadata(gpsDirectory, false, null);
-
-        if (!gpsLocation.HasValidLocation()) return null;
-
-        var photoLocationTimezoneIanaIdentifier =
-            TimeZoneLookup.GetTimeZone(gpsLocation.Latitude!.Value, gpsLocation.Longitude!.Value);
-        var photoLocationTimeZone = TimeZoneInfo.FindSystemTimeZoneById(photoLocationTimezoneIanaIdentifier.Result);
-        var localTime = TimeZoneInfo.ConvertTime(gpsDateTime, photoLocationTimeZone);
-
-        return gpsDateTime;
-    }
-
     public static DateTime? CreatedOnLocalFromXmp(
-        IReadOnlyList<MetadataExtractor.Directory> directories)
+        IReadOnlyList<Directory> directories)
     {
         var xmpDirectories = directories.OfType<XmpDirectory>().ToList();
 
@@ -146,22 +112,6 @@ public static class PhotoToolsFileMetadata
         foreach (var loopDirectory in xmpDirectories)
         {
             var result = CreatedOnLocalFromXmpMetadata(loopDirectory);
-            if (result != null) return result;
-        }
-
-        return null;
-    }
-
-    public static DateTime? CreatedOnUtcFromXmp(
-        IReadOnlyList<MetadataExtractor.Directory> directories)
-    {
-        var xmpDirectories = directories.OfType<XmpDirectory>().ToList();
-
-        var resultList = new List<(DateTime? createdOnLocal, DateTime? createdOnUtc)>();
-
-        foreach (var loopDirectory in xmpDirectories)
-        {
-            var result = CreatedOnUtcFromXmpMetadata(loopDirectory);
             if (result != null) return result;
         }
 
@@ -201,6 +151,78 @@ public static class PhotoToolsFileMetadata
         return null;
     }
 
+    private static DateTime? CreatedOnUtcFromExif(
+        IReadOnlyList<Directory> directories)
+    {
+        var localTime = CreatedOnLocalFromExif(directories);
+
+        if (localTime == null) return null;
+
+        localTime = DateTime.SpecifyKind(localTime.Value, DateTimeKind.Local);
+
+        var offset = CreatedOnUtcOffsetFromExif(directories);
+
+        if (!offset.validTimeZoneOffset) return null;
+
+        var utcDateTime = localTime.Value.Subtract(offset.offset);
+        utcDateTime = DateTime.SpecifyKind(utcDateTime, DateTimeKind.Utc);
+
+        return utcDateTime;
+    }
+
+    public static async Task<DateTime?> CreatedOnUtcFromGps(
+        IReadOnlyList<Directory> directories)
+    {
+        var allGpsDirectories = directories.OfType<GpsDirectory>().ToList();
+
+        foreach (var loopDirectory in allGpsDirectories)
+        {
+            var result = await CreatedOnUtcFromGpsMetadata(loopDirectory);
+            if (result != null) return result;
+        }
+
+        return null;
+    }
+
+    private static async Task<DateTime?> CreatedOnUtcFromGpsMetadata(
+        GpsDirectory? gpsDirectory)
+    {
+        if (gpsDirectory == null) return null;
+
+        var hasGpsTime = gpsDirectory.TryGetGpsDate(out var gpsDateTime);
+
+        if (!hasGpsTime || gpsDateTime == DateTime.MinValue) return null;
+
+        gpsDateTime = DateTime.SpecifyKind(gpsDateTime, DateTimeKind.Utc);
+
+        var gpsLocation = await LocationFromExifGpsMetadata(gpsDirectory, false, null);
+
+        if (!gpsLocation.HasValidLocation()) return null;
+
+        var locationTimezoneIanaIdentifier =
+            TimeZoneLookup.GetTimeZone(gpsLocation.Latitude!.Value, gpsLocation.Longitude!.Value);
+        var locationTimeZone = TimeZoneInfo.FindSystemTimeZoneById(locationTimezoneIanaIdentifier.Result);
+        var localTime = TimeZoneInfo.ConvertTime(gpsDateTime, locationTimeZone);
+
+        return gpsDateTime;
+    }
+
+    public static DateTime? CreatedOnUtcFromXmp(
+        IReadOnlyList<Directory> directories)
+    {
+        var xmpDirectories = directories.OfType<XmpDirectory>().ToList();
+
+        var resultList = new List<(DateTime? createdOnLocal, DateTime? createdOnUtc)>();
+
+        foreach (var loopDirectory in xmpDirectories)
+        {
+            var result = CreatedOnUtcFromXmpMetadata(loopDirectory);
+            if (result != null) return result;
+        }
+
+        return null;
+    }
+
     private static DateTime? CreatedOnUtcFromXmpMetadata(
         XmpDirectory? xmpDirectory)
     {
@@ -224,7 +246,7 @@ public static class PhotoToolsFileMetadata
     }
 
     public static (bool validTimeZoneOffset, TimeSpan offset) CreatedOnUtcOffsetFromExif(
-        IReadOnlyList<MetadataExtractor.Directory> directories)
+        IReadOnlyList<Directory> directories)
     {
         var subIfDirectories = directories.OfType<ExifSubIfdDirectory>().ToList();
 
@@ -262,23 +284,16 @@ public static class PhotoToolsFileMetadata
         return (true, new TimeSpan(offsetInHours));
     }
 
-    public static DateTime? CreatedOnLocalFromExif(IReadOnlyList<MetadataExtractor.Directory> directories)
+    private static DateTime? CreateOnLocalDateTimeFromExifIfdMetadata(ExifIfd0Directory? exifIfdDirectory)
     {
-        var subIfdDirectories = directories.OfType<ExifSubIfdDirectory>().ToList();
+        var createdOn = DateTime.MinValue;
 
-        foreach (var loopSubIf in subIfdDirectories)
-        {
-            var result = CreateOnLocalFromExifSubIfdMetadata(loopSubIf);
-            if (result != null) return result;
-        }
+        var succeeded = exifIfdDirectory?.TryGetDateTime(ExifDirectoryBase.TagDateTimeOriginal, out createdOn);
 
-        var ifdDirectories = directories.OfType<ExifIfd0Directory>().ToList();
+        if (!succeeded ?? false)
+            succeeded = exifIfdDirectory?.TryGetDateTime(ExifDirectoryBase.TagDateTime, out createdOn);
 
-        foreach (var loopIfd in ifdDirectories)
-        {
-            var result = CreateOnLocalDateTimeFromExifIfdMetadata(loopIfd);
-            if (result != null) return result;
-        }
+        if (succeeded ?? false) return createdOn;
 
         return null;
     }
@@ -297,22 +312,8 @@ public static class PhotoToolsFileMetadata
         return null;
     }
 
-    private static DateTime? CreateOnLocalDateTimeFromExifIfdMetadata(ExifIfd0Directory? exifIfdDirectory)
-    {
-        var createdOn = DateTime.MinValue;
-
-        var succeeded = exifIfdDirectory?.TryGetDateTime(ExifDirectoryBase.TagDateTimeOriginal, out createdOn);
-
-        if (!succeeded ?? false)
-            succeeded = exifIfdDirectory?.TryGetDateTime(ExifDirectoryBase.TagDateTime, out createdOn);
-
-        if (succeeded ?? false) return createdOn;
-
-        return null;
-    }
-
-    public static async Task<PhotoLocation> LocationFromExif(
-        IReadOnlyList<MetadataExtractor.Directory> directories, bool tryGetElevationIfNotInMetadata,
+    public static async Task<MetadataLocation> LocationFromExif(
+        IReadOnlyList<Directory> directories, bool tryGetElevationIfNotInMetadata,
         IProgress<string>? progress)
     {
         var allGpsDirectories = directories.OfType<GpsDirectory>().ToList();
@@ -325,13 +326,13 @@ public static class PhotoToolsFileMetadata
             if (location.HasValidLocation()) return location;
         }
 
-        return new PhotoLocation();
+        return new MetadataLocation();
     }
 
-    private static async Task<PhotoLocation> LocationFromExifGpsMetadata(GpsDirectory? gpsDirectory,
+    private static async Task<MetadataLocation> LocationFromExifGpsMetadata(GpsDirectory? gpsDirectory,
         bool tryGetElevationIfNotInMetadata, IProgress<string>? progress)
     {
-        var toReturn = new PhotoLocation();
+        var toReturn = new MetadataLocation();
 
         if (gpsDirectory is null || gpsDirectory.IsEmpty) return toReturn;
         var geoLocation = gpsDirectory.GetGeoLocation();

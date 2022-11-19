@@ -30,6 +30,7 @@ using PointlessWaymarks.CmsWpfControls.PointContentEditor;
 using PointlessWaymarks.CmsWpfControls.TagsEditor;
 using PointlessWaymarks.CmsWpfControls.WpfHtml;
 using PointlessWaymarks.FeatureIntersectionTags;
+using PointlessWaymarks.LoggingTools;
 using PointlessWaymarks.SpatialTools;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
@@ -284,7 +285,7 @@ public partial class GpxImportContext
 
         newLine.ContentId = Guid.NewGuid();
         newLine.Title = toImport.UserContentName;
-        newLine.Slug = SlugUtility.Create(true, toImport.UserContentName);
+        newLine.Slug = SlugTools.Create(true, toImport.UserContentName);
         newLine.Summary = string.IsNullOrWhiteSpace(toImport.Route.Comment)
             ? string.IsNullOrWhiteSpace(toImport.Route.Description)
                 ? toImport.UserContentName
@@ -315,7 +316,7 @@ public partial class GpxImportContext
         {
             ContentId = Guid.NewGuid(),
             Title = toImport.UserContentName,
-            Slug = SlugUtility.Create(true, toImport.UserContentName),
+            Slug = SlugTools.Create(true, toImport.UserContentName),
             Summary = string.IsNullOrWhiteSpace(toImport.Waypoint.Comment)
                 ? string.IsNullOrWhiteSpace(toImport.Waypoint.Description)
                     ? toImport.UserContentName
@@ -403,7 +404,7 @@ public partial class GpxImportContext
 
         newLine.ContentId = Guid.NewGuid();
         newLine.Title = toImport.UserContentName;
-        newLine.Slug = SlugUtility.Create(true, toImport.UserContentName);
+        newLine.Slug = SlugTools.Create(true, toImport.UserContentName);
         newLine.Summary = string.IsNullOrWhiteSpace(toImport.Track.Comment)
             ? string.IsNullOrWhiteSpace(toImport.Track.Description)
                 ? toImport.UserContentName

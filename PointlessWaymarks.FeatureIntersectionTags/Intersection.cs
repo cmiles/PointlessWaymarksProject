@@ -29,8 +29,13 @@ public class Intersection
         cancellationToken.ThrowIfCancellationRequested();
 
         return compiledTags.GroupBy(x => x.Feature)
-            .Select(x => new IntersectResults(x.Key, x.SelectMany(y => y.Tags).Distinct().ToList(),
-                x.SelectMany(y => y.IntersectsWith).ToList())).ToList();
+            .Select(x => new IntersectResults(x.Key)
+                {
+                    Tags = x.SelectMany(y => y.Tags).Distinct().ToList(),
+                    IntersectsWith = x.SelectMany(y => y.IntersectsWith).Distinct().ToList(),
+                    Sources = x.SelectMany(y => y.Sources).Distinct().ToList(),
+                }
+            ).ToList();
     }
 
     /// <summary>
@@ -76,8 +81,7 @@ public class Intersection
         CancellationToken cancellationToken,
         IProgress<string>? progress = null)
     {
-        var featuresAndTags = toCheck.Select(x => new IntersectResults(x, new List<string>(), new List<IFeature>()))
-            .ToList();
+        var featuresAndTags = toCheck.Select(x => new IntersectResults(x)).ToList();
 
         var counter = 0;
         foreach (var loopIntersectFile in intersectFiles)
@@ -121,6 +125,9 @@ public class Intersection
                             if (loopIntersectFeature.Attributes.GetNames().Any(a => a == loopAttribute))
                             {
                                 loopCheck.IntersectsWith.Add(loopIntersectFeature);
+                                if (!loopCheck.Sources.Any(x =>
+                                        loopIntersectFile.Name.Equals(x, StringComparison.OrdinalIgnoreCase)))
+                                    loopCheck.Sources.Add(loopIntersectFile.Name);
 
                                 var tagValue = (loopIntersectFeature.Attributes[loopAttribute]?.ToString() ??
                                                 string.Empty).Trim();
@@ -132,6 +139,9 @@ public class Intersection
                                 x.Equals(loopIntersectFile.TagAll, StringComparison.OrdinalIgnoreCase)))
                         {
                             loopCheck.IntersectsWith.Add(loopIntersectFeature);
+                            if (!loopCheck.Sources.Any(x =>
+                                    loopIntersectFile.Name.Equals(x, StringComparison.OrdinalIgnoreCase)))
+                                loopCheck.Sources.Add(loopIntersectFile.Name);
 
                             loopCheck.Tags.Add(loopIntersectFile.TagAll);
                         }
@@ -167,6 +177,8 @@ public class Intersection
                 $"Couldn't find a single Region file matching *Regions.geojson in {padUsDirectoryInfo.FullName}");
             return new List<IntersectResults>();
         }
+
+        var featuresAndTags = toCheck.Select(x => new IntersectResults(x)).ToList();
 
         var doiRegionsFile = regionsFile.First();
 
@@ -225,28 +237,78 @@ public class Intersection
                     progress?.Report(
                         $" Processing {regionFile.Name} - Feature {referenceFeatureCounter} of {regionFeatures.Count}");
 
-                foreach (var loopCheckFeature in toCheck)
+                foreach (var loopCheck in featuresAndTags)
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    if (loopCheckFeature.Geometry.Intersects(loopRegionFeature.Geometry))
+                    if (loopCheck.Feature.Geometry.Intersects(loopRegionFeature.Geometry))
                         foreach (var loopAttribute in attributesForTags)
                             if (loopRegionFeature.Attributes.GetNames().Any(a => a == loopAttribute))
                             {
+                                loopCheck.IntersectsWith.Add(loopRegionFeature);
+                                if (!loopCheck.Sources.Any(x =>
+                                        regionFile.Name.Equals(x, StringComparison.OrdinalIgnoreCase)))
+                                    loopCheck.Sources.Add(regionFile.Name);
+
                                 var tagValue = (loopRegionFeature.Attributes[loopAttribute]?.ToString() ??
                                                 string.Empty).Trim();
-                                featureTag.Add((loopCheckFeature, tagValue, loopRegionFeature));
+                                if (!loopCheck.Tags.Any(x => x.Equals(tagValue, StringComparison.OrdinalIgnoreCase)))
+                                    loopCheck.Tags.Add(tagValue);
                             }
                 }
             }
         }
 
-        progress?.Report("Returning PADUS Features and Tags");
+        progress?.Report("Returning PAD-US Features and Tags");
 
-        return toCheck.Select(x =>
-                new IntersectResults(x,
-                    featureTag.Where(y => y.featureToTag == x).Select(y => y.tag).Distinct().ToList(),
-                    featureTag.Where(y => y.featureToTag == x).Select(y => y.intersectsWith).ToList()))
-            .ToList();
+        return featuresAndTags;
+    }
+
+    public async Task<List<IntersectFileTaggingResult>> WriteFileMetadataTags(IntersectSettings settings,
+        List<FileInfo> toTag, bool testRun,
+        bool createBackupBeforeWritingMetadata, bool tagsToLower, bool sanitizeTags, string? exifToolFullName,
+        CancellationToken cancellationToken,
+        IProgress<string>? progress = null)
+    {
+        var sourceFileAndFeatures = new List<IntersectFileTaggingResult>();
+        toTag.ForEach(x => sourceFileAndFeatures.Add(new IntersectFileTaggingResult(x)));
+
+        foreach (var loopFile in sourceFileAndFeatures)
+        {
+            if (FileMetadataTools.TagSharpAndExifToolSupportedExtensions.Contains(Path
+                    .GetExtension(loopFile.FileToTag.FullName).ToUpperInvariant()))
+            {
+                var location = await FileMetadataTools.Location(loopFile.FileToTag, false, progress);
+
+                if (!location.HasValidLocation()) continue;
+
+                var feature = new Feature(PointTools.Wgs84Point(location.Longitude!.Value, location.Latitude!.Value), new AttributesTable());
+
+                loopFile.Intersections.Add(new IntersectResults(feature));
+            }
+        }
+
+        var tagReturns = Tags(settings,
+            sourceFileAndFeatures.SelectMany(x => x.Intersections).Select(y => y.Feature).ToList(), cancellationToken,
+            progress);
+
+        foreach (var loopTagReturn in tagReturns)
+        {
+            var matchingIntersections = sourceFileAndFeatures.SelectMany(x => x.Intersections).Where(y => y.Feature == loopTagReturn.Feature).ToList();
+
+            foreach (var loopIntersections in matchingIntersections)
+            {
+                loopIntersections.Sources.AddRange(loopTagReturn.Sources);
+                loopIntersections.Sources = loopIntersections.Sources.Distinct().ToList();
+
+                loopIntersections.IntersectsWith.AddRange(loopIntersections.IntersectsWith);
+                loopIntersections.IntersectsWith = loopIntersections.IntersectsWith.Distinct().ToList();
+
+                loopIntersections.Tags.AddRange(loopTagReturn.Tags);
+                loopIntersections.Tags = loopTagReturn.Tags.Distinct().ToList();
+            }
+        }
+
+        return sourceFileAndFeatures;
     }
 }

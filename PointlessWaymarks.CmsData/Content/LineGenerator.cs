@@ -12,6 +12,7 @@ using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsData.Json;
 using PointlessWaymarks.CmsData.Spatial;
 using PointlessWaymarks.FeatureIntersectionTags;
+using PointlessWaymarks.LoggingTools;
 using PointlessWaymarks.SpatialTools;
 using Serilog;
 
@@ -88,7 +89,7 @@ public static class LineGenerator
         };
 
         if (!string.IsNullOrWhiteSpace(trackInformation.Name))
-            newEntry.Slug = SlugUtility.Create(true, trackInformation.Name);
+            newEntry.Slug = SlugTools.Create(true, trackInformation.Name);
         if (trackInformation.StartsOnLocal != null) newEntry.Folder = trackInformation.StartsOnLocal.Value.Year.ToString();
 
         return newEntry;
@@ -122,7 +123,7 @@ public static class LineGenerator
         };
 
         if (!string.IsNullOrWhiteSpace(trackInformation.Name))
-            newEntry.Slug = SlugUtility.Create(true, trackInformation.Name);
+            newEntry.Slug = SlugTools.Create(true, trackInformation.Name);
 
         return newEntry;
     }

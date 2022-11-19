@@ -30,6 +30,7 @@ using PointlessWaymarks.CmsWpfControls.UpdateNotesEditor;
 using PointlessWaymarks.CmsWpfControls.Utility;
 using PointlessWaymarks.CmsWpfControls.Utility.ChangesAndValidation;
 using PointlessWaymarks.FeatureIntersectionTags;
+using PointlessWaymarks.LoggingTools;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 using PointlessWaymarks.WpfCommon.Utility;
@@ -363,7 +364,7 @@ Photo Content Notes:
         TitleSummarySlugFolder = await TitleSummarySlugEditorContext.CreateInstance(StatusContext, "To File Name",
             AutoRenameSelectedFileBasedOnTitleCommand,
             x => !Path.GetFileNameWithoutExtension(SelectedFile.Name)
-                .Equals(SlugUtility.Create(false, x.TitleEntry.UserValue), StringComparison.OrdinalIgnoreCase),
+                .Equals(SlugTools.Create(false, x.TitleEntry.UserValue), StringComparison.OrdinalIgnoreCase),
             DbEntry);
         CreatedUpdatedDisplay = await CreatedAndUpdatedByAndOnDisplayContext.CreateInstance(StatusContext, DbEntry);
         MainSiteFeed = await ContentSiteFeedAndIsDraftContext.CreateInstance(StatusContext, DbEntry);
@@ -607,7 +608,7 @@ Photo Content Notes:
             Tags = TagEdit.TagListString()
         };
 
-        newPartialPoint.Slug = SlugUtility.Create(true, newPartialPoint.Title);
+        newPartialPoint.Slug = SlugTools.Create(true, newPartialPoint.Title);
 
         newPartialPoint.Latitude = LatitudeEntry.UserValue.Value;
         newPartialPoint.Longitude = LongitudeEntry.UserValue.Value;

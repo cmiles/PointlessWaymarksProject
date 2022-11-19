@@ -2,6 +2,7 @@
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.Content;
 using PointlessWaymarks.CmsData.ContentHtml;
+using PointlessWaymarks.LoggingTools;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 using Serilog;
@@ -142,7 +143,7 @@ public static class FileHelpers
             return;
         }
 
-        var cleanedName = SlugUtility.Create(false, suggestedName.TrimNullToEmpty());
+        var cleanedName = SlugTools.Create(false, suggestedName.TrimNullToEmpty());
 
         if (string.IsNullOrWhiteSpace(cleanedName))
         {

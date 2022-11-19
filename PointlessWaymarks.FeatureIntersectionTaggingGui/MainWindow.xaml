@@ -142,6 +142,14 @@
                                     <CheckBox IsChecked="{Binding TestRunOnly}">Test Run Only</CheckBox>
                                     <TextBlock Margin="12,0,4,4" TextWrapping="Wrap">Results will be shown but NO Geolocation will be written, use this to see what changes the program would make without changing any files.</TextBlock>
                                 </StackPanel>
+                                <StackPanel Orientation="Vertical">
+                                    <CheckBox IsChecked="{Binding TagsToLowerCase}">Tags to Lowercase</CheckBox>
+                                    <TextBlock Margin="12,0,4,4" TextWrapping="Wrap">If selected all tags will be converted into lowercase. (Note that when de-duplicating tags the program uses a case insensitive comparison - converting tags to lower case is an aesthetic/data consistency option.)</TextBlock>
+                                </StackPanel>
+                                <StackPanel Orientation="Vertical">
+                                    <CheckBox IsChecked="{Binding SanitizeTags}">Sanitize Tags</CheckBox>
+                                    <TextBlock Margin="12,0,4,4" TextWrapping="Wrap">This option will cause many characters to be eliminated from tags into a-z, 0-9 and a handful of other characters. This option offers a simple way to eliminate some inconsistencies in tags and   makes that tags URL\web friendly.</TextBlock>
+                                </StackPanel>
                             </StackPanel>
                             <Button Command="{Binding TagCommand}" Height="40" Margin="8">Tag</Button>
                         </StackPanel>

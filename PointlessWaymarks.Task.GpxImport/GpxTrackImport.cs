@@ -8,6 +8,7 @@ using PointlessWaymarks.CmsData.Content;
 using PointlessWaymarks.CmsData.ContentHtml;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.FeatureIntersectionTags;
+using PointlessWaymarks.LoggingTools;
 using PointlessWaymarks.SpatialTools;
 using Serilog;
 
@@ -243,7 +244,7 @@ public class GpxTrackImport
                 {
                     renameCount++;
                     newEntry.Title = $"{baseTitle} - {renameCount}";
-                    newEntry.Slug = SlugUtility.Create(true, newEntry.Title);
+                    newEntry.Slug = SlugTools.Create(true, newEntry.Title);
                     validation =
                         await CommonContentValidation.ValidateSlugLocalAndDb(newEntry.Slug, newEntry.ContentId);
                 }

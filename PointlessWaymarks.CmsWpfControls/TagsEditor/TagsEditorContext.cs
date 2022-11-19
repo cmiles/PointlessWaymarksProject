@@ -5,6 +5,7 @@ using PointlessWaymarks.CmsData.ContentHtml;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsWpfControls.Utility.ChangesAndValidation;
+using PointlessWaymarks.LoggingTools;
 using PointlessWaymarks.WpfCommon.Status;
 
 namespace PointlessWaymarks.CmsWpfControls.TagsEditor;
@@ -35,7 +36,7 @@ public partial class TagsEditorContext : IHasChanges, IHasValidationIssues, IChe
 
     public void CheckForChangesAndValidationIssues()
     {
-        Tags = SlugUtility.CreateRelaxedInputSpacedString(true, Tags, new List<char> { ',', ' ', '-', '_' }).ToLower();
+        Tags = SlugTools.CreateRelaxedInputSpacedString(true, Tags, new List<char> { ',', ' ', '-', '_' }).ToLower();
 
         HasChanges = !TagSlugList().SequenceEqual(DbTagList());
 

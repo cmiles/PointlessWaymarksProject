@@ -6,6 +6,7 @@ using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsWpfControls.ContentFolder;
 using PointlessWaymarks.CmsWpfControls.StringDataEntry;
 using PointlessWaymarks.CmsWpfControls.Utility.ChangesAndValidation;
+using PointlessWaymarks.LoggingTools;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 
@@ -60,7 +61,7 @@ public partial class TitleSummarySlugEditorContext : IHasChanges, IHasValidation
     {
         try
         {
-            TitleToSlugEnabled = SlugUtility.Create(true, TitleEntry.UserValue) != SlugEntry.UserValue;
+            TitleToSlugEnabled = SlugTools.Create(true, TitleEntry.UserValue) != SlugEntry.UserValue;
             TitleToSummaryEnabled =
                 !(SummaryEntry.UserValue.Equals(TitleEntry.UserValue, StringComparison.OrdinalIgnoreCase) ||
                   (SummaryEntry.UserValue.Length - 1 == TitleEntry.UserValue.Length &&
@@ -140,7 +141,7 @@ public partial class TitleSummarySlugEditorContext : IHasChanges, IHasValidation
 
     public void TitleToSlug()
     {
-        SlugEntry.UserValue = SlugUtility.Create(true, TitleEntry.UserValue);
+        SlugEntry.UserValue = SlugTools.Create(true, TitleEntry.UserValue);
     }
 
     public void TitleToSummary()

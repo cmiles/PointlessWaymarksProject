@@ -5,6 +5,8 @@ using CommunityToolkit.Mvvm.Input;
 using Omu.ValueInjecter;
 using Ookii.Dialogs.Wpf;
 using PointlessWaymarks.FeatureIntersectionTaggingGui.Models;
+using PointlessWaymarks.FeatureIntersectionTags;
+using PointlessWaymarks.FeatureIntersectionTags.Models;
 using PointlessWaymarks.LoggingTools;
 using PointlessWaymarks.WpfCommon.FileList;
 using PointlessWaymarks.WpfCommon.Status;
@@ -37,6 +39,8 @@ public partial class MainWindow
     [ObservableProperty] private StatusControlContext _statusContext;
     [ObservableProperty] private bool _testRunOnly;
     [ObservableProperty] private WindowIconStatus _windowStatus;
+    [ObservableProperty] private bool _tagsToLowerCase;
+    [ObservableProperty] private bool _sanitizeTags;
 
     public MainWindow()
     {
@@ -74,8 +78,12 @@ public partial class MainWindow
         EditFeatureFileCommand = StatusContext.RunNonBlockingTaskCommand(EditFeatureFile);
         NewFeatureFileCommand = StatusContext.RunNonBlockingTaskCommand(NewFeatureFile);
 
-        StatusContext.RunBlockingTask(LoadData);
+        TagCommand = StatusContext.RunBlockingTaskCommand(Tag);
+
+        StatusContext.RunBlockingTask(Load);
     }
+
+    public RelayCommand TagCommand { get; set; }
 
     public RelayCommand AddPadUsAttributeCommand { get; set; }
 
@@ -160,7 +168,7 @@ public partial class MainWindow
         StatusContext.RunBlockingTask(RefreshFeatureFileList);
     }
 
-    private async Task LoadData()
+    private async Task Load()
     {
         FilesToTagFileList =
             await FileListViewModel.CreateInstance(StatusContext, FilesToTagSettings,
@@ -171,6 +179,8 @@ public partial class MainWindow
 
         var featureFiles = settings.FeatureIntersectFiles.Select(x => new FeatureFileViewModel().InjectFrom(x))
             .Cast<FeatureFileViewModel>().ToList();
+
+        await LoadTaggerSetting();
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
@@ -204,5 +214,44 @@ public partial class MainWindow
             PadUsAttributes.Remove(toRemove);
             await FeatureIntersectionGuiSettingTools.SetPadUsAttributes(PadUsAttributes.ToList());
         }
+    }
+
+    public async Task LoadTaggerSetting()
+    {
+        var settings = await FeatureIntersectionGuiSettingTools.ReadSettings();
+        ExifToolFullName = settings.ExifToolFullName;
+        CreateBackups = settings.CreateBackups;
+        TestRunOnly = settings.TestRunOnly;
+        TagsToLowerCase = settings.TagsToLowerCase;
+        SanitizeTags = settings.SanitizeTags;
+        await FeatureIntersectionGuiSettingTools.WriteSettings(settings);
+    }
+
+    public async Task WriteTaggerSetting()
+    {
+        var settings = await FeatureIntersectionGuiSettingTools.ReadSettings();
+        settings.ExifToolFullName = ExifToolFullName;
+        settings.CreateBackups = CreateBackups;
+        settings.TestRunOnly = TestRunOnly;
+        settings.TagsToLowerCase = TagsToLowerCase;
+        settings.SanitizeTags = SanitizeTags;
+        await FeatureIntersectionGuiSettingTools.WriteSettings(settings);
+    }
+
+    public async Task Tag()
+    {
+        await WriteTaggerSetting();
+
+        var settings = await FeatureIntersectionGuiSettingTools.ReadSettings();
+
+        var featureFiles = settings.FeatureIntersectFiles.Select(x => new FeatureFile(x.Source, x.Name, x.AttributesForTags, x.TagAll, x.FileName)).ToList();
+
+        var intersectSettings = new IntersectSettings(featureFiles, settings.PadUsDirectory, settings.PadUsAttributes);
+
+        var intersectRunner = new Intersection();
+
+        var rawResults = await intersectRunner.WriteFileMetadataTags(intersectSettings, FilesToTagFileList.Files.ToList(),
+            settings.TestRunOnly, settings.CreateBackups, settings.TagsToLowerCase, settings.SanitizeTags,
+            settings.ExifToolFullName, CancellationToken.None, StatusContext.ProgressTracker());
     }
 }

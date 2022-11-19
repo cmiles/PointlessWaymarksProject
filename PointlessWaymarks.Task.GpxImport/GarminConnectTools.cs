@@ -5,6 +5,7 @@ using Garmin.Connect.Auth;
 using Garmin.Connect.Models;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.ContentHtml;
+using PointlessWaymarks.LoggingTools;
 using Polly;
 using Serilog;
 
@@ -20,7 +21,7 @@ public static class GarminConnectTools
         var activityIdString = activity.ActivityId.ToString();
         var nameMaxSafeLength = 240 - activityDateString.Length - activityIdString.Length;
         var activitySafeName = $"{name}-{locationName}".Truncate(nameMaxSafeLength);
-        var safeFileName = SlugUtility.Create(false,
+        var safeFileName = SlugTools.Create(false,
             $"{activityDateString}-{activitySafeName}--gc{activityIdString}", 250);
 
         return safeFileName;

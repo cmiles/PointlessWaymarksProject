@@ -7,6 +7,7 @@ using PointlessWaymarks.CmsData.ContentHtml;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsData.Json;
+using PointlessWaymarks.LoggingTools;
 
 namespace PointlessWaymarks.CmsTests;
 
@@ -27,7 +28,7 @@ public static class TestFileInfo
             PublicDownloadLink = true,
             Title = "Grandview Trail",
             ShowInMainSiteFeed = true,
-            Slug = SlugUtility.Create(true, "Grandview Trail"),
+            Slug = SlugTools.Create(true, "Grandview Trail"),
             Summary = "NPS Grandview Overview.",
             Tags = "grand canyon national park, grandview trail, nps",
             UpdateNotesFormat = ContentFormatDefaults.Content.ToString()
@@ -46,7 +47,7 @@ public static class TestFileInfo
             PublicDownloadLink = true,
             Title = "Ironwood Forest National Monument Map",
             ShowInMainSiteFeed = true,
-            Slug = SlugUtility.Create(true, "Ironwood Forest National Monument Map"),
+            Slug = SlugTools.Create(true, "Ironwood Forest National Monument Map"),
             Summary = "A map of Ironwood.",
             Tags = "ironwood forest national monument,map",
             UpdateNotesFormat = ContentFormatDefaults.Content.ToString()

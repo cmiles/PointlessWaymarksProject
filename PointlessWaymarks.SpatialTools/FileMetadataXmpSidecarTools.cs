@@ -2,7 +2,7 @@
 
 namespace PointlessWaymarks.SpatialTools;
 
-public static class PhotoToolsXmpSidecar
+public static class FileMetadataXmpSidecarTools
 {
     public static double? AltitudeFromXmpSidecar(IXmpMeta? sidecarXmpMeta)
     {
@@ -63,7 +63,7 @@ public static class PhotoToolsXmpSidecar
 
         if (gps.createdOnUtc != null && gps.createdOnLocal != null) return gps;
 
-        var photoLocation = await PhotoLocationFromXmpSidecar(sidecarXmpMeta, false, null);
+        var photoLocation = await LocationFromXmpSidecar(sidecarXmpMeta, false, null);
 
         var originalTag = CreatedOnLocalAndUtcFromXmpSidecarOriginalDateTime(sidecarXmpMeta);
 
@@ -143,6 +143,31 @@ public static class PhotoToolsXmpSidecar
         return latitude;
     }
 
+    public static async Task<MetadataLocation> LocationFromXmpSidecar(
+        IXmpMeta? sidecarXmpMeta, bool tryGetElevationIfNotInMetadata, IProgress<string>? progress)
+    {
+        var toReturn = new MetadataLocation
+        {
+            Latitude = LatitudeFromXmpSidecar(sidecarXmpMeta),
+            Longitude = LongitudeFromXmpSidecar(sidecarXmpMeta),
+            Elevation = AltitudeFromXmpSidecar(sidecarXmpMeta)
+        };
+
+        if (toReturn.Elevation == null && tryGetElevationIfNotInMetadata && toReturn.Latitude != null &&
+            toReturn.Longitude != null)
+            try
+            {
+                toReturn.Elevation = await ElevationService.OpenTopoNedElevation(toReturn.Latitude.Value,
+                    toReturn.Longitude.Value, progress);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
+
+        return toReturn;
+    }
+
     public static double? LongitudeFromXmpSidecar(IXmpMeta? sidecarXmpMeta)
     {
         if (sidecarXmpMeta == null) return null;
@@ -164,30 +189,5 @@ public static class PhotoToolsXmpSidecar
         }
 
         return longitude;
-    }
-
-    public static async Task<PhotoLocation> PhotoLocationFromXmpSidecar(
-        IXmpMeta? sidecarXmpMeta, bool tryGetElevationIfNotInMetadata, IProgress<string>? progress)
-    {
-        var toReturn = new PhotoLocation
-        {
-            Latitude = LatitudeFromXmpSidecar(sidecarXmpMeta),
-            Longitude = LongitudeFromXmpSidecar(sidecarXmpMeta),
-            Elevation = AltitudeFromXmpSidecar(sidecarXmpMeta)
-        };
-
-        if (toReturn.Elevation == null && tryGetElevationIfNotInMetadata && toReturn.Latitude != null &&
-            toReturn.Longitude != null)
-            try
-            {
-                toReturn.Elevation = await ElevationService.OpenTopoNedElevation(toReturn.Latitude.Value,
-                    toReturn.Longitude.Value, progress);
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-            }
-
-        return toReturn;
     }
 }

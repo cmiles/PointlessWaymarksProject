@@ -1027,7 +1027,7 @@ public static class UserSettingsUtilities
     public static FileInfo LocalSiteTagListFileInfo(this UserSettings settings, string tag)
     {
         var directory = settings.LocalSiteTagsDirectory();
-        var sluggedTag = SlugUtility.Create(true, tag, 200);
+        var sluggedTag = SlugTools.Create(true, tag, 200);
         return new FileInfo($"{Path.Combine(directory.FullName, $"TagList-{sluggedTag}")}.html");
     }
 
@@ -1461,7 +1461,7 @@ public static class UserSettingsUtilities
 
     public static string TagPageUrl(this UserSettings settings, string tag)
     {
-        var sluggedTag = SlugUtility.Create(true, tag, 200);
+        var sluggedTag = SlugTools.Create(true, tag, 200);
         return $"{settings.SiteUrl()}/Tags/TagList-{sluggedTag}.html";
     }
 

@@ -21,6 +21,7 @@ using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsWpfControls.ContentList;
 using PointlessWaymarks.CmsWpfControls.PointContentEditor;
 using PointlessWaymarks.FeatureIntersectionTags;
+using PointlessWaymarks.LoggingTools;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 using PointlessWaymarks.WpfCommon.Utility;
@@ -401,7 +402,7 @@ public partial class PhotoListWithActionsContext
                 Tags = loopPhoto.DbEntry.Tags
             };
 
-            newPartialPoint.Slug = SlugUtility.Create(true, newPartialPoint.Title);
+            newPartialPoint.Slug = SlugTools.Create(true, newPartialPoint.Title);
 
             if (loopPhoto.DbEntry.Latitude != null) newPartialPoint.Latitude = loopPhoto.DbEntry.Latitude.Value;
             if (loopPhoto.DbEntry.Longitude != null) newPartialPoint.Longitude = loopPhoto.DbEntry.Longitude.Value;

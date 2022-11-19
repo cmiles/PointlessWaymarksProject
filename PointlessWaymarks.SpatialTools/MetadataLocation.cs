@@ -1,6 +1,6 @@
 ﻿namespace PointlessWaymarks.SpatialTools;
 
-public class PhotoLocation
+public class MetadataLocation
 {
     public double? Elevation { get; set; }
     public double? Latitude { get; set; }

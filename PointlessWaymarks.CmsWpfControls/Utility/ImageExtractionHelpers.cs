@@ -14,6 +14,7 @@ using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 using PointlessWaymarks.WpfCommon.Utility;
 using Windows.Data.Pdf;
+using PointlessWaymarks.LoggingTools;
 
 namespace PointlessWaymarks.CmsWpfControls.Utility;
 
@@ -114,7 +115,7 @@ public static class ImageExtractionHelpers
             newImage.ShowInSearch = false;
             newImage.Folder = content.Folder;
             newImage.Tags = content.Tags;
-            newImage.Slug = SlugUtility.Create(true, newImage.Title);
+            newImage.Slug = SlugTools.Create(true, newImage.Title);
             newImage.BodyContentFormat = ContentFormatDefaults.Content.ToString();
             newImage.BodyContent = $"Generated from {BracketCodeFiles.Create(content)}.";
             newImage.UpdateNotesFormat = ContentFormatDefaults.Content.ToString();
@@ -193,7 +194,7 @@ public static class ImageExtractionHelpers
                 Tags = content.Tags
             };
 
-            newImage.Slug = SlugUtility.Create(true, newImage.Title);
+            newImage.Slug = SlugTools.Create(true, newImage.Title);
             newImage.BodyContentFormat = ContentFormatDefaults.Content.ToString();
             newImage.BodyContent = $"Image from {BracketCodeFiles.Create(content)}.";
             newImage.UpdateNotesFormat = ContentFormatDefaults.Content.ToString();
@@ -257,7 +258,7 @@ public static class ImageExtractionHelpers
             ShowInSearch = false,
             Folder = selected.Folder,
             Tags = selected.Tags,
-            Slug = SlugUtility.Create(true, $"{selected.Title} Video Cover Image"),
+            Slug = SlugTools.Create(true, $"{selected.Title} Video Cover Image"),
             BodyContentFormat = ContentFormatDefaults.Content.ToString(),
             BodyContent = $"Frame from {BracketCodeFiles.Create(selected)}.",
             UpdateNotesFormat = ContentFormatDefaults.Content.ToString()
