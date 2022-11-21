@@ -28,7 +28,7 @@ public static class TestFileInfo
             PublicDownloadLink = true,
             Title = "Grandview Trail",
             ShowInMainSiteFeed = true,
-            Slug = SlugTools.Create(true, "Grandview Trail"),
+            Slug = SlugTools.CreateSlug(true, "Grandview Trail"),
             Summary = "NPS Grandview Overview.",
             Tags = "grand canyon national park, grandview trail, nps",
             UpdateNotesFormat = ContentFormatDefaults.Content.ToString()
@@ -47,7 +47,7 @@ public static class TestFileInfo
             PublicDownloadLink = true,
             Title = "Ironwood Forest National Monument Map",
             ShowInMainSiteFeed = true,
-            Slug = SlugTools.Create(true, "Ironwood Forest National Monument Map"),
+            Slug = SlugTools.CreateSlug(true, "Ironwood Forest National Monument Map"),
             Summary = "A map of Ironwood.",
             Tags = "ironwood forest national monument,map",
             UpdateNotesFormat = ContentFormatDefaults.Content.ToString()

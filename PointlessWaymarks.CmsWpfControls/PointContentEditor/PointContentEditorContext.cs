@@ -108,9 +108,7 @@ public partial class PointContentEditorContext : IHasChanges, ICheckForChangesAn
             return;
         }
 
-        var tagger = new Intersection();
-        var possibleTags = tagger.Tags(UserSettingsSingleton.CurrentSettings().FeatureIntersectionTagSettingsFile,
-            new List<IFeature> { featureToCheck }, CancellationToken.None, StatusContext.ProgressTracker());
+        var possibleTags = featureToCheck.IntersectionTags(UserSettingsSingleton.CurrentSettings().FeatureIntersectionTagSettingsFile, CancellationToken.None, StatusContext.ProgressTracker());
 
         if (!possibleTags.Any())
         {
@@ -118,7 +116,7 @@ public partial class PointContentEditorContext : IHasChanges, ICheckForChangesAn
             return;
         }
 
-        TagEdit.Tags = $"{TagEdit.Tags}{(string.IsNullOrWhiteSpace(TagEdit.Tags) ? "" : ",")}{string.Join(",", possibleTags.SelectMany(x => x.Tags).Select(x => x))}";
+        TagEdit.Tags = $"{TagEdit.Tags}{(string.IsNullOrWhiteSpace(TagEdit.Tags) ? "" : ",")}{string.Join(",", possibleTags)}";
     }
 
     public static async Task<PointContentEditorContext> CreateInstance(StatusControlContext statusContext,

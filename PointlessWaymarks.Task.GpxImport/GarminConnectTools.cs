@@ -21,7 +21,7 @@ public static class GarminConnectTools
         var activityIdString = activity.ActivityId.ToString();
         var nameMaxSafeLength = 240 - activityDateString.Length - activityIdString.Length;
         var activitySafeName = $"{name}-{locationName}".Truncate(nameMaxSafeLength);
-        var safeFileName = SlugTools.Create(false,
+        var safeFileName = SlugTools.CreateSlug(false,
             $"{activityDateString}-{activitySafeName}--gc{activityIdString}", 250);
 
         return safeFileName;

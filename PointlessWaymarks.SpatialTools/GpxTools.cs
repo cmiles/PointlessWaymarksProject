@@ -8,6 +8,38 @@ namespace PointlessWaymarks.SpatialTools;
 
 public static class GpxTools
 {
+    public static Feature LineFeatureFromGpxRoute(GpxRouteInformation routeInformation)
+    {
+        var newLine = new LineString(routeInformation.Track.ToArray());
+        var feature = new Feature
+        {
+            Geometry = newLine,
+            BoundingBox = GeoJsonTools.GeometryBoundingBox(new List<Geometry> { newLine }),
+            Attributes = new AttributesTable()
+        };
+
+        feature.Attributes.Add("title", routeInformation.Name);
+        feature.Attributes.Add("description", routeInformation.Description);
+
+        return feature;
+    }
+
+    public static Feature LineFeatureFromGpxTrack(GpxTrackInformation trackInformation)
+    {
+        var newLine = new LineString(trackInformation.Track.ToArray());
+        var feature = new Feature
+        {
+            Geometry = newLine,
+            BoundingBox = GeoJsonTools.GeometryBoundingBox(new List<Geometry> { newLine }),
+            Attributes = new AttributesTable()
+        };
+
+        feature.Attributes.Add("title", trackInformation.Name);
+        feature.Attributes.Add("description", trackInformation.Description);
+
+        return feature;
+    }
+
     public static GpxRouteInformation RouteInformationFromGpxRoute(GpxRoute toConvert)
     {
         var name = toConvert.Name ?? string.Empty;
@@ -50,16 +82,16 @@ public static class GpxTools
         return new GpxRouteInformation(nameAndLabelAndType, descriptionAndComment, pointList);
     }
 
-    public static async Task<(List<Feature> features, Envelope boundingBox)> LinesFromGpxFile(FileInfo gpxFile)
+    public static async Task<(List<Feature> features, Envelope boundingBox)> RouteLinesFromGpxFile(FileInfo gpxFile)
     {
-        var gpxInfo = await TracksFromGpxFile(gpxFile);
+        var gpxInfo = await RoutesFromGpxFile(gpxFile);
 
         var featureCollection = new List<Feature>();
         var boundingBox = new Envelope();
 
         foreach (var loopGpxInfo in gpxInfo)
         {
-            var feature = LineFeatureFromGpxTrack(loopGpxInfo);
+            var feature = LineFeatureFromGpxRoute(loopGpxInfo);
             boundingBox.ExpandToInclude(feature.BoundingBox);
             featureCollection.Add(feature);
         }
@@ -67,22 +99,40 @@ public static class GpxTools
         return (featureCollection, boundingBox);
     }
 
-    public static Feature LineFeatureFromGpxTrack(GpxTrackInformation trackInformation)
+    public static async Task<List<GpxRouteInformation>> RoutesFromGpxFile(
+        FileInfo gpxFile, IProgress<string>? progress = null)
     {
-        
-        var newLine = new LineString(trackInformation.Track.ToArray());
-        var feature = new Feature
+        var returnList = new List<GpxRouteInformation>();
+
+        if (gpxFile is not { Exists: true }) return returnList;
+
+        GpxFile parsedGpx;
+
+        try
         {
-            Geometry = newLine,
-            BoundingBox = GeoJsonTools.GeometryBoundingBox(new List<Geometry> { newLine })
-        };
+            parsedGpx = GpxFile.Parse(await File.ReadAllTextAsync(gpxFile.FullName).ConfigureAwait(false),
+                new GpxReaderSettings
+                {
+                    IgnoreUnexpectedChildrenOfTopLevelElement = true,
+                    IgnoreVersionAttribute = true
+                });
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
 
-        feature.Attributes = new AttributesTable();
+        var trackCounter = 0;
 
-        feature.Attributes.Add("title", trackInformation.Name);
-        feature.Attributes.Add("description", trackInformation.Description);
+        foreach (var loopRoutes in parsedGpx.Routes)
+        {
+            trackCounter++;
+            progress?.Report($"Extracting Route {trackCounter} of {parsedGpx.Tracks.Count} in {gpxFile.FullName}");
+            returnList.Add(RouteInformationFromGpxRoute(loopRoutes));
+        }
 
-        return feature;
+        return returnList;
     }
 
     public static GpxTrackInformation TrackInformationFromGpxTrack(GpxTrack toConvert)
@@ -151,7 +201,25 @@ public static class GpxTools
             .Where(x => !string.IsNullOrWhiteSpace(x)).ToList();
         var descriptionAndComment = string.Join(". ", descriptionAndCommentList);
 
-        return new GpxTrackInformation(nameAndLabelAndType, descriptionAndComment, startDateTimeLocal, endDateTimeLocal, startDateTimeUtc, endDateTimeUtc, pointList);
+        return new GpxTrackInformation(nameAndLabelAndType, descriptionAndComment, startDateTimeLocal, endDateTimeLocal,
+            startDateTimeUtc, endDateTimeUtc, pointList);
+    }
+
+    public static async Task<(List<Feature> features, Envelope boundingBox)> TrackLinesFromGpxFile(FileInfo gpxFile)
+    {
+        var gpxInfo = await TracksFromGpxFile(gpxFile);
+
+        var featureCollection = new List<Feature>();
+        var boundingBox = new Envelope();
+
+        foreach (var loopGpxInfo in gpxInfo)
+        {
+            var feature = LineFeatureFromGpxTrack(loopGpxInfo);
+            boundingBox.ExpandToInclude(feature.BoundingBox);
+            featureCollection.Add(feature);
+        }
+
+        return (featureCollection, boundingBox);
     }
 
     public static async Task<List<GpxTrackInformation>> TracksFromGpxFile(
@@ -161,22 +229,12 @@ public static class GpxTools
 
         if (gpxFile is not { Exists: true }) return returnList;
 
-        GpxFile parsedGpx;
-
-        try
-        {
-            parsedGpx = GpxFile.Parse(await File.ReadAllTextAsync(gpxFile.FullName).ConfigureAwait(false),
-                new GpxReaderSettings
-                {
-                    IgnoreUnexpectedChildrenOfTopLevelElement = true,
-                    IgnoreVersionAttribute = true
-                });
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine(e);
-            throw;
-        }
+        var parsedGpx = GpxFile.Parse(await File.ReadAllTextAsync(gpxFile.FullName).ConfigureAwait(false),
+            new GpxReaderSettings
+            {
+                IgnoreUnexpectedChildrenOfTopLevelElement = true,
+                IgnoreVersionAttribute = true
+            });
 
         var trackCounter = 0;
 
@@ -190,7 +248,47 @@ public static class GpxTools
         return returnList;
     }
 
+    public static async Task<(List<Feature> features, Envelope boundingBox)> WaypointPointsFromGpxFile(FileInfo gpxFile)
+    {
+        var parsedGpx = GpxFile.Parse(await File.ReadAllTextAsync(gpxFile.FullName).ConfigureAwait(false),
+            new GpxReaderSettings
+            {
+                IgnoreUnexpectedChildrenOfTopLevelElement = true,
+                IgnoreVersionAttribute = true
+            });
+
+        var returnList = new List<Feature>();
+
+        var bounds = new Envelope();
+
+        foreach (var loopWaypoint in parsedGpx.Waypoints)
+        {
+            var attributeTable = new AttributesTable
+            {
+                { "title", loopWaypoint.Name },
+                { "description", loopWaypoint.Description }
+            };
+
+            if (loopWaypoint.ElevationInMeters == null)
+            {
+                var point = PointTools.Wgs84Point(loopWaypoint.Longitude, loopWaypoint.Latitude);
+                returnList.Add(new Feature(point, attributeTable));
+                bounds.ExpandToInclude(point.Coordinate);
+            }
+            else
+            {
+                var point = PointTools.Wgs84Point(loopWaypoint.Longitude, loopWaypoint.Latitude, loopWaypoint.ElevationInMeters.Value);
+                returnList.Add(new Feature(point, attributeTable));
+                bounds.ExpandToInclude(point.Coordinate);
+            }
+
+        }
+
+        return (returnList, bounds);
+    }
+
     public record GpxRouteInformation(string Name, string Description, List<CoordinateZ> Track);
 
-    public record GpxTrackInformation(string Name, string Description, DateTime? StartsOnLocal, DateTime? EndsOnLocal, DateTime? StartsOnUtc, DateTime? EndsOnUtc, List<CoordinateZ> Track);
+    public record GpxTrackInformation(string Name, string Description, DateTime? StartsOnLocal, DateTime? EndsOnLocal,
+        DateTime? StartsOnUtc, DateTime? EndsOnUtc, List<CoordinateZ> Track);
 }

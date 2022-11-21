@@ -17,7 +17,6 @@ using Omu.ValueInjecter;
 using Ookii.Dialogs.Wpf;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.Content;
-using PointlessWaymarks.CmsData.ContentHtml;
 using PointlessWaymarks.CmsData.ContentHtml.GeoJsonHtml;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
@@ -130,9 +129,10 @@ public partial class GpxImportContext
 
         if (!itemList.Any())
         {
-            PreviewMapJsonDto = await GeoJsonTools.SerializeWithGeoJsonSerializer(new MapComponentEditorContext.MapJsonDto(
-                Guid.NewGuid(),
-                new GeoJsonData.SpatialBounds(0, 0, 0, 0), new List<FeatureCollection>()));
+            PreviewMapJsonDto = await GeoJsonTools.SerializeWithGeoJsonSerializer(
+                new MapComponentEditorContext.MapJsonDto(
+                    Guid.NewGuid(),
+                    new GeoJsonData.SpatialBounds(0, 0, 0, 0), new List<FeatureCollection>()));
             return;
         }
 
@@ -285,7 +285,7 @@ public partial class GpxImportContext
 
         newLine.ContentId = Guid.NewGuid();
         newLine.Title = toImport.UserContentName;
-        newLine.Slug = SlugTools.Create(true, toImport.UserContentName);
+        newLine.Slug = SlugTools.CreateSlug(true, toImport.UserContentName);
         newLine.Summary = string.IsNullOrWhiteSpace(toImport.Route.Comment)
             ? string.IsNullOrWhiteSpace(toImport.Route.Description)
                 ? toImport.UserContentName
@@ -316,7 +316,7 @@ public partial class GpxImportContext
         {
             ContentId = Guid.NewGuid(),
             Title = toImport.UserContentName,
-            Slug = SlugTools.Create(true, toImport.UserContentName),
+            Slug = SlugTools.CreateSlug(true, toImport.UserContentName),
             Summary = string.IsNullOrWhiteSpace(toImport.Waypoint.Comment)
                 ? string.IsNullOrWhiteSpace(toImport.Waypoint.Description)
                     ? toImport.UserContentName
@@ -360,13 +360,10 @@ public partial class GpxImportContext
 
         try
         {
-            var tagger = new Intersection();
-            tagList.AddRange(tagger.Tags(
-                UserSettingsSingleton.CurrentSettings().FeatureIntersectionTagSettingsFile,
-                new List<IFeature>
-                {
-                    new Feature(new Point(newPoint.Longitude, newPoint.Latitude), new AttributesTable())
-                }, CancellationToken.None, StatusContext.ProgressTracker()).SelectMany(x => x.Tags).ToList());
+            tagList.AddRange(
+                new Feature(new Point(newPoint.Longitude, newPoint.Latitude), new AttributesTable())
+                    .IntersectionTags(UserSettingsSingleton.CurrentSettings().FeatureIntersectionTagSettingsFile,
+                        CancellationToken.None));
         }
         catch (Exception e)
         {
@@ -400,11 +397,12 @@ public partial class GpxImportContext
         }
 
         var newLine =
-            await LineGenerator.NewFromGpxTrack(toImport.TrackInformation, false, true, StatusContext.ProgressTracker());
+            await LineGenerator.NewFromGpxTrack(toImport.TrackInformation, false, true,
+                StatusContext.ProgressTracker());
 
         newLine.ContentId = Guid.NewGuid();
         newLine.Title = toImport.UserContentName;
-        newLine.Slug = SlugTools.Create(true, toImport.UserContentName);
+        newLine.Slug = SlugTools.CreateSlug(true, toImport.UserContentName);
         newLine.Summary = string.IsNullOrWhiteSpace(toImport.Track.Comment)
             ? string.IsNullOrWhiteSpace(toImport.Track.Description)
                 ? toImport.UserContentName
@@ -449,7 +447,8 @@ public partial class GpxImportContext
             return;
         }
 
-        if (AutoSaveImports && await importItems.AnyAsyncLoop(async (x) => !(await CommonContentValidation.ValidateTitle(x.UserContentName)).Valid))
+        if (AutoSaveImports && await importItems.AnyAsyncLoop(async x =>
+                !(await CommonContentValidation.ValidateTitle(x.UserContentName)).Valid))
         {
             await StatusContext.ShowMessageWithOkButton("Import Validation Error",
                 "With Auto-Save selected all items for import must have a Name that isn't blank.");

@@ -23,8 +23,11 @@ using PointlessWaymarks.CmsWpfControls.Utility;
 using PointlessWaymarks.CmsWpfControls.Utility.ChangesAndValidation;
 using PointlessWaymarks.CmsWpfControls.WpfHtml;
 using PointlessWaymarks.FeatureIntersectionTags;
+using PointlessWaymarks.FeatureIntersectionTags.Models;
+using PointlessWaymarks.LoggingTools;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
+using WinRT;
 
 namespace PointlessWaymarks.CmsWpfControls.GeoJsonContentEditor;
 
@@ -103,6 +106,14 @@ public partial class GeoJsonContentEditorContext : IHasChanges, IHasValidationIs
             return;
         }
 
+        var featuresToCheck = GeoJsonContent.FeaturesFromGeoJson(GeoJsonText);
+
+        if (!featuresToCheck.Any())
+        {
+            StatusContext.ToastError("No features in the GeoJson check?");
+            return;
+        }
+
         if (string.IsNullOrWhiteSpace(UserSettingsSingleton.CurrentSettings().FeatureIntersectionTagSettingsFile))
         {
             StatusContext.ToastError(
@@ -110,11 +121,9 @@ public partial class GeoJsonContentEditorContext : IHasChanges, IHasValidationIs
             return;
         }
 
-        var featuresToCheck = GeoJsonContent.FeaturesFromGeoJson(GeoJsonText);
+        var intersectResult = new IntersectResults(featuresToCheck);
 
-        var tagger = new Intersection();
-        var possibleTags = tagger.Tags(UserSettingsSingleton.CurrentSettings().FeatureIntersectionTagSettingsFile,
-            featuresToCheck, CancellationToken.None, StatusContext.ProgressTracker());
+        var possibleTags = intersectResult.IntersectionTags(UserSettingsSingleton.CurrentSettings().FeatureIntersectionTagSettingsFile,CancellationToken.None, StatusContext.ProgressTracker()).Tags;
 
         if (!possibleTags.Any())
         {
@@ -122,7 +131,7 @@ public partial class GeoJsonContentEditorContext : IHasChanges, IHasValidationIs
             return;
         }
 
-        TagEdit.Tags = $"{TagEdit.Tags}{(string.IsNullOrWhiteSpace(TagEdit.Tags) ? "" : ",")}{string.Join(",", possibleTags.SelectMany(x => x.Tags).Select(x => x))}";
+        TagEdit.Tags = $"{TagEdit.Tags}{(string.IsNullOrWhiteSpace(TagEdit.Tags) ? "" : ",")}{string.Join(",", possibleTags)}";
     }
 
     public static async Task<GeoJsonContentEditorContext> CreateInstance(StatusControlContext statusContext,

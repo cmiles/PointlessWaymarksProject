@@ -33,14 +33,14 @@ public partial class MainWindow
     [ObservableProperty] private string _padUsDirectory = string.Empty;
     [ObservableProperty] private string _previewGeoJsonDto;
     [ObservableProperty] private string _previewHtml;
+    [ObservableProperty] private bool _sanitizeTags;
     [ObservableProperty] private FeatureFileViewModel? _selectedFeatureFile;
     [ObservableProperty] private string? _selectedPadUsAttribute;
     [ObservableProperty] private int _selectedTab;
     [ObservableProperty] private StatusControlContext _statusContext;
+    [ObservableProperty] private bool _tagsToLowerCase;
     [ObservableProperty] private bool _testRunOnly;
     [ObservableProperty] private WindowIconStatus _windowStatus;
-    [ObservableProperty] private bool _tagsToLowerCase;
-    [ObservableProperty] private bool _sanitizeTags;
 
     public MainWindow()
     {
@@ -78,12 +78,10 @@ public partial class MainWindow
         EditFeatureFileCommand = StatusContext.RunNonBlockingTaskCommand(EditFeatureFile);
         NewFeatureFileCommand = StatusContext.RunNonBlockingTaskCommand(NewFeatureFile);
 
-        TagCommand = StatusContext.RunBlockingTaskCommand(Tag);
+        TagFilesCommand = StatusContext.RunBlockingTaskCommand(TagFiles);
 
         StatusContext.RunBlockingTask(Load);
     }
-
-    public RelayCommand TagCommand { get; set; }
 
     public RelayCommand AddPadUsAttributeCommand { get; set; }
 
@@ -112,6 +110,8 @@ public partial class MainWindow
         """;
 
     public RelayCommand<string> RemovePadUsAttributeCommand { get; set; }
+
+    public RelayCommand TagFilesCommand { get; set; }
 
     public async Task AddPadUsAttribute()
     {
@@ -190,6 +190,17 @@ public partial class MainWindow
         FeatureFiles = new ObservableCollection<FeatureFileViewModel>(featureFiles);
     }
 
+    public async Task LoadTaggerSetting()
+    {
+        var settings = await FeatureIntersectionGuiSettingTools.ReadSettings();
+        ExifToolFullName = settings.ExifToolFullName;
+        CreateBackups = settings.CreateBackups;
+        TestRunOnly = settings.TestRunOnly;
+        TagsToLowerCase = settings.TagsToLowerCase;
+        SanitizeTags = settings.SanitizeTags;
+        await FeatureIntersectionGuiSettingTools.WriteSettings(settings);
+    }
+
     public async Task NewFeatureFile()
     {
         FeatureFileToEdit.Show(new FeatureFileViewModel());
@@ -216,15 +227,23 @@ public partial class MainWindow
         }
     }
 
-    public async Task LoadTaggerSetting()
+    public async Task TagFiles()
     {
+        await WriteTaggerSetting();
+
         var settings = await FeatureIntersectionGuiSettingTools.ReadSettings();
-        ExifToolFullName = settings.ExifToolFullName;
-        CreateBackups = settings.CreateBackups;
-        TestRunOnly = settings.TestRunOnly;
-        TagsToLowerCase = settings.TagsToLowerCase;
-        SanitizeTags = settings.SanitizeTags;
-        await FeatureIntersectionGuiSettingTools.WriteSettings(settings);
+
+        var featureFiles = settings.FeatureIntersectFiles
+            .Select(x => new FeatureFile(x.Source, x.Name, x.AttributesForTags, x.TagAll, x.FileName)).ToList();
+
+        var intersectSettings = new IntersectSettings(featureFiles, settings.PadUsDirectory, settings.PadUsAttributes);
+
+        var fileTags = await FilesToTagFileList.Files.ToList()
+            .FileIntersectionTags(intersectSettings, CancellationToken.None, StatusContext.ProgressTracker());
+
+        var rawResults = fileTags.WriteTagsToFiles(
+            settings.TestRunOnly, settings.CreateBackups, settings.TagsToLowerCase, settings.SanitizeTags,
+            settings.ExifToolFullName, CancellationToken.None, 1024, StatusContext.ProgressTracker());
     }
 
     public async Task WriteTaggerSetting()
@@ -236,22 +255,5 @@ public partial class MainWindow
         settings.TagsToLowerCase = TagsToLowerCase;
         settings.SanitizeTags = SanitizeTags;
         await FeatureIntersectionGuiSettingTools.WriteSettings(settings);
-    }
-
-    public async Task Tag()
-    {
-        await WriteTaggerSetting();
-
-        var settings = await FeatureIntersectionGuiSettingTools.ReadSettings();
-
-        var featureFiles = settings.FeatureIntersectFiles.Select(x => new FeatureFile(x.Source, x.Name, x.AttributesForTags, x.TagAll, x.FileName)).ToList();
-
-        var intersectSettings = new IntersectSettings(featureFiles, settings.PadUsDirectory, settings.PadUsAttributes);
-
-        var intersectRunner = new Intersection();
-
-        var rawResults = await intersectRunner.WriteFileMetadataTags(intersectSettings, FilesToTagFileList.Files.ToList(),
-            settings.TestRunOnly, settings.CreateBackups, settings.TagsToLowerCase, settings.SanitizeTags,
-            settings.ExifToolFullName, CancellationToken.None, StatusContext.ProgressTracker());
     }
 }

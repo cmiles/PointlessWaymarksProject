@@ -123,6 +123,14 @@ public partial class LineContentEditorContext : IHasChanges, IHasValidationIssue
             return;
         }
 
+        var featureToCheck = LineContent.FeatureFromGeoJsonLine(LineGeoJson);
+
+        if (featureToCheck == null)
+        {
+            StatusContext.ToastError("No valid Line check?");
+            return;
+        }
+
         if (string.IsNullOrWhiteSpace(UserSettingsSingleton.CurrentSettings().FeatureIntersectionTagSettingsFile))
         {
             StatusContext.ToastError(
@@ -130,11 +138,7 @@ public partial class LineContentEditorContext : IHasChanges, IHasValidationIssue
             return;
         }
 
-        var featureToCheck = LineContent.FeatureFromGeoJsonLine(LineGeoJson);
-
-        var tagger = new Intersection();
-        var possibleTags = tagger.Tags(UserSettingsSingleton.CurrentSettings().FeatureIntersectionTagSettingsFile,
-            new List<IFeature> { featureToCheck }, CancellationToken.None, StatusContext.ProgressTracker());
+        var possibleTags = featureToCheck.IntersectionTags(UserSettingsSingleton.CurrentSettings().FeatureIntersectionTagSettingsFile, CancellationToken.None, StatusContext.ProgressTracker());
 
         if (!possibleTags.Any())
         {
@@ -142,7 +146,7 @@ public partial class LineContentEditorContext : IHasChanges, IHasValidationIssue
             return;
         }
 
-        TagEdit.Tags = $"{TagEdit.Tags}{(string.IsNullOrWhiteSpace(TagEdit.Tags) ? "" : ",")}{string.Join(",", possibleTags.SelectMany(x => x.Tags).Select(x => x))}";
+        TagEdit.Tags = $"{TagEdit.Tags}{(string.IsNullOrWhiteSpace(TagEdit.Tags) ? "" : ",")}{string.Join(",", possibleTags)}";
     }
 
     public static async Task<LineContentEditorContext> CreateInstance(StatusControlContext statusContext,

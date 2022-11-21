@@ -27,7 +27,7 @@ public static class IronwoodImageInfo
             Title = "Ironwood Forest National Monument Map Cover Page",
             ShowInMainSiteFeed = false,
             ShowInSearch = false,
-            Slug = SlugTools.Create(true, "Ironwood Forest National Monument Map Cover Page"),
+            Slug = SlugTools.CreateSlug(true, "Ironwood Forest National Monument Map Cover Page"),
             Summary = "Cover Page From Ironwood Forest National Monument Map.",
             Tags = "ironwood forest national monument,map",
             UpdateNotesFormat = ContentFormatDefaults.Content.ToString()

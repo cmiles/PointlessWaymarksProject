@@ -2004,7 +2004,7 @@ public static class Db
         var context = await Context().ConfigureAwait(false);
 
         return (await context.TagExclusions.OrderBy(x => x.Tag).ToListAsync().ConfigureAwait(false))
-            .Select(x => (SlugTools.Create(true, x.Tag, 200), x)).ToList();
+            .Select(x => (SlugTools.CreateSlug(true, x.Tag, 200), x)).ToList();
     }
 
     public static async Task<List<string>> TagExclusionSlugs()
@@ -2012,7 +2012,7 @@ public static class Db
         var context = await Context().ConfigureAwait(false);
 
         return (await context.TagExclusions.OrderBy(x => x.Tag).ToListAsync().ConfigureAwait(false))
-            .Select(x => SlugTools.Create(true, x.Tag, 200)).ToList();
+            .Select(x => SlugTools.CreateSlug(true, x.Tag, 200)).ToList();
     }
 
     public static string TagListCleanup(string? tags)
@@ -2066,11 +2066,11 @@ public static class Db
         if (removeExcludedTags)
         {
             var db = Context().Result;
-            excludedTags = db.TagExclusions.ToList().Select(x => SlugTools.Create(true, x.Tag, 200)).ToList();
+            excludedTags = db.TagExclusions.ToList().Select(x => SlugTools.CreateSlug(true, x.Tag, 200)).ToList();
         }
 
         var cleanedList = tagList.Where(x => !string.IsNullOrWhiteSpace(x))
-            .Select(x => SlugTools.Create(true, x.Trim(), 200)).Distinct().Except(excludedTags).OrderBy(x => x)
+            .Select(x => SlugTools.CreateSlug(true, x.Trim(), 200)).Distinct().Except(excludedTags).OrderBy(x => x)
             .ToList();
 
         return string.Join(",", cleanedList);
@@ -2114,11 +2114,11 @@ public static class Db
         if (removeExcludedTags)
         {
             var db = Context().Result;
-            excludedTags = db.TagExclusions.ToList().Select(x => SlugTools.Create(true, x.Tag, 200)).ToList();
+            excludedTags = db.TagExclusions.ToList().Select(x => SlugTools.CreateSlug(true, x.Tag, 200)).ToList();
         }
 
         return rawTagString.Split(",").Where(x => !string.IsNullOrWhiteSpace(x)).Select(x => x.Trim())
-            .Select(x => SlugTools.Create(true, x, 200)).Distinct().Where(x => !excludedTags.Contains(x))
+            .Select(x => SlugTools.CreateSlug(true, x, 200)).Distinct().Where(x => !excludedTags.Contains(x))
             .OrderBy(x => x).ToList();
     }
 
@@ -2144,10 +2144,10 @@ public static class Db
         if (string.IsNullOrWhiteSpace(rawTagString)) return new List<TagSlugAndIsExcluded>();
 
         var db = Context().Result;
-        var excludedTags = db.TagExclusions.ToList().Select(x => SlugTools.Create(true, x.Tag, 200)).ToList();
+        var excludedTags = db.TagExclusions.ToList().Select(x => SlugTools.CreateSlug(true, x.Tag, 200)).ToList();
 
         var tagSlugs = rawTagString.Split(",").Where(x => !string.IsNullOrWhiteSpace(x)).Select(x => x.Trim())
-            .Select(x => SlugTools.Create(true, x, 200)).Distinct().ToList();
+            .Select(x => SlugTools.CreateSlug(true, x, 200)).Distinct().ToList();
 
         return tagSlugs.Select(x => new TagSlugAndIsExcluded(x, excludedTags.Contains(x))).ToList();
     }

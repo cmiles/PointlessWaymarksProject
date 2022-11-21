@@ -1,17 +1,23 @@
 ﻿using NetTopologySuite.Features;
+using PointlessWaymarks.LoggingTools;
 
 namespace PointlessWaymarks.FeatureIntersectionTags.Models;
 
-public record IntersectResults
+public class IntersectResults
 {
     public IntersectResults(IFeature feature)
     {
-        Feature = feature;
-        
+        Features = feature.AsList();
     }
 
-    public readonly IFeature Feature;
-    public List<string> Sources = new();
-    public List<string> Tags = new();
-    public List<IFeature> IntersectsWith = new();
+    public IntersectResults(List<IFeature> features)
+    {
+        Features = features;
+    }
+
+    public Guid ContentId { get; set; }= Guid.Empty;
+    public List<IFeature> Features { get; }
+    public List<string> Sources { get; } = new();
+    public List<string> Tags { get; } = new();
+    public List<IFeature> IntersectsWith { get; } = new();
 }

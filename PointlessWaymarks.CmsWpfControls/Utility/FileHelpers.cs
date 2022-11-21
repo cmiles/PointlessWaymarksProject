@@ -143,7 +143,7 @@ public static class FileHelpers
             return;
         }
 
-        var cleanedName = SlugTools.Create(false, suggestedName.TrimNullToEmpty());
+        var cleanedName = SlugTools.CreateSlug(false, suggestedName.TrimNullToEmpty());
 
         if (string.IsNullOrWhiteSpace(cleanedName))
         {

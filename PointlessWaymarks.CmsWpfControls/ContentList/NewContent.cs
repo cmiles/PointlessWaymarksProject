@@ -21,6 +21,7 @@ using PointlessWaymarks.CmsWpfControls.PhotoContentEditor;
 using PointlessWaymarks.CmsWpfControls.PointContentEditor;
 using PointlessWaymarks.CmsWpfControls.PostContentEditor;
 using PointlessWaymarks.CmsWpfControls.Utility;
+using PointlessWaymarks.FeatureIntersectionTags;
 using PointlessWaymarks.SpatialTools;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
@@ -449,8 +450,6 @@ public partial class NewContent
 
         var loopCount = 0;
 
-        var intersectionTagger = new FeatureIntersectionTags.Intersection();
-
         foreach (var loopFile in validFiles)
         {
             cancellationToken.ThrowIfCancellationRequested();
@@ -481,18 +480,16 @@ public partial class NewContent
 
                 if (metaContent.Latitude != null && metaContent.Longitude != null)
                 {
-                    var intersectionTags = intersectionTagger.Tags(
-                        UserSettingsSingleton.CurrentSettings().FeatureIntersectionTagSettingsFile,
-                        new List<IFeature>()
-                        {
-                            new Feature(new Point(metaContent.Longitude.Value, metaContent.Latitude.Value),
-                                new AttributesTable())
-                        }, cancellationToken, StatusContext.ProgressTracker());
+                    var photoPointFeature = new Feature(new Point(metaContent.Longitude.Value, metaContent.Latitude.Value),
+                        new AttributesTable());
+
+                    var intersectionTags = photoPointFeature.IntersectionTags(
+                        UserSettingsSingleton.CurrentSettings().FeatureIntersectionTagSettingsFile, cancellationToken,
+                        StatusContext.ProgressTracker());
 
                     if (intersectionTags.Any())
                     {
-                        var allTags = intersectionTags.SelectMany(x => x.Tags.Select(y => y).ToList());
-                        var tagList = Db.TagListParse(metaContent.Tags).Union(allTags).ToList();
+                        var tagList = Db.TagListParse(metaContent.Tags).Union(intersectionTags).ToList();
                         metaContent.Tags = Db.TagListJoin(tagList);
                     }
                 }

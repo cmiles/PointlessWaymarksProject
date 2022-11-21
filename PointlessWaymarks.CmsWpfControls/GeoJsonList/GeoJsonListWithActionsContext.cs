@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System.Diagnostics;
+using System.IO;
 using System.Text;
 using System.Windows;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -12,6 +13,7 @@ using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsWpfControls.ContentList;
 using PointlessWaymarks.FeatureIntersectionTags;
+using PointlessWaymarks.FeatureIntersectionTags.Models;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 using PointlessWaymarks.WpfCommon.Utility;
@@ -64,8 +66,6 @@ public partial class GeoJsonListWithActionsContext
             return;
         }
 
-        var tagger = new Intersection();
-
         var errorList = new List<string>();
         var successList = new List<string>();
         var noTagsList = new List<string>();
@@ -73,47 +73,50 @@ public partial class GeoJsonListWithActionsContext
         var processedCount = 0;
 
         cancellationToken.ThrowIfCancellationRequested();
-
-        var toProcess = new List<(GeoJsonContent dbClone, List<IFeature> geoJsonFeature)>();
+        
+        List<GeoJsonContent> dbEntriesToProcess = new();
+        List<IntersectResults> intersectResults = new();
 
         foreach (var loopSelected in frozenSelect)
-            toProcess.Add(((GeoJsonContent)new GeoJsonContent().InjectFrom(loopSelected.DbEntry),
-                loopSelected.DbEntry.FeaturesFromGeoJson()));
+        {
+            var features = loopSelected.DbEntry.FeaturesFromGeoJson();
 
-        var tagReturn = tagger.Tags(settingsFileInfo.FullName, toProcess.SelectMany(x => x.geoJsonFeature).ToList(),
+            if(!features.Any()) continue;
+
+            dbEntriesToProcess.Add((GeoJsonContent)new GeoJsonContent().InjectFrom(loopSelected.DbEntry));
+            intersectResults.Add(new IntersectResults(features)
+                { ContentId = loopSelected.DbEntry.ContentId });
+        }
+
+        intersectResults.IntersectionTags(UserSettingsSingleton.CurrentSettings().FeatureIntersectionTagSettingsFile,
             cancellationToken, StatusContext.ProgressTracker());
 
         var updateTime = DateTime.Now;
 
-        var groupedToProcess = toProcess.GroupBy(x => x.dbClone)
-            .Select(x => new { dbClone = x.Key, features = x.SelectMany(y => y.geoJsonFeature).ToList() }).ToList();
-
-        foreach (var loopSelected in groupedToProcess)
+        foreach (var loopSelected in dbEntriesToProcess)
         {
             processedCount++;
 
             try
             {
-                var taggerResult = tagReturn.Where(x => loopSelected.features.Contains(x.Feature)).ToList();
-
-                var taggerResultTags = taggerResult.SelectMany(x => x.Tags).ToList();
+                var taggerResultTags = intersectResults.Single(x => x.ContentId == loopSelected.ContentId).Tags;
 
                 if (!taggerResultTags.Any())
                 {
-                    noTagsList.Add($"{loopSelected.dbClone.Title} - no tags found");
+                    noTagsList.Add($"{loopSelected.Title} - no tags found");
                     StatusContext.Progress(
-                        $"Processed - {loopSelected.dbClone.Title} - no tags found - GeoJson {processedCount} of {frozenSelect.Count}");
+                        $"Processed - {loopSelected.Title} - no tags found - GeoJson {processedCount} of {frozenSelect.Count}");
                     continue;
                 }
 
-                var tagListForIntersection = Db.TagListParse(loopSelected.dbClone.Tags);
+                var tagListForIntersection = Db.TagListParse(loopSelected.Tags);
                 tagListForIntersection.AddRange(taggerResultTags);
-                loopSelected.dbClone.Tags = Db.TagListJoin(tagListForIntersection);
-                loopSelected.dbClone.LastUpdatedBy = "Feature Intersection Tagger";
-                loopSelected.dbClone.LastUpdatedOn = updateTime;
+                loopSelected.Tags = Db.TagListJoin(tagListForIntersection);
+                loopSelected.LastUpdatedBy = "Feature Intersection Tagger";
+                loopSelected.LastUpdatedOn = updateTime;
 
                 var (saveGenerationReturn, _) =
-                    await GeoJsonGenerator.SaveAndGenerateHtml(loopSelected.dbClone, DateTime.Now,
+                    await GeoJsonGenerator.SaveAndGenerateHtml(loopSelected, DateTime.Now,
                         StatusContext.ProgressTracker());
 
                 if (saveGenerationReturn.HasError)
@@ -124,21 +127,21 @@ public partial class GeoJsonListWithActionsContext
                         .Error(
                             "GeoJson Save Error during Selected GeoJson Feature Intersection Tagging");
                     errorList.Add(
-                        $"Save Failed! GeoJson: {loopSelected.dbClone.Title}, {saveGenerationReturn.GenerationNote}");
+                        $"Save Failed! GeoJson: {loopSelected.Title}, {saveGenerationReturn.GenerationNote}");
                     continue;
                 }
 
                 successList.Add(
-                    $"{loopSelected.dbClone.Title} - found Tags {string.Join(", ", taggerResultTags)}");
+                    $"{loopSelected.Title} - found Tags {string.Join(", ", taggerResultTags)}");
                 StatusContext.Progress(
-                    $"Processed - {loopSelected.dbClone.Title} - found Tags {string.Join(", ", taggerResultTags)} - GeoJson {processedCount} of {frozenSelect.Count}");
+                    $"Processed - {loopSelected.Title} - found Tags {string.Join(", ", taggerResultTags)} - GeoJson {processedCount} of {frozenSelect.Count}");
             }
             catch (Exception e)
             {
                 Log.Error(e,
-                    $"GeoJson Save Error during Selected GeoJson Feature Intersection Tagging {loopSelected.dbClone.Title}, {loopSelected.dbClone.ContentId}");
+                    $"GeoJson Save Error during Selected GeoJson Feature Intersection Tagging {loopSelected.Title}, {loopSelected.ContentId}");
                 errorList.Add(
-                    $"Save Failed! GeoJson: {loopSelected.dbClone.Title}, {e.Message}");
+                    $"Save Failed! GeoJson: {loopSelected.Title}, {e.Message}");
             }
 
             if (cancellationToken.IsCancellationRequested) break;

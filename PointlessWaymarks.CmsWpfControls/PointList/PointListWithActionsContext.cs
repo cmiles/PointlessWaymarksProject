@@ -7,6 +7,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using NetTopologySuite.Features;
 using NetTopologySuite.IO;
+using Omu.ValueInjecter;
 using Ookii.Dialogs.Wpf;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.CommonHtml;
@@ -15,6 +16,7 @@ using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsWpfControls.ContentList;
 using PointlessWaymarks.FeatureIntersectionTags;
+using PointlessWaymarks.FeatureIntersectionTags.Models;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 using PointlessWaymarks.WpfCommon.Utility;
@@ -68,8 +70,6 @@ public partial class PointListWithActionsContext
             return;
         }
 
-        var tagger = new Intersection();
-
         var errorList = new List<string>();
         var successList = new List<string>();
         var noTagsList = new List<string>();
@@ -78,15 +78,24 @@ public partial class PointListWithActionsContext
 
         cancellationToken.ThrowIfCancellationRequested();
 
-        var toProcess = new List<(PointContentDto dbClone, IFeature pointFeature)>();
-
         var pointDtos =
             await Db.PointAndPointDetails(frozenSelect.Select(x => x.DbEntry.ContentId).ToList(), await Db.Context());
 
-        foreach (var loopSelected in pointDtos) toProcess.Add((loopSelected, loopSelected.FeatureFromPoint()));
+        var toProcess = new List<PointContentDto>();
+        var intersectResults = new List<IntersectResults>();
 
-        var tagReturn = tagger.Tags(settingsFileInfo.FullName, toProcess.Select(x => x.pointFeature).ToList(),
-            cancellationToken, StatusContext.ProgressTracker());
+        foreach (var loopSelected in pointDtos)
+        {
+            var feature = loopSelected.FeatureFromPoint();
+
+            if (feature == null) continue;
+
+            toProcess.Add(loopSelected);
+            intersectResults.Add(new IntersectResults(feature) { ContentId = loopSelected.ContentId });
+        }
+
+        intersectResults.IntersectionTags(UserSettingsSingleton.CurrentSettings().FeatureIntersectionTagSettingsFile, cancellationToken,
+            StatusContext.ProgressTracker());
 
         var updateTime = DateTime.Now;
 
@@ -96,24 +105,24 @@ public partial class PointListWithActionsContext
 
             try
             {
-                var taggerResult = tagReturn.Single(x => x.Feature == loopSelected.pointFeature);
+                var taggerResult = intersectResults.Single(x => x.ContentId == loopSelected.ContentId);
 
                 if (!taggerResult.Tags.Any())
                 {
-                    noTagsList.Add($"{loopSelected.dbClone.Title} - no tags found");
+                    noTagsList.Add($"{loopSelected.Title} - no tags found");
                     StatusContext.Progress(
-                        $"Processed - {loopSelected.dbClone.Title} - no tags found - Point {processedCount} of {frozenSelect.Count}");
+                        $"Processed - {loopSelected.Title} - no tags found - Point {processedCount} of {frozenSelect.Count}");
                     continue;
                 }
 
-                var tagListForIntersection = Db.TagListParse(loopSelected.dbClone.Tags);
+                var tagListForIntersection = Db.TagListParse(loopSelected.Tags);
                 tagListForIntersection.AddRange(taggerResult.Tags);
-                loopSelected.dbClone.Tags = Db.TagListJoin(tagListForIntersection);
-                loopSelected.dbClone.LastUpdatedBy = "Feature Intersection Tagger";
-                loopSelected.dbClone.LastUpdatedOn = updateTime;
+                loopSelected.Tags = Db.TagListJoin(tagListForIntersection);
+                loopSelected.LastUpdatedBy = "Feature Intersection Tagger";
+                loopSelected.LastUpdatedOn = updateTime;
 
                 var (saveGenerationReturn, _) =
-                    await PointGenerator.SaveAndGenerateHtml(loopSelected.dbClone, DateTime.Now,
+                    await PointGenerator.SaveAndGenerateHtml(loopSelected, DateTime.Now,
                         StatusContext.ProgressTracker());
 
                 if (saveGenerationReturn.HasError)
@@ -124,21 +133,21 @@ public partial class PointListWithActionsContext
                         .Error(
                             "Point Save Error during Selected Point Feature Intersection Tagging");
                     errorList.Add(
-                        $"Save Failed! Point: {loopSelected.dbClone.Title}, {saveGenerationReturn.GenerationNote}");
+                        $"Save Failed! Point: {loopSelected.Title}, {saveGenerationReturn.GenerationNote}");
                     continue;
                 }
 
                 successList.Add(
-                    $"{loopSelected.dbClone.Title} - found Tags {string.Join(", ", taggerResult.Tags)}");
+                    $"{loopSelected.Title} - found Tags {string.Join(", ", taggerResult.Tags)}");
                 StatusContext.Progress(
-                    $"Processed - {loopSelected.dbClone.Title} - found Tags {string.Join(", ", taggerResult.Tags)} - Point {processedCount} of {frozenSelect.Count}");
+                    $"Processed - {loopSelected.Title} - found Tags {string.Join(", ", taggerResult.Tags)} - Point {processedCount} of {frozenSelect.Count}");
             }
             catch (Exception e)
             {
                 Log.Error(e,
-                    $"Point Save Error during Selected Point Feature Intersection Tagging {loopSelected.dbClone.Title}, {loopSelected.dbClone.ContentId}");
+                    $"Point Save Error during Selected Point Feature Intersection Tagging {loopSelected.Title}, {loopSelected.ContentId}");
                 errorList.Add(
-                    $"Save Failed! Point: {loopSelected.dbClone.Title}, {e.Message}");
+                    $"Save Failed! Point: {loopSelected.Title}, {e.Message}");
             }
 
             if (cancellationToken.IsCancellationRequested) break;

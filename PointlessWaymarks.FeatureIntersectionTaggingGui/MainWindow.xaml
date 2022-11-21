@@ -151,7 +151,7 @@
                                     <TextBlock Margin="12,0,4,4" TextWrapping="Wrap">This option will cause many characters to be eliminated from tags into a-z, 0-9 and a handful of other characters. This option offers a simple way to eliminate some inconsistencies in tags and   makes that tags URL\web friendly.</TextBlock>
                                 </StackPanel>
                             </StackPanel>
-                            <Button Command="{Binding TagCommand}" Height="40" Margin="8">Tag</Button>
+                            <Button Command="{Binding TagFilesCommand}" Height="40" Margin="8">Tag</Button>
                         </StackPanel>
                     </GroupBox>
                 </StackPanel>

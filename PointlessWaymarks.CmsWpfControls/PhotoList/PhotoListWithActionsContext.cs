@@ -21,6 +21,7 @@ using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsWpfControls.ContentList;
 using PointlessWaymarks.CmsWpfControls.PointContentEditor;
 using PointlessWaymarks.FeatureIntersectionTags;
+using PointlessWaymarks.FeatureIntersectionTags.Models;
 using PointlessWaymarks.LoggingTools;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
@@ -100,8 +101,6 @@ public partial class PhotoListWithActionsContext
             return;
         }
 
-        var tagger = new Intersection();
-
         var errorList = new List<string>();
         var successList = new List<string>();
         var noTagsList = new List<string>();
@@ -110,19 +109,21 @@ public partial class PhotoListWithActionsContext
 
         cancellationToken.ThrowIfCancellationRequested();
 
-        var toProcess = new List<(PhotoContent dbClone, IFeature pointFeature)>();
+        var toProcess = new List<PhotoContent>();
+        var intersectResults = new List<IntersectResults>();
 
         foreach (var loopSelected in frozenSelect)
         {
-            if (loopSelected.DbEntry.Latitude is null || loopSelected.DbEntry.Longitude is null) continue;
+            var feature = loopSelected.DbEntry.FeatureFromPoint();
 
-            toProcess.Add(((PhotoContent)new PhotoContent().InjectFrom(loopSelected.DbEntry),
-                new Feature(new Point(loopSelected.DbEntry.Longitude.Value, loopSelected.DbEntry.Latitude.Value),
-                    new AttributesTable())));
+            if(feature == null) continue;
+
+            toProcess.Add((PhotoContent)new PhotoContent().InjectFrom(loopSelected.DbEntry));
+            intersectResults.Add(new IntersectResults(feature) {ContentId = loopSelected.DbEntry.ContentId});
         }
 
-        var tagReturn = tagger.Tags(settingsFileInfo.FullName, toProcess.Select(x => x.pointFeature).ToList(),
-            cancellationToken, StatusContext.ProgressTracker());
+        intersectResults.IntersectionTags(UserSettingsSingleton.CurrentSettings().FeatureIntersectionTagSettingsFile, cancellationToken,
+            StatusContext.ProgressTracker());
 
         var updateTime = DateTime.Now;
 
@@ -132,25 +133,25 @@ public partial class PhotoListWithActionsContext
 
             try
             {
-                var taggerResult = tagReturn.Single(x => x.Feature == loopSelected.pointFeature);
+                var taggerResult = intersectResults.Single(x => x.ContentId == loopSelected.ContentId);
 
                 if (!taggerResult.Tags.Any())
                 {
-                    noTagsList.Add($"{loopSelected.dbClone.Title} - no tags found");
+                    noTagsList.Add($"{loopSelected.Title} - no tags found");
                     StatusContext.Progress(
-                        $"Processed - {loopSelected.dbClone.Title} - no tags found - Photo {processedCount} of {frozenSelect.Count}");
+                        $"Processed - {loopSelected.Title} - no tags found - Photo {processedCount} of {frozenSelect.Count}");
                     continue;
                 }
 
-                var tagListForIntersection = Db.TagListParse(loopSelected.dbClone.Tags);
+                var tagListForIntersection = Db.TagListParse(loopSelected.Tags);
                 tagListForIntersection.AddRange(taggerResult.Tags);
-                loopSelected.dbClone.Tags = Db.TagListJoin(tagListForIntersection);
-                loopSelected.dbClone.LastUpdatedBy = "Feature Intersection Tagger";
-                loopSelected.dbClone.LastUpdatedOn = updateTime;
+                loopSelected.Tags = Db.TagListJoin(tagListForIntersection);
+                loopSelected.LastUpdatedBy = "Feature Intersection Tagger";
+                loopSelected.LastUpdatedOn = updateTime;
 
                 var (saveGenerationReturn, _) =
-                    await PhotoGenerator.SaveAndGenerateHtml(loopSelected.dbClone,
-                        UserSettingsSingleton.CurrentSettings().LocalSitePhotoContentFile(loopSelected.dbClone), false,
+                    await PhotoGenerator.SaveAndGenerateHtml(loopSelected,
+                        UserSettingsSingleton.CurrentSettings().LocalSitePhotoContentFile(loopSelected), false,
                         DateTime.Now, StatusContext.ProgressTracker());
 
                 if (saveGenerationReturn.HasError)
@@ -161,21 +162,21 @@ public partial class PhotoListWithActionsContext
                         .Error(
                             "Photo Save Error during Selected Photo Feature Intersection Tagging");
                     errorList.Add(
-                        $"Save Failed! Photo: {loopSelected.dbClone.Title}, {saveGenerationReturn.GenerationNote}");
+                        $"Save Failed! Photo: {loopSelected.Title}, {saveGenerationReturn.GenerationNote}");
                     continue;
                 }
 
                 successList.Add(
-                    $"{loopSelected.dbClone.Title} - found Tags {string.Join(", ", taggerResult.Tags)}");
+                    $"{loopSelected.Title} - found Tags {string.Join(", ", taggerResult.Tags)}");
                 StatusContext.Progress(
-                    $"Processed - {loopSelected.dbClone.Title} - found Tags {string.Join(", ", taggerResult.Tags)} - Photo {processedCount} of {frozenSelect.Count}");
+                    $"Processed - {loopSelected.Title} - found Tags {string.Join(", ", taggerResult.Tags)} - Photo {processedCount} of {frozenSelect.Count}");
             }
             catch (Exception e)
             {
                 Log.Error(e,
-                    $"Photo Save Error during Selected Photo Feature Intersection Tagging {loopSelected.dbClone.Title}, {loopSelected.dbClone.ContentId}");
+                    $"Photo Save Error during Selected Photo Feature Intersection Tagging {loopSelected.Title}, {loopSelected.ContentId}");
                 errorList.Add(
-                    $"Save Failed! Photo: {loopSelected.dbClone.Title}, {e.Message}");
+                    $"Save Failed! Photo: {loopSelected.Title}, {e.Message}");
             }
 
             if (cancellationToken.IsCancellationRequested) break;
@@ -402,7 +403,7 @@ public partial class PhotoListWithActionsContext
                 Tags = loopPhoto.DbEntry.Tags
             };
 
-            newPartialPoint.Slug = SlugTools.Create(true, newPartialPoint.Title);
+            newPartialPoint.Slug = SlugTools.CreateSlug(true, newPartialPoint.Title);
 
             if (loopPhoto.DbEntry.Latitude != null) newPartialPoint.Latitude = loopPhoto.DbEntry.Latitude.Value;
             if (loopPhoto.DbEntry.Longitude != null) newPartialPoint.Longitude = loopPhoto.DbEntry.Longitude.Value;

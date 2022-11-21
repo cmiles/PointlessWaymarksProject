@@ -105,14 +105,12 @@ public class PhotoPickup
 
         Log.Information($"Starting processing of the {jpgFiles.Count} jpg Photo Files ");
 
-        var intersectionTagger = new Intersection();
-
         foreach (var loopFile in jpgFiles)
         {
             var (metaGenerationReturn, metaContent) = await
                 PhotoGenerator.PhotoMetadataToNewPhotoContent(loopFile, consoleProgress);
 
-            if (metaGenerationReturn.HasError)
+            if (metaGenerationReturn.HasError || metaContent == null)
             {
                 Log.ForContext("metaGenerationReturn", metaGenerationReturn.SafeObjectDump()).Error(
                     $"Error Saving Photo {loopFile.FullName} - {metaGenerationReturn.GenerationNote} - {metaGenerationReturn.Exception?.Message}");
@@ -121,18 +119,14 @@ public class PhotoPickup
 
             if (metaContent.Latitude != null && metaContent.Longitude != null)
             {
-                var intersectionTags = intersectionTagger.Tags(
-                    UserSettingsSingleton.CurrentSettings().FeatureIntersectionTagSettingsFile,
-                    new List<IFeature>
-                    {
-                        new Feature(new Point(metaContent.Longitude.Value, metaContent.Latitude.Value),
-                            new AttributesTable())
-                    }, CancellationToken.None, consoleProgress);
+                var intersectionTags = (new Feature(new Point(metaContent.Longitude.Value, metaContent.Latitude.Value),
+                        new AttributesTable()))
+                    .IntersectionTags(UserSettingsSingleton.CurrentSettings().FeatureIntersectionTagSettingsFile,
+                        CancellationToken.None, consoleProgress);
 
                 if (intersectionTags.Any())
                 {
-                    var allTags = intersectionTags.SelectMany(x => x.Tags.Select(y => y).ToList());
-                    var tagList = Db.TagListParse(metaContent.Tags).Union(allTags).ToList();
+                    var tagList = Db.TagListParse(metaContent.Tags).Union(intersectionTags).ToList();
                     metaContent.Tags = Db.TagListJoin(tagList);
                 }
             }

@@ -143,9 +143,8 @@ Photo Content Notes:
             return;
         }
 
-        var tagger = new Intersection();
-        var possibleTags = tagger.Tags(UserSettingsSingleton.CurrentSettings().FeatureIntersectionTagSettingsFile,
-            new List<IFeature> { featureToCheck }, CancellationToken.None, StatusContext.ProgressTracker());
+        var possibleTags = featureToCheck.IntersectionTags(UserSettingsSingleton.CurrentSettings().FeatureIntersectionTagSettingsFile,
+            CancellationToken.None, StatusContext.ProgressTracker());
 
         if (!possibleTags.Any())
         {
@@ -154,7 +153,7 @@ Photo Content Notes:
         }
 
         TagEdit.Tags =
-            $"{TagEdit.Tags}{(string.IsNullOrWhiteSpace(TagEdit.Tags) ? "" : ",")}{string.Join(",", possibleTags.SelectMany(x => x.Tags).Select(x => x))}";
+            $"{TagEdit.Tags}{(string.IsNullOrWhiteSpace(TagEdit.Tags) ? "" : ",")}{string.Join(",", possibleTags)}";
     }
 
     public async Task ChooseFile(bool loadMetadata)
@@ -364,7 +363,7 @@ Photo Content Notes:
         TitleSummarySlugFolder = await TitleSummarySlugEditorContext.CreateInstance(StatusContext, "To File Name",
             AutoRenameSelectedFileBasedOnTitleCommand,
             x => !Path.GetFileNameWithoutExtension(SelectedFile.Name)
-                .Equals(SlugTools.Create(false, x.TitleEntry.UserValue), StringComparison.OrdinalIgnoreCase),
+                .Equals(SlugTools.CreateSlug(false, x.TitleEntry.UserValue), StringComparison.OrdinalIgnoreCase),
             DbEntry);
         CreatedUpdatedDisplay = await CreatedAndUpdatedByAndOnDisplayContext.CreateInstance(StatusContext, DbEntry);
         MainSiteFeed = await ContentSiteFeedAndIsDraftContext.CreateInstance(StatusContext, DbEntry);
@@ -608,7 +607,7 @@ Photo Content Notes:
             Tags = TagEdit.TagListString()
         };
 
-        newPartialPoint.Slug = SlugTools.Create(true, newPartialPoint.Title);
+        newPartialPoint.Slug = SlugTools.CreateSlug(true, newPartialPoint.Title);
 
         newPartialPoint.Latitude = LatitudeEntry.UserValue.Value;
         newPartialPoint.Longitude = LongitudeEntry.UserValue.Value;

@@ -244,7 +244,7 @@ public class GpxTrackImport
                 {
                     renameCount++;
                     newEntry.Title = $"{baseTitle} - {renameCount}";
-                    newEntry.Slug = SlugTools.Create(true, newEntry.Title);
+                    newEntry.Slug = SlugTools.CreateSlug(true, newEntry.Title);
                     validation =
                         await CommonContentValidation.ValidateSlugLocalAndDb(newEntry.Slug, newEntry.ContentId);
                 }
@@ -255,14 +255,13 @@ public class GpxTrackImport
 
                     if (featureToCheck != null)
                     {
-                        var tagger = new Intersection();
-                        var taggerResult = tagger.Tags(settings.IntersectionTagSettings, featureToCheck.AsList(),
-                            CancellationToken.None, new ConsoleProgress());
-
-                        if (taggerResult.Any() && taggerResult.First().Tags.Any())
+                        var tagResult = featureToCheck.IntersectionTags(settings.IntersectionTagSettings, CancellationToken.None,
+                            new ConsoleProgress());
+                       
+                        if (tagResult.Any())
                         {
                             var tagListForIntersection = Db.TagListParse(newEntry.Tags);
-                            tagListForIntersection.AddRange(taggerResult.First().Tags);
+                            tagListForIntersection.AddRange(tagResult);
                             newEntry.Tags = Db.TagListJoin(tagListForIntersection);
                         }
                     }

@@ -206,7 +206,7 @@ public partial class FileBasedTaggerContext
 
         foreach (var loopFiles in frozenSelected)
         {
-            var fileFeatures = await GpxTools.LinesFromGpxFile(loopFiles);
+            var fileFeatures = await GpxTools.TrackLinesFromGpxFile(loopFiles);
             bounds.ExpandToInclude(fileFeatures.boundingBox);
             featureList.AddRange(fileFeatures.features);
         }

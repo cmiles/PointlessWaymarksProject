@@ -61,7 +61,7 @@ public partial class TitleSummarySlugEditorContext : IHasChanges, IHasValidation
     {
         try
         {
-            TitleToSlugEnabled = SlugTools.Create(true, TitleEntry.UserValue) != SlugEntry.UserValue;
+            TitleToSlugEnabled = SlugTools.CreateSlug(true, TitleEntry.UserValue) != SlugEntry.UserValue;
             TitleToSummaryEnabled =
                 !(SummaryEntry.UserValue.Equals(TitleEntry.UserValue, StringComparison.OrdinalIgnoreCase) ||
                   (SummaryEntry.UserValue.Length - 1 == TitleEntry.UserValue.Length &&
@@ -141,7 +141,7 @@ public partial class TitleSummarySlugEditorContext : IHasChanges, IHasValidation
 
     public void TitleToSlug()
     {
-        SlugEntry.UserValue = SlugTools.Create(true, TitleEntry.UserValue);
+        SlugEntry.UserValue = SlugTools.CreateSlug(true, TitleEntry.UserValue);
     }
 
     public void TitleToSummary()

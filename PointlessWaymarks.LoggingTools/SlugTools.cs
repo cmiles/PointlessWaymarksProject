@@ -27,9 +27,9 @@ public static class SlugTools
     /// <param name="toLower"></param>
     /// <param name="values"></param>
     /// <returns></returns>
-    public static string Create(bool toLower, params string[] values)
+    public static string CreateSlug(bool toLower, params string[] values)
     {
-        return Create(toLower, string.Join("-", values));
+        return CreateSlug(toLower, string.Join("-", values));
     }
 
     /// <summary>
@@ -45,7 +45,7 @@ public static class SlugTools
     //     https://meta.stackexchange.com/questions/7435/non-us-ascii-characters-dropped-from-full-profile-url/7696#7696
     //     https://stackoverflow.com/questions/25259/how-do-you-include-a-webpage-title-as-part-of-a-webpage-url/25486#25486
     //     https://stackoverflow.com/questions/3769457/how-can-i-remove-accents-on-a-string
-    public static string Create(bool toLower, string? value, int maxLength = 100)
+    public static string CreateSlug(bool toLower, string? value, int maxLength = 100)
     {
         if (value == null)
             return "";

@@ -12,6 +12,7 @@ using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsWpfControls.ContentList;
 using PointlessWaymarks.FeatureIntersectionTags;
+using PointlessWaymarks.FeatureIntersectionTags.Models;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 using PointlessWaymarks.WpfCommon.Utility;
@@ -64,8 +65,6 @@ public partial class LineListWithActionsContext
             return;
         }
 
-        var tagger = new Intersection();
-
         var errorList = new List<string>();
         var successList = new List<string>();
         var noTagsList = new List<string>();
@@ -74,41 +73,49 @@ public partial class LineListWithActionsContext
 
         cancellationToken.ThrowIfCancellationRequested();
 
-        var toProcess = new List<(LineContent dbClone, IFeature lineFeature)>();
+        List<LineContent> dbEntriesToProcess = new();
+        List<IntersectResults> intersectResults = new();
 
         foreach (var loopSelected in frozenSelect)
-            toProcess.Add(((LineContent)new LineContent().InjectFrom(loopSelected.DbEntry),
-                loopSelected.DbEntry.FeatureFromGeoJsonLine()));
+        {
+            var features = loopSelected.DbEntry.FeatureFromGeoJsonLine();
 
-        var tagReturn = tagger.Tags(settingsFileInfo.FullName, toProcess.Select(x => x.lineFeature).ToList(),
+            if (features == null) continue;
+
+            dbEntriesToProcess.Add((LineContent)new LineContent().InjectFrom(loopSelected.DbEntry));
+            intersectResults.Add(new IntersectResults(features)
+                { ContentId = loopSelected.DbEntry.ContentId });
+        }
+
+        intersectResults.IntersectionTags(UserSettingsSingleton.CurrentSettings().FeatureIntersectionTagSettingsFile,
             cancellationToken, StatusContext.ProgressTracker());
 
         var updateTime = DateTime.Now;
 
-        foreach (var loopSelected in toProcess)
+        foreach (var loopSelected in dbEntriesToProcess)
         {
             processedCount++;
 
             try
             {
-                var taggerResult = tagReturn.Single(x => x.Feature == loopSelected.lineFeature);
+                var taggerResult = intersectResults.Single(x => x.ContentId == loopSelected.ContentId);
 
                 if (!taggerResult.Tags.Any())
                 {
-                    noTagsList.Add($"{loopSelected.dbClone.Title} - no tags found");
+                    noTagsList.Add($"{loopSelected.Title} - no tags found");
                     StatusContext.Progress(
-                        $"Processed - {loopSelected.dbClone.Title} - no tags found - Line {processedCount} of {frozenSelect.Count}");
+                        $"Processed - {loopSelected.Title} - no tags found - Line {processedCount} of {frozenSelect.Count}");
                     continue;
                 }
 
-                var tagListForIntersection = Db.TagListParse(loopSelected.dbClone.Tags);
+                var tagListForIntersection = Db.TagListParse(loopSelected.Tags);
                 tagListForIntersection.AddRange(taggerResult.Tags);
-                loopSelected.dbClone.Tags = Db.TagListJoin(tagListForIntersection);
-                loopSelected.dbClone.LastUpdatedBy = "Feature Intersection Tagger";
-                loopSelected.dbClone.LastUpdatedOn = updateTime;
+                loopSelected.Tags = Db.TagListJoin(tagListForIntersection);
+                loopSelected.LastUpdatedBy = "Feature Intersection Tagger";
+                loopSelected.LastUpdatedOn = updateTime;
 
                 var (saveGenerationReturn, _) =
-                    await LineGenerator.SaveAndGenerateHtml(loopSelected.dbClone, DateTime.Now,
+                    await LineGenerator.SaveAndGenerateHtml(loopSelected, DateTime.Now,
                         StatusContext.ProgressTracker());
 
                 if (saveGenerationReturn.HasError)
@@ -119,21 +126,21 @@ public partial class LineListWithActionsContext
                         .Error(
                             "Line Save Error during Selected Line Feature Intersection Tagging");
                     errorList.Add(
-                        $"Save Failed! Line: {loopSelected.dbClone.Title}, {saveGenerationReturn.GenerationNote}");
+                        $"Save Failed! Line: {loopSelected.Title}, {saveGenerationReturn.GenerationNote}");
                     continue;
                 }
 
                 successList.Add(
-                    $"{loopSelected.dbClone.Title} - found Tags {string.Join(", ", taggerResult.Tags)}");
+                    $"{loopSelected.Title} - found Tags {string.Join(", ", taggerResult.Tags)}");
                 StatusContext.Progress(
-                    $"Processed - {loopSelected.dbClone.Title} - found Tags {string.Join(", ", taggerResult.Tags)} - Line {processedCount} of {frozenSelect.Count}");
+                    $"Processed - {loopSelected.Title} - found Tags {string.Join(", ", taggerResult.Tags)} - Line {processedCount} of {frozenSelect.Count}");
             }
             catch (Exception e)
             {
                 Log.Error(e,
-                    $"Line Save Error during Selected Line Feature Intersection Tagging {loopSelected.dbClone.Title}, {loopSelected.dbClone.ContentId}");
+                    $"Line Save Error during Selected Line Feature Intersection Tagging {loopSelected.Title}, {loopSelected.ContentId}");
                 errorList.Add(
-                    $"Save Failed! Line: {loopSelected.dbClone.Title}, {e.Message}");
+                    $"Save Failed! Line: {loopSelected.Title}, {e.Message}");
             }
 
             if (cancellationToken.IsCancellationRequested) break;

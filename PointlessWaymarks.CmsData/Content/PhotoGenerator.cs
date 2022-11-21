@@ -14,6 +14,7 @@ using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsData.Json;
 using PointlessWaymarks.FeatureIntersectionTags;
+using PointlessWaymarks.FeatureIntersectionTags.Models;
 using PointlessWaymarks.LoggingTools;
 using PointlessWaymarks.SpatialTools;
 using Serilog;
@@ -98,15 +99,12 @@ public static class PhotoGenerator
             !skipAdditionalTagDiscovery)
             try
             {
-                var tagger = new Intersection();
-                tags.AddRange(tagger.Tags(
-                    UserSettingsSingleton.CurrentSettings().FeatureIntersectionTagSettingsFile,
-                    new List<IFeature>
-                    {
-                        new Feature(
-                            new Point(toReturn.Longitude.Value, toReturn.Latitude.Value),
-                            new AttributesTable())
-                    }, CancellationToken.None, progress).SelectMany(x => x.Tags).ToList());
+                var pointFeature = new Feature(
+                    new Point(toReturn.Longitude.Value, toReturn.Latitude.Value),
+                    new AttributesTable());
+                
+                tags.AddRange(pointFeature.IntersectionTags(UserSettingsSingleton.CurrentSettings().FeatureIntersectionTagSettingsFile,
+                    CancellationToken.None, progress));
             }
             catch (Exception e)
             {
@@ -362,7 +360,7 @@ public static class PhotoGenerator
             : photoContentCreatedBy.Trim();
         toReturn.CreatedOn = created;
         toReturn.FeedOn = created;
-        toReturn.Slug = SlugTools.Create(true, toReturn.Title);
+        toReturn.Slug = SlugTools.CreateSlug(true, toReturn.Title);
         toReturn.BodyContentFormat = ContentFormatDefaults.Content.ToString();
         toReturn.UpdateNotesFormat = ContentFormatDefaults.Content.ToString();
         toReturn.ShowPhotoPosition = UserSettingsSingleton.CurrentSettings().PhotoPagesShowPositionByDefault;

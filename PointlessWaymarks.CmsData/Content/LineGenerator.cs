@@ -12,6 +12,7 @@ using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsData.Json;
 using PointlessWaymarks.CmsData.Spatial;
 using PointlessWaymarks.FeatureIntersectionTags;
+using PointlessWaymarks.FeatureIntersectionTags.Models;
 using PointlessWaymarks.LoggingTools;
 using PointlessWaymarks.SpatialTools;
 using Serilog;
@@ -49,14 +50,12 @@ public static class LineGenerator
             !string.IsNullOrWhiteSpace(UserSettingsSingleton.CurrentSettings().FeatureIntersectionTagSettingsFile) &&!skipFeatureIntersectTagging)
             try
             {
-                var tagger = new Intersection();
-                tagList.AddRange(tagger.Tags(
+                var lineFeature = new Feature(new LineString(trackInformation.Track.ToArray()),
+                        new AttributesTable());
+
+                tagList.AddRange(lineFeature.IntersectionTags(
                     UserSettingsSingleton.CurrentSettings().FeatureIntersectionTagSettingsFile,
-                    new List<IFeature>
-                    {
-                        // ReSharper disable once CoVariantArrayConversion It appears from testing that a linestring will reflect CoordinateZ
-                        new Feature(new LineString(trackInformation.Track.ToArray()), new AttributesTable())
-                    }, CancellationToken.None, progress).SelectMany(x => x.Tags).ToList());
+                    CancellationToken.None, progress));
             }
             catch (Exception e)
             {
@@ -89,7 +88,7 @@ public static class LineGenerator
         };
 
         if (!string.IsNullOrWhiteSpace(trackInformation.Name))
-            newEntry.Slug = SlugTools.Create(true, trackInformation.Name);
+            newEntry.Slug = SlugTools.CreateSlug(true, trackInformation.Name);
         if (trackInformation.StartsOnLocal != null) newEntry.Folder = trackInformation.StartsOnLocal.Value.Year.ToString();
 
         return newEntry;
@@ -123,7 +122,7 @@ public static class LineGenerator
         };
 
         if (!string.IsNullOrWhiteSpace(trackInformation.Name))
-            newEntry.Slug = SlugTools.Create(true, trackInformation.Name);
+            newEntry.Slug = SlugTools.CreateSlug(true, trackInformation.Name);
 
         return newEntry;
     }

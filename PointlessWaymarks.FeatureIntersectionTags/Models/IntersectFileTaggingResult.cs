@@ -10,5 +10,5 @@ public record IntersectFileTaggingResult
     public readonly FileInfo FileToTag;
     public string Results = String.Empty;
     public string Notes = string.Empty;
-    public List<IntersectResults> Intersections = new();
+    public IntersectResults? Intersections;
 }
