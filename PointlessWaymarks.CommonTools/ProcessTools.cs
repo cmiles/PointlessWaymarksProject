@@ -1,12 +1,12 @@
 ﻿using System.Diagnostics;
 using System.Text;
 
-namespace PointlessWaymarks.CmsData;
+namespace PointlessWaymarks.CommonTools;
 
-public static class ProcessRunner
+public static class ProcessTools
 {
     public static (bool success, string standardOutput, string errorOutput) Execute(string programToExecute,
-        string executionParameters, IProgress<string> progress)
+        string executionParameters, IProgress<string>? progress)
     {
         if (string.IsNullOrWhiteSpace(programToExecute)) return (false, string.Empty, "Blank program to Execute?");
 

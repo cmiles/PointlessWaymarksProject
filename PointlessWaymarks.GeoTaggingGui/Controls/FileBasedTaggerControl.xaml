@@ -17,7 +17,7 @@
     <UserControl.Resources>
         <ResourceDictionary>
             <valueConverters:BooleanNotToVisibilityConverter x:Key="BooleanNotToVisibility" />
-            <local:MetersToFeetValueConverter x:Key="MetersToFeet" />
+            <valueConverters:MetersToFeetValueConverter x:Key="MetersToFeet" />
         </ResourceDictionary>
     </UserControl.Resources>
     <Grid>

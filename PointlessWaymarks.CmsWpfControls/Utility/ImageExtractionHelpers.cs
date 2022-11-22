@@ -14,7 +14,7 @@ using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 using PointlessWaymarks.WpfCommon.Utility;
 using Windows.Data.Pdf;
-using PointlessWaymarks.LoggingTools;
+using PointlessWaymarks.CommonTools;
 
 namespace PointlessWaymarks.CmsWpfControls.Utility;
 

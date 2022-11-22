@@ -38,7 +38,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PointlessWaymarks.FeatureIn
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PointlessWaymarks.SpatialTools", "PointlessWaymarks.SpatialTools\PointlessWaymarks.SpatialTools.csproj", "{CD620C67-0C5F-45AB-91C8-02A4D7C45152}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PointlessWaymarks.LoggingTools", "PointlessWaymarks.LoggingTools\PointlessWaymarks.LoggingTools.csproj", "{A4009BB0-DEB5-4FB2-B62E-834054F77362}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PointlessWaymarks.CommonTools", "PointlessWaymarks.CommonTools\PointlessWaymarks.CommonTools.csproj", "{A4009BB0-DEB5-4FB2-B62E-834054F77362}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PointlessWaymarks.Task.PhotoPickup", "PointlessWaymarks.Task.PhotoPickup\PointlessWaymarks.Task.PhotoPickup.csproj", "{69770B90-F127-45C3-ACAD-CB6629099F8D}"
 EndProject
@@ -46,7 +46,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PointlessWaymarks.GeoTaggin
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PointlessWaymarks.GeoTaggingGui", "PointlessWaymarks.GeoTaggingGui\PointlessWaymarks.GeoTaggingGui.csproj", "{5D4DC0E4-3B1D-45B6-8DA4-024960924DCC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PointlessWaymarks.FeatureIntersectionTaggingGui", "PointlessWaymarks.FeatureIntersectionTaggingGui\PointlessWaymarks.FeatureIntersectionTaggingGui.csproj", "{621A6155-2014-4C3A-8841-6C57E78F6D9B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PointlessWaymarks.FeatureIntersectionTaggingGui", "PointlessWaymarks.FeatureIntersectionTaggingGui\PointlessWaymarks.FeatureIntersectionTaggingGui.csproj", "{621A6155-2014-4C3A-8841-6C57E78F6D9B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

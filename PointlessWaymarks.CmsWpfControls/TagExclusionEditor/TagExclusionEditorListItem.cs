@@ -2,6 +2,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.Database.Models;
+using PointlessWaymarks.CommonTools;
 
 namespace PointlessWaymarks.CmsWpfControls.TagExclusionEditor;
 
@@ -26,7 +27,7 @@ public partial class TagExclusionEditorListItem
             return;
         }
 
-        HasChanges = !StringHelpers.AreEqualWithTrim(TagValue, DbEntry.Tag);
+        HasChanges = !StringTools.AreEqualWithTrim(TagValue, DbEntry.Tag);
     }
 
     private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)

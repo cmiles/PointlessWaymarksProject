@@ -6,6 +6,7 @@
         xmlns:local="clr-namespace:PointlessWaymarks.GeoTaggingGui"
         xmlns:status="clr-namespace:PointlessWaymarks.WpfCommon.Status;assembly=PointlessWaymarks.WpfCommon"
         mc:Ignorable="d"
+        Icon="GeoTaggingGuiIcon.ico"
         Title="{Binding InfoTitle}" Height="450" Width="800" d:DataContext="{d:DesignInstance local:MainWindow}">
     <Grid>
         <TabControl>

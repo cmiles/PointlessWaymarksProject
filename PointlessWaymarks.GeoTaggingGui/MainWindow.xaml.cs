@@ -2,7 +2,7 @@
 using System.Windows;
 using CommunityToolkit.Mvvm.ComponentModel;
 using PointlessWaymarks.CmsData;
-using PointlessWaymarks.LoggingTools;
+using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.Utility;
 using Serilog;
@@ -34,13 +34,8 @@ public partial class MainWindow : Window
 
         WindowInitialPositionHelpers.EnsureWindowIsVisible(this);
 
-        // ReSharper disable once ConditionIsAlwaysTrueOrFalse for generated ThisAssembly.Git.IsDirty
-        // ReSharper disable once HeuristicUnreachableCode
-        //.Git IsDirty can change at runtime
-#pragma warning disable CS0162
-        _infoTitle = WindowTitleTools.StandardAppInformationString(Assembly.GetExecutingAssembly(),
+        _infoTitle = ProgramInfoTools.StandardAppInformationString(Assembly.GetExecutingAssembly(),
             "Pointless Waymarks GeoTagger"); ;
-#pragma warning restore CS0162
 
         DataContext = this;
 

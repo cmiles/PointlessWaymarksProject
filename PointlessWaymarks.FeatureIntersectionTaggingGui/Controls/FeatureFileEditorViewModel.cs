@@ -1,6 +1,7 @@
 ﻿using System.IO;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using PointlessWaymarks.FeatureIntersectionTaggingGui.Controls;
 using PointlessWaymarks.FeatureIntersectionTaggingGui.Models;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;

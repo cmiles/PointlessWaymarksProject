@@ -1,7 +1,7 @@
 ﻿// See https://aka.ms/new-console-template for more information
 
 using PointlessWaymarks.CmsData;
-using PointlessWaymarks.LoggingTools;
+using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.Task.PhotoPickup;
 using Serilog;
 

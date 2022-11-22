@@ -119,6 +119,28 @@ public static class FileMetadataXmpSidecarTools
         return (localTime, utcDateTime);
     }
 
+    public static List<string> KeywordsFromXmpSidecar(IXmpMeta? sidecarXmpMeta, bool splitOnCommaAndSemiColon)
+    {
+        if (sidecarXmpMeta == null) return null;
+
+        var extractedKeywords = new List<string>();
+
+        var arrayItemCount = sidecarXmpMeta.CountArrayItems("http://purl.org/dc/elements/1.1/", "dc:subject");
+
+        for (var i = 1; i <= arrayItemCount; i++)
+            extractedKeywords.Add(
+                sidecarXmpMeta.GetArrayItem("http://purl.org/dc/elements/1.1/", "dc:subject", i).Value);
+
+        if (splitOnCommaAndSemiColon)
+            extractedKeywords = extractedKeywords.SelectMany(x => x.Replace(";", ",").Split(",")).ToList();
+
+        extractedKeywords = extractedKeywords.Where(x => !string.IsNullOrEmpty(x)).Select(x => x.Trim()).ToList();
+
+        extractedKeywords = extractedKeywords.Distinct(StringComparer.OrdinalIgnoreCase).OrderBy(x => x).ToList();
+
+        return extractedKeywords;
+    }
+
 
     public static double? LatitudeFromXmpSidecar(IXmpMeta? sidecarXmpMeta)
     {

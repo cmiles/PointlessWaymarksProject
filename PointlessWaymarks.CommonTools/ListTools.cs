@@ -1,4 +1,4 @@
-﻿namespace PointlessWaymarks.LoggingTools;
+﻿namespace PointlessWaymarks.CommonTools;
 
 public static class ListTools
 {

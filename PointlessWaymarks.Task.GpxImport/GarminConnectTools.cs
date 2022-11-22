@@ -5,7 +5,7 @@ using Garmin.Connect.Auth;
 using Garmin.Connect.Models;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.ContentHtml;
-using PointlessWaymarks.LoggingTools;
+using PointlessWaymarks.CommonTools;
 using Polly;
 using Serilog;
 

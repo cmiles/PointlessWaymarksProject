@@ -1,4 +1,4 @@
-﻿namespace PointlessWaymarks.FeatureIntersectionTaggingGui;
+﻿namespace PointlessWaymarks.FeatureIntersectionTaggingGui.Controls;
 
 public enum FeatureFileEditorEndEditCondition
 {

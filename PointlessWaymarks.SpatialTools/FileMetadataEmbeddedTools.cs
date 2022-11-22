@@ -2,7 +2,9 @@
 using GeoTimeZone;
 using MetadataExtractor;
 using MetadataExtractor.Formats.Exif;
+using MetadataExtractor.Formats.Iptc;
 using MetadataExtractor.Formats.Xmp;
+using XmpCore;
 using Directory = MetadataExtractor.Directory;
 
 namespace PointlessWaymarks.SpatialTools;
@@ -123,6 +125,7 @@ public static class FileMetadataEmbeddedTools
     {
         if (xmpDirectory == null) return null;
 
+        //TODO: Could explore using .XMP meta here, but need to review the namespace(s?) used.
         var xmpDateTimeOriginals = xmpDirectory.GetXmpProperties()
             .Where(x => x.Key.Equals("DateTimeOriginal", StringComparison.OrdinalIgnoreCase)).ToList();
 
@@ -310,6 +313,57 @@ public static class FileMetadataEmbeddedTools
         if (succeeded ?? false) return createdOn;
 
         return null;
+    }
+
+    /// <summary>
+    ///     Returns combined keywords from Iptc and Xmp embedded metadata with a case insensitive de-duplication,
+    ///     if splitOnCommaAndSemiColon is true any single tag that has a , or ; will be split into multiple
+    ///     tags - this is UNSAFE and will cause problems if any tags contain , or ; - however this option can fix
+    ///     a very common metadata problem where tags have been written as a single string
+    ///     "single,string" rather than an array of string {"single", "string"}.
+    /// </summary>
+    /// <param name="directories"></param>
+    /// <param name="splitOnCommaAndSemiColon"></param>
+    /// <returns></returns>
+    public static List<string> KeywordsFromExif(IReadOnlyList<Directory> directories, bool splitOnCommaAndSemiColon)
+    {
+        var xmpDirectory = directories.OfType<XmpDirectory>();
+
+        var extractedKeywords = new List<string>();
+
+        foreach (var loopXmp in xmpDirectory)
+        {
+            var xmpSubjectArrayItemCount = loopXmp?.XmpMeta?.CountArrayItems(XmpConstants.NsDC, "subject");
+
+            if (xmpSubjectArrayItemCount != null)
+                for (var i = 1; i <= xmpSubjectArrayItemCount; i++)
+                {
+                    var subjectArrayItem = loopXmp?.XmpMeta?.GetArrayItem(XmpConstants.NsDC, "subject", i);
+                    if (subjectArrayItem == null || string.IsNullOrWhiteSpace(subjectArrayItem.Value)) continue;
+
+                    extractedKeywords.Add(subjectArrayItem.Value.Trim());
+                }
+        }
+
+        var iptcDirectory = directories.OfType<IptcDirectory>().ToList();
+
+        foreach (var loopIptc in iptcDirectory)
+        {
+            var keywordValues = loopIptc?.GetStringValueArray(IptcDirectory.TagKeywords);
+            if (keywordValues == null || !keywordValues.Any()) continue;
+
+            extractedKeywords.AddRange(keywordValues.Where(x => !string.IsNullOrWhiteSpace(x.ToString()))
+                .Select(x => x.ToString().Trim()));
+        }
+
+        if (splitOnCommaAndSemiColon)
+            extractedKeywords = extractedKeywords.SelectMany(x => x.Replace(";", ",").Split(",")).ToList();
+
+        extractedKeywords = extractedKeywords.Where(x => !string.IsNullOrEmpty(x)).Select(x => x.Trim()).ToList();
+
+        extractedKeywords = extractedKeywords.Distinct(StringComparer.OrdinalIgnoreCase).OrderBy(x => x).ToList();
+
+        return extractedKeywords;
     }
 
     public static async Task<MetadataLocation> LocationFromExif(

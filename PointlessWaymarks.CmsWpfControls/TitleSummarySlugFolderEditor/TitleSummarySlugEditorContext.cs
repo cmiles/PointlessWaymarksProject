@@ -6,7 +6,7 @@ using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsWpfControls.ContentFolder;
 using PointlessWaymarks.CmsWpfControls.StringDataEntry;
 using PointlessWaymarks.CmsWpfControls.Utility.ChangesAndValidation;
-using PointlessWaymarks.LoggingTools;
+using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 

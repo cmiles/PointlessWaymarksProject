@@ -36,13 +36,13 @@ using PointlessWaymarks.CmsWpfControls.TagList;
 using PointlessWaymarks.CmsWpfControls.UserSettingsEditor;
 using PointlessWaymarks.CmsWpfControls.Utility;
 using PointlessWaymarks.CmsWpfControls.WpfHtml;
-using PointlessWaymarks.LoggingTools;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 using PointlessWaymarks.WpfCommon.Utility;
 using PointlessWaymarks.WpfCommon.WpfHtml;
 using Serilog;
 using BuildDateAttribute = PointlessWaymarks.CmsData.BuildDateAttribute;
+using PointlessWaymarks.CommonTools;
 
 namespace PointlessWaymarks.CmsContentEditor;
 
@@ -89,13 +89,8 @@ public partial class MainWindow
 
         WindowInitialPositionHelpers.EnsureWindowIsVisible(this);
 
-        // ReSharper disable once ConditionIsAlwaysTrueOrFalse for generated ThisAssembly.Git.IsDirty
-        // ReSharper disable once HeuristicUnreachableCode
-        //.Git IsDirty can change at runtime
-#pragma warning disable CS0162
-        InfoTitle = WindowTitleTools.StandardAppInformationString(Assembly.GetExecutingAssembly(),
+        InfoTitle = ProgramInfoTools.StandardAppInformationString(Assembly.GetExecutingAssembly(),
             "Pointless Waymarks CMS");
-#pragma warning restore CS0162
 
         ShowSettingsFileChooser = true;
 

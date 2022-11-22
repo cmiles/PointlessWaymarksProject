@@ -32,7 +32,7 @@
                 <ResourceDictionary Source="../WpfControlsResourceDictionary.xaml" />
                 <ResourceDictionary Source="/PointlessWaymarks.WpfCommon;component/Utility/Icons.xaml" />
             </ResourceDictionary.MergedDictionaries>
-            <utility:MetersToFeetValueConverter x:Key="MetersToFeet" />
+            <wpfConverter:MetersToFeetValueConverter x:Key="MetersToFeet" />
         </ResourceDictionary>
     </UserControl.Resources>
     <Grid Margin="4">

@@ -11,7 +11,7 @@ using PointlessWaymarks.CmsData.ContentHtml;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsData.Json;
-using PointlessWaymarks.LoggingTools;
+using PointlessWaymarks.CommonTools;
 
 namespace PointlessWaymarks.CmsData;
 
@@ -1370,7 +1370,7 @@ public static class UserSettingsUtilities
 
         var newSettings = new UserSettings();
 
-        var rootDirectory = new DirectoryInfo(Path.Combine(CommonLocationTools.DefaultStorageDirectory().FullName, userFilename));
+        var rootDirectory = new DirectoryInfo(Path.Combine(FileLocationTools.DefaultStorageDirectory().FullName, userFilename));
 
         progress?.Report("Creating new settings - looking for home...");
 
@@ -1379,7 +1379,7 @@ public static class UserSettingsUtilities
         while (rootDirectory.Exists)
         {
             rootDirectory =
-                new DirectoryInfo(Path.Combine(CommonLocationTools.DefaultStorageDirectory().FullName, $"{userFilename}-{fileNumber}"));
+                new DirectoryInfo(Path.Combine(FileLocationTools.DefaultStorageDirectory().FullName, $"{userFilename}-{fileNumber}"));
             rootDirectory.Refresh();
             progress?.Report($"Trying {rootDirectory.FullName}...");
             fileNumber++;

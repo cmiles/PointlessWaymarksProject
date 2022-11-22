@@ -1,5 +1,5 @@
 ﻿using PointlessWaymarks.CmsData.Content;
-using PointlessWaymarks.LoggingTools;
+using PointlessWaymarks.CommonTools;
 using Serilog;
 using Serilog.Events;
 using Serilog.Formatting.Compact;
@@ -105,16 +105,7 @@ public static class PointlessWaymarksLogTools
             .Error($"Generation Return - {logMessage}");
     }
 
-    /// <summary>
-    ///     Returns a simple string representation of an object with a Max Depth of 2 to avoid unexpected
-    ///     problems and provide generally appropriate output for logging.
-    /// </summary>
-    /// <param name="toDump"></param>
-    /// <returns></returns>
-    public static string SafeObjectDump(this object toDump)
-    {
-        return ObjectDumper.Dump(toDump, new DumpOptions { MaxLevel = 2, DumpStyle = DumpStyle.Console });
-    }
+
 
     /// <summary>
     ///     Returns a new configured Startup Logger. This should NOT be used until user settings are initialized so

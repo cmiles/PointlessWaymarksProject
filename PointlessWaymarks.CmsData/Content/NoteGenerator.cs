@@ -5,7 +5,7 @@ using PointlessWaymarks.CmsData.ContentHtml.NoteHtml;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsData.Json;
-using PointlessWaymarks.LoggingTools;
+using PointlessWaymarks.CommonTools;
 
 namespace PointlessWaymarks.CmsData.Content;
 

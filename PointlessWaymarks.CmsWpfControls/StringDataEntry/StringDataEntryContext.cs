@@ -4,6 +4,7 @@ using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.Content;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsWpfControls.Utility.ChangesAndValidation;
+using PointlessWaymarks.CommonTools;
 
 namespace PointlessWaymarks.CmsWpfControls.StringDataEntry;
 
@@ -56,7 +57,7 @@ public partial class StringDataEntryContext : IHasChanges, IHasValidationIssues
             Title = "Slug",
             HelpText = "This will be the Folder and File Name used in URLs - limited to a-z 0-9 _ -",
             ReferenceValue = dbEntry?.Slug ?? string.Empty,
-            UserValue = StringHelpers.NullToEmptyTrim(dbEntry?.Slug),
+            UserValue = StringTools.NullToEmptyTrim(dbEntry?.Slug),
             ValidationFunctions = new List<Func<string, Task<IsValid>>> { CommonContentValidation.ValidateSlugLocal }
         };
 
@@ -72,7 +73,7 @@ public partial class StringDataEntryContext : IHasChanges, IHasValidationIssues
             Title = "Summary",
             HelpText = "A short text entry that will show in Search and short references to the content",
             ReferenceValue = dbEntry?.Summary ?? string.Empty,
-            UserValue = StringHelpers.NullToEmptyTrim(dbEntry?.Summary),
+            UserValue = StringTools.NullToEmptyTrim(dbEntry?.Summary),
             ValidationFunctions = new List<Func<string, Task<IsValid>>> { CommonContentValidation.ValidateSummary }
         };
 
@@ -88,7 +89,7 @@ public partial class StringDataEntryContext : IHasChanges, IHasValidationIssues
             Title = "Title",
             HelpText = "Title Text",
             ReferenceValue = dbEntry?.Title ?? string.Empty,
-            UserValue = StringHelpers.NullToEmptyTrim(dbEntry?.Title),
+            UserValue = StringTools.NullToEmptyTrim(dbEntry?.Title),
             ValidationFunctions = new List<Func<string, Task<IsValid>>> { CommonContentValidation.ValidateTitle }
         };
 

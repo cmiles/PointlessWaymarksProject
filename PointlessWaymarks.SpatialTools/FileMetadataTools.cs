@@ -133,11 +133,26 @@ public static class FileMetadataTools
         return metaLocation.HasValidLocation();
     }
 
-    public static async Task<DateTime?> FileUtcCreatedOn(FileInfo loopFile, IProgress<string>? progress)
+    public static async Task<List<string>> FileKeywords(FileInfo fileToProcess, bool splitOnCommaAndSemiColon)
     {
-        if (loopFile.Extension.Equals(".xmp", StringComparison.InvariantCultureIgnoreCase))
+        if (fileToProcess.Extension.Equals(".xmp", StringComparison.InvariantCultureIgnoreCase))
         {
-            await using var stream = File.OpenRead(loopFile.FullName);
+            await using var stream = File.OpenRead(fileToProcess.FullName);
+            var xmp = XmpMetaFactory.Parse(stream);
+
+            return FileMetadataXmpSidecarTools.KeywordsFromXmpSidecar(xmp, splitOnCommaAndSemiColon);
+        }
+
+        var metadataDirectories = ImageMetadataReader.ReadMetadata(fileToProcess.FullName);
+
+        return FileMetadataEmbeddedTools.KeywordsFromExif(metadataDirectories, splitOnCommaAndSemiColon);
+    }
+
+    public static async Task<DateTime?> FileUtcCreatedOn(FileInfo fileToProcess, IProgress<string>? progress)
+    {
+        if (fileToProcess.Extension.Equals(".xmp", StringComparison.InvariantCultureIgnoreCase))
+        {
+            await using var stream = File.OpenRead(fileToProcess.FullName);
             var xmp = XmpMetaFactory.Parse(stream);
 
             var xmpCreatedOn = await FileMetadataXmpSidecarTools.CreatedOnLocalAndUtc(xmp);
@@ -145,16 +160,16 @@ public static class FileMetadataTools
             if (xmpCreatedOn.createdOnUtc is null)
             {
                 progress?.Report(
-                    $"No UTC Date/Time found in xmp sidecar file {loopFile.FullName} - skipping");
+                    $"No UTC Date/Time found in xmp sidecar file {fileToProcess.FullName} - skipping");
                 return null;
             }
 
             progress?.Report(
-                $"{loopFile.FullName} Found UTC Time {xmpCreatedOn.createdOnUtc} from xmp sidecar file");
+                $"{fileToProcess.FullName} Found UTC Time {xmpCreatedOn.createdOnUtc} from xmp sidecar file");
             return xmpCreatedOn.createdOnUtc;
         }
 
-        var metadataDirectories = ImageMetadataReader.ReadMetadata(loopFile.FullName);
+        var metadataDirectories = ImageMetadataReader.ReadMetadata(fileToProcess.FullName);
 
         var metaCreatedOn =
             await FileMetadataEmbeddedTools.CreatedOnLocalAndUtc(metadataDirectories);
@@ -162,12 +177,12 @@ public static class FileMetadataTools
         if (metaCreatedOn.createdOnUtc is null)
         {
             progress?.Report(
-                $"No UTC Date/Time found in file {loopFile.FullName} - skipping");
+                $"No UTC Date/Time found in file {fileToProcess.FullName} - skipping");
             return null;
         }
 
         progress?.Report(
-            $"{loopFile.FullName} Found UTC Time {metaCreatedOn.createdOnUtc} from file metadata");
+            $"{fileToProcess.FullName} Found UTC Time {metaCreatedOn.createdOnUtc} from file metadata");
         return metaCreatedOn.createdOnUtc;
     }
 

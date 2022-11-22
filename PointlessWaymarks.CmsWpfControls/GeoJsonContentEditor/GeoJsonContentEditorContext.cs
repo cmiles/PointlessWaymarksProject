@@ -22,9 +22,9 @@ using PointlessWaymarks.CmsWpfControls.UpdateNotesEditor;
 using PointlessWaymarks.CmsWpfControls.Utility;
 using PointlessWaymarks.CmsWpfControls.Utility.ChangesAndValidation;
 using PointlessWaymarks.CmsWpfControls.WpfHtml;
+using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.FeatureIntersectionTags;
 using PointlessWaymarks.FeatureIntersectionTags.Models;
-using PointlessWaymarks.LoggingTools;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 using WinRT;
@@ -121,7 +121,7 @@ public partial class GeoJsonContentEditorContext : IHasChanges, IHasValidationIs
             return;
         }
 
-        var intersectResult = new IntersectResults(featuresToCheck);
+        var intersectResult = new IntersectResult(featuresToCheck);
 
         var possibleTags = intersectResult.IntersectionTags(UserSettingsSingleton.CurrentSettings().FeatureIntersectionTagSettingsFile,CancellationToken.None, StatusContext.ProgressTracker()).Tags;
 
@@ -282,7 +282,7 @@ public partial class GeoJsonContentEditorContext : IHasChanges, IHasValidationIs
         UpdateNotes = await UpdateNotesEditorContext.CreateInstance(StatusContext, DbEntry);
         TagEdit = TagsEditorContext.CreateInstance(StatusContext, DbEntry);
         BodyContent = await BodyContentEditorContext.CreateInstance(StatusContext, DbEntry);
-        GeoJsonText = StringHelpers.NullToEmptyTrim(DbEntry?.GeoJson);
+        GeoJsonText = StringTools.NullToEmptyTrim(DbEntry?.GeoJson);
 
         PropertyScanners.SubscribeToChildHasChangesAndHasValidationIssues(this, CheckForChangesAndValidationIssues);
     }

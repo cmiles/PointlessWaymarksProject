@@ -1,6 +1,6 @@
-﻿namespace PointlessWaymarks.CmsData;
+﻿namespace PointlessWaymarks.CommonTools;
 
-public static class DateTimeHelpers
+public static class DateTimeTools
 {
     /// <summary>
     ///     Uses reflection to truncate all DateTime and DateTime? properties in the input to the second
@@ -38,13 +38,13 @@ public static class DateTimeHelpers
 
 
     /// <summary>
-    /// Trims a DateTime to seconds
+    ///     Trims a DateTime to seconds
     /// </summary>
     /// <param name="toTrim"></param>
     /// <returns></returns>
     public static DateTime TrimDateTimeToSeconds(this DateTime toTrim)
     {
-        return new(toTrim.Year, toTrim.Month, toTrim.Day, toTrim.Hour,
+        return new DateTime(toTrim.Year, toTrim.Month, toTrim.Day, toTrim.Hour,
             toTrim.Minute, toTrim.Second, toTrim.Kind);
     }
 }

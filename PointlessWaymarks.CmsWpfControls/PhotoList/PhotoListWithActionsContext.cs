@@ -20,9 +20,9 @@ using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsWpfControls.ContentList;
 using PointlessWaymarks.CmsWpfControls.PointContentEditor;
+using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.FeatureIntersectionTags;
 using PointlessWaymarks.FeatureIntersectionTags.Models;
-using PointlessWaymarks.LoggingTools;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 using PointlessWaymarks.WpfCommon.Utility;
@@ -110,7 +110,7 @@ public partial class PhotoListWithActionsContext
         cancellationToken.ThrowIfCancellationRequested();
 
         var toProcess = new List<PhotoContent>();
-        var intersectResults = new List<IntersectResults>();
+        var intersectResults = new List<IntersectResult>();
 
         foreach (var loopSelected in frozenSelect)
         {
@@ -119,7 +119,7 @@ public partial class PhotoListWithActionsContext
             if(feature == null) continue;
 
             toProcess.Add((PhotoContent)new PhotoContent().InjectFrom(loopSelected.DbEntry));
-            intersectResults.Add(new IntersectResults(feature) {ContentId = loopSelected.DbEntry.ContentId});
+            intersectResults.Add(new IntersectResult(feature) {ContentId = loopSelected.DbEntry.ContentId});
         }
 
         intersectResults.IntersectionTags(UserSettingsSingleton.CurrentSettings().FeatureIntersectionTagSettingsFile, cancellationToken,

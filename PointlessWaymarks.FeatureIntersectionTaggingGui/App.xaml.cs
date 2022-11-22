@@ -1,6 +1,6 @@
 ﻿using System.Windows;
 using System.Windows.Threading;
-using PointlessWaymarks.LoggingTools;
+using PointlessWaymarks.CommonTools;
 using Serilog;
 
 namespace PointlessWaymarks.FeatureIntersectionTaggingGui;

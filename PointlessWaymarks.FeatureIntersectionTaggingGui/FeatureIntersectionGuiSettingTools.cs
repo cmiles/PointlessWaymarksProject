@@ -1,7 +1,7 @@
 ﻿using System.IO;
 using System.Text.Json;
+using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.FeatureIntersectionTaggingGui.Models;
-using PointlessWaymarks.LoggingTools;
 
 namespace PointlessWaymarks.FeatureIntersectionTaggingGui;
 
@@ -10,7 +10,7 @@ public static class FeatureIntersectionGuiSettingTools
     public static async Task<FileInfo> DefaultSettingsFile()
     {
         var settingsFile =
-            new FileInfo(Path.Combine(CommonLocationTools.DefaultStorageDirectory().FullName,
+            new FileInfo(Path.Combine(FileLocationTools.DefaultStorageDirectory().FullName,
                 "PwFeatureIntersectionGuiSettings.json"));
 
         if (!settingsFile.Exists)

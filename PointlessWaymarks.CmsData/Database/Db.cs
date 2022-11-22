@@ -8,7 +8,7 @@ using PointlessWaymarks.CmsData.ContentHtml;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsData.Database.PointDetailDataModels;
 using PointlessWaymarks.CmsData.Spatial;
-using PointlessWaymarks.LoggingTools;
+using PointlessWaymarks.CommonTools;
 
 namespace PointlessWaymarks.CmsData.Database;
 
@@ -350,8 +350,8 @@ public static class Db
     /// <param name="toProcess"></param>
     public static void DefaultPropertyCleanup<T>(T toProcess)
     {
-        StringHelpers.TrimNullToEmptyAllStringProperties(toProcess);
-        DateTimeHelpers.TrimDateTimesToSeconds(toProcess);
+        StringTools.TrimNullToEmptyAllStringProperties(toProcess);
+        DateTimeTools.TrimDateTimesToSeconds(toProcess);
         SpatialHelpers.RoundSpatialValues(toProcess);
     }
 

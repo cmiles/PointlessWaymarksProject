@@ -7,6 +7,9 @@
 //     the code is regenerated.
 // </auto-generated>
 // ------------------------------------------------------------------------------
+
+using PointlessWaymarks.CommonTools;
+
 namespace PointlessWaymarks.CmsData.ContentHtml.ErrorHtml
 {
     using PointlessWaymarks.CmsData.CommonHtml;

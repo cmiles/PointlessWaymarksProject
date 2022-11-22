@@ -5,7 +5,7 @@ using PointlessWaymarks.CmsData.ContentHtml;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsWpfControls.Utility.ChangesAndValidation;
-using PointlessWaymarks.LoggingTools;
+using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.WpfCommon.Status;
 
 namespace PointlessWaymarks.CmsWpfControls.TagsEditor;

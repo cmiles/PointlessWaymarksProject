@@ -7,8 +7,8 @@ public record IntersectFileTaggingResult
         FileToTag = fileToTag;
     }
 
-    public readonly FileInfo FileToTag;
-    public string Results = String.Empty;
-    public string Notes = string.Empty;
-    public IntersectResults? Intersections;
+    public FileInfo FileToTag { get; }
+    public IntersectResult? Intersections { get; set; }
+    public string Notes { get; set; } = string.Empty;
+    public string Results { get; set; } = string.Empty;
 }

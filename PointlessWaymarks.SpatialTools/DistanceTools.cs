@@ -1,20 +1,10 @@
 ﻿using NetTopologySuite.Geometries;
+using PointlessWaymarks.CommonTools;
 
 namespace PointlessWaymarks.SpatialTools;
 
 public static class DistanceTools
 {
-    public static double FeetToMeters(this double feet)
-    {
-        return feet * 0.3048;
-    }
-
-    public static double FeetToMeters(this double? feet)
-    {
-        if (feet == null) return 0;
-        return feet.Value.FeetToMeters();
-    }
-
     public static double GetDistanceInMeters(double longitude, double latitude,
         double otherLongitude, double otherLatitude)
     {
@@ -70,39 +60,6 @@ public static class DistanceTools
         }
 
         return new LineStatsInMeters(length, climb, descent, maxElevation, minElevation);
-    }
-
-    public static double MetersToFeet(this double meters)
-    {
-        return meters / 0.3048;
-    }
-
-    public static double MetersToFeet(this double? meters)
-    {
-        if (meters == null) return 0;
-        return meters.Value.MetersToFeet();
-    }
-
-    public static double MetersToMiles(this double meters)
-    {
-        return meters / 1609.344;
-    }
-
-    public static double MetersToMiles(this double? meters)
-    {
-        if (meters == null) return 0;
-        return meters.Value.MetersToFeet();
-    }
-
-    public static double MilesToMeters(this double miles)
-    {
-        return miles * 1609.344;
-    }
-
-    public static double MilesToMeters(this double? miles)
-    {
-        if (miles == null) return 0;
-        return miles.Value.FeetToMeters();
     }
 
     public record LineStatsInImperial(double Length, double ElevationClimb, double ElevationDescent,

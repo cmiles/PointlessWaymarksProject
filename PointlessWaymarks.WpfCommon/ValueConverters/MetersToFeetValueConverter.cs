@@ -1,8 +1,8 @@
 ﻿using System.Globalization;
 using System.Windows.Data;
-using PointlessWaymarks.SpatialTools;
+using PointlessWaymarks.CommonTools;
 
-namespace PointlessWaymarks.GeoTaggingGui;
+namespace PointlessWaymarks.WpfCommon.ValueConverters;
 
 public sealed class MetersToFeetValueConverter : IValueConverter
 {

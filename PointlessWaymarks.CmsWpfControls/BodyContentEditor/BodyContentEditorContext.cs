@@ -10,6 +10,7 @@ using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsWpfControls.ContentFormat;
 using PointlessWaymarks.CmsWpfControls.Utility.ChangesAndValidation;
 using PointlessWaymarks.CmsWpfControls.WpfHtml;
+using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 using PointlessWaymarks.WpfCommon.Utility;
@@ -46,7 +47,7 @@ public partial class BodyContentEditorContext : IHasChanges, IHasValidationIssue
 
     public void CheckForChangesAndValidationIssues()
     {
-        BodyContentHasChanges = !StringHelpers.AreEqual((DbEntry?.BodyContent).TrimNullToEmpty(), BodyContent);
+        BodyContentHasChanges = !StringTools.AreEqual((DbEntry?.BodyContent).TrimNullToEmpty(), BodyContent);
 
         HasChanges = BodyContentHasChanges || PropertyScanners.ChildPropertiesHaveValidationIssues(this);
         HasValidationIssues = PropertyScanners.ChildPropertiesHaveChanges(this);

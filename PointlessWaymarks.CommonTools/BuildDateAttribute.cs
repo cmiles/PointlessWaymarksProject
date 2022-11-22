@@ -1,6 +1,6 @@
 ﻿using System.Globalization;
 
-namespace PointlessWaymarks.LoggingTools;
+namespace PointlessWaymarks.CommonTools;
 
 /// <summary>
 ///     This attribute can be used in a project file to write the Build Date into the Assembly info.

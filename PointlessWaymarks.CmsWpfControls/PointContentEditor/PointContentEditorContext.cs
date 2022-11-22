@@ -24,6 +24,7 @@ using PointlessWaymarks.CmsWpfControls.TitleSummarySlugFolderEditor;
 using PointlessWaymarks.CmsWpfControls.UpdateNotesEditor;
 using PointlessWaymarks.CmsWpfControls.Utility;
 using PointlessWaymarks.CmsWpfControls.Utility.ChangesAndValidation;
+using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.FeatureIntersectionTags;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
@@ -259,7 +260,7 @@ public partial class PointContentEditorContext : IHasChanges, ICheckForChangesAn
         MapLabelContent.HelpText =
             "This text will be used to identify the point on a map. A very short string is likely best...";
         MapLabelContent.ReferenceValue = DbEntry.MapLabel ?? string.Empty;
-        MapLabelContent.UserValue = StringHelpers.NullToEmptyTrim(DbEntry?.MapLabel);
+        MapLabelContent.UserValue = StringTools.NullToEmptyTrim(DbEntry?.MapLabel);
 
         ElevationEntry =
             ConversionDataEntryContext<double?>.CreateInstance(ConversionDataEntryHelpers.DoubleNullableConversion);

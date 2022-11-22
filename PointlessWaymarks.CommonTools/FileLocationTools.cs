@@ -1,6 +1,6 @@
-﻿namespace PointlessWaymarks.LoggingTools;
+﻿namespace PointlessWaymarks.CommonTools;
 
-public static class CommonLocationTools
+public static class FileLocationTools
 {
     /// <summary>
     ///     This returns the default Pointless Waymarks storage directory - currently in the users

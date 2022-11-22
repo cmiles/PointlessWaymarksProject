@@ -15,6 +15,7 @@ using PointlessWaymarks.CmsWpfControls.Utility;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 using PointlessWaymarks.WpfCommon.Utility;
+using LogTools = PointlessWaymarks.CommonTools.LogTools;
 
 namespace PointlessWaymarks.CmsWpfControls.PhotoList;
 
@@ -223,7 +224,7 @@ public partial class PhotoContentActions : ObservableObject, IContentActions<Pho
         var historicView = new ContentViewHistoryPage($"Historic Entries - {content.Title}",
             UserSettingsSingleton.CurrentSettings().SiteName, $"Historic Entries - {content.Title}",
             historicItems.OrderByDescending(x => x.LastUpdatedOn.HasValue).ThenByDescending(x => x.LastUpdatedOn)
-                .Select(PointlessWaymarksLogTools.SafeObjectDump).ToList());
+                .Select(LogTools.SafeObjectDump).ToList());
 
         historicView.WriteHtmlToTempFolderAndShow(StatusContext.ProgressTracker());
     }

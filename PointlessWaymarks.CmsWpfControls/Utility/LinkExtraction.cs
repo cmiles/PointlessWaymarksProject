@@ -3,6 +3,7 @@ using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsWpfControls.LinkContentEditor;
+using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 using PointlessWaymarks.WpfCommon.Utility;
 
@@ -27,7 +28,7 @@ public static class LinkExtraction
 
         progressTracker?.Report("Looking for URLs");
 
-        var allMatches = StringHelpers.UrlsFromText(toExtractFrom).Where(x =>
+        var allMatches = StringTools.UrlsFromText(toExtractFrom).Where(x =>
             !x.Contains(UserSettingsSingleton.CurrentSettings().SiteUrl(), StringComparison.OrdinalIgnoreCase) &&
             !excludedUrls.Contains(x.ToLower())).ToList();
 

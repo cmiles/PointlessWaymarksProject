@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Web.WebView2.Wpf;
 using PointlessWaymarks.CmsData;
+using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 
@@ -78,6 +79,6 @@ public partial class SitePreviewContext : DependencyObject
     private async Task TryUserNavigation()
     {
         await ThreadSwitcher.ResumeForegroundAsync();
-        WebViewGui.CoreWebView2.Navigate($"http://{StringHelpers.UrlCombine(SiteUrl, TextBarAddress)}");
+        WebViewGui.CoreWebView2.Navigate($"http://{StringTools.UrlCombine(SiteUrl, TextBarAddress)}");
     }
 }

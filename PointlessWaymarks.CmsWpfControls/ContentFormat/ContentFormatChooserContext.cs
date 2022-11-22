@@ -4,6 +4,7 @@ using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.Content;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsWpfControls.Utility.ChangesAndValidation;
+using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 
@@ -36,7 +37,7 @@ public partial class ContentFormatChooserContext : IHasChanges, IHasValidationIs
     {
         // ReSharper disable InvokeAsExtensionMethod - in this case TrimNullSage - which returns an
         //Empty string from null will not be invoked as an extension if DbEntry is null...
-        SelectedContentFormatHasChanges = StringHelpers.TrimNullToEmpty(InitialValue) !=
+        SelectedContentFormatHasChanges = StringTools.TrimNullToEmpty(InitialValue) !=
                                           SelectedContentFormatAsString.TrimNullToEmpty();
         // ReSharper restore InvokeAsExtensionMethod
 

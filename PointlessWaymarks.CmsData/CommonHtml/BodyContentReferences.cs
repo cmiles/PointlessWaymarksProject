@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using PointlessWaymarks.CmsData.ContentHtml.PhotoGalleryHtml;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
-using PointlessWaymarks.LoggingTools;
+using PointlessWaymarks.CommonTools;
 
 namespace PointlessWaymarks.CmsData.CommonHtml;
 

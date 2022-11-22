@@ -2,7 +2,7 @@
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.Content;
 using PointlessWaymarks.CmsData.ContentHtml;
-using PointlessWaymarks.LoggingTools;
+using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 using Serilog;

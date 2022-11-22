@@ -1,4 +1,6 @@
-﻿namespace PointlessWaymarks.LoggingTools;
+﻿using Serilog;
+
+namespace PointlessWaymarks.CommonTools;
 
 public static class UniqueFileTools
 {
@@ -86,5 +88,31 @@ public static class UniqueFileTools
         if (!file.Exists) return file;
 
         throw new Exception("Can not create a Unique Directory for {fullName}");
+    }
+
+    public static bool WriteFileToBackupDirectory(DateTime executionTime, string backupDirectoryName,
+        FileInfo fileToBackup,
+        IProgress<string>? progress)
+    {
+        var directoryInfo = new DirectoryInfo(fileToBackup.DirectoryName ?? string.Empty);
+
+        var backupDirectory = UniqueDirectory(Path.Combine(directoryInfo.FullName,
+            $"{backupDirectoryName}Backup-{executionTime:yyyy-MM-dd-HHmmss}"));
+
+        var backupFile = UniqueFile(backupDirectory, fileToBackup.Name);
+
+        try
+        {
+            fileToBackup.CopyTo(backupFile.FullName);
+        }
+        catch (Exception e)
+        {
+            Log.ForContext("backupFile", fileToBackup.SafeObjectDump())
+                .ForContext("backupDirectory", backupDirectory.SafeObjectDump()).Error(e, "Error Copying Backup File");
+            progress?.Report($"Problem creating backup file! {e.Message}");
+            return false;
+        }
+
+        return true;
     }
 }

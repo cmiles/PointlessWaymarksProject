@@ -7,6 +7,9 @@
 //     the code is regenerated.
 // </auto-generated>
 // ------------------------------------------------------------------------------
+
+using PointlessWaymarks.CommonTools;
+
 namespace PointlessWaymarks.CmsData.ContentHtml.PhotoGalleryHtml
 {
     using PointlessWaymarks.CmsData.CommonHtml;

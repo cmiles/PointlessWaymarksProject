@@ -1,6 +1,7 @@
 ﻿using PhotoSauce.MagicScaler;
 using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.Database.Models;
+using PointlessWaymarks.CommonTools;
 
 namespace PointlessWaymarks.CmsData.Content;
 

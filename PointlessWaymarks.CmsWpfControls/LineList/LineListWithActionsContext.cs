@@ -74,7 +74,7 @@ public partial class LineListWithActionsContext
         cancellationToken.ThrowIfCancellationRequested();
 
         List<LineContent> dbEntriesToProcess = new();
-        List<IntersectResults> intersectResults = new();
+        List<IntersectResult> intersectResults = new();
 
         foreach (var loopSelected in frozenSelect)
         {
@@ -83,7 +83,7 @@ public partial class LineListWithActionsContext
             if (features == null) continue;
 
             dbEntriesToProcess.Add((LineContent)new LineContent().InjectFrom(loopSelected.DbEntry));
-            intersectResults.Add(new IntersectResults(features)
+            intersectResults.Add(new IntersectResult(features)
                 { ContentId = loopSelected.DbEntry.ContentId });
         }
 

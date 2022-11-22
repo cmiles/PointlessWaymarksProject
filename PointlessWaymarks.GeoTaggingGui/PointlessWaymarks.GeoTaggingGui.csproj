@@ -7,6 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="GeoTaggingGuiIcon.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Dirkster.NumericUpDownLib" Version="3.2.0" />
     <PackageReference Include="GitInfo" Version="2.2.1" />
     <PackageReference Include="Jot" Version="2.1.13" />
@@ -23,6 +27,12 @@
     <AssemblyAttribute Include="PointlessWaymarks.CmsData.BuildDateAttribute">
       <_Parameter1>$([System.DateTime]::UtcNow.ToString("yyyyMMddHHmmss"))</_Parameter1>
     </AssemblyAttribute>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="GeoTaggingGuiIcon.ico">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
   </ItemGroup>
 
 </Project>

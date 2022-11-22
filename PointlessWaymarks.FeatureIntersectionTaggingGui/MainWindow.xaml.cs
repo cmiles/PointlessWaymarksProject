@@ -4,10 +4,11 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Omu.ValueInjecter;
 using Ookii.Dialogs.Wpf;
+using PointlessWaymarks.CommonTools;
+using PointlessWaymarks.FeatureIntersectionTaggingGui.Controls;
 using PointlessWaymarks.FeatureIntersectionTaggingGui.Models;
 using PointlessWaymarks.FeatureIntersectionTags;
 using PointlessWaymarks.FeatureIntersectionTags.Models;
-using PointlessWaymarks.LoggingTools;
 using PointlessWaymarks.WpfCommon.FileList;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
@@ -41,6 +42,7 @@ public partial class MainWindow
     [ObservableProperty] private bool _tagsToLowerCase;
     [ObservableProperty] private bool _testRunOnly;
     [ObservableProperty] private WindowIconStatus _windowStatus;
+    [ObservableProperty] private List<IntersectFileTaggingResult> _lastResults = new();
 
     public MainWindow()
     {
@@ -53,14 +55,8 @@ public partial class MainWindow
 
         WindowInitialPositionHelpers.EnsureWindowIsVisible(this);
 
-        // ReSharper disable once ConditionIsAlwaysTrueOrFalse for generated ThisAssembly.Git.IsDirty
-        // ReSharper disable once HeuristicUnreachableCode
-        //.Git IsDirty can change at runtime
-#pragma warning disable CS0162
-        _infoTitle = WindowTitleTools.StandardAppInformationString(Assembly.GetExecutingAssembly(),
+        _infoTitle = ProgramInfoTools.StandardAppInformationString(Assembly.GetExecutingAssembly(),
             "Pointless Waymarks Feature Intersection Tagger");
-        ;
-#pragma warning restore CS0162
 
         DataContext = this;
 
@@ -241,9 +237,11 @@ public partial class MainWindow
         var fileTags = await FilesToTagFileList.Files.ToList()
             .FileIntersectionTags(intersectSettings, CancellationToken.None, StatusContext.ProgressTracker());
 
-        var rawResults = fileTags.WriteTagsToFiles(
+        LastResults = await fileTags.WriteTagsToFiles(
             settings.TestRunOnly, settings.CreateBackups, settings.TagsToLowerCase, settings.SanitizeTags,
             settings.ExifToolFullName, CancellationToken.None, 1024, StatusContext.ProgressTracker());
+
+        SelectedTab = 4;
     }
 
     public async Task WriteTaggerSetting()

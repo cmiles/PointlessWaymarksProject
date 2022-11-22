@@ -1,6 +1,6 @@
 ﻿using System.Text;
 using PointlessWaymarks.CmsData;
-using PointlessWaymarks.LoggingTools;
+using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.SpatialTools;
 using Serilog;
 using File = TagLib.File;
@@ -241,7 +241,7 @@ public class GeoTag
 
             if (createBackupBeforeWritingMetadata && !testRun)
             {
-                var backUpSuccessful = WriteFileToBackupDirectory(frozenExecutionTime, loopFile.file, progress);
+                var backUpSuccessful = UniqueFileTools.WriteFileToBackupDirectory(frozenExecutionTime, "PwGeoTag", loopFile.file, progress);
                 if (!backUpSuccessful)
                 {
                     returnFileResults.Add(new GeoTagFileResult(loopFile.file.FullName, "Backup Error",
@@ -250,6 +250,7 @@ public class GeoTag
                         latitude, longitude, elevation));
                     progress?.Report(
                         $"GeoTag - Skipping {loopFile.file.FullName} - Found GeoTag information but could not create a backup - skipping this file.");
+                    continue;
                 }
             }
 
@@ -304,7 +305,7 @@ public class GeoTag
                 }
 
                 var exifToolWriteOutcome =
-                    ProcessRunner.Execute(exifTool.exifToolFile.FullName, exifToolParameters, progress);
+                    ProcessTools.Execute(exifTool.exifToolFile.FullName, exifToolParameters, progress);
 
                 if (!exifToolWriteOutcome.success)
                 {
@@ -344,30 +345,7 @@ public class GeoTag
         return new GeoTagResult(returnTitle, returnNotes.ToString(), returnFileResults);
     }
 
-    public static bool WriteFileToBackupDirectory(DateTime executionTime, FileInfo fileToBackup,
-        IProgress<string>? progress)
-    {
-        var directoryInfo = new DirectoryInfo(fileToBackup.DirectoryName ?? string.Empty);
 
-        var backupDirectory = UniqueFileTools.UniqueDirectory(Path.Combine(directoryInfo.FullName,
-            $"PwGeoTagBackup-{executionTime:yyyy-MM-dd-HHmmss}"));
-
-        var backupFile = UniqueFileTools.UniqueFile(backupDirectory, fileToBackup.Name);
-
-        try
-        {
-            fileToBackup.CopyTo(backupFile.FullName);
-        }
-        catch (Exception e)
-        {
-            Log.ForContext("backupFile", fileToBackup.SafeObjectDump())
-                .ForContext("backupDirectory", backupDirectory.SafeObjectDump()).Error(e, "Error Copying Backup File");
-            progress?.Report($"Problem creating backup file! {e.Message}");
-            return false;
-        }
-
-        return true;
-    }
 
     public record GeoTagFileResult(string FileName, string Result, string Notes, string Source,
         DateTime? UtcDateTime = null, double? Latitude = null,

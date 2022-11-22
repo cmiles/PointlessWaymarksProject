@@ -1,11 +1,10 @@
 ﻿using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using System.Web;
-using AngleSharp.Text;
 
-namespace PointlessWaymarks.CmsData;
+namespace PointlessWaymarks.CommonTools;
 
-public static class StringHelpers
+public static class StringTools
 {
     /// <summary>
     ///     Returns a case sensitive compare where null and empty are treated as equal
@@ -110,7 +109,7 @@ public static class StringHelpers
     {
         var returnString = text;
         while (returnString.Contains(search))
-            returnString = StringExtensions.ReplaceFirst(returnString, search, replacementGenerator());
+            returnString = ReplaceFirst(returnString, search, replacementGenerator());
 
         return returnString;
     }

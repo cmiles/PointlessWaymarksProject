@@ -75,7 +75,7 @@ public partial class GeoJsonListWithActionsContext
         cancellationToken.ThrowIfCancellationRequested();
         
         List<GeoJsonContent> dbEntriesToProcess = new();
-        List<IntersectResults> intersectResults = new();
+        List<IntersectResult> intersectResults = new();
 
         foreach (var loopSelected in frozenSelect)
         {
@@ -84,7 +84,7 @@ public partial class GeoJsonListWithActionsContext
             if(!features.Any()) continue;
 
             dbEntriesToProcess.Add((GeoJsonContent)new GeoJsonContent().InjectFrom(loopSelected.DbEntry));
-            intersectResults.Add(new IntersectResults(features)
+            intersectResults.Add(new IntersectResult(features)
                 { ContentId = loopSelected.DbEntry.ContentId });
         }
 

@@ -23,6 +23,7 @@ using PointlessWaymarks.CmsWpfControls.StringDataEntry;
 using PointlessWaymarks.CmsWpfControls.UpdateNotesEditor;
 using PointlessWaymarks.CmsWpfControls.Utility.ChangesAndValidation;
 using PointlessWaymarks.CmsWpfControls.WpfHtml;
+using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.SpatialTools;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
@@ -292,7 +293,7 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
         SummaryEntry.Title = "Summary";
         SummaryEntry.HelpText = "A short text entry that will show in Search and short references to the content";
         SummaryEntry.ReferenceValue = DbEntry.Summary ?? string.Empty;
-        SummaryEntry.UserValue = StringHelpers.NullToEmptyTrim(DbEntry.Summary);
+        SummaryEntry.UserValue = StringTools.NullToEmptyTrim(DbEntry.Summary);
         SummaryEntry.ValidationFunctions = new List<Func<string, Task<IsValid>>>
             { CommonContentValidation.ValidateSummary };
 

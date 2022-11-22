@@ -1,12 +1,12 @@
 ﻿// See https://aka.ms/new-console-template for more information
 
-using PointlessWaymarks.LoggingTools;
+using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.Task.MemoriesEmail;
 using Serilog;
 
 LogTools.StandardStaticLoggerForProgramDirectory("MemoriesEmail");
 
-Log.ForContext("args", args.SafeObjectDump()).Information(
+Log.ForContext("args", Helpers.SafeObjectDump(args)).Information(
     "PointlessWaymarks.Task.MemoriesEmail Starting");
 
 if (args.Length != 1)

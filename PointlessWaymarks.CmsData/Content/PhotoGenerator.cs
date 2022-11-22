@@ -13,9 +13,9 @@ using PointlessWaymarks.CmsData.ContentHtml.PhotoHtml;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsData.Json;
+using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.FeatureIntersectionTags;
 using PointlessWaymarks.FeatureIntersectionTags.Models;
-using PointlessWaymarks.LoggingTools;
 using PointlessWaymarks.SpatialTools;
 using Serilog;
 using XmpCore;
@@ -300,38 +300,9 @@ public static class PhotoGenerator
         if (!string.IsNullOrWhiteSpace(toReturn.Summary))
             toReturn.Summary = Regex.Replace(toReturn.Summary, @"\s+", " ").TrimNullToEmpty();
 
-        var xmpSubjectKeywordList = new List<string>();
-
-        var xmpSubjectArrayItemCount = xmpDirectory?.XmpMeta?.CountArrayItems(XmpConstants.NsDC, "subject");
-
-        if (xmpSubjectArrayItemCount != null)
-            for (var i = 1; i <= xmpSubjectArrayItemCount; i++)
-            {
-                var subjectArrayItem = xmpDirectory?.XmpMeta?.GetArrayItem(XmpConstants.NsDC, "subject", i);
-                if (subjectArrayItem == null || string.IsNullOrWhiteSpace(subjectArrayItem.Value)) continue;
-                xmpSubjectKeywordList.AddRange(subjectArrayItem.Value.Replace(";", ",").Split(",")
-                    .Where(x => !string.IsNullOrWhiteSpace(x)).Select(x => x.Trim()));
-            }
-
-        xmpSubjectKeywordList = xmpSubjectKeywordList.Distinct().ToList();
-
-        var keywordTagList = new List<string>();
-
-        var keywordValue = iptcDirectory?.GetDescription(IptcDirectory.TagKeywords)?.Replace(";", ",") ?? string.Empty;
-
-        if (!string.IsNullOrWhiteSpace(keywordValue))
-            keywordTagList.AddRange(keywordValue.Replace(";", ",").Split(",").Where(x => !string.IsNullOrWhiteSpace(x))
-                .Select(x => x.Trim()));
-
-        if (xmpSubjectKeywordList.Count > 0 && keywordTagList.Count > 0 &&
-            xmpSubjectKeywordList.Count >= keywordTagList.Count)
-            tags.AddRange(xmpSubjectKeywordList.Where(x => !string.IsNullOrWhiteSpace(x)));
-        else if (xmpSubjectKeywordList.Count > 0 && keywordTagList.Count > 0)
-            tags.AddRange(keywordTagList.Where(x => !string.IsNullOrWhiteSpace(x)));
-
-        if (tags.Any())
-            toReturn.Tags = Db.TagListJoin(tags);
-        else toReturn.Tags = string.Empty;
+        tags.AddRange(FileMetadataEmbeddedTools.KeywordsFromExif(metadataDirectories, true));
+        
+        toReturn.Tags = tags.Any() ? Db.TagListJoin(tags) : string.Empty;
 
         return (GenerationReturn.Success($"Parsed Photo Metadata for {selectedFile.FullName} without error"), toReturn);
     }

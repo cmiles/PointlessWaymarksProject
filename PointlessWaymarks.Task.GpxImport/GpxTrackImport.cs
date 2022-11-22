@@ -7,8 +7,8 @@ using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.Content;
 using PointlessWaymarks.CmsData.ContentHtml;
 using PointlessWaymarks.CmsData.Database;
+using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.FeatureIntersectionTags;
-using PointlessWaymarks.LoggingTools;
 using PointlessWaymarks.SpatialTools;
 using Serilog;
 

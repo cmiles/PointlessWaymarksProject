@@ -1,6 +1,6 @@
 ﻿using System.Text;
 
-namespace PointlessWaymarks.LoggingTools;
+namespace PointlessWaymarks.CommonTools;
 
 public static class SlugTools
 {
@@ -19,6 +19,54 @@ public static class SlugTools
         };
 
         return swap;
+    }
+
+    /// <summary>
+    ///     This is intended for use in the live processing of user input where you want to create slug like strings but to be
+    ///     friendly to typed input (for example so trailing spaces must be allowed to avoid fighting the user) - in general
+    ///     this is not as strict as CreateSpacedString.
+    /// </summary>
+    /// <param name="toLower"></param>
+    /// <param name="value"></param>
+    /// <param name="allowedBeyondAtoZ1To9"></param>
+    /// <returns></returns>
+    public static string CreateRelaxedInputSpacedString(bool toLower, string? value,
+        List<char>? allowedBeyondAtoZ1To9 = null)
+    {
+        if (value == null)
+            return "";
+
+        allowedBeyondAtoZ1To9 ??= new List<char>();
+
+        var normalized = value.Normalize(NormalizationForm.FormKD);
+
+        var len = normalized.Length;
+        var sb = new StringBuilder(len);
+
+        for (var i = 0; i < len; i++)
+        {
+            var c = normalized[i];
+            if (c is >= 'a' and <= 'z' or >= '0' and <= '9' || allowedBeyondAtoZ1To9.Contains(c))
+            {
+                sb.Append(c);
+            }
+            else if (c is >= 'A' and <= 'Z')
+            {
+                // Tricky way to convert to lowercase
+                if (toLower)
+                    sb.Append((char)(c | 32));
+                else
+                    sb.Append(c);
+            }
+            else
+            {
+                var swap = ConvertEdgeCases(c, toLower);
+
+                if (swap != null) sb.Append(swap);
+            }
+        }
+
+        return sb.ToString();
     }
 
     /// <summary>
@@ -105,54 +153,6 @@ public static class SlugTools
 
             if (sb.Length == maxLength)
                 break;
-        }
-
-        return sb.ToString();
-    }
-
-    /// <summary>
-    ///     This is intended for use in the live processing of user input where you want to create slug like strings but to be
-    ///     friendly to typed input (for example so trailing spaces must be allowed to avoid fighting the user) - in general
-    ///     this is not as strict as CreateSpacedString.
-    /// </summary>
-    /// <param name="toLower"></param>
-    /// <param name="value"></param>
-    /// <param name="allowedBeyondAtoZ1To9"></param>
-    /// <returns></returns>
-    public static string CreateRelaxedInputSpacedString(bool toLower, string? value,
-        List<char>? allowedBeyondAtoZ1To9 = null)
-    {
-        if (value == null)
-            return "";
-
-        allowedBeyondAtoZ1To9 ??= new List<char>();
-
-        var normalized = value.Normalize(NormalizationForm.FormKD);
-
-        var len = normalized.Length;
-        var sb = new StringBuilder(len);
-
-        for (var i = 0; i < len; i++)
-        {
-            var c = normalized[i];
-            if (c is >= 'a' and <= 'z' or >= '0' and <= '9' || allowedBeyondAtoZ1To9.Contains(c))
-            {
-                sb.Append(c);
-            }
-            else if (c is >= 'A' and <= 'Z')
-            {
-                // Tricky way to convert to lowercase
-                if (toLower)
-                    sb.Append((char)(c | 32));
-                else
-                    sb.Append(c);
-            }
-            else
-            {
-                var swap = ConvertEdgeCases(c, toLower);
-
-                if (swap != null) sb.Append(swap);
-            }
         }
 
         return sb.ToString();

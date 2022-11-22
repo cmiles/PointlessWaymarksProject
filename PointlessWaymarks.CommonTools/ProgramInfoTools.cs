@@ -1,8 +1,8 @@
 ﻿using System.Reflection;
 
-namespace PointlessWaymarks.LoggingTools;
+namespace PointlessWaymarks.CommonTools;
 
-public static class WindowTitleTools
+public static class ProgramInfoTools
 {
     public static DateTime? GetBuildDate(Assembly assembly)
     {

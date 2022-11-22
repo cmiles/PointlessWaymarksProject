@@ -82,7 +82,7 @@ public partial class PointListWithActionsContext
             await Db.PointAndPointDetails(frozenSelect.Select(x => x.DbEntry.ContentId).ToList(), await Db.Context());
 
         var toProcess = new List<PointContentDto>();
-        var intersectResults = new List<IntersectResults>();
+        var intersectResults = new List<IntersectResult>();
 
         foreach (var loopSelected in pointDtos)
         {
@@ -91,7 +91,7 @@ public partial class PointListWithActionsContext
             if (feature == null) continue;
 
             toProcess.Add(loopSelected);
-            intersectResults.Add(new IntersectResults(feature) { ContentId = loopSelected.ContentId });
+            intersectResults.Add(new IntersectResult(feature) { ContentId = loopSelected.ContentId });
         }
 
         intersectResults.IntersectionTags(UserSettingsSingleton.CurrentSettings().FeatureIntersectionTagSettingsFile, cancellationToken,

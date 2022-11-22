@@ -24,6 +24,7 @@ using PointlessWaymarks.CmsWpfControls.UpdateNotesEditor;
 using PointlessWaymarks.CmsWpfControls.Utility;
 using PointlessWaymarks.CmsWpfControls.Utility.ChangesAndValidation;
 using PointlessWaymarks.CmsWpfControls.WpfHtml;
+using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.FeatureIntersectionTags;
 using PointlessWaymarks.SpatialTools;
 using PointlessWaymarks.WpfCommon.Status;
