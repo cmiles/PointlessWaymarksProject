@@ -19,7 +19,7 @@ public static class Intersection
         toTag.ForEach(x => sourceFileAndFeatures.Add(new IntersectFileTaggingResult(x)));
 
         var metadataFiles = sourceFileAndFeatures.Where(x =>
-                FileMetadataTools.TagSharpAndExifToolSupportedExtensions.Any(y =>
+                FileMetadataTools.ExifToolWriteSupportedExtensions.Any(y =>
                     y.Equals(x.FileToTag.Extension, StringComparison.OrdinalIgnoreCase)))
             .ToList();
 
@@ -32,7 +32,7 @@ public static class Intersection
             var feature = new Feature(PointTools.Wgs84Point(location.Longitude!.Value, location.Latitude!.Value),
                 new AttributesTable());
 
-            loopFile.Intersections = new IntersectResult(feature);
+            loopFile.IntersectInformation = new IntersectResult(feature);
         }
 
         var gpxFiles = sourceFileAndFeatures.Where(x =>
@@ -44,7 +44,7 @@ public static class Intersection
             var routeLines = await GpxTools.RouteLinesFromGpxFile(loopGpx.FileToTag);
             var waypointPoints = await GpxTools.WaypointPointsFromGpxFile(loopGpx.FileToTag);
 
-            loopGpx.Intersections = new IntersectResult(trackLines.features.Cast<IFeature>().Union(routeLines.features)
+            loopGpx.IntersectInformation = new IntersectResult(trackLines.features.Cast<IFeature>().Union(routeLines.features)
                 .Union(waypointPoints.features).ToList());
         }
 
@@ -57,13 +57,19 @@ public static class Intersection
 
             foreach (var loopFeature in features) loopFeature.Attributes.Add("title", loopGeojson.FileToTag.Name);
 
-            loopGeojson.Intersections = new IntersectResult(features);
+            loopGeojson.IntersectInformation = new IntersectResult(features);
         }
 
-        sourceFileAndFeatures.Where(x => x.Intersections != null).Select(x => x.Intersections!).ToList()
+        sourceFileAndFeatures.Where(x => x.IntersectInformation != null).Select(x => x.IntersectInformation!).ToList()
             .IntersectionTags(settings,
                 cancellationToken,
                 progress);
+
+        sourceFileAndFeatures.Where(x => x.IntersectInformation == null).ToList().ForEach(x =>
+        {
+            x.Result = "Not Supported";
+            x.Notes = "File Type not supported";
+        });
 
         return sourceFileAndFeatures;
     }
@@ -335,7 +341,7 @@ public static class Intersection
             }
 
             progress?.Report(
-                $"Processing PADUS DOI Region File - {regionFile.Name} - {counter} of {regionIntersectionsGroupedByRegion.Count}");
+                $"Processing PAD-US DOI Region File - {regionFile.Name} - {counter} of {regionIntersectionsGroupedByRegion.Count}");
 
             var regionFeatures = GeoJsonTools.DeserializeFileToFeatureCollection(regionFile.FullName).ToList();
 
@@ -390,19 +396,15 @@ public static class Intersection
         IProgress<string>? progress = null)
     {
         //Exit if nothing to process
-        if (!toWrite.Any(x => x.Intersections != null && x.Intersections.Tags.Any())) return toWrite;
+        if (!toWrite.Any(x => x.IntersectInformation != null && x.IntersectInformation.Tags.Any())) return toWrite;
 
-        //Write results for items with no Metadata
-        var nullIntersections = toWrite.Where(x => x.Intersections == null).ToList();
+        //Write a result if there was non-null Intersect Information (unsupported files have null Intersect Information)
+        var noIntersections = toWrite.Where(x => x.IntersectInformation != null && !x.IntersectInformation.Tags.Any()).ToList();
 
-        nullIntersections.ForEach(x => { x.Results = "No GeoLocation Found"; });
-
-        var noIntersections = toWrite.Where(x => x.Intersections == null || !x.Intersections.Tags.Any()).ToList();
-
-        noIntersections.ForEach(x => { x.Results = "No Tags Found"; });
+        noIntersections.ForEach(x => { x.Result = "No Tags Found"; });
 
         //Get a list to work with where we have tags to try to write - no null Intersections
-        var filteredList = toWrite.Where(x => x.Intersections != null && x.Intersections.Tags.Any()).ToList();
+        var filteredList = toWrite.Where(x => x.IntersectInformation != null && x.IntersectInformation.Tags.Any()).ToList();
 
         var exifToolWrites = filteredList.Where(x =>
             FileMetadataTools.ExifToolWriteSupportedExtensions.Any(y =>
@@ -437,17 +439,23 @@ public static class Intersection
         {
             var existingTags = ProcessTags(await FileMetadataTools.FileKeywords(loopWrite.FileToTag, true));
 
-            var intersectionTags = ProcessTags(loopWrite.Intersections!.Tags);
+            loopWrite.ExistingTagString = string.Join(",", existingTags);
+
+            var intersectionTags = ProcessTags(loopWrite.IntersectInformation!.Tags);
+
+            loopWrite.IntersectTagString = string.Join(",", intersectionTags);
 
             if (intersectionTags.All(x => existingTags.Contains(x, StringComparer.OrdinalIgnoreCase)))
             {
-                loopWrite.Results = "No New Tags";
+                loopWrite.Result = "No New Tags";
                 loopWrite.Notes =
                     $"Intersection Tags - {string.Join(",", intersectionTags)} were all found in the existing tags";
                 continue;
             }
 
-            var allTags = existingTags.Union(loopWrite.Intersections!.Tags).OrderBy(x => x).ToList();
+            var allTags = existingTags.Union(loopWrite.IntersectInformation!.Tags).OrderBy(x => x).ToList();
+
+            loopWrite.IntersectTagString = string.Join(",", allTags);
 
             var exifToolKeyword = allTags.Select(x => $"-keywords=\"{x.Replace("\"", "&quot;")}\"").ToList();
             var exifToolParameters =
@@ -455,14 +463,14 @@ public static class Intersection
 
             if (testRun)
             {
-                loopWrite.Results = "Test Run Success";
+                loopWrite.Result = "Test Run Success";
                 loopWrite.Notes = $"Test Run - would have run ExifTool with {exifToolParameters}";
                 continue;
             }
 
             if (!exifTool.isPresent)
             {
-                loopWrite.Results = "ExifTool Not Found";
+                loopWrite.Result = "ExifTool Not Found";
                 loopWrite.Notes = $"Would have run ExifTool with {exifToolParameters}";
                 continue;
             }
@@ -475,7 +483,7 @@ public static class Intersection
                         progress);
                 if (!backUpSuccessful)
                 {
-                    loopWrite.Results = "Backup Error";
+                    loopWrite.Result = "Backup Error";
                     loopWrite.Notes = "Backup File could not be written - no attempt to write Tags.";
                     progress?.Report(
                         $"GeoTag - Skipping {loopWrite.FileToTag.FullName} - Found Tag information but could not create a backup - skipping this file.");
@@ -497,7 +505,7 @@ public static class Intersection
                         .ForContext("exifTool", exifTool.SafeObjectDump())
                         .Error($"Writing with ExifTool did not Succeed - {loopWrite.FileToTag.FullName}");
 
-                    loopWrite.Results = "ExifTool Error";
+                    loopWrite.Result = "ExifTool Error";
                     loopWrite.Notes = $"ExifTool Reported an Error - {exifToolWriteOutcome.standardOutput}";
 
                     continue;
@@ -511,12 +519,12 @@ public static class Intersection
                     .ForContext("intersectResults", loopWrite.SafeObjectDump())
                     .Error(e,
                         $"Error Tagging {loopWrite.FileToTag.FullName} with ExifTool");
-                loopWrite.Results = "ExifTool Error";
+                loopWrite.Result = "ExifTool Error";
                 loopWrite.Notes = $"ExifTool Reported an Error - {e.Message}";
                 continue;
             }
 
-            loopWrite.Results = "Success";
+            loopWrite.Result = "Success";
             loopWrite.Notes = "Wrote Tags with ExifTool";
         }
 

@@ -90,7 +90,7 @@ public partial class FileBasedTaggerContext
 
         ExifToolFullName = (await GeoTaggingGuiSettingTools.ReadSettings()).ExifToolFullName;
 
-        PreviewHtml = WpfHtmlDocument.ToHtmlLeafletBasicGeoJsonDocument("GeoJson",
+        PreviewHtml = WpfHtmlDocument.ToHtmlLeafletBasicGeoJsonDocument("Tagged Photos",
             32.12063, -110.52313, string.Empty);
     }
 
@@ -257,8 +257,6 @@ public partial class FileBasedTaggerContext
             features.Add(new Feature(PointTools.Wgs84Point(loopResults.Longitude.Value, loopResults.Latitude.Value),
                 new AttributesTable(new Dictionary<string, object>
                     { { "title", loopResults.FileName }, { "description", $"From {loopResults.Source}" } })));
-
-        //GeoJson Creation - ref the GeoJson control - boundaries?
 
         var bounds = GeoJsonTools.GeometryBoundingBox(features.Select(x => x.Geometry).ToList());
 

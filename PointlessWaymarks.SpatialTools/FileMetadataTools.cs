@@ -47,6 +47,7 @@ public static class FileMetadataTools
         ".JNG",
         ".JP2",
         ".JPEG",
+        ".JPG",
         ".LRV",
         ".M4A/V",
         ".MEF",

@@ -1,18 +1,32 @@
-﻿using System.Collections.ObjectModel;
+﻿using System.Collections;
+using System.Collections.ObjectModel;
+using System.Diagnostics;
+using System.IO;
 using System.Reflection;
+using System.Web;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using HtmlTableHelper;
+using MetadataExtractor;
+using MetadataExtractor.Formats.Xmp;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
+using NetTopologySuite.Features;
 using Omu.ValueInjecter;
 using Ookii.Dialogs.Wpf;
+using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.FeatureIntersectionTaggingGui.Controls;
 using PointlessWaymarks.FeatureIntersectionTaggingGui.Models;
 using PointlessWaymarks.FeatureIntersectionTags;
 using PointlessWaymarks.FeatureIntersectionTags.Models;
+using PointlessWaymarks.SpatialTools;
 using PointlessWaymarks.WpfCommon.FileList;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 using PointlessWaymarks.WpfCommon.Utility;
+using PointlessWaymarks.WpfCommon.WpfHtml;
+using XmpCore;
+using static PointlessWaymarks.CmsData.ContentHtml.GeoJsonHtml.GeoJsonData;
 
 namespace PointlessWaymarks.FeatureIntersectionTaggingGui;
 
@@ -29,6 +43,7 @@ public partial class MainWindow
     [ObservableProperty] private FileListViewModel _filesToTagFileList;
     [ObservableProperty] private FeatureIntersectionFilesToTagSettings _filesToTagSettings;
     [ObservableProperty] private string _infoTitle;
+    [ObservableProperty] private List<IntersectFileTaggingResult> _lastResults = new();
     [ObservableProperty] private ObservableCollection<string>? _padUsAttributes;
     [ObservableProperty] private string _padUsAttributeToAdd = string.Empty;
     [ObservableProperty] private string _padUsDirectory = string.Empty;
@@ -42,7 +57,6 @@ public partial class MainWindow
     [ObservableProperty] private bool _tagsToLowerCase;
     [ObservableProperty] private bool _testRunOnly;
     [ObservableProperty] private WindowIconStatus _windowStatus;
-    [ObservableProperty] private List<IntersectFileTaggingResult> _lastResults = new();
 
     public MainWindow()
     {
@@ -76,6 +90,8 @@ public partial class MainWindow
 
         TagFilesCommand = StatusContext.RunBlockingTaskCommand(TagFiles);
 
+        MetadataForSelectedFilesToTagCommand = StatusContext.RunBlockingTaskCommand(MetadataForSelectedFilesToTag);
+
         StatusContext.RunBlockingTask(Load);
     }
 
@@ -84,6 +100,8 @@ public partial class MainWindow
     public RelayCommand ChoosePadUsDirectoryCommand { get; set; }
 
     public RelayCommand EditFeatureFileCommand { get; set; }
+
+    public RelayCommand MetadataForSelectedFilesToTagCommand { get; set; }
 
     public RelayCommand NewFeatureFileCommand { get; set; }
 
@@ -168,7 +186,13 @@ public partial class MainWindow
     {
         FilesToTagFileList =
             await FileListViewModel.CreateInstance(StatusContext, FilesToTagSettings,
-                new List<ContextMenuItemData>());
+                new List<ContextMenuItemData>
+                {
+                    new()
+                    {
+                        ItemCommand = MetadataForSelectedFilesToTagCommand, ItemName = "Metadata Report for Selected"
+                    }
+                });
 
         var settings = await FeatureIntersectionGuiSettingTools.ReadSettings();
         PadUsDirectory = settings.PadUsDirectory;
@@ -184,6 +208,9 @@ public partial class MainWindow
         settings.PadUsAttributes.OrderBy(x => x).ToList().ForEach(x => PadUsAttributes.Add(x));
 
         FeatureFiles = new ObservableCollection<FeatureFileViewModel>(featureFiles);
+
+        PreviewHtml = WpfHtmlDocument.ToHtmlLeafletBasicGeoJsonDocument("Tagged Features and Intersect Features",
+            32.12063, -110.52313, string.Empty);
     }
 
     public async Task LoadTaggerSetting()
@@ -195,6 +222,93 @@ public partial class MainWindow
         TagsToLowerCase = settings.TagsToLowerCase;
         SanitizeTags = settings.SanitizeTags;
         await FeatureIntersectionGuiSettingTools.WriteSettings(settings);
+    }
+
+    public async Task MetadataForSelectedFilesToTag()
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (FilesToTagFileList.SelectedFiles == null)
+        {
+            StatusContext.ToastWarning("Nothing Selected?");
+            return;
+        }
+
+        var frozenSelected = FilesToTagFileList.SelectedFiles.ToList();
+
+        if (!frozenSelected.Any())
+        {
+            StatusContext.ToastWarning("Nothing Selected?");
+            return;
+        }
+
+        if (frozenSelected.Count > 10)
+        {
+            StatusContext.ToastWarning("Sorry - dumping metadata limited to 10 files at once...");
+            return;
+        }
+
+        foreach (var loopFile in frozenSelected)
+        {
+            loopFile.Refresh();
+            if (!loopFile.Exists)
+            {
+                StatusContext.ToastWarning($"File {loopFile.FullName} no longer exists?");
+                continue;
+            }
+
+            var htmlParts = new List<string>();
+
+            if (loopFile.Extension.Equals(".xmp", StringComparison.OrdinalIgnoreCase))
+            {
+                IXmpMeta xmp;
+                await using (var stream = File.OpenRead(loopFile.FullName))
+                {
+                    xmp = XmpMetaFactory.Parse(stream);
+                }
+
+                htmlParts.Add(xmp.Properties.OrderBy(x => x.Namespace).ThenBy(x => x.Path)
+                    .Select(x => new { x.Namespace, x.Path, x.Value })
+                    .ToHtmlTable(new { @class = "pure-table pure-table-striped" }));
+            }
+            else
+            {
+                var photoMetaTags = ImageMetadataReader.ReadMetadata(loopFile.FullName);
+
+                htmlParts.Add(photoMetaTags.SelectMany(x => x.Tags).OrderBy(x => x.DirectoryName).ThenBy(x => x.Name)
+                    .ToList().Select(x => new
+                    {
+                        DataType = x.Type.ToString(),
+                        x.DirectoryName,
+                        Tag = x.Name,
+                        TagValue = x.Description?.SafeObjectDump()
+                    }).ToHtmlTable(new { @class = "pure-table pure-table-striped" }));
+
+                var xmpDirectory = ImageMetadataReader.ReadMetadata(loopFile.FullName).OfType<XmpDirectory>()
+                    .FirstOrDefault();
+
+                var xmpMetadata = xmpDirectory?.GetXmpProperties()
+                    .Select(x => new { XmpKey = x.Key, XmpValue = x.Value })
+                    .ToHtmlTable(new { @class = "pure-table pure-table-striped" });
+
+                if (!string.IsNullOrWhiteSpace(xmpMetadata)) htmlParts.Add(xmpMetadata);
+            }
+
+            await ThreadSwitcher.ResumeForegroundAsync();
+
+            var file = new FileInfo(Path.Combine(UserSettingsUtilities.TempStorageDirectory().FullName,
+                $"PhotoMetadata-{Path.GetFileNameWithoutExtension(loopFile.Name)}-{DateTime.Now:yyyy-MM-dd---HH-mm-ss}.htm"));
+
+            var htmlString =
+                await
+                    $"<h1>Metadata Report:</h1><h1>{HttpUtility.HtmlEncode(loopFile.FullName)}</h1><br><h1>Metadata</h1><br>{string.Join("<br><br>", htmlParts)}"
+                        .ToHtmlDocumentWithPureCss("File Metadata", "body {margin: 12px;}");
+
+            await File.WriteAllTextAsync(file.FullName, htmlString);
+
+            var ps = new ProcessStartInfo(file.FullName) { UseShellExecute = true, Verb = "open" };
+            Process.Start(ps);
+        }
     }
 
     public async Task NewFeatureFile()
@@ -242,6 +356,18 @@ public partial class MainWindow
             settings.ExifToolFullName, CancellationToken.None, 1024, StatusContext.ProgressTracker());
 
         SelectedTab = 4;
+
+        var allFeatures = LastResults.Where(x => x.IntersectInformation?.Features != null).SelectMany(x => x.IntersectInformation.Features).Union(LastResults.Where(x => x.IntersectInformation?.IntersectsWith != null).SelectMany(x => x.IntersectInformation.IntersectsWith)).Distinct(new FeatureComparer()).ToList();
+        
+        var bounds = GeoJsonTools.GeometryBoundingBox(allFeatures.Select(x => x.Geometry).ToList());
+
+        var featureCollection = new FeatureCollection();
+        allFeatures.ForEach(x => featureCollection.Add(x));
+
+        var jsonDto = new GeoJsonSiteJsonData(Guid.NewGuid().ToString(),
+            new SpatialBounds(bounds.MaxY, bounds.MaxX, bounds.MinY, bounds.MinX), featureCollection);
+
+        PreviewGeoJsonDto = await GeoJsonTools.SerializeWithGeoJsonSerializer(jsonDto);
     }
 
     public async Task WriteTaggerSetting()
@@ -253,5 +379,20 @@ public partial class MainWindow
         settings.TagsToLowerCase = TagsToLowerCase;
         settings.SanitizeTags = SanitizeTags;
         await FeatureIntersectionGuiSettingTools.WriteSettings(settings);
+    }
+}
+
+public class FeatureComparer : IEqualityComparer<IFeature>{
+    public bool Equals(IFeature? x, IFeature? y)
+    {
+        if (x == null || y == null) return false;
+        x.Geometry.Normalize();
+        y.Geometry.Normalize();
+           return x.Geometry.Equals(y.Geometry);
+    }
+
+    public int GetHashCode(IFeature obj)
+    {
+        return obj.GetHashCode();
     }
 }

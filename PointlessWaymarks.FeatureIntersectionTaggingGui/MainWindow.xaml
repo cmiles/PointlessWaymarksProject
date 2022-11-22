@@ -168,10 +168,10 @@
                         <DataGrid Grid.Row="2" ItemsSource="{Binding LastResults}" CanUserAddRows="False"
                                   CanUserReorderColumns="true"
                                   CanUserDeleteRows="false" CanUserResizeColumns="true" CanUserResizeRows="false"
-                                  CanUserSortColumns="true" AutoGenerateColumns="false" FrozenColumnCount="1">
+                                  CanUserSortColumns="true" AutoGenerateColumns="false" FrozenColumnCount="1" IsReadOnly="true">
                             <DataGrid.Columns>
                                 <DataGridTextColumn Header="File Name" Binding="{Binding FileToTag.FullName}" />
-                                <DataGridTextColumn Header="Result" Binding="{Binding Results}" />
+                                <DataGridTextColumn Header="Result" Binding="{Binding Result}" />
                                 <DataGridTextColumn Header="Notes" Binding="{Binding Notes}" />
                             </DataGrid.Columns>
                         </DataGrid>

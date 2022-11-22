@@ -1,6 +1,7 @@
 ﻿#nullable enable
 
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.IO;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -16,6 +17,7 @@ public partial class FileListViewModel
 {
     [ObservableProperty] private List<ContextMenuItemData> _contextMenuItems;
     [ObservableProperty] private ObservableCollection<FileInfo>? _files;
+    [ObservableProperty] private FileInfo? _selectedFile;
     [ObservableProperty] private ObservableCollection<FileInfo>? _selectedFiles;
     [ObservableProperty] private IFileListSettings _settings;
     [ObservableProperty] private StatusControlContext _statusContext;
@@ -31,7 +33,16 @@ public partial class FileListViewModel
         AddFilesToTagCommand = StatusContext.RunBlockingTaskCommand(AddFilesToTag);
         AddFilesToTagFromDirectoryAndSubdirectoriesCommand =
             StatusContext.RunBlockingTaskCommand(AddFilesToTagFromDirectoryAndSubdirectories);
-        _contextMenuItems = contextMenuItems;
+        OpenSelectedFileDirectoryCommand = StatusContext.RunNonBlockingTaskCommand(OpenSelectedFileDirectory);
+        OpenSelectedFileCommand = StatusContext.RunNonBlockingTaskCommand(OpenSelectedFile);
+
+        var localContextItems = new List<ContextMenuItemData>
+        {
+            new() { ItemCommand = OpenSelectedFileDirectoryCommand, ItemName = "Open Directory" },
+            new() { ItemCommand = OpenSelectedFileDirectoryCommand, ItemName = "Open File" }
+        };
+
+        _contextMenuItems = contextMenuItems.Union(localContextItems).ToList();
     }
 
     public RelayCommand AddFilesToTagCommand { get; set; }
@@ -39,6 +50,10 @@ public partial class FileListViewModel
     public RelayCommand AddFilesToTagFromDirectoryAndSubdirectoriesCommand { get; set; }
 
     public RelayCommand AddFilesToTagFromDirectoryCommand { get; set; }
+
+    public RelayCommand OpenSelectedFileCommand { get; set; }
+
+    public RelayCommand OpenSelectedFileDirectoryCommand { get; set; }
 
     public async Task AddFilesToTag()
     {
@@ -127,5 +142,38 @@ public partial class FileListViewModel
         newInstance.SelectedFiles = new ObservableCollection<FileInfo>();
 
         return newInstance;
+    }
+
+    private async Task OpenSelectedFile()
+    {
+        await ResumeBackgroundAsync();
+
+        if (SelectedFile is not { Exists: true, Directory.Exists: true })
+        {
+            StatusContext.ToastWarning("No Selected File or Selected File no longer exists?");
+            return;
+        }
+
+        await ResumeForegroundAsync();
+
+        var ps = new ProcessStartInfo(SelectedFile.FullName) { UseShellExecute = true, Verb = "open" };
+        Process.Start(ps);
+    }
+
+
+    private async Task OpenSelectedFileDirectory()
+    {
+        await ResumeBackgroundAsync();
+
+        if (SelectedFile is not { Exists: true, Directory.Exists: true })
+        {
+            StatusContext.ToastWarning("No Selected File or Selected File no longer exists?");
+            return;
+        }
+
+        await ResumeForegroundAsync();
+
+        var ps = new ProcessStartInfo(SelectedFile.Directory.FullName) { UseShellExecute = true, Verb = "open" };
+        Process.Start(ps);
     }
 }

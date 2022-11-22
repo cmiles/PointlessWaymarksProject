@@ -8,7 +8,11 @@ public record IntersectFileTaggingResult
     }
 
     public FileInfo FileToTag { get; }
-    public IntersectResult? Intersections { get; set; }
+    public IntersectResult? IntersectInformation { get; set; }
     public string Notes { get; set; } = string.Empty;
-    public string Results { get; set; } = string.Empty;
+    public string Result { get; set; } = string.Empty;
+
+    public string FinalTagString { get; set; }
+    public string ExistingTagString { get; set; }
+    public string IntersectTagString { get; set; }
 }
