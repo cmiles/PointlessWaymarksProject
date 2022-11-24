@@ -199,7 +199,7 @@ public class GeoTag
                     $"GeoTag - Finding Location and Writing Metadata - File {counter} of {listOfUtcAndFileToProcess.Count}");
 
             var possibleTagPoints = allPoints.Where(x =>
-                loopFile.createdUtc.AddMinutes(-Math.Abs(pointMustBeWithinMinutes)) >= x.Waypoint.TimestampUtc &&
+                x.Waypoint.TimestampUtc >= loopFile.createdUtc.AddMinutes(-Math.Abs(pointMustBeWithinMinutes)) &&
                 x.Waypoint.TimestampUtc <= loopFile.createdUtc.AddMinutes(Math.Abs(pointMustBeWithinMinutes))).ToList();
 
             if (!possibleTagPoints.Any())
@@ -241,7 +241,9 @@ public class GeoTag
 
             if (createBackupBeforeWritingMetadata && !testRun)
             {
-                var backUpSuccessful = UniqueFileTools.WriteFileToBackupDirectory(frozenExecutionTime, "PwGeoTag", loopFile.file, progress);
+                var backUpSuccessful =
+                    UniqueFileTools.WriteFileToBackupDirectory(frozenExecutionTime, "PwGeoTag", loopFile.file,
+                        progress);
                 if (!backUpSuccessful)
                 {
                     returnFileResults.Add(new GeoTagFileResult(loopFile.file.FullName, "Backup Error",
@@ -344,7 +346,6 @@ public class GeoTag
 
         return new GeoTagResult(returnTitle, returnNotes.ToString(), returnFileResults);
     }
-
 
 
     public record GeoTagFileResult(string FileName, string Result, string Notes, string Source,
