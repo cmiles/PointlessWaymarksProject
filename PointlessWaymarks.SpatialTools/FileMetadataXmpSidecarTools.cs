@@ -18,7 +18,7 @@ public static class FileMetadataXmpSidecarTools
 
         var gpsAltitudeRef = sidecarXmpMeta.GetProperty("http://ns.adobe.com/exif/1.0/", "exif:GPSAltitudeRef");
 
-        var altitudeIsAboveSeaLevel = string.IsNullOrWhiteSpace(gpsAltitudeRef?.Value) || gpsAltitudeRef.Equals("0");
+        var altitudeIsAboveSeaLevel = string.IsNullOrWhiteSpace(gpsAltitudeRef?.Value) || gpsAltitudeRef.Value.Equals("0");
 
         var numerator = 0;
         var denominator = 0;
@@ -146,23 +146,22 @@ public static class FileMetadataXmpSidecarTools
     {
         if (sidecarXmpMeta == null) return null;
 
-        double? latitude = null;
-
         var gpsLatitudeProperty = sidecarXmpMeta.GetProperty("http://ns.adobe.com/exif/1.0/", "exif:GPSLatitude");
 
-        if (string.IsNullOrWhiteSpace(gpsLatitudeProperty?.Value))
-        {
-            latitude = null;
-        }
-        else
-        {
-            var gpsLatitude = gpsLatitudeProperty.Value;
-            var hemisphereModifier = gpsLatitude.Last().Equals('e') || gpsLatitude.Last().Equals('E') ? 1D : -1D;
-            var parsed = double.TryParse(gpsLatitude[..^1], out var parsedLatitude);
-            if (parsed) latitude = parsedLatitude * hemisphereModifier;
-        }
+        if (string.IsNullOrWhiteSpace(gpsLatitudeProperty?.Value)) return null;
 
-        return latitude;
+        var gpsLatitude = gpsLatitudeProperty.Value;
+        var hemisphereModifier = gpsLatitude.Last().Equals('n') || gpsLatitude.Last().Equals('N') ? 1D : -1D;
+        var latitudeParts = gpsLatitude[..^1].Split(",");
+
+        if (latitudeParts.Length != 2) return null;
+
+        var degreesParsed = int.TryParse(latitudeParts[0], out var degrees);
+        var minutesParsed = double.TryParse(latitudeParts[1], out var minutes);
+
+        if (!degreesParsed || !minutesParsed) return null;
+
+        return hemisphereModifier * (degrees + minutes / 60D);
     }
 
     public static async Task<MetadataLocation> LocationFromXmpSidecar(
@@ -194,22 +193,22 @@ public static class FileMetadataXmpSidecarTools
     {
         if (sidecarXmpMeta == null) return null;
 
-        double? longitude = null;
-
         var gpsLongitudeProperty = sidecarXmpMeta.GetProperty("http://ns.adobe.com/exif/1.0/", "exif:GPSLongitude");
 
-        if (string.IsNullOrWhiteSpace(gpsLongitudeProperty?.Value))
-        {
-            longitude = null;
-        }
-        else
-        {
-            var gpsLongitude = gpsLongitudeProperty.Value;
-            var eastWestModifier = gpsLongitude.Last().Equals('e') || gpsLongitude.Last().Equals('E') ? 1 : -1;
-            var parsed = double.TryParse(gpsLongitude[..^1], out var parsedLongitude);
-            if (parsed) longitude = parsedLongitude * eastWestModifier;
-        }
+        if (string.IsNullOrWhiteSpace(gpsLongitudeProperty?.Value)) return null;
 
-        return longitude;
+        var gpsLongitude = gpsLongitudeProperty.Value;
+        var eastWestModifier = gpsLongitude.Last().Equals('e') || gpsLongitude.Last().Equals('E') ? 1 : -1;
+
+        var longitudeParts = gpsLongitude[..^1].Split(",");
+
+        if (longitudeParts.Length != 2) return null;
+
+        var degreesParsed = int.TryParse(longitudeParts[0], out var degrees);
+        var minutesParsed = double.TryParse(longitudeParts[1], out var minutes);
+
+        if (!degreesParsed || !minutesParsed) return null;
+
+        return eastWestModifier * (degrees + minutes / 60D);
     }
 }
