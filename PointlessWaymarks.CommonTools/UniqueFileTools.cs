@@ -96,8 +96,13 @@ public static class UniqueFileTools
     {
         var directoryInfo = new DirectoryInfo(fileToBackup.DirectoryName ?? string.Empty);
 
-        var backupDirectory = UniqueDirectory(Path.Combine(directoryInfo.FullName,
+        var backupDirectory = new DirectoryInfo(Path.Combine(directoryInfo.FullName,
             $"{backupDirectoryName}Backup-{executionTime:yyyy-MM-dd-HHmmss}"));
+
+        if (!backupDirectory.Exists)
+        {
+            backupDirectory.Create();
+        }
 
         var backupFile = UniqueFile(backupDirectory, fileToBackup.Name);
 
