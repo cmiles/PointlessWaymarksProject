@@ -1,15 +1,15 @@
-﻿using System.Collections;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Reflection;
+using System.Text.Json;
 using System.Web;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using HtmlTableHelper;
 using MetadataExtractor;
 using MetadataExtractor.Formats.Xmp;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
 using NetTopologySuite.Features;
 using Omu.ValueInjecter;
 using Ookii.Dialogs.Wpf;
@@ -90,6 +90,10 @@ public partial class MainWindow
 
         TagFilesCommand = StatusContext.RunBlockingTaskCommand(TagFiles);
 
+        ImportSettingsFromFileCommand = StatusContext.RunBlockingTaskCommand(ImportSettingsFromFile);
+        ExportSettingsFromFileCommand = StatusContext.RunBlockingTaskCommand(ExportSettingsToFile);
+        SaveSettingsFromFileCommand = StatusContext.RunBlockingTaskCommand(WriteCurrentSettingsAndReturnSettings);
+
         MetadataForSelectedFilesToTagCommand = StatusContext.RunBlockingTaskCommand(MetadataForSelectedFilesToTag);
 
         StatusContext.RunBlockingTask(Load);
@@ -100,6 +104,27 @@ public partial class MainWindow
     public RelayCommand ChoosePadUsDirectoryCommand { get; set; }
 
     public RelayCommand EditFeatureFileCommand { get; set; }
+
+    public RelayCommand ExportSettingsFromFileCommand { get; set; }
+
+    public string GeoJsonFileOverviewMarkdown => """
+        Inside the USA the [USGS PAD-US Data](https://www.usgs.gov/programs/gap-analysis-project/science/pad-us-data-overview) (see previous tab) is a great resource for automatically identifying landscape ownership/management and generating tags. But there is a wide variety of other data that you might want to use or create.
+
+        To generate tags from GeoJson files the following information has to be provided:
+
+          - File Name - must be the full path and filename of a valid GeoJson file
+          - Attributes For Tags - When an intersecting feature is found the program will add tags from the values of any attribute names listed here. This can be empty if a 'Tag All' value is provided.
+          - Tag All - you may find data sets where you want any intersections tagged with a value rather than tagging based on the value of an attribute. An example is Arizona State Trust Land - in Arizona it is interesting and useful to know your hike included Arizona State Trust Land (a useful tag), but you might not care about any of the specifics list who leases the land, how is the land used, ... - in that case you could leave the 'Attributes For Tags' blank and set 'Tag All' to 'Arizona State Trust Land'.
+
+        And you can also provide the information below which can be very useful to keep track of the data you are using: 
+          - Name - Not needed for the program but can make keeping track of the data much simpler
+          - Source - The source of the information - often a great choice for this field is a URL for the information
+          - Downloaded On - The date you downloaded the information is suggested here. GeoJson data is not always 'versioned' in a useful way and without knowing when you downloaded a file it may be hard to know if your data is current.
+
+        Regardless of the areas you are interested in and the availability of pre-existing data you are likely to find it useful to create your own GeoJson data to help automatically tag things like unofficial names, areas and trails that have local names that will never appear in official data and features and areas with personal significance! [geojson.io](https://geojson.io/) is one simple way to produce a reference file - for example you could draw a polygon around a local trail area, add a property that identifies its well known local name ("name": "My Special Trail Area"), save the file and create a Feature File entry for it with a 'Attributes for Tags' entry of 'name'. Official recognition and public data almost certainly don't define everything you care about on the landscape!
+        """;
+
+    public RelayCommand ImportSettingsFromFileCommand { get; set; }
 
     public RelayCommand MetadataForSelectedFilesToTagCommand { get; set; }
 
@@ -124,6 +149,8 @@ public partial class MainWindow
         """;
 
     public RelayCommand<string> RemovePadUsAttributeCommand { get; set; }
+
+    public RelayCommand SaveSettingsFromFileCommand { get; set; }
 
     public RelayCommand TagFilesCommand { get; set; }
 
@@ -180,6 +207,85 @@ public partial class MainWindow
         if (e == FeatureFileEditorEndEditCondition.Cancelled) return;
 
         StatusContext.RunBlockingTask(RefreshFeatureFileList);
+    }
+
+    public async Task ExportSettingsToFile()
+    {
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        var filePicker = new VistaSaveFileDialog
+            { DefaultExt = "json", AddExtension = true, Filter = "Json Files | *.json" };
+
+        if (!filePicker.ShowDialog() ?? false) return;
+
+        var newFile = new FileInfo(filePicker.FileName);
+
+        if (newFile.Exists && await StatusContext.ShowMessage("Overwrite Existing File?",
+                $"The file {newFile.FullName} already exists - Overwrite that File?",
+                new List<string> { "Yes", "No" }) == "No") return;
+
+        var settings = await WriteCurrentSettingsAndReturnSettings();
+
+        var jsonSettings = JsonSerializer.Serialize(settings);
+
+        await File.WriteAllTextAsync(newFile.FullName, jsonSettings, CancellationToken.None);
+    }
+
+    public async Task ImportSettingsFromFile()
+    {
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        var filePicker = new VistaOpenFileDialog
+            { CheckFileExists = true, CheckPathExists = true, DefaultExt = "json", Filter = "Json Files | *.json" };
+
+        if (!filePicker.ShowDialog() ?? false) return;
+
+        var selectedFile = new FileInfo(filePicker.FileName);
+
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (!selectedFile.Exists)
+        {
+            StatusContext.ToastError("File Selected for Import does not Exist?");
+            return;
+        }
+
+        var settings =
+            JsonSerializer.Deserialize<IntersectSettings>(await File.ReadAllTextAsync(selectedFile.FullName));
+
+        if (settings == null)
+        {
+            StatusContext.ToastError($"Couldn't convert {selectedFile.Name} into a valid Settings File?");
+            return;
+        }
+
+        if (!string.IsNullOrWhiteSpace(settings.PadUsDirectory)) PadUsDirectory = settings.PadUsDirectory;
+
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        if (settings.PadUsAttributesForTags.Any())
+        {
+            PadUsAttributes.Clear();
+            foreach (var loopPadUsAttributes in settings.PadUsAttributesForTags.OrderBy(x => x).ToList())
+                PadUsAttributes.Add(loopPadUsAttributes);
+        }
+
+        if (settings.PadUsAttributesForTags.Any())
+        {
+            FeatureFiles.Clear();
+            foreach (var loopFeatureFile in settings.IntersectFiles.OrderBy(x => x.Name).ToList())
+                FeatureFiles.Add(new FeatureFileViewModel
+                {
+                    Name = loopFeatureFile.Name,
+                    FileName = loopFeatureFile.FileName,
+                    TagAll = loopFeatureFile.TagAll,
+                    AttributesForTags = loopFeatureFile.AttributesForTags.OrderBy(x => x).ToList(),
+                    Source = loopFeatureFile.Source,
+                    Downloaded = loopFeatureFile.Downloaded
+                });
+        }
+
+        await WriteCurrentSettingsAndReturnSettings();
     }
 
     private async Task Load()
@@ -344,7 +450,8 @@ public partial class MainWindow
         var settings = await FeatureIntersectionGuiSettingTools.ReadSettings();
 
         var featureFiles = settings.FeatureIntersectFiles
-            .Select(x => new FeatureFile(x.Source, x.Name, x.AttributesForTags, x.TagAll, x.FileName)).ToList();
+            .Select(x => new FeatureFile(x.Source, x.Name, x.AttributesForTags, x.TagAll, x.FileName, x.Downloaded))
+            .ToList();
 
         var intersectSettings = new IntersectSettings(featureFiles, settings.PadUsDirectory, settings.PadUsAttributes);
 
@@ -357,8 +464,11 @@ public partial class MainWindow
 
         SelectedTab = 4;
 
-        var allFeatures = LastResults.Where(x => x.IntersectInformation?.Features != null).SelectMany(x => x.IntersectInformation.Features).Union(LastResults.Where(x => x.IntersectInformation?.IntersectsWith != null).SelectMany(x => x.IntersectInformation.IntersectsWith)).Distinct(new FeatureComparer()).ToList();
-        
+        var allFeatures = LastResults.Where(x => x.IntersectInformation?.Features != null)
+            .SelectMany(x => x.IntersectInformation.Features)
+            .Union(LastResults.Where(x => x.IntersectInformation?.IntersectsWith != null)
+                .SelectMany(x => x.IntersectInformation.IntersectsWith)).Distinct(new FeatureComparer()).ToList();
+
         var bounds = GeoJsonTools.GeometryBoundingBox(allFeatures.Select(x => x.Geometry).ToList());
 
         var featureCollection = new FeatureCollection();
@@ -370,6 +480,19 @@ public partial class MainWindow
         PreviewGeoJsonDto = await GeoJsonTools.SerializeWithGeoJsonSerializer(jsonDto);
     }
 
+    private async Task<IntersectSettings> WriteCurrentSettingsAndReturnSettings()
+    {
+        await WriteTaggerSetting();
+
+        var settings = await FeatureIntersectionGuiSettingTools.ReadSettings();
+
+        var featureFiles = settings.FeatureIntersectFiles
+            .Select(x => new FeatureFile(x.Source, x.Name, x.AttributesForTags, x.TagAll, x.FileName, x.Downloaded))
+            .ToList();
+
+        return new IntersectSettings(featureFiles, settings.PadUsDirectory, settings.PadUsAttributes);
+    }
+
     public async Task WriteTaggerSetting()
     {
         var settings = await FeatureIntersectionGuiSettingTools.ReadSettings();
@@ -378,17 +501,19 @@ public partial class MainWindow
         settings.TestRunOnly = TestRunOnly;
         settings.TagsToLowerCase = TagsToLowerCase;
         settings.SanitizeTags = SanitizeTags;
+        settings.FeatureIntersectFiles = FeatureFiles?.ToList() ?? new List<FeatureFileViewModel>();
         await FeatureIntersectionGuiSettingTools.WriteSettings(settings);
     }
 }
 
-public class FeatureComparer : IEqualityComparer<IFeature>{
+public class FeatureComparer : IEqualityComparer<IFeature>
+{
     public bool Equals(IFeature? x, IFeature? y)
     {
         if (x == null || y == null) return false;
         x.Geometry.Normalize();
         y.Geometry.Normalize();
-           return x.Geometry.Equals(y.Geometry);
+        return x.Geometry.Equals(y.Geometry);
     }
 
     public int GetHashCode(IFeature obj)

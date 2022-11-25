@@ -458,8 +458,9 @@ public static class Intersection
             loopWrite.IntersectTagString = string.Join(",", allTags);
 
             var exifToolKeyword = allTags.Select(x => $"-keywords=\"{x.Replace("\"", "&quot;")}\"").ToList();
+            var exifToolSubject = allTags.Select(x => $"-subject=\"{x.Replace("\"", "&quot;")}\"").ToList();
             var exifToolParameters =
-                $"-E {string.Join(" ", exifToolKeyword)}  -overwrite_original \"{loopWrite.FileToTag.FullName}\"";
+                $"-E {string.Join(" ", exifToolKeyword)} {string.Join(" ", exifToolSubject)} -overwrite_original \"{loopWrite.FileToTag.FullName}\"";
 
             if (testRun)
             {

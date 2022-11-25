@@ -11,4 +11,5 @@ public partial class FeatureFileViewModel
     [ObservableProperty] private string _name = string.Empty;
     [ObservableProperty] private string _source = string.Empty;
     [ObservableProperty] private string _tagAll = string.Empty;
+    [ObservableProperty] private string _downloaded = string.Empty;
 }

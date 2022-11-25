@@ -67,7 +67,7 @@
                                         <ListBox.ItemTemplate>
                                             <DataTemplate>
                                                 <Border BorderBrush="LightGray" BorderThickness="1" CornerRadius="2">
-                                                    <Grid Margin="2">
+                                                    <Grid Margin="6,4,6, 4">
                                                         <Grid.ColumnDefinitions>
                                                             <ColumnDefinition Width="*"></ColumnDefinition>
                                                             <ColumnDefinition Width="Auto"></ColumnDefinition>
@@ -75,7 +75,7 @@
                                                         <TextBlock VerticalAlignment="Center" Text="{Binding .}"></TextBlock>
                                                         <Button VerticalContentAlignment="Center" Width="24"
                                                                 VerticalAlignment="Center" Grid.Column="1"
-                                                                Margin="12,0,0,0"
+                                                                Margin="6,0,0,0"
                                                                 Command="{Binding Data.RemovePadUsAttributeCommand, Source={StaticResource Proxy}}"
                                                                 CommandParameter="{Binding .}">
                                                             x
@@ -106,16 +106,91 @@
             <TabItem Header="GeoJson Feature Files">
                 <Grid>
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="*" />
-                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="3*" />
+                        <RowDefinition Height="2*" />
                     </Grid.RowDefinitions>
-                    <GroupBox Header="GeoJson Feature Files">
-                        <ListBox ItemsSource="{Binding FeatureFiles}" SelectedItem="{Binding SelectedFeatureFile}" />
+                    <GroupBox Header="GeoJson Feature Files" Margin="4">
+                        <Grid Margin="4">
+                            <Grid.RowDefinitions>
+                                <RowDefinition></RowDefinition>
+                                <RowDefinition Height="Auto"></RowDefinition>
+                            </Grid.RowDefinitions>
+                            <ListBox ItemsSource="{Binding FeatureFiles}" SelectedItem="{Binding SelectedFeatureFile}"
+                                     SelectionMode="Single" ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                                     HorizontalContentAlignment="Stretch">
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate DataType="{x:Type local:FeatureFileEditorViewModel}">
+                                        <Grid Margin="4">
+                                            <Border BorderBrush="LightGray" BorderThickness="2" CornerRadius="4">
+                                                <Grid Margin="4,0,0,0">
+                                                    <Grid.Resources>
+                                                        <Style TargetType="TextBlock">
+                                                            <Setter Property="Margin" Value="12,0,0,4"></Setter>
+                                                            <Setter Property="TextWrapping" Value="Wrap"></Setter>
+                                                        </Style>
+                                                        <Style TargetType="Label">
+                                                            <Setter Property="FontWeight" Value="Bold"></Setter>
+                                                        </Style>
+                                                    </Grid.Resources>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition />
+                                                        <ColumnDefinition />
+                                                    </Grid.ColumnDefinitions>
+                                                    <StackPanel Orientation="Vertical" Margin="4,4, 16,12">
+                                                        <Label>File</Label>
+                                                        <TextBlock
+                                                            Text="{Binding FileName}" />
+                                                        <Label>Name</Label>
+                                                        <TextBlock Text="{Binding Name}" />
+                                                        <Label>Source</Label>
+                                                        <TextBlock Text="{Binding Source}" />
+                                                    </StackPanel>
+                                                    <StackPanel Margin="4,8,4,8" Orientation="Vertical" Grid.Column="1">
+                                                        <Label>Attributes for Tags</Label>
+                                                        <ListBox Margin="12,4,4,4" Height="60"
+                                                                 ItemsSource="{Binding AttributesForTags}">
+                                                            <ListBox.ItemsPanel>
+                                                                <ItemsPanelTemplate>
+                                                                    <WrapPanel IsItemsHost="True"
+                                                                               Orientation="Horizontal" />
+                                                                </ItemsPanelTemplate>
+                                                            </ListBox.ItemsPanel>
+                                                            <ListBox.ItemTemplate>
+                                                                <DataTemplate>
+                                                                    <Border BorderBrush="LightGray" BorderThickness="1"
+                                                                            CornerRadius="2">
+                                                                        <Grid Margin="6,2,6,2">
+                                                                            <TextBlock VerticalAlignment="Center"
+                                                                                Text="{Binding .}">
+                                                                            </TextBlock>
+                                                                        </Grid>
+                                                                    </Border>
+                                                                </DataTemplate>
+                                                            </ListBox.ItemTemplate>
+                                                        </ListBox>
+                                                        <Label>Tag All With</Label>
+                                                        <TextBlock Text="{Binding TagAll}" />
+                                                        
+                                                        <Label>Downloaded On</Label>
+                                                        <TextBlock Text="{Binding DownloadedOn}" />
+                                                    </StackPanel>
+                                                </Grid>
+                                            </Border>
+                                        </Grid>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+                            <WrapPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center"
+                                       Margin="4,8,4,2">
+                                <Button Height="30" Width="180" Command="{Binding NewFeatureFileCommand}">Add Feature</Button>
+                                <Button Height="30" Width="180" Command="{Binding EditFeatureFileCommand}">Edit Selected Feature</Button>
+                            </WrapPanel>
+                        </Grid>
                     </GroupBox>
-                    <WrapPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center" Margin="4,6,4,10">
-                        <Button Height="30" Width="180" Command="{Binding NewFeatureFileCommand}">Add Feature</Button>
-                        <Button Height="30" Width="180" Command="{Binding EditFeatureFileCommand}">Edit Selected Feature</Button>
-                    </WrapPanel>
+
+                    <GroupBox Header="PAD-US Help and Instructions" Grid.Row="2" Margin="4,0,4,4">
+                        <wpf:MarkdownViewer Margin="4" Grid.Row="1" Markdown="{Binding GeoJsonFileOverviewMarkdown}" />
+                    </GroupBox>
                     <local:FeatureFileEditorControl Grid.RowSpan="2" DataContext="{Binding FeatureFileToEdit}"></local:FeatureFileEditorControl>
                 </Grid>
             </TabItem>
@@ -124,7 +199,7 @@
                     <GroupBox Header="ExifTool">
                         <StackPanel Orientation="Vertical">
                             <TextBox Text="{Binding ExifToolFullName, UpdateSourceTrigger=PropertyChanged}" />
-                            <TextBlock TextWrapping="Wrap" Margin="4">This program can write to a wider variety of file formats by using Phil Harvey's ExifTool - https://exiftool.org/. The recommended version of the program can be downloaded from https://oliverbetz.de/pages/Artikel/ExifTool-for-Windows - you must provide the full path and filename above for the program to use ExifTool.</TextBlock>
+                            <TextBlock TextWrapping="Wrap" Margin="4">This program writes tags to files using Phil Harvey's ExifTool - https://exiftool.org/. The recommended version of the program can be downloaded from https://oliverbetz.de/pages/Artikel/ExifTool-for-Windows - and the full path and filename must be entered above.</TextBlock>
                         </StackPanel>
                     </GroupBox>
                     <GroupBox Header="Tag">
@@ -151,6 +226,23 @@
                                     <CheckBox IsChecked="{Binding SanitizeTags}">Sanitize Tags</CheckBox>
                                     <TextBlock Margin="12,0,4,4" TextWrapping="Wrap">This option will cause many characters to be eliminated from tags into a-z, 0-9 and a handful of other characters. This option offers a simple way to eliminate some inconsistencies in tags and   makes that tags URL\web friendly.</TextBlock>
                                 </StackPanel>
+                                <GroupBox Header="Manage Settings">
+                                <StackPanel Orientation="Vertical" Margin="4">
+                                        <TextBlock Margin="12,4,4,4" TextWrapping="Wrap">Save Settings: Settings are periodically saved by this program - most notably when you generate tags - you can use Save Settings at any time to ensure your changes are saved.</TextBlock>
+                                        <TextBlock Margin="12,4,4,4" TextWrapping="Wrap">Import Settings: Use with care! This will overwrite all settings!</TextBlock>
+                                        <TextBlock Margin="12,4,4,4" TextWrapping="Wrap">Export Settings: Use to create a file of settings that you can load later or use with the command line version of this program.</TextBlock>
+                                    <WrapPanel Orientation="Horizontal" Margin="24,8,4,6">
+                                        <WrapPanel.Resources>
+                                            <Style TargetType="Button">
+                                                <Setter Property="Width" Value="140"></Setter>
+                                            </Style>
+                                        </WrapPanel.Resources>
+                                        <Button Command="{Binding SaveSettingsFromFileCommand}">Save Current Settings</Button>
+                                        <Button Command="{Binding ImportSettingsFromFileCommand}">Import Settings</Button>
+                                        <Button Command="{Binding ExportSettingsFromFileCommand}">Export Settings</Button>
+                                        </WrapPanel>
+                                </StackPanel>
+                                </GroupBox>
                             </StackPanel>
                             <Button Command="{Binding TagFilesCommand}" Height="40" Margin="8">Tag</Button>
                         </StackPanel>
@@ -168,11 +260,15 @@
                         <DataGrid Grid.Row="2" ItemsSource="{Binding LastResults}" CanUserAddRows="False"
                                   CanUserReorderColumns="true"
                                   CanUserDeleteRows="false" CanUserResizeColumns="true" CanUserResizeRows="false"
-                                  CanUserSortColumns="true" AutoGenerateColumns="false" FrozenColumnCount="1" IsReadOnly="true">
+                                  CanUserSortColumns="true" AutoGenerateColumns="false" FrozenColumnCount="1"
+                                  IsReadOnly="true">
                             <DataGrid.Columns>
                                 <DataGridTextColumn Header="File Name" Binding="{Binding FileToTag.FullName}" />
                                 <DataGridTextColumn Header="Result" Binding="{Binding Result}" />
                                 <DataGridTextColumn Header="Notes" Binding="{Binding Notes}" />
+                                <DataGridTextColumn Header="Final Tags" Binding="{Binding FinalTagString}" />
+                                <DataGridTextColumn Header="Intersect Tags" Binding="{Binding IntersectTagString}" />
+                                <DataGridTextColumn Header="Existing Tags" Binding="{Binding IntersectTagString}" />
                             </DataGrid.Columns>
                         </DataGrid>
                     </Grid>

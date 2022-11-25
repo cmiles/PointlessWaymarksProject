@@ -14,7 +14,7 @@ There are two possible sources of data that this code will use:
 	 - [Census Mapping Files](https://www.census.gov/geographies/mapping-files.html) - great for US state and county data
 	 - [BLM GBP Hub](https://gbp-blm-egis.hub.arcgis.com/) - suggestion: BLM Natl NLCS National Monuments National Conservation Areas Polygons
 	 - [U.S. Fish & Wildlife Service GIS Data](https://gis-fws.opendata.arcgis.com/) - suggestion: FWS National Realty Boundaries
-	 - Regardless of the areas you are interested and the availability of pre-existing data part of the motivation of this library is to include a way to tag based on geographic locations based on your own data! [geojson.io](https://geojson.io/) is one simple way to produce a reference file - you could for example draw a polygon around a local trail area that has a well known local name that doesn't appear on any map and isn't officially recognized by any government agency and into the properties for the polygon "Name": "My Special Trail Area". Official recognition and public data almost certainly don't define everything you care about on the landscape!
+	 - Regardless of the areas you are interested in and the availability of pre-existing data part of the motivation of this library is to include a way to tag based on geographic locations based on your own data! [geojson.io](https://geojson.io/) is one simple way to produce a reference file - you could for example draw a polygon around a local trail area that has a well known local name that doesn't appear on any map and isn't officially recognized by any government agency and into the properties for the polygon "Name": "My Special Trail Area". Official recognition and public data almost certainly don't define everything you care about on the landscape!
 
 ### PAD-US Setup
 
@@ -37,9 +37,7 @@ This program works exclusively with GeoJson files - if a data source you are int
 ### Settings File
 
 The settings file is a JSON file (see the sample included with the program):
- - "padUsDoiRegionFile" - path and filename for the GeoJson DOI Regions file
- - "padUsDirectory" - directory where the GeoJson PAD-US region files are stored
- - "padUsFilePrefix" - what comes before the DOI region number in the PAD-US GeoJson Filenames (for example if your files names were like 'PADUS3_0Combined_Region1.geojson' the "padUsFilePrefix" should be set to "PADUS3_0Combined_Region" - all files must use the same prefix)
+ - "padUsDirectory" - directory where the GeoJson PAD-US region files are stored, see the PAD-US notes above for setup - the file names do have to follow some guidlines in order for the program to find them.
  - "padUsAttributesForTags" - an array of the Attribute Names you want extracted. [ "Unit_Nm" ] is a simple way to get useful data.
  - GeoJson files other that the PAD-US data should be listed in"intersectFiles": []
 	 - Each intersectFiles element should have:

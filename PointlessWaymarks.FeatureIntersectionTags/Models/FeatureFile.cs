@@ -9,5 +9,7 @@ public record FeatureFile(
     IReadOnlyList<string> AttributesForTags,
     [property: JsonPropertyName("tagAll")] string TagAll,
     [property: JsonPropertyName("fileName")]
-    string FileName
+    string FileName,
+    [property: JsonPropertyName("downloaded")]
+    string Downloaded
 );
