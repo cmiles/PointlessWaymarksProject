@@ -256,7 +256,7 @@ public class GeoTag
                 }
             }
 
-            if (FileMetadataTools.TagSharpSupportedExtensions.Contains(loopFile.file.Extension))
+            if (FileMetadataTools.TagSharpSupportedExtensions.Contains(loopFile.file.Extension, StringComparer.OrdinalIgnoreCase))
             {
                 if (testRun)
                 {

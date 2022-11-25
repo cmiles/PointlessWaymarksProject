@@ -99,7 +99,7 @@ public static class FileMetadataTools
     /// </summary>
     public static List<string> TagSharpSupportedExtensions => new List<string>
     {
-        ".BMP", ".GIF", ".JPEG", ".JPG", ".PBM", ".PGM", ".PPM", ".PNM", ".PCX", ".PNG", ".TIFF", ".DNG", ".SVG"
+        ".BMP", ".GIF", ".JPEG", ".JPG", ".PBM", ".PGM", ".PPM", ".PNM", ".PCX", ".PNG", ".SVG"
     }.Select(x => x.ToUpperInvariant()).OrderBy(x => x).ToList();
 
     public static (bool isPresent, FileInfo? exifToolFile) ExifToolExecutable(string? exifToolFullName)
