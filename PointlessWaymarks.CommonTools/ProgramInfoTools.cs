@@ -14,7 +14,7 @@ public static class ProgramInfoTools
     {
         try
         {
-            var entryAssembly = Assembly.GetExecutingAssembly();
+            var entryAssembly = Assembly.GetEntryAssembly();
             if (entryAssembly == null) return null;
             var attribute = entryAssembly.GetCustomAttribute<BuildDateAttribute>();
             return attribute?.DateTime;
