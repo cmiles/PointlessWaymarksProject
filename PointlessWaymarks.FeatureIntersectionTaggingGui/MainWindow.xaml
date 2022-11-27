@@ -260,15 +260,15 @@
                         <DataGrid Grid.Row="2" ItemsSource="{Binding LastResults}" CanUserAddRows="False"
                                   CanUserReorderColumns="true"
                                   CanUserDeleteRows="false" CanUserResizeColumns="true" CanUserResizeRows="false"
-                                  CanUserSortColumns="true" AutoGenerateColumns="false" FrozenColumnCount="1"
+                                  CanUserSortColumns="true" AutoGenerateColumns="false" FrozenColumnCount="2"
                                   IsReadOnly="true">
                             <DataGrid.Columns>
                                 <DataGridTextColumn Header="File Name" Binding="{Binding FileToTag.FullName}" />
                                 <DataGridTextColumn Header="Result" Binding="{Binding Result}" />
+                                <DataGridTextColumn Header="New Tags" Binding="{Binding NewTagsString}" />
                                 <DataGridTextColumn Header="Notes" Binding="{Binding Notes}" />
                                 <DataGridTextColumn Header="Final Tags" Binding="{Binding FinalTagString}" />
-                                <DataGridTextColumn Header="Intersect Tags" Binding="{Binding IntersectTagString}" />
-                                <DataGridTextColumn Header="Existing Tags" Binding="{Binding IntersectTagString}" />
+                                <DataGridTextColumn Header="Existing Tags" Binding="{Binding ExistingTagString}" />
                             </DataGrid.Columns>
                         </DataGrid>
                     </Grid>

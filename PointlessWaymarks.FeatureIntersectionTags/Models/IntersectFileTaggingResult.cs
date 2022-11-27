@@ -14,5 +14,5 @@ public record IntersectFileTaggingResult
 
     public string FinalTagString { get; set; }
     public string ExistingTagString { get; set; }
-    public string IntersectTagString { get; set; }
+    public string NewTagsString { get; set; }
 }

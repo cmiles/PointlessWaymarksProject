@@ -44,7 +44,8 @@ public static class Intersection
             var routeLines = await GpxTools.RouteLinesFromGpxFile(loopGpx.FileToTag);
             var waypointPoints = await GpxTools.WaypointPointsFromGpxFile(loopGpx.FileToTag);
 
-            loopGpx.IntersectInformation = new IntersectResult(trackLines.features.Cast<IFeature>().Union(routeLines.features)
+            loopGpx.IntersectInformation = new IntersectResult(trackLines.features.Cast<IFeature>()
+                .Union(routeLines.features)
                 .Union(waypointPoints.features).ToList());
         }
 
@@ -67,8 +68,8 @@ public static class Intersection
 
         sourceFileAndFeatures.Where(x => x.IntersectInformation == null).ToList().ForEach(x =>
         {
-            x.Result = "Not Supported";
-            x.Notes = "File Type not supported";
+            x.Result = "No Location Found";
+            x.Notes = "";
         });
 
         return sourceFileAndFeatures;
@@ -399,12 +400,14 @@ public static class Intersection
         if (!toWrite.Any(x => x.IntersectInformation != null && x.IntersectInformation.Tags.Any())) return toWrite;
 
         //Write a result if there was non-null Intersect Information (unsupported files have null Intersect Information)
-        var noIntersections = toWrite.Where(x => x.IntersectInformation != null && !x.IntersectInformation.Tags.Any()).ToList();
+        var noIntersections = toWrite.Where(x => x.IntersectInformation != null && !x.IntersectInformation.Tags.Any())
+            .ToList();
 
         noIntersections.ForEach(x => { x.Result = "No Tags Found"; });
 
         //Get a list to work with where we have tags to try to write - no null Intersections
-        var filteredList = toWrite.Where(x => x.IntersectInformation != null && x.IntersectInformation.Tags.Any()).ToList();
+        var filteredList = toWrite.Where(x => x.IntersectInformation != null && x.IntersectInformation.Tags.Any())
+            .ToList();
 
         var exifToolWrites = filteredList.Where(x =>
             FileMetadataTools.ExifToolWriteSupportedExtensions.Any(y =>
@@ -420,7 +423,7 @@ public static class Intersection
             if (sanitizeTags)
                 for (var i = 0; i < toProcess.Count; i++)
                     toProcess[i] =
-                        SlugTools.CreateSlug(tagsToLower, toProcess[i], tagMaxCharacterLength);
+                        SlugTools.CreateSpacedString(tagsToLower, toProcess[i], tagMaxCharacterLength);
 
             if (!sanitizeTags && tagsToLower)
                 for (var i = 0; i < toProcess.Count; i++)
@@ -443,19 +446,18 @@ public static class Intersection
 
             var intersectionTags = ProcessTags(loopWrite.IntersectInformation!.Tags);
 
-            loopWrite.IntersectTagString = string.Join(",", intersectionTags);
+            loopWrite.NewTagsString =
+                string.Join(",", intersectionTags.Except(existingTags, StringComparer.OrdinalIgnoreCase));
 
-            if (intersectionTags.All(x => existingTags.Contains(x, StringComparer.OrdinalIgnoreCase)))
+            if (string.IsNullOrWhiteSpace(loopWrite.NewTagsString))
             {
                 loopWrite.Result = "No New Tags";
-                loopWrite.Notes =
-                    $"Intersection Tags - {string.Join(",", intersectionTags)} were all found in the existing tags";
                 continue;
             }
 
             var allTags = existingTags.Union(loopWrite.IntersectInformation!.Tags).OrderBy(x => x).ToList();
 
-            loopWrite.IntersectTagString = string.Join(",", allTags);
+            loopWrite.FinalTagString = string.Join(",", allTags);
 
             var exifToolKeyword = allTags.Select(x => $"-keywords=\"{x.Replace("\"", "&quot;")}\"").ToList();
             var exifToolSubject = allTags.Select(x => $"-subject=\"{x.Replace("\"", "&quot;")}\"").ToList();
