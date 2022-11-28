@@ -90,7 +90,36 @@ public static class UniqueFileTools
         throw new Exception("Can not create a Unique Directory for {fullName}");
     }
 
-    public static bool WriteFileToBackupDirectory(DateTime executionTime, string backupDirectoryName,
+    public static bool WriteFileToDefaultStorageDirectoryBackupDirectory(DateTime executionTime,
+        string backupDirectoryName,
+        FileInfo fileToBackup,
+        IProgress<string>? progress)
+    {
+        var directoryInfo = FileLocationTools.DefaultStorageDirectory();
+
+        var backupDirectory = new DirectoryInfo(Path.Combine(directoryInfo.FullName,
+            $"{backupDirectoryName}Backup-{executionTime:yyyy-MM-dd-HHmmss}"));
+
+        if (!backupDirectory.Exists) backupDirectory.Create();
+
+        var backupFile = UniqueFile(backupDirectory, fileToBackup.Name);
+
+        try
+        {
+            fileToBackup.CopyTo(backupFile.FullName);
+        }
+        catch (Exception e)
+        {
+            Log.ForContext("backupFile", fileToBackup.SafeObjectDump())
+                .ForContext("backupDirectory", backupDirectory.SafeObjectDump()).Error(e, "Error Copying Backup File");
+            progress?.Report($"Problem creating backup file! {e.Message}");
+            return false;
+        }
+
+        return true;
+    }
+
+    public static bool WriteFileToInPlaceBackupDirectory(DateTime executionTime, string backupDirectoryName,
         FileInfo fileToBackup,
         IProgress<string>? progress)
     {
@@ -99,10 +128,7 @@ public static class UniqueFileTools
         var backupDirectory = new DirectoryInfo(Path.Combine(directoryInfo.FullName,
             $"{backupDirectoryName}Backup-{executionTime:yyyy-MM-dd-HHmmss}"));
 
-        if (!backupDirectory.Exists)
-        {
-            backupDirectory.Create();
-        }
+        if (!backupDirectory.Exists) backupDirectory.Create();
 
         var backupFile = UniqueFile(backupDirectory, fileToBackup.Name);
 

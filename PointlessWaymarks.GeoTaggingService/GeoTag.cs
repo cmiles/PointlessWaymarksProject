@@ -1,5 +1,4 @@
 ﻿using System.Text;
-using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.SpatialTools;
 using Serilog;
@@ -10,7 +9,8 @@ namespace PointlessWaymarks.GeoTaggingService;
 public class GeoTag
 {
     public async Task<GeoTagResult> Tag(List<FileInfo> filesToTag, List<IGpxService> gpxServices, bool testRun,
-        bool createBackupBeforeWritingMetadata, int pointMustBeWithinMinutes, int adjustCreatedTimeInMinutes,
+        bool createBackupBeforeWritingMetadata, bool backupIntoDefaultStorage, int pointMustBeWithinMinutes,
+        int adjustCreatedTimeInMinutes,
         bool overwriteExistingLatLong, string? exifToolFullName = null, IProgress<string>? progress = null)
     {
         var baseRunInformation =
@@ -241,9 +241,17 @@ public class GeoTag
 
             if (createBackupBeforeWritingMetadata && !testRun)
             {
-                var backUpSuccessful =
-                    UniqueFileTools.WriteFileToBackupDirectory(frozenExecutionTime, "PwGeoTag", loopFile.file,
+                bool backUpSuccessful;
+
+                if (backupIntoDefaultStorage)
+                    backUpSuccessful = UniqueFileTools.WriteFileToDefaultStorageDirectoryBackupDirectory(
+                        frozenExecutionTime, "PwGeoTag", loopFile.file,
                         progress);
+                else
+                    backUpSuccessful = UniqueFileTools.WriteFileToInPlaceBackupDirectory(frozenExecutionTime,
+                        "PwGeoTag", loopFile.file,
+                        progress);
+
                 if (!backUpSuccessful)
                 {
                     returnFileResults.Add(new GeoTagFileResult(loopFile.file.FullName, "Backup Error",
@@ -256,7 +264,8 @@ public class GeoTag
                 }
             }
 
-            if (FileMetadataTools.TagSharpSupportedExtensions.Contains(loopFile.file.Extension, StringComparer.OrdinalIgnoreCase))
+            if (FileMetadataTools.TagSharpSupportedExtensions.Contains(loopFile.file.Extension,
+                    StringComparer.OrdinalIgnoreCase))
             {
                 if (testRun)
                 {

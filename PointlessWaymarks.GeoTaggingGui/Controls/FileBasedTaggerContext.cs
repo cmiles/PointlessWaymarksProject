@@ -26,6 +26,7 @@ namespace PointlessWaymarks.GeoTaggingGui;
 public partial class FileBasedTaggerContext
 {
     [ObservableProperty] private bool _createBackups;
+    [ObservableProperty] private bool _createBackupsInDefaultStorage;
     [ObservableProperty] private string _exifToolFullName = string.Empty;
     [ObservableProperty] private FileListViewModel _filesToTagFileList;
     [ObservableProperty] private GeoTaggingFilesToTagSettings _filesToTagSettings;
@@ -63,7 +64,6 @@ public partial class FileBasedTaggerContext
 
     public RelayCommand TagCommand { get; set; }
 
-
     public static async Task<FileBasedTaggerContext> CreateInstance(StatusControlContext? statusContext,
         WindowIconStatus? windowStatus)
     {
@@ -83,6 +83,7 @@ public partial class FileBasedTaggerContext
         GpxFileList = await FileListViewModel.CreateInstance(StatusContext, GpxFilesSettings,
             new List<ContextMenuItemData>
                 { new() { ItemCommand = ShowSelectedGpxFilesCommand, ItemName = "Show  Selected" } });
+        GpxFileList.FileImportFilter = "gpx files (*.gpx)|*.gpx|All files (*.*)|*.*";
 
         await LoadTaggerSetting();
 
@@ -99,6 +100,7 @@ public partial class FileBasedTaggerContext
         var settings = await GeoTaggingGuiSettingTools.ReadSettings();
         ExifToolFullName = settings.ExifToolFullName;
         CreateBackups = settings.CreateBackups;
+        CreateBackupsInDefaultStorage = settings.CreateBackupsInDefaultStorage;
         PointsMustBeWithinMinutes = settings.PointsMustBeWithinMinutes;
         OverwriteExistingGeoLocation = settings.OverwriteExistingGeoLocation;
         TestRunOnly = settings.TestRunOnly;
@@ -240,7 +242,7 @@ public partial class FileBasedTaggerContext
         var tagger = new GeoTag();
         LastTagOutput = await tagger.Tag(FilesToTagFileList.Files!.ToList(),
             new List<IGpxService> { fileListGpxService },
-            TestRunOnly, CreateBackups,
+            TestRunOnly, CreateBackups, CreateBackupsInDefaultStorage,
             PointsMustBeWithinMinutes, OffsetPhotoTimeInMinutes, OverwriteExistingGeoLocation, ExifToolFullName,
             StatusContext.ProgressTracker());
 
@@ -273,6 +275,7 @@ public partial class FileBasedTaggerContext
         var settings = await GeoTaggingGuiSettingTools.ReadSettings();
         settings.ExifToolFullName = ExifToolFullName;
         settings.CreateBackups = CreateBackups;
+        settings.CreateBackupsInDefaultStorage = CreateBackupsInDefaultStorage;
         settings.PointsMustBeWithinMinutes = PointsMustBeWithinMinutes;
         settings.OverwriteExistingGeoLocation = OverwriteExistingGeoLocation;
         settings.TestRunOnly = TestRunOnly;

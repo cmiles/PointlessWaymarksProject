@@ -392,7 +392,8 @@ public static class Intersection
 
     public static async Task<List<IntersectFileTaggingResult>> WriteTagsToFiles(
         this List<IntersectFileTaggingResult> toWrite, bool testRun,
-        bool createBackupBeforeWritingMetadata, bool tagsToLower, bool sanitizeTags, string? exifToolFullName,
+        bool createBackupBeforeWritingMetadata, bool backupIntoDefaultStorage, bool tagsToLower, bool sanitizeTags,
+        string? exifToolFullName,
         CancellationToken cancellationToken, int tagMaxCharacterLength = 256,
         IProgress<string>? progress = null)
     {
@@ -480,10 +481,17 @@ public static class Intersection
 
             if (createBackupBeforeWritingMetadata)
             {
-                var backUpSuccessful =
-                    UniqueFileTools.WriteFileToBackupDirectory(frozenExecutionTime, "PwFeatureIntersectTag",
-                        loopWrite.FileToTag,
+                bool backUpSuccessful;
+
+                if (backupIntoDefaultStorage)
+                    backUpSuccessful = UniqueFileTools.WriteFileToDefaultStorageDirectoryBackupDirectory(
+                        frozenExecutionTime, "PwFeatureIntersectTag", loopWrite.FileToTag,
                         progress);
+                else
+                    backUpSuccessful = UniqueFileTools.WriteFileToInPlaceBackupDirectory(frozenExecutionTime,
+                        "PwFeatureIntersectTag", loopWrite.FileToTag,
+                        progress);
+
                 if (!backUpSuccessful)
                 {
                     loopWrite.Result = "Backup Error";

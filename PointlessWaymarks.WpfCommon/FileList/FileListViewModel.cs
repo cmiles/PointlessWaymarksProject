@@ -16,6 +16,7 @@ namespace PointlessWaymarks.WpfCommon.FileList;
 public partial class FileListViewModel
 {
     [ObservableProperty] private List<ContextMenuItemData> _contextMenuItems;
+    [ObservableProperty] private string _fileImportFilter;
     [ObservableProperty] private ObservableCollection<FileInfo>? _files;
     [ObservableProperty] private FileInfo? _selectedFile;
     [ObservableProperty] private ObservableCollection<FileInfo>? _selectedFiles;
@@ -64,6 +65,8 @@ public partial class FileListViewModel
 
         var filePicker = new VistaOpenFileDialog
             { Title = "Add Files", Multiselect = true, CheckFileExists = true, ValidateNames = true };
+        if (!string.IsNullOrWhiteSpace(FileImportFilter)) filePicker.Filter = FileImportFilter;
+
         if (lastDirectory != null) filePicker.FileName = $"{lastDirectory.FullName}\\";
 
         var result = filePicker.ShowDialog();

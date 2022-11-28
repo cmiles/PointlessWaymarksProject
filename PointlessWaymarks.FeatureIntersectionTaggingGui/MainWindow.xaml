@@ -213,6 +213,8 @@
                                 <StackPanel Orientation="Vertical">
                                     <CheckBox IsChecked="{Binding CreateBackups}">Create Backups</CheckBox>
                                     <TextBlock Margin="12,0,4,4" TextWrapping="Wrap">When Geolocation information is found for a file the original version will be copied into a backup directory.</TextBlock>
+                                    <CheckBox Margin="24, 0,0,0" IsChecked="{Binding CreateBackupsInDefaultStorage}">Backup into My Documents</CheckBox>
+                                    <TextBlock Margin="36,0,4,4" TextWrapping="Wrap">If this is checked backups will be written into a folder in My Documents - this keeps all backups in one place and doesn't add extra files into existing directories. If un-checked backups will be written to a folder under the file's current folder - this keeps the backups close to the original file.</TextBlock>
                                 </StackPanel>
                                 <StackPanel Orientation="Vertical">
                                     <CheckBox IsChecked="{Binding TestRunOnly}">Test Run Only</CheckBox>

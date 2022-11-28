@@ -36,6 +36,7 @@ namespace PointlessWaymarks.FeatureIntersectionTaggingGui;
 public partial class MainWindow
 {
     [ObservableProperty] private bool _createBackups;
+    [ObservableProperty] private bool _createBackupsInDefaultStorage;
     [ObservableProperty] private string _exifToolFullName = string.Empty;
     [ObservableProperty] private ObservableCollection<FeatureFileViewModel>? _featureFiles;
     [ObservableProperty] private FeatureFileEditorViewModel _featureFileToEdit;
@@ -323,6 +324,7 @@ public partial class MainWindow
         var settings = await FeatureIntersectionGuiSettingTools.ReadSettings();
         ExifToolFullName = settings.ExifToolFullName;
         CreateBackups = settings.CreateBackups;
+        CreateBackupsInDefaultStorage = settings.CreateBackupsInDefaultStorage;
         TestRunOnly = settings.TestRunOnly;
         TagsToLowerCase = settings.TagsToLowerCase;
         SanitizeTags = settings.SanitizeTags;
@@ -458,7 +460,8 @@ public partial class MainWindow
             .FileIntersectionTags(intersectSettings, CancellationToken.None, StatusContext.ProgressTracker());
 
         LastResults = await fileTags.WriteTagsToFiles(
-            settings.TestRunOnly, settings.CreateBackups, settings.TagsToLowerCase, settings.SanitizeTags,
+            settings.TestRunOnly, settings.CreateBackups, settings.CreateBackupsInDefaultStorage,
+            settings.TagsToLowerCase, settings.SanitizeTags,
             settings.ExifToolFullName, CancellationToken.None, 1024, StatusContext.ProgressTracker());
 
         SelectedTab = 4;
@@ -497,6 +500,7 @@ public partial class MainWindow
         var settings = await FeatureIntersectionGuiSettingTools.ReadSettings();
         settings.ExifToolFullName = ExifToolFullName;
         settings.CreateBackups = CreateBackups;
+        settings.CreateBackupsInDefaultStorage = CreateBackupsInDefaultStorage;
         settings.TestRunOnly = TestRunOnly;
         settings.TagsToLowerCase = TagsToLowerCase;
         settings.SanitizeTags = SanitizeTags;

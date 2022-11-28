@@ -5,7 +5,6 @@ using NetTopologySuite.IO;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.Content;
-using PointlessWaymarks.CmsData.ContentHtml;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.FeatureIntersectionTags;
@@ -255,9 +254,10 @@ public class GpxTrackImport
 
                     if (featureToCheck != null)
                     {
-                        var tagResult = featureToCheck.IntersectionTags(settings.IntersectionTagSettings, CancellationToken.None,
+                        var tagResult = featureToCheck.IntersectionTags(settings.IntersectionTagSettings,
+                            CancellationToken.None,
                             new ConsoleProgress());
-                       
+
                         if (tagResult.Any())
                         {
                             var tagListForIntersection = Db.TagListParse(newEntry.Tags);

@@ -3,6 +3,7 @@
 public class PointlessWaymarksGeoTaggingGuiSettings
 {
     public bool CreateBackups { get; set; } = true;
+    public bool CreateBackupsInDefaultStorage { get; set; } = true;
     public string ExifToolFullName { get; set; } = string.Empty;
     public string FilesToTagLastDirectoryFullName { get; set; } = string.Empty;
     public string GpxLastDirectoryFullName { get; set; } = string.Empty;

@@ -24,6 +24,14 @@ Site:
 
 ## Notes
 
+11/28/2022
+
+The previous round of work led to wanting nicer GUI interfaces for GeoTagging and the Feature Intersect Tagging. Basically in one way or another the last month or so of work has gone into creating first working versions of those tools - notes:
+ - There are a number of GeoTagging Tools including ExifTool which is perhaps most relevant here because it is available on the command line. In many ways purely scripting exif tool for GeoTagging may have been smarter but I both wanted to write this code and there is a slight advantage in flexibility to having written the code. Reinventing the wheel on purpose here!
+ - Backups worked out to be an interesting detail - at first the backups went into a folder below the file, this always kept the backup close to the file but WOW it was painful when I synced a folder in Lightroom before cleaning up! Added an option to always backup to MyDocs - this is not the strategy I feel like I usually see for backups like this and certainly makes the backups harder to find - but keeping them out of image catalog sync has some real value.
+ - .NET is missing a great library for writing metadata as far as I can tell. TagSharp has merit but looking thru issues I decided to script everything thru Exiftool for writing tags and basically only use TagSharp for writing locations to jpgs and a few other file types.
+ - I am so glad for photo metadata but wow the edge cases and little problems are ... amazing!
+
 10/23/2022
 
 The last month has included some nice work on importing GPX files from Garmin Connect and a private site to store that data - ultimately this work inspired:

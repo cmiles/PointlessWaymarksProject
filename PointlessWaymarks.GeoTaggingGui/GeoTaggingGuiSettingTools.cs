@@ -9,7 +9,8 @@ public static class GeoTaggingGuiSettingTools
     public static async Task<FileInfo> DefaultSettingsFile()
     {
         var settingsFile =
-            new FileInfo(Path.Combine(FileLocationTools.DefaultStorageDirectory().FullName, "PwGeoTaggingGuiSettings.json"));
+            new FileInfo(Path.Combine(FileLocationTools.DefaultStorageDirectory().FullName,
+                "PwGeoTaggingGuiSettings.json"));
 
         if (!settingsFile.Exists)
         {
