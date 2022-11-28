@@ -29,7 +29,7 @@
   <ItemGroup>
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.0.0" />
     <PackageReference Include="Fractions" Version="7.2.0" />
-    <PackageReference Include="GitInfo" Version="2.2.1">
+    <PackageReference Include="GitInfo" Version="2.3.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>

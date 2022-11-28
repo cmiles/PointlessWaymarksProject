@@ -42,7 +42,7 @@
   <ItemGroup>
     <PackageReference Include="AngleSharp" Version="1.0.0-alpha-844" />
     <PackageReference Include="AngleSharp.Js" Version="0.15.0" />
-    <PackageReference Include="AWSSDK.S3" Version="3.7.101.16" />
+    <PackageReference Include="AWSSDK.S3" Version="3.7.101.23" />
     <PackageReference Include="ClosedXML" Version="0.97.0" />
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.0.0" />
     <PackageReference Include="CompareNETObjects" Version="4.78.0" />
@@ -50,7 +50,7 @@
     <PackageReference Include="FluentMigrator.Runner" Version="3.3.2" />
     <PackageReference Include="FluentMigrator.Runner.SQLite" Version="3.3.2" />
     <PackageReference Include="GeoAPI" Version="1.7.5" />
-    <PackageReference Include="GitInfo" Version="2.2.1">
+    <PackageReference Include="GitInfo" Version="2.3.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
@@ -64,13 +64,13 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="7.0.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="7.0.0" />
     <PackageReference Include="NetTopologySuite" Version="2.5.0" />
-    <PackageReference Include="NetTopologySuite.IO.GeoJSON" Version="2.0.4" />
+    <PackageReference Include="NetTopologySuite.IO.GeoJSON" Version="3.0.0" />
     <PackageReference Include="NetTopologySuite.IO.GPX" Version="1.1.1" />
     <PackageReference Include="PhotoSauce.MagicScaler" Version="0.13.2" />
     <PackageReference Include="pinboard.net" Version="1.0.0" />
     <PackageReference Include="Polly" Version="7.2.3" />
     <PackageReference Include="System.CodeDom" Version="7.0.0" />
-    <PackageReference Include="System.Data.SQLite.Core" Version="1.0.116" />
+    <PackageReference Include="System.Data.SQLite.Core" Version="1.0.117" />
     <PackageReference Include="System.Drawing.Common" Version="7.0.0" />
     <PackageReference Include="System.ServiceModel.Syndication" Version="7.0.0" />
     <PackageReference Include="System.Text.Json" Version="7.0.0" />
