@@ -8,7 +8,7 @@ public static class SoftwareUsedHelpMarkdown
 
  - [cmiles/PointlessWaymarksCms: A .NET Core WPF Gui for Static Site Generation](https://github.com/cmiles/PointlessWaymarksCms) - The code for this project is hosted on GitHub. MIT License.
 
-I am incredibly grateful to the all the people who have created the software that makes it possible to rapidly build useful, open, low/no-cost software. Below is a mostly-up-to-date-and-largely-comprehensive list of tools/packages/libraries/... that I am using for this project:
+I am incredibly grateful to the all the people who have created the software that makes it possible to rapidly build useful, open, low/no-cost software. Below is a mostly-up-to-date-and-largely-comprehensive list of tools/packages/libraries/etc. that I am using for this project:
 
 **Tools:**
  - [Visual Studio IDE](https://visualstudio.microsoft.com/), [.NET Core (Linux, macOS, and Windows)](https://dotnet.microsoft.com/download/dotnet-core)
@@ -27,7 +27,8 @@ I am incredibly grateful to the all the people who have created the software tha
  - [Material Design Icons](http://materialdesignicons.com/)
 
 **Core Technologies:**
- - [dotnet/core: Home repository for .NET Core](https://github.com/dotnet/core), [dotnet/efcore: EF Core is a modern object-database mapper for .NET. It supports LINQ queries, change tracking, updates, and schema migrations.](https://github.com/dotnet/efcore) and various other Microsoft Technologies
+ - [dotnet/core: Home repository for .NET Core](https://github.com/dotnet/core)
+ - [dotnet/efcore: EF Core is a modern object-database mapper for .NET. It supports LINQ queries, change tracking, updates, and schema migrations.](https://github.com/dotnet/efcore)
  - [dotnet/wpf: WPF is a .NET Core UI framework for building Windows desktop applications.](https://github.com/dotnet/wpf). MIT License.
 
 **Data:**
