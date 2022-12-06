@@ -22,7 +22,7 @@ public partial class FileListViewModel
     [ObservableProperty] private ObservableCollection<FileInfo>? _selectedFiles;
     [ObservableProperty] private IFileListSettings _settings;
     [ObservableProperty] private StatusControlContext _statusContext;
-
+    [ObservableProperty] private bool _replaceMode = true;
 
     public FileListViewModel(StatusControlContext? statusContext, IFileListSettings settings,
         List<ContextMenuItemData> contextMenuItems)
@@ -73,14 +73,17 @@ public partial class FileListViewModel
 
         if (!result ?? false) return;
 
-        Files?.Clear();
+        if(ReplaceMode) Files?.Clear();
 
         await _settings.SetLastDirectory(Path.GetDirectoryName(filePicker.FileNames.FirstOrDefault()));
 
         var selectedFiles = filePicker.FileNames.Select(x => new FileInfo(x)).Where(x => !Files!.Contains(x))
             .ToList();
 
-        selectedFiles.ForEach(x => Files!.Add(x));
+        selectedFiles.ForEach(x =>
+        {
+            if(!Files!.Contains(x)) Files.Add(x);
+        });
     }
 
     public async Task AddFilesToTagFromDirectory()
@@ -98,7 +101,7 @@ public partial class FileListViewModel
 
         if (!result ?? false) return;
 
-        Files?.Clear();
+        if (ReplaceMode) Files?.Clear();
 
         await Settings.SetLastDirectory(folderPicker.SelectedPath);
 
@@ -106,7 +109,10 @@ public partial class FileListViewModel
         var selectedFiles = selectedDirectory.EnumerateFiles("*").ToList().Where(x => !Files!.Contains(x))
             .ToList();
 
-        selectedFiles.ForEach(x => Files!.Add(x));
+        selectedFiles.ForEach(x =>
+        {
+            if (!Files!.Contains(x)) Files.Add(x);
+        });
     }
 
     public async Task AddFilesToTagFromDirectoryAndSubdirectories()
@@ -123,7 +129,7 @@ public partial class FileListViewModel
 
         if (!result ?? false) return;
 
-        Files?.Clear();
+        if (ReplaceMode) Files?.Clear();
 
         await Settings.SetLastDirectory(folderPicker.SelectedPath);
 
@@ -131,7 +137,10 @@ public partial class FileListViewModel
         var selectedFiles = selectedDirectory.EnumerateFiles("*", SearchOption.AllDirectories)
             .Where(x => !Files!.Contains(x)).ToList();
 
-        selectedFiles.ForEach(x => Files!.Add(x));
+        selectedFiles.ForEach(x =>
+        {
+            if (!Files!.Contains(x)) Files.Add(x);
+        });
     }
 
     public static async Task<FileListViewModel> CreateInstance(StatusControlContext statusContext,

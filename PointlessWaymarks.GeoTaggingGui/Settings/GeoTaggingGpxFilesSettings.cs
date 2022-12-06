@@ -1,7 +1,7 @@
 ﻿using System.IO;
 using PointlessWaymarks.WpfCommon.FileList;
 
-namespace PointlessWaymarks.GeoTaggingGui;
+namespace PointlessWaymarks.GeoToolsGui.Settings;
 
 public class GeoTaggingGpxFilesSettings : IFileListSettings
 {

@@ -14,6 +14,7 @@
     <PackageReference Include="Dirkster.NumericUpDownLib" Version="3.3.0" />
     <PackageReference Include="GitInfo" Version="2.3.0" />
     <PackageReference Include="Jot" Version="2.1.13" />
+    <PackageReference Include="ModernWpfUI" Version="0.9.6" />
   </ItemGroup>
 
   <ItemGroup>
@@ -33,6 +34,12 @@
     <Resource Include="GeoTaggingGuiIcon.ico">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Controls\FeatureFileEditorControl.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
   </ItemGroup>
 
 </Project>

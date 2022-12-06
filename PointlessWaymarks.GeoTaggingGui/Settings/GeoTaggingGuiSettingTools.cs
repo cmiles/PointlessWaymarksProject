@@ -2,7 +2,7 @@
 using System.Text.Json;
 using PointlessWaymarks.CommonTools;
 
-namespace PointlessWaymarks.GeoTaggingGui;
+namespace PointlessWaymarks.GeoToolsGui.Settings;
 
 public static class GeoTaggingGuiSettingTools
 {

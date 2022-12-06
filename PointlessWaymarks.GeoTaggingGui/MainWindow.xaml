@@ -1,4 +1,4 @@
-﻿<Window x:Class="PointlessWaymarks.GeoTaggingGui.MainWindow"
+﻿<Window x:Class="PointlessWaymarks.GeoToolsGui.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -7,15 +7,24 @@
         xmlns:status="clr-namespace:PointlessWaymarks.WpfCommon.Status;assembly=PointlessWaymarks.WpfCommon"
         mc:Ignorable="d"
         Icon="GeoTaggingGuiIcon.ico"
-        Title="{Binding InfoTitle}" Height="450" Width="800" d:DataContext="{d:DesignInstance local:MainWindow}">
+        xmlns:ui="http://schemas.modernwpf.com/2019"
+        xmlns:controls="clr-namespace:PointlessWaymarks.GeoTaggingGui.Controls"
+        xmlns:controls1="clr-namespace:PointlessWaymarks.GeoToolsGui.Controls"
+        xmlns:geoToolsGui="clr-namespace:PointlessWaymarks.GeoToolsGui"
+        ui:WindowHelper.UseModernWindowStyle="True"
+        Title="{Binding InfoTitle}" Height="450" Width="800" d:DataContext="{d:DesignInstance geoToolsGui:MainWindow}">
     <Grid>
         <TabControl>
-            <TabItem Header="Directory">
-                <local:FileBasedTaggerControl DataContext="{Binding DirectoryTaggerContext}" />
+            <TabItem Header="GeoTag from Gpx Files">
+                <controls1:FileBasedGeoTaggerControl DataContext="{Binding FeatureIntersectContext}" />
             </TabItem>
-            <TabItem Header="Connect">
-                <local:ConnectBasedTaggerControl DataContext="{Binding ConnectTaggerContext}" />
+            <TabItem Header="GeoTag from Garmin Connect">
+                <controls1:ConnectBasedGeoTaggerControl DataContext="{Binding ConnectGeoTaggerContext}" />
             </TabItem>
+            <TabItem Header="Feature Intersect Tags">
+                <controls1:FeatureIntersectTaggerControl DataContext="{Binding FeatureIntersectContext}" />
+            </TabItem>
+
         </TabControl>
         <status:StatusControl DataContext="{Binding StatusContext}" />
     </Grid>

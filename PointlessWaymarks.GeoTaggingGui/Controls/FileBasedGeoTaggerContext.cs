@@ -11,6 +11,7 @@ using NetTopologySuite.Geometries;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.GeoTaggingService;
+using PointlessWaymarks.GeoToolsGui.Settings;
 using PointlessWaymarks.SpatialTools;
 using PointlessWaymarks.WpfCommon.FileList;
 using PointlessWaymarks.WpfCommon.Status;
@@ -20,10 +21,10 @@ using PointlessWaymarks.WpfCommon.WpfHtml;
 using XmpCore;
 using static PointlessWaymarks.CmsData.ContentHtml.GeoJsonHtml.GeoJsonData;
 
-namespace PointlessWaymarks.GeoTaggingGui;
+namespace PointlessWaymarks.GeoToolsGui.Controls;
 
 [ObservableObject]
-public partial class FileBasedTaggerContext
+public partial class FileBasedGeoTaggerContext
 {
     [ObservableProperty] private bool _createBackups;
     [ObservableProperty] private bool _createBackupsInDefaultStorage;
@@ -44,7 +45,7 @@ public partial class FileBasedTaggerContext
     [ObservableProperty] private WindowIconStatus? _windowStatus;
 
 
-    public FileBasedTaggerContext(StatusControlContext? statusContext, WindowIconStatus? windowStatus)
+    public FileBasedGeoTaggerContext(StatusControlContext? statusContext, WindowIconStatus? windowStatus)
     {
         _statusContext = statusContext ?? new StatusControlContext();
         _windowStatus = windowStatus;
@@ -64,15 +65,15 @@ public partial class FileBasedTaggerContext
 
     public RelayCommand TagCommand { get; set; }
 
-    public static async Task<FileBasedTaggerContext> CreateInstance(StatusControlContext? statusContext,
+    public static async Task<FileBasedGeoTaggerContext> CreateInstance(StatusControlContext? statusContext,
         WindowIconStatus? windowStatus)
     {
-        var control = new FileBasedTaggerContext(statusContext, windowStatus);
-        await control.LoadData();
+        var control = new FileBasedGeoTaggerContext(statusContext, windowStatus);
+        await control.Load();
         return control;
     }
 
-    public async System.Threading.Tasks.Task LoadData()
+    public async System.Threading.Tasks.Task Load()
     {
         FilesToTagFileList = await FileListViewModel.CreateInstance(StatusContext, FilesToTagSettings,
             new List<ContextMenuItemData>
@@ -104,6 +105,7 @@ public partial class FileBasedTaggerContext
         PointsMustBeWithinMinutes = settings.PointsMustBeWithinMinutes;
         OverwriteExistingGeoLocation = settings.OverwriteExistingGeoLocation;
         TestRunOnly = settings.TestRunOnly;
+        FilesToTagFileList.ReplaceMode = settings.ReplaceExistingFiles;
         await GeoTaggingGuiSettingTools.WriteSettings(settings);
     }
 
@@ -117,7 +119,7 @@ public partial class FileBasedTaggerContext
             return;
         }
 
-        var frozenSelected = FilesToTagFileList.SelectedFiles.ToList();
+        var frozenSelected = Enumerable.ToList<FileInfo>(FilesToTagFileList.SelectedFiles);
 
         if (!frozenSelected.Any())
         {
@@ -196,13 +198,13 @@ public partial class FileBasedTaggerContext
 
     public async System.Threading.Tasks.Task ShowSelectedGpxFiles()
     {
-        if (GpxFileList.SelectedFiles == null || !GpxFileList.SelectedFiles.Any())
+        if (GpxFileList.SelectedFiles == null || !Enumerable.Any<FileInfo>(GpxFileList.SelectedFiles))
         {
             StatusContext.ToastWarning("No gpx files selected?");
             return;
         }
 
-        var frozenSelected = GpxFileList.SelectedFiles.ToList();
+        var frozenSelected = Enumerable.ToList<FileInfo>(GpxFileList.SelectedFiles);
 
         var featureList = new List<Feature>();
         var bounds = new Envelope();
@@ -238,16 +240,16 @@ public partial class FileBasedTaggerContext
     {
         await WriteTaggerSetting();
 
-        var fileListGpxService = new FileListGpxService(GpxFileList.Files!.ToList());
+        var fileListGpxService = new FileListGpxService(Enumerable.ToList<FileInfo>(GpxFileList.Files!));
         var tagger = new GeoTag();
-        LastTagOutput = await tagger.Tag(FilesToTagFileList.Files!.ToList(),
+        LastTagOutput = await tagger.Tag(Enumerable.ToList<FileInfo>(FilesToTagFileList.Files!),
             new List<IGpxService> { fileListGpxService },
             TestRunOnly, CreateBackups, CreateBackupsInDefaultStorage,
             PointsMustBeWithinMinutes, OffsetPhotoTimeInMinutes, OverwriteExistingGeoLocation, ExifToolFullName,
             StatusContext.ProgressTracker());
 
         var resultsWithLocation =
-            LastTagOutput.FileResults.Where(x => x.Latitude != null && x.Longitude != null).ToList();
+            Enumerable.Where<GeoTag.GeoTagFileResult>(LastTagOutput.FileResults, x => x.Latitude != null && x.Longitude != null).ToList();
 
         if (!resultsWithLocation.Any())
             //Todo: Blank/Clear GeoJson
@@ -279,6 +281,7 @@ public partial class FileBasedTaggerContext
         settings.PointsMustBeWithinMinutes = PointsMustBeWithinMinutes;
         settings.OverwriteExistingGeoLocation = OverwriteExistingGeoLocation;
         settings.TestRunOnly = TestRunOnly;
+        settings.ReplaceExistingFiles = FilesToTagFileList.ReplaceMode;
         await GeoTaggingGuiSettingTools.WriteSettings(settings);
     }
 }

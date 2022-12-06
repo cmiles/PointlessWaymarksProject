@@ -1,13 +1,12 @@
 ﻿using System.Reflection;
 using System.Windows;
 using CommunityToolkit.Mvvm.ComponentModel;
-using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CommonTools;
+using PointlessWaymarks.GeoToolsGui.Controls;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.Utility;
-using Serilog;
 
-namespace PointlessWaymarks.GeoTaggingGui;
+namespace PointlessWaymarks.GeoToolsGui;
 
 /// <summary>
 ///     Interaction logic for MainWindow.xaml
@@ -15,8 +14,9 @@ namespace PointlessWaymarks.GeoTaggingGui;
 [ObservableObject]
 public partial class MainWindow : Window
 {
-    [ObservableProperty] private ConnectBasedTaggerContext? _connectTaggerContext;
-    [ObservableProperty] private FileBasedTaggerContext? _directoryTaggerContext;
+    [ObservableProperty] private ConnectBasedGeoTaggerContext? _connectGeoTaggerContext;
+    [ObservableProperty] private FeatureIntersectTaggerContext? _featureIntersectContext;
+    [ObservableProperty] private FileBasedGeoTaggerContext? _fileGeoTaggerContext;
     [ObservableProperty] private string _infoTitle;
     [ObservableProperty] private StatusControlContext _statusContext;
     [ObservableProperty] private WindowIconStatus _windowStatus;
@@ -35,7 +35,8 @@ public partial class MainWindow : Window
         WindowInitialPositionHelpers.EnsureWindowIsVisible(this);
 
         _infoTitle = ProgramInfoTools.StandardAppInformationString(Assembly.GetExecutingAssembly(),
-            "Pointless Waymarks GeoTagger"); ;
+            "Pointless Waymarks GeoTagger");
+        ;
 
         DataContext = this;
 
@@ -48,7 +49,8 @@ public partial class MainWindow : Window
 
     private async System.Threading.Tasks.Task LoadData()
     {
-        DirectoryTaggerContext = await FileBasedTaggerContext.CreateInstance(StatusContext, WindowStatus);
-        ConnectTaggerContext = await ConnectBasedTaggerContext.CreateInstance(StatusContext, WindowStatus);
+        FileGeoTaggerContext = await FileBasedGeoTaggerContext.CreateInstance(StatusContext, WindowStatus);
+        ConnectGeoTaggerContext = await ConnectBasedGeoTaggerContext.CreateInstance(StatusContext, WindowStatus);
+        FeatureIntersectContext = await FeatureIntersectTaggerContext.CreateInstance(StatusContext, WindowStatus);
     }
 }
