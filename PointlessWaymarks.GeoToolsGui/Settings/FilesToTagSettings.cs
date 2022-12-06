@@ -1,8 +1,7 @@
 ﻿using System.IO;
-using PointlessWaymarks.GeoToolsGui.Settings;
 using PointlessWaymarks.WpfCommon.FileList;
 
-namespace PointlessWaymarks.GeoToolsGui;
+namespace PointlessWaymarks.GeoToolsGui.Settings;
 
 public class FeatureIntersectionFilesToTagSettings : IFileListSettings
 {

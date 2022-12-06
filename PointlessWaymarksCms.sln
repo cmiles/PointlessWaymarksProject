@@ -44,7 +44,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PointlessWaymarks.Task.Phot
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PointlessWaymarks.GeoTaggingService", "PointlessWaymarks.GeoTaggingService\PointlessWaymarks.GeoTaggingService.csproj", "{FD87100A-D437-41FC-8645-06E826FF758F}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PointlessWaymarks.GeoToolsGui", "PointlessWaymarks.GeoTaggingGui\PointlessWaymarks.GeoToolsGui.csproj", "{5D4DC0E4-3B1D-45B6-8DA4-024960924DCC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PointlessWaymarks.GeoToolsGui", "PointlessWaymarks.GeoToolsGui\PointlessWaymarks.GeoToolsGui.csproj", "{5D4DC0E4-3B1D-45B6-8DA4-024960924DCC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

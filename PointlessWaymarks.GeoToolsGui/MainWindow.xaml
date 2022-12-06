@@ -6,12 +6,13 @@
         xmlns:local="clr-namespace:PointlessWaymarks.GeoTaggingGui"
         xmlns:status="clr-namespace:PointlessWaymarks.WpfCommon.Status;assembly=PointlessWaymarks.WpfCommon"
         mc:Ignorable="d"
-        Icon="GeoTaggingGuiIcon.ico"
         xmlns:ui="http://schemas.modernwpf.com/2019"
         xmlns:controls="clr-namespace:PointlessWaymarks.GeoTaggingGui.Controls"
         xmlns:controls1="clr-namespace:PointlessWaymarks.GeoToolsGui.Controls"
         xmlns:geoToolsGui="clr-namespace:PointlessWaymarks.GeoToolsGui"
         ui:WindowHelper.UseModernWindowStyle="True"
+        ui:ThemeManager.IsThemeAware="True"
+        Icon="GeoToolsGuiIcon.ico"
         Title="{Binding InfoTitle}" Height="450" Width="800" d:DataContext="{d:DesignInstance geoToolsGui:MainWindow}">
     <Grid>
         <TabControl>
