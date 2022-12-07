@@ -5,12 +5,14 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:valueConverters="clr-namespace:PointlessWaymarks.WpfCommon.ValueConverters;assembly=PointlessWaymarks.WpfCommon"
              xmlns:controls="clr-namespace:PointlessWaymarks.GeoToolsGui.Controls"
+             xmlns:utility="clr-namespace:PointlessWaymarks.WpfCommon.Utility;assembly=PointlessWaymarks.WpfCommon"
              mc:Ignorable="d"
              d:DesignHeight="450" d:DesignWidth="800"
              d:DataContext="{d:DesignInstance controls:FeatureFileEditorContext}">
     <UserControl.Resources>
         <ResourceDictionary>
             <valueConverters:BooleanToVisibilityConverter x:Key="BooleanToVisibility" />
+            <utility:BindingProxy x:Key="Proxy" Data="{Binding}" />
         </ResourceDictionary>
     </UserControl.Resources>
     <Grid Visibility="{Binding IsVisible, Converter={StaticResource BooleanToVisibility}}" Background="LightGray"
@@ -23,33 +25,72 @@
                     <RowDefinition Height="Auto"></RowDefinition>
                 </Grid.RowDefinitions>
                 <Grid>
+                    <Grid.Resources>
+                        <Style TargetType="TextBox" x:Key="FeatureTextBox">
+                            <Setter Property="Margin" Value="12,0,0,4"></Setter>
+                            <Setter Property="TextWrapping" Value="Wrap"></Setter>
+                        </Style>
+                        <Style TargetType="Label" x:Key="BoldLabel">
+                            <Setter Property="FontWeight" Value="Bold"></Setter>
+                            <Setter Property="Margin" Value="0,6,0,4"></Setter>
+                        </Style>
+                    </Grid.Resources>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"></RowDefinition>
                         <RowDefinition Height="*"></RowDefinition>
                         <RowDefinition Height="Auto"></RowDefinition>
                     </Grid.RowDefinitions>
-                    <TextBlock FontWeight="Bold" HorizontalAlignment="Center" Margin="4">Feature File Editor</TextBlock>
+                    <TextBlock FontSize="20" HorizontalAlignment="Center" Margin="4">Feature File Editor</TextBlock>
                     <Grid Grid.Row="1">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition />
                             <ColumnDefinition />
                         </Grid.ColumnDefinitions>
                         <StackPanel Orientation="Vertical" Margin="4,4, 16,16">
-                            <Label>File</Label>
-                            <TextBox
+                            <Label Style="{StaticResource BoldLabel}">File</Label>
+                            <TextBox Style="{StaticResource FeatureTextBox}"
                                 Text="{Binding Model.FileName, UpdateSourceTrigger=PropertyChanged}" />
-                            <Label>Tag All With</Label>
-                            <TextBox Text="{Binding Model.TagAll, UpdateSourceTrigger=PropertyChanged}" />
-                            <Label>Name</Label>
-                            <TextBox Text="{Binding Model.Name, UpdateSourceTrigger=PropertyChanged}" />
-                            <Label>Source</Label>
-                            <TextBox Text="{Binding Model.Source, UpdateSourceTrigger=PropertyChanged}" />
+
+                            <Label Style="{StaticResource BoldLabel}">Name</Label>
+                            <TextBox  Style="{StaticResource FeatureTextBox}" Text="{Binding Model.Name, UpdateSourceTrigger=PropertyChanged}" />
+                            <Label Style="{StaticResource BoldLabel}">Source</Label>
+                            <TextBox  Style="{StaticResource FeatureTextBox}" Text="{Binding Model.Source, UpdateSourceTrigger=PropertyChanged}" />
+                            <Label Style="{StaticResource BoldLabel}">Downloaded On</Label>
+                            <TextBox Style="{StaticResource FeatureTextBox}"
+                                       Text="{Binding Model.Downloaded}" />
                         </StackPanel>
-                        <StackPanel Margin="4,8,4,8" Orientation="Vertical" Grid.Column="1">
-                            <Label>Attributes for Tags</Label>
-                            <ListBox Margin="4" Height="60" ItemsSource="{Binding Model.AttributesForTags}"
-                                     SelectedItem="{Binding SelectedAttribute}" />
-                            <Grid Margin="4">
+                        <Grid Margin="4,8,4,8" Grid.Column="1">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"></RowDefinition>
+                                <RowDefinition Height="Auto"></RowDefinition>
+                                <RowDefinition Height="Auto"></RowDefinition>
+                                <RowDefinition Height="*"></RowDefinition>
+                                <RowDefinition Height="Auto"></RowDefinition>
+                                <RowDefinition Height="Auto"></RowDefinition>
+                                <RowDefinition Height="Auto"></RowDefinition>
+                            </Grid.RowDefinitions>
+                            <Label Grid.Row="0" Style="{StaticResource BoldLabel}">Tag All With</Label>
+                            <TextBox Grid.Row="1"  Style="{StaticResource FeatureTextBox}" Text="{Binding Model.TagAll, UpdateSourceTrigger=PropertyChanged}" />
+                            <Label Grid.Row="2"  Style="{StaticResource BoldLabel}">Attributes for Tags</Label>
+                            <ListBox Grid.Row="3" Margin="4" ItemsSource="{Binding Model.AttributesForTags}"
+                                                 SelectedItem="{Binding SelectedAttribute}">
+                                <ListBox.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <WrapPanel IsItemsHost="True"
+                                                   Orientation="Horizontal" />
+                                    </ItemsPanelTemplate>
+                                </ListBox.ItemsPanel>
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="{Binding .}"></TextBlock>
+                                            <Button Command="{Binding Data.RemoveAttributeCommand, Source={StaticResource Proxy}}"
+                                                    CommandParameter="{Binding .}">x</Button>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+                            <Grid  Grid.Row="4" Margin="4">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*"></ColumnDefinition>
                                     <ColumnDefinition Width="Auto"></ColumnDefinition>
@@ -58,11 +99,11 @@
                                          Text="{Binding AttributeToAdd, UpdateSourceTrigger=PropertyChanged}" />
                                 <Button Grid.Column="1" Margin="4" Command="{Binding AddAttributeCommand}">Add Attribute</Button>
                             </Grid>
-                        </StackPanel>
+                        </Grid>
                     </Grid>
                     <WrapPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center" Margin="4,0,4,6">
-                        <Button Height="30" Width="160" Command="{Binding FinishEditCommand}">Save</Button>
-                        <Button Height="30" Width="160" Command="{Binding CancelCommand}">Cancel</Button>
+                        <Button Height="30" MinWidth="160" Margin="4" Command="{Binding FinishEditCommand}">Save</Button>
+                        <Button Height="30" MinWidth="160" Margin="4" Command="{Binding CancelCommand}">Cancel</Button>
                     </WrapPanel>
                 </Grid>
             </Grid>

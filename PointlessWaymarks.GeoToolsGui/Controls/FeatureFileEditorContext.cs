@@ -25,7 +25,10 @@ public partial class FeatureFileEditorContext
         CancelCommand = StatusContext.RunBlockingTaskCommand(Cancel);
         FinishEditCommand = StatusContext.RunBlockingTaskCommand(FinishEdit);
         AddAttributeCommand = StatusContext.RunNonBlockingTaskCommand(AddAttribute);
+        RemoveAttributeCommand = StatusContext.RunNonBlockingTaskCommand<string>(RemoveAttribute);
     }
+
+    public RelayCommand<string> RemoveAttributeCommand { get; set; }
 
     public RelayCommand AddAttributeCommand { get; set; }
 
@@ -34,6 +37,17 @@ public partial class FeatureFileEditorContext
     public EventHandler<FeatureFileEditorEndEditCondition>? EndEdit { get; set; }
 
     public RelayCommand FinishEditCommand { get; set; }
+
+    public async System.Threading.Tasks.Task RemoveAttribute(string toRemove)
+    {
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        var newList = Model.AttributesForTags!;
+        newList.Remove(toRemove);
+        newList = newList.OrderByDescending(x => x).ToList();
+
+        Model.AttributesForTags = newList;
+    }
 
     public async System.Threading.Tasks.Task AddAttribute()
     {
@@ -47,7 +61,7 @@ public partial class FeatureFileEditorContext
 
         var newList = Model.AttributesForTags!;
         newList.Add(AttributeToAdd.Trim());
-        newList = Enumerable.OrderByDescending<string, string>(newList, x => x).ToList();
+        newList = newList.OrderByDescending(x => x).ToList();
 
         Model.AttributesForTags = newList;
     }
