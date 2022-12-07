@@ -3,18 +3,16 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:local="clr-namespace:PointlessWaymarks.GeoTaggingGui"
              xmlns:numericUpDownLib="clr-namespace:NumericUpDownLib;assembly=NumericUpDownLib"
              xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:wpf="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
              xmlns:wpfHtml="clr-namespace:PointlessWaymarks.WpfCommon.WpfHtml;assembly=PointlessWaymarks.WpfCommon"
              xmlns:valueConverters="clr-namespace:PointlessWaymarks.WpfCommon.ValueConverters;assembly=PointlessWaymarks.WpfCommon"
-             xmlns:utility="clr-namespace:PointlessWaymarks.WpfCommon.Utility;assembly=PointlessWaymarks.WpfCommon"
              xmlns:fileList="clr-namespace:PointlessWaymarks.WpfCommon.FileList;assembly=PointlessWaymarks.WpfCommon"
-             xmlns:ui="http://schemas.modernwpf.com/2019"
+             xmlns:controls="clr-namespace:PointlessWaymarks.GeoToolsGui.Controls"
              mc:Ignorable="d"
              d:DesignHeight="450" d:DesignWidth="800"
-             d:DataContext="{d:DesignInstance local:FileBasedGeoTaggerContext}">
+             d:DataContext="{d:DesignInstance controls:FileBasedGeoTaggerContext}">
     <UserControl.Resources>
         <ResourceDictionary>
             <valueConverters:BooleanNotToVisibilityConverter x:Key="BooleanNotToVisibility" />
@@ -59,8 +57,6 @@
             </Style>
 
             <Style TargetType="GroupBox" BasedOn="{StaticResource DefaultGroupBoxStyle}">
-                <Setter Property="BorderThickness" Value="0"></Setter>
-                <Setter Property="BorderBrush" Value="LightSlateGray"></Setter>
                 <Setter Property="Margin" Value="4"></Setter>
             </Style>
         </ResourceDictionary>

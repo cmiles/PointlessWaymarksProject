@@ -3,11 +3,9 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:PointlessWaymarks.GeoTaggingGui"
         xmlns:status="clr-namespace:PointlessWaymarks.WpfCommon.Status;assembly=PointlessWaymarks.WpfCommon"
         mc:Ignorable="d"
         xmlns:ui="http://schemas.modernwpf.com/2019"
-        xmlns:controls="clr-namespace:PointlessWaymarks.GeoTaggingGui.Controls"
         xmlns:controls1="clr-namespace:PointlessWaymarks.GeoToolsGui.Controls"
         xmlns:geoToolsGui="clr-namespace:PointlessWaymarks.GeoToolsGui"
         ui:WindowHelper.UseModernWindowStyle="True"
@@ -15,9 +13,9 @@
         Icon="GeoToolsGuiIcon.ico"
         Title="{Binding InfoTitle}" Height="450" Width="800" d:DataContext="{d:DesignInstance geoToolsGui:MainWindow}">
     <Grid>
-        <TabControl>
+        <TabControl TabStripPlacement="Left">
             <TabItem Header="GeoTag from Gpx Files">
-                <controls1:FileBasedGeoTaggerControl DataContext="{Binding FeatureIntersectContext}" />
+                <controls1:FileBasedGeoTaggerControl DataContext="{Binding FileGeoTaggerContext}" />
             </TabItem>
             <TabItem Header="GeoTag from Garmin Connect">
                 <controls1:ConnectBasedGeoTaggerControl DataContext="{Binding ConnectGeoTaggerContext}" />

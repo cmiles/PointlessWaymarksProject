@@ -12,7 +12,7 @@ public partial class App : Application
 {
     public App()
     {
-        LogTools.StandardStaticLoggerForDefaultLogDirectory("PwGeoTaggingGui");
+        LogTools.StandardStaticLoggerForDefaultLogDirectory("PwGeoToolsGui");
 
         DispatcherUnhandledException += OnDispatcherUnhandledException;
     }

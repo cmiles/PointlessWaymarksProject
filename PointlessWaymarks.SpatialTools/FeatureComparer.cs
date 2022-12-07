@@ -1,6 +1,6 @@
 ﻿using NetTopologySuite.Features;
 
-namespace PointlessWaymarks.GeoTaggingGui.Controls;
+namespace PointlessWaymarks.SpatialTools;
 
 public class FeatureComparer : IEqualityComparer<IFeature>
 {

@@ -7,7 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="GeoTaggingGuiIcon.ico" />
     <None Remove="GeoToolsGuiIcon.ico" />
   </ItemGroup>
 

@@ -26,7 +26,6 @@
                     Directory + Subdirectories
                 </Button>
                 <Button Margin="2,0,2,0" MinWidth="180" Command="{Binding AddFilesToTagCommand}">Files</Button>
-                <TextBlock Text="{Binding ReplaceMode, Mode=OneWay}"></TextBlock>
             </WrapPanel>
             <CheckBox HorizontalAlignment="Center" Margin="4,8,4,4" Grid.Row="1" IsChecked="{Binding ReplaceMode}">
                 <TextBlock FontWeight="Bold">Replace Existing Files</TextBlock>
