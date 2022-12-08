@@ -393,6 +393,7 @@ public static class Intersection
     public static async Task<List<IntersectFileTaggingResult>> WriteTagsToFiles(
         this List<IntersectFileTaggingResult> toWrite, bool testRun,
         bool createBackupBeforeWritingMetadata, bool backupIntoDefaultStorage, bool tagsToLower, bool sanitizeTags,
+        bool tagSpacesToHyphens,
         string? exifToolFullName,
         CancellationToken cancellationToken, int tagMaxCharacterLength = 256,
         IProgress<string>? progress = null)
@@ -421,12 +422,41 @@ public static class Intersection
         //so that this can be used with both the intersect and existing tag lists.
         List<string> ProcessTags(List<string> toProcess)
         {
+            if (tagSpacesToHyphens)
+            {
+                if (sanitizeTags)
+                {
+                    for (var i = 0; i < toProcess.Count; i++)
+                        toProcess[i] =
+                            SlugTools.CreateSlug(tagsToLower, toProcess[i], tagMaxCharacterLength);
+                    return toProcess;
+                }
+
+                if (tagsToLower)
+                    for (var i = 0; i < toProcess.Count; i++)
+                        toProcess[i] = toProcess[i].ToLowerInvariant();
+
+                for (var i = 0; i < toProcess.Count; i++)
+                {
+                    toProcess[i] = Regex.Replace(toProcess[i], @"\s+", " ").Trim();
+                    toProcess[i] = toProcess[i].Replace(" ", "-");
+                    toProcess[i] =
+                        toProcess[i][
+                            ..Math.Min(tagMaxCharacterLength, toProcess[i].Length)];
+                }
+
+                return toProcess;
+            }
+
             if (sanitizeTags)
+            {
                 for (var i = 0; i < toProcess.Count; i++)
                     toProcess[i] =
-                        SlugTools.CreateSpacedString(tagsToLower, toProcess[i], tagMaxCharacterLength);
+                        SlugTools.CreateSlug(tagsToLower, toProcess[i], tagMaxCharacterLength);
+                return toProcess;
+            }
 
-            if (!sanitizeTags && tagsToLower)
+            if (tagsToLower)
                 for (var i = 0; i < toProcess.Count; i++)
                     toProcess[i] = toProcess[i].ToLowerInvariant();
 

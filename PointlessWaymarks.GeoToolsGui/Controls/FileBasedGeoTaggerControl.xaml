@@ -13,54 +13,6 @@
              mc:Ignorable="d"
              d:DesignHeight="450" d:DesignWidth="800"
              d:DataContext="{d:DesignInstance controls:FileBasedGeoTaggerContext}">
-    <UserControl.Resources>
-        <ResourceDictionary>
-            <valueConverters:BooleanNotToVisibilityConverter x:Key="BooleanNotToVisibility" />
-            <valueConverters:MetersToFeetValueConverter x:Key="MetersToFeet" />
-            <Thickness x:Key="GroupBoxHeaderMargin">8,0,0,6</Thickness>
-            <Thickness x:Key="GroupBoxPadding">12,0,8,15</Thickness>
-            <Style x:Key="DefaultGroupBoxStyle" TargetType="GroupBox">
-                <Setter Property="OverridesDefaultStyle" Value="True" />
-                <Setter Property="Foreground" Value="{DynamicResource SystemControlForegroundBaseHighBrush}" />
-                <Setter Property="Padding" Value="{DynamicResource GroupBoxPadding}" />
-                <Setter Property="Template">
-                    <Setter.Value>
-                        <ControlTemplate TargetType="GroupBox">
-                            <Border CornerRadius="4"
-                                    BorderThickness="{TemplateBinding BorderThickness}"
-                                    BorderBrush="{TemplateBinding BorderBrush}"
-                                    Margin="4">
-                                <Grid
-                                    Margin="4,4,4,4"
-                                    Background="{TemplateBinding Background}"
-                                    SnapsToDevicePixels="true">
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="Auto" />
-                                        <RowDefinition Height="*" />
-                                    </Grid.RowDefinitions>
-                                    <ContentPresenter
-                                        Grid.Row="0"
-                                        TextElement.FontSize="{DynamicResource GroupBoxHeaderFontSize}"
-                                        Margin="{DynamicResource GroupBoxHeaderMargin}"
-                                        ContentSource="Header"
-                                        RecognizesAccessKey="True"
-                                        SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
-                                    <ContentPresenter
-                                        Grid.Row="1"
-                                        Margin="{TemplateBinding Padding}"
-                                        SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
-                                </Grid>
-                            </Border>
-                        </ControlTemplate>
-                    </Setter.Value>
-                </Setter>
-            </Style>
-
-            <Style TargetType="GroupBox" BasedOn="{StaticResource DefaultGroupBoxStyle}">
-                <Setter Property="Margin" Value="4"></Setter>
-            </Style>
-        </ResourceDictionary>
-    </UserControl.Resources>
     <Grid>
         <TabControl SelectedIndex="{Binding SelectedTab, Mode=TwoWay}">
             <TabItem Header="GPX Files">
@@ -83,7 +35,7 @@
                     <fileList:FileListControl DataContext="{Binding FilesToTagFileList}" Grid.Row="1" Margin="4" />
                 </Grid>
             </TabItem>
-            <TabItem Header="GeoTagging Settings">
+            <TabItem Header="Settings">
                 <ScrollViewer>
                     <Grid Margin="4">
                         <StackPanel>
@@ -182,7 +134,6 @@
                                     </Button>
                                 </StackPanel>
                             </GroupBox>
-
                         </StackPanel>
                     </Grid>
                 </ScrollViewer>

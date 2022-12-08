@@ -50,6 +50,7 @@ public partial class FeatureIntersectTaggerContext
     [ObservableProperty] private string? _selectedPadUsAttribute;
     [ObservableProperty] private int _selectedTab;
     [ObservableProperty] private StatusControlContext _statusContext;
+    [ObservableProperty] private bool _tagSpacesToHypens;
     [ObservableProperty] private bool _tagsToLowerCase;
     [ObservableProperty] private bool _testRunOnly;
     [ObservableProperty] private WindowIconStatus _windowStatus;
@@ -315,6 +316,7 @@ public partial class FeatureIntersectTaggerContext
         TestRunOnly = settings.TestRunOnly;
         TagsToLowerCase = settings.TagsToLowerCase;
         SanitizeTags = settings.SanitizeTags;
+        TagSpacesToHypens = settings.TagSpacesToHyphens;
         await FeatureIntersectionGuiSettingTools.WriteSettings(settings);
     }
 
@@ -448,7 +450,7 @@ public partial class FeatureIntersectTaggerContext
 
         LastResults = await fileTags.WriteTagsToFiles(
             settings.TestRunOnly, settings.CreateBackups, settings.CreateBackupsInDefaultStorage,
-            settings.TagsToLowerCase, settings.SanitizeTags,
+            settings.TagsToLowerCase, settings.SanitizeTags, settings.TagSpacesToHyphens,
             settings.ExifToolFullName, CancellationToken.None, 1024, StatusContext.ProgressTracker());
 
         SelectedTab = 4;

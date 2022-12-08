@@ -13,7 +13,8 @@
              xmlns:controls="clr-namespace:PointlessWaymarks.GeoToolsGui.Controls"
              xmlns:models="clr-namespace:PointlessWaymarks.GeoToolsGui.Models"
              mc:Ignorable="d"
-             d:DesignHeight="450" d:DesignWidth="800">
+             d:DesignHeight="450" d:DesignWidth="800"
+             d:DataContext="{d:DesignInstance controls:FeatureIntersectTaggerContext}">
     <UserControl.Resources>
         <ResourceDictionary>
             <valueConverters:BooleanNotToVisibilityConverter x:Key="BooleanNotToVisibility" />
@@ -120,68 +121,74 @@
                                 <ListBox.ItemTemplate>
                                     <DataTemplate DataType="{x:Type models:FeatureFileViewModel}">
                                         <Grid Margin="4" HorizontalAlignment="Stretch">
-                                                <Grid Margin="4,0,0,0">
-                                                    <Grid.Resources>
-                                                        <Style TargetType="TextBlock" x:Key="FeatureTextBlock">
-                                                            <Setter Property="Margin" Value="12,0,0,4"></Setter>
-                                                            <Setter Property="TextWrapping" Value="Wrap"></Setter>
-                                                        </Style>
-                                                        <Style TargetType="Label" x:Key="BoldLabel">
-                                                            <Setter Property="FontWeight" Value="Bold"></Setter>
-                                                        </Style>
-                                                    </Grid.Resources>
-                                                    <Grid.ColumnDefinitions>
-                                                        <ColumnDefinition />
-                                                        <ColumnDefinition />
-                                                    </Grid.ColumnDefinitions>
-                                                    <StackPanel Orientation="Vertical" Margin="4,4, 16,12">
-                                                        <Label Style="{StaticResource BoldLabel}">File</Label>
-                                                        <TextBlock Style="{StaticResource FeatureTextBlock}"
-                                                                   Text="{Binding FileName}" />
-                                                        <Label Style="{StaticResource BoldLabel}">Name</Label>
-                                                        <TextBlock Style="{StaticResource FeatureTextBlock}"
-                                                                   Text="{Binding Name}" />
-                                                        <Label Style="{StaticResource BoldLabel}">Source</Label>
-                                                        <TextBlock Style="{StaticResource FeatureTextBlock}"
-                                                                   Text="{Binding Source}" />
-                                                    </StackPanel>
-                                                    <StackPanel Margin="4,8,4,8" Orientation="Vertical" Grid.Column="1">
-                                                        <Label Style="{StaticResource BoldLabel}">Attributes for Tags</Label>
-                                                        <ListBox Background="Transparent" Margin="2" 
-                                                                 ItemsSource="{Binding AttributesForTags}">
-                                                            <ListBox.ItemsPanel>
-                                                                <ItemsPanelTemplate>
-                                                                    <WrapPanel IsItemsHost="True"
-                                                                               Orientation="Horizontal" />
-                                                                </ItemsPanelTemplate>
-                                                            </ListBox.ItemsPanel>
-                                                            <ListBox.ItemTemplate>
-                                                                <DataTemplate>
-                                                                    <Grid Margin="2">
-                                                                        <TextBlock VerticalAlignment="Center"
-                                                                            Text="{Binding .}">
-                                                                        </TextBlock>
-                                                                    </Grid>
-                                                                </DataTemplate>
-                                                            </ListBox.ItemTemplate>
-                                                        </ListBox>
-                                                        <Label Style="{StaticResource BoldLabel}">Tag All With</Label>
-                                                        <TextBlock Style="{StaticResource FeatureTextBlock}"
-                                                                   Text="{Binding TagAll}" />
+                                            <Grid Margin="4,0,0,0">
+                                                <Grid.Resources>
+                                                    <Style TargetType="TextBlock" x:Key="FeatureTextBlock">
+                                                        <Setter Property="Margin" Value="12,0,0,4"></Setter>
+                                                        <Setter Property="TextWrapping" Value="Wrap"></Setter>
+                                                    </Style>
+                                                    <Style TargetType="Label" x:Key="BoldLabel">
+                                                        <Setter Property="FontWeight" Value="Bold"></Setter>
+                                                    </Style>
+                                                </Grid.Resources>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition />
+                                                    <ColumnDefinition />
+                                                </Grid.ColumnDefinitions>
+                                                <StackPanel Orientation="Vertical" Margin="4,4, 16,12">
+                                                    <Label Style="{StaticResource BoldLabel}">File</Label>
+                                                    <TextBlock Style="{StaticResource FeatureTextBlock}"
+                                                               Text="{Binding FileName}" />
+                                                    <Label Style="{StaticResource BoldLabel}">Name</Label>
+                                                    <TextBlock Style="{StaticResource FeatureTextBlock}"
+                                                               Text="{Binding Name}" />
+                                                    <Label Style="{StaticResource BoldLabel}">Source</Label>
+                                                    <TextBlock Style="{StaticResource FeatureTextBlock}"
+                                                               Text="{Binding Source}" />
+                                                </StackPanel>
+                                                <StackPanel Margin="4,8,4,8" Orientation="Vertical" Grid.Column="1">
+                                                    <Label Style="{StaticResource BoldLabel}">Attributes for Tags</Label>
+                                                    <ListBox Background="Transparent" Margin="2"
+                                                             ItemsSource="{Binding AttributesForTags}">
+                                                        <ListBox.ItemsPanel>
+                                                            <ItemsPanelTemplate>
+                                                                <WrapPanel IsItemsHost="True"
+                                                                           Orientation="Horizontal" />
+                                                            </ItemsPanelTemplate>
+                                                        </ListBox.ItemsPanel>
+                                                        <ListBox.ItemTemplate>
+                                                            <DataTemplate>
+                                                                <Grid Margin="2">
+                                                                    <TextBlock VerticalAlignment="Center"
+                                                                               Text="{Binding .}">
+                                                                    </TextBlock>
+                                                                </Grid>
+                                                            </DataTemplate>
+                                                        </ListBox.ItemTemplate>
+                                                    </ListBox>
+                                                    <Label Style="{StaticResource BoldLabel}">Tag All With</Label>
+                                                    <TextBlock Style="{StaticResource FeatureTextBlock}"
+                                                               Text="{Binding TagAll}" />
 
-                                                        <Label Style="{StaticResource BoldLabel}">Downloaded On</Label>
-                                                        <TextBlock Style="{StaticResource FeatureTextBlock}"
-                                                                   Text="{Binding Downloaded}" />
-                                                    </StackPanel>
-                                                </Grid>
+                                                    <Label Style="{StaticResource BoldLabel}">Downloaded On</Label>
+                                                    <TextBlock Style="{StaticResource FeatureTextBlock}"
+                                                               Text="{Binding Downloaded}" />
+                                                </StackPanel>
                                             </Grid>
+                                        </Grid>
                                     </DataTemplate>
                                 </ListBox.ItemTemplate>
                             </ListBox>
                             <WrapPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center"
                                        Margin="4,8,4,2">
-                                <Button Height="30" Margin="2,0,2,0" Width="180" Command="{Binding NewFeatureFileCommand}">Add Feature</Button>
-                                <Button Height="30" Margin="2,0,2,0" Width="180" Command="{Binding EditFeatureFileCommand}">Edit Selected Feature</Button>
+                                <Button Height="30" Margin="2,0,2,0" Width="180"
+                                        Command="{Binding NewFeatureFileCommand}">
+                                    Add Feature
+                                </Button>
+                                <Button Height="30" Margin="2,0,2,0" Width="180"
+                                        Command="{Binding EditFeatureFileCommand}">
+                                    Edit Selected Feature
+                                </Button>
                             </WrapPanel>
                         </Grid>
                     </GroupBox>
@@ -192,52 +199,99 @@
                     <controls:FeatureFileEditorControl Grid.RowSpan="2" DataContext="{Binding FeatureFileToEdit}"></controls:FeatureFileEditorControl>
                 </Grid>
             </TabItem>
-            <TabItem Header="Tag Settings">
-                <StackPanel Margin="4">
-                    <GroupBox Header="ExifTool">
-                        <StackPanel Orientation="Vertical">
-                            <TextBox Text="{Binding ExifToolFullName, UpdateSourceTrigger=PropertyChanged}" />
-                            <TextBlock TextWrapping="Wrap" Margin="4">This program writes tags to files using Phil Harvey's ExifTool - https://exiftool.org/. The recommended version of the program can be downloaded from https://oliverbetz.de/pages/Artikel/ExifTool-for-Windows - and the full path and filename must be entered above.</TextBlock>
-                        </StackPanel>
-                    </GroupBox>
-                    <GroupBox Header="Tag">
-                        <StackPanel Orientation="Vertical">
-                            <StackPanel Orientation="Vertical" Margin="4">
+            <TabItem Header="Settings">
+                <ScrollViewer>
+                    <StackPanel>
+                        <StackPanel Margin="4">
+                            <GroupBox Header="ExifTool">
                                 <StackPanel Orientation="Vertical">
-                                    <CheckBox IsChecked="{Binding CreateBackups}">Create Backups</CheckBox>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto"></ColumnDefinition>
+                                            <ColumnDefinition></ColumnDefinition>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock FontWeight="Bold" VerticalAlignment="Center">Path and Filename:</TextBlock>
+                                        <TextBox Grid.Column="1" Margin="12,0,8,0" VerticalAlignment="Center"
+                                                 Text="{Binding ExifToolFullName, UpdateSourceTrigger=PropertyChanged}"
+                                                 HorizontalAlignment="Stretch" />
+                                    </Grid>
+                                    <TextBlock TextWrapping="Wrap" Margin="4">This program writes tags to files using Phil Harvey's ExifTool - https://exiftool.org/. The recommended version of the program can be downloaded from https://oliverbetz.de/pages/Artikel/ExifTool-for-Windows - and the full path and filename must be entered above.</TextBlock>
+                                </StackPanel>
+                            </GroupBox>
+                            <Separator />
+                            <GroupBox Header="File Handling">
+                                <StackPanel Orientation="Vertical" Margin="4">
+                                    <CheckBox IsChecked="{Binding CreateBackups}" FontWeight="Bold">Create Backups</CheckBox>
                                     <TextBlock Margin="12,0,4,4" TextWrapping="Wrap">When Geolocation information is found for a file the original version will be copied into a backup directory.</TextBlock>
-                                    <CheckBox Margin="24, 0,0,0" IsChecked="{Binding CreateBackupsInDefaultStorage}">Backup into My Documents</CheckBox>
+                                    <CheckBox Margin="24, 0,0,0" FontWeight="Bold"
+                                              IsChecked="{Binding CreateBackupsInDefaultStorage}">
+                                        Backup into My Documents
+                                    </CheckBox>
                                     <TextBlock Margin="36,0,4,4" TextWrapping="Wrap">If this is checked backups will be written into a folder in My Documents - this keeps all backups in one place and doesn't add extra files into existing directories. If un-checked backups will be written to a folder under the file's current folder - this keeps the backups close to the original file.</TextBlock>
                                 </StackPanel>
+                            </GroupBox>
+                            <Separator />
+                            <GroupBox Header="Tag Options">
                                 <StackPanel Orientation="Vertical">
-                                    <CheckBox IsChecked="{Binding TestRunOnly}">Test Run Only</CheckBox>
-                                    <TextBlock Margin="12,0,4,4" TextWrapping="Wrap">Results will be shown but NO Geolocation will be written, use this to see what changes the program would make without changing any files.</TextBlock>
-                                </StackPanel>
-                                <StackPanel Orientation="Vertical">
-                                    <CheckBox IsChecked="{Binding TagsToLowerCase}">Tags to Lowercase</CheckBox>
-                                    <TextBlock Margin="12,0,4,4" TextWrapping="Wrap">If selected all tags will be converted into lowercase. (Note that when de-duplicating tags the program uses a case insensitive comparison - converting tags to lower case is an aesthetic/data consistency option.)</TextBlock>
-                                </StackPanel>
-                                <StackPanel Orientation="Vertical">
-                                    <CheckBox IsChecked="{Binding SanitizeTags}">Sanitize Tags</CheckBox>
-                                    <TextBlock Margin="12,0,4,4" TextWrapping="Wrap">This option will cause many characters to be eliminated from tags into a-z, 0-9 and a handful of other characters. This option offers a simple way to eliminate some inconsistencies in tags and   makes that tags URL\web friendly.</TextBlock>
-                                </StackPanel>
-                                <GroupBox Header="Manage Settings">
-                                    <StackPanel Orientation="Vertical" Margin="4">
-                                        <TextBlock Margin="12,4,4,4" TextWrapping="Wrap">Save Settings: Settings are periodically saved by this program - most notably when you generate tags - you can use Save Settings at any time to ensure your changes are saved.</TextBlock>
-                                        <TextBlock Margin="12,4,4,4" TextWrapping="Wrap">Import Settings: Use with care! This will overwrite all settings!</TextBlock>
-                                        <TextBlock Margin="12,4,4,4" TextWrapping="Wrap">Export Settings: Use to create a file of settings that you can load later or use with the command line version of this program.</TextBlock>
-                                        <WrapPanel Orientation="Horizontal" Margin="24,8,4,6">
-                                            <Button Command="{Binding SaveSettingsFromFileCommand}">Save Current Settings</Button>
-                                            <Button Command="{Binding ImportSettingsFromFileCommand}">Import Settings</Button>
-                                            <Button Command="{Binding ExportSettingsFromFileCommand}">Export Settings</Button>
-                                        </WrapPanel>
+                                    <StackPanel Orientation="Vertical">
+                                        <CheckBox IsChecked="{Binding TagsToLowerCase}" FontWeight="Bold">Tags to Lowercase</CheckBox>
+                                        <TextBlock Margin="12,0,4,4" TextWrapping="Wrap">If selected all tags will be converted into lowercase. (Note that when de-duplicating tags the program uses a case insensitive comparison - converting tags to lower case is an aesthetic/data consistency option.)</TextBlock>
                                     </StackPanel>
-                                </GroupBox>
-                            </StackPanel>
-                            <Button Command="{Binding TagFilesCommand}" Height="40" Margin="8">Tag</Button>
+                                    <StackPanel Orientation="Vertical">
+                                        <CheckBox IsChecked="{Binding SanitizeTags}" FontWeight="Bold">Sanitize Tags</CheckBox>
+                                        <TextBlock Margin="12,0,4,4" TextWrapping="Wrap">This option will cause many characters to be eliminated from tags into a-z, 0-9 and a handful of other characters. This option offers a simple way to eliminate some inconsistencies that can easily occur in tags. This WILL transform any existing tags!</TextBlock>
+                                    </StackPanel>
+                                    <StackPanel Orientation="Vertical">
+                                        <CheckBox FontWeight="Bold"
+                                                  IsChecked="{Binding CreateBackupsInDefaultStorage}">
+                                            Spaces to Hyphens
+                                        </CheckBox>
+                                        <TextBlock Margin="12,0,4,4" TextWrapping="Wrap">The 'Sanitize Tags' option will leave spaces in tags - this can be good for human interaction but does not make for nice web URLs - checking this option will cause spaces to be replaced by hyphens and tags will be transformed into URL appropriate slugs. In general this should not be checked for normal photo/tag processing, but in special cases this can be very useful! This WILL transform any existing tags!</TextBlock>
+                                    </StackPanel>
+                                </StackPanel>
+                            </GroupBox>
+                            <Separator />
+                            <GroupBox Header="Manage Settings">
+                                <StackPanel Orientation="Vertical" Margin="4">
+                                    <WrapPanel Orientation="Horizontal" Margin="12,8,4,6">
+                                        <Button MinWidth="120" Margin="2,0,2,0"
+                                                Command="{Binding SaveSettingsFromFileCommand}">
+                                            Save Current Settings
+                                        </Button>
+                                        <Button MinWidth="120" Margin="2,0,2,0"
+                                                Command="{Binding ImportSettingsFromFileCommand}">
+                                            Import Settings
+                                        </Button>
+                                        <Button MinWidth="120" Margin="2,0,2,0"
+                                                Command="{Binding ExportSettingsFromFileCommand}">
+                                            Export Settings
+                                        </Button>
+                                    </WrapPanel>
+                                    <TextBlock Margin="36,4,4,4" TextWrapping="Wrap">Save Settings: Settings are periodically saved by this program - most notably when you generate tags - you can use Save Settings at any time to ensure your changes are saved.</TextBlock>
+                                    <TextBlock Margin="36,4,4,4" TextWrapping="Wrap">Import Settings: Use with care! This will overwrite all settings!</TextBlock>
+                                    <TextBlock Margin="36,4,4,4" TextWrapping="Wrap">Export Settings: Use to create a file of settings that you can load later or use with the command line version of this program.</TextBlock>
+                                </StackPanel>
+                            </GroupBox>
+                            <Separator />
+                            <GroupBox Header="Tag">
+                                <StackPanel Orientation="Vertical">
+                                    <StackPanel Orientation="Vertical" Margin="0,8,0,0">
+                                        <CheckBox IsChecked="{Binding TestRunOnly}">
+                                            <TextBlock>
+                                                <Run FontWeight="Bold">Test Run Only</Run>
+                                                <Run>- Results will be shown but NO Geolocation will be written, use this to see what changes the program would make without changing any files.</Run>
+                                            </TextBlock>
+                                        </CheckBox>
+                                    </StackPanel>
+                                    <Button Command="{Binding TagFilesCommand}" Height="40" Margin="8,20,8,12"
+                                            HorizontalAlignment="Stretch">
+                                        Tag
+                                    </Button>
+                                </StackPanel>
+                            </GroupBox>
                         </StackPanel>
-                    </GroupBox>
-                </StackPanel>
+                    </StackPanel>
+                </ScrollViewer>
             </TabItem>
             <TabItem Header="Result">
                 <GroupBox Header="Tag Result">
