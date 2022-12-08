@@ -1,6 +1,8 @@
 ﻿using System.IO;
+using AnyClone;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Omu.ValueInjecter;
 using PointlessWaymarks.GeoToolsGui.Models;
 using PointlessWaymarks.GeoToolsGui.Settings;
 using PointlessWaymarks.WpfCommon.Status;
@@ -14,6 +16,7 @@ public partial class FeatureFileEditorContext
     [ObservableProperty] private string _attributeToAdd = string.Empty;
     [ObservableProperty] private bool _isVisible;
     [ObservableProperty] private FeatureFileViewModel _model;
+    [ObservableProperty] private FeatureFileViewModel _originalModelState;
     [ObservableProperty] private string _selectedAttribute = string.Empty;
     [ObservableProperty] private StatusControlContext _statusContext;
 
@@ -21,14 +24,13 @@ public partial class FeatureFileEditorContext
     {
         _statusContext = statusContext ?? new StatusControlContext();
         _model = featureFile ?? new FeatureFileViewModel();
+        _originalModelState = _model.Clone();
 
         CancelCommand = StatusContext.RunBlockingTaskCommand(Cancel);
         FinishEditCommand = StatusContext.RunBlockingTaskCommand(FinishEdit);
         AddAttributeCommand = StatusContext.RunNonBlockingTaskCommand(AddAttribute);
         RemoveAttributeCommand = StatusContext.RunNonBlockingTaskCommand<string>(RemoveAttribute);
     }
-
-    public RelayCommand<string> RemoveAttributeCommand { get; set; }
 
     public RelayCommand AddAttributeCommand { get; set; }
 
@@ -38,22 +40,19 @@ public partial class FeatureFileEditorContext
 
     public RelayCommand FinishEditCommand { get; set; }
 
-    public async System.Threading.Tasks.Task RemoveAttribute(string toRemove)
-    {
-        await ThreadSwitcher.ResumeForegroundAsync();
-
-        var newList = Model.AttributesForTags!;
-        newList.Remove(toRemove);
-        newList = newList.OrderByDescending(x => x).ToList();
-
-        Model.AttributesForTags = newList;
-    }
+    public RelayCommand<string> RemoveAttributeCommand { get; set; }
 
     public async System.Threading.Tasks.Task AddAttribute()
     {
         if (string.IsNullOrEmpty(AttributeToAdd))
         {
             StatusContext.ToastWarning("Can't Add a Blank/Whitespace Only Attribute");
+            return;
+        }
+
+        if (Model.AttributesForTags.Any(x => AttributeToAdd.Equals(x, StringComparison.OrdinalIgnoreCase)))
+        {
+            StatusContext.ToastWarning("Attribute Name already exists...");
             return;
         }
 
@@ -68,6 +67,7 @@ public partial class FeatureFileEditorContext
 
     public async System.Threading.Tasks.Task Cancel()
     {
+        Model.InjectFrom(OriginalModelState);
         EndEdit?.Invoke(this, FeatureFileEditorEndEditCondition.Cancelled);
         IsVisible = false;
     }
@@ -94,7 +94,7 @@ public partial class FeatureFileEditorContext
             return;
         }
 
-        if (string.IsNullOrWhiteSpace(Model.TagAll) && !Enumerable.Any<string>(Model.AttributesForTags))
+        if (string.IsNullOrWhiteSpace(Model.TagAll) && !Model.AttributesForTags.Any())
         {
             StatusContext.ToastWarning("Tag All With or at least on Attribute for Tags must be set");
             return;
@@ -129,10 +129,22 @@ public partial class FeatureFileEditorContext
         IsVisible = false;
     }
 
+    public async System.Threading.Tasks.Task RemoveAttribute(string toRemove)
+    {
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        var newList = Model.AttributesForTags!;
+        newList.Remove(toRemove);
+        newList = newList.OrderByDescending(x => x).ToList();
+
+        Model.AttributesForTags = newList;
+    }
+
     public void Show(FeatureFileViewModel model)
     {
         AttributeToAdd = string.Empty;
         Model = model;
+        OriginalModelState = Model.Clone();
         SelectedAttribute = null;
         IsVisible = true;
     }

@@ -83,9 +83,9 @@
                                 <ListBox.ItemTemplate>
                                     <DataTemplate>
                                         <StackPanel Orientation="Horizontal">
-                                            <TextBlock Text="{Binding .}"></TextBlock>
-                                            <Button Command="{Binding Data.RemoveAttributeCommand, Source={StaticResource Proxy}}"
-                                                    CommandParameter="{Binding .}">x</Button>
+                                            <TextBlock VerticalAlignment="Center" Text="{Binding .}"></TextBlock>
+                                            <Button VerticalAlignment="Top" Padding="4,1,4,1" Margin="4,0,4,0" Command="{Binding Data.RemoveAttributeCommand, Source={StaticResource Proxy}}"
+                                                    CommandParameter="{Binding .}">X</Button>
                                         </StackPanel>
                                     </DataTemplate>
                                 </ListBox.ItemTemplate>

@@ -78,14 +78,6 @@ public partial class FeatureIntersectTaggerContext
         MetadataForSelectedFilesToTagCommand = StatusContext.RunBlockingTaskCommand(MetadataForSelectedFilesToTag);
     }
 
-    public static async Task<FeatureIntersectTaggerContext> CreateInstance(StatusControlContext? statusContext,
-        WindowIconStatus? windowStatus)
-    {
-        var control = new FeatureIntersectTaggerContext(statusContext, windowStatus);
-        await control.Load();
-        return control;
-    }
-
     public RelayCommand AddPadUsAttributeCommand { get; set; }
 
     public RelayCommand ChoosePadUsDirectoryCommand { get; set; }
@@ -155,7 +147,7 @@ public partial class FeatureIntersectTaggerContext
 
         PadUsAttributeToAdd = string.Empty;
 
-        await FeatureIntersectionGuiSettingTools.SetPadUsAttributes(Enumerable.ToList<string>(PadUsAttributes));
+        await FeatureIntersectionGuiSettingTools.SetPadUsAttributes(PadUsAttributes.ToList());
     }
 
     public async System.Threading.Tasks.Task ChoosePadUsDirectory()
@@ -176,6 +168,14 @@ public partial class FeatureIntersectTaggerContext
         PadUsDirectory = folderPicker.SelectedPath;
 
         await FeatureIntersectionGuiSettingTools.SetPadUsDirectory(PadUsDirectory);
+    }
+
+    public static async Task<FeatureIntersectTaggerContext> CreateInstance(StatusControlContext? statusContext,
+        WindowIconStatus? windowStatus)
+    {
+        var control = new FeatureIntersectTaggerContext(statusContext, windowStatus);
+        await control.Load();
+        return control;
     }
 
     public async System.Threading.Tasks.Task EditFeatureFile()
@@ -328,7 +328,7 @@ public partial class FeatureIntersectTaggerContext
             return;
         }
 
-        var frozenSelected = Enumerable.ToList<FileInfo>(FilesToTagFileList.SelectedFiles);
+        var frozenSelected = FilesToTagFileList.SelectedFiles.ToList();
 
         if (!frozenSelected.Any())
         {
@@ -427,7 +427,7 @@ public partial class FeatureIntersectTaggerContext
         if (PadUsAttributes!.Contains(toRemove))
         {
             PadUsAttributes.Remove(toRemove);
-            await FeatureIntersectionGuiSettingTools.SetPadUsAttributes(Enumerable.ToList<string>(PadUsAttributes));
+            await FeatureIntersectionGuiSettingTools.SetPadUsAttributes(PadUsAttributes.ToList());
         }
     }
 
@@ -443,7 +443,7 @@ public partial class FeatureIntersectTaggerContext
 
         var intersectSettings = new IntersectSettings(featureFiles, settings.PadUsDirectory, settings.PadUsAttributes);
 
-        var fileTags = await Enumerable.ToList<FileInfo>(FilesToTagFileList.Files)
+        var fileTags = await FilesToTagFileList.Files.ToList()
             .FileIntersectionTags(intersectSettings, CancellationToken.None, StatusContext.ProgressTracker());
 
         LastResults = await fileTags.WriteTagsToFiles(
@@ -453,9 +453,9 @@ public partial class FeatureIntersectTaggerContext
 
         SelectedTab = 4;
 
-        var allFeatures = Enumerable.Where<IntersectFileTaggingResult>(LastResults, x => x.IntersectInformation?.Features != null)
+        var allFeatures = LastResults.Where(x => x.IntersectInformation?.Features != null)
             .SelectMany(x => x.IntersectInformation.Features)
-            .Union(Enumerable.Where<IntersectFileTaggingResult>(LastResults, x => x.IntersectInformation?.IntersectsWith != null)
+            .Union(LastResults.Where(x => x.IntersectInformation?.IntersectsWith != null)
                 .SelectMany(x => x.IntersectInformation.IntersectsWith)).Distinct(new FeatureComparer()).ToList();
 
         var bounds = GeoJsonTools.GeometryBoundingBox(allFeatures.Select(x => x.Geometry).ToList());

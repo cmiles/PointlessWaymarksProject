@@ -180,8 +180,8 @@
                             </ListBox>
                             <WrapPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center"
                                        Margin="4,8,4,2">
-                                <Button Height="30" Width="180" Command="{Binding NewFeatureFileCommand}">Add Feature</Button>
-                                <Button Height="30" Width="180" Command="{Binding EditFeatureFileCommand}">Edit Selected Feature</Button>
+                                <Button Height="30" Margin="2,0,2,0" Width="180" Command="{Binding NewFeatureFileCommand}">Add Feature</Button>
+                                <Button Height="30" Margin="2,0,2,0" Width="180" Command="{Binding EditFeatureFileCommand}">Edit Selected Feature</Button>
                             </WrapPanel>
                         </Grid>
                     </GroupBox>
