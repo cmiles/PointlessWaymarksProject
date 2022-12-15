@@ -39,7 +39,8 @@ public partial class FeatureIntersectTaggerContext
     [ObservableProperty] private FileListViewModel _filesToTagFileList;
     [ObservableProperty] private FeatureIntersectionFilesToTagSettings _filesToTagSettings;
     [ObservableProperty] private string _infoTitle;
-    [ObservableProperty] private List<IntersectFileTaggingResult> _lastResults = new();
+    [ObservableProperty] private List<IntersectFileTaggingResult> _previewResults = new();
+    [ObservableProperty] private List<IntersectFileTaggingResult> _writeToFileResults = new();
     [ObservableProperty] private ObservableCollection<string>? _padUsAttributes;
     [ObservableProperty] private string _padUsAttributeToAdd = string.Empty;
     [ObservableProperty] private string _padUsDirectory = string.Empty;
@@ -50,7 +51,7 @@ public partial class FeatureIntersectTaggerContext
     [ObservableProperty] private string? _selectedPadUsAttribute;
     [ObservableProperty] private int _selectedTab;
     [ObservableProperty] private StatusControlContext _statusContext;
-    [ObservableProperty] private bool _tagSpacesToHypens;
+    [ObservableProperty] private bool _tagSpacesToHyphens;
     [ObservableProperty] private bool _tagsToLowerCase;
     [ObservableProperty] private bool _testRunOnly;
     [ObservableProperty] private WindowIconStatus _windowStatus;
@@ -70,7 +71,8 @@ public partial class FeatureIntersectTaggerContext
         EditFeatureFileCommand = StatusContext.RunNonBlockingTaskCommand(EditFeatureFile);
         NewFeatureFileCommand = StatusContext.RunNonBlockingTaskCommand(NewFeatureFile);
 
-        TagFilesCommand = StatusContext.RunBlockingTaskCommand(TagFiles);
+        GeneratePreviewCommand = StatusContext.RunBlockingTaskCommand(GeneratePreview);
+        WriteToFilesCommand = StatusContext.RunBlockingTaskCommand(WriteResultsToFile);
 
         ImportSettingsFromFileCommand = StatusContext.RunBlockingTaskCommand(ImportSettingsFromFile);
         ExportSettingsFromFileCommand = StatusContext.RunBlockingTaskCommand(ExportSettingsToFile);
@@ -78,6 +80,8 @@ public partial class FeatureIntersectTaggerContext
 
         MetadataForSelectedFilesToTagCommand = StatusContext.RunBlockingTaskCommand(MetadataForSelectedFilesToTag);
     }
+
+    public RelayCommand WriteToFilesCommand { get; set; }
 
     public RelayCommand AddPadUsAttributeCommand { get; set; }
 
@@ -132,7 +136,7 @@ public partial class FeatureIntersectTaggerContext
 
     public RelayCommand SaveSettingsFromFileCommand { get; set; }
 
-    public RelayCommand TagFilesCommand { get; set; }
+    public RelayCommand GeneratePreviewCommand { get; set; }
 
     public async System.Threading.Tasks.Task AddPadUsAttribute()
     {
@@ -316,7 +320,7 @@ public partial class FeatureIntersectTaggerContext
         TestRunOnly = settings.TestRunOnly;
         TagsToLowerCase = settings.TagsToLowerCase;
         SanitizeTags = settings.SanitizeTags;
-        TagSpacesToHypens = settings.TagSpacesToHyphens;
+        TagSpacesToHyphens = settings.TagSpacesToHyphens;
         await FeatureIntersectionGuiSettingTools.WriteSettings(settings);
     }
 
@@ -433,7 +437,7 @@ public partial class FeatureIntersectTaggerContext
         }
     }
 
-    public async System.Threading.Tasks.Task TagFiles()
+    public async System.Threading.Tasks.Task GeneratePreview()
     {
         await WriteTaggerSetting();
 
@@ -445,19 +449,43 @@ public partial class FeatureIntersectTaggerContext
 
         var intersectSettings = new IntersectSettings(featureFiles, settings.PadUsDirectory, settings.PadUsAttributes);
 
-        var fileTags = await FilesToTagFileList.Files.ToList()
+        PreviewResults = await FilesToTagFileList.Files.ToList()
             .FileIntersectionTags(intersectSettings, CancellationToken.None, StatusContext.ProgressTracker());
 
-        LastResults = await fileTags.WriteTagsToFiles(
+        SelectedTab = 4;
+
+        var allFeatures = PreviewResults.Where(x => x.IntersectInformation?.Features != null)
+            .SelectMany(x => x.IntersectInformation.Features)
+            .Union(PreviewResults.Where(x => x.IntersectInformation?.IntersectsWith != null)
+                .SelectMany(x => x.IntersectInformation.IntersectsWith)).Distinct(new FeatureComparer()).ToList();
+
+        var bounds = GeoJsonTools.GeometryBoundingBox(allFeatures.Select(x => x.Geometry).ToList());
+
+        var featureCollection = new FeatureCollection();
+        allFeatures.ForEach(x => featureCollection.Add(x));
+
+        var jsonDto = new GeoJsonData.GeoJsonSiteJsonData(Guid.NewGuid().ToString(),
+            new GeoJsonData.SpatialBounds(bounds.MaxY, bounds.MaxX, bounds.MinY, bounds.MinX), featureCollection);
+
+        PreviewGeoJsonDto = await GeoJsonTools.SerializeWithGeoJsonSerializer(jsonDto);
+    }
+
+    public async System.Threading.Tasks.Task WriteResultsToFile()
+    {
+        await WriteTaggerSetting();
+
+        var settings = await FeatureIntersectionGuiSettingTools.ReadSettings();
+
+        WriteToFileResults = await PreviewResults.WriteTagsToFiles(
             settings.TestRunOnly, settings.CreateBackups, settings.CreateBackupsInDefaultStorage,
             settings.TagsToLowerCase, settings.SanitizeTags, settings.TagSpacesToHyphens,
             settings.ExifToolFullName, CancellationToken.None, 1024, StatusContext.ProgressTracker());
 
-        SelectedTab = 4;
+        SelectedTab = 5;
 
-        var allFeatures = LastResults.Where(x => x.IntersectInformation?.Features != null)
+        var allFeatures = PreviewResults.Where(x => x.IntersectInformation?.Features != null)
             .SelectMany(x => x.IntersectInformation.Features)
-            .Union(LastResults.Where(x => x.IntersectInformation?.IntersectsWith != null)
+            .Union(PreviewResults.Where(x => x.IntersectInformation?.IntersectsWith != null)
                 .SelectMany(x => x.IntersectInformation.IntersectsWith)).Distinct(new FeatureComparer()).ToList();
 
         var bounds = GeoJsonTools.GeometryBoundingBox(allFeatures.Select(x => x.Geometry).ToList());

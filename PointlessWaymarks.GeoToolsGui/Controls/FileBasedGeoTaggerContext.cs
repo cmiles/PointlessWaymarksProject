@@ -33,15 +33,18 @@ public partial class FileBasedGeoTaggerContext
     [ObservableProperty] private GeoTaggingFilesToTagSettings _filesToTagSettings;
     [ObservableProperty] private FileListViewModel _gpxFileList;
     [ObservableProperty] private GeoTaggingGpxFilesSettings _gpxFilesSettings;
-    [ObservableProperty] private GeoTag.GeoTagResult? _lastTagOutput;
+    [ObservableProperty] private GeoTag.GeoTagResult? _previewResults;
+    [ObservableProperty] private GeoTag.GeoTagResult? _writeToFileResults;
     [ObservableProperty] private int _offsetPhotoTimeInMinutes;
     [ObservableProperty] private bool _overwriteExistingGeoLocation;
+    [ObservableProperty] private bool _previewHasWritablePoints;
     [ObservableProperty] private int _pointsMustBeWithinMinutes = 10;
     [ObservableProperty] private string _previewGeoJsonDto;
+    [ObservableProperty] private string _writeToFileGeoJsonDto;
     [ObservableProperty] private string _previewHtml;
+    [ObservableProperty] private string _writeToFileHtml;
     [ObservableProperty] private int _selectedTab;
     [ObservableProperty] private StatusControlContext _statusContext;
-    [ObservableProperty] private bool _testRunOnly;
     [ObservableProperty] private WindowIconStatus? _windowStatus;
 
 
@@ -56,14 +59,18 @@ public partial class FileBasedGeoTaggerContext
         MetadataForSelectedFilesToTagCommand = StatusContext.RunBlockingTaskCommand(MetadataForSelectedFilesToTag);
         ShowSelectedGpxFilesCommand = StatusContext.RunBlockingTaskCommand(ShowSelectedGpxFiles);
 
-        TagCommand = StatusContext.RunBlockingTaskCommand(Tag);
+        GeneratePreviewCommand = StatusContext.RunBlockingTaskCommand(GeneratePreview);
+        WriteToFilesCommand = StatusContext.RunBlockingTaskCommand(WriteResultsToFile);
+
     }
+
+    public RelayCommand WriteToFilesCommand { get; set; }
 
     public RelayCommand MetadataForSelectedFilesToTagCommand { get; set; }
 
     public RelayCommand ShowSelectedGpxFilesCommand { get; set; }
 
-    public RelayCommand TagCommand { get; set; }
+    public RelayCommand GeneratePreviewCommand { get; set; }
 
     public static async Task<FileBasedGeoTaggerContext> CreateInstance(StatusControlContext? statusContext,
         WindowIconStatus? windowStatus)
@@ -92,7 +99,10 @@ public partial class FileBasedGeoTaggerContext
 
         ExifToolFullName = (await GeoTaggingGuiSettingTools.ReadSettings()).ExifToolFullName;
 
-        PreviewHtml = WpfHtmlDocument.ToHtmlLeafletBasicGeoJsonDocument("Tagged Photos",
+        PreviewHtml = WpfHtmlDocument.ToHtmlLeafletBasicGeoJsonDocument("Preview",
+            32.12063, -110.52313, string.Empty);
+        
+        WriteToFileHtml = WpfHtmlDocument.ToHtmlLeafletBasicGeoJsonDocument("WrittenFiles",
             32.12063, -110.52313, string.Empty);
     }
 
@@ -104,7 +114,6 @@ public partial class FileBasedGeoTaggerContext
         CreateBackupsInDefaultStorage = settings.CreateBackupsInDefaultStorage;
         PointsMustBeWithinMinutes = settings.PointsMustBeWithinMinutes;
         OverwriteExistingGeoLocation = settings.OverwriteExistingGeoLocation;
-        TestRunOnly = settings.TestRunOnly;
         FilesToTagFileList.ReplaceMode = settings.ReplaceExistingFiles;
         await GeoTaggingGuiSettingTools.WriteSettings(settings);
     }
@@ -119,7 +128,7 @@ public partial class FileBasedGeoTaggerContext
             return;
         }
 
-        var frozenSelected = Enumerable.ToList<FileInfo>(FilesToTagFileList.SelectedFiles);
+        var frozenSelected = FilesToTagFileList.SelectedFiles.ToList();
 
         if (!frozenSelected.Any())
         {
@@ -198,13 +207,13 @@ public partial class FileBasedGeoTaggerContext
 
     public async System.Threading.Tasks.Task ShowSelectedGpxFiles()
     {
-        if (GpxFileList.SelectedFiles == null || !Enumerable.Any<FileInfo>(GpxFileList.SelectedFiles))
+        if (GpxFileList.SelectedFiles == null || !GpxFileList.SelectedFiles.Any())
         {
             StatusContext.ToastWarning("No gpx files selected?");
             return;
         }
 
-        var frozenSelected = Enumerable.ToList<FileInfo>(GpxFileList.SelectedFiles);
+        var frozenSelected = GpxFileList.SelectedFiles.ToList();
 
         var featureList = new List<Feature>();
         var bounds = new Envelope();
@@ -236,38 +245,98 @@ public partial class FileBasedGeoTaggerContext
         newPreviewWindow.PreviewGeoJsonDto = previewDto;
     }
 
-    public async System.Threading.Tasks.Task Tag()
+    public async System.Threading.Tasks.Task WriteResultsToFile()
     {
-        await WriteTaggerSetting();
-
-        var fileListGpxService = new FileListGpxService(Enumerable.ToList<FileInfo>(GpxFileList.Files!));
+        var fileListGpxService = new FileListGpxService(GpxFileList.Files!.ToList());
         var tagger = new GeoTag();
-        LastTagOutput = await tagger.Tag(Enumerable.ToList<FileInfo>(FilesToTagFileList.Files!),
+        
+        WriteToFileResults = await tagger.Tag(FilesToTagFileList.Files!.ToList(),
             new List<IGpxService> { fileListGpxService },
-            TestRunOnly, CreateBackups, CreateBackupsInDefaultStorage,
+            false, CreateBackups, CreateBackupsInDefaultStorage,
             PointsMustBeWithinMinutes, OffsetPhotoTimeInMinutes, OverwriteExistingGeoLocation, ExifToolFullName,
             StatusContext.ProgressTracker());
-
+        
         var resultsWithLocation =
-            Enumerable.Where<GeoTag.GeoTagFileResult>(LastTagOutput.FileResults, x => x.Latitude != null && x.Longitude != null).ToList();
-
+            WriteToFileResults.FileResults.Where(x => x is { Latitude: { }, Longitude: { } }).ToList();
+        
         if (!resultsWithLocation.Any())
-            //Todo: Blank/Clear GeoJson
-            return;
+        {
+            WriteToFileGeoJsonDto = await ResetMapGeoJsonDto();
+        }
+        else
+        {
+            var features = new FeatureCollection();
 
+            foreach (var loopResults in resultsWithLocation)
+                features.Add(new Feature(PointTools.Wgs84Point(loopResults.Longitude.Value, loopResults.Latitude.Value),
+                    new AttributesTable(new Dictionary<string, object>
+                        { { "title", loopResults.FileName }, { "description", $"From {loopResults.Source}" } })));
+
+            var bounds = GeoJsonTools.GeometryBoundingBox(features.Select(x => x.Geometry).ToList());
+
+            var jsonDto = new GeoJsonSiteJsonData(Guid.NewGuid().ToString(),
+                new SpatialBounds(bounds.MaxY, bounds.MaxX, bounds.MinY, bounds.MinX), features);
+
+            WriteToFileGeoJsonDto = await GeoJsonTools.SerializeWithGeoJsonSerializer(jsonDto);
+        }
+        
+        SelectedTab = 4;
+    }
+
+    private async Task<string> ResetMapGeoJsonDto()
+    {
         var features = new FeatureCollection();
-
-        foreach (var loopResults in resultsWithLocation)
-            features.Add(new Feature(PointTools.Wgs84Point(loopResults.Longitude.Value, loopResults.Latitude.Value),
-                new AttributesTable(new Dictionary<string, object>
-                    { { "title", loopResults.FileName }, { "description", $"From {loopResults.Source}" } })));
-
-        var bounds = GeoJsonTools.GeometryBoundingBox(features.Select(x => x.Geometry).ToList());
+            
+        var basePoint = PointTools.Wgs84Point(UserSettingsSingleton.CurrentSettings().LongitudeDefault, UserSettingsSingleton.CurrentSettings().LatitudeDefault);
+        var bounds = new Envelope();
+        bounds.ExpandToInclude(basePoint.Coordinate);
+        bounds.ExpandBy(1);
 
         var jsonDto = new GeoJsonSiteJsonData(Guid.NewGuid().ToString(),
             new SpatialBounds(bounds.MaxY, bounds.MaxX, bounds.MinY, bounds.MinX), features);
 
-        PreviewGeoJsonDto = await GeoJsonTools.SerializeWithGeoJsonSerializer(jsonDto);
+        return await GeoJsonTools.SerializeWithGeoJsonSerializer(jsonDto);
+    }
+
+    public async System.Threading.Tasks.Task GeneratePreview()
+    {
+        await WriteTaggerSetting();
+        WriteToFileResults = null;
+        WriteToFileGeoJsonDto = await ResetMapGeoJsonDto();
+        
+        var fileListGpxService = new FileListGpxService(GpxFileList.Files!.ToList());
+        var tagger = new GeoTag();
+        PreviewResults = await tagger.Tag(FilesToTagFileList.Files!.ToList(),
+            new List<IGpxService> { fileListGpxService },
+            true, CreateBackups, CreateBackupsInDefaultStorage,
+            PointsMustBeWithinMinutes, OffsetPhotoTimeInMinutes, OverwriteExistingGeoLocation, ExifToolFullName,
+            StatusContext.ProgressTracker());
+
+        var resultsWithLocation =
+            PreviewResults.FileResults.Where(x => x is { Latitude: { }, Longitude: { } }).ToList();
+
+        PreviewHasWritablePoints = resultsWithLocation.Any();
+        
+        if (!PreviewHasWritablePoints)
+        {
+            PreviewGeoJsonDto = await ResetMapGeoJsonDto();
+        }
+        else
+        {
+            var features = new FeatureCollection();
+
+            foreach (var loopResults in resultsWithLocation)
+                features.Add(new Feature(PointTools.Wgs84Point(loopResults.Longitude.Value, loopResults.Latitude.Value),
+                    new AttributesTable(new Dictionary<string, object>
+                        { { "title", loopResults.FileName }, { "description", $"From {loopResults.Source}" } })));
+
+            var bounds = GeoJsonTools.GeometryBoundingBox(features.Select(x => x.Geometry).ToList());
+
+            var jsonDto = new GeoJsonSiteJsonData(Guid.NewGuid().ToString(),
+                new SpatialBounds(bounds.MaxY, bounds.MaxX, bounds.MinY, bounds.MinX), features);
+
+            PreviewGeoJsonDto = await GeoJsonTools.SerializeWithGeoJsonSerializer(jsonDto);
+        }
 
         SelectedTab = 3;
     }
@@ -280,7 +349,6 @@ public partial class FileBasedGeoTaggerContext
         settings.CreateBackupsInDefaultStorage = CreateBackupsInDefaultStorage;
         settings.PointsMustBeWithinMinutes = PointsMustBeWithinMinutes;
         settings.OverwriteExistingGeoLocation = OverwriteExistingGeoLocation;
-        settings.TestRunOnly = TestRunOnly;
         settings.ReplaceExistingFiles = FilesToTagFileList.ReplaceMode;
         await GeoTaggingGuiSettingTools.WriteSettings(settings);
     }

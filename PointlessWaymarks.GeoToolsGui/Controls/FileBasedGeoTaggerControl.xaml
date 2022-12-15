@@ -7,7 +7,6 @@
              xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:wpf="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
              xmlns:wpfHtml="clr-namespace:PointlessWaymarks.WpfCommon.WpfHtml;assembly=PointlessWaymarks.WpfCommon"
-             xmlns:valueConverters="clr-namespace:PointlessWaymarks.WpfCommon.ValueConverters;assembly=PointlessWaymarks.WpfCommon"
              xmlns:fileList="clr-namespace:PointlessWaymarks.WpfCommon.FileList;assembly=PointlessWaymarks.WpfCommon"
              xmlns:controls="clr-namespace:PointlessWaymarks.GeoToolsGui.Controls"
              mc:Ignorable="d"
@@ -16,141 +15,138 @@
     <Grid>
         <TabControl SelectedIndex="{Binding SelectedTab, Mode=TwoWay}">
             <TabItem Header="GPX Files">
-                <Grid Margin="4">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="*" />
-                    </Grid.RowDefinitions>
-                    <TextBlock Margin="4" HorizontalAlignment="Center" TextWrapping="Wrap">Use the buttons below to add all files in a Directory, all files in a Directory and all Subdirectories or to pick Files to add to the GPX files that location information will be taken from. You can also delete items in the list below.</TextBlock>
-                    <fileList:FileListControl DataContext="{Binding GpxFileList}" Grid.Row="1" Margin="4" />
-                </Grid>
+                <GroupBox Header="Gpx Files">
+                    <Grid Margin="4">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+                        <TextBlock Margin="4" HorizontalAlignment="Center" TextWrapping="Wrap">Use the buttons below to add all files in a Directory, all files in a Directory and all Subdirectories or to pick Files to add to the GPX files that location information will be taken from. You can also delete items in the list below.</TextBlock>
+                        <fileList:FileListControl DataContext="{Binding GpxFileList}" Grid.Row="1" Margin="4" />
+                    </Grid>
+                </GroupBox>
             </TabItem>
             <TabItem Header="Files To Tag">
-                <Grid Margin="4">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="*" />
-                    </Grid.RowDefinitions>
-                    <TextBlock Margin="4" HorizontalAlignment="Center" TextWrapping="Wrap">Use the buttons below to add all files in a Directory, all files in a Directory and all Subdirectories or to pick Files that will be compared to the GPX/location information in the previous tab. You can also delete items in the list below.</TextBlock>
-                    <fileList:FileListControl DataContext="{Binding FilesToTagFileList}" Grid.Row="1" Margin="4" />
-                </Grid>
+                <GroupBox Header="Files To Tag">
+                    <Grid Margin="4">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+                        <TextBlock Margin="4" HorizontalAlignment="Center" TextWrapping="Wrap">Use the buttons below to add all files in a Directory, all files in a Directory and all Subdirectories or to pick Files that will be compared to the GPX/location information in the previous tab. You can also delete items in the list below.</TextBlock>
+                        <fileList:FileListControl DataContext="{Binding FilesToTagFileList}" Grid.Row="1" Margin="4" />
+                    </Grid>
+                </GroupBox>
             </TabItem>
             <TabItem Header="Settings">
                 <ScrollViewer>
-                    <Grid Margin="4">
-                        <StackPanel>
-                            <GroupBox Header="ExifTool">
-                                <StackPanel Orientation="Vertical">
-                                    <Grid>
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="Auto"></ColumnDefinition>
-                                            <ColumnDefinition></ColumnDefinition>
-                                        </Grid.ColumnDefinitions>
-                                        <TextBlock FontWeight="Bold" VerticalAlignment="Center">Path and Filename:</TextBlock>
-                                        <TextBox Grid.Column="1" Margin="12,0,8,0" VerticalAlignment="Center"
-                                                 Text="{Binding ExifToolFullName, UpdateSourceTrigger=PropertyChanged}"
-                                                 HorizontalAlignment="Stretch" />
-                                    </Grid>
-                                    <TextBlock TextWrapping="Wrap" Margin="4">This program can write to a wider variety of file formats by using Phil Harvey's ExifTool - https://exiftool.org/. The recommended version of the program can be downloaded from https://oliverbetz.de/pages/Artikel/ExifTool-for-Windows - you must provide the full path and filename above for the program to use ExifTool.</TextBlock>
-                                </StackPanel>
-                            </GroupBox>
-                            <Separator/>
-                            <GroupBox Header="File Handling">
-                                <StackPanel Orientation="Vertical">
+                    <GroupBox Header="Settings and Start Preview" Margin="4">
+                        <Grid>
+                            <StackPanel>
+                                <Button Command="{Binding GeneratePreviewCommand}" Height="40" Margin="8,8,8,12"
+                                        HorizontalAlignment="Stretch">
+                                    GeneratePreview
+                                </Button>
+                                <GroupBox Header="ExifTool">
                                     <StackPanel Orientation="Vertical">
-                                        <CheckBox IsChecked="{Binding CreateBackups}">
-                                            <TextBlock TextWrapping="Wrap">
-                                                <Run FontWeight="Bold">Create Backups</Run>
-                                                <Run> - When Geolocation information is found for a file the original version will be copied into a backup directory.</Run>
-                                            </TextBlock>
-                                        </CheckBox>
-                                        <CheckBox Margin="24,12,0,0"
-                                                  IsChecked="{Binding CreateBackupsInDefaultStorage}">
-                                            <TextBlock TextWrapping="Wrap">
-                                                <Run FontWeight="Bold">Backup into My Documents</Run>
-                                                <Run> - If this is checked backups will be written into a folder in My Documents - this keeps all backups in one place and doesn't add extra files into existing directories. If un-checked backups will be written to a folder under the file's current folder - this keeps the backups close to the original file.</Run>
-                                            </TextBlock>
-                                        </CheckBox>
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto"></ColumnDefinition>
+                                                <ColumnDefinition></ColumnDefinition>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock FontWeight="Bold" VerticalAlignment="Center">Path and Filename:</TextBlock>
+                                            <TextBox Grid.Column="1" Margin="12,0,8,0" VerticalAlignment="Center"
+                                                     Text="{Binding ExifToolFullName, UpdateSourceTrigger=PropertyChanged}"
+                                                     HorizontalAlignment="Stretch" />
+                                        </Grid>
+                                        <TextBlock TextWrapping="Wrap" Margin="4">This program can write to a wider variety of file formats by using Phil Harvey's ExifTool - https://exiftool.org/. The recommended version of the program can be downloaded from https://oliverbetz.de/pages/Artikel/ExifTool-for-Windows - you must provide the full path and filename above for the program to use ExifTool.</TextBlock>
                                     </StackPanel>
+                                </GroupBox>
+                                <Separator />
+                                <GroupBox Header="File Handling">
                                     <StackPanel Orientation="Vertical">
-                                        <CheckBox IsChecked="{Binding OverwriteExistingGeoLocation}">
+                                        <StackPanel Orientation="Vertical">
+                                            <CheckBox IsChecked="{Binding CreateBackups}">
+                                                <TextBlock TextWrapping="Wrap">
+                                                    <Run FontWeight="Bold">Create Backups</Run>
+                                                    <Run> - When Geolocation information is found for a file the original version will be copied into a backup directory.</Run>
+                                                </TextBlock>
+                                            </CheckBox>
+                                            <CheckBox Margin="24,12,0,0"
+                                                      IsChecked="{Binding CreateBackupsInDefaultStorage}">
+                                                <TextBlock TextWrapping="Wrap">
+                                                    <Run FontWeight="Bold">Backup into My Documents</Run>
+                                                    <Run> - If this is checked backups will be written into a folder in My Documents - this keeps all backups in one place and doesn't add extra files into existing directories. If un-checked backups will be written to a folder under the file's current folder - this keeps the backups close to the original file.</Run>
+                                                </TextBlock>
+                                            </CheckBox>
+                                        </StackPanel>
+                                        <StackPanel Orientation="Vertical">
+                                            <CheckBox IsChecked="{Binding OverwriteExistingGeoLocation}">
 
-                                            <TextBlock TextWrapping="Wrap">
-                                                <Run FontWeight="Bold">Overwrite Existing Geolocation</Run>
-                                                <Run> - If checked any existing Geolocation Metadata will be overwritten if a location is found.</Run>
-                                            </TextBlock>
-                                        </CheckBox>
+                                                <TextBlock TextWrapping="Wrap">
+                                                    <Run FontWeight="Bold">Overwrite Existing Geolocation</Run>
+                                                    <Run> - If checked any existing Geolocation Metadata will be overwritten if a location is found.</Run>
+                                                </TextBlock>
+                                            </CheckBox>
+                                        </StackPanel>
                                     </StackPanel>
-                                </StackPanel>
-                            </GroupBox>
-                            <Separator/>
-                            <GroupBox Header="Timing">
-                                <StackPanel Orientation="Vertical">
-                                    <Grid>
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="Auto"></ColumnDefinition>
-                                            <ColumnDefinition></ColumnDefinition>
-                                        </Grid.ColumnDefinitions>
-                                        <numericUpDownLib:ShortUpDown HorizontalAlignment="Left"
-                                                                      HorizontalContentAlignment="Center"
-                                                                      VerticalAlignment="Top" Margin="0,7,4,0"
-                                                                      Value="{Binding PointsMustBeWithinMinutes}" />
-                                        <TextBlock Grid.Column="1" TextWrapping="Wrap" HorizontalAlignment="Left"
-                                                   Margin="4">
-                                            <Run FontWeight="Bold">File Time must be Within Minutes of Point</Run>
-                                            <Run> - The program will look for points with the specified number of minutes - too large a value risks associating points with a location that doesn't make sense, too small and points sparse track may be missed.</Run>
-                                        </TextBlock>
-                                    </Grid>
-                                    <Grid Margin="0,6,0,0">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="Auto"></ColumnDefinition>
-                                            <ColumnDefinition></ColumnDefinition>
-                                        </Grid.ColumnDefinitions>
-                                        <numericUpDownLib:ShortUpDown HorizontalAlignment="Left"
-                                                                      HorizontalContentAlignment="Center"
-                                                                      VerticalAlignment="Top" Margin="0,7,4,0"
-                                                                      Value="{Binding OffsetPhotoTimeInMinutes}" />
-                                        <TextBlock Grid.Column="1" TextWrapping="Wrap" Margin="4">
-                                            <Run FontWeight="Bold">Adjust File Time by Minutes</Run>
-                                            <Run>- File times for photographs and other files can be created by devices that don't have accurate clocks - use this setting if you know that the created time for a file is offset by a consistent number of minutes (positive or negative).</Run>
-                                        </TextBlock>
-                                    </Grid>
-                                </StackPanel>
-                            </GroupBox>
-                            <Separator/>
-                            <GroupBox Header="Tag">
-                                <StackPanel Orientation="Vertical">
-                                    <StackPanel Orientation="Vertical" Margin="0,8,0,0">
-                                        <CheckBox IsChecked="{Binding TestRunOnly}">
-                                            <TextBlock>
-                                                <Run FontWeight="Bold">Test Run Only</Run>
-                                                <Run>- Results will be shown but NO Geolocation will be written, use this to see what changes the program would make without changing any files.</Run>
+                                </GroupBox>
+                                <Separator />
+                                <GroupBox Header="Timing">
+                                    <StackPanel Orientation="Vertical">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto"></ColumnDefinition>
+                                                <ColumnDefinition></ColumnDefinition>
+                                            </Grid.ColumnDefinitions>
+                                            <numericUpDownLib:ShortUpDown HorizontalAlignment="Left"
+                                                                          HorizontalContentAlignment="Center"
+                                                                          VerticalAlignment="Top" Margin="0,7,4,0"
+                                                                          Value="{Binding PointsMustBeWithinMinutes}" />
+                                            <TextBlock Grid.Column="1" TextWrapping="Wrap" HorizontalAlignment="Left"
+                                                       Margin="4">
+                                                <Run FontWeight="Bold">File Time must be Within Minutes of Point</Run>
+                                                <Run> - The program will look for points with the specified number of minutes - too large a value risks associating points with a location that doesn't make sense, too small and points sparse track may be missed.</Run>
                                             </TextBlock>
-                                        </CheckBox>
+                                        </Grid>
+                                        <Grid Margin="0,6,0,0">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto"></ColumnDefinition>
+                                                <ColumnDefinition></ColumnDefinition>
+                                            </Grid.ColumnDefinitions>
+                                            <numericUpDownLib:ShortUpDown HorizontalAlignment="Left"
+                                                                          HorizontalContentAlignment="Center"
+                                                                          VerticalAlignment="Top" Margin="0,7,4,0"
+                                                                          Value="{Binding OffsetPhotoTimeInMinutes}" />
+                                            <TextBlock Grid.Column="1" TextWrapping="Wrap" Margin="4">
+                                                <Run FontWeight="Bold">Adjust File Time by Minutes</Run>
+                                                <Run>- File times for photographs and other files can be created by devices that don't have accurate clocks - use this setting if you know that the created time for a file is offset by a consistent number of minutes (positive or negative).</Run>
+                                            </TextBlock>
+                                        </Grid>
                                     </StackPanel>
-                                    <Button Command="{Binding TagCommand}" Height="40" Margin="8,20,8,12"
-                                            HorizontalAlignment="Stretch">
-                                        Tag
-                                    </Button>
-                                </StackPanel>
-                            </GroupBox>
-                        </StackPanel>
-                    </Grid>
+                                </GroupBox>
+                            </StackPanel>
+                        </Grid>
+                    </GroupBox>
                 </ScrollViewer>
             </TabItem>
-            <TabItem Header="Result">
-                <GroupBox Header="Tag Result">
+            <TabItem Header="Preview">
+                <GroupBox Header="Preview">
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="*" />
+                            <RowDefinition Height="*" />
                         </Grid.RowDefinitions>
-                        <TextBox IsReadOnly="true" TextWrapping="Wrap" BorderThickness="0"
-                                 Text="{Binding LastTagOutput.Title, FallbackValue='No Results Generated'}" />
+                        <Button Height="40" Margin="8,8,8,12" HorizontalAlignment="Stretch"
+                                Command="{Binding WriteToFilesCommand}">
+                            Write Tags to Files
+                        </Button>
                         <TextBox Grid.Row="1" IsReadOnly="true" TextWrapping="Wrap" BorderThickness="0"
-                                 Text="{Binding LastTagOutput.Notes, FallbackValue=''}" />
-                        <DataGrid Grid.Row="2" ItemsSource="{Binding LastTagOutput.FileResults}" CanUserAddRows="False"
+                                 Text="{Binding PreviewResults.Notes, FallbackValue=''}" />
+                        <DataGrid Grid.Row="2" ItemsSource="{Binding PreviewResults.FileResults}"
+                                  CanUserAddRows="False"
                                   CanUserReorderColumns="true"
                                   CanUserDeleteRows="false" CanUserResizeColumns="true" CanUserResizeRows="false"
                                   CanUserSortColumns="true" AutoGenerateColumns="false" FrozenColumnCount="1">
@@ -166,17 +162,55 @@
                                                     Binding="{Binding Elevation, Converter={StaticResource MetersToFeet}, StringFormat=N0}" />
                             </DataGrid.Columns>
                         </DataGrid>
+                        <wpf:WebView2 Grid.Row="3"
+                                      Visibility="{Binding StatusContext.BlockUi, Converter={StaticResource BooleanNotToVisibility}}">
+                            <b:Interaction.Behaviors>
+                                <wpfHtml:WebViewHtmlStringBindingBehavior HtmlString="{Binding PreviewHtml}" />
+                                <wpfHtml:WebViewPostJsonOnChangeBehavior JsonData="{Binding PreviewGeoJsonDto}" />
+                            </b:Interaction.Behaviors>
+                        </wpf:WebView2>
                     </Grid>
                 </GroupBox>
             </TabItem>
-            <TabItem Header="Result Map">
-                <wpf:WebView2
-                    Visibility="{Binding StatusContext.BlockUi, Converter={StaticResource BooleanNotToVisibility}}">
-                    <b:Interaction.Behaviors>
-                        <wpfHtml:WebViewHtmlStringBindingBehavior HtmlString="{Binding PreviewHtml}" />
-                        <wpfHtml:WebViewPostJsonOnChangeBehavior JsonData="{Binding PreviewGeoJsonDto}" />
-                    </b:Interaction.Behaviors>
-                </wpf:WebView2>
+            <TabItem Header="Result">
+                <GroupBox Header="Results">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+                        <TextBox IsReadOnly="true" TextWrapping="Wrap" BorderThickness="0"
+                                 Text="{Binding PreviewResults.Title, FallbackValue='No Results Generated'}" />
+                        <TextBox Grid.Row="1" IsReadOnly="true" TextWrapping="Wrap" BorderThickness="0"
+                                 Text="{Binding PreviewResults.Notes, FallbackValue=''}" />
+                        <DataGrid Grid.Row="2" ItemsSource="{Binding WriteToFileResults.FileResults}"
+                                  CanUserAddRows="False"
+                                  CanUserReorderColumns="true"
+                                  CanUserDeleteRows="false" CanUserResizeColumns="true" CanUserResizeRows="false"
+                                  CanUserSortColumns="true" AutoGenerateColumns="false" FrozenColumnCount="1">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="File Name" Binding="{Binding FileName}" />
+                                <DataGridTextColumn Header="Result" Binding="{Binding Result}" />
+                                <DataGridTextColumn Header="Notes" Binding="{Binding Notes}" />
+                                <DataGridTextColumn Header="Source" Binding="{Binding Source}" />
+                                <DataGridTextColumn Header="UTC" Binding="{Binding UtcDateTime}" />
+                                <DataGridTextColumn Header="Latitude" Binding="{Binding Latitude}" />
+                                <DataGridTextColumn Header="Longitude" Binding="{Binding Longitude}" />
+                                <DataGridTextColumn Header="Elevation"
+                                                    Binding="{Binding Elevation, Converter={StaticResource MetersToFeet}, StringFormat=N0}" />
+                            </DataGrid.Columns>
+                        </DataGrid>
+                        <wpf:WebView2 Grid.Row="3"
+                                      Visibility="{Binding StatusContext.BlockUi, Converter={StaticResource BooleanNotToVisibility}}">
+                            <b:Interaction.Behaviors>
+                                <wpfHtml:WebViewHtmlStringBindingBehavior HtmlString="{Binding WriteToFileHtml}" />
+                                <wpfHtml:WebViewPostJsonOnChangeBehavior JsonData="{Binding WriteToFileGeoJsonDto}" />
+                            </b:Interaction.Behaviors>
+                        </wpf:WebView2>
+                    </Grid>
+                </GroupBox>
             </TabItem>
         </TabControl>
     </Grid>

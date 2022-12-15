@@ -8,7 +8,7 @@ namespace PointlessWaymarks.GeoTaggingService;
 
 public class GeoTag
 {
-    public async Task<GeoTagResult> Tag(List<FileInfo> filesToTag, List<IGpxService> gpxServices, bool testRun,
+    public async Task<GeoTagResult> Tag(List<FileInfo> filesToTag, List<IGpxService> gpxServices, bool previewRun,
         bool createBackupBeforeWritingMetadata, bool backupIntoDefaultStorage, int pointMustBeWithinMinutes,
         int adjustCreatedTimeInMinutes,
         bool overwriteExistingLatLong, string? exifToolFullName = null, IProgress<string>? progress = null)
@@ -22,7 +22,7 @@ public class GeoTag
         var returnFileResults = new List<GeoTagFileResult>();
 
 
-        if (!createBackupBeforeWritingMetadata && !testRun)
+        if (!createBackupBeforeWritingMetadata && !previewRun)
         {
             var backupWarning =
                 "WARNING - writing metadata into files is never going to be 100% without errors - this method is running without creating backups ('in place updates only') - in the future consider allowing backups to be created to avoid any unfortunate incidents where metadata additions result in corrupted files!";
@@ -239,7 +239,7 @@ public class GeoTag
                 $"GeoTag - For {loopFile.file.FullName} found Lat: {latitude} Long: {longitude} Elevation {elevation} from {closest.Source}");
 
 
-            if (createBackupBeforeWritingMetadata && !testRun)
+            if (createBackupBeforeWritingMetadata && !previewRun)
             {
                 bool backUpSuccessful;
 
@@ -267,13 +267,13 @@ public class GeoTag
             if (FileMetadataTools.TagSharpSupportedExtensions.Contains(loopFile.file.Extension,
                     StringComparer.OrdinalIgnoreCase))
             {
-                if (testRun)
+                if (previewRun)
                 {
                     returnFileResults.Add(new GeoTagFileResult(loopFile.file.FullName, "Test Success",
-                        "This is a Test Run - Would Write {latitude}, {longitude} - Elevation: {elevation} with TagSharp.",
+                        "Found {latitude}, {longitude} - Elevation: {elevation} - will write with TagSharp.",
                         closest.Source, loopFile.createdUtc, latitude, longitude, elevation));
                     progress?.Report(
-                        $"GeoTag - TestRun - would result in a TagSharp write of {latitude}, {longitude} - Elevation: {elevation} to {loopFile.file.FullName}");
+                        $"GeoTag - Preview Result {latitude}, {longitude} - Elevation: {elevation} to {loopFile.file.FullName}");
                     continue;
                 }
 
@@ -307,10 +307,10 @@ public class GeoTag
                 : $"-GPSLatitude*={latitude} -GPSLongitude*={longitude} -GPSAltitude*={elevation} -overwrite_original \"{loopFile.file.FullName}\"";
             try
             {
-                if (testRun)
+                if (previewRun)
                 {
                     returnFileResults.Add(new GeoTagFileResult(loopFile.file.FullName, "Test Success",
-                        $"This is a Test Run - Would Write {latitude}, {longitude} - Elevation: {elevation} with ExifTool.",
+                        $"Found {latitude}, {longitude} - Elevation: {elevation} - will write with  ExifTool.",
                         closest.Source, loopFile.createdUtc, latitude, longitude, elevation));
                     continue;
                 }
