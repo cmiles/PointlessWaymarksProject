@@ -1,5 +1,6 @@
 ﻿<#@ template language="C#" #>
 <#@ import namespace="PointlessWaymarks.CmsData.CommonHtml" #>
+<#@ import namespace="PointlessWaymarks.CommonTools" #>
 <!DOCTYPE html>
 <html lang="en">
 <head data-contentversion="<#=
@@ -67,7 +68,7 @@
         <#=
                 BodyContentReferences.CompactContentTag(DbEntry, GenerationVersion).Result #>
         <#=
-                Tags.PreviousAndNextPostsDiv(PreviousPosts, LaterPosts) #>
+                Tags.PreviousAndNextContentDiv(PreviousPosts, LaterPosts) #>
         <#=
                     Tags.UpdateNotesDiv(DbEntry).Result.ToString() #>
     </div>

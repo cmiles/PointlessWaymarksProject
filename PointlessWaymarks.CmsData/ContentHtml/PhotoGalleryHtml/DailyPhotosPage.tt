@@ -3,6 +3,7 @@
 <#@ import namespace="System.Linq" #>
 <#@ import namespace="PointlessWaymarks.CmsData.CommonHtml" #>
 <#@ import namespace="PointlessWaymarks.CmsData.Database.Models" #>
+<#@ import namespace="PointlessWaymarks.CommonTools" #>
 <!DOCTYPE html>
 <html lang="en">
 <head data-generationversion="<#=
@@ -59,7 +60,7 @@
                     ImageList.Select(x => ((IContentId) x.Pictures.DbEntry).ContentId).ToList(), GenerationVersion)
                     .Result #>
         <#=
-                DailyPhotosPageParts.PreviousAndNextPostsDiv(this) #>
+                DailyPhotosPageParts.PreviousAndNextDailyPhotosDiv(this) #>
     </div>
     <#= HorizontalRule.StandardRule() #>
     <#= Footer.StandardFooterDiv().Result #>

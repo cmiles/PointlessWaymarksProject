@@ -2,6 +2,7 @@
 <#@ import namespace="System.Collections.Generic" #>
 <#@ import namespace="PointlessWaymarks.CmsData.CommonHtml" #>
 <#@ import namespace="PointlessWaymarks.CmsData.Database.Models" #>
+<#@ import namespace="PointlessWaymarks.CommonTools" #>
 <!DOCTYPE html>
 <html lang="en">
 <head data-generationversion="<#=
@@ -44,9 +45,9 @@
     <#= HorizontalRule.StandardRule() #>
     <#= IndexPosts() #>
     <#=
-                    Tags.PreviousAndNextPostsDiv(PreviousPosts, new List<IContentCommon>()) #>
+                    Tags.PreviousAndNextContentDiv(PreviousPosts, new List<IContentCommon>()) #>
     <#=
-                    HorizontalRule.StandardRuleIfNotEmptyTag(Tags.PreviousAndNextPostsDiv(PreviousPosts,
+                    HorizontalRule.StandardRuleIfNotEmptyTag(Tags.PreviousAndNextContentDiv(PreviousPosts,
                         new List<IContentCommon>())) #>
     <#= Footer.StandardFooterDiv().Result #>
 </body>

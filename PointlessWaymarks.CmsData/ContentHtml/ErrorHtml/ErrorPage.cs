@@ -7,19 +7,17 @@
 //     the code is regenerated.
 // </auto-generated>
 // ------------------------------------------------------------------------------
-
-using PointlessWaymarks.CommonTools;
-
 namespace PointlessWaymarks.CmsData.ContentHtml.ErrorHtml
 {
     using PointlessWaymarks.CmsData.CommonHtml;
+    using PointlessWaymarks.CommonTools;
     using System;
     
     /// <summary>
     /// Class to produce the template output
     /// </summary>
     
-    #line 1 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\ErrorHtml\ErrorPage.tt"
+    #line 1 "C:\Code\PointlessWaymarksCms03\PointlessWaymarks.CmsData\ContentHtml\ErrorHtml\ErrorPage.tt"
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.TextTemplating", "16.0.0.0")]
     public partial class ErrorPage : ErrorPageBase
     {
@@ -31,140 +29,154 @@ namespace PointlessWaymarks.CmsData.ContentHtml.ErrorHtml
         {
             this.Write("<!DOCTYPE html>\r\n<html lang=\"en\">\r\n<head data-generationversion=\"");
             
-            #line 5 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\ErrorHtml\ErrorPage.tt"
+            #line 6 "C:\Code\PointlessWaymarksCms03\PointlessWaymarks.CmsData\ContentHtml\ErrorHtml\ErrorPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(GenerationVersion?.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fffffff") ?? string.Empty));
             
             #line default
             #line hidden
             this.Write("\" lang=\"");
             
-            #line 6 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\ErrorHtml\ErrorPage.tt"
+            #line 7 "C:\Code\PointlessWaymarksCms03\PointlessWaymarks.CmsData\ContentHtml\ErrorHtml\ErrorPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(LangAttribute));
             
             #line default
             #line hidden
-            this.Write("\" >\r\n    <meta charset=\"utf-8\">\r\n    <meta name=\"robots\" content=\"noindex\" />\r\n    <title>");
+            this.Write("\" dir=\"");
             
-            #line 9 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\ErrorHtml\ErrorPage.tt"
+            #line 7 "C:\Code\PointlessWaymarksCms03\PointlessWaymarks.CmsData\ContentHtml\ErrorHtml\ErrorPage.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(DirAttribute));
+            
+            #line default
+            #line hidden
+            this.Write("\" dir=\"");
+            
+            #line 7 "C:\Code\PointlessWaymarksCms03\PointlessWaymarks.CmsData\ContentHtml\ErrorHtml\ErrorPage.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(DirAttribute));
+            
+            #line default
+            #line hidden
+            this.Write("\">\r\n    <meta charset=\"utf-8\">\r\n    <meta name=\"robots\" content=\"noindex\" />\r\n    <title>");
+            
+            #line 10 "C:\Code\PointlessWaymarksCms03\PointlessWaymarks.CmsData\ContentHtml\ErrorHtml\ErrorPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(SiteName));
             
             #line default
             #line hidden
             this.Write("</title>\r\n    <meta name=\"description\" content=\"");
             
-            #line 10 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\ErrorHtml\ErrorPage.tt"
+            #line 11 "C:\Code\PointlessWaymarksCms03\PointlessWaymarks.CmsData\ContentHtml\ErrorHtml\ErrorPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(SiteSummary.HtmlEncode()));
             
             #line default
             #line hidden
             this.Write("\">\r\n    <meta name=\"author\" content=\"");
             
-            #line 11 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\ErrorHtml\ErrorPage.tt"
+            #line 12 "C:\Code\PointlessWaymarksCms03\PointlessWaymarks.CmsData\ContentHtml\ErrorHtml\ErrorPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(SiteAuthors.HtmlEncode()));
             
             #line default
             #line hidden
             this.Write("\">\r\n    <meta name=\"keywords\" content=\"");
             
-            #line 12 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\ErrorHtml\ErrorPage.tt"
+            #line 13 "C:\Code\PointlessWaymarksCms03\PointlessWaymarks.CmsData\ContentHtml\ErrorHtml\ErrorPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(SiteKeywords.HtmlEncode()));
             
             #line default
             #line hidden
             this.Write("\" >\r\n\r\n    <meta property=\"og:site_name\" content=\"");
             
-            #line 14 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\ErrorHtml\ErrorPage.tt"
+            #line 15 "C:\Code\PointlessWaymarksCms03\PointlessWaymarks.CmsData\ContentHtml\ErrorHtml\ErrorPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(SiteName.HtmlEncode()));
             
             #line default
             #line hidden
-            this.Write("\" />\r\n    <meta property=\"og:url\" content=\"https:");
+            this.Write("\" />\r\n    <meta property=\"og:url\" content=\"");
             
-            #line 15 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\ErrorHtml\ErrorPage.tt"
+            #line 16 "C:\Code\PointlessWaymarksCms03\PointlessWaymarks.CmsData\ContentHtml\ErrorHtml\ErrorPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(PageUrl));
             
             #line default
             #line hidden
             this.Write("\" />\r\n    <meta property=\"og:type\" content=\"website\" />\r\n    <meta property=\"og:title\" content=\"");
             
-            #line 17 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\ErrorHtml\ErrorPage.tt"
+            #line 18 "C:\Code\PointlessWaymarksCms03\PointlessWaymarks.CmsData\ContentHtml\ErrorHtml\ErrorPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(SiteName.HtmlEncode()));
             
             #line default
             #line hidden
             this.Write("\" />\r\n    <meta property=\"og:description\" content=\"");
             
-            #line 18 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\ErrorHtml\ErrorPage.tt"
+            #line 19 "C:\Code\PointlessWaymarksCms03\PointlessWaymarks.CmsData\ContentHtml\ErrorHtml\ErrorPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(SiteSummary.HtmlEncode()));
             
             #line default
             #line hidden
             this.Write("\" />\r\n\r\n    <link rel = \"schema.DC\" href = \"http://purl.org/DC/elements/1.0/\">\r\n    <meta name=\"DC.Title\" content=\"");
             
-            #line 21 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\ErrorHtml\ErrorPage.tt"
+            #line 22 "C:\Code\PointlessWaymarksCms03\PointlessWaymarks.CmsData\ContentHtml\ErrorHtml\ErrorPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(SiteName.HtmlEncode()));
             
             #line default
             #line hidden
             this.Write("\">\r\n    <meta name=\"DC.Creator\" content=\"");
             
-            #line 22 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\ErrorHtml\ErrorPage.tt"
+            #line 23 "C:\Code\PointlessWaymarksCms03\PointlessWaymarks.CmsData\ContentHtml\ErrorHtml\ErrorPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(SiteAuthors.HtmlEncode()));
             
             #line default
             #line hidden
             this.Write("\">\r\n    <meta name=\"DC.Publisher\" content=\"");
             
-            #line 23 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\ErrorHtml\ErrorPage.tt"
+            #line 24 "C:\Code\PointlessWaymarksCms03\PointlessWaymarks.CmsData\ContentHtml\ErrorHtml\ErrorPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(SiteName.HtmlEncode()));
             
             #line default
             #line hidden
             this.Write("\">\r\n    <meta name=\"DC.Description\" content=\"");
             
-            #line 24 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\ErrorHtml\ErrorPage.tt"
+            #line 25 "C:\Code\PointlessWaymarksCms03\PointlessWaymarks.CmsData\ContentHtml\ErrorHtml\ErrorPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(SiteSummary.HtmlEncode()));
             
             #line default
             #line hidden
             this.Write("\">\r\n    <meta name=\"DC.Format\" content=\"text/html\">\r\n    <meta name=\"DC.Language\" content=\"en-US\">\r\n\r\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\r\n\r\n    ");
             
-            #line 30 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\ErrorHtml\ErrorPage.tt"
+            #line 31 "C:\Code\PointlessWaymarksCms03\PointlessWaymarks.CmsData\ContentHtml\ErrorHtml\ErrorPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Tags.CssStyleFileString()));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 31 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\ErrorHtml\ErrorPage.tt"
+            #line 32 "C:\Code\PointlessWaymarksCms03\PointlessWaymarks.CmsData\ContentHtml\ErrorHtml\ErrorPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Tags.FavIconFileString()));
             
             #line default
             #line hidden
             this.Write("\r\n</head>\r\n\r\n<body>\r\n   ");
             
-            #line 35 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\ErrorHtml\ErrorPage.tt"
+            #line 36 "C:\Code\PointlessWaymarksCms03\PointlessWaymarks.CmsData\ContentHtml\ErrorHtml\ErrorPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Tags.StandardHeader().Result.ToString()));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 36 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\ErrorHtml\ErrorPage.tt"
+            #line 37 "C:\Code\PointlessWaymarksCms03\PointlessWaymarks.CmsData\ContentHtml\ErrorHtml\ErrorPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(HorizontalRule.StandardRule()));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 37 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\ErrorHtml\ErrorPage.tt"
+            #line 38 "C:\Code\PointlessWaymarksCms03\PointlessWaymarks.CmsData\ContentHtml\ErrorHtml\ErrorPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Tags.TitleDiv("Error...").ToString()));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 38 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\ErrorHtml\ErrorPage.tt"
+            #line 39 "C:\Code\PointlessWaymarksCms03\PointlessWaymarks.CmsData\ContentHtml\ErrorHtml\ErrorPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Tags.PostBodyDivFromMarkdown(
                         "<p style=\"text-align: center;\">There was an unexpected error - maybe try again, go back or visit the {{index; text homepage;}}?</p>")
                         .Result.ToString()));
@@ -173,14 +185,14 @@ namespace PointlessWaymarks.CmsData.ContentHtml.ErrorHtml
             #line hidden
             this.Write("\r\n    ");
             
-            #line 42 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\ErrorHtml\ErrorPage.tt"
+            #line 43 "C:\Code\PointlessWaymarksCms03\PointlessWaymarks.CmsData\ContentHtml\ErrorHtml\ErrorPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(HorizontalRule.StandardRule()));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 43 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\ErrorHtml\ErrorPage.tt"
+            #line 44 "C:\Code\PointlessWaymarksCms03\PointlessWaymarks.CmsData\ContentHtml\ErrorHtml\ErrorPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Footer.StandardFooterDiv().Result));
             
             #line default
