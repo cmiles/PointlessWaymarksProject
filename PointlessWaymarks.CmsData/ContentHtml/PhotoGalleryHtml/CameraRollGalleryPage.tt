@@ -1,5 +1,6 @@
 ﻿<#@ template language="C#" #>
 <#@ import namespace="PointlessWaymarks.CmsData.CommonHtml" #>
+<#@ import namespace="PointlessWaymarks.CommonTools" #>
 <!DOCTYPE html>
 <html lang="en">
 <head data-generationversion="<#=
