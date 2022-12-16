@@ -19,16 +19,23 @@
     <Grid>
         <TabControl SelectedIndex="{Binding SelectedTab, Mode=TwoWay}">
             <TabItem Header="Files To Tag">
-                <GroupBox Header="Files To Tag" Margin="4">
-                    <Grid Margin="4">
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="*" />
-                        </Grid.RowDefinitions>
-                        <TextBlock Margin="4" HorizontalAlignment="Center" TextWrapping="Wrap">Use the buttons below to add all files in a Directory, all files in a Directory and all Subdirectories or to pick Files that will be compared to the GPX/location information in the previous tab. You can also delete items in the list below.</TextBlock>
-                        <fileList:FileListControl DataContext="{Binding FilesToTagFileList}" Grid.Row="1" Margin="4" />
-                    </Grid>
-                </GroupBox>
+                <Grid>
+                    <GroupBox Header="Files To Tag" Margin="4">
+                        <Grid Margin="4">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="*" />
+                            </Grid.RowDefinitions>
+                            <TextBlock Margin="4" HorizontalAlignment="Center" TextWrapping="Wrap">Use the buttons below to add all files in a Directory, all files in a Directory and all Subdirectories or to pick Files that will be compared to the GPX/location information in the previous tab. You can also delete items in the list below.</TextBlock>
+                            <fileList:FileListControl DataContext="{Binding FilesToTagFileList}" Grid.Row="1"
+                                                      Margin="4" />
+                        </Grid>
+                    </GroupBox>
+                    <Button VerticalAlignment="Top" HorizontalAlignment="Right" Width="240" Margin="0,8,12,0"
+                            Command="{Binding NextTabCommand}">
+                        Next - PAD-US Settings ->
+                    </Button>
+                </Grid>
             </TabItem>
             <TabItem Header="PAD-US">
                 <Grid>
@@ -98,6 +105,10 @@
                     <GroupBox Header="PAD-US Help and Instructions" Grid.Row="1" Margin="4,0,4,4">
                         <wpf:MarkdownViewer Margin="4" Markdown="{Binding PadUsOverviewMarkdown}" />
                     </GroupBox>
+                    <Button Grid.Row="0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="240" Margin="0,8,12,0"
+                            Command="{Binding NextTabCommand}">
+                        Next - GeoJson Feature Files ->
+                    </Button>
                 </Grid>
             </TabItem>
             <TabItem Header="GeoJson Feature Files">
@@ -193,7 +204,13 @@
                     <GroupBox Header="PAD-US Help and Instructions" Grid.Row="1" Margin="4,0,4,4">
                         <wpf:MarkdownViewer Margin="4" Markdown="{Binding GeoJsonFileOverviewMarkdown}" />
                     </GroupBox>
-                    <controls:FeatureFileEditorControl Grid.Row="0" Grid.RowSpan="2" DataContext="{Binding FeatureFileToEdit}"></controls:FeatureFileEditorControl>
+                    <controls:FeatureFileEditorControl Grid.Row="0" Grid.RowSpan="2"
+                                                       DataContext="{Binding FeatureFileToEdit}">
+                    </controls:FeatureFileEditorControl>
+                    <Button Grid.Row="0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="240" Margin="0,8,12,0"
+                            Command="{Binding NextTabCommand}">
+                        Next - Settings ->
+                    </Button>
                 </Grid>
             </TabItem>
             <TabItem Header="Settings">
@@ -308,11 +325,7 @@
             <TabItem Header="File Write Results">
                 <GroupBox Header="Results">
                     <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="*" />
-                        </Grid.RowDefinitions>
-                        <DataGrid Grid.Row="1" ItemsSource="{Binding WriteToFileResults}" CanUserAddRows="False"
+                        <DataGrid ItemsSource="{Binding WriteToFileResults}" CanUserAddRows="False"
                                   CanUserReorderColumns="true"
                                   CanUserDeleteRows="false" CanUserResizeColumns="true" CanUserResizeRows="false"
                                   CanUserSortColumns="true" AutoGenerateColumns="false" FrozenColumnCount="2"

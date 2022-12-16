@@ -118,6 +118,8 @@ public static class WpfHtmlDocument
             doubleClickZoom: false
         }});
 
+        map.panTo({{ lat: {initialLatitude}, lng: {initialLongitude} }});
+
         var baseMaps = {{
             {string.Join(",", layers.Select(x => $"\"{x.LayerName}\" : {x.LayerVariableName}"))}
         }};

@@ -79,7 +79,10 @@ public partial class FeatureIntersectTaggerContext
         SaveSettingsFromFileCommand = StatusContext.RunBlockingTaskCommand(WriteCurrentSettingsAndReturnSettings);
 
         MetadataForSelectedFilesToTagCommand = StatusContext.RunBlockingTaskCommand(MetadataForSelectedFilesToTag);
+        NextTabCommand = StatusContext.RunNonBlockingActionCommand(() => SelectedTab++);
     }
+
+    public RelayCommand NextTabCommand { get; set; }
 
     public RelayCommand WriteToFilesCommand { get; set; }
 
