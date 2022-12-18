@@ -4,6 +4,19 @@ namespace PointlessWaymarks.WpfCommon.Utility;
 
 public static class ProcessHelpers
 {
+    public static async Task OpenExplorerWindowForDirectory(string directoryName)
+    {
+        await ThreadSwitcher.ThreadSwitcher.ResumeForegroundAsync();
+
+        var ps = new ProcessStartInfo("explorer.exe", $" \"{directoryName}\"")
+        {
+            UseShellExecute = true, Verb = "open"
+        };
+
+        Process.Start(ps);
+    }
+
+
     public static async Task OpenExplorerWindowForFile(string fileName)
     {
         await ThreadSwitcher.ThreadSwitcher.ResumeForegroundAsync();

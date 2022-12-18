@@ -66,26 +66,27 @@ public static partial class GarminConnectTools
 
         return returnList.OrderByDescending(x => x.StartTimeLocal).ToList();
     }
-    
-    [GeneratedRegex(@".*-gc(?<gcId>.*)\..*", RegexOptions.IgnoreCase | RegexOptions.Multiline | RegexOptions.ExplicitCapture)]
+
+    [GeneratedRegex(@".*-gc(?<gcId>.*)\..*",
+        RegexOptions.IgnoreCase | RegexOptions.Multiline | RegexOptions.ExplicitCapture)]
     private static partial Regex GarminArchiveActivityIdRegex();
-    
+
     public static List<(long activityId, FileInfo file)> JsonActivityFilesFromDirectory(string directoryName)
     {
         if (string.IsNullOrWhiteSpace(directoryName) || !Directory.Exists(directoryName))
             return new List<(long activityId, FileInfo file)>();
-        
+
         var archiveDirectory = new DirectoryInfo(directoryName);
         var archiveJsonFiles = archiveDirectory.EnumerateFiles("*-gc*.json", SearchOption.TopDirectoryOnly).ToList();
 
         return ActivityIdAndFile(archiveJsonFiles);
     }
-    
+
     public static List<(long activityId, FileInfo file)> GpxActivityFilesFromDirectory(string directoryName)
     {
         if (string.IsNullOrWhiteSpace(directoryName) || !Directory.Exists(directoryName))
             return new List<(long activityId, FileInfo file)>();
-        
+
         var archiveDirectory = new DirectoryInfo(directoryName);
         var archiveJsonFiles = archiveDirectory.EnumerateFiles("*-gc*.gpx", SearchOption.TopDirectoryOnly).ToList();
 
@@ -130,23 +131,32 @@ public static partial class GarminConnectTools
     {
         return $"{ArchiveBaseFileName(activity)}.json";
     }
-    
+
     public static string ArchiveGpxFileName(GarminActivity activity)
     {
         return $"{ArchiveBaseFileName(activity)}.gpx";
     }
 
     public static async Task<FileInfo?> GetGpx(GarminActivity activity, DirectoryInfo archiveDirectory,
-        bool overwriteExistingFile, string connectUserName, string connectPassword)
+        bool tryCreateDirectoryIfNotFound, bool overwriteExistingFile, string connectUserName, string connectPassword)
     {
         if (!archiveDirectory.Exists)
         {
-            archiveDirectory.Create();
-            archiveDirectory.Refresh();
-            if (!archiveDirectory.Exists)
+            if (tryCreateDirectoryIfNotFound)
+            {
+                archiveDirectory.Create();
+                archiveDirectory.Refresh();
+                if (!archiveDirectory.Exists)
+                    throw new DirectoryNotFoundException(
+                        $"Directory {archiveDirectory.FullName} not found and could not be created.");
+            }
+            else
+            {
                 throw new DirectoryNotFoundException(
-                    $"Directory {archiveDirectory.FullName} not found and could not be created.");
+                    $"Directory {archiveDirectory.FullName} not found.");
+            }
         }
+
 
         var safeGpxFile =
             new FileInfo(Path.Combine(archiveDirectory.FullName, $"{ArchiveBaseFileName(activity)}.gpx"));

@@ -165,7 +165,7 @@ public class GpxTrackImport
                 try
                 {
                     var gpxFile = await GarminConnectTools.GetGpx(loopActivity, archiveDirectory,
-                        settings.OverwriteExistingArchiveDirectoryFiles, settings.ConnectUserName,
+                        true, settings.OverwriteExistingArchiveDirectoryFiles, settings.ConnectUserName,
                         settings.ConnectPassword);
 
                     fileList.Add((jsonArchiveFile, gpxFile));

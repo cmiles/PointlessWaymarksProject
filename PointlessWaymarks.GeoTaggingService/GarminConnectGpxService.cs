@@ -57,7 +57,7 @@ public class GarminConnectGpxService : IGpxService
 
         foreach (var loopActivity in activities)
         {
-            var gpxFile = await SpatialTools.GarminConnectTools.GetGpx(loopActivity, new DirectoryInfo(ArchiveDirectory), false,
+            var gpxFile = await SpatialTools.GarminConnectTools.GetGpx(loopActivity, new DirectoryInfo(ArchiveDirectory), false, false,
                 ConnectUsername, ConnectPassword);
 
             if (gpxFile is null) continue;

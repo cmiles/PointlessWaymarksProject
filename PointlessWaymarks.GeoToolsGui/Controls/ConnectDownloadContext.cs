@@ -5,12 +5,17 @@ using System.Text.RegularExpressions;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Garmin.Connect.Models;
+using NetTopologySuite.Features;
+using NetTopologySuite.Geometries;
 using Ookii.Dialogs.Wpf;
+using PointlessWaymarks.CmsData.ContentHtml.GeoJsonHtml;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.GeoToolsGui.Settings;
 using PointlessWaymarks.SpatialTools;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
+using PointlessWaymarks.WpfCommon.Utility;
+using PointlessWaymarks.WpfCommon.WpfHtml;
 using Task = System.Threading.Tasks.Task;
 
 namespace PointlessWaymarks.GeoToolsGui.Controls;
@@ -45,10 +50,37 @@ public partial class ConnectDownloadContext
         RemoveAllGarminCredentialsCommand = StatusContext.RunNonBlockingTaskCommand(RemoveAllGarminCredentials);
         ChooseArchiveDirectoryCommand = StatusContext.RunBlockingTaskCommand(ChooseArchiveDirectory);
         DownloadActivityCommand = StatusContext.RunBlockingTaskCommand<GarminActivityAndLocalFiles>(DownloadActivity);
+        ShowGpxFileCommand = StatusContext.RunBlockingTaskCommand<GarminActivityAndLocalFiles>(ShowGpxFile);
+        ShowFileInExplorerCommand = StatusContext.RunNonBlockingTaskCommand<string>(ShowFileInExplorer);
+        
+        ShowArchiveDirectoryCommand = StatusContext.RunNonBlockingTaskCommand(ShowArchiveDirectory);
 
 
         PropertyChanged += OnPropertyChanged;
     }
+
+    public RelayCommand<string> ShowFileInExplorerCommand { get; set; }
+
+    public RelayCommand ShowArchiveDirectoryCommand { get; set; }
+
+    public async System.Threading.Tasks.Task ShowArchiveDirectory()
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+        
+        CheckThatArchiveDirectoryExists();
+
+        if (!ArchiveDirectoryExists)
+        {
+            StatusContext.ToastError("Directory Does Not Exist - can not show...");
+            return;
+        }
+
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        await ProcessHelpers.OpenExplorerWindowForDirectory(ArchiveDirectory.Trim());
+    }
+    
+    public RelayCommand<GarminActivityAndLocalFiles> ShowGpxFileCommand { get; set; }
 
     public RelayCommand<GarminActivityAndLocalFiles> DownloadActivityCommand { get; set; }
 
@@ -169,7 +201,7 @@ public partial class ConnectDownloadContext
             foreach (var loopActivities in returnList)
             {
                 var loopActivityArchiveJsonFileName = GarminConnectTools.ArchiveJsonFileName(loopActivities.Activity);
-                var loopActivityArchiveGpxFileName = GarminConnectTools.ArchiveJsonFileName(loopActivities.Activity);
+                var loopActivityArchiveGpxFileName = GarminConnectTools.ArchiveGpxFileName(loopActivities.Activity);
 
                 loopActivities.ArchivedGpx =
                     new FileInfo(Path.Combine(_archiveDirectory, loopActivityArchiveGpxFileName));
@@ -182,6 +214,24 @@ public partial class ConnectDownloadContext
         var filterRequest = Guid.NewGuid();
         _searchAndFilterLatestRequestId = filterRequest;
         await FilterAndSortResults(filterRequest);
+    }
+
+    public async System.Threading.Tasks.Task ShowFileInExplorer(string fileName)
+    {
+        if (string.IsNullOrWhiteSpace(fileName))
+        {
+            StatusContext.ToastError("No Filename to Show?");
+            return;
+        }
+
+        if (!File.Exists(fileName.Trim()))
+        {
+            StatusContext.ToastError($"{fileName} does not exist?");
+            return;
+        }
+        
+        await ThreadSwitcher.ResumeForegroundAsync();
+        await ProcessHelpers.OpenExplorerWindowForFile(fileName.Trim());
     }
 
     public async System.Threading.Tasks.Task DownloadActivity(GarminActivityAndLocalFiles toDownload)
@@ -208,11 +258,59 @@ public partial class ConnectDownloadContext
 
         toDownload.ArchivedJson =
             await GarminConnectTools.WriteJsonActivityArchiveFile(toDownload.Activity, archiveDirectory, true);
-        toDownload.ArchivedGpx = await GarminConnectTools.GetGpx(toDownload.Activity, archiveDirectory, true,
+        toDownload.ArchivedGpx = await GarminConnectTools.GetGpx(toDownload.Activity, archiveDirectory, false, true,
             credentials.userName,
             credentials.password);
 
         StatusContext.ToastSuccess($"Downloaded {toDownload.ArchivedJson.Name} {toDownload.ArchivedGpx?.Name}");
+    }
+
+    public async System.Threading.Tasks.Task ShowGpxFile(GarminActivityAndLocalFiles toShow)
+    {
+        CheckThatArchiveDirectoryExists();
+
+        if (!ArchiveDirectoryExists)
+        {
+            StatusContext.ToastError("A valid Archive Directory must be set to show a GPX file...");
+            return;
+        }
+        
+        if (toShow.ArchivedGpx is not { Exists: true })
+        {
+            await DownloadActivity(toShow);
+        }
+
+        if (toShow.ArchivedGpx is not { Exists: true })
+        {
+            StatusContext.ToastError("Could not find or download GPX file...");
+            return;
+        }
+
+        var featureList = new List<Feature>();
+        var bounds = new Envelope();
+
+        var fileFeatures = await GpxTools.TrackLinesFromGpxFile(toShow.ArchivedGpx);
+        bounds.ExpandToInclude(fileFeatures.boundingBox);
+        featureList.AddRange(fileFeatures.features);
+
+        var newCollection = new FeatureCollection();
+        featureList.ForEach(x => newCollection.Add(x));
+
+        var jsonDto = new GeoJsonData.GeoJsonSiteJsonData(Guid.NewGuid().ToString(),
+            new GeoJsonData.SpatialBounds(bounds.MaxY, bounds.MaxX, bounds.MinY, bounds.MinX), newCollection);
+
+        var previewDto = await GeoJsonTools.SerializeWithGeoJsonSerializer(jsonDto);
+
+        var previewHtml = WpfHtmlDocument.ToHtmlLeafletBasicGeoJsonDocument("GeoJson",
+            32.12063, -110.52313, string.Empty);
+
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        var newPreviewWindow = new WebViewWindow();
+        newPreviewWindow.PositionWindowAndShow();
+        newPreviewWindow.WindowTitle = "GPX Preview";
+        newPreviewWindow.PreviewHtml = previewHtml;
+        newPreviewWindow.PreviewGeoJsonDto = previewDto;
     }
 
     public async System.Threading.Tasks.Task EnterGarminCredentials()
