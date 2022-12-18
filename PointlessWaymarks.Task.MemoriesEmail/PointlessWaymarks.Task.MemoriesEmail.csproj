@@ -10,7 +10,7 @@
     <PackageReference Include="GitInfo" Version="2.3.0" />
     <PackageReference Include="HtmlAgilityPack" Version="1.11.46" />
     <PackageReference Include="IdentityModel" Version="6.0.0" />
-    <PackageReference Include="Mjml.Net" Version="1.11.0" />
+    <PackageReference Include="Mjml.Net" Version="1.15.0" />
     <PackageReference Include="ObjectDumper.NET" Version="3.5.2" />
     <PackageReference Include="System.Net.Http" Version="4.3.4" />
   </ItemGroup>

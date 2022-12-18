@@ -30,9 +30,7 @@ public class BindingProxy : Freezable
     //
     //And a usage example:
     //<DataGridTextColumn Header="Price" Binding="{Binding Price}" IsReadOnly="False"
-    //  Visibility="{Binding Data.ShowPrice,
-    //  Converter={StaticResource visibilityConverter},
-    //  Source={StaticResource proxy}}"/>
+    //  Visibility="{Binding Data.ShowPrice, Converter={StaticResource visibilityConverter}, Source={StaticResource proxy}}"/>
     //
 
     protected override Freezable CreateInstanceCore()

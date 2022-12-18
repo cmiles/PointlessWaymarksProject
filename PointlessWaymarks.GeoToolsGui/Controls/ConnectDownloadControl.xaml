@@ -1,0 +1,117 @@
+﻿<UserControl x:Class="PointlessWaymarks.GeoToolsGui.Controls.ConnectDownloadControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="clr-namespace:PointlessWaymarks.GeoToolsGui.Controls"
+             xmlns:utility="clr-namespace:PointlessWaymarks.WpfCommon.Utility;assembly=PointlessWaymarks.WpfCommon"
+             xmlns:valueConverters="clr-namespace:PointlessWaymarks.WpfCommon.ValueConverters;assembly=PointlessWaymarks.WpfCommon"
+             mc:Ignorable="d"
+             d:DesignHeight="800" d:DesignWidth="800" d:DataContext="{d:DesignInstance local:ConnectDownloadContext}">
+    <UserControl.Resources>
+        <utility:BindingProxy x:Key="Proxy" Data="{Binding}" />
+        <valueConverters:SecondsToHoursMinutesSecondsConverter x:Key="SecondsToHoursMinutesSeconds"/>
+    </UserControl.Resources>
+    <Grid>
+        <GroupBox Margin="4" Header="Garmin Connect">
+            <Grid>
+                <Grid.Resources>
+                    <Style x:Key="SearchBorder" TargetType="Border">
+                        <Setter Property="CornerRadius" Value="4"></Setter>
+                        <Setter Property="BorderThickness" Value="2"></Setter>
+                        <Setter Property="BorderBrush" Value="LightBlue"></Setter>
+                        <Setter Property="Margin" Value="4,2,4,2"></Setter>
+                    </Style>
+                    <Style x:Key="SearchStackContainer" TargetType="StackPanel">
+                        <Setter Property="Margin" Value="4,4,4,4"></Setter>
+                        <Setter Property="Orientation" Value="Horizontal"></Setter>
+                    </Style>
+                    <Style x:Key="SearchLabel" TargetType="Label">
+                        <Setter Property="Margin" Value="4,0,8,0"></Setter>
+                        <Setter Property="VerticalAlignment" Value="Center"></Setter>
+                    </Style>
+                </Grid.Resources>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"></RowDefinition>
+                    <RowDefinition Height="Auto"></RowDefinition>
+                    <RowDefinition Height="Auto"></RowDefinition>
+                    <RowDefinition Height="*"></RowDefinition>
+                </Grid.RowDefinitions>
+                <WrapPanel Orientation="Horizontal" Margin="18,4,4,4">
+                    <Border Style="{StaticResource SearchBorder}">
+                        <StackPanel Style="{StaticResource SearchStackContainer}">
+                            <Label Style="{StaticResource SearchLabel}" Target="SearchStartDatePicker">Search Start</Label>
+                            <DatePicker Name="SearchStartDatePicker" SelectedDate="{Binding SearchStartDate}"></DatePicker>
+                        </StackPanel>
+                    </Border>
+                    <Border Style="{StaticResource SearchBorder}">
+                        <StackPanel Style="{StaticResource SearchStackContainer}">
+                            <Label Style="{StaticResource SearchLabel}" Target="SearchEndDatePicker">Search Start</Label>
+                            <DatePicker Name="SearchEndDatePicker" SelectedDate="{Binding SearchEndDate}"></DatePicker>
+                        </StackPanel>
+                    </Border>
+                    <Border Style="{StaticResource SearchBorder}">
+                        <StackPanel Style="{StaticResource SearchStackContainer}">
+                            <Button Margin="4,0,8,0" Command="{Binding EnterGarminCredentialsCommand}">Enter Garmin Credentials</Button>
+                            <TextBlock Text="{Binding CurrentCredentialsNote}" VerticalAlignment="Center"></TextBlock>
+                            <Button Margin="8,0,4,0" Command="{Binding RemoveAllGarminCredentialsCommand}">Delete All</Button>
+                        </StackPanel>
+                    </Border>
+                    <Border Style="{StaticResource SearchBorder}">
+                        <StackPanel Style="{StaticResource SearchStackContainer}">
+                            <Label Style="{StaticResource SearchLabel}" Target="ArchiveDirectoryTextBox">Archive Directory</Label>
+                            <TextBox MinWidth="240" Name="ArchiveDirectoryTextBox" BorderThickness="1"
+                                     BorderBrush="LightBlue"
+                                     Text="{Binding ArchiveDirectory, UpdateSourceTrigger=PropertyChanged, Delay=250}">
+                            </TextBox>
+                            <TextBlock Visibility="{Binding ArchiveDirectoryExists, Converter={StaticResource BooleanNotToVisibility}}" FontWeight="Bold" Foreground="Red" FontSize="20" VerticalAlignment="Center" Margin="8,0,8,0" ToolTip="Directory Does Not Exist">!</TextBlock>
+                            <Button Margin="8,0,4,0" Command="{Binding ChooseArchiveDirectoryCommand}">Select Directory</Button>
+                        </StackPanel>
+                    </Border>
+                </WrapPanel>
+
+                <Button Grid.Row="1" HorizontalAlignment="Stretch" Margin="12,12,12,16"
+                        Command="{Binding RunSearchCommand}">
+                    Search
+                </Button>
+
+                <WrapPanel Grid.Row="2">
+                    <Border Style="{StaticResource SearchBorder}">
+                        <CheckBox Margin="8,0,8,0" IsChecked="{Binding FilterNoMatchingArchiveFile}">No Matching Archive File</CheckBox>
+                    </Border>
+                    <Border Style="{StaticResource SearchBorder}">
+                        <CheckBox Margin="8,0,8,0" IsChecked="{Binding FilterMatchingArchiveFile}">Matching Archive File</CheckBox>
+                    </Border>
+                    <Border Style="{StaticResource SearchBorder}">
+                        <StackPanel Style="{StaticResource SearchStackContainer}">
+                            <Label Style="{StaticResource SearchLabel}">Name Contains</Label>
+                            <TextBox MinWidth="240" BorderThickness="1" BorderBrush="LightBlue" Text="{Binding FilterName, UpdateSourceTrigger=PropertyChanged, Delay=400}"></TextBox>
+                        </StackPanel>
+                    </Border>
+                    <Border Style="{StaticResource SearchBorder}">
+                        <StackPanel Style="{StaticResource SearchStackContainer}">
+                            <Label Style="{StaticResource SearchLabel}">Location Contains</Label>
+                            <TextBox MinWidth="240" BorderThickness="1" BorderBrush="LightBlue" Text="{Binding FilterLocation, UpdateSourceTrigger=PropertyChanged, Delay=400}"></TextBox>
+                        </StackPanel>
+                    </Border>
+                </WrapPanel>
+
+                <DataGrid Grid.Row="3" Margin="4,12,4,12" ItemsSource="{Binding SearchResultsFiltered}" AutoGenerateColumns="False">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Start Time" Binding="{Binding Activity.StartTimeLocal}"></DataGridTextColumn>
+                        <DataGridTextColumn Header="Name" Binding="{Binding Activity.ActivityName}"></DataGridTextColumn>
+                        <DataGridTextColumn Header="Location" Binding="{Binding Activity.LocationName}"></DataGridTextColumn>
+                        <DataGridTextColumn Header="Duration" Binding="{Binding Activity.Duration, Converter={StaticResource SecondsToHoursMinutesSeconds}}"></DataGridTextColumn>
+                        <DataGridTemplateColumn>
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Button Margin="2" Command="{Binding Data.DownloadActivityCommand, Source={StaticResource Proxy}}" CommandParameter="{Binding .}">Download</Button>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </Grid>
+        </GroupBox>
+    </Grid>
+</UserControl>

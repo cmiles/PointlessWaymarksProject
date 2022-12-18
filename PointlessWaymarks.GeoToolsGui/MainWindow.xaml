@@ -23,7 +23,9 @@
             <TabItem Header="Feature Intersect Tags">
                 <controls1:FeatureIntersectTaggerControl DataContext="{Binding FeatureIntersectContext}" />
             </TabItem>
-
+            <TabItem Header="Garmin Connect Download">
+                <controls1:ConnectDownloadControl DataContext="{Binding GarminConnectDownloadContext}" />
+            </TabItem>
         </TabControl>
         <status:StatusControl DataContext="{Binding StatusContext}" />
     </Grid>

@@ -17,6 +17,7 @@ public partial class MainWindow : Window
     [ObservableProperty] private ConnectBasedGeoTaggerContext? _connectGeoTaggerContext;
     [ObservableProperty] private FeatureIntersectTaggerContext? _featureIntersectContext;
     [ObservableProperty] private FileBasedGeoTaggerContext? _fileGeoTaggerContext;
+    [ObservableProperty] private ConnectDownloadContext? _garminConnectDownloadContext;
     [ObservableProperty] private string _infoTitle;
     [ObservableProperty] private StatusControlContext _statusContext;
     [ObservableProperty] private WindowIconStatus _windowStatus;
@@ -52,5 +53,6 @@ public partial class MainWindow : Window
         FileGeoTaggerContext = await FileBasedGeoTaggerContext.CreateInstance(StatusContext, WindowStatus);
         ConnectGeoTaggerContext = await ConnectBasedGeoTaggerContext.CreateInstance(StatusContext, WindowStatus);
         FeatureIntersectContext = await FeatureIntersectTaggerContext.CreateInstance(StatusContext, WindowStatus);
+        GarminConnectDownloadContext = await ConnectDownloadContext.CreateInstance(StatusContext, WindowStatus);
     }
 }

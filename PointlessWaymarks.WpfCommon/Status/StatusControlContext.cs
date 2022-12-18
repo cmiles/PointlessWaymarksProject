@@ -511,4 +511,5 @@ public partial class StatusControlContext
         StringEntryApproved = false;
         _currentFullScreenCancellationSource?.Cancel();
     }
+
 }
