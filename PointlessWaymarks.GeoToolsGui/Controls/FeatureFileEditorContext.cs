@@ -1,4 +1,6 @@
-﻿using System.IO;
+﻿#region
+
+using System.IO;
 using AnyClone;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -7,6 +9,8 @@ using PointlessWaymarks.GeoToolsGui.Models;
 using PointlessWaymarks.GeoToolsGui.Settings;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
+
+#endregion
 
 namespace PointlessWaymarks.GeoToolsGui.Controls;
 
@@ -100,11 +104,11 @@ public partial class FeatureFileEditorContext
             return;
         }
 
-        var existingFeatures = (await FeatureIntersectionGuiSettingTools.ReadSettings()).FeatureIntersectFiles;
+        var existingFeatures = (await FeatureIntersectTaggerSettingTools.ReadSettings()).FeatureIntersectFiles;
 
         if (!existingFeatures.Any())
         {
-            await FeatureIntersectionGuiSettingTools.SetFeatureFiles(existingFeatures);
+            await FeatureIntersectTaggerSettingTools.SetFeatureFiles(existingFeatures);
             EndEdit?.Invoke(this, FeatureFileEditorEndEditCondition.Saved);
             IsVisible = false;
         }
@@ -122,7 +126,7 @@ public partial class FeatureFileEditorContext
         var newFeatureFiles = existingFeatures.Where(x => x.ContentId != Model.ContentId).ToList();
         newFeatureFiles.Add(Model);
 
-        await FeatureIntersectionGuiSettingTools.SetFeatureFiles(newFeatureFiles);
+        await FeatureIntersectTaggerSettingTools.SetFeatureFiles(newFeatureFiles);
 
         EndEdit?.Invoke(this, FeatureFileEditorEndEditCondition.Saved);
 

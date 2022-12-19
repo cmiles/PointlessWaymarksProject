@@ -27,7 +27,10 @@
                                                       Margin="4" />
                         </Grid>
                     </GroupBox>
-                    <Button VerticalAlignment="Top" HorizontalAlignment="Right" Width="240" Margin="0,8,12,0" Command="{Binding NextTabCommand}">Next - Choose Files To Tag -></Button>
+                    <Button VerticalAlignment="Top" HorizontalAlignment="Right" Width="240" Margin="0,8,12,0"
+                            Command="{Binding NextTabCommand}">
+                        Next - Choose Files To Tag ->
+                    </Button>
                 </Grid>
             </TabItem>
             <TabItem Header="Files To Tag">
@@ -43,7 +46,10 @@
                                                       Margin="4" />
                         </Grid>
                     </GroupBox>
-                    <Button VerticalAlignment="Top" HorizontalAlignment="Right" Width="240" Margin="0,8,12,0"  Command="{Binding NextTabCommand}">Next - Settings -></Button>
+                    <Button VerticalAlignment="Top" HorizontalAlignment="Right" Width="240" Margin="0,8,12,0"
+                            Command="{Binding NextTabCommand}">
+                        Next - Settings ->
+                    </Button>
                 </Grid>
             </TabItem>
             <TabItem Header="Settings">
@@ -59,8 +65,8 @@
                                     <StackPanel Orientation="Vertical">
                                         <Grid>
                                             <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="Auto"></ColumnDefinition>
-                                                <ColumnDefinition></ColumnDefinition>
+                                                <ColumnDefinition Width="Auto" />
+                                                <ColumnDefinition />
                                             </Grid.ColumnDefinitions>
                                             <TextBlock FontWeight="Bold" VerticalAlignment="Center">Path and Filename:</TextBlock>
                                             <TextBox Grid.Column="1" Margin="12,0,8,0" VerticalAlignment="Center"
@@ -104,8 +110,8 @@
                                     <StackPanel Orientation="Vertical">
                                         <Grid>
                                             <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="Auto"></ColumnDefinition>
-                                                <ColumnDefinition></ColumnDefinition>
+                                                <ColumnDefinition Width="Auto" />
+                                                <ColumnDefinition />
                                             </Grid.ColumnDefinitions>
                                             <numericUpDownLib:ShortUpDown HorizontalAlignment="Left"
                                                                           HorizontalContentAlignment="Center"
@@ -119,8 +125,8 @@
                                         </Grid>
                                         <Grid Margin="0,6,0,0">
                                             <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="Auto"></ColumnDefinition>
-                                                <ColumnDefinition></ColumnDefinition>
+                                                <ColumnDefinition Width="Auto" />
+                                                <ColumnDefinition />
                                             </Grid.ColumnDefinitions>
                                             <numericUpDownLib:ShortUpDown HorizontalAlignment="Left"
                                                                           HorizontalContentAlignment="Center"
@@ -157,7 +163,7 @@
                                   CanUserSortColumns="true" AutoGenerateColumns="false" FrozenColumnCount="1">
                             <DataGrid.Columns>
                                 <DataGridTextColumn Header="File Name" Binding="{Binding FileName}" />
-                                <DataGridTextColumn Header="Result" Binding="{Binding Result}" />
+                                <DataGridTextColumn Header="Will Write" Binding="{Binding ShouldWriteMetadata}" />
                                 <DataGridTextColumn Header="Notes" Binding="{Binding Notes}" />
                                 <DataGridTextColumn Header="Source" Binding="{Binding Source}" />
                                 <DataGridTextColumn Header="UTC" Binding="{Binding UtcDateTime}" />
@@ -191,10 +197,9 @@
                                   CanUserSortColumns="true" AutoGenerateColumns="false" FrozenColumnCount="1">
                             <DataGrid.Columns>
                                 <DataGridTextColumn Header="File Name" Binding="{Binding FileName}" />
-                                <DataGridTextColumn Header="Result" Binding="{Binding Result}" />
+                                <DataGridTextColumn Header="Written" Binding="{Binding WroteMetadata}" />
                                 <DataGridTextColumn Header="Notes" Binding="{Binding Notes}" />
                                 <DataGridTextColumn Header="Source" Binding="{Binding Source}" />
-                                <DataGridTextColumn Header="UTC" Binding="{Binding UtcDateTime}" />
                                 <DataGridTextColumn Header="Latitude" Binding="{Binding Latitude}" />
                                 <DataGridTextColumn Header="Longitude" Binding="{Binding Longitude}" />
                                 <DataGridTextColumn Header="Elevation"

@@ -1,4 +1,8 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿#region
+
+using CommunityToolkit.Mvvm.ComponentModel;
+
+#endregion
 
 namespace PointlessWaymarks.GeoToolsGui.Models;
 

@@ -1,13 +1,17 @@
-﻿using System.IO;
+﻿#region
+
+using System.IO;
 using PointlessWaymarks.WpfCommon.FileList;
+
+#endregion
 
 namespace PointlessWaymarks.GeoToolsGui.Settings;
 
-public class GeoTaggingFilesToTagSettings : IFileListSettings
+public class FeatureIntersectTaggerFilesToTagSettings : IFileListSettings
 {
     public async Task<DirectoryInfo?> GetLastDirectory()
     {
-        var lastDirectory = (await GeoTaggingGuiSettingTools.ReadSettings()).FilesToTagLastDirectoryFullName;
+        var lastDirectory = (await FeatureIntersectTaggerSettingTools.ReadSettings()).FilesToTagLastDirectoryFullName;
 
         if (string.IsNullOrWhiteSpace(lastDirectory)) return null;
 
@@ -20,8 +24,8 @@ public class GeoTaggingFilesToTagSettings : IFileListSettings
 
     public async System.Threading.Tasks.Task SetLastDirectory(string newDirectory)
     {
-        var settings = await GeoTaggingGuiSettingTools.ReadSettings();
+        var settings = await FeatureIntersectTaggerSettingTools.ReadSettings();
         settings.FilesToTagLastDirectoryFullName = newDirectory ?? string.Empty;
-        await GeoTaggingGuiSettingTools.WriteSettings(settings);
+        await FeatureIntersectTaggerSettingTools.WriteSettings(settings);
     }
 }

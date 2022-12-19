@@ -1,20 +1,24 @@
-﻿using System.IO;
+﻿#region
+
+using System.IO;
 using System.Text.Json;
 using PointlessWaymarks.CommonTools;
 
+#endregion
+
 namespace PointlessWaymarks.GeoToolsGui.Settings;
 
-public static class GeoTaggingGuiSettingTools
+public class ConnectDownloadSettingTools
 {
     public static async Task<FileInfo> DefaultSettingsFile()
     {
         var settingsFile =
             new FileInfo(Path.Combine(FileLocationTools.DefaultStorageDirectory().FullName,
-                "PwGeoTaggingGuiSettings.json"));
+                "PwGtgConnectDownloadSettings.json"));
 
         if (!settingsFile.Exists)
         {
-            var blankSettings = new PointlessWaymarksGeoTaggingGuiSettings();
+            var blankSettings = new ConnectDownloadSettings();
             var serializedSettings =
                 JsonSerializer.Serialize(blankSettings, new JsonSerializerOptions { WriteIndented = true });
             await File.WriteAllTextAsync(settingsFile.FullName, serializedSettings);
@@ -24,17 +28,15 @@ public static class GeoTaggingGuiSettingTools
         return settingsFile;
     }
 
-    public static async Task<PointlessWaymarksGeoTaggingGuiSettings> ReadSettings()
+    public static async Task<ConnectDownloadSettings> ReadSettings()
     {
-        PointlessWaymarksGeoTaggingGuiSettings? settings;
-
-        return JsonSerializer.Deserialize<PointlessWaymarksGeoTaggingGuiSettings>(
+        return JsonSerializer.Deserialize<ConnectDownloadSettings>(
                    await File.ReadAllTextAsync((await DefaultSettingsFile()).FullName)) ??
-               new PointlessWaymarksGeoTaggingGuiSettings();
+               new ConnectDownloadSettings();
     }
 
-    public static async Task<PointlessWaymarksGeoTaggingGuiSettings> WriteSettings(
-        PointlessWaymarksGeoTaggingGuiSettings setting)
+    public static async Task<ConnectDownloadSettings> WriteSettings(
+        ConnectDownloadSettings setting)
     {
         var settingsFile = await DefaultSettingsFile();
         var serializedSettings = JsonSerializer.Serialize(setting, new JsonSerializerOptions { WriteIndented = true });

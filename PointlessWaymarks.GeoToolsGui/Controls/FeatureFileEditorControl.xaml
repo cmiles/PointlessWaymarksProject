@@ -18,27 +18,27 @@
     <Grid Visibility="{Binding IsVisible, Converter={StaticResource BooleanToVisibility}}" Background="LightGray"
           Margin="0">
         <Grid VerticalAlignment="Center" Margin="12,0">
-            <Border CornerRadius="6" Background="White" BorderThickness="2" BorderBrush="LightSkyBlue"></Border>
+            <Border CornerRadius="6" Background="White" BorderThickness="2" BorderBrush="LightSkyBlue" />
             <Grid VerticalAlignment="Center" Margin="12">
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"></RowDefinition>
-                    <RowDefinition Height="Auto"></RowDefinition>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
                 <Grid>
                     <Grid.Resources>
                         <Style TargetType="TextBox" x:Key="FeatureTextBox">
-                            <Setter Property="Margin" Value="12,0,0,4"></Setter>
-                            <Setter Property="TextWrapping" Value="Wrap"></Setter>
+                            <Setter Property="Margin" Value="12,0,0,4" />
+                            <Setter Property="TextWrapping" Value="Wrap" />
                         </Style>
                         <Style TargetType="Label" x:Key="BoldLabel">
-                            <Setter Property="FontWeight" Value="Bold"></Setter>
-                            <Setter Property="Margin" Value="0,6,0,4"></Setter>
+                            <Setter Property="FontWeight" Value="Bold" />
+                            <Setter Property="Margin" Value="0,6,0,4" />
                         </Style>
                     </Grid.Resources>
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"></RowDefinition>
-                        <RowDefinition Height="*"></RowDefinition>
-                        <RowDefinition Height="Auto"></RowDefinition>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
                     </Grid.RowDefinitions>
                     <TextBlock FontSize="20" HorizontalAlignment="Center" Margin="4">Feature File Editor</TextBlock>
                     <Grid Grid.Row="1">
@@ -49,31 +49,34 @@
                         <StackPanel Orientation="Vertical" Margin="4,4, 16,16">
                             <Label Style="{StaticResource BoldLabel}">File</Label>
                             <TextBox Style="{StaticResource FeatureTextBox}"
-                                Text="{Binding Model.FileName, UpdateSourceTrigger=PropertyChanged}" />
+                                     Text="{Binding Model.FileName, UpdateSourceTrigger=PropertyChanged}" />
 
                             <Label Style="{StaticResource BoldLabel}">Name</Label>
-                            <TextBox  Style="{StaticResource FeatureTextBox}" Text="{Binding Model.Name, UpdateSourceTrigger=PropertyChanged}" />
+                            <TextBox Style="{StaticResource FeatureTextBox}"
+                                     Text="{Binding Model.Name, UpdateSourceTrigger=PropertyChanged}" />
                             <Label Style="{StaticResource BoldLabel}">Source</Label>
-                            <TextBox  Style="{StaticResource FeatureTextBox}" Text="{Binding Model.Source, UpdateSourceTrigger=PropertyChanged}" />
+                            <TextBox Style="{StaticResource FeatureTextBox}"
+                                     Text="{Binding Model.Source, UpdateSourceTrigger=PropertyChanged}" />
                             <Label Style="{StaticResource BoldLabel}">Downloaded On</Label>
                             <TextBox Style="{StaticResource FeatureTextBox}"
-                                       Text="{Binding Model.Downloaded}" />
+                                     Text="{Binding Model.Downloaded}" />
                         </StackPanel>
                         <Grid Margin="4,8,4,8" Grid.Column="1">
                             <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto"></RowDefinition>
-                                <RowDefinition Height="Auto"></RowDefinition>
-                                <RowDefinition Height="Auto"></RowDefinition>
-                                <RowDefinition Height="*"></RowDefinition>
-                                <RowDefinition Height="Auto"></RowDefinition>
-                                <RowDefinition Height="Auto"></RowDefinition>
-                                <RowDefinition Height="Auto"></RowDefinition>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="*" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
                             </Grid.RowDefinitions>
                             <Label Grid.Row="0" Style="{StaticResource BoldLabel}">Tag All With</Label>
-                            <TextBox Grid.Row="1"  Style="{StaticResource FeatureTextBox}" Text="{Binding Model.TagAll, UpdateSourceTrigger=PropertyChanged}" />
-                            <Label Grid.Row="2"  Style="{StaticResource BoldLabel}">Attributes for Tags</Label>
+                            <TextBox Grid.Row="1" Style="{StaticResource FeatureTextBox}"
+                                     Text="{Binding Model.TagAll, UpdateSourceTrigger=PropertyChanged}" />
+                            <Label Grid.Row="2" Style="{StaticResource BoldLabel}">Attributes for Tags</Label>
                             <ListBox Grid.Row="3" Margin="4" ItemsSource="{Binding Model.AttributesForTags}"
-                                                 SelectedItem="{Binding SelectedAttribute}">
+                                     SelectedItem="{Binding SelectedAttribute}">
                                 <ListBox.ItemsPanel>
                                     <ItemsPanelTemplate>
                                         <WrapPanel IsItemsHost="True"
@@ -83,17 +86,20 @@
                                 <ListBox.ItemTemplate>
                                     <DataTemplate>
                                         <StackPanel Orientation="Horizontal">
-                                            <TextBlock VerticalAlignment="Center" Text="{Binding .}"></TextBlock>
-                                            <Button VerticalAlignment="Top" Padding="4,1,4,1" Margin="4,0,4,0" Command="{Binding Data.RemoveAttributeCommand, Source={StaticResource Proxy}}"
-                                                    CommandParameter="{Binding .}">X</Button>
+                                            <TextBlock VerticalAlignment="Center" Text="{Binding .}" />
+                                            <Button VerticalAlignment="Top" Padding="4,1,4,1" Margin="4,0,4,0"
+                                                    Command="{Binding Data.RemoveAttributeCommand, Source={StaticResource Proxy}}"
+                                                    CommandParameter="{Binding .}">
+                                                X
+                                            </Button>
                                         </StackPanel>
                                     </DataTemplate>
                                 </ListBox.ItemTemplate>
                             </ListBox>
-                            <Grid  Grid.Row="4" Margin="4">
+                            <Grid Grid.Row="4" Margin="4">
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*"></ColumnDefinition>
-                                    <ColumnDefinition Width="Auto"></ColumnDefinition>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
                                 </Grid.ColumnDefinitions>
                                 <TextBox Margin="4"
                                          Text="{Binding AttributeToAdd, UpdateSourceTrigger=PropertyChanged}" />

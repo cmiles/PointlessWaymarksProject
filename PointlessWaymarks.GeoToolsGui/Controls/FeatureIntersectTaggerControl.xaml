@@ -40,14 +40,14 @@
             <TabItem Header="PAD-US">
                 <Grid>
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"></RowDefinition>
-                        <RowDefinition></RowDefinition>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition />
                     </Grid.RowDefinitions>
                     <GroupBox Header="PAD-US Settings" Margin="4">
                         <Grid Margin="4">
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition></ColumnDefinition>
-                                <ColumnDefinition></ColumnDefinition>
+                                <ColumnDefinition />
+                                <ColumnDefinition />
                             </Grid.ColumnDefinitions>
                             <Border Margin="4" BorderBrush="LightGray" BorderThickness="1" CornerRadius="2">
                                 <StackPanel Margin="4" Orientation="Vertical">
@@ -73,10 +73,10 @@
                                                 <Border BorderBrush="LightGray" BorderThickness="1" CornerRadius="2">
                                                     <Grid Margin="6,4,6, 4">
                                                         <Grid.ColumnDefinitions>
-                                                            <ColumnDefinition Width="*"></ColumnDefinition>
-                                                            <ColumnDefinition Width="Auto"></ColumnDefinition>
+                                                            <ColumnDefinition Width="*" />
+                                                            <ColumnDefinition Width="Auto" />
                                                         </Grid.ColumnDefinitions>
-                                                        <TextBlock VerticalAlignment="Center" Text="{Binding .}"></TextBlock>
+                                                        <TextBlock VerticalAlignment="Center" Text="{Binding .}" />
                                                         <Button VerticalContentAlignment="Center" Width="24"
                                                                 VerticalAlignment="Center" Grid.Column="1"
                                                                 Margin="6,0,0,0"
@@ -91,8 +91,8 @@
                                     </ListBox>
                                     <Grid Margin="4">
                                         <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="*"></ColumnDefinition>
-                                            <ColumnDefinition Width="Auto"></ColumnDefinition>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
                                         </Grid.ColumnDefinitions>
                                         <TextBox Margin="4"
                                                  Text="{Binding PadUsAttributeToAdd, UpdateSourceTrigger=PropertyChanged}" />
@@ -105,7 +105,8 @@
                     <GroupBox Header="PAD-US Help and Instructions" Grid.Row="1" Margin="4,0,4,4">
                         <wpf:MarkdownViewer Margin="4" Markdown="{Binding PadUsOverviewMarkdown}" />
                     </GroupBox>
-                    <Button Grid.Row="0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="240" Margin="0,8,12,0"
+                    <Button Grid.Row="0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="240"
+                            Margin="0,8,12,0"
                             Command="{Binding NextTabCommand}">
                         Next - GeoJson Feature Files ->
                     </Button>
@@ -120,8 +121,8 @@
                     <GroupBox Header="GeoJson Feature Files" Margin="4">
                         <Grid Margin="4">
                             <Grid.RowDefinitions>
-                                <RowDefinition></RowDefinition>
-                                <RowDefinition Height="Auto"></RowDefinition>
+                                <RowDefinition />
+                                <RowDefinition Height="Auto" />
                             </Grid.RowDefinitions>
                             <ListBox ItemsSource="{Binding FeatureFiles}" SelectedItem="{Binding SelectedFeatureFile}"
                                      SelectionMode="Single" ScrollViewer.HorizontalScrollBarVisibility="Disabled"
@@ -132,11 +133,11 @@
                                             <Grid Margin="4,0,0,0">
                                                 <Grid.Resources>
                                                     <Style TargetType="TextBlock" x:Key="FeatureTextBlock">
-                                                        <Setter Property="Margin" Value="12,0,0,4"></Setter>
-                                                        <Setter Property="TextWrapping" Value="Wrap"></Setter>
+                                                        <Setter Property="Margin" Value="12,0,0,4" />
+                                                        <Setter Property="TextWrapping" Value="Wrap" />
                                                     </Style>
                                                     <Style TargetType="Label" x:Key="BoldLabel">
-                                                        <Setter Property="FontWeight" Value="Bold"></Setter>
+                                                        <Setter Property="FontWeight" Value="Bold" />
                                                     </Style>
                                                 </Grid.Resources>
                                                 <Grid.ColumnDefinitions>
@@ -168,8 +169,7 @@
                                                             <DataTemplate>
                                                                 <Grid Margin="2">
                                                                     <TextBlock VerticalAlignment="Center"
-                                                                               Text="{Binding .}">
-                                                                    </TextBlock>
+                                                                               Text="{Binding .}" />
                                                                 </Grid>
                                                             </DataTemplate>
                                                         </ListBox.ItemTemplate>
@@ -205,9 +205,9 @@
                         <wpf:MarkdownViewer Margin="4" Markdown="{Binding GeoJsonFileOverviewMarkdown}" />
                     </GroupBox>
                     <controls:FeatureFileEditorControl Grid.Row="0" Grid.RowSpan="2"
-                                                       DataContext="{Binding FeatureFileToEdit}">
-                    </controls:FeatureFileEditorControl>
-                    <Button Grid.Row="0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="240" Margin="0,8,12,0"
+                                                       DataContext="{Binding FeatureFileToEdit}" />
+                    <Button Grid.Row="0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="240"
+                            Margin="0,8,12,0"
                             Command="{Binding NextTabCommand}">
                         Next - Settings ->
                     </Button>
@@ -225,8 +225,8 @@
                                 <StackPanel Orientation="Vertical">
                                     <Grid>
                                         <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="Auto"></ColumnDefinition>
-                                            <ColumnDefinition></ColumnDefinition>
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition />
                                         </Grid.ColumnDefinitions>
                                         <TextBlock FontWeight="Bold" VerticalAlignment="Center">Path and Filename:</TextBlock>
                                         <TextBox Grid.Column="1" Margin="12,0,8,0" VerticalAlignment="Center"

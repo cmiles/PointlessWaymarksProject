@@ -1,8 +1,12 @@
-﻿using PointlessWaymarks.GeoToolsGui.Models;
+﻿#region
+
+using PointlessWaymarks.GeoToolsGui.Models;
+
+#endregion
 
 namespace PointlessWaymarks.GeoToolsGui.Settings;
 
-public class PointlessWaymarksFeatureIntersectionGuiSettings
+public class FeatureIntersectTaggerSettings
 {
     public bool CreateBackups { get; set; }
     public bool CreateBackupsInDefaultStorage { get; set; }

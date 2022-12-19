@@ -1,10 +1,14 @@
-﻿using System.Reflection;
+﻿#region
+
+using System.Reflection;
 using System.Windows;
 using CommunityToolkit.Mvvm.ComponentModel;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.GeoToolsGui.Controls;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.Utility;
+
+#endregion
 
 namespace PointlessWaymarks.GeoToolsGui;
 

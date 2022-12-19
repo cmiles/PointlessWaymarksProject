@@ -1,21 +1,25 @@
-﻿using System.IO;
+﻿#region
+
+using System.IO;
 using System.Text.Json;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.GeoToolsGui.Models;
 
+#endregion
+
 namespace PointlessWaymarks.GeoToolsGui.Settings;
 
-public static class FeatureIntersectionGuiSettingTools
+public static class FeatureIntersectTaggerSettingTools
 {
     public static async Task<FileInfo> DefaultSettingsFile()
     {
         var settingsFile =
             new FileInfo(Path.Combine(FileLocationTools.DefaultStorageDirectory().FullName,
-                "PwFeatureIntersectionGuiSettings.json"));
+                "PwGtgFeatureIntersectTaggerSettings.json"));
 
         if (!settingsFile.Exists)
         {
-            var blankSettings = new PointlessWaymarksFeatureIntersectionGuiSettings();
+            var blankSettings = new FeatureIntersectTaggerSettings();
             var serializedSettings =
                 JsonSerializer.Serialize(blankSettings, new JsonSerializerOptions { WriteIndented = true });
             await File.WriteAllTextAsync(settingsFile.FullName, serializedSettings);
@@ -34,16 +38,16 @@ public static class FeatureIntersectionGuiSettingTools
         return new DirectoryInfo(directory);
     }
 
-    public static async Task<PointlessWaymarksFeatureIntersectionGuiSettings> ReadSettings()
+    public static async Task<FeatureIntersectTaggerSettings> ReadSettings()
     {
-        PointlessWaymarksFeatureIntersectionGuiSettings? settings;
+        FeatureIntersectTaggerSettings? settings;
 
-        return JsonSerializer.Deserialize<PointlessWaymarksFeatureIntersectionGuiSettings>(
+        return JsonSerializer.Deserialize<FeatureIntersectTaggerSettings>(
                    await File.ReadAllTextAsync((await DefaultSettingsFile()).FullName)) ??
-               new PointlessWaymarksFeatureIntersectionGuiSettings();
+               new FeatureIntersectTaggerSettings();
     }
 
-    public static async Task<PointlessWaymarksFeatureIntersectionGuiSettings> SetFeatureFiles(
+    public static async Task<FeatureIntersectTaggerSettings> SetFeatureFiles(
         List<FeatureFileViewModel> featureFiles)
     {
         var settings = await ReadSettings();
@@ -54,7 +58,7 @@ public static class FeatureIntersectionGuiSettingTools
         return await WriteSettings(settings);
     }
 
-    public static async Task<PointlessWaymarksFeatureIntersectionGuiSettings> SetPadUsAttributes(
+    public static async Task<FeatureIntersectTaggerSettings> SetPadUsAttributes(
         List<string> attributes)
     {
         var settings = await ReadSettings();
@@ -64,7 +68,7 @@ public static class FeatureIntersectionGuiSettingTools
         return await WriteSettings(settings);
     }
 
-    public static async Task<PointlessWaymarksFeatureIntersectionGuiSettings> SetPadUsDirectory(string directory)
+    public static async Task<FeatureIntersectTaggerSettings> SetPadUsDirectory(string directory)
     {
         var settings = await ReadSettings();
 
@@ -75,8 +79,8 @@ public static class FeatureIntersectionGuiSettingTools
         return await WriteSettings(settings);
     }
 
-    public static async Task<PointlessWaymarksFeatureIntersectionGuiSettings> WriteSettings(
-        PointlessWaymarksFeatureIntersectionGuiSettings setting)
+    public static async Task<FeatureIntersectTaggerSettings> WriteSettings(
+        FeatureIntersectTaggerSettings setting)
     {
         var settingsFile = await DefaultSettingsFile();
         var serializedSettings = JsonSerializer.Serialize(setting, new JsonSerializerOptions { WriteIndented = true });

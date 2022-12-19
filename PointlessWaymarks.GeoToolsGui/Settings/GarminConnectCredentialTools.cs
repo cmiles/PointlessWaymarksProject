@@ -1,8 +1,12 @@
-﻿using Windows.Security.Credentials;
+﻿#region
+
+using Windows.Security.Credentials;
+
+#endregion
 
 namespace PointlessWaymarks.GeoToolsGui.Settings;
 
-public class GarminConnectCredentials
+public class GarminConnectCredentialTools
 {
     /// <summary>
     ///     Returns the Credential Manager Resource Key for the current settings file for AWS Site credentials

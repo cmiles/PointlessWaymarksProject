@@ -13,33 +13,33 @@
         <valueConverters:SecondsToHoursMinutesSecondsConverter x:Key="SecondsToHoursMinutesSeconds" />
 
         <Style x:Key="SearchBorder" TargetType="Border">
-            <Setter Property="CornerRadius" Value="4"></Setter>
-            <Setter Property="BorderThickness" Value="2"></Setter>
-            <Setter Property="BorderBrush" Value="LightBlue"></Setter>
-            <Setter Property="Margin" Value="4,2,4,2"></Setter>
+            <Setter Property="CornerRadius" Value="4" />
+            <Setter Property="BorderThickness" Value="2" />
+            <Setter Property="BorderBrush" Value="LightBlue" />
+            <Setter Property="Margin" Value="4,2,4,2" />
         </Style>
         <Style x:Key="SearchStackContainer" TargetType="StackPanel">
-            <Setter Property="Margin" Value="4,4,4,4"></Setter>
-            <Setter Property="Orientation" Value="Horizontal"></Setter>
+            <Setter Property="Margin" Value="4,4,4,4" />
+            <Setter Property="Orientation" Value="Horizontal" />
         </Style>
         <Style x:Key="SearchLabel" TargetType="Label">
-            <Setter Property="Margin" Value="4,0,8,0"></Setter>
-            <Setter Property="VerticalAlignment" Value="Center"></Setter>
+            <Setter Property="Margin" Value="4,0,8,0" />
+            <Setter Property="VerticalAlignment" Value="Center" />
         </Style>
     </UserControl.Resources>
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"></RowDefinition>
-            <RowDefinition Height="Auto"></RowDefinition>
-            <RowDefinition Height="Auto"></RowDefinition>
-            <RowDefinition Height="*"></RowDefinition>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
         </Grid.RowDefinitions>
         <GroupBox Header="Setup">
             <WrapPanel Orientation="Horizontal">
                 <Border Style="{StaticResource SearchBorder}">
                     <StackPanel Style="{StaticResource SearchStackContainer}">
                         <Button Margin="4,0,8,0" Command="{Binding EnterGarminCredentialsCommand}">Enter Garmin Credentials</Button>
-                        <TextBlock Text="{Binding CurrentCredentialsNote}" VerticalAlignment="Center"></TextBlock>
+                        <TextBlock Text="{Binding CurrentCredentialsNote}" VerticalAlignment="Center" />
                         <Button Margin="8,0,4,0" Command="{Binding RemoveAllGarminCredentialsCommand}">Delete All</Button>
                     </StackPanel>
                 </Border>
@@ -48,8 +48,7 @@
                         <Label Style="{StaticResource SearchLabel}" Target="ArchiveDirectoryTextBox">Archive Directory</Label>
                         <TextBox MinWidth="240" Name="ArchiveDirectoryTextBox" BorderThickness="1"
                                  BorderBrush="LightBlue"
-                                 Text="{Binding ArchiveDirectory, UpdateSourceTrigger=PropertyChanged, Delay=250}">
-                        </TextBox>
+                                 Text="{Binding ArchiveDirectory, UpdateSourceTrigger=PropertyChanged, Delay=300}" />
                         <TextBlock
                             Visibility="{Binding ArchiveDirectoryExists, Converter={StaticResource BooleanNotToVisibility}}"
                             FontWeight="Bold" Foreground="Red" FontSize="20" VerticalAlignment="Center"
@@ -65,20 +64,20 @@
         <GroupBox Grid.Row="1" Header="Search">
             <Grid>
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"></RowDefinition>
-                    <RowDefinition Height="Auto"></RowDefinition>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
                 <WrapPanel Orientation="Horizontal">
                     <Border Style="{StaticResource SearchBorder}">
                         <StackPanel Style="{StaticResource SearchStackContainer}">
                             <Label Style="{StaticResource SearchLabel}" Target="SearchStartDatePicker">Search Start</Label>
-                            <DatePicker Name="SearchStartDatePicker" SelectedDate="{Binding SearchStartDate}"></DatePicker>
+                            <DatePicker Name="SearchStartDatePicker" SelectedDate="{Binding SearchStartDate}" />
                         </StackPanel>
                     </Border>
                     <Border Style="{StaticResource SearchBorder}">
                         <StackPanel Style="{StaticResource SearchStackContainer}">
                             <Label Style="{StaticResource SearchLabel}" Target="SearchEndDatePicker">Search Start</Label>
-                            <DatePicker Name="SearchEndDatePicker" SelectedDate="{Binding SearchEndDate}"></DatePicker>
+                            <DatePicker Name="SearchEndDatePicker" SelectedDate="{Binding SearchEndDate}" />
                         </StackPanel>
                     </Border>
 
@@ -101,16 +100,14 @@
                     <StackPanel Style="{StaticResource SearchStackContainer}">
                         <Label Style="{StaticResource SearchLabel}">Name Contains</Label>
                         <TextBox MinWidth="240" BorderThickness="1" BorderBrush="LightBlue"
-                                 Text="{Binding FilterName, UpdateSourceTrigger=PropertyChanged, Delay=400}">
-                        </TextBox>
+                                 Text="{Binding FilterName, UpdateSourceTrigger=PropertyChanged, Delay=400}" />
                     </StackPanel>
                 </Border>
                 <Border Style="{StaticResource SearchBorder}">
                     <StackPanel Style="{StaticResource SearchStackContainer}">
                         <Label Style="{StaticResource SearchLabel}">Location Contains</Label>
                         <TextBox MinWidth="240" BorderThickness="1" BorderBrush="LightBlue"
-                                 Text="{Binding FilterLocation, UpdateSourceTrigger=PropertyChanged, Delay=400}">
-                        </TextBox>
+                                 Text="{Binding FilterLocation, UpdateSourceTrigger=PropertyChanged, Delay=400}" />
                     </StackPanel>
                 </Border>
             </WrapPanel>
@@ -118,12 +115,11 @@
         <DataGrid Grid.Row="3" Margin="4,12,4,12" ItemsSource="{Binding SearchResultsFiltered}"
                   AutoGenerateColumns="False">
             <DataGrid.Columns>
-                <DataGridTextColumn Header="Start Time" Binding="{Binding Activity.StartTimeLocal}"></DataGridTextColumn>
-                <DataGridTextColumn Header="Name" Binding="{Binding Activity.ActivityName}"></DataGridTextColumn>
-                <DataGridTextColumn Header="Location" Binding="{Binding Activity.LocationName}"></DataGridTextColumn>
+                <DataGridTextColumn Header="Start Time" Binding="{Binding Activity.StartTimeLocal}" />
+                <DataGridTextColumn Header="Name" Binding="{Binding Activity.ActivityName}" />
+                <DataGridTextColumn Header="Location" Binding="{Binding Activity.LocationName}" />
                 <DataGridTextColumn Header="Duration"
-                                    Binding="{Binding Activity.Duration, Converter={StaticResource SecondsToHoursMinutesSeconds}}">
-                </DataGridTextColumn>
+                                    Binding="{Binding Activity.Duration, Converter={StaticResource SecondsToHoursMinutesSeconds}}" />
                 <DataGridTemplateColumn>
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>

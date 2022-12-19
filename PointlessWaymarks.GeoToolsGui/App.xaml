@@ -54,7 +54,7 @@
             </Style>
 
             <Style TargetType="GroupBox" BasedOn="{StaticResource DefaultGroupBoxStyle}">
-                <Setter Property="Margin" Value="4"></Setter>
+                <Setter Property="Margin" Value="4" />
             </Style>
 
         </ResourceDictionary>

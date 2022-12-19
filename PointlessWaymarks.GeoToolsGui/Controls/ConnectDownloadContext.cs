@@ -1,7 +1,7 @@
-﻿using System.ComponentModel;
-using System.Globalization;
+﻿#region
+
+using System.ComponentModel;
 using System.IO;
-using System.Text.RegularExpressions;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Garmin.Connect.Models;
@@ -16,26 +16,27 @@ using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 using PointlessWaymarks.WpfCommon.Utility;
 using PointlessWaymarks.WpfCommon.WpfHtml;
-using Task = System.Threading.Tasks.Task;
+
+#endregion
 
 namespace PointlessWaymarks.GeoToolsGui.Controls;
 
 [ObservableObject]
 public partial class ConnectDownloadContext
 {
-    [ObservableProperty] private StatusControlContext _statusContext;
-    [ObservableProperty] private DateTime _searchStartDate;
-    [ObservableProperty] private DateTime _searchEndDate;
     [ObservableProperty] private string _archiveDirectory;
-    [ObservableProperty] private List<GarminActivityAndLocalFiles> _searchResults = new();
-    [ObservableProperty] private List<GarminActivityAndLocalFiles> _searchResultsFiltered = new();
-    [ObservableProperty] private string _currentCredentialsNote;
     [ObservableProperty] private bool _archiveDirectoryExists;
-    [ObservableProperty] private bool _filterNoMatchingArchiveFile;
+    [ObservableProperty] private string _currentCredentialsNote;
+    [ObservableProperty] private string _filterLocation;
     [ObservableProperty] private bool _filterMatchingArchiveFile;
     [ObservableProperty] private string _filterName;
-    [ObservableProperty] private string _filterLocation;
+    [ObservableProperty] private bool _filterNoMatchingArchiveFile;
     private Guid _searchAndFilterLatestRequestId;
+    [ObservableProperty] private DateTime _searchEndDate;
+    [ObservableProperty] private List<GarminActivityAndLocalFiles> _searchResults = new();
+    [ObservableProperty] private List<GarminActivityAndLocalFiles> _searchResultsFiltered = new();
+    [ObservableProperty] private DateTime _searchStartDate;
+    [ObservableProperty] private StatusControlContext _statusContext;
 
     public ConnectDownloadContext(StatusControlContext? statusContext, WindowIconStatus? windowStatus)
     {
@@ -52,41 +53,41 @@ public partial class ConnectDownloadContext
         DownloadActivityCommand = StatusContext.RunBlockingTaskCommand<GarminActivityAndLocalFiles>(DownloadActivity);
         ShowGpxFileCommand = StatusContext.RunBlockingTaskCommand<GarminActivityAndLocalFiles>(ShowGpxFile);
         ShowFileInExplorerCommand = StatusContext.RunNonBlockingTaskCommand<string>(ShowFileInExplorer);
-        
+
         ShowArchiveDirectoryCommand = StatusContext.RunNonBlockingTaskCommand(ShowArchiveDirectory);
 
 
         PropertyChanged += OnPropertyChanged;
     }
 
-    public RelayCommand<string> ShowFileInExplorerCommand { get; set; }
-
-    public RelayCommand ShowArchiveDirectoryCommand { get; set; }
-
-    public async System.Threading.Tasks.Task ShowArchiveDirectory()
-    {
-        await ThreadSwitcher.ResumeBackgroundAsync();
-        
-        CheckThatArchiveDirectoryExists();
-
-        if (!ArchiveDirectoryExists)
-        {
-            StatusContext.ToastError("Directory Does Not Exist - can not show...");
-            return;
-        }
-
-        await ThreadSwitcher.ResumeForegroundAsync();
-
-        await ProcessHelpers.OpenExplorerWindowForDirectory(ArchiveDirectory.Trim());
-    }
-    
-    public RelayCommand<GarminActivityAndLocalFiles> ShowGpxFileCommand { get; set; }
+    public RelayCommand ChooseArchiveDirectoryCommand { get; set; }
 
     public RelayCommand<GarminActivityAndLocalFiles> DownloadActivityCommand { get; set; }
 
-    public RelayCommand ChooseArchiveDirectoryCommand { get; set; }
+    public RelayCommand EnterGarminCredentialsCommand { get; set; }
 
     public RelayCommand RemoveAllGarminCredentialsCommand { get; set; }
+
+    public RelayCommand RunSearchCommand { get; set; }
+
+    public RelayCommand ShowArchiveDirectoryCommand { get; set; }
+
+    public RelayCommand<string> ShowFileInExplorerCommand { get; set; }
+
+    public RelayCommand<GarminActivityAndLocalFiles> ShowGpxFileCommand { get; set; }
+
+    public async System.Threading.Tasks.Task CheckThatArchiveDirectoryExists()
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (string.IsNullOrWhiteSpace(ArchiveDirectory))
+        {
+            ArchiveDirectoryExists = false;
+            return;
+        }
+
+        ArchiveDirectoryExists = Directory.Exists(ArchiveDirectory.Trim());
+    }
 
     public async System.Threading.Tasks.Task ChooseArchiveDirectory()
     {
@@ -107,39 +108,6 @@ public partial class ConnectDownloadContext
         ArchiveDirectory = folderPicker.SelectedPath;
     }
 
-
-    private void OnPropertyChanged(object? sender, PropertyChangedEventArgs e)
-    {
-        if (string.IsNullOrWhiteSpace(e?.PropertyName)) return;
-
-        if (e.PropertyName.StartsWith("Filter"))
-        {
-            var thisRequest = Guid.NewGuid();
-            _searchAndFilterLatestRequestId = thisRequest;
-            StatusContext.RunNonBlockingTask(async () => await FilterAndSortResults(thisRequest));
-        }
-
-        if (e.PropertyName == nameof(ArchiveDirectory))
-        {
-            CheckThatArchiveDirectoryExists();
-        }
-    }
-
-    public void CheckThatArchiveDirectoryExists()
-    {
-        if (string.IsNullOrWhiteSpace(ArchiveDirectory))
-        {
-            ArchiveDirectoryExists = false;
-            return;
-        }
-
-        ArchiveDirectoryExists = Directory.Exists(ArchiveDirectory.Trim());
-    }
-
-    public RelayCommand EnterGarminCredentialsCommand { get; set; }
-
-    public RelayCommand RunSearchCommand { get; set; }
-
     public static async Task<ConnectDownloadContext> CreateInstance(StatusControlContext? statusContext,
         WindowIconStatus? windowStatus)
     {
@@ -148,97 +116,11 @@ public partial class ConnectDownloadContext
         return control;
     }
 
-    private async System.Threading.Tasks.Task Load()
-    {
-        SearchResults = new List<GarminActivityAndLocalFiles>();
-        SearchResultsFiltered = SearchResults;
-
-        await UpdateCredentialsNote();
-    }
-
-    public async System.Threading.Tasks.Task UpdateCredentialsNote()
-    {
-        await ThreadSwitcher.ResumeBackgroundAsync();
-
-        var currentCredentials = GarminConnectCredentials.GetGarminConnectCredentials();
-
-        if (!string.IsNullOrWhiteSpace(currentCredentials.userName) &&
-            !string.IsNullOrWhiteSpace(currentCredentials.password))
-        {
-            CurrentCredentialsNote = $"(Using {currentCredentials.userName.Truncate(8)}...)";
-        }
-        else
-        {
-            CurrentCredentialsNote = "(No Credentials Found...)";
-        }
-    }
-
-    [ObservableObject]
-    public partial class GarminActivityAndLocalFiles
-    {
-        public GarminActivityAndLocalFiles(GarminActivity activity)
-        {
-            _activity = activity;
-        }
-
-        [ObservableProperty] private GarminActivity _activity;
-        [ObservableProperty] private FileInfo? _archivedJson;
-        [ObservableProperty] private FileInfo? _archivedGpx;
-    }
-
-    public async System.Threading.Tasks.Task RunSearch(CancellationToken cancellationToken)
-    {
-        await ThreadSwitcher.ResumeBackgroundAsync();
-
-        var credentials = GarminConnectCredentials.GetGarminConnectCredentials();
-        var activities = await GarminConnectTools.Search(SearchStartDate, SearchEndDate, credentials.userName,
-            credentials.password, cancellationToken, StatusContext.ProgressTracker());
-
-        var returnList = activities.Select(x => new GarminActivityAndLocalFiles(x)).ToList();
-
-        if (!string.IsNullOrWhiteSpace(_archiveDirectory) && Directory.Exists(_archiveDirectory))
-        {
-            foreach (var loopActivities in returnList)
-            {
-                var loopActivityArchiveJsonFileName = GarminConnectTools.ArchiveJsonFileName(loopActivities.Activity);
-                var loopActivityArchiveGpxFileName = GarminConnectTools.ArchiveGpxFileName(loopActivities.Activity);
-
-                loopActivities.ArchivedGpx =
-                    new FileInfo(Path.Combine(_archiveDirectory, loopActivityArchiveGpxFileName));
-                loopActivities.ArchivedJson =
-                    new FileInfo(Path.Combine(_archiveDirectory, loopActivityArchiveJsonFileName));
-            }
-        }
-
-        SearchResults = returnList;
-        var filterRequest = Guid.NewGuid();
-        _searchAndFilterLatestRequestId = filterRequest;
-        await FilterAndSortResults(filterRequest);
-    }
-
-    public async System.Threading.Tasks.Task ShowFileInExplorer(string fileName)
-    {
-        if (string.IsNullOrWhiteSpace(fileName))
-        {
-            StatusContext.ToastError("No Filename to Show?");
-            return;
-        }
-
-        if (!File.Exists(fileName.Trim()))
-        {
-            StatusContext.ToastError($"{fileName} does not exist?");
-            return;
-        }
-        
-        await ThreadSwitcher.ResumeForegroundAsync();
-        await ProcessHelpers.OpenExplorerWindowForFile(fileName.Trim());
-    }
-
     public async System.Threading.Tasks.Task DownloadActivity(GarminActivityAndLocalFiles toDownload)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        CheckThatArchiveDirectoryExists();
+        await CheckThatArchiveDirectoryExists();
 
         if (!ArchiveDirectoryExists)
         {
@@ -246,7 +128,7 @@ public partial class ConnectDownloadContext
             return;
         }
 
-        var credentials = GarminConnectCredentials.GetGarminConnectCredentials();
+        var credentials = GarminConnectCredentialTools.GetGarminConnectCredentials();
 
         if (string.IsNullOrWhiteSpace(credentials.userName) || string.IsNullOrWhiteSpace(credentials.password))
         {
@@ -263,54 +145,6 @@ public partial class ConnectDownloadContext
             credentials.password);
 
         StatusContext.ToastSuccess($"Downloaded {toDownload.ArchivedJson.Name} {toDownload.ArchivedGpx?.Name}");
-    }
-
-    public async System.Threading.Tasks.Task ShowGpxFile(GarminActivityAndLocalFiles toShow)
-    {
-        CheckThatArchiveDirectoryExists();
-
-        if (!ArchiveDirectoryExists)
-        {
-            StatusContext.ToastError("A valid Archive Directory must be set to show a GPX file...");
-            return;
-        }
-        
-        if (toShow.ArchivedGpx is not { Exists: true })
-        {
-            await DownloadActivity(toShow);
-        }
-
-        if (toShow.ArchivedGpx is not { Exists: true })
-        {
-            StatusContext.ToastError("Could not find or download GPX file...");
-            return;
-        }
-
-        var featureList = new List<Feature>();
-        var bounds = new Envelope();
-
-        var fileFeatures = await GpxTools.TrackLinesFromGpxFile(toShow.ArchivedGpx);
-        bounds.ExpandToInclude(fileFeatures.boundingBox);
-        featureList.AddRange(fileFeatures.features);
-
-        var newCollection = new FeatureCollection();
-        featureList.ForEach(x => newCollection.Add(x));
-
-        var jsonDto = new GeoJsonData.GeoJsonSiteJsonData(Guid.NewGuid().ToString(),
-            new GeoJsonData.SpatialBounds(bounds.MaxY, bounds.MaxX, bounds.MinY, bounds.MinX), newCollection);
-
-        var previewDto = await GeoJsonTools.SerializeWithGeoJsonSerializer(jsonDto);
-
-        var previewHtml = WpfHtmlDocument.ToHtmlLeafletBasicGeoJsonDocument("GeoJson",
-            32.12063, -110.52313, string.Empty);
-
-        await ThreadSwitcher.ResumeForegroundAsync();
-
-        var newPreviewWindow = new WebViewWindow();
-        newPreviewWindow.PositionWindowAndShow();
-        newPreviewWindow.WindowTitle = "GPX Preview";
-        newPreviewWindow.PreviewHtml = previewHtml;
-        newPreviewWindow.PreviewGeoJsonDto = previewDto;
     }
 
     public async System.Threading.Tasks.Task EnterGarminCredentials()
@@ -345,16 +179,8 @@ public partial class ConnectDownloadContext
             return;
         }
 
-        GarminConnectCredentials.SaveGarminConnectCredentials(cleanedKey, cleanedSecret);
+        GarminConnectCredentialTools.SaveGarminConnectCredentials(cleanedKey, cleanedSecret);
         await UpdateCredentialsNote();
-    }
-
-    public async System.Threading.Tasks.Task RemoveAllGarminCredentials()
-    {
-        await ThreadSwitcher.ResumeBackgroundAsync();
-        GarminConnectCredentials.RemoveGarminConnectCredentials();
-        await UpdateCredentialsNote();
-        StatusContext.ToastWarning("Removed any Garmin Connect Credentials!");
     }
 
 
@@ -366,7 +192,7 @@ public partial class ConnectDownloadContext
 
         if (!SearchResults.Any())
         {
-            returnResult = new();
+            returnResult = new List<GarminActivityAndLocalFiles>();
             if (requestId == _searchAndFilterLatestRequestId) SearchResultsFiltered = returnResult;
             return;
         }
@@ -385,18 +211,191 @@ public partial class ConnectDownloadContext
                 .ToList();
 
         if (!string.IsNullOrWhiteSpace(FilterName))
-        {
             returnResult = returnResult
                 .Where(x => x.Activity.ActivityName.Contains(FilterName, StringComparison.OrdinalIgnoreCase)).ToList();
-        }
 
         if (!string.IsNullOrWhiteSpace(FilterLocation))
-        {
             returnResult = returnResult
                 .Where(x => x.Activity.LocationName.Contains(FilterLocation, StringComparison.OrdinalIgnoreCase))
                 .ToList();
-        }
 
         if (requestId == _searchAndFilterLatestRequestId) SearchResultsFiltered = returnResult;
+    }
+
+    private async System.Threading.Tasks.Task Load()
+    {
+        SearchResults = new List<GarminActivityAndLocalFiles>();
+        SearchResultsFiltered = SearchResults;
+
+        var settings = await ConnectDownloadSettingTools.ReadSettings();
+        ArchiveDirectory = settings.ArchiveDirectory;
+
+        await UpdateCredentialsNote();
+    }
+
+
+    private void OnPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (string.IsNullOrWhiteSpace(e?.PropertyName)) return;
+
+        if (e.PropertyName.StartsWith("Filter"))
+        {
+            var thisRequest = Guid.NewGuid();
+            _searchAndFilterLatestRequestId = thisRequest;
+            StatusContext.RunNonBlockingTask(async () => await FilterAndSortResults(thisRequest));
+        }
+
+        if (e.PropertyName == nameof(ArchiveDirectory))
+        {
+            StatusContext.RunNonBlockingTask(async () => await CheckThatArchiveDirectoryExists());
+            StatusContext.RunNonBlockingTask(async () =>
+            {
+                var settings = await ConnectDownloadSettingTools.ReadSettings();
+                settings.ArchiveDirectory = ArchiveDirectory;
+                await ConnectDownloadSettingTools.WriteSettings(settings);
+            });
+        }
+    }
+
+    public async System.Threading.Tasks.Task RemoveAllGarminCredentials()
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+        GarminConnectCredentialTools.RemoveGarminConnectCredentials();
+        await UpdateCredentialsNote();
+        StatusContext.ToastWarning("Removed any Garmin Connect Credentials!");
+    }
+
+    public async System.Threading.Tasks.Task RunSearch(CancellationToken cancellationToken)
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        var credentials = GarminConnectCredentialTools.GetGarminConnectCredentials();
+        var activities = await GarminConnectTools.Search(SearchStartDate, SearchEndDate, credentials.userName,
+            credentials.password, cancellationToken, StatusContext.ProgressTracker());
+
+        var returnList = activities.Select(x => new GarminActivityAndLocalFiles(x)).ToList();
+
+        if (!string.IsNullOrWhiteSpace(_archiveDirectory) && Directory.Exists(_archiveDirectory))
+            foreach (var loopActivities in returnList)
+            {
+                var loopActivityArchiveJsonFileName = GarminConnectTools.ArchiveJsonFileName(loopActivities.Activity);
+                var loopActivityArchiveGpxFileName = GarminConnectTools.ArchiveGpxFileName(loopActivities.Activity);
+
+                loopActivities.ArchivedGpx =
+                    new FileInfo(Path.Combine(_archiveDirectory, loopActivityArchiveGpxFileName));
+                loopActivities.ArchivedJson =
+                    new FileInfo(Path.Combine(_archiveDirectory, loopActivityArchiveJsonFileName));
+            }
+
+        SearchResults = returnList;
+        var filterRequest = Guid.NewGuid();
+        _searchAndFilterLatestRequestId = filterRequest;
+        await FilterAndSortResults(filterRequest);
+    }
+
+    public async System.Threading.Tasks.Task ShowArchiveDirectory()
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        await CheckThatArchiveDirectoryExists();
+
+        if (!ArchiveDirectoryExists)
+        {
+            StatusContext.ToastError("Directory Does Not Exist - can not show...");
+            return;
+        }
+
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        await ProcessHelpers.OpenExplorerWindowForDirectory(ArchiveDirectory.Trim());
+    }
+
+    public async System.Threading.Tasks.Task ShowFileInExplorer(string fileName)
+    {
+        if (string.IsNullOrWhiteSpace(fileName))
+        {
+            StatusContext.ToastError("No Filename to Show?");
+            return;
+        }
+
+        if (!File.Exists(fileName.Trim()))
+        {
+            StatusContext.ToastError($"{fileName} does not exist?");
+            return;
+        }
+
+        await ThreadSwitcher.ResumeForegroundAsync();
+        await ProcessHelpers.OpenExplorerWindowForFile(fileName.Trim());
+    }
+
+    public async System.Threading.Tasks.Task ShowGpxFile(GarminActivityAndLocalFiles toShow)
+    {
+        await CheckThatArchiveDirectoryExists();
+
+        if (!ArchiveDirectoryExists)
+        {
+            StatusContext.ToastError("A valid Archive Directory must be set to show a GPX file...");
+            return;
+        }
+
+        if (toShow.ArchivedGpx is not { Exists: true }) await DownloadActivity(toShow);
+
+        if (toShow.ArchivedGpx is not { Exists: true })
+        {
+            StatusContext.ToastError("Could not find or download GPX file...");
+            return;
+        }
+
+        var featureList = new List<Feature>();
+        var bounds = new Envelope();
+
+        var fileFeatures = await GpxTools.TrackLinesFromGpxFile(toShow.ArchivedGpx);
+        bounds.ExpandToInclude(fileFeatures.boundingBox);
+        featureList.AddRange(fileFeatures.features);
+
+        var newCollection = new FeatureCollection();
+        featureList.ForEach(x => newCollection.Add(x));
+
+        var jsonDto = new GeoJsonData.GeoJsonSiteJsonData(Guid.NewGuid().ToString(),
+            new GeoJsonData.SpatialBounds(bounds.MaxY, bounds.MaxX, bounds.MinY, bounds.MinX), newCollection);
+
+        var previewDto = await GeoJsonTools.SerializeWithGeoJsonSerializer(jsonDto);
+
+        var previewHtml = WpfHtmlDocument.ToHtmlLeafletBasicGeoJsonDocument("GeoJson",
+            32.12063, -110.52313, string.Empty);
+
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        var newPreviewWindow = new WebViewWindow();
+        newPreviewWindow.PositionWindowAndShow();
+        newPreviewWindow.WindowTitle = "GPX Preview";
+        newPreviewWindow.PreviewHtml = previewHtml;
+        newPreviewWindow.PreviewGeoJsonDto = previewDto;
+    }
+
+    public async System.Threading.Tasks.Task UpdateCredentialsNote()
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        var currentCredentials = GarminConnectCredentialTools.GetGarminConnectCredentials();
+
+        if (!string.IsNullOrWhiteSpace(currentCredentials.userName) &&
+            !string.IsNullOrWhiteSpace(currentCredentials.password))
+            CurrentCredentialsNote = $"(Using {currentCredentials.userName.Truncate(8)}...)";
+        else
+            CurrentCredentialsNote = "(No Credentials Found...)";
+    }
+
+    [ObservableObject]
+    public partial class GarminActivityAndLocalFiles
+    {
+        [ObservableProperty] private GarminActivity _activity;
+        [ObservableProperty] private FileInfo? _archivedGpx;
+        [ObservableProperty] private FileInfo? _archivedJson;
+
+        public GarminActivityAndLocalFiles(GarminActivity activity)
+        {
+            _activity = activity;
+        }
     }
 }
