@@ -212,11 +212,11 @@ public partial class ConnectDownloadContext
 
         if (!string.IsNullOrWhiteSpace(FilterName))
             returnResult = returnResult
-                .Where(x => x.Activity.ActivityName.Contains(FilterName, StringComparison.OrdinalIgnoreCase)).ToList();
+                .Where(x => x.Activity.ActivityName != null && x.Activity.ActivityName.Contains(FilterName, StringComparison.OrdinalIgnoreCase)).ToList();
 
         if (!string.IsNullOrWhiteSpace(FilterLocation))
             returnResult = returnResult
-                .Where(x => x.Activity.LocationName.Contains(FilterLocation, StringComparison.OrdinalIgnoreCase))
+                .Where(x => x.Activity.LocationName != null && x.Activity.LocationName.Contains(FilterLocation, StringComparison.OrdinalIgnoreCase))
                 .ToList();
 
         if (requestId == _searchAndFilterLatestRequestId) SearchResultsFiltered = returnResult;
