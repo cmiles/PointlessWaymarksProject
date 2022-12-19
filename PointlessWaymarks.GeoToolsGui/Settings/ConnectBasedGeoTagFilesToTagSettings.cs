@@ -1,6 +1,7 @@
 ﻿#region
 
 using System.IO;
+using PointlessWaymarks.GeoToolsGui.Controls;
 using PointlessWaymarks.WpfCommon.FileList;
 
 #endregion
@@ -9,9 +10,16 @@ namespace PointlessWaymarks.GeoToolsGui.Settings;
 
 public class ConnectBasedGeoTagFilesToTagSettings : IFileListSettings
 {
+    private readonly ConnectBasedGeoTaggerContext _context;
+
+    public ConnectBasedGeoTagFilesToTagSettings(ConnectBasedGeoTaggerContext context)
+    {
+        _context = context;
+    }
+
     public async Task<DirectoryInfo?> GetLastDirectory()
     {
-        var lastDirectory = (await ConnectBasedGeoTaggerSettingTools.ReadSettings()).FilesToTagLastDirectoryFullName;
+        var lastDirectory = _context.Settings.FilesToTagLastDirectoryFullName;
 
         if (string.IsNullOrWhiteSpace(lastDirectory)) return null;
 
@@ -24,8 +32,6 @@ public class ConnectBasedGeoTagFilesToTagSettings : IFileListSettings
 
     public async System.Threading.Tasks.Task SetLastDirectory(string newDirectory)
     {
-        var settings = await ConnectBasedGeoTaggerSettingTools.ReadSettings();
-        settings.FilesToTagLastDirectoryFullName = newDirectory ?? string.Empty;
-        await ConnectBasedGeoTaggerSettingTools.WriteSettings(settings);
+        _context.Settings.FilesToTagLastDirectoryFullName = newDirectory ?? string.Empty;
     }
 }

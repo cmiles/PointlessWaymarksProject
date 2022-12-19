@@ -48,7 +48,7 @@
                         <Label Style="{StaticResource SearchLabel}" Target="ArchiveDirectoryTextBox">Archive Directory</Label>
                         <TextBox MinWidth="240" Name="ArchiveDirectoryTextBox" BorderThickness="1"
                                  BorderBrush="LightBlue"
-                                 Text="{Binding ArchiveDirectory, UpdateSourceTrigger=PropertyChanged, Delay=300}" />
+                                 Text="{Binding Settings.ArchiveDirectory, UpdateSourceTrigger=PropertyChanged, Delay=300}" />
                         <TextBlock
                             Visibility="{Binding ArchiveDirectoryExists, Converter={StaticResource BooleanNotToVisibility}}"
                             FontWeight="Bold" Foreground="Red" FontSize="20" VerticalAlignment="Center"

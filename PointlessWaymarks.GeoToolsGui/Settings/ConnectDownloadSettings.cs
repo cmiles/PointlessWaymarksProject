@@ -1,6 +1,13 @@
-﻿namespace PointlessWaymarks.GeoToolsGui.Settings;
+﻿#region
 
-public class ConnectDownloadSettings
+using CommunityToolkit.Mvvm.ComponentModel;
+
+#endregion
+
+namespace PointlessWaymarks.GeoToolsGui.Settings;
+
+[ObservableObject]
+public partial class ConnectDownloadSettings
 {
-    public string ArchiveDirectory { get; set; }
+    [ObservableProperty] private string _archiveDirectory = string.Empty;
 }

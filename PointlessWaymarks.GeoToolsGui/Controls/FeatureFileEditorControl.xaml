@@ -47,13 +47,12 @@
                             <ColumnDefinition />
                         </Grid.ColumnDefinitions>
                         <StackPanel Orientation="Vertical" Margin="4,4, 16,16">
-                            <Label Style="{StaticResource BoldLabel}">File</Label>
-                            <TextBox Style="{StaticResource FeatureTextBox}"
-                                     Text="{Binding Model.FileName, UpdateSourceTrigger=PropertyChanged}" />
-
                             <Label Style="{StaticResource BoldLabel}">Name</Label>
                             <TextBox Style="{StaticResource FeatureTextBox}"
                                      Text="{Binding Model.Name, UpdateSourceTrigger=PropertyChanged}" />
+                            <Label Style="{StaticResource BoldLabel}">File</Label>
+                            <TextBox Style="{StaticResource FeatureTextBox}"
+                                     Text="{Binding Model.FileName, UpdateSourceTrigger=PropertyChanged}" />
                             <Label Style="{StaticResource BoldLabel}">Source</Label>
                             <TextBox Style="{StaticResource FeatureTextBox}"
                                      Text="{Binding Model.Source, UpdateSourceTrigger=PropertyChanged}" />

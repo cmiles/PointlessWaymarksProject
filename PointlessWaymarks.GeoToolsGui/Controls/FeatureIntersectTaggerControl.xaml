@@ -52,7 +52,7 @@
                             <Border Margin="4" BorderBrush="LightGray" BorderThickness="1" CornerRadius="2">
                                 <StackPanel Margin="4" Orientation="Vertical">
                                     <Label>PAD-US GeoJson Data Directory</Label>
-                                    <TextBox Margin="4" Text="{Binding PadUsDirectory}" />
+                                    <TextBox Margin="4" Text="{Binding Settings.PadUsDirectory}" />
                                     <Button Margin="8" Command="{Binding ChoosePadUsDirectoryCommand}">Select PAD-US Directory</Button>
                                 </StackPanel>
                             </Border>
@@ -60,7 +60,7 @@
                                     Grid.Column="1">
                                 <StackPanel Margin="4" Orientation="Vertical">
                                     <Label>Attributes for Tags</Label>
-                                    <ListBox Margin="4" Height="80" ItemsSource="{Binding PadUsAttributes}"
+                                    <ListBox Margin="4" Height="80" ItemsSource="{Binding Settings.PadUsAttributes}"
                                              SelectedItem="{Binding SelectedPadUsAttribute}"
                                              ScrollViewer.HorizontalScrollBarVisibility="Disabled">
                                         <ListBox.ItemsPanel>
@@ -124,7 +124,8 @@
                                 <RowDefinition />
                                 <RowDefinition Height="Auto" />
                             </Grid.RowDefinitions>
-                            <ListBox ItemsSource="{Binding FeatureFiles}" SelectedItem="{Binding SelectedFeatureFile}"
+                            <ListBox ItemsSource="{Binding Settings.FeatureIntersectFiles}"
+                                     SelectedItem="{Binding SelectedFeatureFile}"
                                      SelectionMode="Single" ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                                      HorizontalContentAlignment="Stretch" ScrollViewer.CanContentScroll="False">
                                 <ListBox.ItemTemplate>
@@ -145,12 +146,12 @@
                                                     <ColumnDefinition />
                                                 </Grid.ColumnDefinitions>
                                                 <StackPanel Orientation="Vertical" Margin="4,4, 16,12">
-                                                    <Label Style="{StaticResource BoldLabel}">File</Label>
-                                                    <TextBlock Style="{StaticResource FeatureTextBlock}"
-                                                               Text="{Binding FileName}" />
                                                     <Label Style="{StaticResource BoldLabel}">Name</Label>
                                                     <TextBlock Style="{StaticResource FeatureTextBlock}"
                                                                Text="{Binding Name}" />
+                                                    <Label Style="{StaticResource BoldLabel}">File</Label>
+                                                    <TextBlock Style="{StaticResource FeatureTextBlock}"
+                                                               Text="{Binding FileName}" />
                                                     <Label Style="{StaticResource BoldLabel}">Source</Label>
                                                     <TextBlock Style="{StaticResource FeatureTextBlock}"
                                                                Text="{Binding Source}" />
@@ -194,6 +195,10 @@
                                     Add Feature
                                 </Button>
                                 <Button Height="30" Margin="2,0,2,0" Width="180"
+                                        Command="{Binding DeleteFeatureFileCommand}">
+                                    Delete Feature
+                                </Button>
+                                <Button Height="30" Margin="2,0,2,0" Width="180"
                                         Command="{Binding EditFeatureFileCommand}">
                                     Edit Selected Feature
                                 </Button>
@@ -201,7 +206,7 @@
                         </Grid>
                     </GroupBox>
 
-                    <GroupBox Header="PAD-US Help and Instructions" Grid.Row="1" Margin="4,0,4,4">
+                    <GroupBox Header="GeoJson Files Help and Instructions" Grid.Row="1" Margin="4,0,4,4">
                         <wpf:MarkdownViewer Margin="4" Markdown="{Binding GeoJsonFileOverviewMarkdown}" />
                     </GroupBox>
                     <controls:FeatureFileEditorControl Grid.Row="0" Grid.RowSpan="2"
@@ -230,7 +235,7 @@
                                         </Grid.ColumnDefinitions>
                                         <TextBlock FontWeight="Bold" VerticalAlignment="Center">Path and Filename:</TextBlock>
                                         <TextBox Grid.Column="1" Margin="12,0,8,0" VerticalAlignment="Center"
-                                                 Text="{Binding ExifToolFullName, UpdateSourceTrigger=PropertyChanged}"
+                                                 Text="{Binding Settings.ExifToolFullName, UpdateSourceTrigger=PropertyChanged}"
                                                  HorizontalAlignment="Stretch" />
                                     </Grid>
                                     <TextBlock TextWrapping="Wrap" Margin="4">This program writes tags to files using Phil Harvey's ExifTool - https://exiftool.org/. The recommended version of the program can be downloaded from https://oliverbetz.de/pages/Artikel/ExifTool-for-Windows - and the full path and filename must be entered above.</TextBlock>
@@ -239,10 +244,10 @@
                             <Separator />
                             <GroupBox Header="File Handling">
                                 <StackPanel Orientation="Vertical" Margin="4">
-                                    <CheckBox IsChecked="{Binding CreateBackups}" FontWeight="Bold">Create Backups</CheckBox>
+                                    <CheckBox IsChecked="{Binding Settings.CreateBackups}" FontWeight="Bold">Create Backups</CheckBox>
                                     <TextBlock Margin="12,0,4,4" TextWrapping="Wrap">When Geolocation information is found for a file the original version will be copied into a backup directory.</TextBlock>
                                     <CheckBox Margin="24, 0,0,0" FontWeight="Bold"
-                                              IsChecked="{Binding CreateBackupsInDefaultStorage}">
+                                              IsChecked="{Binding Settings.CreateBackupsInDefaultStorage}">
                                         Backup into My Documents
                                     </CheckBox>
                                     <TextBlock Margin="36,0,4,4" TextWrapping="Wrap">If this is checked backups will be written into a folder in My Documents - this keeps all backups in one place and doesn't add extra files into existing directories. If un-checked backups will be written to a folder under the file's current folder - this keeps the backups close to the original file.</TextBlock>
@@ -252,16 +257,16 @@
                             <GroupBox Header="Tag Options">
                                 <StackPanel Orientation="Vertical">
                                     <StackPanel Orientation="Vertical">
-                                        <CheckBox IsChecked="{Binding TagsToLowerCase}" FontWeight="Bold">Tags to Lowercase</CheckBox>
+                                        <CheckBox IsChecked="{Binding Settings.TagsToLowerCase}" FontWeight="Bold">Tags to Lowercase</CheckBox>
                                         <TextBlock Margin="12,0,4,4" TextWrapping="Wrap">If selected all tags will be converted into lowercase. (Note that when de-duplicating tags the program uses a case insensitive comparison - converting tags to lower case is an aesthetic/data consistency option.)</TextBlock>
                                     </StackPanel>
                                     <StackPanel Orientation="Vertical">
-                                        <CheckBox IsChecked="{Binding SanitizeTags}" FontWeight="Bold">Sanitize Tags</CheckBox>
+                                        <CheckBox IsChecked="{Binding Settings.SanitizeTags}" FontWeight="Bold">Sanitize Tags</CheckBox>
                                         <TextBlock Margin="12,0,4,4" TextWrapping="Wrap">This option will cause many characters to be eliminated from tags into a-z, 0-9 and a handful of other characters. This option offers a simple way to eliminate some inconsistencies that can easily occur in tags. This WILL transform any existing tags!</TextBlock>
                                     </StackPanel>
                                     <StackPanel Orientation="Vertical">
                                         <CheckBox FontWeight="Bold"
-                                                  IsChecked="{Binding CreateBackupsInDefaultStorage}">
+                                                  IsChecked="{Binding Settings.CreateBackupsInDefaultStorage}">
                                             Spaces to Hyphens
                                         </CheckBox>
                                         <TextBlock Margin="12,0,4,4" TextWrapping="Wrap">The 'Sanitize Tags' option will leave spaces in tags - this can be good for human interaction but does not make for nice web URLs - checking this option will cause spaces to be replaced by hyphens and tags will be transformed into URL appropriate slugs. In general this should not be checked for normal photo/tag processing, but in special cases this can be very useful! This WILL transform any existing tags!</TextBlock>
@@ -308,15 +313,14 @@
                         <DataGrid Grid.Row="1" ItemsSource="{Binding PreviewResults}" CanUserAddRows="False"
                                   CanUserReorderColumns="true"
                                   CanUserDeleteRows="false" CanUserResizeColumns="true" CanUserResizeRows="false"
-                                  CanUserSortColumns="true" AutoGenerateColumns="false" FrozenColumnCount="2"
+                                  CanUserSortColumns="true" AutoGenerateColumns="false" FrozenColumnCount="1"
                                   IsReadOnly="true">
                             <DataGrid.Columns>
                                 <DataGridTextColumn Header="File Name" Binding="{Binding FileToTag.FullName}" />
                                 <DataGridTextColumn Header="Result" Binding="{Binding Result}" />
                                 <DataGridTextColumn Header="New Tags" Binding="{Binding NewTagsString}" />
-                                <DataGridTextColumn Header="Notes" Binding="{Binding Notes}" />
-                                <DataGridTextColumn Header="Final Tags" Binding="{Binding FinalTagString}" />
                                 <DataGridTextColumn Header="Existing Tags" Binding="{Binding ExistingTagString}" />
+                                <DataGridTextColumn Header="Final Tags" Binding="{Binding FinalTagString}" />
                             </DataGrid.Columns>
                         </DataGrid>
                     </Grid>
@@ -328,7 +332,7 @@
                         <DataGrid ItemsSource="{Binding WriteToFileResults}" CanUserAddRows="False"
                                   CanUserReorderColumns="true"
                                   CanUserDeleteRows="false" CanUserResizeColumns="true" CanUserResizeRows="false"
-                                  CanUserSortColumns="true" AutoGenerateColumns="false" FrozenColumnCount="2"
+                                  CanUserSortColumns="true" AutoGenerateColumns="false" FrozenColumnCount="1"
                                   IsReadOnly="true">
                             <DataGrid.Columns>
                                 <DataGridTextColumn Header="File Name" Binding="{Binding FileToTag.FullName}" />
@@ -339,6 +343,7 @@
                                 <DataGridTextColumn Header="Existing Tags" Binding="{Binding ExistingTagString}" />
                             </DataGrid.Columns>
                         </DataGrid>
+
                     </Grid>
                 </GroupBox>
             </TabItem>

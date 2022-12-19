@@ -11,8 +11,9 @@ namespace PointlessWaymarks.FeatureIntersectionTags;
 public static class Intersection
 {
     public static async Task<List<IntersectFileTaggingResult>> FileIntersectionTags(this List<FileInfo> toTag,
-        IntersectSettings settings
-        , CancellationToken cancellationToken,
+        IntersectSettings settings, bool tagsToLower, bool sanitizeTags,
+        bool tagSpacesToHyphens,
+        CancellationToken cancellationToken,  int tagMaxCharacterLength = 256,
         IProgress<string>? progress = null)
     {
         var sourceFileAndFeatures = new List<IntersectFileTaggingResult>();
@@ -66,6 +67,45 @@ public static class Intersection
                 cancellationToken,
                 progress);
 
+        List<string> ProcessTagsLocal(List<string> toProcess)
+        {
+            return ProcessTags(toProcess, tagSpacesToHyphens, sanitizeTags, tagsToLower, tagMaxCharacterLength);
+        }
+        
+        foreach (var loopIntersects in sourceFileAndFeatures)
+        {
+            if (loopIntersects.IntersectInformation == null)
+            {
+                loopIntersects.Result = "No Location Found";
+                loopIntersects.Notes = "";
+                continue;
+            }
+
+            if (!loopIntersects.IntersectInformation.IntersectsWith.Any())
+            {
+                loopIntersects.Result = "No Intersections";
+                loopIntersects.Notes = "";
+                continue;
+            }
+            
+            var existingTags = ProcessTagsLocal(await FileMetadataTools.FileKeywords(loopIntersects.FileToTag, true));
+
+            loopIntersects.ExistingTagString = string.Join(",", existingTags);
+
+            var intersectionTags = ProcessTagsLocal(loopIntersects.IntersectInformation!.Tags);
+
+            loopIntersects.NewTagsString =
+                string.Join(",", intersectionTags.Except(existingTags, StringComparer.OrdinalIgnoreCase));
+
+            if (string.IsNullOrWhiteSpace(loopIntersects.NewTagsString))
+            {
+                loopIntersects.Result = "No New Tags";
+                continue;
+            }
+
+            loopIntersects.Result = "New Tags Found";
+            loopIntersects.Notes = $"New Tags from {string.Join(",", loopIntersects.IntersectInformation.Sources)}";
+        }
         sourceFileAndFeatures.Where(x => x.IntersectInformation == null).ToList().ForEach(x =>
         {
             x.Result = "No Location Found";
@@ -389,6 +429,55 @@ public static class Intersection
 
         return toCheck;
     }
+    
+    private static List<string> ProcessTags(List<string> toProcess, bool tagSpacesToHyphens, bool sanitizeTags, bool tagsToLower, int tagMaxCharacterLength)
+    {
+        if (tagSpacesToHyphens)
+        {
+            if (sanitizeTags)
+            {
+                for (var i = 0; i < toProcess.Count; i++)
+                    toProcess[i] =
+                        SlugTools.CreateSlug(tagsToLower, toProcess[i], tagMaxCharacterLength);
+                return toProcess;
+            }
+
+            if (tagsToLower)
+                for (var i = 0; i < toProcess.Count; i++)
+                    toProcess[i] = toProcess[i].ToLowerInvariant();
+
+            for (var i = 0; i < toProcess.Count; i++)
+            {
+                toProcess[i] = Regex.Replace(toProcess[i], @"\s+", " ").Trim();
+                toProcess[i] = toProcess[i].Replace(" ", "-");
+                toProcess[i] =
+                    toProcess[i][
+                        ..Math.Min(tagMaxCharacterLength, toProcess[i].Length)];
+            }
+
+            return toProcess;
+        }
+
+        if (sanitizeTags)
+        {
+            for (var i = 0; i < toProcess.Count; i++)
+                toProcess[i] =
+                    SlugTools.CreateSlug(tagsToLower, toProcess[i], tagMaxCharacterLength);
+            return toProcess;
+        }
+
+        if (tagsToLower)
+            for (var i = 0; i < toProcess.Count; i++)
+                toProcess[i] = toProcess[i].ToLowerInvariant();
+
+        if (!sanitizeTags)
+            for (var i = 0; i < toProcess.Count; i++)
+                toProcess[i] =
+                    toProcess[i][
+                        ..Math.Min(tagMaxCharacterLength, toProcess[i].Length)];
+
+        return toProcess;
+    }
 
     public static async Task<List<IntersectFileTaggingResult>> WriteTagsToFiles(
         this List<IntersectFileTaggingResult> toWrite, bool testRun,
@@ -420,62 +509,18 @@ public static class Intersection
 
         //Processes a list of tags based on the sanitize, case and length settings - local method
         //so that this can be used with both the intersect and existing tag lists.
-        List<string> ProcessTags(List<string> toProcess)
+        List<string> ProcessTagsLocal(List<string> toProcess)
         {
-            if (tagSpacesToHyphens)
-            {
-                if (sanitizeTags)
-                {
-                    for (var i = 0; i < toProcess.Count; i++)
-                        toProcess[i] =
-                            SlugTools.CreateSlug(tagsToLower, toProcess[i], tagMaxCharacterLength);
-                    return toProcess;
-                }
-
-                if (tagsToLower)
-                    for (var i = 0; i < toProcess.Count; i++)
-                        toProcess[i] = toProcess[i].ToLowerInvariant();
-
-                for (var i = 0; i < toProcess.Count; i++)
-                {
-                    toProcess[i] = Regex.Replace(toProcess[i], @"\s+", " ").Trim();
-                    toProcess[i] = toProcess[i].Replace(" ", "-");
-                    toProcess[i] =
-                        toProcess[i][
-                            ..Math.Min(tagMaxCharacterLength, toProcess[i].Length)];
-                }
-
-                return toProcess;
-            }
-
-            if (sanitizeTags)
-            {
-                for (var i = 0; i < toProcess.Count; i++)
-                    toProcess[i] =
-                        SlugTools.CreateSlug(tagsToLower, toProcess[i], tagMaxCharacterLength);
-                return toProcess;
-            }
-
-            if (tagsToLower)
-                for (var i = 0; i < toProcess.Count; i++)
-                    toProcess[i] = toProcess[i].ToLowerInvariant();
-
-            if (!sanitizeTags)
-                for (var i = 0; i < toProcess.Count; i++)
-                    toProcess[i] =
-                        toProcess[i][
-                            ..Math.Min(tagMaxCharacterLength, toProcess[i].Length)];
-
-            return toProcess;
+            return ProcessTags(toProcess, tagSpacesToHyphens, sanitizeTags, tagsToLower, tagMaxCharacterLength);
         }
 
         foreach (var loopWrite in exifToolWrites)
         {
-            var existingTags = ProcessTags(await FileMetadataTools.FileKeywords(loopWrite.FileToTag, true));
+            var existingTags = ProcessTagsLocal(await FileMetadataTools.FileKeywords(loopWrite.FileToTag, true));
 
             loopWrite.ExistingTagString = string.Join(",", existingTags);
 
-            var intersectionTags = ProcessTags(loopWrite.IntersectInformation!.Tags);
+            var intersectionTags = ProcessTagsLocal(loopWrite.IntersectInformation!.Tags);
 
             loopWrite.NewTagsString =
                 string.Join(",", intersectionTags.Except(existingTags, StringComparer.OrdinalIgnoreCase));

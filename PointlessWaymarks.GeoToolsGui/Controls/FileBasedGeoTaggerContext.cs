@@ -45,6 +45,7 @@ public partial class FileBasedGeoTaggerContext
     [ObservableProperty] private string _previewHtml;
     [ObservableProperty] private GeoTag.GeoTagProduceActionsResult? _previewResults;
     [ObservableProperty] private int _selectedTab;
+    [ObservableProperty] private FileBasedGeoTaggerSettings _settings;
     [ObservableProperty] private StatusControlContext _statusContext;
     [ObservableProperty] private WindowIconStatus? _windowStatus;
     [ObservableProperty] private string _writeToFileGeoJsonDto;
@@ -56,9 +57,6 @@ public partial class FileBasedGeoTaggerContext
     {
         _statusContext = statusContext ?? new StatusControlContext();
         _windowStatus = windowStatus;
-
-        FilesToTagSettings = new FileBasedGeoTaggerFilesToTagSettings();
-        GpxFilesSettings = new FileBasedGeoTaggerGpxFilesSettings();
 
         MetadataForSelectedFilesToTagCommand = StatusContext.RunBlockingTaskCommand(MetadataForSelectedFilesToTag);
         ShowSelectedGpxFilesCommand = StatusContext.RunBlockingTaskCommand(ShowSelectedGpxFiles);
@@ -89,7 +87,8 @@ public partial class FileBasedGeoTaggerContext
 
     public async System.Threading.Tasks.Task GeneratePreview()
     {
-        await WriteTaggerSetting();
+        await FileBasedGeoTaggerSettingTools.WriteSettings(Settings);
+
         WriteToFileResults = null;
         WriteToFileGeoJsonDto = await ResetMapGeoJsonDto();
 
@@ -126,6 +125,11 @@ public partial class FileBasedGeoTaggerContext
 
     public async System.Threading.Tasks.Task Load()
     {
+        Settings = await FileBasedGeoTaggerSettingTools.ReadSettings();
+
+        FilesToTagSettings = new FileBasedGeoTaggerFilesToTagSettings(this);
+        GpxFilesSettings = new FileBasedGeoTaggerGpxFilesSettings(this);
+
         FilesToTagFileList = await FileListViewModel.CreateInstance(StatusContext, FilesToTagSettings,
             new List<ContextMenuItemData>
             {
@@ -137,29 +141,11 @@ public partial class FileBasedGeoTaggerContext
                 { new() { ItemCommand = ShowSelectedGpxFilesCommand, ItemName = "Show  Selected" } });
         GpxFileList.FileImportFilter = "gpx files (*.gpx)|*.gpx|All files (*.*)|*.*";
 
-        await LoadTaggerSetting();
-
-        await ThreadSwitcher.ResumeForegroundAsync();
-
-        ExifToolFullName = (await FileBasedGeoTaggerSettingTools.ReadSettings()).ExifToolFullName;
-
         PreviewHtml = WpfHtmlDocument.ToHtmlLeafletBasicGeoJsonDocument("Preview",
             32.12063, -110.52313, string.Empty);
 
         WriteToFileHtml = WpfHtmlDocument.ToHtmlLeafletBasicGeoJsonDocument("WrittenFiles",
             32.12063, -110.52313, string.Empty);
-    }
-
-    public async System.Threading.Tasks.Task LoadTaggerSetting()
-    {
-        var settings = await FileBasedGeoTaggerSettingTools.ReadSettings();
-        ExifToolFullName = settings.ExifToolFullName;
-        CreateBackups = settings.CreateBackups;
-        CreateBackupsInDefaultStorage = settings.CreateBackupsInDefaultStorage;
-        PointsMustBeWithinMinutes = settings.PointsMustBeWithinMinutes;
-        OverwriteExistingGeoLocation = settings.OverwriteExistingGeoLocation;
-        FilesToTagFileList.ReplaceMode = settings.ReplaceExistingFiles;
-        await FileBasedGeoTaggerSettingTools.WriteSettings(settings);
     }
 
     public async System.Threading.Tasks.Task MetadataForSelectedFilesToTag()
@@ -306,6 +292,8 @@ public partial class FileBasedGeoTaggerContext
 
     public async System.Threading.Tasks.Task WriteResultsToFile()
     {
+        await FileBasedGeoTaggerSettingTools.WriteSettings(Settings);
+
         var tagger = new GeoTag();
 
         WriteToFileResults = await tagger.WriteGeoTagActions(
@@ -337,17 +325,5 @@ public partial class FileBasedGeoTaggerContext
         }
 
         SelectedTab = 4;
-    }
-
-    public async System.Threading.Tasks.Task WriteTaggerSetting()
-    {
-        var settings = await FileBasedGeoTaggerSettingTools.ReadSettings();
-        settings.ExifToolFullName = ExifToolFullName;
-        settings.CreateBackups = CreateBackups;
-        settings.CreateBackupsInDefaultStorage = CreateBackupsInDefaultStorage;
-        settings.PointsMustBeWithinMinutes = PointsMustBeWithinMinutes;
-        settings.OverwriteExistingGeoLocation = OverwriteExistingGeoLocation;
-        settings.ReplaceExistingFiles = FilesToTagFileList.ReplaceMode;
-        await FileBasedGeoTaggerSettingTools.WriteSettings(settings);
     }
 }

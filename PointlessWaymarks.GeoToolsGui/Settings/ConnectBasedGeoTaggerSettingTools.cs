@@ -2,6 +2,7 @@
 
 using System.IO;
 using System.Text.Json;
+using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CommonTools;
 
 #endregion
@@ -10,6 +11,8 @@ namespace PointlessWaymarks.GeoToolsGui.Settings;
 
 public class ConnectBasedGeoTaggerSettingTools
 {
+    private static readonly TaskQueue SettingsWriteQueue = new();
+
     public static async Task<FileInfo> DefaultSettingsFile()
     {
         var settingsFile =
@@ -30,8 +33,8 @@ public class ConnectBasedGeoTaggerSettingTools
 
     public static async Task<ConnectBasedGeoTaggerSettings> ReadSettings()
     {
-        return JsonSerializer.Deserialize<ConnectBasedGeoTaggerSettings>(
-                   await File.ReadAllTextAsync((await DefaultSettingsFile()).FullName)) ??
+        var json = FileLoadTools.ReadAllText((await DefaultSettingsFile()).FullName);
+        return JsonSerializer.Deserialize<ConnectBasedGeoTaggerSettings>(json) ??
                new ConnectBasedGeoTaggerSettings();
     }
 
@@ -40,7 +43,8 @@ public class ConnectBasedGeoTaggerSettingTools
     {
         var settingsFile = await DefaultSettingsFile();
         var serializedSettings = JsonSerializer.Serialize(setting, new JsonSerializerOptions { WriteIndented = true });
-        await File.WriteAllTextAsync(settingsFile.FullName, serializedSettings);
+        SettingsWriteQueue.Enqueue(async () =>
+            await File.WriteAllTextAsync(settingsFile.FullName, serializedSettings));
         return setting;
     }
 }

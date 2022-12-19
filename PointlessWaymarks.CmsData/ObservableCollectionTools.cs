@@ -4,8 +4,6 @@ namespace PointlessWaymarks.CmsData;
 
 public static class ObservableCollectionTools
 {
-
-
     public static void Sort<T>(this ObservableCollection<T> collection, Comparison<T> comparison)
     {
         //https://stackoverflow.com/questions/19112922/sort-observablecollectionstring-through-c-sharp

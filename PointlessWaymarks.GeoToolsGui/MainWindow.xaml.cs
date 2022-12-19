@@ -40,7 +40,7 @@ public partial class MainWindow : Window
         WindowInitialPositionHelpers.EnsureWindowIsVisible(this);
 
         _infoTitle = ProgramInfoTools.StandardAppInformationString(Assembly.GetExecutingAssembly(),
-            "Pointless Waymarks GeoTagger");
+            "Pointless Waymarks GeoTools Beta");
         ;
 
         DataContext = this;

@@ -30,6 +30,6 @@ public static class ProgramInfoTools
     public static string StandardAppInformationString(Assembly assembly, string programDisplayName)
     {
         return
-            $"{programDisplayName} - Built On {GetEntryAssemblyBuildDate(assembly)?.ToString("g") ?? "Unknown"} - Commit {ThisAssembly.Git.Commit} {(ThisAssembly.Git.IsDirty ? "(Has Local Changes)" : string.Empty)}";
+            $"{programDisplayName} - Built On {GetEntryAssemblyBuildDate(assembly)?.ToString("g") ?? "(Date/Time Unknown)"} - Commit {ThisAssembly.Git.Commit} {(ThisAssembly.Git.IsDirty ? "(Has Local Changes)" : string.Empty)}";
     }
 }

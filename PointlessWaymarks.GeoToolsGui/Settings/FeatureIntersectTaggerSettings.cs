@@ -1,22 +1,24 @@
 ﻿#region
 
+using System.Collections.ObjectModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 using PointlessWaymarks.GeoToolsGui.Models;
 
 #endregion
 
 namespace PointlessWaymarks.GeoToolsGui.Settings;
 
-public class FeatureIntersectTaggerSettings
+[ObservableObject]
+public partial class FeatureIntersectTaggerSettings
 {
-    public bool CreateBackups { get; set; }
-    public bool CreateBackupsInDefaultStorage { get; set; }
-    public string ExifToolFullName { get; set; } = string.Empty;
-    public List<FeatureFileViewModel> FeatureIntersectFiles { get; set; } = new();
-    public string FilesToTagLastDirectoryFullName { get; set; } = string.Empty;
-    public List<string> PadUsAttributes { get; set; } = new();
-    public string PadUsDirectory { get; set; } = string.Empty;
-    public bool SanitizeTags { get; set; } = true;
-    public bool TagSpacesToHyphens { get; set; }
-    public bool TagsToLowerCase { get; set; } = true;
-    public bool TestRunOnly { get; set; }
+    [ObservableProperty] private bool _createBackups;
+    [ObservableProperty] private bool _createBackupsInDefaultStorage;
+    [ObservableProperty] private string _exifToolFullName = string.Empty;
+    [ObservableProperty] private ObservableCollection<FeatureFileViewModel> _featureIntersectFiles = new();
+    [ObservableProperty] private string _filesToTagLastDirectoryFullName = string.Empty;
+    [ObservableProperty] private ObservableCollection<string> _padUsAttributes = new();
+    [ObservableProperty] private string _padUsDirectory = string.Empty;
+    [ObservableProperty] private bool _sanitizeTags = true;
+    [ObservableProperty] private bool _tagSpacesToHyphens;
+    [ObservableProperty] private bool _tagsToLowerCase = true;
 }

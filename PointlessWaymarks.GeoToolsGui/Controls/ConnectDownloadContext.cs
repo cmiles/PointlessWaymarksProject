@@ -24,7 +24,6 @@ namespace PointlessWaymarks.GeoToolsGui.Controls;
 [ObservableObject]
 public partial class ConnectDownloadContext
 {
-    [ObservableProperty] private string _archiveDirectory;
     [ObservableProperty] private bool _archiveDirectoryExists;
     [ObservableProperty] private string _currentCredentialsNote;
     [ObservableProperty] private string _filterLocation;
@@ -36,6 +35,7 @@ public partial class ConnectDownloadContext
     [ObservableProperty] private List<GarminActivityAndLocalFiles> _searchResults = new();
     [ObservableProperty] private List<GarminActivityAndLocalFiles> _searchResultsFiltered = new();
     [ObservableProperty] private DateTime _searchStartDate;
+    [ObservableProperty] private ConnectDownloadSettings _settings;
     [ObservableProperty] private StatusControlContext _statusContext;
 
     public ConnectDownloadContext(StatusControlContext? statusContext, WindowIconStatus? windowStatus)
@@ -80,13 +80,13 @@ public partial class ConnectDownloadContext
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        if (string.IsNullOrWhiteSpace(ArchiveDirectory))
+        if (string.IsNullOrWhiteSpace(Settings.ArchiveDirectory))
         {
             ArchiveDirectoryExists = false;
             return;
         }
 
-        ArchiveDirectoryExists = Directory.Exists(ArchiveDirectory.Trim());
+        ArchiveDirectoryExists = Directory.Exists(Settings.ArchiveDirectory.Trim());
     }
 
     public async System.Threading.Tasks.Task ChooseArchiveDirectory()
@@ -95,9 +95,9 @@ public partial class ConnectDownloadContext
         var folderPicker = new VistaFolderBrowserDialog
             { Description = "Directory And Subdirectories to Add", Multiselect = false };
 
-        if (!string.IsNullOrWhiteSpace(ArchiveDirectory))
+        if (!string.IsNullOrWhiteSpace(Settings.ArchiveDirectory))
         {
-            var currentDirectory = new DirectoryInfo(ArchiveDirectory);
+            var currentDirectory = new DirectoryInfo(Settings.ArchiveDirectory);
             if (currentDirectory.Exists) folderPicker.SelectedPath = $"{currentDirectory.FullName}\\";
         }
 
@@ -105,7 +105,7 @@ public partial class ConnectDownloadContext
 
         if (!result ?? false) return;
 
-        ArchiveDirectory = folderPicker.SelectedPath;
+        Settings.ArchiveDirectory = folderPicker.SelectedPath;
     }
 
     public static async Task<ConnectDownloadContext> CreateInstance(StatusControlContext? statusContext,
@@ -136,7 +136,7 @@ public partial class ConnectDownloadContext
             return;
         }
 
-        var archiveDirectory = new DirectoryInfo(ArchiveDirectory.Trim());
+        var archiveDirectory = new DirectoryInfo(Settings.ArchiveDirectory.Trim());
 
         toDownload.ArchivedJson =
             await GarminConnectTools.WriteJsonActivityArchiveFile(toDownload.Activity, archiveDirectory, true);
@@ -227,16 +227,16 @@ public partial class ConnectDownloadContext
         SearchResults = new List<GarminActivityAndLocalFiles>();
         SearchResultsFiltered = SearchResults;
 
-        var settings = await ConnectDownloadSettingTools.ReadSettings();
-        ArchiveDirectory = settings.ArchiveDirectory;
+        Settings = await ConnectDownloadSettingTools.ReadSettings();
 
         await UpdateCredentialsNote();
+        await CheckThatArchiveDirectoryExists();
     }
 
 
     private void OnPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
-        if (string.IsNullOrWhiteSpace(e?.PropertyName)) return;
+        if (string.IsNullOrWhiteSpace(e.PropertyName)) return;
 
         if (e.PropertyName.StartsWith("Filter"))
         {
@@ -245,13 +245,13 @@ public partial class ConnectDownloadContext
             StatusContext.RunNonBlockingTask(async () => await FilterAndSortResults(thisRequest));
         }
 
-        if (e.PropertyName == nameof(ArchiveDirectory))
+        if (e.PropertyName == nameof(Settings.ArchiveDirectory))
         {
             StatusContext.RunNonBlockingTask(async () => await CheckThatArchiveDirectoryExists());
             StatusContext.RunNonBlockingTask(async () =>
             {
                 var settings = await ConnectDownloadSettingTools.ReadSettings();
-                settings.ArchiveDirectory = ArchiveDirectory;
+                settings.ArchiveDirectory = Settings.ArchiveDirectory;
                 await ConnectDownloadSettingTools.WriteSettings(settings);
             });
         }
@@ -275,16 +275,16 @@ public partial class ConnectDownloadContext
 
         var returnList = activities.Select(x => new GarminActivityAndLocalFiles(x)).ToList();
 
-        if (!string.IsNullOrWhiteSpace(_archiveDirectory) && Directory.Exists(_archiveDirectory))
+        if (!string.IsNullOrWhiteSpace(Settings.ArchiveDirectory) && Directory.Exists(Settings.ArchiveDirectory))
             foreach (var loopActivities in returnList)
             {
                 var loopActivityArchiveJsonFileName = GarminConnectTools.ArchiveJsonFileName(loopActivities.Activity);
                 var loopActivityArchiveGpxFileName = GarminConnectTools.ArchiveGpxFileName(loopActivities.Activity);
 
                 loopActivities.ArchivedGpx =
-                    new FileInfo(Path.Combine(_archiveDirectory, loopActivityArchiveGpxFileName));
+                    new FileInfo(Path.Combine(Settings.ArchiveDirectory, loopActivityArchiveGpxFileName));
                 loopActivities.ArchivedJson =
-                    new FileInfo(Path.Combine(_archiveDirectory, loopActivityArchiveJsonFileName));
+                    new FileInfo(Path.Combine(Settings.ArchiveDirectory, loopActivityArchiveJsonFileName));
             }
 
         SearchResults = returnList;
@@ -307,7 +307,7 @@ public partial class ConnectDownloadContext
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
-        await ProcessHelpers.OpenExplorerWindowForDirectory(ArchiveDirectory.Trim());
+        await ProcessHelpers.OpenExplorerWindowForDirectory(Settings.ArchiveDirectory.Trim());
     }
 
     public async System.Threading.Tasks.Task ShowFileInExplorer(string fileName)

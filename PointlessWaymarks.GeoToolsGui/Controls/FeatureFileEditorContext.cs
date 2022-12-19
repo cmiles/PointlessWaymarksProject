@@ -6,7 +6,6 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Omu.ValueInjecter;
 using PointlessWaymarks.GeoToolsGui.Models;
-using PointlessWaymarks.GeoToolsGui.Settings;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 
@@ -18,17 +17,20 @@ namespace PointlessWaymarks.GeoToolsGui.Controls;
 public partial class FeatureFileEditorContext
 {
     [ObservableProperty] private string _attributeToAdd = string.Empty;
+    private List<FeatureFileViewModel> _existingFeatureFileViewModels;
     [ObservableProperty] private bool _isVisible;
     [ObservableProperty] private FeatureFileViewModel _model;
     [ObservableProperty] private FeatureFileViewModel _originalModelState;
-    [ObservableProperty] private string _selectedAttribute = string.Empty;
+    [ObservableProperty] private string? _selectedAttribute = string.Empty;
     [ObservableProperty] private StatusControlContext _statusContext;
 
-    public FeatureFileEditorContext(StatusControlContext? statusContext, FeatureFileViewModel? featureFile)
+    public FeatureFileEditorContext(StatusControlContext? statusContext, FeatureFileViewModel? featureFile,
+        List<FeatureFileViewModel> existingFeatureFileViewModels)
     {
         _statusContext = statusContext ?? new StatusControlContext();
         _model = featureFile ?? new FeatureFileViewModel();
         _originalModelState = _model.Clone();
+        _existingFeatureFileViewModels = existingFeatureFileViewModels;
 
         CancelCommand = StatusContext.RunBlockingTaskCommand(Cancel);
         FinishEditCommand = StatusContext.RunBlockingTaskCommand(FinishEdit);
@@ -40,7 +42,11 @@ public partial class FeatureFileEditorContext
 
     public RelayCommand CancelCommand { get; set; }
 
-    public EventHandler<FeatureFileEditorEndEditCondition>? EndEdit { get; set; }
+    public EventHandler<(FeatureFileEditorEndEditCondition endCondition, FeatureFileViewModel model)>? EndEdit
+    {
+        get;
+        set;
+    }
 
     public RelayCommand FinishEditCommand { get; set; }
 
@@ -72,7 +78,7 @@ public partial class FeatureFileEditorContext
     public async System.Threading.Tasks.Task Cancel()
     {
         Model.InjectFrom(OriginalModelState);
-        EndEdit?.Invoke(this, FeatureFileEditorEndEditCondition.Cancelled);
+        EndEdit?.Invoke(this, (FeatureFileEditorEndEditCondition.Cancelled, Model));
         IsVisible = false;
     }
 
@@ -104,16 +110,7 @@ public partial class FeatureFileEditorContext
             return;
         }
 
-        var existingFeatures = (await FeatureIntersectTaggerSettingTools.ReadSettings()).FeatureIntersectFiles;
-
-        if (!existingFeatures.Any())
-        {
-            await FeatureIntersectTaggerSettingTools.SetFeatureFiles(existingFeatures);
-            EndEdit?.Invoke(this, FeatureFileEditorEndEditCondition.Saved);
-            IsVisible = false;
-        }
-
-        var possibleExisting = existingFeatures.Where(x =>
+        var possibleExisting = _existingFeatureFileViewModels.Where(x =>
             x.ContentId != Model.ContentId && x.FileName.Equals(Model.FileName, StringComparison.OrdinalIgnoreCase) &&
             x.Name.Equals(Model.Name, StringComparison.OrdinalIgnoreCase)).ToList();
 
@@ -123,12 +120,7 @@ public partial class FeatureFileEditorContext
             return;
         }
 
-        var newFeatureFiles = existingFeatures.Where(x => x.ContentId != Model.ContentId).ToList();
-        newFeatureFiles.Add(Model);
-
-        await FeatureIntersectTaggerSettingTools.SetFeatureFiles(newFeatureFiles);
-
-        EndEdit?.Invoke(this, FeatureFileEditorEndEditCondition.Saved);
+        EndEdit?.Invoke(this, (FeatureFileEditorEndEditCondition.Saved, Model));
 
         IsVisible = false;
     }
@@ -144,10 +136,11 @@ public partial class FeatureFileEditorContext
         Model.AttributesForTags = newList;
     }
 
-    public void Show(FeatureFileViewModel model)
+    public void Show(FeatureFileViewModel model, List<FeatureFileViewModel> existingFeatureFileViewModels)
     {
         AttributeToAdd = string.Empty;
         Model = model;
+        _existingFeatureFileViewModels = existingFeatureFileViewModels;
         OriginalModelState = Model.Clone();
         SelectedAttribute = null;
         IsVisible = true;

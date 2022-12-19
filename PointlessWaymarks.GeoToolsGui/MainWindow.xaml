@@ -8,6 +8,7 @@
         xmlns:ui="http://schemas.modernwpf.com/2019"
         xmlns:controls1="clr-namespace:PointlessWaymarks.GeoToolsGui.Controls"
         xmlns:geoToolsGui="clr-namespace:PointlessWaymarks.GeoToolsGui"
+        xmlns:windowScreenShot="clr-namespace:PointlessWaymarks.WpfCommon.WindowScreenShot;assembly=PointlessWaymarks.WpfCommon"
         ui:WindowHelper.UseModernWindowStyle="True"
         ui:ThemeManager.IsThemeAware="True"
         Icon="GeoToolsGuiIcon.ico"
@@ -28,5 +29,10 @@
             </TabItem>
         </TabControl>
         <status:StatusControl DataContext="{Binding StatusContext}" />
+        <windowScreenShot:WindowScreenShotControl
+            Margin="2"
+            Width="40"
+            HorizontalAlignment="Left"
+            VerticalAlignment="Bottom" />
     </Grid>
 </Window>

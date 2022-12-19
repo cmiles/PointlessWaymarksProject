@@ -17,8 +17,8 @@
             <TabItem Header="Garmin Connect Setup">
                 <Grid>
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"></RowDefinition>
-                        <RowDefinition Height="Auto"></RowDefinition>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
                     </Grid.RowDefinitions>
                     <GroupBox Header="Connect Credentials">
                         <Grid Margin="4">
@@ -49,15 +49,16 @@
                             </Grid.RowDefinitions>
                             <TextBlock Margin="4" TextWrapping="Wrap">Garmin Activities are cached to disk for local use and for later reference - an archive directory must be provided for this program to use.</TextBlock>
                             <StackPanel Grid.Row="1">
-                                <StackPanel  Orientation="Horizontal" Margin="4,4,4,4">
+                                <StackPanel Orientation="Horizontal" Margin="4,4,4,4">
                                     <Label Target="ArchiveDirectoryTextBox" VerticalAlignment="Center" Margin="4,0,4,0">Archive Directory</Label>
                                     <Button Margin="8,0,4,0" Command="{Binding ShowArchiveDirectoryCommand}">Open</Button>
                                     <Button Margin="4" Command="{Binding ChooseArchiveDirectoryCommand}">Select Directory</Button>
                                 </StackPanel>
                                 <StackPanel Orientation="Horizontal">
-                                    <TextBox Margin="16,4,4,4" MinWidth="280" Name="ArchiveDirectoryTextBox" BorderThickness="1"
+                                    <TextBox Margin="16,4,4,4" MinWidth="280" Name="ArchiveDirectoryTextBox"
+                                             BorderThickness="1"
                                              BorderBrush="LightBlue"
-                                             Text="{Binding ArchiveDirectory, UpdateSourceTrigger=PropertyChanged, Delay=250}" />
+                                             Text="{Binding Settings.ArchiveDirectory, UpdateSourceTrigger=PropertyChanged, Delay=250}" />
                                     <TextBlock
                                         Visibility="{Binding ArchiveDirectoryExists, Converter={StaticResource BooleanNotToVisibility}}"
                                         FontWeight="Bold" Foreground="Red" FontSize="20" VerticalAlignment="Center"
@@ -111,7 +112,7 @@
                                             </Grid.ColumnDefinitions>
                                             <TextBlock FontWeight="Bold" VerticalAlignment="Center">Path and Filename:</TextBlock>
                                             <TextBox Grid.Column="1" Margin="12,0,8,0" VerticalAlignment="Center"
-                                                     Text="{Binding ExifToolFullName, UpdateSourceTrigger=PropertyChanged}"
+                                                     Text="{Binding Settings.ExifToolFullName, UpdateSourceTrigger=PropertyChanged}"
                                                      HorizontalAlignment="Stretch" />
                                         </Grid>
                                         <TextBlock TextWrapping="Wrap" Margin="4">This program can write to a wider variety of file formats by using Phil Harvey's ExifTool - https://exiftool.org/. The recommended version of the program can be downloaded from https://oliverbetz.de/pages/Artikel/ExifTool-for-Windows - you must provide the full path and filename above for the program to use ExifTool.</TextBlock>
@@ -121,14 +122,14 @@
                                 <GroupBox Header="File Handling">
                                     <StackPanel Orientation="Vertical">
                                         <StackPanel Orientation="Vertical">
-                                            <CheckBox IsChecked="{Binding CreateBackups}">
+                                            <CheckBox IsChecked="{Binding Settings.CreateBackups}">
                                                 <TextBlock TextWrapping="Wrap">
                                                     <Run FontWeight="Bold">Create Backups</Run>
                                                     <Run> - When Geolocation information is found for a file the original version will be copied into a backup directory.</Run>
                                                 </TextBlock>
                                             </CheckBox>
                                             <CheckBox Margin="24,12,0,0"
-                                                      IsChecked="{Binding CreateBackupsInDefaultStorage}">
+                                                      IsChecked="{Binding Settings.CreateBackupsInDefaultStorage}">
                                                 <TextBlock TextWrapping="Wrap">
                                                     <Run FontWeight="Bold">Backup into My Documents</Run>
                                                     <Run> - If this is checked backups will be written into a folder in My Documents - this keeps all backups in one place and doesn't add extra files into existing directories. If un-checked backups will be written to a folder under the file's current folder - this keeps the backups close to the original file.</Run>
@@ -136,7 +137,7 @@
                                             </CheckBox>
                                         </StackPanel>
                                         <StackPanel Orientation="Vertical">
-                                            <CheckBox IsChecked="{Binding OverwriteExistingGeoLocation}">
+                                            <CheckBox IsChecked="{Binding Settings.OverwriteExistingGeoLocation}">
 
                                                 <TextBlock TextWrapping="Wrap">
                                                     <Run FontWeight="Bold">Overwrite Existing Geolocation</Run>
@@ -157,7 +158,7 @@
                                             <numericUpDownLib:ShortUpDown HorizontalAlignment="Left"
                                                                           HorizontalContentAlignment="Center"
                                                                           VerticalAlignment="Top" Margin="0,7,4,0"
-                                                                          Value="{Binding PointsMustBeWithinMinutes}" />
+                                                                          Value="{Binding Settings.PointsMustBeWithinMinutes}" />
                                             <TextBlock Grid.Column="1" TextWrapping="Wrap" HorizontalAlignment="Left"
                                                        Margin="4">
                                                 <Run FontWeight="Bold">File Time must be Within Minutes of Point</Run>

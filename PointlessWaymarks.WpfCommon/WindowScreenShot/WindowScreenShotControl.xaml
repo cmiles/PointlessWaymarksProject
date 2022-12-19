@@ -19,11 +19,11 @@
     </UserControl.Resources>
     <Grid>
         <Button
-            Width="26"
-            Height="26"
+            MinWidth="26"
+            MinHeight="26"
             Margin="2"
-            HorizontalAlignment="Right"
-            VerticalAlignment="Bottom"
+            VerticalAlignment="Center"
+            HorizontalAlignment="Center"
             Command="{Binding WindowScreenShotCommand}"
             CommandParameter="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Window}}}"
             Opacity=".4">
