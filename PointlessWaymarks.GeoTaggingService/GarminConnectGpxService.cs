@@ -2,7 +2,6 @@
 using Garmin.Connect.Auth;
 using Garmin.Connect.Models;
 using NetTopologySuite.IO;
-using PointlessWaymarks.Task.GarminConnectGpxImport;
 
 namespace PointlessWaymarks.GeoTaggingService;
 
