@@ -25,43 +25,25 @@
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
         <Menu>
-            <MenuItem Header="New">
-                <MenuItem Command="{Binding ListContext.NewActions.NewFileContentFromFilesCommand}" Header="File from File" />
-                <MenuItem Command="{Binding ListContext.NewActions.NewFileContentCommand}" Header="File" />
-                <MenuItem Command="{Binding ListContext.NewActions.NewGeoJsonContentCommand}" Header="GeoJson" />
-                <MenuItem Command="{Binding ListContext.NewActions.NewImageContentFromFilesCommand}" Header="Image from File" />
-                <MenuItem Command="{Binding ListContext.NewActions.NewImageContentCommand}" Header="Image" />
-                <MenuItem Command="{Binding ListContext.NewActions.NewLineContentFromFilesWithAutosaveCommand}" Header="Line from File - Auto-Save" />
-                <MenuItem Command="{Binding ListContext.NewActions.NewLineContentFromFilesCommand}" Header="Line from File" />
-                <MenuItem Command="{Binding ListContext.NewActions.NewLineContentCommand}" Header="Line" />
-                <MenuItem Command="{Binding ListContext.NewActions.NewLinkContentCommand}" Header="Link" />
-                <MenuItem Command="{Binding ListContext.NewActions.NewMapContentCommand}" Header="Map Component" />
-                <MenuItem Command="{Binding ListContext.NewActions.NewNoteContentCommand}" Header="Note" />
-                <MenuItem Command="{Binding ListContext.NewActions.NewPhotoContentFromFilesWithAutosaveCommand}" Header="Photo from File - Auto-Save" />
-                <MenuItem Command="{Binding ListContext.NewActions.NewPhotoContentFromFilesCommand}" Header="Photo from File" />
-                <MenuItem Command="{Binding ListContext.NewActions.NewPhotoContentCommand}" Header="Photo" />
-                <MenuItem Command="{Binding ListContext.NewActions.NewPointContentCommand}" Header="Point" />
-                <MenuItem Command="{Binding ListContext.NewActions.NewPostContentCommand}" Header="Post" />
-            </MenuItem>
+            <StaticResource ResourceKey="NewMenu" />
+            <StaticResource ResourceKey="ExcelMenu" />
             <MenuItem Header="Reports">
                 <MenuItem Command="{Binding ReportNoTagsCommand}" Header="No Tags" />
-                <MenuItem Command="{Binding ReportTitleAndTakenDoNotMatchCommand}" Header="Title and Photo Created Don't Match" />
+                <MenuItem Command="{Binding ReportTitleAndTakenDoNotMatchCommand}"
+                          Header="Title and Photo Created Don't Match" />
                 <MenuItem Command="{Binding ReportBlankLicenseCommand}" Header="License is Blank" />
-                <MenuItem Command="{Binding ReportTakenAndLicenseYearDoNotMatchCommand}" Header="License Year and Taken Year Don't Match" />
+                <MenuItem Command="{Binding ReportTakenAndLicenseYearDoNotMatchCommand}"
+                          Header="License Year and Taken Year Don't Match" />
                 <MenuItem Command="{Binding ReportMultiSpacesInTitleCommand}" Header="Titles with Multiple Spaces" />
                 <MenuItem Command="{Binding ReportAllPhotosCommand}" Header="All Photos" />
                 <MenuItem Command="{Binding ReportPhotoMetadataCommand}" Header="Selected - Metadata to Html" />
-            </MenuItem>
-            <MenuItem Header="Excel">
-                <MenuItem Command="{Binding ListContext.SelectedToExcelCommand}" Header="Selected To Excel" />
-                <MenuItem Command="{Binding ListContext.ImportFromExcelFileCommand}" Header="Import From Excel File" />
-                <MenuItem Command="{Binding ListContext.ImportFromOpenExcelInstanceCommand}" Header="Import From Open Excel Application" />
             </MenuItem>
             <MenuItem Header="Email">
                 <MenuItem Command="{Binding EmailHtmlToClipboardCommand}" Header="Selected To Html Email on Clipboard" />
             </MenuItem>
             <MenuItem Header="On the Web">
-                <MenuItem Command="{Binding ListContext.ViewOnSiteCommand}" Header="Open Selected on Public Site In Browser" />
+                <MenuItem Command="{Binding ListContext.ViewOnSiteCommand}"
+                          Header="Open Selected on Public Site In Browser" />
             </MenuItem>
             <MenuItem Header="History">
                 <MenuItem Command="{Binding ListContext.ViewHistorySelectedCommand}" Header="View History" />
@@ -69,7 +51,8 @@
             <MenuItem Header="Processing">
                 <MenuItem Command="{Binding ListContext.GenerateHtmlSelectedCommand}" Header="Generate Html" />
                 <MenuItem Command="{Binding ForcedResizeCommand}" Header="Reprocess Photo" />
-                <MenuItem Command="{Binding RegenerateHtmlAndReprocessPhotoForSelectedCommand}" Header="Reprocess Photo and Generate Html" />
+                <MenuItem Command="{Binding RegenerateHtmlAndReprocessPhotoForSelectedCommand}"
+                          Header="Reprocess Photo and Generate Html" />
                 <MenuItem Command="{Binding ListContext.ExtractNewLinksSelectedCommand}" Header="Extract Links" />
             </MenuItem>
             <StaticResource ResourceKey="ViewMenu" />

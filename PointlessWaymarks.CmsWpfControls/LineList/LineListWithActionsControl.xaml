@@ -25,31 +25,11 @@
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
         <Menu>
-            <MenuItem Header="New">
-                <MenuItem Command="{Binding ListContext.NewActions.NewFileContentFromFilesCommand}" Header="File from File" />
-                <MenuItem Command="{Binding ListContext.NewActions.NewFileContentCommand}" Header="File" />
-                <MenuItem Command="{Binding ListContext.NewActions.NewGeoJsonContentCommand}" Header="GeoJson" />
-                <MenuItem Command="{Binding ListContext.NewActions.NewImageContentFromFilesCommand}" Header="Image from File" />
-                <MenuItem Command="{Binding ListContext.NewActions.NewImageContentCommand}" Header="Image" />
-                <MenuItem Command="{Binding ListContext.NewActions.NewLineContentFromFilesWithAutosaveCommand}" Header="Line from File - Auto-Save" />
-                <MenuItem Command="{Binding ListContext.NewActions.NewLineContentFromFilesCommand}" Header="Line from File" />
-                <MenuItem Command="{Binding ListContext.NewActions.NewLineContentCommand}" Header="Line" />
-                <MenuItem Command="{Binding ListContext.NewActions.NewLinkContentCommand}" Header="Link" />
-                <MenuItem Command="{Binding ListContext.NewActions.NewMapContentCommand}" Header="Map Component" />
-                <MenuItem Command="{Binding ListContext.NewActions.NewNoteContentCommand}" Header="Note" />
-                <MenuItem Command="{Binding ListContext.NewActions.NewPhotoContentFromFilesWithAutosaveCommand}" Header="Photo from File - Auto-Save" />
-                <MenuItem Command="{Binding ListContext.NewActions.NewPhotoContentFromFilesCommand}" Header="Photo from File" />
-                <MenuItem Command="{Binding ListContext.NewActions.NewPhotoContentCommand}" Header="Photo" />
-                <MenuItem Command="{Binding ListContext.NewActions.NewPointContentCommand}" Header="Point" />
-                <MenuItem Command="{Binding ListContext.NewActions.NewPostContentCommand}" Header="Post" />
-            </MenuItem>
-            <MenuItem Header="Excel">
-                <MenuItem Command="{Binding ListContext.SelectedToExcelCommand}" Header="Selected To Excel" />
-                <MenuItem Command="{Binding ListContext.ImportFromExcelFileCommand}" Header="Import From Excel File" />
-                <MenuItem Command="{Binding ListContext.ImportFromOpenExcelInstanceCommand}" Header="Import From Open Excel Application" />
-            </MenuItem>
+            <StaticResource ResourceKey="NewMenu" />
+            <StaticResource ResourceKey="ExcelMenu" />
             <MenuItem Header="On the Web">
-                <MenuItem Command="{Binding ListContext.ViewOnSiteCommand}" Header="Open Selected on Public Site In Browser" />
+                <MenuItem Command="{Binding ListContext.ViewOnSiteCommand}"
+                          Header="Open Selected on Public Site In Browser" />
             </MenuItem>
             <MenuItem Header="History">
                 <MenuItem Command="{Binding ListContext.ViewHistorySelectedCommand}" Header="View History" />
@@ -62,7 +42,7 @@
             <StaticResource ResourceKey="SiteMenu" />
         </Menu>
         <contentList:ContentListControl
-            Grid.Row="1" 
+            Grid.Row="1"
             Margin="4,5,4,6"
             DataContext="{Binding ListContext}" />
         <Border Grid.Row="2" Style="{StaticResource ActionPanelBorderStyle}">
