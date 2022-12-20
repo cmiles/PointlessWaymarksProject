@@ -32,7 +32,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PointlessWaymarks.LocalView
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PointlessWaymarks.Task.MemoriesEmail", "PointlessWaymarks.Task.MemoriesEmail\PointlessWaymarks.Task.MemoriesEmail.csproj", "{057D3F70-A452-4FCE-B9FC-90E0D9F8592A}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PointlessWaymarks.Task.GarminConnectGpxImport", "PointlessWaymarks.Task.GpxImport\PointlessWaymarks.Task.GarminConnectGpxImport.csproj", "{05C70B49-DF03-4ABA-A92D-124EF63A2F3E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PointlessWaymarks.Task.GarminConnectGpxImport", "PointlessWaymarks.Task.GarminConnectGpxImport\PointlessWaymarks.Task.GarminConnectGpxImport.csproj", "{05C70B49-DF03-4ABA-A92D-124EF63A2F3E}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PointlessWaymarks.FeatureIntersectionTags", "PointlessWaymarks.FeatureIntersectionTags\PointlessWaymarks.FeatureIntersectionTags.csproj", "{83CAE91D-FE3E-4853-BB68-6A4A5E7742F7}"
 EndProject
