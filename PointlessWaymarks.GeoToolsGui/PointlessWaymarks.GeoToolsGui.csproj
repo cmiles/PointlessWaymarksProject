@@ -4,14 +4,17 @@
         <OutputType>WinExe</OutputType>
         <Nullable>enable</Nullable>
         <UseWPF>true</UseWPF>
+        <ApplicationIcon>GeoToolsGuiIcon.ico</ApplicationIcon>
     </PropertyGroup>
 
     <ItemGroup>
-        <None Remove="GeoToolsGuiIcon.ico" />
+        <None Update="app.manifest">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Dirkster.NumericUpDownLib" Version="3.3.0" />
+        <PackageReference Include="Dirkster.NumericUpDownLib" Version="3.3.1" />
         <PackageReference Include="GitInfo" Version="2.3.0" />
         <PackageReference Include="Jot" Version="2.1.13" />
         <PackageReference Include="ModernWpfUI" Version="0.9.6" />
@@ -29,15 +32,16 @@
             <_Parameter1>$([System.DateTime]::UtcNow.ToString("yyyyMMddHHmmss"))</_Parameter1>
         </AssemblyAttribute>
     </ItemGroup>
-
-    <ItemGroup>
-        <Resource Include="GeoToolsGuiIcon.ico" />
-    </ItemGroup>
-
+    
     <ItemGroup>
         <Compile Update="Controls\FeatureFileEditorControl.xaml.cs">
             <SubType>Code</SubType>
         </Compile>
+    </ItemGroup>
+    
+    <ItemGroup>
+      <None Remove="GeoToolsGuiIcon.ico" />
+      <Resource Include="GeoToolsGuiIcon.ico" />
     </ItemGroup>
 
 </Project>
