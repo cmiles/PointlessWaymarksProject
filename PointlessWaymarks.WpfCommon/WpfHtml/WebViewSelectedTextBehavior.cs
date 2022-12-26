@@ -39,7 +39,7 @@ public class WebViewSelectedTextBehavior : Behavior<WebView2>
 
     private void OnReady(object sender, EventArgs e)
     {
-        if (sender is WebView2 webView)
+        if (sender is WebView2 { CoreWebView2: { } } webView)
             webView.CoreWebView2.AddScriptToExecuteOnDocumentCreatedAsync(@"
 document.onselectionchange = () => {
   console.log(`document.onselectionchange:${document.getSelection().toString()}`);
