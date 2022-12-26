@@ -52,7 +52,7 @@ public partial class MainWindow : Window
         StatusContext.RunBlockingTask(LoadData);
     }
 
-    private async System.Threading.Tasks.Task LoadData()
+    private async Task LoadData()
     {
         FileGeoTaggerContext = await FileBasedGeoTaggerContext.CreateInstance(StatusContext, WindowStatus);
         ConnectGeoTaggerContext = await ConnectBasedGeoTaggerContext.CreateInstance(StatusContext, WindowStatus);

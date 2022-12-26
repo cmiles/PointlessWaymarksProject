@@ -76,7 +76,7 @@ public partial class ConnectDownloadContext
 
     public RelayCommand<GarminActivityAndLocalFiles> ShowGpxFileCommand { get; set; }
 
-    public async System.Threading.Tasks.Task CheckThatArchiveDirectoryExists()
+    public async Task CheckThatArchiveDirectoryExists()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -89,7 +89,7 @@ public partial class ConnectDownloadContext
         ArchiveDirectoryExists = Directory.Exists(Settings.ArchiveDirectory.Trim());
     }
 
-    public async System.Threading.Tasks.Task ChooseArchiveDirectory()
+    public async Task ChooseArchiveDirectory()
     {
         await ThreadSwitcher.ResumeForegroundAsync();
         var folderPicker = new VistaFolderBrowserDialog
@@ -116,7 +116,7 @@ public partial class ConnectDownloadContext
         return control;
     }
 
-    public async System.Threading.Tasks.Task DownloadActivity(GarminActivityAndLocalFiles toDownload)
+    public async Task DownloadActivity(GarminActivityAndLocalFiles toDownload)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -147,7 +147,7 @@ public partial class ConnectDownloadContext
         StatusContext.ToastSuccess($"Downloaded {toDownload.ArchivedJson.Name} {toDownload.ArchivedGpx?.Name}");
     }
 
-    public async System.Threading.Tasks.Task EnterGarminCredentials()
+    public async Task EnterGarminCredentials()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -184,7 +184,7 @@ public partial class ConnectDownloadContext
     }
 
 
-    public async System.Threading.Tasks.Task FilterAndSortResults(Guid requestId)
+    public async Task FilterAndSortResults(Guid requestId)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -222,7 +222,7 @@ public partial class ConnectDownloadContext
         if (requestId == _searchAndFilterLatestRequestId) SearchResultsFiltered = returnResult;
     }
 
-    private async System.Threading.Tasks.Task Load()
+    private async Task Load()
     {
         SearchResults = new List<GarminActivityAndLocalFiles>();
         SearchResultsFiltered = SearchResults;
@@ -257,7 +257,7 @@ public partial class ConnectDownloadContext
         }
     }
 
-    public async System.Threading.Tasks.Task RemoveAllGarminCredentials()
+    public async Task RemoveAllGarminCredentials()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
         GarminConnectCredentialTools.RemoveGarminConnectCredentials();
@@ -265,7 +265,7 @@ public partial class ConnectDownloadContext
         StatusContext.ToastWarning("Removed any Garmin Connect Credentials!");
     }
 
-    public async System.Threading.Tasks.Task RunSearch(CancellationToken cancellationToken)
+    public async Task RunSearch(CancellationToken cancellationToken)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -293,7 +293,7 @@ public partial class ConnectDownloadContext
         await FilterAndSortResults(filterRequest);
     }
 
-    public async System.Threading.Tasks.Task ShowArchiveDirectory()
+    public async Task ShowArchiveDirectory()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -310,7 +310,7 @@ public partial class ConnectDownloadContext
         await ProcessHelpers.OpenExplorerWindowForDirectory(Settings.ArchiveDirectory.Trim());
     }
 
-    public async System.Threading.Tasks.Task ShowFileInExplorer(string fileName)
+    public async Task ShowFileInExplorer(string fileName)
     {
         if (string.IsNullOrWhiteSpace(fileName))
         {
@@ -328,7 +328,7 @@ public partial class ConnectDownloadContext
         await ProcessHelpers.OpenExplorerWindowForFile(fileName.Trim());
     }
 
-    public async System.Threading.Tasks.Task ShowGpxFile(GarminActivityAndLocalFiles toShow)
+    public async Task ShowGpxFile(GarminActivityAndLocalFiles toShow)
     {
         await CheckThatArchiveDirectoryExists();
 
@@ -373,7 +373,7 @@ public partial class ConnectDownloadContext
         newPreviewWindow.PreviewGeoJsonDto = previewDto;
     }
 
-    public async System.Threading.Tasks.Task UpdateCredentialsNote()
+    public async Task UpdateCredentialsNote()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 

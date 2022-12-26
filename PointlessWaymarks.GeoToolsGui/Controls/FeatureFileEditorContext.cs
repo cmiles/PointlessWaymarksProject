@@ -52,7 +52,7 @@ public partial class FeatureFileEditorContext
 
     public RelayCommand<string> RemoveAttributeCommand { get; set; }
 
-    public async System.Threading.Tasks.Task AddAttribute()
+    public async Task AddAttribute()
     {
         if (string.IsNullOrEmpty(AttributeToAdd))
         {
@@ -75,14 +75,14 @@ public partial class FeatureFileEditorContext
         Model.AttributesForTags = newList;
     }
 
-    public async System.Threading.Tasks.Task Cancel()
+    public async Task Cancel()
     {
         Model.InjectFrom(OriginalModelState);
         EndEdit?.Invoke(this, (FeatureFileEditorEndEditCondition.Cancelled, Model));
         IsVisible = false;
     }
 
-    public async System.Threading.Tasks.Task FinishEdit()
+    public async Task FinishEdit()
     {
         if (string.IsNullOrEmpty(Model.FileName))
         {
@@ -125,7 +125,7 @@ public partial class FeatureFileEditorContext
         IsVisible = false;
     }
 
-    public async System.Threading.Tasks.Task RemoveAttribute(string toRemove)
+    public async Task RemoveAttribute(string toRemove)
     {
         await ThreadSwitcher.ResumeForegroundAsync();
 

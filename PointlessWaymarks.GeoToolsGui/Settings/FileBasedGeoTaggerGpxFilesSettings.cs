@@ -30,7 +30,7 @@ public class FileBasedGeoTaggerGpxFilesSettings : IFileListSettings
         return returnDirectory;
     }
 
-    public async System.Threading.Tasks.Task SetLastDirectory(string newDirectory)
+    public async Task SetLastDirectory(string newDirectory)
     {
         _context.Settings.GpxLastDirectoryFullName = newDirectory ?? string.Empty;
     }

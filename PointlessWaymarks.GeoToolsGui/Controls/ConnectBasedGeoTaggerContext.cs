@@ -80,7 +80,7 @@ public partial class ConnectBasedGeoTaggerContext
     public RelayCommand ShowSelectedGpxFilesCommand { get; set; }
     public RelayCommand WriteToFilesCommand { get; set; }
 
-    public async System.Threading.Tasks.Task CheckThatArchiveDirectoryExists()
+    public async Task CheckThatArchiveDirectoryExists()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -93,7 +93,7 @@ public partial class ConnectBasedGeoTaggerContext
         ArchiveDirectoryExists = Directory.Exists(Settings.ArchiveDirectory.Trim());
     }
 
-    public async System.Threading.Tasks.Task ChooseArchiveDirectory()
+    public async Task ChooseArchiveDirectory()
     {
         await ThreadSwitcher.ResumeForegroundAsync();
         var folderPicker = new VistaFolderBrowserDialog
@@ -121,7 +121,7 @@ public partial class ConnectBasedGeoTaggerContext
     }
 
 
-    public async System.Threading.Tasks.Task EnterGarminCredentials()
+    public async Task EnterGarminCredentials()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -157,7 +157,7 @@ public partial class ConnectBasedGeoTaggerContext
         await UpdateCredentialsNote();
     }
 
-    public async System.Threading.Tasks.Task GeneratePreview()
+    public async Task GeneratePreview()
     {
         await ConnectBasedGeoTaggerSettingTools.WriteSettings(Settings);
 
@@ -212,7 +212,7 @@ public partial class ConnectBasedGeoTaggerContext
         SelectedTab = 3;
     }
 
-    public async System.Threading.Tasks.Task Load()
+    public async Task Load()
     {
         Settings = await ConnectBasedGeoTaggerSettingTools.ReadSettings();
 
@@ -238,7 +238,7 @@ public partial class ConnectBasedGeoTaggerContext
         await CheckThatArchiveDirectoryExists();
     }
 
-    public async System.Threading.Tasks.Task MetadataForSelectedFilesToTag()
+    public async Task MetadataForSelectedFilesToTag()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -341,7 +341,7 @@ public partial class ConnectBasedGeoTaggerContext
     }
 
 
-    public async System.Threading.Tasks.Task RemoveAllGarminCredentials()
+    public async Task RemoveAllGarminCredentials()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
         GarminConnectCredentialTools.RemoveGarminConnectCredentials();
@@ -364,7 +364,7 @@ public partial class ConnectBasedGeoTaggerContext
         return await GeoJsonTools.SerializeWithGeoJsonSerializer(jsonDto);
     }
 
-    public async System.Threading.Tasks.Task ShowArchiveDirectory()
+    public async Task ShowArchiveDirectory()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -381,7 +381,7 @@ public partial class ConnectBasedGeoTaggerContext
         await ProcessHelpers.OpenExplorerWindowForDirectory(Settings.ArchiveDirectory.Trim());
     }
 
-    public async System.Threading.Tasks.Task UpdateCredentialsNote()
+    public async Task UpdateCredentialsNote()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -394,7 +394,7 @@ public partial class ConnectBasedGeoTaggerContext
             CurrentCredentialsNote = "No Credentials Found...";
     }
 
-    public async System.Threading.Tasks.Task WriteResultsToFile()
+    public async Task WriteResultsToFile()
     {
         await ConnectBasedGeoTaggerSettingTools.WriteSettings(Settings);
 

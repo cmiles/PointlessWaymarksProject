@@ -85,7 +85,7 @@ public partial class FileBasedGeoTaggerContext
         return control;
     }
 
-    public async System.Threading.Tasks.Task GeneratePreview()
+    public async Task GeneratePreview()
     {
         await FileBasedGeoTaggerSettingTools.WriteSettings(Settings);
 
@@ -123,7 +123,7 @@ public partial class FileBasedGeoTaggerContext
         SelectedTab = 3;
     }
 
-    public async System.Threading.Tasks.Task Load()
+    public async Task Load()
     {
         Settings = await FileBasedGeoTaggerSettingTools.ReadSettings();
 
@@ -140,6 +140,7 @@ public partial class FileBasedGeoTaggerContext
             new List<ContextMenuItemData>
                 { new() { ItemCommand = ShowSelectedGpxFilesCommand, ItemName = "Show  Selected" } });
         GpxFileList.FileImportFilter = "gpx files (*.gpx)|*.gpx|All files (*.*)|*.*";
+        GpxFileList.DroppedFileExtensionAllowList = new List<string> { ".gpx" };
 
         PreviewHtml = WpfHtmlDocument.ToHtmlLeafletBasicGeoJsonDocument("Preview",
             32.12063, -110.52313, string.Empty);
@@ -148,7 +149,7 @@ public partial class FileBasedGeoTaggerContext
             32.12063, -110.52313, string.Empty);
     }
 
-    public async System.Threading.Tasks.Task MetadataForSelectedFilesToTag()
+    public async Task MetadataForSelectedFilesToTag()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -250,7 +251,7 @@ public partial class FileBasedGeoTaggerContext
         return await GeoJsonTools.SerializeWithGeoJsonSerializer(jsonDto);
     }
 
-    public async System.Threading.Tasks.Task ShowSelectedGpxFiles()
+    public async Task ShowSelectedGpxFiles()
     {
         if (GpxFileList.SelectedFiles == null || !GpxFileList.SelectedFiles.Any())
         {
@@ -290,7 +291,7 @@ public partial class FileBasedGeoTaggerContext
         newPreviewWindow.PreviewGeoJsonDto = previewDto;
     }
 
-    public async System.Threading.Tasks.Task WriteResultsToFile()
+    public async Task WriteResultsToFile()
     {
         await FileBasedGeoTaggerSettingTools.WriteSettings(Settings);
 

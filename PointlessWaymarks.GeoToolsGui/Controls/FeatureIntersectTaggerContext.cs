@@ -139,7 +139,7 @@ public partial class FeatureIntersectTaggerContext
 
     public RelayCommand WriteToFilesCommand { get; set; }
 
-    public async System.Threading.Tasks.Task AddPadUsAttribute()
+    public async Task AddPadUsAttribute()
     {
         if (string.IsNullOrWhiteSpace(PadUsAttributeToAdd))
         {
@@ -165,7 +165,7 @@ public partial class FeatureIntersectTaggerContext
         await FeatureIntersectTaggerSettingTools.WriteSettings(Settings);
     }
 
-    public async System.Threading.Tasks.Task ChoosePadUsDirectory()
+    public async Task ChoosePadUsDirectory()
     {
         await ThreadSwitcher.ResumeForegroundAsync();
         var folderPicker = new VistaFolderBrowserDialog
@@ -203,7 +203,7 @@ public partial class FeatureIntersectTaggerContext
         return new IntersectSettings(featureFiles, Settings.PadUsDirectory, Settings.PadUsAttributes);
     }
 
-    public async System.Threading.Tasks.Task DeleteFeatureFile()
+    public async Task DeleteFeatureFile()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -222,7 +222,7 @@ public partial class FeatureIntersectTaggerContext
         await FeatureIntersectTaggerSettingTools.WriteSettings(Settings);
     }
 
-    public async System.Threading.Tasks.Task EditFeatureFile()
+    public async Task EditFeatureFile()
     {
         if (SelectedFeatureFile == null)
         {
@@ -238,7 +238,7 @@ public partial class FeatureIntersectTaggerContext
         StatusContext.RunBlockingTask(async () => await ProcessEditedFeatureFileViewModel(e.model));
     }
 
-    public async System.Threading.Tasks.Task ExportSettingsToFile()
+    public async Task ExportSettingsToFile()
     {
         await ThreadSwitcher.ResumeForegroundAsync();
 
@@ -260,7 +260,7 @@ public partial class FeatureIntersectTaggerContext
         await File.WriteAllTextAsync(newFile.FullName, jsonSettings, CancellationToken.None);
     }
 
-    public async System.Threading.Tasks.Task GeneratePreview()
+    public async Task GeneratePreview()
     {
         await FeatureIntersectTaggerSettingTools.WriteSettings(Settings);
 
@@ -277,7 +277,7 @@ public partial class FeatureIntersectTaggerContext
         SelectedTab = 4;
     }
 
-    public async System.Threading.Tasks.Task ImportSettingsFromFile()
+    public async Task ImportSettingsFromFile()
     {
         await ThreadSwitcher.ResumeForegroundAsync();
 
@@ -333,7 +333,7 @@ public partial class FeatureIntersectTaggerContext
         await FeatureIntersectTaggerSettingTools.WriteSettings(Settings);
     }
 
-    private async System.Threading.Tasks.Task Load()
+    private async Task Load()
     {
         Settings = await FeatureIntersectTaggerSettingTools.ReadSettings();
 
@@ -353,7 +353,7 @@ public partial class FeatureIntersectTaggerContext
             32.12063, -110.52313, string.Empty);
     }
 
-    public async System.Threading.Tasks.Task MetadataForSelectedFilesToTag()
+    public async Task MetadataForSelectedFilesToTag()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -440,12 +440,12 @@ public partial class FeatureIntersectTaggerContext
         }
     }
 
-    public async System.Threading.Tasks.Task NewFeatureFile()
+    public async Task NewFeatureFile()
     {
         FeatureFileToEdit.Show(new FeatureFileViewModel(), Settings.FeatureIntersectFiles.ToList());
     }
 
-    public async System.Threading.Tasks.Task ProcessEditedFeatureFileViewModel(FeatureFileViewModel model)
+    public async Task ProcessEditedFeatureFileViewModel(FeatureFileViewModel model)
     {
         await ThreadSwitcher.ResumeForegroundAsync();
 
@@ -459,7 +459,7 @@ public partial class FeatureIntersectTaggerContext
         await FeatureIntersectTaggerSettingTools.WriteSettings(Settings);
     }
 
-    public async System.Threading.Tasks.Task RemovePadUsAttribute(string toRemove)
+    public async Task RemovePadUsAttribute(string toRemove)
     {
         await ThreadSwitcher.ResumeForegroundAsync();
 
@@ -472,7 +472,7 @@ public partial class FeatureIntersectTaggerContext
         await FeatureIntersectTaggerSettingTools.WriteSettings(Settings);
     }
 
-    public async System.Threading.Tasks.Task WriteResultsToFile()
+    public async Task WriteResultsToFile()
     {
         await FeatureIntersectTaggerSettingTools.WriteSettings(Settings);
 
