@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+using System.Text.RegularExpressions;
 
 namespace PointlessWaymarks.CommonTools;
 
@@ -27,9 +28,52 @@ public static class ProgramInfoTools
         return null;
     }
 
-    public static string StandardAppInformationString(Assembly assembly, string programDisplayName)
+    public static (string humanTitleString, string dateVersion, bool isInstalled) StandardAppInformationString(
+        Assembly executingAssembly, string appName)
     {
-        return
-            $"{programDisplayName} - Built On {GetEntryAssemblyBuildDate(assembly)?.ToString("g") ?? "(Date/Time Unknown)"} - Commit {ThisAssembly.Git.Commit} {(ThisAssembly.Git.IsDirty ? "(Has Local Changes)" : string.Empty)}";
+        var humanTitleString = string.Empty;
+        var foundInstallVersion = false;
+        var dateVersionString = string.Empty;
+
+        try
+        {
+            humanTitleString += $"{appName}  ";
+
+            if (executingAssembly != null &&
+                !string.IsNullOrEmpty(executingAssembly.Location) &&
+                !string.IsNullOrEmpty(Path.GetDirectoryName(executingAssembly.Location)))
+            {
+                var containingDirectory = new DirectoryInfo(Path.GetDirectoryName(executingAssembly.Location));
+
+                if (containingDirectory.Exists)
+                {
+                    var publishFile = containingDirectory.GetFiles("PublishVersion--*.txt").ToList().MaxBy(x => x.Name);
+
+                    if (publishFile == null)
+                    {
+                        humanTitleString += " No Version Found";
+                    }
+                    else
+                    {
+                        foundInstallVersion = true;
+
+                        humanTitleString +=
+                            $" {Path.GetFileNameWithoutExtension(publishFile.Name).Split("--").LastOrDefault()}";
+
+                        humanTitleString += $" {File.ReadAllText(publishFile.FullName)}";
+
+                        dateVersionString = Regex
+                            .Match(humanTitleString, @".* (?<dateVersion>\d\d\d\d-\d\d-\d\d-\d\d-\d\d) .*")
+                            .Groups["dateVersion"].Value;
+                    }
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+        }
+
+        return (humanTitleString, dateVersionString, foundInstallVersion);
     }
 }

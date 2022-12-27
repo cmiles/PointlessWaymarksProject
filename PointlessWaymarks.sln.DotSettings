@@ -234,9 +234,6 @@
 	<s:Boolean x:Key="/Default/UserDictionary/Words/=Guids/@EntryIndexedValue">True</s:Boolean>
 	<s:Boolean x:Key="/Default/UserDictionary/Words/=hwnd/@EntryIndexedValue">True</s:Boolean>
 	<s:Boolean x:Key="/Default/UserDictionary/Words/=Iana/@EntryIndexedValue">True</s:Boolean>
-	
-	
-	
 	<s:Boolean x:Key="/Default/UserDictionary/Words/=iptc/@EntryIndexedValue">True</s:Boolean>
 	<s:Boolean x:Key="/Default/UserDictionary/Words/=Lemmon/@EntryIndexedValue">True</s:Boolean>
 	<s:Boolean x:Key="/Default/UserDictionary/Words/=Lightroom/@EntryIndexedValue">True</s:Boolean>
@@ -271,5 +268,4 @@
 	<s:Boolean x:Key="/Default/UserDictionary/Words/=Waypoint/@EntryIndexedValue">True</s:Boolean>
 	<s:Boolean x:Key="/Default/UserDictionary/Words/=Waypoints/@EntryIndexedValue">True</s:Boolean>
 	<s:Boolean x:Key="/Default/UserDictionary/Words/=YYMM/@EntryIndexedValue">True</s:Boolean>
-	<s:Boolean x:Key="/Default/UserDictionary/Words/=_0020_0020_0020_0020_007D_000D/@EntryIndexedValue">True</s:Boolean>
-</wpf:ResourceDictionary>
+	<s:Boolean x:Key="/Default/UserDictionary/Words/=_0020_0020_0020_0020_007D_000D/@EntryIndexedValue">True</s:Boolean></wpf:ResourceDictionary>

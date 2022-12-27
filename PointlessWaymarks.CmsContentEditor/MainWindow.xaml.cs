@@ -90,7 +90,7 @@ public partial class MainWindow
         WindowInitialPositionHelpers.EnsureWindowIsVisible(this);
 
         InfoTitle = ProgramInfoTools.StandardAppInformationString(Assembly.GetExecutingAssembly(),
-            "Pointless Waymarks CMS");
+            "Pointless Waymarks CMS Beta").humanTitleString;
 
         ShowSettingsFileChooser = true;
 

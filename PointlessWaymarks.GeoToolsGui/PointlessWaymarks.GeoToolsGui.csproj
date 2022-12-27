@@ -4,7 +4,10 @@
         <OutputType>WinExe</OutputType>
         <Nullable>enable</Nullable>
         <UseWPF>true</UseWPF>
-        <ApplicationIcon>GeoToolsGuiIcon.ico</ApplicationIcon>
+		<ApplicationManifest>app.manifest</ApplicationManifest>
+        <ApplicationIcon>favicon.ico</ApplicationIcon>
+		<TargetFrameworks>net7.0-windows10.0.17763.0</TargetFrameworks>
+		<RuntimeIdentifier>win10-x64</RuntimeIdentifier>
     </PropertyGroup>
 
     <ItemGroup>
@@ -40,8 +43,14 @@
     </ItemGroup>
     
     <ItemGroup>
-      <None Remove="GeoToolsGuiIcon.ico" />
-      <Resource Include="GeoToolsGuiIcon.ico" />
+      <None Remove="favicon.ico" />
+      <None Remove="InstallerIcon.ico" />
+      <Content Include="InstallerIcon.ico">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </Content>
+      <Resource Include="favicon.ico">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </Resource>
     </ItemGroup>
 
 </Project>

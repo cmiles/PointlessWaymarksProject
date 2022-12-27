@@ -5,6 +5,8 @@
     <UseWPF>true</UseWPF>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <ApplicationIcon>favicon.ico</ApplicationIcon>
+	<TargetFrameworks>net7.0-windows10.0.17763.0</TargetFrameworks>
+	<RuntimeIdentifier>win10-x64</RuntimeIdentifier>
   </PropertyGroup>
 
   <Target Name="RemoveDuplicateAnalyzers" BeforeTargets="CoreCompile">
@@ -18,6 +20,11 @@
       <Analyzer Include="@(FilteredAnalyzer)" />
     </ItemGroup>
   </Target>
+
+  <ItemGroup>
+    <None Remove="favicon.ico" />
+    <None Remove="InstallerIcon.ico" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.0.0" />
@@ -39,13 +46,19 @@
     <None Update="app.manifest">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="favicon.ico">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\PointlessWaymarks.CmsWpfControls\PointlessWaymarks.CmsWpfControls.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="InstallerIcon.ico">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Resource Include="favicon.ico">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
   </ItemGroup>
 
 </Project>

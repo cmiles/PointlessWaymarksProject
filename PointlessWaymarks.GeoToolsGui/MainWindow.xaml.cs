@@ -30,8 +30,6 @@ public partial class MainWindow : Window
     {
         InitializeComponent();
 
-        //JotServices.Tracker.Configure<MainWindow>().Properties(x => new { x.RecentSettingsFilesNames });
-
         JotServices.Tracker.Track(this);
 
         if (Width < 900) Width = 900;
@@ -40,8 +38,7 @@ public partial class MainWindow : Window
         WindowInitialPositionHelpers.EnsureWindowIsVisible(this);
 
         _infoTitle = ProgramInfoTools.StandardAppInformationString(Assembly.GetExecutingAssembly(),
-            "Pointless Waymarks GeoTools Beta");
-        ;
+            "Pointless Waymarks GeoTools Beta").humanTitleString;
 
         DataContext = this;
 
