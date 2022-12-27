@@ -227,7 +227,6 @@ public partial class FeatureIntersectTaggerContext
         if (SelectedFeatureFile == null)
         {
             StatusContext.ToastWarning("Nothing Selected To Edit?");
-            return;
         }
     }
 
@@ -263,6 +262,12 @@ public partial class FeatureIntersectTaggerContext
     public async Task GeneratePreview()
     {
         await FeatureIntersectTaggerSettingTools.WriteSettings(Settings);
+
+        if (FilesToTagFileList.Files == null || !FilesToTagFileList.Files.Any())
+        {
+            StatusContext.ToastError("No Files to Tag Selected?");
+            return;
+        }
 
         var featureFiles = Settings.FeatureIntersectFiles
             .Select(x => new FeatureFile(x.Source, x.Name, x.AttributesForTags, x.TagAll, x.FileName, x.Downloaded))

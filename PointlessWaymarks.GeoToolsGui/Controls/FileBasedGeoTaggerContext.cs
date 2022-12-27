@@ -89,6 +89,19 @@ public partial class FileBasedGeoTaggerContext
     {
         await FileBasedGeoTaggerSettingTools.WriteSettings(Settings);
 
+        if (GpxFileList.Files == null || !GpxFileList.Files.Any() || FilesToTagFileList.Files == null ||
+            !FilesToTagFileList.Files.Any())
+        {
+            StatusContext.ToastError("No GPX Files Selected?");
+            return;
+        }
+
+        if (FilesToTagFileList.Files == null || !FilesToTagFileList.Files.Any())
+        {
+            StatusContext.ToastError("No Files to Tag Selected?");
+            return;
+        }
+
         WriteToFileResults = null;
         WriteToFileGeoJsonDto = await ResetMapGeoJsonDto();
 

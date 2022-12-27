@@ -14,6 +14,29 @@
              d:DataContext="{d:DesignInstance controls:ConnectBasedGeoTaggerContext}">
     <Grid>
         <TabControl SelectedIndex="{Binding SelectedTab, Mode=TwoWay}">
+            <TabItem Header="Files To Tag">
+                <Grid>
+                    <GroupBox Header="Files To Tag">
+                        <Grid Margin="4">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="*" />
+                            </Grid.RowDefinitions>
+                            <TextBlock Margin="4" HorizontalAlignment="Center" TextWrapping="Wrap">Use the buttons below to add all files in a Directory, all files in a Directory and all Subdirectories or to pick Files that will be compared to the GPX/location information in the previous tab. You can also delete items in the list below.</TextBlock>
+                            <fileList:FileListControl DataContext="{Binding FilesToTagFileList}" Grid.Row="1"
+                                                      Margin="4" />
+                        </Grid>
+                    </GroupBox>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Top"
+                                Margin="0,8,12,0">
+                        <Button Command="{Binding GeneratePreviewCommand}" Width="240" Margin="0,0,3,0">Generate Preview - Current Settings</Button>
+                        <Button VerticalAlignment="Top" HorizontalAlignment="Right" Width="240" Margin="3,0,0,0"
+                                Command="{Binding NextTabCommand}">
+                            Next - Garmin Connect Setup ->
+                        </Button>
+                    </StackPanel>
+                </Grid>
+            </TabItem>
             <TabItem Header="Garmin Connect Setup">
                 <Grid>
                     <Grid.RowDefinitions>
@@ -67,25 +90,6 @@
                                     </TextBlock>
                                 </StackPanel>
                             </StackPanel>
-                        </Grid>
-                    </GroupBox>
-                    <Button VerticalAlignment="Top" HorizontalAlignment="Right" Width="240" Margin="0,8,12,0"
-                            Command="{Binding NextTabCommand}">
-                        Next - Choose Files To Tag ->
-                    </Button>
-                </Grid>
-            </TabItem>
-            <TabItem Header="Files To Tag">
-                <Grid>
-                    <GroupBox Header="Files To Tag">
-                        <Grid Margin="4">
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto" />
-                                <RowDefinition Height="*" />
-                            </Grid.RowDefinitions>
-                            <TextBlock Margin="4" HorizontalAlignment="Center" TextWrapping="Wrap">Use the buttons below to add all files in a Directory, all files in a Directory and all Subdirectories or to pick Files that will be compared to the GPX/location information in the previous tab. You can also delete items in the list below.</TextBlock>
-                            <fileList:FileListControl DataContext="{Binding FilesToTagFileList}" Grid.Row="1"
-                                                      Margin="4" />
                         </Grid>
                     </GroupBox>
                     <Button VerticalAlignment="Top" HorizontalAlignment="Right" Width="240" Margin="0,8,12,0"

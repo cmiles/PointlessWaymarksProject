@@ -161,6 +161,12 @@ public partial class ConnectBasedGeoTaggerContext
     {
         await ConnectBasedGeoTaggerSettingTools.WriteSettings(Settings);
 
+        if (FilesToTagFileList.Files == null || !FilesToTagFileList.Files.Any())
+        {
+            StatusContext.ToastError("No Files to Tag Selected?");
+            return;
+        }
+
         WriteToFileResults = null;
         WriteToFileGeoJsonDto = await ResetMapGeoJsonDto();
 
