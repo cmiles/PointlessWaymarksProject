@@ -7,7 +7,6 @@
     xmlns:createdAndUpdatedByAndOnDisplay="clr-namespace:PointlessWaymarks.CmsWpfControls.CreatedAndUpdatedByAndOnDisplay"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:dd="urn:gong-wpf-dragdrop"
-    xmlns:helpDisplay="clr-namespace:PointlessWaymarks.CmsWpfControls.HelpDisplay"
     xmlns:mapComponentEditor="clr-namespace:PointlessWaymarks.CmsWpfControls.MapComponentEditor"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:stringDataEntry="clr-namespace:PointlessWaymarks.CmsWpfControls.StringDataEntry"
@@ -16,6 +15,7 @@
     xmlns:wpf="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
     xmlns:wpfConverter="clr-namespace:PointlessWaymarks.WpfCommon.ValueConverters;assembly=PointlessWaymarks.WpfCommon"
     xmlns:wpfHtml="clr-namespace:PointlessWaymarks.WpfCommon.WpfHtml;assembly=PointlessWaymarks.WpfCommon"
+    xmlns:markdownDisplay="clr-namespace:PointlessWaymarks.WpfCommon.MarkdownDisplay;assembly=PointlessWaymarks.WpfCommon"
     x:Name="MapComponentEditorControlXaml"
     d:DataContext="{d:DesignInstance mapComponentEditor:MapComponentEditorContext}"
     d:DesignHeight="450"
@@ -42,7 +42,9 @@
                                 <CheckBox Margin="4" IsChecked="{Binding IsFeaturedElement}">Featured</CheckBox>
                                 <CheckBox Margin="4" IsChecked="{Binding ShowInitialDetails}">Show Details</CheckBox>
                                 <CheckBox Margin="4" IsChecked="{Binding InInitialView}">In Initial View</CheckBox>
-                                <Button Command="{Binding ElementName=MapComponentEditorControlXaml, Path=DataContext.RemoveItemCommand}" CommandParameter="{Binding .}">
+                                <Button
+                                    Command="{Binding ElementName=MapComponentEditorControlXaml, Path=DataContext.RemoveItemCommand}"
+                                    CommandParameter="{Binding .}">
                                     Remove
                                 </Button>
                             </StackPanel>
@@ -69,7 +71,9 @@
                                 <CheckBox Margin="4" IsChecked="{Binding IsFeaturedElement}">Featured</CheckBox>
                                 <CheckBox Margin="4" IsChecked="{Binding ShowInitialDetails}">Show Details</CheckBox>
                                 <CheckBox Margin="4" IsChecked="{Binding InInitialView}">In Initial View</CheckBox>
-                                <Button Command="{Binding ElementName=MapComponentEditorControlXaml, Path=DataContext.RemoveItemCommand}" CommandParameter="{Binding .}">
+                                <Button
+                                    Command="{Binding ElementName=MapComponentEditorControlXaml, Path=DataContext.RemoveItemCommand}"
+                                    CommandParameter="{Binding .}">
                                     Remove
                                 </Button>
                             </StackPanel>
@@ -96,7 +100,9 @@
                                 <CheckBox Margin="4" IsChecked="{Binding IsFeaturedElement}">Featured</CheckBox>
                                 <CheckBox Margin="4" IsChecked="{Binding ShowInitialDetails}">Show Details</CheckBox>
                                 <CheckBox Margin="4" IsChecked="{Binding InInitialView}">In Initial View</CheckBox>
-                                <Button Command="{Binding ElementName=MapComponentEditorControlXaml, Path=DataContext.RemoveItemCommand}" CommandParameter="{Binding .}">
+                                <Button
+                                    Command="{Binding ElementName=MapComponentEditorControlXaml, Path=DataContext.RemoveItemCommand}"
+                                    CommandParameter="{Binding .}">
                                     Remove
                                 </Button>
                             </StackPanel>
@@ -127,8 +133,11 @@
                         <StackPanel Margin="4" CanHorizontallyScroll="False">
                             <stringDataEntry:StringDataEntryControl DataContext="{Binding TitleEntry}" />
                             <stringDataEntry:StringDataEntryMultiLineControl DataContext="{Binding SummaryEntry}" />
-                            <createdAndUpdatedByAndOnDisplay:CreatedAndUpdatedByAndOnDisplayControl DataContext="{Binding CreatedUpdatedDisplay}" Style="{StaticResource CreatedUpdatedInPanelStyle}" />
-                            <contentIdViewer:ContentIdViewerControl DataContext="{Binding ContentId}" Style="{StaticResource ContentIdInPanelStyle}" />
+                            <createdAndUpdatedByAndOnDisplay:CreatedAndUpdatedByAndOnDisplayControl
+                                DataContext="{Binding CreatedUpdatedDisplay}"
+                                Style="{StaticResource CreatedUpdatedInPanelStyle}" />
+                            <contentIdViewer:ContentIdViewerControl DataContext="{Binding ContentId}"
+                                                                    Style="{StaticResource ContentIdInPanelStyle}" />
                         </StackPanel>
                     </ScrollViewer>
                 </Grid>
@@ -202,7 +211,6 @@
                         </Grid>
                     </Border>
                     <wpf:WebView2
-                        x:Name="GeoJsonContentWebView"
                         Grid.Row="1"
                         Visibility="{Binding StatusContext.BlockUi, Converter={StaticResource BooleanNotToVisibility}}">
                         <b:Interaction.Behaviors>
@@ -225,7 +233,7 @@
                     VerticalScrollBarVisibility="Visible" />
             </TabItem>
             <TabItem Header="Help">
-                <helpDisplay:HelpDisplayControl DataContext="{Binding HelpContext}" />
+                <markdownDisplay:HelpDisplayControl DataContext="{Binding HelpContext}" />
             </TabItem>
         </TabControl>
         <Border Grid.Row="1" Style="{StaticResource ActionPanelBorderStyle}">

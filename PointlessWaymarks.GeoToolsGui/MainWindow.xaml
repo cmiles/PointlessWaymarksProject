@@ -9,6 +9,7 @@
         xmlns:controls1="clr-namespace:PointlessWaymarks.GeoToolsGui.Controls"
         xmlns:geoToolsGui="clr-namespace:PointlessWaymarks.GeoToolsGui"
         xmlns:windowScreenShot="clr-namespace:PointlessWaymarks.WpfCommon.WindowScreenShot;assembly=PointlessWaymarks.WpfCommon"
+        xmlns:markdownDisplay="clr-namespace:PointlessWaymarks.WpfCommon.MarkdownDisplay;assembly=PointlessWaymarks.WpfCommon"
         ui:WindowHelper.UseModernWindowStyle="True"
         ui:ThemeManager.IsThemeAware="True"
         Icon="favicon.ico"
@@ -26,6 +27,9 @@
             </TabItem>
             <TabItem Header="Garmin Connect Download">
                 <controls1:ConnectDownloadControl DataContext="{Binding GarminConnectDownloadContext}" />
+            </TabItem>
+            <TabItem Header="About">
+                <markdownDisplay:HelpDisplayControl DataContext="{Binding SoftwareComponentsHelpContext}" />
             </TabItem>
         </TabControl>
         <status:StatusControl DataContext="{Binding StatusContext}" />

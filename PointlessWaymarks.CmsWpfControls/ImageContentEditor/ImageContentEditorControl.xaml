@@ -9,7 +9,6 @@
     xmlns:contentSiteFeedAndIsDraft="clr-namespace:PointlessWaymarks.CmsWpfControls.ContentSiteFeedAndIsDraft"
     xmlns:createdAndUpdatedByAndOnDisplay="clr-namespace:PointlessWaymarks.CmsWpfControls.CreatedAndUpdatedByAndOnDisplay"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:helpDisplay="clr-namespace:PointlessWaymarks.CmsWpfControls.HelpDisplay"
     xmlns:imageContentEditor="clr-namespace:PointlessWaymarks.CmsWpfControls.ImageContentEditor"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:stringDataEntry="clr-namespace:PointlessWaymarks.CmsWpfControls.StringDataEntry"
@@ -20,6 +19,7 @@
     xmlns:windowScreenShot="clr-namespace:PointlessWaymarks.WpfCommon.WindowScreenShot;assembly=PointlessWaymarks.WpfCommon"
     xmlns:wpfBehavior="clr-namespace:PointlessWaymarks.WpfCommon.Behaviors;assembly=PointlessWaymarks.WpfCommon"
     xmlns:wpfConverter="clr-namespace:PointlessWaymarks.WpfCommon.ValueConverters;assembly=PointlessWaymarks.WpfCommon"
+    xmlns:markdownDisplay="clr-namespace:PointlessWaymarks.WpfCommon.MarkdownDisplay;assembly=PointlessWaymarks.WpfCommon"
     d:DataContext="{d:DesignInstance imageContentEditor:ImageContentEditorContext}"
     d:DesignHeight="300"
     d:DesignWidth="300"
@@ -136,14 +136,21 @@
                 <Grid>
                     <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
                         <StackPanel Margin="4" CanHorizontallyScroll="False">
-                            <titleSummarySlugFolderEditor:TitleSummarySlugEditorControl DataContext="{Binding TitleSummarySlugFolder}" />
-                            <contentSiteFeedAndIsDraft:ContentSiteFeedAndIsDraftControl DataContext="{Binding MainSiteFeed}" />
+                            <titleSummarySlugFolderEditor:TitleSummarySlugEditorControl
+                                DataContext="{Binding TitleSummarySlugFolder}" />
+                            <contentSiteFeedAndIsDraft:ContentSiteFeedAndIsDraftControl
+                                DataContext="{Binding MainSiteFeed}" />
                             <boolDataEntry:BoolDataEntryControl Margin="4,8,0,0" DataContext="{Binding ShowSizes}" />
-                            <boolDataEntry:BoolDataEntryControl DataContext="{Binding ShowInSearch}" Style="{StaticResource DataEntryBoolStyle}" />
-                            <tagsEditor:TagsEditorControl DataContext="{Binding TagEdit}" Style="{StaticResource TagsEditorInPanelStyle}" />
+                            <boolDataEntry:BoolDataEntryControl DataContext="{Binding ShowInSearch}"
+                                                                Style="{StaticResource DataEntryBoolStyle}" />
+                            <tagsEditor:TagsEditorControl DataContext="{Binding TagEdit}"
+                                                          Style="{StaticResource TagsEditorInPanelStyle}" />
                             <stringDataEntry:StringDataEntryControl DataContext="{Binding AltTextEntry}" />
-                            <createdAndUpdatedByAndOnDisplay:CreatedAndUpdatedByAndOnDisplayControl DataContext="{Binding CreatedUpdatedDisplay}" Style="{StaticResource CreatedUpdatedInPanelStyle}" />
-                            <contentIdViewer:ContentIdViewerControl DataContext="{Binding ContentId}" Style="{StaticResource ContentIdInPanelStyle}" />
+                            <createdAndUpdatedByAndOnDisplay:CreatedAndUpdatedByAndOnDisplayControl
+                                DataContext="{Binding CreatedUpdatedDisplay}"
+                                Style="{StaticResource CreatedUpdatedInPanelStyle}" />
+                            <contentIdViewer:ContentIdViewerControl DataContext="{Binding ContentId}"
+                                                                    Style="{StaticResource ContentIdInPanelStyle}" />
                         </StackPanel>
                     </ScrollViewer>
                 </Grid>
@@ -159,7 +166,7 @@
                 </Grid>
             </TabItem>
             <TabItem Header="Help">
-                <helpDisplay:HelpDisplayControl DataContext="{Binding HelpContext}" />
+                <markdownDisplay:HelpDisplayControl DataContext="{Binding HelpContext}" />
             </TabItem>
         </TabControl>
         <Border

@@ -24,6 +24,16 @@ Site:
 
 ## Notes
 
+12/27/2022
+
+ImageSharp - ImageSharp contains some metadata tools and today I did the first experiments to see what/if/how I might use that project. Currently much of the metadata written by GeoTools shells out to ExifTool - which is an insanely good tool and probably better tested than any other metadata library available. One of the things I was hoping to find was a way to write more metadata from a .NET library - but while ImageSharp will 'open' a DNG without error it does not appear to read the metadata. It could be that I am missing an add-in/library or tecnique for this so I will be doing some additional searching - but at a glance it looks like ImageSharp may not currently do what I am looking for.
+
+I hadn't produced installers for the projects because I had wanted to see if I could get them produced via GitHub actions - but for the moment instead I put together powershell scrips and Innosetup to produce setup files locally. I partly wish I had made time to explore doing this with GitHub actions - but wow I underestimated how nice I find installed software, it is 99.99% the same experience as copying directories and launching software from a shortcut but that last .01% for me personally is just nice, glad to compromise and get it done.
+
+The GitHub repo has been renamed to Pointless Waymarks Projects both to reflect the addition of the GeoTools and maybe as an optimistic take on my ability to do some more interesting work eventually under this project!! This triggered some renaming and re-linking in help.
+
+[Webreaper/Damselfly: Damselfly is a server-based Photograph Management app. The goal of Damselfly is to index an extremely large collection of images, and allow easy search and retrieval of those images, using metadata such as the IPTC keyword tags, as well as the folder and file names. Damselfly includes support for object/face detection, and face-recognition.](https://github.com/Webreaper/Damselfly) - while searching for some information I came across this project - I look forward to reading some of the code! To me it is both completely different and very much the same as the Pointless Waymarks Project and uses a number of the same libraries!
+
 11/28/2022
 
 The previous round of work led to wanting nicer GUI interfaces for GeoTagging and the Feature Intersect Tagging. Basically in one way or another the last month or so of work has gone into creating first working versions of those tools - notes:

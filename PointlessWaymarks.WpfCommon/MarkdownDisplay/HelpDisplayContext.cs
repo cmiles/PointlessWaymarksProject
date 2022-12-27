@@ -1,6 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 
-namespace PointlessWaymarks.CmsWpfControls.HelpDisplay;
+namespace PointlessWaymarks.WpfCommon.MarkdownDisplay;
 
 [ObservableObject]
 public partial class HelpDisplayContext

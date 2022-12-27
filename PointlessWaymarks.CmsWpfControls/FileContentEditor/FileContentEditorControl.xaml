@@ -10,7 +10,6 @@
     xmlns:createdAndUpdatedByAndOnDisplay="clr-namespace:PointlessWaymarks.CmsWpfControls.CreatedAndUpdatedByAndOnDisplay"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:fileContentEditor="clr-namespace:PointlessWaymarks.CmsWpfControls.FileContentEditor"
-    xmlns:helpDisplay="clr-namespace:PointlessWaymarks.CmsWpfControls.HelpDisplay"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:tagsEditor="clr-namespace:PointlessWaymarks.CmsWpfControls.TagsEditor"
     xmlns:titleSummarySlugFolderEditor="clr-namespace:PointlessWaymarks.CmsWpfControls.TitleSummarySlugFolderEditor"
@@ -19,6 +18,7 @@
     xmlns:windowScreenShot="clr-namespace:PointlessWaymarks.WpfCommon.WindowScreenShot;assembly=PointlessWaymarks.WpfCommon"
     xmlns:wpfBehavior="clr-namespace:PointlessWaymarks.WpfCommon.Behaviors;assembly=PointlessWaymarks.WpfCommon"
     xmlns:conversionDataEntry="clr-namespace:PointlessWaymarks.CmsWpfControls.ConversionDataEntry"
+    xmlns:markdownDisplay="clr-namespace:PointlessWaymarks.WpfCommon.MarkdownDisplay;assembly=PointlessWaymarks.WpfCommon"
     d:DataContext="{d:DesignInstance fileContentEditor:FileContentEditorContext}"
     d:DesignHeight="300"
     d:DesignWidth="300"
@@ -139,14 +139,14 @@
                                             <DataTrigger
                                                 Binding="{Binding UserMainPictureEntry.HasValidationIssues}"
                                                 Value="true">
-                                                <Setter Property="Visibility" Value="Collapsed"></Setter>
+                                                <Setter Property="Visibility" Value="Collapsed" />
                                             </DataTrigger>
                                         </Style.Triggers>
                                     </Style>
                                 </Grid.Style>
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto"></ColumnDefinition>
-                                    <ColumnDefinition></ColumnDefinition>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition />
                                 </Grid.ColumnDefinitions>
                                 <Image
                                     Grid.Column="0"
@@ -154,14 +154,13 @@
                                     Width="110"
                                     VerticalAlignment="Top"
                                     HorizontalAlignment="Left"
-                                    Source="{Binding UserMainPictureEntrySmallImageUrl, Mode=OneWay, Converter={StaticResource ImageCache}}">
-
-                                </Image>
+                                    Source="{Binding UserMainPictureEntrySmallImageUrl, Mode=OneWay, Converter={StaticResource ImageCache}}" />
                                 <StackPanel Margin="0,24,0,0" Grid.Column="1" Orientation="Vertical">
-                                    <TextBox Style="{StaticResource ReadOnlyTextBoxStyle}" Text="{Binding UserMainPictureEntryContent.Title}"></TextBox>
+                                    <TextBox Style="{StaticResource ReadOnlyTextBoxStyle}"
+                                             Text="{Binding UserMainPictureEntryContent.Title}" />
                                     <StackPanel Orientation="Horizontal" Margin="4,12,4,4">
-                                    <Button Width="120" Command="{Binding EditUserMainPictureCommand}">Edit</Button>
-                                    <Button Width="120" Command="{Binding ViewUserMainPictureCommand}">View</Button>
+                                        <Button Width="120" Command="{Binding EditUserMainPictureCommand}">Edit</Button>
+                                        <Button Width="120" Command="{Binding ViewUserMainPictureCommand}">View</Button>
                                     </StackPanel>
                                 </StackPanel>
                             </Grid>
@@ -185,7 +184,7 @@
                 </Grid>
             </TabItem>
             <TabItem Header="Help">
-                <helpDisplay:HelpDisplayControl DataContext="{Binding HelpContext}" />
+                <markdownDisplay:HelpDisplayControl DataContext="{Binding HelpContext}" />
             </TabItem>
         </TabControl>
         <Border Grid.Row="1" Style="{StaticResource ActionPanelBorderStyle}">
@@ -216,7 +215,8 @@
                     Visibility="{Binding FileIsMp4, Converter={StaticResource BooleanToVisibility}}"
                     Style="{StaticResource ActionPanelButtonStyle}" />
                 <Button Command="{Binding SaveAndExtractImageFromPdfCommand}"
-                        Style="{StaticResource ActionPanelButtonStyle}" Visibility="{Binding FileIsPdf, Converter={StaticResource BooleanToVisibility}}">
+                        Style="{StaticResource ActionPanelButtonStyle}"
+                        Visibility="{Binding FileIsPdf, Converter={StaticResource BooleanToVisibility}}">
                     <Viewbox StretchDirection="DownOnly">
                         <StackPanel Orientation="Horizontal">
                             <Label>Save, Extract Pdf Page</Label>

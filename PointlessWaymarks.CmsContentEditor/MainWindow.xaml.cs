@@ -4,10 +4,10 @@ using System.IO;
 using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
-using HtmlTableHelper;
-using Microsoft.EntityFrameworkCore;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using HtmlTableHelper;
+using Microsoft.EntityFrameworkCore;
 using Ookii.Dialogs.Wpf;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.CommonHtml;
@@ -20,7 +20,6 @@ using PointlessWaymarks.CmsWpfControls.Diagnostics;
 using PointlessWaymarks.CmsWpfControls.FileList;
 using PointlessWaymarks.CmsWpfControls.FilesWrittenLogList;
 using PointlessWaymarks.CmsWpfControls.GeoJsonList;
-using PointlessWaymarks.CmsWpfControls.HelpDisplay;
 using PointlessWaymarks.CmsWpfControls.ImageList;
 using PointlessWaymarks.CmsWpfControls.LineList;
 using PointlessWaymarks.CmsWpfControls.LinkList;
@@ -35,14 +34,14 @@ using PointlessWaymarks.CmsWpfControls.TagExclusionEditor;
 using PointlessWaymarks.CmsWpfControls.TagList;
 using PointlessWaymarks.CmsWpfControls.UserSettingsEditor;
 using PointlessWaymarks.CmsWpfControls.Utility;
-using PointlessWaymarks.CmsWpfControls.WpfHtml;
+using PointlessWaymarks.CommonTools;
+using PointlessWaymarks.WpfCommon.MarkdownDisplay;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 using PointlessWaymarks.WpfCommon.Utility;
 using PointlessWaymarks.WpfCommon.WpfHtml;
 using Serilog;
 using BuildDateAttribute = PointlessWaymarks.CmsData.BuildDateAttribute;
-using PointlessWaymarks.CommonTools;
 
 namespace PointlessWaymarks.CmsContentEditor;
 
@@ -273,9 +272,10 @@ public partial class MainWindow
                 $"CleanAndResizeAllImageFiles-ErrorReport-{frozenNow:yyyy-MM-dd---HH-mm-ss}.htm"));
 
             var htmlString =
-                await ($"<h1>Clean and Resize All Image Files Error Report - {frozenNow:yyyy-MM-dd---HH-mm-ss}</h1><br>" +
-                 results.ToHtmlTable(new { @class = "pure-table pure-table-striped" }))
-                .ToHtmlDocumentWithPureCss("Clean and Resize Images Error Report", "body {margin: 12px;}");
+                await (
+                        $"<h1>Clean and Resize All Image Files Error Report - {frozenNow:yyyy-MM-dd---HH-mm-ss}</h1><br>" +
+                        results.ToHtmlTable(new { @class = "pure-table pure-table-striped" }))
+                    .ToHtmlDocumentWithPureCss("Clean and Resize Images Error Report", "body {margin: 12px;}");
 
             await File.WriteAllTextAsync(file.FullName, htmlString);
 
@@ -305,9 +305,10 @@ public partial class MainWindow
                 $"CleanAndResizeAllPhotoFiles-ErrorReport-{frozenNow:yyyy-MM-dd---HH-mm-ss}.htm"));
 
             var htmlString =
-                await ($"<h1>Clean and Resize All Photo Files Error Report - {frozenNow:yyyy-MM-dd---HH-mm-ss}</h1><br>" +
-                 results.ToHtmlTable(new { @class = "pure-table pure-table-striped" }))
-                .ToHtmlDocumentWithPureCss("Clean and Resize Photos Error Report", "body {margin: 12px;}");
+                await (
+                        $"<h1>Clean and Resize All Photo Files Error Report - {frozenNow:yyyy-MM-dd---HH-mm-ss}</h1><br>" +
+                        results.ToHtmlTable(new { @class = "pure-table pure-table-striped" }))
+                    .ToHtmlDocumentWithPureCss("Clean and Resize Photos Error Report", "body {margin: 12px;}");
 
             await File.WriteAllTextAsync(file.FullName, htmlString);
 
@@ -350,8 +351,8 @@ public partial class MainWindow
 
             var htmlString =
                 await ($"<h1>Confirm All File Content Files Error Report - {frozenNow:yyyy-MM-dd---HH-mm-ss}</h1><br>" +
-                 results.ToHtmlTable(new { @class = "pure-table pure-table-striped" }))
-                .ToHtmlDocumentWithPureCss("Confirm Files Error Report", "body {margin: 12px;}");
+                       results.ToHtmlTable(new { @class = "pure-table pure-table-striped" }))
+                    .ToHtmlDocumentWithPureCss("Confirm Files Error Report", "body {margin: 12px;}");
 
             await File.WriteAllTextAsync(file.FullName, htmlString);
 
@@ -461,6 +462,7 @@ public partial class MainWindow
 
         StatusContext.Progress("JSON Import Finished");
     }
+
     private async Task LoadData()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -473,7 +475,8 @@ public partial class MainWindow
         await UserSettingsUtilities.EnsureDbIsPresent(StatusContext.ProgressTracker());
 
         PointlessWaymarksLogTools.InitializeStaticLoggerAsEventLogger();
-        Log.Information($"Git Commit {ThisAssembly.Git.Commit} - Commit Date {ThisAssembly.Git.CommitDate} - Is Dirty {ThisAssembly.Git.IsDirty}");
+        Log.Information(
+            $"Git Commit {ThisAssembly.Git.Commit} - Commit Date {ThisAssembly.Git.CommitDate} - Is Dirty {ThisAssembly.Git.IsDirty}");
 
         StatusContext.Progress("Setting up UI Controls");
 

@@ -8,7 +8,6 @@
     xmlns:fileList="clr-namespace:PointlessWaymarks.CmsWpfControls.FileList;assembly=PointlessWaymarks.CmsWpfControls"
     xmlns:filesWrittenLogList="clr-namespace:PointlessWaymarks.CmsWpfControls.FilesWrittenLogList;assembly=PointlessWaymarks.CmsWpfControls"
     xmlns:geoJsonList="clr-namespace:PointlessWaymarks.CmsWpfControls.GeoJsonList;assembly=PointlessWaymarks.CmsWpfControls"
-    xmlns:helpDisplay="clr-namespace:PointlessWaymarks.CmsWpfControls.HelpDisplay;assembly=PointlessWaymarks.CmsWpfControls"
     xmlns:imageList="clr-namespace:PointlessWaymarks.CmsWpfControls.ImageList;assembly=PointlessWaymarks.CmsWpfControls"
     xmlns:lineList="clr-namespace:PointlessWaymarks.CmsWpfControls.LineList;assembly=PointlessWaymarks.CmsWpfControls"
     xmlns:linkList="clr-namespace:PointlessWaymarks.CmsWpfControls.LinkList;assembly=PointlessWaymarks.CmsWpfControls"
@@ -25,6 +24,7 @@
     xmlns:userSettingsEditor="clr-namespace:PointlessWaymarks.CmsWpfControls.UserSettingsEditor;assembly=PointlessWaymarks.CmsWpfControls"
     xmlns:valueConverters="clr-namespace:PointlessWaymarks.WpfCommon.ValueConverters;assembly=PointlessWaymarks.WpfCommon"
     xmlns:windowScreenShot1="clr-namespace:PointlessWaymarks.WpfCommon.WindowScreenShot;assembly=PointlessWaymarks.WpfCommon"
+    xmlns:markdownDisplay="clr-namespace:PointlessWaymarks.WpfCommon.MarkdownDisplay;assembly=PointlessWaymarks.WpfCommon"
     Name="MainWindowXaml"
     Title="{Binding InfoTitle}"
     Width="950"
@@ -33,12 +33,14 @@
     Closing="MainWindow_OnClosing"
     mc:Ignorable="d">
     <Window.TaskbarItemInfo>
-        <TaskbarItemInfo ProgressState="{Binding WindowStatus.WindowState}" ProgressValue="{Binding WindowStatus.WindowProgress}" />
+        <TaskbarItemInfo ProgressState="{Binding WindowStatus.WindowState}"
+                         ProgressValue="{Binding WindowStatus.WindowProgress}" />
     </Window.TaskbarItemInfo>
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="/PointlessWaymarks.CmsWpfControls;component/WpfControlsResourceDictionary.xaml" />
+                <ResourceDictionary
+                    Source="/PointlessWaymarks.CmsWpfControls;component/WpfControlsResourceDictionary.xaml" />
                 <ResourceDictionary Source="/PointlessWaymarks.WpfCommon;component/Utility/Icons.xaml" />
             </ResourceDictionary.MergedDictionaries>
             <valueConverters:BooleanToVisibilityConverter x:Key="BooleanToVisibility" />
@@ -119,7 +121,8 @@
                             <Button Margin="12" Command="{Binding RemoveUnusedFilesFromMediaArchiveCommand}">
                                 Remove Unused Files From Media Archive
                             </Button>
-                            <Button Margin="12" Command="{Binding CheckAllContentForInvalidBracketCodeContentIdsCommand}">
+                            <Button Margin="12"
+                                    Command="{Binding CheckAllContentForInvalidBracketCodeContentIdsCommand}">
                                 Check Content for Invalid Ids in Bracket Codes
                             </Button>
                             <Button Margin="12" Command="{Binding GenerateIndexCommand}">Generate Index</Button>
@@ -200,7 +203,7 @@
                 <userSettingsEditor:UserSettingsEditorControl DataContext="{Binding SettingsEditorContext}" />
             </TabItem>
             <TabItem Header="About">
-                <helpDisplay:HelpDisplayControl DataContext="{Binding SoftwareComponentsHelpContext}" />
+                <markdownDisplay:HelpDisplayControl DataContext="{Binding SoftwareComponentsHelpContext}" />
             </TabItem>
         </TabControl>
         <cmsContentEditor:SettingsFileChooserControl

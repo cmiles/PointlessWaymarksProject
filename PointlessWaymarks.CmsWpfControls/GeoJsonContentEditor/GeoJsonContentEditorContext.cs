@@ -25,9 +25,9 @@ using PointlessWaymarks.CmsWpfControls.WpfHtml;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.FeatureIntersectionTags;
 using PointlessWaymarks.FeatureIntersectionTags.Models;
+using PointlessWaymarks.WpfCommon.MarkdownDisplay;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
-using WinRT;
 
 namespace PointlessWaymarks.CmsWpfControls.GeoJsonContentEditor;
 
@@ -123,7 +123,9 @@ public partial class GeoJsonContentEditorContext : IHasChanges, IHasValidationIs
 
         var intersectResult = new IntersectResult(featuresToCheck);
 
-        var possibleTags = intersectResult.IntersectionTags(UserSettingsSingleton.CurrentSettings().FeatureIntersectionTagSettingsFile,CancellationToken.None, StatusContext.ProgressTracker()).Tags;
+        var possibleTags = intersectResult
+            .IntersectionTags(UserSettingsSingleton.CurrentSettings().FeatureIntersectionTagSettingsFile,
+                CancellationToken.None, StatusContext.ProgressTracker()).Tags;
 
         if (!possibleTags.Any())
         {
@@ -131,7 +133,8 @@ public partial class GeoJsonContentEditorContext : IHasChanges, IHasValidationIs
             return;
         }
 
-        TagEdit.Tags = $"{TagEdit.Tags}{(string.IsNullOrWhiteSpace(TagEdit.Tags) ? "" : ",")}{string.Join(",", possibleTags)}";
+        TagEdit.Tags =
+            $"{TagEdit.Tags}{(string.IsNullOrWhiteSpace(TagEdit.Tags) ? "" : ",")}{string.Join(",", possibleTags)}";
     }
 
     public static async Task<GeoJsonContentEditorContext> CreateInstance(StatusControlContext statusContext,

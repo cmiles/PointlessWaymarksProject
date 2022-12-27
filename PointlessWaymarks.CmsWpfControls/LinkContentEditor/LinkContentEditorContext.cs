@@ -13,6 +13,7 @@ using PointlessWaymarks.CmsWpfControls.StringDataEntry;
 using PointlessWaymarks.CmsWpfControls.TagsEditor;
 using PointlessWaymarks.CmsWpfControls.Utility.ChangesAndValidation;
 using PointlessWaymarks.CommonTools;
+using PointlessWaymarks.WpfCommon.MarkdownDisplay;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 
@@ -170,7 +171,8 @@ public partial class LinkContentEditorContext : IHasChanges, IHasValidationIssue
         TitleEntry.HelpText = "Title Text";
         TitleEntry.ReferenceValue = DbEntry.Title.TrimNullToEmpty();
         TitleEntry.UserValue = DbEntry.Title.TrimNullToEmpty();
-        TitleEntry.ValidationFunctions = new List<Func<string, Task<IsValid>>> { CommonContentValidation.ValidateTitle };
+        TitleEntry.ValidationFunctions = new List<Func<string, Task<IsValid>>>
+            { CommonContentValidation.ValidateTitle };
 
         SiteEntry = StringDataEntryContext.CreateInstance();
         SiteEntry.Title = "Site";

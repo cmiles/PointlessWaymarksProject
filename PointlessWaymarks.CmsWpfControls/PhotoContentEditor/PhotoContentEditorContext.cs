@@ -11,7 +11,6 @@ using PhotoSauce.MagicScaler;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.Content;
-using PointlessWaymarks.CmsData.ContentHtml;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsData.Spatial;
 using PointlessWaymarks.CmsWpfControls.BodyContentEditor;
@@ -31,6 +30,7 @@ using PointlessWaymarks.CmsWpfControls.Utility;
 using PointlessWaymarks.CmsWpfControls.Utility.ChangesAndValidation;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.FeatureIntersectionTags;
+using PointlessWaymarks.WpfCommon.MarkdownDisplay;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 using PointlessWaymarks.WpfCommon.Utility;
@@ -143,7 +143,8 @@ Photo Content Notes:
             return;
         }
 
-        var possibleTags = featureToCheck.IntersectionTags(UserSettingsSingleton.CurrentSettings().FeatureIntersectionTagSettingsFile,
+        var possibleTags = featureToCheck.IntersectionTags(
+            UserSettingsSingleton.CurrentSettings().FeatureIntersectionTagSettingsFile,
             CancellationToken.None, StatusContext.ProgressTracker());
 
         if (!possibleTags.Any())
@@ -528,7 +529,7 @@ Photo Content Notes:
             ResizeSelectedFile = true;
             _initialPhoto = null;
             var (generationReturn, metadataReturn) =
-                await PhotoGenerator.PhotoMetadataFromFile(SelectedFile, false,StatusContext.ProgressTracker());
+                await PhotoGenerator.PhotoMetadataFromFile(SelectedFile, false, StatusContext.ProgressTracker());
             if (!generationReturn.HasError) PhotoMetadataToCurrentContent(metadataReturn);
         }
 

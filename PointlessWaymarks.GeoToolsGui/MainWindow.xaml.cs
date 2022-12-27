@@ -5,6 +5,7 @@ using System.Windows;
 using CommunityToolkit.Mvvm.ComponentModel;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.GeoToolsGui.Controls;
+using PointlessWaymarks.WpfCommon.MarkdownDisplay;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.Utility;
 
@@ -25,6 +26,7 @@ public partial class MainWindow : Window
     [ObservableProperty] private string _infoTitle;
     [ObservableProperty] private StatusControlContext _statusContext;
     [ObservableProperty] private WindowIconStatus _windowStatus;
+    [ObservableProperty] private HelpDisplayContext _softwareComponentsHelpContext;
 
     public MainWindow()
     {
@@ -55,5 +57,6 @@ public partial class MainWindow : Window
         ConnectGeoTaggerContext = await ConnectBasedGeoTaggerContext.CreateInstance(StatusContext, WindowStatus);
         FeatureIntersectContext = await FeatureIntersectTaggerContext.CreateInstance(StatusContext, WindowStatus);
         GarminConnectDownloadContext = await ConnectDownloadContext.CreateInstance(StatusContext, WindowStatus);
+        SoftwareComponentsHelpContext = new HelpDisplayContext(new List<string> { SoftwareUsedHelpMarkdown.HelpBlock });
     }
 }

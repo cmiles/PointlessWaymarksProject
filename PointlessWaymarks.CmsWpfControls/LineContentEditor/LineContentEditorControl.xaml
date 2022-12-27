@@ -9,7 +9,6 @@
     xmlns:conversionDataEntry="clr-namespace:PointlessWaymarks.CmsWpfControls.ConversionDataEntry"
     xmlns:createdAndUpdatedByAndOnDisplay="clr-namespace:PointlessWaymarks.CmsWpfControls.CreatedAndUpdatedByAndOnDisplay"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:helpDisplay="clr-namespace:PointlessWaymarks.CmsWpfControls.HelpDisplay"
     xmlns:lineContentEditor="clr-namespace:PointlessWaymarks.CmsWpfControls.LineContentEditor"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:tagsEditor="clr-namespace:PointlessWaymarks.CmsWpfControls.TagsEditor"
@@ -19,6 +18,7 @@
     xmlns:wpf="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
     xmlns:wpfConverter="clr-namespace:PointlessWaymarks.WpfCommon.ValueConverters;assembly=PointlessWaymarks.WpfCommon"
     xmlns:wpfHtml="clr-namespace:PointlessWaymarks.WpfCommon.WpfHtml;assembly=PointlessWaymarks.WpfCommon"
+    xmlns:markdownDisplay="clr-namespace:PointlessWaymarks.WpfCommon.MarkdownDisplay;assembly=PointlessWaymarks.WpfCommon"
     d:DataContext="{d:DesignInstance lineContentEditor:LineContentEditorContext}"
     d:DesignHeight="450"
     d:DesignWidth="800"
@@ -42,11 +42,17 @@
                 <Grid>
                     <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
                         <StackPanel Margin="4" CanHorizontallyScroll="False">
-                            <titleSummarySlugFolderEditor:TitleSummarySlugEditorControl DataContext="{Binding TitleSummarySlugFolder}" />
-                            <contentSiteFeedAndIsDraft:ContentSiteFeedAndIsDraftControl DataContext="{Binding MainSiteFeed}" />
-                            <tagsEditor:TagsEditorControl DataContext="{Binding TagEdit}" Style="{StaticResource TagsEditorInPanelStyle}" />
-                            <createdAndUpdatedByAndOnDisplay:CreatedAndUpdatedByAndOnDisplayControl DataContext="{Binding CreatedUpdatedDisplay}" Style="{StaticResource CreatedUpdatedInPanelStyle}" />
-                            <contentIdViewer:ContentIdViewerControl DataContext="{Binding ContentId}" Style="{StaticResource ContentIdInPanelStyle}" />
+                            <titleSummarySlugFolderEditor:TitleSummarySlugEditorControl
+                                DataContext="{Binding TitleSummarySlugFolder}" />
+                            <contentSiteFeedAndIsDraft:ContentSiteFeedAndIsDraftControl
+                                DataContext="{Binding MainSiteFeed}" />
+                            <tagsEditor:TagsEditorControl DataContext="{Binding TagEdit}"
+                                                          Style="{StaticResource TagsEditorInPanelStyle}" />
+                            <createdAndUpdatedByAndOnDisplay:CreatedAndUpdatedByAndOnDisplayControl
+                                DataContext="{Binding CreatedUpdatedDisplay}"
+                                Style="{StaticResource CreatedUpdatedInPanelStyle}" />
+                            <contentIdViewer:ContentIdViewerControl DataContext="{Binding ContentId}"
+                                                                    Style="{StaticResource ContentIdInPanelStyle}" />
                         </StackPanel>
                     </ScrollViewer>
                 </Grid>
@@ -63,8 +69,14 @@
                                 Command="{Binding ImportFromGpxCommand}"
                                 Content="Load File"
                                 Style="{StaticResource ActionPanelButtonStyle}" />
-                            <CheckBox Margin="4,0,0,0" VerticalAlignment="Center" IsChecked="{Binding ReplaceElevationOnImport}">Replace Elevation when Importing</CheckBox>
-                            <CheckBox Margin="6,0,2,0" VerticalAlignment="Center" IsChecked="{Binding UpdateStatsOnImport}">Update Stats when Importing</CheckBox>
+                            <CheckBox Margin="4,0,0,0" VerticalAlignment="Center"
+                                      IsChecked="{Binding ReplaceElevationOnImport}">
+                                Replace Elevation when Importing
+                            </CheckBox>
+                            <CheckBox Margin="6,0,2,0" VerticalAlignment="Center"
+                                      IsChecked="{Binding UpdateStatsOnImport}">
+                                Update Stats when Importing
+                            </CheckBox>
                             <Button
                                 Command="{Binding ReplaceElevationsCommand}"
                                 Content="Replace Elevations"
@@ -119,15 +131,19 @@
                             <RowDefinition />
                             <RowDefinition />
                         </Grid.RowDefinitions>
-                        <conversionDataEntry:ConversionDataEntryControl HorizontalAlignment="Left" DataContext="{Binding DistanceEntry}" />
+                        <conversionDataEntry:ConversionDataEntryControl HorizontalAlignment="Left"
+                                                                        DataContext="{Binding DistanceEntry}" />
                         <WrapPanel Grid.Row="1">
-                            <conversionDataEntry:ConversionDataEntryControl DataContext="{Binding MinimumElevationEntry}" />
-                            <conversionDataEntry:ConversionDataEntryControl Margin="12,0,0,0" DataContext="{Binding MaximumElevationEntry}" />
+                            <conversionDataEntry:ConversionDataEntryControl
+                                DataContext="{Binding MinimumElevationEntry}" />
+                            <conversionDataEntry:ConversionDataEntryControl Margin="12,0,0,0"
+                                                                            DataContext="{Binding MaximumElevationEntry}" />
                         </WrapPanel>
                         <WrapPanel Grid.Row="2">
                             <conversionDataEntry:ConversionDataEntryControl DataContext="{Binding ClimbElevationEntry}" />
 
-                            <conversionDataEntry:ConversionDataEntryControl Margin="12,0,0,0" DataContext="{Binding DescentElevationEntry}" />
+                            <conversionDataEntry:ConversionDataEntryControl Margin="12,0,0,0"
+                                                                            DataContext="{Binding DescentElevationEntry}" />
                         </WrapPanel>
                         <Button
                             Grid.Row="3"
@@ -137,8 +153,10 @@
                             Update Stats Above from Current Line Data
                         </Button>
                         <WrapPanel Grid.Row="4">
-                            <conversionDataEntry:ConversionDataEntryControl DataContext="{Binding RecordingStartedOnEntry}" />
-                            <conversionDataEntry:ConversionDataEntryControl Margin="12,0,0,0" DataContext="{Binding RecordingEndedOnEntry}" />
+                            <conversionDataEntry:ConversionDataEntryControl
+                                DataContext="{Binding RecordingStartedOnEntry}" />
+                            <conversionDataEntry:ConversionDataEntryControl Margin="12,0,0,0"
+                                                                            DataContext="{Binding RecordingEndedOnEntry}" />
                         </WrapPanel>
                     </Grid>
                 </ScrollViewer>
@@ -161,7 +179,7 @@
                     VerticalScrollBarVisibility="Visible" />
             </TabItem>
             <TabItem Header="Help">
-                <helpDisplay:HelpDisplayControl DataContext="{Binding HelpContext}" />
+                <markdownDisplay:HelpDisplayControl DataContext="{Binding HelpContext}" />
             </TabItem>
         </TabControl>
         <Border Grid.Row="1" Style="{StaticResource ActionPanelBorderStyle}">

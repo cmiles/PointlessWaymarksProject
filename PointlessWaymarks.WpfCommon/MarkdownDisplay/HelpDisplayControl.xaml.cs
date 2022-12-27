@@ -1,4 +1,4 @@
-﻿namespace PointlessWaymarks.CmsWpfControls.HelpDisplay;
+﻿namespace PointlessWaymarks.WpfCommon.MarkdownDisplay;
 
 /// <summary>
 ///     Interaction logic for HelpDisplayControl.xaml
