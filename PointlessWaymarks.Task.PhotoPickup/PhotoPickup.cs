@@ -1,11 +1,7 @@
 ﻿using System.Text.Json;
-using NetTopologySuite.Features;
-using NetTopologySuite.Geometries;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.Content;
-using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CommonTools;
-using PointlessWaymarks.FeatureIntersectionTags;
 using Serilog;
 
 namespace PointlessWaymarks.Task.PhotoPickup;
@@ -116,20 +112,6 @@ public class PhotoPickup
                 Log.ForContext("metaGenerationReturn", metaGenerationReturn.SafeObjectDump()).Error(
                     $"Error Saving Photo {loopFile.FullName} - {metaGenerationReturn.GenerationNote} - {metaGenerationReturn.Exception?.Message}");
                 continue;
-            }
-
-            if (metaContent.Latitude != null && metaContent.Longitude != null)
-            {
-                var intersectionTags = (new Feature(new Point(metaContent.Longitude.Value, metaContent.Latitude.Value),
-                        new AttributesTable()))
-                    .IntersectionTags(UserSettingsSingleton.CurrentSettings().FeatureIntersectionTagSettingsFile,
-                        CancellationToken.None, consoleProgress);
-
-                if (intersectionTags.Any())
-                {
-                    var tagList = Db.TagListParse(metaContent.Tags).Union(intersectionTags).ToList();
-                    metaContent.Tags = Db.TagListJoin(tagList);
-                }
             }
 
             var (saveGenerationReturn, _) = await PhotoGenerator.SaveAndGenerateHtml(metaContent, loopFile, true,
