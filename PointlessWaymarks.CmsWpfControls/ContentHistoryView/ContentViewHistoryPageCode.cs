@@ -5,6 +5,7 @@ using AngleSharp.Html.Parser;
 using Markdig;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.Content;
+using PointlessWaymarks.CommonTools;
 
 namespace PointlessWaymarks.CmsWpfControls.ContentHistoryView;
 
@@ -43,7 +44,7 @@ public partial class ContentViewHistoryPage
 
     public FileInfo WriteHtmlToTempFolder(IProgress<string> progress)
     {
-        var possibleFileName = FolderFileUtility.TryMakeFilenameValid(ContentTitle);
+        var possibleFileName = FileAndFolderTools.TryMakeFilenameValid(ContentTitle);
 
         var possibleFile = new FileInfo(Path.Combine(UserSettingsUtilities.TempStorageDirectory().FullName,
             $"HistoricEntries-{possibleFileName}-{DateTime.Now:yyyy-MM-dd---HH-mm-ss}.htm"));

@@ -1,7 +1,5 @@
 ﻿using System.IO;
-using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.Content;
-using PointlessWaymarks.CmsData.ContentHtml;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
@@ -57,7 +55,7 @@ public static class FileHelpers
             return;
         }
 
-        if (!FolderFileUtility.IsNoUrlEncodingNeeded(noExtensionCleaned))
+        if (!FileAndFolderTools.IsNoUrlEncodingNeeded(noExtensionCleaned))
         {
             statusContext.ToastError("File Names must be limited to A - Z a - z 0 - 9 - . _");
             return;
@@ -151,7 +149,7 @@ public static class FileHelpers
             return;
         }
 
-        if (!FolderFileUtility.IsNoUrlEncodingNeeded(cleanedName))
+        if (!FileAndFolderTools.IsNoUrlEncodingNeeded(cleanedName))
         {
             statusContext.ToastError("File Names must be limited to A - Z a - z 0 - 9 - . _");
             return;

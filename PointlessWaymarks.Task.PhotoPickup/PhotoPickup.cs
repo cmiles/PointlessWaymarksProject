@@ -61,7 +61,7 @@ public class PhotoPickup
             return;
         }
 
-        var jpgFiles = pickupDirectory.EnumerateFiles("*").Where(FolderFileUtility.PictureFileTypeIsSupported)
+        var jpgFiles = pickupDirectory.EnumerateFiles("*").Where(FileAndFolderTools.PictureFileTypeIsSupported)
             .OrderBy(x => x.Name).ToList();
 
         if (!jpgFiles.Any())
@@ -104,33 +104,44 @@ public class PhotoPickup
 
         foreach (var loopFile in jpgFiles)
         {
+            //This will potentially 
+            var renamedFile = await FileAndFolderTools.TryAutoCleanRenameFileForProgramConventions(loopFile);
+
+            if (renamedFile is null)
+            {
+                Log.Information($"Error with Filename - skipping {loopFile.Name}");
+                continue;
+            }
+
             var (metaGenerationReturn, metaContent) = await
-                PhotoGenerator.PhotoMetadataToNewPhotoContent(loopFile, consoleProgress);
+                PhotoGenerator.PhotoMetadataToNewPhotoContent(renamedFile, consoleProgress);
 
             if (metaGenerationReturn.HasError || metaContent == null)
             {
                 Log.ForContext("metaGenerationReturn", metaGenerationReturn.SafeObjectDump()).Error(
-                    $"Error Saving Photo {loopFile.FullName} - {metaGenerationReturn.GenerationNote} - {metaGenerationReturn.Exception?.Message}");
+                    $"Error Saving Photo {renamedFile.FullName} - {metaGenerationReturn.GenerationNote} - {metaGenerationReturn.Exception?.Message}");
                 continue;
             }
 
-            var (saveGenerationReturn, _) = await PhotoGenerator.SaveAndGenerateHtml(metaContent, loopFile, true,
+            var (saveGenerationReturn, _) = await PhotoGenerator.SaveAndGenerateHtml(metaContent, renamedFile, true,
                 null, consoleProgress);
 
             if (saveGenerationReturn.HasError)
             {
                 Log.ForContext("saveGenerationReturn", saveGenerationReturn.SafeObjectDump()).Error(
-                    $"Error Saving Photo {loopFile.FullName} - {saveGenerationReturn.GenerationNote} - {saveGenerationReturn.Exception?.Message}");
+                    $"Error Saving Photo {renamedFile.FullName} - {saveGenerationReturn.GenerationNote} - {saveGenerationReturn.Exception?.Message}");
                 continue;
             }
 
             try
             {
-                loopFile.MoveTo(Path.Combine(archiveDirectory.FullName, loopFile.Name), true);
+                if (loopFile.FullName != renamedFile.FullName)
+                    loopFile.MoveTo(Path.Combine(archiveDirectory.FullName, renamedFile.Name), true);
+                renamedFile.MoveTo(Path.Combine(archiveDirectory.FullName, renamedFile.Name), true);
             }
             catch (Exception e)
             {
-                Log.Error(e, $"Failed to move file to Archive Directory - {loopFile.FullName}");
+                Log.Error(e, $"Failed to move file to Archive Directory - {renamedFile.FullName}");
             }
         }
     }

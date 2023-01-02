@@ -3,6 +3,7 @@ using PointlessWaymarks.CmsData.ContentHtml.FileHtml;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsData.Json;
+using PointlessWaymarks.CommonTools;
 using Serilog;
 
 namespace PointlessWaymarks.CmsData.Content;
@@ -82,7 +83,7 @@ public static class FileGenerator
         if (!selectedFile.Exists)
             return GenerationReturn.Error("Selected File doesn't exist?", fileContent.ContentId);
 
-        if (!FolderFileUtility.IsNoUrlEncodingNeeded(Path.GetFileNameWithoutExtension(selectedFile.Name)))
+        if (!FileAndFolderTools.IsNoUrlEncodingNeeded(Path.GetFileNameWithoutExtension(selectedFile.Name)))
             return GenerationReturn.Error("Limit File Names to A-Z a-z - . _", fileContent.ContentId);
 
         if (await (await Db.Context().ConfigureAwait(false))

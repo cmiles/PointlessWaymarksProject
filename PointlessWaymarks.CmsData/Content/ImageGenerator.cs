@@ -3,6 +3,7 @@ using PointlessWaymarks.CmsData.ContentHtml.ImageHtml;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsData.Json;
+using PointlessWaymarks.CommonTools;
 
 namespace PointlessWaymarks.CmsData.Content;
 
@@ -74,10 +75,10 @@ public static class ImageGenerator
         if (!selectedFile.Exists)
             return GenerationReturn.Error("Selected File doesn't exist?", imageContent.ContentId);
 
-        if (!FolderFileUtility.IsNoUrlEncodingNeeded(Path.GetFileNameWithoutExtension(selectedFile.Name)))
+        if (!FileAndFolderTools.IsNoUrlEncodingNeeded(Path.GetFileNameWithoutExtension(selectedFile.Name)))
             return GenerationReturn.Error("Limit File Names to A-Z a-z - . _", imageContent.ContentId);
 
-        if (!FolderFileUtility.PictureFileTypeIsSupported(selectedFile))
+        if (!FileAndFolderTools.PictureFileTypeIsSupported(selectedFile))
             return GenerationReturn.Error("The file doesn't appear to be a supported file type.",
                 imageContent.ContentId);
 

@@ -5,6 +5,7 @@ using CommunityToolkit.Mvvm.Input;
 using Ookii.Dialogs.Wpf;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.Content;
+using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 
@@ -132,7 +133,7 @@ public partial class SettingsFileChooserControlContext
 
         UserNewFileName = UserNewFileName.Trim();
 
-        if (!FolderFileUtility.IsValidWindowsFileSystemFilename(UserNewFileName))
+        if (!FileAndFolderTools.IsValidWindowsFileSystemFilename(UserNewFileName))
         {
             StatusContext.ToastError("File name is not valid - avoid special characters...");
             return;

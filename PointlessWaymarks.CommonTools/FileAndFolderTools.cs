@@ -1,8 +1,9 @@
 ﻿using System.Text.RegularExpressions;
+using Serilog;
 
-namespace PointlessWaymarks.CmsData.Content;
+namespace PointlessWaymarks.CommonTools;
 
-public static class FolderFileUtility
+public static class FileAndFolderTools
 {
     /// <summary>
     ///     Appends the Long File Prefix \\?\ to the FileInfo FullName - this should only be used to interop in situations
@@ -89,6 +90,80 @@ public static class FolderFileUtility
 
         return toCheck.Extension.ToUpperInvariant().Contains("JPG") ||
                toCheck.Extension.ToUpperInvariant().Contains("JPEG");
+    }
+
+    /// <summary>
+    ///     Reads all text via a stream opened with FileShare.ReadWrite and FileAccess.Read
+    /// </summary>
+    /// <param name="file"></param>
+    /// <returns></returns>
+    public static string ReadAllText(string file)
+    {
+        using var fileStream = new FileStream(file, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+        using var textReader = new StreamReader(fileStream);
+        return textReader.ReadToEnd();
+    }
+
+    /// <summary>
+    /// If the file exists and is valid for the conventions of this program the original file is returned.
+    /// If the file is not valid the program attempts to auto-fix the name - the renamed version will be
+    /// a copy of the original (the original will not be moved or modified).
+    /// </summary>
+    /// <param name="selectedFile"></param>
+    /// <returns></returns>
+    public static async Task<FileInfo?> TryAutoCleanRenameFileForProgramConventions(FileInfo selectedFile)
+    {
+        if (selectedFile is not { Exists: true }) return null;
+
+        //No rename needed
+        if (IsNoUrlEncodingNeeded(Path.GetFileNameWithoutExtension(selectedFile.Name))) return selectedFile;
+
+        var cleanedFileNamePath = Path.GetFileNameWithoutExtension(selectedFile.Name).TrimNullToEmpty();
+
+        return await TryAutoRenameFileForProgramConventions(selectedFile, cleanedFileNamePath);
+    }
+
+    /// <summary>
+    /// Tries to rename a file to an automatically cleaned version of the input suggested name. The
+    /// renamed file will be a copy of the original leaving the original in place.
+    /// </summary>
+    /// <param name="selectedFile"></param>
+    /// <param name="suggestedName"></param>
+    /// <returns></returns>
+    public static async Task<FileInfo?> TryAutoRenameFileForProgramConventions(FileInfo selectedFile, string suggestedName)
+    {
+        if (selectedFile is not { Exists: true }) return null;
+
+        var cleanedName = SlugTools.CreateSlug(false, suggestedName.TrimNullToEmpty());
+
+        if (string.IsNullOrWhiteSpace(cleanedName)) return null;
+
+        if (!IsNoUrlEncodingNeeded(cleanedName)) return null;
+
+        var moveToName = Path.Combine(selectedFile.Directory?.FullName ?? string.Empty,
+            $"{cleanedName}{Path.GetExtension(selectedFile.Name)}");
+
+        try
+        {
+            File.Copy(selectedFile.FullName, moveToName);
+        }
+        catch (Exception e)
+        {
+            Log.ForContext("selectedFile", selectedFile).ForContext("suggestedName", suggestedName)
+                .Error(e, "Exception while trying to rename file");
+            return null;
+        }
+
+        var finalFile = new FileInfo(moveToName);
+
+        if (!finalFile.Exists)
+        {
+            Log.ForContext("selectedFile", selectedFile).ForContext("suggestedName", suggestedName)
+                .Error("Unknown error renaming file - original file still selected.");
+            return null;
+        }
+
+        return finalFile;
     }
 
     public static string TryMakeFilenameValid(string filenameWithoutExtensionToTransform)

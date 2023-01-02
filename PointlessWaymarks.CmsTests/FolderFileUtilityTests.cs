@@ -1,5 +1,6 @@
 ﻿using NUnit.Framework;
 using PointlessWaymarks.CmsData.Content;
+using PointlessWaymarks.CommonTools;
 
 namespace PointlessWaymarks.CmsTests;
 
@@ -15,7 +16,7 @@ public class FolderFileUtilityTests
     [TestCase("this\\has_backslash")]
     public void NoEncodingLowerShouldFailTest(string toFail)
     {
-        Assert.False(FolderFileUtility.IsNoUrlEncodingNeededLowerCase(toFail));
+        Assert.False(FileAndFolderTools.IsNoUrlEncodingNeededLowerCase(toFail));
     }
 
     [TestCase("this-is-simple-lower-case-hyphen")]
@@ -26,6 +27,6 @@ public class FolderFileUtilityTests
     [TestCase("ends-with-numbers")]
     public void NoEncodingShouldPassTest(string toFail)
     {
-        Assert.True(FolderFileUtility.IsNoUrlEncodingNeededLowerCase(toFail));
+        Assert.True(FileAndFolderTools.IsNoUrlEncodingNeededLowerCase(toFail));
     }
 }

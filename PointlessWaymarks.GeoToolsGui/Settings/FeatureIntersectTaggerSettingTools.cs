@@ -33,7 +33,7 @@ public static class FeatureIntersectTaggerSettingTools
 
     public static async Task<FeatureIntersectTaggerSettings> ReadSettings()
     {
-        var json = FileLoadTools.ReadAllText((await DefaultSettingsFile()).FullName);
+        var json = FileAndFolderTools.ReadAllText((await DefaultSettingsFile()).FullName);
         return JsonSerializer.Deserialize<FeatureIntersectTaggerSettings>(json) ??
                new FeatureIntersectTaggerSettings();
     }

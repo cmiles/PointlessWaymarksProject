@@ -1,5 +1,6 @@
 ﻿using PhotoSauce.MagicScaler;
 using PhotoSauce.MagicScaler.Transforms;
+using PointlessWaymarks.CommonTools;
 
 namespace PointlessWaymarks.CmsData.Content;
 

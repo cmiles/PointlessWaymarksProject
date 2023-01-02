@@ -150,7 +150,7 @@ public static class PictureResizing
         var directoryInfo = UserSettingsSingleton.CurrentSettings().LocalSitePhotoContentDirectory(dbEntry);
 
         var fileVariants = directoryInfo.GetFiles().Where(x =>
-            FolderFileUtility.PictureFileTypeIsSupported(x) && !x.Name.StartsWith($"{baseFileName}--") &&
+            FileAndFolderTools.PictureFileTypeIsSupported(x) && !x.Name.StartsWith($"{baseFileName}--") &&
             x.Name != dbEntry.OriginalFileName).ToList();
 
         progress?.Report(
@@ -182,7 +182,7 @@ public static class PictureResizing
         var directoryInfo = UserSettingsSingleton.CurrentSettings().LocalSiteImageContentDirectory(dbEntry);
 
         var fileVariants = directoryInfo.GetFiles().Where(x =>
-            FolderFileUtility.PictureFileTypeIsSupported(x) && !x.Name.StartsWith($"{baseFileName}--")).ToList();
+            FileAndFolderTools.PictureFileTypeIsSupported(x) && !x.Name.StartsWith($"{baseFileName}--")).ToList();
 
         progress?.Report(
             $"Found {fileVariants.Count} Supported Image File Type files in {directoryInfo.FullName} that don't match the " +

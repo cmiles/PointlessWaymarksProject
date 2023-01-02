@@ -8,6 +8,7 @@ using PointlessWaymarks.CmsData.Content;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsData.Import;
+using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 
@@ -21,7 +22,7 @@ public static class ExcelHelpers
         progress?.Report($"Starting transfer of {toDisplay.Count} to Excel");
 
         var file = new FileInfo(Path.Combine(UserSettingsUtilities.TempStorageDirectory().FullName,
-            $"{DateTime.Now:yyyy-MM-dd--HH-mm-ss}---{FolderFileUtility.TryMakeFilenameValid(fileName)}.xlsx"));
+            $"{DateTime.Now:yyyy-MM-dd--HH-mm-ss}---{FileAndFolderTools.TryMakeFilenameValid(fileName)}.xlsx"));
 
         progress?.Report($"File Name: {file.FullName}");
 
@@ -206,7 +207,7 @@ public static class ExcelHelpers
         }
 
         var file = new FileInfo(Path.Combine(UserSettingsUtilities.TempStorageDirectory().FullName,
-            $"{DateTime.Now:yyyy-MM-dd--HH-mm-ss}---{FolderFileUtility.TryMakeFilenameValid(fileName)}.xlsx"));
+            $"{DateTime.Now:yyyy-MM-dd--HH-mm-ss}---{FileAndFolderTools.TryMakeFilenameValid(fileName)}.xlsx"));
 
         progress?.Report($"File Name {file.FullName} - creating Excel Workbook");
 

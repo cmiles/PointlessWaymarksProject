@@ -229,7 +229,7 @@ public static class CommonContentValidation
 
         if (!fileContentFile.Exists) return false;
 
-        return !FolderFileUtility.IsNoUrlEncodingNeeded(Path.GetFileNameWithoutExtension(fileContentFile.Name));
+        return !FileAndFolderTools.IsNoUrlEncodingNeeded(Path.GetFileNameWithoutExtension(fileContentFile.Name));
     }
 
 
@@ -241,7 +241,7 @@ public static class CommonContentValidation
 
         if (!fileContentFile.Exists) return new IsValid(false, "File does not Exist?");
 
-        if (!FolderFileUtility.IsNoUrlEncodingNeeded(Path.GetFileNameWithoutExtension(fileContentFile.Name)))
+        if (!FileAndFolderTools.IsNoUrlEncodingNeeded(Path.GetFileNameWithoutExtension(fileContentFile.Name)))
             return new IsValid(false, "Limit File Names to A-Z a-z 0-9 - . _");
 
         if (await (await Db.Context().ConfigureAwait(false))
@@ -304,10 +304,10 @@ public static class CommonContentValidation
 
         if (!imageFile.Exists) return new IsValid(false, "File does not Exist?");
 
-        if (!FolderFileUtility.IsNoUrlEncodingNeeded(Path.GetFileNameWithoutExtension(imageFile.Name)))
+        if (!FileAndFolderTools.IsNoUrlEncodingNeeded(Path.GetFileNameWithoutExtension(imageFile.Name)))
             return new IsValid(false, "Limit File Names to A-Z a-z 0-9 - . _");
 
-        if (!FolderFileUtility.PictureFileTypeIsSupported(imageFile))
+        if (!FileAndFolderTools.PictureFileTypeIsSupported(imageFile))
             return new IsValid(false, "The file doesn't appear to be a supported file type.");
 
         if (await (await Db.Context().ConfigureAwait(false))
@@ -356,10 +356,10 @@ public static class CommonContentValidation
 
         if (!photoFile.Exists) return new IsValid(false, "File does not Exist?");
 
-        if (!FolderFileUtility.IsNoUrlEncodingNeeded(Path.GetFileNameWithoutExtension(photoFile.Name)))
+        if (!FileAndFolderTools.IsNoUrlEncodingNeeded(Path.GetFileNameWithoutExtension(photoFile.Name)))
             return new IsValid(false, "Limit File Names to A-Z a-z 0-9 - . _");
 
-        if (!FolderFileUtility.PictureFileTypeIsSupported(photoFile))
+        if (!FileAndFolderTools.PictureFileTypeIsSupported(photoFile))
             return new IsValid(false, "The file doesn't appear to be a supported file type.");
 
         if (await (await Db.Context().ConfigureAwait(false))
@@ -532,7 +532,7 @@ public static class CommonContentValidation
         if (string.IsNullOrWhiteSpace(folder))
             return new IsValid(false, "Folder can't be blank or only whitespace.");
 
-        if (!FolderFileUtility.IsNoUrlEncodingNeeded(folder))
+        if (!FileAndFolderTools.IsNoUrlEncodingNeeded(folder))
             return new IsValid(false, "Limit folder names to a-z A-Z 0-9 _ -");
 
         if (string.Equals(folder, "data", StringComparison.OrdinalIgnoreCase))
@@ -658,7 +658,7 @@ public static class CommonContentValidation
     {
         if (string.IsNullOrWhiteSpace(slug)) return new IsValid(false, "Slug can't be blank or only whitespace.");
 
-        if (!FolderFileUtility.IsNoUrlEncodingNeededLowerCase(slug))
+        if (!FileAndFolderTools.IsNoUrlEncodingNeededLowerCase(slug))
             return new IsValid(false, "Slug should only contain a-z 0-9 _ -");
 
         if (slug.Length > 100) return new IsValid(false, "Limit slugs to 100 characters.");
@@ -704,7 +704,7 @@ public static class CommonContentValidation
 
         var tagList = Db.TagListParse(tags);
 
-        if (tagList.Any(x => !FolderFileUtility.IsNoUrlEncodingNeededLowerCaseSpacesOk(x) || x.Length > 200))
+        if (tagList.Any(x => !FileAndFolderTools.IsNoUrlEncodingNeededLowerCaseSpacesOk(x) || x.Length > 200))
             return new IsValid(false, "Limit tags to a-z 0-9 _ - [space] and less than 200 characters per tag.");
 
         return new IsValid(true, string.Empty);

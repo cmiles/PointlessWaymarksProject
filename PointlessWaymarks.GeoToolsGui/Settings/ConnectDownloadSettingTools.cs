@@ -33,7 +33,7 @@ public class ConnectDownloadSettingTools
 
     public static async Task<ConnectDownloadSettings> ReadSettings()
     {
-        var json = FileLoadTools.ReadAllText((await DefaultSettingsFile()).FullName);
+        var json = FileAndFolderTools.ReadAllText((await DefaultSettingsFile()).FullName);
         return JsonSerializer.Deserialize<ConnectDownloadSettings>(json) ??
                new ConnectDownloadSettings();
     }

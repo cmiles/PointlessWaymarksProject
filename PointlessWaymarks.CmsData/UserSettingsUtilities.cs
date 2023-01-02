@@ -1365,7 +1365,7 @@ public static class UserSettingsUtilities
     /// <returns></returns>
     public static async Task<UserSettings> SetupNewSite(string userFilename, IProgress<string>? progress = null)
     {
-        if (!FolderFileUtility.IsValidWindowsFileSystemFilename(userFilename))
+        if (!FileAndFolderTools.IsValidWindowsFileSystemFilename(userFilename))
             throw new InvalidDataException("New site input must be a valid filename.");
 
         var newSettings = new UserSettings();

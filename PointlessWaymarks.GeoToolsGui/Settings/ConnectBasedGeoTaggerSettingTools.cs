@@ -33,7 +33,7 @@ public class ConnectBasedGeoTaggerSettingTools
 
     public static async Task<ConnectBasedGeoTaggerSettings> ReadSettings()
     {
-        var json = FileLoadTools.ReadAllText((await DefaultSettingsFile()).FullName);
+        var json = FileAndFolderTools.ReadAllText((await DefaultSettingsFile()).FullName);
         return JsonSerializer.Deserialize<ConnectBasedGeoTaggerSettings>(json) ??
                new ConnectBasedGeoTaggerSettings();
     }
