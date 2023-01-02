@@ -42,7 +42,7 @@
   <ItemGroup>
     <PackageReference Include="AngleSharp" Version="1.0.0-alpha-844" />
     <PackageReference Include="AngleSharp.Js" Version="0.15.0" />
-    <PackageReference Include="AWSSDK.S3" Version="3.7.101.44" />
+    <PackageReference Include="AWSSDK.S3" Version="3.7.101.46" />
     <PackageReference Include="ClosedXML" Version="0.97.0" />
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.0.0" />
     <PackageReference Include="CompareNETObjects" Version="4.78.0" />
