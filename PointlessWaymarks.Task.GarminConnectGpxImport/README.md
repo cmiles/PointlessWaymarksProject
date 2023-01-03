@@ -1,4 +1,4 @@
-﻿PointlessWaymarks.Task.GarminConnectGpxImport
+﻿## Garmin Connect Gpx Import Task
 
 The Pointless Waymarks CMS is not designed as an 'all purpose static site generation solution' but with Landscape and Place the topics that it is designed to address personal location information is an obvious source of interesting material.
 
@@ -6,7 +6,7 @@ This project creates a Console app designed primarily to be run as a periodic 'T
 
 Notes:
   - A JSON settings file controls how the program works and the settings file must be passed on the command line to the program
-  - The settings file holds unsername and password information for Garmin Connect IN UNENCRYPTED PLAINTEXT FILES!!! For many uses/computers/locations this may make the program unsuitable and too insecure to use!!
+  - The settings file holds username and password information for Garmin Connect IN UNENCRYPTED PLAINTEXT FILES!!! For many uses/computers/locations this may make the program unsuitable and too insecure to use!!
   - This program isn't designed to continually sync changes you make in Garmin Connect into the Pointless Waymarks CMS! You could delete and download and activity again... But there is no sense of syncing changes.
   - The download process will store Activity information in JSON and download the GPX for the activity - this program doesn't make any attempt to 'manage' this archive as a backup but by consistently using the same folder you will generate some level of backup of your data.
   - The Pointless Waymarks CMS and Line Content care about location, not about workout data! The distance, elevation change, start time and end time are preserved - your heart rate, pace and any sensor data are not brought into the Pointless Waymarks database - consider this before using this program!

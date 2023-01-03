@@ -1,4 +1,4 @@
-﻿PointlessWaymarks.Task.MemoriesEmail
+﻿## Memories Email Task
 
 This project creates a Console app intended to be run as a periodic 'Task' that will create emails with links to content created X years back.
 
