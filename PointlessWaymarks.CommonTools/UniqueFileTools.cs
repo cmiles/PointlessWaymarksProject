@@ -4,6 +4,34 @@ namespace PointlessWaymarks.CommonTools;
 
 public static class UniqueFileTools
 {
+    /// <summary>
+    ///     Performs a FileInfo.MoveTo after establishing a unique name for the file in the destination
+    ///     directory.
+    /// </summary>
+    /// <param name="originalFile"></param>
+    /// <param name="moveToFullName"></param>
+    /// <returns></returns>
+    /// <exception cref="ArgumentException"></exception>
+    /// <exception cref="Exception"></exception>
+    public static FileInfo MoveToWithUniqueName(this FileInfo originalFile, string moveToFullName)
+    {
+        var toMoveTo = new FileInfo(moveToFullName);
+
+        if (toMoveTo.Directory == null)
+            throw new ArgumentException(
+                $"DirectoryInfo for the Destination {moveToFullName} can not be null - original File {originalFile.FullName}");
+
+        var uniqueFile = UniqueFile(toMoveTo.Directory, toMoveTo.Name);
+
+        if (uniqueFile == null)
+            throw new Exception(
+                $"Error finding a unique name when moving {originalFile.FullName} to {moveToFullName}.");
+
+        originalFile.MoveTo(uniqueFile.FullName);
+
+        return originalFile;
+    }
+
     public static DirectoryInfo UniqueDirectory(string fullName)
     {
         var directoryInfo = new DirectoryInfo(fullName);

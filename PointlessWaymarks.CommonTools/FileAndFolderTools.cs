@@ -140,8 +140,9 @@ public static class FileAndFolderTools
 
         if (!IsNoUrlEncodingNeeded(cleanedName)) return null;
 
-        var moveToName = Path.Combine(selectedFile.Directory?.FullName ?? string.Empty,
-            $"{cleanedName}{Path.GetExtension(selectedFile.Name)}");
+        var moveToDirectory = selectedFile.Directory!;
+        var baseMoveToName = $"{cleanedName}{Path.GetExtension(selectedFile.Name)}";
+        var moveToName = UniqueFileTools.UniqueFile(moveToDirectory, baseMoveToName)!.FullName;
 
         try
         {
