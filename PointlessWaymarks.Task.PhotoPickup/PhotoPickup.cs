@@ -134,6 +134,8 @@ public class PhotoPickup
 
             var uniqueRenamedFile = await ToPhotoFileNameNotInDb(renamedFile);
 
+            metaContent.OriginalFileName = uniqueRenamedFile.Name;
+
             var (saveGenerationReturn, _) = await PhotoGenerator.SaveAndGenerateHtml(metaContent, uniqueRenamedFile,
                 true,
                 null, consoleProgress);

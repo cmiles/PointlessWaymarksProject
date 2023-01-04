@@ -1,6 +1,4 @@
-﻿using System.Globalization;
-using System.Text.RegularExpressions;
-using GeoTimeZone;
+﻿using System.Text.RegularExpressions;
 using MetadataExtractor;
 using MetadataExtractor.Formats.Exif;
 using MetadataExtractor.Formats.Iptc;
@@ -8,14 +6,12 @@ using MetadataExtractor.Formats.Xmp;
 using NetTopologySuite.Features;
 using NetTopologySuite.Geometries;
 using Omu.ValueInjecter;
-using PointlessWaymarks.CmsData.ContentHtml;
 using PointlessWaymarks.CmsData.ContentHtml.PhotoHtml;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsData.Json;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.FeatureIntersectionTags;
-using PointlessWaymarks.FeatureIntersectionTags.Models;
 using PointlessWaymarks.SpatialTools;
 using Serilog;
 using XmpCore;
@@ -54,15 +50,14 @@ public static class PhotoGenerator
             .FirstOrDefault();
         var iptcDirectory = ImageMetadataReader.ReadMetadata(selectedFile.FullName).OfType<IptcDirectory>()
             .FirstOrDefault();
-        var gpsDirectory = ImageMetadataReader.ReadMetadata(selectedFile.FullName).OfType<GpsDirectory>()
-            .FirstOrDefault();
         var xmpDirectory = ImageMetadataReader.ReadMetadata(selectedFile.FullName).OfType<XmpDirectory>()
             .FirstOrDefault();
 
         toReturn.PhotoCreatedBy = exifIfdDirectory?.GetDescription(ExifDirectoryBase.TagArtist) ?? string.Empty;
 
         if (string.IsNullOrWhiteSpace(toReturn.PhotoCreatedBy))
-            toReturn.PhotoCreatedBy = xmpDirectory?.XmpMeta?.GetArrayItem(XmpConstants.NsDC, "creator", 1)?.Value ?? string.Empty;
+            toReturn.PhotoCreatedBy = xmpDirectory?.XmpMeta?.GetArrayItem(XmpConstants.NsDC, "creator", 1)?.Value ??
+                                      string.Empty;
 
         if (string.IsNullOrWhiteSpace(toReturn.PhotoCreatedBy))
             toReturn.PhotoCreatedBy = iptcDirectory?.GetDescription(IptcDirectory.TagByLine) ?? string.Empty;
@@ -81,7 +76,7 @@ public static class PhotoGenerator
 
         var tags = new List<string>();
 
-        if (toReturn.Latitude != null && toReturn.Longitude != null && !skipAdditionalTagDiscovery)
+        if (toReturn is { Latitude: { }, Longitude: { } } && !skipAdditionalTagDiscovery)
         {
             var stateCounty =
                 await StateCountyService.GetStateCounty(toReturn.Latitude.Value,
@@ -91,10 +86,11 @@ public static class PhotoGenerator
                 tags.Add(stateCounty.state);
                 tags.Add("United States");
             }
+
             if (!string.IsNullOrWhiteSpace(stateCounty.county)) tags.Add(stateCounty.county);
         }
 
-        if (toReturn.Latitude != null && toReturn.Longitude != null &&
+        if (toReturn is { Latitude: { }, Longitude: { } } &&
             !string.IsNullOrWhiteSpace(UserSettingsSingleton.CurrentSettings().FeatureIntersectionTagSettingsFile) &&
             !skipAdditionalTagDiscovery)
             try
@@ -102,8 +98,9 @@ public static class PhotoGenerator
                 var pointFeature = new Feature(
                     new Point(toReturn.Longitude.Value, toReturn.Latitude.Value),
                     new AttributesTable());
-                
-                tags.AddRange(pointFeature.IntersectionTags(UserSettingsSingleton.CurrentSettings().FeatureIntersectionTagSettingsFile,
+
+                tags.AddRange(pointFeature.IntersectionTags(
+                    UserSettingsSingleton.CurrentSettings().FeatureIntersectionTagSettingsFile,
                     CancellationToken.None, progress));
             }
             catch (Exception e)
@@ -301,7 +298,7 @@ public static class PhotoGenerator
             toReturn.Summary = Regex.Replace(toReturn.Summary, @"\s+", " ").TrimNullToEmpty();
 
         tags.AddRange(FileMetadataEmbeddedTools.KeywordsFromExif(metadataDirectories, true));
-        
+
         toReturn.Tags = tags.Any() ? Db.TagListJoin(tags) : string.Empty;
 
         return (GenerationReturn.Success($"Parsed Photo Metadata for {selectedFile.FullName} without error"), toReturn);
@@ -395,6 +392,9 @@ public static class PhotoGenerator
 
         if (selectedFile == null)
             return GenerationReturn.Error("No Photo File submitted to Validate?", photoContent.ContentId);
+
+        if (selectedFile.Name != photoContent.OriginalFileName)
+            return GenerationReturn.Error("The Photo Content Original File Name and Selected File are mis-matched.");
 
         var rootDirectoryCheck = UserSettingsUtilities.ValidateLocalSiteRootDirectory();
 
