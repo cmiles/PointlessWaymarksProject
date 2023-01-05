@@ -386,7 +386,8 @@ a.site-header-title-link:active {
 .post-body-content h3,
 .post-body-content h4,
 .post-body-content h5,
-.post-body-content h6 {
+.post-body-content h6,
+.post-body-content pre {
     margin-left: 1%;
     margin-right: 1%;
     margin-top: 1rem;
@@ -768,7 +769,8 @@ a.tag-list-link {
     .post-body-content h3,
     .post-body-content h4,
     .post-body-content h5,
-    .post-body-content h6 {
+    .post-body-content h6,
+    .post-body-content pre {
         margin-left: 4%;
         margin-right: 4%;
     }
@@ -875,7 +877,8 @@ a.tag-list-link {
     .post-body-content h3,
     .post-body-content h4,
     .post-body-content h5,
-    .post-body-content h6 {
+    .post-body-content h6,
+    .post-body-content pre {
         max-width: 1100px;
         width: 60rem;
         margin-left: auto;
