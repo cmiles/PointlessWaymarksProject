@@ -1,6 +1,4 @@
 ﻿using System.Text.Json;
-using Amazon;
-using Amazon.Runtime;
 using Amazon.S3;
 using Amazon.S3.Transfer;
 using Microsoft.Toolkit.Uwp.Notifications;

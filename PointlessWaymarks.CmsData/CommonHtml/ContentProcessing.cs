@@ -1,4 +1,5 @@
 ﻿using Markdig;
+using Markdig.Extensions.Hardlines;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CommonTools;
 
