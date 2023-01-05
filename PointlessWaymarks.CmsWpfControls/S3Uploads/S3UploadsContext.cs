@@ -8,6 +8,7 @@ using System.Windows.Shell;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using PointlessWaymarks.CmsData;
+using PointlessWaymarks.CmsData.S3;
 using PointlessWaymarks.CmsWpfControls.Utility;
 using PointlessWaymarks.CmsWpfControls.Utility.Excel;
 using PointlessWaymarks.WpfCommon.Status;
@@ -84,7 +85,7 @@ public partial class S3UploadsContext
     }
 
     public static async Task<S3UploadsContext> CreateInstance(StatusControlContext statusContext,
-        List<S3Upload> uploadList, WindowIconStatus windowStatus)
+        List<S3UploadRequest> uploadList, WindowIconStatus windowStatus)
     {
         var newControl = new S3UploadsContext(statusContext, windowStatus);
         await newControl.LoadData(uploadList);
@@ -100,7 +101,7 @@ public partial class S3UploadsContext
             $"{DateTime.Now:yyyy-MM-dd--HH-mm-ss}---File-Upload-Data.json");
 
         var jsonInfo = JsonSerializer.Serialize(items.Select(x =>
-            new S3UploadFileRecord(x.FileToUpload.FullName, x.AmazonObjectKey, x.BucketName, x.BucketRegion, x.Note)));
+            new S3UploadFileEntry(x.FileToUpload.FullName, x.AmazonObjectKey, x.BucketName, x.BucketRegion, x.Note)));
 
         var file = new FileInfo(fileName);
 
@@ -156,7 +157,7 @@ public partial class S3UploadsContext
         ExcelHelpers.ContentToExcelFileAsTable(itemsForExcel.Cast<object>().ToList(), "UploadItemsList");
     }
 
-    public async Task LoadData(List<S3Upload> uploadList)
+    public async Task LoadData(List<S3UploadRequest> uploadList)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -299,7 +300,8 @@ public partial class S3UploadsContext
 
     private void UploadBatchOnPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
-        if (e.PropertyName is nameof(UploadBatch) or nameof(UploadBatch.Uploading) or nameof(UploadBatch.CompletedSizePercent) or nameof(UploadBatch.CompletedItemPercent))
+        if (e.PropertyName is nameof(UploadBatch) or nameof(UploadBatch.Uploading)
+            or nameof(UploadBatch.CompletedSizePercent) or nameof(UploadBatch.CompletedItemPercent))
         {
             if (UploadBatch is not { Uploading: true })
             {

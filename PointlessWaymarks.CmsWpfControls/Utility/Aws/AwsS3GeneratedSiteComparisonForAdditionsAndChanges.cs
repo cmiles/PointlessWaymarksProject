@@ -3,6 +3,7 @@ using System.IO;
 using Amazon.S3;
 using Amazon.S3.Model;
 using PointlessWaymarks.CmsData;
+using PointlessWaymarks.CmsData.S3;
 using PointlessWaymarks.CmsWpfControls.S3Uploads;
 
 namespace PointlessWaymarks.CmsWpfControls.Utility.Aws;
@@ -10,14 +11,9 @@ namespace PointlessWaymarks.CmsWpfControls.Utility.Aws;
 public class AwsS3GeneratedSiteComparisonForAdditionsAndChanges
 {
     public List<string> ErrorMessages { get; set; } = new();
-    public List<S3Upload> FileSizeMismatches { get; set; } = new();
-    public List<S3Upload> MissingFiles { get; set; } = new();
+    public List<S3UploadRequest> FileSizeMismatches { get; set; } = new();
+    public List<S3UploadRequest> MissingFiles { get; set; } = new();
 
-    public static string FileInfoInGeneratedSiteToS3Key(FileInfo file)
-    {
-        return file.FullName.Replace($"{UserSettingsSingleton.CurrentSettings().LocalSiteRootFullDirectory().FullName}\\", "")
-            .Replace("\\", "/");
-    }
 
     public static async Task<AwsS3GeneratedSiteComparisonForAdditionsAndChanges> RunReport(
         IProgress<string>? progress)
@@ -101,7 +97,7 @@ public class AwsS3GeneratedSiteComparisonForAdditionsAndChanges
                 progress?.Report(
                     $"File Loop vs Aws S3 Objects Comparison - {fileLoopCount} or {totalGeneratedFiles} - {loopFile.FullName}");
 
-            var loopFileKey = FileInfoInGeneratedSiteToS3Key(loopFile);
+            var loopFileKey = S3Tools.FileInfoInGeneratedSiteToS3Key(loopFile);
 
             var matches = awsObjects.Where(x => !x.Key.EndsWith("/") && x.Size != 0 && x.Key == loopFileKey)
                 .ToList();
@@ -115,13 +111,13 @@ public class AwsS3GeneratedSiteComparisonForAdditionsAndChanges
                 case 1:
                 {
                     if (loopFile.Length != matches.First().Size)
-                        returnReport.FileSizeMismatches.Add(new S3Upload(loopFile, matches.First().Key, bucket,
+                        returnReport.FileSizeMismatches.Add(new S3UploadRequest(loopFile, matches.First().Key, bucket,
                             region.SystemName, "S3 File Size Mismatch"));
                     matches.ForEach(x => awsObjects.Remove(x));
                     break;
                 }
                 default:
-                    returnReport.MissingFiles.Add(new S3Upload(loopFile, FileInfoInGeneratedSiteToS3Key(loopFile),
+                    returnReport.MissingFiles.Add(new S3UploadRequest(loopFile, S3Tools.FileInfoInGeneratedSiteToS3Key(loopFile),
                         bucket, region.SystemName, "File Missing on S3"));
                     break;
             }

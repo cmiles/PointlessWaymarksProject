@@ -1,6 +1,7 @@
 ﻿#nullable enable
 using System.ComponentModel;
 using CommunityToolkit.Mvvm.ComponentModel;
+using PointlessWaymarks.CmsData.S3;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 
@@ -17,7 +18,7 @@ public partial class S3UploadsWindow
     [ObservableProperty] private S3UploadsContext? _uploadContext;
     [ObservableProperty] private WindowIconStatus _windowStatus;
 
-    public S3UploadsWindow(List<S3Upload> toLoad, bool autoStartUpload)
+    public S3UploadsWindow(List<S3UploadRequest> toLoad, bool autoStartUpload)
     {
         InitializeComponent();
 

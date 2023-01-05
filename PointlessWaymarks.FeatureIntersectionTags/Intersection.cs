@@ -531,7 +531,7 @@ public static class Intersection
                 continue;
             }
 
-            var allTags = existingTags.Union(loopWrite.IntersectInformation!.Tags).Order().ToList();
+            var allTags = existingTags.Union(loopWrite.IntersectInformation!.Tags).OrderBy(x => x).ToList();
 
             loopWrite.FinalTagString = string.Join(",", allTags);
 

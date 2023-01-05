@@ -87,11 +87,11 @@ public static class FileMetadataTools
         ".WEBP",
         ".X3F",
         ".XMP"
-    }.Select(x => x.ToUpperInvariant()).Order().ToList();
+    }.Select(x => x.ToUpperInvariant()).OrderBy(x => x).ToList();
 
     public static List<string> TagSharpAndExifToolSupportedExtensions => TagSharpSupportedExtensions
         .Union(ExifToolWriteSupportedExtensions).Select(x => x.ToUpperInvariant())
-        .Order().ToList();
+        .OrderBy(x => x).ToList();
 
     /// <summary>
     ///     From the supported Images list on https://github.com/mono/taglib-sharp on 10/30/2022.
@@ -100,7 +100,7 @@ public static class FileMetadataTools
     public static List<string> TagSharpSupportedExtensions => new List<string>
     {
         ".BMP", ".GIF", ".JPEG", ".JPG", ".PBM", ".PGM", ".PPM", ".PNM", ".PCX", ".PNG", ".SVG"
-    }.Select(x => x.ToUpperInvariant()).Order().ToList();
+    }.Select(x => x.ToUpperInvariant()).OrderBy(x => x).ToList();
 
     public static (bool isPresent, FileInfo? exifToolFile) ExifToolExecutable(string? exifToolFullName)
     {

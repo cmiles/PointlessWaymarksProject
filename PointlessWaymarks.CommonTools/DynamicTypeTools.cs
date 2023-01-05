@@ -1,6 +1,6 @@
-﻿namespace PointlessWaymarks.CmsData;
+﻿namespace PointlessWaymarks.CommonTools;
 
-public static class DynamicTypeHelpers
+public static class DynamicTypeTools
 {
     public static bool PropertyExists(dynamic obj, string name)
     {

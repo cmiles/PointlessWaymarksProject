@@ -1,0 +1,10 @@
+{
+  "FileVersion": 2,
+  "Id": "90f89730-2157-4827-bb16-0537ac8743c0",
+  "Items": [
+    {
+      "Id": "9f3e9d1b-17a7-4e8b-8d80-2a7334428a57",
+      "Command": "D:\\SomewherePointlessWaymarks\\SomweherePublishSiteToS3Settings.json"
+    }
+  ]
+}

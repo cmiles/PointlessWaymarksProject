@@ -16,6 +16,7 @@ using PointlessWaymarks.CmsData.ContentHtml.PostHtml;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsData.Rss;
+using PointlessWaymarks.CommonTools;
 
 namespace PointlessWaymarks.CmsData.ContentHtml.IndexHtml;
 
@@ -163,7 +164,7 @@ public partial class IndexPage
         foreach (var loopPosts in
                  IndexContent.Take(UserSettingsSingleton.CurrentSettings().NumberOfItemsOnMainSitePage))
         {
-            if (DynamicTypeHelpers.PropertyExists(loopPosts, "Body") &&
+            if (DynamicTypeTools.PropertyExists(loopPosts, "Body") &&
                 BracketCodeCommon.ContainsSpatialScriptDependentBracketCodes((string)loopPosts.Body))
                 IncludeSpatialScripts = true;
             if (loopPosts.GetType() == typeof(PointContentDto) || loopPosts.GetType() == typeof(GeoJsonContent) ||

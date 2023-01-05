@@ -392,7 +392,7 @@ public static class FileManagement
         progress?.Report("Starting Directory Cleanup");
 
         var db = await Db.Context().ConfigureAwait(false);
-        var dbFolders = db.FileContents.Select(x => x.Folder).Distinct().Order().ToList();
+        var dbFolders = db.FileContents.Select(x => x.Folder).Distinct().OrderBy(x => x).ToList();
 
         var siteTopLevelFileDirectory = UserSettingsSingleton.CurrentSettings().LocalSiteFileDirectory();
         var folderDirectories = siteTopLevelFileDirectory.GetDirectories().OrderBy(x => x.Name).ToList();
@@ -414,7 +414,7 @@ public static class FileManagement
 
             var existingContentDirectories = loopExistingDirectories.GetDirectories().OrderBy(x => x.Name).ToList();
             var dbContentSlugs = db.FileContents.Where(x => x.Folder == loopExistingDirectories.Name)
-                .Select(x => x.Slug).Order().ToList();
+                .Select(x => x.Slug).OrderBy(x => x).ToList();
 
             progress?.Report(
                 $"Found {existingContentDirectories.Count} Existing File Content Directories in {loopExistingDirectories.Name} to Check against {dbContentSlugs.Count} Content Items in the Database");
@@ -444,7 +444,7 @@ public static class FileManagement
             UserSettingsSingleton.CurrentSettings().LocalMediaArchiveFileDirectory();
         var siteFileMediaArchiveFiles = siteFileMediaArchiveDirectory.GetFiles().OrderBy(x => x.Name).ToList();
 
-        var dbNames = db.FileContents.Select(x => x.OriginalFileName).Order().ToList();
+        var dbNames = db.FileContents.Select(x => x.OriginalFileName).OrderBy(x => x).ToList();
 
         progress?.Report(
             $"Found {siteFileMediaArchiveFiles.Count} Existing File Files in the Media Archive - Checking against {dbNames.Count} File Names  in the Database");
@@ -467,7 +467,7 @@ public static class FileManagement
         progress?.Report("Starting Directory Cleanup");
 
         var db = await Db.Context().ConfigureAwait(false);
-        var dbFolders = db.GeoJsonContents.Select(x => x.Folder).Distinct().Order().ToList();
+        var dbFolders = db.GeoJsonContents.Select(x => x.Folder).Distinct().OrderBy(x => x).ToList();
 
         var siteTopLevelGeoJsonDirectory = UserSettingsSingleton.CurrentSettings().LocalSiteGeoJsonDirectory();
         var folderDirectories = siteTopLevelGeoJsonDirectory.GetDirectories().Where(x => x.Name != "Data")
@@ -490,7 +490,7 @@ public static class FileManagement
 
             var existingContentDirectories = loopExistingDirectories.GetDirectories().OrderBy(x => x.Name).ToList();
             var dbContentSlugs = db.GeoJsonContents.Where(x => x.Folder == loopExistingDirectories.Name)
-                .Select(x => x.Slug).Order().ToList();
+                .Select(x => x.Slug).OrderBy(x => x).ToList();
 
             progress?.Report(
                 $"Found {existingContentDirectories.Count} Existing GeoJson Content Directories in {loopExistingDirectories.Name} to Check against {dbContentSlugs.Count} Content Items in the Database");
@@ -516,7 +516,7 @@ public static class FileManagement
         progress?.Report("Starting Directory Cleanup");
 
         var db = await Db.Context().ConfigureAwait(false);
-        var dbFolders = db.ImageContents.Select(x => x.Folder).Distinct().Order().ToList();
+        var dbFolders = db.ImageContents.Select(x => x.Folder).Distinct().OrderBy(x => x).ToList();
 
         var siteTopLevelImageDirectory = UserSettingsSingleton.CurrentSettings().LocalSiteImageDirectory();
         var folderDirectories = siteTopLevelImageDirectory.GetDirectories().OrderBy(x => x.Name).ToList();
@@ -538,7 +538,7 @@ public static class FileManagement
 
             var existingContentDirectories = loopExistingDirectories.GetDirectories().OrderBy(x => x.Name).ToList();
             var dbContentSlugs = db.ImageContents.Where(x => x.Folder == loopExistingDirectories.Name)
-                .Select(x => x.Slug).Order().ToList();
+                .Select(x => x.Slug).OrderBy(x => x).ToList();
 
             progress?.Report(
                 $"Found {existingContentDirectories.Count} Existing Image Content Directories in {loopExistingDirectories.Name} to Check against {dbContentSlugs.Count} Content Items in the Database");
@@ -568,7 +568,7 @@ public static class FileManagement
             UserSettingsSingleton.CurrentSettings().LocalMediaArchiveImageDirectory();
         var siteImageMediaArchiveFiles = siteImageMediaArchiveDirectory.GetFiles().OrderBy(x => x.Name).ToList();
 
-        var dbNames = db.ImageContents.Select(x => x.OriginalFileName).Order().ToList();
+        var dbNames = db.ImageContents.Select(x => x.OriginalFileName).OrderBy(x => x).ToList();
 
         progress?.Report(
             $"Found {siteImageMediaArchiveFiles.Count} Existing Image Files in the Media Archive - Checking against {dbNames.Count} Image Names  in the Database");
@@ -591,7 +591,7 @@ public static class FileManagement
         progress?.Report("Starting Directory Cleanup");
 
         var db = await Db.Context().ConfigureAwait(false);
-        var dbFolders = db.LineContents.Select(x => x.Folder).Distinct().Order().ToList();
+        var dbFolders = db.LineContents.Select(x => x.Folder).Distinct().OrderBy(x => x).ToList();
 
         var siteTopLevelLineDirectory = UserSettingsSingleton.CurrentSettings().LocalSiteLineDirectory();
         var folderDirectories = siteTopLevelLineDirectory.GetDirectories().Where(x => x.Name != "Data")
@@ -614,7 +614,7 @@ public static class FileManagement
 
             var existingContentDirectories = loopExistingDirectories.GetDirectories().OrderBy(x => x.Name).ToList();
             var dbContentSlugs = db.LineContents.Where(x => x.Folder == loopExistingDirectories.Name)
-                .Select(x => x.Slug).Order().ToList();
+                .Select(x => x.Slug).OrderBy(x => x).ToList();
 
             progress?.Report(
                 $"Found {existingContentDirectories.Count} Existing Line Content Directories in {loopExistingDirectories.Name} to Check against {dbContentSlugs.Count} Content Items in the Database");
@@ -647,7 +647,7 @@ public static class FileManagement
         progress?.Report("Starting Directory Cleanup");
 
         var db = await Db.Context().ConfigureAwait(false);
-        var dbFolders = db.NoteContents.Select(x => x.Folder).Distinct().Order().ToList();
+        var dbFolders = db.NoteContents.Select(x => x.Folder).Distinct().OrderBy(x => x).ToList();
 
         var siteTopLevelNoteDirectory = UserSettingsSingleton.CurrentSettings().LocalSiteNoteDirectory();
         var folderDirectories = siteTopLevelNoteDirectory.GetDirectories().OrderBy(x => x.Name).ToList();
@@ -671,7 +671,7 @@ public static class FileManagement
             var dbContentSlugs = db.NoteContents.Where(x =>
                     x.Folder == loopExistingDirectories.Name && !string.IsNullOrWhiteSpace(x.Slug))
                 .Select(x => x.Slug!)
-                .Order().ToList();
+                .OrderBy(x => x).ToList();
             var dbContentIds = db.NoteContents.Where(x => x.Folder == loopExistingDirectories.Name)
                 .Select(x => x.ContentId.ToString()).ToList();
 
@@ -702,7 +702,7 @@ public static class FileManagement
         progress?.Report("Starting Directory Cleanup");
 
         var db = await Db.Context().ConfigureAwait(false);
-        var dbPhotoFolders = db.PhotoContents.Select(x => x.Folder).Distinct().Order().ToList();
+        var dbPhotoFolders = db.PhotoContents.Select(x => x.Folder).Distinct().OrderBy(x => x).ToList();
 
         var siteTopLevelPhotoDirectory = UserSettingsSingleton.CurrentSettings().LocalSitePhotoDirectory();
         var photoFolderDirectories = siteTopLevelPhotoDirectory.GetDirectories().Where(x => x.Name != "Galleries")
@@ -725,7 +725,7 @@ public static class FileManagement
 
             var existingContentDirectories = loopExistingDirectories.GetDirectories().OrderBy(x => x.Name).ToList();
             var dbContentSlugs = db.PhotoContents.Where(x => x.Folder == loopExistingDirectories.Name)
-                .Select(x => x.Slug).Order().ToList();
+                .Select(x => x.Slug).OrderBy(x => x).ToList();
 
             progress?.Report(
                 $"Found {existingContentDirectories.Count} Existing Photo Content Directories in {loopExistingDirectories.Name} to Check against {dbContentSlugs.Count} Content Items in the Database");
@@ -787,7 +787,7 @@ public static class FileManagement
             UserSettingsSingleton.CurrentSettings().LocalMediaArchivePhotoDirectory();
         var sitePhotoMediaArchiveFiles = sitePhotoMediaArchiveDirectory.GetFiles().OrderBy(x => x.Name).ToList();
 
-        var dbNames = db.PhotoContents.Select(x => x.OriginalFileName).Order().ToList();
+        var dbNames = db.PhotoContents.Select(x => x.OriginalFileName).OrderBy(x => x).ToList();
 
         progress?.Report(
             $"Found {sitePhotoMediaArchiveFiles.Count} Existing Photo Files in the Media Archive - Checking against {dbNames.Count} Photo Names  in the Database");
@@ -810,7 +810,7 @@ public static class FileManagement
         progress?.Report("Starting Directory Cleanup");
 
         var db = await Db.Context().ConfigureAwait(false);
-        var dbFolders = db.PointContents.Select(x => x.Folder).Distinct().Order().ToList();
+        var dbFolders = db.PointContents.Select(x => x.Folder).Distinct().OrderBy(x => x).ToList();
 
         var siteTopLevelPointDirectory = UserSettingsSingleton.CurrentSettings().LocalSitePointDirectory();
         var folderDirectories = siteTopLevelPointDirectory.GetDirectories().Where(x => x.Name != "Data")
@@ -833,7 +833,7 @@ public static class FileManagement
 
             var existingContentDirectories = loopExistingDirectories.GetDirectories().OrderBy(x => x.Name).ToList();
             var dbContentSlugs = db.PointContents.Where(x => x.Folder == loopExistingDirectories.Name)
-                .Select(x => x.Slug).Order().ToList();
+                .Select(x => x.Slug).OrderBy(x => x).ToList();
 
             progress?.Report(
                 $"Found {existingContentDirectories.Count} Existing Point Content Directories in {loopExistingDirectories.Name} to Check against {dbContentSlugs.Count} Content Items in the Database");
@@ -859,7 +859,7 @@ public static class FileManagement
         progress?.Report("Starting Directory Cleanup");
 
         var db = await Db.Context().ConfigureAwait(false);
-        var dbFolders = db.PostContents.Select(x => x.Folder).Distinct().Order().ToList();
+        var dbFolders = db.PostContents.Select(x => x.Folder).Distinct().OrderBy(x => x).ToList();
 
         var siteTopLevelPostDirectory = UserSettingsSingleton.CurrentSettings().LocalSitePostDirectory();
         var folderDirectories = siteTopLevelPostDirectory.GetDirectories().OrderBy(x => x.Name).ToList();
@@ -881,7 +881,7 @@ public static class FileManagement
 
             var existingContentDirectories = loopExistingDirectories.GetDirectories().OrderBy(x => x.Name).ToList();
             var dbContentSlugs = db.PostContents.Where(x => x.Folder == loopExistingDirectories.Name)
-                .Select(x => x.Slug).Order().ToList();
+                .Select(x => x.Slug).OrderBy(x => x).ToList();
 
             progress?.Report(
                 $"Found {existingContentDirectories.Count} Existing Post Content Directories in {loopExistingDirectories.Name} to Check against {dbContentSlugs.Count} Content Items in the Database");

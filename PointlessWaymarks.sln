@@ -46,6 +46,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PointlessWaymarks.GeoTaggin
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PointlessWaymarks.GeoToolsGui", "PointlessWaymarks.GeoToolsGui\PointlessWaymarks.GeoToolsGui.csproj", "{5D4DC0E4-3B1D-45B6-8DA4-024960924DCC}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PointlessWaymarks.Task.PublishSiteToAmazonS3", "PointlessWaymarks.Task.PublishSiteToAmazonS3\PointlessWaymarks.Task.PublishSiteToAmazonS3.csproj", "{90F89730-2157-4827-BB16-0537AC8743C0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -120,6 +122,10 @@ Global
 		{5D4DC0E4-3B1D-45B6-8DA4-024960924DCC}.Debug|x64.Build.0 = Debug|x64
 		{5D4DC0E4-3B1D-45B6-8DA4-024960924DCC}.Release|x64.ActiveCfg = Release|x64
 		{5D4DC0E4-3B1D-45B6-8DA4-024960924DCC}.Release|x64.Build.0 = Release|x64
+		{90F89730-2157-4827-BB16-0537AC8743C0}.Debug|x64.ActiveCfg = Debug|x64
+		{90F89730-2157-4827-BB16-0537AC8743C0}.Debug|x64.Build.0 = Debug|x64
+		{90F89730-2157-4827-BB16-0537AC8743C0}.Release|x64.ActiveCfg = Release|x64
+		{90F89730-2157-4827-BB16-0537AC8743C0}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -948,28 +948,28 @@ public static class Db
         return content switch
         {
             FileContent => await db.FileContents.Where(x => !string.IsNullOrWhiteSpace(x.Folder)).Select(x => x.Folder)
-                .Distinct().Order().Cast<string>().ToListAsync(),
+                .Distinct().OrderBy(x => x).Cast<string>().ToListAsync(),
             GeoJsonContent => await db.GeoJsonContents.Where(x => !string.IsNullOrWhiteSpace(x.Folder))
                 .Select(x => x.Folder)
-                .Distinct().Order().Cast<string>().ToListAsync(),
+                .Distinct().OrderBy(x => x).Cast<string>().ToListAsync(),
             ImageContent => await db.ImageContents.Where(x => !string.IsNullOrWhiteSpace(x.Folder))
                 .Select(x => x.Folder)
-                .Distinct().Order().Cast<string>().ToListAsync(),
+                .Distinct().OrderBy(x => x).Cast<string>().ToListAsync(),
             LineContent => await db.LineContents.Where(x => !string.IsNullOrWhiteSpace(x.Folder)).Select(x => x.Folder)
-                .Distinct().Order().Cast<string>().ToListAsync(),
+                .Distinct().OrderBy(x => x).Cast<string>().ToListAsync(),
             NoteContent => await db.NoteContents.Where(x => !string.IsNullOrWhiteSpace(x.Folder)).Select(x => x.Folder)
-                .Distinct().Order().Cast<string>().ToListAsync(),
+                .Distinct().OrderBy(x => x).Cast<string>().ToListAsync(),
             PhotoContent => await db.PhotoContents.Where(x => !string.IsNullOrWhiteSpace(x.Folder))
                 .Select(x => x.Folder)
-                .Distinct().Order().Cast<string>().ToListAsync(),
+                .Distinct().OrderBy(x => x).Cast<string>().ToListAsync(),
             PointContent => await db.PointContents.Where(x => !string.IsNullOrWhiteSpace(x.Folder))
                 .Select(x => x.Folder)
-                .Distinct().Order().Cast<string>().ToListAsync(),
+                .Distinct().OrderBy(x => x).Cast<string>().ToListAsync(),
             PointContentDto => await db.PointContents.Where(x => !string.IsNullOrWhiteSpace(x.Folder))
                 .Select(x => x.Folder)
-                .Distinct().Order().Cast<string>().ToListAsync(),
+                .Distinct().OrderBy(x => x).Cast<string>().ToListAsync(),
             PostContent => await db.PostContents.Where(x => !string.IsNullOrWhiteSpace(x.Folder)).Select(x => x.Folder)
-                .Distinct().Order().Cast<string>().ToListAsync(),
+                .Distinct().OrderBy(x => x).Cast<string>().ToListAsync(),
             _ => new List<string>()
         };
     }
@@ -996,7 +996,7 @@ public static class Db
             .Select(x => x.Folder)
             .Distinct().Cast<string>().ToListAsync());
 
-        compiledList = compiledList.Distinct().Order().ToList();
+        compiledList = compiledList.Distinct().OrderBy(x => x).ToList();
 
         return compiledList;
     }
@@ -2052,7 +2052,7 @@ public static class Db
         if (tagList.Count < 1) return string.Empty;
 
         var cleanedList = tagList.Select(TagListItemCleanup).Where(x => !string.IsNullOrWhiteSpace(x)).Distinct()
-            .Order().ToList();
+            .OrderBy(x => x).ToList();
 
         return string.Join(",", cleanedList);
     }
@@ -2070,7 +2070,7 @@ public static class Db
         }
 
         var cleanedList = tagList.Where(x => !string.IsNullOrWhiteSpace(x))
-            .Select(x => SlugTools.CreateSlug(true, x.Trim(), 200)).Distinct().Except(excludedTags).Order()
+            .Select(x => SlugTools.CreateSlug(true, x.Trim(), 200)).Distinct().Except(excludedTags).OrderBy(x => x)
             .ToList();
 
         return string.Join(",", cleanedList);
@@ -2087,7 +2087,7 @@ public static class Db
         if (string.IsNullOrWhiteSpace(rawTagString)) return new List<string>();
 
         return rawTagString.Split(",").Select(TagListItemCleanup).Where(x => !string.IsNullOrWhiteSpace(x)).Distinct()
-            .Order().ToList();
+            .OrderBy(x => x).ToList();
     }
 
     /// <summary>
@@ -2119,7 +2119,7 @@ public static class Db
 
         return rawTagString.Split(",").Where(x => !string.IsNullOrWhiteSpace(x)).Select(x => x.Trim())
             .Select(x => SlugTools.CreateSlug(true, x, 200)).Distinct().Where(x => !excludedTags.Contains(x))
-            .Order().ToList();
+            .OrderBy(x => x).ToList();
     }
 
     public static List<string> TagListParseToSlugs(ITag? tag, bool removeExcludedTags)

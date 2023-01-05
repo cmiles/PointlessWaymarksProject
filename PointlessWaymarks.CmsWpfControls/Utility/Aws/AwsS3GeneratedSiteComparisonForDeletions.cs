@@ -2,6 +2,7 @@
 using Amazon.S3;
 using Amazon.S3.Model;
 using PointlessWaymarks.CmsData;
+using PointlessWaymarks.CmsData.S3;
 
 namespace PointlessWaymarks.CmsWpfControls.Utility.Aws;
 
@@ -33,7 +34,7 @@ public class AwsS3GeneratedSiteComparisonForDeletions
 
         var allGeneratedFiles = new DirectoryInfo(UserSettingsSingleton.CurrentSettings().LocalSiteRootFullDirectory().FullName)
             .GetFiles("*", SearchOption.AllDirectories).OrderBy(x => x.FullName)
-            .Select(AwsS3GeneratedSiteComparisonForAdditionsAndChanges.FileInfoInGeneratedSiteToS3Key).ToList();
+            .Select(S3Tools.FileInfoInGeneratedSiteToS3Key).ToList();
 
         var allGeneratedDirectories =
             new DirectoryInfo(UserSettingsSingleton.CurrentSettings().LocalSiteRootFullDirectory().FullName)

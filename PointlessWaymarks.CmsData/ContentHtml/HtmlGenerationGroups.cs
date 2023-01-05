@@ -825,14 +825,14 @@ public static class HtmlGenerationGroups
         //Check for need to generate the tag search list - this list is a text only list so it only matters if it is the same list
         var searchTagsLastGeneration = db.GenerationTagLogs
             .Where(x => x.GenerationVersion == lastGeneration.GenerationVersion).Select(x => x.TagSlug).Distinct()
-            .Order().ToList();
+            .OrderBy(x => x).ToList();
 
         progress?.Report(
             $"Found {searchTagsLastGeneration.Count} search tags from the {lastGeneration.GenerationVersion} generation");
 
 
         var searchTagsThisGeneration = db.GenerationTagLogs.Where(x => x.GenerationVersion == generationVersion)
-            .Select(x => x.TagSlug).Distinct().Order().ToList();
+            .Select(x => x.TagSlug).Distinct().OrderBy(x => x).ToList();
 
         progress?.Report($"Found {searchTagsThisGeneration.Count} search tags from the this generation");
 
@@ -928,7 +928,7 @@ public static class HtmlGenerationGroups
         //Evaluate each Tag - the tags list is a standard search list showing summary and main image in addition to changes to the linked content also check for changes
         //to the linked content contents...
         var allCurrentTags = db.GenerationTagLogs.Where(x => x.GenerationVersion == generationVersion)
-            .Where(x => x.TagSlug != null).Select(x => x.TagSlug!).Distinct().Order().ToList();
+            .Where(x => x.TagSlug != null).Select(x => x.TagSlug!).Distinct().OrderBy(x => x).ToList();
 
         var partitionedTags = allCurrentTags.Chunk(10).ToList();
 

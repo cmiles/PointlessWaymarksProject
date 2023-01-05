@@ -4,16 +4,16 @@ using System.ComponentModel;
 using System.IO;
 using System.Text.Json;
 using System.Windows;
-using Microsoft.EntityFrameworkCore;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Microsoft.EntityFrameworkCore;
 using Ookii.Dialogs.Wpf;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
+using PointlessWaymarks.CmsData.S3;
 using PointlessWaymarks.CmsWpfControls.S3Deletions;
 using PointlessWaymarks.CmsWpfControls.S3Uploads;
-using PointlessWaymarks.CmsWpfControls.Utility;
 using PointlessWaymarks.CmsWpfControls.Utility.Aws;
 using PointlessWaymarks.CmsWpfControls.Utility.Excel;
 using PointlessWaymarks.CommonTools;
@@ -202,7 +202,8 @@ public partial class FilesWrittenLogListContext
             return;
         }
 
-        if (translatedMessage.ContentType is DataNotificationContentType.FileTransferScriptLog or DataNotificationContentType.GenerationLog)
+        if (translatedMessage.ContentType is DataNotificationContentType.FileTransferScriptLog
+            or DataNotificationContentType.GenerationLog)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -217,7 +218,7 @@ public partial class FilesWrittenLogListContext
         if (!items.Any()) return;
 
         var deduplicateItems = items.GroupBy(x => x.WrittenFile).Select(x => x.First()).ToList();
-        
+
         var toTransfer = FileItemsToUploaderItems(deduplicateItems);
 
         if (!toTransfer.Any())
@@ -234,7 +235,7 @@ public partial class FilesWrittenLogListContext
         var fileName = Path.Combine(UserSettingsSingleton.CurrentSettings().LocalScriptsDirectory().FullName,
             $"{DateTime.Now:yyyy-MM-dd--HH-mm-ss}---File-Upload-Data.json");
 
-        await S3UploadHelpers.S3UploaderItemsToS3UploaderJsonFile(toTransfer, fileName);
+        await S3Tools.S3UploaderItemsToS3UploaderJsonFile(toTransfer, fileName);
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
@@ -253,7 +254,7 @@ public partial class FilesWrittenLogListContext
         var fileName = Path.Combine(UserSettingsSingleton.CurrentSettings().LocalScriptsDirectory().FullName,
             $"{DateTime.Now:yyyy-MM-dd--HH-mm-ss}---File-Upload-Data.json");
 
-        await S3UploadHelpers.S3UploaderItemsToS3UploaderJsonFile(toTransfer, fileName);
+        await S3Tools.S3UploaderItemsToS3UploaderJsonFile(toTransfer, fileName);
 
         await ProcessHelpers.OpenExplorerWindowForFile(fileName).ConfigureAwait(false);
     }
@@ -289,11 +290,11 @@ public partial class FilesWrittenLogListContext
     }
 
 
-    private List<S3Upload> FileItemsToUploaderItems(List<FilesWrittenLogListListItem> items)
+    private List<S3UploadRequest> FileItemsToUploaderItems(List<FilesWrittenLogListListItem> items)
     {
         return items.Where(x => x.IsInGenerationDirectory && File.Exists(x.WrittenFile)).Select(x =>
-            new S3Upload(new FileInfo(x.WrittenFile),
-                AwsS3GeneratedSiteComparisonForAdditionsAndChanges.FileInfoInGeneratedSiteToS3Key(
+            new S3UploadRequest(new FileInfo(x.WrittenFile),
+                S3Tools.FileInfoInGeneratedSiteToS3Key(
                     new FileInfo(x.WrittenFile)), UserBucketName, UserBucketRegion,
                 $"From Files Written Log - {x.WrittenOn}")).ToList();
     }
@@ -510,7 +511,7 @@ public partial class FilesWrittenLogListContext
 
         try
         {
-            var items = JsonSerializer.Deserialize<List<S3UploadFileRecord>>(
+            var items = JsonSerializer.Deserialize<List<S3UploadFileEntry>>(
                 await File.ReadAllTextAsync(file.FullName));
 
             if (items == null || !items.Any())
@@ -524,7 +525,7 @@ public partial class FilesWrittenLogListContext
             var newUploaderWindow =
                 new S3UploadsWindow(
                     items.Select(x =>
-                        new S3Upload(new FileInfo(x.FileFullName), x.S3Key, x.BucketName, x.Region, x.Note)).ToList(),
+                        new S3UploadRequest(new FileInfo(x.FileFullName), x.S3Key, x.BucketName, x.Region, x.Note)).ToList(),
                     false);
             newUploaderWindow.PositionWindowAndShow();
         }

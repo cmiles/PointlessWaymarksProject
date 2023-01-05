@@ -136,7 +136,7 @@ public static class FileMetadataXmpSidecarTools
 
         extractedKeywords = extractedKeywords.Where(x => !string.IsNullOrEmpty(x)).Select(x => x.Trim()).ToList();
 
-        extractedKeywords = extractedKeywords.Distinct(StringComparer.OrdinalIgnoreCase).Order().ToList();
+        extractedKeywords = extractedKeywords.Distinct(StringComparer.OrdinalIgnoreCase).OrderBy(x => x).ToList();
 
         return extractedKeywords;
     }
