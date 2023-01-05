@@ -23,7 +23,7 @@ Details:
  - Database Driven - flexibility in creating and updating content with the potential to generate multiple output formats.
  - Custom Software - optimized support for a limited set of content types and a specific set of workflows.
  - Windows Desktop WPF GUI Editor - no hosting to pay for, no server to maintain, no containers to orchestrate... WPF because it is my favorite Windows GUI technology atm and because the experimentation/learning/coding I do here flows back into my day job where I create and maintain a Retail Inventory Management and Reporting system that has a WPF Front-End.
- - Focus on Content and Simple Functional Presentation - my experience is that websites that focus on a simple presentations of interesting content can survive, have impact and be meaningful for many many years (indefinitely?) without heavy revisions, constant updates or conversion into the latest style/newest framework.
+ - Focus on Content and Simple Functional Presentation - my experience is that simple presentations of interesting content can survive, have impact and be meaningful for many many years (indefinitely?) without heavy revisions, constant updates or conversion into the latest style/newest framework.
 
 Todo Lists, Idea Lists and a Development Log are [found in a DevNotes.md file that is versioned along with the code](/DevNotes.md).
 

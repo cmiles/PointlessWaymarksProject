@@ -30,7 +30,7 @@ public static class DailyPhotoPageGenerators
             if (i % 10 == 0) progress?.Report($"Daily Photo Page - {loopDate:D} - {i + 1} of {loopGoal}");
             var toAdd = await DailyPhotoGallery(loopDate, generationVersion).ConfigureAwait(false);
 
-            var nextDate = allDates.Where(x => x > loopDate).OrderBy(x => x).FirstOrDefault();
+            var nextDate = allDates.Where(x => x > loopDate).Order().FirstOrDefault();
             if (nextDate == default) toAdd!.NextDailyPhotosPage = null;
             else toAdd!.NextDailyPhotosPage = await DailyPhotoGallery(nextDate, generationVersion).ConfigureAwait(false);
 

@@ -151,8 +151,8 @@ public static class GrandCanyonPointInfo
         if (!pointCompareResult.AreEqual || !reference.PointDetails.Any() && !toCompare.PointDetails.Any())
             return (pointCompareResult.AreEqual, pointCompareResult.DifferencesString);
 
-        var referenceDetailDataTypeList = reference.PointDetails.Select(x => x.DataType).OrderBy(x => x).ToList();
-        var toCompareDetailDataTypeList = toCompare.PointDetails.Select(x => x.DataType).OrderBy(x => x).ToList();
+        var referenceDetailDataTypeList = reference.PointDetails.Select(x => x.DataType).Order().ToList();
+        var toCompareDetailDataTypeList = toCompare.PointDetails.Select(x => x.DataType).Order().ToList();
 
         if (!referenceDetailDataTypeList.SequenceEqual(toCompareDetailDataTypeList))
             return (false, "Detail Data Type - Lists are not the Same");

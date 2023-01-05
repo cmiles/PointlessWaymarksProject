@@ -317,7 +317,7 @@ public partial class FeatureIntersectTaggerContext
         if (settings.PadUsAttributesForTags.Any())
         {
             Settings.PadUsAttributes.Clear();
-            settings.PadUsAttributesForTags.OrderBy(x => x).ToList().ForEach(x => Settings.PadUsAttributes.Add(x));
+            settings.PadUsAttributesForTags.Order().ToList().ForEach(x => Settings.PadUsAttributes.Add(x));
         }
 
         if (settings.PadUsAttributesForTags.Any())
@@ -329,7 +329,7 @@ public partial class FeatureIntersectTaggerContext
                     Name = loopFeatureFile.Name,
                     FileName = loopFeatureFile.FileName,
                     TagAll = loopFeatureFile.TagAll,
-                    AttributesForTags = loopFeatureFile.AttributesForTags.OrderBy(x => x).ToList(),
+                    AttributesForTags = loopFeatureFile.AttributesForTags.Order().ToList(),
                     Source = loopFeatureFile.Source,
                     Downloaded = loopFeatureFile.Downloaded
                 }).ToList().ForEach(x => Settings.FeatureIntersectFiles.Add(x));

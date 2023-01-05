@@ -58,7 +58,7 @@ public class GeoTag
         if (notSupportedFiles.Any())
         {
             var notSupportedFileExtensions = string.Join(", ",
-                supportedFiles.Select(x => x.Extension.ToUpperInvariant()).Distinct().OrderBy(x => x));
+                supportedFiles.Select(x => x.Extension.ToUpperInvariant()).Distinct().Order());
 
             progress?.Report(
                 $"GeoTag - Found {notSupportedFiles.Count} with extensions that are not supported");
@@ -67,7 +67,7 @@ public class GeoTag
                 $"GeoTag - {notSupportedFileExtensions.Length} Extensions without support: {notSupportedFileExtensions}");
 
             progress?.Report(
-                $"GeoTag - {notSupportedFiles.Count} Files without support: {string.Join(", ", notSupportedFiles.Select(x => x.FullName).OrderBy(x => x))}");
+                $"GeoTag - {notSupportedFiles.Count} Files without support: {string.Join(", ", notSupportedFiles.Select(x => x.FullName).Order())}");
 
             notSupportedFiles.ForEach(x => returnFileResults.Add(new GeoTagFileAction(x.FullName, false,
                 $"The file extension {x.Extension} is not supported - file not processed.", string.Empty)));

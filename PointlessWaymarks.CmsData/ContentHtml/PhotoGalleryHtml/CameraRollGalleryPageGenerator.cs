@@ -95,7 +95,7 @@ public static class CameraRollGalleryPageGenerator
                 currentMonth = loopDate.Month;
 
                 var currentYearMonths = allDates.Where(x => x.Year == currentYear).Select(x => x.Month).Distinct()
-                    .OrderBy(x => x).ToList();
+                    .Order().ToList();
 
                 var monthNavigationDiv = new DivTag().AddClass("camera-roll-month-list-container");
 
@@ -159,12 +159,12 @@ public static class CameraRollGalleryPageGenerator
 
             var cameras = datePhotos
                 .Where(x => !string.IsNullOrWhiteSpace(x.CameraMake) && !string.IsNullOrWhiteSpace(x.CameraModel))
-                .Select(x => $"{x.CameraMake!.Trim()} {x.CameraModel!.Trim()}").Distinct().OrderBy(x => x).ToList()
+                .Select(x => $"{x.CameraMake!.Trim()} {x.CameraModel!.Trim()}").Distinct().Order().ToList()
                 .JoinListOfStringsToListWithAnd();
             infoItem.Children.Add(new DivTag().AddClass("camera-roll-info-camera").Text(cameras));
 
             var lenses = datePhotos.Where(x => !string.IsNullOrWhiteSpace(x.Lens)).Select(x => x.Lens!.Trim())
-                .Distinct().OrderBy(x => x).ToList().JoinListOfStringsToListWithAnd();
+                .Distinct().Order().ToList().JoinListOfStringsToListWithAnd();
             infoItem.Children.Add(new DivTag().AddClass("camera-roll-info-lens").Text(lenses));
 
             cameraRollContainer.Children.Add(infoItem);
@@ -193,7 +193,7 @@ public static class CameraRollGalleryPageGenerator
 
         var createdByEntries =
             (await db.PhotoContents.GroupBy(x => x.PhotoCreatedBy).Select(x => x.Key).ToListAsync()
-                .ConfigureAwait(false)).Where(x => !string.IsNullOrWhiteSpace(x)).Select(x => x!.Trim()).OrderBy(x => x)
+                .ConfigureAwait(false)).Where(x => !string.IsNullOrWhiteSpace(x)).Select(x => x!.Trim()).Order()
             .ToList();
 
         var toReturn = new CameraRollGalleryPage
