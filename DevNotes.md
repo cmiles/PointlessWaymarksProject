@@ -24,6 +24,17 @@ Site:
 
 ## Notes
 
+1/6/2023
+
+HTML Triple Fail:
+ - At some point in the past I used AngleSharp to parse and pretty print the html produced by the program - this worked for quite some time...
+ - The AngleSharp step was NOT integrated into the Content Editor Previews
+ - The CSP for cmiles.info was set to disallow inline styles
+
+This all collided in a way that took me some hours to untangle when I tried to add a code block to cmiles.info in the markdown - the content preview showed me acceptable output but a publish didn't - I started by suspecting my markdown, then markdig, then puzzling over why the preview worked and not the generated output and even after untangling all that had to puzzle over the public site...
+
+Fixed now I believe...
+
 12/27/2022
 
 ImageSharp - ImageSharp contains some metadata tools and today I did the first experiments to see what/if/how I might use that project. Currently much of the metadata written by GeoTools shells out to ExifTool - which is an insanely good tool and probably better tested than any other metadata library available. One of the things I was hoping to find was a way to write more metadata from a .NET library - but while ImageSharp will 'open' a DNG without error it does not appear to read the metadata. It could be that I am missing an add-in/library or tecnique for this so I will be doing some additional searching - but at a glance it looks like ImageSharp may not currently do what I am looking for.
