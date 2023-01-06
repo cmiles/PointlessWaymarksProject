@@ -395,6 +395,20 @@ a.site-header-title-link:active {
     line-height: calc(1ex / 0.32);
 }
 
+/* 
+    This class is intended for 'direct use' in content
+    so that any content can be constrained with the
+    .post-body-content CSS - changing/refactoring this
+    name may require search contents for this class
+*/
+.post-body-content-block {
+    margin-left: 1%;
+    margin-right: 1%;
+    margin-top: 1rem;
+    margin-bottom: 2rem;
+    line-height: calc(1ex / 0.32);
+}
+
 .post-body-content blockquote {
     border-left: 2px solid #aaa;
     margin-top: 1rem;
@@ -775,6 +789,17 @@ a.tag-list-link {
         margin-right: 4%;
     }
 
+    /* 
+        This class is intended for 'direct use' in content
+        so that any content can be constrained with the
+        .post-body-content CSS - changing/refactoring this
+        name may require search contents for this class
+    */
+    .post-body-content-block {
+        margin-left: 4%;
+        margin-right: 4%;
+    }
+
     .post-body-content blockquote {
         margin-left: 4%;
         margin-right: 4%;
@@ -879,6 +904,19 @@ a.tag-list-link {
     .post-body-content h5,
     .post-body-content h6,
     .post-body-content pre {
+        max-width: 1100px;
+        width: 60rem;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    /* 
+        This class is intended for 'direct use' in content
+        so that any content can be constrained with the
+        .post-body-content CSS - changing/refactoring this
+        name may require search contents for this class
+    */
+    .post-body-content-block {
         max-width: 1100px;
         width: 60rem;
         margin-left: auto;
