@@ -33,13 +33,8 @@ public partial class ContentViewHistoryPage
     public string GenerateHtml(IProgress<string> progress)
     {
         progress?.Report($"Generating HTML - {PageTitle} - {ContentTitle}");
-        var parser = new HtmlParser();
-        var htmlDoc = parser.ParseDocument(TransformText());
 
-        var stringWriter = new StringWriter();
-        htmlDoc.ToHtml(stringWriter, new PrettyMarkupFormatter());
-
-        return stringWriter.ToString();
+        return TransformText();
     }
 
     public FileInfo WriteHtmlToTempFolder(IProgress<string> progress)

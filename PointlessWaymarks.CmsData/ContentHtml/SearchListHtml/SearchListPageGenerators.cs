@@ -171,17 +171,7 @@ public static class SearchListPageGenerators
             AddNoIndexTag = addNoIndexTag
         };
 
-        var htmlTransform = htmlModel.TransformText();
-
-        progress?.Report($"Cleaning up Search List HTML and writing to {fileInfo.FullName}");
-
-        var parser = new HtmlParser();
-        var htmlDoc = parser.ParseDocument(htmlTransform);
-
-        var stringWriter = new StringWriter();
-        htmlDoc.ToHtml(stringWriter, new PrettyMarkupFormatter());
-
-        var htmlString = stringWriter.ToString();
+        var htmlString = htmlModel.TransformText();
 
         if (fileInfo.Exists)
         {

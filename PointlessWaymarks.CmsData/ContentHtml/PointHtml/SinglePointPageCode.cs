@@ -53,13 +53,7 @@ public partial class SinglePointPage
     {
         var settings = UserSettingsSingleton.CurrentSettings();
 
-        var parser = new HtmlParser();
-        var htmlDoc = parser.ParseDocument(TransformText());
-
-        var stringWriter = new StringWriter();
-        htmlDoc.ToHtml(stringWriter, new PrettyMarkupFormatter());
-
-        var htmlString = stringWriter.ToString();
+        var htmlString = TransformText();
 
         var htmlFileInfo = settings.LocalSitePointHtmlFile(DbEntry);
 

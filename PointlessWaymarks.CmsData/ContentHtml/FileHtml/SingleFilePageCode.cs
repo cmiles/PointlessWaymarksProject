@@ -22,7 +22,7 @@ public partial class SingleFilePage
 
         if (DbEntry.MainPicture != null) MainImage = new PictureSiteInformation(DbEntry.MainPicture.Value);
 
-        if (DbEntry.ShowInMainSiteFeed && !DbEntry.IsDraft)
+        if (DbEntry is { ShowInMainSiteFeed: true, IsDraft: false })
         {
             var (previousContent, laterContent) = Tags.MainFeedPreviousAndLaterContent(3, DbEntry.CreatedOn);
             PreviousPosts = previousContent;
@@ -54,13 +54,7 @@ public partial class SingleFilePage
     {
         var settings = UserSettingsSingleton.CurrentSettings();
 
-        var parser = new HtmlParser();
-        var htmlDoc = parser.ParseDocument(TransformText());
-
-        var stringWriter = new StringWriter();
-        htmlDoc.ToHtml(stringWriter, new PrettyMarkupFormatter());
-
-        var htmlString = stringWriter.ToString();
+        var htmlString = TransformText();
 
         var htmlFileInfo = settings.LocalSiteFileHtmlFile(DbEntry);
 
