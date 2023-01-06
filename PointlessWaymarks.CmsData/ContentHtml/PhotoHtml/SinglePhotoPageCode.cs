@@ -1,6 +1,4 @@
-﻿using AngleSharp.Html;
-using AngleSharp.Html.Parser;
-using PointlessWaymarks.CmsData.CommonHtml;
+﻿using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.Content;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CommonTools;
@@ -26,7 +24,7 @@ public partial class SinglePhotoPage
         PreviousPhoto = previousPhoto;
         NextPhoto = nextPhoto;
 
-        if (DbEntry.ShowInMainSiteFeed && !DbEntry.IsDraft)
+        if (DbEntry is { ShowInMainSiteFeed: true, IsDraft: false })
         {
             var (previousContent, laterContent) = Tags.MainFeedPreviousAndLaterContent(3, DbEntry.CreatedOn);
             PreviousPosts = previousContent;

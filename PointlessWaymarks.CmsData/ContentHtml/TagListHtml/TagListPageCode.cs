@@ -1,6 +1,4 @@
 ﻿using System.ComponentModel;
-using AngleSharp.Html;
-using AngleSharp.Html.Parser;
 using HtmlTags;
 using PointlessWaymarks.CmsData.Content;
 
@@ -11,7 +9,6 @@ public partial class TagListPage
     public Func<List<(string tagName, List<object> tagCotentEntries)>>? ContentFunction { get; set; }
     public string? DirAttribute { get; set; }
     public DateTime? GenerationVersion { get; set; }
-
     public string? LangAttribute { get; set; }
 
     public HtmlTag TagList()

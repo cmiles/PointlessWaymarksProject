@@ -1,6 +1,4 @@
-﻿using AngleSharp.Html;
-using AngleSharp.Html.Parser;
-using PointlessWaymarks.CmsData.Content;
+﻿using PointlessWaymarks.CmsData.Content;
 
 namespace PointlessWaymarks.CmsData.ContentHtml.ErrorHtml;
 
@@ -36,7 +34,8 @@ public partial class ErrorPage
         var htmlString = TransformText();
 
         var htmlFileInfo =
-            new FileInfo($@"{UserSettingsSingleton.CurrentSettings().LocalSiteRootFullDirectory().FullName}\error.html");
+            new FileInfo(
+                $@"{UserSettingsSingleton.CurrentSettings().LocalSiteRootFullDirectory().FullName}\error.html");
 
         if (htmlFileInfo.Exists)
         {
