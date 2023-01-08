@@ -1,56 +1,62 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-    <PropertyGroup>
-        <OutputType>WinExe</OutputType>
-        <Nullable>enable</Nullable>
-        <UseWPF>true</UseWPF>
-		<ApplicationManifest>app.manifest</ApplicationManifest>
-        <ApplicationIcon>favicon.ico</ApplicationIcon>
-		<TargetFrameworks>net7.0-windows10.0.17763.0</TargetFrameworks>
-		<RuntimeIdentifier>win10-x64</RuntimeIdentifier>
-    </PropertyGroup>
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <Nullable>enable</Nullable>
+    <UseWPF>true</UseWPF>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <ApplicationIcon>PointlessWaymarksGeoToolsIcon.ico</ApplicationIcon>
+    <TargetFrameworks>net7.0-windows10.0.17763.0</TargetFrameworks>
+    <RuntimeIdentifier>win10-x64</RuntimeIdentifier>
+  </PropertyGroup>
 
-    <ItemGroup>
-        <None Update="app.manifest">
-          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        </None>
-    </ItemGroup>
+  <ItemGroup>
+    <None Remove="PointlessWaymarksGeoToolsIcon.ico" />
+    <None Remove="PointlessWaymarksGeoToolsInstallerIcon.ico" />
+  </ItemGroup>
 
-    <ItemGroup>
-        <PackageReference Include="Dirkster.NumericUpDownLib" Version="3.3.1" />
-        <PackageReference Include="GitInfo" Version="2.3.0" />
-        <PackageReference Include="Jot" Version="2.1.13" />
-        <PackageReference Include="ModernWpfUI" Version="0.9.6" />
-    </ItemGroup>
+  <ItemGroup>
+    <None Update="app.manifest">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
 
-    <ItemGroup>
-        <ProjectReference Include="..\PointlessWaymarks.CmsData\PointlessWaymarks.CmsData.csproj" />
-        <ProjectReference Include="..\PointlessWaymarks.GeoTaggingService\PointlessWaymarks.GeoTaggingService.csproj" />
-        <ProjectReference Include="..\PointlessWaymarks.SpatialTools\PointlessWaymarks.SpatialTools.csproj" />
-        <ProjectReference Include="..\PointlessWaymarks.WpfCommon\PointlessWaymarks.WpfCommon.csproj" />
-    </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Dirkster.NumericUpDownLib" Version="3.3.1" />
+    <PackageReference Include="GitInfo" Version="2.3.0" />
+    <PackageReference Include="Jot" Version="2.1.13" />
+    <PackageReference Include="ModernWpfUI" Version="0.9.6" />
+  </ItemGroup>
 
-    <ItemGroup>
-        <AssemblyAttribute Include="PointlessWaymarks.CmsData.BuildDateAttribute">
-            <_Parameter1>$([System.DateTime]::UtcNow.ToString("yyyyMMddHHmmss"))</_Parameter1>
-        </AssemblyAttribute>
-    </ItemGroup>
-    
-    <ItemGroup>
-        <Compile Update="Controls\FeatureFileEditorControl.xaml.cs">
-            <SubType>Code</SubType>
-        </Compile>
-    </ItemGroup>
-    
-    <ItemGroup>
-      <None Remove="favicon.ico" />
-      <None Remove="InstallerIcon.ico" />
-      <Content Include="InstallerIcon.ico">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </Content>
-      <Resource Include="favicon.ico">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </Resource>
-    </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\PointlessWaymarks.CmsData\PointlessWaymarks.CmsData.csproj" />
+    <ProjectReference Include="..\PointlessWaymarks.GeoTaggingService\PointlessWaymarks.GeoTaggingService.csproj" />
+    <ProjectReference Include="..\PointlessWaymarks.SpatialTools\PointlessWaymarks.SpatialTools.csproj" />
+    <ProjectReference Include="..\PointlessWaymarks.WpfCommon\PointlessWaymarks.WpfCommon.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <AssemblyAttribute Include="PointlessWaymarks.CmsData.BuildDateAttribute">
+      <_Parameter1>$([System.DateTime]::UtcNow.ToString("yyyyMMddHHmmss"))</_Parameter1>
+    </AssemblyAttribute>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="PointlessWaymarksGeoToolsInstallerIcon.ico">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="PointlessWaymarksGeoToolsIcon.ico">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Controls\FeatureFileEditorControl.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
+  </ItemGroup>
 
 </Project>

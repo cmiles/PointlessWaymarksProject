@@ -11,21 +11,21 @@
 
 #define MyAppDefaultGroupName "Pointless Waymarks"
 
-#define MyAppName "Pointless Waymarks GeoTools"
-#define MyAppDefaultDirName "PointlessWaymarksGeoTools"
-#define MyAppExeName "PointlessWaymarks.GeoToolsGui.exe"
-#define MyAppOutputBaseFilename "PointlessWaymarksGeoToolsSetup--"
-#define MyAppFilesSource "M:\PointlessWaymarksPublications\PointlessWaymarks.GeoToolsGui\*"
+#define MyAppName "Pointless Waymarks Site Viewer"
+#define MyAppDefaultDirName "PointlessWaymarksSiteViewer"
+#define MyAppExeName "PointlessWaymarks.SiteViewerGui.exe"
+#define MyAppOutputBaseFilename "PointlessWaymarksSiteViewerSetup--"
+#define MyAppFilesSource "M:\PointlessWaymarksPublications\PointlessWaymarks.SiteViewerGui\*"
 
 [Setup]
-AppId={{A586530C-9F5C-4B17-B73B-64C6AE6CF936}
+AppId={{03D32A38-B168-4F29-BC00-4115625F458D}
 AppName={#MyAppName}
 AppVersion={#Version}
 AppPublisher={#MyAppPublisher}
 WizardStyle=modern
 DefaultDirName={autopf}\{#MyAppDefaultDirName}
 DefaultGroupName={#MyAppDefaultGroupName}
-UninstallDisplayIcon={app}\PointlessWaymarksGeoToolsIcon.ico
+UninstallDisplayIcon={app}\PointlessWaymarksSiteViewerIcon.ico
 Compression=lzma2
 SolidCompression=yes
 OutputDir={#MyAppOutputDir}
@@ -38,7 +38,7 @@ PrivilegesRequired=lowest
 Source: {#MyAppFilesSource}; DestDir: "{app}\"; Flags: recursesubdirs ignoreversion; AfterInstall:PublishVersionAfterInstall;
 
 [Icons]
-Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; IconFilename: "{app}\PointlessWaymarksGeoToolsIcon.ico"
+Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; IconFilename: "{app}\PointlessWaymarksSiteViewerIcon.ico"
 
 [Run]
 Filename: "{app}\{#MyAppExeName}"; Description: "Launch application"; Flags: postinstall nowait skipifsilent

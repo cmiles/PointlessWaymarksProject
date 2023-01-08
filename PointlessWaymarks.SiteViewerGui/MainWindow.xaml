@@ -1,0 +1,25 @@
+﻿<Window
+    x:Class="PointlessWaymarks.SiteViewerGui.MainWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:sitePreview="clr-namespace:PointlessWaymarks.CmsWpfControls.SitePreview;assembly=PointlessWaymarks.CmsWpfControls"
+    xmlns:status="clr-namespace:PointlessWaymarks.WpfCommon.Status;assembly=PointlessWaymarks.WpfCommon"
+    xmlns:siteViewerGui="clr-namespace:PointlessWaymarks.SiteViewerGui"
+    xmlns:ui="http://schemas.modernwpf.com/2019"
+    Title="{Binding PreviewContext.WindowTitle}"
+    Width="900"
+    Height="700"
+    Icon="PointlessWaymarksSiteViewerIcon.ico"
+    d:DataContext="{d:DesignInstance siteViewerGui:MainWindow}"
+    mc:Ignorable="d"
+    ui:WindowHelper.UseModernWindowStyle="True">
+    <Grid>
+        <sitePreview:SitePreviewControl DataContext="{Binding PreviewContext}" />
+        <status:StatusControl
+            Grid.Row="0"
+            d:IsHidden="true"
+            DataContext="{Binding StatusContext}" />
+    </Grid>
+</Window>

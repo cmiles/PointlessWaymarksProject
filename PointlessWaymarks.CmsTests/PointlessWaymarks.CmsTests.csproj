@@ -24,8 +24,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\PointlessWaymarks.CmsContentEditor\PointlessWaymarks.CmsContentEditor.csproj" />
     <ProjectReference Include="..\PointlessWaymarks.CmsData\PointlessWaymarks.CmsData.csproj" />
+    <ProjectReference Include="..\PointlessWaymarks.CmsGui\PointlessWaymarks.CmsGui.csproj" />
     <ProjectReference Include="..\PointlessWaymarks.CmsWpfControls\PointlessWaymarks.CmsWpfControls.csproj" />
   </ItemGroup>
 

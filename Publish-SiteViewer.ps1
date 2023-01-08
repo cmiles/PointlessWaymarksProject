@@ -16,14 +16,15 @@ $msBuild = & $vsWhere -latest -prerelease -requires Microsoft.Component.MSBuild 
 
 if ($lastexitcode -ne 0) { throw ("Exec: " + $errorMessage) }
 
-$publishPath = "M:\PointlessWaymarksPublications\PointlessWaymarks.CmsGui"
+$publishPath = "M:\PointlessWaymarksPublications\PointlessWaymarks.SiteViewerGui"
 if(!(test-path -PathType container $publishPath)) { New-Item -ItemType Directory -Path $publishPath }
 
-& $msBuild .\PointlessWaymarks.CmsGui\PointlessWaymarks.CmsGui.csproj -t:publish -p:PublishProfile=.\PointlessWaymarks.CmsGui\Properties\PublishProfile\FolderProfile.pubxml -verbosity:minimal
+& $msBuild .\PointlessWaymarks.SiteViewerGui\PointlessWaymarks.SiteViewerGui.csproj -t:publish -p:PublishProfile=.\PointlessWaymarks.SiteViewerGui\Properties\PublishProfile\FolderProfile.pubxml -verbosity:minimal
 
 if ($lastexitcode -ne 0) { throw ("Exec: " + $errorMessage) }
 
-& 'C:\Program Files (x86)\Inno Setup 6\ISCC.exe' .\Publish-InnoSetupInstaller-Cms.iss /DVersion=$PublishVersion /DGitCommit=$GitCommit
+& 'C:\Program Files (x86)\Inno Setup 6\ISCC.exe' .\Publish-InnoSetupInstaller-SiteViewer.iss /DVersion=$PublishVersion /DGitCommit=$GitCommit
 
 if ($lastexitcode -ne 0) { throw ("Exec: " + $errorMessage) }
+
 

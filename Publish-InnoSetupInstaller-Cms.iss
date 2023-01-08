@@ -13,9 +13,9 @@
 
 #define MyAppName "Pointless Waymarks CMS"
 #define MyAppDefaultDirName "PointlessWaymarksCms"
-#define MyAppExeName "PointlessWaymarks.CmsContentEditor.exe"
+#define MyAppExeName "PointlessWaymarks.CmsGui.exe"
 #define MyAppOutputBaseFilename "PointlessWaymarksCmsSetup--"
-#define MyAppFilesSource "M:\PointlessWaymarksPublications\PointlessWaymarks.CmsContentEditor\*"
+#define MyAppFilesSource "M:\PointlessWaymarksPublications\PointlessWaymarks.CmsGui\*"
 
 [Setup]
 AppId={{1780F4D0-0A17-4460-878B-58136D038D51}
@@ -25,7 +25,7 @@ AppPublisher={#MyAppPublisher}
 WizardStyle=modern
 DefaultDirName={autopf}\{#MyAppDefaultDirName}
 DefaultGroupName={#MyAppDefaultGroupName}
-UninstallDisplayIcon={app}\InstallerIcon.ico
+UninstallDisplayIcon={app}\PointlessWaymarksCmsInstallerIcon.ico
 Compression=lzma2
 SolidCompression=yes
 OutputDir={#MyAppOutputDir}
@@ -38,7 +38,7 @@ PrivilegesRequired=lowest
 Source: {#MyAppFilesSource}; DestDir: "{app}\"; Flags: recursesubdirs ignoreversion; AfterInstall:PublishVersionAfterInstall;
 
 [Icons]
-Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; IconFilename: "{app}\InstallerIcon.ico"
+Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; IconFilename: "{app}\PointlessWaymarksCmsInstallerIcon.ico"
 
 [Run]
 Filename: "{app}\{#MyAppExeName}"; Description: "Launch application"; Flags: postinstall nowait skipifsilent

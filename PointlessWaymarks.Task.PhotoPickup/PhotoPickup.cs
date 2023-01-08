@@ -1,4 +1,5 @@
 ﻿using System.Text.Json;
+using Microsoft.Toolkit.Uwp.Notifications;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.Content;
 using PointlessWaymarks.CmsData.ContentHtml;
@@ -140,28 +141,36 @@ public class PhotoPickup
                 true,
                 null, consoleProgress);
 
+            //Clean up renamed files as needed
+            if (uniqueRenamedFile.FullName != renamedFile.FullName && uniqueRenamedFile.FullName != loopFile.FullName)
+                renamedFile.MoveToWithUniqueName(Path.Combine(archiveDirectory.FullName, uniqueRenamedFile.Name));
+            if (renamedFile.FullName != loopFile.FullName)
+                renamedFile.MoveToWithUniqueName(Path.Combine(archiveDirectory.FullName, renamedFile.Name));
+
             if (saveGenerationReturn.HasError)
             {
                 Log.ForContext("saveGenerationReturn", saveGenerationReturn.SafeObjectDump()).Error(
                     $"Error Saving Photo {uniqueRenamedFile.FullName} - {saveGenerationReturn.GenerationNote} - {saveGenerationReturn.Exception?.Message}");
-                continue;
-            }
 
-            try
-            {
-                if (loopFile.FullName != renamedFile.FullName)
-                    loopFile.MoveToWithUniqueName(Path.Combine(archiveDirectory.FullName, loopFile.Name));
-                if (renamedFile.FullName != uniqueRenamedFile.FullName)
-                    renamedFile.MoveToWithUniqueName(Path.Combine(archiveDirectory.FullName, renamedFile.Name));
+                new ToastContentBuilder()
+                    .AddText($"{UserSettingsSingleton.CurrentSettings().SiteName} - Photo Pickup Error with {uniqueRenamedFile} - {saveGenerationReturn.GenerationNote}")
+                    .AddAttributionText("Pointless Waymarks Project - Photo Pickup Task")
+                    .Show();
 
-                uniqueRenamedFile.MoveToWithUniqueName(Path.Combine(archiveDirectory.FullName, uniqueRenamedFile.Name));
+
             }
-            catch (Exception e)
+            else
             {
-                Log.Error(e, $"Failed to move file to Archive Directory - {uniqueRenamedFile.FullName}");
+                renamedFile.MoveToWithUniqueName(Path.Combine(archiveDirectory.FullName, loopFile.Name));
+
+                new ToastContentBuilder()
+                    .AddText($"{UserSettingsSingleton.CurrentSettings().SiteName} - Photo Added '{metaContent.Title}'")
+                    .AddAttributionText("Pointless Waymarks Project - Photo Pickup Task")
+                    .Show();
             }
         }
     }
+
 
     /// <summary>
     ///     This routine tries to return a FileInfo for a filename that is not in use by Photo Content in the Db, matches

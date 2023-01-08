@@ -12,7 +12,7 @@
         xmlns:markdownDisplay="clr-namespace:PointlessWaymarks.WpfCommon.MarkdownDisplay;assembly=PointlessWaymarks.WpfCommon"
         ui:WindowHelper.UseModernWindowStyle="True"
         ui:ThemeManager.IsThemeAware="True"
-        Icon="favicon.ico"
+        Icon="PointlessWaymarksGeoToolsIcon.ico"
         Title="{Binding InfoTitle}" Height="450" Width="800" d:DataContext="{d:DesignInstance geoToolsGui:MainWindow}">
     <Grid>
         <TabControl TabStripPlacement="Left">
