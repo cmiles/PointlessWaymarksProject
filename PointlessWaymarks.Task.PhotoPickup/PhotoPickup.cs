@@ -1,6 +1,7 @@
 ﻿using System.Text.Json;
 using Microsoft.Toolkit.Uwp.Notifications;
 using PointlessWaymarks.CmsData;
+using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.Content;
 using PointlessWaymarks.CmsData.ContentHtml;
 using PointlessWaymarks.CmsData.Database;
@@ -110,14 +111,14 @@ public class PhotoPickup
             var (metaGenerationReturn, metaContent) = await
                 PhotoGenerator.PhotoMetadataToNewPhotoContent(loopFile, consoleProgress);
 
-            if (string.IsNullOrWhiteSpace(metaContent.Tags)) metaContent.Tags = "photo-pickup-automated-import";
-
             if (metaGenerationReturn.HasError || metaContent == null)
             {
                 Log.ForContext("metaGenerationReturn", metaGenerationReturn.SafeObjectDump()).Error(
                     $"Error With Metadata for Photo {loopFile.FullName} - {metaGenerationReturn.GenerationNote} - {metaGenerationReturn.Exception?.Message}");
                 continue;
             }
+
+            if (string.IsNullOrWhiteSpace(metaContent.Tags)) metaContent.Tags = "photo-pickup-automated-import";
 
             FileInfo? renamedFile;
 
@@ -137,7 +138,7 @@ public class PhotoPickup
 
             metaContent.OriginalFileName = uniqueRenamedFile.Name;
 
-            var (saveGenerationReturn, _) = await PhotoGenerator.SaveAndGenerateHtml(metaContent, uniqueRenamedFile,
+            var (saveGenerationReturn, savedContent) = await PhotoGenerator.SaveAndGenerateHtml(metaContent, uniqueRenamedFile,
                 true,
                 null, consoleProgress);
 
@@ -147,26 +148,35 @@ public class PhotoPickup
             if (renamedFile.FullName != loopFile.FullName)
                 renamedFile.MoveToWithUniqueName(Path.Combine(archiveDirectory.FullName, renamedFile.Name));
 
-            if (saveGenerationReturn.HasError)
+            if (saveGenerationReturn.HasError || savedContent == null)
             {
                 Log.ForContext("saveGenerationReturn", saveGenerationReturn.SafeObjectDump()).Error(
                     $"Error Saving Photo {uniqueRenamedFile.FullName} - {saveGenerationReturn.GenerationNote} - {saveGenerationReturn.Exception?.Message}");
 
                 new ToastContentBuilder()
-                    .AddText($"{UserSettingsSingleton.CurrentSettings().SiteName} - Photo Pickup Error with {uniqueRenamedFile} - {saveGenerationReturn.GenerationNote}")
+                    .AddAppLogoOverride(new Uri(
+                        $"file://{Path.Combine(AppContext.BaseDirectory, "PointlessWaymarksCmsAutomationSquareLogo.png")}"))
+                    .AddText($"{UserSettingsSingleton.CurrentSettings().SiteName} - Photo Pickup Error with {uniqueRenamedFile}")
                     .AddAttributionText("Pointless Waymarks Project - Photo Pickup Task")
                     .Show();
-
-
             }
             else
             {
                 renamedFile.MoveToWithUniqueName(Path.Combine(archiveDirectory.FullName, loopFile.Name));
 
-                new ToastContentBuilder()
+                var successToast = new ToastContentBuilder()
+                    .AddAppLogoOverride(new Uri(
+                        $"file://{Path.Combine(AppContext.BaseDirectory, "PointlessWaymarksCmsAutomationSquareLogo.png")}"))
                     .AddText($"{UserSettingsSingleton.CurrentSettings().SiteName} - Photo Added '{metaContent.Title}'")
-                    .AddAttributionText("Pointless Waymarks Project - Photo Pickup Task")
-                    .Show();
+                    .AddAttributionText("Pointless Waymarks Project - Photo Pickup Task");
+
+                var generatedPhotoInformation = PictureAssetProcessing.ProcessPhotoDirectory(savedContent);
+                if (generatedPhotoInformation?.SmallPicture?.File != null)
+                {
+                    successToast.AddHeroImage(new Uri($@"{generatedPhotoInformation.SmallPicture.File.FullName}"));
+                }
+
+                successToast.Show();
             }
         }
     }
@@ -190,7 +200,7 @@ public class PhotoPickup
 
         var numberLimit = 999;
         var filePostfix = 0;
-        ;
+
         while ((file.Exists || fileExistsInDatabase) && filePostfix <= numberLimit)
         {
             numberLimit++;
