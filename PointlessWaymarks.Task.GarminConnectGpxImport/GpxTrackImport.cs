@@ -1,6 +1,7 @@
 ﻿using System.Text.Json;
 using Garmin.Connect;
 using Garmin.Connect.Auth;
+using Microsoft.Toolkit.Uwp.Notifications;
 using NetTopologySuite.IO;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.CommonHtml;
@@ -284,7 +285,7 @@ public class GpxTrackImport
                     }
                 }
 
-                var (saveGenerationReturn, _) =
+                var (saveGenerationReturn, lineContent) =
                     await LineGenerator.SaveAndGenerateHtml(newEntry, DateTime.Now,
                         consoleProgress);
 
@@ -298,15 +299,44 @@ public class GpxTrackImport
                     continue;
                 }
 
+
                 Log.Verbose(
                     $"New Line - {loopFile.gpxFileInfo.FullName} - Track {innerLoopCounter} of {tracksList.Count}");
+
+                var successToast = new ToastContentBuilder()
+                    .AddAppLogoOverride(new Uri(
+                        $"file://{Path.Combine(AppContext.BaseDirectory, "PointlessWaymarksCmsAutomationSquareLogo.png")}"))
+                    .AddText($"{UserSettingsSingleton.CurrentSettings().SiteName} - Photo Added '{lineContent?.Title}'")
+                    .AddAttributionText("Pointless Waymarks Project - Photo Pickup Task");
+
+                if (lineContent?.MainPicture != null)
+                {
+                    var mainPhotoInformation = PictureAssetProcessing.ProcessPhotoDirectory(lineContent.MainPicture.Value);
+
+                    if (mainPhotoInformation?.SmallPicture?.File != null)
+                    {
+                        successToast.AddHeroImage(new Uri($@"{mainPhotoInformation.SmallPicture.File.FullName}"));
+                    }
+                }
+
+                successToast.Show();
             }
 
             if (errorList.Any())
             {
                 Console.WriteLine("Save Errors:");
                 errorList.ForEach(Console.WriteLine);
+
+                new ToastContentBuilder()
+                    .AddAppLogoOverride(new Uri(
+                        $"file://{Path.Combine(AppContext.BaseDirectory, "PointlessWaymarksCmsAutomationSquareLogo.png")}"))
+                    .AddText($"{errorList.Count} Import Errors...")
+                    .AddToastActivationInfo(AppContext.BaseDirectory, ToastActivationType.Protocol)
+                    .AddAttributionText("Pointless Waymarks Project - Garmin Connect Gpx Import")
+                    .Show();
             }
+
+
 
             Log.Information("Garmin Connect Gpx Import Finished");
         }

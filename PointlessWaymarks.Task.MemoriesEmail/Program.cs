@@ -4,6 +4,7 @@ using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.Task.MemoriesEmail;
 using Serilog;
 using System.Reflection;
+using Microsoft.Toolkit.Uwp.Notifications;
 
 LogTools.StandardStaticLoggerForProgramDirectory("MemoriesEmail");
 
@@ -27,4 +28,12 @@ catch (Exception e)
 {
     Log.Error(e, "Error Running Program...");
     Console.WriteLine(e);
+
+    new ToastContentBuilder()
+        .AddAppLogoOverride(new Uri(
+            $"file://{Path.Combine(AppContext.BaseDirectory, "PointlessWaymarksCmsAutomationSquareLogo.png")}"))
+        .AddText($"Error: {e.Message}")
+        .AddToastActivationInfo(AppContext.BaseDirectory, ToastActivationType.Protocol)
+        .AddAttributionText("Pointless Waymarks Project - Memories Email Task")
+        .Show();
 }

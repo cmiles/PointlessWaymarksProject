@@ -156,8 +156,9 @@ public class PhotoPickup
                 new ToastContentBuilder()
                     .AddAppLogoOverride(new Uri(
                         $"file://{Path.Combine(AppContext.BaseDirectory, "PointlessWaymarksCmsAutomationSquareLogo.png")}"))
-                    .AddText($"{UserSettingsSingleton.CurrentSettings().SiteName} - Photo Pickup Error with {uniqueRenamedFile}")
+                    .AddText($"{UserSettingsSingleton.CurrentSettings().SiteName} - Error - {uniqueRenamedFile}")
                     .AddAttributionText("Pointless Waymarks Project - Photo Pickup Task")
+                    .AddToastActivationInfo(settings.PhotoPickupArchiveDirectory, ToastActivationType.Protocol)
                     .Show();
             }
             else

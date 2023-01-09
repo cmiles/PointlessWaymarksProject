@@ -25,11 +25,15 @@ try
 }
 catch (Exception e)
 {
-    new ToastContentBuilder()
-        .AddHeader(AppDomain.CurrentDomain.FriendlyName, "Publish To S3 Failed...", new ToastArguments())
-        .AddText(e.Message)
-        .Show();
     Log.Error(e, "Error Running Program...");
     Console.WriteLine(e);
+
+    new ToastContentBuilder()
+        .AddAppLogoOverride(new Uri(
+            $"file://{Path.Combine(AppContext.BaseDirectory, "PointlessWaymarksCmsAutomationSquareLogo.png")}"))
+        .AddText($"Error: {e.Message}")
+        .AddToastActivationInfo(AppContext.BaseDirectory, ToastActivationType.Protocol)
+        .AddAttributionText("Pointless Waymarks Project - Publish To Amazon S3")
+        .Show();
 }
 
