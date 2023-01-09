@@ -1,5 +1,6 @@
 ﻿// See https://aka.ms/new-console-template for more information
 
+using System.Reflection;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.Task.PhotoPickup;
@@ -9,6 +10,8 @@ LogTools.StandardStaticLoggerForProgramDirectory("PhotoPickup");
 
 Log.ForContext("args", args.SafeObjectDump()).Information(
     "PointlessWaymarks.Task.PhotoPickup Starting");
+
+Console.WriteLine($"Photo Pickup - Build {ProgramInfoTools.GetBuildDate(Assembly.GetExecutingAssembly())}");
 
 if (args.Length != 1)
 {

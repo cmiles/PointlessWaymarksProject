@@ -3,11 +3,14 @@
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.Task.GarminConnectGpxImport;
 using Serilog;
+using System.Reflection;
 
 LogTools.StandardStaticLoggerForProgramDirectory("GarminConnectGpxImport");
 
 Log.ForContext("args", args.SafeObjectDump()).Information(
     "PointlessWaymarks.Task.GarminConnectGpxImport Starting");
+
+Console.WriteLine($"Garmin Connect Gpx Import - Build {ProgramInfoTools.GetBuildDate(Assembly.GetExecutingAssembly())}");
 
 if (args.Length != 1)
 {

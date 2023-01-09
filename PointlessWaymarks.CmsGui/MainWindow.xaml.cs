@@ -41,7 +41,7 @@ using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 using PointlessWaymarks.WpfCommon.Utility;
 using PointlessWaymarks.WpfCommon.WpfHtml;
 using Serilog;
-using BuildDateAttribute = PointlessWaymarks.CmsData.BuildDateAttribute;
+using BuildDateAttribute = PointlessWaymarks.CommonTools.BuildDateAttribute;
 
 namespace PointlessWaymarks.CmsGui;
 
@@ -432,12 +432,6 @@ public partial class MainWindow
         await Reports.InvalidBracketCodeContentIdsHtmlReport(generationResults);
     }
 
-    private static DateTime? GetBuildDate(Assembly assembly)
-    {
-        var attribute = assembly.GetCustomAttribute<BuildDateAttribute>();
-        return attribute?.DateTime;
-    }
-
     private async Task ImportJsonFromDirectory()
     {
         await ThreadSwitcher.ResumeForegroundAsync();
@@ -487,13 +481,8 @@ public partial class MainWindow
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
-        // ReSharper disable once ConditionIsAlwaysTrueOrFalse for generated ThisAssembly.Git.IsDirty
-        // ReSharper disable once HeuristicUnreachableCode
-        //.Git IsDirty can change at runtime
-#pragma warning disable CS0162
         InfoTitle =
-            $"{UserSettingsSingleton.CurrentSettings().SiteName} - Pointless Waymarks CMS - Built On {GetBuildDate(Assembly.GetEntryAssembly())} - Commit {ThisAssembly.Git.Commit} {(ThisAssembly.Git.IsDirty ? "(Has Local Changes)" : string.Empty)}";
-#pragma warning restore CS0162
+            $"{UserSettingsSingleton.CurrentSettings().SiteName} - {InfoTitle}";
 
         MainTabControl.SelectedIndex = 0;
     }

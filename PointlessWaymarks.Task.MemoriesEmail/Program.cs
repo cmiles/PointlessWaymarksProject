@@ -3,11 +3,14 @@
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.Task.MemoriesEmail;
 using Serilog;
+using System.Reflection;
 
 LogTools.StandardStaticLoggerForProgramDirectory("MemoriesEmail");
 
 Log.ForContext("args", Helpers.SafeObjectDump(args)).Information(
     "PointlessWaymarks.Task.MemoriesEmail Starting");
+
+Console.WriteLine($"Memories Email - Build {ProgramInfoTools.GetBuildDate(Assembly.GetExecutingAssembly())}");
 
 if (args.Length != 1)
 {

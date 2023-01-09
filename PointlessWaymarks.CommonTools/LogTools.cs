@@ -58,7 +58,7 @@ public static class LogTools
         {
             Log.Information(
                 $"Git Commit {ThisAssembly.Git.Commit} - Commit Date {ThisAssembly.Git.CommitDate} - Is Dirty {ThisAssembly.Git.IsDirty}");
-            Log.Information($"{ProgramInfoTools.GetEntryAssemblyBuildDate(Assembly.GetExecutingAssembly())}");
+            Log.Information($"Build Date {ProgramInfoTools.GetEntryAssemblyBuildDate()}");
         }
         catch (Exception e)
         {
@@ -75,7 +75,7 @@ public static class LogTools
         {
             Log.Information(
                 $"Git Commit {ThisAssembly.Git.Commit} - Commit Date {ThisAssembly.Git.CommitDate} - Is Dirty {ThisAssembly.Git.IsDirty}");
-            Log.Information($"{ProgramInfoTools.GetEntryAssemblyBuildDate(Assembly.GetExecutingAssembly())}");
+            Log.Information($"{ProgramInfoTools.GetEntryAssemblyBuildDate()}");
         }
         catch (Exception e)
         {

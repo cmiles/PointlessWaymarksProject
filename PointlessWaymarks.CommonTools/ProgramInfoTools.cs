@@ -11,7 +11,7 @@ public static class ProgramInfoTools
         return attribute?.DateTime;
     }
 
-    public static DateTime? GetEntryAssemblyBuildDate(Assembly assembly)
+    public static DateTime? GetEntryAssemblyBuildDate()
     {
         try
         {

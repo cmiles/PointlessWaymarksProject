@@ -20,7 +20,7 @@ public class BuildDateAttribute : Attribute
     // Sample usage in a .csproj file
     //
     //  <ItemGroup>
-    //   <AssemblyAttribute Include = "PointlessWaymarks.CmsData.BuildDateAttribute" >
+    //   <AssemblyAttribute Include = "PointlessWaymarks.CommonTools.BuildDateAttribute" >
     //     < _Parameter1 >$([System.DateTime]::UtcNow.ToString("yyyyMMddHHmmss"))</_Parameter1>
     //   </AssemblyAttribute>
     // </ItemGroup>

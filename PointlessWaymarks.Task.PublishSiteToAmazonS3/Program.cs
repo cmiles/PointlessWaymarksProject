@@ -3,11 +3,14 @@ using Microsoft.Toolkit.Uwp.Notifications;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.Task.PublishSiteToAmazonS3;
 using Serilog;
+using System.Reflection;
 
 LogTools.StandardStaticLoggerForProgramDirectory("PublishToS3");
 
 Log.ForContext("args", args.SafeObjectDump()).Information(
     "PointlessWaymarks.Task.PublishSiteToAmazonS3 Starting");
+
+Console.WriteLine($"Publish Site To Amazon S3 - Build {ProgramInfoTools.GetBuildDate(Assembly.GetExecutingAssembly())}");
 
 if (args.Length != 1)
 {

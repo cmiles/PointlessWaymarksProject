@@ -23,6 +23,12 @@
   </Target>
 
   <ItemGroup>
+    <AssemblyAttribute Include="PointlessWaymarks.CommonTools.BuildDateAttribute">
+      <_Parameter1>$([System.DateTime]::UtcNow.ToString("yyyyMMddHHmmss"))</_Parameter1>
+    </AssemblyAttribute>
+  </ItemGroup>
+
+  <ItemGroup>
     <None Remove="PointlessWaymarksSiteViewerIcon.ico" />
     <None Remove="PointlessWaymarksSiteViewerInstallerIcon.ico" />
   </ItemGroup>

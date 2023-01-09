@@ -18,12 +18,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <AssemblyAttribute Include="PointlessWaymarks.CmsData.BuildDateAttribute">
-      <_Parameter1>$([System.DateTime]::UtcNow.ToString("yyyyMMddHHmmss"))</_Parameter1>
-    </AssemblyAttribute>
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\PointlessWaymarks.CmsData\PointlessWaymarks.CmsData.csproj" />
     <ProjectReference Include="..\PointlessWaymarks.CmsGui\PointlessWaymarks.CmsGui.csproj" />
     <ProjectReference Include="..\PointlessWaymarks.CmsWpfControls\PointlessWaymarks.CmsWpfControls.csproj" />
