@@ -25,7 +25,7 @@ AppPublisher={#MyAppPublisher}
 WizardStyle=modern
 DefaultDirName={autopf}\{#MyAppDefaultDirName}
 DefaultGroupName={#MyAppDefaultGroupName}
-UninstallDisplayIcon={app}\PointlessWaymarksGeoToolsIcon.ico
+UninstallDisplayIcon={app}\PointlessWaymarksGeoToolsInstallerIcon.ico
 Compression=lzma2
 SolidCompression=yes
 OutputDir={#MyAppOutputDir}
@@ -38,7 +38,7 @@ PrivilegesRequired=lowest
 Source: {#MyAppFilesSource}; DestDir: "{app}\"; Flags: recursesubdirs ignoreversion; AfterInstall:PublishVersionAfterInstall;
 
 [Icons]
-Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; IconFilename: "{app}\PointlessWaymarksGeoToolsIcon.ico"
+Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; IconFilename: "{app}\PointlessWaymarksGeoToolsInstallerIcon.ico"
 
 [Run]
 Filename: "{app}\{#MyAppExeName}"; Description: "Launch application"; Flags: postinstall nowait skipifsilent

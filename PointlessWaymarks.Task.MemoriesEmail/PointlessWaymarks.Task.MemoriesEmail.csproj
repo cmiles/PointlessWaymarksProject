@@ -6,7 +6,12 @@
     <OutputType>Exe</OutputType>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <ApplicationIcon>PointlessWaymarksCmsAutomationIcon.ico</ApplicationIcon>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="PointlessWaymarksCmsAutomationIcon.ico" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="GitInfo" Version="2.3.0" />
@@ -35,6 +40,18 @@
     <AssemblyAttribute Include="PointlessWaymarks.CommonTools.BuildDateAttribute">
       <_Parameter1>$([System.DateTime]::UtcNow.ToString("yyyyMMddHHmmss"))</_Parameter1>
     </AssemblyAttribute>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="..\PointlessWaymarks.Graphics\PointlessWaymarksCmsAutomationSquareLogo.png" Link="PointlessWaymarksCmsAutomationSquareLogo.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="PointlessWaymarksCmsAutomationIcon.ico">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
   </ItemGroup>
 
 </Project>

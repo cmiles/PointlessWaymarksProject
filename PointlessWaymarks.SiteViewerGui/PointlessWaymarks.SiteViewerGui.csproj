@@ -24,6 +24,11 @@
 
   <ItemGroup>
     <None Remove="PointlessWaymarksSiteViewerIcon.ico" />
+    <None Remove="PointlessWaymarksSiteViewerInstallerIcon.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="PointlessWaymarksSiteViewerInstallerIcon.ico" />
   </ItemGroup>
 
   <ItemGroup>

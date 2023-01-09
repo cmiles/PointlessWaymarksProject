@@ -6,7 +6,13 @@
     <OutputType>Exe</OutputType>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <ApplicationIcon>PointlessWaymarksCmsAutomationIcon.ico</ApplicationIcon>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="PointlessWaymarks.Task.GarminConnectGpxImport.args.json" />
+    <None Remove="PointlessWaymarksCmsAutomationIcon.ico" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="GitInfo" Version="2.3.0" />
@@ -28,6 +34,24 @@
     <AssemblyAttribute Include="PointlessWaymarks.CommonTools.BuildDateAttribute">
       <_Parameter1>$([System.DateTime]::UtcNow.ToString("yyyyMMddHHmmss"))</_Parameter1>
     </AssemblyAttribute>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="..\PointlessWaymarks.Graphics\PointlessWaymarksCmsAutomationSquareLogo.png" Link="PointlessWaymarksCmsAutomationSquareLogo.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Resource Include="PointlessWaymarks.Task.GarminConnectGpxImport.args.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="PointlessWaymarksCmsAutomationIcon.ico">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ApplicationDefinition Include="PointlessWaymarksCmsAutomationIcon.ico">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </ApplicationDefinition>
   </ItemGroup>
 
 </Project>

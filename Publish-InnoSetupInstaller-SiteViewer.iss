@@ -25,7 +25,7 @@ AppPublisher={#MyAppPublisher}
 WizardStyle=modern
 DefaultDirName={autopf}\{#MyAppDefaultDirName}
 DefaultGroupName={#MyAppDefaultGroupName}
-UninstallDisplayIcon={app}\PointlessWaymarksSiteViewerIcon.ico
+UninstallDisplayIcon={app}\PointlessWaymarksSiteViewerInstallerIcon.ico
 Compression=lzma2
 SolidCompression=yes
 OutputDir={#MyAppOutputDir}
@@ -38,7 +38,7 @@ PrivilegesRequired=lowest
 Source: {#MyAppFilesSource}; DestDir: "{app}\"; Flags: recursesubdirs ignoreversion; AfterInstall:PublishVersionAfterInstall;
 
 [Icons]
-Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; IconFilename: "{app}\PointlessWaymarksSiteViewerIcon.ico"
+Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; IconFilename: "{app}\PointlessWaymarksSiteViewerInstallerIcon.ico"
 
 [Run]
 Filename: "{app}\{#MyAppExeName}"; Description: "Launch application"; Flags: postinstall nowait skipifsilent
