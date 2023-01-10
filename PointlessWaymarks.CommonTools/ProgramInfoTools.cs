@@ -28,6 +28,28 @@ public static class ProgramInfoTools
         return null;
     }
 
+    public static (string? dateString, FileInfo? setupFile) LatestInstaller(string installerDirectory,
+        string baseInstallerName)
+    {
+        if (string.IsNullOrEmpty(installerDirectory)) return (null, null);
+        if (string.IsNullOrEmpty(baseInstallerName)) return (null, null);
+
+        var containingDirectory = new DirectoryInfo(installerDirectory);
+
+        if (!containingDirectory.Exists) return (null, null);
+
+        var publishFile = containingDirectory.GetFiles($"{baseInstallerName}--*.exe").ToList().MaxBy(x => x.Name);
+
+        if (publishFile == null) return (null, null);
+
+        var dateVersionString = Regex
+            .Match(publishFile.Name, @".*--(?<dateVersion>\d\d\d\d-\d\d-\d\d-\d\d-\d\d).exe");
+
+        if (!dateVersionString.Groups.ContainsKey("dateVersion")) return (null, null);
+
+        return (dateVersionString.Groups["dateVersion"].Value, publishFile);
+    }
+
     public static (string humanTitleString, string dateVersion, bool isInstalled) StandardAppInformationString(
         Assembly executingAssembly, string appName)
     {

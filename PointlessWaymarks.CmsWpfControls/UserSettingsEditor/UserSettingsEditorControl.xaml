@@ -316,7 +316,20 @@
                             </b:Interaction.Behaviors>
                         </wpf:MarkdownViewer>
                     </StackPanel>
-                    
+                    <StackPanel Orientation="Vertical">
+                        <Label Style="{StaticResource DataEntryLabelStyle}" Target="{Binding ElementName=ProgramUpdateLocationTextBox}">
+                            Program Update Location
+                        </Label>
+                        <TextBox
+                            Name="ProgramUpdateLocationTextBox"
+                            Style="{StaticResource DataEntryTextBoxSingleLineStyle}"
+                            Text="{Binding EditorSettings.ProgramUpdateLocation, UpdateSourceTrigger=PropertyChanged}" />
+                        <wpf:MarkdownViewer Markdown="{Binding HelpMarkdownProgramUpdateLocation}">
+                            <b:Interaction.Behaviors>
+                                <behaviors:IgnoreMouseWheelBehavior />
+                            </b:Interaction.Behaviors>
+                        </wpf:MarkdownViewer>
+                    </StackPanel>
                     <StackPanel Orientation="Vertical">
                         <Label Style="{StaticResource DataEntryLabelStyle}" Target="{Binding ElementName=S3BucketTextBox}">
                             Amazon S3

@@ -107,12 +107,12 @@ public partial class UpdateNotesEditorContext : IHasChanges, IHasValidationIssue
                 await BracketCodeCommon.ProcessCodesForLocalDisplay(UpdateNotes, StatusContext.ProgressTracker());
             var processResults =
                 ContentProcessing.ProcessContent(preprocessResults, UpdateNotesFormat.SelectedContentFormat);
-            UpdateNotesHtmlOutput = processResults.ToHtmlDocument("Update Notes", string.Empty);
+            UpdateNotesHtmlOutput = processResults.ToHtmlDocumentWithLeaflet("Update Notes", string.Empty);
         }
         catch (Exception e)
         {
             UpdateNotesHtmlOutput =
-                $"<h2>Not able to process input</h2><p>{HttpUtility.HtmlEncode(e)}</p>".ToHtmlDocument("Invalid",
+                $"<h2>Not able to process input</h2><p>{HttpUtility.HtmlEncode(e)}</p>".ToHtmlDocumentWithLeaflet("Invalid",
                     string.Empty);
         }
     }

@@ -140,12 +140,12 @@ public partial class BodyContentEditorContext : IHasChanges, IHasValidationIssue
 
             if (possibleStyleFile.Exists) styleBlock += await File.ReadAllTextAsync(possibleStyleFile.FullName);
 
-            BodyContentHtmlOutput = processResults.ToHtmlDocument("Body Content", styleBlock);
+            BodyContentHtmlOutput = processResults.ToHtmlDocumentWithLeaflet("Body Content", styleBlock);
         }
         catch (Exception e)
         {
             BodyContentHtmlOutput =
-                $"<h2>Not able to process input</h2><p>{HttpUtility.HtmlEncode(e)}</p>".ToHtmlDocument("Invalid",
+                $"<h2>Not able to process input</h2><p>{HttpUtility.HtmlEncode(e)}</p>".ToHtmlDocumentWithLeaflet("Invalid",
                     string.Empty);
         }
     }

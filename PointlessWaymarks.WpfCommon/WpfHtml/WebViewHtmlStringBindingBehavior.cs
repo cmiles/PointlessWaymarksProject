@@ -43,7 +43,7 @@ public class WebViewHtmlStringBindingBehavior : Behavior<WebView2>
                 bindingBehavior.CachedHtml = string.Empty;
                 try
                 {
-                    var newString = e.NewValue as string ?? "<h2>...</h2>".ToHtmlDocument("...", string.Empty);
+                    var newString = e.NewValue as string ?? "<h2>...</h2>".ToHtmlDocumentWithLeaflet("...", string.Empty);
 
                     if (!string.IsNullOrWhiteSpace(newString))
                     {
@@ -72,7 +72,7 @@ public class WebViewHtmlStringBindingBehavior : Behavior<WebView2>
                     else
                     {
                         bindingBehavior.AssociatedObject.NavigateToString(e.NewValue as string ??
-                                                                          "<h2>Loading...</h2>".ToHtmlDocument(
+                                                                          "<h2>Loading...</h2>".ToHtmlDocumentWithLeaflet(
                                                                               "...", string.Empty));
                     }
                 }
@@ -84,7 +84,7 @@ public class WebViewHtmlStringBindingBehavior : Behavior<WebView2>
             else
             {
                 bindingBehavior.CachedHtml = e.NewValue as string ??
-                                             "<h2>Loading...</h2>".ToHtmlDocument("...", string.Empty);
+                                             "<h2>Loading...</h2>".ToHtmlDocumentWithLeaflet("...", string.Empty);
             }
         }
     }

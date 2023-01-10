@@ -37,6 +37,7 @@ public partial class UserSettings
     [ObservableProperty] private bool _photoPagesHaveLinksToPhotoSizesByDefault;
     [ObservableProperty] private bool _photoPagesShowPositionByDefault;
     [ObservableProperty] private string _pinboardApiToken = string.Empty;
+    [ObservableProperty] private string _programUpdateLocation = string.Empty;
     [ObservableProperty] private Guid _settingsId;
     [ObservableProperty] private string _siteAuthors = string.Empty;
     [ObservableProperty] private string _siteDirectionAttribute = string.Empty;

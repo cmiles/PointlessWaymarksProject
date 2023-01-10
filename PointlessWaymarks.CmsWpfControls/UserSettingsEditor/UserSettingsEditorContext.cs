@@ -80,6 +80,9 @@ public partial class UserSettingsEditorContext
         "Used in as the tags for the overall/entire site - for example " +
         "'outdoors,hiking,running,landscape,photography,history'.";
 
+    public static string HelpMarkdownProgramUpdateLocation =>
+        "The location the program should check for updates.";
+
     public static string HelpMarkdownSiteLangAttribute =>
         "Lang attribute indicating the default language for the site - see [lang attribute on MDN](https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/lang) for more information.";
 

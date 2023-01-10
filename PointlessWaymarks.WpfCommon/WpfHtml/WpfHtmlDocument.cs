@@ -42,7 +42,7 @@ public static class WpfHtmlDocument
         return layers;
     }
 
-    public static string ToHtmlDocument(this string body, string title, string styleBlock)
+    public static string ToHtmlDocumentWithLeaflet(this string body, string title, string styleBlock)
     {
         var spatialScript = FileSystemHelpers.SpatialScriptsAsString().Result;
 
@@ -91,7 +91,8 @@ public static class WpfHtmlDocument
         return htmlDoc;
     }
 
-    public static string ToHtmlLeafletBasicGeoJsonDocument(string title, double initialLatitude, double initialLongitude, string styleBlock)
+    public static string ToHtmlLeafletBasicGeoJsonDocument(string title, double initialLatitude,
+        double initialLongitude, string styleBlock)
     {
         var layers = LeafletBasicLayerList();
 

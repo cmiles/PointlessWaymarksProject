@@ -24,6 +24,14 @@ Site:
 
 ## Notes
 
+1/10/2023
+
+With over 15 years of Windows GUI programming experience for the first time I found a use for Windows Notifications! For this project the Task items could run on a server but the actual target is running on a personal machine - with that in mind the tasks need a way to notify about success/failure and Windows Notifications seem like a nice way to do that without needing to provide additional configuration and store additional user information.
+
+Windows Notifications turned out to be quite easy to work with but I did have some slight confusion because they come in a Nuget package with a name that I found confusing - Microsoft.Toolkit.Uwp.Notifications - this package and the notification code is simple enough that I was able to use LinqPad and immediately start experimenting!
+
+With scripts producing installer files the next step was to get the program to auto update. For this I targetted my actual needs right now - so this targets the 'file system' rather than an update URL/Service. This could change later but atm I don't want the extra overhead of making these setup files available online. The publish scripts build the installers right into a directory that all my computers can access - good enough for now and goes with the theme of this codebase really being for someone who can build and debug it.
+
 1/6/2023
 
 HTML Triple Fail:

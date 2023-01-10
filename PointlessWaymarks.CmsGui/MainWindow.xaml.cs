@@ -36,12 +36,12 @@ using PointlessWaymarks.CmsWpfControls.UserSettingsEditor;
 using PointlessWaymarks.CmsWpfControls.Utility;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.WpfCommon.MarkdownDisplay;
+using PointlessWaymarks.WpfCommon.ProgramUpdateMessage;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 using PointlessWaymarks.WpfCommon.Utility;
 using PointlessWaymarks.WpfCommon.WpfHtml;
 using Serilog;
-using BuildDateAttribute = PointlessWaymarks.CommonTools.BuildDateAttribute;
 
 namespace PointlessWaymarks.CmsGui;
 
@@ -51,6 +51,7 @@ namespace PointlessWaymarks.CmsGui;
 [ObservableObject]
 public partial class MainWindow
 {
+    private readonly string _currentDateVersion;
     [ObservableProperty] private FilesWrittenLogListContext _filesWrittenContext;
     [ObservableProperty] private string _infoTitle;
     [ObservableProperty] private string _recentSettingsFilesNames;
@@ -74,6 +75,7 @@ public partial class MainWindow
     [ObservableProperty] private PostListWithActionsContext _tabPostListContext;
     [ObservableProperty] private TagExclusionEditorContext _tabTagExclusionContext;
     [ObservableProperty] private TagListContext _tabTagListContext;
+    [ObservableProperty] private ProgramUpdateMessageContext _updateMessageContext;
 
     public MainWindow()
     {
@@ -88,8 +90,13 @@ public partial class MainWindow
 
         WindowInitialPositionHelpers.EnsureWindowIsVisible(this);
 
-        InfoTitle = ProgramInfoTools.StandardAppInformationString(Assembly.GetExecutingAssembly(),
-            "Pointless Waymarks CMS Beta").humanTitleString;
+        var versionInfo =
+            ProgramInfoTools.StandardAppInformationString(Assembly.GetExecutingAssembly(),
+                "Pointless Waymarks CMS Beta");
+
+        InfoTitle = versionInfo.humanTitleString;
+
+        _currentDateVersion = versionInfo.dateVersion;
 
         ShowSettingsFileChooser = true;
 
@@ -100,6 +107,8 @@ public partial class MainWindow
         WindowStatus = new WindowIconStatus();
 
         PropertyChanged += OnPropertyChanged;
+
+        UpdateMessageContext = new ProgramUpdateMessageContext();
 
         //Common
 
@@ -256,6 +265,27 @@ public partial class MainWindow
         }
 
         await Reports.InvalidBracketCodeContentIdsHtmlReport(generationResults);
+    }
+
+    public async Task CheckForProgramUpdate(string currentDateVersion)
+    {
+        Log.Information(
+            $"Program Update Check - Current Version {currentDateVersion}, Installer Directory {UserSettingsSingleton.CurrentSettings().ProgramUpdateLocation}");
+
+        if (string.IsNullOrEmpty(currentDateVersion)) return;
+
+        var (dateString, setupFile) = ProgramInfoTools.LatestInstaller(
+            UserSettingsSingleton.CurrentSettings().ProgramUpdateLocation,
+            "PointlessWaymarksCmsSetup");
+
+        Log.Information(
+            $"Program Update Check - Current Version {currentDateVersion}, Installer Directory {UserSettingsSingleton.CurrentSettings().ProgramUpdateLocation}, Installer Date Found {dateString ?? string.Empty}, Setup File Found {setupFile?.FullName ?? string.Empty}");
+
+        if (string.IsNullOrWhiteSpace(dateString) || setupFile is not { Exists: true }) return;
+
+        if (string.Compare(currentDateVersion, dateString, StringComparison.OrdinalIgnoreCase) >= 0) return;
+
+        await UpdateMessageContext.LoadData(currentDateVersion, dateString, setupFile);
     }
 
     private async Task CleanAndResizeAllImageFiles()
@@ -483,8 +513,9 @@ public partial class MainWindow
 
         InfoTitle =
             $"{UserSettingsSingleton.CurrentSettings().SiteName} - {InfoTitle}";
-
         MainTabControl.SelectedIndex = 0;
+
+        StatusContext.RunBlockingTask(async () => await CheckForProgramUpdate(_currentDateVersion));
     }
 
     private void LoadSelectedTabAsNeeded()
