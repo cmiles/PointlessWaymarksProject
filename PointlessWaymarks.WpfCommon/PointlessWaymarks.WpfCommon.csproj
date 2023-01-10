@@ -35,7 +35,7 @@
     <PackageReference Include="Markdig" Version="0.30.4" />
     <PackageReference Include="Markdig.Wpf" Version="0.5.0.1" />
     <PackageReference Include="MetadataExtractor" Version="2.7.2" />
-    <PackageReference Include="Microsoft.Extensions.FileProviders.Embedded" Version="7.0.1" />
+    <PackageReference Include="Microsoft.Extensions.FileProviders.Embedded" Version="7.0.2" />
     <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.1462.37" />
     <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.39" />
     <PackageReference Include="Ookii.Dialogs.Wpf" Version="5.0.1" />
