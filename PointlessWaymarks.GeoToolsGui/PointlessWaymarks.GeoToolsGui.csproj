@@ -19,6 +19,10 @@
     <None Update="app.manifest">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Update="GeoToolsGuiAppSettings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>GeoToolsGuiAppSettings.Designer.cs</LastGenOutput>
+    </None>
   </ItemGroup>
 
   <ItemGroup>
@@ -26,6 +30,7 @@
     <PackageReference Include="GitInfo" Version="2.3.0" />
     <PackageReference Include="Jot" Version="2.1.13" />
     <PackageReference Include="ModernWpfUI" Version="0.9.6" />
+    <PackageReference Include="System.Configuration.ConfigurationManager" Version="7.0.0" />
   </ItemGroup>
 
   <ItemGroup>
@@ -56,6 +61,11 @@
   <ItemGroup>
     <Compile Update="Controls\FeatureFileEditorControl.xaml.cs">
       <SubType>Code</SubType>
+    </Compile>
+    <Compile Update="GeoToolsGuiAppSettings.Designer.cs">
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>GeoToolsGuiAppSettings.settings</DependentUpon>
     </Compile>
   </ItemGroup>
 
