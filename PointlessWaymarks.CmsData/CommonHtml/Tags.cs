@@ -324,9 +324,11 @@ public static class Tags
             .Attr("srcset", pictureDirectoryInfo.SrcSetString())
             .Attr("src", pictureDirectoryInfo.DisplayPicture.SiteUrl)
             .Attr("height", pictureDirectoryInfo.DisplayPicture.Height)
-            .Attr("width", pictureDirectoryInfo.DisplayPicture.Width).Attr("loading", "lazy");
-
-        imageTag.Attr("sizes", !string.IsNullOrWhiteSpace(sizes) ? sizes : "100vw");
+            .Attr("width", pictureDirectoryInfo.DisplayPicture.Width)
+            .Attr("loading", "lazy")
+            .Attr("sizes", !string.IsNullOrWhiteSpace(sizes) ? sizes : "100vw")
+            .Style("max-width",
+                $"{pictureDirectoryInfo.LargePicture?.Width ?? pictureDirectoryInfo.DisplayPicture.Width}px");
 
         if (!string.IsNullOrWhiteSpace(pictureDirectoryInfo.DisplayPicture.AltText))
             imageTag.Attr("alt", pictureDirectoryInfo.DisplayPicture.AltText);
@@ -458,31 +460,6 @@ public static class Tags
         return titleContainer;
     }
 
-    public static HtmlTag PreviousAndNextPhotoDiv(PhotoContent? previousPhoto,
-        PhotoContent? nextPhoto)
-    {
-        if (previousPhoto is null && nextPhoto is null) return HtmlTag.Empty();
-
-        var hasPreviousPosts = previousPhoto != null;
-        var hasLaterPosts = nextPhoto != null;
-        var hasBothEarlierAndLaterPosts = hasPreviousPosts && hasLaterPosts;
-
-        var relatedPostsContainer =
-            new DivTag().AddClasses("photo-previous-next-container", "compact-content-list-container");
-        relatedPostsContainer.Children.Add(new DivTag()
-            .Text($"{(hasPreviousPosts ? "Previous" : "")}" +
-                  $"{(hasBothEarlierAndLaterPosts ? "/" : "")}{(hasLaterPosts ? "Next" : "")}:")
-            .AddClasses("photo-previous-next-label-tag", "compact-content-list-label"));
-
-        if (hasPreviousPosts)
-            relatedPostsContainer.Children.Add(BodyContentReferences.CompactContentDiv(previousPhoto));
-
-        if (hasLaterPosts)
-            relatedPostsContainer.Children.Add(BodyContentReferences.CompactContentDiv(nextPhoto));
-
-        return relatedPostsContainer;
-    }
-
     public static HtmlTag PreviousAndNextContentDiv(List<IContentCommon> previousPosts,
         List<IContentCommon> laterPosts)
     {
@@ -506,6 +483,31 @@ public static class Tags
         if (hasLaterPosts)
             foreach (var loopPosts in laterPosts)
                 relatedPostsContainer.Children.Add(BodyContentReferences.CompactContentDiv(loopPosts));
+
+        return relatedPostsContainer;
+    }
+
+    public static HtmlTag PreviousAndNextPhotoDiv(PhotoContent? previousPhoto,
+        PhotoContent? nextPhoto)
+    {
+        if (previousPhoto is null && nextPhoto is null) return HtmlTag.Empty();
+
+        var hasPreviousPosts = previousPhoto != null;
+        var hasLaterPosts = nextPhoto != null;
+        var hasBothEarlierAndLaterPosts = hasPreviousPosts && hasLaterPosts;
+
+        var relatedPostsContainer =
+            new DivTag().AddClasses("photo-previous-next-container", "compact-content-list-container");
+        relatedPostsContainer.Children.Add(new DivTag()
+            .Text($"{(hasPreviousPosts ? "Previous" : "")}" +
+                  $"{(hasBothEarlierAndLaterPosts ? "/" : "")}{(hasLaterPosts ? "Next" : "")}:")
+            .AddClasses("photo-previous-next-label-tag", "compact-content-list-label"));
+
+        if (hasPreviousPosts)
+            relatedPostsContainer.Children.Add(BodyContentReferences.CompactContentDiv(previousPhoto));
+
+        if (hasLaterPosts)
+            relatedPostsContainer.Children.Add(BodyContentReferences.CompactContentDiv(nextPhoto));
 
         return relatedPostsContainer;
     }
