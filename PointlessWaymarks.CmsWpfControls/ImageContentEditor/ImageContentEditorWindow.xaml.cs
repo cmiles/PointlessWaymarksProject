@@ -15,8 +15,8 @@ public partial class ImageContentEditorWindow
     [ObservableProperty] private StatusControlContext _statusContext;
 
     /// <summary>
-    /// DO NOT USE - Use CreateInstance instead - using the constructor directly will result in
-    /// core functionality being uninitialized.
+    ///     DO NOT USE - Use CreateInstance instead - using the constructor directly will result in
+    ///     core functionality being uninitialized.
     /// </summary>
     private ImageContentEditorWindow()
     {
@@ -26,9 +26,9 @@ public partial class ImageContentEditorWindow
     }
 
     /// <summary>
-    /// Creates a new instance - this method can be called from any thread and will
-    /// switch to the UI thread as needed. Does not show the window - consider using
-    /// PositionWindowAndShowOnUiThread() from the WindowInitialPositionHelpers.
+    ///     Creates a new instance - this method can be called from any thread and will
+    ///     switch to the UI thread as needed. Does not show the window - consider using
+    ///     PositionWindowAndShowOnUiThread() from the WindowInitialPositionHelpers.
     /// </summary>
     /// <returns></returns>
     public static async Task<ImageContentEditorWindow> CreateInstance(ImageContent contentToLoad = null,
@@ -46,7 +46,10 @@ public partial class ImageContentEditorWindow
         window.ImageEditor.RequestContentEditorWindowClose += (_, _) => { window.Dispatcher?.Invoke(window.Close); };
 
         window.AccidentalCloserHelper =
-            new WindowAccidentalClosureHelper(window, window.StatusContext, window.ImageEditor);
+            new WindowAccidentalClosureHelper(window, window.StatusContext, window.ImageEditor)
+            {
+                CloseAction = x => ((ImageContentEditorWindow)x).ImageEditor.Saved = null
+            };
 
         return window;
     }

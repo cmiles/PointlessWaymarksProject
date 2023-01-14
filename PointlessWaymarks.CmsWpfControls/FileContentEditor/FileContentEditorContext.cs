@@ -5,6 +5,7 @@ using System.Text.RegularExpressions;
 using System.Windows;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using JetBrains.Annotations;
 using Ookii.Dialogs.Wpf;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.CommonHtml;
@@ -55,6 +56,9 @@ public partial class FileContentEditorContext : IHasChanges, IHasValidationIssue
     [ObservableProperty] private FileInfo _initialFile;
     [ObservableProperty] private RelayCommand _linkToClipboardCommand;
     [ObservableProperty] private FileInfo _loadedFile;
+
+
+    [ObservableProperty] [CanBeNull] private ImageContentEditorWindow _mainImageExternalEditorWindow;
     [ObservableProperty] private ContentSiteFeedAndIsDraftContext _mainSiteFeed;
     [ObservableProperty] private RelayCommand _openSelectedFileCommand;
     [ObservableProperty] private RelayCommand _openSelectedFileDirectoryCommand;
@@ -424,6 +428,47 @@ Notes:
         await SelectedFileChanged();
     }
 
+    private void MainImageExternalContextSaved(object sender, EventArgs e)
+    {
+        if (sender is ImageContentEditorContext imageContext)
+        {
+            StatusContext.RunNonBlockingTask(async () =>
+                await TryAddUserMainPicture(imageContext.DbEntry.ContentId));
+
+            MainImageExternalEditorWindow.ImageEditor.Saved -= MainImageExternalContextSaved;
+
+            MainImageExternalEditorWindowCleanup();
+        }
+    }
+
+    public void MainImageExternalEditorWindowCleanup()
+    {
+        if (MainImageExternalEditorWindow == null) return;
+
+        try
+        {
+            MainImageExternalEditorWindow.Closed -= OnMainImageExternalEditorWindowOnClosed;
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+        }
+
+        try
+        {
+            MainImageExternalEditorWindow.ImageEditor.Saved -= MainImageExternalContextSaved;
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+        }
+    }
+
+    private void OnMainImageExternalEditorWindowOnClosed(object sender, EventArgs args)
+    {
+        MainImageExternalEditorWindowCleanup();
+    }
+
     private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
     {
         if (e == null) return;
@@ -532,8 +577,22 @@ Notes:
 
         await LoadData(fileContent);
 
-        await ImageExtractionHelpers.PdfPageToImage(StatusContext, new List<FileContent> { DbEntry },
+        var autosaveReturn = await ImageExtractionHelpers.PdfPageToImageWithAutoSave(StatusContext,
+            DbEntry,
             pageNumber);
+
+        if (autosaveReturn.contentId != null)
+        {
+            UserMainPictureEntry.UserText = autosaveReturn.contentId.Value.ToString();
+            return;
+        }
+
+        if (autosaveReturn.editor != null)
+        {
+            MainImageExternalEditorWindow = autosaveReturn.editor;
+            MainImageExternalEditorWindow.Closed += OnMainImageExternalEditorWindowOnClosed;
+            MainImageExternalEditorWindow.ImageEditor.Saved += MainImageExternalContextSaved;
+        }
     }
 
     public async Task SaveAndGenerateHtml(bool overwriteExistingFiles, bool closeAfterSave)
@@ -636,6 +695,14 @@ Notes:
             UserMainPictureEntryContent = null;
             Log.Error(e, "Caught exception in FileContentEditorContext while trying to setup the User Main Picture.");
         }
+    }
+
+    public async Task TryAddUserMainPicture(Guid? contentId)
+    {
+        if (contentId == null || contentId == Guid.Empty) return;
+        var context = await Db.Context();
+        if (context.ImageContents.Any(x => x.ContentId == contentId))
+            UserMainPictureEntry.UserText = contentId.Value.ToString();
     }
 
     private void UserMainPictureEntryOnPropertyChanged(object sender, PropertyChangedEventArgs e)

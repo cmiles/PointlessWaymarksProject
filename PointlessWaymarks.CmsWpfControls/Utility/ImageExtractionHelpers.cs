@@ -1,20 +1,19 @@
-﻿using System.Drawing;
+﻿using System.Diagnostics;
 using System.IO;
+using Windows.Data.Pdf;
 using Windows.Graphics.Imaging;
 using Windows.Media.Editing;
 using Windows.Storage;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.Content;
-using PointlessWaymarks.CmsData.ContentHtml;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsWpfControls.ImageContentEditor;
+using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 using PointlessWaymarks.WpfCommon.Utility;
-using Windows.Data.Pdf;
-using PointlessWaymarks.CommonTools;
 
 namespace PointlessWaymarks.CmsWpfControls.Utility;
 
@@ -40,15 +39,11 @@ public static class ImageExtractionHelpers
 
             FileInfo destinationFile;
             if (pageNumber == 1)
-            {
                 destinationFile = new FileInfo(Path.Combine(UserSettingsUtilities.TempStorageDirectory().FullName,
                     $"{Path.GetFileNameWithoutExtension(targetFile.Name)}-CoverPage.jpg"));
-            }
             else
-            {
                 destinationFile = new FileInfo(Path.Combine(UserSettingsUtilities.TempStorageDirectory().FullName,
-                    $"{Path.GetFileNameWithoutExtension(targetFile.Name)}-Page.jpg"));
-            }
+                    $"{Path.GetFileNameWithoutExtension(targetFile.Name)}-Page-{pageNumber}.jpg"));
 
             if (destinationFile.Exists)
             {
@@ -107,7 +102,8 @@ public static class ImageExtractionHelpers
             }
             else
             {
-                newImage.Title = $"{content.Title} - Page {pageNumber}";;
+                newImage.Title = $"{content.Title} - Page {pageNumber}";
+                ;
                 newImage.Summary = $"Page {pageNumber} from {content.Title}.";
             }
 
@@ -127,6 +123,122 @@ public static class ImageExtractionHelpers
         }
     }
 
+    public static async Task<(Guid? contentId, ImageContentEditorWindow? editor)> PdfPageToImageWithAutoSave(
+        StatusControlContext statusContext,
+        FileContent selected, int pageNumber)
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        var targetFile = new FileInfo(Path.Combine(
+            UserSettingsSingleton.CurrentSettings().LocalSiteFileContentDirectory(selected).FullName,
+            selected.OriginalFileName));
+
+        if (!targetFile.Exists) return (null, null);
+
+        if (!targetFile.Extension.ToLower().Contains("pdf"))
+            return (null, null);
+
+        FileInfo destinationFile;
+        if (pageNumber == 1)
+            destinationFile = new FileInfo(Path.Combine(UserSettingsUtilities.TempStorageDirectory().FullName,
+                $"{Path.GetFileNameWithoutExtension(targetFile.Name)}-CoverPage.jpg"));
+        else
+            destinationFile = new FileInfo(Path.Combine(UserSettingsUtilities.TempStorageDirectory().FullName,
+                $"{Path.GetFileNameWithoutExtension(targetFile.Name)}-Page-{pageNumber}.jpg"));
+
+        if (destinationFile.Exists)
+        {
+            destinationFile.Delete();
+            destinationFile.Refresh();
+        }
+
+        if (destinationFile.Directory == null)
+        {
+            statusContext.ToastError($"Problem with {destinationFile.FullName} - Directory is Null?");
+            return (null, null);
+        }
+
+        //!!!Important!!! If you enter the code below on an MTA thread one of the calls will create a STA
+        //thread and switch to it - this is not great in combination with the ThreadSwitcher (and is 
+        //confusing in general... However if you enter this code block on an STA thread the code will
+        //not create and switch to a new thread so switching to the foreground thread before this 
+        //code block seems like the best solution.
+        //
+        //This call may seem un-needed but should be left in place!
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        //One of the calls below to get the image preview from Windows will switch to the UI Thread...
+        var file = await StorageFile.GetFileFromPathAsync(targetFile.FullName);
+        var pdfDocument = await PdfDocument.LoadFromFileAsync(file);
+        var pageIndex = (uint)pageNumber - 1;
+
+        var destinationStorageDirectory =
+            await StorageFolder.GetFolderFromPathAsync(destinationFile.Directory.FullName);
+        var destinationStorageFile = await destinationStorageDirectory.CreateFileAsync(destinationFile.Name);
+
+        using (var pdfPage = pdfDocument.GetPage(pageIndex))
+        using (var transaction = await destinationStorageFile.OpenTransactedWriteAsync())
+        {
+            var pdfPageRenderOptions = new PdfPageRenderOptions
+            {
+                DestinationHeight = (uint)pdfPage.Size.Height * 2,
+                DestinationWidth = (uint)pdfPage.Size.Width * 2,
+                BitmapEncoderId = BitmapEncoder.JpegEncoderId
+            };
+
+            await pdfPage.RenderToStreamAsync(transaction.Stream, pdfPageRenderOptions);
+        }
+
+        Debug.WriteLine($"{Thread.CurrentThread.ManagedThreadId} - {Thread.CurrentThread.GetApartmentState()}");
+
+
+        destinationFile.Refresh();
+
+        var newImage = new ImageContent { ContentId = Guid.NewGuid() };
+
+        if (pageNumber == 1)
+        {
+            newImage.Title = $"{selected.Title} Cover Page";
+            newImage.Summary = $"Cover Page from {selected.Title}.";
+        }
+        else
+        {
+            newImage.Title = $"{selected.Title} - Page {pageNumber}";
+            ;
+            newImage.Summary = $"Page {pageNumber} from {selected.Title}.";
+        }
+
+        newImage.ContentId = Guid.NewGuid();
+        newImage.CreatedBy = selected.CreatedBy;
+        newImage.CreatedOn = DateTime.Now;
+        newImage.FeedOn = DateTime.Now;
+        newImage.ShowInSearch = false;
+        newImage.Folder = selected.Folder;
+        newImage.Tags = selected.Tags;
+        newImage.Slug = SlugTools.CreateSlug(true, newImage.Title);
+        newImage.BodyContentFormat = ContentFormatDefaults.Content.ToString();
+        newImage.BodyContent = $"Generated from {BracketCodeFiles.Create(selected)}.";
+        newImage.UpdateNotesFormat = ContentFormatDefaults.Content.ToString();
+
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        var autoSaveReturn =
+            await ImageGenerator.SaveAndGenerateHtml(newImage, destinationFile, true, null,
+                statusContext.ProgressTracker());
+
+        if (autoSaveReturn.generationReturn.HasError)
+        {
+            await ThreadSwitcher.ResumeForegroundAsync();
+
+            var editor = await ImageContentEditorWindow.CreateInstance(newImage, destinationFile);
+            editor.PositionWindowAndShow();
+
+            return (null, editor);
+        }
+
+        return (autoSaveReturn.imageContent.ContentId, null);
+    }
+
     public static async Task VideoFrameToImage(StatusControlContext statusContext,
         List<FileContent> selected)
     {
@@ -144,6 +256,8 @@ public static class ImageExtractionHelpers
 
             if (!targetFile.Extension.ToLower().Contains("mp4"))
                 continue;
+
+            await ThreadSwitcher.ResumeForegroundAsync();
 
             var file = await StorageFile.GetFileFromPathAsync(targetFile.FullName);
             var mediaClip = await MediaClip.CreateFromFileAsync(file);
@@ -169,6 +283,8 @@ public static class ImageExtractionHelpers
                     BitmapEncoder.JpegEncoderId, stream);
             encoder.SetSoftwareBitmap(softwareBitmap);
             await encoder.FlushAsync();
+
+            await ThreadSwitcher.ResumeBackgroundAsync();
 
             toProcess.Add((targetFile, destinationFile, loopSelected));
         }
@@ -267,7 +383,6 @@ public static class ImageExtractionHelpers
         var autoSaveReturn =
             await ImageGenerator.SaveAndGenerateHtml(newImage, destinationFile, true, null,
                 statusContext.ProgressTracker());
-
 
         if (autoSaveReturn.generationReturn.HasError)
         {

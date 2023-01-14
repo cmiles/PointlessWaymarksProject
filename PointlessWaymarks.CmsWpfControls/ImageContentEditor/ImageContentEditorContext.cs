@@ -80,6 +80,8 @@ public partial class ImageContentEditorContext : IHasChanges, IHasValidationIssu
         PropertyChanged += OnPropertyChanged;
     }
 
+    public EventHandler<EventArgs> Saved { get; set; }
+
     public void CheckForChangesAndValidationIssues()
     {
         HasChanges = PropertyScanners.ChildPropertiesHaveChanges(this) || SelectedFileHasPathOrNameChanges;
@@ -309,6 +311,8 @@ public partial class ImageContentEditorContext : IHasChanges, IHasValidationIssu
         }
 
         await LoadData(newContent);
+
+        Saved?.Invoke(this, EventArgs.Empty);
 
         if (closeAfterSave)
         {

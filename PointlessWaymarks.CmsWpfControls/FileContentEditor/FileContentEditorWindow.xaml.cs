@@ -15,8 +15,8 @@ public partial class FileContentEditorWindow
     [ObservableProperty] private StatusControlContext _statusContext;
 
     /// <summary>
-    /// DO NOT USE - Use CreateInstance instead - using the constructor directly will result in
-    /// core functionality being uninitialized.
+    ///     DO NOT USE - Use CreateInstance instead - using the constructor directly will result in
+    ///     core functionality being uninitialized.
     /// </summary>
     private FileContentEditorWindow()
     {
@@ -26,8 +26,8 @@ public partial class FileContentEditorWindow
     }
 
     /// <summary>
-    /// Creates a new instance - this method can be called from any thread and will
-    /// switch to the UI thread as needed.
+    ///     Creates a new instance - this method can be called from any thread and will
+    ///     switch to the UI thread as needed.
     /// </summary>
     /// <returns></returns>
     public static async Task<FileContentEditorWindow> CreateInstance()
@@ -43,14 +43,17 @@ public partial class FileContentEditorWindow
         window.FileContent.RequestContentEditorWindowClose += (_, _) => { window.Dispatcher?.Invoke(window.Close); };
 
         window.AccidentalCloserHelper =
-            new WindowAccidentalClosureHelper(window, window.StatusContext, window.FileContent);
+            new WindowAccidentalClosureHelper(window, window.StatusContext, window.FileContent)
+            {
+                CloseAction = x => { ((FileContentEditorWindow)x).FileContent.MainImageExternalEditorWindowCleanup(); }
+            };
 
         return window;
     }
 
     /// <summary>
-    /// Creates a new instance - this method can be called from any thread and will
-    /// switch to the UI thread as needed.
+    ///     Creates a new instance - this method can be called from any thread and will
+    ///     switch to the UI thread as needed.
     /// </summary>
     /// <returns></returns>
     public static async Task<FileContentEditorWindow> CreateInstance(FileInfo initialFile)
@@ -66,15 +69,18 @@ public partial class FileContentEditorWindow
         window.FileContent.RequestContentEditorWindowClose += (_, _) => { window.Dispatcher?.Invoke(window.Close); };
 
         window.AccidentalCloserHelper =
-            new WindowAccidentalClosureHelper(window, window.StatusContext, window.FileContent);
+            new WindowAccidentalClosureHelper(window, window.StatusContext, window.FileContent)
+            {
+                CloseAction = x => { ((FileContentEditorWindow)x).FileContent.MainImageExternalEditorWindowCleanup(); }
+            };
 
         return window;
     }
 
     /// <summary>
-    /// Creates a new instance - this method can be called from any thread and will
-    /// switch to the UI thread as needed. Does not show the window - consider using
-    /// PositionWindowAndShowOnUiThread() from the WindowInitialPositionHelpers.
+    ///     Creates a new instance - this method can be called from any thread and will
+    ///     switch to the UI thread as needed. Does not show the window - consider using
+    ///     PositionWindowAndShowOnUiThread() from the WindowInitialPositionHelpers.
     /// </summary>
     /// <returns></returns>
     public static async Task<FileContentEditorWindow> CreateInstance(FileContent toLoad)
@@ -90,7 +96,10 @@ public partial class FileContentEditorWindow
         window.FileContent.RequestContentEditorWindowClose += (_, _) => { window.Dispatcher?.Invoke(window.Close); };
 
         window.AccidentalCloserHelper =
-            new WindowAccidentalClosureHelper(window, window.StatusContext, window.FileContent);
+            new WindowAccidentalClosureHelper(window, window.StatusContext, window.FileContent)
+            {
+                CloseAction = x => { ((FileContentEditorWindow)x).FileContent.MainImageExternalEditorWindowCleanup(); }
+            };
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
