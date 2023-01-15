@@ -189,9 +189,6 @@ public static class ImageExtractionHelpers
             await pdfPage.RenderToStreamAsync(transaction.Stream, pdfPageRenderOptions);
         }
 
-        Debug.WriteLine($"{Thread.CurrentThread.ManagedThreadId} - {Thread.CurrentThread.GetApartmentState()}");
-
-
         destinationFile.Refresh();
 
         var newImage = new ImageContent { ContentId = Guid.NewGuid() };
