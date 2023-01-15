@@ -35,7 +35,7 @@ namespace PointlessWaymarks.CmsWpfControls.ImageContentEditor;
 public partial class ImageContentEditorContext : IHasChanges, IHasValidationIssues, ICheckForChangesAndValidation
 {
     [ObservableProperty] private StringDataEntryContext _altTextEntry;
-    [ObservableProperty] private RelayCommand _autoRenameSelectedFileCommand;
+    [ObservableProperty] private RelayCommand _autoCleanRenameSelectedFileCommand;
     [ObservableProperty] private BodyContentEditorContext _bodyContent;
     [ObservableProperty] private RelayCommand _chooseFileCommand;
     [ObservableProperty] private ContentIdViewerControlContext _contentId;
@@ -79,6 +79,8 @@ public partial class ImageContentEditorContext : IHasChanges, IHasValidationIssu
 
         PropertyChanged += OnPropertyChanged;
     }
+
+    public RelayCommand AutoRenameSelectedFileBasedOnTitleCommand { get; set; }
 
     public EventHandler<EventArgs> Saved { get; set; }
 
@@ -205,7 +207,11 @@ public partial class ImageContentEditorContext : IHasChanges, IHasValidationIssu
             ShowImageSizes = UserSettingsSingleton.CurrentSettings().ImagePagesHaveLinksToImageSizesByDefault
         };
 
-        TitleSummarySlugFolder = await TitleSummarySlugEditorContext.CreateInstance(StatusContext, DbEntry);
+        TitleSummarySlugFolder = await TitleSummarySlugEditorContext.CreateInstance(StatusContext, "To File Name",
+            AutoRenameSelectedFileBasedOnTitleCommand,
+            x => !Path.GetFileNameWithoutExtension(SelectedFile.Name)
+                .Equals(SlugTools.CreateSlug(false, x.TitleEntry.UserValue), StringComparison.OrdinalIgnoreCase),
+            DbEntry);
         MainSiteFeed = await ContentSiteFeedAndIsDraftContext.CreateInstance(StatusContext, DbEntry);
         ShowInSearch = BoolDataEntryContext.CreateInstanceForShowInSearch(DbEntry, true);
         CreatedUpdatedDisplay = await CreatedAndUpdatedByAndOnDisplayContext.CreateInstance(StatusContext, DbEntry);
@@ -375,8 +381,14 @@ public partial class ImageContentEditorContext : IHasChanges, IHasValidationIssu
         ViewSelectedFileCommand = StatusContext.RunNonBlockingTaskCommand(ViewSelectedFile);
         RenameSelectedFileCommand = StatusContext.RunBlockingTaskCommand(async () =>
             await FileHelpers.RenameSelectedFile(SelectedFile, StatusContext, x => SelectedFile = x));
-        AutoRenameSelectedFileCommand = StatusContext.RunBlockingTaskCommand(async () =>
+        AutoCleanRenameSelectedFileCommand = StatusContext.RunBlockingTaskCommand(async () =>
             await FileHelpers.TryAutoCleanRenameSelectedFile(SelectedFile, StatusContext, x => SelectedFile = x));
+        AutoRenameSelectedFileBasedOnTitleCommand = StatusContext.RunBlockingTaskCommand(async () =>
+        {
+            await FileHelpers.TryAutoRenameSelectedFile(SelectedFile, TitleSummarySlugFolder.TitleEntry.UserValue,
+                StatusContext, x => SelectedFile = x);
+        });
+
         RotateImageRightCommand =
             StatusContext.RunBlockingTaskCommand(async () => await RotateImage(Orientation.Rotate90));
         RotateImageLeftCommand =

@@ -104,7 +104,7 @@
                     <Button
                         HorizontalAlignment="Center"
                         Background="Yellow"
-                        Command="{Binding AutoRenameSelectedFileCommand}"
+                        Command="{Binding AutoCleanRenameSelectedFileCommand}"
                         ToolTip="This filename has illegal characters - pressing this to attempt to auto-rename the file"
                         Visibility="{Binding SelectedFileNameHasInvalidCharacters, Converter={StaticResource BooleanToVisibility}}">
                         Auto-Fix File Name
