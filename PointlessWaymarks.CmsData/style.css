@@ -94,9 +94,8 @@ body {
 }
 
 .single-photo {
-    width: auto;
+    width: 100%;
     height: auto;
-    max-width: 100%;
     max-height: 98vh;
 }
 
@@ -137,9 +136,8 @@ body {
 }
 
 .single-image {
-    width: auto;
+    width: 100%;
     height: auto;
-    max-width: 100%;
     max-height: 98vh;
 }
 
