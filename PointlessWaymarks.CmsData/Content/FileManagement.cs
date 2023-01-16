@@ -78,12 +78,14 @@ public static class FileManagement
         if (!archiveFile.Exists && !contentFile.Exists)
             return GenerationReturn.Error(
                 $"Neither {archiveFile.FullName} nor {contentFile.FullName} exists - " +
-                $"there appears to be a file missing for File Title {dbContent.Title} " + $"slug {dbContent.Slug}",
+                $"there appears to be a file missing for File Titled {dbContent.Title} " + $"slug {dbContent.Slug}",
                 dbContent.ContentId);
 
-        if (archiveFile.Exists && !contentFile.Exists) await archiveFile.CopyToAndLogAsync(contentFile.FullName).ConfigureAwait(false);
+        if (archiveFile.Exists && !contentFile.Exists)
+            await archiveFile.CopyToAndLogAsync(contentFile.FullName).ConfigureAwait(false);
 
-        if (!archiveFile.Exists && contentFile.Exists) await contentFile.CopyToAndLogAsync(archiveFile.FullName).ConfigureAwait(false);
+        if (!archiveFile.Exists && contentFile.Exists)
+            await contentFile.CopyToAndLogAsync(archiveFile.FullName).ConfigureAwait(false);
 
         archiveFile.Refresh();
         contentFile.Refresh();
@@ -97,6 +99,54 @@ public static class FileManagement
         return GenerationReturn.Error(
             $"There was a problem - Archive File Present: {archiveFile.Exists}, " +
             $"Content File Present {contentFile.Exists} - {archiveFile.FullName}; {contentFile.FullName}",
+            dbContent.ContentId);
+    }
+
+    public static async Task<GenerationReturn> CheckVideoOriginalFileIsInMediaAndContentDirectories(
+    VideoContent? dbContent)
+    {
+        if (dbContent == null)
+            return GenerationReturn.Error(
+                "Null Video Content was submitted to the Check of File in the Media and Content Directories");
+
+        UserSettingsSingleton.CurrentSettings().VerifyOrCreateAllTopLevelFolders();
+
+        if (string.IsNullOrWhiteSpace(dbContent.OriginalFileName))
+            return GenerationReturn.Error($"Video {dbContent.Title} does not have an Original File assigned",
+                dbContent.ContentId);
+
+        var archiveFile = new FileInfo(Path.Combine(
+            UserSettingsSingleton.CurrentSettings().LocalMediaArchiveVideoDirectory().FullName,
+            dbContent.OriginalFileName));
+
+        var fileContentDirectory = UserSettingsSingleton.CurrentSettings().LocalSiteVideoContentDirectory(dbContent);
+
+        var contentFile = new FileInfo(Path.Combine(fileContentDirectory.FullName, dbContent.OriginalFileName));
+
+        if (!archiveFile.Exists && !contentFile.Exists)
+            return GenerationReturn.Error(
+                $"Neither {archiveFile.FullName} nor {contentFile.FullName} exists - " +
+                $"there appears to be a file missing for the Video Titled {dbContent.Title} " + $"slug {dbContent.Slug}",
+                dbContent.ContentId);
+
+        if (archiveFile.Exists && !contentFile.Exists)
+            await archiveFile.CopyToAndLogAsync(contentFile.FullName).ConfigureAwait(false);
+
+        if (!archiveFile.Exists && contentFile.Exists)
+            await contentFile.CopyToAndLogAsync(archiveFile.FullName).ConfigureAwait(false);
+
+        archiveFile.Refresh();
+        contentFile.Refresh();
+
+        var bothFilesPresent = archiveFile.Exists && contentFile.Exists;
+
+        if (bothFilesPresent)
+            return GenerationReturn.Success($"Video {dbContent.Title} Present in both Content and Media Folders",
+                dbContent.ContentId);
+
+        return GenerationReturn.Error(
+            $"There was a problem - Archive Video Present: {archiveFile.Exists}, " +
+            $"Content Video Present {contentFile.Exists} - {archiveFile.FullName}; {contentFile.FullName}",
             dbContent.ContentId);
     }
 
@@ -128,9 +178,11 @@ public static class FileManagement
                 dbContent.ContentId);
 
 
-        if (archiveFile.Exists && !contentFile.Exists) await archiveFile.CopyToAndLogAsync(contentFile.FullName).ConfigureAwait(false);
+        if (archiveFile.Exists && !contentFile.Exists)
+            await archiveFile.CopyToAndLogAsync(contentFile.FullName).ConfigureAwait(false);
 
-        if (!archiveFile.Exists && contentFile.Exists) await contentFile.CopyToAndLogAsync(archiveFile.FullName).ConfigureAwait(false);
+        if (!archiveFile.Exists && contentFile.Exists)
+            await contentFile.CopyToAndLogAsync(archiveFile.FullName).ConfigureAwait(false);
 
         archiveFile.Refresh();
         contentFile.Refresh();
@@ -174,9 +226,11 @@ public static class FileManagement
                 $"there appears to be a file missing for Photo Title {dbContent.Title} " + $"slug {dbContent.Slug}",
                 dbContent.ContentId);
 
-        if (archiveFile.Exists && !contentFile.Exists) await archiveFile.CopyToAndLogAsync(contentFile.FullName).ConfigureAwait(false);
+        if (archiveFile.Exists && !contentFile.Exists)
+            await archiveFile.CopyToAndLogAsync(contentFile.FullName).ConfigureAwait(false);
 
-        if (!archiveFile.Exists && contentFile.Exists) await contentFile.CopyToAndLogAsync(archiveFile.FullName).ConfigureAwait(false);
+        if (!archiveFile.Exists && contentFile.Exists)
+            await contentFile.CopyToAndLogAsync(archiveFile.FullName).ConfigureAwait(false);
 
         archiveFile.Refresh();
         contentFile.Refresh();
@@ -296,7 +350,8 @@ public static class FileManagement
     {
         var db = await Db.Context().ConfigureAwait(false);
 
-        var allItems = await db.FileContents.Where(x => string.IsNullOrEmpty(x.OriginalFileName)).ToListAsync().ConfigureAwait(false);
+        var allItems = await db.FileContents.Where(x => string.IsNullOrEmpty(x.OriginalFileName)).ToListAsync()
+            .ConfigureAwait(false);
 
         var loopCount = 1;
         var totalCount = allItems.Count;
@@ -754,7 +809,8 @@ public static class FileManagement
 
         var dailyGalleryFiles = dailyPhotoGalleryDirectory.GetFiles().OrderBy(x => x.Name).ToList();
 
-        var allPhotoDays = (await db.PhotoContents.Select(x => x.PhotoCreatedOn).Distinct().ToListAsync().ConfigureAwait(false))
+        var allPhotoDays = (await db.PhotoContents.Select(x => x.PhotoCreatedOn).Distinct().ToListAsync()
+                .ConfigureAwait(false))
             .Select(x => x.Date).Distinct().ToList();
 
         progress?.Report(
@@ -906,7 +962,8 @@ public static class FileManagement
     {
         progress?.Report("Starting Tag Directory Cleanup");
 
-        var tags = (await Db.TagSlugsAndContentList(true, false, progress).ConfigureAwait(false)).Select(x => x.tag).Distinct().ToList();
+        var tags = (await Db.TagSlugsAndContentList(true, false, progress).ConfigureAwait(false)).Select(x => x.tag)
+            .Distinct().ToList();
 
         var tagFiles = UserSettingsSingleton.CurrentSettings().LocalSiteTagsDirectory().GetFiles("TagList-*.html")
             .OrderBy(x => x.Name).ToList();
@@ -954,7 +1011,7 @@ public static class FileManagement
     /// <returns></returns>
     public static List<GenerationReturn> VerifyOrCreateLocalTopLevelSiteFolders(this UserSettings settings)
     {
-        return new()
+        return new List<GenerationReturn>
         {
             settings.LocalSiteDirectory().CreateIfItDoesNotExist(),
             settings.LocalSiteFileDirectory().CreateIfItDoesNotExist(),
@@ -985,7 +1042,7 @@ public static class FileManagement
     /// <returns></returns>
     public static List<GenerationReturn> VerifyOrCreateMediaArchiveFolders(this UserSettings settings)
     {
-        return new()
+        return new List<GenerationReturn>
         {
             settings.LocalMediaArchiveFullDirectory().CreateIfItDoesNotExist(),
             settings.LocalMediaArchivePhotoDirectory().CreateIfItDoesNotExist(),
@@ -1036,7 +1093,7 @@ public static class FileManagement
                 siteResources.Name));
 
         var destinationDirectory = destinationFile.Directory;
-        if (destinationDirectory is {Exists: false}) destinationDirectory.Create();
+        if (destinationDirectory is { Exists: false }) destinationDirectory.Create();
 
         var fileStream = File.Create(destinationFile.FullName);
         fileAsStream.Seek(0, SeekOrigin.Begin);
@@ -1150,6 +1207,40 @@ public static class FileManagement
         return GenerationReturn.Success("Photo is copied to Media Archive");
     }
 
+    public static async Task WriteSelectedVideoContentFileToMediaArchive(FileInfo selectedFile)
+    {
+        var userSettings = UserSettingsSingleton.CurrentSettings();
+        var destinationFileName = Path.Combine(userSettings.LocalMediaArchiveVideoDirectory().FullName,
+            selectedFile.Name);
+
+        if (destinationFileName == selectedFile.FullName) return;
+
+        var destinationFile = new FileInfo(destinationFileName);
+
+        if (destinationFile.Exists) destinationFile.Delete();
+
+        await selectedFile.CopyToAndLog(destinationFileName).ConfigureAwait(false);
+    }
+
+    public static async Task<GenerationReturn> WriteSelectedVideoContentFileToMediaArchive(FileInfo selectedFile,
+        bool replaceExisting)
+    {
+        var userSettings = UserSettingsSingleton.CurrentSettings();
+
+        var destinationFileName = Path.Combine(userSettings.LocalMediaArchiveVideoDirectory().FullName,
+            selectedFile.Name);
+        if (destinationFileName == selectedFile.FullName && !replaceExisting)
+            return GenerationReturn.Success("File is already in Media Archive");
+
+        var destinationFile = new FileInfo(destinationFileName);
+
+        if (destinationFile.Exists) destinationFile.Delete();
+
+        await selectedFile.CopyToAndLogAsync(destinationFileName).ConfigureAwait(false);
+
+        return GenerationReturn.Success("File is copied to Media Archive");
+    }
+
     public static async Task WriteSiteResourcesToGeneratedSite(IProgress<string>? progress = null)
     {
         var embeddedProvider = new EmbeddedFileProvider(Assembly.GetExecutingAssembly());
@@ -1174,7 +1265,7 @@ public static class FileManagement
                     filePathStyleName));
 
             var destinationDirectory = destinationFile.Directory;
-            if (destinationDirectory is {Exists: false}) destinationDirectory.Create();
+            if (destinationDirectory is { Exists: false }) destinationDirectory.Create();
 
             var fileStream = File.Create(destinationFile.FullName);
             fileAsStream.Seek(0, SeekOrigin.Begin);
@@ -1200,7 +1291,7 @@ public static class FileManagement
                 siteResources.Name));
 
         var destinationDirectory = destinationFile.Directory;
-        if (destinationDirectory is {Exists: false}) destinationDirectory.Create();
+        if (destinationDirectory is { Exists: false }) destinationDirectory.Create();
 
         var fileStream = File.Create(destinationFile.FullName);
         fileAsStream.Seek(0, SeekOrigin.Begin);

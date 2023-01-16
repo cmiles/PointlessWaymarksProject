@@ -5,24 +5,24 @@ using PointlessWaymarks.CmsData.Database.Models;
 
 namespace PointlessWaymarks.CmsData.CommonHtml;
 
-public static class BracketCodeFiles
+public static class BracketCodeVideoLinks
 {
-    public const string BracketCodeToken = "filelink";
+    public const string BracketCodeToken = "videolink";
 
-    public static string Create(FileContent content)
+    public static string Create(VideoContent content)
     {
         return $@"{{{{{BracketCodeToken} {content.ContentId}; {content.Title}}}}}";
     }
 
-    public static async Task<List<FileContent>> DbContentFromBracketCodes(string toProcess,
+    public static async Task<List<VideoContent>> DbContentFromBracketCodes(string toProcess,
         IProgress<string>? progress = null)
     {
-        if (string.IsNullOrWhiteSpace(toProcess)) return new List<FileContent>();
+        if (string.IsNullOrWhiteSpace(toProcess)) return new List<VideoContent>();
 
         var guidList = BracketCodeCommon.ContentBracketCodeMatches(toProcess, BracketCodeToken)
             .Select(x => x.contentGuid).Distinct().ToList();
 
-        var returnList = new List<FileContent>();
+        var returnList = new List<VideoContent>();
 
         if (!guidList.Any()) return returnList;
 
@@ -30,11 +30,11 @@ public static class BracketCodeFiles
 
         foreach (var loopGuid in guidList)
         {
-            var dbContent = await context.FileContents.FirstOrDefaultAsync(x => x.ContentId == loopGuid)
+            var dbContent = await context.VideoContents.FirstOrDefaultAsync(x => x.ContentId == loopGuid)
                 .ConfigureAwait(false);
             if (dbContent == null) continue;
 
-            progress?.Report($"File Code - Adding DbContent For {dbContent.Title}");
+            progress?.Report($"Video Link Code - Adding DbContent For {dbContent.Title}");
 
             returnList.Add(dbContent);
         }
@@ -46,7 +46,7 @@ public static class BracketCodeFiles
     {
         if (string.IsNullOrWhiteSpace(toProcess)) return string.Empty;
 
-        progress?.Report("Searching for File Link Codes");
+        progress?.Report("Searching for Video Link Codes");
 
         var resultList = BracketCodeCommon.ContentBracketCodeMatches(toProcess, BracketCodeToken);
 
@@ -56,19 +56,17 @@ public static class BracketCodeFiles
 
         foreach (var loopMatch in resultList)
         {
-            var dbContent =
-                await context.FileContents.FirstOrDefaultAsync(x => x.ContentId == loopMatch.contentGuid)
-                    .ConfigureAwait(false);
+            var dbContent = context.VideoContents.FirstOrDefault(x => x.ContentId == loopMatch.contentGuid);
             if (dbContent == null) continue;
 
-            progress?.Report($"Adding file link {dbContent.Title} from Code");
+            progress?.Report($"Adding video link {dbContent.Title} from Code");
             var settings = UserSettingsSingleton.CurrentSettings();
 
             var linkTag =
                 new LinkTag(
                     string.IsNullOrWhiteSpace(loopMatch.displayText)
                         ? dbContent.Title
-                        : loopMatch.displayText.Trim(), settings.FilePageUrl(dbContent), "file-page-link");
+                        : loopMatch.displayText.Trim(), settings.VideoPageUrl(dbContent), "video-page-link");
 
             toProcess = toProcess.Replace(loopMatch.bracketCodeText, linkTag.ToString());
         }

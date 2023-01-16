@@ -1,7 +1,5 @@
 ﻿using System.Text;
 using System.Web;
-using AngleSharp.Html;
-using AngleSharp.Html.Parser;
 using HtmlTags;
 using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.Content;
@@ -13,6 +11,7 @@ using PointlessWaymarks.CmsData.ContentHtml.NoteHtml;
 using PointlessWaymarks.CmsData.ContentHtml.PhotoHtml;
 using PointlessWaymarks.CmsData.ContentHtml.PointHtml;
 using PointlessWaymarks.CmsData.ContentHtml.PostHtml;
+using PointlessWaymarks.CmsData.ContentHtml.VideoHtml;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsData.Rss;
@@ -81,42 +80,6 @@ public partial class IndexPage
         foreach (var loopPosts in
                  IndexContent.Take(UserSettingsSingleton.CurrentSettings().NumberOfItemsOnMainSitePage))
         {
-            if (loopPosts.GetType() == typeof(PostContent))
-            {
-                var post = new SinglePostDiv(loopPosts);
-                var indexPostContentDiv = new DivTag().AddClass("index-posts-content");
-                indexPostContentDiv.Encoded(false).Text(post.TransformText());
-                indexBodyContainer.Children.Add(indexPostContentDiv);
-                indexBodyContainer.Children.Add(HorizontalRule.StandardRule());
-            }
-
-            if (loopPosts.GetType() == typeof(NoteContent))
-            {
-                var post = new SingleNoteDiv(loopPosts);
-                var indexPostContentDiv = new DivTag().AddClass("index-posts-content");
-                indexPostContentDiv.Encoded(false).Text(post.TransformText());
-                indexBodyContainer.Children.Add(indexPostContentDiv);
-                indexBodyContainer.Children.Add(HorizontalRule.StandardRule());
-            }
-
-            if (loopPosts.GetType() == typeof(PhotoContent))
-            {
-                var post = new SinglePhotoDiv(loopPosts);
-                var indexPostContentDiv = new DivTag().AddClass("index-posts-content");
-                indexPostContentDiv.Encoded(false).Text(post.TransformText());
-                indexBodyContainer.Children.Add(indexPostContentDiv);
-                indexBodyContainer.Children.Add(HorizontalRule.StandardRule());
-            }
-
-            if (loopPosts.GetType() == typeof(ImageContent))
-            {
-                var post = new SingleImageDiv(loopPosts);
-                var indexPostContentDiv = new DivTag().AddClass("index-posts-content");
-                indexPostContentDiv.Encoded(false).Text(post.TransformText());
-                indexBodyContainer.Children.Add(indexPostContentDiv);
-                indexBodyContainer.Children.Add(HorizontalRule.StandardRule());
-            }
-
             if (loopPosts.GetType() == typeof(FileContent))
             {
                 var post = new SingleFileDiv(loopPosts);
@@ -126,9 +89,9 @@ public partial class IndexPage
                 indexBodyContainer.Children.Add(HorizontalRule.StandardRule());
             }
 
-            if (loopPosts.GetType() == typeof(PointContentDto))
+            if (loopPosts.GetType() == typeof(ImageContent))
             {
-                var post = new SinglePointDiv(loopPosts);
+                var post = new SingleImageDiv(loopPosts);
                 var indexPostContentDiv = new DivTag().AddClass("index-posts-content");
                 indexPostContentDiv.Encoded(false).Text(post.TransformText());
                 indexBodyContainer.Children.Add(indexPostContentDiv);
@@ -147,6 +110,51 @@ public partial class IndexPage
             if (loopPosts.GetType() == typeof(LineContent))
             {
                 var post = new SingleLineDiv(loopPosts);
+                var indexPostContentDiv = new DivTag().AddClass("index-posts-content");
+                indexPostContentDiv.Encoded(false).Text(post.TransformText());
+                indexBodyContainer.Children.Add(indexPostContentDiv);
+                indexBodyContainer.Children.Add(HorizontalRule.StandardRule());
+            }
+
+            if (loopPosts.GetType() == typeof(NoteContent))
+            {
+                var post = new SingleNoteDiv(loopPosts);
+                var indexPostContentDiv = new DivTag().AddClass("index-posts-content");
+                indexPostContentDiv.Encoded(false).Text(post.TransformText());
+                indexBodyContainer.Children.Add(indexPostContentDiv);
+                indexBodyContainer.Children.Add(HorizontalRule.StandardRule());
+            }
+
+            if (loopPosts.GetType() == typeof(PointContentDto))
+            {
+                var post = new SinglePointDiv(loopPosts);
+                var indexPostContentDiv = new DivTag().AddClass("index-posts-content");
+                indexPostContentDiv.Encoded(false).Text(post.TransformText());
+                indexBodyContainer.Children.Add(indexPostContentDiv);
+                indexBodyContainer.Children.Add(HorizontalRule.StandardRule());
+            }
+
+            if (loopPosts.GetType() == typeof(PhotoContent))
+            {
+                var post = new SinglePhotoDiv(loopPosts);
+                var indexPostContentDiv = new DivTag().AddClass("index-posts-content");
+                indexPostContentDiv.Encoded(false).Text(post.TransformText());
+                indexBodyContainer.Children.Add(indexPostContentDiv);
+                indexBodyContainer.Children.Add(HorizontalRule.StandardRule());
+            }
+
+            if (loopPosts.GetType() == typeof(PostContent))
+            {
+                var post = new SinglePostDiv(loopPosts);
+                var indexPostContentDiv = new DivTag().AddClass("index-posts-content");
+                indexPostContentDiv.Encoded(false).Text(post.TransformText());
+                indexBodyContainer.Children.Add(indexPostContentDiv);
+                indexBodyContainer.Children.Add(HorizontalRule.StandardRule());
+            }
+
+            if (loopPosts.GetType() == typeof(VideoContent))
+            {
+                var post = new SingleVideoDiv(loopPosts);
                 var indexPostContentDiv = new DivTag().AddClass("index-posts-content");
                 indexPostContentDiv.Encoded(false).Text(post.TransformText());
                 indexBodyContainer.Children.Add(indexPostContentDiv);
@@ -353,6 +361,30 @@ public partial class IndexPage
             if (loopPosts.GetType() == typeof(GeoJsonContent))
             {
                 var post = new SingleGeoJsonDiv(loopPosts);
+
+                string? content = null;
+
+                if (post.DbEntry.MainPicture != null)
+                {
+                    var imageInfo = PictureAssetProcessing.ProcessPictureDirectory(post.DbEntry.MainPicture.Value);
+
+                    if (imageInfo != null)
+                        content =
+                            $"{Tags.PictureImgTagDisplayImageOnly(imageInfo)}<p>{HttpUtility.HtmlEncode(post.DbEntry.Summary)}</p>" +
+                            $"<p>Read more at <a href=\"{post.PageUrl}\">{UserSettingsSingleton.CurrentSettings().SiteName}</a></p>";
+                }
+
+                if (string.IsNullOrWhiteSpace(content))
+                    content = $"<p>{HttpUtility.HtmlEncode(post.DbEntry.Summary)}</p>" +
+                              $"<p>Read more at <a href=\"{post.PageUrl}\">{UserSettingsSingleton.CurrentSettings().SiteName}</a></p>";
+
+                items.Add(RssBuilder.RssItemString(post.DbEntry.Title, $"{post.PageUrl}", content,
+                    post.DbEntry.CreatedOn, post.DbEntry.ContentId.ToString()));
+            }
+
+            if (loopPosts.GetType() == typeof(VideoContent))
+            {
+                var post = new SingleVideoDiv(loopPosts);
 
                 string? content = null;
 

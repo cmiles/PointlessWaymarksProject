@@ -353,7 +353,7 @@ public static class ContentImport
             //be done earlier in the process but I think this should be pretty safe to skip rows with all
             //blanks as that is likely the either the user intent or it is bad row detection...
             if (loopRow.Values.All(string.IsNullOrWhiteSpace)) continue;
-            
+
             var importResult = await ImportContentFromExcelRow(headerInfo, loopRow).ConfigureAwait(false);
 
             if (importResult.hasError)
@@ -435,6 +435,9 @@ public static class ContentImport
                     .ConfigureAwait(false),
                 ImageContent i => await ImageGenerator.Validate(i,
                         UserSettingsSingleton.CurrentSettings().LocalMediaArchiveImageContentFile(i))
+                    .ConfigureAwait(false),
+                VideoContent v => await VideoGenerator.Validate(v,
+                        UserSettingsSingleton.CurrentSettings().LocalMediaArchiveVideoContentFile(v))
                     .ConfigureAwait(false),
                 PointContentDto pc => await PointGenerator.Validate(pc).ConfigureAwait(false),
                 PostContent pc => await PostGenerator.Validate(pc).ConfigureAwait(false),
@@ -558,7 +561,7 @@ public static class ContentImport
             var valuesToAdd = new List<string>();
             for (var c = 1; c <= columnLength; c++) valuesToAdd.Add(excelObjects[r, c]?.ToString() ?? string.Empty);
 
-            if(((Range)tableRange.Rows[r]).Hidden) continue;
+            if (((Range)tableRange.Rows[r]).Hidden) continue;
 
             translated.Add(new ContentImportRow(valuesToAdd, $"Row {r + excelRowOffset}"));
         }
@@ -626,12 +629,29 @@ public static class ContentImport
                     if (archiveFile is not { Exists: true })
                     {
                         generationResult = GenerationReturn.Error(
-                            $"Can not find media archive file for Photo Titled {file.Title} - file: {archiveFile?.FullName}",
+                            $"Can not find media archive file for File Titled {file.Title} - file: {archiveFile?.FullName}",
                             file.ContentId);
                         break;
                     }
 
                     generationResult = (await FileGenerator.SaveAndGenerateHtml(file,
+                        archiveFile, false, null, progress).ConfigureAwait(false)).generationReturn;
+                    break;
+                }
+                case VideoContent video:
+                {
+                    var archiveFile = UserSettingsSingleton.CurrentSettings()
+                        .LocalMediaArchiveVideoContentFile(video);
+
+                    if (archiveFile is not { Exists: true })
+                    {
+                        generationResult = GenerationReturn.Error(
+                            $"Can not find media archive file for Video Titled {video.Title} - file: {archiveFile?.FullName}",
+                            video.ContentId);
+                        break;
+                    }
+
+                    generationResult = (await VideoGenerator.SaveAndGenerateHtml(video,
                         archiveFile, false, null, progress).ConfigureAwait(false)).generationReturn;
                     break;
                 }
@@ -643,7 +663,7 @@ public static class ContentImport
                     if (archiveFile is not { Exists: true })
                     {
                         generationResult = GenerationReturn.Error(
-                            $"Can not find media archive file for Photo Titled {image.Title} - file: {archiveFile?.FullName}",
+                            $"Can not find media archive file for Image Titled {image.Title} - file: {archiveFile?.FullName}",
                             image.ContentId);
                         break;
                     }

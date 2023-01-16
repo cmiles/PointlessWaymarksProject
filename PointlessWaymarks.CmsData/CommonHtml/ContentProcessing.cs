@@ -1,5 +1,4 @@
 ﻿using Markdig;
-using Markdig.Extensions.Hardlines;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CommonTools;
 
@@ -12,7 +11,7 @@ public static class ContentProcessing
         if (string.IsNullOrWhiteSpace(contentFormat)) return toProcess.TrimNullToEmpty();
 
         return ProcessContent(toProcess,
-            (ContentFormatEnum) Enum.Parse(typeof(ContentFormatEnum), contentFormat, true));
+            (ContentFormatEnum)Enum.Parse(typeof(ContentFormatEnum), contentFormat, true));
     }
 
     public static string ProcessContent(string? toProcess, ContentFormatEnum contentFormat)
@@ -27,7 +26,8 @@ public static class ContentProcessing
             case ContentFormatEnum.Html01:
                 return toProcess;
             default:
-                throw new ArgumentOutOfRangeException( $"{nameof(contentFormat)} is not a recognized {nameof(ContentFormatEnum)} for {nameof(ProcessContent)}");
+                throw new ArgumentOutOfRangeException(
+                    $"{nameof(contentFormat)} is not a recognized {nameof(ContentFormatEnum)} for {nameof(ProcessContent)}");
         }
     }
 }

@@ -13,7 +13,6 @@ using PointlessWaymarks.CmsData.Content;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsWpfControls.BodyContentEditor;
-using PointlessWaymarks.CmsWpfControls.BoolDataEntry;
 using PointlessWaymarks.CmsWpfControls.ContentIdViewer;
 using PointlessWaymarks.CmsWpfControls.ContentSiteFeedAndIsDraft;
 using PointlessWaymarks.CmsWpfControls.ConversionDataEntry;
@@ -33,47 +32,40 @@ using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 using PointlessWaymarks.WpfCommon.Utility;
 using Serilog;
 
-namespace PointlessWaymarks.CmsWpfControls.FileContentEditor;
+namespace PointlessWaymarks.CmsWpfControls.VideoContentEditor;
 
 [ObservableObject]
-public partial class FileContentEditorContext : IHasChanges, IHasValidationIssues, ICheckForChangesAndValidation
+public partial class VideoContentEditorContext : IHasChanges, IHasValidationIssues, ICheckForChangesAndValidation
 {
-    [ObservableProperty] private RelayCommand _autoRenameSelectedFileCommand;
+    [ObservableProperty] private RelayCommand _autoRenameSelectedVideoCommand;
     [ObservableProperty] private BodyContentEditorContext _bodyContent;
-    [ObservableProperty] private RelayCommand _chooseFileCommand;
+    [ObservableProperty] private RelayCommand _chooseVideoCommand;
     [ObservableProperty] private ContentIdViewerControlContext _contentId;
     [ObservableProperty] private CreatedAndUpdatedByAndOnDisplayContext _createdUpdatedDisplay;
-    [ObservableProperty] private FileContent _dbEntry;
-    [ObservableProperty] private RelayCommand _downloadLinkToClipboardCommand;
+    [ObservableProperty] private VideoContent _dbEntry;
     [ObservableProperty] private RelayCommand _editUserMainPictureCommand;
-    [ObservableProperty] private BoolDataEntryContext _embedFile;
     [ObservableProperty] private RelayCommand _extractNewLinksCommand;
     [ObservableProperty] private bool _fileIsMp4;
-    [ObservableProperty] private bool _fileIsPdf;
     [ObservableProperty] private bool _hasChanges;
     [ObservableProperty] private bool _hasValidationIssues;
     [ObservableProperty] private HelpDisplayContext _helpContext;
-    [ObservableProperty] private FileInfo _initialFile;
+    [ObservableProperty] private FileInfo _initialVideo;
     [ObservableProperty] private RelayCommand _linkToClipboardCommand;
-    [ObservableProperty] private FileInfo _loadedFile;
-
-
+    [ObservableProperty] private FileInfo _loadedVideo;
     [ObservableProperty] [CanBeNull] private ImageContentEditorWindow _mainImageExternalEditorWindow;
     [ObservableProperty] private ContentSiteFeedAndIsDraftContext _mainSiteFeed;
-    [ObservableProperty] private RelayCommand _openSelectedFileCommand;
-    [ObservableProperty] private RelayCommand _openSelectedFileDirectoryCommand;
-    [ObservableProperty] private string _pdfToImagePageToExtract = "1";
-    [ObservableProperty] private BoolDataEntryContext _publicDownloadLink;
-    [ObservableProperty] private RelayCommand _renameSelectedFileCommand;
+    [ObservableProperty] private RelayCommand _openSelectedVideoCommand;
+    [ObservableProperty] private RelayCommand _openSelectedVideoDirectoryCommand;
+    [ObservableProperty] private RelayCommand _renameSelectedVideoCommand;
     [ObservableProperty] private RelayCommand _saveAndCloseCommand;
     [ObservableProperty] private RelayCommand _saveAndExtractImageFromPdfCommand;
     [ObservableProperty] private RelayCommand _saveAndExtractImageFromVideoCommand;
     [ObservableProperty] private RelayCommand _saveCommand;
-    [ObservableProperty] private FileInfo _selectedFile;
-    [ObservableProperty] private bool _selectedFileHasPathOrNameChanges;
-    [ObservableProperty] private bool _selectedFileHasValidationIssues;
-    [ObservableProperty] private bool _selectedFileNameHasInvalidCharacters;
-    [ObservableProperty] private string _selectedFileValidationMessage;
+    [ObservableProperty] private FileInfo _selectedVideo;
+    [ObservableProperty] private bool _selectedVideoHasPathOrNameChanges;
+    [ObservableProperty] private bool _selectedVideoHasValidationIssues;
+    [ObservableProperty] private bool _selectedVideoNameHasInvalidCharacters;
+    [ObservableProperty] private string _selectedVideoValidationMessage;
     [ObservableProperty] private StatusControlContext _statusContext;
     [ObservableProperty] private TagsEditorContext _tagEdit;
     [ObservableProperty] private TitleSummarySlugEditorContext _titleSummarySlugFolder;
@@ -86,16 +78,16 @@ public partial class FileContentEditorContext : IHasChanges, IHasValidationIssue
 
     public EventHandler RequestContentEditorWindowClose;
 
-    private FileContentEditorContext(StatusControlContext statusContext, FileInfo initialFile = null)
+    private VideoContentEditorContext(StatusControlContext statusContext, FileInfo initialVideo = null)
     {
-        if (initialFile is { Exists: true }) _initialFile = initialFile;
+        if (initialVideo is { Exists: true }) _initialVideo = initialVideo;
 
         PropertyChanged += OnPropertyChanged;
 
         SetupStatusContextAndCommands(statusContext);
     }
 
-    private FileContentEditorContext(StatusControlContext statusContext)
+    private VideoContentEditorContext(StatusControlContext statusContext)
     {
         PropertyChanged += OnPropertyChanged;
 
@@ -103,38 +95,38 @@ public partial class FileContentEditorContext : IHasChanges, IHasValidationIssue
     }
 
 
-    public string FileEditorHelpText =>
+    public string VideoEditorHelpText =>
         @"
-### File Content
+### Video Content
 
 Interesting books, dissertations, academic papers, maps, meeting notes, articles, memos, reports, etc. are available on a wide variety of subjects - but over years, decades, of time resources can easily 'disappear' from the internet... Websites are no longer available, agencies delete documents they are no longer legally required to retain, older versions of a document are not kept when a newer version comes out, departments shut down, funding runs out...
 
-File Content is intended to allow the creation of a 'library' of Files that you can tag, search, share and retain. The File you choose for File Content will be copied to the site just like an image or photo would be.
+Video Content is intended to allow the creation of a 'library' of Videos that you can tag, search, share and retain. The Video you choose for Video Content will be copied to the site just like an image or photo would be.
 
 With any file you have on your site it is your responsibility to know if it is legally acceptable to have the file on the site - like any content in this CMS you should only enter it into the CMS if you want it 'publicly' available on your site, there are options that allow some content to be more discrete - but NO options that allow you to fully hide content.
 
 Notes:
- - No File Previews are automatically generated - you will need to add any images/previews/etc. manually to the Body Content
+ - No Video Previews are automatically generated - you will need to add any images/previews/etc. manually to the Body Content
  - To help when working with PDFs the program can extract pages of a PDF as Image Content for quick/easy use in the Body Content - details:
    - To use this functionality pdftocairo must be available on your computer and the location of pdftocairo must be set in the Settings
    - On windows the easiest way to install pdftocairo is to install MiKTeX - [Getting MiKTeX - MiKTeX.org](https://miktex.org/download)
    - The page you specify to generate an image is the page that the PDF Viewer you are using is showing (rather than the 'content page number' printed at the bottom of a page) - for example with a book in PDF format to get an image of the 'cover' the page number is '1'
- - The File Content page can contain a link to download the file - but it is not appropriate to offer all content for download, use the 'Show Public Download Link' to turn on/off the download link. This setting will impact the behaviour of the 'filedownloadlink' bracket code - if 'Show Public Download Link' is unchecked a filedownloadlink bracket code will become a link to the File Content Page (rather than a download link for the content).
- - Regardless of the 'Show Public Download Link' the file will be copied to the site - if you have a sensitive document that should not be copied beyond your computer consider just creating Post Content for it - the File Content type is only useful for content where you want the File to be 'with' the site.
+ - The Video Content page can contain a link to download the file - but it is not appropriate to offer all content for download, use the 'Show Public Download Link' to turn on/off the download link. This setting will impact the behaviour of the 'filedownloadlink' bracket code - if 'Show Public Download Link' is unchecked a filedownloadlink bracket code will become a link to the Video Content Page (rather than a download link for the content).
+ - Regardless of the 'Show Public Download Link' the file will be copied to the site - if you have a sensitive document that should not be copied beyond your computer consider just creating Post Content for it - the Video Content type is only useful for content where you want the Video to be 'with' the site.
  - If appropriate consider including links to the original source in the Body Content
- - If what you are writing about is a 'file' but you don't want/need to store the file itself on your site you should probably just create a Post (or other content type like and Image) - use File Content when you want to store the file. 
+ - If what you are writing about is a 'file' but you don't want/need to store the file itself on your site you should probably just create a Post (or other content type like and Image) - use Video Content when you want to store the file. 
 ";
 
 
     public void CheckForChangesAndValidationIssues()
     {
-        HasChanges = PropertyScanners.ChildPropertiesHaveChanges(this) || SelectedFileHasPathOrNameChanges ||
+        HasChanges = PropertyScanners.ChildPropertiesHaveChanges(this) || SelectedVideoHasPathOrNameChanges ||
                      DbEntry?.MainPicture != CurrentMainPicture();
         HasValidationIssues = PropertyScanners.ChildPropertiesHaveValidationIssues(this) ||
-                              SelectedFileHasValidationIssues;
+                              SelectedVideoHasValidationIssues;
     }
 
-    public async Task ChooseFile()
+    public async Task ChooseVideo()
     {
         await ThreadSwitcher.ResumeForegroundAsync();
 
@@ -144,33 +136,33 @@ Notes:
 
         if (!(dialog.ShowDialog() ?? false)) return;
 
-        var newFile = new FileInfo(dialog.FileName);
+        var newVideo = new FileInfo(dialog.FileName);
 
-        if (!newFile.Exists)
+        if (!newVideo.Exists)
         {
-            StatusContext.ToastError("File doesn't exist?");
+            StatusContext.ToastError("Video doesn't exist?");
             return;
         }
 
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        SelectedFile = newFile;
+        SelectedVideo = newVideo;
 
-        StatusContext.Progress($"File load - {SelectedFile.FullName} ");
+        StatusContext.Progress($"Video load - {SelectedVideo.FullName} ");
     }
 
-    public static async Task<FileContentEditorContext> CreateInstance(StatusControlContext statusContext,
-        FileInfo initialFile = null)
+    public static async Task<VideoContentEditorContext> CreateInstance(StatusControlContext statusContext,
+        FileInfo initialVideo = null)
     {
-        var newControl = new FileContentEditorContext(statusContext, initialFile);
+        var newControl = new VideoContentEditorContext(statusContext, initialVideo);
         await newControl.LoadData(null);
         return newControl;
     }
 
-    public static async Task<FileContentEditorContext> CreateInstance(StatusControlContext statusContext,
-        FileContent initialContent)
+    public static async Task<VideoContentEditorContext> CreateInstance(StatusControlContext statusContext,
+        VideoContent initialContent)
     {
-        var newControl = new FileContentEditorContext(statusContext);
+        var newControl = new VideoContentEditorContext(statusContext);
         await newControl.LoadData(initialContent);
         return newControl;
     }
@@ -183,9 +175,9 @@ Notes:
         return BracketCodeCommon.PhotoOrImageCodeFirstIdInContent(BodyContent?.UserBodyContent);
     }
 
-    public FileContent CurrentStateToFileContent()
+    public VideoContent CurrentStateToVideoContent()
     {
-        var newEntry = new FileContent();
+        var newEntry = new VideoContent();
 
         if (DbEntry == null || DbEntry.Id < 1)
         {
@@ -214,41 +206,19 @@ Notes:
         newEntry.UpdateNotesFormat = UpdateNotes.UpdateNotesFormat.SelectedContentFormatAsString;
         newEntry.BodyContent = BodyContent.BodyContent.TrimNullToEmpty();
         newEntry.BodyContentFormat = BodyContent.BodyContentFormat.SelectedContentFormatAsString;
-        newEntry.OriginalFileName = SelectedFile.Name;
-        newEntry.PublicDownloadLink = PublicDownloadLink.UserValue;
-        newEntry.EmbedFile = PublicDownloadLink.UserValue && EmbedFile.UserValue;
+        newEntry.OriginalFileName = SelectedVideo.Name;
         newEntry.UserMainPicture = UserMainPictureEntry.UserValue;
 
         return newEntry;
     }
 
-    public void DetectGuiFileTypes()
+    public void DetectGuiVideoTypes()
     {
-        FileIsPdf = SelectedFile?.FullName.EndsWith("pdf", StringComparison.InvariantCultureIgnoreCase) ?? false;
         //8/6/2022 - This detection is mainly for extracting the first frame of a video - if changing/extending
         //this beyond mp4 (verified for example that the frame extraction works for avi) remember that the
         //there is a collision of concerns here and there may be merit in only encouraging formats that 
         //will work with the html video tag - see the file html...
-        FileIsMp4 = SelectedFile?.FullName.EndsWith("mp4", StringComparison.InvariantCultureIgnoreCase) ?? false;
-    }
-
-    private async Task DownloadLinkToClipboard()
-    {
-        await ThreadSwitcher.ResumeBackgroundAsync();
-
-        if (DbEntry == null || DbEntry.Id < 1)
-        {
-            StatusContext.ToastError("Sorry - please save before getting link...");
-            return;
-        }
-
-        var linkString = BracketCodeFileDownloads.Create(DbEntry);
-
-        await ThreadSwitcher.ResumeForegroundAsync();
-
-        Clipboard.SetText(linkString);
-
-        StatusContext.ToastSuccess($"To Clipboard: {linkString}");
+        FileIsMp4 = SelectedVideo?.FullName.EndsWith("mp4", StringComparison.InvariantCultureIgnoreCase) ?? false;
     }
 
     public async Task EditUserMainPicture()
@@ -290,7 +260,7 @@ Notes:
             return;
         }
 
-        var linkString = BracketCodeFiles.Create(DbEntry);
+        var linkString = BracketCodeVideos.Create(DbEntry);
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
@@ -299,7 +269,7 @@ Notes:
         StatusContext.ToastSuccess($"To Clipboard: {linkString}");
     }
 
-    private async Task LoadData(FileContent toLoad, bool skipMediaDirectoryCheck = false)
+    private async Task LoadData(VideoContent toLoad, bool skipMediaDirectoryCheck = false)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -307,47 +277,13 @@ Notes:
 
         var created = DateTime.Now;
 
-        DbEntry = toLoad ?? new FileContent
+        DbEntry = toLoad ?? new VideoContent
         {
             BodyContentFormat = UserSettingsUtilities.DefaultContentFormatChoice(),
             UpdateNotesFormat = UserSettingsUtilities.DefaultContentFormatChoice(),
-            PublicDownloadLink = true,
             CreatedOn = created,
             FeedOn = created
         };
-
-        PublicDownloadLink = BoolDataEntryContext.CreateInstance();
-        PublicDownloadLink.Title = "Show Public Download Link";
-        PublicDownloadLink.ReferenceValue = DbEntry.PublicDownloadLink;
-        PublicDownloadLink.UserValue = DbEntry.PublicDownloadLink;
-        PublicDownloadLink.HelpText =
-            "If checked there will be a hyperlink will on the File Content Page to download the content. NOTE! The File" +
-            "will be copied into the generated HTML for the site regardless of this setting - this setting is only about " +
-            "whether a download link is shown.";
-        PublicDownloadLink.PropertyChanged += (_, args) =>
-        {
-            if (args.PropertyName == "UserValue" && PublicDownloadLink != null && EmbedFile != null)
-            {
-                if (PublicDownloadLink.UserValue == false)
-                {
-                    EmbedFile.UserValue = false;
-                    EmbedFile.IsEnabled = false;
-                }
-                else
-                {
-                    EmbedFile.IsEnabled = true;
-                }
-            }
-        };
-
-        EmbedFile = BoolDataEntryContext.CreateInstance();
-        EmbedFile.Title = "Embed File in Page";
-        EmbedFile.ReferenceValue = DbEntry.EmbedFile;
-        EmbedFile.UserValue = DbEntry.EmbedFile;
-        EmbedFile.HelpText =
-            "If checked supported file types will be embedded in the the page - in general this means that" +
-            "there will be a viewer/player for the file. This option is only available if 'Show Public" +
-            "Download Link' is checked and not all content types are supported.";
 
         TitleSummarySlugFolder = await TitleSummarySlugEditorContext.CreateInstance(StatusContext, DbEntry);
         MainSiteFeed = await ContentSiteFeedAndIsDraftContext.CreateInstance(StatusContext, DbEntry);
@@ -370,41 +306,41 @@ Notes:
 
         if (!skipMediaDirectoryCheck && toLoad != null && !string.IsNullOrWhiteSpace(DbEntry.OriginalFileName))
         {
-            await FileManagement.CheckFileOriginalFileIsInMediaAndContentDirectories(DbEntry);
+            await FileManagement.CheckVideoOriginalFileIsInMediaAndContentDirectories(DbEntry);
 
-            var archiveFile = new FileInfo(Path.Combine(
-                UserSettingsSingleton.CurrentSettings().LocalMediaArchiveFileDirectory().FullName,
+            var archiveVideo = new FileInfo(Path.Combine(
+                UserSettingsSingleton.CurrentSettings().LocalMediaArchiveVideoDirectory().FullName,
                 DbEntry.OriginalFileName));
 
-            var fileContentDirectory = UserSettingsSingleton.CurrentSettings().LocalSiteFileContentDirectory(toLoad);
+            var fileContentDirectory = UserSettingsSingleton.CurrentSettings().LocalSiteVideoContentDirectory(toLoad);
 
-            var contentFile = new FileInfo(Path.Combine(fileContentDirectory.FullName, toLoad.OriginalFileName));
+            var contentVideo = new FileInfo(Path.Combine(fileContentDirectory.FullName, toLoad.OriginalFileName));
 
-            if (archiveFile.Exists)
+            if (archiveVideo.Exists)
             {
-                _loadedFile = archiveFile;
-                SelectedFile = archiveFile;
+                _loadedVideo = archiveVideo;
+                SelectedVideo = archiveVideo;
             }
             else
             {
-                await StatusContext.ShowMessageWithOkButton("Missing File",
+                await StatusContext.ShowMessageWithOkButton("Missing Video",
                     $"There is an original file listed for this entry - {DbEntry.OriginalFileName} -" +
-                    $" but it was not found in the expected locations of {archiveFile.FullName} or {contentFile.FullName} - " +
+                    $" but it was not found in the expected locations of {archiveVideo.FullName} or {contentVideo.FullName} - " +
                     "this will cause an error and prevent you from saving. You can re-load the file or " +
                     "maybe your media directory moved unexpectedly and you could close this editor " +
                     "and restore it (or change it in settings) before continuing?");
             }
         }
 
-        if (DbEntry.Id < 1 && _initialFile is { Exists: true })
+        if (DbEntry.Id < 1 && _initialVideo is { Exists: true })
         {
-            SelectedFile = _initialFile;
-            _initialFile = null;
+            SelectedVideo = _initialVideo;
+            _initialVideo = null;
 
-            if (SelectedFile.Extension == ".mp4")
+            if (SelectedVideo.Extension == ".mp4")
             {
                 var (generationReturn, metadata) =
-                    await PhotoGenerator.PhotoMetadataFromFile(SelectedFile, false, StatusContext.ProgressTracker());
+                    await PhotoGenerator.PhotoMetadataFromFile(SelectedVideo, false, StatusContext.ProgressTracker());
 
                 if (!generationReturn.HasError)
                 {
@@ -413,19 +349,16 @@ Notes:
                     TitleSummarySlugFolder.TitleEntry.UserValue = metadata.Title;
                     TitleSummarySlugFolder.TitleToSlug();
                     TitleSummarySlugFolder.FolderEntry.UserValue = metadata.PhotoCreatedOn.Year.ToString("F0");
-                    EmbedFile.UserValue = true;
                 }
             }
 
-            if (SelectedFile.Extension == ".pdf") EmbedFile.UserValue = true;
-
             if (string.IsNullOrWhiteSpace(TitleSummarySlugFolder.SummaryEntry.UserValue))
                 TitleSummarySlugFolder.TitleEntry.UserValue = Regex.Replace(
-                    Path.GetFileNameWithoutExtension(SelectedFile.Name).Replace("-", " ").Replace("_", " ")
+                    Path.GetFileNameWithoutExtension(SelectedVideo.Name).Replace("-", " ").Replace("_", " ")
                         .SplitCamelCase(), @"\s+", " ");
         }
 
-        await SelectedFileChanged();
+        await SelectedVideoChanged();
     }
 
     private void MainImageExternalContextSaved(object sender, EventArgs e)
@@ -477,51 +410,51 @@ Notes:
         if (!e.PropertyName.Contains("HasChanges") && !e.PropertyName.Contains("Validation"))
             CheckForChangesAndValidationIssues();
 
-        if (e.PropertyName == nameof(SelectedFile)) StatusContext.RunFireAndForgetNonBlockingTask(SelectedFileChanged);
+        if (e.PropertyName == nameof(SelectedVideo)) StatusContext.RunFireAndForgetNonBlockingTask(SelectedVideoChanged);
     }
 
-    private async Task OpenSelectedFile()
+    private async Task OpenSelectedVideo()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        if (SelectedFile is not { Exists: true, Directory.Exists: true })
+        if (SelectedVideo is not { Exists: true, Directory.Exists: true })
         {
-            StatusContext.ToastError("No Selected File or Selected File no longer exists?");
+            StatusContext.ToastError("No Selected Video or Selected Video no longer exists?");
             return;
         }
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
-        var ps = new ProcessStartInfo(SelectedFile.FullName) { UseShellExecute = true, Verb = "open" };
+        var ps = new ProcessStartInfo(SelectedVideo.FullName) { UseShellExecute = true, Verb = "open" };
         Process.Start(ps);
     }
 
-    private async Task OpenSelectedFileDirectory()
+    private async Task OpenSelectedVideoDirectory()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        if (SelectedFile is not { Exists: true, Directory.Exists: true })
+        if (SelectedVideo is not { Exists: true, Directory.Exists: true })
         {
-            StatusContext.ToastWarning("No Selected File or Selected File no longer exists?");
+            StatusContext.ToastWarning("No Selected Video or Selected Video no longer exists?");
             return;
         }
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
-        var ps = new ProcessStartInfo(SelectedFile.Directory.FullName) { UseShellExecute = true, Verb = "open" };
+        var ps = new ProcessStartInfo(SelectedVideo.Directory.FullName) { UseShellExecute = true, Verb = "open" };
         Process.Start(ps);
     }
 
     private async Task SaveAndExtractImageFromMp4()
     {
-        if (SelectedFile is not { Exists: true } || !SelectedFile.Extension.ToUpperInvariant().Contains("MP4"))
+        if (SelectedVideo is not { Exists: true } || !SelectedVideo.Extension.ToUpperInvariant().Contains("MP4"))
         {
             StatusContext.ToastError("Please selected a valid mp4 file");
             return;
         }
 
-        var (generationReturn, fileContent) = await FileGenerator.SaveAndGenerateHtml(CurrentStateToFileContent(),
-            SelectedFile, true, null, StatusContext.ProgressTracker());
+        var (generationReturn, fileContent) = await VideoGenerator.SaveAndGenerateHtml(CurrentStateToVideoContent(),
+            SelectedVideo, true, null, StatusContext.ProgressTracker());
 
         if (generationReturn.HasError)
         {
@@ -539,68 +472,12 @@ Notes:
         UserMainPictureEntry.UserText = autoSaveResult.Value.ToString();
     }
 
-    private async Task SaveAndExtractImageFromPdf()
-    {
-        if (SelectedFile is not { Exists: true } || !SelectedFile.Extension.ToUpperInvariant().Contains("PDF"))
-        {
-            StatusContext.ToastError("Please selected a valid pdf file");
-            return;
-        }
-
-        if (string.IsNullOrWhiteSpace(PdfToImagePageToExtract))
-        {
-            StatusContext.ToastError("Please enter a page number");
-            return;
-        }
-
-        if (!int.TryParse(PdfToImagePageToExtract, out var pageNumber))
-        {
-            StatusContext.ToastError("Please enter a valid page number");
-            return;
-        }
-
-        if (pageNumber < 1)
-        {
-            StatusContext.ToastError("Please selected a valid page number");
-            return;
-        }
-
-        var (generationReturn, fileContent) = await FileGenerator.SaveAndGenerateHtml(CurrentStateToFileContent(),
-            SelectedFile, true, null, StatusContext.ProgressTracker());
-
-        if (generationReturn.HasError)
-        {
-            await StatusContext.ShowMessageWithOkButton("Trouble Saving",
-                $"Trouble saving - you must be able to save before extracting a page - {generationReturn.GenerationNote}");
-            return;
-        }
-
-        await LoadData(fileContent);
-
-        var autosaveReturn = await ImageExtractionHelpers.PdfPageToImageWithAutoSave(StatusContext,
-            DbEntry,
-            pageNumber);
-
-        if (autosaveReturn.contentId != null)
-        {
-            UserMainPictureEntry.UserText = autosaveReturn.contentId.Value.ToString();
-            return;
-        }
-
-        if (autosaveReturn.editor != null)
-        {
-            MainImageExternalEditorWindow = autosaveReturn.editor;
-            MainImageExternalEditorWindow.Closed += OnMainImageExternalEditorWindowOnClosed;
-            MainImageExternalEditorWindow.ImageEditor.Saved += MainImageExternalContextSaved;
-        }
-    }
-
-    public async Task SaveAndGenerateHtml(bool overwriteExistingFiles, bool closeAfterSave)
+    public async Task SaveAndGenerateHtml(bool overwriteExistingVideos, bool closeAfterSave)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        var (generationReturn, newContent) = await FileGenerator.SaveAndGenerateHtml(CurrentStateToFileContent(),
-            SelectedFile, overwriteExistingFiles, null, StatusContext.ProgressTracker());
+        var (generationReturn, newContent) = await VideoGenerator.SaveAndGenerateHtml(CurrentStateToVideoContent(),
+            SelectedVideo, overwriteExistingVideos, null, StatusContext.ProgressTracker());
 
         if (generationReturn.HasError || newContent == null)
         {
@@ -618,24 +495,24 @@ Notes:
         }
     }
 
-    private async Task SelectedFileChanged()
+    private async Task SelectedVideoChanged()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        SelectedFileHasPathOrNameChanges =
-            (SelectedFile?.FullName ?? string.Empty) != (_loadedFile?.FullName ?? string.Empty);
+        SelectedVideoHasPathOrNameChanges =
+            (SelectedVideo?.FullName ?? string.Empty) != (_loadedVideo?.FullName ?? string.Empty);
 
         var (isValid, explanation) =
-            await CommonContentValidation.FileContentFileValidation(SelectedFile, DbEntry?.ContentId);
+            await CommonContentValidation.FileContentFileValidation(SelectedVideo, DbEntry?.ContentId);
 
-        SelectedFileHasValidationIssues = !isValid;
+        SelectedVideoHasValidationIssues = !isValid;
 
-        SelectedFileValidationMessage = explanation;
+        SelectedVideoValidationMessage = explanation;
 
-        SelectedFileNameHasInvalidCharacters =
-            await CommonContentValidation.FileContentFileFileNameHasInvalidCharacters(SelectedFile, DbEntry?.ContentId);
+        SelectedVideoNameHasInvalidCharacters =
+            await CommonContentValidation.FileContentFileFileNameHasInvalidCharacters(SelectedVideo, DbEntry?.ContentId);
 
-        DetectGuiFileTypes();
+        DetectGuiVideoTypes();
     }
 
     public void SetupStatusContextAndCommands(StatusControlContext statusContext)
@@ -644,26 +521,24 @@ Notes:
 
         HelpContext = new HelpDisplayContext(new List<string>
         {
-            FileEditorHelpText, CommonFields.TitleSlugFolderSummary, BracketCodeHelpMarkdown.HelpBlock
+            VideoEditorHelpText, CommonFields.TitleSlugFolderSummary, BracketCodeHelpMarkdown.HelpBlock
         });
 
-        ChooseFileCommand = StatusContext.RunBlockingTaskCommand(async () => await ChooseFile());
+        ChooseVideoCommand = StatusContext.RunBlockingTaskCommand(async () => await ChooseVideo());
         SaveCommand = StatusContext.RunBlockingTaskCommand(async () => await SaveAndGenerateHtml(true, false));
         SaveAndCloseCommand = StatusContext.RunBlockingTaskCommand(async () => await SaveAndGenerateHtml(true, true));
-        OpenSelectedFileDirectoryCommand = StatusContext.RunBlockingTaskCommand(OpenSelectedFileDirectory);
-        OpenSelectedFileCommand = StatusContext.RunBlockingTaskCommand(OpenSelectedFile);
+        OpenSelectedVideoDirectoryCommand = StatusContext.RunBlockingTaskCommand(OpenSelectedVideoDirectory);
+        OpenSelectedVideoCommand = StatusContext.RunBlockingTaskCommand(OpenSelectedVideo);
         ViewOnSiteCommand = StatusContext.RunBlockingTaskCommand(ViewOnSite);
-        RenameSelectedFileCommand = StatusContext.RunBlockingTaskCommand(async () =>
-            await FileHelpers.RenameSelectedFile(SelectedFile, StatusContext, x => SelectedFile = x));
-        AutoRenameSelectedFileCommand = StatusContext.RunBlockingTaskCommand(async () =>
-            await FileHelpers.TryAutoCleanRenameSelectedFile(SelectedFile, StatusContext, x => SelectedFile = x));
+        RenameSelectedVideoCommand = StatusContext.RunBlockingTaskCommand(async () =>
+            await FileHelpers.RenameSelectedFile(SelectedVideo, StatusContext, x => SelectedVideo = x));
+        AutoRenameSelectedVideoCommand = StatusContext.RunBlockingTaskCommand(async () =>
+            await FileHelpers.TryAutoCleanRenameSelectedFile(SelectedVideo, StatusContext, x => SelectedVideo = x));
         ExtractNewLinksCommand = StatusContext.RunBlockingTaskCommand(() =>
             LinkExtraction.ExtractNewAndShowLinkContentEditors($"{BodyContent.BodyContent} {UpdateNotes.UpdateNotes}",
                 StatusContext.ProgressTracker()));
-        SaveAndExtractImageFromPdfCommand = StatusContext.RunBlockingTaskCommand(SaveAndExtractImageFromPdf);
         SaveAndExtractImageFromVideoCommand = StatusContext.RunBlockingTaskCommand(SaveAndExtractImageFromMp4);
         LinkToClipboardCommand = StatusContext.RunNonBlockingTaskCommand(LinkToClipboard);
-        DownloadLinkToClipboardCommand = StatusContext.RunNonBlockingTaskCommand(DownloadLinkToClipboard);
         ViewUserMainPictureCommand = StatusContext.RunNonBlockingTaskCommand(ViewUserMainPicture);
         EditUserMainPictureCommand = StatusContext.RunNonBlockingTaskCommand(EditUserMainPicture);
     }
@@ -693,7 +568,7 @@ Notes:
         {
             UserMainPictureEntrySmallImageUrl = null;
             UserMainPictureEntryContent = null;
-            Log.Error(e, "Caught exception in FileContentEditorContext while trying to setup the User Main Picture.");
+            Log.Error(e, "Caught exception in VideoContentEditorContext while trying to setup the User Main Picture.");
         }
     }
 
@@ -722,7 +597,7 @@ Notes:
 
         var settings = UserSettingsSingleton.CurrentSettings();
 
-        var url = $@"{settings.FilePageUrl(DbEntry)}";
+        var url = $@"{settings.VideoPageUrl(DbEntry)}";
 
         var ps = new ProcessStartInfo(url) { UseShellExecute = true, Verb = "open" };
         Process.Start(ps);
@@ -740,34 +615,34 @@ Notes:
 
         if (UserMainPictureEntryContent is PhotoContent photoToEdit)
         {
-            var possibleFile = UserSettingsSingleton.CurrentSettings().LocalMediaArchivePhotoContentFile(photoToEdit);
+            var possibleVideo = UserSettingsSingleton.CurrentSettings().LocalMediaArchivePhotoContentFile(photoToEdit);
 
-            if (possibleFile is not { Exists: true })
+            if (possibleVideo is not { Exists: true })
             {
-                StatusContext.ToastWarning("No Media File Found?");
+                StatusContext.ToastWarning("No Media Video Found?");
                 return;
             }
 
             await ThreadSwitcher.ResumeForegroundAsync();
 
-            var ps = new ProcessStartInfo(possibleFile.FullName) { UseShellExecute = true, Verb = "open" };
+            var ps = new ProcessStartInfo(possibleVideo.FullName) { UseShellExecute = true, Verb = "open" };
             Process.Start(ps);
             return;
         }
 
         if (UserMainPictureEntryContent is ImageContent imageToEdit)
         {
-            var possibleFile = UserSettingsSingleton.CurrentSettings().LocalMediaArchiveImageContentFile(imageToEdit);
+            var possibleVideo = UserSettingsSingleton.CurrentSettings().LocalMediaArchiveImageContentFile(imageToEdit);
 
-            if (possibleFile is not { Exists: true })
+            if (possibleVideo is not { Exists: true })
             {
-                StatusContext.ToastWarning("No Media File Found?");
+                StatusContext.ToastWarning("No Media Video Found?");
                 return;
             }
 
             await ThreadSwitcher.ResumeForegroundAsync();
 
-            var ps = new ProcessStartInfo(possibleFile.FullName) { UseShellExecute = true, Verb = "open" };
+            var ps = new ProcessStartInfo(possibleVideo.FullName) { UseShellExecute = true, Verb = "open" };
             Process.Start(ps);
             return;
         }

@@ -1072,6 +1072,9 @@
         <MenuItem Command="{Binding ListContext.NewActions.NewPhotoContentCommand}" Header="Photo" />
         <MenuItem Command="{Binding ListContext.NewActions.NewPointContentCommand}" Header="Point" />
         <MenuItem Command="{Binding ListContext.NewActions.NewPostContentCommand}" Header="Post" />
+        <MenuItem Command="{Binding ListContext.NewActions.NewVideoContentFromFilesCommand}" Header="Video From Files" />
+        <MenuItem Command="{Binding ListContext.NewActions.NewVideoContentCommand}" Header="Video" />
+
     </collections:ArrayList>
     <MenuItem
         x:Key="NewMenu"

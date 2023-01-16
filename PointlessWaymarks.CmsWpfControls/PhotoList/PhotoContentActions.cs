@@ -1,8 +1,8 @@
 ﻿using System.Diagnostics;
 using System.Windows;
-using Microsoft.EntityFrameworkCore;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Microsoft.EntityFrameworkCore;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.ContentHtml.PhotoHtml;
@@ -12,10 +12,10 @@ using PointlessWaymarks.CmsWpfControls.ContentHistoryView;
 using PointlessWaymarks.CmsWpfControls.ContentList;
 using PointlessWaymarks.CmsWpfControls.PhotoContentEditor;
 using PointlessWaymarks.CmsWpfControls.Utility;
+using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 using PointlessWaymarks.WpfCommon.Utility;
-using LogTools = PointlessWaymarks.CommonTools.LogTools;
 
 namespace PointlessWaymarks.CmsWpfControls.PhotoList;
 
@@ -32,11 +32,11 @@ public partial class PhotoContentActions : ObservableObject, IContentActions<Pho
     [ObservableProperty] private RelayCommand<PhotoContent> _isoSearchCommand;
     [ObservableProperty] private RelayCommand<PhotoContent> _lensSearchCommand;
     [ObservableProperty] private RelayCommand<PhotoContent> _linkCodeToClipboardCommand;
-    [ObservableProperty] private RelayCommand<PhotoContent> _viewOnSiteCommand;
     [ObservableProperty] private RelayCommand<PhotoContent> _photoTakenOnSearchCommand;
     [ObservableProperty] private RelayCommand<PhotoContent> _shutterSpeedSearchCommand;
     [ObservableProperty] private StatusControlContext _statusContext;
     [ObservableProperty] private RelayCommand<PhotoContent> _viewFileCommand;
+    [ObservableProperty] private RelayCommand<PhotoContent> _viewOnSiteCommand;
 
     public PhotoContentActions(StatusControlContext statusContext)
     {
@@ -179,24 +179,6 @@ public partial class PhotoContentActions : ObservableObject, IContentActions<Pho
         StatusContext.ToastSuccess($"Generated {htmlContext.PageUrl}");
     }
 
-    public async Task ViewOnSite(PhotoContent content)
-    {
-        await ThreadSwitcher.ResumeBackgroundAsync();
-
-        if (content == null)
-        {
-            StatusContext.ToastError("Nothing Selected?");
-            return;
-        }
-
-        var settings = UserSettingsSingleton.CurrentSettings();
-
-        var url = $@"{settings.PhotoPageUrl(content)}";
-
-        var ps = new ProcessStartInfo(url) { UseShellExecute = true, Verb = "open" };
-        Process.Start(ps);
-    }
-
     public async Task ViewHistory(PhotoContent content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -230,6 +212,24 @@ public partial class PhotoContentActions : ObservableObject, IContentActions<Pho
     }
 
     public RelayCommand<PhotoContent> ViewHistoryCommand { get; set; }
+
+    public async Task ViewOnSite(PhotoContent content)
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (content == null)
+        {
+            StatusContext.ToastError("Nothing Selected?");
+            return;
+        }
+
+        var settings = UserSettingsSingleton.CurrentSettings();
+
+        var url = $@"{settings.PhotoPageUrl(content)}";
+
+        var ps = new ProcessStartInfo(url) { UseShellExecute = true, Verb = "open" };
+        Process.Start(ps);
+    }
 
     private static async Task<List<object>> ApertureSearch(PhotoContent content)
     {

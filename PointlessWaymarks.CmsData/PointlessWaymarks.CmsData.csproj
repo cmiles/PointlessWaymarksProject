@@ -139,6 +139,16 @@
       <LastGenOutput>SearchListPage.cs</LastGenOutput>
       <CustomToolNamespace>PointlessWaymarks.CmsData.ContentHtml.SearchListHtml</CustomToolNamespace>
     </None>
+    <None Update="ContentHtml\VideoHtml\SingleVideoDiv.tt">
+      <CustomToolNamespace>PointlessWaymarks.CmsData.ContentHtml.VideoHtml</CustomToolNamespace>
+      <LastGenOutput>SingleVideoDiv.cs</LastGenOutput>
+      <Generator>TextTemplatingFilePreprocessor</Generator>
+    </None>
+    <None Update="ContentHtml\VideoHtml\SingleVideoPage.tt">
+      <CustomToolNamespace>PointlessWaymarks.CmsData.ContentHtml.VideoHtml</CustomToolNamespace>
+      <LastGenOutput>SingleVideoPage.cs</LastGenOutput>
+      <Generator>TextTemplatingFilePreprocessor</Generator>
+    </None>
     <None Update="Json\DbImport.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>DbImport.cs</LastGenOutput>
@@ -254,6 +264,16 @@
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
       <DependentUpon>SinglePointPage.tt</DependentUpon>
+    </Compile>
+    <Compile Update="ContentHtml\VideoHtml\SingleVideoDiv.cs">
+      <DependentUpon>SingleVideoDiv.tt</DependentUpon>
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+    </Compile>
+    <Compile Update="ContentHtml\VideoHtml\SingleVideoPage.cs">
+      <DependentUpon>SingleVideoPage.tt</DependentUpon>
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
     </Compile>
     <Compile Update="Json\DbImport.cs">
       <DesignTime>True</DesignTime>

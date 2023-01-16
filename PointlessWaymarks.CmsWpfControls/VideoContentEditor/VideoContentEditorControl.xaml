@@ -1,0 +1,223 @@
+﻿<UserControl
+    x:Class="PointlessWaymarks.CmsWpfControls.VideoContentEditor.VideoContentEditorControl"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
+    xmlns:bodyContentEditor1="clr-namespace:PointlessWaymarks.CmsWpfControls.BodyContentEditor"
+    xmlns:contentIdViewer="clr-namespace:PointlessWaymarks.CmsWpfControls.ContentIdViewer"
+    xmlns:contentSiteFeedAndIsDraft="clr-namespace:PointlessWaymarks.CmsWpfControls.ContentSiteFeedAndIsDraft"
+    xmlns:createdAndUpdatedByAndOnDisplay="clr-namespace:PointlessWaymarks.CmsWpfControls.CreatedAndUpdatedByAndOnDisplay"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:tagsEditor="clr-namespace:PointlessWaymarks.CmsWpfControls.TagsEditor"
+    xmlns:titleSummarySlugFolderEditor="clr-namespace:PointlessWaymarks.CmsWpfControls.TitleSummarySlugFolderEditor"
+    xmlns:updateNotesEditor="clr-namespace:PointlessWaymarks.CmsWpfControls.UpdateNotesEditor"
+    xmlns:utility="clr-namespace:PointlessWaymarks.WpfCommon.Utility;assembly=PointlessWaymarks.WpfCommon"
+    xmlns:windowScreenShot="clr-namespace:PointlessWaymarks.WpfCommon.WindowScreenShot;assembly=PointlessWaymarks.WpfCommon"
+    xmlns:wpfBehavior="clr-namespace:PointlessWaymarks.WpfCommon.Behaviors;assembly=PointlessWaymarks.WpfCommon"
+    xmlns:conversionDataEntry="clr-namespace:PointlessWaymarks.CmsWpfControls.ConversionDataEntry"
+    xmlns:markdownDisplay="clr-namespace:PointlessWaymarks.WpfCommon.MarkdownDisplay;assembly=PointlessWaymarks.WpfCommon"
+    xmlns:videoContentEditor="clr-namespace:PointlessWaymarks.CmsWpfControls.VideoContentEditor"
+    d:DataContext="{d:DesignInstance videoContentEditor:VideoContentEditorContext}"
+    d:DesignHeight="300"
+    d:DesignWidth="300"
+    mc:Ignorable="d">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../WpfControlsResourceDictionary.xaml" />
+                <ResourceDictionary Source="/PointlessWaymarks.WpfCommon;component/Utility/Icons.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+    <Grid Margin="4">
+        <Grid.RowDefinitions>
+            <RowDefinition />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <TabControl>
+            <TabItem Header="Summary">
+                <Grid>
+                    <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+                        <StackPanel Margin="4" CanHorizontallyScroll="False">
+                            <GroupBox Margin="4,0,0,4" Style="{StaticResource UiComponentGroupBoxStyle}">
+                                <GroupBox.Header>
+                                    <StackPanel Orientation="Horizontal">
+                                        <Label Style="{StaticResource DataEntryLabelStyle}">
+                                            File
+                                        </Label>
+                                        <utility:IndicatorIcon
+                                            VerticalAlignment="Center"
+                                            HoverText="Selected File Path or Name has Changed"
+                                            IconBrush="Black"
+                                            IconPathGeometry="{StaticResource IconDataInfo}"
+                                            IconSize="{StaticResource SmallIconSize}"
+                                            Visibility="{Binding SelectedVideoHasPathOrNameChanges, Converter={StaticResource BooleanToVisibility}}" />
+                                        <utility:IndicatorIcon
+                                            VerticalAlignment="Center"
+                                            HoverText="{Binding SelectedVideoValidationMessage}"
+                                            IconBrush="Red"
+                                            IconPathGeometry="{StaticResource IconDataError}"
+                                            IconSize="{StaticResource SmallIconSize}"
+                                            Visibility="{Binding SelectedVideoHasValidationIssues, Converter={StaticResource BooleanToVisibility}}" />
+                                    </StackPanel>
+                                </GroupBox.Header>
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                    </Grid.RowDefinitions>
+                                    <Button Command="{Binding ChooseVideoCommand}"
+                                            Style="{StaticResource ActionPanelButtonStyle}">
+                                        Choose File
+                                    </Button>
+                                    <Label Grid.Row="1" Style="{StaticResource DataEntryLabelStyle}">Selected File</Label>
+                                    <StackPanel
+                                        Grid.Row="2"
+                                        Margin="6,2,0,8"
+                                        Orientation="Vertical">
+                                        <TextBox
+                                            Style="{StaticResource ReadOnlyTextBoxStyle}"
+                                            Text="{Binding SelectedVideo.FullName, Mode=OneWay}"
+                                            TextDecorations="Underline"
+                                            TextWrapping="Wrap">
+                                            <b:Interaction.Behaviors>
+                                                <wpfBehavior:TextBoxDoubleClickLauncher />
+                                            </b:Interaction.Behaviors>
+                                        </TextBox>
+                                        <Button
+                                            Background="Yellow"
+                                            Command="{Binding AutoRenameSelectedVideoCommand}"
+                                            ToolTip="This filename has illegal characters - pressing this to attempt to auto-rename the file"
+                                            Visibility="{Binding SelectedVideoNameHasInvalidCharacters, Converter={StaticResource BooleanToVisibility}}">
+                                            Auto-Fix File Name
+                                        </Button>
+                                    </StackPanel>
+                                    <WrapPanel
+                                        Grid.Row="3"
+                                        Margin="4,0,4,12"
+                                        HorizontalAlignment="Center"
+                                        Orientation="Horizontal">
+                                        <WrapPanel.Resources>
+                                            <Style TargetType="Button">
+                                                <Setter Property="Width" Value="120" />
+                                                <Setter Property="Margin" Value="2" />
+                                            </Style>
+                                        </WrapPanel.Resources>
+                                        <Button Command="{Binding OpenSelectedVideoCommand}">Open File</Button>
+                                        <Button Command="{Binding OpenSelectedVideoDirectoryCommand}">Open Directory</Button>
+
+                                        <Button Command="{Binding RenameSelectedVideoCommand}">Rename</Button>
+                                    </WrapPanel>
+                                </Grid>
+                            </GroupBox>
+                            <StackPanel Margin="0,4,0,0" Orientation="Vertical">
+                                <Grid Margin="6,2,0,0">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition />
+                                        <ColumnDefinition />
+                                    </Grid.ColumnDefinitions>
+                                </Grid>
+                            </StackPanel>
+                            <titleSummarySlugFolderEditor:TitleSummarySlugEditorControl Margin="0,4,0,0"
+                                DataContext="{Binding TitleSummarySlugFolder}" />
+                            <contentSiteFeedAndIsDraft:ContentSiteFeedAndIsDraftControl
+                                DataContext="{Binding MainSiteFeed}" />
+                            <tagsEditor:TagsEditorControl DataContext="{Binding TagEdit}"
+                                                          Style="{StaticResource TagsEditorInPanelStyle}" />
+                            <conversionDataEntry:ConversionDataEntryControl
+                                DataContext="{Binding UserMainPictureEntry}" />
+                            <Grid Margin="24,2,2,2">
+                                <Grid.Style>
+                                    <Style TargetType="Grid">
+                                        <Style.Triggers>
+                                            <DataTrigger
+                                                Binding="{Binding UserMainPictureEntry.HasValidationIssues}"
+                                                Value="true">
+                                                <Setter Property="Visibility" Value="Collapsed" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Grid.Style>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition />
+                                </Grid.ColumnDefinitions>
+                                <Image
+                                    Grid.Column="0"
+                                    Margin="2"
+                                    Width="110"
+                                    VerticalAlignment="Top"
+                                    HorizontalAlignment="Left"
+                                    Source="{Binding UserMainPictureEntrySmallImageUrl, Mode=OneWay, Converter={StaticResource ImageCache}}" />
+                                <StackPanel Margin="0,24,0,0" Grid.Column="1" Orientation="Vertical">
+                                    <TextBox Style="{StaticResource ReadOnlyTextBoxStyle}"
+                                             Text="{Binding UserMainPictureEntryContent.Title}" />
+                                    <StackPanel Orientation="Horizontal" Margin="4,12,4,4">
+                                        <Button Width="120" Command="{Binding EditUserMainPictureCommand}">Edit</Button>
+                                        <Button Width="120" Command="{Binding ViewUserMainPictureCommand}">View</Button>
+                                    </StackPanel>
+                                </StackPanel>
+                            </Grid>
+                            <createdAndUpdatedByAndOnDisplay:CreatedAndUpdatedByAndOnDisplayControl
+                                DataContext="{Binding CreatedUpdatedDisplay}"
+                                Style="{StaticResource CreatedUpdatedInPanelStyle}" />
+                            <contentIdViewer:ContentIdViewerControl DataContext="{Binding ContentId}"
+                                                                    Style="{StaticResource ContentIdInPanelStyle}" />
+                        </StackPanel>
+                    </ScrollViewer>
+                </Grid>
+            </TabItem>
+            <TabItem Header="Post Body">
+                <Grid>
+                    <bodyContentEditor1:BodyContentEditorControl DataContext="{Binding BodyContent}" />
+                </Grid>
+            </TabItem>
+            <TabItem Header="Update Notes">
+                <Grid>
+                    <updateNotesEditor:UpdateNotesEditorVerticalControl DataContext="{Binding UpdateNotes}" />
+                </Grid>
+            </TabItem>
+            <TabItem Header="Help">
+                <markdownDisplay:HelpDisplayControl DataContext="{Binding HelpContext}" />
+            </TabItem>
+        </TabControl>
+        <Border Grid.Row="1" Style="{StaticResource ActionPanelBorderStyle}">
+            <WrapPanel HorizontalAlignment="Center" Orientation="Horizontal">
+                <Button
+                    Command="{Binding SaveCommand}"
+                    Content="_Save"
+                    Style="{StaticResource ActionPanelButtonStyle}" />
+                <Button
+                    Command="{Binding SaveAndCloseCommand}"
+                    Content="Save and Close"
+                    Style="{StaticResource ActionPanelButtonStyle}" />
+                <Button
+                    Command="{Binding ExtractNewLinksCommand}"
+                    Content="_Extract New Links"
+                    Style="{StaticResource ActionPanelButtonStyle}" />
+                <Button
+                    Command="{Binding LinkToClipboardCommand}"
+                    Content="Image Code"
+                    Style="{StaticResource ActionPanelButtonStyle}" />
+                <Button
+                    Command="{Binding SaveAndExtractImageFromVideoCommand}"
+                    Content="Extract 1st Video Frame"
+                    Visibility="{Binding FileIsMp4, Converter={StaticResource BooleanToVisibility}}"
+                    Style="{StaticResource ActionPanelButtonStyle}" />
+                <Button
+                    Command="{Binding ViewOnSiteCommand}"
+                    Content="_View on Site"
+                    Style="{StaticResource ActionPanelButtonStyle}" />
+            </WrapPanel>
+        </Border>
+        <windowScreenShot:WindowScreenShotControl
+            Grid.Row="0"
+            Grid.RowSpan="2"
+            Grid.Column="0"
+            HorizontalContentAlignment="Right"
+            VerticalContentAlignment="Bottom" />
+    </Grid>
+</UserControl>

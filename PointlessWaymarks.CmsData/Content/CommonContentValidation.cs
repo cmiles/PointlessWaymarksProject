@@ -1,13 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using NetTopologySuite.Features;
 using NetTopologySuite.Geometries;
-using NetTopologySuite.IO;
-using Newtonsoft.Json;
 using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.ContentHtml;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
-using PointlessWaymarks.CmsData.Spatial;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.SpatialTools;
 
@@ -51,6 +47,10 @@ public static class CommonContentValidation
             .ConfigureAwait(false));
         returnList.AddRange(await CheckForBadContentReferences(
                 (await db.PostContents.ToListAsync().ConfigureAwait(false)).Cast<IContentCommon>().ToList(), db,
+                progress)
+            .ConfigureAwait(false));
+        returnList.AddRange(await CheckForBadContentReferences(
+                (await db.VideoContents.ToListAsync().ConfigureAwait(false)).Cast<IContentCommon>().ToList(), db,
                 progress)
             .ConfigureAwait(false));
 
@@ -206,7 +206,7 @@ public static class CommonContentValidation
         return GenerationReturn.Success("No Invalid Content Ids Found");
     }
 
-    public static async Task <IsValid> ElevationValidation(double? elevation)
+    public static async Task<IsValid> ElevationValidation(double? elevation)
     {
         if (elevation == null) return new IsValid(true, "Null Elevation is Valid");
 
@@ -221,7 +221,8 @@ public static class CommonContentValidation
         return new IsValid(true, "Elevation is Valid");
     }
 
-    public static async Task<bool> FileContentFileFileNameHasInvalidCharacters(FileInfo? fileContentFile, Guid? currentContentId)
+    public static async Task<bool> FileContentFileFileNameHasInvalidCharacters(FileInfo? fileContentFile,
+        Guid? currentContentId)
     {
         if (fileContentFile == null) return false;
 
@@ -249,34 +250,6 @@ public static class CommonContentValidation
             return new IsValid(false, "This filename already exists in the database - file names must be unique.");
 
         return new IsValid(true, "File is Valid");
-    }
-
-    public static IsValid LineGeoJsonValidation(string? geoJsonString)
-    {
-        if (string.IsNullOrWhiteSpace(geoJsonString)) return new IsValid(false, "Blank Line GeoJson is not Valid");
-
-        try
-        {
-            var featureCollection = GeoJsonTools.DeserializeStringToFeatureCollection(geoJsonString);
-            if (featureCollection.Count < 1)
-                return new IsValid(false, 
-                    "The GeoJson for the line appears to have an empty Feature Collection?");
-            if (featureCollection.Count > 1)
-                 return new IsValid(false,
-                    "The GeoJson for the line appears to contain multiple elements? It should only contain 1 line...");
-            if (featureCollection[0].Geometry is not LineString)
-                return new IsValid(false, "The GeoJson for the line has one element but it isn't a LineString?");
-            var lineString = featureCollection[0].Geometry as LineString;
-            if (lineString == null || lineString.Count < 1 || lineString.Length == 0)
-                return new IsValid(false, "The LineString doesn't have any points or is zero length?");
-        }
-        catch (Exception e)
-        {
-            return new IsValid(false,
-               $"Error parsing the FeatureCollection and/or problems checking the LineString {e.Message}");
-        }
-
-        return new IsValid(true, string.Empty);
     }
 
     public static async Task<IsValid> GeoJsonValidation(string? geoJsonString)
@@ -331,6 +304,34 @@ public static class CommonContentValidation
         if (latitude == null) return new IsValid(true, "No Latitude is Ok...");
 
         return await LatitudeValidation(latitude.Value);
+    }
+
+    public static IsValid LineGeoJsonValidation(string? geoJsonString)
+    {
+        if (string.IsNullOrWhiteSpace(geoJsonString)) return new IsValid(false, "Blank Line GeoJson is not Valid");
+
+        try
+        {
+            var featureCollection = GeoJsonTools.DeserializeStringToFeatureCollection(geoJsonString);
+            if (featureCollection.Count < 1)
+                return new IsValid(false,
+                    "The GeoJson for the line appears to have an empty Feature Collection?");
+            if (featureCollection.Count > 1)
+                return new IsValid(false,
+                    "The GeoJson for the line appears to contain multiple elements? It should only contain 1 line...");
+            if (featureCollection[0].Geometry is not LineString)
+                return new IsValid(false, "The GeoJson for the line has one element but it isn't a LineString?");
+            var lineString = featureCollection[0].Geometry as LineString;
+            if (lineString == null || lineString.Count < 1 || lineString.Length == 0)
+                return new IsValid(false, "The LineString doesn't have any points or is zero length?");
+        }
+        catch (Exception e)
+        {
+            return new IsValid(false,
+                $"Error parsing the FeatureCollection and/or problems checking the LineString {e.Message}");
+        }
+
+        return new IsValid(true, string.Empty);
     }
 
     public static async Task<IsValid> LongitudeValidation(double longitude)
@@ -478,7 +479,8 @@ public static class CommonContentValidation
         return new IsValid(isValid, string.Join(Environment.NewLine, errorMessage));
     }
 
-    public static async Task<IsValid> ValidateCreatedAndUpdatedBy(ICreatedAndLastUpdateOnAndBy toValidate, bool isNewEntry)
+    public static async Task<IsValid> ValidateCreatedAndUpdatedBy(ICreatedAndLastUpdateOnAndBy toValidate,
+        bool isNewEntry)
     {
         var isValid = true;
         var errorMessage = new List<string>();
@@ -552,14 +554,19 @@ public static class CommonContentValidation
 
         if (contentGuid == null)
         {
-            var duplicateUrl = (await db.LinkContents.Where(x => x.Url != null && x.Url! == url).ToListAsync().ConfigureAwait(false)).Any(x => x.Url.Equals(url, StringComparison.OrdinalIgnoreCase));
+            var duplicateUrl =
+                (await db.LinkContents.Where(x => x.Url != null && x.Url! == url).ToListAsync().ConfigureAwait(false))
+                .Any(x => x.Url.Equals(url, StringComparison.OrdinalIgnoreCase));
             if (duplicateUrl)
                 return new IsValid(false,
                     "URL Already exists in the database - duplicates are not allowed, try editing the existing entry to add new/updated information.");
         }
         else
         {
-            var duplicateUrl = (await db.LinkContents.Where(x => x.Url != null && x.ContentId != contentGuid.Value && x.Url == url).ToListAsync().ConfigureAwait(false)).Any(x => x.Url!.Equals(url, StringComparison.OrdinalIgnoreCase));
+            var duplicateUrl =
+                (await db.LinkContents.Where(x => x.Url != null && x.ContentId != contentGuid.Value && x.Url == url)
+                    .ToListAsync().ConfigureAwait(false))
+                .Any(x => x.Url!.Equals(url, StringComparison.OrdinalIgnoreCase));
             if (duplicateUrl)
                 return new IsValid(false,
                     "URL Already exists in the database - duplicates are not allowed, try editing the existing entry to add new/updated information.");
@@ -666,18 +673,6 @@ public static class CommonContentValidation
         return new IsValid(true, string.Empty);
     }
 
-    public static async Task<IsValid> ValidateFileContentUserMainPicture(Guid? pictureContentId)
-    {
-        if (pictureContentId == null) return new IsValid(true, "No picture specified.");
-
-        var db = await Db.Context();
-
-        if(await db.PhotoContents.AnyAsync(x => x.ContentId == pictureContentId.Value)) return new IsValid(true, "Photo Found.");
-        if(await db.ImageContents.AnyAsync(x => x.ContentId == pictureContentId.Value)) return new IsValid(true, "Image Found.");
-
-        return new IsValid(false, $"No matching Photo or Image found for ContentId {pictureContentId}");
-    }
-
     public static async Task<IsValid> ValidateSlugLocalAndDb(string? slug, Guid contentId)
     {
         var localValidation = await ValidateSlugLocal(slug);
@@ -726,5 +721,19 @@ public static class CommonContentValidation
             return new IsValid(true, string.Empty);
 
         return new IsValid(false, $"Could not parse {contentFormat} into a known Content Format");
+    }
+
+    public static async Task<IsValid> ValidateUserMainPicture(Guid? pictureContentId)
+    {
+        if (pictureContentId == null) return new IsValid(true, "No picture specified.");
+
+        var db = await Db.Context();
+
+        if (await db.PhotoContents.AnyAsync(x => x.ContentId == pictureContentId.Value))
+            return new IsValid(true, "Photo Found.");
+        if (await db.ImageContents.AnyAsync(x => x.ContentId == pictureContentId.Value))
+            return new IsValid(true, "Image Found.");
+
+        return new IsValid(false, $"No matching Photo or Image found for ContentId {pictureContentId}");
     }
 }

@@ -25,9 +25,10 @@ public static class SearchListPageGenerators
             var photoContent = db.PhotoContents.Where(x => !x.IsDraft).Cast<object>().ToList();
             var pointContent = db.PointContents.Where(x => !x.IsDraft).Cast<object>().ToList();
             var postContent = db.PostContents.Where(x => !x.IsDraft).Cast<object>().ToList();
+            var videoContent = db.VideoContents.Where(x => !x.IsDraft).Cast<object>().ToList();
 
             return fileContent.Concat(geoJsonContent).Concat(imageContent).Concat(lineContent).Concat(noteContent)
-                .Concat(photoContent).Concat(pointContent).Concat(postContent)
+                .Concat(photoContent).Concat(pointContent).Concat(postContent).Concat(videoContent)
                 .OrderBy(x => ((IContentCommon)x).Title).ToList();
         }
 

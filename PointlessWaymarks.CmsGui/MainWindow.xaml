@@ -67,11 +67,11 @@
             <TabItem Header="Photos">
                 <photoList:PhotoListWithActionsControl DataContext="{Binding TabPhotoListContext}" />
             </TabItem>
-            <TabItem Header="Files">
-                <fileList:FileListWithActionsControl DataContext="{Binding TabFileListContext}" />
-            </TabItem>
             <TabItem Header="Images">
                 <imageList:ImageListWithActionsControl DataContext="{Binding TabImageListContext}" />
+            </TabItem>
+            <TabItem Header="Files">
+                <fileList:FileListWithActionsControl DataContext="{Binding TabFileListContext}" />
             </TabItem>
             <TabItem Header="Points">
                 <pointList:PointListWithActionsControl DataContext="{Binding TabPointListContext}" />
@@ -165,6 +165,7 @@
                                 <Button Command="{Binding GenerateHtmlForAllPointContentCommand}">Points</Button>
                                 <Button Command="{Binding GenerateHtmlForAllPhotoContentCommand}">Photos</Button>
                                 <Button Command="{Binding GenerateHtmlForAllPostContentCommand}">Posts</Button>
+                                <Button Command="{Binding GenerateHtmlForAllVideoContentCommand}">Videos</Button>
                                 <Button Command="{Binding GenerateSiteResourcesCommand}">Site Resources</Button>
                                 <Button Command="{Binding WriteStyleCssFileCommand}">Style Css</Button>
                             </WrapPanel>

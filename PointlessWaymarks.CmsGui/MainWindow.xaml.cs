@@ -163,6 +163,9 @@ public partial class MainWindow
         GenerateHtmlForAllPostContentCommand = StatusContext.RunBlockingTaskCommand(async () =>
             await HtmlGenerationGroups.GenerateAllPostHtml(null, StatusContext.ProgressTracker()));
 
+        GenerateHtmlForAllVideoContentCommand = StatusContext.RunBlockingTaskCommand(async () =>
+            await HtmlGenerationGroups.GenerateAllVideoHtml(null, StatusContext.ProgressTracker()));
+
         GenerateHtmlForAllPointContentCommand = StatusContext.RunBlockingTaskCommand(async () =>
             await HtmlGenerationGroups.GenerateAllPointHtml(null, StatusContext.ProgressTracker()));
 
@@ -236,6 +239,8 @@ public partial class MainWindow
     public RelayCommand GenerateHtmlForAllPointContentCommand { get; }
 
     public RelayCommand GenerateHtmlForAllPostContentCommand { get; }
+
+    public RelayCommand GenerateHtmlForAllVideoContentCommand { get; set; }
 
     public RelayCommand GenerateIndexCommand { get; }
 

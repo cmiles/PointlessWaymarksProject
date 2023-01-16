@@ -4,7 +4,6 @@ using System.Text.RegularExpressions;
 using Microsoft.EntityFrameworkCore;
 using Omu.ValueInjecter;
 using PointlessWaymarks.CmsData.CommonHtml;
-using PointlessWaymarks.CmsData.ContentHtml;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsData.Database.PointDetailDataModels;
 using PointlessWaymarks.CmsData.Spatial;
@@ -161,6 +160,10 @@ public static class Db
             .ConfigureAwait(false);
         if (possiblePost != null) return possiblePost;
 
+        var possibleVideo = await db.VideoContents.SingleOrDefaultAsync(x => x.ContentId == contentId)
+            .ConfigureAwait(false);
+        if (possibleVideo != null) return possibleVideo;
+
         return null;
     }
 
@@ -180,6 +183,7 @@ public static class Db
 
         var returnList = new List<dynamic>();
 
+        //!!Content Type List!!
         returnList.AddRange(db.FileContents.Where(x => contentIds.Contains(x.ContentId)));
         returnList.AddRange(db.GeoJsonContents.Where(x => contentIds.Contains(x.ContentId)));
         returnList.AddRange(db.ImageContents.Where(x => contentIds.Contains(x.ContentId)));
@@ -189,6 +193,7 @@ public static class Db
         returnList.AddRange(db.PhotoContents.Where(x => contentIds.Contains(x.ContentId)));
         returnList.AddRange(await PointsAndPointDetails(contentIds).ConfigureAwait(false));
         returnList.AddRange(db.PostContents.Where(x => contentIds.Contains(x.ContentId)));
+        returnList.AddRange(db.VideoContents.Where(x => contentIds.Contains(x.ContentId)));
 
         return returnList;
     }
@@ -218,6 +223,7 @@ public static class Db
 
         var context = await Context();
 
+        //!!Content Type List!!
         returnList.AddRange(context.FileContents.Where(x => x.Folder == folderName).Cast<object>());
         returnList.AddRange(context.GeoJsonContents.Where(x => x.Folder == folderName).Cast<object>());
         returnList.AddRange(context.ImageContents.Where(x => x.Folder == folderName).Cast<object>());
@@ -226,6 +232,7 @@ public static class Db
         returnList.AddRange(context.PhotoContents.Where(x => x.Folder == folderName).Cast<object>());
         returnList.AddRange(context.PointContents.Where(x => x.Folder == folderName).Cast<object>());
         returnList.AddRange(context.PostContents.Where(x => x.Folder == folderName).Cast<object>());
+        returnList.AddRange(context.VideoContents.Where(x => x.Folder == folderName).Cast<object>());
 
         return returnList;
     }
@@ -236,6 +243,7 @@ public static class Db
 
         var context = await Context();
 
+        //!!Content Type List!!
         returnList.AddRange(context.FileContents.Where(x => x.LastUpdatedOn == null).Cast<object>());
         returnList.AddRange(context.GeoJsonContents.Where(x => x.LastUpdatedOn == null).Cast<object>());
         returnList.AddRange(context.ImageContents.Where(x => x.LastUpdatedOn == null).Cast<object>());
@@ -245,6 +253,7 @@ public static class Db
         returnList.AddRange(context.PhotoContents.Where(x => x.LastUpdatedOn == null).Cast<object>());
         returnList.AddRange(context.PointContents.Where(x => x.LastUpdatedOn == null).Cast<object>());
         returnList.AddRange(context.PostContents.Where(x => x.LastUpdatedOn == null).Cast<object>());
+        returnList.AddRange(context.VideoContents.Where(x => x.LastUpdatedOn == null).Cast<object>());
 
         return returnList;
     }
@@ -270,6 +279,7 @@ public static class Db
             PostContent => "Post",
             PointContent => "Point",
             PointContentDto => "Point",
+            VideoContent => "Video",
             _ => string.Empty
         };
     }
@@ -295,6 +305,8 @@ public static class Db
 
         var context = await Context();
 
+        //!!Content Type List!!
+
         returnList.AddRange(context.FileContents
             .Where(x => x.LastUpdatedOn >= updatedOnOnOrAfter && x.LastUpdatedOn < updatedOnBefore).Cast<object>());
         returnList.AddRange(context.GeoJsonContents
@@ -312,6 +324,8 @@ public static class Db
         returnList.AddRange(context.PointContents
             .Where(x => x.LastUpdatedOn >= updatedOnOnOrAfter && x.LastUpdatedOn < updatedOnBefore).Cast<object>());
         returnList.AddRange(context.PostContents
+            .Where(x => x.LastUpdatedOn >= updatedOnOnOrAfter && x.LastUpdatedOn < updatedOnBefore).Cast<object>());
+        returnList.AddRange(context.VideoContents
             .Where(x => x.LastUpdatedOn >= updatedOnOnOrAfter && x.LastUpdatedOn < updatedOnBefore).Cast<object>());
 
         return returnList;
@@ -502,6 +516,23 @@ public static class Db
 
         var deletedContent = await (from h in db.HistoricPostContents
             where !db.PostContents.Any(x => x.ContentId == h.ContentId)
+            select h).ToListAsync().ConfigureAwait(false);
+
+        return deletedContent.GroupBy(x => x.ContentId).Select(x => x.OrderByDescending(y => y.ContentVersion).First())
+            .ToList();
+    }
+
+    /// <summary>
+    ///     Returns a List of 'Fully Deleted' Content - ie where the ContentId is no longer present in the related Content
+    ///     table.
+    /// </summary>
+    /// <returns></returns>
+    public static async Task<List<HistoricVideoContent>> DeletedVideoContent()
+    {
+        var db = await Context().ConfigureAwait(false);
+
+        var deletedContent = await (from h in db.HistoricVideoContents
+            where !db.VideoContents.Any(x => x.ContentId == h.ContentId)
             select h).ToListAsync().ConfigureAwait(false);
 
         return deletedContent.GroupBy(x => x.ContentId).Select(x => x.OrderByDescending(y => y.ContentVersion).First())
@@ -932,6 +963,42 @@ public static class Db
 
         DataNotifications.PublishDataNotification("Db", DataNotificationContentType.TagExclusion,
             DataNotificationUpdateType.Delete, null);
+    }
+
+    /// <summary>
+    ///     Deletes a Content Entry writing Historic Content, showing progress and publishing Data Notifications.
+    ///     In general use this rather deleting content directly...
+    /// </summary>
+    /// <returns></returns>
+    public static async Task DeleteVideoContent(Guid contentId, IProgress<string>? progress = null)
+    {
+        var context = await Context().ConfigureAwait(false);
+
+        var toHistoric = await context.VideoContents.Where(x => x.ContentId == contentId).ToListAsync()
+            .ConfigureAwait(false);
+
+        if (!toHistoric.Any()) return;
+
+        progress?.Report($"Writing {toHistoric.First().Title} Last Historic Entry");
+
+        foreach (var loopToHistoric in toHistoric)
+        {
+            var newHistoric = new HistoricVideoContent();
+            newHistoric.InjectFrom(loopToHistoric);
+            newHistoric.Id = 0;
+            newHistoric.LastUpdatedOn = DateTime.Now;
+            if (string.IsNullOrWhiteSpace(newHistoric.LastUpdatedBy))
+                newHistoric.LastUpdatedBy = "Historic Entry Archivist";
+            await context.HistoricVideoContents.AddAsync(newHistoric).ConfigureAwait(false);
+            context.VideoContents.Remove(loopToHistoric);
+        }
+
+        await context.SaveChangesAsync(true).ConfigureAwait(false);
+
+        progress?.Report($"{toHistoric.First().Title} Deleted");
+
+        DataNotifications.PublishDataNotification("Db", DataNotificationContentType.Video,
+            DataNotificationUpdateType.Delete, toHistoric.Select(x => x.ContentId).ToList());
     }
 
     /// <summary>
@@ -1988,6 +2055,44 @@ public static class Db
         await context.SaveChangesAsync(true).ConfigureAwait(false);
 
         DataNotifications.PublishDataNotification("Db", DataNotificationContentType.Post,
+            isUpdate ? DataNotificationUpdateType.Update : DataNotificationUpdateType.New,
+            new List<Guid> { toSave.ContentId });
+    }
+
+    public static async Task SaveVideoContent(VideoContent? toSave)
+    {
+        if (toSave == null) return;
+
+        var context = await Context().ConfigureAwait(false);
+
+        var toHistoric = await context.VideoContents.Where(x => x.ContentId == toSave.ContentId).ToListAsync()
+            .ConfigureAwait(false);
+
+        var isUpdate = toHistoric.Any();
+
+        foreach (var loopToHistoric in toHistoric)
+        {
+            var newHistoric = new HistoricVideoContent();
+            newHistoric.InjectFrom(loopToHistoric);
+            newHistoric.Id = 0;
+            newHistoric.LastUpdatedOn = DateTime.Now;
+            if (string.IsNullOrWhiteSpace(newHistoric.LastUpdatedBy))
+                newHistoric.LastUpdatedBy = "Historic Entry Archivist";
+            await context.HistoricVideoContents.AddAsync(newHistoric).ConfigureAwait(false);
+            context.VideoContents.Remove(loopToHistoric);
+        }
+
+        if (toSave.Id > 0) toSave.Id = 0;
+        toSave.ContentVersion = ContentVersionDateTime();
+
+        toSave.MainPicture = toSave.UserMainPicture ??
+                             BracketCodeCommon.PhotoOrImageCodeFirstIdInContent(toSave.BodyContent);
+
+        await context.VideoContents.AddAsync(toSave).ConfigureAwait(false);
+
+        await context.SaveChangesAsync(true).ConfigureAwait(false);
+
+        DataNotifications.PublishDataNotification("Db", DataNotificationContentType.Video,
             isUpdate ? DataNotificationUpdateType.Update : DataNotificationUpdateType.New,
             new List<Guid> { toSave.ContentId });
     }

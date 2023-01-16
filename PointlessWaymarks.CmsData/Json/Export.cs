@@ -78,6 +78,43 @@ public static class Export
             .ConfigureAwait(false);
     }
 
+    public static async Task WriteLocalDbJson(VideoContent dbEntry, IProgress<string>? progress = null)
+    {
+        progress?.Report("Writing Db Entry to Json");
+
+        var settings = UserSettingsSingleton.CurrentSettings();
+        var db = await Db.Context().ConfigureAwait(false);
+        var jsonDbEntry = JsonSerializer.Serialize(dbEntry, new JsonSerializerOptions { WriteIndented = true });
+
+        var jsonFile = new FileInfo(Path.Combine(settings.LocalSiteVideoContentDirectory(dbEntry).FullName,
+            $"{Names.FileContentPrefix}{dbEntry.ContentId}.json"));
+
+        if (jsonFile.Exists) jsonFile.Delete();
+        jsonFile.Refresh();
+
+        await FileManagement.WriteAllTextToFileAndLogAsync(jsonFile.FullName, jsonDbEntry).ConfigureAwait(false);
+
+        progress?.Report("Writing Historic Db Entries to Json");
+
+        var latestHistoricEntries = db.HistoricVideoContents.Where(x => x.ContentId == dbEntry.ContentId)
+            .OrderByDescending(x => x.LastUpdatedOn).Take(10).ToList();
+
+        if (!latestHistoricEntries.Any()) return;
+
+        progress?.Report($" Archiving last {latestHistoricEntries.Count} Historic Video Content Entries");
+
+        var jsonHistoricDbEntry = JsonSerializer.Serialize(latestHistoricEntries);
+
+        var jsonHistoricFile = new FileInfo(Path.Combine(settings.LocalSiteVideoContentDirectory(dbEntry).FullName,
+            $"{Names.HistoricVideoContentPrefix}{dbEntry.ContentId}.json"));
+
+        if (jsonHistoricFile.Exists) jsonHistoricFile.Delete();
+        jsonHistoricFile.Refresh();
+
+        await FileManagement.WriteAllTextToFileAndLogAsync(jsonHistoricFile.FullName, jsonHistoricDbEntry)
+            .ConfigureAwait(false);
+    }
+
     public static async Task WriteLocalDbJson(PostContent dbEntry)
     {
         var settings = UserSettingsSingleton.CurrentSettings();

@@ -17,6 +17,7 @@ public static class ContentList
             PhotoContent => "image",
             FileContent => "file",
             LinkContent => "link",
+            VideoContent => "image",
             _ => "other"
         };
     }
@@ -70,10 +71,7 @@ public static class ContentList
                 .Equals(content.Title, StringComparison.OrdinalIgnoreCase)))
             summaryLines.Add(content.Summary);
 
-        if (content is LineContent line)
-        {
-            summaryLines.Add(LineParts.LineStatsString(line));
-        }
+        if (content is LineContent line) summaryLines.Add(LineParts.LineStatsString(line));
 
         if (!string.IsNullOrWhiteSpace(content.Tags)) summaryLines.Add($"Tags: {content.Tags}");
 

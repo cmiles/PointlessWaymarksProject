@@ -18,6 +18,7 @@ using PointlessWaymarks.CmsData.ContentHtml.PhotoHtml;
 using PointlessWaymarks.CmsData.ContentHtml.PointHtml;
 using PointlessWaymarks.CmsData.ContentHtml.PostHtml;
 using PointlessWaymarks.CmsData.ContentHtml.SearchListHtml;
+using PointlessWaymarks.CmsData.ContentHtml.VideoHtml;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsData.Json;
@@ -211,6 +212,7 @@ public static class HtmlGenerationGroups
         var generationTasks = new List<Task>
         {
             GenerateAllFileHtml(generationVersion, progress),
+            GenerateAllVideoHtml(generationVersion, progress),
             GenerateAllMapData(generationVersion, progress),
             GenerateAllNoteHtml(generationVersion, progress),
             GenerateAllPostHtml(generationVersion, progress),
@@ -442,6 +444,26 @@ public static class HtmlGenerationGroups
         await Export.WriteTagExclusionsJson().ConfigureAwait(false);
     }
 
+    public static async Task GenerateAllVideoHtml(DateTime? generationVersion, IProgress<string>? progress = null)
+    {
+        var db = await Db.Context().ConfigureAwait(false);
+
+        var allItems = await db.VideoContents.Where(x => !x.IsDraft).ToListAsync().ConfigureAwait(false);
+
+        var totalCount = allItems.Count;
+
+        progress?.Report($"Found {totalCount} Videos to Generate");
+
+        await Parallel.ForEachAsync(allItems, async (loopItem, _) =>
+        {
+            progress?.Report($"Writing HTML for {loopItem.Title}");
+
+            var htmlModel = new SingleVideoPage(loopItem) { GenerationVersion = generationVersion };
+            await htmlModel.WriteLocalHtml().ConfigureAwait(false);
+            await Export.WriteLocalDbJson(loopItem, progress).ConfigureAwait(false);
+        }).ConfigureAwait(false);
+    }
+
     public static async Task GenerateCameraRollHtml(DateTime? generationVersion, IProgress<string>? progress = null)
     {
         var cameraRollPage = await CameraRollGalleryPageGenerator.CameraRoll(generationVersion, progress)
@@ -542,6 +564,14 @@ public static class HtmlGenerationGroups
                     .Select(x => x.ContentId).ToListAsync().ConfigureAwait(false);
                 guidBag.Add(posts);
                 progress?.Report($"Found {posts.Count} Post Content Entries Changed After {contentAfter}");
+            },
+            async () =>
+            {
+                var db = await Db.Context().ConfigureAwait(false);
+                var videos = await db.VideoContents.Where(x => x.ContentVersion > contentAfter && !x.IsDraft)
+                    .Select(x => x.ContentId).ToListAsync().ConfigureAwait(false);
+                guidBag.Add(videos);
+                progress?.Report($"Found {videos.Count} Video Content Entries Changed After {contentAfter}");
             }
         };
 
@@ -1330,11 +1360,14 @@ public static class HtmlGenerationGroups
                 var dto = await Db.PointAndPointDetails(point.ContentId).ConfigureAwait(false);
                 await PointGenerator.GenerateHtml(dto!, generationVersion, progress).ConfigureAwait(false);
                 break;
+            case PointContentDto pointDto:
+                await PointGenerator.GenerateHtml(pointDto, generationVersion, progress).ConfigureAwait(false);
+                break;
             case PostContent post:
                 await PostGenerator.GenerateHtml(post, generationVersion, progress).ConfigureAwait(false);
                 break;
-            case PointContentDto pointDto:
-                await PointGenerator.GenerateHtml(pointDto, generationVersion, progress).ConfigureAwait(false);
+            case VideoContent video:
+                await VideoGenerator.GenerateHtml(video, generationVersion, progress).ConfigureAwait(false);
                 break;
             default:
                 throw new Exception("The method GenerateHtmlFromCommonContent didn't find a content type match");

@@ -70,7 +70,7 @@ public static class FileGenerator
             return GenerationReturn.Error(explanation, fileContent.ContentId);
 
         var (userMainImageIsValid, userMainImageExplanation) =
-            await CommonContentValidation.ValidateFileContentUserMainPicture(fileContent.UserMainPicture).ConfigureAwait(false);
+            await CommonContentValidation.ValidateUserMainPicture(fileContent.UserMainPicture).ConfigureAwait(false);
         if (!userMainImageIsValid)
             return GenerationReturn.Error(userMainImageExplanation, fileContent.ContentId);
 

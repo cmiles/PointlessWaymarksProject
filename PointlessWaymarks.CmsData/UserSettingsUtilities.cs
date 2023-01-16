@@ -7,7 +7,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Omu.ValueInjecter;
 using PointlessWaymarks.CmsData.Content;
-using PointlessWaymarks.CmsData.ContentHtml;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsData.Json;
@@ -45,6 +44,12 @@ public static class UserSettingsUtilities
     public static string CameraRollPhotoGalleryUrl(this UserSettings settings)
     {
         return $"{settings.SiteUrl()}/Photos/Galleries/CameraRoll.html";
+    }
+
+    public static string CamerRollGalleryJavascriptUrl()
+    {
+        return
+            $"{UserSettingsSingleton.CurrentSettings().SiteResourcesUrl()}pointless-waymarks-photo-gallery.js";
     }
 
     public static async Task<string> ContentUrl(this UserSettings settings, Guid toLink)
@@ -88,6 +93,10 @@ public static class UserSettingsUtilities
         var possiblePost = await db.PostContents.SingleOrDefaultAsync(x => x.ContentId == toLink)
             .ConfigureAwait(false);
         if (possiblePost != null) return settings.PostPageUrl(possiblePost);
+
+        var possibleVideo = await db.VideoContents.SingleOrDefaultAsync(x => x.ContentId == toLink)
+            .ConfigureAwait(false);
+        if (possibleVideo != null) return settings.VideoPageUrl(possibleVideo);
 
         return string.Empty;
     }
@@ -329,6 +338,27 @@ public static class UserSettingsUtilities
     {
         var directory =
             new DirectoryInfo(Path.Combine(settings.LocalMediaArchiveFullDirectory().FullName, "Photos"));
+
+        if (!directory.Exists) directory.Create();
+
+        directory.Refresh();
+
+        return directory;
+    }
+
+    public static FileInfo? LocalMediaArchiveVideoContentFile(this UserSettings settings, VideoContent? content)
+    {
+        if (string.IsNullOrWhiteSpace(content?.OriginalFileName)) return null;
+
+        var directory = settings.LocalMediaArchiveVideoDirectory();
+
+        return new FileInfo(Path.Combine(directory.FullName, content.OriginalFileName));
+    }
+
+    public static DirectoryInfo LocalMediaArchiveVideoDirectory(this UserSettings settings)
+    {
+        var directory =
+            new DirectoryInfo(Path.Combine(settings.LocalMediaArchiveFullDirectory().FullName, "Videos"));
 
         if (!directory.Exists) directory.Create();
 
@@ -638,6 +668,14 @@ public static class UserSettingsUtilities
         return directory;
     }
 
+    public static FileInfo? LocalSiteLineDataFile(this UserSettings settings, LineContent? content)
+    {
+        if (content is null) return null;
+
+        var directory = settings.LocalSiteLineDataDirectory();
+        return new FileInfo($"{Path.Combine(directory.FullName, $"Line-{content.ContentId.ToString()}.json")}");
+    }
+
     public static DirectoryInfo LocalSiteLineDirectory(this UserSettings settings)
     {
         var directory = new DirectoryInfo(Path.Combine(settings.LocalSiteRootFullDirectory().FullName, "Lines"));
@@ -654,14 +692,6 @@ public static class UserSettingsUtilities
 
         var directory = settings.LocalSiteLineContentDirectory(content);
         return new FileInfo($"{Path.Combine(directory.FullName, content.Slug)}.html");
-    }
-
-    public static FileInfo? LocalSiteLineDataFile(this UserSettings settings, LineContent? content)
-    {
-        if (content is null) return null;
-
-        var directory = settings.LocalSiteLineDataDirectory();
-        return new FileInfo($"{Path.Combine(directory.FullName, $"Line-{content.ContentId.ToString()}.json")}");
     }
 
     public static FileInfo LocalSiteLineListFile(this UserSettings settings)
@@ -1042,6 +1072,68 @@ public static class UserSettingsUtilities
         return directory;
     }
 
+
+    public static DirectoryInfo LocalSiteVideoContentDirectory(this UserSettings settings, VideoContent content,
+        bool createDirectoryIfNotFound = true)
+    {
+        if (string.IsNullOrWhiteSpace(content.Folder))
+            throw new NullReferenceException(
+                $"{nameof(LocalSiteVideoContentDirectory)} Null or Blank for the content.Folder of {content.Title}");
+
+        if (string.IsNullOrWhiteSpace(content.Slug))
+            throw new NullReferenceException(
+                $"{nameof(LocalSiteVideoContentDirectory)} Null or Blank for the content.Slug of {content.Title}");
+
+        var directory = new DirectoryInfo(Path.Combine(settings.LocalSiteVideoDirectory().FullName, content.Folder,
+            content.Slug));
+
+        if (directory.Exists || !createDirectoryIfNotFound) return directory;
+
+        directory.Create();
+        directory.Refresh();
+
+        return directory;
+    }
+
+    public static FileInfo? LocalSiteVideoContentFile(this UserSettings settings, VideoContent? content)
+    {
+        if (string.IsNullOrWhiteSpace(content?.OriginalFileName)) return null;
+
+        var directory = settings.LocalSiteVideoContentDirectory(content, false);
+
+        return new FileInfo(Path.Combine(directory.FullName, content.OriginalFileName));
+    }
+
+    public static DirectoryInfo LocalSiteVideoDirectory(this UserSettings settings)
+    {
+        var directory = new DirectoryInfo(Path.Combine(settings.LocalSiteRootFullDirectory().FullName, "Videos"));
+        if (!directory.Exists) directory.Create();
+
+        directory.Refresh();
+
+        return directory;
+    }
+
+    public static FileInfo? LocalSiteVideoHtmlVideo(this UserSettings settings, VideoContent? content)
+    {
+        if (string.IsNullOrWhiteSpace(content?.Slug)) return null;
+
+        var directory = settings.LocalSiteVideoContentDirectory(content);
+        return new FileInfo($"{Path.Combine(directory.FullName, content.Slug)}.html");
+    }
+
+    public static FileInfo LocalSiteVideoListVideo(this UserSettings settings)
+    {
+        var directory = settings.LocalSiteVideoDirectory();
+        return new FileInfo($"{Path.Combine(directory.FullName, "VideoList")}.html");
+    }
+
+    public static FileInfo LocalSiteVideoRssVideo(this UserSettings settings)
+    {
+        var directory = settings.LocalSiteVideoDirectory();
+        return new FileInfo($"{Path.Combine(directory.FullName, "VideoRss")}.xml");
+    }
+
     public static string NoteListUrl(this UserSettings settings)
     {
         return $"{settings.SiteUrl()}/Notes/NoteList.html";
@@ -1076,14 +1168,9 @@ public static class UserSettingsUtilities
             PointContent c => settings.PointPageUrl(c),
             PointContentDto c => settings.PointPageUrl(Db.PointContentDtoToPointContentAndDetails(c).content),
             PostContent c => settings.PostPageUrl(c),
+            VideoContent c => settings.VideoPageUrl(c),
             _ => throw new DataException("Content not Found")
         };
-    }
-
-    public static string CamerRollGalleryJavascriptUrl()
-    {
-        return
-            $"{UserSettingsSingleton.CurrentSettings().SiteResourcesUrl()}pointless-waymarks-photo-gallery.js";
     }
 
     public static string PhotoListUrl(this UserSettings settings)
@@ -1370,7 +1457,8 @@ public static class UserSettingsUtilities
 
         var newSettings = new UserSettings();
 
-        var rootDirectory = new DirectoryInfo(Path.Combine(FileLocationTools.DefaultStorageDirectory().FullName, userFilename));
+        var rootDirectory =
+            new DirectoryInfo(Path.Combine(FileLocationTools.DefaultStorageDirectory().FullName, userFilename));
 
         progress?.Report("Creating new settings - looking for home...");
 
@@ -1379,7 +1467,8 @@ public static class UserSettingsUtilities
         while (rootDirectory.Exists)
         {
             rootDirectory =
-                new DirectoryInfo(Path.Combine(FileLocationTools.DefaultStorageDirectory().FullName, $"{userFilename}-{fileNumber}"));
+                new DirectoryInfo(Path.Combine(FileLocationTools.DefaultStorageDirectory().FullName,
+                    $"{userFilename}-{fileNumber}"));
             rootDirectory.Refresh();
             progress?.Report($"Trying {rootDirectory.FullName}...");
             fileNumber++;
@@ -1531,6 +1620,26 @@ public static class UserSettingsUtilities
         }
 
         return new IsValid(true, string.Empty);
+    }
+
+    public static string VideoDownloadUrl(this UserSettings settings, VideoContent content)
+    {
+        return $"{settings.SiteUrl()}/Videos/{content.Folder}/{content.Slug}/{content.OriginalFileName}";
+    }
+
+    public static string VideoListUrl(this UserSettings settings)
+    {
+        return $"{settings.SiteUrl()}/Videos/VideoList.html";
+    }
+
+    public static string VideoPageUrl(this UserSettings settings, VideoContent content)
+    {
+        return $"{settings.SiteUrl()}/Videos/{content.Folder}/{content.Slug}/{content.Slug}.html";
+    }
+
+    public static string VideoRssUrl(this UserSettings settings)
+    {
+        return $"{settings.SiteUrl()}/Videos/VideoRss.xml";
     }
 
 
