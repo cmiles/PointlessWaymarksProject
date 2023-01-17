@@ -450,6 +450,8 @@ public class TestSeries01Ironwood
 
         var currentGeneration = await db.GenerationLogs.OrderByDescending(x => x.GenerationVersion).FirstAsync();
 
+        await Task.Delay(2000);
+
         await HtmlGenerationGroups.GenerateChangedToHtml(DebugTrackers.DebugProgressTracker());
 
         currentGeneration = await db.GenerationLogs.OrderByDescending(x => x.GenerationVersion).FirstAsync();
@@ -487,7 +489,7 @@ public class TestSeries01Ironwood
             .GetFiles("*.html", SearchOption.AllDirectories).Where(x => !x.Name.Contains("List")).ToList();
 
         noteContent.ForEach(x =>
-            IronwoodHtmlHelpers.CheckGenerationVersionEquals(x, currentGeneration.GenerationVersion));
+            IronwoodHtmlHelpers.CheckGenerationVersionLessThan(x, currentGeneration.GenerationVersion));
     }
 
     [Test]

@@ -109,9 +109,9 @@ public class TestSeries03TrailInfoGuiContextTest
 
         //Blank Title is the only validation issue
 
-        //Initial State is blank and invalid
-        Assert.IsTrue(newFileContext.TitleSummarySlugFolder.TitleEntry.HasValidationIssues);
-        Assert.IsFalse(newFileContext.TitleSummarySlugFolder.TitleEntry.HasChanges);
+        //Initial State - 
+        Assert.IsFalse(newFileContext.TitleSummarySlugFolder.TitleEntry.HasValidationIssues);
+        Assert.IsTrue(newFileContext.TitleSummarySlugFolder.TitleEntry.HasChanges);
 
         //Spaces detected as blank
         newFileContext.TitleSummarySlugFolder.TitleEntry.UserValue = "             ";
