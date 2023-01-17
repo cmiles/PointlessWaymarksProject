@@ -144,9 +144,10 @@ public class PhotoPickup
 
             //Clean up renamed files as needed
             if (uniqueRenamedFile.FullName != renamedFile.FullName && uniqueRenamedFile.FullName != loopFile.FullName)
-                renamedFile.MoveToWithUniqueName(Path.Combine(archiveDirectory.FullName, uniqueRenamedFile.Name));
+                uniqueRenamedFile.MoveToWithUniqueName(Path.Combine(archiveDirectory.FullName, uniqueRenamedFile.Name));
             if (renamedFile.FullName != loopFile.FullName)
                 renamedFile.MoveToWithUniqueName(Path.Combine(archiveDirectory.FullName, renamedFile.Name));
+            loopFile.MoveToWithUniqueName(Path.Combine(archiveDirectory.FullName, loopFile.Name));
 
             if (saveGenerationReturn.HasError || savedContent == null)
             {
