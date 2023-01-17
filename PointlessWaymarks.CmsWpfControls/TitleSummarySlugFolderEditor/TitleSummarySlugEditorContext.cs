@@ -61,6 +61,13 @@ public partial class TitleSummarySlugEditorContext : IHasChanges, IHasValidation
     {
         try
         {
+            if (TitleEntry.UserValue == null)
+            {
+                TitleToSlugEnabled = false;
+                TitleToSummaryEnabled = false;
+                return;
+            }
+
             TitleToSlugEnabled = SlugTools.CreateSlug(true, TitleEntry.UserValue) != SlugEntry.UserValue;
             TitleToSummaryEnabled =
                 !(SummaryEntry.UserValue.Equals(TitleEntry.UserValue, StringComparison.OrdinalIgnoreCase) ||
