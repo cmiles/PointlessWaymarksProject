@@ -78,16 +78,24 @@ public static class PhotoGenerator
 
         if (toReturn is { Latitude: { }, Longitude: { } } && !skipAdditionalTagDiscovery)
         {
-            var stateCounty =
-                await StateCountyService.GetStateCounty(toReturn.Latitude.Value,
-                    toReturn.Longitude.Value);
-            if (!string.IsNullOrWhiteSpace(stateCounty.state))
+            try
             {
-                tags.Add(stateCounty.state);
-                tags.Add("United States");
-            }
+                var stateCounty =
+                    await StateCountyService.GetStateCounty(toReturn.Latitude.Value,
+                        toReturn.Longitude.Value);
+                if (!string.IsNullOrWhiteSpace(stateCounty.state))
+                {
+                    tags.Add(stateCounty.state);
+                    tags.Add("United States");
+                }
 
-            if (!string.IsNullOrWhiteSpace(stateCounty.county)) tags.Add(stateCounty.county);
+                if (!string.IsNullOrWhiteSpace(stateCounty.county)) tags.Add(stateCounty.county);
+            }
+            catch (Exception e)
+            {
+                Log.ForContext("hint", "It is expected that this network service will occasionally fail - this error is logged but not thrown in the program and the failure simply appears as no county and state added via this service...").ForContext("exception", e).Information("StateCountyService.GetStateCounty Failure");
+                progress?.Report($"Ignored Service Failure getting State/County - {e.Message}");
+            }
         }
 
         if (toReturn is { Latitude: { }, Longitude: { } } &&
