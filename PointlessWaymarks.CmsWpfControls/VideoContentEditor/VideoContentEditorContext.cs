@@ -37,9 +37,10 @@ namespace PointlessWaymarks.CmsWpfControls.VideoContentEditor;
 [ObservableObject]
 public partial class VideoContentEditorContext : IHasChanges, IHasValidationIssues, ICheckForChangesAndValidation
 {
-    [ObservableProperty] private RelayCommand _autoRenameSelectedVideoCommand;
+    [ObservableProperty] private RelayCommand _autoCleanRenameSelectedFileCommand;
+    [ObservableProperty] private RelayCommand _autoRenameSelectedFileBasedOnTitleCommand;
     [ObservableProperty] private BodyContentEditorContext _bodyContent;
-    [ObservableProperty] private RelayCommand _chooseVideoCommand;
+    [ObservableProperty] private RelayCommand _chooseFileCommand;
     [ObservableProperty] private ContentIdViewerControlContext _contentId;
     [ObservableProperty] private CreatedAndUpdatedByAndOnDisplayContext _createdUpdatedDisplay;
     [ObservableProperty] private VideoContent _dbEntry;
@@ -54,18 +55,18 @@ public partial class VideoContentEditorContext : IHasChanges, IHasValidationIssu
     [ObservableProperty] private FileInfo _loadedVideo;
     [ObservableProperty] [CanBeNull] private ImageContentEditorWindow _mainImageExternalEditorWindow;
     [ObservableProperty] private ContentSiteFeedAndIsDraftContext _mainSiteFeed;
-    [ObservableProperty] private RelayCommand _openSelectedVideoCommand;
-    [ObservableProperty] private RelayCommand _openSelectedVideoDirectoryCommand;
-    [ObservableProperty] private RelayCommand _renameSelectedVideoCommand;
+    [ObservableProperty] private RelayCommand _viewSelectedFileCommand;
+    [ObservableProperty] private RelayCommand _viewSelectedFileDirectoryCommand;
+    [ObservableProperty] private RelayCommand _renameSelectedFileCommand;
     [ObservableProperty] private RelayCommand _saveAndCloseCommand;
     [ObservableProperty] private RelayCommand _saveAndExtractImageFromPdfCommand;
     [ObservableProperty] private RelayCommand _saveAndExtractImageFromVideoCommand;
     [ObservableProperty] private RelayCommand _saveCommand;
-    [ObservableProperty] private FileInfo _selectedVideo;
-    [ObservableProperty] private bool _selectedVideoHasPathOrNameChanges;
-    [ObservableProperty] private bool _selectedVideoHasValidationIssues;
-    [ObservableProperty] private bool _selectedVideoNameHasInvalidCharacters;
-    [ObservableProperty] private string _selectedVideoValidationMessage;
+    [ObservableProperty] private FileInfo _selectedFile;
+    [ObservableProperty] private bool _selectedFileHasPathOrNameChanges;
+    [ObservableProperty] private bool _selectedFileHasValidationIssues;
+    [ObservableProperty] private bool _selectedFileNameHasInvalidCharacters;
+    [ObservableProperty] private string _selectedFileValidationMessage;
     [ObservableProperty] private StatusControlContext _statusContext;
     [ObservableProperty] private TagsEditorContext _tagEdit;
     [ObservableProperty] private TitleSummarySlugEditorContext _titleSummarySlugFolder;
@@ -120,10 +121,10 @@ Notes:
 
     public void CheckForChangesAndValidationIssues()
     {
-        HasChanges = PropertyScanners.ChildPropertiesHaveChanges(this) || SelectedVideoHasPathOrNameChanges ||
+        HasChanges = PropertyScanners.ChildPropertiesHaveChanges(this) || SelectedFileHasPathOrNameChanges ||
                      DbEntry?.MainPicture != CurrentMainPicture();
         HasValidationIssues = PropertyScanners.ChildPropertiesHaveValidationIssues(this) ||
-                              SelectedVideoHasValidationIssues;
+                              SelectedFileHasValidationIssues;
     }
 
     public async Task ChooseVideo()
@@ -146,9 +147,9 @@ Notes:
 
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        SelectedVideo = newVideo;
+        SelectedFile = newVideo;
 
-        StatusContext.Progress($"Video load - {SelectedVideo.FullName} ");
+        StatusContext.Progress($"Video load - {SelectedFile.FullName} ");
     }
 
     public static async Task<VideoContentEditorContext> CreateInstance(StatusControlContext statusContext,
@@ -206,7 +207,7 @@ Notes:
         newEntry.UpdateNotesFormat = UpdateNotes.UpdateNotesFormat.SelectedContentFormatAsString;
         newEntry.BodyContent = BodyContent.BodyContent.TrimNullToEmpty();
         newEntry.BodyContentFormat = BodyContent.BodyContentFormat.SelectedContentFormatAsString;
-        newEntry.OriginalFileName = SelectedVideo.Name;
+        newEntry.OriginalFileName = SelectedFile.Name;
         newEntry.UserMainPicture = UserMainPictureEntry.UserValue;
 
         return newEntry;
@@ -218,7 +219,7 @@ Notes:
         //this beyond mp4 (verified for example that the frame extraction works for avi) remember that the
         //there is a collision of concerns here and there may be merit in only encouraging formats that 
         //will work with the html video tag - see the file html...
-        FileIsMp4 = SelectedVideo?.FullName.EndsWith("mp4", StringComparison.InvariantCultureIgnoreCase) ?? false;
+        FileIsMp4 = SelectedFile?.FullName.EndsWith("mp4", StringComparison.InvariantCultureIgnoreCase) ?? false;
     }
 
     public async Task EditUserMainPicture()
@@ -285,7 +286,11 @@ Notes:
             FeedOn = created
         };
 
-        TitleSummarySlugFolder = await TitleSummarySlugEditorContext.CreateInstance(StatusContext, DbEntry);
+        TitleSummarySlugFolder = await TitleSummarySlugEditorContext.CreateInstance(StatusContext, "To File Name",
+            AutoRenameSelectedFileBasedOnTitleCommand,
+            x => !Path.GetFileNameWithoutExtension(SelectedFile.Name)
+                .Equals(SlugTools.CreateSlug(false, x.TitleEntry.UserValue), StringComparison.OrdinalIgnoreCase),
+            DbEntry);
         MainSiteFeed = await ContentSiteFeedAndIsDraftContext.CreateInstance(StatusContext, DbEntry);
         CreatedUpdatedDisplay = await CreatedAndUpdatedByAndOnDisplayContext.CreateInstance(StatusContext, DbEntry);
         ContentId = await ContentIdViewerControlContext.CreateInstance(StatusContext, DbEntry);
@@ -319,7 +324,7 @@ Notes:
             if (archiveVideo.Exists)
             {
                 _loadedVideo = archiveVideo;
-                SelectedVideo = archiveVideo;
+                SelectedFile = archiveVideo;
             }
             else
             {
@@ -334,13 +339,13 @@ Notes:
 
         if (DbEntry.Id < 1 && _initialVideo is { Exists: true })
         {
-            SelectedVideo = _initialVideo;
+            SelectedFile = _initialVideo;
             _initialVideo = null;
 
-            if (SelectedVideo.Extension == ".mp4")
+            if (SelectedFile.Extension == ".mp4")
             {
                 var (generationReturn, metadata) =
-                    await PhotoGenerator.PhotoMetadataFromFile(SelectedVideo, false, StatusContext.ProgressTracker());
+                    await PhotoGenerator.PhotoMetadataFromFile(SelectedFile, false, StatusContext.ProgressTracker());
 
                 if (!generationReturn.HasError)
                 {
@@ -354,11 +359,11 @@ Notes:
 
             if (string.IsNullOrWhiteSpace(TitleSummarySlugFolder.SummaryEntry.UserValue))
                 TitleSummarySlugFolder.TitleEntry.UserValue = Regex.Replace(
-                    Path.GetFileNameWithoutExtension(SelectedVideo.Name).Replace("-", " ").Replace("_", " ")
+                    Path.GetFileNameWithoutExtension(SelectedFile.Name).Replace("-", " ").Replace("_", " ")
                         .SplitCamelCase(), @"\s+", " ");
         }
 
-        await SelectedVideoChanged();
+        await SelectedFileChanged();
     }
 
     private void MainImageExternalContextSaved(object sender, EventArgs e)
@@ -410,14 +415,14 @@ Notes:
         if (!e.PropertyName.Contains("HasChanges") && !e.PropertyName.Contains("Validation"))
             CheckForChangesAndValidationIssues();
 
-        if (e.PropertyName == nameof(SelectedVideo)) StatusContext.RunFireAndForgetNonBlockingTask(SelectedVideoChanged);
+        if (e.PropertyName == nameof(SelectedFile)) StatusContext.RunFireAndForgetNonBlockingTask(SelectedFileChanged);
     }
 
-    private async Task OpenSelectedVideo()
+    private async Task OpenSelectedFile()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        if (SelectedVideo is not { Exists: true, Directory.Exists: true })
+        if (SelectedFile is not { Exists: true, Directory.Exists: true })
         {
             StatusContext.ToastError("No Selected Video or Selected Video no longer exists?");
             return;
@@ -425,15 +430,15 @@ Notes:
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
-        var ps = new ProcessStartInfo(SelectedVideo.FullName) { UseShellExecute = true, Verb = "open" };
+        var ps = new ProcessStartInfo(SelectedFile.FullName) { UseShellExecute = true, Verb = "open" };
         Process.Start(ps);
     }
 
-    private async Task OpenSelectedVideoDirectory()
+    private async Task OpenSelectedFileDirectory()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        if (SelectedVideo is not { Exists: true, Directory.Exists: true })
+        if (SelectedFile is not { Exists: true, Directory.Exists: true })
         {
             StatusContext.ToastWarning("No Selected Video or Selected Video no longer exists?");
             return;
@@ -441,20 +446,20 @@ Notes:
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
-        var ps = new ProcessStartInfo(SelectedVideo.Directory.FullName) { UseShellExecute = true, Verb = "open" };
+        var ps = new ProcessStartInfo(SelectedFile.Directory.FullName) { UseShellExecute = true, Verb = "open" };
         Process.Start(ps);
     }
 
     private async Task SaveAndExtractImageFromMp4()
     {
-        if (SelectedVideo is not { Exists: true } || !SelectedVideo.Extension.ToUpperInvariant().Contains("MP4"))
+        if (SelectedFile is not { Exists: true } || !SelectedFile.Extension.ToUpperInvariant().Contains("MP4"))
         {
             StatusContext.ToastError("Please selected a valid mp4 file");
             return;
         }
 
         var (generationReturn, fileContent) = await VideoGenerator.SaveAndGenerateHtml(CurrentStateToVideoContent(),
-            SelectedVideo, true, null, StatusContext.ProgressTracker());
+            SelectedFile, true, null, StatusContext.ProgressTracker());
 
         if (generationReturn.HasError)
         {
@@ -477,7 +482,7 @@ Notes:
         await ThreadSwitcher.ResumeBackgroundAsync();
 
         var (generationReturn, newContent) = await VideoGenerator.SaveAndGenerateHtml(CurrentStateToVideoContent(),
-            SelectedVideo, overwriteExistingVideos, null, StatusContext.ProgressTracker());
+            SelectedFile, overwriteExistingVideos, null, StatusContext.ProgressTracker());
 
         if (generationReturn.HasError || newContent == null)
         {
@@ -495,22 +500,22 @@ Notes:
         }
     }
 
-    private async Task SelectedVideoChanged()
+    private async Task SelectedFileChanged()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        SelectedVideoHasPathOrNameChanges =
-            (SelectedVideo?.FullName ?? string.Empty) != (_loadedVideo?.FullName ?? string.Empty);
+        SelectedFileHasPathOrNameChanges =
+            (SelectedFile?.FullName ?? string.Empty) != (_loadedVideo?.FullName ?? string.Empty);
 
         var (isValid, explanation) =
-            await CommonContentValidation.FileContentFileValidation(SelectedVideo, DbEntry?.ContentId);
+            await CommonContentValidation.FileContentFileValidation(SelectedFile, DbEntry?.ContentId);
 
-        SelectedVideoHasValidationIssues = !isValid;
+        SelectedFileHasValidationIssues = !isValid;
 
-        SelectedVideoValidationMessage = explanation;
+        SelectedFileValidationMessage = explanation;
 
-        SelectedVideoNameHasInvalidCharacters =
-            await CommonContentValidation.FileContentFileFileNameHasInvalidCharacters(SelectedVideo, DbEntry?.ContentId);
+        SelectedFileNameHasInvalidCharacters =
+            await CommonContentValidation.FileContentFileFileNameHasInvalidCharacters(SelectedFile, DbEntry?.ContentId);
 
         DetectGuiVideoTypes();
     }
@@ -524,16 +529,21 @@ Notes:
             VideoEditorHelpText, CommonFields.TitleSlugFolderSummary, BracketCodeHelpMarkdown.HelpBlock
         });
 
-        ChooseVideoCommand = StatusContext.RunBlockingTaskCommand(async () => await ChooseVideo());
+        ChooseFileCommand = StatusContext.RunBlockingTaskCommand(async () => await ChooseVideo());
         SaveCommand = StatusContext.RunBlockingTaskCommand(async () => await SaveAndGenerateHtml(true, false));
         SaveAndCloseCommand = StatusContext.RunBlockingTaskCommand(async () => await SaveAndGenerateHtml(true, true));
-        OpenSelectedVideoDirectoryCommand = StatusContext.RunBlockingTaskCommand(OpenSelectedVideoDirectory);
-        OpenSelectedVideoCommand = StatusContext.RunBlockingTaskCommand(OpenSelectedVideo);
+        ViewSelectedFileDirectoryCommand = StatusContext.RunBlockingTaskCommand(OpenSelectedFileDirectory);
+        ViewSelectedFileCommand = StatusContext.RunBlockingTaskCommand(OpenSelectedFile);
         ViewOnSiteCommand = StatusContext.RunBlockingTaskCommand(ViewOnSite);
-        RenameSelectedVideoCommand = StatusContext.RunBlockingTaskCommand(async () =>
-            await FileHelpers.RenameSelectedFile(SelectedVideo, StatusContext, x => SelectedVideo = x));
-        AutoRenameSelectedVideoCommand = StatusContext.RunBlockingTaskCommand(async () =>
-            await FileHelpers.TryAutoCleanRenameSelectedFile(SelectedVideo, StatusContext, x => SelectedVideo = x));
+        RenameSelectedFileCommand = StatusContext.RunBlockingTaskCommand(async () =>
+            await FileHelpers.RenameSelectedFile(SelectedFile, StatusContext, x => SelectedFile = x));
+        AutoCleanRenameSelectedFileCommand = StatusContext.RunBlockingTaskCommand(async () =>
+            await FileHelpers.TryAutoCleanRenameSelectedFile(SelectedFile, StatusContext, x => SelectedFile = x));
+        AutoRenameSelectedFileBasedOnTitleCommand = StatusContext.RunBlockingTaskCommand(async () =>
+        {
+            await FileHelpers.TryAutoRenameSelectedFile(SelectedFile, TitleSummarySlugFolder.TitleEntry.UserValue,
+                StatusContext, x => SelectedFile = x);
+        });
         ExtractNewLinksCommand = StatusContext.RunBlockingTaskCommand(() =>
             LinkExtraction.ExtractNewAndShowLinkContentEditors($"{BodyContent.BodyContent} {UpdateNotes.UpdateNotes}",
                 StatusContext.ProgressTracker()));

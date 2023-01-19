@@ -3,8 +3,8 @@ using FluentMigrator;
 
 namespace PointlessWaymarks.CmsData.Database.Migrations;
 
-[Migration(202210230900)]
-public class UtcToPhotosAndLines : Migration
+[Migration(202301180558)]
+public class VideoContentTables : Migration
 {
     public override void Down()
     {
@@ -13,25 +13,62 @@ public class UtcToPhotosAndLines : Migration
 
     public override void Up()
     {
-        if (!Schema.Table("PhotoContents").Column("PhotoCreatedOnUtc").Exists())
-            Execute.Sql(@"ALTER TABLE PhotoContents 
-                    ADD COLUMN PhotoCreatedOnUtc TEXT");
-        if (!Schema.Table("HistoricPhotoContents").Column("PhotoCreatedOnUtc").Exists())
-            Execute.Sql(@"ALTER TABLE HistoricPhotoContents 
-                    ADD COLUMN PhotoCreatedOnUtc TEXT");
+        if (!Schema.Table("VideoContents").Exists())
+            Execute.Sql("""
+                    CREATE TABLE "VideoContents" (
+                    "Id" INTEGER NOT NULL CONSTRAINT "PK_VideoContents" PRIMARY KEY AUTOINCREMENT,
+                    "OriginalFileName" TEXT NULL,
+                    "UserMainPicture" TEXT NULL,
+                    "BodyContent" TEXT NULL,
+                    "BodyContentFormat" TEXT NULL,
+                    "ContentId" TEXT NOT NULL,
+                    "ContentVersion" TEXT NOT NULL,
+                    "CreatedBy" TEXT NULL,
+                    "CreatedOn" TEXT NOT NULL,
+                    "LastUpdatedBy" TEXT NULL,
+                    "LastUpdatedOn" TEXT NULL,
+                    "MainPicture" TEXT NULL,
+                    "FeedOn" TEXT NOT NULL,
+                    "IsDraft" INTEGER NOT NULL,
+                    "ShowInMainSiteFeed" INTEGER NOT NULL,
+                    "Tags" TEXT NULL,
+                    "Folder" TEXT NULL,
+                    "Slug" TEXT NULL,
+                    "Summary" TEXT NULL,
+                    "Title" TEXT NULL,
+                    "UpdateNotes" TEXT NULL,
+                    "UpdateNotesFormat" TEXT NULL
+                )
+                """);
 
-        if (!Schema.Table("LineContents").Column("RecordingStartedOnUtc").Exists())
-            Execute.Sql(@"ALTER TABLE LineContents 
-                    ADD COLUMN RecordingStartedOnUtc TEXT");
-        if (!Schema.Table("HistoricLineContents").Column("RecordingStartedOnUtc").Exists())
-            Execute.Sql(@"ALTER TABLE HistoricLineContents
-                    ADD COLUMN RecordingStartedOnUtc TEXT");
-
-        if (!Schema.Table("LineContents").Column("RecordingEndedOnUtc").Exists())
-            Execute.Sql(@"ALTER TABLE LineContents 
-                    ADD COLUMN RecordingEndedOnUtc TEXT");
-        if (!Schema.Table("HistoricLineContents").Column("RecordingEndedOnUtc").Exists())
-            Execute.Sql(@"ALTER TABLE HistoricLineContents 
-                    ADD COLUMN RecordingEndedOnUtc TEXT");
+        if (!Schema.Table("HistoricVideoContents").Exists())
+            Execute.Sql("""
+                    CREATE TABLE "HistoricVideoContents" (
+                    "Id" INTEGER NOT NULL CONSTRAINT "PK_HistoricVideoContents" PRIMARY KEY AUTOINCREMENT,
+                    "EmbedFile" INTEGER NOT NULL,
+                    "OriginalFileName" TEXT NULL,
+                    "PublicDownloadLink" INTEGER NOT NULL,
+                    "UserMainPicture" TEXT NULL,
+                    "BodyContent" TEXT NULL,
+                    "BodyContentFormat" TEXT NULL,
+                    "ContentId" TEXT NOT NULL,
+                    "ContentVersion" TEXT NOT NULL,
+                    "CreatedBy" TEXT NULL,
+                    "CreatedOn" TEXT NOT NULL,
+                    "LastUpdatedBy" TEXT NULL,
+                    "LastUpdatedOn" TEXT NULL,
+                    "MainPicture" TEXT NULL,
+                    "FeedOn" TEXT NOT NULL,
+                    "IsDraft" INTEGER NOT NULL,
+                    "ShowInMainSiteFeed" INTEGER NOT NULL,
+                    "Tags" TEXT NULL,
+                    "Folder" TEXT NULL,
+                    "Slug" TEXT NULL,
+                    "Summary" TEXT NULL,
+                    "Title" TEXT NULL,
+                    "UpdateNotes" TEXT NULL,
+                    "UpdateNotesFormat" TEXT NULL
+                )
+                """);
     }
 }

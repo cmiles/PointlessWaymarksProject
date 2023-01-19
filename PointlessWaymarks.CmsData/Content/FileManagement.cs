@@ -19,6 +19,8 @@ public static class FileManagement
 
         var returnList = new List<GenerationReturn>();
 
+        //!!Content List
+
         returnList.AddRange((await db.FileContents.ToListAsync().ConfigureAwait(false)).Select(x =>
             GenerationReturn.TryCatchToGenerationReturn(() => settings.LocalSiteFileContentDirectory(x),
                 $"Check Content Folder for File {x.Title}")));
@@ -50,6 +52,10 @@ public static class FileManagement
         returnList.AddRange((await db.PostContents.ToListAsync().ConfigureAwait(false)).Select(x =>
             GenerationReturn.TryCatchToGenerationReturn(() => settings.LocalSitePostContentDirectory(x),
                 $"Check Content Folder for Post {x.Title}")));
+
+        returnList.AddRange((await db.VideoContents.ToListAsync().ConfigureAwait(false)).Select(x =>
+            GenerationReturn.TryCatchToGenerationReturn(() => settings.LocalSiteVideoContentDirectory(x),
+                $"Check Content Folder for Video {x.Title}")));
 
         return returnList;
     }
@@ -1030,6 +1036,7 @@ public static class FileManagement
             settings.LocalSitePointDirectory().CreateIfItDoesNotExist(),
             settings.LocalSitePointDataDirectory().CreateIfItDoesNotExist(),
             settings.LocalSitePostDirectory().CreateIfItDoesNotExist(),
+            settings.LocalSiteVideoDirectory().CreateIfItDoesNotExist(),
             settings.LocalSiteTagsDirectory().CreateIfItDoesNotExist(),
             settings.LocalSiteSiteResourcesDirectory().CreateIfItDoesNotExist()
         };
@@ -1045,9 +1052,10 @@ public static class FileManagement
         return new List<GenerationReturn>
         {
             settings.LocalMediaArchiveFullDirectory().CreateIfItDoesNotExist(),
-            settings.LocalMediaArchivePhotoDirectory().CreateIfItDoesNotExist(),
-            settings.LocalMediaArchiveImageDirectory().CreateIfItDoesNotExist(),
             settings.LocalMediaArchiveFileDirectory().CreateIfItDoesNotExist(),
+            settings.LocalMediaArchiveImageDirectory().CreateIfItDoesNotExist(),
+            settings.LocalMediaArchivePhotoDirectory().CreateIfItDoesNotExist(),
+            settings.LocalMediaArchiveVideoDirectory().CreateIfItDoesNotExist(),
             settings.LocalMediaArchiveLogsDirectory().CreateIfItDoesNotExist()
         };
     }

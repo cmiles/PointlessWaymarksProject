@@ -16,7 +16,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml.VideoHtml
     /// Class to produce the template output
     /// </summary>
     
-    #line 1 "C:\Code\PointlessWaymarksCms03\PointlessWaymarks.CmsData\ContentHtml\VideoHtml\SingleVideoDiv.tt"
+    #line 1 "C:\Code\PointlessWaymarksProject-04\PointlessWaymarks.CmsData\ContentHtml\VideoHtml\SingleVideoDiv.tt"
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.TextTemplating", "17.0.0.0")]
     public partial class SingleVideoDiv : SingleVideoDivBase
     {
@@ -28,42 +28,42 @@ namespace PointlessWaymarks.CmsData.ContentHtml.VideoHtml
         {
             this.Write("\r\n<div class=\"content-container\" data-contentversion=\"");
             
-            #line 4 "C:\Code\PointlessWaymarksCms03\PointlessWaymarks.CmsData\ContentHtml\VideoHtml\SingleVideoDiv.tt"
+            #line 4 "C:\Code\PointlessWaymarksProject-04\PointlessWaymarks.CmsData\ContentHtml\VideoHtml\SingleVideoDiv.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(DbEntry.ContentVersion.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fffffff")));
             
             #line default
             #line hidden
             this.Write("\">\r\n    ");
             
-            #line 5 "C:\Code\PointlessWaymarksCms03\PointlessWaymarks.CmsData\ContentHtml\VideoHtml\SingleVideoDiv.tt"
+            #line 5 "C:\Code\PointlessWaymarksProject-04\PointlessWaymarks.CmsData\ContentHtml\VideoHtml\SingleVideoDiv.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Tags.TitleLinkDiv(DbEntry, DbEntry).ToString()));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 6 "C:\Code\PointlessWaymarksCms03\PointlessWaymarks.CmsData\ContentHtml\VideoHtml\SingleVideoDiv.tt"
+            #line 6 "C:\Code\PointlessWaymarksProject-04\PointlessWaymarks.CmsData\ContentHtml\VideoHtml\SingleVideoDiv.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Tags.PostCreatedByAndUpdatedOnDiv(DbEntry).ToString()));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 7 "C:\Code\PointlessWaymarksCms03\PointlessWaymarks.CmsData\ContentHtml\VideoHtml\SingleVideoDiv.tt"
+            #line 7 "C:\Code\PointlessWaymarksProject-04\PointlessWaymarks.CmsData\ContentHtml\VideoHtml\SingleVideoDiv.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(VideoParts.EmbedVideoTag(DbEntry).Result));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 8 "C:\Code\PointlessWaymarksCms03\PointlessWaymarks.CmsData\ContentHtml\VideoHtml\SingleVideoDiv.tt"
+            #line 8 "C:\Code\PointlessWaymarksProject-04\PointlessWaymarks.CmsData\ContentHtml\VideoHtml\SingleVideoDiv.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Tags.PostBodyDiv(DbEntry).Result.ToString()));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 9 "C:\Code\PointlessWaymarksCms03\PointlessWaymarks.CmsData\ContentHtml\VideoHtml\SingleVideoDiv.tt"
+            #line 9 "C:\Code\PointlessWaymarksProject-04\PointlessWaymarks.CmsData\ContentHtml\VideoHtml\SingleVideoDiv.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(BodyContentReferences.CompactContentTag(DbEntry, GenerationVersion).Result));
             
             #line default

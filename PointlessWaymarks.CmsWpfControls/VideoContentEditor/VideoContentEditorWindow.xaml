@@ -6,7 +6,9 @@
         xmlns:local="clr-namespace:PointlessWaymarks.CmsWpfControls.VideoContentEditor"
         xmlns:status="clr-namespace:PointlessWaymarks.WpfCommon.Status;assembly=PointlessWaymarks.WpfCommon"
         mc:Ignorable="d"
-        Title="VideoContentEditorWindow" Height="450" Width="800" d:DataContext="{d:DesignInstance local:VideoContentEditorWindow}">
+        Width="900"
+        Height="650"
+        Title="VideoContentEditorWindow" d:DataContext="{d:DesignInstance local:VideoContentEditorWindow}">
     <Grid>
         <local:VideoContentEditorControl DataContext="{Binding VideoContent}" />
         <status:StatusControl

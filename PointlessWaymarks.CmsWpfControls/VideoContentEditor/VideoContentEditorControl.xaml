@@ -21,6 +21,7 @@
     d:DataContext="{d:DesignInstance videoContentEditor:VideoContentEditorContext}"
     d:DesignHeight="300"
     d:DesignWidth="300"
+    Loaded="Control_Loaded"
     mc:Ignorable="d">
     <UserControl.Resources>
         <ResourceDictionary>
@@ -31,96 +32,145 @@
         </ResourceDictionary>
     </UserControl.Resources>
     <Grid Margin="4">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition />
+            <ColumnDefinition />
+        </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
-        <TabControl>
+        <GroupBox Margin="4,0,0,4" Style="{StaticResource UiComponentGroupBoxStyle}">
+            <GroupBox.Header>
+                <StackPanel Orientation="Horizontal">
+                    <Label Style="{StaticResource DataEntryLabelStyle}">
+                        Video
+                    </Label>
+                    <utility:IndicatorIcon
+                        VerticalAlignment="Center"
+                        HoverText="Selected File Path or Name has Changed"
+                        IconBrush="Black"
+                        IconPathGeometry="{StaticResource IconDataInfo}"
+                        IconSize="{StaticResource SmallIconSize}"
+                        Visibility="{Binding SelectedFileHasPathOrNameChanges, Converter={StaticResource BooleanToVisibility}}" />
+                    <utility:IndicatorIcon
+                        VerticalAlignment="Center"
+                        HoverText="{Binding SelectedFileValidationMessage}"
+                        IconBrush="Red"
+                        IconPathGeometry="{StaticResource IconDataError}"
+                        IconSize="{StaticResource SmallIconSize}"
+                        Visibility="{Binding SelectedFileHasValidationIssues, Converter={StaticResource BooleanToVisibility}}" />
+                </StackPanel>
+            </GroupBox.Header>
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <Button
+                    Grid.Row="0"
+                    Grid.ColumnSpan="2"
+                    Height="28"
+                    Margin="4"
+                    Command="{Binding ChooseFileAndFillMetadataCommand}"
+                    Content="Choose Video - _Load Metadata" />
+                <Button
+                    Grid.Row="1"
+                    Grid.ColumnSpan="2"
+                    Height="28"
+                    Margin="4,4,4,18"
+                    Command="{Binding ChooseFileCommand}">
+                    Choose Video
+                </Button>
+                <MediaElement Grid.Row="2"
+                              x:Name="VideoContentPlayer" Source="{Binding SelectedFile.FullName}"
+                              MediaOpened="Video_MediaOpened"
+                              ScrubbingEnabled="True"
+                              LoadedBehavior="Manual" />
+                <Grid Grid.Row="3">
+                    <Grid.RowDefinitions>
+                        <RowDefinition />
+                        <RowDefinition />
+                    </Grid.RowDefinitions>
+                    <Slider Orientation="Horizontal" Grid.Row="0" Name="VideoBarPosition"
+                            VerticalAlignment="Center" Visibility="Hidden"
+                            Thumb.DragStarted="VideoProgress_DragStarted"
+                            Thumb.DragCompleted="VideoProgress_DragCompleted"
+                            ValueChanged="VideoProgress_ValueChanged" />
+                    <StackPanel Orientation="Horizontal" Grid.Row="1"
+                                HorizontalAlignment="Center" VerticalAlignment="Center">
+                        <Button Click="VideoPlay_Click">
+                            Play
+                        </Button>
+                        <Button Click="VideoPause_Click">
+                            Pause
+                        </Button>
+                        <Button Click="VideoStop_Click">
+                            Stop
+                        </Button>
+                        <Button Click="VideoRestart_Click">
+                            Start
+                        </Button>
+                        <TextBlock Name="VideoProgressStatus">00:00:00</TextBlock>
+                    </StackPanel>
+                </Grid>
+                <StackPanel
+                    Grid.Row="4"
+                    Margin="4,12,4,12"
+                    Orientation="Vertical">
+                    <TextBox
+                        HorizontalAlignment="Center"
+                        Style="{StaticResource ReadOnlyTextBoxStyle}"
+                        Text="{Binding SelectedFile.FullName, Mode=OneWay}"
+                        TextDecorations="Underline"
+                        TextWrapping="Wrap">
+                        <b:Interaction.Behaviors>
+                            <wpfBehavior:TextBoxDoubleClickLauncher />
+                        </b:Interaction.Behaviors>
+                    </TextBox>
+                    <Button
+                        HorizontalAlignment="Center"
+                        Background="Yellow"
+                        Command="{Binding AutoCleanRenameSelectedFileCommand}"
+                        ToolTip="This filename has illegal characters - pressing this to attempt to auto-rename the file"
+                        Visibility="{Binding SelectedFileNameHasInvalidCharacters, Converter={StaticResource BooleanToVisibility}}">
+                        Auto-Fix File Name
+                    </Button>
+                </StackPanel>
+                <WrapPanel
+                    Grid.Row="5"
+                    Margin="4,0,4,8"
+                    HorizontalAlignment="Center"
+                    Orientation="Horizontal">
+                    <WrapPanel.Resources>
+                        <Style TargetType="Button">
+                            <Setter Property="Width" Value="120" />
+                            <Setter Property="Margin" Value="2" />
+                        </Style>
+                    </WrapPanel.Resources>
+                    <Label Name="lblStatus" Content="Not playing..." HorizontalContentAlignment="Center" Margin="5" />
+                    <Button Command="{Binding ViewPhotoMetadataCommand}">
+                        Show Metadata
+                    </Button>
+                    <Button Command="{Binding ViewSelectedFileCommand}">View Photo</Button>
+                    <Button Command="{Binding ViewSelectedFileDirectoryCommand}">View Directory</Button>
+                    <Button Command="{Binding AutoRenameSelectedFileBasedOnTitleCommand}"
+                            IsEnabled="{Binding TitleSummarySlugFolder.CustomTitleFunctionEnabled}">
+                        Title-&gt;Name
+                    </Button>
+                    <Button Command="{Binding RenameSelectedFileCommand}">Rename</Button>
+                </WrapPanel>
+            </Grid>
+        </GroupBox>
+        <TabControl Grid.Row="0" Grid.Column="1">
             <TabItem Header="Summary">
                 <Grid>
                     <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
                         <StackPanel Margin="4" CanHorizontallyScroll="False">
-                            <GroupBox Margin="4,0,0,4" Style="{StaticResource UiComponentGroupBoxStyle}">
-                                <GroupBox.Header>
-                                    <StackPanel Orientation="Horizontal">
-                                        <Label Style="{StaticResource DataEntryLabelStyle}">
-                                            File
-                                        </Label>
-                                        <utility:IndicatorIcon
-                                            VerticalAlignment="Center"
-                                            HoverText="Selected File Path or Name has Changed"
-                                            IconBrush="Black"
-                                            IconPathGeometry="{StaticResource IconDataInfo}"
-                                            IconSize="{StaticResource SmallIconSize}"
-                                            Visibility="{Binding SelectedVideoHasPathOrNameChanges, Converter={StaticResource BooleanToVisibility}}" />
-                                        <utility:IndicatorIcon
-                                            VerticalAlignment="Center"
-                                            HoverText="{Binding SelectedVideoValidationMessage}"
-                                            IconBrush="Red"
-                                            IconPathGeometry="{StaticResource IconDataError}"
-                                            IconSize="{StaticResource SmallIconSize}"
-                                            Visibility="{Binding SelectedVideoHasValidationIssues, Converter={StaticResource BooleanToVisibility}}" />
-                                    </StackPanel>
-                                </GroupBox.Header>
-                                <Grid>
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="Auto" />
-                                        <RowDefinition Height="Auto" />
-                                        <RowDefinition Height="Auto" />
-                                        <RowDefinition Height="Auto" />
-                                    </Grid.RowDefinitions>
-                                    <Button Command="{Binding ChooseVideoCommand}"
-                                            Style="{StaticResource ActionPanelButtonStyle}">
-                                        Choose File
-                                    </Button>
-                                    <Label Grid.Row="1" Style="{StaticResource DataEntryLabelStyle}">Selected File</Label>
-                                    <StackPanel
-                                        Grid.Row="2"
-                                        Margin="6,2,0,8"
-                                        Orientation="Vertical">
-                                        <TextBox
-                                            Style="{StaticResource ReadOnlyTextBoxStyle}"
-                                            Text="{Binding SelectedVideo.FullName, Mode=OneWay}"
-                                            TextDecorations="Underline"
-                                            TextWrapping="Wrap">
-                                            <b:Interaction.Behaviors>
-                                                <wpfBehavior:TextBoxDoubleClickLauncher />
-                                            </b:Interaction.Behaviors>
-                                        </TextBox>
-                                        <Button
-                                            Background="Yellow"
-                                            Command="{Binding AutoRenameSelectedVideoCommand}"
-                                            ToolTip="This filename has illegal characters - pressing this to attempt to auto-rename the file"
-                                            Visibility="{Binding SelectedVideoNameHasInvalidCharacters, Converter={StaticResource BooleanToVisibility}}">
-                                            Auto-Fix File Name
-                                        </Button>
-                                    </StackPanel>
-                                    <WrapPanel
-                                        Grid.Row="3"
-                                        Margin="4,0,4,12"
-                                        HorizontalAlignment="Center"
-                                        Orientation="Horizontal">
-                                        <WrapPanel.Resources>
-                                            <Style TargetType="Button">
-                                                <Setter Property="Width" Value="120" />
-                                                <Setter Property="Margin" Value="2" />
-                                            </Style>
-                                        </WrapPanel.Resources>
-                                        <Button Command="{Binding OpenSelectedVideoCommand}">Open File</Button>
-                                        <Button Command="{Binding OpenSelectedVideoDirectoryCommand}">Open Directory</Button>
-
-                                        <Button Command="{Binding RenameSelectedVideoCommand}">Rename</Button>
-                                    </WrapPanel>
-                                </Grid>
-                            </GroupBox>
-                            <StackPanel Margin="0,4,0,0" Orientation="Vertical">
-                                <Grid Margin="6,2,0,0">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition />
-                                        <ColumnDefinition />
-                                    </Grid.ColumnDefinitions>
-                                </Grid>
-                            </StackPanel>
                             <titleSummarySlugFolderEditor:TitleSummarySlugEditorControl Margin="0,4,0,0"
                                 DataContext="{Binding TitleSummarySlugFolder}" />
                             <contentSiteFeedAndIsDraft:ContentSiteFeedAndIsDraftControl
@@ -184,7 +234,7 @@
                 <markdownDisplay:HelpDisplayControl DataContext="{Binding HelpContext}" />
             </TabItem>
         </TabControl>
-        <Border Grid.Row="1" Style="{StaticResource ActionPanelBorderStyle}">
+        <Border Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="2" Style="{StaticResource ActionPanelBorderStyle}">
             <WrapPanel HorizontalAlignment="Center" Orientation="Horizontal">
                 <Button
                     Command="{Binding SaveCommand}"
