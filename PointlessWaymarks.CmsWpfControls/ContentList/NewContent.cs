@@ -592,9 +592,9 @@ public partial class NewContent
 
         if (selectedFileInfos.Any(x => !FileHelpers.VideoFileTypeIsSupported(x)))
             StatusContext.ToastWarning(
-                $"Skipping - not supported - {string.Join(", ", selectedFileInfos.Where(x => !FileHelpers.ImageFileTypeIsSupported(x)))}");
+                $"Skipping - not supported - {string.Join(", ", selectedFileInfos.Where(x => !FileHelpers.VideoFileTypeIsSupported(x)))}");
 
-        foreach (var loopFile in selectedFileInfos.Where(FileHelpers.ImageFileTypeIsSupported))
+        foreach (var loopFile in selectedFileInfos.Where(FileHelpers.VideoFileTypeIsSupported))
         {
             cancellationToken.ThrowIfCancellationRequested();
 

@@ -18,6 +18,7 @@
     xmlns:conversionDataEntry="clr-namespace:PointlessWaymarks.CmsWpfControls.ConversionDataEntry"
     xmlns:markdownDisplay="clr-namespace:PointlessWaymarks.WpfCommon.MarkdownDisplay;assembly=PointlessWaymarks.WpfCommon"
     xmlns:videoContentEditor="clr-namespace:PointlessWaymarks.CmsWpfControls.VideoContentEditor"
+    xmlns:svgc="http://sharpvectors.codeplex.com/svgc/"
     d:DataContext="{d:DesignInstance videoContentEditor:VideoContentEditorContext}"
     d:DesignHeight="300"
     d:DesignWidth="300"
@@ -103,19 +104,22 @@
                             ValueChanged="VideoProgress_ValueChanged" />
                     <StackPanel Orientation="Horizontal" Grid.Row="1"
                                 HorizontalAlignment="Center" VerticalAlignment="Center">
-                        <Button Click="VideoPlay_Click">
-                            Play
+                        <Button Click="VideoPlay_Click" Width="28" Height="28" Padding="8"
+                                HorizontalContentAlignment="Center" VerticalContentAlignment="Center">
+                            <Image Source="{svgc:SvgImage Source=/Icons/play.svg, AppName=PointlessWaymarks.WpfCommon}" />
                         </Button>
-                        <Button Click="VideoPause_Click">
-                            Pause
+                        <Button Click="VideoPause_Click" Width="28" Height="28" Padding="8">
+                            <Image
+                                Source="{svgc:SvgImage Source=/Icons/pause.svg, AppName=PointlessWaymarks.WpfCommon}" />
                         </Button>
-                        <Button Click="VideoStop_Click">
-                            Stop
+                        <Button Click="VideoStop_Click" Width="28" Height="28" Padding="8">
+                            <Image Source="{svgc:SvgImage Source=/Icons/stop.svg, AppName=PointlessWaymarks.WpfCommon}" />
                         </Button>
-                        <Button Click="VideoRestart_Click">
-                            Start
+                        <Button Click="VideoRestart_Click" Width="28" Height="28" Padding="8, 6,8,8">
+                            <Image
+                                Source="{svgc:SvgImage Source=/Icons/restart.svg, AppName=PointlessWaymarks.WpfCommon}" />
                         </Button>
-                        <TextBlock Name="VideoProgressStatus">00:00:00</TextBlock>
+                        <TextBlock Name="VideoProgressStatus" Margin="12,2,2,2" VerticalAlignment="Center">00:00:00</TextBlock>
                     </StackPanel>
                 </Grid>
                 <StackPanel
@@ -152,7 +156,6 @@
                             <Setter Property="Margin" Value="2" />
                         </Style>
                     </WrapPanel.Resources>
-                    <Label Name="lblStatus" Content="Not playing..." HorizontalContentAlignment="Center" Margin="5" />
                     <Button Command="{Binding ViewPhotoMetadataCommand}">
                         Show Metadata
                     </Button>

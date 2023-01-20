@@ -17,6 +17,11 @@
   </Target>
 
   <ItemGroup>
+    <None Remove="Icons\pause.svg" />
+    <None Remove="Icons\play.svg" />
+    <None Remove="Icons\restart.svg" />
+    <None Remove="Icons\stop.svg" />
+    <None Remove="Icons\SvgSources.txt" />
     <None Remove="Scripts\pure-min.css" />
   </ItemGroup>
 
@@ -40,6 +45,7 @@
     <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.39" />
     <PackageReference Include="Ookii.Dialogs.Wpf" Version="5.0.1" />
     <PackageReference Include="PhotoSauce.MagicScaler" Version="0.13.2" />
+    <PackageReference Include="SharpVectors.Wpf" Version="1.8.1" />
     <PackageReference Include="System.Drawing.Common" Version="7.0.0" />
     <PackageReference Include="WpfScreenHelper" Version="2.1.0" />
   </ItemGroup>
@@ -71,6 +77,14 @@
 
   <ItemGroup>
     <EmbeddedResource Include="..\PointlessWaymarks.CmsData\SiteResources\pointless-waymarks-spatial-common.js" Link="Scripts\pointless-waymarks-spatial-common.js" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Icons\pause.svg" />
+    <Resource Include="Icons\play.svg" />
+    <Resource Include="Icons\restart.svg" />
+    <Resource Include="Icons\stop.svg" />
+    <Resource Include="Icons\SvgSources.txt" />
   </ItemGroup>
 
 </Project>

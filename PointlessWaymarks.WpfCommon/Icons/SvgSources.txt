@@ -1,0 +1,4 @@
+﻿restart - Google - https://materialdesignicons.com/icon/restart
+play - Google - https://materialdesignicons.com/icon/play
+stop - Google - https://materialdesignicons.com/icon/stop
+pause - Google - https://materialdesignicons.com/icon/pause
