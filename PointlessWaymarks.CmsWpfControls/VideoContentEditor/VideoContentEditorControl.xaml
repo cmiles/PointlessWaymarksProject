@@ -19,6 +19,7 @@
     xmlns:markdownDisplay="clr-namespace:PointlessWaymarks.WpfCommon.MarkdownDisplay;assembly=PointlessWaymarks.WpfCommon"
     xmlns:videoContentEditor="clr-namespace:PointlessWaymarks.CmsWpfControls.VideoContentEditor"
     xmlns:svgc="http://sharpvectors.codeplex.com/svgc/"
+    xmlns:stringDataEntry="clr-namespace:PointlessWaymarks.CmsWpfControls.StringDataEntry"
     d:DataContext="{d:DesignInstance videoContentEditor:VideoContentEditorContext}"
     d:DesignHeight="300"
     d:DesignWidth="300"
@@ -222,6 +223,19 @@
                         </StackPanel>
                     </ScrollViewer>
                 </Grid>
+            </TabItem>
+            <TabItem Header="Metadata">
+                <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+                    <Grid>
+                        <StackPanel Margin="4">
+                            <stringDataEntry:StringDataEntryControl DataContext="{Binding VideoCreatedByEntry}" />
+                            <conversionDataEntry:ConversionDataEntryControl DataContext="{Binding VideoCreatedOnEntry}" />
+                            <conversionDataEntry:ConversionDataEntryControl
+                                DataContext="{Binding VideoCreatedOnUtcEntry}" />
+                            <stringDataEntry:StringDataEntryControl DataContext="{Binding LicenseEntry}" />
+                        </StackPanel>
+                    </Grid>
+                </ScrollViewer>
             </TabItem>
             <TabItem Header="Post Body">
                 <Grid>

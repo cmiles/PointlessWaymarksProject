@@ -4,8 +4,12 @@ namespace PointlessWaymarks.CmsData.Database.Models;
 
 public class VideoContent : IUpdateNotes, IContentCommon
 {
+    public string? License { get; set; }
     public string? OriginalFileName { get; set; }
     public Guid? UserMainPicture { get; set; }
+    public string? VideoCreatedBy { get; set; }
+    public DateTime VideoCreatedOn { get; set; }
+    public DateTime? VideoCreatedOnUtc { get; set; }
     public string? BodyContent { get; set; }
     public string? BodyContentFormat { get; set; }
     public Guid ContentId { get; set; }

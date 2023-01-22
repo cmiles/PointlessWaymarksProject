@@ -217,7 +217,7 @@ public partial class NewContent
 
         StatusContext.Progress("Starting Image load.");
 
-        var dialog = new VistaOpenFileDialog { Multiselect = true };
+        var dialog = new VistaOpenFileDialog { Multiselect = true, Filter = "jpg files (*.jpg;*.jpeg)|*.jpg;*.jpeg" };
 
         if (!(dialog.ShowDialog() ?? false)) return;
 
@@ -418,7 +418,7 @@ public partial class NewContent
 
         StatusContext.Progress("Starting photo load.");
 
-        var dialog = new VistaOpenFileDialog { Multiselect = true };
+        var dialog = new VistaOpenFileDialog { Multiselect = true, Filter = "jpg files (*.jpg;*.jpeg)|*.jpg;*.jpeg" };
 
         if (!(dialog.ShowDialog() ?? false)) return;
 
@@ -558,7 +558,7 @@ public partial class NewContent
 
         StatusContext.Progress("Starting Video load.");
 
-        var dialog = new VistaOpenFileDialog { Multiselect = true };
+        var dialog = new VistaOpenFileDialog { Multiselect = true, Filter = "supported formats (*.mp4;*.webm,*.ogg)|*.mp4;*.webm;*.ogg" };
 
         if (!(dialog.ShowDialog() ?? false)) return;
 

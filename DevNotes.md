@@ -24,6 +24,10 @@ Site:
 
 ## Notes
 
+1/22/2023
+
+Photography is something that I take seriously at times and it has taken several years of working on this CMS for video to be on my mind enough to warrant a Content type - but it is clear to me now that it does warrant its own content type (vs the previous support as a 'file'). Work is ongoing on this...
+
 1/10/2023
 
 With over 15 years of Windows GUI programming experience for the first time I found a use for Windows Notifications! For this project the Task items could run on a server but the actual target is running on a personal machine - with that in mind the tasks need a way to notify about success/failure and Windows Notifications seem like a nice way to do that without needing to provide additional configuration and store additional user information.

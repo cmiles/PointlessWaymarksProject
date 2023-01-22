@@ -15,10 +15,14 @@ public class VideoContentTables : Migration
     {
         if (!Schema.Table("VideoContents").Exists())
             Execute.Sql("""
-                    CREATE TABLE "VideoContents" (
+                CREATE TABLE "VideoContents" (
                     "Id" INTEGER NOT NULL CONSTRAINT "PK_VideoContents" PRIMARY KEY AUTOINCREMENT,
+                    "License" TEXT NULL,
                     "OriginalFileName" TEXT NULL,
                     "UserMainPicture" TEXT NULL,
+                    "VideoCreatedBy" TEXT NULL,
+                    "VideoCreatedOn" TEXT NOT NULL,
+                    "VideoCreatedOnUtc" TEXT NULL,
                     "BodyContent" TEXT NULL,
                     "BodyContentFormat" TEXT NULL,
                     "ContentId" TEXT NOT NULL,
@@ -43,12 +47,14 @@ public class VideoContentTables : Migration
 
         if (!Schema.Table("HistoricVideoContents").Exists())
             Execute.Sql("""
-                    CREATE TABLE "HistoricVideoContents" (
+                CREATE TABLE "HistoricVideoContents" (
                     "Id" INTEGER NOT NULL CONSTRAINT "PK_HistoricVideoContents" PRIMARY KEY AUTOINCREMENT,
-                    "EmbedFile" INTEGER NOT NULL,
+                    "License" TEXT NULL,
                     "OriginalFileName" TEXT NULL,
-                    "PublicDownloadLink" INTEGER NOT NULL,
                     "UserMainPicture" TEXT NULL,
+                    "VideoCreatedBy" TEXT NULL,
+                    "VideoCreatedOn" TEXT NOT NULL,
+                    "VideoCreatedOnUtc" TEXT NULL,
                     "BodyContent" TEXT NULL,
                     "BodyContentFormat" TEXT NULL,
                     "ContentId" TEXT NOT NULL,

@@ -20,6 +20,8 @@ using PointlessWaymarks.CmsWpfControls.CreatedAndUpdatedByAndOnDisplay;
 using PointlessWaymarks.CmsWpfControls.HelpDisplay;
 using PointlessWaymarks.CmsWpfControls.ImageContentEditor;
 using PointlessWaymarks.CmsWpfControls.PhotoContentEditor;
+using PointlessWaymarks.CmsWpfControls.PhotoList;
+using PointlessWaymarks.CmsWpfControls.StringDataEntry;
 using PointlessWaymarks.CmsWpfControls.TagsEditor;
 using PointlessWaymarks.CmsWpfControls.TitleSummarySlugFolderEditor;
 using PointlessWaymarks.CmsWpfControls.UpdateNotesEditor;
@@ -40,6 +42,7 @@ public partial class VideoContentEditorContext : IHasChanges, IHasValidationIssu
     [ObservableProperty] private RelayCommand _autoCleanRenameSelectedFileCommand;
     [ObservableProperty] private RelayCommand _autoRenameSelectedFileBasedOnTitleCommand;
     [ObservableProperty] private BodyContentEditorContext _bodyContent;
+    [ObservableProperty] private RelayCommand _chooseFileAndFillMetadataCommand;
     [ObservableProperty] private RelayCommand _chooseFileCommand;
     [ObservableProperty] private ContentIdViewerControlContext _contentId;
     [ObservableProperty] private CreatedAndUpdatedByAndOnDisplayContext _createdUpdatedDisplay;
@@ -51,12 +54,11 @@ public partial class VideoContentEditorContext : IHasChanges, IHasValidationIssu
     [ObservableProperty] private bool _hasValidationIssues;
     [ObservableProperty] private HelpDisplayContext _helpContext;
     [ObservableProperty] private FileInfo _initialVideo;
+    [ObservableProperty] private StringDataEntryContext _licenseEntry;
     [ObservableProperty] private RelayCommand _linkToClipboardCommand;
     [ObservableProperty] private FileInfo _loadedVideo;
     [ObservableProperty] [CanBeNull] private ImageContentEditorWindow _mainImageExternalEditorWindow;
     [ObservableProperty] private ContentSiteFeedAndIsDraftContext _mainSiteFeed;
-    [ObservableProperty] private RelayCommand _viewSelectedFileCommand;
-    [ObservableProperty] private RelayCommand _viewSelectedFileDirectoryCommand;
     [ObservableProperty] private RelayCommand _renameSelectedFileCommand;
     [ObservableProperty] private RelayCommand _saveAndCloseCommand;
     [ObservableProperty] private RelayCommand _saveAndExtractImageFromPdfCommand;
@@ -74,7 +76,13 @@ public partial class VideoContentEditorContext : IHasChanges, IHasValidationIssu
     [ObservableProperty] private ConversionDataEntryContext<Guid?> _userMainPictureEntry;
     [ObservableProperty] private IContentCommon _userMainPictureEntryContent;
     [ObservableProperty] private string _userMainPictureEntrySmallImageUrl;
+    [ObservableProperty] private StringDataEntryContext _videoCreatedByEntry;
+    [ObservableProperty] private ConversionDataEntryContext<DateTime> _videoCreatedOnEntry;
+    [ObservableProperty] private ConversionDataEntryContext<DateTime?> _videoCreatedOnUtcEntry;
     [ObservableProperty] private RelayCommand _viewOnSiteCommand;
+    [ObservableProperty] private RelayCommand _viewPhotoMetadataCommand;
+    [ObservableProperty] private RelayCommand _viewSelectedFileCommand;
+    [ObservableProperty] private RelayCommand _viewSelectedFileDirectoryCommand;
     [ObservableProperty] private RelayCommand _viewUserMainPictureCommand;
 
     public EventHandler RequestContentEditorWindowClose;
@@ -127,7 +135,7 @@ Notes:
                               SelectedFileHasValidationIssues;
     }
 
-    public async Task ChooseVideo()
+    public async Task ChooseFile(bool loadMetadata)
     {
         await ThreadSwitcher.ResumeForegroundAsync();
 
@@ -137,19 +145,38 @@ Notes:
 
         if (!(dialog.ShowDialog() ?? false)) return;
 
-        var newVideo = new FileInfo(dialog.FileName);
+        var newFile = new FileInfo(dialog.FileName);
 
-        if (!newVideo.Exists)
+        if (!newFile.Exists)
         {
             StatusContext.ToastError("Video doesn't exist?");
             return;
         }
 
+        if (!FileHelpers.VideoFileTypeIsSupported(newFile))
+        {
+            StatusContext.ToastError("Only JPEGs are supported...");
+            return;
+        }
+
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        SelectedFile = newVideo;
+        SelectedFile = newFile;
 
         StatusContext.Progress($"Video load - {SelectedFile.FullName} ");
+
+        if (!loadMetadata) return;
+
+        var (generationReturn, metadata) =
+            await PhotoGenerator.PhotoMetadataFromFile(SelectedFile, false, StatusContext.ProgressTracker());
+
+        if (generationReturn.HasError)
+        {
+            await StatusContext.ShowMessageWithOkButton("Video Metadata Load Issue", generationReturn.GenerationNote);
+            return;
+        }
+
+        PhotoMetadataToCurrentContent(metadata);
     }
 
     public static async Task<VideoContentEditorContext> CreateInstance(StatusControlContext statusContext,
@@ -209,6 +236,11 @@ Notes:
         newEntry.BodyContentFormat = BodyContent.BodyContentFormat.SelectedContentFormatAsString;
         newEntry.OriginalFileName = SelectedFile.Name;
         newEntry.UserMainPicture = UserMainPictureEntry.UserValue;
+
+        newEntry.License = LicenseEntry.UserValue.TrimNullToEmpty();
+        newEntry.VideoCreatedBy = VideoCreatedByEntry.UserValue.TrimNullToEmpty();
+        newEntry.VideoCreatedOn = VideoCreatedOnEntry.UserValue;
+        newEntry.VideoCreatedOnUtc = VideoCreatedOnUtcEntry.UserValue;
 
         return newEntry;
     }
@@ -293,6 +325,34 @@ Notes:
             DbEntry);
         MainSiteFeed = await ContentSiteFeedAndIsDraftContext.CreateInstance(StatusContext, DbEntry);
         CreatedUpdatedDisplay = await CreatedAndUpdatedByAndOnDisplayContext.CreateInstance(StatusContext, DbEntry);
+
+        LicenseEntry = StringDataEntryContext.CreateInstance();
+        LicenseEntry.Title = "License";
+        LicenseEntry.HelpText = "The Video's License";
+        LicenseEntry.ReferenceValue = DbEntry.License ?? string.Empty;
+        LicenseEntry.UserValue = DbEntry.License.TrimNullToEmpty();
+
+        VideoCreatedByEntry = StringDataEntryContext.CreateInstance();
+        VideoCreatedByEntry.Title = "Video Created By";
+        VideoCreatedByEntry.HelpText = "Who created the video";
+        VideoCreatedByEntry.ReferenceValue = DbEntry.VideoCreatedBy ?? string.Empty;
+        VideoCreatedByEntry.UserValue = DbEntry.VideoCreatedBy.TrimNullToEmpty();
+
+        VideoCreatedOnEntry =
+            ConversionDataEntryContext<DateTime>.CreateInstance(ConversionDataEntryHelpers.DateTimeConversion);
+        VideoCreatedOnEntry.Title = "Video Created On";
+        VideoCreatedOnEntry.HelpText = "Date and, optionally, Time the Video was Created";
+        VideoCreatedOnEntry.ReferenceValue = DbEntry.VideoCreatedOn;
+        VideoCreatedOnEntry.UserText = DbEntry.VideoCreatedOn.ToString("MM/dd/yyyy h:mm:ss tt");
+
+        VideoCreatedOnUtcEntry =
+            ConversionDataEntryContext<DateTime?>.CreateInstance(ConversionDataEntryHelpers.DateTimeNullableConversion);
+        VideoCreatedOnUtcEntry.Title = "Video Created On UTC Date/Time";
+        VideoCreatedOnUtcEntry.HelpText =
+            "UTC Date and Time the Video was Created - the UTC Date Time is not displayed but is used to compare the Video's Date Time to data like GPX Files/Lines.";
+        VideoCreatedOnUtcEntry.ReferenceValue = DbEntry.VideoCreatedOnUtc;
+        VideoCreatedOnUtcEntry.UserText = DbEntry.VideoCreatedOnUtc?.ToString("MM/dd/yyyy h:mm:ss tt");
+
         ContentId = await ContentIdViewerControlContext.CreateInstance(StatusContext, DbEntry);
         UpdateNotes = await UpdateNotesEditorContext.CreateInstance(StatusContext, DbEntry);
         TagEdit = TagsEditorContext.CreateInstance(StatusContext, DbEntry);
@@ -337,31 +397,19 @@ Notes:
             }
         }
 
-        if (DbEntry.Id < 1 && _initialVideo is { Exists: true })
+        if (DbEntry.Id < 1 && _initialVideo is { Exists: true } && FileHelpers.VideoFileTypeIsSupported(_initialVideo))
         {
             SelectedFile = _initialVideo;
             _initialVideo = null;
-
-            if (SelectedFile.Extension == ".mp4")
-            {
-                var (generationReturn, metadata) =
-                    await PhotoGenerator.PhotoMetadataFromFile(SelectedFile, false, StatusContext.ProgressTracker());
-
-                if (!generationReturn.HasError)
-                {
-                    TitleSummarySlugFolder.SummaryEntry.UserValue = metadata.Summary;
-                    TagEdit.Tags = metadata.Tags;
-                    TitleSummarySlugFolder.TitleEntry.UserValue = metadata.Title;
-                    TitleSummarySlugFolder.TitleToSlug();
-                    TitleSummarySlugFolder.FolderEntry.UserValue = metadata.PhotoCreatedOn.Year.ToString("F0");
-                }
-            }
-
-            if (string.IsNullOrWhiteSpace(TitleSummarySlugFolder.SummaryEntry.UserValue))
-                TitleSummarySlugFolder.TitleEntry.UserValue = Regex.Replace(
-                    Path.GetFileNameWithoutExtension(SelectedFile.Name).Replace("-", " ").Replace("_", " ")
-                        .SplitCamelCase(), @"\s+", " ");
+            var (generationReturn, metadataReturn) =
+                await PhotoGenerator.PhotoMetadataFromFile(SelectedFile, false, StatusContext.ProgressTracker());
+            if (!generationReturn.HasError) PhotoMetadataToCurrentContent(metadataReturn);
         }
+
+        if (string.IsNullOrWhiteSpace(TitleSummarySlugFolder.SummaryEntry.UserValue))
+            TitleSummarySlugFolder.TitleEntry.UserValue = Regex.Replace(
+                Path.GetFileNameWithoutExtension(SelectedFile.Name).Replace("-", " ").Replace("_", " ")
+                    .SplitCamelCase(), @"\s+", " ");
 
         await SelectedFileChanged();
     }
@@ -450,6 +498,20 @@ Notes:
         Process.Start(ps);
     }
 
+
+    public void PhotoMetadataToCurrentContent(PhotoMetadata metadata)
+    {
+        LicenseEntry.UserValue = metadata.License;
+        VideoCreatedByEntry.UserValue = metadata.PhotoCreatedBy;
+        VideoCreatedOnEntry.UserText = metadata.PhotoCreatedOn.ToString("MM/dd/yyyy h:mm:ss tt");
+        VideoCreatedOnUtcEntry.UserText = metadata.PhotoCreatedOnUtc?.ToString("MM/dd/yyyy h:mm:ss tt") ?? string.Empty;
+        TitleSummarySlugFolder.SummaryEntry.UserValue = metadata.Summary;
+        TagEdit.Tags = metadata.Tags;
+        TitleSummarySlugFolder.TitleEntry.UserValue = metadata.Title;
+        TitleSummarySlugFolder.TitleToSlug();
+        TitleSummarySlugFolder.FolderEntry.UserValue = metadata.PhotoCreatedOn.Year.ToString("F0");
+    }
+
     private async Task SaveAndExtractImageFromMp4()
     {
         if (SelectedFile is not { Exists: true } || !SelectedFile.Extension.ToUpperInvariant().Contains("MP4"))
@@ -529,7 +591,10 @@ Notes:
             VideoEditorHelpText, CommonFields.TitleSlugFolderSummary, BracketCodeHelpMarkdown.HelpBlock
         });
 
-        ChooseFileCommand = StatusContext.RunBlockingTaskCommand(async () => await ChooseVideo());
+        ChooseFileAndFillMetadataCommand = StatusContext.RunBlockingTaskCommand(async () => await ChooseFile(true));
+        ChooseFileCommand = StatusContext.RunBlockingTaskCommand(async () => await ChooseFile(false));
+        ViewPhotoMetadataCommand = StatusContext.RunBlockingTaskCommand(async () =>
+            await PhotoMetadataReport.AllPhotoMetadataToHtml(SelectedFile, StatusContext));
         SaveCommand = StatusContext.RunBlockingTaskCommand(async () => await SaveAndGenerateHtml(true, false));
         SaveAndCloseCommand = StatusContext.RunBlockingTaskCommand(async () => await SaveAndGenerateHtml(true, true));
         ViewSelectedFileDirectoryCommand = StatusContext.RunBlockingTaskCommand(OpenSelectedFileDirectory);
