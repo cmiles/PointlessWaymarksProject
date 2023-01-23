@@ -6,12 +6,12 @@ using System.Windows;
 using System.Windows.Data;
 using System.Windows.Shell;
 using System.Windows.Threading;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using GongSolutions.Wpf.DragDrop;
 using MetadataExtractor;
 using MetadataExtractor.Formats.Exif;
 using Microsoft.EntityFrameworkCore;
-using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.ContentHtml;
@@ -38,6 +38,8 @@ using PointlessWaymarks.CmsWpfControls.S3Uploads;
 using PointlessWaymarks.CmsWpfControls.SitePreview;
 using PointlessWaymarks.CmsWpfControls.Utility;
 using PointlessWaymarks.CmsWpfControls.Utility.Excel;
+using PointlessWaymarks.CmsWpfControls.VideoContentEditor;
+using PointlessWaymarks.CmsWpfControls.VideoList;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
@@ -89,6 +91,7 @@ public partial class ContentListContext : IDragSource, IDropTarget
     [ObservableProperty] private RelayCommand _newPhotoListWindowCommand;
     [ObservableProperty] private RelayCommand _newPointListWindowCommand;
     [ObservableProperty] private RelayCommand _newPostListWindowCommand;
+    [ObservableProperty] private RelayCommand _newVideoListWindowCommand;
     [ObservableProperty] private NoteContentActions _noteItemActions;
     [ObservableProperty] private PhotoContentActions _photoItemActions;
     [ObservableProperty] private PointContentActions _pointItemActions;
@@ -98,6 +101,7 @@ public partial class ContentListContext : IDragSource, IDropTarget
     [ObservableProperty] private RelayCommand _showSitePreviewWindowCommand;
     [ObservableProperty] private StatusControlContext _statusContext;
     [ObservableProperty] private string _userFilterText;
+    [ObservableProperty] private VideoContentActions _videoItemActions;
     [ObservableProperty] private RelayCommand _viewHistorySelectedCommand;
     [ObservableProperty] private RelayCommand _viewOnSiteCommand;
     [ObservableProperty] private WindowIconStatus _windowStatus;
@@ -125,6 +129,7 @@ public partial class ContentListContext : IDragSource, IDropTarget
         PointItemActions = new PointContentActions(StatusContext);
         PhotoItemActions = new PhotoContentActions(StatusContext);
         PostItemActions = new PostContentActions(StatusContext);
+        VideoItemActions = new VideoContentActions(StatusContext);
 
         NewActions = new NewContent(StatusContext, WindowStatus);
 
@@ -171,7 +176,8 @@ public partial class ContentListContext : IDragSource, IDropTarget
 
         NewAllContentListWindowCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
         {
-            var newWindow = await AllContentListWindow.CreateInstance(new AllContentListWithActionsContext(null, WindowStatus));
+            var newWindow =
+                await AllContentListWindow.CreateInstance(new AllContentListWithActionsContext(null, WindowStatus));
             await newWindow.PositionWindowAndShowOnUiThread();
         });
         NewFileListWindowCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
@@ -181,7 +187,8 @@ public partial class ContentListContext : IDragSource, IDropTarget
         });
         NewGeoJsonListWindowCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
         {
-            var newWindow = await GeoJsonListWindow.CreateInstance(new GeoJsonListWithActionsContext(null, WindowStatus));
+            var newWindow =
+                await GeoJsonListWindow.CreateInstance(new GeoJsonListWithActionsContext(null, WindowStatus));
             await newWindow.PositionWindowAndShowOnUiThread();
         });
         NewImageListWindowCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
@@ -201,7 +208,8 @@ public partial class ContentListContext : IDragSource, IDropTarget
         });
         NewMapComponentListWindowCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
         {
-            var newWindow = await MapComponentListWindow.CreateInstance(new MapComponentListWithActionsContext(null, WindowStatus));
+            var newWindow =
+                await MapComponentListWindow.CreateInstance(new MapComponentListWithActionsContext(null, WindowStatus));
             await newWindow.PositionWindowAndShowOnUiThread();
         });
         NewNoteListWindowCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
@@ -222,6 +230,11 @@ public partial class ContentListContext : IDragSource, IDropTarget
         NewPostListWindowCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
         {
             var newWindow = await PostListWindow.CreateInstance(new PostListWithActionsContext(null, WindowStatus));
+            await newWindow.PositionWindowAndShowOnUiThread();
+        });
+        NewVideoListWindowCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
+        {
+            var newWindow = await VideoListWindow.CreateInstance(new VideoListWithActionsContext(null, WindowStatus));
             await newWindow.PositionWindowAndShowOnUiThread();
         });
 
@@ -394,6 +407,7 @@ public partial class ContentListContext : IDragSource, IDropTarget
         var context = await Db.Context();
         var dbItems = new List<IContentId>();
 
+        //!!Content List
         switch (translatedMessage.ContentType)
         {
             case DataNotificationContentType.File:
@@ -434,6 +448,10 @@ public partial class ContentListContext : IDragSource, IDropTarget
                 break;
             case DataNotificationContentType.Post:
                 dbItems = (await context.PostContents.Where(x => translatedMessage.ContentIds.Contains(x.ContentId))
+                    .ToListAsync()).Cast<IContentId>().ToList();
+                break;
+            case DataNotificationContentType.Video:
+                dbItems = (await context.VideoContents.Where(x => translatedMessage.ContentIds.Contains(x.ContentId))
                     .ToListAsync()).Cast<IContentId>().ToList();
                 break;
         }
@@ -746,6 +764,7 @@ public partial class ContentListContext : IDragSource, IDropTarget
 
     public IContentListItem ListItemFromDbItem(object dbItem)
     {
+        //!!Content List
         return dbItem switch
         {
             FileContent f => FileContentActions.ListItemFromDbItem(f, FileItemActions, ContentListLoader.ShowType),
@@ -760,6 +779,7 @@ public partial class ContentListContext : IDragSource, IDropTarget
             PhotoContent ph => PhotoContentActions.ListItemFromDbItem(ph, PhotoItemActions, ContentListLoader.ShowType),
             PointContent pt => PointContentActions.ListItemFromDbItem(pt, PointItemActions, ContentListLoader.ShowType),
             PostContent po => PostContentActions.ListItemFromDbItem(po, PostItemActions, ContentListLoader.ShowType),
+            VideoContent v => VideoContentActions.ListItemFromDbItem(v, VideoItemActions, ContentListLoader.ShowType),
             _ => null
         };
     }
@@ -847,7 +867,8 @@ public partial class ContentListContext : IDragSource, IDropTarget
 
         var reportLoader = new ContentListLoaderReport(toRun, ContentListLoaderBase.SortContextDefault());
 
-        var newWindow = await AllContentListWindow.CreateInstance(new AllContentListWithActionsContext(null, reportLoader));
+        var newWindow =
+            await AllContentListWindow.CreateInstance(new AllContentListWithActionsContext(null, reportLoader));
         newWindow.WindowTitle = title;
 
         await newWindow.PositionWindowAndShowOnUiThread();
@@ -879,6 +900,7 @@ public partial class ContentListContext : IDragSource, IDropTarget
         var fileContentExtensions = new List<string> { ".PDF", ".MPG", ".MPEG", ".WAV" };
         var pictureContentExtensions = new List<string> { ".JPG", ".JPEG" };
         var lineContentExtensions = new List<string> { ".GPX", ".TCX", ".FIT" };
+        var videoContentExtensions = new List<string> { ".MP4", ".OGG", ".WEBM" };
 
         foreach (var loopFile in files)
         {
@@ -902,7 +924,8 @@ public partial class ContentListContext : IDragSource, IDropTarget
 
             if (lineContentExtensions.Contains(Path.GetExtension(loopFile).ToUpperInvariant()))
             {
-                await NewContent.NewLineContentFromFiles(fileInfo.AsList(), false, CancellationToken.None, StatusContext,
+                await NewContent.NewLineContentFromFiles(fileInfo.AsList(), false, CancellationToken.None,
+                    StatusContext,
                     WindowStatus);
                 continue;
             }
@@ -941,6 +964,14 @@ public partial class ContentListContext : IDragSource, IDropTarget
 
                     statusContext.ToastSuccess($"{Path.GetFileName(loopFile)} sent to Image Editor");
                 }
+            }
+
+            if (videoContentExtensions.Contains(Path.GetExtension(loopFile).ToUpperInvariant()))
+            {
+                var newEditor = await VideoContentEditorWindow.CreateInstance(new FileInfo(loopFile));
+                await newEditor.PositionWindowAndShowOnUiThread();
+
+                statusContext.ToastSuccess($"{Path.GetFileName(loopFile)} sent to Video Editor");
             }
         }
     }

@@ -22,12 +22,12 @@ public partial class VideoContentEditorControl
         {
             Interval = TimeSpan.FromSeconds(0.1)
         };
-        _timerVideoTime.Tick += timer_Tick;
+        _timerVideoTime.Tick += TimerTick;
 
         VideoContentPlayer.Stop();
     }
 
-    private void timer_Tick(object sender, EventArgs e)
+    private void TimerTick(object sender, EventArgs e)
     {
         if (VideoContentPlayer.Source != null && VideoContentPlayer.NaturalDuration.HasTimeSpan &&
             !_userIsDraggingSlider)

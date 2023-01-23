@@ -10,6 +10,7 @@ using PointlessWaymarks.CmsWpfControls.NoteList;
 using PointlessWaymarks.CmsWpfControls.PhotoList;
 using PointlessWaymarks.CmsWpfControls.PointList;
 using PointlessWaymarks.CmsWpfControls.PostList;
+using PointlessWaymarks.CmsWpfControls.VideoList;
 
 namespace PointlessWaymarks.CmsWpfControls.ContentList;
 
@@ -25,6 +26,7 @@ public class ContentListDataTemplateSelector : DataTemplateSelector
     public DataTemplate PhotoTemplate { get; set; }
     public DataTemplate PointTemplate { get; set; }
     public DataTemplate PostTemplate { get; set; }
+    public DataTemplate VideoTemplate { get; set; }
 
     public override DataTemplate SelectTemplate(object item, DependencyObject container)
     {
@@ -40,6 +42,7 @@ public class ContentListDataTemplateSelector : DataTemplateSelector
             PhotoListListItem => PhotoTemplate,
             PointListListItem => PointTemplate,
             PostListListItem => PostTemplate,
+            VideoListListItem => VideoTemplate,
             _ => null
         };
     }

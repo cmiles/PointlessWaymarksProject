@@ -30,7 +30,8 @@
                 NoteTemplate="{StaticResource NoteListItemTemplate}"
                 PhotoTemplate="{StaticResource PhotoListItemTemplate}"
                 PointTemplate="{StaticResource PointListItemTemplate}"
-                PostTemplate="{StaticResource PostListItemTemplate}" />
+                PostTemplate="{StaticResource PostListItemTemplate}"
+                VideoTemplate="{StaticResource VideoListItemTemplate}" />
         </ResourceDictionary>
     </UserControl.Resources>
     <Grid>
