@@ -59,7 +59,7 @@
                     Content="_Edit"
                     Style="{StaticResource ActionPanelButtonStyle}" />
                 <Button
-                    Command="{Binding ListContext.NewActions.NewVideoContentCommand}"
+                    Command="{Binding ListContext.NewActions.NewVideoContentFromFilesCommand}"
                     Content="New Content from Files"
                     Style="{StaticResource ActionPanelButtonStyle}" />
                 <Button Command="{Binding ListContext.BracketCodeToClipboardSelectedCommand}"

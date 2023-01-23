@@ -395,7 +395,7 @@ public static class ImageExtractionHelpers
     }
 
     public static async Task<Guid?> VideoFrameToImageAutoSave(StatusControlContext statusContext,
-    VideoContent selected)
+    VideoContent selected, double millisecondPosition = 100)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -413,7 +413,7 @@ public static class ImageExtractionHelpers
         var mediaComposition = new MediaComposition();
         mediaComposition.Clips.Add(mediaClip);
         var imageStream = await mediaComposition.GetThumbnailAsync(
-            TimeSpan.FromMilliseconds(100), 0, 0, VideoFramePrecision.NearestFrame);
+            TimeSpan.FromMilliseconds(Math.Max(100D, millisecondPosition)), 0, 0, VideoFramePrecision.NearestFrame);
         var decoder = await BitmapDecoder.CreateAsync(imageStream);
         var softwareBitmap = await decoder.GetSoftwareBitmapAsync();
 

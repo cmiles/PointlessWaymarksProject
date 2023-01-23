@@ -29,6 +29,7 @@ using PointlessWaymarks.CmsWpfControls.Utility;
 using PointlessWaymarks.CmsWpfControls.Utility.ChangesAndValidation;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.WpfCommon.MarkdownDisplay;
+using PointlessWaymarks.WpfCommon.SimpleMediaPlayer;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 using PointlessWaymarks.WpfCommon.Utility;
@@ -76,6 +77,7 @@ public partial class VideoContentEditorContext : IHasChanges, IHasValidationIssu
     [ObservableProperty] private ConversionDataEntryContext<Guid?> _userMainPictureEntry;
     [ObservableProperty] private IContentCommon _userMainPictureEntryContent;
     [ObservableProperty] private string _userMainPictureEntrySmallImageUrl;
+    [ObservableProperty] private SimpleMediaPlayerContext _videoContext;
     [ObservableProperty] private StringDataEntryContext _videoCreatedByEntry;
     [ObservableProperty] private ConversionDataEntryContext<DateTime> _videoCreatedOnEntry;
     [ObservableProperty] private ConversionDataEntryContext<DateTime?> _videoCreatedOnUtcEntry;
@@ -141,7 +143,7 @@ Notes:
 
         StatusContext.Progress("Starting image load.");
 
-        var dialog = new VistaOpenFileDialog();
+        var dialog = new VistaOpenFileDialog { Filter = "supported formats (*.mp4;*.webm,*.ogg)|*.mp4;*.webm;*.ogg" };
 
         if (!(dialog.ShowDialog() ?? false)) return;
 
@@ -243,15 +245,6 @@ Notes:
         newEntry.VideoCreatedOnUtc = VideoCreatedOnUtcEntry.UserValue;
 
         return newEntry;
-    }
-
-    public void DetectGuiVideoTypes()
-    {
-        //8/6/2022 - This detection is mainly for extracting the first frame of a video - if changing/extending
-        //this beyond mp4 (verified for example that the frame extraction works for avi) remember that the
-        //there is a collision of concerns here and there may be merit in only encouraging formats that 
-        //will work with the html video tag - see the file html...
-        FileIsMp4 = SelectedFile?.FullName.EndsWith("mp4", StringComparison.InvariantCultureIgnoreCase) ?? false;
     }
 
     public async Task EditUserMainPicture()
@@ -406,7 +399,7 @@ Notes:
             if (!generationReturn.HasError) PhotoMetadataToCurrentContent(metadataReturn);
         }
 
-        if (string.IsNullOrWhiteSpace(TitleSummarySlugFolder.SummaryEntry.UserValue))
+        if (string.IsNullOrWhiteSpace(TitleSummarySlugFolder.SummaryEntry.UserValue) && SelectedFile != null)
             TitleSummarySlugFolder.TitleEntry.UserValue = Regex.Replace(
                 Path.GetFileNameWithoutExtension(SelectedFile.Name).Replace("-", " ").Replace("_", " ")
                     .SplitCamelCase(), @"\s+", " ");
@@ -532,7 +525,10 @@ Notes:
 
         await LoadData(fileContent);
 
-        var autoSaveResult = await ImageExtractionHelpers.VideoFrameToImageAutoSave(StatusContext, DbEntry);
+
+        var autoSaveResult =
+            await ImageExtractionHelpers.VideoFrameToImageAutoSave(StatusContext, DbEntry,
+                VideoContext.VideoPositionInMilliseconds);
 
         if (autoSaveResult == null) return;
 
@@ -579,7 +575,9 @@ Notes:
         SelectedFileNameHasInvalidCharacters =
             await CommonContentValidation.FileContentFileFileNameHasInvalidCharacters(SelectedFile, DbEntry?.ContentId);
 
-        DetectGuiVideoTypes();
+        VideoContext.VideoSource = SelectedFile is { Exists: true }
+            ? VideoContext.VideoSource = SelectedFile.FullName
+            : VideoContext.VideoSource = string.Empty;
     }
 
     public void SetupStatusContextAndCommands(StatusControlContext statusContext)
@@ -590,6 +588,8 @@ Notes:
         {
             VideoEditorHelpText, CommonFields.TitleSlugFolderSummary, BracketCodeHelpMarkdown.HelpBlock
         });
+
+        VideoContext = new SimpleMediaPlayerContext();
 
         ChooseFileAndFillMetadataCommand = StatusContext.RunBlockingTaskCommand(async () => await ChooseFile(true));
         ChooseFileCommand = StatusContext.RunBlockingTaskCommand(async () => await ChooseFile(false));

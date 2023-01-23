@@ -20,10 +20,10 @@
     xmlns:videoContentEditor="clr-namespace:PointlessWaymarks.CmsWpfControls.VideoContentEditor"
     xmlns:svgc="http://sharpvectors.codeplex.com/svgc/"
     xmlns:stringDataEntry="clr-namespace:PointlessWaymarks.CmsWpfControls.StringDataEntry"
+    xmlns:simpleMediaPlayer="clr-namespace:PointlessWaymarks.WpfCommon.SimpleMediaPlayer;assembly=PointlessWaymarks.WpfCommon"
     d:DataContext="{d:DesignInstance videoContentEditor:VideoContentEditorContext}"
     d:DesignHeight="300"
     d:DesignWidth="300"
-    Loaded="Control_Loaded"
     mc:Ignorable="d">
     <UserControl.Resources>
         <ResourceDictionary>
@@ -71,7 +71,6 @@
                     <RowDefinition />
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
-                    <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
                 <Button
                     Grid.Row="0"
@@ -88,43 +87,9 @@
                     Command="{Binding ChooseFileCommand}">
                     Choose Video
                 </Button>
-                <MediaElement Grid.Row="2"
-                              x:Name="VideoContentPlayer" Source="{Binding SelectedFile.FullName}"
-                              MediaOpened="Video_MediaOpened"
-                              ScrubbingEnabled="True"
-                              LoadedBehavior="Manual" />
-                <Grid Grid.Row="3">
-                    <Grid.RowDefinitions>
-                        <RowDefinition />
-                        <RowDefinition />
-                    </Grid.RowDefinitions>
-                    <Slider Orientation="Horizontal" Grid.Row="0" Name="VideoBarPosition"
-                            VerticalAlignment="Center" Visibility="Hidden"
-                            Thumb.DragStarted="VideoProgress_DragStarted"
-                            Thumb.DragCompleted="VideoProgress_DragCompleted"
-                            ValueChanged="VideoProgress_ValueChanged" />
-                    <StackPanel Orientation="Horizontal" Grid.Row="1"
-                                HorizontalAlignment="Center" VerticalAlignment="Center">
-                        <Button Click="VideoPlay_Click" Width="28" Height="28" Padding="8"
-                                HorizontalContentAlignment="Center" VerticalContentAlignment="Center">
-                            <Image Source="{svgc:SvgImage Source=/Icons/play.svg, AppName=PointlessWaymarks.WpfCommon}" />
-                        </Button>
-                        <Button Click="VideoPause_Click" Width="28" Height="28" Padding="8">
-                            <Image
-                                Source="{svgc:SvgImage Source=/Icons/pause.svg, AppName=PointlessWaymarks.WpfCommon}" />
-                        </Button>
-                        <Button Click="VideoStop_Click" Width="28" Height="28" Padding="8">
-                            <Image Source="{svgc:SvgImage Source=/Icons/stop.svg, AppName=PointlessWaymarks.WpfCommon}" />
-                        </Button>
-                        <Button Click="VideoRestart_Click" Width="28" Height="28" Padding="8, 6,8,8">
-                            <Image
-                                Source="{svgc:SvgImage Source=/Icons/restart.svg, AppName=PointlessWaymarks.WpfCommon}" />
-                        </Button>
-                        <TextBlock Name="VideoProgressStatus" Margin="12,2,2,2" VerticalAlignment="Center">00:00:00</TextBlock>
-                    </StackPanel>
-                </Grid>
+                <simpleMediaPlayer:SimpleMediaPlayerControl Grid.Row="2" DataContext="{Binding VideoContext}"></simpleMediaPlayer:SimpleMediaPlayerControl>
                 <StackPanel
-                    Grid.Row="4"
+                    Grid.Row="3"
                     Margin="4,12,4,12"
                     Orientation="Vertical">
                     <TextBox
@@ -147,7 +112,7 @@
                     </Button>
                 </StackPanel>
                 <WrapPanel
-                    Grid.Row="5"
+                    Grid.Row="4"
                     Margin="4,0,4,8"
                     HorizontalAlignment="Center"
                     Orientation="Horizontal">
@@ -271,8 +236,7 @@
                     Style="{StaticResource ActionPanelButtonStyle}" />
                 <Button
                     Command="{Binding SaveAndExtractImageFromVideoCommand}"
-                    Content="Extract 1st Video Frame"
-                    Visibility="{Binding FileIsMp4, Converter={StaticResource BooleanToVisibility}}"
+                    Content="Extract Video Frame"
                     Style="{StaticResource ActionPanelButtonStyle}" />
                 <Button
                     Command="{Binding ViewOnSiteCommand}"
@@ -284,6 +248,7 @@
             Grid.Row="0"
             Grid.RowSpan="2"
             Grid.Column="0"
+            Grid.ColumnSpan="2"
             HorizontalContentAlignment="Right"
             VerticalContentAlignment="Bottom" />
     </Grid>
