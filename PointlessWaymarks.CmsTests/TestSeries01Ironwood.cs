@@ -12,7 +12,6 @@ using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsData.Import;
 using PointlessWaymarks.CmsWpfControls.PhotoContentEditor;
-using PointlessWaymarks.CmsWpfControls.Utility;
 using PointlessWaymarks.CmsWpfControls.Utility.Excel;
 
 namespace PointlessWaymarks.CmsTests;
@@ -91,13 +90,13 @@ public class TestSeries01Ironwood
     public async Task A09_TagExclusionAddTests()
     {
         var (generationReturn, returnContent) =
-            await TagExclusionGenerator.Save(new TagExclusion {Tag = "manville road"});
+            await TagExclusionGenerator.Save(new TagExclusion { Tag = "manville road" });
 
         Assert.IsFalse(generationReturn.HasError);
         Assert.Greater(returnContent.Id, 0);
 
         var duplicateTagValidationFailureResult =
-            await TagExclusionGenerator.Validate(new TagExclusion {Tag = "manville road"});
+            await TagExclusionGenerator.Validate(new TagExclusion { Tag = "manville road" });
 
         Assert.IsTrue(duplicateTagValidationFailureResult.HasError);
     }
@@ -175,7 +174,7 @@ public class TestSeries01Ironwood
         var podPhoto = db.PhotoContents.Single(x => x.Title == IronwoodPhotoInfo.IronwoodPodContent01.Title);
         var treePhoto = db.PhotoContents.Single(x => x.Title == IronwoodPhotoInfo.IronwoodTreeContent01.Title);
 
-        var items = new List<object> {podPhoto, treePhoto};
+        var items = new List<object> { podPhoto, treePhoto };
 
         var excelFileExport = ExcelHelpers.ContentToExcelFileAsTable(items, "IronwoodTestExport01", false);
 
@@ -506,6 +505,8 @@ public class TestSeries01Ironwood
         wikiQuotePost.LastUpdatedBy = "Changed Html Test";
         wikiQuotePost.LastUpdatedOn = DateTime.Now;
 
+        await Task.Delay(2000);
+
         var saveResult =
             await PostGenerator.SaveAndGenerateHtml(wikiQuotePost, null, DebugTrackers.DebugProgressTracker());
 
@@ -514,6 +515,8 @@ public class TestSeries01Ironwood
         var currentGenerationCount = db.GenerationLogs.Count();
 
         var currentGeneration = await db.GenerationLogs.OrderByDescending(x => x.GenerationVersion).FirstAsync();
+
+        await Task.Delay(2000);
 
         await HtmlGenerationGroups.GenerateChangedToHtml(DebugTrackers.DebugProgressTracker());
 
@@ -590,6 +593,8 @@ public class TestSeries01Ironwood
         wikiQuotePost.LastUpdatedBy = "Changed Html Test 02";
         wikiQuotePost.LastUpdatedOn = DateTime.Now;
 
+        await Task.Delay(2000);
+
         saveResult =
             await PostGenerator.SaveAndGenerateHtml(wikiQuotePost, null, DebugTrackers.DebugProgressTracker());
 
@@ -598,6 +603,8 @@ public class TestSeries01Ironwood
         currentGenerationCount = db.GenerationLogs.Count();
 
         currentGeneration = await db.GenerationLogs.OrderByDescending(x => x.GenerationVersion).FirstAsync();
+
+        await Task.Delay(2000);
 
         await HtmlGenerationGroups.GenerateChangedToHtml(DebugTrackers.DebugProgressTracker());
 
