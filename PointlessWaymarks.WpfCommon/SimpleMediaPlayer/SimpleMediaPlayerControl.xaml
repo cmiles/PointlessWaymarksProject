@@ -1,0 +1,49 @@
+﻿<UserControl x:Class="PointlessWaymarks.WpfCommon.SimpleMediaPlayer.SimpleMediaPlayerControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:svgc="http://sharpvectors.codeplex.com/svgc/"
+             xmlns:simpleMediaPlayer="clr-namespace:PointlessWaymarks.WpfCommon.SimpleMediaPlayer"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800" d:DataContext="{d:DesignInstance simpleMediaPlayer:SimpleMediaPlayerContext}"
+             Loaded="ControlLoaded"
+             DataContextChanged="SimpleMediaPlayerControl_OnDataContextChanged">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition />
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <MediaElement Grid.Row="0"
+                      x:Name="VideoContentPlayer" Source="{Binding VideoSource}"
+                      MediaOpened="Video_MediaOpened"
+                      ScrubbingEnabled="True"
+                      LoadedBehavior="Manual" />
+        <Slider Orientation="Horizontal" Grid.Row="1" Name="VideoBarPosition"
+                            VerticalAlignment="Center" Visibility="Hidden" MaxWidth="500"
+                            Margin="4,0,4,8"
+                            Thumb.DragStarted="VideoProgress_DragStarted"
+                            Thumb.DragCompleted="VideoProgress_DragCompleted"
+                            ValueChanged="VideoProgress_ValueChanged" />
+        <StackPanel Orientation="Horizontal" Grid.Row="2" MaxWidth="500"
+                                HorizontalAlignment="Center" VerticalAlignment="Center">
+            <Button Click="VideoPlay_Click" Width="28" Height="28" Padding="8"
+                                HorizontalContentAlignment="Center" VerticalContentAlignment="Center">
+                <Image Source="{svgc:SvgImage Source=/Icons/play.svg, AppName=PointlessWaymarks.WpfCommon}" />
+            </Button>
+            <Button Click="VideoPause_Click" Width="28" Height="28" Padding="8">
+                <Image
+                                Source="{svgc:SvgImage Source=/Icons/pause.svg, AppName=PointlessWaymarks.WpfCommon}" />
+            </Button>
+            <Button Click="VideoStop_Click" Width="28" Height="28" Padding="8">
+                <Image Source="{svgc:SvgImage Source=/Icons/stop.svg, AppName=PointlessWaymarks.WpfCommon}" />
+            </Button>
+            <Button Click="VideoRestart_Click" Width="28" Height="28" Padding="8, 6,8,8">
+                <Image
+                                Source="{svgc:SvgImage Source=/Icons/restart.svg, AppName=PointlessWaymarks.WpfCommon}" />
+            </Button>
+            <TextBlock Name="VideoProgressStatus" Margin="12,2,2,2" VerticalAlignment="Center">00:00:00</TextBlock>
+        </StackPanel>
+    </Grid>
+</UserControl>
