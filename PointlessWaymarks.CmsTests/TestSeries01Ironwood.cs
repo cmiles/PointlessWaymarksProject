@@ -13,6 +13,7 @@ using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsData.Import;
 using PointlessWaymarks.CmsWpfControls.PhotoContentEditor;
 using PointlessWaymarks.CmsWpfControls.Utility.Excel;
+using PointlessWaymarks.CommonTools;
 
 namespace PointlessWaymarks.CmsTests;
 
@@ -69,11 +70,22 @@ public class TestSeries01Ironwood
         TestSiteSettings.SiteKeywords = TestSiteKeywords;
         TestSiteSettings.SiteSummary = TestSummary;
         TestSiteSettings.SiteDomainName = "localhost";
+        TestSiteSettings.NumberOfItemsOnMainSitePage = 10;
         await UserSettingsUtilities.EnsureDbIsPresent(DebugTrackers.DebugProgressTracker());
         await TestSiteSettings.WriteSettings();
         UserSettingsSingleton.CurrentSettings().InjectFrom(TestSiteSettings);
 
         PointlessWaymarksLogTools.InitializeStaticLoggerAsEventLogger();
+
+        //Not 'tested' but added for easy manual checking of the site
+        var db = await Db.Context();
+        db.MenuLinks.Add(new MenuLink
+        {
+            ContentVersion = DateTime.Now.ToUniversalTime().TrimDateTimeToSeconds(),
+            LinkTag = "{{searchpage; text Search;}}",
+            MenuOrder = 0
+        });
+        await db.SaveChangesAsync();
     }
 
     [Test]
@@ -357,6 +369,44 @@ public class TestSeries01Ironwood
     }
 
     [Test]
+    public async Task B30_VideoAdd()
+    {
+        var newVideo = new VideoContent
+        {
+            BodyContentFormat = UserSettingsUtilities.DefaultContentFormatChoice(),
+            UpdateNotesFormat = UserSettingsUtilities.DefaultContentFormatChoice(),
+            ContentId = Guid.NewGuid(),
+            CreatedBy = IronwoodVideoInfo.BlueSkyAndCloudsVideoContent01.CreatedBy
+        };
+
+        var testFile = new FileInfo(Path.Combine(Directory.GetCurrentDirectory(), "TestMedia", IronwoodVideoInfo.SkyFilename));
+
+        var (generationReturn, metadata) =
+            await PhotoGenerator.PhotoMetadataFromFile(testFile);
+
+        Assert.False(generationReturn.HasError, "Video Metadata Generation Failed");
+        newVideo.License = metadata.License;
+        newVideo.VideoCreatedBy = metadata.PhotoCreatedBy;
+        newVideo.VideoCreatedOn = metadata.PhotoCreatedOn.TrimDateTimeToSeconds();
+        newVideo.VideoCreatedOnUtc = metadata.PhotoCreatedOnUtc;
+        newVideo.Summary = metadata.Summary;
+        newVideo.Tags = metadata.Tags;
+        newVideo.Title = metadata.Title;
+        newVideo.Slug = SlugTools.CreateSlug(true, metadata.Title);
+        newVideo.Folder = metadata.PhotoCreatedOn.Year.ToString("F0");
+        newVideo.ShowInMainSiteFeed = IronwoodVideoInfo.BlueSkyAndCloudsVideoContent01.ShowInMainSiteFeed;
+
+        newVideo.BodyContent = IronwoodVideoInfo.BlueSkyAndCloudsVideoContent01.BodyContent;
+        newVideo.Tags = IronwoodVideoInfo.BlueSkyAndCloudsVideoContent01.Tags;
+        newVideo.OriginalFileName = IronwoodVideoInfo.SkyFilename;
+        newVideo.CreatedOn = IronwoodVideoInfo.BlueSkyAndCloudsVideoContent01.CreatedOn;
+        newVideo.FeedOn = IronwoodVideoInfo.BlueSkyAndCloudsVideoContent01.FeedOn;
+
+
+        await IronwoodVideoInfo.VideoTest(IronwoodVideoInfo.SkyFilename, newVideo);
+    }
+
+    [Test]
     public async Task C10_NoteLinkLoadTest()
     {
         await IronwoodNoteInfo.NoteTest(IronwoodNoteInfo.LinkNoteContent01);
@@ -627,6 +677,7 @@ public class TestSeries01Ironwood
         //Todo: Check that the excluded photo is not regenerated
     }
 
+    [Test]
     public async Task H10_PostUpdateChangedDetectionTest()
     {
         var dailyGalleryDirectory = UserSettingsSingleton.CurrentSettings().LocalSiteDailyPhotoGalleryDirectory();

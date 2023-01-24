@@ -1,90 +1,66 @@
-﻿using DocumentFormat.OpenXml.Drawing;
-using DocumentFormat.OpenXml.Presentation;
-using KellermanSoftware.CompareNetObjects;
+﻿using KellermanSoftware.CompareNetObjects;
 using NUnit.Framework;
 using Omu.ValueInjecter;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.Content;
-using PointlessWaymarks.CmsData.ContentHtml;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsData.Json;
-using PointlessWaymarks.CommonTools;
-using Path = System.IO.Path;
 
 namespace PointlessWaymarks.CmsTests;
 
-public static class TestFileInfo
+public static class IronwoodVideoInfo
 {
-    public static FileContent GrandviewContent01 =>
+    public static VideoContent BlueSkyAndCloudsVideoContent01 =>
         new()
         {
             BodyContentFormat = ContentFormatDefaults.Content.ToString(),
             BodyContent =
-                "NPS Overview Information on the Grandview Trail including a map but lacking" +
-                "detailed information on the day hike 'full' loops.",
+                "A simple video of the sky!",
             ContentId = Guid.NewGuid(),
-            CreatedBy = "GC File Test",
+            CreatedBy = "GC File Tester",
             CreatedOn = new DateTime(2020, 10, 6, 6, 18, 00),
             FeedOn = new DateTime(2020, 10, 6, 6, 18, 00),
-            Folder = "Trails",
-            PublicDownloadLink = true,
-            Title = "Grandview Trail",
+            Folder = "2023",
+            License = "Public Domain",
             ShowInMainSiteFeed = true,
-            Slug = SlugTools.CreateSlug(true, "Grandview Trail"),
-            Summary = "NPS Grandview Overview.",
-            Tags = "grand canyon national park, grandview trail, nps",
-            UpdateNotesFormat = ContentFormatDefaults.Content.ToString()
+            Slug = "2023-january-blue-sky-and-clouds-video",
+            Summary = "2023 January Blue Sky and Clouds Video.",
+            Tags = "sky",
+            Title = "2023 January Blue Sky and Clouds Video",
+            UpdateNotesFormat = ContentFormatDefaults.Content.ToString(),
+            VideoCreatedBy = "Anonymous",
+            VideoCreatedOn = new DateTime(2023, 1, 24, 8, 13, 45)
+
         };
+    
+    public static string SkyFilename => "Blue-Sky-and-Clouds-Video.mp4";
 
-    public static FileContent MapContent01 =>
-        new()
-        {
-            BodyContentFormat = ContentFormatDefaults.Content.ToString(),
-            BodyContent = "A map of Ironwood Forest National Monument",
-            ContentId = Guid.NewGuid(),
-            CreatedBy = "File Test",
-            CreatedOn = new DateTime(2020, 7, 24, 5, 55, 55),
-            FeedOn = new DateTime(2020, 7, 24, 5, 55, 55),
-            Folder = "Maps",
-            PublicDownloadLink = true,
-            Title = "Ironwood Forest National Monument Map",
-            ShowInMainSiteFeed = true,
-            Slug = SlugTools.CreateSlug(true, "Ironwood Forest National Monument Map"),
-            Summary = "A map of Ironwood.",
-            Tags = "ironwood forest national monument,map",
-            UpdateNotesFormat = ContentFormatDefaults.Content.ToString()
-        };
-
-    public static string MapFilename => "AZ_IronwoodForest_NM_map.pdf";
-    public static string ProclamationFilename => "ironwood_proc.pdf";
-    public static string TrailInfoGrandviewFilename => "GrandviewTrail.pdf";
-
-    public static async Task CheckForExpectedFilesAfterHtmlGeneration(FileContent newContent)
+    public static async Task CheckForExpectedFilesAfterHtmlGeneration(VideoContent newContent)
     {
         var contentDirectory = UserSettingsSingleton.CurrentSettings()
-            .LocalSiteFileContentDirectory(newContent, false);
+            .LocalSiteVideoContentDirectory(newContent, false);
         Assert.True(contentDirectory.Exists, "Content Directory Not Found?");
 
         var filesInDirectory = contentDirectory.GetFiles().ToList();
 
         var fileFile = filesInDirectory.SingleOrDefault(x => x.Name == newContent.OriginalFileName);
 
-        Assert.NotNull(fileFile, "Original File not Found in File Content Directory");
+        Assert.NotNull(fileFile, "Original File not Found in Video Content Directory");
 
         filesInDirectory.Remove(fileFile);
 
         var htmlFile = filesInDirectory.SingleOrDefault(x => x.Name == $"{newContent.Slug}.html");
 
-        Assert.NotNull(htmlFile, "File Content HTML File not Found");
+        Assert.NotNull(htmlFile, "Video Content HTML File not Found");
 
         filesInDirectory.Remove(htmlFile);
 
         var jsonFile =
             filesInDirectory.SingleOrDefault(x =>
-                x.Name == $"{Names.FileContentPrefix}{newContent.ContentId}.json");
+                x.Name == $"{Names.VideoContentPrefix}{newContent.ContentId}.json");
 
-        Assert.NotNull(jsonFile, "Json File not Found in File Content Directory");
+        Assert.NotNull(jsonFile, "Json File not Found in Video Content Directory");
 
         filesInDirectory.Remove(jsonFile);
 
@@ -92,23 +68,23 @@ public static class TestFileInfo
         if (db.HistoricFileContents.Any(x => x.ContentId == newContent.ContentId))
         {
             var historicJsonFile = filesInDirectory.SingleOrDefault(x =>
-                x.Name == $"{Names.HistoricFileContentPrefix}{newContent.ContentId}.json");
+                x.Name == $"{Names.HistoricVideoContentPrefix}{newContent.ContentId}.json");
 
-            Assert.NotNull(historicJsonFile, "Historic Json File not Found in File Content Directory");
+            Assert.NotNull(historicJsonFile, "Historic Json File not Found in Video Content Directory");
 
             filesInDirectory.Remove(historicJsonFile);
         }
 
         Assert.AreEqual(0, filesInDirectory.Count,
-            $"Unexpected files in File Content Directory: {string.Join(",", filesInDirectory)}");
+            $"Unexpected files in Video Content Directory: {string.Join(",", filesInDirectory)}");
     }
 
-    public static void CheckOriginalFileInContentAndMediaArchiveAfterHtmlGeneration(FileContent newContent)
+    public static void CheckOriginalFileInContentAndMediaArchiveAfterHtmlGeneration(VideoContent newContent)
     {
-        var expectedDirectory = UserSettingsSingleton.CurrentSettings().LocalSiteFileContentDirectory(newContent);
+        var expectedDirectory = UserSettingsSingleton.CurrentSettings().LocalSiteVideoContentDirectory(newContent);
         Assert.IsTrue(expectedDirectory.Exists, $"Expected directory {expectedDirectory.FullName} does not exist");
 
-        var expectedFile = UserSettingsSingleton.CurrentSettings().LocalSiteFileHtmlFile(newContent);
+        var expectedFile = UserSettingsSingleton.CurrentSettings().LocalSiteVideoHtmlFile(newContent);
         Assert.IsTrue(expectedFile.Exists, $"Expected html file {expectedFile.FullName} does not exist");
 
         var expectedOriginalFileInContent =
@@ -117,14 +93,14 @@ public static class TestFileInfo
             $"Expected to find original file in content directory but {expectedOriginalFileInContent.FullName} does not exist");
 
         var expectedOriginalFileInMediaArchive = new FileInfo(Path.Combine(
-            UserSettingsSingleton.CurrentSettings().LocalMediaArchiveFileDirectory().FullName,
+            UserSettingsSingleton.CurrentSettings().LocalMediaArchiveVideoDirectory().FullName,
             expectedOriginalFileInContent.Name));
         Assert.IsTrue(expectedOriginalFileInMediaArchive.Exists,
             $"Expected to find original file in media archive file directory but {expectedOriginalFileInMediaArchive.FullName} does not exist");
     }
 
-    public static (bool areEqual, string comparisonNotes) CompareContent(FileContent reference,
-        FileContent toCompare)
+    public static (bool areEqual, string comparisonNotes) CompareContent(VideoContent reference,
+        VideoContent toCompare)
     {
         Db.DefaultPropertyCleanup(reference);
         reference.Tags = Db.TagListCleanup(reference.Tags);
@@ -148,18 +124,18 @@ public static class TestFileInfo
         return (compareResult.AreEqual, compareResult.DifferencesString);
     }
 
-    public static async Task<FileContent> FileTest(string fileName, FileContent contentReference)
+    public static async Task<VideoContent> VideoTest(string fileName, VideoContent contentReference)
     {
         var testFile = new FileInfo(Path.Combine(Directory.GetCurrentDirectory(), "TestMedia", fileName));
         Assert.True(testFile.Exists, "Test File Found");
 
-        var contentToSave = new FileContent();
+        var contentToSave = new VideoContent();
         contentToSave.InjectFrom(contentReference);
 
-        var validationReturn = await FileGenerator.Validate(contentToSave, testFile);
+        var validationReturn = await VideoGenerator.Validate(contentToSave, testFile);
         Assert.False(validationReturn.HasError, $"Unexpected Validation Error - {validationReturn.GenerationNote}");
 
-        var (generationReturn, newContent) = await FileGenerator.SaveAndGenerateHtml(contentToSave, testFile, true,
+        var (generationReturn, newContent) = await VideoGenerator.SaveAndGenerateHtml(contentToSave, testFile, true,
             null, DebugTrackers.DebugProgressTracker());
         Assert.False(generationReturn.HasError, $"Unexpected Save Error - {generationReturn.GenerationNote}");
 
@@ -177,31 +153,31 @@ public static class TestFileInfo
         return newContent;
     }
 
-    public static async Task HtmlChecks(FileContent newFileContent)
+    public static async Task HtmlChecks(VideoContent newVideoContent)
     {
-        var htmlFile = UserSettingsSingleton.CurrentSettings().LocalSiteFileHtmlFile(newFileContent);
+        var htmlFile = UserSettingsSingleton.CurrentSettings().LocalSiteVideoHtmlFile(newVideoContent);
 
         Assert.True(htmlFile.Exists, "Html File not Found for Html Checks?");
 
         var document = IronwoodHtmlHelpers.DocumentFromFile(htmlFile);
 
-        await IronwoodHtmlHelpers.CommonContentChecks(document, newFileContent);
+        await IronwoodHtmlHelpers.CommonContentChecks(document, newVideoContent);
     }
 
-    public static void JsonTest(FileContent newContent)
+    public static void JsonTest(VideoContent newContent)
     {
         //Check JSON File
         var jsonFile =
             new FileInfo(Path.Combine(
-                UserSettingsSingleton.CurrentSettings().LocalSiteFileContentDirectory(newContent).FullName,
-                $"{Names.FileContentPrefix}{newContent.ContentId}.json"));
+                UserSettingsSingleton.CurrentSettings().LocalSiteVideoContentDirectory(newContent).FullName,
+                $"{Names.VideoContentPrefix}{newContent.ContentId}.json"));
         Assert.True(jsonFile.Exists, $"Json file {jsonFile.FullName} does not exist?");
 
-        var jsonFileImported = Import.ContentFromFiles<FileContent>(
-            new List<string> { jsonFile.FullName }, Names.FileContentPrefix).Single();
+        var jsonFileImported = Import.ContentFromFiles<VideoContent>(
+            new List<string> { jsonFile.FullName }, Names.VideoContentPrefix).Single();
         var compareLogic = new CompareLogic();
         var comparisonResult = compareLogic.Compare(newContent, jsonFileImported);
         Assert.True(comparisonResult.AreEqual,
-            $"Json Import does not match expected File Content {comparisonResult.DifferencesString}");
+            $"Json Import does not match expected Video Content {comparisonResult.DifferencesString}");
     }
 }

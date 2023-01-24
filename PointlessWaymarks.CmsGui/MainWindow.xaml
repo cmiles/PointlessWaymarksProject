@@ -218,6 +218,7 @@
             VerticalAlignment="Stretch"
             HorizontalContentAlignment="Center"
             VerticalContentAlignment="Center"
+            MaxWidth="800"
             d:IsHidden="True"
             Background="White"
             DataContext="{Binding SettingsFileChooser}"

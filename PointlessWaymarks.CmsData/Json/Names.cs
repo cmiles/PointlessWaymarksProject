@@ -9,12 +9,12 @@ public static class Names
     public const string HistoricFileContentPrefix = "HistoricFiles---";
 
     //TODO: Standardize This to HistoricGeoJsonContents?
-    public const string HistoricGeoJsonContentPrefix = "HistoricGeoJsonContent---";
+    public const string HistoricGeoJsonContentPrefix = "HistoricGeoJsonContents---";
 
     public const string HistoricImageContentPrefix = "HistoricImages---";
 
     //TODO: Standardize This to HistoricLines?
-    public const string HistoricLineContentPrefix = "HistoricLine---";
+    public const string HistoricLineContentPrefix = "HistoricLines---";
 
     public const string HistoricLinkListFileName = "HistoricLinkList";
 

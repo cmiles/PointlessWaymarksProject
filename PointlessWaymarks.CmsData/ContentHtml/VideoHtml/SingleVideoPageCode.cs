@@ -54,7 +54,7 @@ public partial class SingleVideoPage
 
         var htmlString = TransformText();
 
-        var htmlVideoInfo = settings.LocalSiteVideoHtmlVideo(DbEntry);
+        var htmlVideoInfo = settings.LocalSiteVideoHtmlFile(DbEntry);
 
         if (htmlVideoInfo == null)
         {

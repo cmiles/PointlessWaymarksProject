@@ -1093,6 +1093,7 @@ public static class Db
 
         var nowCutoff = DateTime.Now;
 
+        //!!Content List
         var fileContent = await db.FileContents.Where(x => x.ShowInMainSiteFeed && !x.IsDraft && x.FeedOn < nowCutoff)
             .Cast<IContentCommon>().ToListAsync().ConfigureAwait(false);
         var geoJsonContent = await db.GeoJsonContents
@@ -1110,9 +1111,11 @@ public static class Db
             .Cast<IContentCommon>().ToListAsync().ConfigureAwait(false);
         var postContent = await db.PostContents.Where(x => x.ShowInMainSiteFeed && !x.IsDraft && x.FeedOn < nowCutoff)
             .Cast<IContentCommon>().ToListAsync().ConfigureAwait(false);
+        var videoContent = await db.VideoContents.Where(x => x.ShowInMainSiteFeed && !x.IsDraft && x.FeedOn < nowCutoff)
+            .Cast<IContentCommon>().ToListAsync().ConfigureAwait(false);
 
         return fileContent.Concat(geoJsonContent).Concat(imageContent).Concat(lineContent).Concat(noteContent)
-            .Concat(postContent).Concat(photoContent).Concat(pointContent).OrderByDescending(x => x.FeedOn).ToList();
+            .Concat(postContent).Concat(photoContent).Concat(pointContent).Concat(videoContent).OrderByDescending(x => x.FeedOn).ToList();
     }
 
     /// <summary>
@@ -1128,6 +1131,7 @@ public static class Db
 
         var nowCutoff = DateTime.Now;
 
+        //!!Content List
         var fileContent = await db.FileContents
             .Where(x => x.ShowInMainSiteFeed && !x.IsDraft && x.FeedOn > after && x.FeedOn < nowCutoff)
             .OrderByDescending(x => x.FeedOn).Cast<IContentCommon>().ToListAsync().ConfigureAwait(false);
@@ -1152,9 +1156,12 @@ public static class Db
         var postContent = await db.PostContents
             .Where(x => x.ShowInMainSiteFeed && !x.IsDraft && x.FeedOn > after && x.FeedOn < nowCutoff)
             .OrderByDescending(x => x.FeedOn).Cast<IContentCommon>().ToListAsync().ConfigureAwait(false);
+        var videoContent = await db.VideoContents
+            .Where(x => x.ShowInMainSiteFeed && !x.IsDraft && x.FeedOn > after && x.FeedOn < nowCutoff)
+            .OrderByDescending(x => x.FeedOn).Cast<IContentCommon>().ToListAsync().ConfigureAwait(false);
 
         return fileContent.Concat(geoJsonContent).Concat(imageContent).Concat(lineContent).Concat(noteContent)
-            .Concat(photoContent).Concat(postContent).Concat(pointContent).OrderBy(x => x.FeedOn).Take(numberOfEntries)
+            .Concat(photoContent).Concat(postContent).Concat(pointContent).Concat(videoContent).OrderBy(x => x.FeedOn).Take(numberOfEntries)
             .ToList();
     }
 
@@ -1171,6 +1178,7 @@ public static class Db
 
         var nowCutoff = DateTime.Now;
 
+        //!!Content List
         var fileContent = await db.FileContents
             .Where(x => x.ShowInMainSiteFeed && !x.IsDraft && x.FeedOn < before && x.FeedOn < nowCutoff &&
                         x.FeedOn < nowCutoff).OrderByDescending(x => x.FeedOn).Cast<IContentCommon>().ToListAsync()
@@ -1196,9 +1204,12 @@ public static class Db
         var postContent = await db.PostContents
             .Where(x => x.ShowInMainSiteFeed && !x.IsDraft && x.FeedOn < before && x.FeedOn < nowCutoff)
             .OrderByDescending(x => x.FeedOn).Cast<IContentCommon>().ToListAsync().ConfigureAwait(false);
+        var videoContent = await db.VideoContents
+            .Where(x => x.ShowInMainSiteFeed && !x.IsDraft && x.FeedOn < before && x.FeedOn < nowCutoff)
+            .OrderByDescending(x => x.FeedOn).Cast<IContentCommon>().ToListAsync().ConfigureAwait(false);
 
         return fileContent.Concat(geoJsonContent).Concat(imageContent).Concat(lineContent).Concat(noteContent)
-            .Concat(postContent).Concat(photoContent).Concat(pointContent).OrderByDescending(x => x.FeedOn)
+            .Concat(postContent).Concat(photoContent).Concat(pointContent).Concat(videoContent).OrderByDescending(x => x.FeedOn)
             .Take(numberOfEntries).ToList();
     }
 
@@ -1214,6 +1225,7 @@ public static class Db
 
         var nowCutoff = DateTime.Now;
 
+        //!!Content List
         //Query the content and the dates first before returning the full content entry. This will result in an entry
         //being returned for every single content entry and this could be optimized - but in this system I think the
         //realistic total number of entries and low usage of this method makes it unlikely this is a problem.
@@ -1241,10 +1253,13 @@ public static class Db
         var postContentDateList = await db.PostContents
             .Where(x => x.ShowInMainSiteFeed && !x.IsDraft && x.FeedOn < nowCutoff)
             .Select(x => new { x.ContentId, x.FeedOn }).ToListAsync().ConfigureAwait(false);
+        var videoContentDateList = await db.VideoContents
+            .Where(x => x.ShowInMainSiteFeed && !x.IsDraft && x.FeedOn < nowCutoff)
+            .Select(x => new { x.ContentId, x.FeedOn }).ToListAsync().ConfigureAwait(false);
 
         var contentIdListForFeed = fileContentDateList.Concat(geoJsonContentDateList).Concat(imageContentDateList)
             .Concat(lineContentDateList).Concat(noteContentDateList).Concat(photoContentDateList)
-            .Concat(pointContentDateList).Concat(postContentDateList).OrderByDescending(x => x.FeedOn)
+            .Concat(pointContentDateList).Concat(postContentDateList).Concat(videoContentDateList).OrderByDescending(x => x.FeedOn)
             .Take(topNumberOfEntries).Select(x => x.ContentId).ToList();
 
         var dynamicContent = await db.ContentFromContentIds(contentIdListForFeed);

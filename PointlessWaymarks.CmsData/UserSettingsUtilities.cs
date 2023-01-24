@@ -1114,7 +1114,7 @@ public static class UserSettingsUtilities
         return directory;
     }
 
-    public static FileInfo? LocalSiteVideoHtmlVideo(this UserSettings settings, VideoContent? content)
+    public static FileInfo? LocalSiteVideoHtmlFile(this UserSettings settings, VideoContent? content)
     {
         if (string.IsNullOrWhiteSpace(content?.Slug)) return null;
 

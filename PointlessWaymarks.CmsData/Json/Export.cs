@@ -87,7 +87,7 @@ public static class Export
         var jsonDbEntry = JsonSerializer.Serialize(dbEntry, new JsonSerializerOptions { WriteIndented = true });
 
         var jsonFile = new FileInfo(Path.Combine(settings.LocalSiteVideoContentDirectory(dbEntry).FullName,
-            $"{Names.FileContentPrefix}{dbEntry.ContentId}.json"));
+            $"{Names.VideoContentPrefix}{dbEntry.ContentId}.json"));
 
         if (jsonFile.Exists) jsonFile.Delete();
         jsonFile.Refresh();
