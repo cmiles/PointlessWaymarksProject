@@ -19,6 +19,7 @@ using PointlessWaymarks.CmsWpfControls.ContentIdViewer;
 using PointlessWaymarks.CmsWpfControls.ContentList;
 using PointlessWaymarks.CmsWpfControls.CreatedAndUpdatedByAndOnDisplay;
 using PointlessWaymarks.CmsWpfControls.HelpDisplay;
+using PointlessWaymarks.CmsWpfControls.PointContentEditor;
 using PointlessWaymarks.CmsWpfControls.StringDataEntry;
 using PointlessWaymarks.CmsWpfControls.UpdateNotesEditor;
 using PointlessWaymarks.CmsWpfControls.Utility.ChangesAndValidation;
@@ -28,6 +29,7 @@ using PointlessWaymarks.SpatialTools;
 using PointlessWaymarks.WpfCommon.MarkdownDisplay;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
+using PointlessWaymarks.WpfCommon.Utility;
 using Point = NetTopologySuite.Geometries.Point;
 
 namespace PointlessWaymarks.CmsWpfControls.MapComponentEditor;
@@ -45,6 +47,7 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
     [ObservableProperty] private HelpDisplayContext _helpContext;
     [ObservableProperty] private RelayCommand _linkToClipboardCommand;
     [ObservableProperty] private ObservableCollection<IMapElementListItem>? _mapElements;
+    [ObservableProperty] private RelayCommand<IMapElementListItem> _openItemEditorCommand;
     [ObservableProperty] private string _previewHtml;
     [ObservableProperty] private string _previewMapJsonDto = string.Empty;
     [ObservableProperty] private RelayCommand _refreshMapPreviewCommand;
@@ -72,6 +75,7 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
         _refreshMapPreviewCommand = StatusContext.RunBlockingTaskCommand(RefreshMapPreview);
         _removeItemCommand = StatusContext.RunBlockingTaskCommand<IMapElementListItem>(RemoveItem);
         _linkToClipboardCommand = StatusContext.RunBlockingTaskCommand(LinkToClipboard);
+        _openItemEditorCommand = StatusContext.RunBlockingTaskCommand<IMapElementListItem>(OpenItemEditor);
 
         _previewHtml = WpfHtmlDocument.ToHtmlLeafletMapDocument("Map",
             UserSettingsSingleton.CurrentSettings().LatitudeDefault,
@@ -250,6 +254,63 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
         return new MapComponentDto(newEntry, finalElementList);
     }
 
+    public async Task Edit(PointContentDto? content)
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (content == null) return;
+
+        var context = await Db.Context();
+
+        var refreshedData = context.PointContents.SingleOrDefault(x => x.ContentId == content.ContentId);
+
+        if (refreshedData == null)
+            StatusContext.ToastError(
+                $"{content.Title} is no longer active in the database? Can not edit - look for a historic version...");
+
+        var newContentWindow = await PointContentEditorWindow.CreateInstance(refreshedData);
+
+        await newContentWindow.PositionWindowAndShowOnUiThread();
+    }
+
+    public async Task Edit(LineContent? content)
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (content == null) return;
+
+        var context = await Db.Context();
+
+        var refreshedData = context.PointContents.SingleOrDefault(x => x.ContentId == content.ContentId);
+
+        if (refreshedData == null)
+            StatusContext.ToastError(
+                $"{content.Title} is no longer active in the database? Can not edit - look for a historic version...");
+
+        var newContentWindow = await PointContentEditorWindow.CreateInstance(refreshedData);
+
+        await newContentWindow.PositionWindowAndShowOnUiThread();
+    }
+
+    public async Task Edit(GeoJsonContent? content)
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (content == null) return;
+
+        var context = await Db.Context();
+
+        var refreshedData = context.PointContents.SingleOrDefault(x => x.ContentId == content.ContentId);
+
+        if (refreshedData == null)
+            StatusContext.ToastError(
+                $"{content.Title} is no longer active in the database? Can not edit - look for a historic version...");
+
+        var newContentWindow = await PointContentEditorWindow.CreateInstance(refreshedData);
+
+        await newContentWindow.PositionWindowAndShowOnUiThread();
+    }
+
     private async Task LinkToClipboard()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -341,6 +402,22 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
 
         if (!e.PropertyName.Contains("HasChanges") && !e.PropertyName.Contains("Validation"))
             CheckForChangesAndValidationIssues();
+    }
+
+    private async Task OpenItemEditor(IMapElementListItem toEdit)
+    {
+        switch (toEdit)
+        {
+            case MapElementListPointItem p:
+                await Edit(p.DbEntry);
+                break;
+            case MapElementListLineItem l:
+                await Edit(l.DbEntry);
+                break;
+            case MapElementListGeoJsonItem g:
+                await Edit(g.DbEntry);
+                break;
+        }
     }
 
 

@@ -47,6 +47,11 @@
                                     CommandParameter="{Binding .}">
                                     Remove
                                 </Button>
+                                <Button Margin="0,4,0,0"
+                                        Command="{Binding ElementName=MapComponentEditorControlXaml, Path=DataContext.OpenItemEditorCommand}"
+                                        CommandParameter="{Binding .}">
+                                    Edit
+                                </Button>
                             </StackPanel>
                         </Border>
                         <ContentControl
@@ -76,6 +81,11 @@
                                     CommandParameter="{Binding .}">
                                     Remove
                                 </Button>
+                                <Button Margin="0,4,0,0"
+                                        Command="{Binding ElementName=MapComponentEditorControlXaml, Path=DataContext.OpenItemEditorCommand}"
+                                        CommandParameter="{Binding .}">
+                                    Edit
+                                </Button>
                             </StackPanel>
                         </Border>
                         <ContentControl
@@ -104,6 +114,11 @@
                                     Command="{Binding ElementName=MapComponentEditorControlXaml, Path=DataContext.RemoveItemCommand}"
                                     CommandParameter="{Binding .}">
                                     Remove
+                                </Button>
+                                <Button Margin="0,4,0,0"
+                                        Command="{Binding ElementName=MapComponentEditorControlXaml, Path=DataContext.OpenItemEditorCommand}"
+                                        CommandParameter="{Binding .}">
+                                    Edit
                                 </Button>
                             </StackPanel>
                         </Border>
