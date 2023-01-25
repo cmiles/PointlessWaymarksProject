@@ -393,4 +393,79 @@ public static class ImageExtractionHelpers
 
         return autoSaveReturn.imageContent.ContentId;
     }
+
+    public static async Task<Guid?> VideoFrameToImageAutoSave(StatusControlContext statusContext,
+    VideoContent selected, double millisecondPosition = 100)
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        var targetFile = new FileInfo(Path.Combine(
+            UserSettingsSingleton.CurrentSettings().LocalSiteVideoContentDirectory(selected).FullName,
+            selected.OriginalFileName));
+
+        if (!targetFile.Exists) return null;
+
+        if (!targetFile.Extension.ToLower().Contains("mp4"))
+            return null;
+
+        var file = await StorageFile.GetFileFromPathAsync(targetFile.FullName);
+        var mediaClip = await MediaClip.CreateFromFileAsync(file);
+        var mediaComposition = new MediaComposition();
+        mediaComposition.Clips.Add(mediaClip);
+        var imageStream = await mediaComposition.GetThumbnailAsync(
+            TimeSpan.FromMilliseconds(Math.Max(100D, millisecondPosition)), 0, 0, VideoFramePrecision.NearestFrame);
+        var decoder = await BitmapDecoder.CreateAsync(imageStream);
+        var softwareBitmap = await decoder.GetSoftwareBitmapAsync();
+
+        var destinationFile = new FileInfo(Path.Combine(UserSettingsUtilities.TempStorageDirectory().FullName,
+            $"{Path.GetFileNameWithoutExtension(targetFile.Name)}-Video-Cover-Image.jpg"));
+
+        var destinationStorageDirectory =
+            await StorageFolder.GetFolderFromPathAsync(UserSettingsUtilities.TempStorageDirectory().FullName);
+
+        var thumbnailFile = await destinationStorageDirectory.CreateFileAsync(
+            $"{Path.GetFileNameWithoutExtension(targetFile.Name)}-Video-Cover-Image.jpg",
+            CreationCollisionOption.ReplaceExisting);
+        using (var stream = await thumbnailFile.OpenAsync(FileAccessMode.ReadWrite))
+        {
+            var encoder =
+                await BitmapEncoder.CreateAsync(
+                    BitmapEncoder.JpegEncoderId, stream);
+            encoder.SetSoftwareBitmap(softwareBitmap);
+            await encoder.FlushAsync();
+        }
+
+        var newImage = new ImageContent
+        {
+            ContentId = Guid.NewGuid(),
+            CreatedBy = selected.CreatedBy,
+            CreatedOn = DateTime.Now,
+            Title = $"{selected.Title} Video Cover Image",
+            Summary = $"Video Cover Image from {selected.Title}.",
+            FeedOn = DateTime.Now,
+            ShowInSearch = false,
+            Folder = selected.Folder,
+            Tags = selected.Tags,
+            Slug = SlugTools.CreateSlug(true, $"{selected.Title} Video Cover Image"),
+            BodyContentFormat = ContentFormatDefaults.Content.ToString(),
+            BodyContent = $"Frame from {BracketCodeVideoLinks.Create(selected)}.",
+            UpdateNotesFormat = ContentFormatDefaults.Content.ToString()
+        };
+
+        var autoSaveReturn =
+            await ImageGenerator.SaveAndGenerateHtml(newImage, destinationFile, true, null,
+                statusContext.ProgressTracker());
+
+        if (autoSaveReturn.generationReturn.HasError)
+        {
+            await ThreadSwitcher.ResumeForegroundAsync();
+
+            var editor = await ImageContentEditorWindow.CreateInstance(newImage, destinationFile);
+            editor.PositionWindowAndShow();
+
+            return null;
+        }
+
+        return autoSaveReturn.imageContent.ContentId;
+    }
 }

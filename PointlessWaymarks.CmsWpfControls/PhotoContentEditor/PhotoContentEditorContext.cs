@@ -163,7 +163,7 @@ Photo Content Notes:
 
         StatusContext.Progress("Starting photo load.");
 
-        var dialog = new VistaOpenFileDialog();
+        var dialog = new VistaOpenFileDialog { Filter = "jpg files (*.jpg;*.jpeg)|*.jpg;*.jpeg" };
 
         if (!(dialog.ShowDialog() ?? false)) return;
 

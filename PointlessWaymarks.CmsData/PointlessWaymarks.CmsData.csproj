@@ -40,11 +40,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="AngleSharp" Version="1.0.0" />
+    <PackageReference Include="AngleSharp" Version="1.0.1" />
     <PackageReference Include="AngleSharp.Js" Version="0.15.0" />
-    <PackageReference Include="AWSSDK.S3" Version="3.7.101.54" />
+    <PackageReference Include="AWSSDK.S3" Version="3.7.101.57" />
     <PackageReference Include="ClosedXML" Version="0.100.3" />
-    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.0.0" />
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.1.0" />
     <PackageReference Include="CompareNETObjects" Version="4.78.0" />
     <PackageReference Include="FluentMigrator" Version="3.3.2" />
     <PackageReference Include="FluentMigrator.Runner" Version="3.3.2" />
@@ -138,6 +138,16 @@
       <Generator>TextTemplatingFilePreprocessor</Generator>
       <LastGenOutput>SearchListPage.cs</LastGenOutput>
       <CustomToolNamespace>PointlessWaymarks.CmsData.ContentHtml.SearchListHtml</CustomToolNamespace>
+    </None>
+    <None Update="ContentHtml\VideoHtml\SingleVideoDiv.tt">
+      <CustomToolNamespace>PointlessWaymarks.CmsData.ContentHtml.VideoHtml</CustomToolNamespace>
+      <LastGenOutput>SingleVideoDiv.cs</LastGenOutput>
+      <Generator>TextTemplatingFilePreprocessor</Generator>
+    </None>
+    <None Update="ContentHtml\VideoHtml\SingleVideoPage.tt">
+      <CustomToolNamespace>PointlessWaymarks.CmsData.ContentHtml.VideoHtml</CustomToolNamespace>
+      <LastGenOutput>SingleVideoPage.cs</LastGenOutput>
+      <Generator>TextTemplatingFilePreprocessor</Generator>
     </None>
     <None Update="Json\DbImport.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
@@ -254,6 +264,16 @@
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
       <DependentUpon>SinglePointPage.tt</DependentUpon>
+    </Compile>
+    <Compile Update="ContentHtml\VideoHtml\SingleVideoDiv.cs">
+      <DependentUpon>SingleVideoDiv.tt</DependentUpon>
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+    </Compile>
+    <Compile Update="ContentHtml\VideoHtml\SingleVideoPage.cs">
+      <DependentUpon>SingleVideoPage.tt</DependentUpon>
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
     </Compile>
     <Compile Update="Json\DbImport.cs">
       <DesignTime>True</DesignTime>

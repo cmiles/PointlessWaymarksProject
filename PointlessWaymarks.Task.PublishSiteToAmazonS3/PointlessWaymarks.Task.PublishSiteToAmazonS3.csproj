@@ -45,5 +45,12 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>
   </ItemGroup>
+  
+  
+  <ItemGroup>
+    <None Update="PointlessWaymarks.Task.PublishSiteToAmazonS3.args.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
 
 </Project>

@@ -30,7 +30,8 @@ public static class BracketCodeFiles
 
         foreach (var loopGuid in guidList)
         {
-            var dbContent = await context.FileContents.FirstOrDefaultAsync(x => x.ContentId == loopGuid).ConfigureAwait(false);
+            var dbContent = await context.FileContents.FirstOrDefaultAsync(x => x.ContentId == loopGuid)
+                .ConfigureAwait(false);
             if (dbContent == null) continue;
 
             progress?.Report($"File Code - Adding DbContent For {dbContent.Title}");
@@ -56,7 +57,8 @@ public static class BracketCodeFiles
         foreach (var loopMatch in resultList)
         {
             var dbContent =
-                await context.FileContents.FirstOrDefaultAsync(x => x.ContentId == loopMatch.contentGuid).ConfigureAwait(false);
+                await context.FileContents.FirstOrDefaultAsync(x => x.ContentId == loopMatch.contentGuid)
+                    .ConfigureAwait(false);
             if (dbContent == null) continue;
 
             progress?.Report($"Adding file link {dbContent.Title} from Code");

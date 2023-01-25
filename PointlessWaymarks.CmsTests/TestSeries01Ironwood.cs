@@ -12,8 +12,8 @@ using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsData.Import;
 using PointlessWaymarks.CmsWpfControls.PhotoContentEditor;
-using PointlessWaymarks.CmsWpfControls.Utility;
 using PointlessWaymarks.CmsWpfControls.Utility.Excel;
+using PointlessWaymarks.CommonTools;
 
 namespace PointlessWaymarks.CmsTests;
 
@@ -70,11 +70,22 @@ public class TestSeries01Ironwood
         TestSiteSettings.SiteKeywords = TestSiteKeywords;
         TestSiteSettings.SiteSummary = TestSummary;
         TestSiteSettings.SiteDomainName = "localhost";
+        TestSiteSettings.NumberOfItemsOnMainSitePage = 10;
         await UserSettingsUtilities.EnsureDbIsPresent(DebugTrackers.DebugProgressTracker());
         await TestSiteSettings.WriteSettings();
         UserSettingsSingleton.CurrentSettings().InjectFrom(TestSiteSettings);
 
         PointlessWaymarksLogTools.InitializeStaticLoggerAsEventLogger();
+
+        //Not 'tested' but added for easy manual checking of the site
+        var db = await Db.Context();
+        db.MenuLinks.Add(new MenuLink
+        {
+            ContentVersion = DateTime.Now.ToUniversalTime().TrimDateTimeToSeconds(),
+            LinkTag = "{{searchpage; text Search;}}",
+            MenuOrder = 0
+        });
+        await db.SaveChangesAsync();
     }
 
     [Test]
@@ -91,13 +102,13 @@ public class TestSeries01Ironwood
     public async Task A09_TagExclusionAddTests()
     {
         var (generationReturn, returnContent) =
-            await TagExclusionGenerator.Save(new TagExclusion {Tag = "manville road"});
+            await TagExclusionGenerator.Save(new TagExclusion { Tag = "manville road" });
 
         Assert.IsFalse(generationReturn.HasError);
         Assert.Greater(returnContent.Id, 0);
 
         var duplicateTagValidationFailureResult =
-            await TagExclusionGenerator.Validate(new TagExclusion {Tag = "manville road"});
+            await TagExclusionGenerator.Validate(new TagExclusion { Tag = "manville road" });
 
         Assert.IsTrue(duplicateTagValidationFailureResult.HasError);
     }
@@ -175,7 +186,7 @@ public class TestSeries01Ironwood
         var podPhoto = db.PhotoContents.Single(x => x.Title == IronwoodPhotoInfo.IronwoodPodContent01.Title);
         var treePhoto = db.PhotoContents.Single(x => x.Title == IronwoodPhotoInfo.IronwoodTreeContent01.Title);
 
-        var items = new List<object> {podPhoto, treePhoto};
+        var items = new List<object> { podPhoto, treePhoto };
 
         var excelFileExport = ExcelHelpers.ContentToExcelFileAsTable(items, "IronwoodTestExport01", false);
 
@@ -358,6 +369,44 @@ public class TestSeries01Ironwood
     }
 
     [Test]
+    public async Task B30_VideoAdd()
+    {
+        var newVideo = new VideoContent
+        {
+            BodyContentFormat = UserSettingsUtilities.DefaultContentFormatChoice(),
+            UpdateNotesFormat = UserSettingsUtilities.DefaultContentFormatChoice(),
+            ContentId = Guid.NewGuid(),
+            CreatedBy = IronwoodVideoInfo.BlueSkyAndCloudsVideoContent01.CreatedBy
+        };
+
+        var testFile = new FileInfo(Path.Combine(Directory.GetCurrentDirectory(), "TestMedia", IronwoodVideoInfo.SkyFilename));
+
+        var (generationReturn, metadata) =
+            await PhotoGenerator.PhotoMetadataFromFile(testFile);
+
+        Assert.False(generationReturn.HasError, "Video Metadata Generation Failed");
+        newVideo.License = metadata.License;
+        newVideo.VideoCreatedBy = metadata.PhotoCreatedBy;
+        newVideo.VideoCreatedOn = metadata.PhotoCreatedOn.TrimDateTimeToSeconds();
+        newVideo.VideoCreatedOnUtc = metadata.PhotoCreatedOnUtc;
+        newVideo.Summary = metadata.Summary;
+        newVideo.Tags = metadata.Tags;
+        newVideo.Title = metadata.Title;
+        newVideo.Slug = SlugTools.CreateSlug(true, metadata.Title);
+        newVideo.Folder = metadata.PhotoCreatedOn.Year.ToString("F0");
+        newVideo.ShowInMainSiteFeed = IronwoodVideoInfo.BlueSkyAndCloudsVideoContent01.ShowInMainSiteFeed;
+
+        newVideo.BodyContent = IronwoodVideoInfo.BlueSkyAndCloudsVideoContent01.BodyContent;
+        newVideo.Tags = IronwoodVideoInfo.BlueSkyAndCloudsVideoContent01.Tags;
+        newVideo.OriginalFileName = IronwoodVideoInfo.SkyFilename;
+        newVideo.CreatedOn = IronwoodVideoInfo.BlueSkyAndCloudsVideoContent01.CreatedOn;
+        newVideo.FeedOn = IronwoodVideoInfo.BlueSkyAndCloudsVideoContent01.FeedOn;
+
+
+        await IronwoodVideoInfo.VideoTest(IronwoodVideoInfo.SkyFilename, newVideo);
+    }
+
+    [Test]
     public async Task C10_NoteLinkLoadTest()
     {
         await IronwoodNoteInfo.NoteTest(IronwoodNoteInfo.LinkNoteContent01);
@@ -450,6 +499,8 @@ public class TestSeries01Ironwood
 
         var currentGeneration = await db.GenerationLogs.OrderByDescending(x => x.GenerationVersion).FirstAsync();
 
+        await Task.Delay(2000);
+
         await HtmlGenerationGroups.GenerateChangedToHtml(DebugTrackers.DebugProgressTracker());
 
         currentGeneration = await db.GenerationLogs.OrderByDescending(x => x.GenerationVersion).FirstAsync();
@@ -487,7 +538,7 @@ public class TestSeries01Ironwood
             .GetFiles("*.html", SearchOption.AllDirectories).Where(x => !x.Name.Contains("List")).ToList();
 
         noteContent.ForEach(x =>
-            IronwoodHtmlHelpers.CheckGenerationVersionEquals(x, currentGeneration.GenerationVersion));
+            IronwoodHtmlHelpers.CheckGenerationVersionLessThan(x, currentGeneration.GenerationVersion));
     }
 
     [Test]
@@ -504,6 +555,8 @@ public class TestSeries01Ironwood
         wikiQuotePost.LastUpdatedBy = "Changed Html Test";
         wikiQuotePost.LastUpdatedOn = DateTime.Now;
 
+        await Task.Delay(2000);
+
         var saveResult =
             await PostGenerator.SaveAndGenerateHtml(wikiQuotePost, null, DebugTrackers.DebugProgressTracker());
 
@@ -512,6 +565,8 @@ public class TestSeries01Ironwood
         var currentGenerationCount = db.GenerationLogs.Count();
 
         var currentGeneration = await db.GenerationLogs.OrderByDescending(x => x.GenerationVersion).FirstAsync();
+
+        await Task.Delay(2000);
 
         await HtmlGenerationGroups.GenerateChangedToHtml(DebugTrackers.DebugProgressTracker());
 
@@ -588,6 +643,8 @@ public class TestSeries01Ironwood
         wikiQuotePost.LastUpdatedBy = "Changed Html Test 02";
         wikiQuotePost.LastUpdatedOn = DateTime.Now;
 
+        await Task.Delay(2000);
+
         saveResult =
             await PostGenerator.SaveAndGenerateHtml(wikiQuotePost, null, DebugTrackers.DebugProgressTracker());
 
@@ -596,6 +653,8 @@ public class TestSeries01Ironwood
         currentGenerationCount = db.GenerationLogs.Count();
 
         currentGeneration = await db.GenerationLogs.OrderByDescending(x => x.GenerationVersion).FirstAsync();
+
+        await Task.Delay(2000);
 
         await HtmlGenerationGroups.GenerateChangedToHtml(DebugTrackers.DebugProgressTracker());
 
@@ -618,6 +677,7 @@ public class TestSeries01Ironwood
         //Todo: Check that the excluded photo is not regenerated
     }
 
+    [Test]
     public async Task H10_PostUpdateChangedDetectionTest()
     {
         var dailyGalleryDirectory = UserSettingsSingleton.CurrentSettings().LocalSiteDailyPhotoGalleryDirectory();

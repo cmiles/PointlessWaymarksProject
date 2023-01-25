@@ -1,5 +1,4 @@
 ﻿using System.IO;
-using PointlessWaymarks.CmsData.Content;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
@@ -22,6 +21,7 @@ public static class FileHelpers
         return toCheck.Extension.ToUpperInvariant().Contains("JPG") ||
                toCheck.Extension.ToUpperInvariant().Contains("JPEG");
     }
+
 
     public static async Task RenameSelectedFile(FileInfo selectedFile, StatusControlContext statusContext,
         Action<FileInfo> setSelectedFile)
@@ -189,5 +189,11 @@ public static class FileHelpers
         }
 
         statusContext.ToastSuccess($"Selected file now {selectedFile.FullName}");
+    }
+
+    public static bool VideoFileTypeIsSupported(FileInfo toCheck)
+    {
+        if (toCheck is not { Exists: true }) return false;
+        return toCheck.Extension.ToUpperInvariant().Contains("MP4") || toCheck.Extension.ToUpperInvariant().Contains("WEBM") || toCheck.Extension.ToUpperInvariant().Contains("OGG");
     }
 }

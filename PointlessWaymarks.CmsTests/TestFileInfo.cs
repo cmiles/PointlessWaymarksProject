@@ -1,4 +1,6 @@
-﻿using KellermanSoftware.CompareNetObjects;
+﻿using DocumentFormat.OpenXml.Drawing;
+using DocumentFormat.OpenXml.Presentation;
+using KellermanSoftware.CompareNetObjects;
 using NUnit.Framework;
 using Omu.ValueInjecter;
 using PointlessWaymarks.CmsData;
@@ -8,6 +10,7 @@ using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsData.Json;
 using PointlessWaymarks.CommonTools;
+using Path = System.IO.Path;
 
 namespace PointlessWaymarks.CmsTests;
 

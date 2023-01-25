@@ -24,10 +24,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Resource Include="TestMedia\GrandCanyonHistoricWildfireGeoJson.geojson" />
-  </ItemGroup>
-
-  <ItemGroup>
     <None Update="TestMedia\1705-Ironwood-02.jpg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -50,6 +46,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="TestMedia\AZ_IronwoodForest_NM_map.pdf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestMedia\Blue-Sky-and-Clouds-Video.mp4">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="TestMedia\GrandCanyonHistoricWildfireGeoJson.geojson">

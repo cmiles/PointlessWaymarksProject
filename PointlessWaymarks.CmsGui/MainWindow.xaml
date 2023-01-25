@@ -26,6 +26,7 @@
     xmlns:markdownDisplay="clr-namespace:PointlessWaymarks.WpfCommon.MarkdownDisplay;assembly=PointlessWaymarks.WpfCommon"
     xmlns:cmsGui="clr-namespace:PointlessWaymarks.CmsGui"
     xmlns:programUpdateMessage="clr-namespace:PointlessWaymarks.WpfCommon.ProgramUpdateMessage;assembly=PointlessWaymarks.WpfCommon"
+    xmlns:videoList="clr-namespace:PointlessWaymarks.CmsWpfControls.VideoList;assembly=PointlessWaymarks.CmsWpfControls"
     Name="MainWindowXaml"
     Title="{Binding InfoTitle}"
     Width="950"
@@ -67,11 +68,14 @@
             <TabItem Header="Photos">
                 <photoList:PhotoListWithActionsControl DataContext="{Binding TabPhotoListContext}" />
             </TabItem>
-            <TabItem Header="Files">
-                <fileList:FileListWithActionsControl DataContext="{Binding TabFileListContext}" />
-            </TabItem>
             <TabItem Header="Images">
                 <imageList:ImageListWithActionsControl DataContext="{Binding TabImageListContext}" />
+            </TabItem>
+            <TabItem Header="Videos">
+                <videoList:VideoListWithActionsControl DataContext="{Binding TabVideoListContext}" />
+            </TabItem>
+            <TabItem Header="Files">
+                <fileList:FileListWithActionsControl DataContext="{Binding TabFileListContext}" />
             </TabItem>
             <TabItem Header="Points">
                 <pointList:PointListWithActionsControl DataContext="{Binding TabPointListContext}" />
@@ -165,6 +169,7 @@
                                 <Button Command="{Binding GenerateHtmlForAllPointContentCommand}">Points</Button>
                                 <Button Command="{Binding GenerateHtmlForAllPhotoContentCommand}">Photos</Button>
                                 <Button Command="{Binding GenerateHtmlForAllPostContentCommand}">Posts</Button>
+                                <Button Command="{Binding GenerateHtmlForAllVideoContentCommand}">Videos</Button>
                                 <Button Command="{Binding GenerateSiteResourcesCommand}">Site Resources</Button>
                                 <Button Command="{Binding WriteStyleCssFileCommand}">Style Css</Button>
                             </WrapPanel>
@@ -213,6 +218,7 @@
             VerticalAlignment="Stretch"
             HorizontalContentAlignment="Center"
             VerticalContentAlignment="Center"
+            MaxWidth="800"
             d:IsHidden="True"
             Background="White"
             DataContext="{Binding SettingsFileChooser}"

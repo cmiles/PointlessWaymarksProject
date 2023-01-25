@@ -359,7 +359,7 @@ Notes:
         UserMainPictureEntry =
             ConversionDataEntryContext<Guid?>.CreateInstance(ConversionDataEntryHelpers.GuidNullableConversion);
         UserMainPictureEntry.ValidationFunctions = new List<Func<Guid?, Task<IsValid>>>
-            { CommonContentValidation.ValidateFileContentUserMainPicture };
+            { CommonContentValidation.ValidateUserMainPicture };
         UserMainPictureEntry.ReferenceValue = DbEntry.UserMainPicture;
         UserMainPictureEntry.UserText = DbEntry?.UserMainPicture.ToString() ?? string.Empty;
         UserMainPictureEntry.Title = "Link Image";

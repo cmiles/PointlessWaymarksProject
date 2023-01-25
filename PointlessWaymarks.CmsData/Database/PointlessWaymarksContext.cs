@@ -35,6 +35,7 @@ public class PointlessWaymarksContext : DbContext
     public DbSet<HistoricPointContent> HistoricPointContents { get; set; }
     public DbSet<HistoricPointDetail> HistoricPointDetails { get; set; }
     public DbSet<HistoricPostContent> HistoricPostContents { get; set; }
+    public DbSet<HistoricVideoContent> HistoricVideoContents { get; set; }
     public DbSet<ImageContent> ImageContents { get; set; }
     public DbSet<LineContent> LineContents { get; set; }
     public DbSet<LinkContent> LinkContents { get; set; }
@@ -47,6 +48,7 @@ public class PointlessWaymarksContext : DbContext
     public DbSet<PointDetail> PointDetails { get; set; }
     public DbSet<PostContent> PostContents { get; set; }
     public DbSet<TagExclusion> TagExclusions { get; set; }
+    public DbSet<VideoContent> VideoContents { get; set; }
 
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)

@@ -8,7 +8,6 @@ using Ookii.Dialogs.Wpf;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.Content;
 using PointlessWaymarks.CmsData.Database;
-using PointlessWaymarks.CmsData.Spatial;
 using PointlessWaymarks.CmsWpfControls.FileContentEditor;
 using PointlessWaymarks.CmsWpfControls.GeoJsonContentEditor;
 using PointlessWaymarks.CmsWpfControls.GpxImport;
@@ -21,6 +20,7 @@ using PointlessWaymarks.CmsWpfControls.PhotoContentEditor;
 using PointlessWaymarks.CmsWpfControls.PointContentEditor;
 using PointlessWaymarks.CmsWpfControls.PostContentEditor;
 using PointlessWaymarks.CmsWpfControls.Utility;
+using PointlessWaymarks.CmsWpfControls.VideoContentEditor;
 using PointlessWaymarks.FeatureIntersectionTags;
 using PointlessWaymarks.SpatialTools;
 using PointlessWaymarks.WpfCommon.Status;
@@ -85,6 +85,10 @@ public partial class NewContent
             }, "Cancel Photo Import");
         NewPointContentCommand = StatusContext.RunNonBlockingTaskCommand(NewPointContent);
         NewPostContentCommand = StatusContext.RunNonBlockingTaskCommand(NewPostContent);
+        NewVideoContentCommand = StatusContext.RunNonBlockingTaskCommand(NewVideoContent);
+        NewVideoContentFromFilesCommand =
+            StatusContext.RunBlockingTaskWithCancellationCommand(async x => await NewVideoContentFromFiles(x),
+                "Cancel Video Import");
 
         NewGpxImportWindow = StatusContext.RunNonBlockingTaskCommand(NewGpxImport);
     }
@@ -122,6 +126,10 @@ public partial class NewContent
     public RelayCommand NewPointContentCommand { get; }
 
     public RelayCommand NewPostContentCommand { get; }
+
+    public RelayCommand NewVideoContentCommand { get; set; }
+
+    public RelayCommand NewVideoContentFromFilesCommand { get; set; }
 
     public WindowIconStatus WindowStatus { get; set; }
 
@@ -209,7 +217,7 @@ public partial class NewContent
 
         StatusContext.Progress("Starting Image load.");
 
-        var dialog = new VistaOpenFileDialog { Multiselect = true };
+        var dialog = new VistaOpenFileDialog { Multiselect = true, Filter = "jpg files (*.jpg;*.jpeg)|*.jpg;*.jpeg" };
 
         if (!(dialog.ShowDialog() ?? false)) return;
 
@@ -312,12 +320,11 @@ public partial class NewContent
 
         var skipFeatureIntersectionTagging = false;
 
-        if (selectedFileInfos.Count > 10 && !string.IsNullOrWhiteSpace(UserSettingsSingleton.CurrentSettings().FeatureIntersectionTagSettingsFile))
-        {
+        if (selectedFileInfos.Count > 10 &&
+            !string.IsNullOrWhiteSpace(UserSettingsSingleton.CurrentSettings().FeatureIntersectionTagSettingsFile))
             skipFeatureIntersectionTagging = await statusContext.ShowMessage("Slow Feature Intersection Tag Warning",
                 $"You are importing {selectedFileInfos.Count} files, checking for Feature Intersection Tags on these will be slow, it will be faster to select all of the new entries in the Line List after they have been created/saved and generate Feature Intersection Tags then - skip Feature Intersection Tagging?",
                 new List<string> { "Yes", "No" }) == "Yes";
-        }
 
         foreach (var loopFile in selectedFileInfos)
         {
@@ -342,7 +349,8 @@ public partial class NewContent
             {
                 innerLoopCounter++;
 
-                var newEntry = await LineGenerator.NewFromGpxTrack(loopTracks, false, skipFeatureIntersectionTagging, statusContext.ProgressTracker());
+                var newEntry = await LineGenerator.NewFromGpxTrack(loopTracks, false, skipFeatureIntersectionTagging,
+                    statusContext.ProgressTracker());
 
                 if (autoSaveAndClose)
                 {
@@ -410,7 +418,7 @@ public partial class NewContent
 
         StatusContext.Progress("Starting photo load.");
 
-        var dialog = new VistaOpenFileDialog { Multiselect = true };
+        var dialog = new VistaOpenFileDialog { Multiselect = true, Filter = "jpg files (*.jpg;*.jpeg)|*.jpg;*.jpeg" };
 
         if (!(dialog.ShowDialog() ?? false)) return;
 
@@ -480,7 +488,8 @@ public partial class NewContent
 
                 if (metaContent.Latitude != null && metaContent.Longitude != null)
                 {
-                    var photoPointFeature = new Feature(new Point(metaContent.Longitude.Value, metaContent.Latitude.Value),
+                    var photoPointFeature = new Feature(
+                        new Point(metaContent.Longitude.Value, metaContent.Latitude.Value),
                         new AttributesTable());
 
                     var intersectionTags = photoPointFeature.IntersectionTags(
@@ -532,5 +541,71 @@ public partial class NewContent
         var newContentWindow = await PostContentEditorWindow.CreateInstance();
 
         await newContentWindow.PositionWindowAndShowOnUiThread();
+    }
+
+    public async Task NewVideoContent()
+    {
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        var newContentWindow = await VideoContentEditorWindow.CreateInstance();
+
+        newContentWindow.PositionWindowAndShow();
+    }
+
+    public async Task NewVideoContentFromFiles(CancellationToken cancellationToken)
+    {
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        StatusContext.Progress("Starting Video load.");
+
+        var dialog = new VistaOpenFileDialog { Multiselect = true, Filter = "supported formats (*.mp4;*.webm,*.ogg)|*.mp4;*.webm;*.ogg" };
+
+        if (!(dialog.ShowDialog() ?? false)) return;
+
+        var selectedFiles = dialog.FileNames?.ToList() ?? new List<string>();
+
+        if (!selectedFiles.Any()) return;
+
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (selectedFiles.Count > 20)
+        {
+            StatusContext.ToastError($"Sorry - max limit is 20 files at once, {selectedFiles.Count} selected...");
+            return;
+        }
+
+        var selectedFileInfos = selectedFiles.Select(x => new FileInfo(x)).ToList();
+
+        if (!selectedFileInfos.Any(x => x.Exists))
+        {
+            StatusContext.ToastError("Files don't exist?");
+            return;
+        }
+
+        selectedFileInfos = selectedFileInfos.Where(x => x.Exists).ToList();
+
+        if (!selectedFileInfos.Any(FileHelpers.VideoFileTypeIsSupported))
+        {
+            StatusContext.ToastError("None of the files appear to be supported file types...");
+            return;
+        }
+
+        if (selectedFileInfos.Any(x => !FileHelpers.VideoFileTypeIsSupported(x)))
+            StatusContext.ToastWarning(
+                $"Skipping - not supported - {string.Join(", ", selectedFileInfos.Where(x => !FileHelpers.VideoFileTypeIsSupported(x)))}");
+
+        foreach (var loopFile in selectedFileInfos.Where(FileHelpers.VideoFileTypeIsSupported))
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            await ThreadSwitcher.ResumeForegroundAsync();
+
+            var editor = await VideoContentEditorWindow.CreateInstance(loopFile);
+            editor.PositionWindowAndShow();
+
+            StatusContext.Progress($"New Video Editor - {loopFile.FullName} ");
+
+            await ThreadSwitcher.ResumeBackgroundAsync();
+        }
     }
 }

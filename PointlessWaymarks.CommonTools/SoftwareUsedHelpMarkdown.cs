@@ -11,21 +11,18 @@ I am incredibly grateful to the all the people and projects that make it possibl
 **Tools:**
  - [Visual Studio IDE](https://visualstudio.microsoft.com/), [.NET Core (Linux, macOS, and Windows)](https://dotnet.microsoft.com/download/dotnet-core)
  - [ReSharper: The Visual Studio Extension for .NET Developers by JetBrains](https://www.jetbrains.com/resharper/)
-   - [JetBrains/ForTea](https://github.com/jetbrains/fortea/) - ReSharper support for T4 Templates.
  - [AutoHotkey](https://www.autohotkey.com/)
- - [Fork - a fast and friendly git client for Mac and Windows](https://git-fork.com/)
- - [LINQPad - The .NET Programmer's Playground](https://www.linqpad.net/)
- - [DB Browser for SQLite](https://sqlitebrowser.org/)
- - [Notepad++](https://notepad-plus-plus.org/)
- - [stefankueng/grepWin: A powerful and fast search tool using regular expressions](https://github.com/stefankueng/grepWin)
  - [Beyond Compare](https://www.scootersoftware.com/)
- - [warrenbuckley/Compact-Log-Format-Viewer: A cross platform tool to read & query JSON aka CLEF log files created by Serilog](https://github.com/warrenbuckley/Compact-Log-Format-Viewer)
- - [RegexBuddy: Learn, Create, Understand, Test, Use and Save Regular Expression](https://www.regexbuddy.com/)
- - [Markdown Monster - A better Markdown Editor for Windows](https://markdownmonster.west-wind.com/)
- - [Material Design Icons](http://materialdesignicons.com/)
- - [Raleway - Google Fonts](https://fonts.google.com/specimen/Raleway/about)
- - [Inno Setup](https://jrsoftware.org/isinfo.php)
+ - [Compact-Log-Format-Viewer: A cross platform tool to read & query JSON aka CLEF log files created by Serilog](https://github.com/warrenbuckley/Compact-Log-Format-Viewer)
+ - [DB Browser for SQLite](https://sqlitebrowser.org/)
  - [ExifTool by Phil Harvey](https://exiftool.org/) and [Oliver Betz | ExifTool Windows installer and portable package](https://oliverbetz.de/pages/Artikel/ExifTool-for-Windows)
+ - [Fork - a fast and friendly git client for Mac and Windows](https://git-fork.com/)
+ - [grepWin: A powerful and fast search tool using regular expressions](https://github.com/stefankueng/grepWin)
+ - [Inno Setup](https://jrsoftware.org/isinfo.php)
+ - [LINQPad - The .NET Programmer's Playground](https://www.linqpad.net/)
+ - [Greenfish Icon Editor Pro 4.1 - Official Website](http://greenfishsoftware.org/gfie.php)
+ - [Notepad++](https://notepad-plus-plus.org/)
+ - [RegexBuddy: Learn, Create, Understand, Test, Use and Save Regular Expression](https://www.regexbuddy.com/)
 
 **Core Technologies:**
  - [dotnet/core: Home repository for .NET Core](https://github.com/dotnet/core)
@@ -38,7 +35,10 @@ I am incredibly grateful to the all the people and projects that make it possibl
 
 **Images:**
  - [drewnoakes/metadata-extractor-dotnet: Extracts Exif, IPTC, XMP, ICC and other metadata from image, video and audio files](https://github.com/drewnoakes/metadata-extractor-dotnet) - Used to read the metadata in Photographs - there are a number of ways to get this data but it is amazing to have a single go to library to work with that already handles a number of the (many, many, many...) issues. Apache License, Version 2.0.
+ - [Material Design Icons](http://materialdesignicons.com/)
  - [saucecontrol/PhotoSauce: MagicScaler high-performance, high-quality image processing pipeline for .NET](https://github.com/saucecontrol/PhotoSauce) - Fast high quality Image Resizing. If you personally care about image quality image resizing becomes a complicated topic very quickly and I think the results from this library are excellent. Ms-Pl.
+ - [Raleway - Google Fonts](https://fonts.google.com/specimen/Raleway/about)
+ - [ElinamLLC/SharpVectors: SharpVectors - SVG# Reloaded: SVG DOM and Rendering in C# for the .Net.](https://github.com/ElinamLLC/SharpVectors) - support for using SVG in WPF applications including Markup Extensions and Controls. BSD 3-Clause License.
  - [mono/taglib-sharp: Library for reading and writing metadata in media files](https://github.com/mono/taglib-sharp) - for reading tags this application uses other libraries - but TagLib# is notable for also writing metadata. LGPL-2.1 license.
  - [drewnoakes/xmp-core-dotnet: .NET library for working with the Extensible Metadata Platform (XMP)](https://github.com/drewnoakes/xmp-core-dotnet/) - The goto C# library if you want to read/write XMP files.
 

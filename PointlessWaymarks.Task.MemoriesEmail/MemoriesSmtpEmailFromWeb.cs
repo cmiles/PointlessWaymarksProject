@@ -5,6 +5,7 @@ using System.Net.Mail;
 using System.Net.Mime;
 using System.Text.Json;
 using HtmlAgilityPack;
+using Microsoft.Toolkit.Uwp.Notifications;
 using Mjml.Net;
 using Serilog;
 using ValidationContext = System.ComponentModel.DataAnnotations.ValidationContext;
@@ -17,6 +18,15 @@ public class MemoriesSmtpEmailFromWeb : IMemoriesSmtpEmailFromWeb
         if (string.IsNullOrWhiteSpace(settingsFile))
         {
             Log.Error("Blank settings file is not valid...");
+
+            new ToastContentBuilder()
+                .AddAppLogoOverride(new Uri(
+                    $"file://{Path.Combine(AppContext.BaseDirectory, "PointlessWaymarksCmsAutomationSquareLogo.png")}"))
+                .AddText($"Error: Blank Settings File")
+                .AddToastActivationInfo(AppContext.BaseDirectory, ToastActivationType.Protocol)
+                .AddAttributionText("Pointless Waymarks Project - Memories Email Task")
+                .Show();
+
             return;
         }
 
@@ -25,6 +35,15 @@ public class MemoriesSmtpEmailFromWeb : IMemoriesSmtpEmailFromWeb
         if (!settingsFileInfo.Exists)
         {
             Log.Error("Could not find settings file: {settingsFile}", settingsFile);
+
+            new ToastContentBuilder()
+                .AddAppLogoOverride(new Uri(
+                    $"file://{Path.Combine(AppContext.BaseDirectory, "PointlessWaymarksCmsAutomationSquareLogo.png")}"))
+                .AddText($"Error: Could not find settings file: {settingsFile}")
+                .AddToastActivationInfo(AppContext.BaseDirectory, ToastActivationType.Protocol)
+                .AddAttributionText("Pointless Waymarks Project - Memories Email Task")
+                .Show();
+
             return;
         }
 
@@ -39,6 +58,15 @@ public class MemoriesSmtpEmailFromWeb : IMemoriesSmtpEmailFromWeb
             {
                 Log.Error("Settings file {settingsFile} deserialized into a null object - is the format correct?",
                     settingsFile);
+
+                new ToastContentBuilder()
+                    .AddAppLogoOverride(new Uri(
+                        $"file://{Path.Combine(AppContext.BaseDirectory, "PointlessWaymarksCmsAutomationSquareLogo.png")}"))
+                    .AddText($"Error: Settings file {settingsFile} deserialized into a null object.")
+                    .AddToastActivationInfo(AppContext.BaseDirectory, ToastActivationType.Protocol)
+                    .AddAttributionText("Pointless Waymarks Project - Memories Email Task")
+                    .Show();
+
                 return;
             }
 
@@ -47,7 +75,15 @@ public class MemoriesSmtpEmailFromWeb : IMemoriesSmtpEmailFromWeb
         catch (Exception e)
         {
             Log.Error(e, "Exception reading settings file {settingsFile}", settingsFile);
-            Console.WriteLine(e.Message);
+
+            new ToastContentBuilder()
+                .AddAppLogoOverride(new Uri(
+                    $"file://{Path.Combine(AppContext.BaseDirectory, "PointlessWaymarksCmsAutomationSquareLogo.png")}"))
+                .AddText($"Error: {e.Message}")
+                .AddToastActivationInfo(AppContext.BaseDirectory, ToastActivationType.Protocol)
+                .AddAttributionText("Pointless Waymarks Project - Memories Email Task")
+                .Show();
+
             return;
         }
 
@@ -63,6 +99,15 @@ public class MemoriesSmtpEmailFromWeb : IMemoriesSmtpEmailFromWeb
             Log.ForContext("SimpleValidationErrors", simpleValidationResults.SafeObjectDump())
                 .Error("Validating data from {settingFile} failed.", settingsFile);
             simpleValidationResults.ForEach(Console.WriteLine);
+
+            new ToastContentBuilder()
+                .AddAppLogoOverride(new Uri(
+                    $"file://{Path.Combine(AppContext.BaseDirectory, "PointlessWaymarksCmsAutomationSquareLogo.png")}"))
+                .AddText($"Error: Validating {settingsFile} failed...")
+                .AddToastActivationInfo(AppContext.BaseDirectory, ToastActivationType.Protocol)
+                .AddAttributionText("Pointless Waymarks Project - Memories Email Task")
+                .Show();
+
             return;
         }
 

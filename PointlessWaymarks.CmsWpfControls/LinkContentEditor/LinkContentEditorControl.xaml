@@ -30,7 +30,7 @@
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
         <TabControl>
-            <TabItem>
+            <TabItem Header="Link">
                 <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Visible">
                     <StackPanel Margin="4" CanHorizontallyScroll="False">
                         <stringDataEntry:StringDataEntryControl DataContext="{Binding LinkUrlEntry}" />

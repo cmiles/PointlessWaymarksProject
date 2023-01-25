@@ -34,6 +34,7 @@ using PointlessWaymarks.CmsWpfControls.TagExclusionEditor;
 using PointlessWaymarks.CmsWpfControls.TagList;
 using PointlessWaymarks.CmsWpfControls.UserSettingsEditor;
 using PointlessWaymarks.CmsWpfControls.Utility;
+using PointlessWaymarks.CmsWpfControls.VideoList;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.WpfCommon.MarkdownDisplay;
 using PointlessWaymarks.WpfCommon.ProgramUpdateMessage;
@@ -65,6 +66,7 @@ public partial class MainWindow
     [ObservableProperty] private FileListWithActionsContext _tabFileListContext;
     [ObservableProperty] private GeoJsonListWithActionsContext _tabGeoJsonListContext;
     [ObservableProperty] private ImageListWithActionsContext _tabImageListContext;
+    [ObservableProperty] private VideoListWithActionsContext _tabVideoListContext;
     [ObservableProperty] private LineListWithActionsContext _tabLineListContext;
     [ObservableProperty] private LinkListWithActionsContext _tabLinkContext;
     [ObservableProperty] private MapComponentListWithActionsContext _tabMapListContext;
@@ -163,6 +165,9 @@ public partial class MainWindow
         GenerateHtmlForAllPostContentCommand = StatusContext.RunBlockingTaskCommand(async () =>
             await HtmlGenerationGroups.GenerateAllPostHtml(null, StatusContext.ProgressTracker()));
 
+        GenerateHtmlForAllVideoContentCommand = StatusContext.RunBlockingTaskCommand(async () =>
+            await HtmlGenerationGroups.GenerateAllVideoHtml(null, StatusContext.ProgressTracker()));
+
         GenerateHtmlForAllPointContentCommand = StatusContext.RunBlockingTaskCommand(async () =>
             await HtmlGenerationGroups.GenerateAllPointHtml(null, StatusContext.ProgressTracker()));
 
@@ -236,6 +241,8 @@ public partial class MainWindow
     public RelayCommand GenerateHtmlForAllPointContentCommand { get; }
 
     public RelayCommand GenerateHtmlForAllPostContentCommand { get; }
+
+    public RelayCommand GenerateHtmlForAllVideoContentCommand { get; set; }
 
     public RelayCommand GenerateIndexCommand { get; }
 
@@ -528,6 +535,8 @@ public partial class MainWindow
             TabPhotoListContext = new PhotoListWithActionsContext(null, WindowStatus);
         if (SelectedTab.Header.ToString() == "Images" && TabImageListContext == null)
             TabImageListContext = new ImageListWithActionsContext(null, WindowStatus);
+        if (SelectedTab.Header.ToString() == "Videos" && TabVideoListContext == null)
+            TabVideoListContext = new VideoListWithActionsContext(null, WindowStatus);
         if (SelectedTab.Header.ToString() == "Files" && TabFileListContext == null)
             TabFileListContext = new FileListWithActionsContext(null, WindowStatus);
         if (SelectedTab.Header.ToString() == "Points" && TabPointListContext == null)

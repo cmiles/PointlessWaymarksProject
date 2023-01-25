@@ -97,7 +97,7 @@ public partial class ImageContentEditorContext : IHasChanges, IHasValidationIssu
 
         StatusContext.Progress("Starting image load.");
 
-        var dialog = new VistaOpenFileDialog();
+        var dialog = new VistaOpenFileDialog { Filter = "jpg files (*.jpg;*.jpeg)|*.jpg;*.jpeg" }; ;
 
         if (!(dialog.ShowDialog() ?? false)) return;
 
