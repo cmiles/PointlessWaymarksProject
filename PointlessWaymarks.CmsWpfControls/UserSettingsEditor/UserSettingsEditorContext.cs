@@ -60,10 +60,7 @@ public partial class UserSettingsEditorContext
         "This is NOT required. Amazon S3 - especially behind a service like Cloudflare - can be an excellent way to host a static site like this program generates. This program can help you upload files and maintain files on S3, but to do so you must provide some information - S3 Bucket Name (this will often match your domain name), S3 Bucket Region and AWS Site Credentials (these are not shown and are stored securely by windows - these are NOT stored in the database or in the settings file).";
 
     public static string HelpMarkdownShowImageSizesByDefault =>
-        "Used as the default value for a Image's 'Show Sizes' setting - if this is checked by default image pages will have links to every image size available. ALL IMAGE FILES are 'public', but unless this is checked the user is never shown a direct link to any image file.";
-
-    public static string HelpMarkdownShowPhotoSizesByDefault =>
-        "Used as the default value for a Photo's 'Show Sizes' setting - if this is checked by default photo pages will have links to every photo size available. ALL PHOTO FILES are 'public', but unless this is checked the user is never shown a direct link to any photo file.";
+        "Used as the default value for a Photo's or Image's 'Show Sizes' setting - if this is checked by default image pages will have links to every size available. ALL IMAGE FILES are 'public', but unless this is checked the user is never shown a direct link to any image file.";
 
     public static string HelpMarkdownShowPhotoPositionByDefault =>
         "Used as the default value for a Photo's 'Show Position' setting - if this is checked by default photo pages will show and link the position of a photo if the photo's latitude and longitude have values. ALL PHOTO FILES are 'public' so a determined user can examine the source of a page, download the image and extract metadata present in the photo, but unless 'Show Position' is checked a photographs position will never be displayed.";
