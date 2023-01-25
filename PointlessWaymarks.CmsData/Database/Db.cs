@@ -2279,6 +2279,7 @@ public static class Db
 
         var tagBag = new ConcurrentBag<(string tag, List<dynamic> contentObjects)>();
 
+        //!!Content List
         var taskSet = new List<Func<Task>>
         {
             async () =>
@@ -2362,6 +2363,15 @@ public static class Db
                 var db = await Context().ConfigureAwait(false);
                 var toAdd = ParseToTagSlugsAndContentList(
                     (await db.PostContents.Where(x => !x.IsDraft).ToListAsync().ConfigureAwait(false)).Cast<ITag>()
+                    .ToList(), removeExcludedTags, progress);
+                toAdd.ForEach(x => tagBag.Add(x));
+            },
+            async () =>
+            {
+                progress?.Report("Process Post Content Tags");
+                var db = await Context().ConfigureAwait(false);
+                var toAdd = ParseToTagSlugsAndContentList(
+                    (await db.VideoContents.Where(x => !x.IsDraft).ToListAsync().ConfigureAwait(false)).Cast<ITag>()
                     .ToList(), removeExcludedTags, progress);
                 toAdd.ForEach(x => tagBag.Add(x));
             }

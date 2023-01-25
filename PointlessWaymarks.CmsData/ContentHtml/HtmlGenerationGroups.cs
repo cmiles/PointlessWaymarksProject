@@ -1059,6 +1059,7 @@ public static class HtmlGenerationGroups
         var changedPartsList = new List<Task>
         {
             GenerateChangeFilteredFileHtml(generationVersion, progress),
+            GenerateChangeFilteredVideoHtml(generationVersion, progress),
             GenerateChangeFilteredGeoJsonHtml(generationVersion, progress),
             GenerateChangeFilteredLineHtml(generationVersion, progress),
             GenerateChangeFilteredMapData(generationVersion, progress),
@@ -1319,6 +1320,33 @@ public static class HtmlGenerationGroups
             progress?.Report($"Writing HTML for {loopItem.Title} - {loopCount} of {totalCount}");
 
             var htmlModel = new SinglePostPage(loopItem) { GenerationVersion = generationVersion };
+            await htmlModel.WriteLocalHtml().ConfigureAwait(false);
+            await Export.WriteLocalDbJson(loopItem).ConfigureAwait(false);
+
+            loopCount++;
+        }).ConfigureAwait(false);
+    }
+
+
+    public static async Task GenerateChangeFilteredVideoHtml(DateTime generationVersion,
+        IProgress<string>? progress = null)
+    {
+        var db = await Db.Context().ConfigureAwait(false);
+
+        var allItems = await db.VideoContents.Where(x => !x.IsDraft)
+            .Join(db.GenerationChangedContentIds, o => o.ContentId, i => i.ContentId, (o, i) => o).ToListAsync()
+            .ConfigureAwait(false);
+
+        var loopCount = 1;
+        var totalCount = allItems.Count;
+
+        progress?.Report($"Found {totalCount} Videos to Generate");
+
+        await Parallel.ForEachAsync(allItems, async (loopItem, _) =>
+        {
+            progress?.Report($"Writing HTML for {loopItem.Title} - {loopCount} of {totalCount}");
+
+            var htmlModel = new SingleVideoPage(loopItem) { GenerationVersion = generationVersion };
             await htmlModel.WriteLocalHtml().ConfigureAwait(false);
             await Export.WriteLocalDbJson(loopItem).ConfigureAwait(false);
 
