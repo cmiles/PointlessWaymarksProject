@@ -7,8 +7,7 @@ using PointlessWaymarks.SpatialTools;
 
 namespace PointlessWaymarks.CmsWpfControls.GpxImport;
 
-[ObservableObject]
-public partial class GpxImportRoute : IGpxImportListItem
+public partial class GpxImportRoute : ObservableObject, IGpxImportListItem
 {
     [ObservableProperty] private DateTime? _createdOn;
     [ObservableProperty] private Guid _displayId;

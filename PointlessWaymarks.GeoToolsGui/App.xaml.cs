@@ -1,11 +1,7 @@
-﻿#region
-
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Threading;
 using PointlessWaymarks.CommonTools;
 using Serilog;
-
-#endregion
 
 namespace PointlessWaymarks.GeoToolsGui;
 

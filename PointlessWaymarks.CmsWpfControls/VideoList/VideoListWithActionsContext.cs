@@ -10,8 +10,7 @@ using PointlessWaymarks.WpfCommon.Utility;
 
 namespace PointlessWaymarks.CmsWpfControls.VideoList;
 
-[ObservableObject]
-public partial class VideoListWithActionsContext
+public partial class VideoListWithActionsContext : ObservableObject
 {
     [ObservableProperty] private RelayCommand _emailHtmlToClipboardCommand;
     [ObservableProperty] private ContentListContext _listContext;

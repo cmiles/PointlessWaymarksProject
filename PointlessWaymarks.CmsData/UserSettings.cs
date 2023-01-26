@@ -2,8 +2,7 @@
 
 namespace PointlessWaymarks.CmsData;
 
-[ObservableObject]
-public partial class UserSettings
+public partial class UserSettings : ObservableObject
 {
     [ObservableProperty] private string _bingApiKey = string.Empty;
     [ObservableProperty] private string _calTopoApiKey = string.Empty;

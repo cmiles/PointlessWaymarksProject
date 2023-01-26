@@ -33,8 +33,7 @@ using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 
 namespace PointlessWaymarks.CmsWpfControls.LineContentEditor;
 
-[ObservableObject]
-public partial class LineContentEditorContext : IHasChanges, IHasValidationIssues,
+public partial class LineContentEditorContext : ObservableObject, IHasChanges, IHasValidationIssues,
     ICheckForChangesAndValidation
 {
     [ObservableProperty] private RelayCommand _addFeatureIntersectTagsCommand;

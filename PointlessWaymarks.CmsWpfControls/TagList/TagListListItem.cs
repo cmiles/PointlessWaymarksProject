@@ -2,8 +2,7 @@
 
 namespace PointlessWaymarks.CmsWpfControls.TagList;
 
-[ObservableObject]
-public partial class TagListListItem
+public partial class TagListListItem : ObservableObject
 {
     [ObservableProperty] private int _contentCount;
     [ObservableProperty] private List<TagItemContentInformation> _contentInformation;

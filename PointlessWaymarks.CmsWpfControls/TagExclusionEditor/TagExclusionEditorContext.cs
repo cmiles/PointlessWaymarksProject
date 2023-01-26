@@ -15,8 +15,7 @@ using TinyIpc.Messaging;
 
 namespace PointlessWaymarks.CmsWpfControls.TagExclusionEditor;
 
-[ObservableObject]
-public partial class TagExclusionEditorContext
+public partial class TagExclusionEditorContext : ObservableObject
 {
     [ObservableProperty] private RelayCommand _addNewItemCommand;
     [ObservableProperty] private DataNotificationsWorkQueue _dataNotificationsProcessor;

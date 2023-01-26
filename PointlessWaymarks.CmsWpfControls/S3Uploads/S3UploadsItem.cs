@@ -10,8 +10,7 @@ using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 
 namespace PointlessWaymarks.CmsWpfControls.S3Uploads;
 
-[ObservableObject]
-public partial class S3UploadsItem : ISelectedTextTracker
+public partial class S3UploadsItem : ObservableObject, ISelectedTextTracker
 {
     [ObservableProperty] private string _amazonObjectKey;
     [ObservableProperty] private string _bucketName;

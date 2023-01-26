@@ -3,8 +3,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace PointlessWaymarks.CmsWpfControls.ColumnSort;
 
-[ObservableObject]
-public partial class ColumnSortControlSortItem
+public partial class ColumnSortControlSortItem : ObservableObject
 {
     [ObservableProperty] private string _columnName;
     [ObservableProperty] private ListSortDirection _defaultSortDirection = ListSortDirection.Ascending;

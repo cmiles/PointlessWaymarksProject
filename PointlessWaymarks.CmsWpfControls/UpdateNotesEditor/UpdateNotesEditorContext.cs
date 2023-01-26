@@ -15,8 +15,7 @@ using PointlessWaymarks.WpfCommon.WpfHtml;
 
 namespace PointlessWaymarks.CmsWpfControls.UpdateNotesEditor;
 
-[ObservableObject]
-public partial class UpdateNotesEditorContext : IHasChanges, IHasValidationIssues, ICheckForChangesAndValidation
+public partial class UpdateNotesEditorContext : ObservableObject, IHasChanges, IHasValidationIssues, ICheckForChangesAndValidation
 {
     [ObservableProperty] private IUpdateNotes _dbEntry;
     [ObservableProperty] private bool _hasChanges;

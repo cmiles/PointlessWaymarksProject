@@ -2,8 +2,7 @@
 
 namespace PointlessWaymarks.WpfCommon.MarkdownDisplay;
 
-[ObservableObject]
-public partial class HelpDisplayContext
+public partial class HelpDisplayContext : ObservableObject
 {
     [ObservableProperty] private string _helpMarkdownContent;
 

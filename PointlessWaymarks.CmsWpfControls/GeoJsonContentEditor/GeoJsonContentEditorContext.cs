@@ -31,8 +31,7 @@ using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 
 namespace PointlessWaymarks.CmsWpfControls.GeoJsonContentEditor;
 
-[ObservableObject]
-public partial class GeoJsonContentEditorContext : IHasChanges, IHasValidationIssues, ICheckForChangesAndValidation
+public partial class GeoJsonContentEditorContext :  ObservableObject, IHasChanges, IHasValidationIssues, ICheckForChangesAndValidation
 {
     [ObservableProperty] private RelayCommand _addFeatureIntersectTagsCommand;
     [ObservableProperty] private BodyContentEditorContext _bodyContent;

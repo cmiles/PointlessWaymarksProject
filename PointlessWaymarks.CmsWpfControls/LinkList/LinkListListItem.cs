@@ -6,8 +6,7 @@ using PointlessWaymarks.CmsWpfControls.Utility;
 
 namespace PointlessWaymarks.CmsWpfControls.LinkList;
 
-[ObservableObject]
-public partial class LinkListListItem : IContentListItem
+public partial class LinkListListItem : ObservableObject, IContentListItem
 {
     [ObservableProperty] private LinkContent _dbEntry;
     [ObservableProperty] private LinkContentActions _itemActions;

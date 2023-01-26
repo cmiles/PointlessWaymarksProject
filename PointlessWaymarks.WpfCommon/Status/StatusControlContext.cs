@@ -9,8 +9,7 @@ using Serilog;
 
 namespace PointlessWaymarks.WpfCommon.Status;
 
-[ObservableObject]
-public partial class StatusControlContext
+public partial class StatusControlContext : ObservableObject
 {
     [ObservableProperty] private bool _blockUi;
     [ObservableProperty] private ObservableCollection<UserCancellations> _cancellationList;

@@ -2,8 +2,7 @@
 
 namespace PointlessWaymarks.WpfCommon.ToastControl;
 
-[ObservableObject]
-public partial class ToastViewModel
+public partial class ToastViewModel : ObservableObject
 {
     [ObservableProperty] private string _message = "";
     [ObservableProperty] private ToastType _type;

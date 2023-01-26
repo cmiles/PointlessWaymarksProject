@@ -1,6 +1,4 @@
-﻿#region
-
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.IO;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -17,12 +15,9 @@ using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 using PointlessWaymarks.WpfCommon.Utility;
 using PointlessWaymarks.WpfCommon.WpfHtml;
 
-#endregion
-
 namespace PointlessWaymarks.GeoToolsGui.Controls;
 
-[ObservableObject]
-public partial class ConnectDownloadContext
+public partial class ConnectDownloadContext : ObservableObject
 {
     [ObservableProperty] private bool _archiveDirectoryExists;
     [ObservableProperty] private string _currentCredentialsNote;
@@ -386,8 +381,7 @@ public partial class ConnectDownloadContext
             CurrentCredentialsNote = "(No Credentials Found...)";
     }
 
-    [ObservableObject]
-    public partial class GarminActivityAndLocalFiles
+    public partial class GarminActivityAndLocalFiles : ObservableObject
     {
         [ObservableProperty] private GarminActivity _activity;
         [ObservableProperty] private FileInfo? _archivedGpx;

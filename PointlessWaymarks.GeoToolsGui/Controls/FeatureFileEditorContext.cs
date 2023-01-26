@@ -1,6 +1,4 @@
-﻿#region
-
-using System.IO;
+﻿using System.IO;
 using AnyClone;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -9,12 +7,9 @@ using PointlessWaymarks.GeoToolsGui.Models;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 
-#endregion
-
 namespace PointlessWaymarks.GeoToolsGui.Controls;
 
-[ObservableObject]
-public partial class FeatureFileEditorContext
+public partial class FeatureFileEditorContext : ObservableObject
 {
     [ObservableProperty] private string _attributeToAdd = string.Empty;
     private List<FeatureFileViewModel> _existingFeatureFileViewModels;

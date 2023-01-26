@@ -35,8 +35,7 @@ using Serilog;
 
 namespace PointlessWaymarks.CmsWpfControls.FileContentEditor;
 
-[ObservableObject]
-public partial class FileContentEditorContext : IHasChanges, IHasValidationIssues, ICheckForChangesAndValidation
+public partial class FileContentEditorContext : ObservableObject, IHasChanges, IHasValidationIssues, ICheckForChangesAndValidation
 {
     [ObservableProperty] private RelayCommand _autoRenameSelectedFileCommand;
     [ObservableProperty] private BodyContentEditorContext _bodyContent;

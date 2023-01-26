@@ -1,13 +1,8 @@
-﻿#region
-
-using CommunityToolkit.Mvvm.ComponentModel;
-
-#endregion
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace PointlessWaymarks.GeoToolsGui.Models;
 
-[ObservableObject]
-public partial class FeatureFileViewModel
+public partial class FeatureFileViewModel : ObservableObject
 {
     [ObservableProperty] private List<string> _attributesForTags = new();
     [ObservableProperty] private Guid _contentId = Guid.NewGuid();

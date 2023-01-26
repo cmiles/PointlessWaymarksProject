@@ -5,8 +5,7 @@ using PointlessWaymarks.CmsWpfControls.Utility;
 
 namespace PointlessWaymarks.CmsWpfControls.FileList;
 
-[ObservableObject]
-public partial class FileListListItem : IContentListItem, IContentListSmallImage
+public partial class FileListListItem : ObservableObject, IContentListItem, IContentListSmallImage
 {
     [ObservableProperty] private FileContent _dbEntry;
     [ObservableProperty] private FileContentActions _itemActions;

@@ -4,8 +4,7 @@ using PointlessWaymarks.CmsWpfControls.Utility;
 
 namespace PointlessWaymarks.CmsWpfControls.WordPressXmlImport;
 
-[ObservableObject]
-public partial class WordPressXmlImportListItem : ISelectedTextTracker
+public partial class WordPressXmlImportListItem : ObservableObject, ISelectedTextTracker
 {
     [ObservableProperty] private string _category = string.Empty;
     [ObservableProperty] private string _content = string.Empty;

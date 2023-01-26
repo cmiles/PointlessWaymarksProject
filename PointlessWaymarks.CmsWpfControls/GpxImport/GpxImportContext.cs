@@ -38,8 +38,7 @@ using Serilog;
 
 namespace PointlessWaymarks.CmsWpfControls.GpxImport;
 
-[ObservableObject]
-public partial class GpxImportContext
+public partial class GpxImportContext : ObservableObject
 {
     [ObservableProperty] private bool _autoSaveImports;
     [ObservableProperty] private RelayCommand _chooseAndLoadFileCommand;

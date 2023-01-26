@@ -7,8 +7,7 @@ namespace PointlessWaymarks.WpfCommon.Status;
 ///     Provides management for the Windows Icon TaskbarItemInfo with properties to Bind and processing
 ///     of requests from multiple sources.
 /// </summary>
-[ObservableObject]
-public partial class WindowIconStatus
+public partial class WindowIconStatus : ObservableObject
 {
     private readonly List<WindowIconStatusRequest> _statusList = new();
     [ObservableProperty] private decimal _windowProgress;

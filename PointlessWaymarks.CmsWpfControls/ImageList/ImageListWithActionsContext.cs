@@ -13,8 +13,7 @@ using PointlessWaymarks.WpfCommon.Utility;
 
 namespace PointlessWaymarks.CmsWpfControls.ImageList;
 
-[ObservableObject]
-public partial class ImageListWithActionsContext
+public partial class ImageListWithActionsContext : ObservableObject
 {
     [ObservableProperty] private RelayCommand _emailHtmlToClipboardCommand;
     [ObservableProperty] private RelayCommand _forcedResizeCommand;

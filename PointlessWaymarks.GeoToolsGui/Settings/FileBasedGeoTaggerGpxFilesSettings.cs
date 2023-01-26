@@ -1,10 +1,6 @@
-﻿#region
-
-using System.IO;
+﻿using System.IO;
 using PointlessWaymarks.GeoToolsGui.Controls;
 using PointlessWaymarks.WpfCommon.FileList;
-
-#endregion
 
 namespace PointlessWaymarks.GeoToolsGui.Settings;
 

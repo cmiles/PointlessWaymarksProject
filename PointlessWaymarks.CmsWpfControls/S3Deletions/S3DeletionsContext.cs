@@ -14,8 +14,7 @@ using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 
 namespace PointlessWaymarks.CmsWpfControls.S3Deletions;
 
-[ObservableObject]
-public partial class S3DeletionsContext
+public partial class S3DeletionsContext : ObservableObject
 {
     [ObservableProperty] private RelayCommand _deleteAllCommand;
     [ObservableProperty] private RelayCommand _deleteSelectedCommand;

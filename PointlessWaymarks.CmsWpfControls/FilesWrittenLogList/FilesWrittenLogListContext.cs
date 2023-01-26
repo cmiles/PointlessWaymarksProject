@@ -25,8 +25,7 @@ using TinyIpc.Messaging;
 
 namespace PointlessWaymarks.CmsWpfControls.FilesWrittenLogList;
 
-[ObservableObject]
-public partial class FilesWrittenLogListContext
+public partial class FilesWrittenLogListContext : ObservableObject
 {
     [ObservableProperty] private RelayCommand? _allFilesToExcelCommand;
     [ObservableProperty] private RelayCommand? _allScriptStringsToClipboardCommand;

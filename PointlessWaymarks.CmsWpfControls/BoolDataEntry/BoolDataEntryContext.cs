@@ -6,8 +6,7 @@ using PointlessWaymarks.CmsWpfControls.Utility.ChangesAndValidation;
 
 namespace PointlessWaymarks.CmsWpfControls.BoolDataEntry;
 
-[ObservableObject]
-public partial class BoolDataEntryContext : IHasChanges, IHasValidationIssues
+public partial class BoolDataEntryContext : ObservableObject, IHasChanges, IHasValidationIssues
 {
     [ObservableProperty] private bool _hasChanges;
     [ObservableProperty] private bool _hasValidationIssues;

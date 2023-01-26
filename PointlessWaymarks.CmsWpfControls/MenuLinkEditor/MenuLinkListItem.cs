@@ -4,8 +4,7 @@ using PointlessWaymarks.CmsData.Database.Models;
 
 namespace PointlessWaymarks.CmsWpfControls.MenuLinkEditor;
 
-[ObservableObject]
-public partial class MenuLinkListItem
+public partial class MenuLinkListItem : ObservableObject
 {
     [ObservableProperty] private MenuLink _dbEntry;
     [ObservableProperty] private bool _hasChanges;

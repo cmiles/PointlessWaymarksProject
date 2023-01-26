@@ -15,8 +15,7 @@ using PointlessWaymarks.WpfCommon.WpfHtml;
 
 namespace PointlessWaymarks.CmsWpfControls.LinkList;
 
-[ObservableObject]
-public partial class LinkListWithActionsContext
+public partial class LinkListWithActionsContext : ObservableObject
 {
     [ObservableProperty] private StatusControlContext _statusContext;
     [ObservableProperty] private ContentListContext _listContext;

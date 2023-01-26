@@ -17,8 +17,7 @@ using PointlessWaymarks.WpfCommon.Utility;
 
 namespace PointlessWaymarks.CmsWpfControls.S3Uploads;
 
-[ObservableObject]
-public partial class S3UploadsContext
+public partial class S3UploadsContext : ObservableObject
 {
     [ObservableProperty] private RelayCommand _clearCompletedUploadBatch;
     [ObservableProperty] private RelayCommand _clearUploadedCommand;

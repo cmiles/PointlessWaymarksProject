@@ -1,6 +1,4 @@
-﻿#region
-
-using System.Reflection;
+﻿using System.Reflection;
 using System.Windows;
 using CommunityToolkit.Mvvm.ComponentModel;
 using PointlessWaymarks.CmsData;
@@ -11,8 +9,6 @@ using PointlessWaymarks.WpfCommon.ProgramUpdateMessage;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.Utility;
 using Serilog;
-
-#endregion
 
 namespace PointlessWaymarks.GeoToolsGui;
 

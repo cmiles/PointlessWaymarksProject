@@ -3,8 +3,7 @@ using CommunityToolkit.Mvvm.Input;
 
 namespace PointlessWaymarks.WpfCommon.Status;
 
-[ObservableObject]
-public partial class UserCancellations
+public partial class UserCancellations : ObservableObject
 {
     [ObservableProperty] private RelayCommand _cancel;
     [ObservableProperty] private CancellationTokenSource _cancelSource;

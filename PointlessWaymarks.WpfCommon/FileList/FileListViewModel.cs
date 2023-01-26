@@ -14,8 +14,7 @@ using static PointlessWaymarks.WpfCommon.ThreadSwitcher.ThreadSwitcher;
 
 namespace PointlessWaymarks.WpfCommon.FileList;
 
-[ObservableObject]
-public partial class FileListViewModel : IDropTarget
+public partial class FileListViewModel : ObservableObject, IDropTarget
 {
     [ObservableProperty] private List<ContextMenuItemData> _contextMenuItems;
     [ObservableProperty] private List<string> _droppedFileExtensionAllowList = new();

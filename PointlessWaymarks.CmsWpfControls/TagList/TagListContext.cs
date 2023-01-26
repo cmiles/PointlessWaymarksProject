@@ -26,8 +26,7 @@ using TinyIpc.Messaging;
 
 namespace PointlessWaymarks.CmsWpfControls.TagList;
 
-[ObservableObject]
-public partial class TagListContext
+public partial class TagListContext : ObservableObject
 {
     [ObservableProperty] private RelayCommand _allDetailItemsToExcelCommand;
     [ObservableProperty] private DataNotificationsWorkQueue _dataNotificationsProcessor;

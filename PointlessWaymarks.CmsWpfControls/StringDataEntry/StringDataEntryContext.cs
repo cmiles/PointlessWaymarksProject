@@ -8,8 +8,7 @@ using PointlessWaymarks.CommonTools;
 
 namespace PointlessWaymarks.CmsWpfControls.StringDataEntry;
 
-[ObservableObject]
-public partial class StringDataEntryContext : IHasChanges, IHasValidationIssues
+public partial class StringDataEntryContext : ObservableObject, IHasChanges, IHasValidationIssues
 {
     [ObservableProperty] private bool _hasChanges;
     [ObservableProperty] private bool _hasValidationIssues;

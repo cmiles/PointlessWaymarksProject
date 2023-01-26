@@ -10,8 +10,7 @@ using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 
 namespace PointlessWaymarks.CmsGui;
 
-[ObservableObject]
-public partial class SettingsFileChooserControlContext
+public partial class SettingsFileChooserControlContext : ObservableObject
 {
     [ObservableProperty] private RelayCommand _chooseFileCommand;
     [ObservableProperty] private RelayCommand<SettingsFileListItem> _chooseRecentFileCommand;

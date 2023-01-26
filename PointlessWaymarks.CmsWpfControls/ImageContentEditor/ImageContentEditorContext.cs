@@ -31,8 +31,7 @@ using PointlessWaymarks.WpfCommon.Utility;
 
 namespace PointlessWaymarks.CmsWpfControls.ImageContentEditor;
 
-[ObservableObject]
-public partial class ImageContentEditorContext : IHasChanges, IHasValidationIssues, ICheckForChangesAndValidation
+public partial class ImageContentEditorContext : ObservableObject, IHasChanges, IHasValidationIssues, ICheckForChangesAndValidation
 {
     [ObservableProperty] private StringDataEntryContext _altTextEntry;
     [ObservableProperty] private RelayCommand _autoCleanRenameSelectedFileCommand;

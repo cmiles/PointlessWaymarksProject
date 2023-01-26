@@ -21,8 +21,7 @@ using Serilog;
 
 namespace PointlessWaymarks.CmsWpfControls.GeoJsonList;
 
-[ObservableObject]
-public partial class GeoJsonListWithActionsContext
+public partial class GeoJsonListWithActionsContext : ObservableObject
 {
     [ObservableProperty] private RelayCommand _addIntersectionTagsToSelectedCommand;
     [ObservableProperty] private RelayCommand _geoJsonLinkCodesToClipboardForSelectedCommand;

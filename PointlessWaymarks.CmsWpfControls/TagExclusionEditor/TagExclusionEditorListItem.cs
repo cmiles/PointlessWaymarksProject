@@ -6,8 +6,7 @@ using PointlessWaymarks.CommonTools;
 
 namespace PointlessWaymarks.CmsWpfControls.TagExclusionEditor;
 
-[ObservableObject]
-public partial class TagExclusionEditorListItem
+public partial class TagExclusionEditorListItem : ObservableObject
 {
     [ObservableProperty] private TagExclusion _dbEntry;
     [ObservableProperty] private bool _hasChanges;

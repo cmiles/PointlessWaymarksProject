@@ -20,8 +20,7 @@ using Serilog;
 
 namespace PointlessWaymarks.CmsWpfControls.LineList;
 
-[ObservableObject]
-public partial class LineListWithActionsContext
+public partial class LineListWithActionsContext : ObservableObject
 {
     [ObservableProperty] private RelayCommand _addIntersectionTagsToSelectedCommand;
     [ObservableProperty] private RelayCommand _lineLinkCodesToClipboardForSelectedCommand;

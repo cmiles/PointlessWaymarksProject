@@ -5,8 +5,7 @@ using PointlessWaymarks.CmsWpfControls.Utility;
 
 namespace PointlessWaymarks.CmsWpfControls.LineList;
 
-[ObservableObject]
-public partial class LineListListItem : IContentListItem, IContentListSmallImage
+public partial class LineListListItem : ObservableObject, IContentListItem, IContentListSmallImage
 {
     [ObservableProperty] private LineContent _dbEntry;
     [ObservableProperty] private LineContentActions _itemActions;

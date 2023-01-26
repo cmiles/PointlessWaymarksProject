@@ -10,8 +10,7 @@ using PointlessWaymarks.WpfCommon.Status;
 
 namespace PointlessWaymarks.CmsWpfControls.TagsEditor;
 
-[ObservableObject]
-public partial class TagsEditorContext : IHasChanges, IHasValidationIssues, ICheckForChangesAndValidation
+public partial class TagsEditorContext : ObservableObject, IHasChanges, IHasValidationIssues, ICheckForChangesAndValidation
 {
     [ObservableProperty] private ITag _dbEntry;
     [ObservableProperty] private bool _hasChanges;

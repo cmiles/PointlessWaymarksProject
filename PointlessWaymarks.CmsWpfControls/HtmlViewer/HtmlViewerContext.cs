@@ -3,8 +3,7 @@ using PointlessWaymarks.WpfCommon.Status;
 
 namespace PointlessWaymarks.CmsWpfControls.HtmlViewer;
 
-[ObservableObject]
-public partial class HtmlViewerContext
+public partial class HtmlViewerContext : ObservableObject
 {
     [ObservableProperty] private string _htmlString;
     [ObservableProperty] private StatusControlContext _statusContext;

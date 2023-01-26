@@ -10,8 +10,7 @@ using PointlessWaymarks.WpfCommon.Utility;
 
 namespace PointlessWaymarks.CmsWpfControls.PostList;
 
-[ObservableObject]
-public partial class PostListWithActionsContext
+public partial class PostListWithActionsContext : ObservableObject
 {
     [ObservableProperty] private StatusControlContext _statusContext;
     [ObservableProperty] private RelayCommand _emailHtmlToClipboardCommand;

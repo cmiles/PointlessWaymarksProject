@@ -1,11 +1,7 @@
-﻿#region
-
-using System.IO;
+﻿using System.IO;
 using System.Text.Json;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CommonTools;
-
-#endregion
 
 namespace PointlessWaymarks.GeoToolsGui.Settings;
 

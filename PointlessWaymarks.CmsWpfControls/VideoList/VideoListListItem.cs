@@ -5,8 +5,7 @@ using PointlessWaymarks.CmsWpfControls.Utility;
 
 namespace PointlessWaymarks.CmsWpfControls.VideoList;
 
-[ObservableObject]
-public partial class VideoListListItem : IContentListItem, IContentListSmallImage
+public partial class VideoListListItem : ObservableObject, IContentListItem, IContentListSmallImage
 {
     [ObservableProperty] private VideoContent _dbEntry;
     [ObservableProperty] private VideoContentActions _itemActions;

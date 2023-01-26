@@ -37,8 +37,7 @@ using Serilog;
 
 namespace PointlessWaymarks.CmsWpfControls.VideoContentEditor;
 
-[ObservableObject]
-public partial class VideoContentEditorContext : IHasChanges, IHasValidationIssues, ICheckForChangesAndValidation
+public partial class VideoContentEditorContext : ObservableObject, IHasChanges, IHasValidationIssues, ICheckForChangesAndValidation
 {
     [ObservableProperty] private RelayCommand _autoCleanRenameSelectedFileCommand;
     [ObservableProperty] private RelayCommand _autoRenameSelectedFileBasedOnTitleCommand;

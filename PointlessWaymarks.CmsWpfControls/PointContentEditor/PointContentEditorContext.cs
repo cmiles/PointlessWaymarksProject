@@ -33,8 +33,7 @@ using Point = NetTopologySuite.Geometries.Point;
 
 namespace PointlessWaymarks.CmsWpfControls.PointContentEditor;
 
-[ObservableObject]
-public partial class PointContentEditorContext : IHasChanges, ICheckForChangesAndValidation, IHasValidationIssues
+public partial class PointContentEditorContext : ObservableObject, IHasChanges, ICheckForChangesAndValidation, IHasValidationIssues
 {
     [ObservableProperty] private RelayCommand _addFeatureIntersectTagsCommand;
     [ObservableProperty] private BodyContentEditorContext _bodyContent;

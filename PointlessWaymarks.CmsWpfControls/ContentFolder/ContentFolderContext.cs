@@ -14,8 +14,7 @@ using TinyIpc.Messaging;
 
 namespace PointlessWaymarks.CmsWpfControls.ContentFolder;
 
-[ObservableObject]
-public partial class ContentFolderContext : IHasChanges, IHasValidationIssues
+public partial class ContentFolderContext : ObservableObject, IHasChanges, IHasValidationIssues
 {
     [ObservableProperty] private DataNotificationsWorkQueue _dataNotificationsProcessor;
     [ObservableProperty] private List<DataNotificationContentType> _dataNotificationType;

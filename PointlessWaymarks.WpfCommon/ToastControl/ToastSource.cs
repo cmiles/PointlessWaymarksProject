@@ -4,8 +4,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace PointlessWaymarks.WpfCommon.ToastControl;
 
-[ObservableObject]
-public partial class ToastSource
+public partial class ToastSource : ObservableObject
 {
     public const int UnlimitedNotifications = -1;
     public static readonly TimeSpan NeverEndingNotification = TimeSpan.MaxValue;

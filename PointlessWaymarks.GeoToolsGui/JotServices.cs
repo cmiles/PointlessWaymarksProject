@@ -1,10 +1,6 @@
-﻿#region
-
-using System.Windows;
+﻿using System.Windows;
 using Jot;
 using WpfScreenHelper;
-
-#endregion
 
 namespace PointlessWaymarks.GeoToolsGui;
 

@@ -1,13 +1,8 @@
-﻿#region
-
-using CommunityToolkit.Mvvm.ComponentModel;
-
-#endregion
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace PointlessWaymarks.GeoToolsGui.Settings;
 
-[ObservableObject]
-public partial class ConnectBasedGeoTaggerSettings
+public partial class ConnectBasedGeoTaggerSettings : ObservableObject
 {
     [ObservableProperty] private string _archiveDirectory = string.Empty;
     [ObservableProperty] private bool _createBackups = true;

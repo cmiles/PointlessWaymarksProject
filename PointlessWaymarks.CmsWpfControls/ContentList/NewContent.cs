@@ -29,8 +29,7 @@ using PointlessWaymarks.WpfCommon.Utility;
 
 namespace PointlessWaymarks.CmsWpfControls.ContentList;
 
-[ObservableObject]
-public partial class NewContent
+public partial class NewContent : ObservableObject
 {
     [ObservableProperty] private StatusControlContext _statusContext;
 

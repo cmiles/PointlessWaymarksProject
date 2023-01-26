@@ -25,8 +25,7 @@ using PointlessWaymarks.WpfCommon.Utility;
 
 namespace PointlessWaymarks.CmsWpfControls.WordPressXmlImport;
 
-[ObservableObject]
-public partial class WordPressXmlImportContext
+public partial class WordPressXmlImportContext : ObservableObject
 {
     [ObservableProperty] private bool _filterOutExistingPostUrls = true;
     [ObservableProperty] private bool _folderFromCategory;

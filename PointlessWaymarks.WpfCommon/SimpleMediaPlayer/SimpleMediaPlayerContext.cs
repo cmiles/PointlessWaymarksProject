@@ -2,8 +2,7 @@
 
 namespace PointlessWaymarks.WpfCommon.SimpleMediaPlayer
 {
-    [ObservableObject]
-    public partial class SimpleMediaPlayerContext
+    public partial class SimpleMediaPlayerContext : ObservableObject
     {
         [ObservableProperty] private string _videoSource;
         [ObservableProperty] private double _videoPositionInMilliseconds;

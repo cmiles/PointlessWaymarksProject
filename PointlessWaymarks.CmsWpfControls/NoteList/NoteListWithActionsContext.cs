@@ -8,8 +8,7 @@ using PointlessWaymarks.WpfCommon.Utility;
 
 namespace PointlessWaymarks.CmsWpfControls.NoteList;
 
-[ObservableObject]
-public partial class NoteListWithActionsContext
+public partial class NoteListWithActionsContext : ObservableObject
 {
     [ObservableProperty] private StatusControlContext _statusContext;
     [ObservableProperty] private RelayCommand _emailHtmlToClipboardCommand;

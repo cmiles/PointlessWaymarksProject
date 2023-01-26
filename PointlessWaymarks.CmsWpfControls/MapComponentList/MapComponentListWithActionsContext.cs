@@ -7,8 +7,7 @@ using PointlessWaymarks.WpfCommon.Utility;
 
 namespace PointlessWaymarks.CmsWpfControls.MapComponentList;
 
-[ObservableObject]
-public partial class MapComponentListWithActionsContext
+public partial class MapComponentListWithActionsContext : ObservableObject
 {
     [ObservableProperty] private StatusControlContext _statusContext;
     [ObservableProperty] private ContentListContext _listContext;

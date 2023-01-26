@@ -1,8 +1,4 @@
-﻿#region
-
-using Windows.Security.Credentials;
-
-#endregion
+﻿using Windows.Security.Credentials;
 
 namespace PointlessWaymarks.GeoToolsGui.Settings;
 

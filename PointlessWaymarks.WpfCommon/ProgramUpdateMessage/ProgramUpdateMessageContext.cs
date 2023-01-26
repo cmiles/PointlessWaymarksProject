@@ -6,8 +6,7 @@ using CommunityToolkit.Mvvm.Input;
 
 namespace PointlessWaymarks.WpfCommon.ProgramUpdateMessage;
 
-[ObservableObject]
-public partial class ProgramUpdateMessageContext
+public partial class ProgramUpdateMessageContext : ObservableObject
 {
     [ObservableProperty] private string _currentVersion;
     [ObservableProperty] private FileInfo _setupFile;

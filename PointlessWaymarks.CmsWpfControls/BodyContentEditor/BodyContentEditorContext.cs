@@ -17,8 +17,7 @@ using PointlessWaymarks.WpfCommon.WpfHtml;
 
 namespace PointlessWaymarks.CmsWpfControls.BodyContentEditor;
 
-[ObservableObject]
-public partial class BodyContentEditorContext : IHasChanges, IHasValidationIssues, ICheckForChangesAndValidation
+public partial class BodyContentEditorContext : ObservableObject, IHasChanges, IHasValidationIssues, ICheckForChangesAndValidation
 {
     [ObservableProperty] private string _bodyContent;
     [ObservableProperty] private ContentFormatChooserContext _bodyContentFormat;

@@ -5,8 +5,7 @@ using PointlessWaymarks.CmsWpfControls.Utility;
 
 namespace PointlessWaymarks.CmsWpfControls.PointList;
 
-[ObservableObject]
-public partial class PointListListItem : IContentListItem, IContentListSmallImage
+public partial class PointListListItem : ObservableObject, IContentListItem, IContentListSmallImage
 {
     [ObservableProperty] private PointContent _dbEntry;
     [ObservableProperty] private PointContentActions _itemActions;

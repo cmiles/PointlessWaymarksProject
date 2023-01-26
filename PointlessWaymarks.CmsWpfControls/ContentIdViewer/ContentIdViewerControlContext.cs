@@ -5,8 +5,7 @@ using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 
 namespace PointlessWaymarks.CmsWpfControls.ContentIdViewer;
 
-[ObservableObject]
-public partial class ContentIdViewerControlContext
+public partial class ContentIdViewerControlContext : ObservableObject
 {
     [ObservableProperty] private string _contentIdInformation;
     [ObservableProperty] private IContentId _dbEntry;

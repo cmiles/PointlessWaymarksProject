@@ -3,8 +3,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace PointlessWaymarks.CmsWpfControls.FilesWrittenLogList;
 
-[ObservableObject]
-public partial class FilesWrittenLogListListItem
+public partial class FilesWrittenLogListListItem : ObservableObject
 {
     [ObservableProperty] private string _fileBase = string.Empty;
     [ObservableProperty] private bool _isInGenerationDirectory;

@@ -24,8 +24,7 @@ using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 
 namespace PointlessWaymarks.CmsWpfControls.PostContentEditor;
 
-[ObservableObject]
-public partial class PostContentEditorContext : IHasChanges, IHasValidationIssues, ICheckForChangesAndValidation
+public partial class PostContentEditorContext : ObservableObject, IHasChanges, IHasValidationIssues, ICheckForChangesAndValidation
 {
     [ObservableProperty] private BodyContentEditorContext _bodyContent;
     [ObservableProperty] private ContentIdViewerControlContext _contentId;

@@ -6,8 +6,7 @@ using CommunityToolkit.Mvvm.Input;
 
 namespace PointlessWaymarks.CmsWpfControls.Utility;
 
-[ObservableObject]
-public partial class CurrentSelectedTextTracker
+public partial class CurrentSelectedTextTracker : ObservableObject
 {
     [ObservableProperty] private string _currentSelectedText;
     [ObservableProperty] private RelayCommand<RoutedEventArgs> _selectedTextChangedCommand;

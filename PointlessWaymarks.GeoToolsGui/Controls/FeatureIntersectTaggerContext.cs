@@ -1,6 +1,4 @@
-﻿#region
-
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.IO;
 using System.Text.Json;
 using System.Web;
@@ -27,12 +25,9 @@ using PointlessWaymarks.WpfCommon.WpfHtml;
 using XmpCore;
 using Directory = System.IO.Directory;
 
-#endregion
-
 namespace PointlessWaymarks.GeoToolsGui.Controls;
 
-[ObservableObject]
-public partial class FeatureIntersectTaggerContext
+public partial class FeatureIntersectTaggerContext : ObservableObject
 {
     [ObservableProperty] private FeatureFileEditorContext _featureFileToEdit;
     [ObservableProperty] private FileListViewModel _filesToTagFileList;

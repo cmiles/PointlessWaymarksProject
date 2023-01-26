@@ -13,7 +13,7 @@ namespace PointlessWaymarks.SpatialTools;
 public static partial class GarminConnectTools
 {
     public static async Task<List<GarminActivity>> Search(DateTime searchStart, DateTime searchEnd, string userName,
-        string password, CancellationToken cancellationToken, IProgress<string> progress = null)
+        string password, CancellationToken cancellationToken, IProgress<string>? progress = null)
     {
         //9/25/2022 - I haven't done any research or extensive testing but the assumption here is
         //that for large search ranges that it will be better to only query Garmin Connect for a limited

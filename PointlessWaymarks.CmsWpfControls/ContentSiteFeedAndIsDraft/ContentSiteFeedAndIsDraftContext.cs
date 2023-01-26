@@ -9,8 +9,7 @@ using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 
 namespace PointlessWaymarks.CmsWpfControls.ContentSiteFeedAndIsDraft;
 
-[ObservableObject]
-public partial class ContentSiteFeedAndIsDraftContext : IHasChanges, IHasValidationIssues, ICheckForChangesAndValidation
+public partial class ContentSiteFeedAndIsDraftContext : ObservableObject, IHasChanges, IHasValidationIssues, ICheckForChangesAndValidation
 {
     [ObservableProperty] private IMainSiteFeed _dbEntry;
     [ObservableProperty] private ConversionDataEntryContext<DateTime> _feedOnEntry;

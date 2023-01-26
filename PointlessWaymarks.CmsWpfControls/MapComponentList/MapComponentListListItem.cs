@@ -5,8 +5,7 @@ using PointlessWaymarks.CmsWpfControls.Utility;
 
 namespace PointlessWaymarks.CmsWpfControls.MapComponentList;
 
-[ObservableObject]
-public partial class MapComponentListListItem : IContentListItem
+public partial class MapComponentListListItem : ObservableObject, IContentListItem
 {
     [ObservableProperty] private MapComponent _dbEntry;
     [ObservableProperty] private MapComponentContentActions _itemActions;

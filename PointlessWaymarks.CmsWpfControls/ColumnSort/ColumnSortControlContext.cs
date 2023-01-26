@@ -5,8 +5,7 @@ using CommunityToolkit.Mvvm.Input;
 
 namespace PointlessWaymarks.CmsWpfControls.ColumnSort;
 
-[ObservableObject]
-public partial class ColumnSortControlContext
+public partial class ColumnSortControlContext : ObservableObject
 {
     [ObservableProperty] private RelayCommand<ColumnSortControlSortItem> _columnSortAddCommand;
     [ObservableProperty] private RelayCommand<ColumnSortControlSortItem> _columnSortToggleCommand;

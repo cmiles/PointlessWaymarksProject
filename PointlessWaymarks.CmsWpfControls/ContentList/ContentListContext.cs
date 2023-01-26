@@ -49,8 +49,7 @@ using TinyIpc.Messaging;
 
 namespace PointlessWaymarks.CmsWpfControls.ContentList;
 
-[ObservableObject]
-public partial class ContentListContext : IDragSource, IDropTarget
+public partial class ContentListContext : ObservableObject, IDragSource, IDropTarget
 {
     [ObservableProperty] private RelayCommand _bracketCodeToClipboardSelectedCommand;
     [ObservableProperty] private IContentListLoader _contentListLoader;

@@ -5,8 +5,7 @@ using PointlessWaymarks.CmsWpfControls.Utility;
 
 namespace PointlessWaymarks.CmsWpfControls.NoteList;
 
-[ObservableObject]
-public partial class NoteListListItem : IContentListItem
+public partial class NoteListListItem : ObservableObject, IContentListItem
 {
     [ObservableProperty] private NoteContent _dbEntry;
     [ObservableProperty] private NoteContentActions _itemActions;

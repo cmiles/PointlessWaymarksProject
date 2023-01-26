@@ -4,8 +4,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace PointlessWaymarks.GeoToolsGui.Controls;
 
-[ObservableObject]
-public partial class AppSettingsContext
+public partial class AppSettingsContext : ObservableObject
 {
     [ObservableProperty] private string _programUpdateLocation;
     [ObservableProperty] private bool _showUpdateLocationExistsWarning;

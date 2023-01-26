@@ -1,6 +1,4 @@
-﻿#region
-
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.IO;
 using System.Web;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -23,12 +21,9 @@ using PointlessWaymarks.WpfCommon.WpfHtml;
 using XmpCore;
 using static PointlessWaymarks.CmsData.ContentHtml.GeoJsonHtml.GeoJsonData;
 
-#endregion
-
 namespace PointlessWaymarks.GeoToolsGui.Controls;
 
-[ObservableObject]
-public partial class FileBasedGeoTaggerContext
+public partial class FileBasedGeoTaggerContext : ObservableObject
 {
     [ObservableProperty] private bool _createBackups;
     [ObservableProperty] private bool _createBackupsInDefaultStorage;

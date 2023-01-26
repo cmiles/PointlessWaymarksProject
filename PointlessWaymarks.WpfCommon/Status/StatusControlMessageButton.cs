@@ -2,8 +2,7 @@
 
 namespace PointlessWaymarks.WpfCommon.Status;
 
-[ObservableObject]
-public partial class StatusControlMessageButton
+public partial class StatusControlMessageButton : ObservableObject
 {
     [ObservableProperty] private bool _isDefault;
     [ObservableProperty] private string _messageText;

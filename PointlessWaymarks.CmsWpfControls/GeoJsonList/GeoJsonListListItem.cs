@@ -5,8 +5,7 @@ using PointlessWaymarks.CmsWpfControls.Utility;
 
 namespace PointlessWaymarks.CmsWpfControls.GeoJsonList;
 
-[ObservableObject]
-public partial class GeoJsonListListItem : IContentListItem, IContentListSmallImage
+public partial class GeoJsonListListItem : ObservableObject, IContentListItem, IContentListSmallImage
 {
     [ObservableProperty] private GeoJsonContent _dbEntry;
     [ObservableProperty] private GeoJsonContentActions _itemActions;

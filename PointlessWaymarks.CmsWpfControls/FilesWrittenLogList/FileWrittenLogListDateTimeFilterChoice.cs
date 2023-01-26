@@ -2,8 +2,7 @@
 
 namespace PointlessWaymarks.CmsWpfControls.FilesWrittenLogList;
 
-[ObservableObject]
-public partial class FileWrittenLogListDateTimeFilterChoice
+public partial class FileWrittenLogListDateTimeFilterChoice : ObservableObject
 {
     [ObservableProperty] private string _displayText = string.Empty;
     [ObservableProperty] private DateTime? _filterDateTimeUtc;

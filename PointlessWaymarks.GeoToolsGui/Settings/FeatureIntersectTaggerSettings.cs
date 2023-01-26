@@ -1,15 +1,10 @@
-﻿#region
-
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using PointlessWaymarks.GeoToolsGui.Models;
 
-#endregion
-
 namespace PointlessWaymarks.GeoToolsGui.Settings;
 
-[ObservableObject]
-public partial class FeatureIntersectTaggerSettings
+public partial class FeatureIntersectTaggerSettings : ObservableObject
 {
     [ObservableProperty] private bool _createBackups;
     [ObservableProperty] private bool _createBackupsInDefaultStorage;

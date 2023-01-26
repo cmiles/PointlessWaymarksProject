@@ -11,8 +11,7 @@ using PointlessWaymarks.WpfCommon.Utility;
 
 namespace PointlessWaymarks.CmsWpfControls.FileList;
 
-[ObservableObject]
-public partial class FileListWithActionsContext
+public partial class FileListWithActionsContext : ObservableObject
 {
     [ObservableProperty] private RelayCommand _emailHtmlToClipboardCommand;
     [ObservableProperty] private RelayCommand _fileDownloadLinkCodesToClipboardForSelectedCommand;

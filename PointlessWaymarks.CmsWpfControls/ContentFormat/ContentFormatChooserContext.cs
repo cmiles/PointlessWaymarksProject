@@ -10,8 +10,7 @@ using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 
 namespace PointlessWaymarks.CmsWpfControls.ContentFormat;
 
-[ObservableObject]
-public partial class ContentFormatChooserContext : IHasChanges, IHasValidationIssues
+public partial class ContentFormatChooserContext :  ObservableObject, IHasChanges, IHasValidationIssues
 {
     [ObservableProperty] private List<ContentFormatEnum> _contentFormatChoices;
     [ObservableProperty] private bool _hasChanges;

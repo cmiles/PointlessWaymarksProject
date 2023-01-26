@@ -24,8 +24,7 @@ using Serilog;
 
 namespace PointlessWaymarks.CmsWpfControls.PointList;
 
-[ObservableObject]
-public partial class PointListWithActionsContext
+public partial class PointListWithActionsContext : ObservableObject
 {
     [ObservableProperty] private RelayCommand _addIntersectionTagsToSelectedCommand;
     [ObservableProperty] private ContentListContext _listContext;

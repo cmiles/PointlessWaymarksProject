@@ -12,8 +12,7 @@ using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 
 namespace PointlessWaymarks.CmsWpfControls.PointDetailEditor;
 
-[ObservableObject]
-public partial class PointDetailListContext : IHasChanges, IHasValidationIssues, ICheckForChangesAndValidation
+public partial class PointDetailListContext : ObservableObject, IHasChanges, IHasValidationIssues, ICheckForChangesAndValidation
 {
     [ObservableProperty] private ObservableCollection<string> _additionalPointDetailTypes;
     [ObservableProperty] private List<PointDetail> _dbEntries;

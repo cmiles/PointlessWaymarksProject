@@ -1,13 +1,8 @@
-﻿#region
-
-using CommunityToolkit.Mvvm.ComponentModel;
-
-#endregion
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace PointlessWaymarks.GeoToolsGui.Settings;
 
-[ObservableObject]
-public partial class FileBasedGeoTaggerSettings
+public partial class FileBasedGeoTaggerSettings : ObservableObject
 {
     [ObservableProperty] private bool _createBackups = true;
     [ObservableProperty] private bool _createBackupsInDefaultStorage = true;

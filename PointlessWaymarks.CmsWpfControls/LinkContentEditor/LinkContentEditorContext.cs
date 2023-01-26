@@ -19,8 +19,7 @@ using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 
 namespace PointlessWaymarks.CmsWpfControls.LinkContentEditor;
 
-[ObservableObject]
-public partial class LinkContentEditorContext : IHasChanges, IHasValidationIssues, ICheckForChangesAndValidation
+public partial class LinkContentEditorContext : ObservableObject, IHasChanges, IHasValidationIssues, ICheckForChangesAndValidation
 {
     [ObservableProperty] private StringDataEntryContext _authorEntry;
     [ObservableProperty] private StringDataEntryContext _commentsEntry;

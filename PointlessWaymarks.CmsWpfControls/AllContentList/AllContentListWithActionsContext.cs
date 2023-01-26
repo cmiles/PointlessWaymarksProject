@@ -8,8 +8,7 @@ using PointlessWaymarks.WpfCommon.Utility;
 
 namespace PointlessWaymarks.CmsWpfControls.AllContentList;
 
-[ObservableObject]
-public partial class AllContentListWithActionsContext
+public partial class AllContentListWithActionsContext : ObservableObject
 {
     [ObservableProperty] private ContentListContext _listContext;
     [ObservableProperty] private StatusControlContext _statusContext;

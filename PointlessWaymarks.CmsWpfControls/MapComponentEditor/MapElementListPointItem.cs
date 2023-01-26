@@ -4,8 +4,7 @@ using PointlessWaymarks.CmsData.Database.Models;
 
 namespace PointlessWaymarks.CmsWpfControls.MapComponentEditor;
 
-[ObservableObject]
-public partial class MapElementListPointItem : IMapElementListItem
+public partial class MapElementListPointItem : ObservableObject, IMapElementListItem
 {
     [ObservableProperty] private PointContentDto? _dbEntry;
     [ObservableProperty] private bool _inInitialView;

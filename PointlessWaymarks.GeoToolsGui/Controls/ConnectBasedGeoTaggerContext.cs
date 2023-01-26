@@ -1,6 +1,4 @@
-﻿#region
-
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Web;
@@ -26,12 +24,9 @@ using PointlessWaymarks.WpfCommon.WpfHtml;
 using XmpCore;
 using Directory = System.IO.Directory;
 
-#endregion
-
 namespace PointlessWaymarks.GeoToolsGui.Controls;
 
-[ObservableObject]
-public partial class ConnectBasedGeoTaggerContext
+public partial class ConnectBasedGeoTaggerContext : ObservableObject
 {
     [ObservableProperty] private bool _archiveDirectoryExists;
     [ObservableProperty] private string _currentCredentialsNote;

@@ -6,8 +6,7 @@ using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 
 namespace PointlessWaymarks.CmsWpfControls.S3Uploads;
 
-[ObservableObject]
-public partial class S3UploadsUploadBatch
+public partial class S3UploadsUploadBatch : ObservableObject
 {
     [ObservableProperty] private RelayCommand? _cancelCommand;
     [ObservableProperty] private CancellationTokenSource? _cancellation;

@@ -4,8 +4,7 @@ using PointlessWaymarks.CmsData.Database.Models;
 
 namespace PointlessWaymarks.CmsWpfControls.MapComponentEditor;
 
-[ObservableObject]
-public partial class MapElementListGeoJsonItem : IMapElementListItem
+public partial class MapElementListGeoJsonItem : ObservableObject, IMapElementListItem
 {
     [ObservableProperty] private GeoJsonContent? _dbEntry;
     [ObservableProperty] private bool _inInitialView;
