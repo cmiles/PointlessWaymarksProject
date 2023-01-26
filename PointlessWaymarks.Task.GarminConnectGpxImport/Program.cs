@@ -1,17 +1,18 @@
 ﻿// See https://aka.ms/new-console-template for more information
 
+using System.Reflection;
+using Microsoft.Toolkit.Uwp.Notifications;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.Task.GarminConnectGpxImport;
 using Serilog;
-using System.Reflection;
-using Microsoft.Toolkit.Uwp.Notifications;
 
 LogTools.StandardStaticLoggerForProgramDirectory("GarminConnectGpxImport");
 
 Log.ForContext("args", args.SafeObjectDump()).Information(
     "PointlessWaymarks.Task.GarminConnectGpxImport Starting");
 
-Console.WriteLine($"Garmin Connect Gpx Import - Build {ProgramInfoTools.GetBuildDate(Assembly.GetExecutingAssembly())}");
+Console.WriteLine(
+    $"Garmin Connect Gpx Import - Build {ProgramInfoTools.GetBuildDate(Assembly.GetExecutingAssembly())}");
 
 if (args.Length == 0)
 {
@@ -28,8 +29,6 @@ if (args.Length == 0)
 
     return;
 }
-
-
 
 if (args.Length > 0 && args[0].Contains("-authentication", StringComparison.OrdinalIgnoreCase))
 {
@@ -50,17 +49,18 @@ if (args.Length > 0 && args[0].Contains("-authentication", StringComparison.Ordi
 
     if (!loginCode.All(char.IsLetterOrDigit))
     {
-        Console.WriteLine("Sorry, login codes must consist of only letters and numbers - no spaces or symbols... Please try again.");
+        Console.WriteLine(
+            "Sorry, login codes must consist of only letters and numbers - no spaces or symbols... Please try again.");
         return;
     }
-    
+
     Console.WriteLine();
 
     Console.WriteLine($"Login Code is {loginCode} - set the username and password for this login.");
 
     Console.Write("Username: ");
 
-    var userName= Console.ReadLine();
+    var userName = Console.ReadLine();
 
     if (string.IsNullOrEmpty(userName))
     {
@@ -69,11 +69,11 @@ if (args.Length > 0 && args[0].Contains("-authentication", StringComparison.Ordi
     }
 
     Console.WriteLine();
-    Console.Write("Password: ");
 
-    var password = Console.ReadLine();
+    var password = ConsoleTools.GetPasswordFromConsole("Password: ");
 
-    PasswordVaultTools.SaveCredentials(GarminConnectGpxImportSettings.PasswordVaultResourceIdentifier(loginCode), userName, password ?? string.Empty);
+    PasswordVaultTools.SaveCredentials(GarminConnectGpxImportSettings.PasswordVaultResourceIdentifier(loginCode),
+        userName, password);
 
     Console.WriteLine($"Username and password saved for Login Code {loginCode} - ");
     Console.WriteLine("  the line below should appear in your settings file:");

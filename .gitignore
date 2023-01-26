@@ -351,3 +351,4 @@ MigrationBackup/
 PointlessWaymarks.MemoriesEmail/PointlessWaymarks.MemoriesEmail.args.json
 /PointlessWaymarks.Task.MemoriesEmail/PointlessWaymarks.Task.MemoriesEmail.args.json
 /PointlessWaymarks.Task.GpxImport/PointlessWaymarks.Task.GarminConnectGpxImport.args.json
+PointlessWaymarks.Task.MemoriesEmail/Properties/launchSettings.json

@@ -1,6 +1,9 @@
 ﻿## Memories Email Task
 
-This project creates a Console app intended to be run as a periodic 'Task' that will create emails with links to content created X years back.
+This program will create emails with links to content created X years back from Pointless Waymarks CMS Site. The Memories Email Task is a Console app intended to be run as a periodic task in Windows Task Scheduler.
+
+The information below covers how the program works and the details of the required settings file - but first a couple of suggestions:
+ - Consider making/using a dedicated email account for this process that is not 'connected' to any of your other email accounts. This program does not share your email account information with other services and should be as secure as the computer/account it is run under, but since it does NOT need to do anything except send emails (it does not read or download email, interact with your calendar, etc.) so it is a 
 
 Notes:
   - A JSON settings file controls how the program works and the settings file must be passed on the command line to the program

@@ -7,10 +7,13 @@ using System.Text.Json;
 using HtmlAgilityPack;
 using Microsoft.Toolkit.Uwp.Notifications;
 using Mjml.Net;
+using PointlessWaymarks.CommonTools;
 using Serilog;
+using ContentType = System.Net.Mime.ContentType;
 using ValidationContext = System.ComponentModel.DataAnnotations.ValidationContext;
 
 namespace PointlessWaymarks.Task.MemoriesEmail;
+
 public class MemoriesSmtpEmailFromWeb : IMemoriesSmtpEmailFromWeb
 {
     public async System.Threading.Tasks.Task GenerateEmail(string settingsFile)
@@ -22,7 +25,7 @@ public class MemoriesSmtpEmailFromWeb : IMemoriesSmtpEmailFromWeb
             new ToastContentBuilder()
                 .AddAppLogoOverride(new Uri(
                     $"file://{Path.Combine(AppContext.BaseDirectory, "PointlessWaymarksCmsAutomationSquareLogo.png")}"))
-                .AddText($"Error: Blank Settings File")
+                .AddText("Error: Blank Settings File")
                 .AddToastActivationInfo(AppContext.BaseDirectory, ToastActivationType.Protocol)
                 .AddAttributionText("Pointless Waymarks Project - Memories Email Task")
                 .Show();
@@ -52,7 +55,8 @@ public class MemoriesSmtpEmailFromWeb : IMemoriesSmtpEmailFromWeb
         {
             var settingsFileJsonString = await File.ReadAllTextAsync(settingsFileInfo.FullName);
             var tryReadSettings =
-                JsonSerializer.Deserialize<MemoriesSmtpEmailFromWebSettings>(settingsFileJsonString, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                JsonSerializer.Deserialize<MemoriesSmtpEmailFromWebSettings>(settingsFileJsonString,
+                    new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 
             if (tryReadSettings == null)
             {
@@ -87,11 +91,11 @@ public class MemoriesSmtpEmailFromWeb : IMemoriesSmtpEmailFromWeb
             return;
         }
 
-        var validationContext = new ValidationContext(settings, serviceProvider: null, items: null);
+        var validationContext = new ValidationContext(settings, null, null);
         var simpleValidationResults = new List<ValidationResult>();
         var simpleValidationPassed = Validator.TryValidateObject(
             settings, validationContext, simpleValidationResults,
-            validateAllProperties: true
+            true
         );
 
         if (!simpleValidationPassed)
@@ -112,9 +116,26 @@ public class MemoriesSmtpEmailFromWeb : IMemoriesSmtpEmailFromWeb
         }
 
         Log.ForContext("settings",
-                settings.Dump(new DumpOptions()
+                settings.Dump(new DumpOptions
                     { ExcludeProperties = new List<string> { nameof(settings.FromEmailPassword) } }))
             .Information("Settings Passed Basic Validation - Settings File {settingsFile}", settingsFile);
+
+        string fromEmailAddress;
+        string fromEmailPassword;
+
+        if (string.IsNullOrEmpty(settings.LoginCode))
+        {
+            fromEmailAddress = settings.FromEmailAddress;
+            fromEmailPassword = settings.FromEmailPassword;
+        }
+        else
+        {
+            var emailCredentials =
+                PasswordVaultTools.GetCredentials(
+                    MemoriesSmtpEmailFromWebSettings.PasswordVaultResourceIdentifier(settings.LoginCode));
+            fromEmailAddress = emailCredentials.username;
+            fromEmailPassword = emailCredentials.password;
+        }
 
         var httpClient = new HttpClient();
         if (!string.IsNullOrWhiteSpace(settings.BasicAuthUserName) &&
@@ -158,11 +179,11 @@ public class MemoriesSmtpEmailFromWeb : IMemoriesSmtpEmailFromWeb
 
         var textInfo = new CultureInfo("en-US", false).TextInfo;
 
-        var fromAddress = new MailAddress(settings.FromEmailAddress, settings.FromDisplayName);
+        var fromAddress = new MailAddress(fromEmailAddress, settings.FromDisplayName);
         var toAddress = settings.ToAddressList.Split(";", StringSplitOptions.RemoveEmptyEntries)
             .Select(x => new MailAddress(x.Trim())).ToList();
 
-        var message = new MailMessage()
+        var message = new MailMessage
         {
             IsBodyHtml = true
         };
@@ -290,7 +311,7 @@ public class MemoriesSmtpEmailFromWeb : IMemoriesSmtpEmailFromWeb
                 var contentId = Guid.NewGuid().ToString();
 
                 var imageEmbed = new Attachment(new MemoryStream(imageBytes),
-                    new System.Net.Mime.ContentType("image/jpeg"));
+                    new ContentType("image/jpeg"));
                 imageEmbed.ContentId = contentId;
                 imageEmbed.ContentDisposition.Inline = true;
                 imageEmbed.ContentDisposition.DispositionType = DispositionTypeNames.Inline;
@@ -299,11 +320,10 @@ public class MemoriesSmtpEmailFromWeb : IMemoriesSmtpEmailFromWeb
 
                 imageCarouselMjmlLines.Add($"""
 	<mj-carousel-image src="cid:{contentId}" />
-""" );
+""");
             }
 
             if (imageCarouselMjmlLines.Any())
-            {
                 contentSections.Add($"""
 <mj-section>
       <mj-column>
@@ -312,8 +332,7 @@ public class MemoriesSmtpEmailFromWeb : IMemoriesSmtpEmailFromWeb
         </mj-carousel>
       </mj-column>
     </mj-section>
-""" );
-            }
+""");
 
             foreach (var loopItems in groupedItems)
             {
@@ -322,22 +341,20 @@ public class MemoriesSmtpEmailFromWeb : IMemoriesSmtpEmailFromWeb
 
                 var itemTexts = new List<string>();
                 foreach (var loopItem in loopItems)
-                {
                     itemTexts.Add($"""
-		<mj-text padding-left="14px" padding-top="2px"><a href="{ loopItem.itemUrl}">{ loopItem.title}</a></mj-text>
-		""" );
-                }
+		<mj-text padding-left="14px" padding-top="2px"><a href="{loopItem.itemUrl}">{loopItem.title}</a></mj-text>
+		""");
 
                 contentSections.Add($"""
 <mj-section>
 	<mj-column>
-		<mj-text font-size="14px" padding-left="0px">{ textInfo.ToTitleCase(loopItems.Key)}{(loopItems.Count() > 1
+		<mj-text font-size="14px" padding-left="0px">{textInfo.ToTitleCase(loopItems.Key)}{(loopItems.Count() > 1
             ? "s"
             : string.Empty)}:</mj-text>
 			{string.Join(Environment.NewLine, itemTexts)}
 	</mj-column>
 </mj-section>
-""" );
+""");
             }
         }
 
@@ -347,7 +364,9 @@ public class MemoriesSmtpEmailFromWeb : IMemoriesSmtpEmailFromWeb
             return;
         }
 
-        var yearTextList = yearsWithContent.Count > 1 ? string.Join(", ", yearsWithContent.Take(yearsWithContent.Count - 1)) + " and " + yearsWithContent.Last() : yearsWithContent.First().ToString();
+        var yearTextList = yearsWithContent.Count > 1
+            ? string.Join(", ", yearsWithContent.Take(yearsWithContent.Count - 1)) + " and " + yearsWithContent.Last()
+            : yearsWithContent.First().ToString();
 
         var subject =
             $"[{(string.IsNullOrWhiteSpace(siteTitle) ? settings.SiteUrl : siteTitle)}] {yearTextList} Year{(yearTextList.Equals("1") ? "" : "s")} Ago...";
@@ -358,19 +377,19 @@ public class MemoriesSmtpEmailFromWeb : IMemoriesSmtpEmailFromWeb
             <mjml>
     <mj-head>
         <mj-title>
-            { (string.IsNullOrWhiteSpace(siteTitle) ? settings.SiteUrl : siteTitle)} Content from {yearTextList} Year{(yearTextList.Equals("1") ? "" : "s")} Ago...</mj-title>
+            {(string.IsNullOrWhiteSpace(siteTitle) ? settings.SiteUrl : siteTitle)} Content from {yearTextList} Year{(yearTextList.Equals("1") ? "" : "s")} Ago...</mj-title>
     </mj-head>
     <mj-body>
 	    <mj-section>
       		<mj-column>
-        		<mj-text align="center" font-size="30px"><a href="{ settings.SiteUrl}">{
+        		<mj-text align="center" font-size="30px"><a href="{settings.SiteUrl}">{
                     (string.IsNullOrWhiteSpace(siteTitle) ? settings.SiteUrl : siteTitle)}</a></mj-text>
 	      	</mj-column>
 	    </mj-section>
-        { string.Join(Environment.NewLine, contentSections)}
+        {string.Join(Environment.NewLine, contentSections)}
     </mj-body>
 </mjml>
-""" ;
+""";
 
         Console.WriteLine("Rendering Email");
         var mjmlRenderer = new MjmlRenderer();
@@ -384,7 +403,7 @@ public class MemoriesSmtpEmailFromWeb : IMemoriesSmtpEmailFromWeb
             Port = settings.SmtpPort,
             EnableSsl = settings.EnableSsl,
             DeliveryMethod = SmtpDeliveryMethod.Network,
-            Credentials = new NetworkCredential(settings.FromEmailAddress, settings.FromEmailPassword),
+            Credentials = new NetworkCredential(fromEmailAddress, fromEmailPassword),
             Timeout = 60000
         };
 

@@ -21,9 +21,9 @@ public class GarminConnectGpxImportSettings
 
     public bool ImportActivitiesToSite { get; set; } = true;
 
-    public string IntersectionTagSettings { get; set; }
+    public string IntersectionTagSettings { get; set; } = string.Empty;
 
-    public string LoginCode { get; set; }
+    public string LoginCode { get; set; } = string.Empty;
 
     public bool OverwriteExistingArchiveDirectoryFiles { get; set; }
 
