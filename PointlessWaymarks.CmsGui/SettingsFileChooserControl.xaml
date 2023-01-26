@@ -21,6 +21,7 @@
             Please Choose a Settings File or Create a New One
         </TextBlock>
         <GroupBox
+            MaxWidth="800"
             Margin="4,18,4,0"
             BorderThickness="2"
             FontSize="18"
