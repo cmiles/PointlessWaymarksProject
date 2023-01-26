@@ -4,6 +4,7 @@ using Amazon.S3;
 using Amazon.S3.Transfer;
 using CommunityToolkit.Mvvm.ComponentModel;
 using PointlessWaymarks.CmsData;
+using PointlessWaymarks.CmsData.S3;
 using PointlessWaymarks.CmsWpfControls.Utility;
 using PointlessWaymarks.CmsWpfControls.Utility.Aws;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;

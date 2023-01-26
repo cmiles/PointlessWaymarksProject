@@ -119,7 +119,27 @@ public class GpxTrackImport
                 settings.DownloadEndDate.Date.AddDays(-(settings.DownloadDaysBack % searchSegmentLength) + 1),
                 settings.DownloadEndDate.AddDays(1).Date.AddTicks(-1)));
 
-        var authParameters = new BasicAuthParameters(settings.ConnectUserName, settings.ConnectPassword);
+        string username;
+        string password;
+
+        if (string.IsNullOrWhiteSpace(settings.LoginCode))
+        {
+            Log.Verbose("Using User Name and Password from Settings File");
+            username = settings.ConnectUserName;
+            password = settings.ConnectPassword;
+        }
+        else
+        {
+            Log.Verbose($"Using Login Code {settings.LoginCode} and Password Vault");
+            var credentials =
+                PasswordVaultTools.GetCredentials(
+                    GarminConnectGpxImportSettings.PasswordVaultResourceIdentifier(settings.LoginCode));
+            username = credentials.username ?? string.Empty;
+            password = credentials.password ?? string.Empty;
+        }
+
+        var authParameters = new BasicAuthParameters(username, password);
+
         var client = new GarminConnectClient(new GarminConnectContext(new HttpClient(), authParameters));
 
         var fileList = new List<(FileInfo activityFileInfo, FileInfo? gpxFileInfo)>();
@@ -166,8 +186,8 @@ public class GpxTrackImport
                 try
                 {
                     var gpxFile = await GarminConnectTools.GetGpx(loopActivity, archiveDirectory,
-                        true, settings.OverwriteExistingArchiveDirectoryFiles, settings.ConnectUserName,
-                        settings.ConnectPassword);
+                        true, settings.OverwriteExistingArchiveDirectoryFiles, username,
+                        password);
 
                     fileList.Add((jsonArchiveFile, gpxFile));
                 }
@@ -311,12 +331,11 @@ public class GpxTrackImport
 
                 if (lineContent?.MainPicture != null)
                 {
-                    var mainPhotoInformation = PictureAssetProcessing.ProcessPhotoDirectory(lineContent.MainPicture.Value);
+                    var mainPhotoInformation =
+                        PictureAssetProcessing.ProcessPhotoDirectory(lineContent.MainPicture.Value);
 
                     if (mainPhotoInformation?.SmallPicture?.File != null)
-                    {
                         successToast.AddHeroImage(new Uri($@"{mainPhotoInformation.SmallPicture.File.FullName}"));
-                    }
                 }
 
                 successToast.Show();
@@ -335,7 +354,6 @@ public class GpxTrackImport
                     .AddAttributionText("Pointless Waymarks Project - Garmin Connect Gpx Import")
                     .Show();
             }
-
 
 
             Log.Information("Garmin Connect Gpx Import Finished");

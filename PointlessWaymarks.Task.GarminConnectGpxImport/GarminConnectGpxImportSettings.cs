@@ -4,10 +4,8 @@ namespace PointlessWaymarks.Task.GarminConnectGpxImport;
 
 public class GarminConnectGpxImportSettings
 {
-    [Required(ErrorMessage = "A Password for Garmin Connect must be specified.")]
     public string ConnectPassword { get; set; } = string.Empty;
 
-    [Required(ErrorMessage = "A Username (email) for Garmin Connect must be specified.")]
     public string ConnectUserName { get; set; } = string.Empty;
 
     [RegularExpression("(.*[1-9].*)|(.*[.].*[1-9].*)",
@@ -25,10 +23,17 @@ public class GarminConnectGpxImportSettings
 
     public string IntersectionTagSettings { get; set; }
 
+    public string LoginCode { get; set; }
+
     public bool OverwriteExistingArchiveDirectoryFiles { get; set; }
 
     [Required(ErrorMessage = "A Settings file for a Pointless Waymarks CMS Site must be specified.")]
     public string PointlessWaymarksSiteSettingsFileFullName { get; set; } = string.Empty;
 
     public bool ShowInMainSiteFeed { get; set; }
+
+    public static string PasswordVaultResourceIdentifier(string loginCode)
+    {
+        return $"Pointless--{loginCode}--GarminConnect";
+    }
 }

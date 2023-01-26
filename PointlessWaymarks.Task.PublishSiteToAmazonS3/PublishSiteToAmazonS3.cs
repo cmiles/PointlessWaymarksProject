@@ -6,7 +6,6 @@ using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.Content;
 using PointlessWaymarks.CmsData.ContentHtml;
 using PointlessWaymarks.CmsData.S3;
-using PointlessWaymarks.CmsWpfControls.Utility.Aws;
 using PointlessWaymarks.CommonTools;
 using Serilog;
 

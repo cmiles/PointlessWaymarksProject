@@ -6,6 +6,7 @@ using Amazon.S3.Model;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using PointlessWaymarks.CmsData;
+using PointlessWaymarks.CmsData.S3;
 using PointlessWaymarks.CmsWpfControls.Utility;
 using PointlessWaymarks.CmsWpfControls.Utility.Aws;
 using PointlessWaymarks.CmsWpfControls.Utility.Excel;
