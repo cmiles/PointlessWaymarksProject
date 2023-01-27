@@ -1,31 +1,10 @@
-﻿using System.IO;
-using System.Reflection;
-using System.Text.Encodings.Web;
-using System.Text.Json;
-using ABI.Windows.Devices.Bluetooth.Advertisement;
-using Microsoft.Extensions.FileProviders;
+﻿using System.Text.Encodings.Web;
 using PointlessWaymarks.WpfCommon.Utility;
 
 namespace PointlessWaymarks.WpfCommon.WpfHtml;
 
 public static class WpfHtmlDocument
 {
-    public static string LeafletDocumentBasicOpening(string title, string styleBlock)
-    {
-        return $@"
-<!doctype html>
-<html lang=en>
-<head>
-    <meta http-equiv=""X-UA-Compatible"" content=""IE=edge"" />
-    <meta charset=""utf-8"">
-    <meta name=""viewport"" content=""width=device-width, initial-scale=1.0"">
-    <title>{HtmlEncoder.Default.Encode(title)}</title>
-    <link rel=""stylesheet"" href=""https://unpkg.com/leaflet@1.9.3/dist/leaflet.css"" integrity=""sha256-kLaT2GOSpHechhsozzB+flnD+zUyjE2LlfWPgU04xyI="" crossorigin="""" />
-    <script src=""https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"" integrity=""sha256-WBkoXOwTeyKclOHuWtc+i2uENFpDZ9YPdf5Hf+D7ewM="" crossorigin=""""></script>
-    <style>{styleBlock}</style>
-</head>";
-    }
-
     public static List<LeafletLayerEntry> LeafletBasicLayerList()
     {
         var layers = new List<LeafletLayerEntry>
@@ -40,6 +19,22 @@ public static class WpfHtmlDocument
         };
 
         return layers;
+    }
+
+    public static string LeafletDocumentBasicOpening(string title, string styleBlock)
+    {
+        return $@"
+<!doctype html>
+<html lang=en>
+<head>
+    <meta http-equiv=""X-UA-Compatible"" content=""IE=edge"" />
+    <meta charset=""utf-8"">
+    <meta name=""viewport"" content=""width=device-width, initial-scale=1.0"">
+    <title>{HtmlEncoder.Default.Encode(title)}</title>
+    <link rel=""stylesheet"" href=""https://unpkg.com/leaflet@1.9.3/dist/leaflet.css"" integrity=""sha256-kLaT2GOSpHechhsozzB+flnD+zUyjE2LlfWPgU04xyI="" crossorigin="""" />
+    <script src=""https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"" integrity=""sha256-WBkoXOwTeyKclOHuWtc+i2uENFpDZ9YPdf5Hf+D7ewM="" crossorigin=""""></script>
+    <style>{styleBlock}</style>
+</head>";
     }
 
     public static string ToHtmlDocumentWithLeaflet(this string body, string title, string styleBlock)
@@ -60,28 +55,6 @@ public static class WpfHtmlDocument
     <script>
 {spatialScript}
     </script>
-</head>
-<body>
-    {body}
-</body>
-</html>";
-
-        return htmlDoc;
-    }
-
-    public static async Task<string> ToHtmlDocumentWithPureCss(this string body, string title, string styleBlock)
-    {
-        var pureCss = await FileSystemHelpers.PureCssAsString();
-
-        var htmlDoc = $@"
-<!doctype html>
-<html lang=en>
-<head>
-    <meta http-equiv=""X-UA-Compatible"" content=""IE=edge"" />
-    <meta name=""viewport"" content=""width=device-width, initial-scale=1.0"">
-    <meta charset=""utf-8"">
-    <title>{HtmlEncoder.Default.Encode(title)}</title>
-    <style>{pureCss}{styleBlock}</style>
 </head>
 <body>
     {body}

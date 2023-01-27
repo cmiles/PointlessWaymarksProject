@@ -11,7 +11,6 @@
 
   <ItemGroup>
     <None Remove="leaflet-bing-layer.js" />
-    <None Remove="pure-min.css" />
   </ItemGroup>
 
   <ItemGroup>
@@ -47,7 +46,6 @@
 
   <ItemGroup>
     <EmbeddedResource Include="leaflet-bing-layer.js" />
-    <EmbeddedResource Include="pure-min.css" />
   </ItemGroup>
 
   <ItemGroup>

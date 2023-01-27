@@ -4,6 +4,7 @@ namespace PointlessWaymarks.Task.GarminConnectGpxImport;
 
 public class GarminConnectGpxImportSettings
 {
+    public static string ProgramShortName = "Garmin Connect Gpx Import";
     public string ConnectPassword { get; set; } = string.Empty;
 
     public string ConnectUserName { get; set; } = string.Empty;

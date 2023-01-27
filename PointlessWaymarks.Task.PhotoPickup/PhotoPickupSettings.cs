@@ -4,6 +4,8 @@ namespace PointlessWaymarks.Task.PhotoPickup;
 
 public class PhotoPickupSettings
 {
+    public static string ProgramShortName = "Photo Pickup";
+
     [Required(ErrorMessage = "A directory to move processed Photo files into.")]
     public string PhotoPickupArchiveDirectory { get; set; } = string.Empty;
 

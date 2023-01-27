@@ -1,16 +1,15 @@
-﻿using Windows.UI.Notifications;
-using Microsoft.Toolkit.Uwp.Notifications;
+﻿using System.Reflection;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.Task.PublishSiteToAmazonS3;
 using Serilog;
-using System.Reflection;
 
 LogTools.StandardStaticLoggerForProgramDirectory("PublishToS3");
 
 Log.ForContext("args", args.SafeObjectDump()).Information(
     "PointlessWaymarks.Task.PublishSiteToAmazonS3 Starting");
 
-Console.WriteLine($"Publish Site To Amazon S3 - Build {ProgramInfoTools.GetBuildDate(Assembly.GetExecutingAssembly())}");
+Console.WriteLine(
+    $"Publish Site To Amazon S3 - Build {ProgramInfoTools.GetBuildDate(Assembly.GetExecutingAssembly())}");
 
 if (args.Length != 1)
 {
@@ -28,12 +27,6 @@ catch (Exception e)
     Log.Error(e, "Error Running Program...");
     Console.WriteLine(e);
 
-    new ToastContentBuilder()
-        .AddAppLogoOverride(new Uri(
-            $"file://{Path.Combine(AppContext.BaseDirectory, "PointlessWaymarksCmsAutomationSquareLogo.png")}"))
-        .AddText($"Error: {e.Message}")
-        .AddToastActivationInfo(AppContext.BaseDirectory, ToastActivationType.Protocol)
-        .AddAttributionText("Pointless Waymarks Project - Publish To Amazon S3")
-        .Show();
+    await WindowsNotificationBuilders.NewNotifier(PublishSiteToAmazonS3Settings.ProgramShortName)
+        .SetAutomationLogoNotificationIconUrl().Error(e);
 }
-

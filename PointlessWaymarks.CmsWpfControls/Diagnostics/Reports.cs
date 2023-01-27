@@ -3,9 +3,8 @@ using System.Web;
 using HtmlTableHelper;
 using PointlessWaymarks.CmsData.Content;
 using PointlessWaymarks.CmsWpfControls.HtmlViewer;
-using PointlessWaymarks.CmsWpfControls.WpfHtml;
+using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.WpfCommon.Utility;
-using PointlessWaymarks.WpfCommon.WpfHtml;
 
 namespace PointlessWaymarks.CmsWpfControls.Diagnostics;
 
@@ -16,10 +15,11 @@ public static class Reports
     {
         var bodyBuilder = new StringBuilder();
         bodyBuilder.AppendLine($"<p>{HttpUtility.HtmlEncode(intro)}</p>");
-        bodyBuilder.AppendLine(generationReturns.ToHtmlTable(new {@class = "pure-table pure-table-striped"}));
+        bodyBuilder.AppendLine(generationReturns.ToHtmlTable(new { @class = "pure-table pure-table-striped" }));
 
         var reportWindow =
-            await HtmlViewerWindow.CreateInstance(await bodyBuilder.ToString().ToHtmlDocumentWithPureCss(title, string.Empty));
+            await HtmlViewerWindow.CreateInstance(await bodyBuilder.ToString()
+                .ToHtmlDocumentWithPureCss(title, string.Empty));
         await reportWindow.PositionWindowAndShowOnUiThread();
     }
 

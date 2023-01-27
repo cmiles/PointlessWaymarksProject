@@ -2,6 +2,20 @@
 
 public static class FileLocationTools
 {
+    public static DirectoryInfo DefaultErrorReportsDirectory()
+    {
+        var baseDirectory = DefaultStorageDirectory();
+
+        var directory =
+            new DirectoryInfo(Path.Combine(baseDirectory.FullName, "Error-Reports"));
+
+        if (!directory.Exists) directory.Create();
+
+        directory.Refresh();
+
+        return directory;
+    }
+
     /// <summary>
     ///     This returns the default Pointless Waymarks storage directory - currently in the users
     ///     My Documents in a Pointless Waymarks Cms Folder - this will return the same value regardless

@@ -4,6 +4,7 @@ namespace PointlessWaymarks.Task.MemoriesEmail;
 
 public record MemoriesSmtpEmailFromWebSettings
 {
+    public static string ProgramShortName = "Memories Email";
     public string BasicAuthPassword { get; set; } = string.Empty;
     public string BasicAuthUserName { get; set; } = string.Empty;
 

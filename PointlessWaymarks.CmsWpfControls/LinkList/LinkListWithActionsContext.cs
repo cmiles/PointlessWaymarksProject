@@ -1,27 +1,26 @@
 ﻿using System.Windows;
-using HtmlTableHelper;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using HtmlTableHelper;
 using pinboard.net;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsWpfControls.ContentList;
 using PointlessWaymarks.CmsWpfControls.HtmlViewer;
-using PointlessWaymarks.CmsWpfControls.WpfHtml;
+using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 using PointlessWaymarks.WpfCommon.Utility;
-using PointlessWaymarks.WpfCommon.WpfHtml;
 
 namespace PointlessWaymarks.CmsWpfControls.LinkList;
 
 public partial class LinkListWithActionsContext : ObservableObject
 {
-    [ObservableProperty] private StatusControlContext _statusContext;
     [ObservableProperty] private ContentListContext _listContext;
     [ObservableProperty] private RelayCommand _listSelectedLinksNotOnPinboardCommand;
     [ObservableProperty] private RelayCommand _mdLinkCodesToClipboardForSelectedCommand;
     [ObservableProperty] private RelayCommand _refreshDataCommand;
+    [ObservableProperty] private StatusControlContext _statusContext;
     [ObservableProperty] private WindowIconStatus _windowStatus;
 
     public LinkListWithActionsContext(StatusControlContext statusContext, WindowIconStatus windowStatus = null)
@@ -102,7 +101,8 @@ public partial class LinkListWithActionsContext : ObservableObject
         }).ToHtmlTable(new { @class = "pure-table pure-table-striped" });
 
         var htmlReportWindow =
-            await HtmlViewerWindow.CreateInstance(await projectedNotFound.ToHtmlDocumentWithPureCss("Links Not In Pinboard", string.Empty));
+            await HtmlViewerWindow.CreateInstance(
+                await projectedNotFound.ToHtmlDocumentWithPureCss("Links Not In Pinboard", string.Empty));
         await htmlReportWindow.PositionWindowAndShowOnUiThread();
     }
 

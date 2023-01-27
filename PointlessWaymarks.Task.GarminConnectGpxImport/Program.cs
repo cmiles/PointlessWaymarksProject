@@ -1,7 +1,6 @@
 ﻿// See https://aka.ms/new-console-template for more information
 
 using System.Reflection;
-using Microsoft.Toolkit.Uwp.Notifications;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.Task.GarminConnectGpxImport;
 using Serilog;
@@ -57,6 +56,7 @@ if (args.Length > 0 && args[0].Contains("-authentication", StringComparison.Ordi
     Console.WriteLine();
 
     Console.WriteLine($"Login Code is {loginCode} - set the username and password for this login.");
+    Console.WriteLine();
 
     Console.Write("Username: ");
 
@@ -68,9 +68,9 @@ if (args.Length > 0 && args[0].Contains("-authentication", StringComparison.Ordi
         return;
     }
 
-    Console.WriteLine();
-
     var password = ConsoleTools.GetPasswordFromConsole("Password: ");
+
+    Console.WriteLine();
 
     PasswordVaultTools.SaveCredentials(GarminConnectGpxImportSettings.PasswordVaultResourceIdentifier(loginCode),
         userName, password);
@@ -78,6 +78,8 @@ if (args.Length > 0 && args[0].Contains("-authentication", StringComparison.Ordi
     Console.WriteLine($"Username and password saved for Login Code {loginCode} - ");
     Console.WriteLine("  the line below should appear in your settings file:");
     Console.WriteLine($"  \"loginCode\":\"{loginCode}\"");
+
+    Console.WriteLine();
 
     return;
 }
@@ -92,11 +94,6 @@ catch (Exception e)
     Log.Error(e, "Error Running Program...");
     Console.WriteLine(e);
 
-    new ToastContentBuilder()
-        .AddAppLogoOverride(new Uri(
-            $"file://{Path.Combine(AppContext.BaseDirectory, "PointlessWaymarksCmsAutomationSquareLogo.png")}"))
-        .AddText($"Error: {e.Message}")
-        .AddToastActivationInfo(AppContext.BaseDirectory, ToastActivationType.Protocol)
-        .AddAttributionText("Pointless Waymarks Project - Garmin Connect Gpx Import")
-        .Show();
+    await WindowsNotificationBuilders.NewNotifier(GarminConnectGpxImportSettings.ProgramShortName)
+        .SetAutomationLogoNotificationIconUrl().Error(e);
 }

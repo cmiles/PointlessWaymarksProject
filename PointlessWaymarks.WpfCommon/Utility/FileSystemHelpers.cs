@@ -37,19 +37,5 @@ namespace PointlessWaymarks.WpfCommon.Utility
 
             return spatialScript;
         }
-
-        public static async Task<string> PureCssAsString()
-        {
-            var embeddedProvider = new EmbeddedFileProvider(Assembly.GetExecutingAssembly());
-
-            var siteResources = embeddedProvider.GetDirectoryContents("")
-                .Single(x => x.Name.Contains("pure-min"));
-
-            await using var stream = siteResources.CreateReadStream();
-            using StreamReader reader = new(stream);
-            var pureCss = await reader.ReadToEndAsync().ConfigureAwait(false);
-
-            return pureCss;
-        }
     }
 }

@@ -17,7 +17,6 @@
     <PackageReference Include="GitInfo" Version="2.3.0" />
     <PackageReference Include="HtmlAgilityPack" Version="1.11.46" />
     <PackageReference Include="IdentityModel" Version="6.0.0" />
-    <PackageReference Include="Microsoft.Toolkit.Uwp.Notifications" Version="7.1.3" />
     <PackageReference Include="Mjml.Net" Version="1.17.0" />
     <PackageReference Include="ObjectDumper.NET" Version="3.5.2" />
     <PackageReference Include="System.Net.Http" Version="4.3.4" />
