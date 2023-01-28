@@ -17,7 +17,7 @@ public static class ContentList
             PhotoContent => "image",
             FileContent => "file",
             LinkContent => "link",
-            VideoContent => "image",
+            VideoContent => "video",
             _ => "other"
         };
     }
