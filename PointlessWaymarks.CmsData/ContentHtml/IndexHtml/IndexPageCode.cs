@@ -172,8 +172,8 @@ public partial class IndexPage
         foreach (var loopPosts in
                  IndexContent.Take(UserSettingsSingleton.CurrentSettings().NumberOfItemsOnMainSitePage))
         {
-            if (DynamicTypeTools.PropertyExists(loopPosts, "Body") &&
-                BracketCodeCommon.ContainsSpatialScriptDependentBracketCodes((string)loopPosts.Body))
+            if (DynamicTypeTools.PropertyExists(loopPosts, "BodyContent") &&
+                BracketCodeCommon.ContainsSpatialScriptDependentBracketCodes((string)loopPosts.BodyContent))
                 IncludeSpatialScripts = true;
             if (loopPosts.GetType() == typeof(PointContentDto) || loopPosts.GetType() == typeof(GeoJsonContent) ||
                 loopPosts.GetType() == typeof(LineContent))
