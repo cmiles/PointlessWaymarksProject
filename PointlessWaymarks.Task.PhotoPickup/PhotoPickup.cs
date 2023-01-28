@@ -138,7 +138,8 @@ public class PhotoPickup
 
             metaContent.OriginalFileName = uniqueRenamedFile.Name;
 
-            var (saveGenerationReturn, savedContent) = await PhotoGenerator.SaveAndGenerateHtml(metaContent, uniqueRenamedFile,
+            var (saveGenerationReturn, savedContent) = await PhotoGenerator.SaveAndGenerateHtml(metaContent,
+                uniqueRenamedFile,
                 true,
                 null, consoleProgress);
 
@@ -175,7 +176,8 @@ public class PhotoPickup
                 var generatedPhotoInformation = PictureAssetProcessing.ProcessPhotoDirectory(savedContent);
                 if (generatedPhotoInformation?.SmallPicture?.File != null)
                 {
-                    successToast.AddHeroImage(new Uri($@"{generatedPhotoInformation.SmallPicture.File.FullName}"));
+                    var closestSize = generatedPhotoInformation.SrcsetImages.MinBy(x => Math.Abs(384 - x.Width));
+                    successToast.AddHeroImage(new Uri($@"{closestSize.File.FullName}"));
                 }
 
                 successToast.Show();

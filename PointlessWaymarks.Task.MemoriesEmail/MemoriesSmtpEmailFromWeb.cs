@@ -5,7 +5,6 @@ using System.Net.Mail;
 using System.Net.Mime;
 using System.Text.Json;
 using HtmlAgilityPack;
-using Microsoft.Toolkit.Uwp.Notifications;
 using Mjml.Net;
 using PointlessWaymarks.CommonTools;
 using Serilog;
@@ -18,17 +17,17 @@ public class MemoriesSmtpEmailFromWeb : IMemoriesSmtpEmailFromWeb
 {
     public async System.Threading.Tasks.Task GenerateEmail(string settingsFile)
     {
+        var notifier = WindowsNotificationBuilders.NewNotifier(MemoriesSmtpEmailFromWebSettings.ProgramShortName)
+            .SetAutomationLogoNotificationIconUrl();
+        var programHelpMarkdown =
+            FileAndFolderTools.ReadAllText(Path.Combine(AppContext.BaseDirectory,
+                "README.md"));
+
         if (string.IsNullOrWhiteSpace(settingsFile))
         {
             Log.Error("Blank settings file is not valid...");
 
-            new ToastContentBuilder()
-                .AddAppLogoOverride(new Uri(
-                    $"file://{Path.Combine(AppContext.BaseDirectory, "PointlessWaymarksCmsAutomationSquareLogo.png")}"))
-                .AddText("Error: Blank Settings File")
-                .AddToastActivationInfo(AppContext.BaseDirectory, ToastActivationType.Protocol)
-                .AddAttributionText("Pointless Waymarks Project - Memories Email Task")
-                .Show();
+            await notifier.Error("Blank Settings File Name.", programHelpMarkdown);
 
             return;
         }
@@ -39,13 +38,7 @@ public class MemoriesSmtpEmailFromWeb : IMemoriesSmtpEmailFromWeb
         {
             Log.Error("Could not find settings file: {settingsFile}", settingsFile);
 
-            new ToastContentBuilder()
-                .AddAppLogoOverride(new Uri(
-                    $"file://{Path.Combine(AppContext.BaseDirectory, "PointlessWaymarksCmsAutomationSquareLogo.png")}"))
-                .AddText($"Error: Could not find settings file: {settingsFile}")
-                .AddToastActivationInfo(AppContext.BaseDirectory, ToastActivationType.Protocol)
-                .AddAttributionText("Pointless Waymarks Project - Memories Email Task")
-                .Show();
+            await notifier.Error($"Could not find settings file: {settingsFile}", programHelpMarkdown);
 
             return;
         }
@@ -63,13 +56,8 @@ public class MemoriesSmtpEmailFromWeb : IMemoriesSmtpEmailFromWeb
                 Log.Error("Settings file {settingsFile} deserialized into a null object - is the format correct?",
                     settingsFile);
 
-                new ToastContentBuilder()
-                    .AddAppLogoOverride(new Uri(
-                        $"file://{Path.Combine(AppContext.BaseDirectory, "PointlessWaymarksCmsAutomationSquareLogo.png")}"))
-                    .AddText($"Error: Settings file {settingsFile} deserialized into a null object.")
-                    .AddToastActivationInfo(AppContext.BaseDirectory, ToastActivationType.Protocol)
-                    .AddAttributionText("Pointless Waymarks Project - Memories Email Task")
-                    .Show();
+                await notifier.Error($"Error: Settings file {settingsFile} deserialized into a null object.",
+                    programHelpMarkdown);
 
                 return;
             }
@@ -80,13 +68,7 @@ public class MemoriesSmtpEmailFromWeb : IMemoriesSmtpEmailFromWeb
         {
             Log.Error(e, "Exception reading settings file {settingsFile}", settingsFile);
 
-            new ToastContentBuilder()
-                .AddAppLogoOverride(new Uri(
-                    $"file://{Path.Combine(AppContext.BaseDirectory, "PointlessWaymarksCmsAutomationSquareLogo.png")}"))
-                .AddText($"Error: {e.Message}")
-                .AddToastActivationInfo(AppContext.BaseDirectory, ToastActivationType.Protocol)
-                .AddAttributionText("Pointless Waymarks Project - Memories Email Task")
-                .Show();
+            await notifier.Error(e, programHelpMarkdown);
 
             return;
         }
@@ -101,16 +83,12 @@ public class MemoriesSmtpEmailFromWeb : IMemoriesSmtpEmailFromWeb
         if (!simpleValidationPassed)
         {
             Log.ForContext("SimpleValidationErrors", simpleValidationResults.SafeObjectDump())
-                .Error("Validating data from {settingFile} failed.", settingsFile);
+                .Error("Validating data from {settingsFile} failed.", settingsFile);
+
             simpleValidationResults.ForEach(Console.WriteLine);
 
-            new ToastContentBuilder()
-                .AddAppLogoOverride(new Uri(
-                    $"file://{Path.Combine(AppContext.BaseDirectory, "PointlessWaymarksCmsAutomationSquareLogo.png")}"))
-                .AddText($"Error: Validating {settingsFile} failed...")
-                .AddToastActivationInfo(AppContext.BaseDirectory, ToastActivationType.Protocol)
-                .AddAttributionText("Pointless Waymarks Project - Memories Email Task")
-                .Show();
+            await notifier.Error($"Validating data from {settingsFile} failed.",
+                simpleValidationResults.SafeObjectDump(), programHelpMarkdown);
 
             return;
         }

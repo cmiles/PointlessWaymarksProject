@@ -95,5 +95,7 @@ catch (Exception e)
     Console.WriteLine(e);
 
     await WindowsNotificationBuilders.NewNotifier(MemoriesSmtpEmailFromWebSettings.ProgramShortName)
-        .SetAutomationLogoNotificationIconUrl().Error(e);
+        .SetAutomationLogoNotificationIconUrl().Error(e, FileAndFolderTools.ReadAllText(Path.Combine(
+            AppContext.BaseDirectory,
+            "README.md")));
 }
