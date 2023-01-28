@@ -1,21 +1,19 @@
 # Intro
 
-There is plenty of traditional ReadMe information below about this project - but  in a way a better 'ReadMe' might be just taking a look at [American Gods, Mimbreno Point and Mescalero Point - 4/23/2021-4/24/2021](https://pointlesswaymarks.com/Posts/2021/american-gods-mimbreno-point-and-mescalero-point-4-23-2021-4-24-2021/american-gods-mimbreno-point-and-mescalero-point-4-23-2021-4-24-2021.html) - this post and site is a good real world example of the output from this software.
+There is plenty of traditional ReadMe information below about this project - but in a way a better 'README' might be taking a look at [Pointless Waymarks](https://PointlessWaymarks.com) and [cmiles - info](https://www.cmiles.info/) - these sites are generated with the Pointless Waymarks CMS and a quick look might tell you more than than all the information below!
 
 # Pointless Waymarks CMS, Tasks and GeoTools
 
 At this point this project is not intended for general use - it is made public under the MIT License to share with friends, colleagues and anyone who finds the code interesting or useful.
 
 The Pointless Waymarks projects contains:
-  - The Pointless Waymarks CMS (described below)
+  - The Pointless Waymarks CMS and Offline Site Viewer (described below)
   - Tasks to support the Pointless Waymarks CMS including Memories Email, Photo Pickup and Garmin Connect Download (described below)
   - The Pointless Waymarks GeoTools - [README with Description and Screen Shots](PointlessWaymarks.GeoToolsGui/README.md) - is a WPF GUI for GeoTagging, Feature Intersect Tagging and managing Garmin Connect Downloads.
 
 # Pointless Waymarks CMS
 
-Pointless Waymarks CMS is a .NET Core 7 Windows WPF GUI for generating a static website based on database information and a settings file. It is not an 'all purpose static site generation solution'. The focus is easily creating durable, rich, low maintenance, free, long-lasting, organized content about the landscape, place, life, history and nature with support for posts, photographs, images, files and maps...
-
-[Pointless Waymarks](https://PointlessWaymarks.com) is generated with the Pointless Waymarks CMS and is a good example of both the output and intent.
+Pointless Waymarks CMS is a .NET Core 7 Windows WPF GUI for generating a static website based on database information and a settings file. It is not an 'all purpose static site generation solution'. The focus is easily creating durable, rich, low maintenance, free, long-lasting, organized content to tell stories about the landscape, place, life, history and nature.
 
 Details:
  - Locally Generated Static Site - low cost, low maintenance, high durability, easy backup, doesn't have to be on the web to be useful.
@@ -23,7 +21,7 @@ Details:
  - Database Driven - flexibility in creating and updating content with the potential to generate multiple output formats.
  - Custom Software - optimized support for a limited set of content types and a specific set of workflows.
  - Windows Desktop WPF GUI Editor - no hosting to pay for, no server to maintain, no containers to orchestrate... WPF because it is my favorite Windows GUI technology atm and because the experimentation/learning/coding I do here flows back into my day job where I create and maintain a Retail Inventory Management and Reporting system that has a WPF Front-End.
- - Focus on Content and Simple Functional Presentation - my experience is that simple presentations of interesting content can survive, have impact and be meaningful for many many years (indefinitely?) without heavy revisions, constant updates or conversion into the latest style/newest framework.
+ - A Focus on Content and Simple Functional Presentation - my experience is that simple presentations of interesting content can survive, have impact and be meaningful for many many years (indefinitely?) without heavy revisions, constant updates or conversion into the latest style/newest framework.
 
 Todo Lists, Idea Lists and a Development Log are [found in a DevNotes.md file that is versioned along with the code](/DevNotes.md).
 
