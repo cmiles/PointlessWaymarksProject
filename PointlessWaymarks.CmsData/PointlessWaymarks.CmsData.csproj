@@ -45,7 +45,7 @@
     <PackageReference Include="AWSSDK.S3" Version="3.7.102" />
     <PackageReference Include="ClosedXML" Version="0.100.3" />
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.1.0" />
-    <PackageReference Include="CompareNETObjects" Version="4.78.0" />
+    <PackageReference Include="CompareNETObjects" Version="4.79.0" />
     <PackageReference Include="FluentMigrator" Version="3.3.2" />
     <PackageReference Include="FluentMigrator.Runner" Version="3.3.2" />
     <PackageReference Include="FluentMigrator.Runner.SQLite" Version="3.3.2" />
