@@ -43,7 +43,7 @@
                         <StackPanel Margin="4" CanHorizontallyScroll="False">
                             <GroupBox Margin="4,0,0,4" Style="{StaticResource UiComponentGroupBoxStyle}">
                                 <GroupBox.Header>
-                                    <StackPanel Orientation="Horizontal">
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
                                         <Label Style="{StaticResource DataEntryLabelStyle}">
                                             File
                                         </Label>
@@ -71,14 +71,15 @@
                                         <RowDefinition Height="Auto" />
                                     </Grid.RowDefinitions>
                                     <Button Command="{Binding ChooseFileCommand}"
-                                            Style="{StaticResource ActionPanelButtonStyle}">
+                                            Style="{StaticResource ActionPanelButtonStyle}" HorizontalAlignment="Left">
                                         Choose File
                                     </Button>
                                     <Label Grid.Row="1" Style="{StaticResource DataEntryLabelStyle}">Selected File</Label>
                                     <StackPanel
                                         Grid.Row="2"
                                         Margin="6,2,0,8"
-                                        Orientation="Vertical">
+                                        Orientation="Vertical"
+                                        HorizontalAlignment="Left">
                                         <TextBox
                                             Style="{StaticResource ReadOnlyTextBoxStyle}"
                                             Text="{Binding SelectedFile.FullName, Mode=OneWay}"
@@ -90,6 +91,7 @@
                                         </TextBox>
                                         <Button
                                             Background="Yellow"
+                                            Margin="0,6,0,2"
                                             Command="{Binding AutoRenameSelectedFileCommand}"
                                             ToolTip="This filename has illegal characters - pressing this to attempt to auto-rename the file"
                                             Visibility="{Binding SelectedFileNameHasInvalidCharacters, Converter={StaticResource BooleanToVisibility}}">
@@ -99,7 +101,7 @@
                                     <WrapPanel
                                         Grid.Row="3"
                                         Margin="4,0,4,12"
-                                        HorizontalAlignment="Center"
+                                        HorizontalAlignment="Left"
                                         Orientation="Horizontal">
                                         <WrapPanel.Resources>
                                             <Style TargetType="Button">

@@ -348,7 +348,11 @@ Notes:
             "there will be a viewer/player for the file. This option is only available if 'Show Public" +
             "Download Link' is checked and not all content types are supported.";
 
-        TitleSummarySlugFolder = await TitleSummarySlugEditorContext.CreateInstance(StatusContext, DbEntry);
+        TitleSummarySlugFolder = await TitleSummarySlugEditorContext.CreateInstance(StatusContext, "To File Name",
+        AutoRenameSelectedFileBasedOnTitleCommand,
+        x => !Path.GetFileNameWithoutExtension(SelectedFile.Name)
+            .Equals(SlugTools.CreateSlug(false, x.TitleEntry.UserValue), StringComparison.OrdinalIgnoreCase),
+        DbEntry);
         MainSiteFeed = await ContentSiteFeedAndIsDraftContext.CreateInstance(StatusContext, DbEntry);
         CreatedUpdatedDisplay = await CreatedAndUpdatedByAndOnDisplayContext.CreateInstance(StatusContext, DbEntry);
         ContentId = await ContentIdViewerControlContext.CreateInstance(StatusContext, DbEntry);
@@ -656,6 +660,11 @@ Notes:
             await FileHelpers.RenameSelectedFile(SelectedFile, StatusContext, x => SelectedFile = x));
         AutoRenameSelectedFileCommand = StatusContext.RunBlockingTaskCommand(async () =>
             await FileHelpers.TryAutoCleanRenameSelectedFile(SelectedFile, StatusContext, x => SelectedFile = x));
+        AutoRenameSelectedFileBasedOnTitleCommand = StatusContext.RunBlockingTaskCommand(async () =>
+        {
+            await FileHelpers.TryAutoRenameSelectedFile(SelectedFile, TitleSummarySlugFolder.TitleEntry.UserValue,
+                StatusContext, x => SelectedFile = x);
+        });
         ExtractNewLinksCommand = StatusContext.RunBlockingTaskCommand(() =>
             LinkExtraction.ExtractNewAndShowLinkContentEditors($"{BodyContent.BodyContent} {UpdateNotes.UpdateNotes}",
                 StatusContext.ProgressTracker()));
@@ -666,6 +675,8 @@ Notes:
         ViewUserMainPictureCommand = StatusContext.RunNonBlockingTaskCommand(ViewUserMainPicture);
         EditUserMainPictureCommand = StatusContext.RunNonBlockingTaskCommand(EditUserMainPicture);
     }
+
+    public RelayCommand AutoRenameSelectedFileBasedOnTitleCommand { get; set; }
 
     public async Task SetUserMainPicture()
     {
