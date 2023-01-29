@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using System.ComponentModel.DataAnnotations;
+using System.Text.Json;
 using Microsoft.Toolkit.Uwp.Notifications;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.CommonHtml;
@@ -14,9 +15,16 @@ public class PhotoPickup
 {
     public async System.Threading.Tasks.Task PickupPhotos(string settingsFile)
     {
+        var notifier = WindowsNotificationBuilders.NewNotifier(PhotoPickupSettings.ProgramShortName)
+            .SetAutomationLogoNotificationIconUrl().SetAdditionalInformationMarkdown(FileAndFolderTools.ReadAllText(
+                Path.Combine(AppContext.BaseDirectory, "README.md")));
+
+
         if (string.IsNullOrWhiteSpace(settingsFile))
         {
             Log.Error("Settings File is Null or Whitespace?");
+            await notifier.Error("Blank Settings File Name.",
+                "The program should be run with the Settings File as the argument");
             return;
         }
 
@@ -26,7 +34,8 @@ public class PhotoPickup
 
         if (!settingsFileInfo.Exists)
         {
-            Log.Error($"Settings File {settingsFile} Does Not Exist?");
+            Log.Error("Settings File {settingsFile} Does Not Exist?", settingsFile);
+            await notifier.Error($"Could not find settings file: {settingsFile}");
             return;
         }
 
@@ -42,6 +51,8 @@ public class PhotoPickup
             {
                 Log.Error("Settings file {settingsFile} deserialized into a null object - is the format correct?",
                     settingsFile);
+                await notifier.Error($"Error: Settings file {settingsFile} deserialized into a null object.",
+                    $"The program found and was able to read the Settings File - {settingsFile} - but nothing was returned when converting the file into program settings - this probably indicates a format problem with the settings file.");
                 return;
             }
 
@@ -53,15 +64,38 @@ public class PhotoPickup
         catch (Exception e)
         {
             Log.Error(e, "Exception reading settings file {settingsFile}", settingsFile);
+            await notifier.Error(e);
             return;
         }
+
+        var validationContext = new ValidationContext(settings, null, null);
+        var simpleValidationResults = new List<ValidationResult>();
+        var simpleValidationPassed = Validator.TryValidateObject(
+            settings, validationContext, simpleValidationResults,
+            true
+        );
+
+        if (!simpleValidationPassed)
+        {
+            Log.ForContext("SimpleValidationErrors", simpleValidationResults.SafeObjectDump())
+                .Error("Validating data from {settingsFile} failed.", settingsFile);
+            simpleValidationResults.ForEach(Console.WriteLine);
+            await notifier.Error($"Validating data from {settingsFile} failed.",
+                simpleValidationResults.SafeObjectDump());
+            return;
+        }
+
+        Log.ForContext("settings",
+                settings.Dump())
+            .Information("Settings Passed Basic Validation - Settings File {settingsFile}", settingsFile);
 
         var pickupDirectory = new DirectoryInfo(settings.PhotoPickupDirectory);
 
         if (!pickupDirectory.Exists)
         {
-            Log.Error($"The specified Photo Pick Up Directory {pickupDirectory.FullName} does not exist?",
-                settingsFile);
+            Log.Error("The specified Photo Pick Up Directory {pickupDirectoryFullName} does not exist?",
+                pickupDirectory.FullName);
+            await notifier.Error($"Error: Photo Pick Up Directory {pickupDirectory.FullName} does not exist?");
             return;
         }
 
@@ -80,6 +114,8 @@ public class PhotoPickup
         {
             Log.Error(
                 $"The site settings file {settings.PointlessWaymarksSiteSettingsFileFullName} was specified but not found?");
+            await notifier.Error(
+                $"Site settings file {settings.PointlessWaymarksSiteSettingsFileFullName} was not found");
             return;
         }
 
@@ -94,6 +130,8 @@ public class PhotoPickup
             {
                 Log.Error(e,
                     $"The specified Photo Archive Directory {settings.PhotoPickupArchiveDirectory} does not exist and could not be created.");
+                await notifier.Error(e,
+                    "The specified Photo Archive Directory {settings.PhotoPickupArchiveDirectory} does not exist and could not be created. In addition to checking that the directory exists and there are no typos you may also need to check that the program has permissions to access, read from and write to the directory.");
             }
 
         var consoleProgress = new ConsoleProgress();

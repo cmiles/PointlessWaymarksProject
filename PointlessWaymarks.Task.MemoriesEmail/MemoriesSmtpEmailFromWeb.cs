@@ -18,17 +18,13 @@ public class MemoriesSmtpEmailFromWeb : IMemoriesSmtpEmailFromWeb
     public async System.Threading.Tasks.Task GenerateEmail(string settingsFile)
     {
         var notifier = WindowsNotificationBuilders.NewNotifier(MemoriesSmtpEmailFromWebSettings.ProgramShortName)
-            .SetAutomationLogoNotificationIconUrl();
-        var programHelpMarkdown =
-            FileAndFolderTools.ReadAllText(Path.Combine(AppContext.BaseDirectory,
-                "README.md"));
+            .SetAdditionalInformationMarkdown(FileAndFolderTools.ReadAllText(Path.Combine(
+                AppContext.BaseDirectory, "README.md"))).SetAutomationLogoNotificationIconUrl();
 
         if (string.IsNullOrWhiteSpace(settingsFile))
         {
             Log.Error("Blank settings file is not valid...");
-
-            await notifier.Error("Blank Settings File Name.", programHelpMarkdown);
-
+            await notifier.Error("Blank Settings File Name.", "The program should be run with the Settings File as the argument.");
             return;
         }
 
@@ -37,9 +33,7 @@ public class MemoriesSmtpEmailFromWeb : IMemoriesSmtpEmailFromWeb
         if (!settingsFileInfo.Exists)
         {
             Log.Error("Could not find settings file: {settingsFile}", settingsFile);
-
-            await notifier.Error($"Could not find settings file: {settingsFile}", programHelpMarkdown);
-
+            await notifier.Error($"Could not find settings file: {settingsFile}");
             return;
         }
 
@@ -55,10 +49,7 @@ public class MemoriesSmtpEmailFromWeb : IMemoriesSmtpEmailFromWeb
             {
                 Log.Error("Settings file {settingsFile} deserialized into a null object - is the format correct?",
                     settingsFile);
-
-                await notifier.Error($"Error: Settings file {settingsFile} deserialized into a null object.",
-                    programHelpMarkdown);
-
+                await notifier.Error($"Error: Settings file {settingsFile} deserialized into a null object.", "The program found and was able to read the Settings File - {settingsFile} - but nothing was returned when converting the file into program settings - this probably indicates a format problem with the settings file.");
                 return;
             }
 
@@ -67,9 +58,7 @@ public class MemoriesSmtpEmailFromWeb : IMemoriesSmtpEmailFromWeb
         catch (Exception e)
         {
             Log.Error(e, "Exception reading settings file {settingsFile}", settingsFile);
-
-            await notifier.Error(e, programHelpMarkdown);
-
+            await notifier.Error(e);
             return;
         }
 
@@ -84,11 +73,9 @@ public class MemoriesSmtpEmailFromWeb : IMemoriesSmtpEmailFromWeb
         {
             Log.ForContext("SimpleValidationErrors", simpleValidationResults.SafeObjectDump())
                 .Error("Validating data from {settingsFile} failed.", settingsFile);
-
             simpleValidationResults.ForEach(Console.WriteLine);
-
             await notifier.Error($"Validating data from {settingsFile} failed.",
-                simpleValidationResults.SafeObjectDump(), programHelpMarkdown);
+                simpleValidationResults.SafeObjectDump());
 
             return;
         }
@@ -148,6 +135,8 @@ public class MemoriesSmtpEmailFromWeb : IMemoriesSmtpEmailFromWeb
         if (items == null)
         {
             Log.Error("No Content List Items Found from {allContentUrl}?", allContentUrl);
+            await notifier.Error($"Error: No Content List Items Found from {allContentUrl}",
+                $"Normally the All Content URL - {allContentUrl} - should have some content. In this case no content - either from the dates relevant to this email or for any other dates were found. This could indicate that there is a problem with the Url in the Settings File - {settingsFile} - or a problem with the site.");
             return;
         }
 

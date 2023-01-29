@@ -13,6 +13,12 @@ public static class WindowsNotificationBuilders
         return toEdit;
     }
 
+    public static WindowsNotificationTool SetAdditionalInformationMarkdown(this WindowsNotificationTool toEdit, string additionalInformationMarkdown)
+    {
+        toEdit.AdditionalInformationMarkdown = additionalInformationMarkdown;
+        return toEdit;
+    }
+
     public static WindowsNotificationTool SetAutomationLogoNotificationIconUrl(this WindowsNotificationTool toEdit)
     {
         toEdit.NotificationIconUrl =
