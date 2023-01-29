@@ -1,6 +1,6 @@
 # Intro
 
-There is plenty of traditional ReadMe information below about this project - but in a way a better 'README' might be taking a look at [Pointless Waymarks](https://PointlessWaymarks.com) and [cmiles - info](https://www.cmiles.info/) - these sites are generated with the Pointless Waymarks CMS and a quick look might tell you more than than all the information below!
+There is plenty of traditional README information below about this project - but a better 'README' might be taking a look at [Pointless Waymarks](https://PointlessWaymarks.com) and [cmiles - info](https://www.cmiles.info/) - these sites are generated with the Pointless Waymarks CMS and visiting them might tell you more than than all the information below...
 
 # Pointless Waymarks CMS, Tasks and GeoTools
 
@@ -9,7 +9,7 @@ At this point this project is not intended for general use - it is made public u
 The Pointless Waymarks projects contains:
   - The Pointless Waymarks CMS and Offline Site Viewer (described below)
   - Tasks to support the Pointless Waymarks CMS including Memories Email, Photo Pickup and Garmin Connect Download (described below)
-  - The Pointless Waymarks GeoTools - [README with Description and Screen Shots](PointlessWaymarks.GeoToolsGui/README.md) - is a WPF GUI for GeoTagging, Feature Intersect Tagging and managing Garmin Connect Downloads.
+  - The Pointless Waymarks GeoTools - [README with Description and Screen Shots](PointlessWaymarks.GeoToolsGui/README.md) - a WPF GUI for GeoTagging and Feature Intersect Tagging Photographs and other content and managing Garmin Connect Downloads.
 
 # Pointless Waymarks CMS
 
@@ -101,25 +101,39 @@ See [the Feature Intersection Tags documentation](PointlessWaymarks.FeatureInter
 
 ![Feature Site Intersection Tags](PointlessWaymarks.CmsScreenShots/FeatureIntersectionsTagsExample.jpg "Feature Site Intersection Tags")
 
+### InnoSetup Based Installers and Program Update Notifications
+
+![Program Update Notice over the All Items List](PointlessWaymarks.CmsScreenShots/MainListWithProgramUpdateNotice.jpg "Program Update Notice over the All Items List")
+
+PowerShell Scripts are included that can generate installers for the programs using [Inno Setup](https://jrsoftware.org/isinfo.php). These scripts create the installers with names and inforamtion that the programs are aware of. If you setup the programs to know where the installers are located the programs will check for updates on startup and offer to close the program and start the install. Keeping with the offline first theme of this program - and because there are no current plans for official install packages - this system is designed primarily to work either on your computer or from a file share on your network. These scripts may need some modification for your local environment.
+
 ### Password Protected Sites via Cloudflare Workers
 
 Not currently incorporated into the program in any way, but included in this repo, is a simple Cloudflare Worker script for Basic Auth (I have used this successfully for over a year but Cloudflare Workers aren't my current passion so use with caution...). This provides a very simple zero cost (Cloudflare Workers are available on their free plan) way to password protect a site. There is no sense of 'user accounts' or options to change/recover passwords so this is only relevant in limited scenarios, but I have found this to be a nice way to put content online for myself, friends and family without making it public.
 
 ## 'Memories' Email
 
-The 'PointlessWaymarks.MemoriesEmail' console app can generate an email with links to items created in previous years on the site. The app is driven by a settings file where you can setup the years back, email settings and what site to get information from. This program can be setup in the Windows Task Scheduler to run daily for fun/interesting emails about past content!
+The 'PointlessWaymarks.Task.MemoriesEmail' console app can generate an email with links to items created in previous years on the site. The app is driven by a settings file where you can setup the years back, email settings and what site to get information from. This program can be setup in the Windows Task Scheduler to run daily for fun/interesting emails about past content! [More Information](PointlessWaymarks.Task.MemoriesEmail/README.md)
 
 ![Memories Email](PointlessWaymarks.CmsScreenShots/MemoriesEmail.jpg "Memories Email")
 
+## Photo Pickup
+
+The 'PointlessWaymarks.Task.PhotoPickup' console app is designed to pickup photographs from a local folder and add them to a site. Setup to run daily in the Windows Task Scheduler this can be an easy way to process a batch of photographs with having to even open the CMS program and combined with a sync program like Dropbox this can be an easy way to add photographs from a mobile device. [More Information](PointlessWaymarks.Task.PhotoPickup/README.md)
+
+## Garmin Connect GPX Import
+
+The 'PointlessWaymarks.Task.GarminConnectGpxImport' console app can download Activitites with location information from Garmin Connect and, optionally, import them into a Pointless Waymarks CMS Site as Line Content. In no way is any part of the Pointless Waymarks Project desgined as a replacement for any part of Garmin Connect - but if you care about the landscape, your history and adventures it is likely worth archiving your Garmin Connect data locally so that you have/own it no matter what happens with Garmin Connect and your Garmin Connect account. This is also an easy way to create Line Content in a Pointless Waymarks CMS site. [More Information](PointlessWaymarks.Task.GarminConnectGpxImport/README.md)
+
 ## Elements of this Software that might be Reused
 
-Hopefully there are many interesting details in this software - but I think there are a few details worth calling out as potentially re-usable.
+Part of the reason that this code is made public and shared with an MIT License is so that you can easily reuse pieces of the software - open source code has made it possible to build this software and I hope that this software provides value to other developers! Hopefully there are many interesting details in this software - but I think there are a few details worth calling out as potentially re-usable.
 
-**ExcelInteropExtensions** - A very useful approach to getting user data from Excel is reading directly from the Excel application. This can be messy (give the user any message/help you want but you will still spend time explaining that reading from Excel isn't working because they have a cell open for editing...) - but especially for power users it can avoid confusion over what data is saved vs on screen right now and can reduce repetitive steps like saving/picking/dragging/etc. This is not my first .NET journey into Excel interop code and if you are exploring this approach I encourage you to look at and/or reuse this code. It is very heavily based on [Automate multiple Excel instances - CodeProject](https://www.codeproject.com/articles/1157395/automate-multiple-excel-instances) by James Faix. Faix's code, and other code in this vein, all ultimately link back to [Andrew Whitechapel : Getting the Application Object in a Shimmed Automation Add-in (archived link)](https://web.archive.org/web/20130518152056/http://blogs.officezealot.com/whitechapel/archive/2005/04/10/4514.aspx) (the source I used in the mid-2000s when I first started to do .NET Excel Interop!).
+**ExcelInteropExtensions** - A very useful approach to getting user data from Excel is reading directly from the Excel application. This can be messy (give the user any message/help you want but you will still spend time explaining that reading from Excel isn't working because they have a cell open for editing...) - but especially for power users it can avoid confusion over what data is saved vs on screen and can reduce repetitive steps like saving/picking/dragging/etc. This is not my first .NET journey into Excel interop code and if you are exploring this approach I encourage you to look at and/or reuse this code. It is very heavily based on [Automate multiple Excel instances - CodeProject](https://www.codeproject.com/articles/1157395/automate-multiple-excel-instances) by James Faix. Faix's code, and other code in this vein, all ultimately link back to [Andrew Whitechapel : Getting the Application Object in a Shimmed Automation Add-in (archived link)](https://web.archive.org/web/20130518152056/http://blogs.officezealot.com/whitechapel/archive/2005/04/10/4514.aspx) (the source I used in the mid-2000s when I first started to do .NET Excel Interop!).
 
-**WPFCommon** - Nothing here is revolutionary and you should consider using some of the larger well-supported WPF MVVM libraries as the basis for your app. But I believe the code noted below has value for small to medium WPF applications built by single devs or small teams where there is a heavy emphasis functionality over styling. Some pieces to consider:
-  - ThreadSwitcher - based on Raymond Chen's [C++/WinRT envy: Bringing thread switching tasks to C# (WPF and WinForms edition)](https://devblogs.microsoft.com/oldnewthing/20190329-00/?p=102373) -  this adds the ability to write 'await ThreadSwitcher.ResumeForegroundAsync();' and 'await ThreadSwitcher.ResumeBackgroundAsync();' to get onto/off of the UI Thread. While MVVM/Binding can help you write code that doesn't have to be aware of which thread you are on I have found it impractical to produce a user friendly/focused WPF GUI without occasionally need to interact with the main UI thread... If you have code where you need to control running on/off the main UI thread ThreadSwitcher is a pleasant and productive pattern.
-  - StatusControl - Over time I've found that with Desktop Apps I want to have an easy, generic, way to run tasks in the background, block the UI, show cancellation buttons, stream text progress information, display messages and show in-app toast. The StatusControl in this project has a Context and Control that can be added to a control/page/window to handle these scenarios. This is a compromise - this single control won't help you produce an infinite variety of intricate UI interactions, but it does provide a good-enough solution that can be applied quickly and easily in a wide variety of situations.
+**WPFCommon** - Nothing here is revolutionary and you should certainly first consider using some of the larger well-supported WPF MVVM libraries as the basis for your app! But I believe the code noted below has value especially for small to medium WPF applications built by single devs or small teams where there is a heavy emphasis functionality over styling. There are a number of pieces in the project but worth considering are:
+  - ThreadSwitcher - based on Raymond Chen's [C++/WinRT envy: Bringing thread switching tasks to C# (WPF and WinForms edition)](https://devblogs.microsoft.com/oldnewthing/20190329-00/?p=102373) -  this adds the ability to write 'await ThreadSwitcher.ResumeForegroundAsync();' and 'await ThreadSwitcher.ResumeBackgroundAsync();' to get onto/off of the UI Thread. While MVVM/Binding can help you write code that doesn't have to be aware of which thread you are on I have found it impractical to produce a user friendly/focused WPF GUI without occasionally need to interact with the main UI thread... If you have code where you need to control running on/off the main UI thread ThreadSwitcher is a pleasant and productive pattern in GUI code.
+  - StatusControl - Over time I've found that with Desktop Apps I want to have an easy, generic, way to run tasks in the background, block the UI, show cancellation buttons, stream text progress information, display messages and show in-app toast. The StatusControl in this project has a Context and Control that can be added to a control/page/window to handle these scenarios. This is a compromise - this single control won't help you produce an infinite variety of perfect intricate UI interactions, but it does provide a good-enough solution that can be applied quickly and easily to run run tasks in the background and show progress.
   - WindowScreenShot - It turns out that it is quite nice to get screen shots of your app's window but also quite tricky to get this to happen correctly in all situations... The ScreenShot control in this project is based on code from [Capturing screenshots using C# and p/invoke](https://www.cyotek.com/blog/capturing-screenshots-using-csharp-and-p-invoke).
 
 ## Tools and Libraries
