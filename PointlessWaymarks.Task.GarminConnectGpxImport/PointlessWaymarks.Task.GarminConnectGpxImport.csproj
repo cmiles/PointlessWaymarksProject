@@ -39,9 +39,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="..\PointlessWaymarks.Graphics\PointlessWaymarksCmsAutomationSquareLogo.png" Link="PointlessWaymarksCmsAutomationSquareLogo.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
     <Resource Include="PointlessWaymarks.Task.GarminConnectGpxImport.args.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>

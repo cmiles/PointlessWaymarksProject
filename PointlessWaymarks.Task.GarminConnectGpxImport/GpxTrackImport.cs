@@ -1,7 +1,7 @@
-﻿using System.Text.Json;
+﻿using System.ComponentModel.DataAnnotations;
+using System.Text.Json;
 using Garmin.Connect;
 using Garmin.Connect.Auth;
-using Microsoft.Toolkit.Uwp.Notifications;
 using NetTopologySuite.IO;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.CommonHtml;
@@ -18,9 +18,15 @@ public class GpxTrackImport
 {
     public async System.Threading.Tasks.Task Import(string settingsFile)
     {
+        var notifier = WindowsNotificationBuilders.NewNotifier(GarminConnectGpxImportSettings.ProgramShortName)
+            .SetErrorReportAdditionalInformationMarkdown(FileAndFolderTools.ReadAllText(Path.Combine(
+                AppContext.BaseDirectory, "README.md"))).SetAutomationLogoNotificationIconUrl();
+
         if (string.IsNullOrWhiteSpace(settingsFile))
         {
-            Log.Error("Settings File is Null or Whitespace?");
+            Log.Error("Blank settings file is not valid...");
+            await notifier.Error("Blank Settings File Name.",
+                "The program should be run with the Settings File as the argument.");
             return;
         }
 
@@ -30,7 +36,8 @@ public class GpxTrackImport
 
         if (!settingsFileInfo.Exists)
         {
-            Log.Error($"Settings File {settingsFile} Does Not Exist?");
+            Log.Error("Could not find settings file: {settingsFile}", settingsFile);
+            await notifier.Error($"Could not find settings file: {settingsFile}");
             return;
         }
 
@@ -46,6 +53,8 @@ public class GpxTrackImport
             {
                 Log.Error("Settings file {settingsFile} deserialized into a null object - is the format correct?",
                     settingsFile);
+                await notifier.Error($"Error: Settings file {settingsFile} deserialized into a null object.",
+                    "The program found and was able to read the Settings File - {settingsFile} - but nothing was returned when converting the file into program settings - this probably indicates a format problem with the settings file.");
                 return;
             }
 
@@ -61,6 +70,7 @@ public class GpxTrackImport
         catch (Exception e)
         {
             Log.Error(e, "Exception reading settings file {settingsFile}", settingsFile);
+            await notifier.Error(e);
             return;
         }
 
@@ -72,6 +82,30 @@ public class GpxTrackImport
             return;
         }
 
+        var validationContext = new ValidationContext(settings, null, null);
+        var simpleValidationResults = new List<ValidationResult>();
+        var simpleValidationPassed = Validator.TryValidateObject(
+            settings, validationContext, simpleValidationResults,
+            true
+        );
+
+        if (!simpleValidationPassed)
+        {
+            Log.ForContext("SimpleValidationErrors", simpleValidationResults.SafeObjectDump())
+                .Error("Validating data from {settingsFile} failed.", settingsFile);
+            simpleValidationResults.ForEach(Console.WriteLine);
+            await notifier.Error($"Validating data from {settingsFile} failed.",
+                simpleValidationResults.SafeObjectDump());
+
+            return;
+        }
+
+        Log.ForContext("settings",
+                settings.Dump(new DumpOptions
+                    { ExcludeProperties = new List<string> { nameof(settings.ConnectPassword) } }))
+            .Information("Settings Passed Basic Validation - Settings File {settingsFile}", settingsFile);
+
+
         FileInfo? siteSettingsFileInfo = null;
 
         if (settings.ImportActivitiesToSite)
@@ -81,7 +115,10 @@ public class GpxTrackImport
             if (!siteSettingsFileInfo.Exists)
             {
                 Log.Error(
-                    $"The settings specify {nameof(settings.ImportActivitiesToSite)} but the Pointless Waymarks CMS Site Settings file is empty?");
+                    "The site settings file {settingsPointlessWaymarksSiteSettingsFileFullName} was specified but not found?",
+                    settings.PointlessWaymarksSiteSettingsFileFullName);
+                await notifier.Error(
+                    $"Site settings file {settings.PointlessWaymarksSiteSettingsFileFullName} was not found");
                 return;
             }
         }
@@ -96,7 +133,10 @@ public class GpxTrackImport
             catch (Exception e)
             {
                 Log.Error(e,
-                    $"The specified GPX Archive Directory {settings.GpxArchiveDirectoryFullName} does not exist and could not be created.");
+                    "The specified Gpx Archive Directory {settingsGpxArchiveDirectoryFullName} does not exist and could not be created.",
+                    settings.GpxArchiveDirectoryFullName);
+                await notifier.Error(e,
+                    "The specified Photo Archive Directory {settings.PhotoPickupArchiveDirectory} does not exist and could not be created. In addition to checking that the directory exists and there are no typos you may also need to check that the program has permissions to access, read from and write to the directory.");
                 return;
             }
 
@@ -194,7 +234,10 @@ public class GpxTrackImport
                 catch (Exception e)
                 {
                     Log.Error(e,
-                        $"Error with the GPX for {loopActivity.ActivityId}, {loopActivity.ActivityName} - skipping and continuing...");
+                        "Error with the GPX for {activityId}, {activityName} - skipping and continuing...",
+                        loopActivity.ActivityId, loopActivity.ActivityName);
+                    await notifier.Error(e,
+                        $"There was download error for the GPX for {loopActivity.ActivityId}, {loopActivity.ActivityName} - the program skipped this file and continued. This could be due to a transient network error, an unexpected problem with the file or ... If you want to download, archive or import this file you should do it manually.");
                 }
             }
         }
@@ -310,10 +353,10 @@ public class GpxTrackImport
                         consoleProgress);
 
                 if (saveGenerationReturn.HasError)
-                    //TODO: Need alerting on this that would actually be seen...
                 {
                     Log.Error(
-                        $"Save Failed! GPX: {loopFile.gpxFileInfo.FullName}, Activity: {loopFile.activityFileInfo.FullName}");
+                        "Save Failed! GPX: {gpxFileFullName}, Activity: {activityFileFullName}",
+                        loopFile.gpxFileInfo.FullName, loopFile.activityFileInfo.FullName);
                     errorList.Add(
                         $"Save Failed! GPX: {loopFile.gpxFileInfo.FullName}, Activity: {loopFile.activityFileInfo.FullName}");
                     continue;
@@ -323,22 +366,27 @@ public class GpxTrackImport
                 Log.Verbose(
                     $"New Line - {loopFile.gpxFileInfo.FullName} - Track {innerLoopCounter} of {tracksList.Count}");
 
-                var successToast = new ToastContentBuilder()
-                    .AddAppLogoOverride(new Uri(
-                        $"file://{Path.Combine(AppContext.BaseDirectory, "PointlessWaymarksCmsAutomationSquareLogo.png")}"))
-                    .AddText($"{UserSettingsSingleton.CurrentSettings().SiteName} - Photo Added '{lineContent?.Title}'")
-                    .AddAttributionText("Pointless Waymarks Project - Photo Pickup Task");
 
                 if (lineContent?.MainPicture != null)
                 {
                     var mainPhotoInformation =
                         PictureAssetProcessing.ProcessPhotoDirectory(lineContent.MainPicture.Value);
 
-                    if (mainPhotoInformation?.SmallPicture?.File != null)
-                        successToast.AddHeroImage(new Uri($@"{mainPhotoInformation.SmallPicture.File.FullName}"));
-                }
+                    var closestSize = mainPhotoInformation.SrcsetImages.MinBy(x => Math.Abs(384 - x.Width));
 
-                successToast.Show();
+                    if (closestSize?.File != null)
+                        notifier.Message(
+                            $"{UserSettingsSingleton.CurrentSettings().SiteName} - Line Added: '{lineContent.Title}'",
+                            closestSize.SiteUrl);
+                    else
+                        notifier.Message(
+                            $"{UserSettingsSingleton.CurrentSettings().SiteName} - Line Added: '{lineContent.Title}'");
+                }
+                else
+                {
+                    notifier.Message(
+                        $"{UserSettingsSingleton.CurrentSettings().SiteName} - Added Line: '{lineContent.Title}'");
+                }
             }
 
             if (errorList.Any())
@@ -346,13 +394,8 @@ public class GpxTrackImport
                 Console.WriteLine("Save Errors:");
                 errorList.ForEach(Console.WriteLine);
 
-                new ToastContentBuilder()
-                    .AddAppLogoOverride(new Uri(
-                        $"file://{Path.Combine(AppContext.BaseDirectory, "PointlessWaymarksCmsAutomationSquareLogo.png")}"))
-                    .AddText($"{errorList.Count} Import Errors...")
-                    .AddToastActivationInfo(AppContext.BaseDirectory, ToastActivationType.Protocol)
-                    .AddAttributionText("Pointless Waymarks Project - Garmin Connect Gpx Import")
-                    .Show();
+                await notifier.Error("Garmin Connect Import Errors. Click for details.",
+                    string.Join(Environment.NewLine, errorList));
             }
 
 

@@ -29,6 +29,6 @@ catch (Exception e)
     Console.WriteLine(e);
 
     await WindowsNotificationBuilders.NewNotifier(PhotoPickupSettings.ProgramShortName)
-        .SetAutomationLogoNotificationIconUrl().SetAdditionalInformationMarkdown(FileAndFolderTools.ReadAllText(
+        .SetAutomationLogoNotificationIconUrl().SetErrorReportAdditionalInformationMarkdown(FileAndFolderTools.ReadAllText(
             Path.Combine(AppContext.BaseDirectory, "README.md"))).Error(e);
 }

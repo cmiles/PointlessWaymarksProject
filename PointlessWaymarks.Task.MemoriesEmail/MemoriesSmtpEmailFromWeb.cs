@@ -18,7 +18,7 @@ public class MemoriesSmtpEmailFromWeb : IMemoriesSmtpEmailFromWeb
     public async System.Threading.Tasks.Task GenerateEmail(string settingsFile)
     {
         var notifier = WindowsNotificationBuilders.NewNotifier(MemoriesSmtpEmailFromWebSettings.ProgramShortName)
-            .SetAdditionalInformationMarkdown(FileAndFolderTools.ReadAllText(Path.Combine(
+            .SetErrorReportAdditionalInformationMarkdown(FileAndFolderTools.ReadAllText(Path.Combine(
                 AppContext.BaseDirectory, "README.md"))).SetAutomationLogoNotificationIconUrl();
 
         if (string.IsNullOrWhiteSpace(settingsFile))

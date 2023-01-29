@@ -42,12 +42,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="..\PointlessWaymarks.Graphics\PointlessWaymarksCmsAutomationSquareLogo.png" Link="PointlessWaymarksCmsAutomationSquareLogo.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-  </ItemGroup>
-
-  <ItemGroup>
     <Resource Include="PointlessWaymarksCmsAutomationIcon.ico">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>

@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Text;
+using System.Text.Encodings.Web;
 using System.Text.Json;
-using Microsoft.Toolkit.Uwp.Notifications;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.Content;
@@ -16,8 +17,9 @@ public class PhotoPickup
     public async System.Threading.Tasks.Task PickupPhotos(string settingsFile)
     {
         var notifier = WindowsNotificationBuilders.NewNotifier(PhotoPickupSettings.ProgramShortName)
-            .SetAutomationLogoNotificationIconUrl().SetAdditionalInformationMarkdown(FileAndFolderTools.ReadAllText(
-                Path.Combine(AppContext.BaseDirectory, "README.md")));
+            .SetAutomationLogoNotificationIconUrl().SetErrorReportAdditionalInformationMarkdown(
+                FileAndFolderTools.ReadAllText(
+                    Path.Combine(AppContext.BaseDirectory, "README.md")));
 
 
         if (string.IsNullOrWhiteSpace(settingsFile))
@@ -113,7 +115,9 @@ public class PhotoPickup
         if (!siteSettingsFileInfo.Exists)
         {
             Log.Error(
-                $"The site settings file {settings.PointlessWaymarksSiteSettingsFileFullName} was specified but not found?");
+                "The site settings file {settingsPointlessWaymarksSiteSettingsFileFullName} was specified but not found?",
+                settings.PointlessWaymarksSiteSettingsFileFullName
+            );
             await notifier.Error(
                 $"Site settings file {settings.PointlessWaymarksSiteSettingsFileFullName} was not found");
             return;
@@ -129,9 +133,11 @@ public class PhotoPickup
             catch (Exception e)
             {
                 Log.Error(e,
-                    $"The specified Photo Archive Directory {settings.PhotoPickupArchiveDirectory} does not exist and could not be created.");
+                    "The specified Photo Archive Directory {settingsPhotoPickupArchiveDirectory} does not exist and could not be created.",
+                    settings.PhotoPickupArchiveDirectory);
                 await notifier.Error(e,
                     "The specified Photo Archive Directory {settings.PhotoPickupArchiveDirectory} does not exist and could not be created. In addition to checking that the directory exists and there are no typos you may also need to check that the program has permissions to access, read from and write to the directory.");
+                return;
             }
 
         var consoleProgress = new ConsoleProgress();
@@ -193,32 +199,34 @@ public class PhotoPickup
                 Log.ForContext("saveGenerationReturn", saveGenerationReturn.SafeObjectDump()).Error(
                     $"Error Saving Photo {uniqueRenamedFile.FullName} - {saveGenerationReturn.GenerationNote} - {saveGenerationReturn.Exception?.Message}");
 
-                new ToastContentBuilder()
-                    .AddAppLogoOverride(new Uri(
-                        $"file://{Path.Combine(AppContext.BaseDirectory, "PointlessWaymarksCmsAutomationSquareLogo.png")}"))
-                    .AddText($"{UserSettingsSingleton.CurrentSettings().SiteName} - Error - {uniqueRenamedFile}")
-                    .AddAttributionText("Pointless Waymarks Project - Photo Pickup Task")
-                    .AddToastActivationInfo(settings.PhotoPickupArchiveDirectory, ToastActivationType.Protocol)
-                    .Show();
+                var htmlBuilder = new StringBuilder();
+
+                htmlBuilder.AppendLine($"<p>{HtmlEncoder.Default.Encode(saveGenerationReturn.GenerationNote)}</p>");
+                if (saveGenerationReturn.Exception != null)
+                {
+                    htmlBuilder.AppendLine(
+                        $"<p>{HtmlEncoder.Default.Encode(saveGenerationReturn.Exception.Message)}</p>");
+                    htmlBuilder.AppendLine(
+                        $"<p>{HtmlEncoder.Default.Encode(saveGenerationReturn.Exception.ToString())}</p>");
+                }
+
+                await notifier.Error($"Error Saving Photo {uniqueRenamedFile.FullName}", htmlBuilder.ToString(), true);
             }
             else
             {
                 renamedFile.MoveToWithUniqueName(Path.Combine(archiveDirectory.FullName, loopFile.Name));
 
-                var successToast = new ToastContentBuilder()
-                    .AddAppLogoOverride(new Uri(
-                        $"file://{Path.Combine(AppContext.BaseDirectory, "PointlessWaymarksCmsAutomationSquareLogo.png")}"))
-                    .AddText($"{UserSettingsSingleton.CurrentSettings().SiteName} - Photo Added '{metaContent.Title}'")
-                    .AddAttributionText("Pointless Waymarks Project - Photo Pickup Task");
-
                 var generatedPhotoInformation = PictureAssetProcessing.ProcessPhotoDirectory(savedContent);
-                if (generatedPhotoInformation?.SmallPicture?.File != null)
-                {
-                    var closestSize = generatedPhotoInformation.SrcsetImages.MinBy(x => Math.Abs(384 - x.Width));
-                    successToast.AddHeroImage(new Uri($@"{closestSize.File.FullName}"));
-                }
 
-                successToast.Show();
+                var closestSize = generatedPhotoInformation.SrcsetImages.MinBy(x => Math.Abs(384 - x.Width));
+
+                if (closestSize?.File != null)
+                    notifier.Message(
+                        $"{UserSettingsSingleton.CurrentSettings().SiteName} - Photo Added '{metaContent.Title}'",
+                        closestSize.SiteUrl);
+                else
+                    notifier.Message(
+                        $"{UserSettingsSingleton.CurrentSettings().SiteName} - Photo Added '{metaContent.Title}'");
             }
         }
     }

@@ -1,22 +1,73 @@
-﻿using System.Reflection;
-using System.Text;
+﻿using System.Text;
 using System.Text.Encodings.Web;
 using Markdig;
 using Microsoft.Toolkit.Uwp.Notifications;
+using Serilog;
 
 namespace PointlessWaymarks.CommonTools;
 
+/// <summary>
+///     Helper Class for Windows Notifications. The idea is that this - probably built with the
+///     extension methods in the WindowsNotificationBuilders class - will allow you to set
+///     common information once and then take advantage of that for different notifications. Also
+///     for Errors an HTML Notification is built and clicking the Windows Notification will
+///     show the Report.
+/// </summary>
 public class WindowsNotificationTool
 {
-    public string AdditionalInformationMarkdown { get; set; }
-    public string Attribution { get; set; }
-    public string NotificationIconUrl { get; set; }
+    public WindowsNotificationTool()
+    {
+        this.SetAutomationLogoNotificationIconUrl();
+        Task.Run(() =>
+        {
+            try
+            {
+                WindowsNotificationBuilders.CleanUpErrorReportDirectory(6);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                Log.Error(e,
+                    "Ignored Exception - Failure during the Error Report Folder Cleanup of older files launched from the WindowsNotificationTool constructor.");
+            }
+        });
+    }
 
+    /// <summary>
+    ///     Determines the Program Name that appears in the Windows Notification
+    /// </summary>
+    public string Attribution { get; set; } = "Pointless Waymarks Project";
+
+    /// <summary>
+    ///     Additional information to present in an HTML Error Report - the programs
+    ///     Help or Readme information might be appropriate.
+    /// </summary>
+    public string ErrorReportAdditionalInformationMarkdown { get; set; } = string.Empty;
+
+    /// <summary>
+    ///     Sets the Icon for the Windows Notification
+    /// </summary>
+    public string NotificationIconUrl { get; set; } = string.Empty;
+
+    /// <summary>
+    ///     Shows a Windows Notification with an action to show an HTML Error Report.
+    /// </summary>
+    /// <param name="exception"></param>
+    /// <returns></returns>
     public async Task Error(Exception exception)
     {
         await Error(exception.Message, exception.ToString());
     }
 
+    /// <summary>
+    ///     Shows a Windows Notification with an action to show an HTML Error Report. The
+    ///     Error Report will include the hintText in the body - this can be useful for
+    ///     adding additional information to help provide context or information on
+    ///     what you might do to fix an error.
+    /// </summary>
+    /// <param name="exception"></param>
+    /// <param name="hintText"></param>
+    /// <returns></returns>
     public async Task Error(Exception exception, string hintText)
     {
         var body = $"""
@@ -27,22 +78,39 @@ public class WindowsNotificationTool
         await Error(exception.Message, body, true);
     }
 
+    /// <summary>
+    ///     Shows a Windows Notification with an action to show an HTML Error Report. With
+    ///     only a Summary message the Error Report is probably most useful if AdditionalInformationMarkdown
+    ///     is provided.
+    /// </summary>
+    /// <param name="summary"></param>
+    /// <returns></returns>
     public async Task Error(string summary)
     {
         await Error(summary, string.Empty, true);
     }
 
+    /// <summary>
+    ///     Shows a Windows Notification with an action to show an HTML Error Report.
+    /// </summary>
+    /// <param name="summary"></param>
+    /// <param name="body"></param>
+    /// <returns></returns>
     public async Task Error(string summary, string body)
     {
         await Error(summary, body, true);
     }
 
+    /// <summary>
+    ///     Shows a Windows Notification with an action to show an HTML Error Report.
+    /// </summary>
+    /// <param name="summary"></param>
+    /// <param name="body"></param>
+    /// <param name="bodyIsHtml"></param>
+    /// <returns></returns>
     public async Task Error(string summary, string body,
         bool bodyIsHtml)
     {
-        if (string.IsNullOrWhiteSpace(Attribution))
-            Attribution = Assembly.GetEntryAssembly()?.GetName().Name ?? "Pointless Waymarks Application";
-
         var frozenNow = DateTime.Now;
 
         var errorReportTitle = $"Report: {Attribution}";
@@ -59,10 +127,10 @@ public class WindowsNotificationTool
                 ? $"{body}"
                 : $"<p>{HtmlEncoder.Default.Encode(body)}</p>");
 
-        if (!string.IsNullOrWhiteSpace(AdditionalInformationMarkdown))
+        if (!string.IsNullOrWhiteSpace(ErrorReportAdditionalInformationMarkdown))
         {
             var pipeline = new MarkdownPipelineBuilder().UseAdvancedExtensions().Build();
-            var additionalHtml = Markdown.ToHtml(AdditionalInformationMarkdown, pipeline);
+            var additionalHtml = Markdown.ToHtml(ErrorReportAdditionalInformationMarkdown, pipeline);
 
             htmlBuilder.Append("<h1>Additional Information</h1>");
             htmlBuilder.AppendLine(additionalHtml);
@@ -77,11 +145,38 @@ public class WindowsNotificationTool
         await File.WriteAllTextAsync(uniqueName.FullName, errorReportDocument);
 
         new ToastContentBuilder()
-            .AddAppLogoOverride(new Uri(
-                $"file://{Path.Combine(AppContext.BaseDirectory, "PointlessWaymarksCmsAutomationSquareLogo.png")}"))
+            .AddAppLogoOverride(new Uri(NotificationIconUrl))
             .AddText($"Error: {summary}. Click for more information...")
             .AddToastActivationInfo(uniqueName.FullName, ToastActivationType.Protocol)
             .AddAttributionText(Attribution)
+            .Show();
+    }
+
+    /// <summary>
+    ///     Shows a Windows Notification.
+    /// </summary>
+    /// <param name="summary"></param>
+    public void Message(string summary)
+    {
+        new ToastContentBuilder()
+            .AddAppLogoOverride(new Uri(NotificationIconUrl))
+            .AddText(summary)
+            .AddAttributionText(Attribution)
+            .Show();
+    }
+
+    /// <summary>
+    ///     Shows a Windows Notification with a Hero Image - the image is not rescaled.
+    /// </summary>
+    /// <param name="summary"></param>
+    /// <param name="imageUrl"></param>
+    public void Message(string summary, string imageUrl)
+    {
+        new ToastContentBuilder()
+            .AddAppLogoOverride(new Uri(NotificationIconUrl))
+            .AddText(summary)
+            .AddAttributionText(Attribution)
+            .AddHeroImage(new Uri(imageUrl))
             .Show();
     }
 }

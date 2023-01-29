@@ -17,22 +17,10 @@
     <AssemblyAttribute Include="PointlessWaymarks.CommonTools.BuildDateAttribute">
       <_Parameter1>$([System.DateTime]::UtcNow.ToString("yyyyMMddHHmmss"))</_Parameter1>
     </AssemblyAttribute>
-  </ItemGroup>
-
-      <ItemGroup>
-    <Content Include="..\PointlessWaymarks.Graphics\PointlessWaymarksCmsAutomationSquareLogo.png" Link="PointlessWaymarksCmsAutomationSquareLogo.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
   </ItemGroup>  
   
   <ItemGroup>
     <ProjectReference Include="..\PointlessWaymarks.CmsData\PointlessWaymarks.CmsData.csproj" />
-  </ItemGroup>
-
-      <ItemGroup>
-    <Content Include="..\PointlessWaymarks.Graphics\PointlessWaymarksCmsAutomationSquareLogo.png" Link="PointlessWaymarksCmsAutomationSquareLogo.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
   </ItemGroup>
   
   

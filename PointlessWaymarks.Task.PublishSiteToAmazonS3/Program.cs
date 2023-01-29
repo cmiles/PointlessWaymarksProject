@@ -29,6 +29,6 @@ catch (Exception e)
 
     await WindowsNotificationBuilders.NewNotifier(PublishSiteToAmazonS3Settings.ProgramShortName)
         .SetAutomationLogoNotificationIconUrl()
-        .SetAdditionalInformationMarkdown(
+        .SetErrorReportAdditionalInformationMarkdown(
             FileAndFolderTools.ReadAllText(Path.Combine(AppContext.BaseDirectory, "README.md"))).Error(e);
 }

@@ -7,21 +7,24 @@
 
   <ItemGroup>
     <None Remove="pure-min.css" />
-    <None Remove="Resources\sakura.css" />
+    <None Remove="CommonToolsResources\sakura.css" />
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="..\PointlessWaymarks.Graphics\PointlessWaymarksCmsAutomationSquareLogo.png" Link="Resources\PointlessWaymarksCmsAutomationSquareLogo.png">
+    <Content Include="..\PointlessWaymarks.Graphics\PointlessWaymarksCmsAutomationCircularLogo.png" Link="CommonToolsResources\PointlessWaymarksCmsAutomationCircularLogo.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="..\PointlessWaymarks.Graphics\PointlessWaymarksCmsSquareLogo.png" Link="Resources\PointlessWaymarksCmsSquareLogo.png">
+    <Content Include="..\PointlessWaymarks.Graphics\PointlessWaymarksCmsAutomationSquareLogo.png" Link="CommonToolsResources\PointlessWaymarksCmsAutomationSquareLogo.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\PointlessWaymarks.Graphics\PointlessWaymarksCmsSquareLogo.png" Link="CommonToolsResources\PointlessWaymarksCmsSquareLogo.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="Resources\pure-min.css" />
-    <EmbeddedResource Include="Resources\sakura.css" />
+    <EmbeddedResource Include="CommonToolsResources\pure-min.css" />
+    <EmbeddedResource Include="CommonToolsResources\sakura.css" />
   </ItemGroup>
 
   <ItemGroup>
