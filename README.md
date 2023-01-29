@@ -6,7 +6,7 @@ At this point this project is not intended for general use - it is made public u
 
 The Pointless Waymarks projects contains:
   - The Pointless Waymarks CMS and Offline Site Viewer (described below)
-  - Tasks to support the Pointless Waymarks CMS including Memories Email, Photo Pickup and Garmin Connect Download (described below)
+  - Tasks to support the Pointless Waymarks CMS including Memories Email, Photo Pickup and Garmin Connect Gpx Download (described below)
   - The Pointless Waymarks GeoTools - [README with Description and Screen Shots](PointlessWaymarks.GeoToolsGui/README.md) - a WPF GUI for GeoTagging and Feature Intersect Tagging Photographs and other content and managing Garmin Connect Downloads.
 
 # Pointless Waymarks CMS
@@ -105,21 +105,25 @@ See [the Feature Intersection Tags documentation](PointlessWaymarks.FeatureInter
 
 PowerShell Scripts are included that can generate installers for the programs using [Inno Setup](https://jrsoftware.org/isinfo.php). These scripts create the installers with names and inforamtion that the programs are aware of. If you setup the programs to know where the installers are located the programs will check for updates on startup and offer to close the program and start the install. Keeping with the offline first theme of this program - and because there are no current plans for official install packages - this system is designed primarily to work either on your computer or from a file share on your network. These scripts may need some modification for your local environment.
 
-### Password Protected Sites via Cloudflare Workers
+## Password Protected Sites via Cloudflare Workers
 
 Not currently incorporated into the program in any way, but included in this repo, is a simple Cloudflare Worker script for Basic Auth (I have used this successfully for over a year but Cloudflare Workers aren't my current passion so use with caution...). This provides a very simple zero cost (Cloudflare Workers are available on their free plan) way to password protect a site. There is no sense of 'user accounts' or options to change/recover passwords so this is only relevant in limited scenarios, but I have found this to be a nice way to put content online for myself, friends and family without making it public.
 
-## 'Memories' Email
+## Tasks - Console Applications
+
+Part of the project are a number of 'Tasks' - these are Console Applications that provide extra functionality and are intended to be run thru the Windows Task Scheduler.
+
+### 'Memories' Email
 
 The 'PointlessWaymarks.Task.MemoriesEmail' console app can generate an email with links to items created in previous years on the site. The app is driven by a settings file where you can setup the years back, email settings and what site to get information from. This program can be setup in the Windows Task Scheduler to run daily for fun/interesting emails about past content! [More Information](PointlessWaymarks.Task.MemoriesEmail/README.md)
 
 ![Memories Email](PointlessWaymarks.CmsScreenShots/MemoriesEmail.jpg "Memories Email")
 
-## Photo Pickup
+### Photo Pickup
 
 The 'PointlessWaymarks.Task.PhotoPickup' console app is designed to pickup photographs from a local folder and add them to a site. Setup to run daily in the Windows Task Scheduler this can be an easy way to process a batch of photographs with having to even open the CMS program and combined with a sync program like Dropbox this can be an easy way to add photographs from a mobile device. [More Information](PointlessWaymarks.Task.PhotoPickup/README.md)
 
-## Garmin Connect GPX Import
+### Garmin Connect GPX Import
 
 The 'PointlessWaymarks.Task.GarminConnectGpxImport' console app can download Activitites with location information from Garmin Connect and, optionally, import them into a Pointless Waymarks CMS Site as Line Content. In no way is any part of the Pointless Waymarks Project desgined as a replacement for any part of Garmin Connect - but if you care about the landscape, your history and adventures it is likely worth archiving your Garmin Connect data locally so that you have/own it no matter what happens with Garmin Connect and your Garmin Connect account. This is also an easy way to create Line Content in a Pointless Waymarks CMS site. [More Information](PointlessWaymarks.Task.GarminConnectGpxImport/README.md)
 
