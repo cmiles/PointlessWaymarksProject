@@ -1,31 +1,28 @@
 There is plenty of traditional README information below about this project - but a better 'README' might be taking a look at [Pointless Waymarks](https://PointlessWaymarks.com) and [cmiles - info](https://www.cmiles.info/) - these sites are generated with the Pointless Waymarks CMS and visiting them might tell you more than than all the information below...
 
-# Pointless Waymarks CMS, Tasks and GeoTools
+# Pointless Waymarks Project - CMS, Site Viewer, Tasks and GeoTools
 
-At this point this project is not intended for general use - it is made public under the MIT License to share with friends, colleagues and anyone who finds the code interesting or useful.
+*At this point the Pointless Waymarks Project is not intended for general use - it is made public under the MIT License to share with friends, colleagues and anyone who finds the code interesting or useful.*
+
+The focus of this project is creating durable, rich, low maintenance, free, long-lasting, organized content that allows you to tell stories about the landscape, place, life, history and nature.
 
 The Pointless Waymarks projects contains:
-  - The Pointless Waymarks CMS and Offline Site Viewer (described below)
+  - The Pointless Waymarks CMS and (Local, Offline) Site Viewer (described below)
   - Tasks to support the Pointless Waymarks CMS including Memories Email, Photo Pickup and Garmin Connect Gpx Download (described below)
   - The Pointless Waymarks GeoTools - [README with Description and Screen Shots](PointlessWaymarks.GeoToolsGui/README.md) - a WPF GUI for GeoTagging and Feature Intersect Tagging Photographs and other content and managing Garmin Connect Downloads.
 
-# Pointless Waymarks CMS
-
-Pointless Waymarks CMS is a .NET Core 7 Windows WPF GUI for generating a static website based on database information and a settings file. It is not an 'all purpose static site generation solution'. The focus is easily creating durable, rich, low maintenance, free, long-lasting, organized content to tell stories about the landscape, place, life, history and nature.
-
-Details:
- - Locally Generated Static Site - low cost, low maintenance, high durability, easy backup, doesn't have to be on the web to be useful.
- - Integrated Local Viewer - not all content should be online! In addition to making 'local only' sites this allows easy review of a site before publishing.
- - Database Driven - flexibility in creating and updating content with the potential to generate multiple output formats.
- - Custom Software - optimized support for a limited set of content types and a specific set of workflows.
- - Windows Desktop WPF GUI Editor - no hosting to pay for, no server to maintain, no containers to orchestrate... WPF because it is my favorite Windows GUI technology atm and because the experimentation/learning/coding I do here flows back into my day job where I create and maintain a Retail Inventory Management and Reporting system that has a WPF Front-End.
- - A Focus on Content and Simple Functional Presentation - my experience is that simple presentations of interesting content can survive, have impact and be meaningful for many many years (indefinitely?) without heavy revisions, constant updates or conversion into the latest style/newest framework.
-
 Todo Lists, Idea Lists and a Development Log are [found in a DevNotes.md file that is versioned along with the code](/DevNotes.md).
 
-If you have questions or comments please contact me at PointlessWaymarks@gmail.com - as noted above there is currently no intent to create public releases. Using this software is probably only reasonable if you don't mind (enjoy!) a little debugging and bug fixing...
+If you have questions or comments please contact me at pointless@pointlesswaymarks.com - as noted above there is currently no intent to create public releases. Using this software is probably only reasonable if you don't mind (enjoy!) a little debugging and bug fixing...
 
-## Application Screen Shots
+## Pointless Waymarks CMS
+
+Pointless Waymarks CMS is a .NET Core 7 Windows WPF GUI for generating a static website based on database information and a settings file. It is not an 'all purpose' CMS or static site generation solution - instead it focuses on:
+ - Locally Generated Static Sites - low cost, low maintenance, high durability, easy backup, doesn't have to be on the web to be useful.
+ - Database Driven CMS - flexibility in creating and updating content with the potential to generate multiple output formats.
+ - Custom Software - optimized support for a limited set of content types and a specific set of workflows.
+ - Local/Offline Windows Desktop WPF GUI Editor - no hosting to pay for, no server to maintain, no containers to orchestrate... WPF because it is my favorite Windows GUI technology atm and because the experimentation/learning/coding I do here flows back into my day job where I create and maintain a Retail Inventory Management and Reporting system that has a WPF Front-End.
+ - Simple Functional Presentation with a Focus on Content - my experience is that simple presentations of interesting content can survive, have impact and be meaningful for many many years (indefinitely?) without heavy revisions, constant updates or conversion into the latest style/newest framework.
 
 ### Launch Screen
 
@@ -81,14 +78,6 @@ Deploying the site is simply a matter of syncing the content from the generated 
 ![Written Files List](PointlessWaymarks.CmsScreenShots/WrittenFilesList.jpg "Written Files List")
 ![S3 Uploader](PointlessWaymarks.CmsScreenShots/S3Uploader.jpg "S3 Uploader")
 
-### Local Site Preview
-
-A viewer for the on-disk version of the site is available both in the editor and as a stand alone program. This makes it possible to browse your local site without configuring a local web server or publishing your changes.
-
-One important reason that a local viewer is included is that not all content needs to be online!
-
-![Local Site Viewer](PointlessWaymarks.CmsScreenShots/LocalViewerWindow.jpg "Local Site Viewer")
-
 ### Feature Intersection Tagging for types with Spatial Data
 
 With some setup involving downloading/creating GeoJson files and putting together a settings file you can tag lines, points and photos with values from GeoJson reference data. This is done by checking for intersections between your downloaded/created reference data and the spatial data from your content - you can specify what property is used to create a Tag.
@@ -99,17 +88,15 @@ See [the Feature Intersection Tags documentation](PointlessWaymarks.FeatureInter
 
 ![Feature Site Intersection Tags](PointlessWaymarks.CmsScreenShots/FeatureIntersectionsTagsExample.jpg "Feature Site Intersection Tags")
 
-### InnoSetup Based Installers and Program Update Notifications
+## (Local, Offline) Site Viewer
 
-![Program Update Notice over the All Items List](PointlessWaymarks.CmsScreenShots/MainListWithProgramUpdateNotice.jpg "Program Update Notice over the All Items List")
+A viewer for the on-disk version of the site is available both in the editor and as a stand alone program. This makes it possible to browse your local site without configuring a local web server or publishing your changes.
 
-PowerShell Scripts are included that can generate installers for the programs using [Inno Setup](https://jrsoftware.org/isinfo.php). These scripts create the installers with names and inforamtion that the programs are aware of. If you setup the programs to know where the installers are located the programs will check for updates on startup and offer to close the program and start the install. Keeping with the offline first theme of this program - and because there are no current plans for official install packages - this system is designed primarily to work either on your computer or from a file share on your network. These scripts may need some modification for your local environment.
+One important reason that a local viewer is included is that not all content needs to be online!
 
-## Password Protected Sites via Cloudflare Workers
+![Local Site Viewer](PointlessWaymarks.CmsScreenShots/LocalViewerWindow.jpg "Local Site Viewer")
 
-Not currently incorporated into the program in any way, but included in this repo, is a simple Cloudflare Worker script for Basic Auth (I have used this successfully for over a year but Cloudflare Workers aren't my current passion so use with caution...). This provides a very simple zero cost (Cloudflare Workers are available on their free plan) way to password protect a site. There is no sense of 'user accounts' or options to change/recover passwords so this is only relevant in limited scenarios, but I have found this to be a nice way to put content online for myself, friends and family without making it public.
-
-## Tasks - Console Applications
+## Tasks
 
 Part of the project are a number of 'Tasks' - these are Console Applications that provide extra functionality and are intended to be run thru the Windows Task Scheduler.
 
@@ -126,6 +113,16 @@ The 'PointlessWaymarks.Task.PhotoPickup' console app is designed to pickup photo
 ### Garmin Connect GPX Import
 
 The 'PointlessWaymarks.Task.GarminConnectGpxImport' console app can download Activitites with location information from Garmin Connect and, optionally, import them into a Pointless Waymarks CMS Site as Line Content. In no way is any part of the Pointless Waymarks Project desgined as a replacement for any part of Garmin Connect - but if you care about the landscape, your history and adventures it is likely worth archiving your Garmin Connect data locally so that you have/own it no matter what happens with Garmin Connect and your Garmin Connect account. This is also an easy way to create Line Content in a Pointless Waymarks CMS site. [More Information](PointlessWaymarks.Task.GarminConnectGpxImport/README.md)
+
+## InnoSetup Based Installers and Program Update Notifications
+
+![Program Update Notice over the All Items List](PointlessWaymarks.CmsScreenShots/MainListWithProgramUpdateNotice.jpg "Program Update Notice over the All Items List")
+
+PowerShell Scripts are included that can generate installers for the programs using [Inno Setup](https://jrsoftware.org/isinfo.php). These scripts create the installers with names and inforamtion that the programs are aware of. If you setup the programs to know where the installers are located the programs will check for updates on startup and offer to close the program and start the install. Keeping with the offline first theme of this program - and because there are no current plans for official install packages - this system is designed primarily to work either on your computer or from a file share on your network. These scripts may need some modification for your local environment.
+
+## Password Protected Sites via Cloudflare Workers
+
+Not currently incorporated into the program in any way, but included in this repo, is a simple Cloudflare Worker script for Basic Auth (I have used this successfully for over a year but Cloudflare Workers aren't my current passion so use with caution...). This provides a very simple zero cost (Cloudflare Workers are available on their free plan) way to password protect a site. There is no sense of 'user accounts' or options to change/recover passwords so this is only relevant in limited scenarios, but I have found this to be a nice way to put content online for myself, friends and family without making it public.
 
 ## Elements of this Software that might be Reused
 
