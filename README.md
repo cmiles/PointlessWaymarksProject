@@ -1,5 +1,3 @@
-# Intro
-
 There is plenty of traditional README information below about this project - but a better 'README' might be taking a look at [Pointless Waymarks](https://PointlessWaymarks.com) and [cmiles - info](https://www.cmiles.info/) - these sites are generated with the Pointless Waymarks CMS and visiting them might tell you more than than all the information below...
 
 # Pointless Waymarks CMS, Tasks and GeoTools
