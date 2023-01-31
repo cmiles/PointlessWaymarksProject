@@ -1,4 +1,4 @@
-﻿namespace PointlessWaymarks.CmsWpfControls.ConversionDataEntry;
+﻿namespace PointlessWaymarks.WpfCommon.ConversionDataEntry;
 
 /// <summary>
 ///     Interaction logic for ConversionDataEntryControl.xaml

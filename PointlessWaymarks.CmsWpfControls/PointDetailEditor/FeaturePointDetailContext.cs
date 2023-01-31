@@ -8,15 +8,16 @@ using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsData.Database.PointDetailDataModels;
 using PointlessWaymarks.CmsWpfControls.ContentFormat;
-using PointlessWaymarks.CmsWpfControls.StringDataEntry;
-using PointlessWaymarks.CmsWpfControls.Utility.ChangesAndValidation;
 using PointlessWaymarks.CommonTools;
+using PointlessWaymarks.WpfCommon.ChangesAndValidation;
 using PointlessWaymarks.WpfCommon.Status;
+using PointlessWaymarks.WpfCommon.StringDataEntry;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 
 namespace PointlessWaymarks.CmsWpfControls.PointDetailEditor;
 
-internal class FeaturePointDetailContext : IHasChanges, IHasValidationIssues, IPointDetailEditor, ICheckForChangesAndValidation
+internal class FeaturePointDetailContext : IHasChanges, IHasValidationIssues, IPointDetailEditor,
+    ICheckForChangesAndValidation
 {
     private PointDetail _dbEntry;
     private Feature _detailData;
@@ -87,6 +88,12 @@ internal class FeaturePointDetailContext : IHasChanges, IHasValidationIssues, IP
         }
     }
 
+    public void CheckForChangesAndValidationIssues()
+    {
+        HasChanges = PropertyScanners.ChildPropertiesHaveChanges(this);
+        HasValidationIssues = PropertyScanners.ChildPropertiesHaveValidationIssues(this);
+    }
+
     public bool HasChanges
     {
         get => _hasChanges;
@@ -155,12 +162,6 @@ internal class FeaturePointDetailContext : IHasChanges, IHasValidationIssues, IP
         }
     }
 
-    public void CheckForChangesAndValidationIssues()
-    {
-        HasChanges = PropertyScanners.ChildPropertiesHaveChanges(this);
-        HasValidationIssues = PropertyScanners.ChildPropertiesHaveValidationIssues(this);
-    }
-
     public static async Task<FeaturePointDetailContext> CreateInstance(PointDetail detail,
         StatusControlContext statusContext)
     {
@@ -173,12 +174,12 @@ internal class FeaturePointDetailContext : IHasChanges, IHasValidationIssues, IP
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        DbEntry = toLoad ?? new PointDetail {DataType = ((dynamic) DetailData).DataTypeIdentifier};
+        DbEntry = toLoad ?? new PointDetail { DataType = ((dynamic)DetailData).DataTypeIdentifier };
 
         if (!string.IsNullOrWhiteSpace(DbEntry.StructuredDataAsJson))
             DetailData = JsonSerializer.Deserialize<Feature>(DbEntry.StructuredDataAsJson);
 
-        DetailData ??= new Feature {NotesContentFormat = UserSettingsUtilities.DefaultContentFormatChoice()};
+        DetailData ??= new Feature { NotesContentFormat = UserSettingsUtilities.DefaultContentFormatChoice() };
 
         NoteEditor = StringDataEntryContext.CreateInstance();
         NoteEditor.Title = "Notes";

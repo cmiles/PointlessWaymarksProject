@@ -14,26 +14,28 @@ using PointlessWaymarks.CmsData.Spatial;
 using PointlessWaymarks.CmsWpfControls.BodyContentEditor;
 using PointlessWaymarks.CmsWpfControls.ContentIdViewer;
 using PointlessWaymarks.CmsWpfControls.ContentSiteFeedAndIsDraft;
-using PointlessWaymarks.CmsWpfControls.ConversionDataEntry;
+using PointlessWaymarks.CmsWpfControls.DataEntry;
 using PointlessWaymarks.CmsWpfControls.CreatedAndUpdatedByAndOnDisplay;
 using PointlessWaymarks.CmsWpfControls.HelpDisplay;
 using PointlessWaymarks.CmsWpfControls.PointDetailEditor;
-using PointlessWaymarks.CmsWpfControls.StringDataEntry;
 using PointlessWaymarks.CmsWpfControls.TagsEditor;
 using PointlessWaymarks.CmsWpfControls.TitleSummarySlugFolderEditor;
 using PointlessWaymarks.CmsWpfControls.UpdateNotesEditor;
 using PointlessWaymarks.CmsWpfControls.Utility;
-using PointlessWaymarks.CmsWpfControls.Utility.ChangesAndValidation;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.FeatureIntersectionTags;
+using PointlessWaymarks.WpfCommon.ChangesAndValidation;
+using PointlessWaymarks.WpfCommon.ConversionDataEntry;
 using PointlessWaymarks.WpfCommon.MarkdownDisplay;
 using PointlessWaymarks.WpfCommon.Status;
+using PointlessWaymarks.WpfCommon.StringDataEntry;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 using Point = NetTopologySuite.Geometries.Point;
 
 namespace PointlessWaymarks.CmsWpfControls.PointContentEditor;
 
-public partial class PointContentEditorContext : ObservableObject, IHasChanges, ICheckForChangesAndValidation, IHasValidationIssues
+public partial class PointContentEditorContext : ObservableObject, IHasChanges, ICheckForChangesAndValidation,
+    IHasValidationIssues
 {
     [ObservableProperty] private RelayCommand _addFeatureIntersectTagsCommand;
     [ObservableProperty] private BodyContentEditorContext _bodyContent;
@@ -109,7 +111,9 @@ public partial class PointContentEditorContext : ObservableObject, IHasChanges, 
             return;
         }
 
-        var possibleTags = featureToCheck.IntersectionTags(UserSettingsSingleton.CurrentSettings().FeatureIntersectionTagSettingsFile, CancellationToken.None, StatusContext.ProgressTracker());
+        var possibleTags = featureToCheck.IntersectionTags(
+            UserSettingsSingleton.CurrentSettings().FeatureIntersectionTagSettingsFile, CancellationToken.None,
+            StatusContext.ProgressTracker());
 
         if (!possibleTags.Any())
         {
@@ -117,7 +121,8 @@ public partial class PointContentEditorContext : ObservableObject, IHasChanges, 
             return;
         }
 
-        TagEdit.Tags = $"{TagEdit.Tags}{(string.IsNullOrWhiteSpace(TagEdit.Tags) ? "" : ",")}{string.Join(",", possibleTags)}";
+        TagEdit.Tags =
+            $"{TagEdit.Tags}{(string.IsNullOrWhiteSpace(TagEdit.Tags) ? "" : ",")}{string.Join(",", possibleTags)}";
     }
 
     public static async Task<PointContentEditorContext> CreateInstance(StatusControlContext statusContext,

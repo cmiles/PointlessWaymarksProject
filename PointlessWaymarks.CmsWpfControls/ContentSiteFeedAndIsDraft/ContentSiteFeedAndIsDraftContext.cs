@@ -1,9 +1,10 @@
 ﻿using System.ComponentModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using PointlessWaymarks.CmsData.Database.Models;
-using PointlessWaymarks.CmsWpfControls.BoolDataEntry;
-using PointlessWaymarks.CmsWpfControls.ConversionDataEntry;
-using PointlessWaymarks.CmsWpfControls.Utility.ChangesAndValidation;
+using PointlessWaymarks.CmsWpfControls.DataEntry;
+using PointlessWaymarks.WpfCommon.BoolDataEntry;
+using PointlessWaymarks.WpfCommon.ChangesAndValidation;
+using PointlessWaymarks.WpfCommon.ConversionDataEntry;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 
@@ -49,7 +50,7 @@ public partial class ContentSiteFeedAndIsDraftContext : ObservableObject, IHasCh
 
         DbEntry = dbEntry;
 
-        ShowInMainSiteFeedEntry = BoolDataEntryContext.CreateInstanceForShowInMainSiteFeed(DbEntry, false);
+        ShowInMainSiteFeedEntry = BoolDataEntryTypes.CreateInstanceForShowInMainSiteFeed(DbEntry, false);
 
         FeedOnEntry =
             ConversionDataEntryContext<DateTime>.CreateInstance(ConversionDataEntryHelpers.DateTimeConversion);
@@ -58,7 +59,7 @@ public partial class ContentSiteFeedAndIsDraftContext : ObservableObject, IHasCh
         FeedOnEntry.ReferenceValue = DbEntry.FeedOn;
         FeedOnEntry.UserText = DbEntry.FeedOn.ToString("MM/dd/yyyy h:mm:ss tt");
 
-        IsDraftEntry = BoolDataEntryContext.CreateInstanceForIsDraft(DbEntry, false);
+        IsDraftEntry = BoolDataEntryTypes.CreateInstanceForIsDraft(DbEntry, false);
 
         PropertyScanners.SubscribeToChildHasChangesAndHasValidationIssues(this, CheckForChangesAndValidationIssues);
     }

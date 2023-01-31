@@ -1,12 +1,11 @@
 ﻿using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
-using PointlessWaymarks.CmsData;
-using PointlessWaymarks.CmsWpfControls.Utility.ChangesAndValidation;
 using PointlessWaymarks.CommonTools;
+using PointlessWaymarks.WpfCommon.ChangesAndValidation;
 using TypeSupport.Extensions;
 
-namespace PointlessWaymarks.CmsWpfControls.ConversionDataEntry;
+namespace PointlessWaymarks.WpfCommon.ConversionDataEntry;
 
 public class ConversionDataEntryContext<T> : INotifyPropertyChanged, IHasChanges, IHasValidationIssues
 {

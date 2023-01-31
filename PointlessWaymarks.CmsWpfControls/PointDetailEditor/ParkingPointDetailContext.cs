@@ -6,17 +6,18 @@ using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsData.Database.PointDetailDataModels;
-using PointlessWaymarks.CmsWpfControls.BoolDataEntry;
 using PointlessWaymarks.CmsWpfControls.ContentFormat;
-using PointlessWaymarks.CmsWpfControls.StringDataEntry;
-using PointlessWaymarks.CmsWpfControls.Utility.ChangesAndValidation;
 using PointlessWaymarks.CommonTools;
+using PointlessWaymarks.WpfCommon.BoolDataEntry;
+using PointlessWaymarks.WpfCommon.ChangesAndValidation;
 using PointlessWaymarks.WpfCommon.Status;
+using PointlessWaymarks.WpfCommon.StringDataEntry;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 
 namespace PointlessWaymarks.CmsWpfControls.PointDetailEditor;
 
-public class ParkingPointDetailContext : IHasChanges, IHasValidationIssues, IPointDetailEditor, ICheckForChangesAndValidation
+public class ParkingPointDetailContext : IHasChanges, IHasValidationIssues, IPointDetailEditor,
+    ICheckForChangesAndValidation
 {
     private PointDetail _dbEntry;
     private Parking _detailData;
@@ -87,6 +88,12 @@ public class ParkingPointDetailContext : IHasChanges, IHasValidationIssues, IPoi
         }
     }
 
+    public void CheckForChangesAndValidationIssues()
+    {
+        HasChanges = PropertyScanners.ChildPropertiesHaveChanges(this);
+        HasValidationIssues = PropertyScanners.ChildPropertiesHaveValidationIssues(this);
+    }
+
     public bool HasChanges
     {
         get => _hasChanges;
@@ -154,12 +161,6 @@ public class ParkingPointDetailContext : IHasChanges, IHasValidationIssues, IPoi
         }
     }
 
-    public void CheckForChangesAndValidationIssues()
-    {
-        HasChanges = PropertyScanners.ChildPropertiesHaveChanges(this);
-        HasValidationIssues = PropertyScanners.ChildPropertiesHaveValidationIssues(this);
-    }
-
     public static async Task<ParkingPointDetailContext> CreateInstance(PointDetail detail,
         StatusControlContext statusContext)
     {
@@ -172,12 +173,12 @@ public class ParkingPointDetailContext : IHasChanges, IHasValidationIssues, IPoi
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        DbEntry = toLoad ?? new PointDetail {DataType = DetailData.DataTypeIdentifier};
+        DbEntry = toLoad ?? new PointDetail { DataType = DetailData.DataTypeIdentifier };
 
         if (!string.IsNullOrWhiteSpace(DbEntry.StructuredDataAsJson))
             DetailData = JsonSerializer.Deserialize<Parking>(DbEntry.StructuredDataAsJson);
 
-        DetailData ??= new Parking {NotesContentFormat = UserSettingsUtilities.DefaultContentFormatChoice()};
+        DetailData ??= new Parking { NotesContentFormat = UserSettingsUtilities.DefaultContentFormatChoice() };
 
         NoteEditor = StringDataEntryContext.CreateInstance();
         NoteEditor.Title = "Notes";

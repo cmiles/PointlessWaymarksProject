@@ -1,33 +1,34 @@
 ﻿using System.ComponentModel;
 using CommunityToolkit.Mvvm.ComponentModel;
-using PointlessWaymarks.CmsData;
-using PointlessWaymarks.CmsWpfControls.Utility.ChangesAndValidation;
+using PointlessWaymarks.CommonTools;
+using PointlessWaymarks.WpfCommon.ChangesAndValidation;
 
-namespace PointlessWaymarks.CmsWpfControls.BoolDataEntry;
+namespace PointlessWaymarks.WpfCommon.BoolDataEntry;
 
-public partial class BoolNullableDataEntryContext : ObservableObject, IHasChanges, IHasValidationIssues
+public partial class BoolDataEntryContext : ObservableObject, IHasChanges, IHasValidationIssues
 {
     [ObservableProperty] private bool _hasChanges;
     [ObservableProperty] private bool _hasValidationIssues;
     [ObservableProperty] private string _helpText;
-    [ObservableProperty] private bool? _referenceValue;
+    [ObservableProperty] private bool _isEnabled = true;
+    [ObservableProperty] private bool _referenceValue;
     [ObservableProperty] private string _title;
-    [ObservableProperty] private bool? _userValue;
-    [ObservableProperty] private List<Func<bool?, IsValid>> _validationFunctions = new();
+    [ObservableProperty] private bool _userValue;
+    [ObservableProperty] private List<Func<bool, IsValid>> _validationFunctions = new();
     [ObservableProperty] private string _validationMessage;
 
-    private BoolNullableDataEntryContext()
+    private BoolDataEntryContext()
     {
         PropertyChanged += OnPropertyChanged;
     }
 
-    public bool UserValueIsNullable => true;
+    public bool UserValueIsNullable => false;
 
-    private void CheckForChangesAndValidate()
+    public void CheckForChangesAndValidate()
     {
         HasChanges = UserValue != ReferenceValue;
 
-        if (ValidationFunctions != null && ValidationFunctions.Any())
+        if (ValidationFunctions != null && Enumerable.Any<Func<bool, IsValid>>(ValidationFunctions))
             foreach (var loopValidations in ValidationFunctions)
             {
                 var validationResult = loopValidations(UserValue);
@@ -43,11 +44,12 @@ public partial class BoolNullableDataEntryContext : ObservableObject, IHasChange
         ValidationMessage = string.Empty;
     }
 
-    public static BoolNullableDataEntryContext CreateInstance()
+    public static BoolDataEntryContext CreateInstance()
     {
-        return new();
+        return new BoolDataEntryContext();
     }
 
+    
     private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
     {
         if (e == null) return;

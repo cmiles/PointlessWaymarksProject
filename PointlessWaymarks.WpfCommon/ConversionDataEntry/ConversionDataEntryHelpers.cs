@@ -1,8 +1,6 @@
-﻿using PointlessWaymarks.CmsData;
-using PointlessWaymarks.CmsData.CommonHtml;
-using PointlessWaymarks.CommonTools;
+﻿using PointlessWaymarks.CommonTools;
 
-namespace PointlessWaymarks.CmsWpfControls.ConversionDataEntry;
+namespace PointlessWaymarks.WpfCommon.ConversionDataEntry;
 
 public static class ConversionDataEntryHelpers
 {
@@ -28,26 +26,6 @@ public static class ConversionDataEntryHelpers
         return DateTime.TryParse(cleanedUserText, out var parsedValue)
             ? (true, $"Converted {userText} to {parsedValue}", parsedValue.TrimDateTimeToSeconds())
             : (false, $"Could not convert {userText} into an Date/Time?", DateTime.MinValue);
-    }
-
-    public static (bool passed, string conversionMessage, Guid? value) GuidNullableConversion(
-        string userText)
-    {
-        var cleanedUserText = userText.TrimNullToEmpty();
-
-        if (string.IsNullOrWhiteSpace(cleanedUserText)) return (true, "Found an Empty Value", null);
-
-        if (cleanedUserText.Contains("{"))
-        {
-            var possibleBracketGuid = BracketCodeCommon.PhotoOrImageCodeFirstIdInContent(cleanedUserText);
-
-            if (possibleBracketGuid != null)
-                return (true, $"Extracted {possibleBracketGuid} from {cleanedUserText}", possibleBracketGuid);
-        }
-
-        return Guid.TryParse(cleanedUserText, out var parsedValue)
-            ? (true, $"Converted {userText} to {parsedValue}", parsedValue)
-            : (false, $"Could not convert {userText} into an valid Content Id?", null);
     }
 
     public static (bool passed, string conversionMessage, double value) DoubleConversion(string userText)

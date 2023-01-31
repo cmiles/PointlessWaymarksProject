@@ -1,13 +1,12 @@
 ﻿using System.ComponentModel;
-using Omu.ValueInjecter.Utils;
 
-namespace PointlessWaymarks.CmsWpfControls.Utility.ChangesAndValidation;
+namespace PointlessWaymarks.WpfCommon.ChangesAndValidation;
 
 public static class PropertyScanners
 {
     public static bool ChildPropertiesHaveChanges(object toScan)
     {
-        var allProperties = toScan.GetProps().ToList();
+        var allProperties = toScan.GetType().GetProperties();
 
         var hasChanges = false;
 
@@ -27,7 +26,7 @@ public static class PropertyScanners
 
     public static bool ChildPropertiesHaveValidationIssues(object toScan)
     {
-        var allProperties = toScan.GetProps().ToList();
+        var allProperties = toScan.GetType().GetProperties();
 
         var hasValidationIssues = false;
 
@@ -47,7 +46,7 @@ public static class PropertyScanners
 
     public static void SubscribeToChildHasChangesAndHasValidationIssues(object toScan, Action actionOnStatusChange)
     {
-        var allProperties = toScan.GetProps().ToList();
+        var allProperties = toScan.GetType().GetProperties();
 
         foreach (var loopProperties in allProperties)
             if (typeof(IHasChanges).IsAssignableFrom(loopProperties.PropertyType) &&

@@ -1,9 +1,8 @@
 ﻿using System.ComponentModel;
 using System.Windows;
 using PointlessWaymarks.WpfCommon.Status;
-using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 
-namespace PointlessWaymarks.CmsWpfControls.Utility.ChangesAndValidation;
+namespace PointlessWaymarks.WpfCommon.ChangesAndValidation;
 
 public class WindowAccidentalClosureHelper
 {
@@ -35,13 +34,13 @@ public class WindowAccidentalClosureHelper
 
     private async Task WindowClosing()
     {
-        await ThreadSwitcher.ResumeBackgroundAsync();
+        await ThreadSwitcher.ThreadSwitcher.ResumeBackgroundAsync();
 
         if (!_hasChangesToCheck.HasChanges)
         {
             _closeConfirmed = true;
             CloseAction?.Invoke(_toClose);
-            await ThreadSwitcher.ResumeForegroundAsync();
+            await ThreadSwitcher.ThreadSwitcher.ResumeForegroundAsync();
             _toClose.Close();
         }
 
@@ -51,7 +50,7 @@ public class WindowAccidentalClosureHelper
         {
             _closeConfirmed = true;
             CloseAction?.Invoke(_toClose);
-            await ThreadSwitcher.ResumeForegroundAsync();
+            await ThreadSwitcher.ThreadSwitcher.ResumeForegroundAsync();
             _toClose.Close();
         }
     }

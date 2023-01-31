@@ -3,12 +3,12 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
-    xmlns:boolDataEntry1="clr-namespace:PointlessWaymarks.CmsWpfControls.BoolDataEntry"
+    xmlns:boolDataEntry="clr-namespace:PointlessWaymarks.WpfCommon.BoolDataEntry;assembly=PointlessWaymarks.WpfCommon"
     xmlns:contentFormat="clr-namespace:PointlessWaymarks.CmsWpfControls.ContentFormat"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:pointDetailEditor="clr-namespace:PointlessWaymarks.CmsWpfControls.PointDetailEditor"
-    xmlns:stringDataEntry="clr-namespace:PointlessWaymarks.CmsWpfControls.StringDataEntry"
+    xmlns:stringDataEntry="clr-namespace:PointlessWaymarks.WpfCommon.StringDataEntry;assembly=PointlessWaymarks.WpfCommon"
     xmlns:wpfBehavior="clr-namespace:PointlessWaymarks.WpfCommon.Behaviors;assembly=PointlessWaymarks.WpfCommon"
     d:DataContext="{d:DesignInstance pointDetailEditor:ParkingPointDetailContext}"
     d:DesignHeight="450"
@@ -34,7 +34,7 @@
                         <wpfBehavior:ReadOnlyTextBoxClickKeyboardAndDragPass />
                     </b:Interaction.Behaviors>
                 </TextBox>
-                <boolDataEntry1:BoolDataEntryControl DataContext="{Binding FeeEditor}" Style="{StaticResource DataEntryBoolStyle}" />
+                <boolDataEntry:BoolDataEntryControl DataContext="{Binding FeeEditor}" Style="{StaticResource DataEntryBoolStyle}" />
                 <contentFormat:ContentFormatChooserControl DataContext="{Binding NoteFormatEditor}" />
                 <stringDataEntry:StringDataEntryMultiLineControl DataContext="{Binding NoteEditor}" TextBoxHeight="90" />
                 <Button

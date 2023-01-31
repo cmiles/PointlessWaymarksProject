@@ -1,13 +1,13 @@
 ﻿using System.ComponentModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using PointlessWaymarks.CmsData.ContentHtml;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsWpfControls.ContentFolder;
-using PointlessWaymarks.CmsWpfControls.StringDataEntry;
-using PointlessWaymarks.CmsWpfControls.Utility.ChangesAndValidation;
+using PointlessWaymarks.CmsWpfControls.DataEntry;
 using PointlessWaymarks.CommonTools;
+using PointlessWaymarks.WpfCommon.ChangesAndValidation;
 using PointlessWaymarks.WpfCommon.Status;
+using PointlessWaymarks.WpfCommon.StringDataEntry;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 
 namespace PointlessWaymarks.CmsWpfControls.TitleSummarySlugFolderEditor;
@@ -116,13 +116,13 @@ public partial class TitleSummarySlugEditorContext : IHasChanges, IHasValidation
 
         DbEntry = dbEntry;
 
-        TitleEntry = await StringDataEntryContext.CreateTitleInstance(DbEntry);
+        TitleEntry = await StringDataEntryTypes.CreateTitleInstance(DbEntry);
         TitleEntry.PropertyChanged += TitleChangedMonitor;
 
-        SlugEntry = await StringDataEntryContext.CreateSlugInstance(DbEntry);
+        SlugEntry = await StringDataEntryTypes.CreateSlugInstance(DbEntry);
         SlugEntry.PropertyChanged += TitleChangedMonitor;
 
-        SummaryEntry = await StringDataEntryContext.CreateSummaryInstance(DbEntry);
+        SummaryEntry = await StringDataEntryTypes.CreateSummaryInstance(DbEntry);
         SummaryEntry.PropertyChanged += TitleChangedMonitor;
 
         FolderEntry = await ContentFolderContext.CreateInstance(StatusContext, DbEntry);

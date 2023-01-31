@@ -1,4 +1,5 @@
 ﻿using PointlessWaymarks.CmsData.Content;
+using PointlessWaymarks.CommonTools;
 
 namespace PointlessWaymarks.CmsData.Database.PointDetailDataModels;
 

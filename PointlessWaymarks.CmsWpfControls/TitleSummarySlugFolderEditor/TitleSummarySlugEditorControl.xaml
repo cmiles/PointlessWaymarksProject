@@ -5,7 +5,7 @@
     xmlns:contentFolder1="clr-namespace:PointlessWaymarks.CmsWpfControls.ContentFolder"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:stringDataEntry="clr-namespace:PointlessWaymarks.CmsWpfControls.StringDataEntry"
+    xmlns:stringDataEntry="clr-namespace:PointlessWaymarks.WpfCommon.StringDataEntry;assembly=PointlessWaymarks.WpfCommon"
     xmlns:titleSummarySlugFolderEditor="clr-namespace:PointlessWaymarks.CmsWpfControls.TitleSummarySlugFolderEditor"
     d:DataContext="{d:DesignInstance titleSummarySlugFolderEditor:TitleSummarySlugEditorContext}"
     d:DesignHeight="300"

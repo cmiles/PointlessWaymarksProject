@@ -2,7 +2,7 @@
 using System.Windows;
 using System.Windows.Data;
 
-namespace PointlessWaymarks.CmsWpfControls.Utility;
+namespace PointlessWaymarks.WpfCommon.ValueConverters;
 
 public sealed class TrueIsRightTextAlignmentConverter : IValueConverter
 {

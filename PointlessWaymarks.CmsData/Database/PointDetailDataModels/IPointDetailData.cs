@@ -1,4 +1,6 @@
-﻿namespace PointlessWaymarks.CmsData.Database.PointDetailDataModels;
+﻿using PointlessWaymarks.CommonTools;
+
+namespace PointlessWaymarks.CmsData.Database.PointDetailDataModels;
 
 public interface IPointDetailData
 {

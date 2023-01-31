@@ -1,19 +1,18 @@
 ﻿<UserControl
-    x:Class="PointlessWaymarks.CmsWpfControls.StringDataEntry.StringDataEntryMultiLineControl"
+    x:Class="PointlessWaymarks.WpfCommon.StringDataEntry.StringDataEntryControl"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:stringDataEntry="clr-namespace:PointlessWaymarks.CmsWpfControls.StringDataEntry"
-    xmlns:utility="clr-namespace:PointlessWaymarks.WpfCommon.Utility;assembly=PointlessWaymarks.WpfCommon"
-    d:DataContext="{d:DesignInstance stringDataEntry:StringDataEntryContext}"
+    xmlns:utility="clr-namespace:PointlessWaymarks.WpfCommon.Utility"
+    xmlns:stringDataEntry="clr-namespace:PointlessWaymarks.WpfCommon.StringDataEntry"
     d:DesignHeight="450"
     d:DesignWidth="800"
-    mc:Ignorable="d">
+    mc:Ignorable="d" d:DataContext="{d:DesignInstance stringDataEntry:StringDataEntryContext}">
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="../WpfControlsResourceDictionary.xaml" />
+                <ResourceDictionary Source="../WpfCommonResourceDictionary.xaml" />
                 <ResourceDictionary Source="/PointlessWaymarks.WpfCommon;component/Utility/Icons.xaml" />
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
@@ -42,8 +41,7 @@
         </StackPanel>
         <TextBox
             Name="ValueTextBox"
-            Height="{Binding}"
-            Style="{StaticResource DataEntryTextBoxMultiLineStyle}"
+            Style="{StaticResource DataEntryTextBoxSingleLineStyle}"
             Text="{Binding UserValue, UpdateSourceTrigger=PropertyChanged}" />
     </StackPanel>
 </UserControl>

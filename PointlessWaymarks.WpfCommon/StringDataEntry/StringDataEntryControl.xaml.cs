@@ -1,4 +1,4 @@
-﻿namespace PointlessWaymarks.CmsWpfControls.StringDataEntry;
+﻿namespace PointlessWaymarks.WpfCommon.StringDataEntry;
 
 /// <summary>
 ///     Interaction logic for StringDataEntryControl.xaml

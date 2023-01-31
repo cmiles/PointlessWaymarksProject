@@ -6,12 +6,12 @@ using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsData.Database.PointDetailDataModels;
-using PointlessWaymarks.CmsWpfControls.BoolDataEntry;
 using PointlessWaymarks.CmsWpfControls.ContentFormat;
-using PointlessWaymarks.CmsWpfControls.StringDataEntry;
-using PointlessWaymarks.CmsWpfControls.Utility.ChangesAndValidation;
 using PointlessWaymarks.CommonTools;
+using PointlessWaymarks.WpfCommon.BoolDataEntry;
+using PointlessWaymarks.WpfCommon.ChangesAndValidation;
 using PointlessWaymarks.WpfCommon.Status;
+using PointlessWaymarks.WpfCommon.StringDataEntry;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 
 namespace PointlessWaymarks.CmsWpfControls.PointDetailEditor;
@@ -173,12 +173,12 @@ public class CampgroundPointDetailContext : IHasChanges, IHasValidationIssues, I
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        DbEntry = toLoad ?? new PointDetail {DataType = ((dynamic) DetailData).DataTypeIdentifier};
+        DbEntry = toLoad ?? new PointDetail { DataType = ((dynamic)DetailData).DataTypeIdentifier };
 
         if (!string.IsNullOrWhiteSpace(DbEntry.StructuredDataAsJson))
             DetailData = JsonSerializer.Deserialize<Campground>(DbEntry.StructuredDataAsJson);
 
-        DetailData ??= new Campground {NotesContentFormat = UserSettingsUtilities.DefaultContentFormatChoice()};
+        DetailData ??= new Campground { NotesContentFormat = UserSettingsUtilities.DefaultContentFormatChoice() };
 
         NoteEditor = StringDataEntryContext.CreateInstance();
         NoteEditor.Title = "Notes";

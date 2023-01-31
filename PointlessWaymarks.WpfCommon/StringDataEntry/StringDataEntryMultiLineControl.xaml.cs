@@ -1,6 +1,6 @@
 ﻿using System.Windows;
 
-namespace PointlessWaymarks.CmsWpfControls.StringDataEntry;
+namespace PointlessWaymarks.WpfCommon.StringDataEntry;
 
 /// <summary>
 ///     Interaction logic for StringDataEntryMultiLineControl.xaml
