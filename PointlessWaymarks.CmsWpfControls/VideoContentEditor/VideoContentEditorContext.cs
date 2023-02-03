@@ -352,7 +352,8 @@ Notes:
         TagEdit = TagsEditorContext.CreateInstance(StatusContext, DbEntry);
         BodyContent = await BodyContentEditorContext.CreateInstance(StatusContext, DbEntry);
         UserMainPictureEntry =
-            ConversionDataEntryContext<Guid?>.CreateInstance(ConversionDataEntryTypes.GuidNullableAndBracketCodeConversion);
+            ConversionDataEntryContext<Guid?>.CreateInstance(ConversionDataEntryTypes
+                .GuidNullableAndBracketCodeConversion);
         UserMainPictureEntry.ValidationFunctions = new List<Func<Guid?, Task<IsValid>>>
             { CommonContentValidation.ValidateUserMainPicture };
         UserMainPictureEntry.ReferenceValue = DbEntry.UserMainPicture;
@@ -486,10 +487,7 @@ Notes:
             return;
         }
 
-        await ThreadSwitcher.ResumeForegroundAsync();
-
-        var ps = new ProcessStartInfo(SelectedFile.Directory.FullName) { UseShellExecute = true, Verb = "open" };
-        Process.Start(ps);
+        await ProcessHelpers.OpenExplorerWindowForFile(SelectedFile.FullName);
     }
 
 

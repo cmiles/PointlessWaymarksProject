@@ -19,7 +19,16 @@
         </ResourceDictionary>
     </UserControl.Resources>
     <Grid>
-        <TabControl>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition />
+        </Grid.RowDefinitions>
+        <Menu>
+            <StaticResource ResourceKey="NewMenu" />
+            <StaticResource ResourceKey="ViewMenu" />
+            <StaticResource ResourceKey="SiteMenu" />
+        </Menu>
+        <TabControl Grid.Row="1">
             <TabItem Header="Written Files">
                 <Grid>
                     <Grid.RowDefinitions>
@@ -184,8 +193,10 @@
                 </StackPanel>
             </TabItem>
         </TabControl>
+
         <status:StatusControl
             Grid.Row="0"
+            Grid.RowSpan="2"
             d:IsHidden="true"
             DataContext="{Binding StatusContext}" />
     </Grid>

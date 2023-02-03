@@ -36,10 +36,16 @@
     </FrameworkElement.CommandBindings>
     <Grid>
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
-        <GroupBox
+        <Menu>
+            <StaticResource ResourceKey="NewMenu" />
+            <StaticResource ResourceKey="ViewMenu" />
+            <StaticResource ResourceKey="SiteMenu" />
+        </Menu>
+        <GroupBox Grid.Row="1"
             Margin="4,0,4,0"
             Header="Settings"
             Style="{StaticResource UiComponentGroupBoxStyle}">
@@ -375,12 +381,12 @@
                 </StackPanel>
             </ScrollViewer>
         </GroupBox>
-        <Border Grid.Row="1" Style="{StaticResource ActionPanelBorderStyle}">
+        <Border Grid.Row="2" Style="{StaticResource ActionPanelBorderStyle}">
             <Button Command="{Binding SaveSettingsCommand}" Style="{StaticResource ActionPanelUnlimitedWidthButtonStyle}">Save</Button>
         </Border>
         <status:StatusControl
             Grid.Row="0"
-            Grid.RowSpan="2"
+            Grid.RowSpan="3"
             d:IsHidden="true"
             DataContext="{Binding StatusContext}" />
     </Grid>

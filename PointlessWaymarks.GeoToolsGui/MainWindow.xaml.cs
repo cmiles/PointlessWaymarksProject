@@ -1,7 +1,6 @@
 ﻿using System.Reflection;
 using System.Windows;
 using CommunityToolkit.Mvvm.ComponentModel;
-using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.GeoToolsGui.Controls;
 using PointlessWaymarks.WpfCommon.MarkdownDisplay;
@@ -19,13 +18,13 @@ namespace PointlessWaymarks.GeoToolsGui;
 public partial class MainWindow : Window
 {
     private readonly string _currentDateVersion;
+    [ObservableProperty] private HelpDisplayContext _aboutContext;
     [ObservableProperty] private ConnectBasedGeoTaggerContext? _connectGeoTaggerContext;
     [ObservableProperty] private FeatureIntersectTaggerContext? _featureIntersectContext;
     [ObservableProperty] private FileBasedGeoTaggerContext? _fileGeoTaggerContext;
     [ObservableProperty] private ConnectDownloadContext? _garminConnectDownloadContext;
     [ObservableProperty] private string _infoTitle = string.Empty;
     [ObservableProperty] private AppSettingsContext _settingsContext;
-    [ObservableProperty] private HelpDisplayContext _softwareComponentsHelpContext;
     [ObservableProperty] private StatusControlContext _statusContext;
     [ObservableProperty] private ProgramUpdateMessageContext _updateMessageContext;
     [ObservableProperty] private WindowIconStatus _windowStatus;
@@ -68,7 +67,8 @@ public partial class MainWindow : Window
 
         if (string.IsNullOrEmpty(currentDateVersion)) return;
 
-        var (dateString, setupFile) = ProgramInfoTools.LatestInstaller(GeoToolsGuiAppSettings.Default.ProgramUpdateLocation,
+        var (dateString, setupFile) = ProgramInfoTools.LatestInstaller(
+            GeoToolsGuiAppSettings.Default.ProgramUpdateLocation,
             "PointlessWaymarksGeoToolsSetup");
 
         Log.Information(
@@ -87,7 +87,8 @@ public partial class MainWindow : Window
         ConnectGeoTaggerContext = await ConnectBasedGeoTaggerContext.CreateInstance(StatusContext, WindowStatus);
         FeatureIntersectContext = await FeatureIntersectTaggerContext.CreateInstance(StatusContext, WindowStatus);
         GarminConnectDownloadContext = await ConnectDownloadContext.CreateInstance(StatusContext, WindowStatus);
-        SoftwareComponentsHelpContext = new HelpDisplayContext(new List<string> { SoftwareUsedHelpMarkdown.HelpBlock });
+        AboutContext = new HelpDisplayContext(new List<string>
+            { HelpMarkdown.GeoToolsGeneralDescriptionBlock, HelpMarkdown.SoftwareUsedBlock });
         SettingsContext = new AppSettingsContext();
 
         await CheckForProgramUpdate(_currentDateVersion);

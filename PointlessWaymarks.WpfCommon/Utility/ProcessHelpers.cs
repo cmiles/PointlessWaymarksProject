@@ -16,16 +16,13 @@ public static class ProcessHelpers
         Process.Start(ps);
     }
 
-
     public static async Task OpenExplorerWindowForFile(string fileName)
     {
         await ThreadSwitcher.ThreadSwitcher.ResumeForegroundAsync();
 
-        var ps = new ProcessStartInfo("explorer.exe", $"/select, \"{fileName}\"")
-        {
-            UseShellExecute = true, Verb = "open"
-        };
+        var args = $"/e, /select, \"{fileName.Replace("/", "\\")}\"";
 
+        var ps = new ProcessStartInfo { FileName = "explorer", Arguments = args };
         Process.Start(ps);
     }
 

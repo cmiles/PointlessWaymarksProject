@@ -33,7 +33,7 @@
                 <controls1:AppSettingsControl DataContext="{Binding SettingsContext}" />
             </TabItem>
             <TabItem Header="About">
-                <markdownDisplay:HelpDisplayControl DataContext="{Binding SoftwareComponentsHelpContext}" />
+                <markdownDisplay:HelpDisplayControl DataContext="{Binding AboutContext}" />
             </TabItem>
         </TabControl>
         <programUpdateMessage:ProgramUpdateMessageControl VerticalAlignment="Top" HorizontalAlignment="Center"

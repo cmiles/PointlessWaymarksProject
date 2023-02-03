@@ -280,7 +280,7 @@ public static class HtmlGenerationGroups
 
             var htmlModel = new SingleLinePage(loopItem) { GenerationVersion = generationVersion };
             await htmlModel.WriteLocalHtml().ConfigureAwait(false);
-            await Export.WriteLocalDbJson(loopItem).ConfigureAwait(false);
+            await Export.WriteLocalDbJson(loopItem, progress).ConfigureAwait(false);
         }).ConfigureAwait(false);
     }
 
@@ -1197,7 +1197,7 @@ public static class HtmlGenerationGroups
 
             var htmlModel = new SingleLinePage(loopItem) { GenerationVersion = generationVersion };
             await htmlModel.WriteLocalHtml().ConfigureAwait(false);
-            await Export.WriteLocalDbJson(loopItem).ConfigureAwait(false);
+            await Export.WriteLocalDbJson(loopItem, progress).ConfigureAwait(false);
         }).ConfigureAwait(false);
 
         if (allItems.Any()) await MapComponentGenerator.GenerateAllLinesData();

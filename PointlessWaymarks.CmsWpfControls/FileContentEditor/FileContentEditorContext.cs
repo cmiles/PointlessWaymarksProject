@@ -36,7 +36,8 @@ using Serilog;
 
 namespace PointlessWaymarks.CmsWpfControls.FileContentEditor;
 
-public partial class FileContentEditorContext : ObservableObject, IHasChanges, IHasValidationIssues, ICheckForChangesAndValidation
+public partial class FileContentEditorContext : ObservableObject, IHasChanges, IHasValidationIssues,
+    ICheckForChangesAndValidation
 {
     [ObservableProperty] private RelayCommand _autoRenameSelectedFileCommand;
     [ObservableProperty] private BodyContentEditorContext _bodyContent;
@@ -101,6 +102,8 @@ public partial class FileContentEditorContext : ObservableObject, IHasChanges, I
 
         SetupStatusContextAndCommands(statusContext);
     }
+
+    public RelayCommand AutoRenameSelectedFileBasedOnTitleCommand { get; set; }
 
 
     public string FileEditorHelpText =>
@@ -350,10 +353,10 @@ Notes:
             "Download Link' is checked and not all content types are supported.";
 
         TitleSummarySlugFolder = await TitleSummarySlugEditorContext.CreateInstance(StatusContext, "To File Name",
-        AutoRenameSelectedFileBasedOnTitleCommand,
-        x => !Path.GetFileNameWithoutExtension(SelectedFile.Name)
-            .Equals(SlugTools.CreateSlug(false, x.TitleEntry.UserValue), StringComparison.OrdinalIgnoreCase),
-        DbEntry);
+            AutoRenameSelectedFileBasedOnTitleCommand,
+            x => !Path.GetFileNameWithoutExtension(SelectedFile.Name)
+                .Equals(SlugTools.CreateSlug(false, x.TitleEntry.UserValue), StringComparison.OrdinalIgnoreCase),
+            DbEntry);
         MainSiteFeed = await ContentSiteFeedAndIsDraftContext.CreateInstance(StatusContext, DbEntry);
         CreatedUpdatedDisplay = await CreatedAndUpdatedByAndOnDisplayContext.CreateInstance(StatusContext, DbEntry);
         ContentId = await ContentIdViewerControlContext.CreateInstance(StatusContext, DbEntry);
@@ -361,7 +364,8 @@ Notes:
         TagEdit = TagsEditorContext.CreateInstance(StatusContext, DbEntry);
         BodyContent = await BodyContentEditorContext.CreateInstance(StatusContext, DbEntry);
         UserMainPictureEntry =
-            ConversionDataEntryContext<Guid?>.CreateInstance(ConversionDataEntryTypes.GuidNullableAndBracketCodeConversion);
+            ConversionDataEntryContext<Guid?>.CreateInstance(ConversionDataEntryTypes
+                .GuidNullableAndBracketCodeConversion);
         UserMainPictureEntry.ValidationFunctions = new List<Func<Guid?, Task<IsValid>>>
             { CommonContentValidation.ValidateUserMainPicture };
         UserMainPictureEntry.ReferenceValue = DbEntry.UserMainPicture;
@@ -510,10 +514,7 @@ Notes:
             return;
         }
 
-        await ThreadSwitcher.ResumeForegroundAsync();
-
-        var ps = new ProcessStartInfo(SelectedFile.Directory.FullName) { UseShellExecute = true, Verb = "open" };
-        Process.Start(ps);
+        await ProcessHelpers.OpenExplorerWindowForFile(SelectedFile.FullName);
     }
 
     private async Task SaveAndExtractImageFromMp4()
@@ -676,8 +677,6 @@ Notes:
         ViewUserMainPictureCommand = StatusContext.RunNonBlockingTaskCommand(ViewUserMainPicture);
         EditUserMainPictureCommand = StatusContext.RunNonBlockingTaskCommand(EditUserMainPicture);
     }
-
-    public RelayCommand AutoRenameSelectedFileBasedOnTitleCommand { get; set; }
 
     public async Task SetUserMainPicture()
     {

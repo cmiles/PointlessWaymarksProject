@@ -1,9 +1,29 @@
 ﻿namespace PointlessWaymarks.CommonTools;
 
-public static class SoftwareUsedHelpMarkdown
+public static class HelpMarkdown
 {
-    public static string HelpBlock =>
-"""
+    public static string CmsGeneralDescriptionBlock =>
+        """
+    ### Pointless Waymarks CMS
+    
+    The Pointless Waymarks CMS is part of the [Pointless Waymarks Project](https://github.com/cmiles/PointlessWaymarksProject) whose focus is creating durable, rich, low maintenance, free, long-lasting, organized content that allows you to tell stories about the landscape, life, place, history and nature.
+
+    The Pointless Waymarks CMS creates content focused static sites that can easily become a public website (or remain only on your computer and be viewed offline).
+  
+    [Pointless Waymarks](https://pointlesswaymarks.com/) and [cmiles - info](https://www.cmiles.info/) are both created using the Pointless Waymarks CMS and are good examples of its output.
+    """;
+
+    public static string GeoToolsGeneralDescriptionBlock =>
+        """
+    ### Pointless Waymarks CMS
+    
+    The Pointless Waymarks CMS is part of the [Pointless Waymarks Project](https://github.com/cmiles/PointlessWaymarksProject) whose focus is creating durable, rich, low maintenance, free, long-lasting, organized content that allows you to tell stories about the landscape, life, place, history and nature.
+
+    The Pointless Waymarks GeoTools helps you archive your GPX files, GeoTag content and add tags based on geographic location.
+    """;
+
+    public static string SoftwareUsedBlock =>
+        """
 ### Software and Tools Used by the Pointless Waymarks Project
 
 I am incredibly grateful to the all the people and projects that make it possible to rapidly build useful, open, low/no-cost software. Below is a mostly-up-to-date-and-largely-comprehensive list of tools/packages/libraries/etc. that are used to build the [Pointless Waymarks Project](https://github.com/cmiles/PointlessWaymarksProject):

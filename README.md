@@ -4,7 +4,7 @@ There is plenty of traditional README information below about this project - but
 
 *At this point the Pointless Waymarks Project is not intended for general use - it is made public under the MIT License to share with friends, colleagues and anyone who finds the code interesting or useful.*
 
-The focus of this project is creating durable, rich, low maintenance, free, long-lasting, organized content that allows you to tell stories about the landscape, place, life, history and nature.
+The focus of this project is creating durable, rich, low maintenance, free, long-lasting, organized content that allows you to tell stories about the landscape, life, place,  history and nature.
 
 The Pointless Waymarks projects contains:
   - The Pointless Waymarks CMS and (Local, Offline) Site Viewer (described below)

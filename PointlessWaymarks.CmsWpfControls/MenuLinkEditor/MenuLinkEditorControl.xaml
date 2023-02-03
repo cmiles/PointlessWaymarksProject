@@ -24,14 +24,20 @@
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
             <RowDefinition />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
-        <GroupBox Header="Notes" Style="{StaticResource UiComponentGroupBoxStyle}">
+        <Menu>
+            <StaticResource ResourceKey="NewMenu" />
+            <StaticResource ResourceKey="ViewMenu" />
+            <StaticResource ResourceKey="SiteMenu" />
+        </Menu>
+        <GroupBox Grid.Row="1" Header="Notes" Style="{StaticResource UiComponentGroupBoxStyle}">
             <wpf:MarkdownViewer Markdown="{Binding HelpMarkdown}" />
         </GroupBox>
         <GroupBox
-            Grid.Row="1"
+            Grid.Row="2"
             Header="Menu Items"
             Style="{StaticResource UiComponentGroupBoxStyle}">
             <ListBox
@@ -159,9 +165,8 @@
                 </ListBox.ItemTemplate>
             </ListBox>
         </GroupBox>
-        <Border Grid.Row="2" Style="{StaticResource ActionPanelBorderStyle}">
+        <Border Grid.Row="3" Style="{StaticResource ActionPanelBorderStyle}">
             <WrapPanel
-                Grid.Row="1"
                 HorizontalAlignment="Center"
                 Orientation="Horizontal">
                 <Button
@@ -180,7 +185,7 @@
         </Border>
         <status:StatusControl
             Grid.Row="0"
-            Grid.RowSpan="3"
+            Grid.RowSpan="4"
             d:IsHidden="true"
             DataContext="{Binding StatusContext}" />
     </Grid>

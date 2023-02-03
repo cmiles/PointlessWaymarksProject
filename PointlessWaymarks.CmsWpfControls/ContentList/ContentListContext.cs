@@ -292,7 +292,10 @@ public partial class ContentListContext : ObservableObject, IDragSource, IDropTa
             ".JPEG",
             ".GPX",
             ".TCX",
-            ".FIT"
+            ".FIT",
+            "MP4",
+            "OGG",
+            "WEBM"
         };
 
         if (possibleFileInfo.Any(x => validFileExtensions.Contains(Path.GetExtension(x).ToUpperInvariant())))

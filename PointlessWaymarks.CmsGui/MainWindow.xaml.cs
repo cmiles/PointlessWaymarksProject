@@ -41,7 +41,6 @@ using PointlessWaymarks.WpfCommon.ProgramUpdateMessage;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 using PointlessWaymarks.WpfCommon.Utility;
-using PointlessWaymarks.WpfCommon.WpfHtml;
 using Serilog;
 
 namespace PointlessWaymarks.CmsGui;
@@ -53,6 +52,7 @@ namespace PointlessWaymarks.CmsGui;
 public partial class MainWindow
 {
     private readonly string _currentDateVersion;
+    [ObservableProperty] private HelpDisplayContext _aboutContext;
     [ObservableProperty] private FilesWrittenLogListContext _filesWrittenContext;
     [ObservableProperty] private string _infoTitle;
     [ObservableProperty] private string _recentSettingsFilesNames;
@@ -60,13 +60,11 @@ public partial class MainWindow
     [ObservableProperty] private UserSettingsEditorContext _settingsEditorContext;
     [ObservableProperty] private SettingsFileChooserControlContext _settingsFileChooser;
     [ObservableProperty] private bool _showSettingsFileChooser;
-    [ObservableProperty] private HelpDisplayContext _softwareComponentsHelpContext;
     [ObservableProperty] private StatusControlContext _statusContext;
     [ObservableProperty] private AllContentListWithActionsContext _tabAllListContext;
     [ObservableProperty] private FileListWithActionsContext _tabFileListContext;
     [ObservableProperty] private GeoJsonListWithActionsContext _tabGeoJsonListContext;
     [ObservableProperty] private ImageListWithActionsContext _tabImageListContext;
-    [ObservableProperty] private VideoListWithActionsContext _tabVideoListContext;
     [ObservableProperty] private LineListWithActionsContext _tabLineListContext;
     [ObservableProperty] private LinkListWithActionsContext _tabLinkContext;
     [ObservableProperty] private MapComponentListWithActionsContext _tabMapListContext;
@@ -77,6 +75,7 @@ public partial class MainWindow
     [ObservableProperty] private PostListWithActionsContext _tabPostListContext;
     [ObservableProperty] private TagExclusionEditorContext _tabTagExclusionContext;
     [ObservableProperty] private TagListContext _tabTagListContext;
+    [ObservableProperty] private VideoListWithActionsContext _tabVideoListContext;
     [ObservableProperty] private ProgramUpdateMessageContext _updateMessageContext;
 
     public MainWindow()
@@ -514,7 +513,8 @@ public partial class MainWindow
         TabAllListContext = new AllContentListWithActionsContext(null, WindowStatus);
 
         SettingsEditorContext = new UserSettingsEditorContext(null, UserSettingsSingleton.CurrentSettings());
-        SoftwareComponentsHelpContext = new HelpDisplayContext(new List<string> { SoftwareUsedHelpMarkdown.HelpBlock });
+        AboutContext = new HelpDisplayContext(new List<string>
+            { HelpMarkdown.CmsGeneralDescriptionBlock, HelpMarkdown.SoftwareUsedBlock });
 
         await ThreadSwitcher.ResumeForegroundAsync();
 

@@ -238,9 +238,6 @@ public partial class FileListViewModel : ObservableObject, IDropTarget
             return;
         }
 
-        await ResumeForegroundAsync();
-
-        var ps = new ProcessStartInfo(SelectedFile.Directory.FullName) { UseShellExecute = true, Verb = "open" };
-        Process.Start(ps);
+        await ProcessHelpers.OpenExplorerWindowForFile(SelectedFile.FullName);
     }
 }
