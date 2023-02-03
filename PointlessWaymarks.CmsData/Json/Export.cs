@@ -146,8 +146,10 @@ public static class Export
             .ConfigureAwait(false);
     }
 
-    public static async Task WriteLocalDbJson(LineContent dbEntry)
+    public static async Task WriteLocalDbJson(LineContent dbEntry, IProgress<string>? progress)
     {
+        progress?.Report($"Line - {dbEntry.Title} - Serializing and Writing Current Entry");
+
         var settings = UserSettingsSingleton.CurrentSettings();
         var db = await Db.Context().ConfigureAwait(false);
         var jsonDbEntry = JsonSerializer.Serialize(dbEntry, new JsonSerializerOptions { WriteIndented = true });
@@ -159,6 +161,8 @@ public static class Export
         jsonFile.Refresh();
 
         await FileManagement.WriteAllTextToFileAndLogAsync(jsonFile.FullName, jsonDbEntry).ConfigureAwait(false);
+
+        progress?.Report($"Line - {dbEntry.Title} - Serializing and Writing Historic Entries");
 
         //Other content types preserve more history - these content types can be quite large due to the
         //GeoJson content so less history is kept.
@@ -177,6 +181,8 @@ public static class Export
 
         await FileManagement.WriteAllTextToFileAndLogAsync(jsonHistoricFile.FullName, jsonHistoricDbEntry)
             .ConfigureAwait(false);
+
+        progress?.Report($"Line - {dbEntry.Title} - Done with Json Serialization");
     }
 
     public static async Task WriteLocalDbJson(GeoJsonContent dbEntry)
