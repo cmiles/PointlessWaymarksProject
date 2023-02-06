@@ -109,7 +109,7 @@ public static class FileManagement
     }
 
     public static async Task<GenerationReturn> CheckVideoOriginalFileIsInMediaAndContentDirectories(
-    VideoContent? dbContent)
+        VideoContent? dbContent)
     {
         if (dbContent == null)
             return GenerationReturn.Error(
@@ -132,7 +132,8 @@ public static class FileManagement
         if (!archiveFile.Exists && !contentFile.Exists)
             return GenerationReturn.Error(
                 $"Neither {archiveFile.FullName} nor {contentFile.FullName} exists - " +
-                $"there appears to be a file missing for the Video Titled {dbContent.Title} " + $"slug {dbContent.Slug}",
+                $"there appears to be a file missing for the Video Titled {dbContent.Title} " +
+                $"slug {dbContent.Slug}",
                 dbContent.ContentId);
 
         if (archiveFile.Exists && !contentFile.Exists)
@@ -403,20 +404,20 @@ public static class FileManagement
                 TimeSpan.FromSeconds(1),
                 TimeSpan.FromSeconds(2),
                 TimeSpan.FromSeconds(4),
-                TimeSpan.FromSeconds(4)
+                TimeSpan.FromSeconds(8)
             },
             (_, _, retryCount, _) =>
                 Log.Debug("Sqlite Locked Db Retry - LogFileWriteAsync {fileName}, Retry Count {retryCount}",
                     fileName,
                     retryCount)).ExecuteAsync(async () =>
         {
-            var db = await Db.Context().ConfigureAwait(false);
+            var db = await Db.Context();
 
             await db.GenerationFileWriteLogs.AddAsync(new GenerationFileWriteLog
             {
                 FileName = fileName, WrittenOnVersion = DateTime.Now.TrimDateTimeToSeconds().ToUniversalTime()
-            }).ConfigureAwait(false);
-            await db.SaveChangesAsync(true).ConfigureAwait(false);
+            });
+            await db.SaveChangesAsync(true);
         }).ConfigureAwait(false);
     }
 
