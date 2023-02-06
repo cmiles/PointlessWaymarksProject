@@ -10,6 +10,7 @@ namespace PointlessWaymarks.CmsWpfControls.AllContentList;
 
 public partial class AllContentListWithActionsContext : ObservableObject
 {
+    [ObservableProperty] private CmsCommonCommands _commonCommands;
     [ObservableProperty] private ContentListContext _listContext;
     [ObservableProperty] private StatusControlContext _statusContext;
     [ObservableProperty] private WindowIconStatus _windowStatus;
@@ -18,8 +19,9 @@ public partial class AllContentListWithActionsContext : ObservableObject
     public AllContentListWithActionsContext(StatusControlContext statusContext, WindowIconStatus windowStatus)
     {
         StatusContext = statusContext ?? new StatusControlContext();
-
         WindowStatus = windowStatus;
+
+        CommonCommands = new CmsCommonCommands(StatusContext, WindowStatus);
 
         StatusContext.RunFireAndForgetBlockingTask(LoadData);
     }

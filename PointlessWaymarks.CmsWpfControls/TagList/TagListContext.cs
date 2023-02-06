@@ -9,13 +9,13 @@ using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.Content;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
+using PointlessWaymarks.CmsWpfControls.ContentList;
 using PointlessWaymarks.CmsWpfControls.FileContentEditor;
 using PointlessWaymarks.CmsWpfControls.ImageContentEditor;
 using PointlessWaymarks.CmsWpfControls.LinkContentEditor;
 using PointlessWaymarks.CmsWpfControls.NoteContentEditor;
 using PointlessWaymarks.CmsWpfControls.PhotoContentEditor;
 using PointlessWaymarks.CmsWpfControls.PostContentEditor;
-using PointlessWaymarks.CmsWpfControls.Utility;
 using PointlessWaymarks.CmsWpfControls.Utility.Excel;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.WpfCommon.Status;
@@ -29,6 +29,7 @@ namespace PointlessWaymarks.CmsWpfControls.TagList;
 public partial class TagListContext : ObservableObject
 {
     [ObservableProperty] private RelayCommand _allDetailItemsToExcelCommand;
+    [ObservableProperty] private CmsCommonCommands _commonCommands;
     [ObservableProperty] private DataNotificationsWorkQueue _dataNotificationsProcessor;
     [ObservableProperty] private List<TagItemContentInformation> _detailsList;
     [ObservableProperty] private List<TagItemContentInformation> _detailsSelectedItems;
@@ -49,6 +50,8 @@ public partial class TagListContext : ObservableObject
     public TagListContext(StatusControlContext context)
     {
         StatusContext = context ?? new StatusControlContext();
+        CommonCommands = new CmsCommonCommands(StatusContext);
+
 
         PropertyChanged += OnPropertyChanged;
 

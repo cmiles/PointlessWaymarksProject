@@ -1056,12 +1056,12 @@
         </Border>
     </DataTemplate>
     <collections:ArrayList x:Key="SiteMenuItemValues" x:Shared="False">
-        <MenuItem Command="{Binding ListContext.GenerateChangedHtmlAndStartUploadCommand}"
+        <MenuItem Command="{Binding CommonCommands.GenerateChangedHtmlAndStartUploadCommand}"
                   Header="Generate Site and Start Upload" />
-        <MenuItem Command="{Binding ListContext.GenerateChangedHtmlAndShowSitePreviewCommand}"
+        <MenuItem Command="{Binding CommonCommands.GenerateChangedHtmlAndShowSitePreviewCommand}"
                   Header="Generate Site and Show Preview" />
-        <MenuItem Command="{Binding ListContext.GenerateChangedHtmlCommand}" Header="Generate Site" />
-        <MenuItem Command="{Binding ListContext.ShowSitePreviewWindowCommand}" Header="Preview Site from Disk" />
+        <MenuItem Command="{Binding CommonCommands.GenerateChangedHtmlCommand}" Header="Generate Site" />
+        <MenuItem Command="{Binding CommonCommands.ShowSitePreviewWindowCommand}" Header="Preview Site from Disk" />
     </collections:ArrayList>
     <MenuItem
         x:Key="SiteMenu"
@@ -1069,18 +1069,19 @@
         Header="Site"
         ItemsSource="{StaticResource SiteMenuItemValues}" />
     <collections:ArrayList x:Key="ViewMenuItemValues" x:Shared="False">
-        <MenuItem Command="{Binding ListContext.NewAllContentListWindowCommand}" Header="New All Content List Window" />
-        <MenuItem Command="{Binding ListContext.NewFileListWindowCommand}" Header="New File List Window" />
-        <MenuItem Command="{Binding ListContext.NewGeoJsonListWindowCommand}" Header="New GeoJson List Window" />
-        <MenuItem Command="{Binding ListContext.NewImageListWindowCommand}" Header="New Image List Window" />
-        <MenuItem Command="{Binding ListContext.NewLineListWindowCommand}" Header="New Line List Window" />
-        <MenuItem Command="{Binding ListContext.NewLinkListWindowCommand}" Header="New Link List Window" />
-        <MenuItem Command="{Binding ListContext.NewMapComponentListWindowCommand}"
+        <MenuItem Command="{Binding CommonCommands.NewAllContentListWindowCommand}" Header="New All Content List Window" />
+        <MenuItem Command="{Binding CommonCommands.NewFileListWindowCommand}" Header="New File List Window" />
+        <MenuItem Command="{Binding CommonCommands.NewGeoJsonListWindowCommand}" Header="New GeoJson List Window" />
+        <MenuItem Command="{Binding CommonCommands.NewImageListWindowCommand}" Header="New Image List Window" />
+        <MenuItem Command="{Binding CommonCommands.NewLineListWindowCommand}" Header="New Line List Window" />
+        <MenuItem Command="{Binding CommonCommands.NewLinkListWindowCommand}" Header="New Link List Window" />
+        <MenuItem Command="{Binding CommonCommands.NewMapComponentListWindowCommand}"
                   Header="New Map Component List Window" />
-        <MenuItem Command="{Binding ListContext.NewNoteListWindowCommand}" Header="New Note List Window" />
-        <MenuItem Command="{Binding ListContext.NewPhotoListWindowCommand}" Header="New Photo List Window" />
-        <MenuItem Command="{Binding ListContext.NewPointListWindowCommand}" Header="New Point List Window" />
-        <MenuItem Command="{Binding ListContext.NewPostListWindowCommand}" Header="New Post List Window" />
+        <MenuItem Command="{Binding CommonCommands.NewNoteListWindowCommand}" Header="New Note List Window" />
+        <MenuItem Command="{Binding CommonCommands.NewPhotoListWindowCommand}" Header="New Photo List Window" />
+        <MenuItem Command="{Binding CommonCommands.NewPointListWindowCommand}" Header="New Point List Window" />
+        <MenuItem Command="{Binding CommonCommands.NewPostListWindowCommand}" Header="New Post List Window" />
+        <MenuItem Command="{Binding CommonCommands.NewVideoListWindowCommand}" Header="New Video List Window" />
     </collections:ArrayList>
     <MenuItem
         x:Key="ViewMenu"
@@ -1088,26 +1089,26 @@
         Header="View"
         ItemsSource="{StaticResource ViewMenuItemValues}" />
     <collections:ArrayList x:Key="NewMenuItemValues" x:Shared="False">
-        <MenuItem Command="{Binding ListContext.NewActions.NewFileContentFromFilesCommand}" Header="File from File" />
-        <MenuItem Command="{Binding ListContext.NewActions.NewFileContentCommand}" Header="File" />
-        <MenuItem Command="{Binding ListContext.NewActions.NewGeoJsonContentCommand}" Header="GeoJson" />
-        <MenuItem Command="{Binding ListContext.NewActions.NewImageContentFromFilesCommand}" Header="Image from File" />
-        <MenuItem Command="{Binding ListContext.NewActions.NewImageContentCommand}" Header="Image" />
-        <MenuItem Command="{Binding ListContext.NewActions.NewLineContentFromFilesWithAutosaveCommand}"
+        <MenuItem Command="{Binding CommonCommands.NewFileContentFromFilesCommand}" Header="File from File" />
+        <MenuItem Command="{Binding CommonCommands.NewFileContentCommand}" Header="File" />
+        <MenuItem Command="{Binding CommonCommands.NewGeoJsonContentCommand}" Header="GeoJson" />
+        <MenuItem Command="{Binding CommonCommands.NewImageContentFromFilesCommand}" Header="Image from File" />
+        <MenuItem Command="{Binding CommonCommands.NewImageContentCommand}" Header="Image" />
+        <MenuItem Command="{Binding CommonCommands.NewLineContentFromFilesWithAutosaveCommand}"
                   Header="Line from File - Auto-Save" />
-        <MenuItem Command="{Binding ListContext.NewActions.NewLineContentFromFilesCommand}" Header="Line from File" />
-        <MenuItem Command="{Binding ListContext.NewActions.NewLineContentCommand}" Header="Line" />
-        <MenuItem Command="{Binding ListContext.NewActions.NewLinkContentCommand}" Header="Link" />
-        <MenuItem Command="{Binding ListContext.NewActions.NewMapContentCommand}" Header="Map Component" />
-        <MenuItem Command="{Binding ListContext.NewActions.NewNoteContentCommand}" Header="Note" />
-        <MenuItem Command="{Binding ListContext.NewActions.NewPhotoContentFromFilesWithAutosaveCommand}"
+        <MenuItem Command="{Binding CommonCommands.NewLineContentFromFilesCommand}" Header="Line from File" />
+        <MenuItem Command="{Binding CommonCommands.NewLineContentCommand}" Header="Line" />
+        <MenuItem Command="{Binding CommonCommands.NewLinkContentCommand}" Header="Link" />
+        <MenuItem Command="{Binding CommonCommands.NewMapContentCommand}" Header="Map Component" />
+        <MenuItem Command="{Binding CommonCommands.NewNoteContentCommand}" Header="Note" />
+        <MenuItem Command="{Binding CommonCommands.NewPhotoContentFromFilesWithAutosaveCommand}"
                   Header="Photo from File - Auto-Save" />
-        <MenuItem Command="{Binding ListContext.NewActions.NewPhotoContentFromFilesCommand}" Header="Photo from File" />
-        <MenuItem Command="{Binding ListContext.NewActions.NewPhotoContentCommand}" Header="Photo" />
-        <MenuItem Command="{Binding ListContext.NewActions.NewPointContentCommand}" Header="Point" />
-        <MenuItem Command="{Binding ListContext.NewActions.NewPostContentCommand}" Header="Post" />
-        <MenuItem Command="{Binding ListContext.NewActions.NewVideoContentFromFilesCommand}" Header="Video From Files" />
-        <MenuItem Command="{Binding ListContext.NewActions.NewVideoContentCommand}" Header="Video" />
+        <MenuItem Command="{Binding CommonCommands.NewPhotoContentFromFilesCommand}" Header="Photo from File" />
+        <MenuItem Command="{Binding CommonCommands.NewPhotoContentCommand}" Header="Photo" />
+        <MenuItem Command="{Binding CommonCommands.NewPointContentCommand}" Header="Point" />
+        <MenuItem Command="{Binding CommonCommands.NewPostContentCommand}" Header="Post" />
+        <MenuItem Command="{Binding CommonCommands.NewVideoContentFromFilesCommand}" Header="Video From Files" />
+        <MenuItem Command="{Binding CommonCommands.NewVideoContentCommand}" Header="Video" />
 
     </collections:ArrayList>
     <MenuItem
@@ -1116,9 +1117,9 @@
         Header="New"
         ItemsSource="{StaticResource NewMenuItemValues}" />
     <collections:ArrayList x:Key="ExcelMenuItemValues" x:Shared="False">
-        <MenuItem Command="{Binding ListContext.SelectedToExcelCommand}" Header="Selected To Excel" />
-        <MenuItem Command="{Binding ListContext.ImportFromExcelFileCommand}" Header="Import From Excel File" />
-        <MenuItem Command="{Binding ListContext.ImportFromOpenExcelInstanceCommand}"
+        <MenuItem Command="{Binding CommonCommands.SelectedToExcelCommand}" Header="Selected To Excel" />
+        <MenuItem Command="{Binding CommonCommands.ImportFromExcelFileCommand}" Header="Import From Excel File" />
+        <MenuItem Command="{Binding CommonCommands.ImportFromOpenExcelInstanceCommand}"
                   Header="Import From Open Excel Application" />
     </collections:ArrayList>
     <MenuItem

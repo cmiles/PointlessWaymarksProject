@@ -4,7 +4,7 @@ using CommunityToolkit.Mvvm.Input;
 using Omu.ValueInjecter;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.S3;
-using PointlessWaymarks.CmsWpfControls.Utility.Aws;
+using PointlessWaymarks.CmsWpfControls.ContentList;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
@@ -14,6 +14,7 @@ namespace PointlessWaymarks.CmsWpfControls.UserSettingsEditor;
 [ObservableObject]
 public partial class UserSettingsEditorContext
 {
+    [ObservableProperty] private CmsCommonCommands _commonCommands;
     [ObservableProperty] private RelayCommand _deleteAwsCredentials;
     [ObservableProperty] private UserSettings _editorSettings;
     [ObservableProperty] private RelayCommand _enterAwsCredentials;
@@ -24,6 +25,7 @@ public partial class UserSettingsEditorContext
     public UserSettingsEditorContext(StatusControlContext statusContext, UserSettings toLoad)
     {
         StatusContext = statusContext ?? new StatusControlContext();
+        CommonCommands = new CmsCommonCommands(StatusContext);
 
         StatusContext.RunFireAndForgetNonBlockingTask(async () => await LoadData(toLoad));
     }
@@ -44,6 +46,9 @@ public partial class UserSettingsEditorContext
         "This is the subdomain + domain and optionally port - for example 'PointlessWaymarks.com'. This software will " +
         "prepend protocol and append paths to this.";
 
+    public static string HelpMarkdownFeatureIntersectionSettingsFile =>
+        "This program can check a Point or Line against a set of GeoJson files to generate tags. The settings file for that feature must be specified here.";
+
     public static string HelpMarkdownLocalMediaArchive =>
         "The original/source media files are stored separately from the generated site - this (local) directory is very " +
         "important because the generating the site depends on the settings file, database and the contents of this " +
@@ -54,8 +59,14 @@ public partial class UserSettingsEditorContext
         "intention is that this program will create a local generated site to this directory and provide tools " +
         "to help you sync that to a server if you want to publish a public version of the site.";
 
+    public static string HelpMarkdownNumberOfItemsOnTheMainPage =>
+        "Determines the maximum number of items that will be displayed on the main/home/index page of the site.";
+
     public static string HelpMarkdownPinboardApiKey =>
         "Sites, pages and links on the internet are constantly disappearing - [Pinboard](https://pinboard.in/) is a bookmarking site that has options to archive links for your personal use and this software has some functions that help you send links to Pinboard if you enter your Api Key. This is OPTIONAL - nothing in this software requires Pinboard.";
+
+    public static string HelpMarkdownProgramUpdateLocation =>
+        "The location the program should check for updates.";
 
     public static string HelpMarkdownS3Information =>
         "This is NOT required. Amazon S3 - especially behind a service like Cloudflare - can be an excellent way to host a static site like this program generates. This program can help you upload files and maintain files on S3, but to do so you must provide some information - S3 Bucket Name (this will often match your domain name), S3 Bucket Region and AWS Site Credentials (these are not shown and are stored securely by windows - these are NOT stored in the database or in the settings file).";
@@ -78,21 +89,13 @@ public partial class UserSettingsEditorContext
         "Used in as the tags for the overall/entire site - for example " +
         "'outdoors,hiking,running,landscape,photography,history'.";
 
-    public static string HelpMarkdownProgramUpdateLocation =>
-        "The location the program should check for updates.";
-
     public static string HelpMarkdownSiteLangAttribute =>
         "Lang attribute indicating the default language for the site - see [lang attribute on MDN](https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/lang) for more information.";
-
-    public static string HelpMarkdownFeatureIntersectionSettingsFile =>
-        "This program can check a Point or Line against a set of GeoJson files to generate tags. The settings file for that feature must be specified here.";
 
     public static string HelpMarkdownSiteName => "The 'human readable' Site Name - for example 'Pointless Waymarks'.";
 
     public static string HelpMarkdownSubtitleSummary =>
         "Used as a sub-title and site summary - example 'Ramblings, Questionable Geographics, Photographic Half-truths'.";
-    public static string HelpMarkdownNumberOfItemsOnTheMainPage =>
-        "Determines the maximum number of items that will be displayed on the main/home/index page of the site.";
 
     private async Task LoadData(UserSettings toLoad)
     {

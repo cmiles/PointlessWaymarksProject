@@ -9,12 +9,9 @@ using CommunityToolkit.Mvvm.Input;
 using KellermanSoftware.CompareNetObjects;
 using KellermanSoftware.CompareNetObjects.Reports;
 using Microsoft.EntityFrameworkCore;
-using NetTopologySuite.Features;
-using Omu.ValueInjecter;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.Content;
-using PointlessWaymarks.CmsData.ContentHtml;
 using PointlessWaymarks.CmsData.ContentHtml.PhotoHtml;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
@@ -27,13 +24,13 @@ using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 using PointlessWaymarks.WpfCommon.Utility;
 using Serilog;
-using Point = NetTopologySuite.Geometries.Point;
 
 namespace PointlessWaymarks.CmsWpfControls.PhotoList;
 
 public partial class PhotoListWithActionsContext : ObservableObject
 {
     [ObservableProperty] private RelayCommand _addIntersectionTagsToSelectedCommand;
+    [ObservableProperty] private CmsCommonCommands _commonCommands;
     [ObservableProperty] private RelayCommand _dailyPhotoLinkCodesToClipboardForSelectedCommand;
     [ObservableProperty] private RelayCommand _emailHtmlToClipboardCommand;
     [ObservableProperty] private RelayCommand _forcedResizeCommand;
@@ -59,6 +56,7 @@ public partial class PhotoListWithActionsContext : ObservableObject
     {
         StatusContext = statusContext ?? new StatusControlContext();
         WindowStatus = windowStatus;
+        CommonCommands = new CmsCommonCommands(StatusContext, WindowStatus);
 
         StatusContext.RunFireAndForgetBlockingTask(LoadData);
     }
@@ -115,13 +113,14 @@ public partial class PhotoListWithActionsContext : ObservableObject
         {
             var feature = loopSelected.DbEntry.FeatureFromPoint();
 
-            if(feature == null) continue;
+            if (feature == null) continue;
 
             toProcess.Add((PhotoContent)new PhotoContent().InjectFrom(loopSelected.DbEntry));
-            intersectResults.Add(new IntersectResult(feature) {ContentId = loopSelected.DbEntry.ContentId});
+            intersectResults.Add(new IntersectResult(feature) { ContentId = loopSelected.DbEntry.ContentId });
         }
 
-        intersectResults.IntersectionTags(UserSettingsSingleton.CurrentSettings().FeatureIntersectionTagSettingsFile, cancellationToken,
+        intersectResults.IntersectionTags(UserSettingsSingleton.CurrentSettings().FeatureIntersectionTagSettingsFile,
+            cancellationToken,
             StatusContext.ProgressTracker());
 
         var updateTime = DateTime.Now;
@@ -650,7 +649,8 @@ public partial class PhotoListWithActionsContext : ObservableObject
                 continue;
             }
 
-            var metadataReturn = await PhotoGenerator.PhotoMetadataFromFile(mediaFile, true, StatusContext.ProgressTracker());
+            var metadataReturn =
+                await PhotoGenerator.PhotoMetadataFromFile(mediaFile, true, StatusContext.ProgressTracker());
 
             if (metadataReturn.generationReturn.HasError)
             {

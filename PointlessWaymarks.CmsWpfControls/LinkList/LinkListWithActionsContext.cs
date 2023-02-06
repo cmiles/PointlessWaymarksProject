@@ -16,6 +16,7 @@ namespace PointlessWaymarks.CmsWpfControls.LinkList;
 
 public partial class LinkListWithActionsContext : ObservableObject
 {
+    [ObservableProperty] private CmsCommonCommands _commonCommands;
     [ObservableProperty] private ContentListContext _listContext;
     [ObservableProperty] private RelayCommand _listSelectedLinksNotOnPinboardCommand;
     [ObservableProperty] private RelayCommand _mdLinkCodesToClipboardForSelectedCommand;
@@ -27,6 +28,7 @@ public partial class LinkListWithActionsContext : ObservableObject
     {
         StatusContext = statusContext ?? new StatusControlContext();
         WindowStatus = windowStatus;
+        CommonCommands = new CmsCommonCommands(StatusContext, WindowStatus);
 
         StatusContext.RunFireAndForgetBlockingTask(LoadData);
     }

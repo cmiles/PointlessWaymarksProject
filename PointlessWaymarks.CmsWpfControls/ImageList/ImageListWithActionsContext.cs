@@ -15,6 +15,7 @@ namespace PointlessWaymarks.CmsWpfControls.ImageList;
 
 public partial class ImageListWithActionsContext : ObservableObject
 {
+    [ObservableProperty] private CmsCommonCommands _commonCommands;
     [ObservableProperty] private RelayCommand _emailHtmlToClipboardCommand;
     [ObservableProperty] private RelayCommand _forcedResizeCommand;
     [ObservableProperty] private RelayCommand _imageBracketLinkCodesToClipboardForSelectedCommand;
@@ -29,6 +30,7 @@ public partial class ImageListWithActionsContext : ObservableObject
     {
         StatusContext = statusContext ?? new StatusControlContext();
         WindowStatus = windowStatus;
+        CommonCommands = new CmsCommonCommands(StatusContext, WindowStatus);
 
         StatusContext.RunFireAndForgetBlockingTask(LoadData);
     }
@@ -227,7 +229,8 @@ public partial class ImageListWithActionsContext : ObservableObject
 
             if (generationReturn.HasError)
             {
-                PointlessWaymarksLogTools.LogGenerationReturn(generationReturn, "Error with Image Resizing and HTML Regeneration");
+                PointlessWaymarksLogTools.LogGenerationReturn(generationReturn,
+                    "Error with Image Resizing and HTML Regeneration");
                 StatusContext.Progress(
                     $"Re-processing Image and Generating Html for {loopSelected.DbEntry.Title} Error {generationReturn.GenerationNote}, {generationReturn.Exception}, {loopCount} of {totalCount}");
                 errorList.Add(

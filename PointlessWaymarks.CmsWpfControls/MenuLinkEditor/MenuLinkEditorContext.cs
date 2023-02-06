@@ -1,10 +1,10 @@
 ﻿using System.Collections.ObjectModel;
-using Microsoft.EntityFrameworkCore;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using PointlessWaymarks.CmsData;
+using Microsoft.EntityFrameworkCore;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
+using PointlessWaymarks.CmsWpfControls.ContentList;
 using PointlessWaymarks.CmsWpfControls.HelpDisplay;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.WpfCommon.Status;
@@ -15,6 +15,7 @@ namespace PointlessWaymarks.CmsWpfControls.MenuLinkEditor;
 [ObservableObject]
 public partial class MenuLinkEditorContext
 {
+    [ObservableProperty] private CmsCommonCommands _commonCommands;
     [ObservableProperty] private string _helpMarkdown;
     [ObservableProperty] private ObservableCollection<MenuLinkListItem> _items = new();
     [ObservableProperty] private List<MenuLinkListItem> _selectedItems;
@@ -23,6 +24,7 @@ public partial class MenuLinkEditorContext
     public MenuLinkEditorContext(StatusControlContext statusContext)
     {
         StatusContext = statusContext ?? new StatusControlContext();
+        CommonCommands = new CmsCommonCommands(StatusContext);
 
         AddItemCommand = StatusContext.RunBlockingTaskCommand(AddItem);
         DeleteItemCommand = StatusContext.RunBlockingTaskCommand(DeleteItems);

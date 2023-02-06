@@ -1,10 +1,8 @@
-﻿using System.Diagnostics;
-using System.IO;
+﻿using System.IO;
 using System.Text;
 using System.Windows;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using NetTopologySuite.Features;
 using Omu.ValueInjecter;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.CommonHtml;
@@ -24,6 +22,7 @@ namespace PointlessWaymarks.CmsWpfControls.GeoJsonList;
 public partial class GeoJsonListWithActionsContext : ObservableObject
 {
     [ObservableProperty] private RelayCommand _addIntersectionTagsToSelectedCommand;
+    [ObservableProperty] private CmsCommonCommands _commonCommands;
     [ObservableProperty] private RelayCommand _geoJsonLinkCodesToClipboardForSelectedCommand;
     [ObservableProperty] private ContentListContext _listContext;
     [ObservableProperty] private RelayCommand _refreshDataCommand;
@@ -35,6 +34,7 @@ public partial class GeoJsonListWithActionsContext : ObservableObject
     {
         StatusContext = statusContext ?? new StatusControlContext();
         WindowStatus = windowStatus;
+        CommonCommands = new CmsCommonCommands(StatusContext, WindowStatus);
 
         StatusContext.RunFireAndForgetBlockingTask(LoadData);
     }
@@ -72,7 +72,7 @@ public partial class GeoJsonListWithActionsContext : ObservableObject
         var processedCount = 0;
 
         cancellationToken.ThrowIfCancellationRequested();
-        
+
         List<GeoJsonContent> dbEntriesToProcess = new();
         List<IntersectResult> intersectResults = new();
 
@@ -80,7 +80,7 @@ public partial class GeoJsonListWithActionsContext : ObservableObject
         {
             var features = loopSelected.DbEntry.FeaturesFromGeoJson();
 
-            if(!features.Any()) continue;
+            if (!features.Any()) continue;
 
             dbEntriesToProcess.Add((GeoJsonContent)new GeoJsonContent().InjectFrom(loopSelected.DbEntry));
             intersectResults.Add(new IntersectResult(features)

@@ -1,4 +1,5 @@
 ﻿using System.Collections.ObjectModel;
+using System.Windows;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Omu.ValueInjecter;
@@ -6,6 +7,7 @@ using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.Content;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
+using PointlessWaymarks.CmsWpfControls.ContentList;
 using PointlessWaymarks.CmsWpfControls.HelpDisplay;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.WpfCommon.Status;
@@ -24,10 +26,12 @@ public partial class TagExclusionEditorContext : ObservableObject
     [ObservableProperty] private ObservableCollection<TagExclusionEditorListItem> _items;
     [ObservableProperty] private RelayCommand<TagExclusionEditorListItem> _saveItemCommand;
     [ObservableProperty] private StatusControlContext _statusContext;
+    [ObservableProperty] private CmsCommonCommands _commonCommands;
 
     public TagExclusionEditorContext(StatusControlContext statusContext)
     {
         StatusContext = statusContext ?? new StatusControlContext();
+        CommonCommands = new CmsCommonCommands(StatusContext);
 
         DataNotificationsProcessor = new DataNotificationsWorkQueue { Processor = DataNotificationReceived };
 

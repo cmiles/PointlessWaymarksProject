@@ -13,6 +13,7 @@ namespace PointlessWaymarks.CmsWpfControls.FileList;
 
 public partial class FileListWithActionsContext : ObservableObject
 {
+    [ObservableProperty] private CmsCommonCommands _commonCommands;
     [ObservableProperty] private RelayCommand _emailHtmlToClipboardCommand;
     [ObservableProperty] private RelayCommand _fileDownloadLinkCodesToClipboardForSelectedCommand;
     [ObservableProperty] private RelayCommand _fileEmbedCodesToClipboardForSelectedCommand;
@@ -29,6 +30,7 @@ public partial class FileListWithActionsContext : ObservableObject
     {
         StatusContext = statusContext ?? new StatusControlContext();
         WindowStatus = windowStatus;
+        CommonCommands = new CmsCommonCommands(StatusContext, WindowStatus);
 
         StatusContext.RunFireAndForgetBlockingTask(LoadData);
     }

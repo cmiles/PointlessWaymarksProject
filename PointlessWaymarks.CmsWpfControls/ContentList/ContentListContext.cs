@@ -78,19 +78,7 @@ public partial class ContentListContext : ObservableObject, IDragSource, IDropTa
     [ObservableProperty] private ColumnSortControlContext _listSort;
     [ObservableProperty] private RelayCommand _loadAllCommand;
     [ObservableProperty] private MapComponentContentActions _mapComponentItemActions;
-    [ObservableProperty] private NewContent _newActions;
-    [ObservableProperty] private RelayCommand _newAllContentListWindowCommand;
-    [ObservableProperty] private RelayCommand _newFileListWindowCommand;
-    [ObservableProperty] private RelayCommand _newGeoJsonListWindowCommand;
-    [ObservableProperty] private RelayCommand _newImageListWindowCommand;
-    [ObservableProperty] private RelayCommand _newLineListWindowCommand;
-    [ObservableProperty] private RelayCommand _newLinkListWindowCommand;
-    [ObservableProperty] private RelayCommand _newMapComponentListWindowCommand;
-    [ObservableProperty] private RelayCommand _newNoteListWindowCommand;
-    [ObservableProperty] private RelayCommand _newPhotoListWindowCommand;
-    [ObservableProperty] private RelayCommand _newPointListWindowCommand;
-    [ObservableProperty] private RelayCommand _newPostListWindowCommand;
-    [ObservableProperty] private RelayCommand _newVideoListWindowCommand;
+    [ObservableProperty] private CmsCommonCommands _newActions;
     [ObservableProperty] private NoteContentActions _noteItemActions;
     [ObservableProperty] private PhotoContentActions _photoItemActions;
     [ObservableProperty] private PointContentActions _pointItemActions;
@@ -130,7 +118,7 @@ public partial class ContentListContext : ObservableObject, IDragSource, IDropTa
         PostItemActions = new PostContentActions(StatusContext);
         VideoItemActions = new VideoContentActions(StatusContext);
 
-        NewActions = new NewContent(StatusContext, WindowStatus);
+        NewActions = new CmsCommonCommands(StatusContext, WindowStatus);
 
         DataNotificationsProcessor = new DataNotificationsWorkQueue { Processor = DataNotificationReceived };
 
@@ -159,89 +147,12 @@ public partial class ContentListContext : ObservableObject, IDragSource, IDropTa
         SelectedToExcelCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
             await ExcelHelpers.SelectedToExcel(ListSelection.SelectedItems?.Cast<dynamic>().ToList(), StatusContext));
 
-        GenerateChangedHtmlAndStartUploadCommand =
-            StatusContext.RunBlockingTaskCommand(GenerateChangedHtmlAndStartUpload);
-        GenerateChangedHtmlCommand = StatusContext.RunBlockingTaskCommand(GenerateChangedHtml);
-        ShowSitePreviewWindowCommand = StatusContext.RunNonBlockingTaskCommand(ShowSitePreviewWindow);
-        GenerateChangedHtmlAndShowSitePreviewCommand =
-            StatusContext.RunBlockingTaskCommand(GenerateChangedHtmlAndShowSitePreview);
-
         FolderSearchCommand = StatusContext.RunNonBlockingTaskCommand<string>(async x =>
             await RunReport(async () => await FolderSearch(x), $"Folder Search - {x}"));
         CreatedOnDaySearchCommand = StatusContext.RunNonBlockingTaskCommand<DateTime?>(async x =>
             await RunReport(async () => await CreatedOnDaySearch(x), $"Created On Search - {x}"));
         LastUpdatedOnDaySearchCommand = StatusContext.RunNonBlockingTaskCommand<DateTime?>(async x =>
             await RunReport(async () => await UpdatedOnDaySearch(x), $"Last Updated On Search - {x}"));
-
-        NewAllContentListWindowCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
-        {
-            var newWindow =
-                await AllContentListWindow.CreateInstance(new AllContentListWithActionsContext(null, WindowStatus));
-            await newWindow.PositionWindowAndShowOnUiThread();
-        });
-        NewFileListWindowCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
-        {
-            var newWindow = await FileListWindow.CreateInstance(new FileListWithActionsContext(null, WindowStatus));
-            await newWindow.PositionWindowAndShowOnUiThread();
-        });
-        NewGeoJsonListWindowCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
-        {
-            var newWindow =
-                await GeoJsonListWindow.CreateInstance(new GeoJsonListWithActionsContext(null, WindowStatus));
-            await newWindow.PositionWindowAndShowOnUiThread();
-        });
-        NewImageListWindowCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
-        {
-            var newWindow = await ImageListWindow.CreateInstance(new ImageListWithActionsContext(null, WindowStatus));
-            await newWindow.PositionWindowAndShowOnUiThread();
-        });
-        NewLineListWindowCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
-        {
-            var newWindow = await LineListWindow.CreateInstance(new LineListWithActionsContext(null, WindowStatus));
-            await newWindow.PositionWindowAndShowOnUiThread();
-        });
-        NewLinkListWindowCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
-        {
-            var newWindow = await LinkListWindow.CreateInstance(new LinkListWithActionsContext(null, WindowStatus));
-            await newWindow.PositionWindowAndShowOnUiThread();
-        });
-        NewMapComponentListWindowCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
-        {
-            var newWindow =
-                await MapComponentListWindow.CreateInstance(new MapComponentListWithActionsContext(null, WindowStatus));
-            await newWindow.PositionWindowAndShowOnUiThread();
-        });
-        NewNoteListWindowCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
-        {
-            var newWindow = await NoteListWindow.CreateInstance(new NoteListWithActionsContext(null, WindowStatus));
-            await newWindow.PositionWindowAndShowOnUiThread();
-        });
-        NewPhotoListWindowCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
-        {
-            var newWindow = await PhotoListWindow.CreateInstance(new PhotoListWithActionsContext(null, WindowStatus));
-            await newWindow.PositionWindowAndShowOnUiThread();
-        });
-        NewPointListWindowCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
-        {
-            var newWindow = await PointListWindow.CreateInstance(new PointListWithActionsContext(null, WindowStatus));
-            await newWindow.PositionWindowAndShowOnUiThread();
-        });
-        NewPostListWindowCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
-        {
-            var newWindow = await PostListWindow.CreateInstance(new PostListWithActionsContext(null, WindowStatus));
-            await newWindow.PositionWindowAndShowOnUiThread();
-        });
-        NewVideoListWindowCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
-        {
-            var newWindow = await VideoListWindow.CreateInstance(new VideoListWithActionsContext(null, WindowStatus));
-            await newWindow.PositionWindowAndShowOnUiThread();
-        });
-
-        SearchHelpWindowCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
-        {
-            var newWindow = await MarkdownViewerWindow.CreateInstance("Search Help", SearchHelpMarkdown.HelpBlock);
-            await newWindow.PositionWindowAndShowOnUiThread();
-        });
     }
 
     public bool CanStartDrag(IDragInfo dragInfo)
@@ -668,62 +579,7 @@ public partial class ContentListContext : ObservableObject, IDragSource, IDropTa
         return (await Db.ContentInFolder(folderName ?? string.Empty)).ToList();
     }
 
-    private async Task GenerateChangedHtml()
-    {
-        await ThreadSwitcher.ResumeBackgroundAsync();
-
-        try
-        {
-            WindowStatus?.AddRequest(new WindowIconStatusRequest(StatusContext.StatusControlContextId,
-                TaskbarItemProgressState.Indeterminate));
-
-            await HtmlGenerationGroups.GenerateChangedToHtml(StatusContext.ProgressTracker());
-        }
-        finally
-        {
-            WindowStatus?.AddRequest(new WindowIconStatusRequest(StatusContext.StatusControlContextId,
-                TaskbarItemProgressState.None));
-        }
-    }
-
-    private async Task GenerateChangedHtmlAndShowSitePreview()
-    {
-        await ThreadSwitcher.ResumeBackgroundAsync();
-
-        try
-        {
-            WindowStatus?.AddRequest(new WindowIconStatusRequest(StatusContext.StatusControlContextId,
-                TaskbarItemProgressState.Indeterminate));
-
-            await HtmlGenerationGroups.GenerateChangedToHtml(StatusContext.ProgressTracker());
-        }
-        finally
-        {
-            WindowStatus?.AddRequest(new WindowIconStatusRequest(StatusContext.StatusControlContextId,
-                TaskbarItemProgressState.None));
-        }
-
-        var sitePreviewWindow = await SiteOnDiskPreviewWindow.CreateInstance();
-        await sitePreviewWindow.PositionWindowAndShowOnUiThread();
-    }
-
-    private async Task GenerateChangedHtmlAndStartUpload()
-    {
-        await ThreadSwitcher.ResumeBackgroundAsync();
-
-        try
-        {
-            WindowStatus?.AddRequest(new WindowIconStatusRequest(StatusContext.StatusControlContextId,
-                TaskbarItemProgressState.Indeterminate));
-
-            await S3UploadHelpers.GenerateChangedHtmlAndStartUpload(StatusContext, WindowStatus);
-        }
-        finally
-        {
-            WindowStatus?.AddRequest(new WindowIconStatusRequest(StatusContext.StatusControlContextId,
-                TaskbarItemProgressState.None));
-        }
-    }
+ 
 
     public async Task GenerateHtmlSelected(CancellationToken cancelToken)
     {
@@ -876,14 +732,7 @@ public partial class ContentListContext : ObservableObject, IDragSource, IDropTa
         await newWindow.PositionWindowAndShowOnUiThread();
     }
 
-    private async Task ShowSitePreviewWindow()
-    {
-        await ThreadSwitcher.ResumeForegroundAsync();
 
-        var sitePreviewWindow = await SiteOnDiskPreviewWindow.CreateInstance();
-
-        await sitePreviewWindow.PositionWindowAndShowOnUiThread();
-    }
 
     private void StatusContextOnPropertyChanged(object sender, PropertyChangedEventArgs e)
     {
@@ -926,7 +775,7 @@ public partial class ContentListContext : ObservableObject, IDragSource, IDropTa
 
             if (lineContentExtensions.Contains(Path.GetExtension(loopFile).ToUpperInvariant()))
             {
-                await NewContent.NewLineContentFromFiles(fileInfo.AsList(), false, CancellationToken.None,
+                await CmsCommonCommands.NewLineContentFromFiles(fileInfo.AsList(), false, CancellationToken.None,
                     StatusContext,
                     WindowStatus);
                 continue;

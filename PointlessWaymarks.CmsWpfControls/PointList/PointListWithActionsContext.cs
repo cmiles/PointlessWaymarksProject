@@ -5,9 +5,7 @@ using System.Windows;
 using System.Xml;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using NetTopologySuite.Features;
 using NetTopologySuite.IO;
-using Omu.ValueInjecter;
 using Ookii.Dialogs.Wpf;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.CommonHtml;
@@ -27,6 +25,7 @@ namespace PointlessWaymarks.CmsWpfControls.PointList;
 public partial class PointListWithActionsContext : ObservableObject
 {
     [ObservableProperty] private RelayCommand _addIntersectionTagsToSelectedCommand;
+    [ObservableProperty] private CmsCommonCommands _commonCommands;
     [ObservableProperty] private ContentListContext _listContext;
     [ObservableProperty] private RelayCommand _pointLinkBracketCodesToClipboardForSelectedCommand;
     [ObservableProperty] private RelayCommand _refreshDataCommand;
@@ -39,6 +38,7 @@ public partial class PointListWithActionsContext : ObservableObject
     {
         StatusContext = statusContext ?? new StatusControlContext();
         WindowStatus = windowStatus;
+        CommonCommands = new CmsCommonCommands(StatusContext, WindowStatus);
 
         StatusContext.RunFireAndForgetBlockingTask(LoadData);
     }
@@ -93,7 +93,8 @@ public partial class PointListWithActionsContext : ObservableObject
             intersectResults.Add(new IntersectResult(feature) { ContentId = loopSelected.ContentId });
         }
 
-        intersectResults.IntersectionTags(UserSettingsSingleton.CurrentSettings().FeatureIntersectionTagSettingsFile, cancellationToken,
+        intersectResults.IntersectionTags(UserSettingsSingleton.CurrentSettings().FeatureIntersectionTagSettingsFile,
+            cancellationToken,
             StatusContext.ProgressTracker());
 
         var updateTime = DateTime.Now;

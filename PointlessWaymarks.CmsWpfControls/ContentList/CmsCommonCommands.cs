@@ -7,20 +7,37 @@ using NetTopologySuite.Geometries;
 using Ookii.Dialogs.Wpf;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.Content;
+using PointlessWaymarks.CmsData.ContentHtml;
 using PointlessWaymarks.CmsData.Database;
+using PointlessWaymarks.CmsWpfControls.AllContentList;
 using PointlessWaymarks.CmsWpfControls.FileContentEditor;
+using PointlessWaymarks.CmsWpfControls.FileList;
 using PointlessWaymarks.CmsWpfControls.GeoJsonContentEditor;
+using PointlessWaymarks.CmsWpfControls.GeoJsonList;
 using PointlessWaymarks.CmsWpfControls.GpxImport;
+using PointlessWaymarks.CmsWpfControls.HelpDisplay;
 using PointlessWaymarks.CmsWpfControls.ImageContentEditor;
+using PointlessWaymarks.CmsWpfControls.ImageList;
 using PointlessWaymarks.CmsWpfControls.LineContentEditor;
+using PointlessWaymarks.CmsWpfControls.LineList;
 using PointlessWaymarks.CmsWpfControls.LinkContentEditor;
+using PointlessWaymarks.CmsWpfControls.LinkList;
 using PointlessWaymarks.CmsWpfControls.MapComponentEditor;
+using PointlessWaymarks.CmsWpfControls.MapComponentList;
+using PointlessWaymarks.CmsWpfControls.MarkdownViewer;
 using PointlessWaymarks.CmsWpfControls.NoteContentEditor;
+using PointlessWaymarks.CmsWpfControls.NoteList;
 using PointlessWaymarks.CmsWpfControls.PhotoContentEditor;
+using PointlessWaymarks.CmsWpfControls.PhotoList;
 using PointlessWaymarks.CmsWpfControls.PointContentEditor;
+using PointlessWaymarks.CmsWpfControls.PointList;
 using PointlessWaymarks.CmsWpfControls.PostContentEditor;
+using PointlessWaymarks.CmsWpfControls.PostList;
+using PointlessWaymarks.CmsWpfControls.S3Uploads;
+using PointlessWaymarks.CmsWpfControls.SitePreview;
 using PointlessWaymarks.CmsWpfControls.Utility;
 using PointlessWaymarks.CmsWpfControls.VideoContentEditor;
+using PointlessWaymarks.CmsWpfControls.VideoList;
 using PointlessWaymarks.FeatureIntersectionTags;
 using PointlessWaymarks.SpatialTools;
 using PointlessWaymarks.WpfCommon.Status;
@@ -29,11 +46,11 @@ using PointlessWaymarks.WpfCommon.Utility;
 
 namespace PointlessWaymarks.CmsWpfControls.ContentList;
 
-public partial class NewContent : ObservableObject
+public partial class CmsCommonCommands : ObservableObject
 {
     [ObservableProperty] private StatusControlContext _statusContext;
 
-    public NewContent(StatusControlContext statusContext, WindowIconStatus windowStatus = null)
+    public CmsCommonCommands(StatusControlContext statusContext, WindowIconStatus windowStatus = null)
     {
         StatusContext = statusContext;
         WindowStatus = windowStatus;
@@ -90,13 +107,103 @@ public partial class NewContent : ObservableObject
                 "Cancel Video Import");
 
         NewGpxImportWindow = StatusContext.RunNonBlockingTaskCommand(NewGpxImport);
+
+
+        NewAllContentListWindowCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
+        {
+            var newWindow =
+                await AllContentListWindow.CreateInstance(new AllContentListWithActionsContext(null, WindowStatus));
+            await newWindow.PositionWindowAndShowOnUiThread();
+        });
+        NewFileListWindowCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
+        {
+            var newWindow = await FileListWindow.CreateInstance(new FileListWithActionsContext(null, WindowStatus));
+            await newWindow.PositionWindowAndShowOnUiThread();
+        });
+        NewGeoJsonListWindowCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
+        {
+            var newWindow =
+                await GeoJsonListWindow.CreateInstance(new GeoJsonListWithActionsContext(null, WindowStatus));
+            await newWindow.PositionWindowAndShowOnUiThread();
+        });
+        NewImageListWindowCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
+        {
+            var newWindow = await ImageListWindow.CreateInstance(new ImageListWithActionsContext(null, WindowStatus));
+            await newWindow.PositionWindowAndShowOnUiThread();
+        });
+        NewLineListWindowCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
+        {
+            var newWindow = await LineListWindow.CreateInstance(new LineListWithActionsContext(null, WindowStatus));
+            await newWindow.PositionWindowAndShowOnUiThread();
+        });
+        NewLinkListWindowCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
+        {
+            var newWindow = await LinkListWindow.CreateInstance(new LinkListWithActionsContext(null, WindowStatus));
+            await newWindow.PositionWindowAndShowOnUiThread();
+        });
+        NewMapComponentListWindowCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
+        {
+            var newWindow =
+                await MapComponentListWindow.CreateInstance(new MapComponentListWithActionsContext(null, WindowStatus));
+            await newWindow.PositionWindowAndShowOnUiThread();
+        });
+        NewNoteListWindowCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
+        {
+            var newWindow = await NoteListWindow.CreateInstance(new NoteListWithActionsContext(null, WindowStatus));
+            await newWindow.PositionWindowAndShowOnUiThread();
+        });
+        NewPhotoListWindowCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
+        {
+            var newWindow = await PhotoListWindow.CreateInstance(new PhotoListWithActionsContext(null, WindowStatus));
+            await newWindow.PositionWindowAndShowOnUiThread();
+        });
+        NewPointListWindowCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
+        {
+            var newWindow = await PointListWindow.CreateInstance(new PointListWithActionsContext(null, WindowStatus));
+            await newWindow.PositionWindowAndShowOnUiThread();
+        });
+        NewPostListWindowCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
+        {
+            var newWindow = await PostListWindow.CreateInstance(new PostListWithActionsContext(null, WindowStatus));
+            await newWindow.PositionWindowAndShowOnUiThread();
+        });
+        NewVideoListWindowCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
+        {
+            var newWindow = await VideoListWindow.CreateInstance(new VideoListWithActionsContext(null, WindowStatus));
+            await newWindow.PositionWindowAndShowOnUiThread();
+        });
+
+        SearchHelpWindowCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
+        {
+            var newWindow = await MarkdownViewerWindow.CreateInstance("Search Help", SearchHelpMarkdown.HelpBlock);
+            await newWindow.PositionWindowAndShowOnUiThread();
+        });
+
+        GenerateChangedHtmlAndStartUploadCommand =
+            StatusContext.RunBlockingTaskCommand(GenerateChangedHtmlAndStartUpload);
+        GenerateChangedHtmlCommand = StatusContext.RunBlockingTaskCommand(GenerateChangedHtml);
+        ShowSitePreviewWindowCommand = StatusContext.RunNonBlockingTaskCommand(ShowSitePreviewWindow);
+        GenerateChangedHtmlAndShowSitePreviewCommand =
+            StatusContext.RunBlockingTaskCommand(GenerateChangedHtmlAndShowSitePreview);
     }
+
+    public RelayCommand GenerateChangedHtmlAndShowSitePreviewCommand { get; set; }
+
+    public RelayCommand GenerateChangedHtmlAndStartUploadCommand { get; set; }
+
+    public RelayCommand GenerateChangedHtmlCommand { get; set; }
+
+    public RelayCommand NewAllContentListWindowCommand { get; set; }
 
     public RelayCommand NewFileContentCommand { get; }
 
     public RelayCommand NewFileContentFromFilesCommand { get; }
 
+    public RelayCommand NewFileListWindowCommand { get; set; }
+
     public RelayCommand NewGeoJsonContentCommand { get; }
+
+    public RelayCommand NewGeoJsonListWindowCommand { get; set; }
 
     public RelayCommand NewGpxImportWindow { get; set; }
 
@@ -104,17 +211,27 @@ public partial class NewContent : ObservableObject
 
     public RelayCommand NewImageContentFromFilesCommand { get; }
 
+    public RelayCommand NewImageListWindowCommand { get; set; }
+
     public RelayCommand NewLineContentCommand { get; }
 
     public RelayCommand NewLineContentFromFilesCommand { get; set; }
 
     public RelayCommand NewLineContentFromFilesWithAutosaveCommand { get; set; }
 
+    public RelayCommand NewLineListWindowCommand { get; set; }
+
     public RelayCommand NewLinkContentCommand { get; }
+
+    public RelayCommand NewLinkListWindowCommand { get; set; }
+
+    public RelayCommand NewMapComponentListWindowCommand { get; set; }
 
     public RelayCommand NewMapContentCommand { get; }
 
     public RelayCommand NewNoteContentCommand { get; }
+
+    public RelayCommand NewNoteListWindowCommand { get; set; }
 
     public RelayCommand NewPhotoContentCommand { get; }
 
@@ -122,15 +239,84 @@ public partial class NewContent : ObservableObject
 
     public RelayCommand NewPhotoContentFromFilesWithAutosaveCommand { get; }
 
+    public RelayCommand NewPhotoListWindowCommand { get; set; }
+
     public RelayCommand NewPointContentCommand { get; }
 
+    public RelayCommand NewPointListWindowCommand { get; set; }
+
     public RelayCommand NewPostContentCommand { get; }
+
+    public RelayCommand NewPostListWindowCommand { get; set; }
 
     public RelayCommand NewVideoContentCommand { get; set; }
 
     public RelayCommand NewVideoContentFromFilesCommand { get; set; }
 
+    public RelayCommand NewVideoListWindowCommand { get; set; }
+
+    public RelayCommand SearchHelpWindowCommand { get; set; }
+
+    public RelayCommand ShowSitePreviewWindowCommand { get; set; }
+
     public WindowIconStatus WindowStatus { get; set; }
+
+    private async Task GenerateChangedHtml()
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        try
+        {
+            WindowStatus?.AddRequest(new WindowIconStatusRequest(StatusContext.StatusControlContextId,
+                TaskbarItemProgressState.Indeterminate));
+
+            await HtmlGenerationGroups.GenerateChangedToHtml(StatusContext.ProgressTracker());
+        }
+        finally
+        {
+            WindowStatus?.AddRequest(new WindowIconStatusRequest(StatusContext.StatusControlContextId,
+                TaskbarItemProgressState.None));
+        }
+    }
+
+    private async Task GenerateChangedHtmlAndShowSitePreview()
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        try
+        {
+            WindowStatus?.AddRequest(new WindowIconStatusRequest(StatusContext.StatusControlContextId,
+                TaskbarItemProgressState.Indeterminate));
+
+            await HtmlGenerationGroups.GenerateChangedToHtml(StatusContext.ProgressTracker());
+        }
+        finally
+        {
+            WindowStatus?.AddRequest(new WindowIconStatusRequest(StatusContext.StatusControlContextId,
+                TaskbarItemProgressState.None));
+        }
+
+        var sitePreviewWindow = await SiteOnDiskPreviewWindow.CreateInstance();
+        await sitePreviewWindow.PositionWindowAndShowOnUiThread();
+    }
+
+    private async Task GenerateChangedHtmlAndStartUpload()
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        try
+        {
+            WindowStatus?.AddRequest(new WindowIconStatusRequest(StatusContext.StatusControlContextId,
+                TaskbarItemProgressState.Indeterminate));
+
+            await S3UploadHelpers.GenerateChangedHtmlAndStartUpload(StatusContext, WindowStatus);
+        }
+        finally
+        {
+            WindowStatus?.AddRequest(new WindowIconStatusRequest(StatusContext.StatusControlContextId,
+                TaskbarItemProgressState.None));
+        }
+    }
 
     public async Task NewFileContent()
     {
@@ -557,7 +743,8 @@ public partial class NewContent : ObservableObject
 
         StatusContext.Progress("Starting Video load.");
 
-        var dialog = new VistaOpenFileDialog { Multiselect = true, Filter = "supported formats (*.mp4;*.webm,*.ogg)|*.mp4;*.webm;*.ogg" };
+        var dialog = new VistaOpenFileDialog
+            { Multiselect = true, Filter = "supported formats (*.mp4;*.webm,*.ogg)|*.mp4;*.webm;*.ogg" };
 
         if (!(dialog.ShowDialog() ?? false)) return;
 
@@ -606,5 +793,14 @@ public partial class NewContent : ObservableObject
 
             await ThreadSwitcher.ResumeBackgroundAsync();
         }
+    }
+
+    private async Task ShowSitePreviewWindow()
+    {
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        var sitePreviewWindow = await SiteOnDiskPreviewWindow.CreateInstance();
+
+        await sitePreviewWindow.PositionWindowAndShowOnUiThread();
     }
 }

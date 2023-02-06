@@ -12,6 +12,7 @@ using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsData.S3;
+using PointlessWaymarks.CmsWpfControls.ContentList;
 using PointlessWaymarks.CmsWpfControls.S3Deletions;
 using PointlessWaymarks.CmsWpfControls.S3Uploads;
 using PointlessWaymarks.CmsWpfControls.Utility.Aws;
@@ -35,6 +36,7 @@ public partial class FilesWrittenLogListContext : ObservableObject
     [ObservableProperty] private RelayCommand? _allWrittenFilesToS3UploaderCommand;
     [ObservableProperty] private RelayCommand? _allWrittenFilesToS3UploaderJsonFileCommand;
     [ObservableProperty] private bool _changeSlashes = true;
+    [ObservableProperty] private CmsCommonCommands _commonCommands;
     [ObservableProperty] private DataNotificationsWorkQueue _dataNotificationsProcessor;
     [ObservableProperty] private bool _filterForFilesInCurrentGenerationDirectory = true;
     [ObservableProperty] private RelayCommand? _generateItemsCommand;
@@ -60,6 +62,7 @@ public partial class FilesWrittenLogListContext : ObservableObject
     public FilesWrittenLogListContext(StatusControlContext? statusContext, bool loadInBackground)
     {
         _statusContext = statusContext ?? new StatusControlContext();
+        CommonCommands = new CmsCommonCommands(StatusContext);
 
         GenerateItemsCommand = StatusContext.RunBlockingTaskCommand(GenerateItems);
         AllScriptStringsToClipboardCommand = StatusContext.RunBlockingTaskCommand(AllScriptStringsToClipboard);
@@ -524,7 +527,8 @@ public partial class FilesWrittenLogListContext : ObservableObject
             var newUploaderWindow =
                 new S3UploadsWindow(
                     items.Select(x =>
-                        new S3UploadRequest(new FileInfo(x.FileFullName), x.S3Key, x.BucketName, x.Region, x.Note)).ToList(),
+                            new S3UploadRequest(new FileInfo(x.FileFullName), x.S3Key, x.BucketName, x.Region, x.Note))
+                        .ToList(),
                     false);
             newUploaderWindow.PositionWindowAndShow();
         }

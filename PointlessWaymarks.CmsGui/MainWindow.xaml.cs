@@ -16,6 +16,7 @@ using PointlessWaymarks.CmsData.ContentHtml;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Json;
 using PointlessWaymarks.CmsWpfControls.AllContentList;
+using PointlessWaymarks.CmsWpfControls.ContentList;
 using PointlessWaymarks.CmsWpfControls.Diagnostics;
 using PointlessWaymarks.CmsWpfControls.FileList;
 using PointlessWaymarks.CmsWpfControls.FilesWrittenLogList;
@@ -77,6 +78,7 @@ public partial class MainWindow
     [ObservableProperty] private TagListContext _tabTagListContext;
     [ObservableProperty] private VideoListWithActionsContext _tabVideoListContext;
     [ObservableProperty] private ProgramUpdateMessageContext _updateMessageContext;
+    [ObservableProperty] private CmsCommonCommands _commonCommands;
 
     public MainWindow()
     {
@@ -106,6 +108,8 @@ public partial class MainWindow
         StatusContext = new StatusControlContext();
 
         WindowStatus = new WindowIconStatus();
+
+        CommonCommands = new CmsCommonCommands(StatusContext, WindowStatus);
 
         PropertyChanged += OnPropertyChanged;
 

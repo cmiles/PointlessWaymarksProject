@@ -12,6 +12,7 @@ namespace PointlessWaymarks.CmsWpfControls.VideoList;
 
 public partial class VideoListWithActionsContext : ObservableObject
 {
+    [ObservableProperty] private CmsCommonCommands _commonCommands;
     [ObservableProperty] private RelayCommand _emailHtmlToClipboardCommand;
     [ObservableProperty] private ContentListContext _listContext;
     [ObservableProperty] private RelayCommand _refreshDataCommand;
@@ -25,6 +26,7 @@ public partial class VideoListWithActionsContext : ObservableObject
     {
         StatusContext = statusContext ?? new StatusControlContext();
         WindowStatus = windowStatus;
+        CommonCommands = new CmsCommonCommands(StatusContext, WindowStatus);
 
         StatusContext.RunFireAndForgetBlockingTask(LoadData);
     }
