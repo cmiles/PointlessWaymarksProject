@@ -36,10 +36,13 @@
                           dd:DragDrop.DropHandler="{Binding}"
                           CanUserAddRows="False"
                           CanUserReorderColumns="true"
-                          CanUserDeleteRows="true" CanUserResizeColumns="true" CanUserResizeRows="False"
+                          CanUserDeleteRows="false" CanUserResizeColumns="true" CanUserResizeRows="False"
                           CanUserSortColumns="true" AutoGenerateColumns="False" IsReadOnly="True"
                           SelectedItem="{Binding SelectedFile}"
                           behaviors:MultiSelectorBehaviours.SynchronizedSelectedItems="{Binding SelectedFiles}">
+                    <DataGrid.InputBindings>
+                        <KeyBinding Key="Delete" Command="{Binding DeleteSelectedFilesCommand}" />
+                    </DataGrid.InputBindings>
                     <DataGrid.ContextMenu>
                         <ContextMenu ItemsSource="{Binding ContextMenuItems}">
                             <ContextMenu.ItemContainerStyle>
