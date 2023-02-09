@@ -38,7 +38,7 @@ public partial class FileListViewModel : ObservableObject, IDropTarget
             StatusContext.RunBlockingTaskCommand(AddFilesToTagFromDirectoryAndSubdirectories);
         OpenSelectedFileDirectoryCommand = StatusContext.RunNonBlockingTaskCommand(OpenSelectedFileDirectory);
         OpenSelectedFileCommand = StatusContext.RunNonBlockingTaskCommand(OpenSelectedFile);
-        DeleteSelectedFilesCommand = StatusContext.RunBlockingTaskCommand(DeleteSelectedFiles);
+        DeleteSelectedFilesCommand = StatusContext.RunNonBlockingTaskCommand(DeleteSelectedFiles);
 
         var localContextItems = new List<ContextMenuItemData>
         {
@@ -49,35 +49,17 @@ public partial class FileListViewModel : ObservableObject, IDropTarget
         _contextMenuItems = contextMenuItems.Union(localContextItems).ToList();
     }
 
-    public RelayCommand DeleteSelectedFilesCommand { get; set; }
-
     public RelayCommand AddFilesToTagCommand { get; set; }
 
     public RelayCommand AddFilesToTagFromDirectoryAndSubdirectoriesCommand { get; set; }
 
     public RelayCommand AddFilesToTagFromDirectoryCommand { get; set; }
 
+    public RelayCommand DeleteSelectedFilesCommand { get; set; }
+
     public RelayCommand OpenSelectedFileCommand { get; set; }
 
     public RelayCommand OpenSelectedFileDirectoryCommand { get; set; }
-
-    public async Task DeleteSelectedFiles()
-    {
-        await ResumeForegroundAsync();
-
-        var toRemove = SelectedFiles?.ToList() ?? new List<FileInfo>();
-
-        if (toRemove.Count <= 0)
-        {
-            StatusContext.ToastWarning("No Files Selected to Delete");
-            return;
-        }
-
-        foreach (var loopFile in toRemove)
-        {
-            Files?.Remove(loopFile);
-        }
-    }
 
     public void DragOver(IDropInfo dropInfo)
     {
@@ -230,6 +212,21 @@ public partial class FileListViewModel : ObservableObject, IDropTarget
         newInstance.SelectedFiles = new ObservableCollection<FileInfo>();
 
         return newInstance;
+    }
+
+    public async Task DeleteSelectedFiles()
+    {
+        await ResumeForegroundAsync();
+
+        var toRemove = SelectedFiles?.ToList() ?? new List<FileInfo>();
+
+        if (toRemove.Count <= 0)
+        {
+            StatusContext.ToastWarning("No Files Selected to Delete");
+            return;
+        }
+
+        foreach (var loopFile in toRemove) Files?.Remove(loopFile);
     }
 
     private async Task OpenSelectedFile()
