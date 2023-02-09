@@ -390,7 +390,7 @@ public partial class ConnectDownloadContext : ObservableObject
 
         if (!string.IsNullOrWhiteSpace(currentCredentials.userName) &&
             !string.IsNullOrWhiteSpace(currentCredentials.password))
-            CurrentCredentialsNote = $"{currentCredentials.userName.Truncate(8)}...)";
+            CurrentCredentialsNote = $"{currentCredentials.userName.Truncate(8)}...";
         else
             CurrentCredentialsNote = "No Credentials Found...";
     }
