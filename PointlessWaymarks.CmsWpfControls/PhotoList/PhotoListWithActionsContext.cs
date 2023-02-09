@@ -9,6 +9,7 @@ using CommunityToolkit.Mvvm.Input;
 using KellermanSoftware.CompareNetObjects;
 using KellermanSoftware.CompareNetObjects.Reports;
 using Microsoft.EntityFrameworkCore;
+using Omu.ValueInjecter;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.Content;
