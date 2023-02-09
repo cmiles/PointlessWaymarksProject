@@ -2,7 +2,6 @@
 using AnyClone;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Omu.ValueInjecter;
 using PointlessWaymarks.GeoToolsGui.Models;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
@@ -14,7 +13,7 @@ public partial class FeatureFileEditorContext : ObservableObject
     [ObservableProperty] private string _attributeToAdd = string.Empty;
     private List<FeatureFileViewModel> _existingFeatureFileViewModels;
     [ObservableProperty] private bool _isVisible;
-    [ObservableProperty] private FeatureFileViewModel _model;
+    [ObservableProperty] private readonly FeatureFileViewModel _model;
     [ObservableProperty] private FeatureFileViewModel _originalModelState;
     [ObservableProperty] private string? _selectedAttribute = string.Empty;
     [ObservableProperty] private StatusControlContext _statusContext;

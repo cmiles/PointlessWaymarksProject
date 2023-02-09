@@ -37,7 +37,7 @@
                     </StackPanel>
                 </Grid>
             </TabItem>
-            <TabItem Header="Garmin Connect Setup">
+            <TabItem Header="Garmin Connect Settings">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" />
@@ -48,17 +48,18 @@
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto" />
                                 <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
                             </Grid.RowDefinitions>
                             <TextBlock Margin="4" TextWrapping="Wrap">This program must store your Garmin Connect credentials in order to Search for Garmin Connect Activities.</TextBlock>
-                            <StackPanel Grid.Row="1">
-                                <StackPanel Orientation="Horizontal" Margin="4,12,4,12">
-                                    <Label>Current Credentials:</Label>
-                                    <TextBlock Margin="8,0,4,0" Text="{Binding CurrentCredentialsNote}"
-                                               VerticalAlignment="Center" />
-                                </StackPanel>
-                                <Button Margin="4" Width="260" Command="{Binding EnterGarminCredentialsCommand}">Enter Garmin Credentials</Button>
-                                <Button Margin="4,8,4,4" Width="260"
-                                        Command="{Binding RemoveAllGarminCredentialsCommand}">
+                            <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="4,12,4,12">
+                                <Label FontWeight="Bold">Garmin Connect Credentials:</Label>
+                                <TextBlock Margin="8,0,0,0" Text="{Binding CurrentCredentialsNote}"
+                                           VerticalAlignment="Center" />
+                            </StackPanel>
+                            <StackPanel Grid.Row="2" Margin="16,8,4,8" Orientation="Horizontal">
+                                <Button Width="240" Command="{Binding EnterGarminCredentialsCommand}">Enter Garmin Credentials</Button>
+                                <Button  Width="240" Margin="8,0,4,0"
+                                         Command="{Binding RemoveAllGarminCredentialsCommand}">
                                     Delete All Garmin Credentials
                                 </Button>
                             </StackPanel>
@@ -69,26 +70,25 @@
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto" />
                                 <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
                             </Grid.RowDefinitions>
                             <TextBlock Margin="4" TextWrapping="Wrap">Garmin Activities are cached to disk for local use and for later reference - an archive directory must be provided for this program to use.</TextBlock>
-                            <StackPanel Grid.Row="1">
-                                <StackPanel Orientation="Horizontal" Margin="4,4,4,4">
-                                    <Label Target="ArchiveDirectoryTextBox" VerticalAlignment="Center" Margin="4,0,4,0">Archive Directory</Label>
-                                    <Button Margin="8,0,4,0" Command="{Binding ShowArchiveDirectoryCommand}">Open</Button>
-                                    <Button Margin="4" Command="{Binding ChooseArchiveDirectoryCommand}">Select Directory</Button>
-                                </StackPanel>
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBox Margin="16,4,4,4" MinWidth="280" Name="ArchiveDirectoryTextBox"
-                                             BorderThickness="1"
-                                             BorderBrush="LightBlue"
-                                             Text="{Binding Settings.ArchiveDirectory, UpdateSourceTrigger=PropertyChanged, Delay=250}" />
-                                    <TextBlock
-                                        Visibility="{Binding ArchiveDirectoryExists, Converter={StaticResource BooleanNotToVisibility}}"
-                                        FontWeight="Bold" Foreground="Red" FontSize="20" VerticalAlignment="Center"
-                                        Margin="8,0,8,0" ToolTip="Directory Does Not Exist">
-                                        !
-                                    </TextBlock>
-                                </StackPanel>
+                            <StackPanel Grid.Row="1" Orientation="Horizontal"  Margin="4,12,4,12">
+                                <Label FontWeight="Bold" VerticalAlignment="Center" Target="ArchiveDirectoryTextBox">Archive Directory:</Label>
+                                <TextBox VerticalAlignment="Center" Margin="8,0,0,0" MinWidth="240"
+                                         Name="ArchiveDirectoryTextBox" BorderThickness="1"
+                                         BorderBrush="LightBlue"
+                                         Text="{Binding Settings.ArchiveDirectory, UpdateSourceTrigger=PropertyChanged, Delay=300}" />
+                                <TextBlock
+                                    Visibility="{Binding ArchiveDirectoryExists, Converter={StaticResource BooleanNotToVisibility}}"
+                                    FontWeight="Bold" Foreground="Red" FontSize="20" VerticalAlignment="Center"
+                                    Margin="8,0,8,0" ToolTip="Directory Does Not Exist">
+                                    !
+                                </TextBlock>
+                            </StackPanel>
+                            <StackPanel Grid.Row="2" Margin="16,8,4,8" Orientation="Horizontal">
+                                <Button Width="240" Command="{Binding ChooseArchiveDirectoryCommand}">Select Directory</Button>
+                                <Button Width="240" Margin="8,0,0,0" Command="{Binding ShowArchiveDirectoryCommand}">Open</Button>
                             </StackPanel>
                         </Grid>
                     </GroupBox>
@@ -112,17 +112,23 @@
                                         <Grid>
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="Auto" />
-                                                <ColumnDefinition />
+                                                <ColumnDefinition Width="Auto" />
+                                                <ColumnDefinition Width="Auto" />
                                             </Grid.ColumnDefinitions>
-                                            <TextBlock FontWeight="Bold" VerticalAlignment="Center">Path and Filename:</TextBlock>
+                                            <Label FontWeight="Bold" VerticalAlignment="Center">Path and Filename:</Label>
                                             <TextBox Grid.Column="1" Margin="12,0,8,0" VerticalAlignment="Center"
-                                                     Text="{Binding Settings.ExifToolFullName, UpdateSourceTrigger=PropertyChanged}"
-                                                     HorizontalAlignment="Stretch" />
+                                                     Text="{Binding Settings.ExifToolFullName, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Left" />
+                                            <TextBlock Grid.Column="2"
+                                                Visibility="{Binding ExifToolExists, Converter={StaticResource BooleanNotToVisibility}}"
+                                                FontWeight="Bold" Foreground="Red" FontSize="20" VerticalAlignment="Center"
+                                                Margin="8,0,8,0" ToolTip="ExifTool.exe Does Not Exist?">
+                                                !
+                                            </TextBlock>
                                         </Grid>
+                                        <Button Grid.Column="1" Command="{Binding ChooseExifFileCommand}" Margin="16,8,4,8" Width="240">Choose File</Button>
                                         <TextBlock TextWrapping="Wrap" Margin="4">This program can write to a wider variety of file formats by using Phil Harvey's ExifTool - https://exiftool.org/. The recommended version of the program can be downloaded from https://oliverbetz.de/pages/Artikel/ExifTool-for-Windows - you must provide the full path and filename above for the program to use ExifTool.</TextBlock>
                                     </StackPanel>
                                 </GroupBox>
-                                <Separator />
                                 <GroupBox Header="File Handling">
                                     <StackPanel Orientation="Vertical">
                                         <StackPanel Orientation="Vertical">
@@ -151,7 +157,6 @@
                                         </StackPanel>
                                     </StackPanel>
                                 </GroupBox>
-                                <Separator />
                                 <GroupBox Header="Timing">
                                     <StackPanel Orientation="Vertical">
                                         <Grid>

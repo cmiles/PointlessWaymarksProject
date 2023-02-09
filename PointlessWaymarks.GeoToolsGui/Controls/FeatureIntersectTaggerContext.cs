@@ -1,9 +1,11 @@
-﻿using System.Diagnostics;
+﻿using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Text.Json;
 using System.Web;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
 using HtmlTableHelper;
 using MetadataExtractor;
 using MetadataExtractor.Formats.Xmp;
@@ -12,8 +14,8 @@ using Ookii.Dialogs.Wpf;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.ContentHtml.GeoJsonHtml;
 using PointlessWaymarks.CommonTools;
-using PointlessWaymarks.FeatureIntersectionTags;
 using PointlessWaymarks.FeatureIntersectionTags.Models;
+using PointlessWaymarks.GeoToolsGui.Messages;
 using PointlessWaymarks.GeoToolsGui.Models;
 using PointlessWaymarks.GeoToolsGui.Settings;
 using PointlessWaymarks.SpatialTools;
@@ -27,8 +29,9 @@ using Directory = System.IO.Directory;
 
 namespace PointlessWaymarks.GeoToolsGui.Controls;
 
-public partial class FeatureIntersectTaggerContext : ObservableObject
+public class FeatureIntersectTaggerContext : ObservableObject
 {
+    [ObservableProperty] private bool _exifToolExists;
     [ObservableProperty] private FeatureFileEditorContext _featureFileToEdit;
     [ObservableProperty] private FileListViewModel _filesToTagFileList;
     [ObservableProperty] private FeatureIntersectTaggerFilesToTagSettings _filesToTagSettings;
@@ -60,6 +63,7 @@ public partial class FeatureIntersectTaggerContext : ObservableObject
         EditFeatureFileCommand = StatusContext.RunNonBlockingTaskCommand(EditFeatureFile);
         NewFeatureFileCommand = StatusContext.RunNonBlockingTaskCommand(NewFeatureFile);
         DeleteFeatureFileCommand = StatusContext.RunBlockingTaskCommand(DeleteFeatureFile);
+        ChooseExifFileCommand = StatusContext.RunBlockingTaskCommand(ChooseExifFile);
 
         GeneratePreviewCommand = StatusContext.RunBlockingTaskCommand(GeneratePreview);
         WriteToFilesCommand = StatusContext.RunBlockingTaskCommand(WriteResultsToFile);
@@ -72,8 +76,9 @@ public partial class FeatureIntersectTaggerContext : ObservableObject
         NextTabCommand = StatusContext.RunNonBlockingActionCommand(() => SelectedTab++);
     }
 
-
     public RelayCommand AddPadUsAttributeCommand { get; set; }
+
+    public RelayCommand ChooseExifFileCommand { get; set; }
 
     public RelayCommand ChoosePadUsDirectoryCommand { get; set; }
 
@@ -160,6 +165,38 @@ public partial class FeatureIntersectTaggerContext : ObservableObject
         await FeatureIntersectTaggerSettingTools.WriteSettings(Settings);
     }
 
+    public async Task CheckThatExifToolExistsAndSaveSettings()
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (string.IsNullOrWhiteSpace(Settings.ExifToolFullName))
+        {
+            ExifToolExists = false;
+            return;
+        }
+
+        var exists = File.Exists(Settings.ExifToolFullName.Trim());
+
+        if (exists)
+        {
+            await FeatureIntersectTaggerSettingTools.WriteSettings(Settings);
+            WeakReferenceMessenger.Default.Send(new ExifToolSettingsUpdateMessage((this, Settings.ExifToolFullName)));
+        }
+
+        ExifToolExists = exists;
+    }
+
+    public async Task ChooseExifFile()
+    {
+        var newFile = await ExifFilePicker.ChooseExifFile(StatusContext, Settings.ExifToolFullName);
+
+        if (!newFile.validFileFound) return;
+
+        if (Settings.ExifToolFullName.Equals(newFile.pickedFileName)) return;
+
+        Settings.ExifToolFullName = newFile.pickedFileName;
+    }
+
     public async Task ChoosePadUsDirectory()
     {
         await ThreadSwitcher.ResumeForegroundAsync();
@@ -219,13 +256,11 @@ public partial class FeatureIntersectTaggerContext : ObservableObject
 
     public async Task EditFeatureFile()
     {
-        if (SelectedFeatureFile == null)
-        {
-            StatusContext.ToastWarning("Nothing Selected To Edit?");
-        }
+        if (SelectedFeatureFile == null) StatusContext.ToastWarning("Nothing Selected To Edit?");
     }
 
-    private void EndEdit(object? sender, (FeatureFileEditorEndEditCondition endCondition, FeatureFileViewModel model) e)
+    private void EndEdit(object? sender,
+        (FeatureFileEditorEndEditCondition endCondition, FeatureFileViewModel model) e)
     {
         if (e.endCondition == FeatureFileEditorEndEditCondition.Cancelled) return;
 
@@ -268,7 +303,8 @@ public partial class FeatureIntersectTaggerContext : ObservableObject
             .Select(x => new FeatureFile(x.Source, x.Name, x.AttributesForTags, x.TagAll, x.FileName, x.Downloaded))
             .ToList();
 
-        var intersectSettings = new IntersectSettings(featureFiles, Settings.PadUsDirectory, Settings.PadUsAttributes);
+        var intersectSettings =
+            new IntersectSettings(featureFiles, Settings.PadUsDirectory, Settings.PadUsAttributes);
 
         PreviewResults = await FilesToTagFileList.Files.ToList()
             .FileIntersectionTags(intersectSettings, Settings.TagsToLowerCase, Settings.SanitizeTags,
@@ -345,12 +381,15 @@ public partial class FeatureIntersectTaggerContext : ObservableObject
                 {
                     new()
                     {
-                        ItemCommand = MetadataForSelectedFilesToTagCommand, ItemName = "Metadata Report for Selected"
+                        ItemCommand = MetadataForSelectedFilesToTagCommand,
+                        ItemName = "Metadata Report for Selected"
                     }
                 });
 
         PreviewHtml = WpfHtmlDocument.ToHtmlLeafletBasicGeoJsonDocument("Tagged Features and Intersect Features",
             32.12063, -110.52313, string.Empty);
+
+        Settings.PropertyChanged += OnSettingsPropertyChanged;
     }
 
     public async Task MetadataForSelectedFilesToTag()
@@ -404,7 +443,8 @@ public partial class FeatureIntersectTaggerContext : ObservableObject
             {
                 var photoMetaTags = ImageMetadataReader.ReadMetadata(loopFile.FullName);
 
-                htmlParts.Add(photoMetaTags.SelectMany(x => x.Tags).OrderBy(x => x.DirectoryName).ThenBy(x => x.Name)
+                htmlParts.Add(photoMetaTags.SelectMany(x => x.Tags).OrderBy(x => x.DirectoryName)
+                    .ThenBy(x => x.Name)
                     .ToList().Select(x => new
                     {
                         DataType = x.Type.ToString(),
@@ -445,6 +485,14 @@ public partial class FeatureIntersectTaggerContext : ObservableObject
         FeatureFileToEdit.Show(new FeatureFileViewModel(), Settings.FeatureIntersectFiles.ToList());
     }
 
+    private void OnSettingsPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (string.IsNullOrEmpty(e.PropertyName)) return;
+
+        if (e.PropertyName.Equals(nameof(Settings.ExifToolFullName)))
+            StatusContext.RunNonBlockingTask(CheckThatExifToolExistsAndSaveSettings);
+    }
+
     public async Task ProcessEditedFeatureFileViewModel(FeatureFileViewModel model)
     {
         await ThreadSwitcher.ResumeForegroundAsync();
@@ -475,6 +523,18 @@ public partial class FeatureIntersectTaggerContext : ObservableObject
     public async Task WriteResultsToFile()
     {
         await FeatureIntersectTaggerSettingTools.WriteSettings(Settings);
+
+        if (PreviewResults.Count == 0)
+        {
+            StatusContext.ToastError("No Files to Write To?");
+            return;
+        }
+
+        if (PreviewResults.Count(x => !string.IsNullOrWhiteSpace(x.NewTagsString)) == 0)
+        {
+            StatusContext.ToastError("None of the files have New Tags - nothing to Write?");
+            return;
+        }
 
         WriteToFileResults = await PreviewResults.Where(x => !string.IsNullOrWhiteSpace(x.NewTagsString)).ToList()
             .WriteTagsToFiles(

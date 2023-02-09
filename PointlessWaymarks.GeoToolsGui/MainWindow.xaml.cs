@@ -1,11 +1,14 @@
 ﻿using System.Reflection;
 using System.Windows;
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Messaging;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.GeoToolsGui.Controls;
+using PointlessWaymarks.GeoToolsGui.Messages;
 using PointlessWaymarks.WpfCommon.MarkdownDisplay;
 using PointlessWaymarks.WpfCommon.ProgramUpdateMessage;
 using PointlessWaymarks.WpfCommon.Status;
+using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 using PointlessWaymarks.WpfCommon.Utility;
 using Serilog;
 
@@ -92,5 +95,28 @@ public partial class MainWindow : Window
         SettingsContext = new AppSettingsContext();
 
         await CheckForProgramUpdate(_currentDateVersion);
+
+
+        WeakReferenceMessenger.Default.Register<ExifToolSettingsUpdateMessage>(this, async (r, m) =>
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            if (ConnectGeoTaggerContext?.Settings != null)
+                ConnectGeoTaggerContext.Settings.ExifToolFullName = m.Value.exifToolFullName;
+            if (FeatureIntersectContext?.Settings != null)
+                FeatureIntersectContext.Settings.ExifToolFullName = m.Value.exifToolFullName;
+            if (FileGeoTaggerContext?.Settings != null)
+                FileGeoTaggerContext.Settings.ExifToolFullName = m.Value.exifToolFullName;
+        });
+
+        WeakReferenceMessenger.Default.Register<ArchiveDirectoryUpdateMessage>(this, async (r, m) =>
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            if (GarminConnectDownloadContext?.Settings != null)
+                GarminConnectDownloadContext.Settings.ArchiveDirectory = m.Value.archiveDirectory;
+            if (ConnectGeoTaggerContext?.Settings != null)
+                ConnectGeoTaggerContext.Settings.ArchiveDirectory = m.Value.archiveDirectory;
+        });
     }
 }

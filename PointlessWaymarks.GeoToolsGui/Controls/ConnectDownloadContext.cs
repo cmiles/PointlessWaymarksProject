@@ -2,12 +2,14 @@
 using System.IO;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
 using Garmin.Connect.Models;
 using NetTopologySuite.Features;
 using NetTopologySuite.Geometries;
 using Ookii.Dialogs.Wpf;
 using PointlessWaymarks.CmsData.ContentHtml.GeoJsonHtml;
 using PointlessWaymarks.CommonTools;
+using PointlessWaymarks.GeoToolsGui.Messages;
 using PointlessWaymarks.GeoToolsGui.Settings;
 using PointlessWaymarks.SpatialTools;
 using PointlessWaymarks.WpfCommon.Status;
@@ -32,11 +34,12 @@ public partial class ConnectDownloadContext : ObservableObject
     [ObservableProperty] private DateTime _searchStartDate;
     [ObservableProperty] private ConnectDownloadSettings _settings;
     [ObservableProperty] private StatusControlContext _statusContext;
+    [ObservableProperty] private WindowIconStatus _windowStatus;
 
     public ConnectDownloadContext(StatusControlContext? statusContext, WindowIconStatus? windowStatus)
     {
         StatusContext = statusContext ?? new StatusControlContext();
-        windowStatus = windowStatus ?? new WindowIconStatus();
+        WindowStatus = windowStatus ?? new WindowIconStatus();
 
         _searchStartDate = DateTime.Now.AddDays(-30);
         _searchEndDate = DateTime.Now.AddDays(1).AddTicks(-1);
@@ -50,7 +53,6 @@ public partial class ConnectDownloadContext : ObservableObject
         ShowFileInExplorerCommand = StatusContext.RunNonBlockingTaskCommand<string>(ShowFileInExplorer);
 
         ShowArchiveDirectoryCommand = StatusContext.RunNonBlockingTaskCommand(ShowArchiveDirectory);
-
 
         PropertyChanged += OnPropertyChanged;
     }
@@ -81,7 +83,15 @@ public partial class ConnectDownloadContext : ObservableObject
             return;
         }
 
-        ArchiveDirectoryExists = Directory.Exists(Settings.ArchiveDirectory.Trim());
+        var exists = Directory.Exists(Settings.ArchiveDirectory.Trim());
+
+        if (exists)
+        {
+            await ConnectDownloadSettingTools.WriteSettings(Settings);
+            WeakReferenceMessenger.Default.Send(new ArchiveDirectoryUpdateMessage((this, Settings.ArchiveDirectory)));
+        }
+
+        ArchiveDirectoryExists = exists;
     }
 
     public async Task ChooseArchiveDirectory()
@@ -122,6 +132,9 @@ public partial class ConnectDownloadContext : ObservableObject
             StatusContext.ToastError("The Archive Directory Must Exist to Download Activities...");
             return;
         }
+
+        Settings.ArchiveDirectory = Settings.ArchiveDirectory;
+        await ConnectDownloadSettingTools.WriteSettings(Settings);
 
         var credentials = GarminConnectCredentialTools.GetGarminConnectCredentials();
 
@@ -207,11 +220,13 @@ public partial class ConnectDownloadContext : ObservableObject
 
         if (!string.IsNullOrWhiteSpace(FilterName))
             returnResult = returnResult
-                .Where(x => x.Activity.ActivityName != null && x.Activity.ActivityName.Contains(FilterName, StringComparison.OrdinalIgnoreCase)).ToList();
+                .Where(x => x.Activity.ActivityName != null &&
+                            x.Activity.ActivityName.Contains(FilterName, StringComparison.OrdinalIgnoreCase)).ToList();
 
         if (!string.IsNullOrWhiteSpace(FilterLocation))
             returnResult = returnResult
-                .Where(x => x.Activity.LocationName != null && x.Activity.LocationName.Contains(FilterLocation, StringComparison.OrdinalIgnoreCase))
+                .Where(x => x.Activity.LocationName != null &&
+                            x.Activity.LocationName.Contains(FilterLocation, StringComparison.OrdinalIgnoreCase))
                 .ToList();
 
         if (requestId == _searchAndFilterLatestRequestId) SearchResultsFiltered = returnResult;
@@ -226,6 +241,8 @@ public partial class ConnectDownloadContext : ObservableObject
 
         await UpdateCredentialsNote();
         await CheckThatArchiveDirectoryExists();
+
+        Settings.PropertyChanged += OnSettingsPropertyChanged;
     }
 
 
@@ -239,17 +256,14 @@ public partial class ConnectDownloadContext : ObservableObject
             _searchAndFilterLatestRequestId = thisRequest;
             StatusContext.RunNonBlockingTask(async () => await FilterAndSortResults(thisRequest));
         }
+    }
+
+    private void OnSettingsPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (string.IsNullOrWhiteSpace(e.PropertyName)) return;
 
         if (e.PropertyName == nameof(Settings.ArchiveDirectory))
-        {
-            StatusContext.RunNonBlockingTask(async () => await CheckThatArchiveDirectoryExists());
-            StatusContext.RunNonBlockingTask(async () =>
-            {
-                var settings = await ConnectDownloadSettingTools.ReadSettings();
-                settings.ArchiveDirectory = Settings.ArchiveDirectory;
-                await ConnectDownloadSettingTools.WriteSettings(settings);
-            });
-        }
+            StatusContext.RunNonBlockingTask(CheckThatArchiveDirectoryExists);
     }
 
     public async Task RemoveAllGarminCredentials()
@@ -376,12 +390,12 @@ public partial class ConnectDownloadContext : ObservableObject
 
         if (!string.IsNullOrWhiteSpace(currentCredentials.userName) &&
             !string.IsNullOrWhiteSpace(currentCredentials.password))
-            CurrentCredentialsNote = $"(Using {currentCredentials.userName.Truncate(8)}...)";
+            CurrentCredentialsNote = $"{currentCredentials.userName.Truncate(8)}...)";
         else
-            CurrentCredentialsNote = "(No Credentials Found...)";
+            CurrentCredentialsNote = "No Credentials Found...";
     }
 
-    public partial class GarminActivityAndLocalFiles : ObservableObject
+    public class GarminActivityAndLocalFiles : ObservableObject
     {
         [ObservableProperty] private GarminActivity _activity;
         [ObservableProperty] private FileInfo? _archivedGpx;

@@ -1,8 +1,10 @@
-﻿using System.Diagnostics;
+﻿using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Web;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
 using HtmlTableHelper;
 using MetadataExtractor;
 using MetadataExtractor.Formats.Xmp;
@@ -11,6 +13,7 @@ using NetTopologySuite.Geometries;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.GeoTaggingService;
+using PointlessWaymarks.GeoToolsGui.Messages;
 using PointlessWaymarks.GeoToolsGui.Settings;
 using PointlessWaymarks.SpatialTools;
 using PointlessWaymarks.WpfCommon.FileList;
@@ -23,11 +26,11 @@ using static PointlessWaymarks.CmsData.ContentHtml.GeoJsonHtml.GeoJsonData;
 
 namespace PointlessWaymarks.GeoToolsGui.Controls;
 
-public partial class FileBasedGeoTaggerContext : ObservableObject
+public class FileBasedGeoTaggerContext : ObservableObject
 {
     [ObservableProperty] private bool _createBackups;
     [ObservableProperty] private bool _createBackupsInDefaultStorage;
-    [ObservableProperty] private string _exifToolFullName = string.Empty;
+    [ObservableProperty] private bool _exifToolExists;
     [ObservableProperty] private FileListViewModel _filesToTagFileList;
     [ObservableProperty] private FileBasedGeoTaggerFilesToTagSettings _filesToTagSettings;
     [ObservableProperty] private FileListViewModel _gpxFileList;
@@ -47,7 +50,6 @@ public partial class FileBasedGeoTaggerContext : ObservableObject
     [ObservableProperty] private string _writeToFileHtml;
     [ObservableProperty] private GeoTag.GeoTagWriteMetadataToFilesResult? _writeToFileResults;
 
-
     public FileBasedGeoTaggerContext(StatusControlContext? statusContext, WindowIconStatus? windowStatus)
     {
         _statusContext = statusContext ?? new StatusControlContext();
@@ -55,12 +57,15 @@ public partial class FileBasedGeoTaggerContext : ObservableObject
 
         MetadataForSelectedFilesToTagCommand = StatusContext.RunBlockingTaskCommand(MetadataForSelectedFilesToTag);
         ShowSelectedGpxFilesCommand = StatusContext.RunBlockingTaskCommand(ShowSelectedGpxFiles);
+        ChooseExifFileCommand = StatusContext.RunBlockingTaskCommand(ChooseExifFile);
 
         GeneratePreviewCommand = StatusContext.RunBlockingTaskCommand(GeneratePreview);
         WriteToFilesCommand = StatusContext.RunBlockingTaskCommand(WriteResultsToFile);
 
         NextTabCommand = StatusContext.RunNonBlockingActionCommand(() => SelectedTab++);
     }
+
+    public RelayCommand ChooseExifFileCommand { get; set; }
 
     public RelayCommand GeneratePreviewCommand { get; set; }
 
@@ -71,6 +76,38 @@ public partial class FileBasedGeoTaggerContext : ObservableObject
     public RelayCommand ShowSelectedGpxFilesCommand { get; set; }
 
     public RelayCommand WriteToFilesCommand { get; set; }
+
+    public async Task CheckThatExifToolExistsAndSaveSettings()
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (string.IsNullOrWhiteSpace(Settings.ExifToolFullName))
+        {
+            ExifToolExists = false;
+            return;
+        }
+
+        var exists = File.Exists(Settings.ExifToolFullName.Trim());
+
+        if (exists)
+        {
+            await FileBasedGeoTaggerSettingTools.WriteSettings(Settings);
+            WeakReferenceMessenger.Default.Send(new ExifToolSettingsUpdateMessage((this, Settings.ExifToolFullName)));
+        }
+
+        ExifToolExists = exists;
+    }
+
+    public async Task ChooseExifFile()
+    {
+        var newFile = await ExifFilePicker.ChooseExifFile(StatusContext, Settings.ExifToolFullName);
+
+        if (!newFile.validFileFound) return;
+
+        if (Settings.ExifToolFullName.Equals(newFile.pickedFileName)) return;
+
+        Settings.ExifToolFullName = newFile.pickedFileName;
+    }
 
     public static async Task<FileBasedGeoTaggerContext> CreateInstance(StatusControlContext? statusContext,
         WindowIconStatus? windowStatus)
@@ -104,7 +141,8 @@ public partial class FileBasedGeoTaggerContext : ObservableObject
         var tagger = new GeoTag();
         PreviewResults = await tagger.ProduceGeoTagActions(FilesToTagFileList.Files!.ToList(),
             new List<IGpxService> { fileListGpxService },
-            PointsMustBeWithinMinutes, OffsetPhotoTimeInMinutes, OverwriteExistingGeoLocation, ExifToolFullName,
+            PointsMustBeWithinMinutes, OffsetPhotoTimeInMinutes, OverwriteExistingGeoLocation,
+            Settings.ExifToolFullName,
             StatusContext.ProgressTracker());
 
         var pointsToWrite = PreviewResults.FileResults.Where(x => x.ShouldWriteMetadata).ToList();
@@ -155,6 +193,8 @@ public partial class FileBasedGeoTaggerContext : ObservableObject
 
         WriteToFileHtml = WpfHtmlDocument.ToHtmlLeafletBasicGeoJsonDocument("WrittenFiles",
             32.12063, -110.52313, string.Empty);
+
+        Settings.PropertyChanged += SettingsOnPropertyChanged;
     }
 
     public async Task MetadataForSelectedFilesToTag()
@@ -259,6 +299,14 @@ public partial class FileBasedGeoTaggerContext : ObservableObject
         return await GeoJsonTools.SerializeWithGeoJsonSerializer(jsonDto);
     }
 
+    private void SettingsOnPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (string.IsNullOrEmpty(e.PropertyName)) return;
+
+        if (e.PropertyName.Equals(nameof(Settings.ExifToolFullName)))
+            StatusContext.RunNonBlockingTask(CheckThatExifToolExistsAndSaveSettings);
+    }
+
     public async Task ShowSelectedGpxFiles()
     {
         if (GpxFileList.SelectedFiles == null || !GpxFileList.SelectedFiles.Any())
@@ -308,7 +356,7 @@ public partial class FileBasedGeoTaggerContext : ObservableObject
         WriteToFileResults = await tagger.WriteGeoTagActions(
             PreviewResults.FileResults.Where(x => x.ShouldWriteMetadata).ToList(),
             CreateBackups, CreateBackupsInDefaultStorage,
-            ExifToolFullName, StatusContext.ProgressTracker());
+            Settings.ExifToolFullName, StatusContext.ProgressTracker());
 
         var writtenResults = WriteToFileResults.FileResults.Where(x => x.WroteMetadata).ToList();
 

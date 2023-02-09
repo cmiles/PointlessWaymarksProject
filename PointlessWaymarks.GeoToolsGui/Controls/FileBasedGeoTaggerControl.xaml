@@ -70,17 +70,23 @@
                                         <Grid>
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="Auto" />
-                                                <ColumnDefinition />
+                                                <ColumnDefinition Width="Auto" />
+                                                <ColumnDefinition Width="Auto" />
                                             </Grid.ColumnDefinitions>
-                                            <TextBlock FontWeight="Bold" VerticalAlignment="Center">Path and Filename:</TextBlock>
+                                            <Label FontWeight="Bold" VerticalAlignment="Center">Path and Filename:</Label>
                                             <TextBox Grid.Column="1" Margin="12,0,8,0" VerticalAlignment="Center"
-                                                     Text="{Binding ExifToolFullName, UpdateSourceTrigger=PropertyChanged}"
-                                                     HorizontalAlignment="Stretch" />
+                                                     Text="{Binding Settings.ExifToolFullName, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Left" />
+                                            <TextBlock Grid.Column="2"
+                                                       Visibility="{Binding ExifToolExists, Converter={StaticResource BooleanNotToVisibility}}"
+                                                       FontWeight="Bold" Foreground="Red" FontSize="20" VerticalAlignment="Center"
+                                                       Margin="8,0,8,0" ToolTip="ExifTool.exe Does Not Exist?">
+                                                !
+                                            </TextBlock>
                                         </Grid>
+                                        <Button Command="{Binding ChooseExifFileCommand}" Margin="16,8,4,8" Width="240" >Choose File</Button>
                                         <TextBlock TextWrapping="Wrap" Margin="4">This program can write to a wider variety of file formats by using Phil Harvey's ExifTool - https://exiftool.org/. The recommended version of the program can be downloaded from https://oliverbetz.de/pages/Artikel/ExifTool-for-Windows - you must provide the full path and filename above for the program to use ExifTool.</TextBlock>
                                     </StackPanel>
                                 </GroupBox>
-                                <Separator />
                                 <GroupBox Header="File Handling">
                                     <StackPanel Orientation="Vertical">
                                         <StackPanel Orientation="Vertical">
@@ -109,7 +115,6 @@
                                         </StackPanel>
                                     </StackPanel>
                                 </GroupBox>
-                                <Separator />
                                 <GroupBox Header="Timing">
                                     <StackPanel Orientation="Vertical">
                                         <Grid>

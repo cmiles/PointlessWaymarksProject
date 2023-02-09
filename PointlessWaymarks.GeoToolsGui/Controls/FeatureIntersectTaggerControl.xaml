@@ -27,8 +27,7 @@
                                 <RowDefinition Height="*" />
                             </Grid.RowDefinitions>
                             <TextBlock Margin="4" HorizontalAlignment="Center" TextWrapping="Wrap">Use the buttons below to add all files in a Directory, all files in a Directory and all Subdirectories or to pick Files that will be compared to the GPX/location information in the previous tab. You can also delete items in the list below.</TextBlock>
-                            <fileList:FileListControl DataContext="{Binding FilesToTagFileList}" Grid.Row="1"
-                                                      Margin="4" />
+                            <fileList:FileListControl DataContext="{Binding FilesToTagFileList}" Grid.Row="1" Margin="4" />
                         </Grid>
                     </GroupBox>
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Top"
@@ -235,17 +234,23 @@
                                     <Grid>
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="Auto" />
-                                            <ColumnDefinition />
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="Auto" />
                                         </Grid.ColumnDefinitions>
                                         <TextBlock FontWeight="Bold" VerticalAlignment="Center">Path and Filename:</TextBlock>
                                         <TextBox Grid.Column="1" Margin="12,0,8,0" VerticalAlignment="Center"
-                                                 Text="{Binding Settings.ExifToolFullName, UpdateSourceTrigger=PropertyChanged}"
-                                                 HorizontalAlignment="Stretch" />
+                                                 Text="{Binding Settings.ExifToolFullName, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Left"/>
+                                        <TextBlock Grid.Column="2"
+                                                   Visibility="{Binding ExifToolExists, Converter={StaticResource BooleanNotToVisibility}}"
+                                                   FontWeight="Bold" Foreground="Red" FontSize="20" VerticalAlignment="Center"
+                                                   Margin="8,0,8,0" ToolTip="ExifTool.exe Does Not Exist?">
+                                            !
+                                        </TextBlock>
                                     </Grid>
+                                    <Button Grid.Column="1" Command="{Binding ChooseExifFileCommand}" Margin="16,8,4,8" Width="240">Choose File</Button>
                                     <TextBlock TextWrapping="Wrap" Margin="4">This program writes tags to files using Phil Harvey's ExifTool - https://exiftool.org/. The recommended version of the program can be downloaded from https://oliverbetz.de/pages/Artikel/ExifTool-for-Windows - and the full path and filename must be entered above.</TextBlock>
                                 </StackPanel>
                             </GroupBox>
-                            <Separator />
                             <GroupBox Header="File Handling">
                                 <StackPanel Orientation="Vertical" Margin="4">
                                     <CheckBox IsChecked="{Binding Settings.CreateBackups}" FontWeight="Bold">Create Backups</CheckBox>
@@ -257,7 +262,6 @@
                                     <TextBlock Margin="36,0,4,4" TextWrapping="Wrap">If this is checked backups will be written into a folder in My Documents - this keeps all backups in one place and doesn't add extra files into existing directories. If un-checked backups will be written to a folder under the file's current folder - this keeps the backups close to the original file.</TextBlock>
                                 </StackPanel>
                             </GroupBox>
-                            <Separator />
                             <GroupBox Header="Tag Options">
                                 <StackPanel Orientation="Vertical">
                                     <StackPanel Orientation="Vertical">
@@ -277,7 +281,6 @@
                                     </StackPanel>
                                 </StackPanel>
                             </GroupBox>
-                            <Separator />
                             <GroupBox Header="Manage Settings">
                                 <StackPanel Orientation="Vertical" Margin="4">
                                     <WrapPanel Orientation="Horizontal" Margin="12,8,4,6">

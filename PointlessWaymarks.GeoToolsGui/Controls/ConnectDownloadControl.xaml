@@ -11,7 +11,6 @@
     <UserControl.Resources>
         <utility:BindingProxy x:Key="Proxy" Data="{Binding}" />
         <valueConverters:SecondsToHoursMinutesSecondsConverter x:Key="SecondsToHoursMinutesSeconds" />
-
         <Style x:Key="SearchBorder" TargetType="Border">
             <Setter Property="CornerRadius" Value="4" />
             <Setter Property="BorderThickness" Value="2" />
@@ -35,18 +34,34 @@
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
         <GroupBox Header="Setup">
-            <WrapPanel Orientation="Horizontal">
-                <Border Style="{StaticResource SearchBorder}">
+            <StackPanel Orientation="Vertical">
+                <StackPanel Style="{StaticResource SearchStackContainer}">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition></RowDefinition>
+                            <RowDefinition></RowDefinition>
+                        </Grid.RowDefinitions>
+                        <StackPanel Orientation="Horizontal">
+                            <Label FontWeight="Bold">Garmin Connect Credentials:</Label>
+                            <TextBlock Margin="8,0,0,0" Text="{Binding CurrentCredentialsNote}"
+                                       VerticalAlignment="Center" />
+                        </StackPanel>
+                        <StackPanel Grid.Row="1" Margin="16,8,4,8" Orientation="Horizontal">
+                            <Button Width="240" Command="{Binding EnterGarminCredentialsCommand}">Enter Garmin Credentials</Button>
+                            <Button Width="240" Margin="8,0,4,0" Command="{Binding RemoveAllGarminCredentialsCommand}">Delete All Credentials</Button>
+                        </StackPanel>
+                    </Grid>
+                </StackPanel>
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition></RowDefinition>
+                        <RowDefinition></RowDefinition>
+                    </Grid.RowDefinitions>
                     <StackPanel Style="{StaticResource SearchStackContainer}">
-                        <Button Margin="4,0,8,0" Command="{Binding EnterGarminCredentialsCommand}">Enter Garmin Credentials</Button>
-                        <TextBlock Text="{Binding CurrentCredentialsNote}" VerticalAlignment="Center" />
-                        <Button Margin="8,0,4,0" Command="{Binding RemoveAllGarminCredentialsCommand}">Delete All</Button>
-                    </StackPanel>
-                </Border>
-                <Border Style="{StaticResource SearchBorder}">
-                    <StackPanel Style="{StaticResource SearchStackContainer}">
-                        <Label Style="{StaticResource SearchLabel}" Target="ArchiveDirectoryTextBox">Archive Directory</Label>
-                        <TextBox MinWidth="240" Name="ArchiveDirectoryTextBox" BorderThickness="1"
+                        <Label VerticalAlignment="Center" FontWeight="Bold" Target="ArchiveDirectoryTextBox">Archive Directory:</Label>
+
+                        <TextBox VerticalAlignment="Center" Margin="8,0,0,0" MinWidth="240"
+                                 Name="ArchiveDirectoryTextBox" BorderThickness="1"
                                  BorderBrush="LightBlue"
                                  Text="{Binding Settings.ArchiveDirectory, UpdateSourceTrigger=PropertyChanged, Delay=300}" />
                         <TextBlock
@@ -55,14 +70,17 @@
                             Margin="8,0,8,0" ToolTip="Directory Does Not Exist">
                             !
                         </TextBlock>
-                        <Button Margin="8,0,4,0" Command="{Binding ShowArchiveDirectoryCommand}">Open</Button>
-                        <Button Margin="4,0,4,0" Command="{Binding ChooseArchiveDirectoryCommand}">Select Directory</Button>
                     </StackPanel>
-                </Border>
-            </WrapPanel>
+                    <StackPanel Grid.Row="1" Margin="16,8,4,8" Orientation="Horizontal">
+                        <Button Width="240" Command="{Binding ChooseArchiveDirectoryCommand}">Select Directory</Button>
+                        <Button Width="240" Margin="8,0,0,0" Command="{Binding ShowArchiveDirectoryCommand}">Open</Button>
+                    </StackPanel>
+                </Grid>
+
+            </StackPanel>
         </GroupBox>
         <GroupBox Grid.Row="1" Header="Search">
-            <Grid>
+            <Grid HorizontalAlignment="Left">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
@@ -80,9 +98,8 @@
                             <DatePicker Name="SearchEndDatePicker" SelectedDate="{Binding SearchEndDate}" />
                         </StackPanel>
                     </Border>
-
                 </WrapPanel>
-                <Button Grid.Row="1" HorizontalAlignment="Stretch" Margin="12,12,12,0"
+                <Button Grid.Row="1" HorizontalAlignment="Stretch" Margin="4,8,4,0"
                         Command="{Binding RunSearchCommand}" Height="40">
                     Search
                 </Button>
