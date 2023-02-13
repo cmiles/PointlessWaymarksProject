@@ -28,7 +28,7 @@ using Directory = System.IO.Directory;
 
 namespace PointlessWaymarks.GeoToolsGui.Controls;
 
-public class ConnectBasedGeoTaggerContext : ObservableObject
+public partial class ConnectBasedGeoTaggerContext : ObservableObject
 {
     [ObservableProperty] private bool _archiveDirectoryExists;
     [ObservableProperty] private string _currentCredentialsNote;

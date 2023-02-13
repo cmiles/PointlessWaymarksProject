@@ -26,7 +26,7 @@ using static PointlessWaymarks.CmsData.ContentHtml.GeoJsonHtml.GeoJsonData;
 
 namespace PointlessWaymarks.GeoToolsGui.Controls;
 
-public class FileBasedGeoTaggerContext : ObservableObject
+public partial class FileBasedGeoTaggerContext : ObservableObject
 {
     [ObservableProperty] private bool _createBackups;
     [ObservableProperty] private bool _createBackupsInDefaultStorage;

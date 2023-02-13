@@ -395,7 +395,7 @@ public partial class ConnectDownloadContext : ObservableObject
             CurrentCredentialsNote = "No Credentials Found...";
     }
 
-    public class GarminActivityAndLocalFiles : ObservableObject
+    public partial class GarminActivityAndLocalFiles : ObservableObject
     {
         [ObservableProperty] private GarminActivity _activity;
         [ObservableProperty] private FileInfo? _archivedGpx;

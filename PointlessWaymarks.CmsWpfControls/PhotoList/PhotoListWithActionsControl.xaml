@@ -26,7 +26,12 @@
         </Grid.RowDefinitions>
         <Menu>
             <StaticResource ResourceKey="NewMenu" />
-            <StaticResource ResourceKey="ExcelMenu" />
+            <MenuItem Header="Excel">
+                <MenuItem Command="{Binding ListContext.SelectedToExcelCommand}" Header="Selected To Excel" />
+                <MenuItem Command="{Binding ListContext.ImportFromExcelFileCommand}" Header="Import From Excel File" />
+                <MenuItem Command="{Binding ListContext.ImportFromOpenExcelInstanceCommand}"
+                          Header="Import From Open Excel Application" />
+            </MenuItem>
             <MenuItem Header="Reports">
                 <MenuItem Command="{Binding ReportNoTagsCommand}" Header="No Tags" />
                 <MenuItem Command="{Binding ReportTitleAndTakenDoNotMatchCommand}"

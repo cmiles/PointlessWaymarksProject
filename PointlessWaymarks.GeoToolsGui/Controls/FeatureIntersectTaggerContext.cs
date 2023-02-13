@@ -14,6 +14,7 @@ using Ookii.Dialogs.Wpf;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.ContentHtml.GeoJsonHtml;
 using PointlessWaymarks.CommonTools;
+using PointlessWaymarks.FeatureIntersectionTags;
 using PointlessWaymarks.FeatureIntersectionTags.Models;
 using PointlessWaymarks.GeoToolsGui.Messages;
 using PointlessWaymarks.GeoToolsGui.Models;
@@ -29,7 +30,7 @@ using Directory = System.IO.Directory;
 
 namespace PointlessWaymarks.GeoToolsGui.Controls;
 
-public class FeatureIntersectTaggerContext : ObservableObject
+public partial class FeatureIntersectTaggerContext : ObservableObject
 {
     [ObservableProperty] private bool _exifToolExists;
     [ObservableProperty] private FeatureFileEditorContext _featureFileToEdit;

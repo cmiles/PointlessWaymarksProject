@@ -1116,15 +1116,4 @@
         x:Shared="False"
         Header="New"
         ItemsSource="{StaticResource NewMenuItemValues}" />
-    <collections:ArrayList x:Key="ExcelMenuItemValues" x:Shared="False">
-        <MenuItem Command="{Binding CommonCommands.SelectedToExcelCommand}" Header="Selected To Excel" />
-        <MenuItem Command="{Binding CommonCommands.ImportFromExcelFileCommand}" Header="Import From Excel File" />
-        <MenuItem Command="{Binding CommonCommands.ImportFromOpenExcelInstanceCommand}"
-                  Header="Import From Open Excel Application" />
-    </collections:ArrayList>
-    <MenuItem
-        x:Key="ExcelMenu"
-        x:Shared="False"
-        Header="Excel"
-        ItemsSource="{StaticResource ExcelMenuItemValues}" />
 </ResourceDictionary>
