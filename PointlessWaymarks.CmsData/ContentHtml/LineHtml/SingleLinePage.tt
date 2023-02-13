@@ -58,6 +58,7 @@
                     Tags.PostBodyDiv(DbEntry).Result.ToString() #>
     <#= HorizontalRule.StandardRule() #>
     <div class="information-section">
+    <#= LineParts.LineElevationChartDivAndScript(DbEntry) #>
     <#=
         LineParts.LineStatisticsWithContentDiv(DbEntry).ToString() #>
     <#= Tags.TagList(DbEntry).ToString() #>

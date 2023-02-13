@@ -134,6 +134,92 @@ async function singleLineMapInitFromLineData(mapElement, lineData) {
     newMapLayer.addTo(map);
 }
 
+
+async function singleLineElevationChartInit(chartCanvas, contentId) {
+
+    let lineDataResponse = await fetch(`/Lines/Data/Line-${contentId}.json`);
+    if (!lineDataResponse.ok)
+        throw new Error(lineDataResponse.statusText);
+
+    let lineData = await lineDataResponse.json();
+
+    if (lineData.ElevationPlotData.length === 0) return;
+
+    singleLineChartInitFromLineData(chartCanvas, lineData);
+}
+
+async function singleLineChartInitFromLineData(chartCanvas, lineData) {
+
+    //This code is to help give the charts a slight bit more cross chart comparability - so the
+    //charts will alway end on a multiple of 5 miles and 5,000' of elevation. This is a compromise
+    //because the chart won't fill all available space (show max detail) and charts won't always
+    //have the same scale, but having worked with this data for years I think this is a very simple
+    //compromise that often works out nicely...
+    const maxDistanceInMeters = Math.max(...lineData.ElevationPlotData.map(x => x.DistanceFromOrigin));
+    const distanceFiveMileUnits = Math.floor((maxDistanceInMeters * 0.0006213711922) / 5);
+    const distanceMax = (distanceFiveMileUnits + 1) * 5;
+
+    const maxElevationInMeters = Math.max(...lineData.ElevationPlotData.map(x => x.Elevation));
+    const elevationFiveThousandFeetUnits = Math.floor((maxElevationInMeters * 3.280839895) / 5000);
+    const elevationMax = (elevationFiveThousandFeetUnits + 1) * 5000;
+
+    //Thank you to https://www.geoapify.com/tutorial/draw-route-elevation-profile-with-chartjs for
+    //the starting point on this!
+
+    const chartData = {
+        labels: lineData.ElevationPlotData.map(x => x.DistanceFromOrigin * 0.0006213711922),
+        datasets: [{
+            data: lineData.ElevationPlotData.map(x => x.Elevation * 3.280839895),
+            fill: true,
+            borderColor: '#66ccff',
+            backgroundColor: '#66ccff66',
+            tension: 0.1,
+            pointRadius: 0,
+            spanGaps: true
+        }]
+    };
+
+    const config = {
+        type: 'line',
+        data: chartData,
+        plugins: [{
+            beforeInit: (chart, args, options) => {
+                chart.options.scales.x.min = 0;
+                chart.options.scales.x.max = distanceMax;
+                chart.options.scales.y.min = 0;
+                chart.options.scales.y.max = elevationMax;
+            }
+        }],
+        options: {
+            animation: false,
+            maintainAspectRatio: false,
+            interaction: { intersect: false, mode: 'index' },
+            tooltip: { position: 'nearest' },
+            scales: {
+                x: { type: 'linear' },
+                y: { type: 'linear' },
+            },
+            plugins: {
+                title: { align: "center", display: true, text: "Distance: Miles, Elevation: Feet" },
+                legend: { display: false },
+                tooltip: {
+                    displayColors: false,
+                    callbacks: {
+                        title: (tooltipItems) => {
+                            return "Distance: " + parseFloat(tooltipItems[0].label).toFixed(2).toLocaleString() + ' miles'
+                        },
+                        label: (tooltipItem) => {
+                            return "Elevation: " + Math.floor(tooltipItem.raw).toLocaleString() + ' feet'
+                        },
+                    }
+                }
+            }
+        }
+    };
+
+    const chart = new Chart(chartCanvas.getContext("2d"), config);
+}
+
 async function mapComponentInit(mapElement, contentId) {
 
     let mapComponentResponse = await window.fetch(`/Maps/Data/Map-${contentId}.json`);

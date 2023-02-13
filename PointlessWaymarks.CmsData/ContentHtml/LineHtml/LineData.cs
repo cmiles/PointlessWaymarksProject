@@ -1,4 +1,5 @@
 ﻿using NetTopologySuite.Features;
+using NetTopologySuite.Geometries;
 using NetTopologySuite.IO;
 using Newtonsoft.Json;
 using PointlessWaymarks.CmsData.Content;
@@ -17,9 +18,11 @@ public static class LineData
 
         var bounds = GeoJsonTools.GeometryBoundingBox(GeoJsonTools.GeoJsonToGeometries(lineGeoJson));
 
+        var elevationPlot = GenerateLineElevationDataList(LineTools.CoordinateListFromGeoJsonFeatureCollectionWithLinestring(lineGeoJson));
+
         var jsonDto = new LineSiteJsonData(pageUrl,
             new GeoJsonData.SpatialBounds(bounds.MaxY, bounds.MaxX, bounds.MinY, bounds.MinX),
-            contentFeatureCollection);
+            contentFeatureCollection, elevationPlot);
 
         return await GeoJsonTools.SerializeWithGeoJsonSerializer(jsonDto);
     }
@@ -46,5 +49,35 @@ public static class LineData
             .ConfigureAwait(false);
     }
 
-    public record LineSiteJsonData(string PageUrl, GeoJsonData.SpatialBounds Bounds, FeatureCollection GeoJson);
+    public static List<LineElevationPlotDataPoint> GenerateLineElevationDataList(List<CoordinateZ> lineCoordinates)
+    {
+        if (!lineCoordinates.Any()) return new List<LineElevationPlotDataPoint>();
+
+        var returnList = new List<LineElevationPlotDataPoint> { new LineElevationPlotDataPoint(0, lineCoordinates[0].Z) };
+
+        if (lineCoordinates.Count == 1) return returnList;
+
+        var totalDistance = 0D;
+
+        for (var i = 1; i < lineCoordinates.Count; i++)
+        {
+            totalDistance += SpatialTools.DistanceTools.GetDistanceInMeters(lineCoordinates[i - 1].X, lineCoordinates[i - 1].Y, lineCoordinates[i].X, lineCoordinates[i].Y);
+
+            returnList.Add(new LineElevationPlotDataPoint(totalDistance, lineCoordinates[i].Z));
+        }
+
+        return returnList;
+    }
+
+    public static List<LineElevationPlotDataPoint> GenerateLineElevationDataList(LineContent lineContent)
+    {
+        if (string.IsNullOrWhiteSpace(lineContent.Line)) return new List<LineElevationPlotDataPoint>();
+
+        return GenerateLineElevationDataList(LineTools.CoordinateListFromGeoJsonFeatureCollectionWithLinestring(lineContent.Line));
+    }
+
+    public record LineSiteJsonData(string PageUrl, GeoJsonData.SpatialBounds Bounds, FeatureCollection GeoJson,
+        List<LineElevationPlotDataPoint> ElevationPlotData);
+
+    public record LineElevationPlotDataPoint(double DistanceFromOrigin, double? Elevation);
 }

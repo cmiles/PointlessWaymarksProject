@@ -18,6 +18,7 @@ public static class SpatialScripts
     {
         return
             $"<link rel=\"stylesheet\" href=\"{UserSettingsSingleton.CurrentSettings().SiteResourcesUrl()}leaflet.css\" />\r\n" +
+            $"<script src=\"https://cdn.jsdelivr.net/npm/chart.js\"></script>\r\n" +
             $"<script src=\"{UserSettingsSingleton.CurrentSettings().SiteResourcesUrl()}leaflet.js\"></script>\r\n" +
             $"<link rel=\"stylesheet\" href=\"{UserSettingsSingleton.CurrentSettings().SiteResourcesUrl()}leaflet-gesture-handling.min.css\" type=\"text/css\">\r\n" +
             $"<script src=\"{UserSettingsSingleton.CurrentSettings().SiteResourcesUrl()}leaflet-gesture-handling.min.js\"></script>\r\n" +

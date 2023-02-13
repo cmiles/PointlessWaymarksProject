@@ -156,6 +156,11 @@ body {
     text-align: center;
 }
 
+.line-elevation-chart-container {
+    max-width: 800px;
+    margin: auto;
+}
+
 .point-text-info-container {
     display: flex;
     justify-content: center;
