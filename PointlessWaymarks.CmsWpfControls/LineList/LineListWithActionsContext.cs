@@ -25,6 +25,7 @@ public partial class LineListWithActionsContext : ObservableObject
     [ObservableProperty] private CmsCommonCommands _commonCommands;
     [ObservableProperty] private RelayCommand _lineLinkCodesToClipboardForSelectedCommand;
     [ObservableProperty] private RelayCommand _lineStatsCodesToClipboardForSelectedCommand;
+    [ObservableProperty] private RelayCommand _lineElevationChartCodesToClipboardForSelectedCommand;
     [ObservableProperty] private ContentListContext _listContext;
     [ObservableProperty] private RelayCommand _refreshDataCommand;
     [ObservableProperty] private StatusControlContext _statusContext;
@@ -196,6 +197,8 @@ public partial class LineListWithActionsContext : ObservableObject
             StatusContext.RunBlockingTaskCommand(LinkBracketCodesToClipboardForSelected);
         LineStatsCodesToClipboardForSelectedCommand =
             StatusContext.RunBlockingTaskCommand(StatsBracketCodesToClipboardForSelected);
+        LineElevationChartCodesToClipboardForSelectedCommand =
+            StatusContext.RunBlockingTaskCommand(ElevationChartBracketCodesToClipboardForSelected);
         AddIntersectionTagsToSelectedCommand =
             StatusContext.RunBlockingTaskWithCancellationCommand(AddIntersectionTagsToSelected,
                 "Cancel Feature Intersection Tag Add");
@@ -211,6 +214,11 @@ public partial class LineListWithActionsContext : ObservableObject
             },
             new() { ItemName = "Text Code to Clipboard", ItemCommand = LineLinkCodesToClipboardForSelectedCommand },
             new() { ItemName = "Stats Code to Clipboard", ItemCommand = LineStatsCodesToClipboardForSelectedCommand },
+            new()
+            {
+                ItemName = "Elevation Chart Code to Clipboard",
+                ItemCommand = LineElevationChartCodesToClipboardForSelectedCommand
+            },
             new() { ItemName = "Add Intersection Tags", ItemCommand = AddIntersectionTagsToSelectedCommand },
             new() { ItemName = "Extract New Links", ItemCommand = ListContext.ExtractNewLinksSelectedCommand },
             new() { ItemName = "Open URL", ItemCommand = ListContext.ViewOnSiteCommand },
@@ -241,6 +249,27 @@ public partial class LineListWithActionsContext : ObservableObject
         var finalString = SelectedItems().Aggregate(string.Empty,
             (current, loopSelected) =>
                 current + @$"{BracketCodeLineStats.Create(loopSelected.DbEntry)}{Environment.NewLine}");
+
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        Clipboard.SetText(finalString);
+
+        StatusContext.ToastSuccess($"To Clipboard {finalString}");
+    }
+
+    private async Task ElevationChartBracketCodesToClipboardForSelected()
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (SelectedItems() == null || !SelectedItems().Any())
+        {
+            StatusContext.ToastError("Nothing Selected?");
+            return;
+        }
+
+        var finalString = SelectedItems().Aggregate(string.Empty,
+            (current, loopSelected) =>
+                current + @$"{BracketCodeLineElevationCharts.Create(loopSelected.DbEntry)}{Environment.NewLine}");
 
         await ThreadSwitcher.ResumeForegroundAsync();
 

@@ -35,7 +35,8 @@ public static class BracketCodeCommon
             $"{{{{{BracketCodePoints.BracketCodeToken}",
             $"{{{{{BracketCodeGeoJson.BracketCodeToken}",
             $"{{{{{BracketCodeLines.BracketCodeToken}",
-            $"{{{{{BracketCodeMapComponents.BracketCodeToken}"
+            $"{{{{{BracketCodeMapComponents.BracketCodeToken}",
+            $"{{{{{BracketCodeLineElevationCharts.BracketCodeToken}"
         };
 
         return codeMatches.Any(toProcess.Contains);
@@ -144,6 +145,7 @@ public static class BracketCodeCommon
         input = await BracketCodeLines.ProcessForEmail(input, progress).ConfigureAwait(false);
         input = BracketCodeMapComponents.ProcessForEmail(input, progress);
         input = await BracketCodePoints.ProcessForEmail(input, progress).ConfigureAwait(false);
+        input = BracketCodeLineElevationCharts.ProcessForEmail(input, progress);
 
         return input;
     }
@@ -162,6 +164,7 @@ public static class BracketCodeCommon
         input = await BracketCodeLines.ProcessForDirectLocalAccess(input, progress).ConfigureAwait(false);
         input = await BracketCodeLineLinks.Process(input, progress).ConfigureAwait(false);
         input = await BracketCodeLineStats.Process(input, progress).ConfigureAwait(false);
+        input = await BracketCodeLineElevationCharts.Process(input, progress).ConfigureAwait(false);
         input = await BracketCodeNotes.Process(input, progress).ConfigureAwait(false);
         input = await BracketCodePhotos.ProcessForDirectLocalAccess(input, progress).ConfigureAwait(false);
         input = await BracketCodePhotoLinks.Process(input, progress).ConfigureAwait(false);
@@ -189,6 +192,7 @@ public static class BracketCodeCommon
         input = await BracketCodeLines.Process(input, progress).ConfigureAwait(false);
         input = await BracketCodeLineLinks.Process(input, progress).ConfigureAwait(false);
         input = await BracketCodeLineStats.Process(input, progress).ConfigureAwait(false);
+        input = await BracketCodeLineElevationCharts.Process(input, progress).ConfigureAwait(false);
         input = await BracketCodeMapComponents.Process(input, progress).ConfigureAwait(false);
         input = await BracketCodeNotes.Process(input, progress).ConfigureAwait(false);
         input = await BracketCodePhotos.ProcessToFigureWithLink(input, progress).ConfigureAwait(false);
