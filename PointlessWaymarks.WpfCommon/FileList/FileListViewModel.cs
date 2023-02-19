@@ -144,6 +144,23 @@ public partial class FileListViewModel : ObservableObject, IDropTarget
         });
     }
 
+    public async Task AddFilesToTag(List<string> filesToAdd)
+    {
+        if (!filesToAdd.Any()) return;
+
+        await ResumeForegroundAsync();
+
+        if (ReplaceMode) Files?.Clear();
+
+        var selectedFiles = filesToAdd.Select(x => new FileInfo(x)).Where(x => x.Exists && !Files!.Contains(x))
+            .ToList();
+
+        selectedFiles.ForEach(x =>
+        {
+            if (!Files!.Any(y => y.FullName.Equals(x.FullName, StringComparison.OrdinalIgnoreCase))) Files!.Add(x);
+        });
+    }
+
     public async Task AddFilesToTagFromDirectory()
     {
         await ResumeBackgroundAsync();

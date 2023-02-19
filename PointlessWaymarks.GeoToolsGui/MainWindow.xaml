@@ -16,7 +16,7 @@
         Icon="PointlessWaymarksGeoToolsIcon.ico"
         Title="{Binding InfoTitle}" Height="450" Width="800" d:DataContext="{d:DesignInstance geoToolsGui:MainWindow}">
     <Grid>
-        <TabControl TabStripPlacement="Left">
+        <TabControl TabStripPlacement="Left" SelectedIndex="{Binding SelectedTab, Mode=TwoWay}">
             <TabItem Header="GeoTag from Gpx Files">
                 <controls1:FileBasedGeoTaggerControl DataContext="{Binding FileGeoTaggerContext}" />
             </TabItem>

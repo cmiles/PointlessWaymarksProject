@@ -63,6 +63,8 @@ public partial class FileBasedGeoTaggerContext : ObservableObject
         WriteToFilesCommand = StatusContext.RunBlockingTaskCommand(WriteResultsToFile);
 
         NextTabCommand = StatusContext.RunNonBlockingActionCommand(() => SelectedTab++);
+        SendResultFilesToFeatureIntersectTaggerCommand =
+            StatusContext.RunNonBlockingTaskCommand(SendResultFilesToFeatureIntersectTagger);
     }
 
     public RelayCommand ChooseExifFileCommand { get; set; }
@@ -72,6 +74,8 @@ public partial class FileBasedGeoTaggerContext : ObservableObject
     public RelayCommand MetadataForSelectedFilesToTagCommand { get; set; }
 
     public RelayCommand NextTabCommand { get; set; }
+
+    public RelayCommand SendResultFilesToFeatureIntersectTaggerCommand { get; set; }
 
     public RelayCommand ShowSelectedGpxFilesCommand { get; set; }
 
@@ -297,6 +301,18 @@ public partial class FileBasedGeoTaggerContext : ObservableObject
             new SpatialBounds(bounds.MaxY, bounds.MaxX, bounds.MinY, bounds.MinX), features);
 
         return await GeoJsonTools.SerializeWithGeoJsonSerializer(jsonDto);
+    }
+
+    public async Task SendResultFilesToFeatureIntersectTagger()
+    {
+        if (WriteToFileResults?.FileResults == null || WriteToFileResults.FileResults.Count == 0)
+        {
+            StatusContext.ToastError("No Results to Send");
+            return;
+        }
+
+        WeakReferenceMessenger.Default.Send(new FeatureIntersectFileAddRequestMessage((this,
+            WriteToFileResults.FileResults.Select(x => x.FileName).ToList())));
     }
 
     private void SettingsOnPropertyChanged(object? sender, PropertyChangedEventArgs e)

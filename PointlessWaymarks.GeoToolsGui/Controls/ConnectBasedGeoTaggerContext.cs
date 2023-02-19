@@ -63,6 +63,8 @@ public partial class ConnectBasedGeoTaggerContext : ObservableObject
         ChooseArchiveDirectoryCommand = StatusContext.RunBlockingTaskCommand(ChooseArchiveDirectory);
         ShowArchiveDirectoryCommand = StatusContext.RunNonBlockingTaskCommand(ShowArchiveDirectory);
         NextTabCommand = StatusContext.RunNonBlockingActionCommand(() => SelectedTab++);
+        SendResultFilesToFeatureIntersectTaggerCommand =
+            StatusContext.RunNonBlockingTaskCommand(SendResultFilesToFeatureIntersectTagger);
 
         PropertyChanged += OnPropertyChanged;
     }
@@ -75,6 +77,8 @@ public partial class ConnectBasedGeoTaggerContext : ObservableObject
     public RelayCommand MetadataForSelectedFilesToTagCommand { get; set; }
     public RelayCommand NextTabCommand { get; set; }
     public RelayCommand RemoveAllGarminCredentialsCommand { get; set; }
+
+    public RelayCommand SendResultFilesToFeatureIntersectTaggerCommand { get; set; }
     public RelayCommand ShowArchiveDirectoryCommand { get; set; }
 
     public RelayCommand ShowSelectedGpxFilesCommand { get; set; }
@@ -420,6 +424,18 @@ public partial class ConnectBasedGeoTaggerContext : ObservableObject
             new GeoJsonData.SpatialBounds(bounds.MaxY, bounds.MaxX, bounds.MinY, bounds.MinX), features);
 
         return await GeoJsonTools.SerializeWithGeoJsonSerializer(jsonDto);
+    }
+
+    public async Task SendResultFilesToFeatureIntersectTagger()
+    {
+        if (WriteToFileResults?.FileResults == null || WriteToFileResults.FileResults.Count == 0)
+        {
+            StatusContext.ToastError("No Results to Send");
+            return;
+        }
+
+        WeakReferenceMessenger.Default.Send(new FeatureIntersectFileAddRequestMessage((this,
+            WriteToFileResults.FileResults.Select(x => x.FileName).ToList())));
     }
 
     private void SettingsOnPropertyChanged(object? sender, PropertyChangedEventArgs e)

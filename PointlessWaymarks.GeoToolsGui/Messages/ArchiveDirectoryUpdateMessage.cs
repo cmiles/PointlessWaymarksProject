@@ -8,3 +8,10 @@ public class ArchiveDirectoryUpdateMessage : ValueChangedMessage<(object sender,
     {
     }
 }
+
+public class FeatureIntersectFileAddRequestMessage : ValueChangedMessage<(object sender, List<string> files)>
+{
+    public FeatureIntersectFileAddRequestMessage((object sender, List<string> files) message) : base(message)
+    {
+    }
+}

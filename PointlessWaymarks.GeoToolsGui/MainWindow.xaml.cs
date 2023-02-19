@@ -31,7 +31,7 @@ public partial class MainWindow : Window
     [ObservableProperty] private StatusControlContext _statusContext;
     [ObservableProperty] private ProgramUpdateMessageContext _updateMessageContext;
     [ObservableProperty] private WindowIconStatus _windowStatus;
-
+    [ObservableProperty] private int _selectedTab;
 
     public MainWindow()
     {
@@ -117,6 +117,18 @@ public partial class MainWindow : Window
                 GarminConnectDownloadContext.Settings.ArchiveDirectory = m.Value.archiveDirectory;
             if (ConnectGeoTaggerContext?.Settings != null)
                 ConnectGeoTaggerContext.Settings.ArchiveDirectory = m.Value.archiveDirectory;
+        });
+
+        WeakReferenceMessenger.Default.Register<FeatureIntersectFileAddRequestMessage>(this, async (r, m) =>
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            if (FeatureIntersectContext?.FilesToTagFileList is null) return;
+
+            await
+            FeatureIntersectContext.FilesToTagFileList.AddFilesToTag(m.Value.files);
+            SelectedTab = 2;
+            FeatureIntersectContext.SelectedTab = 0;
         });
     }
 }
