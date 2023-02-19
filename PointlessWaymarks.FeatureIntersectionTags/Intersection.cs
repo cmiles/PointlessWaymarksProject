@@ -462,7 +462,7 @@ public static class Intersection
         {
             for (var i = 0; i < toProcess.Count; i++)
                 toProcess[i] =
-                    SlugTools.CreateSlug(tagsToLower, toProcess[i], tagMaxCharacterLength);
+                    SlugTools.CreateSpacedString(tagsToLower, toProcess[i], tagMaxCharacterLength);
             return toProcess;
         }
 
