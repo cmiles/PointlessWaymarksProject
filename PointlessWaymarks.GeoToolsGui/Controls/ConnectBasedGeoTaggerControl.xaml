@@ -258,7 +258,7 @@
                                                     Binding="{Binding Elevation, Converter={StaticResource MetersToFeet}, StringFormat=N0}" />
                             </DataGrid.Columns>
                         </DataGrid>
-                        <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center">
+                        <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,6,0,6">
                             <Button Command="{Binding SendResultFilesToFeatureIntersectTaggerCommand}">Send Files to Feature Intersect Tagger</Button>
                         </StackPanel>
                         <wpf:WebView2 Grid.Row="2"
