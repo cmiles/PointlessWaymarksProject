@@ -305,6 +305,8 @@ public partial class FileBasedGeoTaggerContext : ObservableObject
 
     public async Task SendResultFilesToFeatureIntersectTagger()
     {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+        
         if (WriteToFileResults?.FileResults == null || WriteToFileResults.FileResults.Count == 0)
         {
             StatusContext.ToastError("No Results to Send");
@@ -325,6 +327,8 @@ public partial class FileBasedGeoTaggerContext : ObservableObject
 
     public async Task ShowSelectedGpxFiles()
     {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
         if (GpxFileList.SelectedFiles == null || !GpxFileList.SelectedFiles.Any())
         {
             StatusContext.ToastWarning("No gpx files selected?");

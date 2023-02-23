@@ -102,14 +102,20 @@ public partial class StatusControlContext : ObservableObject
 
     private void DecrementBlockingTasks()
     {
+#pragma warning disable MVVMTK0034
+        //Disabling for ref usage
         Interlocked.Decrement(ref _countOfRunningBlockingTasks);
-        BlockUi = _countOfRunningBlockingTasks > 0;
+#pragma warning restore MVVMTK0034
+        BlockUi = CountOfRunningBlockingTasks > 0;
     }
 
     private void DecrementNonBlockingTasks()
     {
+#pragma warning disable MVVMTK0034
+        //Disabling for ref usage
         Interlocked.Decrement(ref _countOfRunningNonBlockingTasks);
-        NonBlockingTaskAreRunning = _countOfRunningNonBlockingTasks > 0;
+#pragma warning restore MVVMTK0034
+        NonBlockingTaskAreRunning = CountOfRunningNonBlockingTasks > 0;
     }
 
     private async void FireAndForgetBlockingTaskCompleted(Task obj)
@@ -190,7 +196,7 @@ public partial class StatusControlContext : ObservableObject
     private void IncrementBlockingTasks()
     {
         Interlocked.Increment(ref _countOfRunningBlockingTasks);
-        BlockUi = _countOfRunningBlockingTasks > 0;
+        BlockUi = CountOfRunningBlockingTasks > 0;
     }
 
     private void IncrementNonBlockingTasks()
@@ -411,11 +417,11 @@ public partial class StatusControlContext : ObservableObject
 
         await ThreadSwitcher.ThreadSwitcher.ResumeBackgroundAsync();
 
-        _currentFullScreenCancellationSource = new CancellationTokenSource();
+        CurrentFullScreenCancellationSource = new CancellationTokenSource();
 
         try
         {
-            await _currentFullScreenCancellationSource.Token.WhenCancelled();
+            await CurrentFullScreenCancellationSource.Token.WhenCancelled();
         }
         catch (Exception e)
         {
@@ -423,7 +429,7 @@ public partial class StatusControlContext : ObservableObject
         }
         finally
         {
-            _currentFullScreenCancellationSource.Dispose();
+            CurrentFullScreenCancellationSource.Dispose();
         }
 
         await ThreadSwitcher.ThreadSwitcher.ResumeForegroundAsync();
@@ -458,11 +464,11 @@ public partial class StatusControlContext : ObservableObject
         StringEntryVisible = true;
         StringEntryApproved = false;
 
-        _currentFullScreenCancellationSource = new CancellationTokenSource();
+        CurrentFullScreenCancellationSource = new CancellationTokenSource();
 
         try
         {
-            await _currentFullScreenCancellationSource.Token.WhenCancelled();
+            await CurrentFullScreenCancellationSource.Token.WhenCancelled();
         }
         catch (Exception e)
         {
@@ -475,7 +481,7 @@ public partial class StatusControlContext : ObservableObject
         }
         finally
         {
-            _currentFullScreenCancellationSource.Dispose();
+            CurrentFullScreenCancellationSource.Dispose();
         }
 
         await ThreadSwitcher.ThreadSwitcher.ResumeForegroundAsync();
@@ -496,7 +502,7 @@ public partial class StatusControlContext : ObservableObject
 
     public void StateForceDismissFullScreenMessage()
     {
-        _currentFullScreenCancellationSource?.Cancel();
+        CurrentFullScreenCancellationSource?.Cancel();
     }
 
     public void ToastError(string toastText)
@@ -522,18 +528,18 @@ public partial class StatusControlContext : ObservableObject
     {
         ShowMessageResponse = responseString;
         Progress($"Show Message Response {responseString}");
-        _currentFullScreenCancellationSource?.Cancel();
+        CurrentFullScreenCancellationSource?.Cancel();
     }
 
     private void UserStringEntryApprovedResponse()
     {
         StringEntryApproved = true;
-        _currentFullScreenCancellationSource?.Cancel();
+        CurrentFullScreenCancellationSource?.Cancel();
     }
 
     private void UserStringEntryCanceledResponse()
     {
         StringEntryApproved = false;
-        _currentFullScreenCancellationSource?.Cancel();
+        CurrentFullScreenCancellationSource?.Cancel();
     }
 }

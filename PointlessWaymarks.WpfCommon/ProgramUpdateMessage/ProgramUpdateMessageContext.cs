@@ -29,7 +29,10 @@ public partial class ProgramUpdateMessageContext : ObservableObject
         ShowMessage = false;
     }
 
+#pragma warning disable CS1998
+    //Async expected on this method by convention
     public async Task LoadData(string currentVersion, string updateVersion, FileInfo setupFile)
+#pragma warning restore CS1998
     {
         CurrentVersion = currentVersion;
         UpdateVersion = updateVersion;

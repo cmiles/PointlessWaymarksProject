@@ -6,6 +6,8 @@ using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.SpatialTools;
+#pragma warning disable CS1998
+//CS1998 is disabled because the async is the expected signature for the validation functions
 
 namespace PointlessWaymarks.CmsData.Content;
 

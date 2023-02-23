@@ -1,5 +1,4 @@
 ﻿using System.Reflection;
-using System.Windows;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Messaging;
 using PointlessWaymarks.CommonTools;
@@ -18,20 +17,23 @@ namespace PointlessWaymarks.GeoToolsGui;
 ///     Interaction logic for MainWindow.xaml
 /// </summary>
 [ObservableObject]
-public partial class MainWindow : Window
+#pragma warning disable MVVMTK0033
+//Disabled for XAML Window
+public partial class MainWindow
+#pragma warning restore MVVMTK0033
 {
     private readonly string _currentDateVersion;
-    [ObservableProperty] private HelpDisplayContext _aboutContext;
+    [ObservableProperty] private HelpDisplayContext? _aboutContext;
     [ObservableProperty] private ConnectBasedGeoTaggerContext? _connectGeoTaggerContext;
     [ObservableProperty] private FeatureIntersectTaggerContext? _featureIntersectContext;
     [ObservableProperty] private FileBasedGeoTaggerContext? _fileGeoTaggerContext;
     [ObservableProperty] private ConnectDownloadContext? _garminConnectDownloadContext;
     [ObservableProperty] private string _infoTitle = string.Empty;
-    [ObservableProperty] private AppSettingsContext _settingsContext;
+    [ObservableProperty] private int _selectedTab;
+    [ObservableProperty] private AppSettingsContext? _settingsContext;
     [ObservableProperty] private StatusControlContext _statusContext;
     [ObservableProperty] private ProgramUpdateMessageContext _updateMessageContext;
     [ObservableProperty] private WindowIconStatus _windowStatus;
-    [ObservableProperty] private int _selectedTab;
 
     public MainWindow()
     {
@@ -97,38 +99,47 @@ public partial class MainWindow : Window
         await CheckForProgramUpdate(_currentDateVersion);
 
 
-        WeakReferenceMessenger.Default.Register<ExifToolSettingsUpdateMessage>(this, async (r, m) =>
+        WeakReferenceMessenger.Default.Register<ExifToolSettingsUpdateMessage>(this,  (_, m) =>
         {
-            await ThreadSwitcher.ResumeBackgroundAsync();
+            StatusContext.RunFireAndForgetNonBlockingTask(async () =>
+            {
+                await ThreadSwitcher.ResumeBackgroundAsync();
 
-            if (ConnectGeoTaggerContext?.Settings != null)
-                ConnectGeoTaggerContext.Settings.ExifToolFullName = m.Value.exifToolFullName;
-            if (FeatureIntersectContext?.Settings != null)
-                FeatureIntersectContext.Settings.ExifToolFullName = m.Value.exifToolFullName;
-            if (FileGeoTaggerContext?.Settings != null)
-                FileGeoTaggerContext.Settings.ExifToolFullName = m.Value.exifToolFullName;
+                if (ConnectGeoTaggerContext?.Settings != null)
+                    ConnectGeoTaggerContext.Settings.ExifToolFullName = m.Value.exifToolFullName;
+                if (FeatureIntersectContext?.Settings != null)
+                    FeatureIntersectContext.Settings.ExifToolFullName = m.Value.exifToolFullName;
+                if (FileGeoTaggerContext?.Settings != null)
+                    FileGeoTaggerContext.Settings.ExifToolFullName = m.Value.exifToolFullName;
+            });
         });
 
-        WeakReferenceMessenger.Default.Register<ArchiveDirectoryUpdateMessage>(this, async (r, m) =>
+        WeakReferenceMessenger.Default.Register<ArchiveDirectoryUpdateMessage>(this,  (_, m) =>
         {
-            await ThreadSwitcher.ResumeBackgroundAsync();
+            StatusContext.RunFireAndForgetNonBlockingTask(async () =>
+            {
+                await ThreadSwitcher.ResumeBackgroundAsync();
 
-            if (GarminConnectDownloadContext?.Settings != null)
-                GarminConnectDownloadContext.Settings.ArchiveDirectory = m.Value.archiveDirectory;
-            if (ConnectGeoTaggerContext?.Settings != null)
-                ConnectGeoTaggerContext.Settings.ArchiveDirectory = m.Value.archiveDirectory;
+                if (GarminConnectDownloadContext?.Settings != null)
+                    GarminConnectDownloadContext.Settings.ArchiveDirectory = m.Value.archiveDirectory;
+                if (ConnectGeoTaggerContext?.Settings != null)
+                    ConnectGeoTaggerContext.Settings.ArchiveDirectory = m.Value.archiveDirectory;
+            });
         });
 
-        WeakReferenceMessenger.Default.Register<FeatureIntersectFileAddRequestMessage>(this, async (r, m) =>
+        WeakReferenceMessenger.Default.Register<FeatureIntersectFileAddRequestMessage>(this, (_, m) =>
         {
-            await ThreadSwitcher.ResumeBackgroundAsync();
+            StatusContext.RunFireAndForgetNonBlockingTask(async () =>
+            {
+                await ThreadSwitcher.ResumeBackgroundAsync();
 
-            if (FeatureIntersectContext?.FilesToTagFileList is null) return;
+                if (FeatureIntersectContext?.FilesToTagFileList is null) return;
 
-            await
-            FeatureIntersectContext.FilesToTagFileList.AddFilesToTag(m.Value.files);
-            SelectedTab = 2;
-            FeatureIntersectContext.SelectedTab = 0;
+                await
+                    FeatureIntersectContext.FilesToTagFileList.AddFilesToTag(m.Value.files);
+                SelectedTab = 2;
+                FeatureIntersectContext.SelectedTab = 0;
+            });
         });
     }
 }
