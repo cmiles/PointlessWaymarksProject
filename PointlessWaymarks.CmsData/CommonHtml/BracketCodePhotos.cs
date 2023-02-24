@@ -14,7 +14,7 @@ public static class BracketCodePhotos
         return $@"{{{{{BracketCodeToken} {content.ContentId}; {content.Title}}}}}";
     }
 
-    public static async Task<List<PhotoContent>> DbContentFromBracketCodes(string toProcess,
+    public static async Task<List<PhotoContent>> DbContentFromBracketCodes(string? toProcess,
         IProgress<string>? progress = null)
     {
         if (string.IsNullOrWhiteSpace(toProcess)) return new List<PhotoContent>();
@@ -52,7 +52,7 @@ public static class BracketCodePhotos
     /// <param name="pageConversion"></param>
     /// <param name="progress"></param>
     /// <returns></returns>
-    private static async Task<string> Process(string toProcess, Func<SinglePhotoPage, string> pageConversion,
+    private static async Task<string?> Process(string? toProcess, Func<SinglePhotoPage, string> pageConversion,
         IProgress<string>? progress = null)
     {
         if (string.IsNullOrWhiteSpace(toProcess)) return string.Empty;
@@ -87,7 +87,7 @@ public static class BracketCodePhotos
     /// <param name="toProcess"></param>
     /// <param name="progress"></param>
     /// <returns></returns>
-    public static async Task<string> ProcessForDirectLocalAccess(string toProcess,
+    public static async Task<string?> ProcessForDirectLocalAccess(string? toProcess,
         IProgress<string>? progress = null)
     {
         return await Process(toProcess, page => page.PictureInformation.LocalPictureFigureTag().ToString(),
@@ -100,7 +100,7 @@ public static class BracketCodePhotos
     /// <param name="toProcess"></param>
     /// <param name="progress"></param>
     /// <returns></returns>
-    public static async Task<string> ProcessForEmail(string toProcess, IProgress<string>? progress = null)
+    public static async Task<string> ProcessForEmail(string? toProcess, IProgress<string>? progress = null)
     {
         return await Process(toProcess, page => page.PictureInformation.EmailPictureTableTag().ToString(),
             progress).ConfigureAwait(false);
@@ -112,7 +112,7 @@ public static class BracketCodePhotos
     /// <param name="toProcess"></param>
     /// <param name="progress"></param>
     /// <returns></returns>
-    public static async Task<string> ProcessToFigureWithLink(string toProcess, IProgress<string>? progress = null)
+    public static async Task<string?> ProcessToFigureWithLink(string? toProcess, IProgress<string>? progress = null)
     {
         return await Process(toProcess,
             page => page.PictureInformation.PictureFigureWithCaptionAndLinkToPicturePageTag("100vw").ToString(),

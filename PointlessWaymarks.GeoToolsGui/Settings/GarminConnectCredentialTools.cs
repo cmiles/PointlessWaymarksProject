@@ -2,7 +2,7 @@
 
 namespace PointlessWaymarks.GeoToolsGui.Settings;
 
-public class GarminConnectCredentialTools
+public static class GarminConnectCredentialTools
 {
     /// <summary>
     ///     Returns the Credential Manager Resource Key for the current settings file for AWS Site credentials
@@ -11,7 +11,7 @@ public class GarminConnectCredentialTools
     public static string GarminConnectCredentialResourceString()
     {
         return
-            $"Pointless Waymarks GeoTools - Garmin Connect";
+            "Pointless Waymarks GeoTools - Garmin Connect";
     }
 
     /// <summary>

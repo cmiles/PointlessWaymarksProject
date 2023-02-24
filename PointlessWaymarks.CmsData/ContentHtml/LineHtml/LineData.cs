@@ -12,7 +12,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml.LineHtml;
 
 public static class LineData
 {
-    public static async Task<string> GenerateLineJson(string lineGeoJson, string title, string pageUrl)
+    public static async Task<string?> GenerateLineJson(string lineGeoJson, string title, string pageUrl)
     {
         var contentFeatureCollection = GeoJsonTools.DeserializeStringToFeatureCollection(lineGeoJson);
 

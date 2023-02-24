@@ -31,29 +31,31 @@ public partial class FileBasedGeoTaggerContext : ObservableObject
     [ObservableProperty] private bool _createBackups;
     [ObservableProperty] private bool _createBackupsInDefaultStorage;
     [ObservableProperty] private bool _exifToolExists;
-    [ObservableProperty] private FileListViewModel _filesToTagFileList;
-    [ObservableProperty] private FileBasedGeoTaggerFilesToTagSettings _filesToTagSettings;
-    [ObservableProperty] private FileListViewModel _gpxFileList;
-    [ObservableProperty] private FileBasedGeoTaggerGpxFilesSettings _gpxFilesSettings;
+    [ObservableProperty] private FileListViewModel? _filesToTagFileList;
+    [ObservableProperty] private FileBasedGeoTaggerFilesToTagSettings? _filesToTagSettings;
+    [ObservableProperty] private FileListViewModel? _gpxFileList;
+    [ObservableProperty] private FileBasedGeoTaggerGpxFilesSettings? _gpxFilesSettings;
     [ObservableProperty] private int _offsetPhotoTimeInMinutes;
     [ObservableProperty] private bool _overwriteExistingGeoLocation;
     [ObservableProperty] private int _pointsMustBeWithinMinutes = 10;
-    [ObservableProperty] private string _previewGeoJsonDto;
+    [ObservableProperty] private string _previewGeoJsonDto = string.Empty;
     [ObservableProperty] private bool _previewHasWritablePoints;
-    [ObservableProperty] private string _previewHtml;
+    [ObservableProperty] private string _previewHtml = string.Empty;
     [ObservableProperty] private GeoTag.GeoTagProduceActionsResult? _previewResults;
     [ObservableProperty] private int _selectedTab;
     [ObservableProperty] private FileBasedGeoTaggerSettings _settings;
     [ObservableProperty] private StatusControlContext _statusContext;
     [ObservableProperty] private WindowIconStatus? _windowStatus;
-    [ObservableProperty] private string _writeToFileGeoJsonDto;
-    [ObservableProperty] private string _writeToFileHtml;
+    [ObservableProperty] private string _writeToFileGeoJsonDto = string.Empty;
+    [ObservableProperty] private string _writeToFileHtml = string.Empty;
     [ObservableProperty] private GeoTag.GeoTagWriteMetadataToFilesResult? _writeToFileResults;
 
     public FileBasedGeoTaggerContext(StatusControlContext? statusContext, WindowIconStatus? windowStatus)
     {
         _statusContext = statusContext ?? new StatusControlContext();
         _windowStatus = windowStatus;
+
+        _settings = new FileBasedGeoTaggerSettings();
 
         MetadataForSelectedFilesToTagCommand = StatusContext.RunBlockingTaskCommand(MetadataForSelectedFilesToTag);
         ShowSelectedGpxFilesCommand = StatusContext.RunBlockingTaskCommand(ShowSelectedGpxFiles);
@@ -67,19 +69,19 @@ public partial class FileBasedGeoTaggerContext : ObservableObject
             StatusContext.RunNonBlockingTaskCommand(SendResultFilesToFeatureIntersectTagger);
     }
 
-    public RelayCommand ChooseExifFileCommand { get; set; }
+    public RelayCommand ChooseExifFileCommand { get; }
 
-    public RelayCommand GeneratePreviewCommand { get; set; }
+    public RelayCommand GeneratePreviewCommand { get; }
 
-    public RelayCommand MetadataForSelectedFilesToTagCommand { get; set; }
+    public RelayCommand MetadataForSelectedFilesToTagCommand { get; }
 
-    public RelayCommand NextTabCommand { get; set; }
+    public RelayCommand NextTabCommand { get; }
 
-    public RelayCommand SendResultFilesToFeatureIntersectTaggerCommand { get; set; }
+    public RelayCommand SendResultFilesToFeatureIntersectTaggerCommand { get; }
 
-    public RelayCommand ShowSelectedGpxFilesCommand { get; set; }
+    public RelayCommand ShowSelectedGpxFilesCommand { get; }
 
-    public RelayCommand WriteToFilesCommand { get; set; }
+    public RelayCommand WriteToFilesCommand { get; }
 
     public async Task CheckThatExifToolExistsAndSaveSettings()
     {
@@ -125,6 +127,9 @@ public partial class FileBasedGeoTaggerContext : ObservableObject
     {
         await FileBasedGeoTaggerSettingTools.WriteSettings(Settings);
 
+        Debug.Assert(GpxFileList != null, nameof(GpxFileList) + " != null");
+        Debug.Assert(FilesToTagFileList != null, nameof(FilesToTagFileList) + " != null");
+        
         if (GpxFileList.Files == null || !GpxFileList.Files.Any() || FilesToTagFileList.Files == null ||
             !FilesToTagFileList.Files.Any())
         {
@@ -158,7 +163,7 @@ public partial class FileBasedGeoTaggerContext : ObservableObject
             var features = new FeatureCollection();
 
             foreach (var loopResults in pointsToWrite)
-                features.Add(new Feature(PointTools.Wgs84Point(loopResults.Longitude.Value, loopResults.Latitude.Value),
+                features.Add(new Feature(PointTools.Wgs84Point(loopResults.Longitude!.Value, loopResults.Latitude!.Value),
                     new AttributesTable(new Dictionary<string, object>
                         { { "title", loopResults.FileName }, { "description", $"From {loopResults.Source}" } })));
 

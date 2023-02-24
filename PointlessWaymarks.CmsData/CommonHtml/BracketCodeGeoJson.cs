@@ -16,7 +16,7 @@ public static class BracketCodeGeoJson
         return $@"{{{{{BracketCodeToken} {content.ContentId}; {content.Title}}}}}";
     }
 
-    public static async Task<List<GeoJsonContent>> DbContentFromBracketCodes(string toProcess,
+    public static async Task<List<GeoJsonContent>> DbContentFromBracketCodes(string? toProcess,
         IProgress<string>? progress = null)
     {
         if (string.IsNullOrWhiteSpace(toProcess)) return new List<GeoJsonContent>();
@@ -45,7 +45,7 @@ public static class BracketCodeGeoJson
         return returnList;
     }
 
-    public static async Task<string> Process(string toProcess, IProgress<string>? progress = null)
+    public static async Task<string?> Process(string? toProcess, IProgress<string>? progress = null)
     {
         if (string.IsNullOrWhiteSpace(toProcess)) return string.Empty;
 
@@ -72,7 +72,7 @@ public static class BracketCodeGeoJson
         return toProcess;
     }
 
-    public static async Task<string> ProcessForDirectLocalAccess(string toProcess,
+    public static async Task<string?> ProcessForDirectLocalAccess(string? toProcess,
         IProgress<string>? progress = null)
     {
         if (string.IsNullOrWhiteSpace(toProcess)) return string.Empty;
@@ -100,7 +100,7 @@ public static class BracketCodeGeoJson
         return toProcess;
     }
 
-    public static async Task<string> ProcessForEmail(string toProcess, IProgress<string>? progress = null)
+    public static async Task<string?> ProcessForEmail(string? toProcess, IProgress<string>? progress = null)
     {
         if (string.IsNullOrWhiteSpace(toProcess)) return string.Empty;
 

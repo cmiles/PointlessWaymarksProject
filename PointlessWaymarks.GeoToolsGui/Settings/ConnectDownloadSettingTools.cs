@@ -5,7 +5,7 @@ using PointlessWaymarks.CommonTools;
 
 namespace PointlessWaymarks.GeoToolsGui.Settings;
 
-public class ConnectDownloadSettingTools
+public static class ConnectDownloadSettingTools
 {
     private static readonly TaskQueue SettingsWriteQueue = new();
 
@@ -34,13 +34,11 @@ public class ConnectDownloadSettingTools
                new ConnectDownloadSettings();
     }
 
-    public static async Task<ConnectDownloadSettings> WriteSettings(
-        ConnectDownloadSettings setting)
+    public static async Task WriteSettings(ConnectDownloadSettings setting)
     {
         var settingsFile = await DefaultSettingsFile();
         var serializedSettings = JsonSerializer.Serialize(setting, new JsonSerializerOptions { WriteIndented = true });
         SettingsWriteQueue.Enqueue(async () =>
             await File.WriteAllTextAsync(settingsFile.FullName, serializedSettings));
-        return setting;
     }
 }

@@ -23,10 +23,10 @@ public partial class FileListViewModel : ObservableObject, IDropTarget
     [ObservableProperty] private bool _replaceMode = true;
     [ObservableProperty] private FileInfo? _selectedFile;
     [ObservableProperty] private ObservableCollection<FileInfo>? _selectedFiles;
-    [ObservableProperty] private IFileListSettings _settings;
+    [ObservableProperty] private IFileListSettings? _settings;
     [ObservableProperty] private StatusControlContext _statusContext;
 
-    public FileListViewModel(StatusControlContext? statusContext, IFileListSettings settings,
+    public FileListViewModel(StatusControlContext? statusContext, IFileListSettings? settings,
         List<ContextMenuItemData> contextMenuItems)
     {
         _statusContext = statusContext ?? new StatusControlContext();
@@ -49,17 +49,18 @@ public partial class FileListViewModel : ObservableObject, IDropTarget
         _contextMenuItems = contextMenuItems.Union(localContextItems).ToList();
     }
 
-    public RelayCommand AddFilesToTagCommand { get; set; }
+    public RelayCommand AddFilesToTagCommand { get; }
 
-    public RelayCommand AddFilesToTagFromDirectoryAndSubdirectoriesCommand { get; set; }
+    public RelayCommand AddFilesToTagFromDirectoryAndSubdirectoriesCommand { get; }
 
-    public RelayCommand AddFilesToTagFromDirectoryCommand { get; set; }
+    public RelayCommand AddFilesToTagFromDirectoryCommand { get; }
 
-    public RelayCommand DeleteSelectedFilesCommand { get; set; }
+    public RelayCommand DeleteSelectedFilesCommand { get; }
 
-    public RelayCommand OpenSelectedFileCommand { get; set; }
+    // ReSharper disable once UnusedAutoPropertyAccessor.Global - Used in Xaml
+    public RelayCommand OpenSelectedFileCommand { get; }
 
-    public RelayCommand OpenSelectedFileDirectoryCommand { get; set; }
+    public RelayCommand OpenSelectedFileDirectoryCommand { get; }
 
     public void DragOver(IDropInfo dropInfo)
     {
@@ -117,6 +118,8 @@ public partial class FileListViewModel : ObservableObject, IDropTarget
     public async Task AddFilesToTag()
     {
         await ResumeBackgroundAsync();
+        
+        Debug.Assert(Settings != null, nameof(Settings) + " != null");
         var lastDirectory = await Settings.GetLastDirectory();
 
         await ResumeForegroundAsync();
@@ -133,7 +136,7 @@ public partial class FileListViewModel : ObservableObject, IDropTarget
 
         if (ReplaceMode) Files?.Clear();
 
-        await _settings.SetLastDirectory(Path.GetDirectoryName(filePicker.FileNames.FirstOrDefault()));
+        await Settings.SetLastDirectory(Path.GetDirectoryName(filePicker.FileNames.FirstOrDefault()) ?? string.Empty);
 
         var selectedFiles = filePicker.FileNames.Select(x => new FileInfo(x)).Where(x => !Files!.Contains(x))
             .ToList();
@@ -164,6 +167,8 @@ public partial class FileListViewModel : ObservableObject, IDropTarget
     public async Task AddFilesToTagFromDirectory()
     {
         await ResumeBackgroundAsync();
+        
+        Debug.Assert(Settings != null, nameof(Settings) + " != null");
         var lastDirectory = await Settings.GetLastDirectory();
 
         await ResumeForegroundAsync();
@@ -193,6 +198,8 @@ public partial class FileListViewModel : ObservableObject, IDropTarget
     public async Task AddFilesToTagFromDirectoryAndSubdirectories()
     {
         await ResumeBackgroundAsync();
+        
+        Debug.Assert(Settings != null, nameof(Settings) + " != null");
         var lastDirectory = await Settings.GetLastDirectory();
 
         await ResumeForegroundAsync();
@@ -219,7 +226,7 @@ public partial class FileListViewModel : ObservableObject, IDropTarget
     }
 
     public static async Task<FileListViewModel> CreateInstance(StatusControlContext statusContext,
-        IFileListSettings settings, List<ContextMenuItemData> contextMenuItems)
+        IFileListSettings? settings, List<ContextMenuItemData> contextMenuItems)
     {
         var newInstance = new FileListViewModel(statusContext, settings, contextMenuItems);
 

@@ -49,7 +49,7 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
     [ObservableProperty] private ObservableCollection<IMapElementListItem>? _mapElements;
     [ObservableProperty] private RelayCommand<IMapElementListItem> _openItemEditorCommand;
     [ObservableProperty] private string _previewHtml;
-    [ObservableProperty] private string _previewMapJsonDto = string.Empty;
+    [ObservableProperty] private string? _previewMapJsonDto = string.Empty;
     [ObservableProperty] private RelayCommand _refreshMapPreviewCommand;
     [ObservableProperty] private RelayCommand<IMapElementListItem> _removeItemCommand;
     [ObservableProperty] private RelayCommand _saveAndCloseCommand;

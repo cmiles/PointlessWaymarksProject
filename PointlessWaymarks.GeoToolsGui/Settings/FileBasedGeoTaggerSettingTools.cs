@@ -34,12 +34,10 @@ public static class FileBasedGeoTaggerSettingTools
                new FileBasedGeoTaggerSettings();
     }
 
-    public static async Task<FileBasedGeoTaggerSettings> WriteSettings(
-        FileBasedGeoTaggerSettings setting)
+    public static async Task WriteSettings(FileBasedGeoTaggerSettings setting)
     {
         var settingsFile = await DefaultSettingsFile();
         var serializedSettings = JsonSerializer.Serialize(setting, new JsonSerializerOptions { WriteIndented = true });
         SettingsWriteQueue.Enqueue(async () => await File.WriteAllTextAsync(settingsFile.FullName, serializedSettings));
-        return setting;
     }
 }

@@ -31,27 +31,29 @@ namespace PointlessWaymarks.GeoToolsGui.Controls;
 public partial class ConnectBasedGeoTaggerContext : ObservableObject
 {
     [ObservableProperty] private bool _archiveDirectoryExists;
-    [ObservableProperty] private string _currentCredentialsNote;
+    [ObservableProperty] private string _currentCredentialsNote = string.Empty;
     [ObservableProperty] private bool _exifToolExists;
-    [ObservableProperty] private FileListViewModel _filesToTagFileList;
-    [ObservableProperty] private ConnectBasedGeoTagFilesToTagSettings _filesToTagSettings;
+    [ObservableProperty] private FileListViewModel? _filesToTagFileList;
+    [ObservableProperty] private ConnectBasedGeoTagFilesToTagSettings? _filesToTagSettings;
     [ObservableProperty] private int _offsetPhotoTimeInMinutes;
-    [ObservableProperty] private string _previewGeoJsonDto;
+    [ObservableProperty] private string? _previewGeoJsonDto;
     [ObservableProperty] private bool _previewHasWritablePoints;
-    [ObservableProperty] private string _previewHtml;
+    [ObservableProperty] private string _previewHtml = string.Empty;
     [ObservableProperty] private GeoTag.GeoTagProduceActionsResult? _previewResults;
     [ObservableProperty] private int _selectedTab;
     [ObservableProperty] private ConnectBasedGeoTaggerSettings _settings;
     [ObservableProperty] private StatusControlContext _statusContext;
     [ObservableProperty] private WindowIconStatus? _windowStatus;
-    [ObservableProperty] private string _writeToFileGeoJsonDto;
-    [ObservableProperty] private string _writeToFileHtml;
+    [ObservableProperty] private string? _writeToFileGeoJsonDto;
+    [ObservableProperty] private string _writeToFileHtml = string.Empty;
     [ObservableProperty] private GeoTag.GeoTagWriteMetadataToFilesResult? _writeToFileResults;
 
     public ConnectBasedGeoTaggerContext(StatusControlContext? statusContext, WindowIconStatus? windowStatus)
     {
         _statusContext = statusContext ?? new StatusControlContext();
         _windowStatus = windowStatus;
+        
+        _settings = new ConnectBasedGeoTaggerSettings();
 
         MetadataForSelectedFilesToTagCommand = StatusContext.RunBlockingTaskCommand(MetadataForSelectedFilesToTag);
         ChooseExifFileCommand = StatusContext.RunBlockingTaskCommand(ChooseExifFile);
@@ -69,23 +71,21 @@ public partial class ConnectBasedGeoTaggerContext : ObservableObject
         PropertyChanged += OnPropertyChanged;
     }
 
-    public RelayCommand ChooseArchiveDirectoryCommand { get; set; }
+    public RelayCommand ChooseArchiveDirectoryCommand { get; }
 
-    public RelayCommand ChooseExifFileCommand { get; set; }
-    public RelayCommand EnterGarminCredentialsCommand { get; set; }
-    public RelayCommand GeneratePreviewCommand { get; set; }
-    public RelayCommand MetadataForSelectedFilesToTagCommand { get; set; }
-    public RelayCommand NextTabCommand { get; set; }
-    public RelayCommand RemoveAllGarminCredentialsCommand { get; set; }
-
-    public RelayCommand SendResultFilesToFeatureIntersectTaggerCommand { get; set; }
-    public RelayCommand ShowArchiveDirectoryCommand { get; set; }
-
-    public RelayCommand ShowSelectedGpxFilesCommand { get; set; }
-    public RelayCommand WriteToFilesCommand { get; set; }
+    public RelayCommand ChooseExifFileCommand { get; }
+    public RelayCommand EnterGarminCredentialsCommand { get; }
+    public RelayCommand GeneratePreviewCommand { get; }
+    public RelayCommand MetadataForSelectedFilesToTagCommand { get; }
+    public RelayCommand NextTabCommand { get; }
+    public RelayCommand RemoveAllGarminCredentialsCommand { get; }
+    public RelayCommand SendResultFilesToFeatureIntersectTaggerCommand { get; }
+    public RelayCommand ShowArchiveDirectoryCommand { get; }
+    public RelayCommand WriteToFilesCommand { get; }
 
     public async Task CheckThatArchiveDirectoryExistsAndSaveSettings()
     {
+        
         await ThreadSwitcher.ResumeBackgroundAsync();
 
         if (string.IsNullOrWhiteSpace(Settings.ArchiveDirectory))
@@ -132,6 +132,8 @@ public partial class ConnectBasedGeoTaggerContext : ObservableObject
         var folderPicker = new VistaFolderBrowserDialog
             { Description = "Directory And Subdirectories to Add", Multiselect = false };
 
+        Debug.Assert(Settings != null, nameof(Settings) + " != null");
+        
         if (!string.IsNullOrWhiteSpace(Settings.ArchiveDirectory))
         {
             var currentDirectory = new DirectoryInfo(Settings.ArchiveDirectory);
@@ -147,6 +149,8 @@ public partial class ConnectBasedGeoTaggerContext : ObservableObject
 
     public async Task ChooseExifFile()
     {
+        Debug.Assert(Settings != null, nameof(Settings) + " != null");
+        
         var newFile = await ExifFilePicker.ChooseExifFile(StatusContext, Settings.ExifToolFullName);
 
         if (!newFile.validFileFound) return;
@@ -202,9 +206,10 @@ public partial class ConnectBasedGeoTaggerContext : ObservableObject
 
     public async Task GeneratePreview()
     {
+        Debug.Assert(Settings != null, nameof(Settings) + " != null");
         await ConnectBasedGeoTaggerSettingTools.WriteSettings(Settings);
 
-        if (FilesToTagFileList.Files == null || !FilesToTagFileList.Files.Any())
+        if (FilesToTagFileList?.Files == null || !FilesToTagFileList.Files.Any())
         {
             StatusContext.ToastError("No Files to Tag Selected?");
             return;
@@ -221,6 +226,8 @@ public partial class ConnectBasedGeoTaggerContext : ObservableObject
             return;
         }
 
+        Debug.Assert(Settings != null, nameof(Settings) + " != null");
+        
         if (string.IsNullOrWhiteSpace(Settings.ArchiveDirectory) || !Directory.Exists(Settings.ArchiveDirectory))
         {
             StatusContext.ToastError($"Archive Directory {Settings.ArchiveDirectory} Not Found/Valid?");
@@ -246,7 +253,7 @@ public partial class ConnectBasedGeoTaggerContext : ObservableObject
             var features = new FeatureCollection();
 
             foreach (var loopResults in resultsWithLocation)
-                features.Add(new Feature(PointTools.Wgs84Point(loopResults.Longitude.Value, loopResults.Latitude.Value),
+                features.Add(new Feature(PointTools.Wgs84Point(loopResults.Longitude!.Value, loopResults.Latitude!.Value),
                     new AttributesTable(new Dictionary<string, object>
                         { { "title", loopResults.FileName }, { "description", $"From {loopResults.Source}" } })));
 
@@ -264,6 +271,7 @@ public partial class ConnectBasedGeoTaggerContext : ObservableObject
     public async Task Load()
     {
         Settings = await ConnectBasedGeoTaggerSettingTools.ReadSettings();
+        Debug.Assert(Settings != null, nameof(Settings) + " != null");
 
         FilesToTagSettings = new ConnectBasedGeoTagFilesToTagSettings(this);
 
@@ -275,7 +283,7 @@ public partial class ConnectBasedGeoTaggerContext : ObservableObject
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
-        Settings.ExifToolFullName = (await ConnectBasedGeoTaggerSettingTools.ReadSettings()).ExifToolFullName;
+        Settings.ExifToolFullName = Settings.ExifToolFullName;
 
         PreviewHtml = WpfHtmlDocument.ToHtmlLeafletBasicGeoJsonDocument("Preview",
             32.12063, -110.52313, string.Empty);
@@ -293,7 +301,7 @@ public partial class ConnectBasedGeoTaggerContext : ObservableObject
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        if (FilesToTagFileList.SelectedFiles == null)
+        if (FilesToTagFileList?.SelectedFiles == null)
         {
             StatusContext.ToastWarning("Nothing Selected?");
             return;
@@ -379,13 +387,14 @@ public partial class ConnectBasedGeoTaggerContext : ObservableObject
 
     private void OnPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
-        if (string.IsNullOrWhiteSpace(e?.PropertyName)) return;
+        if (string.IsNullOrWhiteSpace(e.PropertyName)) return;
 
         if (e.PropertyName == nameof(Settings.ArchiveDirectory))
         {
             StatusContext.RunNonBlockingTask(async () => await CheckThatArchiveDirectoryExistsAndSaveSettings());
             StatusContext.RunNonBlockingTask(async () =>
             {
+                Debug.Assert(Settings != null, nameof(Settings) + " != null");
                 await ConnectBasedGeoTaggerSettingTools.WriteSettings(Settings);
             });
         }
@@ -411,7 +420,7 @@ public partial class ConnectBasedGeoTaggerContext : ObservableObject
         StatusContext.ToastWarning("Removed any Garmin Connect Credentials!");
     }
 
-    private async Task<string> ResetMapGeoJsonDto()
+    private async Task<string?> ResetMapGeoJsonDto()
     {
         var features = new FeatureCollection();
 
@@ -426,24 +435,18 @@ public partial class ConnectBasedGeoTaggerContext : ObservableObject
         return await GeoJsonTools.SerializeWithGeoJsonSerializer(jsonDto);
     }
 
-    public async Task SendResultFilesToFeatureIntersectTagger()
+    public Task SendResultFilesToFeatureIntersectTagger()
     {
         if (WriteToFileResults?.FileResults == null || WriteToFileResults.FileResults.Count == 0)
         {
             StatusContext.ToastError("No Results to Send");
-            return;
+            return Task.CompletedTask;
         }
 
         WeakReferenceMessenger.Default.Send(new FeatureIntersectFileAddRequestMessage((this,
             WriteToFileResults.FileResults.Select(x => x.FileName).ToList())));
-    }
-
-    private void SettingsOnPropertyChanged(object? sender, PropertyChangedEventArgs e)
-    {
-        if (string.IsNullOrEmpty(e.PropertyName)) return;
-
-        if (e.PropertyName.Equals(nameof(Settings.ExifToolFullName)))
-            StatusContext.RunNonBlockingTask(CheckThatExifToolExistsAndSaveSettings);
+        
+        return Task.CompletedTask;
     }
 
     public async Task ShowArchiveDirectory()
@@ -460,6 +463,8 @@ public partial class ConnectBasedGeoTaggerContext : ObservableObject
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
+        Debug.Assert(Settings != null, nameof(Settings) + " != null");
+        
         await ProcessHelpers.OpenExplorerWindowForDirectory(Settings.ArchiveDirectory.Trim());
     }
 
@@ -478,10 +483,14 @@ public partial class ConnectBasedGeoTaggerContext : ObservableObject
 
     public async Task WriteResultsToFile()
     {
+        Debug.Assert(Settings != null, nameof(Settings) + " != null");
         await ConnectBasedGeoTaggerSettingTools.WriteSettings(Settings);
 
         var tagger = new GeoTag();
 
+        Debug.Assert(PreviewResults != null, nameof(PreviewResults) + " != null");
+        Debug.Assert(Settings != null, nameof(Settings) + " != null");
+        
         WriteToFileResults = await tagger.WriteGeoTagActions(
             PreviewResults.FileResults.Where(x => x.ShouldWriteMetadata).ToList(),
             Settings.CreateBackups, Settings.CreateBackupsInDefaultStorage,
@@ -498,7 +507,7 @@ public partial class ConnectBasedGeoTaggerContext : ObservableObject
             var features = new FeatureCollection();
 
             foreach (var loopResults in writtenResults)
-                features.Add(new Feature(PointTools.Wgs84Point(loopResults.Longitude.Value, loopResults.Latitude.Value),
+                features.Add(new Feature(PointTools.Wgs84Point(loopResults.Longitude!.Value, loopResults.Latitude!.Value),
                     new AttributesTable(new Dictionary<string, object>
                         { { "title", loopResults.FileName }, { "description", $"From {loopResults.Source}" } })));
 

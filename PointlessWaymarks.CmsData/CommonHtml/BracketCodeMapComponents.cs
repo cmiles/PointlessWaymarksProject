@@ -15,7 +15,7 @@ public static class BracketCodeMapComponents
         return $@"{{{{{BracketCodeToken} {content.ContentId}; {content.Title}}}}}";
     }
 
-    public static async Task<List<MapComponent>> DbContentFromBracketCodes(string toProcess,
+    public static async Task<List<MapComponent>> DbContentFromBracketCodes(string? toProcess,
         IProgress<string>? progress = null)
     {
         if (string.IsNullOrWhiteSpace(toProcess)) return new List<MapComponent>();
@@ -42,7 +42,7 @@ public static class BracketCodeMapComponents
         return returnList;
     }
 
-    public static async Task<string> Process(string toProcess, IProgress<string>? progress = null)
+    public static async Task<string?> Process(string? toProcess, IProgress<string>? progress = null)
     {
         if (string.IsNullOrWhiteSpace(toProcess)) return string.Empty;
 
@@ -68,7 +68,7 @@ public static class BracketCodeMapComponents
         return toProcess;
     }
 
-    public static string ProcessForEmail(string toProcess, IProgress<string>? progress = null)
+    public static string? ProcessForEmail(string? toProcess, IProgress<string>? progress = null)
     {
         if (string.IsNullOrWhiteSpace(toProcess)) return string.Empty;
 

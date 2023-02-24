@@ -436,7 +436,7 @@ public static class Tags
         return bodyContainer;
     }
 
-    public static async Task<HtmlTag> PostBodyDivFromMarkdown(string bodyContent,
+    public static async Task<HtmlTag> PostBodyDivFromMarkdown(string? bodyContent,
         IProgress<string>? progress = null)
     {
         if (string.IsNullOrWhiteSpace(bodyContent)) return HtmlTag.Empty();

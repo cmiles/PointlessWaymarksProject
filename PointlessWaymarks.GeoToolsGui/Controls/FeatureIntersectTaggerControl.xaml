@@ -247,7 +247,7 @@
                                             !
                                         </TextBlock>
                                     </Grid>
-                                    <Button Grid.Column="1" Command="{Binding ChooseExifFileCommand}" Margin="16,8,4,8" Width="240">Choose File</Button>
+                                    <Button Command="{Binding ChooseExifFileCommand}" Margin="16,8,4,8" Width="240">Choose File</Button>
                                     <TextBlock TextWrapping="Wrap" Margin="4">This program writes tags to files using Phil Harvey's ExifTool - https://exiftool.org/. The recommended version of the program can be downloaded from https://oliverbetz.de/pages/Artikel/ExifTool-for-Windows - and the full path and filename must be entered above.</TextBlock>
                                 </StackPanel>
                             </GroupBox>

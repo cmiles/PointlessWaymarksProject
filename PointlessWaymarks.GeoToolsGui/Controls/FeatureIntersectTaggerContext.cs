@@ -33,13 +33,13 @@ namespace PointlessWaymarks.GeoToolsGui.Controls;
 public partial class FeatureIntersectTaggerContext : ObservableObject
 {
     [ObservableProperty] private bool _exifToolExists;
-    [ObservableProperty] private FeatureFileEditorContext _featureFileToEdit;
-    [ObservableProperty] private FileListViewModel _filesToTagFileList;
-    [ObservableProperty] private FeatureIntersectTaggerFilesToTagSettings _filesToTagSettings;
-    [ObservableProperty] private string _infoTitle;
+    [ObservableProperty] private FeatureFileEditorContext? _featureFileToEdit;
+    [ObservableProperty] private FileListViewModel? _filesToTagFileList;
+    [ObservableProperty] private FeatureIntersectTaggerFilesToTagSettings? _filesToTagSettings;
+    [ObservableProperty] private string _infoTitle = string.Empty;
     [ObservableProperty] private string _padUsAttributeToAdd = string.Empty;
-    [ObservableProperty] private string _previewGeoJsonDto;
-    [ObservableProperty] private string _previewHtml;
+    [ObservableProperty] private string? _previewGeoJsonDto;
+    [ObservableProperty] private string _previewHtml = string.Empty;
     [ObservableProperty] private List<IntersectFileTaggingResult> _previewResults = new();
     [ObservableProperty] private FeatureFileViewModel? _selectedFeatureFile;
     [ObservableProperty] private string? _selectedPadUsAttribute;
@@ -53,6 +53,8 @@ public partial class FeatureIntersectTaggerContext : ObservableObject
     {
         _statusContext = statusContext ?? new StatusControlContext();
         _windowStatus = windowStatus ?? new WindowIconStatus();
+
+        _settings = new FeatureIntersectTaggerSettings();
 
         FeatureFileToEdit =
             new FeatureFileEditorContext(StatusContext, new FeatureFileViewModel(), new List<FeatureFileViewModel>());
@@ -77,19 +79,19 @@ public partial class FeatureIntersectTaggerContext : ObservableObject
         NextTabCommand = StatusContext.RunNonBlockingActionCommand(() => SelectedTab++);
     }
 
-    public RelayCommand AddPadUsAttributeCommand { get; set; }
+    public RelayCommand AddPadUsAttributeCommand { get; }
 
-    public RelayCommand ChooseExifFileCommand { get; set; }
+    public RelayCommand ChooseExifFileCommand { get; }
 
-    public RelayCommand ChoosePadUsDirectoryCommand { get; set; }
+    public RelayCommand ChoosePadUsDirectoryCommand { get; }
 
-    public RelayCommand DeleteFeatureFileCommand { get; set; }
+    public RelayCommand DeleteFeatureFileCommand { get; }
 
-    public RelayCommand EditFeatureFileCommand { get; set; }
+    public RelayCommand EditFeatureFileCommand { get; }
 
-    public RelayCommand ExportSettingsFromFileCommand { get; set; }
+    public RelayCommand ExportSettingsFromFileCommand { get; }
 
-    public RelayCommand GeneratePreviewCommand { get; set; }
+    public RelayCommand GeneratePreviewCommand { get; }
 
     public string GeoJsonFileOverviewMarkdown => """
         Inside the USA the [USGS PAD-US Data](https://www.usgs.gov/programs/gap-analysis-project/science/pad-us-data-overview) (see previous tab) is a great resource for automatically identifying landscape ownership/management and generating tags. But there is a wide variety of other data that you might want to use or create.
@@ -108,13 +110,13 @@ public partial class FeatureIntersectTaggerContext : ObservableObject
         Regardless of the areas you are interested in and the availability of pre-existing data you are likely to find it useful to create your own GeoJson data to help automatically tag things like unofficial names, areas and trails that have local names that will never appear in official data and features and areas with personal significance! [geojson.io](https://geojson.io/) is one simple way to produce a reference file - for example you could draw a polygon around a local trail area, add a property that identifies its well known local name ("name": "My Special Trail Area"), save the file and create a Feature File entry for it with a 'Attributes for Tags' entry of 'name'. Official recognition and public data almost certainly don't define everything you care about on the landscape!
         """;
 
-    public RelayCommand ImportSettingsFromFileCommand { get; set; }
+    public RelayCommand ImportSettingsFromFileCommand { get; }
 
-    public RelayCommand MetadataForSelectedFilesToTagCommand { get; set; }
+    public RelayCommand MetadataForSelectedFilesToTagCommand { get; }
 
-    public RelayCommand NewFeatureFileCommand { get; set; }
+    public RelayCommand NewFeatureFileCommand { get; }
 
-    public RelayCommand NextTabCommand { get; set; }
+    public RelayCommand NextTabCommand { get; }
 
     public string PadUsOverviewMarkdown => """
         From the [USGS PAD-US Data Overview](https://www.usgs.gov/programs/gap-analysis-project/science/pad-us-data-overview):
@@ -134,11 +136,12 @@ public partial class FeatureIntersectTaggerContext : ObservableObject
             - Ensure that the GeoJson has the expected coordinate reference system and format - for example  \ogr2ogr.exe -f GeoJSON -t_srs crs:84 C:\PointlessWaymarksPadUs\PADUS3_0Combined_Region1.geojson C:\PointlessWaymarksPadUs\PADUS3_0Combined_Region1.json.
         """;
 
-    public RelayCommand<string> RemovePadUsAttributeCommand { get; set; }
+    // ReSharper disable once UnusedAutoPropertyAccessor.Global - used by XAML
+    public RelayCommand<string> RemovePadUsAttributeCommand { get; }
 
-    public RelayCommand SaveSettingsFromFileCommand { get; set; }
+    public RelayCommand SaveSettingsFromFileCommand { get; }
 
-    public RelayCommand WriteToFilesCommand { get; set; }
+    public RelayCommand WriteToFilesCommand { get; }
 
     public async Task AddPadUsAttribute()
     {
@@ -150,6 +153,8 @@ public partial class FeatureIntersectTaggerContext : ObservableObject
 
         PadUsAttributeToAdd = PadUsAttributeToAdd.Trim();
 
+        Debug.Assert(Settings != null, nameof(Settings) + " != null");
+        
         if (Settings.PadUsAttributes.Any(x => x.Equals(PadUsAttributeToAdd)))
         {
             StatusContext.ToastWarning($"Can't Add {PadUsAttributeToAdd} - already exists.");
@@ -193,6 +198,8 @@ public partial class FeatureIntersectTaggerContext : ObservableObject
 
         if (!newFile.validFileFound) return;
 
+        Debug.Assert(Settings != null, nameof(Settings) + " != null");
+        
         if (Settings.ExifToolFullName.Equals(newFile.pickedFileName)) return;
 
         Settings.ExifToolFullName = newFile.pickedFileName;
@@ -204,6 +211,8 @@ public partial class FeatureIntersectTaggerContext : ObservableObject
         var folderPicker = new VistaFolderBrowserDialog
             { Description = "Directory to Add", Multiselect = false };
 
+        Debug.Assert(Settings != null, nameof(Settings) + " != null");
+        
         if (!string.IsNullOrWhiteSpace(Settings.PadUsDirectory) && Directory.Exists(Settings.PadUsDirectory))
         {
             var lastDirectory = new DirectoryInfo(Settings.PadUsDirectory);
@@ -227,13 +236,15 @@ public partial class FeatureIntersectTaggerContext : ObservableObject
         return control;
     }
 
-    private async Task<IntersectSettings> CurrentSettingsAsIntersectSettings()
+    private Task<IntersectSettings> CurrentSettingsAsIntersectSettings()
     {
+        Debug.Assert(Settings != null, nameof(Settings) + " != null");
+        
         var featureFiles = Settings.FeatureIntersectFiles
             .Select(x => new FeatureFile(x.Source, x.Name, x.AttributesForTags, x.TagAll, x.FileName, x.Downloaded))
             .ToList();
 
-        return new IntersectSettings(featureFiles, Settings.PadUsDirectory, Settings.PadUsAttributes);
+        return Task.FromResult(new IntersectSettings(featureFiles, Settings.PadUsDirectory, Settings.PadUsAttributes));
     }
 
     public async Task DeleteFeatureFile()
@@ -248,6 +259,8 @@ public partial class FeatureIntersectTaggerContext : ObservableObject
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
+        Debug.Assert(Settings != null, nameof(Settings) + " != null");
+        
         Settings.FeatureIntersectFiles.Remove(SelectedFeatureFile);
 
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -255,9 +268,10 @@ public partial class FeatureIntersectTaggerContext : ObservableObject
         await FeatureIntersectTaggerSettingTools.WriteSettings(Settings);
     }
 
-    public async Task EditFeatureFile()
+    public Task EditFeatureFile()
     {
         if (SelectedFeatureFile == null) StatusContext.ToastWarning("Nothing Selected To Edit?");
+        return Task.CompletedTask;
     }
 
     private void EndEdit(object? sender,
@@ -294,12 +308,14 @@ public partial class FeatureIntersectTaggerContext : ObservableObject
     {
         await FeatureIntersectTaggerSettingTools.WriteSettings(Settings);
 
-        if (FilesToTagFileList.Files == null || !FilesToTagFileList.Files.Any())
+        if (FilesToTagFileList?.Files == null || !FilesToTagFileList.Files.Any())
         {
             StatusContext.ToastError("No Files to Tag Selected?");
             return;
         }
 
+        Debug.Assert(Settings != null, nameof(Settings) + " != null");
+        
         var featureFiles = Settings.FeatureIntersectFiles
             .Select(x => new FeatureFile(x.Source, x.Name, x.AttributesForTags, x.TagAll, x.FileName, x.Downloaded))
             .ToList();
@@ -341,6 +357,8 @@ public partial class FeatureIntersectTaggerContext : ObservableObject
             StatusContext.ToastError($"Couldn't convert {selectedFile.Name} into a valid Settings File?");
             return;
         }
+
+        Debug.Assert(Settings != null, nameof(Settings) + " != null");
 
         if (!string.IsNullOrWhiteSpace(settings.PadUsDirectory)) Settings.PadUsDirectory = settings.PadUsDirectory;
 
@@ -390,6 +408,8 @@ public partial class FeatureIntersectTaggerContext : ObservableObject
         PreviewHtml = WpfHtmlDocument.ToHtmlLeafletBasicGeoJsonDocument("Tagged Features and Intersect Features",
             32.12063, -110.52313, string.Empty);
 
+        Debug.Assert(Settings != null, nameof(Settings) + " != null");
+        
         Settings.PropertyChanged += OnSettingsPropertyChanged;
     }
 
@@ -397,7 +417,7 @@ public partial class FeatureIntersectTaggerContext : ObservableObject
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        if (FilesToTagFileList.SelectedFiles == null)
+        if (FilesToTagFileList?.SelectedFiles == null)
         {
             StatusContext.ToastWarning("Nothing Selected?");
             return;
@@ -481,9 +501,14 @@ public partial class FeatureIntersectTaggerContext : ObservableObject
         }
     }
 
-    public async Task NewFeatureFile()
+    public Task NewFeatureFile()
     {
+        Debug.Assert(FeatureFileToEdit != null, nameof(FeatureFileToEdit) + " != null");
+
+        Debug.Assert(Settings != null, nameof(Settings) + " != null");
+        
         FeatureFileToEdit.Show(new FeatureFileViewModel(), Settings.FeatureIntersectFiles.ToList());
+        return Task.CompletedTask;
     }
 
     private void OnSettingsPropertyChanged(object? sender, PropertyChangedEventArgs e)
@@ -498,6 +523,8 @@ public partial class FeatureIntersectTaggerContext : ObservableObject
     {
         await ThreadSwitcher.ResumeForegroundAsync();
 
+        Debug.Assert(Settings != null, nameof(Settings) + " != null");
+        
         if (Settings.FeatureIntersectFiles.All(x => x.ContentId != model.ContentId))
             Settings.FeatureIntersectFiles.Add(model);
 
@@ -512,7 +539,9 @@ public partial class FeatureIntersectTaggerContext : ObservableObject
     {
         await ThreadSwitcher.ResumeForegroundAsync();
 
-        if (Settings.PadUsAttributes!.Contains(toRemove)) Settings.PadUsAttributes.Remove(toRemove);
+        Debug.Assert(Settings != null, nameof(Settings) + " != null");
+        
+        if (Settings.PadUsAttributes.Contains(toRemove)) Settings.PadUsAttributes.Remove(toRemove);
 
         Settings.PadUsAttributes.SortBy(x => x);
 
@@ -537,6 +566,8 @@ public partial class FeatureIntersectTaggerContext : ObservableObject
             return;
         }
 
+        Debug.Assert(Settings != null, nameof(Settings) + " != null");
+        
         WriteToFileResults = await PreviewResults.Where(x => !string.IsNullOrWhiteSpace(x.NewTagsString)).ToList()
             .WriteTagsToFiles(
                 false, Settings.CreateBackups, Settings.CreateBackupsInDefaultStorage,
@@ -546,9 +577,9 @@ public partial class FeatureIntersectTaggerContext : ObservableObject
         SelectedTab = 5;
 
         var allFeatures = PreviewResults.Where(x => x.IntersectInformation?.Features != null)
-            .SelectMany(x => x.IntersectInformation.Features)
+            .SelectMany(x => x.IntersectInformation!.Features)
             .Union(PreviewResults.Where(x => x.IntersectInformation?.IntersectsWith != null)
-                .SelectMany(x => x.IntersectInformation.IntersectsWith)).Distinct(new FeatureComparer()).ToList();
+                .SelectMany(x => x.IntersectInformation!.IntersectsWith)).Distinct(new FeatureComparer()).ToList();
 
         var bounds = GeoJsonTools.GeometryBoundingBox(allFeatures.Select(x => x.Geometry).ToList());
 

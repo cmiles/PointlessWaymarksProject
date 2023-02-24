@@ -33,9 +33,9 @@ public partial class FeatureFileEditorContext : ObservableObject
         RemoveAttributeCommand = StatusContext.RunNonBlockingTaskCommand<string>(RemoveAttribute);
     }
 
-    public RelayCommand AddAttributeCommand { get; set; }
+    public RelayCommand AddAttributeCommand { get; }
 
-    public RelayCommand CancelCommand { get; set; }
+    public RelayCommand CancelCommand { get; }
 
     public EventHandler<(FeatureFileEditorEndEditCondition endCondition, FeatureFileViewModel model)>? EndEdit
     {
@@ -43,9 +43,10 @@ public partial class FeatureFileEditorContext : ObservableObject
         set;
     }
 
-    public RelayCommand FinishEditCommand { get; set; }
+    public RelayCommand FinishEditCommand { get; }
 
-    public RelayCommand<string> RemoveAttributeCommand { get; set; }
+    // ReSharper disable once UnusedAutoPropertyAccessor.Global - Used in Xaml
+    public RelayCommand<string> RemoveAttributeCommand { get; }
 
     public async Task AddAttribute()
     {
@@ -63,26 +64,27 @@ public partial class FeatureFileEditorContext : ObservableObject
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
-        var newList = Model.AttributesForTags!;
+        var newList = Model.AttributesForTags;
         newList.Add(AttributeToAdd.Trim());
         newList = newList.OrderByDescending(x => x).ToList();
 
         Model.AttributesForTags = newList;
     }
 
-    public async Task Cancel()
+    public Task Cancel()
     {
         Model.InjectFrom(OriginalModelState);
         EndEdit?.Invoke(this, (FeatureFileEditorEndEditCondition.Cancelled, Model));
         IsVisible = false;
+        return Task.CompletedTask;
     }
 
-    public async Task FinishEdit()
+    public Task FinishEdit()
     {
         if (string.IsNullOrEmpty(Model.FileName))
         {
             StatusContext.ToastWarning("Can not add a Feature File with a Blank Filename");
-            return;
+            return Task.CompletedTask;
         }
 
         var fileInfo = new FileInfo(Model.FileName);
@@ -90,19 +92,19 @@ public partial class FeatureFileEditorContext : ObservableObject
         if (!fileInfo.Exists)
         {
             StatusContext.ToastWarning($"{Model.FileName} does not exist?");
-            return;
+            return Task.CompletedTask;
         }
 
         if (string.IsNullOrWhiteSpace(Model.Name))
         {
             StatusContext.ToastWarning($"Please provide a name for {Model.FileName}");
-            return;
+            return Task.CompletedTask;
         }
 
         if (string.IsNullOrWhiteSpace(Model.TagAll) && !Model.AttributesForTags.Any())
         {
             StatusContext.ToastWarning("Tag All With or at least on Attribute for Tags must be set");
-            return;
+            return Task.CompletedTask;
         }
 
         var possibleExisting = _existingFeatureFileViewModels.Where(x =>
@@ -112,19 +114,20 @@ public partial class FeatureFileEditorContext : ObservableObject
         if (possibleExisting.Any())
         {
             StatusContext.ToastWarning("The File Name and Name must be unique...");
-            return;
+            return Task.CompletedTask;
         }
 
         EndEdit?.Invoke(this, (FeatureFileEditorEndEditCondition.Saved, Model));
 
         IsVisible = false;
+        return Task.CompletedTask;
     }
 
     public async Task RemoveAttribute(string toRemove)
     {
         await ThreadSwitcher.ResumeForegroundAsync();
 
-        var newList = Model.AttributesForTags!;
+        var newList = Model.AttributesForTags;
         newList.Remove(toRemove);
         newList = newList.OrderByDescending(x => x).ToList();
 

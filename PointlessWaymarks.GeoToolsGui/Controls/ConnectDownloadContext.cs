@@ -22,10 +22,10 @@ namespace PointlessWaymarks.GeoToolsGui.Controls;
 public partial class ConnectDownloadContext : ObservableObject
 {
     [ObservableProperty] private bool _archiveDirectoryExists;
-    [ObservableProperty] private string _currentCredentialsNote;
-    [ObservableProperty] private string _filterLocation;
+    [ObservableProperty] private string _currentCredentialsNote = string.Empty;
+    [ObservableProperty] private string _filterLocation = string.Empty;
     [ObservableProperty] private bool _filterMatchingArchiveFile;
-    [ObservableProperty] private string _filterName;
+    [ObservableProperty] private string _filterName = string.Empty;
     [ObservableProperty] private bool _filterNoMatchingArchiveFile;
     private Guid _searchAndFilterLatestRequestId;
     [ObservableProperty] private DateTime _searchEndDate;
@@ -38,11 +38,12 @@ public partial class ConnectDownloadContext : ObservableObject
 
     public ConnectDownloadContext(StatusControlContext? statusContext, WindowIconStatus? windowStatus)
     {
-        StatusContext = statusContext ?? new StatusControlContext();
-        WindowStatus = windowStatus ?? new WindowIconStatus();
+        _statusContext = statusContext ?? new StatusControlContext();
+        _windowStatus = windowStatus ?? new WindowIconStatus();
 
         _searchStartDate = DateTime.Now.AddDays(-30);
         _searchEndDate = DateTime.Now.AddDays(1).AddTicks(-1);
+        _settings = new ConnectDownloadSettings();
 
         RunSearchCommand = StatusContext.RunBlockingTaskWithCancellationCommand(RunSearch, "Cancel Search");
         EnterGarminCredentialsCommand = StatusContext.RunBlockingTaskCommand(EnterGarminCredentials);
@@ -57,21 +58,24 @@ public partial class ConnectDownloadContext : ObservableObject
         PropertyChanged += OnPropertyChanged;
     }
 
-    public RelayCommand ChooseArchiveDirectoryCommand { get; set; }
+    public RelayCommand ChooseArchiveDirectoryCommand { get; }
 
-    public RelayCommand<GarminActivityAndLocalFiles> DownloadActivityCommand { get; set; }
+    // ReSharper disable once UnusedAutoPropertyAccessor.Global - Used in Xaml
+    public RelayCommand<GarminActivityAndLocalFiles> DownloadActivityCommand { get; }
 
-    public RelayCommand EnterGarminCredentialsCommand { get; set; }
+    public RelayCommand EnterGarminCredentialsCommand { get; }
 
-    public RelayCommand RemoveAllGarminCredentialsCommand { get; set; }
+    public RelayCommand RemoveAllGarminCredentialsCommand { get; }
 
-    public RelayCommand RunSearchCommand { get; set; }
+    public RelayCommand RunSearchCommand { get; }
 
-    public RelayCommand ShowArchiveDirectoryCommand { get; set; }
+    public RelayCommand ShowArchiveDirectoryCommand { get; }
 
-    public RelayCommand<string> ShowFileInExplorerCommand { get; set; }
+    // ReSharper disable once UnusedAutoPropertyAccessor.Global - Used in Xaml
+    public RelayCommand<string> ShowFileInExplorerCommand { get; }
 
-    public RelayCommand<GarminActivityAndLocalFiles> ShowGpxFileCommand { get; set; }
+    // ReSharper disable once UnusedAutoPropertyAccessor.Global - Used in Xaml
+    public RelayCommand<GarminActivityAndLocalFiles> ShowGpxFileCommand { get; }
 
     public async Task CheckThatArchiveDirectoryExists()
     {
@@ -209,7 +213,7 @@ public partial class ConnectDownloadContext : ObservableObject
 
         if (FilterMatchingArchiveFile && !FilterNoMatchingArchiveFile)
             returnResult = returnResult.Where(x =>
-                    x is { ArchivedGpx: { Exists: true }, ArchivedJson.Exists: true })
+                    x is { ArchivedGpx.Exists: true, ArchivedJson.Exists: true })
                 .ToList();
         if (FilterNoMatchingArchiveFile && !FilterMatchingArchiveFile)
             returnResult = returnResult.Where(x => x.ArchivedGpx is not { Exists: true } || x.ArchivedJson is not

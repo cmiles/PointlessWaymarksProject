@@ -13,21 +13,22 @@ public class FileBasedGeoTaggerGpxFilesSettings : IFileListSettings
         _context = context;
     }
 
-    public async Task<DirectoryInfo?> GetLastDirectory()
+    public Task<DirectoryInfo?> GetLastDirectory()
     {
         var lastDirectory = _context.Settings.GpxLastDirectoryFullName;
 
-        if (string.IsNullOrWhiteSpace(lastDirectory)) return null;
+        if (string.IsNullOrWhiteSpace(lastDirectory)) return Task.FromResult<DirectoryInfo?>(null);
 
         var returnDirectory = new DirectoryInfo(lastDirectory);
 
-        if (!returnDirectory.Exists) return null;
+        if (!returnDirectory.Exists) return Task.FromResult<DirectoryInfo?>(null);
 
-        return returnDirectory;
+        return Task.FromResult(returnDirectory)!;
     }
 
-    public async Task SetLastDirectory(string newDirectory)
+    public Task SetLastDirectory(string newDirectory)
     {
         _context.Settings.GpxLastDirectoryFullName = newDirectory ?? string.Empty;
+        return Task.CompletedTask;
     }
 }

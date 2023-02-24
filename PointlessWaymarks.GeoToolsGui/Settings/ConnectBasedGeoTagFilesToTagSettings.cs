@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System.Diagnostics;
+using System.IO;
 using PointlessWaymarks.GeoToolsGui.Controls;
 using PointlessWaymarks.WpfCommon.FileList;
 
@@ -13,21 +14,24 @@ public class ConnectBasedGeoTagFilesToTagSettings : IFileListSettings
         _context = context;
     }
 
-    public async Task<DirectoryInfo?> GetLastDirectory()
+    public Task<DirectoryInfo?> GetLastDirectory()
     {
-        var lastDirectory = _context.Settings.FilesToTagLastDirectoryFullName;
+        var lastDirectory = _context.Settings?.FilesToTagLastDirectoryFullName;
 
-        if (string.IsNullOrWhiteSpace(lastDirectory)) return null;
+        if (string.IsNullOrWhiteSpace(lastDirectory)) return Task.FromResult<DirectoryInfo?>(null);
 
         var returnDirectory = new DirectoryInfo(lastDirectory);
 
-        if (!returnDirectory.Exists) return null;
+        if (!returnDirectory.Exists) return Task.FromResult<DirectoryInfo?>(null);
 
-        return returnDirectory;
+        return Task.FromResult(returnDirectory)!;
     }
 
-    public async Task SetLastDirectory(string newDirectory)
+    public Task SetLastDirectory(string newDirectory)
     {
+        Debug.Assert(_context.Settings != null, "_context.Settings != null");
+        
         _context.Settings.FilesToTagLastDirectoryFullName = newDirectory ?? string.Empty;
+        return Task.CompletedTask;
     }
 }

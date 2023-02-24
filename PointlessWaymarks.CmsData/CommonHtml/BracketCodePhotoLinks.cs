@@ -14,7 +14,7 @@ public static class BracketCodePhotoLinks
         return $@"{{{{{BracketCodeToken} {content.ContentId}; {content.Title}}}}}";
     }
 
-    public static async Task<List<PhotoContent>> DbContentFromBracketCodes(string toProcess,
+    public static async Task<List<PhotoContent>> DbContentFromBracketCodes(string? toProcess,
         IProgress<string>? progress = null)
     {
         if (string.IsNullOrWhiteSpace(toProcess)) return new List<PhotoContent>();
@@ -41,7 +41,7 @@ public static class BracketCodePhotoLinks
         return returnList;
     }
 
-    public static async Task<string> Process(string toProcess, IProgress<string>? progress = null)
+    public static async Task<string?> Process(string? toProcess, IProgress<string>? progress = null)
     {
         if (string.IsNullOrWhiteSpace(toProcess)) return string.Empty;
 

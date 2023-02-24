@@ -64,7 +64,7 @@ public static class BracketCodeCommon
     /// <param name="bracketCodeToken"></param>
     /// <returns></returns>
     public static List<(string bracketCodeText, Guid contentGuid, string displayText)> ContentBracketCodeMatches(
-        string toProcess, string bracketCodeToken)
+        string? toProcess, string bracketCodeToken)
     {
         var resultList = new List<(string bracketCodeText, Guid contentGuid, string displayText)>();
 
@@ -150,7 +150,7 @@ public static class BracketCodeCommon
         return input;
     }
 
-    public static async Task<string> ProcessCodesForLocalDisplay(string input, IProgress<string>? progress = null)
+    public static async Task<string?> ProcessCodesForLocalDisplay(string? input, IProgress<string>? progress = null)
     {
         input = await BracketCodeFileUrl.Process(input, progress).ConfigureAwait(false);
         input = await BracketCodeFileDownloads.Process(input, progress).ConfigureAwait(false);
@@ -178,7 +178,7 @@ public static class BracketCodeCommon
         return input;
     }
 
-    public static async Task<string> ProcessCodesForSite(string input, IProgress<string>? progress = null)
+    public static async Task<string?> ProcessCodesForSite(string? input, IProgress<string>? progress = null)
     {
         input = await BracketCodeFileUrl.Process(input, progress).ConfigureAwait(false);
         input = await BracketCodeFileDownloads.Process(input, progress).ConfigureAwait(false);
@@ -213,7 +213,7 @@ public static class BracketCodeCommon
     /// <param name="toProcess"></param>
     /// <param name="bracketCodeToken"></param>
     /// <returns></returns>
-    public static List<(string bracketCodeText, string displayText)> SpecialPageBracketCodeMatches(string toProcess,
+    public static List<(string bracketCodeText, string displayText)> SpecialPageBracketCodeMatches(string? toProcess,
         string bracketCodeToken)
     {
         var resultList = new List<(string bracketCodeText, string displayText)>();

@@ -34,12 +34,10 @@ public static class FeatureIntersectTaggerSettingTools
                new FeatureIntersectTaggerSettings();
     }
 
-    public static async Task<FeatureIntersectTaggerSettings> WriteSettings(
-        FeatureIntersectTaggerSettings setting)
+    public static async Task WriteSettings(FeatureIntersectTaggerSettings setting)
     {
         var settingsFile = await DefaultSettingsFile();
         var serializedSettings = JsonSerializer.Serialize(setting, new JsonSerializerOptions { WriteIndented = true });
         SettingsWriteQueue.Enqueue(async () => await File.WriteAllTextAsync(settingsFile.FullName, serializedSettings));
-        return setting;
     }
 }

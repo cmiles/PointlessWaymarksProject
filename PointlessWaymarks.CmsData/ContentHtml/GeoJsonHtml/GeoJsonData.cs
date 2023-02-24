@@ -11,7 +11,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml.GeoJsonHtml;
 
 public static class GeoJsonData
 {
-    public static async Task<string> GenerateGeoJson(string geoJsonContent, string pageUrl)
+    public static async Task<string?> GenerateGeoJson(string geoJsonContent, string pageUrl)
     {
         var contentFeatureCollection = GeoJsonTools.DeserializeStringToFeatureCollection(geoJsonContent);
 

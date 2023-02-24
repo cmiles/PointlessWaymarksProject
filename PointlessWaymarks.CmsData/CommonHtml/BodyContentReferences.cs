@@ -125,7 +125,7 @@ public static class BodyContentReferences
         return await CompactContentTag(content.ContentId, toSearch, generationVersion, progress).ConfigureAwait(false);
     }
 
-    public static async Task<HtmlTag> CompactContentTag(Guid toCheckFor, string bodyContentToCheckIn,
+    public static async Task<HtmlTag> CompactContentTag(Guid toCheckFor, string? bodyContentToCheckIn,
         DateTime? generationVersion, IProgress<string>? progress = null)
     {
         var contentCommonList = new List<IContentCommon>();
