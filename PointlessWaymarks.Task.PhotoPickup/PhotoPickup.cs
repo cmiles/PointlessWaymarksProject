@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Diagnostics;
 using System.Text;
 using System.Text.Encodings.Web;
 using System.Text.Json;
@@ -201,7 +202,7 @@ public class PhotoPickup
 
                 var htmlBuilder = new StringBuilder();
 
-                htmlBuilder.AppendLine($"<p>{HtmlEncoder.Default.Encode(saveGenerationReturn.GenerationNote)}</p>");
+                htmlBuilder.AppendLine($"<p>{HtmlEncoder.Default.Encode(saveGenerationReturn.GenerationNote!)}</p>");
                 if (saveGenerationReturn.Exception != null)
                 {
                     htmlBuilder.AppendLine(
@@ -218,9 +219,11 @@ public class PhotoPickup
 
                 var generatedPhotoInformation = PictureAssetProcessing.ProcessPhotoDirectory(savedContent);
 
+                Debug.Assert(generatedPhotoInformation != null, nameof(generatedPhotoInformation) + " != null");
+                
                 var closestSize = generatedPhotoInformation.SrcsetImages.MinBy(x => Math.Abs(384 - x.Width));
 
-                if (closestSize?.File != null)
+                if (closestSize is { File: { }, SiteUrl: { } })
                     notifier.Message(
                         $"{UserSettingsSingleton.CurrentSettings().SiteName} - Photo Added '{metaContent.Title}'",
                         closestSize.SiteUrl);

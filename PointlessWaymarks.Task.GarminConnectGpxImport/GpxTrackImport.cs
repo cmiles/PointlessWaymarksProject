@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Diagnostics;
 using System.Text.Json;
 using Garmin.Connect;
 using Garmin.Connect.Auth;
@@ -174,8 +175,8 @@ public class GpxTrackImport
             var credentials =
                 PasswordVaultTools.GetCredentials(
                     GarminConnectGpxImportSettings.PasswordVaultResourceIdentifier(settings.LoginCode));
-            username = credentials.username ?? string.Empty;
-            password = credentials.password ?? string.Empty;
+            username = credentials.username;
+            password = credentials.password;
         }
 
         var authParameters = new BasicAuthParameters(username, password);
@@ -331,7 +332,7 @@ public class GpxTrackImport
                     }
                 }
 
-                if (newEntry.RecordingStartedOnUtc.HasValue && newEntry.RecordingEndedOnUtc.HasValue)
+                if (newEntry is { RecordingStartedOnUtc: { }, RecordingEndedOnUtc: { } })
                 {
                     var db = await Db.Context();
                     var relatedPhotos = db.PhotoContents.Where(x =>
@@ -372,9 +373,11 @@ public class GpxTrackImport
                     var mainPhotoInformation =
                         PictureAssetProcessing.ProcessPhotoDirectory(lineContent.MainPicture.Value);
 
+                    Debug.Assert(mainPhotoInformation != null, nameof(mainPhotoInformation) + " != null");
+
                     var closestSize = mainPhotoInformation.SrcsetImages.MinBy(x => Math.Abs(384 - x.Width));
 
-                    if (closestSize?.File != null)
+                    if (closestSize is { File: { }, SiteUrl: { } })
                         notifier.Message(
                             $"{UserSettingsSingleton.CurrentSettings().SiteName} - Line Added: '{lineContent.Title}'",
                             closestSize.SiteUrl);
@@ -385,7 +388,7 @@ public class GpxTrackImport
                 else
                 {
                     notifier.Message(
-                        $"{UserSettingsSingleton.CurrentSettings().SiteName} - Added Line: '{lineContent.Title}'");
+                        $"{UserSettingsSingleton.CurrentSettings().SiteName} - Added Line: '{lineContent?.Title ?? "No Title?"}'");
                 }
             }
 
