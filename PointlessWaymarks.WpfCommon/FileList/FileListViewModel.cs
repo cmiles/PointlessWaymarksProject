@@ -1,6 +1,4 @@
-﻿#nullable enable
-
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Windows;

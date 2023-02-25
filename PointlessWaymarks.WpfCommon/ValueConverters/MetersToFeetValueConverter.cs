@@ -6,7 +6,7 @@ namespace PointlessWaymarks.WpfCommon.ValueConverters;
 
 public sealed class MetersToFeetValueConverter : IValueConverter
 {
-    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+    public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
         switch (value)
         {
@@ -21,7 +21,7 @@ public sealed class MetersToFeetValueConverter : IValueConverter
         return null;
     }
 
-    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+    public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
         switch (value)
         {

@@ -5,9 +5,9 @@ namespace PointlessWaymarks.WpfCommon.Status;
 
 public partial class UserCancellations : ObservableObject
 {
-    [ObservableProperty] private RelayCommand _cancel;
-    [ObservableProperty] private CancellationTokenSource _cancelSource;
-    [ObservableProperty] private string _description;
+    [ObservableProperty] private RelayCommand? _cancel;
+    [ObservableProperty] private CancellationTokenSource? _cancelSource;
+    [ObservableProperty] private string _description = string.Empty;
     [ObservableProperty] private bool _isEnabled = true;
 
     public UserCancellations()

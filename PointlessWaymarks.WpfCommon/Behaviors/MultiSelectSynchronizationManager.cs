@@ -9,8 +9,8 @@ namespace PointlessWaymarks.WpfCommon.Behaviors
     /// </summary>
     public class MultiSelectSynchronizationManager
     {
-        private readonly Selector _multiSelector;
-        private MultiSelectTwoListSynchronizer _synchronizer;
+        private readonly Selector? _multiSelector;
+        private MultiSelectTwoListSynchronizer? _synchronizer;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="MultiSelectSynchronizationManager"/> class.
@@ -26,7 +26,7 @@ namespace PointlessWaymarks.WpfCommon.Behaviors
         /// </summary>
         public void StartSynchronizingList()
         {
-            IList list = MultiSelectorBehaviours.GetSynchronizedSelectedItems(_multiSelector);
+            var list = MultiSelectorBehaviors.GetSynchronizedSelectedItems(_multiSelector);
 
             if (list != null)
             {
@@ -45,18 +45,12 @@ namespace PointlessWaymarks.WpfCommon.Behaviors
 
         public static IList GetSelectedItemsCollection(Selector selector)
         {
-            if (selector is MultiSelector)
+            return selector switch
             {
-                return (selector as MultiSelector).SelectedItems;
-            }
-            else if (selector is ListBox)
-            {
-                return (selector as ListBox).SelectedItems;
-            }
-            else
-            {
-                throw new InvalidOperationException("Target object has no SelectedItems property to bind.");
-            }
+                MultiSelector multiSelector => multiSelector.SelectedItems,
+                ListBox box => box.SelectedItems,
+                _ => throw new InvalidOperationException("Target object has no SelectedItems property to bind.")
+            };
         }
     }
 }

@@ -23,7 +23,7 @@ public static class TextBoxHelper
 
         if (e.OldValue == null && e.NewValue != null)
             tb.SelectionChanged += TextBoxSelectionChanged;
-        else if (e.OldValue != null && e.NewValue == null) tb.SelectionChanged -= TextBoxSelectionChanged;
+        else if (e is { OldValue: { }, NewValue: null }) tb.SelectionChanged -= TextBoxSelectionChanged;
 
         if (e.NewValue is string newValue && newValue != tb.SelectedText) tb.SelectedText = newValue;
     }

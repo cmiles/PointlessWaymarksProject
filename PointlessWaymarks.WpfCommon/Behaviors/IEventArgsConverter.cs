@@ -23,5 +23,5 @@ public interface IEventArgsConverter
     ///     to set this value. This may be null.
     /// </param>
     /// <returns>The converted value.</returns>
-    object Convert(object value, object parameter);
+    object Convert(object? value, object? parameter);
 }

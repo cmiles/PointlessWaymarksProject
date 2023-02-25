@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using System.Diagnostics;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Threading;
@@ -10,11 +11,11 @@ namespace PointlessWaymarks.WpfCommon.SimpleMediaPlayer
     /// </summary>
     public partial class SimpleMediaPlayerControl : UserControl
     {
-        private DispatcherTimer _timerVideoTime;
+        private DispatcherTimer? _timerVideoTime;
 
         private bool _userIsDraggingSlider;
 
-        private SimpleMediaPlayerContext _context;
+        private SimpleMediaPlayerContext? _context;
         
 
         public SimpleMediaPlayerControl()
@@ -34,32 +35,33 @@ namespace PointlessWaymarks.WpfCommon.SimpleMediaPlayer
             VideoContentPlayer.Stop();
         }
 
-        private void TimerTick(object sender, EventArgs e)
+        private void TimerTick(object? sender, EventArgs e)
         {
             if (VideoContentPlayer.Source != null && VideoContentPlayer.NaturalDuration.HasTimeSpan &&
                 !_userIsDraggingSlider)
                 VideoBarPosition.Value = VideoContentPlayer.Position.TotalMilliseconds;
         }
 
-        private void Video_MediaOpened(object sender, RoutedEventArgs e)
+        private void Video_MediaOpened(object? sender, RoutedEventArgs e)
         {
             VideoBarPosition.Minimum = 0;
             VideoBarPosition.Maximum = VideoContentPlayer.NaturalDuration.TimeSpan.TotalMilliseconds;
             VideoBarPosition.Visibility = Visibility.Visible;
+            Debug.Assert(_timerVideoTime != null, nameof(_timerVideoTime) + " != null");
             _timerVideoTime.Start();
         }
 
-        private void VideoPause_Click(object sender, RoutedEventArgs e)
+        private void VideoPause_Click(object? sender, RoutedEventArgs e)
         {
             VideoContentPlayer.Pause();
         }
 
-        private void VideoPlay_Click(object sender, RoutedEventArgs e)
+        private void VideoPlay_Click(object? sender, RoutedEventArgs e)
         {
             VideoContentPlayer.Play();
         }
 
-        private void VideoProgress_DragCompleted(object sender, DragCompletedEventArgs e)
+        private void VideoProgress_DragCompleted(object? sender, DragCompletedEventArgs e)
         {
             _userIsDraggingSlider = false;
             var sliderValue = (int)VideoBarPosition.Value;
@@ -67,29 +69,29 @@ namespace PointlessWaymarks.WpfCommon.SimpleMediaPlayer
             VideoContentPlayer.Position = ts;
         }
 
-        private void VideoProgress_DragStarted(object sender, DragStartedEventArgs e)
+        private void VideoProgress_DragStarted(object? sender, DragStartedEventArgs e)
         {
             _userIsDraggingSlider = true;
         }
 
-        private void VideoProgress_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        private void VideoProgress_ValueChanged(object? sender, RoutedPropertyChangedEventArgs<double> e)
         {
             VideoProgressStatus.Text = TimeSpan.FromMilliseconds(VideoBarPosition.Value).ToString(@"hh\:mm\:ss");
             if(_context != null) _context.VideoPositionInMilliseconds = VideoBarPosition.Value;
         }
 
-        private void VideoRestart_Click(object sender, RoutedEventArgs e)
+        private void VideoRestart_Click(object? sender, RoutedEventArgs e)
         {
             VideoContentPlayer.Stop();
             VideoContentPlayer.Play();
         }
 
-        private void VideoStop_Click(object sender, RoutedEventArgs e)
+        private void VideoStop_Click(object? sender, RoutedEventArgs e)
         {
             VideoContentPlayer.Stop();
         }
 
-        private void SimpleMediaPlayerControl_OnDataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
+        private void SimpleMediaPlayerControl_OnDataContextChanged(object? sender, DependencyPropertyChangedEventArgs e)
         {
             _context = e.NewValue as SimpleMediaPlayerContext;
         }

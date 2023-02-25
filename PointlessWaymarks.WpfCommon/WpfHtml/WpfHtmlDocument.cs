@@ -1,5 +1,6 @@
 ﻿using System.Text.Encodings.Web;
 using PointlessWaymarks.WpfCommon.Utility;
+// ReSharper disable StringLiteralTypo
 
 namespace PointlessWaymarks.WpfCommon.WpfHtml;
 

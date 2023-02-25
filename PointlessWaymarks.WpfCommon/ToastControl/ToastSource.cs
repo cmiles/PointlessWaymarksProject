@@ -72,7 +72,7 @@ public partial class ToastSource : ObservableObject
         IsOpen = false;
     }
 
-    public void Show(string message, ToastType type)
+    public void Show(string? message, ToastType type)
     {
         if (NotificationMessages.Any() == false)
         {

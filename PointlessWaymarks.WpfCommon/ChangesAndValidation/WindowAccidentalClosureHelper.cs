@@ -19,11 +19,11 @@ public class WindowAccidentalClosureHelper
         _toClose.Closing += FileContentEditorWindow_OnClosing;
     }
 
-    public Action<Window> CloseAction { get; set; }
+    public Action<Window>? CloseAction { get; init; }
 
-    public StatusControlContext StatusContext { get; set; }
+    public StatusControlContext StatusContext { get; }
 
-    private void FileContentEditorWindow_OnClosing(object sender, CancelEventArgs e)
+    private void FileContentEditorWindow_OnClosing(object? sender, CancelEventArgs e)
     {
         if (_closeConfirmed) return;
 

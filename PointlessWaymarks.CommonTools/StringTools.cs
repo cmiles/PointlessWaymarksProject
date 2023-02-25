@@ -105,7 +105,7 @@ public static class StringTools
         return toProcess.Replace("\n", "").Replace("\r", "");
     }
 
-    public static string? ReplaceEach(this string? text, string search, Func<string> replacementGenerator)
+    public static string ReplaceEach(this string text, string search, Func<string> replacementGenerator)
     {
         var returnString = text;
         while (returnString.Contains(search))

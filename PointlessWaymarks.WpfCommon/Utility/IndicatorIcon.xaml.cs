@@ -8,17 +8,17 @@ namespace PointlessWaymarks.WpfCommon.Utility;
 /// </summary>
 public partial class IndicatorIcon
 {
-    public static readonly DependencyProperty HoverTextProperty = DependencyProperty.Register("HoverText",
+    public static readonly DependencyProperty HoverTextProperty = DependencyProperty.Register(nameof(HoverText),
         typeof(string), typeof(IndicatorIcon), new PropertyMetadata(default(string)));
 
-    public static readonly DependencyProperty IconBrushProperty = DependencyProperty.Register("IconBrush",
+    public static readonly DependencyProperty IconBrushProperty = DependencyProperty.Register(nameof(IconBrush),
         typeof(Brush), typeof(IndicatorIcon), new PropertyMetadata(default(Brush)));
 
     public static readonly DependencyProperty IconPathGeometryProperty =
-        DependencyProperty.Register("IconPathGeometry", typeof(Geometry), typeof(IndicatorIcon),
+        DependencyProperty.Register(nameof(IconPathGeometry), typeof(Geometry), typeof(IndicatorIcon),
             new PropertyMetadata(default(Geometry)));
 
-    public static readonly DependencyProperty IconSizeProperty = DependencyProperty.Register("IconSize",
+    public static readonly DependencyProperty IconSizeProperty = DependencyProperty.Register(nameof(IconSize),
         typeof(double), typeof(IndicatorIcon), new PropertyMetadata(default(double)));
 
     public IndicatorIcon()

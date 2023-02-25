@@ -16,7 +16,7 @@ public class ToastControl : Control
         EventManager.RegisterRoutedEvent("NotificationClosing", RoutingStrategy.Direct, typeof(RoutedEventHandler),
             typeof(ToastControl));
 
-    public static readonly DependencyProperty NotificationProperty = DependencyProperty.Register("Toast",
+    public static readonly DependencyProperty NotificationProperty = DependencyProperty.Register(nameof(Toast),
         typeof(ToastViewModel), typeof(ToastControl),
         new PropertyMetadata(default(ToastViewModel), NotificationChanged));
 

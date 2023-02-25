@@ -6,7 +6,7 @@ namespace PointlessWaymarks.WpfCommon.ValueConverters;
 
 public sealed class BooleanToHiddenConverter : IValueConverter
 {
-    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+    public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
         return value switch
         {
@@ -16,7 +16,7 @@ public sealed class BooleanToHiddenConverter : IValueConverter
         };
     }
 
-    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+    public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
         if (value is Visibility v)
             return v == Visibility.Visible;

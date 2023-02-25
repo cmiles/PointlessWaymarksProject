@@ -113,8 +113,6 @@ public static class WindowInitialPositionHelpers
     /// <returns></returns>
     public static void PositionWindowAndShow(this Window toPosition)
     {
-        if (toPosition == null) return;
-
         var positionReference = Application.Current.Windows.OfType<Window>().FirstOrDefault(x => x.IsActive) ??
                                 Application.Current.Windows.OfType<Window>().FirstOrDefault();
 

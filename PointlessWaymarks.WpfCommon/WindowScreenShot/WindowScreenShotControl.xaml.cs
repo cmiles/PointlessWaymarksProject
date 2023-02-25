@@ -17,7 +17,7 @@ public partial class WindowScreenShotControl
         {
             if (x == null) return;
 
-            StatusControlContext statusContext = null;
+            StatusControlContext? statusContext = null;
 
             try
             {

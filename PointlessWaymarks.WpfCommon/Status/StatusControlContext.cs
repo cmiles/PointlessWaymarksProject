@@ -16,19 +16,19 @@ public partial class StatusControlContext : ObservableObject
     [ObservableProperty] private Dispatcher _contextDispatcher;
     [ObservableProperty] private int _countOfRunningBlockingTasks;
     [ObservableProperty] private int _countOfRunningNonBlockingTasks;
-    [ObservableProperty] private CancellationTokenSource _currentFullScreenCancellationSource;
-    [ObservableProperty] private List<StatusControlMessageButton> _messageBoxButtonList;
-    [ObservableProperty] private string _messageBoxMessage;
-    [ObservableProperty] private string _messageBoxTitle;
+    [ObservableProperty] private CancellationTokenSource? _currentFullScreenCancellationSource;
+    [ObservableProperty] private List<StatusControlMessageButton>? _messageBoxButtonList;
+    [ObservableProperty] private string? _messageBoxMessage;
+    [ObservableProperty] private string _messageBoxTitle = string.Empty;
     [ObservableProperty] private bool _messageBoxVisible;
     [ObservableProperty] private bool _nonBlockingTaskAreRunning;
     [ObservableProperty] private bool _showCancellations;
-    [ObservableProperty] private string _showMessageResponse;
+    [ObservableProperty] private string? _showMessageResponse;
     [ObservableProperty] private ObservableCollection<string> _statusLog;
     [ObservableProperty] private bool _stringEntryApproved;
-    [ObservableProperty] private string _stringEntryMessage;
-    [ObservableProperty] private string _stringEntryTitle;
-    [ObservableProperty] private string _stringEntryUserText;
+    [ObservableProperty] private string _stringEntryMessage = string.Empty;
+    [ObservableProperty] private string _stringEntryTitle = string.Empty;
+    [ObservableProperty] private string _stringEntryUserText = string.Empty;
     [ObservableProperty] private bool _stringEntryVisible;
     [ObservableProperty] private ToastSource _toast;
     [ObservableProperty] private RelayCommand<string> _userMessageBoxResponseCommand;
@@ -37,16 +37,16 @@ public partial class StatusControlContext : ObservableObject
 
     public StatusControlContext()
     {
-        ContextDispatcher = Application.Current?.Dispatcher ??
+        _contextDispatcher = Application.Current?.Dispatcher ??
                             ThreadSwitcher.ThreadSwitcher.PinnedDispatcher ?? Dispatcher.CurrentDispatcher;
 
-        Toast = new ToastSource(ContextDispatcher);
-        StatusLog = new ObservableCollection<string>();
-        CancellationList = new ObservableCollection<UserCancellations>();
+        _toast = new ToastSource(ContextDispatcher);
+        _statusLog = new ObservableCollection<string>();
+        _cancellationList = new ObservableCollection<UserCancellations>();
 
-        UserMessageBoxResponseCommand = new RelayCommand<string>(UserMessageBoxResponse);
-        UserStringEntryApprovedResponseCommand = new RelayCommand(UserStringEntryApprovedResponse);
-        UserStringEntryCancelledResponseCommand = new RelayCommand(UserStringEntryCanceledResponse);
+        _userMessageBoxResponseCommand = new RelayCommand<string>(UserMessageBoxResponse);
+        _userStringEntryApprovedResponseCommand = new RelayCommand(UserStringEntryApprovedResponse);
+        _userStringEntryCancelledResponseCommand = new RelayCommand(UserStringEntryCanceledResponse);
     }
 
 
@@ -65,7 +65,7 @@ public partial class StatusControlContext : ObservableObject
 
         if (obj.IsFaulted)
         {
-            ToastError($"Error: {FirstNonSeeInnerMessage(obj.Exception)}");
+            ToastError($"Error: {FirstNonSeeInnerMessage(obj.Exception ?? new Exception("Unknown Error"))}");
             Task.Run(() => Log.Error(obj.Exception, "BlockTaskCompleted Exception - Status Context Id: {ContextId}",
                 StatusControlContextId));
         }
@@ -78,13 +78,13 @@ public partial class StatusControlContext : ObservableObject
         var toRemove = CancellationList.Where(x => x.CancelSource == cancellationSource).ToList();
 
         if (toRemove.Any())
-            ContextDispatcher?.InvokeAsync(() =>
+            ContextDispatcher.InvokeAsync(() =>
             {
                 toRemove.ForEach(x => CancellationList.Remove(x));
                 ShowCancellations = CancellationList.Any();
             });
 
-        cancellationSource?.Dispose();
+        cancellationSource.Dispose();
 
         if (obj.IsCanceled)
         {
@@ -126,7 +126,7 @@ public partial class StatusControlContext : ObservableObject
 
         if (obj.IsFaulted)
         {
-            await ShowMessageWithOkButton("Error", FirstNonSeeInnerMessage(obj.Exception) ?? "Error with no information?!?!");
+            await ShowMessageWithOkButton("Error", FirstNonSeeInnerMessage(obj.Exception));
 
 #pragma warning disable 4014
             // Intended intended as Fire and Forget
@@ -168,7 +168,7 @@ public partial class StatusControlContext : ObservableObject
         }
     }
 
-    private static string FirstNonSeeInnerMessage(Exception exception)
+    private static string FirstNonSeeInnerMessage(Exception? exception)
     {
         if (exception == null) return string.Empty;
 
@@ -195,14 +195,19 @@ public partial class StatusControlContext : ObservableObject
 
     private void IncrementBlockingTasks()
     {
+#pragma warning disable Roslyn.MVVMTK0034
         Interlocked.Increment(ref _countOfRunningBlockingTasks);
+#pragma warning restore Roslyn.MVVMTK0034
         BlockUi = CountOfRunningBlockingTasks > 0;
     }
 
     private void IncrementNonBlockingTasks()
     {
+#pragma warning disable MVVMTK0034
         Interlocked.Increment(ref _countOfRunningNonBlockingTasks);
         NonBlockingTaskAreRunning = _countOfRunningNonBlockingTasks > 0;
+#pragma warning restore MVVMTK0034
+
     }
 
     private void NonBlockTaskCompleted(Task obj)
@@ -227,7 +232,7 @@ public partial class StatusControlContext : ObservableObject
 
     public void Progress(string e)
     {
-        ContextDispatcher?.InvokeAsync(() =>
+        ContextDispatcher.InvokeAsync(() =>
         {
             StatusLog.Add(e);
 
@@ -244,7 +249,7 @@ public partial class StatusControlContext : ObservableObject
         return toReturn;
     }
 
-    private void ProgressTrackerChange(object sender, string e)
+    private void ProgressTrackerChange(object? sender, string e)
     {
         Progress(e);
     }
@@ -276,7 +281,7 @@ public partial class StatusControlContext : ObservableObject
         Task.Run(async () => await toRun(parameter)).ContinueWith(BlockTaskCompleted);
     }
 
-    public RelayCommand<T> RunBlockingTaskCommand<T>(Func<T, Task> toRun)
+    public RelayCommand<T> RunBlockingTaskCommand<T>(Func<T?, Task> toRun)
     {
         return new RelayCommand<T>(x => RunBlockingTask(async () => await toRun(x)));
     }
@@ -292,7 +297,7 @@ public partial class StatusControlContext : ObservableObject
         var tokenSource = new CancellationTokenSource();
         var token = tokenSource.Token;
 
-        ContextDispatcher?.InvokeAsync(() =>
+        ContextDispatcher.InvokeAsync(() =>
         {
             CancellationList.Add(new UserCancellations { CancelSource = tokenSource, Description = cancelDescription });
             ShowCancellations = CancellationList.Any();
@@ -375,7 +380,7 @@ public partial class StatusControlContext : ObservableObject
         Task.Run(toRun).ContinueWith(NonBlockTaskCompleted);
     }
 
-    public RelayCommand<T> RunNonBlockingTaskCommand<T>(Func<T, Task> toRun)
+    public RelayCommand<T> RunNonBlockingTaskCommand<T>(Func<T?, Task> toRun)
     {
         return new RelayCommand<T>(x => RunNonBlockingTask(async () => await toRun(x)));
     }
@@ -385,15 +390,15 @@ public partial class StatusControlContext : ObservableObject
         return new RelayCommand(() => RunNonBlockingTask(toRun));
     }
 
-    public async Task<string> ShowMessage(string title, string body, List<string> buttons)
+    public async Task<string> ShowMessage(string title, string? body, List<string> buttons)
     {
-        if (buttons == null || !buttons.Any()) buttons = new List<string> { "Ok" };
+        if (buttons.Any() != true) buttons = new List<string> { "Ok" };
 
         return await ShowMessage(title, body,
             buttons.Select(x => new StatusControlMessageButton { MessageText = x }).ToList());
     }
 
-    public async Task<string> ShowMessage(string title, string body, List<StatusControlMessageButton> buttons)
+    public async Task<string> ShowMessage(string title, string? body, List<StatusControlMessageButton>? buttons)
     {
         await ThreadSwitcher.ThreadSwitcher.ResumeForegroundAsync();
 
@@ -448,7 +453,7 @@ public partial class StatusControlContext : ObservableObject
         return toReturn;
     }
 
-    public async Task<string> ShowMessageWithOkButton(string title, string body)
+    public async Task<string> ShowMessageWithOkButton(string title, string? body)
     {
         return await ShowMessage(title, body,
             new List<StatusControlMessageButton> { new() { IsDefault = true, MessageText = "Ok" } });
@@ -505,22 +510,22 @@ public partial class StatusControlContext : ObservableObject
         CurrentFullScreenCancellationSource?.Cancel();
     }
 
-    public void ToastError(string toastText)
+    public void ToastError(string? toastText)
     {
-        ContextDispatcher?.InvokeAsync(() => Toast.Show(toastText, ToastType.Error));
+        ContextDispatcher.InvokeAsync(() => Toast.Show(toastText, ToastType.Error));
         Task.Run(() => Log.Error("Toast Error: {0} - Status Context Id: {1}", toastText, StatusControlContextId));
     }
 
-    public void ToastSuccess(string toastText)
+    public void ToastSuccess(string? toastText)
     {
-        ContextDispatcher?.InvokeAsync(() => Toast.Show(toastText, ToastType.Success));
+        ContextDispatcher.InvokeAsync(() => Toast.Show(toastText, ToastType.Success));
         Task.Run(() =>
             Log.Information("Toast Success: {0} - Status Context Id: {1}", toastText, StatusControlContextId));
     }
 
-    public void ToastWarning(string toastText)
+    public void ToastWarning(string? toastText)
     {
-        ContextDispatcher?.InvokeAsync(() => Toast.Show(toastText, ToastType.Warning));
+        ContextDispatcher.InvokeAsync(() => Toast.Show(toastText, ToastType.Warning));
         Task.Run(() => Log.Warning("Toast Warning: {0} - Status Context Id: {1}", toastText, StatusControlContextId));
     }
 

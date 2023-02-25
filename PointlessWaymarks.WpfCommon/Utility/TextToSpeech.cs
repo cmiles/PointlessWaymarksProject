@@ -14,7 +14,7 @@ namespace PointlessWaymarks.WpfCommon.Utility;
 public class TextToSpeech : IDisposable
 {
     private readonly SemaphoreSlim _semaphore = new(1, 1);
-    private readonly SpeechSynthesizer _speechSynthesizer;
+    private readonly SpeechSynthesizer? _speechSynthesizer;
 
 
     /// <summary>
@@ -49,24 +49,26 @@ public class TextToSpeech : IDisposable
         {
             await _semaphore.WaitAsync(cancelToken);
 
+            if (_speechSynthesizer == null) return;
+
             _speechSynthesizer.Voice = SpeechSynthesizer.DefaultVoice;
 
             var localCode = SpeechSynthesizer.DefaultVoice.Language;
 
             var pitchProsody = "default";
 
-            var ssml = @"<speak version='1.0' " +
+            var ssMl = @"<speak version='1.0' " +
                        $"xmlns='http://www.w3.org/2001/10/synthesis' xml:lang='{localCode}'>" +
                        $"<prosody pitch='{pitchProsody}' rate='1.0'>{SecurityElement.Escape(text)}</prosody> " +
                        "</speak>";
 
             var tcs = new TaskCompletionSource<object>();
-            var handler = new TypedEventHandler<MediaPlayer, object>((_, _) => tcs.TrySetResult(null));
+            var handler = new TypedEventHandler<MediaPlayer, object>((_, _) => tcs.TrySetResult(new object()));
 
             try
             {
                 var player = BackgroundMediaPlayer.Current;
-                var stream = await _speechSynthesizer.SynthesizeSsmlToStreamAsync(ssml);
+                var stream = await _speechSynthesizer.SynthesizeSsmlToStreamAsync(ssMl);
 
                 player.MediaEnded += handler;
                 player.SetStreamSource(stream);
@@ -75,7 +77,7 @@ public class TextToSpeech : IDisposable
                 void OnCancel()
                 {
                     player.PlaybackRate = 0;
-                    tcs.TrySetResult(null);
+                    tcs.TrySetResult(new object());
                 }
 
                 await using (cancelToken.Register(OnCancel))

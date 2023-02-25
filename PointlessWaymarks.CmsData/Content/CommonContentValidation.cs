@@ -388,7 +388,7 @@ public static class CommonContentValidation
         var isNewEntry = toValidate.Id < 1;
 
         var isValid = true;
-        var errorMessage = new List<string>();
+        var errorMessage = new List<string?>();
 
         if (toValidate.ContentId == Guid.Empty)
         {
@@ -582,7 +582,7 @@ public static class CommonContentValidation
         var isNewEntry = mapComponent.Map.Id < 1;
 
         var isValid = true;
-        var errorMessage = new List<string>();
+        var errorMessage = new List<string?>();
 
         if (mapComponent.Map.ContentId == Guid.Empty)
         {

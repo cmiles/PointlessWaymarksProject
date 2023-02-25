@@ -9,22 +9,22 @@ namespace PointlessWaymarks.WpfCommon.WaitingSpinner;
 /// </summary>
 public partial class WaitingSpinnerControl
 {
-    public static readonly DependencyProperty DiameterProperty = DependencyProperty.Register("Diameter",
+    public static readonly DependencyProperty DiameterProperty = DependencyProperty.Register(nameof(Diameter),
         typeof(int), typeof(WaitingSpinnerControl), new PropertyMetadata(20, OnDiameterPropertyChanged));
 
-    public static readonly DependencyProperty RadiusProperty = DependencyProperty.Register("Radius", typeof(int),
+    public static readonly DependencyProperty RadiusProperty = DependencyProperty.Register(nameof(Radius), typeof(int),
         typeof(WaitingSpinnerControl), new PropertyMetadata(15, null, OnCoerceRadius));
 
-    public static readonly DependencyProperty InnerRadiusProperty = DependencyProperty.Register("InnerRadius",
+    public static readonly DependencyProperty InnerRadiusProperty = DependencyProperty.Register(nameof(InnerRadius),
         typeof(int), typeof(WaitingSpinnerControl), new PropertyMetadata(2, null, OnCoerceInnerRadius));
 
-    public static readonly DependencyProperty CenterProperty = DependencyProperty.Register("Center", typeof(Point),
+    public static readonly DependencyProperty CenterProperty = DependencyProperty.Register(nameof(Center), typeof(Point),
         typeof(WaitingSpinnerControl), new PropertyMetadata(new Point(15, 15), null, OnCoerceCenter));
 
-    public static readonly DependencyProperty Color1Property = DependencyProperty.Register("Color1", typeof(Color),
+    public static readonly DependencyProperty Color1Property = DependencyProperty.Register(nameof(Color1), typeof(Color),
         typeof(WaitingSpinnerControl), new PropertyMetadata(Colors.Green));
 
-    public static readonly DependencyProperty Color2Property = DependencyProperty.Register("Color2", typeof(Color),
+    public static readonly DependencyProperty Color2Property = DependencyProperty.Register(nameof(Color2), typeof(Color),
         typeof(WaitingSpinnerControl), new PropertyMetadata(Colors.Transparent));
 
 

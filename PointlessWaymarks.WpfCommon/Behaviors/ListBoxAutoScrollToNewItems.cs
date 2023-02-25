@@ -8,21 +8,21 @@ namespace PointlessWaymarks.WpfCommon.Behaviors;
 
 public class ListBoxAutoScrollToNewItems : Behavior<ListBox>
 {
-    private INotifyCollectionChanged _cachedItemsSource;
+    private INotifyCollectionChanged? _cachedItemsSource;
 
     private void AssociatedObjectLoaded(object sender, RoutedEventArgs e)
     {
         UpdateItemsSource();
     }
 
-    private void ItemsSourceCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+    private void ItemsSourceCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
     {
         if (e.Action == NotifyCollectionChangedAction.Add && e.NewItems?[0] != null)
             try
             {
                 Application.Current?.Dispatcher?.BeginInvoke((Action) (() =>
                 {
-                    AssociatedObject.ScrollIntoView(e.NewItems[0]);
+                    AssociatedObject.ScrollIntoView(e.NewItems[0]!);
                     AssociatedObject.SelectedItem = e.NewItems[0];
                 }), DispatcherPriority.DataBind);
             }

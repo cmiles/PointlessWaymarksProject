@@ -6,7 +6,7 @@ namespace PointlessWaymarks.WpfCommon.ValueConverters;
 
 public sealed class GreaterThanZeroIntIsVisibleElseHiddenConverter : IValueConverter
 {
-    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+    public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
         return (value as int?) switch
         {
@@ -16,7 +16,7 @@ public sealed class GreaterThanZeroIntIsVisibleElseHiddenConverter : IValueConve
         };
     }
 
-    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+    public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
         throw new NotImplementedException();
     }

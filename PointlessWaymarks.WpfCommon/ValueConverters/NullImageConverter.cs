@@ -7,14 +7,14 @@ namespace PointlessWaymarks.WpfCommon.ValueConverters;
 //https://stackoverflow.com/questions/5399601/imagesourceconverter-error-for-source-null
 public class NullImageConverter : IValueConverter
 {
-    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+    public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
         if (value == null)
             return DependencyProperty.UnsetValue;
         return value;
     }
 
-    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+    public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
         // According to https://msdn.microsoft.com/en-us/library/system.windows.data.ivalueconverter.convertback(v=vs.110).aspx#Anchor_1
         // (kudos Scott Chamberlain), if you do not support a conversion 

@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Specialized;
+using System.Diagnostics;
 using System.Windows;
 
 namespace PointlessWaymarks.WpfCommon.Behaviors
@@ -71,7 +72,7 @@ namespace PointlessWaymarks.WpfCommon.Behaviors
         /// <returns>
         /// true if the listener handled the event. It is considered an error by the <see cref="T:System.Windows.WeakEventManager"/> handling in WPF to register a listener for an event that the listener does not handle. Regardless, the method should return false if it receives an event that it does not recognize or handle.
         /// </returns>
-        public bool ReceiveWeakEvent(Type managerType, object sender, EventArgs e)
+        public bool ReceiveWeakEvent(Type managerType, object? sender, EventArgs e)
         {
             HandleCollectionChanged(sender as IList, e as NotifyCollectionChangedEventArgs);
 
@@ -83,9 +84,9 @@ namespace PointlessWaymarks.WpfCommon.Behaviors
         /// <param name="list">The list to listen to.</param>
         protected void ListenForChangeEvents(IList list)
         {
-            if (list is INotifyCollectionChanged)
+            if (list is INotifyCollectionChanged changed)
             {
-                CollectionChangedEventManager.AddListener(list as INotifyCollectionChanged, this);
+                CollectionChangedEventManager.AddListener(changed, this);
             }
         }
         /// <summary>
@@ -94,41 +95,45 @@ namespace PointlessWaymarks.WpfCommon.Behaviors
         /// <param name="list">The list to stop listening to.</param>
         protected void StopListeningForChangeEvents(IList list)
         {
-            if (list is INotifyCollectionChanged)
+            if (list is INotifyCollectionChanged changed)
             {
-                CollectionChangedEventManager.RemoveListener(list as INotifyCollectionChanged, this);
+                CollectionChangedEventManager.RemoveListener(changed, this);
             }
         }
         private void AddItems(IList list, NotifyCollectionChangedEventArgs e, Converter<object, object> converter)
         {
-            int itemCount = e.NewItems.Count;
+            if (e.NewItems == null) return;
+            
+            var itemCount = e.NewItems.Count;
 
-            for (int i = 0; i < itemCount; i++)
+            for (var i = 0; i < itemCount; i++)
             {
-                int insertionPoint = e.NewStartingIndex + i;
+                var insertionPoint = e.NewStartingIndex + i;
 
                 if (insertionPoint > list.Count)
                 {
-                    list.Add(converter(e.NewItems[i]));
+                    list.Add(converter(e.NewItems[i]!));
                 }
                 else
                 {
-                    list.Insert(insertionPoint, converter(e.NewItems[i]));
+                    list.Insert(insertionPoint, converter(e.NewItems[i]!));
                 }
             }
         }
         private object ConvertFromMasterToTarget(object masterListItem)
         {
-            return _masterTargetConverter == null ? masterListItem : _masterTargetConverter.Convert(masterListItem);
+            return _masterTargetConverter.Convert(masterListItem);
         }
         private object ConvertFromTargetToMaster(object targetListItem)
         {
-            return _masterTargetConverter == null ? targetListItem : _masterTargetConverter.ConvertBack(targetListItem);
+            return _masterTargetConverter.ConvertBack(targetListItem);
         }
-        private void HandleCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        private void HandleCollectionChanged(object? sender, NotifyCollectionChangedEventArgs? e)
         {
-            IList sourceList = sender as IList;
+            var sourceList = sender as IList;
 
+            Debug.Assert(e != null, nameof(e) + " != null");
+            
             switch (e.Action)
             {
                 case NotifyCollectionChangedAction.Add:
@@ -146,8 +151,6 @@ namespace PointlessWaymarks.WpfCommon.Behaviors
                 case NotifyCollectionChangedAction.Reset:
                     UpdateListsFromSource(sender as IList);
                     break;
-                default:
-                    break;
             }
         }
         private void MoveItems(IList list, NotifyCollectionChangedEventArgs e, Converter<object, object> converter)
@@ -155,8 +158,9 @@ namespace PointlessWaymarks.WpfCommon.Behaviors
             RemoveItems(list, e, converter);
             AddItems(list, e, converter);
         }
-        private void PerformActionOnAllLists(ChangeListAction action, IList sourceList, NotifyCollectionChangedEventArgs collectionChangedArgs)
+        private void PerformActionOnAllLists(ChangeListAction action, IList? sourceList, NotifyCollectionChangedEventArgs collectionChangedArgs)
         {
+            // ReSharper disable once PossibleUnintendedReferenceComparison - intentional...
             if (sourceList == _masterList)
             {
                 PerformActionOnList(_targetList, action, collectionChangedArgs, ConvertFromMasterToTarget);
@@ -174,11 +178,13 @@ namespace PointlessWaymarks.WpfCommon.Behaviors
         }
         private void RemoveItems(IList list, NotifyCollectionChangedEventArgs e, Converter<object, object> converter)
         {
-            int itemCount = e.OldItems.Count;
+            if (e.OldItems == null) return;
+            
+            var itemCount = e.OldItems.Count;
 
             // for the number of items being removed, remove the item from the Old Starting Index
             // (this will cause following items to be shifted down to fill the hole).
-            for (int i = 0; i < itemCount; i++)
+            for (var i = 0; i < itemCount; i++)
             {
                 list.RemoveAt(e.OldStartingIndex);
             }
@@ -194,7 +200,7 @@ namespace PointlessWaymarks.WpfCommon.Behaviors
 
             targetList.Clear();
 
-            foreach (object o in sourceList)
+            foreach (var o in sourceList)
             {
                 targetList.Add(converter(o));
             }
@@ -203,14 +209,15 @@ namespace PointlessWaymarks.WpfCommon.Behaviors
         }
         private bool TargetAndMasterCollectionsAreEqual()
         {
-            return _masterList.Cast<object>().SequenceEqual(_targetList.Cast<object>().Select(item => ConvertFromTargetToMaster(item)));
+            return _masterList.Cast<object>().SequenceEqual(_targetList.Cast<object>().Select(ConvertFromTargetToMaster));
         }
         /// <summary>
         /// Makes sure that all synchronized lists have the same values as the source list.
         /// </summary>
         /// <param name="sourceList">The source list.</param>
-        private void UpdateListsFromSource(IList sourceList)
+        private void UpdateListsFromSource(IList? sourceList)
         {
+            // ReSharper disable once PossibleUnintendedReferenceComparison - intentional...
             if (sourceList == _masterList)
             {
                 SetListValuesFromSource(_masterList, _targetList, ConvertFromMasterToTarget);

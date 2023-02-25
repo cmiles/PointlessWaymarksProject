@@ -4,7 +4,7 @@ namespace PointlessWaymarks.WpfCommon.ToastControl;
 
 public partial class ToastViewModel : ObservableObject
 {
-    [ObservableProperty] private string _message = "";
+    [ObservableProperty] private string? _message = "";
     [ObservableProperty] private ToastType _type;
 
     public Action InvokeHideAnimation;

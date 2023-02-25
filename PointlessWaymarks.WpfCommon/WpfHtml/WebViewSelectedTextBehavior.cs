@@ -9,7 +9,7 @@ namespace PointlessWaymarks.WpfCommon.WpfHtml;
 public class WebViewSelectedTextBehavior : Behavior<WebView2>
 {
     public static readonly DependencyProperty WebViewSelectedTextProperty =
-        DependencyProperty.Register("WebViewSelectedText", typeof(string), typeof(WebViewSelectedTextBehavior),
+        DependencyProperty.Register(nameof(WebViewSelectedText), typeof(string), typeof(WebViewSelectedTextBehavior),
             new FrameworkPropertyMetadata(string.Empty, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault));
 
     public string WebViewSelectedText
@@ -18,9 +18,10 @@ public class WebViewSelectedTextBehavior : Behavior<WebView2>
         set => SetValue(WebViewSelectedTextProperty, value);
     }
 
-    private void MessageReceived(object sender, CoreWebView2WebMessageReceivedEventArgs e)
+    private void MessageReceived(object? sender, CoreWebView2WebMessageReceivedEventArgs e)
     {
         var possibleString = e.TryGetWebMessageAsString();
+        // ReSharper disable once StringLiteralTypo
         if (possibleString.StartsWith("document.onselectionchange:"))
         {
             possibleString = possibleString.Length <= 27
@@ -37,14 +38,16 @@ public class WebViewSelectedTextBehavior : Behavior<WebView2>
         AssociatedObject.WebMessageReceived += MessageReceived;
     }
 
-    private void OnReady(object sender, EventArgs e)
+    private void OnReady(object? sender, EventArgs e)
     {
         if (sender is WebView2 { CoreWebView2: { } } webView)
+            // ReSharper disable StringLiteralTypo
             webView.CoreWebView2.AddScriptToExecuteOnDocumentCreatedAsync(@"
 document.onselectionchange = () => {
   console.log(`document.onselectionchange:${document.getSelection().toString()}`);
   window.chrome.webview.postMessage(`document.onselectionchange:${document.getSelection().toString()}`);
 };
 ");
+        // ReSharper restore StringLiteralTypo
     }
 }

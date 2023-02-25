@@ -8,7 +8,7 @@ namespace PointlessWaymarks.WpfCommon.Behaviors;
 
 public class ReadOnlyTextBoxClickKeyboardAndDragPass : Behavior<TextBox>
 {
-    private void AssociatedObjectOnDragEvents(object sender, DragEventArgs e)
+    private void AssociatedObjectOnDragEvents(object? sender, DragEventArgs e)
     {
         if (sender == null) return;
 
@@ -19,7 +19,7 @@ public class ReadOnlyTextBoxClickKeyboardAndDragPass : Behavior<TextBox>
         e.Handled = true;
     }
 
-    private void AssociatedObjectOnMouseDown(object sender, MouseButtonEventArgs e)
+    private void AssociatedObjectOnMouseDown(object? sender, MouseButtonEventArgs e)
     {
         if (sender == null) return;
 
@@ -36,7 +36,7 @@ public class ReadOnlyTextBoxClickKeyboardAndDragPass : Behavior<TextBox>
         possibleParent.RaiseEvent(newEvent);
     }
 
-    private void AssociatedObjectOnPreviewKeyDown(object sender, KeyEventArgs e)
+    private void AssociatedObjectOnPreviewKeyDown(object? sender, KeyEventArgs e)
     {
         if (sender == null) return;
 

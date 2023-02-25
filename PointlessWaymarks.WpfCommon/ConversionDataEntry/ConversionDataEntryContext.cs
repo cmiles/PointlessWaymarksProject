@@ -9,29 +9,38 @@ namespace PointlessWaymarks.WpfCommon.ConversionDataEntry;
 
 public class ConversionDataEntryContext<T> : INotifyPropertyChanged, IHasChanges, IHasValidationIssues
 {
-    private Func<T, T, bool> _comparisonFunction;
+    private Func<T?, T?, bool> _comparisonFunction;
 
-    private Func<string, (bool passed, string conversionMessage, T result)> _converter;
+    private readonly Func<string, (bool passed, string conversionMessage, T result)>? _converter;
     private bool _hasChanges;
     private bool _hasValidationIssues;
-    private string _helpText;
+    private string _helpText = string.Empty;
     private bool _isNumeric;
-    private T _referenceValue;
-    private string _title;
-    private string _userText;
-    private T _userValue;
+    private T? _referenceValue;
+    private string _title = string.Empty;
+    private string _userText = string.Empty;
+    private T? _userValue;
 
-    private List<Func<T, Task<IsValid>>> _validationFunctions = new();
+    private List<Func<T?, Task<IsValid>>> _validationFunctions = new();
 
-    private string _validationMessage;
+    private string? _validationMessage;
+
+    private static bool EqualComparison(T? a, T? b)
+    {
+        if (a == null && b == null) return true;
+
+        if (a == null || b == null) return false;
+
+        return a.Equals(b);
+    }
 
     private ConversionDataEntryContext()
     {
-        ComparisonFunction = (referenceValue, userValue) => referenceValue.Equals(userValue);
+        _comparisonFunction = EqualComparison;
         if (typeof(T).GetExtendedType().IsNumericType) IsNumeric = true;
     }
 
-    public Func<T, T, bool> ComparisonFunction
+    public Func<T?, T?, bool> ComparisonFunction
     {
         get => _comparisonFunction;
         set
@@ -42,10 +51,10 @@ public class ConversionDataEntryContext<T> : INotifyPropertyChanged, IHasChanges
         }
     }
 
-    public Func<string, (bool passed, string conversionMessage, T result)> Converter
+    public Func<string, (bool passed, string conversionMessage, T result)>? Converter
     {
         get => _converter;
-        set
+        init
         {
             if (Equals(value, _converter)) return;
             _converter = value;
@@ -55,6 +64,7 @@ public class ConversionDataEntryContext<T> : INotifyPropertyChanged, IHasChanges
 
     public string HelpText
     {
+        // ReSharper disable once UnusedMember.Global
         get => _helpText;
         set
         {
@@ -66,6 +76,7 @@ public class ConversionDataEntryContext<T> : INotifyPropertyChanged, IHasChanges
 
     public bool IsNumeric
     {
+        // ReSharper disable once UnusedMember.Global
         get => _isNumeric;
         set
         {
@@ -75,12 +86,12 @@ public class ConversionDataEntryContext<T> : INotifyPropertyChanged, IHasChanges
         }
     }
 
-    public T ReferenceValue
+    public T? ReferenceValue
     {
         get => _referenceValue;
         set
         {
-            if (value.Equals(_referenceValue)) return;
+            if (EqualComparison(value, _referenceValue)) return;
             _referenceValue = value;
             OnPropertyChanged();
         }
@@ -88,6 +99,7 @@ public class ConversionDataEntryContext<T> : INotifyPropertyChanged, IHasChanges
 
     public string Title
     {
+        // ReSharper disable once UnusedMember.Global
         get => _title;
         set
         {
@@ -108,18 +120,18 @@ public class ConversionDataEntryContext<T> : INotifyPropertyChanged, IHasChanges
         }
     }
 
-    public T UserValue
+    public T? UserValue
     {
         get => _userValue;
         private set
         {
-            if (value.Equals(_userValue)) return;
+            if (EqualComparison(value, _userValue)) return;
             _userValue = value;
             OnPropertyChanged();
         }
     }
 
-    public List<Func<T, Task<IsValid>>> ValidationFunctions
+    public List<Func<T?, Task<IsValid>>> ValidationFunctions
     {
         get => _validationFunctions;
         set
@@ -130,8 +142,9 @@ public class ConversionDataEntryContext<T> : INotifyPropertyChanged, IHasChanges
         }
     }
 
-    public string ValidationMessage
+    public string? ValidationMessage
     {
+        // ReSharper disable once UnusedMember.Global
         get => _validationMessage;
         set
         {
@@ -163,13 +176,13 @@ public class ConversionDataEntryContext<T> : INotifyPropertyChanged, IHasChanges
         }
     }
 
-    public event PropertyChangedEventHandler PropertyChanged;
+    public event PropertyChangedEventHandler? PropertyChanged;
 
     private async Task CheckForChangesAndValidate()
     {
         HasChanges = !ComparisonFunction(ReferenceValue, UserValue);
 
-        if (ValidationFunctions != null && ValidationFunctions.Any())
+        if (ValidationFunctions.Any())
             foreach (var loopValidations in ValidationFunctions)
             {
                 var validationResult = await loopValidations(UserValue);
@@ -192,7 +205,7 @@ public class ConversionDataEntryContext<T> : INotifyPropertyChanged, IHasChanges
     }
 
     [NotifyPropertyChangedInvocator]
-    protected virtual async void OnPropertyChanged([CallerMemberName] string propertyName = null)
+    protected virtual async void OnPropertyChanged([CallerMemberName] string? propertyName = null)
     {
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 

@@ -10,10 +10,10 @@ namespace PointlessWaymarks.WpfCommon.Behaviors;
 public class AttachCommandBindingsBehavior : Behavior<FrameworkElement>
 {
     public static readonly DependencyProperty CommandBindingsProperty =
-        DependencyProperty.Register("CommandBindings", typeof(ObservableCollection<CommandBinding>),
+        DependencyProperty.Register(nameof(CommandBindings), typeof(ObservableCollection<CommandBinding>),
             typeof(AttachCommandBindingsBehavior), new PropertyMetadata(null, OnCommandBindingsChanged));
 
-    public ObservableCollection<CommandBinding> CommandBindings
+    public ObservableCollection<CommandBinding>? CommandBindings
     {
         get => (ObservableCollection<CommandBinding>) GetValue(CommandBindingsProperty);
         set => SetValue(CommandBindingsProperty, value);
@@ -27,9 +27,7 @@ public class AttachCommandBindingsBehavior : Behavior<FrameworkElement>
 
     private static void OnCommandBindingsChanged(DependencyObject sender, DependencyPropertyChangedEventArgs e)
     {
-#pragma warning disable IDE0083 // Use pattern matching
         if (sender is not AttachCommandBindingsBehavior b)
-#pragma warning restore IDE0083 // Use pattern matching
             return;
 
         if (e.OldValue is ObservableCollection<CommandBinding> oldBindings)
@@ -41,7 +39,7 @@ public class AttachCommandBindingsBehavior : Behavior<FrameworkElement>
         b.UpdateCommandBindings();
     }
 
-    private void OnCommandBindingsCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+    private void OnCommandBindingsCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
     {
         UpdateCommandBindings();
     }
@@ -54,13 +52,12 @@ public class AttachCommandBindingsBehavior : Behavior<FrameworkElement>
 
     private void UpdateCommandBindings()
     {
-        if (AssociatedObject == null)
+        if (AssociatedObject == null || CommandBindings == null)
             return;
 
         AssociatedObject.CommandBindings.Clear();
 
-        if (CommandBindings != null)
-            AssociatedObject.CommandBindings.AddRange(CommandBindings);
+        AssociatedObject.CommandBindings.AddRange(CommandBindings);
 
         CommandManager.InvalidateRequerySuggested();
     }

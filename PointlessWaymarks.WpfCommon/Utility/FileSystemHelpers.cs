@@ -1,41 +1,35 @@
-﻿using Microsoft.Extensions.FileProviders;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
+﻿using System.IO;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
+using Microsoft.Extensions.FileProviders;
 
-namespace PointlessWaymarks.WpfCommon.Utility
+namespace PointlessWaymarks.WpfCommon.Utility;
+
+public static class FileSystemHelpers
 {
-    public static class FileSystemHelpers
+    public static async Task<string> SpatialScriptsAsString()
     {
-        public static DirectoryInfo TempStorageHtmlDirectory()
-        {
-            var directory = new DirectoryInfo(Path.Combine(
-                Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "Pointless Waymarks Cms",
-                "TemporaryFiles", "Html"));
+        var embeddedProvider = new EmbeddedFileProvider(Assembly.GetExecutingAssembly());
 
-            if (!directory.Exists) directory.Create();
+        var siteResources = embeddedProvider.GetDirectoryContents("")
+            .Single(x => x.Name.Contains("pointless-waymarks-spatial-common"));
 
-            directory.Refresh();
+        await using var stream = siteResources.CreateReadStream();
+        using StreamReader reader = new(stream);
+        var spatialScript = await reader.ReadToEndAsync().ConfigureAwait(false);
 
-            return directory;
-        }
+        return spatialScript;
+    }
 
-        public static async Task<string> SpatialScriptsAsString()
-        {
-            var embeddedProvider = new EmbeddedFileProvider(Assembly.GetExecutingAssembly());
+    public static DirectoryInfo TempStorageHtmlDirectory()
+    {
+        var directory = new DirectoryInfo(Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "Pointless Waymarks Cms",
+            "TemporaryFiles", "Html"));
 
-            var siteResources = embeddedProvider.GetDirectoryContents("")
-                .Single(x => x.Name.Contains("pointless-waymarks-spatial-common"));
+        if (!directory.Exists) directory.Create();
 
-            await using var stream = siteResources.CreateReadStream();
-            using StreamReader reader = new(stream);
-            var spatialScript = await reader.ReadToEndAsync().ConfigureAwait(false);
+        directory.Refresh();
 
-            return spatialScript;
-        }
+        return directory;
     }
 }

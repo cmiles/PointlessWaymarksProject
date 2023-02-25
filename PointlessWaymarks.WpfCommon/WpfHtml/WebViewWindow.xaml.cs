@@ -21,8 +21,8 @@ namespace PointlessWaymarks.WpfCommon.WpfHtml
     [ObservableObject]
     public partial class WebViewWindow
     {
-        [ObservableProperty] private string _previewGeoJsonDto;
-        [ObservableProperty] private string _previewHtml;
+        [ObservableProperty] private string _previewGeoJsonDto = string.Empty;
+        [ObservableProperty] private string _previewHtml = string.Empty;
         [ObservableProperty] private string _windowTitle = "Preview Map";
 
 

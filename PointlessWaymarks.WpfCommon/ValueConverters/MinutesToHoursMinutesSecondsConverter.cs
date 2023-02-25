@@ -6,7 +6,7 @@ namespace PointlessWaymarks.WpfCommon.ValueConverters;
 
 public sealed class MinutesToHoursMinutesSecondsConverter : IValueConverter
 {
-    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+    public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
         switch (value)
         {
@@ -25,7 +25,7 @@ public sealed class MinutesToHoursMinutesSecondsConverter : IValueConverter
         return null;
     }
 
-    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+    public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
         switch (value)
         {
@@ -43,7 +43,7 @@ public sealed class MinutesToHoursMinutesSecondsConverter : IValueConverter
 
 public sealed class SecondsToHoursMinutesSecondsConverter : IValueConverter
 {
-    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+    public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
         switch (value)
         {
@@ -62,7 +62,7 @@ public sealed class SecondsToHoursMinutesSecondsConverter : IValueConverter
         return null;
     }
 
-    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+    public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
         switch (value)
         {

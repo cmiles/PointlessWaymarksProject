@@ -1,4 +1,6 @@
-﻿// ****************************************************************************
+﻿// ReSharper disable CommentTypo
+
+// ****************************************************************************
 // <copyright file="EventToCommand.cs" company="GalaSoft Laurent Bugnion">
 // Copyright © GalaSoft Laurent Bugnion 2009-2016
 // </copyright>
@@ -13,13 +15,6 @@
 // </license>
 // ****************************************************************************
 
-using System.Windows;
-using System.Windows.Input;
-using Microsoft.Xaml.Behaviors;
-
-////using GalaSoft.Utilities.Attributes;
-
-namespace PointlessWaymarks.WpfCommon.Behaviors;
 // ****************************************************************************
 // <copyright file="IEventArgsConverter.cs" company="GalaSoft Laurent Bugnion">
 // Copyright © GalaSoft Laurent Bugnion 2009-2016
@@ -34,6 +29,13 @@ namespace PointlessWaymarks.WpfCommon.Behaviors;
 // See license.txt in this solution or http://www.galasoft.ch/license_MIT.txt
 // </license>
 // ****************************************************************************
+// ReSharper restore CommentTypo
+
+using System.Windows;
+using System.Windows.Input;
+using Microsoft.Xaml.Behaviors;
+
+namespace PointlessWaymarks.WpfCommon.Behaviors;
 
 /// <summary>
 ///     This <see cref="T:System.Windows.Interactivity.TriggerAction`1" /> can be
@@ -68,7 +70,7 @@ public class EventToCommand : TriggerAction<DependencyObject>
     ///     Identifies the <see cref="CommandParameter" /> dependency property
     /// </summary>
     public static readonly DependencyProperty CommandParameterProperty = DependencyProperty.Register(
-        "CommandParameter", typeof(object), typeof(EventToCommand), new PropertyMetadata(null, (s, _) =>
+        nameof(CommandParameter), typeof(object), typeof(EventToCommand), new PropertyMetadata(null, (s, _) =>
         {
             var sender = s as EventToCommand;
 
@@ -80,7 +82,7 @@ public class EventToCommand : TriggerAction<DependencyObject>
     /// <summary>
     ///     Identifies the <see cref="Command" /> dependency property
     /// </summary>
-    public static readonly DependencyProperty CommandProperty = DependencyProperty.Register("Command",
+    public static readonly DependencyProperty CommandProperty = DependencyProperty.Register(nameof(Command),
         typeof(ICommand), typeof(EventToCommand),
         new PropertyMetadata(null, (s, e) => OnCommandChanged(s as EventToCommand, e)));
 
@@ -88,7 +90,7 @@ public class EventToCommand : TriggerAction<DependencyObject>
     ///     Identifies the <see cref="MustToggleIsEnabled" /> dependency property
     /// </summary>
     public static readonly DependencyProperty MustToggleIsEnabledProperty = DependencyProperty.Register(
-        "MustToggleIsEnabled", typeof(bool), typeof(EventToCommand), new PropertyMetadata(false, (s, _) =>
+        nameof(MustToggleIsEnabled), typeof(bool), typeof(EventToCommand), new PropertyMetadata(false, (s, _) =>
         {
             var sender = s as EventToCommand;
 
@@ -111,7 +113,7 @@ public class EventToCommand : TriggerAction<DependencyObject>
         AlwaysInvokeCommandPropertyName, typeof(bool), typeof(EventToCommand), new PropertyMetadata(false));
 
 
-    private object _commandParameterValue;
+    private object? _commandParameterValue;
 
     private bool? _mustToggleValue;
 
@@ -121,7 +123,8 @@ public class EventToCommand : TriggerAction<DependencyObject>
     /// </summary>
     public bool AlwaysInvokeCommand
     {
-        get => (bool) GetValue(AlwaysInvokeCommandProperty);
+        get => (bool)GetValue(AlwaysInvokeCommandProperty);
+        // ReSharper disable once UnusedMember.Global
         set => SetValue(AlwaysInvokeCommandProperty, value);
     }
 
@@ -129,9 +132,9 @@ public class EventToCommand : TriggerAction<DependencyObject>
     ///     Gets or sets the ICommand that this trigger is bound to. This
     ///     is a DependencyProperty.
     /// </summary>
-    public ICommand Command
+    public ICommand? Command
     {
-        get => (ICommand) GetValue(CommandProperty);
+        get => (ICommand)GetValue(CommandProperty);
 
         set => SetValue(CommandProperty, value);
     }
@@ -140,7 +143,7 @@ public class EventToCommand : TriggerAction<DependencyObject>
     ///     Gets or sets an object that will be passed to the <see cref="Command" />
     ///     attached to this trigger. This is a DependencyProperty.
     /// </summary>
-    public object CommandParameter
+    public object? CommandParameter
     {
         get => GetValue(CommandParameterProperty);
 
@@ -151,12 +154,13 @@ public class EventToCommand : TriggerAction<DependencyObject>
     ///     Gets or sets an object that will be passed to the <see cref="Command" />
     ///     attached to this trigger. This property is here for compatibility
     ///     with the Silverlight version. This is NOT a DependencyProperty.
-    ///     For databinding, use the <see cref="CommandParameter" /> property.
+    ///     For data binding, use the <see cref="CommandParameter" /> property.
     /// </summary>
-    public object CommandParameterValue
+    public object? CommandParameterValue
     {
         get => _commandParameterValue ?? CommandParameter;
 
+        // ReSharper disable once UnusedMember.Global
         set
         {
             _commandParameterValue = value;
@@ -169,7 +173,8 @@ public class EventToCommand : TriggerAction<DependencyObject>
     ///     <see cref="PassEventArgsToCommand" />. If PassEventArgsToCommand is false,
     ///     this property is never used.
     /// </summary>
-    public IEventArgsConverter EventArgsConverter { get; set; }
+    // ReSharper disable once UnusedAutoPropertyAccessor.Global
+    public IEventArgsConverter? EventArgsConverter { get; set; }
 
     /// <summary>
     ///     Gets or sets a parameters for the converter used to convert the EventArgs when using
@@ -179,6 +184,7 @@ public class EventToCommand : TriggerAction<DependencyObject>
     public object EventArgsConverterParameter
     {
         get => GetValue(EventArgsConverterParameterProperty);
+        // ReSharper disable once UnusedMember.Global
         set => SetValue(EventArgsConverterParameterProperty, value);
     }
 
@@ -192,7 +198,7 @@ public class EventToCommand : TriggerAction<DependencyObject>
     /// </summary>
     public bool MustToggleIsEnabled
     {
-        get => (bool) GetValue(MustToggleIsEnabledProperty);
+        get => (bool)GetValue(MustToggleIsEnabledProperty);
 
         set => SetValue(MustToggleIsEnabledProperty, value);
     }
@@ -203,12 +209,13 @@ public class EventToCommand : TriggerAction<DependencyObject>
     ///     event fires. If this property is true, and the command's CanExecute
     ///     method returns false, the element will be disabled. This property is here for
     ///     compatibility with the Silverlight version. This is NOT a DependencyProperty.
-    ///     For databinding, use the <see cref="MustToggleIsEnabled" /> property.
+    ///     For data binding, use the <see cref="MustToggleIsEnabled" /> property.
     /// </summary>
     public bool MustToggleIsEnabledValue
     {
         get => _mustToggleValue ?? MustToggleIsEnabled;
 
+        // ReSharper disable once UnusedMember.Global
         set
         {
             _mustToggleValue = value;
@@ -228,7 +235,7 @@ public class EventToCommand : TriggerAction<DependencyObject>
     {
         var element = GetAssociatedObject();
 
-        return AssociatedObject == null || element is {IsEnabled: false};
+        return AssociatedObject == null || element is { IsEnabled: false };
     }
 
     private void EnableDisableElement()
@@ -252,7 +259,7 @@ public class EventToCommand : TriggerAction<DependencyObject>
     ///     The FrameworkElement to which this trigger
     ///     is attached.
     /// </returns>
-    private FrameworkElement GetAssociatedObject()
+    private FrameworkElement? GetAssociatedObject()
     {
         return AssociatedObject as FrameworkElement;
     }
@@ -265,7 +272,7 @@ public class EventToCommand : TriggerAction<DependencyObject>
     ///     The command that must be executed when
     ///     this trigger is invoked.
     /// </returns>
-    private ICommand GetCommand()
+    private ICommand? GetCommand()
     {
         return Command;
     }
@@ -275,6 +282,7 @@ public class EventToCommand : TriggerAction<DependencyObject>
     ///     Provides a simple way to invoke this trigger programatically
     ///     without any EventArgs.
     /// </summary>
+    // ReSharper disable once UnusedMember.Global
     public void Invoke()
     {
         Invoke(null);
@@ -288,7 +296,7 @@ public class EventToCommand : TriggerAction<DependencyObject>
     ///     </para>
     /// </summary>
     /// <param name="parameter">The EventArgs of the fired event.</param>
-    protected override void Invoke(object parameter)
+    protected override void Invoke(object? parameter)
     {
         if (AssociatedElementIsDisabled() && !AlwaysInvokeCommand)
             return;
@@ -314,18 +322,18 @@ public class EventToCommand : TriggerAction<DependencyObject>
         EnableDisableElement();
     }
 
-    private void OnCommandCanExecuteChanged(object sender, EventArgs e)
+    private void OnCommandCanExecuteChanged(object? sender, EventArgs e)
     {
         EnableDisableElement();
     }
 
-    private static void OnCommandChanged(EventToCommand element, DependencyPropertyChangedEventArgs e)
+    private static void OnCommandChanged(EventToCommand? element, DependencyPropertyChangedEventArgs e)
     {
         if (element == null) return;
 
-        if (e.OldValue != null) ((ICommand) e.OldValue).CanExecuteChanged -= element.OnCommandCanExecuteChanged;
+        if (e.OldValue != null) ((ICommand)e.OldValue).CanExecuteChanged -= element.OnCommandCanExecuteChanged;
 
-        var command = (ICommand) e.NewValue;
+        var command = (ICommand)e.NewValue;
 
         if (command != null) command.CanExecuteChanged += element.OnCommandCanExecuteChanged;
 

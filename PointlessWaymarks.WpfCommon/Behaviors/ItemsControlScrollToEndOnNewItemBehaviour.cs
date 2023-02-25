@@ -1,5 +1,6 @@
 ﻿using System.Collections.Specialized;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Threading;
@@ -10,10 +11,10 @@ namespace PointlessWaymarks.WpfCommon.Behaviors;
 public class ItemsControlScrollToEndOnNewItemBehaviour : Behavior<ItemsControl>
 {
     public static readonly DependencyProperty ItemsControlScrollViewerProperty =
-        DependencyProperty.Register("ItemsControlScrollViewer", typeof(ScrollViewer),
+        DependencyProperty.Register(nameof(ItemsControlScrollViewer), typeof(ScrollViewer),
             typeof(ItemsControlScrollToEndOnNewItemBehaviour), new PropertyMetadata(default(ScrollViewer)));
 
-    private INotifyCollectionChanged _cachedItemsSource;
+    private INotifyCollectionChanged? _cachedItemsSource;
 
     public ScrollViewer ItemsControlScrollViewer
     {
@@ -26,7 +27,7 @@ public class ItemsControlScrollToEndOnNewItemBehaviour : Behavior<ItemsControl>
         UpdateItemsSource();
     }
 
-    private void ItemsSourceCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+    private void ItemsSourceCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
     {
         if (e.Action == NotifyCollectionChangedAction.Add)
             try
@@ -40,7 +41,7 @@ public class ItemsControlScrollToEndOnNewItemBehaviour : Behavior<ItemsControl>
             }
     }
 
-    private void ListBoxItemsSourceChanged(object sender, EventArgs e)
+    private void ListBoxItemsSourceChanged(object? sender, EventArgs e)
     {
         UpdateItemsSource();
     }
@@ -54,6 +55,8 @@ public class ItemsControlScrollToEndOnNewItemBehaviour : Behavior<ItemsControl>
         AssociatedObject.Loaded += AssociatedObjectLoaded;
 
         var itemsSourcePropertyDescriptor = TypeDescriptor.GetProperties(AssociatedObject)["ItemsSource"];
+        
+        Debug.Assert(itemsSourcePropertyDescriptor != null, nameof(itemsSourcePropertyDescriptor) + " != null");
         itemsSourcePropertyDescriptor.AddValueChanged(AssociatedObject, ListBoxItemsSourceChanged);
     }
 
@@ -63,6 +66,8 @@ public class ItemsControlScrollToEndOnNewItemBehaviour : Behavior<ItemsControl>
         {
             _cachedItemsSource.CollectionChanged -= ItemsSourceCollectionChanged;
             var itemsSourcePropertyDescriptor = TypeDescriptor.GetProperties(AssociatedObject)["ItemsSource"];
+
+            Debug.Assert(itemsSourcePropertyDescriptor != null, nameof(itemsSourcePropertyDescriptor) + " != null");
             itemsSourcePropertyDescriptor.RemoveValueChanged(AssociatedObject, ListBoxItemsSourceChanged);
         }
 
@@ -72,6 +77,8 @@ public class ItemsControlScrollToEndOnNewItemBehaviour : Behavior<ItemsControl>
             if (_cachedItemsSource == null) return;
             _cachedItemsSource.CollectionChanged += ItemsSourceCollectionChanged;
             var itemsSourcePropertyDescriptor = TypeDescriptor.GetProperties(AssociatedObject)["ItemsSource"];
+            
+            Debug.Assert(itemsSourcePropertyDescriptor != null, nameof(itemsSourcePropertyDescriptor) + " != null");
             itemsSourcePropertyDescriptor.AddValueChanged(AssociatedObject, ListBoxItemsSourceChanged);
         }
     }

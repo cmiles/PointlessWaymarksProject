@@ -9,12 +9,12 @@ public partial class StringDataEntryContext : ObservableObject, IHasChanges, IHa
 {
     [ObservableProperty] private bool _hasChanges;
     [ObservableProperty] private bool _hasValidationIssues;
-    [ObservableProperty] private string _helpText;
-    [ObservableProperty] private string _referenceValue;
-    [ObservableProperty] private string _title;
-    [ObservableProperty] private string _userValue;
-    [ObservableProperty] private List<Func<string, Task<IsValid>>> _validationFunctions = new();
-    [ObservableProperty] private string _validationMessage;
+    [ObservableProperty] private string _helpText = string.Empty;
+    [ObservableProperty] private string _referenceValue = string.Empty;
+    [ObservableProperty] private string _title = string.Empty;
+    [ObservableProperty] private string _userValue = string.Empty;
+    [ObservableProperty] private List<Func<string?, Task<IsValid>>> _validationFunctions = new();
+    [ObservableProperty] private string _validationMessage = string.Empty;
 
     private StringDataEntryContext()
     {
@@ -25,7 +25,7 @@ public partial class StringDataEntryContext : ObservableObject, IHasChanges, IHa
     {
         HasChanges = UserValue.TrimNullToEmpty() != ReferenceValue.TrimNullToEmpty();
 
-        if (ValidationFunctions != null && ValidationFunctions.Any())
+        if (ValidationFunctions.Any())
             foreach (var loopValidations in ValidationFunctions)
             {
                 var validationResult = await loopValidations(UserValue);
@@ -46,9 +46,8 @@ public partial class StringDataEntryContext : ObservableObject, IHasChanges, IHa
         return new StringDataEntryContext();
     }
 
-    private async void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
+    private async void OnPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
-        if (e == null) return;
         if (string.IsNullOrWhiteSpace(e.PropertyName)) return;
 
         if (!e.PropertyName.Contains("HasChanges") && !e.PropertyName.Contains("Validation"))

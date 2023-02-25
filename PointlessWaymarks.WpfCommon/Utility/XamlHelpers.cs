@@ -26,7 +26,7 @@ public static class XamlHelpers
         }
     }
 
-    public static T FindParent<T>(DependencyObject child) where T : DependencyObject
+    public static T? FindParent<T>(DependencyObject? child) where T : DependencyObject
     {
         if (child == null) return null;
 

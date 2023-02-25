@@ -10,14 +10,14 @@ namespace PointlessWaymarks.WpfCommon.WpfHtml;
 
 public class WebViewHtmlStringBindingBehavior : Behavior<WebView2>
 {
-    public static readonly DependencyProperty HtmlStringProperty = DependencyProperty.Register("HtmlString",
+    public static readonly DependencyProperty HtmlStringProperty = DependencyProperty.Register(nameof(HtmlString),
         typeof(string), typeof(WebViewHtmlStringBindingBehavior),
         new PropertyMetadata(default(string), OnHtmlChanged));
 
     private readonly List<FileInfo> _previousFiles = new();
     private bool _loaded;
 
-    public string CachedHtml { get; set; }
+    public string CachedHtml { get; set; } = string.Empty;
 
     public string HtmlString
     {
@@ -110,7 +110,7 @@ public class WebViewHtmlStringBindingBehavior : Behavior<WebView2>
         }
     }
 
-    private async void OnReady(object sender, EventArgs e)
+    private async void OnReady(object? sender, EventArgs e)
     {
         if (!string.IsNullOrWhiteSpace(CachedHtml))
         {

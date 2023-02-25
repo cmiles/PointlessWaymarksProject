@@ -100,7 +100,7 @@ EndSelection:<<<<<<<<4";
     /// </remarks>
     /// <param name="html">a  html fragment</param>
     /// <param name="plainText">the plain text</param>
-    public static DataObject CreateDataObject(string html, string plainText)
+    public static DataObject CreateDataObject(string? html, string plainText)
     {
         html ??= string.Empty;
         var htmlFragment = GetHtmlDataString(html);

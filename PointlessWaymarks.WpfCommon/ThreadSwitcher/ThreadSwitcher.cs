@@ -9,7 +9,7 @@ public class ThreadSwitcher
     ///     If present the PinnedDispatcher will be used by ResumeForegroundAsync() (otherwise Application.Current.Dispatcher
     ///     is used)
     /// </summary>
-    public static Dispatcher PinnedDispatcher { get; set; }
+    public static Dispatcher? PinnedDispatcher { get; set; }
 
     public static ThreadPoolThreadSwitcher ResumeBackgroundAsync()
     {

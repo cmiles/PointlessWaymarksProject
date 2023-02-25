@@ -6,7 +6,7 @@ namespace PointlessWaymarks.WpfCommon.ValueConverters;
 
 public class AnyNotVisibleToHiddenMultiConverter : IMultiValueConverter
 {
-    public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
+    public object? Convert(object[]? values, Type? targetType, object? parameter, CultureInfo culture)
     {
         if (values == null) return Visibility.Hidden;
         if (values.Length == 0) return Visibility.Hidden;
@@ -20,7 +20,7 @@ public class AnyNotVisibleToHiddenMultiConverter : IMultiValueConverter
         return Visibility.Visible;
     }
 
-    public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
+    public object[]? ConvertBack(object? value, Type[]? targetTypes, object? parameter, CultureInfo culture)
     {
         throw new NotImplementedException();
     }

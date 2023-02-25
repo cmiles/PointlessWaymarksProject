@@ -55,7 +55,7 @@ public partial class WindowIconStatus : ObservableObject
         WindowState = TaskbarItemProgressState.None;
     }
 
-    public static async Task IndeterminateTask(WindowIconStatus windowStatus, Func<Task> toRun, Guid statusContextId)
+    public static async Task IndeterminateTask(WindowIconStatus? windowStatus, Func<Task> toRun, Guid statusContextId)
     {
         if (windowStatus == null)
         {

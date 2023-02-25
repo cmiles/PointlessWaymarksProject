@@ -7,7 +7,7 @@ namespace PointlessWaymarks.WpfCommon.Behaviors;
 
 public class ListBoxOneLineMouseWheelScroll : Behavior<ListBox>
 {
-    private ScrollViewer _scrollViewer;
+    private ScrollViewer? _scrollViewer;
 
     private void AssociatedObjectOnPreviewMouseWheel(object sender, MouseWheelEventArgs e)
     {
