@@ -286,7 +286,7 @@ public partial class StatusControlContext : ObservableObject
         return new RelayCommand<T>(x => RunBlockingTask(async () => await toRun(x)));
     }
 
-    public RelayCommand RunBlockingTaskCommand(Func<Task> toRun)
+    public RelayCommand? RunBlockingTaskCommand(Func<Task> toRun)
     {
         return new RelayCommand(() => RunBlockingTask(toRun));
     }
@@ -385,7 +385,7 @@ public partial class StatusControlContext : ObservableObject
         return new RelayCommand<T>(x => RunNonBlockingTask(async () => await toRun(x)));
     }
 
-    public RelayCommand RunNonBlockingTaskCommand(Func<Task> toRun)
+    public RelayCommand? RunNonBlockingTaskCommand(Func<Task> toRun)
     {
         return new RelayCommand(() => RunNonBlockingTask(toRun));
     }
@@ -529,9 +529,9 @@ public partial class StatusControlContext : ObservableObject
         Task.Run(() => Log.Warning("Toast Warning: {0} - Status Context Id: {1}", toastText, StatusControlContextId));
     }
 
-    private void UserMessageBoxResponse(string responseString)
+    private void UserMessageBoxResponse(string? responseString)
     {
-        ShowMessageResponse = responseString;
+        ShowMessageResponse = responseString ?? string.Empty;
         Progress($"Show Message Response {responseString}");
         CurrentFullScreenCancellationSource?.Cancel();
     }

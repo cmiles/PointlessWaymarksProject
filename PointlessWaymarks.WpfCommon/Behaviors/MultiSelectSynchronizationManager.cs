@@ -26,6 +26,8 @@ namespace PointlessWaymarks.WpfCommon.Behaviors
         /// </summary>
         public void StartSynchronizingList()
         {
+            if (_multiSelector == null) return;
+            
             var list = MultiSelectorBehaviors.GetSynchronizedSelectedItems(_multiSelector);
 
             if (list != null)
@@ -40,7 +42,7 @@ namespace PointlessWaymarks.WpfCommon.Behaviors
         /// </summary>
         public void StopSynchronizing()
         {
-            _synchronizer.StopSynchronizing();
+            _synchronizer?.StopSynchronizing();
         }
 
         public static IList GetSelectedItemsCollection(Selector selector)

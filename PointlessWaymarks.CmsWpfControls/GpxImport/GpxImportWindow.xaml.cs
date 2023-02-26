@@ -11,7 +11,7 @@ namespace PointlessWaymarks.CmsWpfControls.GpxImport;
 public partial class GpxImportWindow
 {
     [ObservableProperty] private GpxImportContext _importContext;
-    [ObservableProperty] private StatusControlContext _statusContext;
+    [ObservableProperty] private StatusControlContext? _statusContext;
 
     private GpxImportWindow()
     {

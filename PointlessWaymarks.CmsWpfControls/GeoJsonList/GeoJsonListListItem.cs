@@ -7,13 +7,13 @@ namespace PointlessWaymarks.CmsWpfControls.GeoJsonList;
 
 public partial class GeoJsonListListItem : ObservableObject, IContentListItem, IContentListSmallImage
 {
-    [ObservableProperty] private GeoJsonContent _dbEntry;
+    [ObservableProperty] private GeoJsonContent? _dbEntry;
     [ObservableProperty] private GeoJsonContentActions _itemActions;
     [ObservableProperty] private CurrentSelectedTextTracker _selectedTextTracker = new();
     [ObservableProperty] private bool _showType;
     [ObservableProperty] private string _smallImageUrl;
 
-    public IContentCommon Content()
+    public IContentCommon? Content()
     {
         return DbEntry;
     }

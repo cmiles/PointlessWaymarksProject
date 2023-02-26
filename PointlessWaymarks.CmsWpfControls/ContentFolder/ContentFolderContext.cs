@@ -30,11 +30,11 @@ public partial class ContentFolderContext : ObservableObject, IHasChanges, IHasV
     [ObservableProperty] private List<Func<string, IsValid>> _validationFunctions = new();
     [ObservableProperty] private string _validationMessage;
 
-    private ContentFolderContext(StatusControlContext statusContext)
+    private ContentFolderContext(StatusControlContext? statusContext)
     {
-        StatusContext = statusContext ?? new StatusControlContext();
+        _statusContext = statusContext ?? new StatusControlContext();
 
-        DataNotificationsProcessor = new DataNotificationsWorkQueue { Processor = DataNotificationReceived };
+        _dataNotificationsProcessor = new DataNotificationsWorkQueue { Processor = DataNotificationReceived };
 
         PropertyChanged += OnPropertyChanged;
     }
@@ -59,8 +59,8 @@ public partial class ContentFolderContext : ObservableObject, IHasChanges, IHasV
         ValidationMessage = string.Empty;
     }
 
-    public static async Task<ContentFolderContext> CreateInstance(StatusControlContext statusContext,
-        ITitleSummarySlugFolder dbEntry)
+    public static async Task<ContentFolderContext> CreateInstance(StatusControlContext? statusContext,
+        ITitleSummarySlugFolder? dbEntry)
     {
         var newControl = new ContentFolderContext(statusContext)
         {
@@ -72,7 +72,7 @@ public partial class ContentFolderContext : ObservableObject, IHasChanges, IHasV
         return newControl;
     }
 
-    public static async Task<ContentFolderContext> CreateInstanceForAllGeoTypes(StatusControlContext statusContext)
+    public static async Task<ContentFolderContext> CreateInstanceForAllGeoTypes(StatusControlContext? statusContext)
     {
         var newControl = new ContentFolderContext(statusContext)
         {
@@ -114,7 +114,7 @@ public partial class ContentFolderContext : ObservableObject, IHasChanges, IHasV
         }
     }
 
-    public async Task LoadData(ITitleSummarySlugFolder dbEntry)
+    public async Task LoadData(ITitleSummarySlugFolder? dbEntry)
     {
         DataNotifications.NewDataNotificationChannel().MessageReceived -= OnDataNotificationReceived;
 
@@ -167,9 +167,8 @@ public partial class ContentFolderContext : ObservableObject, IHasChanges, IHasV
         DataNotificationsProcessor.Enqueue(e);
     }
 
-    private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
+    private void OnPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
-        if (e == null) return;
         if (string.IsNullOrWhiteSpace(e.PropertyName)) return;
 
         if (!e.PropertyName.Contains("HasChanges") && !e.PropertyName.Contains("Validation"))

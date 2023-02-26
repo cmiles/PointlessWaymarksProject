@@ -69,7 +69,7 @@ public class Session
     ///     Gets the Excel instance with the topmost window.
     ///     Returns null if no accessible instances.
     /// </summary>
-    public XL.Application TopMost
+    public XL.Application? TopMost
     {
         get
         {
@@ -101,7 +101,7 @@ public class Session
     ///     Tries to convert the given process to an Excel instance,
     ///     but returns null if an exception is thrown.
     /// </summary>
-    private static XL.Application TryGetApp(Process process)
+    private static XL.Application? TryGetApp(Process process)
     {
         try
         {

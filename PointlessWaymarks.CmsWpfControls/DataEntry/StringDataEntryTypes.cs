@@ -7,7 +7,7 @@ namespace PointlessWaymarks.CmsWpfControls.DataEntry;
 
 public static class StringDataEntryTypes
 {
-    public static async Task<StringDataEntryContext> CreateSlugInstance(ITitleSummarySlugFolder dbEntry)
+    public static async Task<StringDataEntryContext> CreateSlugInstance(ITitleSummarySlugFolder? dbEntry)
     {
         var newContext = StringDataEntryContext.CreateInstance();
 
@@ -23,7 +23,7 @@ public static class StringDataEntryTypes
         return newContext;
     }
 
-    public static async Task<StringDataEntryContext> CreateSummaryInstance(ITitleSummarySlugFolder dbEntry)
+    public static async Task<StringDataEntryContext> CreateSummaryInstance(ITitleSummarySlugFolder? dbEntry)
     {
         var newContext = StringDataEntryContext.CreateInstance();
 
@@ -39,7 +39,7 @@ public static class StringDataEntryTypes
         return newContext;
     }
 
-    public static async Task<StringDataEntryContext> CreateTitleInstance(ITitleSummarySlugFolder dbEntry)
+    public static async Task<StringDataEntryContext> CreateTitleInstance(ITitleSummarySlugFolder? dbEntry)
     {
         var newContext = StringDataEntryContext.CreateInstance();
 

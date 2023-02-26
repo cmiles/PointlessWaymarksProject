@@ -41,40 +41,40 @@ namespace PointlessWaymarks.CmsWpfControls.VideoContentEditor;
 public partial class VideoContentEditorContext : ObservableObject, IHasChanges, IHasValidationIssues,
     ICheckForChangesAndValidation
 {
-    [ObservableProperty] private RelayCommand _autoCleanRenameSelectedFileCommand;
-    [ObservableProperty] private RelayCommand _autoRenameSelectedFileBasedOnTitleCommand;
-    [ObservableProperty] private BodyContentEditorContext _bodyContent;
-    [ObservableProperty] private RelayCommand _chooseFileAndFillMetadataCommand;
-    [ObservableProperty] private RelayCommand _chooseFileCommand;
-    [ObservableProperty] private ContentIdViewerControlContext _contentId;
-    [ObservableProperty] private CreatedAndUpdatedByAndOnDisplayContext _createdUpdatedDisplay;
-    [ObservableProperty] private VideoContent _dbEntry;
-    [ObservableProperty] private RelayCommand _editUserMainPictureCommand;
-    [ObservableProperty] private RelayCommand _extractNewLinksCommand;
+    [ObservableProperty] private RelayCommand? _autoCleanRenameSelectedFileCommand;
+    [ObservableProperty] private RelayCommand? _autoRenameSelectedFileBasedOnTitleCommand;
+    [ObservableProperty] private BodyContentEditorContext? _bodyContent;
+    [ObservableProperty] private RelayCommand? _chooseFileAndFillMetadataCommand;
+    [ObservableProperty] private RelayCommand? _chooseFileCommand;
+    [ObservableProperty] private ContentIdViewerControlContext? _contentId;
+    [ObservableProperty] private CreatedAndUpdatedByAndOnDisplayContext? _createdUpdatedDisplay;
+    [ObservableProperty] private VideoContent? _dbEntry;
+    [ObservableProperty] private RelayCommand? _editUserMainPictureCommand;
+    [ObservableProperty] private RelayCommand? _extractNewLinksCommand;
     [ObservableProperty] private bool _fileIsMp4;
     [ObservableProperty] private bool _hasChanges;
     [ObservableProperty] private bool _hasValidationIssues;
     [ObservableProperty] private HelpDisplayContext _helpContext;
-    [ObservableProperty] private FileInfo _initialVideo;
+    [ObservableProperty] private FileInfo? _initialVideo;
     [ObservableProperty] private StringDataEntryContext _licenseEntry;
-    [ObservableProperty] private RelayCommand _linkToClipboardCommand;
-    [ObservableProperty] private FileInfo _loadedVideo;
-    [ObservableProperty] [CanBeNull] private ImageContentEditorWindow _mainImageExternalEditorWindow;
-    [ObservableProperty] private ContentSiteFeedAndIsDraftContext _mainSiteFeed;
-    [ObservableProperty] private RelayCommand _renameSelectedFileCommand;
-    [ObservableProperty] private RelayCommand _saveAndCloseCommand;
+    [ObservableProperty] private RelayCommand? _linkToClipboardCommand;
+    [ObservableProperty] private FileInfo? _loadedVideo;
+    [ObservableProperty] private ImageContentEditorWindow? _mainImageExternalEditorWindow;
+    [ObservableProperty] private ContentSiteFeedAndIsDraftContext? _mainSiteFeed;
+    [ObservableProperty] private RelayCommand? _renameSelectedFileCommand;
+    [ObservableProperty] private RelayCommand? _saveAndCloseCommand;
     [ObservableProperty] private RelayCommand _saveAndExtractImageFromPdfCommand;
-    [ObservableProperty] private RelayCommand _saveAndExtractImageFromVideoCommand;
-    [ObservableProperty] private RelayCommand _saveCommand;
-    [ObservableProperty] private FileInfo _selectedFile;
+    [ObservableProperty] private RelayCommand? _saveAndExtractImageFromVideoCommand;
+    [ObservableProperty] private RelayCommand? _saveCommand;
+    [ObservableProperty] private FileInfo? _selectedFile;
     [ObservableProperty] private bool _selectedFileHasPathOrNameChanges;
     [ObservableProperty] private bool _selectedFileHasValidationIssues;
     [ObservableProperty] private bool _selectedFileNameHasInvalidCharacters;
     [ObservableProperty] private string _selectedFileValidationMessage;
-    [ObservableProperty] private StatusControlContext _statusContext;
-    [ObservableProperty] private TagsEditorContext _tagEdit;
-    [ObservableProperty] private TitleSummarySlugEditorContext _titleSummarySlugFolder;
-    [ObservableProperty] private UpdateNotesEditorContext _updateNotes;
+    [ObservableProperty] private StatusControlContext? _statusContext;
+    [ObservableProperty] private TagsEditorContext? _tagEdit;
+    [ObservableProperty] private TitleSummarySlugEditorContext? _titleSummarySlugFolder;
+    [ObservableProperty] private UpdateNotesEditorContext? _updateNotes;
     [ObservableProperty] private ConversionDataEntryContext<Guid?> _userMainPictureEntry;
     [ObservableProperty] private IContentCommon _userMainPictureEntryContent;
     [ObservableProperty] private string _userMainPictureEntrySmallImageUrl;
@@ -82,15 +82,15 @@ public partial class VideoContentEditorContext : ObservableObject, IHasChanges, 
     [ObservableProperty] private StringDataEntryContext _videoCreatedByEntry;
     [ObservableProperty] private ConversionDataEntryContext<DateTime> _videoCreatedOnEntry;
     [ObservableProperty] private ConversionDataEntryContext<DateTime?> _videoCreatedOnUtcEntry;
-    [ObservableProperty] private RelayCommand _viewOnSiteCommand;
-    [ObservableProperty] private RelayCommand _viewPhotoMetadataCommand;
-    [ObservableProperty] private RelayCommand _viewSelectedFileCommand;
-    [ObservableProperty] private RelayCommand _viewSelectedFileDirectoryCommand;
-    [ObservableProperty] private RelayCommand _viewUserMainPictureCommand;
+    [ObservableProperty] private RelayCommand? _viewOnSiteCommand;
+    [ObservableProperty] private RelayCommand? _viewPhotoMetadataCommand;
+    [ObservableProperty] private RelayCommand? _viewSelectedFileCommand;
+    [ObservableProperty] private RelayCommand? _viewSelectedFileDirectoryCommand;
+    [ObservableProperty] private RelayCommand? _viewUserMainPictureCommand;
 
     public EventHandler RequestContentEditorWindowClose;
 
-    private VideoContentEditorContext(StatusControlContext statusContext, FileInfo initialVideo = null)
+    private VideoContentEditorContext(StatusControlContext? statusContext, FileInfo? initialVideo = null)
     {
         if (initialVideo is { Exists: true }) _initialVideo = initialVideo;
 
@@ -99,7 +99,7 @@ public partial class VideoContentEditorContext : ObservableObject, IHasChanges, 
         SetupStatusContextAndCommands(statusContext);
     }
 
-    private VideoContentEditorContext(StatusControlContext statusContext)
+    private VideoContentEditorContext(StatusControlContext? statusContext)
     {
         PropertyChanged += OnPropertyChanged;
 
@@ -182,16 +182,16 @@ Notes:
         PhotoMetadataToCurrentContent(metadata);
     }
 
-    public static async Task<VideoContentEditorContext> CreateInstance(StatusControlContext statusContext,
-        FileInfo initialVideo = null)
+    public static async Task<VideoContentEditorContext> CreateInstance(StatusControlContext? statusContext,
+        FileInfo? initialVideo = null)
     {
         var newControl = new VideoContentEditorContext(statusContext, initialVideo);
         await newControl.LoadData(null);
         return newControl;
     }
 
-    public static async Task<VideoContentEditorContext> CreateInstance(StatusControlContext statusContext,
-        VideoContent initialContent)
+    public static async Task<VideoContentEditorContext> CreateInstance(StatusControlContext? statusContext,
+        VideoContent? initialContent)
     {
         var newControl = new VideoContentEditorContext(statusContext);
         await newControl.LoadData(initialContent);
@@ -206,7 +206,7 @@ Notes:
         return BracketCodeCommon.PhotoOrImageCodeFirstIdInContent(BodyContent?.UserBodyContent);
     }
 
-    public VideoContent CurrentStateToVideoContent()
+    public VideoContent? CurrentStateToVideoContent()
     {
         var newEntry = new VideoContent();
 
@@ -296,7 +296,7 @@ Notes:
         StatusContext.ToastSuccess($"To Clipboard: {linkString}");
     }
 
-    private async Task LoadData(VideoContent toLoad, bool skipMediaDirectoryCheck = false)
+    private async Task LoadData(VideoContent? toLoad, bool skipMediaDirectoryCheck = false)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -450,9 +450,8 @@ Notes:
         MainImageExternalEditorWindowCleanup();
     }
 
-    private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
+    private void OnPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
-        if (e == null) return;
         if (string.IsNullOrWhiteSpace(e.PropertyName)) return;
 
         if (!e.PropertyName.Contains("HasChanges") && !e.PropertyName.Contains("Validation"))
@@ -579,7 +578,7 @@ Notes:
             : VideoContext.VideoSource = string.Empty;
     }
 
-    public void SetupStatusContextAndCommands(StatusControlContext statusContext)
+    public void SetupStatusContextAndCommands(StatusControlContext? statusContext)
     {
         StatusContext = statusContext ?? new StatusControlContext();
 
@@ -654,7 +653,7 @@ Notes:
             UserMainPictureEntry.UserText = contentId.Value.ToString();
     }
 
-    private void UserMainPictureEntryOnPropertyChanged(object sender, PropertyChangedEventArgs e)
+    private void UserMainPictureEntryOnPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
         StatusContext.RunFireAndForgetNonBlockingTask(SetUserMainPicture);
     }

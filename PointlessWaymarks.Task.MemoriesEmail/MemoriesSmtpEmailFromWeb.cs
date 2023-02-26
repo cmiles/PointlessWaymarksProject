@@ -280,7 +280,7 @@ public class MemoriesSmtpEmailFromWeb : IMemoriesSmtpEmailFromWeb
                 var imageEmbed = new Attachment(new MemoryStream(imageBytes),
                     new ContentType("image/jpeg"));
                 imageEmbed.ContentId = contentId;
-                imageEmbed.ContentDisposition.Inline = true;
+                imageEmbed.ContentDisposition!.Inline = true;
                 imageEmbed.ContentDisposition.DispositionType = DispositionTypeNames.Inline;
 
                 message.Attachments.Add(imageEmbed);

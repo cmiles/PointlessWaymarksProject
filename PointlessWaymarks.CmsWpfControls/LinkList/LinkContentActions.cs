@@ -27,10 +27,10 @@ public partial class LinkContentActions : ObservableObject, IContentActions<Link
     [ObservableProperty] private RelayCommand<LinkContent> _generateHtmlCommand;
     [ObservableProperty] private RelayCommand<LinkContent> _linkCodeToClipboardCommand;
     [ObservableProperty] private RelayCommand<LinkContent> _viewOnSiteCommand;
-    [ObservableProperty] private StatusControlContext _statusContext;
+    [ObservableProperty] private StatusControlContext? _statusContext;
     [ObservableProperty] private RelayCommand<LinkContent> _viewHistoryCommand;
 
-    public LinkContentActions(StatusControlContext statusContext)
+    public LinkContentActions(StatusControlContext? statusContext)
     {
         StatusContext = statusContext;
         DeleteCommand = StatusContext.RunBlockingTaskCommand<LinkContent>(Delete);

@@ -17,7 +17,7 @@ public partial class CreatedAndUpdatedByAndOnDisplayContext : ObservableObject, 
     [ObservableProperty] private string _createdAndUpdatedByAndOn;
     [ObservableProperty] private StringDataEntryContext _createdByEntry;
     [ObservableProperty] private DateTime? _createdOn;
-    [ObservableProperty] private ICreatedAndLastUpdateOnAndBy _dbEntry;
+    [ObservableProperty] private ICreatedAndLastUpdateOnAndBy? _dbEntry;
     [ObservableProperty] private bool _hasChanges;
     [ObservableProperty] private bool _hasValidationIssues;
     [ObservableProperty] private bool _isNewEntry;
@@ -29,9 +29,9 @@ public partial class CreatedAndUpdatedByAndOnDisplayContext : ObservableObject, 
     [ObservableProperty] private StringDataEntryContext _updatedByEntry;
     [ObservableProperty] private DateTime? _updatedOn;
 
-    private CreatedAndUpdatedByAndOnDisplayContext(StatusControlContext statusContext)
+    private CreatedAndUpdatedByAndOnDisplayContext(StatusControlContext? statusContext)
     {
-        StatusContext = statusContext ?? new StatusControlContext();
+        _statusContext = statusContext ?? new StatusControlContext();
 
         PropertyChanged += OnPropertyChanged;
     }
@@ -42,8 +42,8 @@ public partial class CreatedAndUpdatedByAndOnDisplayContext : ObservableObject, 
         HasValidationIssues = PropertyScanners.ChildPropertiesHaveValidationIssues(this);
     }
 
-    public static async Task<CreatedAndUpdatedByAndOnDisplayContext> CreateInstance(StatusControlContext statusContext,
-        ICreatedAndLastUpdateOnAndBy dbEntry)
+    public static async Task<CreatedAndUpdatedByAndOnDisplayContext?> CreateInstance(StatusControlContext? statusContext,
+        ICreatedAndLastUpdateOnAndBy? dbEntry)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -53,7 +53,7 @@ public partial class CreatedAndUpdatedByAndOnDisplayContext : ObservableObject, 
         return newInstance;
     }
 
-    public async Task LoadData(ICreatedAndLastUpdateOnAndBy toLoad)
+    public async Task LoadData(ICreatedAndLastUpdateOnAndBy? toLoad)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -129,20 +129,19 @@ public partial class CreatedAndUpdatedByAndOnDisplayContext : ObservableObject, 
         CreatedAndUpdatedByAndOn = string.Join(" ", newStringParts);
     }
 
-    private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
+    private void OnPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
-        if (e == null) return;
         if (string.IsNullOrWhiteSpace(e.PropertyName)) return;
 
         if (!e.PropertyName.Contains("HasChanges") && !e.PropertyName.Contains("Validation"))
             CheckForChangesAndValidationIssues();
     }
 
-    public async Task<IsValid> ValidateUpdatedBy(string updatedBy)
+    public Task<IsValid> ValidateUpdatedBy(string updatedBy)
     {
         if (!IsNewEntry && string.IsNullOrWhiteSpace(updatedBy))
-            return new IsValid(false, "Updated by can not be blank when updating an entry");
+            return Task.FromResult(new IsValid(false, "Updated by can not be blank when updating an entry"));
 
-        return new IsValid(true, string.Empty);
+        return Task.FromResult(new IsValid(true, string.Empty));
     }
 }

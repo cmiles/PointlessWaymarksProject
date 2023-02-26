@@ -19,26 +19,26 @@ namespace PointlessWaymarks.CmsWpfControls.BodyContentEditor;
 
 public partial class BodyContentEditorContext : ObservableObject, IHasChanges, IHasValidationIssues, ICheckForChangesAndValidation
 {
-    [ObservableProperty] private string _bodyContent;
-    [ObservableProperty] private ContentFormatChooserContext _bodyContentFormat;
+    [ObservableProperty] private string? _bodyContent;
+    [ObservableProperty] private ContentFormatChooserContext? _bodyContentFormat;
     [ObservableProperty] private bool _bodyContentHasChanges;
-    [ObservableProperty] private string _bodyContentHtmlOutput;
-    [ObservableProperty] private IBodyContent _dbEntry;
+    [ObservableProperty] private string? _bodyContentHtmlOutput;
+    [ObservableProperty] private IBodyContent? _dbEntry;
     [ObservableProperty] private bool _hasChanges;
     [ObservableProperty] private bool _hasValidationIssues;
-    [ObservableProperty] private RelayCommand _refreshPreviewCommand;
-    [ObservableProperty] private RelayCommand _removeLineBreaksFromSelectedCommand;
-    [ObservableProperty] private string _selectedBodyText;
-    [ObservableProperty] private RelayCommand _speakSelectedTextCommand;
+    [ObservableProperty] private RelayCommand? _refreshPreviewCommand;
+    [ObservableProperty] private RelayCommand? _removeLineBreaksFromSelectedCommand;
+    [ObservableProperty] private string? _selectedBodyText;
+    [ObservableProperty] private RelayCommand? _speakSelectedTextCommand;
     [ObservableProperty] private StatusControlContext _statusContext;
     [ObservableProperty] private string _userBodyContent = string.Empty;
     [ObservableProperty] private int _userBodyContentUserSelectionLength;
     [ObservableProperty] private int _userBodyContentUserSelectionStart;
-    [ObservableProperty] private string _userHtmlSelectedText;
+    [ObservableProperty] private string? _userHtmlSelectedText;
 
-    private BodyContentEditorContext(StatusControlContext statusContext)
+    private BodyContentEditorContext(StatusControlContext? statusContext)
     {
-        StatusContext = statusContext ?? new StatusControlContext();
+        _statusContext = statusContext ?? new StatusControlContext();
 
         PropertyChanged += OnPropertyChanged;
     }
@@ -51,8 +51,8 @@ public partial class BodyContentEditorContext : ObservableObject, IHasChanges, I
         HasValidationIssues = PropertyScanners.ChildPropertiesHaveChanges(this);
     }
 
-    public static async Task<BodyContentEditorContext> CreateInstance(StatusControlContext statusContext,
-        IBodyContent dbEntry)
+    public static async Task<BodyContentEditorContext?> CreateInstance(StatusControlContext? statusContext,
+        IBodyContent? dbEntry)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -65,7 +65,7 @@ public partial class BodyContentEditorContext : ObservableObject, IHasChanges, I
         return newContext;
     }
 
-    public async Task LoadData(IBodyContent toLoad)
+    public async Task LoadData(IBodyContent? toLoad)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -75,12 +75,13 @@ public partial class BodyContentEditorContext : ObservableObject, IHasChanges, I
         RefreshPreviewCommand = StatusContext.RunBlockingTaskCommand(UpdateContentHtml);
         SpeakSelectedTextCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
         {
+            if (string.IsNullOrWhiteSpace(UserHtmlSelectedText)) return;
             await ThreadSwitcher.ResumeForegroundAsync();
             var speaker = new TextToSpeech();
             await speaker.Speak(UserHtmlSelectedText);
         });
 
-        BodyContentFormat.InitialValue = toLoad?.BodyContentFormat;
+        BodyContentFormat!.InitialValue = toLoad?.BodyContentFormat;
 
         if (toLoad == null)
         {
@@ -100,9 +101,8 @@ public partial class BodyContentEditorContext : ObservableObject, IHasChanges, I
         PropertyScanners.SubscribeToChildHasChangesAndHasValidationIssues(this, CheckForChangesAndValidationIssues);
     }
 
-    private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
+    private void OnPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
-        if (e == null) return;
         if (string.IsNullOrWhiteSpace(e.PropertyName)) return;
 
         if (!e.PropertyName.Contains("HasChanges") && !e.PropertyName.Contains("Validation"))
@@ -131,7 +131,7 @@ public partial class BodyContentEditorContext : ObservableObject, IHasChanges, I
             var preprocessResults =
                 await BracketCodeCommon.ProcessCodesForLocalDisplay(BodyContent, StatusContext.ProgressTracker());
             var processResults =
-                ContentProcessing.ProcessContent(preprocessResults, BodyContentFormat.SelectedContentFormat);
+                ContentProcessing.ProcessContent(preprocessResults, BodyContentFormat!.SelectedContentFormat);
 
             var possibleStyleFile = new FileInfo(Path.Combine(settings.LocalSiteDirectory().FullName, "style.css"));
 

@@ -10,25 +10,25 @@ namespace PointlessWaymarks.CmsWpfControls.AllContentList;
 
 public partial class AllContentListWithActionsContext : ObservableObject
 {
-    [ObservableProperty] private CmsCommonCommands _commonCommands;
-    [ObservableProperty] private ContentListContext _listContext;
+    [ObservableProperty] private CmsCommonCommands? _commonCommands;
+    [ObservableProperty] private ContentListContext? _listContext;
     [ObservableProperty] private StatusControlContext _statusContext;
-    [ObservableProperty] private WindowIconStatus _windowStatus;
-    [ObservableProperty] private RelayCommand _wordPressImportWindowCommand;
+    [ObservableProperty] private WindowIconStatus? _windowStatus;
+    [ObservableProperty] private RelayCommand? _wordPressImportWindowCommand;
 
-    public AllContentListWithActionsContext(StatusControlContext statusContext, WindowIconStatus windowStatus)
+    public AllContentListWithActionsContext(StatusControlContext? statusContext, WindowIconStatus? windowStatus)
     {
-        StatusContext = statusContext ?? new StatusControlContext();
+        _statusContext = statusContext ?? new StatusControlContext();
         WindowStatus = windowStatus;
-
+        
         CommonCommands = new CmsCommonCommands(StatusContext, WindowStatus);
 
         StatusContext.RunFireAndForgetBlockingTask(LoadData);
     }
 
-    public AllContentListWithActionsContext(StatusControlContext statusContext, IContentListLoader reportFilter)
+    public AllContentListWithActionsContext(StatusControlContext? statusContext, IContentListLoader reportFilter)
     {
-        StatusContext = statusContext ?? new StatusControlContext();
+        _statusContext = statusContext ?? new StatusControlContext();
 
         ListContext ??= new ContentListContext(StatusContext, reportFilter);
 

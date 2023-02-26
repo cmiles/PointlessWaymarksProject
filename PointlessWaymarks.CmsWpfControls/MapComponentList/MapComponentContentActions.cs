@@ -26,10 +26,10 @@ public partial class MapComponentContentActions : ObservableObject, IContentActi
     [ObservableProperty] private RelayCommand<MapComponent> _generateHtmlCommand;
     [ObservableProperty] private RelayCommand<MapComponent> _linkCodeToClipboardCommand;
     [ObservableProperty] private RelayCommand<MapComponent> _viewOnSiteCommand;
-    [ObservableProperty] private StatusControlContext _statusContext;
+    [ObservableProperty] private StatusControlContext? _statusContext;
     [ObservableProperty] private RelayCommand<MapComponent> _viewHistoryCommand;
 
-    public MapComponentContentActions(StatusControlContext statusContext)
+    public MapComponentContentActions(StatusControlContext? statusContext)
     {
         StatusContext = statusContext;
         DeleteCommand = StatusContext.RunBlockingTaskCommand<MapComponent>(Delete);

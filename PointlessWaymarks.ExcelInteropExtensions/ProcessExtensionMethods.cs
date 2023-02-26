@@ -66,7 +66,7 @@ public static class ProcessExtensionMethods
     /// </summary>
     /// <param name="processes">The processes.</param>
     /// <returns>Process with top-most main window.</returns>
-    public static Process TopMost(this IEnumerable<Process> processes)
+    public static Process? TopMost(this IEnumerable<Process> processes)
     {
         if (processes == null) throw new ArgumentNullException(nameof(processes));
 

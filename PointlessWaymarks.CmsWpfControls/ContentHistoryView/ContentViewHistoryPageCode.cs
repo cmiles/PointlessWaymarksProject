@@ -11,7 +11,7 @@ namespace PointlessWaymarks.CmsWpfControls.ContentHistoryView;
 
 public partial class ContentViewHistoryPage
 {
-    public ContentViewHistoryPage(string pageTitle, string siteName, string contentTitle, List<string> items)
+    public ContentViewHistoryPage(string? pageTitle, string? siteName, string? contentTitle, List<string>? items)
     {
         items ??= new List<string>();
 

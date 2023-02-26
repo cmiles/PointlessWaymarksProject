@@ -12,7 +12,7 @@ public partial class MapComponentListListItem : ObservableObject, IContentListIt
     [ObservableProperty] private CurrentSelectedTextTracker _selectedTextTracker = new();
     [ObservableProperty] private bool _showType;
 
-    public IContentCommon Content()
+    public IContentCommon? Content()
     {
         if (DbEntry == null) return null;
 

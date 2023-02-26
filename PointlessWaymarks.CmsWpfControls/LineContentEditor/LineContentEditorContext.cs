@@ -37,46 +37,46 @@ namespace PointlessWaymarks.CmsWpfControls.LineContentEditor;
 public partial class LineContentEditorContext : ObservableObject, IHasChanges, IHasValidationIssues,
     ICheckForChangesAndValidation
 {
-    [ObservableProperty] private RelayCommand _addFeatureIntersectTagsCommand;
-    [ObservableProperty] private BodyContentEditorContext _bodyContent;
+    [ObservableProperty] private RelayCommand? _addFeatureIntersectTagsCommand;
+    [ObservableProperty] private BodyContentEditorContext? _bodyContent;
     [ObservableProperty] private ConversionDataEntryContext<double> _climbElevationEntry;
-    [ObservableProperty] private ContentIdViewerControlContext _contentId;
-    [ObservableProperty] private CreatedAndUpdatedByAndOnDisplayContext _createdUpdatedDisplay;
-    [ObservableProperty] private LineContent _dbEntry;
+    [ObservableProperty] private ContentIdViewerControlContext? _contentId;
+    [ObservableProperty] private CreatedAndUpdatedByAndOnDisplayContext? _createdUpdatedDisplay;
+    [ObservableProperty] private LineContent? _dbEntry;
     [ObservableProperty] private ConversionDataEntryContext<double> _descentElevationEntry;
     [ObservableProperty] private ConversionDataEntryContext<double> _distanceEntry;
-    [ObservableProperty] private RelayCommand _extractNewLinksCommand;
+    [ObservableProperty] private RelayCommand? _extractNewLinksCommand;
     [ObservableProperty] private bool _hasChanges;
     [ObservableProperty] private bool _hasValidationIssues;
     [ObservableProperty] private HelpDisplayContext _helpContext;
-    [ObservableProperty] private RelayCommand _importFromGpxCommand;
-    [ObservableProperty] private RelayCommand _importGeoJsonFromClipboardCommand;
+    [ObservableProperty] private RelayCommand? _importFromGpxCommand;
+    [ObservableProperty] private RelayCommand? _importGeoJsonFromClipboardCommand;
     [ObservableProperty] private string _lineGeoJson;
-    [ObservableProperty] private RelayCommand _lineGeoJsonToClipboardCommand;
-    [ObservableProperty] private RelayCommand _linkToClipboardCommand;
-    [ObservableProperty] private ContentSiteFeedAndIsDraftContext _mainSiteFeed;
+    [ObservableProperty] private RelayCommand? _lineGeoJsonToClipboardCommand;
+    [ObservableProperty] private RelayCommand? _linkToClipboardCommand;
+    [ObservableProperty] private ContentSiteFeedAndIsDraftContext? _mainSiteFeed;
     [ObservableProperty] private ConversionDataEntryContext<double> _maximumElevationEntry;
     [ObservableProperty] private ConversionDataEntryContext<double> _minimumElevationEntry;
     [ObservableProperty] private string _previewHtml;
     [ObservableProperty] private string _previewLineJsonDto;
     [ObservableProperty] private ConversionDataEntryContext<DateTime?> _recordingEndedOnEntry;
     [ObservableProperty] private ConversionDataEntryContext<DateTime?> _recordingStartedOnEntry;
-    [ObservableProperty] private RelayCommand _refreshMapPreviewCommand;
+    [ObservableProperty] private RelayCommand? _refreshMapPreviewCommand;
     [ObservableProperty] private bool _replaceElevationOnImport;
-    [ObservableProperty] private RelayCommand _replaceElevationsCommand;
-    [ObservableProperty] private RelayCommand _saveAndCloseCommand;
-    [ObservableProperty] private RelayCommand _saveCommand;
-    [ObservableProperty] private StatusControlContext _statusContext;
-    [ObservableProperty] private TagsEditorContext _tagEdit;
+    [ObservableProperty] private RelayCommand? _replaceElevationsCommand;
+    [ObservableProperty] private RelayCommand? _saveAndCloseCommand;
+    [ObservableProperty] private RelayCommand? _saveCommand;
+    [ObservableProperty] private StatusControlContext? _statusContext;
+    [ObservableProperty] private TagsEditorContext? _tagEdit;
     [ObservableProperty] private TitleSummarySlugEditorContext _titleSummarySlugFolder;
-    [ObservableProperty] private UpdateNotesEditorContext _updateNotes;
-    [ObservableProperty] private RelayCommand _updateStatisticsCommand;
+    [ObservableProperty] private UpdateNotesEditorContext? _updateNotes;
+    [ObservableProperty] private RelayCommand? _updateStatisticsCommand;
     [ObservableProperty] private bool _updateStatsOnImport = true;
-    [ObservableProperty] private RelayCommand _viewOnSiteCommand;
+    [ObservableProperty] private RelayCommand? _viewOnSiteCommand;
 
     public EventHandler RequestContentEditorWindowClose;
 
-    private LineContentEditorContext(StatusControlContext statusContext)
+    private LineContentEditorContext(StatusControlContext? statusContext)
     {
         StatusContext = statusContext ?? new StatusControlContext();
 
@@ -151,15 +151,15 @@ public partial class LineContentEditorContext : ObservableObject, IHasChanges, I
         TagEdit.Tags = $"{TagEdit.Tags}{(string.IsNullOrWhiteSpace(TagEdit.Tags) ? "" : ",")}{string.Join(",", possibleTags)}";
     }
 
-    public static async Task<LineContentEditorContext> CreateInstance(StatusControlContext statusContext,
-        LineContent lineContent)
+    public static async Task<LineContentEditorContext> CreateInstance(StatusControlContext? statusContext,
+        LineContent? lineContent)
     {
         var newControl = new LineContentEditorContext(statusContext);
         await newControl.LoadData(lineContent);
         return newControl;
     }
 
-    private LineContent CurrentStateToLineContent()
+    private LineContent? CurrentStateToLineContent()
     {
         var newEntry = new LineContent();
 
@@ -338,7 +338,7 @@ public partial class LineContentEditorContext : ObservableObject, IHasChanges, I
         StatusContext.ToastSuccess($"To Clipboard: {linkString}");
     }
 
-    public async Task LoadData(LineContent toLoad)
+    public async Task LoadData(LineContent? toLoad)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -413,9 +413,8 @@ public partial class LineContentEditorContext : ObservableObject, IHasChanges, I
         PropertyScanners.SubscribeToChildHasChangesAndHasValidationIssues(this, CheckForChangesAndValidationIssues);
     }
 
-    private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
+    private void OnPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
-        if (e == null) return;
         if (string.IsNullOrWhiteSpace(e.PropertyName)) return;
 
         if (!e.PropertyName.Contains("HasChanges") && !e.PropertyName.Contains("Validation"))

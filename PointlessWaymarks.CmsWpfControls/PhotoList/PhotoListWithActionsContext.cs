@@ -32,28 +32,28 @@ public partial class PhotoListWithActionsContext : ObservableObject
 {
     [ObservableProperty] private RelayCommand _addIntersectionTagsToSelectedCommand;
     [ObservableProperty] private CmsCommonCommands _commonCommands;
-    [ObservableProperty] private RelayCommand _dailyPhotoLinkCodesToClipboardForSelectedCommand;
-    [ObservableProperty] private RelayCommand _emailHtmlToClipboardCommand;
+    [ObservableProperty] private RelayCommand? _dailyPhotoLinkCodesToClipboardForSelectedCommand;
+    [ObservableProperty] private RelayCommand? _emailHtmlToClipboardCommand;
     [ObservableProperty] private RelayCommand _forcedResizeCommand;
     [ObservableProperty] private ContentListContext _listContext;
     [ObservableProperty] private RelayCommand _openUrlForPhotoListCommand;
-    [ObservableProperty] private RelayCommand _photoLinkCodesToClipboardForSelectedCommand;
+    [ObservableProperty] private RelayCommand? _photoLinkCodesToClipboardForSelectedCommand;
     [ObservableProperty] private RelayCommand _photoToPointContentEditorCommand;
-    [ObservableProperty] private RelayCommand _refreshDataCommand;
+    [ObservableProperty] private RelayCommand? _refreshDataCommand;
     [ObservableProperty] private RelayCommand _regenerateHtmlAndReprocessPhotoForSelectedCommand;
-    [ObservableProperty] private RelayCommand _reportAllPhotosCommand;
-    [ObservableProperty] private RelayCommand _reportBlankLicenseCommand;
-    [ObservableProperty] private RelayCommand _reportMultiSpacesInTitleCommand;
-    [ObservableProperty] private RelayCommand _reportNoTagsCommand;
-    [ObservableProperty] private RelayCommand _reportPhotoMetadataCommand;
-    [ObservableProperty] private RelayCommand _reportTakenAndLicenseYearDoNotMatchCommand;
-    [ObservableProperty] private RelayCommand _reportTitleAndTakenDoNotMatchCommand;
+    [ObservableProperty] private RelayCommand? _reportAllPhotosCommand;
+    [ObservableProperty] private RelayCommand? _reportBlankLicenseCommand;
+    [ObservableProperty] private RelayCommand? _reportMultiSpacesInTitleCommand;
+    [ObservableProperty] private RelayCommand? _reportNoTagsCommand;
+    [ObservableProperty] private RelayCommand? _reportPhotoMetadataCommand;
+    [ObservableProperty] private RelayCommand? _reportTakenAndLicenseYearDoNotMatchCommand;
+    [ObservableProperty] private RelayCommand? _reportTitleAndTakenDoNotMatchCommand;
     [ObservableProperty] private RelayCommand _rescanMetadataAndFillBlanksCommand;
-    [ObservableProperty] private StatusControlContext _statusContext;
+    [ObservableProperty] private StatusControlContext? _statusContext;
     [ObservableProperty] private RelayCommand _viewFilesCommand;
-    [ObservableProperty] private WindowIconStatus _windowStatus;
+    [ObservableProperty] private WindowIconStatus? _windowStatus;
 
-    public PhotoListWithActionsContext(StatusControlContext statusContext, WindowIconStatus windowStatus = null)
+    public PhotoListWithActionsContext(StatusControlContext? statusContext, WindowIconStatus? windowStatus = null)
     {
         StatusContext = statusContext ?? new StatusControlContext();
         WindowStatus = windowStatus;
@@ -62,7 +62,7 @@ public partial class PhotoListWithActionsContext : ObservableObject
         StatusContext.RunFireAndForgetBlockingTask(LoadData);
     }
 
-    public PhotoListWithActionsContext(StatusControlContext statusContext, IContentListLoader reportFilter)
+    public PhotoListWithActionsContext(StatusControlContext? statusContext, IContentListLoader reportFilter)
     {
         StatusContext = statusContext ?? new StatusControlContext();
 
@@ -107,7 +107,7 @@ public partial class PhotoListWithActionsContext : ObservableObject
 
         cancellationToken.ThrowIfCancellationRequested();
 
-        var toProcess = new List<PhotoContent>();
+        var toProcess = new List<PhotoContent?>();
         var intersectResults = new List<IntersectResult>();
 
         foreach (var loopSelected in frozenSelect)
@@ -627,7 +627,7 @@ public partial class PhotoListWithActionsContext : ObservableObject
         var frozenSelected = SelectedItems().ToList();
 
         var errorMessages = new List<string>();
-        var updates = new List<(string updateMessage, PhotoContent toUpdate)>();
+        var updates = new List<(string updateMessage, PhotoContent? toUpdate)>();
 
         StatusContext.Progress($"Processing {frozenSelected.Count} Photo Files");
 

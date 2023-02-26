@@ -11,13 +11,13 @@ namespace PointlessWaymarks.CmsWpfControls.NoteList;
 public partial class NoteListWithActionsContext : ObservableObject
 {
     [ObservableProperty] private CmsCommonCommands _commonCommands;
-    [ObservableProperty] private RelayCommand _emailHtmlToClipboardCommand;
+    [ObservableProperty] private RelayCommand? _emailHtmlToClipboardCommand;
     [ObservableProperty] private ContentListContext _listContext;
-    [ObservableProperty] private RelayCommand _refreshDataCommand;
-    [ObservableProperty] private StatusControlContext _statusContext;
-    [ObservableProperty] private WindowIconStatus _windowStatus;
+    [ObservableProperty] private RelayCommand? _refreshDataCommand;
+    [ObservableProperty] private StatusControlContext? _statusContext;
+    [ObservableProperty] private WindowIconStatus? _windowStatus;
 
-    public NoteListWithActionsContext(StatusControlContext statusContext, WindowIconStatus windowStatus = null)
+    public NoteListWithActionsContext(StatusControlContext? statusContext, WindowIconStatus? windowStatus = null)
     {
         StatusContext = statusContext ?? new StatusControlContext();
         WindowStatus = windowStatus;

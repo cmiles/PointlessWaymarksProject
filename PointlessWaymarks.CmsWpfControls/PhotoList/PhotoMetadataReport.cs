@@ -15,7 +15,7 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList;
 
 public static class PhotoMetadataReport
 {
-    public static async Task AllPhotoMetadataToHtml(FileInfo selectedFile, StatusControlContext statusContext)
+    public static async Task AllPhotoMetadataToHtml(FileInfo? selectedFile, StatusControlContext? statusContext)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 

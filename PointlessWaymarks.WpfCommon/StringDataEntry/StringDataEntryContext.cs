@@ -14,7 +14,7 @@ public partial class StringDataEntryContext : ObservableObject, IHasChanges, IHa
     [ObservableProperty] private string _title = string.Empty;
     [ObservableProperty] private string _userValue = string.Empty;
     [ObservableProperty] private List<Func<string?, Task<IsValid>>> _validationFunctions = new();
-    [ObservableProperty] private string _validationMessage = string.Empty;
+    [ObservableProperty] private string? _validationMessage = string.Empty;
 
     private StringDataEntryContext()
     {

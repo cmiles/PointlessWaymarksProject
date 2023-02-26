@@ -17,10 +17,10 @@ namespace PointlessWaymarks.CmsWpfControls.UpdateNotesEditor;
 
 public partial class UpdateNotesEditorContext : ObservableObject, IHasChanges, IHasValidationIssues, ICheckForChangesAndValidation
 {
-    [ObservableProperty] private IUpdateNotes _dbEntry;
+    [ObservableProperty] private IUpdateNotes? _dbEntry;
     [ObservableProperty] private bool _hasChanges;
     [ObservableProperty] private bool _hasValidationIssues;
-    [ObservableProperty] private RelayCommand _refreshPreviewCommand;
+    [ObservableProperty] private RelayCommand? _refreshPreviewCommand;
 
 
     [ObservableProperty] private StatusControlContext _statusContext;
@@ -29,7 +29,7 @@ public partial class UpdateNotesEditorContext : ObservableObject, IHasChanges, I
     [ObservableProperty] private bool _updateNotesHasChanges;
     [ObservableProperty] private string _updateNotesHtmlOutput;
 
-    private UpdateNotesEditorContext(StatusControlContext statusContext)
+    private UpdateNotesEditorContext(StatusControlContext? statusContext)
     {
         StatusContext = statusContext ?? new StatusControlContext();
 
@@ -44,8 +44,8 @@ public partial class UpdateNotesEditorContext : ObservableObject, IHasChanges, I
         HasValidationIssues = PropertyScanners.ChildPropertiesHaveValidationIssues(this);
     }
 
-    public static async Task<UpdateNotesEditorContext> CreateInstance(StatusControlContext statusContext,
-        IUpdateNotes dbEntry)
+    public static async Task<UpdateNotesEditorContext?> CreateInstance(StatusControlContext? statusContext,
+        IUpdateNotes? dbEntry)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -57,7 +57,7 @@ public partial class UpdateNotesEditorContext : ObservableObject, IHasChanges, I
         return newContext;
     }
 
-    public async Task LoadData(IUpdateNotes toLoad)
+    public async Task LoadData(IUpdateNotes? toLoad)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -82,9 +82,8 @@ public partial class UpdateNotesEditorContext : ObservableObject, IHasChanges, I
         PropertyScanners.SubscribeToChildHasChangesAndHasValidationIssues(this, CheckForChangesAndValidationIssues);
     }
 
-    private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
+    private void OnPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
-        if (e == null) return;
         if (string.IsNullOrWhiteSpace(e.PropertyName)) return;
 
         if (!e.PropertyName.Contains("HasChanges") && !e.PropertyName.Contains("Validation"))

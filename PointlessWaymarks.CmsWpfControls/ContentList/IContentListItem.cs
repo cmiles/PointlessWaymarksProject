@@ -5,7 +5,7 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList;
 
 public interface IContentListItem : ISelectedTextTracker
 {
-    IContentCommon Content();
+    IContentCommon? Content();
     Guid? ContentId();
     string DefaultBracketCode();
     Task DefaultBracketCodeToClipboard();

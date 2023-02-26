@@ -102,7 +102,7 @@ public class PhotoPickup
             return;
         }
 
-        var jpgFiles = pickupDirectory.EnumerateFiles("*").Where(FileAndFolderTools.PictureFileTypeIsSupported)
+        List<FileInfo?> jpgFiles = pickupDirectory.EnumerateFiles("*").Where(FileAndFolderTools.PictureFileTypeIsSupported)
             .OrderBy(x => x.Name).ToList();
 
         if (!jpgFiles.Any())
@@ -242,7 +242,7 @@ public class PhotoPickup
     /// <param name="baseFile"></param>
     /// <returns></returns>
     /// <exception cref="Exception"></exception>
-    private static async Task<FileInfo> ToPhotoFileNameNotInDb(FileInfo baseFile)
+    private static async Task<FileInfo?> ToPhotoFileNameNotInDb(FileInfo? baseFile)
     {
         var searchContext = await Db.Context();
 

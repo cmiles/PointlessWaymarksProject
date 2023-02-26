@@ -140,7 +140,7 @@ public class WindowsNotificationTool
             await htmlBuilder.ToString().ToHtmlDocumentWithMinimalCss(errorReportTitle, string.Empty);
 
         var uniqueName = UniqueFileTools.UniqueFile(FileLocationTools.DefaultErrorReportsDirectory(),
-            $"TaskErrorReport--{frozenNow:yyyy-MM-dd-HH-mm-ss}--{SlugTools.CreateSlug(false, Attribution)}.html");
+            $"TaskErrorReport--{frozenNow:yyyy-MM-dd-HH-mm-ss}--{SlugTools.CreateSlug(false, Attribution)}.html")!;
 
         await File.WriteAllTextAsync(uniqueName.FullName, errorReportDocument);
 

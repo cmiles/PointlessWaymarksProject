@@ -14,7 +14,7 @@ public partial class MapComponentEditorWindow
 {
     [ObservableProperty] private WindowAccidentalClosureHelper _accidentalCloserHelper;
     [ObservableProperty] private MapComponentEditorContext _mapComponentContent;
-    [ObservableProperty] private StatusControlContext _statusContext;
+    [ObservableProperty] private StatusControlContext? _statusContext;
 
     /// <summary>
     /// DO NOT USE - Use CreateInstance instead - using the constructor directly will result in

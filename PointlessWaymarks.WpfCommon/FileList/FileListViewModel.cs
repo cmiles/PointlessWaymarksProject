@@ -47,11 +47,11 @@ public partial class FileListViewModel : ObservableObject, IDropTarget
         _contextMenuItems = contextMenuItems.Union(localContextItems).ToList();
     }
 
-    public RelayCommand AddFilesToTagCommand { get; }
+    public RelayCommand? AddFilesToTagCommand { get; }
 
-    public RelayCommand AddFilesToTagFromDirectoryAndSubdirectoriesCommand { get; }
+    public RelayCommand? AddFilesToTagFromDirectoryAndSubdirectoriesCommand { get; }
 
-    public RelayCommand AddFilesToTagFromDirectoryCommand { get; }
+    public RelayCommand? AddFilesToTagFromDirectoryCommand { get; }
 
     public RelayCommand DeleteSelectedFilesCommand { get; }
 

@@ -12,7 +12,7 @@ public partial class PhotoContentEditorWindow
 {
     [ObservableProperty] private WindowAccidentalClosureHelper _accidentalCloserHelper;
     [ObservableProperty] private PhotoContentEditorContext _photoContent;
-    [ObservableProperty] private StatusControlContext _statusContext;
+    [ObservableProperty] private StatusControlContext? _statusContext;
 
     /// <summary>
     /// DO NOT USE - Use CreateInstance instead - using the constructor directly will result in
@@ -57,7 +57,7 @@ public partial class PhotoContentEditorWindow
     /// PositionWindowAndShowOnUiThread() from the WindowInitialPositionHelpers.
     /// </summary>
     /// <returns></returns>
-    public static async Task<PhotoContentEditorWindow> CreateInstance(FileInfo initialPhoto)
+    public static async Task<PhotoContentEditorWindow> CreateInstance(FileInfo? initialPhoto)
     {
         await ThreadSwitcher.ResumeForegroundAsync();
 
@@ -83,7 +83,7 @@ public partial class PhotoContentEditorWindow
     /// PositionWindowAndShowOnUiThread() from the WindowInitialPositionHelpers.
     /// </summary>
     /// <returns></returns>
-    public static async Task<PhotoContentEditorWindow> CreateInstance(PhotoContent toLoad)
+    public static async Task<PhotoContentEditorWindow> CreateInstance(PhotoContent? toLoad)
     {
         await ThreadSwitcher.ResumeForegroundAsync();
 

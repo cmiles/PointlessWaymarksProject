@@ -105,8 +105,10 @@ public static class StringTools
         return toProcess.Replace("\n", "").Replace("\r", "");
     }
 
-    public static string ReplaceEach(this string text, string search, Func<string> replacementGenerator)
+    public static string ReplaceEach(this string? text, string search, Func<string> replacementGenerator)
     {
+        if (string.IsNullOrEmpty(text)) return string.Empty;
+        
         var returnString = text;
         while (returnString.Contains(search))
             returnString = ReplaceFirst(returnString, search, replacementGenerator());
@@ -114,8 +116,10 @@ public static class StringTools
         return returnString;
     }
 
-    public static string? ReplaceFirst(this string? text, string search, string replace)
+    public static string ReplaceFirst(this string? text, string search, string replace)
     {
+        if (string.IsNullOrEmpty(text)) return string.Empty;
+
         var length = text.IndexOf(search, StringComparison.Ordinal);
         return length < 0 ? text : text[..length] + replace + text[(length + search.Length)..];
     }

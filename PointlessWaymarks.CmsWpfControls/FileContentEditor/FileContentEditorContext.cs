@@ -39,55 +39,53 @@ namespace PointlessWaymarks.CmsWpfControls.FileContentEditor;
 public partial class FileContentEditorContext : ObservableObject, IHasChanges, IHasValidationIssues,
     ICheckForChangesAndValidation
 {
-    [ObservableProperty] private RelayCommand _autoRenameSelectedFileCommand;
-    [ObservableProperty] private BodyContentEditorContext _bodyContent;
-    [ObservableProperty] private RelayCommand _chooseFileCommand;
-    [ObservableProperty] private ContentIdViewerControlContext _contentId;
-    [ObservableProperty] private CreatedAndUpdatedByAndOnDisplayContext _createdUpdatedDisplay;
-    [ObservableProperty] private FileContent _dbEntry;
-    [ObservableProperty] private RelayCommand _downloadLinkToClipboardCommand;
-    [ObservableProperty] private RelayCommand _editUserMainPictureCommand;
-    [ObservableProperty] private BoolDataEntryContext _embedFile;
-    [ObservableProperty] private RelayCommand _extractNewLinksCommand;
+    [ObservableProperty] private RelayCommand? _autoRenameSelectedFileCommand;
+    [ObservableProperty] private BodyContentEditorContext? _bodyContent;
+    [ObservableProperty] private RelayCommand? _chooseFileCommand;
+    [ObservableProperty] private ContentIdViewerControlContext? _contentId;
+    [ObservableProperty] private CreatedAndUpdatedByAndOnDisplayContext? _createdUpdatedDisplay;
+    [ObservableProperty] private FileContent? _dbEntry;
+    [ObservableProperty] private RelayCommand? _downloadLinkToClipboardCommand;
+    [ObservableProperty] private RelayCommand? _editUserMainPictureCommand;
+    [ObservableProperty] private BoolDataEntryContext? _embedFile;
+    [ObservableProperty] private RelayCommand? _extractNewLinksCommand;
     [ObservableProperty] private bool _fileIsMp4;
     [ObservableProperty] private bool _fileIsPdf;
     [ObservableProperty] private bool _hasChanges;
     [ObservableProperty] private bool _hasValidationIssues;
-    [ObservableProperty] private HelpDisplayContext _helpContext;
-    [ObservableProperty] private FileInfo _initialFile;
-    [ObservableProperty] private RelayCommand _linkToClipboardCommand;
-    [ObservableProperty] private FileInfo _loadedFile;
-
-
-    [ObservableProperty] [CanBeNull] private ImageContentEditorWindow _mainImageExternalEditorWindow;
-    [ObservableProperty] private ContentSiteFeedAndIsDraftContext _mainSiteFeed;
-    [ObservableProperty] private RelayCommand _openSelectedFileCommand;
-    [ObservableProperty] private RelayCommand _openSelectedFileDirectoryCommand;
+    [ObservableProperty] private HelpDisplayContext? _helpContext;
+    [ObservableProperty] private FileInfo? _initialFile;
+    [ObservableProperty] private RelayCommand? _linkToClipboardCommand;
+    [ObservableProperty] private FileInfo? _loadedFile;
+    [ObservableProperty] private ImageContentEditorWindow? _mainImageExternalEditorWindow;
+    [ObservableProperty] private ContentSiteFeedAndIsDraftContext? _mainSiteFeed;
+    [ObservableProperty] private RelayCommand? _openSelectedFileCommand;
+    [ObservableProperty] private RelayCommand? _openSelectedFileDirectoryCommand;
     [ObservableProperty] private string _pdfToImagePageToExtract = "1";
-    [ObservableProperty] private BoolDataEntryContext _publicDownloadLink;
-    [ObservableProperty] private RelayCommand _renameSelectedFileCommand;
-    [ObservableProperty] private RelayCommand _saveAndCloseCommand;
-    [ObservableProperty] private RelayCommand _saveAndExtractImageFromPdfCommand;
-    [ObservableProperty] private RelayCommand _saveAndExtractImageFromVideoCommand;
-    [ObservableProperty] private RelayCommand _saveCommand;
-    [ObservableProperty] private FileInfo _selectedFile;
+    [ObservableProperty] private BoolDataEntryContext? _publicDownloadLink;
+    [ObservableProperty] private RelayCommand? _renameSelectedFileCommand;
+    [ObservableProperty] private RelayCommand? _saveAndCloseCommand;
+    [ObservableProperty] private RelayCommand? _saveAndExtractImageFromPdfCommand;
+    [ObservableProperty] private RelayCommand? _saveAndExtractImageFromVideoCommand;
+    [ObservableProperty] private RelayCommand? _saveCommand;
+    [ObservableProperty] private FileInfo? _selectedFile;
     [ObservableProperty] private bool _selectedFileHasPathOrNameChanges;
     [ObservableProperty] private bool _selectedFileHasValidationIssues;
     [ObservableProperty] private bool _selectedFileNameHasInvalidCharacters;
-    [ObservableProperty] private string _selectedFileValidationMessage;
-    [ObservableProperty] private StatusControlContext _statusContext;
-    [ObservableProperty] private TagsEditorContext _tagEdit;
-    [ObservableProperty] private TitleSummarySlugEditorContext _titleSummarySlugFolder;
-    [ObservableProperty] private UpdateNotesEditorContext _updateNotes;
-    [ObservableProperty] private ConversionDataEntryContext<Guid?> _userMainPictureEntry;
-    [ObservableProperty] private IContentCommon _userMainPictureEntryContent;
-    [ObservableProperty] private string _userMainPictureEntrySmallImageUrl;
-    [ObservableProperty] private RelayCommand _viewOnSiteCommand;
-    [ObservableProperty] private RelayCommand _viewUserMainPictureCommand;
+    [ObservableProperty] private string? _selectedFileValidationMessage;
+    [ObservableProperty] private StatusControlContext? _statusContext;
+    [ObservableProperty] private TagsEditorContext? _tagEdit;
+    [ObservableProperty] private TitleSummarySlugEditorContext? _titleSummarySlugFolder;
+    [ObservableProperty] private UpdateNotesEditorContext? _updateNotes;
+    [ObservableProperty] private ConversionDataEntryContext<Guid?>? _userMainPictureEntry;
+    [ObservableProperty] private IContentCommon? _userMainPictureEntryContent;
+    [ObservableProperty] private string? _userMainPictureEntrySmallImageUrl;
+    [ObservableProperty] private RelayCommand? _viewOnSiteCommand;
+    [ObservableProperty] private RelayCommand? _viewUserMainPictureCommand;
 
-    public EventHandler RequestContentEditorWindowClose;
+    public EventHandler? RequestContentEditorWindowClose;
 
-    private FileContentEditorContext(StatusControlContext statusContext, FileInfo initialFile = null)
+    private FileContentEditorContext(StatusControlContext? statusContext, FileInfo? initialFile = null)
     {
         if (initialFile is { Exists: true }) _initialFile = initialFile;
 
@@ -96,14 +94,14 @@ public partial class FileContentEditorContext : ObservableObject, IHasChanges, I
         SetupStatusContextAndCommands(statusContext);
     }
 
-    private FileContentEditorContext(StatusControlContext statusContext)
+    private FileContentEditorContext(StatusControlContext? statusContext)
     {
         PropertyChanged += OnPropertyChanged;
 
         SetupStatusContextAndCommands(statusContext);
     }
 
-    public RelayCommand AutoRenameSelectedFileBasedOnTitleCommand { get; set; }
+    public RelayCommand? AutoRenameSelectedFileBasedOnTitleCommand { get; set; }
 
 
     public string FileEditorHelpText =>
@@ -162,16 +160,16 @@ Notes:
         StatusContext.Progress($"File load - {SelectedFile.FullName} ");
     }
 
-    public static async Task<FileContentEditorContext> CreateInstance(StatusControlContext statusContext,
-        FileInfo initialFile = null)
+    public static async Task<FileContentEditorContext> CreateInstance(StatusControlContext? statusContext,
+        FileInfo? initialFile = null)
     {
         var newControl = new FileContentEditorContext(statusContext, initialFile);
         await newControl.LoadData(null);
         return newControl;
     }
 
-    public static async Task<FileContentEditorContext> CreateInstance(StatusControlContext statusContext,
-        FileContent initialContent)
+    public static async Task<FileContentEditorContext> CreateInstance(StatusControlContext? statusContext,
+        FileContent? initialContent)
     {
         var newControl = new FileContentEditorContext(statusContext);
         await newControl.LoadData(initialContent);
@@ -186,7 +184,7 @@ Notes:
         return BracketCodeCommon.PhotoOrImageCodeFirstIdInContent(BodyContent?.UserBodyContent);
     }
 
-    public FileContent CurrentStateToFileContent()
+    public FileContent? CurrentStateToFileContent()
     {
         var newEntry = new FileContent();
 
@@ -302,7 +300,7 @@ Notes:
         StatusContext.ToastSuccess($"To Clipboard: {linkString}");
     }
 
-    private async Task LoadData(FileContent toLoad, bool skipMediaDirectoryCheck = false)
+    private async Task LoadData(FileContent? toLoad, bool skipMediaDirectoryCheck = false)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -477,7 +475,7 @@ Notes:
         MainImageExternalEditorWindowCleanup();
     }
 
-    private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
+    private void OnPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
         if (e == null) return;
         if (string.IsNullOrWhiteSpace(e.PropertyName)) return;
@@ -643,7 +641,7 @@ Notes:
         DetectGuiFileTypes();
     }
 
-    public void SetupStatusContextAndCommands(StatusControlContext statusContext)
+    public void SetupStatusContextAndCommands(StatusControlContext? statusContext)
     {
         StatusContext = statusContext ?? new StatusControlContext();
 
@@ -715,7 +713,7 @@ Notes:
             UserMainPictureEntry.UserText = contentId.Value.ToString();
     }
 
-    private void UserMainPictureEntryOnPropertyChanged(object sender, PropertyChangedEventArgs e)
+    private void UserMainPictureEntryOnPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
         StatusContext.RunFireAndForgetNonBlockingTask(SetUserMainPicture);
     }

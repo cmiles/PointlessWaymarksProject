@@ -12,15 +12,15 @@ namespace PointlessWaymarks.CmsWpfControls.TagsEditor;
 
 public partial class TagsEditorContext : ObservableObject, IHasChanges, IHasValidationIssues, ICheckForChangesAndValidation
 {
-    [ObservableProperty] private ITag _dbEntry;
+    [ObservableProperty] private ITag? _dbEntry;
     [ObservableProperty] private bool _hasChanges;
     [ObservableProperty] private bool _hasValidationIssues;
     [ObservableProperty] private string _helpText;
     [ObservableProperty] private StatusControlContext _statusContext;
     [ObservableProperty] private string _tags = string.Empty;
-    [ObservableProperty] private string _tagsValidationMessage;
+    [ObservableProperty] private string? _tagsValidationMessage;
 
-    private TagsEditorContext(StatusControlContext statusContext, ITag dbEntry)
+    private TagsEditorContext(StatusControlContext? statusContext, ITag? dbEntry)
     {
         StatusContext = statusContext ?? new StatusControlContext();
 
@@ -45,7 +45,7 @@ public partial class TagsEditorContext : ObservableObject, IHasChanges, IHasVali
         TagsValidationMessage = tagValidation.Explanation;
     }
 
-    public static TagsEditorContext CreateInstance(StatusControlContext statusContext, ITag dbEntry)
+    public static TagsEditorContext? CreateInstance(StatusControlContext? statusContext, ITag? dbEntry)
     {
         return new TagsEditorContext(statusContext, dbEntry);
     }
@@ -55,9 +55,8 @@ public partial class TagsEditorContext : ObservableObject, IHasChanges, IHasVali
         return string.IsNullOrWhiteSpace(DbEntry?.Tags) ? new List<string>() : Db.TagListParseToSlugs(DbEntry, false);
     }
 
-    private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
+    private void OnPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
-        if (e == null) return;
         if (string.IsNullOrWhiteSpace(e.PropertyName)) return;
 
         if (!e.PropertyName.Contains("HasChanges") && !e.PropertyName.Contains("Validation"))

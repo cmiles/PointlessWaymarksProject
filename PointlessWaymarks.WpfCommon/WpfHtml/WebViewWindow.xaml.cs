@@ -25,7 +25,6 @@ namespace PointlessWaymarks.WpfCommon.WpfHtml
         [ObservableProperty] private string _previewHtml = string.Empty;
         [ObservableProperty] private string _windowTitle = "Preview Map";
 
-
         public WebViewWindow()
         {
             InitializeComponent();

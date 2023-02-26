@@ -23,15 +23,15 @@ public partial class LineListWithActionsContext : ObservableObject
 {
     [ObservableProperty] private RelayCommand _addIntersectionTagsToSelectedCommand;
     [ObservableProperty] private CmsCommonCommands _commonCommands;
-    [ObservableProperty] private RelayCommand _lineLinkCodesToClipboardForSelectedCommand;
-    [ObservableProperty] private RelayCommand _lineStatsCodesToClipboardForSelectedCommand;
-    [ObservableProperty] private RelayCommand _lineElevationChartCodesToClipboardForSelectedCommand;
+    [ObservableProperty] private RelayCommand? _lineLinkCodesToClipboardForSelectedCommand;
+    [ObservableProperty] private RelayCommand? _lineStatsCodesToClipboardForSelectedCommand;
+    [ObservableProperty] private RelayCommand? _lineElevationChartCodesToClipboardForSelectedCommand;
     [ObservableProperty] private ContentListContext _listContext;
-    [ObservableProperty] private RelayCommand _refreshDataCommand;
-    [ObservableProperty] private StatusControlContext _statusContext;
-    [ObservableProperty] private WindowIconStatus _windowStatus;
+    [ObservableProperty] private RelayCommand? _refreshDataCommand;
+    [ObservableProperty] private StatusControlContext? _statusContext;
+    [ObservableProperty] private WindowIconStatus? _windowStatus;
 
-    public LineListWithActionsContext(StatusControlContext statusContext, WindowIconStatus windowStatus = null)
+    public LineListWithActionsContext(StatusControlContext? statusContext, WindowIconStatus? windowStatus = null)
     {
         StatusContext = statusContext ?? new StatusControlContext();
         WindowStatus = windowStatus;
@@ -74,7 +74,7 @@ public partial class LineListWithActionsContext : ObservableObject
 
         cancellationToken.ThrowIfCancellationRequested();
 
-        List<LineContent> dbEntriesToProcess = new();
+        List<LineContent?> dbEntriesToProcess = new();
         List<IntersectResult> intersectResults = new();
 
         foreach (var loopSelected in frozenSelect)

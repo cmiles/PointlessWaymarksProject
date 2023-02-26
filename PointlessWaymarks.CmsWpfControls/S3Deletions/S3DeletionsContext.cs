@@ -22,10 +22,10 @@ public partial class S3DeletionsContext : ObservableObject
     [ObservableProperty] private ObservableCollection<S3DeletionsItem>? _items;
     [ObservableProperty] private List<S3DeletionsItem> _selectedItems = new();
     [ObservableProperty] private StatusControlContext _statusContext;
-    [ObservableProperty] private RelayCommand _toClipboardAllItemsCommand;
-    [ObservableProperty] private RelayCommand _toClipboardSelectedItemsCommand;
-    [ObservableProperty] private RelayCommand _toExcelAllItemsCommand;
-    [ObservableProperty] private RelayCommand _toExcelSelectedItemsCommand;
+    [ObservableProperty] private RelayCommand? _toClipboardAllItemsCommand;
+    [ObservableProperty] private RelayCommand? _toClipboardSelectedItemsCommand;
+    [ObservableProperty] private RelayCommand? _toExcelAllItemsCommand;
+    [ObservableProperty] private RelayCommand? _toExcelSelectedItemsCommand;
 
     public S3DeletionsContext(StatusControlContext? statusContext)
     {

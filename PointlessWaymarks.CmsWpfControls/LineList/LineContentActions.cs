@@ -28,11 +28,11 @@ public partial class LineContentActions : ObservableObject, IContentActions<Line
     [ObservableProperty] private RelayCommand<LineContent> _generateHtmlCommand;
     [ObservableProperty] private RelayCommand<LineContent> _linkCodeToClipboardCommand;
     [ObservableProperty] private RelayCommand<LineContent> _searchRecordedDatesForPhotoContentCommand;
-    [ObservableProperty] private StatusControlContext _statusContext;
+    [ObservableProperty] private StatusControlContext? _statusContext;
     [ObservableProperty] private RelayCommand<LineContent> _viewHistoryCommand;
     [ObservableProperty] private RelayCommand<LineContent> _viewOnSiteCommand;
 
-    public LineContentActions(StatusControlContext statusContext)
+    public LineContentActions(StatusControlContext? statusContext)
     {
         StatusContext = statusContext;
         DeleteCommand = StatusContext.RunBlockingTaskCommand<LineContent>(Delete);
@@ -47,12 +47,12 @@ public partial class LineContentActions : ObservableObject, IContentActions<Line
                 $"Line {x.Title ?? string.Empty} - {SearchRecordedDatesForPhotoContentDateRange(x).start:M/d/yyyy hh:mm:ss tt} to {SearchRecordedDatesForPhotoContentDateRange(x).end:M/d/yyyy hh:mm:ss tt}"));
     }
 
-    public string DefaultBracketCode(LineContent content)
+    public string DefaultBracketCode(LineContent? content)
     {
         return content?.ContentId == null ? string.Empty : @$"{BracketCodeLines.Create(content)}";
     }
 
-    public async Task DefaultBracketCodeToClipboard(LineContent content)
+    public async Task DefaultBracketCodeToClipboard(LineContent? content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -71,7 +71,7 @@ public partial class LineContentActions : ObservableObject, IContentActions<Line
         StatusContext.ToastSuccess($"To Clipboard {finalString}");
     }
 
-    public async Task Delete(LineContent content)
+    public async Task Delete(LineContent? content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -107,7 +107,7 @@ public partial class LineContentActions : ObservableObject, IContentActions<Line
         }
     }
 
-    public async Task Edit(LineContent content)
+    public async Task Edit(LineContent? content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -126,7 +126,7 @@ public partial class LineContentActions : ObservableObject, IContentActions<Line
         await newContentWindow.PositionWindowAndShowOnUiThread();
     }
 
-    public async Task ExtractNewLinks(LineContent content)
+    public async Task ExtractNewLinks(LineContent? content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -146,7 +146,7 @@ public partial class LineContentActions : ObservableObject, IContentActions<Line
             $"{refreshedData.BodyContent} {refreshedData.UpdateNotes}", StatusContext.ProgressTracker());
     }
 
-    public async Task GenerateHtml(LineContent content)
+    public async Task GenerateHtml(LineContent? content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -165,7 +165,7 @@ public partial class LineContentActions : ObservableObject, IContentActions<Line
         StatusContext.ToastSuccess($"Generated {htmlContext.PageUrl}");
     }
 
-    public async Task ViewHistory(LineContent content)
+    public async Task ViewHistory(LineContent? content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -197,7 +197,7 @@ public partial class LineContentActions : ObservableObject, IContentActions<Line
         historicView.WriteHtmlToTempFolderAndShow(StatusContext.ProgressTracker());
     }
 
-    public async Task ViewOnSite(LineContent content)
+    public async Task ViewOnSite(LineContent? content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 

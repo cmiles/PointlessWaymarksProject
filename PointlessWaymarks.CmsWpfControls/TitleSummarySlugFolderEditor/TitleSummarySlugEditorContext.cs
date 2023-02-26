@@ -16,16 +16,16 @@ namespace PointlessWaymarks.CmsWpfControls.TitleSummarySlugFolderEditor;
 public partial class TitleSummarySlugEditorContext : IHasChanges, IHasValidationIssues, ICheckForChangesAndValidation
 {
     [ObservableProperty] private Func<TitleSummarySlugEditorContext, bool> _customTitleCheckToEnable;
-    [ObservableProperty] private RelayCommand _customTitleCommand;
+    [ObservableProperty] private RelayCommand? _customTitleCommand;
     [ObservableProperty] private bool _customTitleFunctionEnabled;
     [ObservableProperty] private string _customTitleFunctionText;
     [ObservableProperty] private bool _customTitleFunctionVisible;
-    [ObservableProperty] private ITitleSummarySlugFolder _dbEntry;
+    [ObservableProperty] private ITitleSummarySlugFolder? _dbEntry;
     [ObservableProperty] private ContentFolderContext _folderEntry;
     [ObservableProperty] private bool _hasChanges;
     [ObservableProperty] private bool _hasValidationIssues;
     [ObservableProperty] private StringDataEntryContext _slugEntry;
-    [ObservableProperty] private StatusControlContext _statusContext;
+    [ObservableProperty] private StatusControlContext? _statusContext;
     [ObservableProperty] private StringDataEntryContext _summaryEntry;
     [ObservableProperty] private StringDataEntryContext _titleEntry;
     [ObservableProperty] private RelayCommand _titleToSlugCommand;
@@ -33,14 +33,14 @@ public partial class TitleSummarySlugEditorContext : IHasChanges, IHasValidation
     [ObservableProperty] private RelayCommand _titleToSummaryCommand;
     [ObservableProperty] private bool _titleToSummaryEnabled = true;
 
-    private TitleSummarySlugEditorContext(StatusControlContext statusContext)
+    private TitleSummarySlugEditorContext(StatusControlContext? statusContext)
     {
         StatusContext = statusContext ?? new StatusControlContext();
         PropertyChanged += OnPropertyChanged;
     }
 
-    private TitleSummarySlugEditorContext(StatusControlContext statusContext, string customTitleCommandText,
-        RelayCommand customTitleCommand, Func<TitleSummarySlugEditorContext, bool> customTitleCheckToEnable)
+    private TitleSummarySlugEditorContext(StatusControlContext? statusContext, string customTitleCommandText,
+        RelayCommand? customTitleCommand, Func<TitleSummarySlugEditorContext, bool> customTitleCheckToEnable)
     {
         StatusContext = statusContext ?? new StatusControlContext();
 
@@ -83,8 +83,8 @@ public partial class TitleSummarySlugEditorContext : IHasChanges, IHasValidation
         }
     }
 
-    public static async Task<TitleSummarySlugEditorContext> CreateInstance(StatusControlContext statusContext,
-        ITitleSummarySlugFolder dbEntry)
+    public static async Task<TitleSummarySlugEditorContext> CreateInstance(StatusControlContext? statusContext,
+        ITitleSummarySlugFolder? dbEntry)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -94,9 +94,9 @@ public partial class TitleSummarySlugEditorContext : IHasChanges, IHasValidation
         return newItem;
     }
 
-    public static async Task<TitleSummarySlugEditorContext> CreateInstance(StatusControlContext statusContext,
-        string customTitleCommandText, RelayCommand customTitleCommand,
-        Func<TitleSummarySlugEditorContext, bool> customTitleCheckToEnable, ITitleSummarySlugFolder dbEntry)
+    public static async Task<TitleSummarySlugEditorContext?> CreateInstance(StatusControlContext? statusContext,
+        string customTitleCommandText, RelayCommand? customTitleCommand,
+        Func<TitleSummarySlugEditorContext, bool> customTitleCheckToEnable, ITitleSummarySlugFolder? dbEntry)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -107,7 +107,7 @@ public partial class TitleSummarySlugEditorContext : IHasChanges, IHasValidation
         return newItem;
     }
 
-    public async Task LoadData(ITitleSummarySlugFolder dbEntry)
+    public async Task LoadData(ITitleSummarySlugFolder? dbEntry)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -130,9 +130,8 @@ public partial class TitleSummarySlugEditorContext : IHasChanges, IHasValidation
         PropertyScanners.SubscribeToChildHasChangesAndHasValidationIssues(this, CheckForChangesAndValidationIssues);
     }
 
-    private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
+    private void OnPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
-        if (e == null) return;
         if (string.IsNullOrWhiteSpace(e.PropertyName)) return;
 
         if (!e.PropertyName.Contains("HasChanges") && !e.PropertyName.Contains("Validation"))

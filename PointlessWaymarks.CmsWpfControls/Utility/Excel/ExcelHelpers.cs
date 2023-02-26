@@ -16,7 +16,7 @@ namespace PointlessWaymarks.CmsWpfControls.Utility.Excel;
 
 public static class ExcelHelpers
 {
-    public static FileInfo ContentToExcelFileAsTable(List<object> toDisplay, string fileName,
+    public static FileInfo ContentToExcelFileAsTable(List<object?> toDisplay, string fileName,
         bool openAfterSaving = true, bool limitRowHeight = true, IProgress<string> progress = null)
     {
         progress?.Report($"Starting transfer of {toDisplay.Count} to Excel");
@@ -66,7 +66,7 @@ public static class ExcelHelpers
         return file;
     }
 
-    public static async Task ImportFromExcelFile(StatusControlContext statusContext)
+    public static async Task ImportFromExcelFile(StatusControlContext? statusContext)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -127,7 +127,7 @@ public static class ExcelHelpers
             $"Imported {contentImportResult.ToUpdate.Count} items with changes from {newFile.FullName}");
     }
 
-    public static async Task ImportFromOpenExcelInstance(StatusControlContext statusContext)
+    public static async Task ImportFromOpenExcelInstance(StatusControlContext? statusContext)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -278,7 +278,7 @@ public static class ExcelHelpers
         return file;
     }
 
-    public static async Task SelectedToExcel(List<dynamic> selected, StatusControlContext statusContext)
+    public static async Task SelectedToExcel(List<dynamic> selected, StatusControlContext? statusContext)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -288,7 +288,7 @@ public static class ExcelHelpers
             return;
         }
 
-        List<object> excelObjects = new();
+        List<object?> excelObjects = new();
 
         var firstType = ((object)selected.First().DbEntry).GetType();
 

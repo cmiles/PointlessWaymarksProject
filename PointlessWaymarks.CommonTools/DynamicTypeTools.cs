@@ -2,7 +2,7 @@
 
 public static class DynamicTypeTools
 {
-    public static bool PropertyExists(dynamic obj, string name)
+    public static bool PropertyExists(dynamic? obj, string name)
     {
         //From https://stackoverflow.com/questions/9956648/how-do-i-check-if-a-property-exists-on-a-dynamic-anonymous-type-in-c
         if (obj == null) return false;

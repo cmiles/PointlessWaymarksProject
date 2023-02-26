@@ -27,14 +27,14 @@ public partial class PointListWithActionsContext : ObservableObject
     [ObservableProperty] private RelayCommand _addIntersectionTagsToSelectedCommand;
     [ObservableProperty] private CmsCommonCommands _commonCommands;
     [ObservableProperty] private ContentListContext _listContext;
-    [ObservableProperty] private RelayCommand _pointLinkBracketCodesToClipboardForSelectedCommand;
-    [ObservableProperty] private RelayCommand _refreshDataCommand;
-    [ObservableProperty] private RelayCommand _selectedToGpxFileCommand;
-    [ObservableProperty] private StatusControlContext _statusContext;
-    [ObservableProperty] private WindowIconStatus _windowStatus;
+    [ObservableProperty] private RelayCommand? _pointLinkBracketCodesToClipboardForSelectedCommand;
+    [ObservableProperty] private RelayCommand? _refreshDataCommand;
+    [ObservableProperty] private RelayCommand? _selectedToGpxFileCommand;
+    [ObservableProperty] private StatusControlContext? _statusContext;
+    [ObservableProperty] private WindowIconStatus? _windowStatus;
 
 
-    public PointListWithActionsContext(StatusControlContext statusContext, WindowIconStatus windowStatus = null)
+    public PointListWithActionsContext(StatusControlContext? statusContext, WindowIconStatus? windowStatus = null)
     {
         StatusContext = statusContext ?? new StatusControlContext();
         WindowStatus = windowStatus;
@@ -80,7 +80,7 @@ public partial class PointListWithActionsContext : ObservableObject
         var pointDtos =
             await Db.PointAndPointDetails(frozenSelect.Select(x => x.DbEntry.ContentId).ToList(), await Db.Context());
 
-        var toProcess = new List<PointContentDto>();
+        var toProcess = new List<PointContentDto?>();
         var intersectResults = new List<IntersectResult>();
 
         foreach (var loopSelected in pointDtos)

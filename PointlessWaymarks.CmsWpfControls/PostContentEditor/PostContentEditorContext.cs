@@ -26,27 +26,27 @@ namespace PointlessWaymarks.CmsWpfControls.PostContentEditor;
 
 public partial class PostContentEditorContext : ObservableObject, IHasChanges, IHasValidationIssues, ICheckForChangesAndValidation
 {
-    [ObservableProperty] private BodyContentEditorContext _bodyContent;
-    [ObservableProperty] private ContentIdViewerControlContext _contentId;
-    [ObservableProperty] private CreatedAndUpdatedByAndOnDisplayContext _createdUpdatedDisplay;
-    [ObservableProperty] private PostContent _dbEntry;
-    [ObservableProperty] private RelayCommand _extractNewLinksCommand;
+    [ObservableProperty] private BodyContentEditorContext? _bodyContent;
+    [ObservableProperty] private ContentIdViewerControlContext? _contentId;
+    [ObservableProperty] private CreatedAndUpdatedByAndOnDisplayContext? _createdUpdatedDisplay;
+    [ObservableProperty] private PostContent? _dbEntry;
+    [ObservableProperty] private RelayCommand? _extractNewLinksCommand;
     [ObservableProperty] private bool _hasChanges;
     [ObservableProperty] private bool _hasValidationIssues;
     [ObservableProperty] private HelpDisplayContext _helpContext;
-    [ObservableProperty] private RelayCommand _linkToClipboardCommand;
-    [ObservableProperty] private ContentSiteFeedAndIsDraftContext _mainSiteFeed;
-    [ObservableProperty] private RelayCommand _saveAndCloseCommand;
-    [ObservableProperty] private RelayCommand _saveCommand;
-    [ObservableProperty] private StatusControlContext _statusContext;
-    [ObservableProperty] private TagsEditorContext _tagEdit;
+    [ObservableProperty] private RelayCommand? _linkToClipboardCommand;
+    [ObservableProperty] private ContentSiteFeedAndIsDraftContext? _mainSiteFeed;
+    [ObservableProperty] private RelayCommand? _saveAndCloseCommand;
+    [ObservableProperty] private RelayCommand? _saveCommand;
+    [ObservableProperty] private StatusControlContext? _statusContext;
+    [ObservableProperty] private TagsEditorContext? _tagEdit;
     [ObservableProperty] private TitleSummarySlugEditorContext _titleSummarySlugFolder;
-    [ObservableProperty] private UpdateNotesEditorContext _updateNotes;
-    [ObservableProperty] private RelayCommand _viewOnSiteCommand;
+    [ObservableProperty] private UpdateNotesEditorContext? _updateNotes;
+    [ObservableProperty] private RelayCommand? _viewOnSiteCommand;
 
     public EventHandler RequestContentEditorWindowClose;
 
-    private PostContentEditorContext(StatusControlContext statusContext)
+    private PostContentEditorContext(StatusControlContext? statusContext)
     {
         StatusContext = statusContext ?? new StatusControlContext();
 
@@ -82,15 +82,15 @@ Notes:
         HasValidationIssues = PropertyScanners.ChildPropertiesHaveValidationIssues(this);
     }
 
-    public static async Task<PostContentEditorContext> CreateInstance(StatusControlContext statusContext,
-        PostContent postContent = null)
+    public static async Task<PostContentEditorContext> CreateInstance(StatusControlContext? statusContext,
+        PostContent? postContent = null)
     {
         var newControl = new PostContentEditorContext(statusContext);
         await newControl.LoadData(postContent);
         return newControl;
     }
 
-    private PostContent CurrentStateToPostContent()
+    private PostContent? CurrentStateToPostContent()
     {
         var newEntry = new PostContent();
 
@@ -144,7 +144,7 @@ Notes:
         StatusContext.ToastSuccess($"To Clipboard: {linkString}");
     }
 
-    public async Task LoadData(PostContent toLoad)
+    public async Task LoadData(PostContent? toLoad)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -170,9 +170,8 @@ Notes:
         PropertyScanners.SubscribeToChildHasChangesAndHasValidationIssues(this, CheckForChangesAndValidationIssues);
     }
 
-    private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
+    private void OnPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
-        if (e == null) return;
         if (string.IsNullOrWhiteSpace(e.PropertyName)) return;
 
         if (!e.PropertyName.Contains("HasChanges") && !e.PropertyName.Contains("Validation"))

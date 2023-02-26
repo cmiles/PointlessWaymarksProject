@@ -9,27 +9,31 @@ public partial class ColumnSortControlContext : ObservableObject
 {
     [ObservableProperty] private RelayCommand<ColumnSortControlSortItem> _columnSortAddCommand;
     [ObservableProperty] private RelayCommand<ColumnSortControlSortItem> _columnSortToggleCommand;
-    [ObservableProperty] private List<ColumnSortControlSortItem> _items;
+    [ObservableProperty] private List<ColumnSortControlSortItem>? _items;
 
     public ColumnSortControlContext()
     {
-        ColumnSortToggleCommand = new RelayCommand<ColumnSortControlSortItem>(x =>
+        _columnSortToggleCommand = new RelayCommand<ColumnSortControlSortItem>(x =>
         {
+            if (x == null) return;
             ToggleItem(x);
             SortUpdated?.Invoke(this, SortDescriptions());
         });
 
-        ColumnSortAddCommand = new RelayCommand<ColumnSortControlSortItem>(x =>
+        _columnSortAddCommand = new RelayCommand<ColumnSortControlSortItem>(x =>
         {
+            if (x == null) return;
             AddItem(x);
             SortUpdated?.Invoke(this, SortDescriptions());
         });
     }
 
-    public EventHandler<List<SortDescription>> SortUpdated { get; set; }
+    public EventHandler<List<SortDescription>>? SortUpdated { get; set; }
 
     private void AddItem(ColumnSortControlSortItem sortItem)
     {
+        if (Items == null) return;
+        
         var currentSortCount = Items.Count(x => x.Order > 0);
         if (!Items.Any(x => x.Order > 0) || currentSortCount == 1 && sortItem.Order > 0)
         {
@@ -61,12 +65,16 @@ public partial class ColumnSortControlContext : ObservableObject
 
     private void OrderSorts()
     {
+        if (Items == null) return;
+        
         var newOrder = 1;
         Items.Where(x => x.Order > 0).OrderBy(x => x.Order).ToList().ForEach(x => x.Order = newOrder++);
     }
 
     public List<SortDescription> SortDescriptions()
     {
+        if (Items == null) return new List<SortDescription>();
+
         var returnList = new List<SortDescription>();
 
         foreach (var loopSorts in Items.Where(x => x.Order > 0).OrderBy(x => x.Order).ToList())
@@ -77,6 +85,8 @@ public partial class ColumnSortControlContext : ObservableObject
 
     private void ToggleItem(ColumnSortControlSortItem x)
     {
+        if (Items == null) return;
+
         if (x.Order == 1)
         {
             x.SortDirection = ChangeSortDirection(x.SortDirection);

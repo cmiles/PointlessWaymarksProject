@@ -13,7 +13,7 @@ public static class UniqueFileTools
     /// <returns></returns>
     /// <exception cref="ArgumentException"></exception>
     /// <exception cref="Exception"></exception>
-    public static FileInfo MoveToWithUniqueName(this FileInfo originalFile, string moveToFullName)
+    public static FileInfo? MoveToWithUniqueName(this FileInfo? originalFile, string moveToFullName)
     {
         var toMoveTo = new FileInfo(moveToFullName);
 
@@ -130,7 +130,7 @@ public static class UniqueFileTools
 
         if (!backupDirectory.Exists) backupDirectory.Create();
 
-        var backupFile = UniqueFile(backupDirectory, fileToBackup.Name);
+        var backupFile = UniqueFile(backupDirectory, fileToBackup.Name)!;
 
         try
         {
@@ -158,7 +158,7 @@ public static class UniqueFileTools
 
         if (!backupDirectory.Exists) backupDirectory.Create();
 
-        var backupFile = UniqueFile(backupDirectory, fileToBackup.Name);
+        var backupFile = UniqueFile(backupDirectory, fileToBackup.Name)!;
 
         try
         {

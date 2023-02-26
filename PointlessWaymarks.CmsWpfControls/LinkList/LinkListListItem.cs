@@ -14,7 +14,7 @@ public partial class LinkListListItem : ObservableObject, IContentListItem
     [ObservableProperty] private CurrentSelectedTextTracker _selectedTextTracker = new();
     [ObservableProperty] private bool _showType;
 
-    public IContentCommon Content()
+    public IContentCommon? Content()
     {
         return new ContentCommonShell
         {

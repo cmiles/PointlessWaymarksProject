@@ -11,7 +11,7 @@ public partial class PostContentEditorWindow
 {
     [ObservableProperty] private WindowAccidentalClosureHelper _accidentalCloserHelper;
     [ObservableProperty] private PostContentEditorContext _postContent;
-    [ObservableProperty] private StatusControlContext _statusContext;
+    [ObservableProperty] private StatusControlContext? _statusContext;
 
     /// <summary>
     /// DO NOT USE - Use CreateInstance instead - using the constructor directly will result in
@@ -30,7 +30,7 @@ public partial class PostContentEditorWindow
     /// PositionWindowAndShowOnUiThread() from the WindowInitialPositionHelpers.
     /// </summary>
     /// <returns></returns>
-    public static async Task<PostContentEditorWindow> CreateInstance(PostContent toLoad = null)
+    public static async Task<PostContentEditorWindow> CreateInstance(PostContent? toLoad = null)
     {
         await ThreadSwitcher.ResumeForegroundAsync();
 

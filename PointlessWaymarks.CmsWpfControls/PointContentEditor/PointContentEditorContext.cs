@@ -37,35 +37,35 @@ namespace PointlessWaymarks.CmsWpfControls.PointContentEditor;
 public partial class PointContentEditorContext : ObservableObject, IHasChanges, ICheckForChangesAndValidation,
     IHasValidationIssues
 {
-    [ObservableProperty] private RelayCommand _addFeatureIntersectTagsCommand;
-    [ObservableProperty] private BodyContentEditorContext _bodyContent;
+    [ObservableProperty] private RelayCommand? _addFeatureIntersectTagsCommand;
+    [ObservableProperty] private BodyContentEditorContext? _bodyContent;
     [ObservableProperty] private bool _broadcastLatLongChange = true;
-    [ObservableProperty] private ContentIdViewerControlContext _contentId;
-    [ObservableProperty] private CreatedAndUpdatedByAndOnDisplayContext _createdUpdatedDisplay;
-    [ObservableProperty] private PointContent _dbEntry;
+    [ObservableProperty] private ContentIdViewerControlContext? _contentId;
+    [ObservableProperty] private CreatedAndUpdatedByAndOnDisplayContext? _createdUpdatedDisplay;
+    [ObservableProperty] private PointContent? _dbEntry;
     [ObservableProperty] private ConversionDataEntryContext<double?> _elevationEntry;
-    [ObservableProperty] private RelayCommand _extractNewLinksCommand;
-    [ObservableProperty] private RelayCommand _getElevationCommand;
+    [ObservableProperty] private RelayCommand? _extractNewLinksCommand;
+    [ObservableProperty] private RelayCommand? _getElevationCommand;
     [ObservableProperty] private bool _hasChanges;
     [ObservableProperty] private bool _hasValidationIssues;
     [ObservableProperty] private HelpDisplayContext _helpContext;
     [ObservableProperty] private ConversionDataEntryContext<double> _latitudeEntry;
-    [ObservableProperty] private RelayCommand _linkToClipboardCommand;
+    [ObservableProperty] private RelayCommand? _linkToClipboardCommand;
     [ObservableProperty] private ConversionDataEntryContext<double> _longitudeEntry;
-    [ObservableProperty] private ContentSiteFeedAndIsDraftContext _mainSiteFeed;
+    [ObservableProperty] private ContentSiteFeedAndIsDraftContext? _mainSiteFeed;
     [ObservableProperty] private StringDataEntryContext _mapLabelContent;
     [ObservableProperty] private PointDetailListContext _pointDetails;
-    [ObservableProperty] private RelayCommand _saveAndCloseCommand;
-    [ObservableProperty] private RelayCommand _saveCommand;
-    [ObservableProperty] private StatusControlContext _statusContext;
-    [ObservableProperty] private TagsEditorContext _tagEdit;
+    [ObservableProperty] private RelayCommand? _saveAndCloseCommand;
+    [ObservableProperty] private RelayCommand? _saveCommand;
+    [ObservableProperty] private StatusControlContext? _statusContext;
+    [ObservableProperty] private TagsEditorContext? _tagEdit;
     [ObservableProperty] private TitleSummarySlugEditorContext _titleSummarySlugFolder;
-    [ObservableProperty] private UpdateNotesEditorContext _updateNotes;
-    [ObservableProperty] private RelayCommand _viewOnSiteCommand;
+    [ObservableProperty] private UpdateNotesEditorContext? _updateNotes;
+    [ObservableProperty] private RelayCommand? _viewOnSiteCommand;
 
     public EventHandler RequestContentEditorWindowClose;
 
-    private PointContentEditorContext(StatusControlContext statusContext)
+    private PointContentEditorContext(StatusControlContext? statusContext)
     {
         StatusContext = statusContext ?? new StatusControlContext();
 
@@ -125,8 +125,8 @@ public partial class PointContentEditorContext : ObservableObject, IHasChanges, 
             $"{TagEdit.Tags}{(string.IsNullOrWhiteSpace(TagEdit.Tags) ? "" : ",")}{string.Join(",", possibleTags)}";
     }
 
-    public static async Task<PointContentEditorContext> CreateInstance(StatusControlContext statusContext,
-        PointContent pointContent)
+    public static async Task<PointContentEditorContext> CreateInstance(StatusControlContext? statusContext,
+        PointContent? pointContent)
     {
         var newControl = new PointContentEditorContext(statusContext);
         await newControl.LoadData(pointContent);
@@ -173,7 +173,7 @@ public partial class PointContentEditorContext : ObservableObject, IHasChanges, 
         return newEntry;
     }
 
-    private PointContentDto CurrentStateToPointContentDto()
+    private PointContentDto? CurrentStateToPointContentDto()
     {
         var toReturn = new PointContentDto();
         var currentPoint = CurrentStateToPointContent();
@@ -183,17 +183,17 @@ public partial class PointContentEditorContext : ObservableObject, IHasChanges, 
         return toReturn;
     }
 
-    public async Task<IFeature?> FeatureFromPoint()
+    public Task<IFeature?> FeatureFromPoint()
     {
-        if (LatitudeEntry.HasValidationIssues || LongitudeEntry.HasValidationIssues) return null;
+        if (LatitudeEntry.HasValidationIssues || LongitudeEntry.HasValidationIssues) return Task.FromResult<IFeature>(null);
 
         if (ElevationEntry.UserValue is null)
-            return new Feature(
+            return Task.FromResult<IFeature>(new Feature(
                 new Point(LongitudeEntry.UserValue, LatitudeEntry.UserValue),
-                new AttributesTable());
-        return new Feature(
+                new AttributesTable()));
+        return Task.FromResult<IFeature>(new Feature(
             new Point(LongitudeEntry.UserValue, LatitudeEntry.UserValue, ElevationEntry.UserValue.Value),
-            new AttributesTable());
+            new AttributesTable()));
     }
 
     public async Task GetElevation()
@@ -236,7 +236,7 @@ public partial class PointContentEditorContext : ObservableObject, IHasChanges, 
         StatusContext.ToastSuccess($"To Clipboard: {linkString}");
     }
 
-    public async Task LoadData(PointContent toLoad)
+    public async Task LoadData(PointContent? toLoad)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -316,9 +316,8 @@ public partial class PointContentEditorContext : ObservableObject, IHasChanges, 
         PropertyScanners.SubscribeToChildHasChangesAndHasValidationIssues(this, CheckForChangesAndValidationIssues);
     }
 
-    private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
+    private void OnPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
-        if (e == null) return;
         if (string.IsNullOrWhiteSpace(e.PropertyName)) return;
 
         if (!e.PropertyName.Contains("HasChanges") && !e.PropertyName.Contains("Validation"))

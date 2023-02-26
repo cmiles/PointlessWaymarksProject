@@ -60,7 +60,7 @@ public static class TestFileInfo
     public static string ProclamationFilename => "ironwood_proc.pdf";
     public static string TrailInfoGrandviewFilename => "GrandviewTrail.pdf";
 
-    public static async Task CheckForExpectedFilesAfterHtmlGeneration(FileContent newContent)
+    public static async Task CheckForExpectedFilesAfterHtmlGeneration(FileContent? newContent)
     {
         var contentDirectory = UserSettingsSingleton.CurrentSettings()
             .LocalSiteFileContentDirectory(newContent, false);
@@ -103,7 +103,7 @@ public static class TestFileInfo
             $"Unexpected files in File Content Directory: {string.Join(",", filesInDirectory)}");
     }
 
-    public static void CheckOriginalFileInContentAndMediaArchiveAfterHtmlGeneration(FileContent newContent)
+    public static void CheckOriginalFileInContentAndMediaArchiveAfterHtmlGeneration(FileContent? newContent)
     {
         var expectedDirectory = UserSettingsSingleton.CurrentSettings().LocalSiteFileContentDirectory(newContent);
         Assert.IsTrue(expectedDirectory.Exists, $"Expected directory {expectedDirectory.FullName} does not exist");
@@ -188,7 +188,7 @@ public static class TestFileInfo
         await IronwoodHtmlHelpers.CommonContentChecks(document, newFileContent);
     }
 
-    public static void JsonTest(FileContent newContent)
+    public static void JsonTest(FileContent? newContent)
     {
         //Check JSON File
         var jsonFile =

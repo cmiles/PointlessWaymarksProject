@@ -33,9 +33,9 @@ public partial class FeatureFileEditorContext : ObservableObject
         RemoveAttributeCommand = StatusContext.RunNonBlockingTaskCommand<string>(RemoveAttribute);
     }
 
-    public RelayCommand AddAttributeCommand { get; }
+    public RelayCommand? AddAttributeCommand { get; }
 
-    public RelayCommand CancelCommand { get; }
+    public RelayCommand? CancelCommand { get; }
 
     public EventHandler<(FeatureFileEditorEndEditCondition endCondition, FeatureFileViewModel model)>? EndEdit
     {
@@ -43,7 +43,7 @@ public partial class FeatureFileEditorContext : ObservableObject
         set;
     }
 
-    public RelayCommand FinishEditCommand { get; }
+    public RelayCommand? FinishEditCommand { get; }
 
     // ReSharper disable once UnusedAutoPropertyAccessor.Global - Used in Xaml
     public RelayCommand<string> RemoveAttributeCommand { get; }
@@ -123,10 +123,16 @@ public partial class FeatureFileEditorContext : ObservableObject
         return Task.CompletedTask;
     }
 
-    public async Task RemoveAttribute(string toRemove)
+    public async Task RemoveAttribute(string? toRemove)
     {
         await ThreadSwitcher.ResumeForegroundAsync();
 
+        if (toRemove == null)
+        {
+            StatusContext.ToastWarning("Can't Remove a Null Attribute?");
+            return;
+        }
+        
         var newList = Model.AttributesForTags;
         newList.Remove(toRemove);
         newList = newList.OrderByDescending(x => x).ToList();

@@ -28,26 +28,26 @@ namespace PointlessWaymarks.CmsWpfControls.TagList;
 
 public partial class TagListContext : ObservableObject
 {
-    [ObservableProperty] private RelayCommand _allDetailItemsToExcelCommand;
+    [ObservableProperty] private RelayCommand? _allDetailItemsToExcelCommand;
     [ObservableProperty] private CmsCommonCommands _commonCommands;
     [ObservableProperty] private DataNotificationsWorkQueue _dataNotificationsProcessor;
     [ObservableProperty] private List<TagItemContentInformation> _detailsList;
     [ObservableProperty] private List<TagItemContentInformation> _detailsSelectedItems;
     [ObservableProperty] private RelayCommand<Guid> _editContentCommand;
-    [ObservableProperty] private RelayCommand _importFromExcelFileCommand;
-    [ObservableProperty] private RelayCommand _importFromOpenExcelInstanceCommand;
+    [ObservableProperty] private RelayCommand? _importFromExcelFileCommand;
+    [ObservableProperty] private RelayCommand? _importFromOpenExcelInstanceCommand;
     [ObservableProperty] private ObservableCollection<TagListListItem> _items;
     [ObservableProperty] private RelayCommand<TagListListItem> _makeExcludedTagCommand;
-    [ObservableProperty] private RelayCommand _refreshDataCommand;
+    [ObservableProperty] private RelayCommand? _refreshDataCommand;
     [ObservableProperty] private RelayCommand<TagListListItem> _removeExcludedTagCommand;
-    [ObservableProperty] private RelayCommand _selectedDetailItemsToExcelCommand;
+    [ObservableProperty] private RelayCommand? _selectedDetailItemsToExcelCommand;
     [ObservableProperty] private List<TagListListItem> _selectedItems;
-    [ObservableProperty] private RelayCommand _selectedTagsToExcelCommand;
-    [ObservableProperty] private StatusControlContext _statusContext;
+    [ObservableProperty] private RelayCommand? _selectedTagsToExcelCommand;
+    [ObservableProperty] private StatusControlContext? _statusContext;
     [ObservableProperty] private string _userFilterText;
-    [ObservableProperty] private RelayCommand _visibleTagsToExcelCommand;
+    [ObservableProperty] private RelayCommand? _visibleTagsToExcelCommand;
 
-    public TagListContext(StatusControlContext context)
+    public TagListContext(StatusControlContext? context)
     {
         StatusContext = context ?? new StatusControlContext();
         CommonCommands = new CmsCommonCommands(StatusContext);
@@ -79,7 +79,7 @@ public partial class TagListContext : ObservableObject
         StatusContext.RunFireAndForgetBlockingTask(LoadData);
     }
 
-    private string ContentTypeString(dynamic content)
+    private string ContentTypeString(dynamic? content)
     {
         var contentTypeString = Db.ContentTypeDisplayString(content);
 
@@ -384,9 +384,8 @@ public partial class TagListContext : ObservableObject
     }
 
 
-    private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
+    private void OnPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
-        if (e == null) return;
         if (string.IsNullOrWhiteSpace(e.PropertyName)) return;
 
         if (e.PropertyName == nameof(SelectedItems))
@@ -430,7 +429,7 @@ public partial class TagListContext : ObservableObject
             return;
         }
 
-        var tagsProjection = SelectedItems.Select(x => new { x.TagName, x.ContentCount }).Cast<object>().ToList();
+        List<object?> tagsProjection = SelectedItems.Select(x => new { x.TagName, x.ContentCount }).Cast<object>().ToList();
 
         if (!tagsProjection.Any())
         {
@@ -495,7 +494,7 @@ public partial class TagListContext : ObservableObject
             return;
         }
 
-        var tagsProjection = Items.Where(ListFilter).Select(x => new { x.TagName, x.ContentCount }).Cast<object>()
+        List<object?> tagsProjection = Items.Where(ListFilter).Select(x => new { x.TagName, x.ContentCount }).Cast<object>()
             .ToList();
 
         if (!tagsProjection.Any())

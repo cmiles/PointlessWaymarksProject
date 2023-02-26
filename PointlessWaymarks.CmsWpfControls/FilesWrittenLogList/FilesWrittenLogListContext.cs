@@ -32,7 +32,7 @@ public partial class FilesWrittenLogListContext : ObservableObject
     [ObservableProperty] private RelayCommand? _allScriptStringsToClipboardCommand;
     [ObservableProperty] private RelayCommand? _allScriptStringsToPowerShellScriptCommand;
     [ObservableProperty] private RelayCommand? _allWrittenFilesToClipboardCommand;
-    [ObservableProperty] private RelayCommand _allWrittenFilesToRunningS3UploaderCommand;
+    [ObservableProperty] private RelayCommand? _allWrittenFilesToRunningS3UploaderCommand;
     [ObservableProperty] private RelayCommand? _allWrittenFilesToS3UploaderCommand;
     [ObservableProperty] private RelayCommand? _allWrittenFilesToS3UploaderJsonFileCommand;
     [ObservableProperty] private bool _changeSlashes = true;
@@ -49,12 +49,12 @@ public partial class FilesWrittenLogListContext : ObservableObject
     [ObservableProperty] private RelayCommand? _selectedScriptStringsToClipboardCommand;
     [ObservableProperty] private RelayCommand? _selectedScriptStringsToPowerShellScriptCommand;
     [ObservableProperty] private RelayCommand? _selectedWrittenFilesToClipboardCommand;
-    [ObservableProperty] private RelayCommand _selectedWrittenFilesToRunningS3UploaderCommand;
+    [ObservableProperty] private RelayCommand? _selectedWrittenFilesToRunningS3UploaderCommand;
     [ObservableProperty] private RelayCommand? _selectedWrittenFilesToS3UploaderCommand;
     [ObservableProperty] private RelayCommand? _selectedWrittenFilesToS3UploaderJsonFileCommand;
     [ObservableProperty] private RelayCommand? _siteDeletedFilesReportCommand;
     [ObservableProperty] private RelayCommand? _siteMissingFilesReportCommand;
-    [ObservableProperty] private StatusControlContext _statusContext;
+    [ObservableProperty] private StatusControlContext? _statusContext;
     [ObservableProperty] private string _userBucketName = string.Empty;
     [ObservableProperty] private string _userBucketRegion = string.Empty;
     [ObservableProperty] private string _userScriptPrefix = "aws s3 cp";
@@ -470,9 +470,8 @@ public partial class FilesWrittenLogListContext : ObservableObject
         DataNotificationsProcessor.Enqueue(e);
     }
 
-    private void OnPropertyChanged(object? sender, PropertyChangedEventArgs? e)
+    private void OnPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
-        if (e == null) return;
         if (string.IsNullOrWhiteSpace(e.PropertyName)) return;
 
         if (e.PropertyName is nameof(UserBucketName) or nameof(UserScriptPrefix) or nameof(ChangeSlashes))

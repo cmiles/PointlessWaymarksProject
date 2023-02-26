@@ -79,19 +79,19 @@ public partial class FeatureIntersectTaggerContext : ObservableObject
         NextTabCommand = StatusContext.RunNonBlockingActionCommand(() => SelectedTab++);
     }
 
-    public RelayCommand AddPadUsAttributeCommand { get; }
+    public RelayCommand? AddPadUsAttributeCommand { get; }
 
-    public RelayCommand ChooseExifFileCommand { get; }
+    public RelayCommand? ChooseExifFileCommand { get; }
 
-    public RelayCommand ChoosePadUsDirectoryCommand { get; }
+    public RelayCommand? ChoosePadUsDirectoryCommand { get; }
 
-    public RelayCommand DeleteFeatureFileCommand { get; }
+    public RelayCommand? DeleteFeatureFileCommand { get; }
 
-    public RelayCommand EditFeatureFileCommand { get; }
+    public RelayCommand? EditFeatureFileCommand { get; }
 
-    public RelayCommand ExportSettingsFromFileCommand { get; }
+    public RelayCommand? ExportSettingsFromFileCommand { get; }
 
-    public RelayCommand GeneratePreviewCommand { get; }
+    public RelayCommand? GeneratePreviewCommand { get; }
 
     public string GeoJsonFileOverviewMarkdown => """
         Inside the USA the [USGS PAD-US Data](https://www.usgs.gov/programs/gap-analysis-project/science/pad-us-data-overview) (see previous tab) is a great resource for automatically identifying landscape ownership/management and generating tags. But there is a wide variety of other data that you might want to use or create.
@@ -110,11 +110,11 @@ public partial class FeatureIntersectTaggerContext : ObservableObject
         Regardless of the areas you are interested in and the availability of pre-existing data you are likely to find it useful to create your own GeoJson data to help automatically tag things like unofficial names, areas and trails that have local names that will never appear in official data and features and areas with personal significance! [geojson.io](https://geojson.io/) is one simple way to produce a reference file - for example you could draw a polygon around a local trail area, add a property that identifies its well known local name ("name": "My Special Trail Area"), save the file and create a Feature File entry for it with a 'Attributes for Tags' entry of 'name'. Official recognition and public data almost certainly don't define everything you care about on the landscape!
         """;
 
-    public RelayCommand ImportSettingsFromFileCommand { get; }
+    public RelayCommand? ImportSettingsFromFileCommand { get; }
 
-    public RelayCommand MetadataForSelectedFilesToTagCommand { get; }
+    public RelayCommand? MetadataForSelectedFilesToTagCommand { get; }
 
-    public RelayCommand NewFeatureFileCommand { get; }
+    public RelayCommand? NewFeatureFileCommand { get; }
 
     public RelayCommand NextTabCommand { get; }
 
@@ -139,9 +139,9 @@ public partial class FeatureIntersectTaggerContext : ObservableObject
     // ReSharper disable once UnusedAutoPropertyAccessor.Global - used by XAML
     public RelayCommand<string> RemovePadUsAttributeCommand { get; }
 
-    public RelayCommand SaveSettingsFromFileCommand { get; }
+    public RelayCommand? SaveSettingsFromFileCommand { get; }
 
-    public RelayCommand WriteToFilesCommand { get; }
+    public RelayCommand? WriteToFilesCommand { get; }
 
     public async Task AddPadUsAttribute()
     {
@@ -535,9 +535,15 @@ public partial class FeatureIntersectTaggerContext : ObservableObject
         await FeatureIntersectTaggerSettingTools.WriteSettings(Settings);
     }
 
-    public async Task RemovePadUsAttribute(string toRemove)
+    public async Task RemovePadUsAttribute(string? toRemove)
     {
         await ThreadSwitcher.ResumeForegroundAsync();
+
+        if (toRemove == null)
+        {
+            StatusContext.ToastError("Null Attribute to Remove?");
+            return;
+        }
 
         Debug.Assert(Settings != null, nameof(Settings) + " != null");
         
