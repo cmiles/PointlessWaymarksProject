@@ -1,8 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 using NetTopologySuite.Features;
-using NetTopologySuite.IO;
-using Newtonsoft.Json;
-using PointlessWaymarks.CmsData.Spatial;
 using PointlessWaymarks.SpatialTools;
 
 namespace PointlessWaymarks.CmsData.Database.Models;

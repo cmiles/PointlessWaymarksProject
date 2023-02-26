@@ -2,11 +2,11 @@
 
 public class Page
 {
-    public Author Author { get; set; }
-    public string Body { get; set; }
-    public int Id { get; set; }
-    public int? ParentId { get; set; }
-    public DateTime PublishDate { get; set; }
-    public string Slug { get; set; }
-    public string Title { get; set; }
+    public Author Author { get; init; }
+    public string Body { get; init; }
+    public int Id { get; init; }
+    public int? ParentId { get; init; }
+    public DateTime PublishDate { get; init; }
+    public string Slug { get; init; }
+    public string Title { get; init; }
 }

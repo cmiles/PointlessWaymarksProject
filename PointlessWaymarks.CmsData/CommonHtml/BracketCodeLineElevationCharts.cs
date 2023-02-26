@@ -65,13 +65,13 @@ public static class BracketCodeLineElevationCharts
             progress?.Report($"Adding Line Elevation Chart {dbContent.Title} from Code");
 
             toProcess = toProcess.ReplaceEach(loopMatch.bracketCodeText,
-                () => LineParts.LineElevationChartDivAndScript(dbContent).ToString());
+                () => LineParts.LineElevationChartDivAndScript(dbContent));
         }
 
         return toProcess;
     }
 
-    public static string? ProcessForEmail(string? toProcess, IProgress<string>? progress = null)
+    public static string ProcessForEmail(string? toProcess, IProgress<string>? progress = null)
     {
         if (string.IsNullOrWhiteSpace(toProcess)) return string.Empty;
 

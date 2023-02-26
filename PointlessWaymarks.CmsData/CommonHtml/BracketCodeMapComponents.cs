@@ -68,7 +68,7 @@ public static class BracketCodeMapComponents
         return toProcess;
     }
 
-    public static string? ProcessForEmail(string? toProcess, IProgress<string>? progress = null)
+    public static string ProcessForEmail(string? toProcess, IProgress<string>? progress = null)
     {
         if (string.IsNullOrWhiteSpace(toProcess)) return string.Empty;
 

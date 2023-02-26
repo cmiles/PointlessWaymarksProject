@@ -45,72 +45,72 @@ public static class VideoGenerator
         return (GenerationReturn.Success($"Saved and Generated Content And Html for {toSave.Title}"), toSave);
     }
 
-    public static async Task<GenerationReturn> Validate(VideoContent? VideoContent, FileInfo? selectedVideo)
+    public static async Task<GenerationReturn> Validate(VideoContent? videoContent, FileInfo? selectedVideo)
     {
-        if (VideoContent == null)
+        if (videoContent == null)
             return GenerationReturn.Error("Null Video Content submitted to Validate?");
 
         if (selectedVideo == null)
-            return GenerationReturn.Error("No Video submitted to Validate?", VideoContent.ContentId);
+            return GenerationReturn.Error("No Video submitted to Validate?", videoContent.ContentId);
 
         var rootDirectoryCheck = UserSettingsUtilities.ValidateLocalSiteRootDirectory();
 
         if (!rootDirectoryCheck.Valid)
             return GenerationReturn.Error($"Problem with Root Directory: {rootDirectoryCheck.Explanation}",
-                VideoContent.ContentId);
+                videoContent.ContentId);
 
         var mediaArchiveCheck = UserSettingsUtilities.ValidateLocalMediaArchive();
         if (!mediaArchiveCheck.Valid)
             return GenerationReturn.Error($"Problem with Media Archive: {mediaArchiveCheck.Explanation}",
-                VideoContent.ContentId);
+                videoContent.ContentId);
 
         var (valid, explanation) =
-            await CommonContentValidation.ValidateContentCommon(VideoContent).ConfigureAwait(false);
+            await CommonContentValidation.ValidateContentCommon(videoContent).ConfigureAwait(false);
         if (!valid)
-            return GenerationReturn.Error(explanation, VideoContent.ContentId);
+            return GenerationReturn.Error(explanation, videoContent.ContentId);
 
         var (userMainImageIsValid, userMainImageExplanation) =
-            await CommonContentValidation.ValidateUserMainPicture(VideoContent.UserMainPicture)
+            await CommonContentValidation.ValidateUserMainPicture(videoContent.UserMainPicture)
                 .ConfigureAwait(false);
         if (!userMainImageIsValid)
-            return GenerationReturn.Error(userMainImageExplanation, VideoContent.ContentId);
+            return GenerationReturn.Error(userMainImageExplanation, videoContent.ContentId);
 
-        var (isValid, s) = CommonContentValidation.ValidateUpdateContentFormat(VideoContent.UpdateNotesFormat);
+        var (isValid, s) = CommonContentValidation.ValidateUpdateContentFormat(videoContent.UpdateNotesFormat);
         if (!isValid)
-            return GenerationReturn.Error(s, VideoContent.ContentId);
+            return GenerationReturn.Error(s, videoContent.ContentId);
 
         selectedVideo.Refresh();
 
         if (!selectedVideo.Exists)
-            return GenerationReturn.Error("Selected Video doesn't exist?", VideoContent.ContentId);
+            return GenerationReturn.Error("Selected Video doesn't exist?", videoContent.ContentId);
 
         if (!FileAndFolderTools.IsNoUrlEncodingNeeded(Path.GetFileNameWithoutExtension(selectedVideo.Name)))
-            return GenerationReturn.Error("Limit Video Names to A-Z a-z - . _", VideoContent.ContentId);
+            return GenerationReturn.Error("Limit Video Names to A-Z a-z - . _", videoContent.ContentId);
 
         if (await (await Db.Context().ConfigureAwait(false))
-            .VideoFilenameExistsInDatabase(selectedVideo.Name, VideoContent.ContentId).ConfigureAwait(false))
+            .VideoFilenameExistsInDatabase(selectedVideo.Name, videoContent.ContentId).ConfigureAwait(false))
             return GenerationReturn.Error(
-                "This Videoname already exists in the database - Video names must be unique.", VideoContent.ContentId);
+                "This Videoname already exists in the database - Video names must be unique.", videoContent.ContentId);
 
         return GenerationReturn.Success("Video Content Validation Successful");
     }
 
-    public static async Task WriteVideoFromMediaArchiveToLocalSite(VideoContent VideoContent, bool overwriteExisting)
+    public static async Task WriteVideoFromMediaArchiveToLocalSite(VideoContent videoContent, bool overwriteExisting)
     {
-        if (string.IsNullOrWhiteSpace(VideoContent.OriginalFileName))
+        if (string.IsNullOrWhiteSpace(videoContent.OriginalFileName))
         {
             Log.Warning(
-                $"VideoContent with a blank {nameof(VideoContent.OriginalFileName)} was submitted to WriteVideoFromMediaArchiveToLocalSite");
+                $"VideoContent with a blank {nameof(videoContent.OriginalFileName)} was submitted to WriteVideoFromMediaArchiveToLocalSite");
             return;
         }
 
         var userSettings = UserSettingsSingleton.CurrentSettings();
 
         var sourceVideo = new FileInfo(Path.Combine(userSettings.LocalMediaArchiveVideoDirectory().FullName,
-            VideoContent.OriginalFileName));
+            videoContent.OriginalFileName));
 
-        var targetVideo = new FileInfo(Path.Combine(userSettings.LocalSiteVideoContentDirectory(VideoContent).FullName,
-            VideoContent.OriginalFileName));
+        var targetVideo = new FileInfo(Path.Combine(userSettings.LocalSiteVideoContentDirectory(videoContent).FullName,
+            videoContent.OriginalFileName));
 
         if (targetVideo.Exists && overwriteExisting)
         {

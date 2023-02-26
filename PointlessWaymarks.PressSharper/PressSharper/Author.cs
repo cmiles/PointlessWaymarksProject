@@ -2,8 +2,8 @@
 
 public class Author
 {
-    public string DisplayName { get; set; }
-    public string Email { get; set; }
-    public int Id { get; set; }
-    public string Username { get; set; }
+    public string DisplayName { get; init; }
+    public string Email { get; init; }
+    public int Id { get; init; }
+    public string Username { get; init; }
 }

@@ -36,7 +36,7 @@ public class PointContentDto : IUpdateNotes, IContentCommon
     ///     Returns a NTS Feature based on the Content data.
     /// </summary>
     /// <returns></returns>
-    public IFeature? FeatureFromPoint()
+    public IFeature FeatureFromPoint()
     {
         return new Feature(PointFromLatitudeLongitude(), new AttributesTable());
     }
@@ -46,7 +46,7 @@ public class PointContentDto : IUpdateNotes, IContentCommon
     ///     Returns either a Point or a PointZ from the Contents Values
     /// </summary>
     /// <returns></returns>
-    public Point? PointFromLatitudeLongitude()
+    public Point PointFromLatitudeLongitude()
     {
         if (Elevation is null) return new Point(Longitude, Latitude);
         return new Point(Longitude, Latitude, Elevation.Value);

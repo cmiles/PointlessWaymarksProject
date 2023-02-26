@@ -12,8 +12,6 @@ public class DrivingDirections : IPointDetailData
     public async Task<IsValid> Validate()
     {
         var formatValidation = await CommonContentValidation.ValidateBodyContentFormat(NotesContentFormat);
-        if (!formatValidation.Valid) return new IsValid(false, formatValidation.Explanation);
-
-        return new IsValid(true, string.Empty);
+        return !formatValidation.Valid ? new IsValid(false, formatValidation.Explanation) : new IsValid(true, string.Empty);
     }
 }

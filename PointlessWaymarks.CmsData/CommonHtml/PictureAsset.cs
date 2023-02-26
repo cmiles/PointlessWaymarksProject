@@ -2,7 +2,7 @@
 
 public class PictureAsset
 {
-    public object? DbEntry { get; set; }
+    public object? DbEntry { get; init; }
     public PictureFile? DisplayPicture { get; set; }
     public PictureFile? LargePicture { get; set; }
     public PictureFile? SmallPicture { get; set; }

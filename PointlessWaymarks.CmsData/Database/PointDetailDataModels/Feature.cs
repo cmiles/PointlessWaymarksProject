@@ -13,8 +13,8 @@ public class Feature : IPointDetailData
     public async Task<IsValid> Validate()
     {
         var formatValidation = await CommonContentValidation.ValidateBodyContentFormat(NotesContentFormat);
-        if (!formatValidation.Valid) return new IsValid(false, formatValidation.Explanation);
-
-        return await CommonContentValidation.ValidateFeatureType(Type);
+        return !formatValidation.Valid
+            ? new IsValid(false, formatValidation.Explanation)
+            : await CommonContentValidation.ValidateFeatureType(Type);
     }
 }

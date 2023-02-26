@@ -558,7 +558,7 @@ public static class CommonContentValidation
         {
             var duplicateUrl =
                 (await db.LinkContents.Where(x => x.Url != null && x.Url! == url).ToListAsync().ConfigureAwait(false))
-                .Any(x => x.Url.Equals(url, StringComparison.OrdinalIgnoreCase));
+                .Any(x => x.Url!.Equals(url, StringComparison.OrdinalIgnoreCase));
             if (duplicateUrl)
                 return new IsValid(false,
                     "URL Already exists in the database - duplicates are not allowed, try editing the existing entry to add new/updated information.");

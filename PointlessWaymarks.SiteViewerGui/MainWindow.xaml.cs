@@ -12,16 +12,18 @@ namespace PointlessWaymarks.SiteViewerGui;
 ///     Interaction logic for MainWindow.xaml
 /// </summary>
 [ObservableObject]
+#pragma warning disable MVVMTK0033 - Main Window Exception
 public partial class MainWindow
+#pragma warning restore MVVMTK0033
 {
-    [ObservableProperty] private SitePreviewContext _previewContext;
+    [ObservableProperty] private SitePreviewContext? _previewContext;
     [ObservableProperty] private StatusControlContext _statusContext;
 
     public MainWindow()
     {
         InitializeComponent();
 
-        StatusContext = new StatusControlContext { BlockUi = false };
+        _statusContext = new StatusControlContext { BlockUi = false };
 
         DataContext = this;
     }
@@ -30,7 +32,7 @@ public partial class MainWindow
     {
         InitializeComponent();
 
-        StatusContext = new StatusControlContext { BlockUi = false };
+        _statusContext = new StatusControlContext { BlockUi = false };
 
         DataContext = this;
 

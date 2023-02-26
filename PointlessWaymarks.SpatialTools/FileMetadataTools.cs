@@ -11,6 +11,7 @@ public static class FileMetadataTools
     /// </summary>
     public static List<string> ExifToolWriteSupportedExtensions => new List<string>
     {
+        // ReSharper disable StringLiteralTypo
         ".360",
         ".3G2",
         ".3GP",
@@ -87,6 +88,7 @@ public static class FileMetadataTools
         ".WEBP",
         ".X3F",
         ".XMP"
+        // ReSharper restore StringLiteralTypo
     }.Select(x => x.ToUpperInvariant()).OrderBy(x => x).ToList();
 
     public static List<string> TagSharpAndExifToolSupportedExtensions => TagSharpSupportedExtensions

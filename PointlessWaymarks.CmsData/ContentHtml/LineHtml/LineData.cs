@@ -45,7 +45,7 @@ public static class LineData
 
         await FileManagement.WriteAllTextToFileAndLogAsync(dataFileInfo.FullName,
                 await GenerateLineJson(lineContent.Line, lineContent.Title ?? string.Empty,
-                    UserSettingsSingleton.CurrentSettings().LinePageUrl(lineContent)).ConfigureAwait(false))
+                    UserSettingsSingleton.CurrentSettings().LinePageUrl(lineContent)).ConfigureAwait(false) ?? string.Empty)
             .ConfigureAwait(false);
     }
 
@@ -61,7 +61,7 @@ public static class LineData
 
         for (var i = 1; i < lineCoordinates.Count; i++)
         {
-            totalDistance += SpatialTools.DistanceTools.GetDistanceInMeters(lineCoordinates[i - 1].X, lineCoordinates[i - 1].Y, lineCoordinates[i].X, lineCoordinates[i].Y);
+            totalDistance += DistanceTools.GetDistanceInMeters(lineCoordinates[i - 1].X, lineCoordinates[i - 1].Y, lineCoordinates[i].X, lineCoordinates[i].Y);
 
             returnList.Add(new LineElevationPlotDataPoint(totalDistance, lineCoordinates[i].Z));
         }

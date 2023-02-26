@@ -1,5 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
+  <PropertyGroup>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
   <ItemGroup>
     <COMReference Include="Microsoft.Office.Interop.Excel">
       <WrapperTool>tlbimp</WrapperTool>

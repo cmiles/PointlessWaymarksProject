@@ -61,7 +61,7 @@ public class DirectoryGpxService : IGpxService
         return allPointsList;
     }
 
-    public async System.Threading.Tasks.Task ScanGpxFiles(IProgress<string>? progress)
+    public async Task ScanGpxFiles(IProgress<string>? progress)
     {
         var gpxDirectory = new DirectoryInfo(_directoryWithGpxFiles);
 
@@ -112,19 +112,27 @@ public class DirectoryGpxService : IGpxService
                 continue;
             }
 
-            var toAdd = (allPoints.MinBy(x => x.TimestampUtc!.Value).TimestampUtc.Value,
-                allPoints.MaxBy(x => x.TimestampUtc!.Value).TimestampUtc.Value, loopGpx);
+            var timestampMin = allPoints.Where(x => x.TimestampUtc != null).MinBy(x => x.TimestampUtc!.Value)!
+                .TimestampUtc;
+            var timestampMax = allPoints.Where(x => x.TimestampUtc != null).MaxBy(x => x.TimestampUtc!.Value)!
+                .TimestampUtc;
 
-            newGpxList.Add(toAdd);
+            if (timestampMin != null && timestampMax != null)
+            {
+                var toAdd = (timestampMin.Value,
+                    timestampMax.Value, loopGpx);
 
-            progress?.Report(
-                $"Directory Gpx Service - {toAdd.loopGpx.FullName} UTC from {toAdd.Item1} to {toAdd.Item2}");
+                newGpxList.Add(toAdd);
+
+                progress?.Report(
+                    $"Directory Gpx Service - {toAdd.loopGpx.FullName} UTC from {toAdd.Item1} to {toAdd.Item2}");
+            }
         }
 
         _gpxFiles = newGpxList;
     }
 
-    public async System.Threading.Tasks.Task VerifyFilesAndRescanIfNeeded(IProgress<string>? progress)
+    public async Task VerifyFilesAndRescanIfNeeded(IProgress<string>? progress)
     {
         if (!_gpxFiles.Any())
         {

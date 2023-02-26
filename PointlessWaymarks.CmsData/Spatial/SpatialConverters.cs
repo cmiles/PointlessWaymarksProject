@@ -1,7 +1,4 @@
-﻿using NetTopologySuite.Features;
-using NetTopologySuite.Geometries;
-using NetTopologySuite.IO;
-using Newtonsoft.Json;
+﻿using NetTopologySuite.Geometries;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.SpatialTools;
 

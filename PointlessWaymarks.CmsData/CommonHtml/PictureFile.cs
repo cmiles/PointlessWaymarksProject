@@ -2,10 +2,10 @@
 
 public class PictureFile
 {
-    public string? AltText { get; set; }
-    public FileInfo? File { get; set; }
+    public string? AltText { get; init; }
+    public FileInfo? File { get; init; }
     public string? FileName { get; set; }
-    public int Height { get; set; }
-    public string? SiteUrl { get; set; }
-    public int Width { get; set; }
+    public int Height { get; init; }
+    public string? SiteUrl { get; init; }
+    public int Width { get; init; }
 }

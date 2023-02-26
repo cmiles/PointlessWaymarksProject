@@ -23,7 +23,7 @@ public static class BodyContentReferences
         }
 
         string combinedTitleAndSummary;
-        if (content.Summary!.Equals(content.Title, StringComparison.OrdinalIgnoreCase) || content.Summary[..^1].ToString()
+        if (content.Summary!.Equals(content.Title, StringComparison.OrdinalIgnoreCase) || content.Summary[..^1]
                 .Equals(content.Title, StringComparison.OrdinalIgnoreCase))
         {
             combinedTitleAndSummary = $"{content.Title}";

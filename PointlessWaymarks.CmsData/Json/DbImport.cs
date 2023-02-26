@@ -497,7 +497,7 @@ public static class DbImport
     {
         progress?.Report("HistoricFileContent - Starting");
 
-        if (toImport == null || !toImport.Any())
+        if (!toImport.Any())
         {
             progress?.Report("No items to import?");
             return;
@@ -534,7 +534,7 @@ public static class DbImport
     {
         progress?.Report("HistoricPhotoContent - Starting");
 
-        if (toImport == null || !toImport.Any())
+        if (!toImport.Any())
         {
             progress?.Report("No items to import?");
             return;
@@ -571,7 +571,7 @@ public static class DbImport
     {
         progress?.Report("HistoricPostContent - Starting");
 
-        if (toImport == null || !toImport.Any())
+        if (!toImport.Any())
         {
             progress?.Report("No items to import?");
             return;
@@ -608,7 +608,7 @@ public static class DbImport
     {
         progress?.Report("HistoricImageContent - Starting");
 
-        if (toImport == null || !toImport.Any())
+        if (!toImport.Any())
         {
             progress?.Report("No items to import?");
             return;
@@ -645,7 +645,7 @@ public static class DbImport
     {
         progress?.Report("HistoricNoteContent - Starting");
 
-        if (toImport == null || !toImport.Any())
+        if (!toImport.Any())
         {
             progress?.Report("No items to import?");
             return;
@@ -682,7 +682,7 @@ public static class DbImport
     {
         progress?.Report("HistoricLinkContent - Starting");
 
-        if (toImport == null || !toImport.Any())
+        if (!toImport.Any())
         {
             progress?.Report("No items to import?");
             return;

@@ -1,10 +1,7 @@
 ﻿using NetTopologySuite.Features;
-using NetTopologySuite.IO;
-using Newtonsoft.Json;
 using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.Content;
 using PointlessWaymarks.CmsData.Database.Models;
-using PointlessWaymarks.CmsData.Spatial;
 using PointlessWaymarks.SpatialTools;
 
 namespace PointlessWaymarks.CmsData.ContentHtml.GeoJsonHtml;
@@ -53,7 +50,7 @@ public static class GeoJsonData
 
         await FileManagement.WriteAllTextToFileAndLogAsync(dataFileInfo.FullName,
             await GenerateGeoJson(geoJsonContent.GeoJson,
-                UserSettingsSingleton.CurrentSettings().GeoJsonPageUrl(geoJsonContent)).ConfigureAwait(false)).ConfigureAwait(false);
+                UserSettingsSingleton.CurrentSettings().GeoJsonPageUrl(geoJsonContent)).ConfigureAwait(false)!).ConfigureAwait(false);
     }
 
     public record GeoJsonSiteJsonData(string PageUrl, SpatialBounds Bounds, FeatureCollection GeoJson);

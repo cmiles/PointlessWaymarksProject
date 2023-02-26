@@ -1,7 +1,5 @@
 ﻿using NetTopologySuite.Features;
 using NetTopologySuite.Geometries;
-using NetTopologySuite.IO;
-using Newtonsoft.Json;
 
 namespace PointlessWaymarks.SpatialTools;
 

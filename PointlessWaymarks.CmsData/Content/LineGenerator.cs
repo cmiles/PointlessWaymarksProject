@@ -1,19 +1,13 @@
-﻿using DocumentFormat.OpenXml.Vml;
+﻿using System.Diagnostics;
 using GeoTimeZone;
 using NetTopologySuite.Features;
 using NetTopologySuite.Geometries;
-using NetTopologySuite.IO;
-using Newtonsoft.Json;
-using PointlessWaymarks.CmsData.ContentHtml;
-using PointlessWaymarks.CmsData.ContentHtml.FileHtml;
 using PointlessWaymarks.CmsData.ContentHtml.LineHtml;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsData.Json;
-using PointlessWaymarks.CmsData.Spatial;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.FeatureIntersectionTags;
-using PointlessWaymarks.FeatureIntersectionTags.Models;
 using PointlessWaymarks.SpatialTools;
 using Serilog;
 
@@ -47,11 +41,12 @@ public static class LineGenerator
         }
 
         if (trackInformation.Track.Any() &&
-            !string.IsNullOrWhiteSpace(UserSettingsSingleton.CurrentSettings().FeatureIntersectionTagSettingsFile) &&!skipFeatureIntersectTagging)
+            !string.IsNullOrWhiteSpace(UserSettingsSingleton.CurrentSettings().FeatureIntersectionTagSettingsFile) &&
+            !skipFeatureIntersectTagging)
             try
             {
                 var lineFeature = new Feature(new LineString(trackInformation.Track.ToArray()),
-                        new AttributesTable());
+                    new AttributesTable());
 
                 tagList.AddRange(lineFeature.IntersectionTags(
                     UserSettingsSingleton.CurrentSettings().FeatureIntersectionTagSettingsFile,
@@ -89,7 +84,8 @@ public static class LineGenerator
 
         if (!string.IsNullOrWhiteSpace(trackInformation.Name))
             newEntry.Slug = SlugTools.CreateSlug(true, trackInformation.Name);
-        if (trackInformation.StartsOnLocal != null) newEntry.Folder = trackInformation.StartsOnLocal.Value.Year.ToString();
+        if (trackInformation.StartsOnLocal != null)
+            newEntry.Folder = trackInformation.StartsOnLocal.Value.Year.ToString();
 
         return newEntry;
     }
@@ -138,7 +134,9 @@ public static class LineGenerator
         toSave.Tags = Db.TagListCleanup(toSave.Tags);
 
         var lineFeature = LineContent.FeatureFromGeoJsonLine(toSave.Line);
-        
+
+        Debug.Assert(lineFeature != null, nameof(lineFeature) + " != null");
+
         var possibleTitle = lineFeature.Attributes.GetOptionalValue("title");
         if (possibleTitle == null) lineFeature.Attributes.Add("title", toSave.Title);
         else lineFeature.Attributes["title"] = toSave.Title;
@@ -154,11 +152,11 @@ public static class LineGenerator
         if (possibleDescription == null) lineFeature.Attributes.Add("description", LineParts.LineStatsString(toSave));
         else lineFeature.Attributes["description"] = LineParts.LineStatsString(toSave);
 
-        if(toSave.RecordingStartedOn.HasValue)
+        if (toSave.RecordingStartedOn.HasValue)
         {
             var asLineString = lineFeature.Geometry as LineString;
             var startTimezoneIanaIdentifier =
-                TimeZoneLookup.GetTimeZone(asLineString.StartPoint.Y, asLineString.StartPoint.X);
+                TimeZoneLookup.GetTimeZone(asLineString!.StartPoint.Y, asLineString.StartPoint.X);
             var startTimeZone = TimeZoneInfo.FindSystemTimeZoneById(startTimezoneIanaIdentifier.Result);
             var startUtcOffset = startTimeZone.GetUtcOffset(toSave.RecordingStartedOn.Value);
             toSave.RecordingStartedOnUtc = toSave.RecordingStartedOn.Value.Subtract(startUtcOffset);
@@ -172,7 +170,7 @@ public static class LineGenerator
         {
             var asLineString = lineFeature.Geometry as LineString;
             var endTimezoneIanaIdentifier =
-                TimeZoneLookup.GetTimeZone(asLineString.EndPoint.Y, asLineString.EndPoint.X);
+                TimeZoneLookup.GetTimeZone(asLineString!.EndPoint.Y, asLineString.EndPoint.X);
             var endTimeZone = TimeZoneInfo.FindSystemTimeZoneById(endTimezoneIanaIdentifier.Result);
             var endUtcOffset = endTimeZone.GetUtcOffset(toSave.RecordingEndedOn.Value);
             toSave.RecordingEndedOnUtc = toSave.RecordingEndedOn.Value.Subtract(endUtcOffset);
@@ -183,7 +181,7 @@ public static class LineGenerator
         }
 
         toSave.Line = await GeoJsonTools.SerializeFeatureToGeoJson(lineFeature);
-        
+
         await Db.SaveLineContent(toSave).ConfigureAwait(false);
         await GenerateHtml(toSave, generationVersion, progress).ConfigureAwait(false);
         await Export.WriteLocalDbJson(toSave, progress).ConfigureAwait(false);

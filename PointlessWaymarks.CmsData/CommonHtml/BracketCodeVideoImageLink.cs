@@ -123,8 +123,8 @@ public static class BracketCodeVideoImage
     public static async Task<string> ProcessForDirectLocalAccess(string? toProcess,
         IProgress<string>? progress = null)
     {
-        return await Process(toProcess, pictureInfo => pictureInfo.pictureInfo.LocalPictureFigureTag().ToString(),
-            progress).ConfigureAwait(false);
+        return ((await Process(toProcess, pictureInfo => pictureInfo.pictureInfo.LocalPictureFigureTag().ToString(),
+            progress).ConfigureAwait(false))) ?? string.Empty;
     }
 
     /// <summary>
@@ -135,8 +135,8 @@ public static class BracketCodeVideoImage
     /// <returns></returns>
     public static async Task<string> ProcessForEmail(string? toProcess, IProgress<string>? progress = null)
     {
-        return await Process(toProcess, pictureInfo => pictureInfo.pictureInfo.EmailPictureTableTag().ToString(),
-            progress).ConfigureAwait(false);
+        return (await Process(toProcess, pictureInfo => pictureInfo.pictureInfo.EmailPictureTableTag().ToString(),
+            progress).ConfigureAwait(false)) ?? string.Empty;
     }
 
     /// <summary>
@@ -147,8 +147,8 @@ public static class BracketCodeVideoImage
     /// <returns></returns>
     public static async Task<string> ProcessToFigureWithLink(string? toProcess, IProgress<string>? progress = null)
     {
-        return await Process(toProcess,
+        return (await Process(toProcess,
             pictureInfo => pictureInfo.pictureInfo.PictureFigureWithCaptionAndLinkTag("100vw", pictureInfo.linkUrl)
-                .ToString(), progress).ConfigureAwait(false);
+                .ToString(), progress).ConfigureAwait(false)) ?? string.Empty;
     }
 }

@@ -1,6 +1,5 @@
 ﻿using System.Data;
 using Microsoft.EntityFrameworkCore;
-using PointlessWaymarks.CmsData.ContentHtml;
 using PointlessWaymarks.CmsData.ContentHtml.NoteHtml;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;

@@ -53,7 +53,7 @@ public class FileListGpxService : IGpxService
         return allPointsList;
     }
 
-    public async System.Threading.Tasks.Task ScanFiles(IProgress<string>? progress)
+    public async Task ScanFiles(IProgress<string>? progress)
     {
         if (!_listOfGpxFiles.Any())
         {
@@ -103,13 +103,21 @@ public class FileListGpxService : IGpxService
                 continue;
             }
 
-            var toAdd = (allPoints.MinBy(x => x.TimestampUtc!.Value).TimestampUtc.Value,
-                allPoints.MaxBy(x => x.TimestampUtc!.Value).TimestampUtc.Value, loopGpx);
+            var timestampMin = allPoints.Where(x => x.TimestampUtc != null).MinBy(x => x.TimestampUtc!.Value)!
+                .TimestampUtc;
+            var timestampMax = allPoints.Where(x => x.TimestampUtc != null).MaxBy(x => x.TimestampUtc!.Value)!
+                .TimestampUtc;
 
-            newGpxList.Add(toAdd);
+            if (timestampMin != null && timestampMax != null)
+            {
+                var toAdd = (timestampMin.Value,
+                    timestampMax.Value, loopGpx);
 
-            progress?.Report(
-                $"File List Gpx Service - {toAdd.loopGpx.FullName} UTC from {toAdd.Item1} to {toAdd.Item2}");
+                newGpxList.Add(toAdd);
+
+                progress?.Report(
+                    $"File Gpx Service - {toAdd.loopGpx.FullName} UTC from {toAdd.Item1} to {toAdd.Item2}");
+            }
         }
 
         _gpxFiles = newGpxList;

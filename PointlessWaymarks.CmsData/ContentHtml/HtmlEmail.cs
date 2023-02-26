@@ -14,12 +14,12 @@ public static class HtmlEmail
 
         var config = Configuration.Default;
         var context = BrowsingContext.New(config);
-        var parser = context.GetService<IHtmlParser>();
+        var parser = context.GetService<IHtmlParser>()!;
         var document = parser.ParseDocument(html);
 
         var tableBuilder = new StringBuilder();
 
-        var childNodes = document.QuerySelector("body").ChildNodes.Where(x => x.NodeType != NodeType.Text).ToList();
+        var childNodes = document.QuerySelector("body")?.ChildNodes.Where(x => x.NodeType != NodeType.Text).ToList() ?? new List<INode>();
 
         foreach (var topNodes in childNodes) tableBuilder.AppendLine($"<tr><td>{topNodes.ToHtml()}</td></tr>");
 

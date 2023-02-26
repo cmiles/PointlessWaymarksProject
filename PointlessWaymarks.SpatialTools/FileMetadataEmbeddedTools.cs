@@ -109,8 +109,6 @@ public static class FileMetadataEmbeddedTools
     {
         var xmpDirectories = directories.OfType<XmpDirectory>().ToList();
 
-        var resultList = new List<(DateTime? createdOnLocal, DateTime? createdOnUtc)>();
-
         foreach (var loopDirectory in xmpDirectories)
         {
             var result = CreatedOnLocalFromXmpMetadata(loopDirectory);
@@ -202,11 +200,6 @@ public static class FileMetadataEmbeddedTools
 
         if (!gpsLocation.HasValidLocation()) return null;
 
-        var locationTimezoneIanaIdentifier =
-            TimeZoneLookup.GetTimeZone(gpsLocation.Latitude!.Value, gpsLocation.Longitude!.Value);
-        var locationTimeZone = TimeZoneInfo.FindSystemTimeZoneById(locationTimezoneIanaIdentifier.Result);
-        var localTime = TimeZoneInfo.ConvertTime(gpsDateTime, locationTimeZone);
-
         return gpsDateTime;
     }
 
@@ -214,8 +207,6 @@ public static class FileMetadataEmbeddedTools
         IReadOnlyList<Directory> directories)
     {
         var xmpDirectories = directories.OfType<XmpDirectory>().ToList();
-
-        var resultList = new List<(DateTime? createdOnLocal, DateTime? createdOnUtc)>();
 
         foreach (var loopDirectory in xmpDirectories)
         {
@@ -333,7 +324,7 @@ public static class FileMetadataEmbeddedTools
 
         foreach (var loopXmp in xmpDirectory)
         {
-            var xmpSubjectArrayItemCount = loopXmp?.XmpMeta?.CountArrayItems(XmpConstants.NsDC, "subject");
+            var xmpSubjectArrayItemCount = loopXmp.XmpMeta?.CountArrayItems(XmpConstants.NsDC, "subject");
 
             if (xmpSubjectArrayItemCount != null)
                 for (var i = 1; i <= xmpSubjectArrayItemCount; i++)
@@ -349,7 +340,7 @@ public static class FileMetadataEmbeddedTools
 
         foreach (var loopIptc in iptcDirectory)
         {
-            var keywordValues = loopIptc?.GetStringValueArray(IptcDirectory.TagKeywords);
+            var keywordValues = loopIptc.GetStringValueArray(IptcDirectory.TagKeywords);
             if (keywordValues == null || !keywordValues.Any()) continue;
 
             extractedKeywords.AddRange(keywordValues.Where(x => !string.IsNullOrWhiteSpace(x.ToString()))
@@ -414,14 +405,13 @@ public static class FileMetadataEmbeddedTools
             if (hasSeaLevelIndicator) isBelowSeaLevel = seaLevelIndicator == 1;
 
             if (altitudeRational.Denominator != 0 ||
-                (altitudeRational.Denominator == 0 && altitudeRational.Numerator == 0))
+                altitudeRational is { Denominator: 0, Numerator: 0 })
                 toReturn.Elevation = isBelowSeaLevel
                     ? altitudeRational.ToDouble() * -1
                     : altitudeRational.ToDouble();
         }
 
-        if (toReturn.Elevation == null && tryGetElevationIfNotInMetadata && toReturn.Latitude != null &&
-            toReturn.Longitude != null)
+        if (toReturn.Elevation == null && tryGetElevationIfNotInMetadata && toReturn is { Latitude: { }, Longitude: { } })
             try
             {
                 toReturn.Elevation = await ElevationService.OpenTopoNedElevation(toReturn.Latitude.Value,

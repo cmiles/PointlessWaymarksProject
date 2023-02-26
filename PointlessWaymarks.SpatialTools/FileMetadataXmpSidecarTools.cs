@@ -61,7 +61,7 @@ public static class FileMetadataXmpSidecarTools
     {
         var gps = CreatedOnLocalAndUtcFromXmpSidecarGpsTimeStamp(sidecarXmpMeta);
 
-        if (gps.createdOnUtc != null && gps.createdOnLocal != null) return gps;
+        if (gps is { createdOnUtc: { }, createdOnLocal: { } }) return gps;
 
         var photoLocation = await LocationFromXmpSidecar(sidecarXmpMeta, false, null);
 
@@ -71,7 +71,7 @@ public static class FileMetadataXmpSidecarTools
             return (TimeTools.LocalTimeFromUtcAndLocation(originalTag.createdOnUtc.Value, photoLocation.Latitude!.Value,
                 photoLocation.Longitude!.Value), originalTag.createdOnUtc);
 
-        if (originalTag.createdOnUtc != null && originalTag.createdOnLocal != null) return originalTag;
+        if (originalTag is { createdOnUtc: { }, createdOnLocal: { } }) return originalTag;
 
         var lastChanceUtc = gps.createdOnUtc ?? originalTag.createdOnUtc;
         var lastChanceLocal = gps.createdOnLocal ?? originalTag.createdOnLocal;
@@ -121,7 +121,7 @@ public static class FileMetadataXmpSidecarTools
 
     public static List<string> KeywordsFromXmpSidecar(IXmpMeta? sidecarXmpMeta, bool splitOnCommaAndSemiColon)
     {
-        if (sidecarXmpMeta == null) return null;
+        if (sidecarXmpMeta == null) return new List<string>();
 
         var extractedKeywords = new List<string>();
 
@@ -174,8 +174,7 @@ public static class FileMetadataXmpSidecarTools
             Elevation = AltitudeFromXmpSidecar(sidecarXmpMeta)
         };
 
-        if (toReturn.Elevation == null && tryGetElevationIfNotInMetadata && toReturn.Latitude != null &&
-            toReturn.Longitude != null)
+        if (toReturn.Elevation == null && tryGetElevationIfNotInMetadata && toReturn is { Latitude: { }, Longitude: { } })
             try
             {
                 toReturn.Elevation = await ElevationService.OpenTopoNedElevation(toReturn.Latitude.Value,

@@ -8,13 +8,13 @@ public class Post
         Tags = Enumerable.Empty<Tag>().ToList();
     }
 
-    public Author Author { get; set; }
-    public string Body { get; set; }
-    public List<Category> Categories { get; set; }
-    public string Excerpt { get; set; }
+    public Author Author { get; init; }
+    public string Body { get; init; }
+    public List<Category> Categories { get; }
+    public string Excerpt { get; init; }
     public Attachment FeaturedImage { get; set; }
-    public DateTime PublishDate { get; set; }
-    public string Slug { get; set; }
-    public List<Tag> Tags { get; set; }
-    public string Title { get; set; }
+    public DateTime PublishDate { get; init; }
+    public string Slug { get; init; }
+    public List<Tag> Tags { get; }
+    public string Title { get; init; }
 }

@@ -1,7 +1,6 @@
 ﻿using PointlessWaymarks.CmsData.Content;
 using PointlessWaymarks.CommonTools;
 using Serilog;
-using Serilog.Events;
 using Serilog.Formatting.Compact;
 
 namespace PointlessWaymarks.CmsData;
@@ -32,7 +31,8 @@ public static class PointlessWaymarksLogTools
     public static LoggerConfiguration BasicLogConfiguration()
     {
         return new LoggerConfiguration().Enrich.WithProcessId().Enrich.WithProcessName().Enrich.WithThreadId()
-            .Enrich.WithThreadName().Enrich.WithMachineName().Enrich.WithEnvironmentUserName().MinimumLevel.Verbose().WriteTo.Console();
+            .Enrich.WithThreadName().Enrich.WithMachineName().Enrich.WithEnvironmentUserName().MinimumLevel.Verbose()
+            .WriteTo.Console();
     }
 
     /// <summary>
@@ -52,15 +52,14 @@ public static class PointlessWaymarksLogTools
     /// </summary>
     public static void InitializeStaticLoggerAsEventLogger()
     {
-        if (Log.Logger != null)
-            try
-            {
-                Log.CloseAndFlush();
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-            }
+        try
+        {
+            Log.CloseAndFlush();
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+        }
 
         Log.Logger = EventLogger();
     }
@@ -72,15 +71,14 @@ public static class PointlessWaymarksLogTools
     /// </summary>
     public static void InitializeStaticLoggerAsStartupLogger()
     {
-        if (Log.Logger != null)
-            try
-            {
-                Log.CloseAndFlush();
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-            }
+        try
+        {
+            Log.CloseAndFlush();
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+        }
 
         Log.Logger = StartupLogger();
     }
@@ -104,7 +102,6 @@ public static class PointlessWaymarksLogTools
             .ForContext("Generation Exception", toLog.Exception?.ToString())
             .Error($"Generation Return - {logMessage}");
     }
-
 
 
     /// <summary>

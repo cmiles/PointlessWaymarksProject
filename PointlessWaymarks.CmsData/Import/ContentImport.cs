@@ -198,14 +198,6 @@ public static class ContentImport
                 var db = Db.Context().Result;
                 var possiblePoint = db.PointDetails.Single(x => x.ContentId == contentId);
 
-                //Content Id specified but no db entry - error, exit
-                if (possiblePoint == null)
-                {
-                    toAdd.ParsedValue = null;
-                    toAdd.ValueParsed = false;
-                    continue;
-                }
-
                 pointDetail = possiblePoint;
                 pointDetail.LastUpdatedOn = DateTime.Now;
             }

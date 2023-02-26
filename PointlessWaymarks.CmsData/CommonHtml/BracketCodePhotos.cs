@@ -102,8 +102,8 @@ public static class BracketCodePhotos
     /// <returns></returns>
     public static async Task<string> ProcessForEmail(string? toProcess, IProgress<string>? progress = null)
     {
-        return await Process(toProcess, page => page.PictureInformation.EmailPictureTableTag().ToString(),
-            progress).ConfigureAwait(false);
+        return (await Process(toProcess, page => page.PictureInformation.EmailPictureTableTag().ToString(),
+            progress).ConfigureAwait(false)) ?? string.Empty;
     }
 
     /// <summary>

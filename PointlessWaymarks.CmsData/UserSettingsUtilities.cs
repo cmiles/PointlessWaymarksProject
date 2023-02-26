@@ -1642,8 +1642,7 @@ public static class UserSettingsUtilities
         return $"{settings.SiteUrl()}/Videos/VideoRss.xml";
     }
 
-
-    public static async Task WriteSettings(this UserSettings toWrite)
+    public static Task WriteSettings(this UserSettings toWrite)
     {
         var currentFile = SettingsFile();
 
@@ -1669,5 +1668,7 @@ public static class UserSettingsUtilities
         }
 
         iniFileReader.WriteFile(currentFile.FullName, iniResult);
+        
+        return Task.CompletedTask;
     }
 }

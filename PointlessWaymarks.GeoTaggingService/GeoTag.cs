@@ -75,8 +75,6 @@ public class GeoTag
 
         progress?.Report($"GeoTag - {supportedFiles.Count} Supported Files");
 
-        var frozenExecutionTime = DateTime.Now;
-
         var listOfUtcAndFileToProcess = new List<(DateTime createdUtc, FileInfo file)>();
 
         progress?.Report("GeoTag - Getting photo UTC Time (required) and checking for existing Lat/Long");
@@ -157,14 +155,22 @@ public class GeoTag
 
             if (!pointsCollection.Any()) continue;
 
-            var toAdd = (pointsCollection.MinBy(x => x.Waypoint.TimestampUtc!.Value).Waypoint.TimestampUtc.Value,
-                pointsCollection.MaxBy(x => x.Waypoint.TimestampUtc!.Value).Waypoint.TimestampUtc.Value,
-                pointsCollection);
 
-            progress?.Report(
-                $"GeoTag - For {loopUtc.file} added {toAdd.pointsCollection.Count} points from UTC {toAdd.Item1} to {toAdd.Item2}");
+            var timestampMin = pointsCollection.Where(x => x.Waypoint.TimestampUtc != null).MinBy(x => x.Waypoint.TimestampUtc!.Value)!
+                .Waypoint.TimestampUtc;
+            var timestampMax = pointsCollection.Where(x => x.Waypoint.TimestampUtc != null).MaxBy(x => x.Waypoint.TimestampUtc!.Value)!
+                .Waypoint.TimestampUtc;
 
-            pointLists.Add(toAdd);
+            if (timestampMin != null && timestampMax != null)
+            {
+                var toAdd = (timestampMin.Value,
+                    timestampMax.Value, pointsCollection);
+
+                pointLists.Add(toAdd);
+
+                progress?.Report(
+                    $"GeoTag - For {loopUtc.file} added {toAdd.pointsCollection.Count} points from UTC {toAdd.Item1} to {toAdd.Item2}");
+            }
         }
 
         var allPoints = pointLists.SelectMany(x => x.waypoints).ToList();
@@ -200,8 +206,9 @@ public class GeoTag
                 continue;
             }
 
-            var closest = possibleTagPoints.MinBy(x =>
-                Math.Abs(loopFile.createdUtc.Subtract(x.Waypoint.TimestampUtc.Value).TotalMicroseconds));
+            var closest = possibleTagPoints.Where(x => x.Waypoint.TimestampUtc != null).MinBy(x =>  Math.Abs(loopFile.createdUtc.Subtract(x.Waypoint.TimestampUtc!.Value).TotalMicroseconds));
+
+            if (closest == null) continue;
 
             var latitude = closest.Waypoint.Latitude.Value;
             var longitude = closest.Waypoint.Longitude.Value;
@@ -230,7 +237,7 @@ public class GeoTag
         return new GeoTagProduceActionsResult(returnTitle, returnNotes.ToString(), returnFileResults);
     }
 
-    public async Task<GeoTagWriteMetadataToFilesResult> WriteGeoTagActions(List<GeoTagFileAction> filesToTag,
+    public Task<GeoTagWriteMetadataToFilesResult> WriteGeoTagActions(List<GeoTagFileAction> filesToTag,
         bool createBackupBeforeWritingMetadata, bool backupIntoDefaultStorage, string? exifToolFullName = null,
         IProgress<string>? progress = null)
     {
@@ -256,7 +263,7 @@ public class GeoTag
             var noFilesMessage = "GeoTag - No files to tag, ending...";
             progress?.Report(noFilesMessage);
             returnNotes.Append(noFilesMessage);
-            return new GeoTagWriteMetadataToFilesResult(returnTitle, returnNotes.ToString(), returnFileResults);
+            return Task.FromResult(new GeoTagWriteMetadataToFilesResult(returnTitle, returnNotes.ToString(), returnFileResults));
         }
 
         var exifTool = FileMetadataTools.ExifToolExecutable(exifToolFullName);
@@ -341,7 +348,7 @@ public class GeoTag
             try
             {
                 var exifToolWriteOutcome =
-                    ProcessTools.Execute(exifTool.exifToolFile.FullName, exifToolParameters, progress);
+                    ProcessTools.Execute(exifTool.exifToolFile!.FullName, exifToolParameters, progress);
 
                 if (!exifToolWriteOutcome.success)
                 {
@@ -378,7 +385,7 @@ public class GeoTag
                 $"GeoTag - Wrote Metadata with ExifTool - {exifTool.exifToolFile.FullName} {exifToolParameters}");
         }
 
-        return new GeoTagWriteMetadataToFilesResult(returnTitle, returnNotes.ToString(), returnFileResults);
+        return Task.FromResult(new GeoTagWriteMetadataToFilesResult(returnTitle, returnNotes.ToString(), returnFileResults));
     }
 
 
