@@ -19,6 +19,7 @@ public static class PreviewServer
                     .UseSetting("PreviewHost", previewHost)
                     .UseSetting("PreviewFileSystemRoot", new DirectoryInfo(fileSystemPreviewRoot).FullName)
                     .UseStartup<PreviewServerStartup>();
+                ;
             });
     }
 

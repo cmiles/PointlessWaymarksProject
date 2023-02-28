@@ -251,7 +251,7 @@ public static class IronwoodPhotoInfo
 
     public static int QuarryWidth => 1300;
 
-    public static void CheckFileCountAndPictureAssetsAfterHtmlGeneration(PhotoContent? newContent, int originalWidth)
+    public static void CheckFileCountAndPictureAssetsAfterHtmlGeneration(PhotoContent newContent, int originalWidth)
     {
         var contentDirectory = UserSettingsSingleton.CurrentSettings()
             .LocalSitePhotoContentDirectory(newContent, false);
@@ -284,7 +284,7 @@ public static class IronwoodPhotoInfo
             "Did not find the expected number of SrcSet Images");
     }
 
-    public static void CheckOriginalFileInContentAndMediaArchiveAfterHtmlGeneration(PhotoContent? newContent)
+    public static void CheckOriginalFileInContentAndMediaArchiveAfterHtmlGeneration(PhotoContent newContent)
     {
         var expectedDirectory = UserSettingsSingleton.CurrentSettings().LocalSitePhotoContentDirectory(newContent);
         Assert.IsTrue(expectedDirectory.Exists, $"Expected directory {expectedDirectory.FullName} does not exist");
@@ -305,7 +305,7 @@ public static class IronwoodPhotoInfo
     }
 
     public static (bool areEqual, string comparisonNotes) CompareContent(PhotoContent reference,
-        PhotoContent? toCompare)
+        PhotoContent toCompare)
     {
         if (string.IsNullOrWhiteSpace(reference.CreatedBy))
             reference.CreatedBy = UserSettingsSingleton.CurrentSettings().DefaultCreatedBy;
@@ -365,7 +365,7 @@ public static class IronwoodPhotoInfo
         Assert.AreEqual(tagNoLinks.Length, contentTags.Count(x => x.IsExcluded));
     }
 
-    public static void JsonTest(PhotoContent? newContent)
+    public static void JsonTest(PhotoContent newContent)
     {
         //Check JSON File
         var jsonFile =

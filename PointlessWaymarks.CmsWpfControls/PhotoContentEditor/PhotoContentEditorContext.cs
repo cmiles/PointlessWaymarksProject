@@ -42,66 +42,66 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoContentEditor;
 public partial class PhotoContentEditorContext : ObservableObject, IHasChanges, IHasValidationIssues,
     ICheckForChangesAndValidation
 {
-    [ObservableProperty] private RelayCommand? _addFeatureIntersectTagsCommand;
+    [ObservableProperty] private RelayCommand _addFeatureIntersectTagsCommand;
     [ObservableProperty] private StringDataEntryContext _altTextEntry;
     [ObservableProperty] private StringDataEntryContext _apertureEntry;
-    [ObservableProperty] private RelayCommand? _autoCleanRenameSelectedFileCommand;
-    [ObservableProperty] private RelayCommand? _autoRenameSelectedFileBasedOnTitleCommand;
-    [ObservableProperty] private BodyContentEditorContext? _bodyContent;
+    [ObservableProperty] private RelayCommand _autoCleanRenameSelectedFileCommand;
+    [ObservableProperty] private RelayCommand _autoRenameSelectedFileBasedOnTitleCommand;
+    [ObservableProperty] private BodyContentEditorContext _bodyContent;
     [ObservableProperty] private StringDataEntryContext _cameraMakeEntry;
     [ObservableProperty] private StringDataEntryContext _cameraModelEntry;
-    [ObservableProperty] private RelayCommand? _chooseFileAndFillMetadataCommand;
-    [ObservableProperty] private RelayCommand? _chooseFileCommand;
-    [ObservableProperty] private ContentIdViewerControlContext? _contentId;
-    [ObservableProperty] private CreatedAndUpdatedByAndOnDisplayContext? _createdUpdatedDisplay;
-    [ObservableProperty] private PhotoContent? _dbEntry;
+    [ObservableProperty] private RelayCommand _chooseFileAndFillMetadataCommand;
+    [ObservableProperty] private RelayCommand _chooseFileCommand;
+    [ObservableProperty] private ContentIdViewerControlContext _contentId;
+    [ObservableProperty] private CreatedAndUpdatedByAndOnDisplayContext _createdUpdatedDisplay;
+    [ObservableProperty] private PhotoContent _dbEntry;
     [ObservableProperty] private ConversionDataEntryContext<double?> _elevationEntry;
-    [ObservableProperty] private RelayCommand? _extractNewLinksCommand;
+    [ObservableProperty] private RelayCommand _extractNewLinksCommand;
     [ObservableProperty] private StringDataEntryContext _focalLengthEntry;
-    [ObservableProperty] private RelayCommand? _getElevationCommand;
+    [ObservableProperty] private RelayCommand _getElevationCommand;
     [ObservableProperty] private bool _hasChanges;
     [ObservableProperty] private bool _hasValidationIssues;
     [ObservableProperty] private HelpDisplayContext _helpContext;
-    [ObservableProperty] private FileInfo? _initialPhoto;
+    [ObservableProperty] private FileInfo _initialPhoto;
     [ObservableProperty] private ConversionDataEntryContext<int?> _isoEntry;
     [ObservableProperty] private ConversionDataEntryContext<double?> _latitudeEntry;
     [ObservableProperty] private StringDataEntryContext _lensEntry;
     [ObservableProperty] private StringDataEntryContext _licenseEntry;
-    [ObservableProperty] private RelayCommand? _linkToClipboardCommand;
-    [ObservableProperty] private FileInfo? _loadedFile;
+    [ObservableProperty] private RelayCommand _linkToClipboardCommand;
+    [ObservableProperty] private FileInfo _loadedFile;
     [ObservableProperty] private ConversionDataEntryContext<double?> _longitudeEntry;
-    [ObservableProperty] private ContentSiteFeedAndIsDraftContext? _mainSiteFeed;
+    [ObservableProperty] private ContentSiteFeedAndIsDraftContext _mainSiteFeed;
     [ObservableProperty] private StringDataEntryContext _photoCreatedByEntry;
     [ObservableProperty] private ConversionDataEntryContext<DateTime> _photoCreatedOnEntry;
     [ObservableProperty] private ConversionDataEntryContext<DateTime?> _photoCreatedOnUtcEntry;
-    [ObservableProperty] private RelayCommand? _pointFromPhotoLocationCommand;
-    [ObservableProperty] private RelayCommand? _renameSelectedFileCommand;
+    [ObservableProperty] private RelayCommand _pointFromPhotoLocationCommand;
+    [ObservableProperty] private RelayCommand _renameSelectedFileCommand;
     [ObservableProperty] private bool _resizeSelectedFile;
-    [ObservableProperty] private RelayCommand? _rotatePhotoLeftCommand;
-    [ObservableProperty] private RelayCommand? _rotatePhotoRightCommand;
-    [ObservableProperty] private RelayCommand? _saveAndCloseCommand;
-    [ObservableProperty] private RelayCommand? _saveAndReprocessPhotoCommand;
-    [ObservableProperty] private RelayCommand? _saveCommand;
-    [ObservableProperty] private FileInfo? _selectedFile;
+    [ObservableProperty] private RelayCommand _rotatePhotoLeftCommand;
+    [ObservableProperty] private RelayCommand _rotatePhotoRightCommand;
+    [ObservableProperty] private RelayCommand _saveAndCloseCommand;
+    [ObservableProperty] private RelayCommand _saveAndReprocessPhotoCommand;
+    [ObservableProperty] private RelayCommand _saveCommand;
+    [ObservableProperty] private FileInfo _selectedFile;
     [ObservableProperty] private BitmapSource _selectedFileBitmapSource;
     [ObservableProperty] private bool _selectedFileHasPathOrNameChanges;
     [ObservableProperty] private bool _selectedFileHasValidationIssues;
     [ObservableProperty] private bool _selectedFileNameHasInvalidCharacters;
     [ObservableProperty] private string _selectedFileValidationMessage;
-    [ObservableProperty] private BoolDataEntryContext? _showPosition;
-    [ObservableProperty] private BoolDataEntryContext? _showSizes;
+    [ObservableProperty] private BoolDataEntryContext _showPosition;
+    [ObservableProperty] private BoolDataEntryContext _showSizes;
     [ObservableProperty] private StringDataEntryContext _shutterSpeedEntry;
-    [ObservableProperty] private StatusControlContext? _statusContext;
-    [ObservableProperty] private TagsEditorContext? _tagEdit;
-    [ObservableProperty] private TitleSummarySlugEditorContext? _titleSummarySlugFolder;
-    [ObservableProperty] private UpdateNotesEditorContext? _updateNotes;
-    [ObservableProperty] private RelayCommand? _viewOnSiteCommand;
-    [ObservableProperty] private RelayCommand? _viewPhotoMetadataCommand;
-    [ObservableProperty] private RelayCommand? _viewSelectedFileCommand;
+    [ObservableProperty] private StatusControlContext _statusContext;
+    [ObservableProperty] private TagsEditorContext _tagEdit;
+    [ObservableProperty] private TitleSummarySlugEditorContext _titleSummarySlugFolder;
+    [ObservableProperty] private UpdateNotesEditorContext _updateNotes;
+    [ObservableProperty] private RelayCommand _viewOnSiteCommand;
+    [ObservableProperty] private RelayCommand _viewPhotoMetadataCommand;
+    [ObservableProperty] private RelayCommand _viewSelectedFileCommand;
 
     public EventHandler RequestContentEditorWindowClose;
 
-    private PhotoContentEditorContext(StatusControlContext? statusContext)
+    private PhotoContentEditorContext(StatusControlContext statusContext)
     {
         SetupContextAndCommands(statusContext);
 
@@ -203,15 +203,15 @@ Photo Content Notes:
         PhotoMetadataToCurrentContent(metadata);
     }
 
-    public static async Task<PhotoContentEditorContext> CreateInstance(StatusControlContext? statusContext)
+    public static async Task<PhotoContentEditorContext> CreateInstance(StatusControlContext statusContext)
     {
         var newContext = new PhotoContentEditorContext(statusContext);
         await newContext.LoadData(null);
         return newContext;
     }
 
-    public static async Task<PhotoContentEditorContext> CreateInstance(StatusControlContext? statusContext,
-        FileInfo? initialPhoto)
+    public static async Task<PhotoContentEditorContext> CreateInstance(StatusControlContext statusContext,
+        FileInfo initialPhoto)
     {
         var newContext = new PhotoContentEditorContext(statusContext) { StatusContext = { BlockUi = true } };
 
@@ -223,15 +223,15 @@ Photo Content Notes:
         return newContext;
     }
 
-    public static async Task<PhotoContentEditorContext> CreateInstance(StatusControlContext? statusContext,
-        PhotoContent? toLoad)
+    public static async Task<PhotoContentEditorContext> CreateInstance(StatusControlContext statusContext,
+        PhotoContent toLoad)
     {
         var newContext = new PhotoContentEditorContext(statusContext);
         await newContext.LoadData(toLoad);
         return newContext;
     }
 
-    private PhotoContent? CurrentStateToPhotoContent()
+    private PhotoContent CurrentStateToPhotoContent()
     {
         var newEntry = new PhotoContent();
 
@@ -346,7 +346,7 @@ Photo Content Notes:
         StatusContext.ToastSuccess($"To Clipboard: {linkString}");
     }
 
-    public async Task LoadData(PhotoContent? toLoad, bool skipMediaDirectoryCheck = false)
+    public async Task LoadData(PhotoContent toLoad, bool skipMediaDirectoryCheck = false)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -537,8 +537,9 @@ Photo Content Notes:
         PropertyScanners.SubscribeToChildHasChangesAndHasValidationIssues(this, CheckForChangesAndValidationIssues);
     }
 
-    private void OnPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
     {
+        if (e == null) return;
         if (string.IsNullOrWhiteSpace(e.PropertyName)) return;
 
         if (!e.PropertyName.Contains("HasChanges") && !e.PropertyName.Contains("Validation"))
@@ -711,7 +712,7 @@ Photo Content Notes:
         SelectedFileBitmapSource = await ImageHelpers.InMemoryThumbnailFromFile(SelectedFile, 450, 72);
     }
 
-    public void SetupContextAndCommands(StatusControlContext? statusContext)
+    public void SetupContextAndCommands(StatusControlContext statusContext)
     {
         StatusContext = statusContext ?? new StatusControlContext();
 

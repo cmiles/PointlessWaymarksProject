@@ -24,7 +24,7 @@ public sealed class ListBoxItemControlIgnoreMouseWheelBehavior : Behavior<UIElem
         try
         {
             var listItem = XamlHelpers.FindParent<ListBoxItem>(AssociatedObject);
-            listItem?.RaiseEvent(e2);
+            listItem.RaiseEvent(e2);
         }
         catch (Exception exception)
         {

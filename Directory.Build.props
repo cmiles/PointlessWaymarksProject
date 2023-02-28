@@ -5,7 +5,5 @@
         <Platforms>x64</Platforms>
         <ImplicitUsings>enable</ImplicitUsings>
         <LangVersion>preview</LangVersion>
-        <Nullable>enable</Nullable>
-        <RuntimeIdentifier>win10-x64</RuntimeIdentifier>
     </PropertyGroup>
 </Project>

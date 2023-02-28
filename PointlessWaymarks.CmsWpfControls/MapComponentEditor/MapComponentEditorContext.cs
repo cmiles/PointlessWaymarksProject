@@ -45,25 +45,25 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
     [ObservableProperty] private bool _hasChanges;
     [ObservableProperty] private bool _hasValidationIssues;
     [ObservableProperty] private HelpDisplayContext _helpContext;
-    [ObservableProperty] private RelayCommand? _linkToClipboardCommand;
+    [ObservableProperty] private RelayCommand _linkToClipboardCommand;
     [ObservableProperty] private ObservableCollection<IMapElementListItem>? _mapElements;
     [ObservableProperty] private RelayCommand<IMapElementListItem> _openItemEditorCommand;
     [ObservableProperty] private string _previewHtml;
     [ObservableProperty] private string? _previewMapJsonDto = string.Empty;
-    [ObservableProperty] private RelayCommand? _refreshMapPreviewCommand;
+    [ObservableProperty] private RelayCommand _refreshMapPreviewCommand;
     [ObservableProperty] private RelayCommand<IMapElementListItem> _removeItemCommand;
-    [ObservableProperty] private RelayCommand? _saveAndCloseCommand;
-    [ObservableProperty] private RelayCommand? _saveCommand;
-    [ObservableProperty] private StatusControlContext? _statusContext;
+    [ObservableProperty] private RelayCommand _saveAndCloseCommand;
+    [ObservableProperty] private RelayCommand _saveCommand;
+    [ObservableProperty] private StatusControlContext _statusContext;
     [ObservableProperty] private StringDataEntryContext? _summaryEntry;
     [ObservableProperty] private StringDataEntryContext? _titleEntry;
     [ObservableProperty] private UpdateNotesEditorContext? _updateNotes;
-    [ObservableProperty] private RelayCommand? _userGeoContentIdInputToMapCommand;
+    [ObservableProperty] private RelayCommand _userGeoContentIdInputToMapCommand;
     [ObservableProperty] private string _userGeoContentInput = string.Empty;
 
     public EventHandler? RequestContentEditorWindowClose;
 
-    private MapComponentEditorContext(StatusControlContext? statusContext)
+    private MapComponentEditorContext(StatusControlContext statusContext)
     {
         _statusContext = statusContext;
 
@@ -209,7 +209,7 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
         }
     }
 
-    public static async Task<MapComponentEditorContext> CreateInstance(StatusControlContext? statusContext,
+    public static async Task<MapComponentEditorContext> CreateInstance(StatusControlContext statusContext,
         MapComponent mapComponent)
     {
         var newControl = new MapComponentEditorContext(statusContext);

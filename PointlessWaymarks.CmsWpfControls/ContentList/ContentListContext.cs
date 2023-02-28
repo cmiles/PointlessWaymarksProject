@@ -68,15 +68,15 @@ public partial class ContentListContext : ObservableObject, IDragSource, IDropTa
     [ObservableProperty] private RelayCommand _generateHtmlSelectedCommand;
     [ObservableProperty] private GeoJsonContentActions _geoJsonItemActions;
     [ObservableProperty] private ImageContentActions _imageItemActions;
-    [ObservableProperty] private RelayCommand? _importFromExcelFileCommand;
-    [ObservableProperty] private RelayCommand? _importFromOpenExcelInstanceCommand;
+    [ObservableProperty] private RelayCommand _importFromExcelFileCommand;
+    [ObservableProperty] private RelayCommand _importFromOpenExcelInstanceCommand;
     [ObservableProperty] private ObservableCollection<IContentListItem> _items;
     [ObservableProperty] private RelayCommand<DateTime?> _lastUpdatedOnDaySearchCommand;
     [ObservableProperty] private LineContentActions _lineItemActions;
     [ObservableProperty] private LinkContentActions _linkItemActions;
     [ObservableProperty] private ContentListSelected<IContentListItem> _listSelection;
     [ObservableProperty] private ColumnSortControlContext _listSort;
-    [ObservableProperty] private RelayCommand? _loadAllCommand;
+    [ObservableProperty] private RelayCommand _loadAllCommand;
     [ObservableProperty] private MapComponentContentActions _mapComponentItemActions;
     [ObservableProperty] private CmsCommonCommands _newActions;
     [ObservableProperty] private NoteContentActions _noteItemActions;
@@ -84,17 +84,17 @@ public partial class ContentListContext : ObservableObject, IDragSource, IDropTa
     [ObservableProperty] private PointContentActions _pointItemActions;
     [ObservableProperty] private PostContentActions _postItemActions;
     [ObservableProperty] private RelayCommand _searchHelpWindowCommand;
-    [ObservableProperty] private RelayCommand? _selectedToExcelCommand;
+    [ObservableProperty] private RelayCommand _selectedToExcelCommand;
     [ObservableProperty] private RelayCommand _showSitePreviewWindowCommand;
-    [ObservableProperty] private StatusControlContext? _statusContext;
+    [ObservableProperty] private StatusControlContext _statusContext;
     [ObservableProperty] private string _userFilterText;
     [ObservableProperty] private VideoContentActions _videoItemActions;
     [ObservableProperty] private RelayCommand _viewHistorySelectedCommand;
     [ObservableProperty] private RelayCommand _viewOnSiteCommand;
-    [ObservableProperty] private WindowIconStatus? _windowStatus;
+    [ObservableProperty] private WindowIconStatus _windowStatus;
 
-    public ContentListContext(StatusControlContext? statusContext, IContentListLoader loader,
-        WindowIconStatus? windowStatus = null)
+    public ContentListContext(StatusControlContext statusContext, IContentListLoader loader,
+        WindowIconStatus windowStatus = null)
     {
         StatusContext = statusContext ?? new StatusControlContext();
 
@@ -696,8 +696,9 @@ public partial class ContentListContext : ObservableObject, IDragSource, IDropTa
         DataNotificationsProcessor.Enqueue(e);
     }
 
-    private void OnPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
     {
+        if (e == null) return;
         if (string.IsNullOrWhiteSpace(e.PropertyName)) return;
 
         if (e.PropertyName == nameof(UserFilterText))
@@ -733,7 +734,7 @@ public partial class ContentListContext : ObservableObject, IDragSource, IDropTa
 
 
 
-    private void StatusContextOnPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    private void StatusContextOnPropertyChanged(object sender, PropertyChangedEventArgs e)
     {
         if (string.IsNullOrWhiteSpace(e?.PropertyName)) return;
         if (e.PropertyName == nameof(StatusContext.BlockUi) && !StatusContext.BlockUi && FilterOnUiShown)
@@ -743,7 +744,7 @@ public partial class ContentListContext : ObservableObject, IDragSource, IDropTa
         }
     }
 
-    private async Task TryOpenEditorsForDroppedFiles(List<string> files, StatusControlContext? statusContext)
+    private async Task TryOpenEditorsForDroppedFiles(List<string> files, StatusControlContext statusContext)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 

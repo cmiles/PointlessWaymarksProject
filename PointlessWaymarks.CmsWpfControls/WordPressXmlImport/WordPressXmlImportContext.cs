@@ -35,13 +35,13 @@ public partial class WordPressXmlImportContext : ObservableObject
     [ObservableProperty] private ObservableCollection<WordPressXmlImportListItem>? _items;
     [ObservableProperty] private ContentListSelected<WordPressXmlImportListItem>? _listSelection;
     [ObservableProperty] private ColumnSortControlContext _listSort;
-    [ObservableProperty] private RelayCommand? _loadWordPressXmlFileCommand;
+    [ObservableProperty] private RelayCommand _loadWordPressXmlFileCommand;
     [ObservableProperty] private List<WordPressXmlImportListItem> _selectedItems = new();
-    [ObservableProperty] private RelayCommand? _selectedToFileContentEditorCommand;
-    [ObservableProperty] private RelayCommand? _selectedToLinkContentEditorCommand;
-    [ObservableProperty] private RelayCommand? _selectedToPostContentEditorAutoSaveCommand;
-    [ObservableProperty] private RelayCommand? _selectedToPostContentEditorCommand;
-    [ObservableProperty] private StatusControlContext? _statusContext;
+    [ObservableProperty] private RelayCommand _selectedToFileContentEditorCommand;
+    [ObservableProperty] private RelayCommand _selectedToLinkContentEditorCommand;
+    [ObservableProperty] private RelayCommand _selectedToPostContentEditorAutoSaveCommand;
+    [ObservableProperty] private RelayCommand _selectedToPostContentEditorCommand;
+    [ObservableProperty] private StatusControlContext _statusContext;
     [ObservableProperty] private string _userFilterText = string.Empty;
     [ObservableProperty] private Blog? _wordPressData;
 

@@ -5,7 +5,7 @@ namespace PointlessWaymarks.CmsWpfControls.ColumnSort;
 
 public static class ListContextSortHelpers
 {
-    public static void SortList(List<SortDescription>? listSorts, object items)
+    public static void SortList(List<SortDescription> listSorts, object items)
     {
         var collectionView = (CollectionView) CollectionViewSource.GetDefaultView(items);
         collectionView.SortDescriptions.Clear();

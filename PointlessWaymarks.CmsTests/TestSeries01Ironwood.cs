@@ -186,7 +186,7 @@ public class TestSeries01Ironwood
         var podPhoto = db.PhotoContents.Single(x => x.Title == IronwoodPhotoInfo.IronwoodPodContent01.Title);
         var treePhoto = db.PhotoContents.Single(x => x.Title == IronwoodPhotoInfo.IronwoodTreeContent01.Title);
 
-        var items = new List<object?> { podPhoto, treePhoto };
+        var items = new List<object> { podPhoto, treePhoto };
 
         var excelFileExport = ExcelHelpers.ContentToExcelFileAsTable(items, "IronwoodTestExport01", false);
 

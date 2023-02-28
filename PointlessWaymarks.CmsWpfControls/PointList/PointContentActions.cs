@@ -27,10 +27,10 @@ public partial class PointContentActions : ObservableObject, IContentActions<Poi
     [ObservableProperty] private RelayCommand<PointContent> _generateHtmlCommand;
     [ObservableProperty] private RelayCommand<PointContent> _linkCodeToClipboardCommand;
     [ObservableProperty] private RelayCommand<PointContent> _viewOnSiteCommand;
-    [ObservableProperty] private StatusControlContext? _statusContext;
+    [ObservableProperty] private StatusControlContext _statusContext;
     [ObservableProperty] private RelayCommand<PointContent> _viewHistoryCommand;
 
-    public PointContentActions(StatusControlContext? statusContext)
+    public PointContentActions(StatusControlContext statusContext)
     {
         StatusContext = statusContext;
         DeleteCommand = StatusContext.RunBlockingTaskCommand<PointContent>(Delete);
@@ -42,13 +42,13 @@ public partial class PointContentActions : ObservableObject, IContentActions<Poi
         ViewHistoryCommand = StatusContext.RunNonBlockingTaskCommand<PointContent>(ViewHistory);
     }
 
-    public string DefaultBracketCode(PointContent? content)
+    public string DefaultBracketCode(PointContent content)
     {
         if (content?.ContentId == null) return string.Empty;
         return @$"{BracketCodePoints.Create(content)}";
     }
 
-    public async Task DefaultBracketCodeToClipboard(PointContent? content)
+    public async Task DefaultBracketCodeToClipboard(PointContent content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -67,7 +67,7 @@ public partial class PointContentActions : ObservableObject, IContentActions<Poi
         StatusContext.ToastSuccess($"To Clipboard {finalString}");
     }
 
-    public async Task Delete(PointContent? content)
+    public async Task Delete(PointContent content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -95,7 +95,7 @@ public partial class PointContentActions : ObservableObject, IContentActions<Poi
         }
     }
 
-    public async Task Edit(PointContent? content)
+    public async Task Edit(PointContent content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -114,7 +114,7 @@ public partial class PointContentActions : ObservableObject, IContentActions<Poi
         await newContentWindow.PositionWindowAndShowOnUiThread();
     }
 
-    public async Task ExtractNewLinks(PointContent? content)
+    public async Task ExtractNewLinks(PointContent content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -134,7 +134,7 @@ public partial class PointContentActions : ObservableObject, IContentActions<Poi
             $"{refreshedData.BodyContent} {refreshedData.UpdateNotes}", StatusContext.ProgressTracker());
     }
 
-    public async Task GenerateHtml(PointContent? content)
+    public async Task GenerateHtml(PointContent content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -161,7 +161,7 @@ public partial class PointContentActions : ObservableObject, IContentActions<Poi
         StatusContext.ToastSuccess($"Generated {htmlContext.PageUrl}");
     }
 
-    public async Task ViewOnSite(PointContent? content)
+    public async Task ViewOnSite(PointContent content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -179,7 +179,7 @@ public partial class PointContentActions : ObservableObject, IContentActions<Poi
         Process.Start(ps);
     }
 
-    public async Task ViewHistory(PointContent? content)
+    public async Task ViewHistory(PointContent content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 

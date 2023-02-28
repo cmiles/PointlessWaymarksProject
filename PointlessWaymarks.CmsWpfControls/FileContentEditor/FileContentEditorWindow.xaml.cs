@@ -12,7 +12,7 @@ public partial class FileContentEditorWindow
 {
     [ObservableProperty] private WindowAccidentalClosureHelper _accidentalCloserHelper;
     [ObservableProperty] private FileContentEditorContext _fileContent;
-    [ObservableProperty] private StatusControlContext? _statusContext;
+    [ObservableProperty] private StatusControlContext _statusContext;
 
     /// <summary>
     ///     DO NOT USE - Use CreateInstance instead - using the constructor directly will result in
@@ -56,7 +56,7 @@ public partial class FileContentEditorWindow
     ///     switch to the UI thread as needed.
     /// </summary>
     /// <returns></returns>
-    public static async Task<FileContentEditorWindow> CreateInstance(FileInfo? initialFile)
+    public static async Task<FileContentEditorWindow> CreateInstance(FileInfo initialFile)
     {
         await ThreadSwitcher.ResumeForegroundAsync();
 
@@ -83,7 +83,7 @@ public partial class FileContentEditorWindow
     ///     PositionWindowAndShowOnUiThread() from the WindowInitialPositionHelpers.
     /// </summary>
     /// <returns></returns>
-    public static async Task<FileContentEditorWindow> CreateInstance(FileContent? toLoad)
+    public static async Task<FileContentEditorWindow> CreateInstance(FileContent toLoad)
     {
         await ThreadSwitcher.ResumeForegroundAsync();
 

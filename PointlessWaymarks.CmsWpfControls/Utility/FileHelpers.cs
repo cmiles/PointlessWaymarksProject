@@ -8,14 +8,14 @@ namespace PointlessWaymarks.CmsWpfControls.Utility;
 
 public static class FileHelpers
 {
-    public static bool ImageFileTypeIsSupported(FileInfo? toCheck)
+    public static bool ImageFileTypeIsSupported(FileInfo toCheck)
     {
         if (toCheck is not { Exists: true }) return false;
         return toCheck.Extension.ToUpperInvariant().Contains("JPG") ||
                toCheck.Extension.ToUpperInvariant().Contains("JPEG");
     }
 
-    public static bool PhotoFileTypeIsSupported(FileInfo? toCheck)
+    public static bool PhotoFileTypeIsSupported(FileInfo toCheck)
     {
         if (toCheck is not { Exists: true }) return false;
         return toCheck.Extension.ToUpperInvariant().Contains("JPG") ||
@@ -23,7 +23,7 @@ public static class FileHelpers
     }
 
 
-    public static async Task RenameSelectedFile(FileInfo? selectedFile, StatusControlContext? statusContext,
+    public static async Task RenameSelectedFile(FileInfo selectedFile, StatusControlContext statusContext,
         Action<FileInfo> setSelectedFile)
     {
         if (selectedFile is not { Exists: true })
@@ -104,8 +104,8 @@ public static class FileHelpers
     /// <param name="statusContext"></param>
     /// <param name="setSelectedFile"></param>
     /// <returns></returns>
-    public static async Task TryAutoCleanRenameSelectedFile(FileInfo? selectedFile,
-        StatusControlContext? statusContext,
+    public static async Task TryAutoCleanRenameSelectedFile(FileInfo selectedFile,
+        StatusControlContext statusContext,
         Action<FileInfo> setSelectedFile)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -129,8 +129,8 @@ public static class FileHelpers
     /// <param name="statusContext"></param>
     /// <param name="setSelectedFile"></param>
     /// <returns></returns>
-    public static async Task TryAutoRenameSelectedFile(FileInfo? selectedFile, string suggestedName,
-        StatusControlContext? statusContext,
+    public static async Task TryAutoRenameSelectedFile(FileInfo selectedFile, string suggestedName,
+        StatusControlContext statusContext,
         Action<FileInfo> setSelectedFile)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -191,7 +191,7 @@ public static class FileHelpers
         statusContext.ToastSuccess($"Selected file now {selectedFile.FullName}");
     }
 
-    public static bool VideoFileTypeIsSupported(FileInfo? toCheck)
+    public static bool VideoFileTypeIsSupported(FileInfo toCheck)
     {
         if (toCheck is not { Exists: true }) return false;
         return toCheck.Extension.ToUpperInvariant().Contains("MP4") || toCheck.Extension.ToUpperInvariant().Contains("WEBM") || toCheck.Extension.ToUpperInvariant().Contains("OGG");

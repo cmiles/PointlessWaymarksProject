@@ -11,7 +11,7 @@ namespace PointlessWaymarks.CmsWpfControls.VideoContentEditor;
 public partial class VideoContentEditorWindow
 {
     [ObservableProperty] private WindowAccidentalClosureHelper _accidentalCloserHelper;
-    [ObservableProperty] private StatusControlContext? _statusContext;
+    [ObservableProperty] private StatusControlContext _statusContext;
     [ObservableProperty] private VideoContentEditorContext _videoContent;
 
     /// <summary>
@@ -59,7 +59,7 @@ public partial class VideoContentEditorWindow
     ///     switch to the UI thread as needed.
     /// </summary>
     /// <returns></returns>
-    public static async Task<VideoContentEditorWindow> CreateInstance(FileInfo? initialFile)
+    public static async Task<VideoContentEditorWindow> CreateInstance(FileInfo initialFile)
     {
         await ThreadSwitcher.ResumeForegroundAsync();
 
@@ -89,7 +89,7 @@ public partial class VideoContentEditorWindow
     ///     PositionWindowAndShowOnUiThread() from the WindowInitialPositionHelpers.
     /// </summary>
     /// <returns></returns>
-    public static async Task<VideoContentEditorWindow> CreateInstance(VideoContent? toLoad)
+    public static async Task<VideoContentEditorWindow> CreateInstance(VideoContent toLoad)
     {
         await ThreadSwitcher.ResumeForegroundAsync();
 

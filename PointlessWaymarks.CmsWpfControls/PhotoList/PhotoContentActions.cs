@@ -34,11 +34,11 @@ public partial class PhotoContentActions : ObservableObject, IContentActions<Pho
     [ObservableProperty] private RelayCommand<PhotoContent> _linkCodeToClipboardCommand;
     [ObservableProperty] private RelayCommand<PhotoContent> _photoTakenOnSearchCommand;
     [ObservableProperty] private RelayCommand<PhotoContent> _shutterSpeedSearchCommand;
-    [ObservableProperty] private StatusControlContext? _statusContext;
+    [ObservableProperty] private StatusControlContext _statusContext;
     [ObservableProperty] private RelayCommand<PhotoContent> _viewFileCommand;
     [ObservableProperty] private RelayCommand<PhotoContent> _viewOnSiteCommand;
 
-    public PhotoContentActions(StatusControlContext? statusContext)
+    public PhotoContentActions(StatusControlContext statusContext)
     {
         StatusContext = statusContext ?? new StatusControlContext();
 
@@ -69,12 +69,12 @@ public partial class PhotoContentActions : ObservableObject, IContentActions<Pho
             await RunReport(async () => await ShutterSpeedSearch(x), $"Shutter Speed - {x.ShutterSpeed}"));
     }
 
-    public string DefaultBracketCode(PhotoContent? content)
+    public string DefaultBracketCode(PhotoContent content)
     {
         return content?.ContentId == null ? string.Empty : @$"{BracketCodePhotos.Create(content)}";
     }
 
-    public async Task DefaultBracketCodeToClipboard(PhotoContent? content)
+    public async Task DefaultBracketCodeToClipboard(PhotoContent content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -93,7 +93,7 @@ public partial class PhotoContentActions : ObservableObject, IContentActions<Pho
         StatusContext.ToastSuccess($"To Clipboard {finalString}");
     }
 
-    public async Task Delete(PhotoContent? content)
+    public async Task Delete(PhotoContent content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -122,7 +122,7 @@ public partial class PhotoContentActions : ObservableObject, IContentActions<Pho
         }
     }
 
-    public async Task Edit(PhotoContent? content)
+    public async Task Edit(PhotoContent content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -141,7 +141,7 @@ public partial class PhotoContentActions : ObservableObject, IContentActions<Pho
         await newContentWindow.PositionWindowAndShowOnUiThread();
     }
 
-    public async Task ExtractNewLinks(PhotoContent? content)
+    public async Task ExtractNewLinks(PhotoContent content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -160,7 +160,7 @@ public partial class PhotoContentActions : ObservableObject, IContentActions<Pho
             $"{refreshedData.BodyContent} {refreshedData.UpdateNotes}", StatusContext.ProgressTracker());
     }
 
-    public async Task GenerateHtml(PhotoContent? content)
+    public async Task GenerateHtml(PhotoContent content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -179,7 +179,7 @@ public partial class PhotoContentActions : ObservableObject, IContentActions<Pho
         StatusContext.ToastSuccess($"Generated {htmlContext.PageUrl}");
     }
 
-    public async Task ViewHistory(PhotoContent? content)
+    public async Task ViewHistory(PhotoContent content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -213,7 +213,7 @@ public partial class PhotoContentActions : ObservableObject, IContentActions<Pho
 
     public RelayCommand<PhotoContent> ViewHistoryCommand { get; set; }
 
-    public async Task ViewOnSite(PhotoContent? content)
+    public async Task ViewOnSite(PhotoContent content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -338,7 +338,7 @@ public partial class PhotoContentActions : ObservableObject, IContentActions<Pho
             .ToList();
     }
 
-    public async Task ViewFile(PhotoContent? content)
+    public async Task ViewFile(PhotoContent content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 

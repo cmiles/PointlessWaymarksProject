@@ -36,52 +36,52 @@ public partial class ImageContentEditorContext : ObservableObject, IHasChanges, 
     ICheckForChangesAndValidation
 {
     [ObservableProperty] private StringDataEntryContext _altTextEntry;
-    [ObservableProperty] private RelayCommand? _autoCleanRenameSelectedFileCommand;
-    [ObservableProperty] private BodyContentEditorContext? _bodyContent;
-    [ObservableProperty] private RelayCommand? _chooseFileCommand;
-    [ObservableProperty] private ContentIdViewerControlContext? _contentId;
-    [ObservableProperty] private CreatedAndUpdatedByAndOnDisplayContext? _createdUpdatedDisplay;
-    [ObservableProperty] private ImageContent? _dbEntry;
-    [ObservableProperty] private RelayCommand? _extractNewLinksCommand;
+    [ObservableProperty] private RelayCommand _autoCleanRenameSelectedFileCommand;
+    [ObservableProperty] private BodyContentEditorContext _bodyContent;
+    [ObservableProperty] private RelayCommand _chooseFileCommand;
+    [ObservableProperty] private ContentIdViewerControlContext _contentId;
+    [ObservableProperty] private CreatedAndUpdatedByAndOnDisplayContext _createdUpdatedDisplay;
+    [ObservableProperty] private ImageContent _dbEntry;
+    [ObservableProperty] private RelayCommand _extractNewLinksCommand;
     [ObservableProperty] private bool _hasChanges;
     [ObservableProperty] private bool _hasValidationIssues;
     [ObservableProperty] private HelpDisplayContext _helpContext;
-    [ObservableProperty] private FileInfo? _initialImage;
-    [ObservableProperty] private RelayCommand? _linkToClipboardCommand;
-    [ObservableProperty] private FileInfo? _loadedFile;
-    [ObservableProperty] private ContentSiteFeedAndIsDraftContext? _mainSiteFeed;
-    [ObservableProperty] private RelayCommand? _renameSelectedFileCommand;
+    [ObservableProperty] private FileInfo _initialImage;
+    [ObservableProperty] private RelayCommand _linkToClipboardCommand;
+    [ObservableProperty] private FileInfo _loadedFile;
+    [ObservableProperty] private ContentSiteFeedAndIsDraftContext _mainSiteFeed;
+    [ObservableProperty] private RelayCommand _renameSelectedFileCommand;
     [ObservableProperty] private bool _resizeSelectedFile;
-    [ObservableProperty] private RelayCommand? _rotateImageLeftCommand;
-    [ObservableProperty] private RelayCommand? _rotateImageRightCommand;
-    [ObservableProperty] private RelayCommand? _saveAndCloseCommand;
-    [ObservableProperty] private RelayCommand? _saveAndReprocessImageCommand;
-    [ObservableProperty] private RelayCommand? _saveCommand;
-    [ObservableProperty] private FileInfo? _selectedFile;
+    [ObservableProperty] private RelayCommand _rotateImageLeftCommand;
+    [ObservableProperty] private RelayCommand _rotateImageRightCommand;
+    [ObservableProperty] private RelayCommand _saveAndCloseCommand;
+    [ObservableProperty] private RelayCommand _saveAndReprocessImageCommand;
+    [ObservableProperty] private RelayCommand _saveCommand;
+    [ObservableProperty] private FileInfo _selectedFile;
     [ObservableProperty] private BitmapSource _selectedFileBitmapSource;
     [ObservableProperty] private bool _selectedFileHasPathOrNameChanges;
     [ObservableProperty] private bool _selectedFileHasValidationIssues;
     [ObservableProperty] private bool _selectedFileNameHasInvalidCharacters;
     [ObservableProperty] private string _selectedFileValidationMessage;
-    [ObservableProperty] private BoolDataEntryContext? _showInSearch;
-    [ObservableProperty] private BoolDataEntryContext? _showSizes;
-    [ObservableProperty] private StatusControlContext? _statusContext;
-    [ObservableProperty] private TagsEditorContext? _tagEdit;
-    [ObservableProperty] private TitleSummarySlugEditorContext? _titleSummarySlugFolder;
-    [ObservableProperty] private UpdateNotesEditorContext? _updateNotes;
-    [ObservableProperty] private RelayCommand? _viewOnSiteCommand;
-    [ObservableProperty] private RelayCommand? _viewSelectedFileCommand;
+    [ObservableProperty] private BoolDataEntryContext _showInSearch;
+    [ObservableProperty] private BoolDataEntryContext _showSizes;
+    [ObservableProperty] private StatusControlContext _statusContext;
+    [ObservableProperty] private TagsEditorContext _tagEdit;
+    [ObservableProperty] private TitleSummarySlugEditorContext _titleSummarySlugFolder;
+    [ObservableProperty] private UpdateNotesEditorContext _updateNotes;
+    [ObservableProperty] private RelayCommand _viewOnSiteCommand;
+    [ObservableProperty] private RelayCommand _viewSelectedFileCommand;
 
     public EventHandler RequestContentEditorWindowClose;
 
-    private ImageContentEditorContext(StatusControlContext? statusContext)
+    private ImageContentEditorContext(StatusControlContext statusContext)
     {
         SetupContextAndCommands(statusContext);
 
         PropertyChanged += OnPropertyChanged;
     }
 
-    public RelayCommand? AutoRenameSelectedFileBasedOnTitleCommand { get; set; }
+    public RelayCommand AutoRenameSelectedFileBasedOnTitleCommand { get; set; }
 
     public EventHandler<EventArgs> Saved { get; set; }
 
@@ -99,6 +99,7 @@ public partial class ImageContentEditorContext : ObservableObject, IHasChanges, 
         StatusContext.Progress("Starting image load.");
 
         var dialog = new VistaOpenFileDialog { Filter = "jpg files (*.jpg;*.jpeg)|*.jpg;*.jpeg" };
+        ;
 
         if (!(dialog.ShowDialog() ?? false)) return;
 
@@ -124,8 +125,8 @@ public partial class ImageContentEditorContext : ObservableObject, IHasChanges, 
         StatusContext.Progress($"Image set - {SelectedFile.FullName}");
     }
 
-    public static async Task<ImageContentEditorContext> CreateInstance(StatusControlContext? statusContext,
-        ImageContent? contentToLoad = null, FileInfo? initialImage = null)
+    public static async Task<ImageContentEditorContext> CreateInstance(StatusControlContext statusContext,
+        ImageContent contentToLoad = null, FileInfo initialImage = null)
     {
         var newContext = new ImageContentEditorContext(statusContext);
         if (initialImage is { Exists: true }) newContext._initialImage = initialImage;
@@ -133,7 +134,7 @@ public partial class ImageContentEditorContext : ObservableObject, IHasChanges, 
         return newContext;
     }
 
-    private ImageContent? CurrentStateToImageContent()
+    private ImageContent CurrentStateToImageContent()
     {
         var newEntry = new ImageContent();
 
@@ -193,7 +194,7 @@ public partial class ImageContentEditorContext : ObservableObject, IHasChanges, 
     }
 
 
-    private async Task LoadData(ImageContent? toLoad, bool skipMediaDirectoryCheck = false)
+    private async Task LoadData(ImageContent toLoad, bool skipMediaDirectoryCheck = false)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -269,8 +270,9 @@ public partial class ImageContentEditorContext : ObservableObject, IHasChanges, 
         PropertyScanners.SubscribeToChildHasChangesAndHasValidationIssues(this, CheckForChangesAndValidationIssues);
     }
 
-    private void OnPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
     {
+        if (e == null) return;
         if (string.IsNullOrWhiteSpace(e.PropertyName)) return;
 
         if (!e.PropertyName.Contains("HasChanges") && !e.PropertyName.Contains("Validation"))
@@ -361,7 +363,7 @@ public partial class ImageContentEditorContext : ObservableObject, IHasChanges, 
         SelectedFileBitmapSource = await ImageHelpers.InMemoryThumbnailFromFile(SelectedFile, 450, 72);
     }
 
-    public void SetupContextAndCommands(StatusControlContext? statusContext)
+    public void SetupContextAndCommands(StatusControlContext statusContext)
     {
         StatusContext = statusContext ?? new StatusControlContext();
 

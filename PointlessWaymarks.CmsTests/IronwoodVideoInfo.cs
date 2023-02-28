@@ -36,7 +36,7 @@ public static class IronwoodVideoInfo
     
     public static string SkyFilename => "Blue-Sky-and-Clouds-Video.mp4";
 
-    public static async Task CheckForExpectedFilesAfterHtmlGeneration(VideoContent? newContent)
+    public static async Task CheckForExpectedFilesAfterHtmlGeneration(VideoContent newContent)
     {
         var contentDirectory = UserSettingsSingleton.CurrentSettings()
             .LocalSiteVideoContentDirectory(newContent, false);
@@ -79,7 +79,7 @@ public static class IronwoodVideoInfo
             $"Unexpected files in Video Content Directory: {string.Join(",", filesInDirectory)}");
     }
 
-    public static void CheckOriginalFileInContentAndMediaArchiveAfterHtmlGeneration(VideoContent? newContent)
+    public static void CheckOriginalFileInContentAndMediaArchiveAfterHtmlGeneration(VideoContent newContent)
     {
         var expectedDirectory = UserSettingsSingleton.CurrentSettings().LocalSiteVideoContentDirectory(newContent);
         Assert.IsTrue(expectedDirectory.Exists, $"Expected directory {expectedDirectory.FullName} does not exist");
@@ -164,7 +164,7 @@ public static class IronwoodVideoInfo
         await IronwoodHtmlHelpers.CommonContentChecks(document, newVideoContent);
     }
 
-    public static void JsonTest(VideoContent? newContent)
+    public static void JsonTest(VideoContent newContent)
     {
         //Check JSON File
         var jsonFile =

@@ -19,16 +19,16 @@ namespace PointlessWaymarks.CmsWpfControls.TagExclusionEditor;
 
 public partial class TagExclusionEditorContext : ObservableObject
 {
-    [ObservableProperty] private RelayCommand? _addNewItemCommand;
+    [ObservableProperty] private RelayCommand _addNewItemCommand;
     [ObservableProperty] private DataNotificationsWorkQueue _dataNotificationsProcessor;
     [ObservableProperty] private RelayCommand<TagExclusionEditorListItem> _deleteItemCommand;
     [ObservableProperty] private string _helpMarkdown;
     [ObservableProperty] private ObservableCollection<TagExclusionEditorListItem> _items;
     [ObservableProperty] private RelayCommand<TagExclusionEditorListItem> _saveItemCommand;
-    [ObservableProperty] private StatusControlContext? _statusContext;
+    [ObservableProperty] private StatusControlContext _statusContext;
     [ObservableProperty] private CmsCommonCommands _commonCommands;
 
-    public TagExclusionEditorContext(StatusControlContext? statusContext)
+    public TagExclusionEditorContext(StatusControlContext statusContext)
     {
         StatusContext = statusContext ?? new StatusControlContext();
         CommonCommands = new CmsCommonCommands(StatusContext);

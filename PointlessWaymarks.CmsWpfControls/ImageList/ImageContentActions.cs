@@ -27,11 +27,11 @@ public partial class ImageContentActions : ObservableObject, IContentActions<Ima
     [ObservableProperty] private RelayCommand<ImageContent> _generateHtmlCommand;
     [ObservableProperty] private RelayCommand<ImageContent> _linkCodeToClipboardCommand;
     [ObservableProperty] private RelayCommand<ImageContent> _viewOnSiteCommand;
-    [ObservableProperty] private StatusControlContext? _statusContext;
+    [ObservableProperty] private StatusControlContext _statusContext;
     [ObservableProperty] private RelayCommand<ImageContent> _viewFileCommand;
     [ObservableProperty] private RelayCommand<ImageContent> _viewHistoryCommand;
 
-    public ImageContentActions(StatusControlContext? statusContext)
+    public ImageContentActions(StatusControlContext statusContext)
     {
         StatusContext = statusContext;
         DeleteCommand = StatusContext.RunBlockingTaskCommand<ImageContent>(Delete);
@@ -44,12 +44,12 @@ public partial class ImageContentActions : ObservableObject, IContentActions<Ima
         ViewHistoryCommand = StatusContext.RunNonBlockingTaskCommand<ImageContent>(ViewHistory);
     }
 
-    public string DefaultBracketCode(ImageContent? content)
+    public string DefaultBracketCode(ImageContent content)
     {
         return content?.ContentId == null ? string.Empty : @$"{BracketCodeImages.Create(content)}";
     }
 
-    public async Task DefaultBracketCodeToClipboard(ImageContent? content)
+    public async Task DefaultBracketCodeToClipboard(ImageContent content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -68,7 +68,7 @@ public partial class ImageContentActions : ObservableObject, IContentActions<Ima
         StatusContext.ToastSuccess($"To Clipboard {finalString}");
     }
 
-    public async Task Delete(ImageContent? content)
+    public async Task Delete(ImageContent content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -96,7 +96,7 @@ public partial class ImageContentActions : ObservableObject, IContentActions<Ima
         }
     }
 
-    public async Task Edit(ImageContent? content)
+    public async Task Edit(ImageContent content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -119,7 +119,7 @@ public partial class ImageContentActions : ObservableObject, IContentActions<Ima
         await ThreadSwitcher.ResumeBackgroundAsync();
     }
 
-    public async Task ExtractNewLinks(ImageContent? content)
+    public async Task ExtractNewLinks(ImageContent content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -138,7 +138,7 @@ public partial class ImageContentActions : ObservableObject, IContentActions<Ima
             $"{refreshedData.BodyContent} {refreshedData.UpdateNotes}", StatusContext.ProgressTracker());
     }
 
-    public async Task GenerateHtml(ImageContent? content)
+    public async Task GenerateHtml(ImageContent content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -157,7 +157,7 @@ public partial class ImageContentActions : ObservableObject, IContentActions<Ima
         StatusContext.ToastSuccess($"Generated {htmlContext.PageUrl}");
     }
 
-    public async Task ViewOnSite(ImageContent? content)
+    public async Task ViewOnSite(ImageContent content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -175,7 +175,7 @@ public partial class ImageContentActions : ObservableObject, IContentActions<Ima
         Process.Start(ps);
     }
 
-    public async Task ViewHistory(ImageContent? content)
+    public async Task ViewHistory(ImageContent content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -219,7 +219,7 @@ public partial class ImageContentActions : ObservableObject, IContentActions<Ima
         };
     }
 
-    public async Task ViewFile(ImageContent? listItem)
+    public async Task ViewFile(ImageContent listItem)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 

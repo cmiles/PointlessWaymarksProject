@@ -61,7 +61,8 @@ public static class ProgramInfoTools
         {
             humanTitleString += $"{appName}  ";
 
-            if (!string.IsNullOrEmpty(executingAssembly.Location) &&
+            if (executingAssembly != null &&
+                !string.IsNullOrEmpty(executingAssembly.Location) &&
                 !string.IsNullOrEmpty(Path.GetDirectoryName(executingAssembly.Location)))
             {
                 var containingDirectory = new DirectoryInfo(Path.GetDirectoryName(executingAssembly.Location));

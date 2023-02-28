@@ -14,7 +14,6 @@ using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.Content;
 using PointlessWaymarks.CmsData.ContentHtml;
 using PointlessWaymarks.CmsData.Database;
-using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsData.Json;
 using PointlessWaymarks.CmsWpfControls.AllContentList;
 using PointlessWaymarks.CmsWpfControls.ContentList;
@@ -62,7 +61,7 @@ public partial class MainWindow
     [ObservableProperty] private UserSettingsEditorContext _settingsEditorContext;
     [ObservableProperty] private SettingsFileChooserControlContext _settingsFileChooser;
     [ObservableProperty] private bool _showSettingsFileChooser;
-    [ObservableProperty] private StatusControlContext? _statusContext;
+    [ObservableProperty] private StatusControlContext _statusContext;
     [ObservableProperty] private AllContentListWithActionsContext _tabAllListContext;
     [ObservableProperty] private FileListWithActionsContext _tabFileListContext;
     [ObservableProperty] private GeoJsonListWithActionsContext _tabGeoJsonListContext;
@@ -208,59 +207,59 @@ public partial class MainWindow
         });
     }
 
-    public RelayCommand? CheckAllContentForInvalidBracketCodeContentIdsCommand { get; }
+    public RelayCommand CheckAllContentForInvalidBracketCodeContentIdsCommand { get; }
 
-    public RelayCommand? ConfirmOrGenerateAllPhotosImagesFilesCommand { get; }
+    public RelayCommand ConfirmOrGenerateAllPhotosImagesFilesCommand { get; }
 
-    public RelayCommand? DeleteAndResizePicturesCommand { get; }
+    public RelayCommand DeleteAndResizePicturesCommand { get; }
 
-    public RelayCommand? GenerateAllHtmlCommand { get; }
+    public RelayCommand GenerateAllHtmlCommand { get; }
 
-    public RelayCommand? GenerateAllListHtmlCommand { get; }
+    public RelayCommand GenerateAllListHtmlCommand { get; }
 
-    public RelayCommand? GenerateAllTagHtmlCommand { get; }
+    public RelayCommand GenerateAllTagHtmlCommand { get; }
 
-    public RelayCommand? GenerateCameraRollCommand { get; }
+    public RelayCommand GenerateCameraRollCommand { get; }
 
-    public RelayCommand? GenerateChangedHtmlAndStartUploadCommand { get; }
+    public RelayCommand GenerateChangedHtmlAndStartUploadCommand { get; }
 
-    public RelayCommand? GenerateChangedHtmlCommand { get; }
+    public RelayCommand GenerateChangedHtmlCommand { get; }
 
-    public RelayCommand? GenerateDailyGalleryHtmlCommand { get; }
+    public RelayCommand GenerateDailyGalleryHtmlCommand { get; }
 
-    public RelayCommand? GenerateHtmlForAllFileContentCommand { get; }
+    public RelayCommand GenerateHtmlForAllFileContentCommand { get; }
 
-    public RelayCommand? GenerateHtmlForAllGeoJsonContentCommand { get; }
+    public RelayCommand GenerateHtmlForAllGeoJsonContentCommand { get; }
 
-    public RelayCommand? GenerateHtmlForAllImageContentCommand { get; }
+    public RelayCommand GenerateHtmlForAllImageContentCommand { get; }
 
-    public RelayCommand? GenerateHtmlForAllLineContentCommand { get; }
+    public RelayCommand GenerateHtmlForAllLineContentCommand { get; }
 
-    public RelayCommand? GenerateHtmlForAllMapContentCommand { get; }
+    public RelayCommand GenerateHtmlForAllMapContentCommand { get; }
 
-    public RelayCommand? GenerateHtmlForAllNoteContentCommand { get; }
+    public RelayCommand GenerateHtmlForAllNoteContentCommand { get; }
 
-    public RelayCommand? GenerateHtmlForAllPhotoContentCommand { get; }
+    public RelayCommand GenerateHtmlForAllPhotoContentCommand { get; }
 
-    public RelayCommand? GenerateHtmlForAllPointContentCommand { get; }
+    public RelayCommand GenerateHtmlForAllPointContentCommand { get; }
 
-    public RelayCommand? GenerateHtmlForAllPostContentCommand { get; }
+    public RelayCommand GenerateHtmlForAllPostContentCommand { get; }
 
-    public RelayCommand? GenerateHtmlForAllVideoContentCommand { get; set; }
+    public RelayCommand GenerateHtmlForAllVideoContentCommand { get; set; }
 
-    public RelayCommand? GenerateIndexCommand { get; }
+    public RelayCommand GenerateIndexCommand { get; }
 
-    public RelayCommand? GenerateSiteResourcesCommand { get; }
+    public RelayCommand GenerateSiteResourcesCommand { get; }
 
-    public RelayCommand? ImportJsonFromDirectoryCommand { get; }
+    public RelayCommand ImportJsonFromDirectoryCommand { get; }
 
-    public RelayCommand? RemoveUnusedFilesFromMediaArchiveCommand { get; }
+    public RelayCommand RemoveUnusedFilesFromMediaArchiveCommand { get; }
 
-    public RelayCommand? RemoveUnusedFoldersAndFilesFromContentCommand { get; }
+    public RelayCommand RemoveUnusedFoldersAndFilesFromContentCommand { get; }
 
-    public WindowIconStatus? WindowStatus { get; }
+    public WindowIconStatus WindowStatus { get; }
 
-    public RelayCommand? WriteStyleCssFileCommand { get; }
+    public RelayCommand WriteStyleCssFileCommand { get; }
 
     private async Task CheckAllContentForInvalidBracketCodeContentIds()
     {

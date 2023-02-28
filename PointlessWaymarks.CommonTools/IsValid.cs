@@ -1,3 +1,3 @@
 ﻿namespace PointlessWaymarks.CommonTools;
 
-public record IsValid(bool Valid, string? Explanation);
+public record IsValid(bool Valid, string Explanation);

@@ -11,7 +11,7 @@ public static class FileAndFolderTools
     /// </summary>
     /// <param name="forName"></param>
     /// <returns></returns>
-    public static string FullNameWithLongFilePrefix(this FileInfo? forName)
+    public static string FullNameWithLongFilePrefix(this FileInfo forName)
     {
         //See https://stackoverflow.com/questions/5188527/how-to-deal-with-files-with-a-name-longer-than-259-characters for a good summary
         //and for some library and other alternatives.
@@ -84,7 +84,7 @@ public static class FileAndFolderTools
         return true;
     }
 
-    public static bool PictureFileTypeIsSupported(FileInfo? toCheck)
+    public static bool PictureFileTypeIsSupported(FileInfo toCheck)
     {
         if (!toCheck.Exists) return false;
 
@@ -111,7 +111,7 @@ public static class FileAndFolderTools
     /// </summary>
     /// <param name="selectedFile"></param>
     /// <returns></returns>
-    public static async Task<FileInfo?> TryAutoCleanRenameFileForProgramConventions(FileInfo? selectedFile)
+    public static async Task<FileInfo?> TryAutoCleanRenameFileForProgramConventions(FileInfo selectedFile)
     {
         if (selectedFile is not { Exists: true }) return null;
 
@@ -130,18 +130,18 @@ public static class FileAndFolderTools
     /// <param name="selectedFile"></param>
     /// <param name="suggestedName"></param>
     /// <returns></returns>
-    public static Task<FileInfo?> TryAutoRenameFileForProgramConventions(FileInfo? selectedFile, string suggestedName)
+    public static async Task<FileInfo?> TryAutoRenameFileForProgramConventions(FileInfo selectedFile, string suggestedName)
     {
-        if (selectedFile is not { Exists: true }) return Task.FromResult<FileInfo?>(null);
+        if (selectedFile is not { Exists: true }) return null;
 
         var cleanedName = SlugTools.CreateSlug(false, suggestedName.TrimNullToEmpty());
 
-        if (string.IsNullOrWhiteSpace(cleanedName)) return Task.FromResult<FileInfo?>(null);
+        if (string.IsNullOrWhiteSpace(cleanedName)) return null;
 
         var moveToDirectory = selectedFile.Directory!;
         var baseMoveToName = $"{cleanedName}{Path.GetExtension(selectedFile.Name)}";
 
-        if(baseMoveToName == selectedFile.Name) return Task.FromResult(selectedFile);
+        if(baseMoveToName == selectedFile.Name) return selectedFile;
 
         var moveToName = UniqueFileTools.UniqueFile(moveToDirectory, baseMoveToName)!.FullName;
 
@@ -153,7 +153,7 @@ public static class FileAndFolderTools
         {
             Log.ForContext("selectedFile", selectedFile).ForContext("suggestedName", suggestedName)
                 .Error(e, "Exception while trying to rename file");
-            return Task.FromResult<FileInfo?>(null);
+            return null;
         }
 
         var finalFile = new FileInfo(moveToName);
@@ -162,10 +162,10 @@ public static class FileAndFolderTools
         {
             Log.ForContext("selectedFile", selectedFile).ForContext("suggestedName", suggestedName)
                 .Error("Unknown error renaming file - original file still selected.");
-            return Task.FromResult<FileInfo?>(null);
+            return null;
         }
 
-        return Task.FromResult(finalFile);
+        return finalFile;
     }
 
     public static string TryMakeFilenameValid(string filenameWithoutExtensionToTransform)

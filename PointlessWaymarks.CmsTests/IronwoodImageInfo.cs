@@ -37,7 +37,7 @@ public static class IronwoodImageInfo
 
     public static int MapWidth => 1200;
 
-    public static void CheckFileCountAndPictureAssetsAfterHtmlGeneration(ImageContent? newContent, int originalWidth)
+    public static void CheckFileCountAndPictureAssetsAfterHtmlGeneration(ImageContent newContent, int originalWidth)
     {
         var contentDirectory = UserSettingsSingleton.CurrentSettings()
             .LocalSiteImageContentDirectory(newContent, false);
@@ -70,7 +70,7 @@ public static class IronwoodImageInfo
             "Did not find the expected number of SrcSet Images");
     }
 
-    public static void CheckOriginalFileInContentAndMediaArchiveAfterHtmlGeneration(ImageContent? newContent)
+    public static void CheckOriginalFileInContentAndMediaArchiveAfterHtmlGeneration(ImageContent newContent)
     {
         var expectedDirectory = UserSettingsSingleton.CurrentSettings().LocalSiteImageContentDirectory(newContent);
         Assert.IsTrue(expectedDirectory.Exists, $"Expected directory {expectedDirectory.FullName} does not exist");
@@ -166,7 +166,7 @@ public static class IronwoodImageInfo
         return newContent;
     }
 
-    public static void JsonTest(ImageContent? newContent)
+    public static void JsonTest(ImageContent newContent)
     {
         //Check JSON File
         var jsonFile =

@@ -10,7 +10,7 @@ namespace PointlessWaymarks.CmsTests;
 
 public static class GrandCanyonPointInfo
 {
-    public static PointContentDto? YumaPointContent01 =>
+    public static PointContentDto YumaPointContent01 =>
         new()
         {
             Title = "Yuma Point",
@@ -127,7 +127,7 @@ public static class GrandCanyonPointInfo
         }
     }
 
-    public static (bool areEqual, string comparisonNotes) CompareContent(PointContentDto? reference,
+    public static (bool areEqual, string comparisonNotes) CompareContent(PointContentDto reference,
         PointContentDto toCompare)
     {
         Db.DefaultPropertyCleanup(reference);
@@ -180,7 +180,7 @@ public static class GrandCanyonPointInfo
         await IronwoodHtmlHelpers.CommonContentChecks(document, newContent);
     }
 
-    public static void JsonTest(PointContent? newContent)
+    public static void JsonTest(PointContent newContent)
     {
         var jsonFile =
             new FileInfo(Path.Combine(
@@ -196,7 +196,7 @@ public static class GrandCanyonPointInfo
             $"Json Import does not match expected File Content {comparisonResult.DifferencesString}");
     }
 
-    public static async Task<PointContentDto> PointTest(PointContentDto? contentReference)
+    public static async Task<PointContentDto> PointTest(PointContentDto contentReference)
     {
         var validationReturn = await PointGenerator.Validate(contentReference);
         Assert.False(validationReturn.HasError, $"Unexpected Validation Error - {validationReturn.GenerationNote}");

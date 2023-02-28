@@ -25,7 +25,7 @@ public partial class PointDetailListContext : ObservableObject, IHasChanges, IHa
     [ObservableProperty] private List<(string typeIdentifierAttribute, Type reflectedType)> _pointDetailTypeList;
     [ObservableProperty] private StatusControlContext _statusContext;
 
-    private PointDetailListContext(StatusControlContext? statusContext)
+    private PointDetailListContext(StatusControlContext statusContext)
     {
         StatusContext = statusContext ?? new StatusControlContext();
 
@@ -57,8 +57,8 @@ public partial class PointDetailListContext : ObservableObject, IHasChanges, IHa
                               (Items?.Any(x => x.HasValidationIssues) ?? false);
     }
 
-    public static async Task<PointDetailListContext> CreateInstance(StatusControlContext? statusContext,
-        PointContent? dbEntry)
+    public static async Task<PointDetailListContext> CreateInstance(StatusControlContext statusContext,
+        PointContent dbEntry)
     {
         var newControl = new PointDetailListContext(statusContext);
         await newControl.LoadData(dbEntry, true);
@@ -101,7 +101,7 @@ public partial class PointDetailListContext : ObservableObject, IHasChanges, IHa
         };
     }
 
-    public async Task LoadData(PointContent? dbEntry, bool clearState)
+    public async Task LoadData(PointContent dbEntry, bool clearState)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -224,8 +224,9 @@ public partial class PointDetailListContext : ObservableObject, IHasChanges, IHa
         if (e.PropertyName.Contains("Changes")) CheckForChangesAndValidationIssues();
     }
 
-    private void OnPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
     {
+        if (e == null) return;
         if (string.IsNullOrWhiteSpace(e.PropertyName)) return;
 
         if (!e.PropertyName.Contains("HasChanges") && !e.PropertyName.Contains("Validation"))

@@ -19,9 +19,9 @@ public partial class MenuLinkEditorContext
     [ObservableProperty] private string _helpMarkdown;
     [ObservableProperty] private ObservableCollection<MenuLinkListItem> _items = new();
     [ObservableProperty] private List<MenuLinkListItem> _selectedItems;
-    [ObservableProperty] private StatusControlContext? _statusContext;
+    [ObservableProperty] private StatusControlContext _statusContext;
 
-    public MenuLinkEditorContext(StatusControlContext? statusContext)
+    public MenuLinkEditorContext(StatusControlContext statusContext)
     {
         StatusContext = statusContext ?? new StatusControlContext();
         CommonCommands = new CmsCommonCommands(StatusContext);
@@ -52,9 +52,9 @@ public partial class MenuLinkEditorContext
         StatusContext.RunFireAndForgetBlockingTask(LoadData);
     }
 
-    public RelayCommand? AddItemCommand { get; init; }
+    public RelayCommand AddItemCommand { get; init; }
 
-    public RelayCommand? DeleteItemCommand { get; init; }
+    public RelayCommand DeleteItemCommand { get; init; }
 
     public RelayCommand<MenuLinkListItem> InsertIndexTagIndexCommand { get; init; }
 
@@ -70,7 +70,7 @@ public partial class MenuLinkEditorContext
 
     public RelayCommand<MenuLinkListItem> MoveItemUpCommand { get; init; }
 
-    public RelayCommand? SaveCommand { get; init; }
+    public RelayCommand SaveCommand { get; init; }
 
     private async Task AddItem()
     {

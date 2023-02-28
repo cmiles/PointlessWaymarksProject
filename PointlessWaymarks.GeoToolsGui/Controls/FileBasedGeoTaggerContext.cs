@@ -69,19 +69,19 @@ public partial class FileBasedGeoTaggerContext : ObservableObject
             StatusContext.RunNonBlockingTaskCommand(SendResultFilesToFeatureIntersectTagger);
     }
 
-    public RelayCommand? ChooseExifFileCommand { get; }
+    public RelayCommand ChooseExifFileCommand { get; }
 
-    public RelayCommand? GeneratePreviewCommand { get; }
+    public RelayCommand GeneratePreviewCommand { get; }
 
-    public RelayCommand? MetadataForSelectedFilesToTagCommand { get; }
+    public RelayCommand MetadataForSelectedFilesToTagCommand { get; }
 
     public RelayCommand NextTabCommand { get; }
 
-    public RelayCommand? SendResultFilesToFeatureIntersectTaggerCommand { get; }
+    public RelayCommand SendResultFilesToFeatureIntersectTaggerCommand { get; }
 
-    public RelayCommand? ShowSelectedGpxFilesCommand { get; }
+    public RelayCommand ShowSelectedGpxFilesCommand { get; }
 
-    public RelayCommand? WriteToFilesCommand { get; }
+    public RelayCommand WriteToFilesCommand { get; }
 
     public async Task CheckThatExifToolExistsAndSaveSettings()
     {
@@ -210,7 +210,7 @@ public partial class FileBasedGeoTaggerContext : ObservableObject
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        if (FilesToTagFileList?.SelectedFiles == null)
+        if (FilesToTagFileList.SelectedFiles == null)
         {
             StatusContext.ToastWarning("Nothing Selected?");
             return;
@@ -334,7 +334,7 @@ public partial class FileBasedGeoTaggerContext : ObservableObject
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        if (GpxFileList?.SelectedFiles == null || !GpxFileList.SelectedFiles.Any())
+        if (GpxFileList.SelectedFiles == null || !GpxFileList.SelectedFiles.Any())
         {
             StatusContext.ToastWarning("No gpx files selected?");
             return;
@@ -376,12 +376,6 @@ public partial class FileBasedGeoTaggerContext : ObservableObject
     {
         await FileBasedGeoTaggerSettingTools.WriteSettings(Settings);
 
-        if (PreviewResults?.FileResults == null || !PreviewResults.FileResults.Any() || !PreviewResults.FileResults.Any(x => x.ShouldWriteMetadata))
-        {
-            StatusContext.ToastError("No Results to Write");
-            return;
-        }
-
         var tagger = new GeoTag();
 
         WriteToFileResults = await tagger.WriteGeoTagActions(
@@ -400,7 +394,7 @@ public partial class FileBasedGeoTaggerContext : ObservableObject
             var features = new FeatureCollection();
 
             foreach (var loopResults in writtenResults)
-                features.Add(new Feature(PointTools.Wgs84Point(loopResults.Longitude!.Value, loopResults.Latitude!.Value),
+                features.Add(new Feature(PointTools.Wgs84Point(loopResults.Longitude.Value, loopResults.Latitude.Value),
                     new AttributesTable(new Dictionary<string, object>
                         { { "title", loopResults.FileName }, { "description", $"From {loopResults.Source}" } })));
 

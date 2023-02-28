@@ -39,16 +39,12 @@ public static class ProcessTools
 
         void OnStandardOutput(object o, DataReceivedEventArgs e)
         {
-            if (e.Data == null) return;
-            
             standardOutput.AppendLine(e.Data);
             progress?.Report(e.Data);
         }
 
         void OnErrorOutput(object o, DataReceivedEventArgs e)
         {
-            if (e.Data == null) return;
-
             errorOutput.AppendLine(e.Data);
             progress?.Report(e.Data);
         }

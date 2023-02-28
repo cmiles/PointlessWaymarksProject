@@ -26,11 +26,11 @@ public partial class GeoJsonContentActions : ObservableObject, IContentActions<G
     [ObservableProperty] private RelayCommand<GeoJsonContent> _extractNewLinksCommand;
     [ObservableProperty] private RelayCommand<GeoJsonContent> _generateHtmlCommand;
     [ObservableProperty] private RelayCommand<GeoJsonContent> _linkCodeToClipboardCommand;
-    [ObservableProperty] private StatusControlContext? _statusContext;
+    [ObservableProperty] private StatusControlContext _statusContext;
     [ObservableProperty] private RelayCommand<GeoJsonContent> _viewHistoryCommand;
     [ObservableProperty] private RelayCommand<GeoJsonContent> _viewOnSiteCommand;
 
-    public GeoJsonContentActions(StatusControlContext? statusContext)
+    public GeoJsonContentActions(StatusControlContext statusContext)
     {
         StatusContext = statusContext;
         DeleteCommand = StatusContext.RunBlockingTaskCommand<GeoJsonContent>(Delete);
@@ -43,12 +43,12 @@ public partial class GeoJsonContentActions : ObservableObject, IContentActions<G
         ViewHistoryCommand = StatusContext.RunNonBlockingTaskCommand<GeoJsonContent>(ViewHistory);
     }
 
-    public string DefaultBracketCode(GeoJsonContent? content)
+    public string DefaultBracketCode(GeoJsonContent content)
     {
         return content?.ContentId == null ? string.Empty : @$"{BracketCodeGeoJson.Create(content)}";
     }
 
-    public async Task DefaultBracketCodeToClipboard(GeoJsonContent? content)
+    public async Task DefaultBracketCodeToClipboard(GeoJsonContent content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -67,7 +67,7 @@ public partial class GeoJsonContentActions : ObservableObject, IContentActions<G
         StatusContext.ToastSuccess($"To Clipboard {finalString}");
     }
 
-    public async Task Delete(GeoJsonContent? content)
+    public async Task Delete(GeoJsonContent content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -95,7 +95,7 @@ public partial class GeoJsonContentActions : ObservableObject, IContentActions<G
         }
     }
 
-    public async Task Edit(GeoJsonContent? content)
+    public async Task Edit(GeoJsonContent content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -118,7 +118,7 @@ public partial class GeoJsonContentActions : ObservableObject, IContentActions<G
         await ThreadSwitcher.ResumeBackgroundAsync();
     }
 
-    public async Task ExtractNewLinks(GeoJsonContent? content)
+    public async Task ExtractNewLinks(GeoJsonContent content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -138,7 +138,7 @@ public partial class GeoJsonContentActions : ObservableObject, IContentActions<G
             $"{refreshedData.BodyContent} {refreshedData.UpdateNotes}", StatusContext.ProgressTracker());
     }
 
-    public async Task GenerateHtml(GeoJsonContent? content)
+    public async Task GenerateHtml(GeoJsonContent content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -157,7 +157,7 @@ public partial class GeoJsonContentActions : ObservableObject, IContentActions<G
         StatusContext.ToastSuccess($"Generated {htmlContext.PageUrl}");
     }
 
-    public async Task ViewHistory(GeoJsonContent? content)
+    public async Task ViewHistory(GeoJsonContent content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -189,7 +189,7 @@ public partial class GeoJsonContentActions : ObservableObject, IContentActions<G
         historicView.WriteHtmlToTempFolderAndShow(StatusContext.ProgressTracker());
     }
 
-    public async Task ViewOnSite(GeoJsonContent? content)
+    public async Task ViewOnSite(GeoJsonContent content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 

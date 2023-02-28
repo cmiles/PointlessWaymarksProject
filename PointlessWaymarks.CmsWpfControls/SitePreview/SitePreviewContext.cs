@@ -20,11 +20,11 @@ public partial class SitePreviewContext : DependencyObject
     [ObservableProperty] private string _siteUrl;
     [ObservableProperty] private StatusControlContext _statusContext;
     [ObservableProperty] private string _textBarAddress;
-    [ObservableProperty] private RelayCommand? _tryGoBackNavigationCommand;
-    [ObservableProperty] private RelayCommand? _tryGoForwardNavigationCommand;
-    [ObservableProperty] private RelayCommand? _tryNavigateHomeCommand;
-    [ObservableProperty] private RelayCommand? _tryRefreshCommand;
-    [ObservableProperty] private RelayCommand? _tryUserNavigationCommand;
+    [ObservableProperty] private RelayCommand _tryGoBackNavigationCommand;
+    [ObservableProperty] private RelayCommand _tryGoForwardNavigationCommand;
+    [ObservableProperty] private RelayCommand _tryNavigateHomeCommand;
+    [ObservableProperty] private RelayCommand _tryRefreshCommand;
+    [ObservableProperty] private RelayCommand _tryUserNavigationCommand;
     [ObservableProperty] private WebView2 _webViewGui;
     [ObservableProperty] private string _windowTitle;
 

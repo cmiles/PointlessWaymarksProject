@@ -41,31 +41,31 @@ namespace PointlessWaymarks.CmsWpfControls.GpxImport;
 public partial class GpxImportContext : ObservableObject
 {
     [ObservableProperty] private bool _autoSaveImports;
-    [ObservableProperty] private RelayCommand? _chooseAndLoadFileCommand;
-    [ObservableProperty] private RelayCommand? _clearAllForElevationReplacementCommand;
-    [ObservableProperty] private RelayCommand? _clearAllForImportCommand;
+    [ObservableProperty] private RelayCommand _chooseAndLoadFileCommand;
+    [ObservableProperty] private RelayCommand _clearAllForElevationReplacementCommand;
+    [ObservableProperty] private RelayCommand _clearAllForImportCommand;
     [ObservableProperty] private ContentFolderContext _folderEntry;
-    [ObservableProperty] private RelayCommand? _importCommand;
+    [ObservableProperty] private RelayCommand _importCommand;
     [ObservableProperty] private string _importFileName;
     [ObservableProperty] private ObservableCollection<IGpxImportListItem> _items;
     [ObservableProperty] private ObservableCollection<IGpxImportListItem> _listSelection;
     [ObservableProperty] private ColumnSortControlContext _listSort;
     [ObservableProperty] private RelayCommand<CoreWebView2WebMessageReceivedEventArgs> _mapMessageReceivedCommand;
-    [ObservableProperty] private RelayCommand? _markAllForElevationReplacementCommand;
-    [ObservableProperty] private RelayCommand? _markAllForImportCommand;
+    [ObservableProperty] private RelayCommand _markAllForElevationReplacementCommand;
+    [ObservableProperty] private RelayCommand _markAllForImportCommand;
     [ObservableProperty] private string _previewHtml;
     [ObservableProperty] private string _previewMapJsonDto;
-    [ObservableProperty] private RelayCommand? _removeSelectedFromListCommand;
+    [ObservableProperty] private RelayCommand _removeSelectedFromListCommand;
     [ObservableProperty] private RelayCommand<IGpxImportListItem> _requestMapCenterCommand;
     [ObservableProperty] private IGpxImportListItem _selectedItem;
     [ObservableProperty] private List<IGpxImportListItem> _selectedItems;
-    [ObservableProperty] private StatusControlContext? _statusContext;
-    [ObservableProperty] private TagsEditorContext? _tagEntry;
-    [ObservableProperty] private RelayCommand? _toggleSelectedForElevationReplacementCommand;
-    [ObservableProperty] private RelayCommand? _toggleSelectedForImportCommand;
+    [ObservableProperty] private StatusControlContext _statusContext;
+    [ObservableProperty] private TagsEditorContext _tagEntry;
+    [ObservableProperty] private RelayCommand _toggleSelectedForElevationReplacementCommand;
+    [ObservableProperty] private RelayCommand _toggleSelectedForImportCommand;
     [ObservableProperty] private string _userFilterText;
 
-    private GpxImportContext(StatusControlContext? statusContext)
+    private GpxImportContext(StatusControlContext statusContext)
     {
         StatusContext = statusContext ?? new StatusControlContext();
 
@@ -232,7 +232,7 @@ public partial class GpxImportContext : ObservableObject
         foreach (var loopItems in Items) loopItems.MarkedForImport = false;
     }
 
-    public static async Task<GpxImportContext> CreateInstance(StatusControlContext? statusContext)
+    public static async Task<GpxImportContext> CreateInstance(StatusControlContext statusContext)
     {
         var newContext = new GpxImportContext(statusContext);
         await newContext.Load();
@@ -500,7 +500,7 @@ public partial class GpxImportContext : ObservableObject
         }
 
         var pointReturns =
-            new List<(PointContentDto? point, GpxImportWaypoint listWaypoint, bool hasError, string validationNote)>();
+            new List<(PointContentDto point, GpxImportWaypoint listWaypoint, bool hasError, string validationNote)>();
 
         foreach (var gpxImportWaypoints in importItems.Where(x => x is GpxImportWaypoint).Cast<GpxImportWaypoint>()
                      .ToList())
@@ -511,7 +511,7 @@ public partial class GpxImportContext : ObservableObject
         }
 
         var trackReturns =
-            new List<(LineContent? line, GpxImportTrack listTrack, bool hasError, string validationNote)>();
+            new List<(LineContent line, GpxImportTrack listTrack, bool hasError, string validationNote)>();
 
         foreach (var gpxImportTrack in importItems.Where(x => x is GpxImportTrack).Cast<GpxImportTrack>()
                      .ToList())
@@ -522,7 +522,7 @@ public partial class GpxImportContext : ObservableObject
         }
 
         var routeReturns =
-            new List<(LineContent? line, GpxImportRoute listRoute, bool hasError, string validationNote)>();
+            new List<(LineContent line, GpxImportRoute listRoute, bool hasError, string validationNote)>();
 
         foreach (var gpxImportRoute in importItems.Where(x => x is GpxImportRoute).Cast<GpxImportRoute>()
                      .ToList())
@@ -841,9 +841,10 @@ public partial class GpxImportContext : ObservableObject
         foreach (var loopItems in Items) loopItems.MarkedForImport = true;
     }
 
-    private void OnPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
     {
         PropertyChanged += OnPropertyChanged;
+        if (e == null) return;
         if (string.IsNullOrWhiteSpace(e.PropertyName)) return;
 
         if (e.PropertyName == nameof(UserFilterText))

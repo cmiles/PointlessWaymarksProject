@@ -7,12 +7,12 @@ namespace PointlessWaymarks.CmsWpfControls.NoteList;
 
 public partial class NoteListListItem : ObservableObject, IContentListItem
 {
-    [ObservableProperty] private NoteContent? _dbEntry;
+    [ObservableProperty] private NoteContent _dbEntry;
     [ObservableProperty] private NoteContentActions _itemActions;
     [ObservableProperty] private CurrentSelectedTextTracker _selectedTextTracker = new();
     [ObservableProperty] private bool _showType;
 
-    public IContentCommon? Content()
+    public IContentCommon Content()
     {
         return DbEntry;
     }

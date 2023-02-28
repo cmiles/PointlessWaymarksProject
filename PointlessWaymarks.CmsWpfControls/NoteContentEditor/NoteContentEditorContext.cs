@@ -27,28 +27,28 @@ namespace PointlessWaymarks.CmsWpfControls.NoteContentEditor;
 
 public partial class NoteContentEditorContext : ObservableObject, IHasChanges, IHasValidationIssues, ICheckForChangesAndValidation
 {
-    [ObservableProperty] private BodyContentEditorContext? _bodyContent;
-    [ObservableProperty] private ContentIdViewerControlContext? _contentId;
-    [ObservableProperty] private CreatedAndUpdatedByAndOnDisplayContext? _createdUpdatedDisplay;
-    [ObservableProperty] private NoteContent? _dbEntry;
-    [ObservableProperty] private RelayCommand? _extractNewLinksCommand;
+    [ObservableProperty] private BodyContentEditorContext _bodyContent;
+    [ObservableProperty] private ContentIdViewerControlContext _contentId;
+    [ObservableProperty] private CreatedAndUpdatedByAndOnDisplayContext _createdUpdatedDisplay;
+    [ObservableProperty] private NoteContent _dbEntry;
+    [ObservableProperty] private RelayCommand _extractNewLinksCommand;
     [ObservableProperty] private ContentFolderContext _folderEntry;
     [ObservableProperty] private bool _hasChanges;
     [ObservableProperty] private bool _hasValidationIssues;
     [ObservableProperty] private HelpDisplayContext _helpContext;
-    [ObservableProperty] private RelayCommand? _linkToClipboardCommand;
-    [ObservableProperty] private ContentSiteFeedAndIsDraftContext? _mainSiteFeed;
-    [ObservableProperty] private RelayCommand? _saveAndCloseCommand;
-    [ObservableProperty] private RelayCommand? _saveCommand;
+    [ObservableProperty] private RelayCommand _linkToClipboardCommand;
+    [ObservableProperty] private ContentSiteFeedAndIsDraftContext _mainSiteFeed;
+    [ObservableProperty] private RelayCommand _saveAndCloseCommand;
+    [ObservableProperty] private RelayCommand _saveCommand;
     [ObservableProperty] private string _slug;
-    [ObservableProperty] private StatusControlContext? _statusContext;
+    [ObservableProperty] private StatusControlContext _statusContext;
     [ObservableProperty] private StringDataEntryContext _summary;
-    [ObservableProperty] private TagsEditorContext? _tagEdit;
-    [ObservableProperty] private RelayCommand? _viewOnSiteCommand;
+    [ObservableProperty] private TagsEditorContext _tagEdit;
+    [ObservableProperty] private RelayCommand _viewOnSiteCommand;
 
     public EventHandler RequestContentEditorWindowClose;
 
-    private NoteContentEditorContext(StatusControlContext? statusContext)
+    private NoteContentEditorContext(StatusControlContext statusContext)
     {
         StatusContext = statusContext ?? new StatusControlContext();
 
@@ -85,15 +85,15 @@ Note Content is like a simplified Post - no title and slug to edit or maintain a
         HasValidationIssues = PropertyScanners.ChildPropertiesHaveValidationIssues(this);
     }
 
-    public static async Task<NoteContentEditorContext> CreateInstance(StatusControlContext? statusContext,
-        NoteContent? noteContent)
+    public static async Task<NoteContentEditorContext> CreateInstance(StatusControlContext statusContext,
+        NoteContent noteContent)
     {
         var newControl = new NoteContentEditorContext(statusContext);
         await newControl.LoadData(noteContent);
         return newControl;
     }
 
-    private NoteContent? CurrentStateToFileContent()
+    private NoteContent CurrentStateToFileContent()
     {
         var newEntry = new NoteContent();
 
@@ -145,7 +145,7 @@ Note Content is like a simplified Post - no title and slug to edit or maintain a
         StatusContext.ToastSuccess($"To Clipboard: {linkString}");
     }
 
-    public async Task LoadData(NoteContent? toLoad)
+    public async Task LoadData(NoteContent toLoad)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -171,7 +171,7 @@ Note Content is like a simplified Post - no title and slug to edit or maintain a
         PropertyScanners.SubscribeToChildHasChangesAndHasValidationIssues(this, CheckForChangesAndValidationIssues);
     }
 
-    private void OnPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
     {
         if (string.IsNullOrWhiteSpace(e.PropertyName)) return;
 

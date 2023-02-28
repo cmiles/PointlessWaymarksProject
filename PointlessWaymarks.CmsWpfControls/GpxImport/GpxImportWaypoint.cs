@@ -17,7 +17,7 @@ public partial class GpxImportWaypoint : ObservableObject, IGpxImportListItem
     [ObservableProperty] private GpxWaypoint _waypoint;
 
 
-    public Task Load(GpxWaypoint toLoad, IProgress<string> progress = null)
+    public async Task Load(GpxWaypoint toLoad, IProgress<string> progress = null)
     {
         DisplayId = Guid.NewGuid();
         Waypoint = toLoad;
@@ -44,6 +44,5 @@ public partial class GpxImportWaypoint : ObservableObject, IGpxImportListItem
         UserSummary = userSummary;
 
         UserMapLabel = string.Empty;
-        return Task.CompletedTask;
     }
 }

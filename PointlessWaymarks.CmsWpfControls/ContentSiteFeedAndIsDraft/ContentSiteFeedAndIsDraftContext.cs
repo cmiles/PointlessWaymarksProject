@@ -12,15 +12,15 @@ namespace PointlessWaymarks.CmsWpfControls.ContentSiteFeedAndIsDraft;
 
 public partial class ContentSiteFeedAndIsDraftContext : ObservableObject, IHasChanges, IHasValidationIssues, ICheckForChangesAndValidation
 {
-    [ObservableProperty] private IMainSiteFeed? _dbEntry;
+    [ObservableProperty] private IMainSiteFeed _dbEntry;
     [ObservableProperty] private ConversionDataEntryContext<DateTime> _feedOnEntry;
     [ObservableProperty] private bool _hasChanges;
     [ObservableProperty] private bool _hasValidationIssues;
-    [ObservableProperty] private BoolDataEntryContext? _isDraftEntry;
-    [ObservableProperty] private BoolDataEntryContext? _showInMainSiteFeedEntry;
+    [ObservableProperty] private BoolDataEntryContext _isDraftEntry;
+    [ObservableProperty] private BoolDataEntryContext _showInMainSiteFeedEntry;
     [ObservableProperty] private StatusControlContext _statusContext;
 
-    public ContentSiteFeedAndIsDraftContext(StatusControlContext? statusContext)
+    public ContentSiteFeedAndIsDraftContext(StatusControlContext statusContext)
     {
         StatusContext = statusContext ?? new();
         PropertyChanged += OnPropertyChanged;
@@ -33,8 +33,8 @@ public partial class ContentSiteFeedAndIsDraftContext : ObservableObject, IHasCh
         HasValidationIssues = PropertyScanners.ChildPropertiesHaveValidationIssues(this);
     }
 
-    public static async Task<ContentSiteFeedAndIsDraftContext?> CreateInstance(StatusControlContext? statusContext,
-        IMainSiteFeed? dbEntry)
+    public static async Task<ContentSiteFeedAndIsDraftContext> CreateInstance(StatusControlContext statusContext,
+        IMainSiteFeed dbEntry)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -44,7 +44,7 @@ public partial class ContentSiteFeedAndIsDraftContext : ObservableObject, IHasCh
         return newItem;
     }
 
-    public async Task LoadData(IMainSiteFeed? dbEntry)
+    public async Task LoadData(IMainSiteFeed dbEntry)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -64,8 +64,9 @@ public partial class ContentSiteFeedAndIsDraftContext : ObservableObject, IHasCh
         PropertyScanners.SubscribeToChildHasChangesAndHasValidationIssues(this, CheckForChangesAndValidationIssues);
     }
 
-    private void OnPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
     {
+        if (e == null) return;
         if (string.IsNullOrWhiteSpace(e.PropertyName)) return;
 
         if (!e.PropertyName.Contains("HasChanges") && !e.PropertyName.Contains("Validation"))

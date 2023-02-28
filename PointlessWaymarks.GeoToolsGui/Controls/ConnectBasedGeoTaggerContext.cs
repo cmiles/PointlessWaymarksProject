@@ -71,17 +71,17 @@ public partial class ConnectBasedGeoTaggerContext : ObservableObject
         PropertyChanged += OnPropertyChanged;
     }
 
-    public RelayCommand? ChooseArchiveDirectoryCommand { get; }
+    public RelayCommand ChooseArchiveDirectoryCommand { get; }
 
-    public RelayCommand? ChooseExifFileCommand { get; }
-    public RelayCommand? EnterGarminCredentialsCommand { get; }
-    public RelayCommand? GeneratePreviewCommand { get; }
-    public RelayCommand? MetadataForSelectedFilesToTagCommand { get; }
+    public RelayCommand ChooseExifFileCommand { get; }
+    public RelayCommand EnterGarminCredentialsCommand { get; }
+    public RelayCommand GeneratePreviewCommand { get; }
+    public RelayCommand MetadataForSelectedFilesToTagCommand { get; }
     public RelayCommand NextTabCommand { get; }
-    public RelayCommand? RemoveAllGarminCredentialsCommand { get; }
-    public RelayCommand? SendResultFilesToFeatureIntersectTaggerCommand { get; }
-    public RelayCommand? ShowArchiveDirectoryCommand { get; }
-    public RelayCommand? WriteToFilesCommand { get; }
+    public RelayCommand RemoveAllGarminCredentialsCommand { get; }
+    public RelayCommand SendResultFilesToFeatureIntersectTaggerCommand { get; }
+    public RelayCommand ShowArchiveDirectoryCommand { get; }
+    public RelayCommand WriteToFilesCommand { get; }
 
     public async Task CheckThatArchiveDirectoryExistsAndSaveSettings()
     {

@@ -31,7 +31,7 @@ public static class IronwoodNoteInfo
             Slug = NoteGenerator.UniqueNoteSlug().Result
         };
 
-    public static async Task CheckForExpectedFilesAfterHtmlGeneration(NoteContent? newContent)
+    public static async Task CheckForExpectedFilesAfterHtmlGeneration(NoteContent newContent)
     {
         var contentDirectory = UserSettingsSingleton.CurrentSettings()
             .LocalSiteNoteContentDirectory(newContent, false);
@@ -87,7 +87,7 @@ public static class IronwoodNoteInfo
         await IronwoodHtmlHelpers.CommonContentChecks(document, newContent);
     }
 
-    public static void JsonTest(NoteContent? newContent)
+    public static void JsonTest(NoteContent newContent)
     {
         //Check JSON File
         var jsonFile =

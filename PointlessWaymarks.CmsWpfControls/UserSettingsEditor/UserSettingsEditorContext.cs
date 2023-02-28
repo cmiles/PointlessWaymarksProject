@@ -17,12 +17,12 @@ public partial class UserSettingsEditorContext
     [ObservableProperty] private CmsCommonCommands _commonCommands;
     [ObservableProperty] private RelayCommand _deleteAwsCredentials;
     [ObservableProperty] private UserSettings _editorSettings;
-    [ObservableProperty] private RelayCommand? _enterAwsCredentials;
+    [ObservableProperty] private RelayCommand _enterAwsCredentials;
     [ObservableProperty] private List<string> _regionChoices;
-    [ObservableProperty] private RelayCommand? _saveSettingsCommand;
-    [ObservableProperty] private StatusControlContext? _statusContext;
+    [ObservableProperty] private RelayCommand _saveSettingsCommand;
+    [ObservableProperty] private StatusControlContext _statusContext;
 
-    public UserSettingsEditorContext(StatusControlContext? statusContext, UserSettings toLoad)
+    public UserSettingsEditorContext(StatusControlContext statusContext, UserSettings toLoad)
     {
         StatusContext = statusContext ?? new StatusControlContext();
         CommonCommands = new CmsCommonCommands(StatusContext);

@@ -13,16 +13,16 @@ namespace PointlessWaymarks.CmsWpfControls.VideoList;
 public partial class VideoListWithActionsContext : ObservableObject
 {
     [ObservableProperty] private CmsCommonCommands _commonCommands;
-    [ObservableProperty] private RelayCommand? _emailHtmlToClipboardCommand;
+    [ObservableProperty] private RelayCommand _emailHtmlToClipboardCommand;
     [ObservableProperty] private ContentListContext _listContext;
-    [ObservableProperty] private RelayCommand? _refreshDataCommand;
-    [ObservableProperty] private StatusControlContext? _statusContext;
+    [ObservableProperty] private RelayCommand _refreshDataCommand;
+    [ObservableProperty] private StatusControlContext _statusContext;
     [ObservableProperty] private RelayCommand _videoEmbedCodesToClipboardForSelectedCommand;
-    [ObservableProperty] private RelayCommand? _videoPageLinkCodesToClipboardForSelectedCommand;
+    [ObservableProperty] private RelayCommand _videoPageLinkCodesToClipboardForSelectedCommand;
     [ObservableProperty] private RelayCommand _viewVideosCommand;
-    [ObservableProperty] private WindowIconStatus? _windowStatus;
+    [ObservableProperty] private WindowIconStatus _windowStatus;
 
-    public VideoListWithActionsContext(StatusControlContext? statusContext, WindowIconStatus? windowStatus = null)
+    public VideoListWithActionsContext(StatusControlContext statusContext, WindowIconStatus windowStatus = null)
     {
         StatusContext = statusContext ?? new StatusControlContext();
         WindowStatus = windowStatus;

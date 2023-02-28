@@ -14,7 +14,7 @@ public partial class LineContentEditorWindow
 {
     [ObservableProperty] private WindowAccidentalClosureHelper _accidentalCloserHelper;
     [ObservableProperty] private LineContentEditorContext _lineContent;
-    [ObservableProperty] private StatusControlContext? _statusContext;
+    [ObservableProperty] private StatusControlContext _statusContext;
 
     /// <summary>
     /// DO NOT USE - Use CreateInstance instead - using the constructor directly will result in
@@ -33,7 +33,7 @@ public partial class LineContentEditorWindow
     /// PositionWindowAndShowOnUiThread() from the WindowInitialPositionHelpers.
     /// </summary>
     /// <returns></returns>
-    public static async Task<LineContentEditorWindow> CreateInstance(LineContent? toLoad)
+    public static async Task<LineContentEditorWindow> CreateInstance(LineContent toLoad)
     {
         await ThreadSwitcher.ResumeForegroundAsync();
 

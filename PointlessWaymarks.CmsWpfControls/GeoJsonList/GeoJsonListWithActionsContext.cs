@@ -23,14 +23,14 @@ public partial class GeoJsonListWithActionsContext : ObservableObject
 {
     [ObservableProperty] private RelayCommand _addIntersectionTagsToSelectedCommand;
     [ObservableProperty] private CmsCommonCommands _commonCommands;
-    [ObservableProperty] private RelayCommand? _geoJsonLinkCodesToClipboardForSelectedCommand;
+    [ObservableProperty] private RelayCommand _geoJsonLinkCodesToClipboardForSelectedCommand;
     [ObservableProperty] private ContentListContext _listContext;
-    [ObservableProperty] private RelayCommand? _refreshDataCommand;
-    [ObservableProperty] private StatusControlContext? _statusContext;
-    [ObservableProperty] private WindowIconStatus? _windowStatus;
+    [ObservableProperty] private RelayCommand _refreshDataCommand;
+    [ObservableProperty] private StatusControlContext _statusContext;
+    [ObservableProperty] private WindowIconStatus _windowStatus;
 
 
-    public GeoJsonListWithActionsContext(StatusControlContext? statusContext, WindowIconStatus? windowStatus = null)
+    public GeoJsonListWithActionsContext(StatusControlContext statusContext, WindowIconStatus windowStatus = null)
     {
         StatusContext = statusContext ?? new StatusControlContext();
         WindowStatus = windowStatus;
@@ -73,7 +73,7 @@ public partial class GeoJsonListWithActionsContext : ObservableObject
 
         cancellationToken.ThrowIfCancellationRequested();
 
-        List<GeoJsonContent?> dbEntriesToProcess = new();
+        List<GeoJsonContent> dbEntriesToProcess = new();
         List<IntersectResult> intersectResults = new();
 
         foreach (var loopSelected in frozenSelect)

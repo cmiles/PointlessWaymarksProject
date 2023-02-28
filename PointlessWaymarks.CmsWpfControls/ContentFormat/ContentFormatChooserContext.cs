@@ -15,21 +15,21 @@ public partial class ContentFormatChooserContext :  ObservableObject, IHasChange
     [ObservableProperty] private List<ContentFormatEnum> _contentFormatChoices;
     [ObservableProperty] private bool _hasChanges;
     [ObservableProperty] private bool _hasValidationIssues;
-    [ObservableProperty] private string? _initialValue;
+    [ObservableProperty] private string _initialValue;
     private ContentFormatEnum _selectedContentFormat;
-    [ObservableProperty] private string? _selectedContentFormatAsString;
+    [ObservableProperty] private string _selectedContentFormatAsString;
     [ObservableProperty] private bool _selectedContentFormatHasChanges;
     [ObservableProperty] private StatusControlContext _statusContext;
-    [ObservableProperty] private string? _validationMessage;
+    [ObservableProperty] private string _validationMessage;
 
-    private ContentFormatChooserContext(StatusControlContext? statusContext)
+    private ContentFormatChooserContext(StatusControlContext statusContext)
     {
-        _statusContext = statusContext ?? new StatusControlContext();
-        _contentFormatChoices = Enum.GetValues(typeof(ContentFormatEnum)).Cast<ContentFormatEnum>().ToList();
+        StatusContext = statusContext ?? new StatusControlContext();
+        ContentFormatChoices = Enum.GetValues(typeof(ContentFormatEnum)).Cast<ContentFormatEnum>().ToList();
 
         PropertyChanged += OnPropertyChanged;
 
-        _selectedContentFormat = ContentFormatChoices.First();
+        SelectedContentFormat = ContentFormatChoices.First();
     }
 
     public async Task CheckForChangesAndValidationIssues()
@@ -47,8 +47,9 @@ public partial class ContentFormatChooserContext :  ObservableObject, IHasChange
         ValidationMessage = validation.Explanation;
     }
 
-    private async void OnPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    private async void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
     {
+        if (e == null) return;
         if (string.IsNullOrWhiteSpace(e.PropertyName)) return;
 
         if (!e.PropertyName.Contains("HasChanges") && !e.PropertyName.Contains("Validation"))
@@ -71,7 +72,7 @@ public partial class ContentFormatChooserContext :  ObservableObject, IHasChange
                 _selectedContentFormat = value;
                 OnPropertyChanged();
 
-                OnSelectedValueChanged?.Invoke(this, Enum.GetName(typeof(ContentFormatEnum), SelectedContentFormat) ?? string.Empty);
+                OnSelectedValueChanged?.Invoke(this, Enum.GetName(typeof(ContentFormatEnum), SelectedContentFormat));
             }
 
             SelectedContentFormatAsString =
@@ -79,7 +80,7 @@ public partial class ContentFormatChooserContext :  ObservableObject, IHasChange
         }
     }
 
-    public async Task<bool> TrySelectContentChoice(string? contentChoice)
+    public async Task<bool> TrySelectContentChoice(string contentChoice)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -94,5 +95,5 @@ public partial class ContentFormatChooserContext :  ObservableObject, IHasChange
         return toSelect;
     }
 
-    public event EventHandler<string>? OnSelectedValueChanged;
+    public event EventHandler<string> OnSelectedValueChanged;
 }

@@ -10,7 +10,7 @@ public class WindowAccidentalClosureHelper
     private readonly Window _toClose;
     private bool _closeConfirmed;
 
-    public WindowAccidentalClosureHelper(Window toClose, StatusControlContext? context, IHasChanges toCheck)
+    public WindowAccidentalClosureHelper(Window toClose, StatusControlContext context, IHasChanges toCheck)
     {
         StatusContext = context;
         _hasChangesToCheck = toCheck;
@@ -21,7 +21,7 @@ public class WindowAccidentalClosureHelper
 
     public Action<Window>? CloseAction { get; init; }
 
-    public StatusControlContext? StatusContext { get; }
+    public StatusControlContext StatusContext { get; }
 
     private void FileContentEditorWindow_OnClosing(object? sender, CancelEventArgs e)
     {

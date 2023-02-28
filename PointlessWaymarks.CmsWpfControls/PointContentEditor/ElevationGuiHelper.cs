@@ -17,7 +17,7 @@ namespace PointlessWaymarks.CmsWpfControls.PointContentEditor
         /// <param name="StatusContext"></param>
         /// <returns></returns>
         public static async Task<double?> GetElevation(double latitude, double longitude,
-            StatusControlContext? StatusContext)
+            StatusControlContext StatusContext)
         {
             try
             {

@@ -33,7 +33,7 @@ A significant concentration of ironwood (also known as desert ironwood, Olneya t
             UpdateNotesFormat = ContentFormatDefaults.Content.ToString()
         };
 
-    public static async Task CheckForExpectedFilesAfterHtmlGeneration(PostContent? newContent)
+    public static async Task CheckForExpectedFilesAfterHtmlGeneration(PostContent newContent)
     {
         var contentDirectory = UserSettingsSingleton.CurrentSettings()
             .LocalSitePostContentDirectory(newContent, false);
@@ -89,7 +89,7 @@ A significant concentration of ironwood (also known as desert ironwood, Olneya t
         await IronwoodHtmlHelpers.CommonContentChecks(document, newContent);
     }
 
-    public static void JsonTest(PostContent? newContent)
+    public static void JsonTest(PostContent newContent)
     {
         //Check JSON File
         var jsonFile =

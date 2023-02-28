@@ -9,7 +9,6 @@ using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.Content;
 using PointlessWaymarks.CmsData.ContentHtml;
 using PointlessWaymarks.CmsData.Database;
-using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsWpfControls.AllContentList;
 using PointlessWaymarks.CmsWpfControls.FileContentEditor;
 using PointlessWaymarks.CmsWpfControls.FileList;
@@ -49,9 +48,9 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList;
 
 public partial class CmsCommonCommands : ObservableObject
 {
-    [ObservableProperty] private StatusControlContext? _statusContext;
+    [ObservableProperty] private StatusControlContext _statusContext;
 
-    public CmsCommonCommands(StatusControlContext? statusContext, WindowIconStatus? windowStatus = null)
+    public CmsCommonCommands(StatusControlContext statusContext, WindowIconStatus windowStatus = null)
     {
         StatusContext = statusContext;
         WindowStatus = windowStatus;
@@ -188,79 +187,79 @@ public partial class CmsCommonCommands : ObservableObject
             StatusContext.RunBlockingTaskCommand(GenerateChangedHtmlAndShowSitePreview);
     }
 
-    public RelayCommand? GenerateChangedHtmlAndShowSitePreviewCommand { get; set; }
+    public RelayCommand GenerateChangedHtmlAndShowSitePreviewCommand { get; set; }
 
-    public RelayCommand? GenerateChangedHtmlAndStartUploadCommand { get; set; }
+    public RelayCommand GenerateChangedHtmlAndStartUploadCommand { get; set; }
 
-    public RelayCommand? GenerateChangedHtmlCommand { get; set; }
+    public RelayCommand GenerateChangedHtmlCommand { get; set; }
 
-    public RelayCommand? NewAllContentListWindowCommand { get; set; }
+    public RelayCommand NewAllContentListWindowCommand { get; set; }
 
-    public RelayCommand? NewFileContentCommand { get; }
+    public RelayCommand NewFileContentCommand { get; }
 
     public RelayCommand NewFileContentFromFilesCommand { get; }
 
-    public RelayCommand? NewFileListWindowCommand { get; set; }
+    public RelayCommand NewFileListWindowCommand { get; set; }
 
-    public RelayCommand? NewGeoJsonContentCommand { get; }
+    public RelayCommand NewGeoJsonContentCommand { get; }
 
-    public RelayCommand? NewGeoJsonListWindowCommand { get; set; }
+    public RelayCommand NewGeoJsonListWindowCommand { get; set; }
 
-    public RelayCommand? NewGpxImportWindow { get; set; }
+    public RelayCommand NewGpxImportWindow { get; set; }
 
-    public RelayCommand? NewImageContentCommand { get; }
+    public RelayCommand NewImageContentCommand { get; }
 
     public RelayCommand NewImageContentFromFilesCommand { get; }
 
-    public RelayCommand? NewImageListWindowCommand { get; set; }
+    public RelayCommand NewImageListWindowCommand { get; set; }
 
-    public RelayCommand? NewLineContentCommand { get; }
+    public RelayCommand NewLineContentCommand { get; }
 
     public RelayCommand NewLineContentFromFilesCommand { get; set; }
 
     public RelayCommand NewLineContentFromFilesWithAutosaveCommand { get; set; }
 
-    public RelayCommand? NewLineListWindowCommand { get; set; }
+    public RelayCommand NewLineListWindowCommand { get; set; }
 
-    public RelayCommand? NewLinkContentCommand { get; }
+    public RelayCommand NewLinkContentCommand { get; }
 
-    public RelayCommand? NewLinkListWindowCommand { get; set; }
+    public RelayCommand NewLinkListWindowCommand { get; set; }
 
-    public RelayCommand? NewMapComponentListWindowCommand { get; set; }
+    public RelayCommand NewMapComponentListWindowCommand { get; set; }
 
-    public RelayCommand? NewMapContentCommand { get; }
+    public RelayCommand NewMapContentCommand { get; }
 
-    public RelayCommand? NewNoteContentCommand { get; }
+    public RelayCommand NewNoteContentCommand { get; }
 
-    public RelayCommand? NewNoteListWindowCommand { get; set; }
+    public RelayCommand NewNoteListWindowCommand { get; set; }
 
-    public RelayCommand? NewPhotoContentCommand { get; }
+    public RelayCommand NewPhotoContentCommand { get; }
 
     public RelayCommand NewPhotoContentFromFilesCommand { get; }
 
     public RelayCommand NewPhotoContentFromFilesWithAutosaveCommand { get; }
 
-    public RelayCommand? NewPhotoListWindowCommand { get; set; }
+    public RelayCommand NewPhotoListWindowCommand { get; set; }
 
-    public RelayCommand? NewPointContentCommand { get; }
+    public RelayCommand NewPointContentCommand { get; }
 
-    public RelayCommand? NewPointListWindowCommand { get; set; }
+    public RelayCommand NewPointListWindowCommand { get; set; }
 
-    public RelayCommand? NewPostContentCommand { get; }
+    public RelayCommand NewPostContentCommand { get; }
 
-    public RelayCommand? NewPostListWindowCommand { get; set; }
+    public RelayCommand NewPostListWindowCommand { get; set; }
 
-    public RelayCommand? NewVideoContentCommand { get; set; }
+    public RelayCommand NewVideoContentCommand { get; set; }
 
     public RelayCommand NewVideoContentFromFilesCommand { get; set; }
 
-    public RelayCommand? NewVideoListWindowCommand { get; set; }
+    public RelayCommand NewVideoListWindowCommand { get; set; }
 
-    public RelayCommand? SearchHelpWindowCommand { get; set; }
+    public RelayCommand SearchHelpWindowCommand { get; set; }
 
-    public RelayCommand? ShowSitePreviewWindowCommand { get; set; }
+    public RelayCommand ShowSitePreviewWindowCommand { get; set; }
 
-    public WindowIconStatus? WindowStatus { get; set; }
+    public WindowIconStatus WindowStatus { get; set; }
 
     private async Task GenerateChangedHtml()
     {
@@ -347,7 +346,7 @@ public partial class CmsCommonCommands : ObservableObject
             return;
         }
 
-        List<FileInfo?> selectedFileInfos = selectedFiles.Select(x => new FileInfo(x)).ToList();
+        var selectedFileInfos = selectedFiles.Select(x => new FileInfo(x)).ToList();
 
         if (!selectedFileInfos.Any(x => x.Exists))
         {
@@ -419,7 +418,7 @@ public partial class CmsCommonCommands : ObservableObject
             return;
         }
 
-        List<FileInfo?> selectedFileInfos = selectedFiles.Select(x => new FileInfo(x)).ToList();
+        var selectedFileInfos = selectedFiles.Select(x => new FileInfo(x)).ToList();
 
         if (!selectedFileInfos.Any(x => x.Exists))
         {
@@ -462,7 +461,7 @@ public partial class CmsCommonCommands : ObservableObject
     }
 
     public static async Task NewLineContentFromFiles(CancellationToken cancellationToken, bool autoSaveAndClose,
-        StatusControlContext? statusContext, WindowIconStatus? windowStatus)
+        StatusControlContext statusContext, WindowIconStatus windowStatus)
     {
         await ThreadSwitcher.ResumeForegroundAsync();
 
@@ -500,7 +499,7 @@ public partial class CmsCommonCommands : ObservableObject
 
     public static async Task NewLineContentFromFiles(List<FileInfo> selectedFileInfos, bool autoSaveAndClose,
         CancellationToken cancellationToken,
-        StatusControlContext? statusContext, WindowIconStatus? windowStatus)
+        StatusControlContext statusContext, WindowIconStatus windowStatus)
     {
         var outerLoopCounter = 0;
 
@@ -620,7 +619,7 @@ public partial class CmsCommonCommands : ObservableObject
 
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        List<FileInfo?> selectedFileInfos = selectedFiles.Select(x => new FileInfo(x)).ToList();
+        var selectedFileInfos = selectedFiles.Select(x => new FileInfo(x)).ToList();
 
         if (!selectedFileInfos.Any(x => x.Exists))
         {
@@ -761,7 +760,7 @@ public partial class CmsCommonCommands : ObservableObject
             return;
         }
 
-        List<FileInfo?> selectedFileInfos = selectedFiles.Select(x => new FileInfo(x)).ToList();
+        var selectedFileInfos = selectedFiles.Select(x => new FileInfo(x)).ToList();
 
         if (!selectedFileInfos.Any(x => x.Exists))
         {

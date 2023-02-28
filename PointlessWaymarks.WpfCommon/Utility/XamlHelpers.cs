@@ -5,7 +5,7 @@ namespace PointlessWaymarks.WpfCommon.Utility;
 
 public static class XamlHelpers
 {
-    public static T? FindChild<T>(DependencyObject? parent) where T : DependencyObject
+    public static T FindChild<T>(DependencyObject parent) where T : DependencyObject
     {
         if (parent == null) return null;
 

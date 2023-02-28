@@ -61,7 +61,7 @@ internal static class NativeMethods
 
         var win = ExcelWindowFromHandle(childHandle);
 
-        return win.Application;
+        return win?.Application;
     }
 
     public static bool BringToFront(Process process)

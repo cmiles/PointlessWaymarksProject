@@ -27,10 +27,10 @@ public partial class PostContentActions : ObservableObject, IContentActions<Post
     [ObservableProperty] private RelayCommand<PostContent> _generateHtmlCommand;
     [ObservableProperty] private RelayCommand<PostContent> _linkCodeToClipboardCommand;
     [ObservableProperty] private RelayCommand<PostContent> _viewOnSiteCommand;
-    [ObservableProperty] private StatusControlContext? _statusContext;
+    [ObservableProperty] private StatusControlContext _statusContext;
     [ObservableProperty] private RelayCommand<PostContent> _viewHistoryCommand;
 
-    public PostContentActions(StatusControlContext? statusContext)
+    public PostContentActions(StatusControlContext statusContext)
     {
         StatusContext = statusContext;
         DeleteCommand = StatusContext.RunBlockingTaskCommand<PostContent>(Delete);
@@ -42,13 +42,13 @@ public partial class PostContentActions : ObservableObject, IContentActions<Post
         ViewHistoryCommand = StatusContext.RunNonBlockingTaskCommand<PostContent>(ViewHistory);
     }
 
-    public string DefaultBracketCode(PostContent? content)
+    public string DefaultBracketCode(PostContent content)
     {
         if (content?.ContentId == null) return string.Empty;
         return @$"{BracketCodePosts.Create(content)}";
     }
 
-    public async Task DefaultBracketCodeToClipboard(PostContent? content)
+    public async Task DefaultBracketCodeToClipboard(PostContent content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -67,7 +67,7 @@ public partial class PostContentActions : ObservableObject, IContentActions<Post
         StatusContext.ToastSuccess($"To Clipboard {finalString}");
     }
 
-    public async Task Delete(PostContent? content)
+    public async Task Delete(PostContent content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -95,7 +95,7 @@ public partial class PostContentActions : ObservableObject, IContentActions<Post
         }
     }
 
-    public async Task Edit(PostContent? content)
+    public async Task Edit(PostContent content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -114,7 +114,7 @@ public partial class PostContentActions : ObservableObject, IContentActions<Post
         await newContentWindow.PositionWindowAndShowOnUiThread();
     }
 
-    public async Task ExtractNewLinks(PostContent? content)
+    public async Task ExtractNewLinks(PostContent content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -134,7 +134,7 @@ public partial class PostContentActions : ObservableObject, IContentActions<Post
             $"{refreshedData.BodyContent} {refreshedData.UpdateNotes}", StatusContext.ProgressTracker());
     }
 
-    public async Task GenerateHtml(PostContent? content)
+    public async Task GenerateHtml(PostContent content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -153,7 +153,7 @@ public partial class PostContentActions : ObservableObject, IContentActions<Post
         StatusContext.ToastSuccess($"Generated {htmlContext.PageUrl}");
     }
 
-    public async Task ViewOnSite(PostContent? content)
+    public async Task ViewOnSite(PostContent content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -171,7 +171,7 @@ public partial class PostContentActions : ObservableObject, IContentActions<Post
         Process.Start(ps);
     }
 
-    public async Task ViewHistory(PostContent? content)
+    public async Task ViewHistory(PostContent content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 

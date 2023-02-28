@@ -27,10 +27,10 @@ public partial class NoteContentActions : ObservableObject, IContentActions<Note
     [ObservableProperty] private RelayCommand<NoteContent> _generateHtmlCommand;
     [ObservableProperty] private RelayCommand<NoteContent> _linkCodeToClipboardCommand;
     [ObservableProperty] private RelayCommand<NoteContent> _viewOnSiteCommand;
-    [ObservableProperty] private StatusControlContext? _statusContext;
+    [ObservableProperty] private StatusControlContext _statusContext;
     [ObservableProperty] private RelayCommand<NoteContent> _viewHistoryCommand;
 
-    public NoteContentActions(StatusControlContext? statusContext)
+    public NoteContentActions(StatusControlContext statusContext)
     {
         StatusContext = statusContext;
         DeleteCommand = StatusContext.RunBlockingTaskCommand<NoteContent>(Delete);
@@ -42,12 +42,12 @@ public partial class NoteContentActions : ObservableObject, IContentActions<Note
         ViewHistoryCommand = StatusContext.RunNonBlockingTaskCommand<NoteContent>(ViewHistory);
     }
 
-    public string DefaultBracketCode(NoteContent? content)
+    public string DefaultBracketCode(NoteContent content)
     {
         return content?.ContentId == null ? string.Empty : @$"{BracketCodeNotes.Create(content)}";
     }
 
-    public async Task DefaultBracketCodeToClipboard(NoteContent? content)
+    public async Task DefaultBracketCodeToClipboard(NoteContent content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -66,7 +66,7 @@ public partial class NoteContentActions : ObservableObject, IContentActions<Note
         StatusContext.ToastSuccess($"To Clipboard {finalString}");
     }
 
-    public async Task Delete(NoteContent? content)
+    public async Task Delete(NoteContent content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -94,7 +94,7 @@ public partial class NoteContentActions : ObservableObject, IContentActions<Note
         }
     }
 
-    public async Task Edit(NoteContent? content)
+    public async Task Edit(NoteContent content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -113,7 +113,7 @@ public partial class NoteContentActions : ObservableObject, IContentActions<Note
         await newContentWindow.PositionWindowAndShowOnUiThread();
     }
 
-    public async Task ExtractNewLinks(NoteContent? content)
+    public async Task ExtractNewLinks(NoteContent content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -133,7 +133,7 @@ public partial class NoteContentActions : ObservableObject, IContentActions<Note
             StatusContext.ProgressTracker());
     }
 
-    public async Task GenerateHtml(NoteContent? content)
+    public async Task GenerateHtml(NoteContent content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -152,7 +152,7 @@ public partial class NoteContentActions : ObservableObject, IContentActions<Note
         StatusContext.ToastSuccess($"Generated {htmlContext.PageUrl}");
     }
 
-    public async Task ViewOnSite(NoteContent? content)
+    public async Task ViewOnSite(NoteContent content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -170,7 +170,7 @@ public partial class NoteContentActions : ObservableObject, IContentActions<Note
         Process.Start(ps);
     }
 
-    public async Task ViewHistory(NoteContent? content)
+    public async Task ViewHistory(NoteContent content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 

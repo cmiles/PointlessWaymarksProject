@@ -15,7 +15,7 @@ public partial class BoolDataEntryContext : ObservableObject, IHasChanges, IHasV
     [ObservableProperty] private string _title = string.Empty;
     [ObservableProperty] private bool _userValue;
     [ObservableProperty] private List<Func<bool, IsValid>> _validationFunctions = new();
-    [ObservableProperty] private string? _validationMessage = string.Empty;
+    [ObservableProperty] private string _validationMessage = string.Empty;
 
     private BoolDataEntryContext()
     {
@@ -44,7 +44,7 @@ public partial class BoolDataEntryContext : ObservableObject, IHasChanges, IHasV
         ValidationMessage = string.Empty;
     }
 
-    public static BoolDataEntryContext? CreateInstance()
+    public static BoolDataEntryContext CreateInstance()
     {
         return new BoolDataEntryContext();
     }

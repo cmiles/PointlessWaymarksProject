@@ -33,33 +33,33 @@ namespace PointlessWaymarks.CmsWpfControls.GeoJsonContentEditor;
 
 public partial class GeoJsonContentEditorContext :  ObservableObject, IHasChanges, IHasValidationIssues, ICheckForChangesAndValidation
 {
-    [ObservableProperty] private RelayCommand? _addFeatureIntersectTagsCommand;
-    [ObservableProperty] private BodyContentEditorContext? _bodyContent;
-    [ObservableProperty] private ContentIdViewerControlContext? _contentId;
-    [ObservableProperty] private CreatedAndUpdatedByAndOnDisplayContext? _createdUpdatedDisplay;
-    [ObservableProperty] private GeoJsonContent? _dbEntry;
-    [ObservableProperty] private RelayCommand? _extractNewLinksCommand;
+    [ObservableProperty] private RelayCommand _addFeatureIntersectTagsCommand;
+    [ObservableProperty] private BodyContentEditorContext _bodyContent;
+    [ObservableProperty] private ContentIdViewerControlContext _contentId;
+    [ObservableProperty] private CreatedAndUpdatedByAndOnDisplayContext _createdUpdatedDisplay;
+    [ObservableProperty] private GeoJsonContent _dbEntry;
+    [ObservableProperty] private RelayCommand _extractNewLinksCommand;
     [ObservableProperty] private string _geoJsonText = string.Empty;
     [ObservableProperty] private bool _hasChanges;
     [ObservableProperty] private bool _hasValidationIssues;
     [ObservableProperty] private HelpDisplayContext _helpContext;
-    [ObservableProperty] private RelayCommand? _importGeoJsonFileCommand;
-    [ObservableProperty] private RelayCommand? _importGeoJsonFromClipboardCommand;
-    [ObservableProperty] private RelayCommand? _linkToClipboardCommand;
-    [ObservableProperty] private ContentSiteFeedAndIsDraftContext? _mainSiteFeed;
+    [ObservableProperty] private RelayCommand _importGeoJsonFileCommand;
+    [ObservableProperty] private RelayCommand _importGeoJsonFromClipboardCommand;
+    [ObservableProperty] private RelayCommand _linkToClipboardCommand;
+    [ObservableProperty] private ContentSiteFeedAndIsDraftContext _mainSiteFeed;
     [ObservableProperty] private string _previewGeoJsonDto;
     [ObservableProperty] private string _previewHtml;
-    [ObservableProperty] private RelayCommand? _refreshMapPreviewCommand;
-    [ObservableProperty] private RelayCommand? _saveAndCloseCommand;
-    [ObservableProperty] private RelayCommand? _saveCommand;
-    [ObservableProperty] private StatusControlContext? _statusContext;
-    [ObservableProperty] private TagsEditorContext? _tagEdit;
+    [ObservableProperty] private RelayCommand _refreshMapPreviewCommand;
+    [ObservableProperty] private RelayCommand _saveAndCloseCommand;
+    [ObservableProperty] private RelayCommand _saveCommand;
+    [ObservableProperty] private StatusControlContext _statusContext;
+    [ObservableProperty] private TagsEditorContext _tagEdit;
     [ObservableProperty] private TitleSummarySlugEditorContext _titleSummarySlugFolder;
-    [ObservableProperty] private UpdateNotesEditorContext? _updateNotes;
-    [ObservableProperty] private RelayCommand? _viewOnSiteCommand;
+    [ObservableProperty] private UpdateNotesEditorContext _updateNotes;
+    [ObservableProperty] private RelayCommand _viewOnSiteCommand;
     public EventHandler RequestContentEditorWindowClose;
 
-    private GeoJsonContentEditorContext(StatusControlContext? statusContext)
+    private GeoJsonContentEditorContext(StatusControlContext statusContext)
     {
         StatusContext = statusContext ?? new StatusControlContext();
 
@@ -136,15 +136,15 @@ public partial class GeoJsonContentEditorContext :  ObservableObject, IHasChange
             $"{TagEdit.Tags}{(string.IsNullOrWhiteSpace(TagEdit.Tags) ? "" : ",")}{string.Join(",", possibleTags)}";
     }
 
-    public static async Task<GeoJsonContentEditorContext> CreateInstance(StatusControlContext? statusContext,
-        GeoJsonContent? geoJsonContent)
+    public static async Task<GeoJsonContentEditorContext> CreateInstance(StatusControlContext statusContext,
+        GeoJsonContent geoJsonContent)
     {
         var newControl = new GeoJsonContentEditorContext(statusContext);
         await newControl.LoadData(geoJsonContent);
         return newControl;
     }
 
-    private GeoJsonContent? CurrentStateToGeoJsonContent()
+    private GeoJsonContent CurrentStateToGeoJsonContent()
     {
         var newEntry = new GeoJsonContent();
 
@@ -263,7 +263,7 @@ public partial class GeoJsonContentEditorContext :  ObservableObject, IHasChange
         StatusContext.ToastSuccess($"To Clipboard: {linkString}");
     }
 
-    public async Task LoadData(GeoJsonContent? toLoad)
+    public async Task LoadData(GeoJsonContent toLoad)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -289,8 +289,9 @@ public partial class GeoJsonContentEditorContext :  ObservableObject, IHasChange
         PropertyScanners.SubscribeToChildHasChangesAndHasValidationIssues(this, CheckForChangesAndValidationIssues);
     }
 
-    private void OnPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
     {
+        if (e == null) return;
         if (string.IsNullOrWhiteSpace(e.PropertyName)) return;
 
         if (!e.PropertyName.Contains("HasChanges") && !e.PropertyName.Contains("Validation"))

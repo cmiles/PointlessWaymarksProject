@@ -58,18 +58,18 @@ public partial class ConnectDownloadContext : ObservableObject
         PropertyChanged += OnPropertyChanged;
     }
 
-    public RelayCommand? ChooseArchiveDirectoryCommand { get; }
+    public RelayCommand ChooseArchiveDirectoryCommand { get; }
 
     // ReSharper disable once UnusedAutoPropertyAccessor.Global - Used in Xaml
     public RelayCommand<GarminActivityAndLocalFiles> DownloadActivityCommand { get; }
 
-    public RelayCommand? EnterGarminCredentialsCommand { get; }
+    public RelayCommand EnterGarminCredentialsCommand { get; }
 
-    public RelayCommand? RemoveAllGarminCredentialsCommand { get; }
+    public RelayCommand RemoveAllGarminCredentialsCommand { get; }
 
     public RelayCommand RunSearchCommand { get; }
 
-    public RelayCommand? ShowArchiveDirectoryCommand { get; }
+    public RelayCommand ShowArchiveDirectoryCommand { get; }
 
     // ReSharper disable once UnusedAutoPropertyAccessor.Global - Used in Xaml
     public RelayCommand<string> ShowFileInExplorerCommand { get; }
@@ -125,15 +125,9 @@ public partial class ConnectDownloadContext : ObservableObject
         return control;
     }
 
-    public async Task DownloadActivity(GarminActivityAndLocalFiles? toDownload)
+    public async Task DownloadActivity(GarminActivityAndLocalFiles toDownload)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
-
-        if (toDownload == null)
-        {
-            StatusContext.ToastError("Null Activity to Download?");
-            return;
-        }
 
         await CheckThatArchiveDirectoryExists();
 
@@ -329,7 +323,7 @@ public partial class ConnectDownloadContext : ObservableObject
         await ProcessHelpers.OpenExplorerWindowForDirectory(Settings.ArchiveDirectory.Trim());
     }
 
-    public async Task ShowFileInExplorer(string? fileName)
+    public async Task ShowFileInExplorer(string fileName)
     {
         if (string.IsNullOrWhiteSpace(fileName))
         {
@@ -347,16 +341,10 @@ public partial class ConnectDownloadContext : ObservableObject
         await ProcessHelpers.OpenExplorerWindowForFile(fileName.Trim());
     }
 
-    public async Task ShowGpxFile(GarminActivityAndLocalFiles? toShow)
+    public async Task ShowGpxFile(GarminActivityAndLocalFiles toShow)
     {
         await CheckThatArchiveDirectoryExists();
 
-        if (toShow == null)
-        {
-            StatusContext.ToastError("Null Activity to Show?");
-            return;
-        }
-        
         if (!ArchiveDirectoryExists)
         {
             StatusContext.ToastError("A valid Archive Directory must be set to show a GPX file...");

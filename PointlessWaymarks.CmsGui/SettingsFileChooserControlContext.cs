@@ -12,10 +12,10 @@ namespace PointlessWaymarks.CmsGui;
 
 public partial class SettingsFileChooserControlContext : ObservableObject
 {
-    [ObservableProperty] private RelayCommand? _chooseFileCommand;
+    [ObservableProperty] private RelayCommand _chooseFileCommand;
     [ObservableProperty] private RelayCommand<SettingsFileListItem> _chooseRecentFileCommand;
     [ObservableProperty] private ObservableCollection<SettingsFileListItem> _items;
-    [ObservableProperty] private RelayCommand? _newFileCommand;
+    [ObservableProperty] private RelayCommand _newFileCommand;
     [ObservableProperty] private List<string> _recentSettingFilesNames;
     [ObservableProperty] private RelayCommand<SettingsFileListItem> _removeSelectedFileCommand;
     [ObservableProperty] private StatusControlContext _statusContext;
@@ -49,7 +49,7 @@ public partial class SettingsFileChooserControlContext : ObservableObject
             (false, possibleFile.FullName, Items.Select(x => x.SettingsFile.FullName).ToList()));
     }
 
-    public static async Task<SettingsFileChooserControlContext> CreateInstance(StatusControlContext? statusContext,
+    public static async Task<SettingsFileChooserControlContext> CreateInstance(StatusControlContext statusContext,
         string recentSettingFiles)
     {
         var context = new SettingsFileChooserControlContext

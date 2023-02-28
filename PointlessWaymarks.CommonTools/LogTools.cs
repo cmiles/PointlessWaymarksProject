@@ -37,7 +37,7 @@ public static class LogTools
     /// </summary>
     /// <param name="toDump"></param>
     /// <returns></returns>
-    public static string SafeObjectDump(this object? toDump)
+    public static string SafeObjectDump(this object toDump)
     {
         return ObjectDumper.Dump(toDump, new DumpOptions { MaxLevel = 2, DumpStyle = DumpStyle.Console });
     }

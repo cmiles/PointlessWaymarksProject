@@ -7,17 +7,17 @@ namespace PointlessWaymarks.CmsWpfControls.ContentIdViewer;
 
 public partial class ContentIdViewerControlContext : ObservableObject
 {
-    [ObservableProperty] private string? _contentIdInformation;
-    [ObservableProperty] private IContentId? _dbEntry;
+    [ObservableProperty] private string _contentIdInformation;
+    [ObservableProperty] private IContentId _dbEntry;
     [ObservableProperty] private StatusControlContext _statusContext;
 
-    private ContentIdViewerControlContext(StatusControlContext? statusContext)
+    private ContentIdViewerControlContext(StatusControlContext statusContext)
     {
-        _statusContext = statusContext ?? new StatusControlContext();
+        StatusContext = statusContext ?? new StatusControlContext();
     }
 
-    public static async Task<ContentIdViewerControlContext?> CreateInstance(StatusControlContext? statusContext,
-        IContentId? dbEntry)
+    public static async Task<ContentIdViewerControlContext> CreateInstance(StatusControlContext statusContext,
+        IContentId dbEntry)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -26,7 +26,7 @@ public partial class ContentIdViewerControlContext : ObservableObject
         return newContext;
     }
 
-    public async Task LoadData(IContentId? dbEntry)
+    public async Task LoadData(IContentId dbEntry)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 

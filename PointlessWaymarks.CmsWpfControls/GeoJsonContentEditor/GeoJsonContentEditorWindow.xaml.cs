@@ -14,7 +14,7 @@ public partial class GeoJsonContentEditorWindow
 {
     [ObservableProperty] private WindowAccidentalClosureHelper _accidentalCloserHelper;
     [ObservableProperty] private GeoJsonContentEditorContext _geoJsonContent;
-    [ObservableProperty] private StatusControlContext? _statusContext;
+    [ObservableProperty] private StatusControlContext _statusContext;
 
     /// <summary>
     /// DO NOT USE - Use CreateInstance instead - using the constructor directly will result in
@@ -33,7 +33,7 @@ public partial class GeoJsonContentEditorWindow
     /// PositionWindowAndShowOnUiThread() from the WindowInitialPositionHelpers.
     /// </summary>
     /// <returns></returns>
-    public static async Task<GeoJsonContentEditorWindow> CreateInstance(GeoJsonContent? toLoad)
+    public static async Task<GeoJsonContentEditorWindow> CreateInstance(GeoJsonContent toLoad)
     {
         await ThreadSwitcher.ResumeForegroundAsync();
 

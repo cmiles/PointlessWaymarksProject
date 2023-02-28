@@ -11,7 +11,7 @@ public partial class LinkContentEditorWindow
 {
     [ObservableProperty] private WindowAccidentalClosureHelper _accidentalCloserHelper;
     [ObservableProperty] private LinkContentEditorContext _linkContent;
-    [ObservableProperty] private StatusControlContext? _statusContext;
+    [ObservableProperty] private StatusControlContext _statusContext;
 
     /// <summary>
     /// DO NOT USE - Use CreateInstance instead - using the constructor directly will result in
@@ -30,7 +30,7 @@ public partial class LinkContentEditorWindow
     /// PositionWindowAndShowOnUiThread() from the WindowInitialPositionHelpers.
     /// </summary>
     /// <returns></returns>
-    public static async Task<LinkContentEditorWindow> CreateInstance(LinkContent? toLoad, bool extractDataFromLink = false)
+    public static async Task<LinkContentEditorWindow> CreateInstance(LinkContent toLoad, bool extractDataFromLink = false)
     {
         await ThreadSwitcher.ResumeForegroundAsync();
 

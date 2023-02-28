@@ -25,27 +25,27 @@ public partial class LinkContentEditorContext : ObservableObject, IHasChanges, I
 {
     [ObservableProperty] private StringDataEntryContext _authorEntry;
     [ObservableProperty] private StringDataEntryContext _commentsEntry;
-    [ObservableProperty] private CreatedAndUpdatedByAndOnDisplayContext? _createdUpdatedDisplay;
-    [ObservableProperty] private LinkContent? _dbEntry;
+    [ObservableProperty] private CreatedAndUpdatedByAndOnDisplayContext _createdUpdatedDisplay;
+    [ObservableProperty] private LinkContent _dbEntry;
     [ObservableProperty] private StringDataEntryContext _descriptionEntry;
-    [ObservableProperty] private RelayCommand? _extractDataCommand;
+    [ObservableProperty] private RelayCommand _extractDataCommand;
     [ObservableProperty] private bool _hasChanges;
     [ObservableProperty] private bool _hasValidationIssues;
     [ObservableProperty] private HelpDisplayContext _helpContext;
     [ObservableProperty] private ConversionDataEntryContext<DateTime?> _linkDateTimeEntry;
     [ObservableProperty] private StringDataEntryContext _linkUrlEntry;
     [ObservableProperty] private RelayCommand _openUrlInBrowserCommand;
-    [ObservableProperty] private RelayCommand? _saveAndCloseCommand;
-    [ObservableProperty] private RelayCommand? _saveCommand;
-    [ObservableProperty] private BoolDataEntryContext? _showInLinkRssEntry;
+    [ObservableProperty] private RelayCommand _saveAndCloseCommand;
+    [ObservableProperty] private RelayCommand _saveCommand;
+    [ObservableProperty] private BoolDataEntryContext _showInLinkRssEntry;
     [ObservableProperty] private StringDataEntryContext _siteEntry;
-    [ObservableProperty] private StatusControlContext? _statusContext;
-    [ObservableProperty] private TagsEditorContext? _tagEdit;
+    [ObservableProperty] private StatusControlContext _statusContext;
+    [ObservableProperty] private TagsEditorContext _tagEdit;
     [ObservableProperty] private StringDataEntryContext _titleEntry;
 
     public EventHandler RequestContentEditorWindowClose;
 
-    private LinkContentEditorContext(StatusControlContext? statusContext)
+    private LinkContentEditorContext(StatusControlContext statusContext)
     {
         StatusContext = statusContext ?? new StatusControlContext();
 
@@ -80,8 +80,8 @@ public partial class LinkContentEditorContext : ObservableObject, IHasChanges, I
         HasValidationIssues = PropertyScanners.ChildPropertiesHaveValidationIssues(this);
     }
 
-    public static async Task<LinkContentEditorContext> CreateInstance(StatusControlContext? statusContext,
-        LinkContent? linkContent, bool extractDataOnLoad = false)
+    public static async Task<LinkContentEditorContext> CreateInstance(StatusControlContext statusContext,
+        LinkContent linkContent, bool extractDataOnLoad = false)
     {
         var newControl = new LinkContentEditorContext(statusContext);
         await newControl.LoadData(linkContent, extractDataOnLoad);
@@ -145,7 +145,7 @@ public partial class LinkContentEditorContext : ObservableObject, IHasChanges, I
                 : linkMetadata.LinkDate.Value.ToString("M/d/yyyy h:mm:ss tt");
     }
 
-    private async Task LoadData(LinkContent? toLoad, bool extractDataOnLoad = false)
+    private async Task LoadData(LinkContent toLoad, bool extractDataOnLoad = false)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -216,8 +216,9 @@ public partial class LinkContentEditorContext : ObservableObject, IHasChanges, I
         PropertyScanners.SubscribeToChildHasChangesAndHasValidationIssues(this, CheckForChangesAndValidationIssues);
     }
 
-    private void OnPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
     {
+        if (e == null) return;
         if (string.IsNullOrWhiteSpace(e.PropertyName)) return;
 
         if (!e.PropertyName.Contains("HasChanges") && !e.PropertyName.Contains("Validation"))

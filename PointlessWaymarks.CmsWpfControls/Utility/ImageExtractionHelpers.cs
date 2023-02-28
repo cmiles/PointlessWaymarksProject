@@ -19,12 +19,12 @@ namespace PointlessWaymarks.CmsWpfControls.Utility;
 
 public static class ImageExtractionHelpers
 {
-    public static async Task PdfPageToImage(StatusControlContext? statusContext,
-        List<FileContent?> selected, int pageNumber)
+    public static async Task PdfPageToImage(StatusControlContext statusContext,
+        List<FileContent> selected, int pageNumber)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        var toProcess = new List<(FileInfo targetFile, FileInfo destinationFile, FileContent? content)>();
+        var toProcess = new List<(FileInfo targetFile, FileInfo destinationFile, FileContent content)>();
 
         foreach (var loopSelected in selected)
         {
@@ -103,6 +103,7 @@ public static class ImageExtractionHelpers
             else
             {
                 newImage.Title = $"{content.Title} - Page {pageNumber}";
+                ;
                 newImage.Summary = $"Page {pageNumber} from {content.Title}.";
             }
 
@@ -123,8 +124,8 @@ public static class ImageExtractionHelpers
     }
 
     public static async Task<(Guid? contentId, ImageContentEditorWindow? editor)> PdfPageToImageWithAutoSave(
-        StatusControlContext? statusContext,
-        FileContent? selected, int pageNumber)
+        StatusControlContext statusContext,
+        FileContent selected, int pageNumber)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -137,7 +138,7 @@ public static class ImageExtractionHelpers
         if (!targetFile.Extension.ToLower().Contains("pdf"))
             return (null, null);
 
-        FileInfo? destinationFile;
+        FileInfo destinationFile;
         if (pageNumber == 1)
             destinationFile = new FileInfo(Path.Combine(UserSettingsUtilities.TempStorageDirectory().FullName,
                 $"{Path.GetFileNameWithoutExtension(targetFile.Name)}-CoverPage.jpg"));
@@ -200,6 +201,7 @@ public static class ImageExtractionHelpers
         else
         {
             newImage.Title = $"{selected.Title} - Page {pageNumber}";
+            ;
             newImage.Summary = $"Page {pageNumber} from {selected.Title}.";
         }
 
@@ -235,11 +237,11 @@ public static class ImageExtractionHelpers
     }
 
     public static async Task VideoFrameToImage(StatusControlContext statusContext,
-        List<FileContent?> selected)
+        List<FileContent> selected)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        var toProcess = new List<(FileInfo targetFile, FileInfo destinationFile, FileContent? content)>();
+        var toProcess = new List<(FileInfo targetFile, FileInfo destinationFile, FileContent content)>();
 
         foreach (var loopSelected in selected)
         {
@@ -317,8 +319,8 @@ public static class ImageExtractionHelpers
         }
     }
 
-    public static async Task<Guid?> VideoFrameToImageAutoSave(StatusControlContext? statusContext,
-        FileContent? selected)
+    public static async Task<Guid?> VideoFrameToImageAutoSave(StatusControlContext statusContext,
+        FileContent selected)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -392,8 +394,8 @@ public static class ImageExtractionHelpers
         return autoSaveReturn.imageContent.ContentId;
     }
 
-    public static async Task<Guid?> VideoFrameToImageAutoSave(StatusControlContext? statusContext,
-    VideoContent? selected, double millisecondPosition = 100)
+    public static async Task<Guid?> VideoFrameToImageAutoSave(StatusControlContext statusContext,
+    VideoContent selected, double millisecondPosition = 100)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 

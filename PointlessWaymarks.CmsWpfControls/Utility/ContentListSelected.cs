@@ -16,7 +16,7 @@ public class ContentListSelected<T> : INotifyPropertyChanged where T : ISelected
     private List<T> _selectedItems = new();
     private StatusControlContext _statusContext;
 
-    private ContentListSelected(StatusControlContext? statusContext = null)
+    private ContentListSelected(StatusControlContext statusContext = null)
     {
         StatusContext = statusContext ?? new StatusControlContext();
     }
@@ -67,7 +67,7 @@ public class ContentListSelected<T> : INotifyPropertyChanged where T : ISelected
 
     public event PropertyChangedEventHandler PropertyChanged;
 
-    public static async Task<ContentListSelected<T>> CreateInstance(StatusControlContext? statusContext = null)
+    public static async Task<ContentListSelected<T>> CreateInstance(StatusControlContext statusContext = null)
     {
         var newControl = new ContentListSelected<T>(statusContext);
         await newControl.LoadData();

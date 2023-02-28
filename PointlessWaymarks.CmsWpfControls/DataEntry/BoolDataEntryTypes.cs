@@ -5,7 +5,7 @@ namespace PointlessWaymarks.CmsWpfControls.DataEntry;
 
 public static class BoolDataEntryTypes
 {
-    public static BoolDataEntryContext? CreateInstanceForIsDraft(IMainSiteFeed? dbEntry, bool defaultSetting)
+    public static BoolDataEntryContext CreateInstanceForIsDraft(IMainSiteFeed dbEntry, bool defaultSetting)
     {
         var newContext = BoolDataEntryContext.CreateInstance();
 
@@ -19,7 +19,7 @@ public static class BoolDataEntryTypes
         return newContext;
     }
 
-    public static BoolDataEntryContext? CreateInstanceForShowInMainSiteFeed(IMainSiteFeed? dbEntry, bool defaultSetting)
+    public static BoolDataEntryContext CreateInstanceForShowInMainSiteFeed(IMainSiteFeed dbEntry, bool defaultSetting)
     {
         var newContext = BoolDataEntryContext.CreateInstance();
 
@@ -32,7 +32,7 @@ public static class BoolDataEntryTypes
         return newContext;
     }
 
-    public static BoolDataEntryContext? CreateInstanceForShowInSearch(IShowInSearch? dbEntry, bool defaultSetting)
+    public static BoolDataEntryContext CreateInstanceForShowInSearch(IShowInSearch dbEntry, bool defaultSetting)
     {
         var newContext = BoolDataEntryContext.CreateInstance();
 
