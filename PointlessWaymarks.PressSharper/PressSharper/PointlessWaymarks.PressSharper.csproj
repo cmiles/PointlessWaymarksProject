@@ -5,7 +5,6 @@
     <Product>PressSharper</Product>
     <Description>A C# class library for parsing WordPress XML export data.</Description>
     <Copyright>Copyright 2012 Ben Lakey, 2016 Brandon Wood</Copyright>
-    <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="GitInfo" Version="3.0.4">

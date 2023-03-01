@@ -23,8 +23,6 @@ public partial class CreatedAndUpdatedByAndOnDisplayContext : ObservableObject, 
     [ObservableProperty] private bool _isNewEntry;
     [ObservableProperty] private bool _showCreatedByEditor;
     [ObservableProperty] private bool _showUpdatedByEditor;
-
-
     [ObservableProperty] private StatusControlContext _statusContext;
     [ObservableProperty] private StringDataEntryContext _updatedByEntry;
     [ObservableProperty] private DateTime? _updatedOn;

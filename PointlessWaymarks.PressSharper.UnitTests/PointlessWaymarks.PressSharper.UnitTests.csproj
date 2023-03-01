@@ -2,7 +2,6 @@
   <PropertyGroup>
     <AssemblyTitle>PressSharper.UnitTests</AssemblyTitle>
     <Product>PressSharper.UnitTests</Product>
-    <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="GitInfo" Version="3.0.4">

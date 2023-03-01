@@ -1,9 +1,5 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <Nullable>enable</Nullable>
-  </PropertyGroup>
-
   <ItemGroup>
     <None Update="ContentHtml\ErrorHtml\ErrorPage.tt">
       <Generator>TextTemplatingFilePreprocessor</Generator>

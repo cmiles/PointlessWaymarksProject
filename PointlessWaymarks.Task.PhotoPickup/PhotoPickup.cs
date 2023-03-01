@@ -22,7 +22,6 @@ public class PhotoPickup
                 FileAndFolderTools.ReadAllText(
                     Path.Combine(AppContext.BaseDirectory, "README.md")));
 
-
         if (string.IsNullOrWhiteSpace(settingsFile))
         {
             Log.Error("Settings File is Null or Whitespace?");
