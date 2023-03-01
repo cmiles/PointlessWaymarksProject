@@ -12,13 +12,12 @@ public static class ProcessExtensionMethods
     ///     Gets the Excel instance running in the given process, or null if none exists.
     /// </summary>
     /// <param name="process">The process.</param>
-    public static XL.Application AsExcelApp(this Process process)
+    public static XL.Application? AsExcelApp(this Process process)
     {
         if (process == null) throw new ArgumentNullException(nameof(process));
 
         var handle = process.MainWindowHandle.ToInt32();
         var result = NativeMethods.AppFromMainWindowHandle(handle);
-        //Debug.Assert(result != null);
         return result;
     }
 
@@ -66,7 +65,7 @@ public static class ProcessExtensionMethods
     /// </summary>
     /// <param name="processes">The processes.</param>
     /// <returns>Process with top-most main window.</returns>
-    public static Process TopMost(this IEnumerable<Process> processes)
+    public static Process? TopMost(this IEnumerable<Process> processes)
     {
         if (processes == null) throw new ArgumentNullException(nameof(processes));
 

@@ -6,8 +6,6 @@ using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.SpatialTools;
-#pragma warning disable CS1998
-//CS1998 is disabled because the async is the expected signature for the validation functions
 
 namespace PointlessWaymarks.CmsData.Content;
 
@@ -208,33 +206,32 @@ public static class CommonContentValidation
         return GenerationReturn.Success("No Invalid Content Ids Found");
     }
 
-    public static async Task<IsValid> ElevationValidation(double? elevation)
+    public static Task<IsValid> ElevationValidation(double? elevation)
     {
-        if (elevation == null) return new IsValid(true, "Null Elevation is Valid");
+        if (elevation == null) return Task.FromResult(new IsValid(true, "Null Elevation is Valid"));
 
         if (elevation > 8850)
-            return new IsValid(false,
-                $"Elevations are limited to the elevation of Mount Everest - 29,092' above sea level - {elevation} was input...");
+            return Task.FromResult(new IsValid(false,
+                $"Elevations are limited to the elevation of Mount Everest - 29,092' above sea level - {elevation} was input..."));
 
         if (elevation < -15240)
-            return new IsValid(false,
-                $"This is very unlikely to be a valid elevation, this exceeds the depth of the Mariana Trench and known Extended-Reach Drilling (as of 2020) - elevations under -50,000' are not considered valid - {elevation} was input...");
+            return Task.FromResult(new IsValid(false,
+                $"This is very unlikely to be a valid elevation, this exceeds the depth of the Mariana Trench and known Extended-Reach Drilling (as of 2020) - elevations under -50,000' are not considered valid - {elevation} was input..."));
 
-        return new IsValid(true, "Elevation is Valid");
+        return Task.FromResult(new IsValid(true, "Elevation is Valid"));
     }
 
-    public static async Task<bool> FileContentFileFileNameHasInvalidCharacters(FileInfo? fileContentFile,
+    public static Task<bool> FileContentFileFileNameHasInvalidCharacters(FileInfo? fileContentFile,
         Guid? currentContentId)
     {
-        if (fileContentFile == null) return false;
+        if (fileContentFile == null) return Task.FromResult(false);
 
         fileContentFile.Refresh();
 
-        if (!fileContentFile.Exists) return false;
+        if (!fileContentFile.Exists) return Task.FromResult(false);
 
-        return !FileAndFolderTools.IsNoUrlEncodingNeeded(Path.GetFileNameWithoutExtension(fileContentFile.Name));
+        return Task.FromResult(!FileAndFolderTools.IsNoUrlEncodingNeeded(Path.GetFileNameWithoutExtension(fileContentFile.Name)));
     }
-
 
     public static async Task<IsValid> FileContentFileValidation(FileInfo? fileContentFile, Guid? currentContentId)
     {
@@ -254,23 +251,23 @@ public static class CommonContentValidation
         return new IsValid(true, "File is Valid");
     }
 
-    public static async Task<IsValid> GeoJsonValidation(string? geoJsonString)
+    public static Task<IsValid> GeoJsonValidation(string? geoJsonString)
     {
-        if (string.IsNullOrWhiteSpace(geoJsonString)) return new IsValid(false, "Blank GeoJson is not Valid");
+        if (string.IsNullOrWhiteSpace(geoJsonString)) return Task.FromResult(new IsValid(false, "Blank GeoJson is not Valid"));
 
         try
         {
             var featureCollection = GeoJsonTools.DeserializeStringToFeatureCollection(geoJsonString);
             if (featureCollection.Count < 1)
-                return new IsValid(false, "The GeoJson appears to have an empty Feature Collection?");
+                return Task.FromResult(new IsValid(false, "The GeoJson appears to have an empty Feature Collection?"));
         }
         catch (Exception e)
         {
-            return new IsValid(false,
-                $"Error parsing a Feature Collection from the GeoJson, this CMS needs even single GeoJson types to be wrapped into a FeatureCollection... {e.Message}");
+            return Task.FromResult(new IsValid(false,
+                $"Error parsing a Feature Collection from the GeoJson, this CMS needs even single GeoJson types to be wrapped into a FeatureCollection... {e.Message}"));
         }
 
-        return new IsValid(true, string.Empty);
+        return Task.FromResult(new IsValid(true, string.Empty));
     }
 
     public static async Task<IsValid> ImageFileValidation(FileInfo imageFile, Guid? currentContentId)
@@ -293,12 +290,12 @@ public static class CommonContentValidation
         return new IsValid(true, "File is Valid");
     }
 
-    public static async Task<IsValid> LatitudeValidation(double latitude)
+    public static Task<IsValid> LatitudeValidation(double latitude)
     {
         if (latitude is > 90 or < -90)
-            return new IsValid(false, $"Latitude on Earth must be between -90 and 90 - {latitude} is not valid.");
+            return Task.FromResult(new IsValid(false, $"Latitude on Earth must be between -90 and 90 - {latitude} is not valid."));
 
-        return new IsValid(true, "Latitude is Valid");
+        return Task.FromResult(new IsValid(true, "Latitude is Valid"));
     }
 
     public static async Task<IsValid> LatitudeValidationWithNullOk(double? latitude)
@@ -336,12 +333,12 @@ public static class CommonContentValidation
         return new IsValid(true, string.Empty);
     }
 
-    public static async Task<IsValid> LongitudeValidation(double longitude)
+    public static Task<IsValid> LongitudeValidation(double longitude)
     {
         if (longitude is > 180 or < -180)
-            return new IsValid(false, $"Longitude on Earth must be between -180 and 180 - {longitude} is not valid.");
+            return Task.FromResult(new IsValid(false, $"Longitude on Earth must be between -180 and 180 - {longitude} is not valid."));
 
-        return new IsValid(true, "Longitude is Valid");
+        return Task.FromResult(new IsValid(true, "Longitude is Valid"));
     }
 
     public static async Task<IsValid> LongitudeValidationWithNullOk(double? longitude)
@@ -373,14 +370,14 @@ public static class CommonContentValidation
         return new IsValid(true, "File is Valid");
     }
 
-    public static async Task<IsValid> ValidateBodyContentFormat(string? contentFormat)
+    public static Task<IsValid> ValidateBodyContentFormat(string? contentFormat)
     {
-        if (string.IsNullOrWhiteSpace(contentFormat)) return new IsValid(false, "Body Content Format must be set");
+        if (string.IsNullOrWhiteSpace(contentFormat)) return Task.FromResult(new IsValid(false, "Body Content Format must be set"));
 
         if (Enum.TryParse(typeof(ContentFormatEnum), contentFormat, true, out _))
-            return new IsValid(true, string.Empty);
+            return Task.FromResult(new IsValid(true, string.Empty));
 
-        return new IsValid(false, $"Could not parse {contentFormat} into a known Content Format");
+        return Task.FromResult(new IsValid(false, $"Could not parse {contentFormat} into a known Content Format"));
     }
 
     public static async Task<IsValid> ValidateContentCommon(IContentCommon toValidate)
@@ -516,19 +513,19 @@ public static class CommonContentValidation
         return new IsValid(isValid, string.Join(Environment.NewLine, errorMessage));
     }
 
-    public static async Task<IsValid> ValidateCreatedBy(string? createdBy)
+    public static Task<IsValid> ValidateCreatedBy(string? createdBy)
     {
         if (string.IsNullOrWhiteSpace(createdBy.TrimNullToEmpty()))
-            return new IsValid(false, "Created by can not be blank.");
+            return Task.FromResult(new IsValid(false, "Created by can not be blank."));
 
-        return new IsValid(true, "Created By is Ok");
+        return Task.FromResult(new IsValid(true, "Created By is Ok"));
     }
 
-    public static async Task<IsValid> ValidateFeatureType(string? title)
+    public static Task<IsValid> ValidateFeatureType(string? title)
     {
-        if (string.IsNullOrWhiteSpace(title)) return new IsValid(false, "Type can not be blank");
+        if (string.IsNullOrWhiteSpace(title)) return Task.FromResult(new IsValid(false, "Type can not be blank"));
 
-        return new IsValid(true, string.Empty);
+        return Task.FromResult(new IsValid(true, string.Empty));
     }
 
     public static IsValid ValidateFolder(string? folder)
@@ -663,16 +660,16 @@ public static class CommonContentValidation
         return new IsValid(isValid, string.Join(Environment.NewLine, errorMessage));
     }
 
-    public static async Task<IsValid> ValidateSlugLocal(string? slug)
+    public static Task<IsValid> ValidateSlugLocal(string? slug)
     {
-        if (string.IsNullOrWhiteSpace(slug)) return new IsValid(false, "Slug can't be blank or only whitespace.");
+        if (string.IsNullOrWhiteSpace(slug)) return Task.FromResult(new IsValid(false, "Slug can't be blank or only whitespace."));
 
         if (!FileAndFolderTools.IsNoUrlEncodingNeededLowerCase(slug))
-            return new IsValid(false, "Slug should only contain a-z 0-9 _ -");
+            return Task.FromResult(new IsValid(false, "Slug should only contain a-z 0-9 _ -"));
 
-        if (slug.Length > 100) return new IsValid(false, "Limit slugs to 100 characters.");
+        if (slug.Length > 100) return Task.FromResult(new IsValid(false, "Limit slugs to 100 characters."));
 
-        return new IsValid(true, string.Empty);
+        return Task.FromResult(new IsValid(true, string.Empty));
     }
 
     public static async Task<IsValid> ValidateSlugLocalAndDb(string? slug, Guid contentId)
@@ -688,11 +685,11 @@ public static class CommonContentValidation
         return new IsValid(true, string.Empty);
     }
 
-    public static async Task<IsValid> ValidateSummary(string? summary)
+    public static Task<IsValid> ValidateSummary(string? summary)
     {
-        if (string.IsNullOrWhiteSpace(summary)) return new IsValid(false, "Summary can not be blank");
+        if (string.IsNullOrWhiteSpace(summary)) return Task.FromResult(new IsValid(false, "Summary can not be blank"));
 
-        return new IsValid(true, string.Empty);
+        return Task.FromResult(new IsValid(true, string.Empty));
     }
 
     public static IsValid ValidateTags(string? tags)
@@ -707,11 +704,11 @@ public static class CommonContentValidation
         return new IsValid(true, string.Empty);
     }
 
-    public static async Task<IsValid> ValidateTitle(string? title)
+    public static Task<IsValid> ValidateTitle(string? title)
     {
-        if (string.IsNullOrWhiteSpace(title)) return new IsValid(false, "Title can not be blank");
+        if (string.IsNullOrWhiteSpace(title)) return Task.FromResult(new IsValid(false, "Title can not be blank"));
 
-        return new IsValid(true, string.Empty);
+        return Task.FromResult(new IsValid(true, string.Empty));
     }
 
     public static IsValid ValidateUpdateContentFormat(string? contentFormat)

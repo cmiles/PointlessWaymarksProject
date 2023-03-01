@@ -54,18 +54,10 @@ public static class HtmlEmail
     public static string WrapInNestedCenteringTable(string htmlString)
     {
         // ReSharper disable StringLiteralTypo
-        var emailCenterTable = new TableTag();
-        emailCenterTable.Attr("width", "100%");
-        emailCenterTable.Attr("border", "0");
-        emailCenterTable.Attr("cellspacing", "0");
-        emailCenterTable.Attr("cellpadding", "0");
+        var emailCenterTable = (TableTag) new TableTag().Attr("width", "100%").Attr("border", "0").Attr("cellspacing", "0").Attr("cellpadding", "0");
         var emailCenterRow = emailCenterTable.AddBodyRow();
 
-        var emailCenterLeftCell = emailCenterRow.Cell();
-        emailCenterLeftCell.Attr("max-width", "1%");
-        emailCenterLeftCell.Attr("align", "center");
-        emailCenterLeftCell.Attr("valign", "top");
-        emailCenterLeftCell.Text("&nbsp;").Encoded(false);
+        var emailCenterLeftCell = emailCenterRow.Cell().Attr("max-width", "1%").Attr("align", "center").Attr("valign", "top").Text("&nbsp;").Encoded(false);
 
         var emailCenterContentCell = emailCenterRow.Cell();
         emailCenterContentCell.Attr("width", "100%");
@@ -81,8 +73,8 @@ public static class HtmlEmail
 
         var outerTable = new TableTag();
         emailCenterContentCell.Children.Add(outerTable);
-        outerTable.Style("width", "100%");
-        outerTable.Style("max-width", "900px");
+        
+        outerTable = (TableTag) outerTable.Style("width", "100%").Style("max-width", "900px");
 
         outerTable.TBody.Text(htmlString).Encoded(false);
 

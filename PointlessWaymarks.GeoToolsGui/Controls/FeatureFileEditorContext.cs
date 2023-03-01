@@ -123,12 +123,12 @@ public partial class FeatureFileEditorContext : ObservableObject
         return Task.CompletedTask;
     }
 
-    public async Task RemoveAttribute(string toRemove)
+    public async Task RemoveAttribute(string? toRemove)
     {
         await ThreadSwitcher.ResumeForegroundAsync();
 
         var newList = Model.AttributesForTags;
-        newList.Remove(toRemove);
+        newList.Remove(toRemove ?? string.Empty);
         newList = newList.OrderByDescending(x => x).ToList();
 
         Model.AttributesForTags = newList;

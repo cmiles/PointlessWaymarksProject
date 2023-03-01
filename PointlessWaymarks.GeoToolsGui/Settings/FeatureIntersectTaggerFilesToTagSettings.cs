@@ -28,7 +28,7 @@ public class FeatureIntersectTaggerFilesToTagSettings : IFileListSettings
 
     public Task SetLastDirectory(string newDirectory)
     {
-        _context.Settings.FilesToTagLastDirectoryFullName = newDirectory ?? string.Empty;
+        _context.Settings.FilesToTagLastDirectoryFullName = newDirectory;
         return Task.CompletedTask;
     }
 }

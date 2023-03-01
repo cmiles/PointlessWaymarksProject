@@ -10,6 +10,7 @@ public static class GpxTools
 {
     public static Feature LineFeatureFromGpxRoute(GpxRouteInformation routeInformation)
     {
+        // ReSharper disable once CoVariantArrayConversion
         var newLine = new LineString(routeInformation.Track.ToArray());
         var feature = new Feature
         {
@@ -26,6 +27,7 @@ public static class GpxTools
 
     public static Feature LineFeatureFromGpxTrack(GpxTrackInformation trackInformation)
     {
+        // ReSharper disable once CoVariantArrayConversion
         var newLine = new LineString(trackInformation.Track.ToArray());
         var feature = new Feature
         {

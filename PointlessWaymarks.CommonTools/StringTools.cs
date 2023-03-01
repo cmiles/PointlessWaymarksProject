@@ -109,14 +109,17 @@ public static class StringTools
     {
         var returnString = text;
         while (returnString.Contains(search))
-            returnString = ReplaceFirst(returnString, search, replacementGenerator());
+            returnString = ReplaceFirst(returnString, search, replacementGenerator()) ?? string.Empty;
 
         return returnString;
     }
 
     public static string? ReplaceFirst(this string? text, string search, string replace)
     {
+        if (text == null) return null;
+        
         var length = text.IndexOf(search, StringComparison.Ordinal);
+        
         return length < 0 ? text : text[..length] + replace + text[(length + search.Length)..];
     }
 

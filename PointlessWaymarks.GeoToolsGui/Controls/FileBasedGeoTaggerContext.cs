@@ -210,7 +210,7 @@ public partial class FileBasedGeoTaggerContext : ObservableObject
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        if (FilesToTagFileList.SelectedFiles == null)
+        if (FilesToTagFileList?.SelectedFiles == null)
         {
             StatusContext.ToastWarning("Nothing Selected?");
             return;
@@ -334,7 +334,7 @@ public partial class FileBasedGeoTaggerContext : ObservableObject
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        if (GpxFileList.SelectedFiles == null || !GpxFileList.SelectedFiles.Any())
+        if (GpxFileList?.SelectedFiles == null || !GpxFileList.SelectedFiles.Any())
         {
             StatusContext.ToastWarning("No gpx files selected?");
             return;
@@ -376,6 +376,12 @@ public partial class FileBasedGeoTaggerContext : ObservableObject
     {
         await FileBasedGeoTaggerSettingTools.WriteSettings(Settings);
 
+        if (PreviewResults == null)
+        {
+            StatusContext.ToastError("No Results to Write?");
+            return;
+        }
+        
         var tagger = new GeoTag();
 
         WriteToFileResults = await tagger.WriteGeoTagActions(
@@ -394,7 +400,7 @@ public partial class FileBasedGeoTaggerContext : ObservableObject
             var features = new FeatureCollection();
 
             foreach (var loopResults in writtenResults)
-                features.Add(new Feature(PointTools.Wgs84Point(loopResults.Longitude.Value, loopResults.Latitude.Value),
+                features.Add(new Feature(PointTools.Wgs84Point(loopResults.Longitude!.Value, loopResults.Latitude!.Value),
                     new AttributesTable(new Dictionary<string, object>
                         { { "title", loopResults.FileName }, { "description", $"From {loopResults.Source}" } })));
 

@@ -40,13 +40,13 @@ public static class ProcessTools
         void OnStandardOutput(object o, DataReceivedEventArgs e)
         {
             standardOutput.AppendLine(e.Data);
-            progress?.Report(e.Data);
+            progress?.Report(e.Data ?? string.Empty);
         }
 
         void OnErrorOutput(object o, DataReceivedEventArgs e)
         {
             errorOutput.AppendLine(e.Data);
-            progress?.Report(e.Data);
+            progress?.Report(e.Data ?? string.Empty);
         }
 
         process.OutputDataReceived += OnStandardOutput;

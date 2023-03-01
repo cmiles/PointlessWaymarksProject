@@ -19,7 +19,7 @@ public class GarminConnectGpxService : IGpxService
     public string ArchiveDirectory { get; }
     public string ConnectPassword { get; }
     public string ConnectUsername { get; }
-    public int SearchSurroundingDays { get; init; } = 7;
+    public int SearchSurroundingDays { get; } = 7;
 
     public async Task<List<WaypointAndSource>> GetGpxPoints(DateTime photoDateTimeUtc, IProgress<string>? progress)
     {

@@ -5,7 +5,6 @@ using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsData.Json;
 using PointlessWaymarks.CmsData.Spatial;
-using PointlessWaymarks.SpatialTools;
 
 namespace PointlessWaymarks.CmsData.Content;
 
@@ -34,8 +33,6 @@ public static class MapComponentGenerator
 
         foreach (var mapLine in dbLines)
         {
-            var lineFeatureCollection = GeoJsonTools.DeserializeStringToFeatureCollection(mapLine.Line!);
-
             boundsKeeper.Add(new Point(mapLine.InitialViewBoundsMaxLongitude,
                 mapLine.InitialViewBoundsMaxLatitude));
             boundsKeeper.Add(new Point(mapLine.InitialViewBoundsMinLongitude,

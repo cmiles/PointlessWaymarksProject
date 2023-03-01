@@ -195,9 +195,9 @@ public partial class StatusControlContext : ObservableObject
 
     private void IncrementBlockingTasks()
     {
-#pragma warning disable Roslyn.MVVMTK0034
+#pragma warning disable MVVMTK0034
         Interlocked.Increment(ref _countOfRunningBlockingTasks);
-#pragma warning restore Roslyn.MVVMTK0034
+#pragma warning restore MVVMTK0034
         BlockUi = CountOfRunningBlockingTasks > 0;
     }
 
@@ -529,7 +529,7 @@ public partial class StatusControlContext : ObservableObject
         Task.Run(() => Log.Warning("Toast Warning: {0} - Status Context Id: {1}", toastText, StatusControlContextId));
     }
 
-    private void UserMessageBoxResponse(string responseString)
+    private void UserMessageBoxResponse(string? responseString)
     {
         ShowMessageResponse = responseString;
         Progress($"Show Message Response {responseString}");

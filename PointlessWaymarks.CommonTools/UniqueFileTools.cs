@@ -134,7 +134,7 @@ public static class UniqueFileTools
 
         try
         {
-            fileToBackup.CopyTo(backupFile.FullName);
+            fileToBackup.CopyTo(backupFile!.FullName);
         }
         catch (Exception e)
         {
@@ -162,7 +162,7 @@ public static class UniqueFileTools
 
         try
         {
-            fileToBackup.CopyTo(backupFile.FullName);
+            fileToBackup.CopyTo(backupFile!.FullName);
         }
         catch (Exception e)
         {

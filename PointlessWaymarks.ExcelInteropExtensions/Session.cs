@@ -35,7 +35,7 @@ public class Session
     ///     Gets a strongly-typed sequence of all currently accessible Excel instances
     ///     running in the specified Windows session.
     /// </summary>
-    private IEnumerable<XL.Application> AppsImpl =>
+    private IEnumerable<XL.Application?> AppsImpl =>
         Processes.Select(TryGetApp).Where(a => a != null && a.AsProcess().IsVisible()).ToArray();
 
     /// <summary>
@@ -58,7 +58,7 @@ public class Session
     ///     in the specified Windows session named Excel, but which can currently be
     ///     converted to Application instances.
     /// </summary>
-    public IEnumerable<int> ReachableProcessIds => AppsImpl.Select(a => a.AsProcess().Id).ToArray();
+    public IEnumerable<int> ReachableProcessIds => AppsImpl.Where(a => a != null).Select(a => a!.AsProcess().Id).ToArray();
 
     /// <summary>
     ///     Gets the session identifier.
@@ -69,11 +69,14 @@ public class Session
     ///     Gets the Excel instance with the topmost window.
     ///     Returns null if no accessible instances.
     /// </summary>
-    public XL.Application TopMost
+    public XL.Application? TopMost
     {
         get
         {
-            var dict = AppsImpl.ToDictionary(a => a.AsProcess(), a => a);
+            var dict = AppsImpl.Where(a => a != null).ToDictionary(a => a!.AsProcess(), a => a);
+
+            if (!dict.Any())
+                return null;
 
             var topProcess = dict.Keys.TopMost();
 
@@ -101,7 +104,7 @@ public class Session
     ///     Tries to convert the given process to an Excel instance,
     ///     but returns null if an exception is thrown.
     /// </summary>
-    private static XL.Application TryGetApp(Process process)
+    private static XL.Application? TryGetApp(Process process)
     {
         try
         {

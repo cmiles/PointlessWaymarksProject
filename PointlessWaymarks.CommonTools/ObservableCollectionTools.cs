@@ -1,6 +1,6 @@
 ﻿using System.Collections.ObjectModel;
 
-namespace PointlessWaymarks.CmsData;
+namespace PointlessWaymarks.CommonTools;
 
 public static class ObservableCollectionTools
 {

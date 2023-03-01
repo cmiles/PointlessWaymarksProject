@@ -1,8 +1,6 @@
-﻿using System.Windows.Controls;
+﻿namespace PointlessWaymarks.GeoToolsGui.Controls;
 
-namespace PointlessWaymarks.GeoToolsGui.Controls;
-
-public partial class ConnectDownloadControl : UserControl
+public partial class ConnectDownloadControl
 {
     public ConnectDownloadControl()
     {

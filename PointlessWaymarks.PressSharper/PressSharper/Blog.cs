@@ -30,16 +30,15 @@ public class Blog
 
     public IEnumerable<Attachment> Attachments { get; set; }
     public IEnumerable<Author> Authors { get; set; }
-    public string Description { get; set; }
+    public string Description { get; set; } = string.Empty;
+    public string Title { get; set; } = string.Empty;
 
-    public string Title { get; set; }
-
-    private Attachment GetAttachmentById(int attachmentId)
+    private Attachment? GetAttachmentById(int attachmentId)
     {
         return Attachments.FirstOrDefault(a => a.Id == attachmentId);
     }
 
-    private Author GetAuthorByUsername(string username)
+    private Author? GetAuthorByUsername(string username)
     {
         return Authors.FirstOrDefault(a => a.Username == username);
     }
@@ -87,7 +86,8 @@ public class Blog
         var rssRootElement = document.Root;
         if (rssRootElement == null) throw new XmlException("No document root.");
 
-        _channelElement = rssRootElement.Element("channel");
+        var rootChannel = rssRootElement.Element("channel");
+        _channelElement = rootChannel ?? throw new XmlException("No channel element.");
     }
 
     private void InitializeDescription()
@@ -100,22 +100,22 @@ public class Blog
         Title = GetBasicProperty("title");
     }
 
-    private static bool IsAttachmentItem(XElement itemElement)
+    private static bool IsAttachmentItem(XElement? itemElement)
     {
         return itemElement?.Element(WordPressNamespace + "post_type")?.Value == "attachment";
     }
 
-    private static bool IsPageItem(XElement itemElement)
+    private static bool IsPageItem(XElement? itemElement)
     {
         return itemElement?.Element(WordPressNamespace + "post_type")?.Value == "page";
     }
 
-    private static bool IsPostItem(XElement itemElement)
+    private static bool IsPostItem(XElement? itemElement)
     {
         return itemElement?.Element(WordPressNamespace + "post_type")?.Value == "post";
     }
 
-    private static bool IsPublished(XElement itemElement)
+    private static bool IsPublished(XElement? itemElement)
     {
         return itemElement?.Element(WordPressNamespace + "status")?.Value == "publish";
     }
@@ -207,7 +207,7 @@ public class Blog
         {
             Author = GetAuthorByUsername(postUsernameElement.Value),
             Body = postBodyElement.Value,
-            Excerpt = postExcerptElement?.Value,
+            Excerpt = postExcerptElement?.Value ?? string.Empty,
             PublishDate = DateTime.Parse(postPublishDateElement.Value),
             Slug = postSlugElement.Value,
             Title = postTitleElement.Value
@@ -224,10 +224,10 @@ public class Blog
             if (domainAttribute.Value == "category")
                 post.Categories.Add(new Category
                 {
-                    Slug = wpCategory.Attribute("nicename")?.Value, Name = wpCategory.Value
+                    Slug = wpCategory.Attribute("nicename")?.Value ?? string.Empty, Name = wpCategory.Value
                 });
             else if (domainAttribute.Value == "post_tag")
-                post.Tags.Add(new Tag {Slug = wpCategory.Attribute("nicename")?.Value, Name = wpCategory.Value});
+                post.Tags.Add(new Tag { Slug = wpCategory.Attribute("nicename")?.Value ?? string.Empty, Name = wpCategory.Value });
         }
 
         // get featured image

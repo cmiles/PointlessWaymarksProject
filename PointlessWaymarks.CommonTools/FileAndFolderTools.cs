@@ -130,18 +130,18 @@ public static class FileAndFolderTools
     /// <param name="selectedFile"></param>
     /// <param name="suggestedName"></param>
     /// <returns></returns>
-    public static async Task<FileInfo?> TryAutoRenameFileForProgramConventions(FileInfo selectedFile, string suggestedName)
+    public static Task<FileInfo?> TryAutoRenameFileForProgramConventions(FileInfo selectedFile, string suggestedName)
     {
-        if (selectedFile is not { Exists: true }) return null;
+        if (selectedFile is not { Exists: true }) return Task.FromResult<FileInfo?>(null);
 
         var cleanedName = SlugTools.CreateSlug(false, suggestedName.TrimNullToEmpty());
 
-        if (string.IsNullOrWhiteSpace(cleanedName)) return null;
+        if (string.IsNullOrWhiteSpace(cleanedName)) return Task.FromResult<FileInfo?>(null);
 
         var moveToDirectory = selectedFile.Directory!;
         var baseMoveToName = $"{cleanedName}{Path.GetExtension(selectedFile.Name)}";
 
-        if(baseMoveToName == selectedFile.Name) return selectedFile;
+        if(baseMoveToName == selectedFile.Name) return Task.FromResult(selectedFile)!;
 
         var moveToName = UniqueFileTools.UniqueFile(moveToDirectory, baseMoveToName)!.FullName;
 
@@ -153,7 +153,7 @@ public static class FileAndFolderTools
         {
             Log.ForContext("selectedFile", selectedFile).ForContext("suggestedName", suggestedName)
                 .Error(e, "Exception while trying to rename file");
-            return null;
+            return Task.FromResult<FileInfo?>(null);
         }
 
         var finalFile = new FileInfo(moveToName);
@@ -162,10 +162,10 @@ public static class FileAndFolderTools
         {
             Log.ForContext("selectedFile", selectedFile).ForContext("suggestedName", suggestedName)
                 .Error("Unknown error renaming file - original file still selected.");
-            return null;
+            return Task.FromResult<FileInfo?>(null);
         }
 
-        return finalFile;
+        return Task.FromResult(finalFile)!;
     }
 
     public static string TryMakeFilenameValid(string filenameWithoutExtensionToTransform)

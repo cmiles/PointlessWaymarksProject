@@ -54,7 +54,7 @@ public partial class ToastSource : ObservableObject
         _timer.Tick -= TimerOnTick;
     }
 
-    private void RemoveNotificationsTimer_OnTick(object sender, EventArgs eventArgs)
+    private void RemoveNotificationsTimer_OnTick(object? sender, EventArgs eventArgs)
     {
         if (sender is not DispatcherTimer timer) return;
 
@@ -94,7 +94,7 @@ public partial class ToastSource : ObservableObject
         NotificationMessages.Add(new ToastViewModel { Message = message, Type = type });
     }
 
-    private void TimerOnTick(object sender, EventArgs eventArgs)
+    private void TimerOnTick(object? sender, EventArgs eventArgs)
     {
         if (NotificationLifeTime == NeverEndingNotification)
             return;

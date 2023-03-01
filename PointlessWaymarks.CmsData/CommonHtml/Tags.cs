@@ -87,38 +87,23 @@ public static class Tags
     {
         if (tagToCenter.IsEmpty()) return HtmlTag.Empty();
 
-        var emailCenterTable = new TableTag();
-        emailCenterTable.Attr("width", "94%");
-        emailCenterTable.Attr("margin", "10");
-        emailCenterTable.Attr("border", "0");
-        emailCenterTable.Attr("cellspacing", "0");
-        emailCenterTable.Attr("cellpadding", "0");
+        var emailCenterTable = (TableTag)new TableTag().Attr("width", "94%").Attr("margin", "10").Attr("border", "0").Attr("cellspacing", "0").Attr("cellpadding", "0") ;
 
-        var topMarginRow = emailCenterTable.AddBodyRow();
-        topMarginRow.Attr("height", "10");
+        var topMarginRow = (TableRowTag)emailCenterTable.AddBodyRow().Attr("height", "10");
         var topMarginCell = topMarginRow.Cell();
         topMarginCell.Text("&nbsp;").Encoded(false);
 
         var emailImageRow = emailCenterTable.AddBodyRow();
 
-        var emailImageCenterLeftCell = emailImageRow.Cell();
-        emailImageCenterLeftCell.Attr("max-width", "1%");
-        emailImageCenterLeftCell.Attr("align", "center");
-        emailImageCenterLeftCell.Attr("valign", "top");
-        emailImageCenterLeftCell.Text("&nbsp;").Encoded(false);
+        var emailImageCenterLeftCell =
+            emailImageRow.Cell().Attr("max-width", "1%").Attr("align", "center").Attr("valign", "top").Text("&nbsp;")
+            .Encoded(false);
 
-        var emailCenterContentCell = emailImageRow.Cell();
-        emailCenterContentCell.Attr("width", "100%");
-        emailCenterContentCell.Attr("align", "center");
-        emailCenterContentCell.Attr("valign", "top");
+        var emailCenterContentCell = emailImageRow.Cell().Attr("width", "100%").Attr("align", "center").Attr("valign", "top");
 
         emailCenterContentCell.Children.Add(tagToCenter);
 
-        var emailCenterRightCell = emailImageRow.Cell();
-        emailCenterRightCell.Attr("max-width", "1%");
-        emailCenterRightCell.Attr("align", "center");
-        emailCenterRightCell.Attr("valign", "top");
-        emailCenterRightCell.Text("&nbsp;").Encoded(false);
+        var emailCenterRightCell = emailImageRow.Cell().Attr("max-width", "1%").Attr("align", "center").Attr("valign", "top").Text("&nbsp;").Encoded(false);
 
         //var bottomMarginRow = emailCenterTable.AddBodyRow();
         //bottomMarginRow.Attr("height", "10");
@@ -169,9 +154,8 @@ public static class Tags
         var divTag = new HtmlTag("div");
         divTag.AddClasses(className, "info-box");
 
-        var spanTag = new LinkTag(linkText, url);
-        spanTag.AddClasses("info-list-link-item", $"{className}-content");
-        spanTag.Data(dataType, dataValue);
+        var spanTag = new LinkTag(linkText, url) as HtmlTag;
+        spanTag = spanTag.AddClasses("info-list-link-item", $"{className}-content").Data(dataType, dataValue);
 
         divTag.Children.Add(spanTag);
 

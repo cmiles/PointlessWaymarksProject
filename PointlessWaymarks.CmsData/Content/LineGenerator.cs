@@ -45,6 +45,7 @@ public static class LineGenerator
             !skipFeatureIntersectTagging)
             try
             {
+                // ReSharper disable once CoVariantArrayConversion
                 var lineFeature = new Feature(new LineString(trackInformation.Track.ToArray()),
                     new AttributesTable());
 

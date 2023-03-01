@@ -5,6 +5,7 @@
     <UseWPF>true</UseWPF>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <ApplicationIcon>PointlessWaymarksCmsIcon.ico</ApplicationIcon>
+    <Nullable>disable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>

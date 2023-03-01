@@ -146,7 +146,7 @@ public partial class WordPressXmlImportContext : ObservableObject
 
         try
         {
-            _wordPressData = new Blog(await File.ReadAllTextAsync(file.FullName));
+            WordPressData = new Blog(await File.ReadAllTextAsync(file.FullName));
         }
         catch (Exception e)
         {
@@ -165,7 +165,7 @@ public partial class WordPressXmlImportContext : ObservableObject
         {
             StatusContext.Progress("Starting Post Import");
 
-            var posts = _wordPressData.GetPosts().ToList();
+            var posts = WordPressData.GetPosts().ToList();
 
             StatusContext.Progress($"Found {posts.Count} Posts - processing...");
 
@@ -175,8 +175,8 @@ public partial class WordPressXmlImportContext : ObservableObject
 
                 processedContent.Add(new WordPressXmlImportListItem
                 {
-                    CreatedBy = loopPosts.Author.DisplayName,
-                    CreatedOn = loopPosts.PublishDate,
+                    CreatedBy = loopPosts.Author?.DisplayName ?? string.Empty,
+                    CreatedOn = loopPosts.PublishDate ?? DateTime.Now,
                     Category = loopPosts.Categories.First().Name,
                     Tags = string.Join(",", loopPosts.Tags.Select(x => x.Name)),
                     Title = loopPosts.Title,
@@ -194,7 +194,7 @@ public partial class WordPressXmlImportContext : ObservableObject
         {
             StatusContext.Progress("Starting Page Import");
 
-            var pages = _wordPressData.GetPages().ToList();
+            var pages = WordPressData.GetPages().ToList();
 
             StatusContext.Progress($"Found {pages.Count} Posts - processing...");
 
@@ -206,7 +206,7 @@ public partial class WordPressXmlImportContext : ObservableObject
 
                 processedContent.Add(new WordPressXmlImportListItem
                 {
-                    CreatedBy = loopPages.Author.DisplayName,
+                    CreatedBy = loopPages.Author?.DisplayName ?? string.Empty,
                     CreatedOn = loopPages.PublishDate,
                     Category = string.Empty,
                     Tags = string.Empty,

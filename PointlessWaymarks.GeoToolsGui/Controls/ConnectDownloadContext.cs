@@ -125,9 +125,15 @@ public partial class ConnectDownloadContext : ObservableObject
         return control;
     }
 
-    public async Task DownloadActivity(GarminActivityAndLocalFiles toDownload)
+    public async Task DownloadActivity(GarminActivityAndLocalFiles? toDownload)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (toDownload == null)
+        {
+            StatusContext.ToastError("Null Archive Directory?");
+            return;
+        }
 
         await CheckThatArchiveDirectoryExists();
 
@@ -323,8 +329,10 @@ public partial class ConnectDownloadContext : ObservableObject
         await ProcessHelpers.OpenExplorerWindowForDirectory(Settings.ArchiveDirectory.Trim());
     }
 
-    public async Task ShowFileInExplorer(string fileName)
+    public async Task ShowFileInExplorer(string? fileName)
     {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
         if (string.IsNullOrWhiteSpace(fileName))
         {
             StatusContext.ToastError("No Filename to Show?");
@@ -341,8 +349,16 @@ public partial class ConnectDownloadContext : ObservableObject
         await ProcessHelpers.OpenExplorerWindowForFile(fileName.Trim());
     }
 
-    public async Task ShowGpxFile(GarminActivityAndLocalFiles toShow)
+    public async Task ShowGpxFile(GarminActivityAndLocalFiles? toShow)
     {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (toShow == null)
+        {
+            StatusContext.ToastError("Null Archive Directory?");
+            return;
+        }
+
         await CheckThatArchiveDirectoryExists();
 
         if (!ArchiveDirectoryExists)

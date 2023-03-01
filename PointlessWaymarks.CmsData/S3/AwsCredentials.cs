@@ -1,5 +1,4 @@
-﻿using Windows.Security.Credentials;
-using PointlessWaymarks.CommonTools;
+﻿using PointlessWaymarks.CommonTools;
 
 namespace PointlessWaymarks.CmsData.S3;
 
@@ -21,8 +20,6 @@ public static class AwsCredentials
     /// <returns></returns>
     public static (string accessKey, string secret) GetAwsSiteCredentials()
     {
-        var vault = new PasswordVault();
-
         return PasswordVaultTools.GetCredentials(AwsSiteCredentialResourceString());
     }
 

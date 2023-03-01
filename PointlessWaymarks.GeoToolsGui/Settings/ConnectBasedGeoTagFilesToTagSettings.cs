@@ -16,7 +16,7 @@ public class ConnectBasedGeoTagFilesToTagSettings : IFileListSettings
 
     public Task<DirectoryInfo?> GetLastDirectory()
     {
-        var lastDirectory = _context.Settings?.FilesToTagLastDirectoryFullName;
+        var lastDirectory = _context.Settings.FilesToTagLastDirectoryFullName;
 
         if (string.IsNullOrWhiteSpace(lastDirectory)) return Task.FromResult<DirectoryInfo?>(null);
 
@@ -31,7 +31,7 @@ public class ConnectBasedGeoTagFilesToTagSettings : IFileListSettings
     {
         Debug.Assert(_context.Settings != null, "_context.Settings != null");
         
-        _context.Settings.FilesToTagLastDirectoryFullName = newDirectory ?? string.Empty;
+        _context.Settings.FilesToTagLastDirectoryFullName = newDirectory;
         return Task.CompletedTask;
     }
 }

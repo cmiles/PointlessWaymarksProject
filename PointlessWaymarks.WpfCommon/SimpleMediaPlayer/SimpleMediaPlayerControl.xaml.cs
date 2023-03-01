@@ -1,6 +1,5 @@
 ﻿using System.Diagnostics;
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Threading;
 
@@ -9,7 +8,7 @@ namespace PointlessWaymarks.WpfCommon.SimpleMediaPlayer
     /// <summary>
     /// Interaction logic for SimpleMediaPlayerControl.xaml
     /// </summary>
-    public partial class SimpleMediaPlayerControl : UserControl
+    public partial class SimpleMediaPlayerControl
     {
         private DispatcherTimer? _timerVideoTime;
 

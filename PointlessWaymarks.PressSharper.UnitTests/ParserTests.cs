@@ -142,9 +142,9 @@ public class BlogTests
 
         // post 1
         Assert.AreEqual("test title 1", posts[0].Title);
-        Assert.AreEqual("johndoe", posts[0].Author.Username);
+        Assert.AreEqual("johndoe", posts[0].Author?.Username);
         Assert.AreEqual("test body 1", posts[0].Body);
-        Assert.AreEqual("3/5/2010", posts[0].PublishDate.ToShortDateString());
+        Assert.AreEqual("3/5/2010", posts[0].PublishDate?.ToShortDateString());
         Assert.AreEqual("test-title-1", posts[0].Slug);
         Assert.AreEqual(2, posts[0].Categories.Count);
         Assert.AreEqual("category-one", posts[0].Categories[0].Slug);
@@ -157,15 +157,15 @@ public class BlogTests
 
         // post 1 featured image
         Assert.NotNull(posts[0].FeaturedImage);
-        Assert.AreEqual(3, posts[0].FeaturedImage.Id);
-        Assert.AreEqual("Featured Image", posts[0].FeaturedImage.Title);
-        Assert.AreEqual("http://www.example.com/featured.jpg", posts[0].FeaturedImage.Url);
+        Assert.AreEqual(3, posts[0].FeaturedImage?.Id);
+        Assert.AreEqual("Featured Image", posts[0].FeaturedImage?.Title);
+        Assert.AreEqual("http://www.example.com/featured.jpg", posts[0].FeaturedImage?.Url);
 
         // post 2
         Assert.AreEqual("test title 2", posts[1].Title);
-        Assert.AreEqual("bobsmith", posts[1].Author.Username);
+        Assert.AreEqual("bobsmith", posts[1].Author?.Username);
         Assert.AreEqual("test body 2", posts[1].Body);
-        Assert.AreEqual("4/8/2011", posts[1].PublishDate.ToShortDateString());
+        Assert.AreEqual("4/8/2011", posts[1].PublishDate?.ToShortDateString());
         Assert.AreEqual("test-title-2", posts[1].Slug);
         Assert.AreEqual(1, posts[1].Categories.Count);
         Assert.AreEqual("category-three", posts[1].Categories[0].Slug);
@@ -192,7 +192,7 @@ public class BlogTests
         Assert.AreEqual(1, pages[0].Id);
         Assert.Null(pages[0].ParentId);
         Assert.AreEqual("About", pages[0].Title);
-        Assert.AreEqual("johndoe", pages[0].Author.Username);
+        Assert.AreEqual("johndoe", pages[0].Author?.Username);
         Assert.AreEqual("This is the about page", pages[0].Body);
         Assert.AreEqual("5/9/2012", pages[0].PublishDate.ToShortDateString());
         Assert.AreEqual("about", pages[0].Slug);
@@ -201,7 +201,7 @@ public class BlogTests
         Assert.AreEqual(2, pages[1].Id);
         Assert.AreEqual(1, pages[1].ParentId);
         Assert.AreEqual("Contact Us", pages[1].Title);
-        Assert.AreEqual("bobsmith", pages[1].Author.Username);
+        Assert.AreEqual("bobsmith", pages[1].Author?.Username);
         Assert.AreEqual("This is the contact page", pages[1].Body);
         Assert.AreEqual("6/13/2013", pages[1].PublishDate.ToShortDateString());
         Assert.AreEqual("contact-us", pages[1].Slug);

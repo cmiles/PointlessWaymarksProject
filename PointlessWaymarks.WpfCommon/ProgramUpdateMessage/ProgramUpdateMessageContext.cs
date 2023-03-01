@@ -29,10 +29,8 @@ public partial class ProgramUpdateMessageContext : ObservableObject
         ShowMessage = false;
     }
 
-#pragma warning disable CS1998
     //Async expected on this method by convention
-    public async Task LoadData(string currentVersion, string updateVersion, FileInfo? setupFile)
-#pragma warning restore CS1998
+    public Task LoadData(string currentVersion, string updateVersion, FileInfo? setupFile)
     {
         CurrentVersion = currentVersion;
         UpdateVersion = updateVersion;
@@ -42,13 +40,14 @@ public partial class ProgramUpdateMessageContext : ObservableObject
             SetupFile is not { Exists: true })
         {
             ShowMessage = false;
-            return;
+            return Task.CompletedTask;
         }
 
         UpdateMessage =
             $"Update Available! Close Program and Update From {CurrentVersion} to {UpdateVersion} now? Make sure all work is saved first...";
 
         ShowMessage = true;
+        return Task.CompletedTask;
     }
 
     public async Task Update()

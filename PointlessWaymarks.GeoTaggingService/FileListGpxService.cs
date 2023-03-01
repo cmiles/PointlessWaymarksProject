@@ -1,5 +1,4 @@
 ﻿using NetTopologySuite.IO;
-using PointlessWaymarks.CmsData;
 
 namespace PointlessWaymarks.GeoTaggingService;
 

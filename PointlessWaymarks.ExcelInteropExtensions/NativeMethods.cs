@@ -51,7 +51,7 @@ internal static class NativeMethods
     private static extern int AccessibleObjectFromWindow(int hwnd, uint dwObjectId, byte[] riid,
         out XL.Window ppvObject);
 
-    public static XL.Application AppFromMainWindowHandle(int mainWindowHandle)
+    public static XL.Application? AppFromMainWindowHandle(int mainWindowHandle)
     {
         if (mainWindowHandle == 0)
             throw new ArgumentOutOfRangeException(nameof(mainWindowHandle), "Window handle cannot be 0.");
@@ -61,7 +61,7 @@ internal static class NativeMethods
 
         var win = ExcelWindowFromHandle(childHandle);
 
-        return win?.Application;
+        return win.Application;
     }
 
     public static bool BringToFront(Process process)

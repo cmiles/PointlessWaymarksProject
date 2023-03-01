@@ -10,7 +10,7 @@ public class PhotoPickupSettings
     public string PhotoPickupArchiveDirectory { get; set; } = string.Empty;
 
     [Required(ErrorMessage = "The directory to look in for jpg photos in.")]
-    public string PhotoPickupDirectory { get; set; }
+    public string PhotoPickupDirectory { get; set; } = string.Empty;
 
     [Required(ErrorMessage = "A Settings file for a Pointless Waymarks CMS Site must be specified.")]
     public string PointlessWaymarksSiteSettingsFileFullName { get; set; } = string.Empty;

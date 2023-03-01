@@ -535,13 +535,13 @@ public partial class FeatureIntersectTaggerContext : ObservableObject
         await FeatureIntersectTaggerSettingTools.WriteSettings(Settings);
     }
 
-    public async Task RemovePadUsAttribute(string toRemove)
+    public async Task RemovePadUsAttribute(string? toRemove)
     {
         await ThreadSwitcher.ResumeForegroundAsync();
-
+        
         Debug.Assert(Settings != null, nameof(Settings) + " != null");
         
-        if (Settings.PadUsAttributes.Contains(toRemove)) Settings.PadUsAttributes.Remove(toRemove);
+        if (Settings.PadUsAttributes.Contains(toRemove ?? string.Empty)) Settings.PadUsAttributes.Remove(toRemove ?? string.Empty);
 
         Settings.PadUsAttributes.SortBy(x => x);
 

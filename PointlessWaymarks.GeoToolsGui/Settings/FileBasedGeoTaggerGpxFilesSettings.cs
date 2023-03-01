@@ -28,7 +28,7 @@ public class FileBasedGeoTaggerGpxFilesSettings : IFileListSettings
 
     public Task SetLastDirectory(string newDirectory)
     {
-        _context.Settings.GpxLastDirectoryFullName = newDirectory ?? string.Empty;
+        _context.Settings.GpxLastDirectoryFullName = newDirectory;
         return Task.CompletedTask;
     }
 }

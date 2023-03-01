@@ -142,6 +142,17 @@ public class WindowsNotificationTool
         var uniqueName = UniqueFileTools.UniqueFile(FileLocationTools.DefaultErrorReportsDirectory(),
             $"TaskErrorReport--{frozenNow:yyyy-MM-dd-HH-mm-ss}--{SlugTools.CreateSlug(false, Attribution)}.html");
 
+        if (uniqueName == null)
+        {
+            new ToastContentBuilder()
+                .AddAppLogoOverride(new Uri(NotificationIconUrl))
+                .AddText($"Error: {summary}. Unable to create Error Report File...")
+                .AddAttributionText(Attribution)
+                .Show();
+
+            return;
+        }
+
         await File.WriteAllTextAsync(uniqueName.FullName, errorReportDocument);
 
         new ToastContentBuilder()
