@@ -20,7 +20,7 @@ public partial class GpxImportTrack : ObservableObject, IGpxImportListItem
     [ObservableProperty] private string _userContentName;
     [ObservableProperty] private string _userSummary;
 
-    public async Task Load(GpxTrack toLoad, IProgress<string> progress = null)
+    public async Task Load(GpxTrack toLoad, IProgress<string>? progress = null)
     {
         DisplayId = Guid.NewGuid();
         Track = toLoad;

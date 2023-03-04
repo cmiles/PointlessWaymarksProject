@@ -9,24 +9,26 @@ public partial class ColumnSortControlContext : ObservableObject
 {
     [ObservableProperty] private RelayCommand<ColumnSortControlSortItem> _columnSortAddCommand;
     [ObservableProperty] private RelayCommand<ColumnSortControlSortItem> _columnSortToggleCommand;
-    [ObservableProperty] private List<ColumnSortControlSortItem> _items;
+    [ObservableProperty] private List<ColumnSortControlSortItem> _items = new();
 
     public ColumnSortControlContext()
     {
         ColumnSortToggleCommand = new RelayCommand<ColumnSortControlSortItem>(x =>
         {
+            if (x == null) return;
             ToggleItem(x);
             SortUpdated?.Invoke(this, SortDescriptions());
         });
 
         ColumnSortAddCommand = new RelayCommand<ColumnSortControlSortItem>(x =>
         {
+            if (x == null) return;
             AddItem(x);
             SortUpdated?.Invoke(this, SortDescriptions());
         });
     }
 
-    public EventHandler<List<SortDescription>> SortUpdated { get; set; }
+    public EventHandler<List<SortDescription>>? SortUpdated { get; set; }
 
     private void AddItem(ColumnSortControlSortItem sortItem)
     {

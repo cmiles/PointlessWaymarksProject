@@ -12,7 +12,7 @@ public interface IContentListLoader : INotifyPropertyChanged
     string ListHeaderName { get; }
     int? PartialLoadQuantity { get; set; }
     bool ShowType { get; set; }
-    Task<List<object>> LoadItems(IProgress<string> progress = null);
+    Task<List<object>> LoadItems(IProgress<string>? progress = null);
 
     ColumnSortControlContext SortContext()
     {

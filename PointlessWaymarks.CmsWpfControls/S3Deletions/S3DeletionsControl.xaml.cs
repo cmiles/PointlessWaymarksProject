@@ -12,7 +12,7 @@ public partial class S3DeletionsControl
         InitializeComponent();
     }
 
-    private void Selector_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
+    private void Selector_OnSelectionChanged(object? sender, SelectionChangedEventArgs e)
     {
         if (DataContext == null) return;
         var viewmodel = (S3DeletionsContext) DataContext;

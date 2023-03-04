@@ -16,7 +16,7 @@ public partial class S3UploadsWindow
     [ObservableProperty] private bool _forceClose;
     [ObservableProperty] private StatusControlContext _statusContext;
     [ObservableProperty] private S3UploadsContext? _uploadContext;
-    [ObservableProperty] private WindowIconStatus _windowStatus;
+    [ObservableProperty] private WindowIconStatus? _windowStatus;
 
     public S3UploadsWindow(List<S3UploadRequest> toLoad, bool autoStartUpload)
     {
@@ -34,7 +34,7 @@ public partial class S3UploadsWindow
         });
     }
 
-    private void S3UploadsWindow_OnClosing(object sender, CancelEventArgs e)
+    private void S3UploadsWindow_OnClosing(object? sender, CancelEventArgs e)
     {
         if (_forceClose) return;
 

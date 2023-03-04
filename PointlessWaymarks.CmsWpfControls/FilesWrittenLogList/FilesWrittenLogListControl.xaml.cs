@@ -12,7 +12,7 @@ public partial class FilesWrittenLogListControl
         InitializeComponent();
     }
 
-    private void Selector_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
+    private void Selector_OnSelectionChanged(object? sender, SelectionChangedEventArgs e)
     {
         if (DataContext == null) return;
         var viewmodel = (FilesWrittenLogListContext) DataContext;

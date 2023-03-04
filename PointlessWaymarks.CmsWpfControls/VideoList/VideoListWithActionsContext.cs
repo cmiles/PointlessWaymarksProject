@@ -20,9 +20,9 @@ public partial class VideoListWithActionsContext : ObservableObject
     [ObservableProperty] private RelayCommand _videoEmbedCodesToClipboardForSelectedCommand;
     [ObservableProperty] private RelayCommand _videoPageLinkCodesToClipboardForSelectedCommand;
     [ObservableProperty] private RelayCommand _viewVideosCommand;
-    [ObservableProperty] private WindowIconStatus _windowStatus;
+    [ObservableProperty] private WindowIconStatus? _windowStatus;
 
-    public VideoListWithActionsContext(StatusControlContext statusContext, WindowIconStatus windowStatus = null)
+    public VideoListWithActionsContext(StatusControlContext? statusContext, WindowIconStatus? windowStatus = null)
     {
         StatusContext = statusContext ?? new StatusControlContext();
         WindowStatus = windowStatus;

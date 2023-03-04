@@ -10,7 +10,7 @@ public partial class UserSettingsEditorControl
         InitializeComponent();
     }
 
-    private void OpenHyperlink(object sender, ExecutedRoutedEventArgs e)
+    private void OpenHyperlink(object? sender, ExecutedRoutedEventArgs e)
     {
         ProcessHelpers.OpenUrlInExternalBrowser(e.Parameter.ToString());
     }

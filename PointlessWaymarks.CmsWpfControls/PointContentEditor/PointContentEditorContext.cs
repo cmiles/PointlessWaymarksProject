@@ -316,7 +316,7 @@ public partial class PointContentEditorContext : ObservableObject, IHasChanges, 
         PropertyScanners.SubscribeToChildHasChangesAndHasValidationIssues(this, CheckForChangesAndValidationIssues);
     }
 
-    private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
+    private void OnPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
         if (e == null) return;
         if (string.IsNullOrWhiteSpace(e.PropertyName)) return;
@@ -325,7 +325,7 @@ public partial class PointContentEditorContext : ObservableObject, IHasChanges, 
             CheckForChangesAndValidationIssues();
     }
 
-    public void OnRaisePointLatitudeLongitudeChange(object sender, PointLatitudeLongitudeChange e)
+    public void OnRaisePointLatitudeLongitudeChange(object? sender, PointLatitudeLongitudeChange e)
     {
         _broadcastLatLongChange = false;
 

@@ -17,7 +17,7 @@ public partial class GpxImportWaypoint : ObservableObject, IGpxImportListItem
     [ObservableProperty] private GpxWaypoint _waypoint;
 
 
-    public async Task Load(GpxWaypoint toLoad, IProgress<string> progress = null)
+    public async Task Load(GpxWaypoint toLoad, IProgress<string>? progress = null)
     {
         DisplayId = Guid.NewGuid();
         Waypoint = toLoad;

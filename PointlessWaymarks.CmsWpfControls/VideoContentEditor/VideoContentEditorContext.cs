@@ -409,7 +409,7 @@ Notes:
         await SelectedFileChanged();
     }
 
-    private void MainImageExternalContextSaved(object sender, EventArgs e)
+    private void MainImageExternalContextSaved(object? sender, EventArgs e)
     {
         if (sender is ImageContentEditorContext imageContext)
         {
@@ -445,12 +445,12 @@ Notes:
         }
     }
 
-    private void OnMainImageExternalEditorWindowOnClosed(object sender, EventArgs args)
+    private void OnMainImageExternalEditorWindowOnClosed(object? sender, EventArgs args)
     {
         MainImageExternalEditorWindowCleanup();
     }
 
-    private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
+    private void OnPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
         if (e == null) return;
         if (string.IsNullOrWhiteSpace(e.PropertyName)) return;
@@ -654,7 +654,7 @@ Notes:
             UserMainPictureEntry.UserText = contentId.Value.ToString();
     }
 
-    private void UserMainPictureEntryOnPropertyChanged(object sender, PropertyChangedEventArgs e)
+    private void UserMainPictureEntryOnPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
         StatusContext.RunFireAndForgetNonBlockingTask(SetUserMainPicture);
     }

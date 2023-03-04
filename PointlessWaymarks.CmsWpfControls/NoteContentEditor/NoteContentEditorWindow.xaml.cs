@@ -23,7 +23,7 @@ public partial class NoteContentEditorWindow
     private NoteContentEditorWindow()
     {
         InitializeComponent();
-        StatusContext = new StatusControlContext();
+        _statusContext = new StatusControlContext();
         DataContext = this;
     }
 
@@ -33,7 +33,7 @@ public partial class NoteContentEditorWindow
     /// PositionWindowAndShowOnUiThread() from the WindowInitialPositionHelpers.
     /// </summary>
     /// <returns></returns>
-    public static async Task<NoteContentEditorWindow> CreateInstance(NoteContent toLoad)
+    public static async Task<NoteContentEditorWindow> CreateInstance(NoteContent? toLoad)
     {
         await ThreadSwitcher.ResumeForegroundAsync();
 

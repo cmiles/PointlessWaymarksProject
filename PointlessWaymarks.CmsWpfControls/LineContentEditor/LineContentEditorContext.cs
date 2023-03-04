@@ -58,7 +58,7 @@ public partial class LineContentEditorContext : ObservableObject, IHasChanges, I
     [ObservableProperty] private ConversionDataEntryContext<double> _maximumElevationEntry;
     [ObservableProperty] private ConversionDataEntryContext<double> _minimumElevationEntry;
     [ObservableProperty] private string _previewHtml;
-    [ObservableProperty] private string _previewLineJsonDto;
+    [ObservableProperty] private string? _previewLineJsonDto;
     [ObservableProperty] private ConversionDataEntryContext<DateTime?> _recordingEndedOnEntry;
     [ObservableProperty] private ConversionDataEntryContext<DateTime?> _recordingStartedOnEntry;
     [ObservableProperty] private RelayCommand _refreshMapPreviewCommand;
@@ -74,9 +74,9 @@ public partial class LineContentEditorContext : ObservableObject, IHasChanges, I
     [ObservableProperty] private bool _updateStatsOnImport = true;
     [ObservableProperty] private RelayCommand _viewOnSiteCommand;
 
-    public EventHandler RequestContentEditorWindowClose;
+    public EventHandler? RequestContentEditorWindowClose;
 
-    private LineContentEditorContext(StatusControlContext statusContext)
+    private LineContentEditorContext(StatusControlContext? statusContext)
     {
         StatusContext = statusContext ?? new StatusControlContext();
 
@@ -151,8 +151,8 @@ public partial class LineContentEditorContext : ObservableObject, IHasChanges, I
         TagEdit.Tags = $"{TagEdit.Tags}{(string.IsNullOrWhiteSpace(TagEdit.Tags) ? "" : ",")}{string.Join(",", possibleTags)}";
     }
 
-    public static async Task<LineContentEditorContext> CreateInstance(StatusControlContext statusContext,
-        LineContent lineContent)
+    public static async Task<LineContentEditorContext> CreateInstance(StatusControlContext? statusContext,
+        LineContent? lineContent)
     {
         var newControl = new LineContentEditorContext(statusContext);
         await newControl.LoadData(lineContent);
@@ -323,7 +323,7 @@ public partial class LineContentEditorContext : ObservableObject, IHasChanges, I
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        if (DbEntry == null || DbEntry.Id < 1)
+        if (DbEntry.Id < 1)
         {
             StatusContext.ToastError("Sorry - please save before getting link...");
             return;
@@ -338,7 +338,7 @@ public partial class LineContentEditorContext : ObservableObject, IHasChanges, I
         StatusContext.ToastSuccess($"To Clipboard: {linkString}");
     }
 
-    public async Task LoadData(LineContent toLoad)
+    public async Task LoadData(LineContent? toLoad)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -413,9 +413,8 @@ public partial class LineContentEditorContext : ObservableObject, IHasChanges, I
         PropertyScanners.SubscribeToChildHasChangesAndHasValidationIssues(this, CheckForChangesAndValidationIssues);
     }
 
-    private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
+    private void OnPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
-        if (e == null) return;
         if (string.IsNullOrWhiteSpace(e.PropertyName)) return;
 
         if (!e.PropertyName.Contains("HasChanges") && !e.PropertyName.Contains("Validation"))
@@ -501,7 +500,7 @@ public partial class LineContentEditorContext : ObservableObject, IHasChanges, I
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        if (DbEntry == null || DbEntry.Id < 1)
+        if (DbEntry.Id < 1)
         {
             StatusContext.ToastError("Please save the content first...");
             return;

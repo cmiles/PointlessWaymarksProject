@@ -45,7 +45,7 @@ public partial class SitePreviewControl
         InitializeAsync();
     }
 
-    private void SitePreviewControl_OnDataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
+    private void SitePreviewControl_OnDataContextChanged(object? sender, DependencyPropertyChangedEventArgs e)
     {
         if (e.NewValue is SitePreviewContext context)
         {
@@ -55,7 +55,7 @@ public partial class SitePreviewControl
         }
     }
 
-    private void SitePreviewWebView_OnNavigationStarting(object sender, CoreWebView2NavigationStartingEventArgs e)
+    private void SitePreviewWebView_OnNavigationStarting(object? sender, CoreWebView2NavigationStartingEventArgs e)
     {
         if (string.IsNullOrEmpty(e.Uri))
         {

@@ -130,7 +130,7 @@ public partial class TitleSummarySlugEditorContext : IHasChanges, IHasValidation
         PropertyScanners.SubscribeToChildHasChangesAndHasValidationIssues(this, CheckForChangesAndValidationIssues);
     }
 
-    private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
+    private void OnPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
         if (e == null) return;
         if (string.IsNullOrWhiteSpace(e.PropertyName)) return;
@@ -139,7 +139,7 @@ public partial class TitleSummarySlugEditorContext : IHasChanges, IHasValidation
             CheckForChangesAndValidationIssues();
     }
 
-    private void TitleChangedMonitor(object sender, PropertyChangedEventArgs e)
+    private void TitleChangedMonitor(object? sender, PropertyChangedEventArgs e)
     {
         if (!e?.PropertyName?.Equals("UserValue") ?? true) return;
 

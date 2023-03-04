@@ -27,10 +27,10 @@ public partial class GeoJsonListWithActionsContext : ObservableObject
     [ObservableProperty] private ContentListContext _listContext;
     [ObservableProperty] private RelayCommand _refreshDataCommand;
     [ObservableProperty] private StatusControlContext _statusContext;
-    [ObservableProperty] private WindowIconStatus _windowStatus;
+    [ObservableProperty] private WindowIconStatus? _windowStatus;
 
 
-    public GeoJsonListWithActionsContext(StatusControlContext statusContext, WindowIconStatus windowStatus = null)
+    public GeoJsonListWithActionsContext(StatusControlContext? statusContext, WindowIconStatus? windowStatus = null)
     {
         StatusContext = statusContext ?? new StatusControlContext();
         WindowStatus = windowStatus;

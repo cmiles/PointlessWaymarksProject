@@ -58,7 +58,7 @@ public abstract class ContentListLoaderBase : IContentListLoader
 
     public string ListHeaderName { get; }
 
-    public abstract Task<List<object>> LoadItems(IProgress<string> progress = null);
+    public abstract Task<List<object>> LoadItems(IProgress<string>? progress = null);
 
     public int? PartialLoadQuantity
     {
@@ -82,10 +82,10 @@ public abstract class ContentListLoaderBase : IContentListLoader
         }
     }
 
-    public event PropertyChangedEventHandler PropertyChanged;
+    public event PropertyChangedEventHandler? PropertyChanged;
 
     [NotifyPropertyChangedInvocator]
-    protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
+    protected void OnPropertyChanged([CallerMemberName] string? propertyName = null)
     {
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }

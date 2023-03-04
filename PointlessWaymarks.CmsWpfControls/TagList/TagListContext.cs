@@ -378,13 +378,13 @@ public partial class TagListContext : ObservableObject
         StatusContext.ToastSuccess($"Saved Tag Exclusion {toExclude}");
     }
 
-    private void OnDataNotificationReceived(object sender, TinyMessageReceivedEventArgs e)
+    private void OnDataNotificationReceived(object? sender, TinyMessageReceivedEventArgs e)
     {
         DataNotificationsProcessor.Enqueue(e);
     }
 
 
-    private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
+    private void OnPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
         if (e == null) return;
         if (string.IsNullOrWhiteSpace(e.PropertyName)) return;

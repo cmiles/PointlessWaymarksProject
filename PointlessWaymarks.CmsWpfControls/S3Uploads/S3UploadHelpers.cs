@@ -13,7 +13,7 @@ namespace PointlessWaymarks.CmsWpfControls.S3Uploads;
 public static class S3UploadHelpers
 {
     public static async Task GenerateChangedHtmlAndStartUpload(StatusControlContext statusContext,
-        WindowIconStatus windowStatus = null)
+        WindowIconStatus? windowStatus = null)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
         (IsValid validUploadList, List<S3UploadRequest> uploadItems) toUpload;

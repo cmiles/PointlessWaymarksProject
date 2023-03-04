@@ -1,5 +1,4 @@
-﻿using PointlessWaymarks.CmsData;
-using PointlessWaymarks.CmsWpfControls.PhotoList;
+﻿using PointlessWaymarks.CmsWpfControls.PhotoList;
 using PointlessWaymarks.CommonTools;
 
 namespace PointlessWaymarks.CmsWpfControls.ContentList;
@@ -116,7 +115,7 @@ public static class ContentListSearch
                 new ContentListSearchFunctionReturn(true, $"{stringToSearch} found in Last Updated By"),
                 searchResultModifier);
 
-        if (toFilter.ContentId() != null && toFilter.ContentId().ToString()
+        if (toFilter.ContentId() != null && toFilter.ContentId().ToString()!
                 .Contains(stringToSearch, StringComparison.OrdinalIgnoreCase))
             return new ContentListSearchReturn(
                 new ContentListSearchFunctionReturn(true, $"{stringToSearch} found in Content Id"),

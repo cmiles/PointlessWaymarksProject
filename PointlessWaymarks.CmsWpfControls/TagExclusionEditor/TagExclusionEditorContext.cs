@@ -138,7 +138,7 @@ public partial class TagExclusionEditorContext : ObservableObject
             }
     }
 
-    private void OnDataNotificationReceived(object sender, TinyMessageReceivedEventArgs e)
+    private void OnDataNotificationReceived(object? sender, TinyMessageReceivedEventArgs e)
     {
         DataNotificationsProcessor.Enqueue(e);
     }

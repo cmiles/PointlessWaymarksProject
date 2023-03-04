@@ -33,7 +33,7 @@ public partial class MapComponentEditorWindow
     /// PositionWindowAndShowOnUiThread() from the WindowInitialPositionHelpers.
     /// </summary>
     /// <returns></returns>
-    public static async Task<MapComponentEditorWindow> CreateInstance(MapComponent toLoad)
+    public static async Task<MapComponentEditorWindow> CreateInstance(MapComponent? toLoad)
     {
         await ThreadSwitcher.ResumeForegroundAsync();
 

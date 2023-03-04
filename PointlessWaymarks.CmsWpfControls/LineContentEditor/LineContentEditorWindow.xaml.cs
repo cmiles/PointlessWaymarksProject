@@ -23,7 +23,7 @@ public partial class LineContentEditorWindow
     private LineContentEditorWindow()
     {
         InitializeComponent();
-        StatusContext = new StatusControlContext();
+        _statusContext = new StatusControlContext();
         DataContext = this;
     }
 
@@ -33,7 +33,7 @@ public partial class LineContentEditorWindow
     /// PositionWindowAndShowOnUiThread() from the WindowInitialPositionHelpers.
     /// </summary>
     /// <returns></returns>
-    public static async Task<LineContentEditorWindow> CreateInstance(LineContent toLoad)
+    public static async Task<LineContentEditorWindow> CreateInstance(LineContent? toLoad)
     {
         await ThreadSwitcher.ResumeForegroundAsync();
 

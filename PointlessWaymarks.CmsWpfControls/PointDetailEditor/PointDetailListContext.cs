@@ -218,13 +218,13 @@ public partial class PointDetailListContext : ObservableObject, IHasChanges, IHa
         CheckForChangesAndValidationIssues();
     }
 
-    private void MonitorChildChangesAndValidations(object sender, PropertyChangedEventArgs e)
+    private void MonitorChildChangesAndValidations(object? sender, PropertyChangedEventArgs e)
     {
         if (e?.PropertyName == null) return;
         if (e.PropertyName.Contains("Changes")) CheckForChangesAndValidationIssues();
     }
 
-    private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
+    private void OnPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
         if (e == null) return;
         if (string.IsNullOrWhiteSpace(e.PropertyName)) return;

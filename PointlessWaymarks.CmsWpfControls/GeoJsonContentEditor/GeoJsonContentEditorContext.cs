@@ -59,7 +59,7 @@ public partial class GeoJsonContentEditorContext :  ObservableObject, IHasChange
     [ObservableProperty] private RelayCommand _viewOnSiteCommand;
     public EventHandler RequestContentEditorWindowClose;
 
-    private GeoJsonContentEditorContext(StatusControlContext statusContext)
+    private GeoJsonContentEditorContext(StatusControlContext? statusContext)
     {
         StatusContext = statusContext ?? new StatusControlContext();
 
@@ -136,8 +136,8 @@ public partial class GeoJsonContentEditorContext :  ObservableObject, IHasChange
             $"{TagEdit.Tags}{(string.IsNullOrWhiteSpace(TagEdit.Tags) ? "" : ",")}{string.Join(",", possibleTags)}";
     }
 
-    public static async Task<GeoJsonContentEditorContext> CreateInstance(StatusControlContext statusContext,
-        GeoJsonContent geoJsonContent)
+    public static async Task<GeoJsonContentEditorContext> CreateInstance(StatusControlContext? statusContext,
+        GeoJsonContent? geoJsonContent)
     {
         var newControl = new GeoJsonContentEditorContext(statusContext);
         await newControl.LoadData(geoJsonContent);
@@ -263,7 +263,7 @@ public partial class GeoJsonContentEditorContext :  ObservableObject, IHasChange
         StatusContext.ToastSuccess($"To Clipboard: {linkString}");
     }
 
-    public async Task LoadData(GeoJsonContent toLoad)
+    public async Task LoadData(GeoJsonContent? toLoad)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -289,7 +289,7 @@ public partial class GeoJsonContentEditorContext :  ObservableObject, IHasChange
         PropertyScanners.SubscribeToChildHasChangesAndHasValidationIssues(this, CheckForChangesAndValidationIssues);
     }
 
-    private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
+    private void OnPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
         if (e == null) return;
         if (string.IsNullOrWhiteSpace(e.PropertyName)) return;

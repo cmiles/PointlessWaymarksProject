@@ -1,17 +1,14 @@
 ﻿using System.Diagnostics;
 using System.IO;
-using AngleSharp.Html;
-using AngleSharp.Html.Parser;
 using Markdig;
 using PointlessWaymarks.CmsData;
-using PointlessWaymarks.CmsData.Content;
 using PointlessWaymarks.CommonTools;
 
 namespace PointlessWaymarks.CmsWpfControls.ContentHistoryView;
 
 public partial class ContentViewHistoryPage
 {
-    public ContentViewHistoryPage(string pageTitle, string siteName, string contentTitle, List<string> items)
+    public ContentViewHistoryPage(string? pageTitle, string? siteName, string? contentTitle, List<string>? items)
     {
         items ??= new List<string>();
 
@@ -26,18 +23,17 @@ public partial class ContentViewHistoryPage
 
     public string ContentTitle { get; set; }
     public List<string> Items { get; set; }
-
     public string PageTitle { get; set; }
     public string SiteName { get; set; }
 
-    public string GenerateHtml(IProgress<string> progress)
+    public string GenerateHtml(IProgress<string>? progress = null)
     {
         progress?.Report($"Generating HTML - {PageTitle} - {ContentTitle}");
 
         return TransformText();
     }
 
-    public FileInfo WriteHtmlToTempFolder(IProgress<string> progress)
+    public FileInfo WriteHtmlToTempFolder(IProgress<string>? progress = null)
     {
         var possibleFileName = FileAndFolderTools.TryMakeFilenameValid(ContentTitle);
 
@@ -53,7 +49,7 @@ public partial class ContentViewHistoryPage
         return possibleFile;
     }
 
-    public void WriteHtmlToTempFolderAndShow(IProgress<string> progress)
+    public void WriteHtmlToTempFolderAndShow(IProgress<string>? progress = null)
     {
         var file = WriteHtmlToTempFolder(progress);
 

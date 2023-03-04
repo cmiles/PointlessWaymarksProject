@@ -4,7 +4,6 @@ using System.ComponentModel;
 using System.IO;
 using System.Windows;
 using System.Windows.Data;
-using System.Windows.Shell;
 using System.Windows.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -14,7 +13,6 @@ using MetadataExtractor.Formats.Exif;
 using Microsoft.EntityFrameworkCore;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.CommonHtml;
-using PointlessWaymarks.CmsData.ContentHtml;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsWpfControls.AllContentList;
@@ -22,20 +20,16 @@ using PointlessWaymarks.CmsWpfControls.ColumnSort;
 using PointlessWaymarks.CmsWpfControls.FileContentEditor;
 using PointlessWaymarks.CmsWpfControls.FileList;
 using PointlessWaymarks.CmsWpfControls.GeoJsonList;
-using PointlessWaymarks.CmsWpfControls.HelpDisplay;
 using PointlessWaymarks.CmsWpfControls.ImageContentEditor;
 using PointlessWaymarks.CmsWpfControls.ImageList;
 using PointlessWaymarks.CmsWpfControls.LineList;
 using PointlessWaymarks.CmsWpfControls.LinkList;
 using PointlessWaymarks.CmsWpfControls.MapComponentList;
-using PointlessWaymarks.CmsWpfControls.MarkdownViewer;
 using PointlessWaymarks.CmsWpfControls.NoteList;
 using PointlessWaymarks.CmsWpfControls.PhotoContentEditor;
 using PointlessWaymarks.CmsWpfControls.PhotoList;
 using PointlessWaymarks.CmsWpfControls.PointList;
 using PointlessWaymarks.CmsWpfControls.PostList;
-using PointlessWaymarks.CmsWpfControls.S3Uploads;
-using PointlessWaymarks.CmsWpfControls.SitePreview;
 using PointlessWaymarks.CmsWpfControls.Utility;
 using PointlessWaymarks.CmsWpfControls.Utility.Excel;
 using PointlessWaymarks.CmsWpfControls.VideoContentEditor;
@@ -91,67 +85,67 @@ public partial class ContentListContext : ObservableObject, IDragSource, IDropTa
     [ObservableProperty] private VideoContentActions _videoItemActions;
     [ObservableProperty] private RelayCommand _viewHistorySelectedCommand;
     [ObservableProperty] private RelayCommand _viewOnSiteCommand;
-    [ObservableProperty] private WindowIconStatus _windowStatus;
+    [ObservableProperty] private WindowIconStatus? _windowStatus;
 
-    public ContentListContext(StatusControlContext statusContext, IContentListLoader loader,
-        WindowIconStatus windowStatus = null)
+    public ContentListContext(StatusControlContext? statusContext, IContentListLoader loader,
+        WindowIconStatus? windowStatus = null)
     {
-        StatusContext = statusContext ?? new StatusControlContext();
+        _statusContext = statusContext ?? new StatusControlContext();
 
         StatusContext.PropertyChanged += StatusContextOnPropertyChanged;
 
-        WindowStatus = windowStatus;
+        _windowStatus = windowStatus;
 
         PropertyChanged += OnPropertyChanged;
 
-        ContentListLoader = loader;
+        _contentListLoader = loader;
 
-        FileItemActions = new FileContentActions(StatusContext);
-        GeoJsonItemActions = new GeoJsonContentActions(StatusContext);
-        ImageItemActions = new ImageContentActions(StatusContext);
-        LineItemActions = new LineContentActions(StatusContext);
-        LinkItemActions = new LinkContentActions(StatusContext);
-        MapComponentItemActions = new MapComponentContentActions(StatusContext);
-        NoteItemActions = new NoteContentActions(StatusContext);
-        PointItemActions = new PointContentActions(StatusContext);
-        PhotoItemActions = new PhotoContentActions(StatusContext);
-        PostItemActions = new PostContentActions(StatusContext);
-        VideoItemActions = new VideoContentActions(StatusContext);
+        _fileItemActions = new FileContentActions(StatusContext);
+        _geoJsonItemActions = new GeoJsonContentActions(StatusContext);
+        _imageItemActions = new ImageContentActions(StatusContext);
+        _lineItemActions = new LineContentActions(StatusContext);
+        _linkItemActions = new LinkContentActions(StatusContext);
+        _mapComponentItemActions = new MapComponentContentActions(StatusContext);
+        _noteItemActions = new NoteContentActions(StatusContext);
+        _pointItemActions = new PointContentActions(StatusContext);
+        _photoItemActions = new PhotoContentActions(StatusContext);
+        _postItemActions = new PostContentActions(StatusContext);
+        _videoItemActions = new VideoContentActions(StatusContext);
 
-        NewActions = new CmsCommonCommands(StatusContext, WindowStatus);
+        _newActions = new CmsCommonCommands(StatusContext, WindowStatus);
 
-        DataNotificationsProcessor = new DataNotificationsWorkQueue { Processor = DataNotificationReceived };
+        _dataNotificationsProcessor = new DataNotificationsWorkQueue { Processor = DataNotificationReceived };
 
-        LoadAllCommand = StatusContext.RunBlockingTaskCommand(async () =>
+        _loadAllCommand = StatusContext.RunBlockingTaskCommand(async () =>
         {
             ContentListLoader.PartialLoadQuantity = null;
             await LoadData();
         });
 
-        DeleteSelectedCommand = StatusContext.RunBlockingTaskWithCancellationCommand(DeleteSelected, "Cancel Delete");
-        BracketCodeToClipboardSelectedCommand =
+        _deleteSelectedCommand = StatusContext.RunBlockingTaskWithCancellationCommand(DeleteSelected, "Cancel Delete");
+        _bracketCodeToClipboardSelectedCommand =
             StatusContext.RunBlockingTaskWithCancellationCommand(BracketCodeToClipboardSelected, "Cancel Delete");
-        EditSelectedCommand = StatusContext.RunBlockingTaskWithCancellationCommand(EditSelected, "Cancel Edit");
-        ExtractNewLinksSelectedCommand =
+        _editSelectedCommand = StatusContext.RunBlockingTaskWithCancellationCommand(EditSelected, "Cancel Edit");
+        _extractNewLinksSelectedCommand =
             StatusContext.RunBlockingTaskWithCancellationCommand(ExtractNewLinksSelected, "Cancel Link Extraction");
-        GenerateHtmlSelectedCommand =
+        _generateHtmlSelectedCommand =
             StatusContext.RunBlockingTaskWithCancellationCommand(GenerateHtmlSelected, "Cancel Generate Html");
-        ViewOnSiteCommand = StatusContext.RunBlockingTaskWithCancellationCommand(ViewOnSiteSelected, "Cancel Open Url");
-        ViewHistorySelectedCommand =
+        _viewOnSiteCommand = StatusContext.RunBlockingTaskWithCancellationCommand(ViewOnSiteSelected, "Cancel Open Url");
+        _viewHistorySelectedCommand =
             StatusContext.RunBlockingTaskWithCancellationCommand(ViewHistorySelected, "Cancel View History");
 
-        ImportFromExcelFileCommand =
+        _importFromExcelFileCommand =
             StatusContext.RunBlockingTaskCommand(async () => await ExcelHelpers.ImportFromExcelFile(StatusContext));
-        ImportFromOpenExcelInstanceCommand = StatusContext.RunBlockingTaskCommand(async () =>
+        _importFromOpenExcelInstanceCommand = StatusContext.RunBlockingTaskCommand(async () =>
             await ExcelHelpers.ImportFromOpenExcelInstance(StatusContext));
-        SelectedToExcelCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
+        _selectedToExcelCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
             await ExcelHelpers.SelectedToExcel(ListSelection.SelectedItems?.Cast<dynamic>().ToList(), StatusContext));
 
-        FolderSearchCommand = StatusContext.RunNonBlockingTaskCommand<string>(async x =>
+        _folderSearchCommand = StatusContext.RunNonBlockingTaskCommand<string>(async x =>
             await RunReport(async () => await FolderSearch(x), $"Folder Search - {x}"));
-        CreatedOnDaySearchCommand = StatusContext.RunNonBlockingTaskCommand<DateTime?>(async x =>
+        _createdOnDaySearchCommand = StatusContext.RunNonBlockingTaskCommand<DateTime?>(async x =>
             await RunReport(async () => await CreatedOnDaySearch(x), $"Created On Search - {x}"));
-        LastUpdatedOnDaySearchCommand = StatusContext.RunNonBlockingTaskCommand<DateTime?>(async x =>
+        _lastUpdatedOnDaySearchCommand = StatusContext.RunNonBlockingTaskCommand<DateTime?>(async x =>
             await RunReport(async () => await UpdatedOnDaySearch(x), $"Last Updated On Search - {x}"));
     }
 
@@ -174,7 +168,8 @@ public partial class ContentListContext : ObservableObject, IDragSource, IDropTa
 
     public void StartDrag(IDragInfo dragInfo)
     {
-        var defaultBracketCodeList = ListSelection.SelectedItems.Select(x => x.DefaultBracketCode()).ToList();
+        var defaultBracketCodeList = ListSelection.SelectedItems?.Select(x => x.DefaultBracketCode()).ToList();
+        if (defaultBracketCodeList == null) return;
         dragInfo.Data = string.Join(Environment.NewLine, defaultBracketCodeList);
         dragInfo.DataFormat = DataFormats.GetDataFormat(DataFormats.UnicodeText);
         dragInfo.Effects = DragDropEffects.Copy;
@@ -232,7 +227,7 @@ public partial class ContentListContext : ObservableObject, IDragSource, IDropTa
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        if (ListSelection?.SelectedItems == null || ListSelection.SelectedItems.Count < 1)
+        if (ListSelection.SelectedItems == null || ListSelection.SelectedItems.Count < 1)
         {
             StatusContext.ToastWarning("Nothing Selected to Edit?");
             return;
@@ -290,14 +285,13 @@ public partial class ContentListContext : ObservableObject, IDragSource, IDropTa
 
         foreach (var loopItem in Items)
         {
-            var id = loopItem?.ContentId();
+            var id = loopItem.ContentId();
             if (id == null) continue;
             if (translatedMessage.ContentIds.Contains(id.Value))
                 existingListItemsMatchingNotification.Add(loopItem);
         }
 
-        if (ContentListLoader.DataNotificationTypesToRespondTo != null &&
-            ContentListLoader.DataNotificationTypesToRespondTo.Any())
+        if (ContentListLoader.DataNotificationTypesToRespondTo.Any())
             if (!ContentListLoader.DataNotificationTypesToRespondTo.Contains(translatedMessage.ContentType))
             {
                 await PossibleMainImageUpdateDataNotificationReceived(translatedMessage);
@@ -393,7 +387,7 @@ public partial class ContentListContext : ObservableObject, IDragSource, IDropTa
 
                 await ThreadSwitcher.ResumeForegroundAsync();
 
-                Items.Add(ListItemFromDbItem(loopItem));
+                Items.Add(ListItemFromDbItem(loopItem)!);
 
                 await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -417,7 +411,7 @@ public partial class ContentListContext : ObservableObject, IDragSource, IDropTa
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        if (ListSelection?.SelectedItems == null || ListSelection.SelectedItems.Count < 1)
+        if (ListSelection.SelectedItems == null || ListSelection.SelectedItems.Count < 1)
         {
             StatusContext.ToastWarning("Nothing Selected to Edit?");
             return;
@@ -444,7 +438,7 @@ public partial class ContentListContext : ObservableObject, IDragSource, IDropTa
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        if (ListSelection?.SelectedItems == null || ListSelection.SelectedItems.Count < 1)
+        if (ListSelection.SelectedItems == null || ListSelection.SelectedItems.Count < 1)
         {
             StatusContext.ToastWarning("Nothing Selected to Edit?");
             return;
@@ -470,7 +464,7 @@ public partial class ContentListContext : ObservableObject, IDragSource, IDropTa
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        if (ListSelection?.SelectedItems == null || ListSelection.SelectedItems.Count < 1)
+        if (ListSelection.SelectedItems == null || ListSelection.SelectedItems.Count < 1)
         {
             StatusContext.ToastWarning("Nothing Selected to Edit?");
             return;
@@ -488,7 +482,7 @@ public partial class ContentListContext : ObservableObject, IDragSource, IDropTa
 
     private async Task FilterList()
     {
-        if (Items == null || !Items.Any()) return;
+        if (!Items.Any()) return;
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
@@ -572,7 +566,7 @@ public partial class ContentListContext : ObservableObject, IDragSource, IDropTa
         };
     }
 
-    public static async Task<List<object>> FolderSearch(string folderName)
+    public static async Task<List<object>> FolderSearch(string? folderName)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -585,7 +579,7 @@ public partial class ContentListContext : ObservableObject, IDragSource, IDropTa
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        if (ListSelection?.SelectedItems == null || ListSelection.SelectedItems.Count < 1)
+        if (ListSelection.SelectedItems == null || ListSelection.SelectedItems.Count < 1)
         {
             StatusContext.ToastWarning("Nothing Selected to Generate?");
             return;
@@ -601,11 +595,11 @@ public partial class ContentListContext : ObservableObject, IDragSource, IDropTa
         }
     }
 
-    public static string GetSmallImageUrl(IMainImage content)
+    public static string? GetSmallImageUrl(IMainImage? content)
     {
         if (content?.MainPicture == null) return null;
 
-        string smallImageUrl;
+        string? smallImageUrl;
 
         try
         {
@@ -620,7 +614,7 @@ public partial class ContentListContext : ObservableObject, IDragSource, IDropTa
         return smallImageUrl;
     }
 
-    public IContentListItem ListItemFromDbItem(object dbItem)
+    public IContentListItem? ListItemFromDbItem(object? dbItem)
     {
         //!!Content List
         return dbItem switch
@@ -676,7 +670,7 @@ public partial class ContentListContext : ObservableObject, IDragSource, IDropTa
             if (loopCounter % 250 == 0)
                 StatusContext.Progress($"Created List Item {loopCounter} of {dbItems.Count}");
 
-            contentListItems.Add(ListItemFromDbItem(loopDbItem));
+            contentListItems.Add(ListItemFromDbItem(loopDbItem)!);
         });
 
         await ThreadSwitcher.ResumeForegroundAsync();
@@ -691,21 +685,20 @@ public partial class ContentListContext : ObservableObject, IDragSource, IDropTa
         DataNotifications.NewDataNotificationChannel().MessageReceived += OnDataNotificationReceived;
     }
 
-    private void OnDataNotificationReceived(object sender, TinyMessageReceivedEventArgs e)
+    private void OnDataNotificationReceived(object? sender, TinyMessageReceivedEventArgs e)
     {
         DataNotificationsProcessor.Enqueue(e);
     }
 
-    private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
+    private void OnPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
-        if (e == null) return;
         if (string.IsNullOrWhiteSpace(e.PropertyName)) return;
 
         if (e.PropertyName == nameof(UserFilterText))
             StatusContext.RunFireAndForgetNonBlockingTask(FilterList);
     }
 
-    private async Task PossibleMainImageUpdateDataNotificationReceived(InterProcessDataNotification translatedMessage)
+    private async Task PossibleMainImageUpdateDataNotificationReceived(InterProcessDataNotification? translatedMessage)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -732,11 +725,9 @@ public partial class ContentListContext : ObservableObject, IDragSource, IDropTa
         await newWindow.PositionWindowAndShowOnUiThread();
     }
 
-
-
-    private void StatusContextOnPropertyChanged(object sender, PropertyChangedEventArgs e)
+    private void StatusContextOnPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
-        if (string.IsNullOrWhiteSpace(e?.PropertyName)) return;
+        if (string.IsNullOrWhiteSpace(e.PropertyName)) return;
         if (e.PropertyName == nameof(StatusContext.BlockUi) && !StatusContext.BlockUi && FilterOnUiShown)
         {
             FilterOnUiShown = !FilterOnUiShown;
@@ -840,7 +831,7 @@ public partial class ContentListContext : ObservableObject, IDragSource, IDropTa
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        if (ListSelection?.SelectedItems == null || ListSelection.SelectedItems.Count < 1)
+        if (ListSelection.SelectedItems == null || ListSelection.SelectedItems.Count < 1)
         {
             StatusContext.ToastWarning("Nothing Selected to Edit?");
             return;
@@ -859,7 +850,7 @@ public partial class ContentListContext : ObservableObject, IDragSource, IDropTa
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        if (ListSelection?.SelectedItems == null || ListSelection.SelectedItems.Count < 1)
+        if (ListSelection.SelectedItems == null || ListSelection.SelectedItems.Count < 1)
         {
             StatusContext.ToastWarning("Nothing Selected to Edit?");
             return;

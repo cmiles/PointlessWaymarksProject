@@ -31,10 +31,10 @@ public partial class PointListWithActionsContext : ObservableObject
     [ObservableProperty] private RelayCommand _refreshDataCommand;
     [ObservableProperty] private RelayCommand _selectedToGpxFileCommand;
     [ObservableProperty] private StatusControlContext _statusContext;
-    [ObservableProperty] private WindowIconStatus _windowStatus;
+    [ObservableProperty] private WindowIconStatus? _windowStatus;
 
 
-    public PointListWithActionsContext(StatusControlContext statusContext, WindowIconStatus windowStatus = null)
+    public PointListWithActionsContext(StatusControlContext? statusContext, WindowIconStatus? windowStatus = null)
     {
         StatusContext = statusContext ?? new StatusControlContext();
         WindowStatus = windowStatus;

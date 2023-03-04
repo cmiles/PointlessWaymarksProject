@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel;
 using CommunityToolkit.Mvvm.ComponentModel;
+using JetBrains.Annotations;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.Content;
 using PointlessWaymarks.CmsData.Database.Models;
@@ -17,7 +18,7 @@ public partial class CreatedAndUpdatedByAndOnDisplayContext : ObservableObject, 
     [ObservableProperty] private string _createdAndUpdatedByAndOn;
     [ObservableProperty] private StringDataEntryContext _createdByEntry;
     [ObservableProperty] private DateTime? _createdOn;
-    [ObservableProperty] private ICreatedAndLastUpdateOnAndBy _dbEntry;
+    [ObservableProperty] private ICreatedAndLastUpdateOnAndBy? _dbEntry;
     [ObservableProperty] private bool _hasChanges;
     [ObservableProperty] private bool _hasValidationIssues;
     [ObservableProperty] private bool _isNewEntry;
@@ -27,7 +28,7 @@ public partial class CreatedAndUpdatedByAndOnDisplayContext : ObservableObject, 
     [ObservableProperty] private StringDataEntryContext _updatedByEntry;
     [ObservableProperty] private DateTime? _updatedOn;
 
-    private CreatedAndUpdatedByAndOnDisplayContext(StatusControlContext statusContext)
+    private CreatedAndUpdatedByAndOnDisplayContext(StatusControlContext? statusContext)
     {
         StatusContext = statusContext ?? new StatusControlContext();
 
@@ -51,7 +52,7 @@ public partial class CreatedAndUpdatedByAndOnDisplayContext : ObservableObject, 
         return newInstance;
     }
 
-    public async Task LoadData(ICreatedAndLastUpdateOnAndBy toLoad)
+    public async Task LoadData(ICreatedAndLastUpdateOnAndBy? toLoad)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -59,25 +60,25 @@ public partial class CreatedAndUpdatedByAndOnDisplayContext : ObservableObject, 
 
         IsNewEntry = false;
 
-        if (toLoad == null)
+        if (DbEntry == null)
             IsNewEntry = true;
         else if (((IContentId)DbEntry).Id < 1) IsNewEntry = true;
 
         CreatedByEntry = StringDataEntryContext.CreateInstance();
-        CreatedByEntry.ValidationFunctions = new List<Func<string, Task<IsValid>>>
+        CreatedByEntry.ValidationFunctions = new List<Func<string?, Task<IsValid>>>
         {
             CommonContentValidation.ValidateCreatedBy
         };
         CreatedByEntry.Title = "Created By";
         CreatedByEntry.HelpText = "Created By Name";
-        CreatedByEntry.ReferenceValue = string.IsNullOrWhiteSpace(toLoad?.CreatedBy) ? string.Empty : DbEntry.CreatedBy;
-        CreatedByEntry.UserValue = string.IsNullOrWhiteSpace(toLoad?.CreatedBy)
+        CreatedByEntry.ReferenceValue = string.IsNullOrWhiteSpace(DbEntry?.CreatedBy) ? string.Empty : DbEntry.CreatedBy;
+        CreatedByEntry.UserValue = string.IsNullOrWhiteSpace(DbEntry?.CreatedBy)
             ? UserSettingsSingleton.CurrentSettings().DefaultCreatedBy
             : DbEntry.CreatedBy;
 
 
         UpdatedByEntry = StringDataEntryContext.CreateInstance();
-        UpdatedByEntry.ValidationFunctions = new List<Func<string, Task<IsValid>>> { ValidateUpdatedBy };
+        UpdatedByEntry.ValidationFunctions = new List<Func<string?, Task<IsValid>>> { ValidateUpdatedBy };
         UpdatedByEntry.Title = "Updated By";
         UpdatedByEntry.HelpText = "Last Updated By Name";
         UpdatedByEntry.ReferenceValue = toLoad?.LastUpdatedBy ?? string.Empty;
@@ -112,35 +113,34 @@ public partial class CreatedAndUpdatedByAndOnDisplayContext : ObservableObject, 
         ShowCreatedByEditor = false;
         ShowUpdatedByEditor = true;
 
-        newStringParts.Add(!string.IsNullOrWhiteSpace(DbEntry.CreatedBy)
+        newStringParts.Add(!string.IsNullOrWhiteSpace(DbEntry?.CreatedBy)
             ? $"Created By {DbEntry.CreatedBy.Trim()}"
             : "Created");
 
-        newStringParts.Add($"On {DbEntry.CreatedOn:g}");
+        newStringParts.Add($"On {DbEntry?.CreatedOn:g}");
 
-        if (!string.IsNullOrWhiteSpace(DbEntry.LastUpdatedBy))
+        if (!string.IsNullOrWhiteSpace(DbEntry?.LastUpdatedBy))
             newStringParts.Add($"Last Update By {DbEntry.LastUpdatedBy.Trim()}");
-        else if (DbEntry.LastUpdatedOn != null) newStringParts.Add("Last Update");
+        else if (DbEntry?.LastUpdatedOn != null) newStringParts.Add("Last Update");
 
-        if (DbEntry.LastUpdatedOn != null) newStringParts.Add($"On {DbEntry.LastUpdatedOn:g}");
+        if (DbEntry?.LastUpdatedOn != null) newStringParts.Add($"On {DbEntry.LastUpdatedOn:g}");
 
         CreatedAndUpdatedByAndOn = string.Join(" ", newStringParts);
     }
 
-    private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
+    private void OnPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
-        if (e == null) return;
         if (string.IsNullOrWhiteSpace(e.PropertyName)) return;
 
         if (!e.PropertyName.Contains("HasChanges") && !e.PropertyName.Contains("Validation"))
             CheckForChangesAndValidationIssues();
     }
 
-    public async Task<IsValid> ValidateUpdatedBy(string updatedBy)
+    public Task<IsValid> ValidateUpdatedBy(string? updatedBy)
     {
         if (!IsNewEntry && string.IsNullOrWhiteSpace(updatedBy))
-            return new IsValid(false, "Updated by can not be blank when updating an entry");
+            return Task.FromResult(new IsValid(false, "Updated by can not be blank when updating an entry"));
 
-        return new IsValid(true, string.Empty);
+        return Task.FromResult(new IsValid(true, string.Empty));
     }
 }

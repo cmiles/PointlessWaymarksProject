@@ -24,9 +24,9 @@ public partial class FileListWithActionsContext : ObservableObject
     [ObservableProperty] private RelayCommand _refreshDataCommand;
     [ObservableProperty] private StatusControlContext _statusContext;
     [ObservableProperty] private RelayCommand _viewFilesCommand;
-    [ObservableProperty] private WindowIconStatus _windowStatus;
+    [ObservableProperty] private WindowIconStatus? _windowStatus;
 
-    public FileListWithActionsContext(StatusControlContext statusContext, WindowIconStatus windowStatus = null)
+    public FileListWithActionsContext(StatusControlContext? statusContext, WindowIconStatus? windowStatus = null)
     {
         StatusContext = statusContext ?? new StatusControlContext();
         WindowStatus = windowStatus;

@@ -21,7 +21,7 @@ public partial class ImageContentEditorWindow
     private ImageContentEditorWindow()
     {
         InitializeComponent();
-        StatusContext = new StatusControlContext();
+        _statusContext = new StatusControlContext();
         DataContext = this;
     }
 
@@ -31,8 +31,8 @@ public partial class ImageContentEditorWindow
     ///     PositionWindowAndShowOnUiThread() from the WindowInitialPositionHelpers.
     /// </summary>
     /// <returns></returns>
-    public static async Task<ImageContentEditorWindow> CreateInstance(ImageContent contentToLoad = null,
-        FileInfo initialImage = null)
+    public static async Task<ImageContentEditorWindow> CreateInstance(ImageContent? contentToLoad = null,
+        FileInfo? initialImage = null)
     {
         await ThreadSwitcher.ResumeForegroundAsync();
 

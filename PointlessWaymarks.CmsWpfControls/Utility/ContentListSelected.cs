@@ -11,17 +11,16 @@ namespace PointlessWaymarks.CmsWpfControls.Utility;
 
 public class ContentListSelected<T> : INotifyPropertyChanged where T : ISelectedTextTracker
 {
-    private ObservableCollection<CommandBinding> _listBoxAppCommandBindings;
-    private T _selected;
-    private List<T> _selectedItems = new();
-    private StatusControlContext _statusContext;
+    private ObservableCollection<CommandBinding>? _listBoxAppCommandBindings;
+    private T? _selected;
+    private List<T>? _selectedItems = new();
 
-    private ContentListSelected(StatusControlContext statusContext = null)
+    private ContentListSelected(StatusControlContext? statusContext = null)
     {
         StatusContext = statusContext ?? new StatusControlContext();
     }
 
-    public ObservableCollection<CommandBinding> ListBoxAppCommandBindings
+    public ObservableCollection<CommandBinding>? ListBoxAppCommandBindings
     {
         get => _listBoxAppCommandBindings;
         set
@@ -32,7 +31,7 @@ public class ContentListSelected<T> : INotifyPropertyChanged where T : ISelected
         }
     }
 
-    public T Selected
+    public T? Selected
     {
         get => _selected;
         set
@@ -43,7 +42,7 @@ public class ContentListSelected<T> : INotifyPropertyChanged where T : ISelected
         }
     }
 
-    public List<T> SelectedItems
+    public List<T>? SelectedItems
     {
         get => _selectedItems;
         set
@@ -54,27 +53,18 @@ public class ContentListSelected<T> : INotifyPropertyChanged where T : ISelected
         }
     }
 
-    public StatusControlContext StatusContext
-    {
-        get => _statusContext;
-        set
-        {
-            if (Equals(value, _statusContext)) return;
-            _statusContext = value;
-            OnPropertyChanged();
-        }
-    }
+    public StatusControlContext StatusContext { get; }
 
-    public event PropertyChangedEventHandler PropertyChanged;
+    public event PropertyChangedEventHandler? PropertyChanged;
 
-    public static async Task<ContentListSelected<T>> CreateInstance(StatusControlContext statusContext = null)
+    public static async Task<ContentListSelected<T>> CreateInstance(StatusControlContext? statusContext = null)
     {
         var newControl = new ContentListSelected<T>(statusContext);
         await newControl.LoadData();
         return newControl;
     }
 
-    private void ExecuteListBoxItemCopy(object sender, ExecutedRoutedEventArgs e)
+    private void ExecuteListBoxItemCopy(object? sender, ExecutedRoutedEventArgs e)
     {
         if (Selected == null) return;
         StatusContext.ContextDispatcher.Invoke(() =>
@@ -91,7 +81,7 @@ public class ContentListSelected<T> : INotifyPropertyChanged where T : ISelected
     }
 
     [NotifyPropertyChangedInvocator]
-    protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+    protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
     {
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }

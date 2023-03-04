@@ -1012,7 +1012,7 @@ public static class Db
     /// </summary>
     /// <param name="content"></param>
     /// <returns></returns>
-    public static async Task<List<string>> FolderNamesFromContent(dynamic content)
+    public static async Task<List<string>> FolderNamesFromContent(dynamic? content)
     {
         var db = await Context().ConfigureAwait(false);
 

@@ -51,9 +51,9 @@ public partial class PhotoListWithActionsContext : ObservableObject
     [ObservableProperty] private RelayCommand _rescanMetadataAndFillBlanksCommand;
     [ObservableProperty] private StatusControlContext _statusContext;
     [ObservableProperty] private RelayCommand _viewFilesCommand;
-    [ObservableProperty] private WindowIconStatus _windowStatus;
+    [ObservableProperty] private WindowIconStatus? _windowStatus;
 
-    public PhotoListWithActionsContext(StatusControlContext statusContext, WindowIconStatus windowStatus = null)
+    public PhotoListWithActionsContext(StatusControlContext? statusContext, WindowIconStatus? windowStatus = null)
     {
         StatusContext = statusContext ?? new StatusControlContext();
         WindowStatus = windowStatus;

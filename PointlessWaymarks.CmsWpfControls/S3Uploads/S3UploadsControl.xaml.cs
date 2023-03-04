@@ -12,7 +12,7 @@ public partial class S3UploadsControl
         InitializeComponent();
     }
 
-    private void Selector_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
+    private void Selector_OnSelectionChanged(object? sender, SelectionChangedEventArgs e)
     {
         var viewmodel = (S3UploadsContext) DataContext;
         if (viewmodel?.ListSelection == null) return;

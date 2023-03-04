@@ -12,7 +12,7 @@ public class LineListLoader : ContentListLoaderBase
         DataNotificationTypesToRespondTo = new List<DataNotificationContentType> {DataNotificationContentType.Line};
     }
 
-    public override async Task<List<object>> LoadItems(IProgress<string> progress = null)
+    public override async Task<List<object>> LoadItems(IProgress<string>? progress = null)
     {
         var db = await Db.Context();
 

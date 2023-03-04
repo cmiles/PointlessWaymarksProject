@@ -24,9 +24,9 @@ public partial class ImageListWithActionsContext : ObservableObject
     [ObservableProperty] private RelayCommand _regenerateHtmlAndReprocessImageForSelectedCommand;
     [ObservableProperty] private StatusControlContext _statusContext;
     [ObservableProperty] private RelayCommand _viewFilesCommand;
-    [ObservableProperty] private WindowIconStatus _windowStatus;
+    [ObservableProperty] private WindowIconStatus? _windowStatus;
 
-    public ImageListWithActionsContext(StatusControlContext statusContext, WindowIconStatus windowStatus = null)
+    public ImageListWithActionsContext(StatusControlContext? statusContext, WindowIconStatus? windowStatus = null)
     {
         StatusContext = statusContext ?? new StatusControlContext();
         WindowStatus = windowStatus;

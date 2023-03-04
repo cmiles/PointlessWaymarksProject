@@ -15,7 +15,7 @@ public partial class BodyContentEditorHorizontalControl
         InitializeComponent();
     }
 
-    private void BodyContentTextBox_OnSelectionChanged(object sender, RoutedEventArgs e)
+    private void BodyContentTextBox_OnSelectionChanged(object? sender, RoutedEventArgs e)
     {
         if (DataContext is not BodyContentEditorContext context) return;
         if (sender is not TextBox t) return;
@@ -24,9 +24,9 @@ public partial class BodyContentEditorHorizontalControl
         context.UserBodyContentUserSelectionLength = t.SelectionLength;
     }
 
-    private void TextBoxPreviewDragOver(object sender, DragEventArgs e)
+    private void TextBoxPreviewDragOver(object? sender, DragEventArgs e)
     {
-        if (sender is not TextBox textBox || e == null) return;
+        if (sender is not TextBox textBox) return;
 
         // Set the caret at the position where user ended the drag-drop operation
         var dropPosition = e.GetPosition(textBox);

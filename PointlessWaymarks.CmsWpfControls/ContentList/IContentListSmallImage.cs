@@ -2,5 +2,5 @@
 
 public interface IContentListSmallImage
 {
-    string SmallImageUrl { get; set; }
+    string? SmallImageUrl { get; set; }
 }

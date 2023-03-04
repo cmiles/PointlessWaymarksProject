@@ -21,7 +21,7 @@ public partial class PointContentEditorControl
         _webViewWorkQueue = new TaskQueue(true);
     }
 
-    private void PointContentEditorControl_OnDataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
+    private void PointContentEditorControl_OnDataContextChanged(object? sender, DependencyPropertyChangedEventArgs e)
     {
         if (e.NewValue is PointContentEditorContext pointContext)
         {
@@ -38,13 +38,13 @@ public partial class PointContentEditorControl
         }
     }
 
-    private async void PointContentEditorControl_OnLoaded(object sender, RoutedEventArgs e)
+    private async void PointContentEditorControl_OnLoaded(object? sender, RoutedEventArgs e)
     {
         await ThreadSwitcher.ResumeForegroundAsync();
         await PointContentWebView.EnsureCoreWebView2Async();
     }
 
-    private void PointContentWebView_OnCoreWebView2InitializationCompleted(object sender,
+    private void PointContentWebView_OnCoreWebView2InitializationCompleted(object? sender,
         CoreWebView2InitializationCompletedEventArgs e)
     {
         _webViewWorkQueue.Suspend(false);
@@ -52,7 +52,7 @@ public partial class PointContentEditorControl
         PointContentWebView.CoreWebView2.WebMessageReceived += PointContentWebViewOnScriptNotify;
     }
 
-    private void PointContentWebViewOnScriptNotify(object sender, CoreWebView2WebMessageReceivedEventArgs e)
+    private void PointContentWebViewOnScriptNotify(object? sender, CoreWebView2WebMessageReceivedEventArgs e)
     {
         var value = e.TryGetWebMessageAsString().TrimNullToEmpty();
 
@@ -68,7 +68,7 @@ public partial class PointContentEditorControl
         RaisePointLatitudeLongitudeChange?.Invoke(this, new PointLatitudeLongitudeChange(latitude, longitude));
     }
 
-    private void PointContextOnRaisePointLatitudeLongitudeChange(object sender, PointLatitudeLongitudeChange e)
+    private void PointContextOnRaisePointLatitudeLongitudeChange(object? sender, PointLatitudeLongitudeChange e)
     {
         _webViewWorkQueue.Enqueue(async () =>
         {

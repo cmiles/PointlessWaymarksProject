@@ -5,7 +5,6 @@ using System.Text.RegularExpressions;
 using System.Windows;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using JetBrains.Annotations;
 using Ookii.Dialogs.Wpf;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.CommonHtml;
@@ -54,12 +53,10 @@ public partial class FileContentEditorContext : ObservableObject, IHasChanges, I
     [ObservableProperty] private bool _hasChanges;
     [ObservableProperty] private bool _hasValidationIssues;
     [ObservableProperty] private HelpDisplayContext _helpContext;
-    [ObservableProperty] private FileInfo _initialFile;
+    [ObservableProperty] private FileInfo? _initialFile;
     [ObservableProperty] private RelayCommand _linkToClipboardCommand;
-    [ObservableProperty] private FileInfo _loadedFile;
-
-
-    [ObservableProperty] [CanBeNull] private ImageContentEditorWindow _mainImageExternalEditorWindow;
+    [ObservableProperty] private FileInfo? _loadedFile;
+    [ObservableProperty] private ImageContentEditorWindow? _mainImageExternalEditorWindow;
     [ObservableProperty] private ContentSiteFeedAndIsDraftContext _mainSiteFeed;
     [ObservableProperty] private RelayCommand _openSelectedFileCommand;
     [ObservableProperty] private RelayCommand _openSelectedFileDirectoryCommand;
@@ -70,7 +67,7 @@ public partial class FileContentEditorContext : ObservableObject, IHasChanges, I
     [ObservableProperty] private RelayCommand _saveAndExtractImageFromPdfCommand;
     [ObservableProperty] private RelayCommand _saveAndExtractImageFromVideoCommand;
     [ObservableProperty] private RelayCommand _saveCommand;
-    [ObservableProperty] private FileInfo _selectedFile;
+    [ObservableProperty] private FileInfo? _selectedFile;
     [ObservableProperty] private bool _selectedFileHasPathOrNameChanges;
     [ObservableProperty] private bool _selectedFileHasValidationIssues;
     [ObservableProperty] private bool _selectedFileNameHasInvalidCharacters;
@@ -80,24 +77,28 @@ public partial class FileContentEditorContext : ObservableObject, IHasChanges, I
     [ObservableProperty] private TitleSummarySlugEditorContext _titleSummarySlugFolder;
     [ObservableProperty] private UpdateNotesEditorContext _updateNotes;
     [ObservableProperty] private ConversionDataEntryContext<Guid?> _userMainPictureEntry;
-    [ObservableProperty] private IContentCommon _userMainPictureEntryContent;
-    [ObservableProperty] private string _userMainPictureEntrySmallImageUrl;
+    [ObservableProperty] private IContentCommon? _userMainPictureEntryContent;
+    [ObservableProperty] private string? _userMainPictureEntrySmallImageUrl;
     [ObservableProperty] private RelayCommand _viewOnSiteCommand;
     [ObservableProperty] private RelayCommand _viewUserMainPictureCommand;
 
-    public EventHandler RequestContentEditorWindowClose;
+    public EventHandler? RequestContentEditorWindowClose;
 
-    private FileContentEditorContext(StatusControlContext statusContext, FileInfo initialFile = null)
+    private FileContentEditorContext(StatusControlContext? statusContext, FileInfo? initialFile = null)
     {
         if (initialFile is { Exists: true }) _initialFile = initialFile;
+
+        DbEntry = new FileContent();
 
         PropertyChanged += OnPropertyChanged;
 
         SetupStatusContextAndCommands(statusContext);
     }
 
-    private FileContentEditorContext(StatusControlContext statusContext)
+    private FileContentEditorContext(StatusControlContext? statusContext)
     {
+        DbEntry = new FileContent();
+
         PropertyChanged += OnPropertyChanged;
 
         SetupStatusContextAndCommands(statusContext);
@@ -132,7 +133,7 @@ Notes:
     public void CheckForChangesAndValidationIssues()
     {
         HasChanges = PropertyScanners.ChildPropertiesHaveChanges(this) || SelectedFileHasPathOrNameChanges ||
-                     DbEntry?.MainPicture != CurrentMainPicture();
+                     DbEntry.MainPicture != CurrentMainPicture();
         HasValidationIssues = PropertyScanners.ChildPropertiesHaveValidationIssues(this) ||
                               SelectedFileHasValidationIssues;
     }
@@ -162,15 +163,15 @@ Notes:
         StatusContext.Progress($"File load - {SelectedFile.FullName} ");
     }
 
-    public static async Task<FileContentEditorContext> CreateInstance(StatusControlContext statusContext,
-        FileInfo initialFile = null)
+    public static async Task<FileContentEditorContext> CreateInstance(StatusControlContext? statusContext,
+        FileInfo? initialFile = null)
     {
         var newControl = new FileContentEditorContext(statusContext, initialFile);
         await newControl.LoadData(null);
         return newControl;
     }
 
-    public static async Task<FileContentEditorContext> CreateInstance(StatusControlContext statusContext,
+    public static async Task<FileContentEditorContext> CreateInstance(StatusControlContext? statusContext,
         FileContent initialContent)
     {
         var newControl = new FileContentEditorContext(statusContext);
@@ -183,17 +184,17 @@ Notes:
         if (UserMainPictureEntry is { HasValidationIssues: false, UserValue: { } })
             return UserMainPictureEntry.UserValue;
 
-        return BracketCodeCommon.PhotoOrImageCodeFirstIdInContent(BodyContent?.UserBodyContent);
+        return BracketCodeCommon.PhotoOrImageCodeFirstIdInContent(BodyContent.UserBodyContent);
     }
 
     public FileContent CurrentStateToFileContent()
     {
         var newEntry = new FileContent();
 
-        if (DbEntry == null || DbEntry.Id < 1)
+        if (DbEntry.Id < 1)
         {
             newEntry.ContentId = Guid.NewGuid();
-            newEntry.CreatedOn = DbEntry?.CreatedOn ?? DateTime.Now;
+            newEntry.CreatedOn = DbEntry.CreatedOn;
             if (newEntry.CreatedOn == DateTime.MinValue) newEntry.CreatedOn = DateTime.Now;
         }
         else
@@ -217,7 +218,7 @@ Notes:
         newEntry.UpdateNotesFormat = UpdateNotes.UpdateNotesFormat.SelectedContentFormatAsString;
         newEntry.BodyContent = BodyContent.BodyContent.TrimNullToEmpty();
         newEntry.BodyContentFormat = BodyContent.BodyContentFormat.SelectedContentFormatAsString;
-        newEntry.OriginalFileName = SelectedFile.Name;
+        newEntry.OriginalFileName = SelectedFile?.Name ?? string.Empty;
         newEntry.PublicDownloadLink = PublicDownloadLink.UserValue;
         newEntry.EmbedFile = PublicDownloadLink.UserValue && EmbedFile.UserValue;
         newEntry.UserMainPicture = UserMainPictureEntry.UserValue;
@@ -239,7 +240,7 @@ Notes:
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        if (DbEntry == null || DbEntry.Id < 1)
+        if (DbEntry.Id < 1)
         {
             StatusContext.ToastError("Sorry - please save before getting link...");
             return;
@@ -287,7 +288,7 @@ Notes:
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        if (DbEntry == null || DbEntry.Id < 1)
+        if (DbEntry.Id < 1)
         {
             StatusContext.ToastError("Sorry - please save before getting link...");
             return;
@@ -302,7 +303,7 @@ Notes:
         StatusContext.ToastSuccess($"To Clipboard: {linkString}");
     }
 
-    private async Task LoadData(FileContent toLoad, bool skipMediaDirectoryCheck = false)
+    private async Task LoadData(FileContent? toLoad, bool skipMediaDirectoryCheck = false)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -327,9 +328,10 @@ Notes:
             "If checked there will be a hyperlink will on the File Content Page to download the content. NOTE! The File" +
             "will be copied into the generated HTML for the site regardless of this setting - this setting is only about " +
             "whether a download link is shown.";
+
         PublicDownloadLink.PropertyChanged += (_, args) =>
         {
-            if (args.PropertyName == "UserValue" && PublicDownloadLink != null && EmbedFile != null)
+            if (args.PropertyName == "UserValue")
             {
                 if (PublicDownloadLink.UserValue == false)
                 {
@@ -354,8 +356,10 @@ Notes:
 
         TitleSummarySlugFolder = await TitleSummarySlugEditorContext.CreateInstance(StatusContext, "To File Name",
             AutoRenameSelectedFileBasedOnTitleCommand,
-            x => !Path.GetFileNameWithoutExtension(SelectedFile.Name)
-                .Equals(SlugTools.CreateSlug(false, x.TitleEntry.UserValue), StringComparison.OrdinalIgnoreCase),
+            x =>
+            SelectedFile != null && !Path.GetFileNameWithoutExtension(SelectedFile.Name)
+                    .Equals(SlugTools.CreateSlug(false, x.TitleEntry.UserValue), StringComparison.OrdinalIgnoreCase)
+            ,
             DbEntry);
         MainSiteFeed = await ContentSiteFeedAndIsDraftContext.CreateInstance(StatusContext, DbEntry);
         CreatedUpdatedDisplay = await CreatedAndUpdatedByAndOnDisplayContext.CreateInstance(StatusContext, DbEntry);
@@ -369,7 +373,7 @@ Notes:
         UserMainPictureEntry.ValidationFunctions = new List<Func<Guid?, Task<IsValid>>>
             { CommonContentValidation.ValidateUserMainPicture };
         UserMainPictureEntry.ReferenceValue = DbEntry.UserMainPicture;
-        UserMainPictureEntry.UserText = DbEntry?.UserMainPicture.ToString() ?? string.Empty;
+        UserMainPictureEntry.UserText = DbEntry.UserMainPicture.ToString() ?? string.Empty;
         UserMainPictureEntry.Title = "Link Image";
         UserMainPictureEntry.HelpText =
             "Putting a Photo or Image ContentId here will cause that image to be used as the 'link' image for the file - very useful when the content is embedded and you don't have a photo or image in the Body Content.";
@@ -386,11 +390,11 @@ Notes:
 
             var fileContentDirectory = UserSettingsSingleton.CurrentSettings().LocalSiteFileContentDirectory(toLoad);
 
-            var contentFile = new FileInfo(Path.Combine(fileContentDirectory.FullName, toLoad.OriginalFileName));
+            var contentFile = new FileInfo(Path.Combine(fileContentDirectory.FullName, DbEntry.OriginalFileName));
 
             if (archiveFile.Exists)
             {
-                _loadedFile = archiveFile;
+                LoadedFile = archiveFile;
                 SelectedFile = archiveFile;
             }
             else
@@ -404,21 +408,21 @@ Notes:
             }
         }
 
-        if (DbEntry.Id < 1 && _initialFile is { Exists: true })
+        if (DbEntry.Id < 1 && InitialFile is { Exists: true })
         {
-            SelectedFile = _initialFile;
-            _initialFile = null;
+            SelectedFile = InitialFile;
+            InitialFile = null;
 
             if (SelectedFile.Extension == ".mp4")
             {
                 var (generationReturn, metadata) =
                     await PhotoGenerator.PhotoMetadataFromFile(SelectedFile, false, StatusContext.ProgressTracker());
 
-                if (!generationReturn.HasError)
+                if (!generationReturn.HasError && metadata != null)
                 {
-                    TitleSummarySlugFolder.SummaryEntry.UserValue = metadata.Summary;
-                    TagEdit.Tags = metadata.Tags;
-                    TitleSummarySlugFolder.TitleEntry.UserValue = metadata.Title;
+                    TitleSummarySlugFolder.SummaryEntry.UserValue = metadata.Summary ?? string.Empty;
+                    TagEdit.Tags = metadata.Tags ?? string.Empty;
+                    TitleSummarySlugFolder.TitleEntry.UserValue = metadata.Title ?? string.Empty;
                     TitleSummarySlugFolder.TitleToSlug();
                     TitleSummarySlugFolder.FolderEntry.UserValue = metadata.PhotoCreatedOn.Year.ToString("F0");
                     EmbedFile.UserValue = true;
@@ -436,14 +440,14 @@ Notes:
         await SelectedFileChanged();
     }
 
-    private void MainImageExternalContextSaved(object sender, EventArgs e)
+    private void MainImageExternalContextSaved(object? sender, EventArgs e)
     {
         if (sender is ImageContentEditorContext imageContext)
         {
             StatusContext.RunNonBlockingTask(async () =>
                 await TryAddUserMainPicture(imageContext.DbEntry.ContentId));
 
-            MainImageExternalEditorWindow.ImageEditor.Saved -= MainImageExternalContextSaved;
+            if(MainImageExternalEditorWindow != null) MainImageExternalEditorWindow.ImageEditor.Saved -= MainImageExternalContextSaved;
 
             MainImageExternalEditorWindowCleanup();
         }
@@ -472,14 +476,13 @@ Notes:
         }
     }
 
-    private void OnMainImageExternalEditorWindowOnClosed(object sender, EventArgs args)
+    private void OnMainImageExternalEditorWindowOnClosed(object? sender, EventArgs args)
     {
         MainImageExternalEditorWindowCleanup();
     }
 
-    private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
+    private void OnPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
-        if (e == null) return;
         if (string.IsNullOrWhiteSpace(e.PropertyName)) return;
 
         if (!e.PropertyName.Contains("HasChanges") && !e.PropertyName.Contains("Validation"))
@@ -604,6 +607,12 @@ Notes:
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
+        if (SelectedFile == null)
+        {
+            StatusContext.ToastError("No File Selected?");
+            return;
+        }
+
         var (generationReturn, newContent) = await FileGenerator.SaveAndGenerateHtml(CurrentStateToFileContent(),
             SelectedFile, overwriteExistingFiles, null, StatusContext.ProgressTracker());
 
@@ -628,22 +637,22 @@ Notes:
         await ThreadSwitcher.ResumeBackgroundAsync();
 
         SelectedFileHasPathOrNameChanges =
-            (SelectedFile?.FullName ?? string.Empty) != (_loadedFile?.FullName ?? string.Empty);
+            (SelectedFile?.FullName ?? string.Empty) != (LoadedFile?.FullName ?? string.Empty);
 
         var (isValid, explanation) =
-            await CommonContentValidation.FileContentFileValidation(SelectedFile, DbEntry?.ContentId);
+            await CommonContentValidation.FileContentFileValidation(SelectedFile, DbEntry.ContentId);
 
         SelectedFileHasValidationIssues = !isValid;
 
         SelectedFileValidationMessage = explanation;
 
         SelectedFileNameHasInvalidCharacters =
-            await CommonContentValidation.FileContentFileFileNameHasInvalidCharacters(SelectedFile, DbEntry?.ContentId);
+            await CommonContentValidation.FileContentFileFileNameHasInvalidCharacters(SelectedFile, DbEntry.ContentId);
 
         DetectGuiFileTypes();
     }
 
-    public void SetupStatusContextAndCommands(StatusControlContext statusContext)
+    public void SetupStatusContextAndCommands(StatusControlContext? statusContext)
     {
         StatusContext = statusContext ?? new StatusControlContext();
 
@@ -682,7 +691,7 @@ Notes:
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        if (UserMainPictureEntry == null || UserMainPictureEntry.HasValidationIssues ||
+        if (UserMainPictureEntry.HasValidationIssues ||
             UserMainPictureEntry.UserValue == null)
         {
             UserMainPictureEntrySmallImageUrl = null;
@@ -715,7 +724,7 @@ Notes:
             UserMainPictureEntry.UserText = contentId.Value.ToString();
     }
 
-    private void UserMainPictureEntryOnPropertyChanged(object sender, PropertyChangedEventArgs e)
+    private void UserMainPictureEntryOnPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
         StatusContext.RunFireAndForgetNonBlockingTask(SetUserMainPicture);
     }
@@ -724,7 +733,7 @@ Notes:
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        if (DbEntry == null || DbEntry.Id < 1)
+        if (DbEntry.Id < 1)
         {
             StatusContext.ToastError("Please save the content first...");
             return;

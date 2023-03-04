@@ -22,15 +22,15 @@ public partial class ContentFolderContext : ObservableObject, IHasChanges, IHasV
     [ObservableProperty] private Func<Task<List<string>>> _getCurrentFolderNames;
     [ObservableProperty] private bool _hasChanges;
     [ObservableProperty] private bool _hasValidationIssues;
-    [ObservableProperty] private string _helpText;
-    [ObservableProperty] private string _referenceValue;
+    [ObservableProperty] private string _helpText = string.Empty;
+    [ObservableProperty] private string? _referenceValue;
     [ObservableProperty] private StatusControlContext _statusContext;
-    [ObservableProperty] private string _title;
-    [ObservableProperty] private string _userValue;
-    [ObservableProperty] private List<Func<string, IsValid>> _validationFunctions = new();
-    [ObservableProperty] private string _validationMessage;
+    [ObservableProperty] private string _title = string.Empty;
+    [ObservableProperty] private string?_userValue;
+    [ObservableProperty] private List<Func<string?, IsValid>> _validationFunctions = new();
+    [ObservableProperty] private string _validationMessage = string.Empty;
 
-    private ContentFolderContext(StatusControlContext statusContext)
+    private ContentFolderContext(StatusControlContext? statusContext)
     {
         StatusContext = statusContext ?? new StatusControlContext();
 
@@ -43,7 +43,7 @@ public partial class ContentFolderContext : ObservableObject, IHasChanges, IHasV
     {
         HasChanges = UserValue.TrimNullToEmpty() != ReferenceValue.TrimNullToEmpty();
 
-        if (ValidationFunctions != null && ValidationFunctions.Any())
+        if (ValidationFunctions.Any())
             foreach (var loopValidations in ValidationFunctions)
             {
                 var (passed, validationMessage) = loopValidations(UserValue);
@@ -64,7 +64,7 @@ public partial class ContentFolderContext : ObservableObject, IHasChanges, IHasV
     {
         var newControl = new ContentFolderContext(statusContext)
         {
-            ValidationFunctions = new List<Func<string, IsValid>> { CommonContentValidation.ValidateFolder }
+            ValidationFunctions = new List<Func<string?, IsValid>> { CommonContentValidation.ValidateFolder }
         };
 
         await newControl.LoadData(dbEntry);
@@ -76,7 +76,7 @@ public partial class ContentFolderContext : ObservableObject, IHasChanges, IHasV
     {
         var newControl = new ContentFolderContext(statusContext)
         {
-            ValidationFunctions = new List<Func<string, IsValid>> { CommonContentValidation.ValidateFolder }
+            ValidationFunctions = new List<Func<string?, IsValid>> { CommonContentValidation.ValidateFolder }
         };
 
         await newControl.LoadDataForAllGeoTypes();
@@ -114,7 +114,7 @@ public partial class ContentFolderContext : ObservableObject, IHasChanges, IHasV
         }
     }
 
-    public async Task LoadData(ITitleSummarySlugFolder dbEntry)
+    public async Task LoadData(ITitleSummarySlugFolder? dbEntry)
     {
         DataNotifications.NewDataNotificationChannel().MessageReceived -= OnDataNotificationReceived;
 
@@ -162,14 +162,13 @@ public partial class ContentFolderContext : ObservableObject, IHasChanges, IHasV
         DataNotifications.NewDataNotificationChannel().MessageReceived += OnDataNotificationReceived;
     }
 
-    private void OnDataNotificationReceived(object sender, TinyMessageReceivedEventArgs e)
+    private void OnDataNotificationReceived(object? sender, TinyMessageReceivedEventArgs e)
     {
         DataNotificationsProcessor.Enqueue(e);
     }
 
-    private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
+    private void OnPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
-        if (e == null) return;
         if (string.IsNullOrWhiteSpace(e.PropertyName)) return;
 
         if (!e.PropertyName.Contains("HasChanges") && !e.PropertyName.Contains("Validation"))

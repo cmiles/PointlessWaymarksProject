@@ -841,7 +841,7 @@ public partial class GpxImportContext : ObservableObject
         foreach (var loopItems in Items) loopItems.MarkedForImport = true;
     }
 
-    private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
+    private void OnPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
         PropertyChanged += OnPropertyChanged;
         if (e == null) return;

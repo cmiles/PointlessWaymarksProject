@@ -20,7 +20,7 @@ public partial class ContentSiteFeedAndIsDraftContext : ObservableObject, IHasCh
     [ObservableProperty] private BoolDataEntryContext _showInMainSiteFeedEntry;
     [ObservableProperty] private StatusControlContext _statusContext;
 
-    public ContentSiteFeedAndIsDraftContext(StatusControlContext statusContext)
+    public ContentSiteFeedAndIsDraftContext(StatusControlContext? statusContext)
     {
         StatusContext = statusContext ?? new();
         PropertyChanged += OnPropertyChanged;
@@ -64,9 +64,8 @@ public partial class ContentSiteFeedAndIsDraftContext : ObservableObject, IHasCh
         PropertyScanners.SubscribeToChildHasChangesAndHasValidationIssues(this, CheckForChangesAndValidationIssues);
     }
 
-    private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
+    private void OnPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
-        if (e == null) return;
         if (string.IsNullOrWhiteSpace(e.PropertyName)) return;
 
         if (!e.PropertyName.Contains("HasChanges") && !e.PropertyName.Contains("Validation"))

@@ -12,7 +12,7 @@ public partial class MenuLinkEditorControl
         InitializeComponent();
     }
 
-    private void Selector_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
+    private void Selector_OnSelectionChanged(object? sender, SelectionChangedEventArgs e)
     {
         if (DataContext == null) return;
         var viewmodel = (MenuLinkEditorContext) DataContext;

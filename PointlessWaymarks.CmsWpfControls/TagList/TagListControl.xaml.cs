@@ -12,14 +12,14 @@ public partial class TagListControl
         InitializeComponent();
     }
 
-    private void Details_Selector_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
+    private void Details_Selector_OnSelectionChanged(object? sender, SelectionChangedEventArgs e)
     {
         if (DataContext == null) return;
         var viewmodel = (TagListContext) DataContext;
         viewmodel.DetailsSelectedItems = DetailsListBox?.SelectedItems.Cast<TagItemContentInformation>().ToList();
     }
 
-    private void Selector_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
+    private void Selector_OnSelectionChanged(object? sender, SelectionChangedEventArgs e)
     {
         if (DataContext == null) return;
         var viewmodel = (TagListContext) DataContext;

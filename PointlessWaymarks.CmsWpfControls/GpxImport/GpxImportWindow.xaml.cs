@@ -16,7 +16,7 @@ public partial class GpxImportWindow
     private GpxImportWindow()
     {
         InitializeComponent();
-        StatusContext = new StatusControlContext();
+        _statusContext = new StatusControlContext();
         DataContext = this;
     }
 
@@ -26,7 +26,7 @@ public partial class GpxImportWindow
     /// PositionWindowAndShowOnUiThread() from the WindowInitialPositionHelpers.
     /// </summary>
     /// <returns></returns>
-    public static async Task<GpxImportWindow> CreateInstance(string initialImportFile)
+    public static async Task<GpxImportWindow> CreateInstance(string? initialImportFile)
     {
         await ThreadSwitcher.ResumeForegroundAsync();
 

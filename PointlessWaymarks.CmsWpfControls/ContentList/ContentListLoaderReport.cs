@@ -4,11 +4,11 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList;
 
 public class ContentListLoaderReport : ContentListLoaderBase, IContentListLoader
 {
-    private readonly ColumnSortControlContext _columnSort;
-    private readonly Func<Task<List<object>>> _loaderFunc;
+    private readonly ColumnSortControlContext? _columnSort;
+    private readonly Func<Task<List<object>>>? _loaderFunc;
 
     public ContentListLoaderReport(Func<Task<List<object>>> loaderFunc,
-        ColumnSortControlContext sorting = null) :
+        ColumnSortControlContext? sorting = null) :
         base("Report Results", null)
     {
         _loaderFunc = loaderFunc;
@@ -16,7 +16,7 @@ public class ContentListLoaderReport : ContentListLoaderBase, IContentListLoader
         AddNewItemsFromDataNotifications = false;
     }
 
-    public override async Task<List<object>> LoadItems(IProgress<string> progress = null)
+    public override async Task<List<object>> LoadItems(IProgress<string>? progress = null)
     {
         var listItems = new List<object>();
 

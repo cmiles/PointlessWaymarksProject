@@ -50,9 +50,9 @@ public partial class CmsCommonCommands : ObservableObject
 {
     [ObservableProperty] private StatusControlContext _statusContext;
 
-    public CmsCommonCommands(StatusControlContext statusContext, WindowIconStatus windowStatus = null)
+    public CmsCommonCommands(StatusControlContext? statusContext, WindowIconStatus? windowStatus = null)
     {
-        StatusContext = statusContext;
+        _statusContext = statusContext ?? new StatusControlContext();
         WindowStatus = windowStatus;
 
         NewFileContentCommand = StatusContext.RunNonBlockingTaskCommand(NewFileContent);
@@ -259,7 +259,7 @@ public partial class CmsCommonCommands : ObservableObject
 
     public RelayCommand ShowSitePreviewWindowCommand { get; set; }
 
-    public WindowIconStatus WindowStatus { get; set; }
+    public WindowIconStatus? WindowStatus { get; set; }
 
     private async Task GenerateChangedHtml()
     {
@@ -461,7 +461,7 @@ public partial class CmsCommonCommands : ObservableObject
     }
 
     public static async Task NewLineContentFromFiles(CancellationToken cancellationToken, bool autoSaveAndClose,
-        StatusControlContext statusContext, WindowIconStatus windowStatus)
+        StatusControlContext statusContext, WindowIconStatus? windowStatus)
     {
         await ThreadSwitcher.ResumeForegroundAsync();
 
@@ -499,7 +499,7 @@ public partial class CmsCommonCommands : ObservableObject
 
     public static async Task NewLineContentFromFiles(List<FileInfo> selectedFileInfos, bool autoSaveAndClose,
         CancellationToken cancellationToken,
-        StatusControlContext statusContext, WindowIconStatus windowStatus)
+        StatusControlContext statusContext, WindowIconStatus? windowStatus)
     {
         var outerLoopCounter = 0;
 

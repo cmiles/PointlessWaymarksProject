@@ -3,7 +3,6 @@
   <PropertyGroup>
     <UseWPF>true</UseWPF>
     <ApplicationIcon>PointlessWaymarksCmsIcons\favicon.ico</ApplicationIcon>
-    <Nullable>disable</Nullable>
   </PropertyGroup>
   
   <ItemGroup>

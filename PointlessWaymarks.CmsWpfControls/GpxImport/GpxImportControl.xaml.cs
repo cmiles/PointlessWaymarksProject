@@ -13,7 +13,7 @@ public partial class GpxImportControl
         InitializeComponent();
     }
 
-    private void GpxImportControl_OnLoaded(object sender, RoutedEventArgs e)
+    private void GpxImportControl_OnLoaded(object? sender, RoutedEventArgs e)
     {
         if (DataContext is GpxImportContext gpxContext)
         {
@@ -27,7 +27,7 @@ public partial class GpxImportControl
         GpxImportWebView.CoreWebView2.PostWebMessageAsJson(json);
     }
 
-    private void GpxImportControl_OnDataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
+    private void GpxImportControl_OnDataContextChanged(object? sender, DependencyPropertyChangedEventArgs e)
     {
         if (e.NewValue is GpxImportContext gpxContext)
         {
@@ -36,7 +36,7 @@ public partial class GpxImportControl
         }
     }
 
-    private void Selector_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
+    private void Selector_OnSelectionChanged(object? sender, SelectionChangedEventArgs e)
     {
         if (DataContext == null) return;
         var viewmodel = (GpxImportContext)DataContext;

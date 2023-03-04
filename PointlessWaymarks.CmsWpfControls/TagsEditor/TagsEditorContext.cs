@@ -55,7 +55,7 @@ public partial class TagsEditorContext : ObservableObject, IHasChanges, IHasVali
         return string.IsNullOrWhiteSpace(DbEntry?.Tags) ? new List<string>() : Db.TagListParseToSlugs(DbEntry, false);
     }
 
-    private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
+    private void OnPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
         if (e == null) return;
         if (string.IsNullOrWhiteSpace(e.PropertyName)) return;

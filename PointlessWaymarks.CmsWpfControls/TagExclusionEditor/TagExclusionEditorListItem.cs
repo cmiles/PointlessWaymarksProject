@@ -29,7 +29,7 @@ public partial class TagExclusionEditorListItem : ObservableObject
         HasChanges = !StringTools.AreEqualWithTrim(TagValue, DbEntry.Tag);
     }
 
-    private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
+    private void OnPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
         if (e == null) return;
         if (string.IsNullOrWhiteSpace(e.PropertyName)) return;

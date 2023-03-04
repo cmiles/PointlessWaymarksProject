@@ -14,7 +14,7 @@ public class AllContentListLoader : ContentListLoaderBase
         ShowType = true;
     }
 
-    public override async Task<List<object>> LoadItems(IProgress<string> progress = null)
+    public override async Task<List<object>> LoadItems(IProgress<string>? progress = null)
     {
         _partialLoadCount = 0;
 

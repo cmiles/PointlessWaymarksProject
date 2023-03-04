@@ -23,7 +23,7 @@ public partial class GeoJsonContentEditorWindow
     private GeoJsonContentEditorWindow()
     {
         InitializeComponent();
-        StatusContext = new StatusControlContext();
+        _statusContext = new StatusControlContext();
         DataContext = this;
     }
 
@@ -33,7 +33,7 @@ public partial class GeoJsonContentEditorWindow
     /// PositionWindowAndShowOnUiThread() from the WindowInitialPositionHelpers.
     /// </summary>
     /// <returns></returns>
-    public static async Task<GeoJsonContentEditorWindow> CreateInstance(GeoJsonContent toLoad)
+    public static async Task<GeoJsonContentEditorWindow> CreateInstance(GeoJsonContent? toLoad)
     {
         await ThreadSwitcher.ResumeForegroundAsync();
 

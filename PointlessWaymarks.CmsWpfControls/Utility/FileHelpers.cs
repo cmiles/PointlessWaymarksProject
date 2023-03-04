@@ -23,7 +23,7 @@ public static class FileHelpers
     }
 
 
-    public static async Task RenameSelectedFile(FileInfo selectedFile, StatusControlContext statusContext,
+    public static async Task RenameSelectedFile(FileInfo? selectedFile, StatusControlContext statusContext,
         Action<FileInfo> setSelectedFile)
     {
         if (selectedFile is not { Exists: true })
@@ -104,7 +104,7 @@ public static class FileHelpers
     /// <param name="statusContext"></param>
     /// <param name="setSelectedFile"></param>
     /// <returns></returns>
-    public static async Task TryAutoCleanRenameSelectedFile(FileInfo selectedFile,
+    public static async Task TryAutoCleanRenameSelectedFile(FileInfo? selectedFile,
         StatusControlContext statusContext,
         Action<FileInfo> setSelectedFile)
     {
@@ -129,7 +129,7 @@ public static class FileHelpers
     /// <param name="statusContext"></param>
     /// <param name="setSelectedFile"></param>
     /// <returns></returns>
-    public static async Task TryAutoRenameSelectedFile(FileInfo selectedFile, string suggestedName,
+    public static async Task TryAutoRenameSelectedFile(FileInfo? selectedFile, string suggestedName,
         StatusControlContext statusContext,
         Action<FileInfo> setSelectedFile)
     {

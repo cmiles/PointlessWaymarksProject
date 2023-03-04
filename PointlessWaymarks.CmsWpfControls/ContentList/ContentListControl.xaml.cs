@@ -9,7 +9,7 @@ public partial class ContentListControl
         InitializeComponent();
     }
 
-    private void Selector_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
+    private void Selector_OnSelectionChanged(object? sender, SelectionChangedEventArgs e)
     {
         if (DataContext == null) return;
         var viewmodel = (ContentListContext) DataContext;

@@ -27,7 +27,7 @@ public static class DataNotifications
         return new TinyMessageBus(ChannelName);
     }
 
-    public static DataNotificationContentType NotificationContentTypeFromContent(dynamic content)
+    public static DataNotificationContentType NotificationContentTypeFromContent(dynamic? content)
     {
         return content switch
         {

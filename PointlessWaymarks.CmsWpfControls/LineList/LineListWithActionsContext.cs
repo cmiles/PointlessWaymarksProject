@@ -29,9 +29,9 @@ public partial class LineListWithActionsContext : ObservableObject
     [ObservableProperty] private ContentListContext _listContext;
     [ObservableProperty] private RelayCommand _refreshDataCommand;
     [ObservableProperty] private StatusControlContext _statusContext;
-    [ObservableProperty] private WindowIconStatus _windowStatus;
+    [ObservableProperty] private WindowIconStatus? _windowStatus;
 
-    public LineListWithActionsContext(StatusControlContext statusContext, WindowIconStatus windowStatus = null)
+    public LineListWithActionsContext(StatusControlContext? statusContext, WindowIconStatus? windowStatus = null)
     {
         StatusContext = statusContext ?? new StatusControlContext();
         WindowStatus = windowStatus;

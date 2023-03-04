@@ -2,5 +2,5 @@
 
 public interface ISelectedTextTracker
 {
-    CurrentSelectedTextTracker SelectedTextTracker { get; set; }
+    CurrentSelectedTextTracker? SelectedTextTracker { get; set; }
 }

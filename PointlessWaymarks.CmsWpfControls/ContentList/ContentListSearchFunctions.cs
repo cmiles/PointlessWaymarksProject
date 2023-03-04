@@ -1,7 +1,6 @@
 ﻿using Fractions;
 using Microsoft.Recognizers.Text;
 using Microsoft.Recognizers.Text.DateTime;
-using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CommonTools;
 
 namespace PointlessWaymarks.CmsWpfControls.ContentList;
@@ -18,7 +17,7 @@ public static class ContentListSearchFunctions
             "<="
         };
 
-    public static ContentListSearchFunctionReturn FilterAperture(string itemApertureString, string searchString)
+    public static ContentListSearchFunctionReturn FilterAperture(string? itemApertureString, string? searchString)
     {
         if (!string.IsNullOrWhiteSpace(searchString) &&
             searchString.StartsWith("APERTURE:", StringComparison.OrdinalIgnoreCase))
@@ -149,8 +148,8 @@ public static class ContentListSearchFunctions
     }
 
 
-    public static ContentListSearchFunctionReturn FilterDateTime(DateTime? itemDateTime, string searchString,
-        string searchLabel)
+    public static ContentListSearchFunctionReturn FilterDateTime(DateTime? itemDateTime, string? searchString,
+        string? searchLabel)
     {
         if (!string.IsNullOrWhiteSpace(searchLabel) && !string.IsNullOrWhiteSpace(searchString) &&
             searchString.StartsWith(searchLabel.Trim(), StringComparison.OrdinalIgnoreCase))
@@ -412,7 +411,7 @@ public static class ContentListSearchFunctions
                 string.Join(Environment.NewLine, dateTimeSearchResults.Select(x => $"{x.Explanation} ({x.Include}).")));
     }
 
-    public static ContentListSearchFunctionReturn FilterFocalLength(string itemFocalLengthString, string searchString)
+    public static ContentListSearchFunctionReturn FilterFocalLength(string? itemFocalLengthString, string? searchString)
     {
         if (!string.IsNullOrWhiteSpace(searchString) &&
             searchString.StartsWith("FOCAL LENGTH:", StringComparison.OrdinalIgnoreCase))
@@ -548,7 +547,7 @@ public static class ContentListSearchFunctions
                     focalLengthSearchResults.Select(x => $"{x.Explanation} ({x.Include}).")));
     }
 
-    public static ContentListSearchFunctionReturn FilterIso(string itemIsoString, string searchString)
+    public static ContentListSearchFunctionReturn FilterIso(string? itemIsoString, string? searchString)
     {
         if (!string.IsNullOrWhiteSpace(searchString) &&
             searchString.StartsWith("ISO:", StringComparison.OrdinalIgnoreCase))
@@ -745,8 +744,8 @@ public static class ContentListSearchFunctions
         return tokens;
     }
 
-    public static ContentListSearchFunctionReturn FilterShutterSpeedLength(string itemShutterSpeedString,
-        string searchString)
+    public static ContentListSearchFunctionReturn FilterShutterSpeedLength(string? itemShutterSpeedString,
+        string? searchString)
     {
         if (!string.IsNullOrWhiteSpace(searchString) &&
             searchString.StartsWith("SHUTTER SPEED:", StringComparison.OrdinalIgnoreCase))
@@ -868,8 +867,8 @@ public static class ContentListSearchFunctions
                     shutterSpeedSearchResults.Select(x => $"{x.Explanation} ({x.Include}).")));
     }
 
-    public static ContentListSearchFunctionReturn FilterStringContains(string itemString, string searchString,
-        string searchLabel)
+    public static ContentListSearchFunctionReturn FilterStringContains(string? itemString, string? searchString,
+        string? searchLabel)
     {
         if (!string.IsNullOrWhiteSpace(searchLabel) && !string.IsNullOrWhiteSpace(searchString) &&
             searchString.StartsWith(searchLabel.Trim(), StringComparison.OrdinalIgnoreCase))

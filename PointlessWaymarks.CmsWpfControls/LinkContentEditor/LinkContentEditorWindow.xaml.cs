@@ -30,7 +30,7 @@ public partial class LinkContentEditorWindow
     /// PositionWindowAndShowOnUiThread() from the WindowInitialPositionHelpers.
     /// </summary>
     /// <returns></returns>
-    public static async Task<LinkContentEditorWindow> CreateInstance(LinkContent toLoad, bool extractDataFromLink = false)
+    public static async Task<LinkContentEditorWindow> CreateInstance(LinkContent? toLoad, bool extractDataFromLink = false)
     {
         await ThreadSwitcher.ResumeForegroundAsync();
 

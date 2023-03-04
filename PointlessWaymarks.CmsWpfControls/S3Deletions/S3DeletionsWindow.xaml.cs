@@ -27,7 +27,7 @@ public partial class S3DeletionsWindow
         });
     }
 
-    private void S3DeletionsWindow_OnClosing(object sender, CancelEventArgs e)
+    private void S3DeletionsWindow_OnClosing(object? sender, CancelEventArgs e)
     {
         if (DeletionContext == null || !StatusContext.BlockUi) return;
 

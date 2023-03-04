@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using PointlessWaymarks.CmsData.CommonHtml;
+﻿using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CommonTools;
 
 namespace PointlessWaymarks.CmsWpfControls.DataEntry
