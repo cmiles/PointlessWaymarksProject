@@ -28,69 +28,74 @@ namespace PointlessWaymarks.CmsWpfControls.FilesWrittenLogList;
 
 public partial class FilesWrittenLogListContext : ObservableObject
 {
-    [ObservableProperty] private RelayCommand? _allFilesToExcelCommand;
-    [ObservableProperty] private RelayCommand? _allScriptStringsToClipboardCommand;
-    [ObservableProperty] private RelayCommand? _allScriptStringsToPowerShellScriptCommand;
-    [ObservableProperty] private RelayCommand? _allWrittenFilesToClipboardCommand;
+    [ObservableProperty] private RelayCommand _allFilesToExcelCommand;
+    [ObservableProperty] private RelayCommand _allScriptStringsToClipboardCommand;
+    [ObservableProperty] private RelayCommand _allScriptStringsToPowerShellScriptCommand;
+    [ObservableProperty] private RelayCommand _allWrittenFilesToClipboardCommand;
     [ObservableProperty] private RelayCommand _allWrittenFilesToRunningS3UploaderCommand;
-    [ObservableProperty] private RelayCommand? _allWrittenFilesToS3UploaderCommand;
-    [ObservableProperty] private RelayCommand? _allWrittenFilesToS3UploaderJsonFileCommand;
+    [ObservableProperty] private RelayCommand _allWrittenFilesToS3UploaderCommand;
+    [ObservableProperty] private RelayCommand _allWrittenFilesToS3UploaderJsonFileCommand;
     [ObservableProperty] private bool _changeSlashes = true;
     [ObservableProperty] private CmsCommonCommands _commonCommands;
     [ObservableProperty] private DataNotificationsWorkQueue _dataNotificationsProcessor;
     [ObservableProperty] private bool _filterForFilesInCurrentGenerationDirectory = true;
     [ObservableProperty] private RelayCommand? _generateItemsCommand;
-    [ObservableProperty] private ObservableCollection<FileWrittenLogListDateTimeFilterChoice>? _generationChoices;
-    [ObservableProperty] private ObservableCollection<FilesWrittenLogListListItem>? _items;
+    [ObservableProperty] private ObservableCollection<FileWrittenLogListDateTimeFilterChoice> _generationChoices;
+    [ObservableProperty] private ObservableCollection<FilesWrittenLogListListItem> _items;
     [ObservableProperty] private RelayCommand? _openUploaderJsonFileCommand;
     [ObservableProperty] private RelayCommand? _selectedFilesToExcelCommand;
     [ObservableProperty] private FileWrittenLogListDateTimeFilterChoice? _selectedGenerationChoice;
     [ObservableProperty] private List<FilesWrittenLogListListItem> _selectedItems = new();
-    [ObservableProperty] private RelayCommand? _selectedScriptStringsToClipboardCommand;
-    [ObservableProperty] private RelayCommand? _selectedScriptStringsToPowerShellScriptCommand;
-    [ObservableProperty] private RelayCommand? _selectedWrittenFilesToClipboardCommand;
+    [ObservableProperty] private RelayCommand _selectedScriptStringsToClipboardCommand;
+    [ObservableProperty] private RelayCommand _selectedScriptStringsToPowerShellScriptCommand;
+    [ObservableProperty] private RelayCommand _selectedWrittenFilesToClipboardCommand;
     [ObservableProperty] private RelayCommand _selectedWrittenFilesToRunningS3UploaderCommand;
-    [ObservableProperty] private RelayCommand? _selectedWrittenFilesToS3UploaderCommand;
-    [ObservableProperty] private RelayCommand? _selectedWrittenFilesToS3UploaderJsonFileCommand;
-    [ObservableProperty] private RelayCommand? _siteDeletedFilesReportCommand;
-    [ObservableProperty] private RelayCommand? _siteMissingFilesReportCommand;
+    [ObservableProperty] private RelayCommand _selectedWrittenFilesToS3UploaderCommand;
+    [ObservableProperty] private RelayCommand _selectedWrittenFilesToS3UploaderJsonFileCommand;
+    [ObservableProperty] private RelayCommand _siteDeletedFilesReportCommand;
+    [ObservableProperty] private RelayCommand _siteMissingFilesReportCommand;
     [ObservableProperty] private StatusControlContext _statusContext;
     [ObservableProperty] private string _userBucketName = string.Empty;
     [ObservableProperty] private string _userBucketRegion = string.Empty;
     [ObservableProperty] private string _userScriptPrefix = "aws s3 cp";
 
-    public FilesWrittenLogListContext(StatusControlContext? statusContext, bool loadInBackground)
+    private FilesWrittenLogListContext(StatusControlContext statusContext, bool loadInBackground,
+        ObservableCollection<FileWrittenLogListDateTimeFilterChoice> generationChoices,
+        ObservableCollection<FilesWrittenLogListListItem> items)
     {
-        _statusContext = statusContext ?? new StatusControlContext();
-        CommonCommands = new CmsCommonCommands(StatusContext);
+        _statusContext = statusContext;
+        _commonCommands = new CmsCommonCommands(StatusContext);
 
-        GenerateItemsCommand = StatusContext.RunBlockingTaskCommand(GenerateItems);
-        AllScriptStringsToClipboardCommand = StatusContext.RunBlockingTaskCommand(AllScriptStringsToClipboard);
-        SelectedScriptStringsToClipboardCommand =
+        _generationChoices = generationChoices;
+        _items = items;
+
+        _generateItemsCommand = StatusContext.RunBlockingTaskCommand(GenerateItems);
+        _allScriptStringsToClipboardCommand = StatusContext.RunBlockingTaskCommand(AllScriptStringsToClipboard);
+        _selectedScriptStringsToClipboardCommand =
             StatusContext.RunBlockingTaskCommand(SelectedScriptStringsToClipboard);
-        AllWrittenFilesToClipboardCommand = StatusContext.RunBlockingTaskCommand(AllWrittenFilesToClipboard);
-        SelectedWrittenFilesToClipboardCommand = StatusContext.RunBlockingTaskCommand(SelectedWrittenFilesToClipboard);
-        SelectedScriptStringsToPowerShellScriptCommand =
+        _allWrittenFilesToClipboardCommand = StatusContext.RunBlockingTaskCommand(AllWrittenFilesToClipboard);
+        _selectedWrittenFilesToClipboardCommand = StatusContext.RunBlockingTaskCommand(SelectedWrittenFilesToClipboard);
+        _selectedScriptStringsToPowerShellScriptCommand =
             StatusContext.RunBlockingTaskCommand(SelectedScriptStringsToPowerShellScript);
-        AllScriptStringsToPowerShellScriptCommand =
+        _allScriptStringsToPowerShellScriptCommand =
             StatusContext.RunBlockingTaskCommand(AllScriptStringsToPowerShellScript);
-        SelectedFilesToExcelCommand = StatusContext.RunBlockingTaskCommand(SelectedFilesToExcel);
-        AllFilesToExcelCommand = StatusContext.RunBlockingTaskCommand(AllFilesToExcel);
-        SiteMissingFilesReportCommand = StatusContext.RunBlockingTaskCommand(SiteMissingAndChangedFilesReport);
-        SiteDeletedFilesReportCommand = StatusContext.RunBlockingTaskCommand(SiteDeletedFilesReport);
-        SelectedWrittenFilesToS3UploaderCommand =
+        _selectedFilesToExcelCommand = StatusContext.RunBlockingTaskCommand(SelectedFilesToExcel);
+        _allFilesToExcelCommand = StatusContext.RunBlockingTaskCommand(AllFilesToExcel);
+        _siteMissingFilesReportCommand = StatusContext.RunBlockingTaskCommand(SiteMissingAndChangedFilesReport);
+        _siteDeletedFilesReportCommand = StatusContext.RunBlockingTaskCommand(SiteDeletedFilesReport);
+        _selectedWrittenFilesToS3UploaderCommand =
             StatusContext.RunNonBlockingTaskCommand(async () => await SelectedWrittenFilesToS3Uploader(false));
-        AllWrittenFilesToS3UploaderCommand =
+        _allWrittenFilesToS3UploaderCommand =
             StatusContext.RunNonBlockingTaskCommand(async () => await AllWrittenFilesToS3Uploader(false));
-        SelectedWrittenFilesToRunningS3UploaderCommand =
+        _selectedWrittenFilesToRunningS3UploaderCommand =
             StatusContext.RunNonBlockingTaskCommand(async () => await SelectedWrittenFilesToS3Uploader(true));
-        AllWrittenFilesToRunningS3UploaderCommand =
+        _allWrittenFilesToRunningS3UploaderCommand =
             StatusContext.RunNonBlockingTaskCommand(async () => await AllWrittenFilesToS3Uploader(true));
-        SelectedWrittenFilesToS3UploaderJsonFileCommand =
+        _selectedWrittenFilesToS3UploaderJsonFileCommand =
             StatusContext.RunNonBlockingTaskCommand(SelectedWrittenFilesToS3UploaderJsonFile);
-        AllWrittenFilesToS3UploaderJsonFileCommand =
+        _allWrittenFilesToS3UploaderJsonFileCommand =
             StatusContext.RunNonBlockingTaskCommand(AllWrittenFilesToS3UploaderJsonFile);
-        OpenUploaderJsonFileCommand = StatusContext.RunNonBlockingTaskCommand(OpenUploaderJsonFile);
+        _openUploaderJsonFileCommand = StatusContext.RunNonBlockingTaskCommand(OpenUploaderJsonFile);
 
         PropertyChanged += OnPropertyChanged;
 
@@ -104,7 +109,7 @@ public partial class FilesWrittenLogListContext : ObservableObject
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        if (Items == null || !Items.Any())
+        if (!Items.Any())
         {
             StatusContext.ToastError("No Items?");
             return;
@@ -117,7 +122,7 @@ public partial class FilesWrittenLogListContext : ObservableObject
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        if (Items == null || !Items.Any())
+        if (!Items.Any())
         {
             StatusContext.ToastError("No Items?");
             return;
@@ -138,7 +143,7 @@ public partial class FilesWrittenLogListContext : ObservableObject
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        if (Items == null || !Items.Any())
+        if (!Items.Any())
         {
             StatusContext.ToastError("No Items Selected?");
             return;
@@ -151,7 +156,7 @@ public partial class FilesWrittenLogListContext : ObservableObject
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        if (Items == null || !Items.Any())
+        if (!Items.Any())
         {
             StatusContext.ToastError("No Items?");
             return;
@@ -164,7 +169,7 @@ public partial class FilesWrittenLogListContext : ObservableObject
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        if (Items == null || !Items.Any())
+        if (!Items.Any())
         {
             StatusContext.ToastError("No Items?");
             return;
@@ -177,7 +182,7 @@ public partial class FilesWrittenLogListContext : ObservableObject
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        if (Items == null || !Items.Any())
+        if (!Items.Any())
         {
             StatusContext.ToastError("No Items?");
             return;
@@ -186,11 +191,18 @@ public partial class FilesWrittenLogListContext : ObservableObject
         await FileItemsToS3UploaderJsonFile(Items.ToList());
     }
 
-    public static async Task<FilesWrittenLogListContext> CreateInstance(StatusControlContext? statusContext)
+    public static async Task<FilesWrittenLogListContext> CreateInstance(StatusControlContext? statusContext,
+        bool loadInBackground)
     {
-        var newContext = new FilesWrittenLogListContext(statusContext, false);
-        await newContext.LoadData();
-        return newContext;
+        await ThreadSwitcher.ResumeBackgroundAsync();
+        var factoryContext = statusContext ?? new StatusControlContext();
+
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        var factoryGenerationChoices = new ObservableCollection<FileWrittenLogListDateTimeFilterChoice>();
+        var factoryItems = new ObservableCollection<FilesWrittenLogListListItem>();
+
+        return new FilesWrittenLogListContext(factoryContext, loadInBackground, factoryGenerationChoices, factoryItems);
     }
 
     private async Task DataNotificationReceived(TinyMessageReceivedEventArgs? e)
@@ -378,15 +390,8 @@ public partial class FilesWrittenLogListContext : ObservableObject
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
-        if (Items == null)
-        {
-            Items = new ObservableCollection<FilesWrittenLogListListItem>(transformedItems);
-        }
-        else
-        {
-            Items.Clear();
-            transformedItems.ForEach(x => Items.Add(x));
-        }
+        Items.Clear();
+        transformedItems.ForEach(x => Items.Add(x));
     }
 
     private async Task LoadData()
@@ -458,7 +463,6 @@ public partial class FilesWrittenLogListContext : ObservableObject
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
-        GenerationChoices ??= new ObservableCollection<FileWrittenLogListDateTimeFilterChoice>();
         GenerationChoices.Clear();
         logChoiceList.ForEach(x => GenerationChoices.Add(x));
 
@@ -478,7 +482,7 @@ public partial class FilesWrittenLogListContext : ObservableObject
         if (e.PropertyName is nameof(UserBucketName) or nameof(UserScriptPrefix) or nameof(ChangeSlashes))
             StatusContext.RunBlockingAction(() =>
             {
-                var currentItems = Items?.ToList();
+                var currentItems = Items.ToList();
                 currentItems?.Where(x => x.IsInGenerationDirectory).ToList().ForEach(x =>
                     x.TransformedFile = ToTransformedFileString(x.FileBase));
             });
@@ -542,7 +546,7 @@ public partial class FilesWrittenLogListContext : ObservableObject
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        if (Items == null || !Items.Any())
+        if (!Items.Any())
         {
             StatusContext.ToastError("No Items?");
             return;
@@ -585,7 +589,7 @@ public partial class FilesWrittenLogListContext : ObservableObject
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        if (Items == null || !Items.Any())
+        if (!Items.Any())
         {
             StatusContext.ToastError("No Items?");
             return;

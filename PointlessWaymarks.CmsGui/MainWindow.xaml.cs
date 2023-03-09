@@ -562,7 +562,7 @@ public partial class MainWindow
         if (SelectedTab.Header.ToString() == "Tags" && TabTagListContext == null)
             TabTagListContext = new TagListContext(null);
         if (SelectedTab.Header.ToString() == "File Log" && FilesWrittenContext == null)
-            FilesWrittenContext = new FilesWrittenLogListContext(null, true);
+            FilesWrittenContext = await FilesWrittenLogListContext.CreateInstance(null, true);
     }
 
     private void MainWindow_OnClosing(object sender, CancelEventArgs e)
