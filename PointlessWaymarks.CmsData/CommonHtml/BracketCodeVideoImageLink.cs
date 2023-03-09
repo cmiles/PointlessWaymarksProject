@@ -82,7 +82,7 @@ public static class BracketCodeVideoImage
 
                 toProcess = toProcess.Replace(loopMatch.bracketCodeText, newBracketCodeText);
 
-                await BracketCodeVideos.Process(toProcess).ConfigureAwait(false);
+                await BracketCodeVideoEmbed.Process(toProcess).ConfigureAwait(false);
 
                 continue;
             }
@@ -99,7 +99,7 @@ public static class BracketCodeVideoImage
 
                 toProcess = toProcess.Replace(loopMatch.bracketCodeText, newBracketCodeText);
 
-                await BracketCodeVideos.Process(toProcess).ConfigureAwait(false);
+                await BracketCodeVideoEmbed.Process(toProcess).ConfigureAwait(false);
 
                 continue;
             }

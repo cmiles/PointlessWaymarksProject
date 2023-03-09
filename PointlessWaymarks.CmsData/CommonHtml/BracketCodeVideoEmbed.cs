@@ -5,9 +5,9 @@ using PointlessWaymarks.CmsData.Database.Models;
 
 namespace PointlessWaymarks.CmsData.CommonHtml;
 
-public static class BracketCodeVideos
+public static class BracketCodeVideoEmbed
 {
-    public const string BracketCodeToken = "video";
+    public const string BracketCodeToken = "videoembed";
 
     public static string Create(VideoContent content)
     {
