@@ -8,11 +8,16 @@ namespace PointlessWaymarks.CmsWpfControls.LinkList;
 
 public partial class LinkListListItem : ObservableObject, IContentListItem
 {
-    [ObservableProperty] private LinkContent _dbEntry;
+    [ObservableProperty] private LinkContent _dbEntry = new();
     [ObservableProperty] private LinkContentActions _itemActions;
-    [ObservableProperty] private string _linkContentString;
+    [ObservableProperty] private string _linkContentString = string.Empty;
     [ObservableProperty] private CurrentSelectedTextTracker _selectedTextTracker = new();
     [ObservableProperty] private bool _showType;
+
+    public LinkListListItem(LinkContentActions itemActions)
+    {
+        _itemActions = itemActions;
+    }
 
     public IContentCommon Content()
     {
@@ -20,7 +25,7 @@ public partial class LinkListListItem : ObservableObject, IContentListItem
         {
             Summary =
                 string.Join(Environment.NewLine,
-                    new List<string>
+                    (new List<string?>
                     {
                         DbEntry.Title,
                         DbEntry.Site,
@@ -28,7 +33,7 @@ public partial class LinkListListItem : ObservableObject, IContentListItem
                         DbEntry.Author,
                         DbEntry.Description,
                         DbEntry.Comments
-                    }),
+                    }).Where(x => !string.IsNullOrWhiteSpace(x))),
             Title = DbEntry.Title,
             ContentId = DbEntry.ContentId,
             ContentVersion = DbEntry.ContentVersion,
@@ -43,7 +48,7 @@ public partial class LinkListListItem : ObservableObject, IContentListItem
 
     public Guid? ContentId()
     {
-        return DbEntry?.ContentId;
+        return DbEntry.ContentId;
     }
 
     public string DefaultBracketCode()
@@ -88,12 +93,6 @@ public partial class LinkListListItem : ObservableObject, IContentListItem
 
     private void ConstructContentString()
     {
-        if (DbEntry == null)
-        {
-            LinkContentString = string.Empty;
-            return;
-        }
-
         var newContentString = new StringBuilder();
 
         if (!string.IsNullOrWhiteSpace(DbEntry.Description))

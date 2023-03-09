@@ -33,7 +33,7 @@ public partial class PointContentEditorWindow
     /// PositionWindowAndShowOnUiThread() from the WindowInitialPositionHelpers.
     /// </summary>
     /// <returns></returns>
-    public static async Task <PointContentEditorWindow> CreateInstance(PointContent toLoad)
+    public static async Task <PointContentEditorWindow> CreateInstance(PointContent? toLoad)
     {
         await ThreadSwitcher.ResumeForegroundAsync();
 

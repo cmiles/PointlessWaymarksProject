@@ -38,6 +38,9 @@ Link Types:
  - pointlink - text link to the Point Page
  - postlink - text link to the Post Page
  - postimage - image link to a Post Page
+ - videoimagelink - image link to the Video Page
+ - videolink - text link to the Video Page
+ - videoembed - if possible/supported 'embeds' the video into a player/viewer
 
 
 #### Site Codes

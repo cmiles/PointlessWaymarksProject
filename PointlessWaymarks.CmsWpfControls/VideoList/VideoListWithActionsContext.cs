@@ -17,25 +17,67 @@ public partial class VideoListWithActionsContext : ObservableObject
     [ObservableProperty] private ContentListContext _listContext;
     [ObservableProperty] private RelayCommand _refreshDataCommand;
     [ObservableProperty] private StatusControlContext _statusContext;
-    [ObservableProperty] private RelayCommand _videoEmbedCodesToClipboardForSelectedCommand;
     [ObservableProperty] private RelayCommand _videoPageLinkCodesToClipboardForSelectedCommand;
     [ObservableProperty] private RelayCommand _viewVideosCommand;
     [ObservableProperty] private WindowIconStatus? _windowStatus;
 
-    public VideoListWithActionsContext(StatusControlContext? statusContext, WindowIconStatus? windowStatus = null)
+    private VideoListWithActionsContext(StatusControlContext statusContext, WindowIconStatus? windowStatus, ContentListContext listContext)
     {
-        StatusContext = statusContext ?? new StatusControlContext();
-        WindowStatus = windowStatus;
-        CommonCommands = new CmsCommonCommands(StatusContext, WindowStatus);
+        _statusContext = statusContext;
+        _windowStatus = windowStatus;
+        _commonCommands = new CmsCommonCommands(StatusContext, WindowStatus);
+
+        _listContext = listContext;
+
+        _refreshDataCommand = StatusContext.RunBlockingTaskCommand(ListContext.LoadData);
+        _videoPageLinkCodesToClipboardForSelectedCommand =
+            StatusContext.RunBlockingTaskCommand(VideoPageLinkCodesToClipboardForSelected);
+        _viewVideosCommand =
+            StatusContext.RunBlockingTaskWithCancellationCommand(ViewVideosSelected, "Cancel Video View");
+
+        _emailHtmlToClipboardCommand = StatusContext.RunBlockingTaskCommand(EmailHtmlToClipboard);
+
+        ListContext.ContextMenuItems = new List<ContextMenuItemData>
+        {
+            new() { ItemName = "Edit", ItemCommand = ListContext.EditSelectedCommand },
+            new()
+            {
+                ItemName = "Video Embed Code to Clipboard",
+                ItemCommand = ListContext.BracketCodeToClipboardSelectedCommand
+            },
+            new()
+            {
+                ItemName = "Text Code to Clipboard",
+                ItemCommand = VideoPageLinkCodesToClipboardForSelectedCommand
+            },
+            new() { ItemName = "Email Html to Clipboard", ItemCommand = EmailHtmlToClipboardCommand },
+            new() { ItemName = "View Videos", ItemCommand = ViewVideosCommand },
+            new() { ItemName = "Open URL", ItemCommand = ListContext.ViewOnSiteCommand },
+            new() { ItemName = "Extract New Links", ItemCommand = ListContext.ExtractNewLinksSelectedCommand },
+            new() { ItemName = "Generate Html", ItemCommand = ListContext.GenerateHtmlSelectedCommand },
+            new() { ItemName = "Delete", ItemCommand = ListContext.DeleteSelectedCommand },
+            new() { ItemName = "View History", ItemCommand = ListContext.ViewHistorySelectedCommand },
+            new() { ItemName = "Refresh Data", ItemCommand = RefreshDataCommand }
+        };
 
         StatusContext.RunFireAndForgetBlockingTask(LoadData);
+    }
+
+    public static async Task<VideoListWithActionsContext> CreateInstance(StatusControlContext? statusContext, WindowIconStatus? windowStatus = null)
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        var factoryContext = statusContext ?? new StatusControlContext();
+        var factoryListContext = await ContentListContext.CreateInstance(factoryContext, new VideoListLoader(100), windowStatus);
+
+        return new VideoListWithActionsContext(factoryContext, windowStatus, factoryListContext);
     }
 
     private async Task EmailHtmlToClipboard()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        if (SelectedItems() == null || !SelectedItems().Any())
+        if (!SelectedItems().Any())
         {
             StatusContext.ToastError("Nothing Selected?");
             return;
@@ -62,39 +104,6 @@ public partial class VideoListWithActionsContext : ObservableObject
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        ListContext ??= new ContentListContext(StatusContext, new VideoListLoader(100), WindowStatus);
-
-        RefreshDataCommand = StatusContext.RunBlockingTaskCommand(ListContext.LoadData);
-        VideoPageLinkCodesToClipboardForSelectedCommand =
-            StatusContext.RunBlockingTaskCommand(VideoPageLinkCodesToClipboardForSelected);
-        ViewVideosCommand =
-            StatusContext.RunBlockingTaskWithCancellationCommand(ViewVideosSelected, "Cancel Video View");
-
-        EmailHtmlToClipboardCommand = StatusContext.RunBlockingTaskCommand(EmailHtmlToClipboard);
-
-        ListContext.ContextMenuItems = new List<ContextMenuItemData>
-        {
-            new() { ItemName = "Edit", ItemCommand = ListContext.EditSelectedCommand },
-            new()
-            {
-                ItemName = "Video Embed Code to Clipboard",
-                ItemCommand = ListContext.BracketCodeToClipboardSelectedCommand
-            },
-            new()
-            {
-                ItemName = "Text Code to Clipboard",
-                ItemCommand = VideoPageLinkCodesToClipboardForSelectedCommand
-            },
-            new() { ItemName = "Email Html to Clipboard", ItemCommand = EmailHtmlToClipboardCommand },
-            new() { ItemName = "View Videos", ItemCommand = ViewVideosCommand },
-            new() { ItemName = "Open URL", ItemCommand = ListContext.ViewOnSiteCommand },
-            new() { ItemName = "Extract New Links", ItemCommand = ListContext.ExtractNewLinksSelectedCommand },
-            new() { ItemName = "Generate Html", ItemCommand = ListContext.GenerateHtmlSelectedCommand },
-            new() { ItemName = "Delete", ItemCommand = ListContext.DeleteSelectedCommand },
-            new() { ItemName = "View History", ItemCommand = ListContext.ViewHistorySelectedCommand },
-            new() { ItemName = "Refresh Data", ItemCommand = RefreshDataCommand }
-        };
-
         await ListContext.LoadData();
     }
 
@@ -108,7 +117,7 @@ public partial class VideoListWithActionsContext : ObservableObject
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        if (SelectedItems() == null || !SelectedItems().Any())
+        if (!SelectedItems().Any())
         {
             StatusContext.ToastError("Nothing Selected?");
             return;
@@ -117,7 +126,7 @@ public partial class VideoListWithActionsContext : ObservableObject
         var finalString = string.Empty;
 
         foreach (var loopSelected in SelectedItems())
-            finalString += @$"{BracketCodeVideos.Create(loopSelected.DbEntry)}{Environment.NewLine}";
+            finalString += @$"{BracketCodeVideoEmbed.Create(loopSelected.DbEntry)}{Environment.NewLine}";
 
         await ThreadSwitcher.ResumeForegroundAsync();
 

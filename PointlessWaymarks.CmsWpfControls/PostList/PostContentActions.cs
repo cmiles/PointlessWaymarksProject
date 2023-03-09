@@ -32,23 +32,23 @@ public partial class PostContentActions : ObservableObject, IContentActions<Post
 
     public PostContentActions(StatusControlContext statusContext)
     {
-        StatusContext = statusContext;
-        DeleteCommand = StatusContext.RunBlockingTaskCommand<PostContent>(Delete);
-        EditCommand = StatusContext.RunNonBlockingTaskCommand<PostContent>(Edit);
-        ExtractNewLinksCommand = StatusContext.RunBlockingTaskCommand<PostContent>(ExtractNewLinks);
-        GenerateHtmlCommand = StatusContext.RunBlockingTaskCommand<PostContent>(GenerateHtml);
-        LinkCodeToClipboardCommand = StatusContext.RunBlockingTaskCommand<PostContent>(DefaultBracketCodeToClipboard);
-        ViewOnSiteCommand = StatusContext.RunBlockingTaskCommand<PostContent>(ViewOnSite);
-        ViewHistoryCommand = StatusContext.RunNonBlockingTaskCommand<PostContent>(ViewHistory);
+        _statusContext = statusContext;
+        _deleteCommand = StatusContext.RunBlockingTaskCommand<PostContent>(Delete);
+        _editCommand = StatusContext.RunNonBlockingTaskCommand<PostContent>(Edit);
+        _extractNewLinksCommand = StatusContext.RunBlockingTaskCommand<PostContent>(ExtractNewLinks);
+        _generateHtmlCommand = StatusContext.RunBlockingTaskCommand<PostContent>(GenerateHtml);
+        _linkCodeToClipboardCommand = StatusContext.RunBlockingTaskCommand<PostContent>(DefaultBracketCodeToClipboard);
+        _viewOnSiteCommand = StatusContext.RunBlockingTaskCommand<PostContent>(ViewOnSite);
+        _viewHistoryCommand = StatusContext.RunNonBlockingTaskCommand<PostContent>(ViewHistory);
     }
 
-    public string DefaultBracketCode(PostContent content)
+    public string DefaultBracketCode(PostContent? content)
     {
         if (content?.ContentId == null) return string.Empty;
         return @$"{BracketCodePosts.Create(content)}";
     }
 
-    public async Task DefaultBracketCodeToClipboard(PostContent content)
+    public async Task DefaultBracketCodeToClipboard(PostContent? content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -67,7 +67,7 @@ public partial class PostContentActions : ObservableObject, IContentActions<Post
         StatusContext.ToastSuccess($"To Clipboard {finalString}");
     }
 
-    public async Task Delete(PostContent content)
+    public async Task Delete(PostContent? content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -95,7 +95,7 @@ public partial class PostContentActions : ObservableObject, IContentActions<Post
         }
     }
 
-    public async Task Edit(PostContent content)
+    public async Task Edit(PostContent? content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -106,15 +106,17 @@ public partial class PostContentActions : ObservableObject, IContentActions<Post
         var refreshedData = context.PostContents.SingleOrDefault(x => x.ContentId == content.ContentId);
 
         if (refreshedData == null)
-            StatusContext.ToastError(
+        {StatusContext.ToastError(
                 $"{content.Title} is no longer active in the database? Can not edit - look for a historic version...");
+            return;
+        }
 
         var newContentWindow = await PostContentEditorWindow.CreateInstance(refreshedData);
 
         await newContentWindow.PositionWindowAndShowOnUiThread();
     }
 
-    public async Task ExtractNewLinks(PostContent content)
+    public async Task ExtractNewLinks(PostContent? content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -134,7 +136,7 @@ public partial class PostContentActions : ObservableObject, IContentActions<Post
             $"{refreshedData.BodyContent} {refreshedData.UpdateNotes}", StatusContext.ProgressTracker());
     }
 
-    public async Task GenerateHtml(PostContent content)
+    public async Task GenerateHtml(PostContent? content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -153,7 +155,7 @@ public partial class PostContentActions : ObservableObject, IContentActions<Post
         StatusContext.ToastSuccess($"Generated {htmlContext.PageUrl}");
     }
 
-    public async Task ViewOnSite(PostContent content)
+    public async Task ViewOnSite(PostContent? content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -171,7 +173,7 @@ public partial class PostContentActions : ObservableObject, IContentActions<Post
         Process.Start(ps);
     }
 
-    public async Task ViewHistory(PostContent content)
+    public async Task ViewHistory(PostContent? content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -206,11 +208,10 @@ public partial class PostContentActions : ObservableObject, IContentActions<Post
     public static PostListListItem ListItemFromDbItem(PostContent content, PostContentActions itemActions,
         bool showType)
     {
-        return new PostListListItem
+        return new PostListListItem(itemActions)
         {
             DbEntry = content,
             SmallImageUrl = ContentListContext.GetSmallImageUrl(content),
-            ItemActions = itemActions,
             ShowType = showType
         };
     }

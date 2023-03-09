@@ -41,7 +41,7 @@ public class TextToSpeech : IDisposable
     /// <param name="cancelToken">Cancellation token to stop speak</param>
     /// <exception cref="ArgumentNullException">Thrown if text is null</exception>
     /// <exception cref="ArgumentException">Thrown if text length is greater than maximum allowed</exception>
-    public async Task Speak(string text, CancellationToken cancelToken = default)
+    public async Task Speak(string? text, CancellationToken cancelToken = default)
     {
         if (string.IsNullOrWhiteSpace(text)) return;
 

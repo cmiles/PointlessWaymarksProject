@@ -33,18 +33,18 @@ public partial class FileContentActions : ObservableObject, IContentActions<File
 
     public FileContentActions(StatusControlContext statusContext)
     {
-        StatusContext = statusContext;
-        DeleteCommand = StatusContext.RunBlockingTaskCommand<FileContent>(Delete);
-        EditCommand = StatusContext.RunNonBlockingTaskCommand<FileContent>(Edit);
-        ExtractNewLinksCommand = StatusContext.RunBlockingTaskCommand<FileContent>(ExtractNewLinks);
-        GenerateHtmlCommand = StatusContext.RunBlockingTaskCommand<FileContent>(GenerateHtml);
-        LinkCodeToClipboardCommand = StatusContext.RunBlockingTaskCommand<FileContent>(DefaultBracketCodeToClipboard);
-        ViewOnSiteCommand = StatusContext.RunBlockingTaskCommand<FileContent>(ViewOnSite);
-        ViewFileCommand = StatusContext.RunNonBlockingTaskCommand<FileContent>(ViewFile);
-        ViewHistoryCommand = StatusContext.RunNonBlockingTaskCommand<FileContent>(ViewHistory);
+        _statusContext = statusContext;
+        _deleteCommand = StatusContext.RunBlockingTaskCommand<FileContent>(Delete);
+        _editCommand = StatusContext.RunNonBlockingTaskCommand<FileContent>(Edit);
+        _extractNewLinksCommand = StatusContext.RunBlockingTaskCommand<FileContent>(ExtractNewLinks);
+        _generateHtmlCommand = StatusContext.RunBlockingTaskCommand<FileContent>(GenerateHtml);
+        _linkCodeToClipboardCommand = StatusContext.RunBlockingTaskCommand<FileContent>(DefaultBracketCodeToClipboard);
+        _viewOnSiteCommand = StatusContext.RunBlockingTaskCommand<FileContent>(ViewOnSite);
+        _viewFileCommand = StatusContext.RunNonBlockingTaskCommand<FileContent>(ViewFile);
+        _viewHistoryCommand = StatusContext.RunNonBlockingTaskCommand<FileContent>(ViewHistory);
     }
 
-    public string DefaultBracketCode(FileContent content)
+    public string DefaultBracketCode(FileContent? content)
     {
         if (content?.ContentId == null) return string.Empty;
         return content.MainPicture != null
@@ -52,7 +52,7 @@ public partial class FileContentActions : ObservableObject, IContentActions<File
             : @$"{BracketCodeFiles.Create(content)}";
     }
 
-    public async Task DefaultBracketCodeToClipboard(FileContent content)
+    public async Task DefaultBracketCodeToClipboard(FileContent? content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -73,7 +73,7 @@ public partial class FileContentActions : ObservableObject, IContentActions<File
         StatusContext.ToastSuccess($"To Clipboard {finalString}");
     }
 
-    public async Task Delete(FileContent content)
+    public async Task Delete(FileContent? content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -101,7 +101,7 @@ public partial class FileContentActions : ObservableObject, IContentActions<File
         }
     }
 
-    public async Task Edit(FileContent content)
+    public async Task Edit(FileContent? content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -112,15 +112,18 @@ public partial class FileContentActions : ObservableObject, IContentActions<File
         var refreshedData = context.FileContents.SingleOrDefault(x => x.ContentId == content.ContentId);
 
         if (refreshedData == null)
+        {
             StatusContext.ToastError(
                 $"{content.Title} is no longer active in the database? Can not edit - look for a historic version...");
+            return;
+        }
 
         var newContentWindow = await FileContentEditorWindow.CreateInstance(refreshedData);
 
         await newContentWindow.PositionWindowAndShowOnUiThread();
     }
 
-    public async Task ExtractNewLinks(FileContent content)
+    public async Task ExtractNewLinks(FileContent? content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -139,7 +142,7 @@ public partial class FileContentActions : ObservableObject, IContentActions<File
             $"{refreshedData.BodyContent} {refreshedData.UpdateNotes}", StatusContext.ProgressTracker());
     }
 
-    public async Task GenerateHtml(FileContent content)
+    public async Task GenerateHtml(FileContent? content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -158,7 +161,7 @@ public partial class FileContentActions : ObservableObject, IContentActions<File
         StatusContext.ToastSuccess($"Generated {htmlContext.PageUrl}");
     }
 
-    public async Task ViewOnSite(FileContent content)
+    public async Task ViewOnSite(FileContent? content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -176,7 +179,7 @@ public partial class FileContentActions : ObservableObject, IContentActions<File
         Process.Start(ps);
     }
 
-    public async Task ViewHistory(FileContent content)
+    public async Task ViewHistory(FileContent? content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -211,16 +214,15 @@ public partial class FileContentActions : ObservableObject, IContentActions<File
     public static FileListListItem ListItemFromDbItem(FileContent content, FileContentActions itemActions,
         bool showType)
     {
-        return new()
+        return new(itemActions)
         {
             DbEntry = content,
             SmallImageUrl = ContentListContext.GetSmallImageUrl(content),
-            ItemActions = itemActions,
             ShowType = showType
         };
     }
 
-    public async Task ViewFile(FileContent listItem)
+    public async Task ViewFile(FileContent? listItem)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 

@@ -112,64 +112,64 @@ public partial class CmsCommonCommands : ObservableObject
         NewAllContentListWindowCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
         {
             var newWindow =
-                await AllContentListWindow.CreateInstance(new AllContentListWithActionsContext(null, WindowStatus));
+                await AllContentListWindow.CreateInstance(await AllContentListWithActionsContext.CreateInstance(null, WindowStatus));
             await newWindow.PositionWindowAndShowOnUiThread();
         });
         NewFileListWindowCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
         {
-            var newWindow = await FileListWindow.CreateInstance(new FileListWithActionsContext(null, WindowStatus));
+            var newWindow = await FileListWindow.CreateInstance(await FileListWithActionsContext.CreateInstance(null, WindowStatus));
             await newWindow.PositionWindowAndShowOnUiThread();
         });
         NewGeoJsonListWindowCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
         {
             var newWindow =
-                await GeoJsonListWindow.CreateInstance(new GeoJsonListWithActionsContext(null, WindowStatus));
+                await GeoJsonListWindow.CreateInstance(await GeoJsonListWithActionsContext.CreateInstance(null, WindowStatus));
             await newWindow.PositionWindowAndShowOnUiThread();
         });
         NewImageListWindowCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
         {
-            var newWindow = await ImageListWindow.CreateInstance(new ImageListWithActionsContext(null, WindowStatus));
+            var newWindow = await ImageListWindow.CreateInstance(await ImageListWithActionsContext.CreateInstance(null, WindowStatus));
             await newWindow.PositionWindowAndShowOnUiThread();
         });
         NewLineListWindowCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
         {
-            var newWindow = await LineListWindow.CreateInstance(new LineListWithActionsContext(null, WindowStatus));
+            var newWindow = await LineListWindow.CreateInstance(await LineListWithActionsContext.CreateInstance(null, WindowStatus));
             await newWindow.PositionWindowAndShowOnUiThread();
         });
         NewLinkListWindowCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
         {
-            var newWindow = await LinkListWindow.CreateInstance(new LinkListWithActionsContext(null, WindowStatus));
+            var newWindow = await LinkListWindow.CreateInstance(await LinkListWithActionsContext.CreateInstance(null, WindowStatus));
             await newWindow.PositionWindowAndShowOnUiThread();
         });
         NewMapComponentListWindowCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
         {
             var newWindow =
-                await MapComponentListWindow.CreateInstance(new MapComponentListWithActionsContext(null, WindowStatus));
+                await MapComponentListWindow.CreateInstance(await MapComponentListWithActionsContext.CreateInstance(null, WindowStatus));
             await newWindow.PositionWindowAndShowOnUiThread();
         });
         NewNoteListWindowCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
         {
-            var newWindow = await NoteListWindow.CreateInstance(new NoteListWithActionsContext(null, WindowStatus));
+            var newWindow = await NoteListWindow.CreateInstance(await NoteListWithActionsContext.CreateInstance(null, WindowStatus));
             await newWindow.PositionWindowAndShowOnUiThread();
         });
         NewPhotoListWindowCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
         {
-            var newWindow = await PhotoListWindow.CreateInstance(new PhotoListWithActionsContext(null, WindowStatus));
+            var newWindow = await PhotoListWindow.CreateInstance(await PhotoListWithActionsContext.CreateInstance(null, WindowStatus, null));
             await newWindow.PositionWindowAndShowOnUiThread();
         });
         NewPointListWindowCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
         {
-            var newWindow = await PointListWindow.CreateInstance(new PointListWithActionsContext(null, WindowStatus));
+            var newWindow = await PointListWindow.CreateInstance(await PointListWithActionsContext.CreateInstance(null, WindowStatus));
             await newWindow.PositionWindowAndShowOnUiThread();
         });
         NewPostListWindowCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
         {
-            var newWindow = await PostListWindow.CreateInstance(new PostListWithActionsContext(null, WindowStatus));
+            var newWindow = await PostListWindow.CreateInstance(await PostListWithActionsContext.CreateInstance(null, WindowStatus));
             await newWindow.PositionWindowAndShowOnUiThread();
         });
         NewVideoListWindowCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
         {
-            var newWindow = await VideoListWindow.CreateInstance(new VideoListWithActionsContext(null, WindowStatus));
+            var newWindow = await VideoListWindow.CreateInstance(await VideoListWithActionsContext.CreateInstance(null, WindowStatus));
             await newWindow.PositionWindowAndShowOnUiThread();
         });
 
@@ -187,51 +187,51 @@ public partial class CmsCommonCommands : ObservableObject
             StatusContext.RunBlockingTaskCommand(GenerateChangedHtmlAndShowSitePreview);
     }
 
-    public RelayCommand GenerateChangedHtmlAndShowSitePreviewCommand { get; set; }
+    public RelayCommand GenerateChangedHtmlAndShowSitePreviewCommand { get; }
 
-    public RelayCommand GenerateChangedHtmlAndStartUploadCommand { get; set; }
+    public RelayCommand GenerateChangedHtmlAndStartUploadCommand { get; }
 
-    public RelayCommand GenerateChangedHtmlCommand { get; set; }
+    public RelayCommand GenerateChangedHtmlCommand { get; }
 
-    public RelayCommand NewAllContentListWindowCommand { get; set; }
+    public RelayCommand NewAllContentListWindowCommand { get; }
 
     public RelayCommand NewFileContentCommand { get; }
 
     public RelayCommand NewFileContentFromFilesCommand { get; }
 
-    public RelayCommand NewFileListWindowCommand { get; set; }
+    public RelayCommand NewFileListWindowCommand { get; }
 
     public RelayCommand NewGeoJsonContentCommand { get; }
 
-    public RelayCommand NewGeoJsonListWindowCommand { get; set; }
+    public RelayCommand NewGeoJsonListWindowCommand { get; }
 
-    public RelayCommand NewGpxImportWindow { get; set; }
+    public RelayCommand NewGpxImportWindow { get; }
 
     public RelayCommand NewImageContentCommand { get; }
 
     public RelayCommand NewImageContentFromFilesCommand { get; }
 
-    public RelayCommand NewImageListWindowCommand { get; set; }
+    public RelayCommand NewImageListWindowCommand { get; }
 
     public RelayCommand NewLineContentCommand { get; }
 
-    public RelayCommand NewLineContentFromFilesCommand { get; set; }
+    public RelayCommand NewLineContentFromFilesCommand { get; }
 
-    public RelayCommand NewLineContentFromFilesWithAutosaveCommand { get; set; }
+    public RelayCommand NewLineContentFromFilesWithAutosaveCommand { get; }
 
-    public RelayCommand NewLineListWindowCommand { get; set; }
+    public RelayCommand NewLineListWindowCommand { get; }
 
     public RelayCommand NewLinkContentCommand { get; }
 
-    public RelayCommand NewLinkListWindowCommand { get; set; }
+    public RelayCommand NewLinkListWindowCommand { get; }
 
-    public RelayCommand NewMapComponentListWindowCommand { get; set; }
+    public RelayCommand NewMapComponentListWindowCommand { get; }
 
     public RelayCommand NewMapContentCommand { get; }
 
     public RelayCommand NewNoteContentCommand { get; }
 
-    public RelayCommand NewNoteListWindowCommand { get; set; }
+    public RelayCommand NewNoteListWindowCommand { get; }
 
     public RelayCommand NewPhotoContentCommand { get; }
 
@@ -243,23 +243,23 @@ public partial class CmsCommonCommands : ObservableObject
 
     public RelayCommand NewPointContentCommand { get; }
 
-    public RelayCommand NewPointListWindowCommand { get; set; }
+    public RelayCommand NewPointListWindowCommand { get; }
 
     public RelayCommand NewPostContentCommand { get; }
 
-    public RelayCommand NewPostListWindowCommand { get; set; }
+    public RelayCommand NewPostListWindowCommand { get; }
 
-    public RelayCommand NewVideoContentCommand { get; set; }
+    public RelayCommand NewVideoContentCommand { get; }
 
-    public RelayCommand NewVideoContentFromFilesCommand { get; set; }
+    public RelayCommand NewVideoContentFromFilesCommand { get; }
 
-    public RelayCommand NewVideoListWindowCommand { get; set; }
+    public RelayCommand NewVideoListWindowCommand { get; }
 
-    public RelayCommand SearchHelpWindowCommand { get; set; }
+    public RelayCommand SearchHelpWindowCommand { get; }
 
-    public RelayCommand ShowSitePreviewWindowCommand { get; set; }
+    public RelayCommand ShowSitePreviewWindowCommand { get; }
 
-    public WindowIconStatus? WindowStatus { get; set; }
+    public WindowIconStatus? WindowStatus { get; }
 
     private async Task GenerateChangedHtml()
     {
@@ -659,7 +659,7 @@ public partial class CmsCommonCommands : ObservableObject
                 var (metaGenerationReturn, metaContent) = await
                     PhotoGenerator.PhotoMetadataToNewPhotoContent(loopFile, StatusContext.ProgressTracker());
 
-                if (metaGenerationReturn.HasError)
+                if (metaGenerationReturn.HasError || metaContent == null)
                 {
                     var editor = await PhotoContentEditorWindow.CreateInstance(loopFile);
                     await editor.PositionWindowAndShowOnUiThread();
@@ -671,7 +671,7 @@ public partial class CmsCommonCommands : ObservableObject
                     continue;
                 }
 
-                if (metaContent.Latitude != null && metaContent.Longitude != null)
+                if (metaContent is { Latitude: { }, Longitude: { } })
                 {
                     var photoPointFeature = new Feature(
                         new Point(metaContent.Longitude.Value, metaContent.Latitude.Value),

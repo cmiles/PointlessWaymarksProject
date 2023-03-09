@@ -31,20 +31,66 @@ public partial class LineListWithActionsContext : ObservableObject
     [ObservableProperty] private StatusControlContext _statusContext;
     [ObservableProperty] private WindowIconStatus? _windowStatus;
 
-    public LineListWithActionsContext(StatusControlContext? statusContext, WindowIconStatus? windowStatus = null)
+    private LineListWithActionsContext(StatusControlContext statusContext, WindowIconStatus? windowStatus, ContentListContext listContext)
     {
-        StatusContext = statusContext ?? new StatusControlContext();
-        WindowStatus = windowStatus;
-        CommonCommands = new CmsCommonCommands(StatusContext, WindowStatus);
+        _statusContext = statusContext;
+        _windowStatus = windowStatus;
+        _commonCommands = new CmsCommonCommands(StatusContext, WindowStatus);
+
+        _listContext = listContext;
+
+        _lineLinkCodesToClipboardForSelectedCommand =
+            StatusContext.RunBlockingTaskCommand(LinkBracketCodesToClipboardForSelected);
+        _lineStatsCodesToClipboardForSelectedCommand =
+            StatusContext.RunBlockingTaskCommand(StatsBracketCodesToClipboardForSelected);
+        _lineElevationChartCodesToClipboardForSelectedCommand =
+            StatusContext.RunBlockingTaskCommand(ElevationChartBracketCodesToClipboardForSelected);
+        _addIntersectionTagsToSelectedCommand =
+            StatusContext.RunBlockingTaskWithCancellationCommand(AddIntersectionTagsToSelected,
+                "Cancel Feature Intersection Tag Add");
+        _refreshDataCommand = StatusContext.RunBlockingTaskCommand(ListContext.LoadData);
+
+        ListContext.ContextMenuItems = new List<ContextMenuItemData>
+        {
+            new() { ItemName = "Edit", ItemCommand = ListContext.EditSelectedCommand },
+            new()
+            {
+                ItemName = "Map Code to Clipboard",
+                ItemCommand = ListContext.BracketCodeToClipboardSelectedCommand
+            },
+            new() { ItemName = "Text Code to Clipboard", ItemCommand = LineLinkCodesToClipboardForSelectedCommand },
+            new() { ItemName = "Stats Code to Clipboard", ItemCommand = LineStatsCodesToClipboardForSelectedCommand },
+            new()
+            {
+                ItemName = "Elevation Chart Code to Clipboard",
+                ItemCommand = LineElevationChartCodesToClipboardForSelectedCommand
+            },
+            new() { ItemName = "Add Intersection Tags", ItemCommand = AddIntersectionTagsToSelectedCommand },
+            new() { ItemName = "Extract New Links", ItemCommand = ListContext.ExtractNewLinksSelectedCommand },
+            new() { ItemName = "Open URL", ItemCommand = ListContext.ViewOnSiteCommand },
+            new() { ItemName = "Delete", ItemCommand = ListContext.DeleteSelectedCommand },
+            new() { ItemName = "View History", ItemCommand = ListContext.ViewHistorySelectedCommand },
+            new() { ItemName = "Refresh Data", ItemCommand = RefreshDataCommand }
+        };
 
         StatusContext.RunFireAndForgetBlockingTask(LoadData);
+    }
+
+    public static async Task<LineListWithActionsContext> CreateInstance(StatusControlContext? statusContext, WindowIconStatus? windowStatus = null)
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        var factoryContext = statusContext ?? new StatusControlContext();
+        var factoryListContext = await ContentListContext.CreateInstance(factoryContext, new LineListLoader(100), windowStatus);
+
+        return new LineListWithActionsContext(factoryContext, windowStatus, factoryListContext);
     }
 
     private async Task AddIntersectionTagsToSelected(CancellationToken cancellationToken)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        if (SelectedItems() == null || !SelectedItems().Any())
+        if (!SelectedItems().Any())
         {
             StatusContext.ToastError("Nothing Selected?");
             return;
@@ -170,7 +216,7 @@ public partial class LineListWithActionsContext : ObservableObject
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        if (SelectedItems() == null || !SelectedItems().Any())
+        if (!SelectedItems().Any())
         {
             StatusContext.ToastError("Nothing Selected?");
             return;
@@ -191,42 +237,6 @@ public partial class LineListWithActionsContext : ObservableObject
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        ListContext ??= new ContentListContext(StatusContext, new LineListLoader(100), WindowStatus);
-
-        LineLinkCodesToClipboardForSelectedCommand =
-            StatusContext.RunBlockingTaskCommand(LinkBracketCodesToClipboardForSelected);
-        LineStatsCodesToClipboardForSelectedCommand =
-            StatusContext.RunBlockingTaskCommand(StatsBracketCodesToClipboardForSelected);
-        LineElevationChartCodesToClipboardForSelectedCommand =
-            StatusContext.RunBlockingTaskCommand(ElevationChartBracketCodesToClipboardForSelected);
-        AddIntersectionTagsToSelectedCommand =
-            StatusContext.RunBlockingTaskWithCancellationCommand(AddIntersectionTagsToSelected,
-                "Cancel Feature Intersection Tag Add");
-        RefreshDataCommand = StatusContext.RunBlockingTaskCommand(ListContext.LoadData);
-
-        ListContext.ContextMenuItems = new List<ContextMenuItemData>
-        {
-            new() { ItemName = "Edit", ItemCommand = ListContext.EditSelectedCommand },
-            new()
-            {
-                ItemName = "Map Code to Clipboard",
-                ItemCommand = ListContext.BracketCodeToClipboardSelectedCommand
-            },
-            new() { ItemName = "Text Code to Clipboard", ItemCommand = LineLinkCodesToClipboardForSelectedCommand },
-            new() { ItemName = "Stats Code to Clipboard", ItemCommand = LineStatsCodesToClipboardForSelectedCommand },
-            new()
-            {
-                ItemName = "Elevation Chart Code to Clipboard",
-                ItemCommand = LineElevationChartCodesToClipboardForSelectedCommand
-            },
-            new() { ItemName = "Add Intersection Tags", ItemCommand = AddIntersectionTagsToSelectedCommand },
-            new() { ItemName = "Extract New Links", ItemCommand = ListContext.ExtractNewLinksSelectedCommand },
-            new() { ItemName = "Open URL", ItemCommand = ListContext.ViewOnSiteCommand },
-            new() { ItemName = "Delete", ItemCommand = ListContext.DeleteSelectedCommand },
-            new() { ItemName = "View History", ItemCommand = ListContext.ViewHistorySelectedCommand },
-            new() { ItemName = "Refresh Data", ItemCommand = RefreshDataCommand }
-        };
-
         await ListContext.LoadData();
     }
 
@@ -240,7 +250,7 @@ public partial class LineListWithActionsContext : ObservableObject
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        if (SelectedItems() == null || !SelectedItems().Any())
+        if (!SelectedItems().Any())
         {
             StatusContext.ToastError("Nothing Selected?");
             return;
@@ -261,7 +271,7 @@ public partial class LineListWithActionsContext : ObservableObject
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        if (SelectedItems() == null || !SelectedItems().Any())
+        if (!SelectedItems().Any())
         {
             StatusContext.ToastError("Nothing Selected?");
             return;

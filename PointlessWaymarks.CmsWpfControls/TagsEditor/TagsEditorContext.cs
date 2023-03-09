@@ -1,7 +1,6 @@
 ﻿using System.ComponentModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using PointlessWaymarks.CmsData.Content;
-using PointlessWaymarks.CmsData.ContentHtml;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CommonTools;
@@ -22,7 +21,7 @@ public partial class TagsEditorContext : ObservableObject, IHasChanges, IHasVali
 
     private TagsEditorContext(StatusControlContext statusContext, ITag dbEntry)
     {
-        StatusContext = statusContext ?? new StatusControlContext();
+        StatusContext = statusContext;
 
         PropertyChanged += OnPropertyChanged;
 
@@ -45,9 +44,10 @@ public partial class TagsEditorContext : ObservableObject, IHasChanges, IHasVali
         TagsValidationMessage = tagValidation.Explanation;
     }
 
-    public static TagsEditorContext CreateInstance(StatusControlContext statusContext, ITag dbEntry)
+    public static TagsEditorContext CreateInstance(StatusControlContext? statusContext, ITag dbEntry)
     {
-        return new TagsEditorContext(statusContext, dbEntry);
+        var factoryContext = statusContext ??  new StatusControlContext();
+        return new TagsEditorContext(factoryContext, dbEntry);
     }
 
     private List<string> DbTagList()

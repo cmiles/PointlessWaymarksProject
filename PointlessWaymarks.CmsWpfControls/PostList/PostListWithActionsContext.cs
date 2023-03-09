@@ -20,20 +20,57 @@ public partial class PostListWithActionsContext : ObservableObject
     [ObservableProperty] private StatusControlContext _statusContext;
     [ObservableProperty] private WindowIconStatus? _windowStatus;
 
-    public PostListWithActionsContext(StatusControlContext? statusContext, WindowIconStatus? windowStatus = null)
+    private PostListWithActionsContext(StatusControlContext? statusContext, WindowIconStatus? windowStatus, ContentListContext listContext)
     {
-        StatusContext = statusContext ?? new StatusControlContext();
-        WindowStatus = windowStatus;
-        CommonCommands = new CmsCommonCommands(StatusContext, WindowStatus);
+        _statusContext = statusContext ?? new StatusControlContext();
+        _windowStatus = windowStatus; 
+        _commonCommands = new CmsCommonCommands(StatusContext, WindowStatus);
+
+        _listContext = listContext;
+
+        _postImageCodesToClipboardForSelectedCommand =
+            StatusContext.RunBlockingTaskCommand(BracketCodesToClipboardForSelected);
+        _emailHtmlToClipboardCommand = StatusContext.RunBlockingTaskCommand(EmailHtmlToClipboard);
+        _refreshDataCommand = StatusContext.RunBlockingTaskCommand(ListContext.LoadData);
+
+        ListContext.ContextMenuItems = new List<ContextMenuItemData>
+        {
+            new() { ItemName = "Edit", ItemCommand = ListContext.EditSelectedCommand },
+            new()
+            {
+                ItemName = "Text Code to Clipboard",
+                ItemCommand = ListContext.BracketCodeToClipboardSelectedCommand
+            },
+            new()
+            {
+                ItemName = "Image Code to Clipboard", ItemCommand = PostImageCodesToClipboardForSelectedCommand
+            },
+            new() { ItemName = "Email Html to Clipboard", ItemCommand = EmailHtmlToClipboardCommand },
+            new() { ItemName = "Extract New Links", ItemCommand = ListContext.ExtractNewLinksSelectedCommand },
+            new() { ItemName = "Open URL", ItemCommand = ListContext.ViewOnSiteCommand },
+            new() { ItemName = "Delete", ItemCommand = ListContext.DeleteSelectedCommand },
+            new() { ItemName = "View History", ItemCommand = ListContext.ViewHistorySelectedCommand },
+            new() { ItemName = "Refresh Data", ItemCommand = RefreshDataCommand }
+        };
 
         StatusContext.RunFireAndForgetBlockingTask(LoadData);
+    }
+
+    public static async Task<PostListWithActionsContext> CreateInstance(StatusControlContext? statusContext, WindowIconStatus? windowStatus = null)
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        var factoryContext = statusContext ?? new StatusControlContext();
+        var factoryListContext = await ContentListContext.CreateInstance(factoryContext, new PostListLoader(100), windowStatus);
+
+        return new PostListWithActionsContext(factoryContext, windowStatus, factoryListContext);
     }
 
     private async Task BracketCodesToClipboardForSelected()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        if (SelectedItems() == null || !SelectedItems().Any())
+        if (!SelectedItems().Any())
         {
             StatusContext.ToastError("Nothing Selected?");
             return;
@@ -54,7 +91,7 @@ public partial class PostListWithActionsContext : ObservableObject
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        if (SelectedItems() == null || !SelectedItems().Any())
+        if (!SelectedItems().Any())
         {
             StatusContext.ToastError("Nothing Selected?");
             return;
@@ -81,39 +118,14 @@ public partial class PostListWithActionsContext : ObservableObject
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        ListContext ??= new ContentListContext(StatusContext, new PostListLoader(100), WindowStatus);
-
-        PostImageCodesToClipboardForSelectedCommand =
-            StatusContext.RunBlockingTaskCommand(BracketCodesToClipboardForSelected);
-        EmailHtmlToClipboardCommand = StatusContext.RunBlockingTaskCommand(EmailHtmlToClipboard);
-        RefreshDataCommand = StatusContext.RunBlockingTaskCommand(ListContext.LoadData);
-
-        ListContext.ContextMenuItems = new List<ContextMenuItemData>
-        {
-            new() { ItemName = "Edit", ItemCommand = ListContext.EditSelectedCommand },
-            new()
-            {
-                ItemName = "Text Code to Clipboard",
-                ItemCommand = ListContext.BracketCodeToClipboardSelectedCommand
-            },
-            new()
-            {
-                ItemName = "Image Code to Clipboard", ItemCommand = PostImageCodesToClipboardForSelectedCommand
-            },
-            new() { ItemName = "Email Html to Clipboard", ItemCommand = EmailHtmlToClipboardCommand },
-            new() { ItemName = "Extract New Links", ItemCommand = ListContext.ExtractNewLinksSelectedCommand },
-            new() { ItemName = "Open URL", ItemCommand = ListContext.ViewOnSiteCommand },
-            new() { ItemName = "Delete", ItemCommand = ListContext.DeleteSelectedCommand },
-            new() { ItemName = "View History", ItemCommand = ListContext.ViewHistorySelectedCommand },
-            new() { ItemName = "Refresh Data", ItemCommand = RefreshDataCommand }
-        };
+        
 
         await ListContext.LoadData();
     }
 
     public List<PostListListItem> SelectedItems()
     {
-        return ListContext?.ListSelection?.SelectedItems?.Where(x => x is PostListListItem).Cast<PostListListItem>()
+        return ListContext.ListSelection.SelectedItems?.Where(x => x is PostListListItem).Cast<PostListListItem>()
             .ToList() ?? new List<PostListListItem>();
     }
 }

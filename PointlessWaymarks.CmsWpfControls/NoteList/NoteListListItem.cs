@@ -7,10 +7,15 @@ namespace PointlessWaymarks.CmsWpfControls.NoteList;
 
 public partial class NoteListListItem : ObservableObject, IContentListItem
 {
-    [ObservableProperty] private NoteContent _dbEntry;
+    [ObservableProperty] private NoteContent _dbEntry = new();
     [ObservableProperty] private NoteContentActions _itemActions;
     [ObservableProperty] private CurrentSelectedTextTracker _selectedTextTracker = new();
     [ObservableProperty] private bool _showType;
+
+    public NoteListListItem(NoteContentActions itemActions)
+    {
+        _itemActions = itemActions;
+    }
 
     public IContentCommon Content()
     {
@@ -19,7 +24,7 @@ public partial class NoteListListItem : ObservableObject, IContentListItem
 
     public Guid? ContentId()
     {
-        return DbEntry?.ContentId;
+        return DbEntry.ContentId;
     }
 
     public string DefaultBracketCode()

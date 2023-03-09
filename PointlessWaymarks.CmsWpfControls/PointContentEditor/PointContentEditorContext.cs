@@ -65,7 +65,7 @@ public partial class PointContentEditorContext : ObservableObject, IHasChanges, 
 
     public EventHandler RequestContentEditorWindowClose;
 
-    private PointContentEditorContext(StatusControlContext statusContext)
+    private PointContentEditorContext(StatusControlContext? statusContext)
     {
         StatusContext = statusContext ?? new StatusControlContext();
 
@@ -125,8 +125,8 @@ public partial class PointContentEditorContext : ObservableObject, IHasChanges, 
             $"{TagEdit.Tags}{(string.IsNullOrWhiteSpace(TagEdit.Tags) ? "" : ",")}{string.Join(",", possibleTags)}";
     }
 
-    public static async Task<PointContentEditorContext> CreateInstance(StatusControlContext statusContext,
-        PointContent pointContent)
+    public static async Task<PointContentEditorContext> CreateInstance(StatusControlContext? statusContext,
+        PointContent? pointContent)
     {
         var newControl = new PointContentEditorContext(statusContext);
         await newControl.LoadData(pointContent);
@@ -252,7 +252,7 @@ public partial class PointContentEditorContext : ObservableObject, IHasChanges, 
             FeedOn = created
         };
 
-        TitleSummarySlugFolder = await TitleSummarySlugEditorContext.CreateInstance(StatusContext, DbEntry);
+        TitleSummarySlugFolder = await TitleSummarySlugEditorContext.CreateInstance(StatusContext, DbEntry, null, null, null);
         CreatedUpdatedDisplay = await CreatedAndUpdatedByAndOnDisplayContext.CreateInstance(StatusContext, DbEntry);
         MainSiteFeed = await ContentSiteFeedAndIsDraftContext.CreateInstance(StatusContext, DbEntry);
         ContentId = await ContentIdViewerControlContext.CreateInstance(StatusContext, DbEntry);

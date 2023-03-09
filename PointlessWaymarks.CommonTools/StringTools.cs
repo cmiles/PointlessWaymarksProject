@@ -12,7 +12,7 @@ public static class StringTools
     /// <param name="a"></param>
     /// <param name="b"></param>
     /// <returns></returns>
-    public static bool AreEqual(string a, string? b)
+    public static bool AreEqual(string? a, string? b)
     {
         if (string.IsNullOrEmpty(a)) return string.IsNullOrEmpty(b);
 
@@ -26,7 +26,7 @@ public static class StringTools
     /// <param name="a"></param>
     /// <param name="b"></param>
     /// <returns></returns>
-    public static bool AreEqualWithTrim(string a, string b)
+    public static bool AreEqualWithTrim(string? a, string? b)
     {
         a = a.TrimNullToEmpty();
         b = b.TrimNullToEmpty();

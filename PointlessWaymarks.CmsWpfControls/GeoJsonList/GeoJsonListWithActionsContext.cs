@@ -30,20 +30,58 @@ public partial class GeoJsonListWithActionsContext : ObservableObject
     [ObservableProperty] private WindowIconStatus? _windowStatus;
 
 
-    public GeoJsonListWithActionsContext(StatusControlContext? statusContext, WindowIconStatus? windowStatus = null)
+    private GeoJsonListWithActionsContext(StatusControlContext statusContext, WindowIconStatus? windowStatus,
+        ContentListContext factoryListContext)
     {
-        StatusContext = statusContext ?? new StatusControlContext();
-        WindowStatus = windowStatus;
-        CommonCommands = new CmsCommonCommands(StatusContext, WindowStatus);
+        _statusContext = statusContext;
+        _windowStatus = windowStatus;
+        _commonCommands = new CmsCommonCommands(StatusContext, WindowStatus);
+
+        _listContext = factoryListContext;
+
+        _geoJsonLinkCodesToClipboardForSelectedCommand =
+            StatusContext.RunBlockingTaskCommand(LinkBracketCodesToClipboardForSelected);
+        _refreshDataCommand = StatusContext.RunBlockingTaskCommand(ListContext.LoadData);
+        _addIntersectionTagsToSelectedCommand = StatusContext.RunBlockingTaskWithCancellationCommand(AddIntersectionTagsToSelected, "Cancel Intersection Tags");
+
+        ListContext.ContextMenuItems = new List<ContextMenuItemData>
+        {
+            new() { ItemName = "Edit", ItemCommand = ListContext.EditSelectedCommand },
+            new()
+            {
+                ItemName = "Map Code to Clipboard",
+                ItemCommand = ListContext.BracketCodeToClipboardSelectedCommand
+            },
+            new()
+            {
+                ItemName = "Text Code to Clipboard", ItemCommand = GeoJsonLinkCodesToClipboardForSelectedCommand
+            },
+            new() { ItemName = "Add Intersection Tags", ItemCommand = AddIntersectionTagsToSelectedCommand },
+            new() { ItemName = "Extract New Links", ItemCommand = ListContext.ExtractNewLinksSelectedCommand },
+            new() { ItemName = "Open URL", ItemCommand = ListContext.ViewOnSiteCommand },
+            new() { ItemName = "Delete", ItemCommand = ListContext.DeleteSelectedCommand },
+            new() { ItemName = "View History", ItemCommand = ListContext.ViewHistorySelectedCommand },
+            new() { ItemName = "Refresh Data", ItemCommand = RefreshDataCommand }
+        };
 
         StatusContext.RunFireAndForgetBlockingTask(LoadData);
+    }
+
+    public static async Task<GeoJsonListWithActionsContext> CreateInstance(StatusControlContext? statusContext, WindowIconStatus? windowStatus = null)
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        var factoryContext = statusContext ?? new StatusControlContext();
+        var factoryListContext = await ContentListContext.CreateInstance(factoryContext, new GeoJsonListLoader(100), windowStatus);
+
+        return new GeoJsonListWithActionsContext(factoryContext, windowStatus, factoryListContext);
     }
 
     private async Task AddIntersectionTagsToSelected(CancellationToken cancellationToken)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        if (SelectedItems() == null || !SelectedItems().Any())
+        if (!SelectedItems().Any())
         {
             StatusContext.ToastError("Nothing Selected?");
             return;
@@ -169,7 +207,7 @@ public partial class GeoJsonListWithActionsContext : ObservableObject
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        if (SelectedItems() == null || !SelectedItems().Any())
+        if (!SelectedItems().Any())
         {
             StatusContext.ToastError("Nothing Selected?");
             return;
@@ -190,38 +228,12 @@ public partial class GeoJsonListWithActionsContext : ObservableObject
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        ListContext ??= new ContentListContext(StatusContext, new GeoJsonListLoader(100), WindowStatus);
-
-        GeoJsonLinkCodesToClipboardForSelectedCommand =
-            StatusContext.RunBlockingTaskCommand(LinkBracketCodesToClipboardForSelected);
-        RefreshDataCommand = StatusContext.RunBlockingTaskCommand(ListContext.LoadData);
-
-        ListContext.ContextMenuItems = new List<ContextMenuItemData>
-        {
-            new() { ItemName = "Edit", ItemCommand = ListContext.EditSelectedCommand },
-            new()
-            {
-                ItemName = "Map Code to Clipboard",
-                ItemCommand = ListContext.BracketCodeToClipboardSelectedCommand
-            },
-            new()
-            {
-                ItemName = "Text Code to Clipboard", ItemCommand = GeoJsonLinkCodesToClipboardForSelectedCommand
-            },
-            new() { ItemName = "Add Intersection Tags", ItemCommand = AddIntersectionTagsToSelectedCommand },
-            new() { ItemName = "Extract New Links", ItemCommand = ListContext.ExtractNewLinksSelectedCommand },
-            new() { ItemName = "Open URL", ItemCommand = ListContext.ViewOnSiteCommand },
-            new() { ItemName = "Delete", ItemCommand = ListContext.DeleteSelectedCommand },
-            new() { ItemName = "View History", ItemCommand = ListContext.ViewHistorySelectedCommand },
-            new() { ItemName = "Refresh Data", ItemCommand = RefreshDataCommand }
-        };
-
         await ListContext.LoadData();
     }
 
     public List<GeoJsonListListItem> SelectedItems()
     {
-        return ListContext?.ListSelection?.SelectedItems?.Where(x => x is GeoJsonListListItem)
+        return ListContext.ListSelection.SelectedItems?.Where(x => x is GeoJsonListListItem)
             .Cast<GeoJsonListListItem>().ToList() ?? new List<GeoJsonListListItem>();
     }
 }

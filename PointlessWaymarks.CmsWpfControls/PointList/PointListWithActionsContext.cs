@@ -34,20 +34,63 @@ public partial class PointListWithActionsContext : ObservableObject
     [ObservableProperty] private WindowIconStatus? _windowStatus;
 
 
-    public PointListWithActionsContext(StatusControlContext? statusContext, WindowIconStatus? windowStatus = null)
+    private PointListWithActionsContext(StatusControlContext statusContext, WindowIconStatus? windowStatus, ContentListContext listContext)
     {
-        StatusContext = statusContext ?? new StatusControlContext();
-        WindowStatus = windowStatus;
-        CommonCommands = new CmsCommonCommands(StatusContext, WindowStatus);
+        _statusContext = statusContext;
+        _windowStatus = windowStatus;
+
+        _listContext = listContext;
+
+        _commonCommands = new CmsCommonCommands(StatusContext, WindowStatus);
+
+        _refreshDataCommand = StatusContext.RunBlockingTaskCommand(ListContext.LoadData);
+        _pointLinkBracketCodesToClipboardForSelectedCommand =
+            StatusContext.RunNonBlockingTaskCommand(PointLinkBracketCodesToClipboardForSelected);
+        _selectedToGpxFileCommand = StatusContext.RunBlockingTaskCommand(SelectedToGpxFile);
+        _addIntersectionTagsToSelectedCommand =
+            StatusContext.RunBlockingTaskWithCancellationCommand(AddIntersectionTagsToSelected,
+                "Cancel Intersection Tagging");
+
+        ListContext.ContextMenuItems = new List<ContextMenuItemData>
+        {
+            new() { ItemName = "Edit", ItemCommand = ListContext.EditSelectedCommand },
+            new()
+            {
+                ItemName = "Map Code to Clipboard",
+                ItemCommand = ListContext.BracketCodeToClipboardSelectedCommand
+            },
+            new()
+            {
+                ItemName = "Text Code to Clipboard",
+                ItemCommand = PointLinkBracketCodesToClipboardForSelectedCommand
+            },
+            new() { ItemName = "Add Intersection Tags", ItemCommand = AddIntersectionTagsToSelectedCommand },
+            new() { ItemName = "Selected Points to GPX File", ItemCommand = SelectedToGpxFileCommand },
+            new() { ItemName = "Extract New Links", ItemCommand = ListContext.ExtractNewLinksSelectedCommand },
+            new() { ItemName = "Open URL", ItemCommand = ListContext.ViewOnSiteCommand },
+            new() { ItemName = "Delete", ItemCommand = ListContext.DeleteSelectedCommand },
+            new() { ItemName = "View History", ItemCommand = ListContext.ViewHistorySelectedCommand },
+            new() { ItemName = "Refresh Data", ItemCommand = RefreshDataCommand }
+        };
 
         StatusContext.RunFireAndForgetBlockingTask(LoadData);
+    }
+
+    public static async Task<PointListWithActionsContext> CreateInstance(StatusControlContext? statusContext, WindowIconStatus? windowStatus = null)
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        var factoryContext = statusContext ?? new StatusControlContext();
+        var factoryListContext = await ContentListContext.CreateInstance(factoryContext, new PointListLoader(100), windowStatus);
+
+        return new PointListWithActionsContext(factoryContext, windowStatus, factoryListContext);
     }
 
     private async Task AddIntersectionTagsToSelected(CancellationToken cancellationToken)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        if (SelectedItems() == null || !SelectedItems().Any())
+        if (!SelectedItems().Any())
         {
             StatusContext.ToastError("Nothing Selected?");
             return;
@@ -86,8 +129,6 @@ public partial class PointListWithActionsContext : ObservableObject
         foreach (var loopSelected in pointDtos)
         {
             var feature = loopSelected.FeatureFromPoint();
-
-            if (feature == null) continue;
 
             toProcess.Add(loopSelected);
             intersectResults.Add(new IntersectResult(feature) { ContentId = loopSelected.ContentId });
@@ -176,36 +217,6 @@ public partial class PointListWithActionsContext : ObservableObject
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        ListContext ??= new ContentListContext(StatusContext, new PointListLoader(100), WindowStatus);
-
-        RefreshDataCommand = StatusContext.RunBlockingTaskCommand(ListContext.LoadData);
-        PointLinkBracketCodesToClipboardForSelectedCommand =
-            StatusContext.RunNonBlockingTaskCommand(PointLinkBracketCodesToClipboardForSelected);
-        SelectedToGpxFileCommand = StatusContext.RunBlockingTaskCommand(SelectedToGpxFile);
-
-
-        ListContext.ContextMenuItems = new List<ContextMenuItemData>
-        {
-            new() { ItemName = "Edit", ItemCommand = ListContext.EditSelectedCommand },
-            new()
-            {
-                ItemName = "Map Code to Clipboard",
-                ItemCommand = ListContext.BracketCodeToClipboardSelectedCommand
-            },
-            new()
-            {
-                ItemName = "Text Code to Clipboard",
-                ItemCommand = PointLinkBracketCodesToClipboardForSelectedCommand
-            },
-            new() { ItemName = "Add Intersection Tags", ItemCommand = AddIntersectionTagsToSelectedCommand },
-            new() { ItemName = "Selected Points to GPX File", ItemCommand = SelectedToGpxFileCommand },
-            new() { ItemName = "Extract New Links", ItemCommand = ListContext.ExtractNewLinksSelectedCommand },
-            new() { ItemName = "Open URL", ItemCommand = ListContext.ViewOnSiteCommand },
-            new() { ItemName = "Delete", ItemCommand = ListContext.DeleteSelectedCommand },
-            new() { ItemName = "View History", ItemCommand = ListContext.ViewHistorySelectedCommand },
-            new() { ItemName = "Refresh Data", ItemCommand = RefreshDataCommand }
-        };
-
         await ListContext.LoadData();
     }
 
@@ -213,7 +224,7 @@ public partial class PointListWithActionsContext : ObservableObject
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        if (SelectedItems() == null || !SelectedItems().Any())
+        if (!SelectedItems().Any())
         {
             StatusContext.ToastError("Nothing Selected?");
             return;
@@ -232,7 +243,7 @@ public partial class PointListWithActionsContext : ObservableObject
 
     public List<PointListListItem> SelectedItems()
     {
-        return ListContext?.ListSelection?.SelectedItems?.Where(x => x is PointListListItem).Cast<PointListListItem>()
+        return ListContext.ListSelection.SelectedItems?.Where(x => x is PointListListItem).Cast<PointListListItem>()
             .ToList() ?? new List<PointListListItem>();
     }
 
@@ -240,7 +251,7 @@ public partial class PointListWithActionsContext : ObservableObject
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        if (SelectedItems() == null || !SelectedItems().Any())
+        if (!SelectedItems().Any())
         {
             StatusContext.ToastError("Nothing Selected?");
             return;

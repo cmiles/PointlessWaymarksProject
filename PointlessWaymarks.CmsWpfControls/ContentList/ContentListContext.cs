@@ -47,7 +47,7 @@ public partial class ContentListContext : ObservableObject, IDragSource, IDropTa
 {
     [ObservableProperty] private RelayCommand _bracketCodeToClipboardSelectedCommand;
     [ObservableProperty] private IContentListLoader _contentListLoader;
-    [ObservableProperty] private List<ContextMenuItemData> _contextMenuItems;
+    [ObservableProperty] private List<ContextMenuItemData> _contextMenuItems = new();
     [ObservableProperty] private RelayCommand<DateTime?> _createdOnDaySearchCommand;
     [ObservableProperty] private DataNotificationsWorkQueue _dataNotificationsProcessor;
     [ObservableProperty] private RelayCommand _deleteSelectedCommand;
@@ -56,9 +56,6 @@ public partial class ContentListContext : ObservableObject, IDragSource, IDropTa
     [ObservableProperty] private FileContentActions _fileItemActions;
     [ObservableProperty] private bool _filterOnUiShown;
     [ObservableProperty] private RelayCommand<string> _folderSearchCommand;
-    [ObservableProperty] private RelayCommand _generateChangedHtmlAndShowSitePreviewCommand;
-    [ObservableProperty] private RelayCommand _generateChangedHtmlAndStartUploadCommand;
-    [ObservableProperty] private RelayCommand _generateChangedHtmlCommand;
     [ObservableProperty] private RelayCommand _generateHtmlSelectedCommand;
     [ObservableProperty] private GeoJsonContentActions _geoJsonItemActions;
     [ObservableProperty] private ImageContentActions _imageItemActions;
@@ -77,17 +74,17 @@ public partial class ContentListContext : ObservableObject, IDragSource, IDropTa
     [ObservableProperty] private PhotoContentActions _photoItemActions;
     [ObservableProperty] private PointContentActions _pointItemActions;
     [ObservableProperty] private PostContentActions _postItemActions;
-    [ObservableProperty] private RelayCommand _searchHelpWindowCommand;
     [ObservableProperty] private RelayCommand _selectedToExcelCommand;
-    [ObservableProperty] private RelayCommand _showSitePreviewWindowCommand;
     [ObservableProperty] private StatusControlContext _statusContext;
-    [ObservableProperty] private string _userFilterText;
+    [ObservableProperty] private string? _userFilterText;
     [ObservableProperty] private VideoContentActions _videoItemActions;
     [ObservableProperty] private RelayCommand _viewHistorySelectedCommand;
     [ObservableProperty] private RelayCommand _viewOnSiteCommand;
     [ObservableProperty] private WindowIconStatus? _windowStatus;
 
-    public ContentListContext(StatusControlContext? statusContext, IContentListLoader loader,
+    private ContentListContext(StatusControlContext? statusContext,
+        ObservableCollection<IContentListItem> factoryContentListItems,
+        ContentListSelected<IContentListItem> factoryListSelection, IContentListLoader loader,
         WindowIconStatus? windowStatus = null)
     {
         _statusContext = statusContext ?? new StatusControlContext();
@@ -99,6 +96,9 @@ public partial class ContentListContext : ObservableObject, IDragSource, IDropTa
         PropertyChanged += OnPropertyChanged;
 
         _contentListLoader = loader;
+
+        _items = factoryContentListItems;
+        _listSelection = factoryListSelection;
 
         _fileItemActions = new FileContentActions(StatusContext);
         _geoJsonItemActions = new GeoJsonContentActions(StatusContext);
@@ -115,6 +115,11 @@ public partial class ContentListContext : ObservableObject, IDragSource, IDropTa
         _newActions = new CmsCommonCommands(StatusContext, WindowStatus);
 
         _dataNotificationsProcessor = new DataNotificationsWorkQueue { Processor = DataNotificationReceived };
+
+        _listSort = ContentListLoader.SortContext();
+
+        _listSort.SortUpdated += (_, list) =>
+            Dispatcher.CurrentDispatcher.Invoke(() => { ListContextSortHelpers.SortList(list, Items); });
 
         _loadAllCommand = StatusContext.RunBlockingTaskCommand(async () =>
         {
@@ -147,6 +152,18 @@ public partial class ContentListContext : ObservableObject, IDragSource, IDropTa
             await RunReport(async () => await CreatedOnDaySearch(x), $"Created On Search - {x}"));
         _lastUpdatedOnDaySearchCommand = StatusContext.RunNonBlockingTaskCommand<DateTime?>(async x =>
             await RunReport(async () => await UpdatedOnDaySearch(x), $"Last Updated On Search - {x}"));
+    }
+
+    public static async Task<ContentListContext> CreateInstance(StatusControlContext? statusContext, IContentListLoader loader, WindowIconStatus? windowStatus = null)
+    {
+        await ThreadSwitcher.ResumeForegroundAsync();
+        var factoryObservable = new ObservableCollection<IContentListItem>();
+
+        await ThreadSwitcher.ResumeBackgroundAsync();
+        var factoryContext = statusContext ?? new StatusControlContext();
+        var factoryListSelection = await ContentListSelected<IContentListItem>.CreateInstance(factoryContext);
+
+        return new ContentListContext(statusContext, factoryObservable, factoryListSelection, loader, windowStatus);
     }
 
     public bool CanStartDrag(IDragInfo dragInfo)
@@ -397,7 +414,7 @@ public partial class ContentListContext : ObservableObject, IDragSource, IDropTa
             if (translatedMessage.UpdateType == DataNotificationUpdateType.Update)
                 // ReSharper disable All
                 ((dynamic)existingItem).DbEntry = (dynamic)loopItem;
-            // ReSharper restore All
+                // ReSharper restore All
 
             if (loopItem is IMainImage mainImage && existingItem is IContentListSmallImage itemWithSmallImage)
                 itemWithSmallImage.SmallImageUrl = GetSmallImageUrl(mainImage);
@@ -640,16 +657,7 @@ public partial class ContentListContext : ObservableObject, IDragSource, IDropTa
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        ListSelection = await ContentListSelected<IContentListItem>.CreateInstance(StatusContext);
-
         DataNotifications.NewDataNotificationChannel().MessageReceived -= OnDataNotificationReceived;
-
-        StatusContext.Progress("Setting up Sorting");
-
-        ListSort = ContentListLoader.SortContext();
-
-        ListSort.SortUpdated += (_, list) =>
-            Dispatcher.CurrentDispatcher.Invoke(() => { ListContextSortHelpers.SortList(list, Items); });
 
         StatusContext.Progress("Starting Item Load");
 
@@ -719,7 +727,7 @@ public partial class ContentListContext : ObservableObject, IDragSource, IDropTa
         var reportLoader = new ContentListLoaderReport(toRun, ContentListLoaderBase.SortContextDefault());
 
         var newWindow =
-            await AllContentListWindow.CreateInstance(new AllContentListWithActionsContext(null, reportLoader));
+            await AllContentListWindow.CreateInstance(await AllContentListWithActionsContext.CreateInstance(null, reportLoader));
         newWindow.WindowTitle = title;
 
         await newWindow.PositionWindowAndShowOnUiThread();

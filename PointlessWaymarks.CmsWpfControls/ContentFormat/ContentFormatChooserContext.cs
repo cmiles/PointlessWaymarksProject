@@ -54,9 +54,11 @@ public partial class ContentFormatChooserContext :  ObservableObject, IHasChange
             await CheckForChangesAndValidationIssues();
     }
 
-    public static ContentFormatChooserContext CreateInstance(StatusControlContext statusContext)
+    public static Task<ContentFormatChooserContext> CreateInstance(StatusControlContext statusContext)
     {
-        return new(statusContext);
+        ThreadSwitcher.ResumeBackgroundAsync();
+
+        return Task.FromResult<ContentFormatChooserContext>(new(statusContext));
     }
 
 
@@ -79,7 +81,7 @@ public partial class ContentFormatChooserContext :  ObservableObject, IHasChange
         }
     }
 
-    public async Task<bool> TrySelectContentChoice(string contentChoice)
+    public async Task<bool> TrySelectContentChoice(string? contentChoice)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 

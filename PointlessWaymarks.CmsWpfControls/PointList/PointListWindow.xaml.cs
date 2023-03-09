@@ -12,9 +12,12 @@ public partial class PointListWindow
     [ObservableProperty] private PointListWithActionsContext _listContext;
     [ObservableProperty] private string _windowTitle = "Point List";
 
-    private PointListWindow()
+    private PointListWindow(PointListWithActionsContext toLoad)
     {
         InitializeComponent();
+
+        _listContext = toLoad;
+
         DataContext = this;
     }
 
@@ -23,13 +26,11 @@ public partial class PointListWindow
     /// switch to the UI thread as needed.
     /// </summary>
     /// <returns></returns>
-    public static async Task<PointListWindow> CreateInstance(PointListWithActionsContext toLoad)
+    public static async Task<PointListWindow> CreateInstance(PointListWithActionsContext? toLoad)
     {
         await ThreadSwitcher.ResumeForegroundAsync();
-        var window = new PointListWindow
-        {
-            ListContext = toLoad ?? new PointListWithActionsContext(null)
-        };
+
+        var window = new PointListWindow(toLoad ?? await PointListWithActionsContext.CreateInstance(null));
 
         return window;
     }

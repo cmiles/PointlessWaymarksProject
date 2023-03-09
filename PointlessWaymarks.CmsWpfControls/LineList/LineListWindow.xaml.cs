@@ -12,9 +12,12 @@ public partial class LineListWindow
     [ObservableProperty] private LineListWithActionsContext _listContext;
     [ObservableProperty] private string _windowTitle = "Line List";
 
-    private LineListWindow()
+    private LineListWindow(LineListWithActionsContext toLoad)
     {
         InitializeComponent();
+
+        _listContext = toLoad;
+
         DataContext = this;
     }
 
@@ -23,13 +26,11 @@ public partial class LineListWindow
     /// switch to the UI thread as needed.
     /// </summary>
     /// <returns></returns>
-    public static async Task<LineListWindow> CreateInstance(LineListWithActionsContext toLoad)
+    public static async Task<LineListWindow> CreateInstance(LineListWithActionsContext? toLoad)
     {
         await ThreadSwitcher.ResumeForegroundAsync();
-        var window = new LineListWindow
-        {
-            ListContext = toLoad ?? new LineListWithActionsContext(null)
-        };
+
+        var window = new LineListWindow(toLoad ?? await LineListWithActionsContext.CreateInstance(null));
 
         return window;
     }

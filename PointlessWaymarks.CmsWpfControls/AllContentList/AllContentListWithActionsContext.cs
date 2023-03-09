@@ -14,32 +14,39 @@ public partial class AllContentListWithActionsContext : ObservableObject
     [ObservableProperty] private ContentListContext _listContext;
     [ObservableProperty] private StatusControlContext _statusContext;
     [ObservableProperty] private WindowIconStatus? _windowStatus;
-    [ObservableProperty] private RelayCommand _wordPressImportWindowCommand;
+    [ObservableProperty] private RelayCommand? _wordPressImportWindowCommand;
 
-    public AllContentListWithActionsContext(StatusControlContext? statusContext, WindowIconStatus? windowStatus)
+    private AllContentListWithActionsContext(StatusControlContext? statusContext, WindowIconStatus? windowStatus,
+        ContentListContext factoryListContext)
     {
         _statusContext = statusContext ?? new StatusControlContext();
-        WindowStatus = windowStatus;
+        _windowStatus = windowStatus;
 
-        CommonCommands = new CmsCommonCommands(StatusContext, WindowStatus);
+        _commonCommands = new CmsCommonCommands(StatusContext, WindowStatus);
+        _listContext = factoryListContext;
 
         StatusContext.RunFireAndForgetBlockingTask(LoadData);
     }
 
-    public AllContentListWithActionsContext(StatusControlContext? statusContext, IContentListLoader reportFilter)
+    public static async Task<AllContentListWithActionsContext> CreateInstance(StatusControlContext? statusContext, WindowIconStatus? windowStatus)
     {
-        StatusContext = statusContext ?? new StatusControlContext();
+        var factoryStatusContext = statusContext ?? new StatusControlContext();
+        var factoryListContext = await ContentListContext.CreateInstance(factoryStatusContext, new AllContentListLoader(100), windowStatus);
 
-        ListContext ??= new ContentListContext(StatusContext, reportFilter);
+        return new AllContentListWithActionsContext(factoryStatusContext, windowStatus, factoryListContext);
+    }
 
-        StatusContext.RunFireAndForgetBlockingTask(ListContext.LoadData);
+    public static async Task<AllContentListWithActionsContext> CreateInstance(StatusControlContext? statusContext, IContentListLoader reportFilter)
+    {
+        var factoryStatusContext = statusContext ?? new StatusControlContext();
+        var factoryListContext = await ContentListContext.CreateInstance(factoryStatusContext, reportFilter);
+
+        return new AllContentListWithActionsContext(factoryStatusContext, null, factoryListContext);
     }
 
     public async Task LoadData()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
-
-        ListContext ??= new ContentListContext(StatusContext, new AllContentListLoader(100), WindowStatus);
 
         WordPressImportWindowCommand = StatusContext.RunNonBlockingTaskCommand(WordPressImportWindow);
 

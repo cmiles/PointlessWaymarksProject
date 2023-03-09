@@ -36,7 +36,6 @@ public partial class PhotoListWithActionsContext : ObservableObject
     [ObservableProperty] private RelayCommand _emailHtmlToClipboardCommand;
     [ObservableProperty] private RelayCommand _forcedResizeCommand;
     [ObservableProperty] private ContentListContext _listContext;
-    [ObservableProperty] private RelayCommand _openUrlForPhotoListCommand;
     [ObservableProperty] private RelayCommand _photoLinkCodesToClipboardForSelectedCommand;
     [ObservableProperty] private RelayCommand _photoToPointContentEditorCommand;
     [ObservableProperty] private RelayCommand _refreshDataCommand;
@@ -53,31 +52,107 @@ public partial class PhotoListWithActionsContext : ObservableObject
     [ObservableProperty] private RelayCommand _viewFilesCommand;
     [ObservableProperty] private WindowIconStatus? _windowStatus;
 
-    public PhotoListWithActionsContext(StatusControlContext? statusContext, WindowIconStatus? windowStatus = null)
+    private PhotoListWithActionsContext(StatusControlContext statusContext, WindowIconStatus? windowStatus, ContentListContext listContext)
     {
-        StatusContext = statusContext ?? new StatusControlContext();
-        WindowStatus = windowStatus;
-        CommonCommands = new CmsCommonCommands(StatusContext, WindowStatus);
+        _statusContext = statusContext;
+        _windowStatus = windowStatus;
+
+        _listContext = listContext;
+
+        _commonCommands = new CmsCommonCommands(StatusContext);
+
+        _regenerateHtmlAndReprocessPhotoForSelectedCommand =
+             StatusContext.RunBlockingTaskWithCancellationCommand(RegenerateHtmlAndReprocessPhotoForSelected,
+                 "Cancel HTML Generation and Photo Resizing");
+        _photoLinkCodesToClipboardForSelectedCommand =
+            StatusContext.RunBlockingTaskCommand(PhotoLinkCodesToClipboardForSelected);
+        _dailyPhotoLinkCodesToClipboardForSelectedCommand =
+            StatusContext.RunBlockingTaskCommand(DailyPhotoLinkCodesToClipboardForSelected);
+        _refreshDataCommand = StatusContext.RunBlockingTaskCommand(ListContext.LoadData);
+        _forcedResizeCommand = StatusContext.RunBlockingTaskWithCancellationCommand(ForcedResize, "Cancel Resizing");
+        _viewFilesCommand = StatusContext.RunBlockingTaskWithCancellationCommand(ViewFilesSelected, "Cancel File View");
+        _photoToPointContentEditorCommand =
+            StatusContext.RunBlockingTaskWithCancellationCommand(PhotoToPointContentEditor,
+                "Cancel Photos to Point Editors");
+        _rescanMetadataAndFillBlanksCommand =
+            StatusContext.RunBlockingTaskWithCancellationCommand(RescanMetadataAndFillBlanks, "Cancel Metadata Update");
+        _addIntersectionTagsToSelectedCommand =
+            StatusContext.RunBlockingTaskWithCancellationCommand(AddIntersectionTagsToSelected,
+                "Cancel Feature Intersection Tagging");
+
+        _emailHtmlToClipboardCommand = StatusContext.RunBlockingTaskCommand(EmailHtmlToClipboard);
+
+        _reportPhotoMetadataCommand = StatusContext.RunBlockingTaskCommand(ReportPhotoMetadata);
+        _reportNoTagsCommand = StatusContext.RunBlockingTaskCommand(async () =>
+            await RunReport(ReportNoTagsGenerator, "No Tags Photo List"));
+        _reportTitleAndTakenDoNotMatchCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
+            await RunReport(ReportTitleAndTakenDoNotMatchGenerator, "Title and Created Mismatch Photo List"));
+        _reportTakenAndLicenseYearDoNotMatchCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
+            await RunReport(ReportTakenAndLicenseYearDoNotMatchGenerator, "Title and Created Mismatch Photo List"));
+        _reportAllPhotosCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
+            await RunReport(ReportAllPhotosGenerator, "Title and Created Mismatch Photo List"));
+        _reportBlankLicenseCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
+            await RunReport(ReportBlankLicenseGenerator, "Title and Created Mismatch Photo List"));
+        _reportMultiSpacesInTitleCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
+            await RunReport(ReportMultiSpacesInTitleGenerator, "Title with Multiple Spaces"));
+
+
+        ListContext.ContextMenuItems = new List<ContextMenuItemData>
+        {
+            new() { ItemName = "Edit", ItemCommand = ListContext.EditSelectedCommand },
+            new()
+            {
+                ItemName = "Image Code to Clipboard",
+                ItemCommand = ListContext.BracketCodeToClipboardSelectedCommand
+            },
+            new()
+            {
+                ItemName = "Text Code to Clipboard", ItemCommand = PhotoLinkCodesToClipboardForSelectedCommand
+            },
+            new()
+            {
+                ItemName = "Daily Photo Page Code to Clipboard",
+                ItemCommand = DailyPhotoLinkCodesToClipboardForSelectedCommand
+            },
+            new() { ItemName = "Email Html to Clipboard", ItemCommand = EmailHtmlToClipboardCommand },
+            new() { ItemName = "Photos to Point Content Editors", ItemCommand = PhotoToPointContentEditorCommand },
+            new() { ItemName = "View Photos", ItemCommand = ViewFilesCommand },
+            new() { ItemName = "Open URL", ItemCommand = ListContext.ViewOnSiteCommand },
+            new() { ItemName = "Extract New Links", ItemCommand = ListContext.ExtractNewLinksSelectedCommand },
+            new()
+            {
+                ItemName = "Rescan Metadata/Fill Blanks - Selected", ItemCommand = RescanMetadataAndFillBlanksCommand
+            },
+            new() { ItemName = "Process/Resize Selected", ItemCommand = ForcedResizeCommand },
+            new() { ItemName = "Add Intersection Tags", ItemCommand = AddIntersectionTagsToSelectedCommand },
+            new()
+            {
+                ItemName = "Generate Html/Process/Resize Selected",
+                ItemCommand = RegenerateHtmlAndReprocessPhotoForSelectedCommand
+            },
+            new() { ItemName = "Delete", ItemCommand = ListContext.DeleteSelectedCommand },
+            new() { ItemName = "View History", ItemCommand = ListContext.ViewHistorySelectedCommand },
+            new() { ItemName = "Refresh Data", ItemCommand = RefreshDataCommand }
+        };
 
         StatusContext.RunFireAndForgetBlockingTask(LoadData);
     }
 
-    public PhotoListWithActionsContext(StatusControlContext statusContext, IContentListLoader reportFilter)
+    public static async Task<PhotoListWithActionsContext> CreateInstance(StatusControlContext? statusContext, WindowIconStatus? windowStatus, IContentListLoader? listLoader)
     {
-        StatusContext = statusContext ?? new StatusControlContext();
+        await ThreadSwitcher.ResumeBackgroundAsync();
 
-        ListContext ??= new ContentListContext(StatusContext, reportFilter);
+        var factoryContext = statusContext ?? new StatusControlContext();
+        var factoryListContext = await ContentListContext.CreateInstance(factoryContext, listLoader ?? new PhotoListLoader(100), windowStatus);
 
-        SetupCommands();
-
-        StatusContext.RunFireAndForgetBlockingTask(ListContext.LoadData);
+        return new PhotoListWithActionsContext(factoryContext, windowStatus, factoryListContext);
     }
 
     private async Task AddIntersectionTagsToSelected(CancellationToken cancellationToken)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        if (SelectedItems() == null || !SelectedItems().Any())
+        if (!SelectedItems().Any())
         {
             StatusContext.ToastError("Nothing Selected?");
             return;
@@ -148,9 +223,19 @@ public partial class PhotoListWithActionsContext : ObservableObject
                 loopSelected.LastUpdatedBy = "Feature Intersection Tagger";
                 loopSelected.LastUpdatedOn = updateTime;
 
+                var mediaFile = UserSettingsSingleton.CurrentSettings().LocalSitePhotoContentFile(loopSelected);
+
+                if (mediaFile == null)
+                {
+                    errorList.Add(
+                        $"No Media File Found for Photo: {loopSelected.Title}");
+                    StatusContext.Progress(
+                        $"Processed - {loopSelected.Title} - no media library photo found - Photo {processedCount} of {frozenSelect.Count}");
+                    continue;
+                }
+
                 var (saveGenerationReturn, _) =
-                    await PhotoGenerator.SaveAndGenerateHtml(loopSelected,
-                        UserSettingsSingleton.CurrentSettings().LocalSitePhotoContentFile(loopSelected), false,
+                    await PhotoGenerator.SaveAndGenerateHtml(loopSelected, mediaFile, false,
                         DateTime.Now, StatusContext.ProgressTracker());
 
                 if (saveGenerationReturn.HasError)
@@ -204,7 +289,7 @@ public partial class PhotoListWithActionsContext : ObservableObject
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        if (SelectedItems() == null || !SelectedItems().Any())
+        if (!SelectedItems().Any())
         {
             StatusContext.ToastError("Nothing Selected?");
             return;
@@ -226,7 +311,7 @@ public partial class PhotoListWithActionsContext : ObservableObject
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        if (SelectedItems() == null || !SelectedItems().Any())
+        if (!SelectedItems().Any())
         {
             StatusContext.ToastError("Nothing Selected?");
             return;
@@ -254,7 +339,7 @@ public partial class PhotoListWithActionsContext : ObservableObject
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        if (SelectedItems() == null || !SelectedItems().Any())
+        if (!SelectedItems().Any())
         {
             StatusContext.ToastError("Nothing Selected?");
             return;
@@ -291,52 +376,9 @@ public partial class PhotoListWithActionsContext : ObservableObject
         }
     }
 
-
     public async Task LoadData()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
-
-        ListContext ??= new ContentListContext(StatusContext, new PhotoListLoader(100), WindowStatus);
-
-        SetupCommands();
-
-        ListContext.ContextMenuItems = new List<ContextMenuItemData>
-        {
-            new() { ItemName = "Edit", ItemCommand = ListContext.EditSelectedCommand },
-            new()
-            {
-                ItemName = "Image Code to Clipboard",
-                ItemCommand = ListContext.BracketCodeToClipboardSelectedCommand
-            },
-            new()
-            {
-                ItemName = "Text Code to Clipboard", ItemCommand = PhotoLinkCodesToClipboardForSelectedCommand
-            },
-            new()
-            {
-                ItemName = "Daily Photo Page Code to Clipboard",
-                ItemCommand = DailyPhotoLinkCodesToClipboardForSelectedCommand
-            },
-            new() { ItemName = "Email Html to Clipboard", ItemCommand = EmailHtmlToClipboardCommand },
-            new() { ItemName = "Photos to Point Content Editors", ItemCommand = PhotoToPointContentEditorCommand },
-            new() { ItemName = "View Photos", ItemCommand = ViewFilesCommand },
-            new() { ItemName = "Open URL", ItemCommand = ListContext.ViewOnSiteCommand },
-            new() { ItemName = "Extract New Links", ItemCommand = ListContext.ExtractNewLinksSelectedCommand },
-            new()
-            {
-                ItemName = "Rescan Metadata/Fill Blanks - Selected", ItemCommand = RescanMetadataAndFillBlanksCommand
-            },
-            new() { ItemName = "Process/Resize Selected", ItemCommand = ForcedResizeCommand },
-            new() { ItemName = "Add Intersection Tags", ItemCommand = AddIntersectionTagsToSelectedCommand },
-            new()
-            {
-                ItemName = "Generate Html/Process/Resize Selected",
-                ItemCommand = RegenerateHtmlAndReprocessPhotoForSelectedCommand
-            },
-            new() { ItemName = "Delete", ItemCommand = ListContext.DeleteSelectedCommand },
-            new() { ItemName = "View History", ItemCommand = ListContext.ViewHistorySelectedCommand },
-            new() { ItemName = "Refresh Data", ItemCommand = RefreshDataCommand }
-        };
 
         await ListContext.LoadData();
     }
@@ -345,7 +387,7 @@ public partial class PhotoListWithActionsContext : ObservableObject
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        if (SelectedItems() == null || !SelectedItems().Any())
+        if (!SelectedItems().Any())
         {
             StatusContext.ToastError("Nothing Selected?");
             return;
@@ -366,7 +408,7 @@ public partial class PhotoListWithActionsContext : ObservableObject
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        if (SelectedItems() == null || !SelectedItems().Any())
+        if (!SelectedItems().Any())
         {
             StatusContext.ToastError("Nothing Selected?");
             return;
@@ -418,7 +460,7 @@ public partial class PhotoListWithActionsContext : ObservableObject
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        if (SelectedItems() == null || !SelectedItems().Any())
+        if (!SelectedItems().Any())
         {
             StatusContext.ToastError("Nothing Selected?");
             return;
@@ -437,14 +479,6 @@ public partial class PhotoListWithActionsContext : ObservableObject
 
             loopCount++;
 
-            if (loopSelected.DbEntry == null)
-            {
-                StatusContext.Progress(
-                    $"Re-processing Photo and Generating Html for {loopCount} of {totalCount} failed - no DB Entry?");
-                errorList.Add("There was a list item without a DB entry? This should never happen...");
-                continue;
-            }
-
             var currentVersion = db.PhotoContents.SingleOrDefault(x => x.ContentId == loopSelected.DbEntry.ContentId);
 
             if (currentVersion == null)
@@ -462,8 +496,16 @@ public partial class PhotoListWithActionsContext : ObservableObject
             StatusContext.Progress(
                 $"Re-processing Photo and Generating Html for {loopSelected.DbEntry.Title}, {loopCount} of {totalCount}");
 
-            var (generationReturn, _) = await PhotoGenerator.SaveAndGenerateHtml(currentVersion,
-                UserSettingsSingleton.CurrentSettings().LocalMediaArchivePhotoContentFile(currentVersion), true, null,
+            var mediaLibraryFile = UserSettingsSingleton.CurrentSettings().LocalMediaArchivePhotoContentFile(currentVersion);
+
+            if (mediaLibraryFile == null)
+            {
+                errorList.Add($"The Media File Library for {loopSelected.DbEntry.Title} was not found?");
+                continue;
+            }
+
+            var (generationReturn, _) = await PhotoGenerator.SaveAndGenerateHtml(currentVersion, mediaLibraryFile
+                , true, null,
                 StatusContext.ProgressTracker());
 
             if (generationReturn.HasError)
@@ -508,7 +550,7 @@ public partial class PhotoListWithActionsContext : ObservableObject
     {
         var db = await Db.Context();
 
-        return (await db.PhotoContents.Where(x => x.Title.Contains("  ")).OrderByDescending(x => x.PhotoCreatedOn)
+        return (await db.PhotoContents.Where(x => x.Title != null && x.Title.Contains("  ")).OrderByDescending(x => x.PhotoCreatedOn)
             .ToListAsync()).Cast<object>().ToList();
     }
 
@@ -525,7 +567,7 @@ public partial class PhotoListWithActionsContext : ObservableObject
 
         var selected = SelectedItems();
 
-        if (selected == null || !selected.Any())
+        if (!selected.Any())
         {
             StatusContext.ToastError("Nothing Selected?");
             return;
@@ -538,6 +580,12 @@ public partial class PhotoListWithActionsContext : ObservableObject
         }
 
         var singleSelected = selected.Single();
+
+        if (string.IsNullOrWhiteSpace(singleSelected.DbEntry.OriginalFileName))
+        {
+            StatusContext.ToastError("Original File Name is Blank? This is unusual...");
+            return;
+        }
 
         var archiveFile = new FileInfo(Path.Combine(
             UserSettingsSingleton.CurrentSettings().LocalMediaArchivePhotoDirectory().ToString(),
@@ -618,7 +666,7 @@ public partial class PhotoListWithActionsContext : ObservableObject
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        if (SelectedItems() == null || !SelectedItems().Any())
+        if (!SelectedItems().Any())
         {
             StatusContext.ToastError("Nothing Selected?");
             return;
@@ -653,7 +701,7 @@ public partial class PhotoListWithActionsContext : ObservableObject
             var metadataReturn =
                 await PhotoGenerator.PhotoMetadataFromFile(mediaFile, true, StatusContext.ProgressTracker());
 
-            if (metadataReturn.generationReturn.HasError)
+            if (metadataReturn.generationReturn.HasError || metadataReturn.metadata == null)
             {
                 errorMessages.Add(
                     $"{loopSelected.DbEntry.Title} - error with metadata? {metadataReturn.generationReturn.GenerationNote}.");
@@ -740,8 +788,18 @@ public partial class PhotoListWithActionsContext : ObservableObject
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            var result = await PhotoGenerator.SaveAndGenerateHtml(loopUpdate.toUpdate,
-                UserSettingsSingleton.CurrentSettings().LocalMediaArchivePhotoContentFile(loopUpdate.toUpdate), false,
+            var mediaLibraryFile = UserSettingsSingleton.CurrentSettings()
+                .LocalMediaArchivePhotoContentFile(loopUpdate.toUpdate);
+
+            if (mediaLibraryFile == null)
+            {
+                updateErrorMessages.Add(
+                    $"{loopUpdate.toUpdate.Title} - {loopUpdate.toUpdate.ContentId} - photo not found in Media Library?");
+                continue;
+            }
+
+            var result = await PhotoGenerator.SaveAndGenerateHtml(loopUpdate.toUpdate, mediaLibraryFile
+                , false,
                 DateTime.Now, StatusContext.ProgressTracker());
 
             if (result.generationReturn.HasError)
@@ -762,60 +820,22 @@ public partial class PhotoListWithActionsContext : ObservableObject
 
         var reportLoader = new ContentListLoaderReport(toRun);
 
-        var newWindow = await PhotoListWindow.CreateInstance(new PhotoListWithActionsContext(null, reportLoader));
+        var newWindow = await PhotoListWindow.CreateInstance(await PhotoListWithActionsContext.CreateInstance( null, null, reportLoader));
         newWindow.WindowTitle = title;
         await newWindow.PositionWindowAndShowOnUiThread();
     }
 
     public List<PhotoListListItem> SelectedItems()
     {
-        return ListContext?.ListSelection?.SelectedItems?.Where(x => x is PhotoListListItem).Cast<PhotoListListItem>()
+        return ListContext.ListSelection.SelectedItems?.Where(x => x is PhotoListListItem).Cast<PhotoListListItem>()
             .ToList() ?? new List<PhotoListListItem>();
-    }
-
-    private void SetupCommands()
-    {
-        RegenerateHtmlAndReprocessPhotoForSelectedCommand =
-            StatusContext.RunBlockingTaskWithCancellationCommand(RegenerateHtmlAndReprocessPhotoForSelected,
-                "Cancel HTML Generation and Photo Resizing");
-        PhotoLinkCodesToClipboardForSelectedCommand =
-            StatusContext.RunBlockingTaskCommand(PhotoLinkCodesToClipboardForSelected);
-        DailyPhotoLinkCodesToClipboardForSelectedCommand =
-            StatusContext.RunBlockingTaskCommand(DailyPhotoLinkCodesToClipboardForSelected);
-        RefreshDataCommand = StatusContext.RunBlockingTaskCommand(ListContext.LoadData);
-        ForcedResizeCommand = StatusContext.RunBlockingTaskWithCancellationCommand(ForcedResize, "Cancel Resizing");
-        ViewFilesCommand = StatusContext.RunBlockingTaskWithCancellationCommand(ViewFilesSelected, "Cancel File View");
-        PhotoToPointContentEditorCommand =
-            StatusContext.RunBlockingTaskWithCancellationCommand(PhotoToPointContentEditor,
-                "Cancel Photos to Point Editors");
-        RescanMetadataAndFillBlanksCommand =
-            StatusContext.RunBlockingTaskWithCancellationCommand(RescanMetadataAndFillBlanks, "Cancel Metadata Update");
-        AddIntersectionTagsToSelectedCommand =
-            StatusContext.RunBlockingTaskWithCancellationCommand(AddIntersectionTagsToSelected,
-                "Cancel Feature Intersection Tagging");
-
-        EmailHtmlToClipboardCommand = StatusContext.RunBlockingTaskCommand(EmailHtmlToClipboard);
-
-        ReportPhotoMetadataCommand = StatusContext.RunBlockingTaskCommand(ReportPhotoMetadata);
-        ReportNoTagsCommand = StatusContext.RunBlockingTaskCommand(async () =>
-            await RunReport(ReportNoTagsGenerator, "No Tags Photo List"));
-        ReportTitleAndTakenDoNotMatchCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
-            await RunReport(ReportTitleAndTakenDoNotMatchGenerator, "Title and Created Mismatch Photo List"));
-        ReportTakenAndLicenseYearDoNotMatchCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
-            await RunReport(ReportTakenAndLicenseYearDoNotMatchGenerator, "Title and Created Mismatch Photo List"));
-        ReportAllPhotosCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
-            await RunReport(ReportAllPhotosGenerator, "Title and Created Mismatch Photo List"));
-        ReportBlankLicenseCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
-            await RunReport(ReportBlankLicenseGenerator, "Title and Created Mismatch Photo List"));
-        ReportMultiSpacesInTitleCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
-            await RunReport(ReportMultiSpacesInTitleGenerator, "Title with Multiple Spaces"));
     }
 
     public async Task ViewFilesSelected(CancellationToken cancelToken)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        if (ListContext.ListSelection?.SelectedItems == null || ListContext.ListSelection.SelectedItems.Count < 1)
+        if (ListContext.ListSelection.SelectedItems == null || ListContext.ListSelection.SelectedItems.Count < 1)
         {
             StatusContext.ToastWarning("Nothing Selected to View?");
             return;

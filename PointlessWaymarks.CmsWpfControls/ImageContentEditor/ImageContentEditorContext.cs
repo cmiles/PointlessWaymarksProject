@@ -209,11 +209,10 @@ public partial class ImageContentEditorContext : ObservableObject, IHasChanges, 
             ShowImageSizes = UserSettingsSingleton.CurrentSettings().ImagePagesHaveLinksToImageSizesByDefault
         };
 
-        TitleSummarySlugFolder = await TitleSummarySlugEditorContext.CreateInstance(StatusContext, "To File Name",
+        TitleSummarySlugFolder = await TitleSummarySlugEditorContext.CreateInstance(StatusContext, DbEntry, "To File Name",
             AutoRenameSelectedFileBasedOnTitleCommand,
             x => !Path.GetFileNameWithoutExtension(SelectedFile.Name)
-                .Equals(SlugTools.CreateSlug(false, x.TitleEntry.UserValue), StringComparison.OrdinalIgnoreCase),
-            DbEntry);
+                .Equals(SlugTools.CreateSlug(false, x.TitleEntry.UserValue), StringComparison.OrdinalIgnoreCase));
         MainSiteFeed = await ContentSiteFeedAndIsDraftContext.CreateInstance(StatusContext, DbEntry);
         ShowInSearch = BoolDataEntryTypes.CreateInstanceForShowInSearch(DbEntry, true);
         CreatedUpdatedDisplay = await CreatedAndUpdatedByAndOnDisplayContext.CreateInstance(StatusContext, DbEntry);

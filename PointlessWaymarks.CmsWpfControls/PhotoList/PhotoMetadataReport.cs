@@ -5,17 +5,15 @@ using HtmlTableHelper;
 using MetadataExtractor;
 using MetadataExtractor.Formats.Xmp;
 using PointlessWaymarks.CmsData;
-using PointlessWaymarks.CmsWpfControls.WpfHtml;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
-using PointlessWaymarks.WpfCommon.WpfHtml;
 
 namespace PointlessWaymarks.CmsWpfControls.PhotoList;
 
 public static class PhotoMetadataReport
 {
-    public static async Task AllPhotoMetadataToHtml(FileInfo selectedFile, StatusControlContext statusContext)
+    public static async Task AllPhotoMetadataToHtml(FileInfo? selectedFile, StatusControlContext statusContext)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 

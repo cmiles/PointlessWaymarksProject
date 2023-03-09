@@ -24,16 +24,50 @@ public partial class LinkListWithActionsContext : ObservableObject
     [ObservableProperty] private StatusControlContext _statusContext;
     [ObservableProperty] private WindowIconStatus? _windowStatus;
 
-    public LinkListWithActionsContext(StatusControlContext? statusContext, WindowIconStatus? windowStatus = null)
+    private LinkListWithActionsContext(StatusControlContext statusContext, WindowIconStatus? windowStatus, ContentListContext listContext)
     {
-        StatusContext = statusContext ?? new StatusControlContext();
-        WindowStatus = windowStatus;
-        CommonCommands = new CmsCommonCommands(StatusContext, WindowStatus);
+        _statusContext = statusContext;
+        _windowStatus = windowStatus;
+        _commonCommands = new CmsCommonCommands(StatusContext, WindowStatus);
+
+        _listContext = listContext;
+
+        _refreshDataCommand = StatusContext.RunBlockingTaskCommand(ListContext.LoadData);
+        _mdLinkCodesToClipboardForSelectedCommand =
+            StatusContext.RunBlockingTaskCommand(MdLinkCodesToClipboardForSelected);
+
+        _listSelectedLinksNotOnPinboardCommand = StatusContext.RunBlockingTaskCommand(async () =>
+            await ListSelectedLinksNotOnPinboard(StatusContext.ProgressTracker()));
+
+        ListContext.ContextMenuItems = new List<ContextMenuItemData>
+        {
+            new() { ItemName = "Edit", ItemCommand = ListContext.EditSelectedCommand },
+            new()
+            {
+                ItemName = "[] Code to Clipboard",
+                ItemCommand = ListContext.BracketCodeToClipboardSelectedCommand
+            },
+            new() { ItemName = "Extract New Links", ItemCommand = ListContext.ExtractNewLinksSelectedCommand },
+            new() { ItemName = "Open URL", ItemCommand = ListContext.ViewOnSiteCommand },
+            new() { ItemName = "Delete", ItemCommand = ListContext.DeleteSelectedCommand },
+            new() { ItemName = "View History", ItemCommand = ListContext.ViewHistorySelectedCommand },
+            new() { ItemName = "Refresh Data", ItemCommand = RefreshDataCommand }
+        };
 
         StatusContext.RunFireAndForgetBlockingTask(LoadData);
     }
 
-    private async Task ListSelectedLinksNotOnPinboard(IProgress<string> progress)
+    public static async Task<LinkListWithActionsContext> CreateInstance(StatusControlContext? statusContext, WindowIconStatus? windowStatus = null)
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        var factoryContext = statusContext ?? new StatusControlContext();
+        var factoryListContext = await ContentListContext.CreateInstance(factoryContext, new LinkListLoader(100), windowStatus);
+
+        return new LinkListWithActionsContext(factoryContext, windowStatus, factoryListContext);
+    }
+
+    private async Task ListSelectedLinksNotOnPinboard(IProgress<string>? progress)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -112,30 +146,6 @@ public partial class LinkListWithActionsContext : ObservableObject
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        ListContext ??= new ContentListContext(StatusContext, new LinkListLoader(100), WindowStatus);
-
-        RefreshDataCommand = StatusContext.RunBlockingTaskCommand(ListContext.LoadData);
-        MdLinkCodesToClipboardForSelectedCommand =
-            StatusContext.RunBlockingTaskCommand(MdLinkCodesToClipboardForSelected);
-
-        ListSelectedLinksNotOnPinboardCommand = StatusContext.RunBlockingTaskCommand(async () =>
-            await ListSelectedLinksNotOnPinboard(StatusContext.ProgressTracker()));
-
-        ListContext.ContextMenuItems = new List<ContextMenuItemData>
-        {
-            new() { ItemName = "Edit", ItemCommand = ListContext.EditSelectedCommand },
-            new()
-            {
-                ItemName = "[] Code to Clipboard",
-                ItemCommand = ListContext.BracketCodeToClipboardSelectedCommand
-            },
-            new() { ItemName = "Extract New Links", ItemCommand = ListContext.ExtractNewLinksSelectedCommand },
-            new() { ItemName = "Open URL", ItemCommand = ListContext.ViewOnSiteCommand },
-            new() { ItemName = "Delete", ItemCommand = ListContext.DeleteSelectedCommand },
-            new() { ItemName = "View History", ItemCommand = ListContext.ViewHistorySelectedCommand },
-            new() { ItemName = "Refresh Data", ItemCommand = RefreshDataCommand }
-        };
-
         await ListContext.LoadData();
     }
 
@@ -143,7 +153,7 @@ public partial class LinkListWithActionsContext : ObservableObject
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        if (SelectedItems() == null || !SelectedItems().Any())
+        if (!SelectedItems().Any())
         {
             StatusContext.ToastError("Nothing Selected?");
             return;
@@ -160,7 +170,7 @@ public partial class LinkListWithActionsContext : ObservableObject
 
     public List<LinkListListItem> SelectedItems()
     {
-        return ListContext?.ListSelection?.SelectedItems?.Where(x => x is LinkListListItem).Cast<LinkListListItem>()
+        return ListContext.ListSelection.SelectedItems?.Where(x => x is LinkListListItem).Cast<LinkListListItem>()
             .ToList() ?? new List<LinkListListItem>();
     }
 }

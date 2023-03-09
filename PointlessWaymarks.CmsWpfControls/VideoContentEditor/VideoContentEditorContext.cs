@@ -183,7 +183,7 @@ Notes:
     }
 
     public static async Task<VideoContentEditorContext> CreateInstance(StatusControlContext statusContext,
-        FileInfo initialVideo = null)
+        FileInfo? initialVideo = null)
     {
         var newControl = new VideoContentEditorContext(statusContext, initialVideo);
         await newControl.LoadData(null);
@@ -191,7 +191,7 @@ Notes:
     }
 
     public static async Task<VideoContentEditorContext> CreateInstance(StatusControlContext statusContext,
-        VideoContent initialContent)
+        VideoContent? initialContent)
     {
         var newControl = new VideoContentEditorContext(statusContext);
         await newControl.LoadData(initialContent);
@@ -287,7 +287,7 @@ Notes:
             return;
         }
 
-        var linkString = BracketCodeVideos.Create(DbEntry);
+        var linkString = BracketCodeVideoEmbed.Create(DbEntry);
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
@@ -312,11 +312,10 @@ Notes:
             FeedOn = created
         };
 
-        TitleSummarySlugFolder = await TitleSummarySlugEditorContext.CreateInstance(StatusContext, "To File Name",
+        TitleSummarySlugFolder = await TitleSummarySlugEditorContext.CreateInstance(StatusContext, DbEntry, "To File Name",
             AutoRenameSelectedFileBasedOnTitleCommand,
             x => !Path.GetFileNameWithoutExtension(SelectedFile.Name)
-                .Equals(SlugTools.CreateSlug(false, x.TitleEntry.UserValue), StringComparison.OrdinalIgnoreCase),
-            DbEntry);
+                .Equals(SlugTools.CreateSlug(false, x.TitleEntry.UserValue), StringComparison.OrdinalIgnoreCase));
         MainSiteFeed = await ContentSiteFeedAndIsDraftContext.CreateInstance(StatusContext, DbEntry);
         CreatedUpdatedDisplay = await CreatedAndUpdatedByAndOnDisplayContext.CreateInstance(StatusContext, DbEntry);
 

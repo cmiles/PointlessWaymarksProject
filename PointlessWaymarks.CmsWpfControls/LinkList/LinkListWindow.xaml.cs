@@ -12,9 +12,12 @@ public partial class LinkListWindow
     [ObservableProperty] private LinkListWithActionsContext _listContext;
     [ObservableProperty] private string _windowTitle = "Link List";
 
-    private LinkListWindow()
+    private LinkListWindow(LinkListWithActionsContext toLoad)
     {
         InitializeComponent();
+
+        _listContext = toLoad;
+
         DataContext = this;
     }
 
@@ -23,13 +26,11 @@ public partial class LinkListWindow
     /// switch to the UI thread as needed.
     /// </summary>
     /// <returns></returns>
-    public static async Task<LinkListWindow> CreateInstance(LinkListWithActionsContext toLoad)
+    public static async Task<LinkListWindow> CreateInstance(LinkListWithActionsContext? toLoad)
     {
         await ThreadSwitcher.ResumeForegroundAsync();
-        var window = new LinkListWindow
-        {
-            ListContext = toLoad ?? new LinkListWithActionsContext(null)
-        };
+
+        var window = new LinkListWindow(toLoad ?? await LinkListWithActionsContext.CreateInstance(null));
 
         return window;
     }

@@ -22,21 +22,40 @@ public partial class ContentFolderContext : ObservableObject, IHasChanges, IHasV
     [ObservableProperty] private Func<Task<List<string>>> _getCurrentFolderNames;
     [ObservableProperty] private bool _hasChanges;
     [ObservableProperty] private bool _hasValidationIssues;
-    [ObservableProperty] private string _helpText = string.Empty;
+    [ObservableProperty] private string _helpText;
     [ObservableProperty] private string? _referenceValue;
     [ObservableProperty] private StatusControlContext _statusContext;
-    [ObservableProperty] private string _title = string.Empty;
+    [ObservableProperty] private string _title;
     [ObservableProperty] private string?_userValue;
-    [ObservableProperty] private List<Func<string?, IsValid>> _validationFunctions = new();
+    [ObservableProperty] private List<Func<string?, IsValid>> _validationFunctions;
     [ObservableProperty] private string _validationMessage = string.Empty;
 
-    private ContentFolderContext(StatusControlContext? statusContext)
+    private ContentFolderContext(StatusControlContext statusContext, Func<Task<List<string>>> loader, List<string> initialFolderList)
     {
-        StatusContext = statusContext ?? new StatusControlContext();
+        _statusContext = statusContext;
 
-        DataNotificationsProcessor = new DataNotificationsWorkQueue { Processor = DataNotificationReceived };
+        _dataNotificationsProcessor = new DataNotificationsWorkQueue { Processor = DataNotificationReceived };
 
         PropertyChanged += OnPropertyChanged;
+
+        _title = "Folder";
+        _helpText =
+            "The Parent Folder for the Content - this will appear in the URL and allows grouping similar content together.";
+
+        _getCurrentFolderNames = loader;
+
+        _existingFolderChoices = new ObservableCollection<string>(initialFolderList);
+        _dataNotificationType = new List<DataNotificationContentType>
+        {
+            DataNotificationContentType.GeoJson, DataNotificationContentType.Line, DataNotificationContentType.Point
+        };
+
+        _referenceValue = string.Empty;
+        _userValue = string.Empty;
+
+        _validationFunctions = new List<Func<string?, IsValid>> { CommonContentValidation.ValidateFolder };
+
+        DataNotifications.NewDataNotificationChannel().MessageReceived += OnDataNotificationReceived;
     }
 
     private void CheckForChangesAndValidate()
@@ -59,27 +78,32 @@ public partial class ContentFolderContext : ObservableObject, IHasChanges, IHasV
         ValidationMessage = string.Empty;
     }
 
-    public static async Task<ContentFolderContext> CreateInstance(StatusControlContext statusContext,
+    public static async Task<ContentFolderContext> CreateInstance(StatusControlContext? statusContext,
         ITitleSummarySlugFolder dbEntry)
     {
-        var newControl = new ContentFolderContext(statusContext)
-        {
-            ValidationFunctions = new List<Func<string?, IsValid>> { CommonContentValidation.ValidateFolder }
-        };
+        await ThreadSwitcher.ResumeBackgroundAsync();
 
-        await newControl.LoadData(dbEntry);
+        var factoryContext = statusContext ?? new StatusControlContext();
+        var initialFolderList = await Db.FolderNamesFromContent(dbEntry);
+
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        var newControl = new ContentFolderContext(factoryContext, async () => await Db.FolderNamesFromContent(dbEntry), initialFolderList);
 
         return newControl;
     }
 
-    public static async Task<ContentFolderContext> CreateInstanceForAllGeoTypes(StatusControlContext statusContext)
+    public static async Task<ContentFolderContext> CreateInstanceForAllGeoTypes(StatusControlContext? statusContext)
     {
-        var newControl = new ContentFolderContext(statusContext)
-        {
-            ValidationFunctions = new List<Func<string?, IsValid>> { CommonContentValidation.ValidateFolder }
-        };
+        await ThreadSwitcher.ResumeBackgroundAsync();
 
-        await newControl.LoadDataForAllGeoTypes();
+        var factoryContext = statusContext ?? new StatusControlContext();
+        var loader = Db.FolderNamesFromGeoContent;
+        var initialFolderList = await loader();
+
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        var newControl = new ContentFolderContext(factoryContext, loader, initialFolderList);
 
         return newControl;
     }
@@ -112,54 +136,6 @@ public partial class ContentFolderContext : ObservableObject, IHasChanges, IHasV
             currentDbFolders.ForEach(x => ExistingFolderChoices.Add(x));
             ExistingFolderChoices.SortBy(x => x);
         }
-    }
-
-    public async Task LoadData(ITitleSummarySlugFolder? dbEntry)
-    {
-        DataNotifications.NewDataNotificationChannel().MessageReceived -= OnDataNotificationReceived;
-
-        Title = "Folder";
-        HelpText =
-            "The Parent Folder for the Content - this will appear in the URL and allows grouping similar content together.";
-
-        GetCurrentFolderNames = async () => await Db.FolderNamesFromContent(dbEntry);
-
-        var folderChoices = await Db.FolderNamesFromContent(dbEntry);
-
-        await ThreadSwitcher.ResumeForegroundAsync();
-
-        ExistingFolderChoices = new ObservableCollection<string>(folderChoices);
-        DataNotificationType = new List<DataNotificationContentType>
-            { DataNotifications.NotificationContentTypeFromContent(dbEntry) };
-
-        ReferenceValue = dbEntry?.Folder ?? string.Empty;
-        UserValue = dbEntry?.Folder ?? string.Empty;
-
-        DataNotifications.NewDataNotificationChannel().MessageReceived += OnDataNotificationReceived;
-    }
-
-    public async Task LoadDataForAllGeoTypes()
-    {
-        DataNotifications.NewDataNotificationChannel().MessageReceived -= OnDataNotificationReceived;
-
-        Title = "Folder";
-        HelpText =
-            "The Parent Folder for the Content - this will appear in the URL and allows grouping similar content together.";
-
-        GetCurrentFolderNames = Db.FolderNamesFromGeoContent;
-
-        await ThreadSwitcher.ResumeForegroundAsync();
-
-        ExistingFolderChoices = new ObservableCollection<string>(await GetCurrentFolderNames());
-        DataNotificationType = new List<DataNotificationContentType>
-        {
-            DataNotificationContentType.GeoJson, DataNotificationContentType.Line, DataNotificationContentType.Point
-        };
-
-        ReferenceValue = string.Empty;
-        UserValue = string.Empty;
-
-        DataNotifications.NewDataNotificationChannel().MessageReceived += OnDataNotificationReceived;
     }
 
     private void OnDataNotificationReceived(object? sender, TinyMessageReceivedEventArgs e)

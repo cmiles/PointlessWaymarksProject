@@ -12,21 +12,19 @@ public partial class AllContentListWindow
     [ObservableProperty] private AllContentListWithActionsContext _listContext;
     [ObservableProperty] private string _windowTitle = "All Content List";
 
-    private AllContentListWindow()
+    private AllContentListWindow(AllContentListWithActionsContext toLoad)
     {
         InitializeComponent();
+
+        _listContext = toLoad;
 
         DataContext = this;
     }
 
-    public static async Task<AllContentListWindow> CreateInstance(AllContentListWithActionsContext toLoad)
+    public static async Task<AllContentListWindow> CreateInstance(AllContentListWithActionsContext? toLoad)
     {
         await ThreadSwitcher.ResumeForegroundAsync();
-        var window = new AllContentListWindow
-        {
-            ListContext = toLoad ?? new AllContentListWithActionsContext(null, windowStatus: null)
-        };
-
+        var window = new AllContentListWindow(toLoad ?? await AllContentListWithActionsContext.CreateInstance(null, windowStatus: null));
         return window;
     }
 }

@@ -12,9 +12,10 @@ public partial class GeoJsonListWindow
     [ObservableProperty] private GeoJsonListWithActionsContext _listContext;
     [ObservableProperty] private string _windowTitle = "GeoJson List";
 
-    private GeoJsonListWindow()
+    private GeoJsonListWindow(GeoJsonListWithActionsContext toLoad)
     {
         InitializeComponent();
+        _listContext = toLoad;
         DataContext = this;
     }
 
@@ -24,13 +25,11 @@ public partial class GeoJsonListWindow
     /// switch to the UI thread as needed.
     /// </summary>
     /// <returns></returns>
-    public static async Task<GeoJsonListWindow> CreateInstance(GeoJsonListWithActionsContext toLoad)
+    public static async Task<GeoJsonListWindow> CreateInstance(GeoJsonListWithActionsContext? toLoad)
     {
         await ThreadSwitcher.ResumeForegroundAsync();
-        var window = new GeoJsonListWindow
-        {
-            ListContext = toLoad ?? new GeoJsonListWithActionsContext(null)
-        };
+
+        var window = new GeoJsonListWindow(toLoad ?? await GeoJsonListWithActionsContext.CreateInstance(null));
 
         return window;
     }

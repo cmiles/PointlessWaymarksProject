@@ -7,15 +7,18 @@ namespace PointlessWaymarks.CmsWpfControls.MapComponentList;
 
 public partial class MapComponentListListItem : ObservableObject, IContentListItem
 {
-    [ObservableProperty] private MapComponent _dbEntry;
+    [ObservableProperty] private MapComponent _dbEntry = new();
     [ObservableProperty] private MapComponentContentActions _itemActions;
     [ObservableProperty] private CurrentSelectedTextTracker _selectedTextTracker = new();
     [ObservableProperty] private bool _showType;
 
+    public MapComponentListListItem(MapComponentContentActions itemActions)
+    {
+        _itemActions = itemActions;
+    }
+
     public IContentCommon Content()
     {
-        if (DbEntry == null) return null;
-
         return new ContentCommonShell
         {
             Summary = DbEntry.Summary,
@@ -32,7 +35,7 @@ public partial class MapComponentListListItem : ObservableObject, IContentListIt
 
     public Guid? ContentId()
     {
-        return DbEntry?.ContentId;
+        return DbEntry.ContentId;
     }
 
     public string DefaultBracketCode()

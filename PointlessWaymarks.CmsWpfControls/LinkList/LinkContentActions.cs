@@ -32,18 +32,24 @@ public partial class LinkContentActions : ObservableObject, IContentActions<Link
 
     public LinkContentActions(StatusControlContext statusContext)
     {
-        StatusContext = statusContext;
-        DeleteCommand = StatusContext.RunBlockingTaskCommand<LinkContent>(Delete);
-        EditCommand = StatusContext.RunNonBlockingTaskCommand<LinkContent>(Edit);
-        ExtractNewLinksCommand = StatusContext.RunBlockingTaskCommand<LinkContent>(ExtractNewLinks);
-        GenerateHtmlCommand = StatusContext.RunBlockingTaskCommand<LinkContent>(GenerateHtml);
-        LinkCodeToClipboardCommand = StatusContext.RunBlockingTaskCommand<LinkContent>(DefaultBracketCodeToClipboard);
-        ViewOnSiteCommand = StatusContext.RunBlockingTaskCommand<LinkContent>(ViewOnSite);
-        ViewHistoryCommand = StatusContext.RunNonBlockingTaskCommand<LinkContent>(ViewHistory);
+        _statusContext = statusContext;
+        _deleteCommand = StatusContext.RunBlockingTaskCommand<LinkContent>(Delete);
+        _editCommand = StatusContext.RunNonBlockingTaskCommand<LinkContent>(Edit);
+        _extractNewLinksCommand = StatusContext.RunBlockingTaskCommand<LinkContent>(ExtractNewLinks);
+        _generateHtmlCommand = StatusContext.RunBlockingTaskCommand<LinkContent>(GenerateHtml);
+        _linkCodeToClipboardCommand = StatusContext.RunBlockingTaskCommand<LinkContent>(DefaultBracketCodeToClipboard);
+        _viewOnSiteCommand = StatusContext.RunBlockingTaskCommand<LinkContent>(ViewOnSite);
+        _viewHistoryCommand = StatusContext.RunNonBlockingTaskCommand<LinkContent>(ViewHistory);
 
-        CopyUrlCommand = StatusContext.RunNonBlockingTaskCommand<string>(async x =>
+        _copyUrlCommand = StatusContext.RunNonBlockingTaskCommand<string>(async x =>
         {
             await ThreadSwitcher.ResumeForegroundAsync();
+
+            if(string.IsNullOrWhiteSpace(x))
+            {
+                StatusContext.ToastError("Nothing to Copy?");
+                return;
+            }
 
             Clipboard.SetText(x);
 
@@ -51,12 +57,12 @@ public partial class LinkContentActions : ObservableObject, IContentActions<Link
         });
     }
 
-    public string DefaultBracketCode(LinkContent content)
+    public string DefaultBracketCode(LinkContent? content)
     {
         return content?.ContentId == null ? string.Empty : $"[{content.Title}]({content.Url})";
     }
 
-    public async Task DefaultBracketCodeToClipboard(LinkContent content)
+    public async Task DefaultBracketCodeToClipboard(LinkContent? content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -75,7 +81,7 @@ public partial class LinkContentActions : ObservableObject, IContentActions<Link
         StatusContext.ToastSuccess($"To Clipboard {finalString}");
     }
 
-    public async Task Delete(LinkContent content)
+    public async Task Delete(LinkContent? content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -94,7 +100,7 @@ public partial class LinkContentActions : ObservableObject, IContentActions<Link
         await Db.DeleteLinkContent(content.ContentId, StatusContext.ProgressTracker());
     }
 
-    public async Task Edit(LinkContent content)
+    public async Task Edit(LinkContent? content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -113,7 +119,7 @@ public partial class LinkContentActions : ObservableObject, IContentActions<Link
         await newContentWindow.PositionWindowAndShowOnUiThread();
     }
 
-    public async Task ExtractNewLinks(LinkContent content)
+    public async Task ExtractNewLinks(LinkContent? content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -133,7 +139,7 @@ public partial class LinkContentActions : ObservableObject, IContentActions<Link
             $"{refreshedData.Comments} {refreshedData.Description}", StatusContext.ProgressTracker());
     }
 
-    public async Task GenerateHtml(LinkContent content)
+    public async Task GenerateHtml(LinkContent? content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -148,7 +154,7 @@ public partial class LinkContentActions : ObservableObject, IContentActions<Link
         StatusContext.ToastSuccess($"Generated {settings.LinkListUrl()}");
     }
 
-    public async Task ViewOnSite(LinkContent content)
+    public async Task ViewOnSite(LinkContent? content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -170,7 +176,7 @@ public partial class LinkContentActions : ObservableObject, IContentActions<Link
         Process.Start(ps);
     }
 
-    public async Task ViewHistory(LinkContent content)
+    public async Task ViewHistory(LinkContent? content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -205,6 +211,6 @@ public partial class LinkContentActions : ObservableObject, IContentActions<Link
     public static LinkListListItem ListItemFromDbItem(LinkContent content, LinkContentActions itemActions,
         bool showType)
     {
-        return new LinkListListItem { DbEntry = content, ItemActions = itemActions, ShowType = showType };
+        return new LinkListListItem(itemActions) { DbEntry = content, ShowType = showType };
     }
 }

@@ -354,13 +354,11 @@ Notes:
             "there will be a viewer/player for the file. This option is only available if 'Show Public" +
             "Download Link' is checked and not all content types are supported.";
 
-        TitleSummarySlugFolder = await TitleSummarySlugEditorContext.CreateInstance(StatusContext, "To File Name",
+        TitleSummarySlugFolder = await TitleSummarySlugEditorContext.CreateInstance(StatusContext, DbEntry, "To File Name",
             AutoRenameSelectedFileBasedOnTitleCommand,
             x =>
             SelectedFile != null && !Path.GetFileNameWithoutExtension(SelectedFile.Name)
-                    .Equals(SlugTools.CreateSlug(false, x.TitleEntry.UserValue), StringComparison.OrdinalIgnoreCase)
-            ,
-            DbEntry);
+                    .Equals(SlugTools.CreateSlug(false, x.TitleEntry.UserValue), StringComparison.OrdinalIgnoreCase));
         MainSiteFeed = await ContentSiteFeedAndIsDraftContext.CreateInstance(StatusContext, DbEntry);
         CreatedUpdatedDisplay = await CreatedAndUpdatedByAndOnDisplayContext.CreateInstance(StatusContext, DbEntry);
         ContentId = await ContentIdViewerControlContext.CreateInstance(StatusContext, DbEntry);

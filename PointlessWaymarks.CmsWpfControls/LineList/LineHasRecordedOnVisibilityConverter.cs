@@ -7,7 +7,7 @@ namespace PointlessWaymarks.CmsWpfControls.LineList;
 
 public class LineHasRecordedOnVisibilityConverter : IValueConverter
 {
-    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
         if (value is not LineContent content) return Visibility.Collapsed;
 
@@ -16,7 +16,7 @@ public class LineHasRecordedOnVisibilityConverter : IValueConverter
         return Visibility.Visible;
     }
 
-    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+    public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
         throw new NotSupportedException();
     }

@@ -89,7 +89,7 @@ public partial class VideoContentEditorWindow
     ///     PositionWindowAndShowOnUiThread() from the WindowInitialPositionHelpers.
     /// </summary>
     /// <returns></returns>
-    public static async Task<VideoContentEditorWindow> CreateInstance(VideoContent toLoad)
+    public static async Task<VideoContentEditorWindow> CreateInstance(VideoContent? toLoad)
     {
         await ThreadSwitcher.ResumeForegroundAsync();
 

@@ -36,11 +36,32 @@ public partial class BodyContentEditorContext : ObservableObject, IHasChanges, I
     [ObservableProperty] private int _userBodyContentUserSelectionStart;
     [ObservableProperty] private string? _userHtmlSelectedText;
 
-    private BodyContentEditorContext(StatusControlContext? statusContext)
+    private BodyContentEditorContext(StatusControlContext statusContext, IBodyContent dbEntry, ContentFormatChooserContext contentFormatChooser)
     {
-        _statusContext = statusContext ?? new StatusControlContext();
+        _statusContext = statusContext;
+
+        _removeLineBreaksFromSelectedCommand = StatusContext.RunBlockingActionCommand(RemoveLineBreaksFromSelected);
+        _refreshPreviewCommand = StatusContext.RunBlockingTaskCommand(UpdateContentHtml);
+        _speakSelectedTextCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
+        {
+            await ThreadSwitcher.ResumeForegroundAsync();
+            var speaker = new TextToSpeech();
+            await speaker.Speak(UserHtmlSelectedText);
+        });
 
         PropertyChanged += OnPropertyChanged;
+
+        _dbEntry = dbEntry;
+
+        _bodyContentFormat = contentFormatChooser;
+
+        BodyContentFormat.InitialValue = _dbEntry.BodyContentFormat;
+
+        _bodyContent = _dbEntry.BodyContent;
+
+        _selectedBodyText = string.Empty;
+
+        PropertyScanners.SubscribeToChildHasChangesAndHasValidationIssues(this, CheckForChangesAndValidationIssues);
     }
 
     public void CheckForChangesAndValidationIssues()
@@ -56,48 +77,17 @@ public partial class BodyContentEditorContext : ObservableObject, IHasChanges, I
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        var newContext = new BodyContentEditorContext(statusContext);
+        var factoryContext = statusContext ?? new StatusControlContext();
 
-        newContext.BodyContentFormat = ContentFormatChooserContext.CreateInstance(newContext.StatusContext);
+        var factoryChooser = await ContentFormatChooserContext.CreateInstance(factoryContext);
 
-        await newContext.LoadData(dbEntry);
+        var newContext = new BodyContentEditorContext(factoryContext, dbEntry, factoryChooser);
+
+        var setUpdateFormatOk = await newContext.BodyContentFormat.TrySelectContentChoice(dbEntry.BodyContentFormat);
+
+        if (!setUpdateFormatOk) newContext.StatusContext.ToastWarning("Trouble loading Format from Db...");
 
         return newContext;
-    }
-
-    public async Task LoadData(IBodyContent? toLoad)
-    {
-        await ThreadSwitcher.ResumeBackgroundAsync();
-
-        DbEntry = toLoad;
-
-        RemoveLineBreaksFromSelectedCommand = StatusContext.RunBlockingActionCommand(RemoveLineBreaksFromSelected);
-        RefreshPreviewCommand = StatusContext.RunBlockingTaskCommand(UpdateContentHtml);
-        SpeakSelectedTextCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
-        {
-            await ThreadSwitcher.ResumeForegroundAsync();
-            var speaker = new TextToSpeech();
-            await speaker.Speak(UserHtmlSelectedText);
-        });
-
-        BodyContentFormat.InitialValue = toLoad?.BodyContentFormat;
-
-        if (toLoad == null)
-        {
-            BodyContent = string.Empty;
-            BodyContentFormat.SelectedContentFormat = BodyContentFormat.ContentFormatChoices.First();
-            return;
-        }
-
-        BodyContent = toLoad.BodyContent;
-
-        var setUpdateFormatOk = await BodyContentFormat.TrySelectContentChoice(toLoad.BodyContentFormat);
-
-        if (!setUpdateFormatOk) StatusContext.ToastWarning("Trouble loading Format from Db...");
-
-        SelectedBodyText = string.Empty;
-
-        PropertyScanners.SubscribeToChildHasChangesAndHasValidationIssues(this, CheckForChangesAndValidationIssues);
     }
 
     private void OnPropertyChanged(object? sender, PropertyChangedEventArgs e)

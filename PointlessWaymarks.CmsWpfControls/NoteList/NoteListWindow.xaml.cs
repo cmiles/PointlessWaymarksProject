@@ -12,9 +12,12 @@ public partial class NoteListWindow
     [ObservableProperty] private NoteListWithActionsContext _listContext;
     [ObservableProperty] private string _windowTitle = "Note List";
 
-    private NoteListWindow()
+    private NoteListWindow(NoteListWithActionsContext toLoad)
     {
         InitializeComponent();
+
+        _listContext = toLoad;
+
         DataContext = this;
     }
 
@@ -23,13 +26,11 @@ public partial class NoteListWindow
     /// switch to the UI thread as needed.
     /// </summary>
     /// <returns></returns>
-    public static async Task<NoteListWindow> CreateInstance(NoteListWithActionsContext toLoad)
+    public static async Task<NoteListWindow> CreateInstance(NoteListWithActionsContext? toLoad)
     {
         await ThreadSwitcher.ResumeForegroundAsync();
-        var window = new NoteListWindow
-        {
-            ListContext = toLoad ?? new NoteListWithActionsContext(null)
-        };
+
+        var window = new NoteListWindow(toLoad ?? await NoteListWithActionsContext.CreateInstance(null));
 
         return window;
     }

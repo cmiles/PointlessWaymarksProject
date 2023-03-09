@@ -26,163 +26,29 @@ public partial class FileListWithActionsContext : ObservableObject
     [ObservableProperty] private RelayCommand _viewFilesCommand;
     [ObservableProperty] private WindowIconStatus? _windowStatus;
 
-    public FileListWithActionsContext(StatusControlContext? statusContext, WindowIconStatus? windowStatus = null)
+    private FileListWithActionsContext(StatusControlContext statusContext, WindowIconStatus? windowStatus,
+        ContentListContext factoryListContext)
     {
-        StatusContext = statusContext ?? new StatusControlContext();
-        WindowStatus = windowStatus;
-        CommonCommands = new CmsCommonCommands(StatusContext, WindowStatus);
+        _statusContext = statusContext;
+        _windowStatus = windowStatus;
+        _commonCommands = new CmsCommonCommands(StatusContext, WindowStatus);
 
-        StatusContext.RunFireAndForgetBlockingTask(LoadData);
-    }
+        _listContext = factoryListContext;
 
-    private async Task EmailHtmlToClipboard()
-    {
-        await ThreadSwitcher.ResumeBackgroundAsync();
-
-        if (SelectedItems() == null || !SelectedItems().Any())
-        {
-            StatusContext.ToastError("Nothing Selected?");
-            return;
-        }
-
-        if (SelectedItems().Count > 1)
-        {
-            StatusContext.ToastError("Please select only 1 item...");
-            return;
-        }
-
-        var frozenSelected = SelectedItems().First();
-
-        var emailHtml = await Email.ToHtmlEmail(frozenSelected.DbEntry, StatusContext.ProgressTracker());
-
-        await ThreadSwitcher.ResumeForegroundAsync();
-
-        HtmlClipboardHelpers.CopyToClipboard(emailHtml, emailHtml);
-
-        StatusContext.ToastSuccess("Email Html on Clipboard");
-    }
-
-    private async Task FileDownloadLinkCodesToClipboardForSelected()
-    {
-        await ThreadSwitcher.ResumeBackgroundAsync();
-
-        if (SelectedItems() == null || !SelectedItems().Any())
-        {
-            StatusContext.ToastError("Nothing Selected?");
-            return;
-        }
-
-        var finalString = string.Empty;
-
-        foreach (var loopSelected in SelectedItems())
-            finalString += @$"{BracketCodeFileDownloads.Create(loopSelected.DbEntry)}{Environment.NewLine}";
-
-        await ThreadSwitcher.ResumeForegroundAsync();
-
-        Clipboard.SetText(finalString);
-
-        StatusContext.ToastSuccess($"To Clipboard {finalString}");
-    }
-
-    private async Task FileEmbedCodesToClipboardForSelected()
-    {
-        await ThreadSwitcher.ResumeBackgroundAsync();
-
-        if (SelectedItems() == null || !SelectedItems().Any())
-        {
-            StatusContext.ToastError("Nothing Selected?");
-            return;
-        }
-
-        var finalString = string.Empty;
-
-        foreach (var loopSelected in SelectedItems())
-            finalString += @$"{BracketCodeFileEmbed.Create(loopSelected.DbEntry)}{Environment.NewLine}";
-
-        await ThreadSwitcher.ResumeForegroundAsync();
-
-        Clipboard.SetText(finalString);
-
-        StatusContext.ToastSuccess($"To Clipboard {finalString}");
-    }
-
-    private async Task FilePageLinkCodesToClipboardForSelected()
-    {
-        await ThreadSwitcher.ResumeBackgroundAsync();
-
-        if (SelectedItems() == null || !SelectedItems().Any())
-        {
-            StatusContext.ToastError("Nothing Selected?");
-            return;
-        }
-
-        var finalString = string.Empty;
-
-        foreach (var loopSelected in SelectedItems())
-            finalString += @$"{BracketCodeFiles.Create(loopSelected.DbEntry)}{Environment.NewLine}";
-
-        await ThreadSwitcher.ResumeForegroundAsync();
-
-        Clipboard.SetText(finalString);
-
-        StatusContext.ToastSuccess($"To Clipboard {finalString}");
-    }
-
-    private async Task FileUrlLinkCodesToClipboardForSelected()
-    {
-        await ThreadSwitcher.ResumeBackgroundAsync();
-
-        if (SelectedItems() == null || !SelectedItems().Any())
-        {
-            StatusContext.ToastError("Nothing Selected?");
-            return;
-        }
-
-        var finalString = string.Empty;
-
-        foreach (var loopSelected in SelectedItems())
-            finalString += @$"{BracketCodeFileUrl.Create(loopSelected.DbEntry)}{Environment.NewLine}";
-
-        await ThreadSwitcher.ResumeForegroundAsync();
-
-        Clipboard.SetText(finalString);
-
-        StatusContext.ToastSuccess($"To Clipboard {finalString}");
-    }
-
-    private async Task FirstPagePreviewFromPdf()
-    {
-        var selected = SelectedItems();
-
-        if (selected == null || !selected.Any())
-        {
-            StatusContext.ToastError("Nothing Selected?");
-            return;
-        }
-
-        await ImageExtractionHelpers.PdfPageToImage(StatusContext, selected.Select(x => x.DbEntry).ToList(), 1);
-    }
-
-    private async Task LoadData()
-    {
-        await ThreadSwitcher.ResumeBackgroundAsync();
-
-        ListContext ??= new ContentListContext(StatusContext, new FileListLoader(100), WindowStatus);
-
-        RefreshDataCommand = StatusContext.RunBlockingTaskCommand(ListContext.LoadData);
-        FilePageLinkCodesToClipboardForSelectedCommand =
+        _refreshDataCommand = StatusContext.RunBlockingTaskCommand(ListContext.LoadData);
+        _filePageLinkCodesToClipboardForSelectedCommand =
             StatusContext.RunBlockingTaskCommand(FilePageLinkCodesToClipboardForSelected);
-        FileDownloadLinkCodesToClipboardForSelectedCommand =
+        _fileDownloadLinkCodesToClipboardForSelectedCommand =
             StatusContext.RunBlockingTaskCommand(FileDownloadLinkCodesToClipboardForSelected);
-        FileEmbedCodesToClipboardForSelectedCommand =
+        _fileEmbedCodesToClipboardForSelectedCommand =
             StatusContext.RunBlockingTaskCommand(FileEmbedCodesToClipboardForSelected);
-        FileUrlLinkCodesToClipboardForSelectedCommand =
+        _fileUrlLinkCodesToClipboardForSelectedCommand =
             StatusContext.RunBlockingTaskCommand(FileUrlLinkCodesToClipboardForSelected);
-        ViewFilesCommand = StatusContext.RunBlockingTaskWithCancellationCommand(ViewFilesSelected, "Cancel File View");
+        _viewFilesCommand = StatusContext.RunBlockingTaskWithCancellationCommand(ViewFilesSelected, "Cancel File View");
 
-        FirstPagePreviewFromPdfCommand = StatusContext.RunBlockingTaskCommand(FirstPagePreviewFromPdf);
+        _firstPagePreviewFromPdfCommand = StatusContext.RunBlockingTaskCommand(FirstPagePreviewFromPdf);
 
-        EmailHtmlToClipboardCommand = StatusContext.RunBlockingTaskCommand(EmailHtmlToClipboard);
+        _emailHtmlToClipboardCommand = StatusContext.RunBlockingTaskCommand(EmailHtmlToClipboard);
 
         ListContext.ContextMenuItems = new List<ContextMenuItemData>
         {
@@ -221,12 +87,157 @@ public partial class FileListWithActionsContext : ObservableObject
             new() { ItemName = "Refresh Data", ItemCommand = RefreshDataCommand }
         };
 
+        StatusContext.RunFireAndForgetBlockingTask(LoadData);
+    }
+
+    public static async Task<FileListWithActionsContext> CreateInstance(StatusControlContext? statusContext, WindowIconStatus? windowStatus)
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        var factoryStatusContext = statusContext ?? new StatusControlContext();
+        var factoryListContext = await ContentListContext.CreateInstance(factoryStatusContext, new FileListLoader(100), windowStatus);
+
+        return new FileListWithActionsContext(factoryStatusContext, windowStatus, factoryListContext);
+    }
+
+    private async Task EmailHtmlToClipboard()
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (!SelectedItems().Any())
+        {
+            StatusContext.ToastError("Nothing Selected?");
+            return;
+        }
+
+        if (SelectedItems().Count > 1)
+        {
+            StatusContext.ToastError("Please select only 1 item...");
+            return;
+        }
+
+        var frozenSelected = SelectedItems().First();
+
+        var emailHtml = await Email.ToHtmlEmail(frozenSelected.DbEntry, StatusContext.ProgressTracker());
+
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        HtmlClipboardHelpers.CopyToClipboard(emailHtml, emailHtml);
+
+        StatusContext.ToastSuccess("Email Html on Clipboard");
+    }
+
+    private async Task FileDownloadLinkCodesToClipboardForSelected()
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (!SelectedItems().Any())
+        {
+            StatusContext.ToastError("Nothing Selected?");
+            return;
+        }
+
+        var finalString = string.Empty;
+
+        foreach (var loopSelected in SelectedItems())
+            finalString += @$"{BracketCodeFileDownloads.Create(loopSelected.DbEntry)}{Environment.NewLine}";
+
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        Clipboard.SetText(finalString);
+
+        StatusContext.ToastSuccess($"To Clipboard {finalString}");
+    }
+
+    private async Task FileEmbedCodesToClipboardForSelected()
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (!SelectedItems().Any())
+        {
+            StatusContext.ToastError("Nothing Selected?");
+            return;
+        }
+
+        var finalString = string.Empty;
+
+        foreach (var loopSelected in SelectedItems())
+            finalString += @$"{BracketCodeFileEmbed.Create(loopSelected.DbEntry)}{Environment.NewLine}";
+
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        Clipboard.SetText(finalString);
+
+        StatusContext.ToastSuccess($"To Clipboard {finalString}");
+    }
+
+    private async Task FilePageLinkCodesToClipboardForSelected()
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (!SelectedItems().Any())
+        {
+            StatusContext.ToastError("Nothing Selected?");
+            return;
+        }
+
+        var finalString = string.Empty;
+
+        foreach (var loopSelected in SelectedItems())
+            finalString += @$"{BracketCodeFiles.Create(loopSelected.DbEntry)}{Environment.NewLine}";
+
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        Clipboard.SetText(finalString);
+
+        StatusContext.ToastSuccess($"To Clipboard {finalString}");
+    }
+
+    private async Task FileUrlLinkCodesToClipboardForSelected()
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (!SelectedItems().Any())
+        {
+            StatusContext.ToastError("Nothing Selected?");
+            return;
+        }
+
+        var finalString = string.Empty;
+
+        foreach (var loopSelected in SelectedItems())
+            finalString += @$"{BracketCodeFileUrl.Create(loopSelected.DbEntry)}{Environment.NewLine}";
+
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        Clipboard.SetText(finalString);
+
+        StatusContext.ToastSuccess($"To Clipboard {finalString}");
+    }
+
+    private async Task FirstPagePreviewFromPdf()
+    {
+        var selected = SelectedItems();
+
+        if (!selected.Any())
+        {
+            StatusContext.ToastError("Nothing Selected?");
+            return;
+        }
+
+        await ImageExtractionHelpers.PdfPageToImage(StatusContext, selected.Select(x => x.DbEntry).ToList(), 1);
+    }
+
+    private async Task LoadData()
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
         await ListContext.LoadData();
     }
 
     public List<FileListListItem> SelectedItems()
     {
-        return ListContext?.ListSelection?.SelectedItems?.Where(x => x is FileListListItem).Cast<FileListListItem>()
+        return ListContext.ListSelection.SelectedItems?.Where(x => x is FileListListItem).Cast<FileListListItem>()
             .ToList() ?? new List<FileListListItem>();
     }
 
@@ -234,7 +245,7 @@ public partial class FileListWithActionsContext : ObservableObject
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        if (ListContext.ListSelection?.SelectedItems == null || ListContext.ListSelection.SelectedItems.Count < 1)
+        if (ListContext.ListSelection.SelectedItems == null || ListContext.ListSelection.SelectedItems.Count < 1)
         {
             StatusContext.ToastWarning("Nothing Selected to View?");
             return;

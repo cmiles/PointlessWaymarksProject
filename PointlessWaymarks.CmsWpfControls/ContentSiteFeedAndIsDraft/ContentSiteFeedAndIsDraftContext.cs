@@ -20,10 +20,17 @@ public partial class ContentSiteFeedAndIsDraftContext : ObservableObject, IHasCh
     [ObservableProperty] private BoolDataEntryContext _showInMainSiteFeedEntry;
     [ObservableProperty] private StatusControlContext _statusContext;
 
-    public ContentSiteFeedAndIsDraftContext(StatusControlContext? statusContext)
+    private ContentSiteFeedAndIsDraftContext(StatusControlContext statusContext, ConversionDataEntryContext<DateTime> feedOnContext, BoolDataEntryContext isDraftContext, BoolDataEntryContext showInMainSiteFeedContext)
     {
-        StatusContext = statusContext ?? new();
+        _statusContext = statusContext;
+
+        _feedOnEntry = feedOnContext;
+        _isDraftEntry = isDraftContext;
+        _showInMainSiteFeedEntry = showInMainSiteFeedContext;
+
         PropertyChanged += OnPropertyChanged;
+
+        PropertyScanners.SubscribeToChildHasChangesAndHasValidationIssues(this, CheckForChangesAndValidationIssues);
     }
 
     public void CheckForChangesAndValidationIssues()
@@ -38,30 +45,19 @@ public partial class ContentSiteFeedAndIsDraftContext : ObservableObject, IHasCh
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        var newItem = new ContentSiteFeedAndIsDraftContext(statusContext);
-        await newItem.LoadData(dbEntry);
+        var factoryIsDraftContest = BoolDataEntryTypes.CreateInstanceForIsDraft(dbEntry, false);
+        var factoryShowInMainSiteFeedContext = BoolDataEntryTypes.CreateInstanceForShowInMainSiteFeed(dbEntry, false);
+
+        var factoryFeedContext =
+            ConversionDataEntryContext<DateTime>.CreateInstance(ConversionDataEntryHelpers.DateTimeConversion);
+        factoryFeedContext.Title = "Show in Site Feeds On";
+        factoryFeedContext.HelpText = "Sets when (if enabled) the content will appear on the Front Page and in RSS Feeds";
+        factoryFeedContext.ReferenceValue = dbEntry.FeedOn;
+        factoryFeedContext.UserText = dbEntry.FeedOn.ToString("MM/dd/yyyy h:mm:ss tt");
+
+        var newItem = new ContentSiteFeedAndIsDraftContext(statusContext, factoryFeedContext, factoryIsDraftContest, factoryShowInMainSiteFeedContext);
 
         return newItem;
-    }
-
-    public async Task LoadData(IMainSiteFeed dbEntry)
-    {
-        await ThreadSwitcher.ResumeBackgroundAsync();
-
-        DbEntry = dbEntry;
-
-        ShowInMainSiteFeedEntry = BoolDataEntryTypes.CreateInstanceForShowInMainSiteFeed(DbEntry, false);
-
-        FeedOnEntry =
-            ConversionDataEntryContext<DateTime>.CreateInstance(ConversionDataEntryHelpers.DateTimeConversion);
-        FeedOnEntry.Title = "Show in Site Feeds On";
-        FeedOnEntry.HelpText = "Sets when (if enabled) the content will appear on the Front Page and in RSS Feeds";
-        FeedOnEntry.ReferenceValue = DbEntry.FeedOn;
-        FeedOnEntry.UserText = DbEntry.FeedOn.ToString("MM/dd/yyyy h:mm:ss tt");
-
-        IsDraftEntry = BoolDataEntryTypes.CreateInstanceForIsDraft(DbEntry, false);
-
-        PropertyScanners.SubscribeToChildHasChangesAndHasValidationIssues(this, CheckForChangesAndValidationIssues);
     }
 
     private void OnPropertyChanged(object? sender, PropertyChangedEventArgs e)

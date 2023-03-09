@@ -15,22 +15,16 @@ public partial class MapComponentListWithActionsContext : ObservableObject
     [ObservableProperty] private StatusControlContext _statusContext;
     [ObservableProperty] private WindowIconStatus? _windowStatus;
 
-    public MapComponentListWithActionsContext(StatusControlContext? statusContext, WindowIconStatus? windowStatus = null)
+    private MapComponentListWithActionsContext(StatusControlContext statusContext, WindowIconStatus? windowStatus, ContentListContext listContext)
     {
-        StatusContext = statusContext ?? new StatusControlContext();
-        WindowStatus = windowStatus;
-        CommonCommands = new CmsCommonCommands(StatusContext, WindowStatus);
+        _statusContext = statusContext;
+        _windowStatus = windowStatus;
 
-        StatusContext.RunFireAndForgetBlockingTask(LoadData);
-    }
+        _listContext = listContext;
 
-    private async Task LoadData()
-    {
-        await ThreadSwitcher.ResumeBackgroundAsync();
+        _commonCommands = new CmsCommonCommands(StatusContext, WindowStatus);
 
-        ListContext ??= new ContentListContext(StatusContext, new MapComponentListLoader(100), WindowStatus);
-
-        RefreshDataCommand = StatusContext.RunBlockingTaskCommand(ListContext.LoadData);
+        _refreshDataCommand = StatusContext.RunBlockingTaskCommand(ListContext.LoadData);
 
         ListContext.ContextMenuItems = new List<ContextMenuItemData>
         {
@@ -47,12 +41,30 @@ public partial class MapComponentListWithActionsContext : ObservableObject
             new() { ItemName = "Refresh Data", ItemCommand = RefreshDataCommand }
         };
 
+
+        StatusContext.RunFireAndForgetBlockingTask(LoadData);
+    }
+
+    public static async Task<MapComponentListWithActionsContext> CreateInstance(StatusControlContext? statusContext, WindowIconStatus? windowStatus = null)
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        var factoryContext = statusContext ?? new StatusControlContext();
+        var factoryListContext = await ContentListContext.CreateInstance(factoryContext, new MapComponentListLoader(100), windowStatus);
+
+        return new MapComponentListWithActionsContext(factoryContext, windowStatus, factoryListContext);
+    }
+
+    private async Task LoadData()
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
         await ListContext.LoadData();
     }
 
     public List<MapComponentListListItem> SelectedItems()
     {
-        return ListContext?.ListSelection?.SelectedItems?.Where(x => x is MapComponentListListItem)
+        return ListContext.ListSelection.SelectedItems?.Where(x => x is MapComponentListListItem)
             .Cast<MapComponentListListItem>().ToList() ?? new List<MapComponentListListItem>();
     }
 }

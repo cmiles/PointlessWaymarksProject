@@ -12,9 +12,12 @@ public partial class PostListWindow
     [ObservableProperty] private PostListWithActionsContext _listContext;
     [ObservableProperty] private string _windowTitle = "Post List";
 
-    private PostListWindow()
+    private PostListWindow(PostListWithActionsContext listContext)
     {
         InitializeComponent();
+
+        _listContext = listContext;
+
         DataContext = this;
     }
 
@@ -23,13 +26,10 @@ public partial class PostListWindow
     /// switch to the UI thread as needed.
     /// </summary>
     /// <returns></returns>
-    public static async Task<PostListWindow> CreateInstance(PostListWithActionsContext toLoad)
+    public static async Task<PostListWindow> CreateInstance(PostListWithActionsContext? toLoad)
     {
         await ThreadSwitcher.ResumeForegroundAsync();
-        var window = new PostListWindow
-        {
-            ListContext = toLoad ?? new PostListWithActionsContext(null)
-        };
+        var window = await PostListWindow.CreateInstance(toLoad ?? await PostListWithActionsContext.CreateInstance(null, null));
 
         return window;
     }

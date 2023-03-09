@@ -33,26 +33,26 @@ public partial class VideoContentActions : ObservableObject, IContentActions<Vid
 
     public VideoContentActions(StatusControlContext statusContext)
     {
-        StatusContext = statusContext;
-        DeleteCommand = StatusContext.RunBlockingTaskCommand<VideoContent>(Delete);
-        EditCommand = StatusContext.RunNonBlockingTaskCommand<VideoContent>(Edit);
-        ExtractNewLinksCommand = StatusContext.RunBlockingTaskCommand<VideoContent>(ExtractNewLinks);
-        GenerateHtmlCommand = StatusContext.RunBlockingTaskCommand<VideoContent>(GenerateHtml);
-        LinkCodeToClipboardCommand = StatusContext.RunBlockingTaskCommand<VideoContent>(DefaultBracketCodeToClipboard);
-        ViewOnSiteCommand = StatusContext.RunBlockingTaskCommand<VideoContent>(ViewOnSite);
-        ViewFileCommand = StatusContext.RunNonBlockingTaskCommand<VideoContent>(ViewFile);
-        ViewHistoryCommand = StatusContext.RunNonBlockingTaskCommand<VideoContent>(ViewHistory);
+        _statusContext = statusContext;
+        _deleteCommand = StatusContext.RunBlockingTaskCommand<VideoContent>(Delete);
+        _editCommand = StatusContext.RunNonBlockingTaskCommand<VideoContent>(Edit);
+        _extractNewLinksCommand = StatusContext.RunBlockingTaskCommand<VideoContent>(ExtractNewLinks);
+        _generateHtmlCommand = StatusContext.RunBlockingTaskCommand<VideoContent>(GenerateHtml);
+        _linkCodeToClipboardCommand = StatusContext.RunBlockingTaskCommand<VideoContent>(DefaultBracketCodeToClipboard);
+        _viewOnSiteCommand = StatusContext.RunBlockingTaskCommand<VideoContent>(ViewOnSite);
+        _viewFileCommand = StatusContext.RunNonBlockingTaskCommand<VideoContent>(ViewFile);
+        _viewHistoryCommand = StatusContext.RunNonBlockingTaskCommand<VideoContent>(ViewHistory);
     }
 
-    public string DefaultBracketCode(VideoContent content)
+    public string DefaultBracketCode(VideoContent? content)
     {
         if (content?.ContentId == null) return string.Empty;
         return content.MainPicture != null
             ? @$"{BracketCodeVideoImage.Create(content)}"
-            : @$"{BracketCodeVideos.Create(content)}";
+            : @$"{BracketCodeVideoEmbed.Create(content)}";
     }
 
-    public async Task DefaultBracketCodeToClipboard(VideoContent content)
+    public async Task DefaultBracketCodeToClipboard(VideoContent? content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -64,7 +64,7 @@ public partial class VideoContentActions : ObservableObject, IContentActions<Vid
 
         var finalString = content.MainPicture != null
             ? @$"{BracketCodeVideoImage.Create(content)}{Environment.NewLine}"
-            : @$"{BracketCodeVideos.Create(content)}{Environment.NewLine}";
+            : @$"{BracketCodeVideoEmbed.Create(content)}{Environment.NewLine}";
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
@@ -73,7 +73,7 @@ public partial class VideoContentActions : ObservableObject, IContentActions<Vid
         StatusContext.ToastSuccess($"To Clipboard {finalString}");
     }
 
-    public async Task Delete(VideoContent content)
+    public async Task Delete(VideoContent? content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -101,7 +101,7 @@ public partial class VideoContentActions : ObservableObject, IContentActions<Vid
         }
     }
 
-    public async Task Edit(VideoContent content)
+    public async Task Edit(VideoContent? content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -120,7 +120,7 @@ public partial class VideoContentActions : ObservableObject, IContentActions<Vid
         await newContentWindow.PositionWindowAndShowOnUiThread();
     }
 
-    public async Task ExtractNewLinks(VideoContent content)
+    public async Task ExtractNewLinks(VideoContent? content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -139,7 +139,7 @@ public partial class VideoContentActions : ObservableObject, IContentActions<Vid
             $"{refreshedData.BodyContent} {refreshedData.UpdateNotes}", StatusContext.ProgressTracker());
     }
 
-    public async Task GenerateHtml(VideoContent content)
+    public async Task GenerateHtml(VideoContent? content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -158,7 +158,7 @@ public partial class VideoContentActions : ObservableObject, IContentActions<Vid
         StatusContext.ToastSuccess($"Generated {htmlContext.PageUrl}");
     }
 
-    public async Task ViewHistory(VideoContent content)
+    public async Task ViewHistory(VideoContent? content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -190,7 +190,7 @@ public partial class VideoContentActions : ObservableObject, IContentActions<Vid
         historicView.WriteHtmlToTempFolderAndShow(StatusContext.ProgressTracker());
     }
 
-    public async Task ViewOnSite(VideoContent content)
+    public async Task ViewOnSite(VideoContent? content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -211,16 +211,15 @@ public partial class VideoContentActions : ObservableObject, IContentActions<Vid
     public static VideoListListItem ListItemFromDbItem(VideoContent content, VideoContentActions itemActions,
         bool showType)
     {
-        return new VideoListListItem
+        return new VideoListListItem(itemActions)
         {
             DbEntry = content,
             SmallImageUrl = ContentListContext.GetSmallImageUrl(content),
-            ItemActions = itemActions,
             ShowType = showType
         };
     }
 
-    public async Task ViewFile(VideoContent listItem)
+    public async Task ViewFile(VideoContent? listItem)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 

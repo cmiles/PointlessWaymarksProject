@@ -18,7 +18,7 @@ public partial class CreatedAndUpdatedByAndOnDisplayContext : ObservableObject, 
     [ObservableProperty] private string _createdAndUpdatedByAndOn;
     [ObservableProperty] private StringDataEntryContext _createdByEntry;
     [ObservableProperty] private DateTime? _createdOn;
-    [ObservableProperty] private ICreatedAndLastUpdateOnAndBy? _dbEntry;
+    [ObservableProperty] private ICreatedAndLastUpdateOnAndBy _dbEntry;
     [ObservableProperty] private bool _hasChanges;
     [ObservableProperty] private bool _hasValidationIssues;
     [ObservableProperty] private bool _isNewEntry;
@@ -28,61 +28,18 @@ public partial class CreatedAndUpdatedByAndOnDisplayContext : ObservableObject, 
     [ObservableProperty] private StringDataEntryContext _updatedByEntry;
     [ObservableProperty] private DateTime? _updatedOn;
 
-    private CreatedAndUpdatedByAndOnDisplayContext(StatusControlContext? statusContext)
+    private CreatedAndUpdatedByAndOnDisplayContext(StatusControlContext statusContext, ICreatedAndLastUpdateOnAndBy dbEntry, StringDataEntryContext createdByContext, StringDataEntryContext updatedByContext)
     {
-        StatusContext = statusContext ?? new StatusControlContext();
+        _statusContext = statusContext;
 
         PropertyChanged += OnPropertyChanged;
-    }
 
-    public void CheckForChangesAndValidationIssues()
-    {
-        HasChanges = PropertyScanners.ChildPropertiesHaveChanges(this);
-        HasValidationIssues = PropertyScanners.ChildPropertiesHaveValidationIssues(this);
-    }
+        _dbEntry = dbEntry;
 
-    public static async Task<CreatedAndUpdatedByAndOnDisplayContext> CreateInstance(StatusControlContext statusContext,
-        ICreatedAndLastUpdateOnAndBy dbEntry)
-    {
-        await ThreadSwitcher.ResumeBackgroundAsync();
+        _isNewEntry = ((IContentId)DbEntry).Id < 1;
 
-        var newInstance = new CreatedAndUpdatedByAndOnDisplayContext(statusContext);
-        await newInstance.LoadData(dbEntry);
-
-        return newInstance;
-    }
-
-    public async Task LoadData(ICreatedAndLastUpdateOnAndBy? toLoad)
-    {
-        await ThreadSwitcher.ResumeBackgroundAsync();
-
-        DbEntry = toLoad;
-
-        IsNewEntry = false;
-
-        if (DbEntry == null)
-            IsNewEntry = true;
-        else if (((IContentId)DbEntry).Id < 1) IsNewEntry = true;
-
-        CreatedByEntry = StringDataEntryContext.CreateInstance();
-        CreatedByEntry.ValidationFunctions = new List<Func<string?, Task<IsValid>>>
-        {
-            CommonContentValidation.ValidateCreatedBy
-        };
-        CreatedByEntry.Title = "Created By";
-        CreatedByEntry.HelpText = "Created By Name";
-        CreatedByEntry.ReferenceValue = string.IsNullOrWhiteSpace(DbEntry?.CreatedBy) ? string.Empty : DbEntry.CreatedBy;
-        CreatedByEntry.UserValue = string.IsNullOrWhiteSpace(DbEntry?.CreatedBy)
-            ? UserSettingsSingleton.CurrentSettings().DefaultCreatedBy
-            : DbEntry.CreatedBy;
-
-
-        UpdatedByEntry = StringDataEntryContext.CreateInstance();
-        UpdatedByEntry.ValidationFunctions = new List<Func<string?, Task<IsValid>>> { ValidateUpdatedBy };
-        UpdatedByEntry.Title = "Updated By";
-        UpdatedByEntry.HelpText = "Last Updated By Name";
-        UpdatedByEntry.ReferenceValue = toLoad?.LastUpdatedBy ?? string.Empty;
-        UpdatedByEntry.UserValue = toLoad?.LastUpdatedBy ?? string.Empty;
+        _createdByEntry = createdByContext;
+        _updatedByEntry = updatedByContext;
 
         PropertyScanners.SubscribeToChildHasChangesAndHasValidationIssues(this, CheckForChangesAndValidationIssues);
 
@@ -95,12 +52,12 @@ public partial class CreatedAndUpdatedByAndOnDisplayContext : ObservableObject, 
             UpdatedByEntry.UserValue = CreatedByEntry.UserValue;
         }
 
-        CreatedOn = toLoad?.CreatedOn;
-        UpdatedOn = toLoad?.LastUpdatedOn;
+        _createdOn = dbEntry?.CreatedOn;
+        _updatedOn = dbEntry?.LastUpdatedOn;
 
         var newStringParts = new List<string>();
 
-        CreatedAndUpdatedByAndOn = string.Empty;
+        _createdAndUpdatedByAndOn = string.Empty;
 
         if (IsNewEntry)
         {
@@ -128,19 +85,54 @@ public partial class CreatedAndUpdatedByAndOnDisplayContext : ObservableObject, 
         CreatedAndUpdatedByAndOn = string.Join(" ", newStringParts);
     }
 
+    public void CheckForChangesAndValidationIssues()
+    {
+        HasChanges = PropertyScanners.ChildPropertiesHaveChanges(this);
+        HasValidationIssues = PropertyScanners.ChildPropertiesHaveValidationIssues(this);
+    }
+
+    public static async Task<CreatedAndUpdatedByAndOnDisplayContext> CreateInstance(StatusControlContext? statusContext,
+        ICreatedAndLastUpdateOnAndBy dbEntry)
+    {
+        var factoryContext = statusContext ?? new StatusControlContext();
+
+        var factoryCreatedByContext = StringDataEntryContext.CreateInstance();
+        factoryCreatedByContext.ValidationFunctions = new List<Func<string?, Task<IsValid>>>
+        {
+            CommonContentValidation.ValidateCreatedBy
+        };
+        factoryCreatedByContext.Title = "Created By";
+        factoryCreatedByContext.HelpText = "Created By Name";
+        factoryCreatedByContext.ReferenceValue = string.IsNullOrWhiteSpace(dbEntry?.CreatedBy) ? string.Empty : dbEntry.CreatedBy;
+        factoryCreatedByContext.UserValue = string.IsNullOrWhiteSpace(dbEntry?.CreatedBy)
+            ? UserSettingsSingleton.CurrentSettings().DefaultCreatedBy
+            : dbEntry.CreatedBy;
+
+
+        var factoryUpdatedByEntry = StringDataEntryContext.CreateInstance();
+        factoryUpdatedByEntry.ValidationFunctions = new List<Func<string?, Task<IsValid>>> {
+            x =>
+            {
+                if (((IContentId)dbEntry).Id > 0 && string.IsNullOrWhiteSpace(x))
+                    return Task.FromResult(new IsValid(false, "Updated by can not be blank when updating an entry"));
+
+                return Task.FromResult(new IsValid(true, string.Empty));
+            } };
+        factoryUpdatedByEntry.Title = "Updated By";
+        factoryUpdatedByEntry.HelpText = "Last Updated By Name";
+        factoryUpdatedByEntry.ReferenceValue = dbEntry?.LastUpdatedBy ?? string.Empty;
+        factoryUpdatedByEntry.UserValue = dbEntry?.LastUpdatedBy ?? string.Empty;
+
+        var newInstance = new CreatedAndUpdatedByAndOnDisplayContext(factoryContext, dbEntry, factoryCreatedByContext, factoryUpdatedByEntry);
+
+        return newInstance;
+    }
+
     private void OnPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
         if (string.IsNullOrWhiteSpace(e.PropertyName)) return;
 
         if (!e.PropertyName.Contains("HasChanges") && !e.PropertyName.Contains("Validation"))
             CheckForChangesAndValidationIssues();
-    }
-
-    public Task<IsValid> ValidateUpdatedBy(string? updatedBy)
-    {
-        if (!IsNewEntry && string.IsNullOrWhiteSpace(updatedBy))
-            return Task.FromResult(new IsValid(false, "Updated by can not be blank when updating an entry"));
-
-        return Task.FromResult(new IsValid(true, string.Empty));
     }
 }

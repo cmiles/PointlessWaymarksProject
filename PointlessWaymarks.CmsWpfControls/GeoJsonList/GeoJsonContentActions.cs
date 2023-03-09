@@ -32,15 +32,15 @@ public partial class GeoJsonContentActions : ObservableObject, IContentActions<G
 
     public GeoJsonContentActions(StatusControlContext statusContext)
     {
-        StatusContext = statusContext;
-        DeleteCommand = StatusContext.RunBlockingTaskCommand<GeoJsonContent>(Delete);
-        EditCommand = StatusContext.RunNonBlockingTaskCommand<GeoJsonContent>(Edit);
-        ExtractNewLinksCommand = StatusContext.RunBlockingTaskCommand<GeoJsonContent>(ExtractNewLinks);
-        GenerateHtmlCommand = StatusContext.RunBlockingTaskCommand<GeoJsonContent>(GenerateHtml);
-        LinkCodeToClipboardCommand =
+        _statusContext = statusContext;
+        _deleteCommand = StatusContext.RunBlockingTaskCommand<GeoJsonContent>(Delete);
+        _editCommand = StatusContext.RunNonBlockingTaskCommand<GeoJsonContent>(Edit);
+        _extractNewLinksCommand = StatusContext.RunBlockingTaskCommand<GeoJsonContent>(ExtractNewLinks);
+        _generateHtmlCommand = StatusContext.RunBlockingTaskCommand<GeoJsonContent>(GenerateHtml);
+        _linkCodeToClipboardCommand =
             StatusContext.RunBlockingTaskCommand<GeoJsonContent>(DefaultBracketCodeToClipboard);
-        ViewOnSiteCommand = StatusContext.RunBlockingTaskCommand<GeoJsonContent>(ViewOnSite);
-        ViewHistoryCommand = StatusContext.RunNonBlockingTaskCommand<GeoJsonContent>(ViewHistory);
+        _viewOnSiteCommand = StatusContext.RunBlockingTaskCommand<GeoJsonContent>(ViewOnSite);
+        _viewHistoryCommand = StatusContext.RunNonBlockingTaskCommand<GeoJsonContent>(ViewHistory);
     }
 
     public string DefaultBracketCode(GeoJsonContent content)
@@ -48,7 +48,7 @@ public partial class GeoJsonContentActions : ObservableObject, IContentActions<G
         return content?.ContentId == null ? string.Empty : @$"{BracketCodeGeoJson.Create(content)}";
     }
 
-    public async Task DefaultBracketCodeToClipboard(GeoJsonContent content)
+    public async Task DefaultBracketCodeToClipboard(GeoJsonContent? content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -67,7 +67,7 @@ public partial class GeoJsonContentActions : ObservableObject, IContentActions<G
         StatusContext.ToastSuccess($"To Clipboard {finalString}");
     }
 
-    public async Task Delete(GeoJsonContent content)
+    public async Task Delete(GeoJsonContent? content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -95,7 +95,7 @@ public partial class GeoJsonContentActions : ObservableObject, IContentActions<G
         }
     }
 
-    public async Task Edit(GeoJsonContent content)
+    public async Task Edit(GeoJsonContent? content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -118,7 +118,7 @@ public partial class GeoJsonContentActions : ObservableObject, IContentActions<G
         await ThreadSwitcher.ResumeBackgroundAsync();
     }
 
-    public async Task ExtractNewLinks(GeoJsonContent content)
+    public async Task ExtractNewLinks(GeoJsonContent? content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -138,7 +138,7 @@ public partial class GeoJsonContentActions : ObservableObject, IContentActions<G
             $"{refreshedData.BodyContent} {refreshedData.UpdateNotes}", StatusContext.ProgressTracker());
     }
 
-    public async Task GenerateHtml(GeoJsonContent content)
+    public async Task GenerateHtml(GeoJsonContent? content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -157,7 +157,7 @@ public partial class GeoJsonContentActions : ObservableObject, IContentActions<G
         StatusContext.ToastSuccess($"Generated {htmlContext.PageUrl}");
     }
 
-    public async Task ViewHistory(GeoJsonContent content)
+    public async Task ViewHistory(GeoJsonContent? content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -189,7 +189,7 @@ public partial class GeoJsonContentActions : ObservableObject, IContentActions<G
         historicView.WriteHtmlToTempFolderAndShow(StatusContext.ProgressTracker());
     }
 
-    public async Task ViewOnSite(GeoJsonContent content)
+    public async Task ViewOnSite(GeoJsonContent? content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -210,11 +210,10 @@ public partial class GeoJsonContentActions : ObservableObject, IContentActions<G
     public static GeoJsonListListItem ListItemFromDbItem(GeoJsonContent content, GeoJsonContentActions itemActions,
         bool showType)
     {
-        return new GeoJsonListListItem
+        return new GeoJsonListListItem(itemActions)
         {
             DbEntry = content,
             SmallImageUrl = ContentListContext.GetSmallImageUrl(content),
-            ItemActions = itemActions,
             ShowType = showType
         };
     }

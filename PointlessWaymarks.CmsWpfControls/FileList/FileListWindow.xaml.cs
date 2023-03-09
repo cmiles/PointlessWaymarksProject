@@ -12,9 +12,12 @@ public partial class FileListWindow
     [ObservableProperty] private FileListWithActionsContext _listContext;
     [ObservableProperty] private string _windowTitle = "Files List";
 
-    private FileListWindow()
+    private FileListWindow(FileListWithActionsContext toLoad)
     {
         InitializeComponent();
+
+        _listContext = toLoad;
+
         DataContext = this;
     }
 
@@ -23,13 +26,11 @@ public partial class FileListWindow
     /// switch to the UI thread as needed.
     /// </summary>
     /// <returns></returns>
-    public static async Task<FileListWindow> CreateInstance(FileListWithActionsContext toLoad)
+    public static async Task<FileListWindow> CreateInstance(FileListWithActionsContext? toLoad)
     {
         await ThreadSwitcher.ResumeForegroundAsync();
-        var window = new FileListWindow
-        {
-            ListContext = toLoad ?? new FileListWithActionsContext(null)
-        };
+
+        var window = new FileListWindow(toLoad ?? await FileListWithActionsContext.CreateInstance(null, null));
 
         return window;
     }

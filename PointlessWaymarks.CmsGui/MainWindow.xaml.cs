@@ -514,7 +514,7 @@ public partial class MainWindow
 
         StatusContext.Progress("Setting up UI Controls");
 
-        TabAllListContext = new AllContentListWithActionsContext(null, WindowStatus);
+        TabAllListContext = await AllContentListWithActionsContext.CreateInstance(null, WindowStatus);
 
         SettingsEditorContext = new UserSettingsEditorContext(null, UserSettingsSingleton.CurrentSettings());
         AboutContext = new HelpDisplayContext(new List<string>
@@ -529,32 +529,32 @@ public partial class MainWindow
         StatusContext.RunBlockingTask(async () => await CheckForProgramUpdate(_currentDateVersion));
     }
 
-    private void LoadSelectedTabAsNeeded()
+    private async Task LoadSelectedTabAsNeeded()
     {
         if (SelectedTab == null) return;
 
         if (SelectedTab.Header.ToString() == "Posts" && TabPostListContext == null)
-            TabPostListContext = new PostListWithActionsContext(null, WindowStatus);
+            TabPostListContext = await PostListWithActionsContext.CreateInstance(null, WindowStatus);
         if (SelectedTab.Header.ToString() == "Photos" && TabPhotoListContext == null)
-            TabPhotoListContext = new PhotoListWithActionsContext(null, WindowStatus);
+            TabPhotoListContext = await PhotoListWithActionsContext.CreateInstance(null, WindowStatus, null);
         if (SelectedTab.Header.ToString() == "Images" && TabImageListContext == null)
-            TabImageListContext = new ImageListWithActionsContext(null, WindowStatus);
+            TabImageListContext = await ImageListWithActionsContext.CreateInstance(null, WindowStatus);
         if (SelectedTab.Header.ToString() == "Videos" && TabVideoListContext == null)
-            TabVideoListContext = new VideoListWithActionsContext(null, WindowStatus);
+            TabVideoListContext = await VideoListWithActionsContext.CreateInstance(null, WindowStatus);
         if (SelectedTab.Header.ToString() == "Files" && TabFileListContext == null)
-            TabFileListContext = new FileListWithActionsContext(null, WindowStatus);
+            TabFileListContext = await FileListWithActionsContext.CreateInstance( null, WindowStatus);
         if (SelectedTab.Header.ToString() == "Points" && TabPointListContext == null)
-            TabPointListContext = new PointListWithActionsContext(null, WindowStatus);
+            TabPointListContext = await PointListWithActionsContext.CreateInstance(null, WindowStatus);
         if (SelectedTab.Header.ToString() == "Lines" && TabLineListContext == null)
-            TabLineListContext = new LineListWithActionsContext(null, WindowStatus);
+            TabLineListContext = await LineListWithActionsContext.CreateInstance(null, WindowStatus);
         if (SelectedTab.Header.ToString() == "GeoJson" && TabGeoJsonListContext == null)
-            TabGeoJsonListContext = new GeoJsonListWithActionsContext(null, WindowStatus);
+            TabGeoJsonListContext = await GeoJsonListWithActionsContext.CreateInstance(null, WindowStatus);
         if (SelectedTab.Header.ToString() == "Maps" && TabMapListContext == null)
-            TabMapListContext = new MapComponentListWithActionsContext(null, WindowStatus);
+            TabMapListContext = await MapComponentListWithActionsContext.CreateInstance(null, WindowStatus);
         if (SelectedTab.Header.ToString() == "Notes" && TabNoteListContext == null)
-            TabNoteListContext = new NoteListWithActionsContext(null, WindowStatus);
+            TabNoteListContext = await NoteListWithActionsContext.CreateInstance(null, WindowStatus);
         if (SelectedTab.Header.ToString() == "Links" && TabLinkContext == null)
-            TabLinkContext = new LinkListWithActionsContext(null, WindowStatus);
+            TabLinkContext = await LinkListWithActionsContext.CreateInstance(null, WindowStatus);
         if (SelectedTab.Header.ToString() == "Tag Search Exclusions" && TabTagExclusionContext == null)
             TabTagExclusionContext = new TagExclusionEditorContext(null);
         if (SelectedTab.Header.ToString() == "Menu Links" && TabMenuLinkContext == null)

@@ -2,11 +2,9 @@
 using System.Web;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsWpfControls.ContentFormat;
-using PointlessWaymarks.CmsWpfControls.WpfHtml;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.WpfCommon.ChangesAndValidation;
 using PointlessWaymarks.WpfCommon.Status;
@@ -21,24 +19,32 @@ public partial class UpdateNotesEditorContext : ObservableObject, IHasChanges, I
     [ObservableProperty] private bool _hasChanges;
     [ObservableProperty] private bool _hasValidationIssues;
     [ObservableProperty] private RelayCommand _refreshPreviewCommand;
-
-
     [ObservableProperty] private StatusControlContext _statusContext;
-    [ObservableProperty] private string _updateNotes = string.Empty;
+    [ObservableProperty] private string _updateNotes;
     [ObservableProperty] private ContentFormatChooserContext _updateNotesFormat;
     [ObservableProperty] private bool _updateNotesHasChanges;
-    [ObservableProperty] private string _updateNotesHtmlOutput;
+    [ObservableProperty] private string? _updateNotesHtmlOutput;
 
-    private UpdateNotesEditorContext(StatusControlContext statusContext)
+    private UpdateNotesEditorContext(StatusControlContext statusContext, IUpdateNotes dbEntry, ContentFormatChooserContext contentChooser)
     {
-        StatusContext = statusContext ?? new StatusControlContext();
+        _statusContext = statusContext;
+        _updateNotesFormat = contentChooser;
+
+        _dbEntry = dbEntry;
+        _updateNotes = DbEntry.UpdateNotes ?? string.Empty;
+
+        _refreshPreviewCommand = StatusContext.RunBlockingTaskCommand(UpdateUpdateNotesContentHtml);
+
+        _updateNotesFormat = contentChooser;
 
         PropertyChanged += OnPropertyChanged;
+
+        PropertyScanners.SubscribeToChildHasChangesAndHasValidationIssues(this, CheckForChangesAndValidationIssues);
     }
 
     public void CheckForChangesAndValidationIssues()
     {
-        UpdateNotesHasChanges = !StringTools.AreEqual((DbEntry?.UpdateNotes).TrimNullToEmpty(), UpdateNotes);
+        UpdateNotesHasChanges = !StringTools.AreEqual((DbEntry.UpdateNotes).TrimNullToEmpty(), UpdateNotes);
 
         HasChanges = UpdateNotesHasChanges || PropertyScanners.ChildPropertiesHaveChanges(this);
         HasValidationIssues = PropertyScanners.ChildPropertiesHaveValidationIssues(this);
@@ -49,42 +55,32 @@ public partial class UpdateNotesEditorContext : ObservableObject, IHasChanges, I
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        var newContext = new UpdateNotesEditorContext(statusContext);
-        newContext.UpdateNotesFormat = ContentFormatChooserContext.CreateInstance(newContext.StatusContext);
+        var factoryContext = statusContext;
 
-        await newContext.LoadData(dbEntry);
+        var factoryFormatChooserContext = await ContentFormatChooserContext.CreateInstance(factoryContext);
+
+        if (string.IsNullOrWhiteSpace(dbEntry.UpdateNotesFormat))
+        {
+            factoryFormatChooserContext.SelectedContentFormat = factoryFormatChooserContext.ContentFormatChoices.First();
+        }
+        else
+        {
+            var setUpdateFormatOk = await factoryFormatChooserContext.TrySelectContentChoice(dbEntry.UpdateNotesFormat);
+
+            if (!setUpdateFormatOk)
+            {
+                factoryContext.ToastWarning("Trouble loading Format from Db...");
+                factoryFormatChooserContext.SelectedContentFormat = factoryFormatChooserContext.ContentFormatChoices.First();
+            }
+        }
+
+        var newContext = new UpdateNotesEditorContext(factoryContext, dbEntry, factoryFormatChooserContext);
 
         return newContext;
     }
 
-    public async Task LoadData(IUpdateNotes toLoad)
-    {
-        await ThreadSwitcher.ResumeBackgroundAsync();
-
-        DbEntry = toLoad;
-
-        RefreshPreviewCommand = StatusContext.RunBlockingTaskCommand(UpdateUpdateNotesContentHtml);
-
-        UpdateNotesFormat.InitialValue = DbEntry?.UpdateNotesFormat;
-
-        if (toLoad == null || string.IsNullOrWhiteSpace(toLoad.UpdateNotesFormat))
-        {
-            UpdateNotes = string.Empty;
-            UpdateNotesFormat.SelectedContentFormat = UpdateNotesFormat.ContentFormatChoices.First();
-            return;
-        }
-
-        UpdateNotes = toLoad.UpdateNotes;
-        var setUpdateFormatOk = await UpdateNotesFormat.TrySelectContentChoice(toLoad.UpdateNotesFormat);
-
-        if (!setUpdateFormatOk) StatusContext.ToastWarning("Trouble loading Format from Db...");
-
-        PropertyScanners.SubscribeToChildHasChangesAndHasValidationIssues(this, CheckForChangesAndValidationIssues);
-    }
-
     private void OnPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
-        if (e == null) return;
         if (string.IsNullOrWhiteSpace(e.PropertyName)) return;
 
         if (!e.PropertyName.Contains("HasChanges") && !e.PropertyName.Contains("Validation"))

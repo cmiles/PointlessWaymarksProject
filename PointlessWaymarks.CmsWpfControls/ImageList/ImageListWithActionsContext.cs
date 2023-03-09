@@ -26,20 +26,75 @@ public partial class ImageListWithActionsContext : ObservableObject
     [ObservableProperty] private RelayCommand _viewFilesCommand;
     [ObservableProperty] private WindowIconStatus? _windowStatus;
 
-    public ImageListWithActionsContext(StatusControlContext? statusContext, WindowIconStatus? windowStatus = null)
+    private ImageListWithActionsContext(StatusControlContext? statusContext, WindowIconStatus? windowStatus,
+        ContentListContext factoryListContext)
     {
-        StatusContext = statusContext ?? new StatusControlContext();
-        WindowStatus = windowStatus;
-        CommonCommands = new CmsCommonCommands(StatusContext, WindowStatus);
+        _statusContext = statusContext ?? new StatusControlContext();
+        _windowStatus = windowStatus;
+        _commonCommands = new CmsCommonCommands(StatusContext, WindowStatus);
+
+        _listContext = factoryListContext;
+
+        _refreshDataCommand = StatusContext.RunBlockingTaskCommand(ListContext.LoadData);
+
+        _imageBracketLinkCodesToClipboardForSelectedCommand =
+            StatusContext.RunBlockingTaskCommand(ImageBracketLinkCodesToClipboardForSelected);
+
+        _forcedResizeCommand = StatusContext.RunBlockingTaskWithCancellationCommand(ForcedResize, "Cancel Resizing");
+        _regenerateHtmlAndReprocessImageForSelectedCommand =
+            StatusContext.RunBlockingTaskWithCancellationCommand(RegenerateHtmlAndReprocessImageForSelected,
+                "Cancel HTML Generation and Image Resizing");
+
+        _viewFilesCommand = StatusContext.RunBlockingTaskWithCancellationCommand(ViewFilesSelected, "Cancel File View");
+
+        _emailHtmlToClipboardCommand = StatusContext.RunBlockingTaskCommand(EmailHtmlToClipboard);
+
+        ListContext.ContextMenuItems = new List<ContextMenuItemData>
+        {
+            new() { ItemName = "Edit", ItemCommand = ListContext.EditSelectedCommand },
+            new()
+            {
+                ItemName = "Image Code to Clipboard",
+                ItemCommand = ListContext.BracketCodeToClipboardSelectedCommand
+            },
+            new()
+            {
+                ItemName = "Text Code to Clipboard",
+                ItemCommand = ImageBracketLinkCodesToClipboardForSelectedCommand
+            },
+            new() { ItemName = "Email Html to Clipboard", ItemCommand = EmailHtmlToClipboardCommand },
+            new() { ItemName = "View Images", ItemCommand = ViewFilesCommand },
+            new() { ItemName = "Open URL", ItemCommand = ListContext.ViewOnSiteCommand },
+            new() { ItemName = "Extract New Links", ItemCommand = ListContext.ExtractNewLinksSelectedCommand },
+            new() { ItemName = "Process/Resize Selected", ItemCommand = ForcedResizeCommand },
+            new()
+            {
+                ItemName = "Generate Html/Process/Resize Selected",
+                ItemCommand = RegenerateHtmlAndReprocessImageForSelectedCommand
+            },
+            new() { ItemName = "Delete", ItemCommand = ListContext.DeleteSelectedCommand },
+            new() { ItemName = "View History", ItemCommand = ListContext.ViewHistorySelectedCommand },
+            new() { ItemName = "Refresh Data", ItemCommand = RefreshDataCommand }
+        };
 
         StatusContext.RunFireAndForgetBlockingTask(LoadData);
+    }
+
+    public static async Task<ImageListWithActionsContext> CreateInstance(StatusControlContext? statusContext, WindowIconStatus? windowStatus = null)
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        var factoryContext = statusContext ?? new StatusControlContext();
+        var factoryListContext = await ContentListContext.CreateInstance(factoryContext, new ImageListLoader(100), windowStatus);
+
+        return new ImageListWithActionsContext(factoryContext, windowStatus, factoryListContext);
     }
 
     private async Task EmailHtmlToClipboard()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        if (SelectedItems() == null || !SelectedItems().Any())
+        if (!SelectedItems().Any())
         {
             StatusContext.ToastError("Nothing Selected?");
             return;
@@ -66,7 +121,7 @@ public partial class ImageListWithActionsContext : ObservableObject
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        if (SelectedItems() == null || !SelectedItems().Any())
+        if (!SelectedItems().Any())
         {
             StatusContext.ToastError("Nothing Selected?");
             return;
@@ -107,7 +162,7 @@ public partial class ImageListWithActionsContext : ObservableObject
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        if (SelectedItems() == null || !SelectedItems().Any())
+        if (!SelectedItems().Any())
         {
             StatusContext.ToastError("Nothing Selected?");
             return;
@@ -128,50 +183,6 @@ public partial class ImageListWithActionsContext : ObservableObject
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        ListContext ??= new ContentListContext(StatusContext, new ImageListLoader(100), WindowStatus);
-
-        RefreshDataCommand = StatusContext.RunBlockingTaskCommand(ListContext.LoadData);
-
-        ImageBracketLinkCodesToClipboardForSelectedCommand =
-            StatusContext.RunBlockingTaskCommand(ImageBracketLinkCodesToClipboardForSelected);
-
-        ForcedResizeCommand = StatusContext.RunBlockingTaskWithCancellationCommand(ForcedResize, "Cancel Resizing");
-        RegenerateHtmlAndReprocessImageForSelectedCommand =
-            StatusContext.RunBlockingTaskWithCancellationCommand(RegenerateHtmlAndReprocessImageForSelected,
-                "Cancel HTML Generation and Image Resizing");
-
-        ViewFilesCommand = StatusContext.RunBlockingTaskWithCancellationCommand(ViewFilesSelected, "Cancel File View");
-
-        EmailHtmlToClipboardCommand = StatusContext.RunBlockingTaskCommand(EmailHtmlToClipboard);
-
-        ListContext.ContextMenuItems = new List<ContextMenuItemData>
-        {
-            new() { ItemName = "Edit", ItemCommand = ListContext.EditSelectedCommand },
-            new()
-            {
-                ItemName = "Image Code to Clipboard",
-                ItemCommand = ListContext.BracketCodeToClipboardSelectedCommand
-            },
-            new()
-            {
-                ItemName = "Text Code to Clipboard",
-                ItemCommand = ImageBracketLinkCodesToClipboardForSelectedCommand
-            },
-            new() { ItemName = "Email Html to Clipboard", ItemCommand = EmailHtmlToClipboardCommand },
-            new() { ItemName = "View Images", ItemCommand = ViewFilesCommand },
-            new() { ItemName = "Open URL", ItemCommand = ListContext.ViewOnSiteCommand },
-            new() { ItemName = "Extract New Links", ItemCommand = ListContext.ExtractNewLinksSelectedCommand },
-            new() { ItemName = "Process/Resize Selected", ItemCommand = ForcedResizeCommand },
-            new()
-            {
-                ItemName = "Generate Html/Process/Resize Selected",
-                ItemCommand = RegenerateHtmlAndReprocessImageForSelectedCommand
-            },
-            new() { ItemName = "Delete", ItemCommand = ListContext.DeleteSelectedCommand },
-            new() { ItemName = "View History", ItemCommand = ListContext.ViewHistorySelectedCommand },
-            new() { ItemName = "Refresh Data", ItemCommand = RefreshDataCommand }
-        };
-
         await ListContext.LoadData();
     }
 
@@ -179,7 +190,7 @@ public partial class ImageListWithActionsContext : ObservableObject
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        if (SelectedItems() == null || !SelectedItems().Any())
+        if (!SelectedItems().Any())
         {
             StatusContext.ToastError("Nothing Selected?");
             return;
@@ -198,11 +209,11 @@ public partial class ImageListWithActionsContext : ObservableObject
 
             loopCount++;
 
-            if (loopSelected.DbEntry == null)
+            if (loopSelected.DbEntry.Id < 1)
             {
                 StatusContext.Progress(
-                    $"Re-processing Image and Generating Html for {loopCount} of {totalCount} failed - no DB Entry?");
-                errorList.Add("There was a list item without a DB entry? This should never happen...");
+                    $"Re-processing Image and Generating Html for {loopCount} of {totalCount} failed - no saved DB Entry?");
+                errorList.Add("There was a list item without a saved DB entry? This should never happen...");
                 continue;
             }
 
@@ -223,8 +234,19 @@ public partial class ImageListWithActionsContext : ObservableObject
             StatusContext.Progress(
                 $"Re-processing Image and Generating Html for {loopSelected.DbEntry.Title}, {loopCount} of {totalCount}");
 
-            var (generationReturn, _) = await ImageGenerator.SaveAndGenerateHtml(currentVersion,
-                UserSettingsSingleton.CurrentSettings().LocalMediaArchiveImageContentFile(currentVersion), true, null,
+            var localMediaFiles = UserSettingsSingleton.CurrentSettings()
+                .LocalMediaArchiveImageContentFile(currentVersion);
+
+            if (localMediaFiles == null)
+            {
+                StatusContext.Progress(
+                    $"Re-processing Image and Generating Html for {loopSelected.DbEntry.Title} failed - file not found in Media Library, {loopCount} of {totalCount}");
+                errorList.Add($"Image Titled {loopSelected.DbEntry.Title} was not found in the Media Library?");
+                continue;
+            }
+
+            var (generationReturn, _) = await ImageGenerator.SaveAndGenerateHtml(currentVersion, localMediaFiles
+                , true, null,
                 StatusContext.ProgressTracker());
 
             if (generationReturn.HasError)
@@ -248,7 +270,7 @@ public partial class ImageListWithActionsContext : ObservableObject
 
     public List<ImageListListItem> SelectedItems()
     {
-        return ListContext?.ListSelection?.SelectedItems?.Where(x => x is ImageListListItem).Cast<ImageListListItem>()
+        return ListContext.ListSelection.SelectedItems?.Where(x => x is ImageListListItem).Cast<ImageListListItem>()
             .ToList() ?? new List<ImageListListItem>();
     }
 
@@ -256,7 +278,7 @@ public partial class ImageListWithActionsContext : ObservableObject
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        if (ListContext.ListSelection?.SelectedItems == null || ListContext.ListSelection.SelectedItems.Count < 1)
+        if (ListContext.ListSelection.SelectedItems == null || ListContext.ListSelection.SelectedItems.Count < 1)
         {
             StatusContext.ToastWarning("Nothing Selected to View?");
             return;

@@ -7,12 +7,16 @@ namespace PointlessWaymarks.CmsWpfControls.PointList;
 
 public partial class PointListListItem : ObservableObject, IContentListItem, IContentListSmallImage
 {
-    [ObservableProperty] private PointContent _dbEntry;
+    [ObservableProperty] private PointContent _dbEntry = new();
     [ObservableProperty] private PointContentActions _itemActions;
     [ObservableProperty] private CurrentSelectedTextTracker _selectedTextTracker = new();
-
     [ObservableProperty] private bool _showType;
-    [ObservableProperty] private string _smallImageUrl;
+    [ObservableProperty] private string? _smallImageUrl;
+
+    public PointListListItem(PointContentActions itemActions)
+    {
+        _itemActions = itemActions;
+    }
 
     public IContentCommon Content()
     {
@@ -21,7 +25,7 @@ public partial class PointListListItem : ObservableObject, IContentListItem, ICo
 
     public Guid? ContentId()
     {
-        return DbEntry?.ContentId;
+        return DbEntry.ContentId;
     }
 
     public string DefaultBracketCode()

@@ -21,10 +21,10 @@ public partial class ContentViewHistoryPage
         Items = items.Select(x => Markdown.ToHtml(x, pipeline)).ToList();
     }
 
-    public string ContentTitle { get; set; }
-    public List<string> Items { get; set; }
-    public string PageTitle { get; set; }
-    public string SiteName { get; set; }
+    public string ContentTitle { get; }
+    public List<string> Items { get; }
+    public string PageTitle { get; }
+    public string SiteName { get; }
 
     public string GenerateHtml(IProgress<string>? progress = null)
     {

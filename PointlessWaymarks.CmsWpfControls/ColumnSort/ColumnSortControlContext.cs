@@ -13,14 +13,14 @@ public partial class ColumnSortControlContext : ObservableObject
 
     public ColumnSortControlContext()
     {
-        ColumnSortToggleCommand = new RelayCommand<ColumnSortControlSortItem>(x =>
+        _columnSortToggleCommand = new RelayCommand<ColumnSortControlSortItem>(x =>
         {
             if (x == null) return;
             ToggleItem(x);
             SortUpdated?.Invoke(this, SortDescriptions());
         });
 
-        ColumnSortAddCommand = new RelayCommand<ColumnSortControlSortItem>(x =>
+        _columnSortAddCommand = new RelayCommand<ColumnSortControlSortItem>(x =>
         {
             if (x == null) return;
             AddItem(x);

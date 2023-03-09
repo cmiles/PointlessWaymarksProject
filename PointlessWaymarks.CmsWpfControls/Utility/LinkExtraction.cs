@@ -11,8 +11,8 @@ namespace PointlessWaymarks.CmsWpfControls.Utility;
 
 public static class LinkExtraction
 {
-    public static async Task ExtractNewAndShowLinkContentEditors(string toExtractFrom,
-        IProgress<string> progressTracker, List<string> excludedUrls = null)
+    public static async Task ExtractNewAndShowLinkContentEditors(string? toExtractFrom,
+        IProgress<string>? progressTracker, List<string>? excludedUrls = null)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 

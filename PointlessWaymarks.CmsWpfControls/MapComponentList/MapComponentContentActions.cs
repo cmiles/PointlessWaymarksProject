@@ -31,22 +31,22 @@ public partial class MapComponentContentActions : ObservableObject, IContentActi
 
     public MapComponentContentActions(StatusControlContext statusContext)
     {
-        StatusContext = statusContext;
-        DeleteCommand = StatusContext.RunBlockingTaskCommand<MapComponent>(Delete);
-        EditCommand = StatusContext.RunNonBlockingTaskCommand<MapComponent>(Edit);
-        ExtractNewLinksCommand = StatusContext.RunBlockingTaskCommand<MapComponent>(ExtractNewLinks);
-        GenerateHtmlCommand = StatusContext.RunBlockingTaskCommand<MapComponent>(GenerateHtml);
-        LinkCodeToClipboardCommand = StatusContext.RunBlockingTaskCommand<MapComponent>(DefaultBracketCodeToClipboard);
-        ViewOnSiteCommand = StatusContext.RunBlockingTaskCommand<MapComponent>(ViewOnSite);
-        ViewHistoryCommand = StatusContext.RunNonBlockingTaskCommand<MapComponent>(ViewHistory);
+        _statusContext = statusContext;
+        _deleteCommand = StatusContext.RunBlockingTaskCommand<MapComponent>(Delete);
+        _editCommand = StatusContext.RunNonBlockingTaskCommand<MapComponent>(Edit);
+        _extractNewLinksCommand = StatusContext.RunBlockingTaskCommand<MapComponent>(ExtractNewLinks);
+        _generateHtmlCommand = StatusContext.RunBlockingTaskCommand<MapComponent>(GenerateHtml);
+        _linkCodeToClipboardCommand = StatusContext.RunBlockingTaskCommand<MapComponent>(DefaultBracketCodeToClipboard);
+        _viewOnSiteCommand = StatusContext.RunBlockingTaskCommand<MapComponent>(ViewOnSite);
+        _viewHistoryCommand = StatusContext.RunNonBlockingTaskCommand<MapComponent>(ViewHistory);
     }
 
-    public string DefaultBracketCode(MapComponent content)
+    public string DefaultBracketCode(MapComponent? content)
     {
         return content?.ContentId == null ? string.Empty : @$"{BracketCodeMapComponents.Create(content)}";
     }
 
-    public async Task DefaultBracketCodeToClipboard(MapComponent content)
+    public async Task DefaultBracketCodeToClipboard(MapComponent? content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -65,7 +65,7 @@ public partial class MapComponentContentActions : ObservableObject, IContentActi
         StatusContext.ToastSuccess($"To Clipboard {finalString}");
     }
 
-    public async Task Delete(MapComponent content)
+    public async Task Delete(MapComponent? content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -84,7 +84,7 @@ public partial class MapComponentContentActions : ObservableObject, IContentActi
         await Db.DeleteMapComponent(content.ContentId, StatusContext.ProgressTracker());
     }
 
-    public async Task Edit(MapComponent content)
+    public async Task Edit(MapComponent? content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -103,7 +103,7 @@ public partial class MapComponentContentActions : ObservableObject, IContentActi
         await newContentWindow.PositionWindowAndShowOnUiThread();
     }
 
-    public async Task ExtractNewLinks(MapComponent content)
+    public async Task ExtractNewLinks(MapComponent? content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -123,7 +123,7 @@ public partial class MapComponentContentActions : ObservableObject, IContentActi
             StatusContext.ProgressTracker());
     }
 
-    public async Task GenerateHtml(MapComponent content)
+    public async Task GenerateHtml(MapComponent? content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -140,14 +140,14 @@ public partial class MapComponentContentActions : ObservableObject, IContentActi
         StatusContext.ToastSuccess("Generated Map Data");
     }
 
-    public async Task ViewOnSite(MapComponent content)
+    public async Task ViewOnSite(MapComponent? content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
         StatusContext.ToastWarning("Maps don't have a direct URL to open...");
     }
 
-    public async Task ViewHistory(MapComponent content)
+    public async Task ViewHistory(MapComponent? content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -182,6 +182,6 @@ public partial class MapComponentContentActions : ObservableObject, IContentActi
     public static MapComponentListListItem ListItemFromDbItem(MapComponent content,
         MapComponentContentActions itemActions, bool showType)
     {
-        return new() { DbEntry = content, ItemActions = itemActions, ShowType = showType };
+        return new(itemActions) { DbEntry = content, ShowType = showType };
     }
 }

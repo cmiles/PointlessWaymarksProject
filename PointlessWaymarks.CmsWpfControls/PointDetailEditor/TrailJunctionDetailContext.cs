@@ -186,7 +186,7 @@ public class TrailJunctionPointDetailContext : IHasChanges, IHasValidationIssues
         NoteEditor.ReferenceValue = DetailData.Notes ?? string.Empty;
         NoteEditor.UserValue = DetailData.Notes.TrimNullToEmpty();
 
-        NoteFormatEditor = ContentFormatChooserContext.CreateInstance(StatusContext);
+        NoteFormatEditor = await ContentFormatChooserContext.CreateInstance(StatusContext);
         NoteFormatEditor.InitialValue = DetailData.NotesContentFormat;
         await NoteFormatEditor.TrySelectContentChoice(DetailData.NotesContentFormat);
 

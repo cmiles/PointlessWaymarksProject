@@ -8,36 +8,24 @@ namespace PointlessWaymarks.CmsWpfControls.ContentIdViewer;
 public partial class ContentIdViewerControlContext : ObservableObject
 {
     [ObservableProperty] private string _contentIdInformation = string.Empty;
-    [ObservableProperty] private IContentId? _dbEntry;
+    [ObservableProperty] private IContentId _dbEntry;
     [ObservableProperty] private StatusControlContext _statusContext;
 
-    private ContentIdViewerControlContext(StatusControlContext? statusContext)
+    private ContentIdViewerControlContext(StatusControlContext statusContext, IContentId dbEntry)
     {
-        _statusContext = statusContext ?? new StatusControlContext();
+        _statusContext = statusContext;
+        _dbEntry = dbEntry;
+
+        ContentIdInformation = $" Fingerprint: {dbEntry.ContentId} Db Id: {dbEntry.Id}";
     }
 
-    public static async Task<ContentIdViewerControlContext> CreateInstance(StatusControlContext? statusContext,
+    public static async Task<ContentIdViewerControlContext> CreateInstance(StatusControlContext statusContext,
         IContentId dbEntry)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        var newContext = new ContentIdViewerControlContext(statusContext);
-        await newContext.LoadData(dbEntry);
+        var newContext = new ContentIdViewerControlContext(statusContext, dbEntry);
+        
         return newContext;
-    }
-
-    public async Task LoadData(IContentId? dbEntry)
-    {
-        await ThreadSwitcher.ResumeBackgroundAsync();
-
-        DbEntry = dbEntry;
-
-        if (dbEntry == null)
-        {
-            ContentIdInformation = "Id: (Db Entry Is Null) Fingerprint: (Db Entry is Null)";
-            return;
-        }
-
-        ContentIdInformation = $" Fingerprint: {dbEntry.ContentId} Db Id: {dbEntry.Id}";
     }
 }

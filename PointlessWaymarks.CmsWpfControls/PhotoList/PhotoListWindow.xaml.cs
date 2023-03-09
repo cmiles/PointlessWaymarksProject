@@ -12,9 +12,12 @@ public partial class PhotoListWindow
     [ObservableProperty] private PhotoListWithActionsContext _listContext;
     [ObservableProperty] private string _windowTitle = "Photo List";
 
-    private PhotoListWindow()
+    private PhotoListWindow(PhotoListWithActionsContext listContext)
     {
         InitializeComponent();
+
+        _listContext = listContext;
+
         DataContext = this;
     }
 
@@ -23,13 +26,11 @@ public partial class PhotoListWindow
     /// switch to the UI thread as needed.
     /// </summary>
     /// <returns></returns>
-    public static async Task<PhotoListWindow> CreateInstance(PhotoListWithActionsContext toLoad)
+    public static async Task<PhotoListWindow> CreateInstance(PhotoListWithActionsContext? toLoad)
     {
         await ThreadSwitcher.ResumeForegroundAsync();
-        var window = new PhotoListWindow
-        {
-            ListContext = toLoad ?? new PhotoListWithActionsContext(null)
-        };
+
+        var window = new PhotoListWindow(toLoad ?? await PhotoListWithActionsContext.CreateInstance(null, null, null));
 
         return window;
     }

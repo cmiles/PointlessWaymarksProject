@@ -12,9 +12,12 @@ public partial class MapComponentListWindow
     [ObservableProperty] private MapComponentListWithActionsContext _listContext;
     [ObservableProperty] private string _windowTitle = "Map List";
 
-    private MapComponentListWindow()
+    private MapComponentListWindow(MapComponentListWithActionsContext toLoad)
     {
         InitializeComponent();
+
+        _listContext = toLoad;
+
         DataContext = this;
     }
 
@@ -23,13 +26,11 @@ public partial class MapComponentListWindow
     /// switch to the UI thread as needed.
     /// </summary>
     /// <returns></returns>
-    public static async Task<MapComponentListWindow> CreateInstance(MapComponentListWithActionsContext toLoad)
+    public static async Task<MapComponentListWindow> CreateInstance(MapComponentListWithActionsContext? toLoad)
     {
         await ThreadSwitcher.ResumeForegroundAsync();
-        var window = new MapComponentListWindow
-        {
-            ListContext = toLoad ?? new MapComponentListWithActionsContext(null)
-        };
+        var window =
+            new MapComponentListWindow(toLoad ?? await MapComponentListWithActionsContext.CreateInstance(null));
 
         return window;
     }
