@@ -9,26 +9,27 @@ using PointlessWaymarks.WpfCommon.Status;
 
 namespace PointlessWaymarks.CmsWpfControls.TagsEditor;
 
-public partial class TagsEditorContext : ObservableObject, IHasChanges, IHasValidationIssues, ICheckForChangesAndValidation
+public partial class TagsEditorContext : ObservableObject, IHasChanges, IHasValidationIssues,
+    ICheckForChangesAndValidation
 {
-    [ObservableProperty] private ITag _dbEntry;
+    [ObservableProperty] private ITag? _dbEntry;
     [ObservableProperty] private bool _hasChanges;
     [ObservableProperty] private bool _hasValidationIssues;
     [ObservableProperty] private string _helpText;
     [ObservableProperty] private StatusControlContext _statusContext;
-    [ObservableProperty] private string _tags = string.Empty;
-    [ObservableProperty] private string _tagsValidationMessage;
+    [ObservableProperty] private string _tags;
+    [ObservableProperty] private string _tagsValidationMessage = string.Empty;
 
-    private TagsEditorContext(StatusControlContext statusContext, ITag dbEntry)
+    private TagsEditorContext(StatusControlContext statusContext, ITag? dbEntry)
     {
-        StatusContext = statusContext;
+        _statusContext = statusContext;
 
         PropertyChanged += OnPropertyChanged;
 
-        DbEntry = dbEntry;
-        HelpText =
+        _dbEntry = dbEntry;
+        _helpText =
             "Comma separated tags - only a-z 0-9 _ - [space] are valid, each tag must be less than 200 characters long.";
-        Tags = dbEntry?.Tags ?? string.Empty;
+        _tags = dbEntry?.Tags ?? string.Empty;
         Tags = TagListString();
     }
 
@@ -44,9 +45,9 @@ public partial class TagsEditorContext : ObservableObject, IHasChanges, IHasVali
         TagsValidationMessage = tagValidation.Explanation;
     }
 
-    public static TagsEditorContext CreateInstance(StatusControlContext? statusContext, ITag dbEntry)
+    public static TagsEditorContext CreateInstance(StatusControlContext? statusContext, ITag? dbEntry)
     {
-        var factoryContext = statusContext ??  new StatusControlContext();
+        var factoryContext = statusContext ?? new StatusControlContext();
         return new TagsEditorContext(factoryContext, dbEntry);
     }
 
@@ -57,7 +58,6 @@ public partial class TagsEditorContext : ObservableObject, IHasChanges, IHasVali
 
     private void OnPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
-        if (e == null) return;
         if (string.IsNullOrWhiteSpace(e.PropertyName)) return;
 
         if (!e.PropertyName.Contains("HasChanges") && !e.PropertyName.Contains("Validation"))

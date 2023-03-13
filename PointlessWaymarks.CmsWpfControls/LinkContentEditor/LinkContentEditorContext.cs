@@ -43,7 +43,7 @@ public partial class LinkContentEditorContext : ObservableObject, IHasChanges, I
     [ObservableProperty] private TagsEditorContext _tagEdit;
     [ObservableProperty] private StringDataEntryContext _titleEntry;
 
-    public EventHandler RequestContentEditorWindowClose;
+    public EventHandler? RequestContentEditorWindowClose;
 
     private LinkContentEditorContext(StatusControlContext statusContext)
     {

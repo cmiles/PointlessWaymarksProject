@@ -22,7 +22,7 @@ public partial class GpxImportControl
         }
     }
 
-    private void OnGpxContextOnMapRequest(object _, string json)
+    private void OnGpxContextOnMapRequest(object? _, string json)
     {
         GpxImportWebView.CoreWebView2.PostWebMessageAsJson(json);
     }

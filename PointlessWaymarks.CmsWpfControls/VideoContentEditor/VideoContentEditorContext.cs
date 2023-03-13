@@ -88,7 +88,7 @@ public partial class VideoContentEditorContext : ObservableObject, IHasChanges, 
     [ObservableProperty] private RelayCommand _viewSelectedFileDirectoryCommand;
     [ObservableProperty] private RelayCommand _viewUserMainPictureCommand;
 
-    public EventHandler RequestContentEditorWindowClose;
+    public EventHandler? RequestContentEditorWindowClose;
 
     private VideoContentEditorContext(StatusControlContext statusContext, FileInfo initialVideo = null)
     {

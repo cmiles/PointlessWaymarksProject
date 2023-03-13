@@ -103,7 +103,7 @@ public class FeePointDetailContext : IHasChanges, IHasValidationIssues, IPointDe
         }
     }
 
-    public event PropertyChangedEventHandler PropertyChanged;
+    public event PropertyChangedEventHandler? PropertyChanged;
 
     public PointDetail CurrentPointDetail()
     {

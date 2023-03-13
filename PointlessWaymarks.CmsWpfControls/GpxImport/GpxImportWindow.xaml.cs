@@ -13,10 +13,12 @@ public partial class GpxImportWindow
     [ObservableProperty] private GpxImportContext _importContext;
     [ObservableProperty] private StatusControlContext _statusContext;
 
-    private GpxImportWindow()
+    private GpxImportWindow(StatusControlContext statusContext, GpxImportContext importContext)
     {
         InitializeComponent();
-        _statusContext = new StatusControlContext();
+        _statusContext = statusContext;
+        _importContext = importContext;
+
         DataContext = this;
     }
 
@@ -28,13 +30,15 @@ public partial class GpxImportWindow
     /// <returns></returns>
     public static async Task<GpxImportWindow> CreateInstance(string? initialImportFile)
     {
-        await ThreadSwitcher.ResumeForegroundAsync();
-
-        var window = new GpxImportWindow();
-
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        window.ImportContext = await GpxImportContext.CreateInstance(window.StatusContext);
+        var statusContext = new StatusControlContext();
+
+        var importContext = await GpxImportContext.CreateInstance(statusContext);
+
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        var window = new GpxImportWindow( statusContext, importContext);
 
         if (string.IsNullOrWhiteSpace(initialImportFile))
             await window.ImportContext.ChooseAndLoadFile();

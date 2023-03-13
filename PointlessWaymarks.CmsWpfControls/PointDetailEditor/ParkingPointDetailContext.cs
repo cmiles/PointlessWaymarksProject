@@ -116,7 +116,7 @@ public class ParkingPointDetailContext : IHasChanges, IHasValidationIssues, IPoi
         }
     }
 
-    public event PropertyChangedEventHandler PropertyChanged;
+    public event PropertyChangedEventHandler? PropertyChanged;
 
     public PointDetail CurrentPointDetail()
     {

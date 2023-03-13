@@ -103,7 +103,7 @@ public class RestroomPointDetailContext : IHasChanges, IHasValidationIssues, IPo
         }
     }
 
-    public event PropertyChangedEventHandler PropertyChanged;
+    public event PropertyChangedEventHandler? PropertyChanged;
 
     public PointDetail CurrentPointDetail()
     {

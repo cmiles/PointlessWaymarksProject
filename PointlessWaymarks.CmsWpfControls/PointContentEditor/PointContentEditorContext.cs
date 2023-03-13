@@ -63,7 +63,7 @@ public partial class PointContentEditorContext : ObservableObject, IHasChanges, 
     [ObservableProperty] private UpdateNotesEditorContext _updateNotes;
     [ObservableProperty] private RelayCommand _viewOnSiteCommand;
 
-    public EventHandler RequestContentEditorWindowClose;
+    public EventHandler? RequestContentEditorWindowClose;
 
     private PointContentEditorContext(StatusControlContext? statusContext)
     {
@@ -335,7 +335,7 @@ public partial class PointContentEditorContext : ObservableObject, IHasChanges, 
         _broadcastLatLongChange = true;
     }
 
-    public event EventHandler<PointLatitudeLongitudeChange> RaisePointLatitudeLongitudeChange;
+    public event EventHandler<PointLatitudeLongitudeChange>? RaisePointLatitudeLongitudeChange;
 
     public async Task SaveAndGenerateHtml(bool closeAfterSave)
     {

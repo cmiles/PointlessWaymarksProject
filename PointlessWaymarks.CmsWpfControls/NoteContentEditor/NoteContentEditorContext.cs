@@ -46,7 +46,7 @@ public partial class NoteContentEditorContext : ObservableObject, IHasChanges, I
     [ObservableProperty] private TagsEditorContext _tagEdit;
     [ObservableProperty] private RelayCommand _viewOnSiteCommand;
 
-    public EventHandler RequestContentEditorWindowClose;
+    public EventHandler? RequestContentEditorWindowClose;
 
     private NoteContentEditorContext(StatusControlContext statusContext)
     {

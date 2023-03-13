@@ -99,7 +99,7 @@ public partial class PhotoContentEditorContext : ObservableObject, IHasChanges, 
     [ObservableProperty] private RelayCommand _viewPhotoMetadataCommand;
     [ObservableProperty] private RelayCommand _viewSelectedFileCommand;
 
-    public EventHandler RequestContentEditorWindowClose;
+    public EventHandler? RequestContentEditorWindowClose;
 
     private PhotoContentEditorContext(StatusControlContext statusContext)
     {

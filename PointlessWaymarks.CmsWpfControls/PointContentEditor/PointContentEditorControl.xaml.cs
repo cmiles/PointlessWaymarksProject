@@ -79,5 +79,5 @@ public partial class PointContentEditorControl
         });
     }
 
-    public event EventHandler<PointLatitudeLongitudeChange> RaisePointLatitudeLongitudeChange;
+    public event EventHandler<PointLatitudeLongitudeChange>? RaisePointLatitudeLongitudeChange;
 }

@@ -44,7 +44,7 @@ public partial class PostContentEditorContext : ObservableObject, IHasChanges, I
     [ObservableProperty] private UpdateNotesEditorContext _updateNotes;
     [ObservableProperty] private RelayCommand _viewOnSiteCommand;
 
-    public EventHandler RequestContentEditorWindowClose;
+    public EventHandler? RequestContentEditorWindowClose;
 
     private PostContentEditorContext(StatusControlContext statusContext)
     {

@@ -116,7 +116,7 @@ public class CampgroundPointDetailContext : IHasChanges, IHasValidationIssues, I
         }
     }
 
-    public event PropertyChangedEventHandler PropertyChanged;
+    public event PropertyChangedEventHandler? PropertyChanged;
 
     public PointDetail CurrentPointDetail()
     {

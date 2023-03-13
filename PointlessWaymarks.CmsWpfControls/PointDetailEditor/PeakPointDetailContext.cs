@@ -104,7 +104,7 @@ public class PeakPointDetailContext : IHasChanges, IHasValidationIssues, IPointD
         }
     }
 
-    public event PropertyChangedEventHandler PropertyChanged;
+    public event PropertyChangedEventHandler? PropertyChanged;
 
     public PointDetail CurrentPointDetail()
     {

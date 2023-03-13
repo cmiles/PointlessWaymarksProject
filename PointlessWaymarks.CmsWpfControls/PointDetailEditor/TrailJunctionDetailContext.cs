@@ -116,7 +116,7 @@ public class TrailJunctionPointDetailContext : IHasChanges, IHasValidationIssues
         }
     }
 
-    public event PropertyChangedEventHandler PropertyChanged;
+    public event PropertyChangedEventHandler? PropertyChanged;
 
     public PointDetail CurrentPointDetail()
     {

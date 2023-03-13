@@ -57,7 +57,7 @@ public partial class GeoJsonContentEditorContext :  ObservableObject, IHasChange
     [ObservableProperty] private TitleSummarySlugEditorContext _titleSummarySlugFolder;
     [ObservableProperty] private UpdateNotesEditorContext _updateNotes;
     [ObservableProperty] private RelayCommand _viewOnSiteCommand;
-    public EventHandler RequestContentEditorWindowClose;
+    public EventHandler? RequestContentEditorWindowClose;
 
     private GeoJsonContentEditorContext(StatusControlContext? statusContext)
     {

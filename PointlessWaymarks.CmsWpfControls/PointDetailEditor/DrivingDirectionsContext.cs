@@ -103,7 +103,7 @@ public class DrivingDirectionsPointDetailContext : IHasChanges, IHasValidationIs
         }
     }
 
-    public event PropertyChangedEventHandler PropertyChanged;
+    public event PropertyChangedEventHandler? PropertyChanged;
 
     public PointDetail CurrentPointDetail()
     {

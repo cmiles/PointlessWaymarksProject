@@ -72,7 +72,7 @@ public partial class ImageContentEditorContext : ObservableObject, IHasChanges, 
     [ObservableProperty] private RelayCommand _viewOnSiteCommand;
     [ObservableProperty] private RelayCommand _viewSelectedFileCommand;
 
-    public EventHandler RequestContentEditorWindowClose;
+    public EventHandler? RequestContentEditorWindowClose;
 
     private ImageContentEditorContext(StatusControlContext statusContext)
     {

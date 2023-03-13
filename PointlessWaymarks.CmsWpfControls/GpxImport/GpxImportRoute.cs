@@ -1,43 +1,55 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using NetTopologySuite.IO;
-using PointlessWaymarks.CmsData;
-using PointlessWaymarks.CmsData.Spatial;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.SpatialTools;
+using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 
 namespace PointlessWaymarks.CmsWpfControls.GpxImport;
 
 public partial class GpxImportRoute : ObservableObject, IGpxImportListItem
 {
     [ObservableProperty] private DateTime? _createdOn;
-    [ObservableProperty] private Guid _displayId;
-    [ObservableProperty] private string _lineGeoJson;
+    [ObservableProperty] private Guid _displayId = Guid.NewGuid();
+    [ObservableProperty] private string _lineGeoJson = string.Empty;
     [ObservableProperty] private bool _markedForImport;
     [ObservableProperty] private bool _replaceElevationOnImport;
     [ObservableProperty] private GpxRoute _route;
     [ObservableProperty] private GpxTools.GpxRouteInformation _routeInformation;
     [ObservableProperty] private DistanceTools.LineStatsInImperial _statistics;
-    [ObservableProperty] private string _userContentName;
-    [ObservableProperty] private string _userSummary;
+    [ObservableProperty] private string _userContentName = string.Empty;
+    [ObservableProperty] private string _userSummary = string.Empty;
 
-    public async Task Load(GpxRoute toLoad, IProgress<string>? progress = null)
+    private GpxImportRoute(GpxRoute route, GpxTools.GpxRouteInformation routeInformation, DistanceTools.LineStatsInImperial statistics)
     {
-        DisplayId = Guid.NewGuid();
-        Route = toLoad;
-        RouteInformation = GpxTools.RouteInformationFromGpxRoute(toLoad);
-        LineGeoJson =
-            await LineTools.GeoJsonWithLineStringFromCoordinateList(RouteInformation.Track, false, progress);
-        Statistics = DistanceTools.LineStatsInImperialFromCoordinateList(RouteInformation.Track);
-        CreatedOn = toLoad.Waypoints?.FirstOrDefault()?.TimestampUtc?.ToLocalTime();
+        _route = route;
+        _routeInformation = routeInformation;
+        _statistics = statistics;
+    }
 
-        UserContentName = toLoad.Name.TrimNullToEmpty();
-        if (string.IsNullOrWhiteSpace(UserContentName))
+    public static async Task<GpxImportRoute> CreateInstance(GpxRoute toLoad, IProgress<string>? progress = null)
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        var routeInformation = GpxTools.RouteInformationFromGpxRoute(toLoad);
+        var statistics = DistanceTools.LineStatsInImperialFromCoordinateList(routeInformation.Track);
+
+        var toReturn = new GpxImportRoute(toLoad, routeInformation, statistics)
         {
-            if (CreatedOn != null) UserContentName = $"{CreatedOn:yyyy MMMM} ";
-            UserContentName = $"{UserContentName}Track";
-            if (RouteInformation.Track.Any())
-                UserContentName =
-                    $"{UserContentName} Starting {RouteInformation.Track.First().Y:F2}, {RouteInformation.Track.First().X:F2}";
+            Route = toLoad
+        };
+
+        toReturn.LineGeoJson =
+            await LineTools.GeoJsonWithLineStringFromCoordinateList(toReturn.RouteInformation.Track, false, progress);
+        toReturn.CreatedOn = toLoad.Waypoints?.FirstOrDefault()?.TimestampUtc?.ToLocalTime();
+
+        toReturn.UserContentName = toLoad.Name.TrimNullToEmpty();
+        if (string.IsNullOrWhiteSpace(toReturn.UserContentName))
+        {
+            if (toReturn.CreatedOn != null) toReturn.UserContentName = $"{toReturn.CreatedOn:yyyy MMMM} ";
+            toReturn.UserContentName = $"{toReturn.UserContentName}Track";
+            if (toReturn.RouteInformation.Track.Any())
+                toReturn.UserContentName =
+                    $"{toReturn.UserContentName} Starting {toReturn.RouteInformation.Track.First().Y:F2}, {toReturn.RouteInformation.Track.First().X:F2}";
         }
 
         var userSummary = string.Empty;
@@ -49,6 +61,8 @@ public partial class GpxImportRoute : ObservableObject, IGpxImportListItem
                 !toLoad.Comment.Equals(toLoad.Description, StringComparison.OrdinalIgnoreCase))
                 userSummary += $" {toLoad.Description.Trim()}";
 
-        UserSummary = userSummary;
+        toReturn.UserSummary = userSummary;
+
+        return toReturn;
     }
 }

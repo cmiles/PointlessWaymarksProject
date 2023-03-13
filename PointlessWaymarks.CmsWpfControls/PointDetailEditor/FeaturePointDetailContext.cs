@@ -116,7 +116,7 @@ internal class FeaturePointDetailContext : IHasChanges, IHasValidationIssues, IP
         }
     }
 
-    public event PropertyChangedEventHandler PropertyChanged;
+    public event PropertyChangedEventHandler? PropertyChanged;
 
     public PointDetail CurrentPointDetail()
     {
