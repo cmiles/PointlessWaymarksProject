@@ -1410,8 +1410,7 @@ public static class HtmlGenerationGroups
 
     public static async Task GenerateMainFeedContent(DateTime generationVersion, IProgress<string>? progress = null)
     {
-        //TODO: This current regenerates the Main Feed Content in order to make sure all previous/next content links are correct - this
-        //could be improved to just detect changes
+        //TODO: This current regenerates the Main Feed Content in order to make sure all previous/next content links are correct - this could be improved to just detect changes
         var mainFeedContent = (await Db.MainFeedCommonContent().ConfigureAwait(false)).Select(x => (false, x)).ToList();
 
         progress?.Report($"{mainFeedContent.Count} Main Feed Content Entries to Check - Checking for Adjacent Changes");
@@ -1424,8 +1423,7 @@ public static class HtmlGenerationGroups
         {
             var currentItem = mainFeedContent[i];
 
-            if (!await db.GenerationChangedContentIds.AnyAsync(x => x.ContentId == currentItem.Item2.ContentId)
-                    .ConfigureAwait(false)) continue;
+            if (!await db.GenerationChangedContentIds.AnyAsync(x => x.ContentId == currentItem.Item2.ContentId).ConfigureAwait(false)) continue;
 
             currentItem.Item1 = true;
             if (i > 0)

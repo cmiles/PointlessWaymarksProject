@@ -25,7 +25,7 @@ public partial class PostListListItem : ObservableObject, IContentListItem, ICon
 
     public Guid? ContentId()
     {
-        return DbEntry?.ContentId;
+        return DbEntry.ContentId;
     }
 
     public string DefaultBracketCode()

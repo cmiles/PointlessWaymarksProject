@@ -21,7 +21,7 @@ public partial class VideoListWithActionsContext : ObservableObject
     [ObservableProperty] private RelayCommand _viewVideosCommand;
     [ObservableProperty] private WindowIconStatus? _windowStatus;
 
-    private VideoListWithActionsContext(StatusControlContext statusContext, WindowIconStatus? windowStatus, ContentListContext listContext)
+    private VideoListWithActionsContext(StatusControlContext statusContext, WindowIconStatus? windowStatus, ContentListContext listContext, bool loadInBackground = true)
     {
         _statusContext = statusContext;
         _windowStatus = windowStatus;
@@ -60,17 +60,17 @@ public partial class VideoListWithActionsContext : ObservableObject
             new() { ItemName = "Refresh Data", ItemCommand = RefreshDataCommand }
         };
 
-        StatusContext.RunFireAndForgetBlockingTask(LoadData);
+        if(loadInBackground) StatusContext.RunFireAndForgetBlockingTask(LoadData);
     }
 
-    public static async Task<VideoListWithActionsContext> CreateInstance(StatusControlContext? statusContext, WindowIconStatus? windowStatus = null)
+    public static async Task<VideoListWithActionsContext> CreateInstance(StatusControlContext? statusContext, WindowIconStatus? windowStatus = null, bool loadInBackground = true)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
         var factoryContext = statusContext ?? new StatusControlContext();
         var factoryListContext = await ContentListContext.CreateInstance(factoryContext, new VideoListLoader(100), windowStatus);
 
-        return new VideoListWithActionsContext(factoryContext, windowStatus, factoryListContext);
+        return new VideoListWithActionsContext(factoryContext, windowStatus, factoryListContext, loadInBackground);
     }
 
     private async Task EmailHtmlToClipboard()
@@ -109,7 +109,7 @@ public partial class VideoListWithActionsContext : ObservableObject
 
     public List<VideoListListItem> SelectedItems()
     {
-        return ListContext?.ListSelection?.SelectedItems?.Where(x => x is VideoListListItem).Cast<VideoListListItem>()
+        return ListContext.ListSelection.SelectedItems?.Where(x => x is VideoListListItem).Cast<VideoListListItem>()
             .ToList() ?? new List<VideoListListItem>();
     }
 
@@ -139,7 +139,7 @@ public partial class VideoListWithActionsContext : ObservableObject
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        if (ListContext.ListSelection?.SelectedItems == null || ListContext.ListSelection.SelectedItems.Count < 1)
+        if (ListContext.ListSelection.SelectedItems == null || ListContext.ListSelection.SelectedItems.Count < 1)
         {
             StatusContext.ToastWarning("Nothing Selected to View?");
             return;

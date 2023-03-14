@@ -24,7 +24,7 @@ public partial class LinkListWithActionsContext : ObservableObject
     [ObservableProperty] private StatusControlContext _statusContext;
     [ObservableProperty] private WindowIconStatus? _windowStatus;
 
-    private LinkListWithActionsContext(StatusControlContext statusContext, WindowIconStatus? windowStatus, ContentListContext listContext)
+    private LinkListWithActionsContext(StatusControlContext statusContext, WindowIconStatus? windowStatus, ContentListContext listContext, bool loadInBackground = true)
     {
         _statusContext = statusContext;
         _windowStatus = windowStatus;
@@ -54,17 +54,17 @@ public partial class LinkListWithActionsContext : ObservableObject
             new() { ItemName = "Refresh Data", ItemCommand = RefreshDataCommand }
         };
 
-        StatusContext.RunFireAndForgetBlockingTask(LoadData);
+        if(loadInBackground) StatusContext.RunFireAndForgetBlockingTask(LoadData);
     }
 
-    public static async Task<LinkListWithActionsContext> CreateInstance(StatusControlContext? statusContext, WindowIconStatus? windowStatus = null)
+    public static async Task<LinkListWithActionsContext> CreateInstance(StatusControlContext? statusContext, WindowIconStatus? windowStatus = null, bool loadInBackground = true)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
         var factoryContext = statusContext ?? new StatusControlContext();
         var factoryListContext = await ContentListContext.CreateInstance(factoryContext, new LinkListLoader(100), windowStatus);
 
-        return new LinkListWithActionsContext(factoryContext, windowStatus, factoryListContext);
+        return new LinkListWithActionsContext(factoryContext, windowStatus, factoryListContext, loadInBackground);
     }
 
     private async Task ListSelectedLinksNotOnPinboard(IProgress<string>? progress)

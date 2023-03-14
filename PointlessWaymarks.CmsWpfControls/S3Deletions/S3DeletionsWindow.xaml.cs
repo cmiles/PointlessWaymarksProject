@@ -10,7 +10,7 @@ namespace PointlessWaymarks.CmsWpfControls.S3Deletions;
 [ObservableObject]
 public partial class S3DeletionsWindow
 {
-    [ObservableProperty] private S3DeletionsContext _deletionContext;
+    [ObservableProperty] private S3DeletionsContext? _deletionContext;
     [ObservableProperty] private StatusControlContext _statusContext;
 
     public S3DeletionsWindow(List<S3DeletionsItem> itemsToDelete)
@@ -29,7 +29,7 @@ public partial class S3DeletionsWindow
 
     private void S3DeletionsWindow_OnClosing(object? sender, CancelEventArgs e)
     {
-        if (DeletionContext == null || !StatusContext.BlockUi) return;
+        if (!StatusContext.BlockUi) return;
 
         e.Cancel = true;
     }

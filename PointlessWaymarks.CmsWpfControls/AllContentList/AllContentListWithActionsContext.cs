@@ -17,7 +17,7 @@ public partial class AllContentListWithActionsContext : ObservableObject
     [ObservableProperty] private RelayCommand? _wordPressImportWindowCommand;
 
     private AllContentListWithActionsContext(StatusControlContext? statusContext, WindowIconStatus? windowStatus,
-        ContentListContext factoryListContext)
+        ContentListContext factoryListContext, bool loadInBackground = true)
     {
         _statusContext = statusContext ?? new StatusControlContext();
         _windowStatus = windowStatus;
@@ -25,7 +25,7 @@ public partial class AllContentListWithActionsContext : ObservableObject
         _commonCommands = new CmsCommonCommands(StatusContext, WindowStatus);
         _listContext = factoryListContext;
 
-        StatusContext.RunFireAndForgetBlockingTask(LoadData);
+        if(loadInBackground) StatusContext.RunFireAndForgetBlockingTask(LoadData);
     }
 
     public static async Task<AllContentListWithActionsContext> CreateInstance(StatusControlContext? statusContext, WindowIconStatus? windowStatus)
@@ -36,12 +36,13 @@ public partial class AllContentListWithActionsContext : ObservableObject
         return new AllContentListWithActionsContext(factoryStatusContext, windowStatus, factoryListContext);
     }
 
-    public static async Task<AllContentListWithActionsContext> CreateInstance(StatusControlContext? statusContext, IContentListLoader reportFilter)
+    public static async Task<AllContentListWithActionsContext> CreateInstance(StatusControlContext? statusContext,
+        IContentListLoader reportFilter, bool loadInBackground = true)
     {
         var factoryStatusContext = statusContext ?? new StatusControlContext();
         var factoryListContext = await ContentListContext.CreateInstance(factoryStatusContext, reportFilter);
 
-        return new AllContentListWithActionsContext(factoryStatusContext, null, factoryListContext);
+        return new AllContentListWithActionsContext(factoryStatusContext, null, factoryListContext, loadInBackground);
     }
 
     public async Task LoadData()

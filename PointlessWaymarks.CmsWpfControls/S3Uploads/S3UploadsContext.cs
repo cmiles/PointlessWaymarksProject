@@ -24,7 +24,7 @@ public partial class S3UploadsContext : ObservableObject
     [ObservableProperty] private ObservableCollection<S3UploadsItem>? _items;
     [ObservableProperty] private ContentListSelected<S3UploadsItem>? _listSelection;
     [ObservableProperty] private RelayCommand<S3UploadsItem> _openLocalFileInExplorerCommand;
-    [ObservableProperty] private WindowIconStatus _osStatusIndicator;
+    [ObservableProperty] private WindowIconStatus? _osStatusIndicator;
     [ObservableProperty] private RelayCommand _removeSelectedItemsCommand;
     [ObservableProperty] private RelayCommand _saveAllToUploadJsonFileCommand;
     [ObservableProperty] private RelayCommand _saveNotUploadedToUploadJsonFileCommand;
@@ -38,7 +38,7 @@ public partial class S3UploadsContext : ObservableObject
     [ObservableProperty] private RelayCommand _toExcelSelectedItemsCommand;
     [ObservableProperty] private S3UploadsUploadBatch? _uploadBatch;
 
-    public S3UploadsContext(StatusControlContext? statusContext, WindowIconStatus osStatusIndicator)
+    public S3UploadsContext(StatusControlContext? statusContext, WindowIconStatus? osStatusIndicator)
     {
         _statusContext = statusContext ?? new StatusControlContext();
         _osStatusIndicator = osStatusIndicator;
@@ -57,11 +57,11 @@ public partial class S3UploadsContext : ObservableObject
         _toExcelAllItemsCommand =
             StatusContext.RunNonBlockingTaskCommand(async () => await ItemsToExcel(Items?.ToList()));
         _toExcelSelectedItemsCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
-            await ItemsToExcel(ListSelection?.SelectedItems.ToList()));
+            await ItemsToExcel(ListSelection?.SelectedItems?.ToList()));
         _toClipboardAllItemsCommand =
             StatusContext.RunNonBlockingTaskCommand(async () => await ItemsToClipboard(Items?.ToList()));
         _toClipboardSelectedItemsCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
-            await ItemsToClipboard(ListSelection?.SelectedItems.ToList()));
+            await ItemsToClipboard(ListSelection?.SelectedItems?.ToList()));
 
         _removeSelectedItemsCommand = StatusContext.RunBlockingTaskCommand(RemoveSelectedItems);
         _clearCompletedUploadBatch = StatusContext.RunNonBlockingActionCommand(() =>
@@ -76,7 +76,7 @@ public partial class S3UploadsContext : ObservableObject
 
         if (Items == null) return;
 
-        var toRemove = Items.Where(x => !x.HasError && x.Completed).ToList();
+        var toRemove = Items.Where(x => x is { HasError: false, Completed: true }).ToList();
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
@@ -84,7 +84,7 @@ public partial class S3UploadsContext : ObservableObject
     }
 
     public static async Task<S3UploadsContext> CreateInstance(StatusControlContext statusContext,
-        List<S3UploadRequest> uploadList, WindowIconStatus windowStatus)
+        List<S3UploadRequest> uploadList, WindowIconStatus? windowStatus)
     {
         var newControl = new S3UploadsContext(statusContext, windowStatus);
         await newControl.LoadData(uploadList);
@@ -182,9 +182,16 @@ public partial class S3UploadsContext : ObservableObject
         }
     }
 
-    public async Task OpenLocalFileInExplorer(S3UploadsItem toOpen)
+    public async Task OpenLocalFileInExplorer(S3UploadsItem? toOpen)
     {
         await ThreadSwitcher.ResumeForegroundAsync();
+
+        if (toOpen == null)
+        {
+            StatusContext.ToastWarning("Nothing selection or Item doesn't exist???");
+            return;
+        }
+
         await ProcessHelpers.OpenExplorerWindowForFile(toOpen.FileToUpload.FullName);
     }
 
@@ -198,7 +205,7 @@ public partial class S3UploadsContext : ObservableObject
             return;
         }
 
-        var canDelete = ListSelection.SelectedItems.Where(x => !x.Queued && !x.IsUploading).ToList();
+        var canDelete = ListSelection?.SelectedItems?.Where(x => x is { Queued: false, IsUploading: false }).ToList() ?? new();
 
         if (canDelete.Count == 0)
         {
@@ -232,20 +239,20 @@ public partial class S3UploadsContext : ObservableObject
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        if (Items == null || !Items.Any(x => x.Completed && !x.HasError))
+        if (Items == null || !Items.Any(x => x is { Completed: true, HasError: false }))
         {
             StatusContext.ToastError("No Items to Save?");
             return;
         }
 
-        await FileItemsToS3UploaderJsonFile(Items.Where(x => x.Completed && !x.HasError).ToList());
+        await FileItemsToS3UploaderJsonFile(Items.Where(x => x is { Completed: true, HasError: false }).ToList());
     }
 
     public async Task SaveSelectedToUploadJsonFile()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        if (ListSelection == null || !ListSelection.SelectedItems.Any())
+        if (ListSelection?.SelectedItems == null || !ListSelection.SelectedItems.Any())
         {
             StatusContext.ToastError("No Items to Save?");
             return;
@@ -284,7 +291,7 @@ public partial class S3UploadsContext : ObservableObject
             return;
         }
 
-        if (ListSelection == null || !ListSelection.SelectedItems.Any())
+        if (ListSelection?.SelectedItems == null || !ListSelection.SelectedItems.Any())
         {
             StatusContext.ToastError("Nothing Selected...");
             return;
@@ -304,12 +311,12 @@ public partial class S3UploadsContext : ObservableObject
         {
             if (UploadBatch is not { Uploading: true })
             {
-                OsStatusIndicator.AddRequest(new WindowIconStatusRequest(StatusContext.StatusControlContextId,
+                OsStatusIndicator?.AddRequest(new WindowIconStatusRequest(StatusContext.StatusControlContextId,
                     TaskbarItemProgressState.None));
                 return;
             }
 
-            OsStatusIndicator.AddRequest(new WindowIconStatusRequest(StatusContext.StatusControlContextId,
+            OsStatusIndicator?.AddRequest(new WindowIconStatusRequest(StatusContext.StatusControlContextId,
                 TaskbarItemProgressState.Normal,
                 (UploadBatch.CompletedSizePercent + UploadBatch.CompletedItemPercent) / 2));
         }

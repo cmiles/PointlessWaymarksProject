@@ -8,12 +8,19 @@ public partial class MenuLinkListItem : ObservableObject
 {
     [ObservableProperty] private MenuLink _dbEntry;
     [ObservableProperty] private bool _hasChanges;
-    [ObservableProperty] private string _userLink;
+    [ObservableProperty] private string _userLink = string.Empty;
     [ObservableProperty] private int _userOrder;
 
-    public MenuLinkListItem()
+    private MenuLinkListItem(MenuLink dbEntry)
     {
+        _dbEntry = dbEntry;
+
         PropertyChanged += OnPropertyChanged;
+    }
+
+    public static Task<MenuLinkListItem> CreateInstance(MenuLink dbEntry)
+    {
+        return Task.FromResult(new MenuLinkListItem(dbEntry));
     }
 
     private void OnPropertyChanged(object? sender, PropertyChangedEventArgs e)
@@ -22,16 +29,8 @@ public partial class MenuLinkListItem : ObservableObject
 
         if (e.PropertyName == nameof(DbEntry))
         {
-            if (DbEntry == null)
-            {
-                UserLink = string.Empty;
-                UserOrder = 0;
-            }
-            else
-            {
-                UserLink = (DbEntry.LinkTag ?? string.Empty).Trim();
-                UserOrder = DbEntry.MenuOrder;
-            }
+            UserLink = (DbEntry.LinkTag ?? string.Empty).Trim();
+            UserOrder = DbEntry.MenuOrder;
         }
 
         if (!e.PropertyName.Contains("HasChanges") && !e.PropertyName.Contains("Validation"))
@@ -40,7 +39,7 @@ public partial class MenuLinkListItem : ObservableObject
 
     public void CheckForChanges()
     {
-        if (DbEntry == null || DbEntry.Id < 1)
+        if (DbEntry.Id < 1)
         {
             HasChanges = true;
             return;
@@ -51,9 +50,8 @@ public partial class MenuLinkListItem : ObservableObject
 
     private string CleanedUserLink()
     {
-        var toReturn = UserLink ?? string.Empty;
+        var toReturn = UserLink;
 
         return toReturn.Trim();
     }
-
 }

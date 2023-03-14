@@ -11,8 +11,7 @@ using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 
 namespace PointlessWaymarks.CmsWpfControls.UserSettingsEditor;
 
-[ObservableObject]
-public partial class UserSettingsEditorContext
+public partial class UserSettingsEditorContext : ObservableObject
 {
     [ObservableProperty] private CmsCommonCommands _commonCommands;
     [ObservableProperty] private RelayCommand _deleteAwsCredentials;
@@ -22,12 +21,24 @@ public partial class UserSettingsEditorContext
     [ObservableProperty] private RelayCommand _saveSettingsCommand;
     [ObservableProperty] private StatusControlContext _statusContext;
 
-    public UserSettingsEditorContext(StatusControlContext statusContext, UserSettings toLoad)
+    private UserSettingsEditorContext(StatusControlContext statusContext, UserSettings toLoad)
     {
-        StatusContext = statusContext ?? new StatusControlContext();
-        CommonCommands = new CmsCommonCommands(StatusContext);
+        _statusContext = statusContext;
+        _commonCommands = new CmsCommonCommands(StatusContext);
 
-        StatusContext.RunFireAndForgetNonBlockingTask(async () => await LoadData(toLoad));
+        _saveSettingsCommand = StatusContext.RunBlockingTaskCommand(SaveSettings);
+        _enterAwsCredentials = StatusContext.RunBlockingTaskCommand(UserAwsKeyAndSecretEntry);
+        _deleteAwsCredentials = StatusContext.RunBlockingActionCommand(AwsCredentials.RemoveAwsSiteCredentials);
+
+        _regionChoices = RegionEndpoint.EnumerableAllRegions.Select(x => x.SystemName).ToList();
+        _editorSettings = toLoad;
+    }
+
+    public static async Task<UserSettingsEditorContext> CreateInstance(StatusControlContext? statusContext, UserSettings toLoad)
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        return new UserSettingsEditorContext(statusContext ?? new StatusControlContext(), toLoad);
     }
 
     public static string HelpMarkdownBingMapsApiKey =>
@@ -97,18 +108,7 @@ public partial class UserSettingsEditorContext
     public static string HelpMarkdownSubtitleSummary =>
         "Used as a sub-title and site summary - example 'Ramblings, Questionable Geographics, Photographic Half-truths'.";
 
-    private async Task LoadData(UserSettings toLoad)
-    {
-        await ThreadSwitcher.ResumeBackgroundAsync();
 
-        RegionChoices = RegionEndpoint.EnumerableAllRegions.Select(x => x.SystemName).ToList();
-
-        SaveSettingsCommand = StatusContext.RunBlockingTaskCommand(SaveSettings);
-        EnterAwsCredentials = StatusContext.RunBlockingTaskCommand(UserAwsKeyAndSecretEntry);
-        DeleteAwsCredentials = StatusContext.RunBlockingActionCommand(AwsCredentials.RemoveAwsSiteCredentials);
-
-        EditorSettings = toLoad;
-    }
 
     public async Task SaveSettings()
     {

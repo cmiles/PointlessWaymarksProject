@@ -57,7 +57,8 @@ public static class HtmlEmail
         var emailCenterTable = (TableTag) new TableTag().Attr("width", "100%").Attr("border", "0").Attr("cellspacing", "0").Attr("cellpadding", "0");
         var emailCenterRow = emailCenterTable.AddBodyRow();
 
-        var emailCenterLeftCell = emailCenterRow.Cell().Attr("max-width", "1%").Attr("align", "center").Attr("valign", "top").Text("&nbsp;").Encoded(false);
+        // ReSharper disable once MustUseReturnValue  - Does not appear to be an accurate annotation?
+        emailCenterRow.Cell().Attr("max-width", "1%").Attr("align", "center").Attr("valign", "top").Text("&nbsp;").Encoded(false);
 
         var emailCenterContentCell = emailCenterRow.Cell();
         emailCenterContentCell.Attr("width", "100%");

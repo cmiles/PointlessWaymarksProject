@@ -1,5 +1,4 @@
-﻿using System.Diagnostics;
-using System.IO;
+﻿using System.IO;
 using Windows.Data.Pdf;
 using Windows.Graphics.Imaging;
 using Windows.Media.Editing;
@@ -28,6 +27,12 @@ public static class ImageExtractionHelpers
 
         foreach (var loopSelected in selected)
         {
+            if (string.IsNullOrWhiteSpace(loopSelected.OriginalFileName))
+            {
+                statusContext.ToastError($"File Content without Original File? {loopSelected.Title ?? "Unknown Title"}...");
+                continue;
+            }
+
             var targetFile = new FileInfo(Path.Combine(
                 UserSettingsSingleton.CurrentSettings().LocalSiteFileContentDirectory(loopSelected).FullName,
                 loopSelected.OriginalFileName));
@@ -103,7 +108,6 @@ public static class ImageExtractionHelpers
             else
             {
                 newImage.Title = $"{content.Title} - Page {pageNumber}";
-                ;
                 newImage.Summary = $"Page {pageNumber} from {content.Title}.";
             }
 
@@ -131,7 +135,7 @@ public static class ImageExtractionHelpers
 
         var targetFile = new FileInfo(Path.Combine(
             UserSettingsSingleton.CurrentSettings().LocalSiteFileContentDirectory(selected).FullName,
-            selected.OriginalFileName));
+            selected.OriginalFileName!));
 
         if (!targetFile.Exists) return (null, null);
 
@@ -201,7 +205,6 @@ public static class ImageExtractionHelpers
         else
         {
             newImage.Title = $"{selected.Title} - Page {pageNumber}";
-            ;
             newImage.Summary = $"Page {pageNumber} from {selected.Title}.";
         }
 
@@ -223,7 +226,7 @@ public static class ImageExtractionHelpers
             await ImageGenerator.SaveAndGenerateHtml(newImage, destinationFile, true, null,
                 statusContext.ProgressTracker());
 
-        if (autoSaveReturn.generationReturn.HasError)
+        if (autoSaveReturn.generationReturn.HasError || autoSaveReturn.imageContent == null)
         {
             await ThreadSwitcher.ResumeForegroundAsync();
 
@@ -247,7 +250,7 @@ public static class ImageExtractionHelpers
         {
             var targetFile = new FileInfo(Path.Combine(
                 UserSettingsSingleton.CurrentSettings().LocalSiteFileContentDirectory(loopSelected).FullName,
-                loopSelected.OriginalFileName));
+                loopSelected.OriginalFileName!));
 
             if (!targetFile.Exists) continue;
 
@@ -292,7 +295,7 @@ public static class ImageExtractionHelpers
             return;
         }
 
-        foreach (var (targetFile, destinationFile, content) in toProcess)
+        foreach (var (_, destinationFile, content) in toProcess)
         {
             await ThreadSwitcher.ResumeForegroundAsync();
 
@@ -326,7 +329,7 @@ public static class ImageExtractionHelpers
 
         var targetFile = new FileInfo(Path.Combine(
             UserSettingsSingleton.CurrentSettings().LocalSiteFileContentDirectory(selected).FullName,
-            selected.OriginalFileName));
+            selected.OriginalFileName!));
 
         if (!targetFile.Exists) return null;
 
@@ -381,7 +384,7 @@ public static class ImageExtractionHelpers
             await ImageGenerator.SaveAndGenerateHtml(newImage, destinationFile, true, null,
                 statusContext.ProgressTracker());
 
-        if (autoSaveReturn.generationReturn.HasError)
+        if (autoSaveReturn.generationReturn.HasError || autoSaveReturn.imageContent == null)
         {
             await ThreadSwitcher.ResumeForegroundAsync();
 
@@ -401,7 +404,7 @@ public static class ImageExtractionHelpers
 
         var targetFile = new FileInfo(Path.Combine(
             UserSettingsSingleton.CurrentSettings().LocalSiteVideoContentDirectory(selected).FullName,
-            selected.OriginalFileName));
+            selected.OriginalFileName!));
 
         if (!targetFile.Exists) return null;
 
@@ -456,7 +459,7 @@ public static class ImageExtractionHelpers
             await ImageGenerator.SaveAndGenerateHtml(newImage, destinationFile, true, null,
                 statusContext.ProgressTracker());
 
-        if (autoSaveReturn.generationReturn.HasError)
+        if (autoSaveReturn.generationReturn.HasError || autoSaveReturn.imageContent == null)
         {
             await ThreadSwitcher.ResumeForegroundAsync();
 

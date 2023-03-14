@@ -15,7 +15,7 @@ public class PreviewServerStartup
         ILogger<PreviewServerStartup> logger, IConfiguration configuration)
     {
         var previewListeningPort = configuration.GetValue<int>("PreviewPort");
-        var previewFileRoot = configuration.GetValue<string>("PreviewFileSystemRoot");
+        var previewFileRoot = configuration.GetValue<string>("PreviewFileSystemRoot")!;
         var previewHost = configuration.GetValue<string>("PreviewHost");
 
         app.UseDeveloperExceptionPage();
@@ -24,7 +24,7 @@ public class PreviewServerStartup
         {
             var possiblePath = context.Request.Path;
 
-            if (possiblePath == null || string.IsNullOrWhiteSpace(possiblePath.Value) ||
+            if (string.IsNullOrWhiteSpace(possiblePath.Value) ||
                 possiblePath.Value == "/")
             {
                 var moddedFile = (await File.ReadAllTextAsync(Path.Join(previewFileRoot, "index.html"))).Replace(

@@ -34,7 +34,7 @@ public partial class PointListWithActionsContext : ObservableObject
     [ObservableProperty] private WindowIconStatus? _windowStatus;
 
 
-    private PointListWithActionsContext(StatusControlContext statusContext, WindowIconStatus? windowStatus, ContentListContext listContext)
+    private PointListWithActionsContext(StatusControlContext statusContext, WindowIconStatus? windowStatus, ContentListContext listContext, bool loadInBackground = true)
     {
         _statusContext = statusContext;
         _windowStatus = windowStatus;
@@ -73,17 +73,17 @@ public partial class PointListWithActionsContext : ObservableObject
             new() { ItemName = "Refresh Data", ItemCommand = RefreshDataCommand }
         };
 
-        StatusContext.RunFireAndForgetBlockingTask(LoadData);
+        if(loadInBackground) StatusContext.RunFireAndForgetBlockingTask(LoadData);
     }
 
-    public static async Task<PointListWithActionsContext> CreateInstance(StatusControlContext? statusContext, WindowIconStatus? windowStatus = null)
+    public static async Task<PointListWithActionsContext> CreateInstance(StatusControlContext? statusContext, WindowIconStatus? windowStatus = null, bool loadInBackground = true)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
         var factoryContext = statusContext ?? new StatusControlContext();
         var factoryListContext = await ContentListContext.CreateInstance(factoryContext, new PointListLoader(100), windowStatus);
 
-        return new PointListWithActionsContext(factoryContext, windowStatus, factoryListContext);
+        return new PointListWithActionsContext(factoryContext, windowStatus, factoryListContext, loadInBackground);
     }
 
     private async Task AddIntersectionTagsToSelected(CancellationToken cancellationToken)

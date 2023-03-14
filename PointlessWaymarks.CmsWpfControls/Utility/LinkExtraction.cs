@@ -42,7 +42,7 @@ public static class LinkExtraction
         {
             progressTracker?.Report($"Checking to see if {loopMatches} exists in database...");
 
-            var alreadyExists = await db.LinkContents.AnyAsync(x => x.Url.ToLower() == loopMatches.ToLower());
+            var alreadyExists = await db.LinkContents.AnyAsync(x => x.Url != null && x.Url.ToLower() == loopMatches.ToLower());
             if (alreadyExists)
             {
                 progressTracker?.Report($"{loopMatches} exists in database...");

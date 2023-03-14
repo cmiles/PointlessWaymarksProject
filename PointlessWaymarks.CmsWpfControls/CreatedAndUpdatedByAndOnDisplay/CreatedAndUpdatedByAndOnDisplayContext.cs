@@ -1,6 +1,5 @@
 ﻿using System.ComponentModel;
 using CommunityToolkit.Mvvm.ComponentModel;
-using JetBrains.Annotations;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.Content;
 using PointlessWaymarks.CmsData.Database.Models;
@@ -52,8 +51,8 @@ public partial class CreatedAndUpdatedByAndOnDisplayContext : ObservableObject, 
             UpdatedByEntry.UserValue = CreatedByEntry.UserValue;
         }
 
-        _createdOn = dbEntry?.CreatedOn;
-        _updatedOn = dbEntry?.LastUpdatedOn;
+        _createdOn = dbEntry.CreatedOn;
+        _updatedOn = dbEntry.LastUpdatedOn;
 
         var newStringParts = new List<string>();
 
@@ -70,17 +69,17 @@ public partial class CreatedAndUpdatedByAndOnDisplayContext : ObservableObject, 
         ShowCreatedByEditor = false;
         ShowUpdatedByEditor = true;
 
-        newStringParts.Add(!string.IsNullOrWhiteSpace(DbEntry?.CreatedBy)
+        newStringParts.Add(!string.IsNullOrWhiteSpace(DbEntry.CreatedBy)
             ? $"Created By {DbEntry.CreatedBy.Trim()}"
             : "Created");
 
-        newStringParts.Add($"On {DbEntry?.CreatedOn:g}");
+        newStringParts.Add($"On {DbEntry.CreatedOn:g}");
 
-        if (!string.IsNullOrWhiteSpace(DbEntry?.LastUpdatedBy))
+        if (!string.IsNullOrWhiteSpace(DbEntry.LastUpdatedBy))
             newStringParts.Add($"Last Update By {DbEntry.LastUpdatedBy.Trim()}");
-        else if (DbEntry?.LastUpdatedOn != null) newStringParts.Add("Last Update");
+        else if (DbEntry.LastUpdatedOn != null) newStringParts.Add("Last Update");
 
-        if (DbEntry?.LastUpdatedOn != null) newStringParts.Add($"On {DbEntry.LastUpdatedOn:g}");
+        if (DbEntry.LastUpdatedOn != null) newStringParts.Add($"On {DbEntry.LastUpdatedOn:g}");
 
         CreatedAndUpdatedByAndOn = string.Join(" ", newStringParts);
     }
@@ -94,6 +93,8 @@ public partial class CreatedAndUpdatedByAndOnDisplayContext : ObservableObject, 
     public static async Task<CreatedAndUpdatedByAndOnDisplayContext> CreateInstance(StatusControlContext? statusContext,
         ICreatedAndLastUpdateOnAndBy dbEntry)
     {
+        await ThreadSwitcher.ResumeForegroundAsync();
+
         var factoryContext = statusContext ?? new StatusControlContext();
 
         var factoryCreatedByContext = StringDataEntryContext.CreateInstance();
@@ -103,8 +104,8 @@ public partial class CreatedAndUpdatedByAndOnDisplayContext : ObservableObject, 
         };
         factoryCreatedByContext.Title = "Created By";
         factoryCreatedByContext.HelpText = "Created By Name";
-        factoryCreatedByContext.ReferenceValue = string.IsNullOrWhiteSpace(dbEntry?.CreatedBy) ? string.Empty : dbEntry.CreatedBy;
-        factoryCreatedByContext.UserValue = string.IsNullOrWhiteSpace(dbEntry?.CreatedBy)
+        factoryCreatedByContext.ReferenceValue = string.IsNullOrWhiteSpace(dbEntry.CreatedBy) ? string.Empty : dbEntry.CreatedBy;
+        factoryCreatedByContext.UserValue = string.IsNullOrWhiteSpace(dbEntry.CreatedBy)
             ? UserSettingsSingleton.CurrentSettings().DefaultCreatedBy
             : dbEntry.CreatedBy;
 
@@ -120,8 +121,8 @@ public partial class CreatedAndUpdatedByAndOnDisplayContext : ObservableObject, 
             } };
         factoryUpdatedByEntry.Title = "Updated By";
         factoryUpdatedByEntry.HelpText = "Last Updated By Name";
-        factoryUpdatedByEntry.ReferenceValue = dbEntry?.LastUpdatedBy ?? string.Empty;
-        factoryUpdatedByEntry.UserValue = dbEntry?.LastUpdatedBy ?? string.Empty;
+        factoryUpdatedByEntry.ReferenceValue = dbEntry.LastUpdatedBy ?? string.Empty;
+        factoryUpdatedByEntry.UserValue = dbEntry.LastUpdatedBy ?? string.Empty;
 
         var newInstance = new CreatedAndUpdatedByAndOnDisplayContext(factoryContext, dbEntry, factoryCreatedByContext, factoryUpdatedByEntry);
 

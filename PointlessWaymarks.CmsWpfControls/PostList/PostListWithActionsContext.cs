@@ -20,7 +20,7 @@ public partial class PostListWithActionsContext : ObservableObject
     [ObservableProperty] private StatusControlContext _statusContext;
     [ObservableProperty] private WindowIconStatus? _windowStatus;
 
-    private PostListWithActionsContext(StatusControlContext? statusContext, WindowIconStatus? windowStatus, ContentListContext listContext)
+    private PostListWithActionsContext(StatusControlContext? statusContext, WindowIconStatus? windowStatus, ContentListContext listContext, bool loadInBackground = true)
     {
         _statusContext = statusContext ?? new StatusControlContext();
         _windowStatus = windowStatus; 
@@ -53,17 +53,17 @@ public partial class PostListWithActionsContext : ObservableObject
             new() { ItemName = "Refresh Data", ItemCommand = RefreshDataCommand }
         };
 
-        StatusContext.RunFireAndForgetBlockingTask(LoadData);
+        if(loadInBackground) StatusContext.RunFireAndForgetBlockingTask(LoadData);
     }
 
-    public static async Task<PostListWithActionsContext> CreateInstance(StatusControlContext? statusContext, WindowIconStatus? windowStatus = null)
+    public static async Task<PostListWithActionsContext> CreateInstance(StatusControlContext? statusContext, WindowIconStatus? windowStatus = null, bool loadInBackground = true)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
         var factoryContext = statusContext ?? new StatusControlContext();
         var factoryListContext = await ContentListContext.CreateInstance(factoryContext, new PostListLoader(100), windowStatus);
 
-        return new PostListWithActionsContext(factoryContext, windowStatus, factoryListContext);
+        return new PostListWithActionsContext(factoryContext, windowStatus, factoryListContext, loadInBackground);
     }
 
     private async Task BracketCodesToClipboardForSelected()

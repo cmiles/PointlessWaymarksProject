@@ -296,7 +296,7 @@ public partial class ContentListContext : ObservableObject, IDragSource, IDropTa
             return;
         }
 
-        if (translatedMessage.ContentIds == null || !translatedMessage.ContentIds.Any()) return;
+        if (!translatedMessage.ContentIds.Any()) return;
 
         var existingListItemsMatchingNotification = new List<IContentListItem>();
 

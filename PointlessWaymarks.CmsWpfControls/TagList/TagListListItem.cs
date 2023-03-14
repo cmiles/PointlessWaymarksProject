@@ -5,7 +5,7 @@ namespace PointlessWaymarks.CmsWpfControls.TagList;
 public partial class TagListListItem : ObservableObject
 {
     [ObservableProperty] private int _contentCount;
-    [ObservableProperty] private List<TagItemContentInformation> _contentInformation;
+    [ObservableProperty] private List<TagItemContentInformation> _contentInformation = new();
     [ObservableProperty] private bool _isExcludedTag;
-    [ObservableProperty] private string _tagName;
+    [ObservableProperty] private string _tagName = string.Empty;
 }

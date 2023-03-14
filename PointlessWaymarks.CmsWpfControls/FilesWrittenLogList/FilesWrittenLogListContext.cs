@@ -483,7 +483,7 @@ public partial class FilesWrittenLogListContext : ObservableObject
             StatusContext.RunBlockingAction(() =>
             {
                 var currentItems = Items.ToList();
-                currentItems?.Where(x => x.IsInGenerationDirectory).ToList().ForEach(x =>
+                currentItems.Where(x => x.IsInGenerationDirectory).ToList().ForEach(x =>
                     x.TransformedFile = ToTransformedFileString(x.FileBase));
             });
     }

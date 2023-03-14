@@ -2,7 +2,6 @@
 using CommunityToolkit.Mvvm.Input;
 using PointlessWaymarks.CmsData.ContentHtml.NoteHtml;
 using PointlessWaymarks.CmsWpfControls.ContentList;
-using PointlessWaymarks.CmsWpfControls.MapComponentList;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 using PointlessWaymarks.WpfCommon.Utility;
@@ -18,7 +17,7 @@ public partial class NoteListWithActionsContext : ObservableObject
     [ObservableProperty] private StatusControlContext _statusContext;
     [ObservableProperty] private WindowIconStatus? _windowStatus;
 
-    private NoteListWithActionsContext(StatusControlContext statusContext, WindowIconStatus? windowStatus, ContentListContext listContext)
+    private NoteListWithActionsContext(StatusControlContext statusContext, WindowIconStatus? windowStatus, ContentListContext listContext, bool loadInBackground = true)
     {
         _statusContext = statusContext;
         _windowStatus = windowStatus;
@@ -46,17 +45,17 @@ public partial class NoteListWithActionsContext : ObservableObject
             new() { ItemName = "Refresh Data", ItemCommand = RefreshDataCommand }
         };
 
-        StatusContext.RunFireAndForgetBlockingTask(LoadData);
+        if(loadInBackground) StatusContext.RunFireAndForgetBlockingTask(LoadData);
     }
 
-    public static async Task<NoteListWithActionsContext> CreateInstance(StatusControlContext? statusContext, WindowIconStatus? windowStatus = null)
+    public static async Task<NoteListWithActionsContext> CreateInstance(StatusControlContext? statusContext, WindowIconStatus? windowStatus = null, bool loadInBackground = true)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
         var factoryContext = statusContext ?? new StatusControlContext();
         var factoryListContext = await ContentListContext.CreateInstance(factoryContext, new NoteListLoader(100), windowStatus);
 
-        return new NoteListWithActionsContext(factoryContext, windowStatus, factoryListContext);
+        return new NoteListWithActionsContext(factoryContext, windowStatus, factoryListContext, loadInBackground);
     }
 
     private async Task EmailHtmlToClipboard()

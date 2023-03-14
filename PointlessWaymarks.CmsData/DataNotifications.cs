@@ -99,7 +99,7 @@ public static class DataNotifications
 
 public record InterProcessDataNotification
 {
-    public List<Guid>? ContentIds { get; init; }
+    public List<Guid> ContentIds { get; init; } = new();
     public DataNotificationContentType ContentType { get; init; }
     public string? ErrorNote { get; init; }
     public bool HasError { get; init; }

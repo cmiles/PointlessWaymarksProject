@@ -2,7 +2,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Web.WebView2.Wpf;
-using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
@@ -19,66 +18,66 @@ public partial class SitePreviewContext : DependencyObject
     [ObservableProperty] private string _siteName;
     [ObservableProperty] private string _siteUrl;
     [ObservableProperty] private StatusControlContext _statusContext;
-    [ObservableProperty] private string _textBarAddress;
+    [ObservableProperty] private string? _textBarAddress;
     [ObservableProperty] private RelayCommand _tryGoBackNavigationCommand;
     [ObservableProperty] private RelayCommand _tryGoForwardNavigationCommand;
     [ObservableProperty] private RelayCommand _tryNavigateHomeCommand;
     [ObservableProperty] private RelayCommand _tryRefreshCommand;
     [ObservableProperty] private RelayCommand _tryUserNavigationCommand;
-    [ObservableProperty] private WebView2 _webViewGui;
+    [ObservableProperty] private WebView2? _webViewGui;
     [ObservableProperty] private string _windowTitle;
 
     public SitePreviewContext(string siteUrl, string localSiteFolder, string siteName, string previewServerHost,
-        StatusControlContext statusContext)
+        StatusControlContext? statusContext)
     {
-        StatusContext = statusContext ?? new StatusControlContext();
-        SiteUrl = siteUrl;
-        LocalSiteFolder = localSiteFolder;
-        SiteName = siteName;
-        PreviewServerHost = previewServerHost;
+        _statusContext = statusContext ?? new StatusControlContext();
+        _siteUrl = siteUrl;
+        _localSiteFolder = localSiteFolder;
+        _siteName = siteName;
+        _previewServerHost = previewServerHost;
 
-        InitialPage = string.IsNullOrEmpty(InitialPage) ? $"http://{previewServerHost}/index.html" : InitialPage;
+        _initialPage = string.IsNullOrEmpty(InitialPage) ? $"http://{previewServerHost}/index.html" : InitialPage;
 
-        WindowTitle = string.IsNullOrWhiteSpace(SiteName)
+        _windowTitle = string.IsNullOrWhiteSpace(SiteName)
             ? $"Preview - {LocalSiteFolder} is mapped to {SiteUrl}"
             : $"{SiteName} - {LocalSiteFolder} is mapped to {SiteUrl}";
 
-        CurrentAddress = InitialPage;
+        _currentAddress = InitialPage;
 
-        TryUserNavigationCommand = StatusContext.RunBlockingTaskCommand(TryUserNavigation);
-        TryGoBackNavigationCommand = StatusContext.RunBlockingTaskCommand(TryGoBackNavigation);
-        TryGoForwardNavigationCommand = StatusContext.RunBlockingTaskCommand(TryGoForwardNavigation);
-        TryRefreshCommand = StatusContext.RunBlockingTaskCommand(TryRefresh);
-        TryNavigateHomeCommand = StatusContext.RunBlockingTaskCommand(TryNavigateHome);
+        _tryUserNavigationCommand = StatusContext.RunBlockingTaskCommand(TryUserNavigation);
+        _tryGoBackNavigationCommand = StatusContext.RunBlockingTaskCommand(TryGoBackNavigation);
+        _tryGoForwardNavigationCommand = StatusContext.RunBlockingTaskCommand(TryGoForwardNavigation);
+        _tryRefreshCommand = StatusContext.RunBlockingTaskCommand(TryRefresh);
+        _tryNavigateHomeCommand = StatusContext.RunBlockingTaskCommand(TryNavigateHome);
     }
 
     private async Task TryGoBackNavigation()
     {
         await ThreadSwitcher.ResumeForegroundAsync();
-        if (WebViewGui.CoreWebView2.CanGoBack) WebViewGui.CoreWebView2.GoBack();
+        if (WebViewGui?.CoreWebView2.CanGoBack ?? false) WebViewGui.CoreWebView2.GoBack();
     }
 
     private async Task TryGoForwardNavigation()
     {
         await ThreadSwitcher.ResumeForegroundAsync();
-        if (WebViewGui.CoreWebView2.CanGoForward) WebViewGui.CoreWebView2.GoForward();
+        if (WebViewGui?.CoreWebView2.CanGoForward ?? false) WebViewGui.CoreWebView2.GoForward();
     }
 
     private async Task TryNavigateHome()
     {
         await ThreadSwitcher.ResumeForegroundAsync();
-        WebViewGui.CoreWebView2.Navigate(InitialPage);
+        WebViewGui?.CoreWebView2.Navigate(InitialPage);
     }
 
     private async Task TryRefresh()
     {
         await ThreadSwitcher.ResumeForegroundAsync();
-        WebViewGui.CoreWebView2.Reload();
+        WebViewGui?.CoreWebView2.Reload();
     }
 
     private async Task TryUserNavigation()
     {
         await ThreadSwitcher.ResumeForegroundAsync();
-        WebViewGui.CoreWebView2.Navigate($"http://{StringTools.UrlCombine(SiteUrl, TextBarAddress)}");
+        WebViewGui?.CoreWebView2.Navigate($"http://{StringTools.UrlCombine(SiteUrl, TextBarAddress ?? string.Empty)}");
     }
 }

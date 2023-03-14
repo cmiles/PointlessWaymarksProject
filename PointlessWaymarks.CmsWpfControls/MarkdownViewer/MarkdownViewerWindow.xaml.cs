@@ -10,14 +10,14 @@ namespace PointlessWaymarks.CmsWpfControls.MarkdownViewer;
 [ObservableObject]
 public partial class MarkdownViewerWindow
 {
-    [ObservableProperty] private string _markdownContent;
+    [ObservableProperty] private string _markdownContent = string.Empty;
     [ObservableProperty] private StatusControlContext _statusContext;
-    [ObservableProperty] private string _windowTitle;
+    [ObservableProperty] private string _windowTitle = string.Empty;
 
     private MarkdownViewerWindow()
     {
         InitializeComponent();
-        StatusContext = new StatusControlContext();
+        _statusContext = new StatusControlContext();
         DataContext = this;
     }
 

@@ -17,7 +17,7 @@ public static class DebugTrackers
         return toReturn;
     }
 
-    private static void DebugProgressTrackerChange(object sender, string e)
+    private static void DebugProgressTrackerChange(object? sender, string e)
     {
         Debug.WriteLine(e);
     }

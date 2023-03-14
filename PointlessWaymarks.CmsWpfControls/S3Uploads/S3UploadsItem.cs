@@ -6,7 +6,6 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.S3;
 using PointlessWaymarks.CmsWpfControls.Utility;
-using PointlessWaymarks.CmsWpfControls.Utility.Aws;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 
 namespace PointlessWaymarks.CmsWpfControls.S3Uploads;

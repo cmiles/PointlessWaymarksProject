@@ -1,5 +1,4 @@
 ﻿using System.Collections.ObjectModel;
-using System.Windows;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Omu.ValueInjecter;
@@ -20,27 +19,30 @@ namespace PointlessWaymarks.CmsWpfControls.TagExclusionEditor;
 public partial class TagExclusionEditorContext : ObservableObject
 {
     [ObservableProperty] private RelayCommand _addNewItemCommand;
+    [ObservableProperty] private CmsCommonCommands _commonCommands;
     [ObservableProperty] private DataNotificationsWorkQueue _dataNotificationsProcessor;
     [ObservableProperty] private RelayCommand<TagExclusionEditorListItem> _deleteItemCommand;
     [ObservableProperty] private string _helpMarkdown;
     [ObservableProperty] private ObservableCollection<TagExclusionEditorListItem> _items;
     [ObservableProperty] private RelayCommand<TagExclusionEditorListItem> _saveItemCommand;
     [ObservableProperty] private StatusControlContext _statusContext;
-    [ObservableProperty] private CmsCommonCommands _commonCommands;
 
-    public TagExclusionEditorContext(StatusControlContext statusContext)
+    private TagExclusionEditorContext(StatusControlContext statusContext,
+        ObservableCollection<TagExclusionEditorListItem> itemCollection, bool loadInBackground = true)
     {
-        StatusContext = statusContext ?? new StatusControlContext();
-        CommonCommands = new CmsCommonCommands(StatusContext);
+        _statusContext = statusContext;
+        _commonCommands = new CmsCommonCommands(StatusContext);
 
-        DataNotificationsProcessor = new DataNotificationsWorkQueue { Processor = DataNotificationReceived };
+        _dataNotificationsProcessor = new DataNotificationsWorkQueue { Processor = DataNotificationReceived };
 
-        HelpMarkdown = TagExclusionHelpMarkdown.HelpBlock;
-        AddNewItemCommand = StatusContext.RunBlockingTaskCommand(async () => await AddNewItem());
-        SaveItemCommand = StatusContext.RunNonBlockingTaskCommand<TagExclusionEditorListItem>(SaveItem);
-        DeleteItemCommand = StatusContext.RunNonBlockingTaskCommand<TagExclusionEditorListItem>(DeleteItem);
+        _helpMarkdown = TagExclusionHelpMarkdown.HelpBlock;
+        _addNewItemCommand = StatusContext.RunBlockingTaskCommand(AddNewItem);
+        _saveItemCommand = StatusContext.RunNonBlockingTaskCommand<TagExclusionEditorListItem>(SaveItem);
+        _deleteItemCommand = StatusContext.RunNonBlockingTaskCommand<TagExclusionEditorListItem>(DeleteItem);
 
-        StatusContext.RunFireAndForgetBlockingTask(LoadData);
+        _items = itemCollection;
+
+        if(loadInBackground) StatusContext.RunFireAndForgetBlockingTask(LoadData);
     }
 
     public async Task AddNewItem()
@@ -48,6 +50,15 @@ public partial class TagExclusionEditorContext : ObservableObject
         await ThreadSwitcher.ResumeForegroundAsync();
 
         Items.Add(new TagExclusionEditorListItem { DbEntry = new TagExclusion() });
+    }
+
+    public static async Task<TagExclusionEditorContext> CreateInstance(StatusControlContext? statusContext,
+        bool loadInBackground = true)
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        return new TagExclusionEditorContext(statusContext ?? new StatusControlContext(),
+            new ObservableCollection<TagExclusionEditorListItem>(), loadInBackground);
     }
 
     private async Task DataNotificationReceived(TinyMessageReceivedEventArgs e)
@@ -64,9 +75,15 @@ public partial class TagExclusionEditorContext : ObservableObject
         await LoadData();
     }
 
-    private async Task DeleteItem(TagExclusionEditorListItem tagItem)
+    private async Task DeleteItem(TagExclusionEditorListItem? tagItem)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (tagItem == null)
+        {
+            StatusContext.ToastError("No Tag Item to Delete???");
+            return;
+        }
 
         if (tagItem.DbEntry == null || tagItem.DbEntry.Id < 1)
         {
@@ -93,19 +110,11 @@ public partial class TagExclusionEditorContext : ObservableObject
         var listItems = dbItems.Select(x => new TagExclusionEditorListItem { DbEntry = x, TagValue = x.Tag })
             .OrderBy(x => x.TagValue).ToList();
 
-        if (Items == null)
-        {
-            await ThreadSwitcher.ResumeForegroundAsync();
-            Items = new ObservableCollection<TagExclusionEditorListItem>(listItems);
-            await ThreadSwitcher.ResumeBackgroundAsync();
-            return;
-        }
-
         var currentItems = Items.ToList();
 
         foreach (var loopListItem in listItems)
         {
-            var possibleItem = currentItems.SingleOrDefault(x => x.DbEntry?.Id == loopListItem.DbEntry.Id);
+            var possibleItem = currentItems.Where(x => x.DbEntry?.Id != null).SingleOrDefault(x => x.DbEntry?.Id == loopListItem.DbEntry?.Id);
 
             if (possibleItem == null)
             {
@@ -120,9 +129,9 @@ public partial class TagExclusionEditorContext : ObservableObject
         }
 
         var currentItemsWithDbEntry = currentItems.Where(x => x.DbEntry is { Id: >= 0 }).ToList();
-        var newItemIds = listItems.Select(x => x.DbEntry.Id);
+        var newItemIds = listItems.Where(x => x.DbEntry?.Id != null).Select(x => x.DbEntry?.Id);
 
-        var deletedItems = currentItemsWithDbEntry.Where(x => !newItemIds.Contains(x.DbEntry.Id)).ToList();
+        var deletedItems = currentItemsWithDbEntry.Where(x => !newItemIds.Contains(x.DbEntry?.Id)).ToList();
 
         await ThreadSwitcher.ResumeForegroundAsync();
         foreach (var loopDeleted in deletedItems)
@@ -143,9 +152,15 @@ public partial class TagExclusionEditorContext : ObservableObject
         DataNotificationsProcessor.Enqueue(e);
     }
 
-    private async Task SaveItem(TagExclusionEditorListItem tagItem)
+    private async Task SaveItem(TagExclusionEditorListItem? tagItem)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (tagItem == null)
+        {
+            StatusContext.ToastError("No Tag Item to Save???");
+            return;
+        }
 
         tagItem.TagValue = tagItem.TagValue.TrimNullToEmpty();
 

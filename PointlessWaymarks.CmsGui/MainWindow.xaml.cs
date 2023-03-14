@@ -516,7 +516,7 @@ public partial class MainWindow
 
         TabAllListContext = await AllContentListWithActionsContext.CreateInstance(null, WindowStatus);
 
-        SettingsEditorContext = new UserSettingsEditorContext(null, UserSettingsSingleton.CurrentSettings());
+        SettingsEditorContext = await UserSettingsEditorContext.CreateInstance(null, UserSettingsSingleton.CurrentSettings());
         AboutContext = new HelpDisplayContext(new List<string>
             { HelpMarkdown.CmsGeneralDescriptionBlock, HelpMarkdown.SoftwareUsedBlock });
 
@@ -556,11 +556,11 @@ public partial class MainWindow
         if (SelectedTab.Header.ToString() == "Links" && TabLinkContext == null)
             TabLinkContext = await LinkListWithActionsContext.CreateInstance(null, WindowStatus);
         if (SelectedTab.Header.ToString() == "Tag Search Exclusions" && TabTagExclusionContext == null)
-            TabTagExclusionContext = new TagExclusionEditorContext(null);
+            TabTagExclusionContext = await TagExclusionEditorContext.CreateInstance(null);
         if (SelectedTab.Header.ToString() == "Menu Links" && TabMenuLinkContext == null)
-            TabMenuLinkContext = new MenuLinkEditorContext(null);
+            TabMenuLinkContext = await MenuLinkEditorContext.CreateInstance(null);
         if (SelectedTab.Header.ToString() == "Tags" && TabTagListContext == null)
-            TabTagListContext = new TagListContext(null);
+            TabTagListContext = await TagListContext.CreateInstance(null);
         if (SelectedTab.Header.ToString() == "File Log" && FilesWrittenContext == null)
             FilesWrittenContext = await FilesWrittenLogListContext.CreateInstance(null, true);
     }

@@ -31,8 +31,8 @@ public partial class TagListContext : ObservableObject
     [ObservableProperty] private RelayCommand _allDetailItemsToExcelCommand;
     [ObservableProperty] private CmsCommonCommands _commonCommands;
     [ObservableProperty] private DataNotificationsWorkQueue _dataNotificationsProcessor;
-    [ObservableProperty] private List<TagItemContentInformation> _detailsList;
-    [ObservableProperty] private List<TagItemContentInformation> _detailsSelectedItems;
+    [ObservableProperty] private List<TagItemContentInformation> _detailsList = new();
+    [ObservableProperty] private List<TagItemContentInformation>? _detailsSelectedItems;
     [ObservableProperty] private RelayCommand<Guid> _editContentCommand;
     [ObservableProperty] private RelayCommand _importFromExcelFileCommand;
     [ObservableProperty] private RelayCommand _importFromOpenExcelInstanceCommand;
@@ -41,42 +41,44 @@ public partial class TagListContext : ObservableObject
     [ObservableProperty] private RelayCommand _refreshDataCommand;
     [ObservableProperty] private RelayCommand<TagListListItem> _removeExcludedTagCommand;
     [ObservableProperty] private RelayCommand _selectedDetailItemsToExcelCommand;
-    [ObservableProperty] private List<TagListListItem> _selectedItems;
+    [ObservableProperty] private List<TagListListItem>? _selectedItems;
     [ObservableProperty] private RelayCommand _selectedTagsToExcelCommand;
     [ObservableProperty] private StatusControlContext _statusContext;
-    [ObservableProperty] private string _userFilterText;
+    [ObservableProperty] private string _userFilterText = string.Empty;
     [ObservableProperty] private RelayCommand _visibleTagsToExcelCommand;
 
-    public TagListContext(StatusControlContext context)
+    private TagListContext(StatusControlContext context, ObservableCollection<TagListListItem> itemCollection,
+        bool loadInBackground = true)
     {
-        StatusContext = context ?? new StatusControlContext();
-        CommonCommands = new CmsCommonCommands(StatusContext);
-
+        _statusContext = context;
+        _commonCommands = new CmsCommonCommands(StatusContext);
 
         PropertyChanged += OnPropertyChanged;
 
-        DataNotificationsProcessor = new DataNotificationsWorkQueue { Processor = DataNotificationReceived };
+        _dataNotificationsProcessor = new DataNotificationsWorkQueue { Processor = DataNotificationReceived };
 
-        RefreshDataCommand = StatusContext.RunBlockingTaskCommand(LoadData);
+        _refreshDataCommand = StatusContext.RunBlockingTaskCommand(LoadData);
 
-        SelectedDetailItemsToExcelCommand =
+        _selectedDetailItemsToExcelCommand =
             StatusContext.RunBlockingTaskCommand(async () => await TagContentToExcel(DetailsSelectedItems));
-        AllDetailItemsToExcelCommand =
+        _allDetailItemsToExcelCommand =
             StatusContext.RunBlockingTaskCommand(async () => await TagContentToExcel(DetailsList));
 
-        EditContentCommand = StatusContext.RunNonBlockingTaskCommand<Guid>(async x => await EditContent(x));
-        VisibleTagsToExcelCommand = StatusContext.RunBlockingTaskCommand(VisibleTagsToExcel);
-        SelectedTagsToExcelCommand = StatusContext.RunBlockingTaskCommand(SelectedTagsToExcel);
+        _editContentCommand = StatusContext.RunNonBlockingTaskCommand<Guid>(async x => await EditContent(x));
+        _visibleTagsToExcelCommand = StatusContext.RunBlockingTaskCommand(VisibleTagsToExcel);
+        _selectedTagsToExcelCommand = StatusContext.RunBlockingTaskCommand(SelectedTagsToExcel);
 
-        MakeExcludedTagCommand = StatusContext.RunBlockingTaskCommand<TagListListItem>(MakeExcludedTag);
-        RemoveExcludedTagCommand = StatusContext.RunBlockingTaskCommand<TagListListItem>(RemoveExcludedTag);
+        _makeExcludedTagCommand = StatusContext.RunBlockingTaskCommand<TagListListItem>(MakeExcludedTag);
+        _removeExcludedTagCommand = StatusContext.RunBlockingTaskCommand<TagListListItem>(RemoveExcludedTag);
 
-        ImportFromExcelFileCommand =
+        _importFromExcelFileCommand =
             StatusContext.RunBlockingTaskCommand(async () => await ExcelHelpers.ImportFromExcelFile(StatusContext));
-        ImportFromOpenExcelInstanceCommand = StatusContext.RunBlockingTaskCommand(async () =>
+        _importFromOpenExcelInstanceCommand = StatusContext.RunBlockingTaskCommand(async () =>
             await ExcelHelpers.ImportFromOpenExcelInstance(StatusContext));
 
-        StatusContext.RunFireAndForgetBlockingTask(LoadData);
+        _items = itemCollection;
+
+        if (loadInBackground) StatusContext.RunFireAndForgetBlockingTask(LoadData);
     }
 
     private string ContentTypeString(dynamic content)
@@ -91,6 +93,17 @@ public partial class TagListContext : ObservableObject
         }
 
         return contentTypeString;
+    }
+
+    public static async Task<TagListContext> CreateInstance(StatusControlContext? context, bool loadInBackground = true)
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        var factoryContext = context ?? new StatusControlContext();
+
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        return new TagListContext(factoryContext, new ObservableCollection<TagListListItem>(), loadInBackground);
     }
 
     private async Task DataNotificationReceived(TinyMessageReceivedEventArgs e)
@@ -108,7 +121,7 @@ public partial class TagListContext : ObservableObject
 
         if (translatedMessage.ContentType == DataNotificationContentType.TagExclusion)
         {
-            //Tag Exclusions data notifications don't enough information to do anything but process the whole list
+            //Tag Exclusions data notifications don't have enough information to do anything but process the whole list
             var currentExclusions = (await Db.TagExclusions()).Select(x => x.Tag).ToList();
 
             var items = Items.ToList();
@@ -155,6 +168,9 @@ public partial class TagListContext : ObservableObject
         foreach (var loopContent in translatedMessage.ContentIds)
         {
             var content = await db.ContentFromContentId(loopContent);
+
+            if (content == null) continue;
+
             var tags = Db.TagListParseToSlugs((ITag)content, false);
 
             var listContent = ListItemsWithContentIds(loopContent.AsList());
@@ -260,7 +276,7 @@ public partial class TagListContext : ObservableObject
 
     private async Task FilterList()
     {
-        if (Items == null || !Items.Any()) return;
+        if (!Items.Any()) return;
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
@@ -281,7 +297,7 @@ public partial class TagListContext : ObservableObject
         return toFilter.TagName.Contains(UserFilterText);
     }
 
-    private List<TagListListItem> ListItemsWithContentIds(List<Guid> contentIds)
+    private List<TagListListItem> ListItemsWithContentIds(List<Guid>? contentIds)
     {
         var returnList = new List<TagListListItem>();
 
@@ -334,8 +350,6 @@ public partial class TagListContext : ObservableObject
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
-        Items ??= new ObservableCollection<TagListListItem>();
-
         Items.Clear();
 
         listItems.OrderBy(x => x.TagName).ToList().ForEach(x => Items.Add(x));
@@ -345,7 +359,8 @@ public partial class TagListContext : ObservableObject
         DataNotifications.NewDataNotificationChannel().MessageReceived += OnDataNotificationReceived;
     }
 
-    private async Task MakeExcludedTag(TagListListItem arg)
+
+    private async Task MakeExcludedTag(TagListListItem? arg)
     {
         if (arg == null) return;
 
@@ -367,7 +382,7 @@ public partial class TagListContext : ObservableObject
         if (saveResult.generationReturn.HasError)
         {
             Log.ForContext("GenerationReturn", saveResult.generationReturn.SafeObjectDump())
-                .ForContext("TagExclusion", saveResult.returnContent.SafeObjectDump())
+                .ForContext("TagExclusion", saveResult.returnContent?.SafeObjectDump())
                 .Error("Error Saving Tag Exclusion");
             await StatusContext.ShowMessageWithOkButton("Trouble Saving Tag Exclusion",
                 $"Trouble saving Tag Exclusion - {saveResult.generationReturn.GenerationNote}");
@@ -386,7 +401,6 @@ public partial class TagListContext : ObservableObject
 
     private void OnPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
-        if (e == null) return;
         if (string.IsNullOrWhiteSpace(e.PropertyName)) return;
 
         if (e.PropertyName == nameof(SelectedItems))
@@ -396,7 +410,7 @@ public partial class TagListContext : ObservableObject
             StatusContext.RunFireAndForgetNonBlockingTask(FilterList);
     }
 
-    private async Task RemoveExcludedTag(TagListListItem arg)
+    private async Task RemoveExcludedTag(TagListListItem? arg)
     {
         if (arg == null) return;
 
@@ -440,7 +454,7 @@ public partial class TagListContext : ObservableObject
 
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        ExcelHelpers.ContentToExcelFileAsTable(tagsProjection, "Tags", progress: StatusContext?.ProgressTracker());
+        ExcelHelpers.ContentToExcelFileAsTable(tagsProjection, "Tags", progress: StatusContext.ProgressTracker());
     }
 
     private async Task SortList(string sortColumn)
@@ -454,7 +468,7 @@ public partial class TagListContext : ObservableObject
         collectionView.SortDescriptions.Add(new SortDescription($"{sortColumn}", ListSortDirection.Ascending));
     }
 
-    public async Task TagContentToExcel(List<TagItemContentInformation> items)
+    public async Task TagContentToExcel(List<TagItemContentInformation>? items)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -471,7 +485,7 @@ public partial class TagListContext : ObservableObject
 
         var toTransfer = content.Select(x => StaticValueInjecter.InjectFrom(new ContentCommonShell(), x)).ToList();
 
-        ExcelHelpers.ContentToExcelFileAsTable(toTransfer, "TagDetails", progress: StatusContext?.ProgressTracker());
+        ExcelHelpers.ContentToExcelFileAsTable(toTransfer, "TagDetails", progress: StatusContext.ProgressTracker());
     }
 
     private void UpdateDetails()
@@ -489,7 +503,7 @@ public partial class TagListContext : ObservableObject
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        if (Items == null || !Items.Any())
+        if (!Items.Any())
         {
             StatusContext.ToastError("No Items?");
             return;
@@ -506,6 +520,6 @@ public partial class TagListContext : ObservableObject
 
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        ExcelHelpers.ContentToExcelFileAsTable(tagsProjection, "Tags", progress: StatusContext?.ProgressTracker());
+        ExcelHelpers.ContentToExcelFileAsTable(tagsProjection, "Tags", progress: StatusContext.ProgressTracker());
     }
 }

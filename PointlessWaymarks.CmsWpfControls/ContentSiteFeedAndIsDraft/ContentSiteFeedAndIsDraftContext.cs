@@ -20,9 +20,13 @@ public partial class ContentSiteFeedAndIsDraftContext : ObservableObject, IHasCh
     [ObservableProperty] private BoolDataEntryContext _showInMainSiteFeedEntry;
     [ObservableProperty] private StatusControlContext _statusContext;
 
-    private ContentSiteFeedAndIsDraftContext(StatusControlContext statusContext, ConversionDataEntryContext<DateTime> feedOnContext, BoolDataEntryContext isDraftContext, BoolDataEntryContext showInMainSiteFeedContext)
+    private ContentSiteFeedAndIsDraftContext(StatusControlContext statusContext, IMainSiteFeed mainSiteFeed,
+        ConversionDataEntryContext<DateTime> feedOnContext, BoolDataEntryContext isDraftContext,
+        BoolDataEntryContext showInMainSiteFeedContext)
     {
         _statusContext = statusContext;
+
+        _dbEntry = mainSiteFeed;
 
         _feedOnEntry = feedOnContext;
         _isDraftEntry = isDraftContext;
@@ -55,7 +59,7 @@ public partial class ContentSiteFeedAndIsDraftContext : ObservableObject, IHasCh
         factoryFeedContext.ReferenceValue = dbEntry.FeedOn;
         factoryFeedContext.UserText = dbEntry.FeedOn.ToString("MM/dd/yyyy h:mm:ss tt");
 
-        var newItem = new ContentSiteFeedAndIsDraftContext(statusContext, factoryFeedContext, factoryIsDraftContest, factoryShowInMainSiteFeedContext);
+        var newItem = new ContentSiteFeedAndIsDraftContext(statusContext, dbEntry, factoryFeedContext, factoryIsDraftContest, factoryShowInMainSiteFeedContext);
 
         return newItem;
     }

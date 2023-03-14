@@ -27,7 +27,7 @@ public partial class ImageListWithActionsContext : ObservableObject
     [ObservableProperty] private WindowIconStatus? _windowStatus;
 
     private ImageListWithActionsContext(StatusControlContext? statusContext, WindowIconStatus? windowStatus,
-        ContentListContext factoryListContext)
+        ContentListContext factoryListContext, bool loadInBackground = true)
     {
         _statusContext = statusContext ?? new StatusControlContext();
         _windowStatus = windowStatus;
@@ -77,17 +77,17 @@ public partial class ImageListWithActionsContext : ObservableObject
             new() { ItemName = "Refresh Data", ItemCommand = RefreshDataCommand }
         };
 
-        StatusContext.RunFireAndForgetBlockingTask(LoadData);
+        if(loadInBackground) StatusContext.RunFireAndForgetBlockingTask(LoadData);
     }
 
-    public static async Task<ImageListWithActionsContext> CreateInstance(StatusControlContext? statusContext, WindowIconStatus? windowStatus = null)
+    public static async Task<ImageListWithActionsContext> CreateInstance(StatusControlContext? statusContext, WindowIconStatus? windowStatus = null, bool loadInBackground = true)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
         var factoryContext = statusContext ?? new StatusControlContext();
         var factoryListContext = await ContentListContext.CreateInstance(factoryContext, new ImageListLoader(100), windowStatus);
 
-        return new ImageListWithActionsContext(factoryContext, windowStatus, factoryListContext);
+        return new ImageListWithActionsContext(factoryContext, windowStatus, factoryListContext, loadInBackground);
     }
 
     private async Task EmailHtmlToClipboard()

@@ -5,11 +5,11 @@ namespace PointlessWaymarks.CmsWpfControls.HtmlViewer;
 
 public partial class HtmlViewerContext : ObservableObject
 {
-    [ObservableProperty] private string _htmlString;
+    [ObservableProperty] private string _htmlString = string.Empty;
     [ObservableProperty] private StatusControlContext _statusContext;
 
     public HtmlViewerContext()
     {
-        StatusContext = new StatusControlContext();
+        _statusContext = new StatusControlContext();
     }
 }

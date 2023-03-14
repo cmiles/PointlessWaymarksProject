@@ -31,7 +31,7 @@ public partial class LineListWithActionsContext : ObservableObject
     [ObservableProperty] private StatusControlContext _statusContext;
     [ObservableProperty] private WindowIconStatus? _windowStatus;
 
-    private LineListWithActionsContext(StatusControlContext statusContext, WindowIconStatus? windowStatus, ContentListContext listContext)
+    private LineListWithActionsContext(StatusControlContext statusContext, WindowIconStatus? windowStatus, ContentListContext listContext, bool loadInBackground = true)
     {
         _statusContext = statusContext;
         _windowStatus = windowStatus;
@@ -73,17 +73,17 @@ public partial class LineListWithActionsContext : ObservableObject
             new() { ItemName = "Refresh Data", ItemCommand = RefreshDataCommand }
         };
 
-        StatusContext.RunFireAndForgetBlockingTask(LoadData);
+        if(loadInBackground) StatusContext.RunFireAndForgetBlockingTask(LoadData);
     }
 
-    public static async Task<LineListWithActionsContext> CreateInstance(StatusControlContext? statusContext, WindowIconStatus? windowStatus = null)
+    public static async Task<LineListWithActionsContext> CreateInstance(StatusControlContext? statusContext, WindowIconStatus? windowStatus = null, bool loadInBackground = true)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
         var factoryContext = statusContext ?? new StatusControlContext();
         var factoryListContext = await ContentListContext.CreateInstance(factoryContext, new LineListLoader(100), windowStatus);
 
-        return new LineListWithActionsContext(factoryContext, windowStatus, factoryListContext);
+        return new LineListWithActionsContext(factoryContext, windowStatus, factoryListContext, loadInBackground);
     }
 
     private async Task AddIntersectionTagsToSelected(CancellationToken cancellationToken)
@@ -242,7 +242,7 @@ public partial class LineListWithActionsContext : ObservableObject
 
     public List<LineListListItem> SelectedItems()
     {
-        return ListContext?.ListSelection?.SelectedItems?.Where(x => x is LineListListItem).Cast<LineListListItem>()
+        return ListContext.ListSelection.SelectedItems?.Where(x => x is LineListListItem).Cast<LineListListItem>()
             .ToList() ?? new List<LineListListItem>();
     }
 

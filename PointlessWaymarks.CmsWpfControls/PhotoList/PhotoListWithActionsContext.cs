@@ -52,7 +52,7 @@ public partial class PhotoListWithActionsContext : ObservableObject
     [ObservableProperty] private RelayCommand _viewFilesCommand;
     [ObservableProperty] private WindowIconStatus? _windowStatus;
 
-    private PhotoListWithActionsContext(StatusControlContext statusContext, WindowIconStatus? windowStatus, ContentListContext listContext)
+    private PhotoListWithActionsContext(StatusControlContext statusContext, WindowIconStatus? windowStatus, ContentListContext listContext, bool loadInBackground = true)
     {
         _statusContext = statusContext;
         _windowStatus = windowStatus;
@@ -135,17 +135,17 @@ public partial class PhotoListWithActionsContext : ObservableObject
             new() { ItemName = "Refresh Data", ItemCommand = RefreshDataCommand }
         };
 
-        StatusContext.RunFireAndForgetBlockingTask(LoadData);
+        if(loadInBackground) StatusContext.RunFireAndForgetBlockingTask(LoadData);
     }
 
-    public static async Task<PhotoListWithActionsContext> CreateInstance(StatusControlContext? statusContext, WindowIconStatus? windowStatus, IContentListLoader? listLoader)
+    public static async Task<PhotoListWithActionsContext> CreateInstance(StatusControlContext? statusContext, WindowIconStatus? windowStatus, IContentListLoader? listLoader, bool loadInBackground = true)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
         var factoryContext = statusContext ?? new StatusControlContext();
         var factoryListContext = await ContentListContext.CreateInstance(factoryContext, listLoader ?? new PhotoListLoader(100), windowStatus);
 
-        return new PhotoListWithActionsContext(factoryContext, windowStatus, factoryListContext);
+        return new PhotoListWithActionsContext(factoryContext, windowStatus, factoryListContext, loadInBackground);
     }
 
     private async Task AddIntersectionTagsToSelected(CancellationToken cancellationToken)

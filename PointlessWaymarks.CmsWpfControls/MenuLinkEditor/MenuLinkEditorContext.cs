@@ -17,14 +17,14 @@ public partial class MenuLinkEditorContext
 {
     [ObservableProperty] private CmsCommonCommands _commonCommands;
     [ObservableProperty] private string _helpMarkdown;
-    [ObservableProperty] private ObservableCollection<MenuLinkListItem> _items = new();
-    [ObservableProperty] private List<MenuLinkListItem> _selectedItems;
+    [ObservableProperty] private ObservableCollection<MenuLinkListItem> _items;
+    [ObservableProperty] private List<MenuLinkListItem>? _selectedItems;
     [ObservableProperty] private StatusControlContext _statusContext;
 
-    public MenuLinkEditorContext(StatusControlContext statusContext)
+    private MenuLinkEditorContext(StatusControlContext statusContext, ObservableCollection<MenuLinkListItem> items, bool loadInBackground = true)
     {
-        StatusContext = statusContext ?? new StatusControlContext();
-        CommonCommands = new CmsCommonCommands(StatusContext);
+        _statusContext = statusContext;
+        _commonCommands = new CmsCommonCommands(StatusContext);
 
         AddItemCommand = StatusContext.RunBlockingTaskCommand(AddItem);
         DeleteItemCommand = StatusContext.RunBlockingTaskCommand(DeleteItems);
@@ -47,36 +47,56 @@ public partial class MenuLinkEditorContext
             StatusContext.RunNonBlockingTaskCommand<MenuLinkListItem>(x =>
                 InsertIntoLinkTag(x, "{{linklistpage; text Links;}}"));
 
-        HelpMarkdown = MenuLinksHelpMarkdown.HelpBlock;
+        _helpMarkdown = MenuLinksHelpMarkdown.HelpBlock;
 
-        StatusContext.RunFireAndForgetBlockingTask(LoadData);
+        _items = items;
+
+        if(loadInBackground) StatusContext.RunFireAndForgetBlockingTask(LoadData);
     }
 
-    public RelayCommand AddItemCommand { get; init; }
+    public static Task<MenuLinkEditorContext> CreateInstance(StatusControlContext? statusContext, bool loadInBackground = true)
+    {
+        ThreadSwitcher.ResumeBackgroundAsync();
 
-    public RelayCommand DeleteItemCommand { get; init; }
+        var factoryContext = statusContext ?? new StatusControlContext();
 
-    public RelayCommand<MenuLinkListItem> InsertIndexTagIndexCommand { get; init; }
+        ThreadSwitcher.ResumeForegroundAsync();
 
-    public RelayCommand<MenuLinkListItem> InsertLinkListCommand { get; init; }
+        var factoryItems = new ObservableCollection<MenuLinkListItem>();
 
-    public RelayCommand<MenuLinkListItem> InsertPhotoGalleryCommand { get; init; }
+        ThreadSwitcher.ResumeBackgroundAsync();
 
-    public RelayCommand<MenuLinkListItem> InsertSearchPageCommand { get; init; }
+        var toReturn = new MenuLinkEditorContext(factoryContext, factoryItems, loadInBackground);
 
-    public RelayCommand<MenuLinkListItem> InsertTagSearchCommand { get; init; }
+        return Task.FromResult(toReturn);
+    }
 
-    public RelayCommand<MenuLinkListItem> MoveItemDownCommand { get; init; }
+    public RelayCommand AddItemCommand { get; }
 
-    public RelayCommand<MenuLinkListItem> MoveItemUpCommand { get; init; }
+    public RelayCommand DeleteItemCommand { get; }
 
-    public RelayCommand SaveCommand { get; init; }
+    public RelayCommand<MenuLinkListItem> InsertIndexTagIndexCommand { get; }
+
+    public RelayCommand<MenuLinkListItem> InsertLinkListCommand { get; }
+
+    public RelayCommand<MenuLinkListItem> InsertPhotoGalleryCommand { get; }
+
+    public RelayCommand<MenuLinkListItem> InsertSearchPageCommand { get; }
+
+    public RelayCommand<MenuLinkListItem> InsertTagSearchCommand { get; }
+
+    public RelayCommand<MenuLinkListItem> MoveItemDownCommand { get; }
+
+    public RelayCommand<MenuLinkListItem> MoveItemUpCommand { get; }
+
+    public RelayCommand SaveCommand { get; }
 
     private async Task AddItem()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        var newItem = new MenuLinkListItem { DbEntry = new MenuLink(), UserOrder = Items.Count };
+        var newItem = await MenuLinkListItem.CreateInstance(new MenuLink());
+        newItem.UserOrder = Items.Count;
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
@@ -102,7 +122,7 @@ public partial class MenuLinkEditorContext
         await RenumberItems();
     }
 
-    private async Task InsertIntoLinkTag(MenuLinkListItem listItem, string toInsert)
+    private async Task InsertIntoLinkTag(MenuLinkListItem? listItem, string toInsert)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -123,9 +143,16 @@ public partial class MenuLinkEditorContext
 
         var context = await Db.Context();
         var existingEntries = await context.MenuLinks.ToListAsync();
-        var listItems = existingEntries.Select(x =>
-                new MenuLinkListItem { DbEntry = x, UserLink = x.LinkTag?.Trim() ?? string.Empty })
-            .OrderBy(x => x.UserOrder).ThenBy(x => x.UserLink).ToList();
+        List<MenuLinkListItem> listItems = new();
+
+        foreach (var loopExisting in existingEntries)
+        {
+            var toAdd = await MenuLinkListItem.CreateInstance(loopExisting);
+            toAdd.UserLink = toAdd.DbEntry.LinkTag?.Trim() ?? string.Empty;
+            listItems.Add(toAdd);
+        }
+
+        listItems = listItems.OrderBy(x => x.UserOrder).ThenBy(x => x.UserLink).ToList();
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
@@ -136,9 +163,15 @@ public partial class MenuLinkEditorContext
         await RenumberItems();
     }
 
-    private async Task MoveItemDown(MenuLinkListItem listItem)
+    private async Task MoveItemDown(MenuLinkListItem? listItem)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (listItem == null)
+        {
+            StatusContext.ToastError("No item?");
+            return;
+        }
 
         await RenumberItems();
 
@@ -153,9 +186,15 @@ public partial class MenuLinkEditorContext
         await RenumberItems();
     }
 
-    private async Task MoveItemUp(MenuLinkListItem listItem)
+    private async Task MoveItemUp(MenuLinkListItem? listItem)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (listItem == null)
+        {
+            StatusContext.ToastError("No item?");
+            return;
+        }
 
         await RenumberItems();
 

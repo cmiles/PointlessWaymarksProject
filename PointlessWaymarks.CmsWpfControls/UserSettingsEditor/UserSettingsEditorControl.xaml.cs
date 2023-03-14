@@ -12,6 +12,8 @@ public partial class UserSettingsEditorControl
 
     private void OpenHyperlink(object? sender, ExecutedRoutedEventArgs e)
     {
-        ProcessHelpers.OpenUrlInExternalBrowser(e.Parameter.ToString());
+        var toOpen = e.Parameter.ToString();
+        if (string.IsNullOrEmpty(toOpen)) return;
+        ProcessHelpers.OpenUrlInExternalBrowser(toOpen);
     }
 }

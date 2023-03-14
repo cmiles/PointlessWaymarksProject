@@ -31,7 +31,7 @@ public partial class GeoJsonListWithActionsContext : ObservableObject
 
 
     private GeoJsonListWithActionsContext(StatusControlContext statusContext, WindowIconStatus? windowStatus,
-        ContentListContext factoryListContext)
+        ContentListContext factoryListContext, bool loadInBackground = true)
     {
         _statusContext = statusContext;
         _windowStatus = windowStatus;
@@ -64,17 +64,17 @@ public partial class GeoJsonListWithActionsContext : ObservableObject
             new() { ItemName = "Refresh Data", ItemCommand = RefreshDataCommand }
         };
 
-        StatusContext.RunFireAndForgetBlockingTask(LoadData);
+        if(loadInBackground) StatusContext.RunFireAndForgetBlockingTask(LoadData);
     }
 
-    public static async Task<GeoJsonListWithActionsContext> CreateInstance(StatusControlContext? statusContext, WindowIconStatus? windowStatus = null)
+    public static async Task<GeoJsonListWithActionsContext> CreateInstance(StatusControlContext? statusContext, WindowIconStatus? windowStatus = null, bool loadInBackground = true)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
         var factoryContext = statusContext ?? new StatusControlContext();
         var factoryListContext = await ContentListContext.CreateInstance(factoryContext, new GeoJsonListLoader(100), windowStatus);
 
-        return new GeoJsonListWithActionsContext(factoryContext, windowStatus, factoryListContext);
+        return new GeoJsonListWithActionsContext(factoryContext, windowStatus, factoryListContext, loadInBackground);
     }
 
     private async Task AddIntersectionTagsToSelected(CancellationToken cancellationToken)

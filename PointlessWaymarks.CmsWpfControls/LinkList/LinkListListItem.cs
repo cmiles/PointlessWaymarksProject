@@ -1,5 +1,4 @@
-﻿using System.Text;
-using CommunityToolkit.Mvvm.ComponentModel;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsWpfControls.ContentList;
 using PointlessWaymarks.CmsWpfControls.Utility;
@@ -89,25 +88,5 @@ public partial class LinkListListItem : ObservableObject, IContentListItem
     public async Task ViewHistory()
     {
         await ItemActions.ViewHistory(DbEntry);
-    }
-
-    private void ConstructContentString()
-    {
-        var newContentString = new StringBuilder();
-
-        if (!string.IsNullOrWhiteSpace(DbEntry.Description))
-            newContentString.Append($"Description: {DbEntry.Description}");
-        if (DbEntry.LinkDate != null)
-            newContentString.Append($"Link Date: {DbEntry.LinkDate:d}");
-        if (!string.IsNullOrWhiteSpace(DbEntry.Comments))
-            newContentString.Append($"Comments: {DbEntry.Comments}");
-        if (!string.IsNullOrWhiteSpace(DbEntry.Site))
-            newContentString.Append($"Site: {DbEntry.Site}");
-        if (!string.IsNullOrWhiteSpace(DbEntry.Author))
-            newContentString.Append($"Author: {DbEntry.Author}");
-        if (!string.IsNullOrWhiteSpace(DbEntry.Tags))
-            newContentString.Append($"Tags: {DbEntry.Tags}");
-
-        LinkContentString = newContentString.ToString();
     }
 }

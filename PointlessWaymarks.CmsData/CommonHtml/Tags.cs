@@ -87,7 +87,8 @@ public static class Tags
     {
         if (tagToCenter.IsEmpty()) return HtmlTag.Empty();
 
-        var emailCenterTable = (TableTag)new TableTag().Attr("width", "94%").Attr("margin", "10").Attr("border", "0").Attr("cellspacing", "0").Attr("cellpadding", "0") ;
+        var emailCenterTable = (TableTag)new TableTag().Attr("width", "94%").Attr("margin", "10").Attr("border", "0")
+            .Attr("cellspacing", "0").Attr("cellpadding", "0");
 
         var topMarginRow = (TableRowTag)emailCenterTable.AddBodyRow().Attr("height", "10");
         var topMarginCell = topMarginRow.Cell();
@@ -95,15 +96,18 @@ public static class Tags
 
         var emailImageRow = emailCenterTable.AddBodyRow();
 
-        var emailImageCenterLeftCell =
-            emailImageRow.Cell().Attr("max-width", "1%").Attr("align", "center").Attr("valign", "top").Text("&nbsp;")
+        emailImageRow.Cell().Attr("max-width", "1%").Attr("align", "center").Attr("valign", "top").Text("&nbsp;")
+            // ReSharper disable once MustUseReturnValue - Does not appear to be an accurate annotation?
             .Encoded(false);
 
-        var emailCenterContentCell = emailImageRow.Cell().Attr("width", "100%").Attr("align", "center").Attr("valign", "top");
+        var emailCenterContentCell =
+            emailImageRow.Cell().Attr("width", "100%").Attr("align", "center").Attr("valign", "top");
 
         emailCenterContentCell.Children.Add(tagToCenter);
 
-        var emailCenterRightCell = emailImageRow.Cell().Attr("max-width", "1%").Attr("align", "center").Attr("valign", "top").Text("&nbsp;").Encoded(false);
+        emailImageRow.Cell().Attr("max-width", "1%").Attr("align", "center")
+            // ReSharper disable once MustUseReturnValue  - Does not appear to be an accurate annotation?
+            .Attr("valign", "top").Text("&nbsp;").Encoded(false);
 
         //var bottomMarginRow = emailCenterTable.AddBodyRow();
         //bottomMarginRow.Attr("height", "10");

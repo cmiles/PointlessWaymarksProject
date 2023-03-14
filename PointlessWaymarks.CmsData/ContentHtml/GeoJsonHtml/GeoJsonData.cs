@@ -49,12 +49,14 @@ public static class GeoJsonData
         }
 
         await FileManagement.WriteAllTextToFileAndLogAsync(dataFileInfo.FullName,
-            await GenerateGeoJson(geoJsonContent.GeoJson,
-                UserSettingsSingleton.CurrentSettings().GeoJsonPageUrl(geoJsonContent)).ConfigureAwait(false)!).ConfigureAwait(false);
+            (await GenerateGeoJson(geoJsonContent.GeoJson,
+                UserSettingsSingleton.CurrentSettings().GeoJsonPageUrl(geoJsonContent)).ConfigureAwait(false))!).ConfigureAwait(false);
     }
 
+    // ReSharper disable NotAccessedPositionalProperty.Global - Happy with Data Structures Here
     public record GeoJsonSiteJsonData(string PageUrl, SpatialBounds Bounds, FeatureCollection GeoJson);
 
     public record SpatialBounds(double InitialViewBoundsMaxLatitude, double InitialViewBoundsMaxLongitude,
         double InitialViewBoundsMinLatitude, double InitialViewBoundsMinLongitude);
+    // ReSharper restore NotAccessedPositionalProperty.Global
 }

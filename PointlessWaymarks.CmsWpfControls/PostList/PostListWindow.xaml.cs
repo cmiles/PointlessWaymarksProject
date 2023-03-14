@@ -29,7 +29,7 @@ public partial class PostListWindow
     public static async Task<PostListWindow> CreateInstance(PostListWithActionsContext? toLoad)
     {
         await ThreadSwitcher.ResumeForegroundAsync();
-        var window = await PostListWindow.CreateInstance(toLoad ?? await PostListWithActionsContext.CreateInstance(null, null));
+        var window = new PostListWindow (toLoad ?? await PostListWithActionsContext.CreateInstance(null));
 
         return window;
     }
