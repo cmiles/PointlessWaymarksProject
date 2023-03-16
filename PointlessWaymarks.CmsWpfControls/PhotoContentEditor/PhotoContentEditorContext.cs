@@ -346,7 +346,7 @@ Photo Content Notes:
         StatusContext.ToastSuccess($"To Clipboard: {linkString}");
     }
 
-    public async Task LoadData(PhotoContent toLoad, bool skipMediaDirectoryCheck = false)
+    public async Task LoadData(PhotoContent? toLoad, bool skipMediaDirectoryCheck = false)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -370,16 +370,16 @@ Photo Content Notes:
         MainSiteFeed = await ContentSiteFeedAndIsDraftContext.CreateInstance(StatusContext, DbEntry);
         ContentId = await ContentIdViewerControlContext.CreateInstance(StatusContext, DbEntry);
         UpdateNotes = await UpdateNotesEditorContext.CreateInstance(StatusContext, DbEntry);
-        TagEdit = TagsEditorContext.CreateInstance(StatusContext, DbEntry);
+        TagEdit = await TagsEditorContext.CreateInstance(StatusContext, DbEntry);
         BodyContent = await BodyContentEditorContext.CreateInstance(StatusContext, DbEntry);
 
-        ShowPosition = BoolDataEntryContext.CreateInstance();
+        ShowPosition = await BoolDataEntryContext.CreateInstance();
         ShowPosition.Title = "Show Photo Position";
         ShowPosition.HelpText = "If enabled the page users be shown a list of all available sizes";
         ShowPosition.ReferenceValue = DbEntry.ShowPhotoPosition;
         ShowPosition.UserValue = DbEntry.ShowPhotoPosition;
 
-        ShowSizes = BoolDataEntryContext.CreateInstance();
+        ShowSizes = await BoolDataEntryContext.CreateInstance();
         ShowSizes.Title = "Show Photo Sizes";
         ShowSizes.HelpText = "If enabled the page users are shown will have a list of all available sizes";
         ShowSizes.ReferenceValue = DbEntry.ShowPhotoSizes;
@@ -466,21 +466,21 @@ Photo Content Notes:
         PhotoCreatedByEntry.ReferenceValue = DbEntry.PhotoCreatedBy ?? string.Empty;
         PhotoCreatedByEntry.UserValue = DbEntry.PhotoCreatedBy.TrimNullToEmpty();
 
-        IsoEntry = ConversionDataEntryContext<int?>.CreateInstance(ConversionDataEntryHelpers.IntNullableConversion);
+        IsoEntry = await ConversionDataEntryContext<int?>.CreateInstance(ConversionDataEntryHelpers.IntNullableConversion);
         IsoEntry.Title = "ISO";
         IsoEntry.HelpText = "A measure of a sensor films sensitivity to light, 100 is a typical value";
         IsoEntry.ReferenceValue = DbEntry.Iso;
         IsoEntry.UserText = DbEntry.Iso?.ToString("F0") ?? string.Empty;
 
         PhotoCreatedOnEntry =
-            ConversionDataEntryContext<DateTime>.CreateInstance(ConversionDataEntryHelpers.DateTimeConversion);
+            await ConversionDataEntryContext<DateTime>.CreateInstance(ConversionDataEntryHelpers.DateTimeConversion);
         PhotoCreatedOnEntry.Title = "Photo Created On";
         PhotoCreatedOnEntry.HelpText = "Date and, optionally, Time the Photo was Created";
         PhotoCreatedOnEntry.ReferenceValue = DbEntry.PhotoCreatedOn;
         PhotoCreatedOnEntry.UserText = DbEntry.PhotoCreatedOn.ToString("MM/dd/yyyy h:mm:ss tt");
 
         PhotoCreatedOnUtcEntry =
-            ConversionDataEntryContext<DateTime?>.CreateInstance(ConversionDataEntryHelpers.DateTimeNullableConversion);
+            await ConversionDataEntryContext<DateTime?>.CreateInstance(ConversionDataEntryHelpers.DateTimeNullableConversion);
         PhotoCreatedOnUtcEntry.Title = "Photo Created On UTC Date/Time";
         PhotoCreatedOnUtcEntry.HelpText =
             "UTC Date and Time the Photo was Created - the UTC Date Time is not displayed but is used to compare the Photo's Date Time to data like GPX Files/Lines.";
@@ -488,7 +488,7 @@ Photo Content Notes:
         PhotoCreatedOnUtcEntry.UserText = DbEntry.PhotoCreatedOnUtc?.ToString("MM/dd/yyyy h:mm:ss tt");
 
         LatitudeEntry =
-            ConversionDataEntryContext<double?>.CreateInstance(ConversionDataEntryHelpers.DoubleNullableConversion);
+            await ConversionDataEntryContext<double?>.CreateInstance(ConversionDataEntryHelpers.DoubleNullableConversion);
         LatitudeEntry.ValidationFunctions = new List<Func<double?, Task<IsValid>>>
         {
             CommonContentValidation.LatitudeValidationWithNullOk
@@ -500,7 +500,7 @@ Photo Content Notes:
         LatitudeEntry.UserText = DbEntry.Latitude?.ToString("F6");
 
         LongitudeEntry =
-            ConversionDataEntryContext<double?>.CreateInstance(ConversionDataEntryHelpers.DoubleNullableConversion);
+            await ConversionDataEntryContext<double?>.CreateInstance(ConversionDataEntryHelpers.DoubleNullableConversion);
         LongitudeEntry.ValidationFunctions = new List<Func<double?, Task<IsValid>>>
         {
             CommonContentValidation.LongitudeValidationWithNullOk
@@ -512,7 +512,7 @@ Photo Content Notes:
         LongitudeEntry.UserText = DbEntry.Longitude?.ToString("F6");
 
         ElevationEntry =
-            ConversionDataEntryContext<double?>.CreateInstance(ConversionDataEntryHelpers.DoubleNullableConversion);
+            await ConversionDataEntryContext<double?>.CreateInstance(ConversionDataEntryHelpers.DoubleNullableConversion);
         ElevationEntry.ValidationFunctions = new List<Func<double?, Task<IsValid>>>
         {
             CommonContentValidation.ElevationValidation

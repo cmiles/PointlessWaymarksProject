@@ -296,7 +296,7 @@ Notes:
         StatusContext.ToastSuccess($"To Clipboard: {linkString}");
     }
 
-    private async Task LoadData(VideoContent toLoad, bool skipMediaDirectoryCheck = false)
+    private async Task LoadData(VideoContent? toLoad, bool skipMediaDirectoryCheck = false)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -332,14 +332,14 @@ Notes:
         VideoCreatedByEntry.UserValue = DbEntry.VideoCreatedBy.TrimNullToEmpty();
 
         VideoCreatedOnEntry =
-            ConversionDataEntryContext<DateTime>.CreateInstance(ConversionDataEntryHelpers.DateTimeConversion);
+            await ConversionDataEntryContext<DateTime>.CreateInstance(ConversionDataEntryHelpers.DateTimeConversion);
         VideoCreatedOnEntry.Title = "Video Created On";
         VideoCreatedOnEntry.HelpText = "Date and, optionally, Time the Video was Created";
         VideoCreatedOnEntry.ReferenceValue = DbEntry.VideoCreatedOn;
         VideoCreatedOnEntry.UserText = DbEntry.VideoCreatedOn.ToString("MM/dd/yyyy h:mm:ss tt");
 
         VideoCreatedOnUtcEntry =
-            ConversionDataEntryContext<DateTime?>.CreateInstance(ConversionDataEntryHelpers.DateTimeNullableConversion);
+            await ConversionDataEntryContext<DateTime?>.CreateInstance(ConversionDataEntryHelpers.DateTimeNullableConversion);
         VideoCreatedOnUtcEntry.Title = "Video Created On UTC Date/Time";
         VideoCreatedOnUtcEntry.HelpText =
             "UTC Date and Time the Video was Created - the UTC Date Time is not displayed but is used to compare the Video's Date Time to data like GPX Files/Lines.";
@@ -348,10 +348,10 @@ Notes:
 
         ContentId = await ContentIdViewerControlContext.CreateInstance(StatusContext, DbEntry);
         UpdateNotes = await UpdateNotesEditorContext.CreateInstance(StatusContext, DbEntry);
-        TagEdit = TagsEditorContext.CreateInstance(StatusContext, DbEntry);
+        TagEdit = await TagsEditorContext.CreateInstance(StatusContext, DbEntry);
         BodyContent = await BodyContentEditorContext.CreateInstance(StatusContext, DbEntry);
         UserMainPictureEntry =
-            ConversionDataEntryContext<Guid?>.CreateInstance(ConversionDataEntryTypes
+            await ConversionDataEntryContext<Guid?>.CreateInstance(ConversionDataEntryTypes
                 .GuidNullableAndBracketCodeConversion);
         UserMainPictureEntry.ValidationFunctions = new List<Func<Guid?, Task<IsValid>>>
             { CommonContentValidation.ValidateUserMainPicture };

@@ -5,9 +5,9 @@ namespace PointlessWaymarks.CmsWpfControls.DataEntry;
 
 public static class BoolDataEntryTypes
 {
-    public static BoolDataEntryContext CreateInstanceForIsDraft(IMainSiteFeed? dbEntry, bool defaultSetting)
+    public static async Task<BoolDataEntryContext> CreateInstanceForIsDraft(IMainSiteFeed? dbEntry, bool defaultSetting)
     {
-        var newContext = BoolDataEntryContext.CreateInstance();
+        var newContext = await BoolDataEntryContext.CreateInstance();
 
         newContext.ReferenceValue = dbEntry?.IsDraft ?? defaultSetting;
         newContext.UserValue = dbEntry?.IsDraft ?? defaultSetting;
@@ -19,9 +19,9 @@ public static class BoolDataEntryTypes
         return newContext;
     }
 
-    public static BoolDataEntryContext CreateInstanceForShowInMainSiteFeed(IMainSiteFeed? dbEntry, bool defaultSetting)
+    public static async Task<BoolDataEntryContext> CreateInstanceForShowInMainSiteFeed(IMainSiteFeed? dbEntry, bool defaultSetting)
     {
-        var newContext = BoolDataEntryContext.CreateInstance();
+        var newContext = await BoolDataEntryContext.CreateInstance();
 
         newContext.ReferenceValue = dbEntry?.ShowInMainSiteFeed ?? defaultSetting;
         newContext.UserValue = dbEntry?.ShowInMainSiteFeed ?? defaultSetting;
@@ -32,9 +32,9 @@ public static class BoolDataEntryTypes
         return newContext;
     }
 
-    public static BoolDataEntryContext CreateInstanceForShowInSearch(IShowInSearch? dbEntry, bool defaultSetting)
+    public static async Task<BoolDataEntryContext> CreateInstanceForShowInSearch(IShowInSearch? dbEntry, bool defaultSetting)
     {
-        var newContext = BoolDataEntryContext.CreateInstance();
+        var newContext = await BoolDataEntryContext.CreateInstance();
 
         newContext.ReferenceValue = dbEntry?.ShowInSearch ?? defaultSetting;
         newContext.UserValue = dbEntry?.ShowInSearch ?? defaultSetting;

@@ -194,7 +194,7 @@ public partial class ImageContentEditorContext : ObservableObject, IHasChanges, 
     }
 
 
-    private async Task LoadData(ImageContent toLoad, bool skipMediaDirectoryCheck = false)
+    private async Task LoadData(ImageContent? toLoad, bool skipMediaDirectoryCheck = false)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -214,14 +214,14 @@ public partial class ImageContentEditorContext : ObservableObject, IHasChanges, 
             x => !Path.GetFileNameWithoutExtension(SelectedFile.Name)
                 .Equals(SlugTools.CreateSlug(false, x.TitleEntry.UserValue), StringComparison.OrdinalIgnoreCase));
         MainSiteFeed = await ContentSiteFeedAndIsDraftContext.CreateInstance(StatusContext, DbEntry);
-        ShowInSearch = BoolDataEntryTypes.CreateInstanceForShowInSearch(DbEntry, true);
+        ShowInSearch = await BoolDataEntryTypes.CreateInstanceForShowInSearch(DbEntry, true);
         CreatedUpdatedDisplay = await CreatedAndUpdatedByAndOnDisplayContext.CreateInstance(StatusContext, DbEntry);
         ContentId = await ContentIdViewerControlContext.CreateInstance(StatusContext, DbEntry);
         UpdateNotes = await UpdateNotesEditorContext.CreateInstance(StatusContext, DbEntry);
-        TagEdit = TagsEditorContext.CreateInstance(StatusContext, DbEntry);
+        TagEdit = await TagsEditorContext.CreateInstance(StatusContext, DbEntry);
         BodyContent = await BodyContentEditorContext.CreateInstance(StatusContext, DbEntry);
 
-        ShowSizes = BoolDataEntryContext.CreateInstance();
+        ShowSizes = await BoolDataEntryContext.CreateInstance();
         ShowSizes.Title = "Show Image Sizes";
         ShowSizes.HelpText = "If enabled the page users be shown a list of all available sizes";
         ShowSizes.ReferenceValue = DbEntry.ShowImageSizes;

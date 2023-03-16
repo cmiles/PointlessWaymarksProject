@@ -320,7 +320,7 @@ Notes:
             FeedOn = created
         };
 
-        PublicDownloadLink = BoolDataEntryContext.CreateInstance();
+        PublicDownloadLink = await BoolDataEntryContext.CreateInstance();
         PublicDownloadLink.Title = "Show Public Download Link";
         PublicDownloadLink.ReferenceValue = DbEntry.PublicDownloadLink;
         PublicDownloadLink.UserValue = DbEntry.PublicDownloadLink;
@@ -345,7 +345,7 @@ Notes:
             }
         };
 
-        EmbedFile = BoolDataEntryContext.CreateInstance();
+        EmbedFile = await BoolDataEntryContext.CreateInstance();
         EmbedFile.Title = "Embed File in Page";
         EmbedFile.ReferenceValue = DbEntry.EmbedFile;
         EmbedFile.UserValue = DbEntry.EmbedFile;
@@ -363,10 +363,10 @@ Notes:
         CreatedUpdatedDisplay = await CreatedAndUpdatedByAndOnDisplayContext.CreateInstance(StatusContext, DbEntry);
         ContentId = await ContentIdViewerControlContext.CreateInstance(StatusContext, DbEntry);
         UpdateNotes = await UpdateNotesEditorContext.CreateInstance(StatusContext, DbEntry);
-        TagEdit = TagsEditorContext.CreateInstance(StatusContext, DbEntry);
+        TagEdit = await TagsEditorContext.CreateInstance(StatusContext, DbEntry);
         BodyContent = await BodyContentEditorContext.CreateInstance(StatusContext, DbEntry);
         UserMainPictureEntry =
-            ConversionDataEntryContext<Guid?>.CreateInstance(ConversionDataEntryTypes
+            await ConversionDataEntryContext<Guid?>.CreateInstance(ConversionDataEntryTypes
                 .GuidNullableAndBracketCodeConversion);
         UserMainPictureEntry.ValidationFunctions = new List<Func<Guid?, Task<IsValid>>>
             { CommonContentValidation.ValidateUserMainPicture };

@@ -170,7 +170,7 @@ internal class FeaturePointDetailContext : IHasChanges, IHasValidationIssues, IP
         return newControl;
     }
 
-    public async Task LoadData(PointDetail toLoad)
+    public async Task LoadData(PointDetail? toLoad)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 

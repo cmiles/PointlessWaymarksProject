@@ -49,11 +49,11 @@ public partial class ContentSiteFeedAndIsDraftContext : ObservableObject, IHasCh
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        var factoryIsDraftContest = BoolDataEntryTypes.CreateInstanceForIsDraft(dbEntry, false);
-        var factoryShowInMainSiteFeedContext = BoolDataEntryTypes.CreateInstanceForShowInMainSiteFeed(dbEntry, false);
+        var factoryIsDraftContest = await BoolDataEntryTypes.CreateInstanceForIsDraft(dbEntry, false);
+        var factoryShowInMainSiteFeedContext = await BoolDataEntryTypes.CreateInstanceForShowInMainSiteFeed(dbEntry, false);
 
         var factoryFeedContext =
-            ConversionDataEntryContext<DateTime>.CreateInstance(ConversionDataEntryHelpers.DateTimeConversion);
+            await ConversionDataEntryContext<DateTime>.CreateInstance(ConversionDataEntryHelpers.DateTimeConversion);
         factoryFeedContext.Title = "Show in Site Feeds On";
         factoryFeedContext.HelpText = "Sets when (if enabled) the content will appear on the Front Page and in RSS Feeds";
         factoryFeedContext.ReferenceValue = dbEntry.FeedOn;

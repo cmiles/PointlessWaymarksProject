@@ -44,9 +44,9 @@ public partial class BoolDataEntryContext : ObservableObject, IHasChanges, IHasV
         ValidationMessage = string.Empty;
     }
 
-    public static BoolDataEntryContext CreateInstance()
+    public static Task<BoolDataEntryContext> CreateInstance()
     {
-        return new BoolDataEntryContext();
+        return Task.FromResult(new BoolDataEntryContext());
     }
 
     

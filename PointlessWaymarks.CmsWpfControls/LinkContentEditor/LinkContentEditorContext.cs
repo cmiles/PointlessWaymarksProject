@@ -5,7 +5,6 @@ using CommunityToolkit.Mvvm.Input;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.Content;
 using PointlessWaymarks.CmsData.Database.Models;
-using PointlessWaymarks.CmsWpfControls.DataEntry;
 using PointlessWaymarks.CmsWpfControls.CreatedAndUpdatedByAndOnDisplay;
 using PointlessWaymarks.CmsWpfControls.HelpDisplay;
 using PointlessWaymarks.CmsWpfControls.TagsEditor;
@@ -145,7 +144,7 @@ public partial class LinkContentEditorContext : ObservableObject, IHasChanges, I
                 : linkMetadata.LinkDate.Value.ToString("M/d/yyyy h:mm:ss tt");
     }
 
-    private async Task LoadData(LinkContent toLoad, bool extractDataOnLoad = false)
+    private async Task LoadData(LinkContent? toLoad, bool extractDataOnLoad = false)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -193,14 +192,14 @@ public partial class LinkContentEditorContext : ObservableObject, IHasChanges, I
         DescriptionEntry.ReferenceValue = DbEntry.Description.TrimNullToEmpty();
         DescriptionEntry.UserValue = DbEntry.Description.TrimNullToEmpty();
 
-        ShowInLinkRssEntry = BoolDataEntryContext.CreateInstance();
+        ShowInLinkRssEntry = await BoolDataEntryContext.CreateInstance();
         ShowInLinkRssEntry.Title = "Show in Link RSS Feed";
         ShowInLinkRssEntry.HelpText = "If checked the link will appear in the site's Link RSS Feed";
         ShowInLinkRssEntry.ReferenceValue = DbEntry.ShowInLinkRss;
         ShowInLinkRssEntry.UserValue = DbEntry.ShowInLinkRss;
 
         LinkDateTimeEntry =
-            ConversionDataEntryContext<DateTime?>.CreateInstance(ConversionDataEntryHelpers.DateTimeNullableConversion);
+            await ConversionDataEntryContext<DateTime?>.CreateInstance(ConversionDataEntryHelpers.DateTimeNullableConversion);
         LinkDateTimeEntry.Title = "Link Date";
         LinkDateTimeEntry.HelpText = "Date the Link Content was Created or Updated";
         LinkDateTimeEntry.ReferenceValue = DbEntry.LinkDate;
@@ -209,7 +208,7 @@ public partial class LinkContentEditorContext : ObservableObject, IHasChanges, I
             : DbEntry.LinkDate.Value.ToString("M/d/yyyy h:mm:ss tt");
 
         CreatedUpdatedDisplay = await CreatedAndUpdatedByAndOnDisplayContext.CreateInstance(StatusContext, DbEntry);
-        TagEdit = TagsEditorContext.CreateInstance(StatusContext, DbEntry);
+        TagEdit = await TagsEditorContext.CreateInstance(StatusContext, DbEntry);
 
         if (extractDataOnLoad) await ExtractDataFromLink();
 

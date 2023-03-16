@@ -357,12 +357,12 @@ public partial class LineContentEditorContext : ObservableObject, IHasChanges, I
         MainSiteFeed = await ContentSiteFeedAndIsDraftContext.CreateInstance(StatusContext, DbEntry);
         ContentId = await ContentIdViewerControlContext.CreateInstance(StatusContext, DbEntry);
         UpdateNotes = await UpdateNotesEditorContext.CreateInstance(StatusContext, DbEntry);
-        TagEdit = TagsEditorContext.CreateInstance(StatusContext, DbEntry);
+        TagEdit = await TagsEditorContext.CreateInstance(StatusContext, DbEntry);
         BodyContent = await BodyContentEditorContext.CreateInstance(StatusContext, DbEntry);
         LineGeoJson = toLoad?.Line ?? string.Empty;
 
         RecordingStartedOnEntry =
-            ConversionDataEntryContext<DateTime?>.CreateInstance(ConversionDataEntryHelpers.DateTimeNullableConversion);
+            await ConversionDataEntryContext<DateTime?>.CreateInstance(ConversionDataEntryHelpers.DateTimeNullableConversion);
         RecordingStartedOnEntry.Title = "Line Recording Starts On";
         RecordingStartedOnEntry.HelpText = "Date and, optionally, Time for the Start of the Line";
         RecordingStartedOnEntry.ReferenceValue = DbEntry.RecordingStartedOn;
@@ -370,41 +370,41 @@ public partial class LineContentEditorContext : ObservableObject, IHasChanges, I
             DbEntry.RecordingStartedOn?.ToString("MM/dd/yyyy h:mm:ss tt") ?? string.Empty;
 
         RecordingEndedOnEntry =
-            ConversionDataEntryContext<DateTime?>.CreateInstance(ConversionDataEntryHelpers.DateTimeNullableConversion);
+            await ConversionDataEntryContext<DateTime?>.CreateInstance(ConversionDataEntryHelpers.DateTimeNullableConversion);
         RecordingEndedOnEntry.Title = "Line Recording Ends On";
         RecordingEndedOnEntry.HelpText = "Date and, optionally, Time for the Start of the Line";
         RecordingEndedOnEntry.ReferenceValue = DbEntry.RecordingEndedOn;
         RecordingEndedOnEntry.UserText = DbEntry.RecordingEndedOn?.ToString("MM/dd/yyyy h:mm:ss tt") ?? string.Empty;
 
         ClimbElevationEntry =
-            ConversionDataEntryContext<double>.CreateInstance(ConversionDataEntryHelpers.DoubleConversion);
+            await ConversionDataEntryContext<double>.CreateInstance(ConversionDataEntryHelpers.DoubleConversion);
         ClimbElevationEntry.Title = "Climb Elevation - Feet";
         ClimbElevationEntry.HelpText = "Total amount of Climbing";
         ClimbElevationEntry.ReferenceValue = DbEntry.ClimbElevation;
         ClimbElevationEntry.UserText = DbEntry.ClimbElevation.ToString("F0");
 
         DescentElevationEntry =
-            ConversionDataEntryContext<double>.CreateInstance(ConversionDataEntryHelpers.DoubleConversion);
+            await ConversionDataEntryContext<double>.CreateInstance(ConversionDataEntryHelpers.DoubleConversion);
         DescentElevationEntry.Title = "Descent Elevation - Feet";
         DescentElevationEntry.HelpText = "Total amount of Descent";
         DescentElevationEntry.ReferenceValue = DbEntry.DescentElevation;
         DescentElevationEntry.UserText = DbEntry.DescentElevation.ToString("F0");
 
         MaximumElevationEntry =
-            ConversionDataEntryContext<double>.CreateInstance(ConversionDataEntryHelpers.DoubleConversion);
+            await ConversionDataEntryContext<double>.CreateInstance(ConversionDataEntryHelpers.DoubleConversion);
         MaximumElevationEntry.Title = "Maximum Elevation - Feet";
         MaximumElevationEntry.HelpText = "Highest Elevation the Line Reaches";
         MaximumElevationEntry.ReferenceValue = DbEntry.MaximumElevation;
         MaximumElevationEntry.UserText = DbEntry.MaximumElevation.ToString("F0");
 
         MinimumElevationEntry =
-            ConversionDataEntryContext<double>.CreateInstance(ConversionDataEntryHelpers.DoubleConversion);
+            await ConversionDataEntryContext<double>.CreateInstance(ConversionDataEntryHelpers.DoubleConversion);
         MinimumElevationEntry.Title = "Minimum Elevation - Feet";
         MinimumElevationEntry.HelpText = "Lowest Elevation the Line Reaches";
         MinimumElevationEntry.ReferenceValue = DbEntry.MinimumElevation;
         MinimumElevationEntry.UserText = DbEntry.MinimumElevation.ToString("F0");
 
-        DistanceEntry = ConversionDataEntryContext<double>.CreateInstance(ConversionDataEntryHelpers.DoubleConversion);
+        DistanceEntry = await ConversionDataEntryContext<double>.CreateInstance(ConversionDataEntryHelpers.DoubleConversion);
         DistanceEntry.Title = "Distance - Miles";
         DistanceEntry.HelpText = "Total Distance of the Line";
         DistanceEntry.ReferenceValue = DbEntry.LineDistance;

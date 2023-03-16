@@ -45,10 +45,10 @@ public partial class TagsEditorContext : ObservableObject, IHasChanges, IHasVali
         TagsValidationMessage = tagValidation.Explanation;
     }
 
-    public static TagsEditorContext CreateInstance(StatusControlContext? statusContext, ITag? dbEntry)
+    public static Task<TagsEditorContext> CreateInstance(StatusControlContext? statusContext, ITag? dbEntry)
     {
         var factoryContext = statusContext ?? new StatusControlContext();
-        return new TagsEditorContext(factoryContext, dbEntry);
+        return Task.FromResult(new TagsEditorContext(factoryContext, dbEntry));
     }
 
     private List<string> DbTagList()

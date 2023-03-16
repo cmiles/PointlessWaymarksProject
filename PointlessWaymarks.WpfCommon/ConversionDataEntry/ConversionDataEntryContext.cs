@@ -198,10 +198,10 @@ public class ConversionDataEntryContext<T> : INotifyPropertyChanged, IHasChanges
         ValidationMessage = string.Empty;
     }
 
-    public static ConversionDataEntryContext<T> CreateInstance(
+    public static Task<ConversionDataEntryContext<T>> CreateInstance(
         Func<string, (bool passed, string conversionMessage, T result)> converter)
     {
-        return new ConversionDataEntryContext<T> { Converter = converter };
+        return Task.FromResult(new ConversionDataEntryContext<T> { Converter = converter });
     }
 
     [NotifyPropertyChangedInvocator]

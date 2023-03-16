@@ -236,7 +236,7 @@ public partial class PointContentEditorContext : ObservableObject, IHasChanges, 
         StatusContext.ToastSuccess($"To Clipboard: {linkString}");
     }
 
-    public async Task LoadData(PointContent toLoad)
+    public async Task LoadData(PointContent? toLoad)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -257,7 +257,7 @@ public partial class PointContentEditorContext : ObservableObject, IHasChanges, 
         MainSiteFeed = await ContentSiteFeedAndIsDraftContext.CreateInstance(StatusContext, DbEntry);
         ContentId = await ContentIdViewerControlContext.CreateInstance(StatusContext, DbEntry);
         UpdateNotes = await UpdateNotesEditorContext.CreateInstance(StatusContext, DbEntry);
-        TagEdit = TagsEditorContext.CreateInstance(StatusContext, DbEntry);
+        TagEdit = await TagsEditorContext.CreateInstance(StatusContext, DbEntry);
         BodyContent = await BodyContentEditorContext.CreateInstance(StatusContext, DbEntry);
 
         MapLabelContent = StringDataEntryContext.CreateInstance();
@@ -268,7 +268,7 @@ public partial class PointContentEditorContext : ObservableObject, IHasChanges, 
         MapLabelContent.UserValue = StringTools.NullToEmptyTrim(DbEntry?.MapLabel);
 
         ElevationEntry =
-            ConversionDataEntryContext<double?>.CreateInstance(ConversionDataEntryHelpers.DoubleNullableConversion);
+            await ConversionDataEntryContext<double?>.CreateInstance(ConversionDataEntryHelpers.DoubleNullableConversion);
         ElevationEntry.ValidationFunctions = new List<Func<double?, Task<IsValid>>>
         {
             CommonContentValidation.ElevationValidation
@@ -279,7 +279,7 @@ public partial class PointContentEditorContext : ObservableObject, IHasChanges, 
         ElevationEntry.ReferenceValue = DbEntry.Elevation;
         ElevationEntry.UserText = DbEntry.Elevation?.ToString("F2") ?? string.Empty;
 
-        LatitudeEntry = ConversionDataEntryContext<double>.CreateInstance(ConversionDataEntryHelpers.DoubleConversion);
+        LatitudeEntry = await ConversionDataEntryContext<double>.CreateInstance(ConversionDataEntryHelpers.DoubleConversion);
         LatitudeEntry.ValidationFunctions = new List<Func<double, Task<IsValid>>>
         {
             CommonContentValidation.LatitudeValidation
@@ -295,7 +295,7 @@ public partial class PointContentEditorContext : ObservableObject, IHasChanges, 
             if (args.PropertyName == nameof(LatitudeEntry.UserValue)) LatitudeLongitudeChangeBroadcast();
         };
 
-        LongitudeEntry = ConversionDataEntryContext<double>.CreateInstance(ConversionDataEntryHelpers.DoubleConversion);
+        LongitudeEntry = await ConversionDataEntryContext<double>.CreateInstance(ConversionDataEntryHelpers.DoubleConversion);
         LongitudeEntry.ValidationFunctions = new List<Func<double, Task<IsValid>>>
         {
             CommonContentValidation.LongitudeValidation

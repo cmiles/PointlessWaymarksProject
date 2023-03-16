@@ -251,7 +251,7 @@ public partial class GpxImportContext : ObservableObject
         var factoryFolderEntry = await ContentFolderContext.CreateInstanceForAllGeoTypes(factoryContext);
         factoryFolderEntry.Title = "Folder for All Imports";
 
-        var factoryTagEntry = TagsEditorContext.CreateInstance(factoryContext, null);
+        var factoryTagEntry = await TagsEditorContext.CreateInstance(factoryContext, null);
 
         await ThreadSwitcher.ResumeForegroundAsync();
 

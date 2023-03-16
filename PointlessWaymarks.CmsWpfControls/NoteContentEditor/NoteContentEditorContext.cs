@@ -145,7 +145,7 @@ Note Content is like a simplified Post - no title and slug to edit or maintain a
         StatusContext.ToastSuccess($"To Clipboard: {linkString}");
     }
 
-    public async Task LoadData(NoteContent toLoad)
+    public async Task LoadData(NoteContent? toLoad)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -164,7 +164,7 @@ Note Content is like a simplified Post - no title and slug to edit or maintain a
         CreatedUpdatedDisplay = await CreatedAndUpdatedByAndOnDisplayContext.CreateInstance(StatusContext, DbEntry);
         MainSiteFeed = await ContentSiteFeedAndIsDraftContext.CreateInstance(StatusContext, DbEntry);
         ContentId = await ContentIdViewerControlContext.CreateInstance(StatusContext, DbEntry);
-        TagEdit = TagsEditorContext.CreateInstance(StatusContext, DbEntry);
+        TagEdit = await TagsEditorContext.CreateInstance(StatusContext, DbEntry);
         BodyContent = await BodyContentEditorContext.CreateInstance(StatusContext, DbEntry);
         Slug = DbEntry.Slug;
 
