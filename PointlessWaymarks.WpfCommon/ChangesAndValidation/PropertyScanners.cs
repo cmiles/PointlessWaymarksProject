@@ -10,6 +10,9 @@ public static class PropertyScanners
 
         var hasChanges = false;
 
+        // ReSharper disable once CollectionNeverQueried.Local Left in for debugging
+        var propertyList = new List<(bool hasChanges, string propertyInfo)>();
+
         foreach (var loopProperties in allProperties)
         {
             if (!typeof(IHasChanges).IsAssignableFrom(loopProperties.PropertyType)) continue;
@@ -17,6 +20,9 @@ public static class PropertyScanners
             var value = loopProperties.GetValue(toScan);
 
             if (value == null) continue;
+
+            var hasChangesValue = ((IHasChanges) value).HasChanges;
+            propertyList.Add((hasChangesValue, loopProperties.Name));
 
             hasChanges = hasChanges || ((IHasChanges) value).HasChanges;
         }
@@ -30,6 +36,9 @@ public static class PropertyScanners
 
         var hasValidationIssues = false;
 
+        // ReSharper disable once CollectionNeverQueried.Local Left in for debugging
+        var propertyList = new List<(bool hasChanges, string propertyInfo)>();
+
         foreach (var loopProperties in allProperties)
         {
             if (!typeof(IHasValidationIssues).IsAssignableFrom(loopProperties.PropertyType)) continue;
@@ -37,6 +46,9 @@ public static class PropertyScanners
             var value = loopProperties.GetValue(toScan);
 
             if (value == null) continue;
+
+            var hasValidationValue = ((IHasValidationIssues)value).HasValidationIssues;
+            propertyList.Add((hasValidationValue, loopProperties.Name));
 
             hasValidationIssues = hasValidationIssues || ((IHasValidationIssues) value).HasValidationIssues;
         }
