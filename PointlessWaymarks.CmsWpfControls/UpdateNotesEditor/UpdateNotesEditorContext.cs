@@ -58,6 +58,7 @@ public partial class UpdateNotesEditorContext : ObservableObject, IHasChanges, I
         var factoryContext = statusContext;
 
         var factoryFormatChooserContext = await ContentFormatChooserContext.CreateInstance(factoryContext);
+        factoryFormatChooserContext.InitialValue = dbEntry.UpdateNotesFormat;
 
         if (string.IsNullOrWhiteSpace(dbEntry.UpdateNotesFormat))
         {

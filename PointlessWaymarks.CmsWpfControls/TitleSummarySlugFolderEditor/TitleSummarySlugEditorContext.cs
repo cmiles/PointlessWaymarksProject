@@ -40,7 +40,7 @@ public partial class TitleSummarySlugEditorContext : IHasChanges, IHasValidation
         _customTitleFunctionText = customTitleCommandText;
         _customTitleCommand = customTitleCommand;
         _customTitleCheckToEnable = customTitleCheckToEnable;
-        _customTitleFunctionVisible = true;
+        _customTitleFunctionVisible = !string.IsNullOrWhiteSpace(CustomTitleFunctionText) && CustomTitleCommand is not null && CustomTitleCheckToEnable is not null;
 
         _titleToSlugCommand = StatusContext.RunBlockingActionCommand(TitleToSlug);
         _titleToSummaryCommand = StatusContext.RunBlockingActionCommand(TitleToSummary);

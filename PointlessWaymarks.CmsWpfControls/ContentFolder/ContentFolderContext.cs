@@ -30,7 +30,7 @@ public partial class ContentFolderContext : ObservableObject, IHasChanges, IHasV
     [ObservableProperty] private List<Func<string?, IsValid>> _validationFunctions;
     [ObservableProperty] private string _validationMessage = string.Empty;
 
-    private ContentFolderContext(StatusControlContext statusContext, Func<Task<List<string>>> loader, List<string> initialFolderList)
+    private ContentFolderContext(StatusControlContext statusContext, ITitleSummarySlugFolder? dbEntry, Func<Task<List<string>>> loader, List<string> initialFolderList)
     {
         _statusContext = statusContext;
 
@@ -50,8 +50,8 @@ public partial class ContentFolderContext : ObservableObject, IHasChanges, IHasV
             DataNotificationContentType.GeoJson, DataNotificationContentType.Line, DataNotificationContentType.Point
         };
 
-        _referenceValue = string.Empty;
-        _userValue = string.Empty;
+        _referenceValue = dbEntry?.Folder ?? string.Empty;
+        _userValue = dbEntry?.Folder ?? string.Empty;
 
         _validationFunctions = new List<Func<string?, IsValid>> { CommonContentValidation.ValidateFolder };
 
@@ -88,7 +88,7 @@ public partial class ContentFolderContext : ObservableObject, IHasChanges, IHasV
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
-        var newControl = new ContentFolderContext(factoryContext, async () => await Db.FolderNamesFromContent(dbEntry), initialFolderList);
+        var newControl = new ContentFolderContext(factoryContext, dbEntry, async () => await Db.FolderNamesFromContent(dbEntry), initialFolderList);
 
         return newControl;
     }
@@ -103,7 +103,7 @@ public partial class ContentFolderContext : ObservableObject, IHasChanges, IHasV
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
-        var newControl = new ContentFolderContext(factoryContext, loader, initialFolderList);
+        var newControl = new ContentFolderContext(factoryContext, null, loader, initialFolderList);
 
         return newControl;
     }

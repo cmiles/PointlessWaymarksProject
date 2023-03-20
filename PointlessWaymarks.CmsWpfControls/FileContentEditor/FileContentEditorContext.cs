@@ -39,6 +39,7 @@ public partial class FileContentEditorContext : ObservableObject, IHasChanges, I
     ICheckForChangesAndValidation
 {
     [ObservableProperty] private RelayCommand _autoRenameSelectedFileCommand;
+    [ObservableProperty] private RelayCommand _autoRenameSelectedFileBasedOnTitleCommand;
     [ObservableProperty] private BodyContentEditorContext _bodyContent;
     [ObservableProperty] private RelayCommand _chooseFileCommand;
     [ObservableProperty] private ContentIdViewerControlContext _contentId;
@@ -71,7 +72,7 @@ public partial class FileContentEditorContext : ObservableObject, IHasChanges, I
     [ObservableProperty] private bool _selectedFileHasPathOrNameChanges;
     [ObservableProperty] private bool _selectedFileHasValidationIssues;
     [ObservableProperty] private bool _selectedFileNameHasInvalidCharacters;
-    [ObservableProperty] private string _selectedFileValidationMessage;
+    [ObservableProperty] private string? _selectedFileValidationMessage;
     [ObservableProperty] private StatusControlContext _statusContext;
     [ObservableProperty] private TagsEditorContext _tagEdit;
     [ObservableProperty] private TitleSummarySlugEditorContext _titleSummarySlugFolder;
@@ -86,26 +87,44 @@ public partial class FileContentEditorContext : ObservableObject, IHasChanges, I
 
     private FileContentEditorContext(StatusControlContext? statusContext, FileInfo? initialFile = null)
     {
+        _statusContext = statusContext ?? new StatusControlContext();
+
         if (initialFile is { Exists: true }) _initialFile = initialFile;
 
-        DbEntry = new FileContent();
+        _dbEntry = new FileContent();
 
         PropertyChanged += OnPropertyChanged;
 
-        SetupStatusContextAndCommands(statusContext);
+        _helpContext = new HelpDisplayContext(new List<string>
+        {
+            FileEditorHelpText, CommonFields.TitleSlugFolderSummary, BracketCodeHelpMarkdown.HelpBlock
+        });
+
+        _chooseFileCommand = StatusContext.RunBlockingTaskCommand(async () => await ChooseFile());
+        _saveCommand = StatusContext.RunBlockingTaskCommand(async () => await SaveAndGenerateHtml(true, false));
+        _saveAndCloseCommand = StatusContext.RunBlockingTaskCommand(async () => await SaveAndGenerateHtml(true, true));
+        _openSelectedFileDirectoryCommand = StatusContext.RunBlockingTaskCommand(OpenSelectedFileDirectory);
+        _openSelectedFileCommand = StatusContext.RunBlockingTaskCommand(OpenSelectedFile);
+        _viewOnSiteCommand = StatusContext.RunBlockingTaskCommand(ViewOnSite);
+        _renameSelectedFileCommand = StatusContext.RunBlockingTaskCommand(async () =>
+            await FileHelpers.RenameSelectedFile(SelectedFile, StatusContext, x => SelectedFile = x));
+        _autoRenameSelectedFileCommand = StatusContext.RunBlockingTaskCommand(async () =>
+            await FileHelpers.TryAutoCleanRenameSelectedFile(SelectedFile, StatusContext, x => SelectedFile = x));
+        _autoRenameSelectedFileBasedOnTitleCommand = StatusContext.RunBlockingTaskCommand(async () =>
+        {
+            await FileHelpers.TryAutoRenameSelectedFile(SelectedFile, TitleSummarySlugFolder.TitleEntry.UserValue,
+                StatusContext, x => SelectedFile = x);
+        });
+        _extractNewLinksCommand = StatusContext.RunBlockingTaskCommand(() =>
+            LinkExtraction.ExtractNewAndShowLinkContentEditors($"{BodyContent.BodyContent} {UpdateNotes.UpdateNotes}",
+                StatusContext.ProgressTracker()));
+        _saveAndExtractImageFromPdfCommand = StatusContext.RunBlockingTaskCommand(SaveAndExtractImageFromPdf);
+        _saveAndExtractImageFromVideoCommand = StatusContext.RunBlockingTaskCommand(SaveAndExtractImageFromMp4);
+        _linkToClipboardCommand = StatusContext.RunNonBlockingTaskCommand(LinkToClipboard);
+        _downloadLinkToClipboardCommand = StatusContext.RunNonBlockingTaskCommand(DownloadLinkToClipboard);
+        _viewUserMainPictureCommand = StatusContext.RunNonBlockingTaskCommand(ViewUserMainPicture);
+        _editUserMainPictureCommand = StatusContext.RunNonBlockingTaskCommand(EditUserMainPicture);
     }
-
-    private FileContentEditorContext(StatusControlContext? statusContext)
-    {
-        DbEntry = new FileContent();
-
-        PropertyChanged += OnPropertyChanged;
-
-        SetupStatusContextAndCommands(statusContext);
-    }
-
-    public RelayCommand AutoRenameSelectedFileBasedOnTitleCommand { get; set; }
-
 
     public string FileEditorHelpText =>
         @"
@@ -128,7 +147,6 @@ Notes:
  - If appropriate consider including links to the original source in the Body Content
  - If what you are writing about is a 'file' but you don't want/need to store the file itself on your site you should probably just create a Post (or other content type like and Image) - use File Content when you want to store the file. 
 ";
-
 
     public void CheckForChangesAndValidationIssues()
     {
@@ -648,41 +666,6 @@ Notes:
             await CommonContentValidation.FileContentFileFileNameHasInvalidCharacters(SelectedFile, DbEntry.ContentId);
 
         DetectGuiFileTypes();
-    }
-
-    public void SetupStatusContextAndCommands(StatusControlContext? statusContext)
-    {
-        StatusContext = statusContext ?? new StatusControlContext();
-
-        HelpContext = new HelpDisplayContext(new List<string>
-        {
-            FileEditorHelpText, CommonFields.TitleSlugFolderSummary, BracketCodeHelpMarkdown.HelpBlock
-        });
-
-        ChooseFileCommand = StatusContext.RunBlockingTaskCommand(async () => await ChooseFile());
-        SaveCommand = StatusContext.RunBlockingTaskCommand(async () => await SaveAndGenerateHtml(true, false));
-        SaveAndCloseCommand = StatusContext.RunBlockingTaskCommand(async () => await SaveAndGenerateHtml(true, true));
-        OpenSelectedFileDirectoryCommand = StatusContext.RunBlockingTaskCommand(OpenSelectedFileDirectory);
-        OpenSelectedFileCommand = StatusContext.RunBlockingTaskCommand(OpenSelectedFile);
-        ViewOnSiteCommand = StatusContext.RunBlockingTaskCommand(ViewOnSite);
-        RenameSelectedFileCommand = StatusContext.RunBlockingTaskCommand(async () =>
-            await FileHelpers.RenameSelectedFile(SelectedFile, StatusContext, x => SelectedFile = x));
-        AutoRenameSelectedFileCommand = StatusContext.RunBlockingTaskCommand(async () =>
-            await FileHelpers.TryAutoCleanRenameSelectedFile(SelectedFile, StatusContext, x => SelectedFile = x));
-        AutoRenameSelectedFileBasedOnTitleCommand = StatusContext.RunBlockingTaskCommand(async () =>
-        {
-            await FileHelpers.TryAutoRenameSelectedFile(SelectedFile, TitleSummarySlugFolder.TitleEntry.UserValue,
-                StatusContext, x => SelectedFile = x);
-        });
-        ExtractNewLinksCommand = StatusContext.RunBlockingTaskCommand(() =>
-            LinkExtraction.ExtractNewAndShowLinkContentEditors($"{BodyContent.BodyContent} {UpdateNotes.UpdateNotes}",
-                StatusContext.ProgressTracker()));
-        SaveAndExtractImageFromPdfCommand = StatusContext.RunBlockingTaskCommand(SaveAndExtractImageFromPdf);
-        SaveAndExtractImageFromVideoCommand = StatusContext.RunBlockingTaskCommand(SaveAndExtractImageFromMp4);
-        LinkToClipboardCommand = StatusContext.RunNonBlockingTaskCommand(LinkToClipboard);
-        DownloadLinkToClipboardCommand = StatusContext.RunNonBlockingTaskCommand(DownloadLinkToClipboard);
-        ViewUserMainPictureCommand = StatusContext.RunNonBlockingTaskCommand(ViewUserMainPicture);
-        EditUserMainPictureCommand = StatusContext.RunNonBlockingTaskCommand(EditUserMainPicture);
     }
 
     public async Task SetUserMainPicture()
