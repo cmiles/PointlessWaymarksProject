@@ -3,6 +3,8 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Text.RegularExpressions;
 using System.Windows;
+using System.Windows.Data;
+using System.Windows.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using GongSolutions.Wpf.DragDrop;
@@ -15,6 +17,7 @@ using PointlessWaymarks.CmsData.ContentHtml.GeoJsonHtml;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsData.Spatial;
+using PointlessWaymarks.CmsWpfControls.ColumnSort;
 using PointlessWaymarks.CmsWpfControls.ContentIdViewer;
 using PointlessWaymarks.CmsWpfControls.ContentList;
 using PointlessWaymarks.CmsWpfControls.CreatedAndUpdatedByAndOnDisplay;
@@ -46,6 +49,7 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
     [ObservableProperty] private bool _hasValidationIssues;
     [ObservableProperty] private HelpDisplayContext _helpContext;
     [ObservableProperty] private RelayCommand _linkToClipboardCommand;
+    [ObservableProperty] private ColumnSortControlContext _listSort;
     [ObservableProperty] private ObservableCollection<IMapElementListItem>? _mapElements;
     [ObservableProperty] private RelayCommand<IMapElementListItem> _openItemEditorCommand;
     [ObservableProperty] private string _previewHtml;
@@ -58,6 +62,7 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
     [ObservableProperty] private StringDataEntryContext? _summaryEntry;
     [ObservableProperty] private StringDataEntryContext? _titleEntry;
     [ObservableProperty] private UpdateNotesEditorContext? _updateNotes;
+    [ObservableProperty] private string _userFilterText = string.Empty;
     [ObservableProperty] private RelayCommand _userGeoContentIdInputToMapCommand;
     [ObservableProperty] private string _userGeoContentInput = string.Empty;
 
@@ -85,6 +90,11 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
         {
             CommonFields.TitleSlugFolderSummary, BracketCodeHelpMarkdown.HelpBlock
         });
+
+        _listSort = SortContextMapElementsDefault();
+
+        _listSort.SortUpdated += (_, list) =>
+            Dispatcher.CurrentDispatcher.Invoke(() => { ListContextSortHelpers.SortList(list, MapElements); });
     }
 
     public void CheckForChangesAndValidationIssues()
@@ -139,7 +149,8 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
             DbEntry = possibleGeoJson,
             SmallImageUrl = ContentListContext.GetSmallImageUrl(possibleGeoJson),
             InInitialView = loopContent?.IncludeInDefaultView ?? true,
-            ShowInitialDetails = loopContent?.ShowDetailsDefault ?? false
+            ShowInitialDetails = loopContent?.ShowDetailsDefault ?? false,
+            Title = possibleGeoJson.Title ?? string.Empty
         });
 
         if (guiNotificationAndMapRefreshWhenAdded)
@@ -169,7 +180,8 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
             DbEntry = possibleLine,
             SmallImageUrl = ContentListContext.GetSmallImageUrl(possibleLine),
             InInitialView = loopContent?.IncludeInDefaultView ?? true,
-            ShowInitialDetails = loopContent?.ShowDetailsDefault ?? false
+            ShowInitialDetails = loopContent?.ShowDetailsDefault ?? false,
+            Title = possibleLine.Title ?? string.Empty
         });
 
         if (guiNotificationAndMapRefreshWhenAdded)
@@ -199,7 +211,8 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
             DbEntry = possiblePoint,
             SmallImageUrl = ContentListContext.GetSmallImageUrl(possiblePoint),
             InInitialView = loopContent?.IncludeInDefaultView ?? true,
-            ShowInitialDetails = loopContent?.ShowDetailsDefault ?? false
+            ShowInitialDetails = loopContent?.ShowDetailsDefault ?? false,
+            Title = possiblePoint.Title ?? string.Empty
         });
 
         if (guiNotificationAndMapRefreshWhenAdded)
@@ -311,6 +324,26 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
         await newContentWindow.PositionWindowAndShowOnUiThread();
     }
 
+    private async Task FilterList()
+    {
+        if (MapElements == null || !MapElements.Any()) return;
+
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        if (string.IsNullOrWhiteSpace(UserFilterText))
+        {
+            ((CollectionView)CollectionViewSource.GetDefaultView(MapElements)).Filter = _ => true;
+            return;
+        }
+
+        ((CollectionView)CollectionViewSource.GetDefaultView(MapElements)).Filter = x =>
+        {
+            var element = x as IMapElementListItem;
+            if (element == null) return false;
+            return element.Title.Contains(UserFilterText, StringComparison.CurrentCultureIgnoreCase);
+        };
+    }
+
     private async Task LinkToClipboard()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -394,6 +427,11 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
         }
 
         if (MapElements.Any()) await RefreshMapPreview();
+
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        ListContextSortHelpers.SortList(ListSort.SortDescriptions(), MapElements);
+        await FilterList();
     }
 
     private void OnPropertyChanged(object? sender, PropertyChangedEventArgs e)
@@ -402,6 +440,9 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
 
         if (!e.PropertyName.Contains("HasChanges") && !e.PropertyName.Contains("Validation"))
             CheckForChangesAndValidationIssues();
+
+        if (e.PropertyName.Equals(nameof(UserFilterText)))
+            StatusContext.RunFireAndForgetNonBlockingTask(FilterList);
     }
 
     private async Task OpenItemEditor(IMapElementListItem toEdit)
@@ -419,7 +460,6 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
                 break;
         }
     }
-
 
     public async Task RefreshMapPreview()
     {
@@ -439,14 +479,14 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
         foreach (var loopElements in MapElements)
             switch (loopElements)
             {
-                case MapElementListGeoJsonItem { DbEntry.GeoJson: { } } mapGeoJson:
+                case MapElementListGeoJsonItem { DbEntry.GeoJson: not null } mapGeoJson:
                     geoJsonList.Add(GeoJsonTools.DeserializeStringToFeatureCollection(mapGeoJson.DbEntry.GeoJson));
                     boundsKeeper.Add(new Point(mapGeoJson.DbEntry.InitialViewBoundsMaxLongitude,
                         mapGeoJson.DbEntry.InitialViewBoundsMaxLatitude));
                     boundsKeeper.Add(new Point(mapGeoJson.DbEntry.InitialViewBoundsMinLongitude,
                         mapGeoJson.DbEntry.InitialViewBoundsMinLatitude));
                     break;
-                case MapElementListLineItem { DbEntry.Line: { } } mapLine:
+                case MapElementListLineItem { DbEntry.Line: not null } mapLine:
                     var lineFeatureCollection = GeoJsonTools.DeserializeStringToFeatureCollection(mapLine.DbEntry.Line);
                     geoJsonList.Add(lineFeatureCollection);
                     boundsKeeper.Add(new Point(mapLine.DbEntry.InitialViewBoundsMaxLongitude,
@@ -525,6 +565,29 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
             await ThreadSwitcher.ResumeForegroundAsync();
             RequestContentEditorWindowClose?.Invoke(this, EventArgs.Empty);
         }
+    }
+
+    public static ColumnSortControlContext SortContextMapElementsDefault()
+    {
+        return new ColumnSortControlContext
+        {
+            Items = new List<ColumnSortControlSortItem>
+            {
+                new()
+                {
+                    DisplayName = "Title",
+                    ColumnName = "Title",
+                    Order = 1,
+                    DefaultSortDirection = ListSortDirection.Ascending
+                },
+                new()
+                {
+                    DisplayName = "Type",
+                    ColumnName = "Type",
+                    DefaultSortDirection = ListSortDirection.Ascending
+                }
+            }
+        };
     }
 
     /// <summary>

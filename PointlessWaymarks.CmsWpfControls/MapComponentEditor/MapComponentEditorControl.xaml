@@ -16,6 +16,7 @@
     xmlns:wpfConverter="clr-namespace:PointlessWaymarks.WpfCommon.ValueConverters;assembly=PointlessWaymarks.WpfCommon"
     xmlns:wpfHtml="clr-namespace:PointlessWaymarks.WpfCommon.WpfHtml;assembly=PointlessWaymarks.WpfCommon"
     xmlns:markdownDisplay="clr-namespace:PointlessWaymarks.WpfCommon.MarkdownDisplay;assembly=PointlessWaymarks.WpfCommon"
+    xmlns:columnSort="clr-namespace:PointlessWaymarks.CmsWpfControls.ColumnSort"
     x:Name="MapComponentEditorControlXaml"
     d:DataContext="{d:DesignInstance mapComponentEditor:MapComponentEditorContext}"
     d:DesignHeight="450"
@@ -163,32 +164,54 @@
                         <RowDefinition Height="Auto" />
                         <RowDefinition />
                     </Grid.RowDefinitions>
-                    <GroupBox Header="Add Content Ids/Bracket Codes" Style="{StaticResource UiComponentGroupBoxStyle}">
+
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition />
-                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition />
+                                <ColumnDefinition />
                             </Grid.ColumnDefinitions>
-                            <TextBox
-                                Height="60"
-                                dd:DragDrop.DropHandler="{Binding}"
-                                dd:DragDrop.IsDropTarget="True"
-                                AcceptsReturn="True"
-                                Text="{Binding UserGeoContentInput, UpdateSourceTrigger=PropertyChanged}" />
-                            <Button
-                                Grid.Column="1"
-                                Width="90"
-                                Command="{Binding UserGeoContentIdInputToMapCommand}">
-                                Add from Text
-                            </Button>
+                            <GroupBox Grid.Column="0" Header="Add Text Codes" Style="{StaticResource UiComponentGroupBoxStyle}">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition></ColumnDefinition>
+                                        <ColumnDefinition Width="Auto"></ColumnDefinition>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBox
+                                        dd:DragDrop.DropHandler="{Binding}"
+                                        dd:DragDrop.IsDropTarget="True"
+                                        AcceptsReturn="True"
+                                        Text="{Binding UserGeoContentInput, UpdateSourceTrigger=PropertyChanged}" />
+                                    <Button
+                                        Grid.Column="1"
+                                        Width="40"
+                                        Command="{Binding UserGeoContentIdInputToMapCommand}">
+                                        Add
+                                    </Button>
+                                </Grid>
+                            </GroupBox>
+                            <GroupBox Grid.Column="1" Header="Filter Element Title" Height="60"
+                                      Style="{StaticResource UiComponentGroupBoxStyle}">
+                                <TextBox
+                                    VerticalAlignment="Stretch"
+                                    AcceptsReturn="True"
+                                    Text="{Binding UserFilterText, UpdateSourceTrigger=PropertyChanged, Delay=1000}"
+                                    TextWrapping="Wrap" />
+                            </GroupBox>
+                            <GroupBox
+                                Grid.Column="2"
+                                Header="Sort"
+                                Style="{StaticResource UiComponentGroupBoxStyle}">
+                                <columnSort:ColumnSortControl DataContext="{Binding ListSort}" />
+                            </GroupBox>
                         </Grid>
-                    </GroupBox>
                     <GroupBox
                         Grid.Row="1"
                         dd:DragDrop.DropHandler="{Binding}"
                         dd:DragDrop.IsDropTarget="True"
                         Header="Map Elements"
                         Style="{StaticResource UiComponentGroupBoxStyle}">
+
                         <ListBox
                             dd:DragDrop.DropHandler="{Binding}"
                             dd:DragDrop.IsDropTarget="True"
@@ -268,6 +291,7 @@
             </WrapPanel>
         </Border>
         <windowScreenShot:WindowScreenShotControl
+            d:IsHidden="true"
             Grid.Row="0"
             Grid.RowSpan="2"
             Grid.Column="0"

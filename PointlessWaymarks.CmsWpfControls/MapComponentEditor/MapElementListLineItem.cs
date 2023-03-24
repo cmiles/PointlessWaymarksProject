@@ -11,6 +11,8 @@ public partial class MapElementListLineItem : ObservableObject, IMapElementListI
     [ObservableProperty] private bool _isFeaturedElement;
     [ObservableProperty] private bool _showInitialDetails;
     [ObservableProperty] private string _smallImageUrl = string.Empty;
+    [ObservableProperty] private string _title = string.Empty;
+    [ObservableProperty] private string _elementType = "line";
 
     public Guid? ContentId()
     {
