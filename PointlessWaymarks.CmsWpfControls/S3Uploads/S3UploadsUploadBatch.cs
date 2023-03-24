@@ -1,5 +1,5 @@
-﻿#nullable enable
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
+using System.ComponentModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
@@ -16,6 +16,7 @@ public partial class S3UploadsUploadBatch : ObservableObject
     [ObservableProperty] private S3UploadsItem? _currentUpload;
     [ObservableProperty] private int _errorItemCount;
     [ObservableProperty] private long _errorSize;
+    [ObservableProperty] private bool _hasErrors;
     [ObservableProperty] private ObservableCollection<S3UploadsItem>? _items;
     [ObservableProperty] private string _status = string.Empty;
     [ObservableProperty] private int _totalItemCount;
@@ -27,6 +28,7 @@ public partial class S3UploadsUploadBatch : ObservableObject
     public S3UploadsUploadBatch()
     {
         CancelCommand = new RelayCommand(() => { Cancellation?.Cancel(); }, () => Cancellation != null);
+        PropertyChanged += OnPropertyChanged;
     }
 
     public static async Task<S3UploadsUploadBatch> CreateInstance(List<S3UploadsItem> toUpload)
@@ -56,6 +58,12 @@ public partial class S3UploadsUploadBatch : ObservableObject
             Items.Clear();
             toUpload.ForEach(x => Items.Add(x));
         }
+    }
+
+    private void OnPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(ErrorItemCount))
+            HasErrors = ErrorItemCount > 0;
     }
 
     public async Task StartUploadBatch()

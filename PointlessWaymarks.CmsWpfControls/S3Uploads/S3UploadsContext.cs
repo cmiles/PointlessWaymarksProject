@@ -1,5 +1,4 @@
-﻿#nullable enable
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
 using System.Text.Json;
@@ -31,6 +30,7 @@ public partial class S3UploadsContext : ObservableObject
     [ObservableProperty] private RelayCommand _saveSelectedToUploadJsonFileCommand;
     [ObservableProperty] private RelayCommand _startAllUploadsCommand;
     [ObservableProperty] private RelayCommand _startSelectedUploadsCommand;
+    [ObservableProperty] private RelayCommand _startFailedUploadsCommand;
     [ObservableProperty] private StatusControlContext _statusContext;
     [ObservableProperty] private RelayCommand _toClipboardAllItemsCommand;
     [ObservableProperty] private RelayCommand _toClipboardSelectedItemsCommand;
@@ -44,6 +44,7 @@ public partial class S3UploadsContext : ObservableObject
         _osStatusIndicator = osStatusIndicator;
 
         _startSelectedUploadsCommand = StatusContext.RunNonBlockingTaskCommand(StartSelectedUploads);
+        _startFailedUploadsCommand = StatusContext.RunNonBlockingTaskCommand(StartFailedUploads);
         _startAllUploadsCommand = StatusContext.RunNonBlockingTaskCommand(StartAllUploads);
         _clearUploadedCommand = StatusContext.RunNonBlockingTaskCommand(ClearUploaded);
 
@@ -205,7 +206,8 @@ public partial class S3UploadsContext : ObservableObject
             return;
         }
 
-        var canDelete = ListSelection?.SelectedItems?.Where(x => x is { Queued: false, IsUploading: false }).ToList() ?? new();
+        var canDelete = ListSelection?.SelectedItems?.Where(x => x is { Queued: false, IsUploading: false }).ToList() ??
+                        new List<S3UploadsItem>();
 
         if (canDelete.Count == 0)
         {
@@ -282,6 +284,21 @@ public partial class S3UploadsContext : ObservableObject
 
         StatusContext.RunFireAndForgetNonBlockingTask(async () => await UploadBatch.StartUploadBatch());
     }
+
+    public async Task StartFailedUploads()
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (Items == null) return;
+
+        var toRetry = Items.Where(x => x is { HasError: false, Completed: true }).ToList();
+
+        UploadBatch = await S3UploadsUploadBatch.CreateInstance(toRetry);
+        UploadBatch.PropertyChanged += UploadBatchOnPropertyChanged;
+
+        StatusContext.RunFireAndForgetNonBlockingTask(async () => await UploadBatch.StartUploadBatch());
+    }
+
 
     public async Task StartSelectedUploads()
     {
