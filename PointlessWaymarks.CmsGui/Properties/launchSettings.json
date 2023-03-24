@@ -1,7 +1,8 @@
 {
   "profiles": {
     "PointlessWaymarks.CmsGui": {
-      "commandName": "Project"
+      "commandName": "Project",
+      "commandLineArgs": "M:\\SomewherePointlessWaymarks\\SomweherePhotoPickupSettings.json"
     }
   }
 }

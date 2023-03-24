@@ -1659,7 +1659,7 @@ public static class UserSettingsUtilities
 
         foreach (var loopProperties in currentProperties)
         {
-            var propertyExists = iniResult.TryGetKey(loopProperties.Name, out var existingValue);
+            var propertyExists = iniResult.TryGetKey(loopProperties.Name, out _);
 
             if (propertyExists)
                 iniResult.Global[loopProperties.Name] = loopProperties.GetValue(toWrite)?.ToString();

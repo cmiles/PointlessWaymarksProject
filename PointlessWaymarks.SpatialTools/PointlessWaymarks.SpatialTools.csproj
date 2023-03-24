@@ -2,7 +2,7 @@
 
   <ItemGroup>
     <PackageReference Include="GeoTimeZone" Version="5.2.0" />
-    <PackageReference Include="GitInfo" Version="3.0.4">
+    <PackageReference Include="GitInfo" Version="2.3.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>

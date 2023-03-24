@@ -726,14 +726,12 @@ public static class HtmlGenerationGroups
 
         foreach (var loopChangedDates in changedPhotoDates)
         {
-            var after = lastGenerationDateList.Where(x => x.DailyPhotoDate > loopChangedDates)
-                .OrderBy(x => x.DailyPhotoDate).FirstOrDefault();
+            var after = lastGenerationDateList.Where(x => x.DailyPhotoDate > loopChangedDates).MinBy(x => x.DailyPhotoDate);
 
             if (after != null && !datesToGenerate.Contains(after.DailyPhotoDate))
                 datesToGenerate.Add(after.DailyPhotoDate);
 
-            var before = lastGenerationDateList.Where(x => x.DailyPhotoDate < loopChangedDates)
-                .OrderByDescending(x => x.DailyPhotoDate).FirstOrDefault();
+            var before = lastGenerationDateList.Where(x => x.DailyPhotoDate < loopChangedDates).MaxBy(x => x.DailyPhotoDate);
 
             if (before != null && !datesToGenerate.Contains(before.DailyPhotoDate))
                 datesToGenerate.Add(before.DailyPhotoDate);
@@ -1428,12 +1426,14 @@ public static class HtmlGenerationGroups
             currentItem.Item1 = true;
             if (i > 0)
             {
+                // ReSharper disable once NotAccessedVariable Need nextItem as a variable for the assignment
                 var previousItem = mainFeedContent[i - 1];
                 previousItem.Item1 = true;
             }
 
             if (i < mainFeedContent.Count - 1)
             {
+                // ReSharper disable once NotAccessedVariable Need nextItem as a variable for the assignment
                 var nextItem = mainFeedContent[i + 1];
                 nextItem.Item1 = true;
             }

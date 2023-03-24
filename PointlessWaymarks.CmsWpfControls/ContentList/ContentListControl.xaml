@@ -72,7 +72,7 @@
                         Padding="6,0,6,0"
                         HorizontalAlignment="Right"
                         VerticalAlignment="Bottom"
-                        Command="{Binding SearchHelpWindowCommand}"
+                        Command="{Binding NewActions.SearchHelpWindowCommand}"
                         Opacity=".9">
                         Help
                     </Button>
