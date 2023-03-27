@@ -21,8 +21,11 @@ public partial class SettingsFileChooserControlContext : ObservableObject
     [ObservableProperty] private StatusControlContext _statusContext;
     [ObservableProperty] private string _userNewFileName;
 
-    private SettingsFileChooserControlContext()
+    private SettingsFileChooserControlContext(StatusControlContext statusContext, List<string> recentSettingFiles)
     {
+        _statusContext = statusContext;
+        _recentSettingFilesNames = recentSettingFiles;
+
         _newFileCommand = StatusContext.RunNonBlockingTaskCommand(NewFile);
         _chooseFileCommand = StatusContext.RunNonBlockingTaskCommand(ChooseFile);
         _chooseRecentFileCommand = StatusContext.RunNonBlockingTaskCommand<SettingsFileListItem>(LaunchRecentFile);
@@ -56,11 +59,8 @@ public partial class SettingsFileChooserControlContext : ObservableObject
     public static async Task<SettingsFileChooserControlContext> CreateInstance(StatusControlContext statusContext,
         string recentSettingFiles)
     {
-        var context = new SettingsFileChooserControlContext
-        {
-            StatusContext = statusContext ?? new StatusControlContext(),
-            RecentSettingFilesNames = recentSettingFiles?.Split("|").ToList() ?? new List<string>()
-        };
+        var context = new SettingsFileChooserControlContext(statusContext ?? new StatusControlContext(),
+            recentSettingFiles?.Split("|").ToList() ?? new List<string>());
 
         await context.LoadData();
 
