@@ -23,6 +23,10 @@ public partial class SettingsFileChooserControlContext : ObservableObject
 
     private SettingsFileChooserControlContext()
     {
+        _newFileCommand = StatusContext.RunNonBlockingTaskCommand(NewFile);
+        _chooseFileCommand = StatusContext.RunNonBlockingTaskCommand(ChooseFile);
+        _chooseRecentFileCommand = StatusContext.RunNonBlockingTaskCommand<SettingsFileListItem>(LaunchRecentFile);
+        _removeSelectedFileCommand = StatusContext.RunNonBlockingTaskCommand<SettingsFileListItem>(RemoveSelectedFile);
     }
 
     private async Task ChooseFile()
@@ -57,8 +61,6 @@ public partial class SettingsFileChooserControlContext : ObservableObject
             StatusContext = statusContext ?? new StatusControlContext(),
             RecentSettingFilesNames = recentSettingFiles?.Split("|").ToList() ?? new List<string>()
         };
-
-        context.SetupCommands();
 
         await context.LoadData();
 
@@ -151,11 +153,4 @@ public partial class SettingsFileChooserControlContext : ObservableObject
 
     public event EventHandler<(bool isNew, string userString, List<string> recentFiles)> SettingsFileUpdated;
 
-    private void SetupCommands()
-    {
-        NewFileCommand = StatusContext.RunNonBlockingTaskCommand(NewFile);
-        ChooseFileCommand = StatusContext.RunNonBlockingTaskCommand(ChooseFile);
-        ChooseRecentFileCommand = StatusContext.RunNonBlockingTaskCommand<SettingsFileListItem>(LaunchRecentFile);
-        RemoveSelectedFileCommand = StatusContext.RunNonBlockingTaskCommand<SettingsFileListItem>(RemoveSelectedFile);
-    }
 }

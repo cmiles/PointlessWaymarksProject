@@ -8,15 +8,46 @@
     xmlns:status="clr-namespace:PointlessWaymarks.WpfCommon.Status;assembly=PointlessWaymarks.WpfCommon"
     xmlns:siteViewerGui="clr-namespace:PointlessWaymarks.SiteViewerGui"
     xmlns:ui="http://schemas.modernwpf.com/2019"
+    xmlns:programUpdateMessage="clr-namespace:PointlessWaymarks.WpfCommon.ProgramUpdateMessage;assembly=PointlessWaymarks.WpfCommon"
+    xmlns:windowScreenShot="clr-namespace:PointlessWaymarks.WpfCommon.WindowScreenShot;assembly=PointlessWaymarks.WpfCommon"
+    xmlns:valueConverters="clr-namespace:PointlessWaymarks.WpfCommon.ValueConverters;assembly=PointlessWaymarks.WpfCommon"
     Title="{Binding PreviewContext.WindowTitle}"
     Width="900"
     Height="700"
     Icon="PointlessWaymarksSiteViewerIcon.ico"
     d:DataContext="{d:DesignInstance siteViewerGui:MainWindow}"
     mc:Ignorable="d"
-    ui:WindowHelper.UseModernWindowStyle="True">
+    ui:WindowHelper.UseModernWindowStyle="True"
+    Name="MainWindowXaml">
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary
+                    Source="/PointlessWaymarks.CmsWpfControls;component/WpfControlsResourceDictionary.xaml" />
+                <ResourceDictionary Source="/PointlessWaymarks.WpfCommon;component/Utility/Icons.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+            <valueConverters:BooleanToVisibilityConverter x:Key="BooleanToVisibility" />
+        </ResourceDictionary>
+    </Window.Resources>
     <Grid>
         <sitePreview:SitePreviewControl DataContext="{Binding PreviewContext}" />
+        <siteViewerGui:ProjectChooserControl
+            HorizontalAlignment="Stretch"
+            VerticalAlignment="Stretch"
+            HorizontalContentAlignment="Center"
+            VerticalContentAlignment="Center"
+            d:IsHidden="True"
+            Background="White"
+            DataContext="{Binding SettingsFileChooser}"
+            Visibility="{Binding DataContext.ShowSettingsFileChooser, Converter={StaticResource BooleanToVisibility}, ElementName=MainWindowXaml}" />
+        <programUpdateMessage:ProgramUpdateMessageControl VerticalAlignment="Top" HorizontalAlignment="Center"
+                                                          Width="400" DataContext="{Binding UpdateMessageContext}" />
+        <windowScreenShot:WindowScreenShotControl
+            Margin="2"
+            Height="26"
+            Width="26"
+            HorizontalAlignment="Left"
+            VerticalAlignment="Bottom" />
         <status:StatusControl
             Grid.Row="0"
             d:IsHidden="true"

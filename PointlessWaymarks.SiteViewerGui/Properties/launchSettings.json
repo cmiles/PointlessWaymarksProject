@@ -1,8 +1,7 @@
 {
   "profiles": {
     "PointlessWaymarks.SiteViewerGui": {
-      "commandName": "Project",
-      "commandLineArgs": "-f D:\\PointlessWaymarks\\GeneratedSite -s PointlessWaymarks -u pointlesswaymarks.com"
+      "commandName": "Project"
     }
   }
 }

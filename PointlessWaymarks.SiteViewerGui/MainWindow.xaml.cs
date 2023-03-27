@@ -1,10 +1,16 @@
 ﻿using System.IO;
+using System.Reflection;
 using System.Text.RegularExpressions;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Microsoft.Extensions.Hosting;
+using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsWpfControls.SitePreview;
+using PointlessWaymarks.CommonTools;
+using PointlessWaymarks.WpfCommon.ProgramUpdateMessage;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
+using PointlessWaymarks.WpfCommon.Utility;
+using Serilog;
 
 namespace PointlessWaymarks.SiteViewerGui;
 
@@ -16,36 +22,104 @@ namespace PointlessWaymarks.SiteViewerGui;
 public partial class MainWindow
 #pragma warning restore MVVMTK0033
 {
+    [ObservableProperty] private string _infoTitle;
+    [ObservableProperty] private string _initialPage;
+    [ObservableProperty] private string _localFolder;
     [ObservableProperty] private SitePreviewContext? _previewContext;
+    [ObservableProperty] private string _recentSettingsFilesNames = string.Empty;
+    [ObservableProperty] private ProjectChooserContext? _settingsFileChooser;
+    [ObservableProperty] private bool _showSettingsFileChooser;
+    [ObservableProperty] private string _siteName;
+    [ObservableProperty] private string _siteUrl;
     [ObservableProperty] private StatusControlContext _statusContext;
+    [ObservableProperty] private ProgramUpdateMessageContext _updateMessageContext;
 
-    public MainWindow()
+
+    public MainWindow(string? siteUrl, string? localFolder, string? siteName, string? initialPage)
     {
         InitializeComponent();
 
+        JotServices.Tracker.Configure<MainWindow>().Properties(x => new { x.RecentSettingsFilesNames });
+
+        JotServices.Tracker.Track(this);
+
+        if (Width < 900) Width = 900;
+        if (Height < 650) Height = 650;
+
+        WindowInitialPositionHelpers.EnsureWindowIsVisible(this);
+
+        var versionInfo =
+            ProgramInfoTools.StandardAppInformationString(Assembly.GetExecutingAssembly(),
+                "Pointless Waymarks CMS Beta");
+
+        _infoTitle = versionInfo.humanTitleString;
+
         _statusContext = new StatusControlContext { BlockUi = false };
 
+        _siteUrl = siteUrl ?? string.Empty;
+        _initialPage = initialPage ?? string.Empty;
+        _localFolder = localFolder ?? string.Empty;
+        _siteName = siteName ?? string.Empty;
+
         DataContext = this;
+
+        _updateMessageContext = new ProgramUpdateMessageContext();
+
+        if (string.IsNullOrWhiteSpace(localFolder))
+        {
+            ShowSettingsFileChooser = true;
+
+            StatusContext.RunFireAndForgetBlockingTask(async () =>
+            {
+                SettingsFileChooser =
+                    await ProjectChooserContext.CreateInstance(StatusContext, RecentSettingsFilesNames);
+
+                SettingsFileChooser.SettingsFileUpdated += SettingsFileChooserOnSettingsFileUpdatedEvent;
+            });
+        }
+        else
+        {
+            StatusContext.RunFireAndForgetBlockingTask(LoadData);
+        }
     }
 
-    public MainWindow(string siteUrl, string localFolder, string siteName)
+    public async Task CheckForProgramUpdate(string currentDateVersion)
     {
-        InitializeComponent();
+        Log.Information(
+            $"Program Update Check - Current Version {currentDateVersion}, Installer Directory {SiteViewerGuiAppSettings.Default.ProgramUpdateLocation}");
 
-        _statusContext = new StatusControlContext { BlockUi = false };
+        if (string.IsNullOrEmpty(currentDateVersion)) return;
 
-        DataContext = this;
+        var (dateString, setupFile) = ProgramInfoTools.LatestInstaller(
+            SiteViewerGuiAppSettings.Default.ProgramUpdateLocation,
+            "PointlessWaymarksSiteViewerSetup");
 
-        if (string.IsNullOrWhiteSpace(localFolder)) localFolder = Environment.CurrentDirectory;
+        Log.Information(
+            $"Program Update Check - Current Version {currentDateVersion}, Installer Directory {SiteViewerGuiAppSettings.Default.ProgramUpdateLocation}, Installer Date Found {dateString ?? string.Empty}, Setup File Found {setupFile?.FullName ?? string.Empty}");
 
-        if (string.IsNullOrWhiteSpace(siteUrl) || string.IsNullOrWhiteSpace(siteName))
+        if (string.IsNullOrWhiteSpace(dateString) || setupFile is not { Exists: true }) return;
+
+        if (string.Compare(currentDateVersion, dateString, StringComparison.OrdinalIgnoreCase) >= 0) return;
+
+        await UpdateMessageContext.LoadData(currentDateVersion, dateString, setupFile);
+    }
+
+    private async Task LoadData()
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        ShowSettingsFileChooser = false;
+
+        if (string.IsNullOrWhiteSpace(LocalFolder)) LocalFolder = Environment.CurrentDirectory;
+
+        if (string.IsNullOrWhiteSpace(SiteUrl) || string.IsNullOrWhiteSpace(SiteName))
         {
-            var possibleFile = Directory.EnumerateFiles(localFolder, "index.htm*").MinBy(x => x.Length);
+            var possibleFile = Directory.EnumerateFiles(LocalFolder, "index.htm*").MinBy(x => x.Length);
 
             if (!string.IsNullOrWhiteSpace(possibleFile))
             {
-                var urlFound = !string.IsNullOrWhiteSpace(siteUrl);
-                var siteNameFound = !string.IsNullOrWhiteSpace(siteName);
+                var urlFound = !string.IsNullOrWhiteSpace(SiteUrl);
+                var siteNameFound = !string.IsNullOrWhiteSpace(SiteName);
 
                 foreach (var loopLine in File.ReadLines(possibleFile))
                 {
@@ -58,7 +132,7 @@ public partial class MainWindow
                         if (!string.IsNullOrWhiteSpace(urlString))
                         {
                             urlFound = true;
-                            siteUrl = new Uri(urlString).Host;
+                            SiteUrl = new Uri(urlString).Host;
                         }
                     }
 
@@ -71,7 +145,7 @@ public partial class MainWindow
                         if (!string.IsNullOrWhiteSpace(siteNameString))
                         {
                             siteNameFound = true;
-                            siteName = siteNameString;
+                            SiteName = siteNameString;
                         }
                     }
 
@@ -85,7 +159,7 @@ public partial class MainWindow
         var freePort = PreviewServer.FreeTcpPort();
 
         var server = PreviewServer.CreateHostBuilder(
-            siteUrl, localFolder, freePort).Build();
+            SiteUrl, LocalFolder, freePort).Build();
 
         StatusContext.RunFireAndForgetWithToastOnError(async () =>
         {
@@ -93,8 +167,48 @@ public partial class MainWindow
             await server.RunAsync();
         });
 
-        PreviewContext = new SitePreviewContext(siteUrl,
-            localFolder,
-            siteName, $"localhost:{freePort}", StatusContext);
+        PreviewContext = new SitePreviewContext(SiteUrl,
+            LocalFolder,
+            SiteName, $"localhost:{freePort}", StatusContext);
+    }
+
+    private async Task SettingsFileChooserOnSettingsFileUpdated(
+        (bool isNew, string userInput, List<string> fileList) settingReturn)
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (string.IsNullOrWhiteSpace(settingReturn.userInput))
+        {
+            StatusContext.ToastError("Error with Settings File? No name?");
+            return;
+        }
+
+        UserSettingsUtilities.SettingsFileFullName = settingReturn.userInput;
+
+        StatusContext.Progress($"Using {UserSettingsUtilities.SettingsFileFullName}");
+
+        var fileList = settingReturn.fileList;
+
+        if (fileList.Contains(UserSettingsUtilities.SettingsFileFullName))
+            fileList.Remove(UserSettingsUtilities.SettingsFileFullName);
+
+        fileList = new List<string> { UserSettingsUtilities.SettingsFileFullName }.Concat(fileList).ToList();
+
+        if (fileList.Count > 10)
+            fileList = fileList.Take(10).ToList();
+
+        RecentSettingsFilesNames = string.Join("|", fileList);
+
+        LocalFolder = UserSettingsSingleton.CurrentSettings().LocalSiteRootFullDirectory().FullName;
+        SiteUrl = new Uri(UserSettingsSingleton.CurrentSettings().SiteUrl()).Host;
+        SiteName = UserSettingsSingleton.CurrentSettings().SiteName;
+
+        StatusContext.RunFireAndForgetBlockingTask(LoadData);
+    }
+
+    private void SettingsFileChooserOnSettingsFileUpdatedEvent(object? sender,
+        (bool isNew, string userString, List<string> recentFiles) e)
+    {
+        StatusContext.RunFireAndForgetBlockingTask(async () => await SettingsFileChooserOnSettingsFileUpdated(e));
     }
 }
