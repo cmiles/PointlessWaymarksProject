@@ -18,13 +18,15 @@ public partial class ProjectChooserContext : ObservableObject
     [ObservableProperty] private RelayCommand<ProjectFileListItem> _removeSelectedFileCommand;
     [ObservableProperty] private StatusControlContext _statusContext;
 
-    private ProjectChooserContext(StatusControlContext statusContext, ObservableCollection<ProjectFileListItem> items)
+    private ProjectChooserContext(StatusControlContext statusContext, ObservableCollection<ProjectFileListItem> items,
+        List<string> recentFiles)
     {
         _statusContext = statusContext;
         _chooseFileCommand = StatusContext.RunNonBlockingTaskCommand(ChooseFile);
         _chooseRecentFileCommand = StatusContext.RunNonBlockingTaskCommand<ProjectFileListItem>(LaunchRecentFile);
         _removeSelectedFileCommand =
             StatusContext.RunNonBlockingTaskCommand<ProjectFileListItem>(RemoveSelectedFile);
+        _recentSettingFilesNames = recentFiles;
         _items = items;
     }
 
@@ -59,13 +61,15 @@ public partial class ProjectChooserContext : ObservableObject
 
         var factoryContext = statusContext ?? new StatusControlContext();
 
+        var recentFiles = recentSettingFiles?.Split("|").ToList() ?? new List<string>();
+
         await ThreadSwitcher.ResumeForegroundAsync();
 
         var factoryItems = new ObservableCollection<ProjectFileListItem>();
 
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        var context = new ProjectChooserContext(factoryContext, factoryItems);
+        var context = new ProjectChooserContext(factoryContext, factoryItems, recentFiles);
 
         await context.LoadData();
 

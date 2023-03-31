@@ -54,6 +54,8 @@ public partial class MainWindow
 
         _infoTitle = versionInfo.humanTitleString;
 
+        var currentDateVersion = versionInfo.dateVersion;
+
         _statusContext = new StatusControlContext { BlockUi = false };
 
         _siteUrl = siteUrl ?? string.Empty;
@@ -71,6 +73,8 @@ public partial class MainWindow
 
             StatusContext.RunFireAndForgetBlockingTask(async () =>
             {
+                await CheckForProgramUpdate(currentDateVersion);
+
                 SettingsFileChooser =
                     await ProjectChooserContext.CreateInstance(StatusContext, RecentSettingsFilesNames);
 
@@ -79,7 +83,12 @@ public partial class MainWindow
         }
         else
         {
-            StatusContext.RunFireAndForgetBlockingTask(LoadData);
+            StatusContext.RunFireAndForgetBlockingTask(async () =>
+            {
+                await CheckForProgramUpdate(currentDateVersion);
+
+                await LoadData();
+            });
         }
     }
 
