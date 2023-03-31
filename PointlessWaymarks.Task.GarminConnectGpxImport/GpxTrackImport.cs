@@ -11,6 +11,7 @@ using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.FeatureIntersectionTags;
 using PointlessWaymarks.SpatialTools;
+using Polly;
 using Serilog;
 
 namespace PointlessWaymarks.Task.GarminConnectGpxImport;
@@ -194,8 +195,11 @@ public class GpxTrackImport
             Log.Verbose(
                 $"Sending Query to Garmin Connect for From {loopDateSearchRange.startDate} to {loopDateSearchRange.endDate} - {++counter} of {searchDateRanges.Count}");
 
-            var activityList = await client.GetActivitiesByDate(loopDateSearchRange.startDate,
-                loopDateSearchRange.endDate, string.Empty);
+            var garminRetryPolicy = Policy.Handle<Exception>()
+                .WaitAndRetryAsync(3, i => new TimeSpan(0, 0, 0, 10 * i));
+            var activityList = await garminRetryPolicy.ExecuteAsync(async () => await client.GetActivitiesByDate(
+                loopDateSearchRange.startDate,
+                loopDateSearchRange.endDate, string.Empty));
 
             if (activityList.Length == 0)
             {
@@ -377,7 +381,7 @@ public class GpxTrackImport
 
                     var closestSize = mainPhotoInformation.SrcsetImages.MinBy(x => Math.Abs(384 - x.Width));
 
-                    if (closestSize is { File: { }, SiteUrl: { } })
+                    if (closestSize is { File: not null, SiteUrl: not null })
                         notifier.Message(
                             $"{UserSettingsSingleton.CurrentSettings().SiteName} - Line Added: '{lineContent.Title}'",
                             closestSize.SiteUrl);
