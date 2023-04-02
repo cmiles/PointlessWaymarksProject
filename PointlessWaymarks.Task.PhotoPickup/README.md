@@ -1,6 +1,6 @@
 ﻿## Photo Pickup Task
 
-This project creates a commandline program that can be used to automatically add photographs from a folder to a Pointless Waymarks CMS Based Site.
+This project creates a command-line program that can be used to automatically add photographs from a folder to a Pointless Waymarks CMS Based Site.
 
 Used in conjunction with the Windows Task Scheduler this provides a way to have a folder where the photographs are automatically picked up once (or more) a day! And used along with a local folder that syncs to a service like Dropbox it can provide a reasonable way to quickly transfer phone photos to a site.
 

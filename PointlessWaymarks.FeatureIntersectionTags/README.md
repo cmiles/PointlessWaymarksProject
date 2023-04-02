@@ -27,7 +27,7 @@ This program can take advantage of individual GeoJson files - some examples:
 The downside to using PAD-US as local files is that the data files are quite large. To deal with this a specific setup - you will need to create a directory dedicated to the PAD-US data, place the Region Boundaries GeoJson file and Region GeoJson files in this directory and set this directory in the settings as the PadUsDirectory.
   - On the [U.S. Department of the Interior Unified Interior Regional Boundaries](https://www.doi.gov/employees/reorg/unified-regional-boundaries) site find and click the 'shapefiles (for mapping software)' link - this will download a zip file.
   - Extract the contents of the zip file.
-  - Use ogr2ogr (see the general help for information on this commandline program) to convert the data to GeoJson (rough template: \ogr2ogr.exe -f GeoJSON -t_srs crs:84 {path and name for destination GeoJson file} {path and name of the shapefile to convert}).
+  - Use ogr2ogr (see the general help for information on this command-line program) to convert the data to GeoJson (rough template: \ogr2ogr.exe -f GeoJSON -t_srs crs:84 {path and name for destination GeoJson file} {path and name of the shapefile to convert}).
   - Put the GeoJson output file into your PAD-US data directory
   - [PAD-US 3.0 Download data by Department of the Interior (DOI) Region GeoJSON - ScienceBase-Catalog](https://www.sciencebase.gov/catalog/item/622256afd34ee0c6b38b6bb7) - from this page click the 'Download data by Department of the Interior (DOI) Region GeoJSON' link, this will take you to a page where you can download any regions you are interested in. For each region:
   - Extract the zip file and place the GeoJson file in your PAD-US data directory
@@ -38,7 +38,7 @@ The downside to using PAD-US as local files is that the data files are quite lar
 
 This program works exclusively with GeoJson files - if a data source you are interested in doesn't offer a GeoJson download a Shapefile download will almost certainly be offered. On Windows a great way to deal with this is to:
  - Install [QGIS](https://www.qgis.org/en/site/) - QGIS offers the ability to open a Shapefile as a Vector Layer and then export it as GeoJson
- - Installing QGIS also install a number of other tools and it may be easier to use the commandline to transform a Shapefile to GeoJson - find the QGIS bin folder (for example C:\Program Files\QGIS 3.16\bin\) and then run .\ogr2ogr.exe -f GeoJSON -t_srs crs:84 {path and name for destination GeoJson file} {path and name of the shapefile to convert}
+ - Installing QGIS also install a number of other tools and it may be easier to use the command line to transform a Shapefile to GeoJson - find the QGIS bin folder (for example C:\Program Files\QGIS 3.16\bin\) and then run .\ogr2ogr.exe -f GeoJSON -t_srs crs:84 {path and name for destination GeoJson file} {path and name of the shapefile to convert}
  - If working directly in QGIS be careful of the CRS - best is to convert your layer/project to EPS 4326 before exporting GeoJson.
 
 
