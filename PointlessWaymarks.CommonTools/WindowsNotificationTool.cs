@@ -34,7 +34,8 @@ public class WindowsNotificationTool
     }
 
     /// <summary>
-    ///     Determines the Program Name that appears in the Windows Notification
+    ///     Determines the Program Name that appears in the Windows Notification -
+    /// the default is "Pointless Waymarks Project"
     /// </summary>
     public string Attribution { get; set; } = "Pointless Waymarks Project";
 

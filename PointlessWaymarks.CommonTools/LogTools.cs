@@ -7,7 +7,7 @@ public static class LogTools
 {
     public static LoggerConfiguration LogToConsole(this LoggerConfiguration toConfigure)
     {
-        return new LoggerConfiguration().MinimumLevel.Verbose().WriteTo.Console();
+        return toConfigure.MinimumLevel.Verbose().WriteTo.Console();
     }
 
     public static LoggerConfiguration LogToFileInDefaultLogDirectory(this LoggerConfiguration toConfigure,
@@ -15,7 +15,7 @@ public static class LogTools
     {
         var programDirectory = AppContext.BaseDirectory;
 
-        return new LoggerConfiguration().MinimumLevel.Verbose().WriteTo.File(new CompactJsonFormatter(),
+        return toConfigure.MinimumLevel.Verbose().WriteTo.File(new CompactJsonFormatter(),
             Path.Combine(programDirectory, $"{fileNameFragment}-Log.json"), rollingInterval: RollingInterval.Day,
             retainedFileCountLimit: 30);
     }
@@ -25,7 +25,7 @@ public static class LogTools
     {
         var programDirectory = AppContext.BaseDirectory;
 
-        return new LoggerConfiguration().MinimumLevel.Verbose().WriteTo.File(new CompactJsonFormatter(),
+        return toConfigure.MinimumLevel.Verbose().WriteTo.File(new CompactJsonFormatter(),
             Path.Combine(programDirectory, $"1_Log-{fileNameFragment}.json"), rollingInterval: RollingInterval.Day,
             retainedFileCountLimit: 30);
     }

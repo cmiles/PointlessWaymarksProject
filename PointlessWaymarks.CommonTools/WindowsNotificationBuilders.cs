@@ -80,7 +80,7 @@ public static class WindowsNotificationBuilders
     }
 
     /// <summary>
-    /// Sets the 
+    /// Sets the Logo for the notification to the circular automation logo
     /// </summary>
     /// <param name="toEdit"></param>
     /// <returns></returns>
