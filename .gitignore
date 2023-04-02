@@ -355,3 +355,5 @@ PointlessWaymarks.Task.MemoriesEmail/Properties/launchSettings.json
 /PointlessWaymarks.Task.PhotoPickup/PointlessWaymarks.Task.PhotoPickup.args.json
 /PointlessWaymarks.Task.PublishSiteToAmazonS3/PointlessWaymarks.Task.PublishSiteToAmazonS3.args.json
 *.TaskCanvasSL
+PointlessWaymarks.Task.PublishSiteToAmazonS3/Properties/launchSettings.json
+PointlessWaymarks.Task.PublishSiteToAmazonS3/PointlessWaymarks.Task.PublishSiteToAmazonS3.args.json

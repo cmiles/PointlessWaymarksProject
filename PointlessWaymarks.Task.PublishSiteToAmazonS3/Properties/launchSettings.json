@@ -1,8 +1,0 @@
-{
-  "profiles": {
-    "PointlessWaymarks.Task.PublishSiteToAmazonS3": {
-      "commandName": "Project",
-      "commandLineArgs": "D:\\SomewherePointlessWaymarks\\SomweherePublishSiteToS3Settings.json"
-    }
-  }
-}
