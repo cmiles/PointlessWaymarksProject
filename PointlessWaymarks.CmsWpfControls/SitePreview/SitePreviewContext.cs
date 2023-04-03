@@ -1,7 +1,7 @@
 ﻿using System.Windows;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Microsoft.Web.WebView2.Wpf;
+using Microsoft.Web.WebView2.Core;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
@@ -14,6 +14,7 @@ public partial class SitePreviewContext : DependencyObject
     [ObservableProperty] private string _currentAddress;
     [ObservableProperty] private string _initialPage;
     [ObservableProperty] private string _localSiteFolder;
+    [ObservableProperty] private Action<CoreWebView2NewWindowRequestedEventArgs>? _newWindowRequestedAction;
     [ObservableProperty] private string _previewServerHost;
     [ObservableProperty] private string _siteName;
     [ObservableProperty] private string _siteUrl;
@@ -24,11 +25,11 @@ public partial class SitePreviewContext : DependencyObject
     [ObservableProperty] private RelayCommand _tryNavigateHomeCommand;
     [ObservableProperty] private RelayCommand _tryRefreshCommand;
     [ObservableProperty] private RelayCommand _tryUserNavigationCommand;
-    [ObservableProperty] private WebView2? _webViewGui;
+    [ObservableProperty] private SitePreviewControl? _webViewGui;
     [ObservableProperty] private string _windowTitle;
 
     public SitePreviewContext(string siteUrl, string localSiteFolder, string siteName, string previewServerHost,
-        StatusControlContext? statusContext)
+        StatusControlContext? statusContext, string initialPage = "")
     {
         _statusContext = statusContext ?? new StatusControlContext();
         _siteUrl = siteUrl;
@@ -36,7 +37,7 @@ public partial class SitePreviewContext : DependencyObject
         _siteName = siteName;
         _previewServerHost = previewServerHost;
 
-        _initialPage = string.IsNullOrEmpty(InitialPage) ? $"http://{previewServerHost}/index.html" : InitialPage;
+        _initialPage = string.IsNullOrEmpty(initialPage) ? $"http://{previewServerHost}/index.html" : initialPage;
 
         _windowTitle = string.IsNullOrWhiteSpace(SiteName)
             ? $"Preview - {LocalSiteFolder} is mapped to {SiteUrl}"
@@ -54,30 +55,33 @@ public partial class SitePreviewContext : DependencyObject
     private async Task TryGoBackNavigation()
     {
         await ThreadSwitcher.ResumeForegroundAsync();
-        if (WebViewGui?.CoreWebView2.CanGoBack ?? false) WebViewGui.CoreWebView2.GoBack();
+        if (WebViewGui?.SitePreviewWebView.CoreWebView2.CanGoBack ?? false)
+            WebViewGui.SitePreviewWebView.CoreWebView2.GoBack();
     }
 
     private async Task TryGoForwardNavigation()
     {
         await ThreadSwitcher.ResumeForegroundAsync();
-        if (WebViewGui?.CoreWebView2.CanGoForward ?? false) WebViewGui.CoreWebView2.GoForward();
+        if (WebViewGui?.SitePreviewWebView.CoreWebView2.CanGoForward ?? false)
+            WebViewGui.SitePreviewWebView.CoreWebView2.GoForward();
     }
 
     private async Task TryNavigateHome()
     {
         await ThreadSwitcher.ResumeForegroundAsync();
-        WebViewGui?.CoreWebView2.Navigate(InitialPage);
+        WebViewGui?.SitePreviewWebView.CoreWebView2.Navigate(InitialPage);
     }
 
     private async Task TryRefresh()
     {
         await ThreadSwitcher.ResumeForegroundAsync();
-        WebViewGui?.CoreWebView2.Reload();
+        WebViewGui?.SitePreviewWebView.CoreWebView2.Reload();
     }
 
     private async Task TryUserNavigation()
     {
         await ThreadSwitcher.ResumeForegroundAsync();
-        WebViewGui?.CoreWebView2.Navigate($"http://{StringTools.UrlCombine(SiteUrl, TextBarAddress ?? string.Empty)}");
+        WebViewGui?.SitePreviewWebView.CoreWebView2.Navigate(
+            $"http://{StringTools.UrlCombine(SiteUrl, TextBarAddress ?? string.Empty)}");
     }
 }

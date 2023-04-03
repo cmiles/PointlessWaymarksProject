@@ -102,7 +102,7 @@
             <wpf:WebView2
                 x:Name="SitePreviewWebView"
                 Margin="4"
-                NavigationStarting="SitePreviewWebView_OnNavigationStarting" />
+                NavigationStarting="SitePreviewWebView_OnNavigationStarting"/>
         </Border>
     </Grid>
 </UserControl>

@@ -22,6 +22,11 @@ public partial class SitePreviewControl
         DataContext = PreviewContext;
     }
 
+    private void CoreWebView2_NewWindowRequested(object? sender, CoreWebView2NewWindowRequestedEventArgs e)
+    {
+        PreviewContext?.NewWindowRequestedAction?.Invoke(e);
+    }
+
     private async void InitializeAsync()
     {
         //if (!_loaded)
@@ -35,8 +40,9 @@ public partial class SitePreviewControl
         await ThreadSwitcher.ResumeForegroundAsync();
         // Note this waits until the first page is navigated!
         await SitePreviewWebView.EnsureCoreWebView2Async(env);
-
         SitePreviewWebView.CoreWebView2.Navigate(PreviewContext.InitialPage);
+        SitePreviewWebView.CoreWebView2.NewWindowRequested += CoreWebView2_NewWindowRequested;
+
         //}
     }
 
@@ -50,7 +56,7 @@ public partial class SitePreviewControl
         if (e.NewValue is SitePreviewContext context)
         {
             PreviewContext = context;
-            context.WebViewGui = SitePreviewWebView;
+            context.WebViewGui = this;
             LoadData();
         }
     }

@@ -11,6 +11,7 @@
     xmlns:programUpdateMessage="clr-namespace:PointlessWaymarks.WpfCommon.ProgramUpdateMessage;assembly=PointlessWaymarks.WpfCommon"
     xmlns:windowScreenShot="clr-namespace:PointlessWaymarks.WpfCommon.WindowScreenShot;assembly=PointlessWaymarks.WpfCommon"
     xmlns:valueConverters="clr-namespace:PointlessWaymarks.WpfCommon.ValueConverters;assembly=PointlessWaymarks.WpfCommon"
+    xmlns:dragablz="http://dragablz.net/winfx/xaml/dragablz"
     Title="{Binding PreviewContext.WindowTitle}"
     Width="900"
     Height="700"
@@ -25,12 +26,18 @@
                 <ResourceDictionary
                     Source="/PointlessWaymarks.CmsWpfControls;component/WpfControlsResourceDictionary.xaml" />
                 <ResourceDictionary Source="/PointlessWaymarks.WpfCommon;component/Utility/Icons.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/Dragablz;component/Themes/Generic.xaml" />
             </ResourceDictionary.MergedDictionaries>
             <valueConverters:BooleanToVisibilityConverter x:Key="BooleanToVisibility" />
         </ResourceDictionary>
     </Window.Resources>
     <Grid>
-        <sitePreview:SitePreviewControl DataContext="{Binding PreviewContext}" />
+        <dragablz:TabablzControl Margin="8" FixedHeaderCount="1" Name="ViewTabs" ShowDefaultAddButton="True" NewItemFactory="{Binding NewTab}" ShowDefaultCloseButton="True" ItemContainerStyle="{StaticResource TrapezoidDragableTabItemStyle}">
+            <TabItem Header="{Binding PreviewContext.SiteName}" IsSelected="True">
+                <sitePreview:SitePreviewControl DataContext="{Binding PreviewContext}" />
+            </TabItem>
+        </dragablz:TabablzControl>
+
         <siteViewerGui:ProjectChooserControl
             HorizontalAlignment="Stretch"
             VerticalAlignment="Stretch"

@@ -1,8 +1,10 @@
 ﻿using System.IO;
 using System.Reflection;
 using System.Text.RegularExpressions;
+using System.Windows.Controls;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Web.WebView2.Core;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsWpfControls.SitePreview;
 using PointlessWaymarks.CommonTools;
@@ -25,7 +27,9 @@ public partial class MainWindow
     [ObservableProperty] private string _infoTitle;
     [ObservableProperty] private string _initialPage;
     [ObservableProperty] private string _localFolder;
+    [ObservableProperty] private Func<object> _newTab;
     [ObservableProperty] private SitePreviewContext? _previewContext;
+    [ObservableProperty] private string _previewServerHost = string.Empty;
     [ObservableProperty] private string _recentSettingsFilesNames = string.Empty;
     [ObservableProperty] private ProjectChooserContext? _settingsFileChooser;
     [ObservableProperty] private bool _showSettingsFileChooser;
@@ -64,6 +68,8 @@ public partial class MainWindow
         _siteName = siteName ?? string.Empty;
 
         DataContext = this;
+
+        _newTab = NewTabFunction;
 
         _updateMessageContext = new ProgramUpdateMessageContext();
 
@@ -176,9 +182,70 @@ public partial class MainWindow
             await server.RunAsync();
         });
 
+        PreviewServerHost = $"localhost:{freePort}";
+
         PreviewContext = new SitePreviewContext(SiteUrl,
             LocalFolder,
-            SiteName, $"localhost:{freePort}", StatusContext);
+            SiteName, PreviewServerHost, StatusContext);
+
+        PreviewContext.NewWindowRequestedAction = NewWindowRequestedAction;
+    }
+
+    private async Task NewAdditionalTab(string initialAddress)
+    {
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        var newTabContext = new SitePreviewContext(SiteUrl,
+            LocalFolder,
+            SiteName, PreviewServerHost, StatusContext, initialAddress);
+
+        newTabContext.NewWindowRequestedAction = NewWindowRequestedAction;
+
+        var newSitePreviewControl = new SitePreviewControl
+        {
+            DataContext = newTabContext
+        };
+
+        var newTab = new TabItem
+        {
+            Header = SiteName,
+            Content = newSitePreviewControl
+        };
+
+        ViewTabs.AddToSource(newTab);
+        ViewTabs.SelectedItem = newTab;
+    }
+
+    public object NewTabFunction()
+    {
+        var newPreviewDataContext = new SitePreviewContext(SiteUrl,
+            LocalFolder,
+            SiteName, PreviewServerHost, StatusContext);
+        var newPreviewControl = new SitePreviewControl { DataContext = newPreviewDataContext };
+
+        var newTab = new TabItem
+        {
+            Header = SiteName,
+            Content = newPreviewControl
+        };
+
+        return newTab;
+    }
+
+    private async void NewWindowRequestedAction(CoreWebView2NewWindowRequestedEventArgs navigationArgs)
+    {
+        if (string.IsNullOrWhiteSpace(navigationArgs?.Uri)) return;
+
+        if (navigationArgs.Uri.Contains(SiteUrl) || navigationArgs.Uri.Contains(PreviewServerHost))
+        {
+            await ThreadSwitcher.ResumeForegroundAsync();
+
+            navigationArgs.Handled = true;
+
+            var uri = navigationArgs.Uri;
+
+            StatusContext.RunFireAndForgetBlockingTask(async () => await NewAdditionalTab(uri));
+        }
     }
 
     private async Task SettingsFileChooserOnSettingsFileUpdated(
