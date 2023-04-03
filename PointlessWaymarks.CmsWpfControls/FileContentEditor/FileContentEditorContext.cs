@@ -202,7 +202,7 @@ Notes:
         if (UserMainPictureEntry is { HasValidationIssues: false, UserValue: { } })
             return UserMainPictureEntry.UserValue;
 
-        return BracketCodeCommon.PhotoOrImageCodeFirstIdInContent(BodyContent.UserBodyContent);
+        return BracketCodeCommon.PhotoOrImageCodeFirstIdInContent(BodyContent?.UserBodyContent);
     }
 
     public FileContent CurrentStateToFileContent()
