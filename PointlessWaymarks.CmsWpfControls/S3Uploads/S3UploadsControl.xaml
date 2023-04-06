@@ -324,7 +324,12 @@
                             <RowDefinition></RowDefinition>
                         </Grid.RowDefinitions>
                         <TextBlock TextWrapping="Wrap">There were upload errors in this batch! To see the errors you can clear the successfully upload files and/or try again. The menu above has options to save information about these uploads.</TextBlock>
-                        <WrapPanel Grid.Row="1">
+                        <WrapPanel Grid.Row="1" HorizontalAlignment="Center">
+                            <WrapPanel.Resources>
+                                <Style TargetType="Button">
+                                    <Setter Property="Width" Value="180" />
+                                </Style>
+                            </WrapPanel.Resources>
                             <Button Command="{Binding ClearUploadedCommand}">Clear Successful Uploads</Button>
                             <Button Command="{Binding StartFailedUploadsCommand}">Retry Failed Uploads</Button>
                         </WrapPanel>

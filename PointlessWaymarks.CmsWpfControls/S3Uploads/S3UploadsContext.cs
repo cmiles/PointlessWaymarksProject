@@ -291,7 +291,7 @@ public partial class S3UploadsContext : ObservableObject
 
         if (Items == null) return;
 
-        var toRetry = Items.Where(x => x is { HasError: false, Completed: true }).ToList();
+        var toRetry = Items.Where(x => x is { HasError: true }).ToList();
 
         UploadBatch = await S3UploadsUploadBatch.CreateInstance(toRetry);
         UploadBatch.PropertyChanged += UploadBatchOnPropertyChanged;
