@@ -12,6 +12,7 @@ namespace PointlessWaymarks.CmsWpfControls.SitePreview;
 public partial class SitePreviewContext : DependencyObject
 {
     [ObservableProperty] private string _currentAddress;
+    [ObservableProperty] private string _currentDocumentTitle = string.Empty;
     [ObservableProperty] private string _initialPage;
     [ObservableProperty] private string _localSiteFolder;
     [ObservableProperty] private Action<CoreWebView2NewWindowRequestedEventArgs>? _newWindowRequestedAction;

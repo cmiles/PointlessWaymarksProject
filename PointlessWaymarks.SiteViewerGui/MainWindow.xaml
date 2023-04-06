@@ -33,7 +33,7 @@
     </Window.Resources>
     <Grid>
         <dragablz:TabablzControl Margin="8" FixedHeaderCount="1" Name="ViewTabs" ShowDefaultAddButton="True" NewItemFactory="{Binding NewTab}" ShowDefaultCloseButton="True" ItemContainerStyle="{StaticResource TrapezoidDragableTabItemStyle}">
-            <TabItem Header="{Binding PreviewContext.SiteName}" IsSelected="True">
+            <TabItem Header="{Binding PreviewContext.CurrentDocumentTitle}" IsSelected="True">
                 <sitePreview:SitePreviewControl DataContext="{Binding PreviewContext}" />
             </TabItem>
         </dragablz:TabablzControl>

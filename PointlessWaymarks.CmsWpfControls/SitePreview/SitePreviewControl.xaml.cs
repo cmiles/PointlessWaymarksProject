@@ -2,6 +2,7 @@
 using System.Windows;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Microsoft.Web.WebView2.Core;
+using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 using PointlessWaymarks.WpfCommon.Utility;
 
@@ -27,12 +28,13 @@ public partial class SitePreviewControl
         PreviewContext?.NewWindowRequestedAction?.Invoke(e);
     }
 
+    private void CoreWebView2OnNavigationCompleted(object? sender, CoreWebView2NavigationCompletedEventArgs e)
+    {
+        PreviewContext.CurrentDocumentTitle = SitePreviewWebView.CoreWebView2.DocumentTitle.TruncateWithEllipses(24);
+    }
+
     private async void InitializeAsync()
     {
-        //if (!_loaded)
-        //{
-        //    _loaded = true;
-
         // must create a data folder if running out of a secured folder that can't write like Program Files
         var env = await CoreWebView2Environment.CreateAsync(userDataFolder: Path.Combine(Path.GetTempPath(),
             "PointWaymarksCms_SitePreviewBrowserData"));
@@ -42,8 +44,7 @@ public partial class SitePreviewControl
         await SitePreviewWebView.EnsureCoreWebView2Async(env);
         SitePreviewWebView.CoreWebView2.Navigate(PreviewContext.InitialPage);
         SitePreviewWebView.CoreWebView2.NewWindowRequested += CoreWebView2_NewWindowRequested;
-
-        //}
+        SitePreviewWebView.CoreWebView2.NavigationCompleted += CoreWebView2OnNavigationCompleted;
     }
 
     public void LoadData()

@@ -117,9 +117,9 @@ public static class StringTools
     public static string? ReplaceFirst(this string? text, string search, string replace)
     {
         if (text == null) return null;
-        
+
         var length = text.IndexOf(search, StringComparison.Ordinal);
-        
+
         return length < 0 ? text : text[..length] + replace + text[(length + search.Length)..];
     }
 
@@ -173,6 +173,20 @@ public static class StringTools
     {
         if (string.IsNullOrEmpty(value) || maxLength < 1) return string.Empty;
         return value.Length <= maxLength ? value : value[..maxLength];
+    }
+
+    /// <summary>
+    ///     Truncates a string if it exceeds a maximum length - null inputs and maxLengths less than
+    ///     1 return empty strings.
+    /// </summary>
+    /// <param name="value"></param>
+    /// <param name="maxLength"></param>
+    /// <returns></returns>
+    public static string TruncateWithEllipses(this string? value, int maxLength)
+    {
+        if (string.IsNullOrEmpty(value) || maxLength < 1) return string.Empty;
+        if (value.Length <= maxLength) return value;
+        return maxLength <= 2 ? value[..maxLength] : $"{value[..(maxLength - 3)]}...";
     }
 
     /// <summary>

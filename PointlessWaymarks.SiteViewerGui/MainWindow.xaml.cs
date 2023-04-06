@@ -1,7 +1,9 @@
 ﻿using System.IO;
 using System.Reflection;
 using System.Text.RegularExpressions;
+using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Web.WebView2.Core;
@@ -206,11 +208,19 @@ public partial class MainWindow
             DataContext = newTabContext
         };
 
+        var myBinding = new Binding
+        {
+            Source = newTabContext,
+            Path = new PropertyPath("CurrentDocumentTitle"),
+            UpdateSourceTrigger = UpdateSourceTrigger.PropertyChanged
+        };
+
         var newTab = new TabItem
         {
-            Header = SiteName,
             Content = newSitePreviewControl
         };
+
+        BindingOperations.SetBinding(newTab, HeaderedContentControl.HeaderProperty, myBinding);
 
         ViewTabs.AddToSource(newTab);
         ViewTabs.SelectedItem = newTab;
@@ -234,7 +244,7 @@ public partial class MainWindow
 
     private async void NewWindowRequestedAction(CoreWebView2NewWindowRequestedEventArgs navigationArgs)
     {
-        if (string.IsNullOrWhiteSpace(navigationArgs?.Uri)) return;
+        if (string.IsNullOrWhiteSpace(navigationArgs.Uri)) return;
 
         if (navigationArgs.Uri.Contains(SiteUrl) || navigationArgs.Uri.Contains(PreviewServerHost))
         {
