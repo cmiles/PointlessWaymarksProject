@@ -16,6 +16,6 @@ public partial class App
 
         var options = (optionsResult as Parsed<CommandLineOptions>)?.Value;
 
-        new MainWindow(options?.Url, options?.Folder, options?.SiteName, null).Show();
+        new MainWindow(options?.Folder, options?.Url,  options?.SiteName, null).Show();
     }
 }

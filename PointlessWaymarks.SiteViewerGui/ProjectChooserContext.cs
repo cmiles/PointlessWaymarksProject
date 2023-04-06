@@ -11,10 +11,11 @@ namespace PointlessWaymarks.SiteViewerGui;
 
 public partial class ProjectChooserContext : ObservableObject
 {
+    [ObservableProperty] private RelayCommand _chooseDirectoryCommand;
     [ObservableProperty] private RelayCommand _chooseFileCommand;
     [ObservableProperty] private RelayCommand<ProjectFileListItem> _chooseRecentFileCommand;
     [ObservableProperty] private ObservableCollection<ProjectFileListItem> _items;
-    [ObservableProperty] private List<string> _recentSettingFilesNames = new();
+    [ObservableProperty] private List<string> _recentSettingFilesNames;
     [ObservableProperty] private RelayCommand<ProjectFileListItem> _removeSelectedFileCommand;
     [ObservableProperty] private StatusControlContext _statusContext;
 
@@ -23,11 +24,36 @@ public partial class ProjectChooserContext : ObservableObject
     {
         _statusContext = statusContext;
         _chooseFileCommand = StatusContext.RunNonBlockingTaskCommand(ChooseFile);
+        _chooseDirectoryCommand = StatusContext.RunBlockingTaskCommand(ChooseDirectory);
         _chooseRecentFileCommand = StatusContext.RunNonBlockingTaskCommand<ProjectFileListItem>(LaunchRecentFile);
         _removeSelectedFileCommand =
             StatusContext.RunNonBlockingTaskCommand<ProjectFileListItem>(RemoveSelectedFile);
         _recentSettingFilesNames = recentFiles;
         _items = items;
+    }
+
+    private async Task ChooseDirectory()
+    {
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        var directoryPicker = new VistaFolderBrowserDialog();
+
+        var result = directoryPicker.ShowDialog();
+
+        if (!result ?? false) return;
+
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        var possibleDirectory = new DirectoryInfo(directoryPicker.SelectedPath);
+
+        if (!possibleDirectory.Exists)
+        {
+            StatusContext.ToastError("Directory doesn't exist?");
+            return;
+        }
+
+        DirectoryUpdated?.Invoke(this,
+            (possibleDirectory.FullName, Items.Select(x => x.SettingsFile.FullName).ToList()));
     }
 
     private async Task ChooseFile()
@@ -51,7 +77,7 @@ public partial class ProjectChooserContext : ObservableObject
         }
 
         SettingsFileUpdated?.Invoke(this,
-            (false, possibleFile.FullName, Items.Select(x => x.SettingsFile.FullName).ToList()));
+            (possibleFile.FullName, Items.Select(x => x.SettingsFile.FullName).ToList()));
     }
 
     public static async Task<ProjectChooserContext> CreateInstance(StatusControlContext? statusContext,
@@ -76,6 +102,8 @@ public partial class ProjectChooserContext : ObservableObject
         return context;
     }
 
+    public event EventHandler<(string userString, List<string> recentFiles)>? DirectoryUpdated;
+
     private async Task LaunchRecentFile(ProjectFileListItem? projectFileListItem)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -95,7 +123,7 @@ public partial class ProjectChooserContext : ObservableObject
         }
 
         SettingsFileUpdated?.Invoke(this,
-            (false, projectFileListItem.SettingsFile.FullName,
+            (projectFileListItem.SettingsFile.FullName,
                 Items.Select(x => x.SettingsFile.FullName).ToList()));
     }
 
@@ -145,5 +173,5 @@ public partial class ProjectChooserContext : ObservableObject
         Items.Remove(projectFileListItem);
     }
 
-    public event EventHandler<(bool isNew, string userString, List<string> recentFiles)>? SettingsFileUpdated;
+    public event EventHandler<(string userString, List<string> recentFiles)>? SettingsFileUpdated;
 }

@@ -41,7 +41,7 @@ public partial class MainWindow
     [ObservableProperty] private ProgramUpdateMessageContext _updateMessageContext;
 
 
-    public MainWindow(string? siteUrl, string? localFolder, string? siteName, string? initialPage)
+    public MainWindow(string? localFolder, string? siteUrl, string? siteName, string? initialPage)
     {
         InitializeComponent();
 
@@ -87,6 +87,7 @@ public partial class MainWindow
                     await ProjectChooserContext.CreateInstance(StatusContext, RecentSettingsFilesNames);
 
                 SettingsFileChooser.SettingsFileUpdated += SettingsFileChooserOnSettingsFileUpdatedEvent;
+                SettingsFileChooser.DirectoryUpdated += SettingsFileChooserOnDirectoryUpdatedEvent;
             });
         }
         else
@@ -99,6 +100,7 @@ public partial class MainWindow
             });
         }
     }
+
 
     public async Task CheckForProgramUpdate(string currentDateVersion)
     {
@@ -143,7 +145,7 @@ public partial class MainWindow
                     if (!urlFound)
                     {
                         var urlString = Regex
-                            .Match(loopLine, "<meta property=\"og:url\" content=\"(?<contentUrl>.*)\">",
+                            .Match(loopLine, "<meta property=\"og:url\" content=\"(?<contentUrl>.*)\"",
                                 RegexOptions.IgnoreCase).Groups["contentUrl"].Value;
 
                         if (!string.IsNullOrWhiteSpace(urlString))
@@ -156,7 +158,7 @@ public partial class MainWindow
                     if (!siteNameFound)
                     {
                         var siteNameString = Regex.Match(loopLine,
-                            "<meta property=\"og:site_name\" content=\"(?<contentUrl>.*)\">",
+                            "<meta property=\"og:site_name\" content=\"(?<contentUrl>.*)\"",
                             RegexOptions.IgnoreCase).Groups["contentUrl"].Value;
 
                         if (!string.IsNullOrWhiteSpace(siteNameString))
@@ -193,13 +195,23 @@ public partial class MainWindow
         PreviewContext.NewWindowRequestedAction = NewWindowRequestedAction;
     }
 
-    private async Task NewAdditionalTab(string initialAddress)
+    private async Task NewAdditionalTab(string requestedAddress)
+    {
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        var newTab = await NewTabFromAddress(requestedAddress);
+
+        ViewTabs.AddToSource(newTab);
+        ViewTabs.SelectedItem = newTab;
+    }
+
+    private async Task<TabItem> NewTabFromAddress(string requestedAddress)
     {
         await ThreadSwitcher.ResumeForegroundAsync();
 
         var newTabContext = new SitePreviewContext(SiteUrl,
             LocalFolder,
-            SiteName, PreviewServerHost, StatusContext, initialAddress);
+            SiteName, PreviewServerHost, StatusContext, requestedAddress);
 
         newTabContext.NewWindowRequestedAction = NewWindowRequestedAction;
 
@@ -222,24 +234,12 @@ public partial class MainWindow
 
         BindingOperations.SetBinding(newTab, HeaderedContentControl.HeaderProperty, myBinding);
 
-        ViewTabs.AddToSource(newTab);
-        ViewTabs.SelectedItem = newTab;
+        return newTab;
     }
 
     public object NewTabFunction()
     {
-        var newPreviewDataContext = new SitePreviewContext(SiteUrl,
-            LocalFolder,
-            SiteName, PreviewServerHost, StatusContext);
-        var newPreviewControl = new SitePreviewControl { DataContext = newPreviewDataContext };
-
-        var newTab = new TabItem
-        {
-            Header = SiteName,
-            Content = newPreviewControl
-        };
-
-        return newTab;
+        return NewTabFromAddress($"http://{SiteUrl}").Result;
     }
 
     private async void NewWindowRequestedAction(CoreWebView2NewWindowRequestedEventArgs navigationArgs)
@@ -258,8 +258,31 @@ public partial class MainWindow
         }
     }
 
+    private async Task SettingsFileChooserOnDirectoryUpdated(
+        (string userInput, List<string> fileList) settingReturn)
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (string.IsNullOrWhiteSpace(settingReturn.userInput))
+        {
+            StatusContext.ToastError("Error with Directory? No name?");
+            return;
+        }
+
+        LocalFolder = settingReturn.userInput;
+
+        StatusContext.RunFireAndForgetBlockingTask(LoadData);
+    }
+
+
+    private void SettingsFileChooserOnDirectoryUpdatedEvent(object? sender,
+        (string userString, List<string> recentFiles) e)
+    {
+        StatusContext.RunFireAndForgetBlockingTask(async () => await SettingsFileChooserOnDirectoryUpdated(e));
+    }
+
     private async Task SettingsFileChooserOnSettingsFileUpdated(
-        (bool isNew, string userInput, List<string> fileList) settingReturn)
+        (string userInput, List<string> fileList) settingReturn)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -293,7 +316,7 @@ public partial class MainWindow
     }
 
     private void SettingsFileChooserOnSettingsFileUpdatedEvent(object? sender,
-        (bool isNew, string userString, List<string> recentFiles) e)
+        (string userString, List<string> recentFiles) e)
     {
         StatusContext.RunFireAndForgetBlockingTask(async () => await SettingsFileChooserOnSettingsFileUpdated(e));
     }
