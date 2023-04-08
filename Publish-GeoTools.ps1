@@ -19,6 +19,8 @@ if ($lastexitcode -ne 0) { throw ("Exec: " + $errorMessage) }
 $publishPath = "M:\PointlessWaymarksPublications\PointlessWaymarks.GeoToolsGui"
 if(!(test-path -PathType container $publishPath)) { New-Item -ItemType Directory -Path $publishPath }
 
+Remove-Item -Path $publishPath\* -Recurse
+
 & $msBuild .\PointlessWaymarks.GeoToolsGui\PointlessWaymarks.GeoToolsGui.csproj -t:publish -p:PublishProfile=.\PointlessWaymarks.GeoToolsGui\Properties\PublishProfile\FolderProfile.pubxml -verbosity:minimal
 
 if ($lastexitcode -ne 0) { throw ("Exec: " + $errorMessage) }

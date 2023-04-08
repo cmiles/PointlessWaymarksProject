@@ -20,6 +20,8 @@ if ($lastexitcode -ne 0) { throw ("Exec: " + $errorMessage) }
 $publishPath = "M:\PointlessWaymarksPublications\PointlessWaymarks.Task.GarminConnectGpxImport"
 if(!(test-path -PathType container $publishPath)) { New-Item -ItemType Directory -Path $publishPath }
 
+Remove-Item -Path $publishPath\* -Recurse
+
 & $msBuild .\PointlessWaymarks.Task.GarminConnectGpxImport\PointlessWaymarks.Task.GarminConnectGpxImport.csproj -t:publish -p:PublishProfile=.\PointlessWaymarks.GeoToolsGui\Properties\PublishProfile\FolderProfile.pubxml -verbosity:minimal
 
 if ($lastexitcode -ne 0) { throw ("Exec: " + $errorMessage) }
@@ -27,6 +29,8 @@ if ($lastexitcode -ne 0) { throw ("Exec: " + $errorMessage) }
 
 $publishPath = "M:\PointlessWaymarksPublications\PointlessWaymarks.Task.MemoriesEmail"
 if(!(test-path -PathType container $publishPath)) { New-Item -ItemType Directory -Path $publishPath }
+
+Remove-Item -Path $publishPath\* -Recurse
 
 & $msBuild .\PointlessWaymarks.Task.MemoriesEmail\PointlessWaymarks.Task.MemoriesEmail.csproj -t:publish -p:PublishProfile=.\PointlessWaymarks.Task.MemoriesEmail\Properties\PublishProfile\FolderProfile.pubxml -verbosity:minimal
 
@@ -36,6 +40,8 @@ if ($lastexitcode -ne 0) { throw ("Exec: " + $errorMessage) }
 $publishPath = "M:\PointlessWaymarksPublications\PointlessWaymarks.Task.PhotoPickup"
 if(!(test-path -PathType container $publishPath)) { New-Item -ItemType Directory -Path $publishPath }
 
+Remove-Item -Path $publishPath\* -Recurse
+
 & $msBuild .\PointlessWaymarks.Task.PhotoPickup\PointlessWaymarks.Task.PhotoPickup.csproj -t:publish -p:PublishProfile=.\PointlessWaymarks.Task.PhotoPickup\Properties\PublishProfile\FolderProfile.pubxml -verbosity:minimal
 
 if ($lastexitcode -ne 0) { throw ("Exec: " + $errorMessage) }
@@ -44,6 +50,8 @@ if ($lastexitcode -ne 0) { throw ("Exec: " + $errorMessage) }
 
 $publishPath = "M:\PointlessWaymarksPublications\PointlessWaymarks.Task.PublishSiteToAmazonS3"
 if(!(test-path -PathType container $publishPath)) { New-Item -ItemType Directory -Path $publishPath }
+
+Remove-Item -Path $publishPath\* -Recurse
 
 & $msBuild .\PointlessWaymarks.Task.PublishSiteToAmazonS3\PointlessWaymarks.Task.PublishSiteToAmazonS3.csproj -t:publish -p:PublishProfile=.\PointlessWaymarks.Task.PublishSiteToAmazonS3\Properties\PublishProfile\FolderProfile.pubxml -verbosity:minimal
 
