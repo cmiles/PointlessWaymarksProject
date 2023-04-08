@@ -39,6 +39,11 @@
                 <b:Interaction.Behaviors>
                     <behaviors:ListBoxOneLineMouseWheelScroll />
                 </b:Interaction.Behaviors>
+                <ListBox.ItemContainerStyle>
+                    <Style TargetType="ListBoxItem">
+                        <Setter Property="HorizontalContentAlignment" Value="Stretch"></Setter>
+                    </Style>
+                </ListBox.ItemContainerStyle>
                 <ListBox.ItemTemplate>
                     <DataTemplate>
                         <Border
@@ -49,7 +54,7 @@
                             <Grid Margin="6,6,6,12">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="90" />
-                                    <ColumnDefinition />
+                                    <ColumnDefinition Width="*" />
                                 </Grid.ColumnDefinitions>
                                 <Button
                                     Command="{Binding DataContext.ChooseRecentFileCommand, ElementName=SettingsFileChooserControlXaml}"
@@ -104,10 +109,10 @@
             Margin="4,12,4,0"
             BorderThickness="2"
             FontSize="18"
-            Header="New Settings File">
+            Header="New Site">
             <StackPanel Orientation="Vertical">
                 <Label FontSize="14" Target="{Binding ElementName=SettingsFileNameTextBox}">Settings File Name</Label>
-                <TextBlock Margin="12,0,0,0" FontSize="12">Any valid filename can be used - this will be a .ini file - a simple suggestion: 'YourSiteNameSettings'</TextBlock>
+                <TextBlock Margin="12,0,0,0" FontSize="12">Any valid filename can be used - this will be a .ini file - a simple suggestion: '[YourSiteName]Settings'</TextBlock>
                 <TextBox
                     Name="SettingsFileNameTextBox"
                     Margin="6,8,4,12"
