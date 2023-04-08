@@ -148,7 +148,7 @@
                     Height="40"
                     Width="190"
                     Margin="6,8,4,8"
-                    Command="{Binding ChooseFileCommand}"
+                    Command="{Binding ChooseSettingsFileCommand}"
                     FontSize="14">
                     Select Settings File (.ini)
                 </Button>
