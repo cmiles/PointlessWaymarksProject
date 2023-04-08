@@ -47,7 +47,7 @@ public partial class MainWindow
         WindowInitialPositionHelpers.EnsureWindowIsVisible(this);
 
         var versionInfo =
-            ProgramInfoTools.StandardAppInformationString(Assembly.GetExecutingAssembly(),
+            ProgramInfoTools.StandardAppInformationString(AppContext.BaseDirectory,
                 "Pointless Waymarks GeoTools Beta");
 
         InfoTitle = versionInfo.humanTitleString;

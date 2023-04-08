@@ -51,7 +51,7 @@ public static class ProgramInfoTools
     }
 
     public static (string humanTitleString, string dateVersion, bool isInstalled) StandardAppInformationString(
-        Assembly executingAssembly, string appName)
+        string executingDirectory, string appName)
     {
         var humanTitleString = string.Empty;
         var foundInstallVersion = false;
@@ -61,10 +61,10 @@ public static class ProgramInfoTools
         {
             humanTitleString += $"{appName}  ";
 
-            if (!string.IsNullOrEmpty(executingAssembly.Location) &&
-                !string.IsNullOrEmpty(Path.GetDirectoryName(executingAssembly.Location)))
+            if (!string.IsNullOrEmpty(executingDirectory) &&
+                !string.IsNullOrEmpty(Path.GetDirectoryName(executingDirectory)))
             {
-                var containingDirectory = new DirectoryInfo(Path.GetDirectoryName(executingAssembly.Location)!);
+                var containingDirectory = new DirectoryInfo(Path.GetDirectoryName(executingDirectory)!);
 
                 if (containingDirectory.Exists)
                 {

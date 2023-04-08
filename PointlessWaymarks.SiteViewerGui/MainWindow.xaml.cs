@@ -40,7 +40,6 @@ public partial class MainWindow
     [ObservableProperty] private StatusControlContext _statusContext;
     [ObservableProperty] private ProgramUpdateMessageContext _updateMessageContext;
 
-
     public MainWindow(string? localFolder, string? siteUrl, string? siteName, string? initialPage)
     {
         InitializeComponent();
@@ -55,7 +54,7 @@ public partial class MainWindow
         WindowInitialPositionHelpers.EnsureWindowIsVisible(this);
 
         var versionInfo =
-            ProgramInfoTools.StandardAppInformationString(Assembly.GetExecutingAssembly(),
+            ProgramInfoTools.StandardAppInformationString(AppContext.BaseDirectory,
                 "Pointless Waymarks CMS Beta");
 
         _infoTitle = versionInfo.humanTitleString;
