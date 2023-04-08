@@ -36,7 +36,7 @@ The first tab in the application is an All Content list. Like all of the lists y
 
 ![All Content List](PointlessWaymarks.CmsScreenShots/AllContentList.jpg "All Content List")
 
-Each Content Type has a dedicated list that allows access to content-specific commands not available in the All Content list. Content lists start by loading a limited number of recent entries - this allows even very large lists to load quickly and shows the content that you are most likely to be actively working on. Loading the full list is a single button click.
+Each Content Type has a dedicated list that allows access to content-specific commands not available in the All Content list. Content lists start by loading a limited number of recent entries - this allows even very large lists to load quickly with the content that you are most likely to be actively working on. Loading the full list is a single button click.
 
 The ability to export to Excel, edit, and import the changes back into the Pointless Waymarks CMS is provided for all content types and most fields. Many updates are more easily made inside the program but Excel provides a powerful interface for complicated/bulk edits.
 
@@ -44,7 +44,7 @@ The ability to export to Excel, edit, and import the changes back into the Point
 
 Photographs are a central content type and there is support for reading information from the photo's metadata. This often allows the painless import of large batches of photographs with minimal clean up afterwards.
 
-The Photo List items have buttons to quickly find similar photos based on details such as Camera Make, Lens, Aperture, Shutter Speed, etc. The Reports menu allows you to quickly find potential problems such as 'No Tags' or 'Blank License' and has an option to export all of a photo's raw metadata to an html file.
+The Photo List supports searching for field like focal length and iso in addition to standard search fields like titles and tag. Photo items have buttons to quickly find similar photos based on details such as Camera Make, Lens, Aperture, Shutter Speed, etc. The Reports menu allows you to quickly find potential problems such as 'No Tags' or 'Blank License' and has an option to export all of a photo's raw metadata to an html file.
 
 ![Photos List](PointlessWaymarks.CmsScreenShots/PhotoList.jpg "Photos List")
 
@@ -90,11 +90,11 @@ See [the Feature Intersection Tags documentation](PointlessWaymarks.FeatureInter
 
 ## (Local, Offline) Site Viewer
 
-A viewer for the on-disk version of the site is available both in the editor and as a stand alone program. This makes it possible to browse your local site without configuring a local web server or publishing your changes.
+A viewer for the on-disk version of the site is available both in the editor and as a stand alone program. This makes it possible to browse your local site without configuring a local web server or publishing your changes. Links to the site are opened in the viewer - external links are opened in your default browser.
 
 One important reason that a local viewer is included is that not all content needs to be online!
 
-![Local Site Viewer](PointlessWaymarks.CmsScreenShots/LocalViewerWindow.jpg "Local Site Viewer")
+![Local Site Viewer](PointlessWaymarks.SiteViewerScreenShots/LocalSiteViewer.jpg "Local Site Viewer")
 
 ## Tasks
 
@@ -113,6 +113,10 @@ The 'PointlessWaymarks.Task.PhotoPickup' console app is designed to pickup photo
 ### Garmin Connect GPX Import
 
 The 'PointlessWaymarks.Task.GarminConnectGpxImport' console app can download Activitites with location information from Garmin Connect and, optionally, import them into a Pointless Waymarks CMS Site as Line Content. In no way is any part of the Pointless Waymarks Project desgined as a replacement for any part of Garmin Connect - but if you care about the landscape, your history and adventures it is likely worth archiving your Garmin Connect data locally so that you have/own it no matter what happens with Garmin Connect and your Garmin Connect account. This is also an easy way to create Line Content in a Pointless Waymarks CMS site. [More Information](PointlessWaymarks.Task.GarminConnectGpxImport/README.md)
+
+### Publish Site to Amazon S3
+
+The 'PointlessWaymarks.Task.PublishSiteToAmazonS3' console app detects changes, generates the site and publishes the site to Amazon S3. [More Information](PointlessWaymarks.Task.PublishSiteToAmazonS3/README.md)
 
 ## InnoSetup Based Installers and Program Update Notifications
 
