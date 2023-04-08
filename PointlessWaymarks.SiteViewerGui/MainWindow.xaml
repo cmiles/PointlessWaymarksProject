@@ -38,7 +38,7 @@
             </TabItem>
         </dragablz:TabablzControl>
 
-        <siteViewerGui:ProjectChooserControl
+        <siteViewerGui:SiteChooserControl
             HorizontalAlignment="Stretch"
             VerticalAlignment="Stretch"
             HorizontalContentAlignment="Center"

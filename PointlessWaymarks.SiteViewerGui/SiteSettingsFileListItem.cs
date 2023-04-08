@@ -4,7 +4,7 @@ using PointlessWaymarks.CmsData;
 
 namespace PointlessWaymarks.SiteViewerGui;
 
-public partial class ProjectFileListItem : ObservableObject
+public partial class SiteSettingsFileListItem : ObservableObject
 {
     [ObservableProperty] private UserSettings _parsedSettings;
     [ObservableProperty] private FileInfo _settingsFile;

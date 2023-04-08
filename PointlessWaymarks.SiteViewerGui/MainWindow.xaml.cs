@@ -33,7 +33,7 @@ public partial class MainWindow
     [ObservableProperty] private SitePreviewContext? _previewContext;
     [ObservableProperty] private string _previewServerHost = string.Empty;
     [ObservableProperty] private string _recentSettingsFilesNames = string.Empty;
-    [ObservableProperty] private ProjectChooserContext? _settingsFileChooser;
+    [ObservableProperty] private SiteChooserContext? _settingsFileChooser;
     [ObservableProperty] private bool _showSettingsFileChooser;
     [ObservableProperty] private string _siteName;
     [ObservableProperty] private string _siteUrl;
@@ -84,10 +84,10 @@ public partial class MainWindow
                 await CheckForProgramUpdate(currentDateVersion);
 
                 SettingsFileChooser =
-                    await ProjectChooserContext.CreateInstance(StatusContext, RecentSettingsFilesNames);
+                    await SiteChooserContext.CreateInstance(StatusContext, RecentSettingsFilesNames);
 
-                SettingsFileChooser.SettingsFileUpdated += SettingsFileChooserOnSettingsFileUpdatedEvent;
-                SettingsFileChooser.DirectoryUpdated += SettingsFileChooserOnDirectoryUpdatedEvent;
+                SettingsFileChooser.SiteSettingsFileChosen += SiteChooserOnSiteSettingsFileChosenEvent;
+                SettingsFileChooser.SiteDirectoryChosen += SettingsFileChooserOnSiteDirectoryChosenEvent;
             });
         }
         else
@@ -269,16 +269,31 @@ public partial class MainWindow
             return;
         }
 
+        var directoryInfo = new DirectoryInfo(settingReturn.userInput);
+
+        if (!directoryInfo.Exists)
+        {
+            StatusContext.ToastError("Error with Directory? Does not exist?");
+            return;
+        }
+
+        StatusContext.Progress($"Using {directoryInfo.FullName}");
+
+        var fileList = settingReturn.fileList;
+
+        if (fileList.Contains(directoryInfo.FullName))
+            fileList.Remove(directoryInfo.FullName);
+
+        fileList = new List<string> { directoryInfo.FullName }.Concat(fileList).ToList();
+
+        if (fileList.Count > 10)
+            fileList = fileList.Take(10).ToList();
+
+        RecentSettingsFilesNames = string.Join("|", fileList);
+
         LocalFolder = settingReturn.userInput;
 
         StatusContext.RunFireAndForgetBlockingTask(LoadData);
-    }
-
-
-    private void SettingsFileChooserOnDirectoryUpdatedEvent(object? sender,
-        (string userString, List<string> recentFiles) e)
-    {
-        StatusContext.RunFireAndForgetBlockingTask(async () => await SettingsFileChooserOnDirectoryUpdated(e));
     }
 
     private async Task SettingsFileChooserOnSettingsFileUpdated(
@@ -288,7 +303,7 @@ public partial class MainWindow
 
         if (string.IsNullOrWhiteSpace(settingReturn.userInput))
         {
-            StatusContext.ToastError("Error with Settings File? No name?");
+            StatusContext.ToastError("Error - Nothing Selected?");
             return;
         }
 
@@ -315,7 +330,14 @@ public partial class MainWindow
         StatusContext.RunFireAndForgetBlockingTask(LoadData);
     }
 
-    private void SettingsFileChooserOnSettingsFileUpdatedEvent(object? sender,
+
+    private void SettingsFileChooserOnSiteDirectoryChosenEvent(object? sender,
+        (string userString, List<string> recentFiles) e)
+    {
+        StatusContext.RunFireAndForgetBlockingTask(async () => await SettingsFileChooserOnDirectoryUpdated(e));
+    }
+
+    private void SiteChooserOnSiteSettingsFileChosenEvent(object? sender,
         (string userString, List<string> recentFiles) e)
     {
         StatusContext.RunFireAndForgetBlockingTask(async () => await SettingsFileChooserOnSettingsFileUpdated(e));
