@@ -27,7 +27,7 @@ public partial class SitePreviewContext : DependencyObject
     [ObservableProperty] private RelayCommand _tryRefreshCommand;
     [ObservableProperty] private RelayCommand _tryUserNavigationCommand;
     [ObservableProperty] private SitePreviewControl? _webViewGui;
-    [ObservableProperty] private string _windowTitle;
+    [ObservableProperty] private string _siteMappingNote;
 
     public SitePreviewContext(string siteUrl, string localSiteFolder, string siteName, string previewServerHost,
         StatusControlContext? statusContext, string initialPage = "")
@@ -40,7 +40,7 @@ public partial class SitePreviewContext : DependencyObject
 
         _initialPage = string.IsNullOrEmpty(initialPage) ? $"http://{previewServerHost}/index.html" : initialPage;
 
-        _windowTitle = string.IsNullOrWhiteSpace(SiteName)
+        _siteMappingNote = string.IsNullOrWhiteSpace(SiteName)
             ? $"Preview - {LocalSiteFolder} is mapped to {SiteUrl}"
             : $"{SiteName} - {LocalSiteFolder} is mapped to {SiteUrl}";
 

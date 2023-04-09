@@ -10,6 +10,8 @@ public partial class App
 {
     protected override void OnStartup(StartupEventArgs e)
     {
+        CommonTools.LogTools.StandardStaticLoggerForDefaultLogDirectory("SiteViewer");
+
         base.OnStartup(e);
 
         var optionsResult = Parser.Default.ParseArguments<CommandLineOptions>(e.Args);

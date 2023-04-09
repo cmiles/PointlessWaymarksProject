@@ -15,13 +15,6 @@
 
   <ItemGroup>
     <None Remove="PointlessWaymarksSiteViewerIcon.ico" />
-    <None Remove="PointlessWaymarksSiteViewerInstallerIcon.ico" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Content Include="PointlessWaymarksSiteViewerInstallerIcon.ico">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
   </ItemGroup>
 
   <ItemGroup>
@@ -45,21 +38,6 @@
     <Resource Include="PointlessWaymarksSiteViewerIcon.ico">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Compile Update="SiteViewerGuiAppSettings.Designer.cs">
-      <DesignTimeSharedInput>True</DesignTimeSharedInput>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>SiteViewerGuiAppSettings.settings</DependentUpon>
-    </Compile>
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Update="SiteViewerGuiAppSettings.settings">
-      <Generator>SettingsSingleFileGenerator</Generator>
-      <LastGenOutput>SiteViewerGuiAppSettings.Designer.cs</LastGenOutput>
-    </None>
   </ItemGroup>
 
 </Project>

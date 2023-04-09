@@ -1,5 +1,6 @@
 ﻿using System.Reflection;
 using System.Text.RegularExpressions;
+using Serilog;
 
 namespace PointlessWaymarks.CommonTools;
 
@@ -57,22 +58,27 @@ public static class ProgramInfoTools
         var foundInstallVersion = false;
         var dateVersionString = string.Empty;
 
+        Log.Information("StandardAppInformationString ExecutingDirectory {ExecutingDirectory}, AppName {AppName}",
+            executingDirectory, appName);
+
         try
         {
             humanTitleString += $"{appName}  ";
 
-            if (!string.IsNullOrEmpty(executingDirectory) &&
-                !string.IsNullOrEmpty(Path.GetDirectoryName(executingDirectory)))
+            if (!string.IsNullOrEmpty(executingDirectory))
             {
-                var containingDirectory = new DirectoryInfo(Path.GetDirectoryName(executingDirectory)!);
+                var containingDirectory = new DirectoryInfo(executingDirectory);
 
                 if (containingDirectory.Exists)
                 {
                     var publishFile = containingDirectory.GetFiles("PublishVersion--*.txt").ToList().MaxBy(x => x.Name);
 
+
                     if (publishFile == null)
                     {
                         humanTitleString += " No Version Found";
+
+                        Log.Information("StandardAppInformationString No Version Found");
                     }
                     else
                     {
@@ -86,12 +92,16 @@ public static class ProgramInfoTools
                         dateVersionString = Regex
                             .Match(humanTitleString, @".* (?<dateVersion>\d\d\d\d-\d\d-\d\d-\d\d-\d\d) .*")
                             .Groups["dateVersion"].Value;
+
+                        Log.ForContext("dateVersionString", dateVersionString)
+                            .Information("StandardAppInformationString Found Version {Version}", humanTitleString);
                     }
                 }
             }
         }
         catch (Exception e)
         {
+            Log.Error(e, "Error in StandardAppInformationString");
             Console.WriteLine(e);
         }
 

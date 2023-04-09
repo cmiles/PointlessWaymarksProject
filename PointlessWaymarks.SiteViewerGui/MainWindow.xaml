@@ -12,7 +12,7 @@
     xmlns:windowScreenShot="clr-namespace:PointlessWaymarks.WpfCommon.WindowScreenShot;assembly=PointlessWaymarks.WpfCommon"
     xmlns:valueConverters="clr-namespace:PointlessWaymarks.WpfCommon.ValueConverters;assembly=PointlessWaymarks.WpfCommon"
     xmlns:dragablz="http://dragablz.net/winfx/xaml/dragablz"
-    Title="{Binding PreviewContext.WindowTitle}"
+    Title="{Binding InfoTitle}"
     Width="900"
     Height="700"
     Icon="PointlessWaymarksSiteViewerIcon.ico"

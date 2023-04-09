@@ -8,7 +8,7 @@
     xmlns:status="clr-namespace:PointlessWaymarks.WpfCommon.Status;assembly=PointlessWaymarks.WpfCommon"
     xmlns:wpf="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
     xmlns:wpf1="clr-namespace:Markdig.Wpf;assembly=Markdig.Wpf"
-    Title="{Binding PreviewContext.WindowTitle}"
+    Title="{Binding PreviewContext.SiteMappingNote}"
     Width="1000"
     Height="800"
     d:DataContext="{d:DesignInstance local:SiteOnDiskPreviewWindow}"

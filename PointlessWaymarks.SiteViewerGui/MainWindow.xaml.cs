@@ -103,17 +103,19 @@ public partial class MainWindow
 
     public async Task CheckForProgramUpdate(string currentDateVersion)
     {
+        var settings = SiteViewerGuiSettingTools.ReadSettings();
+
         Log.Information(
-            $"Program Update Check - Current Version {currentDateVersion}, Installer Directory {SiteViewerGuiAppSettings.Default.ProgramUpdateLocation}");
+            $"Program Update Check - Current Version {currentDateVersion}, Installer Directory {settings.ProgramUpdateDirectory}");
 
         if (string.IsNullOrEmpty(currentDateVersion)) return;
 
         var (dateString, setupFile) = ProgramInfoTools.LatestInstaller(
-            SiteViewerGuiAppSettings.Default.ProgramUpdateLocation,
+            settings.ProgramUpdateDirectory,
             "PointlessWaymarksSiteViewerSetup");
 
         Log.Information(
-            $"Program Update Check - Current Version {currentDateVersion}, Installer Directory {SiteViewerGuiAppSettings.Default.ProgramUpdateLocation}, Installer Date Found {dateString ?? string.Empty}, Setup File Found {setupFile?.FullName ?? string.Empty}");
+            $"Program Update Check - Current Version {currentDateVersion}, Installer Directory {settings.ProgramUpdateDirectory}, Installer Date Found {dateString ?? string.Empty}, Setup File Found {setupFile?.FullName ?? string.Empty}");
 
         if (string.IsNullOrWhiteSpace(dateString) || setupFile is not { Exists: true }) return;
 
@@ -190,6 +192,8 @@ public partial class MainWindow
         PreviewContext = new SitePreviewContext(SiteUrl,
             LocalFolder,
             SiteName, PreviewServerHost, StatusContext);
+
+        InfoTitle += $" - {PreviewContext.SiteMappingNote}";
 
         PreviewContext.NewWindowRequestedAction = NewWindowRequestedAction;
     }

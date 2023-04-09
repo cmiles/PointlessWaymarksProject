@@ -73,5 +73,23 @@ public static class FileLocationTools
         return directory;
     }
 
+    /// <summary>
+    ///     This returns the default Pointless Waymarks storage directory - currently in the users
+    ///     My Documents in a Pointless Waymarks Cms Folder - this will return the same value regardless
+    ///     of settings, site locations, etc...
+    /// </summary>
+    /// <returns></returns>
+    public static DirectoryInfo DefaultProgramSettingsStorageDirectory()
+    {
+        var directory =
+            new DirectoryInfo(Path.Combine(DefaultStorageDirectory().FullName,
+                "ProgramSettings"));
+
+        if (!directory.Exists) directory.Create();
+
+        directory.Refresh();
+
+        return directory;
+    }
 
 }
