@@ -358,3 +358,6 @@ PointlessWaymarks.Task.MemoriesEmail/Properties/launchSettings.json
 PointlessWaymarks.Task.PublishSiteToAmazonS3/Properties/launchSettings.json
 PointlessWaymarks.Task.PublishSiteToAmazonS3/PointlessWaymarks.Task.PublishSiteToAmazonS3.args.json
 /PointlessWaymarks.SiteViewerGui/PointlessWaymarks.SiteViewerGui.args.json
+/PointlessWaymarks.Task.PhotoPickup/PointlessWaymarks.Task.PhotoPickup.args.json
+/PointlessWaymarks.Task.PhotoPickup/Properties/launchSettings.json
+/PointlessWaymarks.Task.GarminConnectGpxImport/Properties/launchSettings.json
