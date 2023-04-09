@@ -68,16 +68,16 @@ public partial class MainWindow
     public async Task CheckForProgramUpdate(string currentDateVersion)
     {
         Log.Information(
-            $"Program Update Check - Current Version {currentDateVersion}, Installer Directory {GeoToolsGuiAppSettings.Default.ProgramUpdateLocation}");
+            $"Program Update Check - Current Version {currentDateVersion}, Installer Directory {GeoToolsGuiSettingTools.ReadSettings().ProgramUpdateDirectory}");
 
         if (string.IsNullOrEmpty(currentDateVersion)) return;
 
         var (dateString, setupFile) = ProgramInfoTools.LatestInstaller(
-            GeoToolsGuiAppSettings.Default.ProgramUpdateLocation,
+            GeoToolsGuiSettingTools.ReadSettings().ProgramUpdateDirectory,
             "PointlessWaymarksGeoToolsSetup");
 
         Log.Information(
-            $"Program Update Check - Current Version {currentDateVersion}, Installer Directory {GeoToolsGuiAppSettings.Default.ProgramUpdateLocation}, Installer Date Found {dateString ?? string.Empty}, Setup File Found {setupFile?.FullName ?? string.Empty}");
+            $"Program Update Check - Current Version {currentDateVersion}, Installer Directory {GeoToolsGuiSettingTools.ReadSettings().ProgramUpdateDirectory}, Installer Date Found {dateString ?? string.Empty}, Setup File Found {setupFile?.FullName ?? string.Empty}");
 
         if (string.IsNullOrWhiteSpace(dateString) || setupFile is not { Exists: true }) return;
 

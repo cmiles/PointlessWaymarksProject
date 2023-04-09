@@ -12,13 +12,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="GeoToolsGuiAppSettings.settings">
-      <Generator>SettingsSingleFileGenerator</Generator>
-      <LastGenOutput>GeoToolsGuiAppSettings.Designer.cs</LastGenOutput>
-    </None>
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="Dirkster.NumericUpDownLib" Version="3.4.0" />
     <PackageReference Include="GitInfo" Version="2.3.0">
       <PrivateAssets>all</PrivateAssets>
@@ -51,11 +44,6 @@
   <ItemGroup>
     <Compile Update="Controls\FeatureFileEditorControl.xaml.cs">
       <SubType>Code</SubType>
-    </Compile>
-    <Compile Update="GeoToolsGuiAppSettings.Designer.cs">
-      <DesignTimeSharedInput>True</DesignTimeSharedInput>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>GeoToolsGuiAppSettings.settings</DependentUpon>
     </Compile>
   </ItemGroup>
 

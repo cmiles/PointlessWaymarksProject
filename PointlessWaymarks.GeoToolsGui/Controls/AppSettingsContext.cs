@@ -6,12 +6,15 @@ namespace PointlessWaymarks.GeoToolsGui.Controls;
 
 public partial class AppSettingsContext : ObservableObject
 {
+    [ObservableProperty] private GeoToolsGuiSettings _settings;
     [ObservableProperty] private string _programUpdateLocation;
     [ObservableProperty] private bool _showUpdateLocationExistsWarning;
 
     public AppSettingsContext()
     {
-        _programUpdateLocation = GeoToolsGuiAppSettings.Default.ProgramUpdateLocation;
+        _settings = GeoToolsGuiSettingTools.ReadSettings();
+
+        _programUpdateLocation = Settings.ProgramUpdateDirectory;
 
         PropertyChanged += AppSettingsContext_PropertyChanged;
 
@@ -24,10 +27,10 @@ public partial class AppSettingsContext : ObservableObject
 
         if (nameof(ProgramUpdateLocation).Equals(e.PropertyName))
         {
-            GeoToolsGuiAppSettings.Default.ProgramUpdateLocation = e.PropertyName;
-            GeoToolsGuiAppSettings.Default.Save();
-
             ValidateProgramUpdateLocation();
+
+            Settings.ProgramUpdateDirectory = ProgramUpdateLocation;
+            if (!ShowUpdateLocationExistsWarning) GeoToolsGuiSettingTools.WriteSettings(Settings);
         }
     }
 
