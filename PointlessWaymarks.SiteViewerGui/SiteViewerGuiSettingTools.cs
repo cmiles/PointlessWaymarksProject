@@ -8,11 +8,16 @@ public static class SiteViewerGuiSettingTools
 {
     public static SiteViewerGuiSettings ReadSettings()
     {
-        var settingsFileName = Path.Combine(FileLocationTools.DefaultProgramSettingsStorageDirectory().FullName,
+        var settingsFileName = Path.Combine(FileLocationTools.DefaultStorageDirectory().FullName,
             "SiteViewerGuiSettings.json");
         var settingsFile = new FileInfo(settingsFileName);
 
-        if (!settingsFile.Exists) return new SiteViewerGuiSettings();
+        if (!settingsFile.Exists)
+        {
+            File.WriteAllText(settingsFile.FullName, JsonSerializer.Serialize(new SiteViewerGuiSettings()));
+
+            return new SiteViewerGuiSettings();
+        }
 
         return JsonSerializer.Deserialize<SiteViewerGuiSettings>(FileAndFolderTools.ReadAllText(settingsFileName)) ??
                new SiteViewerGuiSettings();
@@ -20,8 +25,8 @@ public static class SiteViewerGuiSettingTools
 
     public static async Task WriteSettings(SiteViewerGuiSettings settings)
     {
-        var settingsFileName = Path.Combine(FileLocationTools.DefaultProgramSettingsStorageDirectory().FullName,
-            "SiteViewerGuiSettings.json");
+        var settingsFileName = Path.Combine(FileLocationTools.DefaultStorageDirectory().FullName,
+            "PwSiteViewerSettings.json");
         var settingsFile = new FileInfo(settingsFileName);
 
         if (settingsFile.Exists) settingsFile.Delete();
