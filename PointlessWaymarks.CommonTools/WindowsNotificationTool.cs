@@ -1,6 +1,8 @@
-﻿using System.Text;
+﻿using System.Reflection;
+using System.Text;
 using System.Text.Encodings.Web;
 using Markdig;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.Toolkit.Uwp.Notifications;
 using Serilog;
 
@@ -15,7 +17,9 @@ namespace PointlessWaymarks.CommonTools;
 /// </summary>
 public class WindowsNotificationTool
 {
-    public WindowsNotificationTool()
+    public static bool WriteAssets = true;
+
+    private WindowsNotificationTool()
     {
         this.SetAutomationLogoNotificationIconUrl();
         Task.Run(() =>
@@ -35,7 +39,7 @@ public class WindowsNotificationTool
 
     /// <summary>
     ///     Determines the Program Name that appears in the Windows Notification -
-    /// the default is "Pointless Waymarks Project"
+    ///     the default is "Pointless Waymarks Project"
     /// </summary>
     public string Attribution { get; set; } = "Pointless Waymarks Project";
 
@@ -49,6 +53,13 @@ public class WindowsNotificationTool
     ///     Sets the Icon for the Windows Notification
     /// </summary>
     public string NotificationIconUrl { get; set; } = string.Empty;
+
+    public static async Task<WindowsNotificationTool> CreateInstance()
+    {
+        await WriteLogosToAssetsFolder();
+
+        return new WindowsNotificationTool();
+    }
 
     /// <summary>
     ///     Shows a Windows Notification with an action to show an HTML Error Report.
@@ -190,5 +201,44 @@ public class WindowsNotificationTool
             .AddAttributionText(Attribution)
             .AddHeroImage(new Uri(imageUrl))
             .Show();
+    }
+
+    /// <summary>
+    ///     Writes Embedded Assets to the Assets Folder - uses a static bool to track if this has been done already
+    ///     with the intent that this runs once per program execution (not rigorous but good enough).
+    /// </summary>
+    /// <returns></returns>
+    public static async Task WriteLogosToAssetsFolder()
+    {
+        if (!WriteAssets) return;
+
+        var embeddedProvider = new EmbeddedFileProvider(Assembly.GetExecutingAssembly());
+
+        var siteResources = embeddedProvider.GetDirectoryContents("");
+
+        foreach (var loopSiteResources in siteResources.Where(x => x.Name.StartsWith("Assets")))
+        {
+            var fileAsStream = loopSiteResources.CreateReadStream();
+
+            var filePathStyleName = loopSiteResources.Name.StartsWith("Assets.")
+                ? loopSiteResources.Name[7..]
+                : loopSiteResources.Name;
+
+            var destinationFile =
+                new FileInfo(Path.Combine(FileLocationTools.DefaultAssetsStorageDirectory().FullName,
+                    filePathStyleName));
+
+            var destinationDirectory = destinationFile.Directory;
+            if (destinationDirectory is { Exists: false }) destinationDirectory.Create();
+
+            var fileStream = File.Create(destinationFile.FullName);
+            fileAsStream.Seek(0, SeekOrigin.Begin);
+            await fileAsStream.CopyToAsync(fileStream).ConfigureAwait(false);
+            fileStream.Close();
+
+            Log.Verbose($"Common Tools Assets - Writing {loopSiteResources.Name} to {destinationFile.FullName}");
+        }
+
+        WriteAssets = false;
     }
 }

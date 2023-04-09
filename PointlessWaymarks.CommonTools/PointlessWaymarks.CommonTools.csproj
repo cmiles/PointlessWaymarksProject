@@ -6,15 +6,15 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="..\PointlessWaymarks.Graphics\PointlessWaymarksCmsAutomationCircularLogo.png" Link="CommonToolsResources\PointlessWaymarksCmsAutomationCircularLogo.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="..\PointlessWaymarks.Graphics\PointlessWaymarksCmsAutomationSquareLogo.png" Link="CommonToolsResources\PointlessWaymarksCmsAutomationSquareLogo.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="..\PointlessWaymarks.Graphics\PointlessWaymarksCmsSquareLogo.png" Link="CommonToolsResources\PointlessWaymarksCmsSquareLogo.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
+    <EmbeddedResource Include="..\PointlessWaymarks.Graphics\PointlessWaymarksCmsAutomationCircularLogo.png" Link="Assets\PointlessWaymarksCmsAutomationCircularLogo.png">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\PointlessWaymarks.Graphics\PointlessWaymarksCmsAutomationSquareLogo.png" Link="Assets\PointlessWaymarksCmsAutomationSquareLogo.png">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\PointlessWaymarks.Graphics\PointlessWaymarksCmsSquareLogo.png" Link="Assets\PointlessWaymarksCmsSquareLogo.png">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </EmbeddedResource>
   </ItemGroup>
 
   <ItemGroup>
@@ -41,6 +41,10 @@
     <PackageReference Include="Serilog.Formatting.Compact" Version="1.1.0" />
     <PackageReference Include="Serilog.Sinks.Console" Version="4.1.0" />
     <PackageReference Include="Serilog.Sinks.File" Version="5.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Assets\" />
   </ItemGroup>
 
 </Project>

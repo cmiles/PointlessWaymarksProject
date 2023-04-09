@@ -20,7 +20,7 @@ public class GpxTrackImport
 {
     public async System.Threading.Tasks.Task Import(string settingsFile)
     {
-        var notifier = WindowsNotificationBuilders.NewNotifier(GarminConnectGpxImportSettings.ProgramShortName)
+        var notifier = (await WindowsNotificationBuilders.NewNotifier(GarminConnectGpxImportSettings.ProgramShortName))
             .SetErrorReportAdditionalInformationMarkdown(FileAndFolderTools.ReadAllText(Path.Combine(
                 AppContext.BaseDirectory, "README.md"))).SetAutomationLogoNotificationIconUrl();
 

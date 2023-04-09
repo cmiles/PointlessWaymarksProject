@@ -94,7 +94,7 @@ catch (Exception e)
     Log.Error(e, "Error Running Program...");
     Console.WriteLine(e);
 
-    await WindowsNotificationBuilders.NewNotifier(GarminConnectGpxImportSettings.ProgramShortName)
+    await (await WindowsNotificationBuilders.NewNotifier(GarminConnectGpxImportSettings.ProgramShortName))
         .SetAutomationLogoNotificationIconUrl()
         .SetErrorReportAdditionalInformationMarkdown(
             FileAndFolderTools.ReadAllText(Path.Combine(AppContext.BaseDirectory, "README.md"))).Error(e);

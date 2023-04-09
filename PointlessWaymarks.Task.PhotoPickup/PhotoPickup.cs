@@ -17,7 +17,7 @@ public class PhotoPickup
 {
     public async System.Threading.Tasks.Task PickupPhotos(string settingsFile)
     {
-        var notifier = WindowsNotificationBuilders.NewNotifier(PhotoPickupSettings.ProgramShortName)
+        var notifier = (await WindowsNotificationBuilders.NewNotifier(PhotoPickupSettings.ProgramShortName))
             .SetAutomationLogoNotificationIconUrl().SetErrorReportAdditionalInformationMarkdown(
                 FileAndFolderTools.ReadAllText(
                     Path.Combine(AppContext.BaseDirectory, "README.md")));

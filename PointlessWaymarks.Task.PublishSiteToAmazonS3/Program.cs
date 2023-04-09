@@ -27,7 +27,7 @@ catch (Exception e)
     Log.Error(e, "Error Running Program...");
     Console.WriteLine(e);
 
-    await WindowsNotificationBuilders.NewNotifier(PublishSiteToAmazonS3Settings.ProgramShortName)
+    await (await WindowsNotificationBuilders.NewNotifier(PublishSiteToAmazonS3Settings.ProgramShortName))
         .SetAutomationLogoNotificationIconUrl()
         .SetErrorReportAdditionalInformationMarkdown(
             FileAndFolderTools.ReadAllText(Path.Combine(AppContext.BaseDirectory, "README.md"))).Error(e);

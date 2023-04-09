@@ -17,7 +17,7 @@ public class PublishSiteToAmazonS3
 {
     public async System.Threading.Tasks.Task Publish(string settingsFile)
     {
-        var notifier = WindowsNotificationBuilders.NewNotifier(PublishSiteToAmazonS3Settings.ProgramShortName)
+        var notifier = (await WindowsNotificationBuilders.NewNotifier(PublishSiteToAmazonS3Settings.ProgramShortName))
             .SetAutomationLogoNotificationIconUrl().SetErrorReportAdditionalInformationMarkdown(
                 FileAndFolderTools.ReadAllText(
                     Path.Combine(AppContext.BaseDirectory, "README.md")));

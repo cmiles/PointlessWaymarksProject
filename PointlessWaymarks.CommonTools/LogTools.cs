@@ -13,10 +13,10 @@ public static class LogTools
     public static LoggerConfiguration LogToFileInDefaultLogDirectory(this LoggerConfiguration toConfigure,
         string fileNameFragment)
     {
-        var programDirectory = AppContext.BaseDirectory;
+        var programDirectory = FileLocationTools.DefaultLogStorageDirectory();
 
         return toConfigure.MinimumLevel.Verbose().WriteTo.File(new CompactJsonFormatter(),
-            Path.Combine(programDirectory, $"{fileNameFragment}-Log.json"), rollingInterval: RollingInterval.Day,
+            Path.Combine(programDirectory.FullName, $"{fileNameFragment}-Log.json"), rollingInterval: RollingInterval.Day,
             retainedFileCountLimit: 30);
     }
 

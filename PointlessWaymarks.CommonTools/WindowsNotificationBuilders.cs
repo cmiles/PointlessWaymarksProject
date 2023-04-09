@@ -4,12 +4,12 @@ using Serilog;
 namespace PointlessWaymarks.CommonTools;
 
 /// <summary>
-/// Static methods to more easily build a WindowsNotificationTool
+///     Static methods to more easily build a WindowsNotificationTool
 /// </summary>
 public static class WindowsNotificationBuilders
 {
     /// <summary>
-    /// Removes older Task Error Reports - failures to delete individual files  are logged but silent.
+    ///     Removes older Task Error Reports - failures to delete individual files  are logged but silent.
     /// </summary>
     /// <param name="deleteReportsMoreThanMonthsOld"></param>
     public static void CleanUpErrorReportDirectory(int deleteReportsMoreThanMonthsOld)
@@ -44,31 +44,17 @@ public static class WindowsNotificationBuilders
     }
 
     /// <summary>
-    /// Creates a new WindowsNotificationTool
+    ///     Creates a new WindowsNotificationTool
     /// </summary>
     /// <param name="attribution"></param>
     /// <returns></returns>
-    public static WindowsNotificationTool NewNotifier(string attribution)
+    public static async Task<WindowsNotificationTool> NewNotifier(string attribution)
     {
-        return new WindowsNotificationTool().SetAttribution(attribution);
+        return (await WindowsNotificationTool.CreateInstance()).SetAttribution(attribution);
     }
 
     /// <summary>
-    /// Sets the additional information shown in an HTML Error report - Markdown format. Often a
-    /// program's Help or Readme information can be useful to use here.
-    /// </summary>
-    /// <param name="toEdit"></param>
-    /// <param name="errorReportAdditionalInformationMarkdown"></param>
-    /// <returns></returns>
-    public static WindowsNotificationTool SetErrorReportAdditionalInformationMarkdown(this WindowsNotificationTool toEdit,
-        string errorReportAdditionalInformationMarkdown)
-    {
-        toEdit.ErrorReportAdditionalInformationMarkdown = errorReportAdditionalInformationMarkdown;
-        return toEdit;
-    }
-
-    /// <summary>
-    /// Sets the 'program' shown in the Windows Notification.
+    ///     Sets the 'program' shown in the Windows Notification.
     /// </summary>
     /// <param name="toEdit"></param>
     /// <param name="attribution"></param>
@@ -80,21 +66,36 @@ public static class WindowsNotificationBuilders
     }
 
     /// <summary>
-    /// Sets the Logo for the notification to the circular automation logo
+    ///     Sets the Logo for the notification to the circular automation logo
     /// </summary>
     /// <param name="toEdit"></param>
     /// <returns></returns>
     public static WindowsNotificationTool SetAutomationLogoNotificationIconUrl(this WindowsNotificationTool toEdit)
     {
         toEdit.NotificationIconUrl =
-            $"file://{Path.Combine(AppContext.BaseDirectory, "CommonToolsResources", "PointlessWaymarksCmsAutomationCircularLogo.png")}";
+            $"file://{Path.Combine(FileLocationTools.DefaultAssetsStorageDirectory().FullName, "PointlessWaymarksCmsAutomationCircularLogo.png")}";
+        return toEdit;
+    }
+
+    /// <summary>
+    ///     Sets the additional information shown in an HTML Error report - Markdown format. Often a
+    ///     program's Help or Readme information can be useful to use here.
+    /// </summary>
+    /// <param name="toEdit"></param>
+    /// <param name="errorReportAdditionalInformationMarkdown"></param>
+    /// <returns></returns>
+    public static WindowsNotificationTool SetErrorReportAdditionalInformationMarkdown(
+        this WindowsNotificationTool toEdit,
+        string errorReportAdditionalInformationMarkdown)
+    {
+        toEdit.ErrorReportAdditionalInformationMarkdown = errorReportAdditionalInformationMarkdown;
         return toEdit;
     }
 
     public static WindowsNotificationTool SetProjectLogoNotificationIconUrl(this WindowsNotificationTool toEdit)
     {
         toEdit.NotificationIconUrl =
-            $"file://{Path.Combine(AppContext.BaseDirectory, "CommonToolsResources", "PointlessWaymarksCmsSquareLogo.png")}";
+            $"file://{Path.Combine(FileLocationTools.DefaultAssetsStorageDirectory().FullName, "PointlessWaymarksCmsSquareLogo.png")}";
         return toEdit;
     }
 }
