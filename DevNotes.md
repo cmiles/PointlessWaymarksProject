@@ -4,7 +4,7 @@
    - Sync Item names? Or is having the original name on the map useful?
    - Button on map to select in list
  - Photo Location Map Chooser
- - Better is draft conflict protection - perhaps a check in site generation?
+ - Better draft conflict protection - perhaps a check in site generation?
  - For geo types and notes review local file cleanup on delete
  - Is File Content being detected as changing more than intended?
  - Check whole site import - test(s)?
@@ -14,9 +14,6 @@
    - in Update Notes
    - Potentially in editor
 
-Site:
- - Improve Search Pages!
-
 ## Ideas
  - Appium GUI Test
  - Could I successfully tuck away a copy of the current edits to help in unexpected shut downs? No good if I can't expose these in a helpful way...
@@ -24,6 +21,17 @@ Site:
 
 ## Notes
 
+4/9/2023
+
+Been a while since writing here! There are a number of smaller fixes and improvements but over the part few months the main themes:
+ - A Video content type is in place - while it is an easy argument that it is just a user convenience vs doing this as File Content living with it a few months has made it seem well worth it with video just too common to ignore.
+ - Nullable work - I've made several attempts at this and this time I was able to push it much farther. Basically nullable seems very worth turning on and eliminating warning for - another way for the compiler to flag errors, very valuable. But without async constructors to take full advantage of it has been challenging to find a great way to get the async factory CreateInstance methods and constructors setup in a sensible way... The CMS editors are still not converted so this is somewhat ongoing. I think that required properties might help here but that isn't an option with the Source Generators that I am currently using. At this point I think that the asyncification of the framework should now circle around to async constructors - but waiting for that to happen seems like a mistake...
+ - Site Viewer Work - when the site viewer was split into a stand alone program its functionality was limited - now a settings/directory chooser has been added and tabbed browsing is in place. There is still a little work to do to figure out how to make this great for placing alongside an offline site but this has been a huge lift in functionality.
+ - Clean Single File Publish for all projects! This took changing out how some settings and icons were dealt with (and is maybe best considered a 'trick' since my understanding is that a single file deploy is basically a zip file) but this is really nice! Now the programs are clean single files and the innosetup installers still work as before. Best of both worlds I think!
+
+Recently I started two new purely offline/private sites and am enjoying the experience. If you are careful with the settings a bonus with the offline sites is that you can still publish them to S3 (in a no public access bucket) as a great backup!
+
+On my mind at the moment is adding an S3 one way only backup to help with the backup of source material for sites - the best example I have is my Lightroom catalog and raw files. There are quite a few backup solutions but so far I'm a little disappointed with the programs/results and while rsync is an obvious choice at this point I would rather have a program with fewer options and less functionality as a way of protecting the material from configuration errors... 
 1/22/2023
 
 Photography is something that I take seriously at times and it has taken several years of working on this CMS for video to be on my mind enough to warrant a Content type - but it is clear to me now that it does warrant its own content type (vs the previous support as a 'file'). Work is ongoing on this...
