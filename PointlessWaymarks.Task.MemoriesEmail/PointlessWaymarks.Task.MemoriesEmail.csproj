@@ -26,7 +26,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="MemoriesSmtpEmailFromWebSettings.json">
+    <None Update="MemoriesSmtpEmailFromWebSettingsSample.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="README.md">
