@@ -9,7 +9,6 @@
 
   <ItemGroup>
     <None Remove="PointlessWaymarksGeoToolsIcon.ico" />
-    <None Remove="PointlessWaymarksGeoToolsInstallerIcon.ico" />
   </ItemGroup>
 
   <ItemGroup>
@@ -41,12 +40,6 @@
     <AssemblyAttribute Include="PointlessWaymarks.CommonTools.BuildDateAttribute">
       <_Parameter1>$([System.DateTime]::UtcNow.ToString("yyyyMMddHHmmss"))</_Parameter1>
     </AssemblyAttribute>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Content Include="PointlessWaymarksGeoToolsInstallerIcon.ico">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
   </ItemGroup>
 
   <ItemGroup>
