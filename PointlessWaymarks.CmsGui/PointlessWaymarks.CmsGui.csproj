@@ -16,13 +16,6 @@
 
   <ItemGroup>
     <None Remove="PointlessWaymarksCmsIcon.ico" />
-    <None Remove="PointlessWaymarksCmsInstallerIcon.ico" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Content Include="PointlessWaymarksCmsInstallerIcon.ico">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
   </ItemGroup>
 
   <ItemGroup>
