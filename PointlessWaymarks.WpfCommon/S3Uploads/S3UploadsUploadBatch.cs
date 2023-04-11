@@ -2,9 +2,8 @@
 using System.ComponentModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 
-namespace PointlessWaymarks.CmsWpfControls.S3Uploads;
+namespace PointlessWaymarks.WpfCommon.S3Uploads;
 
 public partial class S3UploadsUploadBatch : ObservableObject
 {
@@ -40,14 +39,14 @@ public partial class S3UploadsUploadBatch : ObservableObject
 
     private async Task LoadData(List<S3UploadsItem> toUpload)
     {
-        await ThreadSwitcher.ResumeBackgroundAsync();
+        await ThreadSwitcher.ThreadSwitcher.ResumeBackgroundAsync();
 
         toUpload.ForEach(x => x.Queued = true);
 
         TotalItemCount = toUpload.Count;
         TotalUploadSize = toUpload.Sum(x => x.FileToUpload.Exists ? x.FileToUpload.Length : 0);
 
-        await ThreadSwitcher.ResumeForegroundAsync();
+        await ThreadSwitcher.ThreadSwitcher.ResumeForegroundAsync();
 
         if (Items == null)
         {
@@ -85,11 +84,11 @@ public partial class S3UploadsUploadBatch : ObservableObject
         {
             if (cancelToken.IsCancellationRequested)
             {
-                await ThreadSwitcher.ResumeForegroundAsync();
+                await ThreadSwitcher.ThreadSwitcher.ResumeForegroundAsync();
 
                 foreach (var loopItems in Items) loopItems.Queued = false;
 
-                await ThreadSwitcher.ResumeBackgroundAsync();
+                await ThreadSwitcher.ThreadSwitcher.ResumeBackgroundAsync();
 
                 Status = "Canceled";
                 Uploading = false;

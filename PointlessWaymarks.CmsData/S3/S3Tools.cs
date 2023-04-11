@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CommonTools;
+using PointlessWaymarks.CommonTools.S3;
 
 namespace PointlessWaymarks.CmsData.S3;
 

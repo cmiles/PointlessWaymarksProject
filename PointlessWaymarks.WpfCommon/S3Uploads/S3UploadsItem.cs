@@ -1,20 +1,14 @@
-﻿#nullable enable
-using System.IO;
+﻿using System.IO;
 using Amazon.S3;
 using Amazon.S3.Transfer;
 using CommunityToolkit.Mvvm.ComponentModel;
-using PointlessWaymarks.CmsData;
-using PointlessWaymarks.CmsData.S3;
-using PointlessWaymarks.CmsWpfControls.Utility;
-using PointlessWaymarks.WpfCommon.ThreadSwitcher;
+using PointlessWaymarks.WpfCommon.Utility;
 
-namespace PointlessWaymarks.CmsWpfControls.S3Uploads;
+namespace PointlessWaymarks.WpfCommon.S3Uploads;
 
 public partial class S3UploadsItem : ObservableObject, ISelectedTextTracker
 {
     [ObservableProperty] private string _amazonObjectKey;
-    [ObservableProperty] private string _bucketName;
-    [ObservableProperty] private string _bucketRegion;
     [ObservableProperty] private bool _completed;
     [ObservableProperty] private string _errorMessage = string.Empty;
     [ObservableProperty] private bool _fileNoLongerExistsOnDisk;
@@ -25,48 +19,55 @@ public partial class S3UploadsItem : ObservableObject, ISelectedTextTracker
     [ObservableProperty] private bool _queued;
     [ObservableProperty] private CurrentSelectedTextTracker _selectedTextTracker = new();
     [ObservableProperty] private string _status = string.Empty;
+    [ObservableProperty] private S3Information _uploadS3Information;
 
-    public S3UploadsItem(FileInfo fileToUpload, string amazonObjectKey, string bucket, string region, string note)
+    public S3UploadsItem(S3Information s3Info, FileInfo fileToUpload, string amazonObjectKey, string note)
     {
+        _uploadS3Information = s3Info;
+        BucketName = UploadS3Information.BucketName();
         _fileToUpload = fileToUpload;
         _amazonObjectKey = amazonObjectKey;
-        _bucketName = bucket;
         _note = note;
-        _bucketRegion = region;
     }
+
+    public string BucketName { get; }
 
     public async Task StartUpload()
     {
         if (IsUploading) return;
 
-        await ThreadSwitcher.ResumeBackgroundAsync();
+        await ThreadSwitcher.ThreadSwitcher.ResumeBackgroundAsync();
 
         HasError = false;
         ErrorMessage = string.Empty;
         Completed = false;
 
-        if (string.IsNullOrWhiteSpace(BucketName))
+        var accessKey = UploadS3Information.AccessKey();
+        var secret = UploadS3Information.Secret();
+
+        if (string.IsNullOrWhiteSpace(accessKey) || string.IsNullOrWhiteSpace(secret))
+        {
+            HasError = true;
+            ErrorMessage = "Aws Credentials are not entered or valid?";
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(UploadS3Information.BucketName()))
         {
             HasError = true;
             ErrorMessage = "Bucket Name is blank?";
             return;
         }
 
-        if (string.IsNullOrWhiteSpace(AmazonObjectKey))
-        {
-            HasError = true;
-            ErrorMessage = "Amazon Key is blank?";
-            return;
-        }
 
-        if (string.IsNullOrWhiteSpace(BucketRegion))
+        if (string.IsNullOrWhiteSpace(UploadS3Information.BucketRegion()))
         {
             HasError = true;
             ErrorMessage = "Amazon Region is blank?";
             return;
         }
 
-        var region = UserSettingsSingleton.CurrentSettings().SiteS3BucketEndpoint();
+        var region = UploadS3Information.BucketRegionEndpoint();
 
         if (region == null)
         {
@@ -85,12 +86,10 @@ public partial class S3UploadsItem : ObservableObject, ISelectedTextTracker
             return;
         }
 
-        var (accessKey, secret) = AwsCredentials.GetAwsSiteCredentials();
-
-        if (string.IsNullOrWhiteSpace(accessKey) || string.IsNullOrWhiteSpace(secret))
+        if (string.IsNullOrWhiteSpace(AmazonObjectKey))
         {
             HasError = true;
-            ErrorMessage = "Aws Credentials are not entered or valid?";
+            ErrorMessage = "Amazon Key is blank?";
             return;
         }
 
@@ -100,7 +99,7 @@ public partial class S3UploadsItem : ObservableObject, ISelectedTextTracker
 
             var uploadRequest = new TransferUtilityUploadRequest
             {
-                BucketName = BucketName, FilePath = FileToUpload.FullName, Key = AmazonObjectKey
+                BucketName = UploadS3Information.BucketName(), FilePath = FileToUpload.FullName, Key = AmazonObjectKey
             };
 
             uploadRequest.UploadProgressEvent += UploadRequestOnUploadProgressEvent;

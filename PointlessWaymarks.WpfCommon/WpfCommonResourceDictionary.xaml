@@ -3,6 +3,12 @@
                     xmlns:valueConverters="clr-namespace:PointlessWaymarks.WpfCommon.ValueConverters">
     <valueConverters:BooleanToVisibilityConverter x:Key="BooleanToVisibility" />
     <valueConverters:BooleanNotToVisibilityConverter x:Key="BooleanNotToVisibility" />
+    <valueConverters:NullOrWhiteSpaceStringToCollapsedVisibilityConverter x:Key="NullOrWhiteSpaceStringToCollapsed" />
+    <valueConverters:NullOrWhiteSpaceStringToVisibleVisibilityConverter x:Key="NullOrWhiteSpaceStringToVisible" />
+    <valueConverters:NullOrWhiteSpaceStringToDefaultConverter x:Key="NullOrWhiteSpaceStringToDefault" />
+    <valueConverters:BooleanNotToVisibilityConverter x:Key="BooleanNotToHidden" />
+    <valueConverters:NullToCollapsedVisibilityConverter x:Key="NullToCollapsedVisibility" />
+    <valueConverters:VisibleWhenAllTrueOtherwiseCollapsedMultiConverter x:Key="VisibleWhenAllTrue" />
     <Style x:Key="DataEntryLabelStyle" TargetType="Label">
         <Setter Property="FontWeight" Value="DemiBold" />
     </Style>

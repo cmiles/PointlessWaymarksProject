@@ -1,24 +1,25 @@
 ﻿#nullable enable
 using System.ComponentModel;
 using CommunityToolkit.Mvvm.ComponentModel;
-using PointlessWaymarks.CmsData.S3;
+using PointlessWaymarks.CommonTools.S3;
 using PointlessWaymarks.WpfCommon.Status;
-using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 
-namespace PointlessWaymarks.CmsWpfControls.S3Uploads;
+namespace PointlessWaymarks.WpfCommon.S3Uploads;
 
 /// <summary>
 ///     Interaction logic for S3UploadsWindow.xaml
 /// </summary>
 [ObservableObject]
+#pragma warning disable MVVMTK0033
 public partial class S3UploadsWindow
+#pragma warning restore MVVMTK0033
 {
     [ObservableProperty] private bool _forceClose;
     [ObservableProperty] private StatusControlContext _statusContext;
     [ObservableProperty] private S3UploadsContext? _uploadContext;
     [ObservableProperty] private WindowIconStatus? _windowStatus;
 
-    public S3UploadsWindow(List<S3UploadRequest> toLoad, bool autoStartUpload)
+    public S3UploadsWindow(S3Information s3Info, List<S3UploadRequest> toLoad, bool autoStartUpload)
     {
         InitializeComponent();
 
@@ -29,14 +30,14 @@ public partial class S3UploadsWindow
 
         StatusContext.RunFireAndForgetBlockingTask(async () =>
         {
-            UploadContext = await S3UploadsContext.CreateInstance(StatusContext, toLoad, WindowStatus);
+            UploadContext = await S3UploadsContext.CreateInstance(StatusContext, s3Info, toLoad, WindowStatus);
             if (autoStartUpload) UploadContext.StatusContext.RunNonBlockingTask(UploadContext.StartAllUploads);
         });
     }
 
     private void S3UploadsWindow_OnClosing(object? sender, CancelEventArgs e)
     {
-        if (_forceClose) return;
+        if (ForceClose) return;
 
         StatusContext.RunFireAndForgetNonBlockingTask(WindowCloseOverload);
         e.Cancel = true;
@@ -44,10 +45,10 @@ public partial class S3UploadsWindow
 
     public async Task WindowCloseOverload()
     {
-        if (UploadContext?.UploadBatch == null || !UploadContext.UploadBatch.Uploading)
+        if (UploadContext?.UploadBatch is not { Uploading: true })
         {
-            _forceClose = true;
-            await ThreadSwitcher.ResumeForegroundAsync();
+            ForceClose = true;
+            await ThreadSwitcher.ThreadSwitcher.ResumeForegroundAsync();
             Close();
         }
 
@@ -59,8 +60,8 @@ public partial class S3UploadsWindow
         {
             case "Close Immediately":
             {
-                _forceClose = true;
-                await ThreadSwitcher.ResumeForegroundAsync();
+                ForceClose = true;
+                await ThreadSwitcher.ThreadSwitcher.ResumeForegroundAsync();
                 Close();
                 break;
             }

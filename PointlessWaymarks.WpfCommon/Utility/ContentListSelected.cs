@@ -5,9 +5,8 @@ using System.Windows;
 using System.Windows.Input;
 using JetBrains.Annotations;
 using PointlessWaymarks.WpfCommon.Status;
-using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 
-namespace PointlessWaymarks.CmsWpfControls.Utility;
+namespace PointlessWaymarks.WpfCommon.Utility;
 
 public class ContentListSelected<T> : INotifyPropertyChanged where T : ISelectedTextTracker
 {
@@ -75,7 +74,7 @@ public class ContentListSelected<T> : INotifyPropertyChanged where T : ISelected
 
     private async Task LoadData()
     {
-        await ThreadSwitcher.ResumeForegroundAsync();
+        await ThreadSwitcher.ThreadSwitcher.ResumeForegroundAsync();
         ListBoxAppCommandBindings = new ObservableCollection<CommandBinding>(
             new List<CommandBinding> {new(ApplicationCommands.Copy, ExecuteListBoxItemCopy)});
     }

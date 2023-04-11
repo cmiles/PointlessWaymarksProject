@@ -3,8 +3,7 @@ using System.Windows.Controls;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 
-
-namespace PointlessWaymarks.CmsWpfControls.Utility;
+namespace PointlessWaymarks.WpfCommon.Utility;
 
 public partial class CurrentSelectedTextTracker : ObservableObject
 {

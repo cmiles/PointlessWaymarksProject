@@ -1,0 +1,53 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="WpfCommonResourceDictionary.xaml" />
+    </ResourceDictionary.MergedDictionaries>
+    <Style x:Key="ActionPanelButtonStyle" TargetType="Button">
+        <Setter Property="Margin" Value="4" />
+        <Setter Property="Height" Value="24" />
+        <Setter Property="Width" Value="150" />
+    </Style>
+    <Style x:Key="ActionPanelUnlimitedWidthButtonStyle" TargetType="Button">
+        <Setter Property="Margin" Value="4" />
+        <Setter Property="Height" Value="24" />
+    </Style>
+    <Style x:Key="ActionPanelBorderStyle" TargetType="Border">
+        <Setter Property="Margin" Value="4" />
+        <Setter Property="CornerRadius" Value="4" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="BorderBrush" Value="Green" />
+    </Style>
+    <Style x:Key="UiComponentGroupBoxStyle" TargetType="GroupBox">
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="BorderBrush" Value="Green" />
+    </Style>
+    <Style x:Key="ReadOnlyTextBoxStyle" TargetType="TextBox">
+        <Setter Property="IsReadOnly" Value="True" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="Background" Value="Transparent" />
+    </Style>
+    <Style x:Key="ContentListOuterBorderStyle" TargetType="Border">
+        <Setter Property="Background" Value="White" />
+        <Setter Property="BorderBrush" Value="LightGray" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="5" />
+        <Setter Property="Margin" Value="4" />
+    </Style>
+    <Style x:Key="ContentListListBoxStyle" TargetType="ListBox">
+        <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Disabled" />
+        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="SelectionMode" Value="Extended" />
+        <Setter Property="ScrollViewer.CanContentScroll" Value="True" />
+        <Setter Property="VirtualizingPanel.ScrollUnit" Value="Pixel" />
+        <Setter Property="VirtualizingPanel.IsVirtualizing" Value="True" />
+    </Style>
+    <Style x:Key="ContentListContentVersionIdWrapPanelStyle" TargetType="WrapPanel">
+        <Setter Property="Margin" Value="0,3,0,0" />
+        <Setter Property="HorizontalAlignment" Value="Center" />
+        <Setter Property="Orientation" Value="Horizontal" />
+        <Setter Property="Opacity" Value=".3" />
+    </Style>
+    
+</ResourceDictionary>

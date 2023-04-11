@@ -18,6 +18,8 @@ using PointlessWaymarks.CmsWpfControls.S3Uploads;
 using PointlessWaymarks.CmsWpfControls.Utility.Aws;
 using PointlessWaymarks.CmsWpfControls.Utility.Excel;
 using PointlessWaymarks.CommonTools;
+using PointlessWaymarks.CommonTools.S3;
+using PointlessWaymarks.WpfCommon.S3Uploads;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 using PointlessWaymarks.WpfCommon.Utility;
@@ -253,7 +255,7 @@ public partial class FilesWrittenLogListContext : ObservableObject
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
-        var newUploadWindow = new S3UploadsWindow(toTransfer, autoStartUpload);
+        var newUploadWindow = new S3UploadsWindow(S3UploadHelpers.AmazonInformationFromSettings(), toTransfer, autoStartUpload);
         newUploadWindow.PositionWindowAndShow();
     }
 
@@ -529,7 +531,7 @@ public partial class FilesWrittenLogListContext : ObservableObject
             await ThreadSwitcher.ResumeForegroundAsync();
 
             var newUploaderWindow =
-                new S3UploadsWindow(
+                new S3UploadsWindow(S3UploadHelpers.AmazonInformationFromSettings(),
                     items.Select(x =>
                             new S3UploadRequest(new FileInfo(x.FileFullName), x.S3Key, x.BucketName, x.Region, x.Note))
                         .ToList(),
@@ -697,7 +699,7 @@ public partial class FilesWrittenLogListContext : ObservableObject
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
-        var newUploadWindow = new S3UploadsWindow(toUpload, false);
+        var newUploadWindow = new S3UploadsWindow(S3UploadHelpers.AmazonInformationFromSettings(), toUpload, false);
         newUploadWindow.PositionWindowAndShow();
     }
 

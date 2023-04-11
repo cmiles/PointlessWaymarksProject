@@ -4,7 +4,6 @@ using ClosedXML.Excel;
 using Omu.ValueInjecter;
 using Ookii.Dialogs.Wpf;
 using PointlessWaymarks.CmsData;
-using PointlessWaymarks.CmsData.Content;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsData.Import;
@@ -21,49 +20,11 @@ public static class ExcelHelpers
     {
         progress?.Report($"Starting transfer of {toDisplay.Count} to Excel");
 
-        var file = new FileInfo(Path.Combine(UserSettingsUtilities.TempStorageDirectory().FullName,
-            $"{DateTime.Now:yyyy-MM-dd--HH-mm-ss}---{FileAndFolderTools.TryMakeFilenameValid(fileName)}.xlsx"));
 
-        progress?.Report($"File Name: {file.FullName}");
+        var file = Path.Combine(UserSettingsUtilities.TempStorageDirectory().FullName,
+            $"{DateTime.Now:yyyy-MM-dd--HH-mm-ss}---{FileAndFolderTools.TryMakeFilenameValid(fileName)}.xlsx");
 
-        progress?.Report("Creating Workbook");
-
-        var wb = new XLWorkbook();
-        var ws = wb.Worksheets.Add("Exported Data");
-
-        progress?.Report("Inserting Data");
-
-        ws.Cell(1, 1).InsertTable(toDisplay);
-
-        progress?.Report("Applying Formatting");
-
-        ws.Columns().AdjustToContents();
-
-        foreach (var loopColumn in ws.ColumnsUsed().Where(x => x.Width > 70))
-        {
-            loopColumn.Width = 70;
-            loopColumn.Style.Alignment.WrapText = true;
-        }
-
-        ws.Rows().AdjustToContents();
-
-        if (limitRowHeight)
-            foreach (var loopRow in ws.RowsUsed().Where(x => x.Height > 70))
-                loopRow.Height = 70;
-
-        progress?.Report($"Saving Excel File {file.FullName}");
-
-        wb.SaveAs(file.FullName);
-
-        if (openAfterSaving)
-        {
-            progress?.Report($"Opening Excel File {file.FullName}");
-
-            var ps = new ProcessStartInfo(file.FullName) { UseShellExecute = true, Verb = "open" };
-            Process.Start(ps);
-        }
-
-        return file;
+        return ExcelTools.ToExcelFileAsTable(toDisplay, file, openAfterSaving, limitRowHeight, progress);
     }
 
     public static async Task ImportFromExcelFile(StatusControlContext statusContext)
@@ -175,7 +136,7 @@ public static class ExcelHelpers
         statusContext.ToastSuccess($"Imported {contentImportResult.ToUpdate.Count} items with changes from Excel");
     }
 
-    public static async Task<FileInfo> PointContentToExcel(List<Guid> toDisplay, string fileName,
+    public static async Task<FileInfo?> PointContentToExcel(List<Guid> toDisplay, string fileName,
         bool openAfterSaving = true, IProgress<string>? progress = null)
     {
         var pointsAndDetails = await Db.PointsAndPointDetails(toDisplay);
@@ -183,10 +144,10 @@ public static class ExcelHelpers
         return PointContentToExcel(pointsAndDetails, fileName, openAfterSaving, progress);
     }
 
-    public static FileInfo PointContentToExcel(List<PointContentDto> toDisplay, string fileName,
+    public static FileInfo? PointContentToExcel(List<PointContentDto> toDisplay, string fileName,
         bool openAfterSaving = true, IProgress<string>? progress = null)
     {
-        if (toDisplay == null || !toDisplay.Any()) return null;
+        if (!toDisplay.Any()) return null;
 
         progress?.Report("Setting up list to transfer to Excel");
 
@@ -278,7 +239,7 @@ public static class ExcelHelpers
         return file;
     }
 
-    public static async Task SelectedToExcel(List<dynamic>? selected, StatusControlContext statusContext)
+    public static async Task SelectedToExcel(List<dynamic>? selected, StatusControlContext? statusContext)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 

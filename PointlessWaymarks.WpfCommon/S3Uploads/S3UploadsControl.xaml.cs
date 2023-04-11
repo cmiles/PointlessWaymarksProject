@@ -1,6 +1,6 @@
 ﻿using System.Windows.Controls;
 
-namespace PointlessWaymarks.CmsWpfControls.S3Uploads;
+namespace PointlessWaymarks.WpfCommon.S3Uploads;
 
 /// <summary>
 ///     Interaction logic for S3UploadsControl.xaml
@@ -14,7 +14,7 @@ public partial class S3UploadsControl
 
     private void Selector_OnSelectionChanged(object? sender, SelectionChangedEventArgs e)
     {
-        var viewmodel = (S3UploadsContext) DataContext;
+        var viewmodel = (S3UploadsContext)DataContext;
         if (viewmodel?.ListSelection == null) return;
         viewmodel.ListSelection.SelectedItems = ItemsListBox?.SelectedItems.Cast<S3UploadsItem>().ToList() ??
                                                 new List<S3UploadsItem>();

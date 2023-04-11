@@ -1,13 +1,12 @@
 ﻿<UserControl
-    x:Class="PointlessWaymarks.CmsWpfControls.S3Uploads.S3UploadsControl"
+    x:Class="PointlessWaymarks.WpfCommon.S3Uploads.S3UploadsControl"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:s3Uploads="clr-namespace:PointlessWaymarks.CmsWpfControls.S3Uploads"
-    xmlns:wpfBehavior="clr-namespace:PointlessWaymarks.WpfCommon.Behaviors;assembly=PointlessWaymarks.WpfCommon"
-    xmlns:wpfConverter="clr-namespace:PointlessWaymarks.WpfCommon.ValueConverters;assembly=PointlessWaymarks.WpfCommon"
+    xmlns:wpfBehavior="clr-namespace:PointlessWaymarks.WpfCommon.Behaviors"
+    xmlns:s3Uploads="clr-namespace:PointlessWaymarks.WpfCommon.S3Uploads"
     Name="S3UploadsControlXaml"
     d:DataContext="{d:DesignInstance s3Uploads:S3UploadsContext}"
     d:DesignHeight="450"
@@ -16,17 +15,13 @@
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="../WpfControlsResourceDictionary.xaml" />
+                <ResourceDictionary Source="..\ClassicGreenResourceDictionary.xaml" />
             </ResourceDictionary.MergedDictionaries>
-            <wpfConverter:BooleanToVisibilityConverter x:Key="BooleanToVisibility" />
-            <wpfConverter:BooleanNotToVisibilityConverter x:Key="BooleanNotToHidden" />
-            <wpfConverter:NullToCollapsedVisibilityConverter x:Key="NullToCollapsedVisibility" />
-            <wpfConverter:VisibleWhenAllTrueOtherwiseCollapsedMultiConverter x:Key="VisibleWhenAllTrue" />
         </ResourceDictionary>
     </UserControl.Resources>
     <Grid Margin="4">
         <Grid.Resources>
-            <DataTemplate x:Key="S3UploadsDataTemplate" DataType="s3Uploads:S3UploadsItem">
+            <DataTemplate x:Key="S3UploadsDataTemplate" DataType="{x:Type s3Uploads:S3UploadsItem}">
                 <Border Style="{StaticResource ContentListOuterBorderStyle}">
                     <Grid Margin="4">
                         <Grid.RowDefinitions>
@@ -80,7 +75,7 @@
                             Style="{StaticResource ReadOnlyTextBoxStyle}"
                             TextWrapping="Wrap">
                             <TextBox.Text>
-                                <MultiBinding StringFormat="To: {0}/{1}">
+                                <MultiBinding StringFormat="To: {0}/{1}" Mode="OneWay">
                                     <Binding Path="BucketName" />
                                     <Binding Path="AmazonObjectKey" />
                                 </MultiBinding>
@@ -164,7 +159,7 @@
                             Style="{StaticResource ReadOnlyTextBoxStyle}"
                             TextWrapping="Wrap">
                             <TextBox.Text>
-                                <MultiBinding StringFormat="To: {0}/{1}">
+                                <MultiBinding StringFormat="To: {0}/{1}" Mode="OneWay">
                                     <Binding Path="BucketName" />
                                     <Binding Path="AmazonObjectKey" />
                                 </MultiBinding>

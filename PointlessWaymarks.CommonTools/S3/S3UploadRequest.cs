@@ -1,7 +1,7 @@
-﻿namespace PointlessWaymarks.CmsData.S3;
+﻿namespace PointlessWaymarks.CommonTools.S3;
 
 /// <summary>
-/// Holds file information for transfer to Amazon S3
+///     Holds file information for transfer to Amazon S3
 /// </summary>
 /// <param name="ToUpload"></param>
 /// <param name="S3Key"></param>

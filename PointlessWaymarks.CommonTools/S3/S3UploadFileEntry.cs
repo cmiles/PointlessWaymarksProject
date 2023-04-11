@@ -1,7 +1,7 @@
-﻿namespace PointlessWaymarks.CmsData.S3;
+﻿namespace PointlessWaymarks.CommonTools.S3;
 
 /// <summary>
-/// Data Structure to record a S3 Upload
+///     Data Structure to record a S3 Upload
 /// </summary>
 /// <param name="FileFullName"></param>
 /// <param name="S3Key"></param>

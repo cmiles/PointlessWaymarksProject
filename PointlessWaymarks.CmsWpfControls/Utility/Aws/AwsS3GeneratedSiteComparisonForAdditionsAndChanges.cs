@@ -5,6 +5,7 @@ using Amazon.S3.Model;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.S3;
 using PointlessWaymarks.CmsWpfControls.S3Uploads;
+using PointlessWaymarks.CommonTools.S3;
 
 namespace PointlessWaymarks.CmsWpfControls.Utility.Aws;
 

@@ -1,4 +1,4 @@
-﻿namespace PointlessWaymarks.CmsWpfControls.Utility;
+﻿namespace PointlessWaymarks.WpfCommon.Utility;
 
 public interface ISelectedTextTracker
 {

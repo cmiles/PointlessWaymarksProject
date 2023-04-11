@@ -22,64 +22,14 @@
     xmlns:wpfConverter="clr-namespace:PointlessWaymarks.WpfCommon.ValueConverters;assembly=PointlessWaymarks.WpfCommon"
     xmlns:videoList="clr-namespace:PointlessWaymarks.CmsWpfControls.VideoList">
     <ResourceDictionary.MergedDictionaries>
-        <ResourceDictionary Source="/PointlessWaymarks.WpfCommon;component/WpfCommonResourceDictionary.xaml" />
+        <ResourceDictionary Source="/PointlessWaymarks.WpfCommon;component/ClassicGreenResourceDictionary.xaml" />
     </ResourceDictionary.MergedDictionaries>
-    <wpfConverter:NullOrWhiteSpaceStringToCollapsedVisibilityConverter x:Key="NullOrWhiteSpaceStringToCollapsed" />
-    <wpfConverter:NullOrWhiteSpaceStringToVisibleVisibilityConverter x:Key="NullOrWhiteSpaceStringToVisible" />
-    <wpfConverter:NullOrWhiteSpaceStringToDefaultConverter x:Key="NullOrWhiteSpaceStringToDefault" />
     <wpfConverter:IsoConverter x:Key="IsoWithDefault" />
     <wpfConverter:CreatedOnDayConverter x:Key="CreatedOnDay" />
-    <wpfConverter:BooleanToVisibilityConverter x:Key="BooleanToVisibility" />
-    <wpfConverter:BooleanNotToVisibilityConverter x:Key="BooleanNotToVisibility" />
     <utility:ListItemTypeToReadableNameConverter x:Key="ListItemTypeToReadableName" />
     <lineList:LineHasRecordedOnVisibilityConverter x:Key="LineListHasRecordedOnVisibility" />
     <lineList:LineRecordedOnSearchLabelConverter x:Key="LineRecordedOnSearchLabel" />
-    <Style x:Key="ActionPanelButtonStyle" TargetType="Button">
-        <Setter Property="Margin" Value="4" />
-        <Setter Property="Height" Value="24" />
-        <Setter Property="Width" Value="150" />
-    </Style>
-    <Style x:Key="ActionPanelUnlimitedWidthButtonStyle" TargetType="Button">
-        <Setter Property="Margin" Value="4" />
-        <Setter Property="Height" Value="24" />
-    </Style>
-    <Style x:Key="ActionPanelBorderStyle" TargetType="Border">
-        <Setter Property="Margin" Value="4" />
-        <Setter Property="CornerRadius" Value="4" />
-        <Setter Property="BorderThickness" Value="1" />
-        <Setter Property="BorderBrush" Value="Green" />
-    </Style>
-    <Style x:Key="UiComponentGroupBoxStyle" TargetType="GroupBox">
-        <Setter Property="BorderThickness" Value="1" />
-        <Setter Property="BorderBrush" Value="Green" />
-    </Style>
-    <Style x:Key="ReadOnlyTextBoxStyle" TargetType="TextBox">
-        <Setter Property="IsReadOnly" Value="True" />
-        <Setter Property="BorderThickness" Value="0" />
-        <Setter Property="Background" Value="Transparent" />
-    </Style>
-    <Style x:Key="ContentListOuterBorderStyle" TargetType="Border">
-        <Setter Property="Background" Value="White" />
-        <Setter Property="BorderBrush" Value="LightGray" />
-        <Setter Property="BorderThickness" Value="1" />
-        <Setter Property="CornerRadius" Value="5" />
-        <Setter Property="Margin" Value="4" />
-    </Style>
-    <Style x:Key="ContentListListBoxStyle" TargetType="ListBox">
-        <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Disabled" />
-        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
-        <Setter Property="BorderThickness" Value="0" />
-        <Setter Property="SelectionMode" Value="Extended" />
-        <Setter Property="ScrollViewer.CanContentScroll" Value="True" />
-        <Setter Property="VirtualizingPanel.ScrollUnit" Value="Pixel" />
-        <Setter Property="VirtualizingPanel.IsVirtualizing" Value="True" />
-    </Style>
-    <Style x:Key="ContentListContentVersionIdWrapPanelStyle" TargetType="WrapPanel">
-        <Setter Property="Margin" Value="0,3,0,0" />
-        <Setter Property="HorizontalAlignment" Value="Center" />
-        <Setter Property="Orientation" Value="Horizontal" />
-        <Setter Property="Opacity" Value=".3" />
-    </Style>
+
 
     <Style x:Key="DataEntryComboBoxStyle" TargetType="ComboBox">
         <Setter Property="Margin" Value="6,0,0,0" />

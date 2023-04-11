@@ -6,15 +6,12 @@ using System.Windows;
 using System.Windows.Shell;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using PointlessWaymarks.CmsData;
-using PointlessWaymarks.CmsData.S3;
-using PointlessWaymarks.CmsWpfControls.Utility;
-using PointlessWaymarks.CmsWpfControls.Utility.Excel;
+using PointlessWaymarks.CommonTools;
+using PointlessWaymarks.CommonTools.S3;
 using PointlessWaymarks.WpfCommon.Status;
-using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 using PointlessWaymarks.WpfCommon.Utility;
 
-namespace PointlessWaymarks.CmsWpfControls.S3Uploads;
+namespace PointlessWaymarks.WpfCommon.S3Uploads;
 
 public partial class S3UploadsContext : ObservableObject
 {
@@ -29,19 +26,22 @@ public partial class S3UploadsContext : ObservableObject
     [ObservableProperty] private RelayCommand _saveNotUploadedToUploadJsonFileCommand;
     [ObservableProperty] private RelayCommand _saveSelectedToUploadJsonFileCommand;
     [ObservableProperty] private RelayCommand _startAllUploadsCommand;
-    [ObservableProperty] private RelayCommand _startSelectedUploadsCommand;
     [ObservableProperty] private RelayCommand _startFailedUploadsCommand;
+    [ObservableProperty] private RelayCommand _startSelectedUploadsCommand;
     [ObservableProperty] private StatusControlContext _statusContext;
     [ObservableProperty] private RelayCommand _toClipboardAllItemsCommand;
     [ObservableProperty] private RelayCommand _toClipboardSelectedItemsCommand;
     [ObservableProperty] private RelayCommand _toExcelAllItemsCommand;
     [ObservableProperty] private RelayCommand _toExcelSelectedItemsCommand;
     [ObservableProperty] private S3UploadsUploadBatch? _uploadBatch;
+    [ObservableProperty] private S3Information _uploadS3Information;
 
-    public S3UploadsContext(StatusControlContext? statusContext, WindowIconStatus? osStatusIndicator)
+    private S3UploadsContext(StatusControlContext? statusContext, S3Information s3Info,
+        WindowIconStatus? osStatusIndicator)
     {
         _statusContext = statusContext ?? new StatusControlContext();
         _osStatusIndicator = osStatusIndicator;
+        _uploadS3Information = s3Info;
 
         _startSelectedUploadsCommand = StatusContext.RunNonBlockingTaskCommand(StartSelectedUploads);
         _startFailedUploadsCommand = StatusContext.RunNonBlockingTaskCommand(StartFailedUploads);
@@ -73,21 +73,21 @@ public partial class S3UploadsContext : ObservableObject
 
     public async Task ClearUploaded()
     {
-        await ThreadSwitcher.ResumeBackgroundAsync();
+        await ThreadSwitcher.ThreadSwitcher.ResumeBackgroundAsync();
 
         if (Items == null) return;
 
         var toRemove = Items.Where(x => x is { HasError: false, Completed: true }).ToList();
 
-        await ThreadSwitcher.ResumeForegroundAsync();
+        await ThreadSwitcher.ThreadSwitcher.ResumeForegroundAsync();
 
         toRemove.ForEach(x => Items.Remove(x));
     }
 
     public static async Task<S3UploadsContext> CreateInstance(StatusControlContext statusContext,
-        List<S3UploadRequest> uploadList, WindowIconStatus? windowStatus)
+        S3Information s3Info, List<S3UploadRequest> uploadList, WindowIconStatus? windowStatus)
     {
-        var newControl = new S3UploadsContext(statusContext, windowStatus);
+        var newControl = new S3UploadsContext(statusContext, s3Info, windowStatus);
         await newControl.LoadData(uploadList);
 
         return newControl;
@@ -97,11 +97,14 @@ public partial class S3UploadsContext : ObservableObject
     {
         if (!items.Any()) return;
 
-        var fileName = Path.Combine(UserSettingsSingleton.CurrentSettings().LocalScriptsDirectory().FullName,
-            $"{DateTime.Now:yyyy-MM-dd--HH-mm-ss}---File-Upload-Data.json");
+        //var fileName = Path.Combine(UserSettingsSingleton.CurrentSettings().LocalScriptsDirectory().FullName,
+        //    $"{DateTime.Now:yyyy-MM-dd--HH-mm-ss}---File-Upload-Data.json");
+
+        var fileName = UploadS3Information.FullFileNameForJsonUploadInformation();
 
         var jsonInfo = JsonSerializer.Serialize(items.Select(x =>
-            new S3UploadFileEntry(x.FileToUpload.FullName, x.AmazonObjectKey, x.BucketName, x.BucketRegion, x.Note)));
+            new S3UploadFileEntry(x.FileToUpload.FullName, x.AmazonObjectKey, x.UploadS3Information.BucketName(),
+                x.UploadS3Information.BucketRegion(), x.Note)));
 
         var file = new FileInfo(fileName);
 
@@ -112,7 +115,7 @@ public partial class S3UploadsContext : ObservableObject
 
     public async Task ItemsToClipboard(List<S3UploadsItem>? items)
     {
-        await ThreadSwitcher.ResumeBackgroundAsync();
+        await ThreadSwitcher.ThreadSwitcher.ResumeBackgroundAsync();
 
         if (items == null || !items.Any())
         {
@@ -122,21 +125,26 @@ public partial class S3UploadsContext : ObservableObject
 
         var itemsForClipboard = string.Join(Environment.NewLine,
             items.Select(x =>
-                    $"{x.FileToUpload.FullName}\t{x.BucketName}\t{x.AmazonObjectKey}\tCompleted: {x.Completed}\tHas Error: {x.HasError}\t Error: {x.ErrorMessage}")
+                    $"{x.FileToUpload.FullName}\t{x.UploadS3Information.BucketName()}\t{x.AmazonObjectKey}\tCompleted: {x.Completed}\tHas Error: {x.HasError}\t Error: {x.ErrorMessage}")
                 .ToList());
 
-        await ThreadSwitcher.ResumeForegroundAsync();
+        await ThreadSwitcher.ThreadSwitcher.ResumeForegroundAsync();
 
         Clipboard.SetText(itemsForClipboard);
 
-        await ThreadSwitcher.ResumeBackgroundAsync();
+        await ThreadSwitcher.ThreadSwitcher.ResumeBackgroundAsync();
 
         StatusContext.ToastSuccess("Items added to the Clipboard");
     }
 
+    // ReSharper disable NotAccessedPositionalProperty.Global Properties accessed by reflection
+    public record S3ExcelUploadInformation(string FullName, string AmazonObjectKey, string BucketName, bool Completed,
+        bool HasError, string ErrorMessage);
+    // ReSharper restore NotAccessedPositionalProperty.Global
+
     public async Task ItemsToExcel(List<S3UploadsItem>? items)
     {
-        await ThreadSwitcher.ResumeBackgroundAsync();
+        await ThreadSwitcher.ThreadSwitcher.ResumeBackgroundAsync();
 
         if (items == null || !items.Any())
         {
@@ -144,33 +152,27 @@ public partial class S3UploadsContext : ObservableObject
             return;
         }
 
-        var itemsForExcel = items.Select(x => new
-        {
-            x.FileToUpload.FullName,
-            x.BucketName,
-            x.AmazonObjectKey,
-            x.Completed,
-            x.HasError,
-            x.ErrorMessage
-        }).ToList();
+        var itemsForExcel = items.Select(x => new S3ExcelUploadInformation(x.FileToUpload.FullName, x.AmazonObjectKey,
+            x.UploadS3Information.BucketName(), x.Completed, x.HasError, x.ErrorMessage)).ToList();
 
-        ExcelHelpers.ContentToExcelFileAsTable(itemsForExcel.Cast<object>().ToList(), "UploadItemsList");
+        ExcelTools.ToExcelFileAsTable(itemsForExcel.Cast<object>().ToList(),
+            UploadS3Information.FullFileNameForToExcel());
     }
 
     public async Task LoadData(List<S3UploadRequest> uploadList)
     {
-        await ThreadSwitcher.ResumeBackgroundAsync();
+        await ThreadSwitcher.ThreadSwitcher.ResumeBackgroundAsync();
 
         if (!uploadList.Any()) return;
 
         ListSelection = await ContentListSelected<S3UploadsItem>.CreateInstance(StatusContext);
 
         var newItemsList = uploadList
-            .Select(x => new S3UploadsItem(x.ToUpload, x.S3Key, x.BucketName, x.Region, x.Note))
+            .Select(x => new S3UploadsItem(UploadS3Information, x.ToUpload, x.S3Key, x.Note))
             .OrderByDescending(x => x.FileToUpload.FullName.Count(y => y == '\\')).ThenBy(x => x.FileToUpload.FullName)
             .ToList();
 
-        await ThreadSwitcher.ResumeForegroundAsync();
+        await ThreadSwitcher.ThreadSwitcher.ResumeForegroundAsync();
 
         if (Items == null)
         {
@@ -185,7 +187,7 @@ public partial class S3UploadsContext : ObservableObject
 
     public async Task OpenLocalFileInExplorer(S3UploadsItem? toOpen)
     {
-        await ThreadSwitcher.ResumeForegroundAsync();
+        await ThreadSwitcher.ThreadSwitcher.ResumeForegroundAsync();
 
         if (toOpen == null)
         {
@@ -198,7 +200,7 @@ public partial class S3UploadsContext : ObservableObject
 
     public async Task RemoveSelectedItems()
     {
-        await ThreadSwitcher.ResumeBackgroundAsync();
+        await ThreadSwitcher.ThreadSwitcher.ResumeBackgroundAsync();
 
         if (Items == null || ListSelection == null)
         {
@@ -215,18 +217,18 @@ public partial class S3UploadsContext : ObservableObject
             return;
         }
 
-        await ThreadSwitcher.ResumeForegroundAsync();
+        await ThreadSwitcher.ThreadSwitcher.ResumeForegroundAsync();
 
         foreach (var loopDeletes in canDelete) Items.Remove(loopDeletes);
 
-        await ThreadSwitcher.ResumeBackgroundAsync();
+        await ThreadSwitcher.ThreadSwitcher.ResumeBackgroundAsync();
 
         StatusContext.ToastSuccess($"{canDelete.Count} Items Removed");
     }
 
     public async Task SaveAllToUploadJsonFile()
     {
-        await ThreadSwitcher.ResumeBackgroundAsync();
+        await ThreadSwitcher.ThreadSwitcher.ResumeBackgroundAsync();
 
         if (Items == null || !Items.Any())
         {
@@ -239,7 +241,7 @@ public partial class S3UploadsContext : ObservableObject
 
     public async Task SaveNotUploadedToUploadJsonFile()
     {
-        await ThreadSwitcher.ResumeBackgroundAsync();
+        await ThreadSwitcher.ThreadSwitcher.ResumeBackgroundAsync();
 
         if (Items == null || !Items.Any(x => x is { Completed: true, HasError: false }))
         {
@@ -252,7 +254,7 @@ public partial class S3UploadsContext : ObservableObject
 
     public async Task SaveSelectedToUploadJsonFile()
     {
-        await ThreadSwitcher.ResumeBackgroundAsync();
+        await ThreadSwitcher.ThreadSwitcher.ResumeBackgroundAsync();
 
         if (ListSelection?.SelectedItems == null || !ListSelection.SelectedItems.Any())
         {
@@ -287,7 +289,7 @@ public partial class S3UploadsContext : ObservableObject
 
     public async Task StartFailedUploads()
     {
-        await ThreadSwitcher.ResumeBackgroundAsync();
+        await ThreadSwitcher.ThreadSwitcher.ResumeBackgroundAsync();
 
         if (Items == null) return;
 
@@ -323,8 +325,8 @@ public partial class S3UploadsContext : ObservableObject
 
     private void UploadBatchOnPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
-        if (e.PropertyName is nameof(UploadBatch) or nameof(UploadBatch.Uploading)
-            or nameof(UploadBatch.CompletedSizePercent) or nameof(UploadBatch.CompletedItemPercent))
+        if (e.PropertyName is nameof(UploadBatch) or nameof(S3UploadsUploadBatch.Uploading)
+            or nameof(S3UploadsUploadBatch.CompletedSizePercent) or nameof(S3UploadsUploadBatch.CompletedItemPercent))
         {
             if (UploadBatch is not { Uploading: true })
             {
