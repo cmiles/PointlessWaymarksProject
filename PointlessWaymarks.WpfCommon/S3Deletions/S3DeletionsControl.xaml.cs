@@ -1,6 +1,6 @@
 ﻿using System.Windows.Controls;
 
-namespace PointlessWaymarks.CmsWpfControls.S3Deletions;
+namespace PointlessWaymarks.WpfCommon.S3Deletions;
 
 /// <summary>
 ///     Interaction logic for S3DeletionsControl.xaml
@@ -15,7 +15,7 @@ public partial class S3DeletionsControl
     private void Selector_OnSelectionChanged(object? sender, SelectionChangedEventArgs e)
     {
         if (DataContext == null) return;
-        var viewmodel = (S3DeletionsContext) DataContext;
+        var viewmodel = (S3DeletionsContext)DataContext;
         viewmodel.SelectedItems = ItemsListBox?.SelectedItems.Cast<S3DeletionsItem>().ToList() ??
                                   new List<S3DeletionsItem>();
     }

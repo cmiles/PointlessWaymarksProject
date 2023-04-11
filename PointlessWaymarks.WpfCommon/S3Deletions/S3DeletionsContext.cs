@@ -5,13 +5,11 @@ using Amazon.S3;
 using Amazon.S3.Model;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using PointlessWaymarks.CmsData;
-using PointlessWaymarks.CmsData.S3;
-using PointlessWaymarks.CmsWpfControls.Utility.Excel;
+using PointlessWaymarks.CommonTools;
+using PointlessWaymarks.WpfCommon.S3Uploads;
 using PointlessWaymarks.WpfCommon.Status;
-using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 
-namespace PointlessWaymarks.CmsWpfControls.S3Deletions;
+namespace PointlessWaymarks.WpfCommon.S3Deletions;
 
 public partial class S3DeletionsContext : ObservableObject
 {
@@ -24,10 +22,15 @@ public partial class S3DeletionsContext : ObservableObject
     [ObservableProperty] private RelayCommand _toClipboardSelectedItemsCommand;
     [ObservableProperty] private RelayCommand _toExcelAllItemsCommand;
     [ObservableProperty] private RelayCommand _toExcelSelectedItemsCommand;
+    [ObservableProperty] private S3Information _uploadS3Information;
 
-    public S3DeletionsContext(StatusControlContext? statusContext)
+
+    private S3DeletionsContext(StatusControlContext? statusContext, S3Information s3Info)
     {
         _statusContext = statusContext ?? new StatusControlContext();
+
+        _uploadS3Information = s3Info;
+
         _deleteAllCommand =
             StatusContext.RunBlockingTaskWithCancellationCommand(async x => await DeleteAll(x), "Cancel Deletions");
         _deleteSelectedCommand =
@@ -37,17 +40,19 @@ public partial class S3DeletionsContext : ObservableObject
         _toExcelAllItemsCommand =
             StatusContext.RunNonBlockingTaskCommand(async () => await ItemsToExcel(Items?.ToList()));
         _toExcelSelectedItemsCommand =
-            StatusContext.RunNonBlockingTaskCommand(async () => await ItemsToExcel(SelectedItems.ToList()));
+            StatusContext.RunNonBlockingTaskCommand(async () =>
+                await ItemsToExcel(SelectedItems.ToList()));
         _toClipboardAllItemsCommand =
             StatusContext.RunNonBlockingTaskCommand(async () => await ItemsToClipboard(Items?.ToList()));
         _toClipboardSelectedItemsCommand =
-            StatusContext.RunNonBlockingTaskCommand(async () => await ItemsToClipboard(SelectedItems.ToList()));
+            StatusContext.RunNonBlockingTaskCommand(async () =>
+                await ItemsToClipboard(SelectedItems.ToList()));
     }
 
     public static async Task<S3DeletionsContext> CreateInstance(StatusControlContext? statusContext,
-        List<S3DeletionsItem> itemsToDelete)
+        S3Information s3Info, List<S3DeletionsItem> itemsToDelete)
     {
-        var newControl = new S3DeletionsContext(statusContext);
+        var newControl = new S3DeletionsContext(statusContext, s3Info);
         await newControl.LoadData(itemsToDelete);
         return newControl;
     }
@@ -63,11 +68,20 @@ public partial class S3DeletionsContext : ObservableObject
 
         progress.Report("Getting Amazon Credentials");
 
-        var (accessKey, secret) = AwsCredentials.GetAwsSiteCredentials();
+        var accessKey = UploadS3Information.AccessKey();
+        var secret = UploadS3Information.Secret();
 
         if (string.IsNullOrWhiteSpace(accessKey) || string.IsNullOrWhiteSpace(secret))
         {
             StatusContext.ToastError("Aws Credentials are not entered or valid?");
+            return;
+        }
+
+        var bucketRegion = UploadS3Information.BucketRegionEndpoint();
+
+        if (bucketRegion == null)
+        {
+            StatusContext.ToastError("Bucket Region is not entered or valid?");
             return;
         }
 
@@ -76,14 +90,15 @@ public partial class S3DeletionsContext : ObservableObject
         progress.Report("Getting Amazon Client");
 
         var s3Client = new AmazonS3Client(accessKey, secret,
-            UserSettingsSingleton.CurrentSettings().SiteS3BucketEndpoint());
+            UploadS3Information.BucketRegionEndpoint());
 
         var loopCount = 0;
         var totalCount = itemsToDelete.Count;
 
         //Sorted items as a quick way to delete the deepest items first
         var sortedItems = itemsToDelete.OrderByDescending(x => x.AmazonObjectKey.Count(y => y == '/'))
-            .ThenByDescending(x => x.AmazonObjectKey.Length).ThenByDescending(x => x.AmazonObjectKey).ToList();
+            .ThenByDescending(x => x.AmazonObjectKey.Length)
+            .ThenByDescending<S3DeletionsItem, string>(x => x.AmazonObjectKey).ToList();
 
         foreach (var loopDeletionItems in sortedItems)
         {
@@ -114,7 +129,7 @@ public partial class S3DeletionsContext : ObservableObject
 
         if (Items == null) return;
 
-        await ThreadSwitcher.ResumeForegroundAsync();
+        await ThreadSwitcher.ThreadSwitcher.ResumeForegroundAsync();
 
         toRemoveFromList.ForEach(x => Items.Remove(x));
     }
@@ -127,12 +142,13 @@ public partial class S3DeletionsContext : ObservableObject
 
     public async Task DeleteSelected(CancellationToken cancellationToken)
     {
-        await Delete(SelectedItems.ToList(), cancellationToken, StatusContext.ProgressTracker());
+        await Delete(SelectedItems.ToList(), cancellationToken,
+            StatusContext.ProgressTracker());
     }
 
     public async Task ItemsToClipboard(List<S3DeletionsItem>? items)
     {
-        await ThreadSwitcher.ResumeBackgroundAsync();
+        await ThreadSwitcher.ThreadSwitcher.ResumeBackgroundAsync();
 
         if (items == null || !items.Any())
         {
@@ -144,14 +160,14 @@ public partial class S3DeletionsContext : ObservableObject
             items.Select(x => $"{x.BucketName}\t{x.AmazonObjectKey}\tHas Error: {x.HasError}\t Error: {x.ErrorMessage}")
                 .ToList());
 
-        await ThreadSwitcher.ResumeForegroundAsync();
+        await ThreadSwitcher.ThreadSwitcher.ResumeForegroundAsync();
 
         Clipboard.SetText(itemsForClipboard);
     }
 
     public async Task ItemsToExcel(List<S3DeletionsItem>? items)
     {
-        await ThreadSwitcher.ResumeBackgroundAsync();
+        await ThreadSwitcher.ThreadSwitcher.ResumeBackgroundAsync();
 
         if (items == null || !items.Any())
         {
@@ -162,12 +178,13 @@ public partial class S3DeletionsContext : ObservableObject
         var itemsForExcel = items.Select(x => new { x.BucketName, x.AmazonObjectKey, x.HasError, x.ErrorMessage })
             .ToList();
 
-        ExcelHelpers.ContentToExcelFileAsTable(itemsForExcel.Cast<object>().ToList(), "UploadItemsList");
+        ExcelTools.ToExcelFileAsTable(itemsForExcel.Cast<object>().ToList(),
+            UploadS3Information.FullFileNameForToExcel());
     }
 
     public async Task LoadData(List<S3DeletionsItem> toDelete)
     {
-        await ThreadSwitcher.ResumeForegroundAsync();
+        await ThreadSwitcher.ThreadSwitcher.ResumeForegroundAsync();
 
         Items = new ObservableCollection<S3DeletionsItem>(toDelete);
     }

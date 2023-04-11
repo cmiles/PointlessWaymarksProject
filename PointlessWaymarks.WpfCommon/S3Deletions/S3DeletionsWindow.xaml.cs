@@ -1,8 +1,9 @@
 ﻿using System.ComponentModel;
 using CommunityToolkit.Mvvm.ComponentModel;
+using PointlessWaymarks.WpfCommon.S3Uploads;
 using PointlessWaymarks.WpfCommon.Status;
 
-namespace PointlessWaymarks.CmsWpfControls.S3Deletions;
+namespace PointlessWaymarks.WpfCommon.S3Deletions;
 
 /// <summary>
 ///     Interaction logic for S3DeletionsWindow.xaml
@@ -13,7 +14,7 @@ public partial class S3DeletionsWindow
     [ObservableProperty] private S3DeletionsContext? _deletionContext;
     [ObservableProperty] private StatusControlContext _statusContext;
 
-    public S3DeletionsWindow(List<S3DeletionsItem> itemsToDelete)
+    public S3DeletionsWindow(S3Information s3Info, List<S3DeletionsItem> itemsToDelete)
     {
         InitializeComponent();
 
@@ -23,7 +24,7 @@ public partial class S3DeletionsWindow
 
         StatusContext.RunFireAndForgetBlockingTask(async () =>
         {
-            DeletionContext = await S3DeletionsContext.CreateInstance(StatusContext, itemsToDelete);
+            DeletionContext = await S3DeletionsContext.CreateInstance(StatusContext, s3Info, itemsToDelete);
         });
     }
 

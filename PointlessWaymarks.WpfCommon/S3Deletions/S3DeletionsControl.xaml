@@ -1,13 +1,12 @@
 ﻿<UserControl
-    x:Class="PointlessWaymarks.CmsWpfControls.S3Deletions.S3DeletionsControl"
+    x:Class="PointlessWaymarks.WpfCommon.S3Deletions.S3DeletionsControl"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:s3Deletions="clr-namespace:PointlessWaymarks.CmsWpfControls.S3Deletions"
-    xmlns:wpfBehavior="clr-namespace:PointlessWaymarks.WpfCommon.Behaviors;assembly=PointlessWaymarks.WpfCommon"
-    xmlns:wpfConverter="clr-namespace:PointlessWaymarks.WpfCommon.ValueConverters;assembly=PointlessWaymarks.WpfCommon"
+    xmlns:s3Deletions="clr-namespace:PointlessWaymarks.WpfCommon.S3Deletions"
+    xmlns:wpfBehavior="clr-namespace:PointlessWaymarks.WpfCommon.Behaviors"
     d:DataContext="{d:DesignInstance s3Deletions:S3DeletionsContext}"
     d:DesignHeight="450"
     d:DesignWidth="800"
@@ -15,9 +14,8 @@
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="../WpfControlsResourceDictionary.xaml" />
+                <ResourceDictionary Source="../ClassicGreenResourceDictionary.xaml" />
             </ResourceDictionary.MergedDictionaries>
-            <wpfConverter:BooleanToVisibilityConverter x:Key="BooleanToVisibility" />
         </ResourceDictionary>
     </UserControl.Resources>
     <Grid>

@@ -1,7 +1,7 @@
 ﻿#nullable enable
 using CommunityToolkit.Mvvm.ComponentModel;
 
-namespace PointlessWaymarks.CmsWpfControls.S3Deletions;
+namespace PointlessWaymarks.WpfCommon.S3Deletions;
 
 public partial class S3DeletionsItem : ObservableObject
 {

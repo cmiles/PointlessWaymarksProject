@@ -13,12 +13,12 @@ using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsData.S3;
 using PointlessWaymarks.CmsWpfControls.ContentList;
-using PointlessWaymarks.CmsWpfControls.S3Deletions;
 using PointlessWaymarks.CmsWpfControls.S3Uploads;
 using PointlessWaymarks.CmsWpfControls.Utility.Aws;
 using PointlessWaymarks.CmsWpfControls.Utility.Excel;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.CommonTools.S3;
+using PointlessWaymarks.WpfCommon.S3Deletions;
 using PointlessWaymarks.WpfCommon.S3Uploads;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
@@ -656,7 +656,7 @@ public partial class FilesWrittenLogListContext : ObservableObject
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
-        var newUploadWindow = new S3DeletionsWindow(results.S3KeysToDelete.Select(x =>
+        var newUploadWindow = new S3DeletionsWindow(S3UploadHelpers.AmazonInformationFromSettings(), results.S3KeysToDelete.Select(x =>
             new S3DeletionsItem
             {
                 AmazonObjectKey = x, BucketName = UserSettingsSingleton.CurrentSettings().SiteS3Bucket
