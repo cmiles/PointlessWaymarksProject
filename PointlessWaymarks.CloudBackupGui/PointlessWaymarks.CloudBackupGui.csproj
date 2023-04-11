@@ -1,0 +1,22 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <UseWPF>true</UseWPF>
+    <ApplicationIcon>PointlessWaymarksCloudBackupIcon.ico</ApplicationIcon>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="PointlessWaymarksCloudBackupIcon.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\PointlessWaymarks.CloudBackupData\PointlessWaymarks.CloudBackupData.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="PointlessWaymarksCloudBackupIcon.ico" />
+  </ItemGroup>
+
+</Project>

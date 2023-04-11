@@ -347,9 +347,7 @@ public static class Db
     ///     Returns a database context based on the current settings.
     /// </summary>
     /// <returns></returns>
-#pragma warning disable 1998
-    public static async Task<PointlessWaymarksContext> Context()
-#pragma warning restore 1998
+    public static Task<PointlessWaymarksContext> Context()
     {
         // https://github.com/aspnet/EntityFrameworkCore/issues/9994#issuecomment-508588678
         SQLitePCL.Batteries_V2.Init();
@@ -357,7 +355,7 @@ public static class Db
 
         var optionsBuilder = new DbContextOptionsBuilder<PointlessWaymarksContext>();
         var dbPath = UserSettingsSingleton.CurrentSettings().DatabaseFileFullName();
-        return new PointlessWaymarksContext(optionsBuilder.UseSqlite($"Data Source={dbPath}").Options);
+        return Task.FromResult(new PointlessWaymarksContext(optionsBuilder.UseSqlite($"Data Source={dbPath}").Options));
     }
 
     /// <summary>

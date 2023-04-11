@@ -9,9 +9,6 @@ public class PointlessWaymarksContext : DbContext
 {
     public PointlessWaymarksContext(DbContextOptions<PointlessWaymarksContext> options) : base(options)
     {
-        //https://github.com/dotnet/efcore/issues/9994
-        //Batteries.Init();
-        //raw.sqlite3_config(2 /*SQLITE_CONFIG_MULTITHREAD*/);
     }
 
     public DbSet<FileContent> FileContents { get; set; }
