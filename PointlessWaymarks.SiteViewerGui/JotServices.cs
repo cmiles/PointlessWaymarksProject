@@ -1,6 +1,6 @@
 ﻿using System.Windows;
-using System.Windows.Forms;
 using Jot;
+using WpfScreenHelper;
 
 namespace PointlessWaymarks.SiteViewerGui;
 
