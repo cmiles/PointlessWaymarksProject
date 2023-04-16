@@ -26,162 +26,167 @@
             <Setter Property="VerticalAlignment" Value="Center" />
         </Style>
     </UserControl.Resources>
-    <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="*" />
-        </Grid.RowDefinitions>
-        <GroupBox Header="Setup">
-            <StackPanel Orientation="Vertical">
-                <StackPanel Style="{StaticResource SearchStackContainer}">
+    <ScrollViewer>
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <GroupBox Header="Setup">
+                <StackPanel Orientation="Vertical">
+                    <StackPanel Style="{StaticResource SearchStackContainer}">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition></RowDefinition>
+                                <RowDefinition></RowDefinition>
+                            </Grid.RowDefinitions>
+                            <StackPanel Orientation="Horizontal">
+                                <Label FontWeight="Bold">Garmin Connect Credentials:</Label>
+                                <TextBlock Margin="8,0,0,0" Text="{Binding CurrentCredentialsNote}"
+                                           VerticalAlignment="Center" />
+                            </StackPanel>
+                            <StackPanel Grid.Row="1" Margin="16,8,4,8" Orientation="Horizontal">
+                                <Button Width="240" Command="{Binding EnterGarminCredentialsCommand}">Enter Garmin Credentials</Button>
+                                <Button Width="240" Margin="8,0,4,0"
+                                        Command="{Binding RemoveAllGarminCredentialsCommand}">
+                                    Delete All Credentials
+                                </Button>
+                            </StackPanel>
+                        </Grid>
+                    </StackPanel>
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition></RowDefinition>
                             <RowDefinition></RowDefinition>
                         </Grid.RowDefinitions>
-                        <StackPanel Orientation="Horizontal">
-                            <Label FontWeight="Bold">Garmin Connect Credentials:</Label>
-                            <TextBlock Margin="8,0,0,0" Text="{Binding CurrentCredentialsNote}"
-                                       VerticalAlignment="Center" />
+                        <StackPanel Style="{StaticResource SearchStackContainer}">
+                            <Label VerticalAlignment="Center" FontWeight="Bold" Target="ArchiveDirectoryTextBox">Archive Directory:</Label>
+
+                            <TextBox VerticalAlignment="Center" Margin="8,0,0,0" MinWidth="240"
+                                     Name="ArchiveDirectoryTextBox" BorderThickness="1"
+                                     BorderBrush="LightBlue"
+                                     Text="{Binding Settings.ArchiveDirectory, UpdateSourceTrigger=PropertyChanged, Delay=300}" />
+                            <TextBlock
+                                Visibility="{Binding ArchiveDirectoryExists, Converter={StaticResource BooleanNotToVisibility}}"
+                                FontWeight="Bold" Foreground="Red" FontSize="20" VerticalAlignment="Center"
+                                Margin="8,0,8,0" ToolTip="Directory Does Not Exist">
+                                !
+                            </TextBlock>
                         </StackPanel>
                         <StackPanel Grid.Row="1" Margin="16,8,4,8" Orientation="Horizontal">
-                            <Button Width="240" Command="{Binding EnterGarminCredentialsCommand}">Enter Garmin Credentials</Button>
-                            <Button Width="240" Margin="8,0,4,0" Command="{Binding RemoveAllGarminCredentialsCommand}">Delete All Credentials</Button>
+                            <Button Width="240" Command="{Binding ChooseArchiveDirectoryCommand}">Select Directory</Button>
+                            <Button Width="240" Margin="8,0,0,0" Command="{Binding ShowArchiveDirectoryCommand}">Open</Button>
                         </StackPanel>
                     </Grid>
+
                 </StackPanel>
-                <Grid>
+            </GroupBox>
+            <GroupBox Grid.Row="1" Header="Search">
+                <Grid HorizontalAlignment="Left">
                     <Grid.RowDefinitions>
-                        <RowDefinition></RowDefinition>
-                        <RowDefinition></RowDefinition>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
                     </Grid.RowDefinitions>
-                    <StackPanel Style="{StaticResource SearchStackContainer}">
-                        <Label VerticalAlignment="Center" FontWeight="Bold" Target="ArchiveDirectoryTextBox">Archive Directory:</Label>
-
-                        <TextBox VerticalAlignment="Center" Margin="8,0,0,0" MinWidth="240"
-                                 Name="ArchiveDirectoryTextBox" BorderThickness="1"
-                                 BorderBrush="LightBlue"
-                                 Text="{Binding Settings.ArchiveDirectory, UpdateSourceTrigger=PropertyChanged, Delay=300}" />
-                        <TextBlock
-                            Visibility="{Binding ArchiveDirectoryExists, Converter={StaticResource BooleanNotToVisibility}}"
-                            FontWeight="Bold" Foreground="Red" FontSize="20" VerticalAlignment="Center"
-                            Margin="8,0,8,0" ToolTip="Directory Does Not Exist">
-                            !
-                        </TextBlock>
-                    </StackPanel>
-                    <StackPanel Grid.Row="1" Margin="16,8,4,8" Orientation="Horizontal">
-                        <Button Width="240" Command="{Binding ChooseArchiveDirectoryCommand}">Select Directory</Button>
-                        <Button Width="240" Margin="8,0,0,0" Command="{Binding ShowArchiveDirectoryCommand}">Open</Button>
-                    </StackPanel>
+                    <WrapPanel Orientation="Horizontal">
+                        <Border Style="{StaticResource SearchBorder}">
+                            <StackPanel Style="{StaticResource SearchStackContainer}">
+                                <Label Style="{StaticResource SearchLabel}" Target="SearchStartDatePicker">Search Start</Label>
+                                <DatePicker Name="SearchStartDatePicker" SelectedDate="{Binding SearchStartDate}" />
+                            </StackPanel>
+                        </Border>
+                        <Border Style="{StaticResource SearchBorder}">
+                            <StackPanel Style="{StaticResource SearchStackContainer}">
+                                <Label Style="{StaticResource SearchLabel}" Target="SearchEndDatePicker">Search Start</Label>
+                                <DatePicker Name="SearchEndDatePicker" SelectedDate="{Binding SearchEndDate}" />
+                            </StackPanel>
+                        </Border>
+                    </WrapPanel>
+                    <Button Grid.Row="1" HorizontalAlignment="Stretch" Margin="4,8,4,0"
+                            Command="{Binding RunSearchCommand}" Height="40">
+                        Search
+                    </Button>
                 </Grid>
-
-            </StackPanel>
-        </GroupBox>
-        <GroupBox Grid.Row="1" Header="Search">
-            <Grid HorizontalAlignment="Left">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="Auto" />
-                </Grid.RowDefinitions>
-                <WrapPanel Orientation="Horizontal">
+            </GroupBox>
+            <GroupBox Grid.Row="2" Header="Filter">
+                <WrapPanel>
+                    <Border Style="{StaticResource SearchBorder}">
+                        <CheckBox Margin="8,0,8,0" IsChecked="{Binding FilterNoMatchingArchiveFile}">No Matching Archive File</CheckBox>
+                    </Border>
+                    <Border Style="{StaticResource SearchBorder}">
+                        <CheckBox Margin="8,0,8,0" IsChecked="{Binding FilterMatchingArchiveFile}">Matching Archive File</CheckBox>
+                    </Border>
                     <Border Style="{StaticResource SearchBorder}">
                         <StackPanel Style="{StaticResource SearchStackContainer}">
-                            <Label Style="{StaticResource SearchLabel}" Target="SearchStartDatePicker">Search Start</Label>
-                            <DatePicker Name="SearchStartDatePicker" SelectedDate="{Binding SearchStartDate}" />
+                            <Label Style="{StaticResource SearchLabel}">Name Contains</Label>
+                            <TextBox MinWidth="240" BorderThickness="1" BorderBrush="LightBlue"
+                                     Text="{Binding FilterName, UpdateSourceTrigger=PropertyChanged, Delay=400}" />
                         </StackPanel>
                     </Border>
                     <Border Style="{StaticResource SearchBorder}">
                         <StackPanel Style="{StaticResource SearchStackContainer}">
-                            <Label Style="{StaticResource SearchLabel}" Target="SearchEndDatePicker">Search Start</Label>
-                            <DatePicker Name="SearchEndDatePicker" SelectedDate="{Binding SearchEndDate}" />
+                            <Label Style="{StaticResource SearchLabel}">Location Contains</Label>
+                            <TextBox MinWidth="240" BorderThickness="1" BorderBrush="LightBlue"
+                                     Text="{Binding FilterLocation, UpdateSourceTrigger=PropertyChanged, Delay=400}" />
                         </StackPanel>
                     </Border>
                 </WrapPanel>
-                <Button Grid.Row="1" HorizontalAlignment="Stretch" Margin="4,8,4,0"
-                        Command="{Binding RunSearchCommand}" Height="40">
-                    Search
-                </Button>
-            </Grid>
-        </GroupBox>
-        <GroupBox Grid.Row="2" Header="Filter">
-            <WrapPanel>
-                <Border Style="{StaticResource SearchBorder}">
-                    <CheckBox Margin="8,0,8,0" IsChecked="{Binding FilterNoMatchingArchiveFile}">No Matching Archive File</CheckBox>
-                </Border>
-                <Border Style="{StaticResource SearchBorder}">
-                    <CheckBox Margin="8,0,8,0" IsChecked="{Binding FilterMatchingArchiveFile}">Matching Archive File</CheckBox>
-                </Border>
-                <Border Style="{StaticResource SearchBorder}">
-                    <StackPanel Style="{StaticResource SearchStackContainer}">
-                        <Label Style="{StaticResource SearchLabel}">Name Contains</Label>
-                        <TextBox MinWidth="240" BorderThickness="1" BorderBrush="LightBlue"
-                                 Text="{Binding FilterName, UpdateSourceTrigger=PropertyChanged, Delay=400}" />
-                    </StackPanel>
-                </Border>
-                <Border Style="{StaticResource SearchBorder}">
-                    <StackPanel Style="{StaticResource SearchStackContainer}">
-                        <Label Style="{StaticResource SearchLabel}">Location Contains</Label>
-                        <TextBox MinWidth="240" BorderThickness="1" BorderBrush="LightBlue"
-                                 Text="{Binding FilterLocation, UpdateSourceTrigger=PropertyChanged, Delay=400}" />
-                    </StackPanel>
-                </Border>
-            </WrapPanel>
-        </GroupBox>
-        <DataGrid Grid.Row="3" Margin="4,12,4,12" ItemsSource="{Binding SearchResultsFiltered}"
-                  AutoGenerateColumns="False">
-            <DataGrid.Columns>
-                <DataGridTextColumn Header="Start Time" Binding="{Binding Activity.StartTimeLocal}" />
-                <DataGridTextColumn Header="Name" Binding="{Binding Activity.ActivityName}" />
-                <DataGridTextColumn Header="Location" Binding="{Binding Activity.LocationName}" />
-                <DataGridTextColumn Header="Duration"
-                                    Binding="{Binding Activity.Duration, Converter={StaticResource SecondsToHoursMinutesSeconds}}" />
-                <DataGridTemplateColumn>
-                    <DataGridTemplateColumn.CellTemplate>
-                        <DataTemplate>
-                            <Button Margin="2"
-                                    Command="{Binding Data.ShowGpxFileCommand, Source={StaticResource Proxy}}"
-                                    CommandParameter="{Binding .}">
-                                Show GPX
-                            </Button>
-                        </DataTemplate>
-                    </DataGridTemplateColumn.CellTemplate>
-                </DataGridTemplateColumn>
-                <DataGridTemplateColumn>
-                    <DataGridTemplateColumn.CellTemplate>
-                        <DataTemplate>
-                            <Button Margin="2"
-                                    Command="{Binding Data.DownloadActivityCommand, Source={StaticResource Proxy}}"
-                                    CommandParameter="{Binding .}">
-                                Download
-                            </Button>
-                        </DataTemplate>
-                    </DataGridTemplateColumn.CellTemplate>
-                </DataGridTemplateColumn>
-                <DataGridTemplateColumn>
-                    <DataGridTemplateColumn.CellTemplate>
-                        <DataTemplate>
-                            <Button IsEnabled="{Binding ArchivedJson.Exists, FallbackValue=False}" Margin="2"
-                                    Command="{Binding Data.ShowFileInExplorerCommand, Source={StaticResource Proxy}}"
-                                    CommandParameter="{Binding ArchivedJson.FullName}">
-                                Json in Explorer
-                            </Button>
-                        </DataTemplate>
-                    </DataGridTemplateColumn.CellTemplate>
-                </DataGridTemplateColumn>
-                <DataGridTemplateColumn>
-                    <DataGridTemplateColumn.CellTemplate>
-                        <DataTemplate>
-                            <Button IsEnabled="{Binding ArchivedJson.Exists, FallbackValue=False}" Margin="2"
-                                    Command="{Binding Data.ShowFileInExplorerCommand, Source={StaticResource Proxy}}"
-                                    CommandParameter="{Binding ArchivedGpx.FullName}">
-                                Gpx in Explorer
-                            </Button>
-                        </DataTemplate>
-                    </DataGridTemplateColumn.CellTemplate>
-                </DataGridTemplateColumn>
-            </DataGrid.Columns>
-        </DataGrid>
-    </Grid>
+            </GroupBox>
+            <DataGrid Grid.Row="3" Margin="4,12,4,12" ItemsSource="{Binding SearchResultsFiltered}"
+                      AutoGenerateColumns="False">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Start Time" Binding="{Binding Activity.StartTimeLocal}" />
+                    <DataGridTextColumn Header="Name" Binding="{Binding Activity.ActivityName}" />
+                    <DataGridTextColumn Header="Location" Binding="{Binding Activity.LocationName}" />
+                    <DataGridTextColumn Header="Duration"
+                                        Binding="{Binding Activity.Duration, Converter={StaticResource SecondsToHoursMinutesSeconds}}" />
+                    <DataGridTemplateColumn>
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <Button Margin="2"
+                                        Command="{Binding Data.ShowGpxFileCommand, Source={StaticResource Proxy}}"
+                                        CommandParameter="{Binding .}">
+                                    Show GPX
+                                </Button>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTemplateColumn>
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <Button Margin="2"
+                                        Command="{Binding Data.DownloadActivityCommand, Source={StaticResource Proxy}}"
+                                        CommandParameter="{Binding .}">
+                                    Download
+                                </Button>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTemplateColumn>
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <Button IsEnabled="{Binding ArchivedJson.Exists, FallbackValue=False}" Margin="2"
+                                        Command="{Binding Data.ShowFileInExplorerCommand, Source={StaticResource Proxy}}"
+                                        CommandParameter="{Binding ArchivedJson.FullName}">
+                                    Json in Explorer
+                                </Button>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTemplateColumn>
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <Button IsEnabled="{Binding ArchivedJson.Exists, FallbackValue=False}" Margin="2"
+                                        Command="{Binding Data.ShowFileInExplorerCommand, Source={StaticResource Proxy}}"
+                                        CommandParameter="{Binding ArchivedGpx.FullName}">
+                                    Gpx in Explorer
+                                </Button>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                </DataGrid.Columns>
+            </DataGrid>
+        </Grid>
+    </ScrollViewer>
 </UserControl>
