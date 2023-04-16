@@ -1,5 +1,4 @@
-﻿using System.Reflection;
-using CommunityToolkit.Mvvm.ComponentModel;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Messaging;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.GeoToolsGui.Controls;
@@ -99,7 +98,7 @@ public partial class MainWindow
         await CheckForProgramUpdate(_currentDateVersion);
 
 
-        WeakReferenceMessenger.Default.Register<ExifToolSettingsUpdateMessage>(this,  (_, m) =>
+        WeakReferenceMessenger.Default.Register<ExifToolSettingsUpdateMessage>(this, (_, m) =>
         {
             StatusContext.RunFireAndForgetNonBlockingTask(async () =>
             {
@@ -114,7 +113,7 @@ public partial class MainWindow
             });
         });
 
-        WeakReferenceMessenger.Default.Register<ArchiveDirectoryUpdateMessage>(this,  (_, m) =>
+        WeakReferenceMessenger.Default.Register<ArchiveDirectoryUpdateMessage>(this, (_, m) =>
         {
             StatusContext.RunFireAndForgetNonBlockingTask(async () =>
             {
