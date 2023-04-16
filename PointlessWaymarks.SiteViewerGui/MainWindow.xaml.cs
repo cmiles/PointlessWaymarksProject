@@ -55,7 +55,7 @@ public partial class MainWindow
 
         var versionInfo =
             ProgramInfoTools.StandardAppInformationString(AppContext.BaseDirectory,
-                "Pointless Waymarks CMS Beta");
+                "Pointless Waymarks Site Viewer Beta");
 
         _infoTitle = versionInfo.humanTitleString;
 
