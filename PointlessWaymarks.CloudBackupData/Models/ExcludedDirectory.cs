@@ -1,4 +1,4 @@
-﻿namespace PointlessWaymarks.CloudBackupGui.Models;
+﻿namespace PointlessWaymarks.CloudBackupData.Models;
 
 public class ExcludedDirectory
 {

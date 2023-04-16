@@ -12,7 +12,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Jot" Version="2.1.13" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\PointlessWaymarks.CloudBackupData\PointlessWaymarks.CloudBackupData.csproj" />
+    <ProjectReference Include="..\PointlessWaymarks.WpfCommon\PointlessWaymarks.WpfCommon.csproj" />
   </ItemGroup>
 
   <ItemGroup>
