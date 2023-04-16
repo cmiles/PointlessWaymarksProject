@@ -34,9 +34,9 @@ public partial class S3UploadsContext : ObservableObject
     [ObservableProperty] private RelayCommand _toExcelAllItemsCommand;
     [ObservableProperty] private RelayCommand _toExcelSelectedItemsCommand;
     [ObservableProperty] private S3UploadsUploadBatch? _uploadBatch;
-    [ObservableProperty] private S3Information _uploadS3Information;
+    [ObservableProperty] private S3AccountInformation _uploadS3Information;
 
-    private S3UploadsContext(StatusControlContext? statusContext, S3Information s3Info,
+    private S3UploadsContext(StatusControlContext? statusContext, S3AccountInformation s3Info,
         WindowIconStatus? osStatusIndicator)
     {
         _statusContext = statusContext ?? new StatusControlContext();
@@ -85,7 +85,7 @@ public partial class S3UploadsContext : ObservableObject
     }
 
     public static async Task<S3UploadsContext> CreateInstance(StatusControlContext statusContext,
-        S3Information s3Info, List<S3UploadRequest> uploadList, WindowIconStatus? windowStatus)
+        S3AccountInformation s3Info, List<S3UploadRequest> uploadList, WindowIconStatus? windowStatus)
     {
         var newControl = new S3UploadsContext(statusContext, s3Info, windowStatus);
         await newControl.LoadData(uploadList);
@@ -168,7 +168,7 @@ public partial class S3UploadsContext : ObservableObject
         ListSelection = await ContentListSelected<S3UploadsItem>.CreateInstance(StatusContext);
 
         var newItemsList = uploadList
-            .Select(x => new S3UploadsItem(UploadS3Information, x.ToUpload, x.S3Key, x.Note))
+            .Select(x => new S3UploadsItem(UploadS3Information, x.ToUpload.LocalFile, x.S3Key, x.Note))
             .OrderByDescending(x => x.FileToUpload.FullName.Count(y => y == '\\')).ThenBy(x => x.FileToUpload.FullName)
             .ToList();
 

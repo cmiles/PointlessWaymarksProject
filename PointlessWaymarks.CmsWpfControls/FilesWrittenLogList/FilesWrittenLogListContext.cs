@@ -235,7 +235,7 @@ public partial class FilesWrittenLogListContext : ObservableObject
 
         var deduplicateItems = items.GroupBy(x => x.WrittenFile).Select(x => x.First()).ToList();
 
-        var toTransfer = FileItemsToUploaderItems(deduplicateItems);
+        var toTransfer = await FileItemsToUploaderItems(deduplicateItems);
 
         if (!toTransfer.Any())
         {
@@ -251,11 +251,12 @@ public partial class FilesWrittenLogListContext : ObservableObject
         var fileName = Path.Combine(UserSettingsSingleton.CurrentSettings().LocalScriptsDirectory().FullName,
             $"{DateTime.Now:yyyy-MM-dd--HH-mm-ss}---File-Upload-Data.json");
 
-        await S3Tools.S3UploaderItemsToS3UploaderJsonFile(toTransfer, fileName);
+        await S3CmsTools.S3UploaderItemsToS3UploaderJsonFile(toTransfer, fileName);
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
-        var newUploadWindow = new S3UploadsWindow(S3UploadHelpers.AmazonInformationFromSettings(), toTransfer, autoStartUpload);
+        var newUploadWindow =
+            new S3UploadsWindow(S3UploadHelpers.AmazonInformationFromSettings(), toTransfer, autoStartUpload);
         newUploadWindow.PositionWindowAndShow();
     }
 
@@ -265,12 +266,12 @@ public partial class FilesWrittenLogListContext : ObservableObject
 
         var deduplicateItems = items.GroupBy(x => x.WrittenFile).Select(x => x.First()).ToList();
 
-        var toTransfer = FileItemsToUploaderItems(deduplicateItems);
+        var toTransfer = await FileItemsToUploaderItems(deduplicateItems);
 
         var fileName = Path.Combine(UserSettingsSingleton.CurrentSettings().LocalScriptsDirectory().FullName,
             $"{DateTime.Now:yyyy-MM-dd--HH-mm-ss}---File-Upload-Data.json");
 
-        await S3Tools.S3UploaderItemsToS3UploaderJsonFile(toTransfer, fileName);
+        await S3CmsTools.S3UploaderItemsToS3UploaderJsonFile(toTransfer, fileName);
 
         await ProcessHelpers.OpenExplorerWindowForFile(fileName).ConfigureAwait(false);
     }
@@ -306,13 +307,13 @@ public partial class FilesWrittenLogListContext : ObservableObject
     }
 
 
-    private List<S3UploadRequest> FileItemsToUploaderItems(List<FilesWrittenLogListListItem> items)
+    private async Task<List<S3UploadRequest>> FileItemsToUploaderItems(List<FilesWrittenLogListListItem> items)
     {
-        return items.Where(x => x.IsInGenerationDirectory && File.Exists(x.WrittenFile)).Select(x =>
-            new S3UploadRequest(new FileInfo(x.WrittenFile),
-                S3Tools.FileInfoInGeneratedSiteToS3Key(
+        return await items.ToAsyncEnumerable().Where(x => x.IsInGenerationDirectory && File.Exists(x.WrittenFile))
+            .SelectAwait(async x => await S3Tools.UploadRequest(new FileInfo(x.WrittenFile),
+                S3CmsTools.FileInfoInGeneratedSiteToS3Key(
                     new FileInfo(x.WrittenFile)), UserBucketName, UserBucketRegion,
-                $"From Files Written Log - {x.WrittenOn}")).ToList();
+                $"From Files Written Log - {x.WrittenOn}")).ToListAsync();
     }
 
     private async Task FilesToClipboard(List<FilesWrittenLogListListItem> items)
@@ -532,9 +533,10 @@ public partial class FilesWrittenLogListContext : ObservableObject
 
             var newUploaderWindow =
                 new S3UploadsWindow(S3UploadHelpers.AmazonInformationFromSettings(),
-                    items.Select(x =>
-                            new S3UploadRequest(new FileInfo(x.FileFullName), x.S3Key, x.BucketName, x.Region, x.Note))
-                        .ToList(),
+                    await items.ToAsyncEnumerable().SelectAwait(async x =>
+                            await S3Tools.UploadRequest(new FileInfo(x.FileFullName), x.S3Key, x.BucketName, x.Region,
+                                x.Note))
+                        .ToListAsync(),
                     false);
             newUploaderWindow.PositionWindowAndShow();
         }
@@ -656,11 +658,12 @@ public partial class FilesWrittenLogListContext : ObservableObject
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
-        var newUploadWindow = new S3DeletionsWindow(S3UploadHelpers.AmazonInformationFromSettings(), results.S3KeysToDelete.Select(x =>
-            new S3DeletionsItem
-            {
-                AmazonObjectKey = x, BucketName = UserSettingsSingleton.CurrentSettings().SiteS3Bucket
-            }).ToList());
+        var newUploadWindow = new S3DeletionsWindow(S3UploadHelpers.AmazonInformationFromSettings(), results
+            .S3KeysToDelete.Select(x =>
+                new S3DeletionsItem
+                {
+                    AmazonObjectKey = x, BucketName = UserSettingsSingleton.CurrentSettings().SiteS3Bucket
+                }).ToList());
 
         newUploadWindow.PositionWindowAndShow();
     }

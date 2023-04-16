@@ -87,15 +87,17 @@ public partial class FileListWithActionsContext : ObservableObject
             new() { ItemName = "Refresh Data", ItemCommand = RefreshDataCommand }
         };
 
-        if(loadInBackground) StatusContext.RunFireAndForgetBlockingTask(LoadData);
+        if (loadInBackground) StatusContext.RunFireAndForgetBlockingTask(LoadData);
     }
 
-    public static async Task<FileListWithActionsContext> CreateInstance(StatusControlContext? statusContext, WindowIconStatus? windowStatus, bool loadInBackground = true)
+    public static async Task<FileListWithActionsContext> CreateInstance(StatusControlContext? statusContext,
+        WindowIconStatus? windowStatus, bool loadInBackground = true)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
         var factoryStatusContext = statusContext ?? new StatusControlContext();
-        var factoryListContext = await ContentListContext.CreateInstance(factoryStatusContext, new FileListLoader(100), windowStatus);
+        var factoryListContext =
+            await ContentListContext.CreateInstance(factoryStatusContext, new FileListLoader(100), windowStatus);
 
         return new FileListWithActionsContext(factoryStatusContext, windowStatus, factoryListContext, loadInBackground);
     }

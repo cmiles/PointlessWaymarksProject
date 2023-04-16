@@ -1,10 +1,24 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.Security.Cryptography;
+using System.Text.RegularExpressions;
 using Serilog;
 
 namespace PointlessWaymarks.CommonTools;
 
 public static class FileAndFolderTools
 {
+    public static string CalculateMD5(string filename)
+    {
+        using var md5 = MD5.Create();
+        using var stream = File.OpenRead(filename);
+        var hash = md5.ComputeHash(stream);
+        return BitConverter.ToString(hash).Replace("-", "").ToLowerInvariant();
+    }
+
+    public static string CalculateMD5(this FileInfo file)
+    {
+        return CalculateMD5(file.FullName);
+    }
+
     /// <summary>
     ///     Appends the Long File Prefix \\?\ to the FileInfo FullName - this should only be used to interop in situations
     ///     not related to .NET Core - .NET Core handles this automatically. Only tested with absolute file paths.
@@ -105,9 +119,9 @@ public static class FileAndFolderTools
     }
 
     /// <summary>
-    /// If the file exists and is valid for the conventions of this program the original file is returned.
-    /// If the file is not valid the program attempts to auto-fix the name - the renamed version will be
-    /// a copy of the original (the original will not be moved or modified).
+    ///     If the file exists and is valid for the conventions of this program the original file is returned.
+    ///     If the file is not valid the program attempts to auto-fix the name - the renamed version will be
+    ///     a copy of the original (the original will not be moved or modified).
     /// </summary>
     /// <param name="selectedFile"></param>
     /// <returns></returns>
@@ -124,8 +138,8 @@ public static class FileAndFolderTools
     }
 
     /// <summary>
-    /// Tries to rename a file to an automatically cleaned version of the input suggested name. The
-    /// renamed file will be a copy of the original leaving the original in place.
+    ///     Tries to rename a file to an automatically cleaned version of the input suggested name. The
+    ///     renamed file will be a copy of the original leaving the original in place.
     /// </summary>
     /// <param name="selectedFile"></param>
     /// <param name="suggestedName"></param>
@@ -141,7 +155,7 @@ public static class FileAndFolderTools
         var moveToDirectory = selectedFile.Directory!;
         var baseMoveToName = $"{cleanedName}{Path.GetExtension(selectedFile.Name)}";
 
-        if(baseMoveToName == selectedFile.Name) return Task.FromResult(selectedFile)!;
+        if (baseMoveToName == selectedFile.Name) return Task.FromResult(selectedFile)!;
 
         var moveToName = UniqueFileTools.UniqueFile(moveToDirectory, baseMoveToName)!.FullName;
 

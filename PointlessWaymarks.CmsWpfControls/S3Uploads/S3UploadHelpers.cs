@@ -3,7 +3,6 @@ using System.Windows.Shell;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.ContentHtml;
 using PointlessWaymarks.CmsData.S3;
-using PointlessWaymarks.CmsWpfControls.Utility.Excel;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.CommonTools.S3;
 using PointlessWaymarks.WpfCommon.S3Uploads;
@@ -15,9 +14,9 @@ namespace PointlessWaymarks.CmsWpfControls.S3Uploads;
 
 public static class S3UploadHelpers
 {
-    public static S3Information AmazonInformationFromSettings()
+    public static S3AccountInformation AmazonInformationFromSettings()
     {
-        return new S3Information
+        return new S3AccountInformation
         {
             AccessKey = () => AwsCredentials.GetAwsSiteCredentials().accessKey,
             Secret = () => AwsCredentials.GetAwsSiteCredentials().secret,
@@ -42,9 +41,9 @@ public static class S3UploadHelpers
             windowStatus?.AddRequest(new WindowIconStatusRequest(statusContext.StatusControlContextId,
                 TaskbarItemProgressState.Indeterminate));
             await HtmlGenerationGroups.GenerateChangedToHtml(statusContext.ProgressTracker());
-            toUpload = await S3Tools.FilesSinceLastUploadToUploadList(statusContext.ProgressTracker());
+            toUpload = await S3CmsTools.FilesSinceLastUploadToUploadList(statusContext.ProgressTracker());
 
-            await S3Tools.S3UploaderItemsToS3UploaderJsonFile(toUpload.uploadItems,
+            await S3CmsTools.S3UploaderItemsToS3UploaderJsonFile(toUpload.uploadItems,
                 Path.Combine(UserSettingsSingleton.CurrentSettings().LocalScriptsDirectory().FullName,
                     $"{DateTime.Now:yyyy-MM-dd--HH-mm-ss}---File-Upload-Data.json"));
 
@@ -62,6 +61,6 @@ public static class S3UploadHelpers
         }
 
         await ThreadSwitcher.ResumeForegroundAsync();
-        new S3UploadsWindow(S3UploadHelpers.AmazonInformationFromSettings(), toUpload.uploadItems, true).PositionWindowAndShow();
+        new S3UploadsWindow(AmazonInformationFromSettings(), toUpload.uploadItems, true).PositionWindowAndShow();
     }
 }

@@ -7,7 +7,7 @@ using PointlessWaymarks.CommonTools.S3;
 
 namespace PointlessWaymarks.CmsData.S3;
 
-public static class S3Tools
+public static class S3CmsTools
 {
     /// <summary>
     ///     Returns an S3 key for a file inside/from the generated site
@@ -83,11 +83,12 @@ public static class S3Tools
             });
         }
 
-        var s3Items = transformedItems.Where(x => x.IsInGenerationDirectory && File.Exists(x.WrittenFile)).Select(
-            x => new S3UploadRequest(new FileInfo(x.WrittenFile),
-                FileInfoInGeneratedSiteToS3Key(
-                    new FileInfo(x.WrittenFile)), userBucketName, userBucketRegion,
-                $"From Files Written Log - {x.WrittenOn}")).ToList();
+        var s3Items = await transformedItems.Where(x => x.IsInGenerationDirectory && File.Exists(x.WrittenFile))
+            .ToAsyncEnumerable().SelectAwait(
+                async x => await S3Tools.UploadRequest(new FileInfo(x.WrittenFile),
+                    FileInfoInGeneratedSiteToS3Key(
+                        new FileInfo(x.WrittenFile)), userBucketName, userBucketRegion,
+                    $"From Files Written Log - {x.WrittenOn}")).ToListAsync();
 
 
         return (new IsValid(true, string.Empty), s3Items);
@@ -102,7 +103,7 @@ public static class S3Tools
     public static async Task S3UploaderItemsToS3UploaderJsonFile(List<S3UploadRequest> items, string fileName)
     {
         var jsonInfo = JsonSerializer.Serialize(items.Select(x =>
-            new S3UploadFileEntry(x.ToUpload.FullName, x.S3Key, x.BucketName, x.Region, x.Note)));
+            new S3UploadFileEntry(x.ToUpload.LocalFile.FullName, x.S3Key, x.BucketName, x.Region, x.Note)));
 
         var file = new FileInfo(fileName);
 

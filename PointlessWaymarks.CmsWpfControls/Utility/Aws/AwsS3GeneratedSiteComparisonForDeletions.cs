@@ -8,12 +8,13 @@ namespace PointlessWaymarks.CmsWpfControls.Utility.Aws;
 
 public class AwsS3GeneratedSiteComparisonForDeletions
 {
-    public List<string> ErrorMessages { get; set; } = new();
-    public List<string> S3KeysToDelete { get; set; } = new();
+    public List<string> ErrorMessages { get; } = new();
+    public List<string> S3KeysToDelete { get; } = new();
 
     public static string DirectoryInfoInGeneratedSiteToS3Key(DirectoryInfo directory)
     {
-        return directory.FullName.Replace($"{UserSettingsSingleton.CurrentSettings().LocalSiteRootFullDirectory().FullName}\\", "")
+        return directory.FullName
+            .Replace($"{UserSettingsSingleton.CurrentSettings().LocalSiteRootFullDirectory().FullName}\\", "")
             .Replace("\\", "/") + "/";
     }
 
@@ -30,11 +31,12 @@ public class AwsS3GeneratedSiteComparisonForDeletions
         var bucket = UserSettingsSingleton.CurrentSettings().SiteS3Bucket;
         var region = UserSettingsSingleton.CurrentSettings().SiteS3BucketEndpoint();
 
-        progress?.Report("Getting list of all generated files");
+        progress.Report("Getting list of all generated files");
 
-        var allGeneratedFiles = new DirectoryInfo(UserSettingsSingleton.CurrentSettings().LocalSiteRootFullDirectory().FullName)
-            .GetFiles("*", SearchOption.AllDirectories).OrderBy(x => x.FullName)
-            .Select(S3Tools.FileInfoInGeneratedSiteToS3Key).ToList();
+        var allGeneratedFiles =
+            new DirectoryInfo(UserSettingsSingleton.CurrentSettings().LocalSiteRootFullDirectory().FullName)
+                .GetFiles("*", SearchOption.AllDirectories).OrderBy(x => x.FullName)
+                .Select(S3CmsTools.FileInfoInGeneratedSiteToS3Key).ToList();
 
         var allGeneratedDirectories =
             new DirectoryInfo(UserSettingsSingleton.CurrentSettings().LocalSiteRootFullDirectory().FullName)
@@ -49,9 +51,9 @@ public class AwsS3GeneratedSiteComparisonForDeletions
             return returnReport;
         }
 
-        progress?.Report($"Found {allGeneratedFiles.Count} Files in Generated Site");
+        progress.Report($"Found {allGeneratedFiles.Count} Files in Generated Site");
 
-        progress?.Report("Getting Aws S3 Credentials");
+        progress.Report("Getting Aws S3 Credentials");
 
         var (accessKey, secret) = AwsCredentials.GetAwsSiteCredentials();
 
@@ -61,11 +63,11 @@ public class AwsS3GeneratedSiteComparisonForDeletions
             return returnReport;
         }
 
-        progress?.Report("Setting up for Aws S3 Object Listings");
+        progress.Report("Setting up for Aws S3 Object Listings");
 
         var s3Client = new AmazonS3Client(accessKey, secret, region);
 
-        var listRequest = new ListObjectsV2Request {BucketName = bucket};
+        var listRequest = new ListObjectsV2Request { BucketName = bucket };
 
         var awsObjects = new List<S3Object>();
 
@@ -75,11 +77,11 @@ public class AwsS3GeneratedSiteComparisonForDeletions
 
         do
         {
-            progress?.Report($"Aws Object Listing Loop {++loopNumber}");
+            progress.Report($"Aws Object Listing Loop {++loopNumber}");
 
             listResponse = await s3Client.ListObjectsV2Async(listRequest);
 
-            progress?.Report($"Adding {listResponse.S3Objects.Count} S3 Objects to List...");
+            progress.Report($"Adding {listResponse.S3Objects.Count} S3 Objects to List...");
 
             listResponse.S3Objects.ForEach(x => awsObjects.Add(x));
 
@@ -87,7 +89,7 @@ public class AwsS3GeneratedSiteComparisonForDeletions
             listRequest.ContinuationToken = listResponse.NextContinuationToken;
         } while (listResponse.IsTruncated);
 
-        progress?.Report($"Found {awsObjects.Count} S3 Objects - starting file comparison");
+        progress.Report($"Found {awsObjects.Count} S3 Objects - starting file comparison");
 
         var totalGeneratedObjects = allGeneratedFiles.Count;
         var objectLoopCount = 0;
@@ -95,7 +97,7 @@ public class AwsS3GeneratedSiteComparisonForDeletions
         foreach (var loopObject in awsObjects)
         {
             if (++objectLoopCount % 100 == 0)
-                progress?.Report(
+                progress.Report(
                     $"File Loop vs Aws S3 Objects Comparison - {objectLoopCount} or {totalGeneratedObjects} - {loopObject.Key}");
 
             if (loopObject.Key.EndsWith("/") && loopObject.Size == 0)
@@ -116,7 +118,7 @@ public class AwsS3GeneratedSiteComparisonForDeletions
             }
         }
 
-        progress?.Report(
+        progress.Report(
             $"Returning Report - {returnReport.S3KeysToDelete.Count} Files/Directories found to deleted, {returnReport.ErrorMessages.Count} Error.");
 
         return returnReport;

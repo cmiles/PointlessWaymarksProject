@@ -89,7 +89,7 @@ public class PublishSiteToAmazonS3
         await UserSettingsUtilities.EnsureDbIsPresent(consoleProgress);
 
         await HtmlGenerationGroups.GenerateChangedToHtml(consoleProgress);
-        var toUpload = await S3Tools.FilesSinceLastUploadToUploadList(consoleProgress);
+        var toUpload = await S3CmsTools.FilesSinceLastUploadToUploadList(consoleProgress);
 
         if (!toUpload.validUploadList.Valid)
         {
@@ -100,11 +100,10 @@ public class PublishSiteToAmazonS3
             return;
         }
 
-        await S3Tools.S3UploaderItemsToS3UploaderJsonFile(toUpload.uploadItems,
+        await S3CmsTools.S3UploaderItemsToS3UploaderJsonFile(toUpload.uploadItems,
             Path.Combine(UserSettingsSingleton.CurrentSettings().LocalScriptsDirectory().FullName,
                 $"{DateTime.Now:yyyy-MM-dd--HH-mm-ss}---File-Upload-Data.json"));
 
-        var bucket = UserSettingsSingleton.CurrentSettings().SiteS3Bucket;
         var region = UserSettingsSingleton.CurrentSettings().SiteS3BucketEndpoint();
         var (accessKey, secret) = AwsCredentials.GetAwsSiteCredentials();
 
@@ -130,17 +129,12 @@ public class PublishSiteToAmazonS3
         {
             if(progressCount++ %10 == 0) consoleProgress.Report($"   S3 Upload Progress - {progressCount} of {toUpload.uploadItems.Count}");
 
-            var uploadRequest = new TransferUtilityUploadRequest
-            {
-                BucketName = bucket,
-                FilePath = loopUpload.ToUpload.FullName,
-                Key = loopUpload.S3Key
-            };
+            var uploadRequest = loopUpload.UploadRequest();
 
             try
             {
                 await s3RetryPolicy.ExecuteAsync(async () => await fileTransferUtility.UploadAsync(uploadRequest));
-                Log.Verbose($"S3 Upload Completed - {loopUpload.ToUpload.FullName} to {loopUpload.S3Key}");
+                Log.Verbose($"S3 Upload Completed - {loopUpload.ToUpload.LocalFile.FullName} to {loopUpload.S3Key}");
                 progressList.Add((true, loopUpload));
             }
             catch (Exception e)
@@ -148,7 +142,7 @@ public class PublishSiteToAmazonS3
                 exceptionList.Add(e);
                 progressList.Add((false, loopUpload));
                 Log.ForContext("loopUpload", loopUpload.SafeObjectDump()).Error(e,
-                    $"Amazon S3 Upload Failed - {loopUpload.ToUpload.FullName} to {loopUpload.S3Key}");
+                    $"Amazon S3 Upload Failed - {loopUpload.ToUpload.LocalFile.FullName} to {loopUpload.S3Key}");
             }
         }
 
@@ -165,7 +159,7 @@ public class PublishSiteToAmazonS3
             var failureFile = Path.Combine(UserSettingsSingleton.CurrentSettings().LocalScriptsDirectory().FullName,
                 $"{DateTime.Now:yyyy-MM-dd--HH-mm-ss}---Upload-Failures.json");
 
-            await S3Tools.S3UploaderItemsToS3UploaderJsonFile(failures, failureFile);
+            await S3CmsTools.S3UploaderItemsToS3UploaderJsonFile(failures, failureFile);
 
             var failureBody = new StringBuilder();
             failureBody.AppendLine(
@@ -177,12 +171,12 @@ public class PublishSiteToAmazonS3
             failureBody.AppendLine("<p>Failed Uploads:<p>");
             failureBody.AppendLine("<ul>");
 
-            failures.ForEach(x => failureBody.AppendLine($"<li>{WebUtility.HtmlEncode(x.ToUpload.FullName)}</li>"));
+            failures.ForEach(x => failureBody.AppendLine($"<li>{WebUtility.HtmlEncode(x.ToUpload.LocalFile.FullName)}</li>"));
             failureBody.AppendLine("</ul>");
 
             failureBody.AppendLine("<br><p>Successful Uploads:<p>");
             failureBody.AppendLine("<ul>");
-            successList.ForEach(x => failureBody.AppendLine($"<li>{WebUtility.HtmlEncode(x.ToUpload.FullName)}</li>"));
+            successList.ForEach(x => failureBody.AppendLine($"<li>{WebUtility.HtmlEncode(x.ToUpload.LocalFile.FullName)}</li>"));
             failureBody.AppendLine("</ul>");
 
 
