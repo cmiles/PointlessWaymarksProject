@@ -17,7 +17,8 @@ public static class LocalDirectories
     {
         var context = await CloudBackupContext.CreateInstance();
 
-        var excludedDirectories = await context.ExcludedDirectories.Where(x => x.JobId == job.Id).Select(x => x.Pattern)
+        var excludedDirectories = await context.ExcludedDirectories.Where(x => x.JobId == job.Id)
+            .Select(x => x.Directory)
             .ToListAsync();
 
         var excludedDirectoryPatterns = await context.ExcludedDirectoryNamePatterns.Where(x => x.JobId == job.Id)

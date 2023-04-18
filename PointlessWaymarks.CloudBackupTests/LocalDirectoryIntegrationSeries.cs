@@ -51,7 +51,7 @@ public class LocalDirectoryIntegrationSeries
     /// </summary>
     /// <returns></returns>
     [Test]
-    public async Task T001_BasicIntegrationNoExclusions()
+    public async Task T000_BasicIntegrationNoExclusions()
     {
         var context = await CloudBackupContext.CreateInstance();
         var job = await context.BackupJob.SingleAsync();
@@ -75,11 +75,11 @@ public class LocalDirectoryIntegrationSeries
     {
         var context = await CloudBackupContext.CreateInstance();
         var job = await context.BackupJob.SingleAsync();
-        context.ExcludedDirectories.Add(new ExcludedDirectoryNamePattern
+        context.ExcludedDirectories.Add(new ExcludedDirectory
         {
             CreatedOn = DateTime.Now,
             JobId = job.Id,
-            Pattern = TestDirectory5.FullName
+            Directory = TestDirectory5.FullName
         });
         await context.SaveChangesAsync();
 
@@ -158,11 +158,11 @@ public class LocalDirectoryIntegrationSeries
         context.ExcludedDirectoryNamePatterns.RemoveRange(context.ExcludedDirectoryNamePatterns);
         context.ExcludedDirectories.RemoveRange(context.ExcludedDirectories);
 
-        context.ExcludedDirectories.Add(new ExcludedDirectoryNamePattern
+        context.ExcludedDirectories.Add(new ExcludedDirectory
         {
             CreatedOn = DateTime.Now,
             JobId = job.Id,
-            Pattern = TestDirectory3.FullName
+            Directory = TestDirectory3.FullName
         });
         await context.SaveChangesAsync();
 
