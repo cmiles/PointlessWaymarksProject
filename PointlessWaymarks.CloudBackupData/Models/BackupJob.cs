@@ -1,8 +1,8 @@
 ﻿namespace PointlessWaymarks.CloudBackupData.Models;
 
-public class IncludedDirectory
+public class BackupJob
 {
     public DateTime CreatedOn { get; set; }
-    public string DirectoryPath { get; set; }
+    public string InitialDirectory { get; set; }
     public int Id { get; set; }
 }
