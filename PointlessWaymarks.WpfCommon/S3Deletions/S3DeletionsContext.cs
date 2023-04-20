@@ -22,10 +22,10 @@ public partial class S3DeletionsContext : ObservableObject
     [ObservableProperty] private RelayCommand _toClipboardSelectedItemsCommand;
     [ObservableProperty] private RelayCommand _toExcelAllItemsCommand;
     [ObservableProperty] private RelayCommand _toExcelSelectedItemsCommand;
-    [ObservableProperty] private S3AccountInformation _uploadS3Information;
+    [ObservableProperty] private IS3AccountInformation _uploadS3Information;
 
 
-    private S3DeletionsContext(StatusControlContext? statusContext, S3AccountInformation s3Info)
+    private S3DeletionsContext(StatusControlContext? statusContext, IS3AccountInformation s3Info)
     {
         _statusContext = statusContext ?? new StatusControlContext();
 
@@ -50,7 +50,7 @@ public partial class S3DeletionsContext : ObservableObject
     }
 
     public static async Task<S3DeletionsContext> CreateInstance(StatusControlContext? statusContext,
-        S3AccountInformation s3Info, List<S3DeletionsItem> itemsToDelete)
+        IS3AccountInformation s3Info, List<S3DeletionsItem> itemsToDelete)
     {
         var newControl = new S3DeletionsContext(statusContext, s3Info);
         await newControl.LoadData(itemsToDelete);

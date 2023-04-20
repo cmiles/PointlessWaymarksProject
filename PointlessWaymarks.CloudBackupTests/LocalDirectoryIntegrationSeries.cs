@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using PointlessWaymarks.CloudBackupData;
+using PointlessWaymarks.CloudBackupData.Batch;
 using PointlessWaymarks.CloudBackupData.Models;
 using PointlessWaymarks.CommonTools;
 
@@ -38,7 +39,8 @@ public class LocalDirectoryIntegrationSeries
         var testJob = new BackupJob
         {
             CreatedOn = DateTime.Now,
-            InitialDirectory = TestDirectory.FullName
+            LocalDirectory = TestDirectory.FullName,
+            CloudDirectory = "Test01"
         };
 
         db.BackupJob.Add(testJob);
@@ -55,7 +57,7 @@ public class LocalDirectoryIntegrationSeries
     {
         var context = await CloudBackupContext.CreateInstance();
         var job = await context.BackupJob.SingleAsync();
-        var directories = await LocalDirectories.Directories(job);
+        var directories = await CreationTools.GetAllLocalDirectories(job);
 
         Assert.That(directories, Has.Count.EqualTo(6));
         Assert.That(directories.Select(x => x.FullName), Has.Exactly(1).EqualTo(TestDirectory.FullName));
@@ -83,7 +85,7 @@ public class LocalDirectoryIntegrationSeries
         });
         await context.SaveChangesAsync();
 
-        var directories = await LocalDirectories.Directories(job);
+        var directories = await CreationTools.GetAllLocalDirectories(job);
 
         Assert.That(directories, Has.Count.EqualTo(5));
         Assert.That(directories.Select(x => x.FullName), Has.Exactly(1).EqualTo(TestDirectory.FullName));
@@ -110,7 +112,7 @@ public class LocalDirectoryIntegrationSeries
         });
         await context.SaveChangesAsync();
 
-        var directories = await LocalDirectories.Directories(job);
+        var directories = await CreationTools.GetAllLocalDirectories(job);
 
         Assert.That(directories, Has.Count.EqualTo(4));
         Assert.That(directories.Select(x => x.FullName), Has.Exactly(1).EqualTo(TestDirectory.FullName));
@@ -139,7 +141,7 @@ public class LocalDirectoryIntegrationSeries
         });
         await context.SaveChangesAsync();
 
-        var directories = await LocalDirectories.Directories(job);
+        var directories = await CreationTools.GetAllLocalDirectories(job);
 
         Assert.That(directories, Has.Count.EqualTo(1));
         Assert.That(directories.Select(x => x.FullName), Has.Exactly(1).EqualTo(TestDirectory.FullName));
@@ -166,7 +168,7 @@ public class LocalDirectoryIntegrationSeries
         });
         await context.SaveChangesAsync();
 
-        var directories = await LocalDirectories.Directories(job);
+        var directories = await CreationTools.GetAllLocalDirectories(job);
 
         Assert.That(directories, Has.Count.EqualTo(3));
         Assert.That(directories.Select(x => x.FullName), Has.Exactly(1).EqualTo(TestDirectory.FullName));

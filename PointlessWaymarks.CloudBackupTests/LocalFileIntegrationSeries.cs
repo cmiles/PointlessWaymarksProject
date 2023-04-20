@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using PointlessWaymarks.CloudBackupData;
+using PointlessWaymarks.CloudBackupData.Batch;
 using PointlessWaymarks.CloudBackupData.Models;
 using PointlessWaymarks.CommonTools;
 
@@ -13,16 +14,7 @@ namespace PointlessWaymarks.CloudBackupTests;
 /// </summary>
 public class LocalFileIntegrationSeries
 {
-    private static FileInfo RandomFile(string fullName)
-    {
-        //Credit to [performance - Creating a Random File in C# - Stack Overflow](https://stackoverflow.com/questions/4432178/creating-a-random-file-in-c-sharp)
-        var sizeInMb = new Random().Next(1, 10);
-        var data = new byte[sizeInMb * 1024 * 1024];
-        var rng = new Random();
-        rng.NextBytes(data);
-        File.WriteAllBytes(fullName, data);
-        return new FileInfo(fullName);
-    }
+
 
     [OneTimeSetUp]
     public async Task Setup()
@@ -34,18 +26,18 @@ public class LocalFileIntegrationSeries
         TestDirectory = DbDirectory.CreateSubdirectory("FileTest");
 
         TestDirectory1 = TestDirectory.CreateSubdirectory("TestL");
-        TestFile1 = RandomFile(Path.Combine(TestDirectory1.FullName, "TestFile1.txt"));
-        TestFile2 = RandomFile(Path.Combine(TestDirectory1.FullName, "TestFile2.txt"));
-        TestFile3 = RandomFile(Path.Combine(TestDirectory1.FullName, "TestFile3.doc"));
+        TestFile1 = Helpers.RandomFile(Path.Combine(TestDirectory1.FullName, "TestFile1.txt"));
+        TestFile2 = Helpers.RandomFile(Path.Combine(TestDirectory1.FullName, "TestFile2.txt"));
+        TestFile3 = Helpers.RandomFile(Path.Combine(TestDirectory1.FullName, "TestFile3.doc"));
         TestFile3Duplicate = TestFile3.CopyTo(Path.Combine(TestDirectory1.FullName, "TestFile3x.doc"));
-        TestFile4 = RandomFile(Path.Combine(TestDirectory1.FullName, "fake.123"));
+        TestFile4 = Helpers.RandomFile(Path.Combine(TestDirectory1.FullName, "fake.123"));
 
         TestDirectory2 = TestDirectory.CreateSubdirectory("TestR");
-        TestFile5 = RandomFile(Path.Combine(TestDirectory2.FullName, "TestFile.txt"));
-        TestFile6 = RandomFile(Path.Combine(TestDirectory2.FullName, "TestFile.lhk"));
+        TestFile5 = Helpers.RandomFile(Path.Combine(TestDirectory2.FullName, "TestFile.txt"));
+        TestFile6 = Helpers.RandomFile(Path.Combine(TestDirectory2.FullName, "TestFile.lhk"));
 
         TestDirectory3 = TestDirectory2.CreateSubdirectory("R1");
-        TestFile7 = RandomFile(Path.Combine(TestDirectory2.FullName, "with space.JSON"));
+        TestFile7 = Helpers.RandomFile(Path.Combine(TestDirectory2.FullName, "with space.JSON"));
 
         var testDb = Path.Combine(DbDirectory.FullName, "TestDb.db");
 
@@ -54,7 +46,8 @@ public class LocalFileIntegrationSeries
         var testJob = new BackupJob
         {
             CreatedOn = DateTime.Now,
-            InitialDirectory = TestDirectory.FullName
+            LocalDirectory = TestDirectory.FullName,
+            CloudDirectory = "Test01"
         };
 
         db.BackupJob.Add(testJob);
@@ -67,7 +60,7 @@ public class LocalFileIntegrationSeries
     {
         var context = await CloudBackupContext.CreateInstance();
         var job = await context.BackupJob.SingleAsync();
-        var files = await LocalFiles.Files(job);
+        var files = await CreationTools.GetAllLocalFiles(job);
 
         Assert.That(files, Has.Count.EqualTo(8));
         Assert.That(files.Select(x => x.LocalFile.FullName), Has.Exactly(1).EqualTo(TestFile1.FullName));
@@ -99,7 +92,7 @@ public class LocalFileIntegrationSeries
         });
         await context.SaveChangesAsync();
 
-        var files = await LocalFiles.Files(job);
+        var files = await CreationTools.GetAllLocalFiles(job);
 
         Assert.That(files, Has.Count.EqualTo(7));
         Assert.That(files.Select(x => x.LocalFile.FullName), Has.Exactly(1).EqualTo(TestFile1.FullName));
@@ -131,7 +124,7 @@ public class LocalFileIntegrationSeries
         });
         await context.SaveChangesAsync();
 
-        var files = await LocalFiles.Files(job);
+        var files = await CreationTools.GetAllLocalFiles(job);
 
         Assert.That(files, Has.Count.EqualTo(5));
 
@@ -161,7 +154,7 @@ public class LocalFileIntegrationSeries
         });
         await context.SaveChangesAsync();
 
-        var files = await LocalFiles.Files(job);
+        var files = await CreationTools.GetAllLocalFiles(job);
 
         Assert.That(files, Has.Count.EqualTo(2));
 
@@ -189,7 +182,7 @@ public class LocalFileIntegrationSeries
         });
         await context.SaveChangesAsync();
 
-        var files = await LocalFiles.Files(job);
+        var files = await CreationTools.GetAllLocalFiles(job);
 
         Assert.That(files, Has.Count.EqualTo(3));
         Assert.That(files.Select(x => x.LocalFile.FullName), Has.Exactly(1).EqualTo(TestFile5.FullName));

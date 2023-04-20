@@ -19,7 +19,7 @@ public partial class S3UploadsWindow
     [ObservableProperty] private S3UploadsContext? _uploadContext;
     [ObservableProperty] private WindowIconStatus? _windowStatus;
 
-    public S3UploadsWindow(S3AccountInformation s3Info, List<S3UploadRequest> toLoad, bool autoStartUpload)
+    public S3UploadsWindow(IS3AccountInformation s3Info, List<S3UploadRequest> toLoad, bool autoStartUpload)
     {
         InitializeComponent();
 

@@ -2,10 +2,13 @@
 
 public class FileSystemFile
 {
-    public string CreatedOn { get; set; }
+    public DateTime CreatedOn { get; set; }
     public string FileHash { get; set; }
-    public decimal FileSize { get; set; }
-    public DateTime FileSystemDateTime { get; set; }
+    public string FileSystemDateTime { get; set; }
     public int Id { get; set; }
-    public string LastUpdatedOn { get; set; }
+    public BackupJob Job { get; set; }
+    public int JobId { get; set; }
+    public int CloudTransferBatchId { get; set; }
+    public CloudTransferBatch CloudTransferBatch { get; set; }
+
 }

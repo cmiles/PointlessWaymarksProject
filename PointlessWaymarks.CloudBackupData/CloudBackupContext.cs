@@ -12,7 +12,7 @@ public class CloudBackupContext : DbContext
     {
     }
 
-    public DbSet<BackupBatch> BackupBatches { get; set; }
+    public DbSet<CloudTransferBatch> CloudTransferBatches { get; set; }
     public DbSet<BackupJob> BackupJob { get; set; }
     public DbSet<BackupSetting> BackupSettings { get; set; }
     public DbSet<CloudDelete> CloudDeletions { get; set; }

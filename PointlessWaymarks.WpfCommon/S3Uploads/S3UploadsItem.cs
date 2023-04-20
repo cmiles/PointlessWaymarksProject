@@ -21,9 +21,9 @@ public partial class S3UploadsItem : ObservableObject, ISelectedTextTracker
     [ObservableProperty] private bool _queued;
     [ObservableProperty] private CurrentSelectedTextTracker _selectedTextTracker = new();
     [ObservableProperty] private string _status = string.Empty;
-    [ObservableProperty] private S3AccountInformation _uploadS3Information;
+    [ObservableProperty] private IS3AccountInformation _uploadS3Information;
 
-    public S3UploadsItem(S3AccountInformation s3Info, FileInfo fileToUpload, string amazonObjectKey, string note)
+    public S3UploadsItem(IS3AccountInformation s3Info, FileInfo fileToUpload, string amazonObjectKey, string note)
     {
         _uploadS3Information = s3Info;
         BucketName = UploadS3Information.BucketName();

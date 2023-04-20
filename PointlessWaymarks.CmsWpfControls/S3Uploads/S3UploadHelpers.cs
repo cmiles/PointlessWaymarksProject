@@ -14,7 +14,7 @@ namespace PointlessWaymarks.CmsWpfControls.S3Uploads;
 
 public static class S3UploadHelpers
 {
-    public static S3AccountInformation AmazonInformationFromSettings()
+    public static IS3AccountInformation AmazonInformationFromSettings()
     {
         return new S3AccountInformation
         {

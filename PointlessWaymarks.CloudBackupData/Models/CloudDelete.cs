@@ -2,7 +2,8 @@
 
 public class CloudDelete
 {
-    public Guid BatchId { get; set; }
+    public CloudTransferBatch Batch { get; set; }
+    public int BatchId { get; set; }
     public string BucketName { get; set; }
     public string CloudObjectKey { get; set; }
     public DateTime CreatedOn { get; set; }

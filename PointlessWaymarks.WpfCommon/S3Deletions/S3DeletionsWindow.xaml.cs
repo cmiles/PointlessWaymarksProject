@@ -14,7 +14,7 @@ public partial class S3DeletionsWindow
     [ObservableProperty] private S3DeletionsContext? _deletionContext;
     [ObservableProperty] private StatusControlContext _statusContext;
 
-    public S3DeletionsWindow(S3AccountInformation s3Info, List<S3DeletionsItem> itemsToDelete)
+    public S3DeletionsWindow(IS3AccountInformation s3Info, List<S3DeletionsItem> itemsToDelete)
     {
         InitializeComponent();
 

@@ -7,12 +7,12 @@ namespace PointlessWaymarks.CommonTools;
 
 public static class S3Tools
 {
-    public static async Task<List<S3RemoteFileAndMetadata>> ListS3Items(S3AccountInformation accountInfo,
+    public static async Task<List<S3RemoteFileAndMetadata>> ListS3Items(IS3AccountInformation accountInfo, string prefix,
         IProgress<string>? progress = null)
     {
-        var s3Client = S3Client(accountInfo);
+        var s3Client = accountInfo.S3Client();
 
-        var listRequest = new ListObjectsV2Request { BucketName = accountInfo.BucketName() };
+        var listRequest = new ListObjectsV2Request { BucketName = accountInfo.BucketName(), Prefix = prefix };
 
         var awsObjects = new List<S3RemoteFileAndMetadata>();
 
@@ -73,15 +73,6 @@ public static class S3Tools
     {
         return new S3RemoteFileAndMetadata(s3Object.BucketName, s3Object.Key,
             await MetadataFromS3Object(client, s3Object));
-    }
-
-    public static AmazonS3Client S3Client(S3AccountInformation accountInfo)
-    {
-        var bucketRegion = accountInfo.BucketRegion();
-        var accessKey = accountInfo.AccessKey();
-        var secret = accountInfo.Secret();
-
-        return new AmazonS3Client(accessKey, secret);
     }
 
     public static async Task<TransferUtilityUploadRequest> S3TransferUploadRequest(FileInfo toUpload, string bucket,

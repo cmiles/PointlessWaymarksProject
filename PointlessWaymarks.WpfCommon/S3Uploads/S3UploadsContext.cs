@@ -34,9 +34,9 @@ public partial class S3UploadsContext : ObservableObject
     [ObservableProperty] private RelayCommand _toExcelAllItemsCommand;
     [ObservableProperty] private RelayCommand _toExcelSelectedItemsCommand;
     [ObservableProperty] private S3UploadsUploadBatch? _uploadBatch;
-    [ObservableProperty] private S3AccountInformation _uploadS3Information;
+    [ObservableProperty] private IS3AccountInformation _uploadS3Information;
 
-    private S3UploadsContext(StatusControlContext? statusContext, S3AccountInformation s3Info,
+    private S3UploadsContext(StatusControlContext? statusContext, IS3AccountInformation s3Info,
         WindowIconStatus? osStatusIndicator)
     {
         _statusContext = statusContext ?? new StatusControlContext();
@@ -85,7 +85,7 @@ public partial class S3UploadsContext : ObservableObject
     }
 
     public static async Task<S3UploadsContext> CreateInstance(StatusControlContext statusContext,
-        S3AccountInformation s3Info, List<S3UploadRequest> uploadList, WindowIconStatus? windowStatus)
+        IS3AccountInformation s3Info, List<S3UploadRequest> uploadList, WindowIconStatus? windowStatus)
     {
         var newControl = new S3UploadsContext(statusContext, s3Info, windowStatus);
         await newControl.LoadData(uploadList);
