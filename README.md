@@ -7,9 +7,9 @@ There is plenty of traditional README information below about this project - but
 The focus of this project is creating durable, rich, low maintenance, free, long-lasting, organized content that allows you to tell stories about the landscape, life, place,  history and nature.
 
 The Pointless Waymarks projects contains:
-  - The Pointless Waymarks CMS and (Local, Offline) Site Viewer (described below)
-  - Tasks to support the Pointless Waymarks CMS including Memories Email, Photo Pickup and Garmin Connect Gpx Download (described below)
-  - The Pointless Waymarks GeoTools - [README with Description and Screen Shots](PointlessWaymarks.GeoToolsGui/README.md) - a WPF GUI for GeoTagging and Feature Intersect Tagging Photographs and other content and managing Garmin Connect Downloads.
+  - The Pointless Waymarks CMS and (Local, Offline) Site Viewer (both described below)
+  - Tasks/Console Apps to support the Pointless Waymarks CMS including Memories Email, Photo Pickup and Garmin Connect Gpx Download (described below)
+  - The Pointless Waymarks GeoTools - [README with Description and Screen Shots](PointlessWaymarks.GeoToolsGui/README.md) - a WPF GUI for GeoTagging and Feature Intersect Tagging Photographs and managing Garmin Connect Downloads.
 
 Todo Lists, Idea Lists and a Development Log are [found in a DevNotes.md file that is versioned along with the code](/DevNotes.md).
 
@@ -238,3 +238,6 @@ I am incredibly grateful to the all the people and projects that make it possibl
    - [serilog/serilog-sinks-console: Write log events to System.Console as text or JSON, with ANSI theme support](https://github.com/serilog/serilog-sinks-console). Apache-2.0 License.
  - [replaysMike/TypeSupport: A CSharp library that makes it easier to work with Types dynamically.](https://github.com/replaysMike/TypeSupport) - When working with generic and dynamic types I appreciate some of the extension methods provided by this library to handle details like .IsNumericType that often seem to descend into endless edge cases when you try to write it yourself. GPL-3.0 License.
  - [omuleanu/ValueInjecter: convention based mapper](https://github.com/omuleanu/ValueInjecter) - Quick mapping between objects without any setup needed. MIT License.
+ 
+**Testing:**
+ - [GitHub - adobe/S3Mock: A simple mock implementation of the AWS S3 API startable as Docker image, TestContainer, JUnit 4 rule, JUnit Jupiter extension or TestNG listener](https://github.com/adobe/S3Mock#configuration) - One docker command to have a mock S3 server running and minimal configuration needed for simple cases!!! Apache License, Version 2.0.

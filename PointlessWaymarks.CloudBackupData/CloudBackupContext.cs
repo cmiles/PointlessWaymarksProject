@@ -47,4 +47,16 @@ public class CloudBackupContext : DbContext
 
         return context;
     }
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<BackupJob>().HasMany(x => x.Batches).WithOne(x => x.Job);
+        modelBuilder.Entity<BackupJob>().HasMany(x => x.ExcludedDirectories).WithOne(x => x.Job);
+        modelBuilder.Entity<BackupJob>().HasMany(x => x.ExcludedDirectoryNamePatterns).WithOne(x => x.Job);
+        modelBuilder.Entity<BackupJob>().HasMany(x => x.ExcludedFileNamePatterns).WithOne(x => x.Job);
+        modelBuilder.Entity<BackupJob>().HasMany(x => x.FileSystemFiles).WithOne(x => x.Job);
+        modelBuilder.Entity<CloudTransferBatch>().HasMany(x => x.CloudUploads).WithOne(x => x.CloudTransferBatch);
+        modelBuilder.Entity<CloudTransferBatch>().HasMany(x => x.CloudDeletions).WithOne(x => x.CloudTransferBatch);
+        modelBuilder.Entity<CloudTransferBatch>().HasMany(x => x.FileSystemFiles).WithOne(x => x.CloudTransferBatch);
+    }
 }

@@ -14,8 +14,6 @@ namespace PointlessWaymarks.CloudBackupTests;
 /// </summary>
 public class LocalFileIntegrationSeries
 {
-
-
     [OneTimeSetUp]
     public async Task Setup()
     {

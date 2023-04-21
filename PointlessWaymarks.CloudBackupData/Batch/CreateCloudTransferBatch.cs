@@ -3,11 +3,11 @@ using PointlessWaymarks.CommonTools.S3;
 
 namespace PointlessWaymarks.CloudBackupData.Batch;
 
-public static class Create
+public static class CreateCloudTransferBatch
 {
-    public static async Task InDatabase(IS3AccountInformation accountInformation, BackupJob job)
+    public static async Task<CloudTransferBatch> InDatabase(IS3AccountInformation accountInformation, BackupJob job)
     {
         var changes = await CreationTools.GetChanges(accountInformation, job);
-        await CreationTools.WriteChangesToDatabase(changes);
+        return await CreationTools.WriteChangesToDatabase(changes);
     }
 }

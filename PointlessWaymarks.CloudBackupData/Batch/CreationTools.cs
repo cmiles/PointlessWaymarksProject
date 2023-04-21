@@ -12,7 +12,7 @@ public static class CreationTools
         FileInfo fileSystemFile)
     {
         return fileSystemFile.FullName
-            .Replace($"{fileSystemBaseDirectory.FullName}\\", $"\\{initialDirectory}\\")
+            .Replace($"{fileSystemBaseDirectory.FullName}\\", $"{initialDirectory}\\")
             .Replace("\\", "/");
     }
 
@@ -136,19 +136,21 @@ public static class CreationTools
         var batch = new CloudTransferBatch { CreatedOn = frozenNow, JobId = changes.Job.Id };
         await db.CloudTransferBatches.AddAsync(batch);
 
+        await db.SaveChangesAsync();
+
         await db.FileSystemFiles.AddRangeAsync(changes.FileSystemFiles.Select(x => new FileSystemFile
         {
             CreatedOn = frozenNow,
             FileHash = x.Metadata.FileSystemHash,
             FileSystemDateTime = x.Metadata.LastWriteTime,
             JobId = changes.Job.Id,
-            CloudTransferBatchId = batch.Id
+            CloudTransferBatchId = batch.Id,
         }));
 
         await db.CloudUploads.AddRangeAsync(changes.FileSystemFilesToUpload.Select(x => new CloudUpload
         {
             CreatedOn = frozenNow,
-            BatchId = batch.Id,
+            CloudTransferBatchId = batch.Id,
             BucketName = changes.AccountInformation.BucketName(),
             FileSystemFile = x.LocalFile.FullName,
             CloudObjectKey = x.CloudKey,
@@ -158,7 +160,7 @@ public static class CreationTools
         await db.CloudDeletions.AddRangeAsync(changes.S3FilesToDelete.Select(x => new CloudDelete
         {
             CreatedOn = frozenNow,
-            BatchId = batch.Id,
+            CloudTransferBatchId = batch.Id,
             BucketName = changes.AccountInformation.BucketName(),
             CloudObjectKey = x.Key,
             LastUpdatedOn = frozenNow

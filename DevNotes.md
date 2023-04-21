@@ -1,4 +1,4 @@
-## Todos
+﻿## Todos
  - GPX Import
    - Remove Item from Map when removed from List - or is having it on the list useful?
    - Sync Item names? Or is having the original name on the map useful?
@@ -20,6 +20,26 @@
  - Could all in app font sizes be controlled by slider or setting? I like the control in the editor but maybe everywhere would be more useful? And persist in Settings?
 
 ## Notes
+
+4/21/2023
+
+Huge shout out to [GitHub - adobe/S3Mock: A simple mock implementation of the AWS S3 API startable as Docker image, TestContainer, JUnit 4 rule, JUnit Jupiter extension or TestNG listener](https://github.com/adobe/S3Mock#configuration) - this was absurdly easy to setup via docker and basically 'just worked' for testing S3 integration locally. This was particularly great because I caught some mistakes with Metadata and other details while working on the first S3 integration test!
+
+My first try for Amazon S3 local testing was [GitHub - localstack/localstack: 💻 A fully functional local AWS cloud stack. Develop and test your cloud & Serverless apps offline](https://github.com/localstack/localstack) - for my use the S3 object returns seemed to lack the bucket field (which I suppose could be configuration that I missed) - S3Mock worked out of the box so I didn't try to dig into this further.
+
+
+4/20/2023
+
+I have been working on an S3/Cloud Backup project. Of course there is plenty of well established backup software so a great question is why:
+ - Having my Pointless Waymarks based sites on S3 (and code on GitHub) backs up a HUGE portion of the data that I care about. Of course there are other things - but the only large set of 'other things' is my Lightroom catalog/RAW photo files. I want a solution for backing these up.
+
+Main features I'm looking for:
+ - S3 Target - there are many options for S3 backup but this requirement does start to eliminate a few choices. Basically I want the backup on a public service.
+ - Straight File Listings - I want to be able to use multiple tools and see a 'file system like' listing of the files - I don't want any situation where specific software is required to browse the files, and certainly not a specific service or software with a subscription.
+ - No Sync! As soon as you look at S3 solutions you will come up with some solutions related to sync/drive mapping that are interesting, but there must NOT be any sync to (possibly mis-)configure.
+
+In addition I don't believe I need deduplication, encryption and 'time-machine' style features beyond what is baked into S3. Also I don't expect to frequently access these files so S3 cost should be quite low/acceptable.
+
 
 4/9/2023
 

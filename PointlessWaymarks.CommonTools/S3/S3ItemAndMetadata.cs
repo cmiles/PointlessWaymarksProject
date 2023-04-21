@@ -4,9 +4,9 @@ namespace PointlessWaymarks.CommonTools.S3;
 
 public class S3Metadata
 {
-    public const string FileSystemHashKey = nameof(FileSystemHash);
+    public const string FileSystemHashKey = "x-amz-meta-FileSystemHash";
 
-    public const string LastWriteTimeKey = nameof(LastWriteTime);
+    public const string LastWriteTimeKey = "x-amz-meta-LastWriteTime";
 
     public S3Metadata(string lastWriteTime, string fileSystemHash)
     {
