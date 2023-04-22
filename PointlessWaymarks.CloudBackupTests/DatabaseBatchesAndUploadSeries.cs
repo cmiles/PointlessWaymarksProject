@@ -10,9 +10,10 @@ using PointlessWaymarks.CommonTools.S3;
 namespace PointlessWaymarks.CloudBackupTests;
 
 /// <summary>
-/// This tests both database and S3 listings/uploads. The intent is that this is used with a 'local' S3
-/// service such as:
-/// [GitHub - adobe/S3Mock: A simple mock implementation of the AWS S3 API ](https://github.com/adobe/S3Mock#configuration)
+///     This tests both database and S3 listings/uploads. The intent is that this is used with a 'local' S3
+///     service such as:
+///     [GitHub - adobe/S3Mock: A simple mock implementation of the AWS S3 API
+///     ](https://github.com/adobe/S3Mock#configuration)
 /// </summary>
 public class DatabaseBatchesAndUploadSeries
 {
@@ -98,18 +99,18 @@ public class DatabaseBatchesAndUploadSeries
         Assert.That(testBatch.CloudDeletions, Has.Count.EqualTo(0));
         Assert.That(testBatch.FileSystemFiles, Has.Count.EqualTo(8));
 
-        var toUpload = testBatch.CloudUploads;
+        await TransferCloudTransferBatch.UploadsAndDeletes(S3Credentials, testBatch.Id, null);
 
-        var transferUtility = new TransferUtility(S3Credentials.S3Client());
+        context = await CloudBackupContext.CreateInstance();
 
-        foreach (var loopUploads in toUpload)
-        {
-            var uploadRequest = await S3Tools.S3TransferUploadRequest(new FileInfo(loopUploads.FileSystemFile),
-                S3Credentials.BucketName(), loopUploads.CloudObjectKey);
-            uploadRequest.UploadProgressEvent += UploadRequestOnUploadProgressEvent;
+        var testBatchAfter = context.CloudTransferBatches.Single(x => x.Id == batch.Id);
 
-            await transferUtility.UploadAsync(uploadRequest);
-        }
+        Assert.That(testBatchAfter.CloudUploads.Where(x => x.UploadCompletedSuccessfully).ToList(),
+            Has.Count.EqualTo(8));
+        Assert.That(testBatchAfter.CloudDeletions.Where(x => x.DeletionCompletedSuccessfully).ToList(),
+            Has.Count.EqualTo(0));
+        Assert.That(testBatchAfter.CloudUploads.Where(x => x.UploadCompletedSuccessfully).ToList(),
+            Has.Count.EqualTo(8));
 
         var batchAfterUpload = await CreateCloudTransferBatch.InDatabase(S3Credentials, job);
 
