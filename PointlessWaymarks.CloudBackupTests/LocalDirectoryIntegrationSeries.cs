@@ -40,7 +40,8 @@ public class LocalDirectoryIntegrationSeries
         {
             CreatedOn = DateTime.Now,
             LocalDirectory = TestDirectory.FullName,
-            CloudDirectory = "Test01"
+            CloudDirectory = "Test01",
+            Name = "Test01"
         };
 
         db.BackupJob.Add(testJob);

@@ -2,7 +2,7 @@
 
 public class CloudUpload
 {
-    public CloudTransferBatch CloudTransferBatch { get; set; }
+    public virtual CloudTransferBatch CloudTransferBatch { get; set; }
     public int CloudTransferBatchId { get; set; }
     public string BucketName { get; set; }
     public string CloudObjectKey { get; set; }

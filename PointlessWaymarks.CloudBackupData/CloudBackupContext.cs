@@ -36,7 +36,7 @@ public class CloudBackupContext : DbContext
 
         if (setFileNameAsCurrentDb) CurrentDatabaseFileName = fileName;
 
-        return Task.FromResult(new CloudBackupContext(optionsBuilder.UseSqlite($"Data Source={fileName}").Options));
+        return Task.FromResult(new CloudBackupContext(optionsBuilder.UseLazyLoadingProxies().UseSqlite($"Data Source={fileName}").Options));
     }
 
     public static async Task<CloudBackupContext> CreateInstanceWithEnsureCreated(string fileName,
@@ -46,17 +46,5 @@ public class CloudBackupContext : DbContext
         await context.Database.EnsureCreatedAsync();
 
         return context;
-    }
-
-    protected override void OnModelCreating(ModelBuilder modelBuilder)
-    {
-        modelBuilder.Entity<BackupJob>().HasMany(x => x.Batches).WithOne(x => x.Job);
-        modelBuilder.Entity<BackupJob>().HasMany(x => x.ExcludedDirectories).WithOne(x => x.Job);
-        modelBuilder.Entity<BackupJob>().HasMany(x => x.ExcludedDirectoryNamePatterns).WithOne(x => x.Job);
-        modelBuilder.Entity<BackupJob>().HasMany(x => x.ExcludedFileNamePatterns).WithOne(x => x.Job);
-        modelBuilder.Entity<BackupJob>().HasMany(x => x.FileSystemFiles).WithOne(x => x.Job);
-        modelBuilder.Entity<CloudTransferBatch>().HasMany(x => x.CloudUploads).WithOne(x => x.CloudTransferBatch);
-        modelBuilder.Entity<CloudTransferBatch>().HasMany(x => x.CloudDeletions).WithOne(x => x.CloudTransferBatch);
-        modelBuilder.Entity<CloudTransferBatch>().HasMany(x => x.FileSystemFiles).WithOne(x => x.CloudTransferBatch);
     }
 }

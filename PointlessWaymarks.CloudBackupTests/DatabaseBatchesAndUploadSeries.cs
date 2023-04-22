@@ -35,17 +35,28 @@ public class DatabaseBatchesAndUploadSeries
 
         TestDirectory1 = TestDirectory.CreateSubdirectory("TestL");
         TestFile1 = Helpers.RandomFile(Path.Combine(TestDirectory1.FullName, "TestFile1.txt"));
+        await Task.Delay(100);
+
         TestFile2 = Helpers.RandomFile(Path.Combine(TestDirectory1.FullName, "TestFile2.txt"));
+        await Task.Delay(100);
+
         TestFile3 = Helpers.RandomFile(Path.Combine(TestDirectory1.FullName, "TestFile3.doc"));
         TestFile3Duplicate = TestFile3.CopyTo(Path.Combine(TestDirectory1.FullName, "TestFile3x.doc"));
+        await Task.Delay(100);
+
         TestFile4 = Helpers.RandomFile(Path.Combine(TestDirectory1.FullName, "fake.123"));
+        await Task.Delay(100);
 
         TestDirectory2 = TestDirectory.CreateSubdirectory("TestR");
         TestFile5 = Helpers.RandomFile(Path.Combine(TestDirectory2.FullName, "TestFile.txt"));
+        await Task.Delay(100);
+
         TestFile6 = Helpers.RandomFile(Path.Combine(TestDirectory2.FullName, "TestFile.lhk"));
+        await Task.Delay(100);
 
         TestDirectory3 = TestDirectory2.CreateSubdirectory("R1");
         TestFile7 = Helpers.RandomFile(Path.Combine(TestDirectory2.FullName, "with space.JSON"));
+        await Task.Delay(100);
 
         var testDb = Path.Combine(DbDirectory.FullName, "TestDb.db");
 
@@ -55,7 +66,8 @@ public class DatabaseBatchesAndUploadSeries
         {
             CreatedOn = DateTime.Now,
             LocalDirectory = TestDirectory.FullName,
-            CloudDirectory = $"Cloud-{testTime}"
+            CloudDirectory = $"Cloud-{testTime}",
+            Name = $"Cloud-{testTime}"
         };
 
         db.BackupJob.Add(testJob);
@@ -80,8 +92,7 @@ public class DatabaseBatchesAndUploadSeries
         var job = await context.BackupJob.SingleAsync();
         var batch = await CreateCloudTransferBatch.InDatabase(S3Credentials, job);
 
-        var testBatch = context.CloudTransferBatches.Include(x => x.FileSystemFiles).Include(x => x.CloudUploads)
-            .Include(x => x.CloudDeletions).Single(x => x.Id == batch.Id);
+        var testBatch = context.CloudTransferBatches.Single(x => x.Id == batch.Id);
 
         Assert.That(testBatch.CloudUploads, Has.Count.EqualTo(8));
         Assert.That(testBatch.CloudDeletions, Has.Count.EqualTo(0));

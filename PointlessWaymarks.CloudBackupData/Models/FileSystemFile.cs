@@ -6,9 +6,9 @@ public class FileSystemFile
     public string FileHash { get; set; }
     public string FileSystemDateTime { get; set; }
     public int Id { get; set; }
-    public BackupJob Job { get; set; }
+    public virtual BackupJob Job { get; set; }
     public int JobId { get; set; }
     public int CloudTransferBatchId { get; set; }
-    public CloudTransferBatch CloudTransferBatch { get; set; }
+    public virtual CloudTransferBatch CloudTransferBatch { get; set; }
 
 }
