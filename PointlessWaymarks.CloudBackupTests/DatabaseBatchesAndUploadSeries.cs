@@ -1,4 +1,5 @@
-﻿using Amazon.S3.Model;
+﻿using Amazon.S3;
+using Amazon.S3.Model;
 using Amazon.S3.Transfer;
 using Microsoft.EntityFrameworkCore;
 using PointlessWaymarks.CloudBackupData;
@@ -68,7 +69,7 @@ public class DatabaseBatchesAndUploadSeries
             CreatedOn = DateTime.Now,
             LocalDirectory = TestDirectory.FullName,
             CloudDirectory = $"Cloud-{testTime}",
-            Name = $"Cloud-{testTime}"
+            Name = $"Cloud-{testTime}",
         };
 
         db.BackupJob.Add(testJob);
@@ -76,10 +77,10 @@ public class DatabaseBatchesAndUploadSeries
         await db.SaveChangesAsync();
 
         S3Credentials = new S3LocalAccountInformation
-            { LocalStackBucket = $"b{DateTime.Now:yyyyMMddhhmmssfff}.pointlesswaymarks.com" };
-        var localStockClient = S3Credentials.S3Client();
+            { LocalS3Bucket = $"b{DateTime.Now:yyyyMMddhhmmssfff}.pointlesswaymarks.com" };
+        var localS3Client = S3Credentials.S3Client();
 
-        await localStockClient.PutBucketAsync(new PutBucketRequest
+        await localS3Client.PutBucketAsync(new PutBucketRequest
         {
             BucketName = S3Credentials.BucketName(),
             UseClientRegion = true

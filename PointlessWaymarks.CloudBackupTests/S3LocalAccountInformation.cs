@@ -8,7 +8,7 @@ namespace PointlessWaymarks.CloudBackupTests;
 public class S3LocalAccountInformation : IS3AccountInformation
 {
     public Func<string> AccessKey { get; init; }
-    public Func<string> BucketName => () => LocalStackBucket;
+    public Func<string> BucketName => () => LocalS3Bucket;
     public Func<string> BucketRegion { get; init; }
 
     public RegionEndpoint? BucketRegionEndpoint()
@@ -30,7 +30,7 @@ public class S3LocalAccountInformation : IS3AccountInformation
         });
     }
 
-    public string LocalStackBucket { get; set; }
+    public string LocalS3Bucket { get; set; }
 
     public Func<string> Secret { get; init; }
 }

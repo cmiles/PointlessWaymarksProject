@@ -21,6 +21,12 @@
 
 ## Notes
 
+4/23/2023
+
+Found that the S3Mock project doesn't support object versioning which I'm hoping to take advantage of for the Cloud Backup project... https://github.com/adobe/S3Mock/issues/64
+
+Found paginators in the AWS SDK! Nice detail - https://docs.aws.amazon.com/sdk-for-net/v3/developer-guide/paginators.html
+
 4/21/2023
 
 Huge shout out to [GitHub - adobe/S3Mock: A simple mock implementation of the AWS S3 API startable as Docker image, TestContainer, JUnit 4 rule, JUnit Jupiter extension or TestNG listener](https://github.com/adobe/S3Mock#configuration) - this was absurdly easy to setup via docker and basically 'just worked' for testing S3 integration locally. This was particularly great because I caught some mistakes with Metadata and other details while working on the first S3 integration test!

@@ -2,13 +2,13 @@
 using Amazon.S3.Model;
 using Amazon.S3.Transfer;
 using PointlessWaymarks.CommonTools.S3;
+using System.Threading;
 
 namespace PointlessWaymarks.CommonTools;
 
 public static class S3Tools
 {
-    public static async Task<List<S3RemoteFileAndMetadata>> ListS3Items(IS3AccountInformation accountInfo, string prefix,
-        IProgress<string>? progress = null)
+    public static async Task<List<S3RemoteFileAndMetadata>> ListS3Items(IS3AccountInformation accountInfo, string prefix, CancellationToken cancellationToken = default, IProgress<string>? progress = null)
     {
         var s3Client = accountInfo.S3Client();
 
@@ -16,23 +16,14 @@ public static class S3Tools
 
         var awsObjects = new List<S3RemoteFileAndMetadata>();
 
-        ListObjectsV2Response listResponse;
+        var paginator = s3Client.Paginators.ListObjectsV2(listRequest);
 
-        var loopNumber = 0;
-
-        do
+        await foreach (var response in paginator.S3Objects)
         {
-            progress?.Report($"Aws Object Listing Loop {++loopNumber}");
+            if (awsObjects.Count % 1000 == 0) progress?.Report($"Aws Object Listing - Added {awsObjects.Count} S3 Objects so far...");
 
-            listResponse = await s3Client.ListObjectsV2Async(listRequest);
-
-            progress?.Report($"Adding {listResponse.S3Objects.Count} S3 Objects to List...");
-
-            foreach (var x in listResponse.S3Objects) awsObjects.Add(await RemoteFileAndMetadata(s3Client, x));
-
-            // Set the marker property
-            listRequest.ContinuationToken = listResponse.NextContinuationToken;
-        } while (listResponse.IsTruncated);
+            awsObjects.Add(await RemoteFileAndMetadata(s3Client, response));
+        }
 
         return awsObjects;
     }

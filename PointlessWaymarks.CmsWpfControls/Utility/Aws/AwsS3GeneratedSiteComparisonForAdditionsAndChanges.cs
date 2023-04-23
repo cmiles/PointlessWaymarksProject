@@ -1,5 +1,6 @@
 ﻿#nullable enable
 using System.IO;
+using System.Threading;
 using Amazon.S3;
 using Amazon.S3.Model;
 using PointlessWaymarks.CmsData;
@@ -70,23 +71,14 @@ public class AwsS3GeneratedSiteComparisonForAdditionsAndChanges
 
         var awsObjects = new List<S3Object>();
 
-        ListObjectsV2Response listResponse;
+        var paginator = s3Client.Paginators.ListObjectsV2(listRequest);
 
-        var loopNumber = 0;
-
-        do
+        await foreach (var response in paginator.S3Objects)
         {
-            progress?.Report($"Aws Object Listing Loop {++loopNumber}");
+            if(awsObjects.Count % 1000 == 0) progress?.Report($"Aws Object Listing - Added {awsObjects.Count} S3 Objects so far...");
 
-            listResponse = await s3Client.ListObjectsV2Async(listRequest);
-
-            progress?.Report($"Adding {listResponse.S3Objects.Count} S3 Objects to List...");
-
-            listResponse.S3Objects.ForEach(x => awsObjects.Add(x));
-
-            // Set the marker property
-            listRequest.ContinuationToken = listResponse.NextContinuationToken;
-        } while (listResponse.IsTruncated);
+            awsObjects.Add(response);
+        }
 
         progress?.Report($"Found {awsObjects.Count} S3 Objects - starting file comparison");
 
