@@ -22,7 +22,7 @@ namespace PointlessWaymarks.SiteViewerGui;
 ///     Interaction logic for MainWindow.xaml
 /// </summary>
 [ObservableObject]
-#pragma warning disable MVVMTK0033 - Main Window Exception
+#pragma warning disable MVVMTK0033
 public partial class MainWindow
 #pragma warning restore MVVMTK0033
 {

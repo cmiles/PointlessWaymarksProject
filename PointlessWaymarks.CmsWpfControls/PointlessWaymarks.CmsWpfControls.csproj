@@ -14,7 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.1.0" />
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.0" />
     <PackageReference Include="Fractions" Version="7.2.1" />
     <PackageReference Include="GitInfo" Version="2.3.0">
       <PrivateAssets>all</PrivateAssets>
