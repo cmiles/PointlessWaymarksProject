@@ -11,5 +11,6 @@ public class BackupJob
     public virtual ICollection<FileSystemFile> FileSystemFiles { get; set; }
     public int Id { get; set; }
     public string LocalDirectory { get; set; }
+    public int DefaultMaximumRunTimeInHours { get; set; }
     public string Name { get; set; }
 }
