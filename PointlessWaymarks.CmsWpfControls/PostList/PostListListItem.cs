@@ -8,7 +8,7 @@ namespace PointlessWaymarks.CmsWpfControls.PostList;
 
 public partial class PostListListItem : ObservableObject, IContentListItem, IContentListSmallImage
 {
-    [ObservableProperty] private PostContent _dbEntry = new();
+    [ObservableProperty] private PostContent _dbEntry;
     [ObservableProperty] private PostContentActions _itemActions;
     [ObservableProperty] private CurrentSelectedTextTracker _selectedTextTracker = new();
     [ObservableProperty] private bool _showType;
@@ -16,6 +16,7 @@ public partial class PostListListItem : ObservableObject, IContentListItem, ICon
 
     public PostListListItem(PostContentActions itemActions)
     {
+        _dbEntry = PostContent.CreateInstance();
         _itemActions = itemActions;
     }
 

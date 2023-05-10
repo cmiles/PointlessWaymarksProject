@@ -573,7 +573,7 @@ public static class ContentImport
             "NOTE" => new NoteContent(),
             "PHOTO" => PhotoContent.CreateInstance(),
             "POINT" => new PointContentDto(),
-            "POST" => new PostContent(),
+            "POST" => PostContent.CreateInstance(),
             _ => null
         };
     }

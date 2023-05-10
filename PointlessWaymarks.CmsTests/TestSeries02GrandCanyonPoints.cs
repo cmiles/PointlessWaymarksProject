@@ -313,6 +313,7 @@ And what about a line...
             CreatedBy = "Map Tester",
             CreatedOn = new DateTime(2020, 10, 19, 7, 16, 16),
             FeedOn = new DateTime(2020, 10, 19, 7, 16, 16),
+            ContentVersion = Db.ContentVersionDateTime(),
             Folder = "GrandCanyon",
             ShowInMainSiteFeed = true,
             Summary = "A basic map of points around Piute Point",

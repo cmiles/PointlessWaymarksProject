@@ -26,6 +26,7 @@ A significant concentration of ironwood (also known as desert ironwood, Olneya t
             CreatedBy = "Post Test",
             CreatedOn = new DateTime(2020, 8, 18, 7, 16, 16),
             FeedOn = new DateTime(2020, 8, 18, 7, 16, 16),
+            ContentVersion = Db.ContentVersionDateTime(),
             Folder = "IronwoodForest",
             ShowInMainSiteFeed = true,
             Summary = "Basic information for Ironwood Forest National Monument",
@@ -109,7 +110,7 @@ A significant concentration of ironwood (also known as desert ironwood, Olneya t
 
     public static async Task<PostContent> PostTest(PostContent contentReference)
     {
-        var contentToSave = new PostContent();
+        var contentToSave = PostContent.CreateInstance();
         contentToSave.InjectFrom(contentReference);
 
         var validationReturn = await PostGenerator.Validate(contentToSave);

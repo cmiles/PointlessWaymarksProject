@@ -329,6 +329,7 @@ public partial class WordPressXmlImportContext : ObservableObject
                 CreatedBy = loopItems.CreatedBy,
                 CreatedOn = loopItems.CreatedOn,
                 FeedOn = loopItems.CreatedOn,
+                ContentVersion = Db.ContentVersionDateTime(),
                 Summary = string.IsNullOrWhiteSpace(loopItems.Summary) ? loopItems.Title : loopItems.Summary,
                 Folder =
                     FolderFromYear ? loopItems.CreatedOn.Year.ToString() : loopItems.Category.Replace(" ", "-"),

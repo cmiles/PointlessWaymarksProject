@@ -6,6 +6,7 @@ using CommunityToolkit.Mvvm.Input;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.Content;
+using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsWpfControls.BodyContentEditor;
 using PointlessWaymarks.CmsWpfControls.ContentIdViewer;
@@ -26,44 +27,41 @@ namespace PointlessWaymarks.CmsWpfControls.PostContentEditor;
 
 public partial class PostContentEditorContext : ObservableObject, IHasChanges, IHasValidationIssues, ICheckForChangesAndValidation
 {
-    [ObservableProperty] private BodyContentEditorContext _bodyContent;
-    [ObservableProperty] private ContentIdViewerControlContext _contentId;
-    [ObservableProperty] private CreatedAndUpdatedByAndOnDisplayContext _createdUpdatedDisplay;
+    [ObservableProperty] private BodyContentEditorContext? _bodyContent;
+    [ObservableProperty] private ContentIdViewerControlContext? _contentId;
+    [ObservableProperty] private CreatedAndUpdatedByAndOnDisplayContext? _createdUpdatedDisplay;
     [ObservableProperty] private PostContent _dbEntry;
     [ObservableProperty] private RelayCommand _extractNewLinksCommand;
     [ObservableProperty] private bool _hasChanges;
     [ObservableProperty] private bool _hasValidationIssues;
-    [ObservableProperty] private HelpDisplayContext _helpContext;
+    [ObservableProperty] private HelpDisplayContext? _helpContext;
     [ObservableProperty] private RelayCommand _linkToClipboardCommand;
-    [ObservableProperty] private ContentSiteFeedAndIsDraftContext _mainSiteFeed;
+    [ObservableProperty] private ContentSiteFeedAndIsDraftContext? _mainSiteFeed;
     [ObservableProperty] private RelayCommand _saveAndCloseCommand;
     [ObservableProperty] private RelayCommand _saveCommand;
     [ObservableProperty] private StatusControlContext _statusContext;
-    [ObservableProperty] private TagsEditorContext _tagEdit;
-    [ObservableProperty] private TitleSummarySlugEditorContext _titleSummarySlugFolder;
-    [ObservableProperty] private UpdateNotesEditorContext _updateNotes;
+    [ObservableProperty] private TagsEditorContext? _tagEdit;
+    [ObservableProperty] private TitleSummarySlugEditorContext? _titleSummarySlugFolder;
+    [ObservableProperty] private UpdateNotesEditorContext? _updateNotes;
     [ObservableProperty] private RelayCommand _viewOnSiteCommand;
 
     public EventHandler? RequestContentEditorWindowClose;
 
-    private PostContentEditorContext(StatusControlContext statusContext)
+    private PostContentEditorContext(StatusControlContext statusContext, PostContent dbEntry)
     {
-        StatusContext = statusContext ?? new StatusControlContext();
+        _statusContext = statusContext;
 
         PropertyChanged += OnPropertyChanged;
 
-        SaveCommand = StatusContext.RunBlockingTaskCommand(async () => await SaveAndGenerateHtml(false));
-        SaveAndCloseCommand = StatusContext.RunBlockingTaskCommand(async () => await SaveAndGenerateHtml(true));
-        ViewOnSiteCommand = StatusContext.RunBlockingTaskCommand(ViewOnSite);
-        ExtractNewLinksCommand = StatusContext.RunBlockingTaskCommand(() =>
-            LinkExtraction.ExtractNewAndShowLinkContentEditors($"{BodyContent.BodyContent} {UpdateNotes.UpdateNotes}",
+        _saveCommand = StatusContext.RunBlockingTaskCommand(async () => await SaveAndGenerateHtml(false));
+        _saveAndCloseCommand = StatusContext.RunBlockingTaskCommand(async () => await SaveAndGenerateHtml(true));
+        _viewOnSiteCommand = StatusContext.RunBlockingTaskCommand(ViewOnSite);
+        _extractNewLinksCommand = StatusContext.RunBlockingTaskCommand(() =>
+            LinkExtraction.ExtractNewAndShowLinkContentEditors($"{BodyContent!.BodyContent} {UpdateNotes!.UpdateNotes}",
                 StatusContext.ProgressTracker()));
-        LinkToClipboardCommand = StatusContext.RunBlockingTaskCommand(LinkToClipboard);
+        _linkToClipboardCommand = StatusContext.RunBlockingTaskCommand(LinkToClipboard);
 
-        HelpContext = new HelpDisplayContext(new List<string>
-        {
-            PostEditorHelpText, CommonFields.TitleSlugFolderSummary, BracketCodeHelpMarkdown.HelpBlock
-        });
+        DbEntry = dbEntry;
     }
 
     public string PostEditorHelpText =>
@@ -83,43 +81,39 @@ Notes:
     }
 
     public static async Task<PostContentEditorContext> CreateInstance(StatusControlContext statusContext,
-        PostContent postContent = null)
+        PostContent? toLoad = null)
     {
-        var newControl = new PostContentEditorContext(statusContext);
-        await newControl.LoadData(postContent);
-        return newControl;
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        var newContext = new PostContentEditorContext(statusContext, NewContentModels.InitializePostContent(toLoad));
+        await newContext.LoadData(toLoad);
+        return newContext;
     }
 
     private PostContent CurrentStateToPostContent()
     {
-        var newEntry = new PostContent();
+        var newEntry = PostContent.CreateInstance();
 
-        if (DbEntry == null || DbEntry.Id < 1)
-        {
-            newEntry.ContentId = Guid.NewGuid();
-            newEntry.CreatedOn = DbEntry?.CreatedOn ?? DateTime.Now;
-            if (newEntry.CreatedOn == DateTime.MinValue) newEntry.CreatedOn = DateTime.Now;
-        }
-        else
+        if (DbEntry.Id > 0)
         {
             newEntry.ContentId = DbEntry.ContentId;
             newEntry.CreatedOn = DbEntry.CreatedOn;
             newEntry.LastUpdatedOn = DateTime.Now;
-            newEntry.LastUpdatedBy = CreatedUpdatedDisplay.UpdatedByEntry.UserValue.TrimNullToEmpty();
+            newEntry.LastUpdatedBy = CreatedUpdatedDisplay!.UpdatedByEntry.UserValue.TrimNullToEmpty();
         }
 
-        newEntry.Folder = TitleSummarySlugFolder.FolderEntry.UserValue.TrimNullToEmpty();
+        newEntry.Folder = TitleSummarySlugFolder!.FolderEntry.UserValue.TrimNullToEmpty();
         newEntry.Slug = TitleSummarySlugFolder.SlugEntry.UserValue.TrimNullToEmpty();
         newEntry.Summary = TitleSummarySlugFolder.SummaryEntry.UserValue.TrimNullToEmpty();
-        newEntry.ShowInMainSiteFeed = MainSiteFeed.ShowInMainSiteFeedEntry.UserValue;
+        newEntry.ShowInMainSiteFeed = MainSiteFeed!.ShowInMainSiteFeedEntry.UserValue;
         newEntry.FeedOn = MainSiteFeed.FeedOnEntry.UserValue;
         newEntry.IsDraft = MainSiteFeed.IsDraftEntry.UserValue;
-        newEntry.Tags = TagEdit.TagListString();
+        newEntry.Tags = TagEdit!.TagListString();
         newEntry.Title = TitleSummarySlugFolder.TitleEntry.UserValue.TrimNullToEmpty();
-        newEntry.CreatedBy = CreatedUpdatedDisplay.CreatedByEntry.UserValue.TrimNullToEmpty();
-        newEntry.UpdateNotes = UpdateNotes.UpdateNotes.TrimNullToEmpty();
+        newEntry.CreatedBy = CreatedUpdatedDisplay!.CreatedByEntry.UserValue.TrimNullToEmpty();
+        newEntry.UpdateNotes = UpdateNotes!.UpdateNotes.TrimNullToEmpty();
         newEntry.UpdateNotesFormat = UpdateNotes.UpdateNotesFormat.SelectedContentFormatAsString;
-        newEntry.BodyContent = BodyContent.BodyContent.TrimNullToEmpty();
+        newEntry.BodyContent = BodyContent!.BodyContent.TrimNullToEmpty();
         newEntry.BodyContentFormat = BodyContent.BodyContentFormat.SelectedContentFormatAsString;
 
         return newEntry;
@@ -129,7 +123,7 @@ Notes:
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        if (DbEntry == null || DbEntry.Id < 1)
+        if ( DbEntry.Id < 1)
         {
             StatusContext.ToastError("Sorry - please save before getting link...");
             return;
@@ -148,16 +142,7 @@ Notes:
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        var created = DateTime.Now;
-
-        DbEntry = toLoad ?? new PostContent
-        {
-            BodyContentFormat = UserSettingsUtilities.DefaultContentFormatChoice(),
-            UpdateNotesFormat = UserSettingsUtilities.DefaultContentFormatChoice(),
-            ShowInMainSiteFeed = true,
-            CreatedOn = created,
-            FeedOn = created
-        };
+        DbEntry = NewContentModels.InitializePostContent(toLoad);
 
         TitleSummarySlugFolder = await TitleSummarySlugEditorContext.CreateInstance(StatusContext, DbEntry, null, null, null);
         CreatedUpdatedDisplay = await CreatedAndUpdatedByAndOnDisplayContext.CreateInstance(StatusContext, DbEntry);
@@ -167,6 +152,11 @@ Notes:
         TagEdit = await TagsEditorContext.CreateInstance(StatusContext, DbEntry);
         BodyContent = await BodyContentEditorContext.CreateInstance(StatusContext, DbEntry);
 
+        HelpContext = new HelpDisplayContext(new List<string>
+        {
+            PostEditorHelpText, CommonFields.TitleSlugFolderSummary, BracketCodeHelpMarkdown.HelpBlock
+        });
+        
         PropertyScanners.SubscribeToChildHasChangesAndHasValidationIssues(this, CheckForChangesAndValidationIssues);
     }
 
@@ -206,7 +196,7 @@ Notes:
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        if (DbEntry == null || DbEntry.Id < 1)
+        if (DbEntry.Id < 1)
         {
             StatusContext.ToastError("Please save the content first...");
             return;

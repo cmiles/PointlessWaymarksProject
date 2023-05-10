@@ -21,6 +21,23 @@ public static class NewContentModels
         return returnEntry;
     }
     
+    public static PostContent InitializePostContent(PostContent? dbEntry)
+    {
+        var created = DateTime.Now;
+
+        var returnEntry = dbEntry ?? new PostContent()
+        {
+            ContentId = Guid.NewGuid(),
+            BodyContentFormat = UserSettingsUtilities.DefaultContentFormatChoice(),
+            UpdateNotesFormat = UserSettingsUtilities.DefaultContentFormatChoice(),
+            CreatedOn = created,
+            FeedOn = created,
+            ContentVersion = Db.ContentVersionDateTime(),
+        };
+
+        return returnEntry;
+    }
+    
     public static PhotoContent InitializePhotoContent(PhotoContent? dbEntry)
     {
         var created = DateTime.Now;
