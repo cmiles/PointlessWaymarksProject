@@ -191,7 +191,9 @@ public partial class PhotoListWithActionsContext : ObservableObject
 
             if (feature == null) continue;
 
-            toProcess.Add((PhotoContent)new PhotoContent().InjectFrom(loopSelected.DbEntry));
+            var toAdd = PhotoContent.CreateInstance();
+            
+            toProcess.Add((PhotoContent)toAdd.InjectFrom(loopSelected.DbEntry));
             intersectResults.Add(new IntersectResult(feature) { ContentId = loopSelected.DbEntry.ContentId });
         }
 
@@ -708,7 +710,7 @@ public partial class PhotoListWithActionsContext : ObservableObject
                 continue;
             }
 
-            var toModify = (PhotoContent)new PhotoContent().InjectFrom(loopSelected.DbEntry);
+            var toModify = (PhotoContent)(PhotoContent.CreateInstance().InjectFrom(loopSelected.DbEntry));
 
             if (toModify.PhotoCreatedOnUtc == null && metadataReturn.metadata.PhotoCreatedOnUtc != null)
                 toModify.PhotoCreatedOnUtc = metadataReturn.metadata.PhotoCreatedOnUtc;

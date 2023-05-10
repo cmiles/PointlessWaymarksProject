@@ -77,6 +77,8 @@ public partial class UpdateNotesEditorContext : ObservableObject, IHasChanges, I
 
         var newContext = new UpdateNotesEditorContext(factoryContext, dbEntry, factoryFormatChooserContext);
 
+        newContext.CheckForChangesAndValidationIssues();
+        
         return newContext;
     }
 

@@ -77,6 +77,8 @@ public partial class TitleSummarySlugEditorContext : IHasChanges, IHasValidation
 
         var newItem = new TitleSummarySlugEditorContext(factoryContext, dbEntry, factorySlugEntry, factorySummaryEntry, factoryTitleEntry, factoryFolderEntry, customTitleCommandText, customTitleCommand, customTitleCheckToEnable);
 
+        newItem.CheckForChangesAndValidationIssues();
+        
         return newItem;
     }
 

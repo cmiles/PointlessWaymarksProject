@@ -60,7 +60,8 @@ public partial class ContentSiteFeedAndIsDraftContext : ObservableObject, IHasCh
         factoryFeedContext.UserText = dbEntry.FeedOn.ToString("MM/dd/yyyy h:mm:ss tt");
 
         var newItem = new ContentSiteFeedAndIsDraftContext(statusContext, dbEntry, factoryFeedContext, factoryIsDraftContest, factoryShowInMainSiteFeedContext);
-
+        newItem.CheckForChangesAndValidationIssues();
+        
         return newItem;
     }
 

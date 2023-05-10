@@ -48,7 +48,11 @@ public partial class TagsEditorContext : ObservableObject, IHasChanges, IHasVali
     public static Task<TagsEditorContext> CreateInstance(StatusControlContext? statusContext, ITag? dbEntry)
     {
         var factoryContext = statusContext ?? new StatusControlContext();
-        return Task.FromResult(new TagsEditorContext(factoryContext, dbEntry));
+
+        var newItem = new TagsEditorContext(factoryContext, dbEntry);
+        newItem.CheckForChangesAndValidationIssues();
+        
+        return Task.FromResult(newItem);
     }
 
     private List<string> DbTagList()

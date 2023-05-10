@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
+using System.Dynamic;
 using NetTopologySuite.Features;
 using NetTopologySuite.Geometries;
 
@@ -19,23 +20,23 @@ public class PhotoContent : IUpdateNotes, IContentCommon
     public double? Longitude { get; set; }
     public string? OriginalFileName { get; set; }
     public string? PhotoCreatedBy { get; set; }
-    public DateTime PhotoCreatedOn { get; set; }
+    public required DateTime PhotoCreatedOn { get; set; }
     public DateTime? PhotoCreatedOnUtc { get; set; }
     public bool ShowPhotoPosition { get; set; }
     public bool ShowPhotoSizes { get; set; }
     public string? ShutterSpeed { get; set; }
     public string? BodyContent { get; set; }
     public string? BodyContentFormat { get; set; }
-    public Guid ContentId { get; set; }
+    public required Guid ContentId { get; set; }
     public DateTime ContentVersion { get; set; }
     public int Id { get; set; }
     public string? CreatedBy { get; set; }
-    public DateTime CreatedOn { get; set; }
+    public required DateTime CreatedOn { get; set; }
     public string? LastUpdatedBy { get; set; }
     public DateTime? LastUpdatedOn { get; set; }
     [NotMapped] public DateTime LatestUpdate => LastUpdatedOn ?? CreatedOn;
     public Guid? MainPicture { get; set; }
-    public DateTime FeedOn { get; set; }
+    public required DateTime FeedOn { get; set; }
     public bool IsDraft { get; set; }
     public bool ShowInMainSiteFeed { get; set; }
     public string? Tags { get; set; }
@@ -63,7 +64,22 @@ public class PhotoContent : IUpdateNotes, IContentCommon
     public Point? PointFromLatitudeLongitude()
     {
         if (Longitude is null || Latitude is null) return null;
-        if (Elevation is null) return new Point(Longitude.Value, Latitude.Value);
-        return new Point(Longitude.Value, Latitude.Value, Elevation.Value);
+        return Elevation is null
+            ? new Point(Longitude.Value, Latitude.Value)
+            : new Point(Longitude.Value, Latitude.Value, Elevation.Value);
+    }
+
+    
+    public static PhotoContent CreateInstance()
+    {
+        var created = DateTime.Now;
+        
+        return new PhotoContent
+        {
+            ContentId = Guid.NewGuid(),
+            CreatedOn = created,
+            FeedOn = created,
+            PhotoCreatedOn = created
+        };
     }
 }

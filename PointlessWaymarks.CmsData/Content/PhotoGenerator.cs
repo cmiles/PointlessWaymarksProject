@@ -323,19 +323,16 @@ public static class PhotoGenerator
 
         if (generationReturn.HasError) return (generationReturn, null);
 
-        var toReturn = new PhotoContent();
+        var created = DateTime.Now;
+
+        var toReturn = PhotoContent.CreateInstance();
 
         toReturn.InjectFrom(metadata);
 
-        var created = DateTime.Now;
-
         toReturn.OriginalFileName = selectedFile.Name;
-        toReturn.ContentId = Guid.NewGuid();
         toReturn.CreatedBy = string.IsNullOrWhiteSpace(photoContentCreatedBy)
             ? UserSettingsSingleton.CurrentSettings().DefaultCreatedBy
             : photoContentCreatedBy.Trim();
-        toReturn.CreatedOn = created;
-        toReturn.FeedOn = created;
         toReturn.Slug = SlugTools.CreateSlug(true, toReturn.Title);
         toReturn.BodyContentFormat = ContentFormatDefaults.Content.ToString();
         toReturn.UpdateNotesFormat = ContentFormatDefaults.Content.ToString();

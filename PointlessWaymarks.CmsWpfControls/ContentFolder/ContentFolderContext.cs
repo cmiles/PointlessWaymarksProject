@@ -90,6 +90,8 @@ public partial class ContentFolderContext : ObservableObject, IHasChanges, IHasV
 
         var newControl = new ContentFolderContext(factoryContext, dbEntry, async () => await Db.FolderNamesFromContent(dbEntry), initialFolderList);
 
+        newControl.CheckForChangesAndValidate();
+
         return newControl;
     }
 
@@ -105,6 +107,8 @@ public partial class ContentFolderContext : ObservableObject, IHasChanges, IHasV
 
         var newControl = new ContentFolderContext(factoryContext, null, loader, initialFolderList);
 
+        newControl.CheckForChangesAndValidate();
+        
         return newControl;
     }
 

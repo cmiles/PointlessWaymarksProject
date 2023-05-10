@@ -33,11 +33,8 @@ public partial class ContentFormatChooserContext :  ObservableObject, IHasChange
 
     public async Task CheckForChangesAndValidationIssues()
     {
-        // ReSharper disable InvokeAsExtensionMethod - in this case TrimNullSage - which returns an
-        //Empty string from null will not be invoked as an extension if DbEntry is null...
-        SelectedContentFormatHasChanges = StringTools.TrimNullToEmpty(InitialValue) !=
+        SelectedContentFormatHasChanges = InitialValue.TrimNullToEmpty() !=
                                           SelectedContentFormatAsString.TrimNullToEmpty();
-        // ReSharper restore InvokeAsExtensionMethod
 
         HasChanges = SelectedContentFormatHasChanges;
         var validation =
@@ -54,11 +51,14 @@ public partial class ContentFormatChooserContext :  ObservableObject, IHasChange
             await CheckForChangesAndValidationIssues();
     }
 
-    public static Task<ContentFormatChooserContext> CreateInstance(StatusControlContext statusContext)
+    public static async Task<ContentFormatChooserContext> CreateInstance(StatusControlContext statusContext)
     {
         ThreadSwitcher.ResumeBackgroundAsync();
 
-        return Task.FromResult<ContentFormatChooserContext>(new(statusContext));
+        var toReturn = new ContentFormatChooserContext(statusContext);
+        await toReturn.CheckForChangesAndValidationIssues();
+        
+        return toReturn;
     }
 
 

@@ -87,6 +87,8 @@ public partial class BodyContentEditorContext : ObservableObject, IHasChanges, I
 
         if (!setUpdateFormatOk) newContext.StatusContext.ToastWarning("Trouble loading Format from Db...");
 
+        newContext.CheckForChangesAndValidationIssues();
+        
         return newContext;
     }
 

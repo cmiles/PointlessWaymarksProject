@@ -126,6 +126,8 @@ public partial class CreatedAndUpdatedByAndOnDisplayContext : ObservableObject, 
 
         var newInstance = new CreatedAndUpdatedByAndOnDisplayContext(factoryContext, dbEntry, factoryCreatedByContext, factoryUpdatedByEntry);
 
+        newInstance.CheckForChangesAndValidationIssues();
+        
         return newInstance;
     }
 

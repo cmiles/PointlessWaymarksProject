@@ -571,7 +571,7 @@ public static class ContentImport
             "IMAGE" => new ImageContent(),
             "LINK" => new LinkContent(),
             "NOTE" => new NoteContent(),
-            "PHOTO" => new PhotoContent(),
+            "PHOTO" => PhotoContent.CreateInstance(),
             "POINT" => new PointContentDto(),
             "POST" => new PostContent(),
             _ => null

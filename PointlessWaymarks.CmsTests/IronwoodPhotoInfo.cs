@@ -14,6 +14,9 @@ public static class IronwoodPhotoInfo
     public static PhotoContent AguaBlancaContent =>
         new()
         {
+            ContentId =Guid.NewGuid(),
+            CreatedOn = default,
+            FeedOn = default,
             Aperture = "f/11.0",
             BodyContentFormat = ContentFormatDefaults.Content.ToString(),
             CameraMake = "SONY",
@@ -45,6 +48,9 @@ public static class IronwoodPhotoInfo
     public static PhotoContent DisappearingContent =>
         new()
         {
+            ContentId =Guid.NewGuid(),
+            CreatedOn = default,
+            FeedOn = default,
             Aperture = "f/11.0",
             BodyContentFormat = ContentFormatDefaults.Content.ToString(),
             CameraMake = "SONY",
@@ -74,6 +80,9 @@ public static class IronwoodPhotoInfo
     public static PhotoContent IronwoodFireBarrelContent01 =>
         new()
         {
+            ContentId =Guid.NewGuid(),
+            CreatedOn = default,
+            FeedOn = default,
             Aperture = "f/13.0",
             BodyContentFormat = ContentFormatDefaults.Content.ToString(),
             CameraMake = "SONY",
@@ -99,6 +108,9 @@ public static class IronwoodPhotoInfo
     public static PhotoContent IronwoodPodContent01 =>
         new()
         {
+            ContentId =Guid.NewGuid(),
+            CreatedOn = default,
+            FeedOn = default,
             Aperture = "f/16.0",
             BodyContentFormat = ContentFormatDefaults.Content.ToString(),
             CameraMake = "SONY",
@@ -122,6 +134,9 @@ public static class IronwoodPhotoInfo
     public static PhotoContent IronwoodPodContent02_CameraModelLensSummary =>
         new()
         {
+            ContentId =Guid.NewGuid(),
+            CreatedOn = default,
+            FeedOn = default,
             Aperture = "f/16.0",
             BodyContentFormat = ContentFormatDefaults.Content.ToString(),
             CameraMake = "SONY",
@@ -150,6 +165,9 @@ public static class IronwoodPhotoInfo
     public static PhotoContent IronwoodTreeContent01 =>
         new()
         {
+            ContentId =Guid.NewGuid(),
+            CreatedOn = default,
+            FeedOn = default,
             Aperture = "f/16.0",
             BodyContentFormat = ContentFormatDefaults.Content.ToString(),
             CameraMake = "SONY",
@@ -173,6 +191,9 @@ public static class IronwoodPhotoInfo
     public static PhotoContent IronwoodTreeContent02_SlugTitleSummaryTagsUpdateNotesUpdatedBy =>
         new()
         {
+            ContentId =Guid.NewGuid(),
+            CreatedOn = default,
+            FeedOn = default,
             Aperture = "f/16.0",
             BodyContentFormat = ContentFormatDefaults.Content.ToString(),
             CameraMake = "SONY",
@@ -202,6 +223,9 @@ public static class IronwoodPhotoInfo
     public static PhotoContent QuarryContent01 =>
         new()
         {
+            ContentId =Guid.NewGuid(),
+            CreatedOn = default,
+            FeedOn = default,
             Aperture = "f/9.0",
             BodyContentFormat = ContentFormatDefaults.Content.ToString(),
             CameraMake = "SONY",
@@ -225,6 +249,9 @@ public static class IronwoodPhotoInfo
     public static PhotoContent QuarryContent02_BodyContentUpdateNotesTags =>
         new()
         {
+            ContentId =Guid.NewGuid(),
+            CreatedOn = default,
+            FeedOn = default,
             Aperture = "f/9.0",
             BodyContent = "Mining is part of both the past and the future of the Waterman Mountains.",
             BodyContentFormat = ContentFormatDefaults.Content.ToString(),
