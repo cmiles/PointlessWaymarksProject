@@ -11,6 +11,7 @@ using PhotoSauce.MagicScaler;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.Content;
+using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsData.Spatial;
 using PointlessWaymarks.CmsWpfControls.BodyContentEditor;
@@ -102,47 +103,47 @@ public partial class PhotoContentEditorContext : ObservableObject, IHasChanges, 
 
     private PhotoContentEditorContext(StatusControlContext? statusContext, PhotoContent dbEntry)
     {
-       StatusContext = statusContext ?? new StatusControlContext();
+        _statusContext = statusContext ?? new StatusControlContext();
 
-        ChooseFileAndFillMetadataCommand = StatusContext.RunBlockingTaskCommand(async () => await ChooseFile(true));
-        ChooseFileCommand = StatusContext.RunBlockingTaskCommand(async () => await ChooseFile(false));
-        SaveCommand = StatusContext.RunBlockingTaskCommand(async () =>
+        PropertyChanged += OnPropertyChanged;
+
+        _chooseFileAndFillMetadataCommand = StatusContext.RunBlockingTaskCommand(async () => await ChooseFile(true));
+        _chooseFileCommand = StatusContext.RunBlockingTaskCommand(async () => await ChooseFile(false));
+        _saveCommand = StatusContext.RunBlockingTaskCommand(async () =>
             await SaveAndGenerateHtml(ResizeSelectedFile || SelectedFileHasPathOrNameChanges));
-        SaveAndReprocessPhotoCommand =
+        _saveAndReprocessPhotoCommand =
             StatusContext.RunBlockingTaskCommand(async () => await SaveAndGenerateHtml(true));
-        SaveAndCloseCommand = StatusContext.RunBlockingTaskCommand(async () =>
+        _saveAndCloseCommand = StatusContext.RunBlockingTaskCommand(async () =>
             await SaveAndGenerateHtml(ResizeSelectedFile || SelectedFileHasPathOrNameChanges, true));
-        ViewPhotoMetadataCommand = StatusContext.RunBlockingTaskCommand(async () =>
+        _viewPhotoMetadataCommand = StatusContext.RunBlockingTaskCommand(async () =>
             await PhotoMetadataReport.AllPhotoMetadataToHtml(SelectedFile, StatusContext));
-        ViewSelectedFileCommand = StatusContext.RunNonBlockingTaskCommand(ViewSelectedFile);
-        ViewOnSiteCommand = StatusContext.RunBlockingTaskCommand(ViewOnSite);
-        RenameSelectedFileCommand = StatusContext.RunBlockingTaskCommand(async () =>
+        _viewSelectedFileCommand = StatusContext.RunNonBlockingTaskCommand(ViewSelectedFile);
+        _viewOnSiteCommand = StatusContext.RunBlockingTaskCommand(ViewOnSite);
+        _renameSelectedFileCommand = StatusContext.RunBlockingTaskCommand(async () =>
             await FileHelpers.RenameSelectedFile(SelectedFile, StatusContext, x => SelectedFile = x));
-        AutoCleanRenameSelectedFileCommand = StatusContext.RunBlockingTaskCommand(async () =>
+        _autoCleanRenameSelectedFileCommand = StatusContext.RunBlockingTaskCommand(async () =>
             await FileHelpers.TryAutoCleanRenameSelectedFile(SelectedFile, StatusContext, x => SelectedFile = x));
-        AutoRenameSelectedFileBasedOnTitleCommand = StatusContext.RunBlockingTaskCommand(async () =>
+        _autoRenameSelectedFileBasedOnTitleCommand = StatusContext.RunBlockingTaskCommand(async () =>
         {
             await FileHelpers.TryAutoRenameSelectedFile(SelectedFile, TitleSummarySlugFolder!.TitleEntry.UserValue,
                 StatusContext, x => SelectedFile = x);
         });
-        ExtractNewLinksCommand = StatusContext.RunBlockingTaskCommand(() =>
+        _extractNewLinksCommand = StatusContext.RunBlockingTaskCommand(() =>
             LinkExtraction.ExtractNewAndShowLinkContentEditors(BodyContent!.BodyContent,
                 StatusContext.ProgressTracker()));
-        RotatePhotoRightCommand =
+        _rotatePhotoRightCommand =
             StatusContext.RunBlockingTaskCommand(async () => await RotateImage(Orientation.Rotate90));
-        RotatePhotoLeftCommand =
+        _rotatePhotoLeftCommand =
             StatusContext.RunBlockingTaskCommand(async () => await RotateImage(Orientation.Rotate270));
 
-        PointFromPhotoLocationCommand = StatusContext.RunBlockingTaskCommand(PointFromPhotoLocation);
-        AddFeatureIntersectTagsCommand = StatusContext.RunBlockingTaskCommand(AddFeatureIntersectTags);
+        _pointFromPhotoLocationCommand = StatusContext.RunBlockingTaskCommand(PointFromPhotoLocation);
+        _addFeatureIntersectTagsCommand = StatusContext.RunBlockingTaskCommand(AddFeatureIntersectTags);
 
-        GetElevationCommand = StatusContext.RunBlockingTaskCommand(GetElevation);
+        _getElevationCommand = StatusContext.RunBlockingTaskCommand(GetElevation);
 
-        LinkToClipboardCommand = StatusContext.RunNonBlockingTaskCommand(LinkToClipboard);
-        
-        PropertyChanged += OnPropertyChanged;
-        
-        DbEntry = dbEntry;
+        _linkToClipboardCommand = StatusContext.RunNonBlockingTaskCommand(LinkToClipboard);
+
+        _dbEntry = dbEntry;
     }
 
     public string PhotoEditorHelpText =>
@@ -240,30 +241,11 @@ Photo Content Notes:
         PhotoMetadataToCurrentContent(metadata);
     }
 
-    private static PhotoContent InitializeDbEntry(PhotoContent? dbEntry)
-    {
-        var created = DateTime.Now;
-
-        var returnEntry = dbEntry ?? new PhotoContent
-        {
-            ContentId = Guid.NewGuid(),
-            BodyContentFormat = UserSettingsUtilities.DefaultContentFormatChoice(),
-            UpdateNotesFormat = UserSettingsUtilities.DefaultContentFormatChoice(),
-            CreatedOn = created,
-            FeedOn = created,
-            PhotoCreatedOn = created,
-            ShowPhotoSizes = UserSettingsSingleton.CurrentSettings().PhotoPagesHaveLinksToPhotoSizesByDefault,
-            ShowPhotoPosition = UserSettingsSingleton.CurrentSettings().PhotoPagesShowPositionByDefault
-        };
-
-        return returnEntry;
-    }
-
     public static async Task<PhotoContentEditorContext> CreateInstance(StatusControlContext statusContext)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
-        
-        var newContext = new PhotoContentEditorContext(statusContext, InitializeDbEntry(null));
+
+        var newContext = new PhotoContentEditorContext(statusContext, NewContentModels.InitializePhotoContent(null));
         await newContext.LoadData(null);
         return newContext;
     }
@@ -273,7 +255,8 @@ Photo Content Notes:
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        var newContext = new PhotoContentEditorContext(statusContext, InitializeDbEntry(null)) { StatusContext = { BlockUi = true } };
+        var newContext = new PhotoContentEditorContext(statusContext, NewContentModels.InitializePhotoContent(null))
+            { StatusContext = { BlockUi = true } };
 
         if (initialPhoto is { Exists: true }) newContext.InitialPhoto = initialPhoto;
         await newContext.LoadData(null);
@@ -288,7 +271,7 @@ Photo Content Notes:
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        var newContext = new PhotoContentEditorContext(statusContext, InitializeDbEntry(toLoad));
+        var newContext = new PhotoContentEditorContext(statusContext, NewContentModels.InitializePhotoContent(toLoad));
         await newContext.LoadData(toLoad);
         return newContext;
     }
@@ -406,11 +389,12 @@ Photo Content Notes:
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        DbEntry = InitializeDbEntry(toLoad);
+        DbEntry = NewContentModels.InitializePhotoContent(toLoad);
 
-        TitleSummarySlugFolder = await TitleSummarySlugEditorContext.CreateInstance(StatusContext, DbEntry, "To File Name",
+        TitleSummarySlugFolder = await TitleSummarySlugEditorContext.CreateInstance(StatusContext, DbEntry,
+            "To File Name",
             AutoRenameSelectedFileBasedOnTitleCommand,
-            x => !Path.GetFileNameWithoutExtension(SelectedFile.Name)
+            x => SelectedFile != null && !Path.GetFileNameWithoutExtension(SelectedFile.Name)
                 .Equals(SlugTools.CreateSlug(false, x.TitleEntry.UserValue), StringComparison.OrdinalIgnoreCase));
         CreatedUpdatedDisplay = await CreatedAndUpdatedByAndOnDisplayContext.CreateInstance(StatusContext, DbEntry);
         MainSiteFeed = await ContentSiteFeedAndIsDraftContext.CreateInstance(StatusContext, DbEntry);
@@ -512,7 +496,8 @@ Photo Content Notes:
         PhotoCreatedByEntry.ReferenceValue = DbEntry.PhotoCreatedBy ?? string.Empty;
         PhotoCreatedByEntry.UserValue = DbEntry.PhotoCreatedBy.TrimNullToEmpty();
 
-        IsoEntry = await ConversionDataEntryContext<int?>.CreateInstance(ConversionDataEntryHelpers.IntNullableConversion);
+        IsoEntry = await ConversionDataEntryContext<int?>.CreateInstance(ConversionDataEntryHelpers
+            .IntNullableConversion);
         IsoEntry.Title = "ISO";
         IsoEntry.HelpText = "A measure of a sensor films sensitivity to light, 100 is a typical value";
         IsoEntry.ReferenceValue = DbEntry.Iso;
@@ -526,7 +511,8 @@ Photo Content Notes:
         PhotoCreatedOnEntry.UserText = DbEntry.PhotoCreatedOn.ToString("MM/dd/yyyy h:mm:ss tt");
 
         PhotoCreatedOnUtcEntry =
-            await ConversionDataEntryContext<DateTime?>.CreateInstance(ConversionDataEntryHelpers.DateTimeNullableConversion);
+            await ConversionDataEntryContext<DateTime?>.CreateInstance(ConversionDataEntryHelpers
+                .DateTimeNullableConversion);
         PhotoCreatedOnUtcEntry.Title = "Photo Created On UTC Date/Time";
         PhotoCreatedOnUtcEntry.HelpText =
             "UTC Date and Time the Photo was Created - the UTC Date Time is not displayed but is used to compare the Photo's Date Time to data like GPX Files/Lines.";
@@ -534,7 +520,8 @@ Photo Content Notes:
         PhotoCreatedOnUtcEntry.UserText = DbEntry.PhotoCreatedOnUtc?.ToString("MM/dd/yyyy h:mm:ss tt") ?? string.Empty;
 
         LatitudeEntry =
-            await ConversionDataEntryContext<double?>.CreateInstance(ConversionDataEntryHelpers.DoubleNullableConversion);
+            await ConversionDataEntryContext<double?>.CreateInstance(
+                ConversionDataEntryHelpers.DoubleNullableConversion);
         LatitudeEntry.ValidationFunctions = new List<Func<double?, Task<IsValid>>>
         {
             CommonContentValidation.LatitudeValidationWithNullOk
@@ -546,7 +533,8 @@ Photo Content Notes:
         LatitudeEntry.UserText = DbEntry.Latitude?.ToString("F6") ?? string.Empty;
 
         LongitudeEntry =
-            await ConversionDataEntryContext<double?>.CreateInstance(ConversionDataEntryHelpers.DoubleNullableConversion);
+            await ConversionDataEntryContext<double?>.CreateInstance(
+                ConversionDataEntryHelpers.DoubleNullableConversion);
         LongitudeEntry.ValidationFunctions = new List<Func<double?, Task<IsValid>>>
         {
             CommonContentValidation.LongitudeValidationWithNullOk
@@ -558,7 +546,8 @@ Photo Content Notes:
         LongitudeEntry.UserText = DbEntry.Longitude?.ToString("F6") ?? string.Empty;
 
         ElevationEntry =
-            await ConversionDataEntryContext<double?>.CreateInstance(ConversionDataEntryHelpers.DoubleNullableConversion);
+            await ConversionDataEntryContext<double?>.CreateInstance(
+                ConversionDataEntryHelpers.DoubleNullableConversion);
         ElevationEntry.ValidationFunctions = new List<Func<double?, Task<IsValid>>>
         {
             CommonContentValidation.ElevationValidation
@@ -568,12 +557,12 @@ Photo Content Notes:
         ElevationEntry.HelpText = "Elevation in Feet";
         ElevationEntry.ReferenceValue = DbEntry.Elevation;
         ElevationEntry.UserText = DbEntry.Elevation?.ToString("F2") ?? string.Empty;
-        
+
         HelpContext = new HelpDisplayContext(new List<string>
         {
             PhotoEditorHelpText, CommonFields.TitleSlugFolderSummary, BracketCodeHelpMarkdown.HelpBlock
         });
-        
+
         if (DbEntry.Id < 1 && InitialPhoto is { Exists: true } && FileHelpers.PhotoFileTypeIsSupported(InitialPhoto))
         {
             SelectedFile = InitialPhoto;
@@ -611,7 +600,8 @@ Photo Content Notes:
         LicenseEntry!.UserValue = metadata.License ?? string.Empty;
         PhotoCreatedByEntry!.UserValue = metadata.PhotoCreatedBy ?? string.Empty;
         PhotoCreatedOnEntry!.UserText = metadata.PhotoCreatedOn.ToString("MM/dd/yyyy h:mm:ss tt");
-        PhotoCreatedOnUtcEntry!.UserText = metadata.PhotoCreatedOnUtc?.ToString("MM/dd/yyyy h:mm:ss tt") ?? string.Empty;
+        PhotoCreatedOnUtcEntry!.UserText =
+            metadata.PhotoCreatedOnUtc?.ToString("MM/dd/yyyy h:mm:ss tt") ?? string.Empty;
         ShutterSpeedEntry!.UserValue = metadata.ShutterSpeed ?? string.Empty;
         TitleSummarySlugFolder!.SummaryEntry.UserValue = metadata.Summary ?? string.Empty;
         TagEdit!.Tags = metadata.Tags ?? string.Empty;
@@ -629,7 +619,7 @@ Photo Content Notes:
             StatusContext.ToastError("The Photo must be saved before creating a Point.");
             return;
         }
-        
+
         if (LatitudeEntry!.UserValue == null || LongitudeEntry!.UserValue == null)
         {
             StatusContext.ToastError("Latitude or Longitude is missing?");
@@ -704,7 +694,7 @@ Photo Content Notes:
             StatusContext.ToastError("No File Selected? There must be a photo to Save...");
             return;
         }
-        
+
         var (generationReturn, newContent) = await PhotoGenerator.SaveAndGenerateHtml(CurrentStateToPhotoContent(),
             SelectedFile, overwriteExistingFiles, null, StatusContext.ProgressTracker());
 
@@ -732,7 +722,7 @@ Photo Content Notes:
             (SelectedFile?.FullName ?? string.Empty) != (LoadedFile?.FullName ?? string.Empty);
 
         var (isValid, explanation) =
-            await CommonContentValidation.PhotoFileValidation(SelectedFile, DbEntry?.ContentId);
+            await CommonContentValidation.PhotoFileValidation(SelectedFile, DbEntry.ContentId);
 
         TitleSummarySlugFolder?.CheckForChangesToTitleToFunctionStates();
 

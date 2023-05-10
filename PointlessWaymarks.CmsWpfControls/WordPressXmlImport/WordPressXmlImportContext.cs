@@ -17,7 +17,6 @@ using PointlessWaymarks.CmsWpfControls.ColumnSort;
 using PointlessWaymarks.CmsWpfControls.FileContentEditor;
 using PointlessWaymarks.CmsWpfControls.LinkContentEditor;
 using PointlessWaymarks.CmsWpfControls.PostContentEditor;
-using PointlessWaymarks.CmsWpfControls.Utility;
 using PointlessWaymarks.PressSharper;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
@@ -253,6 +252,7 @@ public partial class WordPressXmlImportContext : ObservableObject
         {
             var newContent = new FileContent
             {
+                ContentId = Guid.NewGuid(),
                 BodyContentFormat = UserSettingsUtilities.DefaultContentFormatChoice(),
                 UpdateNotesFormat = UserSettingsUtilities.DefaultContentFormatChoice(),
                 ShowInMainSiteFeed = true,
@@ -260,13 +260,13 @@ public partial class WordPressXmlImportContext : ObservableObject
                 CreatedBy = loopItems.CreatedBy,
                 CreatedOn = loopItems.CreatedOn,
                 FeedOn = loopItems.CreatedOn,
+                ContentVersion = Db.ContentVersionDateTime(),
                 Folder =
                     FolderFromYear ? loopItems.CreatedOn.Year.ToString() : loopItems.Category.Replace(" ", "-"),
                 Slug = loopItems.Slug,
                 Tags = loopItems.Tags,
                 Title = loopItems.Title
             };
-
 
             await ThreadSwitcher.ResumeForegroundAsync();
             (await FileContentEditorWindow.CreateInstance(newContent)).PositionWindowAndShow();

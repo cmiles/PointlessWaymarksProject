@@ -318,7 +318,6 @@ public partial class PointContentEditorContext : ObservableObject, IHasChanges, 
 
     private void OnPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
-        if (e == null) return;
         if (string.IsNullOrWhiteSpace(e.PropertyName)) return;
 
         if (!e.PropertyName.Contains("HasChanges") && !e.PropertyName.Contains("Validation"))

@@ -1,4 +1,5 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
+using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsWpfControls.ContentList;
 using PointlessWaymarks.CmsWpfControls.Utility;
@@ -8,7 +9,7 @@ namespace PointlessWaymarks.CmsWpfControls.FileList;
 
 public partial class FileListListItem : ObservableObject, IContentListItem, IContentListSmallImage
 {
-    [ObservableProperty] private FileContent _dbEntry = new();
+    [ObservableProperty] private FileContent _dbEntry;
     [ObservableProperty] private FileContentActions _itemActions;
     [ObservableProperty] private CurrentSelectedTextTracker _selectedTextTracker = new();
     [ObservableProperty] private bool _showType;
@@ -16,6 +17,7 @@ public partial class FileListListItem : ObservableObject, IContentListItem, ICon
 
     public FileListListItem(FileContentActions itemActions)
     {
+        _dbEntry = FileContent.CreateInstance();
         _itemActions = itemActions;
     }
 

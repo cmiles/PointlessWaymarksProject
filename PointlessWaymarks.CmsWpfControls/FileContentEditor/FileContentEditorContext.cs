@@ -40,29 +40,29 @@ public partial class FileContentEditorContext : ObservableObject, IHasChanges, I
 {
     [ObservableProperty] private RelayCommand _autoRenameSelectedFileCommand;
     [ObservableProperty] private RelayCommand _autoRenameSelectedFileBasedOnTitleCommand;
-    [ObservableProperty] private BodyContentEditorContext _bodyContent;
+    [ObservableProperty] private BodyContentEditorContext? _bodyContent;
     [ObservableProperty] private RelayCommand _chooseFileCommand;
-    [ObservableProperty] private ContentIdViewerControlContext _contentId;
-    [ObservableProperty] private CreatedAndUpdatedByAndOnDisplayContext _createdUpdatedDisplay;
+    [ObservableProperty] private ContentIdViewerControlContext? _contentId;
+    [ObservableProperty] private CreatedAndUpdatedByAndOnDisplayContext? _createdUpdatedDisplay;
     [ObservableProperty] private FileContent _dbEntry;
     [ObservableProperty] private RelayCommand _downloadLinkToClipboardCommand;
     [ObservableProperty] private RelayCommand _editUserMainPictureCommand;
-    [ObservableProperty] private BoolDataEntryContext _embedFile;
+    [ObservableProperty] private BoolDataEntryContext? _embedFile;
     [ObservableProperty] private RelayCommand _extractNewLinksCommand;
     [ObservableProperty] private bool _fileIsMp4;
     [ObservableProperty] private bool _fileIsPdf;
     [ObservableProperty] private bool _hasChanges;
     [ObservableProperty] private bool _hasValidationIssues;
-    [ObservableProperty] private HelpDisplayContext _helpContext;
+    [ObservableProperty] private HelpDisplayContext? _helpContext;
     [ObservableProperty] private FileInfo? _initialFile;
     [ObservableProperty] private RelayCommand _linkToClipboardCommand;
     [ObservableProperty] private FileInfo? _loadedFile;
     [ObservableProperty] private ImageContentEditorWindow? _mainImageExternalEditorWindow;
-    [ObservableProperty] private ContentSiteFeedAndIsDraftContext _mainSiteFeed;
+    [ObservableProperty] private ContentSiteFeedAndIsDraftContext? _mainSiteFeed;
     [ObservableProperty] private RelayCommand _openSelectedFileCommand;
     [ObservableProperty] private RelayCommand _openSelectedFileDirectoryCommand;
     [ObservableProperty] private string _pdfToImagePageToExtract = "1";
-    [ObservableProperty] private BoolDataEntryContext _publicDownloadLink;
+    [ObservableProperty] private BoolDataEntryContext? _publicDownloadLink;
     [ObservableProperty] private RelayCommand _renameSelectedFileCommand;
     [ObservableProperty] private RelayCommand _saveAndCloseCommand;
     [ObservableProperty] private RelayCommand _saveAndExtractImageFromPdfCommand;
@@ -74,10 +74,10 @@ public partial class FileContentEditorContext : ObservableObject, IHasChanges, I
     [ObservableProperty] private bool _selectedFileNameHasInvalidCharacters;
     [ObservableProperty] private string? _selectedFileValidationMessage;
     [ObservableProperty] private StatusControlContext _statusContext;
-    [ObservableProperty] private TagsEditorContext _tagEdit;
-    [ObservableProperty] private TitleSummarySlugEditorContext _titleSummarySlugFolder;
-    [ObservableProperty] private UpdateNotesEditorContext _updateNotes;
-    [ObservableProperty] private ConversionDataEntryContext<Guid?> _userMainPictureEntry;
+    [ObservableProperty] private TagsEditorContext? _tagEdit;
+    [ObservableProperty] private TitleSummarySlugEditorContext? _titleSummarySlugFolder;
+    [ObservableProperty] private UpdateNotesEditorContext? _updateNotes;
+    [ObservableProperty] private ConversionDataEntryContext<Guid?>? _userMainPictureEntry;
     [ObservableProperty] private IContentCommon? _userMainPictureEntryContent;
     [ObservableProperty] private string? _userMainPictureEntrySmallImageUrl;
     [ObservableProperty] private RelayCommand _viewOnSiteCommand;
@@ -85,20 +85,11 @@ public partial class FileContentEditorContext : ObservableObject, IHasChanges, I
 
     public EventHandler? RequestContentEditorWindowClose;
 
-    private FileContentEditorContext(StatusControlContext? statusContext, FileInfo? initialFile = null)
+    private FileContentEditorContext(StatusControlContext? statusContext, FileContent dbEntry)
     {
         _statusContext = statusContext ?? new StatusControlContext();
 
-        if (initialFile is { Exists: true }) _initialFile = initialFile;
-
-        _dbEntry = new FileContent();
-
         PropertyChanged += OnPropertyChanged;
-
-        _helpContext = new HelpDisplayContext(new List<string>
-        {
-            FileEditorHelpText, CommonFields.TitleSlugFolderSummary, BracketCodeHelpMarkdown.HelpBlock
-        });
 
         _chooseFileCommand = StatusContext.RunBlockingTaskCommand(async () => await ChooseFile());
         _saveCommand = StatusContext.RunBlockingTaskCommand(async () => await SaveAndGenerateHtml(true, false));
@@ -112,11 +103,11 @@ public partial class FileContentEditorContext : ObservableObject, IHasChanges, I
             await FileHelpers.TryAutoCleanRenameSelectedFile(SelectedFile, StatusContext, x => SelectedFile = x));
         _autoRenameSelectedFileBasedOnTitleCommand = StatusContext.RunBlockingTaskCommand(async () =>
         {
-            await FileHelpers.TryAutoRenameSelectedFile(SelectedFile, TitleSummarySlugFolder.TitleEntry.UserValue,
+            await FileHelpers.TryAutoRenameSelectedFile(SelectedFile, TitleSummarySlugFolder!.TitleEntry.UserValue,
                 StatusContext, x => SelectedFile = x);
         });
         _extractNewLinksCommand = StatusContext.RunBlockingTaskCommand(() =>
-            LinkExtraction.ExtractNewAndShowLinkContentEditors($"{BodyContent.BodyContent} {UpdateNotes.UpdateNotes}",
+            LinkExtraction.ExtractNewAndShowLinkContentEditors($"{BodyContent!.BodyContent} {UpdateNotes!.UpdateNotes}",
                 StatusContext.ProgressTracker()));
         _saveAndExtractImageFromPdfCommand = StatusContext.RunBlockingTaskCommand(SaveAndExtractImageFromPdf);
         _saveAndExtractImageFromVideoCommand = StatusContext.RunBlockingTaskCommand(SaveAndExtractImageFromMp4);
@@ -124,6 +115,8 @@ public partial class FileContentEditorContext : ObservableObject, IHasChanges, I
         _downloadLinkToClipboardCommand = StatusContext.RunNonBlockingTaskCommand(DownloadLinkToClipboard);
         _viewUserMainPictureCommand = StatusContext.RunNonBlockingTaskCommand(ViewUserMainPicture);
         _editUserMainPictureCommand = StatusContext.RunNonBlockingTaskCommand(EditUserMainPicture);
+
+        _dbEntry = dbEntry;
     }
 
     public string FileEditorHelpText =>
@@ -184,22 +177,32 @@ Notes:
     public static async Task<FileContentEditorContext> CreateInstance(StatusControlContext? statusContext,
         FileInfo? initialFile = null)
     {
-        var newControl = new FileContentEditorContext(statusContext, initialFile);
-        await newControl.LoadData(null);
-        return newControl;
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        var newContext = new FileContentEditorContext(statusContext, NewContentModels.InitializeFileContent(null))
+            { StatusContext = { BlockUi = true } };
+
+        if (initialFile is { Exists: true }) newContext.InitialFile = initialFile;
+        await newContext.LoadData(null);
+
+        newContext.StatusContext.BlockUi = false;
+
+        return newContext;
     }
 
     public static async Task<FileContentEditorContext> CreateInstance(StatusControlContext? statusContext,
         FileContent initialContent)
     {
-        var newControl = new FileContentEditorContext(statusContext);
-        await newControl.LoadData(initialContent);
-        return newControl;
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        var newContext = new FileContentEditorContext(statusContext, NewContentModels.InitializeFileContent(null));
+        await newContext.LoadData(null);
+        return newContext;
     }
 
     public Guid? CurrentMainPicture()
     {
-        if (UserMainPictureEntry is { HasValidationIssues: false, UserValue: { } })
+        if (UserMainPictureEntry is { HasValidationIssues: false, UserValue: not null })
             return UserMainPictureEntry.UserValue;
 
         return BracketCodeCommon.PhotoOrImageCodeFirstIdInContent(BodyContent?.UserBodyContent);
@@ -207,39 +210,33 @@ Notes:
 
     public FileContent CurrentStateToFileContent()
     {
-        var newEntry = new FileContent();
+        var newEntry = FileContent.CreateInstance();
 
-        if (DbEntry.Id < 1)
-        {
-            newEntry.ContentId = Guid.NewGuid();
-            newEntry.CreatedOn = DbEntry.CreatedOn;
-            if (newEntry.CreatedOn == DateTime.MinValue) newEntry.CreatedOn = DateTime.Now;
-        }
-        else
+        if (DbEntry.Id > 0)
         {
             newEntry.ContentId = DbEntry.ContentId;
             newEntry.CreatedOn = DbEntry.CreatedOn;
             newEntry.LastUpdatedOn = DateTime.Now;
-            newEntry.LastUpdatedBy = CreatedUpdatedDisplay.UpdatedByEntry.UserValue.TrimNullToEmpty();
+            newEntry.LastUpdatedBy = CreatedUpdatedDisplay!.UpdatedByEntry.UserValue.TrimNullToEmpty();
         }
 
-        newEntry.Folder = TitleSummarySlugFolder.FolderEntry.UserValue.TrimNullToEmpty();
+        newEntry.Folder = TitleSummarySlugFolder!.FolderEntry.UserValue.TrimNullToEmpty();
         newEntry.Slug = TitleSummarySlugFolder.SlugEntry.UserValue.TrimNullToEmpty();
         newEntry.Summary = TitleSummarySlugFolder.SummaryEntry.UserValue.TrimNullToEmpty();
-        newEntry.ShowInMainSiteFeed = MainSiteFeed.ShowInMainSiteFeedEntry.UserValue;
+        newEntry.ShowInMainSiteFeed = MainSiteFeed!.ShowInMainSiteFeedEntry.UserValue;
         newEntry.FeedOn = MainSiteFeed.FeedOnEntry.UserValue;
         newEntry.IsDraft = MainSiteFeed.IsDraftEntry.UserValue;
-        newEntry.Tags = TagEdit.TagListString();
+        newEntry.Tags = TagEdit!.TagListString();
         newEntry.Title = TitleSummarySlugFolder.TitleEntry.UserValue.TrimNullToEmpty();
-        newEntry.CreatedBy = CreatedUpdatedDisplay.CreatedByEntry.UserValue.TrimNullToEmpty();
-        newEntry.UpdateNotes = UpdateNotes.UpdateNotes.TrimNullToEmpty();
+        newEntry.CreatedBy = CreatedUpdatedDisplay!.CreatedByEntry.UserValue.TrimNullToEmpty();
+        newEntry.UpdateNotes = UpdateNotes!.UpdateNotes.TrimNullToEmpty();
         newEntry.UpdateNotesFormat = UpdateNotes.UpdateNotesFormat.SelectedContentFormatAsString;
-        newEntry.BodyContent = BodyContent.BodyContent.TrimNullToEmpty();
+        newEntry.BodyContent = BodyContent!.BodyContent.TrimNullToEmpty();
         newEntry.BodyContentFormat = BodyContent.BodyContentFormat.SelectedContentFormatAsString;
         newEntry.OriginalFileName = SelectedFile?.Name ?? string.Empty;
-        newEntry.PublicDownloadLink = PublicDownloadLink.UserValue;
-        newEntry.EmbedFile = PublicDownloadLink.UserValue && EmbedFile.UserValue;
-        newEntry.UserMainPicture = UserMainPictureEntry.UserValue;
+        newEntry.PublicDownloadLink = PublicDownloadLink!.UserValue;
+        newEntry.EmbedFile = PublicDownloadLink.UserValue && EmbedFile!.UserValue;
+        newEntry.UserMainPicture = UserMainPictureEntry!.UserValue;
 
         return newEntry;
     }
@@ -327,16 +324,7 @@ Notes:
 
         StatusContext.Progress("Loading Data...");
 
-        var created = DateTime.Now;
-
-        DbEntry = toLoad ?? new FileContent
-        {
-            BodyContentFormat = UserSettingsUtilities.DefaultContentFormatChoice(),
-            UpdateNotesFormat = UserSettingsUtilities.DefaultContentFormatChoice(),
-            PublicDownloadLink = true,
-            CreatedOn = created,
-            FeedOn = created
-        };
+        DbEntry = NewContentModels.InitializeFileContent(toLoad);
 
         PublicDownloadLink = await BoolDataEntryContext.CreateInstance();
         PublicDownloadLink.Title = "Show Public Download Link";
@@ -353,15 +341,20 @@ Notes:
             {
                 if (PublicDownloadLink.UserValue == false)
                 {
-                    EmbedFile.UserValue = false;
+                    EmbedFile!.UserValue = false;
                     EmbedFile.IsEnabled = false;
                 }
                 else
                 {
-                    EmbedFile.IsEnabled = true;
+                    EmbedFile!.IsEnabled = true;
                 }
             }
         };
+
+        HelpContext = new HelpDisplayContext(new List<string>
+        {
+            FileEditorHelpText, CommonFields.TitleSlugFolderSummary, BracketCodeHelpMarkdown.HelpBlock
+        });
 
         EmbedFile = await BoolDataEntryContext.CreateInstance();
         EmbedFile.Title = "Embed File in Page";
@@ -372,10 +365,11 @@ Notes:
             "there will be a viewer/player for the file. This option is only available if 'Show Public" +
             "Download Link' is checked and not all content types are supported.";
 
-        TitleSummarySlugFolder = await TitleSummarySlugEditorContext.CreateInstance(StatusContext, DbEntry, "To File Name",
+        TitleSummarySlugFolder = await TitleSummarySlugEditorContext.CreateInstance(StatusContext, DbEntry,
+            "To File Name",
             AutoRenameSelectedFileBasedOnTitleCommand,
             x =>
-            SelectedFile != null && !Path.GetFileNameWithoutExtension(SelectedFile.Name)
+                SelectedFile != null && !Path.GetFileNameWithoutExtension(SelectedFile.Name)
                     .Equals(SlugTools.CreateSlug(false, x.TitleEntry.UserValue), StringComparison.OrdinalIgnoreCase));
         MainSiteFeed = await ContentSiteFeedAndIsDraftContext.CreateInstance(StatusContext, DbEntry);
         CreatedUpdatedDisplay = await CreatedAndUpdatedByAndOnDisplayContext.CreateInstance(StatusContext, DbEntry);
@@ -463,7 +457,8 @@ Notes:
             StatusContext.RunNonBlockingTask(async () =>
                 await TryAddUserMainPicture(imageContext.DbEntry.ContentId));
 
-            if(MainImageExternalEditorWindow != null) MainImageExternalEditorWindow.ImageEditor.Saved -= MainImageExternalContextSaved;
+            if (MainImageExternalEditorWindow != null)
+                MainImageExternalEditorWindow.ImageEditor.Saved -= MainImageExternalContextSaved;
 
             MainImageExternalEditorWindowCleanup();
         }
@@ -560,7 +555,7 @@ Notes:
 
         if (autoSaveResult == null) return;
 
-        UserMainPictureEntry.UserText = autoSaveResult.Value.ToString();
+        UserMainPictureEntry!.UserText = autoSaveResult.Value.ToString();
     }
 
     private async Task SaveAndExtractImageFromPdf()
@@ -607,7 +602,7 @@ Notes:
 
         if (autosaveReturn.contentId != null)
         {
-            UserMainPictureEntry.UserText = autosaveReturn.contentId.Value.ToString();
+            UserMainPictureEntry!.UserText = autosaveReturn.contentId.Value.ToString();
             return;
         }
 
@@ -672,7 +667,7 @@ Notes:
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        if (UserMainPictureEntry.HasValidationIssues ||
+        if (UserMainPictureEntry!.HasValidationIssues ||
             UserMainPictureEntry.UserValue == null)
         {
             UserMainPictureEntrySmallImageUrl = null;
@@ -702,7 +697,7 @@ Notes:
         if (contentId == null || contentId == Guid.Empty) return;
         var context = await Db.Context();
         if (context.ImageContents.Any(x => x.ContentId == contentId))
-            UserMainPictureEntry.UserText = contentId.Value.ToString();
+            UserMainPictureEntry!.UserText = contentId.Value.ToString();
     }
 
     private void UserMainPictureEntryOnPropertyChanged(object? sender, PropertyChangedEventArgs e)

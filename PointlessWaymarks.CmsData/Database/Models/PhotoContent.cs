@@ -28,7 +28,7 @@ public class PhotoContent : IUpdateNotes, IContentCommon
     public string? BodyContent { get; set; }
     public string? BodyContentFormat { get; set; }
     public required Guid ContentId { get; set; }
-    public DateTime ContentVersion { get; set; }
+    public required DateTime ContentVersion { get; set; }
     public int Id { get; set; }
     public string? CreatedBy { get; set; }
     public required DateTime CreatedOn { get; set; }
@@ -72,14 +72,6 @@ public class PhotoContent : IUpdateNotes, IContentCommon
     
     public static PhotoContent CreateInstance()
     {
-        var created = DateTime.Now;
-        
-        return new PhotoContent
-        {
-            ContentId = Guid.NewGuid(),
-            CreatedOn = created,
-            FeedOn = created,
-            PhotoCreatedOn = created
-        };
+        return NewContentModels.InitializePhotoContent(null);
     }
 }

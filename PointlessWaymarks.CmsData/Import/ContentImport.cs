@@ -567,7 +567,7 @@ public static class ContentImport
 
         return newContentTypeString.ToUpperInvariant() switch
         {
-            "FILE" => new FileContent(),
+            "FILE" => FileContent.CreateInstance(),
             "IMAGE" => new ImageContent(),
             "LINK" => new LinkContent(),
             "NOTE" => new NoteContent(),

@@ -27,6 +27,7 @@ public static class TestFileInfo
             CreatedBy = "GC File Test",
             CreatedOn = new DateTime(2020, 10, 6, 6, 18, 00),
             FeedOn = new DateTime(2020, 10, 6, 6, 18, 00),
+            ContentVersion = Db.ContentVersionDateTime(),
             Folder = "Trails",
             PublicDownloadLink = true,
             Title = "Grandview Trail",
@@ -46,6 +47,7 @@ public static class TestFileInfo
             CreatedBy = "File Test",
             CreatedOn = new DateTime(2020, 7, 24, 5, 55, 55),
             FeedOn = new DateTime(2020, 7, 24, 5, 55, 55),
+            ContentVersion = Db.ContentVersionDateTime(),
             Folder = "Maps",
             PublicDownloadLink = true,
             Title = "Ironwood Forest National Monument Map",
@@ -153,7 +155,7 @@ public static class TestFileInfo
         var testFile = new FileInfo(Path.Combine(Directory.GetCurrentDirectory(), "TestMedia", fileName));
         Assert.True(testFile.Exists, "Test File Found");
 
-        var contentToSave = new FileContent();
+        var contentToSave = FileContent.CreateInstance();
         contentToSave.InjectFrom(contentReference);
 
         var validationReturn = await FileGenerator.Validate(contentToSave, testFile);
