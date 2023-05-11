@@ -22,7 +22,6 @@ public class TestSeries03TrailInfoGuiContextTest
 
     public static UserSettings TestSiteSettings;
 
-
     [OneTimeSetUp]
     public async Task A00_CreateTestSite()
     {

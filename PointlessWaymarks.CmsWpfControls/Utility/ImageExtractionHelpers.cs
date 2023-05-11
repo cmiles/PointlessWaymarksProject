@@ -98,7 +98,7 @@ public static class ImageExtractionHelpers
 
             await ThreadSwitcher.ResumeForegroundAsync();
 
-            var newImage = new ImageContent { ContentId = Guid.NewGuid() };
+            var newImage = NewContentModels.InitializeImageContent(null);
 
             if (pageNumber == 1)
             {
@@ -195,7 +195,7 @@ public static class ImageExtractionHelpers
 
         destinationFile.Refresh();
 
-        var newImage = new ImageContent { ContentId = Guid.NewGuid() };
+        var newImage = NewContentModels.InitializeImageContent(null);
 
         if (pageNumber == 1)
         {
@@ -302,12 +302,15 @@ public static class ImageExtractionHelpers
             var newImage = new ImageContent
             {
                 ContentId = Guid.NewGuid(),
+                CreatedOn = DateTime.Now,
+                ContentVersion = Db.ContentVersionDateTime(),
                 Title = $"{content.Title} Cover",
                 Summary = $"Cover from {content.Title}.",
                 FeedOn = DateTime.Now,
                 ShowInSearch = false,
                 Folder = content.Folder,
-                Tags = content.Tags
+                Tags = content.Tags,
+                ShowImageSizes = UserSettingsSingleton.CurrentSettings().ImagePagesHaveLinksToImageSizesByDefault
             };
 
             newImage.Slug = SlugTools.CreateSlug(true, newImage.Title);
@@ -368,6 +371,7 @@ public static class ImageExtractionHelpers
             ContentId = Guid.NewGuid(),
             CreatedBy = selected.CreatedBy,
             CreatedOn = DateTime.Now,
+            ContentVersion = Db.ContentVersionDateTime(),
             Title = $"{selected.Title} Video Cover Image",
             Summary = $"Video Cover Image from {selected.Title}.",
             FeedOn = DateTime.Now,
@@ -377,7 +381,8 @@ public static class ImageExtractionHelpers
             Slug = SlugTools.CreateSlug(true, $"{selected.Title} Video Cover Image"),
             BodyContentFormat = ContentFormatDefaults.Content.ToString(),
             BodyContent = $"Frame from {BracketCodeFiles.Create(selected)}.",
-            UpdateNotesFormat = ContentFormatDefaults.Content.ToString()
+            UpdateNotesFormat = ContentFormatDefaults.Content.ToString(),
+            ShowImageSizes = UserSettingsSingleton.CurrentSettings().ImagePagesHaveLinksToImageSizesByDefault
         };
 
         var autoSaveReturn =
@@ -443,6 +448,7 @@ public static class ImageExtractionHelpers
             ContentId = Guid.NewGuid(),
             CreatedBy = selected.CreatedBy,
             CreatedOn = DateTime.Now,
+            ContentVersion = Db.ContentVersionDateTime(),
             Title = $"{selected.Title} Video Cover Image",
             Summary = $"Video Cover Image from {selected.Title}.",
             FeedOn = DateTime.Now,
@@ -452,7 +458,8 @@ public static class ImageExtractionHelpers
             Slug = SlugTools.CreateSlug(true, $"{selected.Title} Video Cover Image"),
             BodyContentFormat = ContentFormatDefaults.Content.ToString(),
             BodyContent = $"Frame from {BracketCodeVideoLinks.Create(selected)}.",
-            UpdateNotesFormat = ContentFormatDefaults.Content.ToString()
+            UpdateNotesFormat = ContentFormatDefaults.Content.ToString(),
+            ShowImageSizes = UserSettingsSingleton.CurrentSettings().ImagePagesHaveLinksToImageSizesByDefault
         };
 
         var autoSaveReturn =

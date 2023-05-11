@@ -309,7 +309,7 @@ Photo Content Notes:
         newEntry.ShutterSpeed = ShutterSpeedEntry!.UserValue.TrimNullToEmpty();
         newEntry.UpdateNotes = UpdateNotes!.UpdateNotes.TrimNullToEmpty();
         newEntry.UpdateNotesFormat = UpdateNotes.UpdateNotesFormat.SelectedContentFormatAsString;
-        newEntry.OriginalFileName = SelectedFile!.Name;
+        newEntry.OriginalFileName = SelectedFile?.Name;
         newEntry.PhotoCreatedBy = PhotoCreatedByEntry!.UserValue.TrimNullToEmpty();
         newEntry.PhotoCreatedOn = PhotoCreatedOnEntry!.UserValue;
         newEntry.PhotoCreatedOnUtc = PhotoCreatedOnUtcEntry!.UserValue;
@@ -691,7 +691,7 @@ Photo Content Notes:
 
         if (SelectedFile == null)
         {
-            StatusContext.ToastError("No File Selected? There must be a photo to Save...");
+            StatusContext.ToastError("No File Selected? There must be a photograph to Save...");
             return;
         }
 

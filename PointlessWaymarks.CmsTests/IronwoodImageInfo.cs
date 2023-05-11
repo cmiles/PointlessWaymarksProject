@@ -22,6 +22,7 @@ public static class IronwoodImageInfo
             ContentId = Guid.NewGuid(),
             CreatedBy = "Image Test",
             CreatedOn = new DateTime(2020, 7, 25, 5, 55, 55),
+            ContentVersion = Db.ContentVersionDateTime(),
             FeedOn = new DateTime(2020, 7, 25, 5, 55, 55),
             Folder = "Maps",
             Title = "Ironwood Forest National Monument Map Cover Page",
@@ -139,7 +140,7 @@ public static class IronwoodImageInfo
         var originalFile = new FileInfo(Path.Combine(Directory.GetCurrentDirectory(), "TestMedia", fileName));
         Assert.True(originalFile.Exists, "Test File Found");
 
-        var contentToSave = new ImageContent();
+        var contentToSave = NewContentModels.InitializeImageContent(null);
         contentToSave.InjectFrom(contentReference);
 
         var validationReturn = await ImageGenerator.Validate(contentToSave, originalFile);

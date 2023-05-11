@@ -233,7 +233,7 @@ Notes:
         newEntry.UpdateNotesFormat = UpdateNotes.UpdateNotesFormat.SelectedContentFormatAsString;
         newEntry.BodyContent = BodyContent!.BodyContent.TrimNullToEmpty();
         newEntry.BodyContentFormat = BodyContent.BodyContentFormat.SelectedContentFormatAsString;
-        newEntry.OriginalFileName = SelectedFile?.Name ?? string.Empty;
+        newEntry.OriginalFileName = SelectedFile?.Name;
         newEntry.PublicDownloadLink = PublicDownloadLink!.UserValue;
         newEntry.EmbedFile = PublicDownloadLink.UserValue && EmbedFile!.UserValue;
         newEntry.UserMainPicture = UserMainPictureEntry!.UserValue;

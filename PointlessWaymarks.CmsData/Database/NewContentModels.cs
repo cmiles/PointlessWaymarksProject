@@ -39,6 +39,24 @@ public static class NewContentModels
         return returnEntry;
     }
 
+    public static ImageContent InitializeImageContent(ImageContent? dbEntry)
+    {
+        var created = DateTime.Now;
+
+        var returnEntry = dbEntry ?? new ImageContent
+        {
+            ContentId = Guid.NewGuid(),
+            BodyContentFormat = UserSettingsUtilities.DefaultContentFormatChoice(),
+            UpdateNotesFormat = UserSettingsUtilities.DefaultContentFormatChoice(),
+            CreatedOn = created,
+            FeedOn = created,
+            ContentVersion = Db.ContentVersionDateTime(),
+            ShowImageSizes = UserSettingsSingleton.CurrentSettings().ImagePagesHaveLinksToImageSizesByDefault
+        };
+
+        return returnEntry;
+    }
+
     public static PhotoContent InitializePhotoContent(PhotoContent? dbEntry)
     {
         var created = DateTime.Now;

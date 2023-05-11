@@ -270,8 +270,10 @@ public static class CommonContentValidation
         return Task.FromResult(new IsValid(true, string.Empty));
     }
 
-    public static async Task<IsValid> ImageFileValidation(FileInfo imageFile, Guid? currentContentId)
+    public static async Task<IsValid> ImageFileValidation(FileInfo? imageFile, Guid? currentContentId)
     {
+        if (imageFile == null) return new IsValid(false, "File is Null?");
+
         imageFile.Refresh();
 
         if (!imageFile.Exists) return new IsValid(false, "File does not Exist?");
