@@ -8,7 +8,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml.GeoJsonHtml;
 
 public static class GeoJsonData
 {
-    public static async Task<string?> GenerateGeoJson(string geoJsonContent, string pageUrl)
+    public static async Task<string> GenerateGeoJson(string geoJsonContent, string pageUrl)
     {
         var contentFeatureCollection = GeoJsonTools.DeserializeStringToFeatureCollection(geoJsonContent);
 
@@ -50,7 +50,7 @@ public static class GeoJsonData
 
         await FileManagement.WriteAllTextToFileAndLogAsync(dataFileInfo.FullName,
             (await GenerateGeoJson(geoJsonContent.GeoJson,
-                UserSettingsSingleton.CurrentSettings().GeoJsonPageUrl(geoJsonContent)).ConfigureAwait(false))!).ConfigureAwait(false);
+                UserSettingsSingleton.CurrentSettings().GeoJsonPageUrl(geoJsonContent)).ConfigureAwait(false))).ConfigureAwait(false);
     }
 
     // ReSharper disable NotAccessedPositionalProperty.Global - Happy with Data Structures Here

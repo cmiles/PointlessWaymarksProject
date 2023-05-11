@@ -101,9 +101,9 @@ public partial class PhotoContentEditorContext : ObservableObject, IHasChanges, 
 
     public EventHandler? RequestContentEditorWindowClose;
 
-    private PhotoContentEditorContext(StatusControlContext? statusContext, PhotoContent dbEntry)
+    private PhotoContentEditorContext(StatusControlContext statusContext, PhotoContent dbEntry)
     {
-        _statusContext = statusContext ?? new StatusControlContext();
+        _statusContext = statusContext;
 
         PropertyChanged += OnPropertyChanged;
 
@@ -241,21 +241,21 @@ Photo Content Notes:
         PhotoMetadataToCurrentContent(metadata);
     }
 
-    public static async Task<PhotoContentEditorContext> CreateInstance(StatusControlContext statusContext)
+    public static async Task<PhotoContentEditorContext> CreateInstance(StatusControlContext? statusContext)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        var newContext = new PhotoContentEditorContext(statusContext, NewContentModels.InitializePhotoContent(null));
+        var newContext = new PhotoContentEditorContext(statusContext ?? new StatusControlContext(), NewContentModels.InitializePhotoContent(null));
         await newContext.LoadData(null);
         return newContext;
     }
 
-    public static async Task<PhotoContentEditorContext> CreateInstance(StatusControlContext statusContext,
+    public static async Task<PhotoContentEditorContext> CreateInstance(StatusControlContext? statusContext,
         FileInfo initialPhoto)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        var newContext = new PhotoContentEditorContext(statusContext, NewContentModels.InitializePhotoContent(null))
+        var newContext = new PhotoContentEditorContext(statusContext ?? new StatusControlContext(), NewContentModels.InitializePhotoContent(null))
             { StatusContext = { BlockUi = true } };
 
         if (initialPhoto is { Exists: true }) newContext.InitialPhoto = initialPhoto;
@@ -266,12 +266,12 @@ Photo Content Notes:
         return newContext;
     }
 
-    public static async Task<PhotoContentEditorContext> CreateInstance(StatusControlContext statusContext,
+    public static async Task<PhotoContentEditorContext> CreateInstance(StatusControlContext? statusContext,
         PhotoContent toLoad)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        var newContext = new PhotoContentEditorContext(statusContext, NewContentModels.InitializePhotoContent(toLoad));
+        var newContext = new PhotoContentEditorContext(statusContext ?? new StatusControlContext(), NewContentModels.InitializePhotoContent(toLoad));
         await newContext.LoadData(toLoad);
         return newContext;
     }

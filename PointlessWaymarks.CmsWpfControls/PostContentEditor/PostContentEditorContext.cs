@@ -80,12 +80,12 @@ Notes:
         HasValidationIssues = PropertyScanners.ChildPropertiesHaveValidationIssues(this);
     }
 
-    public static async Task<PostContentEditorContext> CreateInstance(StatusControlContext statusContext,
+    public static async Task<PostContentEditorContext> CreateInstance(StatusControlContext? statusContext,
         PostContent? toLoad = null)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        var newContext = new PostContentEditorContext(statusContext, NewContentModels.InitializePostContent(toLoad));
+        var newContext = new PostContentEditorContext(statusContext ?? new StatusControlContext(), NewContentModels.InitializePostContent(toLoad));
         await newContext.LoadData(toLoad);
         return newContext;
     }

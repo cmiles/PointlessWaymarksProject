@@ -1,4 +1,5 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
+using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsWpfControls.ContentList;
 using PointlessWaymarks.CmsWpfControls.Utility;
@@ -8,7 +9,7 @@ namespace PointlessWaymarks.CmsWpfControls.GeoJsonList;
 
 public partial class GeoJsonListListItem : ObservableObject, IContentListItem, IContentListSmallImage
 {
-    [ObservableProperty] private GeoJsonContent _dbEntry = new();
+    [ObservableProperty] private GeoJsonContent _dbEntry;
     [ObservableProperty] private GeoJsonContentActions _itemActions;
     [ObservableProperty] private CurrentSelectedTextTracker _selectedTextTracker = new();
     [ObservableProperty] private bool _showType;
@@ -16,6 +17,7 @@ public partial class GeoJsonListListItem : ObservableObject, IContentListItem, I
 
     public GeoJsonListListItem(GeoJsonContentActions itemActions)
     {
+        _dbEntry = NewContentModels.InitializeGeoJsonContent(null);
         _itemActions = itemActions;
     }
 

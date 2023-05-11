@@ -162,6 +162,7 @@ public class TestSeries02GrandCanyonPoints
             BodyContentFormat = ContentFormatDefaults.Content.ToString(),
             CreatedOn = DateTime.Now,
             FeedOn = DateTime.Now,
+            ContentVersion = Db.ContentVersionDateTime(),
             CreatedBy = "GC Test for GeoJson",
             Folder = "GrandCanyon",
             Title = "Grand Canyon Historic Wildfire Boundaries",

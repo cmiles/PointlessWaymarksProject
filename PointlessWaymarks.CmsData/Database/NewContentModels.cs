@@ -8,36 +8,37 @@ public static class NewContentModels
     {
         var created = DateTime.Now;
 
-        var returnEntry = dbEntry ?? new FileContent()
+        var returnEntry = dbEntry ?? new FileContent
         {
             ContentId = Guid.NewGuid(),
             BodyContentFormat = UserSettingsUtilities.DefaultContentFormatChoice(),
             UpdateNotesFormat = UserSettingsUtilities.DefaultContentFormatChoice(),
             CreatedOn = created,
             FeedOn = created,
-            ContentVersion = Db.ContentVersionDateTime(),
+            ContentVersion = Db.ContentVersionDateTime()
         };
 
         return returnEntry;
     }
-    
-    public static PostContent InitializePostContent(PostContent? dbEntry)
+
+
+    public static GeoJsonContent InitializeGeoJsonContent(GeoJsonContent? dbEntry)
     {
         var created = DateTime.Now;
 
-        var returnEntry = dbEntry ?? new PostContent()
+        var returnEntry = dbEntry ?? new GeoJsonContent
         {
             ContentId = Guid.NewGuid(),
             BodyContentFormat = UserSettingsUtilities.DefaultContentFormatChoice(),
             UpdateNotesFormat = UserSettingsUtilities.DefaultContentFormatChoice(),
             CreatedOn = created,
             FeedOn = created,
-            ContentVersion = Db.ContentVersionDateTime(),
+            ContentVersion = Db.ContentVersionDateTime()
         };
 
         return returnEntry;
     }
-    
+
     public static PhotoContent InitializePhotoContent(PhotoContent? dbEntry)
     {
         var created = DateTime.Now;
@@ -53,6 +54,23 @@ public static class NewContentModels
             PhotoCreatedOn = created,
             ShowPhotoSizes = UserSettingsSingleton.CurrentSettings().PhotoPagesHaveLinksToPhotoSizesByDefault,
             ShowPhotoPosition = UserSettingsSingleton.CurrentSettings().PhotoPagesShowPositionByDefault
+        };
+
+        return returnEntry;
+    }
+
+    public static PostContent InitializePostContent(PostContent? dbEntry)
+    {
+        var created = DateTime.Now;
+
+        var returnEntry = dbEntry ?? new PostContent
+        {
+            ContentId = Guid.NewGuid(),
+            BodyContentFormat = UserSettingsUtilities.DefaultContentFormatChoice(),
+            UpdateNotesFormat = UserSettingsUtilities.DefaultContentFormatChoice(),
+            CreatedOn = created,
+            FeedOn = created,
+            ContentVersion = Db.ContentVersionDateTime()
         };
 
         return returnEntry;

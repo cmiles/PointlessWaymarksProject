@@ -10,6 +10,7 @@ using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.Content;
 using PointlessWaymarks.CmsData.ContentHtml.GeoJsonHtml;
+using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsWpfControls.BodyContentEditor;
 using PointlessWaymarks.CmsWpfControls.ContentIdViewer;
@@ -31,62 +32,58 @@ using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 
 namespace PointlessWaymarks.CmsWpfControls.GeoJsonContentEditor;
 
-public partial class GeoJsonContentEditorContext :  ObservableObject, IHasChanges, IHasValidationIssues, ICheckForChangesAndValidation
+public partial class GeoJsonContentEditorContext : ObservableObject, IHasChanges, IHasValidationIssues,
+    ICheckForChangesAndValidation
 {
     [ObservableProperty] private RelayCommand _addFeatureIntersectTagsCommand;
-    [ObservableProperty] private BodyContentEditorContext _bodyContent;
-    [ObservableProperty] private ContentIdViewerControlContext _contentId;
-    [ObservableProperty] private CreatedAndUpdatedByAndOnDisplayContext _createdUpdatedDisplay;
+    [ObservableProperty] private BodyContentEditorContext? _bodyContent;
+    [ObservableProperty] private ContentIdViewerControlContext? _contentId;
+    [ObservableProperty] private CreatedAndUpdatedByAndOnDisplayContext? _createdUpdatedDisplay;
     [ObservableProperty] private GeoJsonContent _dbEntry;
     [ObservableProperty] private RelayCommand _extractNewLinksCommand;
     [ObservableProperty] private string _geoJsonText = string.Empty;
     [ObservableProperty] private bool _hasChanges;
     [ObservableProperty] private bool _hasValidationIssues;
-    [ObservableProperty] private HelpDisplayContext _helpContext;
+    [ObservableProperty] private HelpDisplayContext? _helpContext;
     [ObservableProperty] private RelayCommand _importGeoJsonFileCommand;
     [ObservableProperty] private RelayCommand _importGeoJsonFromClipboardCommand;
     [ObservableProperty] private RelayCommand _linkToClipboardCommand;
-    [ObservableProperty] private ContentSiteFeedAndIsDraftContext _mainSiteFeed;
-    [ObservableProperty] private string _previewGeoJsonDto;
+    [ObservableProperty] private ContentSiteFeedAndIsDraftContext? _mainSiteFeed;
+    [ObservableProperty] private string _previewGeoJsonDto = string.Empty;
     [ObservableProperty] private string _previewHtml;
     [ObservableProperty] private RelayCommand _refreshMapPreviewCommand;
     [ObservableProperty] private RelayCommand _saveAndCloseCommand;
     [ObservableProperty] private RelayCommand _saveCommand;
     [ObservableProperty] private StatusControlContext _statusContext;
-    [ObservableProperty] private TagsEditorContext _tagEdit;
-    [ObservableProperty] private TitleSummarySlugEditorContext _titleSummarySlugFolder;
-    [ObservableProperty] private UpdateNotesEditorContext _updateNotes;
+    [ObservableProperty] private TagsEditorContext? _tagEdit;
+    [ObservableProperty] private TitleSummarySlugEditorContext? _titleSummarySlugFolder;
+    [ObservableProperty] private UpdateNotesEditorContext? _updateNotes;
     [ObservableProperty] private RelayCommand _viewOnSiteCommand;
     public EventHandler? RequestContentEditorWindowClose;
 
-    private GeoJsonContentEditorContext(StatusControlContext? statusContext)
+    private GeoJsonContentEditorContext(StatusControlContext statusContext, GeoJsonContent dbEntry)
     {
-        StatusContext = statusContext ?? new StatusControlContext();
-
-        SaveCommand = StatusContext.RunBlockingTaskCommand(async () => await SaveAndGenerateHtml(false));
-        SaveAndCloseCommand = StatusContext.RunBlockingTaskCommand(async () => await SaveAndGenerateHtml(true));
-        ViewOnSiteCommand = StatusContext.RunBlockingTaskCommand(ViewOnSite);
-        ExtractNewLinksCommand = StatusContext.RunBlockingTaskCommand(() =>
-            LinkExtraction.ExtractNewAndShowLinkContentEditors($"{BodyContent.BodyContent} {UpdateNotes.UpdateNotes}",
-                StatusContext.ProgressTracker()));
-        ImportGeoJsonFileCommand = StatusContext.RunBlockingTaskCommand(ImportGeoJsonFile);
-        ImportGeoJsonFromClipboardCommand = StatusContext.RunBlockingTaskCommand(ImportGeoJsonFromClipboard);
-        RefreshMapPreviewCommand = StatusContext.RunBlockingTaskCommand(RefreshMapPreview);
-        LinkToClipboardCommand = StatusContext.RunBlockingTaskCommand(LinkToClipboard);
-        AddFeatureIntersectTagsCommand = StatusContext.RunBlockingTaskCommand(AddFeatureIntersectTags);
-
-        HelpContext = new HelpDisplayContext(new List<string>
-        {
-            CommonFields.TitleSlugFolderSummary,
-            BracketCodeHelpMarkdown.HelpBlock,
-            GeoJsonContentHelpMarkdown.HelpBlock
-        });
+        _statusContext = statusContext;
 
         PropertyChanged += OnPropertyChanged;
 
-        PreviewHtml = WpfHtmlDocument.ToHtmlLeafletGeoJsonDocument("GeoJson",
+        _saveCommand = StatusContext.RunBlockingTaskCommand(async () => await SaveAndGenerateHtml(false));
+        _saveAndCloseCommand = StatusContext.RunBlockingTaskCommand(async () => await SaveAndGenerateHtml(true));
+        _viewOnSiteCommand = StatusContext.RunBlockingTaskCommand(ViewOnSite);
+        _extractNewLinksCommand = StatusContext.RunBlockingTaskCommand(() =>
+            LinkExtraction.ExtractNewAndShowLinkContentEditors($"{BodyContent!.BodyContent} {UpdateNotes!.UpdateNotes}",
+                StatusContext.ProgressTracker()));
+        _importGeoJsonFileCommand = StatusContext.RunBlockingTaskCommand(ImportGeoJsonFile);
+        _importGeoJsonFromClipboardCommand = StatusContext.RunBlockingTaskCommand(ImportGeoJsonFromClipboard);
+        _refreshMapPreviewCommand = StatusContext.RunBlockingTaskCommand(RefreshMapPreview);
+        _linkToClipboardCommand = StatusContext.RunBlockingTaskCommand(LinkToClipboard);
+        _addFeatureIntersectTagsCommand = StatusContext.RunBlockingTaskCommand(AddFeatureIntersectTags);
+
+        _previewHtml = WpfHtmlDocument.ToHtmlLeafletGeoJsonDocument("GeoJson",
             UserSettingsSingleton.CurrentSettings().LatitudeDefault,
             UserSettingsSingleton.CurrentSettings().LongitudeDefault, string.Empty);
+
+        _dbEntry = dbEntry;
     }
 
     public void CheckForChangesAndValidationIssues()
@@ -132,48 +129,45 @@ public partial class GeoJsonContentEditorContext :  ObservableObject, IHasChange
             return;
         }
 
-        TagEdit.Tags =
+        TagEdit!.Tags =
             $"{TagEdit.Tags}{(string.IsNullOrWhiteSpace(TagEdit.Tags) ? "" : ",")}{string.Join(",", possibleTags)}";
     }
 
     public static async Task<GeoJsonContentEditorContext> CreateInstance(StatusControlContext? statusContext,
         GeoJsonContent? geoJsonContent)
     {
-        var newControl = new GeoJsonContentEditorContext(statusContext);
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        var newControl = new GeoJsonContentEditorContext(statusContext ?? new StatusControlContext(),
+            NewContentModels.InitializeGeoJsonContent(geoJsonContent));
         await newControl.LoadData(geoJsonContent);
         return newControl;
     }
 
     private GeoJsonContent CurrentStateToGeoJsonContent()
     {
-        var newEntry = new GeoJsonContent();
+        var newEntry = NewContentModels.InitializeGeoJsonContent(null);
 
-        if (DbEntry == null || DbEntry.Id < 1)
-        {
-            newEntry.ContentId = Guid.NewGuid();
-            newEntry.CreatedOn = DbEntry?.CreatedOn ?? DateTime.Now;
-            if (newEntry.CreatedOn == DateTime.MinValue) newEntry.CreatedOn = DateTime.Now;
-        }
-        else
+        if (DbEntry.Id > 0)
         {
             newEntry.ContentId = DbEntry.ContentId;
             newEntry.CreatedOn = DbEntry.CreatedOn;
             newEntry.LastUpdatedOn = DateTime.Now;
-            newEntry.LastUpdatedBy = CreatedUpdatedDisplay.UpdatedByEntry.UserValue.TrimNullToEmpty();
+            newEntry.LastUpdatedBy = CreatedUpdatedDisplay!.UpdatedByEntry.UserValue.TrimNullToEmpty();
         }
 
-        newEntry.Folder = TitleSummarySlugFolder.FolderEntry.UserValue.TrimNullToEmpty();
+        newEntry.Folder = TitleSummarySlugFolder!.FolderEntry.UserValue.TrimNullToEmpty();
         newEntry.Slug = TitleSummarySlugFolder.SlugEntry.UserValue.TrimNullToEmpty();
         newEntry.Summary = TitleSummarySlugFolder.SummaryEntry.UserValue.TrimNullToEmpty();
-        newEntry.ShowInMainSiteFeed = MainSiteFeed.ShowInMainSiteFeedEntry.UserValue;
+        newEntry.ShowInMainSiteFeed = MainSiteFeed!.ShowInMainSiteFeedEntry.UserValue;
         newEntry.FeedOn = MainSiteFeed.FeedOnEntry.UserValue;
         newEntry.IsDraft = MainSiteFeed.IsDraftEntry.UserValue;
-        newEntry.Tags = TagEdit.TagListString();
+        newEntry.Tags = TagEdit!.TagListString();
         newEntry.Title = TitleSummarySlugFolder.TitleEntry.UserValue.TrimNullToEmpty();
-        newEntry.CreatedBy = CreatedUpdatedDisplay.CreatedByEntry.UserValue.TrimNullToEmpty();
-        newEntry.UpdateNotes = UpdateNotes.UpdateNotes.TrimNullToEmpty();
+        newEntry.CreatedBy = CreatedUpdatedDisplay!.CreatedByEntry.UserValue.TrimNullToEmpty();
+        newEntry.UpdateNotes = UpdateNotes!.UpdateNotes.TrimNullToEmpty();
         newEntry.UpdateNotesFormat = UpdateNotes.UpdateNotesFormat.SelectedContentFormatAsString;
-        newEntry.BodyContent = BodyContent.BodyContent.TrimNullToEmpty();
+        newEntry.BodyContent = BodyContent!.BodyContent.TrimNullToEmpty();
         newEntry.BodyContentFormat = BodyContent.BodyContentFormat.SelectedContentFormatAsString;
         newEntry.GeoJson = GeoJsonText;
 
@@ -248,7 +242,7 @@ public partial class GeoJsonContentEditorContext :  ObservableObject, IHasChange
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        if (DbEntry == null || DbEntry.Id < 1)
+        if (DbEntry.Id < 1)
         {
             StatusContext.ToastError("Sorry - please save before getting link...");
             return;
@@ -267,24 +261,24 @@ public partial class GeoJsonContentEditorContext :  ObservableObject, IHasChange
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        var created = DateTime.Now;
+        DbEntry = NewContentModels.InitializeGeoJsonContent(toLoad);
 
-        DbEntry = toLoad ?? new GeoJsonContent
-        {
-            BodyContentFormat = UserSettingsUtilities.DefaultContentFormatChoice(),
-            UpdateNotesFormat = UserSettingsUtilities.DefaultContentFormatChoice(),
-            CreatedOn = created,
-            FeedOn = created
-        };
-
-        TitleSummarySlugFolder = await TitleSummarySlugEditorContext.CreateInstance(StatusContext, DbEntry, null, null, null);
+        TitleSummarySlugFolder =
+            await TitleSummarySlugEditorContext.CreateInstance(StatusContext, DbEntry, null, null, null);
         CreatedUpdatedDisplay = await CreatedAndUpdatedByAndOnDisplayContext.CreateInstance(StatusContext, DbEntry);
         MainSiteFeed = await ContentSiteFeedAndIsDraftContext.CreateInstance(StatusContext, DbEntry);
         ContentId = await ContentIdViewerControlContext.CreateInstance(StatusContext, DbEntry);
         UpdateNotes = await UpdateNotesEditorContext.CreateInstance(StatusContext, DbEntry);
         TagEdit = await TagsEditorContext.CreateInstance(StatusContext, DbEntry);
         BodyContent = await BodyContentEditorContext.CreateInstance(StatusContext, DbEntry);
-        GeoJsonText = StringTools.NullToEmptyTrim(DbEntry?.GeoJson);
+        GeoJsonText = StringTools.NullToEmptyTrim(DbEntry.GeoJson);
+
+        HelpContext = new HelpDisplayContext(new List<string>
+        {
+            CommonFields.TitleSlugFolderSummary,
+            BracketCodeHelpMarkdown.HelpBlock,
+            GeoJsonContentHelpMarkdown.HelpBlock
+        });
 
         PropertyScanners.SubscribeToChildHasChangesAndHasValidationIssues(this, CheckForChangesAndValidationIssues);
     }
@@ -344,7 +338,7 @@ public partial class GeoJsonContentEditorContext :  ObservableObject, IHasChange
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        if (DbEntry == null || DbEntry.Id < 1)
+        if (DbEntry.Id < 1)
         {
             StatusContext.ToastError("Please save the content first...");
             return;
