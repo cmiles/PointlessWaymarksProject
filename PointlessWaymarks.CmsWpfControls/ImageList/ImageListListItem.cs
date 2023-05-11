@@ -17,7 +17,7 @@ public partial class ImageListListItem : ObservableObject, IContentListItem, ICo
 
     public ImageListListItem(ImageContentActions itemActions)
     {
-        _dbEntry = NewContentModels.InitializeImageContent(null);
+        _dbEntry = ImageContent.CreateInstance();
         _itemActions = itemActions;
     }
 

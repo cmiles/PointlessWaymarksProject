@@ -129,7 +129,7 @@ public partial class LineListWithActionsContext : ObservableObject
 
             if (features == null) continue;
 
-            dbEntriesToProcess.Add((LineContent)new LineContent().InjectFrom(loopSelected.DbEntry));
+            dbEntriesToProcess.Add((LineContent)LineContent.CreateInstance().InjectFrom(loopSelected.DbEntry));
             intersectResults.Add(new IntersectResult(features)
                 { ContentId = loopSelected.DbEntry.ContentId });
         }

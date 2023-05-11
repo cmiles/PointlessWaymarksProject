@@ -140,7 +140,7 @@ public static class IronwoodImageInfo
         var originalFile = new FileInfo(Path.Combine(Directory.GetCurrentDirectory(), "TestMedia", fileName));
         Assert.True(originalFile.Exists, "Test File Found");
 
-        var contentToSave = NewContentModels.InitializeImageContent(null);
+        var contentToSave = ImageContent.CreateInstance();
         contentToSave.InjectFrom(contentReference);
 
         var validationReturn = await ImageGenerator.Validate(contentToSave, originalFile);

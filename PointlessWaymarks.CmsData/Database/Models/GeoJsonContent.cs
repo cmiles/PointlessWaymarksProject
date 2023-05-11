@@ -54,4 +54,9 @@ public class GeoJsonContent : IUpdateNotes, IContentCommon
     {
         return FeaturesFromGeoJson(GeoJson);
     }
+
+    public static GeoJsonContent CreateInstance()
+    {
+        return NewContentModels.InitializeGeoJsonContent(null);
+    }
 }

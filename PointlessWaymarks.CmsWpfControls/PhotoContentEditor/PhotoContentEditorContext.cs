@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
+using System.Net.Http;
 using System.Windows;
 using System.Windows.Media.Imaging;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -245,7 +246,7 @@ Photo Content Notes:
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        var newContext = new PhotoContentEditorContext(statusContext ?? new StatusControlContext(), NewContentModels.InitializePhotoContent(null));
+        var newContext = new PhotoContentEditorContext(statusContext ?? new StatusControlContext(), PhotoContent.CreateInstance());
         await newContext.LoadData(null);
         return newContext;
     }
@@ -255,7 +256,7 @@ Photo Content Notes:
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        var newContext = new PhotoContentEditorContext(statusContext ?? new StatusControlContext(), NewContentModels.InitializePhotoContent(null))
+        var newContext = new PhotoContentEditorContext(statusContext ?? new StatusControlContext(), PhotoContent.CreateInstance())
             { StatusContext = { BlockUi = true } };
 
         if (initialPhoto is { Exists: true }) newContext.InitialPhoto = initialPhoto;
@@ -271,7 +272,7 @@ Photo Content Notes:
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        var newContext = new PhotoContentEditorContext(statusContext ?? new StatusControlContext(), NewContentModels.InitializePhotoContent(toLoad));
+        var newContext = new PhotoContentEditorContext(statusContext ?? new StatusControlContext(), PhotoContent.CreateInstance());
         await newContext.LoadData(toLoad);
         return newContext;
     }

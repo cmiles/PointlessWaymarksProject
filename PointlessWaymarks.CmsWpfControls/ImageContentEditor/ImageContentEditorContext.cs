@@ -166,7 +166,7 @@ public partial class ImageContentEditorContext : ObservableObject, IHasChanges, 
 
     private ImageContent CurrentStateToImageContent()
     {
-        var newEntry = NewContentModels.InitializeImageContent(null);
+        var newEntry = ImageContent.CreateInstance();
 
         if (DbEntry.Id > 0)
         {

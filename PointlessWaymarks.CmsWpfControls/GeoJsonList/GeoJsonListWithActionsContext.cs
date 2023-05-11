@@ -120,7 +120,7 @@ public partial class GeoJsonListWithActionsContext : ObservableObject
 
             if (!features.Any()) continue;
 
-            dbEntriesToProcess.Add((GeoJsonContent)NewContentModels.InitializeGeoJsonContent(null).InjectFrom(loopSelected.DbEntry));
+            dbEntriesToProcess.Add((GeoJsonContent)GeoJsonContent.CreateInstance().InjectFrom(loopSelected.DbEntry));
             intersectResults.Add(new IntersectResult(features)
                 { ContentId = loopSelected.DbEntry.ContentId });
         }

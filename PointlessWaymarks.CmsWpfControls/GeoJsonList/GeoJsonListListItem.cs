@@ -17,7 +17,7 @@ public partial class GeoJsonListListItem : ObservableObject, IContentListItem, I
 
     public GeoJsonListListItem(GeoJsonContentActions itemActions)
     {
-        _dbEntry = NewContentModels.InitializeGeoJsonContent(null);
+        _dbEntry = GeoJsonContent.CreateInstance();
         _itemActions = itemActions;
     }
 

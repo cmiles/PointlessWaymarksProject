@@ -146,7 +146,7 @@ public partial class GeoJsonContentEditorContext : ObservableObject, IHasChanges
 
     private GeoJsonContent CurrentStateToGeoJsonContent()
     {
-        var newEntry = NewContentModels.InitializeGeoJsonContent(null);
+        var newEntry = GeoJsonContent.CreateInstance();
 
         if (DbEntry.Id > 0)
         {

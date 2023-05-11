@@ -8,7 +8,7 @@ namespace PointlessWaymarks.CmsWpfControls.LineList;
 
 public partial class LineListListItem : ObservableObject, IContentListItem, IContentListSmallImage
 {
-    [ObservableProperty] private LineContent _dbEntry = new();
+    [ObservableProperty] private LineContent _dbEntry;
     [ObservableProperty] private LineContentActions _itemActions;
     [ObservableProperty] private CurrentSelectedTextTracker _selectedTextTracker = new();
     [ObservableProperty] private bool _showType;
@@ -16,6 +16,7 @@ public partial class LineListListItem : ObservableObject, IContentListItem, ICon
 
     public LineListListItem(LineContentActions itemActions)
     {
+        _dbEntry = LineContent.CreateInstance();
         _itemActions = itemActions;
     }
 

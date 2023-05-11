@@ -98,7 +98,7 @@ public static class ImageExtractionHelpers
 
             await ThreadSwitcher.ResumeForegroundAsync();
 
-            var newImage = NewContentModels.InitializeImageContent(null);
+            var newImage = ImageContent.CreateInstance();
 
             if (pageNumber == 1)
             {
@@ -195,7 +195,7 @@ public static class ImageExtractionHelpers
 
         destinationFile.Refresh();
 
-        var newImage = NewContentModels.InitializeImageContent(null);
+        var newImage = ImageContent.CreateInstance();
 
         if (pageNumber == 1)
         {

@@ -179,7 +179,7 @@ Notes:
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        var newContext = new FileContentEditorContext(statusContext, NewContentModels.InitializeFileContent(null))
+        var newContext = new FileContentEditorContext(statusContext, FileContent.CreateInstance())
             { StatusContext = { BlockUi = true } };
 
         if (initialFile is { Exists: true }) newContext.InitialFile = initialFile;
@@ -195,7 +195,7 @@ Notes:
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        var newContext = new FileContentEditorContext(statusContext, NewContentModels.InitializeFileContent(null));
+        var newContext = new FileContentEditorContext(statusContext, FileContent.CreateInstance());
         await newContext.LoadData(null);
         return newContext;
     }

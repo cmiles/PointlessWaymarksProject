@@ -623,7 +623,7 @@ public partial class GpxImportContext : ObservableObject
 
                 if (saveResult.generationReturn.HasError)
                 {
-                    var editorLine = new LineContent();
+                    var editorLine = LineContent.CreateInstance();
                     editorLine.InjectFrom(loopTrack.line);
 
                     await ThreadSwitcher.ResumeForegroundAsync();
@@ -651,7 +651,7 @@ public partial class GpxImportContext : ObservableObject
 
                 if (saveResult.generationReturn.HasError)
                 {
-                    var editorLine = new LineContent();
+                    var editorLine = LineContent.CreateInstance();
                     editorLine.InjectFrom(loopRoute.line);
 
                     await ThreadSwitcher.ResumeForegroundAsync();
@@ -686,7 +686,7 @@ public partial class GpxImportContext : ObservableObject
 
             foreach (var loopTrack in trackReturns)
             {
-                var editorLine = new LineContent();
+                var editorLine = LineContent.CreateInstance();
                 editorLine.InjectFrom(loopTrack.line);
 
                 var editor = await LineContentEditorWindow.CreateInstance(editorLine);
@@ -697,7 +697,7 @@ public partial class GpxImportContext : ObservableObject
 
             foreach (var loopRoute in routeReturns)
             {
-                var editorLine = new LineContent();
+                var editorLine = LineContent.CreateInstance();
                 editorLine.InjectFrom(loopRoute.line);
 
                 var editor = await LineContentEditorWindow.CreateInstance(editorLine);
