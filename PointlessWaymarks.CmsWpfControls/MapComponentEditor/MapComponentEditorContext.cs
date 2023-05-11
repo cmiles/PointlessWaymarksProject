@@ -37,8 +37,7 @@ using Point = NetTopologySuite.Geometries.Point;
 
 namespace PointlessWaymarks.CmsWpfControls.MapComponentEditor;
 
-[ObservableObject]
-public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssues, ICheckForChangesAndValidation,
+public partial class MapComponentEditorContext : ObservableObject, IHasChanges, IHasValidationIssues, ICheckForChangesAndValidation,
     IDropTarget
 {
     [ObservableProperty] private ContentIdViewerControlContext? _contentId;
@@ -147,7 +146,7 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
         MapElements.Add(new MapElementListGeoJsonItem
         {
             DbEntry = possibleGeoJson,
-            SmallImageUrl = ContentListContext.GetSmallImageUrl(possibleGeoJson),
+            SmallImageUrl = ContentListContext.GetSmallImageUrl(possibleGeoJson) ?? string.Empty,
             InInitialView = loopContent?.IncludeInDefaultView ?? true,
             ShowInitialDetails = loopContent?.ShowDetailsDefault ?? false,
             Title = possibleGeoJson.Title ?? string.Empty
@@ -178,7 +177,7 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
         MapElements.Add(new MapElementListLineItem
         {
             DbEntry = possibleLine,
-            SmallImageUrl = ContentListContext.GetSmallImageUrl(possibleLine),
+            SmallImageUrl = ContentListContext.GetSmallImageUrl(possibleLine) ?? string.Empty,
             InInitialView = loopContent?.IncludeInDefaultView ?? true,
             ShowInitialDetails = loopContent?.ShowDetailsDefault ?? false,
             Title = possibleLine.Title ?? string.Empty
@@ -209,7 +208,7 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
         MapElements.Add(new MapElementListPointItem
         {
             DbEntry = possiblePoint,
-            SmallImageUrl = ContentListContext.GetSmallImageUrl(possiblePoint),
+            SmallImageUrl = ContentListContext.GetSmallImageUrl(possiblePoint) ?? string.Empty,
             InInitialView = loopContent?.IncludeInDefaultView ?? true,
             ShowInitialDetails = loopContent?.ShowDetailsDefault ?? false,
             Title = possiblePoint.Title ?? string.Empty
@@ -381,7 +380,7 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
         TitleEntry.HelpText = "Title Text";
         TitleEntry.ReferenceValue = DbEntry.Title.TrimNullToEmpty();
         TitleEntry.UserValue = DbEntry.Title.TrimNullToEmpty();
-        TitleEntry.ValidationFunctions = new List<Func<string, Task<IsValid>>>
+        TitleEntry.ValidationFunctions = new List<Func<string?, Task<IsValid>>>
             { CommonContentValidation.ValidateTitle };
 
         SummaryEntry = StringDataEntryContext.CreateInstance();
@@ -389,7 +388,7 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
         SummaryEntry.HelpText = "A short text entry that will show in Search and short references to the content";
         SummaryEntry.ReferenceValue = DbEntry.Summary ?? string.Empty;
         SummaryEntry.UserValue = StringTools.NullToEmptyTrim(DbEntry.Summary);
-        SummaryEntry.ValidationFunctions = new List<Func<string, Task<IsValid>>>
+        SummaryEntry.ValidationFunctions = new List<Func<string?, Task<IsValid>>>
             { CommonContentValidation.ValidateSummary };
 
         CreatedUpdatedDisplay = await CreatedAndUpdatedByAndOnDisplayContext.CreateInstance(StatusContext, DbEntry);
@@ -445,8 +444,16 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
             StatusContext.RunFireAndForgetNonBlockingTask(FilterList);
     }
 
-    private async Task OpenItemEditor(IMapElementListItem toEdit)
+    private async Task OpenItemEditor(IMapElementListItem? toEdit)
     {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (toEdit == null)
+        {
+            StatusContext.ToastError("No Item to Edit?");
+            return;
+        }
+
         switch (toEdit)
         {
             case MapElementListPointItem p:
@@ -525,9 +532,15 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
         PreviewMapJsonDto = await GeoJsonTools.SerializeWithGeoJsonSerializer(dto);
     }
 
-    private async Task RemoveItem(IMapElementListItem toRemove)
+    private async Task RemoveItem(IMapElementListItem? toRemove)
     {
         await ThreadSwitcher.ResumeForegroundAsync();
+
+        if (toRemove == null)
+        {
+            StatusContext.ToastError("No Item Selected?");
+            return;
+        }
 
         try
         {
