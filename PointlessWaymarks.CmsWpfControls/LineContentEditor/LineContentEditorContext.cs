@@ -164,6 +164,14 @@ public partial class LineContentEditorContext : ObservableObject, IHasChanges, I
     {
         var newEntry = LineContent.CreateInstance();
 
+        if (DbEntry.Id > 0)
+        {
+            newEntry.ContentId = DbEntry.ContentId;
+            newEntry.CreatedOn = DbEntry.CreatedOn;
+            newEntry.LastUpdatedOn = DateTime.Now;
+            newEntry.LastUpdatedBy = CreatedUpdatedDisplay!.UpdatedByEntry.UserValue.TrimNullToEmpty();
+        }
+
         newEntry.Folder = TitleSummarySlugFolder!.FolderEntry.UserValue.TrimNullToEmpty();
         newEntry.Slug = TitleSummarySlugFolder.SlugEntry.UserValue.TrimNullToEmpty();
         newEntry.Summary = TitleSummarySlugFolder.SummaryEntry.UserValue.TrimNullToEmpty();
