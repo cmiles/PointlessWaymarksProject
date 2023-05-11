@@ -12,8 +12,7 @@ using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 
 namespace PointlessWaymarks.CmsWpfControls.MenuLinkEditor;
 
-[ObservableObject]
-public partial class MenuLinkEditorContext
+public partial class MenuLinkEditorContext : ObservableObject
 {
     [ObservableProperty] private CmsCommonCommands _commonCommands;
     [ObservableProperty] private string _helpMarkdown;
@@ -132,7 +131,7 @@ public partial class MenuLinkEditorContext
             return;
         }
 
-        listItem.UserLink = (listItem.UserLink ?? string.Empty).Trim();
+        listItem.UserLink = (listItem.UserLink).Trim();
 
         listItem.UserLink += toInsert;
     }
@@ -220,13 +219,13 @@ public partial class MenuLinkEditorContext
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        if (Items == null || !Items.Any())
+        if (Items.Any())
         {
             StatusContext.ToastError("No entries to save?");
             return;
         }
 
-        foreach (var loopItems in Items) loopItems.UserLink = (loopItems.UserLink ?? string.Empty).Trim();
+        foreach (var loopItems in Items) loopItems.UserLink = (loopItems.UserLink).Trim();
 
         await RenumberItems();
 
@@ -249,7 +248,7 @@ public partial class MenuLinkEditorContext
         var frozenNowVersion = DateTime.Now.ToUniversalTime().TrimDateTimeToSeconds();
 
         foreach (var loopChanges in withChanges)
-            if (loopChanges.DbEntry == null || loopChanges.DbEntry.Id < 1)
+            if (loopChanges.DbEntry.Id < 1)
             {
                 loopChanges.DbEntry = new MenuLink
                 {
@@ -262,7 +261,7 @@ public partial class MenuLinkEditorContext
             }
             else
             {
-                var toUpdate = await context.MenuLinks.SingleOrDefaultAsync(x => x.Id == loopChanges.DbEntry.Id);
+                var toUpdate = await context.MenuLinks.SingleAsync(x => x.Id == loopChanges.DbEntry.Id);
 
                 toUpdate.LinkTag = loopChanges.UserLink;
                 toUpdate.MenuOrder = loopChanges.UserOrder;
