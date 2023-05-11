@@ -75,6 +75,21 @@ public static class NewContentModels
         return returnEntry;
     }
 
+    public static LinkContent InitializeLinkContent(LinkContent? dbEntry)
+    {
+        var created = DateTime.Now;
+
+        var returnEntry = dbEntry ?? new LinkContent
+        {
+            ContentId = Guid.NewGuid(),
+            CreatedOn = created,
+            ContentVersion = Db.ContentVersionDateTime(),
+            ShowInLinkRss = true
+        };
+
+        return returnEntry;
+    }
+
     public static PhotoContent InitializePhotoContent(PhotoContent? dbEntry)
     {
         var created = DateTime.Now;

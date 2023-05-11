@@ -2,8 +2,8 @@
 using System.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.Content;
+using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsWpfControls.CreatedAndUpdatedByAndOnDisplay;
 using PointlessWaymarks.CmsWpfControls.HelpDisplay;
@@ -22,42 +22,42 @@ namespace PointlessWaymarks.CmsWpfControls.LinkContentEditor;
 public partial class LinkContentEditorContext : ObservableObject, IHasChanges, IHasValidationIssues,
     ICheckForChangesAndValidation
 {
-    [ObservableProperty] private StringDataEntryContext _authorEntry;
-    [ObservableProperty] private StringDataEntryContext _commentsEntry;
-    [ObservableProperty] private CreatedAndUpdatedByAndOnDisplayContext _createdUpdatedDisplay;
+    [ObservableProperty] private StringDataEntryContext? _authorEntry;
+    [ObservableProperty] private StringDataEntryContext? _commentsEntry;
+    [ObservableProperty] private CreatedAndUpdatedByAndOnDisplayContext? _createdUpdatedDisplay;
     [ObservableProperty] private LinkContent _dbEntry;
-    [ObservableProperty] private StringDataEntryContext _descriptionEntry;
+    [ObservableProperty] private StringDataEntryContext? _descriptionEntry;
     [ObservableProperty] private RelayCommand _extractDataCommand;
     [ObservableProperty] private bool _hasChanges;
     [ObservableProperty] private bool _hasValidationIssues;
-    [ObservableProperty] private HelpDisplayContext _helpContext;
-    [ObservableProperty] private ConversionDataEntryContext<DateTime?> _linkDateTimeEntry;
-    [ObservableProperty] private StringDataEntryContext _linkUrlEntry;
+    [ObservableProperty] private HelpDisplayContext? _helpContext;
+    [ObservableProperty] private ConversionDataEntryContext<DateTime?>? _linkDateTimeEntry;
+    [ObservableProperty] private StringDataEntryContext? _linkUrlEntry;
     [ObservableProperty] private RelayCommand _openUrlInBrowserCommand;
     [ObservableProperty] private RelayCommand _saveAndCloseCommand;
     [ObservableProperty] private RelayCommand _saveCommand;
-    [ObservableProperty] private BoolDataEntryContext _showInLinkRssEntry;
-    [ObservableProperty] private StringDataEntryContext _siteEntry;
+    [ObservableProperty] private BoolDataEntryContext? _showInLinkRssEntry;
+    [ObservableProperty] private StringDataEntryContext? _siteEntry;
     [ObservableProperty] private StatusControlContext _statusContext;
-    [ObservableProperty] private TagsEditorContext _tagEdit;
-    [ObservableProperty] private StringDataEntryContext _titleEntry;
+    [ObservableProperty] private TagsEditorContext? _tagEdit;
+    [ObservableProperty] private StringDataEntryContext? _titleEntry;
 
     public EventHandler? RequestContentEditorWindowClose;
 
-    private LinkContentEditorContext(StatusControlContext statusContext)
+    private LinkContentEditorContext(StatusControlContext statusContext, LinkContent dbEntry)
     {
-        StatusContext = statusContext ?? new StatusControlContext();
+        _statusContext = statusContext;
 
         PropertyChanged += OnPropertyChanged;
 
-        SaveCommand = StatusContext.RunBlockingTaskCommand(async () => await SaveAndGenerateHtml(false));
-        SaveAndCloseCommand = StatusContext.RunBlockingTaskCommand(async () => await SaveAndGenerateHtml(true));
-        ExtractDataCommand = StatusContext.RunBlockingTaskCommand(ExtractDataFromLink);
-        OpenUrlInBrowserCommand = StatusContext.RunNonBlockingActionCommand(() =>
+        _saveCommand = StatusContext.RunBlockingTaskCommand(async () => await SaveAndGenerateHtml(false));
+        _saveAndCloseCommand = StatusContext.RunBlockingTaskCommand(async () => await SaveAndGenerateHtml(true));
+        _extractDataCommand = StatusContext.RunBlockingTaskCommand(ExtractDataFromLink);
+        _openUrlInBrowserCommand = StatusContext.RunNonBlockingActionCommand(() =>
         {
             try
             {
-                if (string.IsNullOrWhiteSpace(LinkUrlEntry.UserValue)) StatusContext.ToastWarning("Link is Blank?");
+                if (string.IsNullOrWhiteSpace(LinkUrlEntry!.UserValue)) StatusContext.ToastWarning("Link is Blank?");
                 var ps = new ProcessStartInfo(LinkUrlEntry.UserValue) { UseShellExecute = true, Verb = "open" };
                 Process.Start(ps);
             }
@@ -67,10 +67,7 @@ public partial class LinkContentEditorContext : ObservableObject, IHasChanges, I
             }
         });
 
-        HelpContext = new HelpDisplayContext(new List<string>
-        {
-            CommonFields.TitleSlugFolderSummary, BracketCodeHelpMarkdown.HelpBlock
-        });
+        _dbEntry = dbEntry;
     }
 
     public void CheckForChangesAndValidationIssues()
@@ -79,42 +76,39 @@ public partial class LinkContentEditorContext : ObservableObject, IHasChanges, I
         HasValidationIssues = PropertyScanners.ChildPropertiesHaveValidationIssues(this);
     }
 
-    public static async Task<LinkContentEditorContext> CreateInstance(StatusControlContext statusContext,
-        LinkContent linkContent, bool extractDataOnLoad = false)
+    public static async Task<LinkContentEditorContext> CreateInstance(StatusControlContext? statusContext,
+        LinkContent? linkContent = null, bool extractDataOnLoad = false)
     {
-        var newControl = new LinkContentEditorContext(statusContext);
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        var newControl = new LinkContentEditorContext(statusContext ?? new StatusControlContext(),
+            NewContentModels.InitializeLinkContent(linkContent));
         await newControl.LoadData(linkContent, extractDataOnLoad);
         return newControl;
     }
 
     private LinkContent CurrentStateToLinkContent()
     {
-        var newEntry = new LinkContent();
+        var newEntry = LinkContent.CreateInstance();
 
-        if (DbEntry == null || DbEntry.Id < 1)
-        {
-            newEntry.ContentId = Guid.NewGuid();
-            newEntry.CreatedOn = DbEntry?.CreatedOn ?? DateTime.Now;
-            if (newEntry.CreatedOn == DateTime.MinValue) newEntry.CreatedOn = DateTime.Now;
-        }
-        else
+        if (DbEntry.Id > 0)
         {
             newEntry.ContentId = DbEntry.ContentId;
             newEntry.CreatedOn = DbEntry.CreatedOn;
             newEntry.LastUpdatedOn = DateTime.Now;
-            newEntry.LastUpdatedBy = CreatedUpdatedDisplay.UpdatedByEntry.UserValue.TrimNullToEmpty();
+            newEntry.LastUpdatedBy = CreatedUpdatedDisplay!.UpdatedByEntry.UserValue.TrimNullToEmpty();
         }
 
-        newEntry.Tags = TagEdit.TagListString();
-        newEntry.CreatedBy = CreatedUpdatedDisplay.CreatedByEntry.UserValue.TrimNullToEmpty();
-        newEntry.Comments = CommentsEntry.UserValue.TrimNullToEmpty();
-        newEntry.Url = LinkUrlEntry.UserValue.TrimNullToEmpty();
-        newEntry.Title = TitleEntry.UserValue.TrimNullToEmpty();
-        newEntry.Site = SiteEntry.UserValue.TrimNullToEmpty();
-        newEntry.Author = AuthorEntry.UserValue.TrimNullToEmpty();
-        newEntry.Description = DescriptionEntry.UserValue.TrimNullToEmpty();
-        newEntry.LinkDate = LinkDateTimeEntry.UserValue;
-        newEntry.ShowInLinkRss = ShowInLinkRssEntry.UserValue;
+        newEntry.Tags = TagEdit!.TagListString();
+        newEntry.CreatedBy = CreatedUpdatedDisplay!.CreatedByEntry.UserValue.TrimNullToEmpty();
+        newEntry.Comments = CommentsEntry!.UserValue.TrimNullToEmpty();
+        newEntry.Url = LinkUrlEntry!.UserValue.TrimNullToEmpty();
+        newEntry.Title = TitleEntry!.UserValue.TrimNullToEmpty();
+        newEntry.Site = SiteEntry!.UserValue.TrimNullToEmpty();
+        newEntry.Author = AuthorEntry!.UserValue.TrimNullToEmpty();
+        newEntry.Description = DescriptionEntry!.UserValue.TrimNullToEmpty();
+        newEntry.LinkDate = LinkDateTimeEntry!.UserValue;
+        newEntry.ShowInLinkRss = ShowInLinkRssEntry!.UserValue;
 
         return newEntry;
     }
@@ -122,7 +116,7 @@ public partial class LinkContentEditorContext : ObservableObject, IHasChanges, I
     private async Task ExtractDataFromLink()
     {
         var (generationReturn, linkMetadata) =
-            await LinkGenerator.LinkMetadataFromUrl(LinkUrlEntry.UserValue, StatusContext.ProgressTracker());
+            await LinkGenerator.LinkMetadataFromUrl(LinkUrlEntry!.UserValue, StatusContext.ProgressTracker());
 
         if (generationReturn.HasError)
         {
@@ -130,16 +124,22 @@ public partial class LinkContentEditorContext : ObservableObject, IHasChanges, I
             return;
         }
 
+        if (linkMetadata == null)
+        {
+            StatusContext.ToastError("No Link Data?");
+            return;
+        }
+
         if (!string.IsNullOrWhiteSpace(linkMetadata.Title))
-            TitleEntry.UserValue = linkMetadata.Title.TrimNullToEmpty();
+            TitleEntry!.UserValue = linkMetadata.Title.TrimNullToEmpty();
         if (!string.IsNullOrWhiteSpace(linkMetadata.Author))
-            AuthorEntry.UserValue = linkMetadata.Author.TrimNullToEmpty();
+            AuthorEntry!.UserValue = linkMetadata.Author.TrimNullToEmpty();
         if (!string.IsNullOrWhiteSpace(linkMetadata.Description))
-            DescriptionEntry.UserValue = linkMetadata.Description.TrimNullToEmpty();
+            DescriptionEntry!.UserValue = linkMetadata.Description.TrimNullToEmpty();
         if (!string.IsNullOrWhiteSpace(linkMetadata.Site))
-            SiteEntry.UserValue = linkMetadata.Site.TrimNullToEmpty();
+            SiteEntry!.UserValue = linkMetadata.Site.TrimNullToEmpty();
         if (linkMetadata.LinkDate != null)
-            LinkDateTimeEntry.UserText = linkMetadata.LinkDate == null
+            LinkDateTimeEntry!.UserText = linkMetadata.LinkDate == null
                 ? string.Empty
                 : linkMetadata.LinkDate.Value.ToString("M/d/yyyy h:mm:ss tt");
     }
@@ -148,15 +148,12 @@ public partial class LinkContentEditorContext : ObservableObject, IHasChanges, I
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        DbEntry = toLoad ?? new LinkContent
-        {
-            ShowInLinkRss = true, CreatedBy = UserSettingsSingleton.CurrentSettings().DefaultCreatedBy
-        };
+        DbEntry = NewContentModels.InitializeLinkContent(toLoad);
 
         LinkUrlEntry = StringDataEntryContext.CreateInstance();
         LinkUrlEntry.Title = "URL";
         LinkUrlEntry.HelpText = "Link address";
-        LinkUrlEntry.ValidationFunctions = new List<Func<string, Task<IsValid>>> { ValidateUrl };
+        LinkUrlEntry.ValidationFunctions = new List<Func<string?, Task<IsValid>>> { ValidateUrl };
         LinkUrlEntry.ReferenceValue = DbEntry.Url.TrimNullToEmpty();
         LinkUrlEntry.UserValue = DbEntry.Url.TrimNullToEmpty();
 
@@ -171,7 +168,7 @@ public partial class LinkContentEditorContext : ObservableObject, IHasChanges, I
         TitleEntry.HelpText = "Title Text";
         TitleEntry.ReferenceValue = DbEntry.Title.TrimNullToEmpty();
         TitleEntry.UserValue = DbEntry.Title.TrimNullToEmpty();
-        TitleEntry.ValidationFunctions = new List<Func<string, Task<IsValid>>>
+        TitleEntry.ValidationFunctions = new List<Func<string?, Task<IsValid>>>
             { CommonContentValidation.ValidateTitle };
 
         SiteEntry = StringDataEntryContext.CreateInstance();
@@ -199,7 +196,8 @@ public partial class LinkContentEditorContext : ObservableObject, IHasChanges, I
         ShowInLinkRssEntry.UserValue = DbEntry.ShowInLinkRss;
 
         LinkDateTimeEntry =
-            await ConversionDataEntryContext<DateTime?>.CreateInstance(ConversionDataEntryHelpers.DateTimeNullableConversion);
+            await ConversionDataEntryContext<DateTime?>.CreateInstance(ConversionDataEntryHelpers
+                .DateTimeNullableConversion);
         LinkDateTimeEntry.Title = "Link Date";
         LinkDateTimeEntry.HelpText = "Date the Link Content was Created or Updated";
         LinkDateTimeEntry.ReferenceValue = DbEntry.LinkDate;
@@ -210,6 +208,11 @@ public partial class LinkContentEditorContext : ObservableObject, IHasChanges, I
         CreatedUpdatedDisplay = await CreatedAndUpdatedByAndOnDisplayContext.CreateInstance(StatusContext, DbEntry);
         TagEdit = await TagsEditorContext.CreateInstance(StatusContext, DbEntry);
 
+        HelpContext = new HelpDisplayContext(new List<string>
+        {
+            CommonFields.TitleSlugFolderSummary, BracketCodeHelpMarkdown.HelpBlock
+        });
+
         if (extractDataOnLoad) await ExtractDataFromLink();
 
         PropertyScanners.SubscribeToChildHasChangesAndHasValidationIssues(this, CheckForChangesAndValidationIssues);
@@ -217,7 +220,6 @@ public partial class LinkContentEditorContext : ObservableObject, IHasChanges, I
 
     private void OnPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
-        if (e == null) return;
         if (string.IsNullOrWhiteSpace(e.PropertyName)) return;
 
         if (!e.PropertyName.Contains("HasChanges") && !e.PropertyName.Contains("Validation"))
@@ -247,8 +249,8 @@ public partial class LinkContentEditorContext : ObservableObject, IHasChanges, I
         }
     }
 
-    public async Task<IsValid> ValidateUrl(string linkUrl)
+    public async Task<IsValid> ValidateUrl(string? linkUrl)
     {
-        return await CommonContentValidation.ValidateLinkContentLinkUrl(linkUrl, DbEntry?.ContentId);
+        return await CommonContentValidation.ValidateLinkContentLinkUrl(linkUrl, DbEntry.ContentId);
     }
 }
