@@ -10,6 +10,7 @@ using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsWpfControls.ContentHistoryView;
 using PointlessWaymarks.CmsWpfControls.ContentList;
+using PointlessWaymarks.CmsWpfControls.PointList;
 using PointlessWaymarks.CmsWpfControls.Utility;
 using PointlessWaymarks.CmsWpfControls.VideoContentEditor;
 using PointlessWaymarks.CommonTools;
@@ -208,15 +209,16 @@ public partial class VideoContentActions : ObservableObject, IContentActions<Vid
         Process.Start(ps);
     }
 
-    public static VideoListListItem ListItemFromDbItem(VideoContent content, VideoContentActions itemActions,
+    public static async Task<VideoListListItem> ListItemFromDbItem(VideoContent content,
+        VideoContentActions itemActions,
         bool showType)
     {
-        return new VideoListListItem(itemActions)
-        {
-            DbEntry = content,
-            SmallImageUrl = ContentListContext.GetSmallImageUrl(content),
-            ShowType = showType
-        };
+        var item = await VideoListListItem.CreateInstance(itemActions);
+        item.DbEntry = content;
+        item.SmallImageUrl = ContentListContext.GetSmallImageUrl(content);
+        item.ShowType = showType;
+
+        return item;
     }
 
     public async Task ViewFile(VideoContent? listItem)

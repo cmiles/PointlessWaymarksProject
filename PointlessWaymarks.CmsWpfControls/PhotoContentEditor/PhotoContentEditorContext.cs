@@ -1,7 +1,6 @@
 ﻿using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
-using System.Net.Http;
 using System.Windows;
 using System.Windows.Media.Imaging;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -426,6 +425,16 @@ Photo Content Notes:
                 UserSettingsSingleton.CurrentSettings().LocalMediaArchivePhotoDirectory().FullName,
                 DbEntry.OriginalFileName));
 
+            var fileContentDirectory = UserSettingsSingleton.CurrentSettings().LocalSitePhotoContentDirectory(DbEntry);
+
+            var contentFile = new FileInfo(Path.Combine(fileContentDirectory.FullName, DbEntry.OriginalFileName));
+
+            if (!archiveFile.Exists && contentFile.Exists)
+            {
+                await FileManagement.WriteSelectedPhotoContentFileToMediaArchive(contentFile);
+                archiveFile.Refresh();
+            }
+
             if (archiveFile.Exists)
             {
                 LoadedFile = archiveFile;
@@ -435,7 +444,7 @@ Photo Content Notes:
             {
                 await StatusContext.ShowMessageWithOkButton("Missing Photo",
                     $"There is an original file listed for this photo - {DbEntry.OriginalFileName} -" +
-                    $" but it was not found in the expected location of {archiveFile.FullName} - " +
+                    $" but it was not found in the expected location of {archiveFile.FullName} or {contentFile.FullName} - " +
                     "this will cause an error and prevent you from saving. You can re-load the photo or " +
                     "maybe your media directory moved unexpectedly and you could close this editor " +
                     "and restore it (or change it in settings) before continuing?");
@@ -638,21 +647,14 @@ Photo Content Notes:
 
         var frozenNow = DateTime.Now;
 
-        var newPartialPoint = new PointContent
-        {
-            BodyContentFormat = UserSettingsUtilities.DefaultContentFormatChoice(),
-            UpdateNotesFormat = UserSettingsUtilities.DefaultContentFormatChoice(),
-            Latitude = UserSettingsSingleton.CurrentSettings().LatitudeDefault,
-            Longitude = UserSettingsSingleton.CurrentSettings().LongitudeDefault,
-            CreatedOn = frozenNow,
-            FeedOn = frozenNow,
-            BodyContent = BracketCodePhotos.Create(DbEntry),
-            Title = $"Point From {TitleSummarySlugFolder!.TitleEntry.UserValue}",
-            Tags = TagEdit!.TagListString()
-        };
+        var newPartialPoint = PointContent.CreateInstance();
 
+        newPartialPoint.CreatedOn = frozenNow;
+        newPartialPoint.FeedOn = frozenNow;
+        newPartialPoint.BodyContent = BracketCodePhotos.Create(DbEntry);
+        newPartialPoint.Title = $"Point From {TitleSummarySlugFolder!.TitleEntry.UserValue}";
+        newPartialPoint.Tags = TagEdit!.TagListString();
         newPartialPoint.Slug = SlugTools.CreateSlug(true, newPartialPoint.Title);
-
         newPartialPoint.Latitude = LatitudeEntry.UserValue.Value;
         newPartialPoint.Longitude = LongitudeEntry.UserValue.Value;
         newPartialPoint.Elevation = ElevationEntry!.UserValue;

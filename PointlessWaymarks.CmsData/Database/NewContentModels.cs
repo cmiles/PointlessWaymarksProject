@@ -1,3 +1,4 @@
+using PointlessWaymarks.CmsData.Content;
 using PointlessWaymarks.CmsData.Database.Models;
 
 namespace PointlessWaymarks.CmsData.Database;
@@ -111,6 +112,24 @@ public static class NewContentModels
         return returnEntry;
     }
 
+    public static async Task<NoteContent> InitializeNoteContent(NoteContent? dbEntry)
+    {
+        var created = DateTime.Now;
+
+        var returnEntry = dbEntry ?? new NoteContent
+        {
+            ContentId = Guid.NewGuid(),
+            BodyContentFormat = UserSettingsUtilities.DefaultContentFormatChoice(),
+            CreatedBy = UserSettingsSingleton.CurrentSettings().DefaultCreatedBy,
+            CreatedOn = created,
+            FeedOn = created,
+            ContentVersion = Db.ContentVersionDateTime(),
+            Slug = await NoteGenerator.UniqueNoteSlug()
+        };
+
+        return returnEntry;
+    }
+
     public static PhotoContent InitializePhotoContent(PhotoContent? dbEntry)
     {
         var created = DateTime.Now;
@@ -132,6 +151,26 @@ public static class NewContentModels
         return returnEntry;
     }
 
+    public static PointContent InitializePointContent(PointContent? dbEntry)
+    {
+        var created = DateTime.Now;
+
+        var returnEntry = dbEntry ?? new PointContent
+        {
+            ContentId = Guid.NewGuid(),
+            BodyContentFormat = UserSettingsUtilities.DefaultContentFormatChoice(),
+            UpdateNotesFormat = UserSettingsUtilities.DefaultContentFormatChoice(),
+            CreatedBy = UserSettingsSingleton.CurrentSettings().DefaultCreatedBy,
+            CreatedOn = created,
+            FeedOn = created,
+            ContentVersion = Db.ContentVersionDateTime(),
+            Latitude = UserSettingsSingleton.CurrentSettings().LatitudeDefault,
+            Longitude = UserSettingsSingleton.CurrentSettings().LongitudeDefault
+        };
+
+        return returnEntry;
+    }
+
     public static PostContent InitializePostContent(PostContent? dbEntry)
     {
         var created = DateTime.Now;
@@ -145,6 +184,25 @@ public static class NewContentModels
             CreatedOn = created,
             FeedOn = created,
             ContentVersion = Db.ContentVersionDateTime()
+        };
+
+        return returnEntry;
+    }
+
+    public static VideoContent InitializeVideoContent(VideoContent? dbEntry)
+    {
+        var created = DateTime.Now;
+
+        var returnEntry = dbEntry ?? new VideoContent
+        {
+            ContentId = Guid.NewGuid(),
+            BodyContentFormat = UserSettingsUtilities.DefaultContentFormatChoice(),
+            UpdateNotesFormat = UserSettingsUtilities.DefaultContentFormatChoice(),
+            CreatedBy = UserSettingsSingleton.CurrentSettings().DefaultCreatedBy,
+            CreatedOn = created,
+            FeedOn = created,
+            ContentVersion = Db.ContentVersionDateTime(),
+            VideoCreatedOn = created
         };
 
         return returnEntry;

@@ -52,7 +52,8 @@ public partial class PhotoListWithActionsContext : ObservableObject
     [ObservableProperty] private RelayCommand _viewFilesCommand;
     [ObservableProperty] private WindowIconStatus? _windowStatus;
 
-    private PhotoListWithActionsContext(StatusControlContext statusContext, WindowIconStatus? windowStatus, ContentListContext listContext, bool loadInBackground = true)
+    private PhotoListWithActionsContext(StatusControlContext statusContext, WindowIconStatus? windowStatus,
+        ContentListContext listContext, bool loadInBackground = true)
     {
         _statusContext = statusContext;
         _windowStatus = windowStatus;
@@ -62,8 +63,8 @@ public partial class PhotoListWithActionsContext : ObservableObject
         _commonCommands = new CmsCommonCommands(StatusContext);
 
         _regenerateHtmlAndReprocessPhotoForSelectedCommand =
-             StatusContext.RunBlockingTaskWithCancellationCommand(RegenerateHtmlAndReprocessPhotoForSelected,
-                 "Cancel HTML Generation and Photo Resizing");
+            StatusContext.RunBlockingTaskWithCancellationCommand(RegenerateHtmlAndReprocessPhotoForSelected,
+                "Cancel HTML Generation and Photo Resizing");
         _photoLinkCodesToClipboardForSelectedCommand =
             StatusContext.RunBlockingTaskCommand(PhotoLinkCodesToClipboardForSelected);
         _dailyPhotoLinkCodesToClipboardForSelectedCommand =
@@ -135,17 +136,7 @@ public partial class PhotoListWithActionsContext : ObservableObject
             new() { ItemName = "Refresh Data", ItemCommand = RefreshDataCommand }
         };
 
-        if(loadInBackground) StatusContext.RunFireAndForgetBlockingTask(LoadData);
-    }
-
-    public static async Task<PhotoListWithActionsContext> CreateInstance(StatusControlContext? statusContext, WindowIconStatus? windowStatus, IContentListLoader? listLoader, bool loadInBackground = true)
-    {
-        await ThreadSwitcher.ResumeBackgroundAsync();
-
-        var factoryContext = statusContext ?? new StatusControlContext();
-        var factoryListContext = await ContentListContext.CreateInstance(factoryContext, listLoader ?? new PhotoListLoader(100), windowStatus);
-
-        return new PhotoListWithActionsContext(factoryContext, windowStatus, factoryListContext, loadInBackground);
+        if (loadInBackground) StatusContext.RunFireAndForgetBlockingTask(LoadData);
     }
 
     private async Task AddIntersectionTagsToSelected(CancellationToken cancellationToken)
@@ -192,7 +183,7 @@ public partial class PhotoListWithActionsContext : ObservableObject
             if (feature == null) continue;
 
             var toAdd = PhotoContent.CreateInstance();
-            
+
             toProcess.Add((PhotoContent)toAdd.InjectFrom(loopSelected.DbEntry));
             intersectResults.Add(new IntersectResult(feature) { ContentId = loopSelected.DbEntry.ContentId });
         }
@@ -285,6 +276,19 @@ public partial class PhotoListWithActionsContext : ObservableObject
 
             await StatusContext.ShowMessageWithOkButton("Feature Intersection Errors", bodyBuilder.ToString());
         }
+    }
+
+    public static async Task<PhotoListWithActionsContext> CreateInstance(StatusControlContext? statusContext,
+        WindowIconStatus? windowStatus, IContentListLoader? listLoader, bool loadInBackground = true)
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        var factoryContext = statusContext ?? new StatusControlContext();
+        var factoryListContext =
+            await ContentListContext.CreateInstance(factoryContext, listLoader ?? new PhotoListLoader(100),
+                windowStatus);
+
+        return new PhotoListWithActionsContext(factoryContext, windowStatus, factoryListContext, loadInBackground);
     }
 
     private async Task DailyPhotoLinkCodesToClipboardForSelected()
@@ -433,19 +437,13 @@ public partial class PhotoListWithActionsContext : ObservableObject
             StatusContext.Progress(
                 $"Opening Point Content Editor for '{loopPhoto.DbEntry.Title}' - {count++} of {SelectedItems().Count}");
 
-            var newPartialPoint = new PointContent
-            {
-                BodyContentFormat = UserSettingsUtilities.DefaultContentFormatChoice(),
-                UpdateNotesFormat = UserSettingsUtilities.DefaultContentFormatChoice(),
-                Latitude = UserSettingsSingleton.CurrentSettings().LatitudeDefault,
-                Longitude = UserSettingsSingleton.CurrentSettings().LongitudeDefault,
-                CreatedOn = frozenNow,
-                FeedOn = frozenNow,
-                BodyContent = BracketCodePhotos.Create(loopPhoto.DbEntry),
-                Title = $"Point From {loopPhoto.DbEntry.Title}",
-                Tags = loopPhoto.DbEntry.Tags
-            };
+            var newPartialPoint = PointContent.CreateInstance();
 
+            newPartialPoint.CreatedOn = frozenNow;
+            newPartialPoint.FeedOn = frozenNow;
+            newPartialPoint.BodyContent = BracketCodePhotos.Create(loopPhoto.DbEntry);
+            newPartialPoint.Title = $"Point From {loopPhoto.DbEntry.Title}";
+            newPartialPoint.Tags = loopPhoto.DbEntry.Tags;
             newPartialPoint.Slug = SlugTools.CreateSlug(true, newPartialPoint.Title);
 
             if (loopPhoto.DbEntry.Latitude != null) newPartialPoint.Latitude = loopPhoto.DbEntry.Latitude.Value;
@@ -498,7 +496,8 @@ public partial class PhotoListWithActionsContext : ObservableObject
             StatusContext.Progress(
                 $"Re-processing Photo and Generating Html for {loopSelected.DbEntry.Title}, {loopCount} of {totalCount}");
 
-            var mediaLibraryFile = UserSettingsSingleton.CurrentSettings().LocalMediaArchivePhotoContentFile(currentVersion);
+            var mediaLibraryFile = UserSettingsSingleton.CurrentSettings()
+                .LocalMediaArchivePhotoContentFile(currentVersion);
 
             if (mediaLibraryFile == null)
             {
@@ -552,7 +551,8 @@ public partial class PhotoListWithActionsContext : ObservableObject
     {
         var db = await Db.Context();
 
-        return (await db.PhotoContents.Where(x => x.Title != null && x.Title.Contains("  ")).OrderByDescending(x => x.PhotoCreatedOn)
+        return (await db.PhotoContents.Where(x => x.Title != null && x.Title.Contains("  "))
+            .OrderByDescending(x => x.PhotoCreatedOn)
             .ToListAsync()).Cast<object>().ToList();
     }
 
@@ -710,7 +710,7 @@ public partial class PhotoListWithActionsContext : ObservableObject
                 continue;
             }
 
-            var toModify = (PhotoContent)(PhotoContent.CreateInstance().InjectFrom(loopSelected.DbEntry));
+            var toModify = (PhotoContent)PhotoContent.CreateInstance().InjectFrom(loopSelected.DbEntry);
 
             if (toModify.PhotoCreatedOnUtc == null && metadataReturn.metadata.PhotoCreatedOnUtc != null)
                 toModify.PhotoCreatedOnUtc = metadataReturn.metadata.PhotoCreatedOnUtc;
@@ -822,7 +822,9 @@ public partial class PhotoListWithActionsContext : ObservableObject
 
         var reportLoader = new ContentListLoaderReport(toRun);
 
-        var newWindow = await PhotoListWindow.CreateInstance(await PhotoListWithActionsContext.CreateInstance( null, null, reportLoader));
+        var newWindow =
+            await PhotoListWindow.CreateInstance(
+                await CreateInstance(null, null, reportLoader));
         newWindow.WindowTitle = title;
         await newWindow.PositionWindowAndShowOnUiThread();
     }

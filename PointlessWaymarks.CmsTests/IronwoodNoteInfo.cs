@@ -24,6 +24,7 @@ public static class IronwoodNoteInfo
             CreatedBy = "Note Test",
             CreatedOn = new DateTime(2020, 8, 17, 7, 17, 17),
             FeedOn = new DateTime(2020, 8, 17, 7, 17, 17),
+            ContentVersion = Db.ContentVersionDateTime(),
             Folder = "IronwoodForest",
             ShowInMainSiteFeed = true,
             Summary = "Basic links for Ironwood Forest National Monument",
@@ -106,7 +107,7 @@ public static class IronwoodNoteInfo
 
     public static async Task<NoteContent> NoteTest(NoteContent contentReference)
     {
-        var contentToSave = new NoteContent();
+        var contentToSave = await NoteContent.CreateInstance();
         contentToSave.InjectFrom(contentReference);
 
         var validationReturn = await NoteGenerator.Validate(contentToSave);

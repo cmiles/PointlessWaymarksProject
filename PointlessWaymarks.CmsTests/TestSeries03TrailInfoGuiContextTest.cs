@@ -316,14 +316,14 @@ public class TestSeries03TrailInfoGuiContextTest
         //Created/Updated By
 
         Assert.AreEqual("Trail Notes Ghost Writer", newFileContext.CreatedUpdatedDisplay.CreatedByEntry.UserValue);
-        Assert.True(newFileContext.CreatedUpdatedDisplay.HasChanges);
+        Assert.False(newFileContext.CreatedUpdatedDisplay.HasChanges);
         Assert.False(newFileContext.CreatedUpdatedDisplay.HasValidationIssues);
 
         newFileContext.CreatedUpdatedDisplay.CreatedByEntry.UserValue = "   ";
-        Assert.False(newFileContext.CreatedUpdatedDisplay.HasChanges);
+        Assert.True(newFileContext.CreatedUpdatedDisplay.HasChanges);
         Assert.True(newFileContext.CreatedUpdatedDisplay.HasValidationIssues);
 
-        newFileContext.CreatedUpdatedDisplay.CreatedByEntry.UserValue = "Trail Notes Ghost Writer";
+        newFileContext.CreatedUpdatedDisplay.CreatedByEntry.UserValue = "Trail Notes Ghost Writer 2";
         Assert.True(newFileContext.CreatedUpdatedDisplay.HasChanges);
         Assert.False(newFileContext.CreatedUpdatedDisplay.HasValidationIssues);
 

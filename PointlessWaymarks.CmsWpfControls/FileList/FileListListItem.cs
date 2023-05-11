@@ -15,10 +15,15 @@ public partial class FileListListItem : ObservableObject, IContentListItem, ICon
     [ObservableProperty] private bool _showType;
     [ObservableProperty] private string? _smallImageUrl;
 
-    public FileListListItem(FileContentActions itemActions)
+    private FileListListItem(FileContentActions itemActions, FileContent dbEntry)
     {
-        _dbEntry = FileContent.CreateInstance();
+        _dbEntry = dbEntry;
         _itemActions = itemActions;
+    }
+
+    public static Task<FileListListItem> CreateInstance(FileContentActions itemActions)
+    {
+        return Task.FromResult(new FileListListItem(itemActions, FileContent.CreateInstance()));
     }
 
     public IContentCommon Content()

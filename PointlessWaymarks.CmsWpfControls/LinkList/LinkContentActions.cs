@@ -208,9 +208,12 @@ public partial class LinkContentActions : ObservableObject, IContentActions<Link
         historicView.WriteHtmlToTempFolderAndShow(StatusContext.ProgressTracker());
     }
 
-    public static LinkListListItem ListItemFromDbItem(LinkContent content, LinkContentActions itemActions,
+    public static async Task<LinkListListItem> ListItemFromDbItem(LinkContent content, LinkContentActions itemActions,
         bool showType)
     {
-        return new LinkListListItem(itemActions) { DbEntry = content, ShowType = showType };
+        var item = await LinkListListItem.CreateInstance(itemActions);
+        item.DbEntry = content;
+        item.ShowType = showType;
+        return item;
     }
 }

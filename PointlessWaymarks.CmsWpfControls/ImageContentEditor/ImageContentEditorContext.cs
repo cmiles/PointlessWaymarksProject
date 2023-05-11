@@ -257,6 +257,16 @@ public partial class ImageContentEditorContext : ObservableObject, IHasChanges, 
                 UserSettingsSingleton.CurrentSettings().LocalMediaArchiveImageDirectory().FullName,
                 DbEntry.OriginalFileName));
 
+            var fileContentDirectory = UserSettingsSingleton.CurrentSettings().LocalSiteImageContentDirectory(DbEntry);
+
+            var contentFile = new FileInfo(Path.Combine(fileContentDirectory.FullName, DbEntry.OriginalFileName));
+
+            if (!archiveFile.Exists && contentFile.Exists)
+            {
+                await FileManagement.WriteSelectedImageContentFileToMediaArchive(contentFile);
+                archiveFile.Refresh();
+            }
+
             if (archiveFile.Exists)
             {
                 LoadedFile = archiveFile;
@@ -266,7 +276,7 @@ public partial class ImageContentEditorContext : ObservableObject, IHasChanges, 
             {
                 await StatusContext.ShowMessageWithOkButton("Missing Image",
                     $"There is an original image file listed for this image - {DbEntry.OriginalFileName} -" +
-                    $" but it was not found in the expected location of {archiveFile.FullName} - " +
+                    $" but it was not found in the expected location of {archiveFile.FullName} or {contentFile.FullName} - " +
                     "this will cause an error and prevent you from saving. You can re-load the image or " +
                     "maybe your media directory moved unexpectedly and you could close this editor " +
                     "and restore it (or change it in settings) before continuing?");

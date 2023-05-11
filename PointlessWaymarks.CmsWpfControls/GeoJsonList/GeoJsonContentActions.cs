@@ -207,14 +207,13 @@ public partial class GeoJsonContentActions : ObservableObject, IContentActions<G
         Process.Start(ps);
     }
 
-    public static GeoJsonListListItem ListItemFromDbItem(GeoJsonContent content, GeoJsonContentActions itemActions,
+    public static async Task<GeoJsonListListItem> ListItemFromDbItem(GeoJsonContent content, GeoJsonContentActions itemActions,
         bool showType)
     {
-        return new GeoJsonListListItem(itemActions)
-        {
-            DbEntry = content,
-            SmallImageUrl = ContentListContext.GetSmallImageUrl(content),
-            ShowType = showType
-        };
+        var item = await GeoJsonListListItem.CreateInstance(itemActions);
+        item.DbEntry = content;
+        item.SmallImageUrl = ContentListContext.GetSmallImageUrl(content);
+        item.ShowType = showType;
+        return item;
     }
 }

@@ -21,6 +21,7 @@ public static class IronwoodVideoInfo
             CreatedBy = "GC File Tester",
             CreatedOn = new DateTime(2020, 10, 6, 6, 18, 00),
             FeedOn = new DateTime(2020, 10, 6, 6, 18, 00),
+            ContentVersion = Db.ContentVersionDateTime(),
             Folder = "2023",
             License = "Public Domain",
             ShowInMainSiteFeed = true,
@@ -129,7 +130,7 @@ public static class IronwoodVideoInfo
         var testFile = new FileInfo(Path.Combine(Directory.GetCurrentDirectory(), "TestMedia", fileName));
         Assert.True(testFile.Exists, "Test File Found");
 
-        var contentToSave = new VideoContent();
+        var contentToSave = VideoContent.CreateInstance();
         contentToSave.InjectFrom(contentReference);
 
         var validationReturn = await VideoGenerator.Validate(contentToSave, testFile);

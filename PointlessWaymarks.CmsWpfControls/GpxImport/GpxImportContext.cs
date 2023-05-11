@@ -597,7 +597,7 @@ public partial class GpxImportContext : ObservableObject
 
                 if (saveResult.generationReturn.HasError)
                 {
-                    var editorPoint = new PointContent();
+                    var editorPoint = PointContent.CreateInstance();
                     editorPoint.InjectFrom(loopPoints.point);
 
                     var editor = await PointContentEditorWindow.CreateInstance(editorPoint);
@@ -675,7 +675,7 @@ public partial class GpxImportContext : ObservableObject
         {
             foreach (var loopPoints in pointReturns)
             {
-                var editorPoint = new PointContent();
+                var editorPoint = PointContent.CreateInstance();
                 editorPoint.InjectFrom(loopPoints.point);
 
                 var editor = await PointContentEditorWindow.CreateInstance(editorPoint);

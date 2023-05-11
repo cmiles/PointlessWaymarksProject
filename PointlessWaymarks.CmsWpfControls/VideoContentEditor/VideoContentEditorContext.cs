@@ -5,7 +5,6 @@ using System.Text.RegularExpressions;
 using System.Windows;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using JetBrains.Annotations;
 using Ookii.Dialogs.Wpf;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.CommonHtml;
@@ -43,45 +42,44 @@ public partial class VideoContentEditorContext : ObservableObject, IHasChanges, 
 {
     [ObservableProperty] private RelayCommand _autoCleanRenameSelectedFileCommand;
     [ObservableProperty] private RelayCommand _autoRenameSelectedFileBasedOnTitleCommand;
-    [ObservableProperty] private BodyContentEditorContext _bodyContent;
+    [ObservableProperty] private BodyContentEditorContext? _bodyContent;
     [ObservableProperty] private RelayCommand _chooseFileAndFillMetadataCommand;
     [ObservableProperty] private RelayCommand _chooseFileCommand;
-    [ObservableProperty] private ContentIdViewerControlContext _contentId;
-    [ObservableProperty] private CreatedAndUpdatedByAndOnDisplayContext _createdUpdatedDisplay;
+    [ObservableProperty] private ContentIdViewerControlContext? _contentId;
+    [ObservableProperty] private CreatedAndUpdatedByAndOnDisplayContext? _createdUpdatedDisplay;
     [ObservableProperty] private VideoContent _dbEntry;
     [ObservableProperty] private RelayCommand _editUserMainPictureCommand;
     [ObservableProperty] private RelayCommand _extractNewLinksCommand;
     [ObservableProperty] private bool _fileIsMp4;
     [ObservableProperty] private bool _hasChanges;
     [ObservableProperty] private bool _hasValidationIssues;
-    [ObservableProperty] private HelpDisplayContext _helpContext;
-    [ObservableProperty] private FileInfo _initialVideo;
-    [ObservableProperty] private StringDataEntryContext _licenseEntry;
+    [ObservableProperty] private HelpDisplayContext? _helpContext;
+    [ObservableProperty] private FileInfo? _initialVideo;
+    [ObservableProperty] private StringDataEntryContext? _licenseEntry;
     [ObservableProperty] private RelayCommand _linkToClipboardCommand;
-    [ObservableProperty] private FileInfo _loadedVideo;
-    [ObservableProperty] [CanBeNull] private ImageContentEditorWindow _mainImageExternalEditorWindow;
-    [ObservableProperty] private ContentSiteFeedAndIsDraftContext _mainSiteFeed;
+    [ObservableProperty] private FileInfo? _loadedVideo;
+    [ObservableProperty] private ImageContentEditorWindow? _mainImageExternalEditorWindow;
+    [ObservableProperty] private ContentSiteFeedAndIsDraftContext? _mainSiteFeed;
     [ObservableProperty] private RelayCommand _renameSelectedFileCommand;
     [ObservableProperty] private RelayCommand _saveAndCloseCommand;
-    [ObservableProperty] private RelayCommand _saveAndExtractImageFromPdfCommand;
     [ObservableProperty] private RelayCommand _saveAndExtractImageFromVideoCommand;
     [ObservableProperty] private RelayCommand _saveCommand;
-    [ObservableProperty] private FileInfo _selectedFile;
+    [ObservableProperty] private FileInfo? _selectedFile;
     [ObservableProperty] private bool _selectedFileHasPathOrNameChanges;
     [ObservableProperty] private bool _selectedFileHasValidationIssues;
     [ObservableProperty] private bool _selectedFileNameHasInvalidCharacters;
-    [ObservableProperty] private string _selectedFileValidationMessage;
+    [ObservableProperty] private string _selectedFileValidationMessage = string.Empty;
     [ObservableProperty] private StatusControlContext _statusContext;
-    [ObservableProperty] private TagsEditorContext _tagEdit;
-    [ObservableProperty] private TitleSummarySlugEditorContext _titleSummarySlugFolder;
-    [ObservableProperty] private UpdateNotesEditorContext _updateNotes;
-    [ObservableProperty] private ConversionDataEntryContext<Guid?> _userMainPictureEntry;
-    [ObservableProperty] private IContentCommon _userMainPictureEntryContent;
-    [ObservableProperty] private string _userMainPictureEntrySmallImageUrl;
-    [ObservableProperty] private SimpleMediaPlayerContext _videoContext;
-    [ObservableProperty] private StringDataEntryContext _videoCreatedByEntry;
-    [ObservableProperty] private ConversionDataEntryContext<DateTime> _videoCreatedOnEntry;
-    [ObservableProperty] private ConversionDataEntryContext<DateTime?> _videoCreatedOnUtcEntry;
+    [ObservableProperty] private TagsEditorContext? _tagEdit;
+    [ObservableProperty] private TitleSummarySlugEditorContext? _titleSummarySlugFolder;
+    [ObservableProperty] private UpdateNotesEditorContext? _updateNotes;
+    [ObservableProperty] private ConversionDataEntryContext<Guid?>? _userMainPictureEntry;
+    [ObservableProperty] private IContentCommon? _userMainPictureEntryContent;
+    [ObservableProperty] private string? _userMainPictureEntrySmallImageUrl;
+    [ObservableProperty] private SimpleMediaPlayerContext? _videoContext;
+    [ObservableProperty] private StringDataEntryContext? _videoCreatedByEntry;
+    [ObservableProperty] private ConversionDataEntryContext<DateTime>? _videoCreatedOnEntry;
+    [ObservableProperty] private ConversionDataEntryContext<DateTime?>? _videoCreatedOnUtcEntry;
     [ObservableProperty] private RelayCommand _viewOnSiteCommand;
     [ObservableProperty] private RelayCommand _viewPhotoMetadataCommand;
     [ObservableProperty] private RelayCommand _viewSelectedFileCommand;
@@ -90,20 +88,41 @@ public partial class VideoContentEditorContext : ObservableObject, IHasChanges, 
 
     public EventHandler? RequestContentEditorWindowClose;
 
-    private VideoContentEditorContext(StatusControlContext statusContext, FileInfo initialVideo = null)
+    private VideoContentEditorContext(StatusControlContext statusContext, VideoContent dbEntry)
     {
-        if (initialVideo is { Exists: true }) _initialVideo = initialVideo;
+        StatusContext = statusContext;
 
         PropertyChanged += OnPropertyChanged;
 
-        SetupStatusContextAndCommands(statusContext);
-    }
+        _videoContext = new SimpleMediaPlayerContext();
 
-    private VideoContentEditorContext(StatusControlContext statusContext)
-    {
-        PropertyChanged += OnPropertyChanged;
+        _chooseFileAndFillMetadataCommand = StatusContext.RunBlockingTaskCommand(async () => await ChooseFile(true));
+        _chooseFileCommand = StatusContext.RunBlockingTaskCommand(async () => await ChooseFile(false));
+        _viewPhotoMetadataCommand = StatusContext.RunBlockingTaskCommand(async () =>
+            await PhotoMetadataReport.AllPhotoMetadataToHtml(SelectedFile, StatusContext));
+        _saveCommand = StatusContext.RunBlockingTaskCommand(async () => await SaveAndGenerateHtml(true, false));
+        _saveAndCloseCommand = StatusContext.RunBlockingTaskCommand(async () => await SaveAndGenerateHtml(true, true));
+        _viewSelectedFileDirectoryCommand = StatusContext.RunBlockingTaskCommand(OpenSelectedFileDirectory);
+        _viewSelectedFileCommand = StatusContext.RunBlockingTaskCommand(OpenSelectedFile);
+        _viewOnSiteCommand = StatusContext.RunBlockingTaskCommand(ViewOnSite);
+        _renameSelectedFileCommand = StatusContext.RunBlockingTaskCommand(async () =>
+            await FileHelpers.RenameSelectedFile(SelectedFile, StatusContext, x => SelectedFile = x));
+        _autoCleanRenameSelectedFileCommand = StatusContext.RunBlockingTaskCommand(async () =>
+            await FileHelpers.TryAutoCleanRenameSelectedFile(SelectedFile, StatusContext, x => SelectedFile = x));
+        _autoRenameSelectedFileBasedOnTitleCommand = StatusContext.RunBlockingTaskCommand(async () =>
+        {
+            await FileHelpers.TryAutoRenameSelectedFile(SelectedFile, TitleSummarySlugFolder!.TitleEntry.UserValue,
+                StatusContext, x => SelectedFile = x);
+        });
+        _extractNewLinksCommand = StatusContext.RunBlockingTaskCommand(() =>
+            LinkExtraction.ExtractNewAndShowLinkContentEditors($"{BodyContent!.BodyContent} {UpdateNotes!.UpdateNotes}",
+                StatusContext.ProgressTracker()));
+        _saveAndExtractImageFromVideoCommand = StatusContext.RunBlockingTaskCommand(SaveAndExtractImageFromMp4);
+        _linkToClipboardCommand = StatusContext.RunNonBlockingTaskCommand(LinkToClipboard);
+        _viewUserMainPictureCommand = StatusContext.RunNonBlockingTaskCommand(ViewUserMainPicture);
+        _editUserMainPictureCommand = StatusContext.RunNonBlockingTaskCommand(EditUserMainPicture);
 
-        SetupStatusContextAndCommands(statusContext);
+        _dbEntry = dbEntry;
     }
 
 
@@ -133,7 +152,7 @@ Notes:
     public void CheckForChangesAndValidationIssues()
     {
         HasChanges = PropertyScanners.ChildPropertiesHaveChanges(this) || SelectedFileHasPathOrNameChanges ||
-                     DbEntry?.MainPicture != CurrentMainPicture();
+                     DbEntry.MainPicture != CurrentMainPicture();
         HasValidationIssues = PropertyScanners.ChildPropertiesHaveValidationIssues(this) ||
                               SelectedFileHasValidationIssues;
     }
@@ -179,28 +198,45 @@ Notes:
             return;
         }
 
+        if (metadata == null)
+        {
+            await StatusContext.ShowMessageWithOkButton("Video Metadata in Null?", generationReturn.GenerationNote);
+            return;
+        }
+
         PhotoMetadataToCurrentContent(metadata);
     }
 
     public static async Task<VideoContentEditorContext> CreateInstance(StatusControlContext statusContext,
         FileInfo? initialVideo = null)
     {
-        var newControl = new VideoContentEditorContext(statusContext, initialVideo);
-        await newControl.LoadData(null);
-        return newControl;
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        var toLoad = VideoContent.CreateInstance();
+
+        var newContext = new VideoContentEditorContext(statusContext, toLoad) { StatusContext = { BlockUi = true } };
+
+        if (initialVideo is { Exists: true }) newContext.InitialVideo = initialVideo;
+
+        await newContext.LoadData(toLoad);
+
+        return newContext;
     }
 
     public static async Task<VideoContentEditorContext> CreateInstance(StatusControlContext statusContext,
         VideoContent? initialContent)
     {
-        var newControl = new VideoContentEditorContext(statusContext);
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        var newControl =
+            new VideoContentEditorContext(statusContext, NewContentModels.InitializeVideoContent(initialContent));
         await newControl.LoadData(initialContent);
         return newControl;
     }
 
     public Guid? CurrentMainPicture()
     {
-        if (UserMainPictureEntry is { HasValidationIssues: false, UserValue: { } })
+        if (UserMainPictureEntry is { HasValidationIssues: false, UserValue: not null })
             return UserMainPictureEntry.UserValue;
 
         return BracketCodeCommon.PhotoOrImageCodeFirstIdInContent(BodyContent?.UserBodyContent);
@@ -208,42 +244,36 @@ Notes:
 
     public VideoContent CurrentStateToVideoContent()
     {
-        var newEntry = new VideoContent();
+        var newEntry = VideoContent.CreateInstance();
 
-        if (DbEntry == null || DbEntry.Id < 1)
-        {
-            newEntry.ContentId = Guid.NewGuid();
-            newEntry.CreatedOn = DbEntry?.CreatedOn ?? DateTime.Now;
-            if (newEntry.CreatedOn == DateTime.MinValue) newEntry.CreatedOn = DateTime.Now;
-        }
-        else
+        if (DbEntry.Id > 0)
         {
             newEntry.ContentId = DbEntry.ContentId;
             newEntry.CreatedOn = DbEntry.CreatedOn;
             newEntry.LastUpdatedOn = DateTime.Now;
-            newEntry.LastUpdatedBy = CreatedUpdatedDisplay.UpdatedByEntry.UserValue.TrimNullToEmpty();
+            newEntry.LastUpdatedBy = CreatedUpdatedDisplay!.UpdatedByEntry.UserValue.TrimNullToEmpty();
         }
 
-        newEntry.Folder = TitleSummarySlugFolder.FolderEntry.UserValue.TrimNullToEmpty();
+        newEntry.Folder = TitleSummarySlugFolder!.FolderEntry.UserValue.TrimNullToEmpty();
         newEntry.Slug = TitleSummarySlugFolder.SlugEntry.UserValue.TrimNullToEmpty();
         newEntry.Summary = TitleSummarySlugFolder.SummaryEntry.UserValue.TrimNullToEmpty();
-        newEntry.ShowInMainSiteFeed = MainSiteFeed.ShowInMainSiteFeedEntry.UserValue;
+        newEntry.ShowInMainSiteFeed = MainSiteFeed!.ShowInMainSiteFeedEntry.UserValue;
         newEntry.FeedOn = MainSiteFeed.FeedOnEntry.UserValue;
         newEntry.IsDraft = MainSiteFeed.IsDraftEntry.UserValue;
-        newEntry.Tags = TagEdit.TagListString();
+        newEntry.Tags = TagEdit!.TagListString();
         newEntry.Title = TitleSummarySlugFolder.TitleEntry.UserValue.TrimNullToEmpty();
-        newEntry.CreatedBy = CreatedUpdatedDisplay.CreatedByEntry.UserValue.TrimNullToEmpty();
-        newEntry.UpdateNotes = UpdateNotes.UpdateNotes.TrimNullToEmpty();
+        newEntry.CreatedBy = CreatedUpdatedDisplay!.CreatedByEntry.UserValue.TrimNullToEmpty();
+        newEntry.UpdateNotes = UpdateNotes!.UpdateNotes.TrimNullToEmpty();
         newEntry.UpdateNotesFormat = UpdateNotes.UpdateNotesFormat.SelectedContentFormatAsString;
-        newEntry.BodyContent = BodyContent.BodyContent.TrimNullToEmpty();
+        newEntry.BodyContent = BodyContent!.BodyContent.TrimNullToEmpty();
         newEntry.BodyContentFormat = BodyContent.BodyContentFormat.SelectedContentFormatAsString;
-        newEntry.OriginalFileName = SelectedFile.Name;
-        newEntry.UserMainPicture = UserMainPictureEntry.UserValue;
+        newEntry.OriginalFileName = SelectedFile!.Name;
+        newEntry.UserMainPicture = UserMainPictureEntry!.UserValue;
 
-        newEntry.License = LicenseEntry.UserValue.TrimNullToEmpty();
-        newEntry.VideoCreatedBy = VideoCreatedByEntry.UserValue.TrimNullToEmpty();
-        newEntry.VideoCreatedOn = VideoCreatedOnEntry.UserValue;
-        newEntry.VideoCreatedOnUtc = VideoCreatedOnUtcEntry.UserValue;
+        newEntry.License = LicenseEntry!.UserValue.TrimNullToEmpty();
+        newEntry.VideoCreatedBy = VideoCreatedByEntry!.UserValue.TrimNullToEmpty();
+        newEntry.VideoCreatedOn = VideoCreatedOnEntry!.UserValue;
+        newEntry.VideoCreatedOnUtc = VideoCreatedOnUtcEntry!.UserValue;
 
         return newEntry;
     }
@@ -281,7 +311,7 @@ Notes:
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        if (DbEntry == null || DbEntry.Id < 1)
+        if (DbEntry.Id < 1)
         {
             StatusContext.ToastError("Sorry - please save before getting link...");
             return;
@@ -302,19 +332,12 @@ Notes:
 
         StatusContext.Progress("Loading Data...");
 
-        var created = DateTime.Now;
+        DbEntry = NewContentModels.InitializeVideoContent(toLoad);
 
-        DbEntry = toLoad ?? new VideoContent
-        {
-            BodyContentFormat = UserSettingsUtilities.DefaultContentFormatChoice(),
-            UpdateNotesFormat = UserSettingsUtilities.DefaultContentFormatChoice(),
-            CreatedOn = created,
-            FeedOn = created
-        };
-
-        TitleSummarySlugFolder = await TitleSummarySlugEditorContext.CreateInstance(StatusContext, DbEntry, "To File Name",
+        TitleSummarySlugFolder = await TitleSummarySlugEditorContext.CreateInstance(StatusContext, DbEntry,
+            "To File Name",
             AutoRenameSelectedFileBasedOnTitleCommand,
-            x => !Path.GetFileNameWithoutExtension(SelectedFile.Name)
+            x => SelectedFile != null && !Path.GetFileNameWithoutExtension(SelectedFile.Name)
                 .Equals(SlugTools.CreateSlug(false, x.TitleEntry.UserValue), StringComparison.OrdinalIgnoreCase));
         MainSiteFeed = await ContentSiteFeedAndIsDraftContext.CreateInstance(StatusContext, DbEntry);
         CreatedUpdatedDisplay = await CreatedAndUpdatedByAndOnDisplayContext.CreateInstance(StatusContext, DbEntry);
@@ -339,12 +362,13 @@ Notes:
         VideoCreatedOnEntry.UserText = DbEntry.VideoCreatedOn.ToString("MM/dd/yyyy h:mm:ss tt");
 
         VideoCreatedOnUtcEntry =
-            await ConversionDataEntryContext<DateTime?>.CreateInstance(ConversionDataEntryHelpers.DateTimeNullableConversion);
+            await ConversionDataEntryContext<DateTime?>.CreateInstance(ConversionDataEntryHelpers
+                .DateTimeNullableConversion);
         VideoCreatedOnUtcEntry.Title = "Video Created On UTC Date/Time";
         VideoCreatedOnUtcEntry.HelpText =
             "UTC Date and Time the Video was Created - the UTC Date Time is not displayed but is used to compare the Video's Date Time to data like GPX Files/Lines.";
         VideoCreatedOnUtcEntry.ReferenceValue = DbEntry.VideoCreatedOnUtc;
-        VideoCreatedOnUtcEntry.UserText = DbEntry.VideoCreatedOnUtc?.ToString("MM/dd/yyyy h:mm:ss tt");
+        VideoCreatedOnUtcEntry.UserText = DbEntry.VideoCreatedOnUtc?.ToString("MM/dd/yyyy h:mm:ss tt") ?? string.Empty;
 
         ContentId = await ContentIdViewerControlContext.CreateInstance(StatusContext, DbEntry);
         UpdateNotes = await UpdateNotesEditorContext.CreateInstance(StatusContext, DbEntry);
@@ -356,14 +380,19 @@ Notes:
         UserMainPictureEntry.ValidationFunctions = new List<Func<Guid?, Task<IsValid>>>
             { CommonContentValidation.ValidateUserMainPicture };
         UserMainPictureEntry.ReferenceValue = DbEntry.UserMainPicture;
-        UserMainPictureEntry.UserText = DbEntry?.UserMainPicture.ToString() ?? string.Empty;
+        UserMainPictureEntry.UserText = DbEntry.UserMainPicture.ToString() ?? string.Empty;
         UserMainPictureEntry.Title = "Link Image";
         UserMainPictureEntry.HelpText =
             "Putting a Photo or Image ContentId here will cause that image to be used as the 'link' image for the file - very useful when the content is embedded and you don't have a photo or image in the Body Content.";
         UserMainPictureEntry.PropertyChanged += UserMainPictureEntryOnPropertyChanged;
         await SetUserMainPicture();
 
-        if (!skipMediaDirectoryCheck && toLoad != null && !string.IsNullOrWhiteSpace(DbEntry.OriginalFileName))
+        HelpContext = new HelpDisplayContext(new List<string>
+        {
+            VideoEditorHelpText, CommonFields.TitleSlugFolderSummary, BracketCodeHelpMarkdown.HelpBlock
+        });
+
+        if (!skipMediaDirectoryCheck && !string.IsNullOrWhiteSpace(DbEntry.OriginalFileName) && DbEntry.Id > 0)
         {
             await FileManagement.CheckVideoOriginalFileIsInMediaAndContentDirectories(DbEntry);
 
@@ -371,13 +400,19 @@ Notes:
                 UserSettingsSingleton.CurrentSettings().LocalMediaArchiveVideoDirectory().FullName,
                 DbEntry.OriginalFileName));
 
-            var fileContentDirectory = UserSettingsSingleton.CurrentSettings().LocalSiteVideoContentDirectory(toLoad);
+            var fileContentDirectory = UserSettingsSingleton.CurrentSettings().LocalSiteVideoContentDirectory(DbEntry);
 
-            var contentVideo = new FileInfo(Path.Combine(fileContentDirectory.FullName, toLoad.OriginalFileName));
+            var contentVideo = new FileInfo(Path.Combine(fileContentDirectory.FullName, DbEntry.OriginalFileName));
+
+            if (!archiveVideo.Exists && contentVideo.Exists)
+            {
+                await FileManagement.WriteSelectedVideoContentFileToMediaArchive(contentVideo);
+                archiveVideo.Refresh();
+            }
 
             if (archiveVideo.Exists)
             {
-                _loadedVideo = archiveVideo;
+                LoadedVideo = archiveVideo;
                 SelectedFile = archiveVideo;
             }
             else
@@ -391,13 +426,13 @@ Notes:
             }
         }
 
-        if (DbEntry.Id < 1 && _initialVideo is { Exists: true } && FileHelpers.VideoFileTypeIsSupported(_initialVideo))
+        if (DbEntry.Id < 1 && InitialVideo is { Exists: true } && FileHelpers.VideoFileTypeIsSupported(InitialVideo))
         {
-            SelectedFile = _initialVideo;
-            _initialVideo = null;
+            SelectedFile = InitialVideo;
+            InitialVideo = null;
             var (generationReturn, metadataReturn) =
                 await PhotoGenerator.PhotoMetadataFromFile(SelectedFile, false, StatusContext.ProgressTracker());
-            if (!generationReturn.HasError) PhotoMetadataToCurrentContent(metadataReturn);
+            if (!generationReturn.HasError && metadataReturn != null) PhotoMetadataToCurrentContent(metadataReturn);
         }
 
         if (string.IsNullOrWhiteSpace(TitleSummarySlugFolder.SummaryEntry.UserValue) && SelectedFile != null)
@@ -415,7 +450,8 @@ Notes:
             StatusContext.RunNonBlockingTask(async () =>
                 await TryAddUserMainPicture(imageContext.DbEntry.ContentId));
 
-            MainImageExternalEditorWindow.ImageEditor.Saved -= MainImageExternalContextSaved;
+            if (MainImageExternalEditorWindow != null)
+                MainImageExternalEditorWindow.ImageEditor.Saved -= MainImageExternalContextSaved;
 
             MainImageExternalEditorWindowCleanup();
         }
@@ -451,7 +487,6 @@ Notes:
 
     private void OnPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
-        if (e == null) return;
         if (string.IsNullOrWhiteSpace(e.PropertyName)) return;
 
         if (!e.PropertyName.Contains("HasChanges") && !e.PropertyName.Contains("Validation"))
@@ -492,13 +527,14 @@ Notes:
 
     public void PhotoMetadataToCurrentContent(PhotoMetadata metadata)
     {
-        LicenseEntry.UserValue = metadata.License;
-        VideoCreatedByEntry.UserValue = metadata.PhotoCreatedBy;
-        VideoCreatedOnEntry.UserText = metadata.PhotoCreatedOn.ToString("MM/dd/yyyy h:mm:ss tt");
-        VideoCreatedOnUtcEntry.UserText = metadata.PhotoCreatedOnUtc?.ToString("MM/dd/yyyy h:mm:ss tt") ?? string.Empty;
-        TitleSummarySlugFolder.SummaryEntry.UserValue = metadata.Summary;
-        TagEdit.Tags = metadata.Tags;
-        TitleSummarySlugFolder.TitleEntry.UserValue = metadata.Title;
+        LicenseEntry!.UserValue = metadata.License ?? string.Empty;
+        VideoCreatedByEntry!.UserValue = metadata.PhotoCreatedBy ?? string.Empty;
+        VideoCreatedOnEntry!.UserText = metadata.PhotoCreatedOn.ToString("MM/dd/yyyy h:mm:ss tt");
+        VideoCreatedOnUtcEntry!.UserText =
+            metadata.PhotoCreatedOnUtc?.ToString("MM/dd/yyyy h:mm:ss tt") ?? string.Empty;
+        TitleSummarySlugFolder!.SummaryEntry.UserValue = metadata.Summary ?? string.Empty;
+        TagEdit!.Tags = metadata.Tags ?? string.Empty;
+        TitleSummarySlugFolder.TitleEntry.UserValue = metadata.Title ?? string.Empty;
         TitleSummarySlugFolder.TitleToSlug();
         TitleSummarySlugFolder.FolderEntry.UserValue = metadata.PhotoCreatedOn.Year.ToString("F0");
     }
@@ -523,19 +559,24 @@ Notes:
 
         await LoadData(fileContent);
 
-
         var autoSaveResult =
             await ImageExtractionHelpers.VideoFrameToImageAutoSave(StatusContext, DbEntry,
-                VideoContext.VideoPositionInMilliseconds);
+                VideoContext!.VideoPositionInMilliseconds);
 
         if (autoSaveResult == null) return;
 
-        UserMainPictureEntry.UserText = autoSaveResult.Value.ToString();
+        UserMainPictureEntry!.UserText = autoSaveResult.Value.ToString();
     }
 
     public async Task SaveAndGenerateHtml(bool overwriteExistingVideos, bool closeAfterSave)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (SelectedFile == null)
+        {
+            StatusContext.ToastError("No File Selected? There must be a video to Save...");
+            return;
+        }
 
         var (generationReturn, newContent) = await VideoGenerator.SaveAndGenerateHtml(CurrentStateToVideoContent(),
             SelectedFile, overwriteExistingVideos, null, StatusContext.ProgressTracker());
@@ -561,59 +602,21 @@ Notes:
         await ThreadSwitcher.ResumeBackgroundAsync();
 
         SelectedFileHasPathOrNameChanges =
-            (SelectedFile?.FullName ?? string.Empty) != (_loadedVideo?.FullName ?? string.Empty);
+            (SelectedFile?.FullName ?? string.Empty) != (LoadedVideo?.FullName ?? string.Empty);
 
         var (isValid, explanation) =
-            await CommonContentValidation.FileContentFileValidation(SelectedFile, DbEntry?.ContentId);
+            await CommonContentValidation.FileContentFileValidation(SelectedFile, DbEntry.ContentId);
 
         SelectedFileHasValidationIssues = !isValid;
 
         SelectedFileValidationMessage = explanation;
 
         SelectedFileNameHasInvalidCharacters =
-            await CommonContentValidation.FileContentFileFileNameHasInvalidCharacters(SelectedFile, DbEntry?.ContentId);
+            await CommonContentValidation.FileContentFileFileNameHasInvalidCharacters(SelectedFile, DbEntry.ContentId);
 
-        VideoContext.VideoSource = SelectedFile is { Exists: true }
+        VideoContext!.VideoSource = SelectedFile is { Exists: true }
             ? VideoContext.VideoSource = SelectedFile.FullName
             : VideoContext.VideoSource = string.Empty;
-    }
-
-    public void SetupStatusContextAndCommands(StatusControlContext statusContext)
-    {
-        StatusContext = statusContext ?? new StatusControlContext();
-
-        HelpContext = new HelpDisplayContext(new List<string>
-        {
-            VideoEditorHelpText, CommonFields.TitleSlugFolderSummary, BracketCodeHelpMarkdown.HelpBlock
-        });
-
-        VideoContext = new SimpleMediaPlayerContext();
-
-        ChooseFileAndFillMetadataCommand = StatusContext.RunBlockingTaskCommand(async () => await ChooseFile(true));
-        ChooseFileCommand = StatusContext.RunBlockingTaskCommand(async () => await ChooseFile(false));
-        ViewPhotoMetadataCommand = StatusContext.RunBlockingTaskCommand(async () =>
-            await PhotoMetadataReport.AllPhotoMetadataToHtml(SelectedFile, StatusContext));
-        SaveCommand = StatusContext.RunBlockingTaskCommand(async () => await SaveAndGenerateHtml(true, false));
-        SaveAndCloseCommand = StatusContext.RunBlockingTaskCommand(async () => await SaveAndGenerateHtml(true, true));
-        ViewSelectedFileDirectoryCommand = StatusContext.RunBlockingTaskCommand(OpenSelectedFileDirectory);
-        ViewSelectedFileCommand = StatusContext.RunBlockingTaskCommand(OpenSelectedFile);
-        ViewOnSiteCommand = StatusContext.RunBlockingTaskCommand(ViewOnSite);
-        RenameSelectedFileCommand = StatusContext.RunBlockingTaskCommand(async () =>
-            await FileHelpers.RenameSelectedFile(SelectedFile, StatusContext, x => SelectedFile = x));
-        AutoCleanRenameSelectedFileCommand = StatusContext.RunBlockingTaskCommand(async () =>
-            await FileHelpers.TryAutoCleanRenameSelectedFile(SelectedFile, StatusContext, x => SelectedFile = x));
-        AutoRenameSelectedFileBasedOnTitleCommand = StatusContext.RunBlockingTaskCommand(async () =>
-        {
-            await FileHelpers.TryAutoRenameSelectedFile(SelectedFile, TitleSummarySlugFolder.TitleEntry.UserValue,
-                StatusContext, x => SelectedFile = x);
-        });
-        ExtractNewLinksCommand = StatusContext.RunBlockingTaskCommand(() =>
-            LinkExtraction.ExtractNewAndShowLinkContentEditors($"{BodyContent.BodyContent} {UpdateNotes.UpdateNotes}",
-                StatusContext.ProgressTracker()));
-        SaveAndExtractImageFromVideoCommand = StatusContext.RunBlockingTaskCommand(SaveAndExtractImageFromMp4);
-        LinkToClipboardCommand = StatusContext.RunNonBlockingTaskCommand(LinkToClipboard);
-        ViewUserMainPictureCommand = StatusContext.RunNonBlockingTaskCommand(ViewUserMainPicture);
-        EditUserMainPictureCommand = StatusContext.RunNonBlockingTaskCommand(EditUserMainPicture);
     }
 
     public async Task SetUserMainPicture()
@@ -650,7 +653,7 @@ Notes:
         if (contentId == null || contentId == Guid.Empty) return;
         var context = await Db.Context();
         if (context.ImageContents.Any(x => x.ContentId == contentId))
-            UserMainPictureEntry.UserText = contentId.Value.ToString();
+            UserMainPictureEntry!.UserText = contentId.Value.ToString();
     }
 
     private void UserMainPictureEntryOnPropertyChanged(object? sender, PropertyChangedEventArgs e)

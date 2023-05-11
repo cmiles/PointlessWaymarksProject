@@ -12,10 +12,15 @@ public partial class MapComponentListListItem : ObservableObject, IContentListIt
     [ObservableProperty] private CurrentSelectedTextTracker _selectedTextTracker = new();
     [ObservableProperty] private bool _showType;
 
-    public MapComponentListListItem(MapComponentContentActions itemActions)
+    private MapComponentListListItem(MapComponentContentActions itemActions, MapComponent dbEntry)
     {
-        _dbEntry = MapComponent.CreateInstance();
+        _dbEntry = dbEntry;
         _itemActions = itemActions;
+    }
+
+    public static Task<MapComponentListListItem> CreateInstance(MapComponentContentActions itemActions)
+    {
+        return Task.FromResult(new MapComponentListListItem(itemActions, MapComponent.CreateInstance()));
     }
 
     public IContentCommon Content()

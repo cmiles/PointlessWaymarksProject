@@ -300,15 +300,14 @@ public partial class PhotoContentActions : ObservableObject, IContentActions<Pho
         return (await db.PhotoContents.Where(x => x.Lens == content.Lens).ToListAsync()).Cast<object>().ToList();
     }
 
-    public static PhotoListListItem ListItemFromDbItem(PhotoContent content, PhotoContentActions photoContentActions,
+    public static async Task<PhotoListListItem> ListItemFromDbItem(PhotoContent content, PhotoContentActions photoContentActions,
         bool showType)
     {
-        return new PhotoListListItem(photoContentActions)
-        {
-            DbEntry = content,
-            SmallImageUrl = ContentListContext.GetSmallImageUrl(content),
-            ShowType = showType
-        };
+        var item = await PhotoListListItem.CreateInstance(photoContentActions);
+        item.DbEntry = content;
+        item.SmallImageUrl = ContentListContext.GetSmallImageUrl(content);
+        item.ShowType = showType;
+        return item;
     }
 
 

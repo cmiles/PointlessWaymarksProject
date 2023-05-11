@@ -211,15 +211,14 @@ public partial class FileContentActions : ObservableObject, IContentActions<File
         historicView.WriteHtmlToTempFolderAndShow(StatusContext.ProgressTracker());
     }
 
-    public static FileListListItem ListItemFromDbItem(FileContent content, FileContentActions itemActions,
+    public static async Task<FileListListItem> ListItemFromDbItem(FileContent content, FileContentActions itemActions,
         bool showType)
     {
-        return new(itemActions)
-        {
-            DbEntry = content,
-            SmallImageUrl = ContentListContext.GetSmallImageUrl(content),
-            ShowType = showType
-        };
+        var item = await FileListListItem.CreateInstance(itemActions);
+        item.DbEntry = content;
+        item.SmallImageUrl = ContentListContext.GetSmallImageUrl(content);
+        item.ShowType = showType;
+        return item;
     }
 
     public async Task ViewFile(FileContent? listItem)

@@ -15,10 +15,15 @@ public partial class GeoJsonListListItem : ObservableObject, IContentListItem, I
     [ObservableProperty] private bool _showType;
     [ObservableProperty] private string? _smallImageUrl;
 
-    public GeoJsonListListItem(GeoJsonContentActions itemActions)
+    private GeoJsonListListItem(GeoJsonContentActions itemActions, GeoJsonContent dbEntry)
     {
-        _dbEntry = GeoJsonContent.CreateInstance();
+        _dbEntry = dbEntry;
         _itemActions = itemActions;
+    }
+
+    public static Task<GeoJsonListListItem> CreateInstance(GeoJsonContentActions itemActions)
+    {
+        return Task.FromResult(new GeoJsonListListItem(itemActions, GeoJsonContent.CreateInstance()));
     }
 
     public IContentCommon Content()

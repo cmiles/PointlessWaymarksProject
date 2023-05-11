@@ -294,7 +294,7 @@ public static class ContentImport
             if (string.IsNullOrWhiteSpace(newContentType.ParsedValue))
                 return (true, "No ContentId or NewContentId Found", null);
 
-            dbEntry = NewContentTypeToImportDbType(newContentType.ParsedValue);
+            dbEntry = await NewContentTypeToImportDbType(newContentType.ParsedValue);
 
             if (dbEntry == null)
                 return (true, "Content Type Not Found", null);
@@ -561,7 +561,7 @@ public static class ContentImport
         return await ImportContentTable(translated, progress).ConfigureAwait(false);
     }
 
-    private static dynamic? NewContentTypeToImportDbType(string? newContentTypeString)
+    private static async Task<dynamic?> NewContentTypeToImportDbType(string? newContentTypeString)
     {
         if (string.IsNullOrWhiteSpace(newContentTypeString)) return null;
 
@@ -570,7 +570,7 @@ public static class ContentImport
             "FILE" => FileContent.CreateInstance(),
             "IMAGE" => ImageContent.CreateInstance(),
             "LINK" => LinkContent.CreateInstance(),
-            "NOTE" => new NoteContent(),
+            "NOTE" => await NoteContent.CreateInstance(),
             "PHOTO" => PhotoContent.CreateInstance(),
             "POINT" => new PointContentDto(),
             "POST" => PostContent.CreateInstance(),

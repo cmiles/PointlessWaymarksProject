@@ -151,7 +151,7 @@ public static class ExcelHelpers
 
         progress?.Report("Setting up list to transfer to Excel");
 
-        var transformedList = toDisplay.Select(x => new PointContent().InjectFrom(x)).Cast<PointContent>().ToList();
+        var transformedList = toDisplay.Select(x => PointContent.CreateInstance().InjectFrom(x)).Cast<PointContent>().ToList();
 
         var detailList = new List<(Guid, string)>();
 

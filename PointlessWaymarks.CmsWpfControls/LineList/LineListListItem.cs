@@ -1,4 +1,5 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
+using DocumentFormat.OpenXml.Vml;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsWpfControls.ContentList;
 using PointlessWaymarks.CmsWpfControls.Utility;
@@ -14,10 +15,15 @@ public partial class LineListListItem : ObservableObject, IContentListItem, ICon
     [ObservableProperty] private bool _showType;
     [ObservableProperty] private string? _smallImageUrl;
 
-    public LineListListItem(LineContentActions itemActions)
+    private LineListListItem(LineContentActions itemActions, LineContent dbEntry)
     {
-        _dbEntry = LineContent.CreateInstance();
+        _dbEntry = dbEntry;
         _itemActions = itemActions;
+    }
+
+    public static Task<LineListListItem> CreateInstance(LineContentActions itemActions)
+    {
+        return Task.FromResult(new LineListListItem(itemActions, LineContent.CreateInstance()));
     }
 
     public IContentCommon Content()

@@ -196,7 +196,7 @@ Notes:
         await ThreadSwitcher.ResumeBackgroundAsync();
 
         var newContext = new FileContentEditorContext(statusContext, FileContent.CreateInstance());
-        await newContext.LoadData(null);
+        await newContext.LoadData(initialContent);
         return newContext;
     }
 
@@ -390,7 +390,7 @@ Notes:
         UserMainPictureEntry.PropertyChanged += UserMainPictureEntryOnPropertyChanged;
         await SetUserMainPicture();
 
-        if (!skipMediaDirectoryCheck && toLoad != null && !string.IsNullOrWhiteSpace(DbEntry.OriginalFileName))
+        if (!skipMediaDirectoryCheck && !string.IsNullOrWhiteSpace(DbEntry.OriginalFileName) && DbEntry.Id > 0)
         {
             await FileManagement.CheckFileOriginalFileIsInMediaAndContentDirectories(DbEntry);
 
@@ -398,9 +398,15 @@ Notes:
                 UserSettingsSingleton.CurrentSettings().LocalMediaArchiveFileDirectory().FullName,
                 DbEntry.OriginalFileName));
 
-            var fileContentDirectory = UserSettingsSingleton.CurrentSettings().LocalSiteFileContentDirectory(toLoad);
+            var fileContentDirectory = UserSettingsSingleton.CurrentSettings().LocalSiteFileContentDirectory(DbEntry);
 
             var contentFile = new FileInfo(Path.Combine(fileContentDirectory.FullName, DbEntry.OriginalFileName));
+
+            if (!archiveFile.Exists && contentFile.Exists)
+            {
+                await FileManagement.WriteSelectedFileContentFileToMediaArchive(contentFile);
+                archiveFile.Refresh();
+            }
 
             if (archiveFile.Exists)
             {

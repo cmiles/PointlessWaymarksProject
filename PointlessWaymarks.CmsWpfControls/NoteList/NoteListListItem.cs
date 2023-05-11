@@ -8,14 +8,20 @@ namespace PointlessWaymarks.CmsWpfControls.NoteList;
 
 public partial class NoteListListItem : ObservableObject, IContentListItem
 {
-    [ObservableProperty] private NoteContent _dbEntry = new();
+    [ObservableProperty] private NoteContent _dbEntry;
     [ObservableProperty] private NoteContentActions _itemActions;
     [ObservableProperty] private CurrentSelectedTextTracker _selectedTextTracker = new();
     [ObservableProperty] private bool _showType;
 
-    public NoteListListItem(NoteContentActions itemActions)
+    private NoteListListItem(NoteContentActions itemActions, NoteContent dbEntry)
     {
+        _dbEntry = dbEntry;
         _itemActions = itemActions;
+    }
+
+    public static async Task<NoteListListItem> CreateInstance(NoteContentActions itemActions)
+    {
+        return new NoteListListItem(itemActions, await NoteContent.CreateInstance());
     }
 
     public IContentCommon Content()

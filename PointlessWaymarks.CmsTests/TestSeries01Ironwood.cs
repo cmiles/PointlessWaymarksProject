@@ -371,15 +371,11 @@ public class TestSeries01Ironwood
     [Test]
     public async Task B30_VideoAdd()
     {
-        var newVideo = new VideoContent
-        {
-            BodyContentFormat = UserSettingsUtilities.DefaultContentFormatChoice(),
-            UpdateNotesFormat = UserSettingsUtilities.DefaultContentFormatChoice(),
-            ContentId = Guid.NewGuid(),
-            CreatedBy = IronwoodVideoInfo.BlueSkyAndCloudsVideoContent01.CreatedBy
-        };
+        var newVideo = VideoContent.CreateInstance();
+        newVideo.CreatedBy = IronwoodVideoInfo.BlueSkyAndCloudsVideoContent01.CreatedBy;
 
-        var testFile = new FileInfo(Path.Combine(Directory.GetCurrentDirectory(), "TestMedia", IronwoodVideoInfo.SkyFilename));
+        var testFile =
+            new FileInfo(Path.Combine(Directory.GetCurrentDirectory(), "TestMedia", IronwoodVideoInfo.SkyFilename));
 
         var (generationReturn, metadata) =
             await PhotoGenerator.PhotoMetadataFromFile(testFile);

@@ -205,14 +205,13 @@ public partial class PostContentActions : ObservableObject, IContentActions<Post
         historicView.WriteHtmlToTempFolderAndShow(StatusContext.ProgressTracker());
     }
 
-    public static PostListListItem ListItemFromDbItem(PostContent content, PostContentActions itemActions,
+    public static async Task<PostListListItem> ListItemFromDbItem(PostContent content, PostContentActions itemActions,
         bool showType)
     {
-        return new PostListListItem(itemActions)
-        {
-            DbEntry = content,
-            SmallImageUrl = ContentListContext.GetSmallImageUrl(content),
-            ShowType = showType
-        };
+        var item = await PostListListItem.CreateInstance(itemActions);
+        item.DbEntry = content;
+        item.SmallImageUrl = ContentListContext.GetSmallImageUrl(content);
+        item.ShowType = showType;
+        return item;
     }
 }

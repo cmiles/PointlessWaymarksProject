@@ -179,9 +179,12 @@ public partial class MapComponentContentActions : ObservableObject, IContentActi
         historicView.WriteHtmlToTempFolderAndShow(StatusContext.ProgressTracker());
     }
 
-    public static MapComponentListListItem ListItemFromDbItem(MapComponent content,
+    public static async Task<MapComponentListListItem> ListItemFromDbItem(MapComponent content,
         MapComponentContentActions itemActions, bool showType)
     {
-        return new(itemActions) { DbEntry = content, ShowType = showType };
+        var item = await MapComponentListListItem.CreateInstance(itemActions);
+        item.DbEntry = content;
+        item.ShowType = showType;
+        return item;
     }
 }

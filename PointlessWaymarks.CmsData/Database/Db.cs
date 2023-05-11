@@ -1388,7 +1388,7 @@ public static class Db
     public static (PointContent content, List<PointDetail> details) PointContentDtoToPointContentAndDetails(
         PointContentDto dto)
     {
-        var toSave = (PointContent)new PointContent().InjectFrom(dto);
+        var toSave = (PointContent)PointContent.CreateInstance().InjectFrom(dto);
         var relatedDetails = dto.PointDetails;
 
         return (toSave, relatedDetails);

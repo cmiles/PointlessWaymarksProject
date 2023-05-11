@@ -202,9 +202,12 @@ public partial class NoteContentActions : ObservableObject, IContentActions<Note
         historicView.WriteHtmlToTempFolderAndShow(StatusContext.ProgressTracker());
     }
 
-    public static NoteListListItem ListItemFromDbItem(NoteContent content, NoteContentActions itemActions,
+    public static async Task<NoteListListItem> ListItemFromDbItem(NoteContent content, NoteContentActions itemActions,
         bool showType)
     {
-        return new NoteListListItem(itemActions) { DbEntry = content, ShowType = showType };
+        var item = await NoteListListItem.CreateInstance(itemActions);
+        item.DbEntry = content;
+        item.ShowType = showType;
+        return item;
     }
 }

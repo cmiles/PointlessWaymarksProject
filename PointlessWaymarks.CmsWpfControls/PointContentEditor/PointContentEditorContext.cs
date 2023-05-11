@@ -14,7 +14,6 @@ using PointlessWaymarks.CmsData.Spatial;
 using PointlessWaymarks.CmsWpfControls.BodyContentEditor;
 using PointlessWaymarks.CmsWpfControls.ContentIdViewer;
 using PointlessWaymarks.CmsWpfControls.ContentSiteFeedAndIsDraft;
-using PointlessWaymarks.CmsWpfControls.DataEntry;
 using PointlessWaymarks.CmsWpfControls.CreatedAndUpdatedByAndOnDisplay;
 using PointlessWaymarks.CmsWpfControls.HelpDisplay;
 using PointlessWaymarks.CmsWpfControls.PointDetailEditor;
@@ -38,53 +37,50 @@ public partial class PointContentEditorContext : ObservableObject, IHasChanges, 
     IHasValidationIssues
 {
     [ObservableProperty] private RelayCommand _addFeatureIntersectTagsCommand;
-    [ObservableProperty] private BodyContentEditorContext _bodyContent;
+    [ObservableProperty] private BodyContentEditorContext? _bodyContent;
     [ObservableProperty] private bool _broadcastLatLongChange = true;
-    [ObservableProperty] private ContentIdViewerControlContext _contentId;
-    [ObservableProperty] private CreatedAndUpdatedByAndOnDisplayContext _createdUpdatedDisplay;
+    [ObservableProperty] private ContentIdViewerControlContext? _contentId;
+    [ObservableProperty] private CreatedAndUpdatedByAndOnDisplayContext? _createdUpdatedDisplay;
     [ObservableProperty] private PointContent _dbEntry;
-    [ObservableProperty] private ConversionDataEntryContext<double?> _elevationEntry;
+    [ObservableProperty] private ConversionDataEntryContext<double?>? _elevationEntry;
     [ObservableProperty] private RelayCommand _extractNewLinksCommand;
     [ObservableProperty] private RelayCommand _getElevationCommand;
     [ObservableProperty] private bool _hasChanges;
     [ObservableProperty] private bool _hasValidationIssues;
-    [ObservableProperty] private HelpDisplayContext _helpContext;
-    [ObservableProperty] private ConversionDataEntryContext<double> _latitudeEntry;
+    [ObservableProperty] private HelpDisplayContext? _helpContext;
+    [ObservableProperty] private ConversionDataEntryContext<double>? _latitudeEntry;
     [ObservableProperty] private RelayCommand _linkToClipboardCommand;
-    [ObservableProperty] private ConversionDataEntryContext<double> _longitudeEntry;
-    [ObservableProperty] private ContentSiteFeedAndIsDraftContext _mainSiteFeed;
-    [ObservableProperty] private StringDataEntryContext _mapLabelContent;
-    [ObservableProperty] private PointDetailListContext _pointDetails;
+    [ObservableProperty] private ConversionDataEntryContext<double>? _longitudeEntry;
+    [ObservableProperty] private ContentSiteFeedAndIsDraftContext? _mainSiteFeed;
+    [ObservableProperty] private StringDataEntryContext? _mapLabelContent;
+    [ObservableProperty] private PointDetailListContext? _pointDetails;
     [ObservableProperty] private RelayCommand _saveAndCloseCommand;
     [ObservableProperty] private RelayCommand _saveCommand;
     [ObservableProperty] private StatusControlContext _statusContext;
-    [ObservableProperty] private TagsEditorContext _tagEdit;
-    [ObservableProperty] private TitleSummarySlugEditorContext _titleSummarySlugFolder;
-    [ObservableProperty] private UpdateNotesEditorContext _updateNotes;
+    [ObservableProperty] private TagsEditorContext? _tagEdit;
+    [ObservableProperty] private TitleSummarySlugEditorContext? _titleSummarySlugFolder;
+    [ObservableProperty] private UpdateNotesEditorContext? _updateNotes;
     [ObservableProperty] private RelayCommand _viewOnSiteCommand;
 
     public EventHandler? RequestContentEditorWindowClose;
 
-    private PointContentEditorContext(StatusControlContext? statusContext)
+    private PointContentEditorContext(StatusControlContext statusContext, PointContent pointContent)
     {
-        StatusContext = statusContext ?? new StatusControlContext();
+        _statusContext = statusContext;
 
         PropertyChanged += OnPropertyChanged;
 
-        SaveCommand = StatusContext.RunBlockingTaskCommand(async () => await SaveAndGenerateHtml(false));
-        SaveAndCloseCommand = StatusContext.RunBlockingTaskCommand(async () => await SaveAndGenerateHtml(true));
-        ViewOnSiteCommand = StatusContext.RunBlockingTaskCommand(ViewOnSite);
-        ExtractNewLinksCommand = StatusContext.RunBlockingTaskCommand(() =>
-            LinkExtraction.ExtractNewAndShowLinkContentEditors($"{BodyContent.BodyContent} {UpdateNotes.UpdateNotes}",
+        _saveCommand = StatusContext.RunBlockingTaskCommand(async () => await SaveAndGenerateHtml(false));
+        _saveAndCloseCommand = StatusContext.RunBlockingTaskCommand(async () => await SaveAndGenerateHtml(true));
+        _viewOnSiteCommand = StatusContext.RunBlockingTaskCommand(ViewOnSite);
+        _extractNewLinksCommand = StatusContext.RunBlockingTaskCommand(() =>
+            LinkExtraction.ExtractNewAndShowLinkContentEditors($"{BodyContent!.BodyContent} {UpdateNotes!.UpdateNotes}",
                 StatusContext.ProgressTracker()));
-        GetElevationCommand = StatusContext.RunBlockingTaskCommand(GetElevation);
-        LinkToClipboardCommand = StatusContext.RunBlockingTaskCommand(LinkToClipboard);
-        AddFeatureIntersectTagsCommand = StatusContext.RunBlockingTaskCommand(AddFeatureIntersectTags);
+        _getElevationCommand = StatusContext.RunBlockingTaskCommand(GetElevation);
+        _linkToClipboardCommand = StatusContext.RunBlockingTaskCommand(LinkToClipboard);
+        _addFeatureIntersectTagsCommand = StatusContext.RunBlockingTaskCommand(AddFeatureIntersectTags);
 
-        HelpContext = new HelpDisplayContext(new List<string>
-        {
-            CommonFields.TitleSlugFolderSummary, BracketCodeHelpMarkdown.HelpBlock
-        });
+        _dbEntry = pointContent;
     }
 
     public void CheckForChangesAndValidationIssues()
@@ -121,54 +117,49 @@ public partial class PointContentEditorContext : ObservableObject, IHasChanges, 
             return;
         }
 
-        TagEdit.Tags =
+        TagEdit!.Tags =
             $"{TagEdit.Tags}{(string.IsNullOrWhiteSpace(TagEdit.Tags) ? "" : ",")}{string.Join(",", possibleTags)}";
     }
 
     public static async Task<PointContentEditorContext> CreateInstance(StatusControlContext? statusContext,
         PointContent? pointContent)
     {
-        var newControl = new PointContentEditorContext(statusContext);
+        var newControl = new PointContentEditorContext(statusContext ?? new StatusControlContext(),
+            NewContentModels.InitializePointContent(pointContent));
         await newControl.LoadData(pointContent);
         return newControl;
     }
 
     private PointContent CurrentStateToPointContent()
     {
-        var newEntry = new PointContent();
+        var newEntry = PointContent.CreateInstance();
 
-        if (DbEntry == null || DbEntry.Id < 1)
-        {
-            newEntry.ContentId = Guid.NewGuid();
-            newEntry.CreatedOn = DbEntry?.CreatedOn ?? DateTime.Now;
-            if (newEntry.CreatedOn == DateTime.MinValue) newEntry.CreatedOn = DateTime.Now;
-        }
-        else
+        if (DbEntry.Id > 0)
         {
             newEntry.ContentId = DbEntry.ContentId;
             newEntry.CreatedOn = DbEntry.CreatedOn;
             newEntry.LastUpdatedOn = DateTime.Now;
-            newEntry.LastUpdatedBy = CreatedUpdatedDisplay.UpdatedByEntry.UserValue.TrimNullToEmpty();
+            newEntry.LastUpdatedBy = CreatedUpdatedDisplay!.UpdatedByEntry.UserValue.TrimNullToEmpty();
         }
 
-        newEntry.Folder = TitleSummarySlugFolder.FolderEntry.UserValue.TrimNullToEmpty();
+        newEntry.Folder = TitleSummarySlugFolder!.FolderEntry.UserValue.TrimNullToEmpty();
         newEntry.Slug = TitleSummarySlugFolder.SlugEntry.UserValue.TrimNullToEmpty();
         newEntry.Summary = TitleSummarySlugFolder.SummaryEntry.UserValue.TrimNullToEmpty();
-        newEntry.ShowInMainSiteFeed = MainSiteFeed.ShowInMainSiteFeedEntry.UserValue;
+        newEntry.ShowInMainSiteFeed = MainSiteFeed!.ShowInMainSiteFeedEntry.UserValue;
         newEntry.FeedOn = MainSiteFeed.FeedOnEntry.UserValue;
         newEntry.IsDraft = MainSiteFeed.IsDraftEntry.UserValue;
-        newEntry.Tags = TagEdit.TagListString();
+        newEntry.Tags = TagEdit!.TagListString();
         newEntry.Title = TitleSummarySlugFolder.TitleEntry.UserValue.TrimNullToEmpty();
-        newEntry.CreatedBy = CreatedUpdatedDisplay.CreatedByEntry.UserValue.TrimNullToEmpty();
-        newEntry.UpdateNotes = UpdateNotes.UpdateNotes.TrimNullToEmpty();
+        newEntry.CreatedBy = CreatedUpdatedDisplay!.CreatedByEntry.UserValue.TrimNullToEmpty();
+        newEntry.UpdateNotes = UpdateNotes!.UpdateNotes.TrimNullToEmpty();
         newEntry.UpdateNotesFormat = UpdateNotes.UpdateNotesFormat.SelectedContentFormatAsString;
-        newEntry.BodyContent = BodyContent.BodyContent.TrimNullToEmpty();
+        newEntry.BodyContent = BodyContent!.BodyContent.TrimNullToEmpty();
         newEntry.BodyContentFormat = BodyContent.BodyContentFormat.SelectedContentFormatAsString;
-        newEntry.MapLabel = MapLabelContent.UserValue.TrimNullToEmpty();
+        newEntry.MapLabel = MapLabelContent!.UserValue.TrimNullToEmpty();
 
-        newEntry.Latitude = LatitudeEntry.UserValue;
-        newEntry.Longitude = LongitudeEntry.UserValue;
-        newEntry.Elevation = ElevationEntry.UserValue;
+        newEntry.Latitude = LatitudeEntry!.UserValue;
+        newEntry.Longitude = LongitudeEntry!.UserValue;
+        newEntry.Elevation = ElevationEntry!.UserValue;
 
         return newEntry;
     }
@@ -178,27 +169,27 @@ public partial class PointContentEditorContext : ObservableObject, IHasChanges, 
         var toReturn = new PointContentDto();
         var currentPoint = CurrentStateToPointContent();
         toReturn.InjectFrom(currentPoint);
-        toReturn.PointDetails = PointDetails.CurrentStateToPointDetailsList() ?? new List<PointDetail>();
+        toReturn.PointDetails = PointDetails!.CurrentStateToPointDetailsList();
         toReturn.PointDetails.ForEach(x => x.PointContentId = toReturn.ContentId);
         return toReturn;
     }
 
-    public async Task<IFeature?> FeatureFromPoint()
+    public Task<IFeature?> FeatureFromPoint()
     {
-        if (LatitudeEntry.HasValidationIssues || LongitudeEntry.HasValidationIssues) return null;
+        if (LatitudeEntry!.HasValidationIssues || LongitudeEntry!.HasValidationIssues) return Task.FromResult((IFeature?)null);
 
-        if (ElevationEntry.UserValue is null)
-            return new Feature(
+        if (ElevationEntry!.UserValue is null)
+            return Task.FromResult((IFeature?)new Feature(
                 new Point(LongitudeEntry.UserValue, LatitudeEntry.UserValue),
-                new AttributesTable());
-        return new Feature(
+                new AttributesTable()));
+        return Task.FromResult((IFeature?)new Feature(
             new Point(LongitudeEntry.UserValue, LatitudeEntry.UserValue, ElevationEntry.UserValue.Value),
-            new AttributesTable());
+            new AttributesTable()));
     }
 
     public async Task GetElevation()
     {
-        if (LatitudeEntry.HasValidationIssues || LongitudeEntry.HasValidationIssues)
+        if (LatitudeEntry!.HasValidationIssues || LongitudeEntry!.HasValidationIssues)
         {
             StatusContext.ToastError("Lat Long is not valid");
             return;
@@ -207,12 +198,12 @@ public partial class PointContentEditorContext : ObservableObject, IHasChanges, 
         var possibleElevation =
             await ElevationGuiHelper.GetElevation(LatitudeEntry.UserValue, LongitudeEntry.UserValue, StatusContext);
 
-        if (possibleElevation != null) ElevationEntry.UserText = possibleElevation.Value.ToString("F2");
+        if (possibleElevation != null) ElevationEntry!.UserText = possibleElevation.Value.ToString("F2");
     }
 
     private void LatitudeLongitudeChangeBroadcast()
     {
-        if (_broadcastLatLongChange && !LatitudeEntry.HasValidationIssues && !LongitudeEntry.HasValidationIssues)
+        if (_broadcastLatLongChange && !LatitudeEntry!.HasValidationIssues && !LongitudeEntry!.HasValidationIssues)
             RaisePointLatitudeLongitudeChange?.Invoke(this,
                 new PointLatitudeLongitudeChange(LatitudeEntry.UserValue, LongitudeEntry.UserValue));
     }
@@ -221,7 +212,7 @@ public partial class PointContentEditorContext : ObservableObject, IHasChanges, 
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        if (DbEntry == null || DbEntry.Id < 1)
+        if (DbEntry.Id < 1)
         {
             StatusContext.ToastError("Sorry - please save before getting link...");
             return;
@@ -240,19 +231,10 @@ public partial class PointContentEditorContext : ObservableObject, IHasChanges, 
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        var created = DateTime.Now;
+        DbEntry = NewContentModels.InitializePointContent(toLoad);
 
-        DbEntry = toLoad ?? new PointContent
-        {
-            BodyContentFormat = UserSettingsUtilities.DefaultContentFormatChoice(),
-            UpdateNotesFormat = UserSettingsUtilities.DefaultContentFormatChoice(),
-            Latitude = UserSettingsSingleton.CurrentSettings().LatitudeDefault,
-            Longitude = UserSettingsSingleton.CurrentSettings().LongitudeDefault,
-            CreatedOn = created,
-            FeedOn = created
-        };
-
-        TitleSummarySlugFolder = await TitleSummarySlugEditorContext.CreateInstance(StatusContext, DbEntry, null, null, null);
+        TitleSummarySlugFolder =
+            await TitleSummarySlugEditorContext.CreateInstance(StatusContext, DbEntry, null, null, null);
         CreatedUpdatedDisplay = await CreatedAndUpdatedByAndOnDisplayContext.CreateInstance(StatusContext, DbEntry);
         MainSiteFeed = await ContentSiteFeedAndIsDraftContext.CreateInstance(StatusContext, DbEntry);
         ContentId = await ContentIdViewerControlContext.CreateInstance(StatusContext, DbEntry);
@@ -265,10 +247,11 @@ public partial class PointContentEditorContext : ObservableObject, IHasChanges, 
         MapLabelContent.HelpText =
             "This text will be used to identify the point on a map. A very short string is likely best...";
         MapLabelContent.ReferenceValue = DbEntry.MapLabel ?? string.Empty;
-        MapLabelContent.UserValue = StringTools.NullToEmptyTrim(DbEntry?.MapLabel);
+        MapLabelContent.UserValue = StringTools.NullToEmptyTrim(DbEntry.MapLabel);
 
         ElevationEntry =
-            await ConversionDataEntryContext<double?>.CreateInstance(ConversionDataEntryHelpers.DoubleNullableConversion);
+            await ConversionDataEntryContext<double?>.CreateInstance(
+                ConversionDataEntryHelpers.DoubleNullableConversion);
         ElevationEntry.ValidationFunctions = new List<Func<double?, Task<IsValid>>>
         {
             CommonContentValidation.ElevationValidation
@@ -279,7 +262,8 @@ public partial class PointContentEditorContext : ObservableObject, IHasChanges, 
         ElevationEntry.ReferenceValue = DbEntry.Elevation;
         ElevationEntry.UserText = DbEntry.Elevation?.ToString("F2") ?? string.Empty;
 
-        LatitudeEntry = await ConversionDataEntryContext<double>.CreateInstance(ConversionDataEntryHelpers.DoubleConversion);
+        LatitudeEntry =
+            await ConversionDataEntryContext<double>.CreateInstance(ConversionDataEntryHelpers.DoubleConversion);
         LatitudeEntry.ValidationFunctions = new List<Func<double, Task<IsValid>>>
         {
             CommonContentValidation.LatitudeValidation
@@ -295,7 +279,8 @@ public partial class PointContentEditorContext : ObservableObject, IHasChanges, 
             if (args.PropertyName == nameof(LatitudeEntry.UserValue)) LatitudeLongitudeChangeBroadcast();
         };
 
-        LongitudeEntry = await ConversionDataEntryContext<double>.CreateInstance(ConversionDataEntryHelpers.DoubleConversion);
+        LongitudeEntry =
+            await ConversionDataEntryContext<double>.CreateInstance(ConversionDataEntryHelpers.DoubleConversion);
         LongitudeEntry.ValidationFunctions = new List<Func<double, Task<IsValid>>>
         {
             CommonContentValidation.LongitudeValidation
@@ -313,6 +298,11 @@ public partial class PointContentEditorContext : ObservableObject, IHasChanges, 
 
         PointDetails = await PointDetailListContext.CreateInstance(StatusContext, DbEntry);
 
+        HelpContext = new HelpDisplayContext(new List<string>
+        {
+            CommonFields.TitleSlugFolderSummary, BracketCodeHelpMarkdown.HelpBlock
+        });
+
         PropertyScanners.SubscribeToChildHasChangesAndHasValidationIssues(this, CheckForChangesAndValidationIssues);
     }
 
@@ -328,8 +318,8 @@ public partial class PointContentEditorContext : ObservableObject, IHasChanges, 
     {
         _broadcastLatLongChange = false;
 
-        LatitudeEntry.UserText = e.Latitude.ToString("F6");
-        LongitudeEntry.UserText = e.Longitude.ToString("F6");
+        LatitudeEntry!.UserText = e.Latitude.ToString("F6");
+        LongitudeEntry!.UserText = e.Longitude.ToString("F6");
 
         _broadcastLatLongChange = true;
     }
@@ -364,7 +354,7 @@ public partial class PointContentEditorContext : ObservableObject, IHasChanges, 
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        if (DbEntry == null || DbEntry.Id < 1)
+        if (DbEntry.Id < 1)
         {
             StatusContext.ToastError("Please save the content first...");
             return;

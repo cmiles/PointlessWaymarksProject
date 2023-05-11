@@ -14,10 +14,15 @@ public partial class PostListListItem : ObservableObject, IContentListItem, ICon
     [ObservableProperty] private bool _showType;
     [ObservableProperty] private string? _smallImageUrl;
 
-    public PostListListItem(PostContentActions itemActions)
+    private PostListListItem(PostContentActions itemActions, PostContent dbEntry)
     {
-        _dbEntry = PostContent.CreateInstance();
+        _dbEntry = dbEntry;
         _itemActions = itemActions;
+    }
+
+    public static Task<PostListListItem> CreateInstance(PostContentActions itemActions)
+    {
+        return Task.FromResult(new PostListListItem(itemActions, PostContent.CreateInstance()));
     }
 
     public IContentCommon Content()

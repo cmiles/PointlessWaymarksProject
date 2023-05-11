@@ -211,14 +211,13 @@ public partial class PointContentActions : ObservableObject, IContentActions<Poi
         historicView.WriteHtmlToTempFolderAndShow(StatusContext.ProgressTracker());
     }
 
-    public static PointListListItem ListItemFromDbItem(PointContent content, PointContentActions itemActions,
+    public static async Task<PointListListItem> ListItemFromDbItem(PointContent content, PointContentActions itemActions,
         bool showType)
     {
-        return new PointListListItem(itemActions)
-        {
-            DbEntry = content,
-            SmallImageUrl = ContentListContext.GetSmallImageUrl(content),
-            ShowType = showType
-        };
+        var item = await PointListListItem.CreateInstance(itemActions);
+        item.DbEntry = content;
+        item.SmallImageUrl = ContentListContext.GetSmallImageUrl(content);
+        item.ShowType = showType;
+        return item;
     }
 }

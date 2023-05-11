@@ -6,6 +6,7 @@ using CommunityToolkit.Mvvm.Input;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.Content;
+using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsWpfControls.BodyContentEditor;
 using PointlessWaymarks.CmsWpfControls.ContentFolder;
@@ -25,51 +26,44 @@ using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 
 namespace PointlessWaymarks.CmsWpfControls.NoteContentEditor;
 
-public partial class NoteContentEditorContext : ObservableObject, IHasChanges, IHasValidationIssues, ICheckForChangesAndValidation
+public partial class NoteContentEditorContext : ObservableObject, IHasChanges, IHasValidationIssues,
+    ICheckForChangesAndValidation
 {
-    [ObservableProperty] private BodyContentEditorContext _bodyContent;
-    [ObservableProperty] private ContentIdViewerControlContext _contentId;
-    [ObservableProperty] private CreatedAndUpdatedByAndOnDisplayContext _createdUpdatedDisplay;
+    [ObservableProperty] private BodyContentEditorContext? _bodyContent;
+    [ObservableProperty] private ContentIdViewerControlContext? _contentId;
+    [ObservableProperty] private CreatedAndUpdatedByAndOnDisplayContext? _createdUpdatedDisplay;
     [ObservableProperty] private NoteContent _dbEntry;
     [ObservableProperty] private RelayCommand _extractNewLinksCommand;
-    [ObservableProperty] private ContentFolderContext _folderEntry;
+    [ObservableProperty] private ContentFolderContext? _folderEntry;
     [ObservableProperty] private bool _hasChanges;
     [ObservableProperty] private bool _hasValidationIssues;
-    [ObservableProperty] private HelpDisplayContext _helpContext;
+    [ObservableProperty] private HelpDisplayContext? _helpContext;
     [ObservableProperty] private RelayCommand _linkToClipboardCommand;
-    [ObservableProperty] private ContentSiteFeedAndIsDraftContext _mainSiteFeed;
+    [ObservableProperty] private ContentSiteFeedAndIsDraftContext? _mainSiteFeed;
     [ObservableProperty] private RelayCommand _saveAndCloseCommand;
     [ObservableProperty] private RelayCommand _saveCommand;
-    [ObservableProperty] private string _slug;
     [ObservableProperty] private StatusControlContext _statusContext;
-    [ObservableProperty] private StringDataEntryContext _summary;
-    [ObservableProperty] private TagsEditorContext _tagEdit;
+    [ObservableProperty] private StringDataEntryContext? _summary;
+    [ObservableProperty] private TagsEditorContext? _tagEdit;
     [ObservableProperty] private RelayCommand _viewOnSiteCommand;
 
     public EventHandler? RequestContentEditorWindowClose;
 
-    private NoteContentEditorContext(StatusControlContext statusContext)
+    private NoteContentEditorContext(StatusControlContext statusContext, NoteContent dbEntry)
     {
-        StatusContext = statusContext ?? new StatusControlContext();
+        _statusContext = statusContext;
 
         PropertyChanged += OnPropertyChanged;
 
-        SaveCommand = StatusContext.RunBlockingTaskCommand(async () => await SaveAndGenerateHtml(false));
-        SaveAndCloseCommand = StatusContext.RunBlockingTaskCommand(async () => await SaveAndGenerateHtml(true));
-        ViewOnSiteCommand = StatusContext.RunBlockingTaskCommand(ViewOnSite);
-        ExtractNewLinksCommand = StatusContext.RunBlockingTaskCommand(() =>
-            LinkExtraction.ExtractNewAndShowLinkContentEditors(BodyContent.BodyContent,
+        _saveCommand = StatusContext.RunBlockingTaskCommand(async () => await SaveAndGenerateHtml(false));
+        _saveAndCloseCommand = StatusContext.RunBlockingTaskCommand(async () => await SaveAndGenerateHtml(true));
+        _viewOnSiteCommand = StatusContext.RunBlockingTaskCommand(ViewOnSite);
+        _extractNewLinksCommand = StatusContext.RunBlockingTaskCommand(() =>
+            LinkExtraction.ExtractNewAndShowLinkContentEditors(BodyContent!.BodyContent,
                 StatusContext.ProgressTracker()));
-        LinkToClipboardCommand = StatusContext.RunBlockingTaskCommand(LinkToClipboard);
+        _linkToClipboardCommand = StatusContext.RunBlockingTaskCommand(LinkToClipboard);
 
-
-        HelpContext = new HelpDisplayContext(new List<string>
-        {
-            NoteEditorHelpText,
-            CommonFields.SummaryFieldBlock,
-            CommonFields.FolderFieldBlock,
-            BracketCodeHelpMarkdown.HelpBlock
-        });
+        _dbEntry = dbEntry;
     }
 
     public string NoteEditorHelpText =>
@@ -85,42 +79,35 @@ Note Content is like a simplified Post - no title and slug to edit or maintain a
         HasValidationIssues = PropertyScanners.ChildPropertiesHaveValidationIssues(this);
     }
 
-    public static async Task<NoteContentEditorContext> CreateInstance(StatusControlContext statusContext,
+    public static async Task<NoteContentEditorContext> CreateInstance(StatusControlContext? statusContext,
         NoteContent noteContent)
     {
-        var newControl = new NoteContentEditorContext(statusContext);
+        var newControl = new NoteContentEditorContext(statusContext ?? new StatusControlContext(),
+            await NewContentModels.InitializeNoteContent(noteContent));
         await newControl.LoadData(noteContent);
         return newControl;
     }
 
-    private NoteContent CurrentStateToFileContent()
+    private async Task<NoteContent> CurrentStateToFileContent()
     {
-        var newEntry = new NoteContent();
+        var newEntry = await NoteContent.CreateInstance();
 
-        if (DbEntry == null || DbEntry.Id < 1)
+        if (DbEntry.Id > 0)
         {
-            newEntry.ContentId = Guid.NewGuid();
-            newEntry.Slug = NoteGenerator.UniqueNoteSlug().Result;
-            newEntry.CreatedOn = DbEntry?.CreatedOn ?? DateTime.Now;
-            if (newEntry.CreatedOn == DateTime.MinValue) newEntry.CreatedOn = DateTime.Now;
-        }
-        else
-        {
-            newEntry.Slug = Slug.TrimNullToEmpty();
             newEntry.ContentId = DbEntry.ContentId;
             newEntry.CreatedOn = DbEntry.CreatedOn;
             newEntry.LastUpdatedOn = DateTime.Now;
-            newEntry.LastUpdatedBy = CreatedUpdatedDisplay.UpdatedByEntry.UserValue.TrimNullToEmpty();
+            newEntry.LastUpdatedBy = CreatedUpdatedDisplay!.UpdatedByEntry.UserValue.TrimNullToEmpty();
         }
 
-        newEntry.Folder = FolderEntry.UserValue.TrimNullToEmpty();
-        newEntry.Summary = Summary.UserValue.TrimNullToEmpty();
-        newEntry.ShowInMainSiteFeed = MainSiteFeed.ShowInMainSiteFeedEntry.UserValue;
+        newEntry.Folder = FolderEntry!.UserValue.TrimNullToEmpty();
+        newEntry.Summary = Summary!.UserValue.TrimNullToEmpty();
+        newEntry.ShowInMainSiteFeed = MainSiteFeed!.ShowInMainSiteFeedEntry.UserValue;
         newEntry.FeedOn = MainSiteFeed.FeedOnEntry.UserValue;
         newEntry.IsDraft = MainSiteFeed.IsDraftEntry.UserValue;
-        newEntry.Tags = TagEdit.TagListString();
-        newEntry.CreatedBy = CreatedUpdatedDisplay.CreatedByEntry.UserValue.TrimNullToEmpty();
-        newEntry.BodyContent = BodyContent.BodyContent.TrimNullToEmpty();
+        newEntry.Tags = TagEdit!.TagListString();
+        newEntry.CreatedBy = CreatedUpdatedDisplay!.CreatedByEntry.UserValue.TrimNullToEmpty();
+        newEntry.BodyContent = BodyContent!.BodyContent.TrimNullToEmpty();
         newEntry.BodyContentFormat = BodyContent.BodyContentFormat.SelectedContentFormatAsString;
 
         return newEntry;
@@ -130,7 +117,7 @@ Note Content is like a simplified Post - no title and slug to edit or maintain a
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        if (DbEntry == null || DbEntry.Id < 1)
+        if (DbEntry.Id < 1)
         {
             StatusContext.ToastError("Sorry - please save before getting link...");
             return;
@@ -149,15 +136,7 @@ Note Content is like a simplified Post - no title and slug to edit or maintain a
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        var created = DateTime.Now;
-
-        DbEntry = toLoad ?? new NoteContent
-        {
-            BodyContentFormat = UserSettingsUtilities.DefaultContentFormatChoice(),
-            Slug = await NoteGenerator.UniqueNoteSlug(),
-            CreatedOn = created,
-            FeedOn = created
-        };
+        DbEntry = await NewContentModels.InitializeNoteContent(toLoad);
 
         FolderEntry = await ContentFolderContext.CreateInstance(StatusContext, DbEntry);
         Summary = await StringDataEntryTypes.CreateSummaryInstance(DbEntry);
@@ -166,7 +145,14 @@ Note Content is like a simplified Post - no title and slug to edit or maintain a
         ContentId = await ContentIdViewerControlContext.CreateInstance(StatusContext, DbEntry);
         TagEdit = await TagsEditorContext.CreateInstance(StatusContext, DbEntry);
         BodyContent = await BodyContentEditorContext.CreateInstance(StatusContext, DbEntry);
-        Slug = DbEntry.Slug;
+
+        HelpContext = new HelpDisplayContext(new List<string>
+        {
+            NoteEditorHelpText,
+            CommonFields.SummaryFieldBlock,
+            CommonFields.FolderFieldBlock,
+            BracketCodeHelpMarkdown.HelpBlock
+        });
 
         PropertyScanners.SubscribeToChildHasChangesAndHasValidationIssues(this, CheckForChangesAndValidationIssues);
     }
@@ -183,7 +169,7 @@ Note Content is like a simplified Post - no title and slug to edit or maintain a
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        var (generationReturn, newContent) = await NoteGenerator.SaveAndGenerateHtml(CurrentStateToFileContent(),
+        var (generationReturn, newContent) = await NoteGenerator.SaveAndGenerateHtml(await CurrentStateToFileContent(),
             null, StatusContext.ProgressTracker());
 
         if (generationReturn.HasError || newContent == null)
@@ -206,7 +192,7 @@ Note Content is like a simplified Post - no title and slug to edit or maintain a
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        if (DbEntry == null || DbEntry.Id < 1)
+        if (DbEntry.Id < 1)
         {
             StatusContext.ToastError("Please save the content first...");
             return;

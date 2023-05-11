@@ -15,10 +15,15 @@ public partial class ImageListListItem : ObservableObject, IContentListItem, ICo
     [ObservableProperty] private bool _showType;
     [ObservableProperty] private string? _smallImageUrl;
 
-    public ImageListListItem(ImageContentActions itemActions)
+    private ImageListListItem(ImageContentActions itemActions, ImageContent dbEntry)
     {
-        _dbEntry = ImageContent.CreateInstance();
+        _dbEntry = dbEntry;
         _itemActions = itemActions;
+    }
+
+    public static Task<ImageListListItem> CreateInstance(ImageContentActions itemActions)
+    {
+        return Task.FromResult(new ImageListListItem(itemActions, ImageContent.CreateInstance()));
     }
 
     public IContentCommon Content()

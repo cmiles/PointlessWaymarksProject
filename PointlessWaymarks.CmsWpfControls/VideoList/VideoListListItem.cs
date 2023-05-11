@@ -8,15 +8,21 @@ namespace PointlessWaymarks.CmsWpfControls.VideoList;
 
 public partial class VideoListListItem : ObservableObject, IContentListItem, IContentListSmallImage
 {
-    [ObservableProperty] private VideoContent _dbEntry = new();
+    [ObservableProperty] private VideoContent _dbEntry;
     [ObservableProperty] private VideoContentActions _itemActions;
     [ObservableProperty] private CurrentSelectedTextTracker _selectedTextTracker = new();
     [ObservableProperty] private bool _showType;
     [ObservableProperty] private string? _smallImageUrl;
 
-    public VideoListListItem(VideoContentActions itemActions)
+    private VideoListListItem(VideoContentActions itemActions, VideoContent dbEntry)
     {
+        _dbEntry = dbEntry;
         _itemActions = itemActions;
+    }
+
+    public static Task<VideoListListItem> CreateInstance(VideoContentActions itemActions)
+    {
+        return Task.FromResult(new VideoListListItem(itemActions, VideoContent.CreateInstance()));
     }
 
     public IContentCommon Content()

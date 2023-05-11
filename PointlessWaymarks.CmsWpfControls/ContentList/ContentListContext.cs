@@ -404,7 +404,11 @@ public partial class ContentListContext : ObservableObject, IDragSource, IDropTa
 
                 await ThreadSwitcher.ResumeForegroundAsync();
 
-                Items.Add(ListItemFromDbItem(loopItem)!);
+                var listItem = await ListItemFromDbItem(loopItem);
+
+                if (listItem == null) continue;
+
+                Items.Add(listItem);
 
                 await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -631,24 +635,24 @@ public partial class ContentListContext : ObservableObject, IDragSource, IDropTa
         return smallImageUrl;
     }
 
-    public IContentListItem? ListItemFromDbItem(object? dbItem)
+    public async Task<IContentListItem?> ListItemFromDbItem(object? dbItem)
     {
         //!!Content List
         return dbItem switch
         {
-            FileContent f => FileContentActions.ListItemFromDbItem(f, FileItemActions, ContentListLoader.ShowType),
-            GeoJsonContent g => GeoJsonContentActions.ListItemFromDbItem(g, GeoJsonItemActions,
+            FileContent f => await FileContentActions.ListItemFromDbItem(f, FileItemActions, ContentListLoader.ShowType),
+            GeoJsonContent g => await GeoJsonContentActions.ListItemFromDbItem(g, GeoJsonItemActions,
                 ContentListLoader.ShowType),
-            ImageContent g => ImageContentActions.ListItemFromDbItem(g, ImageItemActions, ContentListLoader.ShowType),
-            LineContent l => LineContentActions.ListItemFromDbItem(l, LineItemActions, ContentListLoader.ShowType),
-            LinkContent k => LinkContentActions.ListItemFromDbItem(k, LinkItemActions, ContentListLoader.ShowType),
-            MapComponent m => MapComponentContentActions.ListItemFromDbItem(m, MapComponentItemActions,
+            ImageContent g => await ImageContentActions.ListItemFromDbItem(g, ImageItemActions, ContentListLoader.ShowType),
+            LineContent l => await LineContentActions.ListItemFromDbItem(l, LineItemActions, ContentListLoader.ShowType),
+            LinkContent k => await LinkContentActions.ListItemFromDbItem(k, LinkItemActions, ContentListLoader.ShowType),
+            MapComponent m => await MapComponentContentActions.ListItemFromDbItem(m, MapComponentItemActions,
                 ContentListLoader.ShowType),
-            NoteContent n => NoteContentActions.ListItemFromDbItem(n, NoteItemActions, ContentListLoader.ShowType),
-            PhotoContent ph => PhotoContentActions.ListItemFromDbItem(ph, PhotoItemActions, ContentListLoader.ShowType),
-            PointContent pt => PointContentActions.ListItemFromDbItem(pt, PointItemActions, ContentListLoader.ShowType),
-            PostContent po => PostContentActions.ListItemFromDbItem(po, PostItemActions, ContentListLoader.ShowType),
-            VideoContent v => VideoContentActions.ListItemFromDbItem(v, VideoItemActions, ContentListLoader.ShowType),
+            NoteContent n => await NoteContentActions.ListItemFromDbItem(n, NoteItemActions, ContentListLoader.ShowType),
+            PhotoContent ph => await PhotoContentActions.ListItemFromDbItem(ph, PhotoItemActions, ContentListLoader.ShowType),
+            PointContent pt => await PointContentActions.ListItemFromDbItem(pt, PointItemActions, ContentListLoader.ShowType),
+            PostContent po => await PostContentActions.ListItemFromDbItem(po, PostItemActions, ContentListLoader.ShowType),
+            VideoContent v => await VideoContentActions.ListItemFromDbItem(v, VideoItemActions, ContentListLoader.ShowType),
             _ => null
         };
     }
@@ -671,14 +675,18 @@ public partial class ContentListContext : ObservableObject, IDragSource, IDropTa
 
         var loopCounter = 0;
 
-        Parallel.ForEach(dbItems, loopDbItem =>
+        await Parallel.ForEachAsync(dbItems,async (loopDbItem , _) =>
         {
             Interlocked.Increment(ref loopCounter);
 
             if (loopCounter % 250 == 0)
                 StatusContext.Progress($"Created List Item {loopCounter} of {dbItems.Count}");
 
-            contentListItems.Add(ListItemFromDbItem(loopDbItem)!);
+            var listItem = await ListItemFromDbItem(loopDbItem);
+
+            if(listItem == null) return;
+
+            contentListItems.Add(listItem);
         });
 
         await ThreadSwitcher.ResumeForegroundAsync();

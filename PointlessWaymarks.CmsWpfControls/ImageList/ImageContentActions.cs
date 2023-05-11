@@ -207,15 +207,14 @@ public partial class ImageContentActions : ObservableObject, IContentActions<Ima
         historicView.WriteHtmlToTempFolderAndShow(StatusContext.ProgressTracker());
     }
 
-    public static ImageListListItem ListItemFromDbItem(ImageContent content, ImageContentActions itemActions,
+    public static async Task<ImageListListItem> ListItemFromDbItem(ImageContent content, ImageContentActions itemActions,
         bool showType)
     {
-        return new(itemActions)
-        {
-            DbEntry = content,
-            SmallImageUrl = ContentListContext.GetSmallImageUrl(content),
-            ShowType = showType
-        };
+        var item = await ImageListListItem.CreateInstance(itemActions);
+        item.DbEntry = content;
+        item.SmallImageUrl = ContentListContext.GetSmallImageUrl(content);
+        item.ShowType = showType;
+        return item;
     }
 
     public async Task ViewFile(ImageContent? listItem)

@@ -223,15 +223,14 @@ public partial class LineContentActions : ObservableObject, IContentActions<Line
         Process.Start(ps);
     }
 
-    public static LineListListItem ListItemFromDbItem(LineContent content, LineContentActions itemActions,
+    public static async Task<LineListListItem> ListItemFromDbItem(LineContent content, LineContentActions itemActions,
         bool showType)
     {
-        return new LineListListItem(itemActions)
-        {
-            DbEntry = content,
-            SmallImageUrl = ContentListContext.GetSmallImageUrl(content),
-            ShowType = showType
-        };
+        var item = await LineListListItem.CreateInstance(itemActions);
+        item.DbEntry = content;
+        item.SmallImageUrl = ContentListContext.GetSmallImageUrl(content);
+        item.ShowType = showType;
+        return item;
     }
 
     public async Task<List<object>> SearchRecordedDatesForPhotoContent(LineContent? content)

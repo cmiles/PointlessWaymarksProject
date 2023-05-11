@@ -14,10 +14,15 @@ public partial class LinkListListItem : ObservableObject, IContentListItem
     [ObservableProperty] private CurrentSelectedTextTracker _selectedTextTracker = new();
     [ObservableProperty] private bool _showType;
 
-    public LinkListListItem(LinkContentActions itemActions)
+    private LinkListListItem(LinkContentActions itemActions, LinkContent dbEntry)
     {
-        _dbEntry = LinkContent.CreateInstance();
+        _dbEntry = dbEntry;
         _itemActions = itemActions;
+    }
+
+    public static Task<LinkListListItem> CreateInstance(LinkContentActions itemActions)
+    {
+        return Task.FromResult(new LinkListListItem(itemActions, LinkContent.CreateInstance()));
     }
 
     public IContentCommon Content()
