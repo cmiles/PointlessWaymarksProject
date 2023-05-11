@@ -10,14 +10,19 @@ public class MapComponent : IContentId, ICreatedAndLastUpdateOnAndBy, IUpdateNot
     public double InitialViewBoundsMinLongitude { get; set; }
     public string? Summary { get; set; }
     public string? Title { get; set; }
-    public Guid ContentId { get; set; }
-    public DateTime ContentVersion { get; set; }
+    public required Guid ContentId { get; set; }
+    public required DateTime ContentVersion { get; set; }
     public int Id { get; set; }
     public string? CreatedBy { get; set; }
-    public DateTime CreatedOn { get; set; }
+    public required DateTime CreatedOn { get; set; }
     public string? LastUpdatedBy { get; set; }
     public DateTime? LastUpdatedOn { get; set; }
     [NotMapped] public DateTime LatestUpdate => LastUpdatedOn ?? CreatedOn;
     public string? UpdateNotes { get; set; }
     public string? UpdateNotesFormat { get; set; }
+
+    public static MapComponent CreateInstance()
+    {
+        return NewContentModels.InitializeMapComponent(null);
+    }
 }

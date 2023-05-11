@@ -7,13 +7,14 @@ namespace PointlessWaymarks.CmsWpfControls.MapComponentList;
 
 public partial class MapComponentListListItem : ObservableObject, IContentListItem
 {
-    [ObservableProperty] private MapComponent _dbEntry = new();
+    [ObservableProperty] private MapComponent _dbEntry;
     [ObservableProperty] private MapComponentContentActions _itemActions;
     [ObservableProperty] private CurrentSelectedTextTracker _selectedTextTracker = new();
     [ObservableProperty] private bool _showType;
 
     public MapComponentListListItem(MapComponentContentActions itemActions)
     {
+        _dbEntry = MapComponent.CreateInstance();
         _itemActions = itemActions;
     }
 

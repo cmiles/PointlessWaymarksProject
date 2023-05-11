@@ -5,9 +5,9 @@ using System.IO;
 using System.Text.RegularExpressions;
 using System.Windows.Data;
 using System.Windows.Threading;
-using Microsoft.EntityFrameworkCore;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Microsoft.EntityFrameworkCore;
 using Ookii.Dialogs.Wpf;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.Content;
@@ -291,15 +291,15 @@ public partial class WordPressXmlImportContext : ObservableObject
 
             var possibleLink = possibleLinkMatch.Success ? possibleLinkMatch.Value : string.Empty;
 
-            var newPost = new LinkContent
-            {
-                Url = possibleLink,
-                Comments = loopItems.Content,
-                CreatedBy = loopItems.CreatedBy,
-                CreatedOn = loopItems.CreatedOn,
-                Tags = loopItems.Tags,
-                Title = loopItems.Title
-            };
+
+            var newPost = LinkContent.CreateInstance();
+
+            newPost.Url = possibleLink;
+            newPost.Comments = loopItems.Content;
+            newPost.CreatedBy = loopItems.CreatedBy;
+            newPost.CreatedOn = loopItems.CreatedOn;
+            newPost.Tags = loopItems.Tags;
+            newPost.Title = loopItems.Title;
 
             await (await LinkContentEditorWindow.CreateInstance(newPost)).PositionWindowAndShowOnUiThread();
         }

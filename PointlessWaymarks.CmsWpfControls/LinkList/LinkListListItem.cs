@@ -8,7 +8,7 @@ namespace PointlessWaymarks.CmsWpfControls.LinkList;
 
 public partial class LinkListListItem : ObservableObject, IContentListItem
 {
-    [ObservableProperty] private LinkContent _dbEntry = new();
+    [ObservableProperty] private LinkContent _dbEntry;
     [ObservableProperty] private LinkContentActions _itemActions;
     [ObservableProperty] private string _linkContentString = string.Empty;
     [ObservableProperty] private CurrentSelectedTextTracker _selectedTextTracker = new();
@@ -16,6 +16,7 @@ public partial class LinkListListItem : ObservableObject, IContentListItem
 
     public LinkListListItem(LinkContentActions itemActions)
     {
+        _dbEntry = LinkContent.CreateInstance();
         _itemActions = itemActions;
     }
 

@@ -569,7 +569,7 @@ public static class ContentImport
         {
             "FILE" => FileContent.CreateInstance(),
             "IMAGE" => ImageContent.CreateInstance(),
-            "LINK" => new LinkContent(),
+            "LINK" => LinkContent.CreateInstance(),
             "NOTE" => new NoteContent(),
             "PHOTO" => PhotoContent.CreateInstance(),
             "POINT" => new PointContentDto(),

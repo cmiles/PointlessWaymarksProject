@@ -218,15 +218,11 @@ public class TestSeries02GrandCanyonPoints
     [Test]
     public async Task M01_GenerateMap()
     {
-        var newMap = new MapComponent
-        {
-            ContentId = Guid.NewGuid(),
-            CreatedBy = "Map Test D01",
-            CreatedOn = DateTime.Now,
-            Title = "Grand Canyon Map",
-            Summary = "Grand Canyon Test Grouping",
-            UpdateNotesFormat = ContentFormatDefaults.Content.ToString()
-        };
+        var newMap = MapComponent.CreateInstance();
+
+        newMap.CreatedBy = "Map Test D01";
+        newMap.Title = "Grand Canyon Map";
+        newMap.Summary = "Grand Canyon Test Grouping";
 
         var db = await Db.Context();
         var piutePoint = await db.PointContents.SingleAsync(x => x.Title == "Piute Point");

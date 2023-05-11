@@ -14,6 +14,7 @@ public static class NewContentModels
             BodyContentFormat = UserSettingsUtilities.DefaultContentFormatChoice(),
             UpdateNotesFormat = UserSettingsUtilities.DefaultContentFormatChoice(),
             CreatedOn = created,
+            CreatedBy = UserSettingsSingleton.CurrentSettings().DefaultCreatedBy,
             FeedOn = created,
             ContentVersion = Db.ContentVersionDateTime()
         };
@@ -32,6 +33,7 @@ public static class NewContentModels
             BodyContentFormat = UserSettingsUtilities.DefaultContentFormatChoice(),
             UpdateNotesFormat = UserSettingsUtilities.DefaultContentFormatChoice(),
             CreatedOn = created,
+            CreatedBy = UserSettingsSingleton.CurrentSettings().DefaultCreatedBy,
             FeedOn = created,
             ContentVersion = Db.ContentVersionDateTime()
         };
@@ -49,6 +51,7 @@ public static class NewContentModels
             BodyContentFormat = UserSettingsUtilities.DefaultContentFormatChoice(),
             UpdateNotesFormat = UserSettingsUtilities.DefaultContentFormatChoice(),
             CreatedOn = created,
+            CreatedBy = UserSettingsSingleton.CurrentSettings().DefaultCreatedBy,
             FeedOn = created,
             ContentVersion = Db.ContentVersionDateTime(),
             ShowImageSizes = UserSettingsSingleton.CurrentSettings().ImagePagesHaveLinksToImageSizesByDefault
@@ -68,6 +71,7 @@ public static class NewContentModels
             BodyContentFormat = UserSettingsUtilities.DefaultContentFormatChoice(),
             UpdateNotesFormat = UserSettingsUtilities.DefaultContentFormatChoice(),
             CreatedOn = created,
+            CreatedBy = UserSettingsSingleton.CurrentSettings().DefaultCreatedBy,
             FeedOn = created,
             ContentVersion = Db.ContentVersionDateTime()
         };
@@ -83,8 +87,25 @@ public static class NewContentModels
         {
             ContentId = Guid.NewGuid(),
             CreatedOn = created,
+            CreatedBy = UserSettingsSingleton.CurrentSettings().DefaultCreatedBy,
             ContentVersion = Db.ContentVersionDateTime(),
             ShowInLinkRss = true
+        };
+
+        return returnEntry;
+    }
+
+    public static MapComponent InitializeMapComponent(MapComponent? dbEntry)
+    {
+        var created = DateTime.Now;
+
+        var returnEntry = dbEntry ?? new MapComponent
+        {
+            ContentId = Guid.NewGuid(),
+            UpdateNotesFormat = UserSettingsUtilities.DefaultContentFormatChoice(),
+            CreatedOn = created,
+            CreatedBy = UserSettingsSingleton.CurrentSettings().DefaultCreatedBy,
+            ContentVersion = Db.ContentVersionDateTime()
         };
 
         return returnEntry;
@@ -100,6 +121,7 @@ public static class NewContentModels
             BodyContentFormat = UserSettingsUtilities.DefaultContentFormatChoice(),
             UpdateNotesFormat = UserSettingsUtilities.DefaultContentFormatChoice(),
             CreatedOn = created,
+            CreatedBy = UserSettingsSingleton.CurrentSettings().DefaultCreatedBy,
             FeedOn = created,
             ContentVersion = Db.ContentVersionDateTime(),
             PhotoCreatedOn = created,
@@ -119,6 +141,7 @@ public static class NewContentModels
             ContentId = Guid.NewGuid(),
             BodyContentFormat = UserSettingsUtilities.DefaultContentFormatChoice(),
             UpdateNotesFormat = UserSettingsUtilities.DefaultContentFormatChoice(),
+            CreatedBy = UserSettingsSingleton.CurrentSettings().DefaultCreatedBy,
             CreatedOn = created,
             FeedOn = created,
             ContentVersion = Db.ContentVersionDateTime()

@@ -37,13 +37,14 @@ using Point = NetTopologySuite.Geometries.Point;
 
 namespace PointlessWaymarks.CmsWpfControls.MapComponentEditor;
 
-public partial class MapComponentEditorContext : ObservableObject, IHasChanges, IHasValidationIssues, ICheckForChangesAndValidation,
+public partial class MapComponentEditorContext : ObservableObject, IHasChanges, IHasValidationIssues,
+    ICheckForChangesAndValidation,
     IDropTarget
 {
     [ObservableProperty] private ContentIdViewerControlContext? _contentId;
     [ObservableProperty] private CreatedAndUpdatedByAndOnDisplayContext? _createdUpdatedDisplay;
     [ObservableProperty] private List<MapElement> _dbElements = new();
-    [ObservableProperty] private MapComponent? _dbEntry;
+    [ObservableProperty] private MapComponent _dbEntry;
     [ObservableProperty] private bool _hasChanges;
     [ObservableProperty] private bool _hasValidationIssues;
     [ObservableProperty] private HelpDisplayContext _helpContext;
@@ -67,7 +68,7 @@ public partial class MapComponentEditorContext : ObservableObject, IHasChanges, 
 
     public EventHandler? RequestContentEditorWindowClose;
 
-    private MapComponentEditorContext(StatusControlContext statusContext)
+    private MapComponentEditorContext(StatusControlContext statusContext, MapComponent dbEntry)
     {
         _statusContext = statusContext;
 
@@ -94,6 +95,8 @@ public partial class MapComponentEditorContext : ObservableObject, IHasChanges, 
 
         _listSort.SortUpdated += (_, list) =>
             Dispatcher.CurrentDispatcher.Invoke(() => { ListContextSortHelpers.SortList(list, MapElements); });
+
+        _dbEntry = dbEntry;
     }
 
     public void CheckForChangesAndValidationIssues()
@@ -221,25 +224,20 @@ public partial class MapComponentEditorContext : ObservableObject, IHasChanges, 
         }
     }
 
-    public static async Task<MapComponentEditorContext> CreateInstance(StatusControlContext statusContext,
+    public static async Task<MapComponentEditorContext> CreateInstance(StatusControlContext? statusContext,
         MapComponent mapComponent)
     {
-        var newControl = new MapComponentEditorContext(statusContext);
+        var newControl = new MapComponentEditorContext(statusContext ?? new StatusControlContext(),
+            NewContentModels.InitializeMapComponent(mapComponent));
         await newControl.LoadData(mapComponent);
         return newControl;
     }
 
     public MapComponentDto CurrentStateToContent()
     {
-        var newEntry = new MapComponent();
+        var newEntry = MapComponent.CreateInstance();
 
-        if (DbEntry == null || DbEntry.Id < 1)
-        {
-            newEntry.ContentId = Guid.NewGuid();
-            newEntry.CreatedOn = DbEntry?.CreatedOn ?? DateTime.Now;
-            if (newEntry.CreatedOn == DateTime.MinValue) newEntry.CreatedOn = DateTime.Now;
-        }
-        else
+        if (DbEntry.Id > 0)
         {
             newEntry.ContentId = DbEntry.ContentId;
             newEntry.CreatedOn = DbEntry.CreatedOn;
@@ -336,18 +334,15 @@ public partial class MapComponentEditorContext : ObservableObject, IHasChanges, 
         }
 
         ((CollectionView)CollectionViewSource.GetDefaultView(MapElements)).Filter = x =>
-        {
-            var element = x as IMapElementListItem;
-            if (element == null) return false;
-            return element.Title.Contains(UserFilterText, StringComparison.CurrentCultureIgnoreCase);
-        };
+            x is IMapElementListItem element &&
+            element.Title.Contains(UserFilterText, StringComparison.CurrentCultureIgnoreCase);
     }
 
     private async Task LinkToClipboard()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        if (DbEntry == null || DbEntry.Id < 1)
+        if (DbEntry.Id < 1)
         {
             StatusContext.ToastError("Sorry - please save before getting link...");
             return;
@@ -366,7 +361,7 @@ public partial class MapComponentEditorContext : ObservableObject, IHasChanges, 
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        DbEntry = toLoad ?? new MapComponent();
+        DbEntry = NewContentModels.InitializeMapComponent(toLoad);
 
         if (DbEntry.Id > 0)
         {
