@@ -45,7 +45,7 @@ public partial class GeoJsonContentActions : ObservableObject, IContentActions<G
 
     public string DefaultBracketCode(GeoJsonContent content)
     {
-        return content?.ContentId == null ? string.Empty : @$"{BracketCodeGeoJson.Create(content)}";
+        return @$"{BracketCodeGeoJson.Create(content)}";
     }
 
     public async Task DefaultBracketCodeToClipboard(GeoJsonContent? content)

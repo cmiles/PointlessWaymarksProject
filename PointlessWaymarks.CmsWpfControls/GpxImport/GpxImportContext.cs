@@ -924,7 +924,7 @@ public partial class GpxImportContext : ObservableObject
             return;
         }
 
-        foreach (var loopItems in SelectedItems)
+        foreach (var loopItems in SelectedItems!)
             loopItems.ReplaceElevationOnImport = !loopItems.ReplaceElevationOnImport;
     }
 
@@ -940,6 +940,6 @@ public partial class GpxImportContext : ObservableObject
             return;
         }
 
-        foreach (var loopItems in SelectedItems) loopItems.MarkedForImport = !loopItems.MarkedForImport;
+        foreach (var loopItems in SelectedItems!) loopItems.MarkedForImport = !loopItems.MarkedForImport;
     }
 }

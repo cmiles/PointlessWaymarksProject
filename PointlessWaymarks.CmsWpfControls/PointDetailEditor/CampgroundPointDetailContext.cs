@@ -1,8 +1,6 @@
 ﻿using System.ComponentModel;
-using System.Runtime.CompilerServices;
 using System.Text.Json;
-using JetBrains.Annotations;
-using PointlessWaymarks.CmsData;
+using CommunityToolkit.Mvvm.ComponentModel;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsData.Database.PointDetailDataModels;
@@ -16,77 +14,28 @@ using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 
 namespace PointlessWaymarks.CmsWpfControls.PointDetailEditor;
 
-public class CampgroundPointDetailContext : IHasChanges, IHasValidationIssues, IPointDetailEditor,
+public partial class CampgroundPointDetailContext : ObservableObject, IHasChanges, IHasValidationIssues,
+    IPointDetailEditor,
     ICheckForChangesAndValidation
 {
-    private PointDetail _dbEntry;
-    private Campground _detailData;
-    private BoolNullableDataEntryContext _feeEditor;
-    private bool _hasChanges;
-    private bool _hasValidationIssues;
-    private StringDataEntryContext _noteEditor;
-    private ContentFormatChooserContext _noteFormatEditor;
-    private StatusControlContext _statusContext;
+    [ObservableProperty] private PointDetail _dbEntry;
+    [ObservableProperty] private Campground _detailData;
+    [ObservableProperty] private BoolNullableDataEntryContext? _feeEditor;
+    [ObservableProperty] private bool _hasChanges;
+    [ObservableProperty] private bool _hasValidationIssues;
+    [ObservableProperty] private StringDataEntryContext? _noteEditor;
+    [ObservableProperty] private ContentFormatChooserContext? _noteFormatEditor;
+    [ObservableProperty] private StatusControlContext _statusContext;
 
-    private CampgroundPointDetailContext(StatusControlContext statusContext)
+    private CampgroundPointDetailContext(StatusControlContext? statusContext)
     {
-        StatusContext = statusContext ?? new StatusControlContext();
+        PropertyChanged += OnPropertyChanged;
+
+        _dbEntry = PointDetail.CreateInstance();
+        _detailData = new Campground();
+        _statusContext = statusContext ?? new StatusControlContext();
     }
 
-    public Campground DetailData
-    {
-        get => _detailData;
-        set
-        {
-            if (Equals(value, _detailData)) return;
-            _detailData = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public BoolNullableDataEntryContext FeeEditor
-    {
-        get => _feeEditor;
-        set
-        {
-            if (Equals(value, _feeEditor)) return;
-            _feeEditor = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public StringDataEntryContext NoteEditor
-    {
-        get => _noteEditor;
-        set
-        {
-            if (Equals(value, _noteEditor)) return;
-            _noteEditor = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public ContentFormatChooserContext NoteFormatEditor
-    {
-        get => _noteFormatEditor;
-        set
-        {
-            if (Equals(value, _noteFormatEditor)) return;
-            _noteFormatEditor = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public StatusControlContext StatusContext
-    {
-        get => _statusContext;
-        set
-        {
-            if (Equals(value, _statusContext)) return;
-            _statusContext = value;
-            OnPropertyChanged();
-        }
-    }
 
     public void CheckForChangesAndValidationIssues()
     {
@@ -94,41 +43,11 @@ public class CampgroundPointDetailContext : IHasChanges, IHasValidationIssues, I
         HasValidationIssues = PropertyScanners.ChildPropertiesHaveValidationIssues(this);
     }
 
-    public bool HasChanges
-    {
-        get => _hasChanges;
-        set
-        {
-            if (value == _hasChanges) return;
-            _hasChanges = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public bool HasValidationIssues
-    {
-        get => _hasValidationIssues;
-        set
-        {
-            if (value == _hasValidationIssues) return;
-            _hasValidationIssues = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public event PropertyChangedEventHandler? PropertyChanged;
-
     public PointDetail CurrentPointDetail()
     {
-        var newEntry = new PointDetail();
+        var newEntry = PointDetail.CreateInstance();
 
-        if (DbEntry == null || DbEntry.Id < 1)
-        {
-            newEntry.ContentId = Guid.NewGuid();
-            newEntry.CreatedOn = DbEntry?.CreatedOn ?? DateTime.Now;
-            if (newEntry.CreatedOn == DateTime.MinValue) newEntry.CreatedOn = DateTime.Now;
-        }
-        else
+        if (DbEntry.Id > 0)
         {
             newEntry.ContentId = DbEntry.ContentId;
             newEntry.CreatedOn = DbEntry.CreatedOn;
@@ -139,8 +58,8 @@ public class CampgroundPointDetailContext : IHasChanges, IHasValidationIssues, I
 
         var detailData = new Campground
         {
-            Notes = NoteEditor.UserValue.TrimNullToEmpty(),
-            NotesContentFormat = NoteFormatEditor.SelectedContentFormatAsString
+            Notes = NoteEditor!.UserValue.TrimNullToEmpty(),
+            NotesContentFormat = NoteFormatEditor!.SelectedContentFormatAsString
         };
 
         Db.DefaultPropertyCleanup(detailData);
@@ -150,18 +69,8 @@ public class CampgroundPointDetailContext : IHasChanges, IHasValidationIssues, I
         return newEntry;
     }
 
-    public PointDetail DbEntry
-    {
-        get => _dbEntry;
-        set
-        {
-            if (Equals(value, _dbEntry)) return;
-            _dbEntry = value;
-            OnPropertyChanged();
-        }
-    }
 
-    public static async Task<CampgroundPointDetailContext> CreateInstance(PointDetail detail,
+    public static async Task<CampgroundPointDetailContext> CreateInstance(PointDetail? detail,
         StatusControlContext statusContext)
     {
         var newControl = new CampgroundPointDetailContext(statusContext);
@@ -169,16 +78,18 @@ public class CampgroundPointDetailContext : IHasChanges, IHasValidationIssues, I
         return newControl;
     }
 
-    public async Task LoadData(PointDetail toLoad)
+    public async Task LoadData(PointDetail? toLoad)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        DbEntry = toLoad ?? new PointDetail { DataType = ((dynamic)DetailData).DataTypeIdentifier };
+        DbEntry = toLoad ?? PointDetail.CreateInstance();
+        DbEntry.DataType = DetailData.DataTypeIdentifier;
 
         if (!string.IsNullOrWhiteSpace(DbEntry.StructuredDataAsJson))
-            DetailData = JsonSerializer.Deserialize<Campground>(DbEntry.StructuredDataAsJson);
-
-        DetailData ??= new Campground { NotesContentFormat = UserSettingsUtilities.DefaultContentFormatChoice() };
+        {
+            var deserializedDetailData = JsonSerializer.Deserialize<Campground>(DbEntry.StructuredDataAsJson);
+            if (deserializedDetailData != null) DetailData = deserializedDetailData;
+        }
 
         NoteEditor = StringDataEntryContext.CreateInstance();
         NoteEditor.Title = "Notes";
@@ -199,14 +110,11 @@ public class CampgroundPointDetailContext : IHasChanges, IHasValidationIssues, I
         PropertyScanners.SubscribeToChildHasChangesAndHasValidationIssues(this, CheckForChangesAndValidationIssues);
     }
 
-    [NotifyPropertyChangedInvocator]
-    protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+    private void OnPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        if (string.IsNullOrWhiteSpace(e.PropertyName)) return;
 
-        if (string.IsNullOrWhiteSpace(propertyName)) return;
-
-        if (!propertyName.Contains("HasChanges") && !propertyName.Contains("Validation"))
+        if (!e.PropertyName.Contains("HasChanges") && !e.PropertyName.Contains("Validation"))
             CheckForChangesAndValidationIssues();
     }
 }

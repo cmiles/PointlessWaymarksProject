@@ -14,19 +14,19 @@ namespace PointlessWaymarks.CmsWpfControls.PointContentEditor
         /// </summary>
         /// <param name="latitude"></param>
         /// <param name="longitude"></param>
-        /// <param name="StatusContext"></param>
+        /// <param name="statusContext"></param>
         /// <returns></returns>
         public static async Task<double?> GetElevation(double latitude, double longitude,
-            StatusControlContext StatusContext)
+            StatusControlContext statusContext)
         {
             try
             {
                 var elevationResult = await ElevationService.OpenTopoNedElevation(latitude,
-                    longitude, StatusContext.ProgressTracker());
+                    longitude, statusContext.ProgressTracker());
 
                 if (elevationResult != null)
                 {
-                    StatusContext.ToastSuccess(
+                    statusContext.ToastSuccess(
                         $"Found elevation of {elevationResult} from Open Topo Data - www.opentopodata.org - NED data set");
 
                     return elevationResult.Value;
@@ -40,17 +40,17 @@ namespace PointlessWaymarks.CmsWpfControls.PointContentEditor
             try
             {
                 var elevationResult = await ElevationService.OpenTopoMapZenElevation(latitude,
-                    longitude, StatusContext.ProgressTracker());
+                    longitude, statusContext.ProgressTracker());
 
                 if (elevationResult == null)
                 {
                     Log.Error("Unexpected Null return from an Open Topo Data Mapzen Request to {0}, {1}", latitude,
                         longitude);
-                    StatusContext.ToastError("Elevation Exception - unexpected Null return...");
+                    statusContext.ToastError("Elevation Exception - unexpected Null return...");
                     return null;
                 }
 
-                StatusContext.ToastSuccess(
+                statusContext.ToastSuccess(
                     $"Found elevation of {elevationResult} from Open Topo Data - www.opentopodata.org - Mapzen data set");
 
                 return elevationResult.Value;
@@ -58,10 +58,10 @@ namespace PointlessWaymarks.CmsWpfControls.PointContentEditor
             catch (Exception e)
             {
                 Log.Error(e, "Open Topo Data Mapzen Request for {0}, {1}", latitude, longitude);
-                StatusContext.ToastError($"Elevation Exception - {e.Message}");
+                statusContext.ToastError($"Elevation Exception - {e.Message}");
             }
 
-            StatusContext.ToastError("Elevation - could not get a value...");
+            statusContext.ToastError("Elevation - could not get a value...");
             return null;
         }
     }

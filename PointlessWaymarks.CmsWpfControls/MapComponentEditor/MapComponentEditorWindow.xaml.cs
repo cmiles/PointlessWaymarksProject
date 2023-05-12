@@ -10,10 +10,12 @@ namespace PointlessWaymarks.CmsWpfControls.MapComponentEditor;
 ///     Interaction logic for MapComponentEditorWindow.xaml
 /// </summary>
 [ObservableObject]
+#pragma warning disable MVVMTK0033
 public partial class MapComponentEditorWindow
+#pragma warning restore MVVMTK0033
 {
-    [ObservableProperty] private WindowAccidentalClosureHelper _accidentalCloserHelper;
-    [ObservableProperty] private MapComponentEditorContext _mapComponentContent;
+    [ObservableProperty] private WindowAccidentalClosureHelper? _accidentalCloserHelper;
+    [ObservableProperty] private MapComponentEditorContext? _mapComponentContent;
     [ObservableProperty] private StatusControlContext _statusContext;
 
     /// <summary>

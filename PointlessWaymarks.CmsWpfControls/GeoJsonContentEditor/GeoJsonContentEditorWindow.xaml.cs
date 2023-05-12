@@ -10,10 +10,12 @@ namespace PointlessWaymarks.CmsWpfControls.GeoJsonContentEditor;
 ///     Interaction logic for GeoJsonContentEditorWindow.xaml
 /// </summary>
 [ObservableObject]
+#pragma warning disable MVVMTK0033
 public partial class GeoJsonContentEditorWindow
+#pragma warning restore MVVMTK0033
 {
-    [ObservableProperty] private WindowAccidentalClosureHelper _accidentalCloserHelper;
-    [ObservableProperty] private GeoJsonContentEditorContext _geoJsonContent;
+    [ObservableProperty] private WindowAccidentalClosureHelper? _accidentalCloserHelper;
+    [ObservableProperty] private GeoJsonContentEditorContext? _geoJsonContent;
     [ObservableProperty] private StatusControlContext _statusContext;
 
     /// <summary>

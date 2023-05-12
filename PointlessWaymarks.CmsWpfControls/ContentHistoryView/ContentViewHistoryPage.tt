@@ -1,5 +1,4 @@
 ﻿<#@ template language="C#" #>
-<#@ import namespace="CmsData" #>
 <#@ import namespace="CmsData.CommonHtml" #>
 <#@ import namespace="PointlessWaymarks.CommonTools" #>
 <!DOCTYPE html>

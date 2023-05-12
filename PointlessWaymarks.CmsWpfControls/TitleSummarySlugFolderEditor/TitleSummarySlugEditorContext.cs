@@ -12,8 +12,7 @@ using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 
 namespace PointlessWaymarks.CmsWpfControls.TitleSummarySlugFolderEditor;
 
-[ObservableObject]
-public partial class TitleSummarySlugEditorContext : IHasChanges, IHasValidationIssues, ICheckForChangesAndValidation
+public partial class TitleSummarySlugEditorContext : ObservableObject, IHasChanges, IHasValidationIssues, ICheckForChangesAndValidation
 {
     [ObservableProperty] private Func<TitleSummarySlugEditorContext, bool>? _customTitleCheckToEnable;
     [ObservableProperty] private RelayCommand? _customTitleCommand;

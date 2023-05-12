@@ -2,7 +2,6 @@
 using Amazon.S3.Model;
 using Amazon.S3.Transfer;
 using PointlessWaymarks.CommonTools.S3;
-using System.Threading;
 
 namespace PointlessWaymarks.CommonTools;
 

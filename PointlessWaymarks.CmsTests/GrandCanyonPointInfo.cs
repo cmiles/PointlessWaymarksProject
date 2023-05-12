@@ -34,6 +34,7 @@ public static class GrandCanyonPointInfo
                 new()
                 {
                     ContentId = Guid.NewGuid(),
+                    ContentVersion = Db.ContentVersionDateTime(),
                     PointContentId = YumaPointContentId,
                     CreatedOn = new DateTime(2020, 9, 18, 7, 16, 16),
                     DataType = "Peak",
@@ -70,6 +71,7 @@ public static class GrandCanyonPointInfo
                 new()
                 {
                     ContentId = Guid.NewGuid(),
+                    ContentVersion = Db.ContentVersionDateTime(),
                     CreatedOn = new DateTime(2020, 9, 18, 7, 16, 16),
                     PointContentId = YumaPointContentId,
                     DataType = "Peak",

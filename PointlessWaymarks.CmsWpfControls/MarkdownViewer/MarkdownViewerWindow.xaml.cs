@@ -8,7 +8,9 @@ namespace PointlessWaymarks.CmsWpfControls.MarkdownViewer;
 ///     Interaction logic for MarkdownViewerWindow.xaml
 /// </summary>
 [ObservableObject]
+#pragma warning disable MVVMTK0033
 public partial class MarkdownViewerWindow
+#pragma warning restore MVVMTK0033
 {
     [ObservableProperty] private string _markdownContent = string.Empty;
     [ObservableProperty] private StatusControlContext _statusContext;

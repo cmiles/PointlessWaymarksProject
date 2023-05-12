@@ -10,10 +10,12 @@ namespace PointlessWaymarks.CmsWpfControls.LineContentEditor;
 ///     Interaction logic for LineContentEditorWindow.xaml
 /// </summary>
 [ObservableObject]
+#pragma warning disable MVVMTK0033
 public partial class LineContentEditorWindow
+#pragma warning restore MVVMTK0033
 {
-    [ObservableProperty] private WindowAccidentalClosureHelper _accidentalCloserHelper;
-    [ObservableProperty] private LineContentEditorContext _lineContent;
+    [ObservableProperty] private WindowAccidentalClosureHelper? _accidentalCloserHelper;
+    [ObservableProperty] private LineContentEditorContext? _lineContent;
     [ObservableProperty] private StatusControlContext _statusContext;
 
     /// <summary>

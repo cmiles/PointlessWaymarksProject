@@ -8,11 +8,13 @@ using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 namespace PointlessWaymarks.CmsWpfControls.VideoContentEditor;
 
 [ObservableObject]
+#pragma warning disable MVVMTK0033
 public partial class VideoContentEditorWindow
+#pragma warning restore MVVMTK0033
 {
-    [ObservableProperty] private WindowAccidentalClosureHelper _accidentalCloserHelper;
+    [ObservableProperty] private WindowAccidentalClosureHelper? _accidentalCloserHelper;
     [ObservableProperty] private StatusControlContext _statusContext;
-    [ObservableProperty] private VideoContentEditorContext _videoContent;
+    [ObservableProperty] private VideoContentEditorContext? _videoContent;
 
     /// <summary>
     ///     DO NOT USE - Use CreateInstance instead - using the constructor directly will result in
@@ -21,7 +23,7 @@ public partial class VideoContentEditorWindow
     private VideoContentEditorWindow()
     {
         InitializeComponent();
-        StatusContext = new StatusControlContext();
+        _statusContext = new StatusControlContext();
         DataContext = this;
     }
 
@@ -47,7 +49,8 @@ public partial class VideoContentEditorWindow
             {
                 CloseAction = x =>
                 {
-                    ((VideoContentEditorWindow)x).VideoContent.MainImageExternalEditorWindowCleanup();
+                    var videoContent = x as VideoContentEditorWindow;
+                    videoContent?.VideoContent?.MainImageExternalEditorWindowCleanup();
                 }
             };
 
@@ -76,7 +79,8 @@ public partial class VideoContentEditorWindow
             {
                 CloseAction = x =>
                 {
-                    ((VideoContentEditorWindow)x).VideoContent.MainImageExternalEditorWindowCleanup();
+                    var videoContent = x as VideoContentEditorWindow;
+                    videoContent?.VideoContent?.MainImageExternalEditorWindowCleanup();
                 }
             };
 
@@ -106,7 +110,8 @@ public partial class VideoContentEditorWindow
             {
                 CloseAction = x =>
                 {
-                    ((VideoContentEditorWindow)x).VideoContent.MainImageExternalEditorWindowCleanup();
+                    var videoContent = x as VideoContentEditorWindow;
+                    videoContent?.VideoContent?.MainImageExternalEditorWindowCleanup();
                 }
             };
 

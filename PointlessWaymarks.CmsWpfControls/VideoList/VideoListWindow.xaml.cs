@@ -8,7 +8,7 @@ namespace PointlessWaymarks.CmsWpfControls.VideoList;
 ///     Interaction logic for VideoListWindow.xaml
 /// </summary>
 [ObservableObject]
-public partial class VideoListWindow : Window
+public partial class VideoListWindow
 {
     [ObservableProperty] private VideoListWithActionsContext _listContext;
     [ObservableProperty] private string _windowTitle = "Videos List";

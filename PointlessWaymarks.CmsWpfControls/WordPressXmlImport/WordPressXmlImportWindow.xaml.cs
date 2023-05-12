@@ -9,7 +9,9 @@ namespace PointlessWaymarks.CmsWpfControls.WordPressXmlImport;
 ///     Interaction logic for WordPressXmlImportWindow.xaml
 /// </summary>
 [ObservableObject]
+#pragma warning disable MVVMTK0033
 public partial class WordPressXmlImportWindow
+#pragma warning restore MVVMTK0033
 {
     [ObservableProperty] private WordPressXmlImportContext _importContext;
     [ObservableProperty] private StatusControlContext _statusContext;

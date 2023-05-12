@@ -3,7 +3,6 @@ using Amazon.S3;
 using Amazon.S3.Model;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.S3;
-using TagLib.Ogg;
 
 namespace PointlessWaymarks.CmsWpfControls.Utility.Aws;
 
@@ -73,8 +72,6 @@ public class AwsS3GeneratedSiteComparisonForDeletions
         var awsObjects = new List<S3Object>();
 
         var paginator = s3Client.Paginators.ListObjectsV2(listRequest);
-
-        var loopNumber = 0;
 
         await foreach (var response in paginator.S3Objects)
         {

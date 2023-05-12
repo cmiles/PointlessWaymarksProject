@@ -5,7 +5,6 @@ using Omu.ValueInjecter;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.S3;
 using PointlessWaymarks.CmsWpfControls.ContentList;
-using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 
@@ -128,7 +127,7 @@ public partial class UserSettingsEditorContext : ObservableObject
             return;
         }
 
-        var cleanedKey = newKeyEntry.Item2.TrimNullToEmpty();
+        var cleanedKey = CommonTools.StringTools.TrimNullToEmpty(newKeyEntry.Item2);
 
         if (string.IsNullOrWhiteSpace(cleanedKey)) return;
 
@@ -137,7 +136,7 @@ public partial class UserSettingsEditorContext : ObservableObject
 
         if (!newSecretEntry.Item1) return;
 
-        var cleanedSecret = newSecretEntry.Item2.TrimNullToEmpty();
+        var cleanedSecret = CommonTools.StringTools.TrimNullToEmpty(newSecretEntry.Item2);
 
         if (string.IsNullOrWhiteSpace(cleanedSecret))
         {

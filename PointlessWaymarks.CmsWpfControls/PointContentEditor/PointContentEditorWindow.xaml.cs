@@ -10,10 +10,12 @@ namespace PointlessWaymarks.CmsWpfControls.PointContentEditor;
 ///     Interaction logic for PointContentEditorWindow.xaml
 /// </summary>
 [ObservableObject]
+#pragma warning disable MVVMTK0033
 public partial class PointContentEditorWindow
+#pragma warning restore MVVMTK0033
 {
-    [ObservableProperty] private WindowAccidentalClosureHelper _accidentalCloserHelper;
-    [ObservableProperty] private PointContentEditorContext _pointContent;
+    [ObservableProperty] private WindowAccidentalClosureHelper? _accidentalCloserHelper;
+    [ObservableProperty] private PointContentEditorContext? _pointContent;
     [ObservableProperty] private StatusControlContext _statusContext;
 
     /// <summary>
@@ -23,7 +25,7 @@ public partial class PointContentEditorWindow
     private PointContentEditorWindow()
     {
         InitializeComponent();
-        StatusContext = new StatusControlContext();
+        _statusContext = new StatusControlContext();
         DataContext = this;
     }
 

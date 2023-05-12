@@ -323,8 +323,6 @@ public static class PhotoGenerator
 
         if (generationReturn.HasError) return (generationReturn, null);
 
-        var created = DateTime.Now;
-
         var toReturn = PhotoContent.CreateInstance();
 
         toReturn.InjectFrom(metadata);

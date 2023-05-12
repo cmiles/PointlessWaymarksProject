@@ -8,10 +8,12 @@ using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 namespace PointlessWaymarks.CmsWpfControls.ImageContentEditor;
 
 [ObservableObject]
+#pragma warning disable MVVMTK0033
 public partial class ImageContentEditorWindow
+#pragma warning restore MVVMTK0033
 {
-    [ObservableProperty] private WindowAccidentalClosureHelper _accidentalCloserHelper;
-    [ObservableProperty] private ImageContentEditorContext _imageEditor;
+    [ObservableProperty] private WindowAccidentalClosureHelper? _accidentalCloserHelper;
+    [ObservableProperty] private ImageContentEditorContext? _imageEditor;
     [ObservableProperty] private StatusControlContext _statusContext;
 
     /// <summary>
@@ -48,7 +50,11 @@ public partial class ImageContentEditorWindow
         window.AccidentalCloserHelper =
             new WindowAccidentalClosureHelper(window, window.StatusContext, window.ImageEditor)
             {
-                CloseAction = x => ((ImageContentEditorWindow)x).ImageEditor.Saved = null
+                CloseAction = x =>
+                {
+                    var imageEditor = ((ImageContentEditorWindow)x).ImageEditor;
+                    if (imageEditor != null) imageEditor.Saved = null;
+                }
             };
 
         return window;

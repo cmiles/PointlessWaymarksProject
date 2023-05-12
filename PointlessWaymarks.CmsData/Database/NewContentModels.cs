@@ -188,6 +188,20 @@ public static class NewContentModels
 
         return returnEntry;
     }
+    
+    public static PointDetail InitializePointDetail(PointDetail? dbEntry)
+    {
+        var created = DateTime.Now;
+
+        var returnEntry = dbEntry ?? new PointDetail
+        {
+            ContentId = Guid.NewGuid(),
+            CreatedOn = created,
+            ContentVersion = Db.ContentVersionDateTime()
+        };
+
+        return returnEntry;
+    }
 
     public static VideoContent InitializeVideoContent(VideoContent? dbEntry)
     {

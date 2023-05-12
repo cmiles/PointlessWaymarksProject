@@ -8,10 +8,12 @@ using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 namespace PointlessWaymarks.CmsWpfControls.FileContentEditor;
 
 [ObservableObject]
+#pragma warning disable MVVMTK0033
 public partial class FileContentEditorWindow
+#pragma warning restore MVVMTK0033
 {
-    [ObservableProperty] private WindowAccidentalClosureHelper _accidentalCloserHelper;
-    [ObservableProperty] private FileContentEditorContext _fileContent;
+    [ObservableProperty] private WindowAccidentalClosureHelper? _accidentalCloserHelper;
+    [ObservableProperty] private FileContentEditorContext? _fileContent;
     [ObservableProperty] private StatusControlContext _statusContext;
 
     /// <summary>
@@ -45,7 +47,7 @@ public partial class FileContentEditorWindow
         window.AccidentalCloserHelper =
             new WindowAccidentalClosureHelper(window, window.StatusContext, window.FileContent)
             {
-                CloseAction = x => { ((FileContentEditorWindow)x).FileContent.MainImageExternalEditorWindowCleanup(); }
+                CloseAction = x => { ((FileContentEditorWindow)x).FileContent?.MainImageExternalEditorWindowCleanup(); }
             };
 
         return window;
@@ -71,7 +73,7 @@ public partial class FileContentEditorWindow
         window.AccidentalCloserHelper =
             new WindowAccidentalClosureHelper(window, window.StatusContext, window.FileContent)
             {
-                CloseAction = x => { ((FileContentEditorWindow)x).FileContent.MainImageExternalEditorWindowCleanup(); }
+                CloseAction = x => { ((FileContentEditorWindow)x).FileContent?.MainImageExternalEditorWindowCleanup(); }
             };
 
         return window;
@@ -98,7 +100,7 @@ public partial class FileContentEditorWindow
         window.AccidentalCloserHelper =
             new WindowAccidentalClosureHelper(window, window.StatusContext, window.FileContent)
             {
-                CloseAction = x => { ((FileContentEditorWindow)x).FileContent.MainImageExternalEditorWindowCleanup(); }
+                CloseAction = x => { ((FileContentEditorWindow)x).FileContent?.MainImageExternalEditorWindowCleanup(); }
             };
 
         await ThreadSwitcher.ResumeForegroundAsync();

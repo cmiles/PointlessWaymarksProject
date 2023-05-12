@@ -450,7 +450,7 @@ Notes:
             StatusContext.RunNonBlockingTask(async () =>
                 await TryAddUserMainPicture(imageContext.DbEntry.ContentId));
 
-            if (MainImageExternalEditorWindow != null)
+            if (MainImageExternalEditorWindow?.ImageEditor != null)
                 MainImageExternalEditorWindow.ImageEditor.Saved -= MainImageExternalContextSaved;
 
             MainImageExternalEditorWindowCleanup();
@@ -459,7 +459,7 @@ Notes:
 
     public void MainImageExternalEditorWindowCleanup()
     {
-        if (MainImageExternalEditorWindow == null) return;
+        if (MainImageExternalEditorWindow?.ImageEditor == null) return;
 
         try
         {
@@ -665,7 +665,7 @@ Notes:
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        if (DbEntry == null || DbEntry.Id < 1)
+        if (DbEntry.Id < 1)
         {
             StatusContext.ToastError("Please save the content first...");
             return;

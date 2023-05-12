@@ -463,7 +463,7 @@ Notes:
             StatusContext.RunNonBlockingTask(async () =>
                 await TryAddUserMainPicture(imageContext.DbEntry.ContentId));
 
-            if (MainImageExternalEditorWindow != null)
+            if (MainImageExternalEditorWindow?.ImageEditor != null)
                 MainImageExternalEditorWindow.ImageEditor.Saved -= MainImageExternalContextSaved;
 
             MainImageExternalEditorWindowCleanup();
@@ -485,7 +485,8 @@ Notes:
 
         try
         {
-            MainImageExternalEditorWindow.ImageEditor.Saved -= MainImageExternalContextSaved;
+            if (MainImageExternalEditorWindow?.ImageEditor != null)
+                MainImageExternalEditorWindow.ImageEditor.Saved -= MainImageExternalContextSaved;
         }
         catch (Exception e)
         {
@@ -616,7 +617,8 @@ Notes:
         {
             MainImageExternalEditorWindow = autosaveReturn.editor;
             MainImageExternalEditorWindow.Closed += OnMainImageExternalEditorWindowOnClosed;
-            MainImageExternalEditorWindow.ImageEditor.Saved += MainImageExternalContextSaved;
+            if (MainImageExternalEditorWindow?.ImageEditor != null)
+                MainImageExternalEditorWindow.ImageEditor.Saved += MainImageExternalContextSaved;
         }
     }
 

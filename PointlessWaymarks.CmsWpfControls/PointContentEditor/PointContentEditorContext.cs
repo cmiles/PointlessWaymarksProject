@@ -203,7 +203,7 @@ public partial class PointContentEditorContext : ObservableObject, IHasChanges, 
 
     private void LatitudeLongitudeChangeBroadcast()
     {
-        if (_broadcastLatLongChange && !LatitudeEntry!.HasValidationIssues && !LongitudeEntry!.HasValidationIssues)
+        if (BroadcastLatLongChange && !LatitudeEntry!.HasValidationIssues && !LongitudeEntry!.HasValidationIssues)
             RaisePointLatitudeLongitudeChange?.Invoke(this,
                 new PointLatitudeLongitudeChange(LatitudeEntry.UserValue, LongitudeEntry.UserValue));
     }
@@ -316,12 +316,12 @@ public partial class PointContentEditorContext : ObservableObject, IHasChanges, 
 
     public void OnRaisePointLatitudeLongitudeChange(object? sender, PointLatitudeLongitudeChange e)
     {
-        _broadcastLatLongChange = false;
+        BroadcastLatLongChange = false;
 
         LatitudeEntry!.UserText = e.Latitude.ToString("F6");
         LongitudeEntry!.UserText = e.Longitude.ToString("F6");
 
-        _broadcastLatLongChange = true;
+        BroadcastLatLongChange = true;
     }
 
     public event EventHandler<PointLatitudeLongitudeChange>? RaisePointLatitudeLongitudeChange;

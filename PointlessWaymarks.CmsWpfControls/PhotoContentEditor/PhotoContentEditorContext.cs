@@ -267,7 +267,7 @@ Photo Content Notes:
     }
 
     public static async Task<PhotoContentEditorContext> CreateInstance(StatusControlContext? statusContext,
-        PhotoContent toLoad)
+        PhotoContent? toLoad)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -734,7 +734,7 @@ Photo Content Notes:
         SelectedFileValidationMessage = explanation;
 
         SelectedFileNameHasInvalidCharacters =
-            await CommonContentValidation.FileContentFileFileNameHasInvalidCharacters(SelectedFile, DbEntry?.ContentId);
+            await CommonContentValidation.FileContentFileFileNameHasInvalidCharacters(SelectedFile, DbEntry.ContentId);
 
         if (SelectedFile == null)
         {

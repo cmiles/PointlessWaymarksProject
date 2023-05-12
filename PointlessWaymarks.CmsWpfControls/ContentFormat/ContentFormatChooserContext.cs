@@ -53,7 +53,7 @@ public partial class ContentFormatChooserContext :  ObservableObject, IHasChange
 
     public static async Task<ContentFormatChooserContext> CreateInstance(StatusControlContext statusContext)
     {
-        ThreadSwitcher.ResumeBackgroundAsync();
+        await ThreadSwitcher.ResumeBackgroundAsync();
 
         var toReturn = new ContentFormatChooserContext(statusContext);
         await toReturn.CheckForChangesAndValidationIssues();

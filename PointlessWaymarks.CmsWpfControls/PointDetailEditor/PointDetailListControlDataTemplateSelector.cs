@@ -5,7 +5,7 @@ namespace PointlessWaymarks.CmsWpfControls.PointDetailEditor;
 
 public class PointDetailListControlDataTemplateSelector : DataTemplateSelector
 {
-    public override DataTemplate SelectTemplate(object item, DependencyObject container)
+    public override DataTemplate? SelectTemplate(object item, DependencyObject container)
     {
         if (container is FrameworkElement element)
             switch (item)

@@ -182,7 +182,7 @@ public static class ContentImport
             //
             if (splitList[0].Length <= 10 || !splitList[0].StartsWith("ContentId:"))
             {
-                pointDetail = new PointDetail { ContentId = Guid.NewGuid(), CreatedOn = DateTime.Now };
+                pointDetail = PointDetail.CreateInstance();
             }
             else
             {

@@ -7,10 +7,12 @@ using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 namespace PointlessWaymarks.CmsWpfControls.PostContentEditor;
 
 [ObservableObject]
+#pragma warning disable MVVMTK0033
 public partial class PostContentEditorWindow
+#pragma warning restore MVVMTK0033
 {
-    [ObservableProperty] private WindowAccidentalClosureHelper _accidentalCloserHelper;
-    [ObservableProperty] private PostContentEditorContext _postContent;
+    [ObservableProperty] private WindowAccidentalClosureHelper? _accidentalCloserHelper;
+    [ObservableProperty] private PostContentEditorContext? _postContent;
     [ObservableProperty] private StatusControlContext _statusContext;
 
     /// <summary>
@@ -20,7 +22,7 @@ public partial class PostContentEditorWindow
     private PostContentEditorWindow()
     {
         InitializeComponent();
-        StatusContext = new StatusControlContext();
+        _statusContext = new StatusControlContext();
         DataContext = this;
     }
 
@@ -30,7 +32,7 @@ public partial class PostContentEditorWindow
     /// PositionWindowAndShowOnUiThread() from the WindowInitialPositionHelpers.
     /// </summary>
     /// <returns></returns>
-    public static async Task<PostContentEditorWindow> CreateInstance(PostContent toLoad = null)
+    public static async Task<PostContentEditorWindow> CreateInstance(PostContent? toLoad = null)
     {
         await ThreadSwitcher.ResumeForegroundAsync();
 

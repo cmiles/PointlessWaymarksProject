@@ -7,10 +7,12 @@ using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 namespace PointlessWaymarks.CmsWpfControls.LinkContentEditor;
 
 [ObservableObject]
+#pragma warning disable MVVMTK0033
 public partial class LinkContentEditorWindow
+#pragma warning restore MVVMTK0033
 {
-    [ObservableProperty] private WindowAccidentalClosureHelper _accidentalCloserHelper;
-    [ObservableProperty] private LinkContentEditorContext _linkContent;
+    [ObservableProperty] private WindowAccidentalClosureHelper? _accidentalCloserHelper;
+    [ObservableProperty] private LinkContentEditorContext? _linkContent;
     [ObservableProperty] private StatusControlContext _statusContext;
 
     /// <summary>

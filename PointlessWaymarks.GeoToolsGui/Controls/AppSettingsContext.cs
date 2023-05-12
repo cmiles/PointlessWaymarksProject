@@ -30,7 +30,11 @@ public partial class AppSettingsContext : ObservableObject
             ValidateProgramUpdateLocation();
 
             Settings.ProgramUpdateDirectory = ProgramUpdateLocation;
-            if (!ShowUpdateLocationExistsWarning) GeoToolsGuiSettingTools.WriteSettings(Settings);
+#pragma warning disable CS4014
+            if (!ShowUpdateLocationExistsWarning) 
+                //Allow call to continue without waiting and write settings
+                GeoToolsGuiSettingTools.WriteSettings(Settings);
+#pragma warning restore CS4014
         }
     }
 

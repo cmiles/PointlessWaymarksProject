@@ -10,9 +10,11 @@ namespace PointlessWaymarks.CmsWpfControls.SitePreview;
 ///     Interaction logic for SiteOnDiskPreviewWindow.xaml
 /// </summary>
 [ObservableObject]
+#pragma warning disable MVVMTK0033
 public partial class SiteOnDiskPreviewWindow
+#pragma warning restore MVVMTK0033
 {
-    [ObservableProperty] private SitePreviewContext _previewContext;
+    [ObservableProperty] private SitePreviewContext? _previewContext;
     [ObservableProperty] private StatusControlContext _statusContext;
 
     private SiteOnDiskPreviewWindow()

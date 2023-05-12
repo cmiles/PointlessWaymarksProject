@@ -225,7 +225,7 @@ public partial class MapComponentEditorContext : ObservableObject, IHasChanges, 
     }
 
     public static async Task<MapComponentEditorContext> CreateInstance(StatusControlContext? statusContext,
-        MapComponent mapComponent)
+        MapComponent? mapComponent)
     {
         var newControl = new MapComponentEditorContext(statusContext ?? new StatusControlContext(),
             NewContentModels.InitializeMapComponent(mapComponent));

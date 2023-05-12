@@ -14,7 +14,7 @@ namespace PointlessWaymarks.CmsWpfControls.SitePreview;
 [ObservableObject]
 public partial class SitePreviewControl
 {
-    [ObservableProperty] private SitePreviewContext _previewContext;
+    [ObservableProperty] private SitePreviewContext? _previewContext;
 
     public SitePreviewControl()
     {
@@ -30,6 +30,7 @@ public partial class SitePreviewControl
 
     private void CoreWebView2OnNavigationCompleted(object? sender, CoreWebView2NavigationCompletedEventArgs e)
     {
+        if (PreviewContext == null) return;
         PreviewContext.CurrentDocumentTitle = SitePreviewWebView.CoreWebView2.DocumentTitle.TruncateWithEllipses(24);
     }
 
@@ -42,7 +43,7 @@ public partial class SitePreviewControl
         await ThreadSwitcher.ResumeForegroundAsync();
         // Note this waits until the first page is navigated!
         await SitePreviewWebView.EnsureCoreWebView2Async(env);
-        SitePreviewWebView.CoreWebView2.Navigate(PreviewContext.InitialPage);
+        if (PreviewContext != null) SitePreviewWebView.CoreWebView2.Navigate(PreviewContext.InitialPage);
         SitePreviewWebView.CoreWebView2.NewWindowRequested += CoreWebView2_NewWindowRequested;
         SitePreviewWebView.CoreWebView2.NavigationCompleted += CoreWebView2OnNavigationCompleted;
     }
@@ -67,21 +68,21 @@ public partial class SitePreviewControl
         if (string.IsNullOrEmpty(e.Uri))
         {
             e.Cancel = true;
-            PreviewContext.StatusContext.ToastError("Blank URL for navigation?");
+            PreviewContext!.StatusContext.ToastError("Blank URL for navigation?");
             return;
         }
 
         if (!e.Uri.StartsWith("http", StringComparison.OrdinalIgnoreCase))
         {
             e.Cancel = true;
-            PreviewContext.StatusContext.ToastError("This window only supports http and https (no ftp, etc.)");
+            PreviewContext!.StatusContext.ToastError("This window only supports http and https (no ftp, etc.)");
             return;
         }
 
         //The preview server rewrites html files so that links should point
         //to the localhost preview - this is to catch links loaded by javascript
         //that point to the site and redirect the link to localhost
-        if (e.Uri.Contains(PreviewContext.SiteUrl, StringComparison.CurrentCultureIgnoreCase) &&
+        if (e.Uri.Contains(PreviewContext!.SiteUrl, StringComparison.CurrentCultureIgnoreCase) &&
             !e.Uri.Contains(PreviewContext.PreviewServerHost))
         {
             var rewrittenUrl = e.Uri.Replace("https://", "http://", StringComparison.OrdinalIgnoreCase)
@@ -101,7 +102,7 @@ public partial class SitePreviewControl
         catch (Exception exception)
         {
             e.Cancel = true;
-            PreviewContext.StatusContext.ToastError($"Trouble parsing {e.Uri}? {exception.Message}");
+            PreviewContext?.StatusContext.ToastError($"Trouble parsing {e.Uri}? {exception.Message}");
             return;
         }
 

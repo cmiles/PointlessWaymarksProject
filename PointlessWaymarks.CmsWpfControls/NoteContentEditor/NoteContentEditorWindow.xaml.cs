@@ -10,10 +10,12 @@ namespace PointlessWaymarks.CmsWpfControls.NoteContentEditor;
 ///     Interaction logic for NoteContentEditorWindow.xaml
 /// </summary>
 [ObservableObject]
+#pragma warning disable MVVMTK0033
 public partial class NoteContentEditorWindow
+#pragma warning restore MVVMTK0033
 {
-    [ObservableProperty] private WindowAccidentalClosureHelper _accidentalCloserHelper;
-    [ObservableProperty] private NoteContentEditorContext _noteContent;
+    [ObservableProperty] private WindowAccidentalClosureHelper? _accidentalCloserHelper;
+    [ObservableProperty] private NoteContentEditorContext? _noteContent;
     [ObservableProperty] private StatusControlContext _statusContext;
 
     /// <summary>

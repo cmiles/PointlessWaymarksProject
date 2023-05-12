@@ -80,7 +80,7 @@ Note Content is like a simplified Post - no title and slug to edit or maintain a
     }
 
     public static async Task<NoteContentEditorContext> CreateInstance(StatusControlContext? statusContext,
-        NoteContent noteContent)
+        NoteContent? noteContent)
     {
         var newControl = new NoteContentEditorContext(statusContext ?? new StatusControlContext(),
             await NewContentModels.InitializeNoteContent(noteContent));
