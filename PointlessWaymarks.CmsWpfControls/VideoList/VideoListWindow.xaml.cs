@@ -1,5 +1,4 @@
-﻿using System.Windows;
-using CommunityToolkit.Mvvm.ComponentModel;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 
 namespace PointlessWaymarks.CmsWpfControls.VideoList;
@@ -8,7 +7,9 @@ namespace PointlessWaymarks.CmsWpfControls.VideoList;
 ///     Interaction logic for VideoListWindow.xaml
 /// </summary>
 [ObservableObject]
+#pragma warning disable MVVMTK0033
 public partial class VideoListWindow
+#pragma warning restore MVVMTK0033
 {
     [ObservableProperty] private VideoListWithActionsContext _listContext;
     [ObservableProperty] private string _windowTitle = "Videos List";
@@ -30,7 +31,7 @@ public partial class VideoListWindow
     public static async Task<VideoListWindow> CreateInstance(VideoListWithActionsContext? toLoad)
     {
         await ThreadSwitcher.ResumeForegroundAsync();
-        var window = new VideoListWindow(toLoad ?? await VideoListWithActionsContext.CreateInstance(null, null));
+        var window = new VideoListWindow(toLoad ?? await VideoListWithActionsContext.CreateInstance(null));
 
         return window;
     }

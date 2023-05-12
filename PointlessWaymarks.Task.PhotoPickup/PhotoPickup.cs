@@ -201,7 +201,7 @@ public class PhotoPickup
 
                 var htmlBuilder = new StringBuilder();
 
-                htmlBuilder.AppendLine($"<p>{HtmlEncoder.Default.Encode(saveGenerationReturn.GenerationNote!)}</p>");
+                htmlBuilder.AppendLine($"<p>{HtmlEncoder.Default.Encode(saveGenerationReturn.GenerationNote)}</p>");
                 if (saveGenerationReturn.Exception != null)
                 {
                     htmlBuilder.AppendLine(

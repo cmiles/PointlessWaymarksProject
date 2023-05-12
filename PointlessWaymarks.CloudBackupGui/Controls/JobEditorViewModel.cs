@@ -107,6 +107,8 @@ public partial class JobEditorViewModel : ObservableObject
             {
                 if (x < 1)
                     return Task.FromResult(new IsValid(false, "The maximum runtime hours must be greater than 0"));
+                if (x > 23)
+                    return Task.FromResult(new IsValid(false, "The maximum runtime hours must be less than 24"));
                 return Task.FromResult(new IsValid(true, string.Empty));
             }
         };

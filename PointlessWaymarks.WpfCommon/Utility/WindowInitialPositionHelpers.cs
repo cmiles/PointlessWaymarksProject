@@ -27,7 +27,6 @@ public static class WindowInitialPositionHelpers
 
         if (window.WindowState == WindowState.Minimized) window.WindowState = WindowState.Normal;
 
-        var hwnd = WindowToHwnd(window);
         var screenBounds = Screen.FromHandle(new WindowInteropHelper(window).Handle).WorkingArea;
 
         var screenWidth = screenBounds.Width;
@@ -90,15 +89,6 @@ public static class WindowInitialPositionHelpers
     private static extern IntPtr GetDpiForMonitor([In] IntPtr hmonitor, [In] DpiType dpiType, [Out] out uint dpiX,
         [Out] out uint dpiY);
 
-    private static decimal GetDpiRatio(IntPtr hwnd)
-    {
-        var dpi = GetDpi(hwnd, DpiType.Effective);
-
-        if (dpi > 96) return dpi / 96M;
-
-        return 1;
-    }
-
     //https://msdn.microsoft.com/en-us/library/windows/desktop/dd145062(v=vs.85).aspx
     [DllImport("User32.dll")]
     private static extern IntPtr MonitorFromPoint([In] Point pt, [In] uint dwFlags);
@@ -139,11 +129,6 @@ public static class WindowInitialPositionHelpers
         await ThreadSwitcher.ThreadSwitcher.ResumeForegroundAsync();
 
         toPosition.PositionWindowAndShow();
-    }
-
-    private static IntPtr WindowToHwnd(Window window)
-    {
-        return new WindowInteropHelper(window).EnsureHandle();
     }
 
     private enum DpiType

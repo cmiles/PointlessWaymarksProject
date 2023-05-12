@@ -3,6 +3,7 @@ using System.Windows;
 using Microsoft.Web.WebView2.Core;
 using Microsoft.Web.WebView2.Wpf;
 using Microsoft.Xaml.Behaviors;
+using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.WpfCommon.Utility;
 using Serilog;
 
@@ -15,6 +16,7 @@ public class WebViewHtmlStringBindingBehavior : Behavior<WebView2>
         new PropertyMetadata(default(string), OnHtmlChanged));
 
     private readonly List<FileInfo> _previousFiles = new();
+    private FileInfo? _currentFile;
     private bool _loaded;
 
     public string CachedHtml { get; set; } = string.Empty;
@@ -53,9 +55,16 @@ public class WebViewHtmlStringBindingBehavior : Behavior<WebView2>
                         await File.WriteAllTextAsync(newFile.FullName, newString);
                         bindingBehavior.AssociatedObject.CoreWebView2.Navigate($"file:////{newFile.FullName}");
 
+                        bindingBehavior._previousFiles.Add(newFile);
+                        bindingBehavior._currentFile = newFile;
+                        
                         if (!bindingBehavior._previousFiles.Any()) return;
 
-                        foreach (var loopFiles in bindingBehavior._previousFiles)
+                        var filesToDelete = bindingBehavior._currentFile == null
+                            ? bindingBehavior._previousFiles
+                                : bindingBehavior._previousFiles.Except(bindingBehavior._currentFile.AsList()).ToList();
+                        
+                        foreach (var loopFiles in filesToDelete)
                             try
                             {
                                 loopFiles.Delete();
@@ -66,8 +75,8 @@ public class WebViewHtmlStringBindingBehavior : Behavior<WebView2>
                                 throw;
                             }
 
-                        bindingBehavior._previousFiles.ForEach(x => x.Refresh());
-                        bindingBehavior._previousFiles.RemoveAll(x => !x.Exists);
+                        filesToDelete.ForEach(x => x.Refresh());
+                        filesToDelete.RemoveAll(x => !x.Exists);
                     }
                     else
                     {

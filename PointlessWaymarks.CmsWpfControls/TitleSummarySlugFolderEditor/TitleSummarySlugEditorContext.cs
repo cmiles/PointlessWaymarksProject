@@ -36,6 +36,8 @@ public partial class TitleSummarySlugEditorContext : ObservableObject, IHasChang
     {
         _statusContext = statusContext;
 
+        PropertyChanged += OnPropertyChanged;
+        
         _customTitleFunctionText = customTitleCommandText;
         _customTitleCommand = customTitleCommand;
         _customTitleCheckToEnable = customTitleCheckToEnable;

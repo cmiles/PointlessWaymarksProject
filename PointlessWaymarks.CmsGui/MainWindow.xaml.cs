@@ -1,7 +1,6 @@
 ﻿using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
-using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -585,7 +584,9 @@ public partial class MainWindow
         if (string.IsNullOrWhiteSpace(e.PropertyName)) return;
 
         if (e.PropertyName == nameof(SelectedTab))
+#pragma warning disable CS4014
             LoadSelectedTabAsNeeded();
+#pragma warning restore CS4014
     }
 
     private async Task RemoveUnusedFilesFromMediaArchive()

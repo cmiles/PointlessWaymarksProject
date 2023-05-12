@@ -73,8 +73,7 @@ public static class LineData
 
         await FileManagement.WriteAllTextToFileAndLogAsync(dataFileInfo.FullName,
                 await GenerateLineJson(lineContent.Line, lineContent.Title ?? string.Empty,
-                    UserSettingsSingleton.CurrentSettings().LinePageUrl(lineContent)).ConfigureAwait(false) ??
-                string.Empty)
+                    UserSettingsSingleton.CurrentSettings().LinePageUrl(lineContent)).ConfigureAwait(false))
             .ConfigureAwait(false);
     }
 
