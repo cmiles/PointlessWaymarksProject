@@ -106,7 +106,7 @@ public partial class CmsCommonCommands : ObservableObject
             StatusContext.RunBlockingTaskWithCancellationCommand(async x => await NewVideoContentFromFiles(x),
                 "Cancel Video Import");
 
-        NewGpxImportWindow = StatusContext.RunNonBlockingTaskCommand(NewGpxImport);
+        NewGpxImportWindowCommand = StatusContext.RunNonBlockingTaskCommand(NewGpxImport);
 
 
         NewAllContentListWindowCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
@@ -205,7 +205,7 @@ public partial class CmsCommonCommands : ObservableObject
 
     public RelayCommand NewGeoJsonListWindowCommand { get; }
 
-    public RelayCommand NewGpxImportWindow { get; }
+    public RelayCommand NewGpxImportWindowCommand { get; }
 
     public RelayCommand NewImageContentCommand { get; }
 

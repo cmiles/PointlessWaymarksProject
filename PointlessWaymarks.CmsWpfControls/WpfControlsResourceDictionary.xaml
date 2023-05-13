@@ -1042,6 +1042,7 @@
         <MenuItem Command="{Binding CommonCommands.NewFileContentFromFilesCommand}" Header="File from File" />
         <MenuItem Command="{Binding CommonCommands.NewFileContentCommand}" Header="File" />
         <MenuItem Command="{Binding CommonCommands.NewGeoJsonContentCommand}" Header="GeoJson" />
+        <MenuItem Command="{Binding CommonCommands.NewGpxImportWindowCommand}" Header="Gpx Import" />
         <MenuItem Command="{Binding CommonCommands.NewImageContentFromFilesCommand}" Header="Image from File" />
         <MenuItem Command="{Binding CommonCommands.NewImageContentCommand}" Header="Image" />
         <MenuItem Command="{Binding CommonCommands.NewLineContentFromFilesWithAutosaveCommand}"
