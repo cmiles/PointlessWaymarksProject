@@ -12,7 +12,7 @@ using static PointlessWaymarks.WpfCommon.ThreadSwitcher.ThreadSwitcher;
 
 namespace PointlessWaymarks.WpfCommon.FileList;
 
-public partial class FileListViewModel : ObservableObject, IDropTarget
+public partial class FileListContext : ObservableObject, IDropTarget
 {
     [ObservableProperty] private List<ContextMenuItemData> _contextMenuItems;
     [ObservableProperty] private List<string> _droppedFileExtensionAllowList = new();
@@ -24,7 +24,7 @@ public partial class FileListViewModel : ObservableObject, IDropTarget
     [ObservableProperty] private IFileListSettings? _settings;
     [ObservableProperty] private StatusControlContext _statusContext;
 
-    public FileListViewModel(StatusControlContext? statusContext, IFileListSettings? settings,
+    public FileListContext(StatusControlContext? statusContext, IFileListSettings? settings,
         List<ContextMenuItemData> contextMenuItems)
     {
         _statusContext = statusContext ?? new StatusControlContext();
@@ -116,7 +116,7 @@ public partial class FileListViewModel : ObservableObject, IDropTarget
     public async Task AddFilesToTag()
     {
         await ResumeBackgroundAsync();
-        
+
         Debug.Assert(Settings != null, nameof(Settings) + " != null");
         var lastDirectory = await Settings.GetLastDirectory();
 
@@ -165,13 +165,13 @@ public partial class FileListViewModel : ObservableObject, IDropTarget
     public async Task AddFilesToTagFromDirectory()
     {
         await ResumeBackgroundAsync();
-        
+
         Debug.Assert(Settings != null, nameof(Settings) + " != null");
         var lastDirectory = await Settings.GetLastDirectory();
 
         await ResumeForegroundAsync();
         var folderPicker = new VistaFolderBrowserDialog
-            { Description = "Directory to Add", Multiselect = false };
+            { Description = "Directory to Add", Multiselect = true };
 
         if (lastDirectory != null) folderPicker.SelectedPath = $"{lastDirectory.FullName}\\";
 
@@ -179,54 +179,92 @@ public partial class FileListViewModel : ObservableObject, IDropTarget
 
         if (!result ?? false) return;
 
+        if (!folderPicker.SelectedPaths.Any())
+        {
+            StatusContext.ToastWarning("No directories selected?");
+            return;
+        }
+
         if (ReplaceMode) Files?.Clear();
 
-        await Settings.SetLastDirectory(folderPicker.SelectedPath);
+        var selectedDirectory = new DirectoryInfo(folderPicker.SelectedPaths[0]);
 
-        var selectedDirectory = new DirectoryInfo(folderPicker.SelectedPath);
-        var selectedFiles = selectedDirectory.EnumerateFiles("*").ToList().Where(x => !Files!.Contains(x))
-            .ToList();
+        if (selectedDirectory.Parent != null) await Settings.SetLastDirectory(selectedDirectory.Parent.FullName);
+        else await Settings.SetLastDirectory(selectedDirectory.FullName);
 
-        selectedFiles.ForEach(x =>
+        foreach (var loopPaths in folderPicker.SelectedPaths)
         {
-            if (!Files!.Any(y => y.FullName.Equals(x.FullName, StringComparison.OrdinalIgnoreCase))) Files!.Add(x);
-        });
+            var loopDirectory = new DirectoryInfo(loopPaths);
+
+            if (!loopDirectory.Exists)
+            {
+                StatusContext.ToastError($"{loopDirectory.FullName} doesn't exist?");
+                continue;
+            }
+
+            var selectedFiles = loopDirectory.EnumerateFiles("*").ToList().Where(x => !Files!.Contains(x))
+                .ToList();
+
+            selectedFiles.ForEach(x =>
+            {
+                if (!Files!.Any(y => y.FullName.Equals(x.FullName, StringComparison.OrdinalIgnoreCase))) Files!.Add(x);
+            });
+        }
     }
 
     public async Task AddFilesToTagFromDirectoryAndSubdirectories()
     {
         await ResumeBackgroundAsync();
-        
+
         Debug.Assert(Settings != null, nameof(Settings) + " != null");
         var lastDirectory = await Settings.GetLastDirectory();
 
         await ResumeForegroundAsync();
         var folderPicker = new VistaFolderBrowserDialog
-            { Description = "Directory And Subdirectories to Add", Multiselect = false };
+            { Description = "Directory And Subdirectories to Add", Multiselect = true };
         if (lastDirectory != null) folderPicker.SelectedPath = $"{lastDirectory.FullName}\\";
 
         var result = folderPicker.ShowDialog();
 
         if (!result ?? false) return;
 
+        if (!folderPicker.SelectedPaths.Any())
+        {
+            StatusContext.ToastWarning("No directories selected?");
+            return;
+        }
+
         if (ReplaceMode) Files?.Clear();
 
-        await Settings.SetLastDirectory(folderPicker.SelectedPath);
+        var selectedDirectory = new DirectoryInfo(folderPicker.SelectedPaths[0]);
 
-        var selectedDirectory = new DirectoryInfo(folderPicker.SelectedPath);
-        var selectedFiles = selectedDirectory.EnumerateFiles("*", SearchOption.AllDirectories)
-            .Where(x => !Files!.Contains(x)).ToList();
+        if (selectedDirectory.Parent != null) await Settings.SetLastDirectory(selectedDirectory.Parent.FullName);
+        else await Settings.SetLastDirectory(selectedDirectory.FullName);
 
-        selectedFiles.ForEach(x =>
+        foreach (var loopPaths in folderPicker.SelectedPaths)
         {
-            if (!Files!.Any(y => y.FullName.Equals(x.FullName, StringComparison.OrdinalIgnoreCase))) Files!.Add(x);
-        });
+            var loopDirectory = new DirectoryInfo(loopPaths);
+
+            if (!loopDirectory.Exists)
+            {
+                StatusContext.ToastError($"{loopDirectory.FullName} doesn't exist?");
+                continue;
+            }
+
+            var selectedFiles = loopDirectory.EnumerateFiles("*", SearchOption.AllDirectories).ToList().Where(x => !Files!.Contains(x))
+                .ToList();
+
+            selectedFiles.ForEach(x =>
+            {
+                if (!Files!.Any(y => y.FullName.Equals(x.FullName, StringComparison.OrdinalIgnoreCase))) Files!.Add(x);
+            });
+        }
     }
 
-    public static async Task<FileListViewModel> CreateInstance(StatusControlContext statusContext,
+    public static async Task<FileListContext> CreateInstance(StatusControlContext statusContext,
         IFileListSettings? settings, List<ContextMenuItemData> contextMenuItems)
     {
-        var newInstance = new FileListViewModel(statusContext, settings, contextMenuItems);
+        var newInstance = new FileListContext(statusContext, settings, contextMenuItems);
 
         await ResumeForegroundAsync();
 

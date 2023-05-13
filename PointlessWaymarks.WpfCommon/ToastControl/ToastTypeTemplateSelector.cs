@@ -12,7 +12,7 @@ internal class ToastTypeTemplateSelector : DataTemplateSelector
 
     public override DataTemplate? SelectTemplate(object item, DependencyObject container)
     {
-        if (item is not ToastViewModel toastViewModel)
+        if (item is not ToastContext toastViewModel)
             return null;
 
         return toastViewModel.Type switch

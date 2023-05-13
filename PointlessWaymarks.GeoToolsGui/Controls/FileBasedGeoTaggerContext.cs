@@ -31,9 +31,9 @@ public partial class FileBasedGeoTaggerContext : ObservableObject
     [ObservableProperty] private bool _createBackups;
     [ObservableProperty] private bool _createBackupsInDefaultStorage;
     [ObservableProperty] private bool _exifToolExists;
-    [ObservableProperty] private FileListViewModel? _filesToTagFileList;
+    [ObservableProperty] private FileListContext? _filesToTagFileList;
     [ObservableProperty] private FileBasedGeoTaggerFilesToTagSettings? _filesToTagSettings;
-    [ObservableProperty] private FileListViewModel? _gpxFileList;
+    [ObservableProperty] private FileListContext? _gpxFileList;
     [ObservableProperty] private FileBasedGeoTaggerGpxFilesSettings? _gpxFilesSettings;
     [ObservableProperty] private int _offsetPhotoTimeInMinutes;
     [ObservableProperty] private bool _overwriteExistingGeoLocation;
@@ -132,7 +132,7 @@ public partial class FileBasedGeoTaggerContext : ObservableObject
 
         Debug.Assert(GpxFileList != null, nameof(GpxFileList) + " != null");
         Debug.Assert(FilesToTagFileList != null, nameof(FilesToTagFileList) + " != null");
-        
+
         if (GpxFileList.Files == null || !GpxFileList.Files.Any() || FilesToTagFileList.Files == null ||
             !FilesToTagFileList.Files.Any())
         {
@@ -166,7 +166,8 @@ public partial class FileBasedGeoTaggerContext : ObservableObject
             var features = new FeatureCollection();
 
             foreach (var loopResults in pointsToWrite)
-                features.Add(new Feature(PointTools.Wgs84Point(loopResults.Longitude!.Value, loopResults.Latitude!.Value),
+                features.Add(new Feature(
+                    PointTools.Wgs84Point(loopResults.Longitude!.Value, loopResults.Latitude!.Value),
                     new AttributesTable(new Dictionary<string, object>
                         { { "title", loopResults.FileName }, { "description", $"From {loopResults.Source}" } })));
 
@@ -188,13 +189,13 @@ public partial class FileBasedGeoTaggerContext : ObservableObject
         FilesToTagSettings = new FileBasedGeoTaggerFilesToTagSettings(this);
         GpxFilesSettings = new FileBasedGeoTaggerGpxFilesSettings(this);
 
-        FilesToTagFileList = await FileListViewModel.CreateInstance(StatusContext, FilesToTagSettings,
+        FilesToTagFileList = await FileListContext.CreateInstance(StatusContext, FilesToTagSettings,
             new List<ContextMenuItemData>
             {
                 new() { ItemCommand = MetadataForSelectedFilesToTagCommand, ItemName = "Metadata Report for Selected" }
             });
 
-        GpxFileList = await FileListViewModel.CreateInstance(StatusContext, GpxFilesSettings,
+        GpxFileList = await FileListContext.CreateInstance(StatusContext, GpxFilesSettings,
             new List<ContextMenuItemData>
                 { new() { ItemCommand = ShowSelectedGpxFilesCommand, ItemName = "Show  Selected" } });
         GpxFileList.FileImportFilter = "gpx files (*.gpx)|*.gpx|All files (*.*)|*.*";
@@ -207,7 +208,6 @@ public partial class FileBasedGeoTaggerContext : ObservableObject
             32.12063, -110.52313, string.Empty);
 
         await CheckThatExifToolExists(true);
-
     }
 
     public async Task MetadataForSelectedFilesToTag()
@@ -297,6 +297,22 @@ public partial class FileBasedGeoTaggerContext : ObservableObject
         }
     }
 
+    private void OnPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (string.IsNullOrWhiteSpace(e.PropertyName)) return;
+
+        if (e.PropertyName == nameof(Settings))
+            StatusContext.RunNonBlockingTask(async () => await CheckThatExifToolExists(false));
+    }
+
+    private void OnSettingsPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (string.IsNullOrWhiteSpace(e.PropertyName)) return;
+
+        if (e.PropertyName == nameof(Settings.ExifToolFullName))
+            StatusContext.RunNonBlockingTask(async () => await CheckThatExifToolExists(true));
+    }
+
     private async Task<string> ResetMapGeoJsonDto()
     {
         var features = new FeatureCollection();
@@ -315,7 +331,7 @@ public partial class FileBasedGeoTaggerContext : ObservableObject
     public async Task SendResultFilesToFeatureIntersectTagger()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
-        
+
         if (WriteToFileResults?.FileResults == null || WriteToFileResults.FileResults.Count == 0)
         {
             StatusContext.ToastError("No Results to Send");
@@ -324,24 +340,6 @@ public partial class FileBasedGeoTaggerContext : ObservableObject
 
         WeakReferenceMessenger.Default.Send(new FeatureIntersectFileAddRequestMessage((this,
             WriteToFileResults.FileResults.Select(x => x.FileName).ToList())));
-    }
-
-    private void OnPropertyChanged(object? sender, PropertyChangedEventArgs e)
-    {
-        if (string.IsNullOrWhiteSpace(e.PropertyName)) return;
-
-        if (e.PropertyName == nameof(Settings))
-        {
-            StatusContext.RunNonBlockingTask(async () => await CheckThatExifToolExists(false));
-        }
-    }
-
-    private void OnSettingsPropertyChanged(object? sender, PropertyChangedEventArgs e)
-    {
-        if (string.IsNullOrWhiteSpace(e.PropertyName)) return;
-
-        if (e.PropertyName == nameof(Settings.ExifToolFullName))
-            StatusContext.RunNonBlockingTask(async () => await CheckThatExifToolExists(true));
     }
 
 
@@ -396,7 +394,7 @@ public partial class FileBasedGeoTaggerContext : ObservableObject
             StatusContext.ToastError("No Results to Write?");
             return;
         }
-        
+
         var tagger = new GeoTag();
 
         WriteToFileResults = await tagger.WriteGeoTagActions(
@@ -415,7 +413,8 @@ public partial class FileBasedGeoTaggerContext : ObservableObject
             var features = new FeatureCollection();
 
             foreach (var loopResults in writtenResults)
-                features.Add(new Feature(PointTools.Wgs84Point(loopResults.Longitude!.Value, loopResults.Latitude!.Value),
+                features.Add(new Feature(
+                    PointTools.Wgs84Point(loopResults.Longitude!.Value, loopResults.Latitude!.Value),
                     new AttributesTable(new Dictionary<string, object>
                         { { "title", loopResults.FileName }, { "description", $"From {loopResults.Source}" } })));
 

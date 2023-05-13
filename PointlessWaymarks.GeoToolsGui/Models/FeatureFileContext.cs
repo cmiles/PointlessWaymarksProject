@@ -2,7 +2,7 @@
 
 namespace PointlessWaymarks.GeoToolsGui.Models;
 
-public partial class FeatureFileViewModel : ObservableObject
+public partial class FeatureFileContext : ObservableObject
 {
     [ObservableProperty] private List<string> _attributesForTags = new();
     [ObservableProperty] private Guid _contentId = Guid.NewGuid();

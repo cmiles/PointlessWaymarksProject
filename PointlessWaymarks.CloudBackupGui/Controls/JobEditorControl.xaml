@@ -9,7 +9,7 @@
              xmlns:status="clr-namespace:PointlessWaymarks.WpfCommon.Status;assembly=PointlessWaymarks.WpfCommon"
              xmlns:windowScreenShot="clr-namespace:PointlessWaymarks.WpfCommon.WindowScreenShot;assembly=PointlessWaymarks.WpfCommon"
              mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="800" d:DataContext="{d:DesignInstance local:JobEditorViewModel}">
+             d:DesignHeight="450" d:DesignWidth="800" d:DataContext="{d:DesignInstance local:JobEditorContext}">
     <Grid>
         <StackPanel Orientation="Vertical">
             <stringDataEntry:StringDataEntryControl DataContext="{Binding UserNameEntry}"></stringDataEntry:StringDataEntryControl>

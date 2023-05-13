@@ -34,14 +34,14 @@ public partial class FeatureIntersectTaggerContext : ObservableObject
 {
     [ObservableProperty] private bool _exifToolExists;
     [ObservableProperty] private FeatureFileEditorContext? _featureFileToEdit;
-    [ObservableProperty] private FileListViewModel? _filesToTagFileList;
+    [ObservableProperty] private FileListContext? _filesToTagFileList;
     [ObservableProperty] private FeatureIntersectTaggerFilesToTagSettings? _filesToTagSettings;
     [ObservableProperty] private string _infoTitle = string.Empty;
     [ObservableProperty] private string _padUsAttributeToAdd = string.Empty;
     [ObservableProperty] private string? _previewGeoJsonDto;
     [ObservableProperty] private string _previewHtml = string.Empty;
     [ObservableProperty] private List<IntersectFileTaggingResult> _previewResults = new();
-    [ObservableProperty] private FeatureFileViewModel? _selectedFeatureFile;
+    [ObservableProperty] private FeatureFileContext? _selectedFeatureFile;
     [ObservableProperty] private string? _selectedPadUsAttribute;
     [ObservableProperty] private int _selectedTab;
     [ObservableProperty] private FeatureIntersectTaggerSettings _settings;
@@ -57,7 +57,7 @@ public partial class FeatureIntersectTaggerContext : ObservableObject
         _settings = new FeatureIntersectTaggerSettings();
 
         FeatureFileToEdit =
-            new FeatureFileEditorContext(StatusContext, new FeatureFileViewModel(), new List<FeatureFileViewModel>());
+            new FeatureFileEditorContext(StatusContext, new FeatureFileContext(), new List<FeatureFileContext>());
         FeatureFileToEdit.EndEdit += EndEdit;
 
         ChoosePadUsDirectoryCommand = StatusContext.RunBlockingTaskCommand(ChoosePadUsDirectory);
@@ -275,7 +275,7 @@ public partial class FeatureIntersectTaggerContext : ObservableObject
     }
 
     private void EndEdit(object? sender,
-        (FeatureFileEditorEndEditCondition endCondition, FeatureFileViewModel model) e)
+        (FeatureFileEditorEndEditCondition endCondition, FeatureFileContext model) e)
     {
         if (e.endCondition == FeatureFileEditorEndEditCondition.Cancelled) return;
 
@@ -374,7 +374,7 @@ public partial class FeatureIntersectTaggerContext : ObservableObject
         {
             Settings.FeatureIntersectFiles.Clear();
             settings.IntersectFiles.OrderBy(x => x.Name).Select(loopFeatureFile =>
-                new FeatureFileViewModel
+                new FeatureFileContext
                 {
                     Name = loopFeatureFile.Name,
                     FileName = loopFeatureFile.FileName,
@@ -395,7 +395,7 @@ public partial class FeatureIntersectTaggerContext : ObservableObject
         FilesToTagSettings = new FeatureIntersectTaggerFilesToTagSettings(this);
 
         FilesToTagFileList =
-            await FileListViewModel.CreateInstance(StatusContext, FilesToTagSettings,
+            await FileListContext.CreateInstance(StatusContext, FilesToTagSettings,
                 new List<ContextMenuItemData>
                 {
                     new()
@@ -507,7 +507,7 @@ public partial class FeatureIntersectTaggerContext : ObservableObject
 
         Debug.Assert(Settings != null, nameof(Settings) + " != null");
         
-        FeatureFileToEdit.Show(new FeatureFileViewModel(), Settings.FeatureIntersectFiles.ToList());
+        FeatureFileToEdit.Show(new FeatureFileContext(), Settings.FeatureIntersectFiles.ToList());
         return Task.CompletedTask;
     }
 
@@ -519,7 +519,7 @@ public partial class FeatureIntersectTaggerContext : ObservableObject
             StatusContext.RunNonBlockingTask(CheckThatExifToolExistsAndSaveSettings);
     }
 
-    public async Task ProcessEditedFeatureFileViewModel(FeatureFileViewModel model)
+    public async Task ProcessEditedFeatureFileViewModel(FeatureFileContext model)
     {
         await ThreadSwitcher.ResumeForegroundAsync();
 

@@ -9,7 +9,7 @@ public partial class FeatureIntersectTaggerSettings : ObservableObject
     [ObservableProperty] private bool _createBackups;
     [ObservableProperty] private bool _createBackupsInDefaultStorage;
     [ObservableProperty] private string _exifToolFullName = string.Empty;
-    [ObservableProperty] private ObservableCollection<FeatureFileViewModel> _featureIntersectFiles = new();
+    [ObservableProperty] private ObservableCollection<FeatureFileContext> _featureIntersectFiles = new();
     [ObservableProperty] private string _filesToTagLastDirectoryFullName = string.Empty;
     [ObservableProperty] private ObservableCollection<string> _padUsAttributes = new();
     [ObservableProperty] private string _padUsDirectory = string.Empty;

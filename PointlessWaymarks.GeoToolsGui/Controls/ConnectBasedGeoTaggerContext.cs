@@ -33,7 +33,7 @@ public partial class ConnectBasedGeoTaggerContext : ObservableObject
     [ObservableProperty] private bool _archiveDirectoryExists;
     [ObservableProperty] private string _currentCredentialsNote = string.Empty;
     [ObservableProperty] private bool _exifToolExists;
-    [ObservableProperty] private FileListViewModel? _filesToTagFileList;
+    [ObservableProperty] private FileListContext? _filesToTagFileList;
     [ObservableProperty] private ConnectBasedGeoTagFilesToTagSettings? _filesToTagSettings;
     [ObservableProperty] private int _offsetPhotoTimeInMinutes;
     [ObservableProperty] private string? _previewGeoJsonDto;
@@ -52,7 +52,7 @@ public partial class ConnectBasedGeoTaggerContext : ObservableObject
     {
         _statusContext = statusContext ?? new StatusControlContext();
         _windowStatus = windowStatus;
-        
+
         _settings = new ConnectBasedGeoTaggerSettings();
 
         MetadataForSelectedFilesToTagCommand = StatusContext.RunBlockingTaskCommand(MetadataForSelectedFilesToTag);
@@ -85,7 +85,6 @@ public partial class ConnectBasedGeoTaggerContext : ObservableObject
 
     public async Task CheckThatArchiveDirectoryExists(bool writeSettings)
     {
-        
         await ThreadSwitcher.ResumeBackgroundAsync();
 
         if (string.IsNullOrWhiteSpace(Settings.ArchiveDirectory))
@@ -133,7 +132,7 @@ public partial class ConnectBasedGeoTaggerContext : ObservableObject
             { Description = "Directory And Subdirectories to Add", Multiselect = false };
 
         Debug.Assert(Settings != null, nameof(Settings) + " != null");
-        
+
         if (!string.IsNullOrWhiteSpace(Settings.ArchiveDirectory))
         {
             var currentDirectory = new DirectoryInfo(Settings.ArchiveDirectory);
@@ -150,7 +149,7 @@ public partial class ConnectBasedGeoTaggerContext : ObservableObject
     public async Task ChooseExifFile()
     {
         Debug.Assert(Settings != null, nameof(Settings) + " != null");
-        
+
         var newFile = await ExifFilePicker.ChooseExifFile(StatusContext, Settings.ExifToolFullName);
 
         if (!newFile.validFileFound) return;
@@ -227,7 +226,7 @@ public partial class ConnectBasedGeoTaggerContext : ObservableObject
         }
 
         Debug.Assert(Settings != null, nameof(Settings) + " != null");
-        
+
         if (string.IsNullOrWhiteSpace(Settings.ArchiveDirectory) || !Directory.Exists(Settings.ArchiveDirectory))
         {
             StatusContext.ToastError($"Archive Directory {Settings.ArchiveDirectory} Not Found/Valid?");
@@ -244,7 +243,7 @@ public partial class ConnectBasedGeoTaggerContext : ObservableObject
             StatusContext.ProgressTracker());
 
         var resultsWithLocation =
-            PreviewResults.FileResults.Where(x => x is { Latitude: { }, Longitude: { } }).ToList();
+            PreviewResults.FileResults.Where(x => x is { Latitude: not null, Longitude: not null }).ToList();
 
         PreviewHasWritablePoints = resultsWithLocation.Any();
 
@@ -253,7 +252,8 @@ public partial class ConnectBasedGeoTaggerContext : ObservableObject
             var features = new FeatureCollection();
 
             foreach (var loopResults in resultsWithLocation)
-                features.Add(new Feature(PointTools.Wgs84Point(loopResults.Longitude!.Value, loopResults.Latitude!.Value),
+                features.Add(new Feature(
+                    PointTools.Wgs84Point(loopResults.Longitude!.Value, loopResults.Latitude!.Value),
                     new AttributesTable(new Dictionary<string, object>
                         { { "title", loopResults.FileName }, { "description", $"From {loopResults.Source}" } })));
 
@@ -275,7 +275,7 @@ public partial class ConnectBasedGeoTaggerContext : ObservableObject
 
         FilesToTagSettings = new ConnectBasedGeoTagFilesToTagSettings(this);
 
-        FilesToTagFileList = await FileListViewModel.CreateInstance(StatusContext, FilesToTagSettings,
+        FilesToTagFileList = await FileListContext.CreateInstance(StatusContext, FilesToTagSettings,
             new List<ContextMenuItemData>
             {
                 new() { ItemCommand = MetadataForSelectedFilesToTagCommand, ItemName = "Metadata Report for Selected" }
@@ -440,7 +440,7 @@ public partial class ConnectBasedGeoTaggerContext : ObservableObject
 
         WeakReferenceMessenger.Default.Send(new FeatureIntersectFileAddRequestMessage((this,
             WriteToFileResults.FileResults.Select(x => x.FileName).ToList())));
-        
+
         return Task.CompletedTask;
     }
 
@@ -459,7 +459,7 @@ public partial class ConnectBasedGeoTaggerContext : ObservableObject
         await ThreadSwitcher.ResumeForegroundAsync();
 
         Debug.Assert(Settings != null, nameof(Settings) + " != null");
-        
+
         await ProcessHelpers.OpenExplorerWindowForDirectory(Settings.ArchiveDirectory.Trim());
     }
 
@@ -485,7 +485,7 @@ public partial class ConnectBasedGeoTaggerContext : ObservableObject
 
         Debug.Assert(PreviewResults != null, nameof(PreviewResults) + " != null");
         Debug.Assert(Settings != null, nameof(Settings) + " != null");
-        
+
         WriteToFileResults = await tagger.WriteGeoTagActions(
             PreviewResults.FileResults.Where(x => x.ShouldWriteMetadata).ToList(),
             Settings.CreateBackups, Settings.CreateBackupsInDefaultStorage,
@@ -502,7 +502,8 @@ public partial class ConnectBasedGeoTaggerContext : ObservableObject
             var features = new FeatureCollection();
 
             foreach (var loopResults in writtenResults)
-                features.Add(new Feature(PointTools.Wgs84Point(loopResults.Longitude!.Value, loopResults.Latitude!.Value),
+                features.Add(new Feature(
+                    PointTools.Wgs84Point(loopResults.Longitude!.Value, loopResults.Latitude!.Value),
                     new AttributesTable(new Dictionary<string, object>
                         { { "title", loopResults.FileName }, { "description", $"From {loopResults.Source}" } })));
 

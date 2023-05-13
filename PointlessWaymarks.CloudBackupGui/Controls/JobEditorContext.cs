@@ -11,7 +11,7 @@ using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 
 namespace PointlessWaymarks.CloudBackupGui.Controls;
 
-public partial class JobEditorViewModel : ObservableObject
+public partial class JobEditorContext : ObservableObject
 {
     [ObservableProperty] private ObservableCollection<DirectoryInfo> _excludedDirectories;
     [ObservableProperty] private ObservableCollection<string> _excludedDirectoryPatterns;
@@ -24,7 +24,7 @@ public partial class JobEditorViewModel : ObservableObject
     [ObservableProperty] private StringDataEntryContext _userNameEntry;
 
 
-    private JobEditorViewModel(StatusControlContext statusContext, StringDataEntryContext userNameEntry,
+    private JobEditorContext(StatusControlContext statusContext, StringDataEntryContext userNameEntry,
         StringDataEntryContext userFilePatternEntry, StringDataEntryContext userDirectoryPatternEntry,
         ConversionDataEntryContext<int> userMaximumRuntimeHoursEntry,
         ObservableCollection<DirectoryInfo> excludedDirectories,
@@ -40,7 +40,7 @@ public partial class JobEditorViewModel : ObservableObject
         _userMaximumRuntimeHoursEntry = userMaximumRuntimeHoursEntry;
     }
 
-    public static async Task<JobEditorViewModel> CreateInstance(StatusControlContext? context, BackupJob initialJob)
+    public static async Task<JobEditorContext> CreateInstance(StatusControlContext? context, BackupJob initialJob)
     {
         await ThreadSwitcher.ResumeForegroundAsync();
 
@@ -114,7 +114,7 @@ public partial class JobEditorViewModel : ObservableObject
         };
 
 
-        return new JobEditorViewModel(statusContext, nameEntry, filePatternEntry, directoryPatternEntry,
+        return new JobEditorContext(statusContext, nameEntry, filePatternEntry, directoryPatternEntry,
             maximumRuntimeHoursEntry, new ObservableCollection<DirectoryInfo>(), new ObservableCollection<string>(),
             new ObservableCollectionListSource<string>());
     }

@@ -16,7 +16,7 @@ public partial class ToastSource : ObservableObject
 
     public ToastSource(Dispatcher dispatcher)
     {
-        NotificationMessages = new ObservableCollection<ToastViewModel>();
+        NotificationMessages = new ObservableCollection<ToastContext>();
 
         MaximumNotificationCount = 5;
         NotificationLifeTime = TimeSpan.FromSeconds(6);
@@ -27,7 +27,7 @@ public partial class ToastSource : ObservableObject
         };
     }
 
-    public ObservableCollection<ToastViewModel> NotificationMessages { get; }
+    public ObservableCollection<ToastContext> NotificationMessages { get; }
 
     public void Hide(Guid id)
     {
@@ -62,7 +62,7 @@ public partial class ToastSource : ObservableObject
         timer.Tick += RemoveNotificationsTimer_OnTick;
         timer.Stop();
 
-        if (timer.Tag is not ToastViewModel n) return;
+        if (timer.Tag is not ToastContext n) return;
 
         NotificationMessages.Remove(n);
 
@@ -91,7 +91,7 @@ public partial class ToastSource : ObservableObject
                     Hide(id);
             }
 
-        NotificationMessages.Add(new ToastViewModel { Message = message, Type = type });
+        NotificationMessages.Add(new ToastContext { Message = message, Type = type });
     }
 
     private void TimerOnTick(object? sender, EventArgs eventArgs)

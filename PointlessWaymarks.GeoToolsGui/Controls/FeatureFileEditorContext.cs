@@ -12,18 +12,18 @@ namespace PointlessWaymarks.GeoToolsGui.Controls;
 public partial class FeatureFileEditorContext : ObservableObject
 {
     [ObservableProperty] private string _attributeToAdd = string.Empty;
-    private List<FeatureFileViewModel> _existingFeatureFileViewModels;
+    private List<FeatureFileContext> _existingFeatureFileViewModels;
     [ObservableProperty] private bool _isVisible;
-    [ObservableProperty] private FeatureFileViewModel _model;
-    [ObservableProperty] private FeatureFileViewModel _originalModelState;
+    [ObservableProperty] private FeatureFileContext _model;
+    [ObservableProperty] private FeatureFileContext _originalModelState;
     [ObservableProperty] private string? _selectedAttribute = string.Empty;
     [ObservableProperty] private StatusControlContext _statusContext;
 
-    public FeatureFileEditorContext(StatusControlContext? statusContext, FeatureFileViewModel? featureFile,
-        List<FeatureFileViewModel> existingFeatureFileViewModels)
+    public FeatureFileEditorContext(StatusControlContext? statusContext, FeatureFileContext? featureFile,
+        List<FeatureFileContext> existingFeatureFileViewModels)
     {
         _statusContext = statusContext ?? new StatusControlContext();
-        _model = featureFile ?? new FeatureFileViewModel();
+        _model = featureFile ?? new FeatureFileContext();
         _originalModelState = _model.Clone();
         _existingFeatureFileViewModels = existingFeatureFileViewModels;
 
@@ -37,7 +37,7 @@ public partial class FeatureFileEditorContext : ObservableObject
 
     public RelayCommand CancelCommand { get; }
 
-    public EventHandler<(FeatureFileEditorEndEditCondition endCondition, FeatureFileViewModel model)>? EndEdit
+    public EventHandler<(FeatureFileEditorEndEditCondition endCondition, FeatureFileContext model)>? EndEdit
     {
         get;
         set;
@@ -134,7 +134,7 @@ public partial class FeatureFileEditorContext : ObservableObject
         Model.AttributesForTags = newList;
     }
 
-    public void Show(FeatureFileViewModel model, List<FeatureFileViewModel> existingFeatureFileViewModels)
+    public void Show(FeatureFileContext model, List<FeatureFileContext> existingFeatureFileViewModels)
     {
         AttributeToAdd = string.Empty;
         Model = model;

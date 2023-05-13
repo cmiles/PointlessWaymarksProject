@@ -132,7 +132,7 @@
                                      SelectionMode="Single" ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                                      HorizontalContentAlignment="Stretch" ScrollViewer.CanContentScroll="False">
                                 <ListBox.ItemTemplate>
-                                    <DataTemplate DataType="{x:Type models:FeatureFileViewModel}">
+                                    <DataTemplate DataType="{x:Type models:FeatureFileContext}">
                                         <Grid Margin="4" HorizontalAlignment="Stretch">
                                             <Grid Margin="4,0,0,0">
                                                 <Grid.Resources>

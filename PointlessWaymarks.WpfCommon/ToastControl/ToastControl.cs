@@ -17,8 +17,8 @@ public class ToastControl : Control
             typeof(ToastControl));
 
     public static readonly DependencyProperty NotificationProperty = DependencyProperty.Register(nameof(Toast),
-        typeof(ToastViewModel), typeof(ToastControl),
-        new PropertyMetadata(default(ToastViewModel), NotificationChanged));
+        typeof(ToastContext), typeof(ToastControl),
+        new PropertyMetadata(default(ToastContext), NotificationChanged));
 
     private bool _isClosed;
     private bool _isClosing;
@@ -43,9 +43,9 @@ public class ToastControl : Control
         set => SetValue(IconProperty, value);
     }
 
-    public ToastViewModel Toast
+    public ToastContext Toast
     {
-        get => (ToastViewModel) GetValue(NotificationProperty);
+        get => (ToastContext) GetValue(NotificationProperty);
         set => SetValue(NotificationProperty, value);
     }
 
@@ -72,7 +72,7 @@ public class ToastControl : Control
     private static void NotificationChanged(DependencyObject dependencyObject,
         DependencyPropertyChangedEventArgs eventArgs)
     {
-        if (dependencyObject is not ToastControl control || eventArgs.NewValue is not ToastViewModel notification)
+        if (dependencyObject is not ToastControl control || eventArgs.NewValue is not ToastContext notification)
             return;
 
         notification.InvokeHideAnimation = control.InvokeHideAnimation;
