@@ -67,6 +67,9 @@ public partial class FileBasedGeoTaggerContext : ObservableObject
         NextTabCommand = StatusContext.RunNonBlockingActionCommand(() => SelectedTab++);
         SendResultFilesToFeatureIntersectTaggerCommand =
             StatusContext.RunNonBlockingTaskCommand(SendResultFilesToFeatureIntersectTagger);
+
+        PropertyChanged += OnPropertyChanged;
+        Settings.PropertyChanged += OnSettingsPropertyChanged;
     }
 
     public RelayCommand ChooseExifFileCommand { get; }
@@ -202,8 +205,6 @@ public partial class FileBasedGeoTaggerContext : ObservableObject
 
         WriteToFileHtml = WpfHtmlDocument.ToHtmlLeafletBasicGeoJsonDocument("WrittenFiles",
             32.12063, -110.52313, string.Empty);
-
-        Settings.PropertyChanged += SettingsOnPropertyChanged;
     }
 
     public async Task MetadataForSelectedFilesToTag()
@@ -322,13 +323,24 @@ public partial class FileBasedGeoTaggerContext : ObservableObject
             WriteToFileResults.FileResults.Select(x => x.FileName).ToList())));
     }
 
-    private void SettingsOnPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    private void OnPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
-        if (string.IsNullOrEmpty(e.PropertyName)) return;
+        if (string.IsNullOrWhiteSpace(e.PropertyName)) return;
 
-        if (e.PropertyName.Equals(nameof(Settings.ExifToolFullName)))
+        if (e.PropertyName == nameof(Settings))
+        {
+            StatusContext.RunNonBlockingTask(CheckThatExifToolExistsAndSaveSettings);
+        }
+    }
+
+    private void OnSettingsPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (string.IsNullOrWhiteSpace(e.PropertyName)) return;
+
+        if (e.PropertyName == nameof(Settings.ExifToolFullName))
             StatusContext.RunNonBlockingTask(CheckThatExifToolExistsAndSaveSettings);
     }
+
 
     public async Task ShowSelectedGpxFiles()
     {

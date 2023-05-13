@@ -72,7 +72,6 @@ public partial class ConnectBasedGeoTaggerContext : ObservableObject
     }
 
     public RelayCommand ChooseArchiveDirectoryCommand { get; }
-
     public RelayCommand ChooseExifFileCommand { get; }
     public RelayCommand EnterGarminCredentialsCommand { get; }
     public RelayCommand GeneratePreviewCommand { get; }
@@ -389,9 +388,10 @@ public partial class ConnectBasedGeoTaggerContext : ObservableObject
     {
         if (string.IsNullOrWhiteSpace(e.PropertyName)) return;
 
-        if (e.PropertyName == nameof(Settings.ArchiveDirectory))
+        if (e.PropertyName == nameof(Settings))
         {
             StatusContext.RunNonBlockingTask(async () => await CheckThatArchiveDirectoryExistsAndSaveSettings());
+            StatusContext.RunNonBlockingTask(CheckThatExifToolExistsAndSaveSettings);
             StatusContext.RunNonBlockingTask(async () =>
             {
                 Debug.Assert(Settings != null, nameof(Settings) + " != null");
