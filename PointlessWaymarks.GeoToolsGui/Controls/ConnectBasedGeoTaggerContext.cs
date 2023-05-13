@@ -69,6 +69,7 @@ public partial class ConnectBasedGeoTaggerContext : ObservableObject
             StatusContext.RunNonBlockingTaskCommand(SendResultFilesToFeatureIntersectTagger);
 
         PropertyChanged += OnPropertyChanged;
+        Settings.PropertyChanged += OnSettingsPropertyChanged;
     }
 
     public RelayCommand ChooseArchiveDirectoryCommand { get; }
@@ -82,7 +83,7 @@ public partial class ConnectBasedGeoTaggerContext : ObservableObject
     public RelayCommand ShowArchiveDirectoryCommand { get; }
     public RelayCommand WriteToFilesCommand { get; }
 
-    public async Task CheckThatArchiveDirectoryExistsAndSaveSettings()
+    public async Task CheckThatArchiveDirectoryExists(bool writeSettings)
     {
         
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -95,7 +96,7 @@ public partial class ConnectBasedGeoTaggerContext : ObservableObject
 
         var exists = Directory.Exists(Settings.ArchiveDirectory.Trim());
 
-        if (exists)
+        if (exists && writeSettings)
         {
             await ConnectBasedGeoTaggerSettingTools.WriteSettings(Settings);
             WeakReferenceMessenger.Default.Send(new ArchiveDirectoryUpdateMessage((this, Settings.ArchiveDirectory)));
@@ -104,7 +105,7 @@ public partial class ConnectBasedGeoTaggerContext : ObservableObject
         ArchiveDirectoryExists = exists;
     }
 
-    public async Task CheckThatExifToolExistsAndSaveSettings()
+    public async Task CheckThatExifToolExists(bool writeSettings)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -116,7 +117,7 @@ public partial class ConnectBasedGeoTaggerContext : ObservableObject
 
         var exists = File.Exists(Settings.ExifToolFullName.Trim());
 
-        if (exists)
+        if (exists && writeSettings)
         {
             await ConnectBasedGeoTaggerSettingTools.WriteSettings(Settings);
             WeakReferenceMessenger.Default.Send(new ExifToolSettingsUpdateMessage((this, Settings.ExifToolFullName)));
@@ -291,9 +292,8 @@ public partial class ConnectBasedGeoTaggerContext : ObservableObject
             32.12063, -110.52313, string.Empty);
 
         await UpdateCredentialsNote();
-        await CheckThatArchiveDirectoryExistsAndSaveSettings();
-
-        Settings.PropertyChanged += OnSettingsPropertyChanged;
+        await CheckThatExifToolExists(false);
+        await CheckThatArchiveDirectoryExists(false);
     }
 
     public async Task MetadataForSelectedFilesToTag()
@@ -390,13 +390,8 @@ public partial class ConnectBasedGeoTaggerContext : ObservableObject
 
         if (e.PropertyName == nameof(Settings))
         {
-            StatusContext.RunNonBlockingTask(async () => await CheckThatArchiveDirectoryExistsAndSaveSettings());
-            StatusContext.RunNonBlockingTask(CheckThatExifToolExistsAndSaveSettings);
-            StatusContext.RunNonBlockingTask(async () =>
-            {
-                Debug.Assert(Settings != null, nameof(Settings) + " != null");
-                await ConnectBasedGeoTaggerSettingTools.WriteSettings(Settings);
-            });
+            StatusContext.RunNonBlockingTask(async () => await CheckThatArchiveDirectoryExists(false));
+            StatusContext.RunNonBlockingTask(async () => await CheckThatExifToolExists(false));
         }
     }
 
@@ -405,10 +400,10 @@ public partial class ConnectBasedGeoTaggerContext : ObservableObject
         if (string.IsNullOrWhiteSpace(e.PropertyName)) return;
 
         if (e.PropertyName == nameof(Settings.ArchiveDirectory))
-            StatusContext.RunNonBlockingTask(CheckThatArchiveDirectoryExistsAndSaveSettings);
+            StatusContext.RunNonBlockingTask(async () => await CheckThatArchiveDirectoryExists(true));
 
         if (e.PropertyName == nameof(Settings.ExifToolFullName))
-            StatusContext.RunNonBlockingTask(CheckThatExifToolExistsAndSaveSettings);
+            StatusContext.RunNonBlockingTask(async () => await CheckThatExifToolExists(true));
     }
 
 
@@ -453,7 +448,7 @@ public partial class ConnectBasedGeoTaggerContext : ObservableObject
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        await CheckThatArchiveDirectoryExistsAndSaveSettings();
+        await CheckThatArchiveDirectoryExists(false);
 
         if (!ArchiveDirectoryExists)
         {

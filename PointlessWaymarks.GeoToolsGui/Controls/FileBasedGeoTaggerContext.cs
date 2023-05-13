@@ -86,7 +86,7 @@ public partial class FileBasedGeoTaggerContext : ObservableObject
 
     public RelayCommand WriteToFilesCommand { get; }
 
-    public async Task CheckThatExifToolExistsAndSaveSettings()
+    public async Task CheckThatExifToolExists(bool saveSettings)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -98,7 +98,7 @@ public partial class FileBasedGeoTaggerContext : ObservableObject
 
         var exists = File.Exists(Settings.ExifToolFullName.Trim());
 
-        if (exists)
+        if (exists && saveSettings)
         {
             await FileBasedGeoTaggerSettingTools.WriteSettings(Settings);
             WeakReferenceMessenger.Default.Send(new ExifToolSettingsUpdateMessage((this, Settings.ExifToolFullName)));
@@ -205,6 +205,9 @@ public partial class FileBasedGeoTaggerContext : ObservableObject
 
         WriteToFileHtml = WpfHtmlDocument.ToHtmlLeafletBasicGeoJsonDocument("WrittenFiles",
             32.12063, -110.52313, string.Empty);
+
+        await CheckThatExifToolExists(true);
+
     }
 
     public async Task MetadataForSelectedFilesToTag()
@@ -329,7 +332,7 @@ public partial class FileBasedGeoTaggerContext : ObservableObject
 
         if (e.PropertyName == nameof(Settings))
         {
-            StatusContext.RunNonBlockingTask(CheckThatExifToolExistsAndSaveSettings);
+            StatusContext.RunNonBlockingTask(async () => await CheckThatExifToolExists(false));
         }
     }
 
@@ -338,7 +341,7 @@ public partial class FileBasedGeoTaggerContext : ObservableObject
         if (string.IsNullOrWhiteSpace(e.PropertyName)) return;
 
         if (e.PropertyName == nameof(Settings.ExifToolFullName))
-            StatusContext.RunNonBlockingTask(CheckThatExifToolExistsAndSaveSettings);
+            StatusContext.RunNonBlockingTask(async () => await CheckThatExifToolExists(true));
     }
 
 
