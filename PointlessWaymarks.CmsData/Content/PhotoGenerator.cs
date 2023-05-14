@@ -98,7 +98,7 @@ public static class PhotoGenerator
             }
         }
 
-        if (toReturn is { Latitude: { }, Longitude: { } } &&
+        if (toReturn is { Latitude: { }, Longitude: { } } && UserSettingsSingleton.CurrentSettings().FeatureIntersectionTagOnImport &&
             !string.IsNullOrWhiteSpace(UserSettingsSingleton.CurrentSettings().FeatureIntersectionTagSettingsFile) &&
             !skipAdditionalTagDiscovery)
             try

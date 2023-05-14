@@ -416,7 +416,7 @@ public partial class GpxImportContext : ObservableObject
         }
 
         var newLine =
-            await LineGenerator.NewFromGpxTrack(toImport.TrackInformation, false, true,
+            await LineGenerator.NewFromGpxTrack(toImport.TrackInformation, false, false,
                 StatusContext.ProgressTracker());
 
         newLine.ContentId = Guid.NewGuid();

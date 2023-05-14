@@ -258,6 +258,22 @@
                         </wpf:MarkdownViewer>
                     </StackPanel>
                     <StackPanel Orientation="Vertical">
+                        <Label Style="{StaticResource DataEntryLabelStyle}" Target="{Binding ElementName=FeatureIntersectionTagOnImportCheckBox}">
+                            Feature Intersection - Tag on Import
+                        </Label>
+                        <CheckBox
+                            Name="FeatureIntersectionTagOnImportCheckBox"
+                            Margin="6,0,0,0"
+                            IsChecked="{Binding EditorSettings.FeatureIntersectionTagOnImport, UpdateSourceTrigger=PropertyChanged}">
+                            Automatically Feature Intersection Tag New Content on Import (Feature Intersection Settings File must be set)
+                        </CheckBox>
+                        <wpf:MarkdownViewer Markdown="{Binding HelpMarkdownFeatureIntersectionTagOnImport}">
+                            <b:Interaction.Behaviors>
+                                <behaviors:IgnoreMouseWheelBehavior />
+                            </b:Interaction.Behaviors>
+                        </wpf:MarkdownViewer>
+                    </StackPanel>
+                    <StackPanel Orientation="Vertical">
                         <Label Style="{StaticResource DataEntryLabelStyle}" Target="{Binding ElementName=LatitudeTextBox}">
                             Default Latitude
                         </Label>

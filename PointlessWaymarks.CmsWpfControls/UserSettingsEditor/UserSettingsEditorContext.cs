@@ -59,6 +59,9 @@ public partial class UserSettingsEditorContext : ObservableObject
     public static string HelpMarkdownFeatureIntersectionSettingsFile =>
         "This program can check a Point or Line against a set of GeoJson files to generate tags. The settings file for that feature must be specified here.";
 
+    public static string HelpMarkdownFeatureIntersectionTagOnImport =>
+        "If checked - and the Feature Intersection Settings File is set/valid - newly imported content that has position information will have feature intersect tags added.";
+
     public static string HelpMarkdownLocalMediaArchive =>
         "The original/source media files are stored separately from the generated site - this (local) directory is very " +
         "important because the generating the site depends on the settings file, database and the contents of this " +

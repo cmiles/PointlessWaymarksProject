@@ -40,7 +40,7 @@ public static class LineGenerator
             tagList = new List<string> { stateCounty.state, stateCounty.county };
         }
 
-        if (trackInformation.Track.Any() &&
+        if (trackInformation.Track.Any() && UserSettingsSingleton.CurrentSettings().FeatureIntersectionTagOnImport && 
             !string.IsNullOrWhiteSpace(UserSettingsSingleton.CurrentSettings().FeatureIntersectionTagSettingsFile) &&
             !skipFeatureIntersectTagging)
             try

@@ -505,7 +505,7 @@ public partial class CmsCommonCommands : ObservableObject
 
         var skipFeatureIntersectionTagging = false;
 
-        if (selectedFileInfos.Count > 10 &&
+        if (selectedFileInfos.Count > 10 && UserSettingsSingleton.CurrentSettings().FeatureIntersectionTagOnImport &&
             !string.IsNullOrWhiteSpace(UserSettingsSingleton.CurrentSettings().FeatureIntersectionTagSettingsFile))
             skipFeatureIntersectionTagging = await statusContext.ShowMessage("Slow Feature Intersection Tag Warning",
                 $"You are importing {selectedFileInfos.Count} files, checking for Feature Intersection Tags on these will be slow, it will be faster to select all of the new entries in the Line List after they have been created/saved and generate Feature Intersection Tags then - skip Feature Intersection Tagging?",

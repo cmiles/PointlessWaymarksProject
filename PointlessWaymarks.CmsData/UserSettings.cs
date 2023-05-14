@@ -14,7 +14,8 @@ public partial class UserSettings : ObservableObject
     [ObservableProperty] private string _databaseFile = string.Empty;
 
     [ObservableProperty] private string _defaultCreatedBy = string.Empty;
-    [ObservableProperty] private string _featureIntersectionTagSettingsFile = string.Empty;
+    [ObservableProperty] private string _featureIntersectionTagSettingsFile =string.Empty;
+    [ObservableProperty] private bool _featureIntersectionTagOnImport;
     [ObservableProperty] private bool _imagePagesHaveLinksToImageSizesByDefault;
     [ObservableProperty] private double _latitudeDefault;
 
