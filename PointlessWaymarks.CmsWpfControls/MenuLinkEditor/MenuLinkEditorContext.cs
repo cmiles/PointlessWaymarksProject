@@ -219,7 +219,7 @@ public partial class MenuLinkEditorContext : ObservableObject
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        if (Items.Any())
+        if (!Items.Any())
         {
             StatusContext.ToastError("No entries to save?");
             return;
