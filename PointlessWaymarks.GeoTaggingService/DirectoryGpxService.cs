@@ -20,20 +20,18 @@ public class DirectoryGpxService : IGpxService
         _includeSubdirectories = includeSubdirectories;
     }
 
-    public async Task<List<WaypointAndSource>> GetGpxPoints(DateTime photoDateTimeUtc, IProgress<string>? progress)
+    public async Task<List<WaypointAndSource>> GetGpxPoints(List<DateTime> photoDateTimeUtcList,
+        IProgress<string>? progress)
     {
         await VerifyFilesAndRescanIfNeeded(progress);
 
-        var possibleFiles =
-            _gpxFiles.Where(x => photoDateTimeUtc >= x.startDateTime && photoDateTimeUtc <= x.endDateTime).ToList();
+        //This is a brute force approach since the expectation is local files.
+        List<(DateTime startDateTime, DateTime endDateTime, FileInfo file)> possibleFiles = new();
 
-        progress?.Report($"Found {possibleFiles.Count} Gpx Files");
-
-        if (!possibleFiles.Any())
-        {
-            progress?.Report("No Gpx Files Found");
-            return new List<WaypointAndSource>();
-        }
+        foreach (var loopPhotoDateTime in photoDateTimeUtcList)
+            possibleFiles.AddRange(_gpxFiles!.Where(x =>
+                loopPhotoDateTime >= x.startDateTime && loopPhotoDateTime <= x.endDateTime &&
+                !possibleFiles.Any(y => x.file.FullName.Equals(y.file.FullName))).ToList());
 
         var allPointsList = new List<WaypointAndSource>();
 

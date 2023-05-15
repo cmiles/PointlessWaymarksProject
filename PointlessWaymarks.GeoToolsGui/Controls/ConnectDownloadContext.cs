@@ -159,8 +159,7 @@ public partial class ConnectDownloadContext : ObservableObject
         toDownload.ArchivedJson =
             await GarminConnectTools.WriteJsonActivityArchiveFile(toDownload.Activity, archiveDirectory, true);
         toDownload.ArchivedGpx = await GarminConnectTools.GetGpx(toDownload.Activity, archiveDirectory, false, true,
-            credentials.userName,
-            credentials.password);
+            new ConnectGpxService { ConnectUsername = credentials.userName, ConnectPassword = credentials.password });
 
         StatusContext.ToastSuccess($"Downloaded {toDownload.ArchivedJson.Name} {toDownload.ArchivedGpx?.Name}");
     }
@@ -289,8 +288,9 @@ public partial class ConnectDownloadContext : ObservableObject
         await ThreadSwitcher.ResumeBackgroundAsync();
 
         var credentials = GarminConnectCredentialTools.GetGarminConnectCredentials();
-        var activities = await GarminConnectTools.Search(SearchStartDate, SearchEndDate, credentials.userName,
-            credentials.password, cancellationToken, StatusContext.ProgressTracker());
+        var activities = await GarminConnectTools.Search(SearchStartDate, SearchEndDate,
+            new ConnectGpxService { ConnectUsername = credentials.userName, ConnectPassword = credentials.password },
+            cancellationToken, StatusContext.ProgressTracker());
 
         var returnList = activities.Select(x => new GarminActivityAndLocalFiles(x)).ToList();
 

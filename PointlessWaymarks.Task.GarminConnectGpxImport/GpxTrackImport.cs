@@ -231,8 +231,8 @@ public class GpxTrackImport
                 try
                 {
                     var gpxFile = await GarminConnectTools.GetGpx(loopActivity, archiveDirectory,
-                        true, settings.OverwriteExistingArchiveDirectoryFiles, username,
-                        password);
+                        true, settings.OverwriteExistingArchiveDirectoryFiles,
+                        new ConnectGpxService { ConnectUsername = username, ConnectPassword = password });
 
                     fileList.Add((jsonArchiveFile, gpxFile));
                 }
@@ -336,7 +336,7 @@ public class GpxTrackImport
                     }
                 }
 
-                if (newEntry is { RecordingStartedOnUtc: { }, RecordingEndedOnUtc: { } })
+                if (newEntry is { RecordingStartedOnUtc: not null, RecordingEndedOnUtc: not null })
                 {
                     var db = await Db.Context();
                     var relatedPhotos = db.PhotoContents.Where(x =>

@@ -12,12 +12,18 @@ public class FileListGpxService : IGpxService
         _listOfGpxFiles = listOfGpxFiles;
     }
 
-    public async Task<List<WaypointAndSource>> GetGpxPoints(DateTime photoDateTimeUtc, IProgress<string>? progress)
+    public async Task<List<WaypointAndSource>> GetGpxPoints(List<DateTime> photoDateTimeUtcList,
+        IProgress<string>? progress)
     {
         if (_gpxFiles == null) await ScanFiles(progress);
 
-        var possibleFiles =
-            _gpxFiles!.Where(x => photoDateTimeUtc >= x.startDateTime && photoDateTimeUtc <= x.endDateTime).ToList();
+        //This is a brute force approach since the expectation is local files.
+        List<(DateTime startDateTime, DateTime endDateTime, FileInfo file)> possibleFiles = new();
+
+        foreach (var loopPhotoDateTime in photoDateTimeUtcList)
+            possibleFiles.AddRange(_gpxFiles!.Where(x =>
+                loopPhotoDateTime >= x.startDateTime && loopPhotoDateTime <= x.endDateTime &&
+                !possibleFiles.Any(y => x.file.FullName.Equals(y.file.FullName))).ToList());
 
         progress?.Report($"Found {possibleFiles.Count} Gpx Files");
 
@@ -42,7 +48,8 @@ public class FileListGpxService : IGpxService
 
             if (!gpx.Tracks.Any(t => t.Segments.SelectMany(y => y.Waypoints).Count() > 1)) continue;
 
-            allPointsList.AddRange(gpx.Tracks.SelectMany(x => x.Segments).SelectMany(x => x.Waypoints).Select(x => new WaypointAndSource(x, loopFile.file.Name))
+            allPointsList.AddRange(gpx.Tracks.SelectMany(x => x.Segments).SelectMany(x => x.Waypoints)
+                .Select(x => new WaypointAndSource(x, loopFile.file.Name))
                 .OrderBy(x => x.Waypoint.TimestampUtc)
                 .ToList());
         }

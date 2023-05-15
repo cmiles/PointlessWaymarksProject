@@ -2,5 +2,5 @@
 
 public interface IGpxService
 {
-    Task<List<WaypointAndSource>> GetGpxPoints(DateTime photoDateTimeUtc, IProgress<string>? progress);
+    Task<List<WaypointAndSource>> GetGpxPoints(List<DateTime> photoDateTimeUtcList, IProgress<string>? progress);
 }

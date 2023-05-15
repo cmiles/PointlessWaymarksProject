@@ -130,53 +130,17 @@ public class GeoTag
         progress?.Report(
             $"Found {listOfUtcAndFileToProcess.Count} files to Process out of {supportedFiles.Count} supported Files");
 
-        var pointLists = new List<(DateTime start, DateTime end, List<WaypointAndSource> waypoints)>();
+        var pointsCollection = new List<WaypointAndSource>();
 
-        counter = 0;
-
-        foreach (var loopUtc in listOfUtcAndFileToProcess)
-        {
-            if (++counter % 50 == 0)
-                progress?.Report($"GeoTag - Getting Points - File {counter} of {listOfUtcAndFileToProcess.Count}");
-
-            if (pointLists.Any(x => loopUtc.createdUtc >= x.start && loopUtc.createdUtc <= x.end))
-            {
-                progress?.Report(
-                    $"GeoTag - {loopUtc.file} has a UTC Time of {loopUtc.createdUtc}, points for this time have already been added - continuing");
-                continue;
-            }
-
-            var pointsCollection = new List<WaypointAndSource>();
-
-            foreach (var loopService in gpxServices)
-                pointsCollection.AddRange(
-                    (await loopService.GetGpxPoints(loopUtc.createdUtc, progress)).Where(x =>
-                        x.Waypoint.TimestampUtc != null));
-
-            if (!pointsCollection.Any()) continue;
-
-
-            var timestampMin = pointsCollection.Where(x => x.Waypoint.TimestampUtc != null).MinBy(x => x.Waypoint.TimestampUtc!.Value)!
-                .Waypoint.TimestampUtc;
-            var timestampMax = pointsCollection.Where(x => x.Waypoint.TimestampUtc != null).MaxBy(x => x.Waypoint.TimestampUtc!.Value)!
-                .Waypoint.TimestampUtc;
-
-            if (timestampMin != null && timestampMax != null)
-            {
-                var toAdd = (timestampMin.Value,
-                    timestampMax.Value, pointsCollection);
-
-                pointLists.Add(toAdd);
-
-                progress?.Report(
-                    $"GeoTag - For {loopUtc.file} added {toAdd.pointsCollection.Count} points from UTC {toAdd.Item1} to {toAdd.Item2}");
-            }
-        }
-
-        var allPoints = pointLists.SelectMany(x => x.waypoints).ToList();
+        foreach (var loopService in gpxServices)
+            pointsCollection.AddRange(
+                (await loopService.GetGpxPoints(
+                    listOfUtcAndFileToProcess.Select(x => x.createdUtc).Distinct().OrderBy(x => x).ToList(), progress))
+                .Where(x =>
+                    x.Waypoint.TimestampUtc != null));
 
         progress?.Report(
-            $"Found a total of {allPoints.Count} points to check for files within {adjustCreatedTimeInMinutes} minutes of for location tagging");
+            $"Found a total of {pointsCollection.Count} points to check for files within {adjustCreatedTimeInMinutes} minutes of for location tagging");
 
         counter = 0;
 
@@ -188,7 +152,7 @@ public class GeoTag
                 progress?.Report(
                     $"GeoTag - Finding Location and Writing Metadata - File {counter} of {listOfUtcAndFileToProcess.Count}");
 
-            var possibleTagPoints = allPoints.Where(x =>
+            var possibleTagPoints = pointsCollection.Where(x =>
                 x.Waypoint.TimestampUtc >= loopFile.createdUtc.AddMinutes(-Math.Abs(pointMustBeWithinMinutes)) &&
                 x.Waypoint.TimestampUtc <= loopFile.createdUtc.AddMinutes(Math.Abs(pointMustBeWithinMinutes))).ToList();
 
@@ -206,7 +170,8 @@ public class GeoTag
                 continue;
             }
 
-            var closest = possibleTagPoints.Where(x => x.Waypoint.TimestampUtc != null).MinBy(x =>  Math.Abs(loopFile.createdUtc.Subtract(x.Waypoint.TimestampUtc!.Value).TotalMicroseconds));
+            var closest = possibleTagPoints.Where(x => x.Waypoint.TimestampUtc != null).MinBy(x =>
+                Math.Abs(loopFile.createdUtc.Subtract(x.Waypoint.TimestampUtc!.Value).TotalMicroseconds));
 
             if (closest == null) continue;
 
@@ -263,7 +228,8 @@ public class GeoTag
             var noFilesMessage = "GeoTag - No files to tag, ending...";
             progress?.Report(noFilesMessage);
             returnNotes.Append(noFilesMessage);
-            return Task.FromResult(new GeoTagWriteMetadataToFilesResult(returnTitle, returnNotes.ToString(), returnFileResults));
+            return Task.FromResult(
+                new GeoTagWriteMetadataToFilesResult(returnTitle, returnNotes.ToString(), returnFileResults));
         }
 
         var exifTool = FileMetadataTools.ExifToolExecutable(exifToolFullName);
@@ -318,7 +284,6 @@ public class GeoTag
 
             if (FileMetadataTools.TagSharpSupportedExtensions.Contains(fileToWriteTo.Extension,
                     StringComparer.OrdinalIgnoreCase))
-            {
                 if (File.Create(fileToWriteTo.FullName) is TagLib.Image.File tagSharpFile)
                     try
                     {
@@ -327,7 +292,8 @@ public class GeoTag
                         if (loopFile.Elevation is not null) tagSharpFile.ImageTag.Altitude = loopFile.Elevation;
                         tagSharpFile.Save();
                         returnFileResults.Add(new GeoTagMetadataWrite(loopFile.FileName, true,
-                            "Wrote to File with TagSharp", loopFile.Source, loopFile.Latitude, loopFile.Longitude, loopFile.Elevation));
+                            "Wrote to File with TagSharp", loopFile.Source, loopFile.Latitude, loopFile.Longitude,
+                            loopFile.Elevation));
                         progress?.Report("GeoTag - Wrote Metadata with TagSharp");
                         continue;
                     }
@@ -340,7 +306,6 @@ public class GeoTag
                             loopFile.Source, loopFile.Latitude, loopFile.Longitude, loopFile.Elevation));
                         continue;
                     }
-            }
 
             var exifToolParameters = loopFile.Elevation is null
                 ? $"-GPSLatitude*={loopFile.Latitude} -GPSLongitude*={loopFile.Longitude} -overwrite_original \"{fileToWriteTo.FullName}\" "
@@ -377,7 +342,8 @@ public class GeoTag
             }
 
             returnFileResults.Add(new GeoTagMetadataWrite(fileToWriteTo.FullName, true,
-                $"Wrote {loopFile.Latitude}, {loopFile.Longitude} - Elevation: {loopFile.Elevation} with ExifTool", loopFile.Source,
+                $"Wrote {loopFile.Latitude}, {loopFile.Longitude} - Elevation: {loopFile.Elevation} with ExifTool",
+                loopFile.Source,
                 loopFile.Latitude,
                 loopFile.Longitude, loopFile.Elevation));
 
@@ -385,7 +351,8 @@ public class GeoTag
                 $"GeoTag - Wrote Metadata with ExifTool - {exifTool.exifToolFile.FullName} {exifToolParameters}");
         }
 
-        return Task.FromResult(new GeoTagWriteMetadataToFilesResult(returnTitle, returnNotes.ToString(), returnFileResults));
+        return Task.FromResult(
+            new GeoTagWriteMetadataToFilesResult(returnTitle, returnNotes.ToString(), returnFileResults));
     }
 
 
@@ -393,11 +360,12 @@ public class GeoTag
         DateTime? UtcDateTime = null, double? Latitude = null,
         double? Longitude = null, double? Elevation = null);
 
+    public record GeoTagMetadataWrite(string FileName, bool WroteMetadata, string Notes, string Source,
+        double? Latitude = null,
+        double? Longitude = null, double? Elevation = null);
+
     public record GeoTagProduceActionsResult(string Title, string Notes, List<GeoTagFileAction> FileResults);
 
     public record GeoTagWriteMetadataToFilesResult(string Title, string Notes,
         List<GeoTagMetadataWrite> FileResults);
-
-    public record GeoTagMetadataWrite(string FileName, bool WroteMetadata, string Notes, string Source, double? Latitude = null,
-        double? Longitude = null, double? Elevation = null);
 }

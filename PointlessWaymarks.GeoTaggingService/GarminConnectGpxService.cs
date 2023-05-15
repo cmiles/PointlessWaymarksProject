@@ -1,7 +1,6 @@
-﻿using Garmin.Connect;
-using Garmin.Connect.Auth;
-using Garmin.Connect.Models;
+﻿using Garmin.Connect.Models;
 using NetTopologySuite.IO;
+using PointlessWaymarks.SpatialTools;
 
 namespace PointlessWaymarks.GeoTaggingService;
 
@@ -9,55 +8,102 @@ namespace PointlessWaymarks.GeoTaggingService;
 /// </summary>
 public class GarminConnectGpxService : IGpxService
 {
-    public GarminConnectGpxService(string archiveDirectory, string connectUsername, string connectPassword)
+    public GarminConnectGpxService(string archiveDirectory, IRemoteGpxService connectWrapper)
     {
         ArchiveDirectory = archiveDirectory;
-        ConnectUsername = connectUsername;
-        ConnectPassword = connectPassword;
+        ConnectWrapper = connectWrapper;
     }
 
     public string ArchiveDirectory { get; }
-    public string ConnectPassword { get; }
-    public string ConnectUsername { get; }
+    public IRemoteGpxService ConnectWrapper { get; }
     public int SearchSurroundingDays { get; } = 7;
 
-    public async Task<List<WaypointAndSource>> GetGpxPoints(DateTime photoDateTimeUtc, IProgress<string>? progress)
+    public async Task<List<WaypointAndSource>> GetGpxPoints(List<DateTime> photoDateTimeUtcList,
+        IProgress<string>? progress)
     {
-        var authParameters = new BasicAuthParameters(ConnectUsername, ConnectPassword);
-        var client = new GarminConnectClient(new GarminConnectContext(new HttpClient(), authParameters));
+        var photoDates = photoDateTimeUtcList.GroupBy(x => DateOnly.FromDateTime(x.Date)).Select(x => x.Key)
+            .OrderBy(x => x).ToList();
 
-        var searchStateDate = photoDateTimeUtc.Date.AddDays(-SearchSurroundingDays);
-        var searchEndDate = photoDateTimeUtc.Date.AddDays(SearchSurroundingDays);
+        //Garmin Connect Unofficial API use has been reliable for me (5/15/2023 - for a year+ now) but it will
+        //gladly return too many requests. I don't know the limits and since it is unofficial that seems both
+        //fair and not worth trying to figure out. So the code tries to limit the number of requests.
 
-        progress?.Report(
-            $"Querying Garmin for Activities Starting {searchStateDate} to {searchEndDate} ({SearchSurroundingDays} Surrounding Days)");
+        var photoRangeList = new List<(DateOnly Start, DateOnly End)>();
 
-        var activityList = await client.GetActivitiesByDate(searchStateDate, searchEndDate, string.Empty) ??
-                           Array.Empty<GarminActivity>();
+        var currentRangeStart = photoDates.First();
+        var currentRangeEnd = photoDates.First().AddDays(1);
 
-        if (!activityList.Any())
+        //Combine consecutive days into a range - then expand that to a search range and record it
+        //  Search Range - currently 7 days before and after the photo date - this is very imperfect
+        //         and is somewhat untested but basically this is to try to catch most 
+        //         multi-day activities (there are many details that I have not explored related to this!)
+        foreach (var loopDate in photoDates.Skip(1))
         {
-            progress?.Report("No Activities Found in Surrounding Time Period");
-            return new();
+            if (loopDate >= currentRangeStart && loopDate < currentRangeEnd) continue;
+
+            if (loopDate >= currentRangeStart && loopDate < currentRangeEnd.AddDays(1))
+            {
+                currentRangeEnd = currentRangeEnd.AddDays(1);
+                continue;
+            }
+
+            photoRangeList.Add((currentRangeStart.AddDays(-7), currentRangeEnd.AddDays(7)));
+
+            currentRangeStart = loopDate;
+            currentRangeEnd = loopDate.AddDays(1);
         }
 
-        var activities = activityList.Where(x =>
-            photoDateTimeUtc >= x.StartTimeGmt && photoDateTimeUtc <= x.StartTimeGmt.AddSeconds(x.Duration)).ToList();
+        var searchRangeList = new List<(DateOnly Start, DateOnly End)>();
 
-        if (!activities.Any())
+        currentRangeStart = searchRangeList.First().Start;
+        currentRangeEnd = searchRangeList.First().End;
+
+        //Combine overlapping Search Ranges
+        foreach (var loopRange in photoRangeList.OrderBy(x => x.Start).Skip(1))
         {
-            progress?.Report($"No Activities Found for Photo UTC Time - {photoDateTimeUtc}");
-            return new ();
+            //Start is inside or the next day from the current range - expand range if needed and continue
+            if (loopRange.Start >= currentRangeStart && loopRange.Start < currentRangeEnd.AddDays(1))
+            {
+                currentRangeEnd = loopRange.End > currentRangeEnd ? loopRange.End : currentRangeEnd;
+                continue;
+            }
+
+            searchRangeList.Add((currentRangeStart, currentRangeEnd));
+            currentRangeStart = loopRange.Start;
+            currentRangeEnd = loopRange.End;
         }
 
-        progress?.Report($"Found {activities.Count} Activity");
 
+        List<GarminActivity> activityList = new();
+
+        foreach (var loopRanges in photoRangeList)
+        {
+            var searchStateDate = loopRanges.Start;
+            var searchEndDate = loopRanges.End;
+
+            progress?.Report(
+                $"Querying Garmin for Activities Starting {searchStateDate} to {searchEndDate} ({SearchSurroundingDays} Surrounding Days)");
+
+            activityList.AddRange(await ConnectWrapper.GetActivityList(
+                searchStateDate.ToDateTime(new TimeOnly(0, 0)),
+                searchEndDate.ToDateTime(new TimeOnly(0, 0))));
+        }
+
+        var allPointsList = await ActivitiesToWaypointAndSources(activityList);
+
+        progress?.Report($"Found {allPointsList.Count} Points from Garmin Connect Activities");
+
+        return allPointsList;
+    }
+
+    private async Task<List<WaypointAndSource>> ActivitiesToWaypointAndSources(List<GarminActivity> activities)
+    {
         var allPointsList = new List<WaypointAndSource>();
 
         foreach (var loopActivity in activities)
         {
-            var gpxFile = await SpatialTools.GarminConnectTools.GetGpx(loopActivity, new DirectoryInfo(ArchiveDirectory), false, false,
-                ConnectUsername, ConnectPassword);
+            var gpxFile = await GarminConnectTools.GetGpx(loopActivity, new DirectoryInfo(ArchiveDirectory),
+                false, false, ConnectWrapper);
 
             if (gpxFile is null) continue;
 
@@ -72,12 +118,11 @@ public class GarminConnectGpxService : IGpxService
 
             if (!gpx.Tracks.Any(t => t.Segments.SelectMany(y => y.Waypoints).Count() > 1)) continue;
 
-            allPointsList.AddRange(gpx.Tracks.SelectMany(x => x.Segments).SelectMany(x => x.Waypoints).Select(x => new WaypointAndSource(x, loopActivity.ActivityName))
+            allPointsList.AddRange(gpx.Tracks.SelectMany(x => x.Segments).SelectMany(x => x.Waypoints)
+                .Select(x => new WaypointAndSource(x, loopActivity.ActivityName))
                 .OrderBy(x => x.Waypoint.TimestampUtc)
                 .ToList());
         }
-
-        progress?.Report($"Found {allPointsList.Count} Points from Garmin Connect Activities");
 
         return allPointsList;
     }

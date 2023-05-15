@@ -234,7 +234,9 @@ public partial class ConnectBasedGeoTaggerContext : ObservableObject
         }
 
         var fileListGpxService =
-            new GarminConnectGpxService(Settings.ArchiveDirectory, credentials.userName, credentials.password);
+            new GarminConnectGpxService(Settings.ArchiveDirectory,
+                new ConnectGpxService
+                    { ConnectUsername = credentials.userName, ConnectPassword = credentials.password });
         var tagger = new GeoTag();
         PreviewResults = await tagger.ProduceGeoTagActions(FilesToTagFileList.Files!.ToList(),
             new List<IGpxService> { fileListGpxService },
