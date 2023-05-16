@@ -671,23 +671,6 @@ public partial class CmsCommonCommands : ObservableObject
                     continue;
                 }
 
-                if (metaContent is { Latitude: { }, Longitude: { } })
-                {
-                    var photoPointFeature = new Feature(
-                        new Point(metaContent.Longitude.Value, metaContent.Latitude.Value),
-                        new AttributesTable());
-
-                    var intersectionTags = photoPointFeature.IntersectionTags(
-                        UserSettingsSingleton.CurrentSettings().FeatureIntersectionTagSettingsFile, cancellationToken,
-                        StatusContext.ProgressTracker());
-
-                    if (intersectionTags.Any())
-                    {
-                        var tagList = Db.TagListParse(metaContent.Tags).Union(intersectionTags).ToList();
-                        metaContent.Tags = Db.TagListJoin(tagList);
-                    }
-                }
-
                 var (saveGenerationReturn, _) = await PhotoGenerator.SaveAndGenerateHtml(metaContent, loopFile, true,
                     null, StatusContext.ProgressTracker());
 
