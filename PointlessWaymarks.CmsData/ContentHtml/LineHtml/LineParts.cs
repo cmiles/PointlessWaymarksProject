@@ -99,6 +99,8 @@ public static class LineParts
 
                 if (hours == 0)
                     return (minuteDuration, $"{minutes} Minutes");
+                if(minutes == 0)
+                    return (minuteDuration, $"{hours} Hour{(hours > 1 ? "s" : "")}");
                 return (minuteDuration,
                     $"{hours} Hour{(hours > 1 ? "s" : "")} {minutes} Minute{(minutes > 1 ? "s" : "")}");
             }
@@ -178,7 +180,7 @@ public static class LineParts
                 "line-detail", "start-datetime", $"{dbEntry.RecordingStartedOn.Value:U}"));
 
         if (dbEntry.RecordingEndedOn.HasValue)
-            outerContainer.Children.Add(Tags.InfoTextDivTag($"{dbEntry.RecordingStartedOn:M/d/yy h:mm tt} End",
+            outerContainer.Children.Add(Tags.InfoTextDivTag($"{dbEntry.RecordingEndedOn:M/d/yy h:mm tt} End",
                 "line-detail", "end-datetime", $"{dbEntry.RecordingEndedOn.Value:U}"));
 
         //Return empty if there are no details
