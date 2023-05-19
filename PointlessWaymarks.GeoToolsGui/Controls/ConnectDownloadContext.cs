@@ -49,7 +49,7 @@ public partial class ConnectDownloadContext : ObservableObject
         EnterGarminCredentialsCommand = StatusContext.RunBlockingTaskCommand(EnterGarminCredentials);
         RemoveAllGarminCredentialsCommand = StatusContext.RunNonBlockingTaskCommand(RemoveAllGarminCredentials);
         ChooseArchiveDirectoryCommand = StatusContext.RunBlockingTaskCommand(ChooseArchiveDirectory);
-        DownloadActivityCommand = StatusContext.RunBlockingTaskCommand<GarminActivityAndLocalFiles>(DownloadActivity);
+        DownloadActivityCommand = StatusContext.RunBlockingTaskCommand<GarminActivityAndLocalFiles>(async x => await DownloadActivity(x, StatusContext.ProgressTracker()));
         ShowGpxFileCommand = StatusContext.RunBlockingTaskCommand<GarminActivityAndLocalFiles>(ShowGpxFile);
         ShowFileInExplorerCommand = StatusContext.RunNonBlockingTaskCommand<string>(ShowFileInExplorer);
 
@@ -125,7 +125,7 @@ public partial class ConnectDownloadContext : ObservableObject
         return control;
     }
 
-    public async Task DownloadActivity(GarminActivityAndLocalFiles? toDownload)
+    public async Task DownloadActivity(GarminActivityAndLocalFiles? toDownload, IProgress<string> progress)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -159,7 +159,7 @@ public partial class ConnectDownloadContext : ObservableObject
         toDownload.ArchivedJson =
             await GarminConnectTools.WriteJsonActivityArchiveFile(toDownload.Activity, archiveDirectory, true);
         toDownload.ArchivedGpx = await GarminConnectTools.GetGpx(toDownload.Activity, archiveDirectory, false, true,
-            new ConnectGpxService { ConnectUsername = credentials.userName, ConnectPassword = credentials.password });
+            new ConnectGpxService { ConnectUsername = credentials.userName, ConnectPassword = credentials.password }, progress);
 
         StatusContext.ToastSuccess($"Downloaded {toDownload.ArchivedJson.Name} {toDownload.ArchivedGpx?.Name}");
     }
@@ -367,7 +367,7 @@ public partial class ConnectDownloadContext : ObservableObject
             return;
         }
 
-        if (toShow.ArchivedGpx is not { Exists: true }) await DownloadActivity(toShow);
+        if (toShow.ArchivedGpx is not { Exists: true }) await DownloadActivity(toShow, StatusContext.ProgressTracker());
 
         if (toShow.ArchivedGpx is not { Exists: true })
         {

@@ -241,8 +241,8 @@ public partial class ConnectBasedGeoTaggerContext : ObservableObject
         PreviewResults = await tagger.ProduceGeoTagActions(FilesToTagFileList.Files!.ToList(),
             new List<IGpxService> { fileListGpxService },
             Settings.PointsMustBeWithinMinutes, OffsetPhotoTimeInMinutes, Settings.OverwriteExistingGeoLocation,
-            Settings.ExifToolFullName,
-            StatusContext.ProgressTracker());
+            StatusContext.ProgressTracker(),
+            Settings.ExifToolFullName);
 
         var resultsWithLocation =
             PreviewResults.FileResults.Where(x => x is { Latitude: not null, Longitude: not null }).ToList();

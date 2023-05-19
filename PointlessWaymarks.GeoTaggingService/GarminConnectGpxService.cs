@@ -19,7 +19,7 @@ public class GarminConnectGpxService : IGpxService
     public int SearchSurroundingDays { get; } = 7;
 
     public async Task<List<WaypointAndSource>> GetGpxPoints(List<DateTime> photoDateTimeUtcList,
-        IProgress<string>? progress)
+        IProgress<string> progress)
     {
         var photoDates = photoDateTimeUtcList.GroupBy(x => DateOnly.FromDateTime(x.Date)).Select(x => x.Key)
             .OrderBy(x => x).ToList();
@@ -53,10 +53,14 @@ public class GarminConnectGpxService : IGpxService
             currentRangeEnd = loopDate.AddDays(1);
         }
 
+        //Add the last/current range from the loop
+
+        photoRangeList.Add((currentRangeStart.AddDays(-7), currentRangeEnd.AddDays(7)));
+
         var searchRangeList = new List<(DateOnly Start, DateOnly End)>();
 
-        currentRangeStart = searchRangeList.First().Start;
-        currentRangeEnd = searchRangeList.First().End;
+        currentRangeStart = photoRangeList.First().Start;
+        currentRangeEnd = photoRangeList.First().End;
 
         //Combine overlapping Search Ranges
         foreach (var loopRange in photoRangeList.OrderBy(x => x.Start).Skip(1))
@@ -73,37 +77,41 @@ public class GarminConnectGpxService : IGpxService
             currentRangeEnd = loopRange.End;
         }
 
+        //Add the last/current range from the loop
+        searchRangeList.Add((currentRangeStart, currentRangeEnd));
 
         List<GarminActivity> activityList = new();
 
-        foreach (var loopRanges in photoRangeList)
+        foreach (var loopRanges in searchRangeList)
         {
-            var searchStateDate = loopRanges.Start;
+            var searchStartDate = loopRanges.Start;
             var searchEndDate = loopRanges.End;
 
-            progress?.Report(
-                $"Querying Garmin for Activities Starting {searchStateDate} to {searchEndDate} ({SearchSurroundingDays} Surrounding Days)");
+            progress.Report(
+                $"Querying Garmin for Activities Starting {searchStartDate} to {searchEndDate} ({SearchSurroundingDays} Surrounding Days)");
 
             activityList.AddRange(await ConnectWrapper.GetActivityList(
-                searchStateDate.ToDateTime(new TimeOnly(0, 0)),
+                searchStartDate.ToDateTime(new TimeOnly(0, 0)),
                 searchEndDate.ToDateTime(new TimeOnly(0, 0))));
         }
 
-        var allPointsList = await ActivitiesToWaypointAndSources(activityList);
+        var allPointsList = await ActivitiesToWaypointAndSources(activityList, progress);
 
-        progress?.Report($"Found {allPointsList.Count} Points from Garmin Connect Activities");
+        progress.Report($"Found {allPointsList.Count} Points from Garmin Connect Activities");
 
         return allPointsList;
     }
 
-    private async Task<List<WaypointAndSource>> ActivitiesToWaypointAndSources(List<GarminActivity> activities)
+    private async Task<List<WaypointAndSource>> ActivitiesToWaypointAndSources(List<GarminActivity> activities, IProgress<string> progress)
     {
         var allPointsList = new List<WaypointAndSource>();
+
+        progress.Report($"Getting Points from {activities.Count} Activities");
 
         foreach (var loopActivity in activities)
         {
             var gpxFile = await GarminConnectTools.GetGpx(loopActivity, new DirectoryInfo(ArchiveDirectory),
-                false, false, ConnectWrapper);
+                false, false, ConnectWrapper, progress);
 
             if (gpxFile is null) continue;
 

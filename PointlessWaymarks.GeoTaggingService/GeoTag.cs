@@ -11,7 +11,7 @@ public class GeoTag
     public async Task<GeoTagProduceActionsResult> ProduceGeoTagActions(List<FileInfo> filesToTag,
         List<IGpxService> gpxServices, int pointMustBeWithinMinutes,
         int adjustCreatedTimeInMinutes,
-        bool overwriteExistingLatLong, string? exifToolFullName = null, IProgress<string>? progress = null)
+        bool overwriteExistingLatLong, IProgress<string> progress, string? exifToolFullName = null)
     {
         var baseRunInformation =
             $"GeoTag - Produce File Actions - Starting {DateTime.Now} - {filesToTag.Count} Files, {gpxServices.Count} GpxServices, {pointMustBeWithinMinutes} Within Minutes, {adjustCreatedTimeInMinutes} Adjustment, Overwrite {overwriteExistingLatLong}, ExifTool {exifToolFullName}";
@@ -24,7 +24,7 @@ public class GeoTag
         if (!filesToTag.Any())
         {
             var noFilesMessage = "GeoTag - No files to tag, ending...";
-            progress?.Report(noFilesMessage);
+            progress.Report(noFilesMessage);
             returnNotes.Append(noFilesMessage);
             return new GeoTagProduceActionsResult(returnTitle, returnNotes.ToString(), returnFileResults);
         }
@@ -32,7 +32,7 @@ public class GeoTag
         if (!gpxServices.Any())
         {
             var noGpxServicesMessage = "GeoTag - No GPX Services to tag with, ending...";
-            progress?.Report(noGpxServicesMessage);
+            progress.Report(noGpxServicesMessage);
             returnNotes.AppendLine(noGpxServicesMessage);
             return new GeoTagProduceActionsResult(returnTitle, returnNotes.ToString(), returnFileResults);
         }
@@ -60,34 +60,34 @@ public class GeoTag
             var notSupportedFileExtensions = string.Join(", ",
                 supportedFiles.Select(x => x.Extension.ToUpperInvariant()).Distinct().OrderBy(x => x));
 
-            progress?.Report(
+            progress.Report(
                 $"GeoTag - Found {notSupportedFiles.Count} with extensions that are not supported");
 
-            progress?.Report(
+            progress.Report(
                 $"GeoTag - {notSupportedFileExtensions.Length} Extensions without support: {notSupportedFileExtensions}");
 
-            progress?.Report(
+            progress.Report(
                 $"GeoTag - {notSupportedFiles.Count} Files without support: {string.Join(", ", notSupportedFiles.Select(x => x.FullName).OrderBy(x => x))}");
 
             notSupportedFiles.ForEach(x => returnFileResults.Add(new GeoTagFileAction(x.FullName, false,
                 $"The file extension {x.Extension} is not supported - file not processed.", string.Empty)));
         }
 
-        progress?.Report($"GeoTag - {supportedFiles.Count} Supported Files");
+        progress.Report($"GeoTag - {supportedFiles.Count} Supported Files");
 
         var listOfUtcAndFileToProcess = new List<(DateTime createdUtc, FileInfo file)>();
 
-        progress?.Report("GeoTag - Getting photo UTC Time (required) and checking for existing Lat/Long");
+        progress.Report("GeoTag - Getting photo UTC Time (required) and checking for existing Lat/Long");
         var counter = 0;
 
         foreach (var loopFile in supportedFiles.OrderBy(x => x.FullName).ToList())
         {
             if (++counter % 50 == 0)
-                progress?.Report($"GeoTag - Processing Metadata - File {counter} of {supportedFiles.Count}");
+                progress.Report($"GeoTag - Processing Metadata - File {counter} of {supportedFiles.Count}");
 
             if (!loopFile.Exists)
             {
-                progress?.Report($"GeoTag - File {loopFile.FullName} doesn't exist - skipping");
+                progress.Report($"GeoTag - File {loopFile.FullName} doesn't exist - skipping");
                 returnFileResults.Add(new GeoTagFileAction(loopFile.FullName, false,
                     "The file was not found - file not processed.", string.Empty));
                 continue;
@@ -97,7 +97,7 @@ public class GeoTag
 
             if (!overwriteExistingLatLong && hasExistingLatLong)
             {
-                progress?.Report(
+                progress.Report(
                     $"GeoTag - File {loopFile.FullName} Already Has a GeoLocation and Overwrite Existing is Set to {overwriteExistingLatLong} - skipping");
                 var metadataLocation = await FileMetadataTools.Location(loopFile, false, progress);
 
@@ -112,7 +112,7 @@ public class GeoTag
 
             if (createdOnUtc == null)
             {
-                progress?.Report(
+                progress.Report(
                     $"GeoTag - Valid TagTimeZone not found in ExifSubIfdDirectory for {loopFile.FullName} - skipping");
 
                 var metadataLocation = await FileMetadataTools.Location(loopFile, false, progress);
@@ -127,7 +127,7 @@ public class GeoTag
             listOfUtcAndFileToProcess.Add((createdOnUtc.Value.AddMinutes(adjustCreatedTimeInMinutes), loopFile));
         }
 
-        progress?.Report(
+        progress.Report(
             $"Found {listOfUtcAndFileToProcess.Count} files to Process out of {supportedFiles.Count} supported Files");
 
         var pointsCollection = new List<WaypointAndSource>();
@@ -139,7 +139,7 @@ public class GeoTag
                 .Where(x =>
                     x.Waypoint.TimestampUtc != null));
 
-        progress?.Report(
+        progress.Report(
             $"Found a total of {pointsCollection.Count} points to check for files within {adjustCreatedTimeInMinutes} minutes of for location tagging");
 
         counter = 0;
@@ -149,7 +149,7 @@ public class GeoTag
         foreach (var loopFile in listOfUtcAndFileToProcess.OrderBy(x => x.file.FullName).ToList())
         {
             if (++counter % 50 == 0)
-                progress?.Report(
+                progress.Report(
                     $"GeoTag - Finding Location and Writing Metadata - File {counter} of {listOfUtcAndFileToProcess.Count}");
 
             var possibleTagPoints = pointsCollection.Where(x =>
@@ -158,7 +158,7 @@ public class GeoTag
 
             if (!possibleTagPoints.Any())
             {
-                progress?.Report(
+                progress.Report(
                     $"GeoTag - No Matching Points Found for {loopFile.file.FullName}");
 
                 var metadataLocation = await FileMetadataTools.Location(loopFile.file, false, progress);
@@ -191,7 +191,7 @@ public class GeoTag
                     Log.Verbose($"GeoTag - Failed to get Elevation, Silent Error - {e.Message}");
                 }
 
-            progress?.Report(
+            progress.Report(
                 $"GeoTag - For {loopFile.file.FullName} found Lat: {latitude} Long: {longitude} Elevation {elevation} from {closest.Source}");
 
             returnFileResults.Add(new GeoTagFileAction(loopFile.file.FullName, true,

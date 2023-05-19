@@ -24,6 +24,8 @@ public class GpxTrackImport
             .SetErrorReportAdditionalInformationMarkdown(FileAndFolderTools.ReadAllText(Path.Combine(
                 AppContext.BaseDirectory, "README.md"))).SetAutomationLogoNotificationIconUrl();
 
+        var consoleProgress = new ConsoleProgress();
+
         if (string.IsNullOrWhiteSpace(settingsFile))
         {
             Log.Error("Blank settings file is not valid...");
@@ -232,7 +234,7 @@ public class GpxTrackImport
                 {
                     var gpxFile = await GarminConnectTools.GetGpx(loopActivity, archiveDirectory,
                         true, settings.OverwriteExistingArchiveDirectoryFiles,
-                        new ConnectGpxService { ConnectUsername = username, ConnectPassword = password });
+                        new ConnectGpxService { ConnectUsername = username, ConnectPassword = password }, consoleProgress);
 
                     fileList.Add((jsonArchiveFile, gpxFile));
                 }
@@ -261,8 +263,6 @@ public class GpxTrackImport
             Log.Information("Program Ending - no files to Import");
             return;
         }
-
-        var consoleProgress = new ConsoleProgress();
 
         UserSettingsUtilities.SettingsFileFullName = siteSettingsFileInfo!.FullName;
         var siteSettings = await UserSettingsUtilities.ReadFromCurrentSettingsFile(consoleProgress);

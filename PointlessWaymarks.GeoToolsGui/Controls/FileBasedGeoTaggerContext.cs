@@ -154,8 +154,8 @@ public partial class FileBasedGeoTaggerContext : ObservableObject
         PreviewResults = await tagger.ProduceGeoTagActions(FilesToTagFileList.Files!.ToList(),
             new List<IGpxService> { fileListGpxService },
             PointsMustBeWithinMinutes, OffsetPhotoTimeInMinutes, OverwriteExistingGeoLocation,
-            Settings.ExifToolFullName,
-            StatusContext.ProgressTracker());
+            StatusContext.ProgressTracker(),
+            Settings.ExifToolFullName);
 
         var pointsToWrite = PreviewResults.FileResults.Where(x => x.ShouldWriteMetadata).ToList();
 
