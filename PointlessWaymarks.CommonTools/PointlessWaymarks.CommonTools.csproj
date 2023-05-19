@@ -24,7 +24,7 @@
 
   <ItemGroup>
     <PackageReference Include="AnyClone" Version="1.1.6" />
-    <PackageReference Include="AWSSDK.S3" Version="3.7.104.14" />
+    <PackageReference Include="AWSSDK.S3" Version="3.7.104.17" />
     <PackageReference Include="ClosedXML" Version="0.101.0" />
     <PackageReference Include="GitInfo" Version="3.0.6">
       <PrivateAssets>all</PrivateAssets>
