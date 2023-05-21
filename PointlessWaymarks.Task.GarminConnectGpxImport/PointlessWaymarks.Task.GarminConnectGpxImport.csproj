@@ -38,9 +38,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Resource Include="PointlessWaymarks.Task.GarminConnectGpxImport.args.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Resource>
     <Resource Include="PointlessWaymarksCmsAutomationIcon.ico">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>

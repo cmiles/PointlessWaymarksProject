@@ -296,7 +296,7 @@ public class GpxTrackImport
             {
                 innerLoopCounter++;
 
-                var newEntry = await LineGenerator.NewFromGpxTrack(loopTracks, false, false, consoleProgress);
+                var newEntry = await LineGenerator.NewFromGpxTrack(loopTracks, false, false, true, consoleProgress);
 
                 var tagList = Db.TagListParse(newEntry.Tags);
                 tagList.Add("garmin connect import");
@@ -333,23 +333,6 @@ public class GpxTrackImport
                             tagListForIntersection.AddRange(tagResult);
                             newEntry.Tags = Db.TagListJoin(tagListForIntersection);
                         }
-                    }
-                }
-
-                if (newEntry is { RecordingStartedOnUtc: not null, RecordingEndedOnUtc: not null })
-                {
-                    var db = await Db.Context();
-                    var relatedPhotos = db.PhotoContents.Where(x =>
-                        x.PhotoCreatedOnUtc != null && x.PhotoCreatedOnUtc >= newEntry.RecordingStartedOnUtc &&
-                        x.PhotoCreatedOnUtc <= newEntry.RecordingEndedOnUtc).ToList();
-
-                    if (relatedPhotos.Any())
-                    {
-                        var photoBodyAddition = string.Join(Environment.NewLine,
-                            relatedPhotos.Select(x => $"{Environment.NewLine}{BracketCodePhotos.Create(x)}"));
-
-                        newEntry.BodyContent =
-                            $"{(string.IsNullOrWhiteSpace(newEntry.BodyContent) ? "" : Environment.NewLine)}{photoBodyAddition}";
                     }
                 }
 

@@ -2,6 +2,7 @@
 using GeoTimeZone;
 using NetTopologySuite.Features;
 using NetTopologySuite.Geometries;
+using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.ContentHtml.LineHtml;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
@@ -26,7 +27,7 @@ public static class LineGenerator
     }
 
     public static async Task<LineContent> NewFromGpxTrack(GpxTools.GpxTrackInformation trackInformation,
-        bool replaceElevations, bool skipFeatureIntersectTagging, IProgress<string> progress)
+        bool replaceElevations, bool skipFeatureIntersectTagging, bool linkAssociatedPhotosInBody, IProgress<string> progress)
     {
         var lineStatistics = DistanceTools.LineStatsInImperialFromCoordinateList(trackInformation.Track);
 
@@ -88,6 +89,23 @@ public static class LineGenerator
             newEntry.Slug = SlugTools.CreateSlug(true, trackInformation.Name);
         if (trackInformation.StartsOnLocal != null)
             newEntry.Folder = trackInformation.StartsOnLocal.Value.Year.ToString();
+
+        if (newEntry is { RecordingStartedOnUtc: not null, RecordingEndedOnUtc: not null })
+        {
+            var db = await Db.Context();
+            var relatedPhotos = db.PhotoContents.Where(x =>
+                x.PhotoCreatedOnUtc != null && x.PhotoCreatedOnUtc >= newEntry.RecordingStartedOnUtc &&
+                x.PhotoCreatedOnUtc <= newEntry.RecordingEndedOnUtc).ToList();
+
+            if (relatedPhotos.Any())
+            {
+                var photoBodyAddition = string.Join($"{Environment.NewLine}{Environment.NewLine}",
+                    relatedPhotos.Select(x => $"{BracketCodePhotos.Create(x)}"));
+
+                newEntry.BodyContent =
+                    $"{(string.IsNullOrWhiteSpace(newEntry.BodyContent) ? photoBodyAddition : $"{Environment.NewLine}{Environment.NewLine}{photoBodyAddition}")}";
+            }
+        }
 
         return newEntry;
     }

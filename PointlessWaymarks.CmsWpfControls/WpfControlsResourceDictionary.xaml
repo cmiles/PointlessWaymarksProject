@@ -1045,8 +1045,11 @@
         <MenuItem Command="{Binding CommonCommands.NewGpxImportWindowCommand}" Header="Gpx Import" />
         <MenuItem Command="{Binding CommonCommands.NewImageContentFromFilesCommand}" Header="Image from File" />
         <MenuItem Command="{Binding CommonCommands.NewImageContentCommand}" Header="Image" />
+        <MenuItem Command="{Binding CommonCommands.NewLineContentFromFilesWithPhotosWithAutosaveCommand}"
+                  Header="Line from File - Add Photos - Auto-Save" />
         <MenuItem Command="{Binding CommonCommands.NewLineContentFromFilesWithAutosaveCommand}"
                   Header="Line from File - Auto-Save" />
+        <MenuItem Command="{Binding CommonCommands.NewLineContentFromFilesWithPhotosCommand}" Header="Line from File - Add Photos" />
         <MenuItem Command="{Binding CommonCommands.NewLineContentFromFilesCommand}" Header="Line from File" />
         <MenuItem Command="{Binding CommonCommands.NewLineContentCommand}" Header="Line" />
         <MenuItem Command="{Binding CommonCommands.NewLinkContentCommand}" Header="Link" />

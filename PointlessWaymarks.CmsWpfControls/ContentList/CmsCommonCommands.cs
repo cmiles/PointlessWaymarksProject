@@ -2,13 +2,10 @@
 using System.Windows.Shell;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using NetTopologySuite.Features;
-using NetTopologySuite.Geometries;
 using Ookii.Dialogs.Wpf;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.Content;
 using PointlessWaymarks.CmsData.ContentHtml;
-using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsWpfControls.AllContentList;
 using PointlessWaymarks.CmsWpfControls.FileContentEditor;
 using PointlessWaymarks.CmsWpfControls.FileList;
@@ -38,7 +35,6 @@ using PointlessWaymarks.CmsWpfControls.SitePreview;
 using PointlessWaymarks.CmsWpfControls.Utility;
 using PointlessWaymarks.CmsWpfControls.VideoContentEditor;
 using PointlessWaymarks.CmsWpfControls.VideoList;
-using PointlessWaymarks.FeatureIntersectionTags;
 using PointlessWaymarks.SpatialTools;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
@@ -72,14 +68,28 @@ public partial class CmsCommonCommands : ObservableObject
             async x =>
             {
                 await WindowIconStatus.IndeterminateTask(WindowStatus,
-                    async () => await NewLineContentFromFiles(x, false, StatusContext, WindowStatus),
+                    async () => await NewLineContentFromFiles(x, false, false, StatusContext, WindowStatus),
+                    StatusContext.StatusControlContextId);
+            }, "Cancel Line Import");
+        NewLineContentFromFilesWithPhotosCommand = StatusContext.RunBlockingTaskWithCancellationCommand(
+            async x =>
+            {
+                await WindowIconStatus.IndeterminateTask(WindowStatus,
+                    async () => await NewLineContentFromFiles(x, true, false, StatusContext, WindowStatus),
                     StatusContext.StatusControlContextId);
             }, "Cancel Line Import");
         NewLineContentFromFilesWithAutosaveCommand = StatusContext.RunBlockingTaskWithCancellationCommand(
             async x =>
             {
                 await WindowIconStatus.IndeterminateTask(WindowStatus,
-                    async () => await NewLineContentFromFiles(x, true, StatusContext, WindowStatus),
+                    async () => await NewLineContentFromFiles(x, false, true, StatusContext, WindowStatus),
+                    StatusContext.StatusControlContextId);
+            }, "Cancel Line Import");
+        NewLineContentFromFilesWithPhotosWithAutosaveCommand = StatusContext.RunBlockingTaskWithCancellationCommand(
+            async x =>
+            {
+                await WindowIconStatus.IndeterminateTask(WindowStatus,
+                    async () => await NewLineContentFromFiles(x, true, true, StatusContext, WindowStatus),
                     StatusContext.StatusControlContextId);
             }, "Cancel Line Import");
         NewLinkContentCommand = StatusContext.RunNonBlockingTaskCommand(NewLinkContent);
@@ -112,64 +122,85 @@ public partial class CmsCommonCommands : ObservableObject
         NewAllContentListWindowCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
         {
             var newWindow =
-                await AllContentListWindow.CreateInstance(await AllContentListWithActionsContext.CreateInstance(null, WindowStatus));
+                await AllContentListWindow.CreateInstance(
+                    await AllContentListWithActionsContext.CreateInstance(null, WindowStatus));
             await newWindow.PositionWindowAndShowOnUiThread();
         });
         NewFileListWindowCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
         {
-            var newWindow = await FileListWindow.CreateInstance(await FileListWithActionsContext.CreateInstance(null, WindowStatus));
+            var newWindow =
+                await FileListWindow.CreateInstance(
+                    await FileListWithActionsContext.CreateInstance(null, WindowStatus));
             await newWindow.PositionWindowAndShowOnUiThread();
         });
         NewGeoJsonListWindowCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
         {
             var newWindow =
-                await GeoJsonListWindow.CreateInstance(await GeoJsonListWithActionsContext.CreateInstance(null, WindowStatus));
+                await GeoJsonListWindow.CreateInstance(
+                    await GeoJsonListWithActionsContext.CreateInstance(null, WindowStatus));
             await newWindow.PositionWindowAndShowOnUiThread();
         });
         NewImageListWindowCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
         {
-            var newWindow = await ImageListWindow.CreateInstance(await ImageListWithActionsContext.CreateInstance(null, WindowStatus));
+            var newWindow =
+                await ImageListWindow.CreateInstance(
+                    await ImageListWithActionsContext.CreateInstance(null, WindowStatus));
             await newWindow.PositionWindowAndShowOnUiThread();
         });
         NewLineListWindowCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
         {
-            var newWindow = await LineListWindow.CreateInstance(await LineListWithActionsContext.CreateInstance(null, WindowStatus));
+            var newWindow =
+                await LineListWindow.CreateInstance(
+                    await LineListWithActionsContext.CreateInstance(null, WindowStatus));
             await newWindow.PositionWindowAndShowOnUiThread();
         });
         NewLinkListWindowCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
         {
-            var newWindow = await LinkListWindow.CreateInstance(await LinkListWithActionsContext.CreateInstance(null, WindowStatus));
+            var newWindow =
+                await LinkListWindow.CreateInstance(
+                    await LinkListWithActionsContext.CreateInstance(null, WindowStatus));
             await newWindow.PositionWindowAndShowOnUiThread();
         });
         NewMapComponentListWindowCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
         {
             var newWindow =
-                await MapComponentListWindow.CreateInstance(await MapComponentListWithActionsContext.CreateInstance(null, WindowStatus));
+                await MapComponentListWindow.CreateInstance(
+                    await MapComponentListWithActionsContext.CreateInstance(null, WindowStatus));
             await newWindow.PositionWindowAndShowOnUiThread();
         });
         NewNoteListWindowCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
         {
-            var newWindow = await NoteListWindow.CreateInstance(await NoteListWithActionsContext.CreateInstance(null, WindowStatus));
+            var newWindow =
+                await NoteListWindow.CreateInstance(
+                    await NoteListWithActionsContext.CreateInstance(null, WindowStatus));
             await newWindow.PositionWindowAndShowOnUiThread();
         });
         NewPhotoListWindowCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
         {
-            var newWindow = await PhotoListWindow.CreateInstance(await PhotoListWithActionsContext.CreateInstance(null, WindowStatus, null));
+            var newWindow =
+                await PhotoListWindow.CreateInstance(
+                    await PhotoListWithActionsContext.CreateInstance(null, WindowStatus, null));
             await newWindow.PositionWindowAndShowOnUiThread();
         });
         NewPointListWindowCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
         {
-            var newWindow = await PointListWindow.CreateInstance(await PointListWithActionsContext.CreateInstance(null, WindowStatus));
+            var newWindow =
+                await PointListWindow.CreateInstance(
+                    await PointListWithActionsContext.CreateInstance(null, WindowStatus));
             await newWindow.PositionWindowAndShowOnUiThread();
         });
         NewPostListWindowCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
         {
-            var newWindow = await PostListWindow.CreateInstance(await PostListWithActionsContext.CreateInstance(null, WindowStatus));
+            var newWindow =
+                await PostListWindow.CreateInstance(
+                    await PostListWithActionsContext.CreateInstance(null, WindowStatus));
             await newWindow.PositionWindowAndShowOnUiThread();
         });
         NewVideoListWindowCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
         {
-            var newWindow = await VideoListWindow.CreateInstance(await VideoListWithActionsContext.CreateInstance(null, WindowStatus));
+            var newWindow =
+                await VideoListWindow.CreateInstance(
+                    await VideoListWithActionsContext.CreateInstance(null, WindowStatus));
             await newWindow.PositionWindowAndShowOnUiThread();
         });
 
@@ -218,6 +249,10 @@ public partial class CmsCommonCommands : ObservableObject
     public RelayCommand NewLineContentFromFilesCommand { get; }
 
     public RelayCommand NewLineContentFromFilesWithAutosaveCommand { get; }
+
+    public RelayCommand NewLineContentFromFilesWithPhotosCommand { get; set; }
+
+    public RelayCommand NewLineContentFromFilesWithPhotosWithAutosaveCommand { get; set; }
 
     public RelayCommand NewLineListWindowCommand { get; }
 
@@ -460,7 +495,8 @@ public partial class CmsCommonCommands : ObservableObject
         await newContentWindow.PositionWindowAndShowOnUiThread();
     }
 
-    public static async Task NewLineContentFromFiles(CancellationToken cancellationToken, bool autoSaveAndClose,
+    public static async Task NewLineContentFromFiles(CancellationToken cancellationToken,
+        bool addTimeAssociatedPhotosToBody, bool autoSaveAndClose,
         StatusControlContext statusContext, WindowIconStatus? windowStatus)
     {
         await ThreadSwitcher.ResumeForegroundAsync();
@@ -493,11 +529,13 @@ public partial class CmsCommonCommands : ObservableObject
 
         selectedFileInfos = selectedFileInfos.Where(x => x.Exists).ToList();
 
-        await NewLineContentFromFiles(selectedFileInfos, autoSaveAndClose, cancellationToken, statusContext,
+        await NewLineContentFromFiles(selectedFileInfos, addTimeAssociatedPhotosToBody, autoSaveAndClose,
+            cancellationToken, statusContext,
             windowStatus);
     }
 
-    public static async Task NewLineContentFromFiles(List<FileInfo> selectedFileInfos, bool autoSaveAndClose,
+    public static async Task NewLineContentFromFiles(List<FileInfo> selectedFileInfos,
+        bool addTimeAssociatedPhotosToBody, bool autoSaveAndClose,
         CancellationToken cancellationToken,
         StatusControlContext statusContext, WindowIconStatus? windowStatus)
     {
@@ -535,7 +573,7 @@ public partial class CmsCommonCommands : ObservableObject
                 innerLoopCounter++;
 
                 var newEntry = await LineGenerator.NewFromGpxTrack(loopTracks, false, skipFeatureIntersectionTagging,
-                    statusContext.ProgressTracker());
+                    addTimeAssociatedPhotosToBody, statusContext.ProgressTracker());
 
                 if (autoSaveAndClose)
                 {

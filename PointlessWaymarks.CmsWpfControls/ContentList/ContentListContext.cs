@@ -781,7 +781,7 @@ public partial class ContentListContext : ObservableObject, IDragSource, IDropTa
 
             if (lineContentExtensions.Contains(Path.GetExtension(loopFile).ToUpperInvariant()))
             {
-                await CmsCommonCommands.NewLineContentFromFiles(fileInfo.AsList(), false, CancellationToken.None,
+                await CmsCommonCommands.NewLineContentFromFiles(fileInfo.AsList(), false, false, CancellationToken.None,
                     StatusContext,
                     WindowStatus);
                 continue;
