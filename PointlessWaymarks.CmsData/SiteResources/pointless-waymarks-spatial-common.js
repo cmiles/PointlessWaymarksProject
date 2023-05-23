@@ -22,7 +22,8 @@ function openTopoMapLayer() {
 function nationalBaseMapTopoImageMapLayer() {
     return L.tileLayer("https://basemap.nationalmap.gov/arcgis/rest/services/USGSImageryTopo/MapServer/tile/{z}/{y}/{x}",
         {
-            maxZoom: 16,
+            maxNativeZoom: 16,
+            maxZoom: 22,
             id: "tnmImageTopo",
             attribution: 'Tiles courtesy of the <a href="https://usgs.gov/">U.S. Geological Survey</a>'
         });
@@ -31,7 +32,8 @@ function nationalBaseMapTopoImageMapLayer() {
 function nationalBaseMapTopoMapLayer() {
     return L.tileLayer("https://basemap.nationalmap.gov/arcgis/rest/services/USGSTopo/MapServer/tile/{z}/{y}/{x}",
         {
-            maxZoom: 16,
+            maxNativeZoom: 16,
+            maxZoom: 22,
             id: "tnmImageTopo",
             attribution: 'Tiles courtesy of the <a href="https://usgs.gov/">U.S. Geological Survey</a>'
         });
