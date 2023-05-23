@@ -23,11 +23,13 @@
     <None Remove="SiteResources\images\marker-icon.png" />
     <None Remove="SiteResources\images\marker-shadow.png" />
     <None Remove="SiteResources\L.Control.Locate.min.css" />
+    <None Remove="SiteResources\L.Control.Locate.min.css.map" />
     <None Remove="SiteResources\L.Control.Locate.min.js" />
     <None Remove="SiteResources\L.Control.Locate.min.js.map" />
     <None Remove="SiteResources\leaflet-gesture-handling.min.css" />
     <None Remove="SiteResources\leaflet-gesture-handling.min.js" />
     <None Remove="SiteResources\leaflet-gesture-handling.min.js.map" />
+    <None Remove="SiteResources\leaflet.js.map" />
     <None Remove="SiteResources\location-arrow-solid.svg" />
     <None Remove="SiteResources\pointless-waymarks-content-list-search.js" />
     <None Remove="SiteResources\pointless-waymarks-photo-gallery.js" />
@@ -356,6 +358,7 @@
     <EmbeddedResource Include="SiteResources\images\marker-icon.png" />
     <EmbeddedResource Include="SiteResources\images\marker-shadow.png" />
     <EmbeddedResource Include="SiteResources\L.Control.Locate.min.css" />
+    <EmbeddedResource Include="SiteResources\L.Control.Locate.min.css.map" />
     <EmbeddedResource Include="SiteResources\L.Control.Locate.min.js" />
     <EmbeddedResource Include="SiteResources\L.Control.Locate.min.js.map" />
     <EmbeddedResource Include="SiteResources\leaflet-gesture-handling.min.css" />
@@ -363,6 +366,7 @@
     <EmbeddedResource Include="SiteResources\leaflet-gesture-handling.min.js.map" />
     <EmbeddedResource Include="SiteResources\leaflet.css" />
     <EmbeddedResource Include="SiteResources\leaflet.js" />
+    <EmbeddedResource Include="SiteResources\leaflet.js.map" />
     <EmbeddedResource Include="SiteResources\location-arrow-solid.svg" />
     <EmbeddedResource Include="SiteResources\pointless-waymarks-photo-gallery.js" />
     <EmbeddedResource Include="SiteResources\pointless-waymarks-content-list-search.js" />

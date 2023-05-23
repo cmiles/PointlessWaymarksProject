@@ -19,6 +19,24 @@ function openTopoMapLayer() {
         });
 }
 
+function nationalBaseMapTopoImageMapLayer() {
+    return L.tileLayer("https://basemap.nationalmap.gov/arcgis/rest/services/USGSImageryTopo/MapServer/tile/{z}/{y}/{x}",
+        {
+            maxZoom: 16,
+            id: "tnmImageTopo",
+            attribution: 'Tiles courtesy of the <a href="https://usgs.gov/">U.S. Geological Survey</a>'
+        });
+}
+
+function nationalBaseMapTopoMapLayer() {
+    return L.tileLayer("https://basemap.nationalmap.gov/arcgis/rest/services/USGSTopo/MapServer/tile/{z}/{y}/{x}",
+        {
+            maxZoom: 16,
+            id: "tnmImageTopo",
+            attribution: 'Tiles courtesy of the <a href="https://usgs.gov/">U.S. Geological Survey</a>'
+        });
+}
+
 function geoJsonLayerStyle(feature) {
     //see https://github.com/mapbox/simplestyle-spec/tree/master/1.1.0
     var newStyle = {};
@@ -54,7 +72,7 @@ function onEachMapGeoJsonFeature(feature, layer) {
             popupHtml += `<p>${feature.properties.description}</p>`;
         }
 
-        if(popupHtml !== "") layer.bindPopup(popupHtml);
+        if (popupHtml !== "") layer.bindPopup(popupHtml);
     }
 }
 
@@ -69,20 +87,39 @@ async function singleGeoJsonMapInit(mapElement, contentId) {
     singleGeoJsonMapInitFromGeoJson(mapElement, geoJsonData);
 }
 
-async function singleGeoJsonMapInitFromGeoJson(mapElement, geoJsonData) {
+function standardMap(mapElement) {
+
+    var openTopoMap = openTopoMapLayer();
+    var tnmTopo = nationalBaseMapTopoMapLayer();
+    var tnmImageTopoMap = nationalBaseMapTopoImageMapLayer();
 
     let map = L.map(mapElement,
         {
-            layers: [openTopoMapLayer()],
+            layers: [tnmTopo],
             doubleClickZoom: false,
             gestureHandling: true
         });
+
+    var baseLayers = {
+        "TNM Topo": tnmTopo,
+        "TNM Topo Image": tnmImageTopoMap,
+        "OpenTopo": openTopoMap
+    };
+
+    L.control.layers(baseLayers).addTo(map);
 
     map.addControl(L.control.locate({
         locateOptions: {
             enableHighAccuracy: true
         }
     }));
+
+    return map;
+}
+
+async function singleGeoJsonMapInitFromGeoJson(mapElement, geoJsonData) {
+
+    let map = standardMap(mapElement);
 
     map.fitBounds([
         [geoJsonData.Bounds.InitialViewBoundsMinLatitude, geoJsonData.Bounds.InitialViewBoundsMinLongitude],
@@ -109,18 +146,7 @@ async function singleLineMapInit(mapElement, contentId) {
 
 async function singleLineMapInitFromLineData(mapElement, lineData) {
 
-    let map = L.map(mapElement,
-        {
-            layers: [openTopoMapLayer()],
-            doubleClickZoom: false,
-            gestureHandling: true
-        });
-
-    map.addControl(L.control.locate({
-        locateOptions: {
-            enableHighAccuracy: true
-        }
-    }));
+    let map = standardMap(mapElement);
 
     map.fitBounds([
         [lineData.Bounds.InitialViewBoundsMinLatitude, lineData.Bounds.InitialViewBoundsMinLongitude],
@@ -228,19 +254,7 @@ async function mapComponentInit(mapElement, contentId) {
 
     let mapComponent = await mapComponentResponse.json();
 
-    let map = L.map(mapElement,
-        {
-            layers: [openTopoMapLayer()],
-            doubleClickZoom: false,
-            gestureHandling: true,
-            closePopupOnClick: false
-        });
-
-    map.addControl(L.control.locate({
-        locateOptions: {
-            enableHighAccuracy: true
-        }
-    }));
+    let map = standardMap(mapElement);
 
     map.fitBounds([
         [mapComponent.MapComponent.InitialViewBoundsMinLatitude, mapComponent.MapComponent.InitialViewBoundsMinLongitude],
@@ -316,15 +330,27 @@ async function singlePointMapInitFromPointData(mapElement, displayedPointSlug, p
 
     let pagePoint = pointData.filter(x => x.Slug === displayedPointSlug)[0];
 
+    var openTopoMap = openTopoMapLayer();
+    var tnmTopo = nationalBaseMapTopoMapLayer();
+    var tnmImageTopoMap = nationalBaseMapTopoImageMapLayer();
+
     let map = L.map(mapElement,
         {
             center: { lat: pagePoint.Latitude, lng: pagePoint.Longitude },
             zoom: 13,
-            layers: [openTopoMapLayer()],
+            layers: [tnmTopo],
             doubleClickZoom: false,
             gestureHandling: true,
             closePopupOnClick: false
         });
+
+    var baseLayers = {
+        "TNM Topo": tnmTopo,
+        "TNM Topo Image": tnmImageTopoMap,
+        "OpenTopo": openTopoMap
+    };
+
+    L.control.layers(baseLayers).addTo(map);
 
     map.addControl(L.control.locate({
         locateOptions: {
