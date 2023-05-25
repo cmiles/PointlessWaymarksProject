@@ -101,8 +101,24 @@ public static class BracketCodePostImage
                 continue;
             }
 
-            toProcess = toProcess.Replace(loopMatch.bracketCodeText,
-                pageConversion((dbPicture, UserSettingsSingleton.CurrentSettings().PostPageUrl(dbPost))));
+            var conversion = pageConversion((dbPicture, UserSettingsSingleton.CurrentSettings().PostPageUrl(dbPost)));
+
+            if(string.IsNullOrWhiteSpace(conversion))
+            {
+                progress?.Report(
+                    $"Post Image Link with Null/Empty conversion - converting to post - Post: {dbPost.Title}");
+
+                var newBracketCodeText = loopMatch.bracketCodeText.Replace(BracketCodeToken, BracketCodePosts.BracketCodeToken,
+                    StringComparison.OrdinalIgnoreCase);
+
+                toProcess = toProcess.Replace(loopMatch.bracketCodeText, newBracketCodeText);
+
+                await BracketCodePosts.Process(toProcess).ConfigureAwait(false);
+
+                continue;
+            }
+
+            toProcess = toProcess.Replace(loopMatch.bracketCodeText, conversion);
 
             progress?.Report($"Post Image Link {dbPost.Title} processed");
         }
@@ -120,7 +136,7 @@ public static class BracketCodePostImage
     public static async Task<string?> ProcessForDirectLocalAccess(string? toProcess,
         IProgress<string>? progress = null)
     {
-        return await Process(toProcess, pictureInfo => pictureInfo.pictureInfo.LocalPictureFigureTag().ToString(),
+        return await Process(toProcess, pictureInfo => pictureInfo.pictureInfo.LocalPictureFigureTag().ToString() ?? string.Empty,
             progress).ConfigureAwait(false);
     }
 
@@ -132,7 +148,7 @@ public static class BracketCodePostImage
     /// <returns></returns>
     public static async Task<string> ProcessForEmail(string? toProcess, IProgress<string>? progress = null)
     {
-        return (await Process(toProcess, pictureInfo => pictureInfo.pictureInfo.EmailPictureTableTag().ToString(),
+        return (await Process(toProcess, pictureInfo => pictureInfo.pictureInfo.EmailPictureTableTag().ToString() ?? string.Empty,
             progress).ConfigureAwait(false)) ?? string.Empty;
     }
 
@@ -146,6 +162,6 @@ public static class BracketCodePostImage
     {
         return await Process(toProcess,
             pictureInfo => pictureInfo.pictureInfo.PictureFigureWithCaptionAndLinkTag("100vw", pictureInfo.linkUrl)
-                .ToString(), progress).ConfigureAwait(false);
+                .ToString() ?? string.Empty, progress).ConfigureAwait(false);
     }
 }

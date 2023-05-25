@@ -364,8 +364,11 @@ public class GeoTag
         double? Latitude = null,
         double? Longitude = null, double? Elevation = null);
 
+    // ReSharper disable NotAccessedPositionalProperty.Global
     public record GeoTagProduceActionsResult(string Title, string Notes, List<GeoTagFileAction> FileResults);
+    // ReSharper restore NotAccessedPositionalProperty.Global
 
+    // ReSharper disable once NotAccessedPositionalProperty.Global
     public record GeoTagWriteMetadataToFilesResult(string Title, string Notes,
         List<GeoTagMetadataWrite> FileResults);
 }

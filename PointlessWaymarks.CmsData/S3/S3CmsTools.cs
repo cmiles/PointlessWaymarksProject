@@ -118,10 +118,12 @@ public static class S3CmsTools
 
     private class FilesWrittenLog
     {
+        // ReSharper disable UnusedAutoPropertyAccessor.Local
         public string FileBase { get; set; } = string.Empty;
         public bool IsInGenerationDirectory { get; set; }
         public string TransformedFile { get; set; } = string.Empty;
         public string WrittenFile { get; set; } = string.Empty;
         public DateTime WrittenOn { get; set; }
+        // ReSharper restore UnusedAutoPropertyAccessor.Local
     }
 }

@@ -51,7 +51,7 @@ public static class BracketCodeFileImage
     /// <param name="progress"></param>
     /// <returns></returns>
     private static async Task<string?> Process(string? toProcess,
-        Func<(PictureSiteInformation pictureInfo, string linkUrl), string> pageConversion,
+        Func<(PictureSiteInformation pictureInfo, string? linkUrl), string> pageConversion,
         IProgress<string>? progress = null)
     {
         if (string.IsNullOrWhiteSpace(toProcess)) return string.Empty;
@@ -99,8 +99,23 @@ public static class BracketCodeFileImage
                 continue;
             }
 
-            toProcess = toProcess.Replace(loopMatch.bracketCodeText,
-                pageConversion((dbPicture, UserSettingsSingleton.CurrentSettings().FilePageUrl(dbFile))));
+            var conversion = pageConversion((dbPicture, UserSettingsSingleton.CurrentSettings().FilePageUrl(dbFile)));
+
+            if (string.IsNullOrWhiteSpace(conversion))
+            {
+                progress?.Report(
+                    $"File Image Link converted to Null/Empty - converting to filelink - File: {dbFile.Title}");
+
+                var newBracketCodeText = loopMatch.bracketCodeText.Replace("fileimagelink", "filelink", StringComparison.OrdinalIgnoreCase);
+
+                toProcess = toProcess.Replace(loopMatch.bracketCodeText, newBracketCodeText);
+
+                await BracketCodeFiles.Process(toProcess).ConfigureAwait(false);
+
+                continue;
+            }
+
+            toProcess = toProcess.Replace(loopMatch.bracketCodeText, conversion);
 
             progress?.Report($"File Image Link {dbFile.Title} processed");
         }
@@ -118,7 +133,7 @@ public static class BracketCodeFileImage
     public static async Task<string?> ProcessForDirectLocalAccess(string? toProcess,
         IProgress<string>? progress = null)
     {
-        return await Process(toProcess, pictureInfo => pictureInfo.pictureInfo.LocalPictureFigureTag().ToString(),
+        return await Process(toProcess, pictureInfo => pictureInfo.pictureInfo.LocalPictureFigureTag().ToString() ?? string.Empty,
             progress).ConfigureAwait(false);
     }
 
@@ -130,7 +145,7 @@ public static class BracketCodeFileImage
     /// <returns></returns>
     public static async Task<string> ProcessForEmail(string? toProcess, IProgress<string>? progress = null)
     {
-        return (await Process(toProcess, pictureInfo => pictureInfo.pictureInfo.EmailPictureTableTag().ToString(),
+        return (await Process(toProcess, pictureInfo => pictureInfo.pictureInfo.EmailPictureTableTag().ToString() ?? string.Empty,
             progress).ConfigureAwait(false)) ?? string.Empty;
     }
 
@@ -143,7 +158,7 @@ public static class BracketCodeFileImage
     public static async Task<string?> ProcessToFigureWithLink(string? toProcess, IProgress<string>? progress = null)
     {
         return await Process(toProcess,
-            pictureInfo => pictureInfo.pictureInfo.PictureFigureWithCaptionAndLinkTag("100vw", pictureInfo.linkUrl)
-                .ToString(), progress).ConfigureAwait(false);
+            pictureInfo => pictureInfo.pictureInfo.PictureFigureWithCaptionAndLinkTag("100vw", pictureInfo.linkUrl ?? string.Empty)
+                .ToString() ?? string.Empty, progress).ConfigureAwait(false);
     }
 }

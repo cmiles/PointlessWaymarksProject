@@ -73,7 +73,11 @@ public static class BracketCodeImages
             progress?.Report($"Image Code for {dbImage.Title} processed");
             var singleImageInfo = new SingleImagePage(dbImage);
 
-            toProcess = toProcess.Replace(loopMatch.bracketCodeText, pageConversion(singleImageInfo));
+            var conversion = pageConversion(singleImageInfo);
+
+            if(string.IsNullOrWhiteSpace(conversion)) continue;
+
+            toProcess = toProcess.Replace(loopMatch.bracketCodeText, conversion);
         }
 
         return toProcess;
@@ -89,7 +93,7 @@ public static class BracketCodeImages
     public static async Task<string?> ProcessForDirectLocalAccess(string? toProcess,
         IProgress<string>? progress = null)
     {
-        return await Process(toProcess, page => page.PictureInformation.LocalPictureFigureTag().ToString(),
+        return await Process(toProcess, page => page.PictureInformation.LocalPictureFigureTag().ToString() ?? string.Empty,
             progress).ConfigureAwait(false);
     }
 
@@ -101,7 +105,7 @@ public static class BracketCodeImages
     /// <returns></returns>
     public static async Task<string> ProcessForEmail(string? toProcess, IProgress<string>? progress = null)
     {
-        return await (Process(toProcess, page => page.PictureInformation.EmailPictureTableTag().ToString(),
+        return await (Process(toProcess, page => page.PictureInformation.EmailPictureTableTag().ToString() ?? string.Empty,
             progress).ConfigureAwait(false)) ?? string.Empty;
     }
 
@@ -114,7 +118,7 @@ public static class BracketCodeImages
     public static async Task<string?> ProcessToFigureWithLink(string? toProcess, IProgress<string>? progress = null)
     {
         return await Process(toProcess,
-            page => page.PictureInformation.PictureFigureWithCaptionAndLinkToPicturePageTag("100vw").ToString(),
+            page => page.PictureInformation.PictureFigureWithCaptionAndLinkToPicturePageTag("100vw").ToString() ?? string.Empty,
             progress).ConfigureAwait(false);
     }
 }

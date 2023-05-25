@@ -600,7 +600,9 @@ public static class Tags
             var tagLink =
                 new LinkTag(loopTag.Replace("-", " "), UserSettingsSingleton.CurrentSettings().TagPageUrl(loopTag))
                     .AddClass("tag-detail-link");
-            innerContent.Add(tagLink.ToString());
+            var tagLinkString = tagLink.ToString();
+            if (string.IsNullOrWhiteSpace(tagLinkString)) continue;
+            innerContent.Add(tagLinkString);
         }
 
         tagsContainer.Text($"Tags: {string.Join(", ", innerContent)}").Encoded(false);

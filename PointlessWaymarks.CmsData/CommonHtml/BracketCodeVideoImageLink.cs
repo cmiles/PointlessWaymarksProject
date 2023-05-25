@@ -104,8 +104,24 @@ public static class BracketCodeVideoImage
                 continue;
             }
 
-            toProcess = toProcess.Replace(loopMatch.bracketCodeText,
-                pageConversion((dbPicture, UserSettingsSingleton.CurrentSettings().VideoPageUrl(dbVideo))));
+            var conversion = pageConversion((dbPicture, UserSettingsSingleton.CurrentSettings().VideoPageUrl(dbVideo)));
+
+            if (string.IsNullOrWhiteSpace(conversion))
+            {
+                progress?.Report(
+                    $"Video Image Link with Null/Empty conversion - converting to videolink - Video: {dbVideo.Title}");
+
+                var newBracketCodeText = loopMatch.bracketCodeText.Replace("videoimagelink", "videolink",
+                    StringComparison.OrdinalIgnoreCase);
+
+                toProcess = toProcess.Replace(loopMatch.bracketCodeText, newBracketCodeText);
+
+                await BracketCodeVideoEmbed.Process(toProcess).ConfigureAwait(false);
+
+                continue;
+            }
+
+            toProcess = toProcess.Replace(loopMatch.bracketCodeText, conversion);
 
             progress?.Report($"Video Image Link {dbVideo.Title} processed");
         }
@@ -123,7 +139,7 @@ public static class BracketCodeVideoImage
     public static async Task<string> ProcessForDirectLocalAccess(string? toProcess,
         IProgress<string>? progress = null)
     {
-        return ((await Process(toProcess, pictureInfo => pictureInfo.pictureInfo.LocalPictureFigureTag().ToString(),
+        return ((await Process(toProcess, pictureInfo => pictureInfo.pictureInfo.LocalPictureFigureTag().ToString() ?? string.Empty,
             progress).ConfigureAwait(false))) ?? string.Empty;
     }
 
@@ -135,7 +151,7 @@ public static class BracketCodeVideoImage
     /// <returns></returns>
     public static async Task<string> ProcessForEmail(string? toProcess, IProgress<string>? progress = null)
     {
-        return (await Process(toProcess, pictureInfo => pictureInfo.pictureInfo.EmailPictureTableTag().ToString(),
+        return (await Process(toProcess, pictureInfo => pictureInfo.pictureInfo.EmailPictureTableTag().ToString() ?? string.Empty,
             progress).ConfigureAwait(false)) ?? string.Empty;
     }
 
@@ -149,6 +165,6 @@ public static class BracketCodeVideoImage
     {
         return (await Process(toProcess,
             pictureInfo => pictureInfo.pictureInfo.PictureFigureWithCaptionAndLinkTag("100vw", pictureInfo.linkUrl)
-                .ToString(), progress).ConfigureAwait(false)) ?? string.Empty;
+                .ToString() ?? string.Empty, progress).ConfigureAwait(false)) ?? string.Empty;
     }
 }

@@ -65,7 +65,7 @@ public static class BracketCodeLineStats
             progress?.Report($"Adding Line Stats {dbContent.Title} from Code");
 
             toProcess = toProcess.ReplaceEach(loopMatch.bracketCodeText,
-                () => LineParts.LineStatisticsGeneralDisplayDiv(dbContent).ToString());
+                () => LineParts.LineStatisticsGeneralDisplayDiv(dbContent).ToString() ?? loopMatch.bracketCodeText);
         }
 
         return toProcess;

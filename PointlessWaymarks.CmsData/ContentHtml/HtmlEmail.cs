@@ -79,6 +79,6 @@ public static class HtmlEmail
 
         outerTable.TBody.Text(htmlString).Encoded(false);
 
-        return emailCenterTable.ToString();
+        return emailCenterTable.ToString() ?? string.Empty;
     }
 }

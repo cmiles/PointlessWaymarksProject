@@ -29,7 +29,7 @@ public class DirectoryGpxService : IGpxService
         List<(DateTime startDateTime, DateTime endDateTime, FileInfo file)> possibleFiles = new();
 
         foreach (var loopPhotoDateTime in photoDateTimeUtcList)
-            possibleFiles.AddRange(_gpxFiles!.Where(x =>
+            possibleFiles.AddRange(_gpxFiles.Where(x =>
                 loopPhotoDateTime >= x.startDateTime && loopPhotoDateTime <= x.endDateTime &&
                 !possibleFiles.Any(y => x.file.FullName.Equals(y.file.FullName))).ToList());
 

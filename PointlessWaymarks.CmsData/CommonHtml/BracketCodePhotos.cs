@@ -90,7 +90,7 @@ public static class BracketCodePhotos
     public static async Task<string?> ProcessForDirectLocalAccess(string? toProcess,
         IProgress<string>? progress = null)
     {
-        return await Process(toProcess, page => page.PictureInformation.LocalPictureFigureTag().ToString(),
+        return await Process(toProcess, page => page.PictureInformation.LocalPictureFigureTag().ToString() ?? string.Empty,
             progress).ConfigureAwait(false);
     }
 
@@ -102,7 +102,7 @@ public static class BracketCodePhotos
     /// <returns></returns>
     public static async Task<string> ProcessForEmail(string? toProcess, IProgress<string>? progress = null)
     {
-        return (await Process(toProcess, page => page.PictureInformation.EmailPictureTableTag().ToString(),
+        return (await Process(toProcess, page => page.PictureInformation.EmailPictureTableTag().ToString() ?? string.Empty,
             progress).ConfigureAwait(false)) ?? string.Empty;
     }
 
@@ -115,7 +115,7 @@ public static class BracketCodePhotos
     public static async Task<string?> ProcessToFigureWithLink(string? toProcess, IProgress<string>? progress = null)
     {
         return await Process(toProcess,
-            page => page.PictureInformation.PictureFigureWithCaptionAndLinkToPicturePageTag("100vw").ToString(),
+            page => page.PictureInformation.PictureFigureWithCaptionAndLinkToPicturePageTag("100vw").ToString() ?? string.Empty,
             progress).ConfigureAwait(false);
     }
 }
