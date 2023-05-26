@@ -169,6 +169,10 @@ public partial class JobEditorContext : ObservableObject
 
         if (!selectedDirectory.Exists) return null;
 
+        var currentSettings = CloudBackupGuiSettingTools.ReadSettings();
+        currentSettings.LastDirectory = selectedDirectory.Parent?.FullName ?? selectedDirectory.FullName;
+        await CloudBackupGuiSettingTools.WriteSettings(currentSettings);
+
         return selectedDirectory;
     }
 
