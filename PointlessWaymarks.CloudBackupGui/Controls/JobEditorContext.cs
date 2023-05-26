@@ -1,7 +1,9 @@
 ﻿using System.Collections.ObjectModel;
 using System.IO;
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Ookii.Dialogs.Wpf;
 using PointlessWaymarks.CloudBackupData.Models;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.WpfCommon.ConversionDataEntry;
@@ -17,12 +19,14 @@ public partial class JobEditorContext : ObservableObject
     [ObservableProperty] private ObservableCollection<string> _excludedDirectoryPatterns;
     [ObservableProperty] private ObservableCollection<string> _excludedFilePatterns;
     [ObservableProperty] private DirectoryInfo? _initialDirectory;
+    [ObservableProperty] private DirectoryInfo? _selectedExcludedDirectory;
+    [ObservableProperty] private string? _selectedExcludedDirectoryPattern;
+    [ObservableProperty] private string? _selectedExcludedFilePattern;
     [ObservableProperty] private StatusControlContext _statusContext;
     [ObservableProperty] private StringDataEntryContext _userDirectoryPatternEntry;
     [ObservableProperty] private StringDataEntryContext _userFilePatternEntry;
     [ObservableProperty] private ConversionDataEntryContext<int> _userMaximumRuntimeHoursEntry;
     [ObservableProperty] private StringDataEntryContext _userNameEntry;
-
 
     private JobEditorContext(StatusControlContext statusContext, StringDataEntryContext userNameEntry,
         StringDataEntryContext userFilePatternEntry, StringDataEntryContext userDirectoryPatternEntry,
@@ -38,6 +42,145 @@ public partial class JobEditorContext : ObservableObject
         _excludedDirectoryPatterns = excludedDirectoryPatterns;
         _excludedFilePatterns = excludedFilePatterns;
         _userMaximumRuntimeHoursEntry = userMaximumRuntimeHoursEntry;
+
+        AddExcludedDirectoryPatternCommand = StatusContext.RunNonBlockingTaskCommand(AddExcludedDirectoryPattern);
+        AddExcludedFilePatternCommand = StatusContext.RunNonBlockingTaskCommand(AddExcludedFilePattern);
+        RemoveSelectedExcludedDirectoryPatternCommand =
+            StatusContext.RunNonBlockingTaskCommand(RemoveSelectedExcludedDirectoryPattern);
+        RemoveSelectedExcludedFilePatternCommand =
+            StatusContext.RunNonBlockingTaskCommand(RemoveSelectedExcludedFilePattern);
+
+        ChooseInitialDirectoryCommand = StatusContext.RunNonBlockingTaskCommand(ChooseInitialDirectory);
+
+        AddExcludedDirectoryCommand = StatusContext.RunNonBlockingTaskCommand(AddExcludedDirectory);
+        RemoveSelectedExcludedDirectoryCommand =
+            StatusContext.RunNonBlockingTaskCommand(RemoveSelectedExcludedDirectory);
+    }
+
+    public RelayCommand AddExcludedDirectoryCommand { get; }
+
+    public RelayCommand AddExcludedDirectoryPatternCommand { get; }
+
+    public RelayCommand AddExcludedFilePatternCommand { get; }
+
+    public RelayCommand ChooseInitialDirectoryCommand { get; }
+
+    public RelayCommand RemoveSelectedExcludedDirectoryCommand { get; }
+
+    public RelayCommand RemoveSelectedExcludedDirectoryPatternCommand { get; }
+
+    public RelayCommand RemoveSelectedExcludedFilePatternCommand { get; }
+
+    public async Task AddExcludedDirectory()
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        var selectedDirectory = await ChooseDirectory();
+
+        if (selectedDirectory == null) return;
+
+        if (ExcludedDirectories.Any(x =>
+                x.FullName.Equals(selectedDirectory.FullName, StringComparison.InvariantCultureIgnoreCase)))
+        {
+            StatusContext.ToastError("Directory already exists in the list.");
+            return;
+        }
+
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        ExcludedDirectories.Add(selectedDirectory);
+    }
+
+    public async Task AddExcludedDirectoryPattern()
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (string.IsNullOrWhiteSpace(UserDirectoryPatternEntry.UserValue))
+        {
+            StatusContext.ToastError("A blank pattern, or a pattern with only white space is not valid");
+            return;
+        }
+
+        if (ExcludedDirectoryPatterns.Contains(UserDirectoryPatternEntry.UserValue.Trim(),
+                StringComparer.InvariantCultureIgnoreCase))
+        {
+            StatusContext.ToastError("Pattern already exists - patterns are case insensitive.");
+            return;
+        }
+
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        ExcludedDirectoryPatterns.Add(UserDirectoryPatternEntry.UserValue);
+        UserDirectoryPatternEntry.UserValue = string.Empty;
+    }
+
+    public async Task AddExcludedFilePattern()
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (string.IsNullOrWhiteSpace(UserFilePatternEntry.UserValue))
+        {
+            StatusContext.ToastError("A blank pattern, or a pattern with only white space is not valid");
+            return;
+        }
+
+        if (ExcludedFilePatterns.Contains(UserFilePatternEntry.UserValue.Trim(),
+                StringComparer.InvariantCultureIgnoreCase))
+        {
+            StatusContext.ToastError("Pattern already exists - patterns are case insensitive.");
+            return;
+        }
+
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        ExcludedFilePatterns.Add(UserFilePatternEntry.UserValue);
+        UserFilePatternEntry.UserValue = string.Empty;
+    }
+
+    public async Task<DirectoryInfo?> ChooseDirectory()
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        var initialDirectoryString = CloudBackupGuiSettingTools.ReadSettings().LastDirectory;
+
+        DirectoryInfo? initialDirectory = null;
+
+        try
+        {
+            initialDirectory = new DirectoryInfo(initialDirectoryString);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+        }
+
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        var folderPicker = new VistaFolderBrowserDialog
+            { Description = "Initial Directory", Multiselect = true };
+
+        if (initialDirectory != null) folderPicker.SelectedPath = $"{initialDirectory.FullName}\\";
+
+        if (folderPicker.ShowDialog() != true) return null;
+
+        var selectedDirectory = new DirectoryInfo(folderPicker.SelectedPath);
+
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (!selectedDirectory.Exists) return null;
+
+        return selectedDirectory;
+    }
+
+    public async Task ChooseInitialDirectory()
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        var selectedDirectory = await ChooseDirectory();
+
+        if (selectedDirectory == null) return;
+
+        InitialDirectory = selectedDirectory;
     }
 
     public static async Task<JobEditorContext> CreateInstance(StatusControlContext? context, BackupJob initialJob)
@@ -117,5 +260,54 @@ public partial class JobEditorContext : ObservableObject
         return new JobEditorContext(statusContext, nameEntry, filePatternEntry, directoryPatternEntry,
             maximumRuntimeHoursEntry, new ObservableCollection<DirectoryInfo>(), new ObservableCollection<string>(),
             new ObservableCollectionListSource<string>());
+    }
+
+    public async Task RemoveSelectedExcludedDirectory()
+    {
+        var frozenSelection = SelectedExcludedDirectoryPattern;
+
+        if (SelectedExcludedDirectory == null)
+        {
+            StatusContext.ToastError("Nothing selected to Remove?");
+            return;
+        }
+
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        ExcludedDirectoryPatterns.Remove(frozenSelection);
+    }
+
+    public async Task RemoveSelectedExcludedDirectoryPattern()
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        var frozenSelection = SelectedExcludedDirectoryPattern;
+
+        if (string.IsNullOrWhiteSpace(frozenSelection))
+        {
+            StatusContext.ToastError("Nothing selected to Remove?");
+            return;
+        }
+
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        ExcludedDirectoryPatterns.Remove(frozenSelection);
+    }
+
+    public async Task RemoveSelectedExcludedFilePattern()
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        var frozenSelection = SelectedExcludedFilePattern;
+
+        if (string.IsNullOrWhiteSpace(frozenSelection))
+        {
+            StatusContext.ToastError("Nothing selected to Remove?");
+            return;
+        }
+
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        ExcludedFilePatterns.Remove(frozenSelection);
     }
 }
