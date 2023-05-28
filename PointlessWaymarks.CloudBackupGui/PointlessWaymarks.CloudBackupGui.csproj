@@ -12,7 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Jot" Version="2.1.15" />
+    <PackageReference Include="Jot" Version="2.1.16" />
   </ItemGroup>
 
   <ItemGroup>

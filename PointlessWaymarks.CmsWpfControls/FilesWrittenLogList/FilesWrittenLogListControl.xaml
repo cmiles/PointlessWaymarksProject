@@ -6,6 +6,7 @@
     xmlns:filesWrittenLogList="clr-namespace:PointlessWaymarks.CmsWpfControls.FilesWrittenLogList"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:status="clr-namespace:PointlessWaymarks.WpfCommon.Status;assembly=PointlessWaymarks.WpfCommon"
+    xmlns:dgx="urn:tom-englert.de/DataGridExtensions"
     d:DataContext="{d:DesignInstance filesWrittenLogList:FilesWrittenLogListContext}"
     d:DesignHeight="450"
     d:DesignWidth="800"
@@ -120,7 +121,8 @@
                         CanUserResizeColumns="True"
                         IsReadOnly="True"
                         ItemsSource="{Binding Items}"
-                        SelectionChanged="Selector_OnSelectionChanged">
+                        SelectionChanged="Selector_OnSelectionChanged"
+                        dgx:DataGridFilter.IsAutoFilterEnabled="True">
                         <DataGrid.Columns>
                             <DataGridTextColumn Binding="{Binding WrittenOn}" Header="Written On" />
                             <DataGridTextColumn Binding="{Binding FileBase}" Header="File" />
