@@ -17,6 +17,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\PointlessWaymarks.CloudBackupData\PointlessWaymarks.CloudBackupData.csproj" />
+    <ProjectReference Include="..\PointlessWaymarks.LlamaAspects\PointlessWaymarks.LlamaAspects.csproj" />
     <ProjectReference Include="..\PointlessWaymarks.WpfCommon\PointlessWaymarks.WpfCommon.csproj" />
   </ItemGroup>
 

@@ -1,11 +1,10 @@
 ﻿using System.Collections.ObjectModel;
 using System.IO;
-using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Ookii.Dialogs.Wpf;
 using PointlessWaymarks.CloudBackupData.Models;
 using PointlessWaymarks.CommonTools;
+using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon.ConversionDataEntry;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.StringDataEntry;
@@ -13,64 +12,42 @@ using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 
 namespace PointlessWaymarks.CloudBackupGui.Controls;
 
-public partial class JobEditorContext : ObservableObject
+[NotifyPropertyChanged]
+[GenerateStatusCommands]
+public partial class JobEditorContext
 {
-    [ObservableProperty] private ObservableCollection<DirectoryInfo> _excludedDirectories;
-    [ObservableProperty] private ObservableCollection<string> _excludedDirectoryPatterns;
-    [ObservableProperty] private ObservableCollection<string> _excludedFilePatterns;
-    [ObservableProperty] private DirectoryInfo? _initialDirectory;
-    [ObservableProperty] private DirectoryInfo? _selectedExcludedDirectory;
-    [ObservableProperty] private string? _selectedExcludedDirectoryPattern;
-    [ObservableProperty] private string? _selectedExcludedFilePattern;
-    [ObservableProperty] private StatusControlContext _statusContext;
-    [ObservableProperty] private StringDataEntryContext _userDirectoryPatternEntry;
-    [ObservableProperty] private StringDataEntryContext _userFilePatternEntry;
-    [ObservableProperty] private ConversionDataEntryContext<int> _userMaximumRuntimeHoursEntry;
-    [ObservableProperty] private StringDataEntryContext _userNameEntry;
-
     private JobEditorContext(StatusControlContext statusContext, StringDataEntryContext userNameEntry,
         StringDataEntryContext userFilePatternEntry, StringDataEntryContext userDirectoryPatternEntry,
         ConversionDataEntryContext<int> userMaximumRuntimeHoursEntry,
         ObservableCollection<DirectoryInfo> excludedDirectories,
         ObservableCollection<string> excludedDirectoryPatterns, ObservableCollection<string> excludedFilePatterns)
     {
-        _statusContext = statusContext;
-        _userNameEntry = userNameEntry;
-        _userFilePatternEntry = userFilePatternEntry;
-        _userDirectoryPatternEntry = userDirectoryPatternEntry;
-        _excludedDirectories = excludedDirectories;
-        _excludedDirectoryPatterns = excludedDirectoryPatterns;
-        _excludedFilePatterns = excludedFilePatterns;
-        _userMaximumRuntimeHoursEntry = userMaximumRuntimeHoursEntry;
+        StatusContext = statusContext;
+        UserNameEntry = userNameEntry;
+        UserFilePatternEntry = userFilePatternEntry;
+        UserDirectoryPatternEntry = userDirectoryPatternEntry;
+        ExcludedDirectories = excludedDirectories;
+        ExcludedDirectoryPatterns = excludedDirectoryPatterns;
+        ExcludedFilePatterns = excludedFilePatterns;
+        UserMaximumRuntimeHoursEntry = userMaximumRuntimeHoursEntry;
 
-        AddExcludedDirectoryPatternCommand = StatusContext.RunNonBlockingTaskCommand(AddExcludedDirectoryPattern);
-        AddExcludedFilePatternCommand = StatusContext.RunNonBlockingTaskCommand(AddExcludedFilePattern);
-        RemoveSelectedExcludedDirectoryPatternCommand =
-            StatusContext.RunNonBlockingTaskCommand(RemoveSelectedExcludedDirectoryPattern);
-        RemoveSelectedExcludedFilePatternCommand =
-            StatusContext.RunNonBlockingTaskCommand(RemoveSelectedExcludedFilePattern);
-
-        ChooseInitialDirectoryCommand = StatusContext.RunNonBlockingTaskCommand(ChooseInitialDirectory);
-
-        AddExcludedDirectoryCommand = StatusContext.RunNonBlockingTaskCommand(AddExcludedDirectory);
-        RemoveSelectedExcludedDirectoryCommand =
-            StatusContext.RunNonBlockingTaskCommand(RemoveSelectedExcludedDirectory);
+        BuildCommands();
     }
 
-    public RelayCommand AddExcludedDirectoryCommand { get; }
+    public ObservableCollection<DirectoryInfo> ExcludedDirectories { get; set; }
+    public ObservableCollection<string> ExcludedDirectoryPatterns { get; set; }
+    public ObservableCollection<string> ExcludedFilePatterns { get; set; }
+    public DirectoryInfo? InitialDirectory { get; set; }
+    public DirectoryInfo? SelectedExcludedDirectory { get; set; }
+    public string? SelectedExcludedDirectoryPattern { get; set; }
+    public string? SelectedExcludedFilePattern { get; set; }
+    public StatusControlContext StatusContext { get; set; }
+    public StringDataEntryContext UserDirectoryPatternEntry { get; set; }
+    public StringDataEntryContext UserFilePatternEntry { get; set; }
+    public ConversionDataEntryContext<int> UserMaximumRuntimeHoursEntry { get; set; }
+    public StringDataEntryContext UserNameEntry { get; set; }
 
-    public RelayCommand AddExcludedDirectoryPatternCommand { get; }
-
-    public RelayCommand AddExcludedFilePatternCommand { get; }
-
-    public RelayCommand ChooseInitialDirectoryCommand { get; }
-
-    public RelayCommand RemoveSelectedExcludedDirectoryCommand { get; }
-
-    public RelayCommand RemoveSelectedExcludedDirectoryPatternCommand { get; }
-
-    public RelayCommand RemoveSelectedExcludedFilePatternCommand { get; }
-
+    [BlockingCommand]
     public async Task AddExcludedDirectory()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -91,6 +68,7 @@ public partial class JobEditorContext : ObservableObject
         ExcludedDirectories.Add(selectedDirectory);
     }
 
+    [BlockingCommand]
     public async Task AddExcludedDirectoryPattern()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -114,6 +92,7 @@ public partial class JobEditorContext : ObservableObject
         UserDirectoryPatternEntry.UserValue = string.Empty;
     }
 
+    [BlockingCommand]
     public async Task AddExcludedFilePattern()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -137,6 +116,7 @@ public partial class JobEditorContext : ObservableObject
         UserFilePatternEntry.UserValue = string.Empty;
     }
 
+    [BlockingCommand]
     public async Task<DirectoryInfo?> ChooseDirectory()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -176,6 +156,7 @@ public partial class JobEditorContext : ObservableObject
         return selectedDirectory;
     }
 
+    [BlockingCommand]
     public async Task ChooseInitialDirectory()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -266,11 +247,12 @@ public partial class JobEditorContext : ObservableObject
             new ObservableCollectionListSource<string>());
     }
 
+    [BlockingCommand]
     public async Task RemoveSelectedExcludedDirectory()
     {
         var frozenSelection = SelectedExcludedDirectoryPattern;
 
-        if (SelectedExcludedDirectory == null)
+        if (frozenSelection == null)
         {
             StatusContext.ToastError("Nothing selected to Remove?");
             return;
@@ -281,6 +263,7 @@ public partial class JobEditorContext : ObservableObject
         ExcludedDirectoryPatterns.Remove(frozenSelection);
     }
 
+    [BlockingCommand]
     public async Task RemoveSelectedExcludedDirectoryPattern()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -298,6 +281,7 @@ public partial class JobEditorContext : ObservableObject
         ExcludedDirectoryPatterns.Remove(frozenSelection);
     }
 
+    [BlockingCommand]
     public async Task RemoveSelectedExcludedFilePattern()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();

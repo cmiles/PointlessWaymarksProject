@@ -52,7 +52,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PointlessWaymarks.CloudBack
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PointlessWaymarks.CloudBackupData", "PointlessWaymarks.CloudBackupData\PointlessWaymarks.CloudBackupData.csproj", "{863FB9F8-317B-4EB6-B87A-9B23C17FE2CD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PointlessWaymarks.CloudBackupTests", "PointlessWaymarks.CloudBackupTests\PointlessWaymarks.CloudBackupTests.csproj", "{28FCAD6F-CA80-49D9-915F-F1ED3B164235}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PointlessWaymarks.CloudBackupTests", "PointlessWaymarks.CloudBackupTests\PointlessWaymarks.CloudBackupTests.csproj", "{28FCAD6F-CA80-49D9-915F-F1ED3B164235}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PointlessWaymarks.LlamaAspects", "PointlessWaymarks.LlamaAspects\PointlessWaymarks.LlamaAspects.csproj", "{39BD8DD8-A7A0-46B5-BC2C-C7A411EEB3AA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -144,6 +146,10 @@ Global
 		{28FCAD6F-CA80-49D9-915F-F1ED3B164235}.Debug|x64.Build.0 = Debug|x64
 		{28FCAD6F-CA80-49D9-915F-F1ED3B164235}.Release|x64.ActiveCfg = Release|x64
 		{28FCAD6F-CA80-49D9-915F-F1ED3B164235}.Release|x64.Build.0 = Release|x64
+		{39BD8DD8-A7A0-46B5-BC2C-C7A411EEB3AA}.Debug|x64.ActiveCfg = Debug|x64
+		{39BD8DD8-A7A0-46B5-BC2C-C7A411EEB3AA}.Debug|x64.Build.0 = Debug|x64
+		{39BD8DD8-A7A0-46B5-BC2C-C7A411EEB3AA}.Release|x64.ActiveCfg = Release|x64
+		{39BD8DD8-A7A0-46B5-BC2C-C7A411EEB3AA}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

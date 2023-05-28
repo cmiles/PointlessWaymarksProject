@@ -6,6 +6,7 @@
     <Platforms>x64</Platforms>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <MetalamaAllowPreviewLanguageFeatures>true</MetalamaAllowPreviewLanguageFeatures>
   </PropertyGroup>
   <PropertyGroup>
     <DebugType>embedded</DebugType>
