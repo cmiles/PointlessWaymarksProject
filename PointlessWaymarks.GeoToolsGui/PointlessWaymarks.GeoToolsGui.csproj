@@ -18,6 +18,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Jot" Version="2.1.16" />
+    <PackageReference Include="Metalama.Framework" Version="2023.0.117" />
     <PackageReference Include="ModernWpfUI" Version="0.9.6" />
     <PackageReference Include="System.Configuration.ConfigurationManager" Version="7.0.0" />
   </ItemGroup>
@@ -25,6 +26,7 @@
   <ItemGroup>
     <ProjectReference Include="..\PointlessWaymarks.CmsData\PointlessWaymarks.CmsData.csproj" />
     <ProjectReference Include="..\PointlessWaymarks.GeoTaggingService\PointlessWaymarks.GeoTaggingService.csproj" />
+    <ProjectReference Include="..\PointlessWaymarks.LlamaAspects\PointlessWaymarks.LlamaAspects.csproj" />
     <ProjectReference Include="..\PointlessWaymarks.SpatialTools\PointlessWaymarks.SpatialTools.csproj" />
     <ProjectReference Include="..\PointlessWaymarks.WpfCommon\PointlessWaymarks.WpfCommon.csproj" />
   </ItemGroup>

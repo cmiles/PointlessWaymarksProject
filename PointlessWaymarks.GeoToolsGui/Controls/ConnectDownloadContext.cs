@@ -1,7 +1,6 @@
 ﻿using System.ComponentModel;
 using System.IO;
 using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using Garmin.Connect.Models;
 using NetTopologySuite.Features;
@@ -11,6 +10,7 @@ using PointlessWaymarks.CmsData.ContentHtml.GeoJsonHtml;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.GeoToolsGui.Messages;
 using PointlessWaymarks.GeoToolsGui.Settings;
+using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.SpatialTools;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
@@ -19,63 +19,38 @@ using PointlessWaymarks.WpfCommon.WpfHtml;
 
 namespace PointlessWaymarks.GeoToolsGui.Controls;
 
-public partial class ConnectDownloadContext : ObservableObject
+[NotifyPropertyChanged]
+[GenerateStatusCommands]
+public partial class ConnectDownloadContext
 {
-    [ObservableProperty] private bool _archiveDirectoryExists;
-    [ObservableProperty] private string _currentCredentialsNote = string.Empty;
-    [ObservableProperty] private string _filterLocation = string.Empty;
-    [ObservableProperty] private bool _filterMatchingArchiveFile;
-    [ObservableProperty] private string _filterName = string.Empty;
-    [ObservableProperty] private bool _filterNoMatchingArchiveFile;
-    private Guid _searchAndFilterLatestRequestId;
-    [ObservableProperty] private DateTime _searchEndDate;
-    [ObservableProperty] private List<GarminActivityAndLocalFiles> _searchResults = new();
-    [ObservableProperty] private List<GarminActivityAndLocalFiles> _searchResultsFiltered = new();
-    [ObservableProperty] private DateTime _searchStartDate;
-    [ObservableProperty] private ConnectDownloadSettings _settings;
-    [ObservableProperty] private StatusControlContext _statusContext;
-    [ObservableProperty] private WindowIconStatus _windowStatus;
-
     public ConnectDownloadContext(StatusControlContext? statusContext, WindowIconStatus? windowStatus)
     {
-        _statusContext = statusContext ?? new StatusControlContext();
-        _windowStatus = windowStatus ?? new WindowIconStatus();
+        StatusContext = statusContext ?? new StatusControlContext();
+        WindowStatus = windowStatus ?? new WindowIconStatus();
 
-        _searchStartDate = DateTime.Now.AddDays(-30);
-        _searchEndDate = DateTime.Now.AddDays(1).AddTicks(-1);
-        _settings = new ConnectDownloadSettings();
+        BuildCommands();
 
-        RunSearchCommand = StatusContext.RunBlockingTaskWithCancellationCommand(RunSearch, "Cancel Search");
-        EnterGarminCredentialsCommand = StatusContext.RunBlockingTaskCommand(EnterGarminCredentials);
-        RemoveAllGarminCredentialsCommand = StatusContext.RunNonBlockingTaskCommand(RemoveAllGarminCredentials);
-        ChooseArchiveDirectoryCommand = StatusContext.RunBlockingTaskCommand(ChooseArchiveDirectory);
-        DownloadActivityCommand = StatusContext.RunBlockingTaskCommand<GarminActivityAndLocalFiles>(async x => await DownloadActivity(x, StatusContext.ProgressTracker()));
-        ShowGpxFileCommand = StatusContext.RunBlockingTaskCommand<GarminActivityAndLocalFiles>(ShowGpxFile);
-        ShowFileInExplorerCommand = StatusContext.RunNonBlockingTaskCommand<string>(ShowFileInExplorer);
-
-        ShowArchiveDirectoryCommand = StatusContext.RunNonBlockingTaskCommand(ShowArchiveDirectory);
+        SearchStartDate = DateTime.Now.AddDays(-30);
+        SearchEndDate = DateTime.Now.AddDays(1).AddTicks(-1);
+        Settings = new ConnectDownloadSettings();
 
         PropertyChanged += OnPropertyChanged;
     }
 
-    public RelayCommand ChooseArchiveDirectoryCommand { get; }
-
-    // ReSharper disable once UnusedAutoPropertyAccessor.Global - Used in Xaml
-    public RelayCommand<GarminActivityAndLocalFiles> DownloadActivityCommand { get; }
-
-    public RelayCommand EnterGarminCredentialsCommand { get; }
-
-    public RelayCommand RemoveAllGarminCredentialsCommand { get; }
-
-    public RelayCommand RunSearchCommand { get; }
-
-    public RelayCommand ShowArchiveDirectoryCommand { get; }
-
-    // ReSharper disable once UnusedAutoPropertyAccessor.Global - Used in Xaml
-    public RelayCommand<string> ShowFileInExplorerCommand { get; }
-
-    // ReSharper disable once UnusedAutoPropertyAccessor.Global - Used in Xaml
-    public RelayCommand<GarminActivityAndLocalFiles> ShowGpxFileCommand { get; }
+    public bool ArchiveDirectoryExists { get; set; }
+    public string CurrentCredentialsNote { get; set; } = string.Empty;
+    public string FilterLocation { get; set; } = string.Empty;
+    public bool FilterMatchingArchiveFile { get; set; }
+    public string FilterName { get; set; } = string.Empty;
+    public bool FilterNoMatchingArchiveFile { get; set; }
+    public Guid SearchAndFilterLatestRequestId { get; set; }
+    public DateTime SearchEndDate { get; set; }
+    public List<GarminActivityAndLocalFiles> SearchResults { get; set; } = new();
+    public List<GarminActivityAndLocalFiles> SearchResultsFiltered { get; set; } = new();
+    public DateTime SearchStartDate { get; set; }
+    public ConnectDownloadSettings Settings { get; set; }
+    public StatusControlContext StatusContext { get; set; }
+    public WindowIconStatus WindowStatus { get; set; }
 
     public async Task CheckThatArchiveDirectoryExists()
     {
@@ -98,6 +73,7 @@ public partial class ConnectDownloadContext : ObservableObject
         ArchiveDirectoryExists = exists;
     }
 
+    [BlockingCommand]
     public async Task ChooseArchiveDirectory()
     {
         await ThreadSwitcher.ResumeForegroundAsync();
@@ -125,7 +101,8 @@ public partial class ConnectDownloadContext : ObservableObject
         return control;
     }
 
-    public async Task DownloadActivity(GarminActivityAndLocalFiles? toDownload, IProgress<string> progress)
+    [BlockingCommand]
+    public async Task DownloadActivity(GarminActivityAndLocalFiles? toDownload)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -159,11 +136,13 @@ public partial class ConnectDownloadContext : ObservableObject
         toDownload.ArchivedJson =
             await GarminConnectTools.WriteJsonActivityArchiveFile(toDownload.Activity, archiveDirectory, true);
         toDownload.ArchivedGpx = await GarminConnectTools.GetGpx(toDownload.Activity, archiveDirectory, false, true,
-            new ConnectGpxService { ConnectUsername = credentials.userName, ConnectPassword = credentials.password }, progress);
+            new ConnectGpxService { ConnectUsername = credentials.userName, ConnectPassword = credentials.password },
+            StatusContext.ProgressTracker());
 
         StatusContext.ToastSuccess($"Downloaded {toDownload.ArchivedJson.Name} {toDownload.ArchivedGpx?.Name}");
     }
 
+    [BlockingCommand]
     public async Task EnterGarminCredentials()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -210,7 +189,7 @@ public partial class ConnectDownloadContext : ObservableObject
         if (!SearchResults.Any())
         {
             returnResult = new List<GarminActivityAndLocalFiles>();
-            if (requestId == _searchAndFilterLatestRequestId) SearchResultsFiltered = returnResult;
+            if (requestId == SearchAndFilterLatestRequestId) SearchResultsFiltered = returnResult;
             return;
         }
 
@@ -238,7 +217,7 @@ public partial class ConnectDownloadContext : ObservableObject
                             x.Activity.LocationName.Contains(FilterLocation, StringComparison.OrdinalIgnoreCase))
                 .ToList();
 
-        if (requestId == _searchAndFilterLatestRequestId) SearchResultsFiltered = returnResult;
+        if (requestId == SearchAndFilterLatestRequestId) SearchResultsFiltered = returnResult;
     }
 
     private async Task Load()
@@ -262,7 +241,7 @@ public partial class ConnectDownloadContext : ObservableObject
         if (e.PropertyName.StartsWith("Filter"))
         {
             var thisRequest = Guid.NewGuid();
-            _searchAndFilterLatestRequestId = thisRequest;
+            SearchAndFilterLatestRequestId = thisRequest;
             StatusContext.RunNonBlockingTask(async () => await FilterAndSortResults(thisRequest));
         }
     }
@@ -275,6 +254,7 @@ public partial class ConnectDownloadContext : ObservableObject
             StatusContext.RunNonBlockingTask(CheckThatArchiveDirectoryExists);
     }
 
+    [NonBlockingCommand]
     public async Task RemoveAllGarminCredentials()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -283,7 +263,8 @@ public partial class ConnectDownloadContext : ObservableObject
         StatusContext.ToastWarning("Removed any Garmin Connect Credentials!");
     }
 
-    public async Task RunSearch(CancellationToken cancellationToken)
+    [BlockingCommand]
+    public async Task SearchGarminConnect(CancellationToken cancellationToken)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -308,10 +289,11 @@ public partial class ConnectDownloadContext : ObservableObject
 
         SearchResults = returnList;
         var filterRequest = Guid.NewGuid();
-        _searchAndFilterLatestRequestId = filterRequest;
+        SearchAndFilterLatestRequestId = filterRequest;
         await FilterAndSortResults(filterRequest);
     }
 
+    [NonBlockingCommand]
     public async Task ShowArchiveDirectory()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -329,6 +311,7 @@ public partial class ConnectDownloadContext : ObservableObject
         await ProcessHelpers.OpenExplorerWindowForDirectory(Settings.ArchiveDirectory.Trim());
     }
 
+    [NonBlockingCommand]
     public async Task ShowFileInExplorer(string? fileName)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -349,6 +332,7 @@ public partial class ConnectDownloadContext : ObservableObject
         await ProcessHelpers.OpenExplorerWindowForFile(fileName.Trim());
     }
 
+    [BlockingCommand]
     public async Task ShowGpxFile(GarminActivityAndLocalFiles? toShow)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -367,7 +351,7 @@ public partial class ConnectDownloadContext : ObservableObject
             return;
         }
 
-        if (toShow.ArchivedGpx is not { Exists: true }) await DownloadActivity(toShow, StatusContext.ProgressTracker());
+        if (toShow.ArchivedGpx is not { Exists: true }) await DownloadActivity(toShow);
 
         if (toShow.ArchivedGpx is not { Exists: true })
         {

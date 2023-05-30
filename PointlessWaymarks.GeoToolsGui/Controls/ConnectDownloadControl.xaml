@@ -100,13 +100,13 @@
                         </Border>
                         <Border Style="{StaticResource SearchBorder}">
                             <StackPanel Style="{StaticResource SearchStackContainer}">
-                                <Label Style="{StaticResource SearchLabel}" Target="SearchEndDatePicker">Search Start</Label>
+                                <Label Style="{StaticResource SearchLabel}" Target="SearchEndDatePicker">Search End</Label>
                                 <DatePicker Name="SearchEndDatePicker" SelectedDate="{Binding SearchEndDate}" />
                             </StackPanel>
                         </Border>
                     </WrapPanel>
                     <Button Grid.Row="1" HorizontalAlignment="Stretch" Margin="4,8,4,0"
-                            Command="{Binding RunSearchCommand}" Height="40">
+                            Command="{Binding SearchGarminConnectCommand}" Height="40">
                         Search
                     </Button>
                 </Grid>

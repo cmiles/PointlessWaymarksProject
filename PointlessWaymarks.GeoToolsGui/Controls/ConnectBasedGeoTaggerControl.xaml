@@ -204,8 +204,8 @@
                             <RowDefinition Height="*" />
                         </Grid.RowDefinitions>
                         <Button Height="40" Margin="8,8,8,12" HorizontalAlignment="Stretch"
-                                Command="{Binding WriteToFilesCommand}">
-                            Write Tags to Files
+                                Command="{Binding WriteResultsToFileCommand}">
+                            Write Location to Files
                         </Button>
                         <DataGrid Grid.Row="1" ItemsSource="{Binding PreviewResults.FileResults}"
                                   CanUserAddRows="False"
