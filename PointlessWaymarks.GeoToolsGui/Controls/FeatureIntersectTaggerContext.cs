@@ -31,12 +31,14 @@ namespace PointlessWaymarks.GeoToolsGui.Controls;
 
 [NotifyPropertyChanged]
 [GenerateStatusCommands]
-public class FeatureIntersectTaggerContext
+public partial class FeatureIntersectTaggerContext
 {
     public FeatureIntersectTaggerContext(StatusControlContext? statusContext, WindowIconStatus? windowStatus)
     {
         StatusContext = statusContext ?? new StatusControlContext();
         WindowStatus = windowStatus ?? new WindowIconStatus();
+
+        BuildCommands();
 
         Settings = new FeatureIntersectTaggerSettings();
 
@@ -127,7 +129,7 @@ public class FeatureIntersectTaggerContext
         await FeatureIntersectTaggerSettingTools.WriteSettings(Settings);
     }
 
-    public async Task CheckThatExifToolExistsAndSaveSettings()
+    public async Task CheckThatExifToolExists(bool saveSettings)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -139,7 +141,7 @@ public class FeatureIntersectTaggerContext
 
         var exists = File.Exists(Settings.ExifToolFullName.Trim());
 
-        if (exists)
+        if (exists && saveSettings)
         {
             await FeatureIntersectTaggerSettingTools.WriteSettings(Settings);
             WeakReferenceMessenger.Default.Send(new ExifToolSettingsUpdateMessage((this, Settings.ExifToolFullName)));
@@ -194,7 +196,6 @@ public class FeatureIntersectTaggerContext
         return control;
     }
 
-    [BlockingCommand]
     private Task<IntersectSettings> CurrentSettingsAsIntersectSettings()
     {
         Debug.Assert(Settings != null, nameof(Settings) + " != null");
@@ -375,6 +376,8 @@ public class FeatureIntersectTaggerContext
         Debug.Assert(Settings != null, nameof(Settings) + " != null");
 
         Settings.PropertyChanged += OnSettingsPropertyChanged;
+
+        await CheckThatExifToolExists(false);
     }
 
     [BlockingCommand]
@@ -485,12 +488,20 @@ public class FeatureIntersectTaggerContext
         SelectedTab++;
     }
 
+    private void OnPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (string.IsNullOrWhiteSpace(e.PropertyName)) return;
+
+        if (e.PropertyName == nameof(Settings))
+            StatusContext.RunNonBlockingTask(async () => await CheckThatExifToolExists(false));
+    }
+
     private void OnSettingsPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
-        if (string.IsNullOrEmpty(e.PropertyName)) return;
+        if (string.IsNullOrWhiteSpace(e.PropertyName)) return;
 
-        if (e.PropertyName.Equals(nameof(Settings.ExifToolFullName)))
-            StatusContext.RunNonBlockingTask(CheckThatExifToolExistsAndSaveSettings);
+        if (e.PropertyName == nameof(Settings.ExifToolFullName))
+            StatusContext.RunNonBlockingTask(async () => await CheckThatExifToolExists(true));
     }
 
     public async Task ProcessEditedFeatureFileViewModel(FeatureFileContext model)

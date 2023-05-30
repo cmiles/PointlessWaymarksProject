@@ -27,12 +27,14 @@ namespace PointlessWaymarks.GeoToolsGui.Controls;
 
 [NotifyPropertyChanged]
 [GenerateStatusCommands]
-public class FileBasedGeoTaggerContext
+public partial class FileBasedGeoTaggerContext
 {
     public FileBasedGeoTaggerContext(StatusControlContext? statusContext, WindowIconStatus? windowStatus)
     {
         StatusContext = statusContext ?? new StatusControlContext();
         WindowStatus = windowStatus;
+
+        BuildCommands();
 
         Settings = new FileBasedGeoTaggerSettings();
 
@@ -185,7 +187,7 @@ public class FileBasedGeoTaggerContext
         WriteToFileHtml = WpfHtmlDocument.ToHtmlLeafletBasicGeoJsonDocument("WrittenFiles",
             32.12063, -110.52313, string.Empty);
 
-        await CheckThatExifToolExists(true);
+        await CheckThatExifToolExists(false);
     }
 
     [BlockingCommand]

@@ -3,7 +3,7 @@
 namespace PointlessWaymarks.GeoToolsGui.Settings;
 
 [NotifyPropertyChanged]
-public class ConnectBasedGeoTaggerSettings
+public partial class ConnectBasedGeoTaggerSettings
 {
     public string ArchiveDirectory { get; set; } = string.Empty;
     public bool CreateBackups { get; set; } = true;

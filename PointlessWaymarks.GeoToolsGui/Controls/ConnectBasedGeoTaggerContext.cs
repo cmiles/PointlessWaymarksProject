@@ -35,7 +35,7 @@ public partial class ConnectBasedGeoTaggerContext
     {
         StatusContext = statusContext;
         WindowStatus = windowStatus;
-
+        
         BuildCommands();
 
         Settings = new ConnectBasedGeoTaggerSettings();

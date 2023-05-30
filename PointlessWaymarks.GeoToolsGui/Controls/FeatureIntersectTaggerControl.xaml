@@ -285,7 +285,7 @@
                                 <StackPanel Orientation="Vertical" Margin="4">
                                     <WrapPanel Orientation="Horizontal" Margin="12,8,4,6">
                                         <Button MinWidth="120" Margin="2,0,2,0"
-                                                Command="{Binding SaveSettingsFromFileCommand}">
+                                                Command="{Binding CurrentSettingsAsIntersectSettingsCommand}">
                                             Save Current Settings
                                         </Button>
                                         <Button MinWidth="120" Margin="2,0,2,0"
@@ -293,7 +293,7 @@
                                             Import Settings
                                         </Button>
                                         <Button MinWidth="120" Margin="2,0,2,0"
-                                                Command="{Binding ExportSettingsFromFileCommand}">
+                                                Command="{Binding ExportSettingsToFileCommand}">
                                             Export Settings
                                         </Button>
                                     </WrapPanel>
@@ -314,7 +314,7 @@
                             <RowDefinition Height="*" />
                         </Grid.RowDefinitions>
                         <Button Height="40" Margin="8,8,8,12" HorizontalAlignment="Stretch"
-                                Command="{Binding WriteToFilesCommand}">
+                                Command="{Binding WriteResultsToFileCommand}">
                             Write Tags to Files
                         </Button>
                         <DataGrid Grid.Row="1" ItemsSource="{Binding PreviewResults}" CanUserAddRows="False"

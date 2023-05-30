@@ -19,10 +19,12 @@ public partial class FeatureFileEditorContext
     {
         StatusContext = statusContext ?? new StatusControlContext();
         Model = featureFile ?? new FeatureFileContext();
+
+        BuildCommands();
+
         OriginalModelState = Model.Clone();
         _existingFeatureFileViewModels = existingFeatureFileViewModels;
 
-        BuildCommands();
     }
 
     public string AttributeToAdd { get; set; } = string.Empty;
