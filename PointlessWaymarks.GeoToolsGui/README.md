@@ -1,10 +1,12 @@
 ﻿# Pointless Waymarks GeoTools
 
-This program has several functions that are useful for GeoTagging photographs, automatically generating tags for GeoTagged photographs and working with Garmin Connect data.
+The Pointless Waymarks GeoTools are part of the [Pointless Waymarks Project](https://github.com/cmiles/PointlessWaymarksProject). These tools provide some useful functionality for GeoTagging photographs, tagging photographs from GeoJson data and working with [Garmin Connect](https://connect.garmin.com/).
+
+*At this point there are no public installers/releases from the Pointless Waymarks Project - the code is MIT Licensed made public on GitHub to share with friends, colleagues and anyone who finds the code interesting or useful. This project is probably only suitable for use if you enjoy debugging and working on code!*
 
 ## GeoTagging - GPX File Based
 
-This allows you to select GPX Files, select files to Tag, get a preview and write the tags to a file. For this to work you need to include GPX files in your selection that cover the time the photograph was taken - and the program must be able to determine the time the photograph was taken.
+This allows you to select GPX Files, select files to Tag, get a preview and write the location to the files. For this to work you need to include GPX files in your selection that cover the time the photograph was taken - and the program must be able to determine the time the photograph was taken. This is a nice option for GeoTagging photos when you have all your location data on your local system and the program will happily work with a large number of GPX files and a large number of photos.
 
 ## GeoTagging - Garmin Connect Based
 
@@ -16,17 +18,17 @@ Garmin Connect is an incredible free service that many devices and other service
 
 ### Why GeoTagging?
 
-Several astute questions about the functionality above:
- - Why? Don't Lightroom, Exiftools, GeoSetter, your phone... already GeoTag? The direct tie in to Garmin Connect, learning/fun/interest and putting both the GeoTagging and Feature Intersect into one program were all motivations. Certainly there are already plenty of fantastic programs that GeoTag items.
- - Isn't GeoTagging and revealing locations a dubious goal for landscape photography? This is an incredibly important question - but it makes the assumption that you are going to release/publish/make public GeoTagged photographs... One reason to GeoTag your original photographs is to retain as much information as possible  about 'where' - it is easy, even with places you care about and photos you love for memories to fade over time - decades later what is obvious now is sometimes a complete mystery... Many Photo editors and digital asset management tools have easy to find and use functionality to remove location Metadata when exporting your photos. However - don't think that removing location metadata makes your location a secret - please share responsibly! 
+Several good questions about the functionality above:
+ - Why? Don't Lightroom, Exiftools, GeoSetter, your phone... already offer excellent ways GeoTag? There are already many fantastic programs/ways to GeoTag photographs! Nice details this program offers: a link to Garmin Connect, ability to work with a large number of GPX and files to GeoTag and the convenience of GeoTagging and then immediately Feature Intersecting Tagging (see below).
+ - Isn't GeoTagging and revealing locations a dubious goal for landscape photography? GeoTagging public photographs is an important and interesting question - if you haven't thought about this issue before I recommend searching the internet for 'should you geotag landscape photography'. Regardless of what you think about GeoTagging publicly released photographs there can be huge value in GeoTagging your personal collection. It is easy, even with places you care about and photos you love, for memories to fade over time - in my experience decades later where a photograph was taken can become a complete mystery without a GeoTag... If you GeoTag your personal photographs it is easy with most editors and digital asset management tools to remove location Metadata when exporting. However - don't think that removing location metadata makes your location a secret - please share responsibly! 
 
 ## Feature Intersect Tags
 
-With information published about the boundaries of parks, forests, monuments, etc. why not take advantage of that information to automatically tag you photos? Sometimes it is easy enough to create these tags by hand - but with complex boundaries, unfamiliar terrain and County/State/Federal land types all involved over time it has become clear to me that this is work better done by the computer...
+With information published about the boundaries of parks, forests, monuments, etc. why not take advantage of that information to automatically tag you photos? Sometimes it is easy enough to create these tags by hand - but with complex boundaries, unfamiliar terrain and County/State/Federal land types all involved it has become clear to me that this is work better done by the computer...
 
-This program can compare the location of a photograph with PAD-US data and reference GeoJson files to pull tags from the intersections.
+This program can compare the location of a photograph with PAD-US data and other GeoJson files to create tags from the intersections.
 
-You will have to download and setup data for this program to use - this takes some work, time and attention to detail but it also means that once you have the data setup it is available fully offline! The program contains help and instructions for getting and setting up the data. Brief notes about the three basic data sourcesthat can be used are below - see the help in the program or the [README](../PointlessWaymarks.FeatureIntersectionTags/README.md) for the FeatureIntersectionTags library for more information.
+You will have to download and setup data for this program to use - this takes some work, time and attention to detail but it also means that once you have the data setup it is available fully offline! The program contains help and instructions for getting and setting up the data. Brief notes about the three basic data sources that can be used are below - see the help in the program or the [README](../PointlessWaymarks.FeatureIntersectionTags/README.md) for more information.
 
 ### PAD-US
 

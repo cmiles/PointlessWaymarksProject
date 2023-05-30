@@ -2,7 +2,7 @@ There is plenty of traditional README information below about this project - but
 
 # Pointless Waymarks Project - CMS, Site Viewer, Tasks and GeoTools
 
-*At this point the Pointless Waymarks Project is not intended for general use - it is made public under the MIT License to share with friends, colleagues and anyone who finds the code interesting or useful.*
+*At this point there are no public installers/releases from the Pointless Waymarks Project - the code is MIT Licensed made public on GitHub to share with friends, colleagues and anyone who finds the code interesting or useful. This project is probably only suitable for use if you enjoy debugging and working on code!*
 
 The focus of this project is creating durable, rich, low maintenance, free, long-lasting, organized content that allows you to tell stories about the landscape, life, place,  history and nature.
 
@@ -13,7 +13,7 @@ The Pointless Waymarks projects contains:
 
 Todo Lists, Idea Lists and a Development Log are [found in a DevNotes.md file that is versioned along with the code](/DevNotes.md).
 
-If you have questions or comments please contact me at pointless@pointlesswaymarks.com - as noted above there is currently no intent to create public releases. Using this software is probably only reasonable if you don't mind (enjoy!) a little debugging and bug fixing...
+If you have questions or comments please contact me at pointless@pointlesswaymarks.com.
 
 ## Pointless Waymarks CMS
 
@@ -147,6 +147,7 @@ I am incredibly grateful to the all the people and projects that make it possibl
  - [Visual Studio IDE](https://visualstudio.microsoft.com/), [.NET Core (Linux, macOS, and Windows)](https://dotnet.microsoft.com/download/dotnet-core)
  - [ReSharper: The Visual Studio Extension for .NET Developers by JetBrains](https://www.jetbrains.com/resharper/)
  - [GitHub Copilot · Your AI pair programmer · GitHub](https://github.com/features/copilot)
+ - [Metalama: A Framework for Clean & Concise Code in C#](https://www.postsharp.net/metalama)
  - [AutoHotkey](https://www.autohotkey.com/)
  - [Beyond Compare](https://www.scootersoftware.com/)
  - [Compact-Log-Format-Viewer: A cross platform tool to read & query JSON aka CLEF log files created by Serilog](https://github.com/warrenbuckley/Compact-Log-Format-Viewer)
