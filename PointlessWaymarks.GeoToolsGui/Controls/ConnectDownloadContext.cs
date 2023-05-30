@@ -1,6 +1,5 @@
 ﻿using System.ComponentModel;
 using System.IO;
-using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Messaging;
 using Garmin.Connect.Models;
 using NetTopologySuite.Features;
@@ -399,15 +398,16 @@ public partial class ConnectDownloadContext
             CurrentCredentialsNote = "No Credentials Found...";
     }
 
-    public partial class GarminActivityAndLocalFiles : ObservableObject
+    [NotifyPropertyChanged]
+    public partial class GarminActivityAndLocalFiles
     {
-        [ObservableProperty] private GarminActivity _activity;
-        [ObservableProperty] private FileInfo? _archivedGpx;
-        [ObservableProperty] private FileInfo? _archivedJson;
-
         public GarminActivityAndLocalFiles(GarminActivity activity)
         {
-            _activity = activity;
+            Activity = activity;
         }
+
+        public GarminActivity Activity { get; set; }
+        public FileInfo? ArchivedGpx { get; set; }
+        public FileInfo? ArchivedJson { get; set; }
     }
 }

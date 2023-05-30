@@ -1,8 +1,9 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿using PointlessWaymarks.LlamaAspects;
 
 namespace PointlessWaymarks.GeoToolsGui;
 
-public partial class GeoToolsGuiSettings : ObservableObject
+[NotifyPropertyChanged]
+public partial class GeoToolsGuiSettings
 {
-    [ObservableProperty] private string _programUpdateDirectory = @"M:\PointlessWaymarksPublications";
+    public string ProgramUpdateDirectory { get; set; } = @"M:\PointlessWaymarksPublications";
 }

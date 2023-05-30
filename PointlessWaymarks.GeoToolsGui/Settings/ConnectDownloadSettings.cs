@@ -1,8 +1,9 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿using PointlessWaymarks.LlamaAspects;
 
 namespace PointlessWaymarks.GeoToolsGui.Settings;
 
-public partial class ConnectDownloadSettings : ObservableObject
+[NotifyPropertyChanged]
+public class ConnectDownloadSettings
 {
-    [ObservableProperty] private string _archiveDirectory = string.Empty;
+    public string ArchiveDirectory { get; set; } = string.Empty;
 }

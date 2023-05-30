@@ -2,8 +2,6 @@
 using System.Diagnostics;
 using System.IO;
 using System.Web;
-using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using HtmlTableHelper;
 using MetadataExtractor;
@@ -15,6 +13,7 @@ using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.GeoTaggingService;
 using PointlessWaymarks.GeoToolsGui.Messages;
 using PointlessWaymarks.GeoToolsGui.Settings;
+using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.SpatialTools;
 using PointlessWaymarks.WpfCommon.FileList;
 using PointlessWaymarks.WpfCommon.Status;
@@ -26,65 +25,42 @@ using static PointlessWaymarks.CmsData.ContentHtml.GeoJsonHtml.GeoJsonData;
 
 namespace PointlessWaymarks.GeoToolsGui.Controls;
 
-public partial class FileBasedGeoTaggerContext : ObservableObject
+[NotifyPropertyChanged]
+[GenerateStatusCommands]
+public class FileBasedGeoTaggerContext
 {
-    [ObservableProperty] private bool _createBackups;
-    [ObservableProperty] private bool _createBackupsInDefaultStorage;
-    [ObservableProperty] private bool _exifToolExists;
-    [ObservableProperty] private FileListContext? _filesToTagFileList;
-    [ObservableProperty] private FileBasedGeoTaggerFilesToTagSettings? _filesToTagSettings;
-    [ObservableProperty] private FileListContext? _gpxFileList;
-    [ObservableProperty] private FileBasedGeoTaggerGpxFilesSettings? _gpxFilesSettings;
-    [ObservableProperty] private int _offsetPhotoTimeInMinutes;
-    [ObservableProperty] private bool _overwriteExistingGeoLocation;
-    [ObservableProperty] private int _pointsMustBeWithinMinutes = 10;
-    [ObservableProperty] private string _previewGeoJsonDto = string.Empty;
-    [ObservableProperty] private bool _previewHasWritablePoints;
-    [ObservableProperty] private string _previewHtml = string.Empty;
-    [ObservableProperty] private GeoTag.GeoTagProduceActionsResult? _previewResults;
-    [ObservableProperty] private int _selectedTab;
-    [ObservableProperty] private FileBasedGeoTaggerSettings _settings;
-    [ObservableProperty] private StatusControlContext _statusContext;
-    [ObservableProperty] private WindowIconStatus? _windowStatus;
-    [ObservableProperty] private string _writeToFileGeoJsonDto = string.Empty;
-    [ObservableProperty] private string _writeToFileHtml = string.Empty;
-    [ObservableProperty] private GeoTag.GeoTagWriteMetadataToFilesResult? _writeToFileResults;
-
     public FileBasedGeoTaggerContext(StatusControlContext? statusContext, WindowIconStatus? windowStatus)
     {
-        _statusContext = statusContext ?? new StatusControlContext();
-        _windowStatus = windowStatus;
+        StatusContext = statusContext ?? new StatusControlContext();
+        WindowStatus = windowStatus;
 
-        _settings = new FileBasedGeoTaggerSettings();
-
-        MetadataForSelectedFilesToTagCommand = StatusContext.RunBlockingTaskCommand(MetadataForSelectedFilesToTag);
-        ShowSelectedGpxFilesCommand = StatusContext.RunBlockingTaskCommand(ShowSelectedGpxFiles);
-        ChooseExifFileCommand = StatusContext.RunBlockingTaskCommand(ChooseExifFile);
-
-        GeneratePreviewCommand = StatusContext.RunBlockingTaskCommand(GeneratePreview);
-        WriteToFilesCommand = StatusContext.RunBlockingTaskCommand(WriteResultsToFile);
-
-        NextTabCommand = StatusContext.RunNonBlockingActionCommand(() => SelectedTab++);
-        SendResultFilesToFeatureIntersectTaggerCommand =
-            StatusContext.RunNonBlockingTaskCommand(SendResultFilesToFeatureIntersectTagger);
+        Settings = new FileBasedGeoTaggerSettings();
 
         PropertyChanged += OnPropertyChanged;
         Settings.PropertyChanged += OnSettingsPropertyChanged;
     }
 
-    public RelayCommand ChooseExifFileCommand { get; }
-
-    public RelayCommand GeneratePreviewCommand { get; }
-
-    public RelayCommand MetadataForSelectedFilesToTagCommand { get; }
-
-    public RelayCommand NextTabCommand { get; }
-
-    public RelayCommand SendResultFilesToFeatureIntersectTaggerCommand { get; }
-
-    public RelayCommand ShowSelectedGpxFilesCommand { get; }
-
-    public RelayCommand WriteToFilesCommand { get; }
+    public bool CreateBackups { get; set; }
+    public bool CreateBackupsInDefaultStorage { get; set; }
+    public bool ExifToolExists { get; set; }
+    public FileListContext? FilesToTagFileList { get; set; }
+    public FileBasedGeoTaggerFilesToTagSettings? FilesToTagSettings { get; set; }
+    public FileListContext? GpxFileList { get; set; }
+    public FileBasedGeoTaggerGpxFilesSettings? GpxFilesSettings { get; set; }
+    public int OffsetPhotoTimeInMinutes { get; set; }
+    public bool OverwriteExistingGeoLocation { get; set; }
+    public int PointsMustBeWithinMinutes { get; set; } = 10;
+    public string PreviewGeoJsonDto { get; set; } = string.Empty;
+    public bool PreviewHasWritablePoints { get; set; }
+    public string PreviewHtml { get; set; } = string.Empty;
+    public GeoTag.GeoTagProduceActionsResult? PreviewResults { get; set; }
+    public int SelectedTab { get; set; }
+    public FileBasedGeoTaggerSettings Settings { get; set; }
+    public StatusControlContext StatusContext { get; set; }
+    public WindowIconStatus? WindowStatus { get; set; }
+    public string WriteToFileGeoJsonDto { get; set; } = string.Empty;
+    public string WriteToFileHtml { get; set; } = string.Empty;
+    public GeoTag.GeoTagWriteMetadataToFilesResult? WriteToFileResults { get; set; }
 
     public async Task CheckThatExifToolExists(bool saveSettings)
     {
@@ -107,6 +83,7 @@ public partial class FileBasedGeoTaggerContext : ObservableObject
         ExifToolExists = exists;
     }
 
+    [BlockingCommand]
     public async Task ChooseExifFile()
     {
         var newFile = await ExifFilePicker.ChooseExifFile(StatusContext, Settings.ExifToolFullName);
@@ -126,6 +103,7 @@ public partial class FileBasedGeoTaggerContext : ObservableObject
         return control;
     }
 
+    [BlockingCommand]
     public async Task GeneratePreview()
     {
         await FileBasedGeoTaggerSettingTools.WriteSettings(Settings);
@@ -210,6 +188,7 @@ public partial class FileBasedGeoTaggerContext : ObservableObject
         await CheckThatExifToolExists(true);
     }
 
+    [BlockingCommand]
     public async Task MetadataForSelectedFilesToTag()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -297,6 +276,14 @@ public partial class FileBasedGeoTaggerContext : ObservableObject
         }
     }
 
+    [NonBlockingCommand]
+    public async Task NextTab()
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        SelectedTab++;
+    }
+
     private void OnPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
         if (string.IsNullOrWhiteSpace(e.PropertyName)) return;
@@ -328,6 +315,7 @@ public partial class FileBasedGeoTaggerContext : ObservableObject
         return await GeoJsonTools.SerializeWithGeoJsonSerializer(jsonDto);
     }
 
+    [NonBlockingCommand]
     public async Task SendResultFilesToFeatureIntersectTagger()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -342,7 +330,7 @@ public partial class FileBasedGeoTaggerContext : ObservableObject
             WriteToFileResults.FileResults.Select(x => x.FileName).ToList())));
     }
 
-
+    [BlockingCommand]
     public async Task ShowSelectedGpxFiles()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -385,6 +373,7 @@ public partial class FileBasedGeoTaggerContext : ObservableObject
         newPreviewWindow.PreviewGeoJsonDto = previewDto;
     }
 
+    [BlockingCommand]
     public async Task WriteResultsToFile()
     {
         await FileBasedGeoTaggerSettingTools.WriteSettings(Settings);

@@ -1,8 +1,8 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Messaging;
+﻿using CommunityToolkit.Mvvm.Messaging;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.GeoToolsGui.Controls;
 using PointlessWaymarks.GeoToolsGui.Messages;
+using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon.MarkdownDisplay;
 using PointlessWaymarks.WpfCommon.ProgramUpdateMessage;
 using PointlessWaymarks.WpfCommon.Status;
@@ -15,24 +15,10 @@ namespace PointlessWaymarks.GeoToolsGui;
 /// <summary>
 ///     Interaction logic for MainWindow.xaml
 /// </summary>
-[ObservableObject]
-#pragma warning disable MVVMTK0033
-//Disabled for XAML Window
+[NotifyPropertyChanged]
 public partial class MainWindow
-#pragma warning restore MVVMTK0033
 {
     private readonly string _currentDateVersion;
-    [ObservableProperty] private HelpDisplayContext? _aboutContext;
-    [ObservableProperty] private ConnectBasedGeoTaggerContext? _connectGeoTaggerContext;
-    [ObservableProperty] private FeatureIntersectTaggerContext? _featureIntersectContext;
-    [ObservableProperty] private FileBasedGeoTaggerContext? _fileGeoTaggerContext;
-    [ObservableProperty] private ConnectDownloadContext? _garminConnectDownloadContext;
-    [ObservableProperty] private string _infoTitle = string.Empty;
-    [ObservableProperty] private int _selectedTab;
-    [ObservableProperty] private AppSettingsContext? _settingsContext;
-    [ObservableProperty] private StatusControlContext _statusContext;
-    [ObservableProperty] private ProgramUpdateMessageContext _updateMessageContext;
-    [ObservableProperty] private WindowIconStatus _windowStatus;
 
     public MainWindow()
     {
@@ -55,14 +41,26 @@ public partial class MainWindow
 
         DataContext = this;
 
-        _statusContext = new StatusControlContext();
+        StatusContext = new StatusControlContext();
 
-        _windowStatus = new WindowIconStatus();
+        WindowStatus = new WindowIconStatus();
 
-        _updateMessageContext = new ProgramUpdateMessageContext();
+        UpdateMessageContext = new ProgramUpdateMessageContext();
 
         StatusContext.RunBlockingTask(LoadData);
     }
+
+    public HelpDisplayContext? AboutContext { get; set; }
+    public ConnectBasedGeoTaggerContext? ConnectGeoTaggerContext { get; set; }
+    public FeatureIntersectTaggerContext? FeatureIntersectContext { get; set; }
+    public FileBasedGeoTaggerContext? FileGeoTaggerContext { get; set; }
+    public ConnectDownloadContext? GarminConnectDownloadContext { get; set; }
+    public string InfoTitle { get; set; }
+    public int SelectedTab { get; set; }
+    public AppSettingsContext? SettingsContext { get; set; }
+    public StatusControlContext StatusContext { get; set; }
+    public ProgramUpdateMessageContext UpdateMessageContext { get; set; }
+    public WindowIconStatus WindowStatus { get; set; }
 
     public async Task CheckForProgramUpdate(string currentDateVersion)
     {

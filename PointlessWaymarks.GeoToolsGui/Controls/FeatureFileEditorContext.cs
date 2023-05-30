@@ -1,41 +1,31 @@
 ﻿using System.IO;
 using AnyClone;
-using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
 using Omu.ValueInjecter;
 using PointlessWaymarks.GeoToolsGui.Models;
+using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 
 namespace PointlessWaymarks.GeoToolsGui.Controls;
 
-public partial class FeatureFileEditorContext : ObservableObject
+[NotifyPropertyChanged]
+[GenerateStatusCommands]
+public partial class FeatureFileEditorContext
 {
-    [ObservableProperty] private string _attributeToAdd = string.Empty;
     private List<FeatureFileContext> _existingFeatureFileViewModels;
-    [ObservableProperty] private bool _isVisible;
-    [ObservableProperty] private FeatureFileContext _model;
-    [ObservableProperty] private FeatureFileContext _originalModelState;
-    [ObservableProperty] private string? _selectedAttribute = string.Empty;
-    [ObservableProperty] private StatusControlContext _statusContext;
 
     public FeatureFileEditorContext(StatusControlContext? statusContext, FeatureFileContext? featureFile,
         List<FeatureFileContext> existingFeatureFileViewModels)
     {
-        _statusContext = statusContext ?? new StatusControlContext();
-        _model = featureFile ?? new FeatureFileContext();
-        _originalModelState = _model.Clone();
+        StatusContext = statusContext ?? new StatusControlContext();
+        Model = featureFile ?? new FeatureFileContext();
+        OriginalModelState = Model.Clone();
         _existingFeatureFileViewModels = existingFeatureFileViewModels;
 
-        CancelCommand = StatusContext.RunBlockingTaskCommand(Cancel);
-        FinishEditCommand = StatusContext.RunBlockingTaskCommand(FinishEdit);
-        AddAttributeCommand = StatusContext.RunNonBlockingTaskCommand(AddAttribute);
-        RemoveAttributeCommand = StatusContext.RunNonBlockingTaskCommand<string>(RemoveAttribute);
+        BuildCommands();
     }
 
-    public RelayCommand AddAttributeCommand { get; }
-
-    public RelayCommand CancelCommand { get; }
+    public string AttributeToAdd { get; set; } = string.Empty;
 
     public EventHandler<(FeatureFileEditorEndEditCondition endCondition, FeatureFileContext model)>? EndEdit
     {
@@ -43,11 +33,13 @@ public partial class FeatureFileEditorContext : ObservableObject
         set;
     }
 
-    public RelayCommand FinishEditCommand { get; }
+    public bool IsVisible { get; set; }
+    public FeatureFileContext Model { get; set; }
+    public FeatureFileContext OriginalModelState { get; set; }
+    public string? SelectedAttribute { get; set; } = string.Empty;
+    public StatusControlContext StatusContext { get; }
 
-    // ReSharper disable once UnusedAutoPropertyAccessor.Global - Used in Xaml
-    public RelayCommand<string> RemoveAttributeCommand { get; }
-
+    [NonBlockingCommand]
     public async Task AddAttribute()
     {
         if (string.IsNullOrEmpty(AttributeToAdd))
@@ -71,6 +63,7 @@ public partial class FeatureFileEditorContext : ObservableObject
         Model.AttributesForTags = newList;
     }
 
+    [BlockingCommand]
     public Task Cancel()
     {
         Model.InjectFrom(OriginalModelState);
@@ -79,6 +72,7 @@ public partial class FeatureFileEditorContext : ObservableObject
         return Task.CompletedTask;
     }
 
+    [BlockingCommand]
     public Task FinishEdit()
     {
         if (string.IsNullOrEmpty(Model.FileName))
@@ -123,6 +117,7 @@ public partial class FeatureFileEditorContext : ObservableObject
         return Task.CompletedTask;
     }
 
+    [NonBlockingCommand]
     public async Task RemoveAttribute(string? toRemove)
     {
         await ThreadSwitcher.ResumeForegroundAsync();

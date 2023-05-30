@@ -1,14 +1,16 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
+using PointlessWaymarks.LlamaAspects;
 
 namespace PointlessWaymarks.GeoToolsGui.Models;
 
-public partial class FeatureFileContext : ObservableObject
+[NotifyPropertyChanged]
+public partial class FeatureFileContext
 {
-    [ObservableProperty] private List<string> _attributesForTags = new();
-    [ObservableProperty] private Guid _contentId = Guid.NewGuid();
-    [ObservableProperty] private string _downloaded = string.Empty;
-    [ObservableProperty] private string _fileName = string.Empty;
-    [ObservableProperty] private string _name = string.Empty;
-    [ObservableProperty] private string _source = string.Empty;
-    [ObservableProperty] private string _tagAll = string.Empty;
+    public List<string> AttributesForTags { get; set; } = new();
+    public Guid ContentId { get; set; } = Guid.NewGuid();
+    public string Downloaded { get; set; } = string.Empty;
+    public string FileName { get; set; } = string.Empty;
+    public string Name { get; set; } = string.Empty;
+    public string Source { get; set; } = string.Empty;
+    public string TagAll { get; set; } = string.Empty;
 }

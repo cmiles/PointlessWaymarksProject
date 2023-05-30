@@ -1,25 +1,26 @@
 ﻿using System.ComponentModel;
 using System.IO;
-using CommunityToolkit.Mvvm.ComponentModel;
+using PointlessWaymarks.LlamaAspects;
 
 namespace PointlessWaymarks.GeoToolsGui.Controls;
 
-public partial class AppSettingsContext : ObservableObject
+[NotifyPropertyChanged]
+public partial class AppSettingsContext
 {
-    [ObservableProperty] private GeoToolsGuiSettings _settings;
-    [ObservableProperty] private string _programUpdateLocation;
-    [ObservableProperty] private bool _showUpdateLocationExistsWarning;
-
     public AppSettingsContext()
     {
-        _settings = GeoToolsGuiSettingTools.ReadSettings();
+        Settings = GeoToolsGuiSettingTools.ReadSettings();
 
-        _programUpdateLocation = Settings.ProgramUpdateDirectory;
+        ProgramUpdateLocation = Settings.ProgramUpdateDirectory;
 
         PropertyChanged += AppSettingsContext_PropertyChanged;
 
         ValidateProgramUpdateLocation();
     }
+
+    public string ProgramUpdateLocation { get; set; }
+    public GeoToolsGuiSettings Settings { get; set; }
+    public bool ShowUpdateLocationExistsWarning { get; set; }
 
     private void AppSettingsContext_PropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
@@ -31,7 +32,7 @@ public partial class AppSettingsContext : ObservableObject
 
             Settings.ProgramUpdateDirectory = ProgramUpdateLocation;
 #pragma warning disable CS4014
-            if (!ShowUpdateLocationExistsWarning) 
+            if (!ShowUpdateLocationExistsWarning)
                 //Allow call to continue without waiting and write settings
                 GeoToolsGuiSettingTools.WriteSettings(Settings);
 #pragma warning restore CS4014
