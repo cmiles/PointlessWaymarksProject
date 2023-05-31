@@ -2,41 +2,26 @@
 using System.Diagnostics;
 using System.IO;
 using System.Windows;
-using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
 using GongSolutions.Wpf.DragDrop;
 using Ookii.Dialogs.Wpf;
+using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.Utility;
 using static PointlessWaymarks.WpfCommon.ThreadSwitcher.ThreadSwitcher;
 
 namespace PointlessWaymarks.WpfCommon.FileList;
 
-public partial class FileListContext : ObservableObject, IDropTarget
+[NotifyPropertyChanged]
+[GenerateStatusCommands]
+public partial class FileListContext : IDropTarget
 {
-    [ObservableProperty] private List<ContextMenuItemData> _contextMenuItems;
-    [ObservableProperty] private List<string> _droppedFileExtensionAllowList = new();
-    [ObservableProperty] private string _fileImportFilter = string.Empty;
-    [ObservableProperty] private ObservableCollection<FileInfo>? _files;
-    [ObservableProperty] private bool _replaceMode = true;
-    [ObservableProperty] private FileInfo? _selectedFile;
-    [ObservableProperty] private ObservableCollection<FileInfo>? _selectedFiles;
-    [ObservableProperty] private IFileListSettings? _settings;
-    [ObservableProperty] private StatusControlContext _statusContext;
-
     public FileListContext(StatusControlContext? statusContext, IFileListSettings? settings,
         List<ContextMenuItemData> contextMenuItems)
     {
-        _statusContext = statusContext ?? new StatusControlContext();
-        _settings = settings;
+        StatusContext = statusContext ?? new StatusControlContext();
+        Settings = settings;
 
-        AddFilesToTagFromDirectoryCommand = StatusContext.RunBlockingTaskCommand(AddFilesToTagFromDirectory);
-        AddFilesToTagCommand = StatusContext.RunBlockingTaskCommand(AddFilesToTag);
-        AddFilesToTagFromDirectoryAndSubdirectoriesCommand =
-            StatusContext.RunBlockingTaskCommand(AddFilesToTagFromDirectoryAndSubdirectories);
-        OpenSelectedFileDirectoryCommand = StatusContext.RunNonBlockingTaskCommand(OpenSelectedFileDirectory);
-        OpenSelectedFileCommand = StatusContext.RunNonBlockingTaskCommand(OpenSelectedFile);
-        DeleteSelectedFilesCommand = StatusContext.RunNonBlockingTaskCommand(DeleteSelectedFiles);
+        BuildCommands();
 
         var localContextItems = new List<ContextMenuItemData>
         {
@@ -44,21 +29,18 @@ public partial class FileListContext : ObservableObject, IDropTarget
             new() { ItemCommand = OpenSelectedFileDirectoryCommand, ItemName = "Open File" }
         };
 
-        _contextMenuItems = contextMenuItems.Union(localContextItems).ToList();
+        ContextMenuItems = contextMenuItems.Union(localContextItems).ToList();
     }
 
-    public RelayCommand AddFilesToTagCommand { get; }
-
-    public RelayCommand AddFilesToTagFromDirectoryAndSubdirectoriesCommand { get; }
-
-    public RelayCommand AddFilesToTagFromDirectoryCommand { get; }
-
-    public RelayCommand DeleteSelectedFilesCommand { get; }
-
-    // ReSharper disable once UnusedAutoPropertyAccessor.Global - Used in Xaml
-    public RelayCommand OpenSelectedFileCommand { get; }
-
-    public RelayCommand OpenSelectedFileDirectoryCommand { get; }
+    public List<ContextMenuItemData> ContextMenuItems { get; set; }
+    public List<string> DroppedFileExtensionAllowList { get; set; } = new();
+    public string FileImportFilter { get; set; } = string.Empty;
+    public ObservableCollection<FileInfo>? Files { get; set; }
+    public bool ReplaceMode { get; set; } = true;
+    public FileInfo? SelectedFile { get; set; }
+    public ObservableCollection<FileInfo>? SelectedFiles { get; set; }
+    public IFileListSettings? Settings { get; set; }
+    public StatusControlContext StatusContext { get; set; }
 
     public void DragOver(IDropInfo dropInfo)
     {
@@ -113,6 +95,7 @@ public partial class FileListContext : ObservableObject, IDropTarget
         });
     }
 
+    [BlockingCommand]
     public async Task AddFilesToTag()
     {
         await ResumeBackgroundAsync();
@@ -162,6 +145,7 @@ public partial class FileListContext : ObservableObject, IDropTarget
         });
     }
 
+    [BlockingCommand]
     public async Task AddFilesToTagFromDirectory()
     {
         await ResumeBackgroundAsync();
@@ -212,6 +196,7 @@ public partial class FileListContext : ObservableObject, IDropTarget
         }
     }
 
+    [BlockingCommand]
     public async Task AddFilesToTagFromDirectoryAndSubdirectories()
     {
         await ResumeBackgroundAsync();
@@ -251,7 +236,8 @@ public partial class FileListContext : ObservableObject, IDropTarget
                 continue;
             }
 
-            var selectedFiles = loopDirectory.EnumerateFiles("*", SearchOption.AllDirectories).ToList().Where(x => !Files!.Contains(x))
+            var selectedFiles = loopDirectory.EnumerateFiles("*", SearchOption.AllDirectories).ToList()
+                .Where(x => !Files!.Contains(x))
                 .ToList();
 
             selectedFiles.ForEach(x =>
@@ -274,6 +260,7 @@ public partial class FileListContext : ObservableObject, IDropTarget
         return newInstance;
     }
 
+    [NonBlockingCommand]
     public async Task DeleteSelectedFiles()
     {
         await ResumeForegroundAsync();
@@ -289,6 +276,7 @@ public partial class FileListContext : ObservableObject, IDropTarget
         foreach (var loopFile in toRemove) Files?.Remove(loopFile);
     }
 
+    [NonBlockingCommand]
     private async Task OpenSelectedFile()
     {
         await ResumeBackgroundAsync();
@@ -305,7 +293,7 @@ public partial class FileListContext : ObservableObject, IDropTarget
         Process.Start(ps);
     }
 
-
+    [BlockingCommand]
     private async Task OpenSelectedFileDirectory()
     {
         await ResumeBackgroundAsync();

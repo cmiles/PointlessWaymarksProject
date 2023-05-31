@@ -1,28 +1,33 @@
 ﻿using System.ComponentModel;
-using CommunityToolkit.Mvvm.ComponentModel;
 using PointlessWaymarks.CommonTools;
+using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon.ChangesAndValidation;
 
 namespace PointlessWaymarks.WpfCommon.BoolDataEntry;
 
-public partial class BoolDataEntryContext : ObservableObject, IHasChanges, IHasValidationIssues
+[NotifyPropertyChanged]
+public partial class BoolDataEntryContext : IHasChanges, IHasValidationIssues
 {
-    [ObservableProperty] private bool _hasChanges;
-    [ObservableProperty] private bool _hasValidationIssues;
-    [ObservableProperty] private string _helpText = string.Empty;
-    [ObservableProperty] private bool _isEnabled = true;
-    [ObservableProperty] private bool _referenceValue;
-    [ObservableProperty] private string _title = string.Empty;
-    [ObservableProperty] private bool _userValue;
-    [ObservableProperty] private List<Func<bool, IsValid>> _validationFunctions = new();
-    [ObservableProperty] private string _validationMessage = string.Empty;
-
     private BoolDataEntryContext()
     {
         PropertyChanged += OnPropertyChanged;
     }
 
+    public string HelpText { get; set; } = string.Empty;
+    public bool IsEnabled { get; set; } = true;
+    public bool ReferenceValue { get; set; }
+    public string Title { get; set; } = string.Empty;
+    public bool UserValue { get; set; }
+
+    // ReSharper disable once UnusedMember.Global
     public bool UserValueIsNullable => false;
+
+    public List<Func<bool, IsValid>> ValidationFunctions { get; set; } =
+        new();
+
+    public string ValidationMessage { get; set; } = string.Empty;
+    public bool HasChanges { get; set; }
+    public bool HasValidationIssues { get; set; }
 
     public void CheckForChangesAndValidate()
     {
@@ -49,7 +54,6 @@ public partial class BoolDataEntryContext : ObservableObject, IHasChanges, IHasV
         return Task.FromResult(new BoolDataEntryContext());
     }
 
-    
     private void OnPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
         if (string.IsNullOrWhiteSpace(e.PropertyName)) return;

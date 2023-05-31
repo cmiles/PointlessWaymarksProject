@@ -1,28 +1,26 @@
 ﻿using System.Diagnostics;
 using System.IO;
 using System.Windows;
-using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 
 namespace PointlessWaymarks.WpfCommon.ProgramUpdateMessage;
 
-public partial class ProgramUpdateMessageContext : ObservableObject
+public class ProgramUpdateMessageContext
 {
-    [ObservableProperty] private string _currentVersion = string.Empty;
-    [ObservableProperty] private FileInfo? _setupFile;
-    [ObservableProperty] private bool _showMessage;
-    [ObservableProperty] private string _updateMessage = string.Empty;
-    [ObservableProperty] private string _updateVersion = string.Empty;
-
     public ProgramUpdateMessageContext()
     {
         UpdateCommand = new AsyncRelayCommand(Update);
         DismissCommand = new RelayCommand(Dismiss);
     }
 
-    public RelayCommand DismissCommand { get; }
+    public string CurrentVersion { get; set; } = string.Empty;
 
+    public RelayCommand DismissCommand { get; }
+    public FileInfo? SetupFile { get; set; }
+    public bool ShowMessage { get; set; }
     public AsyncRelayCommand UpdateCommand { get; }
+    public string UpdateMessage { get; set; } = string.Empty;
+    public string UpdateVersion { get; set; } = string.Empty;
 
     public void Dismiss()
     {
@@ -53,10 +51,10 @@ public partial class ProgramUpdateMessageContext : ObservableObject
     public async Task Update()
     {
         await ThreadSwitcher.ThreadSwitcher.ResumeForegroundAsync();
-        
+
         Debug.Assert(SetupFile != null, nameof(SetupFile) + " != null");
         Process.Start(SetupFile.FullName);
-        
+
         Application.Current.Shutdown();
     }
 }

@@ -1,10 +1,12 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
+using PointlessWaymarks.LlamaAspects;
 
 namespace PointlessWaymarks.WpfCommon.MarkdownDisplay;
 
-public partial class HelpDisplayContext : ObservableObject
+[NotifyPropertyChanged]
+public partial class HelpDisplayContext
 {
-    [ObservableProperty] private string _helpMarkdownContent = string.Empty;
+    public string HelpMarkdownContent { get; set; }
 
     public HelpDisplayContext(List<string> markdownHelp)
     {
