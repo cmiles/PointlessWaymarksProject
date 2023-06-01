@@ -1,18 +1,15 @@
 using System.Collections.ObjectModel;
 using System.Windows.Threading;
-using CommunityToolkit.Mvvm.ComponentModel;
+using PointlessWaymarks.LlamaAspects;
 
 namespace PointlessWaymarks.WpfCommon.ToastControl;
 
-public partial class ToastSource : ObservableObject
+[NotifyPropertyChanged]
+public partial class ToastSource
 {
     public const int UnlimitedNotifications = -1;
     public static readonly TimeSpan NeverEndingNotification = TimeSpan.MaxValue;
     private readonly DispatcherTimer _timer;
-
-    [ObservableProperty] private bool _isOpen;
-    [ObservableProperty] private TimeSpan _notificationLifeTime;
-    [ObservableProperty] private int _maximumNotificationCount;
 
     public ToastSource(Dispatcher dispatcher)
     {
@@ -27,6 +24,9 @@ public partial class ToastSource : ObservableObject
         };
     }
 
+    public bool IsOpen { get; set; }
+    public int MaximumNotificationCount { get; set; }
+    public TimeSpan NotificationLifeTime { get; set; }
     public ObservableCollection<ToastContext> NotificationMessages { get; }
 
     public void Hide(Guid id)

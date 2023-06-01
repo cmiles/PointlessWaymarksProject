@@ -1,10 +1,10 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿using PointlessWaymarks.LlamaAspects;
 
-namespace PointlessWaymarks.WpfCommon.SimpleMediaPlayer
+namespace PointlessWaymarks.WpfCommon.SimpleMediaPlayer;
+
+[NotifyPropertyChanged]
+public partial class SimpleMediaPlayerContext
 {
-    public partial class SimpleMediaPlayerContext : ObservableObject
-    {
-        [ObservableProperty] private string _videoSource = string.Empty;
-        [ObservableProperty] private double _videoPositionInMilliseconds;
-    }
+    public double VideoPositionInMilliseconds { get; set; }
+    public string VideoSource { get; set; } = string.Empty;
 }

@@ -1,38 +1,38 @@
 ﻿using System.IO;
 using Amazon.S3;
 using Amazon.S3.Transfer;
-using CommunityToolkit.Mvvm.ComponentModel;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.CommonTools.S3;
+using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon.Utility;
 
 namespace PointlessWaymarks.WpfCommon.S3Uploads;
 
-public partial class S3UploadsItem : ObservableObject, ISelectedTextTracker
+[NotifyPropertyChanged]
+public partial class S3UploadsItem : ISelectedTextTracker
 {
-    [ObservableProperty] private string _amazonObjectKey;
-    [ObservableProperty] private bool _completed;
-    [ObservableProperty] private string _errorMessage = string.Empty;
-    [ObservableProperty] private bool _fileNoLongerExistsOnDisk;
-    [ObservableProperty] private FileInfo _fileToUpload;
-    [ObservableProperty] private bool _hasError;
-    [ObservableProperty] private bool _isUploading;
-    [ObservableProperty] private string _note;
-    [ObservableProperty] private bool _queued;
-    [ObservableProperty] private CurrentSelectedTextTracker _selectedTextTracker = new();
-    [ObservableProperty] private string _status = string.Empty;
-    [ObservableProperty] private IS3AccountInformation _uploadS3Information;
-
     public S3UploadsItem(IS3AccountInformation s3Info, FileInfo fileToUpload, string amazonObjectKey, string note)
     {
-        _uploadS3Information = s3Info;
+        UploadS3Information = s3Info;
         BucketName = UploadS3Information.BucketName();
-        _fileToUpload = fileToUpload;
-        _amazonObjectKey = amazonObjectKey;
-        _note = note;
+        FileToUpload = fileToUpload;
+        AmazonObjectKey = amazonObjectKey;
+        Note = note;
     }
 
+    public string AmazonObjectKey { get; set; }
     public string BucketName { get; }
+    public bool Completed { get; set; }
+    public string ErrorMessage { get; set; } = string.Empty;
+    public bool FileNoLongerExistsOnDisk { get; set; }
+    public FileInfo FileToUpload { get; set; }
+    public bool HasError { get; set; }
+    public bool IsUploading { get; set; }
+    public string Note { get; set; }
+    public bool Queued { get; set; }
+    public string Status { get; set; } = string.Empty;
+    public IS3AccountInformation UploadS3Information { get; set; }
+    public CurrentSelectedTextTracker SelectedTextTracker { get; set; } = new();
 
     public async Task StartUpload()
     {

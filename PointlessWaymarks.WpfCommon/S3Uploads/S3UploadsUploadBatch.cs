@@ -1,34 +1,35 @@
 ﻿using System.Collections.ObjectModel;
 using System.ComponentModel;
-using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using PointlessWaymarks.LlamaAspects;
 
 namespace PointlessWaymarks.WpfCommon.S3Uploads;
 
-public partial class S3UploadsUploadBatch : ObservableObject
+[NotifyPropertyChanged]
+public partial class S3UploadsUploadBatch
 {
-    [ObservableProperty] private RelayCommand? _cancelCommand;
-    [ObservableProperty] private CancellationTokenSource? _cancellation;
-    [ObservableProperty] private bool _completed;
-    [ObservableProperty] private decimal _completedItemPercent;
-    [ObservableProperty] private decimal _completedSizePercent;
-    [ObservableProperty] private S3UploadsItem? _currentUpload;
-    [ObservableProperty] private int _errorItemCount;
-    [ObservableProperty] private long _errorSize;
-    [ObservableProperty] private bool _hasErrors;
-    [ObservableProperty] private ObservableCollection<S3UploadsItem>? _items;
-    [ObservableProperty] private string _status = string.Empty;
-    [ObservableProperty] private int _totalItemCount;
-    [ObservableProperty] private long _totalUploadSize;
-    [ObservableProperty] private int _uploadedItemCount;
-    [ObservableProperty] private long _uploadedSize;
-    [ObservableProperty] private bool _uploading;
-
     public S3UploadsUploadBatch()
     {
         CancelCommand = new RelayCommand(() => { Cancellation?.Cancel(); }, () => Cancellation != null);
         PropertyChanged += OnPropertyChanged;
     }
+
+    public RelayCommand? CancelCommand { get; set; }
+    public CancellationTokenSource? Cancellation { get; set; }
+    public bool Completed { get; set; }
+    public decimal CompletedItemPercent { get; set; }
+    public decimal CompletedSizePercent { get; set; }
+    public S3UploadsItem? CurrentUpload { get; set; }
+    public int ErrorItemCount { get; set; }
+    public long ErrorSize { get; set; }
+    public bool HasErrors { get; set; }
+    public ObservableCollection<S3UploadsItem>? Items { get; set; }
+    public string Status { get; set; } = string.Empty;
+    public int TotalItemCount { get; set; }
+    public long TotalUploadSize { get; set; }
+    public int UploadedItemCount { get; set; }
+    public long UploadedSize { get; set; }
+    public bool Uploading { get; set; }
 
     public static async Task<S3UploadsUploadBatch> CreateInstance(List<S3UploadsItem> toUpload)
     {

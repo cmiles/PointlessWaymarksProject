@@ -1,25 +1,26 @@
 ﻿using System.ComponentModel;
-using CommunityToolkit.Mvvm.ComponentModel;
 using PointlessWaymarks.CommonTools;
+using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon.ChangesAndValidation;
 
 namespace PointlessWaymarks.WpfCommon.StringDataEntry;
 
-public partial class StringDataEntryContext : ObservableObject, IHasChanges, IHasValidationIssues
+[NotifyPropertyChanged]
+public partial class StringDataEntryContext : IHasChanges, IHasValidationIssues
 {
-    [ObservableProperty] private bool _hasChanges;
-    [ObservableProperty] private bool _hasValidationIssues;
-    [ObservableProperty] private string _helpText = string.Empty;
-    [ObservableProperty] private string _referenceValue = string.Empty;
-    [ObservableProperty] private string _title = string.Empty;
-    [ObservableProperty] private string _userValue = string.Empty;
-    [ObservableProperty] private List<Func<string?, Task<IsValid>>> _validationFunctions = new();
-    [ObservableProperty] private string _validationMessage = string.Empty;
-
     private StringDataEntryContext()
     {
         PropertyChanged += OnPropertyChanged;
     }
+
+    public string HelpText { get; set; } = string.Empty;
+    public string ReferenceValue { get; set; } = string.Empty;
+    public string Title { get; set; } = string.Empty;
+    public string UserValue { get; set; } = string.Empty;
+    public List<Func<string?, Task<IsValid>>> ValidationFunctions { get; set; } = new();
+    public string ValidationMessage { get; set; } = string.Empty;
+    public bool HasChanges { get; set; }
+    public bool HasValidationIssues { get; set; }
 
     public async Task CheckForChangesAndValidationIssues()
     {

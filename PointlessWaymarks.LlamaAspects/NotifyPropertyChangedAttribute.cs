@@ -12,7 +12,7 @@ public class NotifyPropertyChangedAttribute : TypeAspect
         builder.Advice.ImplementInterface(builder.Target, typeof(INotifyPropertyChanged), OverrideStrategy.Ignore);
 
         foreach (var property in builder.Target.Properties.Where(p =>
-                     p is { IsAbstract: false, Writeability: Writeability.All }))
+                     p is { IsAbstract: false, Writeability: Writeability.All } && !p.Attributes.Any(typeof(DoNotGenerateInpc))))
             builder.Advice.OverrideAccessors(property, null, nameof(OverridePropertySetter));
     }
 

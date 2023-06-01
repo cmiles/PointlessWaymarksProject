@@ -337,7 +337,7 @@
                     Margin="0,2,2,0"
                     HorizontalAlignment="Right"
                     VerticalAlignment="Top"
-                    Command="{Binding ClearCompletedUploadBatch}"
+                    Command="{Binding ClearCompletedUploadBatchCommand}"
                     Visibility="{Binding UploadBatch.Completed, Converter={StaticResource BooleanToVisibility}}">
                     Dismiss
                 </Button>

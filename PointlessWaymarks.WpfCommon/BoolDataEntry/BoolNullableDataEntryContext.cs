@@ -15,14 +15,14 @@ public partial class BoolNullableDataEntryContext : IHasChanges, IHasValidationI
 
     public string HelpText { get; set; } = string.Empty;
     public bool IsEnabled { get; set; } = true;
-    public bool ReferenceValue { get; set; }
+    public bool? ReferenceValue { get; set; }
     public string Title { get; set; } = string.Empty;
-    public bool UserValue { get; set; }
+    public bool? UserValue { get; set; }
 
     // ReSharper disable once UnusedMember.Global
     public bool UserValueIsNullable => true;
 
-    public List<Func<bool, IsValid>> ValidationFunctions { get; set; } =
+    public List<Func<bool?, IsValid>> ValidationFunctions { get; set; } =
         new();
 
     public string ValidationMessage { get; set; } = string.Empty;

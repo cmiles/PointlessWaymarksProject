@@ -1,23 +1,21 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿using PointlessWaymarks.LlamaAspects;
 
-namespace PointlessWaymarks.WpfCommon.WpfHtml
+namespace PointlessWaymarks.WpfCommon.WpfHtml;
+
+/// <summary>
+///     Interaction logic for WebViewWindow.xaml
+/// </summary>
+[NotifyPropertyChanged]
+public partial class WebViewWindow
 {
-    /// <summary>
-    /// Interaction logic for WebViewWindow.xaml
-    /// </summary>
-    [ObservableObject]
-    public partial class WebViewWindow
+    public WebViewWindow()
     {
-        [ObservableProperty] private string _previewGeoJsonDto = string.Empty;
-        [ObservableProperty] private string _previewHtml = string.Empty;
-        [ObservableProperty] private string _windowTitle = "Preview Map";
+        InitializeComponent();
 
-
-        public WebViewWindow()
-        {
-            InitializeComponent();
-
-            DataContext = this;
-        }
+        DataContext = this;
     }
+
+    public string PreviewGeoJsonDto { get; set; } = string.Empty;
+    public string PreviewHtml { get; set; } = string.Empty;
+    public string WindowTitle { get; set; } = "Preview Map";
 }

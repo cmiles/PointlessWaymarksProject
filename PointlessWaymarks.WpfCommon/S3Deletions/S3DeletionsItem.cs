@@ -1,12 +1,12 @@
-﻿#nullable enable
-using CommunityToolkit.Mvvm.ComponentModel;
+﻿using PointlessWaymarks.LlamaAspects;
 
 namespace PointlessWaymarks.WpfCommon.S3Deletions;
 
-public partial class S3DeletionsItem : ObservableObject
+[NotifyPropertyChanged]
+public partial class S3DeletionsItem
 {
-    [ObservableProperty] private string _amazonObjectKey = string.Empty;
-    [ObservableProperty] private string _bucketName = string.Empty;
-    [ObservableProperty] private string _errorMessage = string.Empty;
-    [ObservableProperty] private bool _hasError;
+    public string AmazonObjectKey { get; set; } = string.Empty;
+    public string BucketName { get; set; } = string.Empty;
+    public string ErrorMessage { get; set; } = string.Empty;
+    public bool HasError { get; set; }
 }

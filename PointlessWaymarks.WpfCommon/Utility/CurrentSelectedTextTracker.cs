@@ -1,19 +1,20 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
-using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using PointlessWaymarks.LlamaAspects;
 
 namespace PointlessWaymarks.WpfCommon.Utility;
 
-public partial class CurrentSelectedTextTracker : ObservableObject
+[NotifyPropertyChanged]
+public partial class CurrentSelectedTextTracker
 {
-    [ObservableProperty] private string? _currentSelectedText;
-    [ObservableProperty] private RelayCommand<RoutedEventArgs> _selectedTextChangedCommand;
-
     public CurrentSelectedTextTracker()
     {
-        _selectedTextChangedCommand = new RelayCommand<RoutedEventArgs>(SelectedTextChanged);
+        SelectedTextChangedCommand = new RelayCommand<RoutedEventArgs>(SelectedTextChanged);
     }
+
+    public string? CurrentSelectedText { get; set; }
+    public RelayCommand<RoutedEventArgs> SelectedTextChangedCommand { get; set; }
 
     private void SelectedTextChanged(RoutedEventArgs? obj)
     {

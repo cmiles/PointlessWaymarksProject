@@ -1,12 +1,10 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿using PointlessWaymarks.LlamaAspects;
 
 namespace PointlessWaymarks.WpfCommon.ToastControl;
 
-public partial class ToastContext : ObservableObject
+[NotifyPropertyChanged]
+public partial class ToastContext
 {
-    [ObservableProperty] private string? _message = "";
-    [ObservableProperty] private ToastType _type;
-
     public Action? InvokeHideAnimation;
 
     public ToastContext()
@@ -17,4 +15,6 @@ public partial class ToastContext : ObservableObject
 
     public DateTime CreateTime { get; }
     public Guid Id { get; }
+    public string? Message { get; set; } = "";
+    public ToastType Type { get; set; }
 }

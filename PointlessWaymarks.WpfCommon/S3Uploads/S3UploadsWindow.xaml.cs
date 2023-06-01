@@ -1,7 +1,6 @@
-﻿#nullable enable
-using System.ComponentModel;
-using CommunityToolkit.Mvvm.ComponentModel;
+﻿using System.ComponentModel;
 using PointlessWaymarks.CommonTools.S3;
+using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon.Status;
 
 namespace PointlessWaymarks.WpfCommon.S3Uploads;
@@ -9,22 +8,15 @@ namespace PointlessWaymarks.WpfCommon.S3Uploads;
 /// <summary>
 ///     Interaction logic for S3UploadsWindow.xaml
 /// </summary>
-[ObservableObject]
-#pragma warning disable MVVMTK0033
+[NotifyPropertyChanged]
 public partial class S3UploadsWindow
-#pragma warning restore MVVMTK0033
 {
-    [ObservableProperty] private bool _forceClose;
-    [ObservableProperty] private StatusControlContext _statusContext;
-    [ObservableProperty] private S3UploadsContext? _uploadContext;
-    [ObservableProperty] private WindowIconStatus? _windowStatus;
-
     public S3UploadsWindow(IS3AccountInformation s3Info, List<S3UploadRequest> toLoad, bool autoStartUpload)
     {
         InitializeComponent();
 
-        _statusContext = new StatusControlContext();
-        _windowStatus = new WindowIconStatus();
+        StatusContext = new StatusControlContext();
+        WindowStatus = new WindowIconStatus();
 
         DataContext = this;
 
@@ -34,6 +26,11 @@ public partial class S3UploadsWindow
             if (autoStartUpload) UploadContext.StatusContext.RunNonBlockingTask(UploadContext.StartAllUploads);
         });
     }
+
+    public bool ForceClose { get; set; }
+    public StatusControlContext StatusContext { get; set; }
+    public S3UploadsContext? UploadContext { get; set; }
+    public WindowIconStatus? WindowStatus { get; set; }
 
     private void S3UploadsWindow_OnClosing(object? sender, CancelEventArgs e)
     {

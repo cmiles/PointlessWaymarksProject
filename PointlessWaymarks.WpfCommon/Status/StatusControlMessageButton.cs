@@ -1,9 +1,10 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿using PointlessWaymarks.LlamaAspects;
 
 namespace PointlessWaymarks.WpfCommon.Status;
 
-public partial class StatusControlMessageButton : ObservableObject
+[NotifyPropertyChanged]
+public partial class StatusControlMessageButton
 {
-    [ObservableProperty] private bool _isDefault;
-    [ObservableProperty] private string _messageText = string.Empty;
+    public bool IsDefault { get; set; }
+    public string MessageText { get; set; } = string.Empty;
 }

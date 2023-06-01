@@ -10,7 +10,7 @@ internal class ToastTypeTemplateSelector : DataTemplateSelector
     public DataTemplate? SuccessTemplate { get; set; }
     public DataTemplate? WarningTemplate { get; set; }
 
-    public override DataTemplate? SelectTemplate(object item, DependencyObject container)
+    public override DataTemplate? SelectTemplate(object? item, DependencyObject container)
     {
         if (item is not ToastContext toastViewModel)
             return null;

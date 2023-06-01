@@ -1,5 +1,5 @@
 ﻿using System.Windows.Shell;
-using CommunityToolkit.Mvvm.ComponentModel;
+using PointlessWaymarks.LlamaAspects;
 
 namespace PointlessWaymarks.WpfCommon.Status;
 
@@ -7,11 +7,12 @@ namespace PointlessWaymarks.WpfCommon.Status;
 ///     Provides management for the Windows Icon TaskbarItemInfo with properties to Bind and processing
 ///     of requests from multiple sources.
 /// </summary>
-public partial class WindowIconStatus : ObservableObject
+[NotifyPropertyChanged]
+public partial class WindowIconStatus
 {
     private readonly List<WindowIconStatusRequest> _statusList = new();
-    [ObservableProperty] private decimal _windowProgress;
-    [ObservableProperty] private TaskbarItemProgressState _windowState;
+    public decimal WindowProgress { get; set; }
+    public TaskbarItemProgressState WindowState { get; set; }
 
     public void AddRequest(WindowIconStatusRequest request)
     {

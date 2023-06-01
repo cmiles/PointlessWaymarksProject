@@ -4,73 +4,44 @@ using System.IO;
 using System.Text.Json;
 using System.Windows;
 using System.Windows.Shell;
-using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.CommonTools.S3;
+using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.Utility;
 
 namespace PointlessWaymarks.WpfCommon.S3Uploads;
 
-public partial class S3UploadsContext : ObservableObject
+[NotifyPropertyChanged]
+[GenerateStatusCommands]
+public partial class S3UploadsContext
 {
-    [ObservableProperty] private RelayCommand _clearCompletedUploadBatch;
-    [ObservableProperty] private RelayCommand _clearUploadedCommand;
-    [ObservableProperty] private ObservableCollection<S3UploadsItem>? _items;
-    [ObservableProperty] private ContentListSelected<S3UploadsItem>? _listSelection;
-    [ObservableProperty] private RelayCommand<S3UploadsItem> _openLocalFileInExplorerCommand;
-    [ObservableProperty] private WindowIconStatus? _osStatusIndicator;
-    [ObservableProperty] private RelayCommand _removeSelectedItemsCommand;
-    [ObservableProperty] private RelayCommand _saveAllToUploadJsonFileCommand;
-    [ObservableProperty] private RelayCommand _saveNotUploadedToUploadJsonFileCommand;
-    [ObservableProperty] private RelayCommand _saveSelectedToUploadJsonFileCommand;
-    [ObservableProperty] private RelayCommand _startAllUploadsCommand;
-    [ObservableProperty] private RelayCommand _startFailedUploadsCommand;
-    [ObservableProperty] private RelayCommand _startSelectedUploadsCommand;
-    [ObservableProperty] private StatusControlContext _statusContext;
-    [ObservableProperty] private RelayCommand _toClipboardAllItemsCommand;
-    [ObservableProperty] private RelayCommand _toClipboardSelectedItemsCommand;
-    [ObservableProperty] private RelayCommand _toExcelAllItemsCommand;
-    [ObservableProperty] private RelayCommand _toExcelSelectedItemsCommand;
-    [ObservableProperty] private S3UploadsUploadBatch? _uploadBatch;
-    [ObservableProperty] private IS3AccountInformation _uploadS3Information;
-
     private S3UploadsContext(StatusControlContext? statusContext, IS3AccountInformation s3Info,
         WindowIconStatus? osStatusIndicator)
     {
-        _statusContext = statusContext ?? new StatusControlContext();
-        _osStatusIndicator = osStatusIndicator;
-        _uploadS3Information = s3Info;
+        StatusContext = statusContext ?? new StatusControlContext();
+        OsStatusIndicator = osStatusIndicator;
+        UploadS3Information = s3Info;
 
-        _startSelectedUploadsCommand = StatusContext.RunNonBlockingTaskCommand(StartSelectedUploads);
-        _startFailedUploadsCommand = StatusContext.RunNonBlockingTaskCommand(StartFailedUploads);
-        _startAllUploadsCommand = StatusContext.RunNonBlockingTaskCommand(StartAllUploads);
-        _clearUploadedCommand = StatusContext.RunNonBlockingTaskCommand(ClearUploaded);
-
-        _saveAllToUploadJsonFileCommand = StatusContext.RunNonBlockingTaskCommand(SaveAllToUploadJsonFile);
-        _saveSelectedToUploadJsonFileCommand = StatusContext.RunNonBlockingTaskCommand(SaveSelectedToUploadJsonFile);
-        _saveNotUploadedToUploadJsonFileCommand =
-            StatusContext.RunNonBlockingTaskCommand(SaveNotUploadedToUploadJsonFile);
-        _openLocalFileInExplorerCommand =
-            StatusContext.RunBlockingTaskCommand<S3UploadsItem>(async x => await OpenLocalFileInExplorer(x));
-
-        _toExcelAllItemsCommand =
-            StatusContext.RunNonBlockingTaskCommand(async () => await ItemsToExcel(Items?.ToList()));
-        _toExcelSelectedItemsCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
-            await ItemsToExcel(ListSelection?.SelectedItems?.ToList()));
-        _toClipboardAllItemsCommand =
-            StatusContext.RunNonBlockingTaskCommand(async () => await ItemsToClipboard(Items?.ToList()));
-        _toClipboardSelectedItemsCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
-            await ItemsToClipboard(ListSelection?.SelectedItems?.ToList()));
-
-        _removeSelectedItemsCommand = StatusContext.RunBlockingTaskCommand(RemoveSelectedItems);
-        _clearCompletedUploadBatch = StatusContext.RunNonBlockingActionCommand(() =>
-        {
-            if (UploadBatch is { Completed: true }) UploadBatch = null;
-        });
+        BuildCommands();
     }
 
+    public ObservableCollection<S3UploadsItem>? Items { get; set; }
+    public ContentListSelected<S3UploadsItem>? ListSelection { get; set; }
+    public WindowIconStatus? OsStatusIndicator { get; set; }
+    public StatusControlContext StatusContext { get; set; }
+    public S3UploadsUploadBatch? UploadBatch { get; set; }
+    public IS3AccountInformation UploadS3Information { get; set; }
+
+    [NonBlockingCommand]
+    public async Task ClearCompletedUploadBatch()
+    {
+        await ThreadSwitcher.ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (UploadBatch is { Completed: true }) UploadBatch = null;
+    }
+
+    [NonBlockingCommand]
     public async Task ClearUploaded()
     {
         await ThreadSwitcher.ThreadSwitcher.ResumeBackgroundAsync();
@@ -137,6 +108,30 @@ public partial class S3UploadsContext : ObservableObject
         StatusContext.ToastSuccess("Items added to the Clipboard");
     }
 
+    [NonBlockingCommand]
+    public async Task ToClipboardAllItems()
+    {
+        await ItemsToClipboard(Items?.ToList());
+    }
+
+    [NonBlockingCommand]
+    public async Task ToClipboardSelectedItems()
+    {
+        await ItemsToClipboard(ListSelection?.SelectedItems?.ToList());
+    }
+
+    [NonBlockingCommand]
+    public async Task ToExcelAllItems()
+    {
+        await ItemsToExcel(Items?.ToList());
+    }
+
+    [NonBlockingCommand]
+    public async Task ToExcelSelectedItems()
+    {
+        await ItemsToExcel(ListSelection?.SelectedItems?.ToList());
+    }
+
     // ReSharper disable NotAccessedPositionalProperty.Global Properties accessed by reflection
     public record S3ExcelUploadInformation(string FullName, string AmazonObjectKey, string BucketName, bool Completed,
         bool HasError, string ErrorMessage);
@@ -185,6 +180,7 @@ public partial class S3UploadsContext : ObservableObject
         }
     }
 
+    [BlockingCommand]
     public async Task OpenLocalFileInExplorer(S3UploadsItem? toOpen)
     {
         await ThreadSwitcher.ThreadSwitcher.ResumeForegroundAsync();
@@ -198,6 +194,7 @@ public partial class S3UploadsContext : ObservableObject
         await ProcessHelpers.OpenExplorerWindowForFile(toOpen.FileToUpload.FullName);
     }
 
+    [BlockingCommand]
     public async Task RemoveSelectedItems()
     {
         await ThreadSwitcher.ThreadSwitcher.ResumeBackgroundAsync();
@@ -226,6 +223,7 @@ public partial class S3UploadsContext : ObservableObject
         StatusContext.ToastSuccess($"{canDelete.Count} Items Removed");
     }
 
+    [NonBlockingCommand]
     public async Task SaveAllToUploadJsonFile()
     {
         await ThreadSwitcher.ThreadSwitcher.ResumeBackgroundAsync();
@@ -239,6 +237,7 @@ public partial class S3UploadsContext : ObservableObject
         await FileItemsToS3UploaderJsonFile(Items.ToList());
     }
 
+    [NonBlockingCommand]
     public async Task SaveNotUploadedToUploadJsonFile()
     {
         await ThreadSwitcher.ThreadSwitcher.ResumeBackgroundAsync();
@@ -252,6 +251,7 @@ public partial class S3UploadsContext : ObservableObject
         await FileItemsToS3UploaderJsonFile(Items.Where(x => x is { Completed: true, HasError: false }).ToList());
     }
 
+    [NonBlockingCommand]
     public async Task SaveSelectedToUploadJsonFile()
     {
         await ThreadSwitcher.ThreadSwitcher.ResumeBackgroundAsync();
@@ -265,6 +265,7 @@ public partial class S3UploadsContext : ObservableObject
         await FileItemsToS3UploaderJsonFile(ListSelection.SelectedItems);
     }
 
+    [BlockingCommand]
     public async Task StartAllUploads()
     {
         if (UploadBatch is { Completed: false })
@@ -287,6 +288,7 @@ public partial class S3UploadsContext : ObservableObject
         StatusContext.RunFireAndForgetNonBlockingTask(async () => await UploadBatch.StartUploadBatch());
     }
 
+    [NonBlockingCommand]
     public async Task StartFailedUploads()
     {
         await ThreadSwitcher.ThreadSwitcher.ResumeBackgroundAsync();
@@ -301,7 +303,7 @@ public partial class S3UploadsContext : ObservableObject
         StatusContext.RunFireAndForgetNonBlockingTask(async () => await UploadBatch.StartUploadBatch());
     }
 
-
+    [NonBlockingCommand]
     public async Task StartSelectedUploads()
     {
         if (UploadBatch is { Completed: false })

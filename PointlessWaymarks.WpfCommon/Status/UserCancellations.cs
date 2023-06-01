@@ -1,15 +1,11 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
+﻿using CommunityToolkit.Mvvm.Input;
+using PointlessWaymarks.LlamaAspects;
 
 namespace PointlessWaymarks.WpfCommon.Status;
 
-public partial class UserCancellations : ObservableObject
+[NotifyPropertyChanged]
+public partial class UserCancellations
 {
-    [ObservableProperty] private RelayCommand? _cancel;
-    [ObservableProperty] private CancellationTokenSource? _cancelSource;
-    [ObservableProperty] private string _description = string.Empty;
-    [ObservableProperty] private bool _isEnabled = true;
-
     public UserCancellations()
     {
         Cancel = new RelayCommand(() =>
@@ -19,4 +15,9 @@ public partial class UserCancellations : ObservableObject
             Description = "Canceling...";
         });
     }
+
+    public RelayCommand? Cancel { get; set; }
+    public CancellationTokenSource? CancelSource { get; set; }
+    public string Description { get; set; } = string.Empty;
+    public bool IsEnabled { get; set; } = true;
 }

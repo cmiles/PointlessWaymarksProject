@@ -1,53 +1,32 @@
-﻿#nullable enable
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.Windows;
 using Amazon.S3;
 using Amazon.S3.Model;
 using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.CommonTools.S3;
+using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon.Status;
 
 namespace PointlessWaymarks.WpfCommon.S3Deletions;
 
-public partial class S3DeletionsContext : ObservableObject
+[NotifyPropertyChanged]
+[GenerateStatusCommands]
+public partial class S3DeletionsContext
 {
-    [ObservableProperty] private RelayCommand _deleteAllCommand;
-    [ObservableProperty] private RelayCommand _deleteSelectedCommand;
-    [ObservableProperty] private ObservableCollection<S3DeletionsItem>? _items;
-    [ObservableProperty] private List<S3DeletionsItem> _selectedItems = new();
-    [ObservableProperty] private StatusControlContext _statusContext;
-    [ObservableProperty] private RelayCommand _toClipboardAllItemsCommand;
-    [ObservableProperty] private RelayCommand _toClipboardSelectedItemsCommand;
-    [ObservableProperty] private RelayCommand _toExcelAllItemsCommand;
-    [ObservableProperty] private RelayCommand _toExcelSelectedItemsCommand;
-    [ObservableProperty] private IS3AccountInformation _uploadS3Information;
-
-
     private S3DeletionsContext(StatusControlContext? statusContext, IS3AccountInformation s3Info)
     {
-        _statusContext = statusContext ?? new StatusControlContext();
+        StatusContext = statusContext ?? new StatusControlContext();
 
-        _uploadS3Information = s3Info;
+        BuildCommands();
 
-        _deleteAllCommand =
-            StatusContext.RunBlockingTaskWithCancellationCommand(async x => await DeleteAll(x), "Cancel Deletions");
-        _deleteSelectedCommand =
-            StatusContext.RunBlockingTaskWithCancellationCommand(async x => await DeleteSelected(x),
-                "Cancel Deletions");
-
-        _toExcelAllItemsCommand =
-            StatusContext.RunNonBlockingTaskCommand(async () => await ItemsToExcel(Items?.ToList()));
-        _toExcelSelectedItemsCommand =
-            StatusContext.RunNonBlockingTaskCommand(async () =>
-                await ItemsToExcel(SelectedItems.ToList()));
-        _toClipboardAllItemsCommand =
-            StatusContext.RunNonBlockingTaskCommand(async () => await ItemsToClipboard(Items?.ToList()));
-        _toClipboardSelectedItemsCommand =
-            StatusContext.RunNonBlockingTaskCommand(async () =>
-                await ItemsToClipboard(SelectedItems.ToList()));
+        UploadS3Information = s3Info;
     }
+
+    public ObservableCollection<S3DeletionsItem>? Items { get; set; }
+    public List<S3DeletionsItem> SelectedItems { get; set; } = new();
+    public StatusControlContext StatusContext { get; set; }
+    public IS3AccountInformation UploadS3Information { get; set; }
 
     public static async Task<S3DeletionsContext> CreateInstance(StatusControlContext? statusContext,
         IS3AccountInformation s3Info, List<S3DeletionsItem> itemsToDelete)
@@ -134,12 +113,14 @@ public partial class S3DeletionsContext : ObservableObject
         toRemoveFromList.ForEach(x => Items.Remove(x));
     }
 
+    [BlockingCommand]
     public async Task DeleteAll(CancellationToken cancellationToken)
     {
         await Delete(Items?.ToList() ?? new List<S3DeletionsItem>(), cancellationToken,
             StatusContext.ProgressTracker());
     }
 
+    [BlockingCommand]
     public async Task DeleteSelected(CancellationToken cancellationToken)
     {
         await Delete(SelectedItems.ToList(), cancellationToken,
@@ -187,5 +168,29 @@ public partial class S3DeletionsContext : ObservableObject
         await ThreadSwitcher.ThreadSwitcher.ResumeForegroundAsync();
 
         Items = new ObservableCollection<S3DeletionsItem>(toDelete);
+    }
+
+    [NonBlockingCommand]
+    public async Task ToClipboardAllItems()
+    {
+        await ItemsToClipboard(Items?.ToList());
+    }
+
+    [NonBlockingCommand]
+    public async Task ToClipboardSelectedItems()
+    {
+        await ItemsToClipboard(SelectedItems.ToList());
+    }
+
+    [NonBlockingCommand]
+    public async Task ToExcelAllItems()
+    {
+        await ItemsToExcel(Items?.ToList());
+    }
+
+    [NonBlockingCommand]
+    public async Task ToExcelSelectedItems()
+    {
+        await ItemsToExcel(SelectedItems.ToList());
     }
 }

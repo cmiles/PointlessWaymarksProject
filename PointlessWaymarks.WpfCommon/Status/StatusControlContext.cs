@@ -1,56 +1,73 @@
 ﻿using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Threading;
-using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon.ToastControl;
 using PointlessWaymarks.WpfCommon.Utility;
 using Serilog;
 
 namespace PointlessWaymarks.WpfCommon.Status;
 
-public partial class StatusControlContext : ObservableObject
+[NotifyPropertyChanged]
+public partial class StatusControlContext
 {
-    [ObservableProperty] private bool _blockUi;
-    [ObservableProperty] private ObservableCollection<UserCancellations> _cancellationList;
-    [ObservableProperty] private Dispatcher _contextDispatcher;
-    [ObservableProperty] private int _countOfRunningBlockingTasks;
-    [ObservableProperty] private int _countOfRunningNonBlockingTasks;
-    [ObservableProperty] private CancellationTokenSource? _currentFullScreenCancellationSource;
-    [ObservableProperty] private List<StatusControlMessageButton>? _messageBoxButtonList;
-    [ObservableProperty] private string? _messageBoxMessage;
-    [ObservableProperty] private string _messageBoxTitle = string.Empty;
-    [ObservableProperty] private bool _messageBoxVisible;
-    [ObservableProperty] private bool _nonBlockingTaskAreRunning;
-    [ObservableProperty] private bool _showCancellations;
-    [ObservableProperty] private string? _showMessageResponse;
-    [ObservableProperty] private ObservableCollection<string> _statusLog;
-    [ObservableProperty] private bool _stringEntryApproved;
-    [ObservableProperty] private string _stringEntryMessage = string.Empty;
-    [ObservableProperty] private string _stringEntryTitle = string.Empty;
-    [ObservableProperty] private string _stringEntryUserText = string.Empty;
-    [ObservableProperty] private bool _stringEntryVisible;
-    [ObservableProperty] private ToastSource _toast;
-    [ObservableProperty] private RelayCommand<string> _userMessageBoxResponseCommand;
-    [ObservableProperty] private RelayCommand _userStringEntryApprovedResponseCommand;
-    [ObservableProperty] private RelayCommand _userStringEntryCancelledResponseCommand;
+    private int _countOfRunningBlockingTasks;
+
+
+    private int _countOfRunningNonBlockingTasks;
 
     public StatusControlContext()
     {
-        _contextDispatcher = Application.Current?.Dispatcher ??
+        ContextDispatcher = Application.Current?.Dispatcher ??
                             ThreadSwitcher.ThreadSwitcher.PinnedDispatcher ?? Dispatcher.CurrentDispatcher;
 
-        _toast = new ToastSource(ContextDispatcher);
-        _statusLog = new ObservableCollection<string>();
-        _cancellationList = new ObservableCollection<UserCancellations>();
+        Toast = new ToastSource(ContextDispatcher);
+        StatusLog = new ObservableCollection<string>();
+        CancellationList = new ObservableCollection<UserCancellations>();
 
-        _userMessageBoxResponseCommand = new RelayCommand<string>(UserMessageBoxResponse);
-        _userStringEntryApprovedResponseCommand = new RelayCommand(UserStringEntryApprovedResponse);
-        _userStringEntryCancelledResponseCommand = new RelayCommand(UserStringEntryCanceledResponse);
+        UserMessageBoxResponseCommand = new RelayCommand<string>(UserMessageBoxResponse);
+        UserStringEntryApprovedResponseCommand = new RelayCommand(UserStringEntryApprovedResponse);
+        UserStringEntryCancelledResponseCommand = new RelayCommand(UserStringEntryCanceledResponse);
     }
 
+    public bool BlockUi { get; set; }
+    public ObservableCollection<UserCancellations> CancellationList { get; set; }
+    public Dispatcher ContextDispatcher { get; set; }
 
+    [DoNotGenerateInpc]
+    public int CountOfRunningBlockingTasks
+    {
+        get => _countOfRunningBlockingTasks;
+        set => SetField(ref _countOfRunningBlockingTasks, value);
+    }
+
+    [DoNotGenerateInpc]
+    public int CountOfRunningNonBlockingTasks
+    {
+        get => _countOfRunningNonBlockingTasks;
+        set => SetField(ref _countOfRunningNonBlockingTasks, value);
+    }
+
+    public CancellationTokenSource? CurrentFullScreenCancellationSource { get; set; }
+    public List<StatusControlMessageButton>? MessageBoxButtonList { get; set; }
+    public string? MessageBoxMessage { get; set; }
+    public string MessageBoxTitle { get; set; } = string.Empty;
+    public bool MessageBoxVisible { get; set; }
+    public bool NonBlockingTaskAreRunning { get; set; }
+    public bool ShowCancellations { get; set; }
+    public string? ShowMessageResponse { get; set; }
     public Guid StatusControlContextId { get; } = Guid.NewGuid();
+    public ObservableCollection<string> StatusLog { get; set; }
+    public bool StringEntryApproved { get; set; }
+    public string StringEntryMessage { get; set; } = string.Empty;
+    public string StringEntryTitle { get; set; } = string.Empty;
+    public string StringEntryUserText { get; set; } = string.Empty;
+    public bool StringEntryVisible { get; set; }
+    public ToastSource Toast { get; set; }
+    public RelayCommand<string> UserMessageBoxResponseCommand { get; set; }
+    public RelayCommand UserStringEntryApprovedResponseCommand { get; set; }
+    public RelayCommand UserStringEntryCancelledResponseCommand { get; set; }
 
 
     private void BlockTaskCompleted(Task obj)
@@ -207,7 +224,6 @@ public partial class StatusControlContext : ObservableObject
         Interlocked.Increment(ref _countOfRunningNonBlockingTasks);
         NonBlockingTaskAreRunning = _countOfRunningNonBlockingTasks > 0;
 #pragma warning restore MVVMTK0034
-
     }
 
     private void NonBlockTaskCompleted(Task obj)
