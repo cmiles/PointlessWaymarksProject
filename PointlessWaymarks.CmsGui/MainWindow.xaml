@@ -145,7 +145,7 @@
                                             Command="{Binding ConfirmOrGenerateAllPhotosImagesFilesCommand}">
                                         Confirm And Copy/Generate As Needed All Photos, Images and Files (Existing Files Will Not be Deleted)
                                     </Button>
-                                    <Button Margin="12" Command="{Binding DeleteAndResizePicturesCommand}">Delete And Resize All Photos and Images</Button>
+                                    <Button Margin="12" Command="{Binding CleanAndResizePicturesCommand}">Clean And Resize All Photos and Images</Button>
                                 </StackPanel>
                             </GroupBox>
                         </StackPanel>

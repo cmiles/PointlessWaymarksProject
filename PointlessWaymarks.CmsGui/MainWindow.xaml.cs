@@ -4,7 +4,6 @@ using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
 using HtmlTableHelper;
 using Microsoft.EntityFrameworkCore;
 using Ookii.Dialogs.Wpf;
@@ -36,6 +35,7 @@ using PointlessWaymarks.CmsWpfControls.UserSettingsEditor;
 using PointlessWaymarks.CmsWpfControls.Utility;
 using PointlessWaymarks.CmsWpfControls.VideoList;
 using PointlessWaymarks.CommonTools;
+using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon.MarkdownDisplay;
 using PointlessWaymarks.WpfCommon.ProgramUpdateMessage;
 using PointlessWaymarks.WpfCommon.Status;
@@ -49,35 +49,10 @@ namespace PointlessWaymarks.CmsGui;
 ///     Interaction logic for MainWindow.xaml
 /// </summary>
 [ObservableObject]
+[GenerateStatusCommands]
 public partial class MainWindow
 {
     private readonly string _currentDateVersion;
-    [ObservableProperty] private HelpDisplayContext _aboutContext;
-    [ObservableProperty] private FilesWrittenLogListContext _filesWrittenContext;
-    [ObservableProperty] private string _infoTitle;
-    [ObservableProperty] private string _recentSettingsFilesNames;
-    [ObservableProperty] private TabItem _selectedTab;
-    [ObservableProperty] private UserSettingsEditorContext _settingsEditorContext;
-    [ObservableProperty] private SettingsFileChooserControlContext _settingsFileChooser;
-    [ObservableProperty] private bool _showSettingsFileChooser;
-    [ObservableProperty] private StatusControlContext _statusContext;
-    [ObservableProperty] private AllContentListWithActionsContext _tabAllListContext;
-    [ObservableProperty] private FileListWithActionsContext _tabFileListContext;
-    [ObservableProperty] private GeoJsonListWithActionsContext _tabGeoJsonListContext;
-    [ObservableProperty] private ImageListWithActionsContext _tabImageListContext;
-    [ObservableProperty] private LineListWithActionsContext _tabLineListContext;
-    [ObservableProperty] private LinkListWithActionsContext _tabLinkContext;
-    [ObservableProperty] private MapComponentListWithActionsContext _tabMapListContext;
-    [ObservableProperty] private MenuLinkEditorContext _tabMenuLinkContext;
-    [ObservableProperty] private NoteListWithActionsContext _tabNoteListContext;
-    [ObservableProperty] private PhotoListWithActionsContext _tabPhotoListContext;
-    [ObservableProperty] private PointListWithActionsContext _tabPointListContext;
-    [ObservableProperty] private PostListWithActionsContext _tabPostListContext;
-    [ObservableProperty] private TagExclusionEditorContext _tabTagExclusionContext;
-    [ObservableProperty] private TagListContext _tabTagListContext;
-    [ObservableProperty] private VideoListWithActionsContext _tabVideoListContext;
-    [ObservableProperty] private ProgramUpdateMessageContext _updateMessageContext;
-    [ObservableProperty] private CmsCommonCommands _commonCommands;
 
     public MainWindow()
     {
@@ -114,86 +89,7 @@ public partial class MainWindow
 
         UpdateMessageContext = new ProgramUpdateMessageContext();
 
-        //Common
-
-        GenerateChangedHtmlAndStartUploadCommand = StatusContext.RunBlockingTaskCommand(async () =>
-            await S3UploadHelpers.GenerateChangedHtmlAndStartUpload(StatusContext));
-
-        GenerateChangedHtmlCommand = StatusContext.RunBlockingTaskCommand(async () =>
-            await GenerationHelpers.GenerateChangedHtml(StatusContext.ProgressTracker()));
-
-        RemoveUnusedFilesFromMediaArchiveCommand =
-            StatusContext.RunBlockingTaskCommand(RemoveUnusedFilesFromMediaArchive);
-
-        RemoveUnusedFoldersAndFilesFromContentCommand =
-            StatusContext.RunBlockingTaskCommand(RemoveUnusedFoldersAndFilesFromContent);
-
-        GenerateIndexCommand = StatusContext.RunBlockingTaskCommand(async () =>
-            await HtmlGenerationGroups.GenerateIndex(null, StatusContext.ProgressTracker()));
-
-        CheckAllContentForInvalidBracketCodeContentIdsCommand =
-            StatusContext.RunBlockingTaskCommand(CheckAllContentForInvalidBracketCodeContentIds);
-
-        //All/Forced Regeneration
-        GenerateAllHtmlCommand = StatusContext.RunBlockingTaskCommand(GenerateAllHtml);
-
-        ConfirmOrGenerateAllPhotosImagesFilesCommand =
-            StatusContext.RunBlockingTaskCommand(ConfirmOrGenerateAllPhotosImagesFiles);
-
-        DeleteAndResizePicturesCommand = StatusContext.RunBlockingTaskCommand(CleanAndResizePictures);
-
-        //Main Parts
-        GenerateSiteResourcesCommand = StatusContext.RunBlockingTaskCommand(async () =>
-            await FileManagement.WriteSiteResourcesToGeneratedSite(StatusContext.ProgressTracker()));
-
-        WriteStyleCssFileCommand = StatusContext.RunBlockingTaskCommand(async () =>
-            await FileManagement.WriteStylesCssToGeneratedSite(StatusContext.ProgressTracker()));
-
-        GenerateHtmlForAllFileContentCommand = StatusContext.RunBlockingTaskCommand(async () =>
-            await HtmlGenerationGroups.GenerateAllFileHtml(null, StatusContext.ProgressTracker()));
-
-        GenerateHtmlForAllImageContentCommand = StatusContext.RunBlockingTaskCommand(async () =>
-            await HtmlGenerationGroups.GenerateAllImageHtml(null, StatusContext.ProgressTracker()));
-
-        GenerateHtmlForAllMapContentCommand = StatusContext.RunBlockingTaskCommand(async () =>
-            await HtmlGenerationGroups.GenerateAllMapData(null, StatusContext.ProgressTracker()));
-
-        GenerateHtmlForAllNoteContentCommand = StatusContext.RunBlockingTaskCommand(async () =>
-            await HtmlGenerationGroups.GenerateAllNoteHtml(null, StatusContext.ProgressTracker()));
-
-        GenerateHtmlForAllPhotoContentCommand = StatusContext.RunBlockingTaskCommand(async () =>
-            await HtmlGenerationGroups.GenerateAllPhotoHtml(null, StatusContext.ProgressTracker()));
-
-        GenerateHtmlForAllPostContentCommand = StatusContext.RunBlockingTaskCommand(async () =>
-            await HtmlGenerationGroups.GenerateAllPostHtml(null, StatusContext.ProgressTracker()));
-
-        GenerateHtmlForAllVideoContentCommand = StatusContext.RunBlockingTaskCommand(async () =>
-            await HtmlGenerationGroups.GenerateAllVideoHtml(null, StatusContext.ProgressTracker()));
-
-        GenerateHtmlForAllPointContentCommand = StatusContext.RunBlockingTaskCommand(async () =>
-            await HtmlGenerationGroups.GenerateAllPointHtml(null, StatusContext.ProgressTracker()));
-
-        GenerateHtmlForAllLineContentCommand = StatusContext.RunBlockingTaskCommand(async () =>
-            await HtmlGenerationGroups.GenerateAllLineHtml(null, StatusContext.ProgressTracker()));
-
-        GenerateHtmlForAllGeoJsonContentCommand = StatusContext.RunBlockingTaskCommand(async () =>
-            await HtmlGenerationGroups.GenerateAllGeoJsonHtml(null, StatusContext.ProgressTracker()));
-
-        //Derived
-        GenerateAllListHtmlCommand = StatusContext.RunBlockingTaskCommand(async () =>
-            await HtmlGenerationGroups.GenerateAllListHtml(null, StatusContext.ProgressTracker()));
-
-        GenerateAllTagHtmlCommand = StatusContext.RunBlockingTaskCommand(async () =>
-            await HtmlGenerationGroups.GenerateAllTagHtml(null, StatusContext.ProgressTracker()));
-
-        GenerateCameraRollCommand = StatusContext.RunBlockingTaskCommand(async () =>
-            await HtmlGenerationGroups.GenerateCameraRollHtml(null, StatusContext.ProgressTracker()));
-
-        GenerateDailyGalleryHtmlCommand = StatusContext.RunBlockingTaskCommand(async () =>
-            await HtmlGenerationGroups.GenerateAllDailyPhotoGalleriesHtml(null, StatusContext.ProgressTracker()));
-
-        //Rebuild
-        ImportJsonFromDirectoryCommand = StatusContext.RunBlockingTaskCommand(ImportJsonFromDirectory);
+        BuildCommands();
 
         StatusContext.RunFireAndForgetNonBlockingTask(CleanupTemporaryFiles);
 
@@ -206,60 +102,35 @@ public partial class MainWindow
         });
     }
 
-    public RelayCommand CheckAllContentForInvalidBracketCodeContentIdsCommand { get; }
-
-    public RelayCommand ConfirmOrGenerateAllPhotosImagesFilesCommand { get; }
-
-    public RelayCommand DeleteAndResizePicturesCommand { get; }
-
-    public RelayCommand GenerateAllHtmlCommand { get; }
-
-    public RelayCommand GenerateAllListHtmlCommand { get; }
-
-    public RelayCommand GenerateAllTagHtmlCommand { get; }
-
-    public RelayCommand GenerateCameraRollCommand { get; }
-
-    public RelayCommand GenerateChangedHtmlAndStartUploadCommand { get; }
-
-    public RelayCommand GenerateChangedHtmlCommand { get; }
-
-    public RelayCommand GenerateDailyGalleryHtmlCommand { get; }
-
-    public RelayCommand GenerateHtmlForAllFileContentCommand { get; }
-
-    public RelayCommand GenerateHtmlForAllGeoJsonContentCommand { get; }
-
-    public RelayCommand GenerateHtmlForAllImageContentCommand { get; }
-
-    public RelayCommand GenerateHtmlForAllLineContentCommand { get; }
-
-    public RelayCommand GenerateHtmlForAllMapContentCommand { get; }
-
-    public RelayCommand GenerateHtmlForAllNoteContentCommand { get; }
-
-    public RelayCommand GenerateHtmlForAllPhotoContentCommand { get; }
-
-    public RelayCommand GenerateHtmlForAllPointContentCommand { get; }
-
-    public RelayCommand GenerateHtmlForAllPostContentCommand { get; }
-
-    public RelayCommand GenerateHtmlForAllVideoContentCommand { get; set; }
-
-    public RelayCommand GenerateIndexCommand { get; }
-
-    public RelayCommand GenerateSiteResourcesCommand { get; }
-
-    public RelayCommand ImportJsonFromDirectoryCommand { get; }
-
-    public RelayCommand RemoveUnusedFilesFromMediaArchiveCommand { get; }
-
-    public RelayCommand RemoveUnusedFoldersAndFilesFromContentCommand { get; }
-
+    public HelpDisplayContext AboutContext { get; set; }
+    public CmsCommonCommands CommonCommands { get; set; }
+    public FilesWrittenLogListContext FilesWrittenContext { get; set; }
+    public string InfoTitle { get; set; }
+    public string RecentSettingsFilesNames { get; set; }
+    public TabItem SelectedTab { get; set; }
+    public UserSettingsEditorContext SettingsEditorContext { get; set; }
+    public SettingsFileChooserControlContext SettingsFileChooser { get; set; }
+    public bool ShowSettingsFileChooser { get; set; }
+    public StatusControlContext StatusContext { get; set; }
+    public AllContentListWithActionsContext TabAllListContext { get; set; }
+    public FileListWithActionsContext TabFileListContext { get; set; }
+    public GeoJsonListWithActionsContext TabGeoJsonListContext { get; set; }
+    public ImageListWithActionsContext TabImageListContext { get; set; }
+    public LineListWithActionsContext TabLineListContext { get; set; }
+    public LinkListWithActionsContext TabLinkContext { get; set; }
+    public MapComponentListWithActionsContext TabMapListContext { get; set; }
+    public MenuLinkEditorContext TabMenuLinkContext { get; set; }
+    public NoteListWithActionsContext TabNoteListContext { get; set; }
+    public PhotoListWithActionsContext TabPhotoListContext { get; set; }
+    public PointListWithActionsContext TabPointListContext { get; set; }
+    public PostListWithActionsContext TabPostListContext { get; set; }
+    public TagExclusionEditorContext TabTagExclusionContext { get; set; }
+    public TagListContext TabTagListContext { get; set; }
+    public VideoListWithActionsContext TabVideoListContext { get; set; }
+    public ProgramUpdateMessageContext UpdateMessageContext { get; set; }
     public WindowIconStatus WindowStatus { get; }
 
-    public RelayCommand WriteStyleCssFileCommand { get; }
-
+    [BlockingCommand]
     private async Task CheckAllContentForInvalidBracketCodeContentIds()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -362,6 +233,7 @@ public partial class MainWindow
         }
     }
 
+    [BlockingCommand]
     private async Task CleanAndResizePictures()
     {
         await CleanAndResizeAllPhotoFiles();
@@ -452,6 +324,7 @@ public partial class MainWindow
         }
     }
 
+    [BlockingCommand]
     private async Task ConfirmOrGenerateAllPhotosImagesFiles()
     {
         await ConfirmAllPhotoContent();
@@ -461,6 +334,7 @@ public partial class MainWindow
         StatusContext.ToastSuccess("All HTML Generation Finished");
     }
 
+    [BlockingCommand]
     private async Task GenerateAllHtml()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -471,6 +345,117 @@ public partial class MainWindow
         await Reports.InvalidBracketCodeContentIdsHtmlReport(generationResults);
     }
 
+    [BlockingCommand]
+    public async Task GenerateAllListHtml()
+    {
+        await HtmlGenerationGroups.GenerateAllListHtml(null, StatusContext.ProgressTracker());
+    }
+
+    [BlockingCommand]
+    public async Task GenerateAllTagHtml()
+    {
+        await HtmlGenerationGroups.GenerateAllTagHtml(null, StatusContext.ProgressTracker());
+    }
+
+    [BlockingCommand]
+    public async Task GenerateCameraRoll()
+    {
+        await HtmlGenerationGroups.GenerateCameraRollHtml(null, StatusContext.ProgressTracker());
+    }
+
+
+    [BlockingCommand]
+    public async Task GenerateChangedHtml()
+    {
+        await GenerationHelpers.GenerateChangedHtml(StatusContext.ProgressTracker());
+    }
+
+    [BlockingCommand]
+    public async Task GenerateChangedHtmlAndStartUpload()
+    {
+        await S3UploadHelpers.GenerateChangedHtmlAndStartUpload(StatusContext);
+    }
+
+    [BlockingCommand]
+    public async Task GenerateDailyGalleryHtml()
+    {
+        await HtmlGenerationGroups.GenerateAllDailyPhotoGalleriesHtml(null, StatusContext.ProgressTracker());
+    }
+
+    [BlockingCommand]
+    public async Task GenerateHtmlForAllFileContent()
+    {
+        await HtmlGenerationGroups.GenerateAllFileHtml(null, StatusContext.ProgressTracker());
+    }
+
+    [BlockingCommand]
+    public async Task GenerateHtmlForAllGeoJsonContent()
+    {
+        await HtmlGenerationGroups.GenerateAllGeoJsonHtml(null, StatusContext.ProgressTracker());
+    }
+
+    [BlockingCommand]
+    public async Task GenerateHtmlForAllImageContent()
+    {
+        await HtmlGenerationGroups.GenerateAllImageHtml(null, StatusContext.ProgressTracker());
+    }
+
+    [BlockingCommand]
+    public async Task GenerateHtmlForAllLineContent()
+    {
+        await HtmlGenerationGroups.GenerateAllLineHtml(null, StatusContext.ProgressTracker());
+    }
+
+    [BlockingCommand]
+    public async Task GenerateHtmlForAllMapContent()
+    {
+        await HtmlGenerationGroups.GenerateAllMapData(null, StatusContext.ProgressTracker());
+    }
+
+    [BlockingCommand]
+    public async Task GenerateHtmlForAllNoteContent()
+    {
+        await HtmlGenerationGroups.GenerateAllNoteHtml(null, StatusContext.ProgressTracker());
+    }
+
+    [BlockingCommand]
+    public async Task GenerateHtmlForAllPhotoContent()
+    {
+        await HtmlGenerationGroups.GenerateAllPhotoHtml(null, StatusContext.ProgressTracker());
+    }
+
+    [BlockingCommand]
+    public async Task GenerateHtmlForAllPointContent()
+    {
+        await HtmlGenerationGroups.GenerateAllPointHtml(null, StatusContext.ProgressTracker());
+    }
+
+    [BlockingCommand]
+    public async Task GenerateHtmlForAllPostContent()
+    {
+        await HtmlGenerationGroups.GenerateAllPostHtml(null, StatusContext.ProgressTracker());
+    }
+
+    [BlockingCommand]
+    public async Task GenerateHtmlForAllVideoContent()
+    {
+        await HtmlGenerationGroups.GenerateAllVideoHtml(null, StatusContext.ProgressTracker());
+    }
+
+    [BlockingCommand]
+    public async Task GenerateIndex()
+    {
+        await HtmlGenerationGroups.GenerateIndex(null, StatusContext.ProgressTracker());
+    }
+
+
+    [BlockingCommand]
+    public async Task GenerateSiteResources()
+    {
+        await FileManagement.WriteSiteResourcesToGeneratedSite(StatusContext.ProgressTracker());
+    }
+
+    [BlockingCommand]
     private async Task ImportJsonFromDirectory()
     {
         await ThreadSwitcher.ResumeForegroundAsync();
@@ -515,7 +500,8 @@ public partial class MainWindow
 
         TabAllListContext = await AllContentListWithActionsContext.CreateInstance(null, WindowStatus);
 
-        SettingsEditorContext = await UserSettingsEditorContext.CreateInstance(null, UserSettingsSingleton.CurrentSettings());
+        SettingsEditorContext =
+            await UserSettingsEditorContext.CreateInstance(null, UserSettingsSingleton.CurrentSettings());
         AboutContext = new HelpDisplayContext(new List<string>
             { HelpMarkdown.CmsGeneralDescriptionBlock, HelpMarkdown.SoftwareUsedBlock });
 
@@ -541,7 +527,7 @@ public partial class MainWindow
         if (SelectedTab.Header.ToString() == "Videos" && TabVideoListContext == null)
             TabVideoListContext = await VideoListWithActionsContext.CreateInstance(null, WindowStatus);
         if (SelectedTab.Header.ToString() == "Files" && TabFileListContext == null)
-            TabFileListContext = await FileListWithActionsContext.CreateInstance( null, WindowStatus);
+            TabFileListContext = await FileListWithActionsContext.CreateInstance(null, WindowStatus);
         if (SelectedTab.Header.ToString() == "Points" && TabPointListContext == null)
             TabPointListContext = await PointListWithActionsContext.CreateInstance(null, WindowStatus);
         if (SelectedTab.Header.ToString() == "Lines" && TabLineListContext == null)
@@ -589,12 +575,14 @@ public partial class MainWindow
 #pragma warning restore CS4014
     }
 
+    [BlockingCommand]
     private async Task RemoveUnusedFilesFromMediaArchive()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
         await FileManagement.RemoveMediaArchiveFilesNotInDatabase(StatusContext.ProgressTracker());
     }
 
+    [BlockingCommand]
     private async Task RemoveUnusedFoldersAndFilesFromContent()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -638,5 +626,11 @@ public partial class MainWindow
         (bool isNew, string userString, List<string> recentFiles) e)
     {
         StatusContext.RunFireAndForgetBlockingTask(async () => await SettingsFileChooserOnSettingsFileUpdated(e));
+    }
+
+    [BlockingCommand]
+    public async Task WriteStyleCssFile()
+    {
+        await FileManagement.WriteStylesCssToGeneratedSite(StatusContext.ProgressTracker());
     }
 }
