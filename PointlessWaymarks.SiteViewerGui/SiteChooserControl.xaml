@@ -22,7 +22,7 @@
                         <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
                     <Button
-                        Command="{Binding DataContext.ChooseRecentSettingsFileCommand, ElementName=SettingsFileChooserControlXaml}"
+                        Command="{Binding DataContext.LaunchRecentFileCommand, ElementName=SettingsFileChooserControlXaml}"
                         CommandParameter="{Binding .}"
                         FontSize="16">
                         Launch
@@ -67,7 +67,7 @@
                         <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
                     <Button
-                        Command="{Binding DataContext.ChooseRecentDirectoryCommand, ElementName=SettingsFileChooserControlXaml}"
+                        Command="{Binding DataContext.LaunchRecentDirectoryCommand, ElementName=SettingsFileChooserControlXaml}"
                         CommandParameter="{Binding .}"
                         FontSize="16">
                         Launch
@@ -148,7 +148,7 @@
                     Height="40"
                     Width="190"
                     Margin="6,8,4,8"
-                    Command="{Binding ChooseSettingsFileCommand}"
+                    Command="{Binding ChooseFileCommand}"
                     FontSize="14">
                     Select Settings File (.ini)
                 </Button>

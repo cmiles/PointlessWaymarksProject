@@ -1,9 +1,10 @@
 ﻿using System.IO;
-using CommunityToolkit.Mvvm.ComponentModel;
+using PointlessWaymarks.LlamaAspects;
 
 namespace PointlessWaymarks.SiteViewerGui;
 
-public partial class SiteDirectoryListItem : ObservableObject
+[NotifyPropertyChanged]
+public partial class SiteDirectoryListItem
 {
-    [ObservableProperty] private DirectoryInfo _siteDirectory;
+    public DirectoryInfo SiteDirectory { get; set; }
 }

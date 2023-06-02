@@ -1,11 +1,12 @@
 ﻿using System.IO;
-using CommunityToolkit.Mvvm.ComponentModel;
 using PointlessWaymarks.CmsData;
+using PointlessWaymarks.LlamaAspects;
 
 namespace PointlessWaymarks.SiteViewerGui;
 
-public partial class SiteSettingsFileListItem : ObservableObject
+[NotifyPropertyChanged]
+public partial class SiteSettingsFileListItem
 {
-    [ObservableProperty] private UserSettings _parsedSettings;
-    [ObservableProperty] private FileInfo _settingsFile;
+    public UserSettings ParsedSettings { get; set; }
+    public FileInfo SettingsFile { get; set; }
 }

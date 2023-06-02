@@ -1,8 +1,9 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿using PointlessWaymarks.LlamaAspects;
 
 namespace PointlessWaymarks.SiteViewerGui;
 
-public partial class SiteViewerGuiSettings : ObservableObject
+[NotifyPropertyChanged]
+public partial class SiteViewerGuiSettings
 {
-    [ObservableProperty] private string _programUpdateDirectory = @"M:\PointlessWaymarksPublications";
+    public string ProgramUpdateDirectory { get; set; } = @"M:\PointlessWaymarksPublications";
 }

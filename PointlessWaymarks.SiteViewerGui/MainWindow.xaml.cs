@@ -3,12 +3,12 @@ using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
-using CommunityToolkit.Mvvm.ComponentModel;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Web.WebView2.Core;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsWpfControls.SitePreview;
 using PointlessWaymarks.CommonTools;
+using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon.ProgramUpdateMessage;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
@@ -20,25 +20,9 @@ namespace PointlessWaymarks.SiteViewerGui;
 /// <summary>
 ///     Interaction logic for MainWindow.xaml
 /// </summary>
-[ObservableObject]
-#pragma warning disable MVVMTK0033
+[NotifyPropertyChanged]
 public partial class MainWindow
-#pragma warning restore MVVMTK0033
 {
-    [ObservableProperty] private string _infoTitle;
-    [ObservableProperty] private string _initialPage;
-    [ObservableProperty] private string _localFolder;
-    [ObservableProperty] private Func<object> _newTab;
-    [ObservableProperty] private SitePreviewContext? _previewContext;
-    [ObservableProperty] private string _previewServerHost = string.Empty;
-    [ObservableProperty] private string _recentSettingsFilesNames = string.Empty;
-    [ObservableProperty] private SiteChooserContext? _settingsFileChooser;
-    [ObservableProperty] private bool _showSettingsFileChooser;
-    [ObservableProperty] private string _siteName;
-    [ObservableProperty] private string _siteUrl;
-    [ObservableProperty] private StatusControlContext _statusContext;
-    [ObservableProperty] private ProgramUpdateMessageContext _updateMessageContext;
-
     public MainWindow(string? localFolder, string? siteUrl, string? siteName, string? initialPage)
     {
         InitializeComponent();
@@ -56,22 +40,22 @@ public partial class MainWindow
             ProgramInfoTools.StandardAppInformationString(AppContext.BaseDirectory,
                 "Pointless Waymarks Site Viewer Beta");
 
-        _infoTitle = versionInfo.humanTitleString;
+        InfoTitle = versionInfo.humanTitleString;
 
         var currentDateVersion = versionInfo.dateVersion;
 
-        _statusContext = new StatusControlContext { BlockUi = false };
+        StatusContext = new StatusControlContext { BlockUi = false };
 
-        _siteUrl = siteUrl ?? string.Empty;
-        _initialPage = initialPage ?? string.Empty;
-        _localFolder = localFolder ?? string.Empty;
-        _siteName = siteName ?? string.Empty;
+        SiteUrl = siteUrl ?? string.Empty;
+        InitialPage = initialPage ?? string.Empty;
+        LocalFolder = localFolder ?? string.Empty;
+        SiteName = siteName ?? string.Empty;
 
         DataContext = this;
 
-        _newTab = NewTabFunction;
+        NewTab = NewTabFunction;
 
-        _updateMessageContext = new ProgramUpdateMessageContext();
+        UpdateMessageContext = new ProgramUpdateMessageContext();
 
         if (string.IsNullOrWhiteSpace(localFolder))
         {
@@ -98,6 +82,20 @@ public partial class MainWindow
             });
         }
     }
+
+    public string InfoTitle { get; set; }
+    public string InitialPage { get; set; }
+    public string LocalFolder { get; set; }
+    public Func<object> NewTab { get; set; }
+    public SitePreviewContext? PreviewContext { get; set; }
+    public string PreviewServerHost { get; set; } = string.Empty;
+    public string RecentSettingsFilesNames { get; set; } = string.Empty;
+    public SiteChooserContext? SettingsFileChooser { get; set; }
+    public bool ShowSettingsFileChooser { get; set; }
+    public string SiteName { get; set; }
+    public string SiteUrl { get; set; }
+    public StatusControlContext StatusContext { get; set; }
+    public ProgramUpdateMessageContext UpdateMessageContext { get; set; }
 
 
     public async Task CheckForProgramUpdate(string currentDateVersion)

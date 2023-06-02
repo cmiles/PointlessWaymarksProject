@@ -8,7 +8,7 @@ public class SiteChooserDataTemplateSelector : DataTemplateSelector
     public DataTemplate? SiteDirectoryTemplate { get; set; }
     public DataTemplate? SiteSettingsFileTemplate { get; set; }
 
-    public override DataTemplate? SelectTemplate(object item, DependencyObject container)
+    public override DataTemplate? SelectTemplate(object? item, DependencyObject container)
     {
         return item switch
         {

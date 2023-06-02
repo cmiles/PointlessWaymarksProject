@@ -1,44 +1,33 @@
 ﻿using System.Collections.ObjectModel;
 using System.IO;
-using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
 using Ookii.Dialogs.Wpf;
 using PointlessWaymarks.CmsData;
+using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 
 namespace PointlessWaymarks.SiteViewerGui;
 
-public partial class SiteChooserContext : ObservableObject
+[NotifyPropertyChanged]
+[GenerateStatusCommands]
+public partial class SiteChooserContext
 {
-    [ObservableProperty] private RelayCommand _chooseDirectoryCommand;
-    [ObservableProperty] private RelayCommand<SiteDirectoryListItem> _chooseRecentDirectoryCommand;
-    [ObservableProperty] private RelayCommand<SiteSettingsFileListItem> _chooseRecentSettingsFileCommand;
-    [ObservableProperty] private RelayCommand _chooseSettingsFileCommand;
-    [ObservableProperty] private ObservableCollection<object> _items;
-    [ObservableProperty] private List<string> _recentSiteStrings;
-    [ObservableProperty] private RelayCommand<SiteDirectoryListItem> _removeSelectedDirectoryCommand;
-    [ObservableProperty] private RelayCommand<SiteSettingsFileListItem> _removeSelectedFileCommand;
-    [ObservableProperty] private StatusControlContext _statusContext;
-
     private SiteChooserContext(StatusControlContext statusContext, ObservableCollection<object> items,
         List<string> recentFiles)
     {
-        _statusContext = statusContext;
-        _chooseSettingsFileCommand = StatusContext.RunNonBlockingTaskCommand(ChooseFile);
-        _chooseDirectoryCommand = StatusContext.RunBlockingTaskCommand(ChooseDirectory);
-        _chooseRecentSettingsFileCommand =
-            StatusContext.RunNonBlockingTaskCommand<SiteSettingsFileListItem>(LaunchRecentFile);
-        _chooseRecentDirectoryCommand =
-            StatusContext.RunNonBlockingTaskCommand<SiteDirectoryListItem>(LaunchRecentDirectory);
-        _removeSelectedFileCommand =
-            StatusContext.RunNonBlockingTaskCommand<SiteSettingsFileListItem>(RemoveSelectedFile);
-        _removeSelectedDirectoryCommand =
-            StatusContext.RunNonBlockingTaskCommand<SiteDirectoryListItem>(RemoveSelectedDirectory);
-        _recentSiteStrings = recentFiles;
-        _items = items;
+        StatusContext = statusContext;
+
+        BuildCommands();
+
+        RecentSiteStrings = recentFiles;
+        Items = items;
     }
 
+    public ObservableCollection<object> Items { get; set; }
+    public List<string> RecentSiteStrings { get; set; }
+    public StatusControlContext StatusContext { get; set; }
+
+    [BlockingCommand]
     private async Task ChooseDirectory()
     {
         await ThreadSwitcher.ResumeForegroundAsync();
@@ -63,6 +52,7 @@ public partial class SiteChooserContext : ObservableObject
             (possibleDirectory.FullName, StringsFromItems()));
     }
 
+    [NonBlockingCommand]
     private async Task ChooseFile()
     {
         await ThreadSwitcher.ResumeForegroundAsync();
@@ -109,6 +99,7 @@ public partial class SiteChooserContext : ObservableObject
         return context;
     }
 
+    [NonBlockingCommand]
     private async Task LaunchRecentDirectory(SiteDirectoryListItem? projectDirectoryListItem)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -132,6 +123,7 @@ public partial class SiteChooserContext : ObservableObject
                 StringsFromItems()));
     }
 
+    [NonBlockingCommand]
     private async Task LaunchRecentFile(SiteSettingsFileListItem? projectFileListItem)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -215,7 +207,7 @@ public partial class SiteChooserContext : ObservableObject
         }
     }
 
-
+    [NonBlockingCommand]
     private async Task RemoveSelectedDirectory(SiteDirectoryListItem? projectDirectoryListItem)
     {
         if (projectDirectoryListItem == null) return;
@@ -225,6 +217,7 @@ public partial class SiteChooserContext : ObservableObject
         Items.Remove(projectDirectoryListItem);
     }
 
+    [NonBlockingCommand]
     private async Task RemoveSelectedFile(SiteSettingsFileListItem? projectFileListItem)
     {
         if (projectFileListItem == null) return;
