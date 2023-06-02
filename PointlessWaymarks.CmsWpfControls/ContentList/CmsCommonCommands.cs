@@ -35,6 +35,7 @@ using PointlessWaymarks.CmsWpfControls.SitePreview;
 using PointlessWaymarks.CmsWpfControls.Utility;
 using PointlessWaymarks.CmsWpfControls.VideoContentEditor;
 using PointlessWaymarks.CmsWpfControls.VideoList;
+using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.SpatialTools;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
@@ -42,13 +43,14 @@ using PointlessWaymarks.WpfCommon.Utility;
 
 namespace PointlessWaymarks.CmsWpfControls.ContentList;
 
-public partial class CmsCommonCommands : ObservableObject
+[NotifyPropertyChanged]
+public partial class CmsCommonCommands
 {
-    [ObservableProperty] private StatusControlContext _statusContext;
+    public StatusControlContext StatusContext { get; set; }
 
     public CmsCommonCommands(StatusControlContext? statusContext, WindowIconStatus? windowStatus = null)
     {
-        _statusContext = statusContext ?? new StatusControlContext();
+        StatusContext = statusContext ?? new StatusControlContext();
         WindowStatus = windowStatus;
 
         NewFileContentCommand = StatusContext.RunNonBlockingTaskCommand(NewFileContent);

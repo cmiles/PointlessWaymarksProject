@@ -1,37 +1,41 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
-using PointlessWaymarks.CmsWpfControls.ContentList;
+﻿using PointlessWaymarks.CmsWpfControls.ContentList;
 using PointlessWaymarks.CmsWpfControls.WordPressXmlImport;
+using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 using PointlessWaymarks.WpfCommon.Utility;
 
 namespace PointlessWaymarks.CmsWpfControls.AllContentList;
 
-public partial class AllContentListWithActionsContext : ObservableObject
+[NotifyPropertyChanged]
+[GenerateStatusCommands]
+public partial class AllContentListWithActionsContext
 {
-    [ObservableProperty] private CmsCommonCommands _commonCommands;
-    [ObservableProperty] private ContentListContext _listContext;
-    [ObservableProperty] private StatusControlContext _statusContext;
-    [ObservableProperty] private WindowIconStatus? _windowStatus;
-    [ObservableProperty] private RelayCommand? _wordPressImportWindowCommand;
-
     private AllContentListWithActionsContext(StatusControlContext? statusContext, WindowIconStatus? windowStatus,
         ContentListContext factoryListContext, bool loadInBackground = true)
     {
-        _statusContext = statusContext ?? new StatusControlContext();
-        _windowStatus = windowStatus;
+        StatusContext = statusContext ?? new StatusControlContext();
+        WindowStatus = windowStatus;
 
-        _commonCommands = new CmsCommonCommands(StatusContext, WindowStatus);
-        _listContext = factoryListContext;
+        CommonCommands = new CmsCommonCommands(StatusContext, WindowStatus);
+        ListContext = factoryListContext;
 
-        if(loadInBackground) StatusContext.RunFireAndForgetBlockingTask(LoadData);
+        BuildCommands();
+
+        if (loadInBackground) StatusContext.RunFireAndForgetBlockingTask(LoadData);
     }
 
-    public static async Task<AllContentListWithActionsContext> CreateInstance(StatusControlContext? statusContext, WindowIconStatus? windowStatus)
+    public CmsCommonCommands CommonCommands { get; set; }
+    public ContentListContext ListContext { get; set; }
+    public StatusControlContext StatusContext { get; set; }
+    public WindowIconStatus? WindowStatus { get; set; }
+
+    public static async Task<AllContentListWithActionsContext> CreateInstance(StatusControlContext? statusContext,
+        WindowIconStatus? windowStatus)
     {
         var factoryStatusContext = statusContext ?? new StatusControlContext();
-        var factoryListContext = await ContentListContext.CreateInstance(factoryStatusContext, new AllContentListLoader(100), windowStatus);
+        var factoryListContext =
+            await ContentListContext.CreateInstance(factoryStatusContext, new AllContentListLoader(100), windowStatus);
 
         return new AllContentListWithActionsContext(factoryStatusContext, windowStatus, factoryListContext);
     }
@@ -49,8 +53,6 @@ public partial class AllContentListWithActionsContext : ObservableObject
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        WordPressImportWindowCommand = StatusContext.RunNonBlockingTaskCommand(WordPressImportWindow);
-
         ListContext.ContextMenuItems = new List<ContextMenuItemData>
         {
             new() { ItemName = "Edit", ItemCommand = ListContext.EditSelectedCommand },
@@ -67,6 +69,7 @@ public partial class AllContentListWithActionsContext : ObservableObject
         await ListContext.LoadData();
     }
 
+    [NonBlockingCommand]
     private async Task WordPressImportWindow()
     {
         await (await WordPressXmlImportWindow.CreateInstance()).PositionWindowAndShowOnUiThread();

@@ -1,11 +1,11 @@
 ﻿using System.Collections.ObjectModel;
 using System.ComponentModel;
-using CommunityToolkit.Mvvm.ComponentModel;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.Content;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CommonTools;
+using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon.ChangesAndValidation;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
@@ -14,49 +14,51 @@ using TinyIpc.Messaging;
 
 namespace PointlessWaymarks.CmsWpfControls.ContentFolder;
 
-public partial class ContentFolderContext : ObservableObject, IHasChanges, IHasValidationIssues
+[NotifyPropertyChanged]
+public partial class ContentFolderContext : IHasChanges, IHasValidationIssues
 {
-    [ObservableProperty] private DataNotificationsWorkQueue _dataNotificationsProcessor;
-    [ObservableProperty] private List<DataNotificationContentType> _dataNotificationType;
-    [ObservableProperty] private ObservableCollection<string> _existingFolderChoices;
-    [ObservableProperty] private Func<Task<List<string>>> _getCurrentFolderNames;
-    [ObservableProperty] private bool _hasChanges;
-    [ObservableProperty] private bool _hasValidationIssues;
-    [ObservableProperty] private string _helpText;
-    [ObservableProperty] private string? _referenceValue;
-    [ObservableProperty] private StatusControlContext _statusContext;
-    [ObservableProperty] private string _title;
-    [ObservableProperty] private string?_userValue;
-    [ObservableProperty] private List<Func<string?, IsValid>> _validationFunctions;
-    [ObservableProperty] private string _validationMessage = string.Empty;
-
-    private ContentFolderContext(StatusControlContext statusContext, ITitleSummarySlugFolder? dbEntry, Func<Task<List<string>>> loader, List<string> initialFolderList)
+    private ContentFolderContext(StatusControlContext statusContext, ITitleSummarySlugFolder? dbEntry,
+        Func<Task<List<string>>> loader, List<string> initialFolderList)
     {
-        _statusContext = statusContext;
+        StatusContext = statusContext;
 
-        _dataNotificationsProcessor = new DataNotificationsWorkQueue { Processor = DataNotificationReceived };
+        DataNotificationsProcessor = new DataNotificationsWorkQueue { Processor = DataNotificationReceived };
 
         PropertyChanged += OnPropertyChanged;
 
-        _title = "Folder";
-        _helpText =
+        Title = "Folder";
+        HelpText =
             "The Parent Folder for the Content - this will appear in the URL and allows grouping similar content together.";
 
-        _getCurrentFolderNames = loader;
+        GetCurrentFolderNames = loader;
 
-        _existingFolderChoices = new ObservableCollection<string>(initialFolderList);
-        _dataNotificationType = new List<DataNotificationContentType>
+        ExistingFolderChoices = new ObservableCollection<string>(initialFolderList);
+        DataNotificationType = new List<DataNotificationContentType>
         {
             DataNotificationContentType.GeoJson, DataNotificationContentType.Line, DataNotificationContentType.Point
         };
 
-        _referenceValue = dbEntry?.Folder ?? string.Empty;
-        _userValue = dbEntry?.Folder ?? string.Empty;
+        ReferenceValue = dbEntry?.Folder ?? string.Empty;
+        UserValue = dbEntry?.Folder ?? string.Empty;
 
-        _validationFunctions = new List<Func<string?, IsValid>> { CommonContentValidation.ValidateFolder };
+        ValidationFunctions = new List<Func<string?, IsValid>> { CommonContentValidation.ValidateFolder };
 
         DataNotifications.NewDataNotificationChannel().MessageReceived += OnDataNotificationReceived;
     }
+
+    public DataNotificationsWorkQueue DataNotificationsProcessor { get; set; }
+    public List<DataNotificationContentType> DataNotificationType { get; set; }
+    public ObservableCollection<string> ExistingFolderChoices { get; set; }
+    public Func<Task<List<string>>> GetCurrentFolderNames { get; set; }
+    public string HelpText { get; set; }
+    public string? ReferenceValue { get; set; }
+    public StatusControlContext StatusContext { get; set; }
+    public string Title { get; set; }
+    public string? UserValue { get; set; }
+    public List<Func<string?, IsValid>> ValidationFunctions { get; set; }
+    public string ValidationMessage { get; set; } = string.Empty;
+    public bool HasChanges { get; set; }
+    public bool HasValidationIssues { get; set; }
 
     private void CheckForChangesAndValidate()
     {
@@ -88,7 +90,8 @@ public partial class ContentFolderContext : ObservableObject, IHasChanges, IHasV
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
-        var newControl = new ContentFolderContext(factoryContext, dbEntry, async () => await Db.FolderNamesFromContent(dbEntry), initialFolderList);
+        var newControl = new ContentFolderContext(factoryContext, dbEntry,
+            async () => await Db.FolderNamesFromContent(dbEntry), initialFolderList);
 
         newControl.CheckForChangesAndValidate();
 
@@ -108,7 +111,7 @@ public partial class ContentFolderContext : ObservableObject, IHasChanges, IHasV
         var newControl = new ContentFolderContext(factoryContext, null, loader, initialFolderList);
 
         newControl.CheckForChangesAndValidate();
-        
+
         return newControl;
     }
 

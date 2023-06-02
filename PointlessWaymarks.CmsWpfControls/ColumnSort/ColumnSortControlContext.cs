@@ -1,26 +1,22 @@
 ﻿using System.ComponentModel;
-using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-
+using PointlessWaymarks.LlamaAspects;
 
 namespace PointlessWaymarks.CmsWpfControls.ColumnSort;
 
-public partial class ColumnSortControlContext : ObservableObject
+[NotifyPropertyChanged]
+public partial class ColumnSortControlContext
 {
-    [ObservableProperty] private RelayCommand<ColumnSortControlSortItem> _columnSortAddCommand;
-    [ObservableProperty] private RelayCommand<ColumnSortControlSortItem> _columnSortToggleCommand;
-    [ObservableProperty] private List<ColumnSortControlSortItem> _items = new();
-
     public ColumnSortControlContext()
     {
-        _columnSortToggleCommand = new RelayCommand<ColumnSortControlSortItem>(x =>
+        ColumnSortToggleCommand = new RelayCommand<ColumnSortControlSortItem>(x =>
         {
             if (x == null) return;
             ToggleItem(x);
             SortUpdated?.Invoke(this, SortDescriptions());
         });
 
-        _columnSortAddCommand = new RelayCommand<ColumnSortControlSortItem>(x =>
+        ColumnSortAddCommand = new RelayCommand<ColumnSortControlSortItem>(x =>
         {
             if (x == null) return;
             AddItem(x);
@@ -28,12 +24,16 @@ public partial class ColumnSortControlContext : ObservableObject
         });
     }
 
+    public RelayCommand<ColumnSortControlSortItem> ColumnSortAddCommand { get; set; }
+    public RelayCommand<ColumnSortControlSortItem> ColumnSortToggleCommand { get; set; }
+    public List<ColumnSortControlSortItem> Items { get; set; } = new();
+
     public EventHandler<List<SortDescription>>? SortUpdated { get; set; }
 
     private void AddItem(ColumnSortControlSortItem sortItem)
     {
         var currentSortCount = Items.Count(x => x.Order > 0);
-        if (!Items.Any(x => x.Order > 0) || currentSortCount == 1 && sortItem.Order > 0)
+        if (!Items.Any(x => x.Order > 0) || (currentSortCount == 1 && sortItem.Order > 0))
         {
             ToggleItem(sortItem);
             return;
@@ -58,7 +58,9 @@ public partial class ColumnSortControlContext : ObservableObject
 
     private ListSortDirection ChangeSortDirection(ListSortDirection currentDirection)
     {
-        return currentDirection == ListSortDirection.Ascending ? ListSortDirection.Descending : ListSortDirection.Ascending;
+        return currentDirection == ListSortDirection.Ascending
+            ? ListSortDirection.Descending
+            : ListSortDirection.Ascending;
     }
 
     private void OrderSorts()

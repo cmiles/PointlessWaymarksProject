@@ -1,20 +1,21 @@
 ﻿using System.ComponentModel;
-using CommunityToolkit.Mvvm.ComponentModel;
+using PointlessWaymarks.LlamaAspects;
 
 namespace PointlessWaymarks.CmsWpfControls.ColumnSort;
 
-public partial class ColumnSortControlSortItem : ObservableObject
+[NotifyPropertyChanged]
+public partial class ColumnSortControlSortItem
 {
-    [ObservableProperty] private string _columnName = string.Empty;
-    [ObservableProperty] private ListSortDirection _defaultSortDirection = ListSortDirection.Ascending;
-    [ObservableProperty] private string _displayName = string.Empty;
-    [ObservableProperty] private int _order;
-    [ObservableProperty] private ListSortDirection _sortDirection = ListSortDirection.Ascending;
-
     public ColumnSortControlSortItem()
     {
         PropertyChanged += OnPropertyChanged;
     }
+
+    public string ColumnName { get; set; } = string.Empty;
+    public ListSortDirection DefaultSortDirection { get; set; } = ListSortDirection.Ascending;
+    public string DisplayName { get; set; } = string.Empty;
+    public int Order { get; set; }
+    public ListSortDirection SortDirection { get; set; } = ListSortDirection.Ascending;
 
     private void OnPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {

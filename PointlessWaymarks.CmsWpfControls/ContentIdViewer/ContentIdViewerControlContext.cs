@@ -1,23 +1,24 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
-using PointlessWaymarks.CmsData.Database.Models;
+﻿using PointlessWaymarks.CmsData.Database.Models;
+using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 
 namespace PointlessWaymarks.CmsWpfControls.ContentIdViewer;
 
-public partial class ContentIdViewerControlContext : ObservableObject
+[NotifyPropertyChanged]
+public partial class ContentIdViewerControlContext
 {
-    [ObservableProperty] private string _contentIdInformation = string.Empty;
-    [ObservableProperty] private IContentId _dbEntry;
-    [ObservableProperty] private StatusControlContext _statusContext;
-
     private ContentIdViewerControlContext(StatusControlContext statusContext, IContentId dbEntry)
     {
-        _statusContext = statusContext;
-        _dbEntry = dbEntry;
+        StatusContext = statusContext;
+        DbEntry = dbEntry;
 
         ContentIdInformation = $" Fingerprint: {dbEntry.ContentId} Db Id: {dbEntry.Id}";
     }
+
+    public string ContentIdInformation { get; set; }
+    public IContentId DbEntry { get; set; }
+    public StatusControlContext StatusContext { get; set; }
 
     public static async Task<ContentIdViewerControlContext> CreateInstance(StatusControlContext statusContext,
         IContentId dbEntry)
@@ -25,7 +26,7 @@ public partial class ContentIdViewerControlContext : ObservableObject
         await ThreadSwitcher.ResumeBackgroundAsync();
 
         var newContext = new ContentIdViewerControlContext(statusContext, dbEntry);
-        
+
         return newContext;
     }
 }

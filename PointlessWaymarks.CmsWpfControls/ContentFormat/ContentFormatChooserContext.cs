@@ -1,35 +1,58 @@
 ﻿using System.ComponentModel;
-using CommunityToolkit.Mvvm.ComponentModel;
 using PointlessWaymarks.CmsData.Content;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CommonTools;
+using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon.ChangesAndValidation;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 
 namespace PointlessWaymarks.CmsWpfControls.ContentFormat;
 
-public partial class ContentFormatChooserContext :  ObservableObject, IHasChanges, IHasValidationIssues
+[NotifyPropertyChanged]
+public partial class ContentFormatChooserContext : IHasChanges, IHasValidationIssues
 {
-    [ObservableProperty] private List<ContentFormatEnum> _contentFormatChoices;
-    [ObservableProperty] private bool _hasChanges;
-    [ObservableProperty] private bool _hasValidationIssues;
-    [ObservableProperty] private string? _initialValue;
     private ContentFormatEnum _selectedContentFormat;
-    [ObservableProperty] private string _selectedContentFormatAsString = string.Empty;
-    [ObservableProperty] private bool _selectedContentFormatHasChanges;
-    [ObservableProperty] private StatusControlContext _statusContext;
-    [ObservableProperty] private string _validationMessage = string.Empty;
 
     private ContentFormatChooserContext(StatusControlContext? statusContext)
     {
-        _statusContext = statusContext ?? new StatusControlContext();
-        _contentFormatChoices = Enum.GetValues(typeof(ContentFormatEnum)).Cast<ContentFormatEnum>().ToList();
+        StatusContext = statusContext ?? new StatusControlContext();
+        ContentFormatChoices = Enum.GetValues(typeof(ContentFormatEnum)).Cast<ContentFormatEnum>().ToList();
 
         PropertyChanged += OnPropertyChanged;
 
         _selectedContentFormat = ContentFormatChoices.First();
     }
+
+    public List<ContentFormatEnum> ContentFormatChoices { get; set; }
+    public string? InitialValue { get; set; }
+
+    [DoNotGenerateInpc]
+    public ContentFormatEnum SelectedContentFormat
+    {
+        get => _selectedContentFormat;
+        set
+        {
+            if (value != _selectedContentFormat)
+            {
+                _selectedContentFormat = value;
+                OnPropertyChanged(nameof(SelectedContentFormat));
+
+                OnSelectedValueChanged?.Invoke(this,
+                    Enum.GetName(typeof(ContentFormatEnum), SelectedContentFormat) ?? string.Empty);
+            }
+
+            SelectedContentFormatAsString =
+                Enum.GetName(typeof(ContentFormatEnum), SelectedContentFormat) ?? string.Empty;
+        }
+    }
+
+    public string SelectedContentFormatAsString { get; set; } = string.Empty;
+    public bool SelectedContentFormatHasChanges { get; set; }
+    public StatusControlContext StatusContext { get; set; }
+    public string ValidationMessage { get; set; } = string.Empty;
+    public bool HasChanges { get; set; }
+    public bool HasValidationIssues { get; set; }
 
     public async Task CheckForChangesAndValidationIssues()
     {
@@ -43,6 +66,16 @@ public partial class ContentFormatChooserContext :  ObservableObject, IHasChange
         ValidationMessage = validation.Explanation;
     }
 
+    public static async Task<ContentFormatChooserContext> CreateInstance(StatusControlContext statusContext)
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        var toReturn = new ContentFormatChooserContext(statusContext);
+        await toReturn.CheckForChangesAndValidationIssues();
+
+        return toReturn;
+    }
+
     private async void OnPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
         if (string.IsNullOrWhiteSpace(e.PropertyName)) return;
@@ -51,35 +84,7 @@ public partial class ContentFormatChooserContext :  ObservableObject, IHasChange
             await CheckForChangesAndValidationIssues();
     }
 
-    public static async Task<ContentFormatChooserContext> CreateInstance(StatusControlContext statusContext)
-    {
-        await ThreadSwitcher.ResumeBackgroundAsync();
-
-        var toReturn = new ContentFormatChooserContext(statusContext);
-        await toReturn.CheckForChangesAndValidationIssues();
-        
-        return toReturn;
-    }
-
-
-    public ContentFormatEnum SelectedContentFormat
-    {
-        get => _selectedContentFormat;
-        set
-        {
-            if (value != _selectedContentFormat)
-            {
-                _selectedContentFormat = value;
-                OnPropertyChanged();
-
-                OnSelectedValueChanged?.Invoke(this,
-                    Enum.GetName(typeof(ContentFormatEnum), SelectedContentFormat) ?? string.Empty);
-            }
-
-            SelectedContentFormatAsString =
-                Enum.GetName(typeof(ContentFormatEnum), SelectedContentFormat) ?? string.Empty;
-        }
-    }
+    public event EventHandler<string>? OnSelectedValueChanged;
 
     public async Task<bool> TrySelectContentChoice(string? contentChoice)
     {
@@ -95,6 +100,4 @@ public partial class ContentFormatChooserContext :  ObservableObject, IHasChange
         if (toSelect && parsedSelection != null) SelectedContentFormat = (ContentFormatEnum)parsedSelection;
         return toSelect;
     }
-
-    public event EventHandler<string>? OnSelectedValueChanged;
 }

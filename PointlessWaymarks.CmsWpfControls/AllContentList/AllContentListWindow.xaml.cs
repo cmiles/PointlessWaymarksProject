@@ -1,4 +1,4 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 
 namespace PointlessWaymarks.CmsWpfControls.AllContentList;
@@ -6,25 +6,26 @@ namespace PointlessWaymarks.CmsWpfControls.AllContentList;
 /// <summary>
 ///     Interaction logic for AllItemsWithActionsWindow.xaml
 /// </summary>
-[ObservableObject]
+[NotifyPropertyChanged]
 public partial class AllContentListWindow
 {
-    [ObservableProperty] private AllContentListWithActionsContext _listContext;
-    [ObservableProperty] private string _windowTitle = "All Content List";
-
     private AllContentListWindow(AllContentListWithActionsContext toLoad)
     {
         InitializeComponent();
 
-        _listContext = toLoad;
+        ListContext = toLoad;
 
         DataContext = this;
     }
 
+    public AllContentListWithActionsContext ListContext { get; set; }
+    public string WindowTitle { get; set; } = "All Content List";
+
     public static async Task<AllContentListWindow> CreateInstance(AllContentListWithActionsContext? toLoad)
     {
         await ThreadSwitcher.ResumeForegroundAsync();
-        var window = new AllContentListWindow(toLoad ?? await AllContentListWithActionsContext.CreateInstance(null, windowStatus: null));
+        var window =
+            new AllContentListWindow(toLoad ?? await AllContentListWithActionsContext.CreateInstance(null, null));
         return window;
     }
 }

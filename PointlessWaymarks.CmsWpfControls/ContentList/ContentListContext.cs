@@ -5,8 +5,6 @@ using System.IO;
 using System.Windows;
 using System.Windows.Data;
 using System.Windows.Threading;
-using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
 using GongSolutions.Wpf.DragDrop;
 using MetadataExtractor;
 using MetadataExtractor.Formats.Exif;
@@ -34,6 +32,7 @@ using PointlessWaymarks.CmsWpfControls.Utility.Excel;
 using PointlessWaymarks.CmsWpfControls.VideoContentEditor;
 using PointlessWaymarks.CmsWpfControls.VideoList;
 using PointlessWaymarks.CommonTools;
+using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 using PointlessWaymarks.WpfCommon.Utility;
@@ -42,128 +41,74 @@ using TinyIpc.Messaging;
 
 namespace PointlessWaymarks.CmsWpfControls.ContentList;
 
-public partial class ContentListContext : ObservableObject, IDragSource, IDropTarget
+[NotifyPropertyChanged]
+[GenerateStatusCommands]
+public partial class ContentListContext : IDragSource, IDropTarget
 {
-    [ObservableProperty] private RelayCommand _bracketCodeToClipboardSelectedCommand;
-    [ObservableProperty] private IContentListLoader _contentListLoader;
-    [ObservableProperty] private List<ContextMenuItemData> _contextMenuItems = new();
-    [ObservableProperty] private RelayCommand<DateTime?> _createdOnDaySearchCommand;
-    [ObservableProperty] private DataNotificationsWorkQueue _dataNotificationsProcessor;
-    [ObservableProperty] private RelayCommand _deleteSelectedCommand;
-    [ObservableProperty] private RelayCommand _editSelectedCommand;
-    [ObservableProperty] private RelayCommand _extractNewLinksSelectedCommand;
-    [ObservableProperty] private FileContentActions _fileItemActions;
-    [ObservableProperty] private bool _filterOnUiShown;
-    [ObservableProperty] private RelayCommand<string> _folderSearchCommand;
-    [ObservableProperty] private RelayCommand _generateHtmlSelectedCommand;
-    [ObservableProperty] private GeoJsonContentActions _geoJsonItemActions;
-    [ObservableProperty] private ImageContentActions _imageItemActions;
-    [ObservableProperty] private RelayCommand _importFromExcelFileCommand;
-    [ObservableProperty] private RelayCommand _importFromOpenExcelInstanceCommand;
-    [ObservableProperty] private ObservableCollection<IContentListItem> _items;
-    [ObservableProperty] private RelayCommand<DateTime?> _lastUpdatedOnDaySearchCommand;
-    [ObservableProperty] private LineContentActions _lineItemActions;
-    [ObservableProperty] private LinkContentActions _linkItemActions;
-    [ObservableProperty] private ContentListSelected<IContentListItem> _listSelection;
-    [ObservableProperty] private ColumnSortControlContext _listSort;
-    [ObservableProperty] private RelayCommand _loadAllCommand;
-    [ObservableProperty] private MapComponentContentActions _mapComponentItemActions;
-    [ObservableProperty] private CmsCommonCommands _newActions;
-    [ObservableProperty] private NoteContentActions _noteItemActions;
-    [ObservableProperty] private PhotoContentActions _photoItemActions;
-    [ObservableProperty] private PointContentActions _pointItemActions;
-    [ObservableProperty] private PostContentActions _postItemActions;
-    [ObservableProperty] private RelayCommand _selectedToExcelCommand;
-    [ObservableProperty] private StatusControlContext _statusContext;
-    [ObservableProperty] private string? _userFilterText;
-    [ObservableProperty] private VideoContentActions _videoItemActions;
-    [ObservableProperty] private RelayCommand _viewHistorySelectedCommand;
-    [ObservableProperty] private RelayCommand _viewOnSiteCommand;
-    [ObservableProperty] private WindowIconStatus? _windowStatus;
-
     private ContentListContext(StatusControlContext? statusContext,
         ObservableCollection<IContentListItem> factoryContentListItems,
         ContentListSelected<IContentListItem> factoryListSelection, IContentListLoader loader,
         WindowIconStatus? windowStatus = null)
     {
-        _statusContext = statusContext ?? new StatusControlContext();
+        StatusContext = statusContext ?? new StatusControlContext();
 
         StatusContext.PropertyChanged += StatusContextOnPropertyChanged;
 
-        _windowStatus = windowStatus;
+        WindowStatus = windowStatus;
+
+        BuildCommands();
 
         PropertyChanged += OnPropertyChanged;
 
-        _contentListLoader = loader;
+        ContentListLoader = loader;
 
-        _items = factoryContentListItems;
-        _listSelection = factoryListSelection;
+        Items = factoryContentListItems;
+        ListSelection = factoryListSelection;
 
-        _fileItemActions = new FileContentActions(StatusContext);
-        _geoJsonItemActions = new GeoJsonContentActions(StatusContext);
-        _imageItemActions = new ImageContentActions(StatusContext);
-        _lineItemActions = new LineContentActions(StatusContext);
-        _linkItemActions = new LinkContentActions(StatusContext);
-        _mapComponentItemActions = new MapComponentContentActions(StatusContext);
-        _noteItemActions = new NoteContentActions(StatusContext);
-        _pointItemActions = new PointContentActions(StatusContext);
-        _photoItemActions = new PhotoContentActions(StatusContext);
-        _postItemActions = new PostContentActions(StatusContext);
-        _videoItemActions = new VideoContentActions(StatusContext);
+        FileItemActions = new FileContentActions(StatusContext);
+        GeoJsonItemActions = new GeoJsonContentActions(StatusContext);
+        ImageItemActions = new ImageContentActions(StatusContext);
+        LineItemActions = new LineContentActions(StatusContext);
+        LinkItemActions = new LinkContentActions(StatusContext);
+        MapComponentItemActions = new MapComponentContentActions(StatusContext);
+        NoteItemActions = new NoteContentActions(StatusContext);
+        PointItemActions = new PointContentActions(StatusContext);
+        PhotoItemActions = new PhotoContentActions(StatusContext);
+        PostItemActions = new PostContentActions(StatusContext);
+        VideoItemActions = new VideoContentActions(StatusContext);
 
-        _newActions = new CmsCommonCommands(StatusContext, WindowStatus);
+        NewActions = new CmsCommonCommands(StatusContext, WindowStatus);
 
-        _dataNotificationsProcessor = new DataNotificationsWorkQueue { Processor = DataNotificationReceived };
+        DataNotificationsProcessor = new DataNotificationsWorkQueue { Processor = DataNotificationReceived };
 
-        _listSort = ContentListLoader.SortContext();
+        ListSort = ContentListLoader.SortContext();
 
-        _listSort.SortUpdated += (_, list) =>
+        ListSort.SortUpdated += (_, list) =>
             Dispatcher.CurrentDispatcher.Invoke(() => { ListContextSortHelpers.SortList(list, Items); });
-
-        _loadAllCommand = StatusContext.RunBlockingTaskCommand(async () =>
-        {
-            ContentListLoader.PartialLoadQuantity = null;
-            await LoadData();
-        });
-
-        _deleteSelectedCommand = StatusContext.RunBlockingTaskWithCancellationCommand(DeleteSelected, "Cancel Delete");
-        _bracketCodeToClipboardSelectedCommand =
-            StatusContext.RunBlockingTaskWithCancellationCommand(BracketCodeToClipboardSelected, "Cancel Delete");
-        _editSelectedCommand = StatusContext.RunBlockingTaskWithCancellationCommand(EditSelected, "Cancel Edit");
-        _extractNewLinksSelectedCommand =
-            StatusContext.RunBlockingTaskWithCancellationCommand(ExtractNewLinksSelected, "Cancel Link Extraction");
-        _generateHtmlSelectedCommand =
-            StatusContext.RunBlockingTaskWithCancellationCommand(GenerateHtmlSelected, "Cancel Generate Html");
-        _viewOnSiteCommand = StatusContext.RunBlockingTaskWithCancellationCommand(ViewOnSiteSelected, "Cancel Open Url");
-        _viewHistorySelectedCommand =
-            StatusContext.RunBlockingTaskWithCancellationCommand(ViewHistorySelected, "Cancel View History");
-
-        _importFromExcelFileCommand =
-            StatusContext.RunBlockingTaskCommand(async () => await ExcelHelpers.ImportFromExcelFile(StatusContext));
-        _importFromOpenExcelInstanceCommand = StatusContext.RunBlockingTaskCommand(async () =>
-            await ExcelHelpers.ImportFromOpenExcelInstance(StatusContext));
-        _selectedToExcelCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
-            await ExcelHelpers.SelectedToExcel(ListSelection.SelectedItems?.Cast<dynamic>().ToList(), StatusContext));
-
-        _folderSearchCommand = StatusContext.RunNonBlockingTaskCommand<string>(async x =>
-            await RunReport(async () => await FolderSearch(x), $"Folder Search - {x}"));
-        _createdOnDaySearchCommand = StatusContext.RunNonBlockingTaskCommand<DateTime?>(async x =>
-            await RunReport(async () => await CreatedOnDaySearch(x), $"Created On Search - {x}"));
-        _lastUpdatedOnDaySearchCommand = StatusContext.RunNonBlockingTaskCommand<DateTime?>(async x =>
-            await RunReport(async () => await UpdatedOnDaySearch(x), $"Last Updated On Search - {x}"));
     }
 
-    public static async Task<ContentListContext> CreateInstance(StatusControlContext? statusContext, IContentListLoader loader, WindowIconStatus? windowStatus = null)
-    {
-        await ThreadSwitcher.ResumeForegroundAsync();
-        var factoryObservable = new ObservableCollection<IContentListItem>();
-
-        await ThreadSwitcher.ResumeBackgroundAsync();
-        var factoryContext = statusContext ?? new StatusControlContext();
-        var factoryListSelection = await ContentListSelected<IContentListItem>.CreateInstance(factoryContext);
-
-        return new ContentListContext(statusContext, factoryObservable, factoryListSelection, loader, windowStatus);
-    }
+    public IContentListLoader ContentListLoader { get; set; }
+    public List<ContextMenuItemData> ContextMenuItems { get; set; } = new();
+    public DataNotificationsWorkQueue DataNotificationsProcessor { get; set; }
+    public FileContentActions FileItemActions { get; set; }
+    public bool FilterOnUiShown { get; set; }
+    public GeoJsonContentActions GeoJsonItemActions { get; set; }
+    public ImageContentActions ImageItemActions { get; set; }
+    public ObservableCollection<IContentListItem> Items { get; set; }
+    public LineContentActions LineItemActions { get; set; }
+    public LinkContentActions LinkItemActions { get; set; }
+    public ContentListSelected<IContentListItem> ListSelection { get; set; }
+    public ColumnSortControlContext ListSort { get; set; }
+    public MapComponentContentActions MapComponentItemActions { get; set; }
+    public CmsCommonCommands NewActions { get; set; }
+    public NoteContentActions NoteItemActions { get; set; }
+    public PhotoContentActions PhotoItemActions { get; set; }
+    public PointContentActions PointItemActions { get; set; }
+    public PostContentActions PostItemActions { get; set; }
+    public StatusControlContext StatusContext { get; set; }
+    public string? UserFilterText { get; set; }
+    public VideoContentActions VideoItemActions { get; set; }
+    public WindowIconStatus? WindowStatus { get; set; }
 
     public bool CanStartDrag(IDragInfo dragInfo)
     {
@@ -239,6 +184,7 @@ public partial class ContentListContext : ObservableObject, IDragSource, IDropTa
         }
     }
 
+    [BlockingCommand]
     public async Task BracketCodeToClipboardSelected(CancellationToken cancelToken)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -275,13 +221,32 @@ public partial class ContentListContext : ObservableObject, IDragSource, IDropTa
         StatusContext.ToastSuccess("Bracket Codes copied to Clipboard");
     }
 
-    public static async Task<List<object>> CreatedOnDaySearch(DateTime? createdOn)
+    public static async Task<List<object>> CreatedOnDayFilter(DateTime? createdOn)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
         if (createdOn == null) return new List<object>();
 
         return (await Db.ContentCreatedOnDay(createdOn.Value)).ToList();
+    }
+
+    [NonBlockingCommand]
+    public static async Task CreatedOnDaySearch(DateTime? filter)
+    {
+        await RunReport(async () => await CreatedOnDayFilter(filter), $"Created On Search - {filter}");
+    }
+
+    public static async Task<ContentListContext> CreateInstance(StatusControlContext? statusContext,
+        IContentListLoader loader, WindowIconStatus? windowStatus = null)
+    {
+        await ThreadSwitcher.ResumeForegroundAsync();
+        var factoryObservable = new ObservableCollection<IContentListItem>();
+
+        await ThreadSwitcher.ResumeBackgroundAsync();
+        var factoryContext = statusContext ?? new StatusControlContext();
+        var factoryListSelection = await ContentListSelected<IContentListItem>.CreateInstance(factoryContext);
+
+        return new ContentListContext(statusContext, factoryObservable, factoryListSelection, loader, windowStatus);
     }
 
     private async Task DataNotificationReceived(TinyMessageReceivedEventArgs e)
@@ -417,7 +382,7 @@ public partial class ContentListContext : ObservableObject, IDragSource, IDropTa
             if (translatedMessage.UpdateType == DataNotificationUpdateType.Update)
                 // ReSharper disable All
                 ((dynamic)existingItem).DbEntry = (dynamic)loopItem;
-                // ReSharper restore All
+            // ReSharper restore All
 
             if (loopItem is IMainImage mainImage && existingItem is IContentListSmallImage itemWithSmallImage)
                 itemWithSmallImage.SmallImageUrl = GetSmallImageUrl(mainImage);
@@ -427,6 +392,7 @@ public partial class ContentListContext : ObservableObject, IDragSource, IDropTa
         else StatusContext.RunFireAndForgetNonBlockingTask(FilterList);
     }
 
+    [BlockingCommand]
     public async Task DeleteSelected(CancellationToken cancelToken)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -454,6 +420,7 @@ public partial class ContentListContext : ObservableObject, IDragSource, IDropTa
         }
     }
 
+    [BlockingCommand]
     public async Task EditSelected(CancellationToken cancelToken)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -480,6 +447,7 @@ public partial class ContentListContext : ObservableObject, IDragSource, IDropTa
         }
     }
 
+    [BlockingCommand]
     public async Task ExtractNewLinksSelected(CancellationToken cancelToken)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -586,15 +554,20 @@ public partial class ContentListContext : ObservableObject, IDragSource, IDropTa
         };
     }
 
-    public static async Task<List<object>> FolderSearch(string? folderName)
+    public static async Task<List<object>> FolderFilter(string? folderName)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
         return (await Db.ContentInFolder(folderName ?? string.Empty)).ToList();
     }
 
- 
+    [NonBlockingCommand]
+    public static async Task FolderSearch(string filter)
+    {
+        await RunReport(async () => await FolderFilter(filter), $"Folder Search - {filter}");
+    }
 
+    [BlockingCommand]
     public async Task GenerateHtmlSelected(CancellationToken cancelToken)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -634,26 +607,54 @@ public partial class ContentListContext : ObservableObject, IDragSource, IDropTa
         return smallImageUrl;
     }
 
+    [BlockingCommand]
+    public async Task ImportFromExcelFile()
+    {
+        await ExcelHelpers.ImportFromExcelFile(StatusContext);
+    }
+
+    [BlockingCommand]
+    public async Task ImportFromOpenExcelInstance()
+    {
+        await ExcelHelpers.ImportFromOpenExcelInstance(StatusContext);
+    }
+
     public async Task<IContentListItem?> ListItemFromDbItem(object? dbItem)
     {
         //!!Content List
         return dbItem switch
         {
-            FileContent f => await FileContentActions.ListItemFromDbItem(f, FileItemActions, ContentListLoader.ShowType),
+            FileContent f =>
+                await FileContentActions.ListItemFromDbItem(f, FileItemActions, ContentListLoader.ShowType),
             GeoJsonContent g => await GeoJsonContentActions.ListItemFromDbItem(g, GeoJsonItemActions,
                 ContentListLoader.ShowType),
-            ImageContent g => await ImageContentActions.ListItemFromDbItem(g, ImageItemActions, ContentListLoader.ShowType),
-            LineContent l => await LineContentActions.ListItemFromDbItem(l, LineItemActions, ContentListLoader.ShowType),
-            LinkContent k => await LinkContentActions.ListItemFromDbItem(k, LinkItemActions, ContentListLoader.ShowType),
+            ImageContent g => await ImageContentActions.ListItemFromDbItem(g, ImageItemActions,
+                ContentListLoader.ShowType),
+            LineContent l =>
+                await LineContentActions.ListItemFromDbItem(l, LineItemActions, ContentListLoader.ShowType),
+            LinkContent k =>
+                await LinkContentActions.ListItemFromDbItem(k, LinkItemActions, ContentListLoader.ShowType),
             MapComponent m => await MapComponentContentActions.ListItemFromDbItem(m, MapComponentItemActions,
                 ContentListLoader.ShowType),
-            NoteContent n => await NoteContentActions.ListItemFromDbItem(n, NoteItemActions, ContentListLoader.ShowType),
-            PhotoContent ph => await PhotoContentActions.ListItemFromDbItem(ph, PhotoItemActions, ContentListLoader.ShowType),
-            PointContent pt => await PointContentActions.ListItemFromDbItem(pt, PointItemActions, ContentListLoader.ShowType),
-            PostContent po => await PostContentActions.ListItemFromDbItem(po, PostItemActions, ContentListLoader.ShowType),
-            VideoContent v => await VideoContentActions.ListItemFromDbItem(v, VideoItemActions, ContentListLoader.ShowType),
+            NoteContent n =>
+                await NoteContentActions.ListItemFromDbItem(n, NoteItemActions, ContentListLoader.ShowType),
+            PhotoContent ph => await PhotoContentActions.ListItemFromDbItem(ph, PhotoItemActions,
+                ContentListLoader.ShowType),
+            PointContent pt => await PointContentActions.ListItemFromDbItem(pt, PointItemActions,
+                ContentListLoader.ShowType),
+            PostContent po => await PostContentActions.ListItemFromDbItem(po, PostItemActions,
+                ContentListLoader.ShowType),
+            VideoContent v => await VideoContentActions.ListItemFromDbItem(v, VideoItemActions,
+                ContentListLoader.ShowType),
             _ => null
         };
+    }
+
+    [BlockingCommand]
+    public async Task LoadAll()
+    {
+        ContentListLoader.PartialLoadQuantity = null;
+        await LoadData();
     }
 
     public async Task LoadData()
@@ -674,7 +675,7 @@ public partial class ContentListContext : ObservableObject, IDragSource, IDropTa
 
         var loopCounter = 0;
 
-        await Parallel.ForEachAsync(dbItems,async (loopDbItem , _) =>
+        await Parallel.ForEachAsync(dbItems, async (loopDbItem, _) =>
         {
             Interlocked.Increment(ref loopCounter);
 
@@ -683,7 +684,7 @@ public partial class ContentListContext : ObservableObject, IDragSource, IDropTa
 
             var listItem = await ListItemFromDbItem(loopDbItem);
 
-            if(listItem == null) return;
+            if (listItem == null) return;
 
             contentListItems.Add(listItem);
         });
@@ -722,7 +723,7 @@ public partial class ContentListContext : ObservableObject, IDragSource, IDropTa
         var smallImageListItems = Items.Where(x => x is IContentListSmallImage).Cast<IContentListSmallImage>().ToList();
 
         foreach (var loopListItem in smallImageListItems)
-            if (((dynamic)loopListItem).DbEntry is IMainImage { MainPicture: { } } dbMainImageEntry &&
+            if (((dynamic)loopListItem).DbEntry is IMainImage { MainPicture: not null } dbMainImageEntry &&
                 translatedMessage.ContentIds.Contains(dbMainImageEntry.MainPicture.Value))
                 loopListItem.SmallImageUrl = GetSmallImageUrl(dbMainImageEntry);
     }
@@ -734,10 +735,18 @@ public partial class ContentListContext : ObservableObject, IDragSource, IDropTa
         var reportLoader = new ContentListLoaderReport(toRun, ContentListLoaderBase.SortContextDefault());
 
         var newWindow =
-            await AllContentListWindow.CreateInstance(await AllContentListWithActionsContext.CreateInstance(null, reportLoader));
+            await AllContentListWindow.CreateInstance(
+                await AllContentListWithActionsContext.CreateInstance(null, reportLoader));
         newWindow.WindowTitle = title;
 
         await newWindow.PositionWindowAndShowOnUiThread();
+    }
+
+
+    [NonBlockingCommand]
+    public async Task SelectedToExcel()
+    {
+        await ExcelHelpers.SelectedToExcel(ListSelection.SelectedItems?.Cast<dynamic>().ToList(), StatusContext);
     }
 
     private void StatusContextOnPropertyChanged(object? sender, PropertyChangedEventArgs e)
@@ -833,7 +842,7 @@ public partial class ContentListContext : ObservableObject, IDragSource, IDropTa
         }
     }
 
-    public static async Task<List<object>> UpdatedOnDaySearch(DateTime? createdOn)
+    public static async Task<List<object>> UpdatedOnDayFilter(DateTime? createdOn)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -842,6 +851,13 @@ public partial class ContentListContext : ObservableObject, IDragSource, IDropTa
             : (await Db.ContentUpdatedOnDay(createdOn.Value)).ToList();
     }
 
+    [NonBlockingCommand]
+    public static async Task UpdatedOnDaySearch(DateTime? filter)
+    {
+        await RunReport(async () => await UpdatedOnDayFilter(filter), $"Updated On Search - {filter}");
+    }
+
+    [BlockingCommand]
     public async Task ViewHistorySelected(CancellationToken cancelToken)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -861,13 +877,14 @@ public partial class ContentListContext : ObservableObject, IDragSource, IDropTa
         }
     }
 
-    public async Task ViewOnSiteSelected(CancellationToken cancelToken)
+    [BlockingCommand]
+    public async Task ViewOnSite(CancellationToken cancelToken)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
         if (ListSelection.SelectedItems == null || ListSelection.SelectedItems.Count < 1)
         {
-            StatusContext.ToastWarning("Nothing Selected to Edit?");
+            StatusContext.ToastWarning("Nothing Selected to View?");
             return;
         }
 

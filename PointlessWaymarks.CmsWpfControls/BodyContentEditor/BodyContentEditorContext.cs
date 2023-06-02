@@ -2,13 +2,12 @@
 using System.IO;
 using System.Text.RegularExpressions;
 using System.Web;
-using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsWpfControls.ContentFormat;
 using PointlessWaymarks.CommonTools;
+using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon.ChangesAndValidation;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
@@ -17,52 +16,43 @@ using PointlessWaymarks.WpfCommon.WpfHtml;
 
 namespace PointlessWaymarks.CmsWpfControls.BodyContentEditor;
 
-public partial class BodyContentEditorContext : ObservableObject, IHasChanges, IHasValidationIssues, ICheckForChangesAndValidation
+[NotifyPropertyChanged]
+[GenerateStatusCommands]
+public partial class BodyContentEditorContext : IHasChanges, IHasValidationIssues, ICheckForChangesAndValidation
 {
-    [ObservableProperty] private string? _bodyContent;
-    [ObservableProperty] private ContentFormatChooserContext _bodyContentFormat;
-    [ObservableProperty] private bool _bodyContentHasChanges;
-    [ObservableProperty] private string? _bodyContentHtmlOutput;
-    [ObservableProperty] private IBodyContent? _dbEntry;
-    [ObservableProperty] private bool _hasChanges;
-    [ObservableProperty] private bool _hasValidationIssues;
-    [ObservableProperty] private RelayCommand _refreshPreviewCommand;
-    [ObservableProperty] private RelayCommand _removeLineBreaksFromSelectedCommand;
-    [ObservableProperty] private string? _selectedBodyText;
-    [ObservableProperty] private RelayCommand _speakSelectedTextCommand;
-    [ObservableProperty] private StatusControlContext _statusContext;
-    [ObservableProperty] private string _userBodyContent = string.Empty;
-    [ObservableProperty] private int _userBodyContentUserSelectionLength;
-    [ObservableProperty] private int _userBodyContentUserSelectionStart;
-    [ObservableProperty] private string? _userHtmlSelectedText;
-
-    private BodyContentEditorContext(StatusControlContext statusContext, IBodyContent dbEntry, ContentFormatChooserContext contentFormatChooser)
+    private BodyContentEditorContext(StatusControlContext statusContext, IBodyContent dbEntry,
+        ContentFormatChooserContext contentFormatChooser)
     {
-        _statusContext = statusContext;
-
-        _removeLineBreaksFromSelectedCommand = StatusContext.RunBlockingActionCommand(RemoveLineBreaksFromSelected);
-        _refreshPreviewCommand = StatusContext.RunBlockingTaskCommand(UpdateContentHtml);
-        _speakSelectedTextCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
-        {
-            await ThreadSwitcher.ResumeForegroundAsync();
-            var speaker = new TextToSpeech();
-            await speaker.Speak(UserHtmlSelectedText);
-        });
+        StatusContext = statusContext;
 
         PropertyChanged += OnPropertyChanged;
 
-        _dbEntry = dbEntry;
+        DbEntry = dbEntry;
 
-        _bodyContentFormat = contentFormatChooser;
+        BodyContentFormat = contentFormatChooser;
 
-        BodyContentFormat.InitialValue = _dbEntry.BodyContentFormat;
+        BodyContentFormat.InitialValue = DbEntry.BodyContentFormat;
 
-        _bodyContent = _dbEntry.BodyContent;
+        BodyContent = DbEntry.BodyContent;
 
-        _selectedBodyText = string.Empty;
+        SelectedBodyText = string.Empty;
+
+        BuildCommands();
 
         PropertyScanners.SubscribeToChildHasChangesAndHasValidationIssues(this, CheckForChangesAndValidationIssues);
     }
+
+    public string? BodyContent { get; set; }
+    public ContentFormatChooserContext BodyContentFormat { get; set; }
+    public bool BodyContentHasChanges { get; set; }
+    public string? BodyContentHtmlOutput { get; set; }
+    public IBodyContent? DbEntry { get; set; }
+    public string? SelectedBodyText { get; set; }
+    public StatusControlContext StatusContext { get; set; }
+    public string UserBodyContent { get; set; } = string.Empty;
+    public int UserBodyContentUserSelectionLength { get; set; }
+    public int UserBodyContentUserSelectionStart { get; set; }
+    public string? UserHtmlSelectedText { get; set; }
 
     public void CheckForChangesAndValidationIssues()
     {
@@ -71,6 +61,9 @@ public partial class BodyContentEditorContext : ObservableObject, IHasChanges, I
         HasChanges = BodyContentHasChanges || PropertyScanners.ChildPropertiesHaveValidationIssues(this);
         HasValidationIssues = PropertyScanners.ChildPropertiesHaveChanges(this);
     }
+
+    public bool HasChanges { get; set; }
+    public bool HasValidationIssues { get; set; }
 
     public static async Task<BodyContentEditorContext> CreateInstance(StatusControlContext? statusContext,
         IBodyContent dbEntry)
@@ -88,7 +81,7 @@ public partial class BodyContentEditorContext : ObservableObject, IHasChanges, I
         if (!setUpdateFormatOk) newContext.StatusContext.ToastWarning("Trouble loading Format from Db...");
 
         newContext.CheckForChangesAndValidationIssues();
-        
+
         return newContext;
     }
 
@@ -100,16 +93,8 @@ public partial class BodyContentEditorContext : ObservableObject, IHasChanges, I
             CheckForChangesAndValidationIssues();
     }
 
-    private void RemoveLineBreaksFromSelected()
-    {
-        if (string.IsNullOrWhiteSpace(SelectedBodyText)) return;
-        SelectedBodyText = Regex.Replace(SelectedBodyText, @"\r\n?|\n", " ");
-        var options = RegexOptions.None;
-        var regex = new Regex("[ ]{2,}", options);
-        SelectedBodyText = regex.Replace(SelectedBodyText, " ");
-    }
-
-    public async Task UpdateContentHtml()
+    [BlockingCommand]
+    public async Task RefreshPreview()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -135,8 +120,29 @@ public partial class BodyContentEditorContext : ObservableObject, IHasChanges, I
         catch (Exception e)
         {
             BodyContentHtmlOutput =
-                $"<h2>Not able to process input</h2><p>{HttpUtility.HtmlEncode(e)}</p>".ToHtmlDocumentWithLeaflet("Invalid",
+                $"<h2>Not able to process input</h2><p>{HttpUtility.HtmlEncode(e)}</p>".ToHtmlDocumentWithLeaflet(
+                    "Invalid",
                     string.Empty);
         }
+    }
+
+    [BlockingCommand]
+    private async Task RemoveLineBreaksFromSelected()
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (string.IsNullOrWhiteSpace(SelectedBodyText)) return;
+        SelectedBodyText = Regex.Replace(SelectedBodyText, @"\r\n?|\n", " ");
+        var options = RegexOptions.None;
+        var regex = new Regex("[ ]{2,}", options);
+        SelectedBodyText = regex.Replace(SelectedBodyText, " ");
+    }
+
+    [NonBlockingCommand]
+    public async Task SpeakSelectedText()
+    {
+        await ThreadSwitcher.ResumeForegroundAsync();
+        var speaker = new TextToSpeech();
+        await speaker.Speak(UserHtmlSelectedText);
     }
 }

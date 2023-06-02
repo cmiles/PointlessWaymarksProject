@@ -21,6 +21,7 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="Metalama.Framework" Version="2023.0.117" />
     <PackageReference Include="Microsoft.Recognizers.Text.DateTime" Version="1.8.8" />
     <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.1774.30" />
     <PackageReference Include="System.Runtime.Caching" Version="7.0.0" />
@@ -52,6 +53,7 @@
     <ProjectReference Include="..\PointlessWaymarks.CmsData\PointlessWaymarks.CmsData.csproj" />
     <ProjectReference Include="..\PointlessWaymarks.ExcelInteropExtensions\PointlessWaymarks.ExcelInteropExtensions.csproj" />
     <ProjectReference Include="..\PointlessWaymarks.FeatureIntersectionTags\PointlessWaymarks.FeatureIntersectionTags.csproj" />
+    <ProjectReference Include="..\PointlessWaymarks.LlamaAspects\PointlessWaymarks.LlamaAspects.csproj" />
     <ProjectReference Include="..\PointlessWaymarks.PressSharper\PressSharper\PointlessWaymarks.PressSharper.csproj" />
     <ProjectReference Include="..\PointlessWaymarks.WpfCommon\PointlessWaymarks.WpfCommon.csproj" />
   </ItemGroup>
