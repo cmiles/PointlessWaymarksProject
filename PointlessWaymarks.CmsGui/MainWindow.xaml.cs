@@ -48,7 +48,7 @@ namespace PointlessWaymarks.CmsGui;
 /// <summary>
 ///     Interaction logic for MainWindow.xaml
 /// </summary>
-[ObservableObject]
+[NotifyPropertyChanged]
 [GenerateStatusCommands]
 public partial class MainWindow
 {
