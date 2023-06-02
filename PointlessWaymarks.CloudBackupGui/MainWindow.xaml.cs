@@ -1,5 +1,5 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
-using PointlessWaymarks.CommonTools;
+﻿using PointlessWaymarks.CommonTools;
+using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon.ProgramUpdateMessage;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.Utility;
@@ -7,13 +7,9 @@ using Serilog;
 
 namespace PointlessWaymarks.CloudBackupGui;
 
-[ObservableObject]
+[NotifyPropertyChanged]
 public partial class MainWindow
 {
-    [ObservableProperty] private string _infoTitle;
-    [ObservableProperty] private StatusControlContext _statusContext;
-    [ObservableProperty] private ProgramUpdateMessageContext _updateMessageContext;
-
     public MainWindow()
     {
         InitializeComponent();
@@ -29,15 +25,15 @@ public partial class MainWindow
             ProgramInfoTools.StandardAppInformationString(AppContext.BaseDirectory,
                 "Pointless Waymarks Cloud Backup Beta");
 
-        _infoTitle = versionInfo.humanTitleString;
+        InfoTitle = versionInfo.humanTitleString;
 
         var currentDateVersion = versionInfo.dateVersion;
 
-        _statusContext = new StatusControlContext { BlockUi = false };
+        StatusContext = new StatusControlContext { BlockUi = false };
 
         DataContext = this;
 
-        _updateMessageContext = new ProgramUpdateMessageContext();
+        UpdateMessageContext = new ProgramUpdateMessageContext();
 
 
         StatusContext.RunFireAndForgetBlockingTask(async () =>
@@ -47,6 +43,10 @@ public partial class MainWindow
             await LoadData();
         });
     }
+
+    public string InfoTitle { get; set; }
+    public StatusControlContext StatusContext { get; set; }
+    public ProgramUpdateMessageContext UpdateMessageContext { get; set; }
 
     public async Task CheckForProgramUpdate(string currentDateVersion)
     {

@@ -13,6 +13,7 @@
 
   <ItemGroup>
     <PackageReference Include="Jot" Version="2.1.16" />
+    <PackageReference Include="Metalama.Framework" Version="2023.0.117" />
   </ItemGroup>
 
   <ItemGroup>
