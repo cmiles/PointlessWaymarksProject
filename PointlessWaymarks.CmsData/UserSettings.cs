@@ -1,52 +1,53 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿using PointlessWaymarks.LlamaAspects;
 
 namespace PointlessWaymarks.CmsData;
 
-public partial class UserSettings : ObservableObject
+[NotifyPropertyChanged]
+public class UserSettings
 {
-    [ObservableProperty] private string _bingApiKey = string.Empty;
-    [ObservableProperty] private string _calTopoApiKey = string.Empty;
+    public string BingApiKey { get; set; } = string.Empty;
+    public string CalTopoApiKey { get; set; } = string.Empty;
 
     /// <summary>
     ///     Database File Name Setting - this may be relative or absolute, prefer the DatabaseFileFullName in the
     ///     UserSettingsUtilities for general purpose use.
     /// </summary>
-    [ObservableProperty] private string _databaseFile = string.Empty;
+    public string DatabaseFile { get; set; } = string.Empty;
 
-    [ObservableProperty] private string _defaultCreatedBy = string.Empty;
-    [ObservableProperty] private string _featureIntersectionTagSettingsFile =string.Empty;
-    [ObservableProperty] private bool _featureIntersectionTagOnImport;
-    [ObservableProperty] private bool _imagePagesHaveLinksToImageSizesByDefault;
-    [ObservableProperty] private double _latitudeDefault;
+    public string DefaultCreatedBy { get; set; } = string.Empty;
+    public bool FeatureIntersectionTagOnImport { get; set; }
+    public string FeatureIntersectionTagSettingsFile { get; set; } = string.Empty;
+    public bool ImagePagesHaveLinksToImageSizesByDefault { get; set; }
+    public double LatitudeDefault { get; set; }
 
     /// <summary>
     ///     Relative or Absolute Local Media Archive Directory - prefer the LocalMediaArchiveFullDirectory
     ///     in UserSettingsUtilities as it will always represent the full path.
     /// </summary>
-    [ObservableProperty] private string _localMediaArchiveDirectory = string.Empty;
+    public string LocalMediaArchiveDirectory { get; set; } = string.Empty;
 
     /// <summary>
     ///     Relative or Absolute Local Site Root Directory (the directory html will be generated into)
     ///     - prefer the LocalSiteRootFullDirectory in UserSettingsUtilities as it will always
     ///     represent the full path.
     /// </summary>
-    [ObservableProperty] private string _localSiteRootDirectory = string.Empty;
+    public string LocalSiteRootDirectory { get; set; } = string.Empty;
 
-    [ObservableProperty] private double _longitudeDefault;
-    [ObservableProperty] private int _numberOfItemsOnMainSitePage;
-    [ObservableProperty] private bool _photoPagesHaveLinksToPhotoSizesByDefault;
-    [ObservableProperty] private bool _photoPagesShowPositionByDefault;
-    [ObservableProperty] private string _pinboardApiToken = string.Empty;
-    [ObservableProperty] private string _programUpdateLocation = string.Empty;
-    [ObservableProperty] private Guid _settingsId;
-    [ObservableProperty] private string _siteAuthors = string.Empty;
-    [ObservableProperty] private string _siteDirectionAttribute = string.Empty;
-    [ObservableProperty] private string _siteDomainName = string.Empty;
-    [ObservableProperty] private string _siteEmailTo = string.Empty;
-    [ObservableProperty] private string _siteKeywords = string.Empty;
-    [ObservableProperty] private string _siteLangAttribute = string.Empty;
-    [ObservableProperty] private string _siteName = string.Empty;
-    [ObservableProperty] private string _siteS3Bucket = string.Empty;
-    [ObservableProperty] private string _siteS3BucketRegion = string.Empty;
-    [ObservableProperty] private string _siteSummary = string.Empty;
+    public double LongitudeDefault { get; set; }
+    public int NumberOfItemsOnMainSitePage { get; set; }
+    public bool PhotoPagesHaveLinksToPhotoSizesByDefault { get; set; }
+    public bool PhotoPagesShowPositionByDefault { get; set; }
+    public string PinboardApiToken { get; set; } = string.Empty;
+    public string ProgramUpdateLocation { get; set; } = string.Empty;
+    public Guid SettingsId { get; set; }
+    public string SiteAuthors { get; set; } = string.Empty;
+    public string SiteDirectionAttribute { get; set; } = string.Empty;
+    public string SiteDomainName { get; set; } = string.Empty;
+    public string SiteEmailTo { get; set; } = string.Empty;
+    public string SiteKeywords { get; set; } = string.Empty;
+    public string SiteLangAttribute { get; set; } = string.Empty;
+    public string SiteName { get; set; } = string.Empty;
+    public string SiteS3Bucket { get; set; } = string.Empty;
+    public string SiteS3BucketRegion { get; set; } = string.Empty;
+    public string SiteSummary { get; set; } = string.Empty;
 }
