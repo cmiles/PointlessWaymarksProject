@@ -1,37 +1,28 @@
 ﻿using System.Windows;
-using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
 using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.ContentHtml.PostHtml;
 using PointlessWaymarks.CmsWpfControls.ContentList;
+using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 using PointlessWaymarks.WpfCommon.Utility;
 
 namespace PointlessWaymarks.CmsWpfControls.PostList;
 
-public partial class PostListWithActionsContext : ObservableObject
+[NotifyPropertyChanged]
+[GenerateStatusCommands]
+public partial class PostListWithActionsContext
 {
-    [ObservableProperty] private CmsCommonCommands _commonCommands;
-    [ObservableProperty] private RelayCommand _emailHtmlToClipboardCommand;
-    [ObservableProperty] private ContentListContext _listContext;
-    [ObservableProperty] private RelayCommand _postImageCodesToClipboardForSelectedCommand;
-    [ObservableProperty] private RelayCommand _refreshDataCommand;
-    [ObservableProperty] private StatusControlContext _statusContext;
-    [ObservableProperty] private WindowIconStatus? _windowStatus;
-
-    private PostListWithActionsContext(StatusControlContext? statusContext, WindowIconStatus? windowStatus, ContentListContext listContext, bool loadInBackground = true)
+    private PostListWithActionsContext(StatusControlContext? statusContext, WindowIconStatus? windowStatus,
+        ContentListContext listContext, bool loadInBackground = true)
     {
-        _statusContext = statusContext ?? new StatusControlContext();
-        _windowStatus = windowStatus; 
-        _commonCommands = new CmsCommonCommands(StatusContext, WindowStatus);
+        StatusContext = statusContext;
+        WindowStatus = windowStatus;
+        CommonCommands = new CmsCommonCommands(StatusContext, WindowStatus);
 
-        _listContext = listContext;
+        BuildCommands();
 
-        _postImageCodesToClipboardForSelectedCommand =
-            StatusContext.RunBlockingTaskCommand(BracketCodesToClipboardForSelected);
-        _emailHtmlToClipboardCommand = StatusContext.RunBlockingTaskCommand(EmailHtmlToClipboard);
-        _refreshDataCommand = StatusContext.RunBlockingTaskCommand(ListContext.LoadData);
+        ListContext = listContext;
 
         ListContext.ContextMenuItems = new List<ContextMenuItemData>
         {
@@ -43,7 +34,7 @@ public partial class PostListWithActionsContext : ObservableObject
             },
             new()
             {
-                ItemName = "Image Code to Clipboard", ItemCommand = PostImageCodesToClipboardForSelectedCommand
+                ItemName = "Image Code to Clipboard", ItemCommand = BracketCodesToClipboardForSelectedCommand
             },
             new() { ItemName = "Email Html to Clipboard", ItemCommand = EmailHtmlToClipboardCommand },
             new() { ItemName = "Extract New Links", ItemCommand = ListContext.ExtractNewLinksSelectedCommand },
@@ -53,19 +44,15 @@ public partial class PostListWithActionsContext : ObservableObject
             new() { ItemName = "Refresh Data", ItemCommand = RefreshDataCommand }
         };
 
-        if(loadInBackground) StatusContext.RunFireAndForgetBlockingTask(LoadData);
+        if (loadInBackground) StatusContext.RunFireAndForgetBlockingTask(RefreshData);
     }
 
-    public static async Task<PostListWithActionsContext> CreateInstance(StatusControlContext? statusContext, WindowIconStatus? windowStatus = null, bool loadInBackground = true)
-    {
-        await ThreadSwitcher.ResumeBackgroundAsync();
+    public CmsCommonCommands CommonCommands { get; set; }
+    public ContentListContext ListContext { get; set; }
+    public StatusControlContext StatusContext { get; set; }
+    public WindowIconStatus? WindowStatus { get; set; }
 
-        var factoryContext = statusContext ?? new StatusControlContext();
-        var factoryListContext = await ContentListContext.CreateInstance(factoryContext, new PostListLoader(100), windowStatus);
-
-        return new PostListWithActionsContext(factoryContext, windowStatus, factoryListContext, loadInBackground);
-    }
-
+    [BlockingCommand]
     private async Task BracketCodesToClipboardForSelected()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -87,6 +74,19 @@ public partial class PostListWithActionsContext : ObservableObject
         StatusContext.ToastSuccess($"To Clipboard {finalString}");
     }
 
+    public static async Task<PostListWithActionsContext> CreateInstance(StatusControlContext? statusContext,
+        WindowIconStatus? windowStatus = null, bool loadInBackground = true)
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        var factoryContext = statusContext ?? new StatusControlContext();
+        var factoryListContext =
+            await ContentListContext.CreateInstance(factoryContext, new PostListLoader(100), windowStatus);
+
+        return new PostListWithActionsContext(factoryContext, windowStatus, factoryListContext, loadInBackground);
+    }
+
+    [BlockingCommand]
     private async Task EmailHtmlToClipboard()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -114,11 +114,11 @@ public partial class PostListWithActionsContext : ObservableObject
         StatusContext.ToastSuccess("Email Html on Clipboard");
     }
 
-    private async Task LoadData()
+    [BlockingCommand]
+    private async Task RefreshData()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        
 
         await ListContext.LoadData();
     }

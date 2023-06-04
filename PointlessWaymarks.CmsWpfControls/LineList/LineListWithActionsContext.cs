@@ -1,8 +1,6 @@
 ﻿using System.IO;
 using System.Text;
 using System.Windows;
-using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
 using Omu.ValueInjecter;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.CommonHtml;
@@ -12,6 +10,7 @@ using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsWpfControls.ContentList;
 using PointlessWaymarks.FeatureIntersectionTags;
 using PointlessWaymarks.FeatureIntersectionTags.Models;
+using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 using PointlessWaymarks.WpfCommon.Utility;
@@ -19,36 +18,20 @@ using Serilog;
 
 namespace PointlessWaymarks.CmsWpfControls.LineList;
 
-public partial class LineListWithActionsContext : ObservableObject
+[NotifyPropertyChanged]
+[GenerateStatusCommands]
+public partial class LineListWithActionsContext
 {
-    [ObservableProperty] private RelayCommand _addIntersectionTagsToSelectedCommand;
-    [ObservableProperty] private CmsCommonCommands _commonCommands;
-    [ObservableProperty] private RelayCommand _lineLinkCodesToClipboardForSelectedCommand;
-    [ObservableProperty] private RelayCommand _lineStatsCodesToClipboardForSelectedCommand;
-    [ObservableProperty] private RelayCommand _lineElevationChartCodesToClipboardForSelectedCommand;
-    [ObservableProperty] private ContentListContext _listContext;
-    [ObservableProperty] private RelayCommand _refreshDataCommand;
-    [ObservableProperty] private StatusControlContext _statusContext;
-    [ObservableProperty] private WindowIconStatus? _windowStatus;
-
-    private LineListWithActionsContext(StatusControlContext statusContext, WindowIconStatus? windowStatus, ContentListContext listContext, bool loadInBackground = true)
+    private LineListWithActionsContext(StatusControlContext statusContext, WindowIconStatus? windowStatus,
+        ContentListContext listContext, bool loadInBackground = true)
     {
-        _statusContext = statusContext;
-        _windowStatus = windowStatus;
-        _commonCommands = new CmsCommonCommands(StatusContext, WindowStatus);
+        StatusContext = statusContext;
+        WindowStatus = windowStatus;
+        CommonCommands = new CmsCommonCommands(StatusContext, WindowStatus);
 
-        _listContext = listContext;
+        BuildCommands();
 
-        _lineLinkCodesToClipboardForSelectedCommand =
-            StatusContext.RunBlockingTaskCommand(LinkBracketCodesToClipboardForSelected);
-        _lineStatsCodesToClipboardForSelectedCommand =
-            StatusContext.RunBlockingTaskCommand(StatsBracketCodesToClipboardForSelected);
-        _lineElevationChartCodesToClipboardForSelectedCommand =
-            StatusContext.RunBlockingTaskCommand(ElevationChartBracketCodesToClipboardForSelected);
-        _addIntersectionTagsToSelectedCommand =
-            StatusContext.RunBlockingTaskWithCancellationCommand(AddIntersectionTagsToSelected,
-                "Cancel Feature Intersection Tag Add");
-        _refreshDataCommand = StatusContext.RunBlockingTaskCommand(ListContext.LoadData);
+        ListContext = listContext;
 
         ListContext.ContextMenuItems = new List<ContextMenuItemData>
         {
@@ -58,12 +41,15 @@ public partial class LineListWithActionsContext : ObservableObject
                 ItemName = "Map Code to Clipboard",
                 ItemCommand = ListContext.BracketCodeToClipboardSelectedCommand
             },
-            new() { ItemName = "Text Code to Clipboard", ItemCommand = LineLinkCodesToClipboardForSelectedCommand },
-            new() { ItemName = "Stats Code to Clipboard", ItemCommand = LineStatsCodesToClipboardForSelectedCommand },
+            new() { ItemName = "Text Code to Clipboard", ItemCommand = LinkBracketCodesToClipboardForSelectedCommand },
+            new()
+            {
+                ItemName = "Stats Code to Clipboard", ItemCommand = StatsBracketCodesToClipboardForSelectedCommand
+            },
             new()
             {
                 ItemName = "Elevation Chart Code to Clipboard",
-                ItemCommand = LineElevationChartCodesToClipboardForSelectedCommand
+                ItemCommand = ElevationChartBracketCodesToClipboardForSelectedCommand
             },
             new() { ItemName = "Add Intersection Tags", ItemCommand = AddIntersectionTagsToSelectedCommand },
             new() { ItemName = "Extract New Links", ItemCommand = ListContext.ExtractNewLinksSelectedCommand },
@@ -73,19 +59,15 @@ public partial class LineListWithActionsContext : ObservableObject
             new() { ItemName = "Refresh Data", ItemCommand = RefreshDataCommand }
         };
 
-        if(loadInBackground) StatusContext.RunFireAndForgetBlockingTask(LoadData);
+        if (loadInBackground) StatusContext.RunFireAndForgetBlockingTask(RefreshData);
     }
 
-    public static async Task<LineListWithActionsContext> CreateInstance(StatusControlContext? statusContext, WindowIconStatus? windowStatus = null, bool loadInBackground = true)
-    {
-        await ThreadSwitcher.ResumeBackgroundAsync();
+    public CmsCommonCommands CommonCommands { get; set; }
+    public ContentListContext ListContext { get; set; }
+    public StatusControlContext StatusContext { get; set; }
+    public WindowIconStatus? WindowStatus { get; set; }
 
-        var factoryContext = statusContext ?? new StatusControlContext();
-        var factoryListContext = await ContentListContext.CreateInstance(factoryContext, new LineListLoader(100), windowStatus);
-
-        return new LineListWithActionsContext(factoryContext, windowStatus, factoryListContext, loadInBackground);
-    }
-
+    [BlockingCommand]
     private async Task AddIntersectionTagsToSelected(CancellationToken cancellationToken)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -212,6 +194,41 @@ public partial class LineListWithActionsContext : ObservableObject
         }
     }
 
+    public static async Task<LineListWithActionsContext> CreateInstance(StatusControlContext? statusContext,
+        WindowIconStatus? windowStatus = null, bool loadInBackground = true)
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        var factoryContext = statusContext ?? new StatusControlContext();
+        var factoryListContext =
+            await ContentListContext.CreateInstance(factoryContext, new LineListLoader(100), windowStatus);
+
+        return new LineListWithActionsContext(factoryContext, windowStatus, factoryListContext, loadInBackground);
+    }
+
+    [BlockingCommand]
+    private async Task ElevationChartBracketCodesToClipboardForSelected()
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (!SelectedItems().Any())
+        {
+            StatusContext.ToastError("Nothing Selected?");
+            return;
+        }
+
+        var finalString = SelectedItems().Aggregate(string.Empty,
+            (current, loopSelected) =>
+                current + @$"{BracketCodeLineElevationCharts.Create(loopSelected.DbEntry)}{Environment.NewLine}");
+
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        Clipboard.SetText(finalString);
+
+        StatusContext.ToastSuccess($"To Clipboard {finalString}");
+    }
+
+    [BlockingCommand]
     private async Task LinkBracketCodesToClipboardForSelected()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -233,7 +250,8 @@ public partial class LineListWithActionsContext : ObservableObject
         StatusContext.ToastSuccess($"To Clipboard {finalString}");
     }
 
-    private async Task LoadData()
+    [BlockingCommand]
+    private async Task RefreshData()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -246,6 +264,7 @@ public partial class LineListWithActionsContext : ObservableObject
             .ToList() ?? new List<LineListListItem>();
     }
 
+    [BlockingCommand]
     private async Task StatsBracketCodesToClipboardForSelected()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -259,27 +278,6 @@ public partial class LineListWithActionsContext : ObservableObject
         var finalString = SelectedItems().Aggregate(string.Empty,
             (current, loopSelected) =>
                 current + @$"{BracketCodeLineStats.Create(loopSelected.DbEntry)}{Environment.NewLine}");
-
-        await ThreadSwitcher.ResumeForegroundAsync();
-
-        Clipboard.SetText(finalString);
-
-        StatusContext.ToastSuccess($"To Clipboard {finalString}");
-    }
-
-    private async Task ElevationChartBracketCodesToClipboardForSelected()
-    {
-        await ThreadSwitcher.ResumeBackgroundAsync();
-
-        if (!SelectedItems().Any())
-        {
-            StatusContext.ToastError("Nothing Selected?");
-            return;
-        }
-
-        var finalString = SelectedItems().Aggregate(string.Empty,
-            (current, loopSelected) =>
-                current + @$"{BracketCodeLineElevationCharts.Create(loopSelected.DbEntry)}{Environment.NewLine}");
 
         await ThreadSwitcher.ResumeForegroundAsync();
 

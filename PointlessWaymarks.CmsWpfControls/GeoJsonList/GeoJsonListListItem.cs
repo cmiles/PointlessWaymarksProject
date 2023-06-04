@@ -1,28 +1,22 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
-using PointlessWaymarks.CmsData.Database.Models;
+﻿using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsWpfControls.ContentList;
+using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon.Utility;
 
 namespace PointlessWaymarks.CmsWpfControls.GeoJsonList;
 
-public partial class GeoJsonListListItem : ObservableObject, IContentListItem, IContentListSmallImage
+[NotifyPropertyChanged]
+public partial class GeoJsonListListItem : IContentListItem, IContentListSmallImage
 {
-    [ObservableProperty] private GeoJsonContent _dbEntry;
-    [ObservableProperty] private GeoJsonContentActions _itemActions;
-    [ObservableProperty] private CurrentSelectedTextTracker _selectedTextTracker = new();
-    [ObservableProperty] private bool _showType;
-    [ObservableProperty] private string? _smallImageUrl;
-
     private GeoJsonListListItem(GeoJsonContentActions itemActions, GeoJsonContent dbEntry)
     {
-        _dbEntry = dbEntry;
-        _itemActions = itemActions;
+        DbEntry = dbEntry;
+        ItemActions = itemActions;
     }
 
-    public static Task<GeoJsonListListItem> CreateInstance(GeoJsonContentActions itemActions)
-    {
-        return Task.FromResult(new GeoJsonListListItem(itemActions, GeoJsonContent.CreateInstance()));
-    }
+    public GeoJsonContent DbEntry { get; set; }
+    public GeoJsonContentActions ItemActions { get; set; }
+    public bool ShowType { get; set; }
 
     public IContentCommon Content()
     {
@@ -64,13 +58,21 @@ public partial class GeoJsonListListItem : ObservableObject, IContentListItem, I
         await ItemActions.GenerateHtml(DbEntry);
     }
 
+    public async Task ViewHistory()
+    {
+        await ItemActions.ViewHistory(DbEntry);
+    }
+
     public async Task ViewOnSite()
     {
         await ItemActions.ViewOnSite(DbEntry);
     }
 
-    public async Task ViewHistory()
+    public string? SmallImageUrl { get; set; }
+    public CurrentSelectedTextTracker? SelectedTextTracker { get; set; } = new();
+
+    public static Task<GeoJsonListListItem> CreateInstance(GeoJsonContentActions itemActions)
     {
-        await ItemActions.ViewHistory(DbEntry);
+        return Task.FromResult(new GeoJsonListListItem(itemActions, GeoJsonContent.CreateInstance()));
     }
 }

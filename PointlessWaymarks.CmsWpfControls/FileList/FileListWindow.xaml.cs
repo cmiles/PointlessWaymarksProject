@@ -1,4 +1,4 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 
 namespace PointlessWaymarks.CmsWpfControls.FileList;
@@ -6,24 +6,24 @@ namespace PointlessWaymarks.CmsWpfControls.FileList;
 /// <summary>
 ///     Interaction logic for FileListWindow.xaml
 /// </summary>
-[ObservableObject]
+[NotifyPropertyChanged]
 public partial class FileListWindow
 {
-    [ObservableProperty] private FileListWithActionsContext _listContext;
-    [ObservableProperty] private string _windowTitle = "Files List";
-
     private FileListWindow(FileListWithActionsContext toLoad)
     {
         InitializeComponent();
 
-        _listContext = toLoad;
+        ListContext = toLoad;
 
         DataContext = this;
     }
 
+    public FileListWithActionsContext ListContext { get; set; }
+    public string WindowTitle { get; set; } = "Files List";
+
     /// <summary>
-    /// Creates a new instance - this method can be called from any thread and will
-    /// switch to the UI thread as needed.
+    ///     Creates a new instance - this method can be called from any thread and will
+    ///     switch to the UI thread as needed.
     /// </summary>
     /// <returns></returns>
     public static async Task<FileListWindow> CreateInstance(FileListWithActionsContext? toLoad)

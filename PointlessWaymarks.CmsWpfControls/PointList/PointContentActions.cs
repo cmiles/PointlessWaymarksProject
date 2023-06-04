@@ -1,8 +1,7 @@
-﻿using System.Diagnostics;
+﻿using System.ComponentModel;
+using System.Diagnostics;
 using System.Windows;
 using Microsoft.EntityFrameworkCore;
-using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.ContentHtml.PointHtml;
@@ -12,34 +11,22 @@ using PointlessWaymarks.CmsWpfControls.ContentHistoryView;
 using PointlessWaymarks.CmsWpfControls.ContentList;
 using PointlessWaymarks.CmsWpfControls.PointContentEditor;
 using PointlessWaymarks.CmsWpfControls.Utility;
+using PointlessWaymarks.CommonTools;
+using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 using PointlessWaymarks.WpfCommon.Utility;
-using LogTools = PointlessWaymarks.CommonTools.LogTools;
 
 namespace PointlessWaymarks.CmsWpfControls.PointList;
 
-public partial class PointContentActions : ObservableObject, IContentActions<PointContent>
+[NotifyPropertyChanged]
+[GenerateStatusCommands]
+public partial class PointContentActions : IContentActions<PointContent>
 {
-    [ObservableProperty] private RelayCommand<PointContent> _deleteCommand;
-    [ObservableProperty] private RelayCommand<PointContent> _editCommand;
-    [ObservableProperty] private RelayCommand<PointContent> _extractNewLinksCommand;
-    [ObservableProperty] private RelayCommand<PointContent> _generateHtmlCommand;
-    [ObservableProperty] private RelayCommand<PointContent> _linkCodeToClipboardCommand;
-    [ObservableProperty] private RelayCommand<PointContent> _viewOnSiteCommand;
-    [ObservableProperty] private StatusControlContext _statusContext;
-    [ObservableProperty] private RelayCommand<PointContent> _viewHistoryCommand;
-
     public PointContentActions(StatusControlContext statusContext)
     {
-        _statusContext = statusContext;
-        _deleteCommand = StatusContext.RunBlockingTaskCommand<PointContent>(Delete);
-        _editCommand = StatusContext.RunNonBlockingTaskCommand<PointContent>(Edit);
-        _extractNewLinksCommand = StatusContext.RunBlockingTaskCommand<PointContent>(ExtractNewLinks);
-        _generateHtmlCommand = StatusContext.RunBlockingTaskCommand<PointContent>(GenerateHtml);
-        _linkCodeToClipboardCommand = StatusContext.RunBlockingTaskCommand<PointContent>(DefaultBracketCodeToClipboard);
-        _viewOnSiteCommand = StatusContext.RunBlockingTaskCommand<PointContent>(ViewOnSite);
-        _viewHistoryCommand = StatusContext.RunNonBlockingTaskCommand<PointContent>(ViewHistory);
+        StatusContext = statusContext;
+        BuildCommands();
     }
 
     public string DefaultBracketCode(PointContent? content)
@@ -48,6 +35,7 @@ public partial class PointContentActions : ObservableObject, IContentActions<Poi
         return @$"{BracketCodePoints.Create(content)}";
     }
 
+    [BlockingCommand]
     public async Task DefaultBracketCodeToClipboard(PointContent? content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -67,6 +55,7 @@ public partial class PointContentActions : ObservableObject, IContentActions<Poi
         StatusContext.ToastSuccess($"To Clipboard {finalString}");
     }
 
+    [BlockingCommand]
     public async Task Delete(PointContent? content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -95,6 +84,7 @@ public partial class PointContentActions : ObservableObject, IContentActions<Poi
         }
     }
 
+    [NonBlockingCommand]
     public async Task Edit(PointContent? content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -114,6 +104,7 @@ public partial class PointContentActions : ObservableObject, IContentActions<Poi
         await newContentWindow.PositionWindowAndShowOnUiThread();
     }
 
+    [BlockingCommand]
     public async Task ExtractNewLinks(PointContent? content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -134,6 +125,7 @@ public partial class PointContentActions : ObservableObject, IContentActions<Poi
             $"{refreshedData.BodyContent} {refreshedData.UpdateNotes}", StatusContext.ProgressTracker());
     }
 
+    [BlockingCommand]
     public async Task GenerateHtml(PointContent? content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -161,24 +153,9 @@ public partial class PointContentActions : ObservableObject, IContentActions<Poi
         StatusContext.ToastSuccess($"Generated {htmlContext.PageUrl}");
     }
 
-    public async Task ViewOnSite(PointContent? content)
-    {
-        await ThreadSwitcher.ResumeBackgroundAsync();
+    public StatusControlContext StatusContext { get; set; }
 
-        if (content == null)
-        {
-            StatusContext.ToastError("Nothing Selected?");
-            return;
-        }
-
-        var settings = UserSettingsSingleton.CurrentSettings();
-
-        var url = $@"{settings.PointPageUrl(content)}";
-
-        var ps = new ProcessStartInfo(url) { UseShellExecute = true, Verb = "open" };
-        Process.Start(ps);
-    }
-
+    [NonBlockingCommand]
     public async Task ViewHistory(PointContent? content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -211,7 +188,29 @@ public partial class PointContentActions : ObservableObject, IContentActions<Poi
         historicView.WriteHtmlToTempFolderAndShow(StatusContext.ProgressTracker());
     }
 
-    public static async Task<PointListListItem> ListItemFromDbItem(PointContent content, PointContentActions itemActions,
+    [BlockingCommand]
+    public async Task ViewOnSite(PointContent? content)
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (content == null)
+        {
+            StatusContext.ToastError("Nothing Selected?");
+            return;
+        }
+
+        var settings = UserSettingsSingleton.CurrentSettings();
+
+        var url = $@"{settings.PointPageUrl(content)}";
+
+        var ps = new ProcessStartInfo(url) { UseShellExecute = true, Verb = "open" };
+        Process.Start(ps);
+    }
+
+    public event PropertyChangedEventHandler? PropertyChanged;
+
+    public static async Task<PointListListItem> ListItemFromDbItem(PointContent content,
+        PointContentActions itemActions,
         bool showType)
     {
         var item = await PointListListItem.CreateInstance(itemActions);

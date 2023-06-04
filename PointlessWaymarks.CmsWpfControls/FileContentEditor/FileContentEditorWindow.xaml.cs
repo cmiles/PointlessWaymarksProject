@@ -1,21 +1,15 @@
 ﻿using System.IO;
-using CommunityToolkit.Mvvm.ComponentModel;
 using PointlessWaymarks.CmsData.Database.Models;
+using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon.ChangesAndValidation;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 
 namespace PointlessWaymarks.CmsWpfControls.FileContentEditor;
 
-[ObservableObject]
-#pragma warning disable MVVMTK0033
+[NotifyPropertyChanged]
 public partial class FileContentEditorWindow
-#pragma warning restore MVVMTK0033
 {
-    [ObservableProperty] private WindowAccidentalClosureHelper? _accidentalCloserHelper;
-    [ObservableProperty] private FileContentEditorContext? _fileContent;
-    [ObservableProperty] private StatusControlContext _statusContext;
-
     /// <summary>
     ///     DO NOT USE - Use CreateInstance instead - using the constructor directly will result in
     ///     core functionality being uninitialized.
@@ -26,6 +20,10 @@ public partial class FileContentEditorWindow
         StatusContext = new StatusControlContext();
         DataContext = this;
     }
+
+    public WindowAccidentalClosureHelper? AccidentalCloserHelper { get; set; }
+    public FileContentEditorContext? FileContent { get; set; }
+    public StatusControlContext StatusContext { get; set; }
 
     /// <summary>
     ///     Creates a new instance - this method can be called from any thread and will

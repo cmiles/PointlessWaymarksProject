@@ -1,28 +1,22 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
-using PointlessWaymarks.CmsData.Database.Models;
+﻿using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsWpfControls.ContentList;
+using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon.Utility;
 
 namespace PointlessWaymarks.CmsWpfControls.ImageList;
 
-public partial class ImageListListItem : ObservableObject, IContentListItem, IContentListSmallImage
+[NotifyPropertyChanged]
+public partial class ImageListListItem : IContentListItem, IContentListSmallImage
 {
-    [ObservableProperty] private ImageContent _dbEntry;
-    [ObservableProperty] private ImageContentActions _itemActions;
-    [ObservableProperty] private CurrentSelectedTextTracker _selectedTextTracker = new();
-    [ObservableProperty] private bool _showType;
-    [ObservableProperty] private string? _smallImageUrl;
-
     private ImageListListItem(ImageContentActions itemActions, ImageContent dbEntry)
     {
-        _dbEntry = dbEntry;
-        _itemActions = itemActions;
+        DbEntry = dbEntry;
+        ItemActions = itemActions;
     }
 
-    public static Task<ImageListListItem> CreateInstance(ImageContentActions itemActions)
-    {
-        return Task.FromResult(new ImageListListItem(itemActions, ImageContent.CreateInstance()));
-    }
+    public ImageContent DbEntry { get; set; }
+    public ImageContentActions ItemActions { get; set; }
+    public bool ShowType { get; set; }
 
     public IContentCommon Content()
     {
@@ -64,13 +58,21 @@ public partial class ImageListListItem : ObservableObject, IContentListItem, ICo
         await ItemActions.GenerateHtml(DbEntry);
     }
 
+    public async Task ViewHistory()
+    {
+        await ItemActions.ViewHistory(DbEntry);
+    }
+
     public async Task ViewOnSite()
     {
         await ItemActions.ViewOnSite(DbEntry);
     }
 
-    public async Task ViewHistory()
+    public string? SmallImageUrl { get; set; }
+    public CurrentSelectedTextTracker? SelectedTextTracker { get; set; } = new();
+
+    public static Task<ImageListListItem> CreateInstance(ImageContentActions itemActions)
     {
-        await ItemActions.ViewHistory(DbEntry);
+        return Task.FromResult(new ImageListListItem(itemActions, ImageContent.CreateInstance()));
     }
 }

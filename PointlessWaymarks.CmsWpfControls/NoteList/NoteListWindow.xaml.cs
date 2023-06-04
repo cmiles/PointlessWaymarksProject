@@ -1,4 +1,4 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 
 namespace PointlessWaymarks.CmsWpfControls.NoteList;
@@ -6,24 +6,24 @@ namespace PointlessWaymarks.CmsWpfControls.NoteList;
 /// <summary>
 ///     Interaction logic for NoteListWindow.xaml
 /// </summary>
-[ObservableObject]
+[NotifyPropertyChanged]
 public partial class NoteListWindow
 {
-    [ObservableProperty] private NoteListWithActionsContext _listContext;
-    [ObservableProperty] private string _windowTitle = "Note List";
-
     private NoteListWindow(NoteListWithActionsContext toLoad)
     {
         InitializeComponent();
 
-        _listContext = toLoad;
+        ListContext = toLoad;
 
         DataContext = this;
     }
 
+    public NoteListWithActionsContext ListContext { get; set; }
+    public string WindowTitle { get; set; } = "Note List";
+
     /// <summary>
-    /// Creates a new instance - this method can be called from any thread and will
-    /// switch to the UI thread as needed.
+    ///     Creates a new instance - this method can be called from any thread and will
+    ///     switch to the UI thread as needed.
     /// </summary>
     /// <returns></returns>
     public static async Task<NoteListWindow> CreateInstance(NoteListWithActionsContext? toLoad)

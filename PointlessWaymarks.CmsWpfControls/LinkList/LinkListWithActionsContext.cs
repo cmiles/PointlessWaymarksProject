@@ -1,6 +1,4 @@
 ﻿using System.Windows;
-using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
 using HtmlTableHelper;
 using pinboard.net;
 using PointlessWaymarks.CmsData;
@@ -8,36 +6,27 @@ using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsWpfControls.ContentList;
 using PointlessWaymarks.CmsWpfControls.HtmlViewer;
 using PointlessWaymarks.CommonTools;
+using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 using PointlessWaymarks.WpfCommon.Utility;
 
 namespace PointlessWaymarks.CmsWpfControls.LinkList;
 
-public partial class LinkListWithActionsContext : ObservableObject
+[NotifyPropertyChanged]
+[GenerateStatusCommands]
+public partial class LinkListWithActionsContext
 {
-    [ObservableProperty] private CmsCommonCommands _commonCommands;
-    [ObservableProperty] private ContentListContext _listContext;
-    [ObservableProperty] private RelayCommand _listSelectedLinksNotOnPinboardCommand;
-    [ObservableProperty] private RelayCommand _mdLinkCodesToClipboardForSelectedCommand;
-    [ObservableProperty] private RelayCommand _refreshDataCommand;
-    [ObservableProperty] private StatusControlContext _statusContext;
-    [ObservableProperty] private WindowIconStatus? _windowStatus;
-
-    private LinkListWithActionsContext(StatusControlContext statusContext, WindowIconStatus? windowStatus, ContentListContext listContext, bool loadInBackground = true)
+    private LinkListWithActionsContext(StatusControlContext statusContext, WindowIconStatus? windowStatus,
+        ContentListContext listContext, bool loadInBackground = true)
     {
-        _statusContext = statusContext;
-        _windowStatus = windowStatus;
-        _commonCommands = new CmsCommonCommands(StatusContext, WindowStatus);
+        StatusContext = statusContext;
+        WindowStatus = windowStatus;
+        CommonCommands = new CmsCommonCommands(StatusContext, WindowStatus);
 
-        _listContext = listContext;
+        BuildCommands();
 
-        _refreshDataCommand = StatusContext.RunBlockingTaskCommand(ListContext.LoadData);
-        _mdLinkCodesToClipboardForSelectedCommand =
-            StatusContext.RunBlockingTaskCommand(MdLinkCodesToClipboardForSelected);
-
-        _listSelectedLinksNotOnPinboardCommand = StatusContext.RunBlockingTaskCommand(async () =>
-            await ListSelectedLinksNotOnPinboard(StatusContext.ProgressTracker()));
+        ListContext = listContext;
 
         ListContext.ContextMenuItems = new List<ContextMenuItemData>
         {
@@ -54,17 +43,30 @@ public partial class LinkListWithActionsContext : ObservableObject
             new() { ItemName = "Refresh Data", ItemCommand = RefreshDataCommand }
         };
 
-        if(loadInBackground) StatusContext.RunFireAndForgetBlockingTask(LoadData);
+        if (loadInBackground) StatusContext.RunFireAndForgetBlockingTask(RefreshData);
     }
 
-    public static async Task<LinkListWithActionsContext> CreateInstance(StatusControlContext? statusContext, WindowIconStatus? windowStatus = null, bool loadInBackground = true)
+    public CmsCommonCommands CommonCommands { get; set; }
+    public ContentListContext ListContext { get; set; }
+    public StatusControlContext StatusContext { get; set; }
+    public WindowIconStatus? WindowStatus { get; set; }
+
+    public static async Task<LinkListWithActionsContext> CreateInstance(StatusControlContext? statusContext,
+        WindowIconStatus? windowStatus = null, bool loadInBackground = true)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
         var factoryContext = statusContext ?? new StatusControlContext();
-        var factoryListContext = await ContentListContext.CreateInstance(factoryContext, new LinkListLoader(100), windowStatus);
+        var factoryListContext =
+            await ContentListContext.CreateInstance(factoryContext, new LinkListLoader(100), windowStatus);
 
         return new LinkListWithActionsContext(factoryContext, windowStatus, factoryListContext, loadInBackground);
+    }
+
+    [BlockingCommand]
+    public async Task ListSelectedLinksNotOnPinboard()
+    {
+        await ListSelectedLinksNotOnPinboard(StatusContext.ProgressTracker());
     }
 
     private async Task ListSelectedLinksNotOnPinboard(IProgress<string>? progress)
@@ -142,13 +144,7 @@ public partial class LinkListWithActionsContext : ObservableObject
         await htmlReportWindow.PositionWindowAndShowOnUiThread();
     }
 
-    private async Task LoadData()
-    {
-        await ThreadSwitcher.ResumeBackgroundAsync();
-
-        await ListContext.LoadData();
-    }
-
+    [BlockingCommand]
     private async Task MdLinkCodesToClipboardForSelected()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -166,6 +162,14 @@ public partial class LinkListWithActionsContext : ObservableObject
         Clipboard.SetText(finalString);
 
         StatusContext.ToastSuccess($"To Clipboard {finalString}");
+    }
+
+    [BlockingCommand]
+    private async Task RefreshData()
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        await ListContext.LoadData();
     }
 
     public List<LinkListListItem> SelectedItems()

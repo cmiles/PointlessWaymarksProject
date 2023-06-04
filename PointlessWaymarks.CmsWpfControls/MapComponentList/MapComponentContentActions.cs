@@ -1,7 +1,6 @@
-﻿using System.Windows;
+﻿using System.ComponentModel;
+using System.Windows;
 using Microsoft.EntityFrameworkCore;
-using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.ContentHtml.MapComponentData;
@@ -11,34 +10,22 @@ using PointlessWaymarks.CmsWpfControls.ContentHistoryView;
 using PointlessWaymarks.CmsWpfControls.ContentList;
 using PointlessWaymarks.CmsWpfControls.MapComponentEditor;
 using PointlessWaymarks.CmsWpfControls.Utility;
+using PointlessWaymarks.CommonTools;
+using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 using PointlessWaymarks.WpfCommon.Utility;
-using LogTools = PointlessWaymarks.CommonTools.LogTools;
 
 namespace PointlessWaymarks.CmsWpfControls.MapComponentList;
 
-public partial class MapComponentContentActions : ObservableObject, IContentActions<MapComponent>
+[NotifyPropertyChanged]
+[GenerateStatusCommands]
+public partial class MapComponentContentActions : IContentActions<MapComponent>
 {
-    [ObservableProperty] private RelayCommand<MapComponent> _deleteCommand;
-    [ObservableProperty] private RelayCommand<MapComponent> _editCommand;
-    [ObservableProperty] private RelayCommand<MapComponent> _extractNewLinksCommand;
-    [ObservableProperty] private RelayCommand<MapComponent> _generateHtmlCommand;
-    [ObservableProperty] private RelayCommand<MapComponent> _linkCodeToClipboardCommand;
-    [ObservableProperty] private RelayCommand<MapComponent> _viewOnSiteCommand;
-    [ObservableProperty] private StatusControlContext _statusContext;
-    [ObservableProperty] private RelayCommand<MapComponent> _viewHistoryCommand;
-
     public MapComponentContentActions(StatusControlContext statusContext)
     {
-        _statusContext = statusContext;
-        _deleteCommand = StatusContext.RunBlockingTaskCommand<MapComponent>(Delete);
-        _editCommand = StatusContext.RunNonBlockingTaskCommand<MapComponent>(Edit);
-        _extractNewLinksCommand = StatusContext.RunBlockingTaskCommand<MapComponent>(ExtractNewLinks);
-        _generateHtmlCommand = StatusContext.RunBlockingTaskCommand<MapComponent>(GenerateHtml);
-        _linkCodeToClipboardCommand = StatusContext.RunBlockingTaskCommand<MapComponent>(DefaultBracketCodeToClipboard);
-        _viewOnSiteCommand = StatusContext.RunBlockingTaskCommand<MapComponent>(ViewOnSite);
-        _viewHistoryCommand = StatusContext.RunNonBlockingTaskCommand<MapComponent>(ViewHistory);
+        StatusContext = statusContext;
+        BuildCommands();
     }
 
     public string DefaultBracketCode(MapComponent? content)
@@ -46,6 +33,7 @@ public partial class MapComponentContentActions : ObservableObject, IContentActi
         return content?.ContentId == null ? string.Empty : @$"{BracketCodeMapComponents.Create(content)}";
     }
 
+    [BlockingCommand]
     public async Task DefaultBracketCodeToClipboard(MapComponent? content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -65,6 +53,7 @@ public partial class MapComponentContentActions : ObservableObject, IContentActi
         StatusContext.ToastSuccess($"To Clipboard {finalString}");
     }
 
+    [BlockingCommand]
     public async Task Delete(MapComponent? content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -84,6 +73,7 @@ public partial class MapComponentContentActions : ObservableObject, IContentActi
         await Db.DeleteMapComponent(content.ContentId, StatusContext.ProgressTracker());
     }
 
+    [NonBlockingCommand]
     public async Task Edit(MapComponent? content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -103,6 +93,7 @@ public partial class MapComponentContentActions : ObservableObject, IContentActi
         await newContentWindow.PositionWindowAndShowOnUiThread();
     }
 
+    [BlockingCommand]
     public async Task ExtractNewLinks(MapComponent? content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -123,6 +114,7 @@ public partial class MapComponentContentActions : ObservableObject, IContentActi
             StatusContext.ProgressTracker());
     }
 
+    [BlockingCommand]
     public async Task GenerateHtml(MapComponent? content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -140,13 +132,9 @@ public partial class MapComponentContentActions : ObservableObject, IContentActi
         StatusContext.ToastSuccess("Generated Map Data");
     }
 
-    public async Task ViewOnSite(MapComponent? content)
-    {
-        await ThreadSwitcher.ResumeBackgroundAsync();
+    public StatusControlContext StatusContext { get; set; }
 
-        StatusContext.ToastWarning("Maps don't have a direct URL to open...");
-    }
-
+    [NonBlockingCommand]
     public async Task ViewHistory(MapComponent? content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -178,6 +166,16 @@ public partial class MapComponentContentActions : ObservableObject, IContentActi
 
         historicView.WriteHtmlToTempFolderAndShow(StatusContext.ProgressTracker());
     }
+
+    [BlockingCommand]
+    public async Task ViewOnSite(MapComponent? content)
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        StatusContext.ToastWarning("Maps don't have a direct URL to open...");
+    }
+
+    public event PropertyChangedEventHandler? PropertyChanged;
 
     public static async Task<MapComponentListListItem> ListItemFromDbItem(MapComponent content,
         MapComponentContentActions itemActions, bool showType)

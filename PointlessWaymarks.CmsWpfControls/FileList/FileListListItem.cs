@@ -1,28 +1,22 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
-using PointlessWaymarks.CmsData.Database.Models;
+﻿using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsWpfControls.ContentList;
+using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon.Utility;
 
 namespace PointlessWaymarks.CmsWpfControls.FileList;
 
-public partial class FileListListItem : ObservableObject, IContentListItem, IContentListSmallImage
+[NotifyPropertyChanged]
+public partial class FileListListItem : IContentListItem, IContentListSmallImage
 {
-    [ObservableProperty] private FileContent _dbEntry;
-    [ObservableProperty] private FileContentActions _itemActions;
-    [ObservableProperty] private CurrentSelectedTextTracker _selectedTextTracker = new();
-    [ObservableProperty] private bool _showType;
-    [ObservableProperty] private string? _smallImageUrl;
-
     private FileListListItem(FileContentActions itemActions, FileContent dbEntry)
     {
-        _dbEntry = dbEntry;
-        _itemActions = itemActions;
+        DbEntry = dbEntry;
+        ItemActions = itemActions;
     }
 
-    public static Task<FileListListItem> CreateInstance(FileContentActions itemActions)
-    {
-        return Task.FromResult(new FileListListItem(itemActions, FileContent.CreateInstance()));
-    }
+    public FileContent DbEntry { get; set; }
+    public FileContentActions ItemActions { get; set; }
+    public bool ShowType { get; set; }
 
     public IContentCommon Content()
     {
@@ -64,13 +58,21 @@ public partial class FileListListItem : ObservableObject, IContentListItem, ICon
         await ItemActions.GenerateHtml(DbEntry);
     }
 
+    public async Task ViewHistory()
+    {
+        await ItemActions.ViewHistory(DbEntry);
+    }
+
     public async Task ViewOnSite()
     {
         await ItemActions.ViewOnSite(DbEntry);
     }
 
-    public async Task ViewHistory()
+    public string? SmallImageUrl { get; set; }
+    public CurrentSelectedTextTracker? SelectedTextTracker { get; set; } = new();
+
+    public static Task<FileListListItem> CreateInstance(FileContentActions itemActions)
     {
-        await ItemActions.ViewHistory(DbEntry);
+        return Task.FromResult(new FileListListItem(itemActions, FileContent.CreateInstance()));
     }
 }

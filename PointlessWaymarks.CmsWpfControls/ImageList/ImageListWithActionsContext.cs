@@ -1,53 +1,31 @@
 ﻿using System.Windows;
-using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.Content;
 using PointlessWaymarks.CmsData.ContentHtml.ImageHtml;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsWpfControls.ContentList;
+using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 using PointlessWaymarks.WpfCommon.Utility;
 
 namespace PointlessWaymarks.CmsWpfControls.ImageList;
 
-public partial class ImageListWithActionsContext : ObservableObject
+[NotifyPropertyChanged]
+[GenerateStatusCommands]
+public partial class ImageListWithActionsContext
 {
-    [ObservableProperty] private CmsCommonCommands _commonCommands;
-    [ObservableProperty] private RelayCommand _emailHtmlToClipboardCommand;
-    [ObservableProperty] private RelayCommand _forcedResizeCommand;
-    [ObservableProperty] private RelayCommand _imageBracketLinkCodesToClipboardForSelectedCommand;
-    [ObservableProperty] private ContentListContext _listContext;
-    [ObservableProperty] private RelayCommand _refreshDataCommand;
-    [ObservableProperty] private RelayCommand _regenerateHtmlAndReprocessImageForSelectedCommand;
-    [ObservableProperty] private StatusControlContext _statusContext;
-    [ObservableProperty] private RelayCommand _viewFilesCommand;
-    [ObservableProperty] private WindowIconStatus? _windowStatus;
-
     private ImageListWithActionsContext(StatusControlContext? statusContext, WindowIconStatus? windowStatus,
-        ContentListContext factoryListContext, bool loadInBackground = true)
+        ContentListContext listContext, bool loadInBackground = true)
     {
-        _statusContext = statusContext ?? new StatusControlContext();
-        _windowStatus = windowStatus;
-        _commonCommands = new CmsCommonCommands(StatusContext, WindowStatus);
+        StatusContext = statusContext ?? new StatusControlContext();
+        WindowStatus = windowStatus;
+        CommonCommands = new CmsCommonCommands(StatusContext, WindowStatus);
 
-        _listContext = factoryListContext;
+        BuildCommands();
 
-        _refreshDataCommand = StatusContext.RunBlockingTaskCommand(ListContext.LoadData);
-
-        _imageBracketLinkCodesToClipboardForSelectedCommand =
-            StatusContext.RunBlockingTaskCommand(ImageBracketLinkCodesToClipboardForSelected);
-
-        _forcedResizeCommand = StatusContext.RunBlockingTaskWithCancellationCommand(ForcedResize, "Cancel Resizing");
-        _regenerateHtmlAndReprocessImageForSelectedCommand =
-            StatusContext.RunBlockingTaskWithCancellationCommand(RegenerateHtmlAndReprocessImageForSelected,
-                "Cancel HTML Generation and Image Resizing");
-
-        _viewFilesCommand = StatusContext.RunBlockingTaskWithCancellationCommand(ViewFilesSelected, "Cancel File View");
-
-        _emailHtmlToClipboardCommand = StatusContext.RunBlockingTaskCommand(EmailHtmlToClipboard);
+        ListContext = listContext;
 
         ListContext.ContextMenuItems = new List<ContextMenuItemData>
         {
@@ -63,7 +41,7 @@ public partial class ImageListWithActionsContext : ObservableObject
                 ItemCommand = ImageBracketLinkCodesToClipboardForSelectedCommand
             },
             new() { ItemName = "Email Html to Clipboard", ItemCommand = EmailHtmlToClipboardCommand },
-            new() { ItemName = "View Images", ItemCommand = ViewFilesCommand },
+            new() { ItemName = "View Images", ItemCommand = ViewSelectedFilesCommand },
             new() { ItemName = "Open URL", ItemCommand = ListContext.ViewOnSiteCommand },
             new() { ItemName = "Extract New Links", ItemCommand = ListContext.ExtractNewLinksSelectedCommand },
             new() { ItemName = "Process/Resize Selected", ItemCommand = ForcedResizeCommand },
@@ -77,19 +55,27 @@ public partial class ImageListWithActionsContext : ObservableObject
             new() { ItemName = "Refresh Data", ItemCommand = RefreshDataCommand }
         };
 
-        if(loadInBackground) StatusContext.RunFireAndForgetBlockingTask(LoadData);
+        if (loadInBackground) StatusContext.RunFireAndForgetBlockingTask(RefreshData);
     }
 
-    public static async Task<ImageListWithActionsContext> CreateInstance(StatusControlContext? statusContext, WindowIconStatus? windowStatus = null, bool loadInBackground = true)
+    public CmsCommonCommands CommonCommands { get; set; }
+    public ContentListContext ListContext { get; set; }
+    public StatusControlContext StatusContext { get; set; }
+    public WindowIconStatus? WindowStatus { get; set; }
+
+    public static async Task<ImageListWithActionsContext> CreateInstance(StatusControlContext? statusContext,
+        WindowIconStatus? windowStatus = null, bool loadInBackground = true)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
         var factoryContext = statusContext ?? new StatusControlContext();
-        var factoryListContext = await ContentListContext.CreateInstance(factoryContext, new ImageListLoader(100), windowStatus);
+        var factoryListContext =
+            await ContentListContext.CreateInstance(factoryContext, new ImageListLoader(100), windowStatus);
 
         return new ImageListWithActionsContext(factoryContext, windowStatus, factoryListContext, loadInBackground);
     }
 
+    [BlockingCommand]
     private async Task EmailHtmlToClipboard()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -117,6 +103,7 @@ public partial class ImageListWithActionsContext : ObservableObject
         StatusContext.ToastSuccess("Email Html on Clipboard");
     }
 
+    [BlockingCommand]
     private async Task ForcedResize(CancellationToken cancellationToken)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -158,6 +145,7 @@ public partial class ImageListWithActionsContext : ObservableObject
         }
     }
 
+    [BlockingCommand]
     private async Task ImageBracketLinkCodesToClipboardForSelected()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -179,13 +167,15 @@ public partial class ImageListWithActionsContext : ObservableObject
         StatusContext.ToastSuccess($"To Clipboard: {finalString}");
     }
 
-    private async Task LoadData()
+    [BlockingCommand]
+    private async Task RefreshData()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
         await ListContext.LoadData();
     }
 
+    [BlockingCommand]
     private async Task RegenerateHtmlAndReprocessImageForSelected(CancellationToken cancellationToken)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -274,7 +264,8 @@ public partial class ImageListWithActionsContext : ObservableObject
             .ToList() ?? new List<ImageListListItem>();
     }
 
-    public async Task ViewFilesSelected(CancellationToken cancelToken)
+    [BlockingCommand]
+    public async Task ViewSelectedFiles(CancellationToken cancelToken)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 

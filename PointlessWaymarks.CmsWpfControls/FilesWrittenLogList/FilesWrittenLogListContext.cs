@@ -1,11 +1,8 @@
-﻿#nullable enable
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
 using System.Text.Json;
 using System.Windows;
-using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
 using Microsoft.EntityFrameworkCore;
 using Ookii.Dialogs.Wpf;
 using PointlessWaymarks.CmsData;
@@ -18,6 +15,7 @@ using PointlessWaymarks.CmsWpfControls.Utility.Aws;
 using PointlessWaymarks.CmsWpfControls.Utility.Excel;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.CommonTools.S3;
+using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon.S3Deletions;
 using PointlessWaymarks.WpfCommon.S3Uploads;
 using PointlessWaymarks.WpfCommon.Status;
@@ -28,85 +26,44 @@ using TinyIpc.Messaging;
 
 namespace PointlessWaymarks.CmsWpfControls.FilesWrittenLogList;
 
-public partial class FilesWrittenLogListContext : ObservableObject
+[NotifyPropertyChanged]
+[GenerateStatusCommands]
+public partial class FilesWrittenLogListContext
 {
-    [ObservableProperty] private RelayCommand _allFilesToExcelCommand;
-    [ObservableProperty] private RelayCommand _allScriptStringsToClipboardCommand;
-    [ObservableProperty] private RelayCommand _allScriptStringsToPowerShellScriptCommand;
-    [ObservableProperty] private RelayCommand _allWrittenFilesToClipboardCommand;
-    [ObservableProperty] private RelayCommand _allWrittenFilesToRunningS3UploaderCommand;
-    [ObservableProperty] private RelayCommand _allWrittenFilesToS3UploaderCommand;
-    [ObservableProperty] private RelayCommand _allWrittenFilesToS3UploaderJsonFileCommand;
-    [ObservableProperty] private bool _changeSlashes = true;
-    [ObservableProperty] private CmsCommonCommands _commonCommands;
-    [ObservableProperty] private DataNotificationsWorkQueue _dataNotificationsProcessor;
-    [ObservableProperty] private bool _filterForFilesInCurrentGenerationDirectory = true;
-    [ObservableProperty] private RelayCommand? _generateItemsCommand;
-    [ObservableProperty] private ObservableCollection<FileWrittenLogListDateTimeFilterChoice> _generationChoices;
-    [ObservableProperty] private ObservableCollection<FilesWrittenLogListListItem> _items;
-    [ObservableProperty] private RelayCommand? _openUploaderJsonFileCommand;
-    [ObservableProperty] private RelayCommand? _selectedFilesToExcelCommand;
-    [ObservableProperty] private FileWrittenLogListDateTimeFilterChoice? _selectedGenerationChoice;
-    [ObservableProperty] private List<FilesWrittenLogListListItem> _selectedItems = new();
-    [ObservableProperty] private RelayCommand _selectedScriptStringsToClipboardCommand;
-    [ObservableProperty] private RelayCommand _selectedScriptStringsToPowerShellScriptCommand;
-    [ObservableProperty] private RelayCommand _selectedWrittenFilesToClipboardCommand;
-    [ObservableProperty] private RelayCommand _selectedWrittenFilesToRunningS3UploaderCommand;
-    [ObservableProperty] private RelayCommand _selectedWrittenFilesToS3UploaderCommand;
-    [ObservableProperty] private RelayCommand _selectedWrittenFilesToS3UploaderJsonFileCommand;
-    [ObservableProperty] private RelayCommand _siteDeletedFilesReportCommand;
-    [ObservableProperty] private RelayCommand _siteMissingFilesReportCommand;
-    [ObservableProperty] private StatusControlContext _statusContext;
-    [ObservableProperty] private string _userBucketName = string.Empty;
-    [ObservableProperty] private string _userBucketRegion = string.Empty;
-    [ObservableProperty] private string _userScriptPrefix = "aws s3 cp";
-
     private FilesWrittenLogListContext(StatusControlContext statusContext, bool loadInBackground,
         ObservableCollection<FileWrittenLogListDateTimeFilterChoice> generationChoices,
         ObservableCollection<FilesWrittenLogListListItem> items)
     {
-        _statusContext = statusContext;
-        _commonCommands = new CmsCommonCommands(StatusContext);
+        StatusContext = statusContext;
+        CommonCommands = new CmsCommonCommands(StatusContext);
 
-        _generationChoices = generationChoices;
-        _items = items;
+        BuildCommands();
 
-        _generateItemsCommand = StatusContext.RunBlockingTaskCommand(GenerateItems);
-        _allScriptStringsToClipboardCommand = StatusContext.RunBlockingTaskCommand(AllScriptStringsToClipboard);
-        _selectedScriptStringsToClipboardCommand =
-            StatusContext.RunBlockingTaskCommand(SelectedScriptStringsToClipboard);
-        _allWrittenFilesToClipboardCommand = StatusContext.RunBlockingTaskCommand(AllWrittenFilesToClipboard);
-        _selectedWrittenFilesToClipboardCommand = StatusContext.RunBlockingTaskCommand(SelectedWrittenFilesToClipboard);
-        _selectedScriptStringsToPowerShellScriptCommand =
-            StatusContext.RunBlockingTaskCommand(SelectedScriptStringsToPowerShellScript);
-        _allScriptStringsToPowerShellScriptCommand =
-            StatusContext.RunBlockingTaskCommand(AllScriptStringsToPowerShellScript);
-        _selectedFilesToExcelCommand = StatusContext.RunBlockingTaskCommand(SelectedFilesToExcel);
-        _allFilesToExcelCommand = StatusContext.RunBlockingTaskCommand(AllFilesToExcel);
-        _siteMissingFilesReportCommand = StatusContext.RunBlockingTaskCommand(SiteMissingAndChangedFilesReport);
-        _siteDeletedFilesReportCommand = StatusContext.RunBlockingTaskCommand(SiteDeletedFilesReport);
-        _selectedWrittenFilesToS3UploaderCommand =
-            StatusContext.RunNonBlockingTaskCommand(async () => await SelectedWrittenFilesToS3Uploader(false));
-        _allWrittenFilesToS3UploaderCommand =
-            StatusContext.RunNonBlockingTaskCommand(async () => await AllWrittenFilesToS3Uploader(false));
-        _selectedWrittenFilesToRunningS3UploaderCommand =
-            StatusContext.RunNonBlockingTaskCommand(async () => await SelectedWrittenFilesToS3Uploader(true));
-        _allWrittenFilesToRunningS3UploaderCommand =
-            StatusContext.RunNonBlockingTaskCommand(async () => await AllWrittenFilesToS3Uploader(true));
-        _selectedWrittenFilesToS3UploaderJsonFileCommand =
-            StatusContext.RunNonBlockingTaskCommand(SelectedWrittenFilesToS3UploaderJsonFile);
-        _allWrittenFilesToS3UploaderJsonFileCommand =
-            StatusContext.RunNonBlockingTaskCommand(AllWrittenFilesToS3UploaderJsonFile);
-        _openUploaderJsonFileCommand = StatusContext.RunNonBlockingTaskCommand(OpenUploaderJsonFile);
+        GenerationChoices = generationChoices;
+        Items = items;
 
         PropertyChanged += OnPropertyChanged;
 
         if (loadInBackground) StatusContext.RunFireAndForgetBlockingTask(LoadData);
 
-        _dataNotificationsProcessor = new DataNotificationsWorkQueue { Processor = DataNotificationReceived };
+        DataNotificationsProcessor = new DataNotificationsWorkQueue { Processor = DataNotificationReceived };
         DataNotifications.NewDataNotificationChannel().MessageReceived += OnDataNotificationReceived;
     }
 
+    public bool ChangeSlashes { get; set; } = true;
+    public CmsCommonCommands CommonCommands { get; set; }
+    public DataNotificationsWorkQueue DataNotificationsProcessor { get; set; }
+    public bool FilterForFilesInCurrentGenerationDirectory { get; set; } = true;
+    public ObservableCollection<FileWrittenLogListDateTimeFilterChoice> GenerationChoices { get; set; }
+    public ObservableCollection<FilesWrittenLogListListItem> Items { get; set; }
+    public FileWrittenLogListDateTimeFilterChoice? SelectedGenerationChoice { get; set; }
+    public List<FilesWrittenLogListListItem> SelectedItems { get; set; } = new();
+    public StatusControlContext StatusContext { get; set; }
+    public string UserBucketName { get; set; } = string.Empty;
+    public string UserBucketRegion { get; set; } = string.Empty;
+    public string UserScriptPrefix { get; set; } = "aws s3 cp";
+
+    [BlockingCommand]
     private async Task AllFilesToExcel()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -120,6 +77,7 @@ public partial class FilesWrittenLogListContext : ObservableObject
         FilesToExcel(Items.ToList());
     }
 
+    [BlockingCommand]
     public async Task AllScriptStringsToClipboard()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -141,6 +99,7 @@ public partial class FilesWrittenLogListContext : ObservableObject
         StatusContext.ToastSuccess("Items added to Clipboard");
     }
 
+    [BlockingCommand]
     public async Task AllScriptStringsToPowerShellScript()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -154,6 +113,7 @@ public partial class FilesWrittenLogListContext : ObservableObject
         await FileItemsToScriptFile(Items.ToList()).ConfigureAwait(true);
     }
 
+    [BlockingCommand]
     public async Task AllWrittenFilesToClipboard()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -167,7 +127,8 @@ public partial class FilesWrittenLogListContext : ObservableObject
         await FilesToClipboard(Items.ToList()).ConfigureAwait(true);
     }
 
-    public async Task AllWrittenFilesToS3Uploader(bool autoStartUploader)
+    [BlockingCommand]
+    public async Task AllWrittenFilesToRunningS3Uploader()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -177,9 +138,24 @@ public partial class FilesWrittenLogListContext : ObservableObject
             return;
         }
 
-        await FileItemsToS3Uploader(Items.ToList(), autoStartUploader);
+        await FileItemsToS3Uploader(Items.ToList(), true);
     }
 
+    [BlockingCommand]
+    public async Task AllWrittenFilesToS3Uploader()
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (!Items.Any())
+        {
+            StatusContext.ToastError("No Items?");
+            return;
+        }
+
+        await FileItemsToS3Uploader(Items.ToList(), false);
+    }
+
+    [BlockingCommand]
     public async Task AllWrittenFilesToS3UploaderJsonFile()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -337,6 +313,7 @@ public partial class FilesWrittenLogListContext : ObservableObject
             progress: StatusContext.ProgressTracker());
     }
 
+    [BlockingCommand]
     public async Task GenerateItems()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -491,6 +468,7 @@ public partial class FilesWrittenLogListContext : ObservableObject
             });
     }
 
+    [NonBlockingCommand]
     private async Task OpenUploaderJsonFile()
     {
         await ThreadSwitcher.ResumeForegroundAsync();
@@ -546,6 +524,7 @@ public partial class FilesWrittenLogListContext : ObservableObject
         }
     }
 
+    [BlockingCommand]
     private async Task SelectedFilesToExcel()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -559,6 +538,7 @@ public partial class FilesWrittenLogListContext : ObservableObject
         FilesToExcel(SelectedItems);
     }
 
+    [BlockingCommand]
     public async Task SelectedScriptStringsToClipboard()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -576,6 +556,7 @@ public partial class FilesWrittenLogListContext : ObservableObject
         Clipboard.SetText(scriptString);
     }
 
+    [BlockingCommand]
     public async Task SelectedScriptStringsToPowerShellScript()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -589,6 +570,7 @@ public partial class FilesWrittenLogListContext : ObservableObject
         await FileItemsToScriptFile(SelectedItems).ConfigureAwait(true);
     }
 
+    [BlockingCommand]
     public async Task SelectedWrittenFilesToClipboard()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -602,7 +584,8 @@ public partial class FilesWrittenLogListContext : ObservableObject
         await FilesToClipboard(SelectedItems).ConfigureAwait(true);
     }
 
-    public async Task SelectedWrittenFilesToS3Uploader(bool autoStartUploader)
+    [BlockingCommand]
+    public async Task SelectedWrittenFilesToRunningS3Uploader()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -612,9 +595,24 @@ public partial class FilesWrittenLogListContext : ObservableObject
             return;
         }
 
-        await FileItemsToS3Uploader(SelectedItems, autoStartUploader);
+        await FileItemsToS3Uploader(SelectedItems, true);
     }
 
+    [BlockingCommand]
+    public async Task SelectedWrittenFilesToS3Uploader()
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (!SelectedItems.Any())
+        {
+            StatusContext.ToastError("No Items?");
+            return;
+        }
+
+        await FileItemsToS3Uploader(SelectedItems, false);
+    }
+
+    [NonBlockingCommand]
     public async Task SelectedWrittenFilesToS3UploaderJsonFile()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -628,6 +626,7 @@ public partial class FilesWrittenLogListContext : ObservableObject
         await FileItemsToS3UploaderJsonFile(SelectedItems);
     }
 
+    [BlockingCommand]
     public async Task SiteDeletedFilesReport()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -668,6 +667,7 @@ public partial class FilesWrittenLogListContext : ObservableObject
         newUploadWindow.PositionWindowAndShow();
     }
 
+    [BlockingCommand]
     public async Task SiteMissingAndChangedFilesReport()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();

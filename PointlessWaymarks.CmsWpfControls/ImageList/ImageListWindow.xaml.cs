@@ -1,4 +1,4 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 
 namespace PointlessWaymarks.CmsWpfControls.ImageList;
@@ -6,24 +6,24 @@ namespace PointlessWaymarks.CmsWpfControls.ImageList;
 /// <summary>
 ///     Interaction logic for ImageListWindow.xaml
 /// </summary>
-[ObservableObject]
+[NotifyPropertyChanged]
 public partial class ImageListWindow
 {
-    [ObservableProperty] private ImageListWithActionsContext _listContext;
-    [ObservableProperty] private string _windowTitle = "Image List";
-
     private ImageListWindow(ImageListWithActionsContext toLoad)
     {
         InitializeComponent();
 
-        _listContext = toLoad;
+        ListContext = toLoad;
 
         DataContext = this;
     }
 
+    public ImageListWithActionsContext ListContext { get; set; }
+    public string WindowTitle { get; set; } = "Image List";
+
     /// <summary>
-    /// Creates a new instance - this method can be called from any thread and will
-    /// switch to the UI thread as needed.
+    ///     Creates a new instance - this method can be called from any thread and will
+    ///     switch to the UI thread as needed.
     /// </summary>
     /// <returns></returns>
     public static async Task<ImageListWindow> CreateInstance(ImageListWithActionsContext? toLoad)

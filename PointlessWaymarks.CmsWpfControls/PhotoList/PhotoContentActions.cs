@@ -1,7 +1,6 @@
-﻿using System.Diagnostics;
+﻿using System.ComponentModel;
+using System.Diagnostics;
 using System.Windows;
-using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
 using Microsoft.EntityFrameworkCore;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.CommonHtml;
@@ -13,61 +12,20 @@ using PointlessWaymarks.CmsWpfControls.ContentList;
 using PointlessWaymarks.CmsWpfControls.PhotoContentEditor;
 using PointlessWaymarks.CmsWpfControls.Utility;
 using PointlessWaymarks.CommonTools;
+using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 using PointlessWaymarks.WpfCommon.Utility;
 
 namespace PointlessWaymarks.CmsWpfControls.PhotoList;
 
-public partial class PhotoContentActions : ObservableObject, IContentActions<PhotoContent>
+[NotifyPropertyChanged]
+[GenerateStatusCommands]
+public partial class PhotoContentActions : IContentActions<PhotoContent>
 {
-    [ObservableProperty] private RelayCommand<PhotoContent> _apertureSearchCommand;
-    [ObservableProperty] private RelayCommand<PhotoContent> _cameraMakeSearchCommand;
-    [ObservableProperty] private RelayCommand<PhotoContent> _cameraModelSearchCommand;
-    [ObservableProperty] private RelayCommand<PhotoContent> _deleteCommand;
-    [ObservableProperty] private RelayCommand<PhotoContent> _editCommand;
-    [ObservableProperty] private RelayCommand<PhotoContent> _extractNewLinksCommand;
-    [ObservableProperty] private RelayCommand<PhotoContent> _focalLengthSearchCommand;
-    [ObservableProperty] private RelayCommand<PhotoContent> _generateHtmlCommand;
-    [ObservableProperty] private RelayCommand<PhotoContent> _isoSearchCommand;
-    [ObservableProperty] private RelayCommand<PhotoContent> _lensSearchCommand;
-    [ObservableProperty] private RelayCommand<PhotoContent> _linkCodeToClipboardCommand;
-    [ObservableProperty] private RelayCommand<PhotoContent> _photoTakenOnSearchCommand;
-    [ObservableProperty] private RelayCommand<PhotoContent> _shutterSpeedSearchCommand;
-    [ObservableProperty] private StatusControlContext _statusContext;
-    [ObservableProperty] private RelayCommand<PhotoContent> _viewFileCommand;
-    [ObservableProperty] private RelayCommand<PhotoContent> _viewOnSiteCommand;
-    [ObservableProperty] private RelayCommand<PhotoContent> _viewHistoryCommand;
-
     public PhotoContentActions(StatusControlContext? statusContext)
     {
-        _statusContext = statusContext ?? new StatusControlContext();
-
-        _deleteCommand = StatusContext.RunBlockingTaskCommand<PhotoContent>(Delete);
-        _editCommand = StatusContext.RunNonBlockingTaskCommand<PhotoContent>(Edit);
-        _extractNewLinksCommand = StatusContext.RunBlockingTaskCommand<PhotoContent>(ExtractNewLinks);
-        _generateHtmlCommand = StatusContext.RunBlockingTaskCommand<PhotoContent>(GenerateHtml);
-        _linkCodeToClipboardCommand = StatusContext.RunBlockingTaskCommand<PhotoContent>(DefaultBracketCodeToClipboard);
-        _viewOnSiteCommand = StatusContext.RunBlockingTaskCommand<PhotoContent>(ViewOnSite);
-        _viewFileCommand = StatusContext.RunNonBlockingTaskCommand<PhotoContent>(ViewFile);
-        _viewHistoryCommand = StatusContext.RunNonBlockingTaskCommand<PhotoContent>(ViewHistory);
-
-        _apertureSearchCommand = StatusContext.RunNonBlockingTaskCommand<PhotoContent>(async x =>
-            await RunReport(async () => await ApertureSearch(x), $"Aperture - {x?.Aperture}"));
-        _cameraMakeSearchCommand = StatusContext.RunNonBlockingTaskCommand<PhotoContent>(async x =>
-            await RunReport(async () => await CameraMakeSearch(x), $"Camera Make - {x?.CameraMake}"));
-        _cameraModelSearchCommand = StatusContext.RunNonBlockingTaskCommand<PhotoContent>(async x =>
-            await RunReport(async () => await CameraModelSearch(x), $"Camera Model - {x?.CameraModel}"));
-        _focalLengthSearchCommand = StatusContext.RunNonBlockingTaskCommand<PhotoContent>(async x =>
-            await RunReport(async () => await FocalLengthSearch(x), $"Focal Length - {x?.FocalLength}"));
-        _isoSearchCommand = StatusContext.RunNonBlockingTaskCommand<PhotoContent>(async x =>
-            await RunReport(async () => await IsoSearch(x), $"ISO - {x?.Iso}"));
-        _lensSearchCommand = StatusContext.RunNonBlockingTaskCommand<PhotoContent>(async x =>
-            await RunReport(async () => await LensSearch(x), $"Lens - {x?.Lens}"));
-        _photoTakenOnSearchCommand = StatusContext.RunNonBlockingTaskCommand<PhotoContent>(async x =>
-            await RunReport(async () => await PhotoTakenOnSearch(x), $"Photo Created On - {x?.PhotoCreatedOn.Date:D}"));
-        _shutterSpeedSearchCommand = StatusContext.RunNonBlockingTaskCommand<PhotoContent>(async x =>
-            await RunReport(async () => await ShutterSpeedSearch(x), $"Shutter Speed - {x?.ShutterSpeed}"));
+        StatusContext = statusContext ?? new StatusControlContext();
     }
 
     public string DefaultBracketCode(PhotoContent? content)
@@ -75,6 +33,7 @@ public partial class PhotoContentActions : ObservableObject, IContentActions<Pho
         return content?.ContentId == null ? string.Empty : @$"{BracketCodePhotos.Create(content)}";
     }
 
+    [BlockingCommand]
     public async Task DefaultBracketCodeToClipboard(PhotoContent? content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -94,6 +53,7 @@ public partial class PhotoContentActions : ObservableObject, IContentActions<Pho
         StatusContext.ToastSuccess($"To Clipboard {finalString}");
     }
 
+    [NonBlockingCommand]
     public async Task Delete(PhotoContent? content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -123,6 +83,7 @@ public partial class PhotoContentActions : ObservableObject, IContentActions<Pho
         }
     }
 
+    [NonBlockingCommand]
     public async Task Edit(PhotoContent? content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -142,6 +103,7 @@ public partial class PhotoContentActions : ObservableObject, IContentActions<Pho
         await newContentWindow.PositionWindowAndShowOnUiThread();
     }
 
+    [BlockingCommand]
     public async Task ExtractNewLinks(PhotoContent? content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -161,6 +123,7 @@ public partial class PhotoContentActions : ObservableObject, IContentActions<Pho
             $"{refreshedData.BodyContent} {refreshedData.UpdateNotes}", StatusContext.ProgressTracker());
     }
 
+    [BlockingCommand]
     public async Task GenerateHtml(PhotoContent? content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -180,6 +143,9 @@ public partial class PhotoContentActions : ObservableObject, IContentActions<Pho
         StatusContext.ToastSuccess($"Generated {htmlContext.PageUrl}");
     }
 
+    public StatusControlContext StatusContext { get; set; }
+
+    [NonBlockingCommand]
     public async Task ViewHistory(PhotoContent? content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -212,6 +178,7 @@ public partial class PhotoContentActions : ObservableObject, IContentActions<Pho
         historicView.WriteHtmlToTempFolderAndShow(StatusContext.ProgressTracker());
     }
 
+    [BlockingCommand]
     public async Task ViewOnSite(PhotoContent? content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -230,19 +197,27 @@ public partial class PhotoContentActions : ObservableObject, IContentActions<Pho
         Process.Start(ps);
     }
 
-    private static async Task<List<object>> ApertureSearch(PhotoContent? content)
+    public event PropertyChangedEventHandler? PropertyChanged;
+
+    private static async Task<List<object>> ApertureFilter(PhotoContent? content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
         var db = await Db.Context();
 
-        if(content == null) return new List<object>();
+        if (content == null) return new List<object>();
 
         return (await db.PhotoContents.Where(x => x.Aperture == content.Aperture).ToListAsync()).Cast<object>()
             .ToList();
     }
 
-    public static async Task<List<object>> CameraMakeSearch(PhotoContent? content)
+    [NonBlockingCommand]
+    public async Task ApertureSearch(PhotoContent? content)
+    {
+        await RunReport(async () => await ApertureFilter(content), $"Aperture - {content?.Aperture}");
+    }
+
+    public static async Task<List<object>> CameraMakeFilter(PhotoContent? content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -254,7 +229,14 @@ public partial class PhotoContentActions : ObservableObject, IContentActions<Pho
             .ToList();
     }
 
-    public static async Task<List<object>> CameraModelSearch(PhotoContent? content)
+
+    [NonBlockingCommand]
+    public async Task CameraMakeSearch(PhotoContent? content)
+    {
+        await RunReport(async () => await CameraMakeFilter(content), $"Camera Make - {content?.CameraMake}");
+    }
+
+    public static async Task<List<object>> CameraModelFilter(PhotoContent? content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -266,7 +248,14 @@ public partial class PhotoContentActions : ObservableObject, IContentActions<Pho
             .ToList();
     }
 
-    public static async Task<List<object>> FocalLengthSearch(PhotoContent? content)
+
+    [NonBlockingCommand]
+    public async Task CameraModelSearch(PhotoContent? content)
+    {
+        await RunReport(async () => await CameraModelFilter(content), $"Camera Model - {content?.CameraModel}");
+    }
+
+    public static async Task<List<object>> FocalLengthFilter(PhotoContent? content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -278,7 +267,14 @@ public partial class PhotoContentActions : ObservableObject, IContentActions<Pho
             .ToList();
     }
 
-    public static async Task<List<object>> IsoSearch(PhotoContent? content)
+
+    [NonBlockingCommand]
+    public async Task FocalLengthSearch(PhotoContent? content)
+    {
+        await RunReport(async () => await FocalLengthFilter(content), $"Focal Length - {content?.FocalLength}");
+    }
+
+    public static async Task<List<object>> IsoFilter(PhotoContent? content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -289,7 +285,13 @@ public partial class PhotoContentActions : ObservableObject, IContentActions<Pho
         return (await db.PhotoContents.Where(x => x.Iso == content.Iso).ToListAsync()).Cast<object>().ToList();
     }
 
-    public static async Task<List<object>> LensSearch(PhotoContent? content)
+    [NonBlockingCommand]
+    public async Task IsoSearch(PhotoContent? content)
+    {
+        await RunReport(async () => await IsoFilter(content), $"ISO - {content?.Iso}");
+    }
+
+    public static async Task<List<object>> LensFilter(PhotoContent? content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -300,7 +302,14 @@ public partial class PhotoContentActions : ObservableObject, IContentActions<Pho
         return (await db.PhotoContents.Where(x => x.Lens == content.Lens).ToListAsync()).Cast<object>().ToList();
     }
 
-    public static async Task<PhotoListListItem> ListItemFromDbItem(PhotoContent content, PhotoContentActions photoContentActions,
+    [NonBlockingCommand]
+    public async Task LensSearch(PhotoContent? content)
+    {
+        await RunReport(async () => await LensFilter(content), $"Lens - {content?.Lens}");
+    }
+
+    public static async Task<PhotoListListItem> ListItemFromDbItem(PhotoContent content,
+        PhotoContentActions photoContentActions,
         bool showType)
     {
         var item = await PhotoListListItem.CreateInstance(photoContentActions);
@@ -311,7 +320,7 @@ public partial class PhotoContentActions : ObservableObject, IContentActions<Pho
     }
 
 
-    public static async Task<List<object>> PhotoTakenOnSearch(PhotoContent? content)
+    public static async Task<List<object>> PhotoTakenOnFilter(PhotoContent? content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -329,13 +338,23 @@ public partial class PhotoContentActions : ObservableObject, IContentActions<Pho
             .Cast<object>().ToList();
     }
 
+
+    [NonBlockingCommand]
+    public async Task PhotoTakenOnSearch(PhotoContent? content)
+    {
+        await RunReport(async () => await PhotoTakenOnFilter(content),
+            $"Photo Created On - {content?.PhotoCreatedOn.Date:D}");
+    }
+
     public static async Task RunReport(Func<Task<List<object>>> toRun, string title)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
         var reportLoader = new ContentListLoaderReport(toRun, PhotoListLoader.SortContextPhotoDefault());
 
-        var newWindow = await PhotoListWindow.CreateInstance(await PhotoListWithActionsContext.CreateInstance( null, null, reportLoader));
+        var newWindow =
+            await PhotoListWindow.CreateInstance(
+                await PhotoListWithActionsContext.CreateInstance(null, null, reportLoader));
         await newWindow.PositionWindowAndShowOnUiThread();
         newWindow.WindowTitle = title;
     }
@@ -352,6 +371,13 @@ public partial class PhotoContentActions : ObservableObject, IContentActions<Pho
             .ToList();
     }
 
+    [NonBlockingCommand]
+    public async Task ShutterSpeedSearchSearch(PhotoContent? content)
+    {
+        await RunReport(async () => await ShutterSpeedSearch(content), $"Shutter Speed - {content?.ShutterSpeed}");
+    }
+
+    [NonBlockingCommand]
     public async Task ViewFile(PhotoContent? content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();

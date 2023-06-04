@@ -1,30 +1,25 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
-using PointlessWaymarks.CmsWpfControls.ContentList;
+﻿using PointlessWaymarks.CmsWpfControls.ContentList;
+using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 using PointlessWaymarks.WpfCommon.Utility;
 
 namespace PointlessWaymarks.CmsWpfControls.MapComponentList;
 
-public partial class MapComponentListWithActionsContext : ObservableObject
+[NotifyPropertyChanged]
+[GenerateStatusCommands]
+public partial class MapComponentListWithActionsContext
 {
-    [ObservableProperty] private CmsCommonCommands _commonCommands;
-    [ObservableProperty] private ContentListContext _listContext;
-    [ObservableProperty] private RelayCommand _refreshDataCommand;
-    [ObservableProperty] private StatusControlContext _statusContext;
-    [ObservableProperty] private WindowIconStatus? _windowStatus;
-
-    private MapComponentListWithActionsContext(StatusControlContext statusContext, WindowIconStatus? windowStatus, ContentListContext listContext, bool loadInBackground = true)
+    private MapComponentListWithActionsContext(StatusControlContext statusContext, WindowIconStatus? windowStatus,
+        ContentListContext listContext, bool loadInBackground = true)
     {
-        _statusContext = statusContext;
-        _windowStatus = windowStatus;
+        StatusContext = statusContext;
+        WindowStatus = windowStatus;
+        CommonCommands = new CmsCommonCommands(StatusContext, WindowStatus);
 
-        _listContext = listContext;
+        BuildCommands();
 
-        _commonCommands = new CmsCommonCommands(StatusContext, WindowStatus);
-
-        _refreshDataCommand = StatusContext.RunBlockingTaskCommand(ListContext.LoadData);
+        ListContext = listContext;
 
         ListContext.ContextMenuItems = new List<ContextMenuItemData>
         {
@@ -42,20 +37,29 @@ public partial class MapComponentListWithActionsContext : ObservableObject
         };
 
 
-        if(loadInBackground) StatusContext.RunFireAndForgetBlockingTask(LoadData);
+        if (loadInBackground) StatusContext.RunFireAndForgetBlockingTask(RefreshData);
     }
 
-    public static async Task<MapComponentListWithActionsContext> CreateInstance(StatusControlContext? statusContext, WindowIconStatus? windowStatus = null, bool loadInBackground = true)
+    public CmsCommonCommands CommonCommands { get; set; }
+    public ContentListContext ListContext { get; set; }
+    public StatusControlContext StatusContext { get; set; }
+    public WindowIconStatus? WindowStatus { get; set; }
+
+    public static async Task<MapComponentListWithActionsContext> CreateInstance(StatusControlContext? statusContext,
+        WindowIconStatus? windowStatus = null, bool loadInBackground = true)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
         var factoryContext = statusContext ?? new StatusControlContext();
-        var factoryListContext = await ContentListContext.CreateInstance(factoryContext, new MapComponentListLoader(100), windowStatus);
+        var factoryListContext =
+            await ContentListContext.CreateInstance(factoryContext, new MapComponentListLoader(100), windowStatus);
 
-        return new MapComponentListWithActionsContext(factoryContext, windowStatus, factoryListContext, loadInBackground);
+        return new MapComponentListWithActionsContext(factoryContext, windowStatus, factoryListContext,
+            loadInBackground);
     }
 
-    private async Task LoadData()
+    [BlockingCommand]
+    private async Task RefreshData()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 

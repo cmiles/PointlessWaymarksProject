@@ -1,27 +1,22 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
-using PointlessWaymarks.CmsData.Database.Models;
+﻿using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsWpfControls.ContentList;
+using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon.Utility;
 
 namespace PointlessWaymarks.CmsWpfControls.MapComponentList;
 
-public partial class MapComponentListListItem : ObservableObject, IContentListItem
+[NotifyPropertyChanged]
+public partial class MapComponentListListItem : IContentListItem
 {
-    [ObservableProperty] private MapComponent _dbEntry;
-    [ObservableProperty] private MapComponentContentActions _itemActions;
-    [ObservableProperty] private CurrentSelectedTextTracker _selectedTextTracker = new();
-    [ObservableProperty] private bool _showType;
-
     private MapComponentListListItem(MapComponentContentActions itemActions, MapComponent dbEntry)
     {
-        _dbEntry = dbEntry;
-        _itemActions = itemActions;
+        DbEntry = dbEntry;
+        ItemActions = itemActions;
     }
 
-    public static Task<MapComponentListListItem> CreateInstance(MapComponentContentActions itemActions)
-    {
-        return Task.FromResult(new MapComponentListListItem(itemActions, MapComponent.CreateInstance()));
-    }
+    public MapComponent DbEntry { get; set; }
+    public MapComponentContentActions ItemActions { get; set; }
+    public bool ShowType { get; set; }
 
     public IContentCommon Content()
     {
@@ -74,13 +69,20 @@ public partial class MapComponentListListItem : ObservableObject, IContentListIt
         await ItemActions.GenerateHtml(DbEntry);
     }
 
+    public async Task ViewHistory()
+    {
+        await ItemActions.ViewHistory(DbEntry);
+    }
+
     public async Task ViewOnSite()
     {
         await ItemActions.ViewOnSite(DbEntry);
     }
 
-    public async Task ViewHistory()
+    public CurrentSelectedTextTracker? SelectedTextTracker { get; set; } = new();
+
+    public static Task<MapComponentListListItem> CreateInstance(MapComponentContentActions itemActions)
     {
-        await ItemActions.ViewHistory(DbEntry);
+        return Task.FromResult(new MapComponentListListItem(itemActions, MapComponent.CreateInstance()));
     }
 }

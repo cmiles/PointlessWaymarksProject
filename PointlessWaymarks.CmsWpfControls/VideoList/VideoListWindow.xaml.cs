@@ -1,4 +1,4 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 
 namespace PointlessWaymarks.CmsWpfControls.VideoList;
@@ -6,22 +6,22 @@ namespace PointlessWaymarks.CmsWpfControls.VideoList;
 /// <summary>
 ///     Interaction logic for VideoListWindow.xaml
 /// </summary>
-[ObservableObject]
+[NotifyPropertyChanged]
 #pragma warning disable MVVMTK0033
 public partial class VideoListWindow
 #pragma warning restore MVVMTK0033
 {
-    [ObservableProperty] private VideoListWithActionsContext _listContext;
-    [ObservableProperty] private string _windowTitle = "Videos List";
-
     private VideoListWindow(VideoListWithActionsContext listContext)
     {
         InitializeComponent();
 
-        _listContext = listContext;
+        ListContext = listContext;
 
         DataContext = this;
     }
+
+    public VideoListWithActionsContext ListContext { get; set; }
+    public string WindowTitle { get; set; } = "Videos List";
 
     /// <summary>
     ///     Creates a new instance - this method can be called from any thread and will

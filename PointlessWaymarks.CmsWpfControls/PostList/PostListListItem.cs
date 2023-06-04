@@ -1,28 +1,22 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
-using PointlessWaymarks.CmsData.Database.Models;
+﻿using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsWpfControls.ContentList;
+using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon.Utility;
 
 namespace PointlessWaymarks.CmsWpfControls.PostList;
 
-public partial class PostListListItem : ObservableObject, IContentListItem, IContentListSmallImage
+[NotifyPropertyChanged]
+public partial class PostListListItem : IContentListItem, IContentListSmallImage
 {
-    [ObservableProperty] private PostContent _dbEntry;
-    [ObservableProperty] private PostContentActions _itemActions;
-    [ObservableProperty] private CurrentSelectedTextTracker _selectedTextTracker = new();
-    [ObservableProperty] private bool _showType;
-    [ObservableProperty] private string? _smallImageUrl;
-
     private PostListListItem(PostContentActions itemActions, PostContent dbEntry)
     {
-        _dbEntry = dbEntry;
-        _itemActions = itemActions;
+        DbEntry = dbEntry;
+        ItemActions = itemActions;
     }
 
-    public static Task<PostListListItem> CreateInstance(PostContentActions itemActions)
-    {
-        return Task.FromResult(new PostListListItem(itemActions, PostContent.CreateInstance()));
-    }
+    public PostContent DbEntry { get; set; }
+    public PostContentActions ItemActions { get; set; }
+    public bool ShowType { get; set; }
 
     public IContentCommon Content()
     {
@@ -64,13 +58,21 @@ public partial class PostListListItem : ObservableObject, IContentListItem, ICon
         await ItemActions.GenerateHtml(DbEntry);
     }
 
+    public async Task ViewHistory()
+    {
+        await ItemActions.ViewHistory(DbEntry);
+    }
+
     public async Task ViewOnSite()
     {
         await ItemActions.ViewOnSite(DbEntry);
     }
 
-    public async Task ViewHistory()
+    public string? SmallImageUrl { get; set; }
+    public CurrentSelectedTextTracker? SelectedTextTracker { get; set; } = new();
+
+    public static Task<PostListListItem> CreateInstance(PostContentActions itemActions)
     {
-        await ItemActions.ViewHistory(DbEntry);
+        return Task.FromResult(new PostListListItem(itemActions, PostContent.CreateInstance()));
     }
 }

@@ -6,7 +6,7 @@ namespace PointlessWaymarks.CmsWpfControls.LineList;
 
 public class LineRecordedOnSearchLabelConverter : IValueConverter
 {
-    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
         if (value is not LineContent content) return string.Empty;
 
@@ -19,7 +19,7 @@ public class LineRecordedOnSearchLabelConverter : IValueConverter
         return $"Photos {recordedOn.start:M/d/yyyy} to {recordedOn.end:M/d/yyyy}";
     }
 
-    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+    public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
         throw new NotSupportedException();
     }

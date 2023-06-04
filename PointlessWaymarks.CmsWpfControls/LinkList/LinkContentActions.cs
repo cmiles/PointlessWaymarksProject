@@ -1,8 +1,7 @@
-﻿using System.Diagnostics;
+﻿using System.ComponentModel;
+using System.Diagnostics;
 using System.Windows;
 using Microsoft.EntityFrameworkCore;
-using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.ContentHtml.LinkListHtml;
 using PointlessWaymarks.CmsData.Database;
@@ -11,50 +10,22 @@ using PointlessWaymarks.CmsWpfControls.ContentHistoryView;
 using PointlessWaymarks.CmsWpfControls.ContentList;
 using PointlessWaymarks.CmsWpfControls.LinkContentEditor;
 using PointlessWaymarks.CmsWpfControls.Utility;
+using PointlessWaymarks.CommonTools;
+using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 using PointlessWaymarks.WpfCommon.Utility;
-using LogTools = PointlessWaymarks.CommonTools.LogTools;
 
 namespace PointlessWaymarks.CmsWpfControls.LinkList;
 
-public partial class LinkContentActions : ObservableObject, IContentActions<LinkContent>
+[NotifyPropertyChanged]
+[GenerateStatusCommands]
+public partial class LinkContentActions : IContentActions<LinkContent>
 {
-    [ObservableProperty] private RelayCommand<string> _copyUrlCommand;
-    [ObservableProperty] private RelayCommand<LinkContent> _deleteCommand;
-    [ObservableProperty] private RelayCommand<LinkContent> _editCommand;
-    [ObservableProperty] private RelayCommand<LinkContent> _extractNewLinksCommand;
-    [ObservableProperty] private RelayCommand<LinkContent> _generateHtmlCommand;
-    [ObservableProperty] private RelayCommand<LinkContent> _linkCodeToClipboardCommand;
-    [ObservableProperty] private RelayCommand<LinkContent> _viewOnSiteCommand;
-    [ObservableProperty] private StatusControlContext _statusContext;
-    [ObservableProperty] private RelayCommand<LinkContent> _viewHistoryCommand;
-
     public LinkContentActions(StatusControlContext statusContext)
     {
-        _statusContext = statusContext;
-        _deleteCommand = StatusContext.RunBlockingTaskCommand<LinkContent>(Delete);
-        _editCommand = StatusContext.RunNonBlockingTaskCommand<LinkContent>(Edit);
-        _extractNewLinksCommand = StatusContext.RunBlockingTaskCommand<LinkContent>(ExtractNewLinks);
-        _generateHtmlCommand = StatusContext.RunBlockingTaskCommand<LinkContent>(GenerateHtml);
-        _linkCodeToClipboardCommand = StatusContext.RunBlockingTaskCommand<LinkContent>(DefaultBracketCodeToClipboard);
-        _viewOnSiteCommand = StatusContext.RunBlockingTaskCommand<LinkContent>(ViewOnSite);
-        _viewHistoryCommand = StatusContext.RunNonBlockingTaskCommand<LinkContent>(ViewHistory);
-
-        _copyUrlCommand = StatusContext.RunNonBlockingTaskCommand<string>(async x =>
-        {
-            await ThreadSwitcher.ResumeForegroundAsync();
-
-            if(string.IsNullOrWhiteSpace(x))
-            {
-                StatusContext.ToastError("Nothing to Copy?");
-                return;
-            }
-
-            Clipboard.SetText(x);
-
-            StatusContext.ToastSuccess($"To Clipboard {x}");
-        });
+        StatusContext = statusContext;
+        BuildCommands();
     }
 
     public string DefaultBracketCode(LinkContent? content)
@@ -62,6 +33,7 @@ public partial class LinkContentActions : ObservableObject, IContentActions<Link
         return content?.ContentId == null ? string.Empty : $"[{content.Title}]({content.Url})";
     }
 
+    [BlockingCommand]
     public async Task DefaultBracketCodeToClipboard(LinkContent? content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -81,6 +53,7 @@ public partial class LinkContentActions : ObservableObject, IContentActions<Link
         StatusContext.ToastSuccess($"To Clipboard {finalString}");
     }
 
+    [BlockingCommand]
     public async Task Delete(LinkContent? content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -100,6 +73,7 @@ public partial class LinkContentActions : ObservableObject, IContentActions<Link
         await Db.DeleteLinkContent(content.ContentId, StatusContext.ProgressTracker());
     }
 
+    [NonBlockingCommand]
     public async Task Edit(LinkContent? content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -119,6 +93,7 @@ public partial class LinkContentActions : ObservableObject, IContentActions<Link
         await newContentWindow.PositionWindowAndShowOnUiThread();
     }
 
+    [BlockingCommand]
     public async Task ExtractNewLinks(LinkContent? content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -139,6 +114,7 @@ public partial class LinkContentActions : ObservableObject, IContentActions<Link
             $"{refreshedData.Comments} {refreshedData.Description}", StatusContext.ProgressTracker());
     }
 
+    [BlockingCommand]
     public async Task GenerateHtml(LinkContent? content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -154,28 +130,9 @@ public partial class LinkContentActions : ObservableObject, IContentActions<Link
         StatusContext.ToastSuccess($"Generated {settings.LinkListUrl()}");
     }
 
-    public async Task ViewOnSite(LinkContent? content)
-    {
-        await ThreadSwitcher.ResumeBackgroundAsync();
+    public StatusControlContext StatusContext { get; set; }
 
-        if (content == null)
-        {
-            StatusContext.ToastError("Nothing Selected?");
-            return;
-        }
-
-        if (string.IsNullOrWhiteSpace(content.Url))
-        {
-            StatusContext.ToastError("URL is Blank?");
-            return;
-        }
-
-        var url = content.Url;
-
-        var ps = new ProcessStartInfo(url) { UseShellExecute = true, Verb = "open" };
-        Process.Start(ps);
-    }
-
+    [NonBlockingCommand]
     public async Task ViewHistory(LinkContent? content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -206,6 +163,46 @@ public partial class LinkContentActions : ObservableObject, IContentActions<Link
                 .Select(LogTools.SafeObjectDump).ToList());
 
         historicView.WriteHtmlToTempFolderAndShow(StatusContext.ProgressTracker());
+    }
+
+    [BlockingCommand]
+    public async Task ViewOnSite(LinkContent? content)
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (content == null)
+        {
+            StatusContext.ToastError("Nothing Selected?");
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(content.Url))
+        {
+            StatusContext.ToastError("URL is Blank?");
+            return;
+        }
+
+        var url = content.Url;
+
+        var ps = new ProcessStartInfo(url) { UseShellExecute = true, Verb = "open" };
+        Process.Start(ps);
+    }
+
+    public event PropertyChangedEventHandler? PropertyChanged;
+
+    public async Task CopyUrl(string? link)
+    {
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        if (string.IsNullOrWhiteSpace(link))
+        {
+            StatusContext.ToastError("Nothing to Copy?");
+            return;
+        }
+
+        Clipboard.SetText(link);
+
+        StatusContext.ToastSuccess($"To Clipboard {link}");
     }
 
     public static async Task<LinkListListItem> ListItemFromDbItem(LinkContent content, LinkContentActions itemActions,

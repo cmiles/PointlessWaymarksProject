@@ -1,8 +1,7 @@
-﻿using System.Diagnostics;
+﻿using System.ComponentModel;
+using System.Diagnostics;
 using System.Windows;
 using Microsoft.EntityFrameworkCore;
-using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.ContentHtml.ImageHtml;
@@ -12,36 +11,22 @@ using PointlessWaymarks.CmsWpfControls.ContentHistoryView;
 using PointlessWaymarks.CmsWpfControls.ContentList;
 using PointlessWaymarks.CmsWpfControls.ImageContentEditor;
 using PointlessWaymarks.CmsWpfControls.Utility;
+using PointlessWaymarks.CommonTools;
+using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 using PointlessWaymarks.WpfCommon.Utility;
-using LogTools = PointlessWaymarks.CommonTools.LogTools;
 
 namespace PointlessWaymarks.CmsWpfControls.ImageList;
 
-public partial class ImageContentActions : ObservableObject, IContentActions<ImageContent>
+[NotifyPropertyChanged]
+[GenerateStatusCommands]
+public partial class ImageContentActions : IContentActions<ImageContent>
 {
-    [ObservableProperty] private RelayCommand<ImageContent> _deleteCommand;
-    [ObservableProperty] private RelayCommand<ImageContent> _editCommand;
-    [ObservableProperty] private RelayCommand<ImageContent> _extractNewLinksCommand;
-    [ObservableProperty] private RelayCommand<ImageContent> _generateHtmlCommand;
-    [ObservableProperty] private RelayCommand<ImageContent> _linkCodeToClipboardCommand;
-    [ObservableProperty] private RelayCommand<ImageContent> _viewOnSiteCommand;
-    [ObservableProperty] private StatusControlContext _statusContext;
-    [ObservableProperty] private RelayCommand<ImageContent> _viewFileCommand;
-    [ObservableProperty] private RelayCommand<ImageContent> _viewHistoryCommand;
-
     public ImageContentActions(StatusControlContext statusContext)
     {
-        _statusContext = statusContext;
-        _deleteCommand = StatusContext.RunBlockingTaskCommand<ImageContent>(Delete);
-        _editCommand = StatusContext.RunNonBlockingTaskCommand<ImageContent>(Edit);
-        _extractNewLinksCommand = StatusContext.RunBlockingTaskCommand<ImageContent>(ExtractNewLinks);
-        _generateHtmlCommand = StatusContext.RunBlockingTaskCommand<ImageContent>(GenerateHtml);
-        _linkCodeToClipboardCommand = StatusContext.RunBlockingTaskCommand<ImageContent>(DefaultBracketCodeToClipboard);
-        _viewOnSiteCommand = StatusContext.RunBlockingTaskCommand<ImageContent>(ViewOnSite);
-        _viewFileCommand = StatusContext.RunNonBlockingTaskCommand<ImageContent>(ViewFile);
-        _viewHistoryCommand = StatusContext.RunNonBlockingTaskCommand<ImageContent>(ViewHistory);
+        StatusContext = statusContext;
+        BuildCommands();
     }
 
     public string DefaultBracketCode(ImageContent? content)
@@ -49,6 +34,7 @@ public partial class ImageContentActions : ObservableObject, IContentActions<Ima
         return content?.ContentId == null ? string.Empty : @$"{BracketCodeImages.Create(content)}";
     }
 
+    [BlockingCommand]
     public async Task DefaultBracketCodeToClipboard(ImageContent? content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -68,6 +54,7 @@ public partial class ImageContentActions : ObservableObject, IContentActions<Ima
         StatusContext.ToastSuccess($"To Clipboard {finalString}");
     }
 
+    [BlockingCommand]
     public async Task Delete(ImageContent? content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -96,6 +83,7 @@ public partial class ImageContentActions : ObservableObject, IContentActions<Ima
         }
     }
 
+    [NonBlockingCommand]
     public async Task Edit(ImageContent? content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -119,6 +107,7 @@ public partial class ImageContentActions : ObservableObject, IContentActions<Ima
         await ThreadSwitcher.ResumeBackgroundAsync();
     }
 
+    [BlockingCommand]
     public async Task ExtractNewLinks(ImageContent? content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -138,6 +127,7 @@ public partial class ImageContentActions : ObservableObject, IContentActions<Ima
             $"{refreshedData.BodyContent} {refreshedData.UpdateNotes}", StatusContext.ProgressTracker());
     }
 
+    [BlockingCommand]
     public async Task GenerateHtml(ImageContent? content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -157,24 +147,9 @@ public partial class ImageContentActions : ObservableObject, IContentActions<Ima
         StatusContext.ToastSuccess($"Generated {htmlContext.PageUrl}");
     }
 
-    public async Task ViewOnSite(ImageContent? content)
-    {
-        await ThreadSwitcher.ResumeBackgroundAsync();
+    public StatusControlContext StatusContext { get; set; }
 
-        if (content == null)
-        {
-            StatusContext.ToastError("Nothing Selected?");
-            return;
-        }
-
-        var settings = UserSettingsSingleton.CurrentSettings();
-
-        var url = $@"{settings.ImagePageUrl(content)}";
-
-        var ps = new ProcessStartInfo(url) { UseShellExecute = true, Verb = "open" };
-        Process.Start(ps);
-    }
-
+    [NonBlockingCommand]
     public async Task ViewHistory(ImageContent? content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -207,7 +182,29 @@ public partial class ImageContentActions : ObservableObject, IContentActions<Ima
         historicView.WriteHtmlToTempFolderAndShow(StatusContext.ProgressTracker());
     }
 
-    public static async Task<ImageListListItem> ListItemFromDbItem(ImageContent content, ImageContentActions itemActions,
+    [BlockingCommand]
+    public async Task ViewOnSite(ImageContent? content)
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (content == null)
+        {
+            StatusContext.ToastError("Nothing Selected?");
+            return;
+        }
+
+        var settings = UserSettingsSingleton.CurrentSettings();
+
+        var url = $@"{settings.ImagePageUrl(content)}";
+
+        var ps = new ProcessStartInfo(url) { UseShellExecute = true, Verb = "open" };
+        Process.Start(ps);
+    }
+
+    public event PropertyChangedEventHandler? PropertyChanged;
+
+    public static async Task<ImageListListItem> ListItemFromDbItem(ImageContent content,
+        ImageContentActions itemActions,
         bool showType)
     {
         var item = await ImageListListItem.CreateInstance(itemActions);
@@ -217,6 +214,7 @@ public partial class ImageContentActions : ObservableObject, IContentActions<Ima
         return item;
     }
 
+    [NonBlockingCommand]
     public async Task ViewFile(ImageContent? listItem)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();

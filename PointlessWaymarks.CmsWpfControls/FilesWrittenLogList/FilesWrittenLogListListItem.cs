@@ -1,13 +1,15 @@
 ﻿#nullable enable
 using CommunityToolkit.Mvvm.ComponentModel;
+using PointlessWaymarks.LlamaAspects;
 
 namespace PointlessWaymarks.CmsWpfControls.FilesWrittenLogList;
 
-public partial class FilesWrittenLogListListItem : ObservableObject
+[NotifyPropertyChanged]
+public partial class FilesWrittenLogListListItem
 {
-    [ObservableProperty] private string _fileBase = string.Empty;
-    [ObservableProperty] private bool _isInGenerationDirectory;
-    [ObservableProperty] private string _transformedFile = string.Empty;
-    [ObservableProperty] private string _writtenFile = string.Empty;
-    [ObservableProperty] private DateTime _writtenOn;
+    public string FileBase { get; set; } = string.Empty;
+    public bool IsInGenerationDirectory { get; set; }
+    public string TransformedFile { get; set; } = string.Empty;
+    public string WrittenFile { get; set; } = string.Empty;
+    public DateTime WrittenOn { get; set; }
 }

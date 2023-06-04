@@ -1,8 +1,7 @@
 ﻿using System.IO;
 using System.Text;
 using System.Windows;
-using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
+using Irony.Ast;
 using Omu.ValueInjecter;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.CommonHtml;
@@ -12,6 +11,7 @@ using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsWpfControls.ContentList;
 using PointlessWaymarks.FeatureIntersectionTags;
 using PointlessWaymarks.FeatureIntersectionTags.Models;
+using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 using PointlessWaymarks.WpfCommon.Utility;
@@ -19,30 +19,20 @@ using Serilog;
 
 namespace PointlessWaymarks.CmsWpfControls.GeoJsonList;
 
-public partial class GeoJsonListWithActionsContext : ObservableObject
+[NotifyPropertyChanged]
+[GenerateStatusCommands]
+public partial class GeoJsonListWithActionsContext
 {
-    [ObservableProperty] private RelayCommand _addIntersectionTagsToSelectedCommand;
-    [ObservableProperty] private CmsCommonCommands _commonCommands;
-    [ObservableProperty] private RelayCommand _geoJsonLinkCodesToClipboardForSelectedCommand;
-    [ObservableProperty] private ContentListContext _listContext;
-    [ObservableProperty] private RelayCommand _refreshDataCommand;
-    [ObservableProperty] private StatusControlContext _statusContext;
-    [ObservableProperty] private WindowIconStatus? _windowStatus;
-
-
     private GeoJsonListWithActionsContext(StatusControlContext statusContext, WindowIconStatus? windowStatus,
-        ContentListContext factoryListContext, bool loadInBackground = true)
+        ContentListContext listContext, bool loadInBackground = true)
     {
-        _statusContext = statusContext;
-        _windowStatus = windowStatus;
-        _commonCommands = new CmsCommonCommands(StatusContext, WindowStatus);
+        StatusContext = statusContext;
+        WindowStatus = windowStatus;
+        CommonCommands = new CmsCommonCommands(StatusContext, WindowStatus);
 
-        _listContext = factoryListContext;
+        BuildCommands();
 
-        _geoJsonLinkCodesToClipboardForSelectedCommand =
-            StatusContext.RunBlockingTaskCommand(LinkBracketCodesToClipboardForSelected);
-        _refreshDataCommand = StatusContext.RunBlockingTaskCommand(ListContext.LoadData);
-        _addIntersectionTagsToSelectedCommand = StatusContext.RunBlockingTaskWithCancellationCommand(AddIntersectionTagsToSelected, "Cancel Intersection Tags");
+        ListContext = listContext;
 
         ListContext.ContextMenuItems = new List<ContextMenuItemData>
         {
@@ -54,7 +44,7 @@ public partial class GeoJsonListWithActionsContext : ObservableObject
             },
             new()
             {
-                ItemName = "Text Code to Clipboard", ItemCommand = GeoJsonLinkCodesToClipboardForSelectedCommand
+                ItemName = "Text Code to Clipboard", ItemCommand = LinkBracketCodesToClipboardForSelectedCommand
             },
             new() { ItemName = "Add Intersection Tags", ItemCommand = AddIntersectionTagsToSelectedCommand },
             new() { ItemName = "Extract New Links", ItemCommand = ListContext.ExtractNewLinksSelectedCommand },
@@ -64,19 +54,15 @@ public partial class GeoJsonListWithActionsContext : ObservableObject
             new() { ItemName = "Refresh Data", ItemCommand = RefreshDataCommand }
         };
 
-        if(loadInBackground) StatusContext.RunFireAndForgetBlockingTask(LoadData);
+        if (loadInBackground) StatusContext.RunFireAndForgetBlockingTask(RefreshData);
     }
 
-    public static async Task<GeoJsonListWithActionsContext> CreateInstance(StatusControlContext? statusContext, WindowIconStatus? windowStatus = null, bool loadInBackground = true)
-    {
-        await ThreadSwitcher.ResumeBackgroundAsync();
+    public CmsCommonCommands CommonCommands { get; set; }
+    public ContentListContext ListContext { get; set; }
+    public StatusControlContext StatusContext { get; set; }
+    public WindowIconStatus? WindowStatus { get; set; }
 
-        var factoryContext = statusContext ?? new StatusControlContext();
-        var factoryListContext = await ContentListContext.CreateInstance(factoryContext, new GeoJsonListLoader(100), windowStatus);
-
-        return new GeoJsonListWithActionsContext(factoryContext, windowStatus, factoryListContext, loadInBackground);
-    }
-
+    [BlockingCommand]
     private async Task AddIntersectionTagsToSelected(CancellationToken cancellationToken)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -203,6 +189,19 @@ public partial class GeoJsonListWithActionsContext : ObservableObject
         }
     }
 
+    public static async Task<GeoJsonListWithActionsContext> CreateInstance(StatusControlContext? statusContext,
+        WindowIconStatus? windowStatus = null, bool loadInBackground = true)
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        var factoryContext = statusContext ?? new StatusControlContext();
+        var factoryListContext =
+            await ContentListContext.CreateInstance(factoryContext, new GeoJsonListLoader(100), windowStatus);
+
+        return new GeoJsonListWithActionsContext(factoryContext, windowStatus, factoryListContext, loadInBackground);
+    }
+
+    [BlockingCommand]
     private async Task LinkBracketCodesToClipboardForSelected()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -224,7 +223,8 @@ public partial class GeoJsonListWithActionsContext : ObservableObject
         StatusContext.ToastSuccess($"To Clipboard {finalString}");
     }
 
-    private async Task LoadData()
+    [BlockingCommand]
+    private async Task RefreshData()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 

@@ -1,54 +1,29 @@
 ﻿using System.Windows;
-using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
 using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.ContentHtml.FileHtml;
 using PointlessWaymarks.CmsWpfControls.ContentList;
 using PointlessWaymarks.CmsWpfControls.Utility;
+using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 using PointlessWaymarks.WpfCommon.Utility;
 
 namespace PointlessWaymarks.CmsWpfControls.FileList;
 
-public partial class FileListWithActionsContext : ObservableObject
+[NotifyPropertyChanged]
+[GenerateStatusCommands]
+public partial class FileListWithActionsContext
 {
-    [ObservableProperty] private CmsCommonCommands _commonCommands;
-    [ObservableProperty] private RelayCommand _emailHtmlToClipboardCommand;
-    [ObservableProperty] private RelayCommand _fileDownloadLinkCodesToClipboardForSelectedCommand;
-    [ObservableProperty] private RelayCommand _fileEmbedCodesToClipboardForSelectedCommand;
-    [ObservableProperty] private RelayCommand _filePageLinkCodesToClipboardForSelectedCommand;
-    [ObservableProperty] private RelayCommand _fileUrlLinkCodesToClipboardForSelectedCommand;
-    [ObservableProperty] private RelayCommand _firstPagePreviewFromPdfCommand;
-    [ObservableProperty] private ContentListContext _listContext;
-    [ObservableProperty] private RelayCommand _refreshDataCommand;
-    [ObservableProperty] private StatusControlContext _statusContext;
-    [ObservableProperty] private RelayCommand _viewFilesCommand;
-    [ObservableProperty] private WindowIconStatus? _windowStatus;
-
     private FileListWithActionsContext(StatusControlContext statusContext, WindowIconStatus? windowStatus,
-        ContentListContext factoryListContext, bool loadInBackground = true)
+        ContentListContext listContext, bool loadInBackground = true)
     {
-        _statusContext = statusContext;
-        _windowStatus = windowStatus;
-        _commonCommands = new CmsCommonCommands(StatusContext, WindowStatus);
+        StatusContext = statusContext;
+        WindowStatus = windowStatus;
+        CommonCommands = new CmsCommonCommands(StatusContext, WindowStatus);
 
-        _listContext = factoryListContext;
+        BuildCommands();
 
-        _refreshDataCommand = StatusContext.RunBlockingTaskCommand(ListContext.LoadData);
-        _filePageLinkCodesToClipboardForSelectedCommand =
-            StatusContext.RunBlockingTaskCommand(FilePageLinkCodesToClipboardForSelected);
-        _fileDownloadLinkCodesToClipboardForSelectedCommand =
-            StatusContext.RunBlockingTaskCommand(FileDownloadLinkCodesToClipboardForSelected);
-        _fileEmbedCodesToClipboardForSelectedCommand =
-            StatusContext.RunBlockingTaskCommand(FileEmbedCodesToClipboardForSelected);
-        _fileUrlLinkCodesToClipboardForSelectedCommand =
-            StatusContext.RunBlockingTaskCommand(FileUrlLinkCodesToClipboardForSelected);
-        _viewFilesCommand = StatusContext.RunBlockingTaskWithCancellationCommand(ViewFilesSelected, "Cancel File View");
-
-        _firstPagePreviewFromPdfCommand = StatusContext.RunBlockingTaskCommand(FirstPagePreviewFromPdf);
-
-        _emailHtmlToClipboardCommand = StatusContext.RunBlockingTaskCommand(EmailHtmlToClipboard);
+        ListContext = listContext;
 
         ListContext.ContextMenuItems = new List<ContextMenuItemData>
         {
@@ -78,7 +53,7 @@ public partial class FileListWithActionsContext : ObservableObject
                 ItemName = "URL Code to Clipboard", ItemCommand = FileUrlLinkCodesToClipboardForSelectedCommand
             },
             new() { ItemName = "Email Html to Clipboard", ItemCommand = EmailHtmlToClipboardCommand },
-            new() { ItemName = "View Files", ItemCommand = ViewFilesCommand },
+            new() { ItemName = "View Files", ItemCommand = ViewSelectedFilesCommand },
             new() { ItemName = "Open URL", ItemCommand = ListContext.ViewOnSiteCommand },
             new() { ItemName = "Extract New Links", ItemCommand = ListContext.ExtractNewLinksSelectedCommand },
             new() { ItemName = "Generate Html", ItemCommand = ListContext.GenerateHtmlSelectedCommand },
@@ -87,8 +62,13 @@ public partial class FileListWithActionsContext : ObservableObject
             new() { ItemName = "Refresh Data", ItemCommand = RefreshDataCommand }
         };
 
-        if (loadInBackground) StatusContext.RunFireAndForgetBlockingTask(LoadData);
+        if (loadInBackground) StatusContext.RunFireAndForgetBlockingTask(RefreshData);
     }
+
+    public CmsCommonCommands CommonCommands { get; set; }
+    public ContentListContext ListContext { get; set; }
+    public StatusControlContext StatusContext { get; set; }
+    public WindowIconStatus? WindowStatus { get; set; }
 
     public static async Task<FileListWithActionsContext> CreateInstance(StatusControlContext? statusContext,
         WindowIconStatus? windowStatus, bool loadInBackground = true)
@@ -102,6 +82,7 @@ public partial class FileListWithActionsContext : ObservableObject
         return new FileListWithActionsContext(factoryStatusContext, windowStatus, factoryListContext, loadInBackground);
     }
 
+    [BlockingCommand]
     private async Task EmailHtmlToClipboard()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -129,6 +110,7 @@ public partial class FileListWithActionsContext : ObservableObject
         StatusContext.ToastSuccess("Email Html on Clipboard");
     }
 
+    [BlockingCommand]
     private async Task FileDownloadLinkCodesToClipboardForSelected()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -151,6 +133,7 @@ public partial class FileListWithActionsContext : ObservableObject
         StatusContext.ToastSuccess($"To Clipboard {finalString}");
     }
 
+    [BlockingCommand]
     private async Task FileEmbedCodesToClipboardForSelected()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -173,6 +156,7 @@ public partial class FileListWithActionsContext : ObservableObject
         StatusContext.ToastSuccess($"To Clipboard {finalString}");
     }
 
+    [BlockingCommand]
     private async Task FilePageLinkCodesToClipboardForSelected()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -195,6 +179,7 @@ public partial class FileListWithActionsContext : ObservableObject
         StatusContext.ToastSuccess($"To Clipboard {finalString}");
     }
 
+    [BlockingCommand]
     private async Task FileUrlLinkCodesToClipboardForSelected()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -217,6 +202,7 @@ public partial class FileListWithActionsContext : ObservableObject
         StatusContext.ToastSuccess($"To Clipboard {finalString}");
     }
 
+    [BlockingCommand]
     private async Task FirstPagePreviewFromPdf()
     {
         var selected = SelectedItems();
@@ -230,7 +216,9 @@ public partial class FileListWithActionsContext : ObservableObject
         await ImageExtractionHelpers.PdfPageToImage(StatusContext, selected.Select(x => x.DbEntry).ToList(), 1);
     }
 
-    private async Task LoadData()
+    [BlockingCommand]
+
+    private async Task RefreshData()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -243,7 +231,8 @@ public partial class FileListWithActionsContext : ObservableObject
             .ToList() ?? new List<FileListListItem>();
     }
 
-    public async Task ViewFilesSelected(CancellationToken cancelToken)
+    [BlockingCommand]
+    public async Task ViewSelectedFiles(CancellationToken cancelToken)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 

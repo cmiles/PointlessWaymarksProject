@@ -3,8 +3,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Text.RegularExpressions;
 using System.Windows;
-using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
 using Ookii.Dialogs.Wpf;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.CommonHtml;
@@ -24,6 +22,7 @@ using PointlessWaymarks.CmsWpfControls.TitleSummarySlugFolderEditor;
 using PointlessWaymarks.CmsWpfControls.UpdateNotesEditor;
 using PointlessWaymarks.CmsWpfControls.Utility;
 using PointlessWaymarks.CommonTools;
+using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon.BoolDataEntry;
 using PointlessWaymarks.WpfCommon.ChangesAndValidation;
 using PointlessWaymarks.WpfCommon.ConversionDataEntry;
@@ -35,89 +34,30 @@ using Serilog;
 
 namespace PointlessWaymarks.CmsWpfControls.FileContentEditor;
 
-public partial class FileContentEditorContext : ObservableObject, IHasChanges, IHasValidationIssues,
+[NotifyPropertyChanged]
+[GenerateStatusCommands]
+public partial class FileContentEditorContext : IHasChanges, IHasValidationIssues,
     ICheckForChangesAndValidation
 {
-    [ObservableProperty] private RelayCommand _autoRenameSelectedFileCommand;
-    [ObservableProperty] private RelayCommand _autoRenameSelectedFileBasedOnTitleCommand;
-    [ObservableProperty] private BodyContentEditorContext? _bodyContent;
-    [ObservableProperty] private RelayCommand _chooseFileCommand;
-    [ObservableProperty] private ContentIdViewerControlContext? _contentId;
-    [ObservableProperty] private CreatedAndUpdatedByAndOnDisplayContext? _createdUpdatedDisplay;
-    [ObservableProperty] private FileContent _dbEntry;
-    [ObservableProperty] private RelayCommand _downloadLinkToClipboardCommand;
-    [ObservableProperty] private RelayCommand _editUserMainPictureCommand;
-    [ObservableProperty] private BoolDataEntryContext? _embedFile;
-    [ObservableProperty] private RelayCommand _extractNewLinksCommand;
-    [ObservableProperty] private bool _fileIsMp4;
-    [ObservableProperty] private bool _fileIsPdf;
-    [ObservableProperty] private bool _hasChanges;
-    [ObservableProperty] private bool _hasValidationIssues;
-    [ObservableProperty] private HelpDisplayContext? _helpContext;
-    [ObservableProperty] private FileInfo? _initialFile;
-    [ObservableProperty] private RelayCommand _linkToClipboardCommand;
-    [ObservableProperty] private FileInfo? _loadedFile;
-    [ObservableProperty] private ImageContentEditorWindow? _mainImageExternalEditorWindow;
-    [ObservableProperty] private ContentSiteFeedAndIsDraftContext? _mainSiteFeed;
-    [ObservableProperty] private RelayCommand _openSelectedFileCommand;
-    [ObservableProperty] private RelayCommand _openSelectedFileDirectoryCommand;
-    [ObservableProperty] private string _pdfToImagePageToExtract = "1";
-    [ObservableProperty] private BoolDataEntryContext? _publicDownloadLink;
-    [ObservableProperty] private RelayCommand _renameSelectedFileCommand;
-    [ObservableProperty] private RelayCommand _saveAndCloseCommand;
-    [ObservableProperty] private RelayCommand _saveAndExtractImageFromPdfCommand;
-    [ObservableProperty] private RelayCommand _saveAndExtractImageFromVideoCommand;
-    [ObservableProperty] private RelayCommand _saveCommand;
-    [ObservableProperty] private FileInfo? _selectedFile;
-    [ObservableProperty] private bool _selectedFileHasPathOrNameChanges;
-    [ObservableProperty] private bool _selectedFileHasValidationIssues;
-    [ObservableProperty] private bool _selectedFileNameHasInvalidCharacters;
-    [ObservableProperty] private string? _selectedFileValidationMessage;
-    [ObservableProperty] private StatusControlContext _statusContext;
-    [ObservableProperty] private TagsEditorContext? _tagEdit;
-    [ObservableProperty] private TitleSummarySlugEditorContext? _titleSummarySlugFolder;
-    [ObservableProperty] private UpdateNotesEditorContext? _updateNotes;
-    [ObservableProperty] private ConversionDataEntryContext<Guid?>? _userMainPictureEntry;
-    [ObservableProperty] private IContentCommon? _userMainPictureEntryContent;
-    [ObservableProperty] private string? _userMainPictureEntrySmallImageUrl;
-    [ObservableProperty] private RelayCommand _viewOnSiteCommand;
-    [ObservableProperty] private RelayCommand _viewUserMainPictureCommand;
-
     public EventHandler? RequestContentEditorWindowClose;
 
     private FileContentEditorContext(StatusControlContext? statusContext, FileContent dbEntry)
     {
-        _statusContext = statusContext ?? new StatusControlContext();
+        StatusContext = statusContext ?? new StatusControlContext();
+
+        BuildCommands();
 
         PropertyChanged += OnPropertyChanged;
 
-        _chooseFileCommand = StatusContext.RunBlockingTaskCommand(async () => await ChooseFile());
-        _saveCommand = StatusContext.RunBlockingTaskCommand(async () => await SaveAndGenerateHtml(true, false));
-        _saveAndCloseCommand = StatusContext.RunBlockingTaskCommand(async () => await SaveAndGenerateHtml(true, true));
-        _openSelectedFileDirectoryCommand = StatusContext.RunBlockingTaskCommand(OpenSelectedFileDirectory);
-        _openSelectedFileCommand = StatusContext.RunBlockingTaskCommand(OpenSelectedFile);
-        _viewOnSiteCommand = StatusContext.RunBlockingTaskCommand(ViewOnSite);
-        _renameSelectedFileCommand = StatusContext.RunBlockingTaskCommand(async () =>
-            await FileHelpers.RenameSelectedFile(SelectedFile, StatusContext, x => SelectedFile = x));
-        _autoRenameSelectedFileCommand = StatusContext.RunBlockingTaskCommand(async () =>
-            await FileHelpers.TryAutoCleanRenameSelectedFile(SelectedFile, StatusContext, x => SelectedFile = x));
-        _autoRenameSelectedFileBasedOnTitleCommand = StatusContext.RunBlockingTaskCommand(async () =>
-        {
-            await FileHelpers.TryAutoRenameSelectedFile(SelectedFile, TitleSummarySlugFolder!.TitleEntry.UserValue,
-                StatusContext, x => SelectedFile = x);
-        });
-        _extractNewLinksCommand = StatusContext.RunBlockingTaskCommand(() =>
-            LinkExtraction.ExtractNewAndShowLinkContentEditors($"{BodyContent!.BodyContent} {UpdateNotes!.UpdateNotes}",
-                StatusContext.ProgressTracker()));
-        _saveAndExtractImageFromPdfCommand = StatusContext.RunBlockingTaskCommand(SaveAndExtractImageFromPdf);
-        _saveAndExtractImageFromVideoCommand = StatusContext.RunBlockingTaskCommand(SaveAndExtractImageFromMp4);
-        _linkToClipboardCommand = StatusContext.RunNonBlockingTaskCommand(LinkToClipboard);
-        _downloadLinkToClipboardCommand = StatusContext.RunNonBlockingTaskCommand(DownloadLinkToClipboard);
-        _viewUserMainPictureCommand = StatusContext.RunNonBlockingTaskCommand(ViewUserMainPicture);
-        _editUserMainPictureCommand = StatusContext.RunNonBlockingTaskCommand(EditUserMainPicture);
-
-        _dbEntry = dbEntry;
+        DbEntry = dbEntry;
     }
+
+    public BodyContentEditorContext? BodyContent { get; set; }
+    public ContentIdViewerControlContext? ContentId { get; set; }
+    public CreatedAndUpdatedByAndOnDisplayContext? CreatedUpdatedDisplay { get; set; }
+    public FileContent DbEntry { get; set; }
+    public BoolDataEntryContext? EmbedFile { get; set; }
+
 
     public string FileEditorHelpText =>
         @"
@@ -141,6 +81,28 @@ Notes:
  - If what you are writing about is a 'file' but you don't want/need to store the file itself on your site you should probably just create a Post (or other content type like and Image) - use File Content when you want to store the file. 
 ";
 
+    public bool FileIsMp4 { get; set; }
+    public bool FileIsPdf { get; set; }
+    public HelpDisplayContext? HelpContext { get; set; }
+    public FileInfo? InitialFile { get; set; }
+    public FileInfo? LoadedFile { get; set; }
+    public ImageContentEditorWindow? MainImageExternalEditorWindow { get; set; }
+    public ContentSiteFeedAndIsDraftContext? MainSiteFeed { get; set; }
+    public string PdfToImagePageToExtract { get; set; } = "1";
+    public BoolDataEntryContext? PublicDownloadLink { get; set; }
+    public FileInfo? SelectedFile { get; set; }
+    public bool SelectedFileHasPathOrNameChanges { get; set; }
+    public bool SelectedFileHasValidationIssues { get; set; }
+    public bool SelectedFileNameHasInvalidCharacters { get; set; }
+    public string? SelectedFileValidationMessage { get; set; }
+    public StatusControlContext StatusContext { get; set; }
+    public TagsEditorContext? TagEdit { get; set; }
+    public TitleSummarySlugEditorContext? TitleSummarySlugFolder { get; set; }
+    public UpdateNotesEditorContext? UpdateNotes { get; set; }
+    public ConversionDataEntryContext<Guid?>? UserMainPictureEntry { get; set; }
+    public IContentCommon? UserMainPictureEntryContent { get; set; }
+    public string? UserMainPictureEntrySmallImageUrl { get; set; }
+
     public void CheckForChangesAndValidationIssues()
     {
         HasChanges = PropertyScanners.ChildPropertiesHaveChanges(this) || SelectedFileHasPathOrNameChanges ||
@@ -149,6 +111,24 @@ Notes:
                               SelectedFileHasValidationIssues;
     }
 
+    public bool HasChanges { get; set; }
+    public bool HasValidationIssues { get; set; }
+
+    [BlockingCommand]
+    public async Task AutoRenameSelectedFile()
+    {
+        await FileHelpers.TryAutoCleanRenameSelectedFile(SelectedFile, StatusContext, x => SelectedFile = x);
+    }
+
+
+    [BlockingCommand]
+    public async Task AutoRenameSelectedFileBasedOnTitle()
+    {
+        await FileHelpers.TryAutoRenameSelectedFile(SelectedFile, TitleSummarySlugFolder!.TitleEntry.UserValue,
+            StatusContext, x => SelectedFile = x);
+    }
+
+    [BlockingCommand]
     public async Task ChooseFile()
     {
         await ThreadSwitcher.ResumeForegroundAsync();
@@ -251,6 +231,7 @@ Notes:
         FileIsMp4 = SelectedFile?.FullName.EndsWith("mp4", StringComparison.InvariantCultureIgnoreCase) ?? false;
     }
 
+    [NonBlockingCommand]
     private async Task DownloadLinkToClipboard()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -270,6 +251,7 @@ Notes:
         StatusContext.ToastSuccess($"To Clipboard: {linkString}");
     }
 
+    [NonBlockingCommand]
     public async Task EditUserMainPicture()
     {
         if (UserMainPictureEntryContent == null)
@@ -299,6 +281,15 @@ Notes:
         StatusContext.ToastWarning("Didn't find the expected Photo/Image to edit?");
     }
 
+    [BlockingCommand]
+    public async Task ExtractNewLinks()
+    {
+        await LinkExtraction.ExtractNewAndShowLinkContentEditors(
+            $"{BodyContent!.BodyContent} {UpdateNotes!.UpdateNotes}",
+            StatusContext.ProgressTracker());
+    }
+
+    [NonBlockingCommand]
     private async Task LinkToClipboard()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -509,6 +500,7 @@ Notes:
         if (e.PropertyName == nameof(SelectedFile)) StatusContext.RunFireAndForgetNonBlockingTask(SelectedFileChanged);
     }
 
+    [BlockingCommand]
     private async Task OpenSelectedFile()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -525,6 +517,7 @@ Notes:
         Process.Start(ps);
     }
 
+    [BlockingCommand]
     private async Task OpenSelectedFileDirectory()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -538,6 +531,25 @@ Notes:
         await ProcessHelpers.OpenExplorerWindowForFile(SelectedFile.FullName);
     }
 
+    [BlockingCommand]
+    public async Task RenameSelectedFile()
+    {
+        await FileHelpers.RenameSelectedFile(SelectedFile, StatusContext, x => SelectedFile = x);
+    }
+
+    [BlockingCommand]
+    public async Task Save()
+    {
+        await SaveAndGenerateHtml(true, false);
+    }
+
+    [BlockingCommand]
+    public async Task SaveAndClose()
+    {
+        await SaveAndGenerateHtml(true, true);
+    }
+
+    [BlockingCommand]
     private async Task SaveAndExtractImageFromMp4()
     {
         if (SelectedFile is not { Exists: true } || !SelectedFile.Extension.ToUpperInvariant().Contains("MP4"))
@@ -565,6 +577,7 @@ Notes:
         UserMainPictureEntry!.UserText = autoSaveResult.Value.ToString();
     }
 
+    [BlockingCommand]
     private async Task SaveAndExtractImageFromPdf()
     {
         if (SelectedFile is not { Exists: true } || !SelectedFile.Extension.ToUpperInvariant().Contains("PDF"))
@@ -713,6 +726,7 @@ Notes:
         StatusContext.RunFireAndForgetNonBlockingTask(SetUserMainPicture);
     }
 
+    [BlockingCommand]
     private async Task ViewOnSite()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -731,6 +745,7 @@ Notes:
         Process.Start(ps);
     }
 
+    [NonBlockingCommand]
     public async Task ViewUserMainPicture()
     {
         if (UserMainPictureEntryContent == null)

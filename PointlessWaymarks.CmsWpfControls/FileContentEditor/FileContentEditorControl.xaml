@@ -212,7 +212,7 @@
                     Content="Download Code"
                     Style="{StaticResource ActionPanelButtonStyle}" />
                 <Button
-                    Command="{Binding SaveAndExtractImageFromVideoCommand}"
+                    Command="{Binding SaveAndExtractImageFromMp4Command}"
                     Content="Extract 1st Video Frame"
                     Visibility="{Binding FileIsMp4, Converter={StaticResource BooleanToVisibility}}"
                     Style="{StaticResource ActionPanelButtonStyle}" />

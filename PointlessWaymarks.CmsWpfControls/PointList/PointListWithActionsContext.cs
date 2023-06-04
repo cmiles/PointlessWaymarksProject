@@ -3,8 +3,6 @@ using System.IO;
 using System.Text;
 using System.Windows;
 using System.Xml;
-using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
 using NetTopologySuite.IO;
 using Ookii.Dialogs.Wpf;
 using PointlessWaymarks.CmsData;
@@ -15,6 +13,7 @@ using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsWpfControls.ContentList;
 using PointlessWaymarks.FeatureIntersectionTags;
 using PointlessWaymarks.FeatureIntersectionTags.Models;
+using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 using PointlessWaymarks.WpfCommon.Utility;
@@ -22,34 +21,20 @@ using Serilog;
 
 namespace PointlessWaymarks.CmsWpfControls.PointList;
 
-public partial class PointListWithActionsContext : ObservableObject
+[NotifyPropertyChanged]
+[GenerateStatusCommands]
+public partial class PointListWithActionsContext
 {
-    [ObservableProperty] private RelayCommand _addIntersectionTagsToSelectedCommand;
-    [ObservableProperty] private CmsCommonCommands _commonCommands;
-    [ObservableProperty] private ContentListContext _listContext;
-    [ObservableProperty] private RelayCommand _pointLinkBracketCodesToClipboardForSelectedCommand;
-    [ObservableProperty] private RelayCommand _refreshDataCommand;
-    [ObservableProperty] private RelayCommand _selectedToGpxFileCommand;
-    [ObservableProperty] private StatusControlContext _statusContext;
-    [ObservableProperty] private WindowIconStatus? _windowStatus;
-
-
-    private PointListWithActionsContext(StatusControlContext statusContext, WindowIconStatus? windowStatus, ContentListContext listContext, bool loadInBackground = true)
+    private PointListWithActionsContext(StatusControlContext statusContext, WindowIconStatus? windowStatus,
+        ContentListContext listContext, bool loadInBackground = true)
     {
-        _statusContext = statusContext;
-        _windowStatus = windowStatus;
+        StatusContext = statusContext;
+        WindowStatus = windowStatus;
+        CommonCommands = new CmsCommonCommands(StatusContext, WindowStatus);
 
-        _listContext = listContext;
+        BuildCommands();
 
-        _commonCommands = new CmsCommonCommands(StatusContext, WindowStatus);
-
-        _refreshDataCommand = StatusContext.RunBlockingTaskCommand(ListContext.LoadData);
-        _pointLinkBracketCodesToClipboardForSelectedCommand =
-            StatusContext.RunNonBlockingTaskCommand(PointLinkBracketCodesToClipboardForSelected);
-        _selectedToGpxFileCommand = StatusContext.RunBlockingTaskCommand(SelectedToGpxFile);
-        _addIntersectionTagsToSelectedCommand =
-            StatusContext.RunBlockingTaskWithCancellationCommand(AddIntersectionTagsToSelected,
-                "Cancel Intersection Tagging");
+        ListContext = listContext;
 
         ListContext.ContextMenuItems = new List<ContextMenuItemData>
         {
@@ -73,19 +58,15 @@ public partial class PointListWithActionsContext : ObservableObject
             new() { ItemName = "Refresh Data", ItemCommand = RefreshDataCommand }
         };
 
-        if(loadInBackground) StatusContext.RunFireAndForgetBlockingTask(LoadData);
+        if (loadInBackground) StatusContext.RunFireAndForgetBlockingTask(RefreshData);
     }
 
-    public static async Task<PointListWithActionsContext> CreateInstance(StatusControlContext? statusContext, WindowIconStatus? windowStatus = null, bool loadInBackground = true)
-    {
-        await ThreadSwitcher.ResumeBackgroundAsync();
+    public CmsCommonCommands CommonCommands { get; set; }
+    public ContentListContext ListContext { get; set; }
+    public StatusControlContext StatusContext { get; set; }
+    public WindowIconStatus? WindowStatus { get; set; }
 
-        var factoryContext = statusContext ?? new StatusControlContext();
-        var factoryListContext = await ContentListContext.CreateInstance(factoryContext, new PointListLoader(100), windowStatus);
-
-        return new PointListWithActionsContext(factoryContext, windowStatus, factoryListContext, loadInBackground);
-    }
-
+    [BlockingCommand]
     private async Task AddIntersectionTagsToSelected(CancellationToken cancellationToken)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -213,13 +194,27 @@ public partial class PointListWithActionsContext : ObservableObject
         }
     }
 
-    private async Task LoadData()
+    public static async Task<PointListWithActionsContext> CreateInstance(StatusControlContext? statusContext,
+        WindowIconStatus? windowStatus = null, bool loadInBackground = true)
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        var factoryContext = statusContext ?? new StatusControlContext();
+        var factoryListContext =
+            await ContentListContext.CreateInstance(factoryContext, new PointListLoader(100), windowStatus);
+
+        return new PointListWithActionsContext(factoryContext, windowStatus, factoryListContext, loadInBackground);
+    }
+
+    [BlockingCommand]
+    private async Task RefreshData()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
         await ListContext.LoadData();
     }
 
+    [NonBlockingCommand]
     private async Task PointLinkBracketCodesToClipboardForSelected()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -247,6 +242,7 @@ public partial class PointListWithActionsContext : ObservableObject
             .ToList() ?? new List<PointListListItem>();
     }
 
+    [BlockingCommand]
     private async Task SelectedToGpxFile()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();

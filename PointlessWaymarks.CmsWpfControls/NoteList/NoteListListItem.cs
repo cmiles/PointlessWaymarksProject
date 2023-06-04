@@ -1,27 +1,22 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
-using PointlessWaymarks.CmsData.Database.Models;
+﻿using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsWpfControls.ContentList;
+using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon.Utility;
 
 namespace PointlessWaymarks.CmsWpfControls.NoteList;
 
-public partial class NoteListListItem : ObservableObject, IContentListItem
+[NotifyPropertyChanged]
+public partial class NoteListListItem : IContentListItem
 {
-    [ObservableProperty] private NoteContent _dbEntry;
-    [ObservableProperty] private NoteContentActions _itemActions;
-    [ObservableProperty] private CurrentSelectedTextTracker _selectedTextTracker = new();
-    [ObservableProperty] private bool _showType;
-
     private NoteListListItem(NoteContentActions itemActions, NoteContent dbEntry)
     {
-        _dbEntry = dbEntry;
-        _itemActions = itemActions;
+        DbEntry = dbEntry;
+        ItemActions = itemActions;
     }
 
-    public static async Task<NoteListListItem> CreateInstance(NoteContentActions itemActions)
-    {
-        return new NoteListListItem(itemActions, await NoteContent.CreateInstance());
-    }
+    public NoteContent DbEntry { get; set; }
+    public NoteContentActions ItemActions { get; set; }
+    public bool ShowType { get; set; }
 
     public IContentCommon Content()
     {
@@ -63,13 +58,20 @@ public partial class NoteListListItem : ObservableObject, IContentListItem
         await ItemActions.GenerateHtml(DbEntry);
     }
 
+    public async Task ViewHistory()
+    {
+        await ItemActions.ViewHistory(DbEntry);
+    }
+
     public async Task ViewOnSite()
     {
         await ItemActions.ViewOnSite(DbEntry);
     }
 
-    public async Task ViewHistory()
+    public CurrentSelectedTextTracker? SelectedTextTracker { get; set; } = new();
+
+    public static async Task<NoteListListItem> CreateInstance(NoteContentActions itemActions)
     {
-        await ItemActions.ViewHistory(DbEntry);
+        return new NoteListListItem(itemActions, await NoteContent.CreateInstance());
     }
 }

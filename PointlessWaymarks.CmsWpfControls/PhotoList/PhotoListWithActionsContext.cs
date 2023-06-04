@@ -4,8 +4,6 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows;
 using AngleSharp.Text;
-using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
 using KellermanSoftware.CompareNetObjects;
 using KellermanSoftware.CompareNetObjects.Reports;
 using Microsoft.EntityFrameworkCore;
@@ -21,6 +19,7 @@ using PointlessWaymarks.CmsWpfControls.PointContentEditor;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.FeatureIntersectionTags;
 using PointlessWaymarks.FeatureIntersectionTags.Models;
+using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 using PointlessWaymarks.WpfCommon.Utility;
@@ -28,75 +27,20 @@ using Serilog;
 
 namespace PointlessWaymarks.CmsWpfControls.PhotoList;
 
-public partial class PhotoListWithActionsContext : ObservableObject
+[NotifyPropertyChanged]
+[GenerateStatusCommands]
+public partial class PhotoListWithActionsContext
 {
-    [ObservableProperty] private RelayCommand _addIntersectionTagsToSelectedCommand;
-    [ObservableProperty] private CmsCommonCommands _commonCommands;
-    [ObservableProperty] private RelayCommand _dailyPhotoLinkCodesToClipboardForSelectedCommand;
-    [ObservableProperty] private RelayCommand _emailHtmlToClipboardCommand;
-    [ObservableProperty] private RelayCommand _forcedResizeCommand;
-    [ObservableProperty] private ContentListContext _listContext;
-    [ObservableProperty] private RelayCommand _photoLinkCodesToClipboardForSelectedCommand;
-    [ObservableProperty] private RelayCommand _photoToPointContentEditorCommand;
-    [ObservableProperty] private RelayCommand _refreshDataCommand;
-    [ObservableProperty] private RelayCommand _regenerateHtmlAndReprocessPhotoForSelectedCommand;
-    [ObservableProperty] private RelayCommand _reportAllPhotosCommand;
-    [ObservableProperty] private RelayCommand _reportBlankLicenseCommand;
-    [ObservableProperty] private RelayCommand _reportMultiSpacesInTitleCommand;
-    [ObservableProperty] private RelayCommand _reportNoTagsCommand;
-    [ObservableProperty] private RelayCommand _reportPhotoMetadataCommand;
-    [ObservableProperty] private RelayCommand _reportTakenAndLicenseYearDoNotMatchCommand;
-    [ObservableProperty] private RelayCommand _reportTitleAndTakenDoNotMatchCommand;
-    [ObservableProperty] private RelayCommand _rescanMetadataAndFillBlanksCommand;
-    [ObservableProperty] private StatusControlContext _statusContext;
-    [ObservableProperty] private RelayCommand _viewFilesCommand;
-    [ObservableProperty] private WindowIconStatus? _windowStatus;
-
     private PhotoListWithActionsContext(StatusControlContext statusContext, WindowIconStatus? windowStatus,
         ContentListContext listContext, bool loadInBackground = true)
     {
-        _statusContext = statusContext;
-        _windowStatus = windowStatus;
+        StatusContext = statusContext;
+        WindowStatus = windowStatus;
+        CommonCommands = new CmsCommonCommands(StatusContext, WindowStatus);
 
-        _listContext = listContext;
+        BuildCommands();
 
-        _commonCommands = new CmsCommonCommands(StatusContext);
-
-        _regenerateHtmlAndReprocessPhotoForSelectedCommand =
-            StatusContext.RunBlockingTaskWithCancellationCommand(RegenerateHtmlAndReprocessPhotoForSelected,
-                "Cancel HTML Generation and Photo Resizing");
-        _photoLinkCodesToClipboardForSelectedCommand =
-            StatusContext.RunBlockingTaskCommand(PhotoLinkCodesToClipboardForSelected);
-        _dailyPhotoLinkCodesToClipboardForSelectedCommand =
-            StatusContext.RunBlockingTaskCommand(DailyPhotoLinkCodesToClipboardForSelected);
-        _refreshDataCommand = StatusContext.RunBlockingTaskCommand(ListContext.LoadData);
-        _forcedResizeCommand = StatusContext.RunBlockingTaskWithCancellationCommand(ForcedResize, "Cancel Resizing");
-        _viewFilesCommand = StatusContext.RunBlockingTaskWithCancellationCommand(ViewFilesSelected, "Cancel File View");
-        _photoToPointContentEditorCommand =
-            StatusContext.RunBlockingTaskWithCancellationCommand(PhotoToPointContentEditor,
-                "Cancel Photos to Point Editors");
-        _rescanMetadataAndFillBlanksCommand =
-            StatusContext.RunBlockingTaskWithCancellationCommand(RescanMetadataAndFillBlanks, "Cancel Metadata Update");
-        _addIntersectionTagsToSelectedCommand =
-            StatusContext.RunBlockingTaskWithCancellationCommand(AddIntersectionTagsToSelected,
-                "Cancel Feature Intersection Tagging");
-
-        _emailHtmlToClipboardCommand = StatusContext.RunBlockingTaskCommand(EmailHtmlToClipboard);
-
-        _reportPhotoMetadataCommand = StatusContext.RunBlockingTaskCommand(ReportPhotoMetadata);
-        _reportNoTagsCommand = StatusContext.RunBlockingTaskCommand(async () =>
-            await RunReport(ReportNoTagsGenerator, "No Tags Photo List"));
-        _reportTitleAndTakenDoNotMatchCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
-            await RunReport(ReportTitleAndTakenDoNotMatchGenerator, "Title and Created Mismatch Photo List"));
-        _reportTakenAndLicenseYearDoNotMatchCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
-            await RunReport(ReportTakenAndLicenseYearDoNotMatchGenerator, "Title and Created Mismatch Photo List"));
-        _reportAllPhotosCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
-            await RunReport(ReportAllPhotosGenerator, "Title and Created Mismatch Photo List"));
-        _reportBlankLicenseCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
-            await RunReport(ReportBlankLicenseGenerator, "Title and Created Mismatch Photo List"));
-        _reportMultiSpacesInTitleCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
-            await RunReport(ReportMultiSpacesInTitleGenerator, "Title with Multiple Spaces"));
-
+        ListContext = listContext;
 
         ListContext.ContextMenuItems = new List<ContextMenuItemData>
         {
@@ -117,7 +61,7 @@ public partial class PhotoListWithActionsContext : ObservableObject
             },
             new() { ItemName = "Email Html to Clipboard", ItemCommand = EmailHtmlToClipboardCommand },
             new() { ItemName = "Photos to Point Content Editors", ItemCommand = PhotoToPointContentEditorCommand },
-            new() { ItemName = "View Photos", ItemCommand = ViewFilesCommand },
+            new() { ItemName = "View Photos", ItemCommand = ViewSelectedFilesCommand },
             new() { ItemName = "Open URL", ItemCommand = ListContext.ViewOnSiteCommand },
             new() { ItemName = "Extract New Links", ItemCommand = ListContext.ExtractNewLinksSelectedCommand },
             new()
@@ -136,9 +80,15 @@ public partial class PhotoListWithActionsContext : ObservableObject
             new() { ItemName = "Refresh Data", ItemCommand = RefreshDataCommand }
         };
 
-        if (loadInBackground) StatusContext.RunFireAndForgetBlockingTask(LoadData);
+        if (loadInBackground) StatusContext.RunFireAndForgetBlockingTask(RefreshData);
     }
 
+    public CmsCommonCommands CommonCommands { get; set; }
+    public ContentListContext ListContext { get; set; }
+    public StatusControlContext StatusContext { get; set; }
+    public WindowIconStatus? WindowStatus { get; set; }
+
+    [BlockingCommand]
     private async Task AddIntersectionTagsToSelected(CancellationToken cancellationToken)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -291,6 +241,7 @@ public partial class PhotoListWithActionsContext : ObservableObject
         return new PhotoListWithActionsContext(factoryContext, windowStatus, factoryListContext, loadInBackground);
     }
 
+    [BlockingCommand]
     private async Task DailyPhotoLinkCodesToClipboardForSelected()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -312,7 +263,7 @@ public partial class PhotoListWithActionsContext : ObservableObject
         StatusContext.ToastSuccess($"To Clipboard {finalString}");
     }
 
-
+    [BlockingCommand]
     private async Task EmailHtmlToClipboard()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -340,7 +291,7 @@ public partial class PhotoListWithActionsContext : ObservableObject
         StatusContext.ToastSuccess("Email Html on Clipboard");
     }
 
-
+    [BlockingCommand]
     private async Task ForcedResize(CancellationToken cancellationToken)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -382,13 +333,7 @@ public partial class PhotoListWithActionsContext : ObservableObject
         }
     }
 
-    public async Task LoadData()
-    {
-        await ThreadSwitcher.ResumeBackgroundAsync();
-
-        await ListContext.LoadData();
-    }
-
+    [BlockingCommand]
     private async Task PhotoLinkCodesToClipboardForSelected()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -410,6 +355,7 @@ public partial class PhotoListWithActionsContext : ObservableObject
         StatusContext.ToastSuccess($"To Clipboard {finalString}");
     }
 
+    [BlockingCommand]
     private async Task PhotoToPointContentEditor(CancellationToken cancellationToken)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -456,6 +402,15 @@ public partial class PhotoListWithActionsContext : ObservableObject
         }
     }
 
+    [BlockingCommand]
+    public async Task RefreshData()
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        await ListContext.LoadData();
+    }
+
+    [BlockingCommand]
     private async Task RegenerateHtmlAndReprocessPhotoForSelected(CancellationToken cancellationToken)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -525,11 +480,24 @@ public partial class PhotoListWithActionsContext : ObservableObject
         }
     }
 
+    [NonBlockingCommand]
+    public async Task ReportAllPhotos()
+    {
+        await RunReport(ReportAllPhotosGenerator, "All Photos");
+    }
+
+
     private async Task<List<object>> ReportAllPhotosGenerator()
     {
         var db = await Db.Context();
 
         return (await db.PhotoContents.OrderByDescending(x => x.PhotoCreatedOn).ToListAsync()).Cast<object>().ToList();
+    }
+
+    [NonBlockingCommand]
+    public async Task ReportBlankLicense()
+    {
+        await RunReport(ReportBlankLicenseGenerator, "Blank License");
     }
 
     private async Task<List<object>> ReportBlankLicenseGenerator()
@@ -547,6 +515,11 @@ public partial class PhotoListWithActionsContext : ObservableObject
         return returnList.Cast<object>().ToList();
     }
 
+    [NonBlockingCommand]
+    public async Task ReportMultiSpacesInTitle()
+    {
+        await RunReport(ReportMultiSpacesInTitleGenerator, "Multiple Spaces in Title");
+    }
     private async Task<List<object>> ReportMultiSpacesInTitleGenerator()
     {
         var db = await Db.Context();
@@ -556,6 +529,12 @@ public partial class PhotoListWithActionsContext : ObservableObject
             .ToListAsync()).Cast<object>().ToList();
     }
 
+    [NonBlockingCommand]
+    public async Task ReportNoTags()
+    {
+        await RunReport(ReportNoTagsGenerator, "No Tags");
+    }
+
     private async Task<List<object>> ReportNoTagsGenerator()
     {
         var db = await Db.Context();
@@ -563,6 +542,7 @@ public partial class PhotoListWithActionsContext : ObservableObject
         return (await db.PhotoContents.Where(x => x.Tags == "").ToListAsync()).Cast<object>().ToList();
     }
 
+    [BlockingCommand]
     private async Task ReportPhotoMetadata()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -596,6 +576,13 @@ public partial class PhotoListWithActionsContext : ObservableObject
         await PhotoMetadataReport.AllPhotoMetadataToHtml(archiveFile, StatusContext);
     }
 
+    [NonBlockingCommand]
+    public async Task ReportTakenAndLicenseYearDoNotMatch()
+    {
+        await RunReport(ReportTakenAndLicenseYearDoNotMatchGenerator, "License and Title Year Don't Match");
+    }
+
+    [NonBlockingCommand]
     private async Task<List<object>> ReportTakenAndLicenseYearDoNotMatchGenerator()
     {
         var db = await Db.Context();
@@ -629,6 +616,13 @@ public partial class PhotoListWithActionsContext : ObservableObject
         return returnList.Cast<object>().ToList();
     }
 
+    [NonBlockingCommand]
+    public async Task ReportTitleAndTakenDoNotMatch()
+    {
+        await RunReport(ReportTitleAndTakenDoNotMatchGenerator, "Title and Taken Dates Don't Match");
+    }
+
+    [NonBlockingCommand]
     private async Task<List<object>> ReportTitleAndTakenDoNotMatchGenerator()
     {
         var db = await Db.Context();
@@ -664,6 +658,7 @@ public partial class PhotoListWithActionsContext : ObservableObject
         return returnList.Cast<object>().ToList();
     }
 
+    [BlockingCommand]
     private async Task RescanMetadataAndFillBlanks(CancellationToken cancellationToken)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -835,7 +830,8 @@ public partial class PhotoListWithActionsContext : ObservableObject
             .ToList() ?? new List<PhotoListListItem>();
     }
 
-    public async Task ViewFilesSelected(CancellationToken cancelToken)
+    [BlockingCommand]
+    public async Task ViewSelectedFiles(CancellationToken cancelToken)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 

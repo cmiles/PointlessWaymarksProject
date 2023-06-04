@@ -1,4 +1,4 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 
 namespace PointlessWaymarks.CmsWpfControls.PointList;
@@ -6,24 +6,24 @@ namespace PointlessWaymarks.CmsWpfControls.PointList;
 /// <summary>
 ///     Interaction logic for PointListWindow.xaml
 /// </summary>
-[ObservableObject]
+[NotifyPropertyChanged]
 public partial class PointListWindow
 {
-    [ObservableProperty] private PointListWithActionsContext _listContext;
-    [ObservableProperty] private string _windowTitle = "Point List";
-
     private PointListWindow(PointListWithActionsContext toLoad)
     {
         InitializeComponent();
 
-        _listContext = toLoad;
+        ListContext = toLoad;
 
         DataContext = this;
     }
 
+    public PointListWithActionsContext ListContext { get; set; }
+    public string WindowTitle { get; set; } = "Point List";
+
     /// <summary>
-    /// Creates a new instance - this method can be called from any thread and will
-    /// switch to the UI thread as needed.
+    ///     Creates a new instance - this method can be called from any thread and will
+    ///     switch to the UI thread as needed.
     /// </summary>
     /// <returns></returns>
     public static async Task<PointListWindow> CreateInstance(PointListWithActionsContext? toLoad)

@@ -44,7 +44,7 @@
                             <MenuItem Command="{Binding SelectedWrittenFilesToRunningS3UploaderCommand}"
                                       Header="S3 - Upload Selected" />
                             <Separator />
-                            <MenuItem Command="{Binding SiteMissingFilesReportCommand}"
+                            <MenuItem Command="{Binding SiteMissingAndChangedFilesReportCommand}"
                                       Header="S3 - Missing and Changed Files on Site" />
                             <MenuItem Command="{Binding SiteDeletedFilesReportCommand}"
                                       Header="S3 - Deleted Files on Site" />

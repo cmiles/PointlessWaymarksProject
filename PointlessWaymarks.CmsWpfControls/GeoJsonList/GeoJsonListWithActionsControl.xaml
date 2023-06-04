@@ -61,7 +61,7 @@
                     Content="_New Content"
                     Style="{StaticResource ActionPanelButtonStyle}" />
                 <Button
-                    Command="{Binding GeoJsonLinkCodesToClipboardForSelectedCommand}"
+                    Command="{Binding LinkBracketCodesToClipboardForSelectedCommand}"
                     Content="Text Code"
                     Style="{StaticResource ActionPanelButtonStyle}" />
                 <Button

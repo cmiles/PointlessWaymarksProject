@@ -1,4 +1,4 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 
 namespace PointlessWaymarks.CmsWpfControls.LinkList;
@@ -6,24 +6,24 @@ namespace PointlessWaymarks.CmsWpfControls.LinkList;
 /// <summary>
 ///     Interaction logic for LinkListWindow.xaml
 /// </summary>
-[ObservableObject]
+[NotifyPropertyChanged]
 public partial class LinkListWindow
 {
-    [ObservableProperty] private LinkListWithActionsContext _listContext;
-    [ObservableProperty] private string _windowTitle = "Link List";
-
     private LinkListWindow(LinkListWithActionsContext toLoad)
     {
         InitializeComponent();
 
-        _listContext = toLoad;
+        ListContext = toLoad;
 
         DataContext = this;
     }
 
+    public LinkListWithActionsContext ListContext { get; set; }
+    public string WindowTitle { get; set; } = "Link List";
+
     /// <summary>
-    /// Creates a new instance - this method can be called from any thread and will
-    /// switch to the UI thread as needed.
+    ///     Creates a new instance - this method can be called from any thread and will
+    ///     switch to the UI thread as needed.
     /// </summary>
     /// <returns></returns>
     public static async Task<LinkListWindow> CreateInstance(LinkListWithActionsContext? toLoad)

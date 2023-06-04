@@ -1,41 +1,28 @@
 ﻿using System.Windows;
-using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
 using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.ContentHtml.VideoHtml;
 using PointlessWaymarks.CmsWpfControls.ContentList;
+using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 using PointlessWaymarks.WpfCommon.Utility;
 
 namespace PointlessWaymarks.CmsWpfControls.VideoList;
 
-public partial class VideoListWithActionsContext : ObservableObject
+[NotifyPropertyChanged]
+[GenerateStatusCommands]
+public partial class VideoListWithActionsContext
 {
-    [ObservableProperty] private CmsCommonCommands _commonCommands;
-    [ObservableProperty] private RelayCommand _emailHtmlToClipboardCommand;
-    [ObservableProperty] private ContentListContext _listContext;
-    [ObservableProperty] private RelayCommand _refreshDataCommand;
-    [ObservableProperty] private StatusControlContext _statusContext;
-    [ObservableProperty] private RelayCommand _videoPageLinkCodesToClipboardForSelectedCommand;
-    [ObservableProperty] private RelayCommand _viewVideosCommand;
-    [ObservableProperty] private WindowIconStatus? _windowStatus;
-
-    private VideoListWithActionsContext(StatusControlContext statusContext, WindowIconStatus? windowStatus, ContentListContext listContext, bool loadInBackground = true)
+    private VideoListWithActionsContext(StatusControlContext statusContext, WindowIconStatus? windowStatus,
+        ContentListContext listContext, bool loadInBackground = true)
     {
-        _statusContext = statusContext;
-        _windowStatus = windowStatus;
-        _commonCommands = new CmsCommonCommands(StatusContext, WindowStatus);
+        StatusContext = statusContext;
+        WindowStatus = windowStatus;
+        CommonCommands = new CmsCommonCommands(StatusContext, WindowStatus);
 
-        _listContext = listContext;
+        BuildCommands();
 
-        _refreshDataCommand = StatusContext.RunBlockingTaskCommand(ListContext.LoadData);
-        _videoPageLinkCodesToClipboardForSelectedCommand =
-            StatusContext.RunBlockingTaskCommand(VideoPageLinkCodesToClipboardForSelected);
-        _viewVideosCommand =
-            StatusContext.RunBlockingTaskWithCancellationCommand(ViewVideosSelected, "Cancel Video View");
-
-        _emailHtmlToClipboardCommand = StatusContext.RunBlockingTaskCommand(EmailHtmlToClipboard);
+        ListContext = listContext;
 
         ListContext.ContextMenuItems = new List<ContextMenuItemData>
         {
@@ -51,7 +38,7 @@ public partial class VideoListWithActionsContext : ObservableObject
                 ItemCommand = VideoPageLinkCodesToClipboardForSelectedCommand
             },
             new() { ItemName = "Email Html to Clipboard", ItemCommand = EmailHtmlToClipboardCommand },
-            new() { ItemName = "View Videos", ItemCommand = ViewVideosCommand },
+            new() { ItemName = "View Videos", ItemCommand = ViewSelectedVideosCommand },
             new() { ItemName = "Open URL", ItemCommand = ListContext.ViewOnSiteCommand },
             new() { ItemName = "Extract New Links", ItemCommand = ListContext.ExtractNewLinksSelectedCommand },
             new() { ItemName = "Generate Html", ItemCommand = ListContext.GenerateHtmlSelectedCommand },
@@ -60,19 +47,27 @@ public partial class VideoListWithActionsContext : ObservableObject
             new() { ItemName = "Refresh Data", ItemCommand = RefreshDataCommand }
         };
 
-        if(loadInBackground) StatusContext.RunFireAndForgetBlockingTask(LoadData);
+        if (loadInBackground) StatusContext.RunFireAndForgetBlockingTask(RefreshData);
     }
 
-    public static async Task<VideoListWithActionsContext> CreateInstance(StatusControlContext? statusContext, WindowIconStatus? windowStatus = null, bool loadInBackground = true)
+    public CmsCommonCommands CommonCommands { get; set; }
+    public ContentListContext ListContext { get; set; }
+    public StatusControlContext StatusContext { get; set; }
+    public WindowIconStatus? WindowStatus { get; set; }
+
+    public static async Task<VideoListWithActionsContext> CreateInstance(StatusControlContext? statusContext,
+        WindowIconStatus? windowStatus = null, bool loadInBackground = true)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
         var factoryContext = statusContext ?? new StatusControlContext();
-        var factoryListContext = await ContentListContext.CreateInstance(factoryContext, new VideoListLoader(100), windowStatus);
+        var factoryListContext =
+            await ContentListContext.CreateInstance(factoryContext, new VideoListLoader(100), windowStatus);
 
         return new VideoListWithActionsContext(factoryContext, windowStatus, factoryListContext, loadInBackground);
     }
 
+    [BlockingCommand]
     private async Task EmailHtmlToClipboard()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -100,7 +95,8 @@ public partial class VideoListWithActionsContext : ObservableObject
         StatusContext.ToastSuccess("Email Html on Clipboard");
     }
 
-    private async Task LoadData()
+    [BlockingCommand]
+    private async Task RefreshData()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -113,6 +109,7 @@ public partial class VideoListWithActionsContext : ObservableObject
             .ToList() ?? new List<VideoListListItem>();
     }
 
+    [BlockingCommand]
     private async Task VideoPageLinkCodesToClipboardForSelected()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -135,7 +132,8 @@ public partial class VideoListWithActionsContext : ObservableObject
         StatusContext.ToastSuccess($"To Clipboard {finalString}");
     }
 
-    public async Task ViewVideosSelected(CancellationToken cancelToken)
+    [BlockingCommand]
+    public async Task ViewSelectedVideos(CancellationToken cancelToken)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 

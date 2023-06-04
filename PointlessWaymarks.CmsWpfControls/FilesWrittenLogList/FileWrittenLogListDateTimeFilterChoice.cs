@@ -1,9 +1,10 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿using PointlessWaymarks.LlamaAspects;
 
 namespace PointlessWaymarks.CmsWpfControls.FilesWrittenLogList;
 
-public partial class FileWrittenLogListDateTimeFilterChoice : ObservableObject
+[NotifyPropertyChanged]
+public partial class FileWrittenLogListDateTimeFilterChoice
 {
-    [ObservableProperty] private string _displayText = string.Empty;
-    [ObservableProperty] private DateTime? _filterDateTimeUtc;
+    public string DisplayText { get; set; } = string.Empty;
+    public DateTime? FilterDateTimeUtc { get; set; }
 }

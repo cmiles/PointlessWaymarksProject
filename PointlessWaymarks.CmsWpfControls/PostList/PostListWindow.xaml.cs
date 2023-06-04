@@ -1,4 +1,4 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 
 namespace PointlessWaymarks.CmsWpfControls.PostList;
@@ -6,30 +6,30 @@ namespace PointlessWaymarks.CmsWpfControls.PostList;
 /// <summary>
 ///     Interaction logic for PostListWindow.xaml
 /// </summary>
-[ObservableObject]
+[NotifyPropertyChanged]
 public partial class PostListWindow
 {
-    [ObservableProperty] private PostListWithActionsContext _listContext;
-    [ObservableProperty] private string _windowTitle = "Post List";
-
-    private PostListWindow(PostListWithActionsContext listContext)
+    private PostListWindow(PostListWithActionsContext toLoad)
     {
         InitializeComponent();
 
-        _listContext = listContext;
+        ListContext = toLoad;
 
         DataContext = this;
     }
 
+    public PostListWithActionsContext ListContext { get; set; }
+    public string WindowTitle { get; set; } = "Post List";
+
     /// <summary>
-    /// Creates a new instance - this method can be called from any thread and will
-    /// switch to the UI thread as needed.
+    ///     Creates a new instance - this method can be called from any thread and will
+    ///     switch to the UI thread as needed.
     /// </summary>
     /// <returns></returns>
     public static async Task<PostListWindow> CreateInstance(PostListWithActionsContext? toLoad)
     {
         await ThreadSwitcher.ResumeForegroundAsync();
-        var window = new PostListWindow (toLoad ?? await PostListWithActionsContext.CreateInstance(null));
+        var window = new PostListWindow(toLoad ?? await PostListWithActionsContext.CreateInstance(null));
 
         return window;
     }

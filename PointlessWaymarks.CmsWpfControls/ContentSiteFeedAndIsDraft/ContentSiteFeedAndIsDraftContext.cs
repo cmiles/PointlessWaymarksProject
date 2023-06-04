@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel;
-using CommunityToolkit.Mvvm.ComponentModel;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsWpfControls.DataEntry;
+using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon.BoolDataEntry;
 using PointlessWaymarks.WpfCommon.ChangesAndValidation;
 using PointlessWaymarks.WpfCommon.ConversionDataEntry;
@@ -10,32 +10,31 @@ using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 
 namespace PointlessWaymarks.CmsWpfControls.ContentSiteFeedAndIsDraft;
 
-public partial class ContentSiteFeedAndIsDraftContext : ObservableObject, IHasChanges, IHasValidationIssues, ICheckForChangesAndValidation
+[NotifyPropertyChanged]
+public partial class ContentSiteFeedAndIsDraftContext : IHasChanges, IHasValidationIssues, ICheckForChangesAndValidation
 {
-    [ObservableProperty] private IMainSiteFeed _dbEntry;
-    [ObservableProperty] private ConversionDataEntryContext<DateTime> _feedOnEntry;
-    [ObservableProperty] private bool _hasChanges;
-    [ObservableProperty] private bool _hasValidationIssues;
-    [ObservableProperty] private BoolDataEntryContext _isDraftEntry;
-    [ObservableProperty] private BoolDataEntryContext _showInMainSiteFeedEntry;
-    [ObservableProperty] private StatusControlContext _statusContext;
-
     private ContentSiteFeedAndIsDraftContext(StatusControlContext statusContext, IMainSiteFeed mainSiteFeed,
         ConversionDataEntryContext<DateTime> feedOnContext, BoolDataEntryContext isDraftContext,
         BoolDataEntryContext showInMainSiteFeedContext)
     {
-        _statusContext = statusContext;
+        StatusContext = statusContext;
 
-        _dbEntry = mainSiteFeed;
+        DbEntry = mainSiteFeed;
 
-        _feedOnEntry = feedOnContext;
-        _isDraftEntry = isDraftContext;
-        _showInMainSiteFeedEntry = showInMainSiteFeedContext;
+        FeedOnEntry = feedOnContext;
+        IsDraftEntry = isDraftContext;
+        ShowInMainSiteFeedEntry = showInMainSiteFeedContext;
 
         PropertyChanged += OnPropertyChanged;
 
         PropertyScanners.SubscribeToChildHasChangesAndHasValidationIssues(this, CheckForChangesAndValidationIssues);
     }
+
+    public IMainSiteFeed DbEntry { get; set; }
+    public ConversionDataEntryContext<DateTime> FeedOnEntry { get; set; }
+    public BoolDataEntryContext IsDraftEntry { get; set; }
+    public BoolDataEntryContext ShowInMainSiteFeedEntry { get; set; }
+    public StatusControlContext StatusContext { get; set; }
 
     public void CheckForChangesAndValidationIssues()
     {
@@ -44,24 +43,30 @@ public partial class ContentSiteFeedAndIsDraftContext : ObservableObject, IHasCh
         HasValidationIssues = PropertyScanners.ChildPropertiesHaveValidationIssues(this);
     }
 
+    public bool HasChanges { get; set; }
+    public bool HasValidationIssues { get; set; }
+
     public static async Task<ContentSiteFeedAndIsDraftContext> CreateInstance(StatusControlContext statusContext,
         IMainSiteFeed dbEntry)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
         var factoryIsDraftContest = await BoolDataEntryTypes.CreateInstanceForIsDraft(dbEntry, false);
-        var factoryShowInMainSiteFeedContext = await BoolDataEntryTypes.CreateInstanceForShowInMainSiteFeed(dbEntry, false);
+        var factoryShowInMainSiteFeedContext =
+            await BoolDataEntryTypes.CreateInstanceForShowInMainSiteFeed(dbEntry, false);
 
         var factoryFeedContext =
             await ConversionDataEntryContext<DateTime>.CreateInstance(ConversionDataEntryHelpers.DateTimeConversion);
         factoryFeedContext.Title = "Show in Site Feeds On";
-        factoryFeedContext.HelpText = "Sets when (if enabled) the content will appear on the Front Page and in RSS Feeds";
+        factoryFeedContext.HelpText =
+            "Sets when (if enabled) the content will appear on the Front Page and in RSS Feeds";
         factoryFeedContext.ReferenceValue = dbEntry.FeedOn;
         factoryFeedContext.UserText = dbEntry.FeedOn.ToString("MM/dd/yyyy h:mm:ss tt");
 
-        var newItem = new ContentSiteFeedAndIsDraftContext(statusContext, dbEntry, factoryFeedContext, factoryIsDraftContest, factoryShowInMainSiteFeedContext);
+        var newItem = new ContentSiteFeedAndIsDraftContext(statusContext, dbEntry, factoryFeedContext,
+            factoryIsDraftContest, factoryShowInMainSiteFeedContext);
         newItem.CheckForChangesAndValidationIssues();
-        
+
         return newItem;
     }
 

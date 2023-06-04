@@ -1,8 +1,7 @@
-﻿using System.Diagnostics;
+﻿using System.ComponentModel;
+using System.Diagnostics;
 using System.Windows;
 using Microsoft.EntityFrameworkCore;
-using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.ContentHtml.NoteHtml;
@@ -12,34 +11,22 @@ using PointlessWaymarks.CmsWpfControls.ContentHistoryView;
 using PointlessWaymarks.CmsWpfControls.ContentList;
 using PointlessWaymarks.CmsWpfControls.NoteContentEditor;
 using PointlessWaymarks.CmsWpfControls.Utility;
+using PointlessWaymarks.CommonTools;
+using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 using PointlessWaymarks.WpfCommon.Utility;
-using LogTools = PointlessWaymarks.CommonTools.LogTools;
 
 namespace PointlessWaymarks.CmsWpfControls.NoteList;
 
-public partial class NoteContentActions : ObservableObject, IContentActions<NoteContent>
+[NotifyPropertyChanged]
+[GenerateStatusCommands]
+public partial class NoteContentActions : IContentActions<NoteContent>
 {
-    [ObservableProperty] private RelayCommand<NoteContent> _deleteCommand;
-    [ObservableProperty] private RelayCommand<NoteContent> _editCommand;
-    [ObservableProperty] private RelayCommand<NoteContent> _extractNewLinksCommand;
-    [ObservableProperty] private RelayCommand<NoteContent> _generateHtmlCommand;
-    [ObservableProperty] private RelayCommand<NoteContent> _linkCodeToClipboardCommand;
-    [ObservableProperty] private RelayCommand<NoteContent> _viewOnSiteCommand;
-    [ObservableProperty] private StatusControlContext _statusContext;
-    [ObservableProperty] private RelayCommand<NoteContent> _viewHistoryCommand;
-
     public NoteContentActions(StatusControlContext statusContext)
     {
-        _statusContext = statusContext;
-        _deleteCommand = StatusContext.RunBlockingTaskCommand<NoteContent>(Delete);
-        _editCommand = StatusContext.RunNonBlockingTaskCommand<NoteContent>(Edit);
-        _extractNewLinksCommand = StatusContext.RunBlockingTaskCommand<NoteContent>(ExtractNewLinks);
-        _generateHtmlCommand = StatusContext.RunBlockingTaskCommand<NoteContent>(GenerateHtml);
-        _linkCodeToClipboardCommand = StatusContext.RunBlockingTaskCommand<NoteContent>(DefaultBracketCodeToClipboard);
-        _viewOnSiteCommand = StatusContext.RunBlockingTaskCommand<NoteContent>(ViewOnSite);
-        _viewHistoryCommand = StatusContext.RunNonBlockingTaskCommand<NoteContent>(ViewHistory);
+        StatusContext = statusContext;
+        BuildCommands();
     }
 
     public string DefaultBracketCode(NoteContent? content)
@@ -47,6 +34,7 @@ public partial class NoteContentActions : ObservableObject, IContentActions<Note
         return content?.ContentId == null ? string.Empty : @$"{BracketCodeNotes.Create(content)}";
     }
 
+    [BlockingCommand]
     public async Task DefaultBracketCodeToClipboard(NoteContent? content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -66,6 +54,7 @@ public partial class NoteContentActions : ObservableObject, IContentActions<Note
         StatusContext.ToastSuccess($"To Clipboard {finalString}");
     }
 
+    [BlockingCommand]
     public async Task Delete(NoteContent? content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -94,6 +83,7 @@ public partial class NoteContentActions : ObservableObject, IContentActions<Note
         }
     }
 
+    [NonBlockingCommand]
     public async Task Edit(NoteContent? content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -113,6 +103,7 @@ public partial class NoteContentActions : ObservableObject, IContentActions<Note
         await newContentWindow.PositionWindowAndShowOnUiThread();
     }
 
+    [BlockingCommand]
     public async Task ExtractNewLinks(NoteContent? content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -133,6 +124,7 @@ public partial class NoteContentActions : ObservableObject, IContentActions<Note
             StatusContext.ProgressTracker());
     }
 
+    [BlockingCommand]
     public async Task GenerateHtml(NoteContent? content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -152,24 +144,9 @@ public partial class NoteContentActions : ObservableObject, IContentActions<Note
         StatusContext.ToastSuccess($"Generated {htmlContext.PageUrl}");
     }
 
-    public async Task ViewOnSite(NoteContent? content)
-    {
-        await ThreadSwitcher.ResumeBackgroundAsync();
+    public StatusControlContext StatusContext { get; set; }
 
-        if (content == null)
-        {
-            StatusContext.ToastError("Nothing Selected?");
-            return;
-        }
-
-        var settings = UserSettingsSingleton.CurrentSettings();
-
-        var url = $@"{settings.NotePageUrl(content)}";
-
-        var ps = new ProcessStartInfo(url) { UseShellExecute = true, Verb = "open" };
-        Process.Start(ps);
-    }
-
+    [NonBlockingCommand]
     public async Task ViewHistory(NoteContent? content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -201,6 +178,27 @@ public partial class NoteContentActions : ObservableObject, IContentActions<Note
 
         historicView.WriteHtmlToTempFolderAndShow(StatusContext.ProgressTracker());
     }
+
+    [BlockingCommand]
+    public async Task ViewOnSite(NoteContent? content)
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (content == null)
+        {
+            StatusContext.ToastError("Nothing Selected?");
+            return;
+        }
+
+        var settings = UserSettingsSingleton.CurrentSettings();
+
+        var url = $@"{settings.NotePageUrl(content)}";
+
+        var ps = new ProcessStartInfo(url) { UseShellExecute = true, Verb = "open" };
+        Process.Start(ps);
+    }
+
+    public event PropertyChangedEventHandler? PropertyChanged;
 
     public static async Task<NoteListListItem> ListItemFromDbItem(NoteContent content, NoteContentActions itemActions,
         bool showType)

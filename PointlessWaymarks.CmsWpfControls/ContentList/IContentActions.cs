@@ -10,7 +10,7 @@ public interface IContentActions<T> : INotifyPropertyChanged
     RelayCommand<T> EditCommand { get; set; }
     RelayCommand<T> ExtractNewLinksCommand { get; set; }
     RelayCommand<T> GenerateHtmlCommand { get; set; }
-    RelayCommand<T> LinkCodeToClipboardCommand { get; set; }
+    RelayCommand<T> DefaultBracketCodeToClipboardCommand { get; set; }
     RelayCommand<T> ViewOnSiteCommand { get; set; }
     StatusControlContext StatusContext { get; set; }
     RelayCommand<T> ViewHistoryCommand { get; set; }

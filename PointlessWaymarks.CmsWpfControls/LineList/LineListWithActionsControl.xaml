@@ -61,7 +61,7 @@
                     Content="_New Content"
                     Style="{StaticResource ActionPanelButtonStyle}" />
                 <Button
-                    Command="{Binding LineLinkCodesToClipboardForSelectedCommand}"
+                    Command="{Binding LinkBracketCodesToClipboardForSelectedCommand}"
                     Content="Text Code to Clipboard"
                     Style="{StaticResource ActionPanelButtonStyle}" />
                 <Button

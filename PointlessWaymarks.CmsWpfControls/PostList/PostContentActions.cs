@@ -1,8 +1,7 @@
-﻿using System.Diagnostics;
+﻿using System.ComponentModel;
+using System.Diagnostics;
 using System.Windows;
 using Microsoft.EntityFrameworkCore;
-using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.ContentHtml.PostHtml;
@@ -12,34 +11,22 @@ using PointlessWaymarks.CmsWpfControls.ContentHistoryView;
 using PointlessWaymarks.CmsWpfControls.ContentList;
 using PointlessWaymarks.CmsWpfControls.PostContentEditor;
 using PointlessWaymarks.CmsWpfControls.Utility;
+using PointlessWaymarks.CommonTools;
+using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 using PointlessWaymarks.WpfCommon.Utility;
-using LogTools = PointlessWaymarks.CommonTools.LogTools;
 
 namespace PointlessWaymarks.CmsWpfControls.PostList;
 
-public partial class PostContentActions : ObservableObject, IContentActions<PostContent>
+[NotifyPropertyChanged]
+[GenerateStatusCommands]
+public partial class PostContentActions : IContentActions<PostContent>
 {
-    [ObservableProperty] private RelayCommand<PostContent> _deleteCommand;
-    [ObservableProperty] private RelayCommand<PostContent> _editCommand;
-    [ObservableProperty] private RelayCommand<PostContent> _extractNewLinksCommand;
-    [ObservableProperty] private RelayCommand<PostContent> _generateHtmlCommand;
-    [ObservableProperty] private RelayCommand<PostContent> _linkCodeToClipboardCommand;
-    [ObservableProperty] private RelayCommand<PostContent> _viewOnSiteCommand;
-    [ObservableProperty] private StatusControlContext _statusContext;
-    [ObservableProperty] private RelayCommand<PostContent> _viewHistoryCommand;
-
     public PostContentActions(StatusControlContext statusContext)
     {
-        _statusContext = statusContext;
-        _deleteCommand = StatusContext.RunBlockingTaskCommand<PostContent>(Delete);
-        _editCommand = StatusContext.RunNonBlockingTaskCommand<PostContent>(Edit);
-        _extractNewLinksCommand = StatusContext.RunBlockingTaskCommand<PostContent>(ExtractNewLinks);
-        _generateHtmlCommand = StatusContext.RunBlockingTaskCommand<PostContent>(GenerateHtml);
-        _linkCodeToClipboardCommand = StatusContext.RunBlockingTaskCommand<PostContent>(DefaultBracketCodeToClipboard);
-        _viewOnSiteCommand = StatusContext.RunBlockingTaskCommand<PostContent>(ViewOnSite);
-        _viewHistoryCommand = StatusContext.RunNonBlockingTaskCommand<PostContent>(ViewHistory);
+        StatusContext = statusContext;
+        BuildCommands();
     }
 
     public string DefaultBracketCode(PostContent? content)
@@ -48,6 +35,7 @@ public partial class PostContentActions : ObservableObject, IContentActions<Post
         return @$"{BracketCodePosts.Create(content)}";
     }
 
+    [BlockingCommand]
     public async Task DefaultBracketCodeToClipboard(PostContent? content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -67,6 +55,7 @@ public partial class PostContentActions : ObservableObject, IContentActions<Post
         StatusContext.ToastSuccess($"To Clipboard {finalString}");
     }
 
+    [NonBlockingCommand]
     public async Task Delete(PostContent? content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -95,6 +84,7 @@ public partial class PostContentActions : ObservableObject, IContentActions<Post
         }
     }
 
+    [NonBlockingCommand]
     public async Task Edit(PostContent? content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -106,7 +96,8 @@ public partial class PostContentActions : ObservableObject, IContentActions<Post
         var refreshedData = context.PostContents.SingleOrDefault(x => x.ContentId == content.ContentId);
 
         if (refreshedData == null)
-        {StatusContext.ToastError(
+        {
+            StatusContext.ToastError(
                 $"{content.Title} is no longer active in the database? Can not edit - look for a historic version...");
             return;
         }
@@ -116,6 +107,7 @@ public partial class PostContentActions : ObservableObject, IContentActions<Post
         await newContentWindow.PositionWindowAndShowOnUiThread();
     }
 
+    [BlockingCommand]
     public async Task ExtractNewLinks(PostContent? content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -136,6 +128,7 @@ public partial class PostContentActions : ObservableObject, IContentActions<Post
             $"{refreshedData.BodyContent} {refreshedData.UpdateNotes}", StatusContext.ProgressTracker());
     }
 
+    [BlockingCommand]
     public async Task GenerateHtml(PostContent? content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -155,24 +148,9 @@ public partial class PostContentActions : ObservableObject, IContentActions<Post
         StatusContext.ToastSuccess($"Generated {htmlContext.PageUrl}");
     }
 
-    public async Task ViewOnSite(PostContent? content)
-    {
-        await ThreadSwitcher.ResumeBackgroundAsync();
+    public StatusControlContext StatusContext { get; set; }
 
-        if (content == null)
-        {
-            StatusContext.ToastError("Nothing Selected?");
-            return;
-        }
-
-        var settings = UserSettingsSingleton.CurrentSettings();
-
-        var url = $@"{settings.PostPageUrl(content)}";
-
-        var ps = new ProcessStartInfo(url) { UseShellExecute = true, Verb = "open" };
-        Process.Start(ps);
-    }
-
+    [NonBlockingCommand]
     public async Task ViewHistory(PostContent? content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -204,6 +182,27 @@ public partial class PostContentActions : ObservableObject, IContentActions<Post
 
         historicView.WriteHtmlToTempFolderAndShow(StatusContext.ProgressTracker());
     }
+
+    [BlockingCommand]
+    public async Task ViewOnSite(PostContent? content)
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (content == null)
+        {
+            StatusContext.ToastError("Nothing Selected?");
+            return;
+        }
+
+        var settings = UserSettingsSingleton.CurrentSettings();
+
+        var url = $@"{settings.PostPageUrl(content)}";
+
+        var ps = new ProcessStartInfo(url) { UseShellExecute = true, Verb = "open" };
+        Process.Start(ps);
+    }
+
+    public event PropertyChangedEventHandler? PropertyChanged;
 
     public static async Task<PostListListItem> ListItemFromDbItem(PostContent content, PostContentActions itemActions,
         bool showType)

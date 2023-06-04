@@ -1,8 +1,7 @@
-﻿using System.Diagnostics;
+﻿using System.ComponentModel;
+using System.Diagnostics;
 using System.Windows;
 using Microsoft.EntityFrameworkCore;
-using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.ContentHtml.FileHtml;
@@ -12,36 +11,22 @@ using PointlessWaymarks.CmsWpfControls.ContentHistoryView;
 using PointlessWaymarks.CmsWpfControls.ContentList;
 using PointlessWaymarks.CmsWpfControls.FileContentEditor;
 using PointlessWaymarks.CmsWpfControls.Utility;
+using PointlessWaymarks.CommonTools;
+using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 using PointlessWaymarks.WpfCommon.Utility;
-using LogTools = PointlessWaymarks.CommonTools.LogTools;
 
 namespace PointlessWaymarks.CmsWpfControls.FileList;
 
-public partial class FileContentActions : ObservableObject, IContentActions<FileContent>
+[NotifyPropertyChanged]
+[GenerateStatusCommands]
+public partial class FileContentActions : IContentActions<FileContent>
 {
-    [ObservableProperty] private RelayCommand<FileContent> _deleteCommand;
-    [ObservableProperty] private RelayCommand<FileContent> _editCommand;
-    [ObservableProperty] private RelayCommand<FileContent> _extractNewLinksCommand;
-    [ObservableProperty] private RelayCommand<FileContent> _generateHtmlCommand;
-    [ObservableProperty] private RelayCommand<FileContent> _linkCodeToClipboardCommand;
-    [ObservableProperty] private RelayCommand<FileContent> _viewOnSiteCommand;
-    [ObservableProperty] private StatusControlContext _statusContext;
-    [ObservableProperty] private RelayCommand<FileContent> _viewFileCommand;
-    [ObservableProperty] private RelayCommand<FileContent> _viewHistoryCommand;
-
     public FileContentActions(StatusControlContext statusContext)
     {
-        _statusContext = statusContext;
-        _deleteCommand = StatusContext.RunBlockingTaskCommand<FileContent>(Delete);
-        _editCommand = StatusContext.RunNonBlockingTaskCommand<FileContent>(Edit);
-        _extractNewLinksCommand = StatusContext.RunBlockingTaskCommand<FileContent>(ExtractNewLinks);
-        _generateHtmlCommand = StatusContext.RunBlockingTaskCommand<FileContent>(GenerateHtml);
-        _linkCodeToClipboardCommand = StatusContext.RunBlockingTaskCommand<FileContent>(DefaultBracketCodeToClipboard);
-        _viewOnSiteCommand = StatusContext.RunBlockingTaskCommand<FileContent>(ViewOnSite);
-        _viewFileCommand = StatusContext.RunNonBlockingTaskCommand<FileContent>(ViewFile);
-        _viewHistoryCommand = StatusContext.RunNonBlockingTaskCommand<FileContent>(ViewHistory);
+        StatusContext = statusContext;
+        BuildCommands();
     }
 
     public string DefaultBracketCode(FileContent? content)
@@ -52,6 +37,7 @@ public partial class FileContentActions : ObservableObject, IContentActions<File
             : @$"{BracketCodeFiles.Create(content)}";
     }
 
+    [BlockingCommand]
     public async Task DefaultBracketCodeToClipboard(FileContent? content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -73,6 +59,7 @@ public partial class FileContentActions : ObservableObject, IContentActions<File
         StatusContext.ToastSuccess($"To Clipboard {finalString}");
     }
 
+    [BlockingCommand]
     public async Task Delete(FileContent? content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -101,6 +88,7 @@ public partial class FileContentActions : ObservableObject, IContentActions<File
         }
     }
 
+    [NonBlockingCommand]
     public async Task Edit(FileContent? content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -123,6 +111,7 @@ public partial class FileContentActions : ObservableObject, IContentActions<File
         await newContentWindow.PositionWindowAndShowOnUiThread();
     }
 
+    [BlockingCommand]
     public async Task ExtractNewLinks(FileContent? content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -142,6 +131,7 @@ public partial class FileContentActions : ObservableObject, IContentActions<File
             $"{refreshedData.BodyContent} {refreshedData.UpdateNotes}", StatusContext.ProgressTracker());
     }
 
+    [BlockingCommand]
     public async Task GenerateHtml(FileContent? content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -161,24 +151,9 @@ public partial class FileContentActions : ObservableObject, IContentActions<File
         StatusContext.ToastSuccess($"Generated {htmlContext.PageUrl}");
     }
 
-    public async Task ViewOnSite(FileContent? content)
-    {
-        await ThreadSwitcher.ResumeBackgroundAsync();
+    public StatusControlContext StatusContext { get; set; }
 
-        if (content == null)
-        {
-            StatusContext.ToastError("Nothing Selected?");
-            return;
-        }
-
-        var settings = UserSettingsSingleton.CurrentSettings();
-
-        var url = $@"{settings.FilePageUrl(content)}";
-
-        var ps = new ProcessStartInfo(url) { UseShellExecute = true, Verb = "open" };
-        Process.Start(ps);
-    }
-
+    [NonBlockingCommand]
     public async Task ViewHistory(FileContent? content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -211,6 +186,28 @@ public partial class FileContentActions : ObservableObject, IContentActions<File
         historicView.WriteHtmlToTempFolderAndShow(StatusContext.ProgressTracker());
     }
 
+    [BlockingCommand]
+    public async Task ViewOnSite(FileContent? content)
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (content == null)
+        {
+            StatusContext.ToastError("Nothing Selected?");
+            return;
+        }
+
+        var settings = UserSettingsSingleton.CurrentSettings();
+
+        var url = $@"{settings.FilePageUrl(content)}";
+
+        var ps = new ProcessStartInfo(url) { UseShellExecute = true, Verb = "open" };
+        Process.Start(ps);
+    }
+
+    //TODO: Eliminate this with Metalama
+    public event PropertyChangedEventHandler? PropertyChanged;
+
     public static async Task<FileListListItem> ListItemFromDbItem(FileContent content, FileContentActions itemActions,
         bool showType)
     {
@@ -221,6 +218,7 @@ public partial class FileContentActions : ObservableObject, IContentActions<File
         return item;
     }
 
+    [NonBlockingCommand]
     public async Task ViewFile(FileContent? listItem)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();

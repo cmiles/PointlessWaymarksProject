@@ -1,28 +1,23 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
-using PointlessWaymarks.CmsData.Database.Models;
+﻿using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsWpfControls.ContentList;
+using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon.Utility;
 
 namespace PointlessWaymarks.CmsWpfControls.LinkList;
 
-public partial class LinkListListItem : ObservableObject, IContentListItem
+[NotifyPropertyChanged]
+public partial class LinkListListItem : IContentListItem
 {
-    [ObservableProperty] private LinkContent _dbEntry;
-    [ObservableProperty] private LinkContentActions _itemActions;
-    [ObservableProperty] private string _linkContentString = string.Empty;
-    [ObservableProperty] private CurrentSelectedTextTracker _selectedTextTracker = new();
-    [ObservableProperty] private bool _showType;
-
     private LinkListListItem(LinkContentActions itemActions, LinkContent dbEntry)
     {
-        _dbEntry = dbEntry;
-        _itemActions = itemActions;
+        DbEntry = dbEntry;
+        ItemActions = itemActions;
     }
 
-    public static Task<LinkListListItem> CreateInstance(LinkContentActions itemActions)
-    {
-        return Task.FromResult(new LinkListListItem(itemActions, LinkContent.CreateInstance()));
-    }
+    public LinkContent DbEntry { get; set; }
+    public LinkContentActions ItemActions { get; set; }
+    public string LinkContentString { get; set; } = string.Empty;
+    public bool ShowType { get; set; }
 
     public IContentCommon Content()
     {
@@ -30,7 +25,7 @@ public partial class LinkListListItem : ObservableObject, IContentListItem
         {
             Summary =
                 string.Join(Environment.NewLine,
-                    (new List<string?>
+                    new List<string?>
                     {
                         DbEntry.Title,
                         DbEntry.Site,
@@ -38,7 +33,7 @@ public partial class LinkListListItem : ObservableObject, IContentListItem
                         DbEntry.Author,
                         DbEntry.Description,
                         DbEntry.Comments
-                    }).Where(x => !string.IsNullOrWhiteSpace(x))),
+                    }.Where(x => !string.IsNullOrWhiteSpace(x))),
             Title = DbEntry.Title,
             ContentId = DbEntry.ContentId,
             ContentVersion = DbEntry.ContentVersion,
@@ -86,13 +81,20 @@ public partial class LinkListListItem : ObservableObject, IContentListItem
         await ItemActions.GenerateHtml(DbEntry);
     }
 
+    public async Task ViewHistory()
+    {
+        await ItemActions.ViewHistory(DbEntry);
+    }
+
     public async Task ViewOnSite()
     {
         await ItemActions.ViewOnSite(DbEntry);
     }
 
-    public async Task ViewHistory()
+    public CurrentSelectedTextTracker? SelectedTextTracker { get; set; } = new();
+
+    public static Task<LinkListListItem> CreateInstance(LinkContentActions itemActions)
     {
-        await ItemActions.ViewHistory(DbEntry);
+        return Task.FromResult(new LinkListListItem(itemActions, LinkContent.CreateInstance()));
     }
 }
