@@ -1,6 +1,4 @@
 ﻿using System.Collections.ObjectModel;
-using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
 using Omu.ValueInjecter;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.Content;
@@ -9,6 +7,7 @@ using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsWpfControls.ContentList;
 using PointlessWaymarks.CmsWpfControls.HelpDisplay;
 using PointlessWaymarks.CommonTools;
+using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 using Serilog;
@@ -16,35 +15,34 @@ using TinyIpc.Messaging;
 
 namespace PointlessWaymarks.CmsWpfControls.TagExclusionEditor;
 
-public partial class TagExclusionEditorContext : ObservableObject
+[NotifyPropertyChanged]
+[GenerateStatusCommands]
+public partial class TagExclusionEditorContext
 {
-    [ObservableProperty] private RelayCommand _addNewItemCommand;
-    [ObservableProperty] private CmsCommonCommands _commonCommands;
-    [ObservableProperty] private DataNotificationsWorkQueue _dataNotificationsProcessor;
-    [ObservableProperty] private RelayCommand<TagExclusionEditorListItem> _deleteItemCommand;
-    [ObservableProperty] private string _helpMarkdown;
-    [ObservableProperty] private ObservableCollection<TagExclusionEditorListItem> _items;
-    [ObservableProperty] private RelayCommand<TagExclusionEditorListItem> _saveItemCommand;
-    [ObservableProperty] private StatusControlContext _statusContext;
-
     private TagExclusionEditorContext(StatusControlContext statusContext,
         ObservableCollection<TagExclusionEditorListItem> itemCollection, bool loadInBackground = true)
     {
-        _statusContext = statusContext;
-        _commonCommands = new CmsCommonCommands(StatusContext);
+        StatusContext = statusContext;
+        CommonCommands = new CmsCommonCommands(StatusContext);
 
-        _dataNotificationsProcessor = new DataNotificationsWorkQueue { Processor = DataNotificationReceived };
+        BuildCommands();
 
-        _helpMarkdown = TagExclusionHelpMarkdown.HelpBlock;
-        _addNewItemCommand = StatusContext.RunBlockingTaskCommand(AddNewItem);
-        _saveItemCommand = StatusContext.RunNonBlockingTaskCommand<TagExclusionEditorListItem>(SaveItem);
-        _deleteItemCommand = StatusContext.RunNonBlockingTaskCommand<TagExclusionEditorListItem>(DeleteItem);
+        DataNotificationsProcessor = new DataNotificationsWorkQueue { Processor = DataNotificationReceived };
 
-        _items = itemCollection;
+        HelpMarkdown = TagExclusionHelpMarkdown.HelpBlock;
 
-        if(loadInBackground) StatusContext.RunFireAndForgetBlockingTask(LoadData);
+        Items = itemCollection;
+
+        if (loadInBackground) StatusContext.RunFireAndForgetBlockingTask(LoadData);
     }
 
+    public CmsCommonCommands CommonCommands { get; set; }
+    public DataNotificationsWorkQueue DataNotificationsProcessor { get; set; }
+    public string HelpMarkdown { get; set; }
+    public ObservableCollection<TagExclusionEditorListItem> Items { get; set; }
+    public StatusControlContext StatusContext { get; set; }
+
+    [BlockingCommand]
     public async Task AddNewItem()
     {
         await ThreadSwitcher.ResumeForegroundAsync();
@@ -75,6 +73,7 @@ public partial class TagExclusionEditorContext : ObservableObject
         await LoadData();
     }
 
+    [NonBlockingCommand]
     private async Task DeleteItem(TagExclusionEditorListItem? tagItem)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -114,7 +113,8 @@ public partial class TagExclusionEditorContext : ObservableObject
 
         foreach (var loopListItem in listItems)
         {
-            var possibleItem = currentItems.Where(x => x.DbEntry?.Id != null).SingleOrDefault(x => x.DbEntry?.Id == loopListItem.DbEntry?.Id);
+            var possibleItem = currentItems.Where(x => x.DbEntry?.Id != null)
+                .SingleOrDefault(x => x.DbEntry?.Id == loopListItem.DbEntry?.Id);
 
             if (possibleItem == null)
             {
@@ -152,6 +152,7 @@ public partial class TagExclusionEditorContext : ObservableObject
         DataNotificationsProcessor.Enqueue(e);
     }
 
+    [NonBlockingCommand]
     private async Task SaveItem(TagExclusionEditorListItem? tagItem)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();

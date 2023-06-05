@@ -1,8 +1,8 @@
 ﻿using System.IO;
 using System.Windows;
-using CommunityToolkit.Mvvm.ComponentModel;
 using Microsoft.Web.WebView2.Core;
 using PointlessWaymarks.CommonTools;
+using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 using PointlessWaymarks.WpfCommon.Utility;
 
@@ -11,17 +11,17 @@ namespace PointlessWaymarks.CmsWpfControls.SitePreview;
 /// <summary>
 ///     Interaction logic for SitePreviewControl.xaml
 /// </summary>
-[ObservableObject]
+[NotifyPropertyChanged]
 public partial class SitePreviewControl
 {
-    [ObservableProperty] private SitePreviewContext? _previewContext;
-
     public SitePreviewControl()
     {
         InitializeComponent();
 
         DataContext = PreviewContext;
     }
+
+    public SitePreviewContext? PreviewContext { get; set; }
 
     private void CoreWebView2_NewWindowRequested(object? sender, CoreWebView2NewWindowRequestedEventArgs e)
     {

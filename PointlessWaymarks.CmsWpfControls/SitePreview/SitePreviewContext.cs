@@ -1,58 +1,51 @@
 ﻿using System.Windows;
-using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
 using Microsoft.Web.WebView2.Core;
 using PointlessWaymarks.CommonTools;
+using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 
 namespace PointlessWaymarks.CmsWpfControls.SitePreview;
 
-[ObservableObject]
+[NotifyPropertyChanged]
+[GenerateStatusCommands]
 public partial class SitePreviewContext : DependencyObject
 {
-    [ObservableProperty] private string _currentAddress;
-    [ObservableProperty] private string _currentDocumentTitle = string.Empty;
-    [ObservableProperty] private string _initialPage;
-    [ObservableProperty] private string _localSiteFolder;
-    [ObservableProperty] private Action<CoreWebView2NewWindowRequestedEventArgs>? _newWindowRequestedAction;
-    [ObservableProperty] private string _previewServerHost;
-    [ObservableProperty] private string _siteName;
-    [ObservableProperty] private string _siteUrl;
-    [ObservableProperty] private StatusControlContext _statusContext;
-    [ObservableProperty] private string? _textBarAddress;
-    [ObservableProperty] private RelayCommand _tryGoBackNavigationCommand;
-    [ObservableProperty] private RelayCommand _tryGoForwardNavigationCommand;
-    [ObservableProperty] private RelayCommand _tryNavigateHomeCommand;
-    [ObservableProperty] private RelayCommand _tryRefreshCommand;
-    [ObservableProperty] private RelayCommand _tryUserNavigationCommand;
-    [ObservableProperty] private SitePreviewControl? _webViewGui;
-    [ObservableProperty] private string _siteMappingNote;
-
     public SitePreviewContext(string siteUrl, string localSiteFolder, string siteName, string previewServerHost,
         StatusControlContext? statusContext, string initialPage = "")
     {
-        _statusContext = statusContext ?? new StatusControlContext();
-        _siteUrl = siteUrl;
-        _localSiteFolder = localSiteFolder;
-        _siteName = siteName;
-        _previewServerHost = previewServerHost;
+        StatusContext = statusContext ?? new StatusControlContext();
 
-        _initialPage = string.IsNullOrEmpty(initialPage) ? $"http://{previewServerHost}/index.html" : initialPage;
+        BuildCommands();
 
-        _siteMappingNote = string.IsNullOrWhiteSpace(SiteName)
+        SiteUrl = siteUrl;
+        LocalSiteFolder = localSiteFolder;
+        SiteName = siteName;
+        PreviewServerHost = previewServerHost;
+
+        InitialPage = string.IsNullOrEmpty(initialPage) ? $"http://{previewServerHost}/index.html" : initialPage;
+
+        SiteMappingNote = string.IsNullOrWhiteSpace(SiteName)
             ? $"Preview - {LocalSiteFolder} is mapped to {SiteUrl}"
             : $"{SiteName} - {LocalSiteFolder} is mapped to {SiteUrl}";
 
-        _currentAddress = InitialPage;
-
-        _tryUserNavigationCommand = StatusContext.RunBlockingTaskCommand(TryUserNavigation);
-        _tryGoBackNavigationCommand = StatusContext.RunBlockingTaskCommand(TryGoBackNavigation);
-        _tryGoForwardNavigationCommand = StatusContext.RunBlockingTaskCommand(TryGoForwardNavigation);
-        _tryRefreshCommand = StatusContext.RunBlockingTaskCommand(TryRefresh);
-        _tryNavigateHomeCommand = StatusContext.RunBlockingTaskCommand(TryNavigateHome);
+        CurrentAddress = InitialPage;
     }
 
+    public string CurrentAddress { get; set; }
+    public string CurrentDocumentTitle { get; set; } = string.Empty;
+    public string InitialPage { get; set; }
+    public string LocalSiteFolder { get; set; }
+    public Action<CoreWebView2NewWindowRequestedEventArgs>? NewWindowRequestedAction { get; set; }
+    public string PreviewServerHost { get; set; }
+    public string SiteMappingNote { get; set; }
+    public string SiteName { get; set; }
+    public string SiteUrl { get; set; }
+    public StatusControlContext StatusContext { get; set; }
+    public string? TextBarAddress { get; set; }
+    public SitePreviewControl? WebViewGui { get; set; }
+
+    [BlockingCommand]
     private async Task TryGoBackNavigation()
     {
         await ThreadSwitcher.ResumeForegroundAsync();
@@ -60,6 +53,7 @@ public partial class SitePreviewContext : DependencyObject
             WebViewGui.SitePreviewWebView.CoreWebView2.GoBack();
     }
 
+    [BlockingCommand]
     private async Task TryGoForwardNavigation()
     {
         await ThreadSwitcher.ResumeForegroundAsync();
@@ -67,18 +61,21 @@ public partial class SitePreviewContext : DependencyObject
             WebViewGui.SitePreviewWebView.CoreWebView2.GoForward();
     }
 
+    [BlockingCommand]
     private async Task TryNavigateHome()
     {
         await ThreadSwitcher.ResumeForegroundAsync();
         WebViewGui?.SitePreviewWebView.CoreWebView2.Navigate(InitialPage);
     }
 
+    [BlockingCommand]
     private async Task TryRefresh()
     {
         await ThreadSwitcher.ResumeForegroundAsync();
         WebViewGui?.SitePreviewWebView.CoreWebView2.Reload();
     }
 
+    [BlockingCommand]
     private async Task TryUserNavigation()
     {
         await ThreadSwitcher.ResumeForegroundAsync();

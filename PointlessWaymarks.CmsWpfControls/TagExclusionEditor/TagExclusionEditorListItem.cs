@@ -1,20 +1,21 @@
 ﻿using System.ComponentModel;
-using CommunityToolkit.Mvvm.ComponentModel;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CommonTools;
+using PointlessWaymarks.LlamaAspects;
 
 namespace PointlessWaymarks.CmsWpfControls.TagExclusionEditor;
 
-public partial class TagExclusionEditorListItem : ObservableObject
+[NotifyPropertyChanged]
+public partial class TagExclusionEditorListItem
 {
-    [ObservableProperty] private TagExclusion? _dbEntry;
-    [ObservableProperty] private bool _hasChanges;
-    [ObservableProperty] private string? _tagValue;
-
     public TagExclusionEditorListItem()
     {
         PropertyChanged += OnPropertyChanged;
     }
+
+    public TagExclusion? DbEntry { get; set; }
+    public bool HasChanges { get; set; }
+    public string? TagValue { get; set; }
 
     public void CheckForChanges()
     {
