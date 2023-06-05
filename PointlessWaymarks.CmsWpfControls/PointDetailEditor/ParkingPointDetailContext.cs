@@ -29,11 +29,12 @@ public partial class ParkingPointDetailContext : ObservableObject, IHasChanges, 
 
     private ParkingPointDetailContext(StatusControlContext? statusContext)
     {
-        PropertyChanged += OnPropertyChanged;
+        _statusContext = statusContext ?? new StatusControlContext();
 
         _dbEntry = PointDetail.CreateInstance();
         _detailData = new Parking();
-        _statusContext = statusContext ?? new StatusControlContext();
+
+        PropertyChanged += OnPropertyChanged;
     }
 
 

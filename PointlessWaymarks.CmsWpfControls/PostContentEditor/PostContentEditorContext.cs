@@ -51,8 +51,6 @@ public partial class PostContentEditorContext : ObservableObject, IHasChanges, I
     {
         _statusContext = statusContext;
 
-        PropertyChanged += OnPropertyChanged;
-
         _saveCommand = StatusContext.RunBlockingTaskCommand(async () => await SaveAndGenerateHtml(false));
         _saveAndCloseCommand = StatusContext.RunBlockingTaskCommand(async () => await SaveAndGenerateHtml(true));
         _viewOnSiteCommand = StatusContext.RunBlockingTaskCommand(ViewOnSite);
@@ -62,6 +60,8 @@ public partial class PostContentEditorContext : ObservableObject, IHasChanges, I
         _linkToClipboardCommand = StatusContext.RunBlockingTaskCommand(LinkToClipboard);
 
         DbEntry = dbEntry;
+
+        PropertyChanged += OnPropertyChanged;
     }
 
     public string PostEditorHelpText =>

@@ -53,8 +53,6 @@ public partial class TagListContext : ObservableObject
         _statusContext = context;
         _commonCommands = new CmsCommonCommands(StatusContext);
 
-        PropertyChanged += OnPropertyChanged;
-
         _dataNotificationsProcessor = new DataNotificationsWorkQueue { Processor = DataNotificationReceived };
 
         _refreshDataCommand = StatusContext.RunBlockingTaskCommand(LoadData);
@@ -77,6 +75,8 @@ public partial class TagListContext : ObservableObject
             await ExcelHelpers.ImportFromOpenExcelInstance(StatusContext));
 
         _items = itemCollection;
+
+        PropertyChanged += OnPropertyChanged;
 
         if (loadInBackground) StatusContext.RunFireAndForgetBlockingTask(LoadData);
     }

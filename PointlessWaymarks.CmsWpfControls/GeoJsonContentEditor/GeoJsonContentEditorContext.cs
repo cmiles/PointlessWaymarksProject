@@ -65,8 +65,6 @@ public partial class GeoJsonContentEditorContext : ObservableObject, IHasChanges
     {
         _statusContext = statusContext;
 
-        PropertyChanged += OnPropertyChanged;
-
         _saveCommand = StatusContext.RunBlockingTaskCommand(async () => await SaveAndGenerateHtml(false));
         _saveAndCloseCommand = StatusContext.RunBlockingTaskCommand(async () => await SaveAndGenerateHtml(true));
         _viewOnSiteCommand = StatusContext.RunBlockingTaskCommand(ViewOnSite);
@@ -84,6 +82,8 @@ public partial class GeoJsonContentEditorContext : ObservableObject, IHasChanges
             UserSettingsSingleton.CurrentSettings().LongitudeDefault, string.Empty);
 
         _dbEntry = dbEntry;
+
+        PropertyChanged += OnPropertyChanged;
     }
 
     public void CheckForChangesAndValidationIssues()

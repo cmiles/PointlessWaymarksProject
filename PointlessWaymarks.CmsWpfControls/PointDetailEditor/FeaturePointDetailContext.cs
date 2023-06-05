@@ -29,11 +29,12 @@ internal partial class FeaturePointDetailContext : ObservableObject, IHasChanges
 
     private FeaturePointDetailContext(StatusControlContext? statusContext)
     {
-        PropertyChanged += OnPropertyChanged;
+        _statusContext = statusContext ?? new StatusControlContext();
 
         _dbEntry = PointDetail.CreateInstance();
         _detailData = new Feature();
-        _statusContext = statusContext ?? new StatusControlContext();
+
+        PropertyChanged += OnPropertyChanged;
     }
 
     public void CheckForChangesAndValidationIssues()

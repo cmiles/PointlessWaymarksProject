@@ -19,9 +19,9 @@ public partial class ContentFormatChooserContext : IHasChanges, IHasValidationIs
         StatusContext = statusContext ?? new StatusControlContext();
         ContentFormatChoices = Enum.GetValues(typeof(ContentFormatEnum)).Cast<ContentFormatEnum>().ToList();
 
-        PropertyChanged += OnPropertyChanged;
-
         _selectedContentFormat = ContentFormatChoices.First();
+
+        PropertyChanged += OnPropertyChanged;
     }
 
     public List<ContentFormatEnum> ContentFormatChoices { get; set; }

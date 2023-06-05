@@ -32,7 +32,6 @@ public partial class PointDetailListContext : ObservableObject, IHasChanges, IHa
     {
         _statusContext = statusContext;
 
-        PropertyChanged += OnPropertyChanged;
 
         _deletedPointDetails = new List<IPointDetailEditor>();
 
@@ -45,6 +44,8 @@ public partial class PointDetailListContext : ObservableObject, IHasChanges, IHa
         _pointDetailTypeList = new List<(string typeIdentifierAttribute, Type reflectedType)>();
         _additionalPointDetailTypes = additionalPointDetailTypes;
         _items = items;
+
+        PropertyChanged += OnPropertyChanged;
     }
 
     public void CheckForChangesAndValidationIssues()

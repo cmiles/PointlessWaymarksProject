@@ -20,16 +20,12 @@ public class CreatedAndUpdatedByAndOnDisplayContext : ObservableObject, IHasChan
     {
         StatusContext = statusContext;
 
-        PropertyChanged += OnPropertyChanged;
-
         DbEntry = dbEntry;
 
         IsNewEntry = ((IContentId)DbEntry).Id < 1;
 
         CreatedByEntry = createdByContext;
         UpdatedByEntry = updatedByContext;
-
-        PropertyScanners.SubscribeToChildHasChangesAndHasValidationIssues(this, CheckForChangesAndValidationIssues);
 
         //If this is a 'first update' go ahead and fill in the Created by as the updated by, this
         //is realistically just a trade off, better for most common workflow - potential mistake
@@ -71,6 +67,10 @@ public class CreatedAndUpdatedByAndOnDisplayContext : ObservableObject, IHasChan
         if (DbEntry.LastUpdatedOn != null) newStringParts.Add($"On {DbEntry.LastUpdatedOn:g}");
 
         CreatedAndUpdatedByAndOn = string.Join(" ", newStringParts);
+
+        PropertyChanged += OnPropertyChanged;
+
+        PropertyScanners.SubscribeToChildHasChangesAndHasValidationIssues(this, CheckForChangesAndValidationIssues);
     }
 
     public string CreatedAndUpdatedByAndOn { get; set; }

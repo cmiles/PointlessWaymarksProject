@@ -24,8 +24,6 @@ public partial class ContentFolderContext : IHasChanges, IHasValidationIssues
 
         DataNotificationsProcessor = new DataNotificationsWorkQueue { Processor = DataNotificationReceived };
 
-        PropertyChanged += OnPropertyChanged;
-
         Title = "Folder";
         HelpText =
             "The Parent Folder for the Content - this will appear in the URL and allows grouping similar content together.";
@@ -42,6 +40,8 @@ public partial class ContentFolderContext : IHasChanges, IHasValidationIssues
         UserValue = dbEntry?.Folder ?? string.Empty;
 
         ValidationFunctions = new List<Func<string?, IsValid>> { CommonContentValidation.ValidateFolder };
+
+        PropertyChanged += OnPropertyChanged;
 
         DataNotifications.NewDataNotificationChannel().MessageReceived += OnDataNotificationReceived;
     }

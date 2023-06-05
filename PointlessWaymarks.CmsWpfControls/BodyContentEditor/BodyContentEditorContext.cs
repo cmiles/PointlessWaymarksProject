@@ -25,8 +25,6 @@ public partial class BodyContentEditorContext : IHasChanges, IHasValidationIssue
     {
         StatusContext = statusContext;
 
-        PropertyChanged += OnPropertyChanged;
-
         DbEntry = dbEntry;
 
         BodyContentFormat = contentFormatChooser;
@@ -38,6 +36,8 @@ public partial class BodyContentEditorContext : IHasChanges, IHasValidationIssue
         SelectedBodyText = string.Empty;
 
         BuildCommands();
+
+        PropertyChanged += OnPropertyChanged;
 
         PropertyScanners.SubscribeToChildHasChangesAndHasValidationIssues(this, CheckForChangesAndValidationIssues);
     }

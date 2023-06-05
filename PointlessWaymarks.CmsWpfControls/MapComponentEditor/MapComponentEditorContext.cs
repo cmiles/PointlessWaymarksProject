@@ -72,8 +72,6 @@ public partial class MapComponentEditorContext : ObservableObject, IHasChanges, 
     {
         _statusContext = statusContext;
 
-        PropertyChanged += OnPropertyChanged;
-
         _userGeoContentIdInputToMapCommand = StatusContext.RunBlockingTaskCommand(UserGeoContentIdInputToMap);
         _saveCommand = StatusContext.RunBlockingTaskCommand(async () => await SaveAndGenerateHtml(false));
         _saveAndCloseCommand = StatusContext.RunBlockingTaskCommand(async () => await SaveAndGenerateHtml(true));
@@ -97,6 +95,8 @@ public partial class MapComponentEditorContext : ObservableObject, IHasChanges, 
             Dispatcher.CurrentDispatcher.Invoke(() => { ListContextSortHelpers.SortList(list, MapElements); });
 
         _dbEntry = dbEntry;
+
+        PropertyChanged += OnPropertyChanged;
     }
 
     public void CheckForChangesAndValidationIssues()

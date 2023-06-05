@@ -42,12 +42,12 @@ public partial class FilesWrittenLogListContext
         GenerationChoices = generationChoices;
         Items = items;
 
-        PropertyChanged += OnPropertyChanged;
-
         if (loadInBackground) StatusContext.RunFireAndForgetBlockingTask(LoadData);
 
         DataNotificationsProcessor = new DataNotificationsWorkQueue { Processor = DataNotificationReceived };
         DataNotifications.NewDataNotificationChannel().MessageReceived += OnDataNotificationReceived;
+
+        PropertyChanged += OnPropertyChanged;
     }
 
     public bool ChangeSlashes { get; set; } = true;

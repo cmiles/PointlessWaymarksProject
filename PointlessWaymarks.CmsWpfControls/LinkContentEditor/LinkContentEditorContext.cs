@@ -48,8 +48,6 @@ public partial class LinkContentEditorContext : ObservableObject, IHasChanges, I
     {
         _statusContext = statusContext;
 
-        PropertyChanged += OnPropertyChanged;
-
         _saveCommand = StatusContext.RunBlockingTaskCommand(async () => await SaveAndGenerateHtml(false));
         _saveAndCloseCommand = StatusContext.RunBlockingTaskCommand(async () => await SaveAndGenerateHtml(true));
         _extractDataCommand = StatusContext.RunBlockingTaskCommand(ExtractDataFromLink);
@@ -68,6 +66,8 @@ public partial class LinkContentEditorContext : ObservableObject, IHasChanges, I
         });
 
         _dbEntry = dbEntry;
+        
+        PropertyChanged += OnPropertyChanged;
     }
 
     public void CheckForChangesAndValidationIssues()

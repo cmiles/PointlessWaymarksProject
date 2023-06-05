@@ -24,13 +24,13 @@ public partial class TagsEditorContext : ObservableObject, IHasChanges, IHasVali
     {
         _statusContext = statusContext;
 
-        PropertyChanged += OnPropertyChanged;
-
         _dbEntry = dbEntry;
         _helpText =
             "Comma separated tags - only a-z 0-9 _ - [space] are valid, each tag must be less than 200 characters long.";
         _tags = dbEntry?.Tags ?? string.Empty;
         Tags = TagListString();
+
+        PropertyChanged += OnPropertyChanged;
     }
 
     public void CheckForChangesAndValidationIssues()

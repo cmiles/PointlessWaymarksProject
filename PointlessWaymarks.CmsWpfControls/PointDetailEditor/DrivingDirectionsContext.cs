@@ -27,11 +27,12 @@ public partial class DrivingDirectionsPointDetailContext : ObservableObject, IHa
 
     private DrivingDirectionsPointDetailContext(StatusControlContext? statusContext)
     {
-        PropertyChanged += OnPropertyChanged;
+        _statusContext = statusContext ?? new StatusControlContext();
 
         _dbEntry = PointDetail.CreateInstance();
         _detailData = new DrivingDirections();
-        _statusContext = statusContext ?? new StatusControlContext();
+
+        PropertyChanged += OnPropertyChanged;
     }
 
 

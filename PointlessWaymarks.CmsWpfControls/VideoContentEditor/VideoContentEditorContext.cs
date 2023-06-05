@@ -92,8 +92,6 @@ public partial class VideoContentEditorContext : ObservableObject, IHasChanges, 
     {
         StatusContext = statusContext;
 
-        PropertyChanged += OnPropertyChanged;
-
         _videoContext = new SimpleMediaPlayerContext();
 
         _chooseFileAndFillMetadataCommand = StatusContext.RunBlockingTaskCommand(async () => await ChooseFile(true));
@@ -123,6 +121,8 @@ public partial class VideoContentEditorContext : ObservableObject, IHasChanges, 
         _editUserMainPictureCommand = StatusContext.RunNonBlockingTaskCommand(EditUserMainPicture);
 
         _dbEntry = dbEntry;
+
+        PropertyChanged += OnPropertyChanged;
     }
 
 

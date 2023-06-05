@@ -27,11 +27,12 @@ public partial class RestroomPointDetailContext : ObservableObject, IHasChanges,
 
     private RestroomPointDetailContext(StatusControlContext? statusContext)
     {
-        PropertyChanged += OnPropertyChanged;
+        _statusContext = statusContext ?? new StatusControlContext();
 
         _dbEntry = PointDetail.CreateInstance();
         _detailData = new Restroom();
-        _statusContext = statusContext ?? new StatusControlContext();
+
+        PropertyChanged += OnPropertyChanged;
     }
 
 

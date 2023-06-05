@@ -26,11 +26,12 @@ public partial class PeakPointDetailContext : ObservableObject, IHasChanges, IHa
 
     private PeakPointDetailContext(StatusControlContext? statusContext)
     {
-        PropertyChanged += OnPropertyChanged;
+        _statusContext = statusContext ?? new StatusControlContext();
 
         _dbEntry = PointDetail.CreateInstance();
         _detailData = new Peak();
-        _statusContext = statusContext ?? new StatusControlContext();
+
+        PropertyChanged += OnPropertyChanged;
     }
 
 

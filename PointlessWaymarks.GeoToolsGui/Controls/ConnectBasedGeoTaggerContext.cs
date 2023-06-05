@@ -269,13 +269,13 @@ public partial class ConnectBasedGeoTaggerContext
         Settings = await ConnectBasedGeoTaggerSettingTools.ReadSettings();
         Debug.Assert(Settings != null, nameof(GeoToolsGui.Settings) + " != null");
 
+        FilesToTagSettings = new ConnectBasedGeoTagFilesToTagSettings(this);
+
         FilesToTagFileList = await FileListContext.CreateInstance(StatusContext, FilesToTagSettings,
             new List<ContextMenuItemData>
             {
                 new() { ItemCommand = MetadataForSelectedFilesToTagCommand, ItemName = "Metadata Report for Selected" }
             });
-
-        FilesToTagSettings = new ConnectBasedGeoTagFilesToTagSettings(this);
 
         await ThreadSwitcher.ResumeForegroundAsync();
 

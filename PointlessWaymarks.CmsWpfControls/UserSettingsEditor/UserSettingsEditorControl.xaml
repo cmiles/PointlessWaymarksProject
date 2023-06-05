@@ -391,8 +391,8 @@
                                 <ColumnDefinition />
                             </Grid.ColumnDefinitions>
                         </Grid>
-                        <Button Command="{Binding EnterAwsCredentials}">Enter AWS Site Credentials</Button>
-                        <Button Command="{Binding DeleteAwsCredentials}">Delete AWS Site Credentials</Button>
+                        <Button Command="{Binding UserAwsKeyAndSecretEntryCommand}">Enter AWS Site Credentials</Button>
+                        <Button Command="{Binding DeleteAwsCredentialsCommand}">Delete AWS Site Credentials</Button>
                     </StackPanel>
                 </StackPanel>
             </ScrollViewer>

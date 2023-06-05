@@ -80,8 +80,6 @@ public partial class ImageContentEditorContext : ObservableObject, IHasChanges, 
     {
         _statusContext = statusContext;
 
-        PropertyChanged += OnPropertyChanged;
-
         _chooseFileCommand = StatusContext.RunBlockingTaskCommand(async () => await ChooseFile());
         _saveCommand = StatusContext.RunBlockingTaskCommand(async () =>
             await SaveAndGenerateHtml(ResizeSelectedFile || SelectedFileHasPathOrNameChanges, false));
@@ -111,6 +109,8 @@ public partial class ImageContentEditorContext : ObservableObject, IHasChanges, 
         _linkToClipboardCommand = StatusContext.RunBlockingTaskCommand(LinkToClipboard);
 
         _dbEntry = dbEntry;
+
+        PropertyChanged += OnPropertyChanged;
     }
 
     public EventHandler<EventArgs>? Saved { get; set; }

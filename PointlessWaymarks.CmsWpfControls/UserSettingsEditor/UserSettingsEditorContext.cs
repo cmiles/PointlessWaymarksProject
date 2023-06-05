@@ -1,44 +1,32 @@
 ﻿using Amazon;
-using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
 using Omu.ValueInjecter;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.S3;
 using PointlessWaymarks.CmsWpfControls.ContentList;
+using PointlessWaymarks.CommonTools;
+using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 
 namespace PointlessWaymarks.CmsWpfControls.UserSettingsEditor;
 
-public partial class UserSettingsEditorContext : ObservableObject
+[NotifyPropertyChanged]
+[GenerateStatusCommands]
+public partial class UserSettingsEditorContext
 {
-    [ObservableProperty] private CmsCommonCommands _commonCommands;
-    [ObservableProperty] private RelayCommand _deleteAwsCredentials;
-    [ObservableProperty] private UserSettings _editorSettings;
-    [ObservableProperty] private RelayCommand _enterAwsCredentials;
-    [ObservableProperty] private List<string> _regionChoices;
-    [ObservableProperty] private RelayCommand _saveSettingsCommand;
-    [ObservableProperty] private StatusControlContext _statusContext;
-
     private UserSettingsEditorContext(StatusControlContext statusContext, UserSettings toLoad)
     {
-        _statusContext = statusContext;
-        _commonCommands = new CmsCommonCommands(StatusContext);
+        StatusContext = statusContext;
+        CommonCommands = new CmsCommonCommands(StatusContext);
 
-        _saveSettingsCommand = StatusContext.RunBlockingTaskCommand(SaveSettings);
-        _enterAwsCredentials = StatusContext.RunBlockingTaskCommand(UserAwsKeyAndSecretEntry);
-        _deleteAwsCredentials = StatusContext.RunBlockingActionCommand(AwsCredentials.RemoveAwsSiteCredentials);
+        BuildCommands();
 
-        _regionChoices = RegionEndpoint.EnumerableAllRegions.Select(x => x.SystemName).ToList();
-        _editorSettings = toLoad;
+        RegionChoices = RegionEndpoint.EnumerableAllRegions.Select(x => x.SystemName).ToList();
+        EditorSettings = toLoad;
     }
 
-    public static async Task<UserSettingsEditorContext> CreateInstance(StatusControlContext? statusContext, UserSettings toLoad)
-    {
-        await ThreadSwitcher.ResumeBackgroundAsync();
-
-        return new UserSettingsEditorContext(statusContext ?? new StatusControlContext(), toLoad);
-    }
+    public CmsCommonCommands CommonCommands { get; set; }
+    public UserSettings EditorSettings { get; set; }
 
     public static string HelpMarkdownBingMapsApiKey =>
         "If you have a Bing Maps API key you can enter it here - this will allow access to some Bing layers in the maps. This is NOT required for maps to be functional.";
@@ -110,8 +98,27 @@ public partial class UserSettingsEditorContext : ObservableObject
     public static string HelpMarkdownSubtitleSummary =>
         "Used as a sub-title and site summary - example 'Ramblings, Questionable Geographics, Photographic Half-truths'.";
 
+    public List<string> RegionChoices { get; set; }
+    public StatusControlContext StatusContext { get; set; }
+
+    public static async Task<UserSettingsEditorContext> CreateInstance(StatusControlContext? statusContext,
+        UserSettings toLoad)
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        return new UserSettingsEditorContext(statusContext ?? new StatusControlContext(), toLoad);
+    }
+
+    [BlockingCommand]
+    public async Task DeleteAwsCredentials()
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        AwsCredentials.RemoveAwsSiteCredentials();
+    }
 
 
+    [BlockingCommand]
     public async Task SaveSettings()
     {
         await EditorSettings.WriteSettings();
@@ -119,6 +126,7 @@ public partial class UserSettingsEditorContext : ObservableObject
         UserSettingsSingleton.CurrentSettings().InjectFrom(EditorSettings);
     }
 
+    [BlockingCommand]
     public async Task UserAwsKeyAndSecretEntry()
     {
         var newKeyEntry = await StatusContext.ShowStringEntry("AWS Access Key",
@@ -130,7 +138,7 @@ public partial class UserSettingsEditorContext : ObservableObject
             return;
         }
 
-        var cleanedKey = CommonTools.StringTools.TrimNullToEmpty(newKeyEntry.Item2);
+        var cleanedKey = StringTools.TrimNullToEmpty(newKeyEntry.Item2);
 
         if (string.IsNullOrWhiteSpace(cleanedKey)) return;
 
@@ -139,7 +147,7 @@ public partial class UserSettingsEditorContext : ObservableObject
 
         if (!newSecretEntry.Item1) return;
 
-        var cleanedSecret = CommonTools.StringTools.TrimNullToEmpty(newSecretEntry.Item2);
+        var cleanedSecret = StringTools.TrimNullToEmpty(newSecretEntry.Item2);
 
         if (string.IsNullOrWhiteSpace(cleanedSecret))
         {

@@ -36,7 +36,6 @@ public partial class TitleSummarySlugEditorContext : ObservableObject, IHasChang
     {
         _statusContext = statusContext;
 
-        PropertyChanged += OnPropertyChanged;
         
         _customTitleFunctionText = customTitleCommandText;
         _customTitleCommand = customTitleCommand;
@@ -52,6 +51,8 @@ public partial class TitleSummarySlugEditorContext : ObservableObject, IHasChang
         _summaryEntry = summaryEntry;
         _titleEntry = titleEntry;
         _folderEntry = folderContext;
+
+        PropertyChanged += OnPropertyChanged;
 
         TitleEntry.PropertyChanged += TitleChangedMonitor;
         SlugEntry.PropertyChanged += TitleChangedMonitor;

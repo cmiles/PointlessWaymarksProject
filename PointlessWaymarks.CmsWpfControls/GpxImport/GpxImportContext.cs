@@ -52,8 +52,6 @@ public partial class GpxImportContext
 
         BuildCommands();
 
-        PropertyChanged += OnPropertyChanged;
-
         FolderEntry = folderContext;
         TagEntry = tagsEditor;
 
@@ -83,6 +81,8 @@ public partial class GpxImportContext
 
         ListSort.SortUpdated += (_, list) =>
             Dispatcher.CurrentDispatcher.Invoke(() => { ListContextSortHelpers.SortList(list, Items); });
+
+        PropertyChanged += OnPropertyChanged;
     }
 
     public bool AutoSaveImports { get; set; }

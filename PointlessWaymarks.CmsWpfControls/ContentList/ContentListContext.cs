@@ -58,8 +58,6 @@ public partial class ContentListContext : IDragSource, IDropTarget
 
         BuildCommands();
 
-        PropertyChanged += OnPropertyChanged;
-
         ContentListLoader = loader;
 
         Items = factoryContentListItems;
@@ -85,6 +83,8 @@ public partial class ContentListContext : IDragSource, IDropTarget
 
         ListSort.SortUpdated += (_, list) =>
             Dispatcher.CurrentDispatcher.Invoke(() => { ListContextSortHelpers.SortList(list, Items); });
+
+        PropertyChanged += OnPropertyChanged;
     }
 
     public IContentListLoader ContentListLoader { get; set; }

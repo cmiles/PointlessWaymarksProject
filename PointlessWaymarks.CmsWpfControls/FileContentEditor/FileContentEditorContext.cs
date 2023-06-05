@@ -47,9 +47,9 @@ public partial class FileContentEditorContext : IHasChanges, IHasValidationIssue
 
         BuildCommands();
 
-        PropertyChanged += OnPropertyChanged;
-
         DbEntry = dbEntry;
+
+        PropertyChanged += OnPropertyChanged;
     }
 
     public BodyContentEditorContext? BodyContent { get; set; }

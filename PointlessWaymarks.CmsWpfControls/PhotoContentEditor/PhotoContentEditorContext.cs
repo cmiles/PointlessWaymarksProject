@@ -105,8 +105,6 @@ public partial class PhotoContentEditorContext : ObservableObject, IHasChanges, 
     {
         _statusContext = statusContext;
 
-        PropertyChanged += OnPropertyChanged;
-
         _chooseFileAndFillMetadataCommand = StatusContext.RunBlockingTaskCommand(async () => await ChooseFile(true));
         _chooseFileCommand = StatusContext.RunBlockingTaskCommand(async () => await ChooseFile(false));
         _saveCommand = StatusContext.RunBlockingTaskCommand(async () =>
@@ -144,6 +142,8 @@ public partial class PhotoContentEditorContext : ObservableObject, IHasChanges, 
         _linkToClipboardCommand = StatusContext.RunNonBlockingTaskCommand(LinkToClipboard);
 
         _dbEntry = dbEntry;
+
+        PropertyChanged += OnPropertyChanged;
     }
 
     public string PhotoEditorHelpText =>

@@ -49,8 +49,6 @@ public partial class WordPressXmlImportContext : ObservableObject
     {
         _statusContext = statusContext ?? new StatusControlContext();
 
-        PropertyChanged += OnPropertyChanged;
-
         _loadWordPressXmlFileCommand = StatusContext.RunBlockingTaskCommand(LoadWordPressXmlFile);
         _selectedToPostContentEditorCommand =
             StatusContext.RunBlockingTaskCommand(async () => await SelectedToPostContentEditor(false));
@@ -84,6 +82,8 @@ public partial class WordPressXmlImportContext : ObservableObject
                 }
             }
         };
+
+        PropertyChanged += OnPropertyChanged;
 
         ListSort.SortUpdated += (_, list) =>
             Dispatcher.CurrentDispatcher.Invoke(() => { ListContextSortHelpers.SortList(list, Items); });

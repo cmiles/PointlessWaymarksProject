@@ -68,8 +68,6 @@ public partial class PointContentEditorContext : ObservableObject, IHasChanges, 
     {
         _statusContext = statusContext;
 
-        PropertyChanged += OnPropertyChanged;
-
         _saveCommand = StatusContext.RunBlockingTaskCommand(async () => await SaveAndGenerateHtml(false));
         _saveAndCloseCommand = StatusContext.RunBlockingTaskCommand(async () => await SaveAndGenerateHtml(true));
         _viewOnSiteCommand = StatusContext.RunBlockingTaskCommand(ViewOnSite);
@@ -81,6 +79,8 @@ public partial class PointContentEditorContext : ObservableObject, IHasChanges, 
         _addFeatureIntersectTagsCommand = StatusContext.RunBlockingTaskCommand(AddFeatureIntersectTags);
 
         _dbEntry = pointContent;
+
+        PropertyChanged += OnPropertyChanged;
     }
 
     public void CheckForChangesAndValidationIssues()
