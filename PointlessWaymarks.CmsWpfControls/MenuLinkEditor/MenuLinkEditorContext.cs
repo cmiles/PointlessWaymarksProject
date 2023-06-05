@@ -1,59 +1,57 @@
 ﻿using System.Collections.ObjectModel;
-using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
 using Microsoft.EntityFrameworkCore;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsWpfControls.ContentList;
 using PointlessWaymarks.CmsWpfControls.HelpDisplay;
 using PointlessWaymarks.CommonTools;
+using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 
 namespace PointlessWaymarks.CmsWpfControls.MenuLinkEditor;
 
-public partial class MenuLinkEditorContext : ObservableObject
+[NotifyPropertyChanged]
+[GenerateStatusCommands]
+public partial class MenuLinkEditorContext
 {
-    [ObservableProperty] private CmsCommonCommands _commonCommands;
-    [ObservableProperty] private string _helpMarkdown;
-    [ObservableProperty] private ObservableCollection<MenuLinkListItem> _items;
-    [ObservableProperty] private List<MenuLinkListItem>? _selectedItems;
-    [ObservableProperty] private StatusControlContext _statusContext;
-
-    private MenuLinkEditorContext(StatusControlContext statusContext, ObservableCollection<MenuLinkListItem> items, bool loadInBackground = true)
+    private MenuLinkEditorContext(StatusControlContext statusContext, ObservableCollection<MenuLinkListItem> items,
+        bool loadInBackground = true)
     {
-        _statusContext = statusContext;
-        _commonCommands = new CmsCommonCommands(StatusContext);
+        StatusContext = statusContext;
+        CommonCommands = new CmsCommonCommands(StatusContext);
 
-        AddItemCommand = StatusContext.RunBlockingTaskCommand(AddItem);
-        DeleteItemCommand = StatusContext.RunBlockingTaskCommand(DeleteItems);
-        MoveItemUpCommand = StatusContext.RunNonBlockingTaskCommand<MenuLinkListItem>(MoveItemUp);
-        MoveItemDownCommand = StatusContext.RunNonBlockingTaskCommand<MenuLinkListItem>(MoveItemDown);
-        SaveCommand = StatusContext.RunBlockingTaskCommand(Save);
-        InsertIndexTagIndexCommand =
-            StatusContext.RunNonBlockingTaskCommand<MenuLinkListItem>(
-                x => InsertIntoLinkTag(x, "{{index; text Main;}}"));
-        InsertTagSearchCommand =
-            StatusContext.RunNonBlockingTaskCommand<MenuLinkListItem>(x =>
-                InsertIntoLinkTag(x, "{{tagspage; text Tags;}}"));
-        InsertPhotoGalleryCommand =
-            StatusContext.RunNonBlockingTaskCommand<MenuLinkListItem>(x =>
-                InsertIntoLinkTag(x, "{{photogallerypage; text Photos;}}"));
-        InsertSearchPageCommand =
-            StatusContext.RunNonBlockingTaskCommand<MenuLinkListItem>(x =>
-                InsertIntoLinkTag(x, "{{searchpage; text Search;}}"));
-        InsertLinkListCommand =
-            StatusContext.RunNonBlockingTaskCommand<MenuLinkListItem>(x =>
-                InsertIntoLinkTag(x, "{{linklistpage; text Links;}}"));
+        BuildCommands();
 
-        _helpMarkdown = MenuLinksHelpMarkdown.HelpBlock;
+        HelpMarkdown = MenuLinksHelpMarkdown.HelpBlock;
 
-        _items = items;
+        Items = items;
 
-        if(loadInBackground) StatusContext.RunFireAndForgetBlockingTask(LoadData);
+        if (loadInBackground) StatusContext.RunFireAndForgetBlockingTask(LoadData);
     }
 
-    public static Task<MenuLinkEditorContext> CreateInstance(StatusControlContext? statusContext, bool loadInBackground = true)
+    public CmsCommonCommands CommonCommands { get; set; }
+    public string HelpMarkdown { get; set; }
+    public ObservableCollection<MenuLinkListItem> Items { get; set; }
+    public List<MenuLinkListItem>? SelectedItems { get; set; }
+    public StatusControlContext StatusContext { get; set; }
+
+    [BlockingCommand]
+    private async Task AddItem()
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        var newItem = await MenuLinkListItem.CreateInstance(new MenuLink());
+        newItem.UserOrder = Items.Count;
+
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        Items.Add(newItem);
+    }
+
+
+    public static Task<MenuLinkEditorContext> CreateInstance(StatusControlContext? statusContext,
+        bool loadInBackground = true)
     {
         ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -70,38 +68,7 @@ public partial class MenuLinkEditorContext : ObservableObject
         return Task.FromResult(toReturn);
     }
 
-    public RelayCommand AddItemCommand { get; }
-
-    public RelayCommand DeleteItemCommand { get; }
-
-    public RelayCommand<MenuLinkListItem> InsertIndexTagIndexCommand { get; }
-
-    public RelayCommand<MenuLinkListItem> InsertLinkListCommand { get; }
-
-    public RelayCommand<MenuLinkListItem> InsertPhotoGalleryCommand { get; }
-
-    public RelayCommand<MenuLinkListItem> InsertSearchPageCommand { get; }
-
-    public RelayCommand<MenuLinkListItem> InsertTagSearchCommand { get; }
-
-    public RelayCommand<MenuLinkListItem> MoveItemDownCommand { get; }
-
-    public RelayCommand<MenuLinkListItem> MoveItemUpCommand { get; }
-
-    public RelayCommand SaveCommand { get; }
-
-    private async Task AddItem()
-    {
-        await ThreadSwitcher.ResumeBackgroundAsync();
-
-        var newItem = await MenuLinkListItem.CreateInstance(new MenuLink());
-        newItem.UserOrder = Items.Count;
-
-        await ThreadSwitcher.ResumeForegroundAsync();
-
-        Items.Add(newItem);
-    }
-
+    [BlockingCommand]
     private async Task DeleteItems()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -121,6 +88,12 @@ public partial class MenuLinkEditorContext : ObservableObject
         await RenumberItems();
     }
 
+    [BlockingCommand]
+    public async Task InsertIndexTagIndex(MenuLinkListItem? listItem)
+    {
+        await InsertIntoLinkTag(listItem, "{{index; text Main;}}");
+    }
+
     private async Task InsertIntoLinkTag(MenuLinkListItem? listItem, string toInsert)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -131,9 +104,33 @@ public partial class MenuLinkEditorContext : ObservableObject
             return;
         }
 
-        listItem.UserLink = (listItem.UserLink).Trim();
+        listItem.UserLink = listItem.UserLink.Trim();
 
         listItem.UserLink += toInsert;
+    }
+
+    [BlockingCommand]
+    public async Task InsertLinkList(MenuLinkListItem? listItem)
+    {
+        await InsertIntoLinkTag(listItem, "{{linklistpage; text Links;}}");
+    }
+
+    [BlockingCommand]
+    public async Task InsertPhotoGallery(MenuLinkListItem? listItem)
+    {
+        await InsertIntoLinkTag(listItem, "{{photogallerypage; text Photos;}}");
+    }
+
+    [BlockingCommand]
+    public async Task InsertSearchPage(MenuLinkListItem? listItem)
+    {
+        await InsertIntoLinkTag(listItem, "{{searchpage; text Search;}}");
+    }
+
+    [BlockingCommand]
+    public async Task InsertTagSearch(MenuLinkListItem? listItem)
+    {
+        await InsertIntoLinkTag(listItem, "{{tagspage; text Tags;}}");
     }
 
     public async Task LoadData()
@@ -162,6 +159,7 @@ public partial class MenuLinkEditorContext : ObservableObject
         await RenumberItems();
     }
 
+    [NonBlockingCommand]
     private async Task MoveItemDown(MenuLinkListItem? listItem)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -185,6 +183,7 @@ public partial class MenuLinkEditorContext : ObservableObject
         await RenumberItems();
     }
 
+    [NonBlockingCommand]
     private async Task MoveItemUp(MenuLinkListItem? listItem)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -215,6 +214,7 @@ public partial class MenuLinkEditorContext : ObservableObject
         for (var i = 0; i < Items.Count; i++) Items[i].UserOrder = i;
     }
 
+    [BlockingCommand]
     private async Task Save()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -225,7 +225,7 @@ public partial class MenuLinkEditorContext : ObservableObject
             return;
         }
 
-        foreach (var loopItems in Items) loopItems.UserLink = (loopItems.UserLink).Trim();
+        foreach (var loopItems in Items) loopItems.UserLink = loopItems.UserLink.Trim();
 
         await RenumberItems();
 

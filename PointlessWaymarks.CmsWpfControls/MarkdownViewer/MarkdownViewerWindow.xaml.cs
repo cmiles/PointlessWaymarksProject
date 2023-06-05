@@ -1,4 +1,4 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 
@@ -7,21 +7,19 @@ namespace PointlessWaymarks.CmsWpfControls.MarkdownViewer;
 /// <summary>
 ///     Interaction logic for MarkdownViewerWindow.xaml
 /// </summary>
-[ObservableObject]
-#pragma warning disable MVVMTK0033
+[NotifyPropertyChanged]
 public partial class MarkdownViewerWindow
-#pragma warning restore MVVMTK0033
 {
-    [ObservableProperty] private string _markdownContent = string.Empty;
-    [ObservableProperty] private StatusControlContext _statusContext;
-    [ObservableProperty] private string _windowTitle = string.Empty;
-
     private MarkdownViewerWindow()
     {
         InitializeComponent();
-        _statusContext = new StatusControlContext();
+        StatusContext = new StatusControlContext();
         DataContext = this;
     }
+
+    public string MarkdownContent { get; set; } = string.Empty;
+    public StatusControlContext StatusContext { get; set; }
+    public string WindowTitle { get; set; } = string.Empty;
 
     public static async Task<MarkdownViewerWindow> CreateInstance(string windowTitle, string markdown)
     {

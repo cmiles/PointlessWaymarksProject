@@ -174,7 +174,7 @@
                     Content="Add"
                     Style="{StaticResource ActionPanelButtonStyle}" />
                 <Button
-                    Command="{Binding DeleteItemCommand}"
+                    Command="{Binding DeleteItemsCommand}"
                     Content="Delete"
                     Style="{StaticResource ActionPanelButtonStyle}" />
                 <Button

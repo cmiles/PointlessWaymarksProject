@@ -1,21 +1,40 @@
 ﻿using System.ComponentModel;
-using CommunityToolkit.Mvvm.ComponentModel;
 using PointlessWaymarks.CmsData.Database.Models;
+using PointlessWaymarks.LlamaAspects;
 
 namespace PointlessWaymarks.CmsWpfControls.MenuLinkEditor;
 
-public partial class MenuLinkListItem : ObservableObject
+[NotifyPropertyChanged]
+public partial class MenuLinkListItem
 {
-    [ObservableProperty] private MenuLink _dbEntry;
-    [ObservableProperty] private bool _hasChanges;
-    [ObservableProperty] private string _userLink = string.Empty;
-    [ObservableProperty] private int _userOrder;
-
     private MenuLinkListItem(MenuLink dbEntry)
     {
-        _dbEntry = dbEntry;
+        DbEntry = dbEntry;
 
         PropertyChanged += OnPropertyChanged;
+    }
+
+    public MenuLink DbEntry { get; set; }
+    public bool HasChanges { get; set; }
+    public string UserLink { get; set; } = string.Empty;
+    public int UserOrder { get; set; }
+
+    public void CheckForChanges()
+    {
+        if (DbEntry.Id < 1)
+        {
+            HasChanges = true;
+            return;
+        }
+
+        HasChanges = CleanedUserLink() != DbEntry.LinkTag || UserOrder != DbEntry.MenuOrder;
+    }
+
+    private string CleanedUserLink()
+    {
+        var toReturn = UserLink;
+
+        return toReturn.Trim();
     }
 
     public static Task<MenuLinkListItem> CreateInstance(MenuLink dbEntry)
@@ -35,23 +54,5 @@ public partial class MenuLinkListItem : ObservableObject
 
         if (!e.PropertyName.Contains("HasChanges") && !e.PropertyName.Contains("Validation"))
             CheckForChanges();
-    }
-
-    public void CheckForChanges()
-    {
-        if (DbEntry.Id < 1)
-        {
-            HasChanges = true;
-            return;
-        }
-
-        HasChanges = CleanedUserLink() != DbEntry.LinkTag || UserOrder != DbEntry.MenuOrder;
-    }
-
-    private string CleanedUserLink()
-    {
-        var toReturn = UserLink;
-
-        return toReturn.Trim();
     }
 }

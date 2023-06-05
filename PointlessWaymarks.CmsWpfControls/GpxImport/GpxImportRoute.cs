@@ -1,30 +1,32 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
-using NetTopologySuite.IO;
+﻿using NetTopologySuite.IO;
 using PointlessWaymarks.CommonTools;
+using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.SpatialTools;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 
 namespace PointlessWaymarks.CmsWpfControls.GpxImport;
 
-public partial class GpxImportRoute : ObservableObject, IGpxImportListItem
+[NotifyPropertyChanged]
+public partial class GpxImportRoute : IGpxImportListItem
 {
-    [ObservableProperty] private DateTime? _createdOn;
-    [ObservableProperty] private Guid _displayId = Guid.NewGuid();
-    [ObservableProperty] private string _lineGeoJson = string.Empty;
-    [ObservableProperty] private bool _markedForImport;
-    [ObservableProperty] private bool _replaceElevationOnImport;
-    [ObservableProperty] private GpxRoute _route;
-    [ObservableProperty] private GpxTools.GpxRouteInformation _routeInformation;
-    [ObservableProperty] private DistanceTools.LineStatsInImperial _statistics;
-    [ObservableProperty] private string _userContentName = string.Empty;
-    [ObservableProperty] private string _userSummary = string.Empty;
-
-    private GpxImportRoute(GpxRoute route, GpxTools.GpxRouteInformation routeInformation, DistanceTools.LineStatsInImperial statistics)
+    private GpxImportRoute(GpxRoute route, GpxTools.GpxRouteInformation routeInformation,
+        DistanceTools.LineStatsInImperial statistics)
     {
-        _route = route;
-        _routeInformation = routeInformation;
-        _statistics = statistics;
+        Route = route;
+        RouteInformation = routeInformation;
+        Statistics = statistics;
     }
+
+    public string LineGeoJson { get; set; } = string.Empty;
+    public GpxRoute Route { get; set; }
+    public GpxTools.GpxRouteInformation RouteInformation { get; set; }
+    public DistanceTools.LineStatsInImperial Statistics { get; set; }
+    public DateTime? CreatedOn { get; set; }
+    public Guid DisplayId { get; set; } = Guid.NewGuid();
+    public bool MarkedForImport { get; set; }
+    public bool ReplaceElevationOnImport { get; set; }
+    public string UserContentName { get; set; } = string.Empty;
+    public string UserSummary { get; set; } = string.Empty;
 
     public static async Task<GpxImportRoute> CreateInstance(GpxRoute toLoad, IProgress<string>? progress = null)
     {

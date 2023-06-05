@@ -1,25 +1,26 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
-using NetTopologySuite.IO;
+﻿using NetTopologySuite.IO;
 using PointlessWaymarks.CommonTools;
+using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 
 namespace PointlessWaymarks.CmsWpfControls.GpxImport;
 
-public partial class GpxImportWaypoint : ObservableObject, IGpxImportListItem
+[NotifyPropertyChanged]
+public partial class GpxImportWaypoint : IGpxImportListItem
 {
-    [ObservableProperty] private DateTime? _createdOn;
-    [ObservableProperty] private Guid _displayId = Guid.NewGuid();
-    [ObservableProperty] private bool _markedForImport;
-    [ObservableProperty] private bool _replaceElevationOnImport;
-    [ObservableProperty] private string _userContentName = string.Empty;
-    [ObservableProperty] private string _userSummary = string.Empty;
-    [ObservableProperty] private string _userMapLabel = string.Empty;
-    [ObservableProperty] private GpxWaypoint _waypoint;
-
     public GpxImportWaypoint(GpxWaypoint waypoint)
     {
-        _waypoint = waypoint;
+        Waypoint = waypoint;
     }
+
+    public string UserMapLabel { get; set; } = string.Empty;
+    public GpxWaypoint Waypoint { get; set; }
+    public DateTime? CreatedOn { get; set; }
+    public Guid DisplayId { get; set; } = Guid.NewGuid();
+    public bool MarkedForImport { get; set; }
+    public bool ReplaceElevationOnImport { get; set; }
+    public string UserContentName { get; set; } = string.Empty;
+    public string UserSummary { get; set; } = string.Empty;
 
     public static async Task<GpxImportWaypoint> CreateInstance(GpxWaypoint toLoad, IProgress<string>? progress = null)
     {
@@ -31,11 +32,9 @@ public partial class GpxImportWaypoint : ObservableObject, IGpxImportListItem
         };
 
         if (string.IsNullOrWhiteSpace(toLoad.Name))
-        {
             toReturn.UserContentName = toLoad.TimestampUtc != null
                 ? $"{toLoad.TimestampUtc:yyyy MMMM} Waypoint {toLoad.Latitude:F2}, {toLoad.Longitude:F2}"
                 : $"Waypoint {toLoad.Latitude:F2}, {toLoad.Longitude:F2}";
-        }
 
         toReturn.CreatedOn = toLoad.TimestampUtc?.ToLocalTime();
 

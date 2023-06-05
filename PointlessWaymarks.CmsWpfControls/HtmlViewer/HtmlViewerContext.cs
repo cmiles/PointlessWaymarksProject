@@ -1,15 +1,16 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon.Status;
 
 namespace PointlessWaymarks.CmsWpfControls.HtmlViewer;
 
-public partial class HtmlViewerContext : ObservableObject
+[NotifyPropertyChanged]
+public partial class HtmlViewerContext
 {
-    [ObservableProperty] private string _htmlString = string.Empty;
-    [ObservableProperty] private StatusControlContext _statusContext;
-
     public HtmlViewerContext()
     {
-        _statusContext = new StatusControlContext();
+        StatusContext = new StatusControlContext();
     }
+
+    public string HtmlString { get; set; } = string.Empty;
+    public StatusControlContext StatusContext { get; set; }
 }

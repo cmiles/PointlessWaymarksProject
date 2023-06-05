@@ -1,4 +1,5 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
+using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 
@@ -7,17 +8,17 @@ namespace PointlessWaymarks.CmsWpfControls.GpxImport;
 /// <summary>
 ///     Interaction logic for GpxImportWindow.xaml
 /// </summary>
-[ObservableObject]
+[NotifyPropertyChanged]
 public partial class GpxImportWindow
 {
-    [ObservableProperty] private GpxImportContext _importContext;
-    [ObservableProperty] private StatusControlContext _statusContext;
+    public GpxImportContext ImportContext { get; set; }
+    public StatusControlContext StatusContext { get; set; }
 
     private GpxImportWindow(StatusControlContext statusContext, GpxImportContext importContext)
     {
         InitializeComponent();
-        _statusContext = statusContext;
-        _importContext = importContext;
+        StatusContext = statusContext;
+        ImportContext = importContext;
 
         DataContext = this;
     }

@@ -7,8 +7,6 @@ using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Windows.Data;
 using System.Windows.Threading;
-using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
 using Microsoft.Web.WebView2.Core;
 using NetTopologySuite.Features;
 using NetTopologySuite.Geometries;
@@ -30,6 +28,7 @@ using PointlessWaymarks.CmsWpfControls.TagsEditor;
 using PointlessWaymarks.CmsWpfControls.WpfHtml;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.FeatureIntersectionTags;
+using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.SpatialTools;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
@@ -38,70 +37,31 @@ using Serilog;
 
 namespace PointlessWaymarks.CmsWpfControls.GpxImport;
 
-public partial class GpxImportContext : ObservableObject
+[NotifyPropertyChanged]
+[GenerateStatusCommands]
+public partial class GpxImportContext
 {
-    [ObservableProperty] private bool _autoSaveImports;
-    [ObservableProperty] private RelayCommand _chooseAndLoadFileCommand;
-    [ObservableProperty] private RelayCommand _clearAllForElevationReplacementCommand;
-    [ObservableProperty] private RelayCommand _clearAllForImportCommand;
-    [ObservableProperty] private ContentFolderContext _folderEntry;
-    [ObservableProperty] private RelayCommand _importCommand;
-    [ObservableProperty] private string _importFileName = string.Empty;
-    [ObservableProperty] private ObservableCollection<IGpxImportListItem> _items;
-    [ObservableProperty] private ObservableCollection<IGpxImportListItem> _listSelection;
-    [ObservableProperty] private ColumnSortControlContext _listSort;
-    [ObservableProperty] private RelayCommand<CoreWebView2WebMessageReceivedEventArgs> _mapMessageReceivedCommand;
-    [ObservableProperty] private RelayCommand _markAllForElevationReplacementCommand;
-    [ObservableProperty] private RelayCommand _markAllForImportCommand;
-    [ObservableProperty] private string _previewHtml;
-    [ObservableProperty] private string _previewMapJsonDto = string.Empty;
-    [ObservableProperty] private RelayCommand _removeSelectedFromListCommand;
-    [ObservableProperty] private RelayCommand<IGpxImportListItem> _requestMapCenterCommand;
-    [ObservableProperty] private IGpxImportListItem? _selectedItem;
-    [ObservableProperty] private List<IGpxImportListItem>? _selectedItems;
-    [ObservableProperty] private StatusControlContext _statusContext;
-    [ObservableProperty] private TagsEditorContext _tagEntry;
-    [ObservableProperty] private RelayCommand _toggleSelectedForElevationReplacementCommand;
-    [ObservableProperty] private RelayCommand _toggleSelectedForImportCommand;
-    [ObservableProperty] private string _userFilterText = string.Empty;
-
     private GpxImportContext(StatusControlContext statusContext, ObservableCollection<IGpxImportListItem> items,
         ObservableCollection<IGpxImportListItem> listSelection, ContentFolderContext folderContext,
         TagsEditorContext tagsEditor)
     {
-        _statusContext = statusContext;
+        StatusContext = statusContext;
 
-        _items = items;
-        _listSelection = listSelection;
+        Items = items;
+        ListSelection = listSelection;
 
-        _chooseAndLoadFileCommand = StatusContext.RunBlockingTaskCommand(ChooseAndLoadFile);
-
-        _markAllForImportCommand = StatusContext.RunBlockingTaskCommand(MarkAllForImport);
-        _clearAllForImportCommand = StatusContext.RunBlockingTaskCommand(ClearAllForImport);
-        _toggleSelectedForImportCommand = StatusContext.RunBlockingTaskCommand(ToggleSelectedForImport);
-        _removeSelectedFromListCommand = StatusContext.RunBlockingTaskCommand(RemoveSelectedFromList);
-        _importCommand = StatusContext.RunBlockingTaskCommand(Import);
-
-        _markAllForElevationReplacementCommand = StatusContext.RunBlockingTaskCommand(MarkAllForElevationReplacement);
-        _clearAllForElevationReplacementCommand = StatusContext.RunBlockingTaskCommand(ClearAllForElevationReplacement);
-        _toggleSelectedForElevationReplacementCommand =
-            StatusContext.RunBlockingTaskCommand(ToggleSelectedForElevationReplacement);
-
-        _mapMessageReceivedCommand =
-            StatusContext.RunNonBlockingTaskCommand<CoreWebView2WebMessageReceivedEventArgs>(MapMessageReceived);
-
-        _requestMapCenterCommand = StatusContext.RunNonBlockingTaskCommand<IGpxImportListItem>(RequestMapCenter);
+        BuildCommands();
 
         PropertyChanged += OnPropertyChanged;
 
-        _folderEntry = folderContext;
-        _tagEntry = tagsEditor;
+        FolderEntry = folderContext;
+        TagEntry = tagsEditor;
 
-        _previewHtml = WpfHtmlDocument.ToHtmlLeafletMapDocument("Map",
+        PreviewHtml = WpfHtmlDocument.ToHtmlLeafletMapDocument("Map",
             UserSettingsSingleton.CurrentSettings().LatitudeDefault,
             UserSettingsSingleton.CurrentSettings().LongitudeDefault, string.Empty);
 
-        _listSort = new ColumnSortControlContext
+        ListSort = new ColumnSortControlContext
         {
             Items = new List<ColumnSortControlSortItem>
             {
@@ -124,6 +84,20 @@ public partial class GpxImportContext : ObservableObject
         ListSort.SortUpdated += (_, list) =>
             Dispatcher.CurrentDispatcher.Invoke(() => { ListContextSortHelpers.SortList(list, Items); });
     }
+
+    public bool AutoSaveImports { get; set; }
+    public ContentFolderContext FolderEntry { get; set; }
+    public string ImportFileName { get; set; } = string.Empty;
+    public ObservableCollection<IGpxImportListItem> Items { get; set; }
+    public ObservableCollection<IGpxImportListItem> ListSelection { get; set; }
+    public ColumnSortControlContext ListSort { get; set; }
+    public string PreviewHtml { get; set; }
+    public string PreviewMapJsonDto { get; set; } = string.Empty;
+    public IGpxImportListItem? SelectedItem { get; set; }
+    public List<IGpxImportListItem>? SelectedItems { get; set; }
+    public StatusControlContext StatusContext { get; set; }
+    public TagsEditorContext TagEntry { get; set; }
+    public string UserFilterText { get; set; } = string.Empty;
 
 
     public async Task BuildMap()
@@ -196,6 +170,7 @@ public partial class GpxImportContext : ObservableObject
         PreviewMapJsonDto = await GeoJsonTools.SerializeWithGeoJsonSerializer(dto);
     }
 
+    [BlockingCommand]
     public async Task ChooseAndLoadFile()
     {
         StatusContext.Progress("Starting File Chooser");
@@ -224,6 +199,7 @@ public partial class GpxImportContext : ObservableObject
         await LoadFile(possibleFile.FullName);
     }
 
+    [BlockingCommand]
     public async Task ClearAllForElevationReplacement()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -233,6 +209,7 @@ public partial class GpxImportContext : ObservableObject
         foreach (var loopItems in Items) loopItems.ReplaceElevationOnImport = false;
     }
 
+    [BlockingCommand]
     public async Task ClearAllForImport()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -441,6 +418,7 @@ public partial class GpxImportContext : ObservableObject
         return (newLine, validationResult.HasError, validationResult.GenerationNote);
     }
 
+    [BlockingCommand]
     public async Task Import()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -815,6 +793,7 @@ public partial class GpxImportContext : ObservableObject
         await BuildMap();
     }
 
+    [NonBlockingCommand]
     private async Task MapMessageReceived(CoreWebView2WebMessageReceivedEventArgs? mapMessage)
     {
         await ThreadSwitcher.ResumeForegroundAsync();
@@ -838,6 +817,7 @@ public partial class GpxImportContext : ObservableObject
 
     public event EventHandler<string>? MapRequest;
 
+    [BlockingCommand]
     public async Task MarkAllForElevationReplacement()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -847,6 +827,7 @@ public partial class GpxImportContext : ObservableObject
         foreach (var loopItems in Items) loopItems.ReplaceElevationOnImport = true;
     }
 
+    [BlockingCommand]
     public async Task MarkAllForImport()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -882,6 +863,7 @@ public partial class GpxImportContext : ObservableObject
         toRemove.ForEach(x => Items.Remove(x));
     }
 
+    [BlockingCommand]
     public async Task RemoveSelectedFromList()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -897,6 +879,7 @@ public partial class GpxImportContext : ObservableObject
         await RemoveFromList(frozenSelected.Select(x => x.DisplayId).ToList());
     }
 
+    [NonBlockingCommand]
     public async Task RequestMapCenter(IGpxImportListItem? toCenter)
     {
         if (toCenter == null) return;
@@ -912,6 +895,7 @@ public partial class GpxImportContext : ObservableObject
         MapRequest?.Invoke(this, JsonSerializer.Serialize(foo));
     }
 
+    [BlockingCommand]
     public async Task ToggleSelectedForElevationReplacement()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -928,6 +912,7 @@ public partial class GpxImportContext : ObservableObject
             loopItems.ReplaceElevationOnImport = !loopItems.ReplaceElevationOnImport;
     }
 
+    [BlockingCommand]
     public async Task ToggleSelectedForImport()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
