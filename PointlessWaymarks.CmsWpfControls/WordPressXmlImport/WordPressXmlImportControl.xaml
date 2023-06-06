@@ -202,8 +202,8 @@
                 </WrapPanel.Resources>
                 <RadioButton GroupName="FolderSource" IsChecked="{Binding FolderFromYear}">Folder From Created Year</RadioButton>
                 <RadioButton GroupName="FolderSource" IsChecked="{Binding FolderFromCategory}">Folder From Category</RadioButton>
-                <Button Command="{Binding SelectedToPostContentEditorCommand}">Selected To Post Editor</Button>
-                <Button Command="{Binding SelectedToPostContentEditorAutoSaveCommand}">Selected To Post - Auto Save</Button>
+                <Button Command="{Binding SelectedToPostContentEditorWithoutAutosaveCommand}">Selected To Post Editor</Button>
+                <Button Command="{Binding SelectedToPostContentEditorWithAutosaveCommand}">Selected To Post - Auto Save</Button>
                 <Button Command="{Binding SelectedToFileContentEditorCommand}">Selected To File Editor</Button>
                 <Button Command="{Binding SelectedToLinkContentEditorCommand}">Selected To Link Editor</Button>
             </WrapPanel>

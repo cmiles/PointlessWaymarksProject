@@ -1,11 +1,12 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿using PointlessWaymarks.LlamaAspects;
 
 namespace PointlessWaymarks.CmsWpfControls.TagList;
 
-public partial class TagItemContentInformation : ObservableObject
+[NotifyPropertyChanged]
+public partial class TagItemContentInformation
 {
-    [ObservableProperty] private Guid _contentId;
-    [ObservableProperty] private string _contentType = string.Empty;
-    [ObservableProperty] private string _tags = string.Empty;
-    [ObservableProperty] private string _title = string.Empty;
+    public Guid ContentId { get; set; }
+    public string ContentType { get; set; } = string.Empty;
+    public string Tags { get; set; } = string.Empty;
+    public string Title { get; set; } = string.Empty;
 }

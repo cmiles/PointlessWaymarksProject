@@ -223,7 +223,7 @@
                 HorizontalAlignment="Center"
                 Orientation="Horizontal">
                 <Button
-                    Command="{Binding RefreshDataCommand}"
+                    Command="{Binding LoadDataCommand}"
                     Content="_Refresh"
                     Style="{StaticResource ActionPanelButtonStyle}" />
             </WrapPanel>

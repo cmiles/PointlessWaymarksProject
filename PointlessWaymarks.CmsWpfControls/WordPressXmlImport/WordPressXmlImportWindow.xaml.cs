@@ -1,5 +1,4 @@
-﻿#nullable enable
-using CommunityToolkit.Mvvm.ComponentModel;
+﻿using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 
@@ -8,24 +7,22 @@ namespace PointlessWaymarks.CmsWpfControls.WordPressXmlImport;
 /// <summary>
 ///     Interaction logic for WordPressXmlImportWindow.xaml
 /// </summary>
-[ObservableObject]
-#pragma warning disable MVVMTK0033
+[NotifyPropertyChanged]
 public partial class WordPressXmlImportWindow
-#pragma warning restore MVVMTK0033
 {
-    [ObservableProperty] private WordPressXmlImportContext _importContext;
-    [ObservableProperty] private StatusControlContext _statusContext;
-
     private WordPressXmlImportWindow()
     {
         InitializeComponent();
 
-        _statusContext = new StatusControlContext();
+        StatusContext = new StatusControlContext();
 
         DataContext = this;
 
-        _importContext = new WordPressXmlImportContext(StatusContext);
+        ImportContext = new WordPressXmlImportContext(StatusContext);
     }
+
+    public WordPressXmlImportContext ImportContext { get; set; }
+    public StatusControlContext StatusContext { get; set; }
 
     public static async Task<WordPressXmlImportWindow> CreateInstance()
     {

@@ -1,10 +1,10 @@
 ﻿using System.ComponentModel;
-using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsWpfControls.ContentFolder;
 using PointlessWaymarks.CmsWpfControls.DataEntry;
 using PointlessWaymarks.CommonTools;
+using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon.ChangesAndValidation;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.StringDataEntry;
@@ -12,45 +12,32 @@ using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 
 namespace PointlessWaymarks.CmsWpfControls.TitleSummarySlugFolderEditor;
 
-public partial class TitleSummarySlugEditorContext : ObservableObject, IHasChanges, IHasValidationIssues, ICheckForChangesAndValidation
+[NotifyPropertyChanged]
+[GenerateStatusCommands]
+public partial class TitleSummarySlugEditorContext : IHasChanges, IHasValidationIssues,
+    ICheckForChangesAndValidation
 {
-    [ObservableProperty] private Func<TitleSummarySlugEditorContext, bool>? _customTitleCheckToEnable;
-    [ObservableProperty] private RelayCommand? _customTitleCommand;
-    [ObservableProperty] private bool _customTitleFunctionEnabled;
-    [ObservableProperty] private string? _customTitleFunctionText;
-    [ObservableProperty] private bool _customTitleFunctionVisible;
-    [ObservableProperty] private ITitleSummarySlugFolder _dbEntry;
-    [ObservableProperty] private ContentFolderContext _folderEntry;
-    [ObservableProperty] private bool _hasChanges;
-    [ObservableProperty] private bool _hasValidationIssues;
-    [ObservableProperty] private StringDataEntryContext _slugEntry;
-    [ObservableProperty] private StatusControlContext _statusContext;
-    [ObservableProperty] private StringDataEntryContext _summaryEntry;
-    [ObservableProperty] private StringDataEntryContext _titleEntry;
-    [ObservableProperty] private RelayCommand _titleToSlugCommand;
-    [ObservableProperty] private bool _titleToSlugEnabled = true;
-    [ObservableProperty] private RelayCommand _titleToSummaryCommand;
-    [ObservableProperty] private bool _titleToSummaryEnabled = true;
-
-    private TitleSummarySlugEditorContext(StatusControlContext statusContext, ITitleSummarySlugFolder dbEntry, StringDataEntryContext slugEntry, StringDataEntryContext summaryEntry, StringDataEntryContext titleEntry, ContentFolderContext folderContext, string? customTitleCommandText, RelayCommand? customTitleCommand, Func<TitleSummarySlugEditorContext, bool>? customTitleCheckToEnable)
+    private TitleSummarySlugEditorContext(StatusControlContext statusContext, ITitleSummarySlugFolder dbEntry,
+        StringDataEntryContext slugEntry, StringDataEntryContext summaryEntry, StringDataEntryContext titleEntry,
+        ContentFolderContext folderContext, string? customTitleCommandText, RelayCommand? customTitleCommand,
+        Func<TitleSummarySlugEditorContext, bool>? customTitleCheckToEnable)
     {
-        _statusContext = statusContext;
+        StatusContext = statusContext;
 
-        
-        _customTitleFunctionText = customTitleCommandText;
-        _customTitleCommand = customTitleCommand;
-        _customTitleCheckToEnable = customTitleCheckToEnable;
-        _customTitleFunctionVisible = !string.IsNullOrWhiteSpace(CustomTitleFunctionText) && CustomTitleCommand is not null && CustomTitleCheckToEnable is not null;
+        BuildCommands();
 
-        _titleToSlugCommand = StatusContext.RunBlockingActionCommand(TitleToSlug);
-        _titleToSummaryCommand = StatusContext.RunBlockingActionCommand(TitleToSummary);
+        CustomTitleFunctionText = customTitleCommandText;
+        CustomTitleCommand = customTitleCommand;
+        CustomTitleCheckToEnable = customTitleCheckToEnable;
+        CustomTitleFunctionVisible = !string.IsNullOrWhiteSpace(CustomTitleFunctionText) &&
+                                     CustomTitleCommand is not null && CustomTitleCheckToEnable is not null;
 
-        _dbEntry = dbEntry;
+        DbEntry = dbEntry;
 
-        _slugEntry = slugEntry;
-        _summaryEntry = summaryEntry;
-        _titleEntry = titleEntry;
-        _folderEntry = folderContext;
+        SlugEntry = slugEntry;
+        SummaryEntry = summaryEntry;
+        TitleEntry = titleEntry;
+        FolderEntry = folderContext;
 
         PropertyChanged += OnPropertyChanged;
 
@@ -61,28 +48,19 @@ public partial class TitleSummarySlugEditorContext : ObservableObject, IHasChang
         PropertyScanners.SubscribeToChildHasChangesAndHasValidationIssues(this, CheckForChangesAndValidationIssues);
     }
 
-    public static async Task<TitleSummarySlugEditorContext> CreateInstance(StatusControlContext? statusContext,
-        ITitleSummarySlugFolder dbEntry, string? customTitleCommandText, RelayCommand? customTitleCommand,
-        Func<TitleSummarySlugEditorContext, bool>? customTitleCheckToEnable)
-    {
-        await ThreadSwitcher.ResumeBackgroundAsync();
-
-        var factoryContext = statusContext ?? new StatusControlContext();
-
-        var factoryTitleEntry = await StringDataEntryTypes.CreateTitleInstance(dbEntry);
-
-        var factorySlugEntry = await StringDataEntryTypes.CreateSlugInstance(dbEntry);
-
-        var factorySummaryEntry = await StringDataEntryTypes.CreateSummaryInstance(dbEntry);
-
-        var factoryFolderEntry = await ContentFolderContext.CreateInstance(factoryContext, dbEntry);
-
-        var newItem = new TitleSummarySlugEditorContext(factoryContext, dbEntry, factorySlugEntry, factorySummaryEntry, factoryTitleEntry, factoryFolderEntry, customTitleCommandText, customTitleCommand, customTitleCheckToEnable);
-
-        newItem.CheckForChangesAndValidationIssues();
-        
-        return newItem;
-    }
+    public Func<TitleSummarySlugEditorContext, bool>? CustomTitleCheckToEnable { get; set; }
+    public RelayCommand? CustomTitleCommand { get; set; }
+    public bool CustomTitleFunctionEnabled { get; set; }
+    public string? CustomTitleFunctionText { get; set; }
+    public bool CustomTitleFunctionVisible { get; set; }
+    public ITitleSummarySlugFolder DbEntry { get; set; }
+    public ContentFolderContext FolderEntry { get; set; }
+    public StringDataEntryContext SlugEntry { get; set; }
+    public StatusControlContext StatusContext { get; set; }
+    public StringDataEntryContext SummaryEntry { get; set; }
+    public StringDataEntryContext TitleEntry { get; set; }
+    public bool TitleToSlugEnabled { get; set; } = true;
+    public bool TitleToSummaryEnabled { get; set; } = true;
 
     public void CheckForChangesAndValidationIssues()
     {
@@ -90,6 +68,9 @@ public partial class TitleSummarySlugEditorContext : ObservableObject, IHasChang
 
         HasValidationIssues = PropertyScanners.ChildPropertiesHaveValidationIssues(this);
     }
+
+    public bool HasChanges { get; set; }
+    public bool HasValidationIssues { get; set; }
 
     public void CheckForChangesToTitleToFunctionStates()
     {
@@ -117,6 +98,31 @@ public partial class TitleSummarySlugEditorContext : ObservableObject, IHasChang
         }
     }
 
+    public static async Task<TitleSummarySlugEditorContext> CreateInstance(StatusControlContext? statusContext,
+        ITitleSummarySlugFolder dbEntry, string? customTitleCommandText, RelayCommand? customTitleCommand,
+        Func<TitleSummarySlugEditorContext, bool>? customTitleCheckToEnable)
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        var factoryContext = statusContext ?? new StatusControlContext();
+
+        var factoryTitleEntry = await StringDataEntryTypes.CreateTitleInstance(dbEntry);
+
+        var factorySlugEntry = await StringDataEntryTypes.CreateSlugInstance(dbEntry);
+
+        var factorySummaryEntry = await StringDataEntryTypes.CreateSummaryInstance(dbEntry);
+
+        var factoryFolderEntry = await ContentFolderContext.CreateInstance(factoryContext, dbEntry);
+
+        var newItem = new TitleSummarySlugEditorContext(factoryContext, dbEntry, factorySlugEntry, factorySummaryEntry,
+            factoryTitleEntry, factoryFolderEntry, customTitleCommandText, customTitleCommand,
+            customTitleCheckToEnable);
+
+        newItem.CheckForChangesAndValidationIssues();
+
+        return newItem;
+    }
+
     private void OnPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
         if (string.IsNullOrWhiteSpace(e.PropertyName)) return;
@@ -132,16 +138,20 @@ public partial class TitleSummarySlugEditorContext : ObservableObject, IHasChang
         CheckForChangesToTitleToFunctionStates();
     }
 
-    public void TitleToSlug()
+    [BlockingCommand]
+    public Task TitleToSlug()
     {
         SlugEntry.UserValue = SlugTools.CreateSlug(true, TitleEntry.UserValue);
+        return Task.CompletedTask;
     }
 
-    public void TitleToSummary()
+    [BlockingCommand]
+    public Task TitleToSummary()
     {
         SummaryEntry.UserValue = TitleEntry.UserValue;
 
         if (!char.IsPunctuation(SummaryEntry.UserValue[^1]))
             SummaryEntry.UserValue += ".";
+        return Task.CompletedTask;
     }
 }

@@ -1,37 +1,39 @@
 ﻿using System.ComponentModel;
-using CommunityToolkit.Mvvm.ComponentModel;
 using PointlessWaymarks.CmsData.Content;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CommonTools;
+using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon.ChangesAndValidation;
 using PointlessWaymarks.WpfCommon.Status;
 
 namespace PointlessWaymarks.CmsWpfControls.TagsEditor;
 
-public partial class TagsEditorContext : ObservableObject, IHasChanges, IHasValidationIssues,
+[NotifyPropertyChanged]
+[GenerateStatusCommands]
+public partial class TagsEditorContext : IHasChanges, IHasValidationIssues,
     ICheckForChangesAndValidation
 {
-    [ObservableProperty] private ITag? _dbEntry;
-    [ObservableProperty] private bool _hasChanges;
-    [ObservableProperty] private bool _hasValidationIssues;
-    [ObservableProperty] private string _helpText;
-    [ObservableProperty] private StatusControlContext _statusContext;
-    [ObservableProperty] private string _tags;
-    [ObservableProperty] private string _tagsValidationMessage = string.Empty;
-
     private TagsEditorContext(StatusControlContext statusContext, ITag? dbEntry)
     {
-        _statusContext = statusContext;
+        StatusContext = statusContext;
 
-        _dbEntry = dbEntry;
-        _helpText =
-            "Comma separated tags - only a-z 0-9 _ - [space] are valid, each tag must be less than 200 characters long.";
-        _tags = dbEntry?.Tags ?? string.Empty;
+        BuildCommands();
+
+        DbEntry = dbEntry;
+        HelpText =
+            "Comma separated tags - only a-z 0-9  - [space] are valid, each tag must be less than 200 characters long.";
+        Tags = dbEntry?.Tags ?? string.Empty;
         Tags = TagListString();
 
         PropertyChanged += OnPropertyChanged;
     }
+
+    public ITag? DbEntry { get; set; }
+    public string HelpText { get; set; }
+    public StatusControlContext StatusContext { get; set; }
+    public string Tags { get; set; }
+    public string TagsValidationMessage { get; set; } = string.Empty;
 
     public void CheckForChangesAndValidationIssues()
     {
@@ -45,13 +47,16 @@ public partial class TagsEditorContext : ObservableObject, IHasChanges, IHasVali
         TagsValidationMessage = tagValidation.Explanation;
     }
 
+    public bool HasChanges { get; set; }
+    public bool HasValidationIssues { get; set; }
+
     public static Task<TagsEditorContext> CreateInstance(StatusControlContext? statusContext, ITag? dbEntry)
     {
         var factoryContext = statusContext ?? new StatusControlContext();
 
         var newItem = new TagsEditorContext(factoryContext, dbEntry);
         newItem.CheckForChangesAndValidationIssues();
-        
+
         return Task.FromResult(newItem);
     }
 

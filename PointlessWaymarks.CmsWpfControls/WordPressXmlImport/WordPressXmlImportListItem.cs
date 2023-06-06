@@ -1,19 +1,21 @@
 ﻿#nullable enable
 using CommunityToolkit.Mvvm.ComponentModel;
+using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon.Utility;
 
 namespace PointlessWaymarks.CmsWpfControls.WordPressXmlImport;
 
-public partial class WordPressXmlImportListItem : ObservableObject, ISelectedTextTracker
+[NotifyPropertyChanged]
+public partial class WordPressXmlImportListItem : ISelectedTextTracker
 {
-    [ObservableProperty] private string _category = string.Empty;
-    [ObservableProperty] private string _content = string.Empty;
-    [ObservableProperty] private string _createdBy = string.Empty;
-    [ObservableProperty] private DateTime _createdOn = DateTime.Now;
-    [ObservableProperty] private CurrentSelectedTextTracker _selectedTextTracker = new();
-    [ObservableProperty] private string _slug = string.Empty;
-    [ObservableProperty] private string _summary = string.Empty;
-    [ObservableProperty] private string _tags = string.Empty;
-    [ObservableProperty] private string _title = string.Empty;
-    [ObservableProperty] private string _wordPressType = string.Empty;
+    public string Category { get; set; } = string.Empty;
+    public string Content { get; set; } = string.Empty;
+    public string CreatedBy { get; set; } = string.Empty;
+    public DateTime CreatedOn { get; set; } = DateTime.Now;
+    public CurrentSelectedTextTracker? SelectedTextTracker { get; set; } = new();
+    public string Slug { get; set; } = string.Empty;
+    public string Summary { get; set; } = string.Empty;
+    public string Tags { get; set; } = string.Empty;
+    public string Title { get; set; } = string.Empty;
+    public string WordPressType { get; set; } = string.Empty;
 }

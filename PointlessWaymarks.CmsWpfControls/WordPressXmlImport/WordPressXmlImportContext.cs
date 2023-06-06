@@ -1,12 +1,9 @@
-﻿#nullable enable
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
 using System.Text.RegularExpressions;
 using System.Windows.Data;
 using System.Windows.Threading;
-using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
 using Microsoft.EntityFrameworkCore;
 using Ookii.Dialogs.Wpf;
 using PointlessWaymarks.CmsData;
@@ -17,6 +14,7 @@ using PointlessWaymarks.CmsWpfControls.ColumnSort;
 using PointlessWaymarks.CmsWpfControls.FileContentEditor;
 using PointlessWaymarks.CmsWpfControls.LinkContentEditor;
 using PointlessWaymarks.CmsWpfControls.PostContentEditor;
+using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.PressSharper;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
@@ -24,40 +22,17 @@ using PointlessWaymarks.WpfCommon.Utility;
 
 namespace PointlessWaymarks.CmsWpfControls.WordPressXmlImport;
 
-public partial class WordPressXmlImportContext : ObservableObject
+[NotifyPropertyChanged]
+[GenerateStatusCommands]
+public partial class WordPressXmlImportContext
 {
-    [ObservableProperty] private bool _filterOutExistingPostUrls = true;
-    [ObservableProperty] private bool _folderFromCategory;
-    [ObservableProperty] private bool _folderFromYear = true;
-    [ObservableProperty] private bool _importPages = true;
-    [ObservableProperty] private bool _importPosts = true;
-    [ObservableProperty] private ObservableCollection<WordPressXmlImportListItem>? _items;
-    [ObservableProperty] private ContentListSelected<WordPressXmlImportListItem>? _listSelection;
-    [ObservableProperty] private ColumnSortControlContext _listSort;
-    [ObservableProperty] private RelayCommand _loadWordPressXmlFileCommand;
-    [ObservableProperty] private List<WordPressXmlImportListItem> _selectedItems = new();
-    [ObservableProperty] private RelayCommand _selectedToFileContentEditorCommand;
-    [ObservableProperty] private RelayCommand _selectedToLinkContentEditorCommand;
-    [ObservableProperty] private RelayCommand _selectedToPostContentEditorAutoSaveCommand;
-    [ObservableProperty] private RelayCommand _selectedToPostContentEditorCommand;
-    [ObservableProperty] private StatusControlContext _statusContext;
-    [ObservableProperty] private string _userFilterText = string.Empty;
-    [ObservableProperty] private Blog? _wordPressData;
-
-
     public WordPressXmlImportContext(StatusControlContext? statusContext)
     {
-        _statusContext = statusContext ?? new StatusControlContext();
+        StatusContext = statusContext ?? new StatusControlContext();
 
-        _loadWordPressXmlFileCommand = StatusContext.RunBlockingTaskCommand(LoadWordPressXmlFile);
-        _selectedToPostContentEditorCommand =
-            StatusContext.RunBlockingTaskCommand(async () => await SelectedToPostContentEditor(false));
-        _selectedToPostContentEditorAutoSaveCommand =
-            StatusContext.RunBlockingTaskCommand(async () => await SelectedToPostContentEditor(true));
-        _selectedToFileContentEditorCommand = StatusContext.RunBlockingTaskCommand(SelectedToFileContentEditor);
-        _selectedToLinkContentEditorCommand = StatusContext.RunBlockingTaskCommand(SelectedToLinkContentEditor);
+        BuildCommands();
 
-        _listSort = new ColumnSortControlContext
+        ListSort = new ColumnSortControlContext
         {
             Items = new List<ColumnSortControlSortItem>
             {
@@ -89,6 +64,19 @@ public partial class WordPressXmlImportContext : ObservableObject
             Dispatcher.CurrentDispatcher.Invoke(() => { ListContextSortHelpers.SortList(list, Items); });
     }
 
+    public bool FilterOutExistingPostUrls { get; set; } = true;
+    public bool FolderFromCategory { get; set; }
+    public bool FolderFromYear { get; set; } = true;
+    public bool ImportPages { get; set; } = true;
+    public bool ImportPosts { get; set; } = true;
+    public ObservableCollection<WordPressXmlImportListItem>? Items { get; set; }
+    public ContentListSelected<WordPressXmlImportListItem>? ListSelection { get; set; }
+    public ColumnSortControlContext ListSort { get; set; }
+    public List<WordPressXmlImportListItem> SelectedItems { get; set; } = new();
+    public StatusControlContext StatusContext { get; set; }
+    public string UserFilterText { get; set; } = string.Empty;
+    public Blog? WordPressData { get; set; }
+
     private async Task FilterList()
     {
         if (Items == null || !Items.Any()) return;
@@ -112,6 +100,7 @@ public partial class WordPressXmlImportContext : ObservableObject
         };
     }
 
+    [BlockingCommand]
     public async Task LoadWordPressXmlFile()
     {
         await ThreadSwitcher.ResumeForegroundAsync();
@@ -238,6 +227,7 @@ public partial class WordPressXmlImportContext : ObservableObject
         if (e.PropertyName == nameof(UserFilterText)) StatusContext.RunFireAndForgetNonBlockingTask(FilterList);
     }
 
+    [BlockingCommand]
     public async Task SelectedToFileContentEditor()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -274,6 +264,7 @@ public partial class WordPressXmlImportContext : ObservableObject
         }
     }
 
+    [BlockingCommand]
     public async Task SelectedToLinkContentEditor()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -353,5 +344,17 @@ public partial class WordPressXmlImportContext : ObservableObject
 
             await (await PostContentEditorWindow.CreateInstance(newPost)).PositionWindowAndShowOnUiThread();
         }
+    }
+
+    [BlockingCommand]
+    public async Task SelectedToPostContentEditorWithAutosave()
+    {
+        await SelectedToPostContentEditor(true);
+    }
+
+    [BlockingCommand]
+    public async Task SelectedToPostContentEditorWithoutAutosave()
+    {
+        await SelectedToPostContentEditor(false);
     }
 }

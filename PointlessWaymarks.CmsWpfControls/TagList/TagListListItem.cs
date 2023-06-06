@@ -1,11 +1,12 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿using PointlessWaymarks.LlamaAspects;
 
 namespace PointlessWaymarks.CmsWpfControls.TagList;
 
-public partial class TagListListItem : ObservableObject
+[NotifyPropertyChanged]
+public partial class TagListListItem
 {
-    [ObservableProperty] private int _contentCount;
-    [ObservableProperty] private List<TagItemContentInformation> _contentInformation = new();
-    [ObservableProperty] private bool _isExcludedTag;
-    [ObservableProperty] private string _tagName = string.Empty;
+    public int ContentCount { get; set; }
+    public List<TagItemContentInformation> ContentInformation { get; set; } = new();
+    public bool IsExcludedTag { get; set; }
+    public string TagName { get; set; } = string.Empty;
 }
