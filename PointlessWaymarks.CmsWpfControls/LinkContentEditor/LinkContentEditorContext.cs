@@ -1,7 +1,4 @@
 ﻿using System.ComponentModel;
-using System.Diagnostics;
-using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
 using PointlessWaymarks.CmsData.Content;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
@@ -9,6 +6,7 @@ using PointlessWaymarks.CmsWpfControls.CreatedAndUpdatedByAndOnDisplay;
 using PointlessWaymarks.CmsWpfControls.HelpDisplay;
 using PointlessWaymarks.CmsWpfControls.TagsEditor;
 using PointlessWaymarks.CommonTools;
+using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon.BoolDataEntry;
 using PointlessWaymarks.WpfCommon.ChangesAndValidation;
 using PointlessWaymarks.WpfCommon.ConversionDataEntry;
@@ -16,65 +14,50 @@ using PointlessWaymarks.WpfCommon.MarkdownDisplay;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.StringDataEntry;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
+using PointlessWaymarks.WpfCommon.Utility;
 
 namespace PointlessWaymarks.CmsWpfControls.LinkContentEditor;
 
-public partial class LinkContentEditorContext : ObservableObject, IHasChanges, IHasValidationIssues,
+[NotifyPropertyChanged]
+[GenerateStatusCommands]
+public partial class LinkContentEditorContext : IHasChanges, IHasValidationIssues,
     ICheckForChangesAndValidation
 {
-    [ObservableProperty] private StringDataEntryContext? _authorEntry;
-    [ObservableProperty] private StringDataEntryContext? _commentsEntry;
-    [ObservableProperty] private CreatedAndUpdatedByAndOnDisplayContext? _createdUpdatedDisplay;
-    [ObservableProperty] private LinkContent _dbEntry;
-    [ObservableProperty] private StringDataEntryContext? _descriptionEntry;
-    [ObservableProperty] private RelayCommand _extractDataCommand;
-    [ObservableProperty] private bool _hasChanges;
-    [ObservableProperty] private bool _hasValidationIssues;
-    [ObservableProperty] private HelpDisplayContext? _helpContext;
-    [ObservableProperty] private ConversionDataEntryContext<DateTime?>? _linkDateTimeEntry;
-    [ObservableProperty] private StringDataEntryContext? _linkUrlEntry;
-    [ObservableProperty] private RelayCommand _openUrlInBrowserCommand;
-    [ObservableProperty] private RelayCommand _saveAndCloseCommand;
-    [ObservableProperty] private RelayCommand _saveCommand;
-    [ObservableProperty] private BoolDataEntryContext? _showInLinkRssEntry;
-    [ObservableProperty] private StringDataEntryContext? _siteEntry;
-    [ObservableProperty] private StatusControlContext _statusContext;
-    [ObservableProperty] private TagsEditorContext? _tagEdit;
-    [ObservableProperty] private StringDataEntryContext? _titleEntry;
-
     public EventHandler? RequestContentEditorWindowClose;
 
     private LinkContentEditorContext(StatusControlContext statusContext, LinkContent dbEntry)
     {
-        _statusContext = statusContext;
+        StatusContext = statusContext;
 
-        _saveCommand = StatusContext.RunBlockingTaskCommand(async () => await SaveAndGenerateHtml(false));
-        _saveAndCloseCommand = StatusContext.RunBlockingTaskCommand(async () => await SaveAndGenerateHtml(true));
-        _extractDataCommand = StatusContext.RunBlockingTaskCommand(ExtractDataFromLink);
-        _openUrlInBrowserCommand = StatusContext.RunNonBlockingActionCommand(() =>
-        {
-            try
-            {
-                if (string.IsNullOrWhiteSpace(LinkUrlEntry!.UserValue)) StatusContext.ToastWarning("Link is Blank?");
-                var ps = new ProcessStartInfo(LinkUrlEntry.UserValue) { UseShellExecute = true, Verb = "open" };
-                Process.Start(ps);
-            }
-            catch (Exception e)
-            {
-                StatusContext.ToastWarning($"Trouble opening link - {e.Message}");
-            }
-        });
+        BuildCommands();
 
-        _dbEntry = dbEntry;
-        
+        DbEntry = dbEntry;
+
         PropertyChanged += OnPropertyChanged;
     }
+
+    public StringDataEntryContext? AuthorEntry { get; set; }
+    public StringDataEntryContext? CommentsEntry { get; set; }
+    public CreatedAndUpdatedByAndOnDisplayContext? CreatedUpdatedDisplay { get; set; }
+    public LinkContent DbEntry { get; set; }
+    public StringDataEntryContext? DescriptionEntry { get; set; }
+    public HelpDisplayContext? HelpContext { get; set; }
+    public ConversionDataEntryContext<DateTime?>? LinkDateTimeEntry { get; set; }
+    public StringDataEntryContext? LinkUrlEntry { get; set; }
+    public BoolDataEntryContext? ShowInLinkRssEntry { get; set; }
+    public StringDataEntryContext? SiteEntry { get; set; }
+    public StatusControlContext StatusContext { get; set; }
+    public TagsEditorContext? TagEdit { get; set; }
+    public StringDataEntryContext? TitleEntry { get; set; }
 
     public void CheckForChangesAndValidationIssues()
     {
         HasChanges = PropertyScanners.ChildPropertiesHaveChanges(this);
         HasValidationIssues = PropertyScanners.ChildPropertiesHaveValidationIssues(this);
     }
+
+    public bool HasChanges { get; set; }
+    public bool HasValidationIssues { get; set; }
 
     public static async Task<LinkContentEditorContext> CreateInstance(StatusControlContext? statusContext,
         LinkContent? linkContent = null, bool extractDataOnLoad = false)
@@ -113,6 +96,7 @@ public partial class LinkContentEditorContext : ObservableObject, IHasChanges, I
         return newEntry;
     }
 
+    [BlockingCommand]
     private async Task ExtractDataFromLink()
     {
         var (generationReturn, linkMetadata) =
@@ -224,6 +208,39 @@ public partial class LinkContentEditorContext : ObservableObject, IHasChanges, I
 
         if (!e.PropertyName.Contains("HasChanges") && !e.PropertyName.Contains("Validation"))
             CheckForChangesAndValidationIssues();
+    }
+
+    [NonBlockingCommand]
+    public async Task OpenUrlInBrowser()
+    {
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        try
+        {
+            if (string.IsNullOrWhiteSpace(LinkUrlEntry!.UserValue))
+            {
+                StatusContext.ToastWarning("Link is Blank?");
+                return;
+            }
+
+            ProcessHelpers.OpenUrlInExternalBrowser(LinkUrlEntry.UserValue);
+        }
+        catch (Exception e)
+        {
+            StatusContext.ToastWarning($"Trouble opening link - {e.Message}");
+        }
+    }
+
+    [BlockingCommand]
+    public async Task Save()
+    {
+        await SaveAndGenerateHtml(false);
+    }
+
+    [BlockingCommand]
+    public async Task SaveAndClose()
+    {
+        await SaveAndGenerateHtml(true);
     }
 
     public async Task SaveAndGenerateHtml(bool closeAfterSave)

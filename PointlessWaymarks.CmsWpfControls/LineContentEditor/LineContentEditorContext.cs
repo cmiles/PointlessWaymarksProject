@@ -2,8 +2,6 @@
 using System.Diagnostics;
 using System.IO;
 using System.Windows;
-using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
 using Ookii.Dialogs.Wpf;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.CommonHtml;
@@ -23,6 +21,7 @@ using PointlessWaymarks.CmsWpfControls.Utility;
 using PointlessWaymarks.CmsWpfControls.WpfHtml;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.FeatureIntersectionTags;
+using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.SpatialTools;
 using PointlessWaymarks.WpfCommon.ChangesAndValidation;
 using PointlessWaymarks.WpfCommon.ConversionDataEntry;
@@ -32,77 +31,50 @@ using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 
 namespace PointlessWaymarks.CmsWpfControls.LineContentEditor;
 
-public partial class LineContentEditorContext : ObservableObject, IHasChanges, IHasValidationIssues,
+[NotifyPropertyChanged]
+[GenerateStatusCommands]
+public partial class LineContentEditorContext : IHasChanges, IHasValidationIssues,
     ICheckForChangesAndValidation
 {
-    [ObservableProperty] private RelayCommand _addFeatureIntersectTagsCommand;
-    [ObservableProperty] private BodyContentEditorContext? _bodyContent;
-    [ObservableProperty] private ConversionDataEntryContext<double>? _climbElevationEntry;
-    [ObservableProperty] private ContentIdViewerControlContext? _contentId;
-    [ObservableProperty] private CreatedAndUpdatedByAndOnDisplayContext? _createdUpdatedDisplay;
-    [ObservableProperty] private LineContent _dbEntry;
-    [ObservableProperty] private ConversionDataEntryContext<double>? _descentElevationEntry;
-    [ObservableProperty] private ConversionDataEntryContext<double>? _distanceEntry;
-    [ObservableProperty] private RelayCommand _extractNewLinksCommand;
-    [ObservableProperty] private bool _hasChanges;
-    [ObservableProperty] private bool _hasValidationIssues;
-    [ObservableProperty] private HelpDisplayContext? _helpContext;
-    [ObservableProperty] private RelayCommand _importFromGpxCommand;
-    [ObservableProperty] private RelayCommand _importGeoJsonFromClipboardCommand;
-    [ObservableProperty] private string _lineGeoJson = string.Empty;
-    [ObservableProperty] private RelayCommand _lineGeoJsonToClipboardCommand;
-    [ObservableProperty] private RelayCommand _linkToClipboardCommand;
-    [ObservableProperty] private ContentSiteFeedAndIsDraftContext? _mainSiteFeed;
-    [ObservableProperty] private ConversionDataEntryContext<double>? _maximumElevationEntry;
-    [ObservableProperty] private ConversionDataEntryContext<double>? _minimumElevationEntry;
-    [ObservableProperty] private string _previewHtml;
-    [ObservableProperty] private string _previewLineJsonDto = string.Empty;
-    [ObservableProperty] private ConversionDataEntryContext<DateTime?>? _recordingEndedOnEntry;
-    [ObservableProperty] private ConversionDataEntryContext<DateTime?>? _recordingStartedOnEntry;
-    [ObservableProperty] private RelayCommand _refreshMapPreviewCommand;
-    [ObservableProperty] private bool _replaceElevationOnImport;
-    [ObservableProperty] private RelayCommand _replaceElevationsCommand;
-    [ObservableProperty] private RelayCommand _saveAndCloseCommand;
-    [ObservableProperty] private RelayCommand _saveCommand;
-    [ObservableProperty] private StatusControlContext _statusContext;
-    [ObservableProperty] private TagsEditorContext? _tagEdit;
-    [ObservableProperty] private TitleSummarySlugEditorContext? _titleSummarySlugFolder;
-    [ObservableProperty] private UpdateNotesEditorContext? _updateNotes;
-    [ObservableProperty] private RelayCommand _updateStatisticsCommand;
-    [ObservableProperty] private bool _updateStatsOnImport = true;
-    [ObservableProperty] private RelayCommand _viewOnSiteCommand;
-
     public EventHandler? RequestContentEditorWindowClose;
 
     private LineContentEditorContext(StatusControlContext statusContext, LineContent dbEntry)
     {
-        _statusContext = statusContext;
+        StatusContext = statusContext;
 
-        _saveCommand = StatusContext.RunBlockingTaskCommand(async () => await SaveAndGenerateHtml(false));
-        _saveAndCloseCommand = StatusContext.RunBlockingTaskCommand(async () => await SaveAndGenerateHtml(true));
-        _viewOnSiteCommand = StatusContext.RunBlockingTaskCommand(ViewOnSite);
-        _extractNewLinksCommand = StatusContext.RunBlockingTaskCommand(() =>
-            LinkExtraction.ExtractNewAndShowLinkContentEditors(
-                $"{BodyContent!.BodyContent} {UpdateNotes!.UpdateNotes}", StatusContext.ProgressTracker()));
-        _importFromGpxCommand =
-            StatusContext.RunBlockingTaskCommand(async () =>
-                await ImportFromGpx(ReplaceElevationOnImport, UpdateStatsOnImport));
-        _replaceElevationsCommand = StatusContext.RunBlockingTaskCommand(async () => await ReplaceElevations());
-        _refreshMapPreviewCommand = StatusContext.RunBlockingTaskCommand(RefreshMapPreview);
-        _linkToClipboardCommand = StatusContext.RunBlockingTaskCommand(LinkToClipboard);
-        _updateStatisticsCommand = StatusContext.RunBlockingTaskCommand(UpdateStatistics);
-        _lineGeoJsonToClipboardCommand = StatusContext.RunNonBlockingTaskCommand(LineGeoJsonToClipboard);
-        _importGeoJsonFromClipboardCommand = StatusContext.RunBlockingTaskCommand(ImportGeoJsonFromClipboard);
-        _addFeatureIntersectTagsCommand = StatusContext.RunBlockingTaskCommand(AddFeatureIntersectTags);
+        BuildCommands();
 
-        _previewHtml = WpfHtmlDocument.ToHtmlLeafletLineDocument("Line",
+        PreviewHtml = WpfHtmlDocument.ToHtmlLeafletLineDocument("Line",
             UserSettingsSingleton.CurrentSettings().LatitudeDefault,
             UserSettingsSingleton.CurrentSettings().LongitudeDefault, string.Empty);
 
-        _dbEntry = dbEntry;
+        DbEntry = dbEntry;
 
         PropertyChanged += OnPropertyChanged;
     }
+
+    public BodyContentEditorContext? BodyContent { get; set; }
+    public ConversionDataEntryContext<double>? ClimbElevationEntry { get; set; }
+    public ContentIdViewerControlContext? ContentId { get; set; }
+    public CreatedAndUpdatedByAndOnDisplayContext? CreatedUpdatedDisplay { get; set; }
+    public LineContent DbEntry { get; set; }
+    public ConversionDataEntryContext<double>? DescentElevationEntry { get; set; }
+    public ConversionDataEntryContext<double>? DistanceEntry { get; set; }
+    public HelpDisplayContext? HelpContext { get; set; }
+    public string LineGeoJson { get; set; } = string.Empty;
+    public ContentSiteFeedAndIsDraftContext? MainSiteFeed { get; set; }
+    public ConversionDataEntryContext<double>? MaximumElevationEntry { get; set; }
+    public ConversionDataEntryContext<double>? MinimumElevationEntry { get; set; }
+    public string PreviewHtml { get; set; }
+    public string PreviewLineJsonDto { get; set; } = string.Empty;
+    public ConversionDataEntryContext<DateTime?>? RecordingEndedOnEntry { get; set; }
+    public ConversionDataEntryContext<DateTime?>? RecordingStartedOnEntry { get; set; }
+    public bool ReplaceElevationOnImport { get; set; }
+    public StatusControlContext StatusContext { get; set; }
+    public TagsEditorContext? TagEdit { get; set; }
+    public TitleSummarySlugEditorContext? TitleSummarySlugFolder { get; set; }
+    public UpdateNotesEditorContext? UpdateNotes { get; set; }
+    public bool UpdateStatsOnImport { get; set; } = true;
 
     public void CheckForChangesAndValidationIssues()
     {
@@ -110,6 +82,10 @@ public partial class LineContentEditorContext : ObservableObject, IHasChanges, I
         HasValidationIssues = PropertyScanners.ChildPropertiesHaveValidationIssues(this);
     }
 
+    public bool HasChanges { get; set; }
+    public bool HasValidationIssues { get; set; }
+
+    [BlockingCommand]
     private async Task AddFeatureIntersectTags()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -199,6 +175,19 @@ public partial class LineContentEditorContext : ObservableObject, IHasChanges, I
         return newEntry;
     }
 
+    [BlockingCommand]
+    public async Task ExtractNewLinks()
+    {
+        await LinkExtraction.ExtractNewAndShowLinkContentEditors(
+            $"{BodyContent!.BodyContent} {UpdateNotes!.UpdateNotes}", StatusContext.ProgressTracker());
+    }
+
+    [BlockingCommand]
+    public async Task ImportFromGpx()
+    {
+        await ImportFromGpx(ReplaceElevationOnImport, UpdateStatsOnImport);
+    }
+
     public async Task ImportFromGpx(bool replaceElevations, bool updateStats)
     {
         await ThreadSwitcher.ResumeForegroundAsync();
@@ -272,6 +261,7 @@ public partial class LineContentEditorContext : ObservableObject, IHasChanges, I
         }
     }
 
+    [BlockingCommand]
     public async Task ImportGeoJsonFromClipboard()
     {
         await ThreadSwitcher.ResumeForegroundAsync();
@@ -301,6 +291,7 @@ public partial class LineContentEditorContext : ObservableObject, IHasChanges, I
         await UpdateStatistics();
     }
 
+    [BlockingCommand]
     private async Task LineGeoJsonToClipboard()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -316,6 +307,7 @@ public partial class LineContentEditorContext : ObservableObject, IHasChanges, I
         Clipboard.SetText(LineGeoJson);
     }
 
+    [BlockingCommand]
     private async Task LinkToClipboard()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -421,6 +413,7 @@ public partial class LineContentEditorContext : ObservableObject, IHasChanges, I
         if (e.PropertyName == nameof(LineGeoJson)) StatusContext.RunNonBlockingTask(RefreshMapPreview);
     }
 
+    [BlockingCommand]
     public async Task RefreshMapPreview()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -436,6 +429,7 @@ public partial class LineContentEditorContext : ObservableObject, IHasChanges, I
             TitleSummarySlugFolder?.TitleEntry.UserValue ?? string.Empty, Guid.NewGuid().ToString());
     }
 
+    [BlockingCommand]
     public async Task ReplaceElevations()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -448,6 +442,18 @@ public partial class LineContentEditorContext : ObservableObject, IHasChanges, I
 
         LineGeoJson = await GeoJsonTools.ReplaceElevationsInGeoJsonWithLineString(LineGeoJson,
             StatusContext.ProgressTracker());
+    }
+
+    [BlockingCommand]
+    public async Task Save()
+    {
+        await SaveAndGenerateHtml(false);
+    }
+
+    [BlockingCommand]
+    public async Task SaveAndClose()
+    {
+        await SaveAndGenerateHtml(true);
     }
 
     public async Task SaveAndGenerateHtml(bool closeAfterSave)
@@ -473,6 +479,7 @@ public partial class LineContentEditorContext : ObservableObject, IHasChanges, I
         }
     }
 
+    [BlockingCommand]
     public async Task UpdateStatistics()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -494,6 +501,7 @@ public partial class LineContentEditorContext : ObservableObject, IHasChanges, I
         DescentElevationEntry!.UserText = lineStatistics.ElevationDescent.ToString("F0");
     }
 
+    [BlockingCommand]
     private async Task ViewOnSite()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();

@@ -1,8 +1,6 @@
 ﻿using System.ComponentModel;
 using System.Diagnostics;
 using System.Windows;
-using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.Content;
@@ -18,6 +16,7 @@ using PointlessWaymarks.CmsWpfControls.TitleSummarySlugFolderEditor;
 using PointlessWaymarks.CmsWpfControls.UpdateNotesEditor;
 using PointlessWaymarks.CmsWpfControls.Utility;
 using PointlessWaymarks.CommonTools;
+using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon.ChangesAndValidation;
 using PointlessWaymarks.WpfCommon.MarkdownDisplay;
 using PointlessWaymarks.WpfCommon.Status;
@@ -25,44 +24,29 @@ using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 
 namespace PointlessWaymarks.CmsWpfControls.PostContentEditor;
 
-public partial class PostContentEditorContext : ObservableObject, IHasChanges, IHasValidationIssues, ICheckForChangesAndValidation
+[NotifyPropertyChanged]
+[GenerateStatusCommands]
+public partial class PostContentEditorContext : IHasChanges, IHasValidationIssues, ICheckForChangesAndValidation
 {
-    [ObservableProperty] private BodyContentEditorContext? _bodyContent;
-    [ObservableProperty] private ContentIdViewerControlContext? _contentId;
-    [ObservableProperty] private CreatedAndUpdatedByAndOnDisplayContext? _createdUpdatedDisplay;
-    [ObservableProperty] private PostContent _dbEntry;
-    [ObservableProperty] private RelayCommand _extractNewLinksCommand;
-    [ObservableProperty] private bool _hasChanges;
-    [ObservableProperty] private bool _hasValidationIssues;
-    [ObservableProperty] private HelpDisplayContext? _helpContext;
-    [ObservableProperty] private RelayCommand _linkToClipboardCommand;
-    [ObservableProperty] private ContentSiteFeedAndIsDraftContext? _mainSiteFeed;
-    [ObservableProperty] private RelayCommand _saveAndCloseCommand;
-    [ObservableProperty] private RelayCommand _saveCommand;
-    [ObservableProperty] private StatusControlContext _statusContext;
-    [ObservableProperty] private TagsEditorContext? _tagEdit;
-    [ObservableProperty] private TitleSummarySlugEditorContext? _titleSummarySlugFolder;
-    [ObservableProperty] private UpdateNotesEditorContext? _updateNotes;
-    [ObservableProperty] private RelayCommand _viewOnSiteCommand;
-
     public EventHandler? RequestContentEditorWindowClose;
 
     private PostContentEditorContext(StatusControlContext statusContext, PostContent dbEntry)
     {
-        _statusContext = statusContext;
+        StatusContext = statusContext;
 
-        _saveCommand = StatusContext.RunBlockingTaskCommand(async () => await SaveAndGenerateHtml(false));
-        _saveAndCloseCommand = StatusContext.RunBlockingTaskCommand(async () => await SaveAndGenerateHtml(true));
-        _viewOnSiteCommand = StatusContext.RunBlockingTaskCommand(ViewOnSite);
-        _extractNewLinksCommand = StatusContext.RunBlockingTaskCommand(() =>
-            LinkExtraction.ExtractNewAndShowLinkContentEditors($"{BodyContent!.BodyContent} {UpdateNotes!.UpdateNotes}",
-                StatusContext.ProgressTracker()));
-        _linkToClipboardCommand = StatusContext.RunBlockingTaskCommand(LinkToClipboard);
+        BuildCommands();
 
         DbEntry = dbEntry;
 
         PropertyChanged += OnPropertyChanged;
     }
+
+    public BodyContentEditorContext? BodyContent { get; set; }
+    public ContentIdViewerControlContext? ContentId { get; set; }
+    public CreatedAndUpdatedByAndOnDisplayContext? CreatedUpdatedDisplay { get; set; }
+    public PostContent DbEntry { get; set; }
+    public HelpDisplayContext? HelpContext { get; set; }
+    public ContentSiteFeedAndIsDraftContext? MainSiteFeed { get; set; }
 
     public string PostEditorHelpText =>
         @"
@@ -74,18 +58,27 @@ Notes:
  - This system does not have 'Pages', Posts (or another Content Type) can serve as 'Pages'.
 ";
 
+    public StatusControlContext StatusContext { get; set; }
+    public TagsEditorContext? TagEdit { get; set; }
+    public TitleSummarySlugEditorContext? TitleSummarySlugFolder { get; set; }
+    public UpdateNotesEditorContext? UpdateNotes { get; set; }
+
     public void CheckForChangesAndValidationIssues()
     {
         HasChanges = PropertyScanners.ChildPropertiesHaveChanges(this);
         HasValidationIssues = PropertyScanners.ChildPropertiesHaveValidationIssues(this);
     }
 
+    public bool HasChanges { get; set; }
+    public bool HasValidationIssues { get; set; }
+
     public static async Task<PostContentEditorContext> CreateInstance(StatusControlContext? statusContext,
         PostContent? toLoad = null)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        var newContext = new PostContentEditorContext(statusContext ?? new StatusControlContext(), NewContentModels.InitializePostContent(toLoad));
+        var newContext = new PostContentEditorContext(statusContext ?? new StatusControlContext(),
+            NewContentModels.InitializePostContent(toLoad));
         await newContext.LoadData(toLoad);
         return newContext;
     }
@@ -119,11 +112,21 @@ Notes:
         return newEntry;
     }
 
+    [BlockingCommand]
+    public async Task ExtractNewLinks()
+    {
+        await LinkExtraction.ExtractNewAndShowLinkContentEditors(
+            $"{BodyContent!.BodyContent} {UpdateNotes!.UpdateNotes}",
+            StatusContext.ProgressTracker());
+    }
+
+
+    [BlockingCommand]
     private async Task LinkToClipboard()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        if ( DbEntry.Id < 1)
+        if (DbEntry.Id < 1)
         {
             StatusContext.ToastError("Sorry - please save before getting link...");
             return;
@@ -144,7 +147,8 @@ Notes:
 
         DbEntry = NewContentModels.InitializePostContent(toLoad);
 
-        TitleSummarySlugFolder = await TitleSummarySlugEditorContext.CreateInstance(StatusContext, DbEntry, null, null, null);
+        TitleSummarySlugFolder =
+            await TitleSummarySlugEditorContext.CreateInstance(StatusContext, DbEntry, null, null, null);
         CreatedUpdatedDisplay = await CreatedAndUpdatedByAndOnDisplayContext.CreateInstance(StatusContext, DbEntry);
         MainSiteFeed = await ContentSiteFeedAndIsDraftContext.CreateInstance(StatusContext, DbEntry);
         ContentId = await ContentIdViewerControlContext.CreateInstance(StatusContext, DbEntry);
@@ -156,7 +160,7 @@ Notes:
         {
             PostEditorHelpText, CommonFields.TitleSlugFolderSummary, BracketCodeHelpMarkdown.HelpBlock
         });
-        
+
         PropertyScanners.SubscribeToChildHasChangesAndHasValidationIssues(this, CheckForChangesAndValidationIssues);
     }
 
@@ -166,6 +170,18 @@ Notes:
 
         if (!e.PropertyName.Contains("HasChanges") && !e.PropertyName.Contains("Validation"))
             CheckForChangesAndValidationIssues();
+    }
+
+    [BlockingCommand]
+    public async Task Save()
+    {
+        await SaveAndGenerateHtml(false);
+    }
+
+    [BlockingCommand]
+    public async Task SaveAndClose()
+    {
+        await SaveAndGenerateHtml(true);
     }
 
     public async Task SaveAndGenerateHtml(bool closeAfterSave)
@@ -191,7 +207,7 @@ Notes:
         }
     }
 
-
+    [BlockingCommand]
     private async Task ViewOnSite()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();

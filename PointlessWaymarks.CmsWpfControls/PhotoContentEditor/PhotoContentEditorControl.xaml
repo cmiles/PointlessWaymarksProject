@@ -87,7 +87,7 @@
                     Grid.ColumnSpan="2"
                     Height="28"
                     Margin="4,4,4,18"
-                    Command="{Binding ChooseFileCommand}">
+                    Command="{Binding ChooseFileWithoutMetadataLoadCommand}">
                     Choose Photo
                 </Button>
                 <Image

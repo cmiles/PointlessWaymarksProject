@@ -1,36 +1,34 @@
 ﻿using System.IO;
-using CommunityToolkit.Mvvm.ComponentModel;
 using PointlessWaymarks.CmsData.Database.Models;
+using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon.ChangesAndValidation;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 
 namespace PointlessWaymarks.CmsWpfControls.PhotoContentEditor;
 
-[ObservableObject]
-#pragma warning disable MVVMTK0033
+[NotifyPropertyChanged]
 public partial class PhotoContentEditorWindow
-#pragma warning restore MVVMTK0033
 {
-    [ObservableProperty] private WindowAccidentalClosureHelper? _accidentalCloserHelper;
-    [ObservableProperty] private PhotoContentEditorContext? _photoContent;
-    [ObservableProperty] private StatusControlContext _statusContext;
-
     /// <summary>
-    /// DO NOT USE - Use CreateInstance instead - using the constructor directly will result in
-    /// core functionality being uninitialized.
+    ///     DO NOT USE - Use CreateInstance instead - using the constructor directly will result in
+    ///     core functionality being uninitialized.
     /// </summary>
     private PhotoContentEditorWindow()
     {
         InitializeComponent();
-        _statusContext = new StatusControlContext();
+        StatusContext = new StatusControlContext();
         DataContext = this;
     }
 
+    public WindowAccidentalClosureHelper? AccidentalCloserHelper { get; set; }
+    public PhotoContentEditorContext? PhotoContent { get; set; }
+    public StatusControlContext StatusContext { get; set; }
+
     /// <summary>
-    /// Creates a new instance - this method can be called from any thread and will
-    /// switch to the UI thread as needed. Does not show the window - consider using
-    /// PositionWindowAndShowOnUiThread() from the WindowInitialPositionHelpers.
+    ///     Creates a new instance - this method can be called from any thread and will
+    ///     switch to the UI thread as needed. Does not show the window - consider using
+    ///     PositionWindowAndShowOnUiThread() from the WindowInitialPositionHelpers.
     /// </summary>
     /// <returns></returns>
     public static async Task<PhotoContentEditorWindow> CreateInstance()
@@ -54,9 +52,9 @@ public partial class PhotoContentEditorWindow
     }
 
     /// <summary>
-    /// Creates a new instance - this method can be called from any thread and will
-    /// switch to the UI thread as needed. Does not show the window - consider using
-    /// PositionWindowAndShowOnUiThread() from the WindowInitialPositionHelpers.
+    ///     Creates a new instance - this method can be called from any thread and will
+    ///     switch to the UI thread as needed. Does not show the window - consider using
+    ///     PositionWindowAndShowOnUiThread() from the WindowInitialPositionHelpers.
     /// </summary>
     /// <returns></returns>
     public static async Task<PhotoContentEditorWindow> CreateInstance(FileInfo initialPhoto)
@@ -80,9 +78,9 @@ public partial class PhotoContentEditorWindow
     }
 
     /// <summary>
-    /// Creates a new instance - this method can be called from any thread and will
-    /// switch to the UI thread as needed. Does not show the window - consider using
-    /// PositionWindowAndShowOnUiThread() from the WindowInitialPositionHelpers.
+    ///     Creates a new instance - this method can be called from any thread and will
+    ///     switch to the UI thread as needed. Does not show the window - consider using
+    ///     PositionWindowAndShowOnUiThread() from the WindowInitialPositionHelpers.
     /// </summary>
     /// <returns></returns>
     public static async Task<PhotoContentEditorWindow> CreateInstance(PhotoContent? toLoad)

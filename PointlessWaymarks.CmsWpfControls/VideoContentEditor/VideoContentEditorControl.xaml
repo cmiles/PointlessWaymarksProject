@@ -84,7 +84,7 @@
                     Grid.ColumnSpan="2"
                     Height="28"
                     Margin="4,4,4,18"
-                    Command="{Binding ChooseFileCommand}">
+                    Command="{Binding ChooseFileWithoutMetadataLoadCommand}">
                     Choose Video
                 </Button>
                 <simpleMediaPlayer:SimpleMediaPlayerControl Grid.Row="2" DataContext="{Binding VideoContext}"></simpleMediaPlayer:SimpleMediaPlayerControl>
@@ -122,11 +122,11 @@
                             <Setter Property="Margin" Value="2" />
                         </Style>
                     </WrapPanel.Resources>
-                    <Button Command="{Binding ViewPhotoMetadataCommand}">
+                    <Button Command="{Binding ViewVideoMetadataCommand}">
                         Show Metadata
                     </Button>
-                    <Button Command="{Binding ViewSelectedFileCommand}">View Photo</Button>
-                    <Button Command="{Binding ViewSelectedFileDirectoryCommand}">View Directory</Button>
+                    <Button Command="{Binding OpenSelectedFileCommand}">View Video</Button>
+                    <Button Command="{Binding OpenSelectedFileDirectoryCommand}">View Directory</Button>
                     <Button Command="{Binding AutoRenameSelectedFileBasedOnTitleCommand}"
                             IsEnabled="{Binding TitleSummarySlugFolder.CustomTitleFunctionEnabled}">
                         Title-&gt;Name
@@ -235,7 +235,7 @@
                     Content="Image Code"
                     Style="{StaticResource ActionPanelButtonStyle}" />
                 <Button
-                    Command="{Binding SaveAndExtractImageFromVideoCommand}"
+                    Command="{Binding SaveAndExtractImageFromMp4Command}"
                     Content="Extract Video Frame"
                     Style="{StaticResource ActionPanelButtonStyle}" />
                 <Button

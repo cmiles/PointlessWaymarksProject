@@ -1,11 +1,11 @@
 ﻿using System.ComponentModel;
 using System.Text.Json;
-using CommunityToolkit.Mvvm.ComponentModel;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsData.Database.PointDetailDataModels;
 using PointlessWaymarks.CmsWpfControls.ContentFormat;
 using PointlessWaymarks.CommonTools;
+using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon.BoolDataEntry;
 using PointlessWaymarks.WpfCommon.ChangesAndValidation;
 using PointlessWaymarks.WpfCommon.Status;
@@ -14,35 +14,38 @@ using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 
 namespace PointlessWaymarks.CmsWpfControls.PointDetailEditor;
 
-public partial class ParkingPointDetailContext : ObservableObject, IHasChanges, IHasValidationIssues,
+[NotifyPropertyChanged]
+public partial class ParkingPointDetailContext : IHasChanges, IHasValidationIssues,
     IPointDetailEditor,
     ICheckForChangesAndValidation
 {
-    [ObservableProperty] private PointDetail _dbEntry;
-    [ObservableProperty] private Parking _detailData;
-    [ObservableProperty] private BoolNullableDataEntryContext? _feeEditor;
-    [ObservableProperty] private bool _hasChanges;
-    [ObservableProperty] private bool _hasValidationIssues;
-    [ObservableProperty] private StringDataEntryContext? _noteEditor;
-    [ObservableProperty] private ContentFormatChooserContext? _noteFormatEditor;
-    [ObservableProperty] private StatusControlContext _statusContext;
-
     private ParkingPointDetailContext(StatusControlContext? statusContext)
     {
-        _statusContext = statusContext ?? new StatusControlContext();
+        StatusContext = statusContext ?? new StatusControlContext();
 
-        _dbEntry = PointDetail.CreateInstance();
-        _detailData = new Parking();
+        DbEntry = PointDetail.CreateInstance();
+        DetailData = new Parking();
 
         PropertyChanged += OnPropertyChanged;
     }
 
+    public Parking DetailData { get; set; }
+    public BoolNullableDataEntryContext? FeeEditor { get; set; }
+    public StringDataEntryContext? NoteEditor { get; set; }
+    public ContentFormatChooserContext? NoteFormatEditor { get; set; }
+    public StatusControlContext StatusContext { get; set; }
 
     public void CheckForChangesAndValidationIssues()
     {
         HasChanges = PropertyScanners.ChildPropertiesHaveChanges(this);
         HasValidationIssues = PropertyScanners.ChildPropertiesHaveValidationIssues(this);
     }
+
+    public bool HasChanges { get; set; }
+    public bool HasValidationIssues { get; set; }
+
+    //TODO: Eliminate this with Metalama
+    public event PropertyChangedEventHandler? PropertyChanged;
 
 
     public PointDetail CurrentPointDetail()
@@ -70,6 +73,8 @@ public partial class ParkingPointDetailContext : ObservableObject, IHasChanges, 
 
         return newEntry;
     }
+
+    public PointDetail DbEntry { get; set; }
 
     public static async Task<ParkingPointDetailContext> CreateInstance(PointDetail? detail,
         StatusControlContext statusContext)

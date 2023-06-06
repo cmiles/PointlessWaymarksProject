@@ -1,8 +1,6 @@
 ﻿using System.ComponentModel;
 using System.Diagnostics;
 using System.Windows;
-using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
 using NetTopologySuite.Features;
 using Omu.ValueInjecter;
 using PointlessWaymarks.CmsData;
@@ -23,6 +21,7 @@ using PointlessWaymarks.CmsWpfControls.UpdateNotesEditor;
 using PointlessWaymarks.CmsWpfControls.Utility;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.FeatureIntersectionTags;
+using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon.ChangesAndValidation;
 using PointlessWaymarks.WpfCommon.ConversionDataEntry;
 using PointlessWaymarks.WpfCommon.MarkdownDisplay;
@@ -33,55 +32,40 @@ using Point = NetTopologySuite.Geometries.Point;
 
 namespace PointlessWaymarks.CmsWpfControls.PointContentEditor;
 
-public partial class PointContentEditorContext : ObservableObject, IHasChanges, ICheckForChangesAndValidation,
+[NotifyPropertyChanged]
+[GenerateStatusCommands]
+public partial class PointContentEditorContext : IHasChanges, ICheckForChangesAndValidation,
     IHasValidationIssues
 {
-    [ObservableProperty] private RelayCommand _addFeatureIntersectTagsCommand;
-    [ObservableProperty] private BodyContentEditorContext? _bodyContent;
-    [ObservableProperty] private bool _broadcastLatLongChange = true;
-    [ObservableProperty] private ContentIdViewerControlContext? _contentId;
-    [ObservableProperty] private CreatedAndUpdatedByAndOnDisplayContext? _createdUpdatedDisplay;
-    [ObservableProperty] private PointContent _dbEntry;
-    [ObservableProperty] private ConversionDataEntryContext<double?>? _elevationEntry;
-    [ObservableProperty] private RelayCommand _extractNewLinksCommand;
-    [ObservableProperty] private RelayCommand _getElevationCommand;
-    [ObservableProperty] private bool _hasChanges;
-    [ObservableProperty] private bool _hasValidationIssues;
-    [ObservableProperty] private HelpDisplayContext? _helpContext;
-    [ObservableProperty] private ConversionDataEntryContext<double>? _latitudeEntry;
-    [ObservableProperty] private RelayCommand _linkToClipboardCommand;
-    [ObservableProperty] private ConversionDataEntryContext<double>? _longitudeEntry;
-    [ObservableProperty] private ContentSiteFeedAndIsDraftContext? _mainSiteFeed;
-    [ObservableProperty] private StringDataEntryContext? _mapLabelContent;
-    [ObservableProperty] private PointDetailListContext? _pointDetails;
-    [ObservableProperty] private RelayCommand _saveAndCloseCommand;
-    [ObservableProperty] private RelayCommand _saveCommand;
-    [ObservableProperty] private StatusControlContext _statusContext;
-    [ObservableProperty] private TagsEditorContext? _tagEdit;
-    [ObservableProperty] private TitleSummarySlugEditorContext? _titleSummarySlugFolder;
-    [ObservableProperty] private UpdateNotesEditorContext? _updateNotes;
-    [ObservableProperty] private RelayCommand _viewOnSiteCommand;
-
     public EventHandler? RequestContentEditorWindowClose;
 
     private PointContentEditorContext(StatusControlContext statusContext, PointContent pointContent)
     {
-        _statusContext = statusContext;
+        StatusContext = statusContext;
 
-        _saveCommand = StatusContext.RunBlockingTaskCommand(async () => await SaveAndGenerateHtml(false));
-        _saveAndCloseCommand = StatusContext.RunBlockingTaskCommand(async () => await SaveAndGenerateHtml(true));
-        _viewOnSiteCommand = StatusContext.RunBlockingTaskCommand(ViewOnSite);
-        _extractNewLinksCommand = StatusContext.RunBlockingTaskCommand(() =>
-            LinkExtraction.ExtractNewAndShowLinkContentEditors($"{BodyContent!.BodyContent} {UpdateNotes!.UpdateNotes}",
-                StatusContext.ProgressTracker()));
-        _getElevationCommand = StatusContext.RunBlockingTaskCommand(GetElevation);
-        _linkToClipboardCommand = StatusContext.RunBlockingTaskCommand(LinkToClipboard);
-        _addFeatureIntersectTagsCommand = StatusContext.RunBlockingTaskCommand(AddFeatureIntersectTags);
+        BuildCommands();
 
-        _dbEntry = pointContent;
+        DbEntry = pointContent;
 
         PropertyChanged += OnPropertyChanged;
     }
+
+    public BodyContentEditorContext? BodyContent { get; set; }
+    public bool BroadcastLatLongChange { get; set; } = true;
+    public ContentIdViewerControlContext? ContentId { get; set; }
+    public CreatedAndUpdatedByAndOnDisplayContext? CreatedUpdatedDisplay { get; set; }
+    public PointContent DbEntry { get; set; }
+    public ConversionDataEntryContext<double?>? ElevationEntry { get; set; }
+    public HelpDisplayContext? HelpContext { get; set; }
+    public ConversionDataEntryContext<double>? LatitudeEntry { get; set; }
+    public ConversionDataEntryContext<double>? LongitudeEntry { get; set; }
+    public ContentSiteFeedAndIsDraftContext? MainSiteFeed { get; set; }
+    public StringDataEntryContext? MapLabelContent { get; set; }
+    public PointDetailListContext? PointDetails { get; set; }
+    public StatusControlContext StatusContext { get; set; }
+    public TagsEditorContext? TagEdit { get; set; }
+    public TitleSummarySlugEditorContext? TitleSummarySlugFolder { get; set; }
+    public UpdateNotesEditorContext? UpdateNotes { get; set; }
 
     public void CheckForChangesAndValidationIssues()
     {
@@ -89,6 +73,10 @@ public partial class PointContentEditorContext : ObservableObject, IHasChanges, 
         HasValidationIssues = PropertyScanners.ChildPropertiesHaveValidationIssues(this);
     }
 
+    public bool HasChanges { get; set; }
+    public bool HasValidationIssues { get; set; }
+
+    [BlockingCommand]
     private async Task AddFeatureIntersectTags()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -174,9 +162,19 @@ public partial class PointContentEditorContext : ObservableObject, IHasChanges, 
         return toReturn;
     }
 
+
+    [BlockingCommand]
+    public async Task ExtractNewLinks()
+    {
+        await LinkExtraction.ExtractNewAndShowLinkContentEditors(
+            $"{BodyContent!.BodyContent} {UpdateNotes!.UpdateNotes}",
+            StatusContext.ProgressTracker());
+    }
+
     public Task<IFeature?> FeatureFromPoint()
     {
-        if (LatitudeEntry!.HasValidationIssues || LongitudeEntry!.HasValidationIssues) return Task.FromResult((IFeature?)null);
+        if (LatitudeEntry!.HasValidationIssues || LongitudeEntry!.HasValidationIssues)
+            return Task.FromResult((IFeature?)null);
 
         if (ElevationEntry!.UserValue is null)
             return Task.FromResult((IFeature?)new Feature(
@@ -187,6 +185,7 @@ public partial class PointContentEditorContext : ObservableObject, IHasChanges, 
             new AttributesTable()));
     }
 
+    [BlockingCommand]
     public async Task GetElevation()
     {
         if (LatitudeEntry!.HasValidationIssues || LongitudeEntry!.HasValidationIssues)
@@ -208,6 +207,7 @@ public partial class PointContentEditorContext : ObservableObject, IHasChanges, 
                 new PointLatitudeLongitudeChange(LatitudeEntry.UserValue, LongitudeEntry.UserValue));
     }
 
+    [BlockingCommand]
     private async Task LinkToClipboard()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -326,6 +326,18 @@ public partial class PointContentEditorContext : ObservableObject, IHasChanges, 
 
     public event EventHandler<PointLatitudeLongitudeChange>? RaisePointLatitudeLongitudeChange;
 
+    [BlockingCommand]
+    public async Task Save()
+    {
+        await SaveAndGenerateHtml(false);
+    }
+
+    [BlockingCommand]
+    public async Task SaveAndClose()
+    {
+        await SaveAndGenerateHtml(true);
+    }
+
     public async Task SaveAndGenerateHtml(bool closeAfterSave)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -349,7 +361,7 @@ public partial class PointContentEditorContext : ObservableObject, IHasChanges, 
         }
     }
 
-
+    [BlockingCommand]
     private async Task ViewOnSite()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();

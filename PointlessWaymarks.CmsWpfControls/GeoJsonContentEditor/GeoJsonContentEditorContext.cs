@@ -3,8 +3,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Text;
 using System.Windows;
-using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
 using Ookii.Dialogs.Wpf;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.CommonHtml;
@@ -25,6 +23,7 @@ using PointlessWaymarks.CmsWpfControls.WpfHtml;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.FeatureIntersectionTags;
 using PointlessWaymarks.FeatureIntersectionTags.Models;
+using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon.ChangesAndValidation;
 using PointlessWaymarks.WpfCommon.MarkdownDisplay;
 using PointlessWaymarks.WpfCommon.Status;
@@ -32,59 +31,41 @@ using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 
 namespace PointlessWaymarks.CmsWpfControls.GeoJsonContentEditor;
 
-public partial class GeoJsonContentEditorContext : ObservableObject, IHasChanges, IHasValidationIssues,
+[NotifyPropertyChanged]
+[GenerateStatusCommands]
+public partial class GeoJsonContentEditorContext : IHasChanges, IHasValidationIssues,
     ICheckForChangesAndValidation
 {
-    [ObservableProperty] private RelayCommand _addFeatureIntersectTagsCommand;
-    [ObservableProperty] private BodyContentEditorContext? _bodyContent;
-    [ObservableProperty] private ContentIdViewerControlContext? _contentId;
-    [ObservableProperty] private CreatedAndUpdatedByAndOnDisplayContext? _createdUpdatedDisplay;
-    [ObservableProperty] private GeoJsonContent _dbEntry;
-    [ObservableProperty] private RelayCommand _extractNewLinksCommand;
-    [ObservableProperty] private string _geoJsonText = string.Empty;
-    [ObservableProperty] private bool _hasChanges;
-    [ObservableProperty] private bool _hasValidationIssues;
-    [ObservableProperty] private HelpDisplayContext? _helpContext;
-    [ObservableProperty] private RelayCommand _importGeoJsonFileCommand;
-    [ObservableProperty] private RelayCommand _importGeoJsonFromClipboardCommand;
-    [ObservableProperty] private RelayCommand _linkToClipboardCommand;
-    [ObservableProperty] private ContentSiteFeedAndIsDraftContext? _mainSiteFeed;
-    [ObservableProperty] private string _previewGeoJsonDto = string.Empty;
-    [ObservableProperty] private string _previewHtml;
-    [ObservableProperty] private RelayCommand _refreshMapPreviewCommand;
-    [ObservableProperty] private RelayCommand _saveAndCloseCommand;
-    [ObservableProperty] private RelayCommand _saveCommand;
-    [ObservableProperty] private StatusControlContext _statusContext;
-    [ObservableProperty] private TagsEditorContext? _tagEdit;
-    [ObservableProperty] private TitleSummarySlugEditorContext? _titleSummarySlugFolder;
-    [ObservableProperty] private UpdateNotesEditorContext? _updateNotes;
-    [ObservableProperty] private RelayCommand _viewOnSiteCommand;
-    public EventHandler? RequestContentEditorWindowClose;
-
     private GeoJsonContentEditorContext(StatusControlContext statusContext, GeoJsonContent dbEntry)
     {
-        _statusContext = statusContext;
+        StatusContext = statusContext;
 
-        _saveCommand = StatusContext.RunBlockingTaskCommand(async () => await SaveAndGenerateHtml(false));
-        _saveAndCloseCommand = StatusContext.RunBlockingTaskCommand(async () => await SaveAndGenerateHtml(true));
-        _viewOnSiteCommand = StatusContext.RunBlockingTaskCommand(ViewOnSite);
-        _extractNewLinksCommand = StatusContext.RunBlockingTaskCommand(() =>
-            LinkExtraction.ExtractNewAndShowLinkContentEditors($"{BodyContent!.BodyContent} {UpdateNotes!.UpdateNotes}",
-                StatusContext.ProgressTracker()));
-        _importGeoJsonFileCommand = StatusContext.RunBlockingTaskCommand(ImportGeoJsonFile);
-        _importGeoJsonFromClipboardCommand = StatusContext.RunBlockingTaskCommand(ImportGeoJsonFromClipboard);
-        _refreshMapPreviewCommand = StatusContext.RunBlockingTaskCommand(RefreshMapPreview);
-        _linkToClipboardCommand = StatusContext.RunBlockingTaskCommand(LinkToClipboard);
-        _addFeatureIntersectTagsCommand = StatusContext.RunBlockingTaskCommand(AddFeatureIntersectTags);
+        BuildCommands();
 
-        _previewHtml = WpfHtmlDocument.ToHtmlLeafletGeoJsonDocument("GeoJson",
+        PreviewHtml = WpfHtmlDocument.ToHtmlLeafletGeoJsonDocument("GeoJson",
             UserSettingsSingleton.CurrentSettings().LatitudeDefault,
             UserSettingsSingleton.CurrentSettings().LongitudeDefault, string.Empty);
 
-        _dbEntry = dbEntry;
+        DbEntry = dbEntry;
 
         PropertyChanged += OnPropertyChanged;
     }
+
+    public BodyContentEditorContext? BodyContent { get; set; }
+    public ContentIdViewerControlContext? ContentId { get; set; }
+    public CreatedAndUpdatedByAndOnDisplayContext? CreatedUpdatedDisplay { get; set; }
+    public GeoJsonContent DbEntry { get; set; }
+    public string GeoJsonText { get; set; } = string.Empty;
+    public HelpDisplayContext? HelpContext { get; set; }
+    public ContentSiteFeedAndIsDraftContext? MainSiteFeed { get; set; }
+    public string PreviewGeoJsonDto { get; set; } = string.Empty;
+    public string PreviewHtml { get; set; }
+    public EventHandler? RequestContentEditorWindowClose { get; set; }
+    public StatusControlContext StatusContext { get; set; }
+    public TagsEditorContext? TagEdit { get; set; }
+    public TitleSummarySlugEditorContext? TitleSummarySlugFolder { get; set; }
+    public UpdateNotesEditorContext? UpdateNotes { get; set; }
+
 
     public void CheckForChangesAndValidationIssues()
     {
@@ -92,6 +73,10 @@ public partial class GeoJsonContentEditorContext : ObservableObject, IHasChanges
         HasValidationIssues = PropertyScanners.ChildPropertiesHaveValidationIssues(this);
     }
 
+    public bool HasChanges { get; set; }
+    public bool HasValidationIssues { get; set; }
+
+    [BlockingCommand]
     private async Task AddFeatureIntersectTags()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -174,6 +159,15 @@ public partial class GeoJsonContentEditorContext : ObservableObject, IHasChanges
         return newEntry;
     }
 
+    [BlockingCommand]
+    public async Task ExtractNewLinks()
+    {
+        await LinkExtraction.ExtractNewAndShowLinkContentEditors(
+            $"{BodyContent!.BodyContent} {UpdateNotes!.UpdateNotes}",
+            StatusContext.ProgressTracker());
+    }
+
+    [BlockingCommand]
     public async Task ImportGeoJsonFile()
     {
         await ThreadSwitcher.ResumeForegroundAsync();
@@ -211,6 +205,7 @@ public partial class GeoJsonContentEditorContext : ObservableObject, IHasChanges
         GeoJsonText = geoJson;
     }
 
+    [BlockingCommand]
     public async Task ImportGeoJsonFromClipboard()
     {
         await ThreadSwitcher.ResumeForegroundAsync();
@@ -238,6 +233,7 @@ public partial class GeoJsonContentEditorContext : ObservableObject, IHasChanges
         GeoJsonText = clipboardText;
     }
 
+    [BlockingCommand]
     private async Task LinkToClipboard()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -296,6 +292,7 @@ public partial class GeoJsonContentEditorContext : ObservableObject, IHasChanges
         if (e.PropertyName == nameof(GeoJsonText)) StatusContext.RunNonBlockingTask(RefreshMapPreview);
     }
 
+    [BlockingCommand]
     public async Task RefreshMapPreview()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -308,6 +305,18 @@ public partial class GeoJsonContentEditorContext : ObservableObject, IHasChanges
 
         //Using the new Guid as the page URL forces a changed value into the LineJsonDto
         PreviewGeoJsonDto = await GeoJsonData.GenerateGeoJson(GeoJsonText, Guid.NewGuid().ToString());
+    }
+
+    [BlockingCommand]
+    public async Task Save()
+    {
+        await SaveAndGenerateHtml(false);
+    }
+
+    [BlockingCommand]
+    public async Task SaveAndClose()
+    {
+        await SaveAndGenerateHtml(true);
     }
 
     public async Task SaveAndGenerateHtml(bool closeAfterSave)
@@ -334,6 +343,7 @@ public partial class GeoJsonContentEditorContext : ObservableObject, IHasChanges
     }
 
 
+    [BlockingCommand]
     private async Task ViewOnSite()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();

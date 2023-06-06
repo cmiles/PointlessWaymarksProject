@@ -1,12 +1,9 @@
-﻿#nullable enable
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Data;
 using System.Windows.Threading;
-using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
 using GongSolutions.Wpf.DragDrop;
 using Microsoft.EntityFrameworkCore;
 using NetTopologySuite.Features;
@@ -26,6 +23,7 @@ using PointlessWaymarks.CmsWpfControls.PointContentEditor;
 using PointlessWaymarks.CmsWpfControls.UpdateNotesEditor;
 using PointlessWaymarks.CmsWpfControls.WpfHtml;
 using PointlessWaymarks.CommonTools;
+using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.SpatialTools;
 using PointlessWaymarks.WpfCommon.ChangesAndValidation;
 using PointlessWaymarks.WpfCommon.MarkdownDisplay;
@@ -37,67 +35,54 @@ using Point = NetTopologySuite.Geometries.Point;
 
 namespace PointlessWaymarks.CmsWpfControls.MapComponentEditor;
 
-public partial class MapComponentEditorContext : ObservableObject, IHasChanges, IHasValidationIssues,
+[NotifyPropertyChanged]
+[GenerateStatusCommands]
+public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssues,
     ICheckForChangesAndValidation,
     IDropTarget
 {
-    [ObservableProperty] private ContentIdViewerControlContext? _contentId;
-    [ObservableProperty] private CreatedAndUpdatedByAndOnDisplayContext? _createdUpdatedDisplay;
-    [ObservableProperty] private List<MapElement> _dbElements = new();
-    [ObservableProperty] private MapComponent _dbEntry;
-    [ObservableProperty] private bool _hasChanges;
-    [ObservableProperty] private bool _hasValidationIssues;
-    [ObservableProperty] private HelpDisplayContext _helpContext;
-    [ObservableProperty] private RelayCommand _linkToClipboardCommand;
-    [ObservableProperty] private ColumnSortControlContext _listSort;
-    [ObservableProperty] private ObservableCollection<IMapElementListItem>? _mapElements;
-    [ObservableProperty] private RelayCommand<IMapElementListItem> _openItemEditorCommand;
-    [ObservableProperty] private string _previewHtml;
-    [ObservableProperty] private string? _previewMapJsonDto = string.Empty;
-    [ObservableProperty] private RelayCommand _refreshMapPreviewCommand;
-    [ObservableProperty] private RelayCommand<IMapElementListItem> _removeItemCommand;
-    [ObservableProperty] private RelayCommand _saveAndCloseCommand;
-    [ObservableProperty] private RelayCommand _saveCommand;
-    [ObservableProperty] private StatusControlContext _statusContext;
-    [ObservableProperty] private StringDataEntryContext? _summaryEntry;
-    [ObservableProperty] private StringDataEntryContext? _titleEntry;
-    [ObservableProperty] private UpdateNotesEditorContext? _updateNotes;
-    [ObservableProperty] private string _userFilterText = string.Empty;
-    [ObservableProperty] private RelayCommand _userGeoContentIdInputToMapCommand;
-    [ObservableProperty] private string _userGeoContentInput = string.Empty;
-
     public EventHandler? RequestContentEditorWindowClose;
 
     private MapComponentEditorContext(StatusControlContext statusContext, MapComponent dbEntry)
     {
-        _statusContext = statusContext;
+        StatusContext = statusContext;
 
-        _userGeoContentIdInputToMapCommand = StatusContext.RunBlockingTaskCommand(UserGeoContentIdInputToMap);
-        _saveCommand = StatusContext.RunBlockingTaskCommand(async () => await SaveAndGenerateHtml(false));
-        _saveAndCloseCommand = StatusContext.RunBlockingTaskCommand(async () => await SaveAndGenerateHtml(true));
-        _refreshMapPreviewCommand = StatusContext.RunBlockingTaskCommand(RefreshMapPreview);
-        _removeItemCommand = StatusContext.RunBlockingTaskCommand<IMapElementListItem>(RemoveItem);
-        _linkToClipboardCommand = StatusContext.RunBlockingTaskCommand(LinkToClipboard);
-        _openItemEditorCommand = StatusContext.RunBlockingTaskCommand<IMapElementListItem>(OpenItemEditor);
+        BuildCommands();
 
-        _previewHtml = WpfHtmlDocument.ToHtmlLeafletMapDocument("Map",
+        PreviewHtml = WpfHtmlDocument.ToHtmlLeafletMapDocument("Map",
             UserSettingsSingleton.CurrentSettings().LatitudeDefault,
             UserSettingsSingleton.CurrentSettings().LongitudeDefault, string.Empty);
 
-        _helpContext = new HelpDisplayContext(new List<string>
+        HelpContext = new HelpDisplayContext(new List<string>
         {
             CommonFields.TitleSlugFolderSummary, BracketCodeHelpMarkdown.HelpBlock
         });
 
-        _listSort = SortContextMapElementsDefault();
+        ListSort = SortContextMapElementsDefault();
 
-        _listSort.SortUpdated += (_, list) =>
+        ListSort.SortUpdated += (_, list) =>
             Dispatcher.CurrentDispatcher.Invoke(() => { ListContextSortHelpers.SortList(list, MapElements); });
 
-        _dbEntry = dbEntry;
+        DbEntry = dbEntry;
 
         PropertyChanged += OnPropertyChanged;
     }
+
+    public ContentIdViewerControlContext? ContentId { get; set; }
+    public CreatedAndUpdatedByAndOnDisplayContext? CreatedUpdatedDisplay { get; set; }
+    public List<MapElement> DbElements { get; set; } = new();
+    public MapComponent DbEntry { get; set; }
+    public HelpDisplayContext HelpContext { get; set; }
+    public ColumnSortControlContext ListSort { get; set; }
+    public ObservableCollection<IMapElementListItem>? MapElements { get; set; }
+    public string PreviewHtml { get; set; }
+    public string? PreviewMapJsonDto { get; set; } = string.Empty;
+    public StatusControlContext StatusContext { get; set; }
+    public StringDataEntryContext? SummaryEntry { get; set; }
+    public StringDataEntryContext? TitleEntry { get; set; }
+    public UpdateNotesEditorContext? UpdateNotes { get; set; }
+    public string UserFilterText { get; set; } = string.Empty;
+    public string UserGeoContentInput { get; set; } = string.Empty;
 
     public void CheckForChangesAndValidationIssues()
     {
@@ -130,6 +115,9 @@ public partial class MapComponentEditorContext : ObservableObject, IHasChanges, 
 
         await RefreshMapPreview();
     }
+
+    public bool HasChanges { get; set; }
+    public bool HasValidationIssues { get; set; }
 
     private async Task AddGeoJson(GeoJsonContent possibleGeoJson, MapElement? loopContent = null,
         bool guiNotificationAndMapRefreshWhenAdded = false)
@@ -338,6 +326,7 @@ public partial class MapComponentEditorContext : ObservableObject, IHasChanges, 
             element.Title.Contains(UserFilterText, StringComparison.CurrentCultureIgnoreCase);
     }
 
+    [BlockingCommand]
     private async Task LinkToClipboard()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -439,6 +428,7 @@ public partial class MapComponentEditorContext : ObservableObject, IHasChanges, 
             StatusContext.RunFireAndForgetNonBlockingTask(FilterList);
     }
 
+    [BlockingCommand]
     private async Task OpenItemEditor(IMapElementListItem? toEdit)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -463,6 +453,7 @@ public partial class MapComponentEditorContext : ObservableObject, IHasChanges, 
         }
     }
 
+    [BlockingCommand]
     public async Task RefreshMapPreview()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -527,6 +518,7 @@ public partial class MapComponentEditorContext : ObservableObject, IHasChanges, 
         PreviewMapJsonDto = await GeoJsonTools.SerializeWithGeoJsonSerializer(dto);
     }
 
+    [BlockingCommand]
     private async Task RemoveItem(IMapElementListItem? toRemove)
     {
         await ThreadSwitcher.ResumeForegroundAsync();
@@ -549,6 +541,18 @@ public partial class MapComponentEditorContext : ObservableObject, IHasChanges, 
         await ThreadSwitcher.ResumeBackgroundAsync();
 
         await RefreshMapPreview();
+    }
+
+    [BlockingCommand]
+    public async Task Save()
+    {
+        await SaveAndGenerateHtml(false);
+    }
+
+    [BlockingCommand]
+    public async Task SaveAndClose()
+    {
+        await SaveAndGenerateHtml(true);
     }
 
     public async Task SaveAndGenerateHtml(bool closeAfterSave)
@@ -631,6 +635,7 @@ public partial class MapComponentEditorContext : ObservableObject, IHasChanges, 
         StatusContext.ToastError("Item isn't a spatial type or isn't in the db?");
     }
 
+    [BlockingCommand]
     public async Task UserGeoContentIdInputToMap()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();

@@ -1,8 +1,6 @@
 ﻿using System.ComponentModel;
 using System.Diagnostics;
 using System.Windows;
-using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.Content;
@@ -18,6 +16,7 @@ using PointlessWaymarks.CmsWpfControls.HelpDisplay;
 using PointlessWaymarks.CmsWpfControls.TagsEditor;
 using PointlessWaymarks.CmsWpfControls.Utility;
 using PointlessWaymarks.CommonTools;
+using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon.ChangesAndValidation;
 using PointlessWaymarks.WpfCommon.MarkdownDisplay;
 using PointlessWaymarks.WpfCommon.Status;
@@ -26,45 +25,29 @@ using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 
 namespace PointlessWaymarks.CmsWpfControls.NoteContentEditor;
 
-public partial class NoteContentEditorContext : ObservableObject, IHasChanges, IHasValidationIssues,
+[NotifyPropertyChanged]
+[GenerateStatusCommands]
+public partial class NoteContentEditorContext : IHasChanges, IHasValidationIssues,
     ICheckForChangesAndValidation
 {
-    [ObservableProperty] private BodyContentEditorContext? _bodyContent;
-    [ObservableProperty] private ContentIdViewerControlContext? _contentId;
-    [ObservableProperty] private CreatedAndUpdatedByAndOnDisplayContext? _createdUpdatedDisplay;
-    [ObservableProperty] private NoteContent _dbEntry;
-    [ObservableProperty] private RelayCommand _extractNewLinksCommand;
-    [ObservableProperty] private ContentFolderContext? _folderEntry;
-    [ObservableProperty] private bool _hasChanges;
-    [ObservableProperty] private bool _hasValidationIssues;
-    [ObservableProperty] private HelpDisplayContext? _helpContext;
-    [ObservableProperty] private RelayCommand _linkToClipboardCommand;
-    [ObservableProperty] private ContentSiteFeedAndIsDraftContext? _mainSiteFeed;
-    [ObservableProperty] private RelayCommand _saveAndCloseCommand;
-    [ObservableProperty] private RelayCommand _saveCommand;
-    [ObservableProperty] private StatusControlContext _statusContext;
-    [ObservableProperty] private StringDataEntryContext? _summary;
-    [ObservableProperty] private TagsEditorContext? _tagEdit;
-    [ObservableProperty] private RelayCommand _viewOnSiteCommand;
-
     public EventHandler? RequestContentEditorWindowClose;
 
     private NoteContentEditorContext(StatusControlContext statusContext, NoteContent dbEntry)
     {
-        _statusContext = statusContext;
+        StatusContext = statusContext;
 
-        _saveCommand = StatusContext.RunBlockingTaskCommand(async () => await SaveAndGenerateHtml(false));
-        _saveAndCloseCommand = StatusContext.RunBlockingTaskCommand(async () => await SaveAndGenerateHtml(true));
-        _viewOnSiteCommand = StatusContext.RunBlockingTaskCommand(ViewOnSite);
-        _extractNewLinksCommand = StatusContext.RunBlockingTaskCommand(() =>
-            LinkExtraction.ExtractNewAndShowLinkContentEditors(BodyContent!.BodyContent,
-                StatusContext.ProgressTracker()));
-        _linkToClipboardCommand = StatusContext.RunBlockingTaskCommand(LinkToClipboard);
+        BuildCommands();
 
-        _dbEntry = dbEntry;
-
-        PropertyChanged += OnPropertyChanged;
+        DbEntry = dbEntry;
     }
+
+    public BodyContentEditorContext? BodyContent { get; set; }
+    public ContentIdViewerControlContext? ContentId { get; set; }
+    public CreatedAndUpdatedByAndOnDisplayContext? CreatedUpdatedDisplay { get; set; }
+    public NoteContent DbEntry { get; set; }
+    public ContentFolderContext? FolderEntry { get; set; }
+    public HelpDisplayContext? HelpContext { get; set; }
+    public ContentSiteFeedAndIsDraftContext? MainSiteFeed { get; set; }
 
     public string NoteEditorHelpText =>
         @"
@@ -73,11 +56,18 @@ public partial class NoteContentEditorContext : ObservableObject, IHasChanges, I
 Note Content is like a simplified Post - no title and slug to edit or maintain and no Updates data to maintain. You can always use a Post instead of a note - but you might find it convenient if trying to quickly post a news item or a couple of links to do it as a Note rather than a Post.
 ";
 
+    public StatusControlContext StatusContext { get; set; }
+    public StringDataEntryContext? Summary { get; set; }
+    public TagsEditorContext? TagEdit { get; set; }
+
     public void CheckForChangesAndValidationIssues()
     {
         HasChanges = PropertyScanners.ChildPropertiesHaveChanges(this);
         HasValidationIssues = PropertyScanners.ChildPropertiesHaveValidationIssues(this);
     }
+
+    public bool HasChanges { get; set; }
+    public bool HasValidationIssues { get; set; }
 
     public static async Task<NoteContentEditorContext> CreateInstance(StatusControlContext? statusContext,
         NoteContent? noteContent)
@@ -113,6 +103,14 @@ Note Content is like a simplified Post - no title and slug to edit or maintain a
         return newEntry;
     }
 
+    [BlockingCommand]
+    public async Task ExtractNewLinks()
+    {
+        await LinkExtraction.ExtractNewAndShowLinkContentEditors(BodyContent!.BodyContent,
+            StatusContext.ProgressTracker());
+    }
+
+    [BlockingCommand]
     private async Task LinkToClipboard()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -165,6 +163,18 @@ Note Content is like a simplified Post - no title and slug to edit or maintain a
             CheckForChangesAndValidationIssues();
     }
 
+    [BlockingCommand]
+    public async Task Save()
+    {
+        await SaveAndGenerateHtml(false);
+    }
+
+    [BlockingCommand]
+    public async Task SaveAndClose()
+    {
+        await SaveAndGenerateHtml(true);
+    }
+
     public async Task SaveAndGenerateHtml(bool closeAfterSave)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -188,6 +198,7 @@ Note Content is like a simplified Post - no title and slug to edit or maintain a
         }
     }
 
+    [BlockingCommand]
     private async Task ViewOnSite()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();

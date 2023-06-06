@@ -3,8 +3,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Windows;
 using System.Windows.Media.Imaging;
-using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
 using NetTopologySuite.Features;
 using Ookii.Dialogs.Wpf;
 using PhotoSauce.MagicScaler;
@@ -27,6 +25,7 @@ using PointlessWaymarks.CmsWpfControls.UpdateNotesEditor;
 using PointlessWaymarks.CmsWpfControls.Utility;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.FeatureIntersectionTags;
+using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon.BoolDataEntry;
 using PointlessWaymarks.WpfCommon.ChangesAndValidation;
 using PointlessWaymarks.WpfCommon.ConversionDataEntry;
@@ -39,112 +38,47 @@ using Point = NetTopologySuite.Geometries.Point;
 
 namespace PointlessWaymarks.CmsWpfControls.PhotoContentEditor;
 
-public partial class PhotoContentEditorContext : ObservableObject, IHasChanges, IHasValidationIssues,
+[NotifyPropertyChanged]
+[GenerateStatusCommands]
+public partial class PhotoContentEditorContext : IHasChanges, IHasValidationIssues,
     ICheckForChangesAndValidation
 {
-    [ObservableProperty] private RelayCommand _addFeatureIntersectTagsCommand;
-    [ObservableProperty] private StringDataEntryContext? _altTextEntry;
-    [ObservableProperty] private StringDataEntryContext? _apertureEntry;
-    [ObservableProperty] private RelayCommand _autoCleanRenameSelectedFileCommand;
-    [ObservableProperty] private RelayCommand _autoRenameSelectedFileBasedOnTitleCommand;
-    [ObservableProperty] private BodyContentEditorContext? _bodyContent;
-    [ObservableProperty] private StringDataEntryContext? _cameraMakeEntry;
-    [ObservableProperty] private StringDataEntryContext? _cameraModelEntry;
-    [ObservableProperty] private RelayCommand _chooseFileAndFillMetadataCommand;
-    [ObservableProperty] private RelayCommand _chooseFileCommand;
-    [ObservableProperty] private ContentIdViewerControlContext? _contentId;
-    [ObservableProperty] private CreatedAndUpdatedByAndOnDisplayContext? _createdUpdatedDisplay;
-    [ObservableProperty] private PhotoContent _dbEntry;
-    [ObservableProperty] private ConversionDataEntryContext<double?>? _elevationEntry;
-    [ObservableProperty] private RelayCommand _extractNewLinksCommand;
-    [ObservableProperty] private StringDataEntryContext? _focalLengthEntry;
-    [ObservableProperty] private RelayCommand _getElevationCommand;
-    [ObservableProperty] private bool _hasChanges;
-    [ObservableProperty] private bool _hasValidationIssues;
-    [ObservableProperty] private HelpDisplayContext? _helpContext;
-    [ObservableProperty] private FileInfo? _initialPhoto;
-    [ObservableProperty] private ConversionDataEntryContext<int?>? _isoEntry;
-    [ObservableProperty] private ConversionDataEntryContext<double?>? _latitudeEntry;
-    [ObservableProperty] private StringDataEntryContext? _lensEntry;
-    [ObservableProperty] private StringDataEntryContext? _licenseEntry;
-    [ObservableProperty] private RelayCommand _linkToClipboardCommand;
-    [ObservableProperty] private FileInfo? _loadedFile;
-    [ObservableProperty] private ConversionDataEntryContext<double?>? _longitudeEntry;
-    [ObservableProperty] private ContentSiteFeedAndIsDraftContext? _mainSiteFeed;
-    [ObservableProperty] private StringDataEntryContext? _photoCreatedByEntry;
-    [ObservableProperty] private ConversionDataEntryContext<DateTime>? _photoCreatedOnEntry;
-    [ObservableProperty] private ConversionDataEntryContext<DateTime?>? _photoCreatedOnUtcEntry;
-    [ObservableProperty] private RelayCommand _pointFromPhotoLocationCommand;
-    [ObservableProperty] private RelayCommand _renameSelectedFileCommand;
-    [ObservableProperty] private bool _resizeSelectedFile;
-    [ObservableProperty] private RelayCommand _rotatePhotoLeftCommand;
-    [ObservableProperty] private RelayCommand _rotatePhotoRightCommand;
-    [ObservableProperty] private RelayCommand _saveAndCloseCommand;
-    [ObservableProperty] private RelayCommand _saveAndReprocessPhotoCommand;
-    [ObservableProperty] private RelayCommand _saveCommand;
-    [ObservableProperty] private FileInfo? _selectedFile;
-    [ObservableProperty] private BitmapSource? _selectedFileBitmapSource;
-    [ObservableProperty] private bool _selectedFileHasPathOrNameChanges;
-    [ObservableProperty] private bool _selectedFileHasValidationIssues;
-    [ObservableProperty] private bool _selectedFileNameHasInvalidCharacters;
-    [ObservableProperty] private string _selectedFileValidationMessage = string.Empty;
-    [ObservableProperty] private BoolDataEntryContext? _showPosition;
-    [ObservableProperty] private BoolDataEntryContext? _showSizes;
-    [ObservableProperty] private StringDataEntryContext? _shutterSpeedEntry;
-    [ObservableProperty] private StatusControlContext _statusContext;
-    [ObservableProperty] private TagsEditorContext? _tagEdit;
-    [ObservableProperty] private TitleSummarySlugEditorContext? _titleSummarySlugFolder;
-    [ObservableProperty] private UpdateNotesEditorContext? _updateNotes;
-    [ObservableProperty] private RelayCommand _viewOnSiteCommand;
-    [ObservableProperty] private RelayCommand _viewPhotoMetadataCommand;
-    [ObservableProperty] private RelayCommand _viewSelectedFileCommand;
-
     public EventHandler? RequestContentEditorWindowClose;
 
     private PhotoContentEditorContext(StatusControlContext statusContext, PhotoContent dbEntry)
     {
-        _statusContext = statusContext;
+        StatusContext = statusContext;
 
-        _chooseFileAndFillMetadataCommand = StatusContext.RunBlockingTaskCommand(async () => await ChooseFile(true));
-        _chooseFileCommand = StatusContext.RunBlockingTaskCommand(async () => await ChooseFile(false));
-        _saveCommand = StatusContext.RunBlockingTaskCommand(async () =>
-            await SaveAndGenerateHtml(ResizeSelectedFile || SelectedFileHasPathOrNameChanges));
-        _saveAndReprocessPhotoCommand =
-            StatusContext.RunBlockingTaskCommand(async () => await SaveAndGenerateHtml(true));
-        _saveAndCloseCommand = StatusContext.RunBlockingTaskCommand(async () =>
-            await SaveAndGenerateHtml(ResizeSelectedFile || SelectedFileHasPathOrNameChanges, true));
-        _viewPhotoMetadataCommand = StatusContext.RunBlockingTaskCommand(async () =>
-            await PhotoMetadataReport.AllPhotoMetadataToHtml(SelectedFile, StatusContext));
-        _viewSelectedFileCommand = StatusContext.RunNonBlockingTaskCommand(ViewSelectedFile);
-        _viewOnSiteCommand = StatusContext.RunBlockingTaskCommand(ViewOnSite);
-        _renameSelectedFileCommand = StatusContext.RunBlockingTaskCommand(async () =>
-            await FileHelpers.RenameSelectedFile(SelectedFile, StatusContext, x => SelectedFile = x));
-        _autoCleanRenameSelectedFileCommand = StatusContext.RunBlockingTaskCommand(async () =>
-            await FileHelpers.TryAutoCleanRenameSelectedFile(SelectedFile, StatusContext, x => SelectedFile = x));
-        _autoRenameSelectedFileBasedOnTitleCommand = StatusContext.RunBlockingTaskCommand(async () =>
-        {
-            await FileHelpers.TryAutoRenameSelectedFile(SelectedFile, TitleSummarySlugFolder!.TitleEntry.UserValue,
-                StatusContext, x => SelectedFile = x);
-        });
-        _extractNewLinksCommand = StatusContext.RunBlockingTaskCommand(() =>
-            LinkExtraction.ExtractNewAndShowLinkContentEditors(BodyContent!.BodyContent,
-                StatusContext.ProgressTracker()));
-        _rotatePhotoRightCommand =
-            StatusContext.RunBlockingTaskCommand(async () => await RotateImage(Orientation.Rotate90));
-        _rotatePhotoLeftCommand =
-            StatusContext.RunBlockingTaskCommand(async () => await RotateImage(Orientation.Rotate270));
+        BuildCommands();
 
-        _pointFromPhotoLocationCommand = StatusContext.RunBlockingTaskCommand(PointFromPhotoLocation);
-        _addFeatureIntersectTagsCommand = StatusContext.RunBlockingTaskCommand(AddFeatureIntersectTags);
-
-        _getElevationCommand = StatusContext.RunBlockingTaskCommand(GetElevation);
-
-        _linkToClipboardCommand = StatusContext.RunNonBlockingTaskCommand(LinkToClipboard);
-
-        _dbEntry = dbEntry;
+        DbEntry = dbEntry;
 
         PropertyChanged += OnPropertyChanged;
     }
+
+    public StringDataEntryContext? AltTextEntry { get; set; }
+    public StringDataEntryContext? ApertureEntry { get; set; }
+    public BodyContentEditorContext? BodyContent { get; set; }
+    public StringDataEntryContext? CameraMakeEntry { get; set; }
+    public StringDataEntryContext? CameraModelEntry { get; set; }
+    public ContentIdViewerControlContext? ContentId { get; set; }
+    public CreatedAndUpdatedByAndOnDisplayContext? CreatedUpdatedDisplay { get; set; }
+    public PhotoContent DbEntry { get; set; }
+    public ConversionDataEntryContext<double?>? ElevationEntry { get; set; }
+    public StringDataEntryContext? FocalLengthEntry { get; set; }
+    public HelpDisplayContext? HelpContext { get; set; }
+    public FileInfo? InitialPhoto { get; set; }
+    public ConversionDataEntryContext<int?>? IsoEntry { get; set; }
+    public ConversionDataEntryContext<double?>? LatitudeEntry { get; set; }
+    public StringDataEntryContext? LensEntry { get; set; }
+    public StringDataEntryContext? LicenseEntry { get; set; }
+    public FileInfo? LoadedFile { get; set; }
+    public ConversionDataEntryContext<double?>? LongitudeEntry { get; set; }
+    public ContentSiteFeedAndIsDraftContext? MainSiteFeed { get; set; }
+    public StringDataEntryContext? PhotoCreatedByEntry { get; set; }
+    public ConversionDataEntryContext<DateTime>? PhotoCreatedOnEntry { get; set; }
+    public ConversionDataEntryContext<DateTime?>? PhotoCreatedOnUtcEntry { get; set; }
+
 
     public string PhotoEditorHelpText =>
         @"
@@ -157,6 +91,21 @@ Photo Content Notes:
  - Photo and Image Content both work with jpg files - main differences include the photo specific data that is stored (aperture, shutter speed, ISO, etc.), Photos are organized into generated Daily Photos pages and Photos
 ";
 
+    public bool ResizeSelectedFile { get; set; }
+    public FileInfo? SelectedFile { get; set; }
+    public BitmapSource? SelectedFileBitmapSource { get; set; }
+    public bool SelectedFileHasPathOrNameChanges { get; set; }
+    public bool SelectedFileHasValidationIssues { get; set; }
+    public bool SelectedFileNameHasInvalidCharacters { get; set; }
+    public string SelectedFileValidationMessage { get; set; } = string.Empty;
+    public BoolDataEntryContext? ShowPosition { get; set; }
+    public BoolDataEntryContext? ShowSizes { get; set; }
+    public StringDataEntryContext? ShutterSpeedEntry { get; set; }
+    public StatusControlContext StatusContext { get; set; }
+    public TagsEditorContext? TagEdit { get; set; }
+    public TitleSummarySlugEditorContext? TitleSummarySlugFolder { get; set; }
+    public UpdateNotesEditorContext? UpdateNotes { get; set; }
+
     public void CheckForChangesAndValidationIssues()
     {
         HasChanges = PropertyScanners.ChildPropertiesHaveChanges(this) || SelectedFileHasPathOrNameChanges;
@@ -164,6 +113,10 @@ Photo Content Notes:
                               SelectedFileHasValidationIssues;
     }
 
+    public bool HasChanges { get; set; }
+    public bool HasValidationIssues { get; set; }
+
+    [BlockingCommand]
     private async Task AddFeatureIntersectTags()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -194,6 +147,19 @@ Photo Content Notes:
 
         TagEdit!.Tags =
             $"{TagEdit.Tags}{(string.IsNullOrWhiteSpace(TagEdit.Tags) ? "" : ",")}{string.Join(",", possibleTags)}";
+    }
+
+    [BlockingCommand]
+    public async Task AutoCleanRenameSelectedFile()
+    {
+        await FileHelpers.TryAutoCleanRenameSelectedFile(SelectedFile, StatusContext, x => SelectedFile = x);
+    }
+
+    [BlockingCommand]
+    public async Task AutoRenameSelectedFileBasedOnTitle()
+    {
+        await FileHelpers.TryAutoRenameSelectedFile(SelectedFile, TitleSummarySlugFolder!.TitleEntry.UserValue,
+            StatusContext, x => SelectedFile = x);
     }
 
     public async Task ChooseFile(bool loadMetadata)
@@ -241,11 +207,24 @@ Photo Content Notes:
         PhotoMetadataToCurrentContent(metadata);
     }
 
+    [BlockingCommand]
+    public async Task ChooseFileAndFillMetadata()
+    {
+        await ChooseFile(true);
+    }
+
+    [BlockingCommand]
+    public async Task ChooseFileWithoutMetadataLoad()
+    {
+        await ChooseFile(false);
+    }
+
     public static async Task<PhotoContentEditorContext> CreateInstance(StatusControlContext? statusContext)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        var newContext = new PhotoContentEditorContext(statusContext ?? new StatusControlContext(), PhotoContent.CreateInstance());
+        var newContext =
+            new PhotoContentEditorContext(statusContext ?? new StatusControlContext(), PhotoContent.CreateInstance());
         await newContext.LoadData(null);
         return newContext;
     }
@@ -255,8 +234,9 @@ Photo Content Notes:
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        var newContext = new PhotoContentEditorContext(statusContext ?? new StatusControlContext(), PhotoContent.CreateInstance())
-            { StatusContext = { BlockUi = true } };
+        var newContext =
+            new PhotoContentEditorContext(statusContext ?? new StatusControlContext(), PhotoContent.CreateInstance())
+                { StatusContext = { BlockUi = true } };
 
         if (initialPhoto is { Exists: true }) newContext.InitialPhoto = initialPhoto;
         await newContext.LoadData(null);
@@ -271,7 +251,8 @@ Photo Content Notes:
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        var newContext = new PhotoContentEditorContext(statusContext ?? new StatusControlContext(), PhotoContent.CreateInstance());
+        var newContext =
+            new PhotoContentEditorContext(statusContext ?? new StatusControlContext(), PhotoContent.CreateInstance());
         await newContext.LoadData(toLoad);
         return newContext;
     }
@@ -323,6 +304,13 @@ Photo Content Notes:
         return newEntry;
     }
 
+    [BlockingCommand]
+    public async Task ExtractNewLinks()
+    {
+        await LinkExtraction.ExtractNewAndShowLinkContentEditors(BodyContent!.BodyContent,
+            StatusContext.ProgressTracker());
+    }
+
     /// <summary>
     ///     Returns a NTS Feature based on the current Lat/Long - if values are null or invalid
     ///     null is returned.
@@ -346,6 +334,7 @@ Photo Content Notes:
             new AttributesTable());
     }
 
+    [BlockingCommand]
     public async Task GetElevation()
     {
         if (LatitudeEntry!.HasValidationIssues || LongitudeEntry!.HasValidationIssues)
@@ -366,6 +355,7 @@ Photo Content Notes:
         if (possibleElevation != null) ElevationEntry!.UserText = possibleElevation.Value.ToString("F2");
     }
 
+    [BlockingCommand]
     private async Task LinkToClipboard()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -620,6 +610,7 @@ Photo Content Notes:
         TitleSummarySlugFolder.FolderEntry.UserValue = metadata.PhotoCreatedOn.Year.ToString("F0");
     }
 
+    [BlockingCommand]
     private async Task PointFromPhotoLocation()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -664,6 +655,12 @@ Photo Content Notes:
         await pointWindow.PositionWindowAndShowOnUiThread();
     }
 
+    [BlockingCommand]
+    public async Task RenameSelectedFile()
+    {
+        await FileHelpers.RenameSelectedFile(SelectedFile, StatusContext, x => SelectedFile = x);
+    }
+
     private async Task RotateImage(Orientation rotationType)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -686,6 +683,30 @@ Photo Content Notes:
         ResizeSelectedFile = true;
 
         StatusContext.RunFireAndForgetNonBlockingTask(SelectedFileChanged);
+    }
+
+    [BlockingCommand]
+    public async Task RotatePhotoLeft()
+    {
+        await RotateImage(Orientation.Rotate270);
+    }
+
+    [BlockingCommand]
+    public async Task RotatePhotoRight()
+    {
+        await RotateImage(Orientation.Rotate90);
+    }
+
+    [BlockingCommand]
+    public async Task Save()
+    {
+        await SaveAndGenerateHtml(ResizeSelectedFile || SelectedFileHasPathOrNameChanges);
+    }
+
+    [BlockingCommand]
+    public async Task SaveAndClose()
+    {
+        await SaveAndGenerateHtml(ResizeSelectedFile || SelectedFileHasPathOrNameChanges, true);
     }
 
     public async Task SaveAndGenerateHtml(bool overwriteExistingFiles, bool closeAfterSave = false)
@@ -715,6 +736,12 @@ Photo Content Notes:
             await ThreadSwitcher.ResumeForegroundAsync();
             RequestContentEditorWindowClose?.Invoke(this, EventArgs.Empty);
         }
+    }
+
+    [BlockingCommand]
+    public async Task SaveAndReprocessPhoto()
+    {
+        await SaveAndGenerateHtml(true);
     }
 
     private async Task SelectedFileChanged()
@@ -753,6 +780,7 @@ Photo Content Notes:
         SelectedFileBitmapSource = await ImageHelpers.InMemoryThumbnailFromFile(SelectedFile, 450, 72);
     }
 
+    [BlockingCommand]
     private async Task ViewOnSite()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -771,6 +799,13 @@ Photo Content Notes:
         Process.Start(ps);
     }
 
+    [BlockingCommand]
+    public async Task ViewPhotoMetadata()
+    {
+        await PhotoMetadataReport.AllPhotoMetadataToHtml(SelectedFile, StatusContext);
+    }
+
+    [BlockingCommand]
     private async Task ViewSelectedFile()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();

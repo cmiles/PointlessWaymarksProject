@@ -39,7 +39,7 @@
                                 <ColumnDefinition />
                                 <ColumnDefinition />
                             </Grid.ColumnDefinitions>
-                            <Button Command="{Binding ExtractDataCommand}" Content="Try to Extract _Data" />
+                            <Button Command="{Binding ExtractDataFromLinkCommand}" Content="Try to Extract _Data" />
                             <Button
                                 Grid.Column="1"
                                 Command="{Binding OpenUrlInBrowserCommand}"

@@ -1,12 +1,12 @@
 ﻿using System.ComponentModel;
 using System.Text.Json;
-using CommunityToolkit.Mvvm.ComponentModel;
 using PointlessWaymarks.CmsData.Content;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsData.Database.PointDetailDataModels;
 using PointlessWaymarks.CmsWpfControls.ContentFormat;
 using PointlessWaymarks.CommonTools;
+using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon.ChangesAndValidation;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.StringDataEntry;
@@ -14,34 +14,38 @@ using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 
 namespace PointlessWaymarks.CmsWpfControls.PointDetailEditor;
 
-internal partial class FeaturePointDetailContext : ObservableObject, IHasChanges, IHasValidationIssues,
+[NotifyPropertyChanged]
+public partial class FeaturePointDetailContext : IHasChanges, IHasValidationIssues,
     IPointDetailEditor,
     ICheckForChangesAndValidation
 {
-    [ObservableProperty] private PointDetail _dbEntry;
-    [ObservableProperty] private Feature _detailData;
-    [ObservableProperty] private bool _hasChanges;
-    [ObservableProperty] private bool _hasValidationIssues;
-    [ObservableProperty] private StringDataEntryContext? _noteEditor;
-    [ObservableProperty] private ContentFormatChooserContext? _noteFormatEditor;
-    [ObservableProperty] private StatusControlContext _statusContext;
-    [ObservableProperty] private StringDataEntryContext? _typeEditor;
-
     private FeaturePointDetailContext(StatusControlContext? statusContext)
     {
-        _statusContext = statusContext ?? new StatusControlContext();
+        StatusContext = statusContext ?? new StatusControlContext();
 
-        _dbEntry = PointDetail.CreateInstance();
-        _detailData = new Feature();
+        DbEntry = PointDetail.CreateInstance();
+        DetailData = new Feature();
 
         PropertyChanged += OnPropertyChanged;
     }
+
+    public Feature DetailData { get; set; }
+    public StringDataEntryContext? NoteEditor { get; set; }
+    public ContentFormatChooserContext? NoteFormatEditor { get; set; }
+    public StatusControlContext StatusContext { get; set; }
+    public StringDataEntryContext? TypeEditor { get; set; }
 
     public void CheckForChangesAndValidationIssues()
     {
         HasChanges = PropertyScanners.ChildPropertiesHaveChanges(this);
         HasValidationIssues = PropertyScanners.ChildPropertiesHaveValidationIssues(this);
     }
+
+    public bool HasChanges { get; set; }
+    public bool HasValidationIssues { get; set; }
+
+    //TODO: Eliminate this with Metalama
+    public event PropertyChangedEventHandler? PropertyChanged;
 
     public PointDetail CurrentPointDetail()
     {
@@ -69,6 +73,8 @@ internal partial class FeaturePointDetailContext : ObservableObject, IHasChanges
 
         return newEntry;
     }
+
+    public PointDetail DbEntry { get; set; }
 
     public static async Task<FeaturePointDetailContext> CreateInstance(PointDetail? detail,
         StatusControlContext statusContext)

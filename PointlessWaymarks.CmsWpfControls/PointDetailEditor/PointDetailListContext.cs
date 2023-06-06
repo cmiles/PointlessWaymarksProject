@@ -1,52 +1,46 @@
 ﻿using System.Collections.ObjectModel;
 using System.ComponentModel;
-using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
 using KellermanSoftware.CompareNetObjects;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsData.Database.PointDetailDataModels;
+using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon.ChangesAndValidation;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 
 namespace PointlessWaymarks.CmsWpfControls.PointDetailEditor;
 
-public partial class PointDetailListContext : ObservableObject, IHasChanges, IHasValidationIssues,
+[NotifyPropertyChanged]
+[GenerateStatusCommands]
+public partial class PointDetailListContext : IHasChanges, IHasValidationIssues,
     ICheckForChangesAndValidation
 {
-    [ObservableProperty] private ObservableCollection<string> _additionalPointDetailTypes;
-    [ObservableProperty] private List<PointDetail> _dbEntries;
-    [ObservableProperty] private RelayCommand<IPointDetailEditor> _deleteDetailCommand;
-    [ObservableProperty] private List<IPointDetailEditor> _deletedPointDetails;
-    [ObservableProperty] private bool _hasChanges;
-    [ObservableProperty] private bool _hasValidationIssues;
-    [ObservableProperty] private ObservableCollection<IPointDetailEditor> _items;
-    [ObservableProperty] private RelayCommand<string> _loadNewDetailCommand;
-    [ObservableProperty] private List<(string typeIdentifierAttribute, Type reflectedType)> _pointDetailTypeList;
-    [ObservableProperty] private StatusControlContext _statusContext;
-
     private PointDetailListContext(StatusControlContext statusContext, ObservableCollection<IPointDetailEditor> items,
         ObservableCollection<string> additionalPointDetailTypes)
     {
-        _statusContext = statusContext;
+        StatusContext = statusContext;
 
+        BuildCommands();
 
-        _deletedPointDetails = new List<IPointDetailEditor>();
+        DeletedPointDetails = new List<IPointDetailEditor>();
 
-        _loadNewDetailCommand = StatusContext.RunNonBlockingTaskCommand<string>(async x => await LoadNewDetail(x));
-        _deleteDetailCommand =
-            StatusContext.RunNonBlockingTaskCommand<IPointDetailEditor>(async x => await DeleteDetail(x));
-
-        _dbEntries = new List<PointDetail>();
-        _deletedPointDetails = new List<IPointDetailEditor>();
-        _pointDetailTypeList = new List<(string typeIdentifierAttribute, Type reflectedType)>();
-        _additionalPointDetailTypes = additionalPointDetailTypes;
-        _items = items;
+        DbEntries = new List<PointDetail>();
+        DeletedPointDetails = new List<IPointDetailEditor>();
+        PointDetailTypeList = new List<(string typeIdentifierAttribute, Type reflectedType)>();
+        AdditionalPointDetailTypes = additionalPointDetailTypes;
+        Items = items;
 
         PropertyChanged += OnPropertyChanged;
     }
+
+    public ObservableCollection<string> AdditionalPointDetailTypes { get; set; }
+    public List<PointDetail> DbEntries { get; set; }
+    public List<IPointDetailEditor> DeletedPointDetails { get; set; }
+    public ObservableCollection<IPointDetailEditor> Items { get; set; }
+    public List<(string typeIdentifierAttribute, Type reflectedType)> PointDetailTypeList { get; set; }
+    public StatusControlContext StatusContext { get; set; }
 
     public void CheckForChangesAndValidationIssues()
     {
@@ -64,8 +58,11 @@ public partial class PointDetailListContext : ObservableObject, IHasChanges, IHa
         HasChanges = hasChanges;
 
         HasValidationIssues = PropertyScanners.ChildPropertiesHaveValidationIssues(this)
-                                || Items.Any(x => x.HasValidationIssues);
+                              || Items.Any(x => x.HasValidationIssues);
     }
+
+    public bool HasChanges { get; set; }
+    public bool HasValidationIssues { get; set; }
 
     public static async Task<PointDetailListContext> CreateInstance(StatusControlContext? statusContext,
         PointContent dbEntry)
@@ -87,6 +84,7 @@ public partial class PointDetailListContext : ObservableObject, IHasChanges, IHa
         return !Items.Any() ? returnList : Items.Select(x => x.CurrentPointDetail()).ToList();
     }
 
+    [NonBlockingCommand]
     private async Task DeleteDetail(IPointDetailEditor? pointDetail)
     {
         await ThreadSwitcher.ResumeForegroundAsync();
@@ -175,6 +173,7 @@ public partial class PointDetailListContext : ObservableObject, IHasChanges, IHa
                 StatusContext.ToastError("Unable to load Point Detail Type: " + loopLoad.DataType);
                 continue;
             }
+
             toAdd.PropertyChanged += MonitorChildChangesAndValidations;
             Items.Add(toAdd);
 
@@ -189,6 +188,7 @@ public partial class PointDetailListContext : ObservableObject, IHasChanges, IHa
         PropertyScanners.SubscribeToChildHasChangesAndHasValidationIssues(this, CheckForChangesAndValidationIssues);
     }
 
+    [NonBlockingCommand]
     private async Task LoadNewDetail(string? typeIdentifier)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
