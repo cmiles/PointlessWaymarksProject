@@ -1,21 +1,22 @@
-﻿#nullable enable
-using CommunityToolkit.Mvvm.ComponentModel;
-using PointlessWaymarks.CmsData.Database.Models;
+﻿using PointlessWaymarks.CmsData.Database.Models;
+using PointlessWaymarks.LlamaAspects;
 
 namespace PointlessWaymarks.CmsWpfControls.MapComponentEditor;
 
-public partial class MapElementListPointItem : ObservableObject, IMapElementListItem
+[NotifyPropertyChanged]
+public partial class MapElementListPointItem : IMapElementListItem
 {
-    [ObservableProperty] private PointContentDto? _dbEntry;
-    [ObservableProperty] private bool _inInitialView;
-    [ObservableProperty] private bool _isFeaturedElement;
-    [ObservableProperty] private bool _showInitialDetails;
-    [ObservableProperty] private string _smallImageUrl = string.Empty;
-    [ObservableProperty] private string _title = string.Empty;
-    [ObservableProperty] private string _elementType = "point";
+    public PointContentDto? DbEntry { get; set; }
+    public string SmallImageUrl { get; set; } = string.Empty;
 
     public Guid? ContentId()
     {
         return DbEntry?.ContentId;
     }
+
+    public string ElementType { get; set; } = "point";
+    public bool InInitialView { get; set; }
+    public bool IsFeaturedElement { get; set; }
+    public bool ShowInitialDetails { get; set; }
+    public string Title { get; set; } = string.Empty;
 }

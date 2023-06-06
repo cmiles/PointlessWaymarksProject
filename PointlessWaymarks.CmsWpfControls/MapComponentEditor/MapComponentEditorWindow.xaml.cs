@@ -1,5 +1,5 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
-using PointlessWaymarks.CmsData.Database.Models;
+﻿using PointlessWaymarks.CmsData.Database.Models;
+using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon.ChangesAndValidation;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
@@ -9,18 +9,12 @@ namespace PointlessWaymarks.CmsWpfControls.MapComponentEditor;
 /// <summary>
 ///     Interaction logic for MapComponentEditorWindow.xaml
 /// </summary>
-[ObservableObject]
-#pragma warning disable MVVMTK0033
+[NotifyPropertyChanged]
 public partial class MapComponentEditorWindow
-#pragma warning restore MVVMTK0033
 {
-    [ObservableProperty] private WindowAccidentalClosureHelper? _accidentalCloserHelper;
-    [ObservableProperty] private MapComponentEditorContext? _mapComponentContent;
-    [ObservableProperty] private StatusControlContext _statusContext;
-
     /// <summary>
-    /// DO NOT USE - Use CreateInstance instead - using the constructor directly will result in
-    /// core functionality being uninitialized.
+    ///     DO NOT USE - Use CreateInstance instead - using the constructor directly will result in
+    ///     core functionality being uninitialized.
     /// </summary>
     private MapComponentEditorWindow()
     {
@@ -29,10 +23,14 @@ public partial class MapComponentEditorWindow
         DataContext = this;
     }
 
+    public WindowAccidentalClosureHelper? AccidentalCloserHelper { get; set; }
+    public MapComponentEditorContext? MapComponentContent { get; set; }
+    public StatusControlContext StatusContext { get; set; }
+
     /// <summary>
-    /// Creates a new instance - this method can be called from any thread and will
-    /// switch to the UI thread as needed. Does not show the window - consider using
-    /// PositionWindowAndShowOnUiThread() from the WindowInitialPositionHelpers.
+    ///     Creates a new instance - this method can be called from any thread and will
+    ///     switch to the UI thread as needed. Does not show the window - consider using
+    ///     PositionWindowAndShowOnUiThread() from the WindowInitialPositionHelpers.
     /// </summary>
     /// <returns></returns>
     public static async Task<MapComponentEditorWindow> CreateInstance(MapComponent? toLoad)

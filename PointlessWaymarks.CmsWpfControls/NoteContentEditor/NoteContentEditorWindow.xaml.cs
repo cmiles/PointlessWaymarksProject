@@ -1,5 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using PointlessWaymarks.CmsData.Database.Models;
+using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon.ChangesAndValidation;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
@@ -9,14 +10,12 @@ namespace PointlessWaymarks.CmsWpfControls.NoteContentEditor;
 /// <summary>
 ///     Interaction logic for NoteContentEditorWindow.xaml
 /// </summary>
-[ObservableObject]
-#pragma warning disable MVVMTK0033
+[NotifyPropertyChanged]
 public partial class NoteContentEditorWindow
-#pragma warning restore MVVMTK0033
 {
-    [ObservableProperty] private WindowAccidentalClosureHelper? _accidentalCloserHelper;
-    [ObservableProperty] private NoteContentEditorContext? _noteContent;
-    [ObservableProperty] private StatusControlContext _statusContext;
+    public WindowAccidentalClosureHelper? AccidentalCloserHelper { get; set; }
+    public NoteContentEditorContext? NoteContent { get; set; }
+    public StatusControlContext StatusContext { get; set; }
 
     /// <summary>
     /// DO NOT USE - Use CreateInstance instead - using the constructor directly will result in
@@ -25,7 +24,7 @@ public partial class NoteContentEditorWindow
     private NoteContentEditorWindow()
     {
         InitializeComponent();
-        _statusContext = new StatusControlContext();
+        StatusContext = new StatusControlContext();
         DataContext = this;
     }
 

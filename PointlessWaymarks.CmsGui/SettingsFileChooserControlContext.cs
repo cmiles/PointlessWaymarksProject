@@ -1,6 +1,5 @@
 ﻿using System.Collections.ObjectModel;
 using System.IO;
-using CommunityToolkit.Mvvm.ComponentModel;
 using Ookii.Dialogs.Wpf;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CommonTools;
@@ -12,7 +11,7 @@ namespace PointlessWaymarks.CmsGui;
 
 [NotifyPropertyChanged]
 [GenerateStatusCommands]
-public partial class SettingsFileChooserControlContext : ObservableObject
+public partial class SettingsFileChooserControlContext
 {
     private SettingsFileChooserControlContext(StatusControlContext statusContext, List<string> recentSettingFiles)
     {

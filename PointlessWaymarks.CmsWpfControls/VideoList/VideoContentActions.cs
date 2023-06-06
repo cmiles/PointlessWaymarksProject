@@ -1,7 +1,6 @@
-﻿using System.Diagnostics;
+﻿using System.ComponentModel;
+using System.Diagnostics;
 using System.Windows;
-using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
 using Microsoft.EntityFrameworkCore;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.CommonHtml;
@@ -13,36 +12,23 @@ using PointlessWaymarks.CmsWpfControls.ContentList;
 using PointlessWaymarks.CmsWpfControls.Utility;
 using PointlessWaymarks.CmsWpfControls.VideoContentEditor;
 using PointlessWaymarks.CommonTools;
+using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 using PointlessWaymarks.WpfCommon.Utility;
 
 namespace PointlessWaymarks.CmsWpfControls.VideoList;
 
-public partial class VideoContentActions : ObservableObject, IContentActions<VideoContent>
+[NotifyPropertyChanged]
+[GenerateStatusCommands]
+public partial class VideoContentActions : IContentActions<VideoContent>
 {
-    [ObservableProperty] private RelayCommand<VideoContent> _deleteCommand;
-    [ObservableProperty] private RelayCommand<VideoContent> _editCommand;
-    [ObservableProperty] private RelayCommand<VideoContent> _extractNewLinksCommand;
-    [ObservableProperty] private RelayCommand<VideoContent> _generateHtmlCommand;
-    [ObservableProperty] private RelayCommand<VideoContent> _DefaultBracketCodeToClipboardCommand;
-    [ObservableProperty] private StatusControlContext _statusContext;
-    [ObservableProperty] private RelayCommand<VideoContent> _viewFileCommand;
-    [ObservableProperty] private RelayCommand<VideoContent> _viewHistoryCommand;
-    [ObservableProperty] private RelayCommand<VideoContent> _viewOnSiteCommand;
-
     public VideoContentActions(StatusControlContext statusContext)
     {
-        _statusContext = statusContext;
-        _deleteCommand = StatusContext.RunBlockingTaskCommand<VideoContent>(Delete);
-        _editCommand = StatusContext.RunNonBlockingTaskCommand<VideoContent>(Edit);
-        _extractNewLinksCommand = StatusContext.RunBlockingTaskCommand<VideoContent>(ExtractNewLinks);
-        _generateHtmlCommand = StatusContext.RunBlockingTaskCommand<VideoContent>(GenerateHtml);
-        _DefaultBracketCodeToClipboardCommand = StatusContext.RunBlockingTaskCommand<VideoContent>(DefaultBracketCodeToClipboard);
-        _viewOnSiteCommand = StatusContext.RunBlockingTaskCommand<VideoContent>(ViewOnSite);
-        _viewFileCommand = StatusContext.RunNonBlockingTaskCommand<VideoContent>(ViewFile);
-        _viewHistoryCommand = StatusContext.RunNonBlockingTaskCommand<VideoContent>(ViewHistory);
+        StatusContext = statusContext;
+        BuildCommands();
     }
+
 
     public string DefaultBracketCode(VideoContent? content)
     {
@@ -52,6 +38,7 @@ public partial class VideoContentActions : ObservableObject, IContentActions<Vid
             : @$"{BracketCodeVideoEmbed.Create(content)}";
     }
 
+    [BlockingCommand]
     public async Task DefaultBracketCodeToClipboard(VideoContent? content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -73,6 +60,7 @@ public partial class VideoContentActions : ObservableObject, IContentActions<Vid
         StatusContext.ToastSuccess($"To Clipboard {finalString}");
     }
 
+    [BlockingCommand]
     public async Task Delete(VideoContent? content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -101,6 +89,7 @@ public partial class VideoContentActions : ObservableObject, IContentActions<Vid
         }
     }
 
+    [NonBlockingCommand]
     public async Task Edit(VideoContent? content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -120,6 +109,7 @@ public partial class VideoContentActions : ObservableObject, IContentActions<Vid
         await newContentWindow.PositionWindowAndShowOnUiThread();
     }
 
+    [BlockingCommand]
     public async Task ExtractNewLinks(VideoContent? content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -139,6 +129,7 @@ public partial class VideoContentActions : ObservableObject, IContentActions<Vid
             $"{refreshedData.BodyContent} {refreshedData.UpdateNotes}", StatusContext.ProgressTracker());
     }
 
+    [BlockingCommand]
     public async Task GenerateHtml(VideoContent? content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -158,6 +149,9 @@ public partial class VideoContentActions : ObservableObject, IContentActions<Vid
         StatusContext.ToastSuccess($"Generated {htmlContext.PageUrl}");
     }
 
+    public StatusControlContext StatusContext { get; set; }
+
+    [NonBlockingCommand]
     public async Task ViewHistory(VideoContent? content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -190,6 +184,7 @@ public partial class VideoContentActions : ObservableObject, IContentActions<Vid
         historicView.WriteHtmlToTempFolderAndShow(StatusContext.ProgressTracker());
     }
 
+    [BlockingCommand]
     public async Task ViewOnSite(VideoContent? content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -208,6 +203,8 @@ public partial class VideoContentActions : ObservableObject, IContentActions<Vid
         Process.Start(ps);
     }
 
+    public event PropertyChangedEventHandler? PropertyChanged;
+
     public static async Task<VideoListListItem> ListItemFromDbItem(VideoContent content,
         VideoContentActions itemActions,
         bool showType)
@@ -220,6 +217,7 @@ public partial class VideoContentActions : ObservableObject, IContentActions<Vid
         return item;
     }
 
+    [NonBlockingCommand]
     public async Task ViewFile(VideoContent? listItem)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
