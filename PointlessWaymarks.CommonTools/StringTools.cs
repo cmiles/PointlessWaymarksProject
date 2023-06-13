@@ -34,6 +34,17 @@ public static class StringTools
         return string.Equals(a, b, StringComparison.OrdinalIgnoreCase);
     }
 
+    /// <summary>
+    ///     Simple expansion of Camel Case into a 'normal' string
+    /// </summary>
+    /// <param name="str"></param>
+    /// <returns></returns>
+    public static string CamelCaseToSpacedString(this string str)
+    {
+        //https://stackoverflow.com/questions/5796383/insert-spaces-between-words-on-a-camel-cased-token
+        return Regex.Replace(Regex.Replace(str, @"(\P{Ll})(\P{Ll}\p{Ll})", "$1 $2"), @"(\p{Ll})(\P{Ll})", "$1 $2");
+    }
+
     public static string GetMethodName(this object type, [CallerMemberName] string? caller = null)
     {
         return type.GetType().FullName + "." + caller.TrimNullToEmpty();
@@ -121,17 +132,6 @@ public static class StringTools
         var length = text.IndexOf(search, StringComparison.Ordinal);
 
         return length < 0 ? text : text[..length] + replace + text[(length + search.Length)..];
-    }
-
-    /// <summary>
-    ///     Simple expansion of Camel Case into a 'normal' string
-    /// </summary>
-    /// <param name="str"></param>
-    /// <returns></returns>
-    public static string SplitCamelCase(this string str)
-    {
-        //https://stackoverflow.com/questions/5796383/insert-spaces-between-words-on-a-camel-cased-token
-        return Regex.Replace(Regex.Replace(str, @"(\P{Ll})(\P{Ll}\p{Ll})", "$1 $2"), @"(\p{Ll})(\P{Ll})", "$1 $2");
     }
 
 

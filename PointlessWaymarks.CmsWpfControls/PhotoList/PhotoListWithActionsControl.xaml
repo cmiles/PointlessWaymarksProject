@@ -37,7 +37,13 @@
                 <MenuItem Command="{Binding ReportTitleAndTakenDoNotMatchCommand}"
                           Header="Title and Photo Created Don't Match" />
                 <MenuItem Command="{Binding ReportBlankLicenseCommand}" Header="License is Blank" />
-                <MenuItem Command="{Binding ReportTakenAndLicenseYearDoNotMatchCommand}"
+                <MenuItem Command="{Binding ReportTitleDoesNotStartWithYearMonthCommand}"
+                          Header="Title doesn't start with Year Month" />
+                <MenuItem Command="{Binding ReportTitleAndTakenDoNotMatchCommand}"
+                          Header="Title and Taken Year Don't Match" />
+                <MenuItem Command="{Binding ReportFileNameAndTakenOnDoNotMatchCommand}"
+                          Header="File Name and Taken Year Don't Match" />
+                <MenuItem Command="{Binding ReportLicenseAndTakenYearDoNotMatchCommand}"
                           Header="License Year and Taken Year Don't Match" />
                 <MenuItem Command="{Binding ReportMultiSpacesInTitleCommand}" Header="Titles with Multiple Spaces" />
                 <MenuItem Command="{Binding ReportAllPhotosCommand}" Header="All Photos" />

@@ -1,9 +1,7 @@
-﻿using System.Globalization;
-using System.IO;
+﻿using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows;
-using AngleSharp.Text;
 using KellermanSoftware.CompareNetObjects;
 using KellermanSoftware.CompareNetObjects.Reports;
 using Microsoft.EntityFrameworkCore;
@@ -291,6 +289,12 @@ public partial class PhotoListWithActionsContext
         StatusContext.ToastSuccess("Email Html on Clipboard");
     }
 
+    [NonBlockingCommand]
+    public async Task FileNameAndTakenOnDoNotMatch()
+    {
+        await RunReport(ReportFileNameAndTakenOnDoNotMatchGenerator, "File Name and Taken Dates Don't Match");
+    }
+
     [BlockingCommand]
     private async Task ForcedResize(CancellationToken cancellationToken)
     {
@@ -516,10 +520,49 @@ public partial class PhotoListWithActionsContext
     }
 
     [NonBlockingCommand]
+    public async Task ReportFileNameAndTakenOnDoNotMatch()
+    {
+        await RunReport(ReportFileNameAndTakenOnDoNotMatchGenerator, "File Name and Taken Date Don't Match");
+    }
+
+    private async Task<List<object>> ReportFileNameAndTakenOnDoNotMatchGenerator
+        ()
+    {
+        var db = await Db.Context();
+
+        var allContents = await db.PhotoContents.OrderByDescending(x => x.PhotoCreatedOn).ToListAsync();
+
+        var returnList = new List<PhotoContent>();
+
+        foreach (var loopContents in allContents)
+        {
+            if (loopContents.OriginalFileName == null) continue;
+
+            var fileDate = DateTimeTools.DateOnlyFromTitleStringByConvention(Path
+                .GetFileNameWithoutExtension(loopContents.OriginalFileName).Replace("-", " ").Replace("_", " ")
+                .CamelCaseToSpacedString());
+
+            if (fileDate == null)
+            {
+                returnList.Add(loopContents);
+                continue;
+            }
+
+            if (fileDate.Value.titleDate.Year == loopContents.PhotoCreatedOn.Year &&
+                fileDate.Value.titleDate.Month == loopContents.PhotoCreatedOn.Month) continue;
+
+            returnList.Add(loopContents);
+        }
+
+        return returnList.Cast<object>().ToList();
+    }
+
+    [NonBlockingCommand]
     public async Task ReportMultiSpacesInTitle()
     {
         await RunReport(ReportMultiSpacesInTitleGenerator, "Multiple Spaces in Title");
     }
+
     private async Task<List<object>> ReportMultiSpacesInTitleGenerator()
     {
         var db = await Db.Context();
@@ -577,13 +620,12 @@ public partial class PhotoListWithActionsContext
     }
 
     [NonBlockingCommand]
-    public async Task ReportTakenAndLicenseYearDoNotMatch()
+    public async Task ReportLicenseAndTakenYearDoNotMatch()
     {
-        await RunReport(ReportTakenAndLicenseYearDoNotMatchGenerator, "License and Title Year Don't Match");
+        await RunReport(ReportLicenseAndTakenYearDoNotMatchGenerator, "License and Taken Date Don't Match");
     }
 
-    [NonBlockingCommand]
-    private async Task<List<object>> ReportTakenAndLicenseYearDoNotMatchGenerator()
+    private async Task<List<object>> ReportLicenseAndTakenYearDoNotMatchGenerator()
     {
         var db = await Db.Context();
 
@@ -622,7 +664,6 @@ public partial class PhotoListWithActionsContext
         await RunReport(ReportTitleAndTakenDoNotMatchGenerator, "Title and Taken Dates Don't Match");
     }
 
-    [NonBlockingCommand]
     private async Task<List<object>> ReportTitleAndTakenDoNotMatchGenerator()
     {
         var db = await Db.Context();
@@ -633,26 +674,39 @@ public partial class PhotoListWithActionsContext
 
         foreach (var loopContents in allContents)
         {
-            if (string.IsNullOrWhiteSpace(loopContents.Title)) continue;
+            var titleDate = DateTimeTools.YearAndEnglishTextMonthFromStartOfString(loopContents.Title);
 
-            var splitName = loopContents.Title.Split(" ");
+            if (titleDate == null) continue;
 
-            if (splitName.Length < 2) continue;
-
-            if (!splitName[0].All(x => x.IsDigit())) continue;
-
-            if (!int.TryParse(splitName[0], out var titleYear)) continue;
-
-            var dateInfo = new DateTimeFormatInfo();
-
-            if (!dateInfo.MonthNames.Contains(splitName[1])) continue;
-
-            var titleMonth = dateInfo.MonthNames.ToList().IndexOf(splitName[1]) + 1;
-
-            if (titleYear == loopContents.PhotoCreatedOn.Year &&
-                titleMonth == loopContents.PhotoCreatedOn.Month) continue;
+            if (titleDate.Value.Year == loopContents.PhotoCreatedOn.Year &&
+                titleDate.Value.Month == loopContents.PhotoCreatedOn.Month) continue;
 
             returnList.Add(loopContents);
+        }
+
+        return returnList.Cast<object>().ToList();
+    }
+
+
+    [NonBlockingCommand]
+    public async Task ReportTitleDoesNotStartWithYearMonth()
+    {
+        await RunReport(ReportTitleDoesNotStartWithYearMonthGenerator, "Title Does Not Start with Year and Month");
+    }
+
+    private async Task<List<object>> ReportTitleDoesNotStartWithYearMonthGenerator()
+    {
+        var db = await Db.Context();
+
+        var allContents = await db.PhotoContents.OrderByDescending(x => x.PhotoCreatedOn).ToListAsync();
+
+        var returnList = new List<PhotoContent>();
+
+        foreach (var loopContents in allContents)
+        {
+            var titleDate = DateTimeTools.YearAndEnglishTextMonthFromStartOfString(loopContents.Title);
+
+            if (titleDate == null) returnList.Add(loopContents);
         }
 
         return returnList.Cast<object>().ToList();

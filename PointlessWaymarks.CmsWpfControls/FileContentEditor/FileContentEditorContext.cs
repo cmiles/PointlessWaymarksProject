@@ -441,7 +441,7 @@ Notes:
             if (string.IsNullOrWhiteSpace(TitleSummarySlugFolder.SummaryEntry.UserValue))
                 TitleSummarySlugFolder.TitleEntry.UserValue = Regex.Replace(
                     Path.GetFileNameWithoutExtension(SelectedFile.Name).Replace("-", " ").Replace("_", " ")
-                        .SplitCamelCase(), @"\s+", " ");
+                        .CamelCaseToSpacedString(), @"\s+", " ");
         }
 
         await SelectedFileChanged();

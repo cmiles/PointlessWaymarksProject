@@ -430,6 +430,15 @@ public static class Intersection
         return toCheck;
     }
     
+    /// <summary>
+    /// Processes a list of tags into a list of tags with options applied - result is sorted before it is returned.
+    /// </summary>
+    /// <param name="toProcess"></param>
+    /// <param name="tagSpacesToHyphens"></param>
+    /// <param name="sanitizeTags"></param>
+    /// <param name="tagsToLower"></param>
+    /// <param name="tagMaxCharacterLength"></param>
+    /// <returns></returns>
     private static List<string> ProcessTags(List<string> toProcess, bool tagSpacesToHyphens, bool sanitizeTags, bool tagsToLower, int tagMaxCharacterLength)
     {
         if (tagSpacesToHyphens)
@@ -455,7 +464,7 @@ public static class Intersection
                         ..Math.Min(tagMaxCharacterLength, toProcess[i].Length)];
             }
 
-            return toProcess;
+            return toProcess.OrderBy(x => x).ToList();
         }
 
         if (sanitizeTags)
@@ -463,7 +472,7 @@ public static class Intersection
             for (var i = 0; i < toProcess.Count; i++)
                 toProcess[i] =
                     SlugTools.CreateSpacedString(tagsToLower, toProcess[i], tagMaxCharacterLength);
-            return toProcess;
+            return toProcess.OrderBy(x => x).ToList();
         }
 
         if (tagsToLower)
@@ -476,7 +485,7 @@ public static class Intersection
                     toProcess[i][
                         ..Math.Min(tagMaxCharacterLength, toProcess[i].Length)];
 
-        return toProcess;
+        return toProcess.OrderBy(x => x).ToList();
     }
 
     public static async Task<List<IntersectFileTaggingResult>> WriteTagsToFiles(

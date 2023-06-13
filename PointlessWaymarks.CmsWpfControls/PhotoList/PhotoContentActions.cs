@@ -26,6 +26,7 @@ public partial class PhotoContentActions : IContentActions<PhotoContent>
     public PhotoContentActions(StatusControlContext? statusContext)
     {
         StatusContext = statusContext ?? new StatusControlContext();
+        BuildCommands();
     }
 
     public string DefaultBracketCode(PhotoContent? content)
