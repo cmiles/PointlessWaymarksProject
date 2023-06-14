@@ -20,12 +20,12 @@
 
   <ItemGroup>
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.0" />
-    <PackageReference Include="GitInfo" Version="3.0.6">
+    <PackageReference Include="GitInfo" Version="3.1.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Jot" Version="2.1.16" />
-    <PackageReference Include="Metalama.Framework" Version="2023.1.6-rc" />
+    <PackageReference Include="Metalama.Framework" Version="2023.1.7-rc" />
   </ItemGroup>
 
   <ItemGroup>
