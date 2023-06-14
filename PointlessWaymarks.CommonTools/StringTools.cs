@@ -41,8 +41,26 @@ public static class StringTools
     /// <returns></returns>
     public static string CamelCaseToSpacedString(this string str)
     {
-        //https://stackoverflow.com/questions/5796383/insert-spaces-between-words-on-a-camel-cased-token
-        return Regex.Replace(Regex.Replace(str, @"(\P{Ll})(\P{Ll}\p{Ll})", "$1 $2"), @"(\p{Ll})(\P{Ll})", "$1 $2");
+        if (string.IsNullOrWhiteSpace(str)) return string.Empty;
+
+        var stringItems = new List<string>();
+
+        var splitString = str.Split(' ');
+
+        foreach (var loopParts in splitString)
+        {
+            if (string.IsNullOrWhiteSpace(loopParts))
+            {
+                stringItems.Add(loopParts);
+                continue;
+            }
+
+            //https://stackoverflow.com/questions/5796383/insert-spaces-between-words-on-a-camel-cased-token
+            stringItems.Add(Regex.Replace(
+                Regex.Replace(loopParts, @"(\P{Ll})(\P{Ll}\p{Ll})", "$1 $2"), @"(\p{Ll})(\P{Ll})", "$1 $2"));
+        }
+
+        return string.Join(' ', stringItems);
     }
 
     public static string GetMethodName(this object type, [CallerMemberName] string? caller = null)

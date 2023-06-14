@@ -59,13 +59,13 @@ public static class DateTimeTools
         //probably used by few others...
 
         var fourDigitYearAndTwoDigitMonthAtStart =
-            new Regex(@"\A(?<possibleDate>[12]\d\d\d[\s-]\d\d[\s-]*).*", RegexOptions.IgnoreCase);
+            new Regex(@"\A(?<possibleDate>\d\d\d\d[\s-][01]\d)[\s-].*", RegexOptions.IgnoreCase);
         var fourDigitYearAndTwoDigitMonthAtEnd =
-            new Regex(@".*[\s-](?<possibleDate>[12]\d\d\d[\s-]\d\d)\z", RegexOptions.IgnoreCase);
-        var twoDigitYearAndTwoDigitMonthAtStart = new Regex(@"\A[01]\d\d\d\s.*", RegexOptions.IgnoreCase);
-        var twoDigitYearAndTwoDigitMonthAtEnd = new Regex(@".*[\s-][01]\d\d\d\z", RegexOptions.IgnoreCase);
+            new Regex(@".*[\s-](?<possibleDate>\d\d\d\d[\s-][01]\d)\z", RegexOptions.IgnoreCase);
+        var twoDigitYearAndTwoDigitMonthAtStart = new Regex(@"\A[01]\d[01]\d[\s-].*", RegexOptions.IgnoreCase);
+        var twoDigitYearAndTwoDigitMonthAtEnd = new Regex(@".*[\s-][01]\d[01]\d\z", RegexOptions.IgnoreCase);
         var fourDigitYearAndTextMonthAtStart = new Regex(
-            @"\A(?<possibleDate>\d\d\d\d[\s-](?:Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:tember)?|Oct(?:ober)?|(Nov|Dec)(?:ember)?))\s",
+            @"\A(?<possibleDate>\d\d\d\d[\s-](?:Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:tember)?|Oct(?:ober)?|(Nov|Dec)(?:ember)?))[\s-].*",
             RegexOptions.IgnoreCase);
         var fourDigitYearAndTextMonthAtEnd = new Regex(
             @"(?<possibleDate>\d\d\d\d[\s-](?:Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:tember)?|Sept|Oct(?:ober)?|(Nov|Dec)(?:ember)?))\z",
