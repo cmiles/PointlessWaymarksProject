@@ -98,7 +98,7 @@ public static class DateTimeTools
                 try
                 {
                     return (new DateOnly(int.Parse(possibleTitleDate[..4]),
-                            MonthNameToMonthInt(possibleTitleDate.Substring(5, possibleTitleDate.Length - 5))!.Value,
+                            MonthEnglishNameToMonthInt(possibleTitleDate.Substring(5, possibleTitleDate.Length - 5))!.Value,
                             1),
                         $"{toProcess[possibleTitleDate.Length..]}".TrimNullToEmpty());
                 }
@@ -164,7 +164,7 @@ public static class DateTimeTools
                 try
                 {
                     return (new DateOnly(int.Parse(possibleTitleDate[..4]),
-                            MonthNameToMonthInt(possibleTitleDate.Substring(5, possibleTitleDate.Length - 5))!.Value,
+                            MonthEnglishNameToMonthInt(possibleTitleDate.Substring(5, possibleTitleDate.Length - 5))!.Value,
                             1),
                         $"{toProcess[possibleTitleDate.Length..]}".TrimNullToEmpty());
                 }
@@ -177,7 +177,7 @@ public static class DateTimeTools
         return null;
     }
 
-    public static int? MonthNameToMonthInt(string? toConvert)
+    public static int? MonthEnglishNameToMonthInt(string? toConvert)
     {
         //The stack overflow question below nicely runs thru some of the options for this:
         //https://stackoverflow.com/questions/258793/how-to-parse-a-month-name-string-to-an-integer-for-comparison-in-c#258895
