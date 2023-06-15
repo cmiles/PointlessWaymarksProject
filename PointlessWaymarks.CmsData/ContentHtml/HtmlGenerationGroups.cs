@@ -704,6 +704,11 @@ public static class HtmlGenerationGroups
             return;
         }
 
+        //The assumption is that a photo date was either in the last Logs or is new (changed) in this
+        //generation - the previous log WILL sometimes grab a date that is no longer present in the
+        //current generation (all photos moved in this change set from 6/3 to 7/3 - 6/3 would be in the
+        //lastGenerationDateList but is no longer a photo date). Do not use lastGenerationDateList as 
+        //a definitive list of photo dates! Note that DailyPhotoGalleries below ignores invalid dates...
         var lastGenerationDateList = await db.GenerationDailyPhotoLogs
             .Where(x => x.GenerationVersion == lastGeneration.GenerationVersion)
             .OrderByDescending(x => x.DailyPhotoDate).ToListAsync().ConfigureAwait(false);
@@ -717,21 +722,29 @@ public static class HtmlGenerationGroups
         }
 
         var changedPhotoDates = db.PhotoContents.Where(x => !x.IsDraft).Join(db.GenerationChangedContentIds,
-            x => x.ContentId,
-            x => x.ContentId, (x, y) => x).Select(x => x.PhotoCreatedOn.Date).Distinct().ToList();
+                x => x.ContentId,
+                x => x.ContentId, (x, y) => x).Select(x => x.PhotoCreatedOn.Date).Distinct().OrderByDescending(x => x)
+            .ToList();
 
         var datesToGenerate = new List<DateTime>();
 
+        //Add the changed photo dates to the list to generate since we already know they are considered changed
         datesToGenerate.AddRange(changedPhotoDates);
+        datesToGenerate.Sort();
 
+        //DailyPhotoGalleries below ignores invalid dates so in the case where lastGenerationDateList contains
+        //dates that no longer have a photo it is 'ok' to add to datesToGenerate and let DailyPhotoGalleries
+        //do the work of filtering that out.
         foreach (var loopChangedDates in changedPhotoDates)
         {
-            var after = lastGenerationDateList.Where(x => x.DailyPhotoDate > loopChangedDates).MinBy(x => x.DailyPhotoDate);
+            var after = lastGenerationDateList.Where(x => x.DailyPhotoDate > loopChangedDates)
+                .MinBy(x => x.DailyPhotoDate);
 
             if (after != null && !datesToGenerate.Contains(after.DailyPhotoDate))
                 datesToGenerate.Add(after.DailyPhotoDate);
 
-            var before = lastGenerationDateList.Where(x => x.DailyPhotoDate < loopChangedDates).MaxBy(x => x.DailyPhotoDate);
+            var before = lastGenerationDateList.Where(x => x.DailyPhotoDate < loopChangedDates)
+                .MaxBy(x => x.DailyPhotoDate);
 
             if (before != null && !datesToGenerate.Contains(before.DailyPhotoDate))
                 datesToGenerate.Add(before.DailyPhotoDate);
@@ -1421,7 +1434,8 @@ public static class HtmlGenerationGroups
         {
             var currentItem = mainFeedContent[i];
 
-            if (!await db.GenerationChangedContentIds.AnyAsync(x => x.ContentId == currentItem.Item2.ContentId).ConfigureAwait(false)) continue;
+            if (!await db.GenerationChangedContentIds.AnyAsync(x => x.ContentId == currentItem.Item2.ContentId)
+                    .ConfigureAwait(false)) continue;
 
             currentItem.Item1 = true;
             if (i > 0)

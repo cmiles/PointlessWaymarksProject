@@ -2,11 +2,20 @@
 using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CommonTools;
+using Serilog;
 
 namespace PointlessWaymarks.CmsData.ContentHtml.PhotoGalleryHtml;
 
 public static class DailyPhotoPageGenerators
 {
+    /// <summary>
+    ///     Generates Daily Photo Galleries based on the datesToCreate - dates in datesToCreate
+    ///     that aren't valid (currently a date when a Photo was taken) will be ignored.
+    /// </summary>
+    /// <param name="datesToCreate"></param>
+    /// <param name="generationVersion"></param>
+    /// <param name="progress"></param>
+    /// <returns></returns>
     public static async Task<List<DailyPhotosPage>> DailyPhotoGalleries(List<DateTime> datesToCreate,
         DateTime? generationVersion, IProgress<string>? progress = null)
     {
@@ -14,29 +23,48 @@ public static class DailyPhotoPageGenerators
 
         progress?.Report($"Starting Daily Photo Pages Generation for {datesToCreate.Count} Dates");
 
-        var allDates = (await db.PhotoContents.Select(x => x.PhotoCreatedOn).ToListAsync().ConfigureAwait(false)).Select(x => x.Date)
+        var allDates = (await db.PhotoContents.Select(x => x.PhotoCreatedOn).ToListAsync().ConfigureAwait(false))
+            .Select(x => x.Date)
             .Distinct().OrderByDescending(x => x).ToList();
 
         progress?.Report($"Found {allDates.Count} Dates with Photos");
 
         var returnList = new List<DailyPhotosPage>();
 
-        var loopGoal = datesToCreate.Count;
+        var validDatesToCreate = datesToCreate.Intersect(allDates).OrderBy(x => x).ToList();
 
-        for (var i = 0; i < datesToCreate.Count; i++)
+        var loopGoal = validDatesToCreate.Count;
+
+        for (var i = 0; i < validDatesToCreate.Count; i++)
         {
-            var loopDate = datesToCreate[i];
+            var loopDate = validDatesToCreate[i];
 
             if (i % 10 == 0) progress?.Report($"Daily Photo Page - {loopDate:D} - {i + 1} of {loopGoal}");
             var toAdd = await DailyPhotoGallery(loopDate, generationVersion).ConfigureAwait(false);
 
+            if (toAdd == null)
+            {
+                Log.ForContext(nameof(allDates), allDates.SafeObjectDump())
+                    .ForContext(nameof(datesToCreate), validDatesToCreate.SafeObjectDump())
+                    .ForContext(nameof(generationVersion), generationVersion)
+                    .ForContext(nameof(validDatesToCreate), validDatesToCreate.SafeObjectDump())
+                    .ForContext(nameof(loopDate), loopDate).ForContext("hint",
+                        "This data error should be cleanly skipped in the program but if it is triggered there is a logic error in the code that determines what daily photo galleries to investigate - this could be useful to investigate.")
+                    .Error(
+                        "{method} - There was an unexpected null in the Daily Photo Gallery Generation - Silent Error",
+                        nameof(DailyPhotoGalleries));
+                continue;
+            }
+
             var nextDate = allDates.Where(x => x > loopDate).OrderBy(x => x).FirstOrDefault();
-            if (nextDate == default) toAdd!.NextDailyPhotosPage = null;
-            else toAdd!.NextDailyPhotosPage = await DailyPhotoGallery(nextDate, generationVersion).ConfigureAwait(false);
+            if (nextDate == default) toAdd.NextDailyPhotosPage = null;
+            else toAdd.NextDailyPhotosPage = await DailyPhotoGallery(nextDate, generationVersion).ConfigureAwait(false);
 
             var previousDate = allDates.Where(x => x < loopDate).OrderByDescending(x => x).FirstOrDefault();
             if (previousDate == default) toAdd.PreviousDailyPhotosPage = null;
-            else toAdd.PreviousDailyPhotosPage = await DailyPhotoGallery(previousDate, generationVersion).ConfigureAwait(false);
+            else
+                toAdd.PreviousDailyPhotosPage =
+                    await DailyPhotoGallery(previousDate, generationVersion).ConfigureAwait(false);
 
             returnList.Add(toAdd);
         }
@@ -51,7 +79,9 @@ public static class DailyPhotoPageGenerators
 
         progress?.Report("Starting Daily Photo Pages Generation");
 
-        var allDates = (await db.PhotoContents.Where(x => !x.IsDraft).Select(x => x.PhotoCreatedOn).ToListAsync().ConfigureAwait(false)).Select(x => x.Date)
+        var allDates =
+            (await db.PhotoContents.Where(x => !x.IsDraft).Select(x => x.PhotoCreatedOn).ToListAsync()
+                .ConfigureAwait(false)).Select(x => x.Date)
             .Distinct().OrderByDescending(x => x).ToList();
 
         progress?.Report($"Found {allDates.Count} Dates with Photos");
