@@ -6,12 +6,18 @@ public static class SpatialScripts
 {
     public static string IncludeIfNeeded(IContentCommon content)
     {
-        return BracketCodeCommon.ContainsSpatialScriptDependentBracketCodes(content) ? ScriptsAndLinks() : string.Empty;
+        return IncludeIfNeeded(BracketCodeCommon.ContainsSpatialScriptDependentBracketCodes(content));
     }
 
     public static string IncludeIfNeeded(bool isNeeded)
     {
         return isNeeded ? ScriptsAndLinks() : string.Empty;
+    }
+
+    public static bool IsNeeded(string? contentString)
+    {
+        if (string.IsNullOrWhiteSpace(contentString)) return false;
+        return BracketCodeCommon.ContainsSpatialScriptDependentBracketCodes(contentString);
     }
 
     public static string ScriptsAndLinks()

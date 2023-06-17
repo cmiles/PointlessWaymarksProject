@@ -34,6 +34,13 @@
     .info-box {
         box-shadow: 0px 0px 0px 1px rgb(var(--foreground-component-color), var(--foreground-component-color), var(--foreground-component-color));
     }
+
+    pre:has(code) {
+        box-shadow: 0px 0px 0px 1px rgb(var(--foreground-component-color), var(--foreground-component-color), var(--foreground-component-color));
+        padding: .5rem .5rem;
+        border-radius: .5rem;
+        white-space: pre-wrap;
+    }
 }
 
 @media (prefers-color-scheme: light) {
@@ -58,6 +65,13 @@
 
     .info-box {
         box-shadow: 0 1px 3px rgba(var(--foreground-component-color), var(--foreground-component-color), var(--foreground-component-color),0.12), 0 0 2px rgba(var(--foreground-component-color), var(--foreground-component-color), var(--foreground-component-color),0.24);
+    }
+
+    pre:has(code) {
+        box-shadow: 0 1px 3px rgba(var(--foreground-component-color), var(--foreground-component-color), var(--foreground-component-color),0.12), 0 0 2px rgba(var(--foreground-component-color), var(--foreground-component-color), var(--foreground-component-color),0.24);
+        padding: .5rem .5rem;
+        border-radius: .5rem;
+        white-space: pre-wrap;
     }
 }
 
@@ -386,6 +400,10 @@ a.site-header-title-link:active {
     margin-top: 1rem;
     margin-bottom: 2rem;
     line-height: calc(1ex / 0.32);
+}
+
+pre code.hljs {
+    border-radius: .5rem;
 }
 /* 
     This class is intended for 'direct use' in content

@@ -46,6 +46,7 @@
     <#= Tags.FavIconFileString() #>
 
     <#= SpatialScripts.IncludeIfNeeded(DbEntry) #>
+    <#= CodeHighlightingScripts.IncludeIfNeeded(DbEntry) #>
 </head>
 
 <body>

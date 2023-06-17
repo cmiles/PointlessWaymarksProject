@@ -36,8 +36,8 @@
     <#= Tags.CssStyleFileString() #>
     <#= Tags.FavIconFileString() #>
 
-    <#=
-                    SpatialScripts.IncludeIfNeeded(IncludeSpatialScripts) #>
+    <#= SpatialScripts.IncludeIfNeeded(IncludeSpatialScripts) #>
+    <#= CodeHighlightingScripts.IncludeIfNeeded(IncludeCodeHighlightingScripts) #>
 </head>
 
 <body>

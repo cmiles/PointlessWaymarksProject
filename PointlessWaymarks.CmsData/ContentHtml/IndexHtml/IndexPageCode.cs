@@ -57,6 +57,7 @@ public partial class IndexPage
     public string DirAttribute { get; set; }
 
     public DateTime? GenerationVersion { get; set; }
+    public bool IncludeCodeHighlightingScripts { get; set; }
     public bool IncludeSpatialScripts { get; set; }
     public List<dynamic> IndexContent { get; }
 
@@ -172,9 +173,14 @@ public partial class IndexPage
         foreach (var loopPosts in
                  IndexContent.Take(UserSettingsSingleton.CurrentSettings().NumberOfItemsOnMainSitePage))
         {
-            if (DynamicTypeTools.PropertyExists(loopPosts, "BodyContent") &&
-                BracketCodeCommon.ContainsSpatialScriptDependentBracketCodes((string)loopPosts.BodyContent))
-                IncludeSpatialScripts = true;
+            if (DynamicTypeTools.PropertyExists(loopPosts, "BodyContent"))
+            {
+                if (!IncludeSpatialScripts)
+                    IncludeSpatialScripts = SpatialScripts.IsNeeded((string?)loopPosts.BodyContent);
+                if (!IncludeCodeHighlightingScripts)
+                    IncludeCodeHighlightingScripts = CodeHighlightingScripts.IsNeeded((string?)loopPosts.BodyContent);
+            }
+
             if (loopPosts.GetType() == typeof(PointContentDto) || loopPosts.GetType() == typeof(GeoJsonContent) ||
                 loopPosts.GetType() == typeof(LineContent))
                 IncludeSpatialScripts = true;
