@@ -21,6 +21,18 @@
 
 ## Notes
 
+6/18/2023
+
+The past few months have veered back to the CMS from the backup project. This is partly because of https://github.com/CommunityToolkit/dotnet/issues/555 where the MVVM Community Toolkit makes it clear that it is waiting for a new C# feature before considering most additional functionality requests on Observable Properties. This might be a GREAT decision and even with the bit I understand I can see how the clean the decision is! No criticism of that decision!!
+
+I wondered about forking or using code from the Community Toolkit to both add what I want and to create a way for the Pointless Waymarks Project to use the command functionality (Pointless Waymarks is tightly tied to the non-standard 'StatusContext' pattern that I like that gives a common control surface to run blocking or non-blocking commands with GUI feedback, error handling and cancellation support) but I think it is very fair to say that the project is meant to create great solutions, not be a toolkit so you can create your own great solutions.
+
+In the end I moved over to Metalama. This turned out to be pretty darn easy and I spent much more time with the mechanical process of converting the code than with the process of writing Metalama code and dealing with Metalama setup. Notes:
+  - To move to Metalama I had to create my own code for the Command functionality, and currently I'm using a modified sample for INPC. You could read this as a Not Invented Here type mistake because my Command and INPC code will NEVER match all the functions and testing of the Community Toolkit... But in this case I know with a high degree of certainty that in the near to mid term I need custom simple functionality - I don't believe I need the additional functionality of the Community Toolkit and I don't believe I need complex Metalama aspects - in this scenario I believe it is a huge/quick win to move to Metalama
+  - I am conflicted about Metalama and the pricing both for my use in the future and for use by others. I think the basic sum up is that 'I want to support great software and money is a fair way to do it' and 'Free software is an obvious benefit to the world' - so maybe Metalama's compromise is pretty great https://blog.postsharp.net/post/metalama-pricing.html - but still I worry...
+  - I'm excited to have Metalama in the codebase as a way of thinking about what else might be best tackled by this approach.
+
+
 4/23/2023
 
 Found that the S3Mock project doesn't support object versioning which I'm hoping to take advantage of for the Cloud Backup project... https://github.com/adobe/S3Mock/issues/64
