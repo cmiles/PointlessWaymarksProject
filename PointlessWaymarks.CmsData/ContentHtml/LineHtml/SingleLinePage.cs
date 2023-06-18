@@ -200,7 +200,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml.LineHtml
             this.Write("\r\n    ");
             
             #line 47 "C:\Code\PointlessWaymarksProject-04\PointlessWaymarks.CmsData\ContentHtml\LineHtml\SingleLinePage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(SpatialScripts.ScriptsAndLinks()));
+            this.Write(this.ToStringHelper.ToStringWithCulture(HeaderContentBasedAdditions.HeaderAdditions(DbEntry)));
             
             #line default
             #line hidden
@@ -335,7 +335,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml.LineHtml
         /// <summary>
         /// The string builder that generation-time code is using to assemble generated output
         /// </summary>
-        protected System.Text.StringBuilder GenerationEnvironment
+        public System.Text.StringBuilder GenerationEnvironment
         {
             get
             {

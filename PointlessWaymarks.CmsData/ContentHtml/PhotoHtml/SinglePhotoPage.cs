@@ -203,7 +203,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml.PhotoHtml
             this.Write("\r\n\r\n    ");
             
             #line 53 "C:\Code\PointlessWaymarksCms03\PointlessWaymarks.CmsData\ContentHtml\PhotoHtml\SinglePhotoPage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(SpatialScripts.IncludeIfNeeded(DbEntry)));
+            this.Write(this.ToStringHelper.ToStringWithCulture(HeaderContentBasedAdditions.HeaderAdditions(DbEntry)));
             
             #line default
             #line hidden

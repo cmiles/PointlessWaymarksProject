@@ -208,7 +208,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml.VideoHtml
             this.Write("\r\n\r\n    ");
             
             #line 52 "C:\Code\PointlessWaymarksProject-04\PointlessWaymarks.CmsData\ContentHtml\VideoHtml\SingleVideoPage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(SpatialScripts.IncludeIfNeeded(DbEntry)));
+            this.Write(this.ToStringHelper.ToStringWithCulture(HeaderContentBasedAdditions.HeaderAdditions(DbEntry)));
             
             #line default
             #line hidden

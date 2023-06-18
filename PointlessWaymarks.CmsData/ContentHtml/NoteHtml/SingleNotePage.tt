@@ -45,7 +45,7 @@
     <#= Tags.CssStyleFileString() #>
     <#= Tags.FavIconFileString() #>
 
-    <#= SpatialScripts.IncludeIfNeeded(DbEntry) #>
+    <#= HeaderContentBasedAdditions.HeaderAdditions(DbEntry) #>
 </head>
 
 <body>

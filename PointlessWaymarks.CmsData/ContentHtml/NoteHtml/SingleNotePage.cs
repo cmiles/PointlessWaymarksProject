@@ -182,7 +182,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml.NoteHtml
             this.Write("\r\n\r\n    ");
             
             #line 48 "C:\Code\PointlessWaymarksCms03\PointlessWaymarks.CmsData\ContentHtml\NoteHtml\SingleNotePage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(SpatialScripts.IncludeIfNeeded(DbEntry)));
+            this.Write(this.ToStringHelper.ToStringWithCulture(HeaderContentBasedAdditions.HeaderAdditions(DbEntry)));
             
             #line default
             #line hidden

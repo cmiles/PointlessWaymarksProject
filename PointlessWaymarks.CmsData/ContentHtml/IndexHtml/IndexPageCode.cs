@@ -55,12 +55,10 @@ public partial class IndexPage
     }
 
     public string DirAttribute { get; set; }
-
     public DateTime? GenerationVersion { get; set; }
     public bool IncludeCodeHighlightingScripts { get; set; }
     public bool IncludeSpatialScripts { get; set; }
     public List<dynamic> IndexContent { get; }
-
     public string LangAttribute { get; set; }
     public PictureSiteInformation? MainImage { get; }
     public string PageUrl { get; }
@@ -70,6 +68,38 @@ public partial class IndexPage
     public string SiteName { get; }
     public string SiteSummary { get; }
     public string SiteUrl { get; }
+
+    public string HeaderAdditions()
+    {
+        var content = IndexContent.Take(UserSettingsSingleton.CurrentSettings().NumberOfItemsOnMainSitePage).ToList();
+
+        var headers = HeaderContentBasedAdditions.HeaderIncludes();
+
+        var headerList = new List<string>();
+
+        foreach (var loopHeader in headers)
+        {
+            var commonContent = content.Where(x => x is IContentCommon).Cast<IContentCommon>().ToList();
+
+            if (commonContent.Any(x => loopHeader.IsNeeded(x)))
+            {
+                headerList.Add(loopHeader.HeaderAdditions());
+                continue;
+            }
+
+            var notCommonContent = content.Where(x => x is not IContentCommon).ToList();
+
+            foreach (var loopContent in notCommonContent)
+                if (DynamicTypeTools.PropertyExists(loopContent, "BodyContent"))
+                    if (loopHeader.IsNeeded((string?)loopContent.BodyContent))
+                    {
+                        headerList.Add(loopHeader.HeaderAdditions());
+                        break;
+                    }
+        }
+
+        return string.Join(Environment.NewLine, headerList);
+    }
 
     public HtmlTag IndexPosts()
     {
@@ -170,21 +200,22 @@ public partial class IndexPage
     {
         await WriteRss().ConfigureAwait(false);
 
-        foreach (var loopPosts in
-                 IndexContent.Take(UserSettingsSingleton.CurrentSettings().NumberOfItemsOnMainSitePage))
-        {
-            if (DynamicTypeTools.PropertyExists(loopPosts, "BodyContent"))
-            {
-                if (!IncludeSpatialScripts)
-                    IncludeSpatialScripts = SpatialScripts.IsNeeded((string?)loopPosts.BodyContent);
-                if (!IncludeCodeHighlightingScripts)
-                    IncludeCodeHighlightingScripts = CodeHighlightingScripts.IsNeeded((string?)loopPosts.BodyContent);
-            }
 
-            if (loopPosts.GetType() == typeof(PointContentDto) || loopPosts.GetType() == typeof(GeoJsonContent) ||
-                loopPosts.GetType() == typeof(LineContent))
-                IncludeSpatialScripts = true;
-        }
+        //foreach (var loopPosts in
+        //         IndexContent.Take(UserSettingsSingleton.CurrentSettings().NumberOfItemsOnMainSitePage))
+        //{
+        //    if (DynamicTypeTools.PropertyExists(loopPosts, "BodyContent"))
+        //    {
+        //        if (!IncludeSpatialScripts)
+        //            IncludeSpatialScripts = SpatialScripts.IsNeeded((string?)loopPosts.BodyContent);
+        //        if (!IncludeCodeHighlightingScripts)
+        //            IncludeCodeHighlightingScripts = CodeHighlightingScripts.IsNeeded((string?)loopPosts.BodyContent);
+        //    }
+
+        //    if (loopPosts.GetType() == typeof(PointContentDto) || loopPosts.GetType() == typeof(GeoJsonContent) ||
+        //        loopPosts.GetType() == typeof(LineContent))
+        //        IncludeSpatialScripts = true;
+        //}
 
         var htmlString = TransformText();
 

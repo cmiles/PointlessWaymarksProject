@@ -200,97 +200,90 @@ namespace PointlessWaymarks.CmsData.ContentHtml.PostHtml
             this.Write("\r\n\r\n    ");
             
             #line 48 "C:\Code\PointlessWaymarksProject-04\PointlessWaymarks.CmsData\ContentHtml\PostHtml\SinglePostPage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(SpatialScripts.IncludeIfNeeded(DbEntry)));
-            
-            #line default
-            #line hidden
-            this.Write("\r\n    ");
-            
-            #line 49 "C:\Code\PointlessWaymarksProject-04\PointlessWaymarks.CmsData\ContentHtml\PostHtml\SinglePostPage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(CodeHighlightingScripts.IncludeIfNeeded(DbEntry)));
+            this.Write(this.ToStringHelper.ToStringWithCulture(HeaderContentBasedAdditions.HeaderAdditions(DbEntry)));
             
             #line default
             #line hidden
             this.Write("\r\n</head>\r\n\r\n<body>\r\n    ");
             
-            #line 53 "C:\Code\PointlessWaymarksProject-04\PointlessWaymarks.CmsData\ContentHtml\PostHtml\SinglePostPage.tt"
+            #line 52 "C:\Code\PointlessWaymarksProject-04\PointlessWaymarks.CmsData\ContentHtml\PostHtml\SinglePostPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Tags.StandardHeader().Result.ToString()));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 54 "C:\Code\PointlessWaymarksProject-04\PointlessWaymarks.CmsData\ContentHtml\PostHtml\SinglePostPage.tt"
+            #line 53 "C:\Code\PointlessWaymarksProject-04\PointlessWaymarks.CmsData\ContentHtml\PostHtml\SinglePostPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(HorizontalRule.StandardRule()));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 55 "C:\Code\PointlessWaymarksProject-04\PointlessWaymarks.CmsData\ContentHtml\PostHtml\SinglePostPage.tt"
+            #line 54 "C:\Code\PointlessWaymarksProject-04\PointlessWaymarks.CmsData\ContentHtml\PostHtml\SinglePostPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Tags.TitleDiv(DbEntry).ToString()));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 56 "C:\Code\PointlessWaymarksProject-04\PointlessWaymarks.CmsData\ContentHtml\PostHtml\SinglePostPage.tt"
+            #line 55 "C:\Code\PointlessWaymarksProject-04\PointlessWaymarks.CmsData\ContentHtml\PostHtml\SinglePostPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Tags.PostCreatedByAndUpdatedOnDiv(DbEntry).ToString()));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 58 "C:\Code\PointlessWaymarksProject-04\PointlessWaymarks.CmsData\ContentHtml\PostHtml\SinglePostPage.tt"
+            #line 57 "C:\Code\PointlessWaymarksProject-04\PointlessWaymarks.CmsData\ContentHtml\PostHtml\SinglePostPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Tags.PostBodyDiv(DbEntry).Result.ToString()));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 60 "C:\Code\PointlessWaymarksProject-04\PointlessWaymarks.CmsData\ContentHtml\PostHtml\SinglePostPage.tt"
+            #line 59 "C:\Code\PointlessWaymarksProject-04\PointlessWaymarks.CmsData\ContentHtml\PostHtml\SinglePostPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(HorizontalRule.StandardRule()));
             
             #line default
             #line hidden
             this.Write("\r\n    <div class=\"information-section\">\r\n        ");
             
-            #line 62 "C:\Code\PointlessWaymarksProject-04\PointlessWaymarks.CmsData\ContentHtml\PostHtml\SinglePostPage.tt"
+            #line 61 "C:\Code\PointlessWaymarksProject-04\PointlessWaymarks.CmsData\ContentHtml\PostHtml\SinglePostPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Tags.TagList(DbEntry).ToString()));
             
             #line default
             #line hidden
             this.Write("\r\n        ");
             
-            #line 63 "C:\Code\PointlessWaymarksProject-04\PointlessWaymarks.CmsData\ContentHtml\PostHtml\SinglePostPage.tt"
+            #line 62 "C:\Code\PointlessWaymarksProject-04\PointlessWaymarks.CmsData\ContentHtml\PostHtml\SinglePostPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(BodyContentReferences.CompactContentTag(DbEntry, GenerationVersion).Result));
             
             #line default
             #line hidden
             this.Write("\r\n        ");
             
-            #line 65 "C:\Code\PointlessWaymarksProject-04\PointlessWaymarks.CmsData\ContentHtml\PostHtml\SinglePostPage.tt"
+            #line 64 "C:\Code\PointlessWaymarksProject-04\PointlessWaymarks.CmsData\ContentHtml\PostHtml\SinglePostPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Tags.PreviousAndNextContentDiv(PreviousPosts, LaterPosts)));
             
             #line default
             #line hidden
             this.Write("\r\n        ");
             
-            #line 67 "C:\Code\PointlessWaymarksProject-04\PointlessWaymarks.CmsData\ContentHtml\PostHtml\SinglePostPage.tt"
+            #line 66 "C:\Code\PointlessWaymarksProject-04\PointlessWaymarks.CmsData\ContentHtml\PostHtml\SinglePostPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Tags.UpdateNotesDiv(DbEntry).Result.ToString()));
             
             #line default
             #line hidden
             this.Write("\r\n    </div>\r\n    ");
             
-            #line 70 "C:\Code\PointlessWaymarksProject-04\PointlessWaymarks.CmsData\ContentHtml\PostHtml\SinglePostPage.tt"
+            #line 69 "C:\Code\PointlessWaymarksProject-04\PointlessWaymarks.CmsData\ContentHtml\PostHtml\SinglePostPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(HorizontalRule.StandardRule()));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 71 "C:\Code\PointlessWaymarksProject-04\PointlessWaymarks.CmsData\ContentHtml\PostHtml\SinglePostPage.tt"
+            #line 70 "C:\Code\PointlessWaymarksProject-04\PointlessWaymarks.CmsData\ContentHtml\PostHtml\SinglePostPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Footer.StandardFooterDiv().Result));
             
             #line default
