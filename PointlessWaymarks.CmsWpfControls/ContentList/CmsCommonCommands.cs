@@ -140,8 +140,6 @@ public partial class CmsCommonCommands
         var command = Environment.GetCommandLineArgs()[0];
         if (command.EndsWith(".dll")) command = $"{command[..^4]}.exe";
 
-        StatusContext.ToastWarning(command);
-
         Process.Start(command);
     }
 
