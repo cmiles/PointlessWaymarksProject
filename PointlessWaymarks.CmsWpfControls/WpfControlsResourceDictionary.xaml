@@ -1032,6 +1032,8 @@
         <MenuItem Command="{Binding CommonCommands.NewPointListWindowCommand}" Header="New Point List Window" />
         <MenuItem Command="{Binding CommonCommands.NewPostListWindowCommand}" Header="New Post List Window" />
         <MenuItem Command="{Binding CommonCommands.NewVideoListWindowCommand}" Header="New Video List Window" />
+        <Separator></Separator>
+        <MenuItem Command="{Binding CommonCommands.NewCmsWindowCommand}" Header="New CMS Window" />
     </collections:ArrayList>
     <MenuItem
         x:Key="ViewMenu"
@@ -1063,7 +1065,8 @@
         <MenuItem Command="{Binding CommonCommands.NewPostContentCommand}" Header="Post" />
         <MenuItem Command="{Binding CommonCommands.NewVideoContentFromFilesCommand}" Header="Video From Files" />
         <MenuItem Command="{Binding CommonCommands.NewVideoContentCommand}" Header="Video" />
-
+        <Separator></Separator>
+        <MenuItem Command="{Binding CommonCommands.NewCmsWindowCommand}" Header="New CMS Window" />
     </collections:ArrayList>
     <MenuItem
         x:Key="NewMenu"

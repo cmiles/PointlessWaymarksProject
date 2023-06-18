@@ -1,7 +1,7 @@
-﻿using System.IO;
+﻿using System.Diagnostics;
+using System.IO;
+using System.Reflection;
 using System.Windows.Shell;
-using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
 using Ookii.Dialogs.Wpf;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.Content;
@@ -44,260 +44,22 @@ using PointlessWaymarks.WpfCommon.Utility;
 namespace PointlessWaymarks.CmsWpfControls.ContentList;
 
 [NotifyPropertyChanged]
+[GenerateStatusCommands]
 public partial class CmsCommonCommands
 {
-    public StatusControlContext StatusContext { get; set; }
-
     public CmsCommonCommands(StatusControlContext? statusContext, WindowIconStatus? windowStatus = null)
     {
         StatusContext = statusContext ?? new StatusControlContext();
         WindowStatus = windowStatus;
 
-        NewFileContentCommand = StatusContext.RunNonBlockingTaskCommand(NewFileContent);
-        NewFileContentFromFilesCommand = StatusContext.RunBlockingTaskWithCancellationCommand(
-            async x =>
-            {
-                await WindowIconStatus.IndeterminateTask(WindowStatus, async () => await NewFileContentFromFiles(x),
-                    StatusContext.StatusControlContextId);
-            }, "Cancel File Import");
-        NewGeoJsonContentCommand = StatusContext.RunNonBlockingTaskCommand(NewGeoJsonContent);
-        NewImageContentCommand = StatusContext.RunNonBlockingTaskCommand(NewImageContent);
-        NewImageContentFromFilesCommand =
-            StatusContext.RunBlockingTaskWithCancellationCommand(async x => await NewImageContentFromFiles(x),
-                "Cancel Image Import");
-        NewLineContentCommand = StatusContext.RunNonBlockingTaskCommand(NewLineContent);
-        NewLineContentFromFilesCommand = StatusContext.RunBlockingTaskWithCancellationCommand(
-            async x =>
-            {
-                await WindowIconStatus.IndeterminateTask(WindowStatus,
-                    async () => await NewLineContentFromFiles(x, false, false, StatusContext, WindowStatus),
-                    StatusContext.StatusControlContextId);
-            }, "Cancel Line Import");
-        NewLineContentFromFilesWithPhotosCommand = StatusContext.RunBlockingTaskWithCancellationCommand(
-            async x =>
-            {
-                await WindowIconStatus.IndeterminateTask(WindowStatus,
-                    async () => await NewLineContentFromFiles(x, true, false, StatusContext, WindowStatus),
-                    StatusContext.StatusControlContextId);
-            }, "Cancel Line Import");
-        NewLineContentFromFilesWithAutosaveCommand = StatusContext.RunBlockingTaskWithCancellationCommand(
-            async x =>
-            {
-                await WindowIconStatus.IndeterminateTask(WindowStatus,
-                    async () => await NewLineContentFromFiles(x, false, true, StatusContext, WindowStatus),
-                    StatusContext.StatusControlContextId);
-            }, "Cancel Line Import");
-        NewLineContentFromFilesWithPhotosWithAutosaveCommand = StatusContext.RunBlockingTaskWithCancellationCommand(
-            async x =>
-            {
-                await WindowIconStatus.IndeterminateTask(WindowStatus,
-                    async () => await NewLineContentFromFiles(x, true, true, StatusContext, WindowStatus),
-                    StatusContext.StatusControlContextId);
-            }, "Cancel Line Import");
-        NewLinkContentCommand = StatusContext.RunNonBlockingTaskCommand(NewLinkContent);
-        NewMapContentCommand = StatusContext.RunNonBlockingTaskCommand(NewMapContent);
-        NewNoteContentCommand = StatusContext.RunNonBlockingTaskCommand(NewNoteContent);
-        NewPhotoContentCommand = StatusContext.RunNonBlockingTaskCommand(NewPhotoContent);
-        NewPhotoContentFromFilesCommand = StatusContext.RunBlockingTaskWithCancellationCommand(
-            async x =>
-            {
-                await WindowIconStatus.IndeterminateTask(WindowStatus,
-                    async () => await NewPhotoContentFromFiles(false, x), StatusContext.StatusControlContextId);
-            }, "Cancel Photo Import");
-
-        NewPhotoContentFromFilesWithAutosaveCommand = StatusContext.RunBlockingTaskWithCancellationCommand(
-            async x =>
-            {
-                await WindowIconStatus.IndeterminateTask(WindowStatus,
-                    async () => await NewPhotoContentFromFiles(true, x), StatusContext.StatusControlContextId);
-            }, "Cancel Photo Import");
-        NewPointContentCommand = StatusContext.RunNonBlockingTaskCommand(NewPointContent);
-        NewPostContentCommand = StatusContext.RunNonBlockingTaskCommand(NewPostContent);
-        NewVideoContentCommand = StatusContext.RunNonBlockingTaskCommand(NewVideoContent);
-        NewVideoContentFromFilesCommand =
-            StatusContext.RunBlockingTaskWithCancellationCommand(async x => await NewVideoContentFromFiles(x),
-                "Cancel Video Import");
-
-        NewGpxImportWindowCommand = StatusContext.RunNonBlockingTaskCommand(NewGpxImport);
-
-
-        NewAllContentListWindowCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
-        {
-            var newWindow =
-                await AllContentListWindow.CreateInstance(
-                    await AllContentListWithActionsContext.CreateInstance(null, WindowStatus));
-            await newWindow.PositionWindowAndShowOnUiThread();
-        });
-        NewFileListWindowCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
-        {
-            var newWindow =
-                await FileListWindow.CreateInstance(
-                    await FileListWithActionsContext.CreateInstance(null, WindowStatus));
-            await newWindow.PositionWindowAndShowOnUiThread();
-        });
-        NewGeoJsonListWindowCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
-        {
-            var newWindow =
-                await GeoJsonListWindow.CreateInstance(
-                    await GeoJsonListWithActionsContext.CreateInstance(null, WindowStatus));
-            await newWindow.PositionWindowAndShowOnUiThread();
-        });
-        NewImageListWindowCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
-        {
-            var newWindow =
-                await ImageListWindow.CreateInstance(
-                    await ImageListWithActionsContext.CreateInstance(null, WindowStatus));
-            await newWindow.PositionWindowAndShowOnUiThread();
-        });
-        NewLineListWindowCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
-        {
-            var newWindow =
-                await LineListWindow.CreateInstance(
-                    await LineListWithActionsContext.CreateInstance(null, WindowStatus));
-            await newWindow.PositionWindowAndShowOnUiThread();
-        });
-        NewLinkListWindowCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
-        {
-            var newWindow =
-                await LinkListWindow.CreateInstance(
-                    await LinkListWithActionsContext.CreateInstance(null, WindowStatus));
-            await newWindow.PositionWindowAndShowOnUiThread();
-        });
-        NewMapComponentListWindowCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
-        {
-            var newWindow =
-                await MapComponentListWindow.CreateInstance(
-                    await MapComponentListWithActionsContext.CreateInstance(null, WindowStatus));
-            await newWindow.PositionWindowAndShowOnUiThread();
-        });
-        NewNoteListWindowCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
-        {
-            var newWindow =
-                await NoteListWindow.CreateInstance(
-                    await NoteListWithActionsContext.CreateInstance(null, WindowStatus));
-            await newWindow.PositionWindowAndShowOnUiThread();
-        });
-        NewPhotoListWindowCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
-        {
-            var newWindow =
-                await PhotoListWindow.CreateInstance(
-                    await PhotoListWithActionsContext.CreateInstance(null, WindowStatus, null));
-            await newWindow.PositionWindowAndShowOnUiThread();
-        });
-        NewPointListWindowCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
-        {
-            var newWindow =
-                await PointListWindow.CreateInstance(
-                    await PointListWithActionsContext.CreateInstance(null, WindowStatus));
-            await newWindow.PositionWindowAndShowOnUiThread();
-        });
-        NewPostListWindowCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
-        {
-            var newWindow =
-                await PostListWindow.CreateInstance(
-                    await PostListWithActionsContext.CreateInstance(null, WindowStatus));
-            await newWindow.PositionWindowAndShowOnUiThread();
-        });
-        NewVideoListWindowCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
-        {
-            var newWindow =
-                await VideoListWindow.CreateInstance(
-                    await VideoListWithActionsContext.CreateInstance(null, WindowStatus));
-            await newWindow.PositionWindowAndShowOnUiThread();
-        });
-
-        SearchHelpWindowCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
-        {
-            var newWindow = await MarkdownViewerWindow.CreateInstance("Search Help", SearchHelpMarkdown.HelpBlock);
-            await newWindow.PositionWindowAndShowOnUiThread();
-        });
-
-        GenerateChangedHtmlAndStartUploadCommand =
-            StatusContext.RunBlockingTaskCommand(GenerateChangedHtmlAndStartUpload);
-        GenerateChangedHtmlCommand = StatusContext.RunBlockingTaskCommand(GenerateChangedHtml);
-        ShowSitePreviewWindowCommand = StatusContext.RunNonBlockingTaskCommand(ShowSitePreviewWindow);
-        GenerateChangedHtmlAndShowSitePreviewCommand =
-            StatusContext.RunBlockingTaskCommand(GenerateChangedHtmlAndShowSitePreview);
+        BuildCommands();
     }
 
-    public RelayCommand GenerateChangedHtmlAndShowSitePreviewCommand { get; }
-
-    public RelayCommand GenerateChangedHtmlAndStartUploadCommand { get; }
-
-    public RelayCommand GenerateChangedHtmlCommand { get; }
-
-    public RelayCommand NewAllContentListWindowCommand { get; }
-
-    public RelayCommand NewFileContentCommand { get; }
-
-    public RelayCommand NewFileContentFromFilesCommand { get; }
-
-    public RelayCommand NewFileListWindowCommand { get; }
-
-    public RelayCommand NewGeoJsonContentCommand { get; }
-
-    public RelayCommand NewGeoJsonListWindowCommand { get; }
-
-    public RelayCommand NewGpxImportWindowCommand { get; }
-
-    public RelayCommand NewImageContentCommand { get; }
-
-    public RelayCommand NewImageContentFromFilesCommand { get; }
-
-    public RelayCommand NewImageListWindowCommand { get; }
-
-    public RelayCommand NewLineContentCommand { get; }
-
-    public RelayCommand NewLineContentFromFilesCommand { get; }
-
-    public RelayCommand NewLineContentFromFilesWithAutosaveCommand { get; }
-
-    public RelayCommand NewLineContentFromFilesWithPhotosCommand { get; set; }
-
-    public RelayCommand NewLineContentFromFilesWithPhotosWithAutosaveCommand { get; set; }
-
-    public RelayCommand NewLineListWindowCommand { get; }
-
-    public RelayCommand NewLinkContentCommand { get; }
-
-    public RelayCommand NewLinkListWindowCommand { get; }
-
-    public RelayCommand NewMapComponentListWindowCommand { get; }
-
-    public RelayCommand NewMapContentCommand { get; }
-
-    public RelayCommand NewNoteContentCommand { get; }
-
-    public RelayCommand NewNoteListWindowCommand { get; }
-
-    public RelayCommand NewPhotoContentCommand { get; }
-
-    public RelayCommand NewPhotoContentFromFilesCommand { get; }
-
-    public RelayCommand NewPhotoContentFromFilesWithAutosaveCommand { get; }
-
-    public RelayCommand NewPhotoListWindowCommand { get; set; }
-
-    public RelayCommand NewPointContentCommand { get; }
-
-    public RelayCommand NewPointListWindowCommand { get; }
-
-    public RelayCommand NewPostContentCommand { get; }
-
-    public RelayCommand NewPostListWindowCommand { get; }
-
-    public RelayCommand NewVideoContentCommand { get; }
-
-    public RelayCommand NewVideoContentFromFilesCommand { get; }
-
-    public RelayCommand NewVideoListWindowCommand { get; }
-
-    public RelayCommand SearchHelpWindowCommand { get; }
-
-    public RelayCommand ShowSitePreviewWindowCommand { get; }
+    public StatusControlContext StatusContext { get; set; }
 
     public WindowIconStatus? WindowStatus { get; }
 
+    [BlockingCommand]
     private async Task GenerateChangedHtml()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -316,6 +78,7 @@ public partial class CmsCommonCommands
         }
     }
 
+    [BlockingCommand]
     private async Task GenerateChangedHtmlAndShowSitePreview()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -337,6 +100,7 @@ public partial class CmsCommonCommands
         await sitePreviewWindow.PositionWindowAndShowOnUiThread();
     }
 
+    [BlockingCommand]
     private async Task GenerateChangedHtmlAndStartUpload()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -355,13 +119,48 @@ public partial class CmsCommonCommands
         }
     }
 
+
+    [NonBlockingCommand]
+    private async Task NewAllContentListWindow()
+    {
+        var newWindow =
+            await AllContentListWindow.CreateInstance(
+                await AllContentListWithActionsContext.CreateInstance(null, WindowStatus));
+        await newWindow.PositionWindowAndShowOnUiThread();
+    }
+
+    [NonBlockingCommand]
+    private async Task NewCmsWindow()
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        //6/18/2023 - Assembly.GetEntryAssembly()!.Location might be more expected but I saw some indication
+        //in the online material that the method below might be more durable. The dll/exe swap is a bit of 
+        //a guess but at the least seems to help inside Visual Studio...
+        var command = Environment.GetCommandLineArgs()[0];
+        if (command.EndsWith(".dll")) command = $"{command[..^4]}.exe";
+
+        StatusContext.ToastWarning(command);
+
+        Process.Start(command);
+    }
+
+    [NonBlockingCommand]
     public async Task NewFileContent()
     {
         var newContentWindow = await FileContentEditorWindow.CreateInstance();
         await newContentWindow.PositionWindowAndShowOnUiThread();
     }
 
-    public async Task NewFileContentFromFiles(CancellationToken cancellationToken)
+    [BlockingCommand]
+    private async Task NewFileContentFromFiles(CancellationToken cancellationToken)
+    {
+        await WindowIconStatus.IndeterminateTask(WindowStatus,
+            async () => await NewFileContentFromFilesBase(cancellationToken),
+            StatusContext.StatusControlContextId);
+    }
+
+    public async Task NewFileContentFromFilesBase(CancellationToken cancellationToken)
     {
         await ThreadSwitcher.ResumeForegroundAsync();
 
@@ -406,6 +205,16 @@ public partial class CmsCommonCommands
         }
     }
 
+    [NonBlockingCommand]
+    private async Task NewFileListWindow()
+    {
+        var newWindow =
+            await FileListWindow.CreateInstance(
+                await FileListWithActionsContext.CreateInstance(null, WindowStatus));
+        await newWindow.PositionWindowAndShowOnUiThread();
+    }
+
+    [NonBlockingCommand]
     public async Task NewGeoJsonContent()
     {
         await ThreadSwitcher.ResumeForegroundAsync();
@@ -415,7 +224,17 @@ public partial class CmsCommonCommands
         newContentWindow.PositionWindowAndShow();
     }
 
-    public async Task NewGpxImport()
+    [NonBlockingCommand]
+    private async Task NewGeoJsonListWindow()
+    {
+        var newWindow =
+            await GeoJsonListWindow.CreateInstance(
+                await GeoJsonListWithActionsContext.CreateInstance(null, WindowStatus));
+        await newWindow.PositionWindowAndShowOnUiThread();
+    }
+
+    [NonBlockingCommand]
+    public async Task NewGpxImportWindow()
     {
         await ThreadSwitcher.ResumeForegroundAsync();
 
@@ -424,6 +243,7 @@ public partial class CmsCommonCommands
         newContentWindow.PositionWindowAndShow();
     }
 
+    [NonBlockingCommand]
     public async Task NewImageContent()
     {
         await ThreadSwitcher.ResumeForegroundAsync();
@@ -433,6 +253,7 @@ public partial class CmsCommonCommands
         newContentWindow.PositionWindowAndShow();
     }
 
+    [BlockingCommand]
     public async Task NewImageContentFromFiles(CancellationToken cancellationToken)
     {
         await ThreadSwitcher.ResumeForegroundAsync();
@@ -490,6 +311,17 @@ public partial class CmsCommonCommands
         }
     }
 
+
+    [NonBlockingCommand]
+    private async Task NewImageListWindow()
+    {
+        var newWindow =
+            await ImageListWindow.CreateInstance(
+                await ImageListWithActionsContext.CreateInstance(null, WindowStatus));
+        await newWindow.PositionWindowAndShowOnUiThread();
+    }
+
+    [NonBlockingCommand]
     public async Task NewLineContent()
     {
         var newContentWindow = await LineContentEditorWindow.CreateInstance(null);
@@ -497,7 +329,15 @@ public partial class CmsCommonCommands
         await newContentWindow.PositionWindowAndShowOnUiThread();
     }
 
-    public static async Task NewLineContentFromFiles(CancellationToken cancellationToken,
+    [BlockingCommand]
+    private async Task NewLineContentFromFiles(CancellationToken cancellationToken)
+    {
+        await WindowIconStatus.IndeterminateTask(WindowStatus,
+            async () => await NewLineContentFromFilesBase(cancellationToken, false, false, StatusContext, WindowStatus),
+            StatusContext.StatusControlContextId);
+    }
+
+    public static async Task NewLineContentFromFilesBase(CancellationToken cancellationToken,
         bool addTimeAssociatedPhotosToBody, bool autoSaveAndClose,
         StatusControlContext statusContext, WindowIconStatus? windowStatus)
     {
@@ -531,12 +371,12 @@ public partial class CmsCommonCommands
 
         selectedFileInfos = selectedFileInfos.Where(x => x.Exists).ToList();
 
-        await NewLineContentFromFiles(selectedFileInfos, addTimeAssociatedPhotosToBody, autoSaveAndClose,
+        await NewLineContentFromFilesBase(selectedFileInfos, addTimeAssociatedPhotosToBody, autoSaveAndClose,
             cancellationToken, statusContext,
             windowStatus);
     }
 
-    public static async Task NewLineContentFromFiles(List<FileInfo> selectedFileInfos,
+    public static async Task NewLineContentFromFilesBase(List<FileInfo> selectedFileInfos,
         bool addTimeAssociatedPhotosToBody, bool autoSaveAndClose,
         CancellationToken cancellationToken,
         StatusControlContext statusContext, WindowIconStatus? windowStatus)
@@ -607,6 +447,40 @@ public partial class CmsCommonCommands
         }
     }
 
+    [BlockingCommand]
+    private async Task NewLineContentFromFilesWithAutosave(CancellationToken cancellationToken)
+    {
+        await WindowIconStatus.IndeterminateTask(WindowStatus,
+            async () => await NewLineContentFromFilesBase(cancellationToken, false, true, StatusContext, WindowStatus),
+            StatusContext.StatusControlContextId);
+    }
+
+    [BlockingCommand]
+    private async Task NewLineContentFromFilesWithPhotos(CancellationToken cancellationToken)
+    {
+        await WindowIconStatus.IndeterminateTask(WindowStatus,
+            async () => await NewLineContentFromFilesBase(cancellationToken, true, false, StatusContext, WindowStatus),
+            StatusContext.StatusControlContextId);
+    }
+
+    [BlockingCommand]
+    private async Task NewLineContentFromFilesWithPhotosWithAutosave(CancellationToken cancellationToken)
+    {
+        await WindowIconStatus.IndeterminateTask(WindowStatus,
+            async () => await NewLineContentFromFilesBase(cancellationToken, true, true, StatusContext, WindowStatus),
+            StatusContext.StatusControlContextId);
+    }
+
+    [NonBlockingCommand]
+    private async Task NewLineListWindow()
+    {
+        var newWindow =
+            await LineListWindow.CreateInstance(
+                await LineListWithActionsContext.CreateInstance(null, WindowStatus));
+        await newWindow.PositionWindowAndShowOnUiThread();
+    }
+
+    [NonBlockingCommand]
     public async Task NewLinkContent()
     {
         var newContentWindow = await LinkContentEditorWindow.CreateInstance(null);
@@ -614,6 +488,26 @@ public partial class CmsCommonCommands
         await newContentWindow.PositionWindowAndShowOnUiThread();
     }
 
+
+    [NonBlockingCommand]
+    private async Task NewLinkListWindow()
+    {
+        var newWindow =
+            await LinkListWindow.CreateInstance(
+                await LinkListWithActionsContext.CreateInstance(null, WindowStatus));
+        await newWindow.PositionWindowAndShowOnUiThread();
+    }
+
+    [NonBlockingCommand]
+    private async Task NewMapComponentListWindow()
+    {
+        var newWindow =
+            await MapComponentListWindow.CreateInstance(
+                await MapComponentListWithActionsContext.CreateInstance(null, WindowStatus));
+        await newWindow.PositionWindowAndShowOnUiThread();
+    }
+
+    [NonBlockingCommand]
     public async Task NewMapContent()
     {
         var newContentWindow = await MapComponentEditorWindow.CreateInstance(null);
@@ -621,7 +515,7 @@ public partial class CmsCommonCommands
         await newContentWindow.PositionWindowAndShowOnUiThread();
     }
 
-
+    [NonBlockingCommand]
     public async Task NewNoteContent()
     {
         var newContentWindow = await NoteContentEditorWindow.CreateInstance(null);
@@ -629,7 +523,16 @@ public partial class CmsCommonCommands
         await newContentWindow.PositionWindowAndShowOnUiThread();
     }
 
+    [NonBlockingCommand]
+    private async Task NewNoteListWindow()
+    {
+        var newWindow =
+            await NoteListWindow.CreateInstance(
+                await NoteListWithActionsContext.CreateInstance(null, WindowStatus));
+        await newWindow.PositionWindowAndShowOnUiThread();
+    }
 
+    [NonBlockingCommand]
     public async Task NewPhotoContent()
     {
         var newContentWindow = await PhotoContentEditorWindow.CreateInstance();
@@ -637,7 +540,15 @@ public partial class CmsCommonCommands
         await newContentWindow.PositionWindowAndShowOnUiThread();
     }
 
-    public async Task NewPhotoContentFromFiles(bool autoSaveAndClose, CancellationToken cancellationToken)
+    [BlockingCommand]
+    private async Task NewPhotoContentFromFiles(CancellationToken cancellationToken)
+    {
+        await WindowIconStatus.IndeterminateTask(WindowStatus,
+            async () => await NewPhotoContentFromFilesBase(false, cancellationToken),
+            StatusContext.StatusControlContextId);
+    }
+
+    public async Task NewPhotoContentFromFilesBase(bool autoSaveAndClose, CancellationToken cancellationToken)
     {
         await ThreadSwitcher.ResumeForegroundAsync();
 
@@ -737,6 +648,25 @@ public partial class CmsCommonCommands
         }
     }
 
+    [BlockingCommand]
+    private async Task NewPhotoContentFromFilesWithAutosave(CancellationToken cancellationToken)
+    {
+        await WindowIconStatus.IndeterminateTask(WindowStatus,
+            async () => await NewPhotoContentFromFilesBase(true, cancellationToken),
+            StatusContext.StatusControlContextId);
+    }
+
+
+    [NonBlockingCommand]
+    private async Task NewPhotoListWindow()
+    {
+        var newWindow =
+            await PhotoListWindow.CreateInstance(
+                await PhotoListWithActionsContext.CreateInstance(null, WindowStatus, null));
+        await newWindow.PositionWindowAndShowOnUiThread();
+    }
+
+    [NonBlockingCommand]
     public async Task NewPointContent()
     {
         var newContentWindow = await PointContentEditorWindow.CreateInstance(null);
@@ -744,6 +674,16 @@ public partial class CmsCommonCommands
         await newContentWindow.PositionWindowAndShowOnUiThread();
     }
 
+    [NonBlockingCommand]
+    private async Task NewPointListWindow()
+    {
+        var newWindow =
+            await PointListWindow.CreateInstance(
+                await PointListWithActionsContext.CreateInstance(null, WindowStatus));
+        await newWindow.PositionWindowAndShowOnUiThread();
+    }
+
+    [NonBlockingCommand]
     public async Task NewPostContent()
     {
         var newContentWindow = await PostContentEditorWindow.CreateInstance();
@@ -751,6 +691,16 @@ public partial class CmsCommonCommands
         await newContentWindow.PositionWindowAndShowOnUiThread();
     }
 
+    [NonBlockingCommand]
+    private async Task NewPostList()
+    {
+        var newWindow =
+            await PostListWindow.CreateInstance(
+                await PostListWithActionsContext.CreateInstance(null, WindowStatus));
+        await newWindow.PositionWindowAndShowOnUiThread();
+    }
+
+    [NonBlockingCommand]
     public async Task NewVideoContent()
     {
         await ThreadSwitcher.ResumeForegroundAsync();
@@ -760,6 +710,7 @@ public partial class CmsCommonCommands
         newContentWindow.PositionWindowAndShow();
     }
 
+    [BlockingCommand]
     public async Task NewVideoContentFromFiles(CancellationToken cancellationToken)
     {
         await ThreadSwitcher.ResumeForegroundAsync();
@@ -818,6 +769,23 @@ public partial class CmsCommonCommands
         }
     }
 
+    [NonBlockingCommand]
+    private async Task NewVideoListWindow()
+    {
+        var newWindow =
+            await VideoListWindow.CreateInstance(
+                await VideoListWithActionsContext.CreateInstance(null, WindowStatus));
+        await newWindow.PositionWindowAndShowOnUiThread();
+    }
+
+    [NonBlockingCommand]
+    private async Task SearchHelpWindow()
+    {
+        var newWindow = await MarkdownViewerWindow.CreateInstance("Search Help", SearchHelpMarkdown.HelpBlock);
+        await newWindow.PositionWindowAndShowOnUiThread();
+    }
+
+    [NonBlockingCommand]
     private async Task ShowSitePreviewWindow()
     {
         await ThreadSwitcher.ResumeForegroundAsync();
