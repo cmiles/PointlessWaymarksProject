@@ -1,6 +1,7 @@
 ﻿using System.IO;
 using AnyClone;
 using Omu.ValueInjecter;
+using Ookii.Dialogs.Wpf;
 using PointlessWaymarks.GeoToolsGui.Models;
 using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon.Status;
@@ -24,7 +25,6 @@ public partial class FeatureFileEditorContext
 
         OriginalModelState = Model.Clone();
         _existingFeatureFileViewModels = existingFeatureFileViewModels;
-
     }
 
     public string AttributeToAdd { get; set; } = string.Empty;
@@ -72,6 +72,37 @@ public partial class FeatureFileEditorContext
         EndEdit?.Invoke(this, (FeatureFileEditorEndEditCondition.Cancelled, Model));
         IsVisible = false;
         return Task.CompletedTask;
+    }
+
+    [BlockingCommand]
+    public async Task ChooseFile()
+    {
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        var filePicker = new VistaOpenFileDialog { Filter = "geojson files (*.geojson)|*.geojson|All files (*.*)|*.*" };
+
+        if (!string.IsNullOrWhiteSpace(Model.FileName))
+        {
+            var currentFileInfo = new FileInfo(Model.FileName);
+            if (currentFileInfo.Exists && !string.IsNullOrWhiteSpace(currentFileInfo.Directory?.FullName))
+                filePicker.FileName = $"{currentFileInfo.Directory.FullName}\\";
+        }
+
+        var result = filePicker.ShowDialog();
+
+        if (!result ?? false) return;
+
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        var possibleFile = new FileInfo(filePicker.FileName);
+
+        if (!possibleFile.Exists)
+        {
+            StatusContext.ToastError("File doesn't exist?");
+            return;
+        }
+
+        Model.FileName = possibleFile.FullName;
     }
 
     [BlockingCommand]

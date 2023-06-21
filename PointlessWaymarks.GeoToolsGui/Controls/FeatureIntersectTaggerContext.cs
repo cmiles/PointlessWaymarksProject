@@ -196,12 +196,13 @@ public partial class FeatureIntersectTaggerContext
         return control;
     }
 
+    [BlockingCommand]
     private Task<IntersectSettings> CurrentSettingsAsIntersectSettings()
     {
         Debug.Assert(Settings != null, nameof(Settings) + " != null");
 
         var featureFiles = Settings.FeatureIntersectFiles
-            .Select(x => new FeatureFile(x.Source, x.Name, x.AttributesForTags, x.TagAll, x.FileName, x.Downloaded))
+            .Select(x => new FeatureFile(x.Source, x.Name, x.AttributesForTags, x.TagAll, x.FileName, x.Downloaded, x.Note))
             .ToList();
 
         return Task.FromResult(new IntersectSettings(featureFiles, Settings.PadUsDirectory, Settings.PadUsAttributes));
@@ -232,7 +233,14 @@ public partial class FeatureIntersectTaggerContext
     [NonBlockingCommand]
     public Task EditFeatureFile()
     {
-        if (SelectedFeatureFile == null) StatusContext.ToastWarning("Nothing Selected To Edit?");
+        if (SelectedFeatureFile == null)
+        {
+            StatusContext.ToastWarning("Nothing Selected To Edit?");
+            return Task.CompletedTask;
+        }
+
+        FeatureFileToEdit!.Show(SelectedFeatureFile, Settings.FeatureIntersectFiles.ToList());
+
         return Task.CompletedTask;
     }
 
@@ -281,7 +289,7 @@ public partial class FeatureIntersectTaggerContext
         Debug.Assert(Settings != null, nameof(Settings) + " != null");
 
         var featureFiles = Settings.FeatureIntersectFiles
-            .Select(x => new FeatureFile(x.Source, x.Name, x.AttributesForTags, x.TagAll, x.FileName, x.Downloaded))
+            .Select(x => new FeatureFile(x.Source, x.Name, x.AttributesForTags, x.TagAll, x.FileName, x.Downloaded, x.Note))
             .ToList();
 
         var intersectSettings =

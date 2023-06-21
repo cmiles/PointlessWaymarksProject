@@ -13,4 +13,5 @@ public partial class FeatureFileContext
     public string Name { get; set; } = string.Empty;
     public string Source { get; set; } = string.Empty;
     public string TagAll { get; set; } = string.Empty;
+    public string Note { get; set; } = string.Empty;
 }

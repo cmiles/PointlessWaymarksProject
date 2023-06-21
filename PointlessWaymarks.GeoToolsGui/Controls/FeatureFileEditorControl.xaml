@@ -42,6 +42,10 @@
                     </Grid.RowDefinitions>
                     <TextBlock FontSize="20" HorizontalAlignment="Center" Margin="4">Feature File Editor</TextBlock>
                     <Grid Grid.Row="1">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"></RowDefinition>
+                            <RowDefinition Height="Auto"></RowDefinition>
+                        </Grid.RowDefinitions>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition />
                             <ColumnDefinition />
@@ -50,8 +54,11 @@
                             <Label Style="{StaticResource BoldLabel}">Name</Label>
                             <TextBox Style="{StaticResource FeatureTextBox}"
                                      Text="{Binding Model.Name, UpdateSourceTrigger=PropertyChanged}" />
-                            <Label Style="{StaticResource BoldLabel}">File</Label>
-                            <TextBox Style="{StaticResource FeatureTextBox}"
+                            <StackPanel Orientation="Horizontal">
+								<Label Style="{StaticResource BoldLabel}">File</Label>
+								<Button Command="{Binding ChooseFileCommand}">Choose File</Button>
+                            </StackPanel>
+							<TextBox Style="{StaticResource FeatureTextBox}"
                                      Text="{Binding Model.FileName, UpdateSourceTrigger=PropertyChanged}" />
                             <Label Style="{StaticResource BoldLabel}">Source</Label>
                             <TextBox Style="{StaticResource FeatureTextBox}"
@@ -60,7 +67,7 @@
                             <TextBox Style="{StaticResource FeatureTextBox}"
                                      Text="{Binding Model.Downloaded}" />
                         </StackPanel>
-                        <Grid Margin="4,8,4,8" Grid.Column="1">
+                        <Grid Margin="4,8,4,8" Grid.Row="0" Grid.Column="1">
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto" />
                                 <RowDefinition Height="Auto" />
@@ -105,6 +112,10 @@
                                 <Button Grid.Column="1" Margin="4" Command="{Binding AddAttributeCommand}">Add Attribute</Button>
                             </Grid>
                         </Grid>
+                        <StackPanel Margin="8" Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="1">
+                            <Label Style="{StaticResource BoldLabel}">Note</Label>
+                            <TextBox AcceptsReturn="True" Text="{Binding Model.Note, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FeatureTextBox}"></TextBox>
+                        </StackPanel>
                     </Grid>
                     <WrapPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center" Margin="4,0,4,6">
                         <Button Height="30" MinWidth="160" Margin="4" Command="{Binding FinishEditCommand}">Save</Button>
