@@ -103,6 +103,10 @@ public static class Intersection
                 continue;
             }
 
+            var allTags = existingTags.Union(intersectionTags).OrderBy(x => x).ToList();
+
+            loopIntersects.FinalTagString = string.Join(",", allTags);
+
             loopIntersects.Result = "New Tags Found";
             loopIntersects.Notes = $"New Tags from {string.Join(",", loopIntersects.IntersectInformation.Sources)}";
         }

@@ -11,5 +11,7 @@ public record FeatureFile(
     [property: JsonPropertyName("fileName")]
     string FileName,
     [property: JsonPropertyName("downloaded")]
-    string Downloaded
+    string Downloaded,
+    [property: JsonPropertyName("note")]
+    string Note
 );
