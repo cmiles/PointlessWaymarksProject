@@ -27,7 +27,7 @@
                 <Button Margin="2" MinWidth="180" Command="{Binding AddFilesToTagCommand}">Files</Button>
             </WrapPanel>
             <CheckBox HorizontalAlignment="Center" Margin="4,8,4,4" Grid.Row="1" IsChecked="{Binding ReplaceMode}">
-                <TextBlock FontWeight="Bold">Replace Existing Files</TextBlock>
+                <TextBlock FontWeight="Bold">Replace Current Selection</TextBlock>
             </CheckBox>
             <GroupBox Grid.Row="2" Header="Files">
                 <DataGrid Margin="2" ItemsSource="{Binding Files}"
