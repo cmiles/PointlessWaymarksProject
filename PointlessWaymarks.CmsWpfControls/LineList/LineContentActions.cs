@@ -275,7 +275,7 @@ public partial class LineContentActions : IContentActions<LineContent>
     }
 
     [NonBlockingCommand]
-    public async Task SearchRecordedDatesForPhotoContentSearch(LineContent? lineContent)
+    public async Task SearchRecordedDatesForPhotoContent(LineContent? lineContent)
     {
         if (lineContent == null)
         {
