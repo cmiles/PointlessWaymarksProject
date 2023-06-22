@@ -4,8 +4,8 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:utility="clr-namespace:PointlessWaymarks.WpfCommon.Utility"
     xmlns:valueConverters="clr-namespace:PointlessWaymarks.WpfCommon.ValueConverters"
+    xmlns:svgc="http://sharpvectors.codeplex.com/svgc/"
     d:DesignHeight="450"
     d:DesignWidth="800"
     mc:Ignorable="d">
@@ -25,20 +25,16 @@
                 Style="{StaticResource DataEntryLabelStyle}"
                 Target="{Binding ElementName=ValueTextBox}"
                 ToolTip="{Binding HelpText}" />
-            <utility:IndicatorIcon
-                VerticalAlignment="Center"
-                HoverText="{Binding ReferenceValue, StringFormat='Original Value: {0}', FallbackValue='Previously blank', TargetNullValue='Previously empty'}"
-                IconBrush="Black"
-                IconPathGeometry="{StaticResource IconDataInfo}"
-                IconSize="{StaticResource SmallIconSize}"
-                Visibility="{Binding HasChanges, Converter={StaticResource BooleanToVisibility}}" />
-            <utility:IndicatorIcon
-                VerticalAlignment="Center"
-                HoverText="{Binding ValidationMessage}"
-                IconBrush="Red"
-                IconPathGeometry="{StaticResource IconDataError}"
-                IconSize="{StaticResource SmallIconSize}"
-                Visibility="{Binding HasValidationIssues, Converter={StaticResource BooleanToVisibility}}" />
+            <Image ToolTip="{Binding ReferenceValue, StringFormat='Original Value: {0}', FallbackValue='Previously blank', TargetNullValue='Previously empty'}"
+                   Source="{svgc:SvgImage Source=/Icons/information-outline.svg, AppName=PointlessWaymarks.WpfCommon}"
+                   Visibility="{Binding HasChanges, Converter={StaticResource BooleanToVisibility}}"
+                   Width="{StaticResource SmallIconSize}" VerticalAlignment="Center">
+            </Image>
+            <Image ToolTip="{Binding ValidationMessage}"
+                   Source="{svgc:SvgImage Source=/Icons/alert-octagon.svg, AppName=PointlessWaymarks.WpfCommon}"
+                   Visibility="{Binding HasValidationIssues, Converter={StaticResource BooleanToVisibility}}"
+                   Width="{StaticResource SmallIconSize}" VerticalAlignment="Center">
+            </Image>
         </StackPanel>
         <TextBox
             Name="ValueTextBox"

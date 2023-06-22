@@ -5,9 +5,23 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Icons\alert-octagon.svg" />
+    <None Remove="Icons\alert.svg" />
+    <None Remove="Icons\arrow-down-thick.svg" />
+    <None Remove="Icons\arrow-down.svg" />
+    <None Remove="Icons\arrow-left-circle.svg" />
+    <None Remove="Icons\arrow-right-circle.svg" />
+    <None Remove="Icons\arrow-up-thick.svg" />
+    <None Remove="Icons\arrow-up.svg" />
+    <None Remove="Icons\camera-outline.svg" />
+    <None Remove="Icons\home-circle.svg" />
+    <None Remove="Icons\information-outline.svg" />
     <None Remove="Icons\pause.svg" />
     <None Remove="Icons\play.svg" />
+    <None Remove="Icons\refresh-circle.svg" />
     <None Remove="Icons\restart.svg" />
+    <None Remove="Icons\rotate-left.svg" />
+    <None Remove="Icons\rotate-right.svg" />
     <None Remove="Icons\stop.svg" />
     <None Remove="Icons\SvgSources.txt" />
   </ItemGroup>
@@ -64,9 +78,23 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Resource Include="Icons\alert-octagon.svg" />
+    <Resource Include="Icons\alert.svg" />
+    <Resource Include="Icons\arrow-down-thick.svg" />
+    <Resource Include="Icons\arrow-down.svg" />
+    <Resource Include="Icons\arrow-left-circle.svg" />
+    <Resource Include="Icons\arrow-right-circle.svg" />
+    <Resource Include="Icons\arrow-up-thick.svg" />
+    <Resource Include="Icons\arrow-up.svg" />
+    <Resource Include="Icons\camera-outline.svg" />
+    <Resource Include="Icons\home-circle.svg" />
+    <Resource Include="Icons\information-outline.svg" />
     <Resource Include="Icons\pause.svg" />
     <Resource Include="Icons\play.svg" />
+    <Resource Include="Icons\refresh-circle.svg" />
     <Resource Include="Icons\restart.svg" />
+    <Resource Include="Icons\rotate-left.svg" />
+    <Resource Include="Icons\rotate-right.svg" />
     <Resource Include="Icons\stop.svg" />
     <Resource Include="Icons\SvgSources.txt" />
   </ItemGroup>

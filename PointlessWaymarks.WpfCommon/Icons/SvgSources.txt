@@ -1,4 +1,16 @@
-﻿restart - Google - https://materialdesignicons.com/icon/restart
-play - Google - https://materialdesignicons.com/icon/play
-stop - Google - https://materialdesignicons.com/icon/stop
-pause - Google - https://materialdesignicons.com/icon/pause
+﻿Restart - Google - https://pictogrammers.com/library/mdi/icon/restart
+Play - Google - https://pictogrammers.com/library/mdi/icon/play
+Stop - Google - https://pictogrammers.com/library/mdi/icon/stop
+Pause - Google - https://pictogrammers.com/library/mdi/icon/pause
+InfoIconData - Google - https://pictogrammers.com/library/mdi/icon/information-outline
+UpArrowThickData - Austin Andrews - https://pictogrammers.com/library/mdi/icon/arrow-up-thick
+DownArrowThick - Austin Andrews - https://pictogrammers.com/library/mdi/icon/arrow-down-thick
+RotateRight - Google - https://pictogrammers.com/library/mdi/icon/rotate-right
+RotateLeft - Google - https://pictogrammers.com/library/mdi/icon/rotate-left
+CameraOutline - Google - https://pictogrammers.com/library/mdi/icon/camera-outline
+DownArrow - Austin Andrews - https://pictogrammers.com/library/mdi/icon/arrow-down
+UpArrow - Austin Andrews - https://pictogrammers.com/library/mdi/icon/arrow-up
+ArrowLeftCircle - Austin Andrews - https://pictogrammers.com/library/mdi/icon/arrow-left-circle
+ArrowRightCircle - Austin Andrews - https://pictogrammers.com/library/mdi/icon/arrow-right-circle
+HomeCircle - Austin Andrews - https://pictogrammers.com/library/mdi/icon/home-circle
+RefreshCircle - François Risoud - https://pictogrammers.com/library/mdi/icon/refresh-circle

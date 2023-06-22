@@ -5,7 +5,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:boolDataEntry="clr-namespace:PointlessWaymarks.WpfCommon.BoolDataEntry"
-    xmlns:utility="clr-namespace:PointlessWaymarks.WpfCommon.Utility"
+    xmlns:svgc="http://sharpvectors.codeplex.com/svgc/"
     d:DataContext="{d:DesignInstance boolDataEntry:BoolDataEntryContext}"
     d:DesignHeight="450"
     d:DesignWidth="800"
@@ -28,20 +28,15 @@
             IsEnabled="{Binding IsEnabled}"
             IsThreeState="{Binding UserValueIsNullable}"
             ToolTip="{Binding HelpText}" />
-        <utility:IndicatorIcon
-            Margin="4,0,0,0"
-            VerticalAlignment="Center"
-            HoverText="{Binding ReferenceValue, StringFormat='Original Value: {0}'}"
-            IconBrush="Black"
-            IconPathGeometry="{StaticResource IconDataInfo}"
-            IconSize="{StaticResource SmallIconSize}"
-            Visibility="{Binding HasChanges, Converter={StaticResource BooleanToVisibility}}" />
-        <utility:IndicatorIcon
-            VerticalAlignment="Center"
-            HoverText="{Binding ValidationMessage}"
-            IconBrush="Red"
-            IconPathGeometry="{StaticResource IconDataError}"
-            IconSize="{StaticResource SmallIconSize}"
-            Visibility="{Binding HasValidationIssues, Converter={StaticResource BooleanToVisibility}}" />
+        <Image Margin="4,0,0,0" ToolTip="{Binding ReferenceValue, StringFormat='Original Value: {0}'}"
+               Source="{svgc:SvgImage Source=/Icons/information-outline.svg, AppName=PointlessWaymarks.WpfCommon}"
+               Visibility="{Binding HasChanges, Converter={StaticResource BooleanToVisibility}}"
+               Width="{StaticResource SmallIconSize}" VerticalAlignment="Center">
+        </Image>
+        <Image ToolTip="{Binding ValidationMessage}"
+               Source="{svgc:SvgImage Source=/Icons/alert-octagon.svg, AppName=PointlessWaymarks.WpfCommon}"
+               Visibility="{Binding HasValidationIssues, Converter={StaticResource BooleanToVisibility}}"
+               Width="{StaticResource SmallIconSize}" VerticalAlignment="Center">
+        </Image>
     </StackPanel>
 </UserControl>

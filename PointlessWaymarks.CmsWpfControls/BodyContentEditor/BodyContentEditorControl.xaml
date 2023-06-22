@@ -7,12 +7,12 @@
     xmlns:contentFormat="clr-namespace:PointlessWaymarks.CmsWpfControls.ContentFormat"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:utility="clr-namespace:PointlessWaymarks.WpfCommon.Utility;assembly=PointlessWaymarks.WpfCommon"
     xmlns:valueConverters="clr-namespace:PointlessWaymarks.WpfCommon.ValueConverters;assembly=PointlessWaymarks.WpfCommon"
     xmlns:wpfBehavior="clr-namespace:PointlessWaymarks.WpfCommon.Behaviors;assembly=PointlessWaymarks.WpfCommon"
     xmlns:wpfConverter="clr-namespace:PointlessWaymarks.WpfCommon.ValueConverters;assembly=PointlessWaymarks.WpfCommon"
     xmlns:wpf="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
     xmlns:wpfHtml="clr-namespace:PointlessWaymarks.WpfCommon.WpfHtml;assembly=PointlessWaymarks.WpfCommon"
+    xmlns:svgc="http://sharpvectors.codeplex.com/svgc/"
     d:DataContext="{d:DesignInstance bodyContentEditor:BodyContentEditorContext}"
     d:DesignHeight="300"
     d:DesignWidth="300"
@@ -67,16 +67,15 @@
                 <GroupBox Style="{StaticResource UiComponentGroupBoxStyle}">
                     <GroupBox.Header>
                         <WrapPanel Orientation="Horizontal">
-                            <Label Style="{StaticResource DataEntryLabelStyle}" Target="{Binding ElementName=BodyContentTextBox}">
+                            <Label Style="{StaticResource DataEntryLabelStyle}"
+                                   Target="{Binding ElementName=BodyContentTextBox}">
                                 Content
                             </Label>
-                            <utility:IndicatorIcon
-                                VerticalAlignment="Center"
-                                HoverText="Content Has Changes"
-                                IconBrush="Black"
-                                IconPathGeometry="{StaticResource IconDataInfo}"
-                                IconSize="{StaticResource SmallIconSize}"
-                                Visibility="{Binding BodyContentHasChanges, Converter={StaticResource BooleanToVisibility}}" />
+                            <Image ToolTip="Content Has Changes"
+                                   Source="{svgc:SvgImage Source=/Icons/information-outline.svg, AppName=PointlessWaymarks.WpfCommon}"
+                                   Visibility="{Binding BodyContentHasChanges, Converter={StaticResource BooleanToVisibility}}"
+                                   Width="{StaticResource SmallIconSize}">
+                            </Image>
                         </WrapPanel>
                     </GroupBox.Header>
                     <TextBox
@@ -115,7 +114,8 @@
                 ShowsPreview="True" />
             <GroupBox Grid.Column="2" Style="{StaticResource UiComponentGroupBoxStyle}">
                 <GroupBox.Header>
-                    <Label Style="{StaticResource DataEntryLabelStyle}" Target="{Binding ElementName=BodyContentWebView}">
+                    <Label Style="{StaticResource DataEntryLabelStyle}"
+                           Target="{Binding ElementName=BodyContentWebView}">
                         Preview
                     </Label>
                 </GroupBox.Header>

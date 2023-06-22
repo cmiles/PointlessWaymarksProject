@@ -19,17 +19,17 @@
 
     <system:Double x:Key="SmallIconSize">16</system:Double>
     <!--
-        InfoIconData - Google - https://materialdesignicons.com/icon/information-outline
-        UpArrowThickData - Austin Andrews - https://materialdesignicons.com/icon/arrow-up-thick
-        DownArrowThick - Austin Andrews - https://materialdesignicons.com/icon/arrow-down-thick
-        RotateRight - Google - https://materialdesignicons.com/icon/rotate-right
-        RotateLeft - Google - https://materialdesignicons.com/icon/rotate-left
-        CameraOutline - Google - https://materialdesignicons.com/icon/camera-outline
-        DownArrow - Austin Andrews - https://materialdesignicons.com/icon/arrow-down
-        UpArrow - Austin Andrews - https://materialdesignicons.com/icon/arrow-up
-        ArrowLeftCircle - Austin Andrews - https://materialdesignicons.com/icon/arrow-left-circle
-        ArrowRightCircle - Austin Andrews - https://materialdesignicons.com/icon/arrow-right-circle
-        HomeCircle - Austin Andrews - https://materialdesignicons.com/icon/home-circle
-        RefreshCircle - François Risoud - https://materialdesignicons.com/icon/refresh-circle
+        InfoIconData - Google - https://pictogrammers.com/library/mdi/icon/information-outline
+        UpArrowThickData - Austin Andrews - https://pictogrammers.com/library/mdi/icon/arrow-up-thick
+        DownArrowThick - Austin Andrews - https://pictogrammers.com/library/mdi/icon/arrow-down-thick
+        RotateRight - Google - https://pictogrammers.com/library/mdi/icon/rotate-right
+        RotateLeft - Google - https://pictogrammers.com/library/mdi/icon/rotate-left
+        CameraOutline - Google - https://pictogrammers.com/library/mdi/icon/camera-outline
+        DownArrow - Austin Andrews - https://pictogrammers.com/library/mdi/icon/arrow-down
+        UpArrow - Austin Andrews - https://pictogrammers.com/library/mdi/icon/arrow-up
+        ArrowLeftCircle - Austin Andrews - https://pictogrammers.com/library/mdi/icon/arrow-left-circle
+        ArrowRightCircle - Austin Andrews - https://pictogrammers.com/library/mdi/icon/arrow-right-circle
+        HomeCircle - Austin Andrews - https://pictogrammers.com/library/mdi/icon/home-circle
+        RefreshCircle - François Risoud - https://pictogrammers.com/library/mdi/icon/refresh-circle
     -->
 </ResourceDictionary>
