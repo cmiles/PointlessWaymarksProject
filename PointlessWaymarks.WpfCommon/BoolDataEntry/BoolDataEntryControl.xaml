@@ -28,10 +28,15 @@
             IsEnabled="{Binding IsEnabled}"
             IsThreeState="{Binding UserValueIsNullable}"
             ToolTip="{Binding HelpText}" />
-        <Image Margin="4,0,0,0" ToolTip="{Binding ReferenceValue, StringFormat='Original Value: {0}'}"
+        <Image Margin="4,0,0,0"
                Source="{svgc:SvgImage Source=/Icons/information-outline.svg, AppName=PointlessWaymarks.WpfCommon}"
                Visibility="{Binding HasChanges, Converter={StaticResource BooleanToVisibility}}"
                Width="{StaticResource SmallIconSize}" VerticalAlignment="Center">
+            <Image.ToolTip>
+                <ToolTip
+                    Content="{Binding ReferenceValue, FallbackValue='Previously blank', TargetNullValue='Previously empty'}"
+                    ContentStringFormat="Original Value: {0}" />
+            </Image.ToolTip>
         </Image>
         <Image ToolTip="{Binding ValidationMessage}"
                Source="{svgc:SvgImage Source=/Icons/alert-octagon.svg, AppName=PointlessWaymarks.WpfCommon}"

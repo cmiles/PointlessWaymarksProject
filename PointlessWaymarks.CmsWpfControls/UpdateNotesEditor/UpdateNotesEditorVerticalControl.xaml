@@ -35,7 +35,6 @@
             <GroupBox Grid.Row="0" Style="{StaticResource UiComponentGroupBoxStyle}">
                 <GroupBox.Header>
                     <Label Style="{StaticResource DataEntryLabelStyle}">Format</Label>
-
                 </GroupBox.Header>
                 <contentFormat:ContentFormatChooserControl DataContext="{Binding UpdateNotesFormat}" />
             </GroupBox>

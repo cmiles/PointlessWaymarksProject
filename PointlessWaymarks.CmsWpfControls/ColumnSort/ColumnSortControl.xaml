@@ -7,6 +7,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:utility="clr-namespace:PointlessWaymarks.WpfCommon.Utility;assembly=PointlessWaymarks.WpfCommon"
     xmlns:valueConverters="clr-namespace:PointlessWaymarks.WpfCommon.ValueConverters;assembly=PointlessWaymarks.WpfCommon"
+    xmlns:svgc="http://sharpvectors.codeplex.com/svgc/"
     Name="UserControlXaml"
     d:DataContext="{d:DesignInstance local:ColumnSortControlContext}"
     d:DesignHeight="450"
@@ -55,36 +56,35 @@
                                     VerticalAlignment="Center"
                                     Text="{Binding DisplayName}" />
                                 <Grid>
-                                    <utility:IndicatorIcon
-                                        Margin="2,0,0,0"
-                                        VerticalAlignment="Center"
-                                        IconBrush="Black"
-                                        IconPathGeometry="{StaticResource IconDataUpArrow}"
-                                        IconSize="{StaticResource SmallIconSize}">
-                                        <utility:IndicatorIcon.Visibility>
+                                    <Image ToolTip="A to Z Sorting"
+                                           Margin="6,2,0,2"
+                                           VerticalAlignment="Center"
+                                           Source="{svgc:SvgImage Source=/Icons/arrow-up.svg, AppName=PointlessWaymarks.WpfCommon}"
+                                           Width="12">
+                                        <Image.Visibility>
                                             <MultiBinding Converter="{StaticResource AnyNotVisibleToCollapsed}">
                                                 <Binding Converter="{StaticResource GreaterThanZeroIntIsVisible}" Path="Order" />
                                                 <Binding Converter="{StaticResource AscendingListSortIsVisible}" Path="SortDirection" />
                                             </MultiBinding>
-                                        </utility:IndicatorIcon.Visibility>
-                                    </utility:IndicatorIcon>
-                                    <utility:IndicatorIcon
-                                        Margin="2,0,0,0"
-                                        VerticalAlignment="Center"
-                                        IconBrush="Black"
-                                        IconPathGeometry="{StaticResource IconDataDownArrow}"
-                                        IconSize="{StaticResource SmallIconSize}">
-                                        <utility:IndicatorIcon.Visibility>
+                                        </Image.Visibility>
+                                    </Image>
+                                    <Image ToolTip="Z to A Sorting"
+                                           Margin="6,2,0,0"
+                                           VerticalAlignment="Center"
+                                           Source="{svgc:SvgImage Source=/Icons/arrow-down.svg, AppName=PointlessWaymarks.WpfCommon}"
+                                           Width="12">
+                                        <Image.Visibility>
                                             <MultiBinding Converter="{StaticResource AnyNotVisibleToCollapsed}">
                                                 <Binding Converter="{StaticResource GreaterThanZeroIntIsVisible}" Path="Order" />
                                                 <Binding Converter="{StaticResource DescendingListSortIsVisible}" Path="SortDirection" />
                                             </MultiBinding>
-                                        </utility:IndicatorIcon.Visibility>
-                                    </utility:IndicatorIcon>
+                                        </Image.Visibility>
+                                    </Image>
                                 </Grid>
                                 <TextBlock
                                     Margin="6,0,0,0"
                                     VerticalAlignment="Center"
+                                    ToolTip="Sort Order"
                                     Text="{Binding Order, StringFormat='({0})'}"
                                     Visibility="{Binding Order, Converter={StaticResource GreaterThanZeroIntIsVisible}}" />
                             </StackPanel>
