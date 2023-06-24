@@ -12,7 +12,7 @@ using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 namespace PointlessWaymarks.CmsWpfControls.CreatedAndUpdatedByAndOnDisplay;
 
 [NotifyPropertyChanged]
-public class CreatedAndUpdatedByAndOnDisplayContext : IHasChanges, IHasValidationIssues,
+public partial class CreatedAndUpdatedByAndOnDisplayContext : IHasChanges, IHasValidationIssues,
     ICheckForChangesAndValidation
 {
     private CreatedAndUpdatedByAndOnDisplayContext(StatusControlContext statusContext,
