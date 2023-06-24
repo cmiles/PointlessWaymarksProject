@@ -64,7 +64,7 @@ public partial class VideoContentEditorContext : IHasChanges, IHasValidationIssu
     public HelpDisplayContext? HelpContext { get; set; }
     public FileInfo? InitialVideo { get; set; }
     public StringDataEntryContext? LicenseEntry { get; set; }
-    public FileInfo? LoadedVideo { get; set; }
+    public FileInfo? LoadedFile { get; set; }
     public ImageContentEditorWindow? MainImageExternalEditorWindow { get; set; }
     public ContentSiteFeedAndIsDraftContext? MainSiteFeed { get; set; }
     public FileInfo? SelectedFile { get; set; }
@@ -409,7 +409,7 @@ Notes:
 
             if (archiveVideo.Exists)
             {
-                LoadedVideo = archiveVideo;
+                LoadedFile = archiveVideo;
                 SelectedFile = archiveVideo;
             }
             else
@@ -605,7 +605,7 @@ Notes:
         await ThreadSwitcher.ResumeBackgroundAsync();
 
         SelectedFileHasPathOrNameChanges =
-            (SelectedFile?.FullName ?? string.Empty) != (LoadedVideo?.FullName ?? string.Empty);
+            (SelectedFile?.FullName ?? string.Empty) != (LoadedFile?.FullName ?? string.Empty);
 
         var (isValid, explanation) =
             await CommonContentValidation.FileContentFileValidation(SelectedFile, DbEntry.ContentId);

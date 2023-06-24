@@ -7,10 +7,10 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:status="clr-namespace:PointlessWaymarks.WpfCommon.Status;assembly=PointlessWaymarks.WpfCommon"
     xmlns:tagExclusionEditor="clr-namespace:PointlessWaymarks.CmsWpfControls.TagExclusionEditor"
-    xmlns:utility="clr-namespace:PointlessWaymarks.WpfCommon.Utility;assembly=PointlessWaymarks.WpfCommon"
     xmlns:wpf="clr-namespace:Markdig.Wpf;assembly=Markdig.Wpf"
     xmlns:wpfBehavior="clr-namespace:PointlessWaymarks.WpfCommon.Behaviors;assembly=PointlessWaymarks.WpfCommon"
     xmlns:wpfConverter="clr-namespace:PointlessWaymarks.WpfCommon.ValueConverters;assembly=PointlessWaymarks.WpfCommon"
+    xmlns:svgc="http://sharpvectors.codeplex.com/svgc/"
     Name="TagExclusionEditorControlXaml"
     d:DataContext="{d:DesignInstance tagExclusionEditor:TagExclusionEditorContext}"
     d:DesignHeight="450"
@@ -77,13 +77,16 @@
                                         Height="32"
                                         VerticalContentAlignment="Center"
                                         Text="{Binding TagValue, UpdateSourceTrigger=PropertyChanged}" />
-                                    <utility:IndicatorIcon
-                                        VerticalAlignment="Center"
-                                        HoverText="{Binding DbEntry.Tag, StringFormat='Original Value: {0}', TargetNullValue='New Entry', FallbackValue='New Entry'}"
-                                        IconBrush="Black"
-                                        IconPathGeometry="{StaticResource IconDataInfo}"
-                                        IconSize="{StaticResource SmallIconSize}"
-                                        Visibility="{Binding HasChanges, Converter={StaticResource BooleanToHidden}}" />
+                                    <Image
+                                        Source="{svgc:SvgImage Source=/Icons/information-outline.svg, AppName=PointlessWaymarks.WpfCommon}"
+                                        Visibility="{Binding HasChanges, Converter={StaticResource BooleanToVisibility}}"
+                                        Width="{StaticResource SmallIconSize}" VerticalAlignment="Center">
+                                        <Image.ToolTip>
+                                            <ToolTip
+                                                Content="{Binding DbEntry.Tag, FallbackValue='New Entry', TargetNullValue='New Entry'}"
+                                                ContentStringFormat="Original Value: {0}" />
+                                        </Image.ToolTip>
+                                    </Image>
                                     <Button
                                         Height="32"
                                         Command="{Binding DataContext.SaveItemCommand, ElementName=TagExclusionEditorControlXaml}"

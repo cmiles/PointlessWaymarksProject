@@ -4,8 +4,8 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:utility="clr-namespace:PointlessWaymarks.WpfCommon.Utility"
     xmlns:windowScreenShot="clr-namespace:PointlessWaymarks.WpfCommon.WindowScreenShot"
+    xmlns:svgc="http://sharpvectors.codeplex.com/svgc/"
     d:DataContext="{d:DesignInstance windowScreenShot:WindowScreenShotControl}"
     d:DesignHeight="26"
     d:DesignWidth="26"
@@ -27,12 +27,10 @@
             Command="{Binding WindowScreenShotCommand}"
             CommandParameter="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Window}}}"
             Opacity=".4">
-            <utility:IndicatorIcon
-                VerticalAlignment="Center"
-                HoverText="Take Screen Shot of Application"
-                IconBrush="Black"
-                IconPathGeometry="{StaticResource IconDataCameraOutline}"
-                IconSize="{StaticResource SmallIconSize}" />
+            <Image ToolTip="Take Screen Shot of Application"
+                   Source="{svgc:SvgImage Source=/Icons/camera-outline.svg, AppName=PointlessWaymarks.WpfCommon}"
+                   Width="{StaticResource SmallIconSize}" VerticalAlignment="Center">
+            </Image>
         </Button>
     </Grid>
 </UserControl>

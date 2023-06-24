@@ -14,11 +14,11 @@
     xmlns:tagsEditor="clr-namespace:PointlessWaymarks.CmsWpfControls.TagsEditor"
     xmlns:titleSummarySlugFolderEditor="clr-namespace:PointlessWaymarks.CmsWpfControls.TitleSummarySlugFolderEditor"
     xmlns:updateNotesEditor="clr-namespace:PointlessWaymarks.CmsWpfControls.UpdateNotesEditor"
-    xmlns:utility="clr-namespace:PointlessWaymarks.WpfCommon.Utility;assembly=PointlessWaymarks.WpfCommon"
     xmlns:windowScreenShot="clr-namespace:PointlessWaymarks.WpfCommon.WindowScreenShot;assembly=PointlessWaymarks.WpfCommon"
     xmlns:wpfBehavior="clr-namespace:PointlessWaymarks.WpfCommon.Behaviors;assembly=PointlessWaymarks.WpfCommon"
         xmlns:conversionDataEntry="clr-namespace:PointlessWaymarks.WpfCommon.ConversionDataEntry;assembly=PointlessWaymarks.WpfCommon"
     xmlns:markdownDisplay="clr-namespace:PointlessWaymarks.WpfCommon.MarkdownDisplay;assembly=PointlessWaymarks.WpfCommon"
+    xmlns:svgc="http://sharpvectors.codeplex.com/svgc/"
     d:DataContext="{d:DesignInstance fileContentEditor:FileContentEditorContext}"
     d:DesignHeight="300"
     d:DesignWidth="300"
@@ -47,20 +47,21 @@
                                         <Label Style="{StaticResource DataEntryLabelStyle}">
                                             File
                                         </Label>
-                                        <utility:IndicatorIcon
-                                            VerticalAlignment="Center"
-                                            HoverText="Selected File Path or Name has Changed"
-                                            IconBrush="Black"
-                                            IconPathGeometry="{StaticResource IconDataInfo}"
-                                            IconSize="{StaticResource SmallIconSize}"
-                                            Visibility="{Binding SelectedFileHasPathOrNameChanges, Converter={StaticResource BooleanToVisibility}}" />
-                                        <utility:IndicatorIcon
-                                            VerticalAlignment="Center"
-                                            HoverText="{Binding SelectedFileValidationMessage}"
-                                            IconBrush="Red"
-                                            IconPathGeometry="{StaticResource IconDataError}"
-                                            IconSize="{StaticResource SmallIconSize}"
-                                            Visibility="{Binding SelectedFileHasValidationIssues, Converter={StaticResource BooleanToVisibility}}" />
+                                        <Image
+                                            Source="{svgc:SvgImage Source=/Icons/information-outline.svg, AppName=PointlessWaymarks.WpfCommon}"
+                                            Visibility="{Binding SelectedFileHasPathOrNameChanges, Converter={StaticResource BooleanToVisibility}}"
+                                            Width="{StaticResource SmallIconSize}" VerticalAlignment="Center">
+                                            <Image.ToolTip>
+                                                <ToolTip
+                                                    Content="{Binding LoadedFile.FullName, FallbackValue='Previously blank', TargetNullValue='Previously empty'}"
+                                                    ContentStringFormat="Original Value: {0}" />
+                                            </Image.ToolTip>
+                                        </Image>
+                                        <Image ToolTip="{Binding SelectedFileValidationMessage}"
+                                               Source="{svgc:SvgImage Source=/Icons/alert-octagon.svg, AppName=PointlessWaymarks.WpfCommon}"
+                                               Visibility="{Binding SelectedFileHasValidationIssues, Converter={StaticResource BooleanToVisibility}}"
+                                               Width="{StaticResource SmallIconSize}" VerticalAlignment="Center">
+                                        </Image>
                                     </StackPanel>
                                 </GroupBox.Header>
                                 <Grid>

@@ -21,6 +21,13 @@
 
 ## Notes
 
+6/24/2023
+
+Changes today finish out the change from the custom IndicatorIcon to SharpVectors. IndicatorIcon was early code in this project and very useful:
+ - Good base functionality - I'm replacing code/tech here not the functionality
+ - Great that the control hid the messy view code behind the control!
+In this case encapsulating the messy code in the IndicatorIcon was a great decision - but it is nice to now replace that with the cleaner SharpVectors solution... 
+
 6/18/2023
 
 The past few months have veered back to the CMS from the backup project. This is partly because of https://github.com/CommunityToolkit/dotnet/issues/555 where the MVVM Community Toolkit makes it clear that it is waiting for a new C# feature before considering most additional functionality requests on Observable Properties. This might be a GREAT decision and even with the bit I understand I can see how the clean the decision is! No criticism of that decision!!

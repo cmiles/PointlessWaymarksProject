@@ -5,7 +5,7 @@
     xmlns:contentFormat="clr-namespace:PointlessWaymarks.CmsWpfControls.ContentFormat"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:utility="clr-namespace:PointlessWaymarks.WpfCommon.Utility;assembly=PointlessWaymarks.WpfCommon"
+    xmlns:svgc="http://sharpvectors.codeplex.com/svgc/"
     d:DataContext="{d:DesignInstance contentFormat:ContentFormatChooserContext}"
     mc:Ignorable="d">
     <UserControl.Resources>
@@ -29,22 +29,21 @@
             Grid.Column="1"
             ItemsSource="{Binding ContentFormatChoices}"
             SelectedItem="{Binding SelectedContentFormat}" />
-        <utility:IndicatorIcon
+        <Image
             Grid.Column="2"
             Margin="6,0,0,0"
-            VerticalAlignment="Center"
-            HoverText="{Binding InitialValue, StringFormat='Original Value: {0}', FallbackValue='Previously blank'}"
-            IconBrush="Black"
-            IconPathGeometry="{StaticResource IconDataInfo}"
-            IconSize="{StaticResource SmallIconSize}"
-            Visibility="{Binding SelectedContentFormatHasChanges, Converter={StaticResource BooleanToVisibility}}" />
-        <utility:IndicatorIcon
-            Grid.Column="3"
-            VerticalAlignment="Center"
-            HoverText="{Binding ValidationMessage}"
-            IconBrush="Red"
-            IconPathGeometry="{StaticResource IconDataError}"
-            IconSize="{StaticResource SmallIconSize}"
-            Visibility="{Binding HasValidationIssues, Converter={StaticResource BooleanToVisibility}}" />
+            Source="{svgc:SvgImage Source=/Icons/information-outline.svg, AppName=PointlessWaymarks.WpfCommon}"
+            Visibility="{Binding SelectedContentFormatHasChanges, Converter={StaticResource BooleanToVisibility}}"
+            Width="{StaticResource SmallIconSize}" VerticalAlignment="Center">
+            <Image.ToolTip>
+                <ToolTip
+                    Content="{Binding InitialValue, FallbackValue='Previously blank', TargetNullValue='Previously empty'}"
+                    ContentStringFormat="Original Value: {0}" />
+            </Image.ToolTip>
+        </Image>
+        <Image Grid.Column="3" ToolTip="{Binding ValidationMessage}"
+               Source="{svgc:SvgImage Source=/Icons/alert-octagon.svg, AppName=PointlessWaymarks.WpfCommon}"
+               Visibility="{Binding HasValidationIssues, Converter={StaticResource BooleanToVisibility}}"
+               Width="{StaticResource SmallIconSize}" VerticalAlignment="Center" />
     </Grid>
 </UserControl>

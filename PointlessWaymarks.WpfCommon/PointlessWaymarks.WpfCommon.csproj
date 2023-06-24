@@ -59,12 +59,6 @@
     <Page Update="ToastControl\ToastTray.xaml">
       <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
     </Page>
-    <Page Update="Utility\Icons.xaml">
-      <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
-    </Page>
-    <Page Update="Utility\IndicatorIcon.xaml">
-      <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
-    </Page>
     <Page Update="WaitingSpinner\WaitingSpinnerControl.xaml">
       <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
     </Page>
