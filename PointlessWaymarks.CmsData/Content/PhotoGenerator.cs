@@ -192,7 +192,7 @@ public static class PhotoGenerator
             progress?.Report(
                 $"Parsed title - {dateTimeFromTitle.Value.titleDate:yyyy} {dateTimeFromTitle.Value.titleDate:MMMM} {toReturn.Title.TrimNullToEmpty()}");
             toReturn.Title =
-                $"{dateTimeFromTitle.Value.titleDate:yyyy} {dateTimeFromTitle.Value.titleDate:MMMM} {toReturn.Title.TrimNullToEmpty()}";
+                $"{dateTimeFromTitle.Value.titleDate:yyyy} {dateTimeFromTitle.Value.titleDate:MMMM} {dateTimeFromTitle.Value.titleWithDateRemoved.TrimNullToEmpty()}";
             toReturn.Summary = dateTimeFromTitle.Value.titleWithDateRemoved;
         }
 
