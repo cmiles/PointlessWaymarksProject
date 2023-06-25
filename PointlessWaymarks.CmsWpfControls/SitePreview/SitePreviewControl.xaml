@@ -7,6 +7,7 @@
     xmlns:sitePreview="clr-namespace:PointlessWaymarks.CmsWpfControls.SitePreview"
     xmlns:wpf="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
     xmlns:wpf1="clr-namespace:Markdig.Wpf;assembly=Markdig.Wpf"
+    xmlns:svgc="http://sharpvectors.codeplex.com/svgc/"
     d:DataContext="{d:DesignInstance sitePreview:SitePreviewContext}"
     d:DesignHeight="450"
     d:DesignWidth="800"
@@ -16,7 +17,7 @@
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="../WpfControlsResourceDictionary.xaml" />
-                <ResourceDictionary Source="/PointlessWaymarks.WpfCommon;component/Utility/Icons.xaml" />
+
             </ResourceDictionary.MergedDictionaries>
             <Style x:Key="{x:Static wpf1:Styles.DocumentStyleKey}" TargetType="{x:Type FlowDocument}">
                 <Setter Property="FontFamily" Value="Calibri" />
@@ -59,24 +60,24 @@
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
                 <Button Command="{Binding TryGoBackNavigationCommand}">
-                    <Viewbox>
-                        <Path Data="{StaticResource IconDataArrowLeftCircle}" />
-                    </Viewbox>
+                    <Image
+                        Source="{svgc:SvgImage Source=/Icons/arrow-left-circle.svg, AppName=PointlessWaymarks.WpfCommon}">
+                    </Image>
                 </Button>
                 <Button Grid.Column="1" Command="{Binding TryGoForwardNavigationCommand}">
-                    <Viewbox>
-                        <Path Data="{StaticResource IconDataArrowRightCircle}" />
-                    </Viewbox>
+                    <Image
+                        Source="{svgc:SvgImage Source=/Icons/arrow-right-circle.svg, AppName=PointlessWaymarks.WpfCommon}">
+                    </Image>
                 </Button>
                 <Button Grid.Column="2" Command="{Binding TryRefreshCommand}">
-                    <Viewbox>
-                        <Path Data="{StaticResource IconRefreshCircle}" />
-                    </Viewbox>
+                    <Image
+                        Source="{svgc:SvgImage Source=/Icons/refresh-circle.svg, AppName=PointlessWaymarks.WpfCommon}">
+                    </Image>
                 </Button>
                 <Button Grid.Column="3" Command="{Binding TryNavigateHomeCommand}">
-                    <Viewbox>
-                        <Path Data="{StaticResource IconDataHomeCircle}" />
-                    </Viewbox>
+                    <Image
+                        Source="{svgc:SvgImage Source=/Icons/home-circle.svg, AppName=PointlessWaymarks.WpfCommon}">
+                    </Image>
                 </Button>
                 <TextBox
                     Grid.Column="4"
@@ -102,7 +103,7 @@
             <wpf:WebView2
                 x:Name="SitePreviewWebView"
                 Margin="4"
-                NavigationStarting="SitePreviewWebView_OnNavigationStarting"/>
+                NavigationStarting="SitePreviewWebView_OnNavigationStarting" />
         </Border>
     </Grid>
 </UserControl>

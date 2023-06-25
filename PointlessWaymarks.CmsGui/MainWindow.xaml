@@ -44,7 +44,6 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary
                     Source="/PointlessWaymarks.CmsWpfControls;component/WpfControlsResourceDictionary.xaml" />
-                <ResourceDictionary Source="/PointlessWaymarks.WpfCommon;component/Utility/Icons.xaml" />
             </ResourceDictionary.MergedDictionaries>
             <valueConverters:BooleanToVisibilityConverter x:Key="BooleanToVisibility" />
             <Style TargetType="Button">

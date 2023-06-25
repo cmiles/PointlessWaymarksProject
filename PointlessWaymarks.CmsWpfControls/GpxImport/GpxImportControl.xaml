@@ -24,7 +24,7 @@
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="../WpfControlsResourceDictionary.xaml" />
-                <ResourceDictionary Source="/PointlessWaymarks.WpfCommon;component/Utility/Icons.xaml" />
+                
             </ResourceDictionary.MergedDictionaries>
             <utility:BindingProxy x:Key="proxy" Data="{Binding}" />
             <Style x:Key="ImportWrapTextBlockItem" TargetType="TextBlock">

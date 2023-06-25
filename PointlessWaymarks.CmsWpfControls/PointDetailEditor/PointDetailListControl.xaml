@@ -17,7 +17,7 @@
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="../WpfControlsResourceDictionary.xaml" />
-                <ResourceDictionary Source="/PointlessWaymarks.WpfCommon;component/Utility/Icons.xaml" />
+                
             </ResourceDictionary.MergedDictionaries>
             <DataTemplate x:Key="CampgroundDetailTemplate">
                 <pointDetailEditor:CampgroundPointDetailControl DataContext="{Binding .}" />

@@ -25,7 +25,7 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary
                     Source="/PointlessWaymarks.CmsWpfControls;component/WpfControlsResourceDictionary.xaml" />
-                <ResourceDictionary Source="/PointlessWaymarks.WpfCommon;component/Utility/Icons.xaml" />
+                
                 <ResourceDictionary Source="pack://application:,,,/Dragablz;component/Themes/Generic.xaml" />
             </ResourceDictionary.MergedDictionaries>
             <valueConverters:BooleanToVisibilityConverter x:Key="BooleanToVisibility" />

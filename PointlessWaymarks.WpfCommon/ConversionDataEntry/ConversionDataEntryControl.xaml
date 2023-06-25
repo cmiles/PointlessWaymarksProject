@@ -13,7 +13,6 @@
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="../WpfCommonResourceDictionary.xaml" />
-                <ResourceDictionary Source="../Utility/Icons.xaml" />
             </ResourceDictionary.MergedDictionaries>
             <valueConverters:TrueIsRightTextAlignmentConverter x:Key="TrueIsRightAlign" />
         </ResourceDictionary>

@@ -1,6 +1,7 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                    xmlns:valueConverters="clr-namespace:PointlessWaymarks.WpfCommon.ValueConverters">
+                    xmlns:valueConverters="clr-namespace:PointlessWaymarks.WpfCommon.ValueConverters"
+                    xmlns:system="clr-namespace:System;assembly=System.Runtime">
     <valueConverters:BooleanToVisibilityConverter x:Key="BooleanToVisibility" />
     <valueConverters:BooleanNotToVisibilityConverter x:Key="BooleanNotToVisibility" />
     <valueConverters:NullOrWhiteSpaceStringToCollapsedVisibilityConverter x:Key="NullOrWhiteSpaceStringToCollapsed" />
@@ -24,4 +25,5 @@
         <Setter Property="VerticalScrollBarVisibility" Value="Visible" />
         <Setter Property="HorizontalScrollBarVisibility" Value="Hidden" />
     </Style>
+    <system:Double x:Key="SmallIconSize">16</system:Double>
 </ResourceDictionary>
