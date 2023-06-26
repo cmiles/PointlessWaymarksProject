@@ -19,7 +19,7 @@ public static class HeaderContentBasedAdditions
             if (content.Any(x => loopHeader.IsNeeded(x)))
                 headerList.Add(loopHeader.HeaderAdditions());
 
-        return string.Join(Environment.NewLine, headerList.Where(string.IsNullOrWhiteSpace).ToList());
+        return string.Join(Environment.NewLine, headerList.Where(x => !string.IsNullOrWhiteSpace(x)).ToList());
     }
 
     public static string HeaderAdditions(IContentCommon content)
@@ -30,7 +30,7 @@ public static class HeaderContentBasedAdditions
 
         foreach (var loopHeader in headers) headerList.Add(loopHeader.HeaderAdditions(content));
 
-        return string.Join(Environment.NewLine, headerList.Where(string.IsNullOrWhiteSpace).ToList());
+        return string.Join(Environment.NewLine, headerList.Where(x => !string.IsNullOrWhiteSpace(x)).ToList());
     }
 
     public static string HeaderAdditions(params string?[] stringContent)
@@ -41,7 +41,7 @@ public static class HeaderContentBasedAdditions
 
         foreach (var loopHeader in headers) headerList.Add(loopHeader.HeaderAdditions(stringContent));
 
-        return string.Join(Environment.NewLine, headerList.Where(string.IsNullOrWhiteSpace).ToList());
+        return string.Join(Environment.NewLine, headerList.Where(x => !string.IsNullOrWhiteSpace(x)).ToList());
     }
 
     public static List<IHeaderContentBasedAdditions> HeaderIncludes()
