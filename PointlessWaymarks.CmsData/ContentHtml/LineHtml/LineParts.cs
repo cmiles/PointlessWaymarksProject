@@ -166,8 +166,18 @@ public static class LineParts
         var duration = LineDurationInHoursAndMinutes(dbEntry);
 
         if (duration.totalMinutes is not null)
+        {
             outerContainer.Children.Add(Tags.InfoTextDivTag(duration.presentationString,
                 "line-detail", "duration", $"{duration.totalMinutes}"));
+
+            var mph = dbEntry.LineDistance / (duration.totalMinutes.Value / 60D);
+
+            if (mph >= .1)
+            {
+                outerContainer.Children.Add(Tags.InfoTextDivTag($"{mph:F1} Mph", "line-detail",
+                    "pace-in-mph", mph.ToString("F1")));
+            }
+        }
 
         outerContainer.Children.Add(Tags.InfoTextDivTag($"{dbEntry.MinimumElevation:F0}' Min Elevation", "line-detail",
             "minimum-elevation", dbEntry.MaximumElevation.ToString("F0")));
