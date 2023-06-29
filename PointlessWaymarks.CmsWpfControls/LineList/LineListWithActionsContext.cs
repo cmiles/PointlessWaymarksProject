@@ -1,6 +1,9 @@
 ﻿using System.IO;
+using System.Net;
 using System.Text;
 using System.Windows;
+using NetTopologySuite.Features;
+using Newtonsoft.Json;
 using Omu.ValueInjecter;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.CommonHtml;
@@ -11,6 +14,7 @@ using PointlessWaymarks.CmsWpfControls.ContentList;
 using PointlessWaymarks.FeatureIntersectionTags;
 using PointlessWaymarks.FeatureIntersectionTags.Models;
 using PointlessWaymarks.LlamaAspects;
+using PointlessWaymarks.SpatialTools;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 using PointlessWaymarks.WpfCommon.Utility;
@@ -45,6 +49,10 @@ public partial class LineListWithActionsContext
             new()
             {
                 ItemName = "Stats Code to Clipboard", ItemCommand = StatsBracketCodesToClipboardForSelectedCommand
+            },
+            new()
+            {
+                ItemName = "GeoJson to Clipboard", ItemCommand = GeoJsonToClipboardForSelectedCommand
             },
             new()
             {
@@ -284,5 +292,52 @@ public partial class LineListWithActionsContext
         Clipboard.SetText(finalString);
 
         StatusContext.ToastSuccess($"To Clipboard {finalString}");
+    }
+
+    [BlockingCommand]
+    private async Task GeoJsonToClipboardForSelected()
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (!SelectedItems().Any())
+        {
+            StatusContext.ToastError("Nothing Selected?");
+            return;
+        }
+
+        var frozenSelected = SelectedItems();
+
+        var featureList = new List<IFeature>();
+        var warningList = new List<string>();
+        var successCounter = 0;
+
+        foreach (var loopSelected in frozenSelected)
+        {
+            var lineFeature = loopSelected.DbEntry.FeatureFromGeoJsonLine();
+
+            if (lineFeature is null)
+            {
+                warningList.Add(loopSelected.DbEntry.Title ?? "Unknown");
+                continue;
+            }
+
+            featureList.Add(lineFeature);
+            successCounter++;
+        }
+
+        var finalString = await GeoJsonTools.SerializeListOfFeaturesCollectionToGeoJson(featureList);
+
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        Clipboard.SetText(finalString);
+
+        if (successCounter > 0)
+            StatusContext.ToastSuccess($"GeoJson To Clipboard for {successCounter} Lines");
+
+        if (warningList.Any())
+        {
+            await StatusContext.ShowMessageWithOkButton("GeoJson Conversion Failures?",
+                $"GeoJson Conversion failed for {warningList.Count} items.{Environment.NewLine}{Environment.NewLine}{string.Join(Environment.NewLine, warningList)}");
+        }
     }
 }
