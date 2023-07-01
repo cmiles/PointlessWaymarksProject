@@ -3,6 +3,7 @@ using System.IO;
 using System.Text;
 using System.Windows;
 using System.Xml;
+using NetTopologySuite.Features;
 using NetTopologySuite.IO;
 using Ookii.Dialogs.Wpf;
 using PointlessWaymarks.CmsData;
@@ -14,6 +15,7 @@ using PointlessWaymarks.CmsWpfControls.ContentList;
 using PointlessWaymarks.FeatureIntersectionTags;
 using PointlessWaymarks.FeatureIntersectionTags.Models;
 using PointlessWaymarks.LlamaAspects;
+using PointlessWaymarks.SpatialTools;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 using PointlessWaymarks.WpfCommon.Utility;
@@ -51,6 +53,11 @@ public partial class PointListWithActionsContext
             },
             new() { ItemName = "Add Intersection Tags", ItemCommand = AddIntersectionTagsToSelectedCommand },
             new() { ItemName = "Selected Points to GPX File", ItemCommand = SelectedToGpxFileCommand },
+            new()
+            {
+                ItemName = "Selected Points to Clipboard - GeoJson", ItemCommand = GeoJsonToClipboardForSelectedCommand
+            },
+            new() { ItemName = "Selected Points to Clipboard - Text", ItemCommand = ToClipboardForSelectedCommand },
             new() { ItemName = "Extract New Links", ItemCommand = ListContext.ExtractNewLinksSelectedCommand },
             new() { ItemName = "Open URL", ItemCommand = ListContext.ViewOnSiteCommand },
             new() { ItemName = "Delete", ItemCommand = ListContext.DeleteSelectedCommand },
@@ -264,11 +271,11 @@ public partial class PointListWithActionsContext
         };
         var fileDialogResult = fileDialog.ShowDialog();
 
+        if (!(fileDialogResult ?? false)) return;
+
         var fileName = fileDialog.FileName;
 
         await ThreadSwitcher.ResumeBackgroundAsync();
-
-        if (!fileDialogResult ?? false) return;
 
         var waypointList = new List<GpxWaypoint>();
 
@@ -290,5 +297,62 @@ public partial class PointListWithActionsContext
         await using var xmlWriter = XmlWriter.Create(fileStream, writerSettings);
         GpxWriter.Write(xmlWriter, null, new GpxMetadata("Pointless Waymarks CMS"), waypointList, null, null, null);
         xmlWriter.Close();
+    }
+
+    [BlockingCommand]
+    private async Task GeoJsonToClipboardForSelected()
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (!SelectedItems().Any())
+        {
+            StatusContext.ToastError("Nothing Selected?");
+            return;
+        }
+
+        var frozenSelected = SelectedItems();
+
+        var featureList = new List<IFeature>();
+
+        foreach (var loopSelected in frozenSelected)
+        {
+            var pointFeature = loopSelected.DbEntry.FeatureFromPoint();
+            featureList.Add(pointFeature);
+        }
+
+        var finalString = await GeoJsonTools.SerializeListOfFeaturesCollectionToGeoJson(featureList);
+
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        Clipboard.SetText(finalString);
+
+        StatusContext.ToastSuccess($"GeoJson Points To Clipboard for {frozenSelected.Count} Points");
+    }
+
+    [BlockingCommand]
+    private async Task ToClipboardForSelected()
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (!SelectedItems().Any())
+        {
+            StatusContext.ToastError("Nothing Selected?");
+            return;
+        }
+
+        var frozenSelected = SelectedItems();
+
+        var pointList = new StringBuilder();
+
+        foreach (var loopSelected in frozenSelected)
+        {
+            pointList.AppendLine($"{loopSelected.DbEntry.Latitude},{loopSelected.DbEntry.Longitude}");
+        }
+
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        Clipboard.SetText(pointList.ToString());
+
+        StatusContext.ToastSuccess($"Points To Clipboard for {frozenSelected.Count} Points");
     }
 }

@@ -1,10 +1,11 @@
 ﻿using System.IO;
-using System.Net;
 using System.Text;
 using System.Windows;
+using System.Xml;
 using NetTopologySuite.Features;
-using Newtonsoft.Json;
+using NetTopologySuite.IO;
 using Omu.ValueInjecter;
+using Ookii.Dialogs.Wpf;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.Content;
@@ -53,6 +54,10 @@ public partial class LineListWithActionsContext
             new()
             {
                 ItemName = "GeoJson to Clipboard", ItemCommand = GeoJsonToClipboardForSelectedCommand
+            },
+            new()
+            {
+                ItemName = "Save Gpx File", ItemCommand = SelectedToGpxFileCommand
             },
             new()
             {
@@ -237,64 +242,6 @@ public partial class LineListWithActionsContext
     }
 
     [BlockingCommand]
-    private async Task LinkBracketCodesToClipboardForSelected()
-    {
-        await ThreadSwitcher.ResumeBackgroundAsync();
-
-        if (!SelectedItems().Any())
-        {
-            StatusContext.ToastError("Nothing Selected?");
-            return;
-        }
-
-        var finalString = SelectedItems().Aggregate(string.Empty,
-            (current, loopSelected) =>
-                current + @$"{BracketCodeLineLinks.Create(loopSelected.DbEntry)}{Environment.NewLine}");
-
-        await ThreadSwitcher.ResumeForegroundAsync();
-
-        Clipboard.SetText(finalString);
-
-        StatusContext.ToastSuccess($"To Clipboard {finalString}");
-    }
-
-    [BlockingCommand]
-    private async Task RefreshData()
-    {
-        await ThreadSwitcher.ResumeBackgroundAsync();
-
-        await ListContext.LoadData();
-    }
-
-    public List<LineListListItem> SelectedItems()
-    {
-        return ListContext.ListSelection.SelectedItems?.Where(x => x is LineListListItem).Cast<LineListListItem>()
-            .ToList() ?? new List<LineListListItem>();
-    }
-
-    [BlockingCommand]
-    private async Task StatsBracketCodesToClipboardForSelected()
-    {
-        await ThreadSwitcher.ResumeBackgroundAsync();
-
-        if (!SelectedItems().Any())
-        {
-            StatusContext.ToastError("Nothing Selected?");
-            return;
-        }
-
-        var finalString = SelectedItems().Aggregate(string.Empty,
-            (current, loopSelected) =>
-                current + @$"{BracketCodeLineStats.Create(loopSelected.DbEntry)}{Environment.NewLine}");
-
-        await ThreadSwitcher.ResumeForegroundAsync();
-
-        Clipboard.SetText(finalString);
-
-        StatusContext.ToastSuccess($"To Clipboard {finalString}");
-    }
-
-    [BlockingCommand]
     private async Task GeoJsonToClipboardForSelected()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -335,9 +282,107 @@ public partial class LineListWithActionsContext
             StatusContext.ToastSuccess($"GeoJson To Clipboard for {successCounter} Lines");
 
         if (warningList.Any())
-        {
             await StatusContext.ShowMessageWithOkButton("GeoJson Conversion Failures?",
                 $"GeoJson Conversion failed for {warningList.Count} items.{Environment.NewLine}{Environment.NewLine}{string.Join(Environment.NewLine, warningList)}");
+    }
+
+    [BlockingCommand]
+    private async Task LinkBracketCodesToClipboardForSelected()
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (!SelectedItems().Any())
+        {
+            StatusContext.ToastError("Nothing Selected?");
+            return;
         }
+
+        var finalString = SelectedItems().Aggregate(string.Empty,
+            (current, loopSelected) =>
+                current + @$"{BracketCodeLineLinks.Create(loopSelected.DbEntry)}{Environment.NewLine}");
+
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        Clipboard.SetText(finalString);
+
+        StatusContext.ToastSuccess($"To Clipboard {finalString}");
+    }
+
+    [BlockingCommand]
+    private async Task RefreshData()
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        await ListContext.LoadData();
+    }
+
+    public List<LineListListItem> SelectedItems()
+    {
+        return ListContext.ListSelection.SelectedItems?.Where(x => x is LineListListItem).Cast<LineListListItem>()
+            .ToList() ?? new List<LineListListItem>();
+    }
+
+    [BlockingCommand]
+    private async Task SelectedToGpxFile()
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (!SelectedItems().Any())
+        {
+            StatusContext.ToastError("Nothing Selected?");
+            return;
+        }
+
+        var frozenSelected = SelectedItems();
+
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        var fileDialog = new VistaSaveFileDialog
+        {
+            Filter = "gpx file (*.gpx)|*.gpx;",
+            AddExtension = true,
+            OverwritePrompt = true,
+            DefaultExt = ".gpx"
+        };
+        var fileDialogResult = fileDialog.ShowDialog();
+
+        if (!(fileDialogResult ?? false)) return;
+
+        var fileName = fileDialog.FileName;
+
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        var trackList = frozenSelected.Select(x => GpxTools.GpxTrackFromLineFeature(x.DbEntry.FeatureFromGeoJsonLine()!,
+            x.DbEntry.RecordingStartedOnUtc, x.DbEntry.Title ?? "New Track", string.Empty,
+            x.DbEntry.Summary ?? string.Empty)).ToList();
+
+        var fileStream = new FileStream(fileName, FileMode.OpenOrCreate);
+
+        var writerSettings = new XmlWriterSettings { Encoding = Encoding.UTF8, Indent = true, CloseOutput = true };
+        await using var xmlWriter = XmlWriter.Create(fileStream, writerSettings);
+        GpxWriter.Write(xmlWriter, null, new GpxMetadata("Pointless Waymarks CMS"), null, null, trackList, null);
+        xmlWriter.Close();
+    }
+
+    [BlockingCommand]
+    private async Task StatsBracketCodesToClipboardForSelected()
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (!SelectedItems().Any())
+        {
+            StatusContext.ToastError("Nothing Selected?");
+            return;
+        }
+
+        var finalString = SelectedItems().Aggregate(string.Empty,
+            (current, loopSelected) =>
+                current + @$"{BracketCodeLineStats.Create(loopSelected.DbEntry)}{Environment.NewLine}");
+
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        Clipboard.SetText(finalString);
+
+        StatusContext.ToastSuccess($"To Clipboard {finalString}");
     }
 }

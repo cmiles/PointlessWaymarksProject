@@ -1,13 +1,47 @@
-﻿using System.Globalization;
+﻿using System.Collections.Immutable;
+using System.Globalization;
 using GeoTimeZone;
 using NetTopologySuite.Features;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.IO;
+using PointlessWaymarks.CommonTools;
 
 namespace PointlessWaymarks.SpatialTools;
 
 public static class GpxTools
 {
+    public static GpxTrack GpxTrackFromLineFeature(IFeature line, DateTime? utcStart, string name, string comment = "",
+        string description = "")
+    {
+        var pointList = new List<GpxWaypoint>();
+        var trackClock = DateTime.SpecifyKind(utcStart ?? DateTime.UtcNow, DateTimeKind.Utc);
+
+        pointList.Add(new GpxWaypoint(new GpxLongitude(line.Geometry.Coordinates[0].X!),
+                new GpxLatitude(line.Geometry.Coordinates[0].Y!), line.Geometry.Coordinates[0].Z)
+            .WithTimestampUtc(trackClock));
+
+        for (var i = 1; i < line.Geometry.Coordinates.Length; i++)
+        {
+            var startPoint = line.Geometry.Coordinates[i - 1]!;
+            var endPoint = line.Geometry.Coordinates[i]!;
+
+            var distance = DistanceTools.GetDistanceInMeters(startPoint.X, startPoint.Y, endPoint.X, endPoint.Y)
+                .MetersToMiles();
+
+            var time = Math.Max(TimeSpan.FromHours(distance / 2).TotalSeconds, 1);
+            trackClock = trackClock.AddSeconds(time);
+
+            pointList.Add(new GpxWaypoint(new GpxLongitude(line.Geometry.Coordinates[i].X!),
+                    new GpxLatitude(line.Geometry.Coordinates[i].Y!), line.Geometry.Coordinates[i].Z)
+                .WithTimestampUtc(trackClock));
+        }
+
+        var trackSegment = new GpxTrackSegment(new ImmutableGpxWaypointTable(pointList), new object());
+
+        return new GpxTrack(name, "Test", description, "Pointless Waymarks CMS",
+            ImmutableArray<GpxWebLink>.Empty, null, "Test", null, ImmutableArray.Create(trackSegment));
+    }
+
     public static Feature LineFeatureFromGpxRoute(GpxRouteInformation routeInformation)
     {
         // ReSharper disable once CoVariantArrayConversion
@@ -279,11 +313,11 @@ public static class GpxTools
             }
             else
             {
-                var point = PointTools.Wgs84Point(loopWaypoint.Longitude, loopWaypoint.Latitude, loopWaypoint.ElevationInMeters.Value);
+                var point = PointTools.Wgs84Point(loopWaypoint.Longitude, loopWaypoint.Latitude,
+                    loopWaypoint.ElevationInMeters.Value);
                 returnList.Add(new Feature(point, attributeTable));
                 bounds.ExpandToInclude(point.Coordinate);
             }
-
         }
 
         return (returnList, bounds);
