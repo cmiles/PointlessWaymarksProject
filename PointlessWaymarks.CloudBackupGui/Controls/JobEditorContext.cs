@@ -16,36 +16,23 @@ namespace PointlessWaymarks.CloudBackupGui.Controls;
 [GenerateStatusCommands]
 public partial class JobEditorContext
 {
-    private JobEditorContext(StatusControlContext statusContext, StringDataEntryContext userNameEntry,
-        StringDataEntryContext userFilePatternEntry, StringDataEntryContext userDirectoryPatternEntry,
-        ConversionDataEntryContext<int> userMaximumRuntimeHoursEntry,
-        ObservableCollection<DirectoryInfo> excludedDirectories,
-        ObservableCollection<string> excludedDirectoryPatterns, ObservableCollection<string> excludedFilePatterns)
+    private JobEditorContext()
     {
-        StatusContext = statusContext;
-        UserNameEntry = userNameEntry;
-        UserFilePatternEntry = userFilePatternEntry;
-        UserDirectoryPatternEntry = userDirectoryPatternEntry;
-        ExcludedDirectories = excludedDirectories;
-        ExcludedDirectoryPatterns = excludedDirectoryPatterns;
-        ExcludedFilePatterns = excludedFilePatterns;
-        UserMaximumRuntimeHoursEntry = userMaximumRuntimeHoursEntry;
-
         BuildCommands();
     }
 
-    public ObservableCollection<DirectoryInfo> ExcludedDirectories { get; set; }
-    public ObservableCollection<string> ExcludedDirectoryPatterns { get; set; }
-    public ObservableCollection<string> ExcludedFilePatterns { get; set; }
+    public required ObservableCollection<DirectoryInfo> ExcludedDirectories { get; set; }
+    public required ObservableCollection<string> ExcludedDirectoryPatterns { get; set; }
+    public required ObservableCollection<string> ExcludedFilePatterns { get; set; }
     public DirectoryInfo? InitialDirectory { get; set; }
     public DirectoryInfo? SelectedExcludedDirectory { get; set; }
     public string? SelectedExcludedDirectoryPattern { get; set; }
     public string? SelectedExcludedFilePattern { get; set; }
-    public StatusControlContext StatusContext { get; set; }
-    public StringDataEntryContext UserDirectoryPatternEntry { get; set; }
-    public StringDataEntryContext UserFilePatternEntry { get; set; }
-    public ConversionDataEntryContext<int> UserMaximumRuntimeHoursEntry { get; set; }
-    public StringDataEntryContext UserNameEntry { get; set; }
+    public required StatusControlContext StatusContext { get; set; }
+    public required StringDataEntryContext UserDirectoryPatternEntry { get; set; }
+    public required StringDataEntryContext UserFilePatternEntry { get; set; }
+    public required ConversionDataEntryContext<int> UserMaximumRuntimeHoursEntry { get; set; }
+    public required StringDataEntryContext UserNameEntry { get; set; }
 
     [BlockingCommand]
     public async Task AddExcludedDirectory()
@@ -241,10 +228,23 @@ public partial class JobEditorContext
             }
         };
 
+        var excludedDirectory = new ObservableCollection<DirectoryInfo>(initialJob.ExcludedDirectories.Select(x => new DirectoryInfo(x.Directory)).ToList());
+        var excludedDirectoryPatterns =
+            new ObservableCollection<string>(initialJob.ExcludedDirectoryNamePatterns.Select(x => x.Pattern));
+        var excludedFilePatterns =
+            new ObservableCollection<string>(initialJob.ExcludedFileNamePatterns.Select(x => x.Pattern));
 
-        return new JobEditorContext(statusContext, nameEntry, filePatternEntry, directoryPatternEntry,
-            maximumRuntimeHoursEntry, new ObservableCollection<DirectoryInfo>(), new ObservableCollection<string>(),
-            new ObservableCollectionListSource<string>());
+        return new JobEditorContext
+        {
+            ExcludedDirectories = excludedDirectory,
+            ExcludedDirectoryPatterns = excludedDirectoryPatterns,
+            ExcludedFilePatterns = excludedFilePatterns,
+            StatusContext = statusContext,
+            UserDirectoryPatternEntry = directoryPatternEntry,
+            UserFilePatternEntry = filePatternEntry,
+            UserMaximumRuntimeHoursEntry = maximumRuntimeHoursEntry,
+            UserNameEntry = nameEntry
+        };
     }
 
     [BlockingCommand]
