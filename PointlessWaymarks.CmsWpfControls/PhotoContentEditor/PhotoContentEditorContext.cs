@@ -204,7 +204,7 @@ Photo Content Notes:
             return;
         }
 
-        PhotoMetadataToCurrentContent(metadata);
+        await PhotoMetadataToCurrentContent(metadata);
     }
 
     [BlockingCommand]
@@ -570,7 +570,7 @@ Photo Content Notes:
             InitialPhoto = null;
             var (generationReturn, metadataReturn) =
                 await PhotoGenerator.PhotoMetadataFromFile(SelectedFile, false, StatusContext.ProgressTracker());
-            if (!generationReturn.HasError && metadataReturn != null) PhotoMetadataToCurrentContent(metadataReturn);
+            if (!generationReturn.HasError && metadataReturn != null) await PhotoMetadataToCurrentContent(metadataReturn);
         }
 
         PropertyScanners.SubscribeToChildHasChangesAndHasValidationIssues(this, CheckForChangesAndValidationIssues);
@@ -586,7 +586,7 @@ Photo Content Notes:
         if (e.PropertyName == nameof(SelectedFile)) StatusContext.RunFireAndForgetNonBlockingTask(SelectedFileChanged);
     }
 
-    public void PhotoMetadataToCurrentContent(PhotoMetadata metadata)
+    public async Task PhotoMetadataToCurrentContent(PhotoMetadata metadata)
     {
         ApertureEntry!.UserValue = metadata.Aperture ?? string.Empty;
         CameraMakeEntry!.UserValue = metadata.CameraMake ?? string.Empty;
@@ -606,7 +606,7 @@ Photo Content Notes:
         TitleSummarySlugFolder!.SummaryEntry.UserValue = metadata.Summary ?? string.Empty;
         TagEdit!.Tags = metadata.Tags ?? string.Empty;
         TitleSummarySlugFolder.TitleEntry.UserValue = metadata.Title ?? string.Empty;
-        TitleSummarySlugFolder.TitleToSlug();
+        await TitleSummarySlugFolder.TitleToSlug();
         TitleSummarySlugFolder.FolderEntry.UserValue = metadata.PhotoCreatedOn.Year.ToString("F0");
     }
 

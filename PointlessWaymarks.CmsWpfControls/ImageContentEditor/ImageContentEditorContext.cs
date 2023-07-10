@@ -280,6 +280,23 @@ public partial class ImageContentEditorContext : IHasChanges, IHasValidationIssu
             SelectedFile = InitialImage;
             ResizeSelectedFile = true;
             InitialImage = null;
+
+            var imageMetadata =
+                await ImageGenerator.ImageMetadataFromFile(SelectedFile, StatusContext.ProgressTracker());
+
+            if (imageMetadata is { generationReturn: { HasError : false } } and { metadata: not null })
+            {
+                TitleSummarySlugFolder.SummaryEntry.UserValue = imageMetadata.metadata.Summary ?? string.Empty;
+                TagEdit.Tags = imageMetadata.metadata.Tags ?? string.Empty;
+                TitleSummarySlugFolder.TitleEntry.UserValue = imageMetadata.metadata.Title ?? string.Empty;
+                await TitleSummarySlugFolder.TitleToSlug();
+            }
+            else
+            {
+                TitleSummarySlugFolder.TitleEntry.UserValue = Path.GetFileNameWithoutExtension(SelectedFile.Name)
+                    .Replace("-", " ").Replace("_", " ")
+                    .CamelCaseToSpacedString();
+            }
         }
 
         PropertyScanners.SubscribeToChildHasChangesAndHasValidationIssues(this, CheckForChangesAndValidationIssues);
