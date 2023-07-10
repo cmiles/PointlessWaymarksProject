@@ -8,13 +8,16 @@
              xmlns:conversionDataEntry="clr-namespace:PointlessWaymarks.WpfCommon.ConversionDataEntry;assembly=PointlessWaymarks.WpfCommon"
              xmlns:status="clr-namespace:PointlessWaymarks.WpfCommon.Status;assembly=PointlessWaymarks.WpfCommon"
              xmlns:windowScreenShot="clr-namespace:PointlessWaymarks.WpfCommon.WindowScreenShot;assembly=PointlessWaymarks.WpfCommon"
+             xmlns:existingDirectoryDataEntry="clr-namespace:PointlessWaymarks.WpfCommon.ExistingDirectoryDataEntry;assembly=PointlessWaymarks.WpfCommon"
              mc:Ignorable="d"
              d:DesignHeight="450" d:DesignWidth="800" d:DataContext="{d:DesignInstance local:JobEditorContext}">
     <Grid>
         <StackPanel Orientation="Vertical">
             <stringDataEntry:StringDataEntryControl DataContext="{Binding UserNameEntry}" />
-            <TextBlock Text="{Binding InitialDirectory.FullName}" />
-            <Button Command="{Binding ChooseInitialDirectoryCommand}">Select Initial Directory</Button>
+            <existingDirectoryDataEntry:ExistingDirectoryDataEntryControl
+                DataContext="{Binding UserInitialDirectoryEntry}">
+            </existingDirectoryDataEntry:ExistingDirectoryDataEntryControl>
+            <stringDataEntry:StringDataEntryControl DataContext="{Binding UserCloudDirectoryEntry}" />
             <ListBox ItemsSource="{Binding ExcludedDirectories}" SelectedItem="{Binding SelectedExcludedDirectory}"
                      SelectionMode="Single" />
             <Button Command="{Binding AddExcludedDirectoryCommand}">Add Directory to Exclude</Button>
