@@ -9,8 +9,8 @@ public static class CloudBackupGuiSettingTools
 {
     public static CloudBackupGuiSettings ReadSettings()
     {
-        var settingsFileName = Path.Combine(FileLocationHelpers.DefaultStorageDirectory().FullName,
-            "CloudBackupGuiSettings.json");
+        var settingsFileName = Path.Combine(FileLocationTools.DefaultStorageDirectory().FullName,
+            "PwCloudBackupSettings.json");
         var settingsFile = new FileInfo(settingsFileName);
 
         if (!settingsFile.Exists)
@@ -26,15 +26,14 @@ public static class CloudBackupGuiSettingTools
 
     public static async Task WriteSettings(CloudBackupGuiSettings settings)
     {
-        var settingsFileName = Path.Combine(FileLocationHelpers.DefaultStorageDirectory().FullName,
+        var settingsFileName = Path.Combine(FileLocationTools.DefaultStorageDirectory().FullName,
             "PwCloudBackupSettings.json");
         var settingsFile = new FileInfo(settingsFileName);
 
         if (settingsFile.Exists) settingsFile.Delete();
 
-        var serializedNewSettings = JsonSerializer.Serialize(settings);
         await using var stream = File.Create(settingsFile.FullName);
-        await JsonSerializer.SerializeAsync(stream, serializedNewSettings);
+        await JsonSerializer.SerializeAsync(stream, settings);
         await stream.DisposeAsync();
     }
 }

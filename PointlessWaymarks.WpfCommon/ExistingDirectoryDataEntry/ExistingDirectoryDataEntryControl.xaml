@@ -43,7 +43,7 @@
                 <ColumnDefinition Width="Auto"></ColumnDefinition>
                 <ColumnDefinition Width="*"></ColumnDefinition>
             </Grid.ColumnDefinitions>
-            <Button Command="{Binding PickDirectoryCommand}">Choose Directory</Button>
+            <Button Padding="8,2,8,2" Margin="6,0,0,0" Command="{Binding PickDirectoryCommand}">Choose Directory</Button>
             <TextBox Grid.Column="1"
                      Name="ValueTextBox"
                      Style="{StaticResource DataEntryTextBoxSingleLineStyle}"
