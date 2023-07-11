@@ -72,7 +72,7 @@ public class DatabaseBatchesAndUploadSeries
             Name = $"Cloud-{testTime}",
         };
 
-        db.BackupJob.Add(testJob);
+        db.BackupJobs.Add(testJob);
 
         await db.SaveChangesAsync();
 
@@ -90,7 +90,7 @@ public class DatabaseBatchesAndUploadSeries
     [Test]
     public async Task T000_InitialTransferAndFileCheck()
     {
-        var job = await (await CloudBackupContext.CreateInstance()).BackupJob.SingleAsync();
+        var job = await (await CloudBackupContext.CreateInstance()).BackupJobs.SingleAsync();
         var batch = await CreateCloudTransferBatch.InDatabase(S3Credentials, job);
 
         var testBatch =
@@ -122,7 +122,7 @@ public class DatabaseBatchesAndUploadSeries
     {
         TestFile1 = Helpers.RandomFile(Path.Combine(TestDirectory1.FullName, "TestFile1.txt"));
 
-        var job = await (await CloudBackupContext.CreateInstance()).BackupJob.SingleAsync();
+        var job = await (await CloudBackupContext.CreateInstance()).BackupJobs.SingleAsync();
         var batch = await CreateCloudTransferBatch.InDatabase(S3Credentials, job);
 
         var testBatch =
@@ -154,7 +154,7 @@ public class DatabaseBatchesAndUploadSeries
     {
         TestFile3Duplicate.Delete();
 
-        var job = await (await CloudBackupContext.CreateInstance()).BackupJob.SingleAsync();
+        var job = await (await CloudBackupContext.CreateInstance()).BackupJobs.SingleAsync();
         var batch = await CreateCloudTransferBatch.InDatabase(S3Credentials, job);
 
         var testBatch =
@@ -185,7 +185,7 @@ public class DatabaseBatchesAndUploadSeries
     public async Task T100_ThirdTransferWithAddedDirectoryExclusion()
     {
         var context = await CloudBackupContext.CreateInstance();
-        var job = await context.BackupJob.SingleAsync();
+        var job = await context.BackupJobs.SingleAsync();
         job.ExcludedDirectories.Add(new ExcludedDirectory
             { CreatedOn = DateTime.Now, Directory = TestDirectory1.FullName, Job = job });
         await context.SaveChangesAsync();
@@ -220,7 +220,7 @@ public class DatabaseBatchesAndUploadSeries
     public async Task T200_FourthTransferWithAddsFromRemovingAddedDirectoryExclusionAndAdditionalDelete()
     {
         var context = await CloudBackupContext.CreateInstance();
-        var job = await context.BackupJob.SingleAsync();
+        var job = await context.BackupJobs.SingleAsync();
         job.ExcludedDirectories.Remove(job.ExcludedDirectories.First());
         await context.SaveChangesAsync();
 

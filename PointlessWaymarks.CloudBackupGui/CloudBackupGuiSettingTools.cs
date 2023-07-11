@@ -1,5 +1,6 @@
-﻿using System.IO;
+using System.IO;
 using System.Text.Json;
+using PointlessWaymarks.CloudBackupData;
 using PointlessWaymarks.CommonTools;
 
 namespace PointlessWaymarks.CloudBackupGui;
@@ -8,7 +9,7 @@ public static class CloudBackupGuiSettingTools
 {
     public static CloudBackupGuiSettings ReadSettings()
     {
-        var settingsFileName = Path.Combine(FileLocationTools.DefaultStorageDirectory().FullName,
+        var settingsFileName = Path.Combine(FileLocationHelpers.DefaultStorageDirectory().FullName,
             "CloudBackupGuiSettings.json");
         var settingsFile = new FileInfo(settingsFileName);
 
@@ -25,7 +26,7 @@ public static class CloudBackupGuiSettingTools
 
     public static async Task WriteSettings(CloudBackupGuiSettings settings)
     {
-        var settingsFileName = Path.Combine(FileLocationTools.DefaultStorageDirectory().FullName,
+        var settingsFileName = Path.Combine(FileLocationHelpers.DefaultStorageDirectory().FullName,
             "PwCloudBackupSettings.json");
         var settingsFile = new FileInfo(settingsFileName);
 

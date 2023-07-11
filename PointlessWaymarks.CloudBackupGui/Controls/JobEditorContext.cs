@@ -21,11 +21,7 @@ namespace PointlessWaymarks.CloudBackupGui.Controls;
 public partial class JobEditorContext : IHasChanges, IHasValidationIssues,
     ICheckForChangesAndValidation
 {
-    private JobEditorContext()
-    {
-        BuildCommands();
-    }
-
+    public required string DatabaseFile { get; set; }
     public required ObservableCollection<DirectoryInfo> ExcludedDirectories { get; set; }
     public required ObservableCollection<string> ExcludedDirectoryPatterns { get; set; }
     public required ObservableCollection<string> ExcludedFilePatterns { get; set; }
@@ -158,7 +154,8 @@ public partial class JobEditorContext : IHasChanges, IHasValidationIssues,
         return selectedDirectory;
     }
 
-    public static async Task<JobEditorContext> CreateInstance(StatusControlContext? context, BackupJob initialJob)
+    public static async Task<JobEditorContext> CreateInstance(StatusControlContext? context, BackupJob initialJob,
+        string databaseFile)
     {
         await ThreadSwitcher.ResumeForegroundAsync();
 
@@ -303,75 +300,12 @@ public partial class JobEditorContext : IHasChanges, IHasValidationIssues,
             UserDirectoryPatternEntry = directoryPatternEntry,
             UserFilePatternEntry = filePatternEntry,
             UserMaximumRuntimeHoursEntry = maximumRuntimeHoursEntry,
-            UserNameEntry = nameEntry
+            UserNameEntry = nameEntry,
+            DatabaseFile = databaseFile
         };
 
         PropertyScanners.SubscribeToChildHasChangesAndHasValidationIssues(toReturn,
             toReturn.CheckForChangesAndValidationIssues);
-
-        return toReturn;
-    }
-
-    public async Task<BackupJob> EditorToBackupJob(int? currentJobId)
-    {
-        var toReturn = new BackupJob();
-
-        var frozenNow = DateTime.Now;
-
-        if (currentJobId > 0)
-        {
-            var db = await CloudBackupContext.CreateInstance();
-            var item = await db.BackupJob.SingleOrDefaultAsync(x => x.Id == currentJobId);
-            if (item != null) toReturn = item;
-        }
-
-        toReturn.CloudDirectory = string.Empty;
-        toReturn.CreatedOn = LoadedJob.CreatedOn;
-        toReturn.DefaultMaximumRunTimeInHours = UserMaximumRuntimeHoursEntry.UserValue;
-
-        var directoriesToRemove = new List<ExcludedDirectory>();
-        var directoriesToAdd = new List<string>();
-        foreach (var loopDbExcluded in toReturn.ExcludedDirectories)
-            if (ExcludedDirectories.All(x => x.FullName != loopDbExcluded.Directory))
-                directoriesToRemove.Add(loopDbExcluded);
-
-        foreach (var loopGuiExcluded in ExcludedDirectories)
-            if (toReturn.ExcludedDirectories.All(x => x.Directory != loopGuiExcluded.FullName))
-                directoriesToAdd.Add(loopGuiExcluded.FullName);
-
-        directoriesToRemove.ForEach(x => toReturn.ExcludedDirectories.Remove(x));
-
-        directoriesToAdd.ForEach(x => toReturn.ExcludedDirectories.Add(new ExcludedDirectory
-            { CreatedOn = frozenNow, Job = toReturn, Directory = x }));
-
-        var directoryPatternsToRemove = toReturn.ExcludedDirectoryNamePatterns
-            .Where(x => !ExcludedDirectoryPatterns.Contains(x.Pattern)).ToList();
-        var directoryPatternsToAdd = new List<string>();
-
-        foreach (var loopGuiExcluded in ExcludedDirectoryPatterns)
-            if (toReturn.ExcludedDirectoryNamePatterns.All(x => x.Pattern != loopGuiExcluded))
-                directoryPatternsToAdd.Add(loopGuiExcluded);
-
-        directoryPatternsToRemove.ForEach(x => toReturn.ExcludedDirectoryNamePatterns.Remove(x));
-
-        directoryPatternsToAdd.ForEach(x =>
-            toReturn.ExcludedDirectoryNamePatterns.Add(new ExcludedDirectoryNamePattern
-                { CreatedOn = frozenNow, Job = toReturn, Pattern = x }));
-
-        var filePatternsToRemove = toReturn.ExcludedFileNamePatterns
-            .Where(x => !ExcludedFilePatterns.Contains(x.Pattern)).ToList();
-        var filePatternsToAdd = new List<string>();
-
-        foreach (var loopGuiFilePattern in ExcludedFilePatterns)
-            if (toReturn.ExcludedFileNamePatterns.All(x => x.Pattern != loopGuiFilePattern))
-                filePatternsToAdd.Add(loopGuiFilePattern);
-
-        filePatternsToRemove.ForEach(x => toReturn.ExcludedFileNamePatterns.Remove(x));
-
-        filePatternsToAdd.ForEach(x => toReturn.ExcludedFileNamePatterns.Add(new ExcludedFileNamePattern
-            { CreatedOn = frozenNow, Job = toReturn, Pattern = x }));
-
-        toReturn.LocalDirectory = UserInitialDirectoryEntry.UserValue.Trim();
 
         return toReturn;
     }
@@ -428,12 +362,84 @@ public partial class JobEditorContext : IHasChanges, IHasValidationIssues,
         ExcludedFilePatterns.Remove(frozenSelection);
     }
 
-    [BlockingCommand]
-    public async Task SaveChanges(bool closeAfterSaving = false)
+    public async Task SaveChanges()
     {
         if (HasValidationIssues)
         {
-            StatusContext.ToastError("Please Correct All Issues before Saving");
+            StatusContext.ToastError("Please correct all issues before saving.");
+            return;
         }
+
+        //Todo: Track changes in the Observable Collections
+
+        var toSave = new BackupJob();
+
+        var frozenNow = DateTime.Now;
+
+        var db = await CloudBackupContext.CreateInstance(DatabaseFile, false);
+
+        if (LoadedJob.Id > 0)
+        {
+            var item = await db.BackupJobs.SingleOrDefaultAsync(x => x.Id == LoadedJob.Id);
+            if (item != null) toSave = item;
+        }
+
+        toSave.CloudDirectory = string.Empty;
+        toSave.CreatedOn = LoadedJob.CreatedOn;
+        toSave.DefaultMaximumRunTimeInHours = UserMaximumRuntimeHoursEntry.UserValue;
+
+        var directoriesToRemove = new List<ExcludedDirectory>();
+        var directoriesToAdd = new List<string>();
+        foreach (var loopDbExcluded in toSave.ExcludedDirectories)
+            if (ExcludedDirectories.All(x => x.FullName != loopDbExcluded.Directory))
+                directoriesToRemove.Add(loopDbExcluded);
+
+        foreach (var loopGuiExcluded in ExcludedDirectories)
+            if (toSave.ExcludedDirectories.All(x => x.Directory != loopGuiExcluded.FullName))
+                directoriesToAdd.Add(loopGuiExcluded.FullName);
+
+        directoriesToRemove.ForEach(x => toSave.ExcludedDirectories.Remove(x));
+
+        directoriesToAdd.ForEach(x => toSave.ExcludedDirectories.Add(new ExcludedDirectory
+            { CreatedOn = frozenNow, Job = toSave, Directory = x }));
+
+        var directoryPatternsToRemove = toSave.ExcludedDirectoryNamePatterns
+            .Where(x => !ExcludedDirectoryPatterns.Contains(x.Pattern)).ToList();
+        var directoryPatternsToAdd = new List<string>();
+
+        foreach (var loopGuiExcluded in ExcludedDirectoryPatterns)
+            if (toSave.ExcludedDirectoryNamePatterns.All(x => x.Pattern != loopGuiExcluded))
+                directoryPatternsToAdd.Add(loopGuiExcluded);
+
+        directoryPatternsToRemove.ForEach(x => toSave.ExcludedDirectoryNamePatterns.Remove(x));
+
+        directoryPatternsToAdd.ForEach(x =>
+            toSave.ExcludedDirectoryNamePatterns.Add(new ExcludedDirectoryNamePattern
+                { CreatedOn = frozenNow, Job = toSave, Pattern = x }));
+
+        var filePatternsToRemove = toSave.ExcludedFileNamePatterns
+            .Where(x => !ExcludedFilePatterns.Contains(x.Pattern)).ToList();
+        var filePatternsToAdd = new List<string>();
+
+        foreach (var loopGuiFilePattern in ExcludedFilePatterns)
+            if (toSave.ExcludedFileNamePatterns.All(x => x.Pattern != loopGuiFilePattern))
+                filePatternsToAdd.Add(loopGuiFilePattern);
+
+        filePatternsToRemove.ForEach(x => toSave.ExcludedFileNamePatterns.Remove(x));
+
+        filePatternsToAdd.ForEach(x => toSave.ExcludedFileNamePatterns.Add(new ExcludedFileNamePattern
+            { CreatedOn = frozenNow, Job = toSave, Pattern = x }));
+
+        toSave.LocalDirectory = UserInitialDirectoryEntry.UserValue.Trim();
+
+        if (toSave.Id < 1) db.BackupJobs.Add(toSave);
+
+        await db.SaveChangesAsync();
+    }
+
+    public Task Setup()
+    {
+        BuildCommands();
+        return Task.CompletedTask;
     }
 }

@@ -1,4 +1,5 @@
-﻿using PointlessWaymarks.CommonTools;
+using PointlessWaymarks.CloudBackupGui.Controls;
+using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon.ProgramUpdateMessage;
 using PointlessWaymarks.WpfCommon.Status;
@@ -35,7 +36,6 @@ public partial class MainWindow
 
         UpdateMessageContext = new ProgramUpdateMessageContext();
 
-
         StatusContext.RunFireAndForgetBlockingTask(async () =>
         {
             await CheckForProgramUpdate(currentDateVersion);
@@ -45,6 +45,7 @@ public partial class MainWindow
     }
 
     public string InfoTitle { get; set; }
+    public JobListContext? ListContext { get; set; }
     public StatusControlContext StatusContext { get; set; }
     public ProgramUpdateMessageContext UpdateMessageContext { get; set; }
 
@@ -73,6 +74,6 @@ public partial class MainWindow
 
     private async Task LoadData()
     {
-        throw new NotImplementedException();
+        ListContext = await JobListContext.CreateInstance(StatusContext);
     }
 }

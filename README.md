@@ -146,7 +146,7 @@ I am incredibly grateful to the all the people and projects that make it possibl
 **Tools:**
  - [Visual Studio IDE](https://visualstudio.microsoft.com/), [.NET Core (Linux, macOS, and Windows)](https://dotnet.microsoft.com/download/dotnet-core)
  - [ReSharper: The Visual Studio Extension for .NET Developers by JetBrains](https://www.jetbrains.com/resharper/)
- - [GitHub Copilot · Your AI pair programmer · GitHub](https://github.com/features/copilot)
+ - [GitHub Copilot Â· Your AI pair programmer Â· GitHub](https://github.com/features/copilot)
  - [Metalama: A Framework for Clean & Concise Code in C#](https://www.postsharp.net/metalama)
  - [AutoHotkey](https://www.autohotkey.com/)
  - [Beyond Compare](https://www.scootersoftware.com/)

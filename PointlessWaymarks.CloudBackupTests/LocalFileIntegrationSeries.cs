@@ -60,7 +60,7 @@ public class LocalFileIntegrationSeries
             Name = "Test01",
         };
 
-        db.BackupJob.Add(testJob);
+        db.BackupJobs.Add(testJob);
 
         await db.SaveChangesAsync();
     }
@@ -69,7 +69,7 @@ public class LocalFileIntegrationSeries
     public async Task T000_BasicIntegrationNoExclusionsPatternNoWildcard()
     {
         var context = await CloudBackupContext.CreateInstance();
-        var job = await context.BackupJob.SingleAsync();
+        var job = await context.BackupJobs.SingleAsync();
         var files = await CreationTools.GetAllLocalFiles(job);
 
         Assert.That(files, Has.Count.EqualTo(8));
@@ -92,7 +92,7 @@ public class LocalFileIntegrationSeries
     public async Task T100_PatternNoWildcard()
     {
         var context = await CloudBackupContext.CreateInstance();
-        var job = await context.BackupJob.SingleAsync();
+        var job = await context.BackupJobs.SingleAsync();
 
         context.ExcludedFileNamePatterns.Add(new ExcludedFileNamePattern
         {
@@ -124,7 +124,7 @@ public class LocalFileIntegrationSeries
     public async Task T110_PatternStarWildcardExtension()
     {
         var context = await CloudBackupContext.CreateInstance();
-        var job = await context.BackupJob.SingleAsync();
+        var job = await context.BackupJobs.SingleAsync();
 
         context.ExcludedFileNamePatterns.Add(new ExcludedFileNamePattern
         {
@@ -154,7 +154,7 @@ public class LocalFileIntegrationSeries
     public async Task T120_PatternStarFileName()
     {
         var context = await CloudBackupContext.CreateInstance();
-        var job = await context.BackupJob.SingleAsync();
+        var job = await context.BackupJobs.SingleAsync();
 
         context.ExcludedFileNamePatterns.Add(new ExcludedFileNamePattern
         {
@@ -181,7 +181,7 @@ public class LocalFileIntegrationSeries
     public async Task T200_DirectoryExclusion()
     {
         var context = await CloudBackupContext.CreateInstance();
-        var job = await context.BackupJob.SingleAsync();
+        var job = await context.BackupJobs.SingleAsync();
         context.ExcludedFileNamePatterns.RemoveRange(context.ExcludedFileNamePatterns);
 
         context.ExcludedDirectories.Add(new ExcludedDirectory

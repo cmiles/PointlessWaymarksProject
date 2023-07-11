@@ -44,7 +44,7 @@ public class LocalDirectoryIntegrationSeries
             Name = "Test01"
         };
 
-        db.BackupJob.Add(testJob);
+        db.BackupJobs.Add(testJob);
 
         await db.SaveChangesAsync();
     }
@@ -57,7 +57,7 @@ public class LocalDirectoryIntegrationSeries
     public async Task T000_BasicIntegrationNoExclusions()
     {
         var context = await CloudBackupContext.CreateInstance();
-        var job = await context.BackupJob.SingleAsync();
+        var job = await context.BackupJobs.SingleAsync();
         var directories = await CreationTools.GetAllLocalDirectories(job);
 
         Assert.That(directories, Has.Count.EqualTo(6));
@@ -77,7 +77,7 @@ public class LocalDirectoryIntegrationSeries
     public async Task T100_LeafNodeDirectoryExactMatchExcluded()
     {
         var context = await CloudBackupContext.CreateInstance();
-        var job = await context.BackupJob.SingleAsync();
+        var job = await context.BackupJobs.SingleAsync();
         context.ExcludedDirectories.Add(new ExcludedDirectory
         {
             CreatedOn = DateTime.Now,
@@ -104,7 +104,7 @@ public class LocalDirectoryIntegrationSeries
     public async Task T110_LeafNodeDirectoryPatternMatchExcluded()
     {
         var context = await CloudBackupContext.CreateInstance();
-        var job = await context.BackupJob.SingleAsync();
+        var job = await context.BackupJobs.SingleAsync();
         context.ExcludedDirectoryNamePatterns.Add(new ExcludedDirectoryNamePattern
         {
             CreatedOn = DateTime.Now,
@@ -130,7 +130,7 @@ public class LocalDirectoryIntegrationSeries
     public async Task T200_NodesWithChildrenDirectoryPatternMatchExcluded()
     {
         var context = await CloudBackupContext.CreateInstance();
-        var job = await context.BackupJob.SingleAsync();
+        var job = await context.BackupJobs.SingleAsync();
         context.ExcludedDirectoryNamePatterns.RemoveRange(context.ExcludedDirectoryNamePatterns);
         context.ExcludedDirectories.RemoveRange(context.ExcludedDirectories);
 
@@ -157,7 +157,7 @@ public class LocalDirectoryIntegrationSeries
     public async Task T210_NodeWithChildrenDirectoriesExactMatchExcluded()
     {
         var context = await CloudBackupContext.CreateInstance();
-        var job = await context.BackupJob.SingleAsync();
+        var job = await context.BackupJobs.SingleAsync();
         context.ExcludedDirectoryNamePatterns.RemoveRange(context.ExcludedDirectoryNamePatterns);
         context.ExcludedDirectories.RemoveRange(context.ExcludedDirectories);
 
