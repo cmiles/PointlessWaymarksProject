@@ -1,4 +1,4 @@
-﻿using System.ComponentModel;
+using System.ComponentModel;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon.ChangesAndValidation;
@@ -13,6 +13,9 @@ public partial class BoolDataEntryContext : IHasChanges, IHasValidationIssues
         PropertyChanged += OnPropertyChanged;
     }
 
+    public bool HasChanges { get; set; }
+    public bool HasValidationIssues { get; set; }
+
     public string HelpText { get; set; } = string.Empty;
     public bool IsEnabled { get; set; } = true;
     public bool ReferenceValue { get; set; }
@@ -26,8 +29,6 @@ public partial class BoolDataEntryContext : IHasChanges, IHasValidationIssues
         new();
 
     public string ValidationMessage { get; set; } = string.Empty;
-    public bool HasChanges { get; set; }
-    public bool HasValidationIssues { get; set; }
 
     public void CheckForChangesAndValidate()
     {
@@ -58,7 +59,8 @@ public partial class BoolDataEntryContext : IHasChanges, IHasValidationIssues
     {
         if (string.IsNullOrWhiteSpace(e.PropertyName)) return;
 
-        if (!e.PropertyName.Contains("HasChanges") && !e.PropertyName.Contains("Validation"))
+        if (e.PropertyName.Equals(nameof(ReferenceValue)) || e.PropertyName.Equals(nameof(UserValue)) ||
+            e.PropertyName.Equals(nameof(ValidationFunctions)) || e.PropertyName.Equals(nameof(IsEnabled)))
             CheckForChangesAndValidate();
     }
 }

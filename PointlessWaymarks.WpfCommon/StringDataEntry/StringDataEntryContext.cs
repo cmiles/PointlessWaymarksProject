@@ -1,4 +1,4 @@
-﻿using System.ComponentModel;
+using System.ComponentModel;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon.ChangesAndValidation;
@@ -13,14 +13,15 @@ public partial class StringDataEntryContext : IHasChanges, IHasValidationIssues
         PropertyChanged += OnPropertyChanged;
     }
 
+    public bool HasChanges { get; set; }
+    public bool HasValidationIssues { get; set; }
+
     public string HelpText { get; set; } = string.Empty;
     public string ReferenceValue { get; set; } = string.Empty;
     public string Title { get; set; } = string.Empty;
     public string UserValue { get; set; } = string.Empty;
     public List<Func<string?, Task<IsValid>>> ValidationFunctions { get; set; } = new();
     public string ValidationMessage { get; set; } = string.Empty;
-    public bool HasChanges { get; set; }
-    public bool HasValidationIssues { get; set; }
 
     public async Task CheckForChangesAndValidationIssues()
     {
@@ -51,7 +52,8 @@ public partial class StringDataEntryContext : IHasChanges, IHasValidationIssues
     {
         if (string.IsNullOrWhiteSpace(e.PropertyName)) return;
 
-        if (!e.PropertyName.Contains("HasChanges") && !e.PropertyName.Contains("Validation"))
+        if (e.PropertyName.Equals(nameof(ReferenceValue)) || e.PropertyName.Equals(nameof(UserValue)) ||
+            e.PropertyName.Equals(nameof(ValidationFunctions)))
             await CheckForChangesAndValidationIssues();
     }
 }

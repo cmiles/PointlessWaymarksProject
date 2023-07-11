@@ -64,7 +64,8 @@ public partial class ExistingDirectoryDataEntryContext : IHasChanges, IHasValida
     {
         if (string.IsNullOrWhiteSpace(e.PropertyName)) return;
 
-        if (!e.PropertyName.Contains("HasChanges") && !e.PropertyName.Contains("Validation"))
+        if (e.PropertyName.Equals(nameof(ReferenceValue)) || e.PropertyName.Equals(nameof(UserValue)) ||
+            e.PropertyName.Equals(nameof(ValidationFunctions)))
             await CheckForChangesAndValidationIssues();
     }
 
