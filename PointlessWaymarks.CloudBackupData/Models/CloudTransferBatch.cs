@@ -5,7 +5,7 @@ public class CloudTransferBatch
     public DateTime CreatedOn { get; set; }
     public bool DeletionsCompletedSuccessfully { get; set; }
     public int Id { get; set; }
-    public virtual BackupJob Job { get; set; }
+    public virtual BackupJob? Job { get; set; }
     public int JobId { get; set; }
     public string Notes { get; set; } = string.Empty;
     public bool UploadsCompletedSuccessfully { get; set; }

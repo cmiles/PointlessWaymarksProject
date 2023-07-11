@@ -2,15 +2,20 @@
 
 public class BackupJob
 {
-    public virtual ICollection<CloudTransferBatch> Batches { get; set; }
-    public string CloudDirectory { get; set; }
+    public virtual ICollection<CloudTransferBatch> Batches { get; set; } = new List<CloudTransferBatch>();
+    public string CloudDirectory { get; set; } = string.Empty;
     public DateTime CreatedOn { get; set; }
-    public virtual ICollection<ExcludedDirectory> ExcludedDirectories { get; set; }
-    public virtual ICollection<ExcludedDirectoryNamePattern> ExcludedDirectoryNamePatterns { get; set; }
-    public virtual ICollection<ExcludedFileNamePattern> ExcludedFileNamePatterns { get; set; }
-    public virtual ICollection<FileSystemFile> FileSystemFiles { get; set; }
+    public virtual ICollection<ExcludedDirectory> ExcludedDirectories { get; set; } = new List<ExcludedDirectory>();
+
+    public virtual ICollection<ExcludedDirectoryNamePattern> ExcludedDirectoryNamePatterns { get; set; } =
+        new List<ExcludedDirectoryNamePattern>();
+
+    public virtual ICollection<ExcludedFileNamePattern> ExcludedFileNamePatterns { get; set; } =
+        new List<ExcludedFileNamePattern>();
+
+    public virtual ICollection<FileSystemFile> FileSystemFiles { get; set; } = new List<FileSystemFile>();
     public int Id { get; set; }
-    public string LocalDirectory { get; set; }
+    public string LocalDirectory { get; set; } = string.Empty;
     public int DefaultMaximumRunTimeInHours { get; set; }
-    public string Name { get; set; }
+    public string Name { get; set; } = string.Empty;
 }

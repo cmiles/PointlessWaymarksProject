@@ -12,14 +12,14 @@ public class CloudBackupContext : DbContext
     {
     }
 
-    public DbSet<CloudTransferBatch> CloudTransferBatches { get; set; }
-    public DbSet<BackupJob> BackupJobs { get; set; }
-    public DbSet<CloudDelete> CloudDeletions { get; set; }
-    public DbSet<CloudUpload> CloudUploads { get; set; }
-    public DbSet<ExcludedDirectory> ExcludedDirectories { get; set; }
-    public DbSet<ExcludedDirectoryNamePattern> ExcludedDirectoryNamePatterns { get; set; }
-    public DbSet<ExcludedFileNamePattern> ExcludedFileNamePatterns { get; set; }
-    public DbSet<FileSystemFile> FileSystemFiles { get; set; }
+    public DbSet<CloudTransferBatch> CloudTransferBatches { get; set; } = null!;
+    public DbSet<BackupJob> BackupJobs { get; set; } = null!;
+    public DbSet<CloudDelete> CloudDeletions { get; set; } = null!;
+    public DbSet<CloudUpload> CloudUploads { get; set; } = null!;
+    public DbSet<ExcludedDirectory> ExcludedDirectories { get; set; } = null!;
+    public DbSet<ExcludedDirectoryNamePattern> ExcludedDirectoryNamePatterns { get; set; } = null!;
+    public DbSet<ExcludedFileNamePattern> ExcludedFileNamePatterns { get; set; } = null!;
+    public DbSet<FileSystemFile> FileSystemFiles { get; set; } = null!;
 
     public static async Task<CloudBackupContext> CreateInstance()
     {
