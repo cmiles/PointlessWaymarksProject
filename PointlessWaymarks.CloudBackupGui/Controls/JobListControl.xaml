@@ -32,7 +32,7 @@
             <Image Grid.Column="1" ToolTip="Database is not valid?" Margin="6,0,0,0"
                    Source="{svgc:SvgImage Source=/Icons/alert-octagon.svg, AppName=PointlessWaymarks.WpfCommon}"
                    Visibility="{Binding CurrentDatabaseIsValid, Converter={StaticResource BooleanNotToHidden}}"
-                   Width="{StaticResource SmallIconSize}" VerticalAlignment="Center"/>
+                   Width="{StaticResource SmallIconSize}" VerticalAlignment="Center" />
             <TextBox Margin="4,0,0,0" Grid.Column="2" Text="{Binding CurrentDatabase, Delay=750}"></TextBox>
         </Grid>
         <GroupBox
@@ -40,15 +40,25 @@
             Grid.Row="1"
             Header="Backup Jobs"
             Style="{StaticResource UiComponentGroupBoxStyle}">
-            <ListBox ItemsSource="{Binding Items}" 
+            <ListBox ItemsSource="{Binding Items}"
                      Style="{StaticResource ContentListListBoxStyle}"
                      SelectedItem="{Binding SelectedJob}"
                      behaviors:MultiSelectorBehaviors.SynchronizedSelectedItems="{Binding SelectedJobs}">
                 <ListBox.ItemTemplate>
                     <DataTemplate DataType="{x:Type models:BackupJob}">
-                        <Grid>
-                            <TextBlock Text="{Binding Name}"></TextBlock>
-                        </Grid>
+                        <Border Style="{StaticResource ContentListOuterBorderStyle}">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"></RowDefinition>
+                                    <RowDefinition Height="Auto"></RowDefinition>
+                                </Grid.RowDefinitions>
+                                <TextBlock Text="{Binding Name}"></TextBlock>
+                                <WrapPanel Grid.Row="1" Orientation="Horizontal">
+                                    <TextBlock Text="{Binding LocalDirectory, StringFormat='From {0}'}"></TextBlock>
+                                    <TextBlock Text="{Binding CloudDirectory, StringFormat='To {0}'}"></TextBlock>
+                                </WrapPanel>
+                            </Grid>
+                        </Border>
                     </DataTemplate>
                 </ListBox.ItemTemplate>
             </ListBox>
@@ -57,11 +67,11 @@
             <WrapPanel HorizontalAlignment="Center" Orientation="Horizontal">
                 <Button
                     Content="_Edit"
-                    Style="{StaticResource ActionPanelButtonStyle}" />
+                    Style="{StaticResource ActionPanelButtonStyle}" Command="{Binding EditJobCommand}"/>
                 <Button
                     Content="_New"
                     Style="{StaticResource ActionPanelButtonStyle}"
-                    Command="{Binding NewJobCommand}"/>
+                    Command="{Binding NewJobCommand}" />
             </WrapPanel>
         </Border>
     </Grid>

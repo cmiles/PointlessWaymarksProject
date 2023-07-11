@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.IO;
 using System.Text.RegularExpressions;
 using Microsoft.EntityFrameworkCore;
@@ -23,12 +24,28 @@ public partial class JobEditorContext : IHasChanges, IHasValidationIssues,
 {
     public required string DatabaseFile { get; set; }
     public required ObservableCollection<DirectoryInfo> ExcludedDirectories { get; set; }
+
+    public bool ExcludedDirectoriesHasChanges { get; set; }
+
+    public string ExcludedDirectoriesHasChangesMessage { get; set; } = string.Empty;
+    public required List<DirectoryInfo> ExcludedDirectoriesOriginal { get; set; } = new();
     public required ObservableCollection<string> ExcludedDirectoryPatterns { get; set; }
+
+    public bool ExcludedDirectoryPatternsHasChanges { get; set; }
+
+    public string ExcludedDirectoryPatternsHasChangesMessage { get; set; } = string.Empty;
+
+    public required List<string> ExcludedDirectoryPatternsOriginal { get; set; } = new();
     public required ObservableCollection<string> ExcludedFilePatterns { get; set; }
+
+    public bool ExcludedFilePatternsHasChanges { get; set; }
+
+    public string ExcludedFilePatternsHasChangesMessage { get; set; } = string.Empty;
+
+    public required List<string> ExcludedFilePatternsOriginal { get; set; } = new();
     public bool HasChanges { get; set; }
     public bool HasValidationIssues { get; set; }
     public required BackupJob LoadedJob { get; set; }
-
     public EventHandler? RequestContentEditorWindowClose { get; set; }
     public DirectoryInfo? SelectedExcludedDirectory { get; set; }
     public string? SelectedExcludedDirectoryPattern { get; set; }
@@ -43,7 +60,8 @@ public partial class JobEditorContext : IHasChanges, IHasValidationIssues,
 
     public void CheckForChangesAndValidationIssues()
     {
-        HasChanges = PropertyScanners.ChildPropertiesHaveChanges(this);
+        HasChanges = PropertyScanners.ChildPropertiesHaveChanges(this) || ExcludedDirectoriesHasChanges ||
+                     ExcludedDirectoryPatternsHasChanges || ExcludedFilePatternsHasChanges;
         HasValidationIssues = PropertyScanners.ChildPropertiesHaveValidationIssues(this);
     }
 
@@ -180,7 +198,7 @@ public partial class JobEditorContext : IHasChanges, IHasValidationIssues,
         };
 
         var cloudDirectoryEntry = StringDataEntryContext.CreateInstance();
-        cloudDirectoryEntry.Title = "Job cloudDirectory";
+        cloudDirectoryEntry.Title = "Job Cloud Directory";
         cloudDirectoryEntry.HelpText =
             "A Cloud Directory for the job - for simplicity can be as simple as a single descriptive folder name";
         cloudDirectoryEntry.ReferenceValue = initialJob.CloudDirectory;
@@ -240,12 +258,7 @@ public partial class JobEditorContext : IHasChanges, IHasValidationIssues,
         filePatternEntry.UserValue = string.Empty;
         filePatternEntry.ValidationFunctions = new List<Func<string?, Task<IsValid>>>
         {
-            x =>
-            {
-                if (string.IsNullOrWhiteSpace(x))
-                    return Task.FromResult(new IsValid(false, "A name is required for the job"));
-                return Task.FromResult(new IsValid(true, string.Empty));
-            }
+            _ => Task.FromResult(new IsValid(true, string.Empty))
         };
 
         var directoryPatternEntry = StringDataEntryContext.CreateInstance();
@@ -256,12 +269,7 @@ public partial class JobEditorContext : IHasChanges, IHasValidationIssues,
         directoryPatternEntry.UserValue = string.Empty;
         directoryPatternEntry.ValidationFunctions = new List<Func<string?, Task<IsValid>>>
         {
-            x =>
-            {
-                if (string.IsNullOrWhiteSpace(x))
-                    return Task.FromResult(new IsValid(false, "A name is required for the job"));
-                return Task.FromResult(new IsValid(true, string.Empty));
-            }
+            _ => Task.FromResult(new IsValid(true, string.Empty))
         };
 
         var maximumRuntimeHoursEntry =
@@ -283,19 +291,27 @@ public partial class JobEditorContext : IHasChanges, IHasValidationIssues,
             }
         };
 
-        var excludedDirectory = new ObservableCollection<DirectoryInfo>(initialJob.ExcludedDirectories
-            .Select(x => new DirectoryInfo(x.Directory)).ToList());
+        var dbExcludedDirectory = initialJob.ExcludedDirectories
+            .Select(x => new DirectoryInfo(x.Directory)).ToList();
+        var excludedDirectory = new ObservableCollection<DirectoryInfo>(dbExcludedDirectory);
+
+        var dbExcludedDirectoryPatterns = initialJob.ExcludedDirectoryNamePatterns.Select(x => x.Pattern).ToList();
         var excludedDirectoryPatterns =
-            new ObservableCollection<string>(initialJob.ExcludedDirectoryNamePatterns.Select(x => x.Pattern));
+            new ObservableCollection<string>(dbExcludedDirectoryPatterns);
+
+        var dbExcludedFilePatterns = initialJob.ExcludedFileNamePatterns.Select(x => x.Pattern).ToList();
         var excludedFilePatterns =
-            new ObservableCollection<string>(initialJob.ExcludedFileNamePatterns.Select(x => x.Pattern));
+            new ObservableCollection<string>(dbExcludedFilePatterns);
 
         var toReturn = new JobEditorContext
         {
             LoadedJob = initialJob,
             ExcludedDirectories = excludedDirectory,
+            ExcludedDirectoriesOriginal = dbExcludedDirectory,
             ExcludedDirectoryPatterns = excludedDirectoryPatterns,
+            ExcludedDirectoryPatternsOriginal = dbExcludedDirectoryPatterns,
             ExcludedFilePatterns = excludedFilePatterns,
+            ExcludedFilePatternsOriginal = dbExcludedFilePatterns,
             StatusContext = statusContext,
             UserInitialDirectoryEntry = initialDirectoryEntry,
             UserCloudDirectoryEntry = cloudDirectoryEntry,
@@ -307,17 +323,83 @@ public partial class JobEditorContext : IHasChanges, IHasValidationIssues,
         };
 
         await toReturn.Setup();
-        
-        PropertyScanners.SubscribeToChildHasChangesAndHasValidationIssues(toReturn,
-            toReturn.CheckForChangesAndValidationIssues);
 
         return toReturn;
+    }
+
+    private void ExcludedDirectoriesChangeCheck()
+    {
+        var frozenList = ExcludedDirectories.Select(x => x.FullName).ToList();
+        var originalList = ExcludedDirectoriesOriginal.Select(x => x.FullName).ToList();
+        var added = frozenList.Except(originalList).ToList();
+        var removed = originalList.Except(frozenList).ToList();
+
+        ExcludedDirectoriesHasChanges = added.Any() || removed.Any();
+
+        ExcludedDirectoriesHasChangesMessage = string.Empty;
+        if (added.Any()) ExcludedDirectoriesHasChangesMessage += $"Added: {string.Join(",", added)}";
+
+        if (added.Any() && removed.Any()) ExcludedDirectoriesHasChangesMessage += Environment.NewLine;
+
+        if (removed.Any()) ExcludedDirectoriesHasChangesMessage += $"Removed: {string.Join(",", removed)}";
+    }
+
+    private void ExcludedDirectoriesOnCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
+    {
+        ExcludedDirectoriesChangeCheck();
+        CheckForChangesAndValidationIssues();
+    }
+
+    private void ExcludedDirectoryPatternsChangeCheck()
+    {
+        var frozenList = ExcludedDirectoryPatterns.ToList();
+
+        var added = frozenList.Except(ExcludedDirectoryPatternsOriginal).ToList();
+        var removed = ExcludedDirectoryPatternsOriginal.Except(frozenList).ToList();
+
+        ExcludedDirectoryPatternsHasChanges = added.Any() || removed.Any();
+
+        ExcludedDirectoryPatternsHasChangesMessage = string.Empty;
+        if (added.Any()) ExcludedDirectoryPatternsHasChangesMessage += $"Added: {string.Join(",", added)}";
+
+        if (added.Any() && removed.Any()) ExcludedDirectoryPatternsHasChangesMessage += Environment.NewLine;
+
+        if (removed.Any()) ExcludedDirectoryPatternsHasChangesMessage += $"Removed: {string.Join(",", removed)}";
+    }
+
+    private void ExcludedDirectoryPatternsOnCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
+    {
+        ExcludedDirectoryPatternsChangeCheck();
+        CheckForChangesAndValidationIssues();
+    }
+
+    private void ExcludedFilePatternChangeCheck()
+    {
+        var frozenList = ExcludedFilePatterns.ToList();
+
+        var added = frozenList.Except(ExcludedFilePatternsOriginal).ToList();
+        var removed = ExcludedFilePatternsOriginal.Except(frozenList).ToList();
+
+        ExcludedFilePatternsHasChanges = added.Any() || removed.Any();
+
+        ExcludedFilePatternsHasChangesMessage = string.Empty;
+        if (added.Any()) ExcludedFilePatternsHasChangesMessage += $"Added: {string.Join(",", added)}";
+
+        if (added.Any() && removed.Any()) ExcludedFilePatternsHasChangesMessage += Environment.NewLine;
+
+        if (removed.Any()) ExcludedFilePatternsHasChangesMessage += $"Removed: {string.Join(",", removed)}";
+    }
+
+    private void ExcludedFilePatternsOnCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
+    {
+        ExcludedFilePatternChangeCheck();
+        CheckForChangesAndValidationIssues();
     }
 
     [BlockingCommand]
     public async Task RemoveSelectedExcludedDirectory()
     {
-        var frozenSelection = SelectedExcludedDirectoryPattern;
+        var frozenSelection = SelectedExcludedDirectory;
 
         if (frozenSelection == null)
         {
@@ -327,7 +409,7 @@ public partial class JobEditorContext : IHasChanges, IHasValidationIssues,
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
-        ExcludedDirectoryPatterns.Remove(frozenSelection);
+        ExcludedDirectories.Remove(frozenSelection);
     }
 
     [BlockingCommand]
@@ -366,11 +448,29 @@ public partial class JobEditorContext : IHasChanges, IHasValidationIssues,
         ExcludedFilePatterns.Remove(frozenSelection);
     }
 
-    public async Task SaveChanges()
+    [BlockingCommand]
+    public async Task SaveAndClose()
+    {
+        await SaveChanges(true);
+    }
+
+    [BlockingCommand]
+    public async Task SaveAndStayOpen()
+    {
+        await SaveChanges(false);
+    }
+
+    public async Task SaveChanges(bool closeAfterSave)
     {
         if (HasValidationIssues)
         {
             StatusContext.ToastError("Please correct all issues before saving.");
+            return;
+        }
+
+        if (!HasChanges)
+        {
+            StatusContext.ToastWarning("No Changes to Save?");
             return;
         }
 
@@ -388,7 +488,9 @@ public partial class JobEditorContext : IHasChanges, IHasValidationIssues,
             if (item != null) toSave = item;
         }
 
-        toSave.CloudDirectory = string.Empty;
+        toSave.Name = UserNameEntry.UserValue;
+        toSave.LocalDirectory = UserInitialDirectoryEntry.UserValue.Trim();
+        toSave.CloudDirectory = UserCloudDirectoryEntry.UserValue;
         toSave.CreatedOn = LoadedJob.CreatedOn;
         toSave.DefaultMaximumRunTimeInHours = UserMaximumRuntimeHoursEntry.UserValue;
 
@@ -434,16 +536,38 @@ public partial class JobEditorContext : IHasChanges, IHasValidationIssues,
         filePatternsToAdd.ForEach(x => toSave.ExcludedFileNamePatterns.Add(new ExcludedFileNamePattern
             { CreatedOn = frozenNow, Job = toSave, Pattern = x }));
 
-        toSave.LocalDirectory = UserInitialDirectoryEntry.UserValue.Trim();
-
         if (toSave.Id < 1) db.BackupJobs.Add(toSave);
 
         await db.SaveChangesAsync();
+
+        UserNameEntry.ReferenceValue = toSave.Name;
+        UserCloudDirectoryEntry.ReferenceValue = toSave.CloudDirectory;
+        UserMaximumRuntimeHoursEntry.ReferenceValue = toSave.DefaultMaximumRunTimeInHours;
+        UserInitialDirectoryEntry.ReferenceValue = toSave.LocalDirectory;
+        ExcludedDirectoriesOriginal = toSave.ExcludedDirectories.Select(x => new DirectoryInfo(x.Directory)).ToList();
+        ExcludedDirectoryPatternsOriginal = toSave.ExcludedDirectoryNamePatterns.Select(x => x.Pattern).ToList();
+        ExcludedFilePatternsOriginal = toSave.ExcludedFileNamePatterns.Select(x => x.Pattern).ToList();
+
+        ExcludedDirectoriesChangeCheck();
+        ExcludedDirectoryPatternsChangeCheck();
+        ExcludedFilePatternChangeCheck();
+
+        CheckForChangesAndValidationIssues();
     }
 
     public Task Setup()
     {
         BuildCommands();
+
+        ExcludedDirectories.CollectionChanged += ExcludedDirectoriesOnCollectionChanged;
+        ExcludedDirectoryPatterns.CollectionChanged += ExcludedDirectoryPatternsOnCollectionChanged;
+        ExcludedFilePatterns.CollectionChanged += ExcludedFilePatternsOnCollectionChanged;
+
+        PropertyScanners.SubscribeToChildHasChangesAndHasValidationIssues(this,
+            CheckForChangesAndValidationIssues);
+
+        CheckForChangesAndValidationIssues();
+
         return Task.CompletedTask;
     }
 }

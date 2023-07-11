@@ -111,6 +111,41 @@ public partial class JobListContext
         return toReturn;
     }
 
+    [NonBlockingCommand]
+    public async Task EditJob()
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (SelectedJob == null)
+        {
+            StatusContext.ToastWarning("Nothing Selected to Edit?");
+            return;
+        }
+
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        var window = await JobEditorWindow.CreateInstance(SelectedJob, CurrentDatabase);
+        window.PositionWindowAndShow();
+    }
+
+    [NonBlockingCommand]
+    public async Task NewJob()
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        var newJob = new BackupJob
+        {
+            CreatedOn = DateTime.Now,
+            Name = "New Backup Job",
+            DefaultMaximumRunTimeInHours = 6
+        };
+
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        var window = await JobEditorWindow.CreateInstance(newJob, CurrentDatabase);
+        window.PositionWindowAndShow();
+    }
+
     private void OnPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
         if (string.IsNullOrWhiteSpace(e.PropertyName)) return;
@@ -144,40 +179,5 @@ public partial class JobListContext
         await ThreadSwitcher.ResumeForegroundAsync();
 
         jobs.ForEach(x => Items.Add(x));
-    }
-
-    [NonBlockingCommand]
-    public async Task NewJob()
-    {
-        await ThreadSwitcher.ResumeBackgroundAsync();
-
-        var newJob = new BackupJob()
-        {
-            CreatedOn = DateTime.Now,
-            Name = "New Backup Job",
-            DefaultMaximumRunTimeInHours = 6
-        };
-
-        await ThreadSwitcher.ResumeForegroundAsync();
-
-        var window = await JobEditorWindow.CreateInstance(newJob, CurrentDatabase);
-        window.PositionWindowAndShow();
-    }
-    
-    [NonBlockingCommand]
-    public async Task EditJob()
-    {
-        await ThreadSwitcher.ResumeBackgroundAsync();
-
-        if (SelectedJob == null)
-        {
-            StatusContext.ToastWarning("Nothing Selected to Edit?");
-            return;
-        }
-        
-        await ThreadSwitcher.ResumeForegroundAsync();
-
-        var window = await JobEditorWindow.CreateInstance(SelectedJob, CurrentDatabase);
-        window.PositionWindowAndShow();
     }
 }
