@@ -9,6 +9,7 @@ using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
+using PointlessWaymarks.WpfCommon.Utility;
 
 namespace PointlessWaymarks.CloudBackupGui.Controls;
 
@@ -19,8 +20,8 @@ public partial class JobListContext
     public required string CurrentDatabase { get; set; }
     public bool CurrentDatabaseIsValid { get; set; }
     public required ObservableCollection<BackupJob> Items { get; set; }
-    public BackupJob? SelectedFile { get; set; }
-    public List<BackupJob> SelectedFiles { get; set; } = new();
+    public BackupJob? SelectedJob { get; set; }
+    public List<BackupJob> SelectedJobs { get; set; } = new();
     public required StatusControlContext StatusContext { get; set; }
 
     [BlockingCommand]
@@ -143,5 +144,40 @@ public partial class JobListContext
         await ThreadSwitcher.ResumeForegroundAsync();
 
         jobs.ForEach(x => Items.Add(x));
+    }
+
+    [NonBlockingCommand]
+    public async Task NewJob()
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        var newJob = new BackupJob()
+        {
+            CreatedOn = DateTime.Now,
+            Name = "New Backup Job",
+            DefaultMaximumRunTimeInHours = 6
+        };
+
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        var window = await JobEditorWindow.CreateInstance(newJob, CurrentDatabase);
+        window.PositionWindowAndShow();
+    }
+    
+    [NonBlockingCommand]
+    public async Task EditJob()
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (SelectedJob == null)
+        {
+            StatusContext.ToastWarning("Nothing Selected to Edit?");
+            return;
+        }
+        
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        var window = await JobEditorWindow.CreateInstance(SelectedJob, CurrentDatabase);
+        window.PositionWindowAndShow();
     }
 }

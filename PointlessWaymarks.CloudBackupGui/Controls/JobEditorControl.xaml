@@ -34,14 +34,5 @@
             <Button Command="{Binding RemoveSelectedExcludedFilePatternCommand}">Remove File Pattern to Exclude</Button>
             <conversionDataEntry:ConversionDataEntryControl DataContext="{Binding UserMaximumRuntimeHoursEntry}" />
         </StackPanel>
-        <status:StatusControl
-            Grid.Row="0"
-            d:IsHidden="true"
-            DataContext="{Binding StatusContext}" />
-        <windowScreenShot:WindowScreenShotControl
-            Margin="2"
-            Width="40"
-            HorizontalAlignment="Left"
-            VerticalAlignment="Bottom" />
     </Grid>
 </UserControl>

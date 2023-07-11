@@ -28,6 +28,8 @@ public partial class JobEditorContext : IHasChanges, IHasValidationIssues,
     public bool HasChanges { get; set; }
     public bool HasValidationIssues { get; set; }
     public required BackupJob LoadedJob { get; set; }
+
+    public EventHandler? RequestContentEditorWindowClose { get; set; }
     public DirectoryInfo? SelectedExcludedDirectory { get; set; }
     public string? SelectedExcludedDirectoryPattern { get; set; }
     public string? SelectedExcludedFilePattern { get; set; }
@@ -304,6 +306,8 @@ public partial class JobEditorContext : IHasChanges, IHasValidationIssues,
             DatabaseFile = databaseFile
         };
 
+        await toReturn.Setup();
+        
         PropertyScanners.SubscribeToChildHasChangesAndHasValidationIssues(toReturn,
             toReturn.CheckForChangesAndValidationIssues);
 

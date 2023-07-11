@@ -42,8 +42,8 @@
             Style="{StaticResource UiComponentGroupBoxStyle}">
             <ListBox ItemsSource="{Binding Items}" 
                      Style="{StaticResource ContentListListBoxStyle}"
-                     SelectedItem="{Binding SelectedFile}"
-                     behaviors:MultiSelectorBehaviors.SynchronizedSelectedItems="{Binding SelectedFiles}">
+                     SelectedItem="{Binding SelectedJob}"
+                     behaviors:MultiSelectorBehaviors.SynchronizedSelectedItems="{Binding SelectedJobs}">
                 <ListBox.ItemTemplate>
                     <DataTemplate DataType="{x:Type models:BackupJob}">
                         <Grid>
@@ -60,7 +60,8 @@
                     Style="{StaticResource ActionPanelButtonStyle}" />
                 <Button
                     Content="_New"
-                    Style="{StaticResource ActionPanelButtonStyle}" />
+                    Style="{StaticResource ActionPanelButtonStyle}"
+                    Command="{Binding NewJobCommand}"/>
             </WrapPanel>
         </Border>
     </Grid>
