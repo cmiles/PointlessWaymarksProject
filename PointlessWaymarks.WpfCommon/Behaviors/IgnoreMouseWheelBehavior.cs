@@ -7,6 +7,9 @@ namespace PointlessWaymarks.WpfCommon.Behaviors;
 /// <summary>
 ///     Captures and eats MouseWheel events so that a nested ListBox does not
 ///     prevent an outer scrollable control from scrolling.
+///     <b:Interaction.Behaviors>
+///         <behaviors:IgnoreMouseWheelBehavior />
+///     </b:Interaction.Behaviors>
 /// </summary>
 public sealed class IgnoreMouseWheelBehavior : Behavior<UIElement>
 {
