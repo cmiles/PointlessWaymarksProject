@@ -1,7 +1,9 @@
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
+using System.ComponentModel;
 using System.IO;
 using System.Text.RegularExpressions;
+using Amazon;
 using Microsoft.EntityFrameworkCore;
 using Ookii.Dialogs.Wpf;
 using PointlessWaymarks.CloudBackupData;
@@ -22,6 +24,11 @@ namespace PointlessWaymarks.CloudBackupGui.Controls;
 public partial class JobEditorContext : IHasChanges, IHasValidationIssues,
     ICheckForChangesAndValidation
 {
+    public List<string> AwsRegionChoices { get; set; } = new();
+    public bool AwsRegionHasChanges { get; set; }
+    public bool AwsRegionHasValidationIssues { get; set; }
+    public string AwsRegionOriginal { get; set; } = string.Empty;
+    public string AwsRegionSelected { get; set; } = string.Empty;
     public required string DatabaseFile { get; set; }
     public required ObservableCollection<DirectoryInfo> ExcludedDirectories { get; set; }
 
@@ -51,6 +58,8 @@ public partial class JobEditorContext : IHasChanges, IHasValidationIssues,
     public string? SelectedExcludedDirectoryPattern { get; set; }
     public string? SelectedExcludedFilePattern { get; set; }
     public required StatusControlContext StatusContext { get; set; }
+
+    public required StringDataEntryContext UserCloudBucketEntry { get; set; }
     public required StringDataEntryContext UserCloudDirectoryEntry { get; set; }
     public required StringDataEntryContext UserDirectoryPatternEntry { get; set; }
     public required StringDataEntryContext UserFilePatternEntry { get; set; }
@@ -61,8 +70,9 @@ public partial class JobEditorContext : IHasChanges, IHasValidationIssues,
     public void CheckForChangesAndValidationIssues()
     {
         HasChanges = PropertyScanners.ChildPropertiesHaveChanges(this) || ExcludedDirectoriesHasChanges ||
-                     ExcludedDirectoryPatternsHasChanges || ExcludedFilePatternsHasChanges;
-        HasValidationIssues = PropertyScanners.ChildPropertiesHaveValidationIssues(this);
+                     ExcludedDirectoryPatternsHasChanges || ExcludedFilePatternsHasChanges || AwsRegionHasChanges;
+        HasValidationIssues =
+            PropertyScanners.ChildPropertiesHaveValidationIssues(this) || AwsRegionHasValidationIssues;
     }
 
     [BlockingCommand]
@@ -134,6 +144,13 @@ public partial class JobEditorContext : IHasChanges, IHasValidationIssues,
         UserFilePatternEntry.UserValue = string.Empty;
     }
 
+    private void AwsRegionCheckForChangesAndValidationIssues()
+    {
+        AwsRegionHasChanges = !AwsRegionOriginal.Equals(AwsRegionSelected);
+        AwsRegionHasValidationIssues = string.IsNullOrWhiteSpace(AwsRegionSelected);
+        CheckForChangesAndValidationIssues();
+    }
+
     [BlockingCommand]
     public async Task<DirectoryInfo?> ChooseDirectory()
     {
@@ -197,6 +214,22 @@ public partial class JobEditorContext : IHasChanges, IHasValidationIssues,
             }
         };
 
+        var cloudBucketEntry = StringDataEntryContext.CreateInstance();
+        cloudBucketEntry.Title = "Job Cloud Bucket";
+        cloudBucketEntry.HelpText =
+            "The Cloud Bucket for the job.";
+        cloudBucketEntry.ReferenceValue = initialJob.CloudBucket;
+        cloudBucketEntry.UserValue = initialJob.CloudBucket;
+        cloudBucketEntry.ValidationFunctions = new List<Func<string?, Task<IsValid>>>
+        {
+            x =>
+            {
+                if (string.IsNullOrWhiteSpace(x))
+                    return Task.FromResult(new IsValid(false, "A Cloud Bucket is required for the job"));
+                return Task.FromResult(new IsValid(true, string.Empty));
+            }
+        };
+
         var cloudDirectoryEntry = StringDataEntryContext.CreateInstance();
         cloudDirectoryEntry.Title = "Job Cloud Directory";
         cloudDirectoryEntry.HelpText =
@@ -238,6 +271,7 @@ public partial class JobEditorContext : IHasChanges, IHasValidationIssues,
                 return Task.FromResult(new IsValid(true, string.Empty));
             }
         };
+
         initialDirectoryEntry.GetInitialDirectory =
             () => Task.FromResult(CloudBackupGuiSettingTools.ReadSettings().LastDirectory);
         initialDirectoryEntry.AfterDirectoryChoice = async x =>
@@ -313,7 +347,11 @@ public partial class JobEditorContext : IHasChanges, IHasValidationIssues,
             ExcludedFilePatterns = excludedFilePatterns,
             ExcludedFilePatternsOriginal = dbExcludedFilePatterns,
             StatusContext = statusContext,
+            AwsRegionOriginal = initialJob.CloudBucket,
+            AwsRegionChoices = RegionEndpoint.EnumerableAllRegions.Select(x => x.SystemName).ToList(),
+            AwsRegionSelected = initialJob.CloudBucket,
             UserInitialDirectoryEntry = initialDirectoryEntry,
+            UserCloudBucketEntry = cloudBucketEntry,
             UserCloudDirectoryEntry = cloudDirectoryEntry,
             UserDirectoryPatternEntry = directoryPatternEntry,
             UserFilePatternEntry = filePatternEntry,
@@ -325,6 +363,38 @@ public partial class JobEditorContext : IHasChanges, IHasValidationIssues,
         await toReturn.Setup();
 
         return toReturn;
+    }
+
+    [BlockingCommand]
+    public async Task EnterAwsKeyAndSecretEntry()
+    {
+        var newKeyEntry = await StatusContext.ShowStringEntry("AWS Access Key",
+            "Enter the AWS Access Key", string.Empty);
+
+        if (!newKeyEntry.Item1)
+        {
+            StatusContext.ToastWarning("Amazon Credential Entry Cancelled");
+            return;
+        }
+
+        var cleanedKey = newKeyEntry.Item2.TrimNullToEmpty();
+
+        if (string.IsNullOrWhiteSpace(cleanedKey)) return;
+
+        var newSecretEntry = await StatusContext.ShowStringEntry("AWS Secret Access Key",
+            "Enter the AWS Secret Access Key", string.Empty);
+
+        if (!newSecretEntry.Item1) return;
+
+        var cleanedSecret = newSecretEntry.Item2.TrimNullToEmpty();
+
+        if (string.IsNullOrWhiteSpace(cleanedSecret))
+        {
+            StatusContext.ToastError("AWS Credential Entry Canceled - secret can not be blank");
+            return;
+        }
+
+        PasswordVaultTools.SaveCredentials(LoadedJob.VaultIdentifier, cleanedKey, cleanedSecret);
     }
 
     private void ExcludedDirectoriesChangeCheck()
@@ -394,6 +464,14 @@ public partial class JobEditorContext : IHasChanges, IHasValidationIssues,
     {
         ExcludedFilePatternChangeCheck();
         CheckForChangesAndValidationIssues();
+    }
+
+    private void OnPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (string.IsNullOrWhiteSpace(e.PropertyName)) return;
+
+        if (e.PropertyName.Equals(nameof(AwsRegionOriginal)) || e.PropertyName.Equals(nameof(AwsRegionSelected)))
+            AwsRegionCheckForChangesAndValidationIssues();
     }
 
     [BlockingCommand]
@@ -490,6 +568,7 @@ public partial class JobEditorContext : IHasChanges, IHasValidationIssues,
 
         toSave.Name = UserNameEntry.UserValue;
         toSave.LocalDirectory = UserInitialDirectoryEntry.UserValue.Trim();
+        toSave.CloudRegion = AwsRegionSelected;
         toSave.CloudDirectory = UserCloudDirectoryEntry.UserValue;
         toSave.CreatedOn = LoadedJob.CreatedOn;
         toSave.DefaultMaximumRunTimeInHours = UserMaximumRuntimeHoursEntry.UserValue;
@@ -547,10 +626,12 @@ public partial class JobEditorContext : IHasChanges, IHasValidationIssues,
         ExcludedDirectoriesOriginal = toSave.ExcludedDirectories.Select(x => new DirectoryInfo(x.Directory)).ToList();
         ExcludedDirectoryPatternsOriginal = toSave.ExcludedDirectoryNamePatterns.Select(x => x.Pattern).ToList();
         ExcludedFilePatternsOriginal = toSave.ExcludedFileNamePatterns.Select(x => x.Pattern).ToList();
+        AwsRegionSelected = toSave.CloudRegion;
 
         ExcludedDirectoriesChangeCheck();
         ExcludedDirectoryPatternsChangeCheck();
         ExcludedFilePatternChangeCheck();
+        AwsRegionCheckForChangesAndValidationIssues();
 
         CheckForChangesAndValidationIssues();
     }
@@ -559,9 +640,12 @@ public partial class JobEditorContext : IHasChanges, IHasValidationIssues,
     {
         BuildCommands();
 
+        PropertyChanged += OnPropertyChanged;
         ExcludedDirectories.CollectionChanged += ExcludedDirectoriesOnCollectionChanged;
         ExcludedDirectoryPatterns.CollectionChanged += ExcludedDirectoryPatternsOnCollectionChanged;
         ExcludedFilePatterns.CollectionChanged += ExcludedFilePatternsOnCollectionChanged;
+
+        AwsRegionCheckForChangesAndValidationIssues();
 
         PropertyScanners.SubscribeToChildHasChangesAndHasValidationIssues(this,
             CheckForChangesAndValidationIssues);

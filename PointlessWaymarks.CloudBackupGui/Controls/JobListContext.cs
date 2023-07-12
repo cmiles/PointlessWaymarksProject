@@ -137,7 +137,8 @@ public partial class JobListContext
         {
             CreatedOn = DateTime.Now,
             Name = "New Backup Job",
-            DefaultMaximumRunTimeInHours = 6
+            DefaultMaximumRunTimeInHours = 6,
+            PersistentId = Guid.NewGuid()
         };
 
         await ThreadSwitcher.ResumeForegroundAsync();

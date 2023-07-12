@@ -45,11 +45,51 @@
                 <existingDirectoryDataEntry:ExistingDirectoryDataEntryControl
                     DataContext="{Binding UserInitialDirectoryEntry}" Style="{StaticResource EntryStyle}">
                 </existingDirectoryDataEntry:ExistingDirectoryDataEntryControl>
+                <stringDataEntry:StringDataEntryControl DataContext="{Binding UserCloudBucketEntry}"
+                                                        Style="{StaticResource EntryStyle}">
+                </stringDataEntry:StringDataEntryControl>
                 <stringDataEntry:StringDataEntryControl DataContext="{Binding UserCloudDirectoryEntry}"
                                                         Style="{StaticResource EntryStyle}" />
                 <conversionDataEntry:ConversionDataEntryControl DataContext="{Binding UserMaximumRuntimeHoursEntry}"
                                                                 Style="{StaticResource EntryStyle}" Width="240"
                                                                 HorizontalAlignment="Left" />
+                <StackPanel Orientation="Vertical" Margin="0,8,8,0">
+                    <Label
+                        Content="Cloud Credentials"
+                        Style="{StaticResource DataEntryLabelStyle}"
+                        Target="{Binding ElementName=ValueTextBox}"
+                        ToolTip="The Region of the Cloud Account" />
+                    <Button Margin="8,0,4,0" HorizontalAlignment="Left" Width="240" Padding="2"
+                            Command="{Binding EnterAwsKeyAndSecretEntryCommand}">
+                        Enter Cloud Credentials for Job
+                    </Button>
+                </StackPanel>
+                <StackPanel Orientation="Vertical" Margin="0,8,8,0">
+                    <StackPanel Orientation="Horizontal">
+                        <Label
+                            Content="Cloud Region"
+                            Style="{StaticResource DataEntryLabelStyle}"
+                            Target="{Binding ElementName=ValueTextBox}"
+                            ToolTip="The Region of the Cloud Account" />
+                        <Image
+                            Source="{svgc:SvgImage Source=/Icons/information-outline.svg, AppName=PointlessWaymarks.WpfCommon}"
+                            Visibility="{Binding AwsRegionHasChanges, Converter={StaticResource BooleanToVisibility}}"
+                            Width="{StaticResource SmallIconSize}" VerticalAlignment="Center">
+                            <Image.ToolTip>
+                                <ToolTip
+                                    Content="{Binding AwsRegionOriginal, FallbackValue='Previously blank', TargetNullValue='Previously empty'}"
+                                    ContentStringFormat="Original Value: {0}" />
+                            </Image.ToolTip>
+                        </Image>
+                        <Image ToolTip="A Cloud Region must be Selected"
+                               Source="{svgc:SvgImage Source=/Icons/alert-octagon.svg, AppName=PointlessWaymarks.WpfCommon}"
+                               Visibility="{Binding AwsRegionHasValidationIssues, Converter={StaticResource BooleanToVisibility}}"
+                               Width="{StaticResource SmallIconSize}" VerticalAlignment="Center">
+                        </Image>
+                    </StackPanel>
+                    <ComboBox ItemsSource="{Binding AwsRegionChoices}" SelectedItem="{Binding AwsRegionSelected}"
+                              Margin="8,0,0,0" Width="240" HorizontalAlignment="Left" />
+                </StackPanel>
                 <GroupBox Style="{StaticResource EntryListStyle}">
                     <GroupBox.Header>
                         <StackPanel Orientation="Horizontal">
