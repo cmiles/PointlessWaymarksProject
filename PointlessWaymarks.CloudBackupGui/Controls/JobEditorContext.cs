@@ -29,6 +29,8 @@ public partial class JobEditorContext : IHasChanges, IHasValidationIssues,
     public bool AwsRegionHasValidationIssues { get; set; }
     public string AwsRegionOriginal { get; set; } = string.Empty;
     public string AwsRegionSelected { get; set; } = string.Empty;
+
+    public bool CloudCredentialsHaveValidationIssues { get; set; }
     public required string DatabaseFile { get; set; }
     public required ObservableCollection<DirectoryInfo> ExcludedDirectories { get; set; }
 
@@ -189,6 +191,13 @@ public partial class JobEditorContext : IHasChanges, IHasValidationIssues,
         await CloudBackupGuiSettingTools.WriteSettings(currentSettings);
 
         return selectedDirectory;
+    }
+
+    private void CloudCredentialsCheckForValidationIssues()
+    {
+        var currentCredentials = PasswordVaultTools.GetCredentials(LoadedJob.VaultIdentifier);
+        CloudCredentialsHaveValidationIssues = string.IsNullOrWhiteSpace(currentCredentials.username) ||
+                                             string.IsNullOrWhiteSpace(currentCredentials.password);
     }
 
     public static async Task<JobEditorContext> CreateInstance(StatusControlContext? context, BackupJob initialJob,
@@ -395,6 +404,8 @@ public partial class JobEditorContext : IHasChanges, IHasValidationIssues,
         }
 
         PasswordVaultTools.SaveCredentials(LoadedJob.VaultIdentifier, cleanedKey, cleanedSecret);
+
+        CloudCredentialsCheckForValidationIssues();
     }
 
     private void ExcludedDirectoriesChangeCheck()
@@ -632,6 +643,7 @@ public partial class JobEditorContext : IHasChanges, IHasValidationIssues,
         ExcludedDirectoryPatternsChangeCheck();
         ExcludedFilePatternChangeCheck();
         AwsRegionCheckForChangesAndValidationIssues();
+        CloudCredentialsCheckForValidationIssues();
 
         CheckForChangesAndValidationIssues();
     }
@@ -646,6 +658,7 @@ public partial class JobEditorContext : IHasChanges, IHasValidationIssues,
         ExcludedFilePatterns.CollectionChanged += ExcludedFilePatternsOnCollectionChanged;
 
         AwsRegionCheckForChangesAndValidationIssues();
+        CloudCredentialsCheckForValidationIssues();
 
         PropertyScanners.SubscribeToChildHasChangesAndHasValidationIssues(this,
             CheckForChangesAndValidationIssues);
