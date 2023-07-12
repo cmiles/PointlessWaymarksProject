@@ -29,28 +29,19 @@ public partial class JobEditorContext : IHasChanges, IHasValidationIssues,
     public bool AwsRegionHasValidationIssues { get; set; }
     public string AwsRegionOriginal { get; set; } = string.Empty;
     public string AwsRegionSelected { get; set; } = string.Empty;
-
     public bool CloudCredentialsHaveValidationIssues { get; set; }
     public required string DatabaseFile { get; set; }
     public required ObservableCollection<DirectoryInfo> ExcludedDirectories { get; set; }
-
     public bool ExcludedDirectoriesHasChanges { get; set; }
-
     public string ExcludedDirectoriesHasChangesMessage { get; set; } = string.Empty;
     public required List<DirectoryInfo> ExcludedDirectoriesOriginal { get; set; } = new();
     public required ObservableCollection<string> ExcludedDirectoryPatterns { get; set; }
-
     public bool ExcludedDirectoryPatternsHasChanges { get; set; }
-
     public string ExcludedDirectoryPatternsHasChangesMessage { get; set; } = string.Empty;
-
     public required List<string> ExcludedDirectoryPatternsOriginal { get; set; } = new();
     public required ObservableCollection<string> ExcludedFilePatterns { get; set; }
-
     public bool ExcludedFilePatternsHasChanges { get; set; }
-
     public string ExcludedFilePatternsHasChangesMessage { get; set; } = string.Empty;
-
     public required List<string> ExcludedFilePatternsOriginal { get; set; } = new();
     public bool HasChanges { get; set; }
     public bool HasValidationIssues { get; set; }
@@ -60,7 +51,6 @@ public partial class JobEditorContext : IHasChanges, IHasValidationIssues,
     public string? SelectedExcludedDirectoryPattern { get; set; }
     public string? SelectedExcludedFilePattern { get; set; }
     public required StatusControlContext StatusContext { get; set; }
-
     public required StringDataEntryContext UserCloudBucketEntry { get; set; }
     public required StringDataEntryContext UserCloudDirectoryEntry { get; set; }
     public required StringDataEntryContext UserDirectoryPatternEntry { get; set; }
@@ -197,7 +187,7 @@ public partial class JobEditorContext : IHasChanges, IHasValidationIssues,
     {
         var currentCredentials = PasswordVaultTools.GetCredentials(LoadedJob.VaultIdentifier);
         CloudCredentialsHaveValidationIssues = string.IsNullOrWhiteSpace(currentCredentials.username) ||
-                                             string.IsNullOrWhiteSpace(currentCredentials.password);
+                                               string.IsNullOrWhiteSpace(currentCredentials.password);
     }
 
     public static async Task<JobEditorContext> CreateInstance(StatusControlContext? context, BackupJob initialJob,
@@ -320,8 +310,8 @@ public partial class JobEditorContext : IHasChanges, IHasValidationIssues,
         maximumRuntimeHoursEntry.Title = "Default Maximum Runtime Hours";
         maximumRuntimeHoursEntry.HelpText =
             "The maximum number of hours during which new uploads will be started. This is a default value - you can override it for each run of the job.";
-        maximumRuntimeHoursEntry.ReferenceValue = initialJob.DefaultMaximumRunTimeInHours;
-        maximumRuntimeHoursEntry.UserText = initialJob.DefaultMaximumRunTimeInHours.ToString();
+        maximumRuntimeHoursEntry.ReferenceValue = initialJob.MaximumRunTimeInHours;
+        maximumRuntimeHoursEntry.UserText = initialJob.MaximumRunTimeInHours.ToString();
         maximumRuntimeHoursEntry.ValidationFunctions = new List<Func<int, Task<IsValid>>>
         {
             x =>
@@ -356,9 +346,9 @@ public partial class JobEditorContext : IHasChanges, IHasValidationIssues,
             ExcludedFilePatterns = excludedFilePatterns,
             ExcludedFilePatternsOriginal = dbExcludedFilePatterns,
             StatusContext = statusContext,
-            AwsRegionOriginal = initialJob.CloudBucket,
+            AwsRegionOriginal = initialJob.CloudRegion,
             AwsRegionChoices = RegionEndpoint.EnumerableAllRegions.Select(x => x.SystemName).ToList(),
-            AwsRegionSelected = initialJob.CloudBucket,
+            AwsRegionSelected = initialJob.CloudRegion,
             UserInitialDirectoryEntry = initialDirectoryEntry,
             UserCloudBucketEntry = cloudBucketEntry,
             UserCloudDirectoryEntry = cloudDirectoryEntry,
@@ -580,9 +570,10 @@ public partial class JobEditorContext : IHasChanges, IHasValidationIssues,
         toSave.Name = UserNameEntry.UserValue;
         toSave.LocalDirectory = UserInitialDirectoryEntry.UserValue.Trim();
         toSave.CloudRegion = AwsRegionSelected;
+        toSave.CloudBucket = UserCloudBucketEntry.UserValue;
         toSave.CloudDirectory = UserCloudDirectoryEntry.UserValue;
         toSave.CreatedOn = LoadedJob.CreatedOn;
-        toSave.DefaultMaximumRunTimeInHours = UserMaximumRuntimeHoursEntry.UserValue;
+        toSave.MaximumRunTimeInHours = UserMaximumRuntimeHoursEntry.UserValue;
 
         var directoriesToRemove = new List<ExcludedDirectory>();
         var directoriesToAdd = new List<string>();
@@ -631,13 +622,16 @@ public partial class JobEditorContext : IHasChanges, IHasValidationIssues,
         await db.SaveChangesAsync();
 
         UserNameEntry.ReferenceValue = toSave.Name;
+        UserCloudBucketEntry.ReferenceValue = toSave.CloudBucket;
         UserCloudDirectoryEntry.ReferenceValue = toSave.CloudDirectory;
-        UserMaximumRuntimeHoursEntry.ReferenceValue = toSave.DefaultMaximumRunTimeInHours;
+        UserMaximumRuntimeHoursEntry.ReferenceValue = toSave.MaximumRunTimeInHours;
         UserInitialDirectoryEntry.ReferenceValue = toSave.LocalDirectory;
         ExcludedDirectoriesOriginal = toSave.ExcludedDirectories.Select(x => new DirectoryInfo(x.Directory)).ToList();
         ExcludedDirectoryPatternsOriginal = toSave.ExcludedDirectoryNamePatterns.Select(x => x.Pattern).ToList();
         ExcludedFilePatternsOriginal = toSave.ExcludedFileNamePatterns.Select(x => x.Pattern).ToList();
-        AwsRegionSelected = toSave.CloudRegion;
+        AwsRegionOriginal = toSave.CloudRegion;
+
+        LoadedJob = toSave;
 
         ExcludedDirectoriesChangeCheck();
         ExcludedDirectoryPatternsChangeCheck();

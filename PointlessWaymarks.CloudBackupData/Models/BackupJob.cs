@@ -9,7 +9,7 @@ public class BackupJob
     public string CloudDirectory { get; set; } = string.Empty;
     public string CloudRegion { get; set; } = string.Empty;
     public DateTime CreatedOn { get; set; }
-    public int DefaultMaximumRunTimeInHours { get; set; }
+    public int MaximumRunTimeInHours { get; set; }
     public virtual ICollection<ExcludedDirectory> ExcludedDirectories { get; set; } = new List<ExcludedDirectory>();
     public virtual ICollection<ExcludedDirectoryNamePattern> ExcludedDirectoryNamePatterns { get; set; } =
         new List<ExcludedDirectoryNamePattern>();

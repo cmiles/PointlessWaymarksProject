@@ -137,7 +137,7 @@ public partial class JobListContext
         {
             CreatedOn = DateTime.Now,
             Name = "New Backup Job",
-            DefaultMaximumRunTimeInHours = 6,
+            MaximumRunTimeInHours = 6,
             PersistentId = Guid.NewGuid()
         };
 

@@ -1,4 +1,4 @@
-﻿using Amazon.S3;
+using Amazon.S3;
 using Amazon.S3.Model;
 using Amazon.S3.Transfer;
 using Microsoft.EntityFrameworkCore;
@@ -91,7 +91,7 @@ public class DatabaseBatchesAndUploadSeries
     public async Task T000_InitialTransferAndFileCheck()
     {
         var job = await (await CloudBackupContext.CreateInstance()).BackupJobs.SingleAsync();
-        var batch = await CreateCloudTransferBatch.InDatabase(S3Credentials, job);
+        var batch = await CloudTransfer.CreateBatchInDatabaseFromChanges(S3Credentials, job);
 
         var testBatch =
             await (await CloudBackupContext.CreateInstance()).CloudTransferBatches.SingleAsync(x => x.Id == batch.Id);
@@ -100,7 +100,7 @@ public class DatabaseBatchesAndUploadSeries
         Assert.That(testBatch.CloudDeletions, Has.Count.EqualTo(0));
         Assert.That(testBatch.FileSystemFiles, Has.Count.EqualTo(8));
 
-        await TransferCloudTransferBatch.UploadsAndDeletes(S3Credentials, testBatch.Id, null);
+        await CloudTransfer.CloudUploadsAndDeletes(S3Credentials, testBatch.Id, null);
 
         testBatch =
             await (await CloudBackupContext.CreateInstance()).CloudTransferBatches.SingleAsync(x => x.Id == batch.Id);
@@ -110,7 +110,7 @@ public class DatabaseBatchesAndUploadSeries
         Assert.That(testBatch.CloudDeletions.Where(x => x.DeletionCompletedSuccessfully).ToList(),
             Has.Count.EqualTo(0));
 
-        var batchAfterUpload = await CreateCloudTransferBatch.InDatabase(S3Credentials, job);
+        var batchAfterUpload = await CloudTransfer.CreateBatchInDatabaseFromChanges(S3Credentials, job);
 
         Assert.That(batchAfterUpload.CloudUploads, Has.Count.EqualTo(0));
         Assert.That(batchAfterUpload.CloudDeletions, Has.Count.EqualTo(0));
@@ -123,7 +123,7 @@ public class DatabaseBatchesAndUploadSeries
         TestFile1 = Helpers.RandomFile(Path.Combine(TestDirectory1.FullName, "TestFile1.txt"));
 
         var job = await (await CloudBackupContext.CreateInstance()).BackupJobs.SingleAsync();
-        var batch = await CreateCloudTransferBatch.InDatabase(S3Credentials, job);
+        var batch = await CloudTransfer.CreateBatchInDatabaseFromChanges(S3Credentials, job);
 
         var testBatch =
             await (await CloudBackupContext.CreateInstance()).CloudTransferBatches.SingleAsync(x => x.Id == batch.Id);
@@ -132,7 +132,7 @@ public class DatabaseBatchesAndUploadSeries
         Assert.That(testBatch.CloudDeletions, Has.Count.EqualTo(0));
         Assert.That(testBatch.FileSystemFiles, Has.Count.EqualTo(8));
 
-        await TransferCloudTransferBatch.UploadsAndDeletes(S3Credentials, testBatch.Id, null);
+        await CloudTransfer.CloudUploadsAndDeletes(S3Credentials, testBatch.Id, null);
 
         testBatch =
             await (await CloudBackupContext.CreateInstance()).CloudTransferBatches.SingleAsync(x => x.Id == batch.Id);
@@ -142,7 +142,7 @@ public class DatabaseBatchesAndUploadSeries
         Assert.That(testBatch.CloudDeletions.Where(x => x.DeletionCompletedSuccessfully).ToList(),
             Has.Count.EqualTo(0));
 
-        var batchAfterUpload = await CreateCloudTransferBatch.InDatabase(S3Credentials, job);
+        var batchAfterUpload = await CloudTransfer.CreateBatchInDatabaseFromChanges(S3Credentials, job);
 
         Assert.That(batchAfterUpload.CloudUploads, Has.Count.EqualTo(0));
         Assert.That(batchAfterUpload.CloudDeletions, Has.Count.EqualTo(0));
@@ -155,7 +155,7 @@ public class DatabaseBatchesAndUploadSeries
         TestFile3Duplicate.Delete();
 
         var job = await (await CloudBackupContext.CreateInstance()).BackupJobs.SingleAsync();
-        var batch = await CreateCloudTransferBatch.InDatabase(S3Credentials, job);
+        var batch = await CloudTransfer.CreateBatchInDatabaseFromChanges(S3Credentials, job);
 
         var testBatch =
             await (await CloudBackupContext.CreateInstance()).CloudTransferBatches.SingleAsync(x => x.Id == batch.Id);
@@ -164,7 +164,7 @@ public class DatabaseBatchesAndUploadSeries
         Assert.That(testBatch.CloudDeletions, Has.Count.EqualTo(1));
         Assert.That(testBatch.FileSystemFiles, Has.Count.EqualTo(7));
 
-        await TransferCloudTransferBatch.UploadsAndDeletes(S3Credentials, testBatch.Id, null);
+        await CloudTransfer.CloudUploadsAndDeletes(S3Credentials, testBatch.Id, null);
 
         testBatch =
             await (await CloudBackupContext.CreateInstance()).CloudTransferBatches.SingleAsync(x => x.Id == batch.Id);
@@ -174,7 +174,7 @@ public class DatabaseBatchesAndUploadSeries
         Assert.That(testBatch.CloudDeletions.Where(x => x.DeletionCompletedSuccessfully).ToList(),
             Has.Count.EqualTo(1));
 
-        var batchAfterUpload = await CreateCloudTransferBatch.InDatabase(S3Credentials, job);
+        var batchAfterUpload = await CloudTransfer.CreateBatchInDatabaseFromChanges(S3Credentials, job);
 
         Assert.That(batchAfterUpload.CloudUploads, Has.Count.EqualTo(0));
         Assert.That(batchAfterUpload.CloudDeletions, Has.Count.EqualTo(0));
@@ -190,7 +190,7 @@ public class DatabaseBatchesAndUploadSeries
             { CreatedOn = DateTime.Now, Directory = TestDirectory1.FullName, Job = job });
         await context.SaveChangesAsync();
 
-        var batch = await CreateCloudTransferBatch.InDatabase(S3Credentials, job);
+        var batch = await CloudTransfer.CreateBatchInDatabaseFromChanges(S3Credentials, job);
 
         var testBatch =
             await (await CloudBackupContext.CreateInstance()).CloudTransferBatches.SingleAsync(x => x.Id == batch.Id);
@@ -199,7 +199,7 @@ public class DatabaseBatchesAndUploadSeries
         Assert.That(testBatch.CloudDeletions, Has.Count.EqualTo(4));
         Assert.That(testBatch.FileSystemFiles, Has.Count.EqualTo(3));
 
-        await TransferCloudTransferBatch.UploadsAndDeletes(S3Credentials, testBatch.Id, null);
+        await CloudTransfer.CloudUploadsAndDeletes(S3Credentials, testBatch.Id, null);
 
         testBatch =
             await (await CloudBackupContext.CreateInstance()).CloudTransferBatches.SingleAsync(x => x.Id == batch.Id);
@@ -209,7 +209,7 @@ public class DatabaseBatchesAndUploadSeries
         Assert.That(testBatch.CloudDeletions.Where(x => x.DeletionCompletedSuccessfully).ToList(),
             Has.Count.EqualTo(4));
 
-        var batchAfterUpload = await CreateCloudTransferBatch.InDatabase(S3Credentials, job);
+        var batchAfterUpload = await CloudTransfer.CreateBatchInDatabaseFromChanges(S3Credentials, job);
 
         Assert.That(batchAfterUpload.CloudUploads, Has.Count.EqualTo(0));
         Assert.That(batchAfterUpload.CloudDeletions, Has.Count.EqualTo(0));
@@ -226,7 +226,7 @@ public class DatabaseBatchesAndUploadSeries
 
         TestFile7.Delete();
 
-        var batch = await CreateCloudTransferBatch.InDatabase(S3Credentials, job);
+        var batch = await CloudTransfer.CreateBatchInDatabaseFromChanges(S3Credentials, job);
 
         var testBatch =
             await (await CloudBackupContext.CreateInstance()).CloudTransferBatches.SingleAsync(x => x.Id == batch.Id);
@@ -235,7 +235,7 @@ public class DatabaseBatchesAndUploadSeries
         Assert.That(testBatch.CloudDeletions, Has.Count.EqualTo(1));
         Assert.That(testBatch.FileSystemFiles, Has.Count.EqualTo(6));
 
-        await TransferCloudTransferBatch.UploadsAndDeletes(S3Credentials, testBatch.Id, null);
+        await CloudTransfer.CloudUploadsAndDeletes(S3Credentials, testBatch.Id, null);
 
         testBatch =
             await (await CloudBackupContext.CreateInstance()).CloudTransferBatches.SingleAsync(x => x.Id == batch.Id);
@@ -245,7 +245,7 @@ public class DatabaseBatchesAndUploadSeries
         Assert.That(testBatch.CloudDeletions.Where(x => x.DeletionCompletedSuccessfully).ToList(),
             Has.Count.EqualTo(1));
 
-        var batchAfterUpload = await CreateCloudTransferBatch.InDatabase(S3Credentials, job);
+        var batchAfterUpload = await CloudTransfer.CreateBatchInDatabaseFromChanges(S3Credentials, job);
 
         Assert.That(batchAfterUpload.CloudUploads, Has.Count.EqualTo(0));
         Assert.That(batchAfterUpload.CloudDeletions, Has.Count.EqualTo(0));

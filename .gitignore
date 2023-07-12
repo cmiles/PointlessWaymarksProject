@@ -361,3 +361,4 @@ PointlessWaymarks.Task.PublishSiteToAmazonS3/PointlessWaymarks.Task.PublishSiteT
 /PointlessWaymarks.Task.PhotoPickup/PointlessWaymarks.Task.PhotoPickup.args.json
 /PointlessWaymarks.Task.PhotoPickup/Properties/launchSettings.json
 /PointlessWaymarks.Task.GarminConnectGpxImport/Properties/launchSettings.json
+PointlessWaymarks.CloudBackupRunner/Properties/launchSettings.json
