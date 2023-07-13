@@ -5,6 +5,10 @@
     {
       "Id": "5dbbab92-3e79-463a-843b-84ff582c9d7d",
       "Command": "\"C:\\Users\\charl\\Documents\\Pointless Waymarks Cms\\Cloud Backup\\PointlessWaymarks-S3Backup.db\""
+    },
+    {
+      "Id": "1ce423dc-822a-4540-9d56-6d6e87395be4",
+      "Command": "4"
     }
   ]
 }

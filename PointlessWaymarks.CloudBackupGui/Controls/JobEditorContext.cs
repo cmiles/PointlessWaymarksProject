@@ -5,6 +5,7 @@ using System.IO;
 using System.Text.RegularExpressions;
 using Amazon;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Xaml.Behaviors.Core;
 using Ookii.Dialogs.Wpf;
 using PointlessWaymarks.CloudBackupData;
 using PointlessWaymarks.CloudBackupData.Models;
@@ -225,6 +226,8 @@ public partial class JobEditorContext : IHasChanges, IHasValidationIssues,
             {
                 if (string.IsNullOrWhiteSpace(x))
                     return Task.FromResult(new IsValid(false, "A Cloud Bucket is required for the job"));
+                if(!Regex.IsMatch(x, @"\A^[a-z0-9.-]+$\z"))
+                    return Task.FromResult(new IsValid(false, "S3 Bucket names can only consist of a-z, 0-9, . and -"));
                 return Task.FromResult(new IsValid(true, string.Empty));
             }
         };
@@ -244,10 +247,12 @@ public partial class JobEditorContext : IHasChanges, IHasValidationIssues,
                 if (!Regex.IsMatch(x, @"^[a-zA-Z0-9-/]+$"))
                     return Task.FromResult(new IsValid(false,
                         "To keep easy compatibility with cloud storage only a-z, A-Z, 0-9, - and / are allowed in the Cloud Directory Name."));
-                var pathSeparatorTestString = x.StartsWith("//") ? x.Substring(2) : x;
-                if (pathSeparatorTestString.Contains("//"))
+                if (x.StartsWith("/"))
                     return Task.FromResult(new IsValid(false,
-                        "// should only appear at the start of the Cloud Directory"));
+                        "Cloud Directory can not start with / or // - directory must be from the bucket root which does not need an identifier."));
+                if (x.Contains("//"))
+                    return Task.FromResult(new IsValid(false,
+                        "// should not appear in a Cloud Directory - root path starts without / or //."));
                 return Task.FromResult(new IsValid(true, string.Empty));
             }
         };
@@ -553,8 +558,6 @@ public partial class JobEditorContext : IHasChanges, IHasValidationIssues,
             return;
         }
 
-        //Todo: Track changes in the Observable Collections
-
         var toSave = new BackupJob();
 
         var frozenNow = DateTime.Now;
@@ -570,8 +573,9 @@ public partial class JobEditorContext : IHasChanges, IHasValidationIssues,
         toSave.Name = UserNameEntry.UserValue;
         toSave.LocalDirectory = UserInitialDirectoryEntry.UserValue.Trim();
         toSave.CloudRegion = AwsRegionSelected;
-        toSave.CloudBucket = UserCloudBucketEntry.UserValue;
+        toSave.CloudBucket = UserCloudBucketEntry.UserValue.EndsWith("/") ? UserCloudBucketEntry.UserValue : $"{UserCloudBucketEntry}/";
         toSave.CloudDirectory = UserCloudDirectoryEntry.UserValue;
+        toSave.PersistentId = LoadedJob.PersistentId;
         toSave.CreatedOn = LoadedJob.CreatedOn;
         toSave.MaximumRunTimeInHours = UserMaximumRuntimeHoursEntry.UserValue;
 

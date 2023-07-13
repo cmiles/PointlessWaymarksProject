@@ -68,9 +68,11 @@ public class LocalFileIntegrationSeries
     [Test]
     public async Task T000_BasicIntegrationNoExclusionsPatternNoWildcard()
     {
+        var progress = new ConsoleProgress();
+
         var context = await CloudBackupContext.CreateInstance();
         var job = await context.BackupJobs.SingleAsync();
-        var files = await CreationTools.GetAllLocalFiles(job);
+        var files = await CreationTools.GetAllLocalFiles(job, progress);
 
         Assert.That(files, Has.Count.EqualTo(8));
         Assert.That(files.Select(x => x.LocalFile.FullName), Has.Exactly(1).EqualTo(TestFile1.FullName));
@@ -91,6 +93,8 @@ public class LocalFileIntegrationSeries
     [Test]
     public async Task T100_PatternNoWildcard()
     {
+        var progress = new ConsoleProgress();
+
         var context = await CloudBackupContext.CreateInstance();
         var job = await context.BackupJobs.SingleAsync();
 
@@ -102,7 +106,7 @@ public class LocalFileIntegrationSeries
         });
         await context.SaveChangesAsync();
 
-        var files = await CreationTools.GetAllLocalFiles(job);
+        var files = await CreationTools.GetAllLocalFiles(job, progress);
 
         Assert.That(files, Has.Count.EqualTo(7));
         Assert.That(files.Select(x => x.LocalFile.FullName), Has.Exactly(1).EqualTo(TestFile1.FullName));
@@ -123,6 +127,8 @@ public class LocalFileIntegrationSeries
     [Test]
     public async Task T110_PatternStarWildcardExtension()
     {
+        var progress = new ConsoleProgress();
+
         var context = await CloudBackupContext.CreateInstance();
         var job = await context.BackupJobs.SingleAsync();
 
@@ -134,7 +140,7 @@ public class LocalFileIntegrationSeries
         });
         await context.SaveChangesAsync();
 
-        var files = await CreationTools.GetAllLocalFiles(job);
+        var files = await CreationTools.GetAllLocalFiles(job, progress);
 
         Assert.That(files, Has.Count.EqualTo(5));
 
@@ -153,6 +159,8 @@ public class LocalFileIntegrationSeries
     [Test]
     public async Task T120_PatternStarFileName()
     {
+        var progress = new ConsoleProgress();
+
         var context = await CloudBackupContext.CreateInstance();
         var job = await context.BackupJobs.SingleAsync();
 
@@ -164,7 +172,7 @@ public class LocalFileIntegrationSeries
         });
         await context.SaveChangesAsync();
 
-        var files = await CreationTools.GetAllLocalFiles(job);
+        var files = await CreationTools.GetAllLocalFiles(job, progress);
 
         Assert.That(files, Has.Count.EqualTo(2));
 
@@ -180,6 +188,8 @@ public class LocalFileIntegrationSeries
     [Test]
     public async Task T200_DirectoryExclusion()
     {
+        var progress = new ConsoleProgress();
+
         var context = await CloudBackupContext.CreateInstance();
         var job = await context.BackupJobs.SingleAsync();
         context.ExcludedFileNamePatterns.RemoveRange(context.ExcludedFileNamePatterns);
@@ -192,7 +202,7 @@ public class LocalFileIntegrationSeries
         });
         await context.SaveChangesAsync();
 
-        var files = await CreationTools.GetAllLocalFiles(job);
+        var files = await CreationTools.GetAllLocalFiles(job, progress);
 
         Assert.That(files, Has.Count.EqualTo(3));
         Assert.That(files.Select(x => x.LocalFile.FullName), Has.Exactly(1).EqualTo(TestFile5.FullName));

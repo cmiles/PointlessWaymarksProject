@@ -11,9 +11,9 @@ namespace PointlessWaymarks.CloudBackupData.Batch;
 
 public static class CloudTransfer
 {
-    public static async Task<CloudTransferBatch> CreateBatchInDatabaseFromChanges(IS3AccountInformation accountInformation, BackupJob job)
+    public static async Task<CloudTransferBatch> CreateBatchInDatabaseFromChanges(IS3AccountInformation accountInformation, BackupJob job, IProgress<string> progress)
     {
-        var changes = await CreationTools.GetChanges(accountInformation, job);
+        var changes = await CreationTools.GetChanges(accountInformation, job, progress);
         return await CreationTools.WriteChangesToDatabase(changes);
     }
 

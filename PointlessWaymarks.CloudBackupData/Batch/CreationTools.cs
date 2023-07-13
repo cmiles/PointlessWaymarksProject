@@ -1,5 +1,6 @@
 ﻿using System.IO.Enumeration;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
 using PointlessWaymarks.CloudBackupData.Models;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.CommonTools.S3;
@@ -17,9 +18,10 @@ public static class CreationTools
     }
 
     public static async Task<List<S3RemoteFileAndMetadata>> GetAllCloudFiles(BackupJob job,
-        IS3AccountInformation account)
+        IS3AccountInformation account, IProgress<string> progress)
     {
-        return await S3Tools.ListS3Items(account, job.CloudDirectory);
+        return await S3Tools.ListS3Items(account,
+            job.CloudDirectory.EndsWith("/") ? job.CloudDirectory : $"{job.CloudDirectory}/", progress);
     }
 
     public static async Task<List<DirectoryInfo>> GetAllLocalDirectories(BackupJob job)
@@ -63,8 +65,9 @@ public static class CreationTools
         return returnList;
     }
 
-    public static async Task<List<S3LocalFileAndMetadata>> GetAllLocalFiles(BackupJob job)
+    public static async Task<List<S3LocalFileAndMetadata>> GetAllLocalFiles(BackupJob job, IProgress<string> progress)
     {
+        progress.Report("Local Files - Starting");
         var directories = await GetAllLocalDirectories(job);
 
         var context = await CloudBackupContext.CreateInstance();
@@ -75,8 +78,14 @@ public static class CreationTools
 
         var returnList = new List<S3LocalFileAndMetadata>();
 
+        progress.Report($"Local Files - Getting Files - Found {directories.Count} Directories to Process");
+
+        var counter = 0;
+
         foreach (var directoryInfo in directories)
         {
+            counter++;
+
             var files = directoryInfo.GetFiles();
 
             foreach (var fileInfo in files)
@@ -84,29 +93,40 @@ public static class CreationTools
                 if (excludedPatterns.Any(x => FileSystemName.MatchesSimpleExpression(x, fileInfo.Name))) continue;
                 returnList.Add(await S3Tools.LocalFileAndMetadata(fileInfo));
             }
+
+            if (counter % 50 == 0)
+                progress.Report(
+                    $"Local Files - {counter} of {directories.Count} Directories Complete - {returnList.Count} Files");
         }
 
         return returnList;
     }
 
-    public static async Task<FileListAndChangeData> GetChanges(IS3AccountInformation accountInformation, BackupJob job)
+    public static async Task<FileListAndChangeData> GetChanges(IS3AccountInformation accountInformation, BackupJob job,
+        IProgress<string> progress)
     {
         var returnData = new FileListAndChangeData
         {
             Job = job,
             AccountInformation = accountInformation,
-            S3Files = await GetAllCloudFiles(job, accountInformation)
+            S3Files = await GetAllCloudFiles(job, accountInformation, progress)
         };
 
-        var localFiles = await GetAllLocalFiles(job);
+        var localFiles = await GetAllLocalFiles(job, progress);
         var localFilesSystemBaseDirectory = new DirectoryInfo(job.LocalDirectory);
 
         returnData.FileSystemFiles = localFiles.Select(x => new S3FileSystemFileAndMetadataWithCloudKey(x.LocalFile,
                 x.Metadata, FileInfoToS3Key(job.CloudDirectory, localFilesSystemBaseDirectory, x.LocalFile)))
             .ToList();
 
+        progress.Report($"Change Check - {returnData.FileSystemFiles.Count} to process");
+        var counter = 0;
+
         foreach (var loopFiles in returnData.FileSystemFiles)
         {
+            counter++;
+
+
             var matchingFiles = returnData.S3Files.Where(x => x.Key == loopFiles.CloudKey).ToList();
 
             if (matchingFiles.Count == 0)
@@ -120,6 +140,10 @@ public static class CreationTools
                     x.Metadata.FileSystemHash == loopFiles.Metadata.FileSystemHash)) continue;
 
             returnData.FileSystemFilesToUpload.Add(loopFiles);
+
+            if (counter % 500 == 0)
+                progress.Report(
+                    $"Change Check - {counter} of {returnData.FileSystemFiles.Count} Files Checked - {returnData.FileSystemFilesToUpload} to Upload so far.");
         }
 
         returnData.S3FilesToDelete = returnData.S3Files
