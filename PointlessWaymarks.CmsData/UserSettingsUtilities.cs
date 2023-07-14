@@ -1,4 +1,4 @@
-﻿using System.Data;
+using System.Data;
 using System.Globalization;
 using Amazon;
 using FluentMigrator.Runner;
@@ -1552,32 +1552,6 @@ public static class UserSettingsUtilities
     {
         var sluggedTag = SlugTools.CreateSlug(true, tag, 200);
         return $"{settings.SiteUrl()}/Tags/TagList-{sluggedTag}.html";
-    }
-
-    public static DirectoryInfo TempStorageDirectory()
-    {
-        var directory = new DirectoryInfo(Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "Pointless Waymarks Cms",
-            "TemporaryFiles"));
-
-        if (!directory.Exists) directory.Create();
-
-        directory.Refresh();
-
-        return directory;
-    }
-
-    public static DirectoryInfo TempStorageHtmlDirectory()
-    {
-        var directory = new DirectoryInfo(Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "Pointless Waymarks Cms",
-            "TemporaryFiles", "Html"));
-
-        if (!directory.Exists) directory.Create();
-
-        directory.Refresh();
-
-        return directory;
     }
 
     public static IsValid ValidateLocalMediaArchive()

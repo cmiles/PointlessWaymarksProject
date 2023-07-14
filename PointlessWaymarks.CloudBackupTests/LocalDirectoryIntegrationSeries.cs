@@ -58,15 +58,18 @@ public class LocalDirectoryIntegrationSeries
     {
         var context = await CloudBackupContext.CreateInstance();
         var job = await context.BackupJobs.SingleAsync();
-        var directories = await CreationTools.GetAllLocalDirectories(job);
-
+        var directories = await CreationTools.GetAllLocalDirectories(job.Id, new ConsoleProgress());
+        var includedDirectories = directories.Where(x => x.Included).Select(x => x.Directory).ToList();
+        
         Assert.That(directories, Has.Count.EqualTo(6));
-        Assert.That(directories.Select(x => x.FullName), Has.Exactly(1).EqualTo(TestDirectory.FullName));
-        Assert.That(directories.Select(x => x.FullName), Has.Exactly(1).EqualTo(TestDirectory1.FullName));
-        Assert.That(directories.Select(x => x.FullName), Has.Exactly(1).EqualTo(TestDirectory2.FullName));
-        Assert.That(directories.Select(x => x.FullName), Has.Exactly(1).EqualTo(TestDirectory3.FullName));
-        Assert.That(directories.Select(x => x.FullName), Has.Exactly(1).EqualTo(TestDirectory4.FullName));
-        Assert.That(directories.Select(x => x.FullName), Has.Exactly(1).EqualTo(TestDirectory5.FullName));
+        Assert.That(directories.Count(x => x.Included), Is.EqualTo(6));
+        Assert.That(directories.Count(x => !x.Included), Is.EqualTo(0));
+        Assert.That(includedDirectories.Select(x => x.FullName), Has.Exactly(1).EqualTo(TestDirectory.FullName));
+        Assert.That(includedDirectories.Select(x => x.FullName), Has.Exactly(1).EqualTo(TestDirectory1.FullName));
+        Assert.That(includedDirectories.Select(x => x.FullName), Has.Exactly(1).EqualTo(TestDirectory2.FullName));
+        Assert.That(includedDirectories.Select(x => x.FullName), Has.Exactly(1).EqualTo(TestDirectory3.FullName));
+        Assert.That(includedDirectories.Select(x => x.FullName), Has.Exactly(1).EqualTo(TestDirectory4.FullName));
+        Assert.That(includedDirectories.Select(x => x.FullName), Has.Exactly(1).EqualTo(TestDirectory5.FullName));
     }
 
     /// <summary>
@@ -86,14 +89,17 @@ public class LocalDirectoryIntegrationSeries
         });
         await context.SaveChangesAsync();
 
-        var directories = await CreationTools.GetAllLocalDirectories(job);
+        var directories = await CreationTools.GetAllLocalDirectories(job.Id, new ConsoleProgress());
+        var includedDirectories = directories.Where(x => x.Included).Select(x => x.Directory).ToList();
 
-        Assert.That(directories, Has.Count.EqualTo(5));
-        Assert.That(directories.Select(x => x.FullName), Has.Exactly(1).EqualTo(TestDirectory.FullName));
-        Assert.That(directories.Select(x => x.FullName), Has.Exactly(1).EqualTo(TestDirectory1.FullName));
-        Assert.That(directories.Select(x => x.FullName), Has.Exactly(1).EqualTo(TestDirectory2.FullName));
-        Assert.That(directories.Select(x => x.FullName), Has.Exactly(1).EqualTo(TestDirectory3.FullName));
-        Assert.That(directories.Select(x => x.FullName), Has.Exactly(1).EqualTo(TestDirectory4.FullName));
+        Assert.That(directories, Has.Count.EqualTo(6));
+        Assert.That(directories.Count(x => x.Included), Is.EqualTo(5));
+        Assert.That(directories.Count(x => !x.Included), Is.EqualTo(1));
+        Assert.That(includedDirectories.Select(x => x.FullName), Has.Exactly(1).EqualTo(TestDirectory.FullName));
+        Assert.That(includedDirectories.Select(x => x.FullName), Has.Exactly(1).EqualTo(TestDirectory1.FullName));
+        Assert.That(includedDirectories.Select(x => x.FullName), Has.Exactly(1).EqualTo(TestDirectory2.FullName));
+        Assert.That(includedDirectories.Select(x => x.FullName), Has.Exactly(1).EqualTo(TestDirectory3.FullName));
+        Assert.That(includedDirectories.Select(x => x.FullName), Has.Exactly(1).EqualTo(TestDirectory4.FullName));
     }
 
     /// <summary>
@@ -113,13 +119,16 @@ public class LocalDirectoryIntegrationSeries
         });
         await context.SaveChangesAsync();
 
-        var directories = await CreationTools.GetAllLocalDirectories(job);
+        var directories = await CreationTools.GetAllLocalDirectories(job.Id, new ConsoleProgress());
+        var includedDirectories = directories.Where(x => x.Included).Select(x => x.Directory).ToList();
 
-        Assert.That(directories, Has.Count.EqualTo(4));
-        Assert.That(directories.Select(x => x.FullName), Has.Exactly(1).EqualTo(TestDirectory.FullName));
-        Assert.That(directories.Select(x => x.FullName), Has.Exactly(1).EqualTo(TestDirectory1.FullName));
-        Assert.That(directories.Select(x => x.FullName), Has.Exactly(1).EqualTo(TestDirectory2.FullName));
-        Assert.That(directories.Select(x => x.FullName), Has.Exactly(1).EqualTo(TestDirectory3.FullName));
+        Assert.That(directories, Has.Count.EqualTo(6));
+        Assert.That(directories.Count(x => x.Included), Is.EqualTo(4));
+        Assert.That(directories.Count(x => !x.Included), Is.EqualTo(2));
+        Assert.That(includedDirectories.Select(x => x.FullName), Has.Exactly(1).EqualTo(TestDirectory.FullName));
+        Assert.That(includedDirectories.Select(x => x.FullName), Has.Exactly(1).EqualTo(TestDirectory1.FullName));
+        Assert.That(includedDirectories.Select(x => x.FullName), Has.Exactly(1).EqualTo(TestDirectory2.FullName));
+        Assert.That(includedDirectories.Select(x => x.FullName), Has.Exactly(1).EqualTo(TestDirectory3.FullName));
     }
 
     /// <summary>
@@ -142,10 +151,13 @@ public class LocalDirectoryIntegrationSeries
         });
         await context.SaveChangesAsync();
 
-        var directories = await CreationTools.GetAllLocalDirectories(job);
+        var directories = await CreationTools.GetAllLocalDirectories(job.Id, new ConsoleProgress());
+        var includedDirectories = directories.Where(x => x.Included).Select(x => x.Directory).ToList();
 
-        Assert.That(directories, Has.Count.EqualTo(1));
-        Assert.That(directories.Select(x => x.FullName), Has.Exactly(1).EqualTo(TestDirectory.FullName));
+        Assert.That(directories, Has.Count.EqualTo(6));
+        Assert.That(directories.Count(x => x.Included), Is.EqualTo(1));
+        Assert.That(directories.Count(x => !x.Included), Is.EqualTo(5));
+        Assert.That(includedDirectories.Select(x => x.FullName), Has.Exactly(1).EqualTo(TestDirectory.FullName));
     }
 
     /// <summary>
@@ -169,12 +181,15 @@ public class LocalDirectoryIntegrationSeries
         });
         await context.SaveChangesAsync();
 
-        var directories = await CreationTools.GetAllLocalDirectories(job);
+        var directories = await CreationTools.GetAllLocalDirectories(job.Id, new ConsoleProgress());
+        var includedDirectories = directories.Where(x => x.Included).Select(x => x.Directory).ToList();
 
-        Assert.That(directories, Has.Count.EqualTo(3));
-        Assert.That(directories.Select(x => x.FullName), Has.Exactly(1).EqualTo(TestDirectory.FullName));
-        Assert.That(directories.Select(x => x.FullName), Has.Exactly(1).EqualTo(TestDirectory1.FullName));
-        Assert.That(directories.Select(x => x.FullName), Has.Exactly(1).EqualTo(TestDirectory2.FullName));
+        Assert.That(directories, Has.Count.EqualTo(6));
+        Assert.That(directories.Count(x => x.Included), Is.EqualTo(3));
+        Assert.That(directories.Count(x => !x.Included), Is.EqualTo(3));
+        Assert.That(includedDirectories.Select(x => x.FullName), Has.Exactly(1).EqualTo(TestDirectory.FullName));
+        Assert.That(includedDirectories.Select(x => x.FullName), Has.Exactly(1).EqualTo(TestDirectory1.FullName));
+        Assert.That(includedDirectories.Select(x => x.FullName), Has.Exactly(1).EqualTo(TestDirectory2.FullName));
     }
 #pragma warning disable CS8618
     public DirectoryInfo TestDirectory { get; set; }

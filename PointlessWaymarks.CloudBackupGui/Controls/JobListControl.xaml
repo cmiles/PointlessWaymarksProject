@@ -7,10 +7,12 @@
              xmlns:models="clr-namespace:PointlessWaymarks.CloudBackupData.Models;assembly=PointlessWaymarks.CloudBackupData"
              xmlns:behaviors="clr-namespace:PointlessWaymarks.WpfCommon.Behaviors;assembly=PointlessWaymarks.WpfCommon"
              xmlns:svgc="http://sharpvectors.codeplex.com/svgc/"
+             xmlns:utility="clr-namespace:PointlessWaymarks.WpfCommon.Utility;assembly=PointlessWaymarks.WpfCommon"
              mc:Ignorable="d"
              d:DesignHeight="450" d:DesignWidth="800" d:DataContext="{d:DesignInstance local:JobListContext}">
     <UserControl.Resources>
         <ResourceDictionary>
+            <utility:BindingProxy x:Key="proxy" Data="{Binding}" />
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="/PointlessWaymarks.WpfCommon;component/ClassicGreenResourceDictionary.xaml" />
             </ResourceDictionary.MergedDictionaries>
@@ -47,15 +49,25 @@
                 <ListBox.ItemTemplate>
                     <DataTemplate DataType="{x:Type models:BackupJob}">
                         <Border Style="{StaticResource ContentListOuterBorderStyle}">
-                            <Grid>
+                            <Border.InputBindings>
+                                <MouseBinding
+                                    Command="{Binding Data.EditJobCommand, Source={StaticResource proxy}}"
+                                    CommandParameter="{Binding .}"
+                                    Gesture="Shift+LeftDoubleClick" />
+                            </Border.InputBindings>
+                            <Grid Style="{StaticResource ContentListOuterGridStyle}">
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="Auto"></RowDefinition>
                                     <RowDefinition Height="Auto"></RowDefinition>
+                                    <RowDefinition Height="Auto"></RowDefinition>
                                 </Grid.RowDefinitions>
-                                <TextBlock Text="{Binding Name}"></TextBlock>
+                                <TextBlock Text="{Binding Name}" FontWeight="Bold"></TextBlock>
                                 <WrapPanel Grid.Row="1" Orientation="Horizontal">
                                     <TextBlock Text="{Binding LocalDirectory, StringFormat='From {0}'}"></TextBlock>
                                     <TextBlock Text="{Binding CloudDirectory, StringFormat='To {0}'}"></TextBlock>
+                                </WrapPanel>
+                                <WrapPanel Grid.Row="2" Orientation="Horizontal">
+                                    <Button Command="{Binding Data.IncludedAndExcludedFilesReportCommand, Source={StaticResource proxy}}" CommandParameter="{Binding .}">Included/Excluded Files Report</Button>
                                 </WrapPanel>
                             </Grid>
                         </Border>
@@ -67,7 +79,7 @@
             <WrapPanel HorizontalAlignment="Center" Orientation="Horizontal">
                 <Button
                     Content="_Edit"
-                    Style="{StaticResource ActionPanelButtonStyle}" Command="{Binding EditJobCommand}"/>
+                    Style="{StaticResource ActionPanelButtonStyle}" Command="{Binding EditSelectedJobCommand}"/>
                 <Button
                     Content="_New"
                     Style="{StaticResource ActionPanelButtonStyle}"

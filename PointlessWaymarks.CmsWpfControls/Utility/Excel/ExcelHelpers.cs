@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 using System.IO;
 using ClosedXML.Excel;
 using Omu.ValueInjecter;
@@ -21,7 +21,7 @@ public static class ExcelHelpers
         progress?.Report($"Starting transfer of {toDisplay.Count} to Excel");
 
 
-        var file = Path.Combine(UserSettingsUtilities.TempStorageDirectory().FullName,
+        var file = Path.Combine(FileLocationTools.TempStorageDirectory().FullName,
             $"{DateTime.Now:yyyy-MM-dd--HH-mm-ss}---{FileAndFolderTools.TryMakeFilenameValid(fileName)}.xlsx");
 
         return ExcelTools.ToExcelFileAsTable(toDisplay, file, openAfterSaving, limitRowHeight, progress);
@@ -167,7 +167,7 @@ public static class ExcelHelpers
                     $"ContentId:{loopDetail.ContentId}||{Environment.NewLine}Type:{loopDetail.DataType}||{Environment.NewLine}Data:{loopDetail.StructuredDataAsJson}"));
         }
 
-        var file = new FileInfo(Path.Combine(UserSettingsUtilities.TempStorageDirectory().FullName,
+        var file = new FileInfo(Path.Combine(FileLocationTools.TempStorageDirectory().FullName,
             $"{DateTime.Now:yyyy-MM-dd--HH-mm-ss}---{FileAndFolderTools.TryMakeFilenameValid(fileName)}.xlsx"));
 
         progress?.Report($"File Name {file.FullName} - creating Excel Workbook");

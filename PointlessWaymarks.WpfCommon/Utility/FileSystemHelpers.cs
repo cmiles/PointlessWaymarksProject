@@ -1,4 +1,4 @@
-﻿using System.IO;
+using System.IO;
 using System.Reflection;
 using Microsoft.Extensions.FileProviders;
 
@@ -18,18 +18,5 @@ public static class FileSystemHelpers
         var spatialScript = await reader.ReadToEndAsync().ConfigureAwait(false);
 
         return spatialScript;
-    }
-
-    public static DirectoryInfo TempStorageHtmlDirectory()
-    {
-        var directory = new DirectoryInfo(Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "Pointless Waymarks Cms",
-            "TemporaryFiles", "Html"));
-
-        if (!directory.Exists) directory.Create();
-
-        directory.Refresh();
-
-        return directory;
     }
 }

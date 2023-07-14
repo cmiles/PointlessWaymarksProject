@@ -37,7 +37,7 @@ public partial class ContentViewHistoryPage
     {
         var possibleFileName = FileAndFolderTools.TryMakeFilenameValid(ContentTitle);
 
-        var possibleFile = new FileInfo(Path.Combine(UserSettingsUtilities.TempStorageDirectory().FullName,
+        var possibleFile = new FileInfo(Path.Combine(FileLocationTools.TempStorageDirectory().FullName,
             $"HistoricEntries-{possibleFileName}-{DateTime.Now:yyyy-MM-dd---HH-mm-ss}.htm"));
 
         progress?.Report($"Writing File - {possibleFile.FullName}");

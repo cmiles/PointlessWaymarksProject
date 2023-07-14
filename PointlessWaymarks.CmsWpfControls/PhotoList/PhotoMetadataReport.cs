@@ -50,7 +50,7 @@ public static class PhotoMetadataReport
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
-        var file = new FileInfo(Path.Combine(UserSettingsUtilities.TempStorageDirectory().FullName,
+        var file = new FileInfo(Path.Combine(FileLocationTools.TempStorageDirectory().FullName,
             $"PhotoMetadata-{Path.GetFileNameWithoutExtension(selectedFile.Name)}-{DateTime.Now:yyyy-MM-dd---HH-mm-ss}.htm"));
 
         var htmlString =

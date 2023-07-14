@@ -1,6 +1,6 @@
 using System.Net;
-using Amazon.S3.Transfer;
 using Amazon.S3;
+using Amazon.S3.Transfer;
 using Microsoft.EntityFrameworkCore;
 using PointlessWaymarks.CloudBackupData.Models;
 using PointlessWaymarks.CommonTools;
@@ -11,14 +11,8 @@ namespace PointlessWaymarks.CloudBackupData.Batch;
 
 public static class CloudTransfer
 {
-    public static async Task<CloudTransferBatch> CreateBatchInDatabaseFromChanges(IS3AccountInformation accountInformation, BackupJob job, IProgress<string> progress)
-    {
-        var changes = await CreationTools.GetChanges(accountInformation, job, progress);
-        return await CreationTools.WriteChangesToDatabase(changes);
-    }
-
-    public static async Task CloudUploadsAndDeletes(IS3AccountInformation accountInformation, int cloudTransferBatchId,
-      IProgress<string>? progress)
+    public static async Task CloudUploadAndDelete(IS3AccountInformation accountInformation, int cloudTransferBatchId,
+        IProgress<string>? progress)
     {
         var context = await CloudBackupContext.CreateInstance();
 
@@ -70,9 +64,7 @@ public static class CloudTransfer
             }
 
             if (DateTime.Now > stopDateTime)
-            {
                 progress?.Report($"Ending Batch {batch.Id} based on Maximum Runtime - {uploads.Count} Files");
-            }
         }
 
         var deletes = batch.CloudDeletions.Where(x => !x.DeletionCompletedSuccessfully).ToList();
@@ -109,11 +101,16 @@ public static class CloudTransfer
             }
 
             if (DateTime.Now > stopDateTime)
-            {
                 progress?.Report($"Ending Batch {batch.Id} based on Maximum Runtime - {uploads.Count} Files");
-            }
         }
 
         progress?.Report($"Batch {batch.Id} - Finished");
+    }
+
+    public static async Task<CloudTransferBatch> CreateBatchInDatabaseFromChanges(
+        IS3AccountInformation accountInformation, BackupJob job, IProgress<string> progress)
+    {
+        var changes = await CreationTools.GetChanges(accountInformation, job.Id, progress);
+        return await CreationTools.WriteChangesToDatabase(changes);
     }
 }

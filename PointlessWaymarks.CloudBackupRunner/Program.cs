@@ -98,7 +98,7 @@ if (batch.CloudUploads.Count < 1 && batch.CloudDeletions.Count < 1)
 
 try
 {
-    await CloudTransfer.CloudUploadsAndDeletes(amazonCredentials, batch.Id, new ConsoleProgress());
+    await CloudTransfer.CloudUploadAndDelete(amazonCredentials, batch.Id, new ConsoleProgress());
     Log.Information("Cloud Backup Ending");
 }
 catch (Exception e)

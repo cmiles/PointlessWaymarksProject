@@ -1,4 +1,4 @@
-﻿namespace PointlessWaymarks.CommonTools;
+namespace PointlessWaymarks.CommonTools;
 
 public static class FileLocationTools
 {
@@ -65,6 +65,30 @@ public static class FileLocationTools
         var directory =
             new DirectoryInfo(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
                 "Pointless Waymarks Cms"));
+
+        if (!directory.Exists) directory.Create();
+
+        directory.Refresh();
+
+        return directory;
+    }
+
+    public static DirectoryInfo TempStorageDirectory()
+    {
+        var directory = new DirectoryInfo(Path.Combine(
+            FileLocationTools.DefaultStorageDirectory().FullName, 
+            "TemporaryFiles"));
+
+        if (!directory.Exists) directory.Create();
+
+        directory.Refresh();
+
+        return directory;
+    }
+
+    public static DirectoryInfo TempStorageHtmlDirectory()
+    {
+        var directory = new DirectoryInfo(Path.Combine(TempStorageDirectory().FullName, "Html"));
 
         if (!directory.Exists) directory.Create();
 

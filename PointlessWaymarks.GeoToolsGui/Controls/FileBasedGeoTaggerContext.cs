@@ -263,7 +263,7 @@ public partial class FileBasedGeoTaggerContext
 
             await ThreadSwitcher.ResumeForegroundAsync();
 
-            var file = new FileInfo(Path.Combine(UserSettingsUtilities.TempStorageDirectory().FullName,
+            var file = new FileInfo(Path.Combine(FileLocationTools.TempStorageDirectory().FullName,
                 $"PhotoMetadata-{Path.GetFileNameWithoutExtension(loopFile.Name)}-{DateTime.Now:yyyy-MM-dd---HH-mm-ss}.htm"));
 
             var htmlString =

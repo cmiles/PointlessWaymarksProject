@@ -25,7 +25,7 @@ public static class S3UploadHelpers
             FullFileNameForJsonUploadInformation = () =>
                 Path.Combine(UserSettingsSingleton.CurrentSettings().LocalScriptsDirectory().FullName,
                     $"{DateTime.Now:yyyy-MM-dd--HH-mm-ss}---File-Upload-Data.json"),
-            FullFileNameForToExcel = () => Path.Combine(UserSettingsUtilities.TempStorageDirectory().FullName,
+            FullFileNameForToExcel = () => Path.Combine(FileLocationTools.TempStorageDirectory().FullName,
                 $"{DateTime.Now:yyyy-MM-dd--HH-mm-ss}---{FileAndFolderTools.TryMakeFilenameValid("S3UploadItems")}.xlsx")
         };
     }

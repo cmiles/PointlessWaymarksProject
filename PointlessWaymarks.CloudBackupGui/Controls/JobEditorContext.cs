@@ -5,10 +5,10 @@ using System.IO;
 using System.Text.RegularExpressions;
 using Amazon;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Xaml.Behaviors.Core;
 using Ookii.Dialogs.Wpf;
 using PointlessWaymarks.CloudBackupData;
 using PointlessWaymarks.CloudBackupData.Models;
+using PointlessWaymarks.CloudBackupData.Reports;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon.ChangesAndValidation;
@@ -226,7 +226,7 @@ public partial class JobEditorContext : IHasChanges, IHasValidationIssues,
             {
                 if (string.IsNullOrWhiteSpace(x))
                     return Task.FromResult(new IsValid(false, "A Cloud Bucket is required for the job"));
-                if(!Regex.IsMatch(x, @"\A^[a-z0-9.-]+$\z"))
+                if (!Regex.IsMatch(x, @"\A^[a-z0-9.-]+$\z"))
                     return Task.FromResult(new IsValid(false, "S3 Bucket names can only consist of a-z, 0-9, . and -"));
                 return Task.FromResult(new IsValid(true, string.Empty));
             }
@@ -472,6 +472,35 @@ public partial class JobEditorContext : IHasChanges, IHasValidationIssues,
         CheckForChangesAndValidationIssues();
     }
 
+    [BlockingCommand]
+    public async Task IncludedAndExcludedFilesReport()
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (UserInitialDirectoryEntry.HasValidationIssues)
+        {
+            StatusContext.ToastError("The initial directory has validation issues - please correct before continuing.");
+            return;
+        }
+
+        var frozenInitialLocalDirectory = new DirectoryInfo(UserInitialDirectoryEntry.UserValue);
+
+        if (!frozenInitialLocalDirectory.Exists)
+        {
+            StatusContext.ToastError("The initial directory does not exist - please correct before continuing.");
+            return;
+        }
+
+        var frozenName = string.IsNullOrWhiteSpace(UserNameEntry.UserValue) ? "No Name" : UserNameEntry.UserValue;
+        var frozenExcludedDirectories = ExcludedDirectories.Select(x => x.FullName).OrderBy(x => x).ToList();
+        var frozenExcludedDirectoryPatterns = ExcludedDirectoryPatterns.OrderBy(x => x).ToList();
+        var frozenExcludedFilePatterns = ExcludedFilePatterns.OrderBy(x => x).ToList();
+
+        await IncludedAndExcludedFilesToExcel.Run(frozenName, frozenInitialLocalDirectory.FullName,
+            frozenExcludedDirectories, frozenExcludedDirectoryPatterns,
+            frozenExcludedFilePatterns, StatusContext.ProgressTracker());
+    }
+
     private void OnPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
         if (string.IsNullOrWhiteSpace(e.PropertyName)) return;
@@ -573,8 +602,10 @@ public partial class JobEditorContext : IHasChanges, IHasValidationIssues,
         toSave.Name = UserNameEntry.UserValue;
         toSave.LocalDirectory = UserInitialDirectoryEntry.UserValue.Trim();
         toSave.CloudRegion = AwsRegionSelected;
-        toSave.CloudBucket = UserCloudBucketEntry.UserValue.EndsWith("/") ? UserCloudBucketEntry.UserValue : $"{UserCloudBucketEntry}/";
-        toSave.CloudDirectory = UserCloudDirectoryEntry.UserValue;
+        toSave.CloudBucket = UserCloudBucketEntry.UserValue;
+        toSave.CloudDirectory = UserCloudDirectoryEntry.UserValue.EndsWith("/")
+            ? UserCloudDirectoryEntry.UserValue
+            : $"{UserCloudDirectoryEntry.UserValue}/";
         toSave.PersistentId = LoadedJob.PersistentId;
         toSave.CreatedOn = LoadedJob.CreatedOn;
         toSave.MaximumRunTimeInHours = UserMaximumRuntimeHoursEntry.UserValue;

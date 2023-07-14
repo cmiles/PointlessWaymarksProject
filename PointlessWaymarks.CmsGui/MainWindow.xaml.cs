@@ -178,7 +178,7 @@ public partial class MainWindow
         {
             var frozenNow = DateTime.Now;
 
-            var file = new FileInfo(Path.Combine(UserSettingsUtilities.TempStorageDirectory().FullName,
+            var file = new FileInfo(Path.Combine(FileLocationTools.TempStorageDirectory().FullName,
                 $"CleanAndResizeAllImageFiles-ErrorReport-{frozenNow:yyyy-MM-dd---HH-mm-ss}.htm"));
 
             var htmlString =
@@ -211,7 +211,7 @@ public partial class MainWindow
         {
             var frozenNow = DateTime.Now;
 
-            var file = new FileInfo(Path.Combine(UserSettingsUtilities.TempStorageDirectory().FullName,
+            var file = new FileInfo(Path.Combine(FileLocationTools.TempStorageDirectory().FullName,
                 $"CleanAndResizeAllPhotoFiles-ErrorReport-{frozenNow:yyyy-MM-dd---HH-mm-ss}.htm"));
 
             var htmlString =
@@ -257,7 +257,7 @@ public partial class MainWindow
         {
             var frozenNow = DateTime.Now;
 
-            var file = new FileInfo(Path.Combine(UserSettingsUtilities.TempStorageDirectory().FullName,
+            var file = new FileInfo(Path.Combine(FileLocationTools.TempStorageDirectory().FullName,
                 $"ConfirmFileContent-ErrorReport-{frozenNow:yyyy-MM-dd---HH-mm-ss}.htm"));
 
             var htmlString =

@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 using ClosedXML.Excel;
 
 namespace PointlessWaymarks.CommonTools
@@ -8,12 +8,9 @@ namespace PointlessWaymarks.CommonTools
         public static FileInfo ToExcelFileAsTable(List<object> toDisplay, string fileName,
             bool openAfterSaving = true, bool limitRowHeight = true, IProgress<string>? progress = null)
         {
-            progress?.Report($"Starting transfer of {toDisplay.Count} to Excel");
+            progress?.Report($"Starting transfer of {toDisplay.Count} items to Excel");
 
             var file = new FileInfo(fileName);
-
-            //var file = new FileInfo(Path.Combine(UserSettingsUtilities.TempStorageDirectory().FullName,
-            //    $"{DateTime.Now:yyyy-MM-dd--HH-mm-ss}---{FileAndFolderTools.TryMakeFilenameValid(fileName)}.xlsx"));
 
             progress?.Report($"File Name: {file.FullName}");
 

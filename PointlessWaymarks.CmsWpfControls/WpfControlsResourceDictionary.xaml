@@ -72,9 +72,6 @@
     <Style x:Key="ContentListItemImageColumnStyle" TargetType="ColumnDefinition">
         <Setter Property="Width" Value="110" />
     </Style>
-    <Style x:Key="ContentListOuterGridStyle" TargetType="Grid">
-        <Setter Property="Margin" Value="4" />
-    </Style>
     <Style x:Key="ContentListTextGridStyle" TargetType="Grid">
         <Setter Property="Margin" Value="2" />
     </Style>

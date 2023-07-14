@@ -1,4 +1,4 @@
-﻿using System.IO;
+using System.IO;
 using System.Windows;
 using Microsoft.Web.WebView2.Core;
 using Microsoft.Web.WebView2.Wpf;
@@ -50,7 +50,7 @@ public class WebViewHtmlStringBindingBehavior : Behavior<WebView2>
                     if (!string.IsNullOrWhiteSpace(newString))
                     {
                         var newFile = new FileInfo(Path.Combine(
-                            FileSystemHelpers.TempStorageHtmlDirectory().FullName,
+                            FileLocationTools.TempStorageHtmlDirectory().FullName,
                             $"TempHtml-{Guid.NewGuid()}.html"));
                         await File.WriteAllTextAsync(newFile.FullName, newString);
                         bindingBehavior.AssociatedObject.CoreWebView2.Navigate($"file:////{newFile.FullName}");
@@ -106,7 +106,7 @@ public class WebViewHtmlStringBindingBehavior : Behavior<WebView2>
             try
             {
                 var webViewEnvironment = await CoreWebView2Environment.CreateAsync(userDataFolder: Path.Combine(
-                    FileSystemHelpers.TempStorageHtmlDirectory().FullName));
+                    FileLocationTools.TempStorageHtmlDirectory().FullName));
 
                 await ThreadSwitcher.ThreadSwitcher.ResumeForegroundAsync();
                 await AssociatedObject.EnsureCoreWebView2Async(webViewEnvironment);

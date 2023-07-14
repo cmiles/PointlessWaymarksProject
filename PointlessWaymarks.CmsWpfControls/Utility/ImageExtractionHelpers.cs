@@ -44,10 +44,10 @@ public static class ImageExtractionHelpers
 
             FileInfo destinationFile;
             if (pageNumber == 1)
-                destinationFile = new FileInfo(Path.Combine(UserSettingsUtilities.TempStorageDirectory().FullName,
+                destinationFile = new FileInfo(Path.Combine(FileLocationTools.TempStorageDirectory().FullName,
                     $"{Path.GetFileNameWithoutExtension(targetFile.Name)}-CoverPage.jpg"));
             else
-                destinationFile = new FileInfo(Path.Combine(UserSettingsUtilities.TempStorageDirectory().FullName,
+                destinationFile = new FileInfo(Path.Combine(FileLocationTools.TempStorageDirectory().FullName,
                     $"{Path.GetFileNameWithoutExtension(targetFile.Name)}-Page-{pageNumber}.jpg"));
 
             if (destinationFile.Exists)
@@ -144,10 +144,10 @@ public static class ImageExtractionHelpers
 
         FileInfo destinationFile;
         if (pageNumber == 1)
-            destinationFile = new FileInfo(Path.Combine(UserSettingsUtilities.TempStorageDirectory().FullName,
+            destinationFile = new FileInfo(Path.Combine(FileLocationTools.TempStorageDirectory().FullName,
                 $"{Path.GetFileNameWithoutExtension(targetFile.Name)}-CoverPage.jpg"));
         else
-            destinationFile = new FileInfo(Path.Combine(UserSettingsUtilities.TempStorageDirectory().FullName,
+            destinationFile = new FileInfo(Path.Combine(FileLocationTools.TempStorageDirectory().FullName,
                 $"{Path.GetFileNameWithoutExtension(targetFile.Name)}-Page-{pageNumber}.jpg"));
 
         if (destinationFile.Exists)
@@ -268,11 +268,11 @@ public static class ImageExtractionHelpers
             var decoder = await BitmapDecoder.CreateAsync(imageStream);
             var softwareBitmap = await decoder.GetSoftwareBitmapAsync();
 
-            var destinationFile = new FileInfo(Path.Combine(UserSettingsUtilities.TempStorageDirectory().FullName,
+            var destinationFile = new FileInfo(Path.Combine(FileLocationTools.TempStorageDirectory().FullName,
                 $"{Path.GetFileNameWithoutExtension(targetFile.Name)}-Cover.jpg"));
 
             var destinationStorageDirectory =
-                await StorageFolder.GetFolderFromPathAsync(UserSettingsUtilities.TempStorageDirectory().FullName);
+                await StorageFolder.GetFolderFromPathAsync(FileLocationTools.TempStorageDirectory().FullName);
 
             var thumbnailFile = await destinationStorageDirectory.CreateFileAsync(
                 $"{Path.GetFileNameWithoutExtension(targetFile.Name)}-Cover.jpg",
@@ -348,11 +348,11 @@ public static class ImageExtractionHelpers
         var decoder = await BitmapDecoder.CreateAsync(imageStream);
         var softwareBitmap = await decoder.GetSoftwareBitmapAsync();
 
-        var destinationFile = new FileInfo(Path.Combine(UserSettingsUtilities.TempStorageDirectory().FullName,
+        var destinationFile = new FileInfo(Path.Combine(FileLocationTools.TempStorageDirectory().FullName,
             $"{Path.GetFileNameWithoutExtension(targetFile.Name)}-Video-Cover-Image.jpg"));
 
         var destinationStorageDirectory =
-            await StorageFolder.GetFolderFromPathAsync(UserSettingsUtilities.TempStorageDirectory().FullName);
+            await StorageFolder.GetFolderFromPathAsync(FileLocationTools.TempStorageDirectory().FullName);
 
         var thumbnailFile = await destinationStorageDirectory.CreateFileAsync(
             $"{Path.GetFileNameWithoutExtension(targetFile.Name)}-Video-Cover-Image.jpg",
@@ -425,11 +425,11 @@ public static class ImageExtractionHelpers
         var decoder = await BitmapDecoder.CreateAsync(imageStream);
         var softwareBitmap = await decoder.GetSoftwareBitmapAsync();
 
-        var destinationFile = new FileInfo(Path.Combine(UserSettingsUtilities.TempStorageDirectory().FullName,
+        var destinationFile = new FileInfo(Path.Combine(FileLocationTools.TempStorageDirectory().FullName,
             $"{Path.GetFileNameWithoutExtension(targetFile.Name)}-Video-Cover-Image.jpg"));
 
         var destinationStorageDirectory =
-            await StorageFolder.GetFolderFromPathAsync(UserSettingsUtilities.TempStorageDirectory().FullName);
+            await StorageFolder.GetFolderFromPathAsync(FileLocationTools.TempStorageDirectory().FullName);
 
         var thumbnailFile = await destinationStorageDirectory.CreateFileAsync(
             $"{Path.GetFileNameWithoutExtension(targetFile.Name)}-Video-Cover-Image.jpg",

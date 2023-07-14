@@ -72,22 +72,24 @@ public class LocalFileIntegrationSeries
 
         var context = await CloudBackupContext.CreateInstance();
         var job = await context.BackupJobs.SingleAsync();
-        var files = await CreationTools.GetAllLocalFiles(job, progress);
+        var includedFiles = await CreationTools.GetIncludedLocalFiles(job.Id, progress);
+        var excludedFiles = await CreationTools.GetExcludedLocalFiles(job.Id, progress);
 
-        Assert.That(files, Has.Count.EqualTo(8));
-        Assert.That(files.Select(x => x.LocalFile.FullName), Has.Exactly(1).EqualTo(TestFile1.FullName));
-        Assert.That(files.Select(x => x.LocalFile.FullName), Has.Exactly(1).EqualTo(TestFile2.FullName));
-        Assert.That(files.Select(x => x.LocalFile.FullName), Has.Exactly(1).EqualTo(TestFile3.FullName));
-        Assert.That(files.Select(x => x.LocalFile.FullName), Has.Exactly(1).EqualTo(TestFile3Duplicate.FullName));
-        Assert.That(files.Select(x => x.LocalFile.FullName), Has.Exactly(1).EqualTo(TestFile4.FullName));
-        Assert.That(files.Select(x => x.LocalFile.FullName), Has.Exactly(1).EqualTo(TestFile5.FullName));
-        Assert.That(files.Select(x => x.LocalFile.FullName), Has.Exactly(1).EqualTo(TestFile6.FullName));
-        Assert.That(files.Select(x => x.LocalFile.FullName), Has.Exactly(1).EqualTo(TestFile7.FullName));
+        Assert.That(includedFiles, Has.Count.EqualTo(8));
+        Assert.That(excludedFiles, Has.Count.EqualTo(0));
+        Assert.That(includedFiles.Select(x => x.LocalFile.FullName), Has.Exactly(1).EqualTo(TestFile1.FullName));
+        Assert.That(includedFiles.Select(x => x.LocalFile.FullName), Has.Exactly(1).EqualTo(TestFile2.FullName));
+        Assert.That(includedFiles.Select(x => x.LocalFile.FullName), Has.Exactly(1).EqualTo(TestFile3.FullName));
+        Assert.That(includedFiles.Select(x => x.LocalFile.FullName), Has.Exactly(1).EqualTo(TestFile3Duplicate.FullName));
+        Assert.That(includedFiles.Select(x => x.LocalFile.FullName), Has.Exactly(1).EqualTo(TestFile4.FullName));
+        Assert.That(includedFiles.Select(x => x.LocalFile.FullName), Has.Exactly(1).EqualTo(TestFile5.FullName));
+        Assert.That(includedFiles.Select(x => x.LocalFile.FullName), Has.Exactly(1).EqualTo(TestFile6.FullName));
+        Assert.That(includedFiles.Select(x => x.LocalFile.FullName), Has.Exactly(1).EqualTo(TestFile7.FullName));
 
         //Sanity Check the MD5 Hashes and LastWriteTimes - the TestFile3Duplicate file should helps this
         //have meaning since it should have the same hash and last write time as TestFile3
-        Assert.That(files.Select(x => x.Metadata.FileSystemHash).Distinct().ToList(), Has.Count.EqualTo(7));
-        Assert.That(files.Select(x => x.Metadata.LastWriteTime).Distinct().ToList(), Has.Count.EqualTo(7));
+        Assert.That(includedFiles.Select(x => x.Metadata.FileSystemHash).Distinct().ToList(), Has.Count.EqualTo(7));
+        Assert.That(includedFiles.Select(x => x.Metadata.LastWriteTime).Distinct().ToList(), Has.Count.EqualTo(7));
     }
 
     [Test]
@@ -106,21 +108,23 @@ public class LocalFileIntegrationSeries
         });
         await context.SaveChangesAsync();
 
-        var files = await CreationTools.GetAllLocalFiles(job, progress);
+        var includedFiles = await CreationTools.GetIncludedLocalFiles(job.Id, progress);
+        var excludedFiles = await CreationTools.GetExcludedLocalFiles(job.Id, progress);
 
-        Assert.That(files, Has.Count.EqualTo(7));
-        Assert.That(files.Select(x => x.LocalFile.FullName), Has.Exactly(1).EqualTo(TestFile1.FullName));
-        Assert.That(files.Select(x => x.LocalFile.FullName), Has.Exactly(1).EqualTo(TestFile2.FullName));
-        Assert.That(files.Select(x => x.LocalFile.FullName), Has.Exactly(1).EqualTo(TestFile3.FullName));
-        Assert.That(files.Select(x => x.LocalFile.FullName), Has.Exactly(1).EqualTo(TestFile3Duplicate.FullName));
-        Assert.That(files.Select(x => x.LocalFile.FullName), Has.Exactly(1).EqualTo(TestFile4.FullName));
-        Assert.That(files.Select(x => x.LocalFile.FullName), Has.Exactly(1).EqualTo(TestFile6.FullName));
-        Assert.That(files.Select(x => x.LocalFile.FullName), Has.Exactly(1).EqualTo(TestFile7.FullName));
+        Assert.That(includedFiles, Has.Count.EqualTo(7));
+        Assert.That(excludedFiles, Has.Count.EqualTo(1));
+        Assert.That(includedFiles.Select(x => x.LocalFile.FullName), Has.Exactly(1).EqualTo(TestFile1.FullName));
+        Assert.That(includedFiles.Select(x => x.LocalFile.FullName), Has.Exactly(1).EqualTo(TestFile2.FullName));
+        Assert.That(includedFiles.Select(x => x.LocalFile.FullName), Has.Exactly(1).EqualTo(TestFile3.FullName));
+        Assert.That(includedFiles.Select(x => x.LocalFile.FullName), Has.Exactly(1).EqualTo(TestFile3Duplicate.FullName));
+        Assert.That(includedFiles.Select(x => x.LocalFile.FullName), Has.Exactly(1).EqualTo(TestFile4.FullName));
+        Assert.That(includedFiles.Select(x => x.LocalFile.FullName), Has.Exactly(1).EqualTo(TestFile6.FullName));
+        Assert.That(includedFiles.Select(x => x.LocalFile.FullName), Has.Exactly(1).EqualTo(TestFile7.FullName));
 
         //Sanity Check the MD5 Hashes and LastWriteTimes - the TestFile3Duplicate file should helps this
         //have meaning since it should have the same hash and last write time as TestFile3
-        Assert.That(files.Select(x => x.Metadata.FileSystemHash).Distinct().ToList(), Has.Count.EqualTo(6));
-        Assert.That(files.Select(x => x.Metadata.LastWriteTime).Distinct().ToList(), Has.Count.EqualTo(6));
+        Assert.That(includedFiles.Select(x => x.Metadata.FileSystemHash).Distinct().ToList(), Has.Count.EqualTo(6));
+        Assert.That(includedFiles.Select(x => x.Metadata.LastWriteTime).Distinct().ToList(), Has.Count.EqualTo(6));
     }
 
 
@@ -140,20 +144,21 @@ public class LocalFileIntegrationSeries
         });
         await context.SaveChangesAsync();
 
-        var files = await CreationTools.GetAllLocalFiles(job, progress);
+        var includedFiles = await CreationTools.GetIncludedLocalFiles(job.Id, progress);
+        var excludedFiles = await CreationTools.GetExcludedLocalFiles(job.Id, progress);
 
-        Assert.That(files, Has.Count.EqualTo(5));
-
-        Assert.That(files.Select(x => x.LocalFile.FullName), Has.Exactly(1).EqualTo(TestFile3.FullName));
-        Assert.That(files.Select(x => x.LocalFile.FullName), Has.Exactly(1).EqualTo(TestFile3Duplicate.FullName));
-        Assert.That(files.Select(x => x.LocalFile.FullName), Has.Exactly(1).EqualTo(TestFile4.FullName));
-        Assert.That(files.Select(x => x.LocalFile.FullName), Has.Exactly(1).EqualTo(TestFile6.FullName));
-        Assert.That(files.Select(x => x.LocalFile.FullName), Has.Exactly(1).EqualTo(TestFile7.FullName));
+        Assert.That(includedFiles, Has.Count.EqualTo(5));
+        Assert.That(excludedFiles, Has.Count.EqualTo(3));
+        Assert.That(includedFiles.Select(x => x.LocalFile.FullName), Has.Exactly(1).EqualTo(TestFile3.FullName));
+        Assert.That(includedFiles.Select(x => x.LocalFile.FullName), Has.Exactly(1).EqualTo(TestFile3Duplicate.FullName));
+        Assert.That(includedFiles.Select(x => x.LocalFile.FullName), Has.Exactly(1).EqualTo(TestFile4.FullName));
+        Assert.That(includedFiles.Select(x => x.LocalFile.FullName), Has.Exactly(1).EqualTo(TestFile6.FullName));
+        Assert.That(includedFiles.Select(x => x.LocalFile.FullName), Has.Exactly(1).EqualTo(TestFile7.FullName));
 
         //Sanity Check the MD5 Hashes and LastWriteTimes - the TestFile3Duplicate file should helps this
         //have meaning since it should have the same hash and last write time as TestFile3
-        Assert.That(files.Select(x => x.Metadata.FileSystemHash).Distinct().ToList(), Has.Count.EqualTo(4));
-        Assert.That(files.Select(x => x.Metadata.LastWriteTime).Distinct().ToList(), Has.Count.EqualTo(4));
+        Assert.That(includedFiles.Select(x => x.Metadata.FileSystemHash).Distinct().ToList(), Has.Count.EqualTo(4));
+        Assert.That(includedFiles.Select(x => x.Metadata.LastWriteTime).Distinct().ToList(), Has.Count.EqualTo(4));
     }
 
     [Test]
@@ -172,17 +177,18 @@ public class LocalFileIntegrationSeries
         });
         await context.SaveChangesAsync();
 
-        var files = await CreationTools.GetAllLocalFiles(job, progress);
+        var includedFiles = await CreationTools.GetIncludedLocalFiles(job.Id, progress);
+        var excludedFiles = await CreationTools.GetExcludedLocalFiles(job.Id, progress);
 
-        Assert.That(files, Has.Count.EqualTo(2));
-
-        Assert.That(files.Select(x => x.LocalFile.FullName), Has.Exactly(1).EqualTo(TestFile6.FullName));
-        Assert.That(files.Select(x => x.LocalFile.FullName), Has.Exactly(1).EqualTo(TestFile7.FullName));
+        Assert.That(includedFiles, Has.Count.EqualTo(2));
+        Assert.That(excludedFiles, Has.Count.EqualTo(6));
+        Assert.That(includedFiles.Select(x => x.LocalFile.FullName), Has.Exactly(1).EqualTo(TestFile6.FullName));
+        Assert.That(includedFiles.Select(x => x.LocalFile.FullName), Has.Exactly(1).EqualTo(TestFile7.FullName));
 
         //Sanity Check the MD5 Hashes and LastWriteTimes - the TestFile3Duplicate file should helps this
         //have meaning since it should have the same hash and last write time as TestFile3
-        Assert.That(files.Select(x => x.Metadata.FileSystemHash).Distinct().ToList(), Has.Count.EqualTo(2));
-        Assert.That(files.Select(x => x.Metadata.LastWriteTime).Distinct().ToList(), Has.Count.EqualTo(2));
+        Assert.That(includedFiles.Select(x => x.Metadata.FileSystemHash).Distinct().ToList(), Has.Count.EqualTo(2));
+        Assert.That(includedFiles.Select(x => x.Metadata.LastWriteTime).Distinct().ToList(), Has.Count.EqualTo(2));
     }
 
     [Test]
@@ -202,17 +208,19 @@ public class LocalFileIntegrationSeries
         });
         await context.SaveChangesAsync();
 
-        var files = await CreationTools.GetAllLocalFiles(job, progress);
+        var includedFiles = await CreationTools.GetIncludedLocalFiles(job.Id, progress);
+        var excludedFiles = await CreationTools.GetExcludedLocalFiles(job.Id, progress);
 
-        Assert.That(files, Has.Count.EqualTo(3));
-        Assert.That(files.Select(x => x.LocalFile.FullName), Has.Exactly(1).EqualTo(TestFile5.FullName));
-        Assert.That(files.Select(x => x.LocalFile.FullName), Has.Exactly(1).EqualTo(TestFile6.FullName));
-        Assert.That(files.Select(x => x.LocalFile.FullName), Has.Exactly(1).EqualTo(TestFile7.FullName));
+        Assert.That(includedFiles, Has.Count.EqualTo(3));
+        Assert.That(excludedFiles, Has.Count.EqualTo(5));
+        Assert.That(includedFiles.Select(x => x.LocalFile.FullName), Has.Exactly(1).EqualTo(TestFile5.FullName));
+        Assert.That(includedFiles.Select(x => x.LocalFile.FullName), Has.Exactly(1).EqualTo(TestFile6.FullName));
+        Assert.That(includedFiles.Select(x => x.LocalFile.FullName), Has.Exactly(1).EqualTo(TestFile7.FullName));
 
         //Sanity Check the MD5 Hashes and LastWriteTimes - the TestFile3Duplicate file should helps this
         //have meaning since it should have the same hash and last write time as TestFile3
-        Assert.That(files.Select(x => x.Metadata.FileSystemHash).Distinct().ToList(), Has.Count.EqualTo(3));
-        Assert.That(files.Select(x => x.Metadata.LastWriteTime).Distinct().ToList(), Has.Count.EqualTo(3));
+        Assert.That(includedFiles.Select(x => x.Metadata.FileSystemHash).Distinct().ToList(), Has.Count.EqualTo(3));
+        Assert.That(includedFiles.Select(x => x.Metadata.LastWriteTime).Distinct().ToList(), Has.Count.EqualTo(3));
     }
 
 #pragma warning disable CS8618

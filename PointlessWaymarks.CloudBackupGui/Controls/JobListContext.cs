@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Ookii.Dialogs.Wpf;
 using PointlessWaymarks.CloudBackupData;
 using PointlessWaymarks.CloudBackupData.Models;
+using PointlessWaymarks.CloudBackupData.Reports;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon.Status;
@@ -112,7 +113,38 @@ public partial class JobListContext
     }
 
     [NonBlockingCommand]
-    public async Task EditJob()
+    public async Task EditJob(BackupJob? toEdit)
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (toEdit == null)
+        {
+            StatusContext.ToastWarning("Nothing Selected to Edit?");
+            return;
+        }
+
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        var window = await JobEditorWindow.CreateInstance(toEdit, CurrentDatabase);
+        window.PositionWindowAndShow();
+    }
+    
+    [BlockingCommand]
+    public async Task IncludedAndExcludedFilesReport(BackupJob? toEdit)
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (toEdit == null)
+        {
+            StatusContext.ToastWarning("Nothing Selected to Edit?");
+            return;
+        }
+
+        await IncludedAndExcludedFilesToExcel.Run(toEdit.Id, StatusContext.ProgressTracker());
+    }
+
+    [NonBlockingCommand]
+    public async Task EditSelectedJob()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 

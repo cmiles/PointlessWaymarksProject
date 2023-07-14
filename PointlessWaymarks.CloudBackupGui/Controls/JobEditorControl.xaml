@@ -209,6 +209,10 @@
         <Border Grid.Row="1" Style="{StaticResource ActionPanelBorderStyle}">
             <WrapPanel HorizontalAlignment="Center" Orientation="Horizontal">
                 <Button
+                    Content="Files To Excel"
+                    Style="{StaticResource ActionPanelButtonStyle}"
+                    Command="{Binding IncludedAndExcludedFilesReportCommand}" />
+                <Button
                     Content="Save and Close"
                     Style="{StaticResource ActionPanelButtonStyle}"
                     Command="{Binding SaveAndCloseCommand}" />

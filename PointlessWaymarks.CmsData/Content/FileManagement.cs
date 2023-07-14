@@ -306,7 +306,7 @@ public static class FileManagement
 
     public static void CleanUpTemporaryFiles()
     {
-        var temporaryDirectory = UserSettingsUtilities.TempStorageDirectory();
+        var temporaryDirectory = FileLocationTools.TempStorageDirectory();
 
         var allFiles = temporaryDirectory.GetFiles().ToList();
 
@@ -330,7 +330,7 @@ public static class FileManagement
 
     public static void CleanupTemporaryHtmlFiles()
     {
-        var temporaryDirectory = UserSettingsUtilities.TempStorageHtmlDirectory();
+        var temporaryDirectory = FileLocationTools.TempStorageHtmlDirectory();
 
         var allFiles = temporaryDirectory.GetFiles().ToList();
 
