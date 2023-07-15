@@ -22,7 +22,10 @@ public static class CloudTransfer
 
         var uploads = batch.CloudUploads.Where(x => !x.UploadCompletedSuccessfully).ToList();
 
-        progress?.Report($"Starting Uploads for Batch {batch.Id} - {uploads.Count} Files");
+        var totalUploadEstimatedLength = uploads.Sum(x => x.FileSize);
+
+        progress?.Report(
+            $"Starting Uploads for Batch {batch.Id} - {uploads.Count} Files, {FileAndFolderTools.GetBytesReadable(totalUploadEstimatedLength)}");
 
         var transferUtility = new TransferUtility(accountInformation.S3Client());
         var pollyS3RetryPolicy = Policy.Handle<Exception>()
@@ -30,11 +33,12 @@ public static class CloudTransfer
 
         var uploadCount = 0;
 
+        var totalUploadedLength = 0L;
+        var totalUploadedSeconds = 0D;
+
         foreach (var upload in uploads)
         {
             uploadCount++;
-
-            progress?.Report($"Upload {uploadCount} of {uploads.Count} - {upload.CloudObjectKey}");
 
             var localFile = new FileInfo(upload.FileSystemFile);
 
@@ -45,6 +49,33 @@ public static class CloudTransfer
                 await context.SaveChangesAsync();
             }
 
+            var uploadLength = new FileInfo(upload.FileSystemFile).Length;
+            var estimateCurrentUpload = "Estimated Completion Unknown...";
+            var estimateTotalUpload = "Estimated Completion Unknown...";
+
+            if (totalUploadedSeconds > 0 && totalUploadedLength > 0 && uploadLength > 0)
+            {
+                var currentSecondsPerLength = totalUploadedSeconds / totalUploadedLength;
+
+                estimateCurrentUpload =
+                    $"Estimated Completion in {uploadLength * currentSecondsPerLength / 60D:N2} Minutes - {DateTime.Now.AddSeconds(uploadLength * currentSecondsPerLength):h:mm:ss tt}";
+
+                var currentFinishEstimate =
+                    DateTime.Now.AddSeconds(totalUploadEstimatedLength * currentSecondsPerLength);
+
+                estimateTotalUpload =
+                    $"Estimated Completion in {totalUploadEstimatedLength * currentSecondsPerLength / 60D:N2} Minutes - {DateTime.Now.AddSeconds(totalUploadEstimatedLength * currentSecondsPerLength):G}{(currentFinishEstimate > stopDateTime ? $" - this run will stop at {stopDateTime:G} ({batch.Job!.MaximumRunTimeInHours} Hour Max)" : string.Empty)}";
+            }
+
+            var startTime = DateTime.Now;
+
+            if (uploadCount == 1 || uploadCount == 2 || uploadCount == 5 || uploadCount == 10 || uploadCount % 15 == 0)
+                progress?.Report(
+                    $"Upload {uploadCount} of {uploads.Count}, {FileAndFolderTools.GetBytesReadable(totalUploadedLength)} of {FileAndFolderTools.GetBytesReadable(totalUploadEstimatedLength - totalUploadedLength)} - {estimateTotalUpload}");
+
+            progress?.Report(
+                $"Upload {uploadCount} - {upload.CloudObjectKey} - {FileAndFolderTools.GetBytesReadable(uploadLength)} - {estimateCurrentUpload}");
+
             var transferRequest =
                 await S3Tools.S3TransferUploadRequest(localFile, upload.BucketName, upload.CloudObjectKey);
 
@@ -54,6 +85,10 @@ public static class CloudTransfer
                 upload.LastUpdatedOn = DateTime.Now;
                 upload.UploadCompletedSuccessfully = true;
                 await context.SaveChangesAsync();
+
+                var elapsed = DateTime.Now.Subtract(startTime);
+                totalUploadedLength += uploadLength;
+                totalUploadedSeconds += elapsed.TotalSeconds;
             }
             catch (Exception e)
             {

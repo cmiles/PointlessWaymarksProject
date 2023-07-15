@@ -3,7 +3,7 @@ using System.Diagnostics;
 using Serilog;
 using TinyIpc.Messaging;
 
-namespace PointlessWaymarks.CmsData;
+namespace PointlessWaymarks.CommonTools;
 
 /// <summary>
 ///     This Queue takes in DataNotifications and processes them one at a time.

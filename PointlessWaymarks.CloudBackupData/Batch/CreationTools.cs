@@ -3,7 +3,6 @@ using Microsoft.EntityFrameworkCore;
 using PointlessWaymarks.CloudBackupData.Models;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.CommonTools.S3;
-using Polly.Registry;
 
 namespace PointlessWaymarks.CloudBackupData.Batch;
 
@@ -12,8 +11,10 @@ public static class CreationTools
     private static string FileInfoToS3Key(string initialDirectory, DirectoryInfo fileSystemBaseDirectory,
         FileInfo fileSystemFile)
     {
+        if (!initialDirectory.EndsWith(@"/")) initialDirectory = $@"{initialDirectory}/";
+
         return fileSystemFile.FullName
-            .Replace($"{fileSystemBaseDirectory.FullName}\\", $"{initialDirectory}\\")
+            .Replace($"{fileSystemBaseDirectory.FullName}\\", $"{initialDirectory}")
             .Replace("\\", "/");
     }
 
@@ -42,7 +43,7 @@ public static class CreationTools
             progress);
     }
 
-    public static async Task<List<CloudBackupLocalDirectory>> GetAllLocalDirectories(string localDirectory,
+    public static Task<List<CloudBackupLocalDirectory>> GetAllLocalDirectories(string localDirectory,
         List<string> excludedDirectories, List<string> excludedDirectoryPatterns, IProgress<string> progress)
     {
         var initialDirectory = new CloudBackupLocalDirectory
@@ -50,8 +51,8 @@ public static class CreationTools
 
         progress.Report($"Getting Directories - Initial Directory {initialDirectory.Directory.FullName}");
 
-        return initialDirectory.AsList().Concat(GetSubdirectories(initialDirectory,
-            excludedDirectories, excludedDirectoryPatterns, progress)).ToList();
+        return Task.FromResult(initialDirectory.AsList().Concat(GetSubdirectories(initialDirectory,
+            excludedDirectories, excludedDirectoryPatterns, progress)).ToList());
     }
 
     public static async Task<FileListAndChangeData> GetChanges(IS3AccountInformation accountInformation,
@@ -82,7 +83,6 @@ public static class CreationTools
         foreach (var loopFiles in returnData.FileSystemFiles)
         {
             counter++;
-
 
             var matchingFiles = returnData.S3Files.Where(x => x.Key == loopFiles.CloudKey).ToList();
 
@@ -257,6 +257,7 @@ public static class CreationTools
             CreatedOn = frozenNow,
             FileHash = x.Metadata.FileSystemHash,
             FileSystemDateTime = x.Metadata.LastWriteTime,
+            FileSize = x.LocalFile.Length,
             JobId = changes.Job.Id,
             CloudTransferBatchId = batch.Id
         }));
@@ -267,6 +268,7 @@ public static class CreationTools
             CloudTransferBatchId = batch.Id,
             BucketName = changes.AccountInformation.BucketName(),
             FileSystemFile = x.LocalFile.FullName,
+            FileSize = x.LocalFile.Length,
             CloudObjectKey = x.CloudKey,
             LastUpdatedOn = frozenNow
         }));

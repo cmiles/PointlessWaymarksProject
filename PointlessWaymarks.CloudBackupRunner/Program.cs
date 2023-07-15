@@ -33,7 +33,7 @@ if (args.Length == 1)
 {
     var jobs = await db.context.BackupJobs.ToListAsync();
 
-    Log.ForContext(nameof(jobs), jobs, true).Verbose("Found {jobCount} Jobs", jobs.Count);
+    Log.Verbose("Found {jobCount} Jobs", jobs.Count);
 
     foreach (var loopJob in jobs)
         Console.WriteLine(

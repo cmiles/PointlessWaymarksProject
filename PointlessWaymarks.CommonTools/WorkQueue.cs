@@ -2,7 +2,7 @@
 using System.Diagnostics;
 using Serilog;
 
-namespace PointlessWaymarks.CmsData;
+namespace PointlessWaymarks.CommonTools;
 
 public class WorkQueue<T>
 {

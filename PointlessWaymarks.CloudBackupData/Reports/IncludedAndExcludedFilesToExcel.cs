@@ -51,19 +51,19 @@ public static class IncludedAndExcludedFilesToExcel
 
         includedWorksheet.Cell(currentRow++, 1).Value = $"Excluded Directories ({excludedDirectories.Count})";
         excludedDirectories.ForEach(x =>
-            includedWorksheet.Cell(++currentRow, 1).Value = x);
+            includedWorksheet.Cell(currentRow++, 1).Value = x);
         currentRow++;
 
         includedWorksheet.Cell(currentRow++, 1).Value =
             $"Excluded Directory Name Patterns ({excludedDirectoryPatterns.Count})";
         excludedDirectoryPatterns.ForEach(x =>
-            includedWorksheet.Cell(++currentRow, 1).Value = x);
+            includedWorksheet.Cell(currentRow++, 1).Value = x);
         currentRow++;
 
         includedWorksheet.Cell(currentRow++, 1).Value =
             $"Excluded File Name Patterns ({excludedFilePatterns.Count})";
         excludedFilePatterns.ForEach(x =>
-            includedWorksheet.Cell(++currentRow, 1).Value = x);
+            includedWorksheet.Cell(currentRow++, 1).Value = x);
 
         currentRow++;
         currentRow++;
@@ -92,19 +92,19 @@ public static class IncludedAndExcludedFilesToExcel
 
         excludedWorksheet.Cell(currentRow++, 1).Value = $"Excluded Directories ({excludedDirectories.Count})";
         excludedDirectories.ForEach(x =>
-            excludedWorksheet.Cell(++currentRow, 1).Value = x);
+            excludedWorksheet.Cell(currentRow++, 1).Value = x);
         currentRow++;
 
         excludedWorksheet.Cell(currentRow++, 1).Value =
             $"Excluded Directory Name Patterns ({excludedDirectoryPatterns.Count})";
         excludedDirectoryPatterns.ForEach(x =>
-            excludedWorksheet.Cell(++currentRow, 1).Value = x);
+            excludedWorksheet.Cell(currentRow++, 1).Value = x);
         currentRow++;
 
         excludedWorksheet.Cell(currentRow++, 1).Value =
             $"Excluded File Name Patterns ({excludedFilePatterns.Count})";
         excludedFilePatterns.ForEach(x =>
-            excludedWorksheet.Cell(++currentRow, 1).Value = x);
+            excludedWorksheet.Cell(currentRow++, 1).Value = x);
 
         currentRow++;
         currentRow++;

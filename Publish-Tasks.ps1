@@ -47,12 +47,21 @@ Remove-Item -Path $publishPath\* -Recurse
 if ($lastexitcode -ne 0) { throw ("Exec: " + $errorMessage) }
 
 
-
 $publishPath = "M:\PointlessWaymarksPublications\PointlessWaymarks.Task.PublishSiteToAmazonS3"
 if(!(test-path -PathType container $publishPath)) { New-Item -ItemType Directory -Path $publishPath }
 
 Remove-Item -Path $publishPath\* -Recurse
 
 & $msBuild .\PointlessWaymarks.Task.PublishSiteToAmazonS3\PointlessWaymarks.Task.PublishSiteToAmazonS3.csproj -t:publish -p:PublishProfile=.\PointlessWaymarks.Task.PublishSiteToAmazonS3\Properties\PublishProfile\FolderProfile.pubxml -verbosity:minimal
+
+if ($lastexitcode -ne 0) { throw ("Exec: " + $errorMessage) }
+
+
+$publishPath = "M:\PointlessWaymarksPublications\PointlessWaymarks.CloudBackupRunner"
+if(!(test-path -PathType container $publishPath)) { New-Item -ItemType Directory -Path $publishPath }
+
+Remove-Item -Path $publishPath\* -Recurse
+
+& $msBuild .\PointlessWaymarks.CloudBackupRunner\PointlessWaymarks.CloudBackupRunner.csproj -t:publish -p:PublishProfile=.\PointlessWaymarks.CloudBackupRunner\Properties\PublishProfile\FolderProfile.pubxml -verbosity:minimal
 
 if ($lastexitcode -ne 0) { throw ("Exec: " + $errorMessage) }

@@ -11,6 +11,8 @@ using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 using PointlessWaymarks.WpfCommon.Utility;
+using Serilog;
+using TinyIpc.Messaging;
 
 namespace PointlessWaymarks.CloudBackupGui.Controls;
 
@@ -20,6 +22,8 @@ public partial class JobListContext
 {
     public required string CurrentDatabase { get; set; }
     public bool CurrentDatabaseIsValid { get; set; }
+
+    public DataNotificationsWorkQueue? DataNotificationsProcessor { get; set; }
     public required ObservableCollection<BackupJob> Items { get; set; }
     public BackupJob? SelectedJob { get; set; }
     public List<BackupJob> SelectedJobs { get; set; } = new();
@@ -112,6 +116,25 @@ public partial class JobListContext
         return toReturn;
     }
 
+    private async Task DataNotificationReceived(TinyMessageReceivedEventArgs eventArgs)
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        var translatedMessage = DataNotifications.TranslateDataNotification(eventArgs.Message);
+
+        var toRun = translatedMessage.Match(x =>
+            {
+                Log.Error("Data Notification Failure. Error Note {0}. Status Control Context Id {1}", x.ErrorNote,
+                    StatusContext.StatusControlContextId);
+                return Task.CompletedTask;
+            },
+            ProcessDataUpdateNotification,
+            ProcessProgressNotification
+        );
+
+        if (toRun is not null) await toRun;
+    }
+
     [NonBlockingCommand]
     public async Task EditJob(BackupJob? toEdit)
     {
@@ -127,20 +150,6 @@ public partial class JobListContext
 
         var window = await JobEditorWindow.CreateInstance(toEdit, CurrentDatabase);
         window.PositionWindowAndShow();
-    }
-    
-    [BlockingCommand]
-    public async Task IncludedAndExcludedFilesReport(BackupJob? toEdit)
-    {
-        await ThreadSwitcher.ResumeBackgroundAsync();
-
-        if (toEdit == null)
-        {
-            StatusContext.ToastWarning("Nothing Selected to Edit?");
-            return;
-        }
-
-        await IncludedAndExcludedFilesToExcel.Run(toEdit.Id, StatusContext.ProgressTracker());
     }
 
     [NonBlockingCommand]
@@ -158,6 +167,20 @@ public partial class JobListContext
 
         var window = await JobEditorWindow.CreateInstance(SelectedJob, CurrentDatabase);
         window.PositionWindowAndShow();
+    }
+
+    [BlockingCommand]
+    public async Task IncludedAndExcludedFilesReport(BackupJob? toEdit)
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (toEdit == null)
+        {
+            StatusContext.ToastWarning("Nothing Selected to Edit?");
+            return;
+        }
+
+        await IncludedAndExcludedFilesToExcel.Run(toEdit.Id, StatusContext.ProgressTracker());
     }
 
     [NonBlockingCommand]
@@ -186,10 +209,22 @@ public partial class JobListContext
             StatusContext.RunFireAndForgetBlockingTask(UpdateDatabaseFile);
     }
 
+    private async Task ProcessDataUpdateNotification(InterProcessUpdateNotification interProcessUpdateNotification)
+    {
+        throw new NotImplementedException();
+    }
+
+    private Task ProcessProgressNotification(InterProcessError arg)
+    {
+        throw new NotImplementedException();
+    }
+
     public Task Setup()
     {
         BuildCommands();
         PropertyChanged += OnPropertyChanged;
+        DataNotificationsProcessor = new DataNotificationsWorkQueue { Processor = DataNotificationReceived };
+
         return Task.CompletedTask;
     }
 

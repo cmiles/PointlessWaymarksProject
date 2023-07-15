@@ -603,9 +603,9 @@ public partial class JobEditorContext : IHasChanges, IHasValidationIssues,
         toSave.LocalDirectory = UserInitialDirectoryEntry.UserValue.Trim();
         toSave.CloudRegion = AwsRegionSelected;
         toSave.CloudBucket = UserCloudBucketEntry.UserValue;
-        toSave.CloudDirectory = UserCloudDirectoryEntry.UserValue.EndsWith("/")
-            ? UserCloudDirectoryEntry.UserValue
-            : $"{UserCloudDirectoryEntry.UserValue}/";
+        if (!UserCloudDirectoryEntry.UserValue.EndsWith("/"))
+            UserCloudDirectoryEntry.UserValue = $"{UserCloudDirectoryEntry.UserValue}/";
+        toSave.CloudDirectory = UserCloudDirectoryEntry.UserValue;
         toSave.PersistentId = LoadedJob.PersistentId;
         toSave.CreatedOn = LoadedJob.CreatedOn;
         toSave.MaximumRunTimeInHours = UserMaximumRuntimeHoursEntry.UserValue;
