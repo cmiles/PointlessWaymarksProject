@@ -1,4 +1,4 @@
-﻿// See https://aka.ms/new-console-template for more information
+// See https://aka.ms/new-console-template for more information
 
 using System.Reflection;
 using PointlessWaymarks.CommonTools;
@@ -29,6 +29,11 @@ catch (Exception e)
     Console.WriteLine(e);
 
     await (await WindowsNotificationBuilders.NewNotifier(PhotoPickupSettings.ProgramShortName))
-        .SetAutomationLogoNotificationIconUrl().SetErrorReportAdditionalInformationMarkdown(FileAndFolderTools.ReadAllText(
-            Path.Combine(AppContext.BaseDirectory, "README.md"))).Error(e);
+        .SetAutomationLogoNotificationIconUrl().SetErrorReportAdditionalInformationMarkdown(
+            FileAndFolderTools.ReadAllText(
+                Path.Combine(AppContext.BaseDirectory, "README.md"))).Error(e);
+}
+finally
+{ 
+    Log.CloseAndFlush();
 }

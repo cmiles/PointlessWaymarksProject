@@ -1,5 +1,6 @@
 using System.Net;
 using Amazon.S3;
+using Amazon.S3.Model;
 using Amazon.S3.Transfer;
 using Microsoft.EntityFrameworkCore;
 using PointlessWaymarks.CloudBackupData.Models;
@@ -11,12 +12,15 @@ namespace PointlessWaymarks.CloudBackupData.Batch;
 
 public static class CloudTransfer
 {
-    public static async Task CloudUploadAndDelete(IS3AccountInformation accountInformation, int cloudTransferBatchId,
+    public static async Task<CloudUploadAndDeleteRunInformation> CloudUploadAndDelete(
+        IS3AccountInformation accountInformation, int cloudTransferBatchId,
         IProgress<string>? progress)
     {
         var context = await CloudBackupContext.CreateInstance();
 
         var batch = await context.CloudTransferBatches.SingleAsync(x => x.Id == cloudTransferBatchId);
+
+        var startDateTime = DateTime.Now;
 
         var stopDateTime = DateTime.Now.AddHours(batch.Job!.MaximumRunTimeInHours);
 
@@ -36,6 +40,8 @@ public static class CloudTransfer
         var totalUploadedLength = 0L;
         var totalUploadedSeconds = 0D;
 
+        var uploadErrorCount = 0;
+
         foreach (var upload in uploads)
         {
             uploadCount++;
@@ -47,6 +53,8 @@ public static class CloudTransfer
                 upload.ErrorMessage += $"{DateTime.Now:yyyy-MM-dd--hh:mm}: Local File {localFile.FullName} Not Found;";
                 upload.LastUpdatedOn = DateTime.Now;
                 await context.SaveChangesAsync();
+                uploadErrorCount++;
+                continue;
             }
 
             var uploadLength = new FileInfo(upload.FileSystemFile).Length;
@@ -106,18 +114,31 @@ public static class CloudTransfer
                 await context.SaveChangesAsync();
 
                 progress?.Report($"Upload Failed - {e.Message}");
+
+                uploadErrorCount++;
             }
 
             if (DateTime.Now > stopDateTime)
             {
                 progress?.Report($"Ending Batch {batch.Id} based on Maximum Runtime - {uploads.Count} Files");
-                return;
+                return new CloudUploadAndDeleteRunInformation
+                {
+                    DeleteCount = 0,
+                    Ended = DateTime.Now,
+                    EndedBecauseOfMaxRuntime = true,
+                    Started = startDateTime,
+                    UploadCount = uploadCount,
+                    UploadedSize = totalUploadedLength,
+                    UploadSeconds = totalUploadedSeconds,
+                    UploadErrorCount = uploadErrorCount
+                };
             }
         }
 
         var deletes = batch.CloudDeletions.Where(x => !x.DeletionCompletedSuccessfully).ToList();
 
         var deleteCount = 0;
+        var deleteErrorCount = 0;
 
         progress?.Report($"Starting Deletes for Batch {batch.Id} - {deletes.Count} Files");
 
@@ -146,16 +167,42 @@ public static class CloudTransfer
                 await context.SaveChangesAsync();
 
                 progress?.Report($"Delete Failed - {e.Message}");
+
+                deleteErrorCount++;
             }
 
             if (DateTime.Now > stopDateTime)
             {
                 progress?.Report($"Ending Batch {batch.Id} based on Maximum Runtime - {uploads.Count} Files");
-                return;
+                return new CloudUploadAndDeleteRunInformation
+                {
+                    DeleteCount = deleteCount,
+                    Ended = DateTime.Now,
+                    EndedBecauseOfMaxRuntime = true,
+                    Started = startDateTime,
+                    UploadCount = uploadCount,
+                    UploadedSize = totalUploadedLength,
+                    UploadSeconds = totalUploadedSeconds,
+                    UploadErrorCount = uploadErrorCount,
+                    DeleteErrorCount = deleteErrorCount
+                };
             }
         }
 
         progress?.Report($"Batch {batch.Id} - Finished");
+
+        return new CloudUploadAndDeleteRunInformation
+        {
+            DeleteCount = deleteCount,
+            Ended = DateTime.Now,
+            EndedBecauseOfMaxRuntime = false,
+            Started = startDateTime,
+            UploadCount = uploadCount,
+            UploadedSize = totalUploadedLength,
+            UploadSeconds = totalUploadedSeconds,
+            UploadErrorCount = uploadErrorCount,
+            DeleteErrorCount = deleteErrorCount
+        };
     }
 
     public static async Task<CloudTransferBatch> CreateBatchInDatabaseFromChanges(

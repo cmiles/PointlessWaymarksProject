@@ -1,4 +1,4 @@
-﻿using System.Reflection;
+using System.Reflection;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.Task.PublishSiteToAmazonS3;
 using Serilog;
@@ -31,4 +31,8 @@ catch (Exception e)
         .SetAutomationLogoNotificationIconUrl()
         .SetErrorReportAdditionalInformationMarkdown(
             FileAndFolderTools.ReadAllText(Path.Combine(AppContext.BaseDirectory, "README.md"))).Error(e);
+}
+finally
+{
+    Log.CloseAndFlush();
 }

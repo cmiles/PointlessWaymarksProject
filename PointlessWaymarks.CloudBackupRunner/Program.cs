@@ -105,12 +105,22 @@ if (batch.CloudUploads.Count < 1 && batch.CloudDeletions.Count < 1)
 
 try
 {
-    await CloudTransfer.CloudUploadAndDelete(amazonCredentials, batch.Id, progress);
-    Log.Information("Cloud Backup Ending");
+    var runInformation = await CloudTransfer.CloudUploadAndDelete(amazonCredentials, batch.Id, progress);
+    Log.ForContext(nameof(runInformation), runInformation, true).Information("Cloud Backup Ending");
+
+    (await WindowsNotificationBuilders.NewNotifier("Cloud Backup Runner"))
+        .SetAutomationLogoNotificationIconUrl().Message(
+            $"Uploaded {FileAndFolderTools.GetBytesReadable(runInformation.UploadedSize)} in {(runInformation.Ended - runInformation.Started).TotalHours:N2} Hours{((runInformation.DeleteErrorCount + runInformation.UploadErrorCount) > 0 ? $"{runInformation.DeleteErrorCount + runInformation.UploadErrorCount} Errors" : string.Empty)}");
 }
 catch (Exception e)
 {
-    Log.Error(e, "Cloud Backup Ended with an Exception");
+    Log.Error(e, "Error Running Program...");
+    Console.WriteLine(e);
+
+    await (await WindowsNotificationBuilders.NewNotifier("Cloud Backup Runner"))
+        .SetAutomationLogoNotificationIconUrl().SetErrorReportAdditionalInformationMarkdown(
+            FileAndFolderTools.ReadAllText(
+                Path.Combine(AppContext.BaseDirectory, "README.md"))).Error(e);
 }
 finally
 {
