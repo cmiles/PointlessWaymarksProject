@@ -74,7 +74,7 @@ public static class CreationTools
         var localFilesSystemBaseDirectory = new DirectoryInfo(job.LocalDirectory);
 
         returnData.FileSystemFiles = localFiles.Select(x => new S3FileSystemFileAndMetadataWithCloudKey(x.LocalFile,
-                x.Metadata, FileInfoToS3Key(job.CloudDirectory, localFilesSystemBaseDirectory, x.LocalFile)))
+                x.UploadMetadata, FileInfoToS3Key(job.CloudDirectory, localFilesSystemBaseDirectory, x.LocalFile)))
             .ToList();
 
         progress.Report($"Change Check - {returnData.FileSystemFiles.Count} to process");
@@ -93,8 +93,8 @@ public static class CreationTools
             }
 
             if (matchingFiles.Any(x =>
-                    x.Metadata.LastWriteTime == loopFiles.Metadata.LastWriteTime &&
-                    x.Metadata.FileSystemHash == loopFiles.Metadata.FileSystemHash)) continue;
+                    x.Metadata.LastWriteTime == loopFiles.UploadMetadata.LastWriteTime &&
+                    x.Metadata.FileSystemHash == loopFiles.UploadMetadata.FileSystemHash)) continue;
 
             returnData.FileSystemFilesToUpload.Add(loopFiles);
 
@@ -255,9 +255,19 @@ public static class CreationTools
         await db.FileSystemFiles.AddRangeAsync(changes.FileSystemFiles.Select(x => new FileSystemFile
         {
             CreatedOn = frozenNow,
+            FileHash = x.UploadMetadata.FileSystemHash,
+            FileSystemDateTime = x.UploadMetadata.LastWriteTime,
+            FileSize = x.LocalFile.Length,
+            JobId = changes.Job.Id,
+            CloudTransferBatchId = batch.Id
+        }));
+
+        await db.CloudFiles.AddRangeAsync(changes.S3Files.Select(x => new CloudFile
+        {
+            CreatedOn = frozenNow,
             FileHash = x.Metadata.FileSystemHash,
             FileSystemDateTime = x.Metadata.LastWriteTime,
-            FileSize = x.LocalFile.Length,
+            FileSize = x.Metadata.FileSize,
             JobId = changes.Job.Id,
             CloudTransferBatchId = batch.Id
         }));

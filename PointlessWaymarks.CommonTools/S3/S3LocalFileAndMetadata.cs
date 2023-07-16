@@ -1,3 +1,3 @@
 ﻿namespace PointlessWaymarks.CommonTools.S3;
 
-public record S3LocalFileAndMetadata(FileInfo LocalFile, S3Metadata Metadata);
+public record S3LocalFileAndMetadata(FileInfo LocalFile, S3UploadMetadata UploadMetadata);

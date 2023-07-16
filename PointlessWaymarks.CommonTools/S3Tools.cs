@@ -57,23 +57,23 @@ public static class S3Tools
         return await LocalFileAndMetadata(localFileInfo);
     }
 
-    public static Task<S3Metadata> LocalFileMetadata(FileInfo localFile)
+    public static Task<S3UploadMetadata> LocalFileMetadata(FileInfo localFile)
     {
-        return Task.FromResult(new S3Metadata(localFile.LastWriteTimeUtc.ToString("O"), localFile.CalculateMD5()));
+        return Task.FromResult(new S3UploadMetadata(localFile.LastWriteTimeUtc.ToString("O"), localFile.CalculateMD5()));
     }
 
-    public static async Task<S3Metadata> MetadataFromS3Object(AmazonS3Client client, S3Object s3Object)
+    public static async Task<S3StandardMetadata> MetadataFromS3Object(AmazonS3Client client, S3Object s3Object)
     {
         var metadata = await client.GetObjectMetadataAsync(s3Object.BucketName, s3Object.Key);
 
-        var lastWriteTime = metadata.Metadata.Keys.Any(x => x.Equals(S3Metadata.LastWriteTimeKey))
-            ? metadata.Metadata[S3Metadata.LastWriteTimeKey] ?? string.Empty
+        var lastWriteTime = metadata.Metadata.Keys.Any(x => x.Equals(S3UploadMetadata.LastWriteTimeKey))
+            ? metadata.Metadata[S3UploadMetadata.LastWriteTimeKey] ?? string.Empty
             : string.Empty;
-        var fileSystemHash = metadata.Metadata.Keys.Any(x => x.Equals(S3Metadata.FileSystemHashKey))
-            ? metadata.Metadata[S3Metadata.FileSystemHashKey] ?? string.Empty
+        var fileSystemHash = metadata.Metadata.Keys.Any(x => x.Equals(S3UploadMetadata.FileSystemHashKey))
+            ? metadata.Metadata[S3UploadMetadata.FileSystemHashKey] ?? string.Empty
             : string.Empty;
 
-        return new S3Metadata(lastWriteTime, fileSystemHash);
+        return new S3StandardMetadata(lastWriteTime, fileSystemHash, metadata.ContentLength);
     }
 
     public static async Task<S3RemoteFileAndMetadata> RemoteFileAndMetadata(AmazonS3Client client,

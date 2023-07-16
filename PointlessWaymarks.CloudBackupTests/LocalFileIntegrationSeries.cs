@@ -88,8 +88,8 @@ public class LocalFileIntegrationSeries
 
         //Sanity Check the MD5 Hashes and LastWriteTimes - the TestFile3Duplicate file should helps this
         //have meaning since it should have the same hash and last write time as TestFile3
-        Assert.That(includedFiles.Select(x => x.Metadata.FileSystemHash).Distinct().ToList(), Has.Count.EqualTo(7));
-        Assert.That(includedFiles.Select(x => x.Metadata.LastWriteTime).Distinct().ToList(), Has.Count.EqualTo(7));
+        Assert.That(includedFiles.Select(x => x.UploadMetadata.FileSystemHash).Distinct().ToList(), Has.Count.EqualTo(7));
+        Assert.That(includedFiles.Select(x => x.UploadMetadata.LastWriteTime).Distinct().ToList(), Has.Count.EqualTo(7));
     }
 
     [Test]
@@ -123,8 +123,8 @@ public class LocalFileIntegrationSeries
 
         //Sanity Check the MD5 Hashes and LastWriteTimes - the TestFile3Duplicate file should helps this
         //have meaning since it should have the same hash and last write time as TestFile3
-        Assert.That(includedFiles.Select(x => x.Metadata.FileSystemHash).Distinct().ToList(), Has.Count.EqualTo(6));
-        Assert.That(includedFiles.Select(x => x.Metadata.LastWriteTime).Distinct().ToList(), Has.Count.EqualTo(6));
+        Assert.That(includedFiles.Select(x => x.UploadMetadata.FileSystemHash).Distinct().ToList(), Has.Count.EqualTo(6));
+        Assert.That(includedFiles.Select(x => x.UploadMetadata.LastWriteTime).Distinct().ToList(), Has.Count.EqualTo(6));
     }
 
 
@@ -157,8 +157,8 @@ public class LocalFileIntegrationSeries
 
         //Sanity Check the MD5 Hashes and LastWriteTimes - the TestFile3Duplicate file should helps this
         //have meaning since it should have the same hash and last write time as TestFile3
-        Assert.That(includedFiles.Select(x => x.Metadata.FileSystemHash).Distinct().ToList(), Has.Count.EqualTo(4));
-        Assert.That(includedFiles.Select(x => x.Metadata.LastWriteTime).Distinct().ToList(), Has.Count.EqualTo(4));
+        Assert.That(includedFiles.Select(x => x.UploadMetadata.FileSystemHash).Distinct().ToList(), Has.Count.EqualTo(4));
+        Assert.That(includedFiles.Select(x => x.UploadMetadata.LastWriteTime).Distinct().ToList(), Has.Count.EqualTo(4));
     }
 
     [Test]
@@ -187,8 +187,8 @@ public class LocalFileIntegrationSeries
 
         //Sanity Check the MD5 Hashes and LastWriteTimes - the TestFile3Duplicate file should helps this
         //have meaning since it should have the same hash and last write time as TestFile3
-        Assert.That(includedFiles.Select(x => x.Metadata.FileSystemHash).Distinct().ToList(), Has.Count.EqualTo(2));
-        Assert.That(includedFiles.Select(x => x.Metadata.LastWriteTime).Distinct().ToList(), Has.Count.EqualTo(2));
+        Assert.That(includedFiles.Select(x => x.UploadMetadata.FileSystemHash).Distinct().ToList(), Has.Count.EqualTo(2));
+        Assert.That(includedFiles.Select(x => x.UploadMetadata.LastWriteTime).Distinct().ToList(), Has.Count.EqualTo(2));
     }
 
     [Test]
@@ -219,8 +219,8 @@ public class LocalFileIntegrationSeries
 
         //Sanity Check the MD5 Hashes and LastWriteTimes - the TestFile3Duplicate file should helps this
         //have meaning since it should have the same hash and last write time as TestFile3
-        Assert.That(includedFiles.Select(x => x.Metadata.FileSystemHash).Distinct().ToList(), Has.Count.EqualTo(3));
-        Assert.That(includedFiles.Select(x => x.Metadata.LastWriteTime).Distinct().ToList(), Has.Count.EqualTo(3));
+        Assert.That(includedFiles.Select(x => x.UploadMetadata.FileSystemHash).Distinct().ToList(), Has.Count.EqualTo(3));
+        Assert.That(includedFiles.Select(x => x.UploadMetadata.LastWriteTime).Distinct().ToList(), Has.Count.EqualTo(3));
     }
 
 #pragma warning disable CS8618

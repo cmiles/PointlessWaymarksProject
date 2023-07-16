@@ -43,6 +43,6 @@ public class S3UploadRequest
             Key = S3Key
         };
 
-        return ToUpload.Metadata.AddMetadataToRequest(uploadRequest);
+        return ToUpload.UploadMetadata.AddMetadataToRequest(uploadRequest);
     }
 }

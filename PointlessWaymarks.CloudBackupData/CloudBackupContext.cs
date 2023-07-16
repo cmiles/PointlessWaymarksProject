@@ -23,6 +23,7 @@ public class CloudBackupContext : DbContext
     public DbSet<ExcludedDirectoryNamePattern> ExcludedDirectoryNamePatterns { get; set; } = null!;
     public DbSet<ExcludedFileNamePattern> ExcludedFileNamePatterns { get; set; } = null!;
     public DbSet<FileSystemFile> FileSystemFiles { get; set; } = null!;
+    public DbSet<CloudFile> CloudFiles { get; set; } = null!;
 
     public static async Task<CloudBackupContext> CreateInstance()
     {

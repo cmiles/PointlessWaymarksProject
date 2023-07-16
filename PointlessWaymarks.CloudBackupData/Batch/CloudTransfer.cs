@@ -63,8 +63,18 @@ public static class CloudTransfer
                 var currentFinishEstimate =
                     DateTime.Now.AddSeconds(totalUploadEstimatedLength * currentSecondsPerLength);
 
+                var totalUploadEstimatedSeconds = totalUploadEstimatedLength * currentSecondsPerLength;
+
+                string estimateCompleteIn = totalUploadEstimatedSeconds switch
+                {
+                    < 60 => $"{totalUploadEstimatedSeconds:N2} Seconds",
+                    < 360 => $"{totalUploadEstimatedSeconds / 60D:N2} Minutes",
+                    < 86400 => $"{totalUploadEstimatedSeconds / 360D:N2} Hours",
+                    _ => $"{totalUploadEstimatedSeconds / 86400D:N2} Days"
+                };
+
                 estimateTotalUpload =
-                    $"Estimated Completion in {totalUploadEstimatedLength * currentSecondsPerLength / 60D:N2} Minutes - {DateTime.Now.AddSeconds(totalUploadEstimatedLength * currentSecondsPerLength):G}{(currentFinishEstimate > stopDateTime ? $" - this run will stop at {stopDateTime:G} ({batch.Job!.MaximumRunTimeInHours} Hour Max)" : string.Empty)}";
+                    $"Estimated Completion in {estimateCompleteIn} ({DateTime.Now.AddSeconds(totalUploadEstimatedLength * currentSecondsPerLength):G}){(currentFinishEstimate > stopDateTime ? $" - this run will stop at {stopDateTime:G} ({batch.Job!.MaximumRunTimeInHours} Hour Max)" : string.Empty)}";
             }
 
             var startTime = DateTime.Now;
