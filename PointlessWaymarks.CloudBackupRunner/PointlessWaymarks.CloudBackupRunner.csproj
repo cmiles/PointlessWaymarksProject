@@ -8,4 +8,8 @@
     <ProjectReference Include="..\PointlessWaymarks.CloudBackupData\PointlessWaymarks.CloudBackupData.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="OneOf" Version="3.0.255" />
+  </ItemGroup>
+
 </Project>

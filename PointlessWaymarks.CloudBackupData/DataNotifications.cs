@@ -62,11 +62,11 @@ public static class DataNotifications
             $"Progress|{cleanedSender.Replace("|", " ")}|{jobPersistentId}|{cleanedProgress.Replace("|", " ")}");
     }
 
-    public static OneOf<InterProcessDataNotification, InterProcessUpdateNotification, InterProcessError>
+    public static OneOf<InterProcessDataNotification, InterProcessProgressNotification, InterProcessError>
         TranslateDataNotification(IReadOnlyList<byte>? received)
     {
         if (received == null || received.Count == 0)
-            return new InterProcessDataNotification { HasError = true, ErrorNote = "No Data" };
+            return new InterProcessError { ErrorMessage = "No Data" };
 
         try
         {
@@ -98,11 +98,11 @@ public static class DataNotifications
                 };
 
             if (parsedString[0].Equals("Progress"))
-                return new InterProcessUpdateNotification
+                return new InterProcessProgressNotification
                 {
                     Sender = parsedString[1],
                     JobPersistentId = Guid.Parse(parsedString[2]),
-                    UpdateMessage = parsedString[3]
+                    ProgressMessage = parsedString[3]
                 };
         }
         catch (Exception e)
@@ -117,20 +117,16 @@ public static class DataNotifications
 public record InterProcessDataNotification
 {
     public DataNotificationContentType ContentType { get; init; }
-    public string? ErrorNote { get; init; }
-    public bool HasError { get; init; }
     public Guid JobPersistentId { get; set; }
     public string? Sender { get; init; }
     public DataNotificationUpdateType UpdateType { get; init; }
 }
 
-public record InterProcessUpdateNotification
+public record InterProcessProgressNotification
 {
-    public string? ErrorNote { get; init; }
-    public bool HasError { get; init; }
     public Guid JobPersistentId { get; set; }
+    public string ProgressMessage { get; init; } = string.Empty;
     public string? Sender { get; init; }
-    public string UpdateMessage { get; init; } = string.Empty;
 }
 
 public record InterProcessError

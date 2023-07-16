@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using PointlessWaymarks.CloudBackupData;
 using PointlessWaymarks.CloudBackupData.Batch;
+using PointlessWaymarks.CloudBackupRunner;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.CommonTools.S3;
 using Serilog;
@@ -14,6 +15,10 @@ if (args.Length is < 1 or > 2)
     Console.WriteLine("To list the Jobs in a Database Specify the Filename");
     Console.WriteLine("To run a job specify the Database name and Job Id");
 }
+
+var consoleId = Guid.NewGuid();
+
+var progress = new ConsoleAndDataNotificationProgress(consoleId);
 
 LogTools.StandardStaticLoggerForProgramDirectory("PhotoPickup");
 
@@ -59,6 +64,8 @@ if (backupJob == null)
     return;
 }
 
+progress.PersistentId = backupJob.PersistentId;
+
 var cloudCredentials = PasswordVaultTools.GetCredentials(backupJob.VaultIdentifier);
 
 if (string.IsNullOrWhiteSpace(cloudCredentials.username) || string.IsNullOrWhiteSpace(cloudCredentials.password))
@@ -83,7 +90,7 @@ var amazonCredentials = new S3AccountInformation
         $"{frozenNow:yyyy-MM-dd-HH-mm}-{args[0]}.xlsx")
 };
 
-var batch = await CloudTransfer.CreateBatchInDatabaseFromChanges(amazonCredentials, backupJob, new ConsoleProgress());
+var batch = await CloudTransfer.CreateBatchInDatabaseFromChanges(amazonCredentials, backupJob, progress);
 
 Log.Information("Created Batch Id {batchId} with {uploadCount} Uploads and {deleteCount} Deletes", batch.Id,
     batch.CloudUploads.Count, batch.CloudDeletions.Count);
@@ -98,7 +105,7 @@ if (batch.CloudUploads.Count < 1 && batch.CloudDeletions.Count < 1)
 
 try
 {
-    await CloudTransfer.CloudUploadAndDelete(amazonCredentials, batch.Id, new ConsoleProgress());
+    await CloudTransfer.CloudUploadAndDelete(amazonCredentials, batch.Id, progress);
     Log.Information("Cloud Backup Ending");
 }
 catch (Exception e)

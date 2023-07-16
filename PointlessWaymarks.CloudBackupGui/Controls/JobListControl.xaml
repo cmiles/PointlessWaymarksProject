@@ -30,7 +30,7 @@
                 <ColumnDefinition Width="Auto"></ColumnDefinition>
                 <ColumnDefinition Width="*"></ColumnDefinition>
             </Grid.ColumnDefinitions>
-            <Button Command="{Binding ChooseCurrentDbCommand}">Choose Database</Button>
+            <Button Padding="8,0,8,0" Command="{Binding ChooseCurrentDbCommand}">Choose Database</Button>
             <Image Grid.Column="1" ToolTip="Database is not valid?" Margin="6,0,0,0"
                    Source="{svgc:SvgImage Source=/Icons/alert-octagon.svg, AppName=PointlessWaymarks.WpfCommon}"
                    Visibility="{Binding CurrentDatabaseIsValid, Converter={StaticResource BooleanNotToHidden}}"
@@ -47,28 +47,55 @@
                      SelectedItem="{Binding SelectedJob}"
                      behaviors:MultiSelectorBehaviors.SynchronizedSelectedItems="{Binding SelectedJobs}">
                 <ListBox.ItemTemplate>
-                    <DataTemplate DataType="{x:Type models:BackupJob}">
+                    <DataTemplate DataType="{x:Type local:JobListListItem}">
                         <Border Style="{StaticResource ContentListOuterBorderStyle}">
                             <Border.InputBindings>
                                 <MouseBinding
                                     Command="{Binding Data.EditJobCommand, Source={StaticResource proxy}}"
-                                    CommandParameter="{Binding .}"
+                                    CommandParameter="{Binding DbJob}"
                                     Gesture="Shift+LeftDoubleClick" />
                             </Border.InputBindings>
                             <Grid Style="{StaticResource ContentListOuterGridStyle}">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="290"></ColumnDefinition>
+                                    <ColumnDefinition Width="*"></ColumnDefinition>
+                                </Grid.ColumnDefinitions>
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="Auto"></RowDefinition>
                                     <RowDefinition Height="Auto"></RowDefinition>
                                     <RowDefinition Height="Auto"></RowDefinition>
                                 </Grid.RowDefinitions>
-                                <TextBlock Text="{Binding Name}" FontWeight="Bold"></TextBlock>
-                                <WrapPanel Grid.Row="1" Orientation="Horizontal">
-                                    <TextBlock Text="{Binding LocalDirectory, StringFormat='From {0}'}"></TextBlock>
-                                    <TextBlock Text="{Binding CloudDirectory, StringFormat='To {0}'}"></TextBlock>
+                                <TextBox FontWeight="Bold" Style="{StaticResource ReadOnlyTextBoxStyle}" TextWrapping="Wrap">
+                                    <TextBox.Text>
+                                        <MultiBinding StringFormat="{}{0} - Id {1}">
+                                            <Binding Path="DbJob.Name" />
+                                            <Binding Path="DbJob.Id" />
+                                        </MultiBinding>
+                                    </TextBox.Text>
+                                </TextBox>
+                                <TextBox Grid.Column="0" Grid.Row="1" Margin="6,4,0,0"
+                                         Style="{StaticResource ReadOnlyTextBoxStyle}" TextWrapping="Wrap">
+                                    <TextBox.Text>
+                                        <MultiBinding StringFormat="{}{0} to {1}/{2}">
+                                            <Binding Path="DbJob.LocalDirectory" />
+                                            <Binding Path="DbJob.CloudBucket" />
+                                            <Binding Path="DbJob.CloudDirectory" />
+                                        </MultiBinding>
+                                    </TextBox.Text>
+                                </TextBox>
+                                <WrapPanel Grid.Column="0" Grid.Row="2" Margin="10,6,0,8" Orientation="Horizontal">
+                                    <Button Padding="8,2,8,2"
+                                        Command="{Binding Data.IncludedAndExcludedFilesReportCommand, Source={StaticResource proxy}}"
+                                        CommandParameter="{Binding DbJob}">
+                                        Included/Excluded Files Report
+                                    </Button>
                                 </WrapPanel>
-                                <WrapPanel Grid.Row="2" Orientation="Horizontal">
-                                    <Button Command="{Binding Data.IncludedAndExcludedFilesReportCommand, Source={StaticResource proxy}}" CommandParameter="{Binding .}">Included/Excluded Files Report</Button>
-                                </WrapPanel>
+                                <GroupBox Grid.Column="1" Grid.RowSpan="3" Grid.Row="0" Margin="24,0,0,4" Header="Progress" Style="{StaticResource UiComponentGroupBoxStyle}" >
+                                    <TextBox Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Margin="2"
+                                             Text="{Binding ProgressString}"
+                                             Style="{StaticResource ReadOnlyTextBoxStyle}" TextWrapping="Wrap">
+                                    </TextBox>
+                                </GroupBox>
                             </Grid>
                         </Border>
                     </DataTemplate>
@@ -78,8 +105,12 @@
         <Border Grid.Row="2" Style="{StaticResource ActionPanelBorderStyle}">
             <WrapPanel HorizontalAlignment="Center" Orientation="Horizontal">
                 <Button
+                    Content="_Refresh"
+                    Style="{StaticResource ActionPanelButtonStyle}"
+                    Command="{Binding RefreshListCommand}" />
+                <Button
                     Content="_Edit"
-                    Style="{StaticResource ActionPanelButtonStyle}" Command="{Binding EditSelectedJobCommand}"/>
+                    Style="{StaticResource ActionPanelButtonStyle}" Command="{Binding EditSelectedJobCommand}" />
                 <Button
                     Content="_New"
                     Style="{StaticResource ActionPanelButtonStyle}"

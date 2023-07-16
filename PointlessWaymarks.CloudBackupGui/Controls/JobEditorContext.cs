@@ -656,6 +656,9 @@ public partial class JobEditorContext : IHasChanges, IHasValidationIssues,
 
         await db.SaveChangesAsync();
 
+        DataNotifications.PublishDataNotification(StatusContext.StatusControlContextId.ToString(),
+            DataNotificationContentType.BackupJob, DataNotificationUpdateType.Update, toSave.PersistentId);
+
         UserNameEntry.ReferenceValue = toSave.Name;
         UserCloudBucketEntry.ReferenceValue = toSave.CloudBucket;
         UserCloudDirectoryEntry.ReferenceValue = toSave.CloudDirectory;
@@ -675,6 +678,8 @@ public partial class JobEditorContext : IHasChanges, IHasValidationIssues,
         CloudCredentialsCheckForValidationIssues();
 
         CheckForChangesAndValidationIssues();
+
+        if (closeAfterSave) RequestContentEditorWindowClose?.Invoke(this, EventArgs.Empty);
     }
 
     public Task Setup()

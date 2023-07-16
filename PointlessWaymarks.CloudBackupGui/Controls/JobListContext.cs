@@ -24,9 +24,9 @@ public partial class JobListContext
     public bool CurrentDatabaseIsValid { get; set; }
 
     public DataNotificationsWorkQueue? DataNotificationsProcessor { get; set; }
-    public required ObservableCollection<BackupJob> Items { get; set; }
-    public BackupJob? SelectedJob { get; set; }
-    public List<BackupJob> SelectedJobs { get; set; } = new();
+    public required ObservableCollection<JobListListItem> Items { get; set; }
+    public JobListListItem? SelectedJob { get; set; }
+    public List<JobListListItem> SelectedJobs { get; set; } = new();
     public required StatusControlContext StatusContext { get; set; }
 
     [BlockingCommand]
@@ -98,7 +98,7 @@ public partial class JobListContext
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
-        var initialItems = new ObservableCollection<BackupJob>();
+        var initialItems = new ObservableCollection<JobListListItem>();
 
         var toReturn = new JobListContext
         {
@@ -122,14 +122,14 @@ public partial class JobListContext
 
         var translatedMessage = DataNotifications.TranslateDataNotification(eventArgs.Message);
 
-        var toRun = translatedMessage.Match(x =>
+        var toRun = translatedMessage.Match(ProcessDataUpdateNotification,
+            ProcessProgressNotification,
+            x =>
             {
-                Log.Error("Data Notification Failure. Error Note {0}. Status Control Context Id {1}", x.ErrorNote,
+                Log.Error("Data Notification Failure. Error Note {0}. Status Control Context Id {1}", x.ErrorMessage,
                     StatusContext.StatusControlContextId);
                 return Task.CompletedTask;
-            },
-            ProcessDataUpdateNotification,
-            ProcessProgressNotification
+            }
         );
 
         if (toRun is not null) await toRun;
@@ -165,7 +165,7 @@ public partial class JobListContext
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
-        var window = await JobEditorWindow.CreateInstance(SelectedJob, CurrentDatabase);
+        var window = await JobEditorWindow.CreateInstance(SelectedJob.DbJob, CurrentDatabase);
         window.PositionWindowAndShow();
     }
 
@@ -202,6 +202,11 @@ public partial class JobListContext
         window.PositionWindowAndShow();
     }
 
+    private void OnDataNotificationReceived(object? sender, TinyMessageReceivedEventArgs e)
+    {
+        DataNotificationsProcessor?.Enqueue(e);
+    }
+
     private void OnPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
         if (string.IsNullOrWhiteSpace(e.PropertyName)) return;
@@ -209,14 +214,61 @@ public partial class JobListContext
             StatusContext.RunFireAndForgetBlockingTask(UpdateDatabaseFile);
     }
 
-    private async Task ProcessDataUpdateNotification(InterProcessUpdateNotification interProcessUpdateNotification)
+    private async Task ProcessDataUpdateNotification(InterProcessDataNotification interProcessUpdateNotification)
     {
-        throw new NotImplementedException();
+        if (interProcessUpdateNotification.UpdateType == DataNotificationUpdateType.Delete)
+        {
+            await ThreadSwitcher.ResumeForegroundAsync();
+
+            var toRemove = Items.Where(x => x.PersistentId == interProcessUpdateNotification.JobPersistentId).ToList();
+            toRemove.ForEach(x => Items.Remove(x));
+            return;
+        }
+
+        if (interProcessUpdateNotification.UpdateType == DataNotificationUpdateType.Update)
+        {
+            var listItem = Items.SingleOrDefault(x => x.PersistentId == interProcessUpdateNotification.JobPersistentId);
+            var db = await CloudBackupContext.CreateInstance();
+            var dbItem =
+                db.BackupJobs.SingleOrDefault(x => x.PersistentId == interProcessUpdateNotification.JobPersistentId);
+
+            if (listItem != null && dbItem != null)
+            {
+                listItem.DbJob = dbItem;
+                return;
+            }
+        }
+
+        await RefreshList();
     }
 
-    private Task ProcessProgressNotification(InterProcessError arg)
+    private Task ProcessProgressNotification(InterProcessProgressNotification arg)
     {
-        throw new NotImplementedException();
+        var possibleListItem = Items.SingleOrDefault(x => x.PersistentId == arg.JobPersistentId);
+        if (possibleListItem == null) return Task.CompletedTask;
+
+        possibleListItem.ProgressString = arg.ProgressMessage;
+        return Task.CompletedTask;
+    }
+
+    [BlockingCommand]
+    public async Task RefreshList()
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        DataNotifications.NewDataNotificationChannel().MessageReceived -= OnDataNotificationReceived;
+
+        var db = await CloudBackupContext.CreateInstance();
+
+        var jobs = await db.BackupJobs.ToListAsync();
+
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        Items.Clear();
+
+        jobs.ForEach(x => Items.Add(new JobListListItem(x)));
+
+        DataNotifications.NewDataNotificationChannel().MessageReceived += OnDataNotificationReceived;
     }
 
     public Task Setup()
@@ -230,6 +282,8 @@ public partial class JobListContext
 
     public async Task UpdateDatabaseFile()
     {
+        DataNotifications.NewDataNotificationChannel().MessageReceived -= OnDataNotificationReceived;
+
         var dbCheck = await CloudBackupContext.TryCreateInstance(CurrentDatabase);
 
         await ThreadSwitcher.ResumeForegroundAsync();
@@ -246,6 +300,8 @@ public partial class JobListContext
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
-        jobs.ForEach(x => Items.Add(x));
+        jobs.ForEach(x => Items.Add(new JobListListItem(x)));
+
+        DataNotifications.NewDataNotificationChannel().MessageReceived += OnDataNotificationReceived;
     }
 }

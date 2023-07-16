@@ -99,7 +99,10 @@ public static class CloudTransfer
             }
 
             if (DateTime.Now > stopDateTime)
+            {
                 progress?.Report($"Ending Batch {batch.Id} based on Maximum Runtime - {uploads.Count} Files");
+                return;
+            }
         }
 
         var deletes = batch.CloudDeletions.Where(x => !x.DeletionCompletedSuccessfully).ToList();
@@ -136,7 +139,10 @@ public static class CloudTransfer
             }
 
             if (DateTime.Now > stopDateTime)
+            {
                 progress?.Report($"Ending Batch {batch.Id} based on Maximum Runtime - {uploads.Count} Files");
+                return;
+            }
         }
 
         progress?.Report($"Batch {batch.Id} - Finished");

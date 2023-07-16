@@ -1,4 +1,4 @@
-﻿using Amazon.S3;
+using Amazon.S3;
 using Amazon.S3.Model;
 using Amazon.S3.Transfer;
 using PointlessWaymarks.CommonTools.S3;
@@ -8,19 +8,22 @@ namespace PointlessWaymarks.CommonTools;
 public static class S3Tools
 {
     /// <summary>
-    /// Lists S3 Items including this programs common metadata
+    ///     Lists S3 Items including this programs common metadata
     /// </summary>
     /// <param name="accountInfo"></param>
-    /// <param name="prefix">Only items whose key starts with this will be included - bucket
-    /// does not start with // (or /) and if you don't end this value with a / the starting
-    /// directory will be included in the return list</param>
+    /// <param name="prefix">
+    ///     Only items whose key starts with this will be included - bucket
+    ///     does not start with // (or /) and if you don't end this value with a / the starting
+    ///     directory will be included in the return list
+    /// </param>
     /// <param name="cancellationToken"></param>
     /// <param name="progress"></param>
     /// <returns></returns>
-    public static async Task<List<S3RemoteFileAndMetadata>> ListS3Items(IS3AccountInformation accountInfo, string prefix, IProgress<string> progress, CancellationToken cancellationToken = default)
+    public static async Task<List<S3RemoteFileAndMetadata>> ListS3Items(IS3AccountInformation accountInfo,
+        string prefix, IProgress<string> progress, CancellationToken cancellationToken = default)
     {
         progress.Report("Aws Object Listing - Setting up and Starting");
-        
+
         var s3Client = accountInfo.S3Client();
 
         var listRequest = new ListObjectsV2Request { BucketName = accountInfo.BucketName(), Prefix = prefix };
@@ -31,10 +34,11 @@ public static class S3Tools
 
         await foreach (var response in paginator.S3Objects)
         {
-            if (awsObjects.Count % 1000 == 0) progress?.Report($"Aws Object Listing - Added {awsObjects.Count} S3 Objects so far...");
+            if (awsObjects.Count % 100 == 0)
+                progress?.Report($"Aws Object Listing - Added {awsObjects.Count} S3 Objects so far...");
 
             if (response.Key == prefix) continue;
-            
+
             awsObjects.Add(await RemoteFileAndMetadata(s3Client, response));
         }
 
