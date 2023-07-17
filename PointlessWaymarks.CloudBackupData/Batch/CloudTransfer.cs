@@ -1,6 +1,5 @@
 using System.Net;
 using Amazon.S3;
-using Amazon.S3.Model;
 using Amazon.S3.Transfer;
 using Microsoft.EntityFrameworkCore;
 using PointlessWaymarks.CloudBackupData.Models;
@@ -13,14 +12,14 @@ namespace PointlessWaymarks.CloudBackupData.Batch;
 public static class CloudTransfer
 {
     public static async Task<CloudUploadAndDeleteRunInformation> CloudUploadAndDelete(
-        IS3AccountInformation accountInformation, int cloudTransferBatchId,
+        IS3AccountInformation accountInformation, int cloudTransferBatchId, DateTime? startTime,
         IProgress<string>? progress)
     {
         var context = await CloudBackupContext.CreateInstance();
 
         var batch = await context.CloudTransferBatches.SingleAsync(x => x.Id == cloudTransferBatchId);
 
-        var startDateTime = DateTime.Now;
+        var startDateTime = startTime ?? DateTime.Now;
 
         var stopDateTime = DateTime.Now.AddHours(batch.Job!.MaximumRunTimeInHours);
 
@@ -73,7 +72,7 @@ public static class CloudTransfer
 
                 var totalUploadEstimatedSeconds = totalUploadEstimatedLength * currentSecondsPerLength;
 
-                string estimateCompleteIn = totalUploadEstimatedSeconds switch
+                var estimateCompleteIn = totalUploadEstimatedSeconds switch
                 {
                     < 60 => $"{totalUploadEstimatedSeconds:N2} Seconds",
                     < 360 => $"{totalUploadEstimatedSeconds / 60D:N2} Minutes",
@@ -85,7 +84,7 @@ public static class CloudTransfer
                     $"Estimated Completion in {estimateCompleteIn} ({DateTime.Now.AddSeconds(totalUploadEstimatedLength * currentSecondsPerLength):G}){(currentFinishEstimate > stopDateTime ? $" - this run will stop at {stopDateTime:G} ({batch.Job!.MaximumRunTimeInHours} Hour Max)" : string.Empty)}";
             }
 
-            var startTime = DateTime.Now;
+            var uploadStartTime = DateTime.Now;
 
             if (uploadCount == 1 || uploadCount == 2 || uploadCount == 5 || uploadCount == 10 || uploadCount % 15 == 0)
                 progress?.Report(
@@ -104,7 +103,7 @@ public static class CloudTransfer
                 upload.UploadCompletedSuccessfully = true;
                 await context.SaveChangesAsync();
 
-                var elapsed = DateTime.Now.Subtract(startTime);
+                var elapsed = DateTime.Now.Subtract(uploadStartTime);
                 totalUploadedLength += uploadLength;
                 totalUploadedSeconds += elapsed.TotalSeconds;
             }

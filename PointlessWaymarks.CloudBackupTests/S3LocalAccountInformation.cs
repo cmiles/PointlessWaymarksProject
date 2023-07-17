@@ -1,4 +1,4 @@
-﻿using Amazon;
+using Amazon;
 using Amazon.Runtime;
 using Amazon.S3;
 using PointlessWaymarks.CommonTools.S3;
@@ -10,6 +10,10 @@ public class S3LocalAccountInformation : IS3AccountInformation
     public Func<string> AccessKey { get; init; }
     public Func<string> BucketName => () => LocalS3Bucket;
     public Func<string> BucketRegion { get; init; }
+    public Func<string> FullFileNameForJsonUploadInformation { get; init; }
+    public Func<string> FullFileNameForToExcel { get; init; }
+    public string LocalS3Bucket { get; set; }
+    public Func<string> Secret { get; init; }
 
     public RegionEndpoint? BucketRegionEndpoint()
     {
@@ -17,9 +21,6 @@ public class S3LocalAccountInformation : IS3AccountInformation
         return RegionEndpoint.EnumerableAllRegions.SingleOrDefault(x =>
             x.SystemName == bucketRegion);
     }
-
-    public Func<string> FullFileNameForJsonUploadInformation { get; init; }
-    public Func<string> FullFileNameForToExcel { get; init; }
 
     public AmazonS3Client S3Client()
     {
@@ -29,8 +30,4 @@ public class S3LocalAccountInformation : IS3AccountInformation
             ForcePathStyle = true
         });
     }
-
-    public string LocalS3Bucket { get; set; }
-
-    public Func<string> Secret { get; init; }
 }

@@ -14,3 +14,4 @@ ArrowLeftCircle - Austin Andrews - https://pictogrammers.com/library/mdi/icon/ar
 ArrowRightCircle - Austin Andrews - https://pictogrammers.com/library/mdi/icon/arrow-right-circle
 HomeCircle - Austin Andrews - https://pictogrammers.com/library/mdi/icon/home-circle
 RefreshCircle - François Risoud - https://pictogrammers.com/library/mdi/icon/refresh-circle
+PlusCircle - Google - https://pictogrammers.com/library/mdi/icon/plus-circle/

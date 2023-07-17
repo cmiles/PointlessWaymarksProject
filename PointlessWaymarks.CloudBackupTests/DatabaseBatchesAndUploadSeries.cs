@@ -102,7 +102,7 @@ public class DatabaseBatchesAndUploadSeries
         Assert.That(testBatch.CloudDeletions, Has.Count.EqualTo(0));
         Assert.That(testBatch.FileSystemFiles, Has.Count.EqualTo(8));
 
-        await CloudTransfer.CloudUploadAndDelete(S3Credentials, testBatch.Id, null);
+        await CloudTransfer.CloudUploadAndDelete(S3Credentials, testBatch.Id, null, null);
 
         testBatch =
             await (await CloudBackupContext.CreateInstance()).CloudTransferBatches.SingleAsync(x => x.Id == batch.Id);
@@ -136,7 +136,7 @@ public class DatabaseBatchesAndUploadSeries
         Assert.That(testBatch.CloudDeletions, Has.Count.EqualTo(0));
         Assert.That(testBatch.FileSystemFiles, Has.Count.EqualTo(8));
 
-        await CloudTransfer.CloudUploadAndDelete(S3Credentials, testBatch.Id, null);
+        await CloudTransfer.CloudUploadAndDelete(S3Credentials, testBatch.Id, null, null);
 
         testBatch =
             await (await CloudBackupContext.CreateInstance()).CloudTransferBatches.SingleAsync(x => x.Id == batch.Id);
@@ -170,7 +170,7 @@ public class DatabaseBatchesAndUploadSeries
         Assert.That(testBatch.CloudDeletions, Has.Count.EqualTo(1));
         Assert.That(testBatch.FileSystemFiles, Has.Count.EqualTo(7));
 
-        await CloudTransfer.CloudUploadAndDelete(S3Credentials, testBatch.Id, null);
+        await CloudTransfer.CloudUploadAndDelete(S3Credentials, testBatch.Id, null, null);
 
         testBatch =
             await (await CloudBackupContext.CreateInstance()).CloudTransferBatches.SingleAsync(x => x.Id == batch.Id);
@@ -207,7 +207,7 @@ public class DatabaseBatchesAndUploadSeries
         Assert.That(testBatch.CloudDeletions, Has.Count.EqualTo(4));
         Assert.That(testBatch.FileSystemFiles, Has.Count.EqualTo(3));
 
-        await CloudTransfer.CloudUploadAndDelete(S3Credentials, testBatch.Id, null);
+        await CloudTransfer.CloudUploadAndDelete(S3Credentials, testBatch.Id, null, null);
 
         testBatch =
             await (await CloudBackupContext.CreateInstance()).CloudTransferBatches.SingleAsync(x => x.Id == batch.Id);
@@ -245,7 +245,7 @@ public class DatabaseBatchesAndUploadSeries
         Assert.That(testBatch.CloudDeletions, Has.Count.EqualTo(1));
         Assert.That(testBatch.FileSystemFiles, Has.Count.EqualTo(6));
 
-        await CloudTransfer.CloudUploadAndDelete(S3Credentials, testBatch.Id, null);
+        await CloudTransfer.CloudUploadAndDelete(S3Credentials, testBatch.Id, null, null);
 
         testBatch =
             await (await CloudBackupContext.CreateInstance()).CloudTransferBatches.SingleAsync(x => x.Id == batch.Id);

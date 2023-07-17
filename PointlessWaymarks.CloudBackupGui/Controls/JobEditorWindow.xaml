@@ -7,7 +7,7 @@
         xmlns:status="clr-namespace:PointlessWaymarks.WpfCommon.Status;assembly=PointlessWaymarks.WpfCommon"
         xmlns:windowScreenShot="clr-namespace:PointlessWaymarks.WpfCommon.WindowScreenShot;assembly=PointlessWaymarks.WpfCommon"
         mc:Ignorable="d"
-        Title="JobEditorWindow" Height="600" Width="600" d:DataContext="{d:DesignInstance local:JobEditorWindow}">
+        Title="Job Editor" Height="600" Width="600" d:DataContext="{d:DesignInstance local:JobEditorWindow}">
     <Grid>
         <local:JobEditorControl DataContext="{Binding  JobContext}"></local:JobEditorControl>
         <status:StatusControl

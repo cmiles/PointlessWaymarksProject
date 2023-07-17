@@ -6,6 +6,8 @@ using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.CommonTools.S3;
 using Serilog;
 
+var startTime = DateTime.Now;
+
 if (args.Length is < 1 or > 2)
 {
     Console.WriteLine("The PointlessWaymarks CloudBackup Runner uses Jobs in an ");
@@ -66,6 +68,12 @@ if (backupJob == null)
 
 progress.PersistentId = backupJob.PersistentId;
 
+
+Log.Logger = new LoggerConfiguration().StandardEnrichers().LogToConsole()
+    .LogToFileInProgramDirectory("CloudBackupRunner").WriteTo.DelegatingTextSink(
+        x => DataNotifications.PublishProgressNotification(consoleId.ToString(), x, backupJob.PersistentId),
+        outputTemplate: "[{Timestamp:HH:mm:ss} {Level:u3}] {Message:lj}{NewLine}{Exception}").CreateLogger();
+
 var cloudCredentials = PasswordVaultTools.GetCredentials(backupJob.VaultIdentifier);
 
 if (string.IsNullOrWhiteSpace(cloudCredentials.username) || string.IsNullOrWhiteSpace(cloudCredentials.password))
@@ -105,12 +113,12 @@ if (batch.CloudUploads.Count < 1 && batch.CloudDeletions.Count < 1)
 
 try
 {
-    var runInformation = await CloudTransfer.CloudUploadAndDelete(amazonCredentials, batch.Id, progress);
+    var runInformation = await CloudTransfer.CloudUploadAndDelete(amazonCredentials, batch.Id, startTime, progress);
     Log.ForContext(nameof(runInformation), runInformation, true).Information("Cloud Backup Ending");
 
     (await WindowsNotificationBuilders.NewNotifier("Cloud Backup Runner"))
         .SetAutomationLogoNotificationIconUrl().Message(
-            $"Uploaded {FileAndFolderTools.GetBytesReadable(runInformation.UploadedSize)} in {(runInformation.Ended - runInformation.Started).TotalHours:N2} Hours{((runInformation.DeleteErrorCount + runInformation.UploadErrorCount) > 0 ? $"{runInformation.DeleteErrorCount + runInformation.UploadErrorCount} Errors" : string.Empty)}");
+            $"Uploaded {FileAndFolderTools.GetBytesReadable(runInformation.UploadedSize)} in {(runInformation.Ended - runInformation.Started).TotalHours:N2} Hours{(runInformation.DeleteErrorCount + runInformation.UploadErrorCount > 0 ? $"{runInformation.DeleteErrorCount + runInformation.UploadErrorCount} Errors" : string.Empty)}");
 }
 catch (Exception e)
 {

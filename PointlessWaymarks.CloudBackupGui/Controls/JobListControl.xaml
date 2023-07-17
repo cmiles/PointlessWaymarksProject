@@ -40,8 +40,8 @@
         <GroupBox
             Margin="4,4,4,0"
             Grid.Row="1"
-            Header="Backup Jobs"
-            Style="{StaticResource UiComponentGroupBoxStyle}">
+            Style="{StaticResource UiComponentGroupBoxStyle}"
+            Header="Backup Jobs">
             <ListBox ItemsSource="{Binding Items}"
                      Style="{StaticResource ContentListListBoxStyle}"
                      SelectedItem="{Binding SelectedJob}"
@@ -62,10 +62,11 @@
                                 </Grid.ColumnDefinitions>
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="Auto"></RowDefinition>
-                                    <RowDefinition Height="Auto"></RowDefinition>
+                                    <RowDefinition Height="70"></RowDefinition>
                                     <RowDefinition Height="Auto"></RowDefinition>
                                 </Grid.RowDefinitions>
-                                <TextBox FontWeight="Bold" Style="{StaticResource ReadOnlyTextBoxStyle}" TextWrapping="Wrap">
+                                <TextBox FontWeight="Bold" Style="{StaticResource ReadOnlyTextBoxStyle}"
+                                         TextWrapping="Wrap">
                                     <TextBox.Text>
                                         <MultiBinding StringFormat="{}{0} - Id {1}">
                                             <Binding Path="DbJob.Name" />
@@ -74,7 +75,7 @@
                                     </TextBox.Text>
                                 </TextBox>
                                 <TextBox Grid.Column="0" Grid.Row="1" Margin="6,4,0,0"
-                                         Style="{StaticResource ReadOnlyTextBoxStyle}" TextWrapping="Wrap">
+                                         Style="{StaticResource ReadOnlyTextBoxStyle}" TextWrapping="Wrap" VerticalAlignment="Top">
                                     <TextBox.Text>
                                         <MultiBinding StringFormat="{}{0} to {1}/{2}">
                                             <Binding Path="DbJob.LocalDirectory" />
@@ -83,19 +84,25 @@
                                         </MultiBinding>
                                     </TextBox.Text>
                                 </TextBox>
-                                <WrapPanel Grid.Column="0" Grid.Row="2" Margin="10,6,0,8" Orientation="Horizontal">
-                                    <Button Padding="8,2,8,2"
-                                        Command="{Binding Data.IncludedAndExcludedFilesReportCommand, Source={StaticResource proxy}}"
-                                        CommandParameter="{Binding DbJob}">
-                                        Included/Excluded Files Report
-                                    </Button>
-                                </WrapPanel>
-                                <GroupBox Grid.Column="1" Grid.RowSpan="3" Grid.Row="0" Margin="24,0,0,4" Header="Progress" Style="{StaticResource UiComponentGroupBoxStyle}" >
+                                <GroupBox Grid.Column="1" Grid.RowSpan="2" Grid.Row="0" Margin="24,0,0,4"
+                                          Header="Progress" Style="{StaticResource UiComponentGroupBoxStyle}">
                                     <TextBox Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Margin="2"
                                              Text="{Binding ProgressString}"
                                              Style="{StaticResource ReadOnlyTextBoxStyle}" TextWrapping="Wrap">
                                     </TextBox>
                                 </GroupBox>
+                                <WrapPanel Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="2" Margin="10,6,0,8" Orientation="Horizontal">
+                                    <Button Padding="10,2,8,2"
+                                            Command="{Binding Data.IncludedAndExcludedFilesReportCommand, Source={StaticResource proxy}}"
+                                            CommandParameter="{Binding DbJob}">
+                                        Included/Excluded Files Report
+                                    </Button>
+                                    <Button Padding="10,2,8,2"  Margin="4,0,0,0"
+                                            Command="{Binding Data.NewProgressWindowCommand, Source={StaticResource proxy}}"
+                                            CommandParameter="{Binding DbJob}">
+                                        Progress to Window
+                                    </Button>
+                                </WrapPanel>
                             </Grid>
                         </Border>
                     </DataTemplate>

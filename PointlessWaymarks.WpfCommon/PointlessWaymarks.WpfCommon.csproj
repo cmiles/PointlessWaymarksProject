@@ -91,6 +91,8 @@
     <Resource Include="Icons\rotate-right.svg" />
     <Resource Include="Icons\stop.svg" />
     <Resource Include="Icons\SvgSources.txt" />
+    <None Remove="Icons\plus-circle.svg" />
+    <Resource Include="Icons\plus-circle.svg" />
   </ItemGroup>
 
 </Project>

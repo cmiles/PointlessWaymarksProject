@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using PointlessWaymarks.CloudBackupData.Models;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.CommonTools.S3;
+using Serilog;
 
 namespace PointlessWaymarks.CloudBackupData.Batch;
 
@@ -180,7 +181,12 @@ public static class CreationTools
         List<string> excludedDirectories, List<string> excludedDirectoryPatterns, List<string> excludedFilePatterns,
         IProgress<string> progress)
     {
-        progress.Report("Local Files - Starting");
+        Log.ForContext(nameof(initialDirectory), initialDirectory)
+            .ForContext(nameof(excludedDirectories), excludedDirectories, true)
+            .ForContext(nameof(excludedDirectoryPatterns), excludedDirectoryPatterns, true)
+            .ForContext(nameof(excludedFilePatterns), excludedFilePatterns, true)
+            .Information("Local Files Listing and S3 Metadata - Starting");
+
         var directories =
             (await GetAllLocalDirectories(initialDirectory, excludedDirectories, excludedDirectoryPatterns, progress))
             .Where(x => x.Included).Select(x => x.Directory).OrderBy(x => x.FullName).ToList();
@@ -206,7 +212,7 @@ public static class CreationTools
 
             if (counter % 50 == 0)
                 progress.Report(
-                    $"Local Files - {counter} of {directories.Count} Directories Complete - {returnList.Count} Files");
+                    $"Local Files - {counter} of {directories.Count} Directories Complete - {returnList.Count} Files - {DateTime.Now:t}");
         }
 
         return returnList;

@@ -202,6 +202,16 @@ public partial class JobListContext
         window.PositionWindowAndShow();
     }
 
+    [NonBlockingCommand]
+    public async Task NewProgressWindow(BackupJob? listItem)
+    {
+        if (listItem is null) return;
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        var window = await ProgressTrackerWindow.CreateInstance(listItem.PersistentId, listItem.Name);
+        window.PositionWindowAndShow();
+    }
+
     private void OnDataNotificationReceived(object? sender, TinyMessageReceivedEventArgs e)
     {
         DataNotificationsProcessor?.Enqueue(e);

@@ -2,6 +2,7 @@ using Amazon.S3;
 using Amazon.S3.Model;
 using Amazon.S3.Transfer;
 using PointlessWaymarks.CommonTools.S3;
+using Serilog;
 
 namespace PointlessWaymarks.CommonTools;
 
@@ -22,7 +23,7 @@ public static class S3Tools
     public static async Task<List<S3RemoteFileAndMetadata>> ListS3Items(IS3AccountInformation accountInfo,
         string prefix, IProgress<string> progress, CancellationToken cancellationToken = default)
     {
-        progress.Report("Aws Object Listing - Setting up and Starting");
+        Log.ForContext(nameof(prefix), progress).ForContext(nameof(accountInfo.BucketName), accountInfo.BucketName()).ForContext(nameof(accountInfo.BucketRegion), accountInfo.BucketRegion()).Information("Aws Object Listing - Starting");
 
         var s3Client = accountInfo.S3Client();
 

@@ -1,0 +1,45 @@
+﻿<UserControl x:Class="PointlessWaymarks.CloudBackupGui.Controls.ProgressTrackerControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="clr-namespace:PointlessWaymarks.CloudBackupGui.Controls"
+             xmlns:behaviors="clr-namespace:PointlessWaymarks.WpfCommon.Behaviors;assembly=PointlessWaymarks.WpfCommon"
+             mc:Ignorable="d"
+             d:DesignHeight="300" d:DesignWidth="300" d:DataContext="{d:DesignInstance local:ProgressTrackerContext}">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/PointlessWaymarks.WpfCommon;component/ClassicGreenResourceDictionary.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+            <CollectionViewSource x:Key="SortedProgressItems" Source="{Binding Items}"
+                                  xmlns:scm="clr-namespace:System.ComponentModel;assembly=WindowsBase">
+                <CollectionViewSource.SortDescriptions>
+                    <scm:SortDescription PropertyName="ReceivedOn" Direction="Descending" />
+                </CollectionViewSource.SortDescriptions>
+            </CollectionViewSource>
+        </ResourceDictionary>
+    </UserControl.Resources>
+    <GroupBox
+        Header="Progress Messages"
+        Style="{StaticResource UiComponentGroupBoxStyle}">
+        <ListBox
+            Style="{StaticResource ContentListListBoxStyle}"
+            ItemsSource="{Binding Source={StaticResource SortedProgressItems}}"
+            SelectedItem="{Binding SelectedProgress}"
+            behaviors:MultiSelectorBehaviors.SynchronizedSelectedItems="{Binding SelectedProgresses}">
+            <ListBox.ItemTemplate>
+                <DataTemplate DataType="{x:Type local:ProgressTrackerListItem}">
+                    <TextBox Margin="0,2,0,2" Style="{StaticResource ReadOnlyTextBoxStyle}" TextWrapping="Wrap">
+                        <TextBox.Text>
+                            <MultiBinding StringFormat="{}{0} - {1}">
+                                <Binding Path="ReceivedOn" />
+                                <Binding Path="Message" />
+                            </MultiBinding>
+                        </TextBox.Text>
+                    </TextBox>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+    </GroupBox>
+</UserControl>
