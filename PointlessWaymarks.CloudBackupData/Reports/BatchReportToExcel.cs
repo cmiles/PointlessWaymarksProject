@@ -1,41 +1,28 @@
-using ClosedXML.Excel;
+﻿using ClosedXML.Excel;
+using PointlessWaymarks.CommonTools;
 
 namespace PointlessWaymarks.CloudBackupData.Reports;
 
-public static class BatchReportToExcel
+public static class BatchToExcel
 {
-    public static async Task<string> Run(int jobId, int batchId)
+    public static async Task<string> Run(int batchId)
     {
-        var db = await CloudBackupContext.CreateInstance();
-
-        var job = db.BackupJobs.Single(x => x.Id == jobId);
-        var batch = job.Batches.Single(x => x.Id == batchId);
-        var uploads = batch.CloudUploads.ToList();
-        var deletes = batch.CloudDeletions.ToList();
-        var fileSystemFiles = batch.FileSystemFiles.ToList();
-        var cloudFiles = batch.CloudFiles.ToList();
-
         var newExcelFile = new XLWorkbook();
-        var uploadsWorksheet = newExcelFile.Worksheets.Add("Uploaded Files");
 
-        var currentRow = 1;
+        await BatchUploadsToExcel.AddWorksheet(newExcelFile, batchId);
+        await BatchDeletesToExcel.AddWorksheet(newExcelFile, batchId);
+        await BatchLocalFilesToExcel.AddWorksheet(newExcelFile, batchId);
+        await BatchCloudFilesToExcel.AddWorksheet(newExcelFile, batchId);
+        
+        var db = await CloudBackupContext.CreateInstance();
+        var batch = db.CloudTransferBatches.Single(x => x.Id == batchId);
+        var job = batch.Job!;
 
-        uploadsWorksheet.Cell(currentRow, 1).Value = $"Uploads - {job.Name} - Id {job.Id}";
-        uploadsWorksheet.Cell(currentRow, 1).Style.Font
-            .SetFontSize(uploadsWorksheet.Cell(currentRow, 1).Style.Font.FontSize + 4);
-        uploadsWorksheet.Cell(currentRow++, 1).Style.Font.SetBold(true);
-        uploadsWorksheet.Cell(currentRow++, 1).Value = $"Batch {batch.Id} Created {batch.CreatedOn}";
-        currentRow++;
+        var file = new FileInfo(Path.Combine(FileLocationHelpers.ReportsDirectory().FullName,
+            $"{DateTime.Now:yyyy-MM-dd--HH-mm-ss}---BatchReport-{FileAndFolderTools.TryMakeFilenameValid(job.Name)}-Id-{job.Id}-Batch-{batch.Id}.xlsx"));
 
-        uploadsWorksheet.Cell(currentRow++, 1).Value =
-            $"Total {uploads.Count}, Complete Successfully {uploads.Count(x => x.UploadCompletedSuccessfully)}, Not Uploaded Successfully {uploads.Count(x => !x.UploadCompletedSuccessfully)}, With Error Messages {uploads.Count(x => !string.IsNullOrWhiteSpace(x.ErrorMessage))}";
+        newExcelFile.SaveAs(file.FullName);
 
-        currentRow++;
-
-        var tableRange = uploadsWorksheet.Cell(currentRow++, 1).InsertTable(uploads.OrderBy(x => x.FileSystemFile));
-
-        uploadsWorksheet.Columns().AdjustToContents(currentRow);
-
-        return string.Empty;
+        return file.FullName;
     }
 }
