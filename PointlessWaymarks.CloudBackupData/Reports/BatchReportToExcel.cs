@@ -1,9 +1,9 @@
-﻿using ClosedXML.Excel;
+using ClosedXML.Excel;
 using PointlessWaymarks.CommonTools;
 
 namespace PointlessWaymarks.CloudBackupData.Reports;
 
-public static class BatchToExcel
+public static class BatchReportToExcel
 {
     public static async Task<string> Run(int batchId)
     {
@@ -13,7 +13,7 @@ public static class BatchToExcel
         await BatchDeletesToExcel.AddWorksheet(newExcelFile, batchId);
         await BatchLocalFilesToExcel.AddWorksheet(newExcelFile, batchId);
         await BatchCloudFilesToExcel.AddWorksheet(newExcelFile, batchId);
-        
+
         var db = await CloudBackupContext.CreateInstance();
         var batch = db.CloudTransferBatches.Single(x => x.Id == batchId);
         var job = batch.Job!;

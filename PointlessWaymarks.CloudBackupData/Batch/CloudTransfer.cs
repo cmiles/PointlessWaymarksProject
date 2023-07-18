@@ -21,7 +21,7 @@ public static class CloudTransfer
 
         var startDateTime = startTime ?? DateTime.Now;
 
-        var stopDateTime = DateTime.Now.AddHours(batch.Job!.MaximumRunTimeInHours);
+        var stopDateTime = startDateTime.AddHours(batch.Job!.MaximumRunTimeInHours);
 
         var uploads = batch.CloudUploads.Where(x => !x.UploadCompletedSuccessfully).ToList();
 
@@ -101,6 +101,7 @@ public static class CloudTransfer
                 await pollyS3RetryPolicy.ExecuteAsync(async () => await transferUtility.UploadAsync(transferRequest));
                 upload.LastUpdatedOn = DateTime.Now;
                 upload.UploadCompletedSuccessfully = true;
+                upload.ErrorMessage = string.Empty;
                 await context.SaveChangesAsync();
 
                 var elapsed = DateTime.Now.Subtract(uploadStartTime);

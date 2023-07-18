@@ -98,6 +98,11 @@
                                         Included/Excluded Files Report
                                     </Button>
                                     <Button Padding="10,2,8,2"  Margin="4,0,0,0"
+                                            Command="{Binding Data.NewBatchWindowCommand, Source={StaticResource proxy}}"
+                                            CommandParameter="{Binding DbJob}">
+                                        Batch List
+                                    </Button>
+                                    <Button Padding="10,2,8,2"  Margin="4,0,0,0"
                                             Command="{Binding Data.NewProgressWindowCommand, Source={StaticResource proxy}}"
                                             CommandParameter="{Binding DbJob}">
                                         Progress to Window

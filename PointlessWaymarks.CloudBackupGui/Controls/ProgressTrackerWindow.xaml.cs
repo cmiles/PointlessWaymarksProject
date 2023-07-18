@@ -1,5 +1,4 @@
 using System.Windows;
-using PointlessWaymarks.CloudBackupData.Models;
 using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
@@ -19,6 +18,8 @@ public partial class ProgressTrackerWindow : Window
         DataContext = this;
     }
 
+    public string JobName { get; init; } = string.Empty;
+
     public ProgressTrackerContext? ProgressContext { get; set; }
 
     public StatusControlContext StatusContext { get; set; }
@@ -28,7 +29,7 @@ public partial class ProgressTrackerWindow : Window
     {
         await ThreadSwitcher.ResumeForegroundAsync();
 
-        var window = new ProgressTrackerWindow();
+        var window = new ProgressTrackerWindow { JobName = jobName };
 
         await ThreadSwitcher.ResumeBackgroundAsync();
 

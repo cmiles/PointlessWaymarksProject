@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 using System.Text;
 
 namespace PointlessWaymarks.CommonTools;
@@ -71,5 +71,11 @@ public static class ProcessTools
         }
 
         return (result, standardOutput.ToString(), errorOutput.ToString());
+    }
+
+    public static void Open(string fileName)
+    {
+        var ps = new ProcessStartInfo(fileName) { UseShellExecute = true, Verb = "open" };
+        Process.Start(ps);
     }
 }

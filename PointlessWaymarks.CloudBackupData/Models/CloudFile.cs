@@ -11,4 +11,5 @@ public class CloudFile
     public int Id { get; set; }
     public virtual BackupJob? Job { get; set; }
     public int JobId { get; set; }
+    public string Key { get; set; } = string.Empty;
 }

@@ -262,6 +262,7 @@ public static class CreationTools
         {
             CreatedOn = frozenNow,
             FileHash = x.UploadMetadata.FileSystemHash,
+            FileName = x.LocalFile.FullName,
             FileSystemDateTime = x.UploadMetadata.LastWriteTime,
             FileSize = x.LocalFile.Length,
             JobId = changes.Job.Id,
@@ -272,6 +273,7 @@ public static class CreationTools
         {
             CreatedOn = frozenNow,
             FileHash = x.Metadata.FileSystemHash,
+            Key = x.Key,
             FileSystemDateTime = x.Metadata.LastWriteTime,
             FileSize = x.Metadata.FileSize,
             JobId = changes.Job.Id,

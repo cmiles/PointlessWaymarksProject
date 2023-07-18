@@ -16,4 +16,17 @@ public static class FileLocationHelpers
 
         return directory;
     }
+
+    public static DirectoryInfo ReportsDirectory()
+    {
+        var directory =
+            new DirectoryInfo(Path.Combine(DefaultStorageDirectory().FullName,
+                "Reports"));
+
+        if (!directory.Exists) directory.Create();
+
+        directory.Refresh();
+
+        return directory;
+    }
 }

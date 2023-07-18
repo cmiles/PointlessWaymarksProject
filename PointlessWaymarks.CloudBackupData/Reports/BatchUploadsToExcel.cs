@@ -3,14 +3,14 @@ using PointlessWaymarks.CommonTools;
 
 namespace PointlessWaymarks.CloudBackupData.Reports;
 
-public static class BatchReportToExcel
+public static class BatchUploadsToExcel
 {
-    public static async Task<string> Run(int jobId, int batchId)
+    public static async Task AddWorksheet(XLWorkbook workbook, int batchId)
     {
         var db = await CloudBackupContext.CreateInstance();
+        var batch = db.CloudTransferBatches.Single(x => x.Id == batchId);
+        var job = batch.Job!;
 
-        var job = db.BackupJobs.Single(x => x.Id == jobId);
-        var batch = job.Batches.Single(x => x.Id == batchId);
         var projectedUploads = batch.CloudUploads.Select(x => new
         {
             x.FileSystemFile,
@@ -22,9 +22,8 @@ public static class BatchReportToExcel
             x.CreatedOn,
             x.LastUpdatedOn
         }).OrderBy(x => x.FileSystemFile).ToList();
-        
-        var newExcelFile = new XLWorkbook();
-        var uploadsWorksheet = newExcelFile.Worksheets.Add("Uploaded Files");
+
+        var uploadsWorksheet = workbook.Worksheets.Add("Uploads");
 
         var currentRow = 1;
 
@@ -43,6 +42,17 @@ public static class BatchReportToExcel
         uploadsWorksheet.Cell(currentRow, 1).InsertTable(projectedUploads.OrderBy(x => x.FileSystemFile));
 
         uploadsWorksheet.Columns().AdjustToContents(currentRow);
+    }
+
+    public static async Task<string> Run(int batchId)
+    {
+        var newExcelFile = new XLWorkbook();
+
+        await AddWorksheet(newExcelFile, batchId);
+
+        var db = await CloudBackupContext.CreateInstance();
+        var batch = db.CloudTransferBatches.Single(x => x.Id == batchId);
+        var job = batch.Job!;
 
         var file = new FileInfo(Path.Combine(FileLocationHelpers.ReportsDirectory().FullName,
             $"{DateTime.Now:yyyy-MM-dd--HH-mm-ss}---Uploads-{FileAndFolderTools.TryMakeFilenameValid(job.Name)}-Id-{job.Id}-Batch-{batch.Id}.xlsx"));

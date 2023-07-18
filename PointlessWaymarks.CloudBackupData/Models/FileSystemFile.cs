@@ -6,6 +6,7 @@ public class FileSystemFile
     public int CloudTransferBatchId { get; set; }
     public DateTime CreatedOn { get; set; }
     public string FileHash { get; set; } = string.Empty;
+    public string FileName { get; set; } = string.Empty;
     public long FileSize { get; set; }
     public string FileSystemDateTime { get; set; } = string.Empty;
     public int Id { get; set; }

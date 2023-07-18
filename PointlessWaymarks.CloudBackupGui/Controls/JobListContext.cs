@@ -184,6 +184,16 @@ public partial class JobListContext
     }
 
     [NonBlockingCommand]
+    public async Task NewBatchWindow(BackupJob? listItem)
+    {
+        if (listItem is null) return;
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        var window = await BatchListWindow.CreateInstance(listItem.Id, listItem.Name);
+        window.PositionWindowAndShow();
+    }
+
+    [NonBlockingCommand]
     public async Task NewJob()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();

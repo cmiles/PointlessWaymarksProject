@@ -19,7 +19,7 @@ public static class IncludedAndExcludedFilesToExcel
             job.ExcludedDirectoryNamePatterns.Select(x => x.Pattern).ToList(),
             job.ExcludedFileNamePatterns.Select(x => x.Pattern).ToList(), progress);
     }
-    
+
     public static async Task<FileInfo> Run(string jobName, string initialDirectory,
         List<string> excludedDirectories, List<string> excludedDirectoryPatterns, List<string> excludedFilePatterns,
         IProgress<string> progress)
@@ -30,7 +30,6 @@ public static class IncludedAndExcludedFilesToExcel
         var excludedFiles = await CreationTools.GetExcludedLocalFiles(initialDirectory,
             excludedDirectories, excludedDirectoryPatterns,
             excludedFilePatterns, progress);
-
 
         var newExcelFile = new XLWorkbook();
         var includedWorksheet = newExcelFile.Worksheets.Add("Included Files");
@@ -116,7 +115,7 @@ public static class IncludedAndExcludedFilesToExcel
 
         excludedWorksheet.Columns().AdjustToContents();
 
-        var file = new FileInfo(Path.Combine(FileLocationTools.TempStorageDirectory().FullName,
+        var file = new FileInfo(Path.Combine(FileLocationHelpers.ReportsDirectory().FullName,
             $"{DateTime.Now:yyyy-MM-dd--HH-mm-ss}---IncludedAndExcludedBackupFiles-{FileAndFolderTools.TryMakeFilenameValid(jobName)}.xlsx"));
 
         newExcelFile.SaveAs(file.FullName);
@@ -124,6 +123,7 @@ public static class IncludedAndExcludedFilesToExcel
         progress?.Report($"Opening Excel File {file.FullName}");
 
         var ps = new ProcessStartInfo(file.FullName) { UseShellExecute = true, Verb = "open" };
+
         Process.Start(ps);
 
         return file;

@@ -14,11 +14,11 @@ public partial class ProgressTrackerContext
 {
     public DataNotificationsWorkQueue? DataNotificationsProcessor { get; set; }
     public required ObservableCollection<ProgressTrackerListItem> Items { get; set; }
-    public string JobName { get; set; } = string.Empty;
+    public string JobName { get; init; } = string.Empty;
     public required Guid JobPersistentId { get; set; }
-    public required StatusControlContext StatusContext { get; set; }
     public ProgressTrackerListItem? SelectedProgress { get; set; }
     public List<ProgressTrackerListItem> SelectedProgresses { get; set; } = new();
+    public required StatusControlContext StatusContext { get; set; }
 
     public static async Task<ProgressTrackerContext> CreateInstance(StatusControlContext statusContext,
         Guid jobPersistentId, string jobName)
