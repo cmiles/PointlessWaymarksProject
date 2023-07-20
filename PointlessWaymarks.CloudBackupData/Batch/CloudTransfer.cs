@@ -64,9 +64,20 @@ public static class CloudTransfer
             {
                 var currentSecondsPerLength = totalUploadedSeconds / totalUploadedLength;
 
+                
+                var currentUploadEstimatedSeconds = uploadLength * currentSecondsPerLength;
+                
+                var estimateCurrentUploadCompleteIn = currentUploadEstimatedSeconds switch
+                {
+                    < 60 => $"{currentUploadEstimatedSeconds:N2} Seconds",
+                    < 360 => $"{currentUploadEstimatedSeconds / 60D:N2} Minutes",
+                    < 86400 => $"{currentUploadEstimatedSeconds / 360D:N2} Hours",
+                    _ => $"{currentUploadEstimatedSeconds / 86400D:N2} Days"
+                };
+                
                 estimateCurrentUpload =
-                    $"Estimated Completion in {uploadLength * currentSecondsPerLength / 60D:N2} Minutes - {DateTime.Now.AddSeconds(uploadLength * currentSecondsPerLength):h:mm:ss tt}";
-
+                    $"Estimated Completion in {estimateCurrentUploadCompleteIn} ({DateTime.Now.AddSeconds(uploadLength * currentSecondsPerLength):h:mm:ss tt})";
+                
                 var currentFinishEstimate =
                     DateTime.Now.AddSeconds(totalUploadEstimatedLength * currentSecondsPerLength);
 

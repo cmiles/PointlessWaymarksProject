@@ -188,6 +188,24 @@ public class WindowsNotificationTool
             .Show();
     }
 
+
+    /// <summary>
+    ///     Shows a Windows Notification with an action to open the specified
+    /// fileName based on 'protocol' - this method does not add any information
+    /// or text to the message about clicking the notification...
+    /// </summary>
+    /// <param name="summary"></param>
+    /// <param name="fileName"></param>
+    public void MessageWithFile(string summary, string fileName)
+    {
+        new ToastContentBuilder()
+            .AddAppLogoOverride(new Uri(NotificationIconUrl))
+            .AddText(summary)
+            .AddToastActivationInfo(fileName, ToastActivationType.Protocol)
+            .AddAttributionText(Attribution)
+            .Show();
+    }
+
     /// <summary>
     ///     Shows a Windows Notification with a Hero Image - the image is not rescaled.
     /// </summary>

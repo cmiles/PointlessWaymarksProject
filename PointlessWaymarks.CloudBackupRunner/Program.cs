@@ -1,6 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using PointlessWaymarks.CloudBackupData;
 using PointlessWaymarks.CloudBackupData.Batch;
+using PointlessWaymarks.CloudBackupData.Models;
+using PointlessWaymarks.CloudBackupData.Reports;
 using PointlessWaymarks.CloudBackupRunner;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.CommonTools.S3;
@@ -8,14 +10,18 @@ using Serilog;
 
 var startTime = DateTime.Now;
 
-if (args.Length is < 1 or > 2)
+if (args.Length is < 1 or > 3)
 {
     Console.WriteLine("The PointlessWaymarks CloudBackup Runner uses Jobs in an ");
     Console.WriteLine("existing data to run a backup. See the Pointless Waymarks ");
     Console.WriteLine("Cloud Backup Gui project to create backup Jobs.");
     Console.WriteLine();
-    Console.WriteLine("To list the Jobs in a Database Specify the Filename");
-    Console.WriteLine("To run a job specify the Database name and Job Id");
+    Console.WriteLine("To list the Jobs in a Database specify the Db Filename");
+    Console.WriteLine("To run a job with a full file scan specify the Db Filename and Job Id");
+    Console.WriteLine("To restart a batch:");
+    Console.WriteLine("  Specify the Batch Id (if not found a new batch will be created)");
+    Console.WriteLine("  Specify 'last' (if there is no last batch a new batch will be created)");
+    Console.WriteLine("  To have the program guess whether there is a batch worth resuming specify 'auto'");
 }
 
 var consoleId = Guid.NewGuid();
@@ -97,10 +103,75 @@ var amazonCredentials = new S3AccountInformation
     FullFileNameForToExcel = () => Path.Combine(FileLocationHelpers.DefaultStorageDirectory().FullName,
         $"{frozenNow:yyyy-MM-dd-HH-mm}-{args[0]}.xlsx")
 };
+CloudTransferBatch? batch = null;
 
-var batch = await CloudTransfer.CreateBatchInDatabaseFromChanges(amazonCredentials, backupJob, progress);
+//3 Args mean that a batch has been specified in one of 3 ways: auto, last, or id. On all of these options
+//a 'bad' option (last when there is no last batch, id that doesn't match anything in the db...) will fall
+//thru to a new batch being generated. 
+if (args.Length == 3)
+{
+    //Auto: Very simple - if there is a batch in the last two weeks that is < 95% done and < 10% errors use it
+    if (args[2].Equals("auto", StringComparison.OrdinalIgnoreCase) &&
+        backupJob.Batches.Any(x => x.CreatedOn > DateTime.Now.AddDays(-14)))
+    {
+        var mostRecentBatch = backupJob.Batches.MaxBy(x => x.CreatedOn)!;
+        var totalActions = mostRecentBatch.CloudUploads.Count + mostRecentBatch.CloudDeletions.Count;
+        var successfulActions = mostRecentBatch.CloudUploads.Count(x => x.UploadCompletedSuccessfully) +
+                                mostRecentBatch.CloudDeletions.Count(x => x.DeletionCompletedSuccessfully);
+        var errorActions = mostRecentBatch.CloudUploads.Count(x => !string.IsNullOrWhiteSpace(x.ErrorMessage)) +
+                           mostRecentBatch.CloudDeletions.Count(x => !string.IsNullOrWhiteSpace(x.ErrorMessage));
+        var highPercentSuccess = (successfulActions / (decimal)totalActions) > .95M;
+        var highPercentErrors = (errorActions / (decimal)totalActions) > .10M;
 
-Log.Information("Created Batch Id {batchId} with {uploadCount} Uploads and {deleteCount} Deletes", batch.Id,
+        Console.WriteLine("Auto Batch Selection");
+        Console.WriteLine($"  Last Batch: Id {mostRecentBatch.Id} Created On: {mostRecentBatch.CreatedOn}");
+        Console.WriteLine($"  Total Actions: {totalActions}");
+        Console.WriteLine($"  Successful Actions: {successfulActions} - {successfulActions / (decimal)totalActions:P0}");
+        Console.WriteLine($"  Error Actions: {errorActions} - {errorActions / (decimal)totalActions:P0}");
+        Console.WriteLine($"    High Percent Success: {highPercentSuccess}");
+        Console.WriteLine($"    High Percent Errors: {highPercentErrors}");
+        
+        if (!highPercentSuccess && !highPercentErrors)
+        {
+            batch = mostRecentBatch;
+            Log.ForContext(nameof(batch), batch.SafeObjectDumpNoEnumerables())
+                .Information("Batch Set to Batch Id {batchId} Based on auto argument", batch.Id);
+        }
+    }
+    //Last
+    else if (args[2].Equals("last", StringComparison.OrdinalIgnoreCase))
+    {
+        batch = backupJob.Batches.MaxBy(x => x.CreatedOn);
+        if (batch != null)
+            Log.ForContext(nameof(batch), batch.SafeObjectDumpNoEnumerables())
+                .Information("Batch Set to Batch Id {batchId} Based on last argument", batch.Id);
+        else
+            Log.ForContext(nameof(batch), batch.SafeObjectDumpNoEnumerables())
+                .Information("Setting Batch based on last argument failed");
+    }
+    //Id
+    else if (int.TryParse(args[2], out var parsedBatchId))
+    {
+        batch = backupJob.Batches.SingleOrDefault(x => x.Id == parsedBatchId);
+        if (batch != null)
+            Log.ForContext(nameof(batch), batch.SafeObjectDumpNoEnumerables())
+                .Information("Batch Set to Batch Id {batchId} Based on Id", batch.Id);
+        else
+            Log.ForContext(nameof(batch), batch.SafeObjectDumpNoEnumerables())
+                .Information("Setting Batch based on argument Id Argument {batchArgument} Failed", args[2]);
+    }
+}
+
+//Batch equals null here means either that no batch was specified or that the batch specification
+//didn't return anything - either way a new batch is created
+if (batch == null)
+{
+    Log.Information("Creating new Batch");
+    batch ??= await CloudTransfer.CreateBatchInDatabaseFromChanges(amazonCredentials, backupJob, progress);
+}
+
+Log.ForContext(nameof(batch), batch.SafeObjectDumpNoEnumerables()).Information(
+    "Using Batch Id {batchId} with {uploadCount} Uploads and {deleteCount} Deletes", batch.Id,
     batch.CloudUploads.Count, batch.CloudDeletions.Count);
 
 if (batch.CloudUploads.Count < 1 && batch.CloudDeletions.Count < 1)
@@ -116,9 +187,12 @@ try
     var runInformation = await CloudTransfer.CloudUploadAndDelete(amazonCredentials, batch.Id, startTime, progress);
     Log.ForContext(nameof(runInformation), runInformation, true).Information("Cloud Backup Ending");
 
+    var batchReport = await BatchReportToExcel.Run(batch.Id);
+
     (await WindowsNotificationBuilders.NewNotifier("Cloud Backup Runner"))
-        .SetAutomationLogoNotificationIconUrl().Message(
-            $"Uploaded {FileAndFolderTools.GetBytesReadable(runInformation.UploadedSize)} in {(runInformation.Ended - runInformation.Started).TotalHours:N2} Hours{(runInformation.DeleteErrorCount + runInformation.UploadErrorCount > 0 ? $"{runInformation.DeleteErrorCount + runInformation.UploadErrorCount} Errors" : string.Empty)}");
+        .SetAutomationLogoNotificationIconUrl().MessageWithFile(
+            $"Uploaded {FileAndFolderTools.GetBytesReadable(runInformation.UploadedSize)} in {(runInformation.Ended - runInformation.Started).TotalHours:N2} Hours{(runInformation.DeleteErrorCount + runInformation.UploadErrorCount > 0 ? $"{runInformation.DeleteErrorCount + runInformation.UploadErrorCount} Errors" : string.Empty)} - Click for Report",
+            batchReport);
 }
 catch (Exception e)
 {

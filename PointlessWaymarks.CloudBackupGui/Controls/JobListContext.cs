@@ -189,8 +189,7 @@ public partial class JobListContext
         if (listItem is null) return;
         await ThreadSwitcher.ResumeForegroundAsync();
 
-        var window = await BatchListWindow.CreateInstance(listItem.Id, listItem.Name);
-        window.PositionWindowAndShow();
+        await BatchListWindow.CreateInstanceAndShow(listItem.Id, listItem.Name);
     }
 
     [NonBlockingCommand]

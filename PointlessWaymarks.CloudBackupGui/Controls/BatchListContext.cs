@@ -73,16 +73,23 @@ public partial class BatchListContext
 
         var job = db.BackupJobs.Single(x => x.Id == JobId);
 
+        StatusContext.Progress($"Batch List - Found job {job.Name}");
+        
         DbJob = job;
 
         var batchList = new List<BatchListListItem>();
 
-        foreach (var loopBatch in job.Batches) batchList.Add(BatchListListItem.CreateInstance(loopBatch));
+        foreach (var loopBatch in job.Batches)
+        {
+            StatusContext.Progress($"Batch List - Creating Entry for Batch Id {loopBatch.Id}");
+            batchList.Add(BatchListListItem.CreateInstance(loopBatch));
+        }
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
         Items.Clear();
 
+        StatusContext.Progress("Batch List - Adding Batch Items to Gui");
         batchList.ForEach(x => Items.Add(x));
     }
 
@@ -90,6 +97,8 @@ public partial class BatchListContext
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
+        StatusContext.Progress("Batch List - Setting Up");
+        
         BuildCommands();
         await RefreshList();
     }

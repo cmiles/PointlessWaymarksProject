@@ -1,4 +1,5 @@
-﻿using Serilog;
+﻿using System.Collections;
+using Serilog;
 using Serilog.Formatting.Compact;
 
 namespace PointlessWaymarks.CommonTools;
@@ -36,9 +37,20 @@ public static class LogTools
     /// </summary>
     /// <param name="toDump"></param>
     /// <returns></returns>
-    public static string SafeObjectDump(this object toDump)
+    public static string SafeObjectDump(this object? toDump)
     {
-        return ObjectDumper.Dump(toDump, new DumpOptions { MaxLevel = 2, DumpStyle = DumpStyle.Console });
+        return toDump is null ? "null" : ObjectDumper.Dump(toDump, new DumpOptions { MaxLevel = 2, DumpStyle = DumpStyle.Console });
+    }
+    
+    public static string SafeObjectDumpNoEnumerables(this object? toDump)
+    {
+        if (toDump is null) return "null";
+        
+        var enumerableProperties = toDump.GetType().GetProperties()
+            .Where(p => p.PropertyType == typeof(string) ||
+                        typeof(IEnumerable).IsAssignableFrom(p.PropertyType)).Select(x => x.Name).ToList();
+        
+        return ObjectDumper.Dump(toDump, new DumpOptions { MaxLevel = 2, DumpStyle = DumpStyle.Console, ExcludeProperties = enumerableProperties});
     }
 
     public static LoggerConfiguration StandardEnrichers(this LoggerConfiguration toConfigure)
