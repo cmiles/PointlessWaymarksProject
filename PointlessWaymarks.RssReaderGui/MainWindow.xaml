@@ -4,9 +4,19 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:PointlessWaymarks.RssReaderGui"
+        xmlns:programUpdateMessage="clr-namespace:PointlessWaymarks.WpfCommon.ProgramUpdateMessage;assembly=PointlessWaymarks.WpfCommon"
+        xmlns:status="clr-namespace:PointlessWaymarks.WpfCommon.Status;assembly=PointlessWaymarks.WpfCommon"
+        xmlns:windowScreenShot="clr-namespace:PointlessWaymarks.WpfCommon.WindowScreenShot;assembly=PointlessWaymarks.WpfCommon"
         mc:Ignorable="d"
-        Title="Pointless Waymarks RSS Reader" Height="450" Width="800">
+        Title="Pointless Waymarks RSS Reader" Height="700" Width="800">
     <Grid>
-
+        <programUpdateMessage:ProgramUpdateMessageControl VerticalAlignment="Top" HorizontalAlignment="Center"
+                                                          Width="400" DataContext="{Binding UpdateMessageContext}" />
+        <status:StatusControl DataContext="{Binding StatusContext}" />
+        <windowScreenShot:WindowScreenShotControl
+            Margin="2"
+            Width="40"
+            HorizontalAlignment="Left"
+            VerticalAlignment="Bottom" />
     </Grid>
 </Window>

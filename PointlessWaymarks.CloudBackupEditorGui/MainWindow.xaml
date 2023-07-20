@@ -7,10 +7,13 @@
         xmlns:status="clr-namespace:PointlessWaymarks.WpfCommon.Status;assembly=PointlessWaymarks.WpfCommon"
         xmlns:windowScreenShot="clr-namespace:PointlessWaymarks.WpfCommon.WindowScreenShot;assembly=PointlessWaymarks.WpfCommon"
         xmlns:controls="clr-namespace:PointlessWaymarks.CloudBackupEditorGui.Controls"
+        xmlns:programUpdateMessage="clr-namespace:PointlessWaymarks.WpfCommon.ProgramUpdateMessage;assembly=PointlessWaymarks.WpfCommon"
         mc:Ignorable="d"
         Title="Pointless Waymarks Cloud Backup Job Editor" Height="450" Width="800" d:DataContext="{d:DesignInstance local:MainWindow}">
     <Grid>
         <controls:JobListControl DataContext="{Binding ListContext}"></controls:JobListControl>
+        <programUpdateMessage:ProgramUpdateMessageControl VerticalAlignment="Top" HorizontalAlignment="Center"
+                                                          Width="400" DataContext="{Binding UpdateMessageContext}" />
         <status:StatusControl
             Grid.Row="0"
             d:IsHidden="true"

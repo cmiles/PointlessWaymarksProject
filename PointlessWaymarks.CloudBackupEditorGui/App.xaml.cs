@@ -8,7 +8,7 @@ namespace PointlessWaymarks.CloudBackupEditorGui;
 /// <summary>
 ///     Interaction logic for App.xaml
 /// </summary>
-public partial class App : Application
+public partial class App
 {
     public App()
     {
@@ -24,10 +24,9 @@ public partial class App : Application
         var msg = $"Something went wrong...\r\n\r\n{ex.Message}\r\n\r\n" + "The error has been logged...\r\n\r\n" +
                   "Do you want to continue?";
 
-        var res = MessageBox.Show(msg, "PointlessWaymarksCms App Error", MessageBoxButton.YesNo,
+        var res = MessageBox.Show(msg, "Pointless Waymarks Cloud Backup Editor App Error", MessageBoxButton.YesNo,
             MessageBoxImage.Error,
             MessageBoxResult.Yes);
-
 
         return res != MessageBoxResult.No;
     }
