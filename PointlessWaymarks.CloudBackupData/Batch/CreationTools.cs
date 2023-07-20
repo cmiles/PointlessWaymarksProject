@@ -94,7 +94,6 @@ public static class CreationTools
             }
 
             if (matchingFiles.Any(x =>
-                    x.Metadata.LastWriteTime == loopFiles.UploadMetadata.LastWriteTime &&
                     x.Metadata.FileSystemHash == loopFiles.UploadMetadata.FileSystemHash)) continue;
 
             returnData.FileSystemFilesToUpload.Add(loopFiles);
