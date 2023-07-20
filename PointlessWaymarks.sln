@@ -58,6 +58,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PointlessWaymarks.LlamaAspe
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PointlessWaymarks.CloudBackupRunner", "PointlessWaymarks.CloudBackupRunner\PointlessWaymarks.CloudBackupRunner.csproj", "{5E9084D4-527E-464E-B133-5AEEEE60211A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PointlessWaymarks.RssReaderData", "PointlessWaymarks.RssReaderData\PointlessWaymarks.RssReaderData.csproj", "{4AB7FD0B-FE11-48E1-B692-E4040A985F9D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PointlessWaymarks.RssReaderGui", "PointlessWaymarks.RssReaderGui\PointlessWaymarks.RssReaderGui.csproj", "{E1BAF1E7-C27A-4CF1-94EA-1653A2E0E404}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -156,6 +160,14 @@ Global
 		{5E9084D4-527E-464E-B133-5AEEEE60211A}.Debug|x64.Build.0 = Debug|x64
 		{5E9084D4-527E-464E-B133-5AEEEE60211A}.Release|x64.ActiveCfg = Release|x64
 		{5E9084D4-527E-464E-B133-5AEEEE60211A}.Release|x64.Build.0 = Release|x64
+		{4AB7FD0B-FE11-48E1-B692-E4040A985F9D}.Debug|x64.ActiveCfg = Debug|x64
+		{4AB7FD0B-FE11-48E1-B692-E4040A985F9D}.Debug|x64.Build.0 = Debug|x64
+		{4AB7FD0B-FE11-48E1-B692-E4040A985F9D}.Release|x64.ActiveCfg = Release|x64
+		{4AB7FD0B-FE11-48E1-B692-E4040A985F9D}.Release|x64.Build.0 = Release|x64
+		{E1BAF1E7-C27A-4CF1-94EA-1653A2E0E404}.Debug|x64.ActiveCfg = Debug|x64
+		{E1BAF1E7-C27A-4CF1-94EA-1653A2E0E404}.Debug|x64.Build.0 = Debug|x64
+		{E1BAF1E7-C27A-4CF1-94EA-1653A2E0E404}.Release|x64.ActiveCfg = Release|x64
+		{E1BAF1E7-C27A-4CF1-94EA-1653A2E0E404}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
