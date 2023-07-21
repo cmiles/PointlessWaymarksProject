@@ -71,10 +71,10 @@
                                     </TextBox.Text>
                                 </TextBox>
                                 <WrapPanel Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="1" Margin="10,6,0,8"
-                                           Orientation="Horizontal">
+                                           Orientation="Vertical">
                                     <WrapPanel.Resources>
                                         <Style TargetType="Button">
-                                            <Setter Property="Width" Value="300"></Setter>
+                                            <Setter Property="Width" Value="458"></Setter>
                                             <Setter Property="Padding" Value="10,2,8,2"></Setter>
                                             <Setter Property="Margin" Value="2"></Setter>
                                         </Style>
