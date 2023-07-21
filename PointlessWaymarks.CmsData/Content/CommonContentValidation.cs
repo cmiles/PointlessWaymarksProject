@@ -556,7 +556,7 @@ public static class CommonContentValidation
         if (contentGuid == null)
         {
             var duplicateUrl =
-                (await db.LinkContents.Where(x => x.Url != null && x.Url! == url).ToListAsync().ConfigureAwait(false))
+                (await db.LinkContents.Where(x => x.Url != null).ToListAsync().ConfigureAwait(false))
                 .Any(x => x.Url!.Equals(url, StringComparison.OrdinalIgnoreCase));
             if (duplicateUrl)
                 return new IsValid(false,
@@ -565,7 +565,7 @@ public static class CommonContentValidation
         else
         {
             var duplicateUrl =
-                (await db.LinkContents.Where(x => x.Url != null && x.ContentId != contentGuid.Value && x.Url == url)
+                (await db.LinkContents.Where(x => x.Url != null && x.ContentId != contentGuid.Value)
                     .ToListAsync().ConfigureAwait(false))
                 .Any(x => x.Url!.Equals(url, StringComparison.OrdinalIgnoreCase));
             if (duplicateUrl)
