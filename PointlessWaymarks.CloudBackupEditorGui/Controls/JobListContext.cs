@@ -80,15 +80,17 @@ public partial class JobListContext
         CurrentDatabase = possibleFile.FullName;
     }
 
-    public static async Task<JobListContext> CreateInstance(StatusControlContext? statusContext)
+    public static async Task<JobListContext> CreateInstance(StatusControlContext statusContext)
     {
-        var factoryStatusContext = statusContext ?? new StatusControlContext();
+        await ThreadSwitcher.ResumeBackgroundAsync();
+        
+        var factoryStatusContext = statusContext;
         var settings = CloudBackupEditorGuiSettingTools.ReadSettings();
 
         if (string.IsNullOrWhiteSpace(settings.DatabaseFile) || !File.Exists(settings.DatabaseFile))
         {
             var newDb = UniqueFileTools.UniqueFile(
-                FileLocationHelpers.DefaultStorageDirectory(), "PointlessWaymarks-S3Backup.db");
+                FileLocationHelpers.DefaultStorageDirectory(), "PointlessWaymarks-CloudBackup.db");
             settings.DatabaseFile = newDb!.FullName;
 
             await CloudBackupContext.CreateInstanceWithEnsureCreated(newDb.FullName);
