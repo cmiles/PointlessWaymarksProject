@@ -1,0 +1,54 @@
+﻿<UserControl x:Class="PointlessWaymarks.RssReaderGui.Controls.RssReaderControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="clr-namespace:PointlessWaymarks.RssReaderGui.Controls"
+             xmlns:utility="clr-namespace:PointlessWaymarks.WpfCommon.Utility;assembly=PointlessWaymarks.WpfCommon"
+             xmlns:behaviors="clr-namespace:PointlessWaymarks.WpfCommon.Behaviors;assembly=PointlessWaymarks.WpfCommon"
+             mc:Ignorable="d"
+             d:DesignHeight="800" d:DesignWidth="600" d:DataContext="{d:DesignInstance local:RssReaderContext}">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/PointlessWaymarks.WpfCommon;component/ClassicGreenResourceDictionary.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+            <utility:BindingProxy x:Key="proxy" Data="{Binding}" />
+        </ResourceDictionary>
+    </UserControl.Resources>
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"></ColumnDefinition>
+            <ColumnDefinition Width="*"></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"></RowDefinition>
+            <RowDefinition Height="Auto"></RowDefinition>
+        </Grid.RowDefinitions>
+        <GroupBox
+            Margin="4,4,4,0"
+            Grid.Column="0"
+            Grid.Row="0"
+            Style="{StaticResource UiComponentGroupBoxStyle}"
+            Header="Feed Items">
+            <ListBox ItemsSource="{Binding Items}"
+                     Style="{StaticResource ContentListListBoxStyle}"
+                     SelectedItem="{Binding SelectedItem}"
+                     behaviors:MultiSelectorBehaviors.SynchronizedSelectedItems="{Binding SelectedItems}">
+                <ListBox.ItemTemplate>
+                    <DataTemplate DataType="{x:Type local:RssReaderListItem}">
+                        <TextBlock Text="{Binding DbItem.FeedTitle}"></TextBlock>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox></GroupBox>
+        <Border Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Style="{StaticResource ActionPanelBorderStyle}">
+            <WrapPanel HorizontalAlignment="Center" Orientation="Horizontal">
+                <TextBox Text="{Binding UserAddFeedInput, UpdateSourceTrigger=PropertyChanged}" Width="400"></TextBox>
+                <Button
+                    Content="_Add Feed"
+                    Style="{StaticResource ActionPanelButtonStyle}"
+                    Command="{Binding TryAddFeedCommand}" />
+            </WrapPanel>
+        </Border>
+    </Grid>
+</UserControl>

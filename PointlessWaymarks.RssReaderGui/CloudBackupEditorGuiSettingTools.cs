@@ -9,7 +9,7 @@ public static class RssReaderGuiSettingTools
     public static RssReaderGuiSettings ReadSettings()
     {
         var settingsFileName = Path.Combine(FileLocationTools.DefaultStorageDirectory().FullName,
-            "PwCloudBackupSettings.json");
+            "PwRssReaderSettings.json");
         var settingsFile = new FileInfo(settingsFileName);
 
         if (!settingsFile.Exists)
