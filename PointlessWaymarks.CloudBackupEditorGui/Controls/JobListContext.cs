@@ -1,6 +1,7 @@
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
+using System.Windows;
 using Microsoft.EntityFrameworkCore;
 using Ookii.Dialogs.Wpf;
 using PointlessWaymarks.CloudBackupData;
@@ -22,12 +23,25 @@ public partial class JobListContext
 {
     public required string CurrentDatabase { get; set; }
     public bool CurrentDatabaseIsValid { get; set; }
-
     public DataNotificationsWorkQueue? DataNotificationsProcessor { get; set; }
     public required ObservableCollection<JobListListItem> Items { get; set; }
     public JobListListItem? SelectedJob { get; set; }
     public List<JobListListItem> SelectedJobs { get; set; } = new();
     public required StatusControlContext StatusContext { get; set; }
+
+    [NonBlockingCommand]
+    public async Task BasicCommandLineCommandToClipboard(BackupJob? listItem)
+    {
+        if (listItem is null) return;
+
+        var settings = CloudBackupEditorGuiSettingTools.ReadSettings();
+
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        Clipboard.SetText($@".\PointlessWaymarks.CloudBackupRunner.exe ""{settings.DatabaseFile}"" {listItem.Id}");
+
+        StatusContext.ToastSuccess("Command Line Command on Clipboard");
+    }
 
     [BlockingCommand]
     public async Task ChooseCurrentDb()
@@ -83,7 +97,7 @@ public partial class JobListContext
     public static async Task<JobListContext> CreateInstance(StatusControlContext statusContext)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
-        
+
         var factoryStatusContext = statusContext;
         var settings = CloudBackupEditorGuiSettingTools.ReadSettings();
 

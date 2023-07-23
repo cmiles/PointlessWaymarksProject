@@ -12,16 +12,59 @@ var startTime = DateTime.Now;
 
 if (args.Length is < 1 or > 3)
 {
-    Console.WriteLine("The PointlessWaymarks CloudBackup Runner uses Jobs in an ");
-    Console.WriteLine("existing data to run a backup. See the Pointless Waymarks ");
-    Console.WriteLine("Cloud Backup Gui project to create backup Jobs.");
+    Console.WriteLine("""
+                      The PointlessWaymarks CloudBackup Runner uses Backup Jobs created with the
+                      Pointless Waymarks Cloud Backup Editor to perform Uploads and Deletions on
+                      Amazon S3 to create a backup of your local files. Backup Jobs are stored in
+                      a Database File that is specified as the first argument to the program.
+                      """);
     Console.WriteLine();
-    Console.WriteLine("To list the Jobs in a Database specify the Db Filename");
-    Console.WriteLine("To run a job with a full file scan specify the Db Filename and Job Id");
-    Console.WriteLine("To restart a batch:");
-    Console.WriteLine("  Specify the Batch Id (if not found a new batch will be created)");
-    Console.WriteLine("  Specify 'last' (if there is no last batch a new batch will be created)");
-    Console.WriteLine("  To have the program guess whether there is a batch worth resuming specify 'auto'");
+    Console.WriteLine("""
+                      To list Backup Jobs and recent Transfer Batches specify the Database File
+                      as the only argument to the program.
+                      """);
+    Console.WriteLine();
+    Console.WriteLine("""
+                      To run a Backup Job provide the Database File and Job Id as arguments.
+                      """);
+    Console.WriteLine();
+    Console.WriteLine("""
+                      By default when you run a Backup Job the program will scan every local and
+                      S3 file for changes to create a 'Transfer Batch' in the database. The Transfer
+                      Batch holds a record of all the Uploads and Deletions needed to
+                      make S3 match your local files. With larger numbers of files this can take
+                      a long time... If you have a large number of files, or a backup of files that
+                      only change infrequently, it may make sense to resume a previous Batch.
+                      """);
+    Console.WriteLine();
+    Console.WriteLine("""
+                      Resuming a previous Transfer Batch will mean that the backup will NOT account
+                      for any file changes since the Batch was created!! It will also mean the program
+                      will spend more time uploading and deleting files and less time scanning for
+                      changes... Use with caution!
+                      """);
+    Console.WriteLine();
+    Console.WriteLine("""
+                      To try to resume a batch specify the Database File, Job Id and:
+                      """);
+    Console.WriteLine();
+    Console.WriteLine("""
+                        Batch Id - To resume a specific Batch specify the Batch Id. If the Batch Id
+                        is not found a new Batch will be created.
+                      """);
+    Console.WriteLine();
+    Console.WriteLine("""
+                        last - To resume the last Batch specify 'last'. If there is no last batch a
+                        new Batch will be created.
+                      """);
+    Console.WriteLine();
+    Console.WriteLine("""
+                        auto - To have the program guess whether there is a batch worth resuming specify
+                        'auto'. This will look for a recent batch that has a low error rate and still
+                        needs a large number of uploads to complete. If a 'best guess' Batch is not found
+                        a new batch will be created.
+                      """);
+    return;
 }
 
 var consoleId = Guid.NewGuid();
@@ -126,11 +169,12 @@ if (args.Length == 3)
         Console.WriteLine("Auto Batch Selection");
         Console.WriteLine($"  Last Batch: Id {mostRecentBatch.Id} Created On: {mostRecentBatch.CreatedOn}");
         Console.WriteLine($"  Total Actions: {totalActions}");
-        Console.WriteLine($"  Successful Actions: {successfulActions} - {successfulActions / (decimal)totalActions:P0}");
+        Console.WriteLine(
+            $"  Successful Actions: {successfulActions} - {successfulActions / (decimal)totalActions:P0}");
         Console.WriteLine($"  Error Actions: {errorActions} - {errorActions / (decimal)totalActions:P0}");
         Console.WriteLine($"    High Percent Success: {highPercentSuccess}");
         Console.WriteLine($"    High Percent Errors: {highPercentErrors}");
-        
+
         if (!highPercentSuccess && !highPercentErrors)
         {
             batch = mostRecentBatch;
