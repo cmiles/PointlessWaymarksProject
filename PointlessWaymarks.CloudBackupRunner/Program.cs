@@ -92,8 +92,17 @@ if (args.Length == 1)
     Log.Verbose("Found {jobCount} Jobs", jobs.Count);
 
     foreach (var loopJob in jobs)
+    {
         Console.WriteLine(
             $"{loopJob.Id}  {loopJob.Name}: {loopJob.LocalDirectory} to {loopJob.CloudBucket}:{loopJob.CloudDirectory}");
+
+        var batches = loopJob.Batches.OrderByDescending(x => x.CreatedOn).Take(5).ToList();
+
+        foreach (var loopBatch in batches)
+        {
+            Console.WriteLine($"  Batch Id {loopBatch.Id} - {loopBatch.CreatedOn} - Uploads {loopBatch.CloudUploads.Count(x => x.UploadCompletedSuccessfully)} of {loopBatch.CloudUploads.Count} Complete, Deletions {loopBatch.CloudDeletions.Count(x => x.DeletionCompletedSuccessfully)} of {loopBatch.CloudDeletions.Count} Complete, {loopBatch.CloudUploads.Count(x => !string.IsNullOrWhiteSpace(x.ErrorMessage)) + loopBatch.CloudDeletions.Count(x => !string.IsNullOrWhiteSpace(x.ErrorMessage))} Errors");
+        }
+    }
 
     Log.CloseAndFlush();
     return;
