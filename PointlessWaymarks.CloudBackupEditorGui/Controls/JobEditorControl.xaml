@@ -59,7 +59,7 @@
                             Content="Cloud Credentials"
                             Style="{StaticResource DataEntryLabelStyle}"
                             Target="{Binding ElementName=ValueTextBox}"
-                            ToolTip="The Region of the Cloud Account" />
+                            ToolTip="Enter the credentials to use to access S3" />
                         <Image ToolTip="Please make sure all credentials are entered."
                                Source="{svgc:SvgImage Source=/Icons/alert-octagon.svg, AppName=PointlessWaymarks.WpfCommon}"
                                Visibility="{Binding CloudCredentialsHaveValidationIssues, Converter={StaticResource BooleanToVisibility}}"
@@ -100,7 +100,10 @@
                 <GroupBox Style="{StaticResource EntryListStyle}">
                     <GroupBox.Header>
                         <StackPanel Orientation="Horizontal">
-                            <TextBlock>Excluded Directories</TextBlock>
+                            <Label
+                                Content="Excluded Directories"
+                                Style="{StaticResource DataEntryLabelStyle}"
+                                ToolTip="Directory Paths to be Excluded - any subdirectories will also be excluded" />
                             <Image Margin="4,0,0,0"
                                    Source="{svgc:SvgImage Source=/Icons/information-outline.svg, AppName=PointlessWaymarks.WpfCommon}"
                                    Visibility="{Binding ExcludedDirectoriesHasChanges, Converter={StaticResource BooleanToVisibility}}"
@@ -135,7 +138,10 @@
                 <GroupBox Style="{StaticResource EntryListStyle}">
                     <GroupBox.Header>
                         <StackPanel Orientation="Horizontal">
-                            <TextBlock>Excluded Directory Patterns</TextBlock>
+                            <Label
+                                Content="Excluded Directory Patterns"
+                                Style="{StaticResource DataEntryLabelStyle}"
+                                ToolTip="Directory names matching these patterns will be excluded and all subdirectories will be excluded. Use * and ? as Wildcards." />
                             <Image Margin="4,0,0,0"
                                    Source="{svgc:SvgImage Source=/Icons/information-outline.svg, AppName=PointlessWaymarks.WpfCommon}"
                                    Visibility="{Binding ExcludedDirectoryPatternsHasChanges, Converter={StaticResource BooleanToVisibility}}"
@@ -171,7 +177,10 @@
                 <GroupBox Style="{StaticResource EntryListStyle}">
                     <GroupBox.Header>
                         <StackPanel Orientation="Horizontal">
-                            <TextBlock>Excluded File Patterns</TextBlock>
+                            <Label
+                                Content="Excluded File Patterns"
+                                Style="{StaticResource DataEntryLabelStyle}"
+                                ToolTip="Directory names matching these patterns will be excluded and all subdirectories will be excluded. Use * and ? as Wildcards." />
                             <Image Margin="4,0,0,0"
                                    Source="{svgc:SvgImage Source=/Icons/information-outline.svg, AppName=PointlessWaymarks.WpfCommon}"
                                    Visibility="{Binding ExcludedFilePatternsHasChanges, Converter={StaticResource BooleanToVisibility}}"
