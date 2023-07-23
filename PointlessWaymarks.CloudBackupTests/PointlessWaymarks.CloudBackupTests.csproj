@@ -22,8 +22,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\PointlessWaymarks.CloudBackupData\PointlessWaymarks.CloudBackupData.csproj" />
-    <ProjectReference Include="..\PointlessWaymarks.CloudBackupGui\PointlessWaymarks.CloudBackupGui.csproj" />
+    <ProjectReference Include="..\PointlessWaymarks.CloudBackupEditorGui\PointlessWaymarks.CloudBackupEditorGui.csproj" />
   </ItemGroup>
 
 </Project>

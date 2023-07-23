@@ -17,8 +17,8 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Jot" Version="2.1.16" />
-    <PackageReference Include="Metalama.Framework" Version="2023.2.1-preview" />
+    <PackageReference Include="Jot" Version="2.1.17" />
+    <PackageReference Include="Metalama.Framework" Version="2023.2.2-rc" />
     <PackageReference Include="ModernWpfUI" Version="0.9.6" />
     <PackageReference Include="System.Configuration.ConfigurationManager" Version="7.0.0" />
   </ItemGroup>
