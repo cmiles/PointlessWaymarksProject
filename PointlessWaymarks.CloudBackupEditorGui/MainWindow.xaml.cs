@@ -1,3 +1,4 @@
+using System.Configuration;
 using PointlessWaymarks.CloudBackupEditorGui.Controls;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.LlamaAspects;
@@ -102,6 +103,8 @@ public partial class MainWindow
             HelpMarkdown.SoftwareUsedBlock
         });
 
+        SettingsContext = new AppSettingsContext();
+
         StatusContext.RunFireAndForgetBlockingTask(async () =>
         {
             await CheckForProgramUpdate(currentDateVersion);
@@ -109,6 +112,8 @@ public partial class MainWindow
             await LoadData();
         });
     }
+    
+    public AppSettingsContext SettingsContext { get; set; }
 
     public HelpDisplayContext HelpContext { get; set; }
     public string InfoTitle { get; set; }
@@ -127,7 +132,7 @@ public partial class MainWindow
 
         var (dateString, setupFile) = ProgramInfoTools.LatestInstaller(
             settings.ProgramUpdateDirectory,
-            "PointlessWaymarksCloudBackupSetup");
+            "PointlessWaymarksCloudBackupEditorSetup");
 
         Log.Information(
             $"Program Update Check - Current Version {currentDateVersion}, Installer Directory {settings.ProgramUpdateDirectory}, Installer Date Found {dateString ?? string.Empty}, Setup File Found {setupFile?.FullName ?? string.Empty}");

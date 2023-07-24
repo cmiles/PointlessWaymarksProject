@@ -20,6 +20,9 @@
             <TabItem Header="Help and Notes">
                 <markdownDisplay:HelpDisplayControl DataContext="{Binding HelpContext}" />
             </TabItem>
+            <TabItem Header="App Settings">
+                <controls:AppSettingsControl DataContext="{Binding SettingsContext}"></controls:AppSettingsControl>
+            </TabItem>
         </TabControl>
         <programUpdateMessage:ProgramUpdateMessageControl VerticalAlignment="Top" HorizontalAlignment="Center"
                                                           Width="400" DataContext="{Binding UpdateMessageContext}" />
