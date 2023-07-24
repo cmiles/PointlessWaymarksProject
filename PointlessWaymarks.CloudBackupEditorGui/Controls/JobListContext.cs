@@ -151,6 +151,37 @@ public partial class JobListContext
         if (toRun is not null) await toRun;
     }
 
+    [BlockingCommand]
+    public async Task DeleteJob(BackupJob? toDelete)
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (toDelete == null)
+        {
+            StatusContext.ToastWarning("Nothing Selected to Delete?");
+            return;
+        }
+
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        if (MessageBox.Show(
+                "Deleting a Backup Job will NOT delete any files or directories - but it will delete all records associated with this backup job! Continue??",
+                "Delete Warning", MessageBoxButton.YesNo) == MessageBoxResult.No)
+            return;
+
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        PasswordVaultTools.RemoveCredentials(toDelete.VaultIdentifier);
+
+        var db = await CloudBackupContext.CreateInstance();
+        var currentItem = await db.BackupJobs.SingleAsync(x => x.Id == toDelete.Id);
+
+        db.Remove(currentItem);
+        await db.SaveChangesAsync();
+
+        await RefreshList();
+    }
+
     [NonBlockingCommand]
     public async Task EditJob(BackupJob? toEdit)
     {
@@ -167,6 +198,7 @@ public partial class JobListContext
         var window = await JobEditorWindow.CreateInstance(toEdit, CurrentDatabase);
         window.PositionWindowAndShow();
     }
+
 
     [NonBlockingCommand]
     public async Task EditSelectedJob()

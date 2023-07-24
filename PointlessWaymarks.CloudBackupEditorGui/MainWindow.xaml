@@ -16,7 +16,6 @@
         <TabControl>
             <TabItem Header="Jobs">
                 <controls:JobListControl DataContext="{Binding ListContext}"></controls:JobListControl>
-
             </TabItem>
             <TabItem Header="Help and Notes">
                 <markdownDisplay:HelpDisplayControl DataContext="{Binding HelpContext}" />

@@ -115,6 +115,11 @@
                                         Progress to Window
                                     </Button>
                                     <Button Padding="10,2,8,2"  Margin="4,0,0,0"
+                                            Command="{Binding Data.DeleteJobCommand, Source={StaticResource proxy}}"
+                                            CommandParameter="{Binding DbJob}">
+                                        Delete Backup Job
+                                    </Button>
+                                    <Button Padding="10,2,8,2"  Margin="4,0,0,0"
                                             Command="{Binding Data.BasicCommandLineCommandToClipboardCommand, Source={StaticResource proxy}}"
                                             CommandParameter="{Binding DbJob}">
                                         Command Line Command to Clipboard

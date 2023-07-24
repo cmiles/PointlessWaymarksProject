@@ -7,6 +7,7 @@
              xmlns:utility="clr-namespace:PointlessWaymarks.WpfCommon.Utility;assembly=PointlessWaymarks.WpfCommon"
              xmlns:behaviors="clr-namespace:PointlessWaymarks.WpfCommon.Behaviors;assembly=PointlessWaymarks.WpfCommon"
              xmlns:controls="clr-namespace:PointlessWaymarks.CloudBackupEditorGui.Controls"
+             xmlns:markdownDisplay="clr-namespace:PointlessWaymarks.WpfCommon.MarkdownDisplay;assembly=PointlessWaymarks.WpfCommon"
              mc:Ignorable="d"
              d:DesignHeight="450" d:DesignWidth="800" d:DataContext="{d:DesignInstance local:BatchListContext}">
     <UserControl.Resources>
@@ -23,126 +24,146 @@
             </CollectionViewSource>
         </ResourceDictionary>
     </UserControl.Resources>
-    <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="*"></RowDefinition>
-            <RowDefinition Height="Auto"></RowDefinition>
-        </Grid.RowDefinitions>
-        <GroupBox
-            Margin="4,4,4,0"
-            Style="{StaticResource UiComponentGroupBoxStyle}">
-            <GroupBox.Header>
-                <TextBlock Grid.Column="0" Grid.Row="1" Margin="6,4,0,0">
-                    <TextBlock.Text>
-                        <MultiBinding StringFormat="Batches - {0}, Id {1} - {2} to {3}/{4}">
-                            <Binding Path="DbJob.Name" />
-                            <Binding Path="DbJob.Id" />
-                            <Binding Path="DbJob.LocalDirectory" />
-                            <Binding Path="DbJob.CloudBucket" />
-                            <Binding Path="DbJob.CloudDirectory" />
-                        </MultiBinding>
-                    </TextBlock.Text>
-                </TextBlock>
-            </GroupBox.Header>
-            <ListBox ItemsSource="{Binding Source={StaticResource SortedItems}}"
-                     Style="{StaticResource ContentListListBoxStyle}"
-                     SelectedItem="{Binding SelectedBatch}"
-                     behaviors:MultiSelectorBehaviors.SynchronizedSelectedItems="{Binding SelectedBatches}">
-                <ListBox.ItemTemplate>
-                    <DataTemplate DataType="{x:Type controls:BatchListListItem}">
-                        <Border Style="{StaticResource ContentListOuterBorderStyle}">
-                            <Grid Style="{StaticResource ContentListOuterGridStyle}">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="290"></ColumnDefinition>
-                                    <ColumnDefinition Width="*"></ColumnDefinition>
-                                </Grid.ColumnDefinitions>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="Auto"></RowDefinition>
-                                    <RowDefinition Height="Auto"></RowDefinition>
-                                    <RowDefinition Height="Auto"></RowDefinition>
-                                </Grid.RowDefinitions>
-                                <TextBox FontWeight="Bold" Style="{StaticResource ReadOnlyTextBoxStyle}"
-                                         TextWrapping="Wrap">
-                                    <TextBox.Text>
-                                        <MultiBinding StringFormat="Created {0} - Id {1}">
-                                            <Binding Path="DbBatch.CreatedOn" />
-                                            <Binding Path="DbBatch.Id" />
-                                        </MultiBinding>
-                                    </TextBox.Text>
-                                </TextBox>
-                                <WrapPanel Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="1" Margin="10,6,0,8"
-                                           Orientation="Vertical">
-                                    <WrapPanel.Resources>
-                                        <Style TargetType="Button">
-                                            <Setter Property="Width" Value="458"></Setter>
-                                            <Setter Property="Padding" Value="10,2,8,2"></Setter>
-                                            <Setter Property="Margin" Value="2"></Setter>
-                                        </Style>
-                                    </WrapPanel.Resources>
-                                    <Button Command="{Binding Data.UploadsToExcelCommand, Source={StaticResource proxy}}"
-                                            CommandParameter="{Binding DbBatch}">
-                                        <TextBlock>
-                                            <TextBlock.Text>
-                                                <MultiBinding
-                                                    StringFormat="Uploads: {0}; {1} Complete; {2} Remaining; {3} Errors">
-                                                    <Binding Path="UploadCount" />
-                                                    <Binding Path="UploadsCompleteCount" />
-                                                    <Binding Path="UploadsNotCompletedCount" />
-                                                    <Binding Path="UploadsWithErrorNoteCount" />
+    <TabControl>
+        <TabItem Header="Batches">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"></RowDefinition>
+                    <RowDefinition Height="Auto"></RowDefinition>
+                </Grid.RowDefinitions>
+                <GroupBox
+                    Margin="4,4,4,0"
+                    Style="{StaticResource UiComponentGroupBoxStyle}">
+                    <GroupBox.Header>
+                        <TextBlock Grid.Column="0" Grid.Row="1" Margin="6,4,0,0">
+                            <TextBlock.Text>
+                                <MultiBinding StringFormat="Batches - {0}, Id {1} - {2} to {3}/{4}">
+                                    <Binding Path="DbJob.Name" />
+                                    <Binding Path="DbJob.Id" />
+                                    <Binding Path="DbJob.LocalDirectory" />
+                                    <Binding Path="DbJob.CloudBucket" />
+                                    <Binding Path="DbJob.CloudDirectory" />
+                                </MultiBinding>
+                            </TextBlock.Text>
+                        </TextBlock>
+                    </GroupBox.Header>
+                    <ListBox ItemsSource="{Binding Source={StaticResource SortedItems}}"
+                             Style="{StaticResource ContentListListBoxStyle}"
+                             SelectedItem="{Binding SelectedBatch}"
+                             behaviors:MultiSelectorBehaviors.SynchronizedSelectedItems="{Binding SelectedBatches}">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate DataType="{x:Type controls:BatchListListItem}">
+                                <Border Style="{StaticResource ContentListOuterBorderStyle}">
+                                    <Grid Style="{StaticResource ContentListOuterGridStyle}">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="290"></ColumnDefinition>
+                                            <ColumnDefinition Width="*"></ColumnDefinition>
+                                        </Grid.ColumnDefinitions>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"></RowDefinition>
+                                            <RowDefinition Height="Auto"></RowDefinition>
+                                            <RowDefinition Height="Auto"></RowDefinition>
+                                        </Grid.RowDefinitions>
+                                        <TextBox FontWeight="Bold" Style="{StaticResource ReadOnlyTextBoxStyle}"
+                                                 TextWrapping="Wrap">
+                                            <TextBox.Text>
+                                                <MultiBinding StringFormat="Created {0} - Id {1}">
+                                                    <Binding Path="DbBatch.CreatedOn" />
+                                                    <Binding Path="DbBatch.Id" />
                                                 </MultiBinding>
-                                            </TextBlock.Text>
-                                        </TextBlock>
-                                    </Button>
-                                    <Button Command="{Binding Data.DeletesToExcelCommand, Source={StaticResource proxy}}"
-                                            CommandParameter="{Binding DbBatch}">
-                                        <TextBlock>
-                                            <TextBlock.Text>
-                                                <MultiBinding
-                                                    StringFormat="Deletes: {0}; {1} Complete; {2} Remaining; {3} Errors">
-                                                    <Binding Path="DeletesCount" />
-                                                    <Binding Path="DeletesCompleteCount" />
-                                                    <Binding Path="DeletesNotCompletedCount" />
-                                                    <Binding Path="DeletesWithErrorNoteCount" />
-                                                </MultiBinding>
-                                            </TextBlock.Text>
-                                        </TextBlock>
-                                    </Button>
-                                </WrapPanel>
-                                <WrapPanel Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="2" Margin="10,6,0,8"
-                                           Orientation="Horizontal">
-                                    <WrapPanel.Resources>
-                                        <Style TargetType="Button">
-                                            <Setter Property="Width" Value="150"></Setter>
-                                            <Setter Property="Padding" Value="10,2,8,2"></Setter>
-                                            <Setter Property="Margin" Value="2"></Setter>
-                                        </Style>
-                                    </WrapPanel.Resources>
-                                    <Button  Command="{Binding Data.LocalFilesToExcelCommand, Source={StaticResource proxy}}"
-                                            CommandParameter="{Binding DbBatch}">
-                                        <TextBlock Text="{Binding LocalFileCount, StringFormat='Local Files: {0}'}"></TextBlock>
-                                    </Button>
-                                    <Button Command="{Binding Data.CloudFilesToExcelCommand, Source={StaticResource proxy}}"
-                                            CommandParameter="{Binding DbBatch}">
-                                        <TextBlock Text="{Binding CloudFileCount, StringFormat='Cloud Files: {0}'}"></TextBlock>
-                                    </Button>
-                                    <Button  Command="{Binding Data.BatchToExcelCommand, Source={StaticResource proxy}}"
-                                            CommandParameter="{Binding DbBatch}">
-                                        <TextBlock>Full Report</TextBlock>
-                                    </Button>
-                                </WrapPanel>
-                            </Grid>
-                        </Border>
-                    </DataTemplate>
-                </ListBox.ItemTemplate>
-            </ListBox>
-        </GroupBox>
-        <Border Grid.Row="1" Style="{StaticResource ActionPanelBorderStyle}">
-            <WrapPanel HorizontalAlignment="Center" Orientation="Horizontal">
-                <Button
-                    Content="_Refresh"
-                    Style="{StaticResource ActionPanelButtonStyle}"
-                    Command="{Binding RefreshListCommand}" />
-            </WrapPanel>
-        </Border>
-    </Grid>
+                                            </TextBox.Text>
+                                        </TextBox>
+                                        <WrapPanel Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="1" Margin="10,6,0,8"
+                                                   Orientation="Vertical">
+                                            <WrapPanel.Resources>
+                                                <Style TargetType="Button">
+                                                    <Setter Property="Width" Value="458"></Setter>
+                                                    <Setter Property="Padding" Value="10,2,8,2"></Setter>
+                                                    <Setter Property="Margin" Value="2"></Setter>
+                                                </Style>
+                                            </WrapPanel.Resources>
+                                            <Button
+                                                Command="{Binding Data.UploadsToExcelCommand, Source={StaticResource proxy}}"
+                                                CommandParameter="{Binding DbBatch}">
+                                                <TextBlock>
+                                                    <TextBlock.Text>
+                                                        <MultiBinding
+                                                            StringFormat="Uploads: {0}; {1} Complete; {2} Remaining; {3} Errors">
+                                                            <Binding Path="UploadCount" />
+                                                            <Binding Path="UploadsCompleteCount" />
+                                                            <Binding Path="UploadsNotCompletedCount" />
+                                                            <Binding Path="UploadsWithErrorNoteCount" />
+                                                        </MultiBinding>
+                                                    </TextBlock.Text>
+                                                </TextBlock>
+                                            </Button>
+                                            <Button
+                                                Command="{Binding Data.DeletesToExcelCommand, Source={StaticResource proxy}}"
+                                                CommandParameter="{Binding DbBatch}">
+                                                <TextBlock>
+                                                    <TextBlock.Text>
+                                                        <MultiBinding
+                                                            StringFormat="Deletes: {0}; {1} Complete; {2} Remaining; {3} Errors">
+                                                            <Binding Path="DeletesCount" />
+                                                            <Binding Path="DeletesCompleteCount" />
+                                                            <Binding Path="DeletesNotCompletedCount" />
+                                                            <Binding Path="DeletesWithErrorNoteCount" />
+                                                        </MultiBinding>
+                                                    </TextBlock.Text>
+                                                </TextBlock>
+                                            </Button>
+                                        </WrapPanel>
+                                        <WrapPanel Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="2" Margin="10,6,0,8"
+                                                   Orientation="Horizontal">
+                                            <WrapPanel.Resources>
+                                                <Style TargetType="Button">
+                                                    <Setter Property="Width" Value="150"></Setter>
+                                                    <Setter Property="Padding" Value="10,2,8,2"></Setter>
+                                                    <Setter Property="Margin" Value="2"></Setter>
+                                                </Style>
+                                            </WrapPanel.Resources>
+                                            <Button
+                                                Command="{Binding Data.LocalFilesToExcelCommand, Source={StaticResource proxy}}"
+                                                CommandParameter="{Binding DbBatch}">
+                                                <TextBlock
+                                                    Text="{Binding LocalFileCount, StringFormat='Local Files: {0}'}">
+                                                </TextBlock>
+                                            </Button>
+                                            <Button
+                                                Command="{Binding Data.CloudFilesToExcelCommand, Source={StaticResource proxy}}"
+                                                CommandParameter="{Binding DbBatch}">
+                                                <TextBlock
+                                                    Text="{Binding CloudFileCount, StringFormat='Cloud Files: {0}'}">
+                                                </TextBlock>
+                                            </Button>
+                                            <Button
+                                                Command="{Binding Data.BatchToExcelCommand, Source={StaticResource proxy}}"
+                                                CommandParameter="{Binding DbBatch}">
+                                                <TextBlock>Full Report</TextBlock>
+                                            </Button>
+                                        </WrapPanel>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </GroupBox>
+                <Border Grid.Row="1" Style="{StaticResource ActionPanelBorderStyle}">
+                    <WrapPanel HorizontalAlignment="Center" Orientation="Horizontal">
+                        <Button
+                            Content="Delete Selected"
+                            Style="{StaticResource ActionPanelButtonStyle}"
+                            Command="{Binding DeleteSelectedBatchesCommand}" />
+                        <Button
+                            Content="_Refresh"
+                            Style="{StaticResource ActionPanelButtonStyle}"
+                            Command="{Binding RefreshListCommand}" />
+                    </WrapPanel>
+                </Border>
+            </Grid>
+        </TabItem>
+        <TabItem Header="Help and Notes">
+            <markdownDisplay:HelpDisplayControl DataContext="{Binding HelpContext}" />
+        </TabItem>
+    </TabControl>
 </UserControl>

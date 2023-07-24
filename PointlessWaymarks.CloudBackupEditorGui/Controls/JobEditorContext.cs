@@ -14,6 +14,7 @@ using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon.ChangesAndValidation;
 using PointlessWaymarks.WpfCommon.ConversionDataEntry;
 using PointlessWaymarks.WpfCommon.ExistingDirectoryDataEntry;
+using PointlessWaymarks.WpfCommon.MarkdownDisplay;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.StringDataEntry;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
@@ -25,6 +26,32 @@ namespace PointlessWaymarks.CloudBackupEditorGui.Controls;
 public partial class JobEditorContext : IHasChanges, IHasValidationIssues,
     ICheckForChangesAndValidation
 {
+    public readonly string HelpText = """
+                                      ## Cloud Backup Editor
+
+                                      The Cloud Backup Editor is used to create and update Backup Jobs.
+
+                                      Fields:
+                                       - Name: The program displays, but does not 'use' this value and this is intended for you to have an easy way to identify a job.
+                                       - Initial Local Directory: A Backup Job must start with a single local directory. Unless excluded (see Exclusions below) all subdirectories are included.
+                                       - Cloud Bucket: The Amazon S3 'bucket'.
+                                       - Cloud Directory: The initial Amazon S3 directory for the job.
+                                       - Maximum Runtime in Hours: A focus for this program is scheduled (thru the Windows Task Scheduler) runs with a maximum duration - this allows scheduling your backup runs in time periods where it won't use bandwidth better used for meetings, remote work, streaming and games.
+                                       - Cloud Credentials: This will allow you to enter your S3 Access and Secret Keys. These are stored in the Windows Credential Manager - this does mean that your credentials could potentially be exposed to malicious programs running as you! You will need to decide for yourself if this is secure enough...
+                                       - Cloud Region: The Region of your Bucket.
+                                       - Excluded Directories: This is a list of full directory paths that are excluded. Once a directory is excluded all of its content and subdirectories are excluded also! This list lets you exclude specific directories but will almost certainly require you to reset/rework this list if you Initial Local Directory changes...
+                                       - Excluded Directory Patterns: In directories matching any of the given patterns are excluded - once a directory is excluded all contents and subdirectories are also excluded. Matching by patterns like temp* or *data can sometimes make temporary directories easier to excluded. * and ? are the accepted wildcards.
+                                       - Excluded File Patterns: Files that match any of these patterns will be excluded from your backup. * and ? are the accepted wildcards.
+
+                                      Hover over field names for some additional help and look for indicators in the UI that will show you changes and problems.
+
+                                      Jobs in the Backup Job List have a 'Included/Excluded Files Report' - this report can take a long time to run, but it is suggested that before you run a backup you let that report run and examine the results in order not to be surprised about what is included and what is excluded.
+
+                                      ### Progress
+
+                                      Jobs in the list will have the last progress message from any backups running on your local machine. This can make it easy to quickly see which jobs are running especially if a Task Runner like Windows Scheduler is set to hide the console window the backup is running in. To see more progress use the 'Progress to Window' button. This progress display only tracks progress for processes on the local machine.
+                                      """;
+
     public List<string> AwsRegionChoices { get; set; } = new();
     public bool AwsRegionHasChanges { get; set; }
     public bool AwsRegionHasValidationIssues { get; set; }
@@ -46,6 +73,8 @@ public partial class JobEditorContext : IHasChanges, IHasValidationIssues,
     public required List<string> ExcludedFilePatternsOriginal { get; set; } = new();
     public bool HasChanges { get; set; }
     public bool HasValidationIssues { get; set; }
+
+    public HelpDisplayContext? HelpContext { get; set; }
     public required BackupJob LoadedJob { get; set; }
     public EventHandler? RequestContentEditorWindowClose { get; set; }
     public DirectoryInfo? SelectedExcludedDirectory { get; set; }
@@ -215,9 +244,9 @@ public partial class JobEditorContext : IHasChanges, IHasValidationIssues,
         };
 
         var cloudBucketEntry = StringDataEntryContext.CreateInstance();
-        cloudBucketEntry.Title = "Job Cloud Bucket";
+        cloudBucketEntry.Title = "Cloud Bucket";
         cloudBucketEntry.HelpText =
-            "The Cloud Bucket for the job.";
+            "The S3/Cloud Bucket for the job.";
         cloudBucketEntry.ReferenceValue = initialJob.CloudBucket;
         cloudBucketEntry.UserValue = initialJob.CloudBucket;
         cloudBucketEntry.ValidationFunctions = new List<Func<string?, Task<IsValid>>>
@@ -233,9 +262,9 @@ public partial class JobEditorContext : IHasChanges, IHasValidationIssues,
         };
 
         var cloudDirectoryEntry = StringDataEntryContext.CreateInstance();
-        cloudDirectoryEntry.Title = "Job Cloud Directory";
+        cloudDirectoryEntry.Title = "Cloud Directory";
         cloudDirectoryEntry.HelpText =
-            "A Cloud Directory for the job - for simplicity can be as simple as a single descriptive folder name";
+            "The S3/Cloud Directory for the job - for simplicity can be as simple as a single descriptive folder name";
         cloudDirectoryEntry.ReferenceValue = initialJob.CloudDirectory;
         cloudDirectoryEntry.UserValue = initialJob.CloudDirectory;
         cloudDirectoryEntry.ValidationFunctions = new List<Func<string?, Task<IsValid>>>
@@ -312,9 +341,9 @@ public partial class JobEditorContext : IHasChanges, IHasValidationIssues,
 
         var maximumRuntimeHoursEntry =
             await ConversionDataEntryContext<int>.CreateInstance(ConversionDataEntryHelpers.IntConversion);
-        maximumRuntimeHoursEntry.Title = "Default Maximum Runtime Hours";
+        maximumRuntimeHoursEntry.Title = "Maximum Runtime in Hours";
         maximumRuntimeHoursEntry.HelpText =
-            "The maximum number of hours during which new uploads will be started. This is a default value - you can override it for each run of the job.";
+            "The maximum number of hours during which new uploads will be started.";
         maximumRuntimeHoursEntry.ReferenceValue = initialJob.MaximumRunTimeInHours;
         maximumRuntimeHoursEntry.UserText = initialJob.MaximumRunTimeInHours.ToString();
         maximumRuntimeHoursEntry.ValidationFunctions = new List<Func<int, Task<IsValid>>>
@@ -690,6 +719,11 @@ public partial class JobEditorContext : IHasChanges, IHasValidationIssues,
         ExcludedDirectories.CollectionChanged += ExcludedDirectoriesOnCollectionChanged;
         ExcludedDirectoryPatterns.CollectionChanged += ExcludedDirectoryPatternsOnCollectionChanged;
         ExcludedFilePatterns.CollectionChanged += ExcludedFilePatternsOnCollectionChanged;
+
+        HelpContext = new HelpDisplayContext(new List<string>
+        {
+            HelpText
+        });
 
         AwsRegionCheckForChangesAndValidationIssues();
         CloudCredentialsCheckForValidationIssues();

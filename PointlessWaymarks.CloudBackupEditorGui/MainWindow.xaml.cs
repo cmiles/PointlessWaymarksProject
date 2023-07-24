@@ -12,11 +12,13 @@ namespace PointlessWaymarks.CloudBackupEditorGui;
 [NotifyPropertyChanged]
 public partial class MainWindow
 {
-    public string HelpText =
+    public readonly string HelpText =
         """
-        # Pointless Waymarks Cloud Backup
+        ## Pointless Waymarks Cloud Backup
 
         **This program uses Amazon S3 - Amazon S3 is not free and Amazon charges you for nearly EVERYTHING related to S3 - bandwidth, storage, requests... Using this program WILL INCUR CHARGES on your Amazon AWS Account and it WILL NOT help you calculate, estimate, limit or manage those costs!! In general this is a well understood part of setting up and using Amazon S3 but be warned...**
+
+        **This program stores your AWS Keys in the Windows Credential Manager. This could expose your keys to malicious programs running under your login - it is up to you to decide if this is too much of a security risk. Unfortunately it is difficult to create a system where a autonomous program runs without your interaction and with complete security...**
 
         The Pointless Waymarks Cloud Backup is designed to create a backup of your local files on Amazon S3. Core details include a focus on data files (system/OS/whole disk backups are not the target of this program), time limited backup runs, Excel reporting and easy scheduling via the Windows Task Scheduler.
 
@@ -109,7 +111,6 @@ public partial class MainWindow
     }
 
     public HelpDisplayContext HelpContext { get; set; }
-
     public string InfoTitle { get; set; }
     public JobListContext? ListContext { get; set; }
     public StatusControlContext StatusContext { get; set; }

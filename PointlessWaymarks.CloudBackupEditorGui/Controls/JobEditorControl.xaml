@@ -10,6 +10,7 @@
              xmlns:svgc="http://sharpvectors.codeplex.com/svgc/"
              xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:behaviors="clr-namespace:PointlessWaymarks.WpfCommon.Behaviors;assembly=PointlessWaymarks.WpfCommon"
+             xmlns:markdownDisplay="clr-namespace:PointlessWaymarks.WpfCommon.MarkdownDisplay;assembly=PointlessWaymarks.WpfCommon"
              mc:Ignorable="d"
              d:DesignHeight="600" d:DesignWidth="600" d:DataContext="{d:DesignInstance local:JobEditorContext}">
     <UserControl.Resources>
@@ -19,217 +20,228 @@
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </UserControl.Resources>
-    <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="*"></RowDefinition>
-            <RowDefinition Height="Auto"></RowDefinition>
-        </Grid.RowDefinitions>
-        <ScrollViewer HorizontalScrollBarVisibility="Disabled">
-            <StackPanel Orientation="Vertical" CanHorizontallyScroll="False">
-                <StackPanel.Resources>
-                    <Style x:Key="EntryStyle" TargetType="Control">
-                        <Setter Property="Margin" Value="0,8,8,0"></Setter>
-                    </Style>
-                    <Style x:Key="EntryListStyle" TargetType="GroupBox"
-                           BasedOn="{StaticResource UiComponentGroupBoxStyle}">
-                        <Setter Property="Margin" Value="6,12,8,0"></Setter>
-                    </Style>
-                    <Style x:Key="EntryListButton" TargetType="Button">
-                        <Setter Property="Margin" Value="4,6,4,0"></Setter>
-                        <Setter Property="Width" Value="220"></Setter>
-                        <Setter Property="Padding" Value="2,4,2,4"></Setter>
-                    </Style>
-                </StackPanel.Resources>
-                <stringDataEntry:StringDataEntryControl DataContext="{Binding UserNameEntry}"
-                                                        Style="{StaticResource EntryStyle}" />
-                <existingDirectoryDataEntry:ExistingDirectoryDataEntryControl
-                    DataContext="{Binding UserInitialDirectoryEntry}" Style="{StaticResource EntryStyle}">
-                </existingDirectoryDataEntry:ExistingDirectoryDataEntryControl>
-                <stringDataEntry:StringDataEntryControl DataContext="{Binding UserCloudBucketEntry}"
-                                                        Style="{StaticResource EntryStyle}">
-                </stringDataEntry:StringDataEntryControl>
-                <stringDataEntry:StringDataEntryControl DataContext="{Binding UserCloudDirectoryEntry}"
-                                                        Style="{StaticResource EntryStyle}" />
-                <conversionDataEntry:ConversionDataEntryControl DataContext="{Binding UserMaximumRuntimeHoursEntry}"
-                                                                Style="{StaticResource EntryStyle}" Width="240"
-                                                                HorizontalAlignment="Left" />
-                <StackPanel Orientation="Vertical" Margin="0,8,8,0">
-                    <StackPanel Orientation="Horizontal">
-                        <Label
-                            Content="Cloud Credentials"
-                            Style="{StaticResource DataEntryLabelStyle}"
-                            Target="{Binding ElementName=ValueTextBox}"
-                            ToolTip="Enter the credentials to use to access S3" />
-                        <Image ToolTip="Please make sure all credentials are entered."
-                               Source="{svgc:SvgImage Source=/Icons/alert-octagon.svg, AppName=PointlessWaymarks.WpfCommon}"
-                               Visibility="{Binding CloudCredentialsHaveValidationIssues, Converter={StaticResource BooleanToVisibility}}"
-                               Width="{StaticResource SmallIconSize}" VerticalAlignment="Center">
-                        </Image>
+    <TabControl>
+        <TabItem Header="Editor">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"></RowDefinition>
+                    <RowDefinition Height="Auto"></RowDefinition>
+                </Grid.RowDefinitions>
+                <ScrollViewer HorizontalScrollBarVisibility="Disabled">
+                    <StackPanel Orientation="Vertical" CanHorizontallyScroll="False">
+                        <StackPanel.Resources>
+                            <Style x:Key="EntryStyle" TargetType="Control">
+                                <Setter Property="Margin" Value="0,8,8,0"></Setter>
+                            </Style>
+                            <Style x:Key="EntryListStyle" TargetType="GroupBox"
+                                   BasedOn="{StaticResource UiComponentGroupBoxStyle}">
+                                <Setter Property="Margin" Value="6,12,8,0"></Setter>
+                            </Style>
+                            <Style x:Key="EntryListButton" TargetType="Button">
+                                <Setter Property="Margin" Value="4,6,4,0"></Setter>
+                                <Setter Property="Width" Value="220"></Setter>
+                                <Setter Property="Padding" Value="2,4,2,4"></Setter>
+                            </Style>
+                        </StackPanel.Resources>
+                        <stringDataEntry:StringDataEntryControl DataContext="{Binding UserNameEntry}"
+                                                                Style="{StaticResource EntryStyle}" />
+                        <existingDirectoryDataEntry:ExistingDirectoryDataEntryControl
+                            DataContext="{Binding UserInitialDirectoryEntry}" Style="{StaticResource EntryStyle}">
+                        </existingDirectoryDataEntry:ExistingDirectoryDataEntryControl>
+                        <stringDataEntry:StringDataEntryControl DataContext="{Binding UserCloudBucketEntry}"
+                                                                Style="{StaticResource EntryStyle}">
+                        </stringDataEntry:StringDataEntryControl>
+                        <stringDataEntry:StringDataEntryControl DataContext="{Binding UserCloudDirectoryEntry}"
+                                                                Style="{StaticResource EntryStyle}" />
+                        <conversionDataEntry:ConversionDataEntryControl
+                            DataContext="{Binding UserMaximumRuntimeHoursEntry}"
+                            Style="{StaticResource EntryStyle}" Width="240"
+                            HorizontalAlignment="Left" />
+                        <StackPanel Orientation="Vertical" Margin="0,8,8,0">
+                            <StackPanel Orientation="Horizontal">
+                                <Label
+                                    Content="Cloud Credentials"
+                                    Style="{StaticResource DataEntryLabelStyle}"
+                                    Target="{Binding ElementName=ValueTextBox}"
+                                    ToolTip="Enter the credentials to use to access S3" />
+                                <Image ToolTip="Please make sure all credentials are entered."
+                                       Source="{svgc:SvgImage Source=/Icons/alert-octagon.svg, AppName=PointlessWaymarks.WpfCommon}"
+                                       Visibility="{Binding CloudCredentialsHaveValidationIssues, Converter={StaticResource BooleanToVisibility}}"
+                                       Width="{StaticResource SmallIconSize}" VerticalAlignment="Center">
+                                </Image>
+                            </StackPanel>
+                            <Button Margin="8,0,4,0" HorizontalAlignment="Left" Width="240" Padding="2"
+                                    Command="{Binding EnterAwsKeyAndSecretEntryCommand}">
+                                Enter Cloud Credentials for Job
+                            </Button>
+                        </StackPanel>
+                        <StackPanel Orientation="Vertical" Margin="0,8,8,0">
+                            <StackPanel Orientation="Horizontal">
+                                <Label
+                                    Content="Cloud Region"
+                                    Style="{StaticResource DataEntryLabelStyle}"
+                                    Target="{Binding ElementName=ValueTextBox}"
+                                    ToolTip="The Region of the Cloud Account" />
+                                <Image
+                                    Source="{svgc:SvgImage Source=/Icons/information-outline.svg, AppName=PointlessWaymarks.WpfCommon}"
+                                    Visibility="{Binding AwsRegionHasChanges, Converter={StaticResource BooleanToVisibility}}"
+                                    Width="{StaticResource SmallIconSize}" VerticalAlignment="Center">
+                                    <Image.ToolTip>
+                                        <ToolTip
+                                            Content="{Binding AwsRegionOriginal, FallbackValue='Previously blank', TargetNullValue='Previously empty'}"
+                                            ContentStringFormat="Original Value: {0}" />
+                                    </Image.ToolTip>
+                                </Image>
+                                <Image ToolTip="A Cloud Region must be Selected"
+                                       Source="{svgc:SvgImage Source=/Icons/alert-octagon.svg, AppName=PointlessWaymarks.WpfCommon}"
+                                       Visibility="{Binding AwsRegionHasValidationIssues, Converter={StaticResource BooleanToVisibility}}"
+                                       Width="{StaticResource SmallIconSize}" VerticalAlignment="Center">
+                                </Image>
+                            </StackPanel>
+                            <ComboBox ItemsSource="{Binding AwsRegionChoices}"
+                                      SelectedItem="{Binding AwsRegionSelected}"
+                                      Margin="8,0,0,0" Width="240" HorizontalAlignment="Left" />
+                        </StackPanel>
+                        <GroupBox Style="{StaticResource EntryListStyle}">
+                            <GroupBox.Header>
+                                <StackPanel Orientation="Horizontal">
+                                    <Label
+                                        Content="Excluded Directories"
+                                        Style="{StaticResource DataEntryLabelStyle}"
+                                        ToolTip="Directory Paths to be Excluded - any subdirectories will also be excluded" />
+                                    <Image Margin="4,0,0,0"
+                                           Source="{svgc:SvgImage Source=/Icons/information-outline.svg, AppName=PointlessWaymarks.WpfCommon}"
+                                           Visibility="{Binding ExcludedDirectoriesHasChanges, Converter={StaticResource BooleanToVisibility}}"
+                                           Width="{StaticResource SmallIconSize}" VerticalAlignment="Center">
+                                        <Image.ToolTip>
+                                            <ToolTip
+                                                Content="{Binding ExcludedDirectoriesHasChangesMessage, FallbackValue='Previously empty', TargetNullValue='Previously empty'}" />
+                                        </Image.ToolTip>
+                                    </Image>
+                                </StackPanel>
+                            </GroupBox.Header>
+                            <StackPanel Orientation="Vertical" Margin="4">
+                                <ListBox ItemsSource="{Binding ExcludedDirectories}"
+                                         SelectedItem="{Binding SelectedExcludedDirectory}"
+                                         SelectionMode="Single" Height="120">
+                                    <b:Interaction.Behaviors>
+                                        <behaviors:IgnoreMouseWheelBehavior />
+                                    </b:Interaction.Behaviors>
+                                </ListBox>
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                    <Button Style="{StaticResource EntryListButton}"
+                                            Command="{Binding AddExcludedDirectoryCommand}">
+                                        Add Directory to Exclude
+                                    </Button>
+                                    <Button Style="{StaticResource EntryListButton}"
+                                            Command="{Binding RemoveSelectedExcludedDirectoryCommand}">
+                                        Remove Directory to Exclude
+                                    </Button>
+                                </StackPanel>
+                            </StackPanel>
+                        </GroupBox>
+                        <GroupBox Style="{StaticResource EntryListStyle}">
+                            <GroupBox.Header>
+                                <StackPanel Orientation="Horizontal">
+                                    <Label
+                                        Content="Excluded Directory Patterns"
+                                        Style="{StaticResource DataEntryLabelStyle}"
+                                        ToolTip="Directory names matching these patterns will be excluded and all subdirectories will be excluded. Use * and ? as Wildcards." />
+                                    <Image Margin="4,0,0,0"
+                                           Source="{svgc:SvgImage Source=/Icons/information-outline.svg, AppName=PointlessWaymarks.WpfCommon}"
+                                           Visibility="{Binding ExcludedDirectoryPatternsHasChanges, Converter={StaticResource BooleanToVisibility}}"
+                                           Width="{StaticResource SmallIconSize}" VerticalAlignment="Center">
+                                        <Image.ToolTip>
+                                            <ToolTip
+                                                Content="{Binding ExcludedDirectoryPatternsHasChangesMessage, FallbackValue='Previously empty', TargetNullValue='Previously empty'}" />
+                                        </Image.ToolTip>
+                                    </Image>
+                                </StackPanel>
+                            </GroupBox.Header>
+                            <StackPanel Orientation="Vertical" Margin="4">
+                                <ListBox ItemsSource="{Binding ExcludedDirectoryPatterns}"
+                                         SelectedItem="{Binding SelectedExcludedDirectoryPattern}"
+                                         SelectionMode="Single"
+                                         Height="120">
+                                    <b:Interaction.Behaviors>
+                                        <behaviors:IgnoreMouseWheelBehavior />
+                                    </b:Interaction.Behaviors>
+                                </ListBox>
+                                <stringDataEntry:StringDataEntryControl
+                                    DataContext="{Binding UserDirectoryPatternEntry}" />
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                    <Button Style="{StaticResource EntryListButton}"
+                                            Command="{Binding AddExcludedDirectoryPatternCommand}">
+                                        Add Directory Pattern to Exclude
+                                    </Button>
+                                    <Button Style="{StaticResource EntryListButton}"
+                                            Command="{Binding RemoveSelectedExcludedDirectoryPatternCommand}">
+                                        Remove Directory Pattern to Exclude
+                                    </Button>
+                                </StackPanel>
+                            </StackPanel>
+                        </GroupBox>
+                        <GroupBox Style="{StaticResource EntryListStyle}">
+                            <GroupBox.Header>
+                                <StackPanel Orientation="Horizontal">
+                                    <Label
+                                        Content="Excluded File Patterns"
+                                        Style="{StaticResource DataEntryLabelStyle}"
+                                        ToolTip="Directory names matching these patterns will be excluded and all subdirectories will be excluded. Use * and ? as Wildcards." />
+                                    <Image Margin="4,0,0,0"
+                                           Source="{svgc:SvgImage Source=/Icons/information-outline.svg, AppName=PointlessWaymarks.WpfCommon}"
+                                           Visibility="{Binding ExcludedFilePatternsHasChanges, Converter={StaticResource BooleanToVisibility}}"
+                                           Width="{StaticResource SmallIconSize}" VerticalAlignment="Center">
+                                        <Image.ToolTip>
+                                            <ToolTip
+                                                Content="{Binding ExcludedFilePatternsHasChangesMessage, FallbackValue='Previously empty', TargetNullValue='Previously empty'}" />
+                                        </Image.ToolTip>
+                                    </Image>
+                                </StackPanel>
+                            </GroupBox.Header>
+                            <StackPanel Orientation="Vertical" Margin="4">
+                                <ListBox ItemsSource="{Binding ExcludedFilePatterns}"
+                                         SelectedItem="{Binding SelectedExcludedFilePattern}"
+                                         SelectionMode="Single" Height="120">
+                                    <b:Interaction.Behaviors>
+                                        <behaviors:IgnoreMouseWheelBehavior />
+                                    </b:Interaction.Behaviors>
+                                </ListBox>
+                                <stringDataEntry:StringDataEntryControl DataContext="{Binding UserFilePatternEntry}" />
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                    <Button Style="{StaticResource EntryListButton}"
+                                            Command="{Binding AddExcludedFilePatternCommand}">
+                                        Add File Pattern to Exclude
+                                    </Button>
+                                    <Button Style="{StaticResource EntryListButton}"
+                                            Command="{Binding RemoveSelectedExcludedFilePatternCommand}">
+                                        Remove File Pattern to Exclude
+                                    </Button>
+                                </StackPanel>
+                            </StackPanel>
+                        </GroupBox>
                     </StackPanel>
-                    <Button Margin="8,0,4,0" HorizontalAlignment="Left" Width="240" Padding="2"
-                            Command="{Binding EnterAwsKeyAndSecretEntryCommand}">
-                        Enter Cloud Credentials for Job
-                    </Button>
-                </StackPanel>
-                <StackPanel Orientation="Vertical" Margin="0,8,8,0">
-                    <StackPanel Orientation="Horizontal">
-                        <Label
-                            Content="Cloud Region"
-                            Style="{StaticResource DataEntryLabelStyle}"
-                            Target="{Binding ElementName=ValueTextBox}"
-                            ToolTip="The Region of the Cloud Account" />
-                        <Image
-                            Source="{svgc:SvgImage Source=/Icons/information-outline.svg, AppName=PointlessWaymarks.WpfCommon}"
-                            Visibility="{Binding AwsRegionHasChanges, Converter={StaticResource BooleanToVisibility}}"
-                            Width="{StaticResource SmallIconSize}" VerticalAlignment="Center">
-                            <Image.ToolTip>
-                                <ToolTip
-                                    Content="{Binding AwsRegionOriginal, FallbackValue='Previously blank', TargetNullValue='Previously empty'}"
-                                    ContentStringFormat="Original Value: {0}" />
-                            </Image.ToolTip>
-                        </Image>
-                        <Image ToolTip="A Cloud Region must be Selected"
-                               Source="{svgc:SvgImage Source=/Icons/alert-octagon.svg, AppName=PointlessWaymarks.WpfCommon}"
-                               Visibility="{Binding AwsRegionHasValidationIssues, Converter={StaticResource BooleanToVisibility}}"
-                               Width="{StaticResource SmallIconSize}" VerticalAlignment="Center">
-                        </Image>
-                    </StackPanel>
-                    <ComboBox ItemsSource="{Binding AwsRegionChoices}" SelectedItem="{Binding AwsRegionSelected}"
-                              Margin="8,0,0,0" Width="240" HorizontalAlignment="Left" />
-                </StackPanel>
-                <GroupBox Style="{StaticResource EntryListStyle}">
-                    <GroupBox.Header>
-                        <StackPanel Orientation="Horizontal">
-                            <Label
-                                Content="Excluded Directories"
-                                Style="{StaticResource DataEntryLabelStyle}"
-                                ToolTip="Directory Paths to be Excluded - any subdirectories will also be excluded" />
-                            <Image Margin="4,0,0,0"
-                                   Source="{svgc:SvgImage Source=/Icons/information-outline.svg, AppName=PointlessWaymarks.WpfCommon}"
-                                   Visibility="{Binding ExcludedDirectoriesHasChanges, Converter={StaticResource BooleanToVisibility}}"
-                                   Width="{StaticResource SmallIconSize}" VerticalAlignment="Center">
-                                <Image.ToolTip>
-                                    <ToolTip
-                                        Content="{Binding ExcludedDirectoriesHasChangesMessage, FallbackValue='Previously empty', TargetNullValue='Previously empty'}" />
-                                </Image.ToolTip>
-                            </Image>
-                        </StackPanel>
-                    </GroupBox.Header>
-                    <StackPanel Orientation="Vertical" Margin="4">
-                        <ListBox ItemsSource="{Binding ExcludedDirectories}"
-                                 SelectedItem="{Binding SelectedExcludedDirectory}"
-                                 SelectionMode="Single" Height="120">
-                            <b:Interaction.Behaviors>
-                                <behaviors:IgnoreMouseWheelBehavior />
-                            </b:Interaction.Behaviors>
-                        </ListBox>
-                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                            <Button Style="{StaticResource EntryListButton}"
-                                    Command="{Binding AddExcludedDirectoryCommand}">
-                                Add Directory to Exclude
-                            </Button>
-                            <Button Style="{StaticResource EntryListButton}"
-                                    Command="{Binding RemoveSelectedExcludedDirectoryCommand}">
-                                Remove Directory to Exclude
-                            </Button>
-                        </StackPanel>
-                    </StackPanel>
-                </GroupBox>
-                <GroupBox Style="{StaticResource EntryListStyle}">
-                    <GroupBox.Header>
-                        <StackPanel Orientation="Horizontal">
-                            <Label
-                                Content="Excluded Directory Patterns"
-                                Style="{StaticResource DataEntryLabelStyle}"
-                                ToolTip="Directory names matching these patterns will be excluded and all subdirectories will be excluded. Use * and ? as Wildcards." />
-                            <Image Margin="4,0,0,0"
-                                   Source="{svgc:SvgImage Source=/Icons/information-outline.svg, AppName=PointlessWaymarks.WpfCommon}"
-                                   Visibility="{Binding ExcludedDirectoryPatternsHasChanges, Converter={StaticResource BooleanToVisibility}}"
-                                   Width="{StaticResource SmallIconSize}" VerticalAlignment="Center">
-                                <Image.ToolTip>
-                                    <ToolTip
-                                        Content="{Binding ExcludedDirectoryPatternsHasChangesMessage, FallbackValue='Previously empty', TargetNullValue='Previously empty'}" />
-                                </Image.ToolTip>
-                            </Image>
-                        </StackPanel>
-                    </GroupBox.Header>
-                    <StackPanel Orientation="Vertical" Margin="4">
-                        <ListBox ItemsSource="{Binding ExcludedDirectoryPatterns}"
-                                 SelectedItem="{Binding SelectedExcludedDirectoryPattern}" SelectionMode="Single"
-                                 Height="120">
-                            <b:Interaction.Behaviors>
-                                <behaviors:IgnoreMouseWheelBehavior />
-                            </b:Interaction.Behaviors>
-                        </ListBox>
-                        <stringDataEntry:StringDataEntryControl DataContext="{Binding UserDirectoryPatternEntry}" />
-                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                            <Button Style="{StaticResource EntryListButton}"
-                                    Command="{Binding AddExcludedDirectoryPatternCommand}">
-                                Add Directory Pattern to Exclude
-                            </Button>
-                            <Button Style="{StaticResource EntryListButton}"
-                                    Command="{Binding RemoveSelectedExcludedDirectoryPatternCommand}">
-                                Remove Directory Pattern to Exclude
-                            </Button>
-                        </StackPanel>
-                    </StackPanel>
-                </GroupBox>
-                <GroupBox Style="{StaticResource EntryListStyle}">
-                    <GroupBox.Header>
-                        <StackPanel Orientation="Horizontal">
-                            <Label
-                                Content="Excluded File Patterns"
-                                Style="{StaticResource DataEntryLabelStyle}"
-                                ToolTip="Directory names matching these patterns will be excluded and all subdirectories will be excluded. Use * and ? as Wildcards." />
-                            <Image Margin="4,0,0,0"
-                                   Source="{svgc:SvgImage Source=/Icons/information-outline.svg, AppName=PointlessWaymarks.WpfCommon}"
-                                   Visibility="{Binding ExcludedFilePatternsHasChanges, Converter={StaticResource BooleanToVisibility}}"
-                                   Width="{StaticResource SmallIconSize}" VerticalAlignment="Center">
-                                <Image.ToolTip>
-                                    <ToolTip
-                                        Content="{Binding ExcludedFilePatternsHasChangesMessage, FallbackValue='Previously empty', TargetNullValue='Previously empty'}" />
-                                </Image.ToolTip>
-                            </Image>
-                        </StackPanel>
-                    </GroupBox.Header>
-                    <StackPanel Orientation="Vertical" Margin="4">
-                        <ListBox ItemsSource="{Binding ExcludedFilePatterns}"
-                                 SelectedItem="{Binding SelectedExcludedFilePattern}"
-                                 SelectionMode="Single" Height="120">
-                            <b:Interaction.Behaviors>
-                                <behaviors:IgnoreMouseWheelBehavior />
-                            </b:Interaction.Behaviors>
-                        </ListBox>
-                        <stringDataEntry:StringDataEntryControl DataContext="{Binding UserFilePatternEntry}" />
-                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                            <Button Style="{StaticResource EntryListButton}"
-                                    Command="{Binding AddExcludedFilePatternCommand}">
-                                Add File Pattern to Exclude
-                            </Button>
-                            <Button Style="{StaticResource EntryListButton}"
-                                    Command="{Binding RemoveSelectedExcludedFilePatternCommand}">
-                                Remove File Pattern to Exclude
-                            </Button>
-                        </StackPanel>
-                    </StackPanel>
-                </GroupBox>
-            </StackPanel>
-        </ScrollViewer>
-        <Border Grid.Row="1" Style="{StaticResource ActionPanelBorderStyle}">
-            <WrapPanel HorizontalAlignment="Center" Orientation="Horizontal">
-                <Button
-                    Content="Files To Excel"
-                    Style="{StaticResource ActionPanelButtonStyle}"
-                    Command="{Binding IncludedAndExcludedFilesReportCommand}" />
-                <Button
-                    Content="Save and Close"
-                    Style="{StaticResource ActionPanelButtonStyle}"
-                    Command="{Binding SaveAndCloseCommand}" />
-                <Button
-                    Content="_Save"
-                    Style="{StaticResource ActionPanelButtonStyle}"
-                    Command="{Binding SaveAndStayOpenCommand}" />
-            </WrapPanel>
-        </Border>
-    </Grid>
+                </ScrollViewer>
+                <Border Grid.Row="1" Style="{StaticResource ActionPanelBorderStyle}">
+                    <WrapPanel HorizontalAlignment="Center" Orientation="Horizontal">
+                        <Button
+                            Content="Files To Excel"
+                            Style="{StaticResource ActionPanelButtonStyle}"
+                            Command="{Binding IncludedAndExcludedFilesReportCommand}" />
+                        <Button
+                            Content="Save and Close"
+                            Style="{StaticResource ActionPanelButtonStyle}"
+                            Command="{Binding SaveAndCloseCommand}" />
+                        <Button
+                            Content="_Save"
+                            Style="{StaticResource ActionPanelButtonStyle}"
+                            Command="{Binding SaveAndStayOpenCommand}" />
+                    </WrapPanel>
+                </Border>
+            </Grid>
+        </TabItem>
+        <TabItem Header="Help and Notes">
+            <markdownDisplay:HelpDisplayControl DataContext="{Binding HelpContext}" />
+        </TabItem>
+    </TabControl>
 </UserControl>

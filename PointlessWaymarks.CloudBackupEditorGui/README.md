@@ -1,31 +1,58 @@
 # Pointless Waymarks - Cloud Backup
 
-The details vary but no one reading this needs an explanation of what a backup program is - starting with 'why' is probably more relevant...
-
-There is some absurdity in writing a backup program - there are so many backup and sync programs that it feels both pointless and overwhelming to even try to make a list of examples. That said I find joy in having software that works the way I want it to, love coding and am a fan of a certain level of absurdity!
-
-Goals/Reasons/Features/Ideas:
-- Backup to a Cloud Service that is widely accessible - in an unhappy situation you should be able to access your backup with a wide variety of tools, platforms and programs.
-- Backup to an Easily Browsable File System - the backup should be directly viewable and browsable without any special software.
-- Data Focused - No special consideration to backing up (or restoring) systems/OSes/VMs...
+There is some obvious absurdity in writing your own backup program - so many backup and sync programs already exist that it feels pointless to even try to make a list of them... But regardless I didn't quite find what I was looking for and enjoy writing software so I wrote my own! Goals/Reasons/Features/Ideas:
+- Backup to a Cloud Storage Service that is widely accessible - in an unhappy situation you should be able to access your backup with a wide variety of tools, platforms and programs.
+- Backup to an Easily Browsable File System - the backup should be directly viewable and easily browsable without any special software.
+- Data Focused - No special consideration to backing up (or restoring) entire systems/OSes/VMs...
 - Minimal Reliance on a Database/Saved Backup Information - with large backups often taking days or weeks to complete you should be able to re-enter a reasonable amount of information about a backup and have it resume even if the backup database is deleted/lost/corrupt.
 - No Sync Functionality - the process is only one way, no amount of (mis)configuration can result in local files being accidentally deleted because of a sync with the cloud.
-- Max Runtime Limit - in many situations it is better not to try to run backup uploads while doing all the online life things (video calls, remote work, streaming, ...) and that needs to be an option in the scheduling of the backup runs.
+- Max Runtime Limit - in many situations it is better not to try to run backup uploads while also doing all of today's online life things (video calls, remote work, streaming, ...) and that needs to be an option in the scheduling of the backup runs.
 
-For me this program is basically a companion to the Pointless Waymarks CMS. The CMS has given me a place to store the information I want to save in either a public or private way and uploading the sites to Amazon S3 provides a good level of 'backup'. But what the CMS is not designed to do is work with RAW photographs or large chunks of data that aren't imported/categorized/tagged. After trying a few backup and sync solutions I decided that what I wanted to do was simple enough that it would be reasonable to write my own backup program!
+## Warnings
 
-The Pointless Waymarks Cloud Backup consists of a GUI Program (this project) to create, update and edit Backup Jobs and a console program to run the jobs.
+**This program uses Amazon S3 - Amazon S3 is not free and Amazon charges you for nearly EVERYTHING related to S3 - bandwidth, storage, requests... Using this program WILL INCUR CHARGES on your Amazon AWS Account and it WILL NOT help you calculate, estimate, limit or manage those costs!! In general this is a well understood part of setting up and using Amazon S3 but be warned...**
 
-The target of the backup is currently Amazon S3. Files are stored on S3 as a mirror of the local file system - there is no attempt to de-duplicate data, store incremental changes or otherwise complicate the storage - the backup is easily viewable in the AWS S3 console or any program that can access S3.
+**This program stores your AWS Keys in the [Windows Credential Manager](https://support.microsoft.com/en-us/windows/accessing-credential-manager-1b5c916a-6a16-889f-8581-fc16e8165ac0). This could expose your keys to malicious programs running under your login - it is up to you to decide if this is too much of a security risk.**
 
-Files are compared by an MD5 hash (both stored as Metadata on S3) - the file comparison happens every run of the program. The database holds information about the backup runs including uploads, downloads, errors, etc... Because the backup is a simple mirror and a full comparison is done each run only the job information is 'needed' in the database - ie a lost/deleted/corrupt database is only a minimal hassle in resuming a backup.
+**This program creates a simple mirror of your local directories and files on Amazon S3 and to create this mirror it WILL DELETE FILES ON S3 without prompting you - you may be able to version-enable your Amazon Bucket and mitigate this risk, but the program itself has no sense of a recycle bin, history or archiving...**
 
-*At this point there are no public installers/releases from the Pointless Waymarks Project although the projects include code and scripts to easily create published versions - the code is MIT Licensed made public on GitHub to share with friends, colleagues and anyone who finds the code interesting or useful. This project is probably only suitable for use if you enjoy debugging and working on code!*
+![MainWindow](../PointlessWaymarks.CloudBackupScreenShots/BackupEditorMainWindow.jpg "Job Backup Editor Main Screen")
 
-## Cloud Backup Editor
+## General Information
 
-There are two parts to the Cloud Backup project - the Cloud Backup editor is a GUI editor for creating, monitoring and reporting on Cloud Backup Jobs.
+For me this program is basically a companion to the [Pointless Waymarks CMS](https://github.com/cmiles/PointlessWaymarksProject). A large amount of the data I care about is in CMS sites that are synced to S3. Because the CMS creates a full local version of the sites the sync to S3 provides a nice first layer of backup. But what the CMS is not designed to do is work with RAW photographs or large chunks of data that aren't imported/categorized/tagged - this program is my way of addressing that and getting the data I care about not held in CMS sites on S3.
 
-## Cloud Backup Runner
+The Pointless Waymarks Cloud Backup consists of a GUI Editor (this project) to create, update edit and report on Backup Jobs and a [command line program](https://github.com/cmiles/PointlessWaymarksProject/tree/main/PointlessWaymarks.CloudBackupRunner) to run the Jobs.
 
-The Cloud Backup Runner is a commandline program for running Cloud Backup Jobs.
+![JobEditor](../PointlessWaymarks.CloudBackupScreenShots/JobEditorWindow.jpg "Job Editor Window")
+
+Files are stored on Amazon S3 as a simple mirror of the local file system - there is no attempt to de-duplicate data, store incremental changes or otherwise complicate the storage - the backup is easily viewable in the AWS S3 console or any program that can access S3.
+
+Files are compared by an MD5 hash (both stored as Metadata on S3) - the file comparison happens every run of the program. The database holds information about the backup runs including uploads, downloads, errors, etc... Because the backup is a simple mirror and a full comparison can be done on any run of the program a lost/deleted/corrupt database is only a minimal hassle in resuming a backup.
+
+## Program Features
+
+The Cloud Backup Job List:
+ - Lists jobs and allows you to create new jobs, edit and delete existing jobs and see the last progress message from any local runs.
+ - Run a report to see included/excluded files - the report is slow but it is very useful especially when setting up new jobs.
+ - Launch a progress window to track the progress of a job running on the local machine - nice if you are running a commandline job thru a Task Scheduler and the console window is hidden.
+
+Job Editor with some help seeing changes and getting valid data entered.
+
+![JobEditor](../PointlessWaymarks.CloudBackupScreenShots/ProgressWindow.jpg "Progress Window")
+
+![JobEditor](../PointlessWaymarks.CloudBackupScreenShots/BackupEditorMainWindowHelp.jpg "Job Backup Editor Help Screen")
+
+Transfer Batch List with Excel reporting.
+
+![JobEditor](../PointlessWaymarks.CloudBackupScreenShots/BatchListWindow.jpg "Transfer Batch Window")
+
+Windows Notifications on Completion of a Job that you can click to see an Excel Report about the run.
+
+![JobEditor](../PointlessWaymarks.CloudBackupScreenShots/CompletionNotification.jpg "Windows Notification for Completion")
+
+Command Line Backup Runner with options to resume Batches and detailed progress.
+
+![JobEditor](../PointlessWaymarks.CloudBackupScreenShots/CommandLineRunnerProgress.jpg "Command Line Job Runner")
+
+*At this point there are no public installers/releases from the Pointless Waymarks Project - using this project is probably only appropriate if you enjoy debugging and working on code, but the code does inc~~~~ludes scripts to easily create published/installable versions on your local system.*
