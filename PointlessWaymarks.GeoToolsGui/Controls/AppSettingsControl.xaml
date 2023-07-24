@@ -14,7 +14,7 @@
         <GroupBox Header="Program Update Location">
             <Grid Margin="4">
                 <StackPanel Orientation="Vertical">
-                    <TextBox Text="{Binding  ProgramUpdateLocation, Delay=400}" />
+                    <TextBox Text="{Binding  ProgramUpdateLocation, Delay=400, UpdateSourceTrigger=PropertyChanged}" />
                     <TextBlock Margin="8,4,4,4" FontWeight="Bold"
                                Visibility="{Binding ShowUpdateLocationExistsWarning, Converter={StaticResource BooleanToVisibility}}">
                         ! The Directory Does Not Exist !
