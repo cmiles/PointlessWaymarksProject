@@ -9,7 +9,7 @@
         xmlns:windowScreenShot="clr-namespace:PointlessWaymarks.WpfCommon.WindowScreenShot;assembly=PointlessWaymarks.WpfCommon"
         xmlns:controls="clr-namespace:PointlessWaymarks.RssReaderGui.Controls"
         mc:Ignorable="d"
-        Title="Pointless Waymarks RSS Reader" Height="700" Width="800" d:DataContext="{d:DesignInstance local:MainWindow}">
+        Title="Pointless Waymarks RSS Reader" Height="900" Width="1200" d:DataContext="{d:DesignInstance local:MainWindow}">
     <Grid>
         <controls:RssReaderControl DataContext="{Binding ReaderContext}"/>
         <programUpdateMessage:ProgramUpdateMessageControl VerticalAlignment="Top" HorizontalAlignment="Center"

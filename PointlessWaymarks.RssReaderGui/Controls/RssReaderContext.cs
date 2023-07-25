@@ -18,9 +18,7 @@ public partial class RssReaderContext
     public required ObservableCollection<RssReaderListItem> Items { get; set; }
     public RssReaderListItem? SelectedItem { get; set; }
     public List<RssReaderListItem> SelectedItems { get; set; } = new();
-
     public required StatusControlContext StatusContext { get; set; }
-
     public string UserAddFeedInput { get; set; } = string.Empty;
 
     public static async Task<RssReaderContext> CreateInstance(StatusControlContext statusContext)
@@ -70,7 +68,7 @@ public partial class RssReaderContext
         var totalNewItemsCounter = 0;
         var totalExistingItemsCounter = 0;
 
-        var toAddToGui = new List<RssItem>();
+        var toAddToGui = new List<RssReaderListItem>();
 
         foreach (var loopFeed in feeds)
         {
@@ -122,7 +120,7 @@ public partial class RssReaderContext
 
                 await db.SaveChangesAsync();
 
-                toAddToGui.Add(newFeedItem);
+                toAddToGui.Add(new RssReaderListItem { DbFeed = loopFeed, DbItem = newFeedItem });
             }
 
             totalNewItemsCounter += newItemCounter;
@@ -131,7 +129,7 @@ public partial class RssReaderContext
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
-        foreach (var loopItem in toAddToGui) Items.Add(new RssReaderListItem { DbItem = loopItem });
+        foreach (var loopItem in toAddToGui) Items.Add(loopItem);
     }
 
     public async Task Setup()
@@ -145,7 +143,7 @@ public partial class RssReaderContext
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
-        foreach (var loopItems in initialItems) Items.Add(new RssReaderListItem { DbItem = loopItems });
+        foreach (var loopItems in initialItems) Items.Add(new RssReaderListItem { DbItem = loopItems, DbFeed = db.RssFeeds.Single(x => x.PersistentId == loopItems.RssFeedPersistentId)});
 
         await RefreshFeedItems();
     }
