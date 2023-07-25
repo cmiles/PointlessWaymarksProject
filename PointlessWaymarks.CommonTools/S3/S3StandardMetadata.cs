@@ -6,6 +6,7 @@ public class S3StandardMetadata
     {
         LastWriteTime = lastWriteTime;
         FileSystemHash = fileSystemHash;
+        FileSize = fileSize;
     }
 
     public long FileSize { get; init; }
