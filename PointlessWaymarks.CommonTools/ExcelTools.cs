@@ -53,5 +53,7 @@ namespace PointlessWaymarks.CommonTools
 
             return file;
         }
+
+        public static string NumberFormatThousandsCommaNoDecimal = "#,##0";
     }
 }

@@ -11,6 +11,8 @@ public static class IncludedAndExcludedFilesToExcel
     public static async Task<FileInfo> Run(int jobId,
         IProgress<string> progress)
     {
+        progress.Report("Querying Job Information");
+
         var db = await CloudBackupContext.CreateInstance();
 
         var job = await db.BackupJobs.SingleAsync(x => x.Id == jobId);
@@ -31,6 +33,8 @@ public static class IncludedAndExcludedFilesToExcel
             excludedDirectories, excludedDirectoryPatterns,
             excludedFilePatterns, progress);
 
+        progress.Report("Creating and Formatting Included Files Excel Sheet");
+        
         var newExcelFile = new XLWorkbook();
         var includedWorksheet = newExcelFile.Worksheets.Add("Included Files");
 
@@ -73,6 +77,8 @@ public static class IncludedAndExcludedFilesToExcel
 
         includedWorksheet.Columns().AdjustToContents();
 
+        progress.Report("Creating and Formatting Excluded Files Excel Sheet");
+        
         var excludedWorksheet = newExcelFile.Worksheets.Add("Excluded Files");
 
         currentRow = 1;
@@ -118,6 +124,8 @@ public static class IncludedAndExcludedFilesToExcel
         var file = new FileInfo(Path.Combine(FileLocationHelpers.ReportsDirectory().FullName,
             $"{DateTime.Now:yyyy-MM-dd--HH-mm-ss}---IncludedAndExcludedBackupFiles-{FileAndFolderTools.TryMakeFilenameValid(jobName)}.xlsx"));
 
+        progress.Report($"Saving Excel File {file.FullName}");
+        
         newExcelFile.SaveAs(file.FullName);
 
         progress?.Report($"Opening Excel File {file.FullName}");

@@ -5,8 +5,10 @@ namespace PointlessWaymarks.CloudBackupData.Reports;
 
 public static class BatchUploadsToExcel
 {
-    public static async Task AddWorksheet(XLWorkbook workbook, int batchId)
+    public static async Task<IXLWorksheet> AddWorksheet(XLWorkbook workbook, int batchId, IProgress<string> progress)
     {
+        progress.Report("Querying db for Cloud Transfer Batch Information");
+        
         var db = await CloudBackupContext.CreateInstance();
         var batch = db.CloudTransferBatches.Single(x => x.Id == batchId);
         var job = batch.Job!;
@@ -18,10 +20,12 @@ public static class BatchUploadsToExcel
             x.FileSize,
             x.UploadCompletedSuccessfully,
             x.ErrorMessage,
-            x.Id,
+            x.LastUpdatedOn,
             x.CreatedOn,
-            x.LastUpdatedOn
+            x.Id
         }).OrderBy(x => x.FileSystemFile).ToList();
+
+        progress.Report("Building Excel File");
 
         var uploadsWorksheet = workbook.Worksheets.Add("Uploads");
 
@@ -39,16 +43,20 @@ public static class BatchUploadsToExcel
 
         currentRow++;
 
-        uploadsWorksheet.Cell(currentRow, 1).InsertTable(projectedUploads.OrderBy(x => x.FileSystemFile));
+        var table = uploadsWorksheet.Cell(currentRow, 1).InsertTable(projectedUploads.OrderBy(x => x.FileSystemFile));
 
-        uploadsWorksheet.Columns().AdjustToContents(currentRow);
+        table.CommonFormats();
+        
+        return uploadsWorksheet;
     }
 
-    public static async Task<string> Run(int batchId)
+    public static async Task<string> Run(int batchId, IProgress<string> progress)
     {
+        progress.Report("Setting up Excel File");
+
         var newExcelFile = new XLWorkbook();
 
-        await AddWorksheet(newExcelFile, batchId);
+        await AddWorksheet(newExcelFile, batchId, progress);
 
         var db = await CloudBackupContext.CreateInstance();
         var batch = db.CloudTransferBatches.Single(x => x.Id == batchId);
@@ -57,6 +65,8 @@ public static class BatchUploadsToExcel
         var file = new FileInfo(Path.Combine(FileLocationHelpers.ReportsDirectory().FullName,
             $"{DateTime.Now:yyyy-MM-dd--HH-mm-ss}---Uploads-{FileAndFolderTools.TryMakeFilenameValid(job.Name)}-Id-{job.Id}-Batch-{batch.Id}.xlsx"));
 
+        progress.Report($"Saving Excel File {file.FullName}");
+        
         newExcelFile.SaveAs(file.FullName);
 
         return file.FullName;

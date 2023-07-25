@@ -36,13 +36,13 @@ public class BatchListContext
     [BlockingCommand]
     public async Task BatchToExcel(CloudTransferBatch dbBatch)
     {
-        ProcessTools.Open(await BatchReportToExcel.Run(dbBatch.Id));
+        ProcessTools.Open(await BatchReportToExcel.Run(dbBatch.Id, StatusContext.ProgressTracker()));
     }
 
     [BlockingCommand]
     public async Task CloudFilesToExcel(CloudTransferBatch dbBatch)
     {
-        ProcessTools.Open(await BatchCloudFilesToExcel.Run(dbBatch.Id));
+        ProcessTools.Open(await BatchCloudFilesToExcel.Run(dbBatch.Id, StatusContext.ProgressTracker()));
     }
 
     public static async Task<BatchListContext> CreateInstance(StatusControlContext statusContext, int jobId)
@@ -99,13 +99,13 @@ public class BatchListContext
     [BlockingCommand]
     public async Task DeletesToExcel(CloudTransferBatch dbBatch)
     {
-        ProcessTools.Open(await BatchDeletesToExcel.Run(dbBatch.Id));
+        ProcessTools.Open(await BatchDeletesToExcel.Run(dbBatch.Id, StatusContext.ProgressTracker()));
     }
 
     [BlockingCommand]
     public async Task LocalFilesToExcel(CloudTransferBatch dbBatch)
     {
-        ProcessTools.Open(await BatchLocalFilesToExcel.Run(dbBatch.Id));
+        ProcessTools.Open(await BatchLocalFilesToExcel.Run(dbBatch.Id, StatusContext.ProgressTracker()));
     }
 
     [BlockingCommand]
@@ -155,6 +155,6 @@ public class BatchListContext
     [BlockingCommand]
     public async Task UploadsToExcel(CloudTransferBatch dbBatch)
     {
-        ProcessTools.Open(await BatchUploadsToExcel.Run(dbBatch.Id));
+        ProcessTools.Open(await BatchUploadsToExcel.Run(dbBatch.Id, StatusContext.ProgressTracker()));
     }
 }

@@ -240,7 +240,7 @@ try
     var runInformation = await CloudTransfer.CloudUploadAndDelete(amazonCredentials, batch.Id, startTime, progress);
     Log.ForContext(nameof(runInformation), runInformation, true).Information("Cloud Backup Ending");
 
-    var batchReport = await BatchReportToExcel.Run(batch.Id);
+    var batchReport = await BatchReportToExcel.Run(batch.Id, progress);
 
     (await WindowsNotificationBuilders.NewNotifier("Cloud Backup Runner"))
         .SetAutomationLogoNotificationIconUrl().MessageWithFile(

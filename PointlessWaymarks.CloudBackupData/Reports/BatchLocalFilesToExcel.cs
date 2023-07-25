@@ -6,8 +6,10 @@ namespace PointlessWaymarks.CloudBackupData.Reports;
 
 public static class BatchLocalFilesToExcel
 {
-    public static async Task<IXLWorksheet> AddWorksheet(XLWorkbook workbook, int batchId)
+    public static async Task<IXLWorksheet> AddWorksheet(XLWorkbook workbook, int batchId, IProgress<string> progress)
     {
+        progress.Report("Querying db for Cloud Transfer Batch Information");
+        
         var db = await CloudBackupContext.CreateInstance();
         var batch = await db.CloudTransferBatches.SingleAsync(x => x.Id == batchId);
 
@@ -16,10 +18,12 @@ public static class BatchLocalFilesToExcel
             x.FileName,
             x.FileSize,
             x.FileSystemDateTime,
+            x.CreatedOn,
             x.FileHash,
-            x.Id,
-            x.CreatedOn
+            x.Id
         }).ToList();
+
+        progress.Report("Building Excel File");
 
         var uploadsWorksheet = workbook.Worksheets.Add("Local Files");
 
@@ -36,17 +40,21 @@ public static class BatchLocalFilesToExcel
 
         var tableRange = uploadsWorksheet.Cell(currentRow, 1).InsertTable(projectedFiles);
 
-        uploadsWorksheet.Columns().AdjustToContents(currentRow);
-
+        tableRange.CommonFormats();
+        
         return uploadsWorksheet;
     }
 
-    public static async Task<string> Run(int batchId)
+    public static async Task<string> Run(int batchId, IProgress<string> progress)
     {
+        progress.Report("Setting up Excel File");
+
         var newExcelFile = new XLWorkbook();
 
-        await AddWorksheet(newExcelFile, batchId);
+        await AddWorksheet(newExcelFile, batchId, progress);
 
+        progress.Report("Querying Job Information");
+        
         var db = await CloudBackupContext.CreateInstance();
         var batch = db.CloudTransferBatches.Single(x => x.Id == batchId);
         var job = batch.Job!;
@@ -54,6 +62,8 @@ public static class BatchLocalFilesToExcel
         var file = new FileInfo(Path.Combine(FileLocationHelpers.ReportsDirectory().FullName,
             $"{DateTime.Now:yyyy-MM-dd--HH-mm-ss}---LocalFiles-{FileAndFolderTools.TryMakeFilenameValid(job.Name)}-Id-{job.Id}-Batch-{batch.Id}.xlsx"));
 
+        progress.Report($"Saving Excel File {file.FullName}");
+        
         newExcelFile.SaveAs(file.FullName);
 
         return file.FullName;

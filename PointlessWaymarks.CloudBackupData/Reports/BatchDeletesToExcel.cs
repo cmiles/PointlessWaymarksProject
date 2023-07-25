@@ -5,8 +5,10 @@ namespace PointlessWaymarks.CloudBackupData.Reports;
 
 public static class BatchDeletesToExcel
 {
-    public static async Task<IXLWorksheet> AddWorksheet(XLWorkbook workbook, int batchId)
+    public static async Task<IXLWorksheet> AddWorksheet(XLWorkbook workbook, int batchId, IProgress<string> progress)
     {
+        progress.Report("Querying db for Cloud Transfer Batch Information");
+        
         var db = await CloudBackupContext.CreateInstance();
         var batch = db.CloudTransferBatches.Single(x => x.Id == batchId);
         var job = batch.Job!;
@@ -16,10 +18,12 @@ public static class BatchDeletesToExcel
             x.CloudObjectKey,
             x.DeletionCompletedSuccessfully,
             x.ErrorMessage,
-            x.Id,
+            x.LastUpdatedOn,
             x.CreatedOn,
-            x.LastUpdatedOn
+            x.Id
         }).OrderBy(x => x.CloudObjectKey).ToList();
+
+        progress.Report("Building Excel File");
 
         var uploadsWorksheet = workbook.Worksheets.Add("Deletes");
 
@@ -37,18 +41,22 @@ public static class BatchDeletesToExcel
 
         currentRow++;
 
-        uploadsWorksheet.Cell(currentRow, 1).InsertTable(projectedDeletes.OrderBy(x => x.CloudObjectKey));
+        var table = uploadsWorksheet.Cell(currentRow, 1).InsertTable(projectedDeletes.OrderBy(x => x.CloudObjectKey));
 
-        uploadsWorksheet.Columns().AdjustToContents(currentRow);
+        table.CommonFormats();
 
         return uploadsWorksheet;
     }
 
-    public static async Task<string> Run(int batchId)
+    public static async Task<string> Run(int batchId, IProgress<string> progress)
     {
+        progress.Report("Setting up Excel File");
+
         var newExcelFile = new XLWorkbook();
 
-        await AddWorksheet(newExcelFile, batchId);
+        await AddWorksheet(newExcelFile, batchId, progress);
+
+        progress.Report("Querying Job Information");
 
         var db = await CloudBackupContext.CreateInstance();
         var batch = db.CloudTransferBatches.Single(x => x.Id == batchId);
@@ -56,6 +64,8 @@ public static class BatchDeletesToExcel
 
         var file = new FileInfo(Path.Combine(FileLocationHelpers.ReportsDirectory().FullName,
             $"{DateTime.Now:yyyy-MM-dd--HH-mm-ss}---Deletes-{FileAndFolderTools.TryMakeFilenameValid(job.Name)}-Id-{job.Id}-Batch-{batch.Id}.xlsx"));
+
+        progress.Report($"Saving Excel File {file.FullName}");
 
         newExcelFile.SaveAs(file.FullName);
 
