@@ -1,11 +1,17 @@
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.IO;
+using System.Windows.Forms.VisualStyles;
+using System.Windows.Threading;
 using CodeHollow.FeedReader;
+using DocumentFormat.OpenXml.Bibliography;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.RssReaderData;
 using PointlessWaymarks.RssReaderData.Models;
+using PointlessWaymarks.WpfCommon.ColumnSort;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 
@@ -15,11 +21,13 @@ namespace PointlessWaymarks.RssReaderGui.Controls;
 [GenerateStatusCommands]
 public partial class RssReaderContext
 {
+    public required ColumnSortControlContext ListSort { get; set; }
     public required ObservableCollection<RssReaderListItem> Items { get; set; }
     public RssReaderListItem? SelectedItem { get; set; }
     public List<RssReaderListItem> SelectedItems { get; set; } = new();
     public required StatusControlContext StatusContext { get; set; }
     public string UserAddFeedInput { get; set; } = string.Empty;
+    public string DisplayUrl { get; set; } = string.Empty;
 
     public static async Task<RssReaderContext> CreateInstance(StatusControlContext statusContext)
     {
@@ -47,7 +55,38 @@ public partial class RssReaderContext
         var newContext = new RssReaderContext
         {
             Items = factoryItemsList,
-            StatusContext = statusContext
+            StatusContext = statusContext,
+            ListSort = new()
+            {
+                Items = new List<ColumnSortControlSortItem>
+                {
+                    new()
+                    {
+                        DisplayName = "Posted",
+                        ColumnName = "DbItem.FeedPublishingDate",
+                        Order = 1,
+                        DefaultSortDirection = ListSortDirection.Descending
+                    },
+                    new()
+                    {
+                        DisplayName = "Item Name",
+                        ColumnName = "DbItem.FeedTitle",
+                        DefaultSortDirection = ListSortDirection.Descending
+                    },
+                    new()
+                    {
+                        DisplayName = "Feed Name",
+                        ColumnName = "DbFeed.Name",
+                        DefaultSortDirection = ListSortDirection.Ascending
+                    },
+                    new()
+                    {
+                        DisplayName = "Item Author",
+                        ColumnName = "DbItem.FeedAuthor",
+                        DefaultSortDirection = ListSortDirection.Ascending
+                    }
+                }
+            }
         };
 
         await newContext.Setup();
@@ -143,9 +182,57 @@ public partial class RssReaderContext
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
-        foreach (var loopItems in initialItems) Items.Add(new RssReaderListItem { DbItem = loopItems, DbFeed = db.RssFeeds.Single(x => x.PersistentId == loopItems.RssFeedPersistentId)});
+        foreach (var loopItems in initialItems)
+            Items.Add(new RssReaderListItem
+            {
+                DbItem = loopItems, DbFeed = db.RssFeeds.Single(x => x.PersistentId == loopItems.RssFeedPersistentId)
+            });
 
         await RefreshFeedItems();
+
+        PropertyChanged += OnPropertyChanged;
+
+        ListSort.SortUpdated += (_, list) =>
+            Dispatcher.CurrentDispatcher.Invoke(() => { ListContextSortHelpers.SortList(list, Items); });
+    }
+
+    private void OnPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (string.IsNullOrWhiteSpace(e.PropertyName)) return;
+
+        if (e.PropertyName.Equals(nameof(SelectedItem)))
+        {
+            if (SelectedItem is { DbItem.MarkedRead: false })
+            {
+                var frozenSelected = SelectedItem;
+                StatusContext.RunFireAndForgetNonBlockingTask(async () =>
+                {
+                    var db = await RssContext.CreateInstance();
+                    var toUpdate = db.RssItems.Single(x => x.Id == frozenSelected.DbItem.Id);
+                    toUpdate.MarkedRead = true;
+                    await db.SaveChangesAsync();
+                    frozenSelected.DbItem = toUpdate;
+                });
+            }
+
+            DisplayUrl = string.IsNullOrWhiteSpace(SelectedItem?.DbItem.FeedLink)
+                ? "about:blank"
+                : SelectedItem.DbItem.FeedLink;
+        }
+    }
+
+    [NonBlockingCommand]
+    public async Task ClearReadItems()
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        var toRemove = Items.Where(x => x.DbItem.MarkedRead).ToList();
+
+        if (!toRemove.Any()) return;
+
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        foreach (var x in toRemove) Items.Remove(x);
     }
 
     [BlockingCommand]

@@ -4,7 +4,7 @@ using System.Windows.Data;
 
 namespace PointlessWaymarks.WpfCommon.ValueConverters;
 
-public sealed class GreaterThanZeroIntIsVisibleElseHiddenConverter : IValueConverter
+public class GreaterThanZeroIntIsVisibleElseHiddenConverter : IValueConverter
 {
     public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {

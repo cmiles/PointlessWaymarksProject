@@ -2,7 +2,7 @@
 using CommunityToolkit.Mvvm.Input;
 using PointlessWaymarks.LlamaAspects;
 
-namespace PointlessWaymarks.CmsWpfControls.ColumnSort;
+namespace PointlessWaymarks.WpfCommon.ColumnSort;
 
 [NotifyPropertyChanged]
 public partial class ColumnSortControlContext

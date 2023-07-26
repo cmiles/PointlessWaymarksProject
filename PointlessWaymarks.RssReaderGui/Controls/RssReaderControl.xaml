@@ -9,6 +9,7 @@
              xmlns:wpf="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
              xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:wpfHtml="clr-namespace:PointlessWaymarks.WpfCommon.WpfHtml;assembly=PointlessWaymarks.WpfCommon"
+             xmlns:columnSort="clr-namespace:PointlessWaymarks.WpfCommon.ColumnSort;assembly=PointlessWaymarks.WpfCommon"
              mc:Ignorable="d"
              d:DesignHeight="800" d:DesignWidth="600" d:DataContext="{d:DesignInstance local:RssReaderContext}">
     <UserControl.Resources>
@@ -26,58 +27,94 @@
             <ColumnDefinition Width="*"></ColumnDefinition>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"></RowDefinition>
             <RowDefinition Height="*"></RowDefinition>
             <RowDefinition Height="Auto"></RowDefinition>
         </Grid.RowDefinitions>
         <GroupBox
             Margin="4,4,4,0"
             Grid.Column="0"
-            Grid.Row="0"
-            Style="{StaticResource UiComponentGroupBoxStyle}"
-            Header="Feed Items">
+            Grid.Row="1"
+            Style="{StaticResource UiComponentGroupBoxStyle}">
+            <GroupBox.Header>
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock VerticalAlignment="Center">Feed Items</TextBlock>
+                </StackPanel>
+            </GroupBox.Header>
             <ListBox ItemsSource="{Binding Items}"
                      Style="{StaticResource ContentListListBoxStyle}"
                      SelectedItem="{Binding SelectedItem}"
                      behaviors:MultiSelectorBehaviors.SynchronizedSelectedItems="{Binding SelectedItems}">
                 <ListBox.ItemTemplate>
                     <DataTemplate DataType="{x:Type local:RssReaderListItem}">
-                            <Grid Margin="4,8,4,2">
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="Auto"></RowDefinition>
-                                    <RowDefinition Height="Auto"></RowDefinition>
-                                </Grid.RowDefinitions>
-                                <TextBlock Text="{Binding DbItem.FeedTitle}" FontWeight="Bold"></TextBlock>
-                                <TextBlock Grid.Row="1" Margin="8,2,0,0">
-                                    <TextBlock.Text>
-                                        <MultiBinding StringFormat="{}{1} - {0}, {2}">
-                                            <Binding Path="DbFeed.Name" />
-                                            <Binding Path="DbItem.FeedPublishingDate" />
-                                            <Binding Path="DbItem.FeedAuthor" />
-                                        </MultiBinding>
-                                    </TextBlock.Text>
-                                </TextBlock>
-                            </Grid>
+                        <Grid Margin="4,12,4,4">
+                            <Grid.Style>
+                                <Style TargetType="Grid">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding DbItem.MarkedRead}" Value="true">
+                                            <Setter Property="Opacity" Value=".4"></Setter>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Grid.Style>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"></RowDefinition>
+                                <RowDefinition Height="Auto"></RowDefinition>
+                                <RowDefinition Height="Auto"></RowDefinition>
+                            </Grid.RowDefinitions>
+                            <TextBlock Text="{Binding DbItem.FeedTitle}" FontWeight="Bold"></TextBlock>
+                            <TextBlock Grid.Row="1" Margin="8,2,0,0" HorizontalAlignment="Left">
+                                <TextBlock.Text>
+                                    <MultiBinding StringFormat="{}{0}, {1}">
+                                        <Binding Path="DbItem.FeedPublishingDate" />
+                                        <Binding Path="DbItem.FeedAuthor" />
+                                    </MultiBinding>
+                                </TextBlock.Text>
+                            </TextBlock>
+                            <TextBlock Grid.Row="2" HorizontalAlignment="Right" Margin="16,2,0,0">
+                                <TextBlock.Text>
+                                    <MultiBinding StringFormat="{}{0}">
+                                        <Binding Path="DbFeed.Name" />
+                                    </MultiBinding>
+                                </TextBlock.Text>
+                            </TextBlock>
+                        </Grid>
                     </DataTemplate>
                 </ListBox.ItemTemplate>
             </ListBox>
         </GroupBox>
-        <GridSplitter Grid.Column="1"
+        <GridSplitter Grid.Row="0" Grid.RowSpan="2" Grid.Column="1"
                       ResizeDirection="Columns"
                       ResizeBehavior="PreviousAndNext"
                       HorizontalAlignment="Stretch" />
         <wpf:WebView2
             x:Name="BodyContentWebView"
-            Grid.Row="0" Grid.Column="2"
-            Source="{Binding SelectedItem.DbItem.FeedLink}"
+            Grid.Row="0" Grid.RowSpan="2" Grid.Column="2"
+            Source="{Binding DisplayUrl, TargetNullValue='about:blank'}"
             Visibility="{Binding StatusContext.BlockUi, Converter={StaticResource BooleanNotToVisibility}}">
         </wpf:WebView2>
-        <Border Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" Style="{StaticResource ActionPanelBorderStyle}">
+        <Grid Grid.Column="0" Grid.Row="0">
+            <Expander BorderBrush="Green" Padding="8,4,12,4"
+                      HorizontalAlignment="Stretch" Header="List Sorting" HorizontalContentAlignment="Center"
+                      ExpandDirection="Down" IsExpanded="False" Margin="6,6,4,0">
+                <columnSort:ColumnSortControl Margin="4,2,4,12" DataContext="{Binding ListSort}"></columnSort:ColumnSortControl>
+            </Expander>
+        </Grid>
+        <Border Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3" Style="{StaticResource ActionPanelBorderStyle}">
             <WrapPanel HorizontalAlignment="Center" Orientation="Horizontal">
                 <TextBox Text="{Binding UserAddFeedInput, UpdateSourceTrigger=PropertyChanged}" Width="400"></TextBox>
                 <Button
                     Content="_Add Feed"
                     Style="{StaticResource ActionPanelButtonStyle}"
                     Command="{Binding TryAddFeedCommand}" />
+                <Button
+                    Content="_Refresh"
+                    Style="{StaticResource ActionPanelButtonStyle}"
+                    Command="{Binding RefreshFeedItemsCommand}" />
+                <Button
+                    Content="_Clear Read Items"
+                    Style="{StaticResource ActionPanelButtonStyle}"
+                    Command="{Binding ClearReadItemsCommand}" />
             </WrapPanel>
         </Border>
     </Grid>

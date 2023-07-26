@@ -2,7 +2,7 @@
 using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
 using PointlessWaymarks.CmsData;
-using PointlessWaymarks.CmsWpfControls.ColumnSort;
+using PointlessWaymarks.WpfCommon.ColumnSort;
 
 namespace PointlessWaymarks.CmsWpfControls.ContentList;
 

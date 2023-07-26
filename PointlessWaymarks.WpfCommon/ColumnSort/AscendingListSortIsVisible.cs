@@ -3,7 +3,7 @@ using System.Globalization;
 using System.Windows;
 using System.Windows.Data;
 
-namespace PointlessWaymarks.CmsWpfControls.ColumnSort;
+namespace PointlessWaymarks.WpfCommon.ColumnSort;
 
 public sealed class AscendingListSortIsVisibleConverter : IValueConverter
 {

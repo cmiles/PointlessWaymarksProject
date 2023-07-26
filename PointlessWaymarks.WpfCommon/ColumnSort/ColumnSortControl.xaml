@@ -1,28 +1,26 @@
 ﻿<UserControl
-    x:Class="PointlessWaymarks.CmsWpfControls.ColumnSort.ColumnSortControl"
+    x:Class="PointlessWaymarks.WpfCommon.ColumnSort.ColumnSortControl"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:local="clr-namespace:PointlessWaymarks.CmsWpfControls.ColumnSort"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:utility="clr-namespace:PointlessWaymarks.WpfCommon.Utility;assembly=PointlessWaymarks.WpfCommon"
-    xmlns:valueConverters="clr-namespace:PointlessWaymarks.WpfCommon.ValueConverters;assembly=PointlessWaymarks.WpfCommon"
     xmlns:svgc="http://sharpvectors.codeplex.com/svgc/"
+    xmlns:columnSort="clr-namespace:PointlessWaymarks.WpfCommon.ColumnSort"
+    xmlns:valueConverters="clr-namespace:PointlessWaymarks.WpfCommon.ValueConverters"
     Name="UserControlXaml"
-    d:DataContext="{d:DesignInstance local:ColumnSortControlContext}"
+    d:DataContext="{d:DesignInstance columnSort:ColumnSortControlContext}"
     d:DesignHeight="450"
     d:DesignWidth="800"
     mc:Ignorable="d">
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="../WpfControlsResourceDictionary.xaml" />
-                
+                <ResourceDictionary Source="../ClassicGreenResourceDictionary.xaml" />
             </ResourceDictionary.MergedDictionaries>
             <valueConverters:GreaterThanZeroIntIsVisibleElseHiddenConverter x:Key="GreaterThanZeroIntIsVisible" />
             <valueConverters:AnyNotVisibleToHiddenMultiConverter x:Key="AnyNotVisibleToCollapsed" />
-            <local:AscendingListSortIsVisibleConverter x:Key="AscendingListSortIsVisible" />
-            <local:DescendingListSortIsVisibleConverter x:Key="DescendingListSortIsVisible" />
+            <columnSort:AscendingListSortIsVisibleConverter x:Key="AscendingListSortIsVisible" />
+            <columnSort:DescendingListSortIsVisibleConverter x:Key="DescendingListSortIsVisible" />
         </ResourceDictionary>
     </UserControl.Resources>
     <Grid>
@@ -33,7 +31,7 @@
                 </ItemsPanelTemplate>
             </ItemsControl.ItemsPanel>
             <ItemsControl.ItemTemplate>
-                <DataTemplate DataType="local:ColumnSortControlSortItem">
+                <DataTemplate DataType="{x:Type columnSort:ColumnSortControlSortItem}">
                     <Button Height="24" Margin="2">
                         <Button.InputBindings>
                             <MouseBinding

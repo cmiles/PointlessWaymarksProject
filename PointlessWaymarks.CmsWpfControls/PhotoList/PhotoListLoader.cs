@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.Database;
-using PointlessWaymarks.CmsWpfControls.ColumnSort;
+using PointlessWaymarks.WpfCommon.ColumnSort;
 using PointlessWaymarks.CmsWpfControls.ContentList;
 
 namespace PointlessWaymarks.CmsWpfControls.PhotoList;

@@ -65,6 +65,9 @@
     <Page Update="WindowScreenShot\WindowScreenShotControl.xaml">
       <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
     </Page>
+    <Page Update="ColumnSort\ColumnSortControl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
 
   <ItemGroup>

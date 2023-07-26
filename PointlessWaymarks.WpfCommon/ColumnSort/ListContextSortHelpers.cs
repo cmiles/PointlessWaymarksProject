@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel;
 using System.Windows.Data;
 
-namespace PointlessWaymarks.CmsWpfControls.ColumnSort;
+namespace PointlessWaymarks.WpfCommon.ColumnSort;
 
 public static class ListContextSortHelpers
 {
