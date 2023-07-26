@@ -14,7 +14,7 @@ namespace PointlessWaymarks.CloudBackupEditorGui.Controls;
 
 [NotifyPropertyChanged]
 [GenerateStatusCommands]
-public class BatchListContext
+public partial class BatchListContext
 {
     public readonly string HelpText = """
                                       ## Batch List
@@ -149,6 +149,7 @@ public class BatchListContext
         });
 
         BuildCommands();
+        
         await RefreshList();
     }
 
