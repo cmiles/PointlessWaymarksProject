@@ -22,14 +22,14 @@
     </UserControl.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="400"></ColumnDefinition>
-            <ColumnDefinition Width="6"></ColumnDefinition>
-            <ColumnDefinition Width="*"></ColumnDefinition>
+            <ColumnDefinition Width="400" />
+            <ColumnDefinition Width="6" />
+            <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"></RowDefinition>
-            <RowDefinition Height="*"></RowDefinition>
-            <RowDefinition Height="Auto"></RowDefinition>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
         <GroupBox
             Margin="4,4,4,0"
@@ -52,17 +52,17 @@
                                 <Style TargetType="Grid">
                                     <Style.Triggers>
                                         <DataTrigger Binding="{Binding DbItem.MarkedRead}" Value="true">
-                                            <Setter Property="Opacity" Value=".4"></Setter>
+                                            <Setter Property="Opacity" Value=".4" />
                                         </DataTrigger>
                                     </Style.Triggers>
                                 </Style>
                             </Grid.Style>
                             <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto"></RowDefinition>
-                                <RowDefinition Height="Auto"></RowDefinition>
-                                <RowDefinition Height="Auto"></RowDefinition>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
                             </Grid.RowDefinitions>
-                            <TextBlock Text="{Binding DbItem.FeedTitle}" FontWeight="Bold"></TextBlock>
+                            <TextBlock Text="{Binding DbItem.FeedTitle}" FontWeight="Bold" />
                             <TextBlock Grid.Row="1" Margin="8,2,0,0" HorizontalAlignment="Left">
                                 <TextBlock.Text>
                                     <MultiBinding StringFormat="{}{0}, {1}">
@@ -71,13 +71,15 @@
                                     </MultiBinding>
                                 </TextBlock.Text>
                             </TextBlock>
-                            <TextBlock Grid.Row="2" HorizontalAlignment="Right" Margin="16,2,0,0">
+                            <TextBlock Grid.Row="2" HorizontalAlignment="Right" Margin="4,2,0,0">
                                 <TextBlock.Text>
                                     <MultiBinding StringFormat="{}{0}">
                                         <Binding Path="DbFeed.Name" />
                                     </MultiBinding>
                                 </TextBlock.Text>
                             </TextBlock>
+                            <CheckBox Grid.Row="2" HorizontalAlignment="Left" Margin="16,4,4,4" Command="{Binding Data.MarkKeepUnreadCommand, Source={StaticResource proxy}}"
+                                      CommandParameter="{Binding .}" IsChecked="{Binding DbItem.KeepUnread}">Keep</CheckBox>
                         </Grid>
                     </DataTemplate>
                 </ListBox.ItemTemplate>
@@ -91,22 +93,37 @@
             x:Name="BodyContentWebView"
             Grid.Row="0" Grid.RowSpan="2" Grid.Column="2"
             Source="{Binding DisplayUrl, TargetNullValue='about:blank'}"
-            Visibility="{Binding StatusContext.BlockUi, Converter={StaticResource BooleanNotToVisibility}}">
-        </wpf:WebView2>
+            Visibility="{Binding StatusContext.BlockUi, Converter={StaticResource BooleanNotToVisibility}}" />
         <Grid Grid.Column="0" Grid.Row="0">
-            <Expander BorderBrush="Green" Padding="8,4,12,4"
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition />
+                <ColumnDefinition />
+            </Grid.ColumnDefinitions>
+            <GroupBox Header="Filter" Style="{StaticResource UiComponentGroupBoxStyle}" Margin="4,0,4,0">
+                <TextBox Text="{Binding UserFilterText, Delay=400, UpdateSourceTrigger=PropertyChanged}" />
+            </GroupBox>
+            <Expander Grid.Column="1" BorderBrush="Green" Padding="8,4,12,4"
                       HorizontalAlignment="Stretch" Header="List Sorting" HorizontalContentAlignment="Center"
                       ExpandDirection="Down" IsExpanded="False" Margin="6,6,4,0">
-                <columnSort:ColumnSortControl Margin="4,2,4,12" DataContext="{Binding ListSort}"></columnSort:ColumnSortControl>
+                <columnSort:ColumnSortControl Margin="4,2,4,12" DataContext="{Binding ListSort}" />
             </Expander>
         </Grid>
         <Border Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3" Style="{StaticResource ActionPanelBorderStyle}">
             <WrapPanel HorizontalAlignment="Center" Orientation="Horizontal">
-                <TextBox Text="{Binding UserAddFeedInput, UpdateSourceTrigger=PropertyChanged}" Width="400"></TextBox>
+                <TextBox VerticalAlignment="Center"
+                         Text="{Binding UserAddFeedInput, UpdateSourceTrigger=PropertyChanged}" Width="300" />
                 <Button
                     Content="_Add Feed"
                     Style="{StaticResource ActionPanelButtonStyle}"
                     Command="{Binding TryAddFeedCommand}" />
+                <Button
+                    Content="Mark Selected Read"
+                    Style="{StaticResource ActionPanelButtonStyle}"
+                    Command="{Binding MarkSelectedReadCommand}" />
+                <Button
+                    Content="Mark Selected Unread"
+                    Style="{StaticResource ActionPanelButtonStyle}"
+                    Command="{Binding MarkSelectedUnReadCommand}" />
                 <Button
                     Content="_Refresh"
                     Style="{StaticResource ActionPanelButtonStyle}"
@@ -115,6 +132,7 @@
                     Content="_Clear Read Items"
                     Style="{StaticResource ActionPanelButtonStyle}"
                     Command="{Binding ClearReadItemsCommand}" />
+                <CheckBox VerticalAlignment="Center" IsChecked="{Binding AutoMarkRead}">Auto-Mark Read</CheckBox>
             </WrapPanel>
         </Border>
     </Grid>

@@ -292,18 +292,27 @@ public partial class JobListContext
             return;
         }
 
-        if (interProcessUpdateNotification.UpdateType == DataNotificationUpdateType.Update)
+        if (interProcessUpdateNotification.UpdateType is DataNotificationUpdateType.Update
+            or DataNotificationUpdateType.New)
         {
             var listItem = Items.SingleOrDefault(x => x.PersistentId == interProcessUpdateNotification.JobPersistentId);
             var db = await CloudBackupContext.CreateInstance();
             var dbItem =
                 db.BackupJobs.SingleOrDefault(x => x.PersistentId == interProcessUpdateNotification.JobPersistentId);
 
-            if (listItem != null && dbItem != null)
+            if (dbItem == null) return;
+
+            if (listItem != null)
             {
                 listItem.DbJob = dbItem;
                 return;
             }
+
+            listItem = new JobListListItem(dbItem);
+
+            await ThreadSwitcher.ResumeForegroundAsync();
+
+            Items.Add(listItem);
         }
 
         await RefreshList();

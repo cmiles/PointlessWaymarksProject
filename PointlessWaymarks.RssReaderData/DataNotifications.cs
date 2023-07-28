@@ -38,14 +38,14 @@ public static class DataNotifications
     }
 
     public static void PublishDataNotification(string sender, DataNotificationContentType contentType,
-        DataNotificationUpdateType updateType, Guid jobPersistentId)
+        DataNotificationUpdateType updateType, List<Guid> ids)
     {
         if (SuspendNotifications) return;
 
         var cleanedSender = string.IsNullOrWhiteSpace(sender) ? "No Sender Specified" : sender.TrimNullToEmpty();
 
         SendMessageQueue.Enqueue(
-            $"Data|{cleanedSender.Replace("|", " ")}|{(int)contentType}|{(int)updateType}|{jobPersistentId}");
+            $"Data|{cleanedSender.Replace("|", " ")}|{(int)contentType}|{(int)updateType}|{string.Join(",", ids ?? new List<Guid>())}");
     }
 
     public static OneOf<InterProcessDataNotification, InterProcessError>
@@ -64,24 +64,21 @@ public static class DataNotifications
             var parsedString = asString.Split("|").ToList();
 
             if (!parsedString.Any()
-                || parsedString.Count is < 4 or > 5
-                || !(parsedString[0].Equals("Data") || parsedString[0].Equals("Progress"))
-                || (parsedString[0].Equals("Data") && parsedString.Count is not 5)
-                || (parsedString[0].Equals("Progress") && parsedString.Count is not 4)
-               )
+                || parsedString.Count is not 5
+                || !parsedString[0].Equals("Data"))
                 return new InterProcessError
                 {
                     ErrorMessage = $"Data appears to be in the wrong format - {asString}"
                 };
 
-            if (parsedString[0].Equals("Data"))
-                return new InterProcessDataNotification
-                {
-                    Sender = parsedString[1],
-                    ContentType = (DataNotificationContentType)int.Parse(parsedString[2]),
-                    UpdateType = (DataNotificationUpdateType)int.Parse(parsedString[3]),
-                    JobPersistentId = Guid.Parse(parsedString[4])
-                };
+            return new InterProcessDataNotification
+            {
+                Sender = parsedString[1],
+                ContentType = (DataNotificationContentType)int.Parse(parsedString[2]),
+                UpdateType = (DataNotificationUpdateType)int.Parse(parsedString[3]),
+                ContentIds = parsedString[4].Split(",", StringSplitOptions.RemoveEmptyEntries)
+                    .Select(Guid.Parse).ToList()
+            };
         }
         catch (Exception e)
         {
@@ -94,8 +91,8 @@ public static class DataNotifications
 
 public record InterProcessDataNotification
 {
+    public List<Guid> ContentIds { get; set; }
     public DataNotificationContentType ContentType { get; init; }
-    public Guid JobPersistentId { get; set; }
     public string? Sender { get; init; }
     public DataNotificationUpdateType UpdateType { get; init; }
 }

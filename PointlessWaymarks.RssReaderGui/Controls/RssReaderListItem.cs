@@ -6,7 +6,6 @@ namespace PointlessWaymarks.RssReaderGui.Controls;
 [NotifyPropertyChanged]
 public partial class RssReaderListItem
 {
-    public required RssItem DbItem { get; set; }
-
     public required RssFeed DbFeed { get; set; }
+    public required RssItem DbItem { get; set; }
 }

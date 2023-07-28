@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using System.Runtime.CompilerServices;
 using Serilog;
 using Serilog.Formatting.Compact;
 
@@ -6,6 +7,11 @@ namespace PointlessWaymarks.CommonTools;
 
 public static class LogTools
 {
+    public static string GetCaller([CallerMemberName] string? caller = null)
+    {
+        return caller ?? "(none)";
+    }
+
     public static LoggerConfiguration LogToConsole(this LoggerConfiguration toConfigure)
     {
         return toConfigure.MinimumLevel.Verbose().WriteTo.Console();
@@ -17,7 +23,8 @@ public static class LogTools
         var programDirectory = FileLocationTools.DefaultLogStorageDirectory();
 
         return toConfigure.MinimumLevel.Verbose().WriteTo.File(new CompactJsonFormatter(),
-            Path.Combine(programDirectory.FullName, $"{fileNameFragment}-Log.json"), rollingInterval: RollingInterval.Day,
+            Path.Combine(programDirectory.FullName, $"{fileNameFragment}-Log.json"),
+            rollingInterval: RollingInterval.Day,
             retainedFileCountLimit: 30);
     }
 
@@ -39,18 +46,21 @@ public static class LogTools
     /// <returns></returns>
     public static string SafeObjectDump(this object? toDump)
     {
-        return toDump is null ? "null" : ObjectDumper.Dump(toDump, new DumpOptions { MaxLevel = 2, DumpStyle = DumpStyle.Console });
+        return toDump is null
+            ? "null"
+            : ObjectDumper.Dump(toDump, new DumpOptions { MaxLevel = 2, DumpStyle = DumpStyle.Console });
     }
-    
+
     public static string SafeObjectDumpNoEnumerables(this object? toDump)
     {
         if (toDump is null) return "null";
-        
+
         var enumerableProperties = toDump.GetType().GetProperties()
             .Where(p => p.PropertyType == typeof(string) ||
                         typeof(IEnumerable).IsAssignableFrom(p.PropertyType)).Select(x => x.Name).ToList();
-        
-        return ObjectDumper.Dump(toDump, new DumpOptions { MaxLevel = 2, DumpStyle = DumpStyle.Console, ExcludeProperties = enumerableProperties});
+
+        return ObjectDumper.Dump(toDump,
+            new DumpOptions { MaxLevel = 2, DumpStyle = DumpStyle.Console, ExcludeProperties = enumerableProperties });
     }
 
     public static LoggerConfiguration StandardEnrichers(this LoggerConfiguration toConfigure)
