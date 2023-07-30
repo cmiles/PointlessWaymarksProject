@@ -1,4 +1,4 @@
-﻿using System.Collections.ObjectModel;
+using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Threading;
 using CommunityToolkit.Mvvm.Input;
@@ -473,6 +473,12 @@ public partial class StatusControlContext
     {
         return await ShowMessage(title, body,
             new List<StatusControlMessageButton> { new() { IsDefault = true, MessageText = "Ok" } });
+    }
+
+    public async Task<string> ShowMessageWithYesNoButton(string title, string? body)
+    {
+        return await ShowMessage(title, body,
+            new List<StatusControlMessageButton> { new() { IsDefault = true, MessageText = "Yes" }, new() { MessageText = "No" } });
     }
 
     public async Task<(bool, string)> ShowStringEntry(string title, string body, string initialUserString)

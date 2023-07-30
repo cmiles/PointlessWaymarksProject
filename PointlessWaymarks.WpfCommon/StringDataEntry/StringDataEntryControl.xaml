@@ -6,6 +6,8 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:stringDataEntry="clr-namespace:PointlessWaymarks.WpfCommon.StringDataEntry"
     xmlns:svgc="http://sharpvectors.codeplex.com/svgc/"
+    xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
+    xmlns:behaviors="clr-namespace:PointlessWaymarks.WpfCommon.Behaviors"
     d:DesignHeight="450"
     d:DesignWidth="800"
     mc:Ignorable="d" d:DataContext="{d:DesignInstance stringDataEntry:StringDataEntryContext}">
@@ -24,6 +26,7 @@
                 Target="{Binding ElementName=ValueTextBox}"
                 ToolTip="{Binding HelpText}" />
             <Image
+                Margin="0,0,4,0"
                 Source="{svgc:SvgImage Source=/Icons/information-outline.svg, AppName=PointlessWaymarks.WpfCommon}"
                 Visibility="{Binding HasChanges, Converter={StaticResource BooleanToVisibility}}"
                 Width="{StaticResource SmallIconSize}" VerticalAlignment="Center">
@@ -39,9 +42,13 @@
                    Width="{StaticResource SmallIconSize}" VerticalAlignment="Center">
             </Image>
         </StackPanel>
-        <TextBox
-            Name="ValueTextBox"
-            Style="{StaticResource DataEntryTextBoxSingleLineStyle}"
-            Text="{Binding UserValue, UpdateSourceTrigger=PropertyChanged}" />
+        <TextBox 
+                 Name="ValueTextBox"
+                 Style="{StaticResource DataEntryTextBoxSingleLineStyle}"
+                 Text="{Binding UserValue, UpdateSourceTrigger=PropertyChanged}">
+            <b:Interaction.Behaviors>
+                <behaviors:TextBoxDelayBindingBehavior DelayBinding="{Binding BindingDelay}"/>
+            </b:Interaction.Behaviors>
+        </TextBox>
     </StackPanel>
 </UserControl>

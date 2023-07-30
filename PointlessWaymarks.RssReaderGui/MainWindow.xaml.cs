@@ -1,6 +1,7 @@
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.RssReaderGui.Controls;
+using PointlessWaymarks.WpfCommon.MarkdownDisplay;
 using PointlessWaymarks.WpfCommon.ProgramUpdateMessage;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
@@ -15,6 +16,21 @@ namespace PointlessWaymarks.RssReaderGui;
 [NotifyPropertyChanged]
 public partial class MainWindow
 {
+    public readonly string HelpText =
+"""
+## Pointless Waymarks RSS Reader
+
+The Pointless Waymarks RSS Reader is a Windows Desktop (only!) Feed Reader. The program uses a SQLite database to store data about Feeds and Feed Items. The emphasis in this program is NOT displaying the RSS Content in a feed, but rather displaying the URL the Feed Links to.
+
+There are a number of great options for RSS Readers - so why write another one is a good question...
+ - Windows Desktop Only: After many years of RSS use my strong preference is that I don't want to read feeds all the time everywhere! Also I like: sitting in front of a desktop computer with a big screen (or screens!), desktop programs, owning my own data, keeping my data local and I like that I can't sit in front of the computer all day both because of 'life' and because I know how terrible that is for me...
+ - Emphasize Displaying Linked Content Not the Feed Content: Feeds are just data and can be used in an awesome number of ways - but the convention is that a Feed Item links to content and I just want to see the content, in full... 
+ - Simple Feed List: I wonder at this point if I have spent a full day of my life organizing and tweaking the display of Feeds/Folders in Feed Readers? Clicking/unclicking/manipulating tree like structures of Feeds... I'm interested in a simpler display of Feeds that removes the temptation to fiddle and presents fewer options.
+ - Joy! I love the art and craft of writing software and I love the feeling of using software that directly addresses my needs/wants/workflow/ideas.
+
+While the GUI, approach, vision, scope, design and nearly every detail is different this program will always be based on my memories of using [FeedDemon](https://nick.typepad.com/blog/2013/03/the-end-of-feeddemon.html) especially in the late 2000s!
+""";
+
     public MainWindow()
     {
         InitializeComponent();
@@ -39,6 +55,12 @@ public partial class MainWindow
 
         UpdateMessageContext = new ProgramUpdateMessageContext();
 
+        HelpContext = new HelpDisplayContext(new List<string>
+        {
+            HelpText,
+            HelpMarkdown.SoftwareUsedBlock
+        });
+        
         StatusContext.RunFireAndForgetBlockingTask(async () =>
         {
             await CheckForProgramUpdate(currentDateVersion);
@@ -47,6 +69,7 @@ public partial class MainWindow
         });
     }
 
+    public HelpDisplayContext HelpContext { get; set; }
     public string InfoTitle { get; set; }
     public RssReaderContext? ReaderContext { get; set; }
     public StatusControlContext StatusContext { get; set; }

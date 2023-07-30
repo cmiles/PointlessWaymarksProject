@@ -51,6 +51,7 @@
                         Photo
                     </Label>
                     <Image
+                        Margin="0,0,4,0"
                         Source="{svgc:SvgImage Source=/Icons/information-outline.svg, AppName=PointlessWaymarks.WpfCommon}"
                         Visibility="{Binding SelectedFileHasPathOrNameChanges, Converter={StaticResource BooleanToVisibility}}"
                         Width="{StaticResource SmallIconSize}" VerticalAlignment="Center">

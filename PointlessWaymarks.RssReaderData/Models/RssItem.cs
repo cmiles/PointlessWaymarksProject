@@ -10,9 +10,10 @@ public class RssItem
     public string? FeedLink { get; set; } = string.Empty;
     public DateTime? FeedPublishingDate { get; set; }
     public string? FeedTitle { get; set; } = string.Empty;
+    
     public int Id { get; set; }
     public bool KeepUnread { get; set; }
     public bool MarkedRead { get; set; }
-    public Guid PersistentId { get; set; }
-    public Guid RssFeedPersistentId { get; set; }
+    public Guid PersistentId { get; set; } = Guid.NewGuid();
+    public required Guid RssFeedPersistentId { get; set; }
 }

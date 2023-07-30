@@ -1,4 +1,4 @@
-﻿using CodeHollow.FeedReader;
+using CodeHollow.FeedReader;
 using Microsoft.EntityFrameworkCore;
 using OneOf;
 using OneOf.Types;
@@ -72,8 +72,6 @@ public static class RssQueries
 
     public static async Task<OneOf<Success, Error<string>>> TryAddFeed(string url, IProgress<string> progress)
     {
-        var returnErrors = new List<string>();
-
         if (string.IsNullOrEmpty(url)) return new Error<string>("Feed to Add Url is Blank?");
 
         var db = await RssContext.CreateInstance();
@@ -96,9 +94,9 @@ public static class RssQueries
 
         var newFeed = new RssFeed
         {
-            PersistentId = Guid.NewGuid(),
             Name = feedInfo.Title,
-            Url = cleanedUrl
+            Url = cleanedUrl,
+            FeedLastUpdatedDate = feedInfo.LastUpdatedDate
         };
 
         await db.RssFeeds.AddAsync(newFeed);
@@ -113,6 +111,41 @@ public static class RssQueries
         return new Success();
     }
 
+    /// <summary>
+    ///     Sets up a new Feed object with as possible from the submitted URL - object is not saved to the database
+    ///     and may be nothing other than a new() object if the feed can not be read.
+    /// </summary>
+    /// <param name="url"></param>
+    /// <param name="progress"></param>
+    /// <returns></returns>
+    public static async Task<RssFeed> TryGetFeed(string url, IProgress<string> progress)
+    {
+        var toReturn = new RssFeed();
+
+        if (string.IsNullOrEmpty(url)) return toReturn;
+
+        var cleanedUrl = url.Trim();
+
+        toReturn.Url = cleanedUrl;
+
+        Feed? feedInfo;
+
+        try
+        {
+            feedInfo = await FeedReader.ReadAsync(cleanedUrl);
+        }
+        catch (Exception)
+        {
+            return toReturn;
+        }
+
+        if (feedInfo == null) return toReturn;
+
+        toReturn.Name = feedInfo.Title;
+        toReturn.FeedLastUpdatedDate = feedInfo.LastUpdatedDate;
+
+        return toReturn;
+    }
 
     public static async Task<List<string>> UpdateFeeds(List<Guid> toUpdate, IProgress<string> progress)
     {
@@ -170,6 +203,9 @@ public static class RssQueries
                     .Error(e, "Error Updating Feed Items for {feedUrl}", loopFeed.Url);
                 continue;
             }
+
+            loopFeed.LastSuccessfulUpdate = DateTime.Now;
+            await db.SaveChangesAsync();
 
             progress.Report($"Feed {loopFeed.Name} - Found {currentFeedItems.Count} Feed Items to Process");
 

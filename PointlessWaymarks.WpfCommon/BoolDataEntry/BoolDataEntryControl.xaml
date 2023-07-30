@@ -27,7 +27,7 @@
             IsEnabled="{Binding IsEnabled}"
             IsThreeState="{Binding UserValueIsNullable}"
             ToolTip="{Binding HelpText}" />
-        <Image Margin="4,0,0,0"
+        <Image Margin="4,0,4,0"
                Source="{svgc:SvgImage Source=/Icons/information-outline.svg, AppName=PointlessWaymarks.WpfCommon}"
                Visibility="{Binding HasChanges, Converter={StaticResource BooleanToVisibility}}"
                Width="{StaticResource SmallIconSize}" VerticalAlignment="Center">

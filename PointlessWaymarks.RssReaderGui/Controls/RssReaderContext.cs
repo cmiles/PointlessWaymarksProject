@@ -7,9 +7,11 @@ using Microsoft.EntityFrameworkCore;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.RssReaderData;
+using PointlessWaymarks.RssReaderData.Models;
 using PointlessWaymarks.WpfCommon.ColumnSort;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
+using PointlessWaymarks.WpfCommon.Utility;
 using Serilog;
 using TinyIpc.Messaging;
 
@@ -168,6 +170,34 @@ public partial class RssReaderContext
         await RssQueries.ItemKeepUnreadToggle(listItem.DbItem.PersistentId.AsList());
     }
 
+    [NonBlockingCommand]
+    public async Task FeedEditorForSelectedItem()
+    {
+        await FeedEditorForFeedItem(SelectedItem);
+    }
+
+    [NonBlockingCommand]
+    public async Task FeedEditorForFeedItem(RssReaderListItem? listItem)
+    {
+        if (listItem?.DbItem == null) return;
+
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        var db = await RssContext.CreateInstance();
+        var currentFeed = await db.RssFeeds.SingleOrDefaultAsync(x => x.PersistentId == listItem.DbFeed.PersistentId);
+
+        if (currentFeed == null)
+        {
+            StatusContext.ToastError("Feed Not Found?!?");
+            return;
+        }
+        
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        var window = await FeedEditorWindow.CreateInstance(currentFeed);
+        window.PositionWindowAndShow();
+    }
+    
     [BlockingCommand]
     public async Task MarkSelectedRead()
     {
@@ -179,17 +209,7 @@ public partial class RssReaderContext
             return;
         }
 
-        var db = await RssContext.CreateInstance();
-
-        foreach (var loopItem in SelectedItems)
-        {
-            if (loopItem.DbItem.KeepUnread) continue;
-
-            var toUpdate = db.RssItems.Single(x => x.Id == loopItem.DbItem.Id);
-            toUpdate.MarkedRead = true;
-            await db.SaveChangesAsync();
-            loopItem.DbItem = toUpdate;
-        }
+        await RssQueries.ItemRead(SelectedItems.Select(x => x.DbItem.PersistentId).ToList(), true);
     }
 
     [BlockingCommand]
@@ -203,15 +223,7 @@ public partial class RssReaderContext
             return;
         }
 
-        var db = await RssContext.CreateInstance();
-
-        foreach (var loopItem in SelectedItems)
-        {
-            var toUpdate = db.RssItems.Single(x => x.Id == loopItem.DbItem.Id);
-            toUpdate.MarkedRead = false;
-            await db.SaveChangesAsync();
-            loopItem.DbItem = toUpdate;
-        }
+        await RssQueries.ItemRead(SelectedItems.Select(x => x.DbItem.PersistentId).ToList(), false);
     }
 
     private void OnDataNotificationReceived(object? sender, TinyMessageReceivedEventArgs e)
@@ -230,7 +242,6 @@ public partial class RssReaderContext
         {
             if (SelectedItem is { DbItem: { MarkedRead: false, KeepUnread: false } } && AutoMarkRead)
             {
-                var frozenSelected = SelectedItem;
                 StatusContext.RunFireAndForgetNonBlockingTask(async () =>
                 {
                     await RssQueries.ItemRead(SelectedItem.DbItem.PersistentId.AsList(), true);
@@ -317,6 +328,22 @@ public partial class RssReaderContext
 
         result.Switch(_ => StatusContext.ToastSuccess($"Added Feed for {UserAddFeedInput}"),
             error => StatusContext.ToastError(error.Value));
+
+        UserAddFeedInput = string.Empty;
+    }
+
+    [BlockingCommand]
+    public async Task NewFeedEditorFromUrl()
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        var feedItem = await RssQueries.TryGetFeed(UserAddFeedInput, StatusContext.ProgressTracker());
+
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        var window = await FeedEditorWindow.CreateInstance(feedItem);
+
+        window.PositionWindowAndShow();
 
         UserAddFeedInput = string.Empty;
     }

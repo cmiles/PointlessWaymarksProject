@@ -45,6 +45,11 @@
                      Style="{StaticResource ContentListListBoxStyle}"
                      SelectedItem="{Binding SelectedItem}"
                      behaviors:MultiSelectorBehaviors.SynchronizedSelectedItems="{Binding SelectedItems}">
+                <ListBox.ContextMenu>
+                    <ContextMenu>
+                        <MenuItem Header="Edit Feed" Command="{Binding FeedEditorForSelectedItemCommand}"></MenuItem>
+                    </ContextMenu>
+                </ListBox.ContextMenu>
                 <ListBox.ItemTemplate>
                     <DataTemplate DataType="{x:Type local:RssReaderListItem}">
                         <Grid Margin="4,12,4,4">
@@ -71,10 +76,17 @@
                                     </MultiBinding>
                                 </TextBlock.Text>
                             </TextBlock>
-                            <TextBlock Grid.Row="2" HorizontalAlignment="Right" Margin="4,2,0,0">
+                            <TextBlock Grid.Row="2" HorizontalAlignment="Right" Margin="4,2,0,0" ToolTip="{Binding DbFeed.Note}">
                                 <TextBlock.Text>
                                     <MultiBinding StringFormat="{}{0}">
                                         <Binding Path="DbFeed.Name" />
+                                    </MultiBinding>
+                                </TextBlock.Text>
+                            </TextBlock>
+                            <TextBlock Grid.Row="2" HorizontalAlignment="Center" Margin="4,2,0,0">
+                                <TextBlock.Text>
+                                    <MultiBinding StringFormat="{}{0}">
+                                        <Binding Path="DbFeed.Tags" />
                                     </MultiBinding>
                                 </TextBlock.Text>
                             </TextBlock>
@@ -116,6 +128,10 @@
                     Content="_Add Feed"
                     Style="{StaticResource ActionPanelButtonStyle}"
                     Command="{Binding TryAddFeedCommand}" />
+                <Button
+                    Content="Feed Editor"
+                    Style="{StaticResource ActionPanelButtonStyle}"
+                    Command="{Binding NewFeedEditorFromUrlCommand}" />
                 <Button
                     Content="Mark Selected Read"
                     Style="{StaticResource ActionPanelButtonStyle}"

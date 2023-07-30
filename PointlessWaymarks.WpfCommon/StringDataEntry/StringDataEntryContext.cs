@@ -13,9 +13,9 @@ public partial class StringDataEntryContext : IHasChanges, IHasValidationIssues
         PropertyChanged += OnPropertyChanged;
     }
 
+    public int BindingDelay { get; set; } = 10;
     public bool HasChanges { get; set; }
     public bool HasValidationIssues { get; set; }
-
     public string HelpText { get; set; } = string.Empty;
     public string ReferenceValue { get; set; } = string.Empty;
     public string Title { get; set; } = string.Empty;
