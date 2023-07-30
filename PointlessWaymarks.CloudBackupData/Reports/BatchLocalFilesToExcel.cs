@@ -34,7 +34,7 @@ public static class BatchLocalFilesToExcel
         uploadsWorksheet.Cell(currentRow, 1).Style.Font
             .SetFontSize(uploadsWorksheet.Cell(currentRow, 1).Style.Font.FontSize + 4);
         uploadsWorksheet.Cell(currentRow++, 1).Style.Font.SetBold(true);
-        uploadsWorksheet.Cell(currentRow++, 1).Value = $"{projectedFiles.Count()} Files";
+        uploadsWorksheet.Cell(currentRow++, 1).Value = $"{projectedFiles.Count} Files - {FileAndFolderTools.GetBytesReadable(projectedFiles.Sum(x => x.FileSize))}";
         currentRow++;
         currentRow++;
 

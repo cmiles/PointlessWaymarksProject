@@ -39,8 +39,11 @@ public static class BatchUploadsToExcel
         currentRow++;
 
         uploadsWorksheet.Cell(currentRow++, 1).Value =
-            $"Total {projectedUploads.Count}, Complete Successfully {projectedUploads.Count(x => x.UploadCompletedSuccessfully)}, Not Uploaded Successfully {projectedUploads.Count(x => !x.UploadCompletedSuccessfully)}, With Error Messages {projectedUploads.Count(x => !string.IsNullOrWhiteSpace(x.ErrorMessage))}";
+            $"Total {projectedUploads.Count}, Completed Successfully {projectedUploads.Count(x => x.UploadCompletedSuccessfully)}, Not Uploaded Successfully {projectedUploads.Count(x => !x.UploadCompletedSuccessfully)}, With Error Messages {projectedUploads.Count(x => !string.IsNullOrWhiteSpace(x.ErrorMessage))}";
 
+        uploadsWorksheet.Cell(currentRow++, 1).Value =
+            $"Total Batch Size {FileAndFolderTools.GetBytesReadable(batch.CloudUploads.Sum(x => x.FileSize))}, Uploaded {FileAndFolderTools.GetBytesReadable(batch.CloudUploads.Where(x => x.UploadCompletedSuccessfully).Sum(x => x.FileSize))}, Not Uploaded Successfully {FileAndFolderTools.GetBytesReadable(batch.CloudUploads.Where(x => !x.UploadCompletedSuccessfully).Sum(x => x.FileSize))}, With Error Messages {FileAndFolderTools.GetBytesReadable(batch.CloudUploads.Where(x => !string.IsNullOrWhiteSpace(x.ErrorMessage)).Sum(x => x.FileSize))}";
+        
         currentRow++;
 
         var table = uploadsWorksheet.Cell(currentRow, 1).InsertTable(projectedUploads.OrderBy(x => x.FileSystemFile));

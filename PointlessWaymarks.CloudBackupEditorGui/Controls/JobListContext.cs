@@ -307,12 +307,6 @@ public partial class JobListContext
                 listItem.DbJob = dbItem;
                 return;
             }
-
-            listItem = new JobListListItem(dbItem);
-
-            await ThreadSwitcher.ResumeForegroundAsync();
-
-            Items.Add(listItem);
         }
 
         await RefreshList();

@@ -73,7 +73,6 @@ public partial class JobEditorContext : IHasChanges, IHasValidationIssues,
     public required List<string> ExcludedFilePatternsOriginal { get; set; } = new();
     public bool HasChanges { get; set; }
     public bool HasValidationIssues { get; set; }
-
     public HelpDisplayContext? HelpContext { get; set; }
     public required BackupJob LoadedJob { get; set; }
     public EventHandler? RequestContentEditorWindowClose { get; set; }

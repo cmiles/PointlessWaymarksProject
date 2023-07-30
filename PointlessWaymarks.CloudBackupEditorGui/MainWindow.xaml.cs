@@ -112,12 +112,11 @@ public partial class MainWindow
             await LoadData();
         });
     }
-    
-    public AppSettingsContext SettingsContext { get; set; }
 
     public HelpDisplayContext HelpContext { get; set; }
     public string InfoTitle { get; set; }
     public JobListContext? ListContext { get; set; }
+    public AppSettingsContext SettingsContext { get; set; }
     public StatusControlContext StatusContext { get; set; }
     public ProgramUpdateMessageContext UpdateMessageContext { get; set; }
 

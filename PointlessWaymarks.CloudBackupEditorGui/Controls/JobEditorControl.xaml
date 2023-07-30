@@ -83,6 +83,7 @@
                                     Target="{Binding ElementName=ValueTextBox}"
                                     ToolTip="The Region of the Cloud Account" />
                                 <Image
+                                    Margin="0,0,4,0"
                                     Source="{svgc:SvgImage Source=/Icons/information-outline.svg, AppName=PointlessWaymarks.WpfCommon}"
                                     Visibility="{Binding AwsRegionHasChanges, Converter={StaticResource BooleanToVisibility}}"
                                     Width="{StaticResource SmallIconSize}" VerticalAlignment="Center">
