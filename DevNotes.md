@@ -21,11 +21,15 @@
 
 ## Notes
 
+7/30/2023
+
+I didn't expect to write a note here and see that I had only been working on the RSS Reader for about 10 days! In fairness I have made several false starts on the RSS Reader in test Avalonia and Blazor project - and have been thinking about it for a bit - but it is coming together nicely for the amount of work!
+
 7/20/2023
 
 First installed version of the CloudBackup project today and I have been using the runner for about a week at this point - so far I'm very happy that I have put time into this even if there are already plenty of backup and sync solutions in the world!! Rarely will your creation be completely unique - and almost always there is some way to leverage existing software - but there is something so so nice when you sit down to use a program and it does what you want to do the way you want to do it...
 
-Next up is a desktop RSS Reader. Many of the same caveats and reasons go along with this project. I'm very excited to start this because it rounds out the applications I've had for some time in the back of my mind for the Pointless Waymarks program!~~~~
+Next up is a desktop RSS Reader. Many of the same caveats and reasons go along with this project. I'm very excited to start this because it rounds out the applications I've had for some time in the back of my mind for the Pointless Waymarks program!
 
 6/24/2023
 
