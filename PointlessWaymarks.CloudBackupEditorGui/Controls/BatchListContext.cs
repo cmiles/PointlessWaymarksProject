@@ -25,7 +25,6 @@ public partial class BatchListContext
                                       """;
 
     public BackupJob DbJob { get; set; }
-
     public HelpDisplayContext? HelpContext { get; set; }
     public required ObservableCollection<BatchListListItem> Items { get; set; }
     public required int JobId { get; set; }

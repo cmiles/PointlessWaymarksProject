@@ -296,6 +296,7 @@ public static class CreationTools
             CloudTransferBatchId = batch.Id,
             BucketName = changes.AccountInformation.BucketName(),
             CloudObjectKey = x.Key,
+            FileSize = x.Metadata.FileSize,
             LastUpdatedOn = frozenNow
         }));
 

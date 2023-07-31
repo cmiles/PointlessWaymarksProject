@@ -364,3 +364,4 @@ PointlessWaymarks.Task.PublishSiteToAmazonS3/PointlessWaymarks.Task.PublishSiteT
 PointlessWaymarks.CloudBackupRunner/Properties/launchSettings.json
 PointlessWaymarks.CloudBackupRunner/PointlessWaymarks.CloudBackupRunner.args.json
 PointlessWaymarks.CloudBackupRunner/PointlessWaymarks.CloudBackupRunner.args.json
+nuget.exe

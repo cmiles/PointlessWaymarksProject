@@ -8,6 +8,7 @@
              xmlns:behaviors="clr-namespace:PointlessWaymarks.WpfCommon.Behaviors;assembly=PointlessWaymarks.WpfCommon"
              xmlns:controls="clr-namespace:PointlessWaymarks.CloudBackupEditorGui.Controls"
              xmlns:markdownDisplay="clr-namespace:PointlessWaymarks.WpfCommon.MarkdownDisplay;assembly=PointlessWaymarks.WpfCommon"
+             xmlns:valueConverters="clr-namespace:PointlessWaymarks.WpfCommon.ValueConverters;assembly=PointlessWaymarks.WpfCommon"
              mc:Ignorable="d"
              d:DesignHeight="450" d:DesignWidth="800" d:DataContext="{d:DesignInstance local:BatchListContext}">
     <UserControl.Resources>
@@ -16,6 +17,7 @@
                 <ResourceDictionary Source="/PointlessWaymarks.WpfCommon;component/ClassicGreenResourceDictionary.xaml" />
             </ResourceDictionary.MergedDictionaries>
             <utility:BindingProxy x:Key="proxy" Data="{Binding}" />
+            <valueConverters:FileSizeConverter x:Key="HumanFileSize" />
             <CollectionViewSource x:Key="SortedItems" Source="{Binding Items}"
                                   xmlns:scm="clr-namespace:System.ComponentModel;assembly=WindowsBase">
                 <CollectionViewSource.SortDescriptions>
@@ -85,32 +87,66 @@
                                             <Button
                                                 Command="{Binding Data.UploadsToExcelCommand, Source={StaticResource proxy}}"
                                                 CommandParameter="{Binding DbBatch}">
-                                                <TextBlock>
-                                                    <TextBlock.Text>
-                                                        <MultiBinding
-                                                            StringFormat="Uploads: {0}; {1} Complete; {2} Remaining; {3} Errors">
-                                                            <Binding Path="UploadCount" />
-                                                            <Binding Path="UploadsCompleteCount" />
-                                                            <Binding Path="UploadsNotCompletedCount" />
-                                                            <Binding Path="UploadsWithErrorNoteCount" />
-                                                        </MultiBinding>
-                                                    </TextBlock.Text>
-                                                </TextBlock>
+                                                <StackPanel Orientation="Vertical">
+                                                    <TextBlock>
+                                                        <TextBlock.Text>
+                                                            <MultiBinding
+                                                                StringFormat="Uploads: {0}; {1} Complete; {2} Remaining; {3} Errors">
+                                                                <Binding Path="UploadCount" />
+                                                                <Binding Path="UploadsCompleteCount" />
+                                                                <Binding Path="UploadsNotCompletedCount" />
+                                                                <Binding Path="UploadsWithErrorNoteCount" />
+                                                            </MultiBinding>
+                                                        </TextBlock.Text>
+                                                    </TextBlock>
+                                                    <TextBlock>
+                                                        <TextBlock.Text>
+                                                            <MultiBinding
+                                                                StringFormat="Uploads: {0}; {1} Complete; {2} Remaining; {3} Errors">
+                                                                <Binding Path="UploadSize"
+                                                                         Converter="{StaticResource HumanFileSize}" />
+                                                                <Binding Path="UploadsCompleteSize"
+                                                                         Converter="{StaticResource HumanFileSize}" />
+                                                                <Binding Path="UploadsNotCompletedSize"
+                                                                         Converter="{StaticResource HumanFileSize}" />
+                                                                <Binding Path="UploadsWithErrorNoteSize"
+                                                                         Converter="{StaticResource HumanFileSize}" />
+                                                            </MultiBinding>
+                                                        </TextBlock.Text>
+                                                    </TextBlock>
+                                                </StackPanel>
                                             </Button>
                                             <Button
                                                 Command="{Binding Data.DeletesToExcelCommand, Source={StaticResource proxy}}"
                                                 CommandParameter="{Binding DbBatch}">
-                                                <TextBlock>
-                                                    <TextBlock.Text>
-                                                        <MultiBinding
-                                                            StringFormat="Deletes: {0}; {1} Complete; {2} Remaining; {3} Errors">
-                                                            <Binding Path="DeletesCount" />
-                                                            <Binding Path="DeletesCompleteCount" />
-                                                            <Binding Path="DeletesNotCompletedCount" />
-                                                            <Binding Path="DeletesWithErrorNoteCount" />
-                                                        </MultiBinding>
-                                                    </TextBlock.Text>
-                                                </TextBlock>
+                                                <StackPanel Orientation="Vertical">
+                                                    <TextBlock>
+                                                        <TextBlock.Text>
+                                                            <MultiBinding
+                                                                StringFormat="Deletes: {0}; {1} Complete; {2} Remaining; {3} Errors">
+                                                                <Binding Path="DeletesCount" />
+                                                                <Binding Path="DeletesCompleteCount" />
+                                                                <Binding Path="DeletesNotCompletedCount" />
+                                                                <Binding Path="DeletesWithErrorNoteCount" />
+                                                            </MultiBinding>
+                                                        </TextBlock.Text>
+                                                    </TextBlock>
+                                                    <TextBlock>
+                                                        <TextBlock.Text>
+                                                            <MultiBinding
+                                                                StringFormat="Deletes: {0}; {1} Complete; {2} Remaining; {3} Errors">
+                                                                <Binding Path="DeletesSize"
+                                                                         Converter="{StaticResource HumanFileSize}" />
+                                                                <Binding Path="DeletesCompleteSize"
+                                                                         Converter="{StaticResource HumanFileSize}" />
+                                                                <Binding Path="DeletesNotCompletedSize"
+                                                                         Converter="{StaticResource HumanFileSize}" />
+                                                                <Binding Path="DeletesWithErrorNoteSize"
+                                                                         Converter="{StaticResource HumanFileSize}" />
+                                                            </MultiBinding>
+                                                        </TextBlock.Text>
+                                                    </TextBlock>
+                                                </StackPanel>
                                             </Button>
                                         </WrapPanel>
                                         <WrapPanel Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="2" Margin="10,6,0,8"
@@ -125,16 +161,26 @@
                                             <Button
                                                 Command="{Binding Data.LocalFilesToExcelCommand, Source={StaticResource proxy}}"
                                                 CommandParameter="{Binding DbBatch}">
-                                                <TextBlock
-                                                    Text="{Binding LocalFileCount, StringFormat='Local Files: {0}'}">
-                                                </TextBlock>
+                                                <StackPanel Orientation="Vertical">
+                                                    <TextBlock
+                                                        Text="{Binding LocalFileCount, StringFormat='Local Files: {0}'}">
+                                                    </TextBlock>
+                                                    <TextBlock
+                                                        Text="{Binding LocalFileSize, Converter={StaticResource HumanFileSize}}">
+                                                    </TextBlock>
+                                                </StackPanel>
                                             </Button>
                                             <Button
                                                 Command="{Binding Data.CloudFilesToExcelCommand, Source={StaticResource proxy}}"
                                                 CommandParameter="{Binding DbBatch}">
-                                                <TextBlock
-                                                    Text="{Binding CloudFileCount, StringFormat='Cloud Files: {0}'}">
-                                                </TextBlock>
+                                                <StackPanel Orientation="Vertical">
+                                                    <TextBlock
+                                                        Text="{Binding CloudFileCount, StringFormat='Cloud Files: {0}'}">
+                                                    </TextBlock>
+                                                    <TextBlock
+                                                        Text="{Binding CloudFileSize, Converter={StaticResource HumanFileSize}}">
+                                                    </TextBlock>
+                                                </StackPanel>
                                             </Button>
                                             <Button
                                                 Command="{Binding Data.BatchToExcelCommand, Source={StaticResource proxy}}"
