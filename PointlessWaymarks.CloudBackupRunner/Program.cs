@@ -8,6 +8,33 @@ using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.CommonTools.S3;
 using Serilog;
 
+LogTools.StandardStaticLoggerForProgramDirectory("CloudBackup");
+
+AppDomain.CurrentDomain.UnhandledException += delegate(object sender, UnhandledExceptionEventArgs eventArgs)
+{
+        var exceptionMessage = "Unhandled Fatal Exception";
+        if (eventArgs.ExceptionObject is Exception castException)
+        {
+            exceptionMessage = castException.Message;
+        }
+
+        Log.ForContext("exceptionObject", eventArgs.ExceptionObject.SafeObjectDump()).Error(exceptionMessage, eventArgs.ExceptionObject);
+
+        try
+        {
+             (WindowsNotificationBuilders.NewNotifier("Cloud Backup Runner").Result)
+                .SetAutomationLogoNotificationIconUrl().SetErrorReportAdditionalInformationMarkdown(
+                    FileAndFolderTools.ReadAllText(
+                        Path.Combine(AppContext.BaseDirectory, "README.md"))).Error("Unhandled Exception...").RunSynchronously();
+        }
+        catch (Exception)
+        {
+            // ignored
+        }
+
+        Log.CloseAndFlush();
+};
+
 var startTime = DateTime.Now;
 
 if (args.Length is < 1 or > 3)
@@ -71,7 +98,10 @@ var consoleId = Guid.NewGuid();
 
 var progress = new ConsoleAndDataNotificationProgress(consoleId);
 
-LogTools.StandardStaticLoggerForProgramDirectory("PhotoPickup");
+var errorNotifier = (await WindowsNotificationBuilders.NewNotifier("Cloud Backup Runner"))
+    .SetAutomationLogoNotificationIconUrl().SetErrorReportAdditionalInformationMarkdown(
+        FileAndFolderTools.ReadAllText(
+            Path.Combine(AppContext.BaseDirectory, "README.md")));
 
 Log.ForContext("args", args, true).Information(
     "PointlessWaymarks.CloudBackupRunner Starting");
@@ -80,6 +110,8 @@ var db = await CloudBackupContext.TryCreateInstance(args[0]);
 
 if (!db.success || db.context is null)
 {
+    await errorNotifier.Error($"Failed to Connect to the Db {args[0]}");
+    
     Log.ForContext(nameof(db), db, true).Error("Failed to Connect to the Db {dbFile}", args[0]);
     Log.CloseAndFlush();
     return;
@@ -100,7 +132,8 @@ if (args.Length == 1)
 
         foreach (var loopBatch in batches)
         {
-            Console.WriteLine($"  Batch Id {loopBatch.Id} - {loopBatch.CreatedOn} - Uploads {loopBatch.CloudUploads.Count(x => x.UploadCompletedSuccessfully)} of {loopBatch.CloudUploads.Count} Complete, Deletions {loopBatch.CloudDeletions.Count(x => x.DeletionCompletedSuccessfully)} of {loopBatch.CloudDeletions.Count} Complete, {loopBatch.CloudUploads.Count(x => !string.IsNullOrWhiteSpace(x.ErrorMessage)) + loopBatch.CloudDeletions.Count(x => !string.IsNullOrWhiteSpace(x.ErrorMessage))} Errors");
+            Console.WriteLine(
+                $"  Batch Id {loopBatch.Id} - {loopBatch.CreatedOn} - Uploads {loopBatch.CloudUploads.Count(x => x.UploadCompletedSuccessfully)} of {loopBatch.CloudUploads.Count} Complete, Deletions {loopBatch.CloudDeletions.Count(x => x.DeletionCompletedSuccessfully)} of {loopBatch.CloudDeletions.Count} Complete, {loopBatch.CloudUploads.Count(x => !string.IsNullOrWhiteSpace(x.ErrorMessage)) + loopBatch.CloudDeletions.Count(x => !string.IsNullOrWhiteSpace(x.ErrorMessage))} Errors");
         }
     }
 
@@ -110,7 +143,9 @@ if (args.Length == 1)
 
 if (!int.TryParse(args[1], out var jobId))
 {
-    Log.Error("Failed to Parse Job Id {jobId}", args[0]);
+    await errorNotifier.Error($"Failed to Parse Job Id {args[1]}");
+
+    Log.Error("Failed to Parse Job Id {jobId}", args[1]);
     Log.CloseAndFlush();
     return;
 }
@@ -119,6 +154,8 @@ var backupJob = await db.context.BackupJobs.SingleOrDefaultAsync(x => x.Id == jo
 
 if (backupJob == null)
 {
+    await errorNotifier.Error($"Failed to find a Backup Job with Id {jobId} in {args[0]}");
+    
     Log.Error("Failed to find a Backup Job with Id {jobId} in {dbFile}", jobId, args[0]);
     Log.CloseAndFlush();
     return;
@@ -136,6 +173,8 @@ var cloudCredentials = PasswordVaultTools.GetCredentials(backupJob.VaultIdentifi
 
 if (string.IsNullOrWhiteSpace(cloudCredentials.username) || string.IsNullOrWhiteSpace(cloudCredentials.password))
 {
+    await errorNotifier.Error($"Cloud Credentials are not Valid?");
+        
     Log.Error(
         $"Cloud Credentials are not Valid? Access Key is blank {string.IsNullOrWhiteSpace(cloudCredentials.username)}, Password is blank {string.IsNullOrWhiteSpace(cloudCredentials.password)}");
     Log.CloseAndFlush();
