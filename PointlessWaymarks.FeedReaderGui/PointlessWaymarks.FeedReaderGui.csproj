@@ -1,0 +1,37 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>WinExe</OutputType>
+        <ApplicationManifest>app.manifest</ApplicationManifest>
+        <ApplicationIcon>PointlessWaymarksFeedReaderIcon.ico</ApplicationIcon>
+        <UseWPF>true</UseWPF>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <AssemblyAttribute Include="PointlessWaymarks.CommonTools.BuildDateAttribute">
+            <_Parameter1>$([System.DateTime]::UtcNow.ToString("yyyyMMddHHmmss"))</_Parameter1>
+        </AssemblyAttribute>
+    </ItemGroup>
+    
+    <ItemGroup>
+      <PackageReference Include="GitInfo" Version="3.1.1">
+        <PrivateAssets>all</PrivateAssets>
+        <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      </PackageReference>
+      <PackageReference Include="Jot" Version="2.1.17" />
+      <PackageReference Include="Metalama.Framework" Version="2023.2.2-rc" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\PointlessWaymarks.FeedReaderData\PointlessWaymarks.FeedReaderData.csproj" />
+      <ProjectReference Include="..\PointlessWaymarks.WpfCommon\PointlessWaymarks.WpfCommon.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Remove="PointlessWaymarksFeedReaderIcon.ico" />
+      <Resource Include="PointlessWaymarksFeedReaderIcon.ico">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </Resource>
+    </ItemGroup>
+
+</Project>
