@@ -50,9 +50,15 @@ public class WindowsNotificationTool
     public string ErrorReportAdditionalInformationMarkdown { get; set; } = string.Empty;
 
     /// <summary>
-    ///     Sets the Icon for the Windows Notification
+    ///     Sets the Error Icon for the Windows Notification
     /// </summary>
-    public string NotificationIconUrl { get; set; } = string.Empty;
+    public string NotificationIconErrorUrl { get; set; } = string.Empty;
+
+    /// <summary>
+    ///     Sets the Icon for the Windows Notification - this is the base, or
+    /// success, version
+    /// </summary>
+    public string NotificationIconSuccessUrl { get; set; } = string.Empty;
 
     public static async Task<WindowsNotificationTool> CreateInstance()
     {
@@ -157,7 +163,7 @@ public class WindowsNotificationTool
         if (uniqueName == null)
         {
             new ToastContentBuilder()
-                .AddAppLogoOverride(new Uri(NotificationIconUrl))
+                .AddAppLogoOverride(new Uri(NotificationIconErrorUrl))
                 .AddText($"Error: {summary}. Unable to create Error Report File...")
                 .AddAttributionText(Attribution)
                 .Show();
@@ -168,7 +174,7 @@ public class WindowsNotificationTool
         await File.WriteAllTextAsync(uniqueName.FullName, errorReportDocument);
 
         new ToastContentBuilder()
-            .AddAppLogoOverride(new Uri(NotificationIconUrl))
+            .AddAppLogoOverride(new Uri(NotificationIconErrorUrl))
             .AddText($"Error: {summary}. Click for more information...")
             .AddToastActivationInfo(uniqueName.FullName, ToastActivationType.Protocol)
             .AddAttributionText(Attribution)
@@ -182,9 +188,24 @@ public class WindowsNotificationTool
     public void Message(string summary)
     {
         new ToastContentBuilder()
-            .AddAppLogoOverride(new Uri(NotificationIconUrl))
+            .AddAppLogoOverride(new Uri(NotificationIconSuccessUrl))
             .AddText(summary)
             .AddAttributionText(Attribution)
+            .Show();
+    }
+
+    /// <summary>
+    ///     Shows a Windows Notification with a Hero Image - the image is not rescaled.
+    /// </summary>
+    /// <param name="summary"></param>
+    /// <param name="imageUrl"></param>
+    public void Message(string summary, string imageUrl)
+    {
+        new ToastContentBuilder()
+            .AddAppLogoOverride(new Uri(NotificationIconSuccessUrl))
+            .AddText(summary)
+            .AddAttributionText(Attribution)
+            .AddHeroImage(new Uri(imageUrl))
             .Show();
     }
 
@@ -199,25 +220,10 @@ public class WindowsNotificationTool
     public void MessageWithFile(string summary, string fileName)
     {
         new ToastContentBuilder()
-            .AddAppLogoOverride(new Uri(NotificationIconUrl))
+            .AddAppLogoOverride(new Uri(NotificationIconSuccessUrl))
             .AddText(summary)
             .AddToastActivationInfo(fileName, ToastActivationType.Protocol)
             .AddAttributionText(Attribution)
-            .Show();
-    }
-
-    /// <summary>
-    ///     Shows a Windows Notification with a Hero Image - the image is not rescaled.
-    /// </summary>
-    /// <param name="summary"></param>
-    /// <param name="imageUrl"></param>
-    public void Message(string summary, string imageUrl)
-    {
-        new ToastContentBuilder()
-            .AddAppLogoOverride(new Uri(NotificationIconUrl))
-            .AddText(summary)
-            .AddAttributionText(Attribution)
-            .AddHeroImage(new Uri(imageUrl))
             .Show();
     }
 

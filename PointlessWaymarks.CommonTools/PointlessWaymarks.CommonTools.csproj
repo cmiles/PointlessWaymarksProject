@@ -48,4 +48,10 @@
     <PackageReference Include="TinyIpc" Version="4.1.4" />
   </ItemGroup>
 
+  <ItemGroup>
+    <EmbeddedResource Include="..\PointlessWaymarks.Graphics\PointlessWaymarksCmsAutomationErrorCircularLogo.png">
+      <Link>Assets\PointlessWaymarksCmsAutomationErrorCircularLogo.png</Link>
+    </EmbeddedResource>
+  </ItemGroup>
+
 </Project>

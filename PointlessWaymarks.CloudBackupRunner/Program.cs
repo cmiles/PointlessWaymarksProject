@@ -283,7 +283,7 @@ try
 
     (await WindowsNotificationBuilders.NewNotifier("Cloud Backup Runner"))
         .SetAutomationLogoNotificationIconUrl().MessageWithFile(
-            $"Uploaded {FileAndFolderTools.GetBytesReadable(runInformation.UploadedSize)} in {(runInformation.Ended - runInformation.Started).TotalHours:N2} Hours{(runInformation.DeleteErrorCount + runInformation.UploadErrorCount > 0 ? $"{runInformation.DeleteErrorCount + runInformation.UploadErrorCount} Errors" : string.Empty)} - Click for Report",
+            $"Uploaded {FileAndFolderTools.GetBytesReadable(runInformation.UploadedSize)} in {(runInformation.Ended - runInformation.Started).TotalHours:N2} Hours{(runInformation.DeleteErrorCount + runInformation.UploadErrorCount > 0 ? $" - {runInformation.DeleteErrorCount + runInformation.UploadErrorCount}  Errors" : string.Empty)} - Click for Report",
             batchReport);
 }
 catch (Exception e)

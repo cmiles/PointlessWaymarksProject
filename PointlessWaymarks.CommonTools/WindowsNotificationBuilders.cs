@@ -66,14 +66,16 @@ public static class WindowsNotificationBuilders
     }
 
     /// <summary>
-    ///     Sets the Logo for the notification to the circular automation logo
+    ///     Sets the Logo for the notification to the circular automation logo and error version of the Circular Logo
     /// </summary>
     /// <param name="toEdit"></param>
     /// <returns></returns>
     public static WindowsNotificationTool SetAutomationLogoNotificationIconUrl(this WindowsNotificationTool toEdit)
     {
-        toEdit.NotificationIconUrl =
+        toEdit.NotificationIconSuccessUrl =
             $"file://{Path.Combine(FileLocationTools.DefaultAssetsStorageDirectory().FullName, "PointlessWaymarksCmsAutomationCircularLogo.png")}";
+        toEdit.NotificationIconSuccessUrl =
+            $"file://{Path.Combine(FileLocationTools.DefaultAssetsStorageDirectory().FullName, "PointlessWaymarksCmsAutomationErrorCircularLogo.png")}";
         return toEdit;
     }
 
@@ -89,13 +91,6 @@ public static class WindowsNotificationBuilders
         string errorReportAdditionalInformationMarkdown)
     {
         toEdit.ErrorReportAdditionalInformationMarkdown = errorReportAdditionalInformationMarkdown;
-        return toEdit;
-    }
-
-    public static WindowsNotificationTool SetProjectLogoNotificationIconUrl(this WindowsNotificationTool toEdit)
-    {
-        toEdit.NotificationIconUrl =
-            $"file://{Path.Combine(FileLocationTools.DefaultAssetsStorageDirectory().FullName, "PointlessWaymarksCmsSquareLogo.png")}";
         return toEdit;
     }
 }
