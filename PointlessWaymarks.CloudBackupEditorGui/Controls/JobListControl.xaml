@@ -4,7 +4,6 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:local="clr-namespace:PointlessWaymarks.CloudBackupEditorGui.Controls"
-             xmlns:models="clr-namespace:PointlessWaymarks.CloudBackupData.Models;assembly=PointlessWaymarks.CloudBackupData"
              xmlns:behaviors="clr-namespace:PointlessWaymarks.WpfCommon.Behaviors;assembly=PointlessWaymarks.WpfCommon"
              xmlns:svgc="http://sharpvectors.codeplex.com/svgc/"
              xmlns:utility="clr-namespace:PointlessWaymarks.WpfCommon.Utility;assembly=PointlessWaymarks.WpfCommon"
@@ -53,6 +52,11 @@
                      Style="{StaticResource ContentListListBoxStyle}"
                      SelectedItem="{Binding SelectedJob}"
                      behaviors:MultiSelectorBehaviors.SynchronizedSelectedItems="{Binding SelectedJobs}">
+                <ListBox.ContextMenu>
+                    <ContextMenu>
+                        <MenuItem Header="Edit Job" Command="{Binding EditSelectedJobCommand}"></MenuItem>
+                    </ContextMenu>
+                </ListBox.ContextMenu>
                 <ListBox.ItemTemplate>
                     <DataTemplate DataType="{x:Type controls:JobListListItem}">
                         <Border Style="{StaticResource ContentListOuterBorderStyle}">

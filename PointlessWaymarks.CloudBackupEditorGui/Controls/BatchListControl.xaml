@@ -87,7 +87,7 @@
                                             <Button
                                                 Command="{Binding Data.UploadsToExcelCommand, Source={StaticResource proxy}}"
                                                 CommandParameter="{Binding DbBatch}">
-                                                <StackPanel Orientation="Vertical">
+                                                <StackPanel Orientation="Vertical" HorizontalAlignment="Center">
                                                     <TextBlock>
                                                         <TextBlock.Text>
                                                             <MultiBinding
@@ -99,10 +99,10 @@
                                                             </MultiBinding>
                                                         </TextBlock.Text>
                                                     </TextBlock>
-                                                    <TextBlock>
+                                                    <TextBlock HorizontalAlignment="Center">
                                                         <TextBlock.Text>
                                                             <MultiBinding
-                                                                StringFormat="Uploads: {0}; {1} Complete; {2} Remaining; {3} Errors">
+                                                                StringFormat="{}{0}; {1} Complete; {2} Remaining; {3} Errors">
                                                                 <Binding Path="UploadSize"
                                                                          Converter="{StaticResource HumanFileSize}" />
                                                                 <Binding Path="UploadsCompleteSize"
@@ -120,7 +120,7 @@
                                                 Command="{Binding Data.DeletesToExcelCommand, Source={StaticResource proxy}}"
                                                 CommandParameter="{Binding DbBatch}">
                                                 <StackPanel Orientation="Vertical">
-                                                    <TextBlock>
+                                                    <TextBlock HorizontalAlignment="Center">
                                                         <TextBlock.Text>
                                                             <MultiBinding
                                                                 StringFormat="Deletes: {0}; {1} Complete; {2} Remaining; {3} Errors">
@@ -131,10 +131,10 @@
                                                             </MultiBinding>
                                                         </TextBlock.Text>
                                                     </TextBlock>
-                                                    <TextBlock>
+                                                    <TextBlock HorizontalAlignment="Center">
                                                         <TextBlock.Text>
                                                             <MultiBinding
-                                                                StringFormat="Deletes: {0}; {1} Complete; {2} Remaining; {3} Errors">
+                                                                StringFormat="{}{0}; {1} Complete; {2} Remaining; {3} Errors">
                                                                 <Binding Path="DeletesSize"
                                                                          Converter="{StaticResource HumanFileSize}" />
                                                                 <Binding Path="DeletesCompleteSize"
@@ -162,11 +162,11 @@
                                                 Command="{Binding Data.LocalFilesToExcelCommand, Source={StaticResource proxy}}"
                                                 CommandParameter="{Binding DbBatch}">
                                                 <StackPanel Orientation="Vertical">
-                                                    <TextBlock
-                                                        Text="{Binding LocalFileCount, StringFormat='Local Files: {0}'}">
+                                                    <TextBlock HorizontalAlignment="Center"
+                                                               Text="{Binding LocalFileCount, StringFormat='Local Files: {0}'}">
                                                     </TextBlock>
-                                                    <TextBlock
-                                                        Text="{Binding LocalFileSize, Converter={StaticResource HumanFileSize}}">
+                                                    <TextBlock HorizontalAlignment="Center"
+                                                               Text="{Binding LocalFileSize, Converter={StaticResource HumanFileSize}}">
                                                     </TextBlock>
                                                 </StackPanel>
                                             </Button>
@@ -174,11 +174,11 @@
                                                 Command="{Binding Data.CloudFilesToExcelCommand, Source={StaticResource proxy}}"
                                                 CommandParameter="{Binding DbBatch}">
                                                 <StackPanel Orientation="Vertical">
-                                                    <TextBlock
-                                                        Text="{Binding CloudFileCount, StringFormat='Cloud Files: {0}'}">
+                                                    <TextBlock HorizontalAlignment="Center"
+                                                               Text="{Binding CloudFileCount, StringFormat='Cloud Files: {0}'}">
                                                     </TextBlock>
-                                                    <TextBlock
-                                                        Text="{Binding CloudFileSize, Converter={StaticResource HumanFileSize}}">
+                                                    <TextBlock HorizontalAlignment="Center"
+                                                               Text="{Binding CloudFileSize, Converter={StaticResource HumanFileSize}}">
                                                     </TextBlock>
                                                 </StackPanel>
                                             </Button>
