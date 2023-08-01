@@ -30,7 +30,7 @@ public partial class FeedEditorWindow : Window
     ///     PositionWindowAndShowOnUiThread() from the WindowInitialPositionHelpers.
     /// </summary>
     /// <returns></returns>
-    public static async Task<FeedEditorWindow> CreateInstance(RssFeed toLoad)
+    public static async Task<FeedEditorWindow> CreateInstance(Feed toLoad)
     {
         await ThreadSwitcher.ResumeForegroundAsync();
 

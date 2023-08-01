@@ -7,37 +7,41 @@ using SQLitePCL;
 
 namespace PointlessWaymarks.RssReaderData;
 
-public class RssContext : DbContext
+public class FeedContext : DbContext
 {
     public static string CurrentDatabaseFileName = string.Empty;
 
-    public RssContext(DbContextOptions<RssContext> options) : base(options)
+    public FeedContext(DbContextOptions<FeedContext> options) : base(options)
     {
     }
 
-    public DbSet<RssFeed> RssFeeds { get; set; } = null!;
+    public DbSet<Feed> Feeds { get; set; } = null!;
 
-    public DbSet<RssItem> RssItems { get; set; } = null!;
+    public DbSet<FeedItem> FeedItems { get; set; } = null!;
 
-    public static async Task<RssContext> CreateInstance()
+    public DbSet<HistoricFeed> HistoricFeeds { get; set; } = null!;
+
+    public DbSet<HistoricFeedItem> HistoricFeedItems { get; set; } = null!;
+
+    public static async Task<FeedContext> CreateInstance()
     {
         return await CreateInstance(CurrentDatabaseFileName);
     }
 
-    public static Task<RssContext> CreateInstance(string fileName, bool setFileNameAsCurrentDb = true)
+    public static Task<FeedContext> CreateInstance(string fileName, bool setFileNameAsCurrentDb = true)
     {
         // https://github.com/aspnet/EntityFrameworkCore/issues/9994#issuecomment-508588678
         Batteries_V2.Init();
         raw.sqlite3_config(2 /*SQLITE_CONFIG_MULTITHREAD*/);
-        var optionsBuilder = new DbContextOptionsBuilder<RssContext>();
+        var optionsBuilder = new DbContextOptionsBuilder<FeedContext>();
 
         if (setFileNameAsCurrentDb) CurrentDatabaseFileName = fileName;
 
-        return Task.FromResult(new RssContext(optionsBuilder
+        return Task.FromResult(new FeedContext(optionsBuilder
             .UseSqlite($"Data Source={fileName}").Options));
     }
 
-    public static async Task<RssContext> CreateInstanceWithEnsureCreated(string fileName,
+    public static async Task<FeedContext> CreateInstanceWithEnsureCreated(string fileName,
         bool setFileNameAsCurrentDb = true)
     {
         if (File.Exists(fileName))
@@ -46,7 +50,7 @@ public class RssContext : DbContext
                     rb.AddSQLite()
                         .WithGlobalConnectionString(
                             $"Data Source={fileName}")
-                        .ScanIn(typeof(RssContext).Assembly).For.Migrations())
+                        .ScanIn(typeof(FeedContext).Assembly).For.Migrations())
                 .AddLogging(lb => lb.AddSerilog()).BuildServiceProvider(false);
 
             // Instantiate the runner
@@ -68,13 +72,13 @@ public class RssContext : DbContext
     /// <param name="fileName"></param>
     /// <param name="setFileNameAsCurrentDb"></param>
     /// <returns></returns>
-    public static Task<(bool success, string message, RssContext? context)> TryCreateInstance(string fileName,
+    public static Task<(bool success, string message, FeedContext? context)> TryCreateInstance(string fileName,
         bool setFileNameAsCurrentDb = true)
     {
         var newFileInfo = new FileInfo(fileName);
 
         if (!newFileInfo.Exists)
-            return Task.FromResult<(bool success, string message, RssContext? context)>((false,
+            return Task.FromResult<(bool success, string message, FeedContext? context)>((false,
                 "File does not exist?", null));
 
         try
@@ -83,7 +87,7 @@ public class RssContext : DbContext
                     rb.AddSQLite()
                         .WithGlobalConnectionString(
                             $"Data Source={fileName}")
-                        .ScanIn(typeof(RssContext).Assembly).For.Migrations())
+                        .ScanIn(typeof(FeedContext).Assembly).For.Migrations())
                 .AddLogging(lb => lb.AddSerilog()).BuildServiceProvider(false);
 
             // Instantiate the runner
@@ -94,30 +98,30 @@ public class RssContext : DbContext
         }
         catch (Exception e)
         {
-            return Task.FromResult<(bool success, string message, RssContext? context)>(
+            return Task.FromResult<(bool success, string message, FeedContext? context)>(
                 (false, e.Message, null));
         }
 
         // https://github.com/aspnet/EntityFrameworkCore/issues/9994#issuecomment-508588678
         Batteries_V2.Init();
         raw.sqlite3_config(2 /*SQLITE_CONFIG_MULTITHREAD*/);
-        var optionsBuilder = new DbContextOptionsBuilder<RssContext>();
+        var optionsBuilder = new DbContextOptionsBuilder<FeedContext>();
 
-        RssContext? db;
+        FeedContext? db;
 
         try
         {
-            db = new RssContext(optionsBuilder.UseSqlite($"Data Source={fileName}")
+            db = new FeedContext(optionsBuilder.UseSqlite($"Data Source={fileName}")
                 .Options);
         }
         catch (Exception e)
         {
-            return Task.FromResult<(bool success, string message, RssContext? context)>(
+            return Task.FromResult<(bool success, string message, FeedContext? context)>(
                 (false, e.Message, null));
         }
 
         if (setFileNameAsCurrentDb) CurrentDatabaseFileName = fileName;
 
-        return Task.FromResult<(bool success, string message, RssContext? context)>((true, string.Empty, db));
+        return Task.FromResult<(bool success, string message, FeedContext? context)>((true, string.Empty, db));
     }
 }

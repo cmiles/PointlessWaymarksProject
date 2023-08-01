@@ -14,6 +14,7 @@ using PointlessWaymarks.WpfCommon.StringDataEntry;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 using Serilog;
 using TinyIpc.Messaging;
+using Feed = PointlessWaymarks.RssReaderData.Models.Feed;
 
 namespace PointlessWaymarks.RssReaderGui.Controls;
 
@@ -23,7 +24,11 @@ public partial class FeedEditorContext : IHasChanges, IHasValidationIssues,
     ICheckForChangesAndValidation
 {
     public DataNotificationsWorkQueue? DataNotificationsProcessor { get; set; }
-    public required RssFeed DbFeedItem { get; set; }
+    public required Feed DbFeedItem { get; set; }
+    public int DbKeptUnReadRssItems { get; set; }
+
+    public int DbReadRssItems { get; set; }
+    public int DbUnReadRssItems { get; set; }
 
     public bool HasChanges { get; set; }
     public bool HasValidationIssues { get; set; }
@@ -71,9 +76,9 @@ URL Parse Result: When you update the URL (or use the Refresh Button) the progra
 
             if (!results.Items.Any()) return new Warning<string>("No Feed Items?");
 
-            var db = await RssContext.CreateInstance();
+            var db = await FeedContext.CreateInstance();
 
-            if (db.RssFeeds.Any(x => x.Url == url && x.PersistentId != DbFeedItem.PersistentId)) return new Error<string>("Feed Already Exists?");
+            if (db.Feeds.Any(x => x.Url == url && x.PersistentId != DbFeedItem.PersistentId)) return new Error<string>("Feed Already Exists?");
 
             var resultBuilder = new StringBuilder();
 
@@ -95,9 +100,9 @@ URL Parse Result: When you update the URL (or use the Refresh Button) the progra
         }
     }
 
-    public static async Task<FeedEditorContext> CreateInstance(StatusControlContext context, RssFeed? feedItem)
+    public static async Task<FeedEditorContext> CreateInstance(StatusControlContext context, Feed? feedItem)
     {
-        feedItem ??= new RssFeed();
+        feedItem ??= new Feed();
 
         var userNameEntry = StringDataEntryContext.CreateInstance();
         userNameEntry.Title = "Name";
@@ -188,12 +193,6 @@ URL Parse Result: When you update the URL (or use the Refresh Button) the progra
         DataNotificationsProcessor?.Enqueue(e);
     }
 
-    [NonBlockingCommand]
-    public async Task UpdateUrlCheck()
-    {
-        await UserUrlEntry.CheckForChangesAndValidationIssues();
-    }
-
     public async Task<IsValid> ProcessCheckFeedUrl(string url)
     {
         var result = await CheckFeedUrl(url);
@@ -222,22 +221,6 @@ URL Parse Result: When you update the URL (or use the Refresh Button) the progra
         return toReturn;
     }
 
-    public int DbReadRssItems { get; set; }
-    public int DbUnReadRssItems { get; set; }
-    public int DbKeptUnReadRssItems { get; set; }
-
-    public async Task UpdateDbReadStats()
-    {
-        var db = await RssContext.CreateInstance();
-
-        DbReadRssItems =
-            await db.RssItems.CountAsync(x => x.RssFeedPersistentId == DbFeedItem.PersistentId && x.MarkedRead);
-        DbUnReadRssItems =
-            await db.RssItems.CountAsync(x => x.RssFeedPersistentId == DbFeedItem.PersistentId && !x.MarkedRead);
-        DbReadRssItems =
-            await db.RssItems.CountAsync(x => x.RssFeedPersistentId == DbFeedItem.PersistentId && x.KeepUnread);
-    }
-
     private async Task ProcessDataUpdateNotification(InterProcessDataNotification interProcessUpdateNotification)
     {
         if (interProcessUpdateNotification.ContentType == DataNotificationContentType.RssFeed &&
@@ -245,8 +228,8 @@ URL Parse Result: When you update the URL (or use the Refresh Button) the progra
             if (interProcessUpdateNotification.UpdateType == DataNotificationUpdateType.Update ||
                 interProcessUpdateNotification.UpdateType == DataNotificationUpdateType.New)
             {
-                var db = await RssContext.CreateInstance();
-                var dbFeedItem = await db.RssFeeds.SingleAsync(x => x.PersistentId == DbFeedItem.PersistentId);
+                var db = await FeedContext.CreateInstance();
+                var dbFeedItem = await db.Feeds.SingleAsync(x => x.PersistentId == DbFeedItem.PersistentId);
                 UserUrlEntry.ReferenceValue = dbFeedItem.Url;
                 UserNameEntry.ReferenceValue = dbFeedItem.Name;
                 UserNoteEntry.ReferenceValue = dbFeedItem.Note;
@@ -286,7 +269,7 @@ URL Parse Result: When you update the URL (or use the Refresh Button) the progra
             if (continueAfterWarning.Equals("No", StringComparison.OrdinalIgnoreCase)) return;
         }
 
-        var db = await RssContext.CreateInstance();
+        var db = await FeedContext.CreateInstance();
 
         DbFeedItem.Name = UserNameEntry.UserValue;
         DbFeedItem.Note = UserNoteEntry.UserValue;
@@ -295,7 +278,7 @@ URL Parse Result: When you update the URL (or use the Refresh Button) the progra
 
         if (DbFeedItem.Id == 0)
         {
-            db.RssFeeds.Add(DbFeedItem);
+            db.Feeds.Add(DbFeedItem);
             await db.SaveChangesAsync();
 
             DataNotifications.PublishDataNotification(LogTools.GetCaller(), DataNotificationContentType.RssFeed,
@@ -303,7 +286,7 @@ URL Parse Result: When you update the URL (or use the Refresh Button) the progra
         }
         else
         {
-            db.RssFeeds.Update(DbFeedItem);
+            db.Feeds.Update(DbFeedItem);
         }
 
         await db.SaveChangesAsync();
@@ -338,5 +321,23 @@ URL Parse Result: When you update the URL (or use the Refresh Button) the progra
         CheckForChangesAndValidationIssues();
 
         await UpdateDbReadStats();
+    }
+
+    public async Task UpdateDbReadStats()
+    {
+        var db = await FeedContext.CreateInstance();
+
+        DbReadRssItems =
+            await db.FeedItems.CountAsync(x => x.FeedPersistentId == DbFeedItem.PersistentId && x.MarkedRead);
+        DbUnReadRssItems =
+            await db.FeedItems.CountAsync(x => x.FeedPersistentId == DbFeedItem.PersistentId && !x.MarkedRead);
+        DbReadRssItems =
+            await db.FeedItems.CountAsync(x => x.FeedPersistentId == DbFeedItem.PersistentId && x.KeepUnread);
+    }
+
+    [NonBlockingCommand]
+    public async Task UpdateUrlCheck()
+    {
+        await UserUrlEntry.CheckForChangesAndValidationIssues();
     }
 }

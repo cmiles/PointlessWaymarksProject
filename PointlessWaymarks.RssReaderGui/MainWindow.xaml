@@ -14,7 +14,10 @@
     <Grid>
         <TabControl>
             <TabItem Header="Feed Reader">
-                <controls:RssReaderControl DataContext="{Binding ReaderContext}"/>
+                <controls:FeedItemListControl DataContext="{Binding ReaderContext}"/>
+            </TabItem>
+            <TabItem Header="Feeds">
+                <controls:FeedListControl DataContext="{Binding FeedContext}"/>
             </TabItem>
             <TabItem Header="About/Help">
                 <markdownDisplay:HelpDisplayControl DataContext="{Binding HelpContext}" />

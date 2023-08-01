@@ -69,9 +69,11 @@ While the GUI, approach, vision, scope, design and nearly every detail is differ
         });
     }
 
+    public FeedListContext? FeedContext { get; set; }
+
     public HelpDisplayContext HelpContext { get; set; }
     public string InfoTitle { get; set; }
-    public RssReaderContext? ReaderContext { get; set; }
+    public FeedItemListContext? ReaderContext { get; set; }
     public StatusControlContext StatusContext { get; set; }
     public ProgramUpdateMessageContext UpdateMessageContext { get; set; }
 
@@ -102,6 +104,7 @@ While the GUI, approach, vision, scope, design and nearly every detail is differ
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        ReaderContext = await RssReaderContext.CreateInstance(StatusContext);
+        ReaderContext = await FeedItemListContext.CreateInstance(StatusContext);
+        FeedContext = await FeedListContext.CreateInstance(StatusContext);
     }
 }

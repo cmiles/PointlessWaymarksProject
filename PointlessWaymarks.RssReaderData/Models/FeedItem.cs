@@ -1,6 +1,6 @@
 namespace PointlessWaymarks.RssReaderData.Models;
 
-public class RssItem
+public class FeedItem
 {
     public DateTime CreatedOn { get; set; }
     public string? FeedAuthor { get; set; } = string.Empty;
@@ -15,5 +15,5 @@ public class RssItem
     public bool KeepUnread { get; set; }
     public bool MarkedRead { get; set; }
     public Guid PersistentId { get; set; } = Guid.NewGuid();
-    public required Guid RssFeedPersistentId { get; set; }
+    public required Guid FeedPersistentId { get; set; }
 }

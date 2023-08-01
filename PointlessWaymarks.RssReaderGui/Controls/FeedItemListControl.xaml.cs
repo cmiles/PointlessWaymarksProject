@@ -2,9 +2,9 @@
 
 namespace PointlessWaymarks.RssReaderGui.Controls;
 
-public partial class RssReaderControl : UserControl
+public partial class FeedItemListControl
 {
-    public RssReaderControl()
+    public FeedItemListControl()
     {
         InitializeComponent();
     }

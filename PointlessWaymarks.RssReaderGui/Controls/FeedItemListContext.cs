@@ -19,15 +19,17 @@ namespace PointlessWaymarks.RssReaderGui.Controls;
 
 [NotifyPropertyChanged]
 [GenerateStatusCommands]
-public partial class RssReaderContext
+public partial class FeedItemListContext
 {
     public bool AutoMarkRead { get; set; } = true;
     public DataNotificationsWorkQueue? DataNotificationsProcessor { get; set; }
     public string DisplayUrl { get; set; } = string.Empty;
-    public required ObservableCollection<RssReaderListItem> Items { get; set; }
+
+    public List<Guid> FeedList { get; set; } = new List<Guid>();
+    public required ObservableCollection<FeedItemListListItem> Items { get; set; }
     public required ColumnSortControlContext ListSort { get; set; }
-    public RssReaderListItem? SelectedItem { get; set; }
-    public List<RssReaderListItem> SelectedItems { get; set; } = new();
+    public FeedItemListListItem? SelectedItem { get; set; }
+    public List<FeedItemListListItem> SelectedItems { get; set; } = new();
     public required StatusControlContext StatusContext { get; set; }
     public string UserAddFeedInput { get; set; } = string.Empty;
     public string UserFilterText { get; set; } = string.Empty;
@@ -46,7 +48,8 @@ public partial class RssReaderContext
         foreach (var x in toRemove) Items.Remove(x);
     }
 
-    public static async Task<RssReaderContext> CreateInstance(StatusControlContext statusContext)
+    public static async Task<FeedItemListContext> CreateInstance(StatusControlContext statusContext,
+        List<Guid>? feedList = null)
     {
         var settings = RssReaderGuiSettingTools.ReadSettings();
 
@@ -56,23 +59,24 @@ public partial class RssReaderContext
                 FileLocationHelpers.DefaultStorageDirectory(), "PointlessWaymarks-RssReader.db");
             settings.DatabaseFile = newDb!.FullName;
 
-            await RssContext.CreateInstanceWithEnsureCreated(newDb.FullName);
+            await FeedContext.CreateInstanceWithEnsureCreated(newDb.FullName);
 
             await RssReaderGuiSettingTools.WriteSettings(settings);
         }
 
-        RssContext.CurrentDatabaseFileName = settings.DatabaseFile;
+        FeedContext.CurrentDatabaseFileName = settings.DatabaseFile;
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
-        var factoryItemsList = new ObservableCollection<RssReaderListItem>();
+        var factoryItemsList = new ObservableCollection<FeedItemListListItem>();
 
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        var newContext = new RssReaderContext
+        var newContext = new FeedItemListContext
         {
             Items = factoryItemsList,
             StatusContext = statusContext,
+            FeedList = feedList ?? new(),
             ListSort = new ColumnSortControlContext
             {
                 Items = new List<ColumnSortControlSortItem>
@@ -129,6 +133,40 @@ public partial class RssReaderContext
         if (toRun is not null) await toRun;
     }
 
+    [NonBlockingCommand]
+    public async Task FeedEditorForFeedItem(FeedItemListListItem? listItem)
+    {
+        if (listItem?.DbItem == null) return;
+
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        var db = await FeedContext.CreateInstance();
+        var currentFeed = await db.Feeds.SingleOrDefaultAsync(x => x.PersistentId == listItem.DbFeed.PersistentId);
+
+        if (currentFeed == null)
+        {
+            StatusContext.ToastError("Feed Not Found?!?");
+            return;
+        }
+
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        var window = await FeedEditorWindow.CreateInstance(currentFeed);
+        window.PositionWindowAndShow();
+    }
+
+    [NonBlockingCommand]
+    public async Task FeedEditorForSelectedItem()
+    {
+        if (SelectedItem == null)
+        {
+            StatusContext.ToastWarning("Nothing Selected?");
+            return;
+        }
+
+        await FeedEditorForFeedItem(SelectedItem);
+    }
+
     private async Task FilterList()
     {
         if (!Items.Any()) return;
@@ -145,7 +183,7 @@ public partial class RssReaderContext
 
         ((CollectionView)CollectionViewSource.GetDefaultView(Items)).Filter = o =>
         {
-            if (o is not RssReaderListItem toFilter) return false;
+            if (o is not FeedItemListListItem toFilter) return false;
 
             return toFilter.DbFeed.Name.Contains(cleanedFilterText, StringComparison.OrdinalIgnoreCase)
                    || toFilter.DbFeed.Tags.Contains(cleanedFilterText, StringComparison.OrdinalIgnoreCase)
@@ -163,41 +201,13 @@ public partial class RssReaderContext
     }
 
     [NonBlockingCommand]
-    public async Task MarkKeepUnread(RssReaderListItem? listItem)
+    public async Task MarkKeepUnread(FeedItemListListItem? listItem)
     {
         if (listItem?.DbItem == null) return;
 
-        await RssQueries.ItemKeepUnreadToggle(listItem.DbItem.PersistentId.AsList());
+        await FeedQueries.ItemKeepUnreadToggle(listItem.DbItem.PersistentId.AsList());
     }
 
-    [NonBlockingCommand]
-    public async Task FeedEditorForSelectedItem()
-    {
-        await FeedEditorForFeedItem(SelectedItem);
-    }
-
-    [NonBlockingCommand]
-    public async Task FeedEditorForFeedItem(RssReaderListItem? listItem)
-    {
-        if (listItem?.DbItem == null) return;
-
-        await ThreadSwitcher.ResumeBackgroundAsync();
-
-        var db = await RssContext.CreateInstance();
-        var currentFeed = await db.RssFeeds.SingleOrDefaultAsync(x => x.PersistentId == listItem.DbFeed.PersistentId);
-
-        if (currentFeed == null)
-        {
-            StatusContext.ToastError("Feed Not Found?!?");
-            return;
-        }
-        
-        await ThreadSwitcher.ResumeForegroundAsync();
-
-        var window = await FeedEditorWindow.CreateInstance(currentFeed);
-        window.PositionWindowAndShow();
-    }
-    
     [BlockingCommand]
     public async Task MarkSelectedRead()
     {
@@ -209,7 +219,7 @@ public partial class RssReaderContext
             return;
         }
 
-        await RssQueries.ItemRead(SelectedItems.Select(x => x.DbItem.PersistentId).ToList(), true);
+        await FeedQueries.ItemRead(SelectedItems.Select(x => x.DbItem.PersistentId).ToList(), true);
     }
 
     [BlockingCommand]
@@ -223,7 +233,23 @@ public partial class RssReaderContext
             return;
         }
 
-        await RssQueries.ItemRead(SelectedItems.Select(x => x.DbItem.PersistentId).ToList(), false);
+        await FeedQueries.ItemRead(SelectedItems.Select(x => x.DbItem.PersistentId).ToList(), false);
+    }
+
+    [BlockingCommand]
+    public async Task NewFeedEditorFromUrl()
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        var feedItem = await FeedQueries.TryGetFeed(UserAddFeedInput, StatusContext.ProgressTracker());
+
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        var window = await FeedEditorWindow.CreateInstance(feedItem);
+
+        window.PositionWindowAndShow();
+
+        UserAddFeedInput = string.Empty;
     }
 
     private void OnDataNotificationReceived(object? sender, TinyMessageReceivedEventArgs e)
@@ -244,7 +270,7 @@ public partial class RssReaderContext
             {
                 StatusContext.RunFireAndForgetNonBlockingTask(async () =>
                 {
-                    await RssQueries.ItemRead(SelectedItem.DbItem.PersistentId.AsList(), true);
+                    await FeedQueries.ItemRead(SelectedItem.DbItem.PersistentId.AsList(), true);
                 });
             }
 
@@ -279,25 +305,32 @@ public partial class RssReaderContext
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        var errors = await RssQueries.UpdateFeeds(StatusContext.ProgressTracker());
+        var errors = FeedList is { Count: > 0 }
+            ? await FeedQueries.UpdateFeeds(StatusContext.ProgressTracker())
+            : await FeedQueries.UpdateFeeds(FeedList, StatusContext.ProgressTracker());
         foreach (var loopError in errors) StatusContext.ToastError(loopError);
     }
 
     public async Task Setup()
     {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
         BuildCommands();
 
-        var db = await RssContext.CreateInstance();
+        var db = await FeedContext.CreateInstance();
 
-        var initialItems = await db.RssItems.Where(x => !x.MarkedRead).OrderByDescending(x => x.FeedPublishingDate)
+        var initialItemFilter = db.FeedItems.Where(x => !x.MarkedRead);
+        if (FeedList.Any()) initialItemFilter = initialItemFilter.Where(x => FeedList.Contains(x.FeedPersistentId));
+
+        var initialItems = await initialItemFilter.OrderByDescending(x => x.FeedPublishingDate)
             .ThenBy(x => x.FeedTitle).ToListAsync();
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
         foreach (var loopItems in initialItems)
-            Items.Add(new RssReaderListItem
+            Items.Add(new FeedItemListListItem
             {
-                DbItem = loopItems, DbFeed = db.RssFeeds.Single(x => x.PersistentId == loopItems.RssFeedPersistentId)
+                DbItem = loopItems, DbFeed = db.Feeds.Single(x => x.PersistentId == loopItems.FeedPersistentId)
             });
 
         ListContextSortHelpers.SortList(ListSort.SortDescriptions(), Items);
@@ -324,7 +357,7 @@ public partial class RssReaderContext
             return;
         }
 
-        var result = await RssQueries.TryAddFeed(UserAddFeedInput, StatusContext.ProgressTracker());
+        var result = await FeedQueries.TryAddFeed(UserAddFeedInput, StatusContext.ProgressTracker());
 
         result.Switch(_ => StatusContext.ToastSuccess($"Added Feed for {UserAddFeedInput}"),
             error => StatusContext.ToastError(error.Value));
@@ -332,25 +365,11 @@ public partial class RssReaderContext
         UserAddFeedInput = string.Empty;
     }
 
-    [BlockingCommand]
-    public async Task NewFeedEditorFromUrl()
-    {
-        await ThreadSwitcher.ResumeBackgroundAsync();
-
-        var feedItem = await RssQueries.TryGetFeed(UserAddFeedInput, StatusContext.ProgressTracker());
-
-        await ThreadSwitcher.ResumeForegroundAsync();
-
-        var window = await FeedEditorWindow.CreateInstance(feedItem);
-
-        window.PositionWindowAndShow();
-
-        UserAddFeedInput = string.Empty;
-    }
-
     public async Task UpdateFeedItems(List<Guid> toUpdate)
     {
-        var db = await RssContext.CreateInstance();
+        ThreadSwitcher.ResumeBackgroundAsync();
+
+        var db = await FeedContext.CreateInstance();
 
         foreach (var loopContentIds in toUpdate)
         {
@@ -358,7 +377,7 @@ public partial class RssReaderContext
 
             var listItem =
                 Items.SingleOrDefault(x => x.DbItem.PersistentId == loopContentIds);
-            var dbRssItem = db.RssItems.SingleOrDefault(x =>
+            var dbRssItem = db.FeedItems.SingleOrDefault(x =>
                 x.PersistentId == loopContentIds);
 
             //If there is no database item remove it if it exists in the Gui Items and 
@@ -374,8 +393,8 @@ public partial class RssReaderContext
                 continue;
             }
 
-            var dbFeedItem = db.RssFeeds.SingleOrDefault(x =>
-                x.PersistentId == dbRssItem.RssFeedPersistentId);
+            var dbFeedItem = db.Feeds.SingleOrDefault(x =>
+                x.PersistentId == dbRssItem.FeedPersistentId);
 
             //If the Feed is not in the Db remove the item from the Gui
             //Display if it exists - the assumption here is that the data
@@ -402,13 +421,13 @@ public partial class RssReaderContext
             else
             {
                 await ThreadSwitcher.ResumeForegroundAsync();
-                Items.Add(new RssReaderListItem { DbFeed = dbFeedItem, DbItem = dbRssItem });
+                Items.Add(new FeedItemListListItem { DbFeed = dbFeedItem, DbItem = dbRssItem });
             }
         }
 
         if (SelectedItem != null && toUpdate.Contains(SelectedItem.DbItem.PersistentId))
             if (SelectedItem.DbItem is { KeepUnread: false, MarkedRead: false } && AutoMarkRead)
                 StatusContext.RunFireAndForgetNonBlockingTask(async () =>
-                    await RssQueries.ItemRead(SelectedItem.DbItem.PersistentId.AsList(), true));
+                    await FeedQueries.ItemRead(SelectedItem.DbItem.PersistentId.AsList(), true));
     }
 }

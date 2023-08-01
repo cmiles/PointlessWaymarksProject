@@ -1,24 +1,86 @@
 using CodeHollow.FeedReader;
 using Microsoft.EntityFrameworkCore;
+using Omu.ValueInjecter;
 using OneOf;
 using OneOf.Types;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.RssReaderData.Models;
 using Serilog;
+using Feed = PointlessWaymarks.RssReaderData.Models.Feed;
+using FeedItem = PointlessWaymarks.RssReaderData.Models.FeedItem;
 
 namespace PointlessWaymarks.RssReaderData;
 
-public static class RssQueries
+public static class FeedQueries
 {
+    public static async Task ArchiveFeed(Guid feedPersistantId, IProgress<string> progress)
+    {
+        var db = await FeedContext.CreateInstance();
+        var toArchive = await db.Feeds.SingleOrDefaultAsync(x => x.PersistentId == feedPersistantId);
+
+        if (toArchive is null)
+        {
+            progress.Report("No Db Items to archive...");
+            return;
+        }
+
+        var items = await db.FeedItems.Where(x => x.FeedPersistentId == feedPersistantId).ToListAsync();
+
+        progress.Report($"Archiving {items.Count} Feed Items");
+
+        var counter = 0;
+
+        foreach (var loopItems in items)
+        {
+            counter++;
+
+            if (counter % 50 == 0) progress.Report($"Archiving {counter} of {items.Count} Feed Items");
+
+            var historicFeedItem =
+                await db.HistoricFeedItems.SingleOrDefaultAsync(x => x.PersistentId == loopItems.PersistentId);
+
+            if (historicFeedItem is null)
+            {
+                historicFeedItem = new HistoricFeedItem
+                    { FeedPersistentId = loopItems.FeedPersistentId, PersistentId = loopItems.PersistentId };
+                db.HistoricFeedItems.Add(historicFeedItem);
+            }
+
+            historicFeedItem.InjectFrom(loopItems);
+
+            db.FeedItems.Remove(loopItems);
+
+            await db.SaveChangesAsync();
+        }
+
+        DataNotifications.PublishDataNotification(LogTools.GetCaller(), DataNotificationContentType.RssItem,
+            DataNotificationUpdateType.Delete, items.Select(x => x.PersistentId).ToList());
+
+        var historicFeed = await db.HistoricFeeds.SingleOrDefaultAsync(x => x.PersistentId == toArchive.PersistentId);
+
+        if (historicFeed == null)
+        {
+            historicFeed = new HistoricFeed() { PersistentId = toArchive.PersistentId };
+            db.HistoricFeeds.Add(historicFeed);
+        }
+
+        historicFeed.InjectFrom(toArchive);
+
+        await db.SaveChangesAsync();
+
+        DataNotifications.PublishDataNotification(LogTools.GetCaller(), DataNotificationContentType.RssFeed,
+            DataNotificationUpdateType.Delete, historicFeed.PersistentId.AsList());
+    }
+
     public static async Task ItemKeepUnreadToggle(List<Guid> itemIds)
     {
-        var db = await RssContext.CreateInstance();
+        var db = await FeedContext.CreateInstance();
 
         var updateList = new List<Guid>();
 
         foreach (var loopIds in itemIds)
         {
-            var item = db.RssItems.SingleOrDefault(x => x.PersistentId == loopIds);
+            var item = db.FeedItems.SingleOrDefault(x => x.PersistentId == loopIds);
 
             if (item == null) return;
 
@@ -36,13 +98,13 @@ public static class RssQueries
 
     public static async Task ItemRead(List<Guid> itemIds, bool markRead)
     {
-        var db = await RssContext.CreateInstance();
+        var db = await FeedContext.CreateInstance();
 
         var updateList = new List<Guid>();
 
         foreach (var loopIds in itemIds)
         {
-            var item = db.RssItems.SingleOrDefault(x => x.PersistentId == loopIds);
+            var item = db.FeedItems.SingleOrDefault(x => x.PersistentId == loopIds);
 
             if (item == null) return;
 
@@ -74,14 +136,14 @@ public static class RssQueries
     {
         if (string.IsNullOrEmpty(url)) return new Error<string>("Feed to Add Url is Blank?");
 
-        var db = await RssContext.CreateInstance();
+        var db = await FeedContext.CreateInstance();
 
         var cleanedUrl = url.Trim();
 
-        if ((await db.RssFeeds.ToListAsync()).Any(x => x.Url.Equals(cleanedUrl, StringComparison.OrdinalIgnoreCase)))
+        if ((await db.Feeds.ToListAsync()).Any(x => x.Url.Equals(cleanedUrl, StringComparison.OrdinalIgnoreCase)))
             return new Error<string>("Feed already exists?");
 
-        Feed feedInfo;
+        CodeHollow.FeedReader.Feed feedInfo;
 
         try
         {
@@ -92,14 +154,14 @@ public static class RssQueries
             return new Error<string>($"Problem Adding Feed - {e.Message}");
         }
 
-        var newFeed = new RssFeed
+        var newFeed = new Feed
         {
             Name = feedInfo.Title,
             Url = cleanedUrl,
             FeedLastUpdatedDate = feedInfo.LastUpdatedDate
         };
 
-        await db.RssFeeds.AddAsync(newFeed);
+        await db.Feeds.AddAsync(newFeed);
 
         await db.SaveChangesAsync();
 
@@ -118,9 +180,9 @@ public static class RssQueries
     /// <param name="url"></param>
     /// <param name="progress"></param>
     /// <returns></returns>
-    public static async Task<RssFeed> TryGetFeed(string url, IProgress<string> progress)
+    public static async Task<Feed> TryGetFeed(string url, IProgress<string> progress)
     {
-        var toReturn = new RssFeed();
+        var toReturn = new Feed();
 
         if (string.IsNullOrEmpty(url)) return toReturn;
 
@@ -128,7 +190,7 @@ public static class RssQueries
 
         toReturn.Url = cleanedUrl;
 
-        Feed? feedInfo;
+        CodeHollow.FeedReader.Feed? feedInfo;
 
         try
         {
@@ -149,9 +211,9 @@ public static class RssQueries
 
     public static async Task<List<string>> UpdateFeeds(List<Guid> toUpdate, IProgress<string> progress)
     {
-        var db = await RssContext.CreateInstance();
+        var db = await FeedContext.CreateInstance();
 
-        var feeds = await db.RssFeeds.Where(x => toUpdate.Contains(x.PersistentId)).OrderBy(x => x.Name).ToListAsync();
+        var feeds = await db.Feeds.Where(x => toUpdate.Contains(x.PersistentId)).OrderBy(x => x.Name).ToListAsync();
 
         progress.Report($"Refreshing {feeds.Count} Feeds");
 
@@ -169,8 +231,8 @@ public static class RssQueries
             progress.Report(
                 $"Feed {loopFeed.Name} - {feedCounter} of {feeds.Count} - {totalNewItemsCounter} New, {totalExistingItemsCounter} Existing");
 
-            Feed? currentFeed;
-            List<FeedItem> currentFeedItems;
+            CodeHollow.FeedReader.Feed? currentFeed;
+            List<CodeHollow.FeedReader.FeedItem> currentFeedItems;
 
             try
             {
@@ -221,7 +283,7 @@ public static class RssQueries
                     progress.Report(
                         $"Feed {loopFeed.Name} - {feedItemCounter} of {currentFeedItems.Count} - {newItemCounter} New, {existingItemCounter} Existing");
 
-                if (db.RssItems.Any(x => x.RssFeedPersistentId == loopFeed.PersistentId && x.FeedId == loopFeedItem.Id))
+                if (db.FeedItems.Any(x => x.FeedPersistentId == loopFeed.PersistentId && x.FeedId == loopFeedItem.Id))
                 {
                     existingItemCounter++;
                     continue;
@@ -229,10 +291,10 @@ public static class RssQueries
 
                 newItemCounter++;
 
-                var newFeedItem = new RssItem
+                var newFeedItem = new FeedItem
                 {
                     CreatedOn = DateTime.Now,
-                    RssFeedPersistentId = loopFeed.PersistentId,
+                    FeedPersistentId = loopFeed.PersistentId,
                     FeedContent = loopFeedItem.Content,
                     FeedId = loopFeedItem.Id,
                     FeedTitle = loopFeedItem.Title,
@@ -243,7 +305,7 @@ public static class RssQueries
                     PersistentId = Guid.NewGuid()
                 };
 
-                await db.RssItems.AddAsync(newFeedItem);
+                await db.FeedItems.AddAsync(newFeedItem);
 
                 await db.SaveChangesAsync();
 
@@ -262,9 +324,9 @@ public static class RssQueries
 
     public static async Task<List<string>> UpdateFeeds(IProgress<string> progress)
     {
-        var db = await RssContext.CreateInstance();
+        var db = await FeedContext.CreateInstance();
 
-        var feedIds = await db.RssFeeds.OrderBy(x => x.Name).Select(x => x.PersistentId).ToListAsync();
+        var feedIds = await db.Feeds.OrderBy(x => x.Name).Select(x => x.PersistentId).ToListAsync();
 
         return await UpdateFeeds(feedIds, progress);
     }

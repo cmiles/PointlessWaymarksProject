@@ -4,8 +4,8 @@ using PointlessWaymarks.RssReaderData.Models;
 namespace PointlessWaymarks.RssReaderGui.Controls;
 
 [NotifyPropertyChanged]
-public partial class RssReaderListItem
+public partial class FeedItemListListItem
 {
-    public required RssFeed DbFeed { get; set; }
-    public required RssItem DbItem { get; set; }
+    public required Feed DbFeed { get; set; }
+    public required FeedItem DbItem { get; set; }
 }
