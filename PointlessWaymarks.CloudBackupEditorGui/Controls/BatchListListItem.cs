@@ -19,6 +19,8 @@ public partial class BatchListListItem
     public long DeletesWithErrorNoteSize { get; set; }
     public int LocalFileCount { get; set; }
     public long LocalFileSize { get; set; }
+
+    public decimal SizeCompletedPercentage { get; set; }
     public int UploadCount { get; set; }
     public int UploadsCompleteCount { get; set; }
     public long UploadsCompleteSize { get; set; }
@@ -30,7 +32,7 @@ public partial class BatchListListItem
 
     public static BatchListListItem CreateInstance(CloudTransferBatch batch)
     {
-        return new BatchListListItem
+        var toReturn = new BatchListListItem
         {
             DbBatch = batch,
             LocalFileCount = batch.FileSystemFiles.Count,
@@ -54,5 +56,9 @@ public partial class BatchListListItem
             DeletesWithErrorNoteCount = batch.CloudDeletions.Count(x => !string.IsNullOrWhiteSpace(x.ErrorMessage)),
             DeletesWithErrorNoteSize = batch.CloudDeletions.Where(x => !string.IsNullOrWhiteSpace(x.ErrorMessage)).Sum(x => x.FileSize)
         };
+
+        toReturn.SizeCompletedPercentage = (decimal) toReturn.UploadsCompleteSize / toReturn.UploadSize;
+        
+        return toReturn;
     }
 }

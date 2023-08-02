@@ -24,7 +24,7 @@ public partial class BatchListContext
                                       The Batch List gives you a way to get all the current data for a batch as Excel reports. This can be useful both for confirming what has (and has not) been backed up and for deciding what Batch to use when running a backup.
                                       """;
 
-    public BackupJob DbJob { get; set; }
+    public BackupJob? DbJob { get; set; }
     public HelpDisplayContext? HelpContext { get; set; }
     public required ObservableCollection<BatchListListItem> Items { get; set; }
     public required int JobId { get; set; }
