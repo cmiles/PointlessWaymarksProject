@@ -74,7 +74,7 @@ public static class WindowsNotificationBuilders
     {
         toEdit.NotificationIconSuccessUrl =
             $"file://{Path.Combine(FileLocationTools.DefaultAssetsStorageDirectory().FullName, "PointlessWaymarksCmsAutomationCircularLogo.png")}";
-        toEdit.NotificationIconSuccessUrl =
+        toEdit.NotificationIconErrorUrl =
             $"file://{Path.Combine(FileLocationTools.DefaultAssetsStorageDirectory().FullName, "PointlessWaymarksCmsAutomationErrorCircularLogo.png")}";
         return toEdit;
     }
