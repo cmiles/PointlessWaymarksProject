@@ -61,26 +61,26 @@ public partial class FeedListContext
                     new()
                     {
                         DisplayName = "Feed Name",
-                        ColumnName = "DbItem.Name",
+                        ColumnName = "DbFeed.Name",
                         Order = 1,
-                        DefaultSortDirection = ListSortDirection.Descending
+                        DefaultSortDirection = ListSortDirection.Ascending
                     },
                     new()
                     {
                         DisplayName = "Unread Count",
-                        ColumnName = "Unread Items",
+                        ColumnName = "UnreadItemsCount",
                         DefaultSortDirection = ListSortDirection.Descending
                     },
                     new()
                     {
                         DisplayName = "Last Successful Update",
                         ColumnName = "DbFeed.LastSuccessfulUpdate",
-                        DefaultSortDirection = ListSortDirection.Ascending
+                        DefaultSortDirection = ListSortDirection.Descending
                     },
                     new()
                     {
                         DisplayName = "URL",
-                        ColumnName = "DbItem.Url",
+                        ColumnName = "DbFeed.Url",
                         DefaultSortDirection = ListSortDirection.Ascending
                     }
                 }
