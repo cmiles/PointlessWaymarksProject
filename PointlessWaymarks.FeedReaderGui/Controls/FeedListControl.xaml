@@ -8,7 +8,7 @@
              xmlns:columnSort="clr-namespace:PointlessWaymarks.WpfCommon.ColumnSort;assembly=PointlessWaymarks.WpfCommon"
              xmlns:local="clr-namespace:PointlessWaymarks.FeedReaderGui.Controls"
              mc:Ignorable="d"
-             d:DesignHeight="300" d:DesignWidth="300">
+             d:DesignHeight="300" d:DesignWidth="300" d:DataContext="{d:DesignInstance local:FeedListContext}">
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -52,8 +52,13 @@
                      SelectedItem="{Binding SelectedItem}"
                      behaviors:MultiSelectorBehaviors.SynchronizedSelectedItems="{Binding SelectedItems}">
                 <ListBox.ContextMenu>
-                    <ContextMenu>
+                    <ContextMenu d:DataContext="{d:DesignInstance local:FeedListContext}">
                         <MenuItem Header="Edit Feed" Command="{Binding FeedEditorForSelectedItemCommand}" />
+                        <MenuItem Header="Refresh Feed" Command="{Binding RefreshSelectedFeedCommand}" />
+                        <MenuItem Header="Mark All Read" Command="{Binding MarkAllReadCommand}" />
+                        <MenuItem Header="Mark All Read" Command="{Binding MarkAllUnReadCommand}" />
+                        <MenuItem Header="Archive Feed" Command="{Binding ArchiveSelectedFeedCommand}" />
+                        <MenuItem Header="View Feed Items" Command="{Binding ViewFeedItemsForSelectedItemCommand}" />
                     </ContextMenu>
                 </ListBox.ContextMenu>
                 <ListBox.ItemTemplate>
@@ -68,7 +73,7 @@
                                     </MultiBinding>
                                 </TextBlock.Text>
                             </TextBlock>
-                            <TextBlock>
+                            <TextBlock Margin="8,0,4,0" TextWrapping="Wrap">
                                 <TextBlock.Text>
                                     <MultiBinding
                                         StringFormat="{}{0} - {1} Total Items">
@@ -77,9 +82,9 @@
                                     </MultiBinding>
                                 </TextBlock.Text>
                             </TextBlock>
-                            <TextBlock Text="{Binding DbFeed.Note}" TextWrapping="Wrap" />
-                            <TextBlock Text="{Binding DbFeed.Tags}" TextWrapping="Wrap" />
-                            <TextBlock Text="{Binding DbFeed.LastSuccessfulUpdate}" TextWrapping="Wrap" />
+                            <TextBlock Margin="12,0,0,0" Text="{Binding DbFeed.Note}" TextWrapping="Wrap" Visibility="{Binding DbFeed.Note, Converter={StaticResource NullOrWhiteSpaceStringToCollapsed}}" />
+                            <TextBlock Margin="12,0,0,0" Text="{Binding DbFeed.Tags}" TextWrapping="Wrap" Visibility="{Binding DbFeed.Tags, Converter={StaticResource NullOrWhiteSpaceStringToCollapsed}}" />
+                            <TextBlock Margin="20,0,0,0" Text="{Binding DbFeed.LastSuccessfulUpdate}" TextWrapping="Wrap" />
                         </StackPanel>
                     </DataTemplate>
                 </ListBox.ItemTemplate>
@@ -101,6 +106,10 @@
                     Content="Archive Selected"
                     Style="{StaticResource ActionPanelButtonStyle}"
                     Command="{Binding ArchiveSelectedFeedCommand}" />
+                <Button
+                    Content="Refresh Feeds"
+                    Style="{StaticResource ActionPanelButtonStyle}"
+                    Command="{Binding RefreshFeedsCommand}" />
                 <Button
                     Content="View Feed Items"
                     Style="{StaticResource ActionPanelButtonStyle}"

@@ -12,6 +12,7 @@ using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 using PointlessWaymarks.WpfCommon.Utility;
 using Serilog;
 using TinyIpc.Messaging;
+using WinRT;
 
 namespace PointlessWaymarks.FeedReaderGui.Controls;
 
@@ -158,6 +159,26 @@ public partial class FeedListContext
         };
     }
 
+    [NonBlockingCommand]
+    public async Task MarkAllRead(FeedListListItem? listItem)
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (listItem?.DbFeed == null) return;
+
+        await FeedQueries.FeedAllItemsRead(listItem.DbFeed.PersistentId, true);
+    }
+
+    [NonBlockingCommand]
+    public async Task MarkAllUnRead(FeedListListItem? listItem)
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (listItem?.DbFeed == null) return;
+
+        await FeedQueries.FeedAllItemsRead(listItem.DbFeed.PersistentId, false);
+    }
+
     [BlockingCommand]
     public async Task NewFeedEditorFromUrl()
     {
@@ -211,6 +232,31 @@ public partial class FeedListContext
             StatusContext.RunFireAndForgetBlockingTask(async () =>
                 await UpdateReadCount(interProcessUpdateNotification.ContentIds));
         }
+    }
+
+    [NonBlockingCommand]
+    public async Task RefreshFeeds()
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        var errors = await FeedQueries.UpdateFeeds(StatusContext.ProgressTracker());
+        foreach (var loopError in errors) StatusContext.ToastError(loopError);
+    }
+
+    [NonBlockingCommand]
+    public async Task RefreshSelectedFeed()
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (SelectedItem == null)
+        {
+            StatusContext.ToastWarning("Nothing Selected?");
+            return;
+        }
+
+        var errors =
+            await FeedQueries.UpdateFeeds(SelectedItem.DbFeed.PersistentId.AsList(), StatusContext.ProgressTracker());
+        foreach (var loopError in errors) StatusContext.ToastError(loopError);
     }
 
     public async Task Setup()
@@ -320,9 +366,10 @@ public partial class FeedListContext
 
         var db = await FeedContext.CreateInstance();
 
-        var feedIds = await db.FeedItems.Where(x => changedItemGuid.Contains(x.PersistentId)).GroupBy(x => x.FeedPersistentId)
+        var feedIds = await db.FeedItems.Where(x => changedItemGuid.Contains(x.PersistentId))
+            .GroupBy(x => x.FeedPersistentId)
             .Select(x => x.Key).ToListAsync();
-        
+
         foreach (var loopFeedId in feedIds)
         {
             var totalItems = await db.FeedItems.CountAsync(x => x.FeedPersistentId == loopFeedId);

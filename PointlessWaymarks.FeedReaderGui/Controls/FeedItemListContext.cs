@@ -297,6 +297,18 @@ public partial class FeedItemListContext
                 or DataNotificationUpdateType.New)
                 await UpdateFeedItems(interProcessUpdateNotification.ContentIds);
         }
+
+        if (interProcessUpdateNotification.ContentType == DataNotificationContentType.Feed)
+        {
+            var feedsToUpdate = FeedList.Any()
+                ? FeedList.Intersect(interProcessUpdateNotification.ContentIds).ToList()
+                : Items.Select(x => x.DbFeed.PersistentId).ToList();
+            if (!feedsToUpdate.Any()) return;
+
+            var toUpdate = Items.Where(x => feedsToUpdate.Contains(x.DbItem.FeedPersistentId))
+                .Select(x => x.DbItem.PersistentId).ToList();
+            await UpdateFeedItems(toUpdate);
+        }
     }
 
     [BlockingCommand]

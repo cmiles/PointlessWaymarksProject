@@ -286,12 +286,20 @@ URL Parse Result: When you update the URL (or use the Refresh Button) the progra
         else
         {
             db.Feeds.Update(DbFeedItem);
+            await db.SaveChangesAsync();
+
+            DataNotifications.PublishDataNotification(LogTools.GetCaller(), DataNotificationContentType.Feed,
+                DataNotificationUpdateType.Update, DbFeedItem.PersistentId.AsList());
         }
-
-        await db.SaveChangesAsync();
-
-        DataNotifications.PublishDataNotification(LogTools.GetCaller(), DataNotificationContentType.Feed,
-            DataNotificationUpdateType.Update, DbFeedItem.PersistentId.AsList());
+        
+        //This is 'double coverage' of these changes with the Data Notifications but should
+        //eliminate timing issues
+        UserUrlEntry.ReferenceValue = DbFeedItem.Url;
+        UserNameEntry.ReferenceValue = DbFeedItem.Name;
+        UserNoteEntry.ReferenceValue = DbFeedItem.Note;
+        UserTagsEntry.ReferenceValue = DbFeedItem.Tags;
+        
+        CheckForChangesAndValidationIssues();
     }
 
     [BlockingCommand]

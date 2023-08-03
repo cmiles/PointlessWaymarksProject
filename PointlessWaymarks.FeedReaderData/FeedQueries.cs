@@ -1,4 +1,5 @@
 using CodeHollow.FeedReader;
+using DocumentFormat.OpenXml.Spreadsheet;
 using Microsoft.EntityFrameworkCore;
 using Omu.ValueInjecter;
 using OneOf;
@@ -67,11 +68,21 @@ public static class FeedQueries
         historicFeed.InjectFrom(toArchive);
 
         db.Feeds.Remove(toArchive);
-        
+
         await db.SaveChangesAsync();
 
         DataNotifications.PublishDataNotification(LogTools.GetCaller(), DataNotificationContentType.Feed,
             DataNotificationUpdateType.Delete, historicFeed.PersistentId.AsList());
+    }
+
+    public static async Task FeedAllItemsRead(Guid feedId, bool markRead)
+    {
+        var db = await FeedContext.CreateInstance();
+
+        var items = await db.FeedItems.Where(x => x.MarkedRead != markRead).OrderBy(x => x.FeedTitle)
+            .Select(x => x.PersistentId).ToListAsync();
+
+        await ItemRead(items, markRead);
     }
 
     public static async Task ItemKeepUnreadToggle(List<Guid> itemIds)
@@ -298,7 +309,9 @@ public static class FeedQueries
                     CreatedOn = DateTime.Now,
                     FeedPersistentId = loopFeed.PersistentId,
                     FeedContent = loopFeedItem.Content,
-                    FeedId = loopFeedItem.Id,
+                    FeedId = string.IsNullOrWhiteSpace(loopFeedItem.Id)
+                        ? $"{loopFeedItem.Title ?? "(No Title)"} - {loopFeedItem.PublishingDate}"
+                        : loopFeedItem.Id,
                     FeedTitle = loopFeedItem.Title,
                     FeedAuthor = loopFeedItem.Author,
                     FeedPublishingDate = loopFeedItem.PublishingDate,
