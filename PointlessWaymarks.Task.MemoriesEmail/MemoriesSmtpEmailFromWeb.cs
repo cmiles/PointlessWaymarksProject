@@ -196,7 +196,7 @@ public class MemoriesSmtpEmailFromWeb : IMemoriesSmtpEmailFromWeb
                 if (string.IsNullOrWhiteSpace(dateCreated) || string.IsNullOrWhiteSpace(type)) continue;
                 if (!dateCreated.StartsWith(targetDateString)) continue;
 
-                //Try to find an image and extract the url of an appropriate 
+                //Try to find an image and extract the url of an appropriate image
                 var imageUrl = string.Empty;
 
                 var imgNode = loopNode.SelectSingleNode(".//img");
