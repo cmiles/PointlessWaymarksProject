@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using System.Xml.Linq;
 using HtmlTags;
 using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.Content;
@@ -64,7 +65,7 @@ public partial class LinkListPage
 
         var content = db.LinkContents.Where(x => x.ShowInLinkRss).OrderByDescending(x => x.CreatedOn).ToList();
 
-        var items = new List<string>();
+        var items = new List<XElement>();
 
         foreach (var loopContent in content)
         {
@@ -75,7 +76,8 @@ public partial class LinkListPage
             if (!string.IsNullOrWhiteSpace(loopContent.Description)) linkParts.Add(loopContent.Description);
             if (!string.IsNullOrWhiteSpace(loopContent.Comments)) linkParts.Add(loopContent.Comments);
 
-            items.Add(RssBuilder.RssItemString(loopContent.Title, loopContent.Url, string.Join(" - ", linkParts),
+            items.Add(RssBuilder.RssItemString(loopContent.Title, loopContent.Url,
+                Tags.CreatedByAndUpdatedByNameList(loopContent), string.Join(" - ", linkParts),
                 loopContent.CreatedOn, loopContent.ContentId.ToString()));
         }
 
@@ -89,7 +91,7 @@ public partial class LinkListPage
 
         await FileManagement.WriteAllTextToFileAndLog(localIndexFile.FullName,
             RssBuilder.RssFileString($"{UserSettingsSingleton.CurrentSettings().SiteName} - Link List",
-                string.Join(Environment.NewLine, items)), Encoding.UTF8).ConfigureAwait(false);
+                items), Encoding.UTF8).ConfigureAwait(false);
     }
 
     public async Task WriteLocalHtmlRssAndJson()

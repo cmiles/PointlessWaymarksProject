@@ -31,6 +31,25 @@ public static class Tags
         return coreLinksDiv;
     }
 
+    /// <summary>
+    /// Creates a comma seperated list of names from the Created By and Last Updated By 
+    /// </summary>
+    /// <param name="dbEntry"></param>
+    /// <returns></returns>
+    public static string CreatedByAndUpdatedByNameList(ICreatedAndLastUpdateOnAndBy dbEntry)
+    {
+        var nameList = new List<string>();
+
+        if (!string.IsNullOrWhiteSpace(dbEntry.CreatedBy)) nameList.Add(dbEntry.CreatedBy);
+
+        if (!string.IsNullOrWhiteSpace(dbEntry.LastUpdatedBy) && (string.IsNullOrWhiteSpace(dbEntry.CreatedBy) ||
+                                                                  !dbEntry.CreatedBy.Equals(dbEntry.LastUpdatedBy,
+                                                                      StringComparison.OrdinalIgnoreCase)))
+            nameList.Add(dbEntry.LastUpdatedBy);
+
+        return string.Join(",", nameList);
+    }
+
     public static HtmlTag CreatedByAndUpdatedOnDiv(ICreatedAndLastUpdateOnAndBy dbEntry)
     {
         var titleContainer = new DivTag().AddClass("created-and-updated-container");

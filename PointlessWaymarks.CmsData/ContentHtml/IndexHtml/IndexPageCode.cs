@@ -1,5 +1,6 @@
 ﻿using System.Text;
 using System.Web;
+using System.Xml.Linq;
 using HtmlTags;
 using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.Content;
@@ -235,7 +236,7 @@ public partial class IndexPage
 
     public async Task WriteRss()
     {
-        var items = new List<string>();
+        var items = new List<XElement>();
 
         //!!Content Type List!!
         foreach (var loopPosts in IndexContent)
@@ -260,7 +261,8 @@ public partial class IndexPage
                     content = $"<p>{HttpUtility.HtmlEncode(post.DbEntry.Summary)}</p>" +
                               $"<p>Read more at <a href=\"{post.PageUrl}\">{UserSettingsSingleton.CurrentSettings().SiteName}</a></p>";
 
-                items.Add(RssBuilder.RssItemString(post.DbEntry.Title, $"{post.PageUrl}", content,
+                items.Add(RssBuilder.RssItemString(post.DbEntry.Title, $"{post.PageUrl}",
+                    Tags.CreatedByAndUpdatedByNameList(post.DbEntry), content,
                     post.DbEntry.CreatedOn, post.DbEntry.ContentId.ToString()));
             }
 
@@ -271,7 +273,8 @@ public partial class IndexPage
                 var content = $"<p>{HttpUtility.HtmlEncode(post.DbEntry.Summary)}</p>" +
                               $"<p>Read more at <a href=\"{post.PageUrl}\">{UserSettingsSingleton.CurrentSettings().SiteName}</a></p>";
 
-                items.Add(RssBuilder.RssItemString(post.DbEntry.Title, $"{post.PageUrl}", content,
+                items.Add(RssBuilder.RssItemString(post.DbEntry.Title, $"{post.PageUrl}",
+                    Tags.CreatedByAndUpdatedByNameList(post.DbEntry), content,
                     post.DbEntry.CreatedOn, post.DbEntry.ContentId.ToString()));
             }
 
@@ -294,7 +297,8 @@ public partial class IndexPage
                         content = $"<p>{HttpUtility.HtmlEncode(post.DbEntry.Summary)}</p>" +
                                   $"<p>Read more at <a href=\"{post.PageUrl}\">{UserSettingsSingleton.CurrentSettings().SiteName}</a></p>";
 
-                    items.Add(RssBuilder.RssItemString(post.DbEntry.Title, $"{post.PageUrl}", content,
+                    items.Add(RssBuilder.RssItemString(post.DbEntry.Title, $"{post.PageUrl}",
+                        Tags.CreatedByAndUpdatedByNameList(post.DbEntry), content,
                         post.DbEntry.CreatedOn, post.DbEntry.ContentId.ToString()));
                 }
             }
@@ -319,7 +323,8 @@ public partial class IndexPage
                     content = $"<p>{HttpUtility.HtmlEncode(post.DbEntry.Summary)}</p>" +
                               $"<p>Read more at <a href=\"{post.PageUrl}\">{UserSettingsSingleton.CurrentSettings().SiteName}</a></p>";
 
-                items.Add(RssBuilder.RssItemString(post.DbEntry.Title, $"{post.PageUrl}", content,
+                items.Add(RssBuilder.RssItemString(post.DbEntry.Title, $"{post.PageUrl}",
+                    Tags.CreatedByAndUpdatedByNameList(post.DbEntry), content,
                     post.DbEntry.CreatedOn, post.DbEntry.ContentId.ToString()));
             }
 
@@ -343,7 +348,8 @@ public partial class IndexPage
                     content = $"<p>{HttpUtility.HtmlEncode(post.DbEntry.Summary)}</p>" +
                               $"<p>Read more at <a href=\"{post.PageUrl}\">{UserSettingsSingleton.CurrentSettings().SiteName}</a></p>";
 
-                items.Add(RssBuilder.RssItemString(post.DbEntry.Title, $"{post.PageUrl}", content,
+                items.Add(RssBuilder.RssItemString(post.DbEntry.Title, $"{post.PageUrl}",
+                    Tags.CreatedByAndUpdatedByNameList(post.DbEntry), content,
                     post.DbEntry.CreatedOn, post.DbEntry.ContentId.ToString()));
             }
 
@@ -367,7 +373,8 @@ public partial class IndexPage
                     content = $"<p>{HttpUtility.HtmlEncode(post.DbEntry.Summary)}</p>" +
                               $"<p>Read more at <a href=\"{post.PageUrl}\">{UserSettingsSingleton.CurrentSettings().SiteName}</a></p>";
 
-                items.Add(RssBuilder.RssItemString(post.DbEntry.Title, $"{post.PageUrl}", content,
+                items.Add(RssBuilder.RssItemString(post.DbEntry.Title, $"{post.PageUrl}",
+                    Tags.CreatedByAndUpdatedByNameList(post.DbEntry), content,
                     post.DbEntry.CreatedOn, post.DbEntry.ContentId.ToString()));
             }
 
@@ -392,6 +399,7 @@ public partial class IndexPage
                               $"<p>Read more at <a href=\"{post.PageUrl}\">{UserSettingsSingleton.CurrentSettings().SiteName}</a></p>";
 
                 items.Add(RssBuilder.RssItemString(post.DbEntry.Title, $"{post.PageUrl}", content,
+                    Tags.CreatedByAndUpdatedByNameList(post.DbEntry),
                     post.DbEntry.CreatedOn, post.DbEntry.ContentId.ToString()));
             }
 
@@ -416,6 +424,7 @@ public partial class IndexPage
                               $"<p>Read more at <a href=\"{post.PageUrl}\">{UserSettingsSingleton.CurrentSettings().SiteName}</a></p>";
 
                 items.Add(RssBuilder.RssItemString(post.DbEntry.Title, $"{post.PageUrl}", content,
+                    Tags.CreatedByAndUpdatedByNameList(post.DbEntry),
                     post.DbEntry.CreatedOn, post.DbEntry.ContentId.ToString()));
             }
 
@@ -440,6 +449,7 @@ public partial class IndexPage
                               $"<p>Read more at <a href=\"{post.PageUrl}\">{UserSettingsSingleton.CurrentSettings().SiteName}</a></p>";
 
                 items.Add(RssBuilder.RssItemString(post.DbEntry.Title, $"{post.PageUrl}", content,
+                    Tags.CreatedByAndUpdatedByNameList(post.DbEntry),
                     post.DbEntry.CreatedOn, post.DbEntry.ContentId.ToString()));
             }
         }
@@ -454,6 +464,6 @@ public partial class IndexPage
 
         await FileManagement.WriteAllTextToFileAndLog(localIndexFile.FullName,
             RssBuilder.RssFileString($"{UserSettingsSingleton.CurrentSettings().SiteName}",
-                string.Join(Environment.NewLine, items)), Encoding.UTF8).ConfigureAwait(false);
+                items), Encoding.UTF8).ConfigureAwait(false);
     }
 }
