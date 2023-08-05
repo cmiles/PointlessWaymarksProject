@@ -183,7 +183,7 @@ public partial class JobEditorContext : IHasChanges, IHasValidationIssues,
 
         try
         {
-            initialDirectory = new DirectoryInfo(initialDirectoryString);
+            if(!string.IsNullOrWhiteSpace(initialDirectoryString)) initialDirectory = new DirectoryInfo(initialDirectoryString);
         }
         catch (Exception e)
         {
@@ -305,7 +305,7 @@ public partial class JobEditorContext : IHasChanges, IHasValidationIssues,
         };
 
         initialDirectoryEntry.GetInitialDirectory =
-            () => Task.FromResult(CloudBackupEditorGuiSettingTools.ReadSettings().LastDirectory);
+            () => Task.FromResult(CloudBackupEditorGuiSettingTools.ReadSettings().LastDirectory ?? string.Empty);
         initialDirectoryEntry.AfterDirectoryChoice = async x =>
         {
             var currentSettings = CloudBackupEditorGuiSettingTools.ReadSettings();

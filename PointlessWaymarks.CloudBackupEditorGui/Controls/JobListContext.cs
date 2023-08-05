@@ -54,7 +54,8 @@ public partial class JobListContext
 
         try
         {
-            initialDirectory = new DirectoryInfo(initialDirectoryString);
+            if (!string.IsNullOrWhiteSpace(initialDirectoryString))
+                initialDirectory = new DirectoryInfo(initialDirectoryString);
         }
         catch (Exception e)
         {

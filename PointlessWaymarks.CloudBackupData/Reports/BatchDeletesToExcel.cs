@@ -38,9 +38,9 @@ public static class BatchDeletesToExcel
         currentRow++;
 
         uploadsWorksheet.Cell(currentRow++, 1).Value =
-            $"Total {projectedDeletes.Count}, Complete Successfully {projectedDeletes.Count(x => x.DeletionCompletedSuccessfully)}, Not Uploaded Successfully {projectedDeletes.Count(x => !x.DeletionCompletedSuccessfully)}, With Error Messages {projectedDeletes.Count(x => !string.IsNullOrWhiteSpace(x.ErrorMessage))}";
+            $"Total {projectedDeletes.Count}, Completed Successfully {projectedDeletes.Count(x => x.DeletionCompletedSuccessfully)}, Not Uploaded Successfully {projectedDeletes.Count(x => !x.DeletionCompletedSuccessfully)}, With Error Messages {projectedDeletes.Count(x => !string.IsNullOrWhiteSpace(x.ErrorMessage))}";
         uploadsWorksheet.Cell(currentRow++, 1).Value =
-            $"Total {FileAndFolderTools.GetBytesReadable(projectedDeletes.Sum(x => x.FileSize))}, Complete Successfully {FileAndFolderTools.GetBytesReadable(projectedDeletes.Where(x => x.DeletionCompletedSuccessfully).Sum(x => x.FileSize))}, Not Uploaded Successfully {FileAndFolderTools.GetBytesReadable(projectedDeletes.Where(x => !x.DeletionCompletedSuccessfully).Sum(x => x.FileSize))}, With Error Messages {FileAndFolderTools.GetBytesReadable(projectedDeletes.Where(x => !string.IsNullOrWhiteSpace(x.ErrorMessage)).Sum(x => x.FileSize))}";
+            $"Total {FileAndFolderTools.GetBytesReadable(projectedDeletes.Sum(x => x.FileSize))}, Completed Successfully {FileAndFolderTools.GetBytesReadable(projectedDeletes.Where(x => x.DeletionCompletedSuccessfully).Sum(x => x.FileSize))}, Not Uploaded Successfully {FileAndFolderTools.GetBytesReadable(projectedDeletes.Where(x => !x.DeletionCompletedSuccessfully).Sum(x => x.FileSize))}, With Error Messages {FileAndFolderTools.GetBytesReadable(projectedDeletes.Where(x => !string.IsNullOrWhiteSpace(x.ErrorMessage)).Sum(x => x.FileSize))}";
 
         currentRow++;
 
