@@ -23,12 +23,12 @@ public partial class FeedItemListContext
     public bool AutoMarkRead { get; set; } = true;
     public DataNotificationsWorkQueue? DataNotificationsProcessor { get; set; }
     public string DisplayUrl { get; set; } = string.Empty;
-
-    public List<Guid> FeedList { get; set; } = new List<Guid>();
+    public List<Guid> FeedList { get; set; } = new();
     public required ObservableCollection<FeedItemListListItem> Items { get; set; }
     public required ColumnSortControlContext ListSort { get; set; }
     public FeedItemListListItem? SelectedItem { get; set; }
     public List<FeedItemListListItem> SelectedItems { get; set; } = new();
+    public bool ShowUnread { get; set; }
     public required StatusControlContext StatusContext { get; set; }
     public string UserAddFeedInput { get; set; } = string.Empty;
     public string UserFilterText { get; set; } = string.Empty;
@@ -48,7 +48,7 @@ public partial class FeedItemListContext
     }
 
     public static async Task<FeedItemListContext> CreateInstance(StatusControlContext statusContext,
-        List<Guid>? feedList = null)
+        List<Guid>? feedList = null, bool showUnread = false)
     {
         var settings = FeedReaderGuiSettingTools.ReadSettings();
 
@@ -76,6 +76,7 @@ public partial class FeedItemListContext
             Items = factoryItemsList,
             StatusContext = statusContext,
             FeedList = feedList ?? new(),
+            ShowUnread = showUnread,
             ListSort = new ColumnSortControlContext
             {
                 Items = new List<ColumnSortControlSortItem>
@@ -200,14 +201,6 @@ public partial class FeedItemListContext
     }
 
     [NonBlockingCommand]
-    public async Task MarkKeepUnread(FeedItemListListItem? listItem)
-    {
-        if (listItem?.DbItem == null) return;
-
-        await FeedQueries.ItemKeepUnreadToggle(listItem.DbItem.PersistentId.AsList());
-    }
-
-    [BlockingCommand]
     public async Task MarkSelectedRead()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -221,7 +214,7 @@ public partial class FeedItemListContext
         await FeedQueries.ItemRead(SelectedItems.Select(x => x.DbItem.PersistentId).ToList(), true);
     }
 
-    [BlockingCommand]
+    [NonBlockingCommand]
     public async Task MarkSelectedUnRead()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -317,8 +310,8 @@ public partial class FeedItemListContext
         await ThreadSwitcher.ResumeBackgroundAsync();
 
         var errors = FeedList is { Count: > 0 }
-            ? await FeedQueries.UpdateFeeds(StatusContext.ProgressTracker())
-            : await FeedQueries.UpdateFeeds(FeedList, StatusContext.ProgressTracker());
+            ? await FeedQueries.UpdateFeeds(FeedList, StatusContext.ProgressTracker())
+            : await FeedQueries.UpdateFeeds(StatusContext.ProgressTracker());
         foreach (var loopError in errors) StatusContext.ToastError(loopError);
     }
 
@@ -330,7 +323,7 @@ public partial class FeedItemListContext
 
         var db = await FeedContext.CreateInstance();
 
-        var initialItemFilter = db.FeedItems.Where(x => !x.MarkedRead);
+        var initialItemFilter = db.FeedItems.Where(x => x.MarkedRead == ShowUnread);
         if (FeedList.Any()) initialItemFilter = initialItemFilter.Where(x => FeedList.Contains(x.FeedPersistentId));
 
         var initialItems = await initialItemFilter.OrderByDescending(x => x.FeedPublishingDate)
@@ -355,6 +348,28 @@ public partial class FeedItemListContext
         DataNotifications.NewDataNotificationChannel().MessageReceived += OnDataNotificationReceived;
 
         await RefreshFeedItems();
+    }
+
+    [NonBlockingCommand]
+    public async Task ToggleKeepUnread(FeedItemListListItem? listItem)
+    {
+        if (listItem?.DbItem == null) return;
+
+        await FeedQueries.ItemKeepUnreadToggle(listItem.DbItem.PersistentId.AsList());
+    }
+
+    [NonBlockingCommand]
+    public async Task ToggleSelectedKeepUnRead()
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (!SelectedItems.Any())
+        {
+            StatusContext.ToastWarning("Nothing Selected to Mark Read?");
+            return;
+        }
+
+        await FeedQueries.ItemKeepUnreadToggle(SelectedItems.Select(x => x.DbItem.PersistentId).ToList());
     }
 
     [BlockingCommand]

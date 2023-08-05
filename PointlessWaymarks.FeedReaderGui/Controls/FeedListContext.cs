@@ -26,7 +26,6 @@ public partial class FeedListContext
     public FeedListListItem? SelectedItem { get; set; }
     public List<FeedListListItem> SelectedItems { get; set; } = new List<FeedListListItem>();
     public required StatusControlContext StatusContext { get; set; }
-
     public string UserAddFeedInput { get; set; } = string.Empty;
     public string UserFilterText { get; set; } = string.Empty;
 
@@ -350,6 +349,7 @@ public partial class FeedListContext
             //to the code below and add one.
             if (listItem != null)
             {
+                await ThreadSwitcher.ResumeForegroundAsync();
                 listItem.DbFeed = dbFeedItem;
             }
             else
@@ -385,18 +385,18 @@ public partial class FeedListContext
     }
 
     [NonBlockingCommand]
-    public async Task ViewFeedItems(FeedListListItem? listItem)
+    public async Task ViewFeedItems(FeedListListItem? listItem, bool showReadItems)
     {
         if (listItem?.DbFeed == null) return;
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
-        var window = await FeedItemListWindow.CreateInstance(listItem.DbFeed.PersistentId.AsList());
+        var window = await FeedItemListWindow.CreateInstance(listItem.DbFeed.PersistentId.AsList(), showReadItems);
         window.PositionWindowAndShow();
     }
 
     [NonBlockingCommand]
-    public async Task ViewFeedItemsForSelectedItem()
+    public async Task ViewReadFeedItemsForSelectedItem()
     {
         if (SelectedItem == null)
         {
@@ -404,6 +404,18 @@ public partial class FeedListContext
             return;
         }
 
-        await ViewFeedItems(SelectedItem);
+        await ViewFeedItems(SelectedItem, true);
+    }
+
+    [NonBlockingCommand]
+    public async Task ViewUnreadFeedItemsForSelectedItem()
+    {
+        if (SelectedItem == null)
+        {
+            StatusContext.ToastWarning("Nothing Selected?");
+            return;
+        }
+
+        await ViewFeedItems(SelectedItem, false);
     }
 }

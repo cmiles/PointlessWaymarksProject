@@ -59,8 +59,8 @@
                             </TextBlock.Text>
                         </TextBlock>
                     </StackPanel>
-                    <stringDataEntry:StringDataEntryControl DataContext="{Binding UserUrlEntry}"
-                                                            Style="{StaticResource EntryStyle}" />
+                    <stringDataEntry:StringDataEntryMultiLineControl DataContext="{Binding UserUrlEntry}"
+                                                                     Style="{StaticResource EntryStyle}" />
                 </StackPanel>
                 <GroupBox Grid.Row="1" Margin="4,12,6,4">
                     <GroupBox.Header>

@@ -1,5 +1,8 @@
+using PointlessWaymarks.LlamaAspects;
+
 namespace PointlessWaymarks.FeedReaderData.Models;
 
+[NotifyPropertyChanged]
 public class HistoricFeed
 {
     public DateTime CreatedOn { get; set; } = DateTime.Now;

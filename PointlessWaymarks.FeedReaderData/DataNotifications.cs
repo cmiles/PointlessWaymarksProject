@@ -84,14 +84,12 @@ public static class DataNotifications
         {
             return new InterProcessError { ErrorMessage = e.Message };
         }
-
-        return new InterProcessError { ErrorMessage = "No processing occured for this message?" };
     }
 }
 
 public record InterProcessDataNotification
 {
-    public List<Guid> ContentIds { get; set; }
+    public List<Guid> ContentIds { get; set; } = new();
     public DataNotificationContentType ContentType { get; init; }
     public string? Sender { get; init; }
     public DataNotificationUpdateType UpdateType { get; init; }

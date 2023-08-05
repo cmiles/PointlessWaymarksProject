@@ -56,9 +56,10 @@
                         <MenuItem Header="Edit Feed" Command="{Binding FeedEditorForSelectedItemCommand}" />
                         <MenuItem Header="Refresh Feed" Command="{Binding RefreshSelectedFeedCommand}" />
                         <MenuItem Header="Mark All Read" Command="{Binding MarkAllReadCommand}" />
-                        <MenuItem Header="Mark All Read" Command="{Binding MarkAllUnReadCommand}" />
+                        <MenuItem Header="Mark All Unread" Command="{Binding MarkAllUnReadCommand}" />
                         <MenuItem Header="Archive Feed" Command="{Binding ArchiveSelectedFeedCommand}" />
-                        <MenuItem Header="View Feed Items" Command="{Binding ViewFeedItemsForSelectedItemCommand}" />
+                        <MenuItem Header="View Marked Read Feed Items" Command="{Binding ViewReadFeedItemsForSelectedItemCommand}" />
+                        <MenuItem Header="View Feed Items" Command="{Binding ViewUnreadFeedItemsForSelectedItemCommand}" />
                     </ContextMenu>
                 </ListBox.ContextMenu>
                 <ListBox.ItemTemplate>
@@ -95,13 +96,17 @@
                 <TextBox VerticalAlignment="Center"
                          Text="{Binding UserAddFeedInput, UpdateSourceTrigger=PropertyChanged}" Width="300" />
                 <Button
-                    Content="_Add Feed"
+                    Content="_Add - Auto"
                     Style="{StaticResource ActionPanelButtonStyle}"
                     Command="{Binding TryAddFeedCommand}" />
                 <Button
-                    Content="Feed Editor"
+                    Content="Add - Editor"
                     Style="{StaticResource ActionPanelButtonStyle}"
                     Command="{Binding NewFeedEditorFromUrlCommand}" />
+                <Button
+                    Content="Edit Selected"
+                    Style="{StaticResource ActionPanelButtonStyle}"
+                    Command="{Binding FeedEditorForSelectedItemCommand}" />
                 <Button
                     Content="Archive Selected"
                     Style="{StaticResource ActionPanelButtonStyle}"

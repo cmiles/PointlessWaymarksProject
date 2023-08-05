@@ -1,3 +1,5 @@
+using System.Security.Cryptography;
+using System.Text;
 using CodeHollow.FeedReader;
 using DocumentFormat.OpenXml.Spreadsheet;
 using Microsoft.EntityFrameworkCore;
@@ -290,13 +292,23 @@ public static class FeedQueries
 
             foreach (var loopFeedItem in currentFeedItems)
             {
-                feedCounter++;
+                feedItemCounter++;
 
-                if (feedCounter % 10 == 0)
+                if (feedItemCounter % 10 == 0)
                     progress.Report(
                         $"Feed {loopFeed.Name} - {feedItemCounter} of {currentFeedItems.Count} - {newItemCounter} New, {existingItemCounter} Existing");
 
-                if (db.FeedItems.Any(x => x.FeedPersistentId == loopFeed.PersistentId && x.FeedId == loopFeedItem.Id))
+                var correctedFeedId = loopFeedItem.Id;
+                if (string.IsNullOrWhiteSpace(correctedFeedId))
+                    correctedFeedId = MD5.HashData(Encoding.UTF8.GetBytes(loopFeedItem.Link + loopFeedItem.Title)).ToString();
+
+                if (string.IsNullOrWhiteSpace(correctedFeedId))
+                {
+                    returnErrors.Add($"Could Not Add an Item from {loopFeed.Name} - not enough information to generate in Id?");
+                    continue;
+                }
+                
+                if (db.FeedItems.Any(x => x.FeedPersistentId == loopFeed.PersistentId && x.FeedId == correctedFeedId))
                 {
                     existingItemCounter++;
                     continue;
@@ -309,12 +321,10 @@ public static class FeedQueries
                     CreatedOn = DateTime.Now,
                     FeedPersistentId = loopFeed.PersistentId,
                     FeedContent = loopFeedItem.Content,
-                    FeedId = string.IsNullOrWhiteSpace(loopFeedItem.Id)
-                        ? $"{loopFeedItem.Title ?? "(No Title)"} - {loopFeedItem.PublishingDate}"
-                        : loopFeedItem.Id,
+                    FeedId = correctedFeedId,
                     FeedTitle = loopFeedItem.Title,
                     FeedAuthor = loopFeedItem.Author,
-                    FeedPublishingDate = loopFeedItem.PublishingDate,
+                    FeedPublishingDate = loopFeedItem.PublishingDate ?? DateTime.Now,
                     FeedDescription = loopFeedItem.Description,
                     FeedLink = loopFeedItem.Link,
                     PersistentId = Guid.NewGuid()

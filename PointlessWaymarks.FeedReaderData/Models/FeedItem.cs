@@ -1,5 +1,8 @@
+using PointlessWaymarks.LlamaAspects;
+
 namespace PointlessWaymarks.FeedReaderData.Models;
 
+[NotifyPropertyChanged]
 public class FeedItem
 {
     public DateTime CreatedOn { get; set; }
@@ -10,7 +13,6 @@ public class FeedItem
     public string? FeedLink { get; set; } = string.Empty;
     public DateTime? FeedPublishingDate { get; set; }
     public string? FeedTitle { get; set; } = string.Empty;
-    
     public int Id { get; set; }
     public bool KeepUnread { get; set; }
     public bool MarkedRead { get; set; }
