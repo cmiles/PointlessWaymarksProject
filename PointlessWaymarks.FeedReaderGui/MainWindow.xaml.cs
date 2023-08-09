@@ -1,4 +1,8 @@
+using System.IO;
+using DocumentFormat.OpenXml.Wordprocessing;
+using Ookii.Dialogs.Wpf;
 using PointlessWaymarks.CommonTools;
+using PointlessWaymarks.FeedReaderData;
 using PointlessWaymarks.FeedReaderGui.Controls;
 using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon.MarkdownDisplay;
@@ -17,7 +21,7 @@ namespace PointlessWaymarks.FeedReaderGui;
 public partial class MainWindow
 {
     public readonly string HelpText =
-"""
+        """
 ## Pointless Waymarks Feed Reader
 
 The Pointless Waymarks Feed Reader is a Windows Desktop (only!) Feed Reader. The program uses a SQLite database to store data about Feeds and Feed Items. The emphasis in this program is NOT displaying the RSS Content in a feed, but rather displaying the URL the Feed Links to.
@@ -55,12 +59,12 @@ While the GUI, approach, vision, scope, design and nearly every detail is differ
 
         UpdateMessageContext = new ProgramUpdateMessageContext();
 
-        HelpContext = new HelpDisplayContext(new List<string>
+        HelpTabContext = new HelpDisplayContext(new List<string>
         {
             HelpText,
             HelpMarkdown.SoftwareUsedBlock
         });
-        
+
         StatusContext.RunFireAndForgetBlockingTask(async () =>
         {
             await CheckForProgramUpdate(currentDateVersion);
@@ -69,11 +73,12 @@ While the GUI, approach, vision, scope, design and nearly every detail is differ
         });
     }
 
-    public FeedListContext? FeedContext { get; set; }
+    public FeedListContext? FeedListTabContext { get; set; }
 
-    public HelpDisplayContext HelpContext { get; set; }
+    public HelpDisplayContext HelpTabContext { get; set; }
     public string InfoTitle { get; set; }
-    public FeedItemListContext? ReaderContext { get; set; }
+    public FeedItemListContext? FeedItemListTabContext { get; set; }
+    public AppSettingsContext AppSettingsTabContext { get; set; }
     public StatusControlContext StatusContext { get; set; }
     public ProgramUpdateMessageContext UpdateMessageContext { get; set; }
 
@@ -100,11 +105,156 @@ While the GUI, approach, vision, scope, design and nearly every detail is differ
         await UpdateMessageContext.LoadData(currentDateVersion, dateString, setupFile);
     }
 
-    private async Task LoadData()
+    public async Task<string> DbFileExistsCheckWithUserInteraction(string dbFile)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        ReaderContext = await FeedItemListContext.CreateInstance(StatusContext);
-        FeedContext = await FeedListContext.CreateInstance(StatusContext);
+        if (string.IsNullOrWhiteSpace(dbFile) || !File.Exists(dbFile))
+        {
+            var nextAction = await StatusContext.ShowMessage("Database Does Not Exist",
+                $"The database file does not exist? You can create a new database or pick another file...",
+                new List<string> { "New", "Choose a File" });
+
+            if (nextAction.Equals("New"))
+            {
+                return UniqueFileTools.UniqueFile(
+                             FileLocationHelpers.DefaultStorageDirectory(), "PointlessWaymarks-FeedReader.db")
+                         ?.FullName ??
+                         string.Empty;
+            }
+
+            if (nextAction.Equals("Choose a File"))
+            {
+                await ThreadSwitcher.ResumeForegroundAsync();
+
+                var filePicker = new VistaOpenFileDialog
+                {
+                    Title = "Open Database", Multiselect = false, CheckFileExists = true, ValidateNames = true,
+                    Filter = "db files (*.db)|*.db|All files (*.*)|*.*",
+                    FileName = $"{FeedReaderGuiSettingTools.GetLastDirectory().FullName}\\"
+                };
+
+                var result = filePicker.ShowDialog();
+
+                if (!result ?? false) return string.Empty;
+
+                var newFile = new FileInfo(filePicker.FileName);
+
+                if (newFile.Directory?.Exists ?? false)
+                    await FeedReaderGuiSettingTools.SetLastDirectory(newFile.Directory.FullName);
+                
+                return filePicker.FileName;
+            }
+        }
+
+        return dbFile;
+    }
+
+
+    public async Task<string> DbIsValidCheckWithUserInteraction(string dbFile)
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        var invalidFile = true;
+        var dbFileName = string.Empty;
+
+        while (invalidFile)
+        {
+            dbFileName = await DbFileExistsCheckWithUserInteraction(dbFile);
+            if(string.IsNullOrWhiteSpace(dbFileName) || !File.Exists(dbFileName)) continue;
+            
+            var dbTest = await FeedContext.TryCreateInstance(dbFileName, true);
+            if (!dbTest.success)
+                await StatusContext.ShowMessageWithOkButton("DB Not Valid?",
+                    $"There was a problem with the selected db - {dbTest.message}");
+            invalidFile = !dbTest.success;
+        }
+
+        return dbFileName;
+    }
+
+    public async Task NewDatabase()
+    {
+        await ThreadSwitcher.ResumeForegroundAsync();
+        var folderPicker = new VistaFolderBrowserDialog
+            { Description = "New Db Directory", Multiselect = false, SelectedPath = $"{FileLocationHelpers.DefaultStorageDirectory()}\\"};
+
+        var result = folderPicker.ShowDialog();
+
+        if (!result ?? false) return;
+
+        if (!Directory.Exists(folderPicker.SelectedPath))
+        {
+            StatusContext.ToastError($"Selected Directory Does Not Exist? {folderPicker.SelectedPath}");
+            return;
+        }
+
+        var userFileBase = await StatusContext.ShowStringEntry("New Db File Name", "Enter the file name for a new Db.",
+            "PointlessWaymarks-FeedReader");
+
+        if (!userFileBase.Item1) return;
+
+        if (string.IsNullOrWhiteSpace(userFileBase.Item2))
+        {
+            StatusContext.ToastError("File name is blank?");
+            return;
+        }
+        
+        var baseFile = Path.HasExtension(userFileBase.Item2)
+            ? userFileBase.Item2.Replace(Path.GetExtension(userFileBase.Item2), string.Empty)
+            : userFileBase.Item2;
+
+        if (string.IsNullOrWhiteSpace(baseFile))
+        {
+            StatusContext.ToastError("File name without extension is blank?");
+            return;
+        }
+
+        var cleanedFileName = $"{FileAndFolderTools.TryMakeFilenameValid(baseFile.Trim())}.db";
+
+        var uniqueFileName = UniqueFileTools.UniqueFile(new DirectoryInfo(folderPicker.SelectedPath), cleanedFileName);
+
+        if (uniqueFileName == null)
+        {
+            StatusContext.ToastError($"Trouble creating a valid file? {folderPicker.SelectedPath} - {cleanedFileName}");
+            return;
+        }
+        
+        var dbTry = await FeedContext.TryCreateInstance(uniqueFileName.FullName, false);
+
+        if (!dbTry.success)
+        {
+            StatusContext.ToastError($"Problem with File... {dbTry.message}");
+            return;
+        }
+
+        await LoadData(uniqueFileName.FullName);
+    }
+
+    private async Task LoadData(string? loadWithDatabaseFile = null)
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        var settings = FeedReaderGuiSettingTools.ReadSettings();
+
+        var dbFileName = string.IsNullOrWhiteSpace(loadWithDatabaseFile) ? settings.LastDatabaseFile : loadWithDatabaseFile;
+        
+        //If the settings file has a blank db then assume this is a first run and create a db without asking
+        if (string.IsNullOrWhiteSpace(dbFileName))
+        {
+            dbFileName = UniqueFileTools.UniqueFile(
+                FileLocationHelpers.DefaultStorageDirectory(), "PointlessWaymarks-FeedReader.db")?.FullName ?? string.Empty;
+            await FeedContext.CreateInstanceWithEnsureCreated(dbFileName);
+        }
+
+        dbFileName = await DbIsValidCheckWithUserInteraction(dbFileName);
+        
+        settings.LastDatabaseFile = dbFileName;
+
+        await FeedReaderGuiSettingTools.WriteSettings(settings);
+
+        FeedItemListTabContext = await FeedItemListContext.CreateInstance(StatusContext, dbFileName);
+        FeedListTabContext = await FeedListContext.CreateInstance(StatusContext, dbFileName);
+        AppSettingsTabContext = new AppSettingsContext();
     }
 }

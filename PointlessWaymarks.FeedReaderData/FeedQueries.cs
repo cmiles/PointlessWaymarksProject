@@ -52,7 +52,7 @@ public static class FeedQueries
             historicFeedItem.InjectFrom(loopItems);
 
             db.FeedItems.Remove(loopItems);
-
+            
             await db.SaveChangesAsync();
         }
 
@@ -63,7 +63,7 @@ public static class FeedQueries
 
         if (historicFeed == null)
         {
-            historicFeed = new HistoricFeed() { PersistentId = toArchive.PersistentId };
+            historicFeed = new HistoricFeed { PersistentId = toArchive.PersistentId };
             db.HistoricFeeds.Add(historicFeed);
         }
 

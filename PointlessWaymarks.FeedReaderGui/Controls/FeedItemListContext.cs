@@ -21,15 +21,16 @@ namespace PointlessWaymarks.FeedReaderGui.Controls;
 public partial class FeedItemListContext
 {
     public bool AutoMarkRead { get; set; } = true;
+    public required DbReference ContextDb { get; set; }
     public DataNotificationsWorkQueue? DataNotificationsProcessor { get; set; }
     public string DisplayUrl { get; set; } = string.Empty;
     public List<Guid> FeedList { get; set; } = new();
-    public required ObservableCollection<FeedItemListListItem> Items { get; set; }
-    public required ColumnSortControlContext ListSort { get; set; }
+    public required ObservableCollection<FeedItemListListItem> Items { get; init; }
+    public required ColumnSortControlContext ListSort { get; init; }
     public FeedItemListListItem? SelectedItem { get; set; }
     public List<FeedItemListListItem> SelectedItems { get; set; } = new();
     public bool ShowUnread { get; set; }
-    public required StatusControlContext StatusContext { get; set; }
+    public required StatusControlContext StatusContext { get; init; }
     public string UserAddFeedInput { get; set; } = string.Empty;
     public string UserFilterText { get; set; } = string.Empty;
 
@@ -47,29 +48,16 @@ public partial class FeedItemListContext
         foreach (var x in toRemove) Items.Remove(x);
     }
 
-    public static async Task<FeedItemListContext> CreateInstance(StatusControlContext statusContext,
+    public static async Task<FeedItemListContext> CreateInstance(StatusControlContext statusContext, string dbFile,
         List<Guid>? feedList = null, bool showUnread = false)
     {
-        var settings = FeedReaderGuiSettingTools.ReadSettings();
-
-        if (string.IsNullOrWhiteSpace(settings.DatabaseFile) || !File.Exists(settings.DatabaseFile))
-        {
-            var newDb = UniqueFileTools.UniqueFile(
-                FileLocationHelpers.DefaultStorageDirectory(), "PointlessWaymarks-FeedReader.db");
-            settings.DatabaseFile = newDb!.FullName;
-
-            await FeedContext.CreateInstanceWithEnsureCreated(newDb.FullName);
-
-            await FeedReaderGuiSettingTools.WriteSettings(settings);
-        }
-
-        FeedContext.CurrentDatabaseFileName = settings.DatabaseFile;
-
         await ThreadSwitcher.ResumeForegroundAsync();
 
         var factoryItemsList = new ObservableCollection<FeedItemListListItem>();
 
         await ThreadSwitcher.ResumeBackgroundAsync();
+
+        var dbReference = new DbReference() { DbFileFullName = dbFile };
 
         var newContext = new FeedItemListContext
         {
@@ -77,6 +65,7 @@ public partial class FeedItemListContext
             StatusContext = statusContext,
             FeedList = feedList ?? new(),
             ShowUnread = showUnread,
+            ContextDb = dbReference,
             ListSort = new ColumnSortControlContext
             {
                 Items = new List<ColumnSortControlSortItem>
@@ -140,7 +129,7 @@ public partial class FeedItemListContext
 
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        var db = await FeedContext.CreateInstance();
+        var db = await ContextDb.GetInstance();
         var currentFeed = await db.Feeds.SingleOrDefaultAsync(x => x.PersistentId == listItem.DbFeed.PersistentId);
 
         if (currentFeed == null)
@@ -151,7 +140,7 @@ public partial class FeedItemListContext
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
-        var window = await FeedEditorWindow.CreateInstance(currentFeed);
+        var window = await FeedEditorWindow.CreateInstance(currentFeed, ContextDb.DbFileFullName);
         window.PositionWindowAndShow();
     }
 
@@ -237,7 +226,7 @@ public partial class FeedItemListContext
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
-        var window = await FeedEditorWindow.CreateInstance(feedItem);
+        var window = await FeedEditorWindow.CreateInstance(feedItem, ContextDb.DbFileFullName);
 
         window.PositionWindowAndShow();
 
@@ -255,6 +244,21 @@ public partial class FeedItemListContext
 
         if (e.PropertyName == nameof(UserFilterText))
             StatusContext.RunFireAndForgetNonBlockingTask(FilterList);
+
+        if (e.PropertyName == nameof(AutoMarkRead))
+            StatusContext.RunFireAndForgetBlockingTask(async () =>
+            {
+                try
+                {
+                    var settings = FeedReaderGuiSettingTools.ReadSettings();
+                    settings.AutoMarkReadDefault = AutoMarkRead;
+                    await FeedReaderGuiSettingTools.WriteSettings(settings);
+                }
+                catch (Exception)
+                {
+                    //Ignored
+                }
+            });
 
         if (e.PropertyName.Equals(nameof(SelectedItem)))
         {
@@ -321,7 +325,7 @@ public partial class FeedItemListContext
 
         BuildCommands();
 
-        var db = await FeedContext.CreateInstance();
+        var db = await ContextDb.GetInstance();
 
         var initialItemFilter = db.FeedItems.Where(x => x.MarkedRead == ShowUnread);
         if (FeedList.Any()) initialItemFilter = initialItemFilter.Where(x => FeedList.Contains(x.FeedPersistentId));
@@ -395,7 +399,7 @@ public partial class FeedItemListContext
     {
         ThreadSwitcher.ResumeBackgroundAsync();
 
-        var db = await FeedContext.CreateInstance();
+        var db = await ContextDb.GetInstance();
 
         foreach (var loopContentIds in toUpdate)
         {

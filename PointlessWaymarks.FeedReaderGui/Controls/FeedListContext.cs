@@ -20,12 +20,13 @@ namespace PointlessWaymarks.FeedReaderGui.Controls;
 [GenerateStatusCommands]
 public partial class FeedListContext
 {
+    public required DbReference ContextDb { get; init; }
     public DataNotificationsWorkQueue? DataNotificationsProcessor { get; set; }
-    public required ObservableCollection<FeedListListItem> Items { get; set; }
-    public required ColumnSortControlContext ListSort { get; set; }
+    public required ObservableCollection<FeedListListItem> Items { get; init; }
+    public required ColumnSortControlContext ListSort { get; init; }
     public FeedListListItem? SelectedItem { get; set; }
     public List<FeedListListItem> SelectedItems { get; set; } = new List<FeedListListItem>();
-    public required StatusControlContext StatusContext { get; set; }
+    public required StatusControlContext StatusContext { get; init; }
     public string UserAddFeedInput { get; set; } = string.Empty;
     public string UserFilterText { get; set; } = string.Empty;
 
@@ -41,7 +42,7 @@ public partial class FeedListContext
         await FeedQueries.ArchiveFeed(SelectedItem.DbFeed.PersistentId, StatusContext.ProgressTracker());
     }
 
-    public static async Task<FeedListContext> CreateInstance(StatusControlContext statusContext)
+    public static async Task<FeedListContext> CreateInstance(StatusControlContext statusContext, string dbFile)
     {
         await ThreadSwitcher.ResumeForegroundAsync();
 
@@ -49,10 +50,13 @@ public partial class FeedListContext
 
         await ThreadSwitcher.ResumeBackgroundAsync();
 
+        var dbReference = new DbReference { DbFileFullName = dbFile };
+
         var newContext = new FeedListContext
         {
             StatusContext = statusContext,
             Items = newItems,
+            ContextDb = dbReference,
             ListSort = new ColumnSortControlContext
             {
                 Items = new List<ColumnSortControlSortItem>
@@ -116,7 +120,7 @@ public partial class FeedListContext
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
-        var window = await FeedEditorWindow.CreateInstance(listItem.DbFeed);
+        var window = await FeedEditorWindow.CreateInstance(listItem.DbFeed, ContextDb.DbFileFullName);
         window.PositionWindowAndShow();
     }
 
@@ -187,7 +191,7 @@ public partial class FeedListContext
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
-        var window = await FeedEditorWindow.CreateInstance(feedItem);
+        var window = await FeedEditorWindow.CreateInstance(feedItem, ContextDb.DbFileFullName);
 
         window.PositionWindowAndShow();
 
@@ -264,7 +268,7 @@ public partial class FeedListContext
 
         BuildCommands();
 
-        var db = await FeedContext.CreateInstance();
+        var db = await ContextDb.GetInstance();
 
         var initialItems = (await db.Feeds.ToListAsync()).Select(x => new FeedListListItem { DbFeed = x }).ToList();
 
@@ -321,7 +325,7 @@ public partial class FeedListContext
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        var db = await FeedContext.CreateInstance();
+        var db = await ContextDb.GetInstance();
 
         foreach (var loopContentIds in toUpdate)
         {
@@ -364,7 +368,7 @@ public partial class FeedListContext
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        var db = await FeedContext.CreateInstance();
+        var db = await ContextDb.GetInstance();
 
         var feedIds = await db.FeedItems.Where(x => changedItemGuid.Contains(x.PersistentId))
             .GroupBy(x => x.FeedPersistentId)
@@ -391,7 +395,8 @@ public partial class FeedListContext
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
-        var window = await FeedItemListWindow.CreateInstance(listItem.DbFeed.PersistentId.AsList(), showReadItems);
+        var window = await FeedItemListWindow.CreateInstance(ContextDb.DbFileFullName,
+            listItem.DbFeed.PersistentId.AsList(), showReadItems);
         window.PositionWindowAndShow();
     }
 

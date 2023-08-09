@@ -14,13 +14,16 @@
     <Grid>
         <TabControl>
             <TabItem Header="Feed Reader">
-                <controls:FeedItemListControl DataContext="{Binding ReaderContext}"/>
+                <controls:FeedItemListControl DataContext="{Binding FeedItemListTabContext}"/>
             </TabItem>
             <TabItem Header="Feeds">
-                <controls:FeedListControl DataContext="{Binding FeedContext}"/>
+                <controls:FeedListControl DataContext="{Binding FeedListTabContext}"/>
+            </TabItem>
+            <TabItem Header="App Settings">
+                <controls:AppSettingsControl DataContext="{Binding AppSettingsTabContext}"/>
             </TabItem>
             <TabItem Header="About/Help">
-                <markdownDisplay:HelpDisplayControl DataContext="{Binding HelpContext}" />
+                <markdownDisplay:HelpDisplayControl DataContext="{Binding HelpTabContext}" />
             </TabItem>
         </TabControl>
         <programUpdateMessage:ProgramUpdateMessageControl VerticalAlignment="Top" HorizontalAlignment="Center"

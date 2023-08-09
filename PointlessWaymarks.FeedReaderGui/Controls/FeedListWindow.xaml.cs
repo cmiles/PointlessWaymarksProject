@@ -18,7 +18,7 @@ public partial class FeedListWindow
     public FeedListContext? FeedContext { get; set; }
     public StatusControlContext StatusContext { get; set; }
 
-    public static async Task<FeedListWindow> CreateInstance()
+    public static async Task<FeedListWindow> CreateInstance(string dbFile)
     {
         await ThreadSwitcher.ResumeForegroundAsync();
 
@@ -36,7 +36,7 @@ public partial class FeedListWindow
 
         window.StatusContext.Progress("Feed List - Creating Context");
 
-        window.FeedContext = await FeedListContext.CreateInstance(window.StatusContext);
+        window.FeedContext = await FeedListContext.CreateInstance(window.StatusContext, dbFile);
         
         window.StatusContext.BlockUi = false;
         

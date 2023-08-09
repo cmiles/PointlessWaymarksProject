@@ -18,7 +18,7 @@ public partial class FeedItemListWindow
     public FeedItemListContext? ItemsContext { get; set; }
     public StatusControlContext StatusContext { get; set; }
 
-    public static async Task<FeedItemListWindow> CreateInstance(List<Guid>? feedList = null, bool showUnread = false)
+    public static async Task<FeedItemListWindow> CreateInstance(string dbFile, List<Guid>? feedList = null, bool showUnread = false)
     {
         await ThreadSwitcher.ResumeForegroundAsync();
 
@@ -36,7 +36,7 @@ public partial class FeedItemListWindow
 
         window.StatusContext.Progress("Feed Items List - Creating Context");
 
-        window.ItemsContext = await FeedItemListContext.CreateInstance(window.StatusContext, feedList, showUnread);
+        window.ItemsContext = await FeedItemListContext.CreateInstance(window.StatusContext, dbFile, feedList, showUnread);
 
         window.StatusContext.BlockUi = false;
 
