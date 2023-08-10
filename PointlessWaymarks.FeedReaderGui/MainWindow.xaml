@@ -10,22 +10,29 @@
         xmlns:controls="clr-namespace:PointlessWaymarks.FeedReaderGui.Controls"
         xmlns:feedReaderGui="clr-namespace:PointlessWaymarks.FeedReaderGui"
         mc:Ignorable="d"
-        Title="Pointless Waymarks RSS Reader" Height="900" Width="1200" d:DataContext="{d:DesignInstance feedReaderGui:MainWindow}">
+        Title="Pointless Waymarks RSS Reader" Height="900" Width="1200"
+        d:DataContext="{d:DesignInstance feedReaderGui:MainWindow}">
     <Grid>
         <TabControl>
             <TabItem Header="Feed Reader">
-                <controls:FeedItemListControl DataContext="{Binding FeedItemListTabContext}"/>
+                <controls:FeedItemListControl DataContext="{Binding FeedItemListTabContext}" />
             </TabItem>
             <TabItem Header="Feeds">
-                <controls:FeedListControl DataContext="{Binding FeedListTabContext}"/>
+                <controls:FeedListControl DataContext="{Binding FeedListTabContext}" />
             </TabItem>
             <TabItem Header="App Settings">
-                <controls:AppSettingsControl DataContext="{Binding AppSettingsTabContext}"/>
+                <controls:AppSettingsControl DataContext="{Binding AppSettingsTabContext}" />
             </TabItem>
             <TabItem Header="About/Help">
                 <markdownDisplay:HelpDisplayControl DataContext="{Binding HelpTabContext}" />
             </TabItem>
         </TabControl>
+        <Menu HorizontalAlignment="Left" Margin="300,2,4,0"  VerticalAlignment="Top">
+            <MenuItem Header="File" Width="90" FontWeight="DemiBold">
+                <MenuItem Command="{Binding PickNewDatabaseCommand}" Header="Choose New DB"></MenuItem>
+                <MenuItem Command="{Binding NewDatabaseCommand}" Header="Start New Database"></MenuItem>
+            </MenuItem>
+        </Menu>
         <programUpdateMessage:ProgramUpdateMessageControl VerticalAlignment="Top" HorizontalAlignment="Center"
                                                           Width="400" DataContext="{Binding UpdateMessageContext}" />
         <status:StatusControl DataContext="{Binding StatusContext}" />

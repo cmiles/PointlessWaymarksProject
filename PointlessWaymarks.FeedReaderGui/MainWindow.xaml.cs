@@ -18,6 +18,7 @@ namespace PointlessWaymarks.FeedReaderGui;
 ///     Interaction logic for MainWindow.xaml
 /// </summary>
 [NotifyPropertyChanged]
+[GenerateStatusCommands]
 public partial class MainWindow
 {
     public readonly string HelpText =
@@ -50,10 +51,12 @@ While the GUI, approach, vision, scope, design and nearly every detail is differ
                 "Pointless Waymarks Feed Reader Beta");
 
         InfoTitle = versionInfo.humanTitleString;
-
+        
         var currentDateVersion = versionInfo.dateVersion;
 
         StatusContext = new StatusControlContext { BlockUi = false };
+
+        BuildCommands();
 
         DataContext = this;
 
@@ -73,12 +76,12 @@ While the GUI, approach, vision, scope, design and nearly every detail is differ
         });
     }
 
-    public FeedListContext? FeedListTabContext { get; set; }
+    public AppSettingsContext AppSettingsTabContext { get; set; }
+    public FeedItemListContext? FeedItemListTabContext { get; set; }
 
+    public FeedListContext? FeedListTabContext { get; set; }
     public HelpDisplayContext HelpTabContext { get; set; }
     public string InfoTitle { get; set; }
-    public FeedItemListContext? FeedItemListTabContext { get; set; }
-    public AppSettingsContext AppSettingsTabContext { get; set; }
     public StatusControlContext StatusContext { get; set; }
     public ProgramUpdateMessageContext UpdateMessageContext { get; set; }
 
@@ -118,9 +121,9 @@ While the GUI, approach, vision, scope, design and nearly every detail is differ
             if (nextAction.Equals("New"))
             {
                 return UniqueFileTools.UniqueFile(
-                             FileLocationHelpers.DefaultStorageDirectory(), "PointlessWaymarks-FeedReader.db")
-                         ?.FullName ??
-                         string.Empty;
+                               FileLocationHelpers.DefaultStorageDirectory(), "PointlessWaymarks-FeedReader.db")
+                           ?.FullName ??
+                       string.Empty;
             }
 
             if (nextAction.Equals("Choose a File"))
@@ -142,14 +145,13 @@ While the GUI, approach, vision, scope, design and nearly every detail is differ
 
                 if (newFile.Directory?.Exists ?? false)
                     await FeedReaderGuiSettingTools.SetLastDirectory(newFile.Directory.FullName);
-                
+
                 return filePicker.FileName;
             }
         }
 
         return dbFile;
     }
-
 
     public async Task<string> DbIsValidCheckWithUserInteraction(string dbFile)
     {
@@ -161,9 +163,9 @@ While the GUI, approach, vision, scope, design and nearly every detail is differ
         while (invalidFile)
         {
             dbFileName = await DbFileExistsCheckWithUserInteraction(dbFile);
-            if(string.IsNullOrWhiteSpace(dbFileName) || !File.Exists(dbFileName)) continue;
-            
-            var dbTest = await FeedContext.TryCreateInstance(dbFileName, true);
+            if (string.IsNullOrWhiteSpace(dbFileName) || !File.Exists(dbFileName)) continue;
+
+            var dbTest = await FeedContext.TryCreateInstance(dbFileName);
             if (!dbTest.success)
                 await StatusContext.ShowMessageWithOkButton("DB Not Valid?",
                     $"There was a problem with the selected db - {dbTest.message}");
@@ -173,11 +175,53 @@ While the GUI, approach, vision, scope, design and nearly every detail is differ
         return dbFileName;
     }
 
+    private async Task LoadData(string? loadWithDatabaseFile = null)
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        var settings = FeedReaderGuiSettingTools.ReadSettings();
+
+        var dbFileName = string.IsNullOrWhiteSpace(loadWithDatabaseFile)
+            ? settings.LastDatabaseFile
+            : loadWithDatabaseFile;
+
+        //If the settings file has a blank db then assume this is a first run and create a db without asking
+        if (string.IsNullOrWhiteSpace(dbFileName))
+        {
+            dbFileName = UniqueFileTools.UniqueFile(
+                             FileLocationHelpers.DefaultStorageDirectory(), "PointlessWaymarks-FeedReader.db")
+                         ?.FullName ??
+                         string.Empty;
+            await FeedContext.CreateInstanceWithEnsureCreated(dbFileName);
+        }
+
+        dbFileName = await DbIsValidCheckWithUserInteraction(dbFileName);
+
+        FeedContext.CurrentDatabaseFileName = dbFileName;
+        settings.LastDatabaseFile = dbFileName;
+
+        await FeedReaderGuiSettingTools.WriteSettings(settings);
+
+        var versionInfo =
+            ProgramInfoTools.StandardAppInformationString(AppContext.BaseDirectory,
+                "Pointless Waymarks Feed Reader Beta");
+
+        InfoTitle = $"{versionInfo.humanTitleString} - {dbFileName}";
+
+        FeedItemListTabContext = await FeedItemListContext.CreateInstance(StatusContext, dbFileName);
+        FeedListTabContext = await FeedListContext.CreateInstance(StatusContext, dbFileName);
+        AppSettingsTabContext = new AppSettingsContext();
+    }
+
+    [BlockingCommand]
     public async Task NewDatabase()
     {
         await ThreadSwitcher.ResumeForegroundAsync();
         var folderPicker = new VistaFolderBrowserDialog
-            { Description = "New Db Directory", Multiselect = false, SelectedPath = $"{FileLocationHelpers.DefaultStorageDirectory()}\\"};
+        {
+            Description = "New Db Directory", Multiselect = false,
+            SelectedPath = $"{FileLocationHelpers.DefaultStorageDirectory()}\\"
+        };
 
         var result = folderPicker.ShowDialog();
 
@@ -199,7 +243,7 @@ While the GUI, approach, vision, scope, design and nearly every detail is differ
             StatusContext.ToastError("File name is blank?");
             return;
         }
-        
+
         var baseFile = Path.HasExtension(userFileBase.Item2)
             ? userFileBase.Item2.Replace(Path.GetExtension(userFileBase.Item2), string.Empty)
             : userFileBase.Item2;
@@ -219,7 +263,7 @@ While the GUI, approach, vision, scope, design and nearly every detail is differ
             StatusContext.ToastError($"Trouble creating a valid file? {folderPicker.SelectedPath} - {cleanedFileName}");
             return;
         }
-        
+
         var dbTry = await FeedContext.TryCreateInstance(uniqueFileName.FullName, false);
 
         if (!dbTry.success)
@@ -231,30 +275,35 @@ While the GUI, approach, vision, scope, design and nearly every detail is differ
         await LoadData(uniqueFileName.FullName);
     }
 
-    private async Task LoadData(string? loadWithDatabaseFile = null)
+    [BlockingCommand]
+    public async Task PickNewDatabase()
     {
-        await ThreadSwitcher.ResumeBackgroundAsync();
+        await ThreadSwitcher.ResumeForegroundAsync();
 
-        var settings = FeedReaderGuiSettingTools.ReadSettings();
-
-        var dbFileName = string.IsNullOrWhiteSpace(loadWithDatabaseFile) ? settings.LastDatabaseFile : loadWithDatabaseFile;
-        
-        //If the settings file has a blank db then assume this is a first run and create a db without asking
-        if (string.IsNullOrWhiteSpace(dbFileName))
+        var filePicker = new VistaOpenFileDialog
         {
-            dbFileName = UniqueFileTools.UniqueFile(
-                FileLocationHelpers.DefaultStorageDirectory(), "PointlessWaymarks-FeedReader.db")?.FullName ?? string.Empty;
-            await FeedContext.CreateInstanceWithEnsureCreated(dbFileName);
+            Title = "Open Database", Multiselect = false, CheckFileExists = true, ValidateNames = true,
+            Filter = "db files (*.db)|*.db|All files (*.*)|*.*",
+            FileName = $"{FeedReaderGuiSettingTools.GetLastDirectory().FullName}\\"
+        };
+
+        var result = filePicker.ShowDialog();
+
+        if (!result ?? false) return;
+
+        var newFile = new FileInfo(filePicker.FileName);
+
+        if (newFile.Directory?.Exists ?? false)
+            await FeedReaderGuiSettingTools.SetLastDirectory(newFile.Directory.FullName);
+
+        var dbTest = await FeedContext.TryCreateInstance(newFile.FullName);
+        if (!dbTest.success)
+        {
+            await StatusContext.ShowMessageWithOkButton("DB Not Valid?",
+                $"There was a problem with the selected db - {dbTest.message}");
+            return;
         }
 
-        dbFileName = await DbIsValidCheckWithUserInteraction(dbFileName);
-        
-        settings.LastDatabaseFile = dbFileName;
-
-        await FeedReaderGuiSettingTools.WriteSettings(settings);
-
-        FeedItemListTabContext = await FeedItemListContext.CreateInstance(StatusContext, dbFileName);
-        FeedListTabContext = await FeedListContext.CreateInstance(StatusContext, dbFileName);
-        AppSettingsTabContext = new AppSettingsContext();
+        await LoadData(newFile.FullName);
     }
 }
