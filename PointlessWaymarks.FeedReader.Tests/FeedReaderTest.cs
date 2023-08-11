@@ -1,9 +1,6 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
-using System.Linq;
-using System.Threading.Tasks;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace CodeHollow.FeedReader.Tests
+namespace PointlessWaymarks.FeedReader.Tests
 {
     [TestClass]
     public class FeedReaderTest
@@ -89,14 +86,6 @@ namespace CodeHollow.FeedReader.Tests
         #endregion
 
         #region Read Feed
-
-        [TestMethod]
-        public async Task TestReadAdobeFeed()
-        {
-            var feed = await FeedReader.ReadAsync("https://theblog.adobe.com/news/feed").ConfigureAwait(false);
-            string title = feed.Title;
-            Assert.AreEqual("Adobe Blog", title);
-        }
 
         [TestMethod]
         public async Task TestReadSimpleFeed()

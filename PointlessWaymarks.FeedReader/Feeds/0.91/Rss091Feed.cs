@@ -167,7 +167,7 @@ public class Rss091Feed : BaseFeed
     /// Adds feed items to the items collection
     /// </summary>
     /// <param name="items">feed items as XElements</param>
-    public void AddItems(IEnumerable<XElement?>? items)
+    public virtual void AddItems(IEnumerable<XElement?>? items)
     {
         if (items == null) return;
 

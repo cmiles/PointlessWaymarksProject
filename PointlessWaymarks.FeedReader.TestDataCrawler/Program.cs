@@ -1,8 +1,6 @@
-﻿using System;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
-namespace CodeHollow.FeedReader.TestDataCrawler
+namespace PointlessWaymarks.FeedReader.TestDataCrawler
 {
     class Program
     {

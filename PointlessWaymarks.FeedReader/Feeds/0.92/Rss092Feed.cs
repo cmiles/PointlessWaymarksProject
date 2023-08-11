@@ -35,7 +35,7 @@ public class Rss092Feed : Rss091Feed
         Cloud = new FeedCloud(channel.GetElement("cloud"));
     }
 
-    public new void AddItems(IEnumerable<XElement?>? items)
+    public override void AddItems(IEnumerable<XElement?>? items)
     {
         if (items == null) return;
 

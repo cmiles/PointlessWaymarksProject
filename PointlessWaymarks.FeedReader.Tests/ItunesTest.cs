@@ -1,9 +1,7 @@
-﻿using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using CodeHollow.FeedReader.Feeds.Itunes;
-using System.Linq;
+using PointlessWaymarks.FeedReader.Feeds.Itunes;
 
-namespace CodeHollow.FeedReader.Tests
+namespace PointlessWaymarks.FeedReader.Tests
 {
     [TestClass]
     public class ItunesTest

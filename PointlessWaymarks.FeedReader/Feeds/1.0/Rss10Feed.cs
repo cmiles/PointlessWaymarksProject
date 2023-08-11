@@ -64,7 +64,7 @@ public class Rss10Feed : BaseFeed
         Image = new Rss10FeedImage(channel?.Parent.GetElement("image"));
         TextInput = new Rss10FeedTextInput(channel?.Parent.GetElement("textinput"));
 
-        var items = channel?.Parent?.GetElements("items");
+        var items = channel?.Parent?.GetElements("item");
 
         if (items == null) return;
 

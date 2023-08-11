@@ -64,6 +64,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PointlessWaymarks.FeedReade
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PointlessWaymarks.FeedReader", "PointlessWaymarks.FeedReader\PointlessWaymarks.FeedReader.csproj", "{B2074BE3-4AF7-4680-BC4E-52EF7667A7A6}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PointlessWaymarks.FeedReader.Tests", "PointlessWaymarks.FeedReader.Tests\PointlessWaymarks.FeedReader.Tests.csproj", "{DD9DD01B-C1F7-4E8F-8B8F-F00534A9ABC1}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PointlessWaymarks.FeedReader.TestDataCrawler", "PointlessWaymarks.FeedReader.TestDataCrawler\PointlessWaymarks.FeedReader.TestDataCrawler.csproj", "{652233D0-28ED-40A3-B579-5E6676BF6CA8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -174,6 +178,14 @@ Global
 		{B2074BE3-4AF7-4680-BC4E-52EF7667A7A6}.Debug|x64.Build.0 = Debug|x64
 		{B2074BE3-4AF7-4680-BC4E-52EF7667A7A6}.Release|x64.ActiveCfg = Release|x64
 		{B2074BE3-4AF7-4680-BC4E-52EF7667A7A6}.Release|x64.Build.0 = Release|x64
+		{DD9DD01B-C1F7-4E8F-8B8F-F00534A9ABC1}.Debug|x64.ActiveCfg = Debug|x64
+		{DD9DD01B-C1F7-4E8F-8B8F-F00534A9ABC1}.Debug|x64.Build.0 = Debug|x64
+		{DD9DD01B-C1F7-4E8F-8B8F-F00534A9ABC1}.Release|x64.ActiveCfg = Release|x64
+		{DD9DD01B-C1F7-4E8F-8B8F-F00534A9ABC1}.Release|x64.Build.0 = Release|x64
+		{652233D0-28ED-40A3-B579-5E6676BF6CA8}.Debug|x64.ActiveCfg = Debug|x64
+		{652233D0-28ED-40A3-B579-5E6676BF6CA8}.Debug|x64.Build.0 = Debug|x64
+		{652233D0-28ED-40A3-B579-5E6676BF6CA8}.Release|x64.ActiveCfg = Release|x64
+		{652233D0-28ED-40A3-B579-5E6676BF6CA8}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

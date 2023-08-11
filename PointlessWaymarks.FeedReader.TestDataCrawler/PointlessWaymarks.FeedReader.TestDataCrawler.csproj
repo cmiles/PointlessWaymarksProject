@@ -1,2 +1,14 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <Nullable>disable</Nullable>
+        <OutputType>Exe</OutputType>
+    </PropertyGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\PointlessWaymarks.FeedReader\PointlessWaymarks.FeedReader.csproj" />
+    </ItemGroup>
+    <ItemGroup>
+      <None Update="feeds.txt">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+    </ItemGroup>
 </Project>

@@ -1,11 +1,12 @@
-﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.Linq;
-using System.Threading.Tasks;
-using CodeHollow.FeedReader.Feeds;
-using CodeHollow.FeedReader.Feeds.Itunes;
+using PointlessWaymarks.FeedReader.Feeds._0._91;
+using PointlessWaymarks.FeedReader.Feeds._0._92;
+using PointlessWaymarks.FeedReader.Feeds._1._0;
+using PointlessWaymarks.FeedReader.Feeds._2._0;
+using PointlessWaymarks.FeedReader.Feeds.Atom;
+using PointlessWaymarks.FeedReader.Feeds.Itunes;
 
-namespace CodeHollow.FeedReader.Tests
+namespace PointlessWaymarks.FeedReader.Tests
 {
     [TestClass]
     public class FullParseTest
