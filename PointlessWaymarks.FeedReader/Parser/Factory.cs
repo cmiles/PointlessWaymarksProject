@@ -1,18 +1,17 @@
-﻿namespace CodeHollow.FeedReader.Parser
+namespace PointlessWaymarks.FeedReader.Parser;
+
+internal static class Factory
 {
-    internal static class Factory
+    public static AbstractXmlFeedParser GetParser(FeedType feedType)
     {
-        public static AbstractXmlFeedParser GetParser(FeedType feedType)
+        return feedType switch
         {
-            switch (feedType)
-            {
-                case FeedType.Atom: return new AtomParser();
-                case FeedType.Rss_0_91: return new Rss091Parser();
-                case FeedType.Rss_0_92: return new Rss092Parser();
-                case FeedType.Rss_1_0: return new Rss10Parser();
-                case FeedType.MediaRss: return new MediaRssParser();
-                default: return new Rss20Parser();
-            }
-        }
+            FeedType.Atom => new AtomParser(),
+            FeedType.Rss_0_91 => new Rss091Parser(),
+            FeedType.Rss_0_92 => new Rss092Parser(),
+            FeedType.Rss_1_0 => new Rss10Parser(),
+            FeedType.MediaRss => new MediaRssParser(),
+            _ => new Rss20Parser()
+        };
     }
 }

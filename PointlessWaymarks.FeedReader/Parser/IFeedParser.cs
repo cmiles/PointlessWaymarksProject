@@ -1,9 +1,8 @@
-﻿using CodeHollow.FeedReader.Feeds;
+﻿using PointlessWaymarks.FeedReader.Feeds.Base;
 
-namespace CodeHollow.FeedReader.Parser
+namespace PointlessWaymarks.FeedReader.Parser;
+
+internal interface IFeedParser
 {
-    internal interface IFeedParser
-    {
-        BaseFeed Parse(string feedXml);
-    }
+    BaseFeed Parse(string feedXml);
 }

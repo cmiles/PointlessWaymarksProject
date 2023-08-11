@@ -1,76 +1,75 @@
-﻿namespace CodeHollow.FeedReader.Feeds
+using System.Xml.Linq;
+using PointlessWaymarks.FeedReader.Feeds.Base;
+
+namespace PointlessWaymarks.FeedReader.Feeds._1._0;
+
+/// <summary>
+/// Rss 1.0 Feed Item according to specification: http://web.resource.org/rss/1.0/spec
+/// </summary>
+public class Rss10FeedItem : BaseFeedItem
 {
-    using System;
-    using System.Xml.Linq;
+    /// <summary>
+    /// The "about" attribute of the element
+    /// </summary>
+    public string? About { get; set; }
 
     /// <summary>
-    /// Rss 1.0 Feed Item according to specification: http://web.resource.org/rss/1.0/spec
+    /// The "description" field
     /// </summary>
-    public class Rss10FeedItem : BaseFeedItem
+    public string? Description { get; set; }
+
+    /// <summary>
+    /// All elements starting with "dc:"
+    /// </summary>
+    public DublinCore? DC { get; set; }
+
+    /// <summary>
+    /// All elements starting with "sy:"
+    /// </summary>
+    public Syndication? Sy { get; set; }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="Rss10FeedItem"/> class.
+    /// default constructor (for serialization)
+    /// </summary>
+    public Rss10FeedItem()
+        : base()
     {
-        /// <summary>
-        /// The "about" attribute of the element
-        /// </summary>
-        public string About { get; set; }
+    }
 
-        /// <summary>
-        /// The "description" field
-        /// </summary>
-        public string Description { get; set; }
+    /// <summary>
+    /// Initializes a new instance of the <see cref="Rss10FeedItem"/> class.
+    /// Reads a rss 1.0 feed item based on the xml given in item
+    /// </summary>
+    /// <param name="item">feed item as xml</param>
+    public Rss10FeedItem(XElement? item)
+        : base(item)
+    {
+        DC = new DublinCore(item);
+        Sy = new Syndication(item);
 
-        /// <summary>
-        /// All elements starting with "dc:"
-        /// </summary>
-        public DublinCore DC { get; set; }
+        About = item.GetAttribute("rdf:about").GetValue();
+        Description = item.GetValue("description");
+    }
 
-        /// <summary>
-        /// All elements starting with "sy:"
-        /// </summary>
-        public Syndication Sy { get; set; }
+    /// <inheritdoc/>
+    internal override FeedItem ToFeedItem()
+    {
+        var f = new FeedItem(this);
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="Rss10FeedItem"/> class.
-        /// default constructor (for serialization)
-        /// </summary>
-        public Rss10FeedItem()
-            : base()
+        if (DC != null)
         {
+            f.Author = DC.Creator;
+            f.Content = DC.Description;
+            f.PublishingDate = DC.Date;
+            f.PublishingDateString = DC.DateString;
         }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="Rss10FeedItem"/> class.
-        /// Reads a rss 1.0 feed item based on the xml given in item
-        /// </summary>
-        /// <param name="item">feed item as xml</param>
-        public Rss10FeedItem(XElement item)
-            : base(item)
-        {
-            this.DC = new DublinCore(item);
-            this.Sy = new Syndication(item);
+        f.Description = Description;
+        if (string.IsNullOrEmpty(f.Content))
+            f.Content = Description;
+        f.Id = Link;
 
-            this.About = item.GetAttribute("rdf:about").GetValue();
-            this.Description = item.GetValue("description");
-        }
-
-        /// <inheritdoc/>
-        internal override FeedItem ToFeedItem()
-        {
-            FeedItem f = new FeedItem(this);
-
-            if (this.DC != null)
-            {
-                f.Author = this.DC.Creator;
-                f.Content = this.DC.Description;
-                f.PublishingDate = this.DC.Date;
-                f.PublishingDateString = this.DC.DateString;
-            }
-
-            f.Description = this.Description;
-            if (string.IsNullOrEmpty(f.Content))
-                f.Content = this.Description;
-            f.Id = this.Link;
-
-            return f;
-        }
+        return f;
     }
 }

@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
         <Title>CodeHollow.FeedReader</Title>
         <Authors>Armin Reiter</Authors>
@@ -8,7 +8,5 @@
         <Copyright>Copyright 2023</Copyright>
         <PackageProjectUrl>https://github.com/arminreiter/FeedReader/</PackageProjectUrl>
         <RepositoryUrl>https://github.com/arminreiter/FeedReader/</RepositoryUrl>
-        <AssemblyName>CodeHollow.FeedReader</AssemblyName>
-        <RootNamespace>CodeHollow.FeedReader</RootNamespace>
     </PropertyGroup>
 </Project>

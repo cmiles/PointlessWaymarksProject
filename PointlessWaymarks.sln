@@ -56,11 +56,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PointlessWaymarks.CloudBack
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PointlessWaymarks.LlamaAspects", "PointlessWaymarks.LlamaAspects\PointlessWaymarks.LlamaAspects.csproj", "{39BD8DD8-A7A0-46B5-BC2C-C7A411EEB3AA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PointlessWaymarks.CloudBackupRunner", "PointlessWaymarks.CloudBackupRunner\PointlessWaymarks.CloudBackupRunner.csproj", "{5E9084D4-527E-464E-B133-5AEEEE60211A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PointlessWaymarks.CloudBackupRunner", "PointlessWaymarks.CloudBackupRunner\PointlessWaymarks.CloudBackupRunner.csproj", "{5E9084D4-527E-464E-B133-5AEEEE60211A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PointlessWaymarks.FeedReaderData", "PointlessWaymarks.FeedReaderData\PointlessWaymarks.FeedReaderData.csproj", "{4AB7FD0B-FE11-48E1-B692-E4040A985F9D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PointlessWaymarks.FeedReaderData", "PointlessWaymarks.FeedReaderData\PointlessWaymarks.FeedReaderData.csproj", "{4AB7FD0B-FE11-48E1-B692-E4040A985F9D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PointlessWaymarks.FeedReaderGui", "PointlessWaymarks.FeedReaderGui\PointlessWaymarks.FeedReaderGui.csproj", "{50010631-8773-4150-87B1-22534FD7F8FA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PointlessWaymarks.FeedReaderGui", "PointlessWaymarks.FeedReaderGui\PointlessWaymarks.FeedReaderGui.csproj", "{50010631-8773-4150-87B1-22534FD7F8FA}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PointlessWaymarks.FeedReader", "PointlessWaymarks.FeedReader\PointlessWaymarks.FeedReader.csproj", "{B2074BE3-4AF7-4680-BC4E-52EF7667A7A6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -168,6 +170,10 @@ Global
 		{50010631-8773-4150-87B1-22534FD7F8FA}.Debug|x64.Build.0 = Debug|x64
 		{50010631-8773-4150-87B1-22534FD7F8FA}.Release|x64.ActiveCfg = Release|x64
 		{50010631-8773-4150-87B1-22534FD7F8FA}.Release|x64.Build.0 = Release|x64
+		{B2074BE3-4AF7-4680-BC4E-52EF7667A7A6}.Debug|x64.ActiveCfg = Debug|x64
+		{B2074BE3-4AF7-4680-BC4E-52EF7667A7A6}.Debug|x64.Build.0 = Debug|x64
+		{B2074BE3-4AF7-4680-BC4E-52EF7667A7A6}.Release|x64.ActiveCfg = Release|x64
+		{B2074BE3-4AF7-4680-BC4E-52EF7667A7A6}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

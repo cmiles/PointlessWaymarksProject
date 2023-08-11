@@ -1,14 +1,14 @@
-﻿namespace CodeHollow.FeedReader.Parser
-{
-    using System.Xml.Linq;
-    using Feeds;
+using System.Xml.Linq;
+using PointlessWaymarks.FeedReader.Feeds.Atom;
+using PointlessWaymarks.FeedReader.Feeds.Base;
 
-    internal class AtomParser : AbstractXmlFeedParser
+namespace PointlessWaymarks.FeedReader.Parser;
+
+internal class AtomParser : AbstractXmlFeedParser
+{
+    public override BaseFeed Parse(string feedXml, XDocument feedDoc)
     {
-        public override BaseFeed Parse(string feedXml, XDocument feedDoc)
-        {
-            AtomFeed feed = new AtomFeed(feedXml, feedDoc.Root);
-            return feed;
-        }
+        var feed = new AtomFeed(feedXml, feedDoc.Root);
+        return feed;
     }
 }

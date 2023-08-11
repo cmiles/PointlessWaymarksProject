@@ -1,16 +1,16 @@
-﻿namespace CodeHollow.FeedReader.Parser
-{
-    using System.Xml.Linq;
-    using Feeds;
+using System.Xml.Linq;
+using PointlessWaymarks.FeedReader.Feeds._2._0;
+using PointlessWaymarks.FeedReader.Feeds.Base;
 
-    internal class Rss20Parser : AbstractXmlFeedParser
+namespace PointlessWaymarks.FeedReader.Parser;
+
+internal class Rss20Parser : AbstractXmlFeedParser
+{
+    public override BaseFeed Parse(string feedXml, XDocument feedDoc)
     {
-        public override BaseFeed Parse(string feedXml, XDocument feedDoc)
-        {
-            var rss = feedDoc.Root;
-            var channel = rss.GetElement("channel");
-            Rss20Feed feed = new Rss20Feed(feedXml, channel);
-            return feed;
-        }
+        var rss = feedDoc.Root;
+        var channel = rss.GetElement("channel");
+        var feed = new Rss20Feed(feedXml, channel);
+        return feed;
     }
 }

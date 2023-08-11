@@ -1,46 +1,37 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+namespace PointlessWaymarks.FeedReader.Feeds.MediaRSS;
 
-namespace CodeHollow.FeedReader.Feeds.MediaRSS
+/// <summary>
+/// Specifies the type of an object
+/// </summary>
+public enum Medium
 {
     /// <summary>
-    /// Specifies the type of an object
+    /// Image
     /// </summary>
-    public enum Medium
-    {
-        /// <summary>
-        /// Image
-        /// </summary>
-        Image,
+    Image,
 
-        /// <summary>
-        /// Audio
-        /// </summary>
-        Audio,
+    /// <summary>
+    /// Audio
+    /// </summary>
+    Audio,
 
-        /// <summary>
-        /// Video
-        /// </summary>
-        Video,
+    /// <summary>
+    /// Video
+    /// </summary>
+    Video,
 
-        /// <summary>
-        /// Document
-        /// </summary>
-        Document,
+    /// <summary>
+    /// Document
+    /// </summary>
+    Document,
 
-        /// <summary>
-        /// Executable
-        /// </summary>
-        Executable,
+    /// <summary>
+    /// Executable
+    /// </summary>
+    Executable,
 
-        /// <summary>
-        /// Type could not be determined
-        /// </summary>
-        Unknown
-
-
-
-
-    }
+    /// <summary>
+    /// Type could not be determined
+    /// </summary>
+    Unknown
 }
