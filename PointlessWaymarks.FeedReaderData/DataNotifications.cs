@@ -45,7 +45,7 @@ public static class DataNotifications
         var cleanedSender = string.IsNullOrWhiteSpace(sender) ? "No Sender Specified" : sender.TrimNullToEmpty();
 
         SendMessageQueue.Enqueue(
-            $"Data|{cleanedSender.Replace("|", " ")}|{(int)contentType}|{(int)updateType}|{string.Join(",", ids ?? new List<Guid>())}");
+            $"Data|{cleanedSender.Replace("|", " ")}|{(int)contentType}|{(int)updateType}|{string.Join(",", ids)}");
     }
 
     public static OneOf<InterProcessDataNotification, InterProcessError>
@@ -89,7 +89,7 @@ public static class DataNotifications
 
 public record InterProcessDataNotification
 {
-    public List<Guid> ContentIds { get; set; } = new();
+    public List<Guid> ContentIds { get; init; } = new();
     public DataNotificationContentType ContentType { get; init; }
     public string? Sender { get; init; }
     public DataNotificationUpdateType UpdateType { get; init; }

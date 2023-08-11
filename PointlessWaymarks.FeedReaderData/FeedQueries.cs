@@ -1,7 +1,6 @@
 using System.Security.Cryptography;
 using System.Text;
 using CodeHollow.FeedReader;
-using DocumentFormat.OpenXml.Spreadsheet;
 using Microsoft.EntityFrameworkCore;
 using Omu.ValueInjecter;
 using OneOf;
@@ -16,10 +15,10 @@ namespace PointlessWaymarks.FeedReaderData;
 
 public static class FeedQueries
 {
-    public static async Task ArchiveFeed(Guid feedPersistantId, IProgress<string> progress)
+    public static async Task ArchiveFeed(Guid feedPersistentId, IProgress<string> progress)
     {
         var db = await FeedContext.CreateInstance();
-        var toArchive = await db.Feeds.SingleOrDefaultAsync(x => x.PersistentId == feedPersistantId);
+        var toArchive = await db.Feeds.SingleOrDefaultAsync(x => x.PersistentId == feedPersistentId);
 
         if (toArchive is null)
         {
@@ -27,7 +26,7 @@ public static class FeedQueries
             return;
         }
 
-        var items = await db.FeedItems.Where(x => x.FeedPersistentId == feedPersistantId).ToListAsync();
+        var items = await db.FeedItems.Where(x => x.FeedPersistentId == feedPersistentId).ToListAsync();
 
         progress.Report($"Archiving {items.Count} Feed Items");
 
@@ -52,7 +51,7 @@ public static class FeedQueries
             historicFeedItem.InjectFrom(loopItems);
 
             db.FeedItems.Remove(loopItems);
-            
+
             await db.SaveChangesAsync();
         }
 
@@ -300,14 +299,16 @@ public static class FeedQueries
 
                 var correctedFeedId = loopFeedItem.Id;
                 if (string.IsNullOrWhiteSpace(correctedFeedId))
-                    correctedFeedId = MD5.HashData(Encoding.UTF8.GetBytes(loopFeedItem.Link + loopFeedItem.Title)).ToString();
+                    correctedFeedId = MD5.HashData(Encoding.UTF8.GetBytes(loopFeedItem.Link + loopFeedItem.Title))
+                        .ToString();
 
                 if (string.IsNullOrWhiteSpace(correctedFeedId))
                 {
-                    returnErrors.Add($"Could Not Add an Item from {loopFeed.Name} - not enough information to generate in Id?");
+                    returnErrors.Add(
+                        $"Could Not Add an Item from {loopFeed.Name} - not enough information to generate in Id?");
                     continue;
                 }
-                
+
                 if (db.FeedItems.Any(x => x.FeedPersistentId == loopFeed.PersistentId && x.FeedId == correctedFeedId))
                 {
                     existingItemCounter++;
