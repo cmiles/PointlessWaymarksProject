@@ -89,15 +89,19 @@
                                     </MultiBinding>
                                 </TextBlock.Text>
                             </TextBlock>
-                            <TextBlock Grid.Row="3" HorizontalAlignment="Right" Margin="4,2,0,0" ToolTip="{Binding DbFeed.Note}">
+                            <TextBlock Grid.Row="3" HorizontalAlignment="Right" Margin="4,2,0,0"
+                                       ToolTip="{Binding DbFeed.Note}">
                                 <TextBlock.Text>
                                     <MultiBinding StringFormat="{}{0}">
                                         <Binding Path="DbFeed.Name" />
                                     </MultiBinding>
                                 </TextBlock.Text>
                             </TextBlock>
-                            <CheckBox Grid.Row="2" HorizontalAlignment="Left" Margin="16,4,4,4" Command="{Binding Data.ToggleKeepUnreadCommand, Source={StaticResource proxy}}"
-                                      CommandParameter="{Binding .}" IsChecked="{Binding DbItem.KeepUnread}">Keep</CheckBox>
+                            <CheckBox Grid.Row="2" HorizontalAlignment="Left" Margin="16,4,4,4"
+                                      Command="{Binding Data.ToggleKeepUnreadCommand, Source={StaticResource proxy}}"
+                                      CommandParameter="{Binding .}" IsChecked="{Binding DbItem.KeepUnread}">
+                                Keep
+                            </CheckBox>
                         </Grid>
                     </DataTemplate>
                 </ListBox.ItemTemplate>
@@ -127,39 +131,61 @@
             </Expander>
         </Grid>
         <Border Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3" Style="{StaticResource ActionPanelBorderStyle}">
-            <WrapPanel HorizontalAlignment="Center" Orientation="Horizontal">
-                <TextBox VerticalAlignment="Center"
-                         Text="{Binding UserAddFeedInput, UpdateSourceTrigger=PropertyChanged}" Width="300" />
-                <Button
-                    Content="_Add - Auto"
-                    Style="{StaticResource ActionPanelButtonStyle}"
-                    Command="{Binding TryAddFeedCommand}" />
-                <Button
-                    Content="Add - Editor"
-                    Style="{StaticResource ActionPanelButtonStyle}"
-                    Command="{Binding NewFeedEditorFromUrlCommand}" />
-                <Button
-                    Content="Mark Selected Read"
-                    Style="{StaticResource ActionPanelButtonStyle}"
-                    Command="{Binding MarkSelectedReadCommand}" />
-                <Button
-                    Content="Mark Selected Unread"
-                    Style="{StaticResource ActionPanelButtonStyle}"
-                    Command="{Binding MarkSelectedUnReadCommand}" />
-                <Button
-                    Content="Toggle Selected Keep"
-                    Style="{StaticResource ActionPanelButtonStyle}"
-                    Command="{Binding ToggleSelectedKeepUnReadCommand}" />
-                <Button
-                    Content="_Refresh"
-                    Style="{StaticResource ActionPanelButtonStyle}"
-                    Command="{Binding RefreshFeedItemsCommand}" />
-                <Button
-                    Content="_Clear Read Items"
-                    Style="{StaticResource ActionPanelButtonStyle}"
-                    Command="{Binding ClearReadItemsCommand}" />
-                <CheckBox VerticalAlignment="Center" IsChecked="{Binding AutoMarkRead}">Auto-Mark Read</CheckBox>
-            </WrapPanel>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"></ColumnDefinition>
+                    <ColumnDefinition></ColumnDefinition>
+                    <ColumnDefinition Width="Auto"></ColumnDefinition>
+                </Grid.ColumnDefinitions>
+                <Border Style="{StaticResource ActionPanelBorderStyle}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"></RowDefinition>
+                        <RowDefinition Height="Auto"></RowDefinition>
+                    </Grid.RowDefinitions>
+                    <TextBox VerticalAlignment="Center"
+                             Text="{Binding UserAddFeedInput, UpdateSourceTrigger=PropertyChanged}" Width="308" Margin="0,6,0,0" />
+                    <Grid Grid.Row="1">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition></ColumnDefinition>
+                            <ColumnDefinition></ColumnDefinition>
+                        </Grid.ColumnDefinitions>
+                        <Button
+                            Content="_Add - Auto"
+                            Style="{StaticResource ActionPanelButtonStyle}"
+                            Command="{Binding TryAddFeedCommand}" />
+                        <Button Grid.Column="1"
+                                Content="Add - Editor"
+                                Style="{StaticResource ActionPanelButtonStyle}"
+                                Command="{Binding NewFeedEditorFromUrlCommand}" />
+                    </Grid>
+                </Grid>
+                </Border>
+                <WrapPanel Grid.Column="1" HorizontalAlignment="Center" Orientation="Horizontal">
+                    <Button
+                        Content="Mark Selected Read"
+                        Style="{StaticResource ActionPanelButtonStyle}"
+                        Command="{Binding MarkSelectedReadCommand}" />
+                    <Button
+                        Content="Mark Selected Unread"
+                        Style="{StaticResource ActionPanelButtonStyle}"
+                        Command="{Binding MarkSelectedUnReadCommand}" />
+                    <Button
+                        Content="Toggle Selected Keep"
+                        Style="{StaticResource ActionPanelButtonStyle}"
+                        Command="{Binding ToggleSelectedKeepUnReadCommand}" />
+                    <Button
+                        Content="_Refresh"
+                        Style="{StaticResource ActionPanelButtonStyle}"
+                        Command="{Binding RefreshFeedItemsCommand}" />
+                    <Button
+                        Content="_Clear Read Items"
+                        Style="{StaticResource ActionPanelButtonStyle}"
+                        Command="{Binding ClearReadItemsCommand}" />
+                </WrapPanel>
+                <CheckBox Grid.Column="2" VerticalAlignment="Center" IsChecked="{Binding AutoMarkRead}" Margin="4,0,12,0">Auto-Mark Read</CheckBox>
+
+            </Grid>
         </Border>
     </Grid>
 </UserControl>

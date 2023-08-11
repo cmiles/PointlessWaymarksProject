@@ -21,7 +21,7 @@ namespace PointlessWaymarks.FeedReaderGui.Controls;
 public partial class FeedItemListContext
 {
     public bool AutoMarkRead { get; set; } = true;
-    public required DbReference ContextDb { get; set; }
+    public required DbReference ContextDb { get; init; }
     public DataNotificationsWorkQueue? DataNotificationsProcessor { get; set; }
     public string DisplayUrl { get; set; } = string.Empty;
     public List<Guid> FeedList { get; set; } = new();
