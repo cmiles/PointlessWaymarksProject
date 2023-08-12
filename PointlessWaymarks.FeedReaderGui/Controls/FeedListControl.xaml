@@ -1,4 +1,4 @@
-﻿<UserControl x:Class="PointlessWaymarks.FeedReaderGui.Controls.FeedListControl"
+<UserControl x:Class="PointlessWaymarks.FeedReaderGui.Controls.FeedListControl"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -28,7 +28,8 @@
                 <ColumnDefinition />
                 <ColumnDefinition />
             </Grid.ColumnDefinitions>
-            <GroupBox Width="200" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" Header="Filter" Style="{StaticResource UiComponentGroupBoxStyle}" Margin="4,0,4,0">
+            <GroupBox Width="200" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" Header="Filter"
+                      Style="{StaticResource UiComponentGroupBoxStyle}" Margin="4,0,4,0">
                 <TextBox Text="{Binding UserFilterText, Delay=400, UpdateSourceTrigger=PropertyChanged}" />
             </GroupBox>
             <Expander Width="150" Grid.Column="1" BorderBrush="Green" Padding="8,4,12,4"
@@ -58,8 +59,10 @@
                         <MenuItem Header="Mark All Read" Command="{Binding MarkAllReadCommand}" />
                         <MenuItem Header="Mark All Unread" Command="{Binding MarkAllUnReadCommand}" />
                         <MenuItem Header="Archive Feed" Command="{Binding ArchiveSelectedFeedCommand}" />
-                        <MenuItem Header="View Marked Read Feed Items" Command="{Binding ViewReadFeedItemsForSelectedItemCommand}" />
-                        <MenuItem Header="View Feed Items" Command="{Binding ViewUnreadFeedItemsForSelectedItemCommand}" />
+                        <MenuItem Header="View Marked Read Feed Items"
+                                  Command="{Binding ViewReadFeedItemsForSelectedItemCommand}" />
+                        <MenuItem Header="View Feed Items"
+                                  Command="{Binding ViewUnreadFeedItemsForSelectedItemCommand}" />
                     </ContextMenu>
                 </ListBox.ContextMenu>
                 <ListBox.ItemTemplate>
@@ -83,43 +86,76 @@
                                     </MultiBinding>
                                 </TextBlock.Text>
                             </TextBlock>
-                            <TextBlock Margin="12,0,0,0" Text="{Binding DbFeed.Note}" TextWrapping="Wrap" Visibility="{Binding DbFeed.Note, Converter={StaticResource NullOrWhiteSpaceStringToCollapsed}}" />
-                            <TextBlock Margin="12,0,0,0" Text="{Binding DbFeed.Tags}" TextWrapping="Wrap" Visibility="{Binding DbFeed.Tags, Converter={StaticResource NullOrWhiteSpaceStringToCollapsed}}" />
-                            <TextBlock Margin="20,0,0,0" Text="{Binding DbFeed.LastSuccessfulUpdate}" TextWrapping="Wrap" />
+                            <TextBlock Margin="12,0,0,0" Text="{Binding DbFeed.Note}" TextWrapping="Wrap"
+                                       Visibility="{Binding DbFeed.Note, Converter={StaticResource NullOrWhiteSpaceStringToCollapsed}}" />
+                            <TextBlock Margin="12,0,0,0" Text="{Binding DbFeed.Tags}" TextWrapping="Wrap"
+                                       Visibility="{Binding DbFeed.Tags, Converter={StaticResource NullOrWhiteSpaceStringToCollapsed}}" />
+                            <TextBlock Margin="20,0,0,0" Text="{Binding DbFeed.LastSuccessfulUpdate}"
+                                       TextWrapping="Wrap" />
                         </StackPanel>
                     </DataTemplate>
                 </ListBox.ItemTemplate>
             </ListBox>
         </GroupBox>
         <Border Grid.Row="2" Grid.Column="0" Style="{StaticResource ActionPanelBorderStyle}">
-            <WrapPanel HorizontalAlignment="Center" Orientation="Horizontal">
-                <TextBox VerticalAlignment="Center"
-                         Text="{Binding UserAddFeedInput, UpdateSourceTrigger=PropertyChanged}" Width="300" />
-                <Button
-                    Content="_Add - Auto"
-                    Style="{StaticResource ActionPanelButtonStyle}"
-                    Command="{Binding TryAddFeedCommand}" />
-                <Button
-                    Content="Add - Editor"
-                    Style="{StaticResource ActionPanelButtonStyle}"
-                    Command="{Binding NewFeedEditorFromUrlCommand}" />
-                <Button
-                    Content="Edit Selected"
-                    Style="{StaticResource ActionPanelButtonStyle}"
-                    Command="{Binding FeedEditorForSelectedItemCommand}" />
-                <Button
-                    Content="Archive Selected"
-                    Style="{StaticResource ActionPanelButtonStyle}"
-                    Command="{Binding ArchiveSelectedFeedCommand}" />
-                <Button
-                    Content="Refresh Feeds"
-                    Style="{StaticResource ActionPanelButtonStyle}"
-                    Command="{Binding RefreshFeedsCommand}" />
-                <Button
-                    Content="View Feed Items"
-                    Style="{StaticResource ActionPanelButtonStyle}"
-                    Command="{Binding ViewFeedItemsForSelectedItemCommand}" />
-            </WrapPanel>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"></ColumnDefinition>
+                    <ColumnDefinition></ColumnDefinition>
+                    <ColumnDefinition Width="Auto"></ColumnDefinition>
+                </Grid.ColumnDefinitions>
+                <Border Style="{StaticResource ActionPanelBorderStyle}">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"></RowDefinition>
+                            <RowDefinition Height="Auto"></RowDefinition>
+                        </Grid.RowDefinitions>
+                        <TextBox VerticalAlignment="Center"
+                                 Text="{Binding UserAddFeedInput, UpdateSourceTrigger=PropertyChanged}" Width="308"
+                                 Margin="0,6,0,0" />
+                        <Grid Grid.Row="1">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition></ColumnDefinition>
+                                <ColumnDefinition></ColumnDefinition>
+                            </Grid.ColumnDefinitions>
+                            <Button
+                                Content="_Add - Auto"
+                                Style="{StaticResource ActionPanelButtonStyle}"
+                                Command="{Binding TryAddFeedCommand}" />
+                            <Button Grid.Column="1"
+                                    Content="Add - Editor"
+                                    Style="{StaticResource ActionPanelButtonStyle}"
+                                    Command="{Binding NewFeedEditorFromUrlCommand}" />
+                        </Grid>
+                    </Grid>
+                </Border>
+                <WrapPanel Grid.Column="1" HorizontalAlignment="Center" Orientation="Horizontal">
+                    <Button
+                        Content="Edit Selected"
+                        Style="{StaticResource ActionPanelButtonStyle}"
+                        Command="{Binding FeedEditorForSelectedItemCommand}" />
+                    <Button
+                        Content="Archive Selected"
+                        Style="{StaticResource ActionPanelButtonStyle}"
+                        Command="{Binding ArchiveSelectedFeedCommand}" />
+                    <Button
+                        Content="Export URLs"
+                        Style="{StaticResource ActionPanelButtonStyle}"
+                        Command="{Binding ExportSelectedUrlsToTextFileCommand}" />
+                    <Button
+                        Content="Import URLs"
+                        Style="{StaticResource ActionPanelButtonStyle}"
+                        Command="{Binding ImportUrlsFromTextFileCommand}" />
+                    <Button
+                        Content="Refresh Feeds"
+                        Style="{StaticResource ActionPanelButtonStyle}"
+                        Command="{Binding RefreshFeedsCommand}" />
+                    <Button
+                        Content="View Feed Items"
+                        Style="{StaticResource ActionPanelButtonStyle}"
+                        Command="{Binding ViewFeedItemsForSelectedItemCommand}" />
+                </WrapPanel>
+            </Grid>
         </Border>
     </Grid>
 </UserControl>

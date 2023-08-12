@@ -1,8 +1,11 @@
-﻿using System.Collections.ObjectModel;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.IO;
+using System.Text.RegularExpressions;
 using System.Windows.Data;
 using System.Windows.Threading;
 using Microsoft.EntityFrameworkCore;
+using Ookii.Dialogs.Wpf;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.FeedReaderData;
 using PointlessWaymarks.LlamaAspects;
@@ -12,20 +15,19 @@ using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 using PointlessWaymarks.WpfCommon.Utility;
 using Serilog;
 using TinyIpc.Messaging;
-using WinRT;
 
 namespace PointlessWaymarks.FeedReaderGui.Controls;
 
 [NotifyPropertyChanged]
 [GenerateStatusCommands]
-public partial class FeedListContext
+public class FeedListContext
 {
     public required DbReference ContextDb { get; init; }
     public DataNotificationsWorkQueue? DataNotificationsProcessor { get; set; }
     public required ObservableCollection<FeedListListItem> Items { get; init; }
     public required ColumnSortControlContext ListSort { get; init; }
     public FeedListListItem? SelectedItem { get; set; }
-    public List<FeedListListItem> SelectedItems { get; set; } = new List<FeedListListItem>();
+    public List<FeedListListItem> SelectedItems { get; set; } = new();
     public required StatusControlContext StatusContext { get; init; }
     public string UserAddFeedInput { get; set; } = string.Empty;
     public string UserFilterText { get; set; } = string.Empty;
@@ -41,6 +43,7 @@ public partial class FeedListContext
 
         await FeedQueries.ArchiveFeed(SelectedItem.DbFeed.PersistentId, StatusContext.ProgressTracker());
     }
+
 
     public static async Task<FeedListContext> CreateInstance(StatusControlContext statusContext, string dbFile)
     {
@@ -113,6 +116,44 @@ public partial class FeedListContext
         if (toRun is not null) await toRun;
     }
 
+    [BlockingCommand]
+    public async Task ExportSelectedUrlsToTextFile()
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        var feedsToExport = SelectedItems.Any() ? SelectedItems : Items.ToList();
+
+        var urls = feedsToExport.Select(x => x.DbFeed.Url).ToList();
+
+        var urlListText = string.Join(Environment.NewLine, urls);
+
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        var saveDialog = new VistaSaveFileDialog
+        {
+            Title = "Save Feed URLs",
+            Filter = "Text File|*.txt",
+            DefaultExt = ".txt",
+            AddExtension = true,
+            OverwritePrompt = true,
+            FileName = $"FeedUrls_{DateTimeOffset.Now:yyyy-MM-dd}.txt",
+            InitialDirectory = FeedReaderGuiSettingTools.GetLastDirectory().FullName,
+            CheckPathExists = true,
+            CheckFileExists = true,
+            ValidateNames = true
+        };
+
+        var result = saveDialog.ShowDialog();
+
+        if (result != true) return;
+
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        var saveFile = new FileInfo(saveDialog.FileName);
+
+        await File.WriteAllTextAsync(saveFile.FullName, urlListText);
+    }
+
     [NonBlockingCommand]
     public async Task FeedEditorForFeed(FeedListListItem? listItem)
     {
@@ -160,6 +201,55 @@ public partial class FeedListContext
                    || toFilter.DbFeed.Note.Contains(cleanedFilterText, StringComparison.OrdinalIgnoreCase)
                    || toFilter.DbFeed.Url.Contains(cleanedFilterText, StringComparison.OrdinalIgnoreCase);
         };
+    }
+
+    [BlockingCommand]
+    public async Task ImportUrlsFromTextFile()
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        var openDialog = new VistaOpenFileDialog
+        {
+            Title = "Open Link File",
+            Filter = "Link File|*.txt",
+            DefaultExt = ".txt",
+            Multiselect = false,
+            InitialDirectory = FeedReaderGuiSettingTools.GetLastDirectory().FullName,
+            CheckPathExists = true,
+            CheckFileExists = true,
+            ValidateNames = true
+        };
+
+        var result = openDialog.ShowDialog();
+
+        if (result != true) return;
+
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        var openFile = new FileInfo(openDialog.FileName);
+
+        var urlTextBlock = await File.ReadAllTextAsync(openFile.FullName);
+
+        var urls = Regex.Split(urlTextBlock, "\r\n|\r|\n").ToList();
+        urls.RemoveAll(string.IsNullOrWhiteSpace);
+
+        var db = await ContextDb.GetInstance();
+        var allUrls = await db.Feeds.Select(x => x.Url).AsNoTracking().ToListAsync();
+
+        urls.RemoveAll(x => allUrls.Contains(x));
+
+        if (!urls.Any())
+        {
+            StatusContext.ToastError("No New Links Found?");
+            return;
+        }
+
+        foreach (var loopUrl in urls)
+        {
+            var addResult = await FeedQueries.TryAddFeed(loopUrl, StatusContext.ProgressTracker());
+            addResult.Switch(_ => StatusContext.ToastSuccess($"Added {loopUrl}"),
+                x => StatusContext.ToastError(x.Value));
+        }
     }
 
     [NonBlockingCommand]
@@ -231,10 +321,8 @@ public partial class FeedListContext
         }
 
         if (interProcessUpdateNotification.ContentType == DataNotificationContentType.FeedItem)
-        {
             StatusContext.RunFireAndForgetBlockingTask(async () =>
                 await UpdateReadCount(interProcessUpdateNotification.ContentIds));
-        }
     }
 
     [NonBlockingCommand]
