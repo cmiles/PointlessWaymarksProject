@@ -14,7 +14,7 @@ namespace PointlessWaymarks.FeedReader.Tests
         [TestMethod]
         public void TestItunesSampleFeed()
         {
-            var feed = FeedReader.ReadFromFile("Feeds/Rss20ItunesSample.xml");
+            var feed = Reader.ReadFromFile("Feeds/Rss20ItunesSample.xml");
 
             var itunesChannel = feed.GetItunesChannel();
 
@@ -89,7 +89,7 @@ namespace PointlessWaymarks.FeedReader.Tests
         [TestMethod]
         public async Task TestItunesSampleFeed_Async()
         {
-            var feed = await FeedReader.ReadFromFileAsync("Feeds/Rss20ItunesSample.xml").ConfigureAwait(false);
+            var feed = await Reader.ReadFromFileAsync("Feeds/Rss20ItunesSample.xml").ConfigureAwait(false);
 
             var itunesChannel = feed.GetItunesChannel();
 

@@ -85,15 +85,15 @@
                             <TextBlock Grid.Row="2" HorizontalAlignment="Center" Margin="4,2,0,0">
                                 <TextBlock.Text>
                                     <MultiBinding StringFormat="{}{0}">
-                                        <Binding Path="DbFeed.Tags" />
+                                        <Binding Path="DbReaderFeed.Tags" />
                                     </MultiBinding>
                                 </TextBlock.Text>
                             </TextBlock>
                             <TextBlock Grid.Row="3" HorizontalAlignment="Right" Margin="4,2,0,0"
-                                       ToolTip="{Binding DbFeed.Note}">
+                                       ToolTip="{Binding DbReaderFeed.Note}">
                                 <TextBlock.Text>
                                     <MultiBinding StringFormat="{}{0}">
-                                        <Binding Path="DbFeed.Name" />
+                                        <Binding Path="DbReaderFeed.Name" />
                                     </MultiBinding>
                                 </TextBlock.Text>
                             </TextBlock>

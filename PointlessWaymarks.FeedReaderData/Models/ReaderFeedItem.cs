@@ -3,7 +3,7 @@ using PointlessWaymarks.LlamaAspects;
 namespace PointlessWaymarks.FeedReaderData.Models;
 
 [NotifyPropertyChanged]
-public class HistoricFeedItem
+public class ReaderFeedItem
 {
     public DateTime CreatedOn { get; set; }
     public string? FeedAuthor { get; set; } = string.Empty;
@@ -16,6 +16,6 @@ public class HistoricFeedItem
     public int Id { get; set; }
     public bool KeepUnread { get; set; }
     public bool MarkedRead { get; set; }
-    public required Guid PersistentId { get; set; }
+    public Guid PersistentId { get; set; } = Guid.NewGuid();
     public required Guid FeedPersistentId { get; set; }
 }

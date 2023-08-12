@@ -20,7 +20,7 @@ namespace PointlessWaymarks.FeedReaderGui.Controls;
 
 [NotifyPropertyChanged]
 [GenerateStatusCommands]
-public class FeedListContext
+public partial class FeedListContext
 {
     public required DbReference ContextDb { get; init; }
     public DataNotificationsWorkQueue? DataNotificationsProcessor { get; set; }
@@ -41,7 +41,7 @@ public class FeedListContext
             return;
         }
 
-        await FeedQueries.ArchiveFeed(SelectedItem.DbFeed.PersistentId, StatusContext.ProgressTracker());
+        await FeedQueries.ArchiveFeed(SelectedItem.DbReaderFeed.PersistentId, StatusContext.ProgressTracker());
     }
 
 
@@ -123,7 +123,7 @@ public class FeedListContext
 
         var feedsToExport = SelectedItems.Any() ? SelectedItems : Items.ToList();
 
-        var urls = feedsToExport.Select(x => x.DbFeed.Url).ToList();
+        var urls = feedsToExport.Select(x => x.DbReaderFeed.Url).ToList();
 
         var urlListText = string.Join(Environment.NewLine, urls);
 
@@ -157,11 +157,11 @@ public class FeedListContext
     [NonBlockingCommand]
     public async Task FeedEditorForFeed(FeedListListItem? listItem)
     {
-        if (listItem?.DbFeed == null) return;
+        if (listItem?.DbReaderFeed == null) return;
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
-        var window = await FeedEditorWindow.CreateInstance(listItem.DbFeed, ContextDb.DbFileFullName);
+        var window = await FeedEditorWindow.CreateInstance(listItem.DbReaderFeed, ContextDb.DbFileFullName);
         window.PositionWindowAndShow();
     }
 
@@ -196,10 +196,10 @@ public class FeedListContext
         {
             if (o is not FeedListListItem toFilter) return false;
 
-            return toFilter.DbFeed.Name.Contains(cleanedFilterText, StringComparison.OrdinalIgnoreCase)
-                   || toFilter.DbFeed.Tags.Contains(cleanedFilterText, StringComparison.OrdinalIgnoreCase)
-                   || toFilter.DbFeed.Note.Contains(cleanedFilterText, StringComparison.OrdinalIgnoreCase)
-                   || toFilter.DbFeed.Url.Contains(cleanedFilterText, StringComparison.OrdinalIgnoreCase);
+            return toFilter.DbReaderFeed.Name.Contains(cleanedFilterText, StringComparison.OrdinalIgnoreCase)
+                   || toFilter.DbReaderFeed.Tags.Contains(cleanedFilterText, StringComparison.OrdinalIgnoreCase)
+                   || toFilter.DbReaderFeed.Note.Contains(cleanedFilterText, StringComparison.OrdinalIgnoreCase)
+                   || toFilter.DbReaderFeed.Url.Contains(cleanedFilterText, StringComparison.OrdinalIgnoreCase);
         };
     }
 
@@ -257,9 +257,9 @@ public class FeedListContext
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        if (listItem?.DbFeed == null) return;
+        if (listItem?.DbReaderFeed == null) return;
 
-        await FeedQueries.FeedAllItemsRead(listItem.DbFeed.PersistentId, true);
+        await FeedQueries.FeedAllItemsRead(listItem.DbReaderFeed.PersistentId, true);
     }
 
     [NonBlockingCommand]
@@ -267,9 +267,9 @@ public class FeedListContext
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        if (listItem?.DbFeed == null) return;
+        if (listItem?.DbReaderFeed == null) return;
 
-        await FeedQueries.FeedAllItemsRead(listItem.DbFeed.PersistentId, false);
+        await FeedQueries.FeedAllItemsRead(listItem.DbReaderFeed.PersistentId, false);
     }
 
     [BlockingCommand]
@@ -310,7 +310,7 @@ public class FeedListContext
                 await ThreadSwitcher.ResumeForegroundAsync();
 
                 var toRemove = Items
-                    .Where(x => interProcessUpdateNotification.ContentIds.Contains(x.DbFeed.PersistentId)).ToList();
+                    .Where(x => interProcessUpdateNotification.ContentIds.Contains(x.DbReaderFeed.PersistentId)).ToList();
                 toRemove.ForEach(x => Items.Remove(x));
                 return;
             }
@@ -346,7 +346,7 @@ public class FeedListContext
         }
 
         var errors =
-            await FeedQueries.UpdateFeeds(SelectedItem.DbFeed.PersistentId.AsList(), StatusContext.ProgressTracker());
+            await FeedQueries.UpdateFeeds(SelectedItem.DbReaderFeed.PersistentId.AsList(), StatusContext.ProgressTracker());
         foreach (var loopError in errors) StatusContext.ToastError(loopError);
     }
 
@@ -358,7 +358,7 @@ public class FeedListContext
 
         var db = await ContextDb.GetInstance();
 
-        var initialItems = (await db.Feeds.ToListAsync()).Select(x => new FeedListListItem { DbFeed = x }).ToList();
+        var initialItems = (await db.Feeds.ToListAsync()).Select(x => new FeedListListItem { DbReaderFeed = x }).ToList();
 
         var feedCounts = await db.FeedItems.GroupBy(x => x.FeedPersistentId)
             .Select(x => new { FeedPersistentId = x.Key, AllFeedItemsCount = x.Count() }).ToListAsync();
@@ -370,10 +370,10 @@ public class FeedListContext
 
         foreach (var loopItem in initialItems)
         {
-            loopItem.ItemsCount = feedCounts.SingleOrDefault(x => x.FeedPersistentId == loopItem.DbFeed.PersistentId)
+            loopItem.ItemsCount = feedCounts.SingleOrDefault(x => x.FeedPersistentId == loopItem.DbReaderFeed.PersistentId)
                 ?.AllFeedItemsCount ?? 0;
             loopItem.UnreadItemsCount = unReadFeedCounts
-                .SingleOrDefault(x => x.FeedPersistentId == loopItem.DbFeed.PersistentId)?.UnreadItemsCount ?? 0;
+                .SingleOrDefault(x => x.FeedPersistentId == loopItem.DbReaderFeed.PersistentId)?.UnreadItemsCount ?? 0;
             Items.Add(loopItem);
         }
 
@@ -420,7 +420,7 @@ public class FeedListContext
             ThreadSwitcher.ResumeBackgroundAsync();
 
             var listItem =
-                Items.SingleOrDefault(x => x.DbFeed.PersistentId == loopContentIds);
+                Items.SingleOrDefault(x => x.DbReaderFeed.PersistentId == loopContentIds);
             var dbFeedItem = db.Feeds.SingleOrDefault(x =>
                 x.PersistentId == loopContentIds);
 
@@ -442,12 +442,12 @@ public class FeedListContext
             if (listItem != null)
             {
                 await ThreadSwitcher.ResumeForegroundAsync();
-                listItem.DbFeed = dbFeedItem;
+                listItem.DbReaderFeed = dbFeedItem;
             }
             else
             {
                 await ThreadSwitcher.ResumeForegroundAsync();
-                Items.Add(new FeedListListItem { DbFeed = dbFeedItem });
+                Items.Add(new FeedListListItem { DbReaderFeed = dbFeedItem });
             }
         }
     }
@@ -467,7 +467,7 @@ public class FeedListContext
             var totalItems = await db.FeedItems.CountAsync(x => x.FeedPersistentId == loopFeedId);
             var unReadItems = await db.FeedItems.CountAsync(x => x.FeedPersistentId == loopFeedId && !x.MarkedRead);
 
-            var item = Items.SingleOrDefault(x => x.DbFeed.PersistentId == loopFeedId);
+            var item = Items.SingleOrDefault(x => x.DbReaderFeed.PersistentId == loopFeedId);
 
             if (item == null) return;
 
@@ -479,12 +479,12 @@ public class FeedListContext
     [NonBlockingCommand]
     public async Task ViewFeedItems(FeedListListItem? listItem, bool showReadItems)
     {
-        if (listItem?.DbFeed == null) return;
+        if (listItem?.DbReaderFeed == null) return;
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
         var window = await FeedItemListWindow.CreateInstance(ContextDb.DbFileFullName,
-            listItem.DbFeed.PersistentId.AsList(), showReadItems);
+            listItem.DbReaderFeed.PersistentId.AsList(), showReadItems);
         window.PositionWindowAndShow();
     }
 

@@ -31,8 +31,8 @@ public static class DataNotifications
     {
         return content switch
         {
-            FeedItem => DataNotificationContentType.FeedItem,
-            Feed => DataNotificationContentType.Feed,
+            ReaderFeedItem => DataNotificationContentType.FeedItem,
+            ReaderFeed => DataNotificationContentType.Feed,
             _ => DataNotificationContentType.Unknown
         };
     }

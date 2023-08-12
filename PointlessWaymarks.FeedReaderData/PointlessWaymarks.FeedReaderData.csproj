@@ -5,7 +5,6 @@
     </AssemblyAttribute>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="CodeHollow.FeedReader" Version="1.2.6" />
     <PackageReference Include="FluentMigrator" Version="3.3.2" />
     <PackageReference Include="FluentMigrator.Runner" Version="3.3.2" />
     <PackageReference Include="FluentMigrator.Runner.SQLite" Version="3.3.2" />
@@ -20,6 +19,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\PointlessWaymarks.CommonTools\PointlessWaymarks.CommonTools.csproj" />
+    <ProjectReference Include="..\PointlessWaymarks.FeedReader\PointlessWaymarks.FeedReader.csproj" />
     <ProjectReference Include="..\PointlessWaymarks.LlamaAspects\PointlessWaymarks.LlamaAspects.csproj" />
   </ItemGroup>
 </Project>

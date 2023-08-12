@@ -3,7 +3,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace PointlessWaymarks.FeedReader.Tests
 {
     [TestClass]
-    public class FeedReaderTest
+    public class ReaderTest
     {
         #region special cases
 
@@ -18,7 +18,7 @@ namespace PointlessWaymarks.FeedReader.Tests
         public async Task TestAcceptHeaderForbiddenWithParsing()
         {
             // results in 403 Forbidden if webclient does not have the accept header set
-            var feed = await FeedReader.ReadAsync("http://www.girlsguidetopm.com/feed/").ConfigureAwait(false);
+            var feed = await Reader.ReadAsync("http://www.girlsguidetopm.com/feed/").ConfigureAwait(false);
             string title = feed.Title;
             Assert.IsTrue(feed.Items.Count > 2);
             Assert.IsTrue(!string.IsNullOrEmpty(title));
@@ -61,7 +61,7 @@ namespace PointlessWaymarks.FeedReader.Tests
 
         private static async Task TestParseRssLinksAsync(string url, int expectedNumberOfLinks)
         {
-            string[] urls = await FeedReader.ParseFeedUrlsAsStringAsync(url).ConfigureAwait(false);
+            string[] urls = await Reader.ParseFeedUrlsAsStringAsync(url).ConfigureAwait(false);
             Assert.AreEqual(expectedNumberOfLinks, urls.Length);
         }
 
@@ -73,11 +73,11 @@ namespace PointlessWaymarks.FeedReader.Tests
         public async Task TestParseAndAbsoluteUrlDerStandard1()
         {
             string url = "derstandard.at";
-            var links = await FeedReader.GetFeedUrlsFromUrlAsync(url).ConfigureAwait(false);
+            var links = await Reader.GetFeedUrlsFromUrlAsync(url).ConfigureAwait(false);
 
             foreach (var link in links)
             {
-                var absoluteUrl = FeedReader.GetAbsoluteFeedUrl(url, link);
+                var absoluteUrl = Reader.GetAbsoluteFeedUrl(url, link);
                 Assert.IsTrue(absoluteUrl.Url.StartsWith("http://"));
             }
 
@@ -90,7 +90,7 @@ namespace PointlessWaymarks.FeedReader.Tests
         [TestMethod]
         public async Task TestReadSimpleFeed()
         {
-            var feed = await FeedReader.ReadAsync("https://arminreiter.com/feed").ConfigureAwait(false);
+            var feed = await Reader.ReadAsync("https://arminreiter.com/feed").ConfigureAwait(false);
             string title = feed.Title;
             Assert.AreEqual("arminreiter.com", title);
             Assert.AreEqual(10, feed.Items.Count());
@@ -99,7 +99,7 @@ namespace PointlessWaymarks.FeedReader.Tests
         [TestMethod]
         public async Task TestReadRss20GermanFeed()
         {
-            var feed = await FeedReader.ReadAsync("http://guidnew.com/feed").ConfigureAwait(false);
+            var feed = await Reader.ReadAsync("http://guidnew.com/feed").ConfigureAwait(false);
             string title = feed.Title;
             Assert.AreEqual("Guid.New", title);
             Assert.IsTrue(feed.Items.Count > 0);
@@ -108,7 +108,7 @@ namespace PointlessWaymarks.FeedReader.Tests
         [TestMethod]
         public async Task TestReadRss10GermanFeed()
         {
-            var feed = await FeedReader.ReadAsync("http://rss.orf.at/news.xml").ConfigureAwait(false);
+            var feed = await Reader.ReadAsync("http://rss.orf.at/news.xml").ConfigureAwait(false);
             string title = feed.Title;
             Assert.AreEqual("news.ORF.at", title);
             Assert.IsTrue(feed.Items.Count > 10);
@@ -117,7 +117,7 @@ namespace PointlessWaymarks.FeedReader.Tests
         [TestMethod]
         public async Task TestReadAtomFeedHeise()
         {
-            var feed = await FeedReader.ReadAsync("https://www.heise.de/newsticker/heise-atom.xml").ConfigureAwait(false);
+            var feed = await Reader.ReadAsync("https://www.heise.de/newsticker/heise-atom.xml").ConfigureAwait(false);
             Assert.IsTrue(!string.IsNullOrEmpty(feed.Title));
             Assert.IsTrue(feed.Items.Count > 1);
         }
@@ -127,7 +127,7 @@ namespace PointlessWaymarks.FeedReader.Tests
         {
             try
             {
-                var feed = await FeedReader.ReadAsync("http://github.com/codehollow/AzureBillingRateCardSample/commits/master.atom").ConfigureAwait(false);
+                var feed = await Reader.ReadAsync("http://github.com/codehollow/AzureBillingRateCardSample/commits/master.atom").ConfigureAwait(false);
                 //Assert.IsTrue(!string.IsNullOrEmpty(feed.Title));
             }
             catch (Exception ex)
@@ -141,7 +141,7 @@ namespace PointlessWaymarks.FeedReader.Tests
         [TestMethod]
         public async Task TestReadRss20GermanFeedPowershell()
         {
-            var feed = await FeedReader.ReadAsync("http://www.powershell.co.at/feed/").ConfigureAwait(false);
+            var feed = await Reader.ReadAsync("http://www.powershell.co.at/feed/").ConfigureAwait(false);
             Assert.IsTrue(!string.IsNullOrEmpty(feed.Title));
             Assert.IsTrue(feed.Items.Count > 0);
         }
@@ -149,14 +149,14 @@ namespace PointlessWaymarks.FeedReader.Tests
         [TestMethod]
         public async Task TestReadRss20FeedCharter97Handle403Forbidden()
         {
-            var feed = await FeedReader.ReadAsync("charter97.org/rss.php").ConfigureAwait(false);
+            var feed = await Reader.ReadAsync("charter97.org/rss.php").ConfigureAwait(false);
             Assert.IsTrue(!string.IsNullOrEmpty(feed.Title));
         }
 
         [TestMethod]
         public async Task TestReadRssScottHanselmanWeb()
         {
-            var feed = await FeedReader.ReadAsync("http://feeds.hanselman.com/ScottHanselman").ConfigureAwait(false);
+            var feed = await Reader.ReadAsync("http://feeds.hanselman.com/ScottHanselman").ConfigureAwait(false);
             Assert.IsTrue(!string.IsNullOrEmpty(feed.Title));
             Assert.IsTrue(feed.Items.Count > 0);
         }
@@ -170,7 +170,7 @@ namespace PointlessWaymarks.FeedReader.Tests
         [TestMethod]
         public async Task TestReadNoticiasCatolicas()
         {
-            var feed = await FeedReader.ReadAsync("feeds.feedburner.com/NoticiasCatolicasAleteia").ConfigureAwait(false);
+            var feed = await Reader.ReadAsync("feeds.feedburner.com/NoticiasCatolicasAleteia").ConfigureAwait(false);
             Assert.AreEqual("Noticias Catolicas", feed.Title);
             Assert.IsTrue(feed.Items.Count > 0);
         }
@@ -178,7 +178,7 @@ namespace PointlessWaymarks.FeedReader.Tests
         [TestMethod]
         public async Task TestReadTimeDoctor()
         {
-            var feed = await FeedReader.ReadAsync("https://www.timedoctor.com/blog/feed/").ConfigureAwait(false);
+            var feed = await Reader.ReadAsync("https://www.timedoctor.com/blog/feed/").ConfigureAwait(false);
             Assert.AreEqual("Time Doctor Blog", feed.Title);
             Assert.IsTrue(feed.Items.Count > 0);
         }
@@ -186,7 +186,7 @@ namespace PointlessWaymarks.FeedReader.Tests
         [TestMethod]
         public async Task TestReadMikeC()
         {
-            var feed = await FeedReader.ReadAsync("https://mikeclayton.wordpress.com/feed/").ConfigureAwait(false);
+            var feed = await Reader.ReadAsync("https://mikeclayton.wordpress.com/feed/").ConfigureAwait(false);
             Assert.AreEqual("Shift Happens!", feed.Title);
             Assert.IsTrue(feed.Items.Count > 0);
         }
@@ -194,7 +194,7 @@ namespace PointlessWaymarks.FeedReader.Tests
         [TestMethod]
         public async Task TestReadTheLPM()
         {
-            var feed = await FeedReader.ReadAsync("https://thelazyprojectmanager.wordpress.com/feed/").ConfigureAwait(false);
+            var feed = await Reader.ReadAsync("https://thelazyprojectmanager.wordpress.com/feed/").ConfigureAwait(false);
             Assert.AreEqual("The Lazy Project Manager's Blog", feed.Title);
             Assert.IsTrue(feed.Items.Count > 0);
         }
@@ -202,7 +202,7 @@ namespace PointlessWaymarks.FeedReader.Tests
         [TestMethod]
         public async Task TestReadTechRep()
         {
-            var feed = await FeedReader.ReadAsync("http://www.techrepublic.com/rssfeeds/topic/project-management/").ConfigureAwait(false);
+            var feed = await Reader.ReadAsync("http://www.techrepublic.com/rssfeeds/topic/project-management/").ConfigureAwait(false);
             Assert.AreEqual("Project Management Articles & Tutorials | TechRepublic", feed.Title);
             Assert.IsTrue(feed.Items.Count > 0);
         }
@@ -210,7 +210,7 @@ namespace PointlessWaymarks.FeedReader.Tests
         [TestMethod]
         public async Task TestReadAPOD()
         {
-            var feed = await FeedReader.ReadAsync("https://apod.nasa.gov/apod.rss").ConfigureAwait(false);
+            var feed = await Reader.ReadAsync("https://apod.nasa.gov/apod.rss").ConfigureAwait(false);
             Assert.AreEqual("APOD", feed.Title);
             Assert.IsTrue(feed.Items.Count > 0);
         }
@@ -218,7 +218,7 @@ namespace PointlessWaymarks.FeedReader.Tests
         [TestMethod]
         public async Task TestReadThaqafnafsak()
         {
-            var feed = await FeedReader.ReadAsync("http://www.thaqafnafsak.com/feed").ConfigureAwait(false);
+            var feed = await Reader.ReadAsync("http://www.thaqafnafsak.com/feed").ConfigureAwait(false);
             Assert.AreEqual("ثقف نفسك", feed.Title);
             Assert.IsTrue(feed.Items.Count > 0);
         }
@@ -226,7 +226,7 @@ namespace PointlessWaymarks.FeedReader.Tests
         [TestMethod]
         public async Task TestReadTheStudentLawyer()
         {
-            var feed = await FeedReader.ReadAsync("http://us10.campaign-archive.com/feed?u=8da2e137a07b178e5d9a71c2c&id=9134b0cc95").ConfigureAwait(false);
+            var feed = await Reader.ReadAsync("http://us10.campaign-archive.com/feed?u=8da2e137a07b178e5d9a71c2c&id=9134b0cc95").ConfigureAwait(false);
             Assert.AreEqual("The Student Lawyer Careers Network Archive Feed", feed.Title);
             Assert.IsTrue(feed.Items.Count > 0);
         }
@@ -234,7 +234,7 @@ namespace PointlessWaymarks.FeedReader.Tests
         [TestMethod]
         public async Task TestReadLiveBold()
         {
-            var feed = await FeedReader.ReadAsync("http://feeds.feedburner.com/LiveBoldAndBloom").ConfigureAwait(false);
+            var feed = await Reader.ReadAsync("http://feeds.feedburner.com/LiveBoldAndBloom").ConfigureAwait(false);
             Assert.AreEqual("Live Bold and Bloom", feed.Title);
             Assert.IsTrue(feed.Items.Count > 0);
         }
@@ -242,14 +242,14 @@ namespace PointlessWaymarks.FeedReader.Tests
         [TestMethod]
         public async Task TestSwedish_ISO8859_1()
         {
-            var feed = await FeedReader.ReadAsync("https://www.retriever-info.com/feed/2004645/intranet30/index.xml");
+            var feed = await Reader.ReadAsync("https://www.retriever-info.com/feed/2004645/intranet30/index.xml");
             Assert.AreEqual("intranet30", feed.Title);
         }
 
         [TestMethod]
         public async Task TestStadtfeuerwehrWeiz_ISO8859_1()
         {
-            var feed = await FeedReader.ReadAsync("http://www.stadtfeuerwehr-weiz.at/rss/einsaetze.xml");
+            var feed = await Reader.ReadAsync("http://www.stadtfeuerwehr-weiz.at/rss/einsaetze.xml");
             Assert.AreEqual("Stadtfeuerwehr Weiz - Einsätze", feed.Title);
         }
         #endregion

@@ -14,7 +14,7 @@ namespace PointlessWaymarks.FeedReader;
 /// var feed = FeedReader.Read(firstLink.Url);
 /// Console.WriteLine(feed.Title);
 /// </example>
-public static class FeedReader
+public static class Reader
 {
     /// <summary>
     /// gets a url (with or without http) and returns the full url

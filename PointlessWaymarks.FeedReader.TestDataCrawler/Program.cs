@@ -23,7 +23,7 @@ namespace PointlessWaymarks.FeedReader.TestDataCrawler
 
         static void Do(string url)
         {
-            var linksTask = FeedReader.GetFeedUrlsFromUrlAsync(url);
+            var linksTask = Reader.GetFeedUrlsFromUrlAsync(url);
 
             foreach (var link in linksTask.Result)
             {
@@ -36,7 +36,7 @@ namespace PointlessWaymarks.FeedReader.TestDataCrawler
                        
                     }
                     title = Regex.Replace(title.ToLower(), "[^a-z]*", "");
-                    var curl = FeedReader.GetAbsoluteFeedUrl(url, link);
+                    var curl = Reader.GetAbsoluteFeedUrl(url, link);
 
                     var contentTask = Helpers.DownloadAsync(curl.Url);
 

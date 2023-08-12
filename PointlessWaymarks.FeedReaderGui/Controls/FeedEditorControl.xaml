@@ -41,13 +41,13 @@
                                                                      Style="{StaticResource EntryStyle}" />
                     <StackPanel Orientation="Vertical" Margin="24,20,16,8">
                         <TextBlock
-                            Text="{Binding DbFeedItem.FeedLastUpdatedDate, StringFormat='Feed Last Updated On: {0}', TargetNullValue='Feed Last Updated On: Unknown'}"
+                            Text="{Binding DbReaderFeedItem.FeedLastUpdatedDate, StringFormat='Feed Last Updated On: {0}', TargetNullValue='Feed Last Updated On: Unknown'}"
                             TextWrapping="Wrap" />
                         <TextBlock
-                            Text="{Binding DbFeedItem.LastSuccessfulUpdate, StringFormat='Pointless Waymarks Last Successful Update: {0}', TargetNullValue='Pointless Waymarks Last Successful Update: Never'}"
+                            Text="{Binding DbReaderFeedItem.LastSuccessfulUpdate, StringFormat='Pointless Waymarks Last Successful Update: {0}', TargetNullValue='Pointless Waymarks Last Successful Update: Never'}"
                             TextWrapping="Wrap" />
                         <TextBlock
-                            Text="{Binding DbFeedItem.CreatedOn, StringFormat='Pointless Waymarks Feed Entry Created On: {0}'}"
+                            Text="{Binding DbReaderFeedItem.CreatedOn, StringFormat='Pointless Waymarks Feed Entry Created On: {0}'}"
                             TextWrapping="Wrap" />
                         <TextBlock>
                             <TextBlock.Text>

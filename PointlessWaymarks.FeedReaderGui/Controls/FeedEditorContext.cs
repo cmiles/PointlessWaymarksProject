@@ -1,10 +1,10 @@
 using System.Text;
-using CodeHollow.FeedReader;
 using Microsoft.EntityFrameworkCore;
 using OneOf;
 using OneOf.Types;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.FeedReaderData;
+using PointlessWaymarks.FeedReaderData.Models;
 using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon.ChangesAndValidation;
 using PointlessWaymarks.WpfCommon.MarkdownDisplay;
@@ -13,7 +13,7 @@ using PointlessWaymarks.WpfCommon.StringDataEntry;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 using Serilog;
 using TinyIpc.Messaging;
-using Feed = PointlessWaymarks.FeedReaderData.Models.Feed;
+using static PointlessWaymarks.FeedReader.Reader;
 
 namespace PointlessWaymarks.FeedReaderGui.Controls;
 
@@ -24,7 +24,7 @@ public partial class FeedEditorContext : IHasChanges, IHasValidationIssues,
 {
     public required DbReference ContextDb { get; init; }
     public DataNotificationsWorkQueue? DataNotificationsProcessor { get; set; }
-    public required Feed DbFeedItem { get; set; }
+    public required ReaderFeed DbReaderFeedItem { get; set; }
     public int DbKeptUnReadFeedItems { get; set; }
     public int DbReadFeedItems { get; set; }
     public int DbUnReadFeedItems { get; set; }
@@ -67,15 +67,13 @@ URL Parse Result: When you update the URL (or use the Refresh Button) the progra
     {
         try
         {
-            var results = await FeedReader.ReadAsync(url);
-
-            if (results is null) return new Error<string>("Null Result?");
+            var results = await ReadAsync(url);
 
             if (!results.Items.Any()) return new Warning<string>("No Feed Items?");
 
             var db = await ContextDb.GetInstance();
 
-            if (db.Feeds.Any(x => x.Url == url && x.PersistentId != DbFeedItem.PersistentId))
+            if (db.Feeds.Any(x => x.Url == url && x.PersistentId != DbReaderFeedItem.PersistentId))
                 return new Error<string>("Feed Already Exists?");
 
             var resultBuilder = new StringBuilder();
@@ -101,10 +99,10 @@ URL Parse Result: When you update the URL (or use the Refresh Button) the progra
         }
     }
 
-    public static async Task<FeedEditorContext> CreateInstance(StatusControlContext context, Feed? feedItem,
+    public static async Task<FeedEditorContext> CreateInstance(StatusControlContext context, ReaderFeed? feedItem,
         string dbFile)
     {
-        feedItem ??= new Feed();
+        feedItem ??= new ReaderFeed();
 
         var dbReference = new DbReference() { DbFileFullName = dbFile };
 
@@ -156,7 +154,7 @@ URL Parse Result: When you update the URL (or use the Refresh Button) the progra
 
         var newContext = new FeedEditorContext
         {
-            DbFeedItem = feedItem,
+            DbReaderFeedItem = feedItem,
             StatusContext = context,
             UserNameEntry = userNameEntry,
             UserNoteEntry = userNoteEntry,
@@ -230,21 +228,21 @@ URL Parse Result: When you update the URL (or use the Refresh Button) the progra
     private async Task ProcessDataUpdateNotification(InterProcessDataNotification interProcessUpdateNotification)
     {
         if (interProcessUpdateNotification.ContentType == DataNotificationContentType.Feed &&
-            interProcessUpdateNotification.ContentIds.Contains(DbFeedItem.PersistentId))
+            interProcessUpdateNotification.ContentIds.Contains(DbReaderFeedItem.PersistentId))
             if (interProcessUpdateNotification.UpdateType == DataNotificationUpdateType.Update ||
                 interProcessUpdateNotification.UpdateType == DataNotificationUpdateType.New)
             {
                 var db = await ContextDb.GetInstance();
-                var dbFeedItem = await db.Feeds.SingleAsync(x => x.PersistentId == DbFeedItem.PersistentId);
+                var dbFeedItem = await db.Feeds.SingleAsync(x => x.PersistentId == DbReaderFeedItem.PersistentId);
                 UserUrlEntry.ReferenceValue = dbFeedItem.Url;
                 UserNameEntry.ReferenceValue = dbFeedItem.Name;
                 UserNoteEntry.ReferenceValue = dbFeedItem.Note;
                 UserTagsEntry.ReferenceValue = dbFeedItem.Tags;
-                DbFeedItem = dbFeedItem;
+                DbReaderFeedItem = dbFeedItem;
             }
 
         if (interProcessUpdateNotification.ContentType == DataNotificationContentType.FeedItem &&
-            interProcessUpdateNotification.ContentIds.Contains(DbFeedItem.PersistentId))
+            interProcessUpdateNotification.ContentIds.Contains(DbReaderFeedItem.PersistentId))
         {
             await UpdateDbReadStats();
         }
@@ -277,36 +275,36 @@ URL Parse Result: When you update the URL (or use the Refresh Button) the progra
 
         var db = await ContextDb.GetInstance();
 
-        DbFeedItem.Name = UserNameEntry.UserValue;
-        DbFeedItem.Note = UserNoteEntry.UserValue;
-        DbFeedItem.Tags = UserTagsEntry.UserValue;
-        DbFeedItem.Url = UserUrlEntry.UserValue;
+        DbReaderFeedItem.Name = UserNameEntry.UserValue;
+        DbReaderFeedItem.Note = UserNoteEntry.UserValue;
+        DbReaderFeedItem.Tags = UserTagsEntry.UserValue;
+        DbReaderFeedItem.Url = UserUrlEntry.UserValue;
 
-        if (DbFeedItem.Id == 0)
+        if (DbReaderFeedItem.Id == 0)
         {
-            db.Feeds.Add(DbFeedItem);
+            db.Feeds.Add(DbReaderFeedItem);
             await db.SaveChangesAsync();
 
             DataNotifications.PublishDataNotification(LogTools.GetCaller(), DataNotificationContentType.Feed,
-                DataNotificationUpdateType.Update, DbFeedItem.PersistentId.AsList());
+                DataNotificationUpdateType.Update, DbReaderFeedItem.PersistentId.AsList());
 
-            await FeedQueries.UpdateFeeds(DbFeedItem.PersistentId.AsList(), StatusContext.ProgressTracker());
+            await FeedQueries.UpdateFeeds(DbReaderFeedItem.PersistentId.AsList(), StatusContext.ProgressTracker());
         }
         else
         {
-            db.Feeds.Update(DbFeedItem);
+            db.Feeds.Update(DbReaderFeedItem);
             await db.SaveChangesAsync();
 
             DataNotifications.PublishDataNotification(LogTools.GetCaller(), DataNotificationContentType.Feed,
-                DataNotificationUpdateType.Update, DbFeedItem.PersistentId.AsList());
+                DataNotificationUpdateType.Update, DbReaderFeedItem.PersistentId.AsList());
         }
 
         //This is 'double coverage' of these changes with the Data Notifications but should
         //eliminate timing issues
-        UserUrlEntry.ReferenceValue = DbFeedItem.Url;
-        UserNameEntry.ReferenceValue = DbFeedItem.Name;
-        UserNoteEntry.ReferenceValue = DbFeedItem.Note;
-        UserTagsEntry.ReferenceValue = DbFeedItem.Tags;
+        UserUrlEntry.ReferenceValue = DbReaderFeedItem.Url;
+        UserNameEntry.ReferenceValue = DbReaderFeedItem.Name;
+        UserNoteEntry.ReferenceValue = DbReaderFeedItem.Note;
+        UserTagsEntry.ReferenceValue = DbReaderFeedItem.Tags;
 
         CheckForChangesAndValidationIssues();
     }
@@ -344,11 +342,11 @@ URL Parse Result: When you update the URL (or use the Refresh Button) the progra
         var db = await ContextDb.GetInstance();
 
         DbReadFeedItems =
-            await db.FeedItems.CountAsync(x => x.FeedPersistentId == DbFeedItem.PersistentId && x.MarkedRead);
+            await db.FeedItems.CountAsync(x => x.FeedPersistentId == DbReaderFeedItem.PersistentId && x.MarkedRead);
         DbUnReadFeedItems =
-            await db.FeedItems.CountAsync(x => x.FeedPersistentId == DbFeedItem.PersistentId && !x.MarkedRead);
+            await db.FeedItems.CountAsync(x => x.FeedPersistentId == DbReaderFeedItem.PersistentId && !x.MarkedRead);
         DbReadFeedItems =
-            await db.FeedItems.CountAsync(x => x.FeedPersistentId == DbFeedItem.PersistentId && x.KeepUnread);
+            await db.FeedItems.CountAsync(x => x.FeedPersistentId == DbReaderFeedItem.PersistentId && x.KeepUnread);
     }
 
     [NonBlockingCommand]

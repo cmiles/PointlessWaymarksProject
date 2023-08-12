@@ -21,7 +21,7 @@ namespace PointlessWaymarks.FeedReader.Tests
                 [TestMethod]
         public void TestAtomParseAdobe()
         {
-            var feed = (AtomFeed)FeedReader.ReadFromFile("Feeds/AtomAdobe.xml").SpecificFeed;
+            var feed = (AtomFeed)Reader.ReadFromFile("Feeds/AtomAdobe.xml").SpecificFeed;
 
             Eq("Adobe Blog", feed.Title);
             Eq(null, feed.Icon);
@@ -36,7 +36,7 @@ namespace PointlessWaymarks.FeedReader.Tests
         [TestMethod]
         public void TestAtomParseTheVerge()
         {
-            var feed = (AtomFeed)FeedReader.ReadFromFile("Feeds/AtomTheVerge.xml").SpecificFeed;
+            var feed = (AtomFeed)Reader.ReadFromFile("Feeds/AtomTheVerge.xml").SpecificFeed;
 
             Eq("The Verge -  Front Pages", feed.Title);
             Eq("https://cdn2.vox-cdn.com/community_logos/34086/verge-fv.png", feed.Icon);
@@ -62,7 +62,7 @@ namespace PointlessWaymarks.FeedReader.Tests
         [TestMethod]
         public void TestAtomParseBattleNet()
         {
-            var feed = (AtomFeed)FeedReader.ReadFromFile("Feeds/AtomBattleNet.xml").SpecificFeed;
+            var feed = (AtomFeed)Reader.ReadFromFile("Feeds/AtomBattleNet.xml").SpecificFeed;
 
             Eq("StarCraft® II", feed.Title);
             Eq(null, feed.Icon);
@@ -74,7 +74,7 @@ namespace PointlessWaymarks.FeedReader.Tests
         [TestMethod]
         public void TestAtomYouTubeInvestmentPunk()
         {
-            var feed = (AtomFeed)FeedReader.ReadFromFile("Feeds/AtomYoutubeInvestmentPunk.xml").SpecificFeed;
+            var feed = (AtomFeed)Reader.ReadFromFile("Feeds/AtomYoutubeInvestmentPunk.xml").SpecificFeed;
 
             Eq("http://www.youtube.com/feeds/videos.xml?channel_id=UCmEN5ZnsHUXIxgpLitRTmWw", feed.Links.First().Href);
             Eq("yt:channel:UCmEN5ZnsHUXIxgpLitRTmWw", feed.Id);
@@ -94,7 +94,7 @@ namespace PointlessWaymarks.FeedReader.Tests
         [TestMethod]
         public void TestAtomWiganwarriors()
         {
-            var feed = (AtomFeed)FeedReader.ReadFromFile("Feeds/AtomWiganwarriors.xml").SpecificFeed;
+            var feed = (AtomFeed)Reader.ReadFromFile("Feeds/AtomWiganwarriors.xml").SpecificFeed;
 
             Eq("Wigan Warriors Blog", feed.Title);
             Eq("Wigan Warriors Official Website", feed.Subtitle);
@@ -106,7 +106,7 @@ namespace PointlessWaymarks.FeedReader.Tests
         [TestMethod]
         public void TestRss091ParseStadtFWeiz()
         {
-            var feed = (Rss091Feed)FeedReader.ReadFromFile("Feeds/Rss091Stadtfeuerwehr.xml").SpecificFeed;
+            var feed = (Rss091Feed)Reader.ReadFromFile("Feeds/Rss091Stadtfeuerwehr.xml").SpecificFeed;
 
             Eq("Stadtfeuerwehr Weiz - Einsätze", feed.Title);
             Eq("http://www.stadtfeuerwehr-weiz.at", feed.Link);
@@ -128,7 +128,7 @@ namespace PointlessWaymarks.FeedReader.Tests
         [TestMethod]
         public void TestRss091ParseFullSample()
         {
-            var feed = (Rss091Feed)FeedReader.ReadFromFile("Feeds/Rss091FullSample.xml").SpecificFeed;
+            var feed = (Rss091Feed)Reader.ReadFromFile("Feeds/Rss091FullSample.xml").SpecificFeed;
             Eq("Copyright 1997-1999 UserLand Software, Inc.", feed.Copyright);
             Eq("Thu, 08 Jul 1999 07:00:00 GMT", feed.PublishingDateString);
             Eq("Thu, 08 Jul 1999 16:20:26 GMT", feed.LastBuildDateString);
@@ -169,7 +169,7 @@ namespace PointlessWaymarks.FeedReader.Tests
         [TestMethod]
         public void TestRss092ParseFullSample()
         {
-            var feed = (Rss092Feed)FeedReader.ReadFromFile("Feeds/Rss092FullSample.xml").SpecificFeed;
+            var feed = (Rss092Feed)Reader.ReadFromFile("Feeds/Rss092FullSample.xml").SpecificFeed;
 
             Eq("Dave Winer: Grateful Dead", feed.Title);
             Eq("http://www.scripting.com/blog/categories/gratefulDead.html", feed.Link);
@@ -199,7 +199,7 @@ namespace PointlessWaymarks.FeedReader.Tests
         [TestMethod]
         public void TestRss10ParseFullSample()
         {
-            var feed = (Rss10Feed)FeedReader.ReadFromFile("Feeds/Rss10FeedWebResourceSample.xml").SpecificFeed;
+            var feed = (Rss10Feed)Reader.ReadFromFile("Feeds/Rss10FeedWebResourceSample.xml").SpecificFeed;
 
             Eq("XML.com", feed.Title);
             Eq("http://xml.com/pub", feed.Link);
@@ -226,7 +226,7 @@ namespace PointlessWaymarks.FeedReader.Tests
         [TestMethod]
         public void TestRss10ParseOrfAt()
         {
-            var feed = (Rss10Feed)FeedReader.ReadFromFile("Feeds/Rss10OrfAt.xml").SpecificFeed;
+            var feed = (Rss10Feed)Reader.ReadFromFile("Feeds/Rss10OrfAt.xml").SpecificFeed;
             Eq("news.ORF.at", feed.Title);
             Eq("http://orf.at/", feed.Link);
             Eq("2017-01-23T21:54:55+01:00", feed.DC.DateString);
@@ -251,7 +251,7 @@ namespace PointlessWaymarks.FeedReader.Tests
         [TestMethod]
         public void TestRss20ParseWebResourceSampleFull()
         {
-            var feed = (Rss20Feed)FeedReader.ReadFromFile("Feeds/Rss20FeedWebResourceSample.xml").SpecificFeed;
+            var feed = (Rss20Feed)Reader.ReadFromFile("Feeds/Rss20FeedWebResourceSample.xml").SpecificFeed;
 
             Eq("Scripting News", feed.Title);
             Eq("http://www.scripting.com/", feed.Link);
@@ -279,7 +279,7 @@ namespace PointlessWaymarks.FeedReader.Tests
         [TestMethod]
         public void TestRss20ParseCodeHollow()
         {
-            var feed = (Rss20Feed)FeedReader.ReadFromFile("Feeds/Rss20CodeHollowCom.xml").SpecificFeed;
+            var feed = (Rss20Feed)Reader.ReadFromFile("Feeds/Rss20CodeHollowCom.xml").SpecificFeed;
 
             Eq("codehollow", feed.Title);
             Eq("https://codehollow.com", feed.Link);
@@ -310,7 +310,7 @@ namespace PointlessWaymarks.FeedReader.Tests
         [TestMethod]
         public void TestRss20ParseContentWindGerman()
         {
-            var feed = (Rss20Feed)FeedReader.ReadFromFile("Feeds/Rss20ContentWindCom.xml").SpecificFeed;
+            var feed = (Rss20Feed)Reader.ReadFromFile("Feeds/Rss20ContentWindCom.xml").SpecificFeed;
             Eq("ContentWind", feed.Title);
             Eq("http://content-wind.com", feed.Link);
             Eq("Do, 22 Dez 2016 17:36:00 +0000", feed.LastBuildDateString);
@@ -333,7 +333,7 @@ namespace PointlessWaymarks.FeedReader.Tests
         [TestMethod]
         public void TestRss20ParseMoscowTimes()
         {
-            var feed = (Rss20Feed)FeedReader.ReadFromFile("Feeds/Rss20MoscowTimes.xml").SpecificFeed;
+            var feed = (Rss20Feed)Reader.ReadFromFile("Feeds/Rss20MoscowTimes.xml").SpecificFeed;
             Eq("The Moscow Times - News, Business, Culture & Multimedia from Russia", feed.Title);
             Eq("https://themoscowtimes.com/", feed.Link);
             Eq("The Moscow Times offers everything you need to know about Russia: Breaking news, top stories, business, analysis, opinion, multimedia, upcoming cultural events", feed.Description);
@@ -359,7 +359,7 @@ namespace PointlessWaymarks.FeedReader.Tests
         [TestMethod]
         public void TestRss20ParseSwedishFeedWithIso8859_1()
         {
-            var feed = (Rss20Feed)FeedReader.ReadFromFile("Feeds/Rss20ISO88591Intranet30.xml").SpecificFeed;
+            var feed = (Rss20Feed)Reader.ReadFromFile("Feeds/Rss20ISO88591Intranet30.xml").SpecificFeed;
             Eq("intranet30", feed.Title);
             Eq("http://www.retriever-info.com", feed.Link);
             Eq("RSS 2.0 News feed from Retriever Norge AS", feed.Description);
@@ -377,7 +377,7 @@ namespace PointlessWaymarks.FeedReader.Tests
         [TestMethod]
         public void TestRss20CityDogKyrillicNoEncodingDefined()
         {
-            var feed = FeedReader.ReadFromFile("Feeds/Rss20CityDog.xml");
+            var feed = Reader.ReadFromFile("Feeds/Rss20CityDog.xml");
             Eq("Новости - citydog.by", feed.Title);
             Eq("Последние обновления - citydog.by", feed.Description);
 
@@ -394,7 +394,7 @@ namespace PointlessWaymarks.FeedReader.Tests
             var files = System.IO.Directory.EnumerateFiles("Feeds");
             foreach(var file in files)
             {
-                var feed = FeedReader.ReadFromFile(file);
+                var feed = Reader.ReadFromFile(file);
                 if (feed != null)
                 {
                     string filename = System.IO.Path.GetFileName(file);
@@ -413,7 +413,7 @@ namespace PointlessWaymarks.FeedReader.Tests
         [TestMethod]
         public async Task TestAtomParseAdobe_Async()
         {
-            var feed = (AtomFeed)(await FeedReader.ReadFromFileAsync("Feeds/AtomAdobe.xml").ConfigureAwait(false)).SpecificFeed;
+            var feed = (AtomFeed)(await Reader.ReadFromFileAsync("Feeds/AtomAdobe.xml").ConfigureAwait(false)).SpecificFeed;
 
             Eq("Adobe Blog", feed.Title);
             Eq(null, feed.Icon);
@@ -428,7 +428,7 @@ namespace PointlessWaymarks.FeedReader.Tests
         [TestMethod]
         public async Task TestAtomParseTheVerge_Async()
         {
-            var feed = (AtomFeed)(await FeedReader.ReadFromFileAsync("Feeds/AtomTheVerge.xml").ConfigureAwait(false)).SpecificFeed;
+            var feed = (AtomFeed)(await Reader.ReadFromFileAsync("Feeds/AtomTheVerge.xml").ConfigureAwait(false)).SpecificFeed;
 
             Eq("The Verge -  Front Pages", feed.Title);
             Eq("https://cdn2.vox-cdn.com/community_logos/34086/verge-fv.png", feed.Icon);
@@ -454,7 +454,7 @@ namespace PointlessWaymarks.FeedReader.Tests
         [TestMethod]
         public async Task TestAtomYouTubeInvestmentPunk_Async()
         {
-            var feed = (AtomFeed)(await FeedReader.ReadFromFileAsync("Feeds/AtomYoutubeInvestmentPunk.xml").ConfigureAwait(false)).SpecificFeed;
+            var feed = (AtomFeed)(await Reader.ReadFromFileAsync("Feeds/AtomYoutubeInvestmentPunk.xml").ConfigureAwait(false)).SpecificFeed;
 
             Eq("http://www.youtube.com/feeds/videos.xml?channel_id=UCmEN5ZnsHUXIxgpLitRTmWw", feed.Links.First().Href);
             Eq("yt:channel:UCmEN5ZnsHUXIxgpLitRTmWw", feed.Id);
@@ -473,7 +473,7 @@ namespace PointlessWaymarks.FeedReader.Tests
         [TestMethod]
         public async Task TestRss091ParseStadtFWeiz_Async()
         {
-            var feed = (Rss091Feed)(await FeedReader.ReadFromFileAsync("Feeds/Rss091Stadtfeuerwehr.xml").ConfigureAwait(false)).SpecificFeed;
+            var feed = (Rss091Feed)(await Reader.ReadFromFileAsync("Feeds/Rss091Stadtfeuerwehr.xml").ConfigureAwait(false)).SpecificFeed;
 
             Eq("Stadtfeuerwehr Weiz - Einsätze", feed.Title);
             Eq("http://www.stadtfeuerwehr-weiz.at", feed.Link);
@@ -495,7 +495,7 @@ namespace PointlessWaymarks.FeedReader.Tests
         [TestMethod]
         public async Task TestRss091ParseFullSample_Async()
         {
-            var feed = (Rss091Feed)(await FeedReader.ReadFromFileAsync("Feeds/Rss091FullSample.xml").ConfigureAwait(false)).SpecificFeed;
+            var feed = (Rss091Feed)(await Reader.ReadFromFileAsync("Feeds/Rss091FullSample.xml").ConfigureAwait(false)).SpecificFeed;
             Eq("Copyright 1997-1999 UserLand Software, Inc.", feed.Copyright);
             Eq("Thu, 08 Jul 1999 07:00:00 GMT", feed.PublishingDateString);
             Eq("Thu, 08 Jul 1999 16:20:26 GMT", feed.LastBuildDateString);
@@ -536,7 +536,7 @@ namespace PointlessWaymarks.FeedReader.Tests
         [TestMethod]
         public async Task TestRss092ParseFullSample_Async()
         {
-            var feed = (Rss092Feed)(await FeedReader.ReadFromFileAsync("Feeds/Rss092FullSample.xml").ConfigureAwait(false)).SpecificFeed;
+            var feed = (Rss092Feed)(await Reader.ReadFromFileAsync("Feeds/Rss092FullSample.xml").ConfigureAwait(false)).SpecificFeed;
 
             Eq("Dave Winer: Grateful Dead", feed.Title);
             Eq("http://www.scripting.com/blog/categories/gratefulDead.html", feed.Link);
@@ -566,7 +566,7 @@ namespace PointlessWaymarks.FeedReader.Tests
         [TestMethod]
         public async Task TestRss10ParseFullSample_Async()
         {
-            var feed = (Rss10Feed)(await FeedReader.ReadFromFileAsync("Feeds/Rss10FeedWebResourceSample.xml").ConfigureAwait(false)).SpecificFeed;
+            var feed = (Rss10Feed)(await Reader.ReadFromFileAsync("Feeds/Rss10FeedWebResourceSample.xml").ConfigureAwait(false)).SpecificFeed;
 
             Eq("XML.com", feed.Title);
             Eq("http://xml.com/pub", feed.Link);
@@ -593,7 +593,7 @@ namespace PointlessWaymarks.FeedReader.Tests
         [TestMethod]
         public async Task TestRss10ParseOrfAt_Async()
         {
-            var feed = (Rss10Feed)(await FeedReader.ReadFromFileAsync("Feeds/Rss10OrfAt.xml").ConfigureAwait(false)).SpecificFeed;
+            var feed = (Rss10Feed)(await Reader.ReadFromFileAsync("Feeds/Rss10OrfAt.xml").ConfigureAwait(false)).SpecificFeed;
             Eq("news.ORF.at", feed.Title);
             Eq("http://orf.at/", feed.Link);
             Eq("2017-01-23T21:54:55+01:00", feed.DC.DateString);
@@ -618,7 +618,7 @@ namespace PointlessWaymarks.FeedReader.Tests
         [TestMethod]
         public async Task TestRss20ParseWebResourceSampleFull_Async()
         {
-            var feed = (Rss20Feed)(await FeedReader.ReadFromFileAsync("Feeds/Rss20FeedWebResourceSample.xml").ConfigureAwait(false)).SpecificFeed;
+            var feed = (Rss20Feed)(await Reader.ReadFromFileAsync("Feeds/Rss20FeedWebResourceSample.xml").ConfigureAwait(false)).SpecificFeed;
 
             Eq("Scripting News", feed.Title);
             Eq("http://www.scripting.com/", feed.Link);
@@ -646,7 +646,7 @@ namespace PointlessWaymarks.FeedReader.Tests
         [TestMethod]
         public async Task TestRss20ParseCodeHollow_Async()
         {
-            var feed = (Rss20Feed)(await FeedReader.ReadFromFileAsync("Feeds/Rss20CodeHollowCom.xml").ConfigureAwait(false)).SpecificFeed;
+            var feed = (Rss20Feed)(await Reader.ReadFromFileAsync("Feeds/Rss20CodeHollowCom.xml").ConfigureAwait(false)).SpecificFeed;
 
             Eq("codehollow", feed.Title);
             Eq("https://codehollow.com", feed.Link);
@@ -677,7 +677,7 @@ namespace PointlessWaymarks.FeedReader.Tests
         [TestMethod]
         public async Task TestRss20ParseContentWindGerman_Async()
         {
-            var feed = (Rss20Feed)(await FeedReader.ReadFromFileAsync("Feeds/Rss20ContentWindCom.xml").ConfigureAwait(false)).SpecificFeed;
+            var feed = (Rss20Feed)(await Reader.ReadFromFileAsync("Feeds/Rss20ContentWindCom.xml").ConfigureAwait(false)).SpecificFeed;
             Eq("ContentWind", feed.Title);
             Eq("http://content-wind.com", feed.Link);
             Eq("Do, 22 Dez 2016 17:36:00 +0000", feed.LastBuildDateString);
@@ -700,7 +700,7 @@ namespace PointlessWaymarks.FeedReader.Tests
         [TestMethod]
         public async Task TestRss20ParseMoscowTimes_Async()
         {
-            var feed = (Rss20Feed)(await FeedReader.ReadFromFileAsync("Feeds/Rss20MoscowTimes.xml").ConfigureAwait(false)).SpecificFeed;
+            var feed = (Rss20Feed)(await Reader.ReadFromFileAsync("Feeds/Rss20MoscowTimes.xml").ConfigureAwait(false)).SpecificFeed;
             Eq("The Moscow Times - News, Business, Culture & Multimedia from Russia", feed.Title);
             Eq("https://themoscowtimes.com/", feed.Link);
             Eq("The Moscow Times offers everything you need to know about Russia: Breaking news, top stories, business, analysis, opinion, multimedia, upcoming cultural events", feed.Description);
@@ -726,7 +726,7 @@ namespace PointlessWaymarks.FeedReader.Tests
         [TestMethod]
         public async Task TestRss20ParseSwedishFeedWithIso8859_1_Async()
         {
-            var feed = (Rss20Feed)(await FeedReader.ReadFromFileAsync("Feeds/Rss20ISO88591Intranet30.xml").ConfigureAwait(false)).SpecificFeed;
+            var feed = (Rss20Feed)(await Reader.ReadFromFileAsync("Feeds/Rss20ISO88591Intranet30.xml").ConfigureAwait(false)).SpecificFeed;
             Eq("intranet30", feed.Title);
             Eq("http://www.retriever-info.com", feed.Link);
             Eq("RSS 2.0 News feed from Retriever Norge AS", feed.Description);
@@ -744,7 +744,7 @@ namespace PointlessWaymarks.FeedReader.Tests
         [TestMethod]
         public async Task TestRss20CityDogKyrillicNoEncodingDefined_Async()
         {
-            var feed = await FeedReader.ReadFromFileAsync("Feeds/Rss20CityDog.xml").ConfigureAwait(false);
+            var feed = await Reader.ReadFromFileAsync("Feeds/Rss20CityDog.xml").ConfigureAwait(false);
             Eq("Новости - citydog.by", feed.Title);
             Eq("Последние обновления - citydog.by", feed.Description);
 
@@ -761,7 +761,7 @@ namespace PointlessWaymarks.FeedReader.Tests
             var files = System.IO.Directory.EnumerateFiles("Feeds");
             foreach(var file in files)
             {
-                var feed = await FeedReader.ReadFromFileAsync(file).ConfigureAwait(false);
+                var feed = await Reader.ReadFromFileAsync(file).ConfigureAwait(false);
                 if (feed != null)
                 {
                     string filename = System.IO.Path.GetFileName(file);

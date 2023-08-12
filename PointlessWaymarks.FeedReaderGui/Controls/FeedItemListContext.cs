@@ -130,7 +130,7 @@ public partial class FeedItemListContext
         await ThreadSwitcher.ResumeBackgroundAsync();
 
         var db = await ContextDb.GetInstance();
-        var currentFeed = await db.Feeds.SingleOrDefaultAsync(x => x.PersistentId == listItem.DbFeed.PersistentId);
+        var currentFeed = await db.Feeds.SingleOrDefaultAsync(x => x.PersistentId == listItem.DbReaderFeed.PersistentId);
 
         if (currentFeed == null)
         {
@@ -174,9 +174,9 @@ public partial class FeedItemListContext
         {
             if (o is not FeedItemListListItem toFilter) return false;
 
-            return toFilter.DbFeed.Name.Contains(cleanedFilterText, StringComparison.OrdinalIgnoreCase)
-                   || toFilter.DbFeed.Tags.Contains(cleanedFilterText, StringComparison.OrdinalIgnoreCase)
-                   || toFilter.DbFeed.Note.Contains(cleanedFilterText, StringComparison.OrdinalIgnoreCase)
+            return toFilter.DbReaderFeed.Name.Contains(cleanedFilterText, StringComparison.OrdinalIgnoreCase)
+                   || toFilter.DbReaderFeed.Tags.Contains(cleanedFilterText, StringComparison.OrdinalIgnoreCase)
+                   || toFilter.DbReaderFeed.Note.Contains(cleanedFilterText, StringComparison.OrdinalIgnoreCase)
                    || (toFilter.DbItem.FeedTitle?.Contains(cleanedFilterText, StringComparison.OrdinalIgnoreCase) ??
                        false)
                    || (toFilter.DbItem.FeedAuthor?.Contains(cleanedFilterText, StringComparison.OrdinalIgnoreCase) ??
@@ -299,7 +299,7 @@ public partial class FeedItemListContext
         {
             var feedsToUpdate = FeedList.Any()
                 ? FeedList.Intersect(interProcessUpdateNotification.ContentIds).ToList()
-                : Items.Select(x => x.DbFeed.PersistentId).ToList();
+                : Items.Select(x => x.DbReaderFeed.PersistentId).ToList();
             if (!feedsToUpdate.Any()) return;
 
             var toUpdate = Items.Where(x => feedsToUpdate.Contains(x.DbItem.FeedPersistentId))
@@ -338,7 +338,7 @@ public partial class FeedItemListContext
         foreach (var loopItems in initialItems)
             Items.Add(new FeedItemListListItem
             {
-                DbItem = loopItems, DbFeed = db.Feeds.Single(x => x.PersistentId == loopItems.FeedPersistentId)
+                DbItem = loopItems, DbReaderFeed = db.Feeds.Single(x => x.PersistentId == loopItems.FeedPersistentId)
             });
 
         ListContextSortHelpers.SortList(ListSort.SortDescriptions(), Items);
@@ -446,12 +446,12 @@ public partial class FeedItemListContext
             if (listItem != null)
             {
                 listItem.DbItem = dbFeedItem;
-                listItem.DbFeed = dbFeed;
+                listItem.DbReaderFeed = dbFeed;
             }
             else
             {
                 await ThreadSwitcher.ResumeForegroundAsync();
-                Items.Add(new FeedItemListListItem { DbFeed = dbFeed, DbItem = dbFeedItem });
+                Items.Add(new FeedItemListListItem { DbReaderFeed = dbFeed, DbItem = dbFeedItem });
             }
         }
 

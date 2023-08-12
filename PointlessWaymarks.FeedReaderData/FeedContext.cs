@@ -15,13 +15,13 @@ public class FeedContext : DbContext
     {
     }
 
-    public DbSet<Feed> Feeds { get; set; } = null!;
+    public DbSet<ReaderFeed> Feeds { get; set; } = null!;
 
-    public DbSet<FeedItem> FeedItems { get; set; } = null!;
+    public DbSet<ReaderFeedItem> FeedItems { get; set; } = null!;
 
-    public DbSet<HistoricFeed> HistoricFeeds { get; set; } = null!;
+    public DbSet<HistoricReaderFeed> HistoricFeeds { get; set; } = null!;
 
-    public DbSet<HistoricFeedItem> HistoricFeedItems { get; set; } = null!;
+    public DbSet<HistoricReaderFeedItem> HistoricFeedItems { get; set; } = null!;
 
     public static async Task<FeedContext> CreateInstance()
     {

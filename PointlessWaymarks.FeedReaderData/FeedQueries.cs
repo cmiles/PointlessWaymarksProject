@@ -1,6 +1,5 @@
 using System.Security.Cryptography;
 using System.Text;
-using CodeHollow.FeedReader;
 using Microsoft.EntityFrameworkCore;
 using Omu.ValueInjecter;
 using OneOf;
@@ -8,8 +7,7 @@ using OneOf.Types;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.FeedReaderData.Models;
 using Serilog;
-using Feed = PointlessWaymarks.FeedReaderData.Models.Feed;
-using FeedItem = PointlessWaymarks.FeedReaderData.Models.FeedItem;
+using static PointlessWaymarks.FeedReader.Reader;
 
 namespace PointlessWaymarks.FeedReaderData;
 
@@ -43,7 +41,7 @@ public static class FeedQueries
 
             if (historicFeedItem is null)
             {
-                historicFeedItem = new HistoricFeedItem
+                historicFeedItem = new HistoricReaderFeedItem
                     { FeedPersistentId = loopItems.FeedPersistentId, PersistentId = loopItems.PersistentId };
                 db.HistoricFeedItems.Add(historicFeedItem);
             }
@@ -62,7 +60,7 @@ public static class FeedQueries
 
         if (historicFeed == null)
         {
-            historicFeed = new HistoricFeed { PersistentId = toArchive.PersistentId };
+            historicFeed = new HistoricReaderFeed { PersistentId = toArchive.PersistentId };
             db.HistoricFeeds.Add(historicFeed);
         }
 
@@ -157,18 +155,18 @@ public static class FeedQueries
         if ((await db.Feeds.ToListAsync()).Any(x => x.Url.Equals(cleanedUrl, StringComparison.OrdinalIgnoreCase)))
             return new Error<string>("Feed already exists?");
 
-        CodeHollow.FeedReader.Feed feedInfo;
+        FeedReader.Feed feedInfo;
 
         try
         {
-            feedInfo = await FeedReader.ReadAsync(cleanedUrl);
+            feedInfo = await ReadAsync(cleanedUrl);
         }
         catch (Exception e)
         {
             return new Error<string>($"Problem Adding Feed - {e.Message}");
         }
 
-        var newFeed = new Feed
+        var newFeed = new ReaderFeed
         {
             Name = feedInfo.Title,
             Url = cleanedUrl,
@@ -194,9 +192,9 @@ public static class FeedQueries
     /// <param name="url"></param>
     /// <param name="progress"></param>
     /// <returns></returns>
-    public static async Task<Feed> TryGetFeed(string url, IProgress<string> progress)
+    public static async Task<ReaderFeed> TryGetFeed(string url, IProgress<string> progress)
     {
-        var toReturn = new Feed();
+        var toReturn = new ReaderFeed();
 
         if (string.IsNullOrEmpty(url)) return toReturn;
 
@@ -204,11 +202,11 @@ public static class FeedQueries
 
         toReturn.Url = cleanedUrl;
 
-        CodeHollow.FeedReader.Feed? feedInfo;
+        FeedReader.Feed? feedInfo;
 
         try
         {
-            feedInfo = await FeedReader.ReadAsync(cleanedUrl);
+            feedInfo = await ReadAsync(cleanedUrl);
         }
         catch (Exception)
         {
@@ -245,12 +243,12 @@ public static class FeedQueries
             progress.Report(
                 $"Feed {loopFeed.Name} - {feedCounter} of {feeds.Count} - {totalNewItemsCounter} New, {totalExistingItemsCounter} Existing");
 
-            CodeHollow.FeedReader.Feed? currentFeed;
-            List<CodeHollow.FeedReader.FeedItem> currentFeedItems;
+            FeedReader.Feed? currentFeed;
+            List<FeedReader.FeedItem> currentFeedItems;
 
             try
             {
-                currentFeed = await FeedReader.ReadAsync(loopFeed.Url);
+                currentFeed = await ReadAsync(loopFeed.Url);
             }
             catch (Exception e)
             {
@@ -317,7 +315,7 @@ public static class FeedQueries
 
                 newItemCounter++;
 
-                var newFeedItem = new FeedItem
+                var newFeedItem = new ReaderFeedItem
                 {
                     CreatedOn = DateTime.Now,
                     FeedPersistentId = loopFeed.PersistentId,

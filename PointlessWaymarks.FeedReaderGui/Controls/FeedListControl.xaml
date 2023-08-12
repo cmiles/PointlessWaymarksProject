@@ -72,7 +72,7 @@
                                 <TextBlock.Text>
                                     <MultiBinding
                                         StringFormat="{}{0} - {1} Unread">
-                                        <Binding Path="DbFeed.Name" />
+                                        <Binding Path="DbReaderFeed.Name" />
                                         <Binding Path="UnreadItemsCount" />
                                     </MultiBinding>
                                 </TextBlock.Text>
@@ -81,16 +81,16 @@
                                 <TextBlock.Text>
                                     <MultiBinding
                                         StringFormat="{}{0} - {1} Total Items">
-                                        <Binding Path="DbFeed.Url" />
+                                        <Binding Path="DbReaderFeed.Url" />
                                         <Binding Path="ItemsCount" />
                                     </MultiBinding>
                                 </TextBlock.Text>
                             </TextBlock>
-                            <TextBlock Margin="12,0,0,0" Text="{Binding DbFeed.Note}" TextWrapping="Wrap"
-                                       Visibility="{Binding DbFeed.Note, Converter={StaticResource NullOrWhiteSpaceStringToCollapsed}}" />
-                            <TextBlock Margin="12,0,0,0" Text="{Binding DbFeed.Tags}" TextWrapping="Wrap"
-                                       Visibility="{Binding DbFeed.Tags, Converter={StaticResource NullOrWhiteSpaceStringToCollapsed}}" />
-                            <TextBlock Margin="20,0,0,0" Text="{Binding DbFeed.LastSuccessfulUpdate}"
+                            <TextBlock Margin="12,0,0,0" Text="{Binding DbReaderFeed.Note}" TextWrapping="Wrap"
+                                       Visibility="{Binding DbReaderFeed.Note, Converter={StaticResource NullOrWhiteSpaceStringToCollapsed}}" />
+                            <TextBlock Margin="12,0,0,0" Text="{Binding DbReaderFeed.Tags}" TextWrapping="Wrap"
+                                       Visibility="{Binding DbReaderFeed.Tags, Converter={StaticResource NullOrWhiteSpaceStringToCollapsed}}" />
+                            <TextBlock Margin="20,0,0,0" Text="{Binding DbReaderFeed.LastSuccessfulUpdate}"
                                        TextWrapping="Wrap" />
                         </StackPanel>
                     </DataTemplate>
