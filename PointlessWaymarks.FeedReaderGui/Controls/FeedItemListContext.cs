@@ -1,5 +1,6 @@
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Windows.Data;
 using System.Windows.Threading;
@@ -351,7 +352,10 @@ public partial class FeedItemListContext
         DataNotificationsProcessor = new DataNotificationsWorkQueue { Processor = DataNotificationReceived };
         DataNotifications.NewDataNotificationChannel().MessageReceived += OnDataNotificationReceived;
 
-        await RefreshFeedItems();
+        StatusContext.RunFireAndForgetNonBlockingTask(async () =>
+        {
+            await RefreshFeedItems();
+        });
     }
 
     [NonBlockingCommand]
@@ -393,6 +397,28 @@ public partial class FeedItemListContext
             error => StatusContext.ToastError(error.Value));
 
         UserAddFeedInput = string.Empty;
+    }
+
+    [NonBlockingCommand]
+    public async Task OpenSelectedItemInBrowser()
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (SelectedItem == null)
+        {
+            StatusContext.ToastWarning("Feed to Add is Blank?");
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(SelectedItem.DbItem.FeedLink))
+        {
+            StatusContext.ToastWarning("Feed Item has no Link?");
+            return;
+        }
+
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        Process.Start(new ProcessStartInfo(SelectedItem.DbItem.FeedLink) { UseShellExecute = true });
     }
 
     public async Task UpdateFeedItems(List<Guid> toUpdate)

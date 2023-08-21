@@ -1,4 +1,4 @@
-﻿<Window x:Class="PointlessWaymarks.FeedReaderGui.MainWindow"
+<Window x:Class="PointlessWaymarks.FeedReaderGui.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -10,7 +10,7 @@
         xmlns:controls="clr-namespace:PointlessWaymarks.FeedReaderGui.Controls"
         xmlns:feedReaderGui="clr-namespace:PointlessWaymarks.FeedReaderGui"
         mc:Ignorable="d"
-        Title="Pointless Waymarks RSS Reader" Height="900" Width="1200"
+        Title="{Binding InfoTitle}" Height="900" Width="1200"
         d:DataContext="{d:DesignInstance feedReaderGui:MainWindow}">
     <Grid>
         <TabControl>

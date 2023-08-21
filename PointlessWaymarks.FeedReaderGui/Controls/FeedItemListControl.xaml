@@ -47,11 +47,15 @@
                      behaviors:MultiSelectorBehaviors.SynchronizedSelectedItems="{Binding SelectedItems}">
                 <ListBox.ContextMenu>
                     <ContextMenu>
-                        <MenuItem Header="Edit Feed" Command="{Binding FeedEditorForSelectedItemCommand}"></MenuItem>
-                        <MenuItem Header="Refresh Feeds" Command="{Binding RefreshFeedItemsCommand}"></MenuItem>
                         <MenuItem Header="Mark Selected Read" Command="{Binding MarkSelectedReadCommand}"></MenuItem>
                         <MenuItem Header="Mark Selected Unread" Command="{Binding MarkSelectedUnReadCommand}"></MenuItem>
                         <MenuItem Header="Toggle Selected Keep" Command="{Binding ToggleSelectedKeepUnReadCommand}"></MenuItem>
+                        <Separator />
+                        <MenuItem Header="Open in Browser" Command="{Binding OpenSelectedItemInBrowserCommand}"></MenuItem>
+                        <Separator />
+                        <MenuItem Header="Edit Feed" Command="{Binding FeedEditorForSelectedItemCommand}"></MenuItem>
+                        <Separator />
+                        <MenuItem Header="Refresh Feeds" Command="{Binding RefreshFeedItemsCommand}"></MenuItem>
                         <MenuItem Header="Clear Read" Command="{Binding ClearReadItemsCommand}"></MenuItem>
                     </ContextMenu>
                 </ListBox.ContextMenu>
@@ -138,7 +142,7 @@
                     <ColumnDefinition Width="Auto"></ColumnDefinition>
                 </Grid.ColumnDefinitions>
                 <Border Style="{StaticResource ActionPanelBorderStyle}">
-                <Grid>
+                <Grid Margin="4,0,4,0">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"></RowDefinition>
                         <RowDefinition Height="Auto"></RowDefinition>
@@ -161,7 +165,7 @@
                     </Grid>
                 </Grid>
                 </Border>
-                <WrapPanel Grid.Column="1" HorizontalAlignment="Center" Orientation="Horizontal">
+                <WrapPanel Grid.Column="1" HorizontalAlignment="Center" Orientation="Horizontal" VerticalAlignment="Center">
                     <Button
                         Content="Mark Selected Read"
                         Style="{StaticResource ActionPanelButtonStyle}"
