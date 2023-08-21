@@ -1,7 +1,9 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 using System.IO;
 using System.Windows;
 using CommunityToolkit.Mvvm.Input;
+using PointlessWaymarks.CommonTools;
+using Serilog;
 
 namespace PointlessWaymarks.WpfCommon.ProgramUpdateMessage;
 
@@ -14,7 +16,6 @@ public class ProgramUpdateMessageContext
     }
 
     public string CurrentVersion { get; set; } = string.Empty;
-
     public RelayCommand DismissCommand { get; }
     public FileInfo? SetupFile { get; set; }
     public bool ShowMessage { get; set; }
@@ -45,6 +46,10 @@ public class ProgramUpdateMessageContext
             $"Update Available! Close Program and Update From {CurrentVersion} to {UpdateVersion} now? Make sure all work is saved first...";
 
         ShowMessage = true;
+
+        Log.ForContext(nameof(ProgramUpdateMessageContext), this.SafeObjectDump())
+            .Information("Program Update Message Context Loaded - Show Update Message {showUpdate}", ShowMessage);
+
         return Task.CompletedTask;
     }
 
