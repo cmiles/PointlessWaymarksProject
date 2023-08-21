@@ -17,11 +17,11 @@
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.1" />
     <PackageReference Include="DataGridExtensions" Version="2.5.15" />
     <PackageReference Include="Fractions" Version="7.2.1" />
-    <PackageReference Include="GitInfo" Version="3.3.0">
+    <PackageReference Include="GitInfo" Version="3.3.1">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Metalama.Framework" Version="2023.2.4" />
+    <PackageReference Include="Metalama.Framework" Version="2023.3.2-preview" />
     <PackageReference Include="Microsoft.Recognizers.Text.DateTime" Version="1.8.8" />
     <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.1901.177" />
     <PackageReference Include="System.Runtime.Caching" Version="7.0.0" />

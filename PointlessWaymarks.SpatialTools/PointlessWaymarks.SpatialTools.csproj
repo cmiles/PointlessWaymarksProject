@@ -2,11 +2,11 @@
 
   <ItemGroup>
     <PackageReference Include="GeoTimeZone" Version="5.2.0" />
-    <PackageReference Include="GitInfo" Version="3.3.0">
+    <PackageReference Include="GitInfo" Version="3.3.1">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="MetadataExtractor" Version="2.8.0" />
+    <PackageReference Include="MetadataExtractor" Version="2.8.1" />
     <PackageReference Include="NetTopologySuite" Version="2.5.0" />
     <PackageReference Include="NetTopologySuite.IO.GeoJSON" Version="3.0.0" />
     <PackageReference Include="NetTopologySuite.IO.GPX" Version="1.1.1" />

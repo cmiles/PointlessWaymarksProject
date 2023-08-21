@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <ItemGroup>
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.1" />
-    <PackageReference Include="Metalama.Framework" Version="2023.2.4" />
+    <PackageReference Include="Metalama.Framework" Version="2023.3.2-preview" />
   </ItemGroup>
 </Project>
