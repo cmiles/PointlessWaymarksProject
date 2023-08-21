@@ -10,7 +10,7 @@
         xmlns:programUpdateMessage="clr-namespace:PointlessWaymarks.WpfCommon.ProgramUpdateMessage;assembly=PointlessWaymarks.WpfCommon"
         xmlns:markdownDisplay="clr-namespace:PointlessWaymarks.WpfCommon.MarkdownDisplay;assembly=PointlessWaymarks.WpfCommon"
         mc:Ignorable="d"
-        Title="Pointless Waymarks Cloud Backup Job Editor" Height="450" Width="800"
+        Title="{Binding InfoTitle}" Height="450" Width="800"
         d:DataContext="{d:DesignInstance local:MainWindow}">
     <Grid>
         <TabControl>

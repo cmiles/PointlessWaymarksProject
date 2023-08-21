@@ -206,7 +206,7 @@ public partial class JobListContext
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        if (SelectedJob == null)
+        if (SelectedJob?.DbJob == null)
         {
             StatusContext.ToastWarning("Nothing Selected to Edit?");
             return;
