@@ -3,11 +3,13 @@ using System.IO;
 using System.Windows;
 using CommunityToolkit.Mvvm.Input;
 using PointlessWaymarks.CommonTools;
+using PointlessWaymarks.LlamaAspects;
 using Serilog;
 
 namespace PointlessWaymarks.WpfCommon.ProgramUpdateMessage;
 
-public class ProgramUpdateMessageContext
+[NotifyPropertyChanged]
+public partial class ProgramUpdateMessageContext
 {
     public ProgramUpdateMessageContext()
     {

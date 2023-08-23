@@ -78,7 +78,7 @@
                                 <RowDefinition Height="Auto" />
                             </Grid.RowDefinitions>
                             <TextBlock Text="{Binding DbItem.FeedTitle}" FontWeight="Bold" />
-                            <TextBlock Grid.Row="1" Margin="8,2,0,0" HorizontalAlignment="Left">
+                            <TextBlock Grid.Row="1" Margin="8,2,0,0" HorizontalAlignment="Left" TextTrimming="CharacterEllipsis">
                                 <TextBlock.Text>
                                     <MultiBinding StringFormat="{}{0}, {1}">
                                         <Binding Path="DbItem.FeedPublishingDate" />
@@ -86,7 +86,7 @@
                                     </MultiBinding>
                                 </TextBlock.Text>
                             </TextBlock>
-                            <TextBlock Grid.Row="2" HorizontalAlignment="Center" Margin="4,2,0,0">
+                            <TextBlock Grid.Row="2" HorizontalAlignment="Center" Margin="4,2,0,0" TextTrimming="CharacterEllipsis">
                                 <TextBlock.Text>
                                     <MultiBinding StringFormat="{}{0}">
                                         <Binding Path="DbReaderFeed.Tags" />
@@ -94,7 +94,7 @@
                                 </TextBlock.Text>
                             </TextBlock>
                             <TextBlock Grid.Row="3" HorizontalAlignment="Right" Margin="4,2,0,0"
-                                       ToolTip="{Binding DbReaderFeed.Note}">
+                                       ToolTip="{Binding DbReaderFeed.Note}" TextTrimming="CharacterEllipsis">
                                 <TextBlock.Text>
                                     <MultiBinding StringFormat="{}{0}">
                                         <Binding Path="DbReaderFeed.Name" />
@@ -137,35 +137,37 @@
         <Border Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3" Style="{StaticResource ActionPanelBorderStyle}">
             <Grid>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto"></ColumnDefinition>
-                    <ColumnDefinition></ColumnDefinition>
-                    <ColumnDefinition Width="Auto"></ColumnDefinition>
+                    <ColumnDefinition Width="1*"></ColumnDefinition>
+                    <ColumnDefinition Width="2*"></ColumnDefinition>
+                    <ColumnDefinition Width="1*"></ColumnDefinition>
                 </Grid.ColumnDefinitions>
-                <Border Style="{StaticResource ActionPanelBorderStyle}">
-                <Grid Margin="4,0,4,0">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"></RowDefinition>
-                        <RowDefinition Height="Auto"></RowDefinition>
-                    </Grid.RowDefinitions>
-                    <TextBox VerticalAlignment="Center"
-                             Text="{Binding UserAddFeedInput, UpdateSourceTrigger=PropertyChanged}" Width="308" Margin="0,6,0,0" />
-                    <Grid Grid.Row="1">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition></ColumnDefinition>
-                            <ColumnDefinition></ColumnDefinition>
-                        </Grid.ColumnDefinitions>
-                        <Button
-                            Content="_Add - Auto"
-                            Style="{StaticResource ActionPanelButtonStyle}"
-                            Command="{Binding TryAddFeedCommand}" />
-                        <Button Grid.Column="1"
-                                Content="Add - Editor"
+                <Border Style="{StaticResource ActionPanelBorderStyle}" HorizontalAlignment="Center">
+                    <Grid Margin="4,0,4,0">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"></RowDefinition>
+                            <RowDefinition Height="Auto"></RowDefinition>
+                        </Grid.RowDefinitions>
+                        <TextBox VerticalAlignment="Center"
+                                 Text="{Binding UserAddFeedInput, UpdateSourceTrigger=PropertyChanged}" Width="308"
+                                 Margin="0,6,0,0" />
+                        <Grid Grid.Row="1">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition></ColumnDefinition>
+                                <ColumnDefinition></ColumnDefinition>
+                            </Grid.ColumnDefinitions>
+                            <Button
+                                Content="_Add - Auto"
                                 Style="{StaticResource ActionPanelButtonStyle}"
-                                Command="{Binding NewFeedEditorFromUrlCommand}" />
+                                Command="{Binding TryAddFeedCommand}" />
+                            <Button Grid.Column="1"
+                                    Content="Add - Editor"
+                                    Style="{StaticResource ActionPanelButtonStyle}"
+                                    Command="{Binding NewFeedEditorFromUrlCommand}" />
+                        </Grid>
                     </Grid>
-                </Grid>
                 </Border>
-                <WrapPanel Grid.Column="1" HorizontalAlignment="Center" Orientation="Horizontal" VerticalAlignment="Center">
+                <WrapPanel Grid.Column="1" HorizontalAlignment="Center" Orientation="Horizontal"
+                           VerticalAlignment="Center">
                     <Button
                         Content="Mark Selected Read"
                         Style="{StaticResource ActionPanelButtonStyle}"
@@ -187,7 +189,10 @@
                         Style="{StaticResource ActionPanelButtonStyle}"
                         Command="{Binding ClearReadItemsCommand}" />
                 </WrapPanel>
-                <CheckBox Grid.Column="2" VerticalAlignment="Center" IsChecked="{Binding AutoMarkRead}" Margin="4,0,12,0">Auto-Mark Read</CheckBox>
+                <CheckBox Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Center"
+                          IsChecked="{Binding AutoMarkRead}" Margin="4,0,12,0">
+                    Auto-Mark Read
+                </CheckBox>
 
             </Grid>
         </Border>

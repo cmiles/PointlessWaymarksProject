@@ -76,7 +76,7 @@ While the GUI, approach, vision, scope, design and nearly every detail is differ
         });
     }
 
-    public AppSettingsContext AppSettingsTabContext { get; set; }
+    public AppSettingsContext? AppSettingsTabContext { get; set; }
     public FeedItemListContext? FeedItemListTabContext { get; set; }
     public FeedListContext? FeedListTabContext { get; set; }
     public HelpDisplayContext HelpTabContext { get; set; }

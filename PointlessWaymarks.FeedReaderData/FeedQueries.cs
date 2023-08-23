@@ -78,7 +78,7 @@ public static class FeedQueries
     {
         var db = await FeedContext.CreateInstance();
 
-        var items = await db.FeedItems.Where(x => x.MarkedRead != markRead).OrderBy(x => x.FeedTitle)
+        var items = await db.FeedItems.Where(x => x.MarkedRead != markRead && x.FeedPersistentId == feedId).OrderBy(x => x.FeedTitle)
             .Select(x => x.PersistentId).ToListAsync();
 
         await ItemRead(items, markRead);
@@ -168,7 +168,7 @@ public static class FeedQueries
 
         var newFeed = new ReaderFeed
         {
-            Name = feedInfo.Title,
+            Name = feedInfo.Title ?? (new Uri(cleanedUrl).GetLeftPart(UriPartial.Authority)),
             Url = cleanedUrl,
             FeedLastUpdatedDate = feedInfo.LastUpdatedDate
         };
@@ -213,9 +213,7 @@ public static class FeedQueries
             return toReturn;
         }
 
-        if (feedInfo == null) return toReturn;
-
-        toReturn.Name = feedInfo.Title;
+        toReturn.Name = feedInfo.Title ?? new Uri(cleanedUrl).GetLeftPart(UriPartial.Authority);
         toReturn.FeedLastUpdatedDate = feedInfo.LastUpdatedDate;
 
         return toReturn;
@@ -233,11 +231,12 @@ public static class FeedQueries
         var totalNewItemsCounter = 0;
         var totalExistingItemsCounter = 0;
 
-        var newItems = new List<Guid>();
         var returnErrors = new List<string>();
 
         foreach (var loopFeed in feeds)
         {
+            var newFeedItems = new List<Guid>();
+
             feedCounter++;
 
             progress.Report(
@@ -255,14 +254,6 @@ public static class FeedQueries
                 returnErrors.Add($"{loopFeed.Url} - {e.Message}");
                 Log.ForContext(nameof(loopFeed), loopFeed.SafeObjectDump())
                     .Error(e, "Error Updating Feed {feedUrl}", loopFeed.Url);
-                continue;
-            }
-
-            if (currentFeed == null)
-            {
-                returnErrors.Add($"{loopFeed.Url} - No Data");
-                Log.ForContext(nameof(loopFeed), loopFeed.SafeObjectDump())
-                    .Error("Null Return Updating Feed {feedUrl}", loopFeed.Url);
                 continue;
             }
 
@@ -333,15 +324,17 @@ public static class FeedQueries
 
                 await db.SaveChangesAsync();
 
-                newItems.Add(newFeedItem.PersistentId);
+                newFeedItems.Add(newFeedItem.PersistentId);
+
+
             }
 
             totalNewItemsCounter += newItemCounter;
             totalExistingItemsCounter += existingItemCounter;
-        }
 
-        DataNotifications.PublishDataNotification(LogTools.GetCaller(), DataNotificationContentType.FeedItem,
-            DataNotificationUpdateType.New, newItems);
+            DataNotifications.PublishDataNotification(LogTools.GetCaller(), DataNotificationContentType.FeedItem,
+                DataNotificationUpdateType.New, newFeedItems);
+        }
 
         return returnErrors;
     }

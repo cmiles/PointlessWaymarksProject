@@ -1,4 +1,4 @@
-﻿using System.ComponentModel;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Text.Json;
@@ -9,7 +9,6 @@ using MetadataExtractor;
 using MetadataExtractor.Formats.Xmp;
 using NetTopologySuite.Features;
 using Ookii.Dialogs.Wpf;
-using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.ContentHtml.GeoJsonHtml;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.FeatureIntersectionTags;

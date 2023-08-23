@@ -423,13 +423,13 @@ public partial class FeedItemListContext
 
     public async Task UpdateFeedItems(List<Guid> toUpdate)
     {
-        ThreadSwitcher.ResumeBackgroundAsync();
+        await ThreadSwitcher.ResumeBackgroundAsync();
 
         var db = await ContextDb.GetInstance();
 
         foreach (var loopContentIds in toUpdate)
         {
-            ThreadSwitcher.ResumeBackgroundAsync();
+            await ThreadSwitcher.ResumeBackgroundAsync();
 
             var listItem =
                 Items.SingleOrDefault(x => x.DbItem.PersistentId == loopContentIds);

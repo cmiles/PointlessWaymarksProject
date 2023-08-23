@@ -1,4 +1,4 @@
-﻿using System.ComponentModel;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Web;
@@ -8,7 +8,6 @@ using MetadataExtractor;
 using MetadataExtractor.Formats.Xmp;
 using NetTopologySuite.Features;
 using NetTopologySuite.Geometries;
-using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.GeoTaggingService;
 using PointlessWaymarks.GeoToolsGui.Messages;

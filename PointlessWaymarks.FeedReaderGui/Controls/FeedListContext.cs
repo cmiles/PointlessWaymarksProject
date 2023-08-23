@@ -310,7 +310,8 @@ public partial class FeedListContext
                 await ThreadSwitcher.ResumeForegroundAsync();
 
                 var toRemove = Items
-                    .Where(x => interProcessUpdateNotification.ContentIds.Contains(x.DbReaderFeed.PersistentId)).ToList();
+                    .Where(x => interProcessUpdateNotification.ContentIds.Contains(x.DbReaderFeed.PersistentId))
+                    .ToList();
                 toRemove.ForEach(x => Items.Remove(x));
                 return;
             }
@@ -346,7 +347,8 @@ public partial class FeedListContext
         }
 
         var errors =
-            await FeedQueries.UpdateFeeds(SelectedItem.DbReaderFeed.PersistentId.AsList(), StatusContext.ProgressTracker());
+            await FeedQueries.UpdateFeeds(SelectedItem.DbReaderFeed.PersistentId.AsList(),
+                StatusContext.ProgressTracker());
         foreach (var loopError in errors) StatusContext.ToastError(loopError);
     }
 
@@ -358,7 +360,8 @@ public partial class FeedListContext
 
         var db = await ContextDb.GetInstance();
 
-        var initialItems = (await db.Feeds.ToListAsync()).Select(x => new FeedListListItem { DbReaderFeed = x }).ToList();
+        var initialItems = (await db.Feeds.ToListAsync()).Select(x => new FeedListListItem { DbReaderFeed = x })
+            .ToList();
 
         var feedCounts = await db.FeedItems.GroupBy(x => x.FeedPersistentId)
             .Select(x => new { FeedPersistentId = x.Key, AllFeedItemsCount = x.Count() }).ToListAsync();
@@ -370,7 +373,8 @@ public partial class FeedListContext
 
         foreach (var loopItem in initialItems)
         {
-            loopItem.ItemsCount = feedCounts.SingleOrDefault(x => x.FeedPersistentId == loopItem.DbReaderFeed.PersistentId)
+            loopItem.ItemsCount = feedCounts
+                .SingleOrDefault(x => x.FeedPersistentId == loopItem.DbReaderFeed.PersistentId)
                 ?.AllFeedItemsCount ?? 0;
             loopItem.UnreadItemsCount = unReadFeedCounts
                 .SingleOrDefault(x => x.FeedPersistentId == loopItem.DbReaderFeed.PersistentId)?.UnreadItemsCount ?? 0;
@@ -417,7 +421,7 @@ public partial class FeedListContext
 
         foreach (var loopContentIds in toUpdate)
         {
-            ThreadSwitcher.ResumeBackgroundAsync();
+            await ThreadSwitcher.ResumeBackgroundAsync();
 
             var listItem =
                 Items.SingleOrDefault(x => x.DbReaderFeed.PersistentId == loopContentIds);
