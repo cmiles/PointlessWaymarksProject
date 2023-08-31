@@ -11,7 +11,7 @@ The Pointless Waymarks projects contains:
   - Tasks/Console Apps to support the Pointless Waymarks CMS including Memories Email, Photo Pickup and Garmin Connect Gpx Download (described below)
   - The Pointless Waymarks GeoTools - [README with Description and Screen Shots](PointlessWaymarks.GeoToolsGui/README.md) - a WPF GUI for GeoTagging and Feature Intersect Tagging Photographs and managing Garmin Connect Downloads.
   - [Pointless Waymarks Cloud Backup](PointlessWaymarks.CloudBackupEditorGui/README.md) - A backup program to mirror your local files to Amazon S3 with a job editor, reporting and easy to schedule command line runner.
-  - [Pointless Waymarks Feed Reader](PointlessWaymarks.FeedReaderGui/README.md) - A Windows Desktop Feed Reader
+  - [Pointless Waymarks Feed Reader](PointlessWaymarks.FeedReaderGui/README.MD) - A Windows Desktop Feed Reader
 
 Todo Lists, Idea Lists and a Development Log are [found in a DevNotes.md file that is versioned along with the code](/DevNotes.md).
 
