@@ -269,9 +269,18 @@ public partial class FeedItemListContext
                     await ContextDb.ItemRead(SelectedItem.DbItem.PersistentId.AsList(), true);
                 });
 
-            DisplayUrl = string.IsNullOrWhiteSpace(SelectedItem?.DbItem.Link)
-                ? "about:blank"
-                : SelectedItem.DbItem.Link;
+            try
+            {
+                DisplayUrl = string.IsNullOrWhiteSpace(SelectedItem?.DbItem.Link)
+                    ? "about:blank"
+                    : SelectedItem.DbItem.Link;
+            }
+            catch (Exception exception)
+            {
+                Log.Error(exception, "Error With Display URL in the FeedItemListContext");
+                DisplayUrl = "about:blank";
+            }
+
         }
     }
 
