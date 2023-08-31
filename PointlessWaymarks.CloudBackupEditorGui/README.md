@@ -1,5 +1,9 @@
 # Pointless Waymarks - Cloud Backup
 
+The Pointless Waymarks Cloud Backup is part of the [Pointless Waymarks Project](https://github.com/cmiles/PointlessWaymarksProject).
+
+*At this point there are no public installers/releases from the Pointless Waymarks Project - the code is MIT Licensed made public on GitHub to share with friends, colleagues and anyone who finds the code interesting or useful. This project is probably only suitable for use if you enjoy debugging and working on code!*
+
 There is some obvious absurdity in writing your own backup program - so many backup and sync programs already exist that it feels pointless to even try to make a list of them... But regardless I didn't quite find what I was looking for and enjoy writing software so I wrote my own! Goals/Reasons/Features/Ideas:
 - Backup to a Cloud Storage Service that is widely accessible - in an unhappy situation you should be able to access your backup with a wide variety of tools, platforms and programs.
 - Backup to an Easily Browsable File System - the backup should be directly viewable and easily browsable without any special software.

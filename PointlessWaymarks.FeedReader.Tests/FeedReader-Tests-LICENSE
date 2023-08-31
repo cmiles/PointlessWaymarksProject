@@ -1,3 +1,8 @@
+Code originally from:
+GitHub - arminreiter/FeedReader: C# RSS and ATOM Feed reader library. 
+Supports RSS 0.91, 0.92, 1.0, 2.0 and ATOM. Tested with multiple languages and feeds.
+https://github.com/arminreiter/FeedReader
+
 MIT License
 
 Copyright (c) 2017 Armin Reiter

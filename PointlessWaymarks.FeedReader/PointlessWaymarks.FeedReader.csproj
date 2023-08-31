@@ -9,4 +9,9 @@
         <PackageProjectUrl>https://github.com/arminreiter/FeedReader/</PackageProjectUrl>
         <RepositoryUrl>https://github.com/arminreiter/FeedReader/</RepositoryUrl>
     </PropertyGroup>
+    <ItemGroup>
+      <None Update="FeedReader-LICENSE">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+    </ItemGroup>
 </Project>

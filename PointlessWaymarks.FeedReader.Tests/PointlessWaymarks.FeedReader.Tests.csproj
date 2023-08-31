@@ -11,6 +11,9 @@
         <ProjectReference Include="..\PointlessWaymarks.FeedReader\PointlessWaymarks.FeedReader.csproj" />
     </ItemGroup>
     <ItemGroup>
+      <None Update="FeedReader-Tests-LICENSE">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
       <None Update="Feeds\AtomAdobe.xml">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </None>
