@@ -57,7 +57,7 @@ public partial class BatchListListItem
             DeletesWithErrorNoteSize = batch.CloudDeletions.Where(x => !string.IsNullOrWhiteSpace(x.ErrorMessage)).Sum(x => x.FileSize)
         };
 
-        toReturn.SizeCompletedPercentage = (decimal) toReturn.UploadsCompleteSize / toReturn.UploadSize;
+        toReturn.SizeCompletedPercentage = toReturn.UploadSize == 0 ? 1M : (decimal) toReturn.UploadsCompleteSize / toReturn.UploadSize;
         
         return toReturn;
     }
