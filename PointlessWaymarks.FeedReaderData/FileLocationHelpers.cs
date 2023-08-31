@@ -16,4 +16,17 @@ public static class FileLocationHelpers
 
         return directory;
     }
+
+    public static DirectoryInfo DefaultSavedFeedItemScreenShotsDirectory()
+    {
+        var directory =
+            new DirectoryInfo(Path.Combine(DefaultStorageDirectory().FullName,
+                "Saved Feed Item Screen Shots"));
+
+        if (!directory.Exists) directory.Create();
+
+        directory.Refresh();
+
+        return directory;
+    }
 }

@@ -22,7 +22,7 @@ namespace PointlessWaymarks.FeedReaderGui.Controls;
 [GenerateStatusCommands]
 public partial class FeedListContext
 {
-    public required DbReference ContextDb { get; init; }
+    public required FeedQueries ContextDb { get; init; }
     public DataNotificationsWorkQueue? DataNotificationsProcessor { get; set; }
     public required ObservableCollection<FeedListListItem> Items { get; init; }
     public required ColumnSortControlContext ListSort { get; init; }
@@ -41,7 +41,7 @@ public partial class FeedListContext
             return;
         }
 
-        await FeedQueries.ArchiveFeed(SelectedItem.DbReaderFeed.PersistentId, StatusContext.ProgressTracker());
+        await ContextDb.ArchiveFeed(SelectedItem.DbReaderFeed.PersistentId, StatusContext.ProgressTracker());
     }
 
 
@@ -53,13 +53,13 @@ public partial class FeedListContext
 
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        var dbReference = new DbReference { DbFileFullName = dbFile };
+        var FeedQueries = new FeedQueries { DbFileFullName = dbFile };
 
         var newContext = new FeedListContext
         {
             StatusContext = statusContext,
             Items = newItems,
-            ContextDb = dbReference,
+            ContextDb = FeedQueries,
             ListSort = new ColumnSortControlContext
             {
                 Items = new List<ColumnSortControlSortItem>
@@ -246,7 +246,7 @@ public partial class FeedListContext
 
         foreach (var loopUrl in urls)
         {
-            var addResult = await FeedQueries.TryAddFeed(loopUrl, StatusContext.ProgressTracker());
+            var addResult = await ContextDb.TryAddFeed(loopUrl, StatusContext.ProgressTracker());
             addResult.Switch(_ => StatusContext.ToastSuccess($"Added {loopUrl}"),
                 x => StatusContext.ToastError(x.Value));
         }
@@ -259,7 +259,7 @@ public partial class FeedListContext
 
         if (listItem?.DbReaderFeed == null) return;
 
-        await FeedQueries.FeedAllItemsRead(listItem.DbReaderFeed.PersistentId, true);
+        await ContextDb.FeedAllItemsRead(listItem.DbReaderFeed.PersistentId, true);
     }
 
     [NonBlockingCommand]
@@ -269,7 +269,7 @@ public partial class FeedListContext
 
         if (listItem?.DbReaderFeed == null) return;
 
-        await FeedQueries.FeedAllItemsRead(listItem.DbReaderFeed.PersistentId, false);
+        await ContextDb.FeedAllItemsRead(listItem.DbReaderFeed.PersistentId, false);
     }
 
     [BlockingCommand]
@@ -277,7 +277,7 @@ public partial class FeedListContext
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        var feedItem = await FeedQueries.TryGetFeed(UserAddFeedInput, StatusContext.ProgressTracker());
+        var feedItem = await ContextDb.TryGetFeed(UserAddFeedInput, StatusContext.ProgressTracker());
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
@@ -331,7 +331,7 @@ public partial class FeedListContext
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        var errors = await FeedQueries.UpdateFeeds(StatusContext.ProgressTracker());
+        var errors = await ContextDb.UpdateFeeds(StatusContext.ProgressTracker());
         foreach (var loopError in errors) StatusContext.ToastError(loopError);
     }
 
@@ -347,7 +347,7 @@ public partial class FeedListContext
         }
 
         var errors =
-            await FeedQueries.UpdateFeeds(SelectedItem.DbReaderFeed.PersistentId.AsList(),
+            await ContextDb.UpdateFeeds(SelectedItem.DbReaderFeed.PersistentId.AsList(),
                 StatusContext.ProgressTracker());
         foreach (var loopError in errors) StatusContext.ToastError(loopError);
     }
@@ -405,7 +405,7 @@ public partial class FeedListContext
             return;
         }
 
-        var result = await FeedQueries.TryAddFeed(UserAddFeedInput, StatusContext.ProgressTracker());
+        var result = await ContextDb.TryAddFeed(UserAddFeedInput, StatusContext.ProgressTracker());
 
         result.Switch(_ => StatusContext.ToastSuccess($"Added Feed for {UserAddFeedInput}"),
             error => StatusContext.ToastError(error.Value));

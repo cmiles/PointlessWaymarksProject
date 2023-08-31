@@ -20,6 +20,9 @@
             <TabItem Header="Feeds">
                 <controls:FeedListControl DataContext="{Binding FeedListTabContext}" />
             </TabItem>
+            <TabItem Header="Saved Items">
+                <controls:SavedFeedItemListControl DataContext="{Binding SavedFeedItemListTabContext}" />
+            </TabItem>
             <TabItem Header="App Settings">
                 <controls:AppSettingsControl DataContext="{Binding AppSettingsTabContext}" />
             </TabItem>
@@ -27,7 +30,7 @@
                 <markdownDisplay:HelpDisplayControl DataContext="{Binding HelpTabContext}" />
             </TabItem>
         </TabControl>
-        <Menu HorizontalAlignment="Left" Margin="300,2,4,0"  VerticalAlignment="Top">
+        <Menu HorizontalAlignment="Left" Margin="400,2,4,0"  VerticalAlignment="Top">
             <MenuItem Header="File" Width="90" FontWeight="DemiBold">
                 <MenuItem Command="{Binding PickNewDatabaseCommand}" Header="Choose New DB"></MenuItem>
                 <MenuItem Command="{Binding NewDatabaseCommand}" Header="Start New Database"></MenuItem>

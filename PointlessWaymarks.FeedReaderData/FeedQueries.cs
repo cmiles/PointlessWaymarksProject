@@ -5,17 +5,25 @@ using Omu.ValueInjecter;
 using OneOf;
 using OneOf.Types;
 using PointlessWaymarks.CommonTools;
+using PointlessWaymarks.FeedReader;
 using PointlessWaymarks.FeedReaderData.Models;
 using Serilog;
 using static PointlessWaymarks.FeedReader.Reader;
 
 namespace PointlessWaymarks.FeedReaderData;
 
-public static class FeedQueries
+public class FeedQueries
 {
-    public static async Task ArchiveFeed(Guid feedPersistentId, IProgress<string> progress)
+    /// <summary>
+    ///     Db file when the editor context is created - this allows the editor
+    ///     to refer to the originating file even if another view has switched
+    ///     to another db.
+    /// </summary>
+    public string DbFileFullName { get; init; } = string.Empty;
+
+    public async Task ArchiveFeed(Guid feedPersistentId, IProgress<string> progress)
     {
-        var db = await FeedContext.CreateInstance();
+        var db = await GetInstance();
         var toArchive = await db.Feeds.SingleOrDefaultAsync(x => x.PersistentId == feedPersistentId);
 
         if (toArchive is null)
@@ -74,19 +82,55 @@ public static class FeedQueries
             DataNotificationUpdateType.Delete, historicFeed.PersistentId.AsList());
     }
 
-    public static async Task FeedAllItemsRead(Guid feedId, bool markRead)
+    public async Task ArchiveSavedItems(List<Guid> toArchive)
     {
-        var db = await FeedContext.CreateInstance();
+        if (!toArchive.Any()) return;
 
-        var items = await db.FeedItems.Where(x => x.MarkedRead != markRead && x.FeedPersistentId == feedId).OrderBy(x => x.FeedTitle)
+        var db = await GetInstance();
+
+        var toArchiveDbItems = await db.SavedFeedItems.Where(x => toArchive.Contains(x.PersistentId)).ToListAsync();
+
+        foreach (var loopItem in toArchiveDbItems)
+        {
+            var archiveItem = new HistoricSavedFeedItem();
+            archiveItem.InjectFrom(loopItem);
+
+            db.HistoricSavedFeedItems.Add(archiveItem);
+            db.SavedFeedItems.Remove(loopItem);
+
+            await db.SaveChangesAsync();
+
+            DataNotifications.PublishDataNotification(LogTools.GetCaller(), DataNotificationContentType.SavedFeedItem,
+                DataNotificationUpdateType.Delete, archiveItem.PersistentId.AsList());
+        }
+    }
+
+    public async Task FeedAllItemsRead(Guid feedId, bool markRead)
+    {
+        var db = await GetInstance();
+
+        var items = await db.FeedItems.Where(x => x.MarkedRead != markRead && x.FeedPersistentId == feedId)
+            .OrderBy(x => x.Title)
             .Select(x => x.PersistentId).ToListAsync();
 
         await ItemRead(items, markRead);
     }
 
-    public static async Task ItemKeepUnreadToggle(List<Guid> itemIds)
+    /// <summary>
+    ///     Use this to get the FeedContext Db with the DbFile value set when the
+    ///     editor was created. This will ensure that even if the main/another view
+    ///     has switched db files that the editor correctly refers to the originating
+    ///     file.
+    /// </summary>
+    /// <returns></returns>
+    public async Task<FeedContext> GetInstance()
     {
-        var db = await FeedContext.CreateInstance();
+        return await FeedContext.CreateInstance(DbFileFullName);
+    }
+
+    public async Task ItemKeepUnreadToggle(List<Guid> itemIds)
+    {
+        var db = await GetInstance();
 
         var updateList = new List<Guid>();
 
@@ -108,9 +152,9 @@ public static class FeedQueries
             DataNotificationUpdateType.Update, updateList);
     }
 
-    public static async Task ItemRead(List<Guid> itemIds, bool markRead)
+    public async Task ItemRead(List<Guid> itemIds, bool markRead)
     {
-        var db = await FeedContext.CreateInstance();
+        var db = await GetInstance();
 
         var updateList = new List<Guid>();
 
@@ -144,18 +188,54 @@ public static class FeedQueries
             DataNotificationUpdateType.Update, updateList);
     }
 
-    public static async Task<OneOf<Success, Error<string>>> TryAddFeed(string url, IProgress<string> progress)
+    public async Task SaveFeedItems(List<Guid> toSave)
+    {
+        var db = await GetInstance();
+
+        var toSaveDbItems = await db.FeedItems.Where(x => toSave.Contains(x.PersistentId)).ToListAsync();
+
+        foreach (var loopItem in toSaveDbItems)
+        {
+            var loopItemFeedItem =
+                await db.Feeds.SingleOrDefaultAsync(x => x.PersistentId == loopItem.FeedPersistentId);
+
+            var toAdd = new SavedFeedItem()
+            {
+                Author = loopItem.Author,
+                Content = loopItem.Content,
+                CreatedOn = loopItem.CreatedOn,
+                Description = loopItem.Description,
+                FeedItemId = loopItem.FeedItemId,
+                FeedItemPersistentId = loopItem.FeedPersistentId,
+                FeedPersistentId = loopItem.FeedPersistentId,
+                FeedTitle = loopItemFeedItem?.Name ?? string.Empty,
+                Link = loopItem.Link,
+                PersistentId = loopItem.PersistentId,
+                PublishingDate = loopItem.PublishingDate,
+                Title = loopItem.Title
+            };
+
+            db.SavedFeedItems.Add(toAdd);
+
+            await db.SaveChangesAsync();
+
+            DataNotifications.PublishDataNotification(LogTools.GetCaller(), DataNotificationContentType.SavedFeedItem,
+                DataNotificationUpdateType.New, toAdd.PersistentId.AsList());
+        }
+    }
+
+    public async Task<OneOf<Success, Error<string>>> TryAddFeed(string url, IProgress<string> progress)
     {
         if (string.IsNullOrEmpty(url)) return new Error<string>("Feed to Add Url is Blank?");
 
-        var db = await FeedContext.CreateInstance();
+        var db = await GetInstance();
 
         var cleanedUrl = url.Trim();
 
         if ((await db.Feeds.ToListAsync()).Any(x => x.Url.Equals(cleanedUrl, StringComparison.OrdinalIgnoreCase)))
             return new Error<string>("Feed already exists?");
 
-        FeedReader.Feed feedInfo;
+        Feed feedInfo;
 
         try
         {
@@ -168,7 +248,7 @@ public static class FeedQueries
 
         var newFeed = new ReaderFeed
         {
-            Name = feedInfo.Title ?? (new Uri(cleanedUrl).GetLeftPart(UriPartial.Authority)),
+            Name = feedInfo.Title ?? new Uri(cleanedUrl).GetLeftPart(UriPartial.Authority),
             Url = cleanedUrl,
             FeedLastUpdatedDate = feedInfo.LastUpdatedDate
         };
@@ -192,7 +272,7 @@ public static class FeedQueries
     /// <param name="url"></param>
     /// <param name="progress"></param>
     /// <returns></returns>
-    public static async Task<ReaderFeed> TryGetFeed(string url, IProgress<string> progress)
+    public async Task<ReaderFeed> TryGetFeed(string url, IProgress<string> progress)
     {
         var toReturn = new ReaderFeed();
 
@@ -202,7 +282,7 @@ public static class FeedQueries
 
         toReturn.Url = cleanedUrl;
 
-        FeedReader.Feed? feedInfo;
+        Feed? feedInfo;
 
         try
         {
@@ -219,9 +299,9 @@ public static class FeedQueries
         return toReturn;
     }
 
-    public static async Task<List<string>> UpdateFeeds(List<Guid> toUpdate, IProgress<string> progress)
+    public async Task<List<string>> UpdateFeeds(List<Guid> toUpdate, IProgress<string> progress)
     {
-        var db = await FeedContext.CreateInstance();
+        var db = await GetInstance();
 
         var feeds = await db.Feeds.Where(x => toUpdate.Contains(x.PersistentId)).OrderBy(x => x.Name).ToListAsync();
 
@@ -242,8 +322,8 @@ public static class FeedQueries
             progress.Report(
                 $"Feed {loopFeed.Name} - {feedCounter} of {feeds.Count} - {totalNewItemsCounter} New, {totalExistingItemsCounter} Existing");
 
-            FeedReader.Feed? currentFeed;
-            List<FeedReader.FeedItem> currentFeedItems;
+            Feed? currentFeed;
+            List<FeedItem> currentFeedItems;
 
             try
             {
@@ -298,7 +378,8 @@ public static class FeedQueries
                     continue;
                 }
 
-                if (db.FeedItems.Any(x => x.FeedPersistentId == loopFeed.PersistentId && x.FeedId == correctedFeedId))
+                if (db.FeedItems.Any(
+                        x => x.FeedPersistentId == loopFeed.PersistentId && x.FeedItemId == correctedFeedId))
                 {
                     existingItemCounter++;
                     continue;
@@ -310,13 +391,13 @@ public static class FeedQueries
                 {
                     CreatedOn = DateTime.Now,
                     FeedPersistentId = loopFeed.PersistentId,
-                    FeedContent = loopFeedItem.Content,
-                    FeedId = correctedFeedId,
-                    FeedTitle = loopFeedItem.Title,
-                    FeedAuthor = loopFeedItem.Author,
-                    FeedPublishingDate = loopFeedItem.PublishingDate ?? DateTime.Now,
-                    FeedDescription = loopFeedItem.Description,
-                    FeedLink = loopFeedItem.Link,
+                    Content = loopFeedItem.Content,
+                    FeedItemId = correctedFeedId,
+                    Title = loopFeedItem.Title,
+                    Author = loopFeedItem.Author,
+                    PublishingDate = loopFeedItem.PublishingDate ?? DateTime.Now,
+                    Description = loopFeedItem.Description,
+                    Link = loopFeedItem.Link,
                     PersistentId = Guid.NewGuid()
                 };
 
@@ -325,8 +406,6 @@ public static class FeedQueries
                 await db.SaveChangesAsync();
 
                 newFeedItems.Add(newFeedItem.PersistentId);
-
-
             }
 
             totalNewItemsCounter += newItemCounter;
@@ -339,9 +418,9 @@ public static class FeedQueries
         return returnErrors;
     }
 
-    public static async Task<List<string>> UpdateFeeds(IProgress<string> progress)
+    public async Task<List<string>> UpdateFeeds(IProgress<string> progress)
     {
-        var db = await FeedContext.CreateInstance();
+        var db = await GetInstance();
 
         var feedIds = await db.Feeds.OrderBy(x => x.Name).Select(x => x.PersistentId).ToListAsync();
 

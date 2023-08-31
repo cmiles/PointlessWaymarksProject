@@ -9,40 +9,35 @@ namespace PointlessWaymarks.FeedReaderData;
 
 public class FeedContext : DbContext
 {
-    public static string CurrentDatabaseFileName = string.Empty;
-
     public FeedContext(DbContextOptions<FeedContext> options) : base(options)
     {
     }
 
-    public DbSet<ReaderFeed> Feeds { get; set; } = null!;
-
     public DbSet<ReaderFeedItem> FeedItems { get; set; } = null!;
 
-    public DbSet<HistoricReaderFeed> HistoricFeeds { get; set; } = null!;
+    public DbSet<ReaderFeed> Feeds { get; set; } = null!;
 
     public DbSet<HistoricReaderFeedItem> HistoricFeedItems { get; set; } = null!;
 
-    public static async Task<FeedContext> CreateInstance()
-    {
-        return await CreateInstance(CurrentDatabaseFileName);
-    }
+    public DbSet<HistoricReaderFeed> HistoricFeeds { get; set; } = null!;
 
-    public static Task<FeedContext> CreateInstance(string fileName, bool setFileNameAsCurrentDb = true)
+    public DbSet<HistoricSavedFeedItem> HistoricSavedFeedItems { get; set; } = null!;
+
+    public DbSet<SavedFeedItem> SavedFeedItems { get; set; } = null!;
+
+
+    public static Task<FeedContext> CreateInstance(string fileName)
     {
         // https://github.com/aspnet/EntityFrameworkCore/issues/9994#issuecomment-508588678
         Batteries_V2.Init();
         raw.sqlite3_config(2 /*SQLITE_CONFIG_MULTITHREAD*/);
         var optionsBuilder = new DbContextOptionsBuilder<FeedContext>();
 
-        if (setFileNameAsCurrentDb) CurrentDatabaseFileName = fileName;
-
         return Task.FromResult(new FeedContext(optionsBuilder
             .UseSqlite($"Data Source={fileName}").Options));
     }
 
-    public static async Task<FeedContext> CreateInstanceWithEnsureCreated(string fileName,
-        bool setFileNameAsCurrentDb = true)
+    public static async Task<FeedContext> CreateInstanceWithEnsureCreated(string fileName)
     {
         if (File.Exists(fileName))
         {
@@ -60,7 +55,7 @@ public class FeedContext : DbContext
             runner.MigrateUp();
         }
 
-        var context = await CreateInstance(fileName, setFileNameAsCurrentDb);
+        var context = await CreateInstance(fileName);
         await context.Database.EnsureCreatedAsync();
 
         return context;
@@ -70,10 +65,8 @@ public class FeedContext : DbContext
     ///     Use TryCreateInstance to test whether an input file is a valid db.
     /// </summary>
     /// <param name="fileName"></param>
-    /// <param name="setFileNameAsCurrentDb"></param>
     /// <returns></returns>
-    public static Task<(bool success, string message, FeedContext? context)> TryCreateInstance(string fileName,
-        bool setFileNameAsCurrentDb = true)
+    public static Task<(bool success, string message, FeedContext? context)> TryCreateInstance(string fileName)
     {
         var newFileInfo = new FileInfo(fileName);
 
@@ -119,8 +112,6 @@ public class FeedContext : DbContext
             return Task.FromResult<(bool success, string message, FeedContext? context)>(
                 (false, e.Message, null));
         }
-
-        if (setFileNameAsCurrentDb) CurrentDatabaseFileName = fileName;
 
         return Task.FromResult<(bool success, string message, FeedContext? context)>((true, string.Empty, db));
     }

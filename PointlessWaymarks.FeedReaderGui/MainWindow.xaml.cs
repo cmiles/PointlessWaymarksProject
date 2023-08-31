@@ -1,5 +1,4 @@
 using System.IO;
-using DocumentFormat.OpenXml.Wordprocessing;
 using Ookii.Dialogs.Wpf;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.FeedReaderData;
@@ -23,18 +22,18 @@ public partial class MainWindow
 {
     public readonly string HelpText =
         """
-## Pointless Waymarks Feed Reader
+        ## Pointless Waymarks Feed Reader
 
-The Pointless Waymarks Feed Reader is a Windows Desktop (only!) Feed Reader. The program uses a SQLite database to store data about Feeds and Feed Items. The emphasis in this program is NOT displaying the RSS Content in a feed, but rather displaying the URL the Feed Links to.
+        The Pointless Waymarks Feed Reader is a Windows Desktop (only!) Feed Reader. The program uses a SQLite database to store data about Feeds and Feed Items. The emphasis in this program is NOT displaying the RSS Content in a feed, but rather displaying the URL the Feed Links to.
 
-There are a number of great options for Feed (RSS) Readers - so why write another one is a good question...
- - Windows Desktop Only: After many years of RSS use my strong preference is that I don't want to read feeds all the time everywhere! Also I like: sitting in front of a desktop computer with a big screen (or screens!), desktop programs, owning my own data, keeping my data local and I like that I can't sit in front of the computer all day both because of 'life' and because I know how terrible that is for me...
- - Emphasize Displaying Linked Content Not the Feed Content: Feeds are just data and can be used in an awesome number of ways - but the convention is that a Feed Item links to content and I just want to see the content, in full... 
- - Simple Feed List: I wonder at this point if I have spent a full day of my life organizing and tweaking the display of Feeds/Folders in Feed Readers? Clicking/unclicking/manipulating tree like structures of Feeds... I'm interested in a simpler display of Feeds that removes the temptation to fiddle and presents fewer options.
- - Joy! I love the art and craft of writing software and I love the feeling of using software that directly addresses my needs/wants/workflow/ideas.
+        There are a number of great options for Feed (RSS) Readers - so why write another one is a good question...
+         - Windows Desktop Only: After many years of RSS use my strong preference is that I don't want to read feeds all the time everywhere! Also I like: sitting in front of a desktop computer with a big screen (or screens!), desktop programs, owning my own data, keeping my data local and I like that I can't sit in front of the computer all day both because of 'life' and because I know how terrible that is for me...
+         - Emphasize Displaying Linked Content Not the Feed Content: Feeds are just data and can be used in an awesome number of ways - but the convention is that a Feed Item links to content and I just want to see the content, in full...
+         - Simple Feed List: I wonder at this point if I have spent a full day of my life organizing and tweaking the display of Feeds/Folders in Feed Readers? Clicking/unclicking/manipulating tree like structures of Feeds... I'm interested in a simpler display of Feeds that removes the temptation to fiddle and presents fewer options.
+         - Joy! I love the art and craft of writing software and I love the feeling of using software that directly addresses my needs/wants/workflow/ideas.
 
-While the GUI, approach, vision, scope, design and nearly every detail is different this program will always be based on my memories of using [FeedDemon](https://nick.typepad.com/blog/2013/03/the-end-of-feeddemon.html) especially in the late 2000s!
-""";
+        While the GUI, approach, vision, scope, design and nearly every detail is different this program will always be based on my memories of using [FeedDemon](https://nick.typepad.com/blog/2013/03/the-end-of-feeddemon.html) especially in the late 2000s!
+        """;
 
     public MainWindow()
     {
@@ -51,7 +50,7 @@ While the GUI, approach, vision, scope, design and nearly every detail is differ
                 "Pointless Waymarks Feed Reader Beta");
 
         InfoTitle = versionInfo.humanTitleString;
-        
+
         var currentDateVersion = versionInfo.dateVersion;
 
         StatusContext = new StatusControlContext { BlockUi = false };
@@ -81,6 +80,8 @@ While the GUI, approach, vision, scope, design and nearly every detail is differ
     public FeedListContext? FeedListTabContext { get; set; }
     public HelpDisplayContext HelpTabContext { get; set; }
     public string InfoTitle { get; set; }
+
+    public SavedFeedItemListContext SavedFeedItemListTabContext { get; set; }
     public StatusControlContext StatusContext { get; set; }
     public ProgramUpdateMessageContext UpdateMessageContext { get; set; }
 
@@ -118,12 +119,10 @@ While the GUI, approach, vision, scope, design and nearly every detail is differ
                 new List<string> { "New", "Choose a File" });
 
             if (nextAction.Equals("New"))
-            {
                 return UniqueFileTools.UniqueFile(
                                FileLocationHelpers.DefaultStorageDirectory(), "PointlessWaymarks-FeedReader.db")
                            ?.FullName ??
                        string.Empty;
-            }
 
             if (nextAction.Equals("Choose a File"))
             {
@@ -188,15 +187,14 @@ While the GUI, approach, vision, scope, design and nearly every detail is differ
         if (string.IsNullOrWhiteSpace(dbFileName))
         {
             dbFileName = UniqueFileTools.UniqueFile(
-                             FileLocationHelpers.DefaultStorageDirectory(), "PointlessWaymarks-FeedReader.db")
-                         ?.FullName ??
+                                 FileLocationHelpers.DefaultStorageDirectory(), "PointlessWaymarks-FeedReader.db")
+                             ?.FullName ??
                          string.Empty;
             await FeedContext.CreateInstanceWithEnsureCreated(dbFileName);
         }
 
         dbFileName = await DbIsValidCheckWithUserInteraction(dbFileName);
 
-        FeedContext.CurrentDatabaseFileName = dbFileName;
         settings.LastDatabaseFile = dbFileName;
 
         await FeedReaderGuiSettingTools.WriteSettings(settings);
@@ -209,6 +207,7 @@ While the GUI, approach, vision, scope, design and nearly every detail is differ
 
         FeedItemListTabContext = await FeedItemListContext.CreateInstance(StatusContext, dbFileName);
         FeedListTabContext = await FeedListContext.CreateInstance(StatusContext, dbFileName);
+        SavedFeedItemListTabContext = await SavedFeedItemListContext.CreateInstance(StatusContext, dbFileName);
         AppSettingsTabContext = new AppSettingsContext();
     }
 
@@ -263,11 +262,13 @@ While the GUI, approach, vision, scope, design and nearly every detail is differ
             return;
         }
 
-        var dbTry = await FeedContext.TryCreateInstance(uniqueFileName.FullName, false);
-
-        if (!dbTry.success)
+        try
         {
-            StatusContext.ToastError($"Problem with File... {dbTry.message}");
+            var dbTry = await FeedContext.CreateInstanceWithEnsureCreated(uniqueFileName.FullName);
+        }
+        catch (Exception e)
+        {
+            StatusContext.ToastError($"Problem with File... {e.Message}");
             return;
         }
 

@@ -22,7 +22,7 @@ namespace PointlessWaymarks.FeedReaderGui.Controls;
 public partial class FeedEditorContext : IHasChanges, IHasValidationIssues,
     ICheckForChangesAndValidation
 {
-    public required DbReference ContextDb { get; init; }
+    public required FeedQueries ContextDb { get; init; }
     public DataNotificationsWorkQueue? DataNotificationsProcessor { get; set; }
     public required ReaderFeed DbReaderFeedItem { get; set; }
     public int DbKeptUnReadFeedItems { get; set; }
@@ -104,7 +104,7 @@ URL Parse Result: When you update the URL (or use the Refresh Button) the progra
     {
         feedItem ??= new ReaderFeed();
 
-        var dbReference = new DbReference() { DbFileFullName = dbFile };
+        var FeedQueries = new FeedQueries() { DbFileFullName = dbFile };
 
         var userNameEntry = StringDataEntryContext.CreateInstance();
         userNameEntry.Title = "Name";
@@ -160,7 +160,7 @@ URL Parse Result: When you update the URL (or use the Refresh Button) the progra
             UserNoteEntry = userNoteEntry,
             UserUrlEntry = userUrlEntry,
             UserTagsEntry = userTagEntry,
-            ContextDb = dbReference
+            ContextDb = FeedQueries
         };
 
         newContext.UserUrlEntry.ValidationFunctions = new List<Func<string?, Task<IsValid>>>
@@ -288,7 +288,7 @@ URL Parse Result: When you update the URL (or use the Refresh Button) the progra
             DataNotifications.PublishDataNotification(LogTools.GetCaller(), DataNotificationContentType.Feed,
                 DataNotificationUpdateType.Update, DbReaderFeedItem.PersistentId.AsList());
 
-            await FeedQueries.UpdateFeeds(DbReaderFeedItem.PersistentId.AsList(), StatusContext.ProgressTracker());
+            await ContextDb.UpdateFeeds(DbReaderFeedItem.PersistentId.AsList(), StatusContext.ProgressTracker());
         }
         else
         {

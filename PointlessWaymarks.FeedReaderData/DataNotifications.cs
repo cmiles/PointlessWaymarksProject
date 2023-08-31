@@ -111,5 +111,6 @@ public enum DataNotificationContentType
 {
     FeedItem,
     Feed,
+    SavedFeedItem,
     Unknown
 }
