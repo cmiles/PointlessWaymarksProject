@@ -11,14 +11,15 @@ public static class BatchReportToExcel
 
         var newExcelFile = new XLWorkbook();
 
+        var db = await CloudBackupContext.CreateInstance();
+        var batch = db.CloudTransferBatches.Single(x => x.Id == batchId);
+        var job = batch.Job!;
+
         await BatchUploadsToExcel.AddWorksheet(newExcelFile, batchId, progress);
         await BatchDeletesToExcel.AddWorksheet(newExcelFile, batchId, progress);
         await BatchLocalFilesToExcel.AddWorksheet(newExcelFile, batchId, progress);
         await BatchCloudFilesToExcel.AddWorksheet(newExcelFile, batchId, progress);
-
-        var db = await CloudBackupContext.CreateInstance();
-        var batch = db.CloudTransferBatches.Single(x => x.Id == batchId);
-        var job = batch.Job!;
+        await CloudCacheFilesToExcel.AddWorksheet(newExcelFile, job.Id, progress);
 
         var file = new FileInfo(Path.Combine(FileLocationHelpers.ReportsDirectory().FullName,
             $"{DateTime.Now:yyyy-MM-dd--HH-mm-ss}---BatchReport-{FileAndFolderTools.TryMakeFilenameValid(job.Name)}-Id-{job.Id}-Batch-{batch.Id}.xlsx"));

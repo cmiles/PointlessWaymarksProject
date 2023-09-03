@@ -19,6 +19,7 @@ public class CloudBackupContext : DbContext
     public DbSet<CloudDelete> CloudDeletions { get; set; } = null!;
     public DbSet<CloudTransferBatch> CloudTransferBatches { get; set; } = null!;
     public DbSet<CloudUpload> CloudUploads { get; set; } = null!;
+    public DbSet<CloudCacheFile> CloudCacheFiles { get; set; } = null!;
     public DbSet<ExcludedDirectory> ExcludedDirectories { get; set; } = null!;
     public DbSet<ExcludedDirectoryNamePattern> ExcludedDirectoryNamePatterns { get; set; } = null!;
     public DbSet<ExcludedFileNamePattern> ExcludedFileNamePatterns { get; set; } = null!;

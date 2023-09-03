@@ -4,33 +4,34 @@ using PointlessWaymarks.CommonTools;
 
 namespace PointlessWaymarks.CloudBackupData.Reports;
 
-public static class BatchCloudFilesToExcel
+public static class CloudCacheFilesToExcel
 {
-    public static async Task<IXLWorksheet> AddWorksheet(XLWorkbook workbook, int batchId, IProgress<string> progress)
+    public static async Task<IXLWorksheet> AddWorksheet(XLWorkbook workbook, int jobId, IProgress<string> progress)
     {
-        progress.Report("Querying db for Cloud Transfer Batch Information");
-        
-        var db = await CloudBackupContext.CreateInstance();
-        var batch = await db.CloudTransferBatches.SingleAsync(x => x.Id == batchId);
+        progress.Report("Querying db for Cloud Batch, Job and Cache File Information");
 
-        var projectedFiles = batch.CloudFiles.OrderBy(x => x.CloudObjectKey).Select(x => new
+        var db = await CloudBackupContext.CreateInstance();
+        var job = await db.BackupJobs.SingleAsync(x => x.Id == jobId);
+
+        var projectedFiles = job.CloudCacheFiles.OrderBy(x => x.CloudObjectKey).Select(x => new
         {
             Key = x.CloudObjectKey,
+            x.Note,
             x.FileSize,
             x.FileSystemDateTime,
-            x.CreatedOn,
+            x.LastEditOn,
             x.FileHash,
             x.Id,
         }).ToList();
 
         progress.Report("Building Excel File");
-        
-        var uploadsWorksheet = workbook.Worksheets.Add("Cloud Files");
+
+        var uploadsWorksheet = workbook.Worksheets.Add("Cloud Cache Files");
 
         var currentRow = 1;
 
         uploadsWorksheet.Cell(currentRow, 1).Value =
-            $"Cloud Files - {batch.Job!.Name} (Id {batch.Job!.Id}) - Batch Id {batch.Id} Created On {batch.CreatedOn}";
+            $"Cloud Cache Files - {job.Name} (Id {job.Id})";
         uploadsWorksheet.Cell(currentRow, 1).Style.Font
             .SetFontSize(uploadsWorksheet.Cell(currentRow, 1).Style.Font.FontSize + 4);
         uploadsWorksheet.Cell(currentRow++, 1).Style.Font.SetBold(true);
@@ -41,26 +42,25 @@ public static class BatchCloudFilesToExcel
         var table = uploadsWorksheet.Cell(currentRow, 1).InsertTable(projectedFiles);
 
         table.CommonFormats();
-        
+
         return uploadsWorksheet;
     }
 
-    public static async Task<string> Run(int batchId, IProgress<string> progress)
+    public static async Task<string> Run(int jobId, IProgress<string> progress)
     {
         progress.Report("Setting up Excel File");
-        
+
         var newExcelFile = new XLWorkbook();
 
-        await AddWorksheet(newExcelFile, batchId, progress);
+        await AddWorksheet(newExcelFile, jobId, progress);
 
         progress.Report("Querying Job Information");
 
         var db = await CloudBackupContext.CreateInstance();
-        var batch = db.CloudTransferBatches.Single(x => x.Id == batchId);
-        var job = batch.Job!;
-        
+        var job = db.BackupJobs.Single(x => x.Id == jobId);
+
         var file = new FileInfo(Path.Combine(FileLocationHelpers.ReportsDirectory().FullName,
-            $"{DateTime.Now:yyyy-MM-dd--HH-mm-ss}---CloudFiles-{FileAndFolderTools.TryMakeFilenameValid(job.Name)}-Id-{job.Id}-Batch-{batch.Id}.xlsx"));
+            $"{DateTime.Now:yyyy-MM-dd--HH-mm-ss}---CloudCacheFiles-{FileAndFolderTools.TryMakeFilenameValid(job.Name)}-Id-{job.Id}.xlsx"));
 
         progress.Report($"Saving Excel File {file.FullName}");
 

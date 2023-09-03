@@ -11,4 +11,5 @@ public record FileListAndChangeData
     public required BackupJob Job { get; set; }
     public List<S3RemoteFileAndMetadata> S3Files { get; set; } = new();
     public List<S3RemoteFileAndMetadata> S3FilesToDelete { get; set; } = new();
+    public required bool ChangesBasedOnNewCloudFileScan { get; set; }
 }

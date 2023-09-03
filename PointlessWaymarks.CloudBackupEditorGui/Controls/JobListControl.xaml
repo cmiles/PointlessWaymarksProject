@@ -103,30 +103,43 @@
                                     </TextBox>
                                 </GroupBox>
                                 <WrapPanel Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="2" Margin="10,6,0,8" Orientation="Horizontal">
-                                    <Button Padding="10,2,8,2"
-                                            Command="{Binding Data.IncludedAndExcludedFilesReportCommand, Source={StaticResource proxy}}"
+                                    <WrapPanel.Resources>
+                                        <Style TargetType="Button">
+                                            <Setter Property="Margin" Value="2"></Setter>
+                                            <Setter Property="Padding" Value="10,4,8,4"></Setter>
+                                        </Style>
+                                    </WrapPanel.Resources>
+                                    <Button Command="{Binding Data.EditJobCommand, Source={StaticResource proxy}}"
+                                            CommandParameter="{Binding DbJob}">
+                                        Edit
+                                    </Button>
+                                    <Button Command="{Binding Data.IncludedAndExcludedFilesReportCommand, Source={StaticResource proxy}}"
                                             CommandParameter="{Binding DbJob}">
                                         Included/Excluded Files Report
                                     </Button>
-                                    <Button Padding="10,2,8,2"  Margin="4,0,0,0"
-                                            Command="{Binding Data.NewBatchWindowCommand, Source={StaticResource proxy}}"
+                                    <Button Command="{Binding Data.NewBatchWindowCommand, Source={StaticResource proxy}}"
                                             CommandParameter="{Binding DbJob}">
                                         Batch List
                                     </Button>
-                                    <Button Padding="10,2,8,2"  Margin="4,0,0,0"
-                                            Command="{Binding Data.NewProgressWindowCommand, Source={StaticResource proxy}}"
+                                    <Button Command="{Binding Data.CloudCacheFilesReportCommand, Source={StaticResource proxy}}"
+                                            CommandParameter="{Binding DbJob}">
+                                        Cloud Cache Files To Excel
+                                    </Button>
+                                    <Button Command="{Binding Data.NewProgressWindowCommand, Source={StaticResource proxy}}"
                                             CommandParameter="{Binding DbJob}">
                                         Progress to Window
                                     </Button>
-                                    <Button Padding="10,2,8,2"  Margin="4,0,0,0"
-                                            Command="{Binding Data.DeleteJobCommand, Source={StaticResource proxy}}"
+                                    <Button Command="{Binding Data.DeleteJobCommand, Source={StaticResource proxy}}"
                                             CommandParameter="{Binding DbJob}">
                                         Delete Backup Job
                                     </Button>
-                                    <Button Padding="10,2,8,2"  Margin="4,0,0,0"
-                                            Command="{Binding Data.BasicCommandLineCommandToClipboardCommand, Source={StaticResource proxy}}"
+                                    <Button Command="{Binding Data.BasicCommandLineCommandToClipboardCommand, Source={StaticResource proxy}}"
                                             CommandParameter="{Binding DbJob}">
                                         Command Line Command to Clipboard
+                                    </Button>
+                                    <Button Command="{Binding Data.RunJobCommand, Source={StaticResource proxy}}"
+                                            CommandParameter="{Binding DbJob}">
+                                        Run
                                     </Button>
                                 </WrapPanel>
                             </Grid>

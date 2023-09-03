@@ -10,5 +10,4 @@ public class FileSystemFile
     public long FileSize { get; set; }
     public string FileSystemDateTime { get; set; } = string.Empty;
     public int Id { get; set; }
-    public int JobId { get; set; }
 }

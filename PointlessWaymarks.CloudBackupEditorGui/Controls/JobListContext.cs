@@ -7,6 +7,7 @@ using Ookii.Dialogs.Wpf;
 using PointlessWaymarks.CloudBackupData;
 using PointlessWaymarks.CloudBackupData.Models;
 using PointlessWaymarks.CloudBackupData.Reports;
+using PointlessWaymarks.CloudBackupRunner;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon.Status;
@@ -93,6 +94,20 @@ public partial class JobListContext
         currentSettings.DatabaseFile = possibleFile.FullName;
         await CloudBackupEditorGuiSettingTools.WriteSettings(currentSettings);
         CurrentDatabase = possibleFile.FullName;
+    }
+
+    [BlockingCommand]
+    public async Task CloudCacheFilesReport(BackupJob? toEdit)
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (toEdit == null)
+        {
+            StatusContext.ToastWarning("Nothing Selected to Edit?");
+            return;
+        }
+
+        await CloudCacheFilesToExcel.Run(toEdit.Id, StatusContext.ProgressTracker());
     }
 
     public static async Task<JobListContext> CreateInstance(StatusControlContext statusContext)
@@ -340,6 +355,22 @@ public partial class JobListContext
         jobs.ForEach(x => Items.Add(new JobListListItem(x)));
 
         DataNotifications.NewDataNotificationChannel().MessageReceived += OnDataNotificationReceived;
+    }
+
+    [NonBlockingCommand]
+    public async Task RunJob(BackupJob? toRun)
+    {
+        if (toRun == null)
+        {
+            StatusContext.ToastWarning("Nothing Selected to Run?");
+            return;
+        }
+
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        StatusContext.RunFireAndForgetNonBlockingTask(async () =>
+            await Program.Main(new[]
+                { CloudBackupContext.CurrentDatabaseFileName, toRun.Id.ToString(), "auto" }));
     }
 
     public Task Setup()

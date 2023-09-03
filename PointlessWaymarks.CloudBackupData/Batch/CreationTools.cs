@@ -19,11 +19,25 @@ public static class CreationTools
             .Replace("\\", "/");
     }
 
-    public static async Task<List<S3RemoteFileAndMetadata>> GetAllCloudFiles(string cloudDirectory,
+    public static async Task<List<S3RemoteFileAndMetadata>> GetAllCloudFiles(int backupJobId, string cloudDirectory,
         IS3AccountInformation account, IProgress<string> progress)
     {
-        return await S3Tools.ListS3Items(account,
+        var db = await CloudBackupContext.CreateInstance();
+
+        progress.Report("Deleting Db Cloud Cache Files for Full Refresh");
+        await db.CloudCacheFiles.Where(x => x.JobId == backupJobId).ExecuteDeleteAsync(CancellationToken.None);
+
+        var cloudFiles = await S3Tools.ListS3Items(account,
             cloudDirectory.EndsWith("/") ? cloudDirectory : $"{cloudDirectory}/", progress);
+
+        var frozenNow = DateTime.Now;
+
+        progress.Report("Adding and Saving new Db Cloud Cache Files");
+        await db.CloudCacheFiles.AddRangeAsync(cloudFiles.Select(x =>
+            S3RemoteFileAndMetadataToCloudFile(backupJobId, x, frozenNow, $"{frozenNow:s} Scan;")).ToList());
+        await db.SaveChangesAsync();
+
+        return cloudFiles;
     }
 
     public static async Task<List<CloudBackupLocalDirectory>> GetAllLocalDirectories(int jobId,
@@ -56,7 +70,66 @@ public static class CreationTools
             excludedDirectories, excludedDirectoryPatterns, progress)).ToList());
     }
 
-    public static async Task<FileListAndChangeData> GetChanges(IS3AccountInformation accountInformation,
+    public static async Task<FileListAndChangeData> GetChangesBasedOnCloudCacheFilesAndLocalScan(
+        IS3AccountInformation accountInformation,
+        int backupJobId,
+        IProgress<string> progress)
+    {
+        var db = await CloudBackupContext.CreateInstance();
+
+        var job = await db.BackupJobs.SingleAsync(x => x.Id == backupJobId);
+
+        var cloudFiles = job.CloudCacheFiles.Select(x => new S3RemoteFileAndMetadata(x.Bucket, x.CloudObjectKey,
+            new S3StandardMetadata(x.FileSystemDateTime, x.FileHash, x.FileSize))).ToList();
+
+        var returnData = new FileListAndChangeData
+        {
+            Job = job,
+            AccountInformation = accountInformation,
+            S3Files = cloudFiles,
+            ChangesBasedOnNewCloudFileScan = false
+        };
+
+        var localFiles = await GetIncludedLocalFiles(job.Id, progress);
+        var localFilesSystemBaseDirectory = new DirectoryInfo(job.LocalDirectory);
+
+        returnData.FileSystemFiles = localFiles.Select(x => new S3FileSystemFileAndMetadataWithCloudKey(x.LocalFile,
+                x.UploadMetadata, FileInfoToS3Key(job.CloudDirectory, localFilesSystemBaseDirectory, x.LocalFile)))
+            .ToList();
+
+        progress.Report($"Change Check - {returnData.FileSystemFiles.Count} to process");
+        var counter = 0;
+
+        foreach (var loopFiles in returnData.FileSystemFiles)
+        {
+            counter++;
+
+            var matchingFiles = returnData.S3Files.Where(x => x.Key == loopFiles.CloudKey).ToList();
+
+            if (matchingFiles.Count == 0)
+            {
+                returnData.FileSystemFilesToUpload.Add(loopFiles);
+                continue;
+            }
+
+            if (matchingFiles.Any(x =>
+                    x.Metadata.FileSystemHash == loopFiles.UploadMetadata.FileSystemHash)) continue;
+
+            returnData.FileSystemFilesToUpload.Add(loopFiles);
+
+            if (counter % 500 == 0)
+                progress.Report(
+                    $"Change Check - {counter} of {returnData.FileSystemFiles.Count} Files Checked - {returnData.FileSystemFilesToUpload} to Upload so far.");
+        }
+
+        returnData.S3FilesToDelete = returnData.S3Files
+            .Where(x => returnData.FileSystemFiles.All(y => y.CloudKey != x.Key)).ToList();
+
+        return returnData;
+    }
+
+    public static async Task<FileListAndChangeData> GetChangesBasedOnCloudAndLocalScan(
+        IS3AccountInformation accountInformation,
         int backupJobId,
         IProgress<string> progress)
     {
@@ -68,7 +141,8 @@ public static class CreationTools
         {
             Job = job,
             AccountInformation = accountInformation,
-            S3Files = await GetAllCloudFiles(job.CloudDirectory, accountInformation, progress)
+            S3Files = await GetAllCloudFiles(backupJobId, job.CloudDirectory, accountInformation, progress),
+            ChangesBasedOnNewCloudFileScan = true
         };
 
         var localFiles = await GetIncludedLocalFiles(job.Id, progress);
@@ -247,6 +321,22 @@ public static class CreationTools
         return returnList;
     }
 
+    public static CloudCacheFile S3RemoteFileAndMetadataToCloudFile(int jobId, S3RemoteFileAndMetadata toMap,
+        DateTime lastEditOn, string note)
+    {
+        return new CloudCacheFile
+        {
+            Bucket = toMap.Bucket,
+            FileSize = toMap.Metadata.FileSize,
+            FileHash = toMap.Metadata.FileSystemHash,
+            JobId = jobId,
+            CloudObjectKey = toMap.Key,
+            LastEditOn = lastEditOn,
+            FileSystemDateTime = toMap.Metadata.LastWriteTime,
+            Note = note
+        };
+    }
+
     public static async Task<CloudTransferBatch> WriteChangesToDatabase(FileListAndChangeData changes)
     {
         var frozenNow = DateTime.Now.ToUniversalTime();
@@ -264,7 +354,6 @@ public static class CreationTools
             FileName = x.LocalFile.FullName,
             FileSystemDateTime = x.UploadMetadata.LastWriteTime,
             FileSize = x.LocalFile.Length,
-            JobId = changes.Job.Id,
             CloudTransferBatchId = batch.Id
         }));
 
@@ -272,10 +361,9 @@ public static class CreationTools
         {
             CreatedOn = frozenNow,
             FileHash = x.Metadata.FileSystemHash,
-            Key = x.Key,
+            CloudObjectKey = x.Key,
             FileSystemDateTime = x.Metadata.LastWriteTime,
             FileSize = x.Metadata.FileSize,
-            JobId = changes.Job.Id,
             CloudTransferBatchId = batch.Id
         }));
 

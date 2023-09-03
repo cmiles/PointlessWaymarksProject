@@ -9,6 +9,5 @@ public class CloudFile
     public long FileSize { get; set; }
     public string FileSystemDateTime { get; set; } = string.Empty;
     public int Id { get; set; }
-    public int JobId { get; set; }
-    public string Key { get; set; } = string.Empty;
+    public string CloudObjectKey { get; set; } = string.Empty;
 }

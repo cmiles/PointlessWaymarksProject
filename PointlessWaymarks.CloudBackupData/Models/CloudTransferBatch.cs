@@ -2,6 +2,7 @@ namespace PointlessWaymarks.CloudBackupData.Models;
 
 public class CloudTransferBatch
 {
+    public bool BasedOnNewCloudFileScan { get; set; }
     public virtual ICollection<CloudDelete> CloudDeletions { get; } = new List<CloudDelete>();
     public virtual ICollection<CloudFile> CloudFiles { get; } = new List<CloudFile>();
     public virtual ICollection<CloudUpload> CloudUploads { get; } = new List<CloudUpload>();

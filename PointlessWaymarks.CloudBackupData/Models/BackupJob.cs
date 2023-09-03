@@ -17,6 +17,9 @@ public class BackupJob
     public virtual ICollection<ExcludedFileNamePattern> ExcludedFileNamePatterns { get; set; } =
         new List<ExcludedFileNamePattern>();
 
+    public virtual ICollection<CloudCacheFile> CloudCacheFiles { get; set; } =
+        new List<CloudCacheFile>();
+
     public virtual ICollection<FileSystemFile> FileSystemFiles { get; set; } = new List<FileSystemFile>();
     public int Id { get; set; }
     public string LocalDirectory { get; set; } = string.Empty;

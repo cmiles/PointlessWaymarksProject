@@ -6,6 +6,7 @@ using PointlessWaymarks.CloudBackupData.Models;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.CommonTools.S3;
 using Polly;
+using Serilog;
 
 namespace PointlessWaymarks.CloudBackupData.Batch;
 
@@ -64,9 +65,8 @@ public static class CloudTransfer
             {
                 var currentSecondsPerLength = totalUploadedSeconds / totalUploadedLength;
 
-                
                 var currentUploadEstimatedSeconds = uploadLength * currentSecondsPerLength;
-                
+
                 var estimateCurrentUploadCompleteIn = currentUploadEstimatedSeconds switch
                 {
                     < 60 => $"{currentUploadEstimatedSeconds:N2} Seconds",
@@ -74,10 +74,10 @@ public static class CloudTransfer
                     < 86400 => $"{currentUploadEstimatedSeconds / 360D:N2} Hours",
                     _ => $"{currentUploadEstimatedSeconds / 86400D:N2} Days"
                 };
-                
+
                 estimateCurrentUpload =
                     $"Estimated Completion in {estimateCurrentUploadCompleteIn} ({DateTime.Now.AddSeconds(uploadLength * currentSecondsPerLength):h:mm:ss tt})";
-                
+
                 var currentFinishEstimate =
                     DateTime.Now.AddSeconds(totalUploadEstimatedLength * currentSecondsPerLength);
 
@@ -113,6 +113,36 @@ public static class CloudTransfer
                 upload.LastUpdatedOn = DateTime.Now;
                 upload.UploadCompletedSuccessfully = true;
                 upload.ErrorMessage = string.Empty;
+
+                var cacheEntry = await context.CloudCacheFiles.SingleOrDefaultAsync(x =>
+                    x.JobId == batch.JobId && x.Bucket == upload.BucketName &&
+                    x.CloudObjectKey == upload.CloudObjectKey);
+
+                if (cacheEntry != null)
+                {
+                    cacheEntry.LastEditOn = DateTime.Now;
+                    cacheEntry.Note += $"{DateTime.Now:s} Upload;";
+                }
+                else
+                {
+                    cacheEntry = new CloudCacheFile
+                    {
+                        Bucket = upload.BucketName,
+                        CloudObjectKey = upload.CloudObjectKey,
+                        JobId = batch.JobId,
+                        LastEditOn = DateTime.Now,
+                        Note = $"{DateTime.Now:s} Upload;"
+                    };
+
+                    context.CloudCacheFiles.Add(cacheEntry);
+                }
+
+                var localMetadata = await S3Tools.LocalFileAndMetadata(localFile);
+
+                cacheEntry.FileHash = localMetadata.UploadMetadata.FileSystemHash;
+                cacheEntry.FileSize = localFile.Length;
+                cacheEntry.FileSystemDateTime = localMetadata.UploadMetadata.LastWriteTime;
+
                 await context.SaveChangesAsync();
 
                 var elapsed = DateTime.Now.Subtract(uploadStartTime);
@@ -164,6 +194,13 @@ public static class CloudTransfer
                         .DeleteObjectAsync(delete.BucketName, delete.CloudObjectKey));
                 delete.LastUpdatedOn = DateTime.Now;
                 delete.DeletionCompletedSuccessfully = true;
+
+                var cacheEntry = await context.CloudCacheFiles.SingleOrDefaultAsync(x =>
+                    x.JobId == batch.JobId && x.Bucket == delete.BucketName &&
+                    x.CloudObjectKey == delete.CloudObjectKey);
+
+                if (cacheEntry != null) context.CloudCacheFiles.Remove(cacheEntry);
+
                 await context.SaveChangesAsync();
             }
             catch (AmazonS3Exception ex) when (ex.StatusCode == HttpStatusCode.NotFound)
@@ -216,10 +253,21 @@ public static class CloudTransfer
         };
     }
 
-    public static async Task<CloudTransferBatch> CreateBatchInDatabaseFromChanges(
+    public static async Task<CloudTransferBatch> CreateBatchInDatabaseFromCloudAndLocalScan(
         IS3AccountInformation accountInformation, BackupJob job, IProgress<string> progress)
     {
-        var changes = await CreationTools.GetChanges(accountInformation, job.Id, progress);
+        Log.Information("Creating new Batch based on Cloud and Local Scan");
+
+        var changes = await CreationTools.GetChangesBasedOnCloudAndLocalScan(accountInformation, job.Id, progress);
+        return await CreationTools.WriteChangesToDatabase(changes);
+    }
+
+    public static async Task<CloudTransferBatch> CreateBatchInDatabaseFromCloudCacheFilesAndLocalScan(
+        IS3AccountInformation accountInformation, BackupJob job, IProgress<string> progress)
+    {
+        Log.Information("Creating new Batch based on Cloud Cache Files and Local Scan");
+
+        var changes = await CreationTools.GetChangesBasedOnCloudCacheFilesAndLocalScan(accountInformation, job.Id, progress);
         return await CreationTools.WriteChangesToDatabase(changes);
     }
 }
