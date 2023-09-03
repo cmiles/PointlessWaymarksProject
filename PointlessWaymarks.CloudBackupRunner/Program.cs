@@ -95,6 +95,7 @@ public static class Program
                                 needs a large number of uploads to complete. If a 'best guess' Batch is not found
                                 a new batch will be created.
                               """);
+
             return;
         }
 
@@ -117,7 +118,8 @@ public static class Program
             await errorNotifier.Error($"Failed to Connect to the Db {args[0]}");
 
             Log.ForContext(nameof(db), db, true).Error("Failed to Connect to the Db {dbFile}", args[0]);
-            Log.CloseAndFlush();
+            Log.Information("Cloud Backup Runner - Finished Run");
+            await Log.CloseAndFlushAsync();
             return;
         }
 
@@ -139,7 +141,9 @@ public static class Program
                         $"  Batch Id {loopBatch.Id} - {loopBatch.CreatedOn} - Uploads {loopBatch.CloudUploads.Count(x => x.UploadCompletedSuccessfully)} of {loopBatch.CloudUploads.Count} Complete, Deletions {loopBatch.CloudDeletions.Count(x => x.DeletionCompletedSuccessfully)} of {loopBatch.CloudDeletions.Count} Complete, {loopBatch.CloudUploads.Count(x => !string.IsNullOrWhiteSpace(x.ErrorMessage)) + loopBatch.CloudDeletions.Count(x => !string.IsNullOrWhiteSpace(x.ErrorMessage))} Errors");
             }
 
-            Log.CloseAndFlush();
+            Log.Information("Cloud Backup Runner - Finished Run");
+
+            await Log.CloseAndFlushAsync();
             return;
         }
 
@@ -148,7 +152,8 @@ public static class Program
             await errorNotifier.Error($"Failed to Parse Job Id {args[1]}");
 
             Log.Error("Failed to Parse Job Id {jobId}", args[1]);
-            Log.CloseAndFlush();
+            Log.Information("Cloud Backup Runner - Finished Run");
+            await Log.CloseAndFlushAsync();
             return;
         }
 
@@ -159,7 +164,8 @@ public static class Program
             await errorNotifier.Error($"Failed to find a Backup Job with Id {jobId} in {args[0]}");
 
             Log.Error("Failed to find a Backup Job with Id {jobId} in {dbFile}", jobId, args[0]);
-            Log.CloseAndFlush();
+            Log.Information("Cloud Backup Runner - Finished Run");
+            await Log.CloseAndFlushAsync();
             return;
         }
 
@@ -180,7 +186,8 @@ public static class Program
 
             Log.Error(
                 $"Cloud Credentials are not Valid? Access Key is blank {string.IsNullOrWhiteSpace(cloudCredentials.username)}, Password is blank {string.IsNullOrWhiteSpace(cloudCredentials.password)}");
-            Log.CloseAndFlush();
+            Log.Information("Cloud Backup Runner - Finished Run");
+            await Log.CloseAndFlushAsync();
             return;
         }
 
@@ -256,6 +263,7 @@ public static class Program
                             .Information(
                                 "Comparing Batch Id {batchId}'s Cloud Files (most recent batch, within the last 28 days) to the Cloud File Cache Files produced no backup actions - Nothing To Do, Stopping",
                                 mostRecentBatch.Id);
+                        Log.Information("Cloud Backup Runner - Finished Run");
                         return;
                     }
                 }
@@ -300,7 +308,6 @@ public static class Program
                 batch = await CloudTransfer.CreateBatchInDatabaseFromCloudAndLocalScan(amazonCredentials, backupJob,
                     progress);
             }
-
         }
 
         Log.ForContext(nameof(batch), batch.SafeObjectDumpNoEnumerables()).Information(
@@ -312,7 +319,8 @@ public static class Program
             Log.Information("Cloud Backup Ending - No Uploads or Deletions for Job Id {jobId} batch {batchId}",
                 backupJob.Id,
                 batch.Id);
-            Log.CloseAndFlush();
+            Log.Information("Cloud Backup Runner - Finished Run");
+            await Log.CloseAndFlushAsync();
             return;
         }
 
@@ -341,7 +349,8 @@ public static class Program
         }
         finally
         {
-            Log.CloseAndFlush();
+            Log.Information("Cloud Backup Runner - Finished Run");
+            await Log.CloseAndFlushAsync();
         }
     }
 }
