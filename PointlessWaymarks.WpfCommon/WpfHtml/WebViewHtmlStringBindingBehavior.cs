@@ -11,6 +11,10 @@ namespace PointlessWaymarks.WpfCommon.WpfHtml;
 
 public class WebViewHtmlStringBindingBehavior : Behavior<WebView2>
 {
+    //<b:Interaction.Behaviors>
+    //  <local:WebViewHtmlStringBindingBehavior HtmlString = "{Binding PreviewHtml}" />
+    //</b:Interaction.Behaviors>
+
     public static readonly DependencyProperty HtmlStringProperty = DependencyProperty.Register(nameof(HtmlString),
         typeof(string), typeof(WebViewHtmlStringBindingBehavior),
         new PropertyMetadata(default(string), OnHtmlChanged));
