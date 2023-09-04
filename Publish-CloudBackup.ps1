@@ -16,12 +16,12 @@ $msBuild = & $vsWhere -latest -prerelease -requires Microsoft.Component.MSBuild 
 
 if ($lastexitcode -ne 0) { throw ("Exec: " + $errorMessage) }
 
-$publishPath = "M:\PointlessWaymarksPublications\PointlessWaymarks.CloudBackupEditorGui"
+$publishPath = "M:\PointlessWaymarksPublications\PointlessWaymarks.CloudBackupGui"
 if(!(test-path -PathType container $publishPath)) { New-Item -ItemType Directory -Path $publishPath }
 
 Remove-Item -Path $publishPath\* -Recurse
 
-& $msBuild .\PointlessWaymarks.CloudBackupEditorGui\PointlessWaymarks.CloudBackupEditorGui.csproj -t:publish -p:PublishProfile=.\PointlessWaymarks.CloudBackupEditorGui\Properties\PublishProfile\FolderProfile.pubxml -verbosity:minimal
+& $msBuild .\PointlessWaymarks.CloudBackupGui\PointlessWaymarks.CloudBackupGui.csproj -t:publish -p:PublishProfile=.\PointlessWaymarks.CloudBackupGui\Properties\PublishProfile\FolderProfile.pubxml -verbosity:minimal
 
 if ($lastexitcode -ne 0) { throw ("Exec: " + $errorMessage) }
 

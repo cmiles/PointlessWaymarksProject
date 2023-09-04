@@ -48,7 +48,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PointlessWaymarks.GeoToolsG
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PointlessWaymarks.Task.PublishSiteToAmazonS3", "PointlessWaymarks.Task.PublishSiteToAmazonS3\PointlessWaymarks.Task.PublishSiteToAmazonS3.csproj", "{90F89730-2157-4827-BB16-0537AC8743C0}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PointlessWaymarks.CloudBackupEditorGui", "PointlessWaymarks.CloudBackupEditorGui\PointlessWaymarks.CloudBackupEditorGui.csproj", "{C20A58B2-4582-4E63-9893-472C5D0923D7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PointlessWaymarks.CloudBackupGui", "PointlessWaymarks.CloudBackupGui\PointlessWaymarks.CloudBackupGui.csproj", "{C20A58B2-4582-4E63-9893-472C5D0923D7}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PointlessWaymarks.CloudBackupData", "PointlessWaymarks.CloudBackupData\PointlessWaymarks.CloudBackupData.csproj", "{863FB9F8-317B-4EB6-B87A-9B23C17FE2CD}"
 EndProject

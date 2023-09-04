@@ -11,11 +11,11 @@
 
 #define MyAppDefaultGroupName "Pointless Waymarks"
 
-#define MyAppName "Pointless Waymarks Cloud Backup Editor"
-#define MyAppDefaultDirName "PointlessWaymarksCloudBackupEditor"
-#define MyAppExeName "PointlessWaymarks.CloudBackupEditorGui.exe"
-#define MyAppOutputBaseFilename "PointlessWaymarksCloudBackupEditorSetup--"
-#define MyAppFilesSource "M:\PointlessWaymarksPublications\PointlessWaymarks.CloudBackupEditorGui\*"
+#define MyAppName "Pointless Waymarks Cloud Backup"
+#define MyAppDefaultDirName "PointlessWaymarksCloudBackup"
+#define MyAppExeName "PointlessWaymarks.CloudBackupGui.exe"
+#define MyAppOutputBaseFilename "PointlessWaymarksCloudBackupSetup--"
+#define MyAppFilesSource "M:\PointlessWaymarksPublications\PointlessWaymarks.CloudBackupGui\*"
 
 [Setup]
 AppId={{FD297C57-ABFF-4824-98B5-31F6A5B6026F}
