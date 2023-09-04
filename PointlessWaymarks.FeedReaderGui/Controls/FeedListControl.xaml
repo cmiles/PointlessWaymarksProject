@@ -68,7 +68,7 @@
                 <ListBox.ItemTemplate>
                     <DataTemplate DataType="{x:Type local:FeedListListItem}">
                         <StackPanel Margin="4,12,4,4">
-                            <TextBlock FontWeight="Bold">
+                            <TextBlock FontWeight="Bold" TextTrimming="CharacterEllipsis">
                                 <TextBlock.Text>
                                     <MultiBinding
                                         StringFormat="{}{0} - {1} Unread">

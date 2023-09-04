@@ -49,11 +49,17 @@
                     <ContextMenu>
                         <MenuItem Header="Mark Selected Read" Command="{Binding MarkSelectedReadCommand}"></MenuItem>
                         <MenuItem Header="Mark Selected Unread" Command="{Binding MarkSelectedUnReadCommand}"></MenuItem>
+                        <Separator />
                         <MenuItem Header="Toggle Selected Keep" Command="{Binding ToggleSelectedKeepUnReadCommand}"></MenuItem>
                         <Separator />
                         <MenuItem Header="Save Selected" Command="{Binding SaveSelectedItemsCommand}"></MenuItem>
                         <Separator />
                         <MenuItem Header="Open in Browser" Command="{Binding OpenSelectedItemInBrowserCommand}"></MenuItem>
+                        <Separator />
+                        <MenuItem Header="Markdown to Clipboard" Command="{Binding MarkdownLinksForSelectedItemsCommand}"></MenuItem>
+                        <MenuItem Header="URLs to Clipboard" Command="{Binding UrlsForSelectedItemsCommand}"></MenuItem>
+                        <MenuItem Header="Titles to Clipboard" Command="{Binding TitlesForSelectedItemsCommand}"></MenuItem>
+                        <MenuItem Header="Titles and URLs to Clipboard" Command="{Binding TitleAndUrlForSelectedItemsCommand}"></MenuItem>
                         <Separator />
                         <MenuItem Header="Edit Feed" Command="{Binding FeedEditorForSelectedItemCommand}"></MenuItem>
                         <Separator />
@@ -79,8 +85,9 @@
                                 <RowDefinition Height="Auto" />
                                 <RowDefinition Height="Auto" />
                             </Grid.RowDefinitions>
-                            <TextBlock Text="{Binding DbItem.Title}" FontWeight="Bold" />
-                            <TextBlock Grid.Row="1" Margin="8,2,0,0" HorizontalAlignment="Left" TextTrimming="CharacterEllipsis">
+                            <TextBlock Text="{Binding DbItem.Title}" FontWeight="Bold" TextTrimming="CharacterEllipsis" ToolTip="{Binding DbItem.Description}"/>
+                            <TextBlock Grid.Row="1" Margin="8,2,0,0" HorizontalAlignment="Left"
+                                       TextTrimming="CharacterEllipsis" ToolTip="{Binding DbItem.Description}">
                                 <TextBlock.Text>
                                     <MultiBinding StringFormat="{}{0}, {1}">
                                         <Binding Path="DbItem.PublishingDate" />
@@ -88,7 +95,8 @@
                                     </MultiBinding>
                                 </TextBlock.Text>
                             </TextBlock>
-                            <TextBlock Grid.Row="2" HorizontalAlignment="Center" Margin="4,2,0,0" TextTrimming="CharacterEllipsis">
+                            <TextBlock Grid.Row="2" HorizontalAlignment="Center" Margin="4,2,0,0"
+                                       TextTrimming="CharacterEllipsis">
                                 <TextBlock.Text>
                                     <MultiBinding StringFormat="{}{0}">
                                         <Binding Path="DbReaderFeed.Tags" />
@@ -117,11 +125,23 @@
                       ResizeDirection="Columns"
                       ResizeBehavior="PreviousAndNext"
                       HorizontalAlignment="Stretch" />
-        <wpf:WebView2
-            x:Name="BodyContentWebView"
-            Grid.Row="0" Grid.RowSpan="2" Grid.Column="2"
-            Source="{Binding DisplayUrl, TargetNullValue='about:blank'}"
-            Visibility="{Binding StatusContext.BlockUi, Converter={StaticResource BooleanNotToVisibility}}" />
+        <TabControl Grid.Row="0" Grid.RowSpan="2" Grid.Column="2">
+            <TabItem Header="Web">
+                <wpf:WebView2
+                    x:Name="BodyContentWebView"
+                    Source="{Binding DisplayUrl, TargetNullValue='about:blank'}"
+                    Visibility="{Binding StatusContext.BlockUi, Converter={StaticResource BooleanNotToVisibility}}" />
+            </TabItem>
+            <TabItem Header="Feed Content">
+                <wpf:WebView2
+                    x:Name="RssContentWebView"
+                    Visibility="{Binding StatusContext.BlockUi, Converter={StaticResource BooleanNotToVisibility}}">
+                    <b:Interaction.Behaviors>
+                        <wpfHtml:WebViewHtmlStringBindingBehavior HtmlString = "{Binding FeedDisplayHtml}" />
+                    </b:Interaction.Behaviors>
+                </wpf:WebView2>
+            </TabItem>
+        </TabControl>
         <Grid Grid.Column="0" Grid.Row="0">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition />

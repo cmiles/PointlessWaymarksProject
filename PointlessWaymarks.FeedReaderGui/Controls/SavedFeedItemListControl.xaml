@@ -8,6 +8,8 @@
              xmlns:behaviors="clr-namespace:PointlessWaymarks.WpfCommon.Behaviors;assembly=PointlessWaymarks.WpfCommon"
              xmlns:wpf="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
              xmlns:columnSort="clr-namespace:PointlessWaymarks.WpfCommon.ColumnSort;assembly=PointlessWaymarks.WpfCommon"
+             xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:wpfHtml="clr-namespace:PointlessWaymarks.WpfCommon.WpfHtml;assembly=PointlessWaymarks.WpfCommon"
              mc:Ignorable="d"
              d:DesignHeight="450" d:DesignWidth="800" d:DataContext="{d:DesignInstance local:SavedFeedItemListContext}">
     <UserControl.Resources>
@@ -50,6 +52,11 @@
                         <MenuItem Header="Edit Feed" Command="{Binding FeedEditorForSelectedItemCommand}"></MenuItem>
                         <Separator />
                         <MenuItem Header="Archive Selected" Command="{Binding ArchiveSelectedItemsCommand}"></MenuItem>
+                        <Separator />
+                        <MenuItem Header="Markdown to Clipboard" Command="{Binding MarkdownLinksForSelectedItemsCommand}"></MenuItem>
+                        <MenuItem Header="URLs to Clipboard" Command="{Binding UrlsForSelectedItemsCommand}"></MenuItem>
+                        <MenuItem Header="Titles to Clipboard" Command="{Binding TitlesForSelectedItemsCommand}"></MenuItem>
+                        <MenuItem Header="Titles and URLs to Clipboard" Command="{Binding TitleAndUrlForSelectedItemsCommand}"></MenuItem>
                     </ContextMenu>
                 </ListBox.ContextMenu>
                 <ListBox.ItemTemplate>
@@ -70,9 +77,9 @@
                                 <RowDefinition Height="Auto" />
                                 <RowDefinition Height="Auto" />
                             </Grid.RowDefinitions>
-                            <TextBlock Text="{Binding DbItem.Title}" FontWeight="Bold" />
+                            <TextBlock Text="{Binding DbItem.Title}" FontWeight="Bold" TextTrimming="CharacterEllipsis"  ToolTip="{Binding DbItem.Description}"/>
                             <TextBlock Grid.Row="1" Margin="8,2,0,0" HorizontalAlignment="Left"
-                                       TextTrimming="CharacterEllipsis">
+                                       TextTrimming="CharacterEllipsis" ToolTip="{Binding DbItem.Description}">
                                 <TextBlock.Text>
                                     <MultiBinding StringFormat="{}{0}, {1}">
                                         <Binding Path="DbItem.PublishingDate" />
@@ -105,11 +112,23 @@
                       ResizeDirection="Columns"
                       ResizeBehavior="PreviousAndNext"
                       HorizontalAlignment="Stretch" />
-        <wpf:WebView2
-            x:Name="BodyContentWebView"
-            Grid.Row="0" Grid.RowSpan="2" Grid.Column="2"
-            Source="{Binding DisplayUrl, TargetNullValue='about:blank'}"
-            Visibility="{Binding StatusContext.BlockUi, Converter={StaticResource BooleanNotToVisibility}}" />
+        <TabControl Grid.Row="0" Grid.RowSpan="2" Grid.Column="2">
+            <TabItem Header="Web">
+                <wpf:WebView2
+                    x:Name="BodyContentWebView"
+                    Source="{Binding DisplayUrl, TargetNullValue='about:blank'}"
+                    Visibility="{Binding StatusContext.BlockUi, Converter={StaticResource BooleanNotToVisibility}}" />
+            </TabItem>
+            <TabItem Header="Feed Content">
+                <wpf:WebView2
+                    x:Name="RssContentWebView"
+                    Visibility="{Binding StatusContext.BlockUi, Converter={StaticResource BooleanNotToVisibility}}">
+                    <b:Interaction.Behaviors>
+                        <wpfHtml:WebViewHtmlStringBindingBehavior HtmlString = "{Binding FeedDisplayHtml}" />
+                    </b:Interaction.Behaviors>
+                </wpf:WebView2>
+            </TabItem>
+        </TabControl>
         <Grid Grid.Column="0" Grid.Row="0">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition />

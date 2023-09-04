@@ -1,6 +1,8 @@
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Text;
+using System.Windows;
 using System.Windows.Data;
 using System.Windows.Threading;
 using Microsoft.EntityFrameworkCore;
@@ -27,6 +29,7 @@ public partial class FeedItemListContext
     public List<Guid> FeedList { get; set; } = new();
     public required ObservableCollection<FeedItemListListItem> Items { get; init; }
     public required ColumnSortControlContext ListSort { get; init; }
+    public string FeedDisplayHtml { get; set; } = string.Empty;
     public FeedItemListListItem? SelectedItem { get; set; }
     public List<FeedItemListListItem> SelectedItems { get; set; } = new();
     public bool ShowUnread { get; set; }
@@ -48,6 +51,36 @@ public partial class FeedItemListContext
         foreach (var x in toRemove) Items.Remove(x);
     }
 
+    private async Task ComposeFeedDisplayHtml(FeedItemListListItem? item)
+    {
+        if (item == null)
+        {
+            FeedDisplayHtml = await "No Valid Item?".ToHtmlDocumentWithMinimalCss("Nothing...", string.Empty);
+            return;
+        }
+
+        var htmlBody = $"""
+                        <h3><a href="{item.DbItem.Link}">{item.DbItem.Title.HtmlEncode()}</a></h3>
+                        <h4>{item.DbReaderFeed.Name.HtmlEncode()}</h4>
+                        <hr />
+                        <p>{item.DbItem.Description}</p>
+                        <hr />
+                        {item.DbItem.Content}
+                        <hr />
+                        <ul>
+                         <li>Link: <a href="{item.DbItem.Link}">{item.DbItem.Link}</a></li>
+                         <li>Author: {item.DbItem.Author.HtmlEncode()}</li>
+                         <li>Created On: {item.DbItem.CreatedOn:F}</li>
+                         <li>Publishing Date: {item.DbItem.PublishingDate:F}</li>
+                         <li>Feed Item Id: {item.DbItem.FeedItemId.HtmlEncode()}</li>
+                         <li>Id: {item.DbItem.Id}</li>
+                         <li>Persistent Id: {item.DbItem.PersistentId}</li>
+                        </ul>
+                        """;
+
+        FeedDisplayHtml = await htmlBody.ToHtmlDocumentWithMinimalCss(item.DbItem.Title ?? "No Title?", string.Empty);
+    }
+
     public static async Task<FeedItemListContext> CreateInstance(StatusControlContext statusContext, string dbFile,
         List<Guid>? feedList = null, bool showUnread = false)
     {
@@ -57,7 +90,7 @@ public partial class FeedItemListContext
 
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        var FeedQueries = new FeedQueries() { DbFileFullName = dbFile };
+        var feedQueries = new FeedQueries() { DbFileFullName = dbFile };
 
         var newContext = new FeedItemListContext
         {
@@ -65,7 +98,7 @@ public partial class FeedItemListContext
             StatusContext = statusContext,
             FeedList = feedList ?? new List<Guid>(),
             ShowUnread = showUnread,
-            ContextDb = FeedQueries,
+            ContextDb = feedQueries,
             ListSort = new ColumnSortControlContext
             {
                 Items = new List<ColumnSortControlSortItem>
@@ -157,6 +190,90 @@ public partial class FeedItemListContext
         await FeedEditorForFeedItem(SelectedItem);
     }
 
+    [NonBlockingCommand]
+    public async Task MarkdownLinksForSelectedItems()
+    {
+        if (!SelectedItems.Any())
+        {
+            StatusContext.ToastWarning("Nothing Selected?");
+            return;
+        }
+
+        var clipboardBlock = new StringBuilder();
+
+        foreach (var loopItems in SelectedItems)
+        {
+            clipboardBlock.AppendLine($"[{loopItems.DbItem.Title ?? "No Title"}]({loopItems.DbItem.Link})");
+        }
+
+        await ThreadSwitcher.ResumeForegroundAsync();
+        
+        Clipboard.SetText(clipboardBlock.ToString());
+    }
+    
+    [NonBlockingCommand]
+    public async Task UrlsForSelectedItems()
+    {
+        if (!SelectedItems.Any())
+        {
+            StatusContext.ToastWarning("Nothing Selected?");
+            return;
+        }
+
+        var clipboardBlock = new StringBuilder();
+
+        foreach (var loopItems in SelectedItems)
+        {
+            clipboardBlock.AppendLine($"{loopItems.DbItem.Link}");
+        }
+
+        await ThreadSwitcher.ResumeForegroundAsync();
+        
+        Clipboard.SetText(clipboardBlock.ToString());
+    }
+    
+    [NonBlockingCommand]
+    public async Task TitlesForSelectedItems()
+    {
+        if (!SelectedItems.Any())
+        {
+            StatusContext.ToastWarning("Nothing Selected?");
+            return;
+        }
+
+        var clipboardBlock = new StringBuilder();
+
+        foreach (var loopItems in SelectedItems)
+        {
+            clipboardBlock.AppendLine($"{loopItems.DbItem.Title ?? "(No Title)"}");
+        }
+
+        await ThreadSwitcher.ResumeForegroundAsync();
+        
+        Clipboard.SetText(clipboardBlock.ToString());
+    }
+    
+    [NonBlockingCommand]
+    public async Task TitleAndUrlForSelectedItems()
+    {
+        if (!SelectedItems.Any())
+        {
+            StatusContext.ToastWarning("Nothing Selected?");
+            return;
+        }
+
+        var clipboardBlock = new StringBuilder();
+
+        foreach (var loopItems in SelectedItems)
+        {
+            clipboardBlock.AppendLine($"{loopItems.DbItem.Title ?? "(No Title)"} - {loopItems.DbItem.Link}");
+        }
+
+        await ThreadSwitcher.ResumeForegroundAsync();
+        
+        Clipboard.SetText(clipboardBlock.ToString());
+    }
+    
     private async Task FilterList()
     {
         if (!Items.Any()) return;
@@ -271,6 +388,7 @@ public partial class FeedItemListContext
 
             try
             {
+                StatusContext.RunFireAndForgetNonBlockingTask(async () => await ComposeFeedDisplayHtml(SelectedItem));
                 DisplayUrl = string.IsNullOrWhiteSpace(SelectedItem?.DbItem.Link)
                     ? "about:blank"
                     : SelectedItem.DbItem.Link;
@@ -278,9 +396,9 @@ public partial class FeedItemListContext
             catch (Exception exception)
             {
                 Log.Error(exception, "Error With Display URL in the FeedItemListContext");
+                FeedDisplayHtml = string.Empty;
                 DisplayUrl = "about:blank";
             }
-
         }
     }
 

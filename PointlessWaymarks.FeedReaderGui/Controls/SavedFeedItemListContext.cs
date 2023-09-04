@@ -1,6 +1,8 @@
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Text;
+using System.Windows;
 using System.Windows.Data;
 using System.Windows.Threading;
 using Microsoft.EntityFrameworkCore;
@@ -25,6 +27,7 @@ public partial class SavedFeedItemListContext
     public required FeedQueries ContextDb { get; init; }
     public DataNotificationsWorkQueue? DataNotificationsProcessor { get; set; }
     public string DisplayUrl { get; set; } = string.Empty;
+    public string FeedDisplayHtml { get; set; } = string.Empty;
     public List<Guid> FeedList { get; set; } = new();
     public required ObservableCollection<SavedFeedItemListListItem> Items { get; init; }
     public required ColumnSortControlContext ListSort { get; init; }
@@ -32,6 +35,7 @@ public partial class SavedFeedItemListContext
     public List<SavedFeedItemListListItem> SelectedItems { get; set; } = new();
     public required StatusControlContext StatusContext { get; init; }
     public string UserFilterText { get; set; } = string.Empty;
+
 
     [NonBlockingCommand]
     public async Task ArchiveSelectedItems()
@@ -45,6 +49,35 @@ public partial class SavedFeedItemListContext
         await ContextDb.ArchiveSavedItems(SelectedItems.Select(x => x.DbItem.PersistentId).ToList());
     }
 
+    private async Task ComposeFeedDisplayHtml(SavedFeedItemListListItem? item)
+    {
+        if (item == null)
+        {
+            FeedDisplayHtml = await "No Valid Item?".ToHtmlDocumentWithMinimalCss("Nothing...", string.Empty);
+            return;
+        }
+
+        var htmlBody = $"""
+                        <h3><a href="{item.DbItem.Link}">{item.DbItem.Title.HtmlEncode()}</a></h3>
+                        <h4>{item.DbReaderFeed?.Name.HtmlEncode() ?? "(No Feed Name)"}</h4>
+                        <hr />
+                        <p>{item.DbItem.Description}</p>
+                        <hr />
+                        {item.DbItem.Content}
+                        <hr />
+                        <ul>
+                         <li>Link: <a href="{item.DbItem.Link}">{item.DbItem.Link}</a></li>
+                         <li>Author: {item.DbItem.Author.HtmlEncode()}</li>
+                         <li>Created On: {item.DbItem.CreatedOn:F}</li>
+                         <li>Publishing Date: {item.DbItem.PublishingDate:F}</li>
+                         <li>Feed Item Id: {item.DbItem.FeedItemId.HtmlEncode()}</li>
+                         <li>Id: {item.DbItem.Id}</li>
+                         <li>Persistent Id: {item.DbItem.PersistentId}</li>
+                        </ul>
+                        """;
+
+        FeedDisplayHtml = await htmlBody.ToHtmlDocumentWithMinimalCss(item.DbItem.Title ?? "No Title?", string.Empty);
+    }
 
     public static async Task<SavedFeedItemListContext> CreateInstance(StatusControlContext statusContext, string dbFile,
         List<Guid>? feedList = null, bool showUnread = false)
@@ -220,6 +253,25 @@ public partial class SavedFeedItemListContext
         };
     }
 
+    [NonBlockingCommand]
+    public async Task MarkdownLinksForSelectedItems()
+    {
+        if (!SelectedItems.Any())
+        {
+            StatusContext.ToastWarning("Nothing Selected?");
+            return;
+        }
+
+        var clipboardBlock = new StringBuilder();
+
+        foreach (var loopItems in SelectedItems)
+            clipboardBlock.AppendLine($"[{loopItems.DbItem.Title ?? "No Title"}]({loopItems.DbItem.Link})");
+
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        Clipboard.SetText(clipboardBlock.ToString());
+    }
+
     private void OnDataNotificationReceived(object? sender, TinyMessageReceivedEventArgs e)
     {
         DataNotificationsProcessor?.Enqueue(e);
@@ -233,9 +285,13 @@ public partial class SavedFeedItemListContext
             StatusContext.RunFireAndForgetNonBlockingTask(FilterList);
 
         if (e.PropertyName.Equals(nameof(SelectedItem)))
+        {
+            StatusContext.RunFireAndForgetNonBlockingTask(async () => await ComposeFeedDisplayHtml(SelectedItem));
+
             DisplayUrl = string.IsNullOrWhiteSpace(SelectedItem?.DbItem.Link)
                 ? "about:blank"
                 : SelectedItem.DbItem.Link;
+        }
     }
 
     [NonBlockingCommand]
@@ -314,6 +370,43 @@ public partial class SavedFeedItemListContext
         DataNotifications.NewDataNotificationChannel().MessageReceived += OnDataNotificationReceived;
     }
 
+    [NonBlockingCommand]
+    public async Task TitleAndUrlForSelectedItems()
+    {
+        if (!SelectedItems.Any())
+        {
+            StatusContext.ToastWarning("Nothing Selected?");
+            return;
+        }
+
+        var clipboardBlock = new StringBuilder();
+
+        foreach (var loopItems in SelectedItems)
+            clipboardBlock.AppendLine($"{loopItems.DbItem.Title ?? "(No Title)"} - {loopItems.DbItem.Link}");
+
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        Clipboard.SetText(clipboardBlock.ToString());
+    }
+
+    [NonBlockingCommand]
+    public async Task TitlesForSelectedItems()
+    {
+        if (!SelectedItems.Any())
+        {
+            StatusContext.ToastWarning("Nothing Selected?");
+            return;
+        }
+
+        var clipboardBlock = new StringBuilder();
+
+        foreach (var loopItems in SelectedItems) clipboardBlock.AppendLine($"{loopItems.DbItem.Title ?? "(No Title)"}");
+
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        Clipboard.SetText(clipboardBlock.ToString());
+    }
+
     public async Task UpdateFeedItems(List<Guid> toUpdate)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -373,5 +466,23 @@ public partial class SavedFeedItemListContext
                 Items.Add(new SavedFeedItemListListItem { DbReaderFeed = dbFeed, DbItem = dbFeedItem });
             }
         }
+    }
+
+    [NonBlockingCommand]
+    public async Task UrlsForSelectedItems()
+    {
+        if (!SelectedItems.Any())
+        {
+            StatusContext.ToastWarning("Nothing Selected?");
+            return;
+        }
+
+        var clipboardBlock = new StringBuilder();
+
+        foreach (var loopItems in SelectedItems) clipboardBlock.AppendLine($"{loopItems.DbItem.Link}");
+
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        Clipboard.SetText(clipboardBlock.ToString());
     }
 }
