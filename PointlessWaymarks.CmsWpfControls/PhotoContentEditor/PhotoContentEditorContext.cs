@@ -754,8 +754,6 @@ Photo Content Notes:
         var (isValid, explanation) =
             await CommonContentValidation.PhotoFileValidation(SelectedFile, DbEntry.ContentId);
 
-        TitleSummarySlugFolder?.CheckForChangesToTitleToFunctionStates();
-
         SelectedFileHasValidationIssues = !isValid;
 
         SelectedFileValidationMessage = explanation;
@@ -778,6 +776,8 @@ Photo Content Notes:
         }
 
         SelectedFileBitmapSource = await ImageHelpers.InMemoryThumbnailFromFile(SelectedFile, 450, 72);
+        
+        TitleSummarySlugFolder?.CheckForChangesToTitleToFunctionStates();
     }
 
     [BlockingCommand]

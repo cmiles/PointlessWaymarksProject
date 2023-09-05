@@ -22,14 +22,19 @@
     <StackPanel Orientation="Vertical">
         <StackPanel Orientation="Vertical">
             <stringDataEntry:StringDataEntryControl DataContext="{Binding TitleEntry}" />
-            <WrapPanel Margin="12,6,0,6" Orientation="Horizontal">
+            <WrapPanel Margin="12,6,0,6" Orientation="Horizontal" >
                 <WrapPanel.Resources>
                     <Style TargetType="Button">
                         <Setter Property="Width" Value="90" />
-                        <Setter Property="Margin" Value="2,0,2,0" />
+                        <Setter Property="Margin" Value="2,0,2,2" />
                     </Style>
                 </WrapPanel.Resources>
                 <TextBlock VerticalAlignment="Center">Title:</TextBlock>
+                <Button
+                    Width="45"
+                    Command="{Binding AllAvailableTitleActionsCommand}"
+                    Content="All ->"
+                    IsEnabled="{Binding AllAvailableTitleActionsEnabled}" />
                 <Button
                     Command="{Binding TitleToSlugCommand}"
                     Content="To Slug"

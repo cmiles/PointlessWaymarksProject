@@ -60,7 +60,6 @@ public partial class VideoContentEditorContext : IHasChanges, IHasValidationIssu
     public ContentIdViewerControlContext? ContentId { get; set; }
     public CreatedAndUpdatedByAndOnDisplayContext? CreatedUpdatedDisplay { get; set; }
     public VideoContent DbEntry { get; set; }
-    public bool FileIsMp4 { get; set; }
     public HelpDisplayContext? HelpContext { get; set; }
     public FileInfo? InitialVideo { get; set; }
     public StringDataEntryContext? LicenseEntry { get; set; }
@@ -620,6 +619,8 @@ Notes:
         VideoContext!.VideoSource = SelectedFile is { Exists: true }
             ? VideoContext.VideoSource = SelectedFile.FullName
             : VideoContext.VideoSource = string.Empty;
+        
+        TitleSummarySlugFolder?.CheckForChangesToTitleToFunctionStates();
     }
 
     public async Task SetUserMainPicture()

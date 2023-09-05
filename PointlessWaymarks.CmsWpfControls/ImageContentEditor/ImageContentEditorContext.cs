@@ -434,6 +434,8 @@ public partial class ImageContentEditorContext : IHasChanges, IHasValidationIssu
         }
 
         SelectedFileBitmapSource = await ImageHelpers.InMemoryThumbnailFromFile(SelectedFile, 450, 72);
+        
+        TitleSummarySlugFolder?.CheckForChangesToTitleToFunctionStates();
     }
 
     [BlockingCommand]

@@ -673,7 +673,7 @@ Notes:
 
         var (isValid, explanation) =
             await CommonContentValidation.FileContentFileValidation(SelectedFile, DbEntry.ContentId);
-
+        
         SelectedFileHasValidationIssues = !isValid;
 
         SelectedFileValidationMessage = explanation;
@@ -682,6 +682,8 @@ Notes:
             await CommonContentValidation.FileContentFileFileNameHasInvalidCharacters(SelectedFile, DbEntry.ContentId);
 
         DetectGuiFileTypes();
+        
+        TitleSummarySlugFolder?.CheckForChangesToTitleToFunctionStates();
     }
 
     public async Task SetUserMainPicture()

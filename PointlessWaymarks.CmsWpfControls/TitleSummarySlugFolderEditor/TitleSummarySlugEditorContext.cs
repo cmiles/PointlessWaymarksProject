@@ -48,6 +48,8 @@ public partial class TitleSummarySlugEditorContext : IHasChanges, IHasValidation
         PropertyScanners.SubscribeToChildHasChangesAndHasValidationIssues(this, CheckForChangesAndValidationIssues);
     }
 
+    public bool AllAvailableTitleActionsEnabled { get; set; }
+
     public Func<TitleSummarySlugEditorContext, bool>? CustomTitleCheckToEnable { get; set; }
     public RelayCommand? CustomTitleCommand { get; set; }
     public bool CustomTitleFunctionEnabled { get; set; }
@@ -55,6 +57,9 @@ public partial class TitleSummarySlugEditorContext : IHasChanges, IHasValidation
     public bool CustomTitleFunctionVisible { get; set; }
     public ITitleSummarySlugFolder DbEntry { get; set; }
     public ContentFolderContext FolderEntry { get; set; }
+
+    public bool HasChanges { get; set; }
+    public bool HasValidationIssues { get; set; }
     public StringDataEntryContext SlugEntry { get; set; }
     public StatusControlContext StatusContext { get; set; }
     public StringDataEntryContext SummaryEntry { get; set; }
@@ -69,8 +74,13 @@ public partial class TitleSummarySlugEditorContext : IHasChanges, IHasValidation
         HasValidationIssues = PropertyScanners.ChildPropertiesHaveValidationIssues(this);
     }
 
-    public bool HasChanges { get; set; }
-    public bool HasValidationIssues { get; set; }
+    [BlockingCommand]
+    public async Task AllAvailableTitleActions()
+    {
+        if (TitleToSlugEnabled) await TitleToSlug();
+        if (TitleToSummaryEnabled) await TitleToSummary();
+        if (CustomTitleFunctionEnabled) CustomTitleCommand?.Execute(null);
+    }
 
     public void CheckForChangesToTitleToFunctionStates()
     {
@@ -80,6 +90,9 @@ public partial class TitleSummarySlugEditorContext : IHasChanges, IHasValidation
             {
                 TitleToSlugEnabled = false;
                 TitleToSummaryEnabled = false;
+                CustomTitleFunctionEnabled = CustomTitleCheckToEnable?.Invoke(this) ?? false;
+                AllAvailableTitleActionsEnabled =
+                    TitleToSlugEnabled || TitleToSummaryEnabled || CustomTitleFunctionEnabled;
                 return;
             }
 
@@ -91,6 +104,9 @@ public partial class TitleSummarySlugEditorContext : IHasChanges, IHasValidation
                        .Equals(TitleEntry.UserValue, StringComparison.OrdinalIgnoreCase)));
 
             CustomTitleFunctionEnabled = CustomTitleCheckToEnable?.Invoke(this) ?? false;
+
+            AllAvailableTitleActionsEnabled =
+                TitleToSlugEnabled || TitleToSummaryEnabled || CustomTitleFunctionEnabled;
         }
         catch (Exception ex)
         {
