@@ -9,7 +9,7 @@
              xmlns:valueConverters="clr-namespace:PointlessWaymarks.WpfCommon.ValueConverters;assembly=PointlessWaymarks.WpfCommon"
              xmlns:controls="clr-namespace:PointlessWaymarks.CloudBackupGui.Controls"
              mc:Ignorable="d"
-             d:DesignHeight="450" d:DesignWidth="800" d:DataContext="{d:DesignInstance local:BatchListContext}">
+             d:DesignHeight="450" d:DesignWidth="800" d:DataContext="{d:DesignInstance controls:BatchListContext}">
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -36,7 +36,7 @@
                     Margin="4,4,4,0"
                     Style="{StaticResource UiComponentGroupBoxStyle}">
                     <GroupBox.Header>
-                        <TextBlock Grid.Column="0" Grid.Row="1" Margin="6,4,0,0">
+                        <TextBlock Margin="6,4,0,0">
                             <TextBlock.Text>
                                 <MultiBinding StringFormat="Batches - {0}, Id {1} - {2} to {3}/{4}">
                                     <Binding Path="DbJob.Name" />
@@ -64,10 +64,11 @@
                                         <TextBox FontWeight="Bold" Style="{StaticResource ReadOnlyTextBoxStyle}"
                                                  TextWrapping="Wrap">
                                             <TextBox.Text>
-                                                <MultiBinding StringFormat="Created {0} - Id {1} - {2:P0} Completed">
+                                                <MultiBinding StringFormat="Created {0} - Id {1} - {2:P0} Completed - Based On New Cloud File Scan: {3}">
                                                     <Binding Path="DbBatch.CreatedOn" />
                                                     <Binding Path="DbBatch.Id" />
                                                     <Binding Path="SizeCompletedPercentage" />
+                                                    <Binding Path="DbBatch.BasedOnNewCloudFileScan" />
                                                 </MultiBinding>
                                             </TextBox.Text>
                                         </TextBox>

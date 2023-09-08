@@ -8,7 +8,7 @@
              xmlns:utility="clr-namespace:PointlessWaymarks.WpfCommon.Utility;assembly=PointlessWaymarks.WpfCommon"
              xmlns:controls="clr-namespace:PointlessWaymarks.CloudBackupGui.Controls"
              mc:Ignorable="d"
-             d:DesignHeight="450" d:DesignWidth="800" d:DataContext="{d:DesignInstance local:JobListContext}">
+             d:DesignHeight="450" d:DesignWidth="800" d:DataContext="{d:DesignInstance controls:JobListContext}">
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>

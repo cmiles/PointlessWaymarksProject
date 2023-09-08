@@ -10,8 +10,9 @@
              xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:behaviors="clr-namespace:PointlessWaymarks.WpfCommon.Behaviors;assembly=PointlessWaymarks.WpfCommon"
              xmlns:markdownDisplay="clr-namespace:PointlessWaymarks.WpfCommon.MarkdownDisplay;assembly=PointlessWaymarks.WpfCommon"
+             xmlns:controls="clr-namespace:PointlessWaymarks.CloudBackupGui.Controls"
              mc:Ignorable="d"
-             d:DesignHeight="600" d:DesignWidth="600" d:DataContext="{d:DesignInstance local:JobEditorContext}">
+             d:DesignHeight="600" d:DesignWidth="600" d:DataContext="{d:DesignInstance controls:JobEditorContext}">
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>

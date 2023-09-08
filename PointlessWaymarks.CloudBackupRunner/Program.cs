@@ -13,7 +13,7 @@ public static class Program
 {
     public static async Task Main(string[] args)
     {
-        LogTools.StandardStaticLoggerForProgramDirectory("CloudBackup");
+        LogTools.StandardStaticLoggerForProgramDirectory("CloudBackupRunner");
 
         AppDomain.CurrentDomain.UnhandledException += delegate(object sender, UnhandledExceptionEventArgs eventArgs)
         {
@@ -243,7 +243,7 @@ public static class Program
                 {
                     batch = mostRecentBatch;
                     Log.ForContext(nameof(batch), batch.SafeObjectDumpNoEnumerables())
-                        .Information("Batch Set to Batch Id {batchId} Based on auto argument", batch.Id);
+                        .Information("Batch Set to Batch Id {batchId} Based on auto argument and High Percent Success {highPercentSuccess} and High Percent Errors {highPercentErrors}", batch.Id, highPercentSuccess, highPercentErrors);
                 }
                 //Case: In the last 4 weeks there is a batch and at least one of the batches in the last 4 weeks is
                 //based on a full cloud scan -> check for changes against the cache and if none are found then exit.

@@ -13,6 +13,8 @@ public static class CloudCacheFilesToExcel
         var db = await CloudBackupContext.CreateInstance();
         var job = await db.BackupJobs.SingleAsync(x => x.Id == jobId);
 
+        var lastScan = job.Batches.Where(x => x.BasedOnNewCloudFileScan).MaxBy(x => x.CreatedOn);
+        
         var projectedFiles = job.CloudCacheFiles.OrderBy(x => x.CloudObjectKey).Select(x => new
         {
             Key = x.CloudObjectKey,
@@ -26,7 +28,7 @@ public static class CloudCacheFilesToExcel
 
         progress.Report("Building Excel File");
 
-        var uploadsWorksheet = workbook.Worksheets.Add("Cloud Cache Files");
+        var uploadsWorksheet = workbook.Worksheets.Add("Current Cloud Cache Files");
 
         var currentRow = 1;
 
@@ -35,7 +37,21 @@ public static class CloudCacheFilesToExcel
         uploadsWorksheet.Cell(currentRow, 1).Style.Font
             .SetFontSize(uploadsWorksheet.Cell(currentRow, 1).Style.Font.FontSize + 4);
         uploadsWorksheet.Cell(currentRow++, 1).Style.Font.SetBold(true);
-        uploadsWorksheet.Cell(currentRow++, 1).Value = $"{projectedFiles.Count} Files- {FileAndFolderTools.GetBytesReadable(projectedFiles.Sum(x => x.FileSize))}";
+        uploadsWorksheet.Cell(currentRow++, 1).Value = $"{projectedFiles.Count} Files - {FileAndFolderTools.GetBytesReadable(projectedFiles.Sum(x => x.FileSize))}";
+        currentRow++;
+        currentRow++;
+
+        uploadsWorksheet.Cell(currentRow, 1).Value =
+            $"This is the current cloud file cache, this will represent a Full Scan plus the uploads/downloads this program has made. - {(lastScan == null ? "there is NO Full Scan of the Cloud Files Recorded..." : $"the last Full Scan of the Cloud Files was on {lastScan.CreatedOn:F}.")}";
+        uploadsWorksheet.Cell(currentRow, 1).Style.Font
+            .SetFontSize(uploadsWorksheet.Cell(currentRow, 1).Style.Font.FontSize + 2);
+        uploadsWorksheet.Cell(currentRow++, 1).Style.Font.SetItalic(true);
+        uploadsWorksheet.Cell(currentRow, 1).Value =
+            $"{(lastScan == null ? "  There is NO Full Scan of the Cloud Files Recorded - this is unusual..." : $"  The last Full Scan of the Cloud Files was on {lastScan.CreatedOn:F}.")}";
+        uploadsWorksheet.Cell(currentRow, 1).Style.Font
+            .SetFontSize(uploadsWorksheet.Cell(currentRow, 1).Style.Font.FontSize + 2);
+        uploadsWorksheet.Cell(currentRow++, 1).Style.Font.SetItalic(true);
+
         currentRow++;
         currentRow++;
 

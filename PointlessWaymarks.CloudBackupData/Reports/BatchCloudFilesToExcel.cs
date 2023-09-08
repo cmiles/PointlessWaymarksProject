@@ -30,7 +30,7 @@ public static class BatchCloudFilesToExcel
         var currentRow = 1;
 
         uploadsWorksheet.Cell(currentRow, 1).Value =
-            $"Cloud Files - {batch.Job!.Name} (Id {batch.Job!.Id}) - Batch Id {batch.Id} Created On {batch.CreatedOn}";
+            $"Cloud Files - {batch.Job!.Name} (Id {batch.Job!.Id}) - Batch Id {batch.Id} Created On {batch.CreatedOn} - {(batch.BasedOnNewCloudFileScan ? "Based on a New Cloud File Scan" : "Based on the Cloud File Cache")}";
         uploadsWorksheet.Cell(currentRow, 1).Style.Font
             .SetFontSize(uploadsWorksheet.Cell(currentRow, 1).Style.Font.FontSize + 4);
         uploadsWorksheet.Cell(currentRow++, 1).Style.Font.SetBold(true);

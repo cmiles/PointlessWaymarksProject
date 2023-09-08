@@ -75,6 +75,8 @@ public static class CreationTools
         int backupJobId,
         IProgress<string> progress)
     {
+        Log.Information("Cloud Backup - Getting Changes based on Cloud Cache and Local Scan");
+
         var db = await CloudBackupContext.CreateInstance();
 
         var job = await db.BackupJobs.SingleAsync(x => x.Id == backupJobId);
@@ -125,6 +127,10 @@ public static class CreationTools
         returnData.S3FilesToDelete = returnData.S3Files
             .Where(x => returnData.FileSystemFiles.All(y => y.CloudKey != x.Key)).ToList();
 
+        Log.Information(
+            "Cloud Backup - Found {uploadCount} Uploads and {deleteCount} Deletes based on Cloud Cache and Local Scan",
+            returnData.FileSystemFilesToUpload.Count, returnData.S3FilesToDelete.Count);
+
         return returnData;
     }
 
@@ -133,6 +139,8 @@ public static class CreationTools
         int backupJobId,
         IProgress<string> progress)
     {
+        Log.Information("Cloud Backup - Getting Changes based on Cloud Scan and Local Scan");
+
         var db = await CloudBackupContext.CreateInstance();
 
         var job = await db.BackupJobs.SingleAsync(x => x.Id == backupJobId);
@@ -179,6 +187,10 @@ public static class CreationTools
 
         returnData.S3FilesToDelete = returnData.S3Files
             .Where(x => returnData.FileSystemFiles.All(y => y.CloudKey != x.Key)).ToList();
+
+        Log.Information(
+            "Cloud Backup - Found {uploadCount} Uploads and {deleteCount} Deletes based on Cloud Scan and Local Scan",
+            returnData.FileSystemFilesToUpload.Count, returnData.S3FilesToDelete.Count);
 
         return returnData;
     }
@@ -342,7 +354,11 @@ public static class CreationTools
         var frozenNow = DateTime.Now.ToUniversalTime();
         var db = await CloudBackupContext.CreateInstance();
 
-        var batch = new CloudTransferBatch { CreatedOn = frozenNow, JobId = changes.Job.Id };
+        var batch = new CloudTransferBatch
+        {
+            CreatedOn = frozenNow, JobId = changes.Job.Id,
+            BasedOnNewCloudFileScan = changes.ChangesBasedOnNewCloudFileScan
+        };
         await db.CloudTransferBatches.AddAsync(batch);
 
         await db.SaveChangesAsync();
@@ -389,6 +405,8 @@ public static class CreationTools
         }));
 
         await db.SaveChangesAsync();
+
+        Log.Information("New Batch Created - Id {batchId}, New Cloud Scan {newCloudScan}, {uploadCount} Uploads, {deleteCount} Deletes, {localFilesCount} Local Files, {cloudFilesCount}", batch.Id, batch.BasedOnNewCloudFileScan, batch.CloudUploads.Count, batch.CloudDeletions.Count, batch.FileSystemFiles.Count, batch.CloudFiles.Count);
 
         return batch;
     }

@@ -34,7 +34,7 @@ public static class BatchDeletesToExcel
         uploadsWorksheet.Cell(currentRow, 1).Style.Font
             .SetFontSize(uploadsWorksheet.Cell(currentRow, 1).Style.Font.FontSize + 4);
         uploadsWorksheet.Cell(currentRow++, 1).Style.Font.SetBold(true);
-        uploadsWorksheet.Cell(currentRow++, 1).Value = $"Batch {batch.Id} Created {batch.CreatedOn}";
+        uploadsWorksheet.Cell(currentRow++, 1).Value = $"Batch {batch.Id} Created {batch.CreatedOn} - {(batch.BasedOnNewCloudFileScan ? "Based on a New Cloud File Scan" : "Based on the Cloud File Cache")}";
         currentRow++;
 
         uploadsWorksheet.Cell(currentRow++, 1).Value =
