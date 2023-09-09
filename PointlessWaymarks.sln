@@ -11,7 +11,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PointlessWaymarks.CmsData",
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PointlessWaymarks.CmsTests", "PointlessWaymarks.CmsTests\PointlessWaymarks.CmsTests.csproj", "{3C9709B9-F0FF-452B-9E4A-2A125B1806AE}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PointlessWaymarks.PressSharper", "PointlessWaymarks.PressSharper\PressSharper\PointlessWaymarks.PressSharper.csproj", "{7E1D736B-F2B5-4E13-8D96-C972FC9344E1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PointlessWaymarks.PressSharper", "PointlessWaymarks.PressSharper\PointlessWaymarks.PressSharper.csproj", "{7E1D736B-F2B5-4E13-8D96-C972FC9344E1}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PointlessWaymarks.PressSharper.UnitTests", "PointlessWaymarks.PressSharper.UnitTests\PointlessWaymarks.PressSharper.UnitTests.csproj", "{A9BB501C-E170-460C-A815-EEF0C5AB632F}"
 EndProject
@@ -67,6 +67,8 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PointlessWaymarks.FeedReader.Tests", "PointlessWaymarks.FeedReader.Tests\PointlessWaymarks.FeedReader.Tests.csproj", "{DD9DD01B-C1F7-4E8F-8B8F-F00534A9ABC1}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PointlessWaymarks.FeedReader.TestDataCrawler", "PointlessWaymarks.FeedReader.TestDataCrawler\PointlessWaymarks.FeedReader.TestDataCrawler.csproj", "{652233D0-28ED-40A3-B579-5E6676BF6CA8}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PointlessWaymarks.PublishReadmeHelper", "PointlessWaymarks.PublishReadmeHelper\PointlessWaymarks.PublishReadmeHelper.csproj", "{6FF96150-1179-4A1C-8F07-9C4D11948D2A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -186,6 +188,10 @@ Global
 		{652233D0-28ED-40A3-B579-5E6676BF6CA8}.Debug|x64.Build.0 = Debug|x64
 		{652233D0-28ED-40A3-B579-5E6676BF6CA8}.Release|x64.ActiveCfg = Release|x64
 		{652233D0-28ED-40A3-B579-5E6676BF6CA8}.Release|x64.Build.0 = Release|x64
+		{6FF96150-1179-4A1C-8F07-9C4D11948D2A}.Debug|x64.ActiveCfg = Debug|x64
+		{6FF96150-1179-4A1C-8F07-9C4D11948D2A}.Debug|x64.Build.0 = Debug|x64
+		{6FF96150-1179-4A1C-8F07-9C4D11948D2A}.Release|x64.ActiveCfg = Release|x64
+		{6FF96150-1179-4A1C-8F07-9C4D11948D2A}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

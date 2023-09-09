@@ -41,8 +41,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="README.md">
+    <None Update="README_CloudBackupGui.md">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="README.md">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
   </ItemGroup>
 

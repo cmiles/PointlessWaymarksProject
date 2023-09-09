@@ -1,5 +1,7 @@
 $ErrorActionPreference = "Stop"
 
+.\Tools-CopyReadmeToProjectSpecificReadme.ps1
+
 $PublishVersion = get-date -f yyyy-MM-dd-HH-mm
 
 $GitCommit = & git rev-parse --short HEAD

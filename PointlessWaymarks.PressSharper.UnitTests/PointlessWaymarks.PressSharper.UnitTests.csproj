@@ -13,10 +13,16 @@
     <PackageReference Include="NUnit3TestAdapter" Version="4.5.0" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\PointlessWaymarks.PressSharper\PressSharper\PointlessWaymarks.PressSharper.csproj" />
+    <ProjectReference Include="..\PointlessWaymarks.PressSharper\PointlessWaymarks.PressSharper.csproj" />
   </ItemGroup>
   <ItemGroup>
     <None Update="PressSharper-UnitTests-License.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="README_PressSharper-UnitTests.md">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="README_UnitTests.md">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

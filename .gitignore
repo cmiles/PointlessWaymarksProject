@@ -365,3 +365,6 @@ PointlessWaymarks.CloudBackupRunner/Properties/launchSettings.json
 PointlessWaymarks.CloudBackupRunner/PointlessWaymarks.CloudBackupRunner.args.json
 PointlessWaymarks.CloudBackupRunner/PointlessWaymarks.CloudBackupRunner.args.json
 nuget.exe
+PointlessWaymarks.CloudBackupGui/README_CloudBackupGui.md
+PointlessWaymarks.CloudBackupRunner/README_CloudBackupRunner.md
+README_*.md

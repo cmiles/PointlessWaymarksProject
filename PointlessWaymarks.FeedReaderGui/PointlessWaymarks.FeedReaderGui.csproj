@@ -34,4 +34,10 @@
       </Resource>
     </ItemGroup>
 
+    <ItemGroup>
+      <None Update="README_FeedReaderGui.md">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+    </ItemGroup>
+
 </Project>

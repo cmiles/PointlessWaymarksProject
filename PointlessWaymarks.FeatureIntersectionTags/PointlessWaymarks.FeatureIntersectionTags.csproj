@@ -13,4 +13,10 @@
     <ProjectReference Include="..\PointlessWaymarks.SpatialTools\PointlessWaymarks.SpatialTools.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="README_FeatureIntersectionTags.md">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>
