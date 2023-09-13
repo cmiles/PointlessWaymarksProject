@@ -31,7 +31,7 @@ catch (Exception e)
     await (await WindowsNotificationBuilders.NewNotifier(PhotoPickupSettings.ProgramShortName))
         .SetAutomationLogoNotificationIconUrl().SetErrorReportAdditionalInformationMarkdown(
             FileAndFolderTools.ReadAllText(
-                Path.Combine(AppContext.BaseDirectory, "README.md"))).Error(e);
+                Path.Combine(AppContext.BaseDirectory, "README_Task-PhotoPickup.md"))).Error(e);
 }
 finally
 { 

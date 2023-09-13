@@ -20,7 +20,7 @@ public class PhotoPickup
         var notifier = (await WindowsNotificationBuilders.NewNotifier(PhotoPickupSettings.ProgramShortName))
             .SetAutomationLogoNotificationIconUrl().SetErrorReportAdditionalInformationMarkdown(
                 FileAndFolderTools.ReadAllText(
-                    Path.Combine(AppContext.BaseDirectory, "README.md")));
+                    Path.Combine(AppContext.BaseDirectory, "README_Task-PhotoPickup.md")));
 
         if (string.IsNullOrWhiteSpace(settingsFile))
         {

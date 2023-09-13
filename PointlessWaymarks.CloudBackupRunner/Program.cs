@@ -28,7 +28,7 @@ public static class Program
                 WindowsNotificationBuilders.NewNotifier("Cloud Backup Runner").Result
                     .SetAutomationLogoNotificationIconUrl().SetErrorReportAdditionalInformationMarkdown(
                         FileAndFolderTools.ReadAllText(
-                            Path.Combine(AppContext.BaseDirectory, "README.md"))).Error("Unhandled Exception...")
+                            Path.Combine(AppContext.BaseDirectory, "README_CloudBackupRunner.md"))).Error("Unhandled Exception...")
                     .RunSynchronously();
             }
             catch (Exception)
@@ -106,7 +106,7 @@ public static class Program
         var errorNotifier = (await WindowsNotificationBuilders.NewNotifier("Cloud Backup Runner"))
             .SetAutomationLogoNotificationIconUrl().SetErrorReportAdditionalInformationMarkdown(
                 FileAndFolderTools.ReadAllText(
-                    Path.Combine(AppContext.BaseDirectory, "README.md")));
+                    Path.Combine(AppContext.BaseDirectory, "README_CloudBackupRunner.md")));
 
         Log.ForContext("args", args, true).Information(
             "PointlessWaymarks.CloudBackupRunner Starting");
@@ -345,7 +345,7 @@ public static class Program
             await (await WindowsNotificationBuilders.NewNotifier("Cloud Backup Runner"))
                 .SetAutomationLogoNotificationIconUrl().SetErrorReportAdditionalInformationMarkdown(
                     FileAndFolderTools.ReadAllText(
-                        Path.Combine(AppContext.BaseDirectory, "README.md"))).Error(e);
+                        Path.Combine(AppContext.BaseDirectory, "README_CloudBackupRunner.md"))).Error(e);
         }
         finally
         {

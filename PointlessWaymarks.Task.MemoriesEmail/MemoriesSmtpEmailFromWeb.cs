@@ -19,7 +19,7 @@ public class MemoriesSmtpEmailFromWeb : IMemoriesSmtpEmailFromWeb
     {
         var notifier = (await WindowsNotificationBuilders.NewNotifier(MemoriesSmtpEmailFromWebSettings.ProgramShortName))
             .SetErrorReportAdditionalInformationMarkdown(FileAndFolderTools.ReadAllText(Path.Combine(
-                AppContext.BaseDirectory, "README.md"))).SetAutomationLogoNotificationIconUrl();
+                AppContext.BaseDirectory, "README_Task-MemoriesEmail.md"))).SetAutomationLogoNotificationIconUrl();
 
         if (string.IsNullOrWhiteSpace(settingsFile))
         {

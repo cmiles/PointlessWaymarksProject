@@ -22,7 +22,7 @@ public class GpxTrackImport
     {
         var notifier = (await WindowsNotificationBuilders.NewNotifier(GarminConnectGpxImportSettings.ProgramShortName))
             .SetErrorReportAdditionalInformationMarkdown(FileAndFolderTools.ReadAllText(Path.Combine(
-                AppContext.BaseDirectory, "README.md"))).SetAutomationLogoNotificationIconUrl();
+                AppContext.BaseDirectory, "README_Task-GarminConnectGpxImport.md"))).SetAutomationLogoNotificationIconUrl();
 
         var consoleProgress = new ConsoleProgress();
 
