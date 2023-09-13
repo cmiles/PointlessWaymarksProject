@@ -29,8 +29,13 @@ public partial class VideoListWithActionsContext
             new() { ItemName = "Edit", ItemCommand = ListContext.EditSelectedCommand },
             new()
             {
-                ItemName = "Video Embed Code to Clipboard",
+                ItemName = "Embed Code to Clipboard",
                 ItemCommand = ListContext.BracketCodeToClipboardSelectedCommand
+            },
+            new ()
+            {
+                ItemName = "Image Code to Clipboard",
+                ItemCommand = VideoCoverImageLinkCodesToClipboardForSelectedCommand
             },
             new()
             {
@@ -123,7 +128,7 @@ public partial class VideoListWithActionsContext
         var finalString = string.Empty;
 
         foreach (var loopSelected in SelectedItems())
-            finalString += @$"{BracketCodeVideoEmbed.Create(loopSelected.DbEntry)}{Environment.NewLine}";
+            finalString += @$"{BracketCodeVideoLinks.Create(loopSelected.DbEntry)}{Environment.NewLine}";
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
@@ -131,7 +136,49 @@ public partial class VideoListWithActionsContext
 
         StatusContext.ToastSuccess($"To Clipboard {finalString}");
     }
+    
+    [BlockingCommand]
+    private async Task VideoCoverImageLinkCodesToClipboardForSelected()
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
 
+        if (!SelectedItems().Any())
+        {
+            StatusContext.ToastError("Nothing Selected?");
+            return;
+        }
+
+        var finalString = string.Empty;
+
+        bool showNoImageWarning = false;
+        
+        foreach (var loopSelected in SelectedItems())
+        {
+            if (loopSelected.DbEntry.MainPicture == null)
+            {
+                showNoImageWarning = true;
+                finalString += @$"{BracketCodeVideoLinks.Create(loopSelected.DbEntry)}{Environment.NewLine}";
+            }
+            else
+            {
+                finalString += @$"{BracketCodeVideoImage.Create(loopSelected.DbEntry)}{Environment.NewLine}";
+            }
+        }
+        
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        Clipboard.SetText(finalString);
+
+        if (showNoImageWarning)
+        {
+            StatusContext.ToastWarning("Not all Videos had a main image - some bracket codes are text links...");
+        }
+        else
+        {
+            StatusContext.ToastSuccess($"To Clipboard {finalString}");
+        }
+    }
+    
     [BlockingCommand]
     public async Task ViewSelectedVideos(CancellationToken cancelToken)
     {

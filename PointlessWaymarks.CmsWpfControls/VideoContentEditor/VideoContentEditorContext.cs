@@ -205,6 +205,8 @@ Notes:
         if (initialVideo is { Exists: true }) newContext.InitialVideo = initialVideo;
 
         await newContext.LoadData(toLoad);
+        
+        newContext.StatusContext.BlockUi = false;
 
         return newContext;
     }

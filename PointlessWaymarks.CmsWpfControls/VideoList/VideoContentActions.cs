@@ -33,9 +33,7 @@ public partial class VideoContentActions : IContentActions<VideoContent>
     public string DefaultBracketCode(VideoContent? content)
     {
         if (content?.ContentId == null) return string.Empty;
-        return content.MainPicture != null
-            ? @$"{BracketCodeVideoImage.Create(content)}"
-            : @$"{BracketCodeVideoEmbed.Create(content)}";
+        return $"{BracketCodeVideoEmbed.Create(content)}";
     }
 
     [BlockingCommand]

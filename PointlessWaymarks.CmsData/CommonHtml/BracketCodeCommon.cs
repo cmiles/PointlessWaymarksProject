@@ -202,6 +202,9 @@ public static class BracketCodeCommon
         input = await BracketCodePointLinks.Process(input, progress).ConfigureAwait(false);
         input = await BracketCodePosts.Process(input, progress).ConfigureAwait(false);
         input = await BracketCodePostImage.ProcessToFigureWithLink(input, progress).ConfigureAwait(false);
+        input = await BracketCodeVideoLinks.Process(input, progress).ConfigureAwait(false);
+        input = await BracketCodeVideoImage.ProcessToFigureWithLink(input, progress).ConfigureAwait(false);
+        input = await BracketCodeVideoEmbed.Process(input, progress).ConfigureAwait(false);
         input = BracketCodeSpecialPages.Process(input, progress);
 
         return input;
