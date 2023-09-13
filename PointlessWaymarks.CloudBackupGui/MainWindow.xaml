@@ -8,9 +8,10 @@
         xmlns:programUpdateMessage="clr-namespace:PointlessWaymarks.WpfCommon.ProgramUpdateMessage;assembly=PointlessWaymarks.WpfCommon"
         xmlns:markdownDisplay="clr-namespace:PointlessWaymarks.WpfCommon.MarkdownDisplay;assembly=PointlessWaymarks.WpfCommon"
         xmlns:controls="clr-namespace:PointlessWaymarks.CloudBackupGui.Controls"
+        xmlns:cloudBackupGui="clr-namespace:PointlessWaymarks.CloudBackupGui"
         mc:Ignorable="d"
         Title="{Binding InfoTitle}" Height="450" Width="800"
-        d:DataContext="{d:DesignInstance local:MainWindow}">
+        d:DataContext="{d:DesignInstance cloudBackupGui:MainWindow}">
     <Grid>
         <TabControl>
             <TabItem Header="Jobs">
