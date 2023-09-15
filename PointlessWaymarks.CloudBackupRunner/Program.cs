@@ -28,7 +28,7 @@ public static class Program
                 WindowsNotificationBuilders.NewNotifier("Cloud Backup Runner").Result
                     .SetAutomationLogoNotificationIconUrl().SetErrorReportAdditionalInformationMarkdown(
                         FileAndFolderTools.ReadAllText(
-                            Path.Combine(AppContext.BaseDirectory, "README_CloudBackupRunner.md"))).Error("Unhandled Exception...")
+                            Path.Combine(AppContext.BaseDirectory, "README_CloudBackupRunner.md"))).Error($"Unhandled Exception...", exceptionMessage)
                     .RunSynchronously();
             }
             catch (Exception)
@@ -221,13 +221,14 @@ public static class Program
             {
                 var mostRecentBatch = backupJob.Batches.MaxBy(x => x.CreatedOn)!;
                 var totalActions = mostRecentBatch.CloudUploads.Count + mostRecentBatch.CloudDeletions.Count;
+
                 var successfulActions = mostRecentBatch.CloudUploads.Count(x => x.UploadCompletedSuccessfully) +
                                         mostRecentBatch.CloudDeletions.Count(x => x.DeletionCompletedSuccessfully);
                 var errorActions =
                     mostRecentBatch.CloudUploads.Count(x => !string.IsNullOrWhiteSpace(x.ErrorMessage)) +
                     mostRecentBatch.CloudDeletions.Count(x => !string.IsNullOrWhiteSpace(x.ErrorMessage));
-                var highPercentSuccess = successfulActions / (decimal)totalActions > .95M;
-                var highPercentErrors = errorActions / (decimal)totalActions > .10M;
+                var highPercentSuccess = totalActions > 0 && successfulActions / (decimal)totalActions > .95M;
+                var highPercentErrors = totalActions > 0 && errorActions / (decimal)totalActions > .10M;
 
                 Console.WriteLine("Auto Batch Selection");
                 Console.WriteLine($"  Last Batch: Id {mostRecentBatch.Id} Created On: {mostRecentBatch.CreatedOn}");
