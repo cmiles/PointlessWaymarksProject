@@ -24,7 +24,7 @@
     </PackageReference>
     <PackageReference Include="Jot" Version="2.1.17" />
     <PackageReference Include="Metalama.Framework" Version="2023.3.4-preview" />
-    <PackageReference Include="OneOf" Version="3.0.255" />
+    <PackageReference Include="OneOf" Version="3.0.263" />
   </ItemGroup>
 
   <ItemGroup>
