@@ -14,12 +14,13 @@
     </ItemGroup>
     
     <ItemGroup>
+      <PackageReference Include="FluentScheduler" Version="5.5.1" />
       <PackageReference Include="GitInfo" Version="3.3.3">
         <PrivateAssets>all</PrivateAssets>
         <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       </PackageReference>
       <PackageReference Include="Jot" Version="2.1.17" />
-      <PackageReference Include="Metalama.Framework" Version="2023.3.4-preview" />
+      <PackageReference Include="Metalama.Framework" Version="2023.4.1-preview" />
     </ItemGroup>
 
     <ItemGroup>
