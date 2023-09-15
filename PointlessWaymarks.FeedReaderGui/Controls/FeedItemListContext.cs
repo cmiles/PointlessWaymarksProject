@@ -5,6 +5,7 @@ using System.Text;
 using System.Windows;
 using System.Windows.Data;
 using System.Windows.Threading;
+using FluentScheduler;
 using Microsoft.EntityFrameworkCore;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.FeedReaderData;
@@ -26,10 +27,10 @@ public partial class FeedItemListContext
     public required FeedQueries ContextDb { get; init; }
     public DataNotificationsWorkQueue? DataNotificationsProcessor { get; set; }
     public string DisplayUrl { get; set; } = string.Empty;
+    public string FeedDisplayHtml { get; set; } = string.Empty;
     public List<Guid> FeedList { get; set; } = new();
     public required ObservableCollection<FeedItemListListItem> Items { get; init; }
     public required ColumnSortControlContext ListSort { get; init; }
-    public string FeedDisplayHtml { get; set; } = string.Empty;
     public FeedItemListListItem? SelectedItem { get; set; }
     public List<FeedItemListListItem> SelectedItems { get; set; } = new();
     public bool ShowUnread { get; set; }
@@ -190,90 +191,6 @@ public partial class FeedItemListContext
         await FeedEditorForFeedItem(SelectedItem);
     }
 
-    [NonBlockingCommand]
-    public async Task MarkdownLinksForSelectedItems()
-    {
-        if (!SelectedItems.Any())
-        {
-            StatusContext.ToastWarning("Nothing Selected?");
-            return;
-        }
-
-        var clipboardBlock = new StringBuilder();
-
-        foreach (var loopItems in SelectedItems)
-        {
-            clipboardBlock.AppendLine($"[{loopItems.DbItem.Title ?? "No Title"}]({loopItems.DbItem.Link})");
-        }
-
-        await ThreadSwitcher.ResumeForegroundAsync();
-        
-        Clipboard.SetText(clipboardBlock.ToString());
-    }
-    
-    [NonBlockingCommand]
-    public async Task UrlsForSelectedItems()
-    {
-        if (!SelectedItems.Any())
-        {
-            StatusContext.ToastWarning("Nothing Selected?");
-            return;
-        }
-
-        var clipboardBlock = new StringBuilder();
-
-        foreach (var loopItems in SelectedItems)
-        {
-            clipboardBlock.AppendLine($"{loopItems.DbItem.Link}");
-        }
-
-        await ThreadSwitcher.ResumeForegroundAsync();
-        
-        Clipboard.SetText(clipboardBlock.ToString());
-    }
-    
-    [NonBlockingCommand]
-    public async Task TitlesForSelectedItems()
-    {
-        if (!SelectedItems.Any())
-        {
-            StatusContext.ToastWarning("Nothing Selected?");
-            return;
-        }
-
-        var clipboardBlock = new StringBuilder();
-
-        foreach (var loopItems in SelectedItems)
-        {
-            clipboardBlock.AppendLine($"{loopItems.DbItem.Title ?? "(No Title)"}");
-        }
-
-        await ThreadSwitcher.ResumeForegroundAsync();
-        
-        Clipboard.SetText(clipboardBlock.ToString());
-    }
-    
-    [NonBlockingCommand]
-    public async Task TitleAndUrlForSelectedItems()
-    {
-        if (!SelectedItems.Any())
-        {
-            StatusContext.ToastWarning("Nothing Selected?");
-            return;
-        }
-
-        var clipboardBlock = new StringBuilder();
-
-        foreach (var loopItems in SelectedItems)
-        {
-            clipboardBlock.AppendLine($"{loopItems.DbItem.Title ?? "(No Title)"} - {loopItems.DbItem.Link}");
-        }
-
-        await ThreadSwitcher.ResumeForegroundAsync();
-        
-        Clipboard.SetText(clipboardBlock.ToString());
-    }
-    
     private async Task FilterList()
     {
         if (!Items.Any()) return;
@@ -305,6 +222,25 @@ public partial class FeedItemListContext
                        StringComparison.OrdinalIgnoreCase) ?? false)
                 ;
         };
+    }
+
+    [NonBlockingCommand]
+    public async Task MarkdownLinksForSelectedItems()
+    {
+        if (!SelectedItems.Any())
+        {
+            StatusContext.ToastWarning("Nothing Selected?");
+            return;
+        }
+
+        var clipboardBlock = new StringBuilder();
+
+        foreach (var loopItems in SelectedItems)
+            clipboardBlock.AppendLine($"[{loopItems.DbItem.Title ?? "No Title"}]({loopItems.DbItem.Link})");
+
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        Clipboard.SetText(clipboardBlock.ToString());
     }
 
     [NonBlockingCommand]
@@ -512,6 +448,60 @@ public partial class FeedItemListContext
         DataNotifications.NewDataNotificationChannel().MessageReceived += OnDataNotificationReceived;
 
         StatusContext.RunFireAndForgetNonBlockingTask(async () => { await RefreshFeedItems(); });
+
+        JobManager.Initialize();
+
+        JobManager.AddJob(
+            async () =>
+            {
+                try
+                {
+                    await RefreshFeedItems();
+                }
+                catch (Exception e)
+                {
+                    Log.ForContext("ignored exception", e.ToString()).Verbose("Error in Feed Item List Background Refresh (Ignored)");
+                }
+            },   
+            s => s.ToRunEvery(2).Hours()
+        );
+    }
+
+    [NonBlockingCommand]
+    public async Task TitleAndUrlForSelectedItems()
+    {
+        if (!SelectedItems.Any())
+        {
+            StatusContext.ToastWarning("Nothing Selected?");
+            return;
+        }
+
+        var clipboardBlock = new StringBuilder();
+
+        foreach (var loopItems in SelectedItems)
+            clipboardBlock.AppendLine($"{loopItems.DbItem.Title ?? "(No Title)"} - {loopItems.DbItem.Link}");
+
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        Clipboard.SetText(clipboardBlock.ToString());
+    }
+
+    [NonBlockingCommand]
+    public async Task TitlesForSelectedItems()
+    {
+        if (!SelectedItems.Any())
+        {
+            StatusContext.ToastWarning("Nothing Selected?");
+            return;
+        }
+
+        var clipboardBlock = new StringBuilder();
+
+        foreach (var loopItems in SelectedItems) clipboardBlock.AppendLine($"{loopItems.DbItem.Title ?? "(No Title)"}");
+
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        Clipboard.SetText(clipboardBlock.ToString());
     }
 
     [NonBlockingCommand]
@@ -619,5 +609,23 @@ public partial class FeedItemListContext
             if (SelectedItem.DbItem is { KeepUnread: false, MarkedRead: false } && AutoMarkRead)
                 StatusContext.RunFireAndForgetNonBlockingTask(async () =>
                     await ContextDb.ItemRead(SelectedItem.DbItem.PersistentId.AsList(), true));
+    }
+
+    [NonBlockingCommand]
+    public async Task UrlsForSelectedItems()
+    {
+        if (!SelectedItems.Any())
+        {
+            StatusContext.ToastWarning("Nothing Selected?");
+            return;
+        }
+
+        var clipboardBlock = new StringBuilder();
+
+        foreach (var loopItems in SelectedItems) clipboardBlock.AppendLine($"{loopItems.DbItem.Link}");
+
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        Clipboard.SetText(clipboardBlock.ToString());
     }
 }
