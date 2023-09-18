@@ -227,15 +227,17 @@ public static class Program
                 var errorActions =
                     mostRecentBatch.CloudUploads.Count(x => !string.IsNullOrWhiteSpace(x.ErrorMessage)) +
                     mostRecentBatch.CloudDeletions.Count(x => !string.IsNullOrWhiteSpace(x.ErrorMessage));
-                var highPercentSuccess = totalActions > 0 && successfulActions / (decimal)totalActions > .95M;
-                var highPercentErrors = totalActions > 0 && errorActions / (decimal)totalActions > .10M;
+                var percentSuccess = totalActions == 0 ? 1 : successfulActions / (decimal)totalActions;
+                var percentError = totalActions == 0 ? 0 : errorActions / (decimal)totalActions;
+                var highPercentSuccess = percentSuccess > .95M;
+                var highPercentErrors = percentError > .10M;
 
                 Console.WriteLine("Auto Batch Selection");
                 Console.WriteLine($"  Last Batch: Id {mostRecentBatch.Id} Created On: {mostRecentBatch.CreatedOn}");
                 Console.WriteLine($"  Total Actions: {totalActions}");
                 Console.WriteLine(
-                    $"  Successful Actions: {successfulActions} - {successfulActions / (decimal)totalActions:P0}");
-                Console.WriteLine($"  Error Actions: {errorActions} - {errorActions / (decimal)totalActions:P0}");
+                    $"  Successful Actions: {successfulActions} - {(totalActions == 0 ? 0 : successfulActions / (decimal)totalActions):P0)}");
+                Console.WriteLine($"  Error Actions: {errorActions} - {(totalActions == 0 ? 0 : errorActions / (decimal)totalActions):P0}");
                 Console.WriteLine($"    High Percent Success: {highPercentSuccess}");
                 Console.WriteLine($"    High Percent Errors: {highPercentErrors}");
 
