@@ -10,11 +10,11 @@
     <PackageReference Include="NetTopologySuite" Version="2.5.0" />
     <PackageReference Include="NetTopologySuite.IO.GeoJSON" Version="4.0.0" />
     <PackageReference Include="NetTopologySuite.IO.GPX" Version="1.1.1" />
-    <PackageReference Include="Unofficial.Garmin.Connect" Version="0.4.1" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\PointlessWaymarks.CommonTools\PointlessWaymarks.CommonTools.csproj" />
+    <ProjectReference Include="..\PointlessWaymarks.GarminConnect\PointlessWaymarks.GarminConnect.csproj" />
   </ItemGroup>
 
 </Project>

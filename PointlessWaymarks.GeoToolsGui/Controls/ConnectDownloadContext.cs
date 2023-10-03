@@ -1,12 +1,12 @@
-﻿using System.ComponentModel;
+using System.ComponentModel;
 using System.IO;
 using CommunityToolkit.Mvvm.Messaging;
-using Garmin.Connect.Models;
 using NetTopologySuite.Features;
 using NetTopologySuite.Geometries;
 using Ookii.Dialogs.Wpf;
 using PointlessWaymarks.CmsData.ContentHtml.GeoJsonHtml;
 using PointlessWaymarks.CommonTools;
+using PointlessWaymarks.GarminConnect.Models;
 using PointlessWaymarks.GeoToolsGui.Messages;
 using PointlessWaymarks.GeoToolsGui.Settings;
 using PointlessWaymarks.LlamaAspects;

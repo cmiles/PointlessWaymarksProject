@@ -1,8 +1,8 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
-using Garmin.Connect.Models;
 using PointlessWaymarks.CommonTools;
+using PointlessWaymarks.GarminConnect.Models;
 using Serilog;
 
 namespace PointlessWaymarks.SpatialTools;
