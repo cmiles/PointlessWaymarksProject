@@ -28,7 +28,8 @@ public static class Program
                 WindowsNotificationBuilders.NewNotifier("Cloud Backup Runner").Result
                     .SetAutomationLogoNotificationIconUrl().SetErrorReportAdditionalInformationMarkdown(
                         FileAndFolderTools.ReadAllText(
-                            Path.Combine(AppContext.BaseDirectory, "README_CloudBackupRunner.md"))).Error($"Unhandled Exception...", exceptionMessage)
+                            Path.Combine(AppContext.BaseDirectory, "README_CloudBackupRunner.md")))
+                    .Error($"Unhandled Exception...", exceptionMessage)
                     .RunSynchronously();
             }
             catch (Exception)
@@ -237,7 +238,8 @@ public static class Program
                 Console.WriteLine($"  Total Actions: {totalActions}");
                 Console.WriteLine(
                     $"  Successful Actions: {successfulActions} - {(totalActions == 0 ? 0 : successfulActions / (decimal)totalActions):P0)}");
-                Console.WriteLine($"  Error Actions: {errorActions} - {(totalActions == 0 ? 0 : errorActions / (decimal)totalActions):P0}");
+                Console.WriteLine(
+                    $"  Error Actions: {errorActions} - {(totalActions == 0 ? 0 : errorActions / (decimal)totalActions):P0}");
                 Console.WriteLine($"    High Percent Success: {highPercentSuccess}");
                 Console.WriteLine($"    High Percent Errors: {highPercentErrors}");
 
@@ -246,29 +248,9 @@ public static class Program
                 {
                     batch = mostRecentBatch;
                     Log.ForContext(nameof(batch), batch.SafeObjectDumpNoEnumerables())
-                        .Information("Batch Set to Batch Id {batchId} Based on auto argument and High Percent Success {highPercentSuccess} and High Percent Errors {highPercentErrors}", batch.Id, highPercentSuccess, highPercentErrors);
-                }
-                //Case: In the last 4 weeks there is a batch and at least one of the batches in the last 4 weeks is
-                //based on a full cloud scan -> check for changes against the cache and if none are found then exit.
-                else if (mostRecentBatch.CreatedOn > DateTime.Now.AddDays(-28) &&
-                         mostRecentCloudScanBatch != null &&
-                         mostRecentCloudScanBatch.CreatedOn > DateTime.Now.AddDays(-28))
-                {
-                    var possibleChanges =
-                        await CreationTools.GetChangesBasedOnCloudCacheFilesAndLocalScan(amazonCredentials,
-                            backupJob.Id,
-                            progress);
-
-                    if (!possibleChanges.FileSystemFilesToUpload.Any() && !possibleChanges.S3FilesToDelete.Any())
-                    {
-                        Log.ForContext(nameof(batch), batch.SafeObjectDump())
-                            .ForContext(nameof(backupJob), backupJob.Dump())
-                            .Information(
-                                "Comparing Batch Id {batchId}'s Cloud Files (most recent batch, within the last 28 days) to the Cloud File Cache Files produced no backup actions - Nothing To Do, Stopping",
-                                mostRecentBatch.Id);
-                        Log.Information("Cloud Backup Runner - Finished Run");
-                        return;
-                    }
+                        .Information(
+                            "Batch Set to Batch Id {batchId} Based on auto argument and High Percent Success {highPercentSuccess} and High Percent Errors {highPercentErrors}",
+                            batch.Id, highPercentSuccess, highPercentErrors);
                 }
                 //Other cases fall thru to the 'null batch' logic below
             }
@@ -296,15 +278,26 @@ public static class Program
             }
         }
 
-//Batch equals null here means either that no batch was specified or that the batch specification
-//didn't return anything - either way a new batch is created, the source of the batch changes depends
-//on the age of the last Cloud File Scan.
+        //Batch equals null here means either that no batch was specified or that the batch specification
+        //didn't return anything - either way a new batch is created, the source of the batch changes depends
+        //on the age of the last Cloud File Scan.
         if (batch == null)
         {
             if (mostRecentCloudScanBatch != null && mostRecentCloudScanBatch.CreatedOn > DateTime.Now.AddDays(-28))
             {
-                batch = await CloudTransfer.CreateBatchInDatabaseFromCloudAndLocalScan(amazonCredentials, backupJob,
+                batch = await CloudTransfer.CreateBatchInDatabaseFromCloudCacheFilesAndLocalScan(amazonCredentials,
+                    backupJob,
                     progress);
+
+                //Batch is null here means that the local scan and the cloud cache files match - nothing to do
+                if (batch == null)
+                {
+                    Log.ForContext(nameof(backupJob), backupJob.Dump())
+                        .Information(
+                            "Comparing Local Files to the Cloud File Cache Files produced no backup actions - Nothing To Do, Stopping");
+                    Log.Information("Cloud Backup Runner - Finished Run");
+                    return;
+                }
             }
             else
             {

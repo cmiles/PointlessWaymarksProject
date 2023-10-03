@@ -253,6 +253,14 @@ public static class CloudTransfer
         };
     }
 
+
+    /// <summary>
+    /// Creates a batch in the database based on the Cloud Scan and Local Scan. A batch is always created even if there are no Uploads or Deletes.
+    /// </summary>
+    /// <param name="accountInformation"></param>
+    /// <param name="job"></param>
+    /// <param name="progress"></param>
+    /// <returns></returns>
     public static async Task<CloudTransferBatch> CreateBatchInDatabaseFromCloudAndLocalScan(
         IS3AccountInformation accountInformation, BackupJob job, IProgress<string> progress)
     {
@@ -262,12 +270,23 @@ public static class CloudTransfer
         return await CreationTools.WriteChangesToDatabase(changes);
     }
 
-    public static async Task<CloudTransferBatch> CreateBatchInDatabaseFromCloudCacheFilesAndLocalScan(
+    /// <summary>
+    /// Creates a batch in the database based on the Cloud Cache Files and Local Scan. If there are no Uploads or Deletes returns null.
+    /// </summary>
+    /// <param name="accountInformation"></param>
+    /// <param name="job"></param>
+    /// <param name="progress"></param>
+    /// <returns></returns>
+    public static async Task<CloudTransferBatch?> CreateBatchInDatabaseFromCloudCacheFilesAndLocalScan(
         IS3AccountInformation accountInformation, BackupJob job, IProgress<string> progress)
     {
         Log.Information("Creating new Batch based on Cloud Cache Files and Local Scan");
 
-        var changes = await CreationTools.GetChangesBasedOnCloudCacheFilesAndLocalScan(accountInformation, job.Id, progress);
+        var changes =
+            await CreationTools.GetChangesBasedOnCloudCacheFilesAndLocalScan(accountInformation, job.Id, progress);
+
+        if (!changes.FileSystemFilesToUpload.Any() && !changes.S3FilesToDelete.Any()) return null;
+
         return await CreationTools.WriteChangesToDatabase(changes);
     }
 }
