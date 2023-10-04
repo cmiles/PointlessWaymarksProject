@@ -8,7 +8,7 @@ $GitCommit = & git rev-parse --short HEAD
 
 dotnet clean .\PointlessWaymarks.sln -property:Configuration=Release -property:Platform=x64 -verbosity:minimal
 
-dotnet restore .\PointlessWaymarks.sln -r win10-x64 -verbosity:minimal
+dotnet restore .\PointlessWaymarks.sln -r win-x64 -verbosity:minimal
 
 $vsWhere = "{0}\Microsoft Visual Studio\Installer\vswhere.exe" -f ${env:ProgramFiles(x86)}
 
