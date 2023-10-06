@@ -14,7 +14,7 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="HtmlAgilityPack" Version="1.11.53" />
+    <PackageReference Include="HtmlAgilityPack" Version="1.11.54" />
     <PackageReference Include="IdentityModel" Version="6.2.0" />
     <PackageReference Include="Mjml.Net" Version="3.1.0" />
     <PackageReference Include="ObjectDumper.NET" Version="4.1.3" />
