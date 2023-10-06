@@ -2,5 +2,5 @@ This library uses authorization code translated from the Python [matin/garth: Ga
 
 The PointlessWaymarks.GarminConnect library provides access to Activities in the Garmin Connect API. Because the Pointless Waymarks project only needs a select set of features (and because this code is fairly new at this point!) there are some limitations:
  - Multifactor Authentication is not supported
- - Each use of the API will create a new login - at present using the Refresh Token to create longer lived logins is not supported
+ - Each new Context will create a new login - at present using the Refresh Token to create longer lived logins is not supported
  - Only limited Activity related APIs are supported
