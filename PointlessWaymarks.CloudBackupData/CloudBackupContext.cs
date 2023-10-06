@@ -1,9 +1,11 @@
 using FluentMigrator.Runner;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using PointlessWaymarks.CloudBackupData.Models;
 using Serilog;
 using SQLitePCL;
+using System.Diagnostics;
 
 namespace PointlessWaymarks.CloudBackupData;
 
@@ -37,6 +39,8 @@ public class CloudBackupContext : DbContext
         Batteries_V2.Init();
         raw.sqlite3_config(2 /*SQLITE_CONFIG_MULTITHREAD*/);
         var optionsBuilder = new DbContextOptionsBuilder<CloudBackupContext>();
+
+        optionsBuilder.LogTo(message => Debug.WriteLine(message));
 
         if (setFileNameAsCurrentDb) CurrentDatabaseFileName = fileName;
 

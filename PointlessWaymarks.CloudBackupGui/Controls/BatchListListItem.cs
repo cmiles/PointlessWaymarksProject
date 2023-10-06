@@ -1,3 +1,5 @@
+using Microsoft.EntityFrameworkCore;
+using PointlessWaymarks.CloudBackupData;
 using PointlessWaymarks.CloudBackupData.Models;
 using PointlessWaymarks.LlamaAspects;
 
@@ -19,7 +21,6 @@ public partial class BatchListListItem
     public long DeletesWithErrorNoteSize { get; set; }
     public int LocalFileCount { get; set; }
     public long LocalFileSize { get; set; }
-
     public decimal SizeCompletedPercentage { get; set; }
     public int UploadCount { get; set; }
     public int UploadsCompleteCount { get; set; }
@@ -30,35 +31,57 @@ public partial class BatchListListItem
     public int UploadsWithErrorNoteCount { get; set; }
     public long UploadsWithErrorNoteSize { get; set; }
 
-    public static BatchListListItem CreateInstance(CloudTransferBatch batch)
+    public static async Task<BatchListListItem> CreateInstance(CloudTransferBatch batch)
     {
+        var context = await CloudBackupContext.CreateInstance();
+
         var toReturn = new BatchListListItem
         {
             DbBatch = batch,
-            LocalFileCount = batch.FileSystemFiles.Count,
-            LocalFileSize = batch.FileSystemFiles.Sum(x => x.FileSize),
-            CloudFileCount = batch.CloudFiles.Count,
-            CloudFileSize = batch.CloudFiles.Sum(x => x.FileSize),
-            UploadCount = batch.CloudUploads.Count,
-            UploadSize = batch.CloudUploads.Sum(x => x.FileSize),
-            UploadsCompleteCount = batch.CloudUploads.Count(x => x.UploadCompletedSuccessfully),
-            UploadsCompleteSize = batch.CloudUploads.Where(x => x.UploadCompletedSuccessfully).Sum(x => x.FileSize),
-            UploadsNotCompletedCount = batch.CloudUploads.Count(x => !x.UploadCompletedSuccessfully),
-            UploadsNotCompletedSize = batch.CloudUploads.Where(x => !x.UploadCompletedSuccessfully).Sum(x => x.FileSize),
-            UploadsWithErrorNoteCount = batch.CloudUploads.Count(x => !string.IsNullOrWhiteSpace(x.ErrorMessage)),
-            UploadsWithErrorNoteSize = batch.CloudUploads.Where(x => !string.IsNullOrWhiteSpace(x.ErrorMessage)).Sum(x => x.FileSize),
-            DeletesCount = batch.CloudDeletions.Count(),
-            DeletesSize = batch.CloudDeletions.Sum(x => x.FileSize),
-            DeletesCompleteCount = batch.CloudDeletions.Count(x => x.DeletionCompletedSuccessfully),
-            DeletesCompleteSize = batch.CloudDeletions.Where(x => x.DeletionCompletedSuccessfully).Sum(x => x.FileSize),
-            DeletesNotCompletedCount = batch.CloudDeletions.Count(x => !x.DeletionCompletedSuccessfully),
-            DeletesNotCompletedSize = batch.CloudDeletions.Where(x => !x.DeletionCompletedSuccessfully).Sum(x => x.FileSize),
-            DeletesWithErrorNoteCount = batch.CloudDeletions.Count(x => !string.IsNullOrWhiteSpace(x.ErrorMessage)),
-            DeletesWithErrorNoteSize = batch.CloudDeletions.Where(x => !string.IsNullOrWhiteSpace(x.ErrorMessage)).Sum(x => x.FileSize)
+            LocalFileCount = await context.FileSystemFiles.CountAsync(x => x.CloudTransferBatchId == batch.Id),
+            LocalFileSize = await context.FileSystemFiles.Where(x => x.CloudTransferBatchId == batch.Id).SumAsync(x => x.FileSize),
+            CloudFileCount = await context.CloudFiles.CountAsync(x => x.CloudTransferBatchId == batch.Id),
+            CloudFileSize = await context.CloudFiles.Where(x => x.CloudTransferBatchId == batch.Id).SumAsync(x => x.FileSize),
+            UploadCount = await context.CloudUploads.CountAsync(x => x.CloudTransferBatchId == batch.Id),
+            UploadSize = await context.CloudUploads.Where(x => x.CloudTransferBatchId == batch.Id).SumAsync(x => x.FileSize),
+            UploadsCompleteCount = await context.CloudUploads.CountAsync(x =>
+                x.CloudTransferBatchId == batch.Id && x.UploadCompletedSuccessfully),
+            UploadsCompleteSize = await context.CloudUploads
+                .Where(x => x.CloudTransferBatchId == batch.Id && x.UploadCompletedSuccessfully)
+                .SumAsync(x => x.FileSize),
+            UploadsNotCompletedCount = await context.CloudUploads.CountAsync(x =>
+                x.CloudTransferBatchId == batch.Id && !x.UploadCompletedSuccessfully),
+            UploadsNotCompletedSize = await context.CloudUploads
+                .Where(x => x.CloudTransferBatchId == batch.Id && !x.UploadCompletedSuccessfully)
+                .SumAsync(x => x.FileSize),
+            UploadsWithErrorNoteCount = await context.CloudUploads.CountAsync(x =>
+                x.CloudTransferBatchId == batch.Id && !string.IsNullOrWhiteSpace(x.ErrorMessage)),
+            UploadsWithErrorNoteSize = await context.CloudUploads
+                .Where(x => x.CloudTransferBatchId == batch.Id && !string.IsNullOrWhiteSpace(x.ErrorMessage))
+                .SumAsync(x => x.FileSize),
+            DeletesCount = await context.CloudDeletions.CountAsync(x => x.CloudTransferBatchId == batch.Id),
+            DeletesSize = await context.CloudDeletions.SumAsync(x => x.FileSize),
+            DeletesCompleteCount = await context.CloudDeletions.CountAsync(x =>
+                x.CloudTransferBatchId == batch.Id && x.DeletionCompletedSuccessfully),
+            DeletesCompleteSize = await context.CloudDeletions
+                .Where(x => x.CloudTransferBatchId == batch.Id && x.DeletionCompletedSuccessfully)
+                .SumAsync(x => x.FileSize),
+            DeletesNotCompletedCount = await context.CloudDeletions.CountAsync(x =>
+                x.CloudTransferBatchId == batch.Id && !x.DeletionCompletedSuccessfully),
+            DeletesNotCompletedSize = await context.CloudDeletions
+                .Where(x => x.CloudTransferBatchId == batch.Id && !x.DeletionCompletedSuccessfully)
+                .SumAsync(x => x.FileSize),
+            DeletesWithErrorNoteCount = await context.CloudDeletions.CountAsync(x =>
+                x.CloudTransferBatchId == batch.Id && !string.IsNullOrWhiteSpace(x.ErrorMessage)),
+            DeletesWithErrorNoteSize = await context.CloudDeletions
+                .Where(x => x.CloudTransferBatchId == batch.Id && !string.IsNullOrWhiteSpace(x.ErrorMessage))
+                .SumAsync(x => x.FileSize)
         };
 
-        toReturn.SizeCompletedPercentage = toReturn.UploadSize == 0 ? 1M : (decimal) toReturn.UploadsCompleteSize / toReturn.UploadSize;
-        
+        toReturn.SizeCompletedPercentage = toReturn.UploadSize == 0
+            ? 1M
+            : (decimal)toReturn.UploadsCompleteSize / toReturn.UploadSize;
+
         return toReturn;
     }
 }

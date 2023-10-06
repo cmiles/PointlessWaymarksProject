@@ -352,7 +352,7 @@ public partial class JobListContext
 
         Items.Clear();
 
-        jobs.ForEach(x => Items.Add(new JobListListItem(x)));
+        foreach (var x in jobs) Items.Add(await JobListListItem.CreateInstance(x));
 
         DataNotifications.NewDataNotificationChannel().MessageReceived += OnDataNotificationReceived;
     }
@@ -402,7 +402,7 @@ public partial class JobListContext
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
-        jobs.ForEach(x => Items.Add(new JobListListItem(x)));
+        foreach (var x in jobs) Items.Add(await JobListListItem.CreateInstance(x));
 
         DataNotifications.NewDataNotificationChannel().MessageReceived += OnDataNotificationReceived;
     }

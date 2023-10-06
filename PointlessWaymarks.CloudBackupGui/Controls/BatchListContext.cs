@@ -125,7 +125,7 @@ public partial class BatchListContext
         foreach (var loopBatch in job.Batches)
         {
             StatusContext.Progress($"Batch List - Creating Entry for Batch Id {loopBatch.Id}");
-            batchList.Add(BatchListListItem.CreateInstance(loopBatch));
+            batchList.Add(await BatchListListItem.CreateInstance(loopBatch));
         }
 
         await ThreadSwitcher.ResumeForegroundAsync();
