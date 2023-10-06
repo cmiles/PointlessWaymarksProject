@@ -1,7 +1,6 @@
-﻿using System.IO;
+using System.IO;
 using System.Text;
 using System.Windows;
-using Irony.Ast;
 using Omu.ValueInjecter;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.CommonHtml;
