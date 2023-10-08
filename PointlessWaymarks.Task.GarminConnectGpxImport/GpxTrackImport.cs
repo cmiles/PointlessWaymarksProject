@@ -1,6 +1,8 @@
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
 using System.Text.Json;
+using Garmin.Connect;
+using Garmin.Connect.Auth;
 using NetTopologySuite.IO;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.CommonHtml;
@@ -8,7 +10,6 @@ using PointlessWaymarks.CmsData.Content;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.FeatureIntersectionTags;
-using PointlessWaymarks.GarminConnect;
 using PointlessWaymarks.SpatialTools;
 using Polly;
 using Serilog;
@@ -181,7 +182,7 @@ public class GpxTrackImport
             password = credentials.password;
         }
 
-        var client = new GarminConnectClient(new GarminConnectContext(new HttpClient(), username, password));
+        var client = new GarminConnectClient(new GarminConnectContext(new HttpClient(), new BasicAuthParameters(username, password)));
 
         var fileList = new List<(FileInfo activityFileInfo, FileInfo? gpxFileInfo)>();
 
