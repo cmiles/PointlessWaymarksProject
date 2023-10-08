@@ -1,5 +1,6 @@
-using PointlessWaymarks.GarminConnect;
-using PointlessWaymarks.GarminConnect.Models;
+using Garmin.Connect;
+using Garmin.Connect.Auth;
+using Garmin.Connect.Models;
 using Polly;
 
 namespace PointlessWaymarks.SpatialTools;
@@ -13,7 +14,7 @@ public class ConnectGpxService : IRemoteGpxService
 
     public async Task<FileInfo?> DownloadGpxFile(long activityId, string fullNameForFile)
     {
-        var client = _client ?? new GarminConnectClient(new GarminConnectContext(new HttpClient(), ConnectUsername, ConnectPassword));
+        var client = _client ?? new GarminConnectClient(new GarminConnectContext(new HttpClient(), new BasicAuthParameters(ConnectUsername, ConnectPassword)));
 
         var file = await Policy.Handle<Exception>().WaitAndRetryAsync(3, i => TimeSpan.FromMinutes(1 * i))
             .ExecuteAsync(async () =>
@@ -28,7 +29,8 @@ public class ConnectGpxService : IRemoteGpxService
 
     public async Task<List<GarminActivity>> GetActivityList(DateTime startUtc, DateTime endUtc)
     {
-        var client = _client ?? new GarminConnectClient(new GarminConnectContext(new HttpClient(), ConnectUsername, ConnectPassword));
+        var client = _client ?? new GarminConnectClient(new GarminConnectContext(new HttpClient(), new 
+            BasicAuthParameters(ConnectUsername, ConnectPassword)));
         var activities = await Policy.Handle<Exception>().WaitAndRetryAsync(3, i => TimeSpan.FromMinutes(1 * i))
             .ExecuteAsync(async () => await client.GetActivitiesByDate(startUtc, endUtc, string.Empty) ??
                                       Array.Empty<GarminActivity>());

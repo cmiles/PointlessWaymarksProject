@@ -1,5 +1,5 @@
+using Garmin.Connect.Models;
 using NetTopologySuite.IO;
-using PointlessWaymarks.GarminConnect.Models;
 using PointlessWaymarks.SpatialTools;
 
 namespace PointlessWaymarks.GeoTaggingService;

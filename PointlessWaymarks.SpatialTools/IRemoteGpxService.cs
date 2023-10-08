@@ -1,4 +1,4 @@
-using PointlessWaymarks.GarminConnect.Models;
+using Garmin.Connect.Models;
 
 namespace PointlessWaymarks.SpatialTools;
 
