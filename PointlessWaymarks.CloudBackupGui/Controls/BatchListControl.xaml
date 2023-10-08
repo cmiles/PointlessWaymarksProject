@@ -8,6 +8,7 @@
              xmlns:markdownDisplay="clr-namespace:PointlessWaymarks.WpfCommon.MarkdownDisplay;assembly=PointlessWaymarks.WpfCommon"
              xmlns:valueConverters="clr-namespace:PointlessWaymarks.WpfCommon.ValueConverters;assembly=PointlessWaymarks.WpfCommon"
              xmlns:controls="clr-namespace:PointlessWaymarks.CloudBackupGui.Controls"
+             xmlns:reports="clr-namespace:PointlessWaymarks.CloudBackupData.Reports;assembly=PointlessWaymarks.CloudBackupData"
              mc:Ignorable="d"
              d:DesignHeight="450" d:DesignWidth="800" d:DataContext="{d:DesignInstance controls:BatchListContext}">
     <UserControl.Resources>
@@ -64,7 +65,8 @@
                                         <TextBox FontWeight="Bold" Style="{StaticResource ReadOnlyTextBoxStyle}"
                                                  TextWrapping="Wrap">
                                             <TextBox.Text>
-                                                <MultiBinding StringFormat="Created {0} - Id {1} - Uploads {2:P0} Complete - Based On New Cloud File Scan: {3}">
+                                                <MultiBinding
+                                                    StringFormat="Created {0} - Id {1} - Uploads {2:P0} Complete - Based On New Cloud File Scan: {3}">
                                                     <Binding Path="Statistics.BatchCreatedOn" />
                                                     <Binding Path="Statistics.BatchId" />
                                                     <Binding Path="Statistics.UploadsSizeCompletedPercentage" />
@@ -79,7 +81,7 @@
                                                 <TextBlock Margin="14,0,4,4" TextWrapping="Wrap">
                                                     <TextBlock.Text>
                                                         <MultiBinding
-                                                            StringFormat="By File Count: {0}; {1} Complete; {2} Remaining; {3} Errors">
+                                                            StringFormat="By File Count: {0:N0}; {1:N0} Complete; {2:N0} Remaining; {3:N0} Errors">
                                                             <Binding Path="Statistics.UploadCount" />
                                                             <Binding Path="Statistics.UploadsCompleteCount" />
                                                             <Binding Path="Statistics.UploadsNotCompletedCount" />
@@ -113,7 +115,7 @@
                                                 <TextBlock Margin="14,0,4,4" TextWrapping="Wrap">
                                                     <TextBlock.Text>
                                                         <MultiBinding
-                                                            StringFormat="By File Count: {0}; {1} Complete; {2} Remaining; {3} Errors">
+                                                            StringFormat="By File Count: {0:N0}; {1:N0} Complete; {2:N0} Remaining; {3:N0} Errors">
                                                             <Binding Path="Statistics.DeletesCount" />
                                                             <Binding Path="Statistics.DeletesCompleteCount" />
                                                             <Binding Path="Statistics.DeletesNotCompletedCount" />
@@ -147,7 +149,7 @@
                                                 <TextBlock Margin="14,0,4,4" TextWrapping="Wrap">
                                                     <TextBlock.Text>
                                                         <MultiBinding
-                                                            StringFormat="When the Batch was created there were {0} Local Files totaling {1} and {2} Cloud Files totaling {3}.">
+                                                            StringFormat="When the Batch was created there were {0:N0} Local Files totaling {1} and {2:N0} Cloud Files totaling {3}.">
                                                             <Binding Path="Statistics.LocalFileCount" />
                                                             <Binding Path="Statistics.LocalFileSize"
                                                                      Converter="{StaticResource HumanFileSize}" />
@@ -175,7 +177,7 @@
                                                 </Grid>
                                             </StackPanel>
                                         </WrapPanel>
-                                        <Button Grid.Row="2" Margin="8"
+                                        <Button Grid.Row="2" Margin="8" Height="30"
                                                 Command="{Binding Data.BatchToExcelCommand, Source={StaticResource proxy}}"
                                                 CommandParameter="{Binding Statistics.BatchId}">
                                             <TextBlock>Full Report</TextBlock>

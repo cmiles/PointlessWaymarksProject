@@ -1,5 +1,6 @@
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Windows;
 using Microsoft.EntityFrameworkCore;
@@ -246,6 +247,22 @@ public partial class JobListContext
         }
 
         await IncludedAndExcludedFilesToExcel.Run(toEdit.Id, StatusContext.ProgressTracker());
+    }
+
+    [NonBlockingCommand]
+    public async Task KillProgressProcess(JobListListItem listItem)
+    {
+        if (listItem.ProgressProcess == null)
+        {
+            StatusContext.ToastWarning("No Process to Kill?");
+            return;
+        }
+
+        var processId = listItem.ProgressProcess.Value;
+
+        Process.GetProcessById(listItem.ProgressProcess.Value).Kill(true);
+
+        StatusContext.ToastSuccess($"Requested Process {processId} be Killed");
     }
 
     [NonBlockingCommand]
