@@ -408,6 +408,8 @@ public static class CreationTools
 
         Log.Information("New Batch Created - Id {batchId}, New Cloud Scan {newCloudScan}, {uploadCount} Uploads, {deleteCount} Deletes, {localFilesCount} Local Files, {cloudFilesCount}", batch.Id, batch.BasedOnNewCloudFileScan, batch.CloudUploads.Count, batch.CloudDeletions.Count, batch.FileSystemFiles.Count, batch.CloudFiles.Count);
 
+        DataNotifications.PublishDataNotification(nameof(CreationTools), DataNotificationContentType.BackupJob, DataNotificationUpdateType.New, changes.Job.PersistentId, batch.Id);
+        
         return batch;
     }
 }

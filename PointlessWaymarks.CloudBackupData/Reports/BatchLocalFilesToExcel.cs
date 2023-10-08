@@ -13,7 +13,7 @@ public static class BatchLocalFilesToExcel
         var db = await CloudBackupContext.CreateInstance();
         var batch = await db.CloudTransferBatches.SingleAsync(x => x.Id == batchId);
 
-        var projectedFiles = batch.FileSystemFiles.OrderBy(x => x.FileName).Select(x => new
+        var projectedFiles = db.FileSystemFiles.Where(x => x.CloudTransferBatchId == batch.Id).OrderBy(x => x.FileName).Select(x => new
         {
             x.FileName,
             x.FileSize,

@@ -64,11 +64,11 @@
                                         <TextBox FontWeight="Bold" Style="{StaticResource ReadOnlyTextBoxStyle}"
                                                  TextWrapping="Wrap">
                                             <TextBox.Text>
-                                                <MultiBinding StringFormat="Created {0} - Id {1} - {2:P0} Completed - Based On New Cloud File Scan: {3}">
-                                                    <Binding Path="DbBatch.CreatedOn" />
-                                                    <Binding Path="DbBatch.Id" />
-                                                    <Binding Path="SizeCompletedPercentage" />
-                                                    <Binding Path="DbBatch.BasedOnNewCloudFileScan" />
+                                                <MultiBinding StringFormat="Created {0} - Id {1} - Uploads {2:P0} Complete - Based On New Cloud File Scan: {3}">
+                                                    <Binding Path="Statistics.BatchCreatedOn" />
+                                                    <Binding Path="Statistics.BatchId" />
+                                                    <Binding Path="Statistics.UploadsSizeCompletedPercentage" />
+                                                    <Binding Path="Statistics.BasedOnNewCloudFileScan" />
                                                 </MultiBinding>
                                             </TextBox.Text>
                                         </TextBox>
@@ -80,10 +80,10 @@
                                                     <TextBlock.Text>
                                                         <MultiBinding
                                                             StringFormat="By File Count: {0}; {1} Complete; {2} Remaining; {3} Errors">
-                                                            <Binding Path="UploadCount" />
-                                                            <Binding Path="UploadsCompleteCount" />
-                                                            <Binding Path="UploadsNotCompletedCount" />
-                                                            <Binding Path="UploadsWithErrorNoteCount" />
+                                                            <Binding Path="Statistics.UploadCount" />
+                                                            <Binding Path="Statistics.UploadsCompleteCount" />
+                                                            <Binding Path="Statistics.UploadsNotCompletedCount" />
+                                                            <Binding Path="Statistics.UploadsWithErrorNoteCount" />
                                                         </MultiBinding>
                                                     </TextBlock.Text>
                                                 </TextBlock>
@@ -91,20 +91,20 @@
                                                     <TextBlock.Text>
                                                         <MultiBinding
                                                             StringFormat="By Size: {0}; {1} Complete; {2} Remaining; {3} Errors">
-                                                            <Binding Path="UploadSize"
+                                                            <Binding Path="Statistics.UploadSize"
                                                                      Converter="{StaticResource HumanFileSize}" />
-                                                            <Binding Path="UploadsCompleteSize"
+                                                            <Binding Path="Statistics.UploadsCompleteSize"
                                                                      Converter="{StaticResource HumanFileSize}" />
-                                                            <Binding Path="UploadsNotCompletedSize"
+                                                            <Binding Path="Statistics.UploadsNotCompletedSize"
                                                                      Converter="{StaticResource HumanFileSize}" />
-                                                            <Binding Path="UploadsWithErrorNoteSize"
+                                                            <Binding Path="Statistics.UploadsWithErrorNoteSize"
                                                                      Converter="{StaticResource HumanFileSize}" />
                                                         </MultiBinding>
                                                     </TextBlock.Text>
                                                 </TextBlock>
                                                 <Button HorizontalAlignment="Left" Margin="24,8,8,8" Width="300"
                                                         Command="{Binding Data.UploadsToExcelCommand, Source={StaticResource proxy}}"
-                                                        CommandParameter="{Binding DbBatch}">
+                                                        CommandParameter="{Binding Statistics.BatchId}">
                                                     Uploads Report
                                                 </Button>
                                             </StackPanel>
@@ -114,10 +114,10 @@
                                                     <TextBlock.Text>
                                                         <MultiBinding
                                                             StringFormat="By File Count: {0}; {1} Complete; {2} Remaining; {3} Errors">
-                                                            <Binding Path="DeletesCount" />
-                                                            <Binding Path="DeletesCompleteCount" />
-                                                            <Binding Path="DeletesNotCompletedCount" />
-                                                            <Binding Path="DeletesWithErrorNoteCount" />
+                                                            <Binding Path="Statistics.DeletesCount" />
+                                                            <Binding Path="Statistics.DeletesCompleteCount" />
+                                                            <Binding Path="Statistics.DeletesNotCompletedCount" />
+                                                            <Binding Path="Statistics.DeletesWithErrorNoteCount" />
                                                         </MultiBinding>
                                                     </TextBlock.Text>
                                                 </TextBlock>
@@ -125,20 +125,20 @@
                                                     <TextBlock.Text>
                                                         <MultiBinding
                                                             StringFormat="By Size: {0}; {1} Complete; {2} Remaining; {3} Errors">
-                                                            <Binding Path="DeletesSize"
+                                                            <Binding Path="Statistics.DeletesSize"
                                                                      Converter="{StaticResource HumanFileSize}" />
-                                                            <Binding Path="DeletesCompleteSize"
+                                                            <Binding Path="Statistics.DeletesCompleteSize"
                                                                      Converter="{StaticResource HumanFileSize}" />
-                                                            <Binding Path="DeletesNotCompletedSize"
+                                                            <Binding Path="Statistics.DeletesNotCompletedSize"
                                                                      Converter="{StaticResource HumanFileSize}" />
-                                                            <Binding Path="DeletesWithErrorNoteSize"
+                                                            <Binding Path="Statistics.DeletesWithErrorNoteSize"
                                                                      Converter="{StaticResource HumanFileSize}" />
                                                         </MultiBinding>
                                                     </TextBlock.Text>
                                                 </TextBlock>
                                                 <Button Width="300" Margin="24,8,8,8" HorizontalAlignment="Left"
                                                         Command="{Binding Data.DeletesToExcelCommand, Source={StaticResource proxy}}"
-                                                        CommandParameter="{Binding DbBatch}">
+                                                        CommandParameter="{Binding Statistics.BatchId}">
                                                     Deletion Report
                                                 </Button>
                                             </StackPanel>
@@ -148,11 +148,11 @@
                                                     <TextBlock.Text>
                                                         <MultiBinding
                                                             StringFormat="When the Batch was created there were {0} Local Files totaling {1} and {2} Cloud Files totaling {3}.">
-                                                            <Binding Path="LocalFileCount" />
-                                                            <Binding Path="LocalFileSize"
+                                                            <Binding Path="Statistics.LocalFileCount" />
+                                                            <Binding Path="Statistics.LocalFileSize"
                                                                      Converter="{StaticResource HumanFileSize}" />
-                                                            <Binding Path="CloudFileCount" />
-                                                            <Binding Path="CloudFileSize"
+                                                            <Binding Path="Statistics.CloudFileCount" />
+                                                            <Binding Path="Statistics.CloudFileSize"
                                                                      Converter="{StaticResource HumanFileSize}" />
                                                         </MultiBinding>
                                                     </TextBlock.Text>
@@ -164,12 +164,12 @@
                                                     </Grid.ColumnDefinitions>
                                                     <Button
                                                         Command="{Binding Data.LocalFilesToExcelCommand, Source={StaticResource proxy}}"
-                                                        CommandParameter="{Binding DbBatch}">
+                                                        CommandParameter="{Binding Statistics.BatchId}">
                                                         Local Files At Creation
                                                     </Button>
                                                     <Button Grid.Column="1"
                                                             Command="{Binding Data.CloudFilesToExcelCommand, Source={StaticResource proxy}}"
-                                                            CommandParameter="{Binding DbBatch}">
+                                                            CommandParameter="{Binding Statistics.BatchId}">
                                                         Cloud Files at Creation
                                                     </Button>
                                                 </Grid>
@@ -177,7 +177,7 @@
                                         </WrapPanel>
                                         <Button Grid.Row="2" Margin="8"
                                                 Command="{Binding Data.BatchToExcelCommand, Source={StaticResource proxy}}"
-                                                CommandParameter="{Binding DbBatch}">
+                                                CommandParameter="{Binding Statistics.BatchId}">
                                             <TextBlock>Full Report</TextBlock>
                                         </Button>
                                     </Grid>

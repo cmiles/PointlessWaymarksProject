@@ -9,7 +9,7 @@
         mc:Ignorable="d"
         Title="{Binding JobName, StringFormat='Batch List - {0}'}" Height="600" Width="800" d:DataContext="{d:DesignInstance controls:BatchListWindow}">
     <Grid>
-        <controls:BatchListControl Margin="4" DataContext="{Binding ProgressContext}"/>
+        <controls:BatchListControl Margin="4" DataContext="{Binding BatchContext}"/>
         <status:StatusControl
             Grid.Row="0"
             d:IsHidden="true"

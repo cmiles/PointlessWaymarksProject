@@ -3,15 +3,17 @@ using System.Timers;
 using Microsoft.EntityFrameworkCore;
 using PointlessWaymarks.CloudBackupData;
 using PointlessWaymarks.CloudBackupData.Models;
+using PointlessWaymarks.CloudBackupData.Reports;
 using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
+using Timer = System.Timers.Timer;
 
 namespace PointlessWaymarks.CloudBackupGui.Controls;
 
 [NotifyPropertyChanged]
 public partial class JobListListItem
 {
-    private readonly System.Timers.Timer _progressTimer = new(240000);
+    private readonly Timer _progressTimer = new(240000);
 
     private JobListListItem(BackupJob job)
     {
@@ -22,6 +24,12 @@ public partial class JobListListItem
         _progressTimer.Elapsed += RemoveProgress;
     }
 
+    public BackupJob? DbJob { get; set; }
+    public BatchStatistics? LatestBatch { get; set; }
+    public Guid PersistentId { get; set; }
+    public int? ProgressProcess { get; set; }
+    public string ProgressString { get; set; } = string.Empty;
+
     public static async Task<JobListListItem> CreateInstance(BackupJob job)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -30,6 +38,16 @@ public partial class JobListListItem
         await toReturn.RefreshLatestBatch();
 
         return toReturn;
+    }
+
+
+    private void OnPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(ProgressString) && !string.IsNullOrWhiteSpace(ProgressString))
+        {
+            _progressTimer.Stop();
+            _progressTimer.Start();
+        }
     }
 
     public async Task RefreshLatestBatch()
@@ -51,27 +69,24 @@ public partial class JobListListItem
             return;
         }
 
-        LatestBatch = await BatchListListItem.CreateInstance(possibleLastBatch);
+        LatestBatch = await BatchStatistics.CreateInstance(possibleLastBatch.Id);
+    }
+
+    public async Task RefreshLatestBatchStatistics()
+    {
+        if (LatestBatch == null)
+        {
+            await RefreshLatestBatch();
+            return;
+        }
+
+        await LatestBatch.Refresh();
     }
 
     private void RemoveProgress(object? sender, ElapsedEventArgs e)
     {
         ProgressString = string.Empty;
+        ProgressProcess = null;
         _progressTimer.Stop();
     }
-
-
-    private void OnPropertyChanged(object? sender, PropertyChangedEventArgs e)
-    {
-        if (e.PropertyName == nameof(ProgressString) && !string.IsNullOrWhiteSpace(ProgressString))
-        {
-            _progressTimer.Stop();
-            _progressTimer.Start();
-        }
-    }
-
-    public BackupJob? DbJob { get; set; }
-    public Guid PersistentId { get; set; }
-    public string ProgressString { get; set; } = string.Empty;
-    public BatchListListItem? LatestBatch { get; set; }
 }

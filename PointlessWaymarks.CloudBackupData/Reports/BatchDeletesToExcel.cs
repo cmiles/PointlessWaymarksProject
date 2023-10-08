@@ -13,7 +13,7 @@ public static class BatchDeletesToExcel
         var batch = db.CloudTransferBatches.Single(x => x.Id == batchId);
         var job = batch.Job!;
 
-        var projectedDeletes = batch.CloudDeletions.Select(x => new
+        var projectedDeletes = db.CloudDeletions.Where(x => x.CloudTransferBatchId == batch.Id).Select(x => new
         {
             x.CloudObjectKey,
             x.FileSize,

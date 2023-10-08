@@ -170,11 +170,13 @@ public static class Program
             return;
         }
 
+        DataNotifications.PublishProgressNotification(consoleId.ToString(), Environment.ProcessId, "Starting...", backupJob.PersistentId, null);
+
         progress.PersistentId = backupJob.PersistentId;
 
         Log.Logger = new LoggerConfiguration().StandardEnrichers().LogToConsole()
             .LogToFileInProgramDirectory("CloudBackupRunner").WriteTo.DelegatingTextSink(
-                x => DataNotifications.PublishProgressNotification(consoleId.ToString(), x, backupJob.PersistentId),
+                x => DataNotifications.PublishProgressNotification(consoleId.ToString(), Environment.ProcessId, x, backupJob.PersistentId, null),
                 outputTemplate: "[{Timestamp:HH:mm:ss} {Level:u3}] {Message:lj}{NewLine}{Exception}")
             .CreateLogger();
 
@@ -319,6 +321,8 @@ public static class Program
             await Log.CloseAndFlushAsync();
             return;
         }
+
+        progress.BatchId = batch.Id;
 
         try
         {

@@ -9,6 +9,8 @@ using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon.MarkdownDisplay;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
+using Serilog;
+using TinyIpc.Messaging;
 
 namespace PointlessWaymarks.CloudBackupGui.Controls;
 
@@ -24,6 +26,9 @@ public partial class BatchListContext
                                       The Batch List gives you a way to get all the current data for a batch as Excel reports. This can be useful both for confirming what has (and has not) been backed up and for deciding what Batch to use when running a backup.
                                       """;
 
+    public EventHandler? CloseWindowRequest { get; set; }
+    public DataNotificationsWorkQueue? DataNotificationsProcessor { get; set; }
+
     public BackupJob? DbJob { get; set; }
     public HelpDisplayContext? HelpContext { get; set; }
     public required ObservableCollection<BatchListListItem> Items { get; set; }
@@ -33,15 +38,15 @@ public partial class BatchListContext
     public required StatusControlContext StatusContext { get; set; }
 
     [BlockingCommand]
-    public async Task BatchToExcel(CloudTransferBatch dbBatch)
+    public async Task BatchToExcel(int batchId)
     {
-        ProcessTools.Open(await BatchReportToExcel.Run(dbBatch.Id, StatusContext.ProgressTracker()));
+        ProcessTools.Open(await BatchReportToExcel.Run(batchId, StatusContext.ProgressTracker()));
     }
 
     [BlockingCommand]
-    public async Task CloudFilesToExcel(CloudTransferBatch dbBatch)
+    public async Task CloudFilesToExcel(int batchId)
     {
-        ProcessTools.Open(await BatchCloudFilesToExcel.Run(dbBatch.Id, StatusContext.ProgressTracker()));
+        ProcessTools.Open(await BatchCloudFilesToExcel.Run(batchId, StatusContext.ProgressTracker()));
     }
 
     public static async Task<BatchListContext> CreateInstance(StatusControlContext statusContext, int jobId)
@@ -61,6 +66,25 @@ public partial class BatchListContext
         await toReturn.Setup();
 
         return toReturn;
+    }
+
+    private async Task DataNotificationReceived(TinyMessageReceivedEventArgs eventArgs)
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        var translatedMessage = DataNotifications.TranslateDataNotification(eventArgs.Message);
+
+        var toRun = translatedMessage.Match(ProcessDataUpdateNotification,
+            ProcessProgressNotification,
+            x =>
+            {
+                Log.Error("Data Notification Failure. Error Note {0}. Status Control Context Id {1}", x.ErrorMessage,
+                    StatusContext.StatusControlContextId);
+                return Task.CompletedTask;
+            }
+        );
+
+        if (toRun is not null) await toRun;
     }
 
     [BlockingCommand]
@@ -86,7 +110,7 @@ public partial class BatchListContext
         foreach (var loopBatch in SelectedBatches)
         {
             var db = await CloudBackupContext.CreateInstance();
-            var currentItem = await db.CloudTransferBatches.SingleAsync(x => x.Id == loopBatch.DbBatch.Id);
+            var currentItem = await db.CloudTransferBatches.SingleAsync(x => x.Id == loopBatch.Statistics.BatchId);
 
             db.Remove(currentItem);
             await db.SaveChangesAsync();
@@ -96,15 +120,73 @@ public partial class BatchListContext
     }
 
     [BlockingCommand]
-    public async Task DeletesToExcel(CloudTransferBatch dbBatch)
+    public async Task DeletesToExcel(int batchId)
     {
-        ProcessTools.Open(await BatchDeletesToExcel.Run(dbBatch.Id, StatusContext.ProgressTracker()));
+        ProcessTools.Open(await BatchDeletesToExcel.Run(batchId, StatusContext.ProgressTracker()));
     }
 
     [BlockingCommand]
-    public async Task LocalFilesToExcel(CloudTransferBatch dbBatch)
+    public async Task LocalFilesToExcel(int batchId)
     {
-        ProcessTools.Open(await BatchLocalFilesToExcel.Run(dbBatch.Id, StatusContext.ProgressTracker()));
+        ProcessTools.Open(await BatchLocalFilesToExcel.Run(batchId, StatusContext.ProgressTracker()));
+    }
+
+    private void OnDataNotificationReceived(object? sender, TinyMessageReceivedEventArgs e)
+    {
+        DataNotificationsProcessor?.Enqueue(e);
+    }
+
+    private async Task ProcessDataUpdateNotification(InterProcessDataNotification interProcessUpdateNotification)
+    {
+        if (interProcessUpdateNotification.JobPersistentId != DbJob?.PersistentId) return;
+
+        if (interProcessUpdateNotification is
+            { ContentType: DataNotificationContentType.BackupJob, UpdateType: DataNotificationUpdateType.Delete })
+        {
+            await ThreadSwitcher.ResumeForegroundAsync();
+            CloseWindowRequest?.Invoke(this, EventArgs.Empty);
+            return;
+        }
+
+        if (interProcessUpdateNotification is
+            {
+                ContentType: DataNotificationContentType.CloudTransferBatch,
+                UpdateType: DataNotificationUpdateType.Delete
+            })
+        {
+            var listItem = Items.SingleOrDefault(x => x.Statistics.BatchId == interProcessUpdateNotification.BatchId);
+            if (listItem is not null)
+            {
+                await ThreadSwitcher.ResumeForegroundAsync();
+                Items.Remove(listItem);
+            }
+
+            ;
+            return;
+        }
+
+        if (interProcessUpdateNotification is
+            {
+                ContentType: DataNotificationContentType.CloudTransferBatch,
+                UpdateType: DataNotificationUpdateType.Update
+            })
+        {
+            var listItem = Items.SingleOrDefault(x => x.Statistics.BatchId == interProcessUpdateNotification.BatchId);
+            if (listItem is not null) await listItem.Statistics.Refresh();
+            ;
+            return;
+        }
+
+        await RefreshList();
+    }
+
+    private async Task ProcessProgressNotification(InterProcessProgressNotification arg)
+    {
+        if (arg.JobPersistentId != DbJob?.PersistentId || arg.BatchId == null) return;
+
+        var listItem = Items.SingleOrDefault(x => x.Statistics.BatchId == arg.BatchId);
+        if (listItem is not null) await listItem.Statistics.Refresh();
+        ;
     }
 
     [BlockingCommand]
@@ -122,7 +204,7 @@ public partial class BatchListContext
 
         var batchList = new List<BatchListListItem>();
 
-        foreach (var loopBatch in job.Batches)
+        foreach (var loopBatch in job.Batches.OrderByDescending(x => x.CreatedOn))
         {
             StatusContext.Progress($"Batch List - Creating Entry for Batch Id {loopBatch.Id}");
             batchList.Add(await BatchListListItem.CreateInstance(loopBatch));
@@ -142,19 +224,23 @@ public partial class BatchListContext
 
         StatusContext.Progress("Batch List - Setting Up");
 
+        DataNotificationsProcessor = new DataNotificationsWorkQueue { Processor = DataNotificationReceived };
+
         HelpContext = new HelpDisplayContext(new List<string>
         {
             HelpText
         });
 
         BuildCommands();
-        
+
         await RefreshList();
+
+        DataNotifications.NewDataNotificationChannel().MessageReceived += OnDataNotificationReceived;
     }
 
     [BlockingCommand]
-    public async Task UploadsToExcel(CloudTransferBatch dbBatch)
+    public async Task UploadsToExcel(int batchId)
     {
-        ProcessTools.Open(await BatchUploadsToExcel.Run(dbBatch.Id, StatusContext.ProgressTracker()));
+        ProcessTools.Open(await BatchUploadsToExcel.Run(batchId, StatusContext.ProgressTracker()));
     }
 }

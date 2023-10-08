@@ -17,7 +17,7 @@ public partial class BatchListWindow
 
     public string JobName { get; set; } = string.Empty;
 
-    public BatchListContext? ProgressContext { get; set; }
+    public BatchListContext? BatchContext { get; set; }
 
     public StatusControlContext StatusContext { get; set; }
 
@@ -41,8 +41,10 @@ public partial class BatchListWindow
 
         window.StatusContext.Progress("Batch List - Creating Context");
 
-        window.ProgressContext =
+        window.BatchContext =
             await BatchListContext.CreateInstance(window.StatusContext, jobId);
+
+        window.BatchContext.CloseWindowRequest += (sender, args) => window.Close();
 
         window.StatusContext.BlockUi = false;
         

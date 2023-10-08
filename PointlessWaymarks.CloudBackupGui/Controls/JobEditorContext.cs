@@ -183,7 +183,8 @@ public partial class JobEditorContext : IHasChanges, IHasValidationIssues,
 
         try
         {
-            if(!string.IsNullOrWhiteSpace(initialDirectoryString)) initialDirectory = new DirectoryInfo(initialDirectoryString);
+            if (!string.IsNullOrWhiteSpace(initialDirectoryString))
+                initialDirectory = new DirectoryInfo(initialDirectoryString);
         }
         catch (Exception e)
         {
@@ -685,7 +686,7 @@ public partial class JobEditorContext : IHasChanges, IHasValidationIssues,
         await db.SaveChangesAsync();
 
         DataNotifications.PublishDataNotification(StatusContext.StatusControlContextId.ToString(),
-            DataNotificationContentType.BackupJob, DataNotificationUpdateType.Update, toSave.PersistentId);
+            DataNotificationContentType.BackupJob, DataNotificationUpdateType.Update, toSave.PersistentId, null);
 
         UserNameEntry.ReferenceValue = toSave.Name;
         UserCloudBucketEntry.ReferenceValue = toSave.CloudBucket;

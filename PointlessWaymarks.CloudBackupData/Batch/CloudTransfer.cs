@@ -24,7 +24,7 @@ public static class CloudTransfer
 
         var stopDateTime = startDateTime.AddHours(batch.Job!.MaximumRunTimeInHours);
 
-        var uploads = batch.CloudUploads.Where(x => !x.UploadCompletedSuccessfully).ToList();
+        var uploads = context.CloudUploads.Where(x => x.CloudTransferBatchId == batch.Id && !x.UploadCompletedSuccessfully).ToList();
 
         var totalUploadEstimatedLength = uploads.Sum(x => x.FileSize);
 
@@ -109,7 +109,7 @@ public static class CloudTransfer
 
             try
             {
-                await pollyS3RetryPolicy.ExecuteAsync(async () => await transferUtility.UploadAsync(transferRequest));
+                await pollyS3RetryPolicy.ExecuteAsync(() => transferUtility.UploadAsync(transferRequest));
                 upload.LastUpdatedOn = DateTime.Now;
                 upload.UploadCompletedSuccessfully = true;
                 upload.ErrorMessage = string.Empty;
@@ -176,7 +176,7 @@ public static class CloudTransfer
             }
         }
 
-        var deletes = batch.CloudDeletions.Where(x => !x.DeletionCompletedSuccessfully).ToList();
+        var deletes = context.CloudDeletions.Where(x => x.CloudTransferBatchId == batch.Id && !x.DeletionCompletedSuccessfully).ToList();
 
         var deleteCount = 0;
         var deleteErrorCount = 0;

@@ -41,17 +41,18 @@ public static class DataNotifications
     }
 
     public static void PublishDataNotification(string sender, DataNotificationContentType contentType,
-        DataNotificationUpdateType updateType, Guid jobPersistentId)
+        DataNotificationUpdateType updateType, Guid jobPersistentId, int? batchPersistentId)
     {
         if (SuspendNotifications) return;
 
         var cleanedSender = string.IsNullOrWhiteSpace(sender) ? "No Sender Specified" : sender.TrimNullToEmpty();
 
         SendMessageQueue.Enqueue(
-            $"Data|{cleanedSender.Replace("|", " ")}|{(int)contentType}|{(int)updateType}|{jobPersistentId}");
+            $"Data|{cleanedSender.Replace("|", " ")}|{(int)contentType}|{(int)updateType}|{jobPersistentId}|{batchPersistentId}");
     }
 
-    public static void PublishProgressNotification(string sender, string progress, Guid jobPersistentId)
+    public static void PublishProgressNotification(string sender, int processId, string progress, Guid jobPersistentId,
+        int? batchId)
     {
         if (SuspendNotifications) return;
 
@@ -59,7 +60,7 @@ public static class DataNotifications
         var cleanedProgress = string.IsNullOrWhiteSpace(progress) ? "..." : progress.TrimNullToEmpty();
 
         SendMessageQueue.Enqueue(
-            $"Progress|{cleanedSender.Replace("|", " ")}|{jobPersistentId}|{cleanedProgress.Replace("|", " ")}");
+            $"Progress|{cleanedSender.Replace("|", " ")}|{processId}|{jobPersistentId}|{batchId}|{cleanedProgress.Replace("|", " ")}");
     }
 
     public static OneOf<InterProcessDataNotification, InterProcessProgressNotification, InterProcessError>
@@ -78,10 +79,8 @@ public static class DataNotifications
             var parsedString = asString.Split("|").ToList();
 
             if (!parsedString.Any()
-                || parsedString.Count is < 4 or > 5
+                || parsedString.Count is not 6
                 || !(parsedString[0].Equals("Data") || parsedString[0].Equals("Progress"))
-                || (parsedString[0].Equals("Data") && parsedString.Count is not 5)
-                || (parsedString[0].Equals("Progress") && parsedString.Count is not 4)
                )
                 return new InterProcessError
                 {
@@ -94,15 +93,18 @@ public static class DataNotifications
                     Sender = parsedString[1],
                     ContentType = (DataNotificationContentType)int.Parse(parsedString[2]),
                     UpdateType = (DataNotificationUpdateType)int.Parse(parsedString[3]),
-                    JobPersistentId = Guid.Parse(parsedString[4])
+                    JobPersistentId = Guid.Parse(parsedString[4]),
+                    BatchId = int.TryParse(parsedString[5], out var parsedBatchId) ? parsedBatchId : null
                 };
 
             if (parsedString[0].Equals("Progress"))
                 return new InterProcessProgressNotification
                 {
                     Sender = parsedString[1],
-                    JobPersistentId = Guid.Parse(parsedString[2]),
-                    ProgressMessage = parsedString[3]
+                    ProcessId = int.Parse(parsedString[2]),
+                    JobPersistentId = Guid.Parse(parsedString[3]),
+                    BatchId = int.TryParse(parsedString[4], out var parsedBatchId) ? parsedBatchId : null,
+                    ProgressMessage = parsedString[5]
                 };
         }
         catch (Exception e)
@@ -110,21 +112,24 @@ public static class DataNotifications
             return new InterProcessError { ErrorMessage = e.Message };
         }
 
-        return new InterProcessError { ErrorMessage = "No processing occured for this message?" };
+        return new InterProcessError { ErrorMessage = "No processing occurred for this message?" };
     }
 }
 
 public record InterProcessDataNotification
 {
+    public int? BatchId { get; init; }
     public DataNotificationContentType ContentType { get; init; }
-    public Guid JobPersistentId { get; set; }
+    public Guid JobPersistentId { get; init; }
     public string? Sender { get; init; }
     public DataNotificationUpdateType UpdateType { get; init; }
 }
 
 public record InterProcessProgressNotification
 {
-    public Guid JobPersistentId { get; set; }
+    public int? BatchId { get; init; }
+    public Guid JobPersistentId { get; init; }
+    public int ProcessId { get; init; }
     public string ProgressMessage { get; init; } = string.Empty;
     public string? Sender { get; init; }
 }

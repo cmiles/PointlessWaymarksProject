@@ -158,6 +158,7 @@ public partial class JobListContext
             ProcessProgressNotification,
             x =>
             {
+                StatusContext.ToastError(x.ErrorMessage);
                 Log.Error("Data Notification Failure. Error Note {0}. Status Control Context Id {1}", x.ErrorMessage,
                     StatusContext.StatusControlContextId);
                 return Task.CompletedTask;
@@ -299,7 +300,8 @@ public partial class JobListContext
 
     private async Task ProcessDataUpdateNotification(InterProcessDataNotification interProcessUpdateNotification)
     {
-        if (interProcessUpdateNotification.UpdateType == DataNotificationUpdateType.Delete)
+        if (interProcessUpdateNotification is
+            { ContentType: DataNotificationContentType.BackupJob, UpdateType: DataNotificationUpdateType.Delete })
         {
             await ThreadSwitcher.ResumeForegroundAsync();
 
@@ -308,8 +310,11 @@ public partial class JobListContext
             return;
         }
 
-        if (interProcessUpdateNotification.UpdateType is DataNotificationUpdateType.Update
-            or DataNotificationUpdateType.New)
+        if (interProcessUpdateNotification is
+            {
+                ContentType: DataNotificationContentType.BackupJob, UpdateType: DataNotificationUpdateType.Update
+                or DataNotificationUpdateType.New
+            })
         {
             var listItem = Items.SingleOrDefault(x => x.PersistentId == interProcessUpdateNotification.JobPersistentId);
             var db = await CloudBackupContext.CreateInstance();
@@ -325,16 +330,23 @@ public partial class JobListContext
             }
         }
 
-        await RefreshList();
+        if (interProcessUpdateNotification is { ContentType: DataNotificationContentType.CloudTransferBatch })
+        {
+            var listItem = Items.SingleOrDefault(x => x.PersistentId == interProcessUpdateNotification.JobPersistentId);
+            if (listItem is not null) await listItem.RefreshLatestBatch();
+            return;
+        }
     }
 
-    private Task ProcessProgressNotification(InterProcessProgressNotification arg)
+    private async Task ProcessProgressNotification(InterProcessProgressNotification arg)
     {
         var possibleListItem = Items.SingleOrDefault(x => x.PersistentId == arg.JobPersistentId);
-        if (possibleListItem == null) return Task.CompletedTask;
+        if (possibleListItem == null) return;
 
         possibleListItem.ProgressString = arg.ProgressMessage;
-        return Task.CompletedTask;
+        possibleListItem.ProgressProcess = arg.ProcessId;
+
+        if (arg.BatchId == possibleListItem.LatestBatch?.BatchId) await possibleListItem.RefreshLatestBatchStatistics();
     }
 
     [BlockingCommand]
@@ -368,9 +380,14 @@ public partial class JobListContext
 
         await ThreadSwitcher.ResumeBackgroundAsync();
 
+        DataNotifications.PublishProgressNotification("CloudBackupGui", 0, "Starting Backup Runner", toRun.PersistentId,
+            null);
+
         StatusContext.RunFireAndForgetNonBlockingTask(async () =>
             await Program.Main(new[]
                 { CloudBackupContext.CurrentDatabaseFileName, toRun.Id.ToString(), "auto" }));
+
+        StatusContext.ToastSuccess("Starting Backup Runner...");
     }
 
     public Task Setup()

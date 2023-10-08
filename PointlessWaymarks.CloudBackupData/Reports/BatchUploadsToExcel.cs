@@ -13,7 +13,7 @@ public static class BatchUploadsToExcel
         var batch = db.CloudTransferBatches.Single(x => x.Id == batchId);
         var job = batch.Job!;
 
-        var projectedUploads = batch.CloudUploads.Select(x => new
+        var projectedUploads = db.CloudUploads.Where(x => x.CloudTransferBatchId == batch.Id).Select(x => new
         {
             x.FileSystemFile,
             x.CloudObjectKey,
@@ -42,7 +42,7 @@ public static class BatchUploadsToExcel
             $"Total {projectedUploads.Count}, Completed Successfully {projectedUploads.Count(x => x.UploadCompletedSuccessfully)}, Not Uploaded Successfully {projectedUploads.Count(x => !x.UploadCompletedSuccessfully)}, With Error Messages {projectedUploads.Count(x => !string.IsNullOrWhiteSpace(x.ErrorMessage))}";
 
         uploadsWorksheet.Cell(currentRow++, 1).Value =
-            $"Total Batch Size {FileAndFolderTools.GetBytesReadable(batch.CloudUploads.Sum(x => x.FileSize))}, Uploaded {FileAndFolderTools.GetBytesReadable(batch.CloudUploads.Where(x => x.UploadCompletedSuccessfully).Sum(x => x.FileSize))}, Not Uploaded Successfully {FileAndFolderTools.GetBytesReadable(batch.CloudUploads.Where(x => !x.UploadCompletedSuccessfully).Sum(x => x.FileSize))}, With Error Messages {FileAndFolderTools.GetBytesReadable(batch.CloudUploads.Where(x => !string.IsNullOrWhiteSpace(x.ErrorMessage)).Sum(x => x.FileSize))}";
+            $"Total Batch Size {FileAndFolderTools.GetBytesReadable(projectedUploads.Sum(x => x.FileSize))}, Uploaded {FileAndFolderTools.GetBytesReadable(projectedUploads.Where(x => x.UploadCompletedSuccessfully).Sum(x => x.FileSize))}, Not Uploaded Successfully {FileAndFolderTools.GetBytesReadable(projectedUploads.Where(x => !x.UploadCompletedSuccessfully).Sum(x => x.FileSize))}, With Error Messages {FileAndFolderTools.GetBytesReadable(projectedUploads.Where(x => !string.IsNullOrWhiteSpace(x.ErrorMessage)).Sum(x => x.FileSize))}";
         
         currentRow++;
 

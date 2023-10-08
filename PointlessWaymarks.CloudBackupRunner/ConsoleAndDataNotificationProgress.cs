@@ -4,7 +4,7 @@ namespace PointlessWaymarks.CloudBackupRunner;
 
 public class ConsoleAndDataNotificationProgress : IProgress<string>
 {
-    private readonly Guid _consoleId;
+    public readonly Guid _consoleId;
 
     public ConsoleAndDataNotificationProgress(Guid consoleId)
     {
@@ -12,10 +12,11 @@ public class ConsoleAndDataNotificationProgress : IProgress<string>
     }
 
     public Guid PersistentId { get; set; } = Guid.Empty;
+    public int? BatchId { get; set; }
 
     public void Report(string value)
     {
         Console.WriteLine(value);
-        DataNotifications.PublishProgressNotification(_consoleId.ToString(), value, PersistentId);
+        DataNotifications.PublishProgressNotification(_consoleId.ToString(), Environment.ProcessId, value, PersistentId, BatchId);
     }
 }
