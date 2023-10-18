@@ -1,4 +1,4 @@
-﻿using PointlessWaymarks.CmsData.Database.Models;
+using PointlessWaymarks.CmsData.Database.Models;
 
 namespace PointlessWaymarks.CmsData.CommonHtml;
 
@@ -24,7 +24,7 @@ public class HeaderContentForSpatialContent : IHeaderContentBasedAdditions
                 <script src="{UserSettingsSingleton.CurrentSettings().SiteResourcesUrl()}leaflet-gesture-handling.min.js"></script>
                 <link rel="stylesheet" href="{UserSettingsSingleton.CurrentSettings().SiteResourcesUrl()}L.Control.Locate.min.css" type="text/css">
                 <script src="{UserSettingsSingleton.CurrentSettings().SiteResourcesUrl()}L.Control.Locate.min.js"></script>
-                <script src="{UserSettingsSingleton.CurrentSettings().SiteResourcesUrl()}pointless-waymarks-spatial-common.js"></script>";
+                <script src="{UserSettingsSingleton.CurrentSettings().SiteResourcesUrl()}pointless-waymarks-spatial-common.js"></script>
                 """;
     }
 
