@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using System.Windows.Shell;
@@ -35,6 +35,7 @@ using PointlessWaymarks.CmsWpfControls.SitePreview;
 using PointlessWaymarks.CmsWpfControls.Utility;
 using PointlessWaymarks.CmsWpfControls.VideoContentEditor;
 using PointlessWaymarks.CmsWpfControls.VideoList;
+using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.SpatialTools;
 using PointlessWaymarks.WpfCommon.Status;
@@ -542,11 +543,11 @@ public partial class CmsCommonCommands
     private async Task NewPhotoContentFromFiles(CancellationToken cancellationToken)
     {
         await WindowIconStatus.IndeterminateTask(WindowStatus,
-            async () => await NewPhotoContentFromFilesBase(false, cancellationToken),
+            async () => await NewPhotoContentFromFilesBase(false, false, cancellationToken),
             StatusContext.StatusControlContextId);
     }
 
-    public async Task NewPhotoContentFromFilesBase(bool autoSaveAndClose, CancellationToken cancellationToken)
+    public async Task NewPhotoContentFromFilesBase(bool autoSaveAndClose, bool adjustFilename, CancellationToken cancellationToken)
     {
         await ThreadSwitcher.ResumeForegroundAsync();
 
@@ -605,12 +606,31 @@ public partial class CmsCommonCommands
 
             if (autoSaveAndClose)
             {
+                var photoFile = loopFile;
+
                 var (metaGenerationReturn, metaContent) = await
-                    PhotoGenerator.PhotoMetadataToNewPhotoContent(loopFile, StatusContext.ProgressTracker());
+                    PhotoGenerator.PhotoMetadataToNewPhotoContent(photoFile, StatusContext.ProgressTracker());
+                
+                var fileNameValidation = await CommonContentValidation.PhotoFileValidation(photoFile, null);
+
+                if (metaContent != null && (!fileNameValidation.Valid || adjustFilename))
+                {
+                    var newBaseName = adjustFilename ? $"{metaContent.Title ?? Path.GetFileNameWithoutExtension(photoFile.Name)}{Path.GetExtension(photoFile.FullName)}" : photoFile.Name;
+                    var renameResult = await FileAndFolderTools.TryAutoRenameFileForProgramConventions(photoFile, newBaseName);
+
+                    if (renameResult is { Exists: true })
+                    {
+                        metaContent.OriginalFileName = renameResult.FullName;
+                        photoFile = renameResult;
+
+                        (metaGenerationReturn, metaContent) = await
+                            PhotoGenerator.PhotoMetadataToNewPhotoContent(photoFile, StatusContext.ProgressTracker());
+                    }
+                }
 
                 if (metaGenerationReturn.HasError || metaContent == null)
                 {
-                    var editor = await PhotoContentEditorWindow.CreateInstance(loopFile);
+                    var editor = await PhotoContentEditorWindow.CreateInstance(photoFile);
                     await editor.PositionWindowAndShowOnUiThread();
 #pragma warning disable 4014
                     //Allow execution to continue so Automation can continue
@@ -620,12 +640,12 @@ public partial class CmsCommonCommands
                     continue;
                 }
 
-                var (saveGenerationReturn, _) = await PhotoGenerator.SaveAndGenerateHtml(metaContent, loopFile, true,
+                var (saveGenerationReturn, _) = await PhotoGenerator.SaveAndGenerateHtml(metaContent, photoFile, true,
                     null, StatusContext.ProgressTracker());
 
                 if (saveGenerationReturn.HasError)
                 {
-                    var editor = await PhotoContentEditorWindow.CreateInstance(loopFile);
+                    var editor = await PhotoContentEditorWindow.CreateInstance(photoFile);
                     await editor.PositionWindowAndShowOnUiThread();
 #pragma warning disable 4014
                     //Allow execution to continue so Automation can continue
@@ -640,7 +660,7 @@ public partial class CmsCommonCommands
                 await editor.PositionWindowAndShowOnUiThread();
             }
 
-            StatusContext.Progress($"New Photo Editor - {loopFile.FullName} ");
+            StatusContext.Progress($"New Photo Editor - based on {loopFile.FullName} ");
 
             await ThreadSwitcher.ResumeBackgroundAsync();
         }
@@ -650,7 +670,7 @@ public partial class CmsCommonCommands
     private async Task NewPhotoContentFromFilesWithAutosave(CancellationToken cancellationToken)
     {
         await WindowIconStatus.IndeterminateTask(WindowStatus,
-            async () => await NewPhotoContentFromFilesBase(true, cancellationToken),
+            async () => await NewPhotoContentFromFilesBase(true, true, cancellationToken),
             StatusContext.StatusControlContextId);
     }
 
