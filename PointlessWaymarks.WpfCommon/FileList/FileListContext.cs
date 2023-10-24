@@ -1,4 +1,4 @@
-﻿using System.Collections.ObjectModel;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Windows;
@@ -72,13 +72,17 @@ public partial class FileListContext : IDropTarget
             return;
         }
 
-        if (data.GetData("FileDrop") is not string[] fileData || !fileData.Any())
+        if (data.GetData(DataFormats.FileDrop) is not string[] fileData || !fileData.Any())
         {
             StatusContext.ToastWarning("The program didn't find files in the dropped info?");
             return;
         }
 
-        var selectedFiles = fileData.Where(File.Exists).Select(x => new FileInfo(x)).OrderBy(x => x.FullName).ToList();
+        //2023-10-24: Folders come in thru the FileDrop data format - for folders take the top level files and add them to the list
+        var selectedDirectoryFiles = fileData.Where(Directory.Exists).Select(x => new DirectoryInfo(x))
+            .SelectMany(x => x.GetFiles("*.*", SearchOption.TopDirectoryOnly)).OrderBy(x => x.FullName).ToList();
+
+        var selectedFiles = fileData.Where(File.Exists).Select(x => new FileInfo(x)).Union(selectedDirectoryFiles).GroupBy(x => x.FullName).Select(x => x.First()).OrderBy(x => x.FullName).ToList();
 
         if (DroppedFileExtensionAllowList.Any())
             selectedFiles = selectedFiles
