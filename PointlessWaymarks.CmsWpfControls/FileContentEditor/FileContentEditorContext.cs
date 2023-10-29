@@ -1,4 +1,4 @@
-﻿using System.ComponentModel;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Text.RegularExpressions;
@@ -430,7 +430,7 @@ Notes:
                     TitleSummarySlugFolder.SummaryEntry.UserValue = metadata.Summary ?? string.Empty;
                     TagEdit.Tags = metadata.Tags ?? string.Empty;
                     TitleSummarySlugFolder.TitleEntry.UserValue = metadata.Title ?? string.Empty;
-                    TitleSummarySlugFolder.TitleToSlug();
+                    await TitleSummarySlugFolder.TitleToSlug();
                     TitleSummarySlugFolder.FolderEntry.UserValue = metadata.PhotoCreatedOn.Year.ToString("F0");
                     EmbedFile.UserValue = true;
                 }
@@ -442,6 +442,13 @@ Notes:
                 TitleSummarySlugFolder.TitleEntry.UserValue = Regex.Replace(
                     Path.GetFileNameWithoutExtension(SelectedFile.Name).Replace("-", " ").Replace("_", " ")
                         .CamelCaseToSpacedString(), @"\s+", " ");
+
+            if(!string.IsNullOrWhiteSpace(TitleSummarySlugFolder.TitleEntry.UserValue))
+            {
+                var possibleDateTimeFromTitle = DateTimeTools.DateOnlyFromTitleStringByConvention(TitleSummarySlugFolder.TitleEntry.UserValue);
+                if (possibleDateTimeFromTitle != null)
+                    TitleSummarySlugFolder.FolderEntry.UserValue = possibleDateTimeFromTitle.Value.titleDate.Year.ToString("F0");
+            }
         }
 
         await SelectedFileChanged();
