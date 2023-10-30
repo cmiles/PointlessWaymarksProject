@@ -1,4 +1,4 @@
-﻿using System.Collections.Concurrent;
+using System.Collections.Concurrent;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
@@ -807,8 +807,11 @@ public partial class ContentListContext : IDragSource, IDropTarget
                     var exifDirectory = ImageMetadataReader.ReadMetadata(loopFile).OfType<ExifIfd0Directory>()
                         .FirstOrDefault();
 
-                    make = exifDirectory?.GetDescription(ExifDirectoryBase.TagMake) ?? string.Empty;
-                    model = exifDirectory?.GetDescription(ExifDirectoryBase.TagModel) ?? string.Empty;
+                    var exifSubIfdDirectory = ImageMetadataReader.ReadMetadata(loopFile).OfType<ExifSubIfdDirectory>()
+                        .FirstOrDefault();
+
+                    make = exifDirectory?.GetDescription(ExifDirectoryBase.TagMake) ?? exifSubIfdDirectory?.GetDescription(ExifDirectoryBase.TagMake) ?? string.Empty;
+                    model = exifDirectory?.GetDescription(ExifDirectoryBase.TagModel) ?? exifSubIfdDirectory?.GetDescription(ExifDirectoryBase.TagModel) ?? string.Empty;
                 }
                 catch (Exception e)
                 {

@@ -1,4 +1,4 @@
-﻿using System.ComponentModel;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Windows;
@@ -296,6 +296,14 @@ public partial class ImageContentEditorContext : IHasChanges, IHasValidationIssu
                 TitleSummarySlugFolder.TitleEntry.UserValue = Path.GetFileNameWithoutExtension(SelectedFile.Name)
                     .Replace("-", " ").Replace("_", " ")
                     .CamelCaseToSpacedString();
+            }
+
+
+            if (!string.IsNullOrWhiteSpace(TitleSummarySlugFolder.TitleEntry.UserValue))
+            {
+                var possibleDateTimeFromTitle = DateTimeTools.DateOnlyFromTitleStringByConvention(TitleSummarySlugFolder.TitleEntry.UserValue);
+                if (possibleDateTimeFromTitle != null)
+                    TitleSummarySlugFolder.FolderEntry.UserValue = possibleDateTimeFromTitle.Value.titleDate.Year.ToString("F0");
             }
         }
 

@@ -1,4 +1,4 @@
-﻿using System.Text.RegularExpressions;
+using System.Text.RegularExpressions;
 using MetadataExtractor;
 using MetadataExtractor.Formats.Exif;
 using MetadataExtractor.Formats.Iptc;
@@ -44,7 +44,7 @@ public static class PhotoGenerator
         progress?.Report("Getting Directories");
 
         var metadataDirectories = ImageMetadataReader.ReadMetadata(selectedFile.FullName);
-        var exifSubIfDirectory = ImageMetadataReader.ReadMetadata(selectedFile.FullName).OfType<ExifSubIfdDirectory>()
+        var exifSubIfdDirectory = ImageMetadataReader.ReadMetadata(selectedFile.FullName).OfType<ExifSubIfdDirectory>()
             .FirstOrDefault();
         var exifIfdDirectory = ImageMetadataReader.ReadMetadata(selectedFile.FullName).OfType<ExifIfd0Directory>()
             .FirstOrDefault();
@@ -117,14 +117,14 @@ public static class PhotoGenerator
                 Log.Error(e, "Silent Error with FeatureIntersectionTags in Photo Metadata Extraction");
             }
 
-        var isoString = exifSubIfDirectory?.GetDescription(ExifDirectoryBase.TagIsoEquivalent);
+        var isoString = exifSubIfdDirectory?.GetDescription(ExifDirectoryBase.TagIsoEquivalent);
         if (!string.IsNullOrWhiteSpace(isoString)) toReturn.Iso = int.Parse(isoString);
 
-        toReturn.CameraMake = exifIfdDirectory?.GetDescription(ExifDirectoryBase.TagMake) ?? string.Empty;
-        toReturn.CameraModel = exifIfdDirectory?.GetDescription(ExifDirectoryBase.TagModel) ?? string.Empty;
-        toReturn.FocalLength = exifSubIfDirectory?.GetDescription(ExifDirectoryBase.TagFocalLength) ?? string.Empty;
+        toReturn.CameraMake = exifIfdDirectory?.GetDescription(ExifDirectoryBase.TagMake) ?? exifSubIfdDirectory?.GetDescription(ExifDirectoryBase.TagMake) ?? string.Empty;
+        toReturn.CameraModel = exifIfdDirectory?.GetDescription(ExifDirectoryBase.TagModel) ?? exifSubIfdDirectory?.GetDescription(ExifDirectoryBase.TagModel) ?? string.Empty;
+        toReturn.FocalLength = exifSubIfdDirectory?.GetDescription(ExifDirectoryBase.TagFocalLength) ?? string.Empty;
 
-        toReturn.Lens = exifSubIfDirectory?.GetDescription(ExifDirectoryBase.TagLensModel) ?? string.Empty;
+        toReturn.Lens = exifSubIfdDirectory?.GetDescription(ExifDirectoryBase.TagLensModel) ?? string.Empty;
 
         if (toReturn.Lens is "" or "----")
             toReturn.Lens = xmpDirectory?.XmpMeta?.GetProperty(XmpConstants.NsExifAux, "Lens")?.Value ?? string.Empty;
@@ -143,7 +143,7 @@ public static class PhotoGenerator
 
         if (toReturn.Lens == "----") toReturn.Lens = string.Empty;
 
-        toReturn.Aperture = exifSubIfDirectory?.GetDescription(ExifDirectoryBase.TagAperture) ?? string.Empty;
+        toReturn.Aperture = exifSubIfdDirectory?.GetDescription(ExifDirectoryBase.TagAperture) ?? string.Empty;
 
         toReturn.License = exifIfdDirectory?.GetDescription(ExifDirectoryBase.TagCopyright) ?? string.Empty;
 
@@ -156,8 +156,11 @@ public static class PhotoGenerator
 
         // ReSharper disable once InlineOutVariableDeclaration - Better to establish type of shutterValue explicitly
         Rational shutterValue;
-        if (exifSubIfDirectory?.TryGetRational(ExifDirectoryBase.TagShutterSpeed, out shutterValue) ?? false)
+        Rational exposureValue;
+        if (exifSubIfdDirectory?.TryGetRational(ExifDirectoryBase.TagShutterSpeed, out shutterValue) ?? false)
             toReturn.ShutterSpeed = ExifHelpers.ShutterSpeedToHumanReadableString(shutterValue);
+        else if (exifSubIfdDirectory?.TryGetRational(ExifDirectoryBase.TagExposureTime, out exposureValue) ?? false)
+            toReturn.ShutterSpeed = ExifHelpers.ExposureTimeToHumanReadableString(exposureValue);
         else
             toReturn.ShutterSpeed = string.Empty;
 
