@@ -156,6 +156,7 @@ public static class PhotoGenerator
 
         // ReSharper disable once InlineOutVariableDeclaration - Better to establish type of shutterValue explicitly
         Rational shutterValue;
+        // ReSharper disable once InlineOutVariableDeclaration - Better to establish type of exposureValue explicitly
         Rational exposureValue;
         if (exifSubIfdDirectory?.TryGetRational(ExifDirectoryBase.TagShutterSpeed, out shutterValue) ?? false)
             toReturn.ShutterSpeed = ExifHelpers.ShutterSpeedToHumanReadableString(shutterValue);
