@@ -1,5 +1,4 @@
-﻿using System.ComponentModel;
-using System.Runtime.CompilerServices;
+using System.ComponentModel;
 using Metalama.Framework.Aspects;
 using Metalama.Framework.Code;
 
@@ -12,7 +11,8 @@ public class NotifyPropertyChangedAttribute : TypeAspect
         builder.Advice.ImplementInterface(builder.Target, typeof(INotifyPropertyChanged), OverrideStrategy.Ignore);
 
         foreach (var property in builder.Target.Properties.Where(p =>
-                     p is { IsAbstract: false, Writeability: Writeability.All } && !p.Attributes.Any(typeof(DoNotGenerateInpc))))
+                     p is { IsAbstract: false, Writeability: Writeability.All } &&
+                     !p.Attributes.Any(typeof(DoNotGenerateInpc))))
             builder.Advice.OverrideAccessors(property, null, nameof(OverridePropertySetter));
     }
 
@@ -25,21 +25,14 @@ public class NotifyPropertyChangedAttribute : TypeAspect
     [Template]
     private dynamic OverridePropertySetter(dynamic value)
     {
-        SetField(ref meta.Target.FieldOrProperty.Value, value);
+        if (value != meta.Target.Property.Value)
+        {
+            meta.Proceed();
+            OnPropertyChanged(meta.Target.Property.Name);
+        }
 
         return value;
     }
 
     [InterfaceMember] public event PropertyChangedEventHandler? PropertyChanged;
-
-    [Introduce(WhenExists = OverrideStrategy.Ignore)]
-    protected bool SetField<T>(ref T field, T value, [CallerMemberName] string? propertyName = null)
-    {
-        if (string.IsNullOrWhiteSpace(propertyName)) throw new ArgumentNullException(nameof(propertyName));
-
-        if (EqualityComparer<T>.Default.Equals(field, value)) return false;
-        field = value;
-        OnPropertyChanged(propertyName);
-        return true;
-    }
 }

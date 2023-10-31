@@ -12,11 +12,6 @@ namespace PointlessWaymarks.WpfCommon.Status;
 [NotifyPropertyChanged]
 public partial class StatusControlContext
 {
-    private int _countOfRunningBlockingTasks;
-
-
-    private int _countOfRunningNonBlockingTasks;
-
     public StatusControlContext()
     {
         ContextDispatcher = Application.Current?.Dispatcher ??
@@ -34,21 +29,8 @@ public partial class StatusControlContext
     public bool BlockUi { get; set; }
     public ObservableCollection<UserCancellations> CancellationList { get; set; }
     public Dispatcher ContextDispatcher { get; set; }
-
-    [DoNotGenerateInpc]
-    public int CountOfRunningBlockingTasks
-    {
-        get => _countOfRunningBlockingTasks;
-        set => SetField(ref _countOfRunningBlockingTasks, value);
-    }
-
-    [DoNotGenerateInpc]
-    public int CountOfRunningNonBlockingTasks
-    {
-        get => _countOfRunningNonBlockingTasks;
-        set => SetField(ref _countOfRunningNonBlockingTasks, value);
-    }
-
+    public int CountOfRunningBlockingTasks { get; set; }
+    public int CountOfRunningNonBlockingTasks { get; set; }
     public CancellationTokenSource? CurrentFullScreenCancellationSource { get; set; }
     public List<StatusControlMessageButton>? MessageBoxButtonList { get; set; }
     public string? MessageBoxMessage { get; set; }
@@ -478,7 +460,8 @@ public partial class StatusControlContext
     public async Task<string> ShowMessageWithYesNoButton(string title, string? body)
     {
         return await ShowMessage(title, body,
-            new List<StatusControlMessageButton> { new() { IsDefault = true, MessageText = "Yes" }, new() { MessageText = "No" } });
+            new List<StatusControlMessageButton>
+                { new() { IsDefault = true, MessageText = "Yes" }, new() { MessageText = "No" } });
     }
 
     public async Task<(bool, string)> ShowStringEntry(string title, string body, string initialUserString)

@@ -27,7 +27,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.1" />
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.2" />
     <PackageReference Include="GitInfo" Version="3.3.3">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -36,12 +36,12 @@
     <PackageReference Include="JetBrains.Annotations" Version="2023.2.0" />
     <PackageReference Include="Markdig.Wpf" Version="0.5.0.1" />
     <PackageReference Include="MetadataExtractor" Version="2.8.1" />
-    <PackageReference Include="Metalama.Framework" Version="2023.3.7-rc" />
-    <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.2045.28" />
-    <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.39" />
+    <PackageReference Include="Metalama.Framework" Version="2023.4.5-rc" />
+    <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.2088.41" />
+    <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.77" />
     <PackageReference Include="Ookii.Dialogs.Wpf" Version="5.0.1" />
-    <PackageReference Include="PhotoSauce.MagicScaler" Version="0.13.2" />
-    <PackageReference Include="SharpVectors.Wpf" Version="1.8.1" />
+    <PackageReference Include="PhotoSauce.MagicScaler" Version="0.14.0" />
+    <PackageReference Include="SharpVectors.Wpf" Version="1.8.2" />
     <PackageReference Include="System.Drawing.Common" Version="7.0.0" />
     <PackageReference Include="TypeSupport" Version="1.2.0" />
     <PackageReference Include="WpfScreenHelper" Version="2.1.0" />

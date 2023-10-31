@@ -19,13 +19,13 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.1" />
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.2" />
     <PackageReference Include="GitInfo" Version="3.3.3">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Jot" Version="2.1.17" />
-    <PackageReference Include="Metalama.Framework" Version="2023.4.1-preview" />
+    <PackageReference Include="Metalama.Framework" Version="2023.4.5-rc" />
   </ItemGroup>
 
   <ItemGroup>
