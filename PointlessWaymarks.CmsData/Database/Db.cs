@@ -1,4 +1,4 @@
-﻿using System.Collections.Concurrent;
+using System.Collections.Concurrent;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using Microsoft.EntityFrameworkCore;
@@ -91,6 +91,7 @@ public static class Db
 
         var context = await Context();
 
+        //!!Content Type List!!
         returnList.AddRange(context.FileContents
             .Where(x => x.CreatedOn >= createdOnOnOrAfter && x.CreatedOn < createdOnBefore).Cast<object>());
         returnList.AddRange(context.GeoJsonContents
@@ -108,6 +109,8 @@ public static class Db
         returnList.AddRange(context.PointContents
             .Where(x => x.CreatedOn >= createdOnOnOrAfter && x.CreatedOn < createdOnBefore).Cast<object>());
         returnList.AddRange(context.PostContents
+            .Where(x => x.CreatedOn >= createdOnOnOrAfter && x.CreatedOn < createdOnBefore).Cast<object>());
+        returnList.AddRange(context.VideoContents
             .Where(x => x.CreatedOn >= createdOnOnOrAfter && x.CreatedOn < createdOnBefore).Cast<object>());
 
         return returnList;
