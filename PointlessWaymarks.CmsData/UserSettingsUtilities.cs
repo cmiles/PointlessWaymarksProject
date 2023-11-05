@@ -1,10 +1,8 @@
 using System.Data;
 using System.Globalization;
 using Amazon;
-using FluentMigrator.Runner;
 using IniParser;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 using Omu.ValueInjecter;
 using PointlessWaymarks.CmsData.Content;
 using PointlessWaymarks.CmsData.Database;
@@ -41,26 +39,26 @@ public static class UserSettingsUtilities
         return $"{settings.SiteUrl()}/Tags/AllTagsList.html";
     }
 
-    public static string CameraRollGalleryUrl(this UserSettings settings)
-    {
-        return $"{settings.SiteUrl()}/Photos/Galleries/CameraRoll.html";
-    }
-
-    public static string ContentGalleryUrl(this UserSettings settings)
-    {
-        return $"{settings.SiteUrl()}/Content/Galleries/ContentGallery.html";
-    }
-
     public static string CameraRollGalleryJavascriptUrl()
     {
         return
             $"{UserSettingsSingleton.CurrentSettings().SiteResourcesUrl()}pointless-waymarks-camera-roll-gallery.js";
     }
-    
+
+    public static string CameraRollGalleryUrl(this UserSettings settings)
+    {
+        return $"{settings.SiteUrl()}/Photos/Galleries/CameraRoll.html";
+    }
+
     public static string ContentGalleryJavascriptUrl()
     {
         return
             $"{UserSettingsSingleton.CurrentSettings().SiteResourcesUrl()}pointless-waymarks-content-gallery.js";
+    }
+
+    public static string LatestContentGalleryUrl(this UserSettings settings)
+    {
+        return $"{settings.SiteUrl()}/LatestContent.html";
     }
 
     public static async Task<string> ContentUrl(this UserSettings settings, Guid toLink)
@@ -165,55 +163,55 @@ public static class UserSettingsUtilities
         //to S3 program and the CMS - but not in Visual Studio and not outside of a Self Contained Executable?
         //
 
- //       System.AggregateException: One or more errors occurred. (Value cannot be null. (Parameter 'path1'))
- //--->System.ArgumentNullException: Value cannot be null. (Parameter 'path1')
- //  at System.ArgumentNullException.Throw(String paramName)
- //  at System.IO.Path.Combine(String path1, String path2)
- //  at System.Data.SQLite.SQLiteConnection..ctor(String connectionString, Boolean parseViaFramework)
- //  at System.Data.SQLite.SQLiteConnection..ctor(String connectionString)
- //  at System.Data.SQLite.SQLiteConnection..ctor()
- //  at System.Data.SQLite.SQLiteFactory.CreateConnection()
- //  at FluentMigrator.Runner.Processors.GenericProcessorBase.<> c__DisplayClass6_1.<.ctor > b__1()
- //  at System.Lazy`1.ViaFactory(LazyThreadSafetyMode mode)
- //  at System.Lazy`1.ExecutionAndPublication(LazyHelper executionAndPublication, Boolean useDefaultConstructor)
- //  at System.Lazy`1.CreateValue()
- //  at FluentMigrator.Runner.Processors.GenericProcessorBase.get_Connection()
- //  at FluentMigrator.Runner.Processors.GenericProcessorBase.EnsureConnectionIsOpen()
- //  at FluentMigrator.Runner.Processors.SQLite.SQLiteProcessor.Exists(String template, Object[] args)
- //  at FluentMigrator.Runner.Processors.SQLite.SQLiteProcessor.TableExists(String schemaName, String tableName)
- //  at FluentMigrator.Runner.VersionLoader.get_AlreadyCreatedVersionTable()
- //  at FluentMigrator.Runner.VersionLoader.LoadVersionInfo()
- //  at FluentMigrator.Runner.VersionLoader..ctor(IProcessorAccessor processorAccessor, IConventionSet conventionSet, IMigrationRunnerConventions conventions, IVersionTableMetaData versionTableMetaData, IMigrationRunner runner)
- //  at System.RuntimeMethodHandle.InvokeMethod(Object target, Void * *arguments, Signature sig, Boolean isConstructor)
- //  at System.Reflection.ConstructorInvoker.Invoke(Object obj, IntPtr * args, BindingFlags invokeAttr)
- //  at System.Reflection.RuntimeConstructorInfo.InvokeWithManyArguments(RuntimeConstructorInfo ci, Int32 argCount, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
- //  at System.Reflection.RuntimeConstructorInfo.Invoke(BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
- //  at Microsoft.Extensions.DependencyInjection.ActivatorUtilities.ConstructorMatcher.CreateInstance(IServiceProvider provider)
- //  at Microsoft.Extensions.DependencyInjection.ActivatorUtilities.CreateInstance(IServiceProvider provider, Type instanceType, Object[] parameters)
- //  at Microsoft.Extensions.DependencyInjection.ActivatorUtilities.CreateInstance[T](IServiceProvider provider, Object[] parameters)
- //  at Microsoft.Extensions.DependencyInjection.FluentMigratorServiceCollectionExtensions.<> c.< AddFluentMigratorCore > b__0_6(IServiceProvider sp)
- //  at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)
- //  at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteRuntimeResolver.VisitRootCache(ServiceCallSite callSite, RuntimeResolverContext context)
- //  at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteRuntimeResolver.VisitScopeCache(ServiceCallSite callSite, RuntimeResolverContext context)
- //  at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
- //  at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteRuntimeResolver.Resolve(ServiceCallSite callSite, ServiceProviderEngineScope scope)
- //  at Microsoft.Extensions.DependencyInjection.ServiceLookup.DynamicServiceProviderEngine.<> c__DisplayClass2_0.< RealizeService > b__0(ServiceProviderEngineScope scope)
- //  at Microsoft.Extensions.DependencyInjection.ServiceProvider.GetService(Type serviceType, ServiceProviderEngineScope serviceProviderEngineScope)
- //  at Microsoft.Extensions.DependencyInjection.ServiceProviderServiceExtensions.GetRequiredService(IServiceProvider provider, Type serviceType)
- //  at Microsoft.Extensions.DependencyInjection.ServiceProviderServiceExtensions.GetRequiredService[T](IServiceProvider provider)
- //  at System.Lazy`1.ViaFactory(LazyThreadSafetyMode mode)
- //  at System.Lazy`1.ExecutionAndPublication(LazyHelper executionAndPublication, Boolean useDefaultConstructor)
- //  at System.Lazy`1.CreateValue()
- //  at FluentMigrator.Runner.MigrationRunner.get_VersionLoader()
- //  at FluentMigrator.Runner.MigrationRunner.IsMigrationStepNeededForUpMigration(IMigrationInfo migration, Int64 targetVersion)
- //  at FluentMigrator.Runner.MigrationRunner.<> c__DisplayClass60_0.< GetUpMigrationsToApply > b__0(KeyValuePair`2 pair)
- //  at System.Linq.Enumerable.WhereSelectEnumerableIterator`2.MoveNext()
- //  at FluentMigrator.Runner.MigrationRunner.MigrateUp(Int64 targetVersion, Boolean useAutomaticTransactionManagement)
- //  at FluentMigrator.Runner.MigrationRunner.MigrateUp(Boolean useAutomaticTransactionManagement)
- //  at FluentMigrator.Runner.MigrationRunner.MigrateUp()
- //  at PointlessWaymarks.CmsData.UserSettingsUtilities.EnsureDbIsPresent(IProgress`1 progress) in C:\Code\PointlessWaymarksProject - 05\PointlessWaymarks.CmsData\UserSettingsUtilities.cs:line 153
- //  at PointlessWaymarks.CmsGui.MainWindow.LoadData() in C:\Code\PointlessWaymarksProject - 05\PointlessWaymarks.CmsGui\MainWindow.xaml.cs:line 495
- //  at PointlessWaymarks.WpfCommon.Status.StatusControlContext.<> c__DisplayClass119_0.<< RunFireAndForgetBlockingTask > b__0 > d.MoveNext() in C:\Code\PointlessWaymarksProject - 05\PointlessWaymarks.WpfCommon\Status\StatusControlContext.cs:line 338
+        //       System.AggregateException: One or more errors occurred. (Value cannot be null. (Parameter 'path1'))
+        //--->System.ArgumentNullException: Value cannot be null. (Parameter 'path1')
+        //  at System.ArgumentNullException.Throw(String paramName)
+        //  at System.IO.Path.Combine(String path1, String path2)
+        //  at System.Data.SQLite.SQLiteConnection..ctor(String connectionString, Boolean parseViaFramework)
+        //  at System.Data.SQLite.SQLiteConnection..ctor(String connectionString)
+        //  at System.Data.SQLite.SQLiteConnection..ctor()
+        //  at System.Data.SQLite.SQLiteFactory.CreateConnection()
+        //  at FluentMigrator.Runner.Processors.GenericProcessorBase.<> c__DisplayClass6_1.<.ctor > b__1()
+        //  at System.Lazy`1.ViaFactory(LazyThreadSafetyMode mode)
+        //  at System.Lazy`1.ExecutionAndPublication(LazyHelper executionAndPublication, Boolean useDefaultConstructor)
+        //  at System.Lazy`1.CreateValue()
+        //  at FluentMigrator.Runner.Processors.GenericProcessorBase.get_Connection()
+        //  at FluentMigrator.Runner.Processors.GenericProcessorBase.EnsureConnectionIsOpen()
+        //  at FluentMigrator.Runner.Processors.SQLite.SQLiteProcessor.Exists(String template, Object[] args)
+        //  at FluentMigrator.Runner.Processors.SQLite.SQLiteProcessor.TableExists(String schemaName, String tableName)
+        //  at FluentMigrator.Runner.VersionLoader.get_AlreadyCreatedVersionTable()
+        //  at FluentMigrator.Runner.VersionLoader.LoadVersionInfo()
+        //  at FluentMigrator.Runner.VersionLoader..ctor(IProcessorAccessor processorAccessor, IConventionSet conventionSet, IMigrationRunnerConventions conventions, IVersionTableMetaData versionTableMetaData, IMigrationRunner runner)
+        //  at System.RuntimeMethodHandle.InvokeMethod(Object target, Void * *arguments, Signature sig, Boolean isConstructor)
+        //  at System.Reflection.ConstructorInvoker.Invoke(Object obj, IntPtr * args, BindingFlags invokeAttr)
+        //  at System.Reflection.RuntimeConstructorInfo.InvokeWithManyArguments(RuntimeConstructorInfo ci, Int32 argCount, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+        //  at System.Reflection.RuntimeConstructorInfo.Invoke(BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+        //  at Microsoft.Extensions.DependencyInjection.ActivatorUtilities.ConstructorMatcher.CreateInstance(IServiceProvider provider)
+        //  at Microsoft.Extensions.DependencyInjection.ActivatorUtilities.CreateInstance(IServiceProvider provider, Type instanceType, Object[] parameters)
+        //  at Microsoft.Extensions.DependencyInjection.ActivatorUtilities.CreateInstance[T](IServiceProvider provider, Object[] parameters)
+        //  at Microsoft.Extensions.DependencyInjection.FluentMigratorServiceCollectionExtensions.<> c.< AddFluentMigratorCore > b__0_6(IServiceProvider sp)
+        //  at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)
+        //  at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteRuntimeResolver.VisitRootCache(ServiceCallSite callSite, RuntimeResolverContext context)
+        //  at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteRuntimeResolver.VisitScopeCache(ServiceCallSite callSite, RuntimeResolverContext context)
+        //  at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+        //  at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteRuntimeResolver.Resolve(ServiceCallSite callSite, ServiceProviderEngineScope scope)
+        //  at Microsoft.Extensions.DependencyInjection.ServiceLookup.DynamicServiceProviderEngine.<> c__DisplayClass2_0.< RealizeService > b__0(ServiceProviderEngineScope scope)
+        //  at Microsoft.Extensions.DependencyInjection.ServiceProvider.GetService(Type serviceType, ServiceProviderEngineScope serviceProviderEngineScope)
+        //  at Microsoft.Extensions.DependencyInjection.ServiceProviderServiceExtensions.GetRequiredService(IServiceProvider provider, Type serviceType)
+        //  at Microsoft.Extensions.DependencyInjection.ServiceProviderServiceExtensions.GetRequiredService[T](IServiceProvider provider)
+        //  at System.Lazy`1.ViaFactory(LazyThreadSafetyMode mode)
+        //  at System.Lazy`1.ExecutionAndPublication(LazyHelper executionAndPublication, Boolean useDefaultConstructor)
+        //  at System.Lazy`1.CreateValue()
+        //  at FluentMigrator.Runner.MigrationRunner.get_VersionLoader()
+        //  at FluentMigrator.Runner.MigrationRunner.IsMigrationStepNeededForUpMigration(IMigrationInfo migration, Int64 targetVersion)
+        //  at FluentMigrator.Runner.MigrationRunner.<> c__DisplayClass60_0.< GetUpMigrationsToApply > b__0(KeyValuePair`2 pair)
+        //  at System.Linq.Enumerable.WhereSelectEnumerableIterator`2.MoveNext()
+        //  at FluentMigrator.Runner.MigrationRunner.MigrateUp(Int64 targetVersion, Boolean useAutomaticTransactionManagement)
+        //  at FluentMigrator.Runner.MigrationRunner.MigrateUp(Boolean useAutomaticTransactionManagement)
+        //  at FluentMigrator.Runner.MigrationRunner.MigrateUp()
+        //  at PointlessWaymarks.CmsData.UserSettingsUtilities.EnsureDbIsPresent(IProgress`1 progress) in C:\Code\PointlessWaymarksProject - 05\PointlessWaymarks.CmsData\UserSettingsUtilities.cs:line 153
+        //  at PointlessWaymarks.CmsGui.MainWindow.LoadData() in C:\Code\PointlessWaymarksProject - 05\PointlessWaymarks.CmsGui\MainWindow.xaml.cs:line 495
+        //  at PointlessWaymarks.WpfCommon.Status.StatusControlContext.<> c__DisplayClass119_0.<< RunFireAndForgetBlockingTask > b__0 > d.MoveNext() in C:\Code\PointlessWaymarksProject - 05\PointlessWaymarks.WpfCommon\Status\StatusControlContext.cs:line 338
 
 
         //if (possibleDbFile.Exists)
@@ -471,10 +469,10 @@ public static class UserSettingsUtilities
         return new FileInfo($"{Path.Combine(directory.FullName, "CameraRoll")}.html");
     }
 
-    public static FileInfo LocalSiteContentGalleryFileInfo(this UserSettings settings)
+    public static FileInfo LocalSiteLatestContentGalleryFileInfo(this UserSettings settings)
     {
-        var directory = settings.LocalSiteContentGalleryDirectory();
-        return new FileInfo($"{Path.Combine(directory.FullName, "ContentGallery")}.html");
+        var directory = settings.LocalSiteRootFullDirectory().FullName;
+        return new FileInfo($"{Path.Combine(directory, "LatestContent")}.html");
     }
 
     public static DirectoryInfo LocalSiteDailyPhotoGalleryDirectory(this UserSettings settings)
@@ -921,17 +919,6 @@ public static class UserSettingsUtilities
     {
         var directory =
             new DirectoryInfo(Path.Combine(settings.LocalSiteRootFullDirectory().FullName, "Photos", "Galleries"));
-        if (!directory.Exists) directory.Create();
-
-        directory.Refresh();
-
-        return directory;
-    }
-
-    public static DirectoryInfo LocalSiteContentGalleryDirectory(this UserSettings settings)
-    {
-        var directory =
-            new DirectoryInfo(Path.Combine(settings.LocalSiteRootFullDirectory().FullName, "Content", "Galleries"));
         if (!directory.Exists) directory.Create();
 
         directory.Refresh();
@@ -1727,7 +1714,7 @@ public static class UserSettingsUtilities
         }
 
         iniFileReader.WriteFile(currentFile.FullName, iniResult);
-        
+
         return Task.CompletedTask;
     }
 }

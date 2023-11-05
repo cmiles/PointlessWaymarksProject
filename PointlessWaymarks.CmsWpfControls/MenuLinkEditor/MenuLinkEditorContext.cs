@@ -1,4 +1,4 @@
-﻿using System.Collections.ObjectModel;
+using System.Collections.ObjectModel;
 using Microsoft.EntityFrameworkCore;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
@@ -107,6 +107,12 @@ public partial class MenuLinkEditorContext
         listItem.UserLink = listItem.UserLink.Trim();
 
         listItem.UserLink += toInsert;
+    }
+
+    [BlockingCommand]
+    public async Task InsertLatestContentGallery(MenuLinkListItem? listItem)
+    {
+        await InsertIntoLinkTag(listItem, "{{latestcontentpage; text Latest;}}");
     }
 
     [BlockingCommand]

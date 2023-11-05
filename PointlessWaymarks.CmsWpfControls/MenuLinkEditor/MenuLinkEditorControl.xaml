@@ -1,4 +1,4 @@
-﻿<UserControl
+<UserControl
     x:Class="PointlessWaymarks.CmsWpfControls.MenuLinkEditor.MenuLinkEditorControl"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -151,6 +151,9 @@
                                     </Button>
                                     <Button Command="{Binding DataContext.InsertPhotoGalleryCommand, ElementName=MenuLinkEditorControlXaml}" CommandParameter="{Binding .}">
                                         Photo Gallery
+                                    </Button>
+                                    <Button Command="{Binding DataContext.InsertLatestContentGalleryCommand, ElementName=MenuLinkEditorControlXaml}" CommandParameter="{Binding .}">
+                                        Latest Content
                                     </Button>
                                     <Button Command="{Binding DataContext.InsertLinkListCommand, ElementName=MenuLinkEditorControlXaml}" CommandParameter="{Binding .}">
                                         Links

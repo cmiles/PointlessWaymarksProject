@@ -203,7 +203,7 @@
                                         </WrapPanel.Resources>
                                         <Button Command="{Binding GenerateAllListHtmlCommand}">Lists</Button>
                                         <Button Command="{Binding GenerateAllTagHtmlCommand}">Tags</Button>
-                                        <Button Command="{Binding GenerateContentGalleryRollCommand}">Content Gallery</Button>
+                                        <Button Command="{Binding GenerateLatestContentGalleryCommand}">Content Gallery</Button>
                                         <Button Command="{Binding GenerateCameraRollCommand}">Camera Roll</Button>
                                         <Button Command="{Binding GenerateDailyGalleryHtmlCommand}">Daily Photos</Button>
                                     </WrapPanel>

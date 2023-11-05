@@ -231,6 +231,7 @@ public static class HtmlGenerationGroups
             async () => await GenerateAllListHtml(generationVersion, progress).ConfigureAwait(false),
             async () => await GenerateAllUtilityJson(progress).ConfigureAwait(false),
             async () => await GenerateIndex(generationVersion, progress).ConfigureAwait(false),
+            async () => await GenerateLatestContentGalleryHtml(generationVersion, progress),
             async () => await GenerateErrorPage(generationVersion, progress).ConfigureAwait(false)
         };
 
@@ -472,11 +473,11 @@ public static class HtmlGenerationGroups
         await cameraRollPage.WriteLocalHtml().ConfigureAwait(false);
     }
 
-    public static async Task GenerateContentGalleryHtml(DateTime? generationVersion, IProgress<string>? progress = null)
+    public static async Task GenerateLatestContentGalleryHtml(DateTime? generationVersion, IProgress<string>? progress = null)
     {
-        var contentGalleryPage = await ContentGalleryPageGenerators.ContentGallery(generationVersion, progress)
+        var cameraRollPage = await ContentGalleryPageGenerators.LatestContentGallery(generationVersion, progress)
             .ConfigureAwait(false);
-        await contentGalleryPage.WriteLocalHtml().ConfigureAwait(false);
+        await cameraRollPage.WriteLocalHtml().ConfigureAwait(false);
     }
 
     public static async Task GenerateChangedContentIdReferences(DateTime contentAfter, DateTime generationVersion,
@@ -1114,6 +1115,7 @@ public static class HtmlGenerationGroups
             GenerateChangedListHtml(lastGenerationDateTime, generationVersion, progress),
             GenerateAllUtilityJson(progress),
             GenerateIndex(generationVersion, progress),
+            GenerateLatestContentGalleryHtml(generationVersion, progress),
             GenerateErrorPage(generationVersion, progress)
         };
 

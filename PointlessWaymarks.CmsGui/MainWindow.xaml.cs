@@ -364,9 +364,9 @@ public partial class MainWindow
     }
 
     [BlockingCommand]
-    public async Task GenerateContentGalleryRoll()
+    public async Task GenerateLatestContentGallery()
     {
-        await HtmlGenerationGroups.GenerateContentGalleryHtml(null, StatusContext.ProgressTracker());
+        await HtmlGenerationGroups.GenerateLatestContentGalleryHtml(null, StatusContext.ProgressTracker());
     }
 
 

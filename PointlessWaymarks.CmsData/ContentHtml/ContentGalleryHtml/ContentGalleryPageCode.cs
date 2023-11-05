@@ -21,7 +21,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml.ContentGalleryHtml
         {
             var htmlString = TransformText();
 
-            var htmlFileInfo = UserSettingsSingleton.CurrentSettings().LocalSiteContentGalleryFileInfo();
+            var htmlFileInfo = UserSettingsSingleton.CurrentSettings().LocalSiteLatestContentGalleryFileInfo();
 
             if (htmlFileInfo.Exists)
             {

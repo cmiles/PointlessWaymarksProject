@@ -1,4 +1,4 @@
-﻿using System.Windows;
+using System.Windows;
 using Microsoft.Web.WebView2.Core;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.LlamaAspects;
@@ -66,6 +66,41 @@ public partial class SitePreviewContext : DependencyObject
     {
         await ThreadSwitcher.ResumeForegroundAsync();
         WebViewGui?.SitePreviewWebView.CoreWebView2.Navigate(InitialPage);
+    }
+
+    [BlockingCommand]
+    private async Task TryNavigateToSearchPage()
+    {
+        await ThreadSwitcher.ResumeForegroundAsync();
+        WebViewGui?.SitePreviewWebView.CoreWebView2.Navigate($"http://{PreviewServerHost}/AllContentList.html");
+    }
+
+    [BlockingCommand]
+    private async Task TryNavigateToCameraRollGallery()
+    {
+        await ThreadSwitcher.ResumeForegroundAsync();
+        WebViewGui?.SitePreviewWebView.CoreWebView2.Navigate($"http://{PreviewServerHost}/Photos/Galleries/CameraRoll.html");
+    }
+
+    [BlockingCommand]
+    private async Task TryNavigateToLatestContentGallery()
+    {
+        await ThreadSwitcher.ResumeForegroundAsync();
+        WebViewGui?.SitePreviewWebView.CoreWebView2.Navigate($"http://{PreviewServerHost}/LatestContent.html");
+    }
+
+    [BlockingCommand]
+    private async Task TryNavigateToTagList()
+    {
+        await ThreadSwitcher.ResumeForegroundAsync();
+        WebViewGui?.SitePreviewWebView.CoreWebView2.Navigate($"http://{PreviewServerHost}/Tags/AllTagsList.html");
+    }
+
+    [BlockingCommand]
+    private async Task TryNavigateToLinkList()
+    {
+        await ThreadSwitcher.ResumeForegroundAsync();
+        WebViewGui?.SitePreviewWebView.CoreWebView2.Navigate($"http://{PreviewServerHost}/Links/LinkList.html");
     }
 
     [BlockingCommand]

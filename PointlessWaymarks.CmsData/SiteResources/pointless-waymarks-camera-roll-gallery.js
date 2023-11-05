@@ -1,4 +1,4 @@
-﻿document.addEventListener('DOMContentLoaded', processEnableAfterLoadingElements);
+document.addEventListener('DOMContentLoaded', processEnableAfterLoadingElements);
 
 function processEnableAfterLoadingElements() {
     Array.from(document.querySelectorAll('.enable-after-loading'))
@@ -27,10 +27,7 @@ function searchContent() {
 
     var contentDivs = Array.from(document.querySelectorAll('.camera-roll-photo-item-container'));
 
-    var yearDivs = Array.from(document.querySelectorAll('.camera-roll-year-list-container'));
-    var monthDivs = Array.from(document.querySelectorAll('.camera-roll-month-list-container'));
-    var infoDivs = Array.from(document.querySelectorAll('.camera-roll-info-item-container'));
-    var nonPhotoListDivs = yearDivs.concat(monthDivs).concat(infoDivs);
+    var nonPhotoListDivs = Array.from(document.querySelectorAll('.camera-roll-year-list-container', '.camera-roll-month-list-container', '.camera-roll-info-item-container'));
 
     if (filterText == null || filterText.trim() === '') {
         nonPhotoListDivs.forEach(x => x.classList.remove("hidden-list-item"));

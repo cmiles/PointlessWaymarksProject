@@ -1,4 +1,4 @@
-﻿using HtmlTags;
+using HtmlTags;
 
 namespace PointlessWaymarks.CmsData.CommonHtml;
 
@@ -24,6 +24,8 @@ public static class BracketCodeSpecialPages
                 $"{UserSettingsSingleton.CurrentSettings().PhotoRssUrl()}"),
             ("photogallerypage", "Photos",
                 $"{UserSettingsSingleton.CurrentSettings().CameraRollGalleryUrl()}"),
+            ("latestcontentpage", "Latest",
+                $"{UserSettingsSingleton.CurrentSettings().LatestContentGalleryUrl()}"),
             ("searchpage", "Search", $"{UserSettingsSingleton.CurrentSettings().AllContentListUrl()}"),
             ("tagspage", "Tags", $"{UserSettingsSingleton.CurrentSettings().AllTagsListUrl()}"),
             ("linklistpage", "Links", $"{UserSettingsSingleton.CurrentSettings().LinkListUrl()}")

@@ -81,39 +81,107 @@ public static class Db
         return returnList;
     }
 
+    /// <summary>
+    /// Returns Content where it was last updated, or created on and never updated, on the input day. List returns with
+    /// an ascending sort on the LastUpdatedOn or CreatedOn used to filter the item. Drafts and items excluded from
+    /// search are not included.
+    /// </summary>
+    /// <param name="createdOn"></param>
+    /// <returns></returns>
+    public static async Task<List<object>> ContentLastUpdatedCreatedOnDayNoDrafts(DateTime createdOn)
+    {
+        var createdOnOnOrAfter = createdOn.Date;
+        var createdOnBefore = createdOn.AddDays(1).Date;
 
+        var returnList = new List<(DateTime, object)>();
+
+        var context = await Context();
+
+        //!!Content Type List!!
+        returnList.AddRange((await context.FileContents
+            .Where(x => x.LastUpdatedOn == null && x.CreatedOn >= createdOnOnOrAfter && x.CreatedOn < createdOnBefore && !x.IsDraft).ToListAsync()).Select(x => (x.CreatedOn, (object)x)));
+        returnList.AddRange((await context.GeoJsonContents
+            .Where(x => x.LastUpdatedOn == null && x.CreatedOn >= createdOnOnOrAfter && x.CreatedOn < createdOnBefore && !x.IsDraft).ToListAsync()).Select(x => (x.CreatedOn, (object)x)));
+        returnList.AddRange((await context.ImageContents
+            .Where(x => x.LastUpdatedOn == null && x.CreatedOn >= createdOnOnOrAfter && x.CreatedOn < createdOnBefore && !x.IsDraft && x.ShowInSearch).ToListAsync()).Select(x => (x.CreatedOn, (object)x)));
+        returnList.AddRange((await context.LineContents
+            .Where(x => x.LastUpdatedOn == null && x.CreatedOn >= createdOnOnOrAfter && x.CreatedOn < createdOnBefore && !x.IsDraft).ToListAsync()).Select(x => (x.CreatedOn, (object)x)));
+        returnList.AddRange((await context.LinkContents
+            .Where(x => x.LastUpdatedOn == null && x.CreatedOn >= createdOnOnOrAfter && x.CreatedOn < createdOnBefore).ToListAsync()).Select(x => (x.CreatedOn, (object)x)));
+        returnList.AddRange((await context.NoteContents
+            .Where(x => x.LastUpdatedOn == null && x.CreatedOn >= createdOnOnOrAfter && x.CreatedOn < createdOnBefore && !x.IsDraft).ToListAsync()).Select(x => (x.CreatedOn, (object)x)));
+        returnList.AddRange((await context.PhotoContents
+            .Where(x => x.LastUpdatedOn == null && x.CreatedOn >= createdOnOnOrAfter && x.CreatedOn < createdOnBefore && !x.IsDraft).ToListAsync()).Select(x => (x.CreatedOn, (object)x)));
+        returnList.AddRange((await context.PointContents
+            .Where(x => x.LastUpdatedOn == null && x.CreatedOn >= createdOnOnOrAfter && x.CreatedOn < createdOnBefore && !x.IsDraft).ToListAsync()).Select(x => (x.CreatedOn, (object)x)));
+        returnList.AddRange((await context.PostContents
+            .Where(x => x.LastUpdatedOn == null && x.CreatedOn >= createdOnOnOrAfter && x.CreatedOn < createdOnBefore && !x.IsDraft).ToListAsync()).Select(x => (x.CreatedOn, (object)x)));
+        returnList.AddRange((await context.VideoContents
+            .Where(x => x.LastUpdatedOn == null && x.CreatedOn >= createdOnOnOrAfter && x.CreatedOn < createdOnBefore && !x.IsDraft).ToListAsync()).Select(x => (x.CreatedOn, (object)x)));
+
+        //!!Content Type List!!
+        returnList.AddRange((await context.FileContents
+            .Where(x => x.LastUpdatedOn != null && x.LastUpdatedOn >= createdOnOnOrAfter && x.LastUpdatedOn < createdOnBefore && !x.IsDraft).ToListAsync()).Select(x => (x.LastUpdatedOn!.Value, (object)x)));
+        returnList.AddRange((await context.GeoJsonContents
+            .Where(x => x.LastUpdatedOn != null && x.LastUpdatedOn >= createdOnOnOrAfter && x.LastUpdatedOn < createdOnBefore && !x.IsDraft).ToListAsync()).Select(x => (x.LastUpdatedOn!.Value, (object)x)));
+        returnList.AddRange((await context.ImageContents
+            .Where(x =>  x.LastUpdatedOn != null && x.LastUpdatedOn >= createdOnOnOrAfter && x.LastUpdatedOn < createdOnBefore && !x.IsDraft && x.ShowInSearch).ToListAsync()).Select(x => (x.LastUpdatedOn!.Value, (object)x)));
+        returnList.AddRange((await context.LineContents
+            .Where(x =>  x.LastUpdatedOn != null && x.LastUpdatedOn >= createdOnOnOrAfter && x.LastUpdatedOn < createdOnBefore && !x.IsDraft).ToListAsync()).Select(x => (x.LastUpdatedOn!.Value, (object)x)));
+        returnList.AddRange((await context.LinkContents
+            .Where(x =>  x.LastUpdatedOn != null && x.LastUpdatedOn >= createdOnOnOrAfter && x.LastUpdatedOn < createdOnBefore).ToListAsync()).Select(x => (x.LastUpdatedOn!.Value, (object)x)));
+        returnList.AddRange((await context.NoteContents
+            .Where(x =>  x.LastUpdatedOn != null && x.LastUpdatedOn >= createdOnOnOrAfter && x.LastUpdatedOn < createdOnBefore && !x.IsDraft).ToListAsync()).Select(x => (x.LastUpdatedOn!.Value, (object)x)));
+        returnList.AddRange((await context.PhotoContents
+            .Where(x =>  x.LastUpdatedOn != null && x.LastUpdatedOn >= createdOnOnOrAfter && x.LastUpdatedOn < createdOnBefore && !x.IsDraft).ToListAsync()).Select(x => (x.LastUpdatedOn!.Value, (object)x)));
+        returnList.AddRange((await context.PointContents
+            .Where(x =>  x.LastUpdatedOn != null && x.LastUpdatedOn >= createdOnOnOrAfter && x.LastUpdatedOn < createdOnBefore && !x.IsDraft).ToListAsync()).Select(x => (x.LastUpdatedOn!.Value, (object)x)));
+        returnList.AddRange((await context.PostContents
+            .Where(x =>  x.LastUpdatedOn != null && x.LastUpdatedOn >= createdOnOnOrAfter && x.LastUpdatedOn < createdOnBefore && !x.IsDraft).ToListAsync()).Select(x => (x.LastUpdatedOn!.Value, (object)x)));
+        returnList.AddRange((await context.VideoContents
+            .Where(x =>  x.LastUpdatedOn != null && x.LastUpdatedOn >= createdOnOnOrAfter && x.LastUpdatedOn < createdOnBefore && !x.IsDraft).ToListAsync()).Select(x => (x.LastUpdatedOn!.Value, (object)x)));
+
+        return returnList.OrderBy(x => x.Item1).Select(x => x.Item2).ToList();
+    }
+
+    /// <summary>
+    /// Returns content where the CreatedOn is in the input date. Return list is sorted ascending by Created On. (Note
+    /// that LastUpdatedOn is not considered).
+    /// </summary>
+    /// <param name="createdOn"></param>
+    /// <returns></returns>
     public static async Task<List<object>> ContentCreatedOnDay(DateTime createdOn)
     {
         var createdOnOnOrAfter = createdOn.Date;
         var createdOnBefore = createdOn.AddDays(1).Date;
 
-        var returnList = new List<object>();
+        var returnList = new List<(DateTime, object)>();
 
         var context = await Context();
 
         //!!Content Type List!!
-        returnList.AddRange(context.FileContents
-            .Where(x => x.CreatedOn >= createdOnOnOrAfter && x.CreatedOn < createdOnBefore).Cast<object>());
-        returnList.AddRange(context.GeoJsonContents
-            .Where(x => x.CreatedOn >= createdOnOnOrAfter && x.CreatedOn < createdOnBefore).Cast<object>());
-        returnList.AddRange(context.ImageContents
-            .Where(x => x.CreatedOn >= createdOnOnOrAfter && x.CreatedOn < createdOnBefore).Cast<object>());
-        returnList.AddRange(context.LineContents
-            .Where(x => x.CreatedOn >= createdOnOnOrAfter && x.CreatedOn < createdOnBefore).Cast<object>());
-        returnList.AddRange(context.LinkContents
-            .Where(x => x.CreatedOn >= createdOnOnOrAfter && x.CreatedOn < createdOnBefore).Cast<object>());
-        returnList.AddRange(context.NoteContents
-            .Where(x => x.CreatedOn >= createdOnOnOrAfter && x.CreatedOn < createdOnBefore).Cast<object>());
-        returnList.AddRange(context.PhotoContents
-            .Where(x => x.CreatedOn >= createdOnOnOrAfter && x.CreatedOn < createdOnBefore).Cast<object>());
-        returnList.AddRange(context.PointContents
-            .Where(x => x.CreatedOn >= createdOnOnOrAfter && x.CreatedOn < createdOnBefore).Cast<object>());
-        returnList.AddRange(context.PostContents
-            .Where(x => x.CreatedOn >= createdOnOnOrAfter && x.CreatedOn < createdOnBefore).Cast<object>());
-        returnList.AddRange(context.VideoContents
-            .Where(x => x.CreatedOn >= createdOnOnOrAfter && x.CreatedOn < createdOnBefore).Cast<object>());
+        returnList.AddRange((await context.FileContents
+            .Where(x => x.CreatedOn >= createdOnOnOrAfter && x.CreatedOn < createdOnBefore).ToListAsync()).Select(x => (x.CreatedOn, (object)x)));
+        returnList.AddRange((await context.GeoJsonContents
+            .Where(x => x.CreatedOn >= createdOnOnOrAfter && x.CreatedOn < createdOnBefore).ToListAsync()).Select(x => (x.CreatedOn, (object)x)));
+        returnList.AddRange((await context.ImageContents
+            .Where(x => x.CreatedOn >= createdOnOnOrAfter && x.CreatedOn < createdOnBefore).ToListAsync()).Select(x => (x.CreatedOn, (object)x)));
+        returnList.AddRange((await context.LineContents
+            .Where(x => x.CreatedOn >= createdOnOnOrAfter && x.CreatedOn < createdOnBefore).ToListAsync()).Select(x => (x.CreatedOn, (object)x)));
+        returnList.AddRange((await context.LinkContents
+            .Where(x => x.CreatedOn >= createdOnOnOrAfter && x.CreatedOn < createdOnBefore).ToListAsync()).Select(x => (x.CreatedOn, (object)x)));
+        returnList.AddRange((await context.NoteContents
+            .Where(x => x.CreatedOn >= createdOnOnOrAfter && x.CreatedOn < createdOnBefore).ToListAsync()).Select(x => (x.CreatedOn, (object)x)));
+        returnList.AddRange((await context.PhotoContents
+            .Where(x => x.CreatedOn >= createdOnOnOrAfter && x.CreatedOn < createdOnBefore).ToListAsync()).Select(x => (x.CreatedOn, (object)x)));
+        returnList.AddRange((await context.PointContents
+            .Where(x => x.CreatedOn >= createdOnOnOrAfter && x.CreatedOn < createdOnBefore).ToListAsync()).Select(x => (x.CreatedOn, (object)x)));
+        returnList.AddRange((await context.PostContents
+            .Where(x => x.CreatedOn >= createdOnOnOrAfter && x.CreatedOn < createdOnBefore).ToListAsync()).Select(x => (x.CreatedOn, (object)x)));
+        returnList.AddRange((await context.VideoContents
+            .Where(x => x.CreatedOn >= createdOnOnOrAfter && x.CreatedOn < createdOnBefore).ToListAsync()).Select(x => (x.CreatedOn, (object)x)));
 
-        return returnList;
+        return returnList.OrderBy(x => x.Item1).Select(x => x.Item2).ToList();
     }
 
     /// <summary>
