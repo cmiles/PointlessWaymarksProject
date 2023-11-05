@@ -1,4 +1,4 @@
-﻿using System.Globalization;
+using System.Globalization;
 using HtmlTags;
 using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.Content;
@@ -21,10 +21,8 @@ public partial class SearchListPage
 
     public bool AddNoIndexTag { get; set; }
     public Func<List<object>> ContentFunction { get; }
-
     public string DirAttribute { get; set; }
     public DateTime? GenerationVersion { get; }
-
     public string LangAttribute { get; set; }
     public string ListTitle { get; }
     public string RssUrl { get; }
@@ -126,23 +124,5 @@ public partial class SearchListPage
         }
 
         return filterContainer;
-    }
-
-
-    public async Task WriteLocalHtml()
-    {
-        var settings = UserSettingsSingleton.CurrentSettings();
-
-        var htmlString = TransformText();
-
-        var htmlFileInfo = settings.LocalSitePhotoListFile();
-
-        if (htmlFileInfo.Exists)
-        {
-            htmlFileInfo.Delete();
-            htmlFileInfo.Refresh();
-        }
-
-        await FileManagement.WriteAllTextToFileAndLog(htmlFileInfo.FullName, htmlString).ConfigureAwait(false);
     }
 }

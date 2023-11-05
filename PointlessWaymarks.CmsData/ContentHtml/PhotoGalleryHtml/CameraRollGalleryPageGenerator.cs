@@ -1,4 +1,4 @@
-﻿using System.Globalization;
+using System.Globalization;
 using HtmlTags;
 using Microsoft.EntityFrameworkCore;
 using PointlessWaymarks.CmsData.CommonHtml;
@@ -26,7 +26,7 @@ public static class CameraRollGalleryPageGenerator
             return new CameraRollGalleryPage
             {
                 CreatedBy = UserSettingsSingleton.CurrentSettings().DefaultCreatedBy,
-                PageUrl = UserSettingsSingleton.CurrentSettings().CameraRollPhotoGalleryUrl(),
+                PageUrl = UserSettingsSingleton.CurrentSettings().CameraRollGalleryUrl(),
                 CameraRollContentTag = new NoTag(),
                 SiteName = UserSettingsSingleton.CurrentSettings().SiteName,
                 LastDateGroupDateTime = DateTime.MinValue,
@@ -199,7 +199,7 @@ public static class CameraRollGalleryPageGenerator
         var toReturn = new CameraRollGalleryPage
         {
             CreatedBy = string.Join(",", createdByEntries),
-            PageUrl = UserSettingsSingleton.CurrentSettings().CameraRollPhotoGalleryUrl(),
+            PageUrl = UserSettingsSingleton.CurrentSettings().CameraRollGalleryUrl(),
             CameraRollContentTag = cameraRollContainer,
             SiteName = UserSettingsSingleton.CurrentSettings().SiteName,
             LastDateGroupDateTime = allDates.First().Date,

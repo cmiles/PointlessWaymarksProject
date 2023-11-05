@@ -41,15 +41,26 @@ public static class UserSettingsUtilities
         return $"{settings.SiteUrl()}/Tags/AllTagsList.html";
     }
 
-    public static string CameraRollPhotoGalleryUrl(this UserSettings settings)
+    public static string CameraRollGalleryUrl(this UserSettings settings)
     {
         return $"{settings.SiteUrl()}/Photos/Galleries/CameraRoll.html";
     }
 
-    public static string CamerRollGalleryJavascriptUrl()
+    public static string ContentGalleryUrl(this UserSettings settings)
+    {
+        return $"{settings.SiteUrl()}/Content/Galleries/ContentGallery.html";
+    }
+
+    public static string CameraRollGalleryJavascriptUrl()
     {
         return
-            $"{UserSettingsSingleton.CurrentSettings().SiteResourcesUrl()}pointless-waymarks-photo-gallery.js";
+            $"{UserSettingsSingleton.CurrentSettings().SiteResourcesUrl()}pointless-waymarks-camera-roll-gallery.js";
+    }
+    
+    public static string ContentGalleryJavascriptUrl()
+    {
+        return
+            $"{UserSettingsSingleton.CurrentSettings().SiteResourcesUrl()}pointless-waymarks-content-gallery.js";
     }
 
     public static async Task<string> ContentUrl(this UserSettings settings, Guid toLink)
@@ -454,10 +465,16 @@ public static class UserSettingsUtilities
         return new FileInfo($"{Path.Combine(directory.FullName, "AllTagsList")}.html");
     }
 
-    public static FileInfo LocalSiteCameraRollPhotoGalleryFileInfo(this UserSettings settings)
+    public static FileInfo LocalSiteCameraRollGalleryFileInfo(this UserSettings settings)
     {
         var directory = settings.LocalSitePhotoGalleryDirectory();
         return new FileInfo($"{Path.Combine(directory.FullName, "CameraRoll")}.html");
+    }
+
+    public static FileInfo LocalSiteContentGalleryFileInfo(this UserSettings settings)
+    {
+        var directory = settings.LocalSiteContentGalleryDirectory();
+        return new FileInfo($"{Path.Combine(directory.FullName, "ContentGallery")}.html");
     }
 
     public static DirectoryInfo LocalSiteDailyPhotoGalleryDirectory(this UserSettings settings)
@@ -904,6 +921,17 @@ public static class UserSettingsUtilities
     {
         var directory =
             new DirectoryInfo(Path.Combine(settings.LocalSiteRootFullDirectory().FullName, "Photos", "Galleries"));
+        if (!directory.Exists) directory.Create();
+
+        directory.Refresh();
+
+        return directory;
+    }
+
+    public static DirectoryInfo LocalSiteContentGalleryDirectory(this UserSettings settings)
+    {
+        var directory =
+            new DirectoryInfo(Path.Combine(settings.LocalSiteRootFullDirectory().FullName, "Content", "Galleries"));
         if (!directory.Exists) directory.Create();
 
         directory.Refresh();

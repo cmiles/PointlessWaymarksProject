@@ -7,8 +7,11 @@
 //     the code is regenerated.
 // </auto-generated>
 // ------------------------------------------------------------------------------
-namespace PointlessWaymarks.CmsData.ContentHtml.PhotoGalleryHtml
+namespace PointlessWaymarks.CmsData.ContentHtml.ContentGalleryHtml
 {
+    using System.Linq;
+    using System.Text;
+    using System.Collections.Generic;
     using PointlessWaymarks.CmsData.CommonHtml;
     using PointlessWaymarks.CommonTools;
     using System;
@@ -17,9 +20,9 @@ namespace PointlessWaymarks.CmsData.ContentHtml.PhotoGalleryHtml
     /// Class to produce the template output
     /// </summary>
     
-    #line 1 "C:\Code\PointlessWaymarksProject-05\PointlessWaymarks.CmsData\ContentHtml\PhotoGalleryHtml\CameraRollGalleryPage.tt"
+    #line 1 "C:\Code\PointlessWaymarksProject-05\PointlessWaymarks.CmsData\ContentHtml\ContentGalleryHtml\ContentGalleryPage.tt"
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.TextTemplating", "17.0.0.0")]
-    public partial class CameraRollGalleryPage : CameraRollGalleryPageBase
+    public partial class ContentGalleryPage : ContentGalleryPageBase
     {
 #line hidden
         /// <summary>
@@ -27,30 +30,31 @@ namespace PointlessWaymarks.CmsData.ContentHtml.PhotoGalleryHtml
         /// </summary>
         public virtual string TransformText()
         {
+            this.Write("\r\n");
             this.Write("<!DOCTYPE html>\r\n<html lang=\"en\">\r\n<head data-generationversion=\"");
             
-            #line 6 "C:\Code\PointlessWaymarksProject-05\PointlessWaymarks.CmsData\ContentHtml\PhotoGalleryHtml\CameraRollGalleryPage.tt"
+            #line 11 "C:\Code\PointlessWaymarksProject-05\PointlessWaymarks.CmsData\ContentHtml\ContentGalleryHtml\ContentGalleryPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(GenerationVersion?.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fffffff") ?? string.Empty));
             
             #line default
             #line hidden
             this.Write("\">\r\n    <meta charset=\"utf-8\" lang=\"");
             
-            #line 8 "C:\Code\PointlessWaymarksProject-05\PointlessWaymarks.CmsData\ContentHtml\PhotoGalleryHtml\CameraRollGalleryPage.tt"
+            #line 13 "C:\Code\PointlessWaymarksProject-05\PointlessWaymarks.CmsData\ContentHtml\ContentGalleryHtml\ContentGalleryPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(LangAttribute));
             
             #line default
             #line hidden
             this.Write("\" dir=\"");
             
-            #line 8 "C:\Code\PointlessWaymarksProject-05\PointlessWaymarks.CmsData\ContentHtml\PhotoGalleryHtml\CameraRollGalleryPage.tt"
+            #line 13 "C:\Code\PointlessWaymarksProject-05\PointlessWaymarks.CmsData\ContentHtml\ContentGalleryHtml\ContentGalleryPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(DirAttribute));
             
             #line default
             #line hidden
             this.Write("\">\r\n    <title>");
             
-            #line 9 "C:\Code\PointlessWaymarksProject-05\PointlessWaymarks.CmsData\ContentHtml\PhotoGalleryHtml\CameraRollGalleryPage.tt"
+            #line 14 "C:\Code\PointlessWaymarksProject-05\PointlessWaymarks.CmsData\ContentHtml\ContentGalleryHtml\ContentGalleryPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(SiteName.HtmlEncode()));
             
             #line default
@@ -58,14 +62,14 @@ namespace PointlessWaymarks.CmsData.ContentHtml.PhotoGalleryHtml
             this.Write(" - Photographs</title>\r\n    <meta name=\"description\" content=\"All photographs on " +
                     "");
             
-            #line 10 "C:\Code\PointlessWaymarksProject-05\PointlessWaymarks.CmsData\ContentHtml\PhotoGalleryHtml\CameraRollGalleryPage.tt"
+            #line 15 "C:\Code\PointlessWaymarksProject-05\PointlessWaymarks.CmsData\ContentHtml\ContentGalleryHtml\ContentGalleryPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(SiteName.HtmlEncode()));
             
             #line default
             #line hidden
             this.Write(" listed by date.\">\r\n    <meta name=\"author\" content=\"");
             
-            #line 11 "C:\Code\PointlessWaymarksProject-05\PointlessWaymarks.CmsData\ContentHtml\PhotoGalleryHtml\CameraRollGalleryPage.tt"
+            #line 16 "C:\Code\PointlessWaymarksProject-05\PointlessWaymarks.CmsData\ContentHtml\ContentGalleryHtml\ContentGalleryPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(CreatedBy.HtmlEncode()));
             
             #line default
@@ -73,14 +77,14 @@ namespace PointlessWaymarks.CmsData.ContentHtml.PhotoGalleryHtml
             this.Write("\">\r\n    <meta name=\"keywords\" content=\"photographs, camera roll\" >\r\n\r\n    <meta p" +
                     "roperty=\"og:site_name\" content=\"");
             
-            #line 14 "C:\Code\PointlessWaymarksProject-05\PointlessWaymarks.CmsData\ContentHtml\PhotoGalleryHtml\CameraRollGalleryPage.tt"
+            #line 19 "C:\Code\PointlessWaymarksProject-05\PointlessWaymarks.CmsData\ContentHtml\ContentGalleryHtml\ContentGalleryPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(SiteName.HtmlEncode()));
             
             #line default
             #line hidden
             this.Write("\" />\r\n    <meta property=\"og:url\" content=\"https:");
             
-            #line 15 "C:\Code\PointlessWaymarksProject-05\PointlessWaymarks.CmsData\ContentHtml\PhotoGalleryHtml\CameraRollGalleryPage.tt"
+            #line 20 "C:\Code\PointlessWaymarksProject-05\PointlessWaymarks.CmsData\ContentHtml\ContentGalleryHtml\ContentGalleryPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(PageUrl ?? string.Empty));
             
             #line default
@@ -89,14 +93,14 @@ namespace PointlessWaymarks.CmsData.ContentHtml.PhotoGalleryHtml
                     "itle\" content=\"Photographs By Date\" />\r\n    <meta property=\"og:description\" cont" +
                     "ent=\"All photographs on ");
             
-            #line 18 "C:\Code\PointlessWaymarksProject-05\PointlessWaymarks.CmsData\ContentHtml\PhotoGalleryHtml\CameraRollGalleryPage.tt"
+            #line 23 "C:\Code\PointlessWaymarksProject-05\PointlessWaymarks.CmsData\ContentHtml\ContentGalleryHtml\ContentGalleryPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(SiteName.HtmlEncode()));
             
             #line default
             #line hidden
             this.Write(" listed by date.\" />\r\n\r\n    ");
             
-            #line 20 "C:\Code\PointlessWaymarksProject-05\PointlessWaymarks.CmsData\ContentHtml\PhotoGalleryHtml\CameraRollGalleryPage.tt"
+            #line 25 "C:\Code\PointlessWaymarksProject-05\PointlessWaymarks.CmsData\ContentHtml\ContentGalleryHtml\ContentGalleryPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Tags.OpenGraphImageMetaTags(MainImage)));
             
             #line default
@@ -105,28 +109,28 @@ namespace PointlessWaymarks.CmsData.ContentHtml.PhotoGalleryHtml
                     "meta name=\"DC.Title\" content=\"Photographs By Date\">\r\n    <meta name=\"DC.Creator\"" +
                     " content=\"");
             
-            #line 25 "C:\Code\PointlessWaymarksProject-05\PointlessWaymarks.CmsData\ContentHtml\PhotoGalleryHtml\CameraRollGalleryPage.tt"
+            #line 30 "C:\Code\PointlessWaymarksProject-05\PointlessWaymarks.CmsData\ContentHtml\ContentGalleryHtml\ContentGalleryPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(CreatedBy.HtmlEncode()));
             
             #line default
             #line hidden
             this.Write("\">\r\n    <meta name=\"DC.Publisher\" content=\"");
             
-            #line 26 "C:\Code\PointlessWaymarksProject-05\PointlessWaymarks.CmsData\ContentHtml\PhotoGalleryHtml\CameraRollGalleryPage.tt"
+            #line 31 "C:\Code\PointlessWaymarksProject-05\PointlessWaymarks.CmsData\ContentHtml\ContentGalleryHtml\ContentGalleryPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(SiteName.HtmlEncode()));
             
             #line default
             #line hidden
             this.Write("\">\r\n    <meta name=\"DC.Description\" content=\"All photographs on ");
             
-            #line 27 "C:\Code\PointlessWaymarksProject-05\PointlessWaymarks.CmsData\ContentHtml\PhotoGalleryHtml\CameraRollGalleryPage.tt"
+            #line 32 "C:\Code\PointlessWaymarksProject-05\PointlessWaymarks.CmsData\ContentHtml\ContentGalleryHtml\ContentGalleryPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(SiteName.HtmlEncode()));
             
             #line default
             #line hidden
             this.Write(" listed by date.\">\r\n    <meta name=\"DC.Date\" content=\"");
             
-            #line 28 "C:\Code\PointlessWaymarksProject-05\PointlessWaymarks.CmsData\ContentHtml\PhotoGalleryHtml\CameraRollGalleryPage.tt"
+            #line 33 "C:\Code\PointlessWaymarksProject-05\PointlessWaymarks.CmsData\ContentHtml\ContentGalleryHtml\ContentGalleryPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(LastDateGroupDateTime?.ToString("yyyy-MM-dd").HtmlEncode() ?? string.Empty));
             
             #line default
@@ -135,14 +139,14 @@ namespace PointlessWaymarks.CmsData.ContentHtml.PhotoGalleryHtml
                     " content=\"en-US\">\r\n\r\n    <link rel=\"alternate\" type=\"application/rss+xml\" \r\n    " +
                     "  title=\"");
             
-            #line 34 "C:\Code\PointlessWaymarksProject-05\PointlessWaymarks.CmsData\ContentHtml\PhotoGalleryHtml\CameraRollGalleryPage.tt"
+            #line 39 "C:\Code\PointlessWaymarksProject-05\PointlessWaymarks.CmsData\ContentHtml\ContentGalleryHtml\ContentGalleryPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture($"RSS Feed for {UserSettingsSingleton.CurrentSettings().SiteName} - Photos".HtmlEncode()));
             
             #line default
             #line hidden
             this.Write("\"\r\n      href=\"");
             
-            #line 36 "C:\Code\PointlessWaymarksProject-05\PointlessWaymarks.CmsData\ContentHtml\PhotoGalleryHtml\CameraRollGalleryPage.tt"
+            #line 41 "C:\Code\PointlessWaymarksProject-05\PointlessWaymarks.CmsData\ContentHtml\ContentGalleryHtml\ContentGalleryPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(UserSettingsSingleton.CurrentSettings().PhotoRssUrl()));
             
             #line default
@@ -150,73 +154,72 @@ namespace PointlessWaymarks.CmsData.ContentHtml.PhotoGalleryHtml
             this.Write("\" />\r\n\r\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"" +
                     ">\r\n\r\n    ");
             
-            #line 41 "C:\Code\PointlessWaymarksProject-05\PointlessWaymarks.CmsData\ContentHtml\PhotoGalleryHtml\CameraRollGalleryPage.tt"
+            #line 46 "C:\Code\PointlessWaymarksProject-05\PointlessWaymarks.CmsData\ContentHtml\ContentGalleryHtml\ContentGalleryPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Tags.CssStyleFileString()));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 42 "C:\Code\PointlessWaymarksProject-05\PointlessWaymarks.CmsData\ContentHtml\PhotoGalleryHtml\CameraRollGalleryPage.tt"
+            #line 47 "C:\Code\PointlessWaymarksProject-05\PointlessWaymarks.CmsData\ContentHtml\ContentGalleryHtml\ContentGalleryPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Tags.FavIconFileString()));
             
             #line default
             #line hidden
             this.Write("\r\n\r\n    <script src=\"");
             
-            #line 44 "C:\Code\PointlessWaymarksProject-05\PointlessWaymarks.CmsData\ContentHtml\PhotoGalleryHtml\CameraRollGalleryPage.tt"
+            #line 49 "C:\Code\PointlessWaymarksProject-05\PointlessWaymarks.CmsData\ContentHtml\ContentGalleryHtml\ContentGalleryPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(UserSettingsSingleton.CurrentSettings().SiteResourcesUrl()));
             
             #line default
             #line hidden
             this.Write("gsap.min.js\"></script>\r\n    <script src=\"");
             
-            #line 46 "C:\Code\PointlessWaymarksProject-05\PointlessWaymarks.CmsData\ContentHtml\PhotoGalleryHtml\CameraRollGalleryPage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(UserSettingsUtilities.CameraRollGalleryJavascriptUrl()));
+            #line 51 "C:\Code\PointlessWaymarksProject-05\PointlessWaymarks.CmsData\ContentHtml\ContentGalleryHtml\ContentGalleryPage.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(UserSettingsUtilities.ContentGalleryJavascriptUrl()));
             
             #line default
             #line hidden
             this.Write("\"></script>\r\n\r\n</head>\r\n\r\n<body>\r\n    ");
             
-            #line 52 "C:\Code\PointlessWaymarksProject-05\PointlessWaymarks.CmsData\ContentHtml\PhotoGalleryHtml\CameraRollGalleryPage.tt"
+            #line 57 "C:\Code\PointlessWaymarksProject-05\PointlessWaymarks.CmsData\ContentHtml\ContentGalleryHtml\ContentGalleryPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Tags.StandardHeader().Result.ToString()));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 53 "C:\Code\PointlessWaymarksProject-05\PointlessWaymarks.CmsData\ContentHtml\PhotoGalleryHtml\CameraRollGalleryPage.tt"
+            #line 58 "C:\Code\PointlessWaymarksProject-05\PointlessWaymarks.CmsData\ContentHtml\ContentGalleryHtml\ContentGalleryPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(HorizontalRule.StandardRule()));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 54 "C:\Code\PointlessWaymarksProject-05\PointlessWaymarks.CmsData\ContentHtml\PhotoGalleryHtml\CameraRollGalleryPage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(Tags.TitleDiv($"{SiteName} - Photographs").ToString()));
+            #line 59 "C:\Code\PointlessWaymarksProject-05\PointlessWaymarks.CmsData\ContentHtml\ContentGalleryHtml\ContentGalleryPage.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(Tags.TitleDiv($"{SiteName} - Contents").ToString()));
             
             #line default
             #line hidden
             this.Write("\r\n    <div class=\"search-input-container enable-after-loading wait-cursor\">\r\n    " +
                     "    <input type=\"text\" class=\"search-input\" id=\"userSearchText\" onkeyup=\"searchC" +
-                    "ontent()\" placeholder=\"Search Photographs...\" autocomplete=\"off\">\r\n    </div>\r\n " +
-                    "   ");
+                    "ontent()\" placeholder=\"Search Content...\" autocomplete=\"off\">\r\n    </div>\r\n    ");
             
-            #line 59 "C:\Code\PointlessWaymarksProject-05\PointlessWaymarks.CmsData\ContentHtml\PhotoGalleryHtml\CameraRollGalleryPage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(CameraRollContentTag?.ToString() ?? string.Empty));
+            #line 64 "C:\Code\PointlessWaymarksProject-05\PointlessWaymarks.CmsData\ContentHtml\ContentGalleryHtml\ContentGalleryPage.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(ItemContentTag?.ToString() ?? string.Empty));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 61 "C:\Code\PointlessWaymarksProject-05\PointlessWaymarks.CmsData\ContentHtml\PhotoGalleryHtml\CameraRollGalleryPage.tt"
+            #line 66 "C:\Code\PointlessWaymarksProject-05\PointlessWaymarks.CmsData\ContentHtml\ContentGalleryHtml\ContentGalleryPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(HorizontalRule.StandardRule()));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 62 "C:\Code\PointlessWaymarksProject-05\PointlessWaymarks.CmsData\ContentHtml\PhotoGalleryHtml\CameraRollGalleryPage.tt"
+            #line 67 "C:\Code\PointlessWaymarksProject-05\PointlessWaymarks.CmsData\ContentHtml\ContentGalleryHtml\ContentGalleryPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Footer.StandardFooterDiv().Result));
             
             #line default
@@ -233,7 +236,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml.PhotoGalleryHtml
     /// Base class for this transformation
     /// </summary>
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.TextTemplating", "17.0.0.0")]
-    public class CameraRollGalleryPageBase
+    public class ContentGalleryPageBase
     {
         #region Fields
         private global::System.Text.StringBuilder generationEnvironmentField;

@@ -23,7 +23,7 @@ public static class BracketCodeSpecialPages
             ("photorss", "Photo Gallery RSS Feed",
                 $"{UserSettingsSingleton.CurrentSettings().PhotoRssUrl()}"),
             ("photogallerypage", "Photos",
-                $"{UserSettingsSingleton.CurrentSettings().CameraRollPhotoGalleryUrl()}"),
+                $"{UserSettingsSingleton.CurrentSettings().CameraRollGalleryUrl()}"),
             ("searchpage", "Search", $"{UserSettingsSingleton.CurrentSettings().AllContentListUrl()}"),
             ("tagspage", "Tags", $"{UserSettingsSingleton.CurrentSettings().AllTagsListUrl()}"),
             ("linklistpage", "Links", $"{UserSettingsSingleton.CurrentSettings().LinkListUrl()}")

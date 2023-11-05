@@ -1,4 +1,4 @@
-﻿<Window
+<Window
     x:Class="PointlessWaymarks.CmsGui.MainWindow"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -203,6 +203,7 @@
                                         </WrapPanel.Resources>
                                         <Button Command="{Binding GenerateAllListHtmlCommand}">Lists</Button>
                                         <Button Command="{Binding GenerateAllTagHtmlCommand}">Tags</Button>
+                                        <Button Command="{Binding GenerateContentGalleryRollCommand}">Content Gallery</Button>
                                         <Button Command="{Binding GenerateCameraRollCommand}">Camera Roll</Button>
                                         <Button Command="{Binding GenerateDailyGalleryHtmlCommand}">Daily Photos</Button>
                                     </WrapPanel>

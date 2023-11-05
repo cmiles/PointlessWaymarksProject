@@ -1,9 +1,10 @@
-﻿using System.Collections.Concurrent;
+using System.Collections.Concurrent;
 using System.Text.Json;
 using KellermanSoftware.CompareNetObjects;
 using KellermanSoftware.CompareNetObjects.Reports;
 using Microsoft.EntityFrameworkCore;
 using PointlessWaymarks.CmsData.Content;
+using PointlessWaymarks.CmsData.ContentHtml.ContentGalleryHtml;
 using PointlessWaymarks.CmsData.ContentHtml.ErrorHtml;
 using PointlessWaymarks.CmsData.ContentHtml.FileHtml;
 using PointlessWaymarks.CmsData.ContentHtml.GeoJsonHtml;
@@ -469,6 +470,13 @@ public static class HtmlGenerationGroups
         var cameraRollPage = await CameraRollGalleryPageGenerator.CameraRoll(generationVersion, progress)
             .ConfigureAwait(false);
         await cameraRollPage.WriteLocalHtml().ConfigureAwait(false);
+    }
+
+    public static async Task GenerateContentGalleryHtml(DateTime? generationVersion, IProgress<string>? progress = null)
+    {
+        var contentGalleryPage = await ContentGalleryPageGenerators.ContentGallery(generationVersion, progress)
+            .ConfigureAwait(false);
+        await contentGalleryPage.WriteLocalHtml().ConfigureAwait(false);
     }
 
     public static async Task GenerateChangedContentIdReferences(DateTime contentAfter, DateTime generationVersion,

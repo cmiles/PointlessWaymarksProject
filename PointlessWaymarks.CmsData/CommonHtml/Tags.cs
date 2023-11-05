@@ -1,4 +1,4 @@
-﻿using HtmlTags;
+using HtmlTags;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CommonTools;
@@ -32,7 +32,7 @@ public static class Tags
     }
 
     /// <summary>
-    /// Creates a comma seperated list of names from the Created By and Last Updated By 
+    /// Creates a comma separated list of names from the Created By and Last Updated By 
     /// </summary>
     /// <param name="dbEntry"></param>
     /// <returns></returns>
@@ -381,11 +381,51 @@ public static class Tags
         return imageTag;
     }
 
+    public static HtmlTag PictureImgTagWithCardSizedDefaultSrc(PictureAsset? pictureAsset)
+    {
+        if (pictureAsset?.SmallPicture == null || pictureAsset.DisplayPicture == null) return HtmlTag.Empty();
+
+        var imgToUse = pictureAsset.SrcsetImages.Where(x => x.Width >= 300).MinBy(x => x.Width) ?? pictureAsset.SrcsetImages.Where(x => x.Width <= 300).MaxBy(x => x.Width);
+        
+        if(imgToUse == null) return HtmlTag.Empty();
+
+        var imageTag = new HtmlTag("img").AddClass("card-photo").Attr("srcset", pictureAsset.SrcSetString())
+            .Attr("src", imgToUse.SiteUrl).Attr("height", imgToUse.Height)
+            .Attr("width", imgToUse.Width).Attr("loading", "lazy");
+
+        imageTag.Attr("sizes", $"{imgToUse.Width}px");
+
+        if (!string.IsNullOrWhiteSpace(pictureAsset.DisplayPicture?.AltText))
+            imageTag.Attr("alt", pictureAsset.DisplayPicture.AltText);
+
+        return imageTag;
+    }
+
     public static HtmlTag PictureImgThumbWithLink(PictureAsset? pictureAsset, string linkTo)
     {
         if (pictureAsset?.SmallPicture == null) return HtmlTag.Empty();
 
         var imgTag = PictureImgTagWithSmallestDefaultSrc(pictureAsset);
+
+        if (imgTag.IsEmpty()) return HtmlTag.Empty();
+
+        imgTag.AddClass(pictureAsset.SmallPicture.Height > pictureAsset.SmallPicture.Width
+            ? "thumb-vertical"
+            : "thumb-horizontal");
+
+        if (string.IsNullOrWhiteSpace(linkTo)) return imgTag;
+
+        var outerLink = new LinkTag(string.Empty, linkTo);
+        outerLink.Children.Add(imgTag);
+
+        return outerLink;
+    }
+
+    public static HtmlTag PictureImgCardWithLink(PictureAsset? pictureAsset, string linkTo)
+    {
+        if (pictureAsset?.SmallPicture == null) return HtmlTag.Empty();
+
+        var imgTag = PictureImgTagWithCardSizedDefaultSrc(pictureAsset);
 
         if (imgTag.IsEmpty()) return HtmlTag.Empty();
 

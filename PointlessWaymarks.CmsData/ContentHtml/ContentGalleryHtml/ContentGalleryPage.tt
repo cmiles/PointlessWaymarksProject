@@ -1,4 +1,9 @@
 <#@ template language="C#" #>
+<#@ assembly name="System.Core" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Collections.Generic" #>
+
 <#@ import namespace="PointlessWaymarks.CmsData.CommonHtml" #>
 <#@ import namespace="PointlessWaymarks.CommonTools" #>
 <!DOCTYPE html>
@@ -44,7 +49,7 @@
     <script src="<#=
                     UserSettingsSingleton.CurrentSettings().SiteResourcesUrl() #>gsap.min.js"></script>
     <script src="<#=
-                    UserSettingsUtilities.CameraRollGalleryJavascriptUrl() #>"></script>
+                    UserSettingsUtilities.ContentGalleryJavascriptUrl() #>"></script>
 
 </head>
 
@@ -52,12 +57,12 @@
     <#= Tags.StandardHeader().Result.ToString() #>
     <#= HorizontalRule.StandardRule() #>
     <#=
-                Tags.TitleDiv($"{SiteName} - Photographs").ToString() #>
+                Tags.TitleDiv($"{SiteName} - Contents").ToString() #>
     <div class="search-input-container enable-after-loading wait-cursor">
-        <input type="text" class="search-input" id="userSearchText" onkeyup="searchContent()" placeholder="Search Photographs..." autocomplete="off">
+        <input type="text" class="search-input" id="userSearchText" onkeyup="searchContent()" placeholder="Search Content..." autocomplete="off">
     </div>
     <#=
-                    CameraRollContentTag?.ToString() ?? string.Empty #>
+                    ItemContentTag?.ToString() ?? string.Empty #>
     <#= HorizontalRule.StandardRule() #>
     <#= Footer.StandardFooterDiv().Result #>
 </body>

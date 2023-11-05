@@ -1,11 +1,20 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
+    <None Update="ContentHtml\ContentGalleryHtml\ContentGalleryPage.tt">
+      <Generator>TextTemplatingFilePreprocessor</Generator>
+      <LastGenOutput>ContentGalleryPage.cs</LastGenOutput>
+    </None>
     <None Update="ContentHtml\ErrorHtml\ErrorPage.tt">
       <Generator>TextTemplatingFilePreprocessor</Generator>
       <CustomToolNamespace>PointlessWaymarks.CmsData.ContentHtml.ErrorHtml</CustomToolNamespace>
       <LastGenOutput>ErrorPage.cs</LastGenOutput>
     </None>
+    <Compile Update="ContentHtml\ContentGalleryHtml\ContentGalleryPage.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>ContentGalleryPage.tt</DependentUpon>
+    </Compile>
     <Compile Update="ContentHtml\ErrorHtml\ErrorPage.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -31,8 +40,9 @@
     <None Remove="SiteResources\leaflet-gesture-handling.min.js.map" />
     <None Remove="SiteResources\leaflet.js.map" />
     <None Remove="SiteResources\location-arrow-solid.svg" />
+    <None Remove="SiteResources\pointless-waymarks-camera-roll-gallery.js" />
+    <None Remove="SiteResources\pointless-waymarks-content-gallery.js" />
     <None Remove="SiteResources\pointless-waymarks-content-list-search.js" />
-    <None Remove="SiteResources\pointless-waymarks-photo-gallery.js" />
     <None Remove="SiteResources\pointless-waymarks-spatial-common.js" />
     <None Remove="SiteResources\spinner-solid.svg" />
   </ItemGroup>
@@ -368,8 +378,9 @@
     <EmbeddedResource Include="SiteResources\leaflet.js" />
     <EmbeddedResource Include="SiteResources\leaflet.js.map" />
     <EmbeddedResource Include="SiteResources\location-arrow-solid.svg" />
-    <EmbeddedResource Include="SiteResources\pointless-waymarks-photo-gallery.js" />
+    <EmbeddedResource Include="SiteResources\pointless-waymarks-content-gallery.js" />
     <EmbeddedResource Include="SiteResources\pointless-waymarks-content-list-search.js" />
+    <EmbeddedResource Include="SiteResources\pointless-waymarks-camera-roll-gallery.js" />
     <EmbeddedResource Include="SiteResources\pointless-waymarks-spatial-common.js" />
     <EmbeddedResource Include="SiteResources\spinner-solid.svg" />
     <EmbeddedResource Include="style.css" />

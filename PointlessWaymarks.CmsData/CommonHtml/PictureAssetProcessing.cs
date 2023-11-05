@@ -1,4 +1,4 @@
-﻿using System.Text.RegularExpressions;
+using System.Text.RegularExpressions;
 using PointlessWaymarks.CmsData.Content;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
@@ -78,7 +78,7 @@ public static class PictureAssetProcessing
             toReturn.DisplayPicture = new PictureFile
             {
                 FileName = displayImageFile.Name,
-                SiteUrl = $@"{siteUrl}/Images/{dbEntry.Folder}/{dbEntry.Slug}/{displayImageFile.Name}",
+                SiteUrl = $"{siteUrl}/Images/{dbEntry.Folder}/{dbEntry.Slug}/{displayImageFile.Name}",
                 File = displayImageFile,
                 AltText = string.IsNullOrWhiteSpace(dbEntry.AltText) ? dbEntry.Title : dbEntry.AltText,
                 Height =
@@ -99,7 +99,7 @@ public static class PictureAssetProcessing
                     .Groups["height"].Value),
             Width = int.Parse(Regex.Match(x.Name, @".*--(?<width>\d*)w.*", RegexOptions.Singleline)
                 .Groups["width"].Value),
-            SiteUrl = $@"{siteUrl}/Images/{dbEntry.Folder}/{dbEntry.Slug}/{x.Name}",
+            SiteUrl = $"{siteUrl}/Images/{dbEntry.Folder}/{dbEntry.Slug}/{x.Name}",
             AltText = string.IsNullOrWhiteSpace(dbEntry.AltText) ? dbEntry.Title : dbEntry.AltText,
             File = x
         }).ToList();
@@ -159,7 +159,7 @@ public static class PictureAssetProcessing
             toReturn.DisplayPicture = new PictureFile
             {
                 FileName = displayImageFile.Name,
-                SiteUrl = $@"{siteUrl}/Photos/{dbEntry.Folder}/{dbEntry.Slug}/{displayImageFile.Name}",
+                SiteUrl = $"{siteUrl}/Photos/{dbEntry.Folder}/{dbEntry.Slug}/{displayImageFile.Name}",
                 File = displayImageFile,
                 AltText = string.IsNullOrWhiteSpace(dbEntry.AltText) ? dbEntry.Title : dbEntry.AltText,
                 Height =
@@ -175,7 +175,7 @@ public static class PictureAssetProcessing
         toReturn.SrcsetImages = srcsetImageFiles.Select(x => new PictureFile
         {
             FileName = x.Name,
-            SiteUrl = $@"{siteUrl}/Photos/{dbEntry.Folder}/{dbEntry.Slug}/{x.Name}",
+            SiteUrl = $"{siteUrl}/Photos/{dbEntry.Folder}/{dbEntry.Slug}/{x.Name}",
             File = x,
             AltText = string.IsNullOrWhiteSpace(dbEntry.AltText) ? dbEntry.Title : dbEntry.AltText,
             Height =

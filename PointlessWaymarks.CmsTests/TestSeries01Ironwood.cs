@@ -458,7 +458,7 @@ public class TestSeries01Ironwood
 
 
         //Camera Roll
-        var cameraRollFile = UserSettingsSingleton.CurrentSettings().LocalSiteCameraRollPhotoGalleryFileInfo();
+        var cameraRollFile = UserSettingsSingleton.CurrentSettings().LocalSiteCameraRollGalleryFileInfo();
 
         Assert.True(cameraRollFile.Exists, "Camera Roll File not found");
 

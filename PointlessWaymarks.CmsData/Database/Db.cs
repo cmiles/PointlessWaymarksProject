@@ -363,7 +363,7 @@ public static class Db
 
     /// <summary>
     ///     Uses reflection to Trim and Convert Nulls to Empty on all string properties, truncate DateTimes to the
-    ///     second and round Spatial values to an appropriately.
+    ///     second and round Spatial values to an appropriate value.
     /// </summary>
     /// <typeparam name="T"></typeparam>
     /// <param name="toProcess"></param>
@@ -1939,7 +1939,7 @@ public static class Db
             return;
         }
 
-        //The code above is intended to insure that by this point all the PointDetails to save are related to the same PointContent
+        //The code above is intended to ensure that by this point all the PointDetails to save are related to the same PointContent
 
         var context = await Context().ConfigureAwait(false);
 

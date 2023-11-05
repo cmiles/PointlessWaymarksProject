@@ -1,4 +1,4 @@
-﻿using HtmlTags;
+using HtmlTags;
 using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.Content;
 
@@ -21,7 +21,7 @@ public partial class CameraRollGalleryPage
     {
         var htmlString = TransformText();
 
-        var htmlFileInfo = UserSettingsSingleton.CurrentSettings().LocalSiteCameraRollPhotoGalleryFileInfo();
+        var htmlFileInfo = UserSettingsSingleton.CurrentSettings().LocalSiteCameraRollGalleryFileInfo();
 
         if (htmlFileInfo.Exists)
         {

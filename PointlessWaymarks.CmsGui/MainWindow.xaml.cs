@@ -1,4 +1,4 @@
-﻿using System.ComponentModel;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Windows;
@@ -361,6 +361,12 @@ public partial class MainWindow
     public async Task GenerateCameraRoll()
     {
         await HtmlGenerationGroups.GenerateCameraRollHtml(null, StatusContext.ProgressTracker());
+    }
+
+    [BlockingCommand]
+    public async Task GenerateContentGalleryRoll()
+    {
+        await HtmlGenerationGroups.GenerateContentGalleryHtml(null, StatusContext.ProgressTracker());
     }
 
 
