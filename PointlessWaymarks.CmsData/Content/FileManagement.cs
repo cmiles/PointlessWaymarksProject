@@ -1,4 +1,4 @@
-﻿using System.Reflection;
+using System.Reflection;
 using System.Text;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
@@ -399,15 +399,14 @@ public static class FileManagement
 
     public static async Task LogFileWriteAsync(string fileName)
     {
-        await Policy.Handle<SqliteException>(ex => ex.SqliteErrorCode == 5).WaitAndRetryAsync(new[]
+        await Policy.Handle<Exception>().WaitAndRetryAsync(new[]
             {
                 TimeSpan.FromSeconds(1),
                 TimeSpan.FromSeconds(2),
-                TimeSpan.FromSeconds(4),
-                TimeSpan.FromSeconds(8)
+                TimeSpan.FromSeconds(4)
             },
             (_, _, retryCount, _) =>
-                Log.Debug("Sqlite Locked Db Retry - LogFileWriteAsync {fileName}, Retry Count {retryCount}",
+                Log.Debug("Sqlite Db Retry - LogFileWriteAsync {fileName}, Retry Count {retryCount}",
                     fileName,
                     retryCount)).ExecuteAsync(async () =>
         {
