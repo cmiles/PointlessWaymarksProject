@@ -163,7 +163,7 @@ public static class HtmlGenerationGroups
 
         await Parallel.ForEachAsync(allItems, async (loopItem, _) =>
         {
-            progress?.Report($"Writing HTML for {loopItem.Title}");
+            progress?.Report($"Writing HTML for File {loopItem.Title}");
 
             var htmlModel = new SingleFilePage(loopItem) { GenerationVersion = generationVersion };
             await htmlModel.WriteLocalHtml().ConfigureAwait(false);
@@ -183,7 +183,7 @@ public static class HtmlGenerationGroups
 
         await Parallel.ForEachAsync(allItems, async (loopItem, _) =>
         {
-            progress?.Report($"Writing HTML for {loopItem.Title}");
+            progress?.Report($"Writing HTML for GeoJson {loopItem.Title}");
 
             var htmlModel = new SingleGeoJsonPage(loopItem) { GenerationVersion = generationVersion };
             await htmlModel.WriteLocalHtml().ConfigureAwait(false);
@@ -258,7 +258,7 @@ public static class HtmlGenerationGroups
 
         await Parallel.ForEachAsync(allItems, async (loopItem, _) =>
         {
-            progress?.Report($"Writing HTML for {loopItem.Title}");
+            progress?.Report($"Writing HTML for Image {loopItem.Title}");
 
             var htmlModel = new SingleImagePage(loopItem) { GenerationVersion = generationVersion };
             await htmlModel.WriteLocalHtml().ConfigureAwait(false);
@@ -278,7 +278,7 @@ public static class HtmlGenerationGroups
 
         await Parallel.ForEachAsync(allItems, async (loopItem, _) =>
         {
-            progress?.Report($"Writing HTML for {loopItem.Title}");
+            progress?.Report($"Writing HTML for Line {loopItem.Title}");
 
             var htmlModel = new SingleLinePage(loopItem) { GenerationVersion = generationVersion };
             await htmlModel.WriteLocalHtml().ConfigureAwait(false);
@@ -369,7 +369,7 @@ public static class HtmlGenerationGroups
 
         await Parallel.ForEachAsync(allItems, async (loopItem, _) =>
         {
-            progress?.Report($"Writing HTML for {loopItem.Title}");
+            progress?.Report($"Writing HTML for Photo {loopItem.Title}");
 
             var htmlModel = new SinglePhotoPage(loopItem) { GenerationVersion = generationVersion };
             await htmlModel.WriteLocalHtml().ConfigureAwait(false);
@@ -391,7 +391,7 @@ public static class HtmlGenerationGroups
 
         await Parallel.ForEachAsync(allItems, async (loopItem, _) =>
         {
-            progress?.Report($"Writing HTML for {loopItem.Title}");
+            progress?.Report($"Writing HTML for Point {loopItem.Title}");
 
             var dto = await Db.PointAndPointDetails(loopItem.ContentId, await Db.Context().ConfigureAwait(false))
                 .ConfigureAwait(false);
@@ -424,7 +424,7 @@ public static class HtmlGenerationGroups
 
         await Parallel.ForEachAsync(allItems, async (loopItem, _) =>
         {
-            progress?.Report($"Writing HTML for {loopItem.Title}");
+            progress?.Report($"Writing HTML for Post {loopItem.Title}");
 
             var htmlModel = new SinglePostPage(loopItem) { GenerationVersion = generationVersion };
             await htmlModel.WriteLocalHtml().ConfigureAwait(false);
@@ -458,7 +458,7 @@ public static class HtmlGenerationGroups
 
         await Parallel.ForEachAsync(allItems, async (loopItem, _) =>
         {
-            progress?.Report($"Writing HTML for {loopItem.Title}");
+            progress?.Report($"Writing HTML for Video {loopItem.Title}");
 
             var htmlModel = new SingleVideoPage(loopItem) { GenerationVersion = generationVersion };
             await htmlModel.WriteLocalHtml().ConfigureAwait(false);
@@ -1149,7 +1149,7 @@ public static class HtmlGenerationGroups
 
         await Parallel.ForEachAsync(allItems, async (loopItem, _) =>
         {
-            progress?.Report($"Writing HTML for {loopItem.Title}");
+            progress?.Report($"Writing HTML for File {loopItem.Title}");
 
             var htmlModel = new SingleFilePage(loopItem) { GenerationVersion = generationVersion };
             await htmlModel.WriteLocalHtml().ConfigureAwait(false);
@@ -1172,7 +1172,7 @@ public static class HtmlGenerationGroups
 
         await Parallel.ForEachAsync(allItems, async (loopItem, _) =>
         {
-            progress?.Report($"Writing HTML for {loopItem.Title}");
+            progress?.Report($"Writing HTML for Changed GeoJson {loopItem.Title}");
 
             var htmlModel = new SingleGeoJsonPage(loopItem) { GenerationVersion = generationVersion };
             await htmlModel.WriteLocalHtml().ConfigureAwait(false);
@@ -1191,7 +1191,7 @@ public static class HtmlGenerationGroups
 
         await Parallel.ForEachAsync(allItems, async (loopItem, _) =>
         {
-            progress?.Report($"Writing HTML for {loopItem.Title}");
+            progress?.Report($"Writing HTML for Changed Image {loopItem.Title}");
 
             var htmlModel = new SingleImagePage(loopItem) { GenerationVersion = generationVersion };
             await htmlModel.WriteLocalHtml().ConfigureAwait(false);
@@ -1214,7 +1214,7 @@ public static class HtmlGenerationGroups
 
         await Parallel.ForEachAsync(allItems, async (loopItem, _) =>
         {
-            progress?.Report($"Writing HTML for {loopItem.Title}");
+            progress?.Report($"Writing HTML for Changed Line {loopItem.Title}");
 
             var htmlModel = new SingleLinePage(loopItem) { GenerationVersion = generationVersion };
             await htmlModel.WriteLocalHtml().ConfigureAwait(false);
@@ -1261,7 +1261,7 @@ public static class HtmlGenerationGroups
 
         await Parallel.ForEachAsync(allItems, async (loopItem, _) =>
         {
-            progress?.Report($"Writing HTML for Note Dated {loopItem.CreatedOn:d}");
+            progress?.Report($"Writing HTML for Changed Note Dated {loopItem.CreatedOn:d}");
 
             var htmlModel = new SingleNotePage(loopItem) { GenerationVersion = generationVersion };
             await htmlModel.WriteLocalHtml().ConfigureAwait(false);
@@ -1284,7 +1284,7 @@ public static class HtmlGenerationGroups
 
         await Parallel.ForEachAsync(allItems, async (loopItem, _) =>
         {
-            progress?.Report($"Writing HTML for {loopItem.Title}");
+            progress?.Report($"Writing HTML for Change Photo {loopItem.Title}");
 
             var htmlModel = new SinglePhotoPage(loopItem) { GenerationVersion = generationVersion };
             await htmlModel.WriteLocalHtml().ConfigureAwait(false);
@@ -1310,7 +1310,7 @@ public static class HtmlGenerationGroups
 
         await Parallel.ForEachAsync(allItems, async (loopItem, _) =>
         {
-            progress?.Report($"Writing HTML for {loopItem.Title}");
+            progress?.Report($"Writing HTML for Changed Point{loopItem.Title}");
 
             var loopItemAndDetails = await Db.PointAndPointDetails(loopItem.ContentId).ConfigureAwait(false);
 
@@ -1338,7 +1338,7 @@ public static class HtmlGenerationGroups
 
         await Parallel.ForEachAsync(allItems, async (loopItem, _) =>
         {
-            progress?.Report($"Writing HTML for {loopItem.Title} - {loopCount} of {totalCount}");
+            progress?.Report($"Writing HTML for Changed Post {loopItem.Title} - {loopCount} of {totalCount}");
 
             var htmlModel = new SinglePostPage(loopItem) { GenerationVersion = generationVersion };
             await htmlModel.WriteLocalHtml().ConfigureAwait(false);
@@ -1365,7 +1365,7 @@ public static class HtmlGenerationGroups
 
         await Parallel.ForEachAsync(allItems, async (loopItem, _) =>
         {
-            progress?.Report($"Writing HTML for {loopItem.Title} - {loopCount} of {totalCount}");
+            progress?.Report($"Writing HTML for Changed Video {loopItem.Title} - {loopCount} of {totalCount}");
 
             var htmlModel = new SingleVideoPage(loopItem) { GenerationVersion = generationVersion };
             await htmlModel.WriteLocalHtml().ConfigureAwait(false);
