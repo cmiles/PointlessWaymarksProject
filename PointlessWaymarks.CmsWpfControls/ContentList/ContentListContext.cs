@@ -113,7 +113,7 @@ public partial class ContentListContext : IDragSource, IDropTarget
 
     public bool CanStartDrag(IDragInfo dragInfo)
     {
-        return (ListSelection.SelectedItems?.Count ?? 0) > 0;
+        return ListSelection.SelectedItems.Count > 0;
     }
 
     public void DragCancelled()
@@ -122,24 +122,6 @@ public partial class ContentListContext : IDragSource, IDropTarget
 
     public void DragDropOperationFinished(DragDropEffects operationResult, IDragInfo dragInfo)
     {
-    }
-
-    public void Dropped(IDropInfo dropInfo)
-    {
-    }
-
-    public void StartDrag(IDragInfo dragInfo)
-    {
-        var defaultBracketCodeList = ListSelection.SelectedItems?.Select(x => x.DefaultBracketCode()).ToList();
-        if (defaultBracketCodeList == null) return;
-        dragInfo.Data = string.Join(Environment.NewLine, defaultBracketCodeList);
-        dragInfo.DataFormat = DataFormats.GetDataFormat(DataFormats.UnicodeText);
-        dragInfo.Effects = DragDropEffects.Copy;
-    }
-
-    public bool TryCatchOccurredException(Exception exception)
-    {
-        return false;
     }
 
     public void DragOver(IDropInfo dropInfo)
@@ -185,17 +167,27 @@ public partial class ContentListContext : IDragSource, IDropTarget
         }
     }
 
+    public void Dropped(IDropInfo dropInfo)
+    {
+    }
+
+    public void StartDrag(IDragInfo dragInfo)
+    {
+        var defaultBracketCodeList = ListSelection.SelectedItems.Select(x => x.DefaultBracketCode()).ToList();
+        dragInfo.Data = string.Join(Environment.NewLine, defaultBracketCodeList);
+        dragInfo.DataFormat = DataFormats.GetDataFormat(DataFormats.UnicodeText);
+        dragInfo.Effects = DragDropEffects.Copy;
+    }
+
+    public bool TryCatchOccurredException(Exception exception)
+    {
+        return false;
+    }
+
     [BlockingCommand]
+    [StopAndWarnIfNoSelectedItems]
     public async Task BracketCodeToClipboardSelected(CancellationToken cancelToken)
     {
-        await ThreadSwitcher.ResumeBackgroundAsync();
-
-        if (ListSelection.SelectedItems == null || ListSelection.SelectedItems.Count < 1)
-        {
-            StatusContext.ToastWarning("Nothing Selected to Edit?");
-            return;
-        }
-
         var currentSelected = ListSelection.SelectedItems;
 
         var bracketCodes = new List<string>();
@@ -394,16 +386,9 @@ public partial class ContentListContext : IDragSource, IDropTarget
     }
 
     [BlockingCommand]
+    [StopAndWarnIfNoSelectedItems]
     public async Task DeleteSelected(CancellationToken cancelToken)
     {
-        await ThreadSwitcher.ResumeBackgroundAsync();
-
-        if (ListSelection.SelectedItems == null || ListSelection.SelectedItems.Count < 1)
-        {
-            StatusContext.ToastWarning("Nothing Selected to Edit?");
-            return;
-        }
-
         if (ListSelection.SelectedItems.Count > 20)
             if (await StatusContext.ShowMessage("Delete Multiple Items",
                     $"You are about to delete {ListSelection.SelectedItems.Count} items - do you really want to delete all of these items?" +
@@ -422,49 +407,27 @@ public partial class ContentListContext : IDragSource, IDropTarget
     }
 
     [BlockingCommand]
+    [StopAndWarnIfNoOrMoreThanSelectedItems(MaxSelectedItems = 21)]
     public async Task EditSelected(CancellationToken cancelToken)
     {
-        await ThreadSwitcher.ResumeBackgroundAsync();
-
-        if (ListSelection.SelectedItems == null || ListSelection.SelectedItems.Count < 1)
-        {
-            StatusContext.ToastWarning("Nothing Selected to Edit?");
-            return;
-        }
-
-        if (ListSelection.SelectedItems.Count > 20)
-        {
-            StatusContext.ToastWarning("Sorry - please select less than 20 items to edit...");
-            return;
-        }
-
         var currentSelected = ListSelection.SelectedItems;
 
         foreach (var loopSelected in currentSelected)
         {
             cancelToken.ThrowIfCancellationRequested();
-
             await loopSelected.Edit();
         }
     }
 
     [BlockingCommand]
+    [StopAndWarnIfNoSelectedItems]
     public async Task ExtractNewLinksSelected(CancellationToken cancelToken)
     {
-        await ThreadSwitcher.ResumeBackgroundAsync();
-
-        if (ListSelection.SelectedItems == null || ListSelection.SelectedItems.Count < 1)
-        {
-            StatusContext.ToastWarning("Nothing Selected to Edit?");
-            return;
-        }
-
         var currentSelected = ListSelection.SelectedItems;
 
         foreach (var loopSelected in currentSelected)
         {
             cancelToken.ThrowIfCancellationRequested();
-
             await loopSelected.ExtractNewLinks();
         }
     }
@@ -569,22 +532,14 @@ public partial class ContentListContext : IDragSource, IDropTarget
     }
 
     [BlockingCommand]
+    [StopAndWarnIfNoSelectedItems]
     public async Task GenerateHtmlSelected(CancellationToken cancelToken)
     {
-        await ThreadSwitcher.ResumeBackgroundAsync();
-
-        if (ListSelection.SelectedItems == null || ListSelection.SelectedItems.Count < 1)
-        {
-            StatusContext.ToastWarning("Nothing Selected to Generate?");
-            return;
-        }
-
         var currentSelected = ListSelection.SelectedItems;
 
         foreach (var loopSelected in currentSelected)
         {
             cancelToken.ThrowIfCancellationRequested();
-
             await loopSelected.GenerateHtml();
         }
     }
@@ -743,11 +698,16 @@ public partial class ContentListContext : IDragSource, IDropTarget
         await newWindow.PositionWindowAndShowOnUiThread();
     }
 
+    public List<IContentListItem> SelectedItems()
+    {
+        return ListSelection.SelectedItems;
+    }
 
     [NonBlockingCommand]
+    [StopAndWarnIfNoSelectedItems]
     public async Task SelectedToExcel()
     {
-        await ExcelHelpers.SelectedToExcel(ListSelection.SelectedItems?.Cast<dynamic>().ToList(), StatusContext);
+        await ExcelHelpers.SelectedToExcel(ListSelection.SelectedItems.Cast<dynamic>().ToList(), StatusContext);
     }
 
     private void StatusContextOnPropertyChanged(object? sender, PropertyChangedEventArgs e)
@@ -791,7 +751,8 @@ public partial class ContentListContext : IDragSource, IDropTarget
 
             if (lineContentExtensions.Contains(Path.GetExtension(loopFile).ToUpperInvariant()))
             {
-                await CmsCommonCommands.NewLineContentFromFilesBase(fileInfo.AsList(), false, false, CancellationToken.None,
+                await CmsCommonCommands.NewLineContentFromFilesBase(fileInfo.AsList(), false, false,
+                    CancellationToken.None,
                     StatusContext,
                     WindowStatus);
                 continue;
@@ -810,8 +771,10 @@ public partial class ContentListContext : IDragSource, IDropTarget
                     var exifSubIfdDirectory = ImageMetadataReader.ReadMetadata(loopFile).OfType<ExifSubIfdDirectory>()
                         .FirstOrDefault();
 
-                    make = exifDirectory?.GetDescription(ExifDirectoryBase.TagMake) ?? exifSubIfdDirectory?.GetDescription(ExifDirectoryBase.TagMake) ?? string.Empty;
-                    model = exifDirectory?.GetDescription(ExifDirectoryBase.TagModel) ?? exifSubIfdDirectory?.GetDescription(ExifDirectoryBase.TagModel) ?? string.Empty;
+                    make = exifDirectory?.GetDescription(ExifDirectoryBase.TagMake) ??
+                           exifSubIfdDirectory?.GetDescription(ExifDirectoryBase.TagMake) ?? string.Empty;
+                    model = exifDirectory?.GetDescription(ExifDirectoryBase.TagModel) ??
+                            exifSubIfdDirectory?.GetDescription(ExifDirectoryBase.TagModel) ?? string.Empty;
                 }
                 catch (Exception e)
                 {
@@ -862,16 +825,9 @@ public partial class ContentListContext : IDragSource, IDropTarget
     }
 
     [BlockingCommand]
+    [StopAndWarnIfNoSelectedItems]
     public async Task ViewHistorySelected(CancellationToken cancelToken)
     {
-        await ThreadSwitcher.ResumeBackgroundAsync();
-
-        if (ListSelection.SelectedItems == null || ListSelection.SelectedItems.Count < 1)
-        {
-            StatusContext.ToastWarning("Nothing Selected to Edit?");
-            return;
-        }
-
         var currentSelected = ListSelection.SelectedItems;
 
         foreach (var loopSelected in currentSelected)
@@ -882,18 +838,15 @@ public partial class ContentListContext : IDragSource, IDropTarget
     }
 
     [BlockingCommand]
+    [StopAndWarnIfNoSelectedItems]
     public async Task ViewOnSite(CancellationToken cancelToken)
     {
-        await ThreadSwitcher.ResumeBackgroundAsync();
-
-        if (ListSelection.SelectedItems == null || ListSelection.SelectedItems.Count < 1)
-        {
-            StatusContext.ToastWarning("Nothing Selected to View?");
-            return;
-        }
-
         var currentSelected = ListSelection.SelectedItems;
 
-        foreach (var loopSelected in currentSelected) await loopSelected.ViewOnSite();
+        foreach (var loopSelected in currentSelected)
+        {
+            cancelToken.ThrowIfCancellationRequested();
+            await loopSelected.ViewOnSite();
+        }
     }
 }

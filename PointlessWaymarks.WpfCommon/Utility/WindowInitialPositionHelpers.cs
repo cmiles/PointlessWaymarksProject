@@ -1,4 +1,4 @@
-﻿using System.Runtime.InteropServices;
+using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Interop;
 using WpfScreenHelper;
@@ -21,46 +21,44 @@ public static class WindowInitialPositionHelpers
     /// position windows relative to the first active window in the application.
     /// </summary>
     /// <param name="window"></param>
-    public static void EnsureWindowIsVisible(Window window)
+    /// <param name="parentWindow"></param>
+    public static void EnsureWindowIsVisible(Window window, Window? parentWindow = null)
     {
         //This borrows heavily from https://github.com/RickStrahl/MarkdownMonster/
 
         if (window.WindowState == WindowState.Minimized) window.WindowState = WindowState.Normal;
 
-        var screenBounds = Screen.FromHandle(new WindowInteropHelper(window).Handle).WorkingArea;
+        Rect screenBounds;
 
-        var screenWidth = screenBounds.Width;
-        var screenHeight = screenBounds.Height;
-        var screenX = screenBounds.X;
-        var screenY = screenBounds.Y;
+        parentWindow ??= Application.Current.Windows.OfType<Window>().FirstOrDefault(x => x.IsActive) ??
+            Application.Current.Windows.OfType<Window>().FirstOrDefault();
 
-        var windowLeftAbsolute = window.Left + screenX; // absolute Left
-        var windowTopAbsolute = window.Top + screenY; // absolute Top
+        screenBounds = parentWindow == null
+            ? Screen.FromHandle(new WindowInteropHelper(window).Handle).WpfWorkingArea
+            : Screen.FromHandle(new WindowInteropHelper(parentWindow).Handle).WpfWorkingArea;
 
-        if (window.Left + window.Width > screenWidth)
+        if (window.Left + window.Width > screenBounds.Right)
         {
-            window.Left = screenX + screenWidth - window.Width;
-            windowLeftAbsolute = window.Left;
+            window.Left = screenBounds.Right - window.Width;
         }
 
-        if (windowLeftAbsolute < screenX)
+        if (window.Left < screenBounds.Left)
         {
-            window.Left = 10 + screenX;
-            if (window.Width + 10 > screenWidth)
-                window.Width = screenWidth - 20;
+            window.Left = 10 + screenBounds.Left;
+            if (window.Width + 10 > screenBounds.Width)
+                window.Width = screenBounds.Width - 20;
         }
 
-        if (window.Top + window.Height > screenHeight)
+        if (window.Top + window.Height > screenBounds.Bottom)
         {
-            window.Top = screenY + screenHeight - window.Height;
-            windowTopAbsolute = window.Top;
+            window.Top = screenBounds.Bottom - window.Height;
         }
 
-        if (windowTopAbsolute < screenY)
+        if (window.Top < screenBounds.Top)
         {
-            window.Top = 10 + screenY;
-            if (window.Height + 10 > screenHeight)
-                window.Height = screenHeight - 20;
+            window.Top = 10 + screenBounds.Top;
+            if (window.Height + 10 > screenBounds.Height)
+                window.Height = screenBounds.Height - 20;
         }
     }
 
@@ -112,7 +110,7 @@ public static class WindowInitialPositionHelpers
             toPosition.Top = positionReference.Top + 24;
         }
 
-        EnsureWindowIsVisible(toPosition);
+        EnsureWindowIsVisible(toPosition, positionReference);
 
         toPosition.Show();
     }

@@ -1,4 +1,4 @@
-﻿using System.Collections.ObjectModel;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
 using System.Text.Json;
@@ -117,7 +117,7 @@ public partial class S3UploadsContext
     [NonBlockingCommand]
     public async Task ToClipboardSelectedItems()
     {
-        await ItemsToClipboard(ListSelection?.SelectedItems?.ToList());
+        await ItemsToClipboard(ListSelection?.SelectedItems.ToList());
     }
 
     [NonBlockingCommand]
@@ -129,7 +129,7 @@ public partial class S3UploadsContext
     [NonBlockingCommand]
     public async Task ToExcelSelectedItems()
     {
-        await ItemsToExcel(ListSelection?.SelectedItems?.ToList());
+        await ItemsToExcel(ListSelection?.SelectedItems.ToList());
     }
 
     // ReSharper disable NotAccessedPositionalProperty.Global Properties accessed by reflection
@@ -205,7 +205,7 @@ public partial class S3UploadsContext
             return;
         }
 
-        var canDelete = ListSelection?.SelectedItems?.Where(x => x is { Queued: false, IsUploading: false }).ToList() ??
+        var canDelete = ListSelection?.SelectedItems.Where(x => x is { Queued: false, IsUploading: false }).ToList() ??
                         new List<S3UploadsItem>();
 
         if (canDelete.Count == 0)

@@ -1,4 +1,4 @@
-﻿using System.Windows;
+using System.Windows;
 using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.ContentHtml.FileHtml;
 using PointlessWaymarks.CmsWpfControls.ContentList;
@@ -83,22 +83,9 @@ public partial class FileListWithActionsContext
     }
 
     [BlockingCommand]
+    [StopAndWarnIfNotOneSelectedItems]
     private async Task EmailHtmlToClipboard()
     {
-        await ThreadSwitcher.ResumeBackgroundAsync();
-
-        if (!SelectedItems().Any())
-        {
-            StatusContext.ToastError("Nothing Selected?");
-            return;
-        }
-
-        if (SelectedItems().Count > 1)
-        {
-            StatusContext.ToastError("Please select only 1 item...");
-            return;
-        }
-
         var frozenSelected = SelectedItems().First();
 
         var emailHtml = await Email.ToHtmlEmail(frozenSelected.DbEntry, StatusContext.ProgressTracker());
@@ -111,20 +98,13 @@ public partial class FileListWithActionsContext
     }
 
     [BlockingCommand]
+    [StopAndWarnIfNoSelectedItems]
     private async Task FileDownloadLinkCodesToClipboardForSelected()
     {
-        await ThreadSwitcher.ResumeBackgroundAsync();
-
-        if (!SelectedItems().Any())
-        {
-            StatusContext.ToastError("Nothing Selected?");
-            return;
-        }
-
         var finalString = string.Empty;
 
         foreach (var loopSelected in SelectedItems())
-            finalString += @$"{BracketCodeFileDownloads.Create(loopSelected.DbEntry)}{Environment.NewLine}";
+            finalString += $"{BracketCodeFileDownloads.Create(loopSelected.DbEntry)}{Environment.NewLine}";
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
@@ -134,20 +114,13 @@ public partial class FileListWithActionsContext
     }
 
     [BlockingCommand]
+    [StopAndWarnIfNoSelectedItems]
     private async Task FileEmbedCodesToClipboardForSelected()
     {
-        await ThreadSwitcher.ResumeBackgroundAsync();
-
-        if (!SelectedItems().Any())
-        {
-            StatusContext.ToastError("Nothing Selected?");
-            return;
-        }
-
         var finalString = string.Empty;
 
         foreach (var loopSelected in SelectedItems())
-            finalString += @$"{BracketCodeFileEmbed.Create(loopSelected.DbEntry)}{Environment.NewLine}";
+            finalString += $"{BracketCodeFileEmbed.Create(loopSelected.DbEntry)}{Environment.NewLine}";
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
@@ -157,20 +130,13 @@ public partial class FileListWithActionsContext
     }
 
     [BlockingCommand]
+    [StopAndWarnIfNoSelectedItems]
     private async Task FilePageLinkCodesToClipboardForSelected()
     {
-        await ThreadSwitcher.ResumeBackgroundAsync();
-
-        if (!SelectedItems().Any())
-        {
-            StatusContext.ToastError("Nothing Selected?");
-            return;
-        }
-
         var finalString = string.Empty;
 
         foreach (var loopSelected in SelectedItems())
-            finalString += @$"{BracketCodeFiles.Create(loopSelected.DbEntry)}{Environment.NewLine}";
+            finalString += $"{BracketCodeFiles.Create(loopSelected.DbEntry)}{Environment.NewLine}";
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
@@ -180,20 +146,13 @@ public partial class FileListWithActionsContext
     }
 
     [BlockingCommand]
+    [StopAndWarnIfNoSelectedItems]
     private async Task FileUrlLinkCodesToClipboardForSelected()
     {
-        await ThreadSwitcher.ResumeBackgroundAsync();
-
-        if (!SelectedItems().Any())
-        {
-            StatusContext.ToastError("Nothing Selected?");
-            return;
-        }
-
         var finalString = string.Empty;
 
         foreach (var loopSelected in SelectedItems())
-            finalString += @$"{BracketCodeFileUrl.Create(loopSelected.DbEntry)}{Environment.NewLine}";
+            finalString += $"{BracketCodeFileUrl.Create(loopSelected.DbEntry)}{Environment.NewLine}";
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
@@ -203,21 +162,15 @@ public partial class FileListWithActionsContext
     }
 
     [BlockingCommand]
+    [StopAndWarnIfNoOrMoreThanSelectedItems(MaxSelectedItems = 11)]
     private async Task FirstPagePreviewFromPdf()
     {
-        var selected = SelectedItems();
+        var frozenSelected = SelectedItems();
 
-        if (!selected.Any())
-        {
-            StatusContext.ToastError("Nothing Selected?");
-            return;
-        }
-
-        await ImageExtractionHelpers.PdfPageToImage(StatusContext, selected.Select(x => x.DbEntry).ToList(), 1);
+        await ImageExtractionHelpers.PdfPageToImage(StatusContext, frozenSelected.Select(x => x.DbEntry).ToList(), 1);
     }
 
     [BlockingCommand]
-
     private async Task RefreshData()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -227,35 +180,20 @@ public partial class FileListWithActionsContext
 
     public List<FileListListItem> SelectedItems()
     {
-        return ListContext.ListSelection.SelectedItems?.Where(x => x is FileListListItem).Cast<FileListListItem>()
-            .ToList() ?? new List<FileListListItem>();
+        return ListContext.ListSelection.SelectedItems.Where(x => x is FileListListItem).Cast<FileListListItem>()
+            .ToList();
     }
 
     [BlockingCommand]
+    [StopAndWarnIfNoOrMoreThanSelectedItems(MaxSelectedItems = 21)]
     public async Task ViewSelectedFiles(CancellationToken cancelToken)
     {
-        await ThreadSwitcher.ResumeBackgroundAsync();
+        var frozenSelected = SelectedItems();
 
-        if (ListContext.ListSelection.SelectedItems == null || ListContext.ListSelection.SelectedItems.Count < 1)
-        {
-            StatusContext.ToastWarning("Nothing Selected to View?");
-            return;
-        }
-
-        if (ListContext.ListSelection.SelectedItems.Count > 20)
-        {
-            StatusContext.ToastWarning("Sorry - please select less than 20 items to view...");
-            return;
-        }
-
-        var currentSelected = ListContext.ListSelection.SelectedItems;
-
-        foreach (var loopSelected in currentSelected)
+        foreach (var loopSelected in frozenSelected)
         {
             cancelToken.ThrowIfCancellationRequested();
-
-            if (loopSelected is FileListListItem fileItem)
-                await fileItem.ItemActions.ViewFile(fileItem.DbEntry);
+            await loopSelected.ItemActions.ViewFile(loopSelected.DbEntry);
         }
     }
 }

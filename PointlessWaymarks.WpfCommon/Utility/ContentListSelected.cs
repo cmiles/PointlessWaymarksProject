@@ -1,4 +1,4 @@
-﻿using System.Collections.ObjectModel;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows;
@@ -41,9 +41,9 @@ public class ContentListSelected<T> : INotifyPropertyChanged where T : ISelected
         }
     }
 
-    public List<T>? SelectedItems
+    public List<T> SelectedItems
     {
-        get => _selectedItems;
+        get => _selectedItems ?? new List<T>();
         set
         {
             if (Equals(value, _selectedItems)) return;
