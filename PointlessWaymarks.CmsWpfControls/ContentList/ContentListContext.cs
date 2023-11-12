@@ -113,7 +113,7 @@ public partial class ContentListContext : IDragSource, IDropTarget
 
     public bool CanStartDrag(IDragInfo dragInfo)
     {
-        return ListSelection.SelectedItems.Count > 0;
+        return SelectedItems().Count > 0;
     }
 
     public void DragCancelled()
@@ -173,7 +173,7 @@ public partial class ContentListContext : IDragSource, IDropTarget
 
     public void StartDrag(IDragInfo dragInfo)
     {
-        var defaultBracketCodeList = ListSelection.SelectedItems.Select(x => x.DefaultBracketCode()).ToList();
+        var defaultBracketCodeList = SelectedItems().Select(x => x.DefaultBracketCode()).ToList();
         dragInfo.Data = string.Join(Environment.NewLine, defaultBracketCodeList);
         dragInfo.DataFormat = DataFormats.GetDataFormat(DataFormats.UnicodeText);
         dragInfo.Effects = DragDropEffects.Copy;
@@ -188,7 +188,7 @@ public partial class ContentListContext : IDragSource, IDropTarget
     [StopAndWarnIfNoSelectedItems]
     public async Task BracketCodeToClipboardSelected(CancellationToken cancelToken)
     {
-        var currentSelected = ListSelection.SelectedItems;
+        var currentSelected = SelectedItems();
 
         var bracketCodes = new List<string>();
 
@@ -386,17 +386,10 @@ public partial class ContentListContext : IDragSource, IDropTarget
     }
 
     [BlockingCommand]
-    [StopAndWarnIfNoSelectedItems]
+    [StopAndWarnIfNoSelectedItemsAskIfOverMax(MaxSelectedItems = 10, ActionVerb = "delete")]
     public async Task DeleteSelected(CancellationToken cancelToken)
     {
-        if (ListSelection.SelectedItems.Count > 20)
-            if (await StatusContext.ShowMessage("Delete Multiple Items",
-                    $"You are about to delete {ListSelection.SelectedItems.Count} items - do you really want to delete all of these items?" +
-                    $"{Environment.NewLine}{Environment.NewLine}{string.Join(Environment.NewLine, ListSelection.SelectedItems.Select(x => x.Content().Title))}",
-                    new List<string> { "Yes", "No" }) == "No")
-                return;
-
-        var currentSelected = ListSelection.SelectedItems;
+        var currentSelected = SelectedItems();
 
         foreach (var loopSelected in currentSelected)
         {
@@ -407,10 +400,10 @@ public partial class ContentListContext : IDragSource, IDropTarget
     }
 
     [BlockingCommand]
-    [StopAndWarnIfNoOrMoreThanSelectedItems(MaxSelectedItems = 21)]
+    [StopAndWarnIfNoSelectedItemsAskIfOverMax(MaxSelectedItems = 10, ActionVerb = "edit")]
     public async Task EditSelected(CancellationToken cancelToken)
     {
-        var currentSelected = ListSelection.SelectedItems;
+        var currentSelected = SelectedItems();
 
         foreach (var loopSelected in currentSelected)
         {
@@ -423,7 +416,7 @@ public partial class ContentListContext : IDragSource, IDropTarget
     [StopAndWarnIfNoSelectedItems]
     public async Task ExtractNewLinksSelected(CancellationToken cancelToken)
     {
-        var currentSelected = ListSelection.SelectedItems;
+        var currentSelected = SelectedItems();
 
         foreach (var loopSelected in currentSelected)
         {
@@ -535,7 +528,7 @@ public partial class ContentListContext : IDragSource, IDropTarget
     [StopAndWarnIfNoSelectedItems]
     public async Task GenerateHtmlSelected(CancellationToken cancelToken)
     {
-        var currentSelected = ListSelection.SelectedItems;
+        var currentSelected = SelectedItems();
 
         foreach (var loopSelected in currentSelected)
         {
@@ -707,7 +700,7 @@ public partial class ContentListContext : IDragSource, IDropTarget
     [StopAndWarnIfNoSelectedItems]
     public async Task SelectedToExcel()
     {
-        await ExcelHelpers.SelectedToExcel(ListSelection.SelectedItems.Cast<dynamic>().ToList(), StatusContext);
+        await ExcelHelpers.SelectedToExcel(SelectedItems().Cast<dynamic>().ToList(), StatusContext);
     }
 
     private void StatusContextOnPropertyChanged(object? sender, PropertyChangedEventArgs e)
@@ -825,10 +818,10 @@ public partial class ContentListContext : IDragSource, IDropTarget
     }
 
     [BlockingCommand]
-    [StopAndWarnIfNoSelectedItems]
+    [StopAndWarnIfNoSelectedItemsAskIfOverMax(MaxSelectedItems = 10, ActionVerb = "view history")]
     public async Task ViewHistorySelected(CancellationToken cancelToken)
     {
-        var currentSelected = ListSelection.SelectedItems;
+        var currentSelected = SelectedItems();
 
         foreach (var loopSelected in currentSelected)
         {
@@ -838,10 +831,10 @@ public partial class ContentListContext : IDragSource, IDropTarget
     }
 
     [BlockingCommand]
-    [StopAndWarnIfNoSelectedItems]
+    [StopAndWarnIfNoSelectedItemsAskIfOverMax(MaxSelectedItems = 10, ActionVerb = "view")]
     public async Task ViewOnSite(CancellationToken cancelToken)
     {
-        var currentSelected = ListSelection.SelectedItems;
+        var currentSelected = SelectedItems();
 
         foreach (var loopSelected in currentSelected)
         {
