@@ -1,4 +1,4 @@
-﻿using System.IO;
+using System.IO;
 using System.Text;
 using System.Windows;
 using System.Xml;
@@ -81,16 +81,9 @@ public partial class LineListWithActionsContext
     public WindowIconStatus? WindowStatus { get; set; }
 
     [BlockingCommand]
+    [StopAndWarnIfNoSelectedItems]
     private async Task AddIntersectionTagsToSelected(CancellationToken cancellationToken)
     {
-        await ThreadSwitcher.ResumeBackgroundAsync();
-
-        if (!SelectedItems().Any())
-        {
-            StatusContext.ToastError("Nothing Selected?");
-            return;
-        }
-
         var frozenSelect = SelectedItems();
 
         if (string.IsNullOrWhiteSpace(UserSettingsSingleton.CurrentSettings().FeatureIntersectionTagSettingsFile))
@@ -220,16 +213,9 @@ public partial class LineListWithActionsContext
     }
 
     [BlockingCommand]
+    [StopAndWarnIfNoSelectedItems]
     private async Task ElevationChartBracketCodesToClipboardForSelected()
     {
-        await ThreadSwitcher.ResumeBackgroundAsync();
-
-        if (!SelectedItems().Any())
-        {
-            StatusContext.ToastError("Nothing Selected?");
-            return;
-        }
-
         var finalString = SelectedItems().Aggregate(string.Empty,
             (current, loopSelected) =>
                 current + @$"{BracketCodeLineElevationCharts.Create(loopSelected.DbEntry)}{Environment.NewLine}");
@@ -242,16 +228,9 @@ public partial class LineListWithActionsContext
     }
 
     [BlockingCommand]
+    [StopAndWarnIfNoSelectedItemsAskIfOverMax(MaxSelectedItems = 3, ActionVerb = "copy to clipboard")]
     private async Task GeoJsonToClipboardForSelected()
     {
-        await ThreadSwitcher.ResumeBackgroundAsync();
-
-        if (!SelectedItems().Any())
-        {
-            StatusContext.ToastError("Nothing Selected?");
-            return;
-        }
-
         var frozenSelected = SelectedItems();
 
         var featureList = new List<IFeature>();
@@ -287,16 +266,9 @@ public partial class LineListWithActionsContext
     }
 
     [BlockingCommand]
+    [StopAndWarnIfNoSelectedItems]
     private async Task LinkBracketCodesToClipboardForSelected()
     {
-        await ThreadSwitcher.ResumeBackgroundAsync();
-
-        if (!SelectedItems().Any())
-        {
-            StatusContext.ToastError("Nothing Selected?");
-            return;
-        }
-
         var finalString = SelectedItems().Aggregate(string.Empty,
             (current, loopSelected) =>
                 current + @$"{BracketCodeLineLinks.Create(loopSelected.DbEntry)}{Environment.NewLine}");
@@ -323,16 +295,9 @@ public partial class LineListWithActionsContext
     }
 
     [BlockingCommand]
+    [StopAndWarnIfNoSelectedItems]
     private async Task SelectedToGpxFile()
     {
-        await ThreadSwitcher.ResumeBackgroundAsync();
-
-        if (!SelectedItems().Any())
-        {
-            StatusContext.ToastError("Nothing Selected?");
-            return;
-        }
-
         var frozenSelected = SelectedItems();
 
         await ThreadSwitcher.ResumeForegroundAsync();
@@ -365,16 +330,9 @@ public partial class LineListWithActionsContext
     }
 
     [BlockingCommand]
+    [StopAndWarnIfNoSelectedItems]
     private async Task StatsBracketCodesToClipboardForSelected()
     {
-        await ThreadSwitcher.ResumeBackgroundAsync();
-
-        if (!SelectedItems().Any())
-        {
-            StatusContext.ToastError("Nothing Selected?");
-            return;
-        }
-
         var finalString = SelectedItems().Aggregate(string.Empty,
             (current, loopSelected) =>
                 current + @$"{BracketCodeLineStats.Create(loopSelected.DbEntry)}{Environment.NewLine}");

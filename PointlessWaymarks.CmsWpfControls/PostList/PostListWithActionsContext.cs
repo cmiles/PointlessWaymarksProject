@@ -1,4 +1,4 @@
-﻿using System.Windows;
+using System.Windows;
 using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.ContentHtml.PostHtml;
 using PointlessWaymarks.CmsWpfControls.ContentList;
@@ -13,7 +13,7 @@ namespace PointlessWaymarks.CmsWpfControls.PostList;
 [GenerateStatusCommands]
 public partial class PostListWithActionsContext
 {
-    private PostListWithActionsContext(StatusControlContext? statusContext, WindowIconStatus? windowStatus,
+    private PostListWithActionsContext(StatusControlContext statusContext, WindowIconStatus? windowStatus,
         ContentListContext listContext, bool loadInBackground = true)
     {
         StatusContext = statusContext;
@@ -53,16 +53,9 @@ public partial class PostListWithActionsContext
     public WindowIconStatus? WindowStatus { get; set; }
 
     [BlockingCommand]
+    [StopAndWarnIfNoSelectedItems]
     private async Task BracketCodesToClipboardForSelected()
     {
-        await ThreadSwitcher.ResumeBackgroundAsync();
-
-        if (!SelectedItems().Any())
-        {
-            StatusContext.ToastError("Nothing Selected?");
-            return;
-        }
-
         var finalString = SelectedItems().Aggregate(string.Empty,
             (current, loopSelected) =>
                 current + @$"{BracketCodePosts.Create(loopSelected.DbEntry)}{Environment.NewLine}");
@@ -87,22 +80,9 @@ public partial class PostListWithActionsContext
     }
 
     [BlockingCommand]
+    [StopAndWarnIfNotOneSelectedItems]
     private async Task EmailHtmlToClipboard()
     {
-        await ThreadSwitcher.ResumeBackgroundAsync();
-
-        if (!SelectedItems().Any())
-        {
-            StatusContext.ToastError("Nothing Selected?");
-            return;
-        }
-
-        if (SelectedItems().Count > 1)
-        {
-            StatusContext.ToastError("Please select only 1 item...");
-            return;
-        }
-
         var frozenSelected = SelectedItems().First();
 
         var emailHtml = await Email.ToHtmlEmail(frozenSelected.DbEntry, StatusContext.ProgressTracker());
@@ -118,7 +98,6 @@ public partial class PostListWithActionsContext
     private async Task RefreshData()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
-
 
         await ListContext.LoadData();
     }

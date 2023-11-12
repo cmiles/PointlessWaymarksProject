@@ -1,4 +1,4 @@
-﻿using System.Windows;
+using System.Windows;
 using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.ContentHtml.VideoHtml;
 using PointlessWaymarks.CmsWpfControls.ContentList;
@@ -32,7 +32,7 @@ public partial class VideoListWithActionsContext
                 ItemName = "Embed Code to Clipboard",
                 ItemCommand = ListContext.BracketCodeToClipboardSelectedCommand
             },
-            new ()
+            new()
             {
                 ItemName = "Image Code to Clipboard",
                 ItemCommand = VideoCoverImageLinkCodesToClipboardForSelectedCommand
@@ -73,22 +73,9 @@ public partial class VideoListWithActionsContext
     }
 
     [BlockingCommand]
+    [StopAndWarnIfNotOneSelectedItems]
     private async Task EmailHtmlToClipboard()
     {
-        await ThreadSwitcher.ResumeBackgroundAsync();
-
-        if (!SelectedItems().Any())
-        {
-            StatusContext.ToastError("Nothing Selected?");
-            return;
-        }
-
-        if (SelectedItems().Count > 1)
-        {
-            StatusContext.ToastError("Please select only 1 item...");
-            return;
-        }
-
         var frozenSelected = SelectedItems().First();
 
         var emailHtml = await Email.ToHtmlEmail(frozenSelected.DbEntry, StatusContext.ProgressTracker());
@@ -115,16 +102,9 @@ public partial class VideoListWithActionsContext
     }
 
     [BlockingCommand]
+    [StopAndWarnIfNoSelectedItems]
     private async Task VideoPageLinkCodesToClipboardForSelected()
     {
-        await ThreadSwitcher.ResumeBackgroundAsync();
-
-        if (!SelectedItems().Any())
-        {
-            StatusContext.ToastError("Nothing Selected?");
-            return;
-        }
-
         var finalString = string.Empty;
 
         foreach (var loopSelected in SelectedItems())
@@ -136,22 +116,15 @@ public partial class VideoListWithActionsContext
 
         StatusContext.ToastSuccess($"To Clipboard {finalString}");
     }
-    
+
     [BlockingCommand]
+    [StopAndWarnIfNoSelectedItems]
     private async Task VideoCoverImageLinkCodesToClipboardForSelected()
     {
-        await ThreadSwitcher.ResumeBackgroundAsync();
-
-        if (!SelectedItems().Any())
-        {
-            StatusContext.ToastError("Nothing Selected?");
-            return;
-        }
-
         var finalString = string.Empty;
 
         bool showNoImageWarning = false;
-        
+
         foreach (var loopSelected in SelectedItems())
         {
             if (loopSelected.DbEntry.MainPicture == null)
@@ -164,7 +137,7 @@ public partial class VideoListWithActionsContext
                 finalString += @$"{BracketCodeVideoImage.Create(loopSelected.DbEntry)}{Environment.NewLine}";
             }
         }
-        
+
         await ThreadSwitcher.ResumeForegroundAsync();
 
         Clipboard.SetText(finalString);
@@ -178,32 +151,18 @@ public partial class VideoListWithActionsContext
             StatusContext.ToastSuccess($"To Clipboard {finalString}");
         }
     }
-    
+
     [BlockingCommand]
+    [StopAndWarnIfNoSelectedItemsAskIfOverMax(MaxSelectedItems = 10)]
     public async Task ViewSelectedVideos(CancellationToken cancelToken)
     {
-        await ThreadSwitcher.ResumeBackgroundAsync();
-
-        if (ListContext.ListSelection.SelectedItems == null || ListContext.ListSelection.SelectedItems.Count < 1)
-        {
-            StatusContext.ToastWarning("Nothing Selected to View?");
-            return;
-        }
-
-        if (ListContext.ListSelection.SelectedItems.Count > 20)
-        {
-            StatusContext.ToastWarning("Sorry - please select less than 20 items to view...");
-            return;
-        }
-
-        var currentSelected = ListContext.ListSelection.SelectedItems;
+        var currentSelected = SelectedItems();
 
         foreach (var loopSelected in currentSelected)
         {
             cancelToken.ThrowIfCancellationRequested();
 
-            if (loopSelected is VideoListListItem fileItem)
-                await fileItem.ItemActions.ViewFile(fileItem.DbEntry);
+            await loopSelected.ItemActions.ViewFile(loopSelected.DbEntry);
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿using System.ComponentModel;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Windows;
 using Microsoft.EntityFrameworkCore;
@@ -29,6 +29,7 @@ public partial class VideoContentActions : IContentActions<VideoContent>
         BuildCommands();
     }
 
+    public StatusControlContext StatusContext { get; set; }
 
     public string DefaultBracketCode(VideoContent? content)
     {
@@ -147,7 +148,7 @@ public partial class VideoContentActions : IContentActions<VideoContent>
         StatusContext.ToastSuccess($"Generated {htmlContext.PageUrl}");
     }
 
-    public StatusControlContext StatusContext { get; set; }
+    public event PropertyChangedEventHandler? PropertyChanged;
 
     [NonBlockingCommand]
     public async Task ViewHistory(VideoContent? content)
@@ -200,8 +201,6 @@ public partial class VideoContentActions : IContentActions<VideoContent>
         var ps = new ProcessStartInfo(url) { UseShellExecute = true, Verb = "open" };
         Process.Start(ps);
     }
-
-    public event PropertyChangedEventHandler? PropertyChanged;
 
     public static async Task<VideoListListItem> ListItemFromDbItem(VideoContent content,
         VideoContentActions itemActions,

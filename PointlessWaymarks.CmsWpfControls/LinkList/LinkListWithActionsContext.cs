@@ -1,4 +1,4 @@
-﻿using System.Windows;
+using System.Windows;
 using HtmlTableHelper;
 using pinboard.net;
 using PointlessWaymarks.CmsData;
@@ -145,16 +145,9 @@ public partial class LinkListWithActionsContext
     }
 
     [BlockingCommand]
+    [StopAndWarnIfNoSelectedItems]
     private async Task MdLinkCodesToClipboardForSelected()
     {
-        await ThreadSwitcher.ResumeBackgroundAsync();
-
-        if (!SelectedItems().Any())
-        {
-            StatusContext.ToastError("Nothing Selected?");
-            return;
-        }
-
         var finalString = string.Join(", ", SelectedItems().Select(x => $"[{x.DbEntry.Title}]({x.DbEntry.Url})"));
 
         await ThreadSwitcher.ResumeForegroundAsync();

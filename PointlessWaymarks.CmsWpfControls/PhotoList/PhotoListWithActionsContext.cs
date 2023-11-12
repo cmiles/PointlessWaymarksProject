@@ -1,4 +1,4 @@
-﻿using System.IO;
+using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows;
@@ -240,16 +240,9 @@ public partial class PhotoListWithActionsContext
     }
 
     [BlockingCommand]
+    [StopAndWarnIfNoSelectedItems]
     private async Task DailyPhotoLinkCodesToClipboardForSelected()
     {
-        await ThreadSwitcher.ResumeBackgroundAsync();
-
-        if (!SelectedItems().Any())
-        {
-            StatusContext.ToastError("Nothing Selected?");
-            return;
-        }
-
         var finalString = SelectedItems().Aggregate(string.Empty,
             (current, loopSelected) =>
                 current + BracketCodeDailyPhotoPage.Create(loopSelected.DbEntry) + Environment.NewLine);
@@ -262,22 +255,9 @@ public partial class PhotoListWithActionsContext
     }
 
     [BlockingCommand]
+    [StopAndWarnIfNotOneSelectedItems]
     private async Task EmailHtmlToClipboard()
     {
-        await ThreadSwitcher.ResumeBackgroundAsync();
-
-        if (!SelectedItems().Any())
-        {
-            StatusContext.ToastError("Nothing Selected?");
-            return;
-        }
-
-        if (SelectedItems().Count > 1)
-        {
-            StatusContext.ToastError("Please select only 1 item...");
-            return;
-        }
-
         var frozenSelected = SelectedItems().First();
 
         var emailHtml = await Email.ToHtmlEmail(frozenSelected.DbEntry, StatusContext.ProgressTracker());
@@ -296,16 +276,9 @@ public partial class PhotoListWithActionsContext
     }
 
     [BlockingCommand]
+    [StopAndWarnIfNoSelectedItems]
     private async Task ForcedResize(CancellationToken cancellationToken)
     {
-        await ThreadSwitcher.ResumeBackgroundAsync();
-
-        if (!SelectedItems().Any())
-        {
-            StatusContext.ToastError("Nothing Selected?");
-            return;
-        }
-
         var totalCount = SelectedItems().Count;
         var currentLoop = 0;
 
@@ -338,16 +311,9 @@ public partial class PhotoListWithActionsContext
     }
 
     [BlockingCommand]
+    [StopAndWarnIfNoSelectedItems]
     private async Task PhotoLinkCodesToClipboardForSelected()
     {
-        await ThreadSwitcher.ResumeBackgroundAsync();
-
-        if (!SelectedItems().Any())
-        {
-            StatusContext.ToastError("Nothing Selected?");
-            return;
-        }
-
         var finalString = SelectedItems().Aggregate(string.Empty,
             (current, loopSelected) =>
                 current + BracketCodePhotoLinks.Create(loopSelected.DbEntry) + Environment.NewLine);
@@ -360,22 +326,9 @@ public partial class PhotoListWithActionsContext
     }
 
     [BlockingCommand]
+    [StopAndWarnIfNoSelectedItemsAskIfOverMax(MaxSelectedItems = 10, ActionVerb = "open")]
     private async Task PhotoToPointContentEditor(CancellationToken cancellationToken)
     {
-        await ThreadSwitcher.ResumeBackgroundAsync();
-
-        if (!SelectedItems().Any())
-        {
-            StatusContext.ToastError("Nothing Selected?");
-            return;
-        }
-
-        if (SelectedItems().Count > 10)
-            if (await StatusContext.ShowMessage("Too Many Editors?",
-                    $"You are about to open {SelectedItems().Count} Point Content Editors - do you really want to do that?",
-                    new List<string> { "Yes", "No" }) == "No")
-                return;
-
         var count = 1;
 
         var frozenNow = DateTime.Now;
@@ -415,16 +368,9 @@ public partial class PhotoListWithActionsContext
     }
 
     [BlockingCommand]
+    [StopAndWarnIfNoSelectedItems]
     private async Task RegenerateHtmlAndReprocessPhotoForSelected(CancellationToken cancellationToken)
     {
-        await ThreadSwitcher.ResumeBackgroundAsync();
-
-        if (!SelectedItems().Any())
-        {
-            StatusContext.ToastError("Nothing Selected?");
-            return;
-        }
-
         var loopCount = 0;
         var totalCount = SelectedItems().Count;
 
@@ -586,25 +532,10 @@ public partial class PhotoListWithActionsContext
     }
 
     [BlockingCommand]
+    [StopAndWarnIfNotOneSelectedItems]
     private async Task ReportPhotoMetadata()
     {
-        await ThreadSwitcher.ResumeBackgroundAsync();
-
-        var selected = SelectedItems();
-
-        if (!selected.Any())
-        {
-            StatusContext.ToastError("Nothing Selected?");
-            return;
-        }
-
-        if (selected.Count > 1)
-        {
-            StatusContext.ToastError("Please Select a Single Item");
-            return;
-        }
-
-        var singleSelected = selected.Single();
+        var singleSelected = SelectedItems().First();
 
         if (string.IsNullOrWhiteSpace(singleSelected.DbEntry.OriginalFileName))
         {
@@ -713,16 +644,9 @@ public partial class PhotoListWithActionsContext
     }
 
     [BlockingCommand]
+    [StopAndWarnIfNoSelectedItems]
     private async Task RescanMetadataAndFillBlanks(CancellationToken cancellationToken)
     {
-        await ThreadSwitcher.ResumeBackgroundAsync();
-
-        if (!SelectedItems().Any())
-        {
-            StatusContext.ToastError("Nothing Selected?");
-            return;
-        }
-
         var frozenSelected = SelectedItems().ToList();
 
         var errorMessages = new List<string>();
@@ -885,30 +809,16 @@ public partial class PhotoListWithActionsContext
     }
 
     [BlockingCommand]
+    [StopAndWarnIfNoSelectedItemsAskIfOverMax(MaxSelectedItems = 10)]
     public async Task ViewSelectedFiles(CancellationToken cancelToken)
     {
-        await ThreadSwitcher.ResumeBackgroundAsync();
-
-        if (ListContext.ListSelection.SelectedItems == null || ListContext.ListSelection.SelectedItems.Count < 1)
-        {
-            StatusContext.ToastWarning("Nothing Selected to View?");
-            return;
-        }
-
-        if (ListContext.ListSelection.SelectedItems.Count > 20)
-        {
-            StatusContext.ToastWarning("Sorry - please select less than 20 items to view...");
-            return;
-        }
-
-        var currentSelected = ListContext.ListSelection.SelectedItems;
+        var currentSelected = SelectedItems();
 
         foreach (var loopSelected in currentSelected)
         {
             cancelToken.ThrowIfCancellationRequested();
 
-            if (loopSelected is PhotoListListItem photoItem)
-                await photoItem.ItemActions.ViewFile(photoItem.DbEntry);
+            await loopSelected.ItemActions.ViewFile(loopSelected.DbEntry);
         }
     }
 }

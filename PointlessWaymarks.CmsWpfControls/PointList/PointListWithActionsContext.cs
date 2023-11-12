@@ -1,4 +1,4 @@
-﻿using System.Collections.Immutable;
+using System.Collections.Immutable;
 using System.IO;
 using System.Text;
 using System.Windows;
@@ -74,16 +74,9 @@ public partial class PointListWithActionsContext
     public WindowIconStatus? WindowStatus { get; set; }
 
     [BlockingCommand]
+    [StopAndWarnIfNoSelectedItems]
     private async Task AddIntersectionTagsToSelected(CancellationToken cancellationToken)
     {
-        await ThreadSwitcher.ResumeBackgroundAsync();
-
-        if (!SelectedItems().Any())
-        {
-            StatusContext.ToastError("Nothing Selected?");
-            return;
-        }
-
         var frozenSelect = SelectedItems();
 
         if (string.IsNullOrWhiteSpace(UserSettingsSingleton.CurrentSettings().FeatureIntersectionTagSettingsFile))
@@ -222,16 +215,9 @@ public partial class PointListWithActionsContext
     }
 
     [NonBlockingCommand]
+    [StopAndWarnIfNoSelectedItems]
     private async Task PointLinkBracketCodesToClipboardForSelected()
     {
-        await ThreadSwitcher.ResumeBackgroundAsync();
-
-        if (!SelectedItems().Any())
-        {
-            StatusContext.ToastError("Nothing Selected?");
-            return;
-        }
-
         var finalString = SelectedItems().Aggregate(string.Empty,
             (current, loopSelected) =>
                 current + @$"{BracketCodePointLinks.Create(loopSelected.DbEntry)}{Environment.NewLine}");
@@ -250,16 +236,9 @@ public partial class PointListWithActionsContext
     }
 
     [BlockingCommand]
+    [StopAndWarnIfNoSelectedItems]
     private async Task SelectedToGpxFile()
     {
-        await ThreadSwitcher.ResumeBackgroundAsync();
-
-        if (!SelectedItems().Any())
-        {
-            StatusContext.ToastError("Nothing Selected?");
-            return;
-        }
-
         await ThreadSwitcher.ResumeForegroundAsync();
 
         var fileDialog = new VistaSaveFileDialog
@@ -300,16 +279,9 @@ public partial class PointListWithActionsContext
     }
 
     [BlockingCommand]
+    [StopAndWarnIfNoSelectedItemsAskIfOverMax(MaxSelectedItems = 100, ActionVerb = "copy to clipboard")]
     private async Task GeoJsonToClipboardForSelected()
     {
-        await ThreadSwitcher.ResumeBackgroundAsync();
-
-        if (!SelectedItems().Any())
-        {
-            StatusContext.ToastError("Nothing Selected?");
-            return;
-        }
-
         var frozenSelected = SelectedItems();
 
         var featureList = new List<IFeature>();
@@ -330,16 +302,9 @@ public partial class PointListWithActionsContext
     }
 
     [BlockingCommand]
+    [StopAndWarnIfNoSelectedItems]
     private async Task ToClipboardForSelected()
     {
-        await ThreadSwitcher.ResumeBackgroundAsync();
-
-        if (!SelectedItems().Any())
-        {
-            StatusContext.ToastError("Nothing Selected?");
-            return;
-        }
-
         var frozenSelected = SelectedItems();
 
         var pointList = new StringBuilder();
