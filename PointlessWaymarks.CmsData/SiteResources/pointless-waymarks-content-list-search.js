@@ -1,4 +1,4 @@
-﻿document.addEventListener('DOMContentLoaded', processEnableAfterLoadingElements);
+document.addEventListener('DOMContentLoaded', processEnableAfterLoadingElements);
 
 function processEnableAfterLoadingElements() {
     Array.from(document.querySelectorAll('.enable-after-loading'))
@@ -103,7 +103,7 @@ function searchContent() {
 
         var divDataText = loopDiv.getAttribute('data-title').concat(
             loopDiv.getAttribute('data-summary'),
-            loopDiv.getAttribute('data-tags')).toUpperCase();
+            loopDiv.getAttribute('data-tags').replace(/-/g, ' ')).toUpperCase();
 
         if (filterText == null || filterText.trim() === '') {
             loopDiv.classList.remove("hidden-list-item");

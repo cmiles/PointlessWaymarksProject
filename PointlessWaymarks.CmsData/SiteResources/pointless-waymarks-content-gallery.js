@@ -49,7 +49,7 @@ function searchContent() {
 
         var divDataText = loopDiv.getAttribute('data-title').concat(
             loopDiv.getAttribute('data-summary'),
-            loopDiv.getAttribute('data-tags'),
+            loopDiv.getAttribute('data-tags').replace(/-/g, ' '),
             loopDiv.getAttribute('data-content-type')).toUpperCase();
 
         if (filterText == null || filterText.trim() === '') {

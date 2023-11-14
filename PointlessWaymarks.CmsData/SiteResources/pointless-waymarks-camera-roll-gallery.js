@@ -27,7 +27,7 @@ function searchContent() {
 
     var contentDivs = Array.from(document.querySelectorAll('.camera-roll-photo-item-container'));
 
-    var nonPhotoListDivs = Array.from(document.querySelectorAll('.camera-roll-year-list-container', '.camera-roll-month-list-container', '.camera-roll-info-item-container'));
+    var nonPhotoListDivs = Array.from(document.querySelectorAll('.camera-roll-year-list-container, .camera-roll-month-list-container, .camera-roll-info-item-container'));
 
     if (filterText == null || filterText.trim() === '') {
         nonPhotoListDivs.forEach(x => x.classList.remove("hidden-list-item"));
@@ -43,7 +43,7 @@ function searchContent() {
 
         var divDataText = loopDiv.getAttribute('data-title').concat(
             loopDiv.getAttribute('data-summary'),
-            loopDiv.getAttribute('data-tags')).toUpperCase();
+            loopDiv.getAttribute('data-tags').replace(/-/g, ' ')).toUpperCase();
 
         if (filterText == null || filterText.trim() === '') {
             loopDiv.classList.remove("hidden-list-item");
