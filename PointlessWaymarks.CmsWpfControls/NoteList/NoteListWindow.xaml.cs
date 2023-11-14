@@ -1,5 +1,5 @@
 ﻿using PointlessWaymarks.LlamaAspects;
-using PointlessWaymarks.WpfCommon.ThreadSwitcher;
+using PointlessWaymarks.WpfCommon;
 
 namespace PointlessWaymarks.CmsWpfControls.NoteList;
 

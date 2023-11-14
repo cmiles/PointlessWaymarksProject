@@ -120,7 +120,7 @@ public static class NativeCapture
         while (tries-- > 0)
             try
             {
-                await ThreadSwitcher.ThreadSwitcher.ResumeForegroundAsync();
+                await ThreadSwitcher.ResumeForegroundAsync();
                 // This must be executed on the calling dispatcher.
                 Clipboard.SetImage(bmpCopied);
                 return true;

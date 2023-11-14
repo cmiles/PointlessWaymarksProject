@@ -26,7 +26,7 @@ public class WebViewPostJsonOnChangeBehavior : Behavior<WebView2>
 
         if (string.IsNullOrWhiteSpace(CachedData)) return;
 
-        await ThreadSwitcher.ThreadSwitcher.ResumeForegroundAsync();
+        await ThreadSwitcher.ResumeForegroundAsync();
         await PostNewJson(this, CachedData);
     }
 
@@ -44,7 +44,7 @@ public class WebViewPostJsonOnChangeBehavior : Behavior<WebView2>
 
     private async void OnLoaded(object sender, RoutedEventArgs e)
     {
-        await ThreadSwitcher.ThreadSwitcher.ResumeForegroundAsync();
+        await ThreadSwitcher.ResumeForegroundAsync();
         await AssociatedObject.EnsureCoreWebView2Async();
     }
 
@@ -55,7 +55,7 @@ public class WebViewPostJsonOnChangeBehavior : Behavior<WebView2>
 
     private static async Task PostNewJson(WebViewPostJsonOnChangeBehavior bindingBehavior, string toPost)
     {
-        await ThreadSwitcher.ThreadSwitcher.ResumeForegroundAsync();
+        await ThreadSwitcher.ResumeForegroundAsync();
 
         if (bindingBehavior.AssociatedObject.IsInitialized && bindingBehavior.AssociatedObject.CoreWebView2 != null)
         {

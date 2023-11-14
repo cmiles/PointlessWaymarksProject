@@ -38,7 +38,7 @@ public partial class S3UploadsItem : ISelectedTextTracker
     {
         if (IsUploading) return;
 
-        await ThreadSwitcher.ThreadSwitcher.ResumeBackgroundAsync();
+        await ThreadSwitcher.ResumeBackgroundAsync();
 
         HasError = false;
         ErrorMessage = string.Empty;

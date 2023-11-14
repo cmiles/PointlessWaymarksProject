@@ -17,40 +17,45 @@ namespace PointlessWaymarks.WpfCommon.S3Uploads;
 public partial class S3UploadsContext
 {
     private S3UploadsContext(StatusControlContext? statusContext, IS3AccountInformation s3Info,
+        ObservableCollection<S3UploadsItem> items, ContentListSelected<S3UploadsItem> listSelection,
         WindowIconStatus? osStatusIndicator)
     {
         StatusContext = statusContext ?? new StatusControlContext();
         OsStatusIndicator = osStatusIndicator;
         UploadS3Information = s3Info;
+        Items = items;
+        ListSelection = listSelection;
 
         BuildCommands();
     }
 
-    public ObservableCollection<S3UploadsItem>? Items { get; set; }
+    public ObservableCollection<S3UploadsItem> Items { get; set; }
     public ContentListSelected<S3UploadsItem>? ListSelection { get; set; }
     public WindowIconStatus? OsStatusIndicator { get; set; }
     public StatusControlContext StatusContext { get; set; }
     public S3UploadsUploadBatch? UploadBatch { get; set; }
     public IS3AccountInformation UploadS3Information { get; set; }
 
+    public List<S3UploadsItem> SelectedListItems()
+    {
+        return ListSelection?.SelectedItems ?? new List<S3UploadsItem>();
+    }
+
     [NonBlockingCommand]
     public async Task ClearCompletedUploadBatch()
     {
-        await ThreadSwitcher.ThreadSwitcher.ResumeBackgroundAsync();
+        await ThreadSwitcher.ResumeBackgroundAsync();
 
         if (UploadBatch is { Completed: true }) UploadBatch = null;
     }
 
     [NonBlockingCommand]
+    [StopAndWarnIfNoItems]
     public async Task ClearUploaded()
     {
-        await ThreadSwitcher.ThreadSwitcher.ResumeBackgroundAsync();
-
-        if (Items == null) return;
-
         var toRemove = Items.Where(x => x is { HasError: false, Completed: true }).ToList();
 
-        await ThreadSwitcher.ThreadSwitcher.ResumeForegroundAsync();
+        await ThreadSwitcher.ResumeForegroundAsync();
 
         toRemove.ForEach(x => Items.Remove(x));
     }
@@ -58,7 +63,14 @@ public partial class S3UploadsContext
     public static async Task<S3UploadsContext> CreateInstance(StatusControlContext statusContext,
         IS3AccountInformation s3Info, List<S3UploadRequest> uploadList, WindowIconStatus? windowStatus)
     {
-        var newControl = new S3UploadsContext(statusContext, s3Info, windowStatus);
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        var factoryItems = new ObservableCollection<S3UploadsItem>();
+        var factorySelection = await ContentListSelected<S3UploadsItem>.CreateInstance(statusContext);
+
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        var newControl = new S3UploadsContext(statusContext, s3Info, factoryItems, factorySelection, windowStatus);
         await newControl.LoadData(uploadList);
 
         return newControl;
@@ -86,7 +98,7 @@ public partial class S3UploadsContext
 
     public async Task ItemsToClipboard(List<S3UploadsItem>? items)
     {
-        await ThreadSwitcher.ThreadSwitcher.ResumeBackgroundAsync();
+        await ThreadSwitcher.ResumeBackgroundAsync();
 
         if (items == null || !items.Any())
         {
@@ -99,11 +111,11 @@ public partial class S3UploadsContext
                     $"{x.FileToUpload.FullName}\t{x.UploadS3Information.BucketName()}\t{x.AmazonObjectKey}\tCompleted: {x.Completed}\tHas Error: {x.HasError}\t Error: {x.ErrorMessage}")
                 .ToList());
 
-        await ThreadSwitcher.ThreadSwitcher.ResumeForegroundAsync();
+        await ThreadSwitcher.ResumeForegroundAsync();
 
         Clipboard.SetText(itemsForClipboard);
 
-        await ThreadSwitcher.ThreadSwitcher.ResumeBackgroundAsync();
+        await ThreadSwitcher.ResumeBackgroundAsync();
 
         StatusContext.ToastSuccess("Items added to the Clipboard");
     }
@@ -117,7 +129,7 @@ public partial class S3UploadsContext
     [NonBlockingCommand]
     public async Task ToClipboardSelectedItems()
     {
-        await ItemsToClipboard(ListSelection?.SelectedItems.ToList());
+        await ItemsToClipboard(SelectedListItems());
     }
 
     [NonBlockingCommand]
@@ -129,17 +141,22 @@ public partial class S3UploadsContext
     [NonBlockingCommand]
     public async Task ToExcelSelectedItems()
     {
-        await ItemsToExcel(ListSelection?.SelectedItems.ToList());
+        await ItemsToExcel(SelectedListItems());
     }
 
     // ReSharper disable NotAccessedPositionalProperty.Global Properties accessed by reflection
-    public record S3ExcelUploadInformation(string FullName, string AmazonObjectKey, string BucketName, bool Completed,
-        bool HasError, string ErrorMessage);
+    public record S3ExcelUploadInformation(
+        string FullName,
+        string AmazonObjectKey,
+        string BucketName,
+        bool Completed,
+        bool HasError,
+        string ErrorMessage);
     // ReSharper restore NotAccessedPositionalProperty.Global
 
     public async Task ItemsToExcel(List<S3UploadsItem>? items)
     {
-        await ThreadSwitcher.ThreadSwitcher.ResumeBackgroundAsync();
+        await ThreadSwitcher.ResumeBackgroundAsync();
 
         if (items == null || !items.Any())
         {
@@ -156,34 +173,23 @@ public partial class S3UploadsContext
 
     public async Task LoadData(List<S3UploadRequest> uploadList)
     {
-        await ThreadSwitcher.ThreadSwitcher.ResumeBackgroundAsync();
-
-        if (!uploadList.Any()) return;
-
-        ListSelection = await ContentListSelected<S3UploadsItem>.CreateInstance(StatusContext);
+        await ThreadSwitcher.ResumeBackgroundAsync();
 
         var newItemsList = uploadList
             .Select(x => new S3UploadsItem(UploadS3Information, x.ToUpload.LocalFile, x.S3Key, x.Note))
             .OrderByDescending(x => x.FileToUpload.FullName.Count(y => y == '\\')).ThenBy(x => x.FileToUpload.FullName)
             .ToList();
 
-        await ThreadSwitcher.ThreadSwitcher.ResumeForegroundAsync();
+        await ThreadSwitcher.ResumeForegroundAsync();
 
-        if (Items == null)
-        {
-            Items = new ObservableCollection<S3UploadsItem>(newItemsList);
-        }
-        else
-        {
-            Items.Clear();
-            newItemsList.ForEach(x => Items.Add(x));
-        }
+        Items.Clear();
+        newItemsList.ForEach(x => Items.Add(x));
     }
 
     [BlockingCommand]
     public async Task OpenLocalFileInExplorer(S3UploadsItem? toOpen)
     {
-        await ThreadSwitcher.ThreadSwitcher.ResumeForegroundAsync();
+        await ThreadSwitcher.ResumeForegroundAsync();
 
         if (toOpen == null)
         {
@@ -195,18 +201,10 @@ public partial class S3UploadsContext
     }
 
     [BlockingCommand]
+    [StopAndWarnIfNoSelectedListItems]
     public async Task RemoveSelectedItems()
     {
-        await ThreadSwitcher.ThreadSwitcher.ResumeBackgroundAsync();
-
-        if (Items == null || ListSelection == null)
-        {
-            StatusContext.ToastError("Nothing to delete?");
-            return;
-        }
-
-        var canDelete = ListSelection?.SelectedItems.Where(x => x is { Queued: false, IsUploading: false }).ToList() ??
-                        new List<S3UploadsItem>();
+        var canDelete = SelectedListItems().Where(x => x is { Queued: false, IsUploading: false }).ToList();
 
         if (canDelete.Count == 0)
         {
@@ -214,35 +212,26 @@ public partial class S3UploadsContext
             return;
         }
 
-        await ThreadSwitcher.ThreadSwitcher.ResumeForegroundAsync();
+        await ThreadSwitcher.ResumeForegroundAsync();
 
         foreach (var loopDeletes in canDelete) Items.Remove(loopDeletes);
 
-        await ThreadSwitcher.ThreadSwitcher.ResumeBackgroundAsync();
+        await ThreadSwitcher.ResumeBackgroundAsync();
 
         StatusContext.ToastSuccess($"{canDelete.Count} Items Removed");
     }
 
     [NonBlockingCommand]
+    [StopAndWarnIfNoItems]
     public async Task SaveAllToUploadJsonFile()
     {
-        await ThreadSwitcher.ThreadSwitcher.ResumeBackgroundAsync();
-
-        if (Items == null || !Items.Any())
-        {
-            StatusContext.ToastError("No Items to Save?");
-            return;
-        }
-
         await FileItemsToS3UploaderJsonFile(Items.ToList());
     }
 
     [NonBlockingCommand]
     public async Task SaveNotUploadedToUploadJsonFile()
     {
-        await ThreadSwitcher.ThreadSwitcher.ResumeBackgroundAsync();
-
-        if (Items == null || !Items.Any(x => x is { Completed: true, HasError: false }))
+        if (!Items.Any(x => x is { Completed: true, HasError: false }))
         {
             StatusContext.ToastError("No Items to Save?");
             return;
@@ -252,17 +241,10 @@ public partial class S3UploadsContext
     }
 
     [NonBlockingCommand]
+    [StopAndWarnIfNoSelectedListItems]
     public async Task SaveSelectedToUploadJsonFile()
     {
-        await ThreadSwitcher.ThreadSwitcher.ResumeBackgroundAsync();
-
-        if (ListSelection?.SelectedItems == null || !ListSelection.SelectedItems.Any())
-        {
-            StatusContext.ToastError("No Items to Save?");
-            return;
-        }
-
-        await FileItemsToS3UploaderJsonFile(ListSelection.SelectedItems);
+        await FileItemsToS3UploaderJsonFile(SelectedListItems());
     }
 
     [BlockingCommand]
@@ -274,7 +256,7 @@ public partial class S3UploadsContext
             return;
         }
 
-        if (Items == null || !Items.Any())
+        if (!Items.Any())
         {
             StatusContext.ToastError("Nothing Selected...");
             return;
@@ -289,12 +271,9 @@ public partial class S3UploadsContext
     }
 
     [NonBlockingCommand]
+    [StopAndWarnIfNoItems]
     public async Task StartFailedUploads()
     {
-        await ThreadSwitcher.ThreadSwitcher.ResumeBackgroundAsync();
-
-        if (Items == null) return;
-
         var toRetry = Items.Where(x => x is { HasError: true }).ToList();
 
         UploadBatch = await S3UploadsUploadBatch.CreateInstance(toRetry);
@@ -312,13 +291,13 @@ public partial class S3UploadsContext
             return;
         }
 
-        if (ListSelection?.SelectedItems == null || !ListSelection.SelectedItems.Any())
+        if (!SelectedListItems().Any())
         {
             StatusContext.ToastError("Nothing Selected...");
             return;
         }
 
-        var localSelected = ListSelection.SelectedItems.ToList();
+        var localSelected = SelectedListItems();
 
         UploadBatch = await S3UploadsUploadBatch.CreateInstance(localSelected);
 

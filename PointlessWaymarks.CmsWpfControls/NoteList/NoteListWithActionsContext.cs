@@ -1,8 +1,8 @@
 using PointlessWaymarks.CmsData.ContentHtml.NoteHtml;
 using PointlessWaymarks.CmsWpfControls.ContentList;
 using PointlessWaymarks.LlamaAspects;
+using PointlessWaymarks.WpfCommon;
 using PointlessWaymarks.WpfCommon.Status;
-using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 using PointlessWaymarks.WpfCommon.Utility;
 
 namespace PointlessWaymarks.CmsWpfControls.NoteList;
@@ -59,10 +59,10 @@ public partial class NoteListWithActionsContext
     }
 
     [BlockingCommand]
-    [StopAndWarnIfNotOneSelectedItems]
+    [StopAndWarnIfNotOneSelectedListItems]
     private async Task EmailHtmlToClipboard()
     {
-        var frozenSelected = SelectedItems().First();
+        var frozenSelected = SelectedListItems().First();
 
         var emailHtml = await Email.ToHtmlEmail(frozenSelected.DbEntry, StatusContext.ProgressTracker());
 
@@ -81,7 +81,7 @@ public partial class NoteListWithActionsContext
         await ListContext.LoadData();
     }
 
-    public List<NoteListListItem> SelectedItems()
+    public List<NoteListListItem> SelectedListItems()
     {
         return ListContext.ListSelection.SelectedItems?.Where(x => x is NoteListListItem).Cast<NoteListListItem>()
             .ToList() ?? new List<NoteListListItem>();

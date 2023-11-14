@@ -3,7 +3,7 @@ using System.Globalization;
 
 namespace PointlessWaymarks.LlamaAspects;
 
-public class StopAndWarnIfNoSelectedItemsAskIfOverMaxAttribute : OverrideMethodAspect
+public class StopAndWarnIfNoSelectedListItemsAskIfOverMaxAttribute : OverrideMethodAspect
 {
     public int MaxSelectedItems { get; set; }
     public string ActionVerb { get; set; } = "act on";
@@ -12,13 +12,13 @@ public class StopAndWarnIfNoSelectedItemsAskIfOverMaxAttribute : OverrideMethodA
     {
         meta.InsertStatement("await ThreadSwitcher.ResumeBackgroundAsync();");
 
-        if (!meta.This.SelectedItems().Any())
+        if (!meta.This.SelectedListItems().Any())
         {
             meta.This.StatusContext.ToastError("Nothing Selected?");
             meta.Return();
         }
 
-        if (meta.This.SelectedItems().Count >= this.MaxSelectedItems)
+        if (meta.This.SelectedListItems().Count >= this.MaxSelectedItems)
         {
             meta.This.StatusContext.ToastError($"Please select less than {this.MaxSelectedItems} Items");
             meta.Return();
@@ -31,7 +31,7 @@ public class StopAndWarnIfNoSelectedItemsAskIfOverMaxAttribute : OverrideMethodA
     {
         meta.InsertStatement("await ThreadSwitcher.ResumeBackgroundAsync();");
 
-        if (!meta.This.SelectedItems().Any())
+        if (!meta.This.SelectedListItems().Any())
         {
             meta.This.StatusContext.ToastError("Nothing Selected?");
             meta.Return();
@@ -39,7 +39,7 @@ public class StopAndWarnIfNoSelectedItemsAskIfOverMaxAttribute : OverrideMethodA
 
         List<string> titleList = new();
 
-        dynamic frozenSelected = meta.This.SelectedItems();
+        dynamic frozenSelected = meta.This.SelectedListItems();
 
         for (var i = 0; i < frozenSelected.Count; i++)
         {

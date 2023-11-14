@@ -11,8 +11,8 @@ using PointlessWaymarks.GeoToolsGui.Messages;
 using PointlessWaymarks.GeoToolsGui.Settings;
 using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.SpatialTools;
+using PointlessWaymarks.WpfCommon;
 using PointlessWaymarks.WpfCommon.Status;
-using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 using PointlessWaymarks.WpfCommon.Utility;
 using PointlessWaymarks.WpfCommon.WpfHtml;
 

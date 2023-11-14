@@ -1,7 +1,7 @@
 ﻿using System.IO;
 using Ookii.Dialogs.Wpf;
+using PointlessWaymarks.WpfCommon;
 using PointlessWaymarks.WpfCommon.Status;
-using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 
 namespace PointlessWaymarks.GeoToolsGui.Controls;
 

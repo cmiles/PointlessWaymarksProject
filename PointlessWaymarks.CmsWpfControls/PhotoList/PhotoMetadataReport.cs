@@ -6,8 +6,8 @@ using MetadataExtractor;
 using MetadataExtractor.Formats.Xmp;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CommonTools;
+using PointlessWaymarks.WpfCommon;
 using PointlessWaymarks.WpfCommon.Status;
-using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 
 namespace PointlessWaymarks.CmsWpfControls.PhotoList;
 

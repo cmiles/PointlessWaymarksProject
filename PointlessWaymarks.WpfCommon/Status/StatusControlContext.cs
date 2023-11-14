@@ -15,7 +15,7 @@ public partial class StatusControlContext
     public StatusControlContext()
     {
         ContextDispatcher = Application.Current?.Dispatcher ??
-                            ThreadSwitcher.ThreadSwitcher.PinnedDispatcher ?? Dispatcher.CurrentDispatcher;
+                            ThreadSwitcher.PinnedDispatcher ?? Dispatcher.CurrentDispatcher;
 
         Toast = new ToastSource(ContextDispatcher);
         StatusLog = new ObservableCollection<string>();
@@ -398,7 +398,7 @@ public partial class StatusControlContext
 
     public async Task<string> ShowMessage(string title, string? body, List<StatusControlMessageButton>? buttons)
     {
-        await ThreadSwitcher.ThreadSwitcher.ResumeForegroundAsync();
+        await ThreadSwitcher.ResumeForegroundAsync();
 
         if (buttons == null || !buttons.Any())
             buttons = new List<StatusControlMessageButton> { new() { IsDefault = true, MessageText = "Ok" } };
@@ -418,7 +418,7 @@ public partial class StatusControlContext
             .ForContext("MessageBoxButtonList", buttons).ForContext("StatusControlContextId", StatusControlContextId)
             .Information("StatusControlContext Showing Message Box");
 
-        await ThreadSwitcher.ThreadSwitcher.ResumeBackgroundAsync();
+        await ThreadSwitcher.ResumeBackgroundAsync();
 
         CurrentFullScreenCancellationSource = new CancellationTokenSource();
 
@@ -435,7 +435,7 @@ public partial class StatusControlContext
             CurrentFullScreenCancellationSource.Dispose();
         }
 
-        await ThreadSwitcher.ThreadSwitcher.ResumeForegroundAsync();
+        await ThreadSwitcher.ResumeForegroundAsync();
 
         var toReturn = ShowMessageResponse ?? string.Empty;
 
@@ -466,7 +466,7 @@ public partial class StatusControlContext
 
     public async Task<(bool, string)> ShowStringEntry(string title, string body, string initialUserString)
     {
-        await ThreadSwitcher.ThreadSwitcher.ResumeForegroundAsync();
+        await ThreadSwitcher.ResumeForegroundAsync();
 
         StringEntryTitle = title;
         StringEntryMessage = body;
@@ -494,7 +494,7 @@ public partial class StatusControlContext
             CurrentFullScreenCancellationSource.Dispose();
         }
 
-        await ThreadSwitcher.ThreadSwitcher.ResumeForegroundAsync();
+        await ThreadSwitcher.ResumeForegroundAsync();
 
         var toReturn = StringEntryUserText;
         var approved = StringEntryApproved;

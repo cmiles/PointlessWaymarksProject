@@ -4,8 +4,8 @@ using Omu.ValueInjecter;
 using Ookii.Dialogs.Wpf;
 using PointlessWaymarks.GeoToolsGui.Models;
 using PointlessWaymarks.LlamaAspects;
+using PointlessWaymarks.WpfCommon;
 using PointlessWaymarks.WpfCommon.Status;
-using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 
 namespace PointlessWaymarks.GeoToolsGui.Controls;
 

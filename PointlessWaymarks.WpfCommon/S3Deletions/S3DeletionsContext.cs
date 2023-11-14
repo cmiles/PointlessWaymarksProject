@@ -108,7 +108,7 @@ public partial class S3DeletionsContext
 
         if (Items == null) return;
 
-        await ThreadSwitcher.ThreadSwitcher.ResumeForegroundAsync();
+        await ThreadSwitcher.ResumeForegroundAsync();
 
         toRemoveFromList.ForEach(x => Items.Remove(x));
     }
@@ -129,7 +129,7 @@ public partial class S3DeletionsContext
 
     public async Task ItemsToClipboard(List<S3DeletionsItem>? items)
     {
-        await ThreadSwitcher.ThreadSwitcher.ResumeBackgroundAsync();
+        await ThreadSwitcher.ResumeBackgroundAsync();
 
         if (items == null || !items.Any())
         {
@@ -141,14 +141,14 @@ public partial class S3DeletionsContext
             items.Select(x => $"{x.BucketName}\t{x.AmazonObjectKey}\tHas Error: {x.HasError}\t Error: {x.ErrorMessage}")
                 .ToList());
 
-        await ThreadSwitcher.ThreadSwitcher.ResumeForegroundAsync();
+        await ThreadSwitcher.ResumeForegroundAsync();
 
         Clipboard.SetText(itemsForClipboard);
     }
 
     public async Task ItemsToExcel(List<S3DeletionsItem>? items)
     {
-        await ThreadSwitcher.ThreadSwitcher.ResumeBackgroundAsync();
+        await ThreadSwitcher.ResumeBackgroundAsync();
 
         if (items == null || !items.Any())
         {
@@ -165,7 +165,7 @@ public partial class S3DeletionsContext
 
     public async Task LoadData(List<S3DeletionsItem> toDelete)
     {
-        await ThreadSwitcher.ThreadSwitcher.ResumeForegroundAsync();
+        await ThreadSwitcher.ResumeForegroundAsync();
 
         Items = new ObservableCollection<S3DeletionsItem>(toDelete);
     }

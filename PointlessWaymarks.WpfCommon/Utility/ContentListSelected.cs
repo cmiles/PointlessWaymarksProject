@@ -74,7 +74,7 @@ public class ContentListSelected<T> : INotifyPropertyChanged where T : ISelected
 
     private async Task LoadData()
     {
-        await ThreadSwitcher.ThreadSwitcher.ResumeForegroundAsync();
+        await ThreadSwitcher.ResumeForegroundAsync();
         ListBoxAppCommandBindings = new ObservableCollection<CommandBinding>(
             new List<CommandBinding> {new(ApplicationCommands.Copy, ExecuteListBoxItemCopy)});
     }

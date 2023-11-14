@@ -57,7 +57,7 @@ public partial class ProgramUpdateMessageContext
 
     public async Task Update()
     {
-        await ThreadSwitcher.ThreadSwitcher.ResumeForegroundAsync();
+        await ThreadSwitcher.ResumeForegroundAsync();
 
         Debug.Assert(SetupFile != null, nameof(SetupFile) + " != null");
         Process.Start(SetupFile.FullName);

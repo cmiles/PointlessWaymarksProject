@@ -1,7 +1,7 @@
-﻿using System.Windows;
+using System.Windows;
 using System.Windows.Threading;
 
-namespace PointlessWaymarks.WpfCommon.ThreadSwitcher;
+namespace PointlessWaymarks.WpfCommon;
 
 public class ThreadSwitcher
 {

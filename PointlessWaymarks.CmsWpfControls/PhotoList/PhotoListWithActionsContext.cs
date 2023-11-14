@@ -18,8 +18,8 @@ using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.FeatureIntersectionTags;
 using PointlessWaymarks.FeatureIntersectionTags.Models;
 using PointlessWaymarks.LlamaAspects;
+using PointlessWaymarks.WpfCommon;
 using PointlessWaymarks.WpfCommon.Status;
-using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 using PointlessWaymarks.WpfCommon.Utility;
 using Serilog;
 
@@ -91,13 +91,13 @@ public partial class PhotoListWithActionsContext
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        if (!SelectedItems().Any())
+        if (!SelectedListItems().Any())
         {
             StatusContext.ToastError("Nothing Selected?");
             return;
         }
 
-        var frozenSelect = SelectedItems().ToList();
+        var frozenSelect = SelectedListItems().ToList();
 
         if (string.IsNullOrWhiteSpace(UserSettingsSingleton.CurrentSettings().FeatureIntersectionTagSettingsFile))
         {
@@ -240,10 +240,10 @@ public partial class PhotoListWithActionsContext
     }
 
     [BlockingCommand]
-    [StopAndWarnIfNoSelectedItems]
+    [StopAndWarnIfNoSelectedListItems]
     private async Task DailyPhotoLinkCodesToClipboardForSelected()
     {
-        var finalString = SelectedItems().Aggregate(string.Empty,
+        var finalString = SelectedListItems().Aggregate(string.Empty,
             (current, loopSelected) =>
                 current + BracketCodeDailyPhotoPage.Create(loopSelected.DbEntry) + Environment.NewLine);
 
@@ -255,10 +255,10 @@ public partial class PhotoListWithActionsContext
     }
 
     [BlockingCommand]
-    [StopAndWarnIfNotOneSelectedItems]
+    [StopAndWarnIfNotOneSelectedListItems]
     private async Task EmailHtmlToClipboard()
     {
-        var frozenSelected = SelectedItems().First();
+        var frozenSelected = SelectedListItems().First();
 
         var emailHtml = await Email.ToHtmlEmail(frozenSelected.DbEntry, StatusContext.ProgressTracker());
 
@@ -276,13 +276,13 @@ public partial class PhotoListWithActionsContext
     }
 
     [BlockingCommand]
-    [StopAndWarnIfNoSelectedItems]
+    [StopAndWarnIfNoSelectedListItems]
     private async Task ForcedResize(CancellationToken cancellationToken)
     {
-        var totalCount = SelectedItems().Count;
+        var totalCount = SelectedListItems().Count;
         var currentLoop = 0;
 
-        foreach (var loopSelected in SelectedItems())
+        foreach (var loopSelected in SelectedListItems())
         {
             cancellationToken.ThrowIfCancellationRequested();
 
@@ -311,10 +311,10 @@ public partial class PhotoListWithActionsContext
     }
 
     [BlockingCommand]
-    [StopAndWarnIfNoSelectedItems]
+    [StopAndWarnIfNoSelectedListItems]
     private async Task PhotoLinkCodesToClipboardForSelected()
     {
-        var finalString = SelectedItems().Aggregate(string.Empty,
+        var finalString = SelectedListItems().Aggregate(string.Empty,
             (current, loopSelected) =>
                 current + BracketCodePhotoLinks.Create(loopSelected.DbEntry) + Environment.NewLine);
 
@@ -326,19 +326,19 @@ public partial class PhotoListWithActionsContext
     }
 
     [BlockingCommand]
-    [StopAndWarnIfNoSelectedItemsAskIfOverMax(MaxSelectedItems = 10, ActionVerb = "open")]
+    [StopAndWarnIfNoSelectedListItemsAskIfOverMax(MaxSelectedItems = 10, ActionVerb = "open")]
     private async Task PhotoToPointContentEditor(CancellationToken cancellationToken)
     {
         var count = 1;
 
         var frozenNow = DateTime.Now;
 
-        foreach (var loopPhoto in SelectedItems())
+        foreach (var loopPhoto in SelectedListItems())
         {
             cancellationToken.ThrowIfCancellationRequested();
 
             StatusContext.Progress(
-                $"Opening Point Content Editor for '{loopPhoto.DbEntry.Title}' - {count++} of {SelectedItems().Count}");
+                $"Opening Point Content Editor for '{loopPhoto.DbEntry.Title}' - {count++} of {SelectedListItems().Count}");
 
             var newPartialPoint = PointContent.CreateInstance();
 
@@ -368,17 +368,17 @@ public partial class PhotoListWithActionsContext
     }
 
     [BlockingCommand]
-    [StopAndWarnIfNoSelectedItems]
+    [StopAndWarnIfNoSelectedListItems]
     private async Task RegenerateHtmlAndReprocessPhotoForSelected(CancellationToken cancellationToken)
     {
         var loopCount = 0;
-        var totalCount = SelectedItems().Count;
+        var totalCount = SelectedListItems().Count;
 
         var db = await Db.Context();
 
         var errorList = new List<string>();
 
-        foreach (var loopSelected in SelectedItems())
+        foreach (var loopSelected in SelectedListItems())
         {
             if (cancellationToken.IsCancellationRequested) break;
 
@@ -532,10 +532,10 @@ public partial class PhotoListWithActionsContext
     }
 
     [BlockingCommand]
-    [StopAndWarnIfNotOneSelectedItems]
+    [StopAndWarnIfNotOneSelectedListItems]
     private async Task ReportPhotoMetadata()
     {
-        var singleSelected = SelectedItems().First();
+        var singleSelected = SelectedListItems().First();
 
         if (string.IsNullOrWhiteSpace(singleSelected.DbEntry.OriginalFileName))
         {
@@ -644,10 +644,10 @@ public partial class PhotoListWithActionsContext
     }
 
     [BlockingCommand]
-    [StopAndWarnIfNoSelectedItems]
+    [StopAndWarnIfNoSelectedListItems]
     private async Task RescanMetadataAndFillBlanks(CancellationToken cancellationToken)
     {
-        var frozenSelected = SelectedItems().ToList();
+        var frozenSelected = SelectedListItems().ToList();
 
         var errorMessages = new List<string>();
         var updates = new List<(string updateMessage, PhotoContent toUpdate)>();
@@ -802,17 +802,17 @@ public partial class PhotoListWithActionsContext
         await newWindow.PositionWindowAndShowOnUiThread();
     }
 
-    public List<PhotoListListItem> SelectedItems()
+    public List<PhotoListListItem> SelectedListItems()
     {
         return ListContext.ListSelection.SelectedItems?.Where(x => x is PhotoListListItem).Cast<PhotoListListItem>()
             .ToList() ?? new List<PhotoListListItem>();
     }
 
     [BlockingCommand]
-    [StopAndWarnIfNoSelectedItemsAskIfOverMax(MaxSelectedItems = 10)]
+    [StopAndWarnIfNoSelectedListItemsAskIfOverMax(MaxSelectedItems = 10)]
     public async Task ViewSelectedFiles(CancellationToken cancelToken)
     {
-        var currentSelected = SelectedItems();
+        var currentSelected = SelectedListItems();
 
         foreach (var loopSelected in currentSelected)
         {

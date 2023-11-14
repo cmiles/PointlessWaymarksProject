@@ -3,8 +3,8 @@ using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.ContentHtml.VideoHtml;
 using PointlessWaymarks.CmsWpfControls.ContentList;
 using PointlessWaymarks.LlamaAspects;
+using PointlessWaymarks.WpfCommon;
 using PointlessWaymarks.WpfCommon.Status;
-using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 using PointlessWaymarks.WpfCommon.Utility;
 
 namespace PointlessWaymarks.CmsWpfControls.VideoList;
@@ -73,10 +73,10 @@ public partial class VideoListWithActionsContext
     }
 
     [BlockingCommand]
-    [StopAndWarnIfNotOneSelectedItems]
+    [StopAndWarnIfNotOneSelectedListItems]
     private async Task EmailHtmlToClipboard()
     {
-        var frozenSelected = SelectedItems().First();
+        var frozenSelected = SelectedListItems().First();
 
         var emailHtml = await Email.ToHtmlEmail(frozenSelected.DbEntry, StatusContext.ProgressTracker());
 
@@ -95,19 +95,19 @@ public partial class VideoListWithActionsContext
         await ListContext.LoadData();
     }
 
-    public List<VideoListListItem> SelectedItems()
+    public List<VideoListListItem> SelectedListItems()
     {
         return ListContext.ListSelection.SelectedItems?.Where(x => x is VideoListListItem).Cast<VideoListListItem>()
             .ToList() ?? new List<VideoListListItem>();
     }
 
     [BlockingCommand]
-    [StopAndWarnIfNoSelectedItems]
+    [StopAndWarnIfNoSelectedListItems]
     private async Task VideoPageLinkCodesToClipboardForSelected()
     {
         var finalString = string.Empty;
 
-        foreach (var loopSelected in SelectedItems())
+        foreach (var loopSelected in SelectedListItems())
             finalString += @$"{BracketCodeVideoLinks.Create(loopSelected.DbEntry)}{Environment.NewLine}";
 
         await ThreadSwitcher.ResumeForegroundAsync();
@@ -118,14 +118,14 @@ public partial class VideoListWithActionsContext
     }
 
     [BlockingCommand]
-    [StopAndWarnIfNoSelectedItems]
+    [StopAndWarnIfNoSelectedListItems]
     private async Task VideoCoverImageLinkCodesToClipboardForSelected()
     {
         var finalString = string.Empty;
 
         bool showNoImageWarning = false;
 
-        foreach (var loopSelected in SelectedItems())
+        foreach (var loopSelected in SelectedListItems())
         {
             if (loopSelected.DbEntry.MainPicture == null)
             {
@@ -153,10 +153,10 @@ public partial class VideoListWithActionsContext
     }
 
     [BlockingCommand]
-    [StopAndWarnIfNoSelectedItemsAskIfOverMax(MaxSelectedItems = 10)]
+    [StopAndWarnIfNoSelectedListItemsAskIfOverMax(MaxSelectedItems = 10)]
     public async Task ViewSelectedVideos(CancellationToken cancelToken)
     {
-        var currentSelected = SelectedItems();
+        var currentSelected = SelectedListItems();
 
         foreach (var loopSelected in currentSelected)
         {

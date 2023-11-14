@@ -124,7 +124,7 @@ public static class WindowInitialPositionHelpers
     /// <returns></returns>
     public static async Task PositionWindowAndShowOnUiThread(this Window toPosition)
     {
-        await ThreadSwitcher.ThreadSwitcher.ResumeForegroundAsync();
+        await ThreadSwitcher.ResumeForegroundAsync();
 
         toPosition.PositionWindowAndShow();
     }

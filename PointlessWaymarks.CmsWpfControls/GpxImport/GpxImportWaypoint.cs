@@ -1,7 +1,7 @@
 ﻿using NetTopologySuite.IO;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.LlamaAspects;
-using PointlessWaymarks.WpfCommon.ThreadSwitcher;
+using PointlessWaymarks.WpfCommon;
 
 namespace PointlessWaymarks.CmsWpfControls.GpxImport;
 

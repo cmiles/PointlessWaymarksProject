@@ -41,7 +41,7 @@ public class WebViewHtmlStringBindingBehavior : Behavior<WebView2>
     {
         if (d is WebViewHtmlStringBindingBehavior bindingBehavior)
         {
-            await ThreadSwitcher.ThreadSwitcher.ResumeForegroundAsync();
+            await ThreadSwitcher.ResumeForegroundAsync();
 
             if (bindingBehavior.AssociatedObject.IsInitialized &&
                 bindingBehavior.AssociatedObject.CoreWebView2 != null)
@@ -112,7 +112,7 @@ public class WebViewHtmlStringBindingBehavior : Behavior<WebView2>
                 var webViewEnvironment = await CoreWebView2Environment.CreateAsync(userDataFolder: Path.Combine(
                     FileLocationTools.TempStorageHtmlDirectory().FullName));
 
-                await ThreadSwitcher.ThreadSwitcher.ResumeForegroundAsync();
+                await ThreadSwitcher.ResumeForegroundAsync();
                 await AssociatedObject.EnsureCoreWebView2Async(webViewEnvironment);
             }
             catch (Exception exception)
@@ -127,7 +127,7 @@ public class WebViewHtmlStringBindingBehavior : Behavior<WebView2>
     {
         if (!string.IsNullOrWhiteSpace(CachedHtml))
         {
-            await ThreadSwitcher.ThreadSwitcher.ResumeForegroundAsync();
+            await ThreadSwitcher.ResumeForegroundAsync();
             AssociatedObject.NavigateToString(CachedHtml);
         }
     }

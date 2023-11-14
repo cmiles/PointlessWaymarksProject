@@ -7,8 +7,8 @@ using PointlessWaymarks.CmsWpfControls.ContentList;
 using PointlessWaymarks.CmsWpfControls.HtmlViewer;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.LlamaAspects;
+using PointlessWaymarks.WpfCommon;
 using PointlessWaymarks.WpfCommon.Status;
-using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 using PointlessWaymarks.WpfCommon.Utility;
 
 namespace PointlessWaymarks.CmsWpfControls.LinkList;
@@ -79,7 +79,7 @@ public partial class LinkListWithActionsContext
             return;
         }
 
-        var selected = SelectedItems().ToList();
+        var selected = SelectedListItems().ToList();
 
         if (!selected.Any())
         {
@@ -145,10 +145,10 @@ public partial class LinkListWithActionsContext
     }
 
     [BlockingCommand]
-    [StopAndWarnIfNoSelectedItems]
+    [StopAndWarnIfNoSelectedListItems]
     private async Task MdLinkCodesToClipboardForSelected()
     {
-        var finalString = string.Join(", ", SelectedItems().Select(x => $"[{x.DbEntry.Title}]({x.DbEntry.Url})"));
+        var finalString = string.Join(", ", SelectedListItems().Select(x => $"[{x.DbEntry.Title}]({x.DbEntry.Url})"));
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
@@ -165,7 +165,7 @@ public partial class LinkListWithActionsContext
         await ListContext.LoadData();
     }
 
-    public List<LinkListListItem> SelectedItems()
+    public List<LinkListListItem> SelectedListItems()
     {
         return ListContext.ListSelection.SelectedItems?.Where(x => x is LinkListListItem).Cast<LinkListListItem>()
             .ToList() ?? new List<LinkListListItem>();

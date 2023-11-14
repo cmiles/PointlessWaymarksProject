@@ -11,8 +11,8 @@ using PointlessWaymarks.CmsWpfControls.ContentList;
 using PointlessWaymarks.FeatureIntersectionTags;
 using PointlessWaymarks.FeatureIntersectionTags.Models;
 using PointlessWaymarks.LlamaAspects;
+using PointlessWaymarks.WpfCommon;
 using PointlessWaymarks.WpfCommon.Status;
-using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 using PointlessWaymarks.WpfCommon.Utility;
 using Serilog;
 
@@ -66,13 +66,13 @@ public partial class GeoJsonListWithActionsContext
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        if (!SelectedItems().Any())
+        if (!SelectedListItems().Any())
         {
             StatusContext.ToastError("Nothing Selected?");
             return;
         }
 
-        var frozenSelect = SelectedItems();
+        var frozenSelect = SelectedListItems();
 
         if (string.IsNullOrWhiteSpace(UserSettingsSingleton.CurrentSettings().FeatureIntersectionTagSettingsFile))
         {
@@ -201,10 +201,10 @@ public partial class GeoJsonListWithActionsContext
     }
 
     [BlockingCommand]
-    [StopAndWarnIfNoSelectedItems]
+    [StopAndWarnIfNoSelectedListItems]
     private async Task LinkBracketCodesToClipboardForSelected()
     {
-        var finalString = SelectedItems().Aggregate(string.Empty,
+        var finalString = SelectedListItems().Aggregate(string.Empty,
             (current, loopSelected) =>
                 current + @$"{BracketCodeGeoJsonLinks.Create(loopSelected.DbEntry)}{Environment.NewLine}");
 
@@ -223,7 +223,7 @@ public partial class GeoJsonListWithActionsContext
         await ListContext.LoadData();
     }
 
-    public List<GeoJsonListListItem> SelectedItems()
+    public List<GeoJsonListListItem> SelectedListItems()
     {
         return ListContext.ListSelection.SelectedItems.Where(x => x is GeoJsonListListItem)
             .Cast<GeoJsonListListItem>().ToList();

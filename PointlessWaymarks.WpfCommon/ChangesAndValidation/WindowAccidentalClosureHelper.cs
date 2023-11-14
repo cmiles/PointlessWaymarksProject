@@ -34,13 +34,13 @@ public class WindowAccidentalClosureHelper
 
     private async Task WindowClosing()
     {
-        await ThreadSwitcher.ThreadSwitcher.ResumeBackgroundAsync();
+        await ThreadSwitcher.ResumeBackgroundAsync();
 
         if (!_hasChangesToCheck.HasChanges)
         {
             _closeConfirmed = true;
             CloseAction?.Invoke(_toClose);
-            await ThreadSwitcher.ThreadSwitcher.ResumeForegroundAsync();
+            await ThreadSwitcher.ResumeForegroundAsync();
             _toClose.Close();
         }
 
@@ -50,7 +50,7 @@ public class WindowAccidentalClosureHelper
         {
             _closeConfirmed = true;
             CloseAction?.Invoke(_toClose);
-            await ThreadSwitcher.ThreadSwitcher.ResumeForegroundAsync();
+            await ThreadSwitcher.ResumeForegroundAsync();
             _toClose.Close();
         }
     }

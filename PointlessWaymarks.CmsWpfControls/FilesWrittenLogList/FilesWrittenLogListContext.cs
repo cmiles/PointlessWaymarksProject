@@ -16,10 +16,10 @@ using PointlessWaymarks.CmsWpfControls.Utility.Excel;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.CommonTools.S3;
 using PointlessWaymarks.LlamaAspects;
+using PointlessWaymarks.WpfCommon;
 using PointlessWaymarks.WpfCommon.S3Deletions;
 using PointlessWaymarks.WpfCommon.S3Uploads;
 using PointlessWaymarks.WpfCommon.Status;
-using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 using PointlessWaymarks.WpfCommon.Utility;
 using Serilog;
 using TinyIpc.Messaging;
@@ -100,72 +100,37 @@ public partial class FilesWrittenLogListContext
     }
 
     [BlockingCommand]
+    [StopAndWarnIfNoItems]
     public async Task AllScriptStringsToPowerShellScript()
     {
-        await ThreadSwitcher.ResumeBackgroundAsync();
-
-        if (!Items.Any())
-        {
-            StatusContext.ToastError("No Items Selected?");
-            return;
-        }
-
         await FileItemsToScriptFile(Items.ToList()).ConfigureAwait(true);
     }
 
     [BlockingCommand]
+    [StopAndWarnIfNoItems]
     public async Task AllWrittenFilesToClipboard()
     {
-        await ThreadSwitcher.ResumeBackgroundAsync();
-
-        if (!Items.Any())
-        {
-            StatusContext.ToastError("No Items?");
-            return;
-        }
-
         await FilesToClipboard(Items.ToList()).ConfigureAwait(true);
     }
 
     [BlockingCommand]
+    [StopAndWarnIfNoItems]
     public async Task AllWrittenFilesToRunningS3Uploader()
     {
-        await ThreadSwitcher.ResumeBackgroundAsync();
-
-        if (!Items.Any())
-        {
-            StatusContext.ToastError("No Items?");
-            return;
-        }
-
         await FileItemsToS3Uploader(Items.ToList(), true);
     }
 
     [BlockingCommand]
+    [StopAndWarnIfNoItems]
     public async Task AllWrittenFilesToS3Uploader()
     {
-        await ThreadSwitcher.ResumeBackgroundAsync();
-
-        if (!Items.Any())
-        {
-            StatusContext.ToastError("No Items?");
-            return;
-        }
-
         await FileItemsToS3Uploader(Items.ToList(), false);
     }
 
     [BlockingCommand]
+    [StopAndWarnIfNoItems]
     public async Task AllWrittenFilesToS3UploaderJsonFile()
     {
-        await ThreadSwitcher.ResumeBackgroundAsync();
-
-        if (!Items.Any())
-        {
-            StatusContext.ToastError("No Items?");
-            return;
-        }
-
         await FileItemsToS3UploaderJsonFile(Items.ToList());
     }
 
@@ -232,7 +197,8 @@ public partial class FilesWrittenLogListContext
         await ThreadSwitcher.ResumeForegroundAsync();
 
         var newUploadWindow =
-            new S3UploadsWindow(S3UploadHelpers.AmazonInformationFromSettings(), toTransfer, UserSettingsSingleton.CurrentSettings().SiteName, autoStartUpload);
+            new S3UploadsWindow(S3UploadHelpers.AmazonInformationFromSettings(), toTransfer,
+                UserSettingsSingleton.CurrentSettings().SiteName, autoStartUpload);
         newUploadWindow.PositionWindowAndShow();
     }
 
@@ -525,31 +491,22 @@ public partial class FilesWrittenLogListContext
     }
 
     [BlockingCommand]
+    [StopAndWarnIfNoSelectedListItems]
     private async Task SelectedFilesToExcel()
     {
-        await ThreadSwitcher.ResumeBackgroundAsync();
+        FilesToExcel(SelectedListItems());
+    }
 
-        if (!Items.Any())
-        {
-            StatusContext.ToastError("No Items?");
-            return;
-        }
-
-        FilesToExcel(SelectedItems);
+    public List<FilesWrittenLogListListItem> SelectedListItems()
+    {
+        return SelectedItems;
     }
 
     [BlockingCommand]
+    [StopAndWarnIfNoSelectedListItems]
     public async Task SelectedScriptStringsToClipboard()
     {
-        await ThreadSwitcher.ResumeBackgroundAsync();
-
-        if (!SelectedItems.Any())
-        {
-            StatusContext.ToastError("No Items Selected?");
-            return;
-        }
-
-        var scriptString = FileItemsToScriptString(SelectedItems);
+        var scriptString = FileItemsToScriptString(SelectedListItems());
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
@@ -557,73 +514,38 @@ public partial class FilesWrittenLogListContext
     }
 
     [BlockingCommand]
+    [StopAndWarnIfNoSelectedListItems]
     public async Task SelectedScriptStringsToPowerShellScript()
     {
-        await ThreadSwitcher.ResumeBackgroundAsync();
-
-        if (!SelectedItems.Any())
-        {
-            StatusContext.ToastError("No Items Selected?");
-            return;
-        }
-
-        await FileItemsToScriptFile(SelectedItems).ConfigureAwait(true);
+        await FileItemsToScriptFile(SelectedListItems()).ConfigureAwait(true);
     }
 
     [BlockingCommand]
+    [StopAndWarnIfNoSelectedListItems]
     public async Task SelectedWrittenFilesToClipboard()
     {
-        await ThreadSwitcher.ResumeBackgroundAsync();
-
-        if (!Items.Any())
-        {
-            StatusContext.ToastError("No Items?");
-            return;
-        }
-
-        await FilesToClipboard(SelectedItems).ConfigureAwait(true);
+        await FilesToClipboard(SelectedListItems()).ConfigureAwait(true);
     }
 
     [BlockingCommand]
+    [StopAndWarnIfNoSelectedListItems]
     public async Task SelectedWrittenFilesToRunningS3Uploader()
     {
-        await ThreadSwitcher.ResumeBackgroundAsync();
-
-        if (!SelectedItems.Any())
-        {
-            StatusContext.ToastError("No Items?");
-            return;
-        }
-
-        await FileItemsToS3Uploader(SelectedItems, true);
+        await FileItemsToS3Uploader(SelectedListItems(), true);
     }
 
     [BlockingCommand]
+    [StopAndWarnIfNoSelectedListItems]
     public async Task SelectedWrittenFilesToS3Uploader()
     {
-        await ThreadSwitcher.ResumeBackgroundAsync();
-
-        if (!SelectedItems.Any())
-        {
-            StatusContext.ToastError("No Items?");
-            return;
-        }
-
-        await FileItemsToS3Uploader(SelectedItems, false);
+        await FileItemsToS3Uploader(SelectedListItems(), false);
     }
 
     [NonBlockingCommand]
+    [StopAndWarnIfNoSelectedListItems]
     public async Task SelectedWrittenFilesToS3UploaderJsonFile()
     {
-        await ThreadSwitcher.ResumeBackgroundAsync();
-
-        if (!SelectedItems.Any())
-        {
-            StatusContext.ToastError("No Items?");
-            return;
-        }
-
-        await FileItemsToS3UploaderJsonFile(SelectedItems);
+        await FileItemsToS3UploaderJsonFile(SelectedListItems());
     }
 
     [BlockingCommand]
@@ -702,7 +624,8 @@ public partial class FilesWrittenLogListContext
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
-        var newUploadWindow = new S3UploadsWindow(S3UploadHelpers.AmazonInformationFromSettings(), toUpload, UserSettingsSingleton.CurrentSettings().SiteName, false);
+        var newUploadWindow = new S3UploadsWindow(S3UploadHelpers.AmazonInformationFromSettings(), toUpload,
+            UserSettingsSingleton.CurrentSettings().SiteName, false);
         newUploadWindow.PositionWindowAndShow();
     }
 

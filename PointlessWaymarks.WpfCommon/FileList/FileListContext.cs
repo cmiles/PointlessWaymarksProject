@@ -7,7 +7,7 @@ using Ookii.Dialogs.Wpf;
 using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.Utility;
-using static PointlessWaymarks.WpfCommon.ThreadSwitcher.ThreadSwitcher;
+using static PointlessWaymarks.WpfCommon.ThreadSwitcher;
 
 namespace PointlessWaymarks.WpfCommon.FileList;
 

@@ -1,6 +1,6 @@
 ﻿using System.Runtime.CompilerServices;
 
-namespace PointlessWaymarks.WpfCommon.ThreadSwitcher;
+namespace PointlessWaymarks.WpfCommon;
 
 public struct ThreadPoolThreadSwitcher : INotifyCompletion
 {

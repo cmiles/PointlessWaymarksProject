@@ -16,8 +16,8 @@ using PointlessWaymarks.FeatureIntersectionTags;
 using PointlessWaymarks.FeatureIntersectionTags.Models;
 using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.SpatialTools;
+using PointlessWaymarks.WpfCommon;
 using PointlessWaymarks.WpfCommon.Status;
-using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 using PointlessWaymarks.WpfCommon.Utility;
 using Serilog;
 
@@ -81,10 +81,10 @@ public partial class LineListWithActionsContext
     public WindowIconStatus? WindowStatus { get; set; }
 
     [BlockingCommand]
-    [StopAndWarnIfNoSelectedItems]
+    [StopAndWarnIfNoSelectedListItems]
     private async Task AddIntersectionTagsToSelected(CancellationToken cancellationToken)
     {
-        var frozenSelect = SelectedItems();
+        var frozenSelect = SelectedListItems();
 
         if (string.IsNullOrWhiteSpace(UserSettingsSingleton.CurrentSettings().FeatureIntersectionTagSettingsFile))
         {
@@ -213,10 +213,10 @@ public partial class LineListWithActionsContext
     }
 
     [BlockingCommand]
-    [StopAndWarnIfNoSelectedItems]
+    [StopAndWarnIfNoSelectedListItems]
     private async Task ElevationChartBracketCodesToClipboardForSelected()
     {
-        var finalString = SelectedItems().Aggregate(string.Empty,
+        var finalString = SelectedListItems().Aggregate(string.Empty,
             (current, loopSelected) =>
                 current + @$"{BracketCodeLineElevationCharts.Create(loopSelected.DbEntry)}{Environment.NewLine}");
 
@@ -228,10 +228,10 @@ public partial class LineListWithActionsContext
     }
 
     [BlockingCommand]
-    [StopAndWarnIfNoSelectedItemsAskIfOverMax(MaxSelectedItems = 3, ActionVerb = "copy to clipboard")]
+    [StopAndWarnIfNoSelectedListItemsAskIfOverMax(MaxSelectedItems = 3, ActionVerb = "copy to clipboard")]
     private async Task GeoJsonToClipboardForSelected()
     {
-        var frozenSelected = SelectedItems();
+        var frozenSelected = SelectedListItems();
 
         var featureList = new List<IFeature>();
         var warningList = new List<string>();
@@ -266,10 +266,10 @@ public partial class LineListWithActionsContext
     }
 
     [BlockingCommand]
-    [StopAndWarnIfNoSelectedItems]
+    [StopAndWarnIfNoSelectedListItems]
     private async Task LinkBracketCodesToClipboardForSelected()
     {
-        var finalString = SelectedItems().Aggregate(string.Empty,
+        var finalString = SelectedListItems().Aggregate(string.Empty,
             (current, loopSelected) =>
                 current + @$"{BracketCodeLineLinks.Create(loopSelected.DbEntry)}{Environment.NewLine}");
 
@@ -288,17 +288,17 @@ public partial class LineListWithActionsContext
         await ListContext.LoadData();
     }
 
-    public List<LineListListItem> SelectedItems()
+    public List<LineListListItem> SelectedListItems()
     {
         return ListContext.ListSelection.SelectedItems?.Where(x => x is LineListListItem).Cast<LineListListItem>()
             .ToList() ?? new List<LineListListItem>();
     }
 
     [BlockingCommand]
-    [StopAndWarnIfNoSelectedItems]
+    [StopAndWarnIfNoSelectedListItems]
     private async Task SelectedToGpxFile()
     {
-        var frozenSelected = SelectedItems();
+        var frozenSelected = SelectedListItems();
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
@@ -330,10 +330,10 @@ public partial class LineListWithActionsContext
     }
 
     [BlockingCommand]
-    [StopAndWarnIfNoSelectedItems]
+    [StopAndWarnIfNoSelectedListItems]
     private async Task StatsBracketCodesToClipboardForSelected()
     {
-        var finalString = SelectedItems().Aggregate(string.Empty,
+        var finalString = SelectedListItems().Aggregate(string.Empty,
             (current, loopSelected) =>
                 current + @$"{BracketCodeLineStats.Create(loopSelected.DbEntry)}{Environment.NewLine}");
 

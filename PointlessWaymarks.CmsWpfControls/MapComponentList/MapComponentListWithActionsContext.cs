@@ -1,7 +1,7 @@
-﻿using PointlessWaymarks.CmsWpfControls.ContentList;
+using PointlessWaymarks.CmsWpfControls.ContentList;
 using PointlessWaymarks.LlamaAspects;
+using PointlessWaymarks.WpfCommon;
 using PointlessWaymarks.WpfCommon.Status;
-using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 using PointlessWaymarks.WpfCommon.Utility;
 
 namespace PointlessWaymarks.CmsWpfControls.MapComponentList;
@@ -66,7 +66,7 @@ public partial class MapComponentListWithActionsContext
         await ListContext.LoadData();
     }
 
-    public List<MapComponentListListItem> SelectedItems()
+    public List<MapComponentListListItem> SelectedListItems()
     {
         return ListContext.ListSelection.SelectedItems?.Where(x => x is MapComponentListListItem)
             .Cast<MapComponentListListItem>().ToList() ?? new List<MapComponentListListItem>();

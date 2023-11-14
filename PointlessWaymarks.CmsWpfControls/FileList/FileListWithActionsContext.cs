@@ -4,8 +4,8 @@ using PointlessWaymarks.CmsData.ContentHtml.FileHtml;
 using PointlessWaymarks.CmsWpfControls.ContentList;
 using PointlessWaymarks.CmsWpfControls.Utility;
 using PointlessWaymarks.LlamaAspects;
+using PointlessWaymarks.WpfCommon;
 using PointlessWaymarks.WpfCommon.Status;
-using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 using PointlessWaymarks.WpfCommon.Utility;
 
 namespace PointlessWaymarks.CmsWpfControls.FileList;
@@ -73,10 +73,10 @@ public partial class FileListWithActionsContext
     }
 
     [BlockingCommand]
-    [StopAndWarnIfNotOneSelectedItems]
+    [StopAndWarnIfNotOneSelectedListItems]
     private async Task EmailHtmlToClipboard()
     {
-        var frozenSelected = SelectedItems().First();
+        var frozenSelected = SelectedListItems().First();
 
         var emailHtml = await Email.ToHtmlEmail(frozenSelected.DbEntry, StatusContext.ProgressTracker());
 
@@ -88,12 +88,12 @@ public partial class FileListWithActionsContext
     }
 
     [BlockingCommand]
-    [StopAndWarnIfNoSelectedItems]
+    [StopAndWarnIfNoSelectedListItems]
     private async Task FileDownloadLinkCodesToClipboardForSelected()
     {
         var finalString = string.Empty;
 
-        foreach (var loopSelected in SelectedItems())
+        foreach (var loopSelected in SelectedListItems())
             finalString += $"{BracketCodeFileDownloads.Create(loopSelected.DbEntry)}{Environment.NewLine}";
 
         await ThreadSwitcher.ResumeForegroundAsync();
@@ -104,12 +104,12 @@ public partial class FileListWithActionsContext
     }
 
     [BlockingCommand]
-    [StopAndWarnIfNoSelectedItems]
+    [StopAndWarnIfNoSelectedListItems]
     private async Task FileEmbedCodesToClipboardForSelected()
     {
         var finalString = string.Empty;
 
-        foreach (var loopSelected in SelectedItems())
+        foreach (var loopSelected in SelectedListItems())
             finalString += $"{BracketCodeFileEmbed.Create(loopSelected.DbEntry)}{Environment.NewLine}";
 
         await ThreadSwitcher.ResumeForegroundAsync();
@@ -120,12 +120,12 @@ public partial class FileListWithActionsContext
     }
 
     [BlockingCommand]
-    [StopAndWarnIfNoSelectedItems]
+    [StopAndWarnIfNoSelectedListItems]
     private async Task FilePageLinkCodesToClipboardForSelected()
     {
         var finalString = string.Empty;
 
-        foreach (var loopSelected in SelectedItems())
+        foreach (var loopSelected in SelectedListItems())
             finalString += $"{BracketCodeFiles.Create(loopSelected.DbEntry)}{Environment.NewLine}";
 
         await ThreadSwitcher.ResumeForegroundAsync();
@@ -136,12 +136,12 @@ public partial class FileListWithActionsContext
     }
 
     [BlockingCommand]
-    [StopAndWarnIfNoSelectedItems]
+    [StopAndWarnIfNoSelectedListItems]
     private async Task FileUrlLinkCodesToClipboardForSelected()
     {
         var finalString = string.Empty;
 
-        foreach (var loopSelected in SelectedItems())
+        foreach (var loopSelected in SelectedListItems())
             finalString += $"{BracketCodeFileUrl.Create(loopSelected.DbEntry)}{Environment.NewLine}";
 
         await ThreadSwitcher.ResumeForegroundAsync();
@@ -152,10 +152,10 @@ public partial class FileListWithActionsContext
     }
 
     [BlockingCommand]
-    [StopAndWarnIfNoSelectedItemsAskIfOverMax(MaxSelectedItems = 10)]
+    [StopAndWarnIfNoSelectedListItemsAskIfOverMax(MaxSelectedItems = 10)]
     private async Task FirstPagePreviewFromPdf()
     {
-        var frozenSelected = SelectedItems();
+        var frozenSelected = SelectedListItems();
 
         await ImageExtractionHelpers.PdfPageToImage(StatusContext, frozenSelected.Select(x => x.DbEntry).ToList(), 1);
     }
@@ -168,17 +168,17 @@ public partial class FileListWithActionsContext
         await ListContext.LoadData();
     }
 
-    public List<FileListListItem> SelectedItems()
+    public List<FileListListItem> SelectedListItems()
     {
         return ListContext.ListSelection.SelectedItems.Where(x => x is FileListListItem).Cast<FileListListItem>()
             .ToList();
     }
 
     [BlockingCommand]
-    [StopAndWarnIfNoSelectedItemsAskIfOverMax(MaxSelectedItems = 10)]
+    [StopAndWarnIfNoSelectedListItemsAskIfOverMax(MaxSelectedItems = 10)]
     public async Task ViewSelectedFiles(CancellationToken cancelToken)
     {
-        var frozenSelected = SelectedItems();
+        var frozenSelected = SelectedListItems();
 
         foreach (var loopSelected in frozenSelected)
         {

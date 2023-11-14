@@ -1,4 +1,4 @@
-﻿using PointlessWaymarks.WpfCommon.ThreadSwitcher;
+﻿using PointlessWaymarks.WpfCommon;
 
 namespace PointlessWaymarks.CmsWpfControls.HtmlViewer;
 

@@ -6,8 +6,8 @@ using PointlessWaymarks.CmsWpfControls.ContentList;
 using PointlessWaymarks.CmsWpfControls.HelpDisplay;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.LlamaAspects;
+using PointlessWaymarks.WpfCommon;
 using PointlessWaymarks.WpfCommon.Status;
-using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 
 namespace PointlessWaymarks.CmsWpfControls.MenuLinkEditor;
 
@@ -69,17 +69,10 @@ public partial class MenuLinkEditorContext
     }
 
     [BlockingCommand]
+    [StopAndWarnIfNoSelectedListItems]
     private async Task DeleteItems()
     {
-        await ThreadSwitcher.ResumeBackgroundAsync();
-
-        var selected = SelectedItems;
-
-        if (selected == null || !selected.Any())
-        {
-            StatusContext.ToastError("Nothing Selected to Delete?");
-            return;
-        }
+        var selected = SelectedListItems();
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
@@ -221,16 +214,9 @@ public partial class MenuLinkEditorContext
     }
 
     [BlockingCommand]
+    [StopAndWarnIfNoItems]
     private async Task Save()
     {
-        await ThreadSwitcher.ResumeBackgroundAsync();
-
-        if (!Items.Any())
-        {
-            StatusContext.ToastError("No entries to save?");
-            return;
-        }
-
         foreach (var loopItems in Items) loopItems.UserLink = loopItems.UserLink.Trim();
 
         await RenumberItems();
@@ -279,5 +265,10 @@ public partial class MenuLinkEditorContext
         await context.SaveChangesAsync(true);
 
         StatusContext.ToastSuccess("Saved Changes");
+    }
+
+    public List<MenuLinkListItem> SelectedListItems()
+    {
+        return SelectedItems ?? new List<MenuLinkListItem>();
     }
 }

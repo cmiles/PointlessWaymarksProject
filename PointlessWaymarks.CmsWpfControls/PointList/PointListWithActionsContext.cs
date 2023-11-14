@@ -16,8 +16,8 @@ using PointlessWaymarks.FeatureIntersectionTags;
 using PointlessWaymarks.FeatureIntersectionTags.Models;
 using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.SpatialTools;
+using PointlessWaymarks.WpfCommon;
 using PointlessWaymarks.WpfCommon.Status;
-using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 using PointlessWaymarks.WpfCommon.Utility;
 using Serilog;
 
@@ -74,10 +74,10 @@ public partial class PointListWithActionsContext
     public WindowIconStatus? WindowStatus { get; set; }
 
     [BlockingCommand]
-    [StopAndWarnIfNoSelectedItems]
+    [StopAndWarnIfNoSelectedListItems]
     private async Task AddIntersectionTagsToSelected(CancellationToken cancellationToken)
     {
-        var frozenSelect = SelectedItems();
+        var frozenSelect = SelectedListItems();
 
         if (string.IsNullOrWhiteSpace(UserSettingsSingleton.CurrentSettings().FeatureIntersectionTagSettingsFile))
         {
@@ -215,10 +215,10 @@ public partial class PointListWithActionsContext
     }
 
     [NonBlockingCommand]
-    [StopAndWarnIfNoSelectedItems]
+    [StopAndWarnIfNoSelectedListItems]
     private async Task PointLinkBracketCodesToClipboardForSelected()
     {
-        var finalString = SelectedItems().Aggregate(string.Empty,
+        var finalString = SelectedListItems().Aggregate(string.Empty,
             (current, loopSelected) =>
                 current + @$"{BracketCodePointLinks.Create(loopSelected.DbEntry)}{Environment.NewLine}");
 
@@ -229,14 +229,14 @@ public partial class PointListWithActionsContext
         StatusContext.ToastSuccess($"To Clipboard {finalString}");
     }
 
-    public List<PointListListItem> SelectedItems()
+    public List<PointListListItem> SelectedListItems()
     {
         return ListContext.ListSelection.SelectedItems?.Where(x => x is PointListListItem).Cast<PointListListItem>()
             .ToList() ?? new List<PointListListItem>();
     }
 
     [BlockingCommand]
-    [StopAndWarnIfNoSelectedItems]
+    [StopAndWarnIfNoSelectedListItems]
     private async Task SelectedToGpxFile()
     {
         await ThreadSwitcher.ResumeForegroundAsync();
@@ -258,7 +258,7 @@ public partial class PointListWithActionsContext
 
         var waypointList = new List<GpxWaypoint>();
 
-        foreach (var loopItems in SelectedItems())
+        foreach (var loopItems in SelectedListItems())
         {
             var toAdd = new GpxWaypoint(new GpxLongitude(loopItems.DbEntry.Longitude),
                 new GpxLatitude(loopItems.DbEntry.Latitude),
@@ -279,10 +279,10 @@ public partial class PointListWithActionsContext
     }
 
     [BlockingCommand]
-    [StopAndWarnIfNoSelectedItemsAskIfOverMax(MaxSelectedItems = 100, ActionVerb = "copy to clipboard")]
+    [StopAndWarnIfNoSelectedListItemsAskIfOverMax(MaxSelectedItems = 100, ActionVerb = "copy to clipboard")]
     private async Task GeoJsonToClipboardForSelected()
     {
-        var frozenSelected = SelectedItems();
+        var frozenSelected = SelectedListItems();
 
         var featureList = new List<IFeature>();
 
@@ -302,10 +302,10 @@ public partial class PointListWithActionsContext
     }
 
     [BlockingCommand]
-    [StopAndWarnIfNoSelectedItems]
+    [StopAndWarnIfNoSelectedListItems]
     private async Task ToClipboardForSelected()
     {
-        var frozenSelected = SelectedItems();
+        var frozenSelected = SelectedListItems();
 
         var pointList = new StringBuilder();
 

@@ -72,7 +72,7 @@ public partial class ExistingDirectoryDataEntryContext : IHasChanges, IHasValida
     [BlockingCommand]
     public async Task PickDirectory()
     {
-        await ThreadSwitcher.ThreadSwitcher.ResumeForegroundAsync();
+        await ThreadSwitcher.ResumeForegroundAsync();
 
         var initialDirectory = await GetInitialDirectory();
 

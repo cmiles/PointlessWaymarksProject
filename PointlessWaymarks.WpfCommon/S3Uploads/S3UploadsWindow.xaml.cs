@@ -47,7 +47,7 @@ public partial class S3UploadsWindow
         if (UploadContext?.UploadBatch is not { Uploading: true })
         {
             ForceClose = true;
-            await ThreadSwitcher.ThreadSwitcher.ResumeForegroundAsync();
+            await ThreadSwitcher.ResumeForegroundAsync();
             Close();
         }
 
@@ -60,7 +60,7 @@ public partial class S3UploadsWindow
             case "Close Immediately":
             {
                 ForceClose = true;
-                await ThreadSwitcher.ThreadSwitcher.ResumeForegroundAsync();
+                await ThreadSwitcher.ResumeForegroundAsync();
                 Close();
                 break;
             }

@@ -40,14 +40,14 @@ public partial class S3UploadsUploadBatch
 
     private async Task LoadData(List<S3UploadsItem> toUpload)
     {
-        await ThreadSwitcher.ThreadSwitcher.ResumeBackgroundAsync();
+        await ThreadSwitcher.ResumeBackgroundAsync();
 
         toUpload.ForEach(x => x.Queued = true);
 
         TotalItemCount = toUpload.Count;
         TotalUploadSize = toUpload.Sum(x => x.FileToUpload.Exists ? x.FileToUpload.Length : 0);
 
-        await ThreadSwitcher.ThreadSwitcher.ResumeForegroundAsync();
+        await ThreadSwitcher.ResumeForegroundAsync();
 
         if (Items == null)
         {
@@ -85,11 +85,11 @@ public partial class S3UploadsUploadBatch
         {
             if (cancelToken.IsCancellationRequested)
             {
-                await ThreadSwitcher.ThreadSwitcher.ResumeForegroundAsync();
+                await ThreadSwitcher.ResumeForegroundAsync();
 
                 foreach (var loopItems in Items) loopItems.Queued = false;
 
-                await ThreadSwitcher.ThreadSwitcher.ResumeBackgroundAsync();
+                await ThreadSwitcher.ResumeBackgroundAsync();
 
                 Status = "Canceled";
                 Uploading = false;

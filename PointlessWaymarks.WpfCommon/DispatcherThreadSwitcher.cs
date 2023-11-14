@@ -1,7 +1,7 @@
 ﻿using System.Runtime.CompilerServices;
 using System.Windows.Threading;
 
-namespace PointlessWaymarks.WpfCommon.ThreadSwitcher;
+namespace PointlessWaymarks.WpfCommon;
 
 public struct DispatcherThreadSwitcher : INotifyCompletion
 {

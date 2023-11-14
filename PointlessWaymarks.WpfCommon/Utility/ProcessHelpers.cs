@@ -6,7 +6,7 @@ public static class ProcessHelpers
 {
     public static async Task OpenExplorerWindowForDirectory(string directoryName)
     {
-        await ThreadSwitcher.ThreadSwitcher.ResumeForegroundAsync();
+        await ThreadSwitcher.ResumeForegroundAsync();
 
         var ps = new ProcessStartInfo("explorer.exe", $" \"{directoryName}\"")
         {
@@ -18,7 +18,7 @@ public static class ProcessHelpers
 
     public static async Task OpenExplorerWindowForFile(string fileName)
     {
-        await ThreadSwitcher.ThreadSwitcher.ResumeForegroundAsync();
+        await ThreadSwitcher.ResumeForegroundAsync();
 
         var args = $"/e, /select, \"{fileName.Replace("/", "\\")}\"";
 

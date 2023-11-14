@@ -3,8 +3,8 @@ using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.ContentHtml.PostHtml;
 using PointlessWaymarks.CmsWpfControls.ContentList;
 using PointlessWaymarks.LlamaAspects;
+using PointlessWaymarks.WpfCommon;
 using PointlessWaymarks.WpfCommon.Status;
-using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 using PointlessWaymarks.WpfCommon.Utility;
 
 namespace PointlessWaymarks.CmsWpfControls.PostList;
@@ -53,10 +53,10 @@ public partial class PostListWithActionsContext
     public WindowIconStatus? WindowStatus { get; set; }
 
     [BlockingCommand]
-    [StopAndWarnIfNoSelectedItems]
+    [StopAndWarnIfNoSelectedListItems]
     private async Task BracketCodesToClipboardForSelected()
     {
-        var finalString = SelectedItems().Aggregate(string.Empty,
+        var finalString = SelectedListItems().Aggregate(string.Empty,
             (current, loopSelected) =>
                 current + @$"{BracketCodePosts.Create(loopSelected.DbEntry)}{Environment.NewLine}");
 
@@ -80,10 +80,10 @@ public partial class PostListWithActionsContext
     }
 
     [BlockingCommand]
-    [StopAndWarnIfNotOneSelectedItems]
+    [StopAndWarnIfNotOneSelectedListItems]
     private async Task EmailHtmlToClipboard()
     {
-        var frozenSelected = SelectedItems().First();
+        var frozenSelected = SelectedListItems().First();
 
         var emailHtml = await Email.ToHtmlEmail(frozenSelected.DbEntry, StatusContext.ProgressTracker());
 
@@ -102,7 +102,7 @@ public partial class PostListWithActionsContext
         await ListContext.LoadData();
     }
 
-    public List<PostListListItem> SelectedItems()
+    public List<PostListListItem> SelectedListItems()
     {
         return ListContext.ListSelection.SelectedItems?.Where(x => x is PostListListItem).Cast<PostListListItem>()
             .ToList() ?? new List<PostListListItem>();

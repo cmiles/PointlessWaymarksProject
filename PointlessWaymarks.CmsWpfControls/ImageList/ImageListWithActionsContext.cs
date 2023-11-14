@@ -6,8 +6,8 @@ using PointlessWaymarks.CmsData.ContentHtml.ImageHtml;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsWpfControls.ContentList;
 using PointlessWaymarks.LlamaAspects;
+using PointlessWaymarks.WpfCommon;
 using PointlessWaymarks.WpfCommon.Status;
-using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 using PointlessWaymarks.WpfCommon.Utility;
 
 namespace PointlessWaymarks.CmsWpfControls.ImageList;
@@ -76,10 +76,10 @@ public partial class ImageListWithActionsContext
     }
 
     [BlockingCommand]
-    [StopAndWarnIfNotOneSelectedItems]
+    [StopAndWarnIfNotOneSelectedListItems]
     private async Task EmailHtmlToClipboard()
     {
-        var frozenSelected = SelectedItems().First();
+        var frozenSelected = SelectedListItems().First();
 
         var emailHtml = await Email.ToHtmlEmail(frozenSelected.DbEntry, StatusContext.ProgressTracker());
 
@@ -91,13 +91,13 @@ public partial class ImageListWithActionsContext
     }
 
     [BlockingCommand]
-    [StopAndWarnIfNoSelectedItems]
+    [StopAndWarnIfNoSelectedListItems]
     private async Task ForcedResize(CancellationToken cancellationToken)
     {
-        var totalCount = SelectedItems().Count;
+        var totalCount = SelectedListItems().Count;
         var currentLoop = 0;
 
-        foreach (var loopSelected in SelectedItems())
+        foreach (var loopSelected in SelectedListItems())
         {
             cancellationToken.ThrowIfCancellationRequested();
 
@@ -126,10 +126,10 @@ public partial class ImageListWithActionsContext
     }
 
     [BlockingCommand]
-    [StopAndWarnIfNoSelectedItems]
+    [StopAndWarnIfNoSelectedListItems]
     private async Task ImageBracketLinkCodesToClipboardForSelected()
     {
-        var finalString = SelectedItems().Aggregate(string.Empty,
+        var finalString = SelectedListItems().Aggregate(string.Empty,
             (current, loopSelected) =>
                 current + @$"{BracketCodeImageLinks.Create(loopSelected.DbEntry)}{Environment.NewLine}");
 
@@ -149,17 +149,17 @@ public partial class ImageListWithActionsContext
     }
 
     [BlockingCommand]
-    [StopAndWarnIfNoSelectedItems]
+    [StopAndWarnIfNoSelectedListItems]
     private async Task RegenerateHtmlAndReprocessImageForSelected(CancellationToken cancellationToken)
     {
         var loopCount = 0;
-        var totalCount = SelectedItems().Count;
+        var totalCount = SelectedListItems().Count;
 
         var db = await Db.Context();
 
         var errorList = new List<string>();
 
-        foreach (var loopSelected in SelectedItems())
+        foreach (var loopSelected in SelectedListItems())
         {
             if (cancellationToken.IsCancellationRequested) break;
 
@@ -224,17 +224,17 @@ public partial class ImageListWithActionsContext
         }
     }
 
-    public List<ImageListListItem> SelectedItems()
+    public List<ImageListListItem> SelectedListItems()
     {
         return ListContext.ListSelection.SelectedItems?.Where(x => x is ImageListListItem).Cast<ImageListListItem>()
             .ToList() ?? new List<ImageListListItem>();
     }
 
     [BlockingCommand]
-    [StopAndWarnIfNoSelectedItemsAskIfOverMax(MaxSelectedItems = 10)]
+    [StopAndWarnIfNoSelectedListItemsAskIfOverMax(MaxSelectedItems = 10)]
     public async Task ViewSelectedFiles(CancellationToken cancelToken)
     {
-        var currentSelected = SelectedItems();
+        var currentSelected = SelectedListItems();
 
         foreach (var loopSelected in currentSelected)
         {
