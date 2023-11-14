@@ -1,4 +1,4 @@
-﻿using System.IO;
+using System.IO;
 using System.Windows.Shell;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.ContentHtml;
@@ -61,6 +61,6 @@ public static class S3UploadHelpers
         }
 
         await ThreadSwitcher.ResumeForegroundAsync();
-        new S3UploadsWindow(AmazonInformationFromSettings(), toUpload.uploadItems, true).PositionWindowAndShow();
+        new S3UploadsWindow(AmazonInformationFromSettings(), toUpload.uploadItems, UserSettingsSingleton.CurrentSettings().SiteName, true).PositionWindowAndShow();
     }
 }

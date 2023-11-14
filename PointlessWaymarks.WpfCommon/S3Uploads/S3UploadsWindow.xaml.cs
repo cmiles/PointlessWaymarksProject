@@ -1,4 +1,4 @@
-﻿using System.ComponentModel;
+using System.ComponentModel;
 using PointlessWaymarks.CommonTools.S3;
 using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon.Status;
@@ -11,12 +11,13 @@ namespace PointlessWaymarks.WpfCommon.S3Uploads;
 [NotifyPropertyChanged]
 public partial class S3UploadsWindow
 {
-    public S3UploadsWindow(IS3AccountInformation s3Info, List<S3UploadRequest> toLoad, bool autoStartUpload)
+    public S3UploadsWindow(IS3AccountInformation s3Info, List<S3UploadRequest> toLoad, string windowTitleNote, bool autoStartUpload)
     {
         InitializeComponent();
 
         StatusContext = new StatusControlContext();
         WindowStatus = new WindowIconStatus();
+        WindowTitle = string.IsNullOrWhiteSpace(windowTitleNote) ? "S3 Uploads" : $"S3 Uploads - {windowTitleNote}";
 
         DataContext = this;
 
@@ -31,6 +32,7 @@ public partial class S3UploadsWindow
     public StatusControlContext StatusContext { get; set; }
     public S3UploadsContext? UploadContext { get; set; }
     public WindowIconStatus? WindowStatus { get; set; }
+    public string WindowTitle { get; set; }
 
     private void S3UploadsWindow_OnClosing(object? sender, CancelEventArgs e)
     {

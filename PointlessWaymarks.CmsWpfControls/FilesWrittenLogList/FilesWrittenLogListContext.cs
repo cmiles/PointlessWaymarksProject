@@ -1,4 +1,4 @@
-﻿using System.Collections.ObjectModel;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
 using System.Text.Json;
@@ -232,7 +232,7 @@ public partial class FilesWrittenLogListContext
         await ThreadSwitcher.ResumeForegroundAsync();
 
         var newUploadWindow =
-            new S3UploadsWindow(S3UploadHelpers.AmazonInformationFromSettings(), toTransfer, autoStartUpload);
+            new S3UploadsWindow(S3UploadHelpers.AmazonInformationFromSettings(), toTransfer, UserSettingsSingleton.CurrentSettings().SiteName, autoStartUpload);
         newUploadWindow.PositionWindowAndShow();
     }
 
@@ -514,7 +514,7 @@ public partial class FilesWrittenLogListContext
                     await items.ToAsyncEnumerable().SelectAwait(async x =>
                             await S3Tools.UploadRequest(new FileInfo(x.FileFullName), x.S3Key, x.BucketName, x.Region,
                                 x.Note))
-                        .ToListAsync(),
+                        .ToListAsync(), UserSettingsSingleton.CurrentSettings().SiteName,
                     false);
             newUploaderWindow.PositionWindowAndShow();
         }
@@ -702,7 +702,7 @@ public partial class FilesWrittenLogListContext
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
-        var newUploadWindow = new S3UploadsWindow(S3UploadHelpers.AmazonInformationFromSettings(), toUpload, false);
+        var newUploadWindow = new S3UploadsWindow(S3UploadHelpers.AmazonInformationFromSettings(), toUpload, UserSettingsSingleton.CurrentSettings().SiteName, false);
         newUploadWindow.PositionWindowAndShow();
     }
 
