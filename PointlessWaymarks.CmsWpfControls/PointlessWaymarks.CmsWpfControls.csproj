@@ -21,10 +21,10 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Metalama.Framework" Version="2023.4.5-rc" />
+    <PackageReference Include="Metalama.Framework" Version="2023.4.6" />
     <PackageReference Include="Microsoft.Recognizers.Text.DateTime" Version="1.8.8" />
     <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.2151.40" />
-    <PackageReference Include="System.Runtime.Caching" Version="7.0.0" />
+    <PackageReference Include="System.Runtime.Caching" Version="8.0.0" />
   </ItemGroup>
 
   <ItemGroup>
