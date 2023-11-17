@@ -25,7 +25,9 @@ public partial class FileListWithActionsContext
 
         ListContext = listContext;
 
-        ListContext.ContextMenuItems = [new() { ItemName = "Edit", ItemCommand = ListContext.EditSelectedCommand }, new()
+        ListContext.ContextMenuItems = new List<ContextMenuItemData>
+        {
+            new() { ItemName = "Edit", ItemCommand = ListContext.EditSelectedCommand }, new()
             {
                 ItemName = "Image Code to Clipboard",
                 ItemCommand = ListContext.BracketCodeToClipboardSelectedCommand
@@ -49,8 +51,15 @@ public partial class FileListWithActionsContext
             {
                 ItemName = "URL Code to Clipboard", ItemCommand = FileUrlLinkCodesToClipboardForSelectedCommand
             },
-            new() { ItemName = "Email Html to Clipboard", ItemCommand = EmailHtmlToClipboardCommand }, new() { ItemName = "View Files", ItemCommand = ViewSelectedFilesCommand }, new() { ItemName = "Open URL", ItemCommand = ListContext.ViewOnSiteCommand }, new() { ItemName = "Extract New Links", ItemCommand = ListContext.ExtractNewLinksSelectedCommand }, new() { ItemName = "Generate Html", ItemCommand = ListContext.GenerateHtmlSelectedCommand }, new() { ItemName = "Delete", ItemCommand = ListContext.DeleteSelectedCommand }, new() { ItemName = "View History", ItemCommand = ListContext.ViewHistorySelectedCommand }, new() { ItemName = "Refresh Data", ItemCommand = RefreshDataCommand }
-        ];
+            new() { ItemName = "Email Html to Clipboard", ItemCommand = EmailHtmlToClipboardCommand },
+            new() { ItemName = "View Files", ItemCommand = ViewSelectedFilesCommand },
+            new() { ItemName = "Open URL", ItemCommand = ListContext.ViewOnSiteCommand },
+            new() { ItemName = "Extract New Links", ItemCommand = ListContext.ExtractNewLinksSelectedCommand },
+            new() { ItemName = "Generate Html", ItemCommand = ListContext.GenerateHtmlSelectedCommand },
+            new() { ItemName = "Delete", ItemCommand = ListContext.DeleteSelectedCommand },
+            new() { ItemName = "View History", ItemCommand = ListContext.ViewHistorySelectedCommand },
+            new() { ItemName = "Refresh Data", ItemCommand = RefreshDataCommand }
+        };
 
         if (loadInBackground) StatusContext.RunFireAndForgetBlockingTask(RefreshData);
     }
