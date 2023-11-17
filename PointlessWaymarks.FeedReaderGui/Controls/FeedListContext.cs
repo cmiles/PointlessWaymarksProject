@@ -67,7 +67,7 @@ public partial class FeedListContext
                     new()
                     {
                         DisplayName = "Feed Name",
-                        ColumnName = "DbFeed.Name",
+                        ColumnName = "DbReaderFeed.Name",
                         Order = 1,
                         DefaultSortDirection = ListSortDirection.Ascending
                     },
@@ -80,13 +80,13 @@ public partial class FeedListContext
                     new()
                     {
                         DisplayName = "Last Successful Update",
-                        ColumnName = "DbFeed.LastSuccessfulUpdate",
+                        ColumnName = "DbReaderFeed.LastSuccessfulUpdate",
                         DefaultSortDirection = ListSortDirection.Descending
                     },
                     new()
                     {
                         DisplayName = "URL",
-                        ColumnName = "DbFeed.Url",
+                        ColumnName = "DbReaderFeed.Url",
                         DefaultSortDirection = ListSortDirection.Ascending
                     }
                 }

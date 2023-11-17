@@ -26,197 +26,191 @@
             <ColumnDefinition Width="6" />
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="*" />
-            <RowDefinition Height="Auto" />
-        </Grid.RowDefinitions>
-        <GroupBox
-            Margin="4,4,4,0"
-            Grid.Column="0"
-            Grid.Row="1"
-            Style="{StaticResource UiComponentGroupBoxStyle}">
-            <GroupBox.Header>
-                <StackPanel Orientation="Horizontal">
-                    <TextBlock VerticalAlignment="Center">Feed Items</TextBlock>
-                </StackPanel>
-            </GroupBox.Header>
-            <ListBox ItemsSource="{Binding Items}"
-                     Style="{StaticResource ContentListListBoxStyle}"
-                     SelectedItem="{Binding SelectedItem}"
-                     behaviors:MultiSelectorBehaviors.SynchronizedSelectedItems="{Binding SelectedItems}">
-                <ListBox.ContextMenu>
-                    <ContextMenu>
-                        <MenuItem Header="Mark Selected Read" Command="{Binding MarkSelectedReadCommand}"></MenuItem>
-                        <MenuItem Header="Mark Selected Unread" Command="{Binding MarkSelectedUnReadCommand}"></MenuItem>
-                        <Separator />
-                        <MenuItem Header="Toggle Selected Keep" Command="{Binding ToggleSelectedKeepUnReadCommand}"></MenuItem>
-                        <Separator />
-                        <MenuItem Header="Save Selected" Command="{Binding SaveSelectedItemsCommand}"></MenuItem>
-                        <Separator />
-                        <MenuItem Header="Open in Browser" Command="{Binding OpenSelectedItemInBrowserCommand}"></MenuItem>
-                        <Separator />
-                        <MenuItem Header="Markdown to Clipboard" Command="{Binding MarkdownLinksForSelectedItemsCommand}"></MenuItem>
-                        <MenuItem Header="URLs to Clipboard" Command="{Binding UrlsForSelectedItemsCommand}"></MenuItem>
-                        <MenuItem Header="Titles to Clipboard" Command="{Binding TitlesForSelectedItemsCommand}"></MenuItem>
-                        <MenuItem Header="Titles and URLs to Clipboard" Command="{Binding TitleAndUrlForSelectedItemsCommand}"></MenuItem>
-                        <Separator />
-                        <MenuItem Header="Edit Feed" Command="{Binding FeedEditorForSelectedItemCommand}"></MenuItem>
-                        <Separator />
-                        <MenuItem Header="Refresh Feeds" Command="{Binding RefreshFeedItemsCommand}"></MenuItem>
-                        <MenuItem Header="Clear Read" Command="{Binding ClearReadItemsCommand}"></MenuItem>
-                    </ContextMenu>
-                </ListBox.ContextMenu>
-                <ListBox.ItemTemplate>
-                    <DataTemplate DataType="{x:Type local:FeedItemListListItem}">
-                        <Grid Margin="4,12,4,4">
-                            <Grid.Style>
-                                <Style TargetType="Grid">
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding DbItem.MarkedRead}" Value="true">
-                                            <Setter Property="Opacity" Value=".4" />
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </Grid.Style>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto" />
-                                <RowDefinition Height="Auto" />
-                                <RowDefinition Height="Auto" />
-                                <RowDefinition Height="Auto" />
-                            </Grid.RowDefinitions>
-                            <TextBlock Text="{Binding DbItem.Title}" FontWeight="Bold" TextTrimming="CharacterEllipsis" ToolTip="{Binding DbItem.Description}"/>
-                            <TextBlock Grid.Row="1" Margin="8,2,0,0" HorizontalAlignment="Left"
-                                       TextTrimming="CharacterEllipsis" ToolTip="{Binding DbItem.Description}">
-                                <TextBlock.Text>
-                                    <MultiBinding StringFormat="{}{0}, {1}">
-                                        <Binding Path="DbItem.PublishingDate" />
-                                        <Binding Path="DbItem.Author" />
-                                    </MultiBinding>
-                                </TextBlock.Text>
-                            </TextBlock>
-                            <TextBlock Grid.Row="2" HorizontalAlignment="Center" Margin="4,2,0,0"
-                                       TextTrimming="CharacterEllipsis">
-                                <TextBlock.Text>
-                                    <MultiBinding StringFormat="{}{0}">
-                                        <Binding Path="DbReaderFeed.Tags" />
-                                    </MultiBinding>
-                                </TextBlock.Text>
-                            </TextBlock>
-                            <TextBlock Grid.Row="3" HorizontalAlignment="Right" Margin="4,2,0,0"
-                                       ToolTip="{Binding DbReaderFeed.Note}" TextTrimming="CharacterEllipsis">
-                                <TextBlock.Text>
-                                    <MultiBinding StringFormat="{}{0}">
-                                        <Binding Path="DbReaderFeed.Name" />
-                                    </MultiBinding>
-                                </TextBlock.Text>
-                            </TextBlock>
-                            <CheckBox Grid.Row="2" HorizontalAlignment="Left" Margin="16,4,4,4"
-                                      Command="{Binding Data.ToggleKeepUnreadCommand, Source={StaticResource proxy}}"
-                                      CommandParameter="{Binding .}" IsChecked="{Binding DbItem.KeepUnread}">
-                                Keep
-                            </CheckBox>
-                        </Grid>
-                    </DataTemplate>
-                </ListBox.ItemTemplate>
-            </ListBox>
-        </GroupBox>
-        <GridSplitter Grid.Row="0" Grid.RowSpan="2" Grid.Column="1"
+        <Grid Grid.Column="0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <Grid Grid.Row="0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition />
+                    <ColumnDefinition />
+                </Grid.ColumnDefinitions>
+                <GroupBox Header="Filter" Style="{StaticResource UiComponentGroupBoxStyle}" Margin="4,0,4,0">
+                    <TextBox Text="{Binding UserFilterText, Delay=400, UpdateSourceTrigger=PropertyChanged}" />
+                </GroupBox>
+                <Expander Grid.Column="1" BorderBrush="Green" Padding="8,4,12,4"
+                          HorizontalAlignment="Stretch" Header="Sort" HorizontalContentAlignment="Center"
+                          ExpandDirection="Down" IsExpanded="False" Margin="6,6,4,0">
+                    <columnSort:ColumnSortControl Margin="4,2,4,12" DataContext="{Binding ListSort}" />
+                </Expander>
+            </Grid>
+            <GroupBox
+                Margin="4,4,4,0"
+                Grid.Row="1"
+                Style="{StaticResource UiComponentGroupBoxStyle}">
+                <GroupBox.Header>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock VerticalAlignment="Center">Feed Items</TextBlock>
+                    </StackPanel>
+                </GroupBox.Header>
+
+                <ListBox ItemsSource="{Binding Items}"
+                         Style="{StaticResource ContentListListBoxStyle}"
+                         SelectedItem="{Binding SelectedItem}"
+                         behaviors:MultiSelectorBehaviors.SynchronizedSelectedItems="{Binding SelectedItems}">
+                    <ListBox.ContextMenu>
+                        <ContextMenu>
+                            <MenuItem Header="Mark Selected Read" Command="{Binding MarkSelectedReadCommand}" />
+                            <MenuItem Header="Mark Selected Unread" Command="{Binding MarkSelectedUnReadCommand}" />
+                            <Separator />
+                            <MenuItem Header="Toggle Selected Keep" Command="{Binding ToggleSelectedKeepUnReadCommand}" />
+                            <Separator />
+                            <MenuItem Header="Save Selected" Command="{Binding SaveSelectedItemsCommand}" />
+                            <Separator />
+                            <MenuItem Header="Open in Browser" Command="{Binding OpenSelectedItemInBrowserCommand}" />
+                            <Separator />
+                            <MenuItem Header="Markdown to Clipboard"
+                                      Command="{Binding MarkdownLinksForSelectedItemsCommand}" />
+                            <MenuItem Header="URLs to Clipboard" Command="{Binding UrlsForSelectedItemsCommand}" />
+                            <MenuItem Header="Titles to Clipboard" Command="{Binding TitlesForSelectedItemsCommand}" />
+                            <MenuItem Header="Titles and URLs to Clipboard"
+                                      Command="{Binding TitleAndUrlForSelectedItemsCommand}" />
+                            <Separator />
+                            <MenuItem Header="Edit Feed" Command="{Binding FeedEditorForSelectedItemCommand}" />
+                            <Separator />
+                            <MenuItem Header="Refresh Feeds" Command="{Binding RefreshFeedItemsCommand}" />
+                            <MenuItem Header="Clear Read" Command="{Binding ClearReadItemsCommand}" />
+                        </ContextMenu>
+                    </ListBox.ContextMenu>
+                    <ListBox.ItemTemplate>
+                        <DataTemplate DataType="{x:Type local:FeedItemListListItem}">
+                            <Grid Margin="4,12,4,4">
+                                <Grid.Style>
+                                    <Style TargetType="Grid">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding DbItem.MarkedRead}" Value="true">
+                                                <Setter Property="Opacity" Value=".4" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Grid.Style>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                </Grid.RowDefinitions>
+                                <TextBlock Text="{Binding DbItem.Title}" FontWeight="Bold"
+                                           TextTrimming="CharacterEllipsis" ToolTip="{Binding DbItem.Description}" />
+                                <TextBlock Grid.Row="1" Margin="8,2,0,0" HorizontalAlignment="Left"
+                                           TextTrimming="CharacterEllipsis" ToolTip="{Binding DbItem.Description}">
+                                    <TextBlock.Text>
+                                        <MultiBinding StringFormat="{}{0}, {1}">
+                                            <Binding Path="DbItem.PublishingDate" />
+                                            <Binding Path="DbItem.Author" />
+                                        </MultiBinding>
+                                    </TextBlock.Text>
+                                </TextBlock>
+                                <TextBlock Grid.Row="2" HorizontalAlignment="Center" Margin="4,2,0,0"
+                                           TextTrimming="CharacterEllipsis">
+                                    <TextBlock.Text>
+                                        <MultiBinding StringFormat="{}{0}">
+                                            <Binding Path="DbReaderFeed.Tags" />
+                                        </MultiBinding>
+                                    </TextBlock.Text>
+                                </TextBlock>
+                                <TextBlock Grid.Row="3" HorizontalAlignment="Right" Margin="4,2,0,0"
+                                           ToolTip="{Binding DbReaderFeed.Note}" TextTrimming="CharacterEllipsis">
+                                    <TextBlock.Text>
+                                        <MultiBinding StringFormat="{}{0}">
+                                            <Binding Path="DbReaderFeed.Name" />
+                                        </MultiBinding>
+                                    </TextBlock.Text>
+                                </TextBlock>
+                                <CheckBox Grid.Row="2" HorizontalAlignment="Left" Margin="16,4,4,4"
+                                          Command="{Binding Data.ToggleKeepUnreadCommand, Source={StaticResource proxy}}"
+                                          CommandParameter="{Binding .}" IsChecked="{Binding DbItem.KeepUnread}">
+                                    Keep
+                                </CheckBox>
+                            </Grid>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </GroupBox>
+            <WrapPanel Grid.Row="2" Margin="4,4,4,8" HorizontalAlignment="Center"
+                       Orientation="Horizontal"
+                       VerticalAlignment="Center">
+                <Button
+                    Content="Mark Selected Read"
+                    Style="{StaticResource ActionPanelButtonStyle}"
+                    Command="{Binding MarkSelectedReadCommand}" />
+                <Button
+                    Content="Mark Selected Unread"
+                    Style="{StaticResource ActionPanelButtonStyle}"
+                    Command="{Binding MarkSelectedUnReadCommand}" />
+                <Button
+                    Content="Toggle Selected Keep"
+                    Style="{StaticResource ActionPanelButtonStyle}"
+                    Command="{Binding ToggleSelectedKeepUnReadCommand}" />
+                <Button
+                    Content="_Refresh"
+                    Style="{StaticResource ActionPanelButtonStyle}"
+                    Command="{Binding RefreshFeedItemsCommand}" />
+                <Button
+                    Content="_Clear Read Items"
+                    Style="{StaticResource ActionPanelButtonStyle}"
+                    Command="{Binding ClearReadItemsCommand}" />
+                <CheckBox VerticalAlignment="Center" VerticalContentAlignment="Center" Height="22" Width="130"
+                          IsChecked="{Binding AutoMarkRead}" Margin="24,6,4,4">
+                    Auto-Mark Read
+                </CheckBox>
+            </WrapPanel>
+        </Grid>
+        <GridSplitter Grid.Row="0" Grid.Column="1"
                       ResizeDirection="Columns"
                       ResizeBehavior="PreviousAndNext"
                       HorizontalAlignment="Stretch" />
-        <TabControl Grid.Row="0" Grid.RowSpan="2" Grid.Column="2">
-            <TabItem Header="Web">
-                <wpf:WebView2
-                    x:Name="BodyContentWebView"
-                    Source="{Binding DisplayUrl, TargetNullValue='about:blank'}"
-                    Visibility="{Binding StatusContext.BlockUi, Converter={StaticResource BooleanNotToVisibility}}" />
-            </TabItem>
-            <TabItem Header="Feed Content">
-                <wpf:WebView2
-                    x:Name="RssContentWebView"
-                    Visibility="{Binding StatusContext.BlockUi, Converter={StaticResource BooleanNotToVisibility}}">
-                    <b:Interaction.Behaviors>
-                        <wpfHtml:WebViewHtmlStringBindingBehavior HtmlString = "{Binding FeedDisplayHtml}" />
-                    </b:Interaction.Behaviors>
-                </wpf:WebView2>
-            </TabItem>
-        </TabControl>
-        <Grid Grid.Column="0" Grid.Row="0">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition />
-                <ColumnDefinition />
-            </Grid.ColumnDefinitions>
-            <GroupBox Header="Filter" Style="{StaticResource UiComponentGroupBoxStyle}" Margin="4,0,4,0">
-                <TextBox Text="{Binding UserFilterText, Delay=400, UpdateSourceTrigger=PropertyChanged}" />
-            </GroupBox>
-            <Expander Grid.Column="1" BorderBrush="Green" Padding="8,4,12,4"
-                      HorizontalAlignment="Stretch" Header="Sort" HorizontalContentAlignment="Center"
-                      ExpandDirection="Down" IsExpanded="False" Margin="6,6,4,0">
-                <columnSort:ColumnSortControl Margin="4,2,4,12" DataContext="{Binding ListSort}" />
-            </Expander>
-        </Grid>
-        <Border Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3" Style="{StaticResource ActionPanelBorderStyle}">
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="1*"></ColumnDefinition>
-                    <ColumnDefinition Width="2*"></ColumnDefinition>
-                    <ColumnDefinition Width="1*"></ColumnDefinition>
-                </Grid.ColumnDefinitions>
-                <Border Style="{StaticResource ActionPanelBorderStyle}" HorizontalAlignment="Center">
-                    <Grid Margin="4,0,4,0">
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"></RowDefinition>
-                            <RowDefinition Height="Auto"></RowDefinition>
-                        </Grid.RowDefinitions>
-                        <TextBox VerticalAlignment="Center"
-                                 Text="{Binding UserAddFeedInput, UpdateSourceTrigger=PropertyChanged}" Width="308"
-                                 Margin="0,6,0,0" />
-                        <Grid Grid.Row="1">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition></ColumnDefinition>
-                                <ColumnDefinition></ColumnDefinition>
-                            </Grid.ColumnDefinitions>
-                            <Button
-                                Content="_Add - Auto"
-                                Style="{StaticResource ActionPanelButtonStyle}"
-                                Command="{Binding TryAddFeedCommand}" />
-                            <Button Grid.Column="1"
-                                    Content="Add - Editor"
-                                    Style="{StaticResource ActionPanelButtonStyle}"
-                                    Command="{Binding NewFeedEditorFromUrlCommand}" />
-                        </Grid>
-                    </Grid>
-                </Border>
-                <WrapPanel Grid.Column="1" HorizontalAlignment="Center" Orientation="Horizontal"
-                           VerticalAlignment="Center">
-                    <Button
-                        Content="Mark Selected Read"
-                        Style="{StaticResource ActionPanelButtonStyle}"
-                        Command="{Binding MarkSelectedReadCommand}" />
-                    <Button
-                        Content="Mark Selected Unread"
-                        Style="{StaticResource ActionPanelButtonStyle}"
-                        Command="{Binding MarkSelectedUnReadCommand}" />
-                    <Button
-                        Content="Toggle Selected Keep"
-                        Style="{StaticResource ActionPanelButtonStyle}"
-                        Command="{Binding ToggleSelectedKeepUnReadCommand}" />
-                    <Button
-                        Content="_Refresh"
-                        Style="{StaticResource ActionPanelButtonStyle}"
-                        Command="{Binding RefreshFeedItemsCommand}" />
-                    <Button
-                        Content="_Clear Read Items"
-                        Style="{StaticResource ActionPanelButtonStyle}"
-                        Command="{Binding ClearReadItemsCommand}" />
-                </WrapPanel>
-                <CheckBox Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Center"
-                          IsChecked="{Binding AutoMarkRead}" Margin="4,0,12,0">
-                    Auto-Mark Read
-                </CheckBox>
+        <Grid Grid.Column="2">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
 
-            </Grid>
-        </Border>
+            <TabControl Grid.Row="0">
+                <TabItem Header="Web">
+                    <wpf:WebView2
+                        x:Name="BodyContentWebView"
+                        Source="{Binding DisplayUrl, TargetNullValue='about:blank'}"
+                        Visibility="{Binding StatusContext.BlockUi, Converter={StaticResource BooleanNotToVisibility}}" />
+                </TabItem>
+                <TabItem Header="Feed Content">
+                    <wpf:WebView2
+                        x:Name="RssContentWebView"
+                        Visibility="{Binding StatusContext.BlockUi, Converter={StaticResource BooleanNotToVisibility}}">
+                        <b:Interaction.Behaviors>
+                            <wpfHtml:WebViewHtmlStringBindingBehavior HtmlString="{Binding FeedDisplayHtml}" />
+                        </b:Interaction.Behaviors>
+                    </wpf:WebView2>
+                </TabItem>
+            </TabControl>
+            <GroupBox Grid.Row="1" Header="Add Feed" Style="{StaticResource UiComponentGroupBoxStyle}"
+                      HorizontalAlignment="Center">
+                <StackPanel Orientation="Horizontal">
+                    <TextBox VerticalAlignment="Center"
+                             Text="{Binding UserAddFeedInput, UpdateSourceTrigger=PropertyChanged}" Width="308"
+                             Margin="0,2,0,0" />
+                    <Button
+                        Content="_Add - Auto"
+                        Style="{StaticResource ActionPanelButtonStyle}"
+                        Command="{Binding TryAddFeedCommand}" />
+                    <Button
+                        Content="Add - Editor"
+                        Style="{StaticResource ActionPanelButtonStyle}"
+                        Command="{Binding NewFeedEditorFromUrlCommand}" />
+                </StackPanel>
+            </GroupBox>
+        </Grid>
     </Grid>
 </UserControl>

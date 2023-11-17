@@ -116,7 +116,7 @@ public partial class SavedFeedItemListContext
                     new()
                     {
                         DisplayName = "Feed Name",
-                        ColumnName = "DbFeed.Name",
+                        ColumnName = "DbReaderFeed.Name",
                         DefaultSortDirection = ListSortDirection.Ascending
                     },
                     new()
