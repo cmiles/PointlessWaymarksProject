@@ -142,25 +142,25 @@
             <WrapPanel Grid.Row="2" Margin="4,4,4,8" HorizontalAlignment="Center"
                        Orientation="Horizontal"
                        VerticalAlignment="Center">
+                <WrapPanel.Resources>
+                    <Style TargetType="Button" BasedOn="{StaticResource ActionPanelButtonStyle}">
+                        <Setter Property="Width" Value="80" />
+                    </Style>
+                </WrapPanel.Resources>
                 <Button
-                    Content="Mark Selected Read"
-                    Style="{StaticResource ActionPanelButtonStyle}"
+                    Content="Mark Read"
                     Command="{Binding MarkSelectedReadCommand}" />
                 <Button
-                    Content="Mark Selected Unread"
-                    Style="{StaticResource ActionPanelButtonStyle}"
+                    Content="Mark Unread"
                     Command="{Binding MarkSelectedUnReadCommand}" />
                 <Button
-                    Content="Toggle Selected Keep"
-                    Style="{StaticResource ActionPanelButtonStyle}"
+                    Content="Toggle Keep"
                     Command="{Binding ToggleSelectedKeepUnReadCommand}" />
                 <Button
                     Content="_Refresh"
-                    Style="{StaticResource ActionPanelButtonStyle}"
                     Command="{Binding RefreshFeedItemsCommand}" />
                 <Button
-                    Content="_Clear Read Items"
-                    Style="{StaticResource ActionPanelButtonStyle}"
+                    Content="_Clear Read"
                     Command="{Binding ClearReadItemsCommand}" />
                 <CheckBox VerticalAlignment="Center" VerticalContentAlignment="Center" Height="22" Width="130"
                           IsChecked="{Binding AutoMarkRead}" Margin="24,6,4,4">
@@ -173,12 +173,7 @@
                       ResizeBehavior="PreviousAndNext"
                       HorizontalAlignment="Stretch" />
         <Grid Grid.Column="2">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="*" />
-                <RowDefinition Height="Auto" />
-            </Grid.RowDefinitions>
-
-            <TabControl Grid.Row="0">
+            <TabControl Grid.Row="0" Margin="4,2,0,0">
                 <TabItem Header="Web">
                     <wpf:WebView2
                         x:Name="BodyContentWebView"
@@ -195,22 +190,22 @@
                     </wpf:WebView2>
                 </TabItem>
             </TabControl>
-            <GroupBox Grid.Row="1" Header="Add Feed" Style="{StaticResource UiComponentGroupBoxStyle}"
-                      HorizontalAlignment="Center">
-                <StackPanel Orientation="Horizontal">
-                    <TextBox VerticalAlignment="Center"
-                             Text="{Binding UserAddFeedInput, UpdateSourceTrigger=PropertyChanged}" Width="308"
-                             Margin="0,2,0,0" />
-                    <Button
-                        Content="_Add - Auto"
-                        Style="{StaticResource ActionPanelButtonStyle}"
-                        Command="{Binding TryAddFeedCommand}" />
-                    <Button
-                        Content="Add - Editor"
-                        Style="{StaticResource ActionPanelButtonStyle}"
-                        Command="{Binding NewFeedEditorFromUrlCommand}" />
-                </StackPanel>
-            </GroupBox>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="130,-2,0,0">
+                <TextBlock VerticalAlignment="Center" Margin="4">Add Feed:</TextBlock>
+                <TextBox VerticalAlignment="Center"
+                         Text="{Binding UserAddFeedInput, UpdateSourceTrigger=PropertyChanged}" Width="308"
+                         Margin="4" />
+                <Button
+                    Content="_Add - Auto"
+                    VerticalAlignment="Center"
+                    Width="100"
+                    Command="{Binding TryAddFeedCommand}" />
+                <Button
+                    Content="Add - Editor"
+                    VerticalAlignment="Center"
+                    Width="100"
+                    Command="{Binding NewFeedEditorFromUrlCommand}" />
+            </StackPanel>
         </Grid>
     </Grid>
 </UserControl>

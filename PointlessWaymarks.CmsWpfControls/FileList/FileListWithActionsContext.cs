@@ -12,7 +12,7 @@ namespace PointlessWaymarks.CmsWpfControls.FileList;
 
 [NotifyPropertyChanged]
 [GenerateStatusCommands]
-public partial class FileListWithActionsContext
+public partial class FileListWithActionsContext : IListSelectionWithContext<FileListListItem>
 {
     private FileListWithActionsContext(StatusControlContext statusContext, WindowIconStatus? windowStatus,
         ContentListContext listContext, bool loadInBackground = true)
@@ -68,6 +68,17 @@ public partial class FileListWithActionsContext
     public ContentListContext ListContext { get; set; }
     public StatusControlContext StatusContext { get; set; }
     public WindowIconStatus? WindowStatus { get; set; }
+
+    public FileListListItem? SelectedListItem()
+    {
+        return ListContext.ListSelection.Selected as FileListListItem;
+    }
+
+    public List<FileListListItem> SelectedListItems()
+    {
+        return ListContext.ListSelection.SelectedItems.Where(x => x is FileListListItem).Cast<FileListListItem>()
+            .ToList();
+    }
 
     public static async Task<FileListWithActionsContext> CreateInstance(StatusControlContext? statusContext,
         WindowIconStatus? windowStatus, bool loadInBackground = true)
@@ -175,12 +186,6 @@ public partial class FileListWithActionsContext
         await ThreadSwitcher.ResumeBackgroundAsync();
 
         await ListContext.LoadData();
-    }
-
-    public List<FileListListItem> SelectedListItems()
-    {
-        return ListContext.ListSelection.SelectedItems.Where(x => x is FileListListItem).Cast<FileListListItem>()
-            .ToList();
     }
 
     [BlockingCommand]

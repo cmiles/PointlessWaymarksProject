@@ -8,7 +8,7 @@
              xmlns:columnSort="clr-namespace:PointlessWaymarks.WpfCommon.ColumnSort;assembly=PointlessWaymarks.WpfCommon"
              xmlns:local="clr-namespace:PointlessWaymarks.FeedReaderGui.Controls"
              mc:Ignorable="d"
-             d:DesignHeight="300" d:DesignWidth="300" d:DataContext="{d:DesignInstance local:FeedListContext}">
+             d:DesignHeight="300" d:DesignWidth="900" d:DataContext="{d:DesignInstance local:FeedListContext}">
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -25,8 +25,9 @@
         </Grid.RowDefinitions>
         <Grid Grid.Column="0" Grid.Row="0" HorizontalAlignment="Left">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition />
-                <ColumnDefinition />
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
             <GroupBox Width="200" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" Header="Filter"
                       Style="{StaticResource UiComponentGroupBoxStyle}" Margin="4,0,4,0">
@@ -37,6 +38,22 @@
                       ExpandDirection="Down" IsExpanded="False" Margin="6,6,4,0">
                 <columnSort:ColumnSortControl Margin="4,2,4,12" DataContext="{Binding ListSort}" />
             </Expander>
+            <StackPanel Grid.Column="2" VerticalAlignment="Center" Margin="2,3,0,0" Orientation="Horizontal" HorizontalAlignment="Center">
+                <TextBlock VerticalAlignment="Center" Margin="4">Add Feed:</TextBlock>
+                <TextBox VerticalAlignment="Center"
+                         Text="{Binding UserAddFeedInput, UpdateSourceTrigger=PropertyChanged}" Width="308"
+                         Margin="4" />
+                <Button
+                    Content="_Add - Auto"
+                    VerticalAlignment="Center"
+                    Width="100"
+                    Command="{Binding TryAddFeedCommand}" />
+                <Button
+                    Content="Add - Editor"
+                    VerticalAlignment="Center"
+                    Width="100"
+                    Command="{Binding NewFeedEditorFromUrlCommand}" />
+            </StackPanel>
         </Grid>
         <GroupBox
             Margin="4,4,4,0"
@@ -59,6 +76,16 @@
                         <MenuItem Header="Mark All Read" Command="{Binding MarkAllReadCommand}" />
                         <MenuItem Header="Mark All Unread" Command="{Binding MarkAllUnReadCommand}" />
                         <MenuItem Header="Archive Feed" Command="{Binding ArchiveSelectedFeedCommand}" />
+                        <Separator />
+                        <Separator />
+                        <MenuItem Header="Markdown to Clipboard"
+                                  Command="{Binding MarkdownLinksForSelectedItemsCommand}" />
+                        <MenuItem Header="URLs to Clipboard" Command="{Binding UrlsForSelectedItemsCommand}" />
+                        <MenuItem Header="Titles to Clipboard" Command="{Binding NamesForSelectedItemsCommand}" />
+                        <MenuItem Header="Titles and URLs to Clipboard"
+                                  Command="{Binding TitleAndUrlForSelectedItemsCommand}" />
+                        <Separator />
+                        <Separator />
                         <MenuItem Header="View Marked Read Feed Items"
                                   Command="{Binding ViewReadFeedItemsForSelectedItemCommand}" />
                         <MenuItem Header="View Feed Items"
@@ -99,37 +126,7 @@
         </GroupBox>
         <Border Grid.Row="2" Grid.Column="0" Style="{StaticResource ActionPanelBorderStyle}">
             <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto"></ColumnDefinition>
-                    <ColumnDefinition></ColumnDefinition>
-                    <ColumnDefinition Width="Auto"></ColumnDefinition>
-                </Grid.ColumnDefinitions>
-                <Border Style="{StaticResource ActionPanelBorderStyle}">
-                    <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"></RowDefinition>
-                            <RowDefinition Height="Auto"></RowDefinition>
-                        </Grid.RowDefinitions>
-                        <TextBox VerticalAlignment="Center"
-                                 Text="{Binding UserAddFeedInput, UpdateSourceTrigger=PropertyChanged}" Width="308"
-                                 Margin="0,6,0,0" />
-                        <Grid Grid.Row="1">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition></ColumnDefinition>
-                                <ColumnDefinition></ColumnDefinition>
-                            </Grid.ColumnDefinitions>
-                            <Button
-                                Content="_Add - Auto"
-                                Style="{StaticResource ActionPanelButtonStyle}"
-                                Command="{Binding TryAddFeedCommand}" />
-                            <Button Grid.Column="1"
-                                    Content="Add - Editor"
-                                    Style="{StaticResource ActionPanelButtonStyle}"
-                                    Command="{Binding NewFeedEditorFromUrlCommand}" />
-                        </Grid>
-                    </Grid>
-                </Border>
-                <WrapPanel Grid.Column="1" HorizontalAlignment="Center" Orientation="Horizontal">
+                <WrapPanel HorizontalAlignment="Center" Orientation="Horizontal">
                     <Button
                         Content="Edit Selected"
                         Style="{StaticResource ActionPanelButtonStyle}"
@@ -153,7 +150,7 @@
                     <Button
                         Content="View Feed Items"
                         Style="{StaticResource ActionPanelButtonStyle}"
-                        Command="{Binding ViewFeedItemsForSelectedItemCommand}" />
+                        Command="{Binding ViewUnreadFeedItemsForSelectedItemCommand}" />
                 </WrapPanel>
             </Grid>
         </Border>

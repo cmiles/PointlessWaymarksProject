@@ -21,7 +21,7 @@ namespace PointlessWaymarks.FeedReaderGui.Controls;
 
 [NotifyPropertyChanged]
 [GenerateStatusCommands]
-public partial class FeedItemListContext
+public partial class FeedItemListContext : IStandardListWithContext<FeedItemListListItem>
 {
     public bool AutoMarkRead { get; set; } = true;
     public required FeedQueries ContextDb { get; init; }
@@ -34,7 +34,7 @@ public partial class FeedItemListContext
     public FeedItemListListItem? SelectedItem { get; set; }
     public List<FeedItemListListItem> SelectedItems { get; set; } = new();
     public bool ShowUnread { get; set; }
-    public required StatusControlContext StatusContext { get; init; }
+    public required StatusControlContext StatusContext { get; set; }
     public string UserAddFeedInput { get; set; } = string.Empty;
     public string UserFilterText { get; set; } = string.Empty;
 
@@ -157,10 +157,8 @@ public partial class FeedItemListContext
     }
 
     [NonBlockingCommand]
-    public async Task FeedEditorForFeedItem(FeedItemListListItem? listItem)
+    public async Task FeedEditorForFeedItem(FeedItemListListItem listItem)
     {
-        if (listItem?.DbItem == null) return;
-
         await ThreadSwitcher.ResumeBackgroundAsync();
 
         var db = await ContextDb.GetInstance();
@@ -180,14 +178,9 @@ public partial class FeedItemListContext
     }
 
     [NonBlockingCommand]
+    [StopAndWarnIfNoSelectedListItem]
     public async Task FeedEditorForSelectedItem()
     {
-        if (SelectedItem == null)
-        {
-            StatusContext.ToastWarning("Nothing Selected?");
-            return;
-        }
-
         await FeedEditorForFeedItem(SelectedItem);
     }
 
@@ -225,17 +218,12 @@ public partial class FeedItemListContext
     }
 
     [NonBlockingCommand]
+    [StopAndWarnIfNoSelectedListItems]
     public async Task MarkdownLinksForSelectedItems()
     {
-        if (!SelectedItems.Any())
-        {
-            StatusContext.ToastWarning("Nothing Selected?");
-            return;
-        }
-
         var clipboardBlock = new StringBuilder();
 
-        foreach (var loopItems in SelectedItems)
+        foreach (var loopItems in SelectedListItems())
             clipboardBlock.AppendLine($"[{loopItems.DbItem.Title ?? "No Title"}]({loopItems.DbItem.Link})");
 
         await ThreadSwitcher.ResumeForegroundAsync();
@@ -244,30 +232,16 @@ public partial class FeedItemListContext
     }
 
     [NonBlockingCommand]
+    [StopAndWarnIfNoSelectedListItems]
     public async Task MarkSelectedRead()
     {
-        await ThreadSwitcher.ResumeBackgroundAsync();
-
-        if (!SelectedItems.Any())
-        {
-            StatusContext.ToastWarning("Nothing Selected to Mark Read?");
-            return;
-        }
-
         await ContextDb.ItemRead(SelectedItems.Select(x => x.DbItem.PersistentId).ToList(), true);
     }
 
     [NonBlockingCommand]
+    [StopAndWarnIfNoSelectedListItems]
     public async Task MarkSelectedUnRead()
     {
-        await ThreadSwitcher.ResumeBackgroundAsync();
-
-        if (!SelectedItems.Any())
-        {
-            StatusContext.ToastWarning("Nothing Selected to Mark Read?");
-            return;
-        }
-
         await ContextDb.ItemRead(SelectedItems.Select(x => x.DbItem.PersistentId).ToList(), false);
     }
 
@@ -339,17 +313,10 @@ public partial class FeedItemListContext
     }
 
     [NonBlockingCommand]
+    [StopAndWarnIfNoSelectedListItem]
     public async Task OpenSelectedItemInBrowser()
     {
-        await ThreadSwitcher.ResumeBackgroundAsync();
-
-        if (SelectedItem == null)
-        {
-            StatusContext.ToastWarning("Feed to Add is Blank?");
-            return;
-        }
-
-        if (string.IsNullOrWhiteSpace(SelectedItem.DbItem.Link))
+        if (string.IsNullOrWhiteSpace(SelectedItem?.DbItem.Link))
         {
             StatusContext.ToastWarning("Feed Item has no Link?");
             return;
@@ -404,15 +371,20 @@ public partial class FeedItemListContext
     }
 
     [NonBlockingCommand]
+    [StopAndWarnIfNoSelectedListItems]
     public async Task SaveSelectedItems()
     {
-        if (!SelectedItems.Any())
-        {
-            StatusContext.ToastWarning("Nothing Selected?");
-            return;
-        }
-
         await ContextDb.SaveFeedItems(SelectedItems.Select(x => x.DbItem.PersistentId).ToList());
+    }
+
+    public FeedItemListListItem? SelectedListItem()
+    {
+        return SelectedItem;
+    }
+
+    public List<FeedItemListListItem> SelectedListItems()
+    {
+        return SelectedItems;
     }
 
     public async Task Setup()
@@ -460,25 +432,21 @@ public partial class FeedItemListContext
                 }
                 catch (Exception e)
                 {
-                    Log.ForContext("ignored exception", e.ToString()).Verbose("Error in Feed Item List Background Refresh (Ignored)");
+                    Log.ForContext("ignored exception", e.ToString())
+                        .Verbose("Error in Feed Item List Background Refresh (Ignored)");
                 }
-            },   
+            },
             s => s.ToRunEvery(2).Hours()
         );
     }
 
     [NonBlockingCommand]
+    [StopAndWarnIfNoSelectedListItems]
     public async Task TitleAndUrlForSelectedItems()
     {
-        if (!SelectedItems.Any())
-        {
-            StatusContext.ToastWarning("Nothing Selected?");
-            return;
-        }
-
         var clipboardBlock = new StringBuilder();
 
-        foreach (var loopItems in SelectedItems)
+        foreach (var loopItems in SelectedListItems())
             clipboardBlock.AppendLine($"{loopItems.DbItem.Title ?? "(No Title)"} - {loopItems.DbItem.Link}");
 
         await ThreadSwitcher.ResumeForegroundAsync();
@@ -487,17 +455,12 @@ public partial class FeedItemListContext
     }
 
     [NonBlockingCommand]
+    [StopAndWarnIfNoSelectedListItems]
     public async Task TitlesForSelectedItems()
     {
-        if (!SelectedItems.Any())
-        {
-            StatusContext.ToastWarning("Nothing Selected?");
-            return;
-        }
-
         var clipboardBlock = new StringBuilder();
 
-        foreach (var loopItems in SelectedItems) clipboardBlock.AppendLine($"{loopItems.DbItem.Title ?? "(No Title)"}");
+        foreach (var loopItems in SelectedListItems()) clipboardBlock.AppendLine($"{loopItems.DbItem.Title ?? "(No Title)"}");
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
@@ -505,24 +468,16 @@ public partial class FeedItemListContext
     }
 
     [NonBlockingCommand]
+    [StopAndWarnIfNoSelectedListItem]
     public async Task ToggleKeepUnread(FeedItemListListItem? listItem)
     {
-        if (listItem?.DbItem == null) return;
-
-        await ContextDb.ItemKeepUnreadToggle(listItem.DbItem.PersistentId.AsList());
+        await ContextDb.ItemKeepUnreadToggle(listItem!.DbItem.PersistentId.AsList());
     }
 
     [NonBlockingCommand]
+    [StopAndWarnIfNoSelectedListItems]
     public async Task ToggleSelectedKeepUnRead()
     {
-        await ThreadSwitcher.ResumeBackgroundAsync();
-
-        if (!SelectedItems.Any())
-        {
-            StatusContext.ToastWarning("Nothing Selected to Mark Read?");
-            return;
-        }
-
         await ContextDb.ItemKeepUnreadToggle(SelectedItems.Select(x => x.DbItem.PersistentId).ToList());
     }
 
@@ -612,17 +567,12 @@ public partial class FeedItemListContext
     }
 
     [NonBlockingCommand]
+    [StopAndWarnIfNoSelectedListItems]
     public async Task UrlsForSelectedItems()
     {
-        if (!SelectedItems.Any())
-        {
-            StatusContext.ToastWarning("Nothing Selected?");
-            return;
-        }
-
         var clipboardBlock = new StringBuilder();
 
-        foreach (var loopItems in SelectedItems) clipboardBlock.AppendLine($"{loopItems.DbItem.Link}");
+        foreach (var loopItems in SelectedListItems()) clipboardBlock.AppendLine($"{loopItems.DbItem.Link}");
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
