@@ -77,14 +77,12 @@
                         <MenuItem Header="Mark All Unread" Command="{Binding MarkAllUnReadCommand}" />
                         <MenuItem Header="Archive Feed" Command="{Binding ArchiveSelectedFeedCommand}" />
                         <Separator />
-                        <Separator />
                         <MenuItem Header="Markdown to Clipboard"
                                   Command="{Binding MarkdownLinksForSelectedItemsCommand}" />
                         <MenuItem Header="URLs to Clipboard" Command="{Binding UrlsForSelectedItemsCommand}" />
                         <MenuItem Header="Titles to Clipboard" Command="{Binding NamesForSelectedItemsCommand}" />
                         <MenuItem Header="Titles and URLs to Clipboard"
                                   Command="{Binding TitleAndUrlForSelectedItemsCommand}" />
-                        <Separator />
                         <Separator />
                         <MenuItem Header="View Marked Read Feed Items"
                                   Command="{Binding ViewReadFeedItemsForSelectedItemCommand}" />

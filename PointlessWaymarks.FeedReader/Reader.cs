@@ -214,7 +214,7 @@ public static class Reader
     {
         byte[] result;
         {
-            result = await System.IO.File.ReadAllBytesAsync(filePath, cancellationToken).ConfigureAwait(false);
+            result = await File.ReadAllBytesAsync(filePath, cancellationToken).ConfigureAwait(false);
         }
         return ReadFromByteArray(result);
     }
