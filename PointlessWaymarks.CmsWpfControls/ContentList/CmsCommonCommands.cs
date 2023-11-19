@@ -615,7 +615,7 @@ public partial class CmsCommonCommands
 
                 if (metaContent != null && (!fileNameValidation.Valid || adjustFilename))
                 {
-                    var newBaseName = adjustFilename ? $"{metaContent.Title ?? Path.GetFileNameWithoutExtension(photoFile.Name)}{Path.GetExtension(photoFile.FullName)}" : photoFile.Name;
+                    var newBaseName = adjustFilename && !string.IsNullOrWhiteSpace(metaContent.Title) ? metaContent.Title : Path.GetFileNameWithoutExtension(photoFile.Name);
                     var renameResult = await FileAndFolderTools.TryAutoRenameFileForProgramConventions(photoFile, newBaseName);
 
                     if (renameResult is { Exists: true })
