@@ -281,6 +281,12 @@ public partial class FeedListContext : IStandardListWithContext<FeedListListItem
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
+        if (string.IsNullOrEmpty(UserAddFeedInput))
+        {
+            StatusContext.ToastWarning("Feed to Add is Blank?");
+            return;
+        }
+        
         var feedItem = await ContextDb.TryGetFeed(UserAddFeedInput, StatusContext.ProgressTracker());
 
         await ThreadSwitcher.ResumeForegroundAsync();

@@ -151,6 +151,9 @@
                     Content="Mark Read"
                     Command="{Binding MarkSelectedReadCommand}" />
                 <Button
+                    Content="_Clear Read"
+                    Command="{Binding ClearReadItemsCommand}" />
+                <Button
                     Content="Mark Unread"
                     Command="{Binding MarkSelectedUnReadCommand}" />
                 <Button
@@ -159,9 +162,6 @@
                 <Button
                     Content="_Refresh"
                     Command="{Binding RefreshFeedItemsCommand}" />
-                <Button
-                    Content="_Clear Read"
-                    Command="{Binding ClearReadItemsCommand}" />
                 <CheckBox VerticalAlignment="Center" VerticalContentAlignment="Center" Height="22" Width="130"
                           IsChecked="{Binding AutoMarkRead}" Margin="24,6,4,4">
                     Auto-Mark Read
