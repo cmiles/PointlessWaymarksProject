@@ -4,6 +4,13 @@ The Pointless Waymarks Feed Reader is part of the [Pointless Waymarks Project](h
 
 *At this point there are no public installers/releases from the Pointless Waymarks Project - the code is MIT Licensed made public on GitHub to share with friends, colleagues and anyone who finds the code interesting or useful. This project is probably only suitable for use if you enjoy debugging and working on code!*
 
-These days I'm loving 'local' desktop software - no reliance on someone else's server, no need to maintain my own server, no questions about where my data is! And with some activities/software I'm starting to see local network only, desktop only, as an interesting feature - reading Feeds, catching up and following links is a great start of the day - a modern version of the coffee and newspaper ritual - but in the AM is probably enough, too many things to do out in the real world, too many things to build and create to get stuck doom scrolling the web.
+## Ideas
 
-This program is designed to be a fairly simple bare-bones feed reader - I've tried to organize feeds and take advantage of additional features in feed readers dating back to Nick Bradbury's FeedDemon and at this point I'm convinced that a good approach is a simple list of feeds with minimal options for controlling 'read' state, a simple list of feeds and a list of saved items. That's it!
+Why write a desktop Feed Reader?
+
+  - Maybe not the most important detail but it would be false to say that nostalgia isn't part of it - while I can't truly remember the details I have fond memories of Nick Bradbury's FeedDemon! Of course it was a different time, I was a different person and the web was a different place - but regardless what good memories!
+  - Maybe more importantly I've started to see the 'limitation' of local network only, desktop only, as just another design choice - there are things best left on a single computer, best done at home, ok limited to local access and just not needed on every device everywhere... Reading Feeds, catching up and following links is a great start of the day - but doing that at my desk in the AM, with some coffee, is enough... There are too many things to do out in the real world, too many things to build and create to get stuck doom scrolling the web!
+  - I'm convinced that for me the best approach to Feeds is a simple list with minimal options! I've used various Readers for years and while I have gotten excited about various features over the years it seems like everything except the basics never get used long term.
+  - Joy! It's fun to build new software!!
+
+![Feed Reader Item List](../PointlessWaymarks.FeedReaderScreenShots/FeedReaderItems.jpg "Feed Reader Items List")
