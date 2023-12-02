@@ -1,8 +1,12 @@
-﻿using NetTopologySuite.Features;
+using System.Text;
+using System.Xml;
+using NetTopologySuite.Features;
 using NetTopologySuite.Geometries;
+using NetTopologySuite.IO;
 using PointlessWaymarks.CmsData.Content;
 using PointlessWaymarks.CmsData.ContentHtml.GeoJsonHtml;
 using PointlessWaymarks.CmsData.Database.Models;
+using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.SpatialTools;
 
 namespace PointlessWaymarks.CmsData.ContentHtml.LineHtml;
@@ -74,6 +78,37 @@ public static class LineData
         await FileManagement.WriteAllTextToFileAndLogAsync(dataFileInfo.FullName,
                 await GenerateLineJson(lineContent.Line, lineContent.Title ?? string.Empty,
                     UserSettingsSingleton.CurrentSettings().LinePageUrl(lineContent)).ConfigureAwait(false))
+            .ConfigureAwait(false);
+    }
+
+    public static async Task WriteGpxData(LineContent lineContent)
+    {
+        if (string.IsNullOrWhiteSpace(lineContent.Line))
+            throw new ArgumentException(
+                "WriteGpxData in LineData was given a LineContent with a null/blank/empty Line");
+
+        var dataFileInfo = new FileInfo(Path.Combine(
+            UserSettingsSingleton.CurrentSettings().LocalSiteLineDataDirectory().FullName,
+            $"Line-{lineContent.ContentId}.gpx"));
+
+        if (dataFileInfo.Exists)
+        {
+            dataFileInfo.Delete();
+            dataFileInfo.Refresh();
+        }
+
+        var trackList = GpxTools.GpxTrackFromLineFeature(lineContent.FeatureFromGeoJsonLine()!,
+            lineContent.RecordingStartedOnUtc, lineContent.Title ?? lineContent.RecordingEndedOnUtc?.ToString("yyyy MM dd") ?? lineContent.CreatedOn.ToString("yyyy MM dd"), string.Empty,
+            lineContent.Summary ?? string.Empty).AsList();
+
+        var textStream = new StringWriter();
+
+        var writerSettings = new XmlWriterSettings { Encoding = Encoding.UTF8, Indent = true, CloseOutput = true };
+        await using var xmlWriter = XmlWriter.Create(textStream, writerSettings);
+        GpxWriter.Write(xmlWriter, new GpxWriterSettings(), new GpxMetadata("Pointless Waymarks CMS"), null, null, trackList, null);
+        xmlWriter.Close();
+
+        await FileManagement.WriteAllTextToFileAndLogAsync(dataFileInfo.FullName, textStream.ToString())
             .ConfigureAwait(false);
     }
 

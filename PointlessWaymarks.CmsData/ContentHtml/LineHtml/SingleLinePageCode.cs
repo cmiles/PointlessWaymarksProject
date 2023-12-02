@@ -1,4 +1,4 @@
-﻿using PointlessWaymarks.CmsData.CommonHtml;
+using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.Content;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CommonTools;
@@ -52,6 +52,7 @@ public partial class SingleLinePage
         var settings = UserSettingsSingleton.CurrentSettings();
 
         await LineData.WriteJsonData(DbEntry).ConfigureAwait(false);
+        await LineData.WriteGpxData(DbEntry).ConfigureAwait(false);
 
         var htmlString = TransformText();
 
