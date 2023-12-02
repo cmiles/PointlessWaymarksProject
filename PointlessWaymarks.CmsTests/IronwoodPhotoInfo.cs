@@ -291,52 +291,53 @@ public static class IronwoodPhotoInfo
     {
         var contentDirectory = UserSettingsSingleton.CurrentSettings()
             .LocalSitePhotoContentDirectory(newContent, false);
-        Assert.True(contentDirectory.Exists, "Content Directory Not Found?");
+        Assert.That(contentDirectory.Exists, "Content Directory Not Found?");
 
         var expectedNumberOfFiles = PictureResizing.SrcSetSizeAndQualityList().Count(x => x.size < originalWidth) //
                                     + 1 //Original image
                                     + 1 //Display image
                                     + 1 //HTML file
                                     + 1; //json file
-        Assert.AreEqual(contentDirectory.GetFiles().Length, expectedNumberOfFiles,
+        Assert.That(expectedNumberOfFiles, Is.EqualTo(contentDirectory.GetFiles().Length),
             "Expected Number of Files Does Not Match");
 
         var pictureAssetInformation = PictureAssetProcessing.ProcessPictureDirectory(newContent.ContentId);
         var pictureAssetDbEntry = (PhotoContent)pictureAssetInformation.DbEntry;
-        Assert.IsTrue(pictureAssetDbEntry.ContentId == newContent.ContentId,
+        Assert.That(pictureAssetDbEntry.ContentId == newContent.ContentId,
             $"Picture Asset appears to have gotten an incorrect DB entry of {pictureAssetDbEntry.ContentId} rather than {newContent.ContentId}");
 
         var maxSize = PictureResizing.SrcSetSizeAndQualityList().Where(x => x.size < originalWidth).Max();
         var minSize = PictureResizing.SrcSetSizeAndQualityList().Min();
 
-        Assert.AreEqual(pictureAssetInformation.LargePicture.Width, maxSize.size,
-            $"Picture Asset Large Width is not the expected Value - Expected {maxSize}, Actual {pictureAssetInformation.LargePicture.Width}");
-        Assert.AreEqual(pictureAssetInformation.SmallPicture.Width,
-            PictureResizing.SrcSetSizeAndQualityList().Min().size,
-            $"Picture Asset Small Width is not the expected Value - Expected {minSize}, Actual {pictureAssetInformation.SmallPicture.Width}");
+        Assert.Multiple(() =>
+        {
+            Assert.That(maxSize.size, Is.EqualTo(pictureAssetInformation.LargePicture.Width),
+                    $"Picture Asset Large Width is not the expected Value - Expected {maxSize}, Actual {pictureAssetInformation.LargePicture.Width}");
+            Assert.That(PictureResizing.SrcSetSizeAndQualityList().Min().size, Is.EqualTo(pictureAssetInformation.SmallPicture.Width),
+                $"Picture Asset Small Width is not the expected Value - Expected {minSize}, Actual {pictureAssetInformation.SmallPicture.Width}");
 
-        Assert.AreEqual(pictureAssetInformation.SrcsetImages.Count,
-            PictureResizing.SrcSetSizeAndQualityList().Count(x => x.size < originalWidth),
-            "Did not find the expected number of SrcSet Images");
+            Assert.That(PictureResizing.SrcSetSizeAndQualityList().Count(x => x.size < originalWidth), Is.EqualTo(pictureAssetInformation.SrcsetImages.Count),
+                "Did not find the expected number of SrcSet Images");
+        });
     }
 
     public static void CheckOriginalFileInContentAndMediaArchiveAfterHtmlGeneration(PhotoContent newContent)
     {
         var expectedDirectory = UserSettingsSingleton.CurrentSettings().LocalSitePhotoContentDirectory(newContent);
-        Assert.IsTrue(expectedDirectory.Exists, $"Expected directory {expectedDirectory.FullName} does not exist");
+        Assert.That(expectedDirectory.Exists, $"Expected directory {expectedDirectory.FullName} does not exist");
 
         var expectedFile = UserSettingsSingleton.CurrentSettings().LocalSitePhotoHtmlFile(newContent);
-        Assert.IsTrue(expectedFile.Exists, $"Expected html file {expectedFile.FullName} does not exist");
+        Assert.That(expectedFile.Exists, $"Expected html file {expectedFile.FullName} does not exist");
 
         var expectedOriginalFileInContent =
             new FileInfo(Path.Combine(expectedDirectory.FullName, newContent.OriginalFileName));
-        Assert.IsTrue(expectedOriginalFileInContent.Exists,
+        Assert.That(expectedOriginalFileInContent.Exists,
             $"Expected to find original file in content directory but {expectedOriginalFileInContent.FullName} does not exist");
 
         var expectedOriginalFileInMediaArchive = new FileInfo(Path.Combine(
             UserSettingsSingleton.CurrentSettings().LocalMediaArchivePhotoDirectory().FullName,
             expectedOriginalFileInContent.Name));
-        Assert.IsTrue(expectedOriginalFileInMediaArchive.Exists,
+        Assert.That(expectedOriginalFileInMediaArchive.Exists,
             $"Expected to find original file in media archive directory but {expectedOriginalFileInMediaArchive.FullName} does not exist");
     }
 
@@ -384,7 +385,7 @@ public static class IronwoodPhotoInfo
     {
         var htmlFile = UserSettingsSingleton.CurrentSettings().LocalSitePhotoHtmlFile(newContent);
 
-        Assert.True(htmlFile.Exists, "Html File not Found for Html Checks?");
+        Assert.That(htmlFile.Exists, "Html File not Found for Html Checks?");
 
         var document = IronwoodHtmlHelpers.DocumentFromFile(htmlFile);
 
@@ -392,13 +393,13 @@ public static class IronwoodPhotoInfo
 
         var tagContainers = document.QuerySelectorAll(".tags-detail-link-container");
         var contentTags = Db.TagListParseToSlugsAndIsExcluded(newContent);
-        Assert.AreEqual(tagContainers.Length, contentTags.Count);
+        Assert.That(contentTags.Count, Is.EqualTo(tagContainers.Length));
 
         var tagLinks = document.QuerySelectorAll(".tag-detail-link");
-        Assert.AreEqual(tagLinks.Length, contentTags.Count(x => !x.IsExcluded));
+        Assert.That(contentTags.Count(x => !x.IsExcluded), Is.EqualTo(tagLinks.Length));
 
         var tagNoLinks = document.QuerySelectorAll(".tag-detail-text");
-        Assert.AreEqual(tagNoLinks.Length, contentTags.Count(x => x.IsExcluded));
+        Assert.That(contentTags.Count(x => x.IsExcluded), Is.EqualTo(tagNoLinks.Length));
     }
 
     public static void JsonTest(PhotoContent newContent)
@@ -408,37 +409,40 @@ public static class IronwoodPhotoInfo
             new FileInfo(Path.Combine(
                 UserSettingsSingleton.CurrentSettings().LocalSitePhotoContentDirectory(newContent).FullName,
                 $"{Names.PhotoContentPrefix}{newContent.ContentId}.json"));
-        Assert.True(jsonFile.Exists, $"Json file {jsonFile.FullName} does not exist?");
+        Assert.That(jsonFile.Exists, $"Json file {jsonFile.FullName} does not exist?");
 
         var jsonFileImported = Import.ContentFromFiles<PhotoContent>(
             new List<string> { jsonFile.FullName }, Names.PhotoContentPrefix).Single();
         var compareLogic = new CompareLogic();
         var comparisonResult = compareLogic.Compare(newContent, jsonFileImported);
-        Assert.True(comparisonResult.AreEqual,
+        Assert.That(comparisonResult.AreEqual,
             $"Json Import does not match expected Content {comparisonResult.DifferencesString}");
     }
 
     public static async Task PhotoTest(string fileName, PhotoContent contentReference, int width)
     {
         var originalFile = new FileInfo(Path.Combine(Directory.GetCurrentDirectory(), "TestMedia", fileName));
-        Assert.True(originalFile.Exists, "Test File Found");
+        Assert.That(originalFile.Exists, "Test File Found");
 
         var (metadataGenerationReturn, newContent) =
             await PhotoGenerator.PhotoMetadataToNewPhotoContent(originalFile, DebugTrackers.DebugProgressTracker());
-        Assert.False(metadataGenerationReturn.HasError, metadataGenerationReturn.GenerationNote);
+        Assert.That(metadataGenerationReturn.HasError, Is.False, metadataGenerationReturn.GenerationNote);
 
         var (areEqual, comparisonNotes) = CompareContent(contentReference, newContent);
-        Assert.True(areEqual, comparisonNotes);
+        Assert.That(areEqual, comparisonNotes);
 
         var validationReturn = await PhotoGenerator.Validate(newContent, originalFile);
-        Assert.False(validationReturn.HasError, $"Unexpected Validation Error - {validationReturn.GenerationNote}");
+        Assert.That(validationReturn.HasError, Is.False, $"Unexpected Validation Error - {validationReturn.GenerationNote}");
 
         var (generationReturn, _) = await PhotoGenerator.SaveAndGenerateHtml(newContent, originalFile, true, null,
             DebugTrackers.DebugProgressTracker());
-        Assert.False(generationReturn.HasError, $"Unexpected Save Error - {generationReturn.GenerationNote}");
+        Assert.Multiple(() =>
+        {
+            Assert.That(generationReturn.HasError, Is.False, $"Unexpected Save Error - {generationReturn.GenerationNote}");
 
-        Assert.IsTrue(newContent.MainPicture == newContent.ContentId,
-            $"Main Picture - {newContent.MainPicture} - Should be set to Content Id {newContent.ContentId}");
+            Assert.That(newContent.MainPicture == newContent.ContentId,
+                $"Main Picture - {newContent.MainPicture} - Should be set to Content Id {newContent.ContentId}");
+        });
 
         CheckOriginalFileInContentAndMediaArchiveAfterHtmlGeneration(newContent);
 

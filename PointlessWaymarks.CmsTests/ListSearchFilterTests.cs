@@ -8,13 +8,13 @@ public class ListSearchFilterTests
     [Test]
     public void ApertureBlankSearchAndAperture_DoNotInclude()
     {
-        Assert.IsFalse(ContentListSearchFunctions.FilterAperture("f/ 8.0", null).Include);
+        Assert.That(ContentListSearchFunctions.FilterAperture("f/ 8.0", null).Include, Is.False);
     }
 
     [Test]
     public void ApertureBlankSearchAndBlankAperture_Include()
     {
-        Assert.IsTrue(ContentListSearchFunctions.FilterAperture(null, string.Empty).Include);
+        Assert.That(ContentListSearchFunctions.FilterAperture(null, string.Empty).Include);
     }
 
     [TestCase("Aperture: <f/4 > f / 16")]
@@ -23,7 +23,7 @@ public class ListSearchFilterTests
     [TestCase("Aperture:<=f11.00 >f/13")]
     public void ApertureIsBetween_Include(string searchString)
     {
-        Assert.IsTrue(ContentListSearchFunctions.FilterAperture("f /11.0", searchString).Include);
+        Assert.That(ContentListSearchFunctions.FilterAperture("f /11.0", searchString).Include);
     }
 
     [TestCase("Aperture: 11")]
@@ -32,7 +32,7 @@ public class ListSearchFilterTests
     [TestCase("f /11.00")]
     public void ApertureIsEqual_Include(string searchString)
     {
-        Assert.IsTrue(ContentListSearchFunctions.FilterAperture("f/11", searchString).Include);
+        Assert.That(ContentListSearchFunctions.FilterAperture("f/11", searchString).Include);
     }
 
     [TestCase("Aperture: >11")]
@@ -46,7 +46,7 @@ public class ListSearchFilterTests
     [TestCase(">  11.00  ")]
     public void ApertureIsGreaterThan_Include(string searchString)
     {
-        Assert.IsTrue(ContentListSearchFunctions.FilterAperture("f / 8.0", searchString).Include);
+        Assert.That(ContentListSearchFunctions.FilterAperture("f / 8.0", searchString).Include);
     }
 
     [TestCase("Aperture: <4")]
@@ -58,7 +58,7 @@ public class ListSearchFilterTests
     [TestCase("<  11.00  ")]
     public void ApertureIsLessThan_Include(string searchString)
     {
-        Assert.IsTrue(ContentListSearchFunctions.FilterAperture("f/16", searchString).Include);
+        Assert.That(ContentListSearchFunctions.FilterAperture("f/16", searchString).Include);
     }
 
     [TestCase("Aperture: <4 >16")]
@@ -67,7 +67,7 @@ public class ListSearchFilterTests
     [TestCase("Aperture:<=f/11.00 >f/13")]
     public void ApertureIsNotBetween_Include(string searchString)
     {
-        Assert.IsFalse(ContentListSearchFunctions.FilterAperture("f/ 4", searchString).Include);
+        Assert.That(ContentListSearchFunctions.FilterAperture("f/ 4", searchString).Include, Is.False);
     }
 
     [Test]
@@ -75,10 +75,13 @@ public class ListSearchFilterTests
     {
         var searchString = " 2021 ";
 
-        Assert.IsFalse(ContentListSearchFunctions
-            .FilterDateTime(new DateTime(2022, 1, 1, 11, 23, 9), searchString, "Test DateTime").Include);
-        Assert.IsFalse(ContentListSearchFunctions
-            .FilterDateTime(new DateTime(2022, 12, 29, 11, 23, 9), searchString, "Test DateTime").Include);
+        Assert.Multiple(() =>
+        {
+            Assert.That(ContentListSearchFunctions
+                    .FilterDateTime(new DateTime(2022, 1, 1, 11, 23, 9), searchString, "Test DateTime").Include, Is.False);
+            Assert.That(ContentListSearchFunctions
+                .FilterDateTime(new DateTime(2022, 12, 29, 11, 23, 9), searchString, "Test DateTime").Include, Is.False);
+        });
     }
 
     [Test]
@@ -86,10 +89,13 @@ public class ListSearchFilterTests
     {
         var searchString = " 2022 ";
 
-        Assert.IsTrue(ContentListSearchFunctions
-            .FilterDateTime(new DateTime(2022, 1, 1, 11, 23, 9), searchString, "Test DateTime").Include);
-        Assert.IsTrue(ContentListSearchFunctions
-            .FilterDateTime(new DateTime(2022, 12, 29, 11, 23, 9), searchString, "Test DateTime").Include);
+        Assert.Multiple(() =>
+        {
+            Assert.That(ContentListSearchFunctions
+                    .FilterDateTime(new DateTime(2022, 1, 1, 11, 23, 9), searchString, "Test DateTime").Include);
+            Assert.That(ContentListSearchFunctions
+                .FilterDateTime(new DateTime(2022, 12, 29, 11, 23, 9), searchString, "Test DateTime").Include);
+        });
     }
 
     [Test]
@@ -97,29 +103,32 @@ public class ListSearchFilterTests
     {
         var searchString = " > 2021 ";
 
-        Assert.IsTrue(ContentListSearchFunctions
-            .FilterDateTime(new DateTime(2022, 1, 1, 11, 23, 9), searchString, "Test DateTime").Include);
-        Assert.IsTrue(ContentListSearchFunctions
-            .FilterDateTime(new DateTime(2022, 12, 29, 11, 23, 9), searchString, "Test DateTime").Include);
+        Assert.Multiple(() =>
+        {
+            Assert.That(ContentListSearchFunctions
+                    .FilterDateTime(new DateTime(2022, 1, 1, 11, 23, 9), searchString, "Test DateTime").Include);
+            Assert.That(ContentListSearchFunctions
+                .FilterDateTime(new DateTime(2022, 12, 29, 11, 23, 9), searchString, "Test DateTime").Include);
+        });
     }
 
     [Test]
     public void DateTimeSearchBlankItemAndBlankSearch_Include()
     {
-        Assert.IsTrue(ContentListSearchFunctions.FilterDateTime(null, null, "Test DateTime").Include);
+        Assert.That(ContentListSearchFunctions.FilterDateTime(null, null, "Test DateTime").Include);
     }
 
     [Test]
     public void DateTimeSearchBlankItemAndNotBlankSearch_DoNotInclude()
     {
-        Assert.IsFalse(ContentListSearchFunctions.FilterDateTime(null, "2020/1/1", "Test DateTime").Include);
+        Assert.That(ContentListSearchFunctions.FilterDateTime(null, "2020/1/1", "Test DateTime").Include, Is.False);
     }
 
     [Test]
     public void DateTimeSearchNotBlankItemAndBlankSearch_DoNotInclude()
     {
-        Assert.IsFalse(ContentListSearchFunctions
-            .FilterDateTime(new DateTime(2020, 1, 1, 1, 1, 1), null, "Test DateTime").Include);
+        Assert.That(ContentListSearchFunctions
+            .FilterDateTime(new DateTime(2020, 1, 1, 1, 1, 1), null, "Test DateTime").Include, Is.False);
     }
 
     [Test]
@@ -128,7 +137,7 @@ public class ListSearchFilterTests
         var frozenNow = DateTime.Now;
         var monthTextString = $"{frozenNow:MMM d}";
 
-        Assert.IsTrue(ContentListSearchFunctions.FilterDateTime(frozenNow, monthTextString, "Test DateTime").Include);
+        Assert.That(ContentListSearchFunctions.FilterDateTime(frozenNow, monthTextString, "Test DateTime").Include);
     }
 
 
@@ -138,10 +147,13 @@ public class ListSearchFilterTests
         var frozenNow = DateTime.Now;
         var searchString = $" > {frozenNow.AddDays(-23):MMM d} < {frozenNow.AddDays(23):f} ";
 
-        Assert.IsFalse(ContentListSearchFunctions.FilterDateTime(frozenNow.AddDays(96), searchString, "Test DateTime")
-            .Include);
-        Assert.IsFalse(ContentListSearchFunctions.FilterDateTime(frozenNow.AddDays(-96), searchString, "Test DateTime")
-            .Include);
+        Assert.Multiple(() =>
+        {
+            Assert.That(ContentListSearchFunctions.FilterDateTime(frozenNow.AddDays(96), searchString, "Test DateTime")
+                    .Include, Is.False);
+            Assert.That(ContentListSearchFunctions.FilterDateTime(frozenNow.AddDays(-96), searchString, "Test DateTime")
+                .Include, Is.False);
+        });
     }
 
     [Test]
@@ -150,7 +162,7 @@ public class ListSearchFilterTests
         var frozenNow = DateTime.Now;
         var searchString = $" > {frozenNow.AddDays(-23):MMM d} < {frozenNow.AddDays(23):f} ";
 
-        Assert.IsTrue(ContentListSearchFunctions.FilterDateTime(frozenNow, searchString, "Test DateTime").Include);
+        Assert.That(ContentListSearchFunctions.FilterDateTime(frozenNow, searchString, "Test DateTime").Include);
     }
 
     [Test]
@@ -158,8 +170,8 @@ public class ListSearchFilterTests
     {
         var searchString = " > 9am < 18:00 ";
 
-        Assert.IsFalse(ContentListSearchFunctions
-            .FilterDateTime(new DateTime(2019, 1, 1, 20, 23, 9), searchString, "Test DateTime").Include);
+        Assert.That(ContentListSearchFunctions
+            .FilterDateTime(new DateTime(2019, 1, 1, 20, 23, 9), searchString, "Test DateTime").Include, Is.False);
     }
 
     [Test]
@@ -167,20 +179,20 @@ public class ListSearchFilterTests
     {
         var searchString = " > 9am < 18:00 ";
 
-        Assert.IsTrue(ContentListSearchFunctions
+        Assert.That(ContentListSearchFunctions
             .FilterDateTime(new DateTime(2019, 1, 1, 11, 23, 9), searchString, "Test DateTime").Include);
     }
 
     [Test]
     public void FocalLengthBlankSearchAndBlankFocalLength_Include()
     {
-        Assert.IsTrue(ContentListSearchFunctions.FilterFocalLength(null, string.Empty).Include);
+        Assert.That(ContentListSearchFunctions.FilterFocalLength(null, string.Empty).Include);
     }
 
     [Test]
     public void FocalLengthBlankSearchAndFocalLength_DoNotInclude()
     {
-        Assert.IsFalse(ContentListSearchFunctions.FilterFocalLength("99", null).Include);
+        Assert.That(ContentListSearchFunctions.FilterFocalLength("99", null).Include, Is.False);
     }
 
     [TestCase("21")]
@@ -192,7 +204,7 @@ public class ListSearchFilterTests
     [TestCase("19.0000 mm")]
     public void FocalLengthEqualTolerance_DoNotInclude(string photoFocalLength)
     {
-        Assert.IsFalse(ContentListSearchFunctions.FilterFocalLength(photoFocalLength, "Focal Length: ==20").Include);
+        Assert.That(ContentListSearchFunctions.FilterFocalLength(photoFocalLength, "Focal Length: ==20").Include, Is.False);
     }
 
     [TestCase("20")]
@@ -204,25 +216,25 @@ public class ListSearchFilterTests
     [TestCase("20.90 mm")]
     public void FocalLengthEqualTolerance_Include(string photoFocalLength)
     {
-        Assert.IsTrue(ContentListSearchFunctions.FilterFocalLength(photoFocalLength, " == 20").Include);
+        Assert.That(ContentListSearchFunctions.FilterFocalLength(photoFocalLength, " == 20").Include);
     }
 
     [Test]
     public void FocalLengthIs100_DoubleEquals100mmString()
     {
-        Assert.IsTrue(ContentListSearchFunctions.FilterFocalLength("100 mm", "Focal Length: ==100mm").Include);
+        Assert.That(ContentListSearchFunctions.FilterFocalLength("100 mm", "Focal Length: ==100mm").Include);
     }
 
     [Test]
     public void FocalLengthIs100_Simple100String()
     {
-        Assert.IsTrue(ContentListSearchFunctions.FilterFocalLength("100 mm", "Focal Length: 100").Include);
+        Assert.That(ContentListSearchFunctions.FilterFocalLength("100 mm", "Focal Length: 100").Include);
     }
 
     [Test]
     public void FocalLengthIs100_SingleEquals100String()
     {
-        Assert.IsTrue(ContentListSearchFunctions.FilterFocalLength("100 mm", " = 100").Include);
+        Assert.That(ContentListSearchFunctions.FilterFocalLength("100 mm", " = 100").Include);
     }
 
     [TestCase("50")]
@@ -237,7 +249,7 @@ public class ListSearchFilterTests
     [TestCase("500 mm")]
     public void FocalLengthIsGreaterThan100AndLessThan500_DoNotInclude(string photoFocalLength)
     {
-        Assert.IsFalse(ContentListSearchFunctions.FilterFocalLength(photoFocalLength, ">100 < 500mm").Include);
+        Assert.That(ContentListSearchFunctions.FilterFocalLength(photoFocalLength, ">100 < 500mm").Include, Is.False);
     }
 
     [TestCase("50")]
@@ -249,26 +261,26 @@ public class ListSearchFilterTests
     [TestCase("75 mm")]
     public void FocalLengthIsGreaterThan100AndLessThan500_Include(string photoFocalLength)
     {
-        Assert.IsTrue(ContentListSearchFunctions.FilterFocalLength(photoFocalLength, "Focal Length: >= 50mm <=100 mm")
+        Assert.That(ContentListSearchFunctions.FilterFocalLength(photoFocalLength, "Focal Length: >= 50mm <=100 mm")
             .Include);
     }
 
     [Test]
     public void IsoBlankSearchAndBlankIso_Include()
     {
-        Assert.IsTrue(ContentListSearchFunctions.FilterIso(null, string.Empty).Include);
+        Assert.That(ContentListSearchFunctions.FilterIso(null, string.Empty).Include);
     }
 
     [Test]
     public void IsoBlankSearchAndIso_DoNotInclude()
     {
-        Assert.IsFalse(ContentListSearchFunctions.FilterIso("99", null).Include);
+        Assert.That(ContentListSearchFunctions.FilterIso("99", null).Include, Is.False);
     }
 
     [Test]
     public void IsoIs100_Simple100String()
     {
-        Assert.IsTrue(ContentListSearchFunctions.FilterIso("100", "Iso: 100").Include);
+        Assert.That(ContentListSearchFunctions.FilterIso("100", "Iso: 100").Include);
     }
 
     [TestCase("50")]
@@ -279,7 +291,7 @@ public class ListSearchFilterTests
     [TestCase(" 500")]
     public void IsoIsGreaterThan100AndLessThan500_DoNotInclude(string photoIso)
     {
-        Assert.IsFalse(ContentListSearchFunctions.FilterIso(photoIso, ">100 < 500").Include);
+        Assert.That(ContentListSearchFunctions.FilterIso(photoIso, ">100 < 500").Include, Is.False);
     }
 
     [TestCase("50")]
@@ -291,13 +303,13 @@ public class ListSearchFilterTests
     [TestCase("75 ")]
     public void IsoIsGreaterThan100AndLessThan500_Include(string photoIso)
     {
-        Assert.IsTrue(ContentListSearchFunctions.FilterIso(photoIso, "Iso: >= 50 <=100").Include);
+        Assert.That(ContentListSearchFunctions.FilterIso(photoIso, "Iso: >= 50 <=100").Include);
     }
 
     [Test]
     public void IsoSearchAndBlankIso_DoNotInclude()
     {
-        Assert.IsFalse(ContentListSearchFunctions.FilterIso(string.Empty, "== 99").Include);
+        Assert.That(ContentListSearchFunctions.FilterIso(string.Empty, "== 99").Include, Is.False);
     }
 
     [TestCase("1/1    ")]
@@ -308,7 +320,7 @@ public class ListSearchFilterTests
     [TestCase(" == December, 19, 1999 ")]
     public void OperatorTokenList_OneToken(string noOperatorSearch)
     {
-        Assert.AreEqual(ContentListSearchFunctions.FilterListOperatorDividedTokenList(noOperatorSearch).Count, 1);
+        Assert.That(1, Is.EqualTo(ContentListSearchFunctions.FilterListOperatorDividedTokenList(noOperatorSearch).Count));
     }
 
     [TestCase("1/1    ", "")]
@@ -322,10 +334,12 @@ public class ListSearchFilterTests
     [TestCase(" == December, 19, 1999 ", "==")]
     public void OperatorTokenList_OneTokenOperatorProperlyDetected(string noOperatorSearch, string operatorString)
     {
-        Assert.AreEqual(ContentListSearchFunctions.FilterListOperatorDividedTokenList(noOperatorSearch).Count, 1);
-        Assert.AreEqual(
-            ContentListSearchFunctions.FilterListOperatorDividedTokenList(noOperatorSearch).First().operatorString,
-            operatorString);
+        Assert.Multiple(() =>
+        {
+            Assert.That(1, Is.EqualTo(ContentListSearchFunctions.FilterListOperatorDividedTokenList(noOperatorSearch).Count));
+            Assert.That(
+                operatorString, Is.EqualTo(ContentListSearchFunctions.FilterListOperatorDividedTokenList(noOperatorSearch).First().operatorString));
+        });
     }
 
     [TestCase("1/1    ", "1/1")]
@@ -335,10 +349,12 @@ public class ListSearchFilterTests
     [TestCase(" == December, 19, 1999 ", "December, 19, 1999")]
     public void OperatorTokenList_SpacesAreProperlyReduced(string noOperatorSearch, string spaceReducedSearch)
     {
-        Assert.AreEqual(ContentListSearchFunctions.FilterListOperatorDividedTokenList(noOperatorSearch).Count, 1);
-        Assert.AreEqual(
-            ContentListSearchFunctions.FilterListOperatorDividedTokenList(noOperatorSearch).First().searchString,
-            spaceReducedSearch);
+        Assert.Multiple(() =>
+        {
+            Assert.That(1, Is.EqualTo(ContentListSearchFunctions.FilterListOperatorDividedTokenList(noOperatorSearch).Count));
+            Assert.That(
+                spaceReducedSearch, Is.EqualTo(ContentListSearchFunctions.FilterListOperatorDividedTokenList(noOperatorSearch).First().searchString));
+        });
     }
 
     [TestCase("> 1/1   < 1/2 ", "<")]
@@ -350,23 +366,25 @@ public class ListSearchFilterTests
     public void OperatorTokenList_TwoTokensOperatorProperlyDetected(string noOperatorSearch,
         string secondOperatorString)
     {
-        Assert.AreEqual(ContentListSearchFunctions.FilterListOperatorDividedTokenList(noOperatorSearch).Count, 2);
-        Assert.AreEqual(
-            ContentListSearchFunctions.FilterListOperatorDividedTokenList(noOperatorSearch)[1].operatorString,
-            secondOperatorString);
+        Assert.Multiple(() =>
+        {
+            Assert.That(2, Is.EqualTo(ContentListSearchFunctions.FilterListOperatorDividedTokenList(noOperatorSearch).Count));
+            Assert.That(
+                secondOperatorString, Is.EqualTo(ContentListSearchFunctions.FilterListOperatorDividedTokenList(noOperatorSearch)[1].operatorString));
+        });
     }
 
 
     [Test]
     public void ShutterSpeedBlankSearchAndBlankShutterSpeed_Include()
     {
-        Assert.IsTrue(ContentListSearchFunctions.FilterShutterSpeedLength(null, string.Empty).Include);
+        Assert.That(ContentListSearchFunctions.FilterShutterSpeedLength(null, string.Empty).Include);
     }
 
     [Test]
     public void ShutterSpeedBlankSearchAndShutterSpeed_DoNotInclude()
     {
-        Assert.IsFalse(ContentListSearchFunctions.FilterShutterSpeedLength("99", null).Include);
+        Assert.That(ContentListSearchFunctions.FilterShutterSpeedLength("99", null).Include, Is.False);
     }
 
     [TestCase("Shutter Speed: .5")]
@@ -375,14 +393,14 @@ public class ListSearchFilterTests
     [TestCase("shutter speed:1/25")]
     public void ShutterSpeedIsEqual_DoNotInclude(string searchString)
     {
-        Assert.IsFalse(ContentListSearchFunctions.FilterShutterSpeedLength("1/250", searchString).Include);
+        Assert.That(ContentListSearchFunctions.FilterShutterSpeedLength("1/250", searchString).Include, Is.False);
     }
 
     [TestCase("Shutter Speed: .004")]
     [TestCase("1/250")]
     public void ShutterSpeedIsEqual_Include(string searchString)
     {
-        Assert.IsTrue(ContentListSearchFunctions.FilterShutterSpeedLength("1/250", searchString).Include);
+        Assert.That(ContentListSearchFunctions.FilterShutterSpeedLength("1/250", searchString).Include);
     }
 
     [TestCase("shutter speed: > 1/25 < 10.021")]
@@ -390,7 +408,7 @@ public class ListSearchFilterTests
     [TestCase("shutter speed: >= 2 <= 8")]
     public void ShutterSpeedIsInRange_Include(string searchString)
     {
-        Assert.IsTrue(ContentListSearchFunctions.FilterShutterSpeedLength("2.0", searchString).Include);
+        Assert.That(ContentListSearchFunctions.FilterShutterSpeedLength("2.0", searchString).Include);
     }
 
     [TestCase("shutter speed: > 1/250 < 1/1000")]
@@ -398,7 +416,7 @@ public class ListSearchFilterTests
     [TestCase("shutter speed: >= 2 <= 8")]
     public void ShutterSpeedIsOutOfRange_DoNotInclude(string searchString)
     {
-        Assert.IsFalse(ContentListSearchFunctions.FilterShutterSpeedLength("1/1000", searchString).Include);
+        Assert.That(ContentListSearchFunctions.FilterShutterSpeedLength("1/1000", searchString).Include, Is.False);
     }
 
     [TestCase("Ocean")]
@@ -408,8 +426,8 @@ public class ListSearchFilterTests
     [TestCase("z")]
     public void StringContains_DoNotInclude(string searchString)
     {
-        Assert.IsFalse(ContentListSearchFunctions
-            .FilterStringContains("An (interesting) MOUNTAIN scene. ", searchString, "Summary").Include);
+        Assert.That(ContentListSearchFunctions
+            .FilterStringContains("An (interesting) MOUNTAIN scene. ", searchString, "Summary").Include, Is.False);
     }
 
     [TestCase("A")]
@@ -421,26 +439,26 @@ public class ListSearchFilterTests
     [TestCase("interesting")]
     public void StringContains_Include(string searchString)
     {
-        Assert.IsTrue(ContentListSearchFunctions
+        Assert.That(ContentListSearchFunctions
             .FilterStringContains("An (interesting) MOUNTAIN scene. ", searchString, "Summary").Include);
     }
 
     [Test]
     public void StringContainsBlankItemAndBlankSearch_Include()
     {
-        Assert.IsTrue(ContentListSearchFunctions.FilterStringContains(string.Empty, null, "Test String").Include);
+        Assert.That(ContentListSearchFunctions.FilterStringContains(string.Empty, null, "Test String").Include);
     }
 
     [Test]
     public void StringContainsBlankItemAndNotBlankSearch_DoNotInclude()
     {
-        Assert.IsFalse(ContentListSearchFunctions.FilterStringContains(string.Empty, "Mountains ", "Test String")
-            .Include);
+        Assert.That(ContentListSearchFunctions.FilterStringContains(string.Empty, "Mountains ", "Test String")
+            .Include, Is.False);
     }
 
     [Test]
     public void StringContainsNotBlankItemAndBlankSearch_DoNotInclude()
     {
-        Assert.IsFalse(ContentListSearchFunctions.FilterStringContains("A Nice String", null, "Test String").Include);
+        Assert.That(ContentListSearchFunctions.FilterStringContains("A Nice String", null, "Test String").Include, Is.False);
     }
 }

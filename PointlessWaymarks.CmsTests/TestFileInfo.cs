@@ -66,19 +66,19 @@ public static class TestFileInfo
     {
         var contentDirectory = UserSettingsSingleton.CurrentSettings()
             .LocalSiteFileContentDirectory(newContent, false);
-        Assert.True(contentDirectory.Exists, "Content Directory Not Found?");
+        Assert.That(contentDirectory.Exists, "Content Directory Not Found?");
 
         var filesInDirectory = contentDirectory.GetFiles().ToList();
 
         var fileFile = filesInDirectory.SingleOrDefault(x => x.Name == newContent.OriginalFileName);
 
-        Assert.NotNull(fileFile, "Original File not Found in File Content Directory");
+        Assert.That(fileFile, Is.Not.Null, "Original File not Found in File Content Directory");
 
         filesInDirectory.Remove(fileFile);
 
         var htmlFile = filesInDirectory.SingleOrDefault(x => x.Name == $"{newContent.Slug}.html");
 
-        Assert.NotNull(htmlFile, "File Content HTML File not Found");
+        Assert.That(htmlFile, Is.Not.Null, "File Content HTML File not Found");
 
         filesInDirectory.Remove(htmlFile);
 
@@ -86,7 +86,7 @@ public static class TestFileInfo
             filesInDirectory.SingleOrDefault(x =>
                 x.Name == $"{Names.FileContentPrefix}{newContent.ContentId}.json");
 
-        Assert.NotNull(jsonFile, "Json File not Found in File Content Directory");
+        Assert.That(jsonFile, Is.Not.Null, "Json File not Found in File Content Directory");
 
         filesInDirectory.Remove(jsonFile);
 
@@ -96,32 +96,32 @@ public static class TestFileInfo
             var historicJsonFile = filesInDirectory.SingleOrDefault(x =>
                 x.Name == $"{Names.HistoricFileContentPrefix}{newContent.ContentId}.json");
 
-            Assert.NotNull(historicJsonFile, "Historic Json File not Found in File Content Directory");
+            Assert.That(historicJsonFile, Is.Not.Null, "Historic Json File not Found in File Content Directory");
 
             filesInDirectory.Remove(historicJsonFile);
         }
 
-        Assert.AreEqual(0, filesInDirectory.Count,
+        Assert.That(filesInDirectory.Count, Is.EqualTo(0),
             $"Unexpected files in File Content Directory: {string.Join(",", filesInDirectory)}");
     }
 
     public static void CheckOriginalFileInContentAndMediaArchiveAfterHtmlGeneration(FileContent newContent)
     {
         var expectedDirectory = UserSettingsSingleton.CurrentSettings().LocalSiteFileContentDirectory(newContent);
-        Assert.IsTrue(expectedDirectory.Exists, $"Expected directory {expectedDirectory.FullName} does not exist");
+        Assert.That(expectedDirectory.Exists, $"Expected directory {expectedDirectory.FullName} does not exist");
 
         var expectedFile = UserSettingsSingleton.CurrentSettings().LocalSiteFileHtmlFile(newContent);
-        Assert.IsTrue(expectedFile.Exists, $"Expected html file {expectedFile.FullName} does not exist");
+        Assert.That(expectedFile.Exists, $"Expected html file {expectedFile.FullName} does not exist");
 
         var expectedOriginalFileInContent =
             new FileInfo(Path.Combine(expectedDirectory.FullName, newContent.OriginalFileName));
-        Assert.IsTrue(expectedOriginalFileInContent.Exists,
+        Assert.That(expectedOriginalFileInContent.Exists,
             $"Expected to find original file in content directory but {expectedOriginalFileInContent.FullName} does not exist");
 
         var expectedOriginalFileInMediaArchive = new FileInfo(Path.Combine(
             UserSettingsSingleton.CurrentSettings().LocalMediaArchiveFileDirectory().FullName,
             expectedOriginalFileInContent.Name));
-        Assert.IsTrue(expectedOriginalFileInMediaArchive.Exists,
+        Assert.That(expectedOriginalFileInMediaArchive.Exists,
             $"Expected to find original file in media archive file directory but {expectedOriginalFileInMediaArchive.FullName} does not exist");
     }
 
@@ -153,20 +153,20 @@ public static class TestFileInfo
     public static async Task<FileContent> FileTest(string fileName, FileContent contentReference)
     {
         var testFile = new FileInfo(Path.Combine(Directory.GetCurrentDirectory(), "TestMedia", fileName));
-        Assert.True(testFile.Exists, "Test File Found");
+        Assert.That(testFile.Exists, "Test File Found");
 
         var contentToSave = FileContent.CreateInstance();
         contentToSave.InjectFrom(contentReference);
 
         var validationReturn = await FileGenerator.Validate(contentToSave, testFile);
-        Assert.False(validationReturn.HasError, $"Unexpected Validation Error - {validationReturn.GenerationNote}");
+        Assert.That(validationReturn.HasError, Is.False, $"Unexpected Validation Error - {validationReturn.GenerationNote}");
 
         var (generationReturn, newContent) = await FileGenerator.SaveAndGenerateHtml(contentToSave, testFile, true,
             null, DebugTrackers.DebugProgressTracker());
-        Assert.False(generationReturn.HasError, $"Unexpected Save Error - {generationReturn.GenerationNote}");
+        Assert.That(generationReturn.HasError, Is.False, $"Unexpected Save Error - {generationReturn.GenerationNote}");
 
         var contentComparison = CompareContent(contentReference, newContent);
-        Assert.True(contentComparison.areEqual, contentComparison.comparisonNotes);
+        Assert.That(contentComparison.areEqual, contentComparison.comparisonNotes);
 
         CheckOriginalFileInContentAndMediaArchiveAfterHtmlGeneration(newContent);
 
@@ -183,7 +183,7 @@ public static class TestFileInfo
     {
         var htmlFile = UserSettingsSingleton.CurrentSettings().LocalSiteFileHtmlFile(newFileContent);
 
-        Assert.True(htmlFile.Exists, "Html File not Found for Html Checks?");
+        Assert.That(htmlFile.Exists, "Html File not Found for Html Checks?");
 
         var document = IronwoodHtmlHelpers.DocumentFromFile(htmlFile);
 
@@ -197,13 +197,13 @@ public static class TestFileInfo
             new FileInfo(Path.Combine(
                 UserSettingsSingleton.CurrentSettings().LocalSiteFileContentDirectory(newContent).FullName,
                 $"{Names.FileContentPrefix}{newContent.ContentId}.json"));
-        Assert.True(jsonFile.Exists, $"Json file {jsonFile.FullName} does not exist?");
+        Assert.That(jsonFile.Exists, $"Json file {jsonFile.FullName} does not exist?");
 
         var jsonFileImported = Import.ContentFromFiles<FileContent>(
             new List<string> { jsonFile.FullName }, Names.FileContentPrefix).Single();
         var compareLogic = new CompareLogic();
         var comparisonResult = compareLogic.Compare(newContent, jsonFileImported);
-        Assert.True(comparisonResult.AreEqual,
+        Assert.That(comparisonResult.AreEqual,
             $"Json Import does not match expected File Content {comparisonResult.DifferencesString}");
     }
 }

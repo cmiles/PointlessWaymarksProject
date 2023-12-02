@@ -88,23 +88,26 @@ public static class GrandCanyonPointInfo
     {
         var contentDirectory = UserSettingsSingleton.CurrentSettings()
             .LocalSitePointContentDirectory(newContent, false);
-        Assert.True(contentDirectory.Exists, "Content Directory Not Found?");
+        Assert.That(contentDirectory.Exists, "Content Directory Not Found?");
 
         var filesInDirectory = contentDirectory.GetFiles().ToList();
 
-        Assert.True(filesInDirectory.Any(x => x.Name == $"{newContent.Slug}.html"),
-            "Point Html file not found in Content Directory");
+        Assert.Multiple(() =>
+        {
+            Assert.That(filesInDirectory.Any(x => x.Name == $"{newContent.Slug}.html"),
+                    "Point Html file not found in Content Directory");
 
-        Assert.True(filesInDirectory.Any(x => x.Name == $"{Names.PointContentPrefix}{newContent.ContentId}.json"),
-            "Point Json file not found in Content Directory");
+            Assert.That(filesInDirectory.Any(x => x.Name == $"{Names.PointContentPrefix}{newContent.ContentId}.json"),
+                "Point Json file not found in Content Directory");
+        });
 
         if (newContent.PointDetails.Any())
-            Assert.True(
+            Assert.That(
                 filesInDirectory.Any(x =>
                     x.Name == $"{Names.PointDetailsContentPrefix}{newContent.ContentId}.json"),
                 "Point Details Json file not found in Content Directory");
         else
-            Assert.True(
+            Assert.That(
                 filesInDirectory.All(x =>
                     x.Name != $"{Names.PointDetailsContentPrefix}{newContent.ContentId}.json"),
                 "Point Details Json file not found with no Details Entry?");
@@ -115,7 +118,7 @@ public static class GrandCanyonPointInfo
             var historicJsonFile = filesInDirectory.SingleOrDefault(x =>
                 x.Name == $"{Names.HistoricPointContentPrefix}{newContent.ContentId}.json");
 
-            Assert.NotNull(historicJsonFile, "Historic Point Json File not Found in Content Directory");
+            Assert.That(historicJsonFile, Is.Not.Null, "Historic Point Json File not Found in Content Directory");
         }
 
         var historicPointDetails = await Db.HistoricPointDetailsForPoint(newContent.ContentId, db, 40);
@@ -124,7 +127,7 @@ public static class GrandCanyonPointInfo
             var historicDetailsJsonFile = filesInDirectory.SingleOrDefault(x =>
                 x.Name == $"{Names.HistoricPointDetailsContentPrefix}{newContent.ContentId}.json");
 
-            Assert.NotNull(historicDetailsJsonFile,
+            Assert.That(historicDetailsJsonFile, Is.Not.Null,
                 "Historic Point Details Json File not Found in Content Directory");
         }
     }
@@ -175,7 +178,7 @@ public static class GrandCanyonPointInfo
     {
         var htmlFile = UserSettingsSingleton.CurrentSettings().LocalSitePointHtmlFile(newContent);
 
-        Assert.True(htmlFile.Exists, "Html File not Found for Html Checks?");
+        Assert.That(htmlFile.Exists, "Html File not Found for Html Checks?");
 
         var document = IronwoodHtmlHelpers.DocumentFromFile(htmlFile);
 
@@ -188,27 +191,27 @@ public static class GrandCanyonPointInfo
             new FileInfo(Path.Combine(
                 UserSettingsSingleton.CurrentSettings().LocalSitePointContentDirectory(newContent).FullName,
                 $"{Names.PointContentPrefix}{newContent.ContentId}.json"));
-        Assert.True(jsonFile.Exists, $"Json file {jsonFile.FullName} does not exist?");
+        Assert.That(jsonFile.Exists, $"Json file {jsonFile.FullName} does not exist?");
 
         var jsonFileImported = Import.ContentFromFiles<PointContent>(
             new List<string> { jsonFile.FullName }, Names.PointContentPrefix).Single();
         var compareLogic = new CompareLogic();
         var comparisonResult = compareLogic.Compare(newContent, jsonFileImported);
-        Assert.True(comparisonResult.AreEqual,
+        Assert.That(comparisonResult.AreEqual,
             $"Json Import does not match expected File Content {comparisonResult.DifferencesString}");
     }
 
     public static async Task<PointContentDto> PointTest(PointContentDto contentReference)
     {
         var validationReturn = await PointGenerator.Validate(contentReference);
-        Assert.False(validationReturn.HasError, $"Unexpected Validation Error - {validationReturn.GenerationNote}");
+        Assert.That(validationReturn.HasError, Is.False, $"Unexpected Validation Error - {validationReturn.GenerationNote}");
 
         var (generationReturn, newContent) =
             await PointGenerator.SaveAndGenerateHtml(contentReference, null, DebugTrackers.DebugProgressTracker());
-        Assert.False(generationReturn.HasError, $"Unexpected Save Error - {generationReturn.GenerationNote}");
+        Assert.That(generationReturn.HasError, Is.False, $"Unexpected Save Error - {generationReturn.GenerationNote}");
 
         var contentComparison = CompareContent(contentReference, newContent);
-        Assert.True(contentComparison.areEqual, contentComparison.comparisonNotes);
+        Assert.That(contentComparison.areEqual, contentComparison.comparisonNotes);
 
         await CheckForExpectedFilesAfterHtmlGeneration(newContent);
 

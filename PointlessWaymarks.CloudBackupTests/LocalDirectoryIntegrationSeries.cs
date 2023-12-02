@@ -62,9 +62,12 @@ public class LocalDirectoryIntegrationSeries
         var includedDirectories = directories.Where(x => x.Included).Select(x => x.Directory).ToList();
         
         Assert.That(directories, Has.Count.EqualTo(6));
-        Assert.That(directories.Count(x => x.Included), Is.EqualTo(6));
-        Assert.That(directories.Count(x => !x.Included), Is.EqualTo(0));
-        Assert.That(includedDirectories.Select(x => x.FullName), Has.Exactly(1).EqualTo(TestDirectory.FullName));
+        Assert.Multiple(() =>
+        {
+            Assert.That(directories.Count(x => x.Included), Is.EqualTo(6));
+            Assert.That(directories.Count(x => !x.Included), Is.EqualTo(0));
+            Assert.That(includedDirectories.Select(x => x.FullName), Has.Exactly(1).EqualTo(TestDirectory.FullName));
+        });
         Assert.That(includedDirectories.Select(x => x.FullName), Has.Exactly(1).EqualTo(TestDirectory1.FullName));
         Assert.That(includedDirectories.Select(x => x.FullName), Has.Exactly(1).EqualTo(TestDirectory2.FullName));
         Assert.That(includedDirectories.Select(x => x.FullName), Has.Exactly(1).EqualTo(TestDirectory3.FullName));
@@ -93,9 +96,12 @@ public class LocalDirectoryIntegrationSeries
         var includedDirectories = directories.Where(x => x.Included).Select(x => x.Directory).ToList();
 
         Assert.That(directories, Has.Count.EqualTo(6));
-        Assert.That(directories.Count(x => x.Included), Is.EqualTo(5));
-        Assert.That(directories.Count(x => !x.Included), Is.EqualTo(1));
-        Assert.That(includedDirectories.Select(x => x.FullName), Has.Exactly(1).EqualTo(TestDirectory.FullName));
+        Assert.Multiple(() =>
+        {
+            Assert.That(directories.Count(x => x.Included), Is.EqualTo(5));
+            Assert.That(directories.Count(x => !x.Included), Is.EqualTo(1));
+            Assert.That(includedDirectories.Select(x => x.FullName), Has.Exactly(1).EqualTo(TestDirectory.FullName));
+        });
         Assert.That(includedDirectories.Select(x => x.FullName), Has.Exactly(1).EqualTo(TestDirectory1.FullName));
         Assert.That(includedDirectories.Select(x => x.FullName), Has.Exactly(1).EqualTo(TestDirectory2.FullName));
         Assert.That(includedDirectories.Select(x => x.FullName), Has.Exactly(1).EqualTo(TestDirectory3.FullName));
@@ -123,9 +129,12 @@ public class LocalDirectoryIntegrationSeries
         var includedDirectories = directories.Where(x => x.Included).Select(x => x.Directory).ToList();
 
         Assert.That(directories, Has.Count.EqualTo(6));
-        Assert.That(directories.Count(x => x.Included), Is.EqualTo(4));
-        Assert.That(directories.Count(x => !x.Included), Is.EqualTo(2));
-        Assert.That(includedDirectories.Select(x => x.FullName), Has.Exactly(1).EqualTo(TestDirectory.FullName));
+        Assert.Multiple(() =>
+        {
+            Assert.That(directories.Count(x => x.Included), Is.EqualTo(4));
+            Assert.That(directories.Count(x => !x.Included), Is.EqualTo(2));
+            Assert.That(includedDirectories.Select(x => x.FullName), Has.Exactly(1).EqualTo(TestDirectory.FullName));
+        });
         Assert.That(includedDirectories.Select(x => x.FullName), Has.Exactly(1).EqualTo(TestDirectory1.FullName));
         Assert.That(includedDirectories.Select(x => x.FullName), Has.Exactly(1).EqualTo(TestDirectory2.FullName));
         Assert.That(includedDirectories.Select(x => x.FullName), Has.Exactly(1).EqualTo(TestDirectory3.FullName));
@@ -155,9 +164,12 @@ public class LocalDirectoryIntegrationSeries
         var includedDirectories = directories.Where(x => x.Included).Select(x => x.Directory).ToList();
 
         Assert.That(directories, Has.Count.EqualTo(6));
-        Assert.That(directories.Count(x => x.Included), Is.EqualTo(1));
-        Assert.That(directories.Count(x => !x.Included), Is.EqualTo(5));
-        Assert.That(includedDirectories.Select(x => x.FullName), Has.Exactly(1).EqualTo(TestDirectory.FullName));
+        Assert.Multiple(() =>
+        {
+            Assert.That(directories.Count(x => x.Included), Is.EqualTo(1));
+            Assert.That(directories.Count(x => !x.Included), Is.EqualTo(5));
+            Assert.That(includedDirectories.Select(x => x.FullName), Has.Exactly(1).EqualTo(TestDirectory.FullName));
+        });
     }
 
     /// <summary>
@@ -185,9 +197,12 @@ public class LocalDirectoryIntegrationSeries
         var includedDirectories = directories.Where(x => x.Included).Select(x => x.Directory).ToList();
 
         Assert.That(directories, Has.Count.EqualTo(6));
-        Assert.That(directories.Count(x => x.Included), Is.EqualTo(3));
-        Assert.That(directories.Count(x => !x.Included), Is.EqualTo(3));
-        Assert.That(includedDirectories.Select(x => x.FullName), Has.Exactly(1).EqualTo(TestDirectory.FullName));
+        Assert.Multiple(() =>
+        {
+            Assert.That(directories.Count(x => x.Included), Is.EqualTo(3));
+            Assert.That(directories.Count(x => !x.Included), Is.EqualTo(3));
+            Assert.That(includedDirectories.Select(x => x.FullName), Has.Exactly(1).EqualTo(TestDirectory.FullName));
+        });
         Assert.That(includedDirectories.Select(x => x.FullName), Has.Exactly(1).EqualTo(TestDirectory1.FullName));
         Assert.That(includedDirectories.Select(x => x.FullName), Has.Exactly(1).EqualTo(TestDirectory2.FullName));
     }

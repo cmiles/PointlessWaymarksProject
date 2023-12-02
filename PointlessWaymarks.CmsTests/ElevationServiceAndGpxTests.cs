@@ -17,7 +17,7 @@ public class ElevationServiceAndGpxTests
 
         await ElevationService.OpenTopoMapZenElevation(testData, DebugTrackers.DebugProgressTracker());
 
-        Assert.IsTrue(testData.All(x => x.Z > 0), "Not all point have an elevation greater than zero.");
+        Assert.That(testData.All(x => x.Z > 0), "Not all point have an elevation greater than zero.");
 
         var referenceData = GrandCanyonPointsWithMapZenElevations();
 
@@ -25,7 +25,7 @@ public class ElevationServiceAndGpxTests
         {
             var referenceItem =
                 referenceData.Single(x => x.Latitude == loopTestData.Y && x.Longitude == loopTestData.X);
-            Assert.AreEqual(Math.Round(referenceItem.RoundedElevationInMeters, 2), Math.Round(loopTestData.Z, 2),
+            Assert.That(Math.Round(loopTestData.Z, 2), Is.EqualTo(Math.Round(referenceItem.RoundedElevationInMeters, 2)),
                 $"{referenceItem.Name} didn't match expected");
         }
     }
@@ -40,7 +40,7 @@ public class ElevationServiceAndGpxTests
 
         await ElevationService.OpenTopoNedElevation(testData, DebugTrackers.DebugProgressTracker());
 
-        Assert.IsTrue(testData.All(x => x.Z > 0), "Not all point have an elevation greater than zero.");
+        Assert.That(testData.All(x => x.Z > 0), "Not all point have an elevation greater than zero.");
 
         var referenceData = GrandCanyonPointsWithNed10Elevations();
 
@@ -48,7 +48,7 @@ public class ElevationServiceAndGpxTests
         {
             var referenceItem =
                 referenceData.Single(x => x.Latitude == loopTestData.Y && x.Longitude == loopTestData.X);
-            Assert.AreEqual(Math.Round(referenceItem.RoundedElevationInMeters, 2), Math.Round(loopTestData.Z, 2),
+            Assert.That(Math.Round(loopTestData.Z, 2), Is.EqualTo(Math.Round(referenceItem.RoundedElevationInMeters, 2)),
                 $"{referenceItem.Name} didn't match expected");
         }
     }
@@ -65,8 +65,11 @@ public class ElevationServiceAndGpxTests
             var result = await ElevationService.OpenTopoMapZenElevation(loopTests.Latitude, loopTests.Longitude,
                 DebugTrackers.DebugProgressTracker());
 
-            Assert.NotNull(result, $"Null result from {loopTests.Name}");
-            Assert.AreEqual(loopTests.RoundedElevationInMeters, Math.Round(result.Value, 0), $"{loopTests.Name}");
+            Assert.Multiple(() =>
+            {
+                Assert.That(result, Is.Not.Null, $"Null result from {loopTests.Name}");
+                Assert.That(Math.Round(result.Value, 0), Is.EqualTo(loopTests.RoundedElevationInMeters), $"{loopTests.Name}");
+            });
         }
     }
 
@@ -82,8 +85,11 @@ public class ElevationServiceAndGpxTests
             var result = await ElevationService.OpenTopoNedElevation(loopTests.Latitude, loopTests.Longitude,
                 DebugTrackers.DebugProgressTracker());
 
-            Assert.NotNull(result, $"Null result from {loopTests.Name}");
-            Assert.AreEqual(loopTests.RoundedElevationInMeters, Math.Round(result.Value, 2), $"{loopTests.Name}");
+            Assert.Multiple(() =>
+            {
+                Assert.That(result, Is.Not.Null, $"Null result from {loopTests.Name}");
+                Assert.That(Math.Round(result.Value, 2), Is.EqualTo(loopTests.RoundedElevationInMeters), $"{loopTests.Name}");
+            });
         }
     }
 
@@ -124,27 +130,30 @@ public class ElevationServiceAndGpxTests
     {
         var testFile = new FileInfo(Path.Combine(Directory.GetCurrentDirectory(), "TestMedia",
             "GrandCanyonHorseShoeMesaEastSideLoop.gpx"));
-        Assert.True(testFile.Exists, "Test File Found");
+        Assert.That(testFile.Exists, "Test File Found");
 
         var tracks = await GpxTools.TracksFromGpxFile(testFile, DebugTrackers.DebugProgressTracker());
 
-        Assert.AreEqual(1, tracks.Count, "Should find 1 track");
+        Assert.That(tracks.Count, Is.EqualTo(1), "Should find 1 track");
 
         var coordinateList = tracks.First().Track;
 
         var metricStats = DistanceTools.LineStatsInMetricFromCoordinateList(coordinateList);
         var imperialStats = DistanceTools.LineStatsInImperialFromMetricStats(metricStats);
 
-        Assert.IsTrue(imperialStats.Length.IsApproximatelyEqualTo(13, .3),
-            $"ExpertGPS Length 13.03, Measured {imperialStats.Length}");
-        Assert.IsTrue(imperialStats.ElevationClimb.IsApproximatelyEqualTo(9000, 100),
-            $"ExpertGPS Climb 9023, Measured {imperialStats.ElevationClimb}");
-        Assert.IsTrue(imperialStats.ElevationDescent.IsApproximatelyEqualTo(8932, 100),
-            $"ExpertGPS Descent 8932, Measured {imperialStats.ElevationDescent}");
-        Assert.IsTrue(imperialStats.MinimumElevation.IsApproximatelyEqualTo(3591, 30),
-            $"ExpertGPS Min Elevation 13.03, Measured {imperialStats.MinimumElevation}");
-        Assert.IsTrue(imperialStats.MaximumElevation.IsApproximatelyEqualTo(7384, 30),
-            $"ExpertGPS Max Elevation 13.03, Measured {imperialStats.MaximumElevation}");
+        Assert.Multiple(() =>
+        {
+            Assert.That(imperialStats.Length.IsApproximatelyEqualTo(13, .3),
+                    $"ExpertGPS Length 13.03, Measured {imperialStats.Length}");
+            Assert.That(imperialStats.ElevationClimb.IsApproximatelyEqualTo(9000, 100),
+                $"ExpertGPS Climb 9023, Measured {imperialStats.ElevationClimb}");
+            Assert.That(imperialStats.ElevationDescent.IsApproximatelyEqualTo(8932, 100),
+                $"ExpertGPS Descent 8932, Measured {imperialStats.ElevationDescent}");
+            Assert.That(imperialStats.MinimumElevation.IsApproximatelyEqualTo(3591, 30),
+                $"ExpertGPS Min Elevation 13.03, Measured {imperialStats.MinimumElevation}");
+            Assert.That(imperialStats.MaximumElevation.IsApproximatelyEqualTo(7384, 30),
+                $"ExpertGPS Max Elevation 13.03, Measured {imperialStats.MaximumElevation}");
+        });
     }
 
     [Test]
@@ -152,47 +161,53 @@ public class ElevationServiceAndGpxTests
     {
         var testFile = new FileInfo(Path.Combine(Directory.GetCurrentDirectory(), "TestMedia",
             "TwoTrackGpxNearTheSanPedro.gpx"));
-        Assert.True(testFile.Exists, "Test File Found");
+        Assert.That(testFile.Exists, "Test File Found");
 
         var tracks = await GpxTools.TracksFromGpxFile(testFile, DebugTrackers.DebugProgressTracker());
 
-        Assert.AreEqual(2, tracks.Count, "Should find 2 tracks");
-        Assert.True(tracks.All(x => !string.IsNullOrWhiteSpace(x.Description)), "Found Tracks with Blank Description?");
+        Assert.That(tracks.Count, Is.EqualTo(2), "Should find 2 tracks");
+        Assert.That(tracks.All(x => !string.IsNullOrWhiteSpace(x.Description)), "Found Tracks with Blank Description?");
 
         var shortTrack = tracks.OrderBy(x => x.Track.Count).First().Track;
 
-        Assert.AreEqual(214, shortTrack.Count, "Unexpected Point Count");
+        Assert.That(shortTrack.Count, Is.EqualTo(214), "Unexpected Point Count");
 
         var preElevationReplacementStats = DistanceTools.LineStatsInImperialFromCoordinateList(shortTrack);
 
-        Assert.IsTrue(preElevationReplacementStats.Length.IsApproximatelyEqualTo(2.8, .05),
-            $"ExpertGPS Length 2.79, Measured {preElevationReplacementStats.Length}");
-        Assert.IsTrue(preElevationReplacementStats.ElevationClimb.IsApproximatelyEqualTo(158, 1),
-            $"ExpertGPS Climb 158.4, Measured {preElevationReplacementStats.ElevationClimb}");
-        Assert.IsTrue(preElevationReplacementStats.ElevationDescent.IsApproximatelyEqualTo(285, 1),
-            $"ExpertGPS Descent 285.6, Measured {preElevationReplacementStats.ElevationDescent}");
-        Assert.IsTrue(preElevationReplacementStats.MinimumElevation.IsApproximatelyEqualTo(3795, 1),
-            $"ExpertGPS Min Elevation 3795.25, Measured {preElevationReplacementStats.MinimumElevation}");
-        Assert.IsTrue(preElevationReplacementStats.MaximumElevation.IsApproximatelyEqualTo(3944, 1),
-            $"ExpertGPS Max Elevation 3944.76, Measured {preElevationReplacementStats.MaximumElevation}");
+        Assert.Multiple(() =>
+        {
+            Assert.That(preElevationReplacementStats.Length.IsApproximatelyEqualTo(2.8, .05),
+                    $"ExpertGPS Length 2.79, Measured {preElevationReplacementStats.Length}");
+            Assert.That(preElevationReplacementStats.ElevationClimb.IsApproximatelyEqualTo(158, 1),
+                $"ExpertGPS Climb 158.4, Measured {preElevationReplacementStats.ElevationClimb}");
+            Assert.That(preElevationReplacementStats.ElevationDescent.IsApproximatelyEqualTo(285, 1),
+                $"ExpertGPS Descent 285.6, Measured {preElevationReplacementStats.ElevationDescent}");
+            Assert.That(preElevationReplacementStats.MinimumElevation.IsApproximatelyEqualTo(3795, 1),
+                $"ExpertGPS Min Elevation 3795.25, Measured {preElevationReplacementStats.MinimumElevation}");
+            Assert.That(preElevationReplacementStats.MaximumElevation.IsApproximatelyEqualTo(3944, 1),
+                $"ExpertGPS Max Elevation 3944.76, Measured {preElevationReplacementStats.MaximumElevation}");
+        });
 
         await ElevationService.OpenTopoMapZenElevation(shortTrack,
             DebugTrackers.DebugProgressTracker());
 
-        Assert.True(shortTrack.All(x => x.Z > 0), "After Elevation replacement some 0 values found");
+        Assert.That(shortTrack.All(x => x.Z > 0), "After Elevation replacement some 0 values found");
 
         var postElevationReplacementStats = DistanceTools.LineStatsInImperialFromCoordinateList(shortTrack);
 
-        Assert.IsTrue(postElevationReplacementStats.Length.IsApproximatelyEqualTo(2.8, .05),
-            $"ExpertGPS Length 2.79, Measured {preElevationReplacementStats.Length}");
-        Assert.IsTrue(postElevationReplacementStats.ElevationClimb.IsApproximatelyEqualTo(36.08, 1),
-            $"Expected 36.08, Measured {preElevationReplacementStats.ElevationClimb}");
-        Assert.IsTrue(postElevationReplacementStats.ElevationDescent.IsApproximatelyEqualTo(187, 1),
-            $"Expected 187, Measured {preElevationReplacementStats.ElevationDescent}");
-        Assert.IsTrue(postElevationReplacementStats.MinimumElevation.IsApproximatelyEqualTo(3891.07, 1),
-            $"Expected 3891, Measured {preElevationReplacementStats.MinimumElevation}");
-        Assert.IsTrue(postElevationReplacementStats.MaximumElevation.IsApproximatelyEqualTo(4041.99, 1),
-            $"Expected 4041, Measured {preElevationReplacementStats.MaximumElevation}");
+        Assert.Multiple(() =>
+        {
+            Assert.That(postElevationReplacementStats.Length.IsApproximatelyEqualTo(2.8, .05),
+                    $"ExpertGPS Length 2.79, Measured {preElevationReplacementStats.Length}");
+            Assert.That(postElevationReplacementStats.ElevationClimb.IsApproximatelyEqualTo(36.08, 1),
+                $"Expected 36.08, Measured {preElevationReplacementStats.ElevationClimb}");
+            Assert.That(postElevationReplacementStats.ElevationDescent.IsApproximatelyEqualTo(187, 1),
+                $"Expected 187, Measured {preElevationReplacementStats.ElevationDescent}");
+            Assert.That(postElevationReplacementStats.MinimumElevation.IsApproximatelyEqualTo(3891.07, 1),
+                $"Expected 3891, Measured {preElevationReplacementStats.MinimumElevation}");
+            Assert.That(postElevationReplacementStats.MaximumElevation.IsApproximatelyEqualTo(4041.99, 1),
+                $"Expected 4041, Measured {preElevationReplacementStats.MaximumElevation}");
+        });
     }
 
 
@@ -201,12 +216,12 @@ public class ElevationServiceAndGpxTests
     {
         var testFile = new FileInfo(Path.Combine(Directory.GetCurrentDirectory(), "TestMedia",
             "TwoTrackGpxNearTheSanPedro.gpx"));
-        Assert.True(testFile.Exists, "Test File Found");
+        Assert.That(testFile.Exists, "Test File Found");
 
         var tracks = await GpxTools.TracksFromGpxFile(testFile, DebugTrackers.DebugProgressTracker());
 
-        Assert.AreEqual(2, tracks.Count, "Should find 2 tracks");
-        Assert.True(tracks.All(x => !string.IsNullOrWhiteSpace(x.Description)), "Found Tracks with Blank Description?");
+        Assert.That(tracks.Count, Is.EqualTo(2), "Should find 2 tracks");
+        Assert.That(tracks.All(x => !string.IsNullOrWhiteSpace(x.Description)), "Found Tracks with Blank Description?");
 
         var shortTrack = tracks.OrderBy(x => x.Track.Count).First().Track;
         var geoJson =
@@ -214,13 +229,16 @@ public class ElevationServiceAndGpxTests
                 DebugTrackers.DebugProgressTracker());
         var shortTrackFromGeoJson = LineTools.CoordinateListFromGeoJsonFeatureCollectionWithLinestring(geoJson);
 
-        Assert.AreEqual(shortTrack.Count, shortTrackFromGeoJson.Count, "Count of Track Points does not match");
+        Assert.That(shortTrackFromGeoJson.Count, Is.EqualTo(shortTrack.Count), "Count of Track Points does not match");
 
         for (var i = 0; i < shortTrack.Count; i++)
         {
-            Assert.AreEqual(shortTrack[i].X, shortTrackFromGeoJson[i].X, $"Point {i} X Values don't match");
-            Assert.AreEqual(shortTrack[i].Y, shortTrackFromGeoJson[i].Y, $"Point {i} Y Values don't match");
-            Assert.AreEqual(shortTrack[i].Z, shortTrackFromGeoJson[i].Z, $"Point {i} Z Values don't match");
+            Assert.Multiple(() =>
+            {
+                Assert.That(shortTrackFromGeoJson[i].X, Is.EqualTo(shortTrack[i].X), $"Point {i} X Values don't match");
+                Assert.That(shortTrackFromGeoJson[i].Y, Is.EqualTo(shortTrack[i].Y), $"Point {i} Y Values don't match");
+                Assert.That(shortTrackFromGeoJson[i].Z, Is.EqualTo(shortTrack[i].Z), $"Point {i} Z Values don't match");
+            });
         }
     }
 

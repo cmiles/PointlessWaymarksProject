@@ -36,15 +36,18 @@ public static class IronwoodNoteInfo
     {
         var contentDirectory = UserSettingsSingleton.CurrentSettings()
             .LocalSiteNoteContentDirectory(newContent, false);
-        Assert.True(contentDirectory.Exists, "Content Directory Not Found?");
+        Assert.That(contentDirectory.Exists, "Content Directory Not Found?");
 
         var filesInDirectory = contentDirectory.GetFiles().ToList();
 
-        Assert.True(filesInDirectory.Any(x => x.Name == $"{newContent.Slug}.html"),
-            "Note Html file not found in Content Directory");
+        Assert.Multiple(() =>
+        {
+            Assert.That(filesInDirectory.Any(x => x.Name == $"{newContent.Slug}.html"),
+                    "Note Html file not found in Content Directory");
 
-        Assert.True(filesInDirectory.Any(x => x.Name == $"{Names.NoteContentPrefix}{newContent.ContentId}.json"),
-            "Note Json file not found in Content Directory");
+            Assert.That(filesInDirectory.Any(x => x.Name == $"{Names.NoteContentPrefix}{newContent.ContentId}.json"),
+                "Note Json file not found in Content Directory");
+        });
 
         var db = await Db.Context();
         if (db.HistoricNoteContents.Any(x => x.ContentId == newContent.ContentId))
@@ -52,7 +55,7 @@ public static class IronwoodNoteInfo
             var historicJsonFile = filesInDirectory.SingleOrDefault(x =>
                 x.Name == $"{Names.HistoricNoteContentPrefix}{newContent.ContentId}.json");
 
-            Assert.NotNull(historicJsonFile, "Historic Note Json File not Found in Content Directory");
+            Assert.That(historicJsonFile, Is.Not.Null, "Historic Note Json File not Found in Content Directory");
         }
     }
 
@@ -81,7 +84,7 @@ public static class IronwoodNoteInfo
     {
         var htmlFile = UserSettingsSingleton.CurrentSettings().LocalSiteNoteHtmlFile(newContent);
 
-        Assert.True(htmlFile.Exists, "Html File not Found for Html Checks?");
+        Assert.That(htmlFile.Exists, "Html File not Found for Html Checks?");
 
         var document = IronwoodHtmlHelpers.DocumentFromFile(htmlFile);
 
@@ -95,13 +98,13 @@ public static class IronwoodNoteInfo
             new FileInfo(Path.Combine(
                 UserSettingsSingleton.CurrentSettings().LocalSiteNoteContentDirectory(newContent).FullName,
                 $"{Names.NoteContentPrefix}{newContent.ContentId}.json"));
-        Assert.True(jsonFile.Exists, $"Json file {jsonFile.FullName} does not exist?");
+        Assert.That(jsonFile.Exists, $"Json file {jsonFile.FullName} does not exist?");
 
         var jsonFileImported = Import.ContentFromFiles<NoteContent>(
             new List<string> { jsonFile.FullName }, Names.NoteContentPrefix).Single();
         var compareLogic = new CompareLogic();
         var comparisonResult = compareLogic.Compare(newContent, jsonFileImported);
-        Assert.True(comparisonResult.AreEqual,
+        Assert.That(comparisonResult.AreEqual,
             $"Json Import does not match expected File Content {comparisonResult.DifferencesString}");
     }
 
@@ -111,14 +114,14 @@ public static class IronwoodNoteInfo
         contentToSave.InjectFrom(contentReference);
 
         var validationReturn = await NoteGenerator.Validate(contentToSave);
-        Assert.False(validationReturn.HasError, $"Unexpected Validation Error - {validationReturn.GenerationNote}");
+        Assert.That(validationReturn.HasError, Is.False, $"Unexpected Validation Error - {validationReturn.GenerationNote}");
 
         var (generationReturn, newContent) =
             await NoteGenerator.SaveAndGenerateHtml(contentToSave, null, DebugTrackers.DebugProgressTracker());
-        Assert.False(generationReturn.HasError, $"Unexpected Save Error - {generationReturn.GenerationNote}");
+        Assert.That(generationReturn.HasError, Is.False, $"Unexpected Save Error - {generationReturn.GenerationNote}");
 
         var (areEqual, comparisonNotes) = CompareContent(contentReference, newContent);
-        Assert.True(areEqual, comparisonNotes);
+        Assert.That(areEqual, comparisonNotes);
 
         await CheckForExpectedFilesAfterHtmlGeneration(newContent);
 

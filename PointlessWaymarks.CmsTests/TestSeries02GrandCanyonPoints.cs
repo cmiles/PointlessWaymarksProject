@@ -1,4 +1,4 @@
-﻿using ClosedXML.Excel;
+using ClosedXML.Excel;
 using Microsoft.EntityFrameworkCore;
 using NUnit.Framework;
 using Omu.ValueInjecter;
@@ -49,11 +49,14 @@ public class TestSeries02GrandCanyonPoints
     [Test]
     public void A01_TestSiteBasicStructureCheck()
     {
-        Assert.True(TestSiteSettings.LocalMediaArchiveFileDirectory().Exists);
-        Assert.True(TestSiteSettings.LocalMediaArchiveImageDirectory().Exists);
-        Assert.True(TestSiteSettings.LocalMediaArchiveFileDirectory().Exists);
-        Assert.True(TestSiteSettings.LocalMediaArchivePhotoDirectory().Exists);
-        Assert.True(TestSiteSettings.LocalSiteDirectory().Exists);
+        Assert.Multiple(() =>
+        {
+            Assert.That(TestSiteSettings.LocalMediaArchiveFileDirectory().Exists);
+            Assert.That(TestSiteSettings.LocalMediaArchiveImageDirectory().Exists);
+        });
+        Assert.That(TestSiteSettings.LocalMediaArchiveFileDirectory().Exists);
+        Assert.That(TestSiteSettings.LocalMediaArchivePhotoDirectory().Exists);
+        Assert.That(TestSiteSettings.LocalSiteDirectory().Exists);
     }
 
     [Test]
@@ -71,11 +74,11 @@ public class TestSeries02GrandCanyonPoints
             GrandCanyonPointInfo.YumaPointContent02.Latitude, GrandCanyonPointInfo.YumaPointContent02.Longitude,
             DebugTrackers.DebugProgressTracker());
 
-        Assert.NotNull(elevation, "Elevation returned null");
+        Assert.That(elevation, Is.Not.Null, "Elevation returned null");
 
         var concreteElevation = Math.Round(elevation.Value.MetersToFeet(), 0);
 
-        Assert.AreEqual(GrandCanyonPointInfo.YumaPointContent02.Elevation, concreteElevation,
+        Assert.That(concreteElevation, Is.EqualTo(GrandCanyonPointInfo.YumaPointContent02.Elevation),
             "Service Elevation does not match");
     }
 
@@ -102,23 +105,23 @@ public class TestSeries02GrandCanyonPoints
 
         var testFile = new FileInfo(Path.Combine(Directory.GetCurrentDirectory(), "TestMedia",
             "GrandCanyonPointsImport.xlsx"));
-        Assert.True(testFile.Exists, "Test File Found");
+        Assert.That(testFile.Exists, "Test File Found");
 
         var importResult =
             await ContentImport.ImportFromFile(testFile.FullName, DebugTrackers.DebugProgressTracker());
-        Assert.False(importResult.HasError, "Unexpected Excel Import Failure");
+        Assert.That(importResult.HasError, Is.False, "Unexpected Excel Import Failure");
 
         var (hasError, _) = await ContentImport.SaveAndGenerateHtmlFromExcelImport(importResult,
             DebugTrackers.DebugProgressTracker());
 
-        Assert.False(hasError);
+        Assert.That(hasError, Is.False);
 
         var pointCountAfterImport = db.PointContents.Count();
 
         var excelFile = new XLWorkbook(testFile.FullName);
         var excelDataRowCount = excelFile.Worksheets.First().RangeUsed().RowCount() - 1;
 
-        Assert.AreEqual(pointCountAfterImport, pointCountBeforeImport + excelDataRowCount);
+        Assert.That(pointCountBeforeImport + excelDataRowCount, Is.EqualTo(pointCountAfterImport));
     }
 
     [Test]
@@ -126,11 +129,11 @@ public class TestSeries02GrandCanyonPoints
     {
         var testFile = new FileInfo(Path.Combine(Directory.GetCurrentDirectory(), "TestMedia",
             "GrandCanyonPointsImport.xlsx"));
-        Assert.True(testFile.Exists, "Test File Found");
+        Assert.That(testFile.Exists, "Test File Found");
 
         var importResult =
             await ContentImport.ImportFromFile(testFile.FullName, DebugTrackers.DebugProgressTracker());
-        Assert.True(importResult.HasError,
+        Assert.That(importResult.HasError,
             "Expected a validation failure due to duplicate slug but not detected...");
     }
 
@@ -139,11 +142,11 @@ public class TestSeries02GrandCanyonPoints
     {
         var testFile = new FileInfo(Path.Combine(Directory.GetCurrentDirectory(), "TestMedia",
             "HermitsRestDuplicateSlugImport.xlsx"));
-        Assert.True(testFile.Exists, "Test File Found");
+        Assert.That(testFile.Exists, "Test File Found");
 
         var importResult =
             await ContentImport.ImportFromFile(testFile.FullName, DebugTrackers.DebugProgressTracker());
-        Assert.True(importResult.HasError,
+        Assert.That(importResult.HasError,
             "Expected a validation failure due to duplicate slug but not detected...");
     }
 
@@ -152,7 +155,7 @@ public class TestSeries02GrandCanyonPoints
     {
         var testFile = new FileInfo(Path.Combine(Directory.GetCurrentDirectory(), "TestMedia",
             "GrandCanyonHistoricWildfireGeoJson.geojson"));
-        Assert.True(testFile.Exists, "GeoJson Test File Found");
+        Assert.That(testFile.Exists, "GeoJson Test File Found");
 
         var geoJsonTest = new GeoJsonContent
         {
@@ -176,7 +179,7 @@ public class TestSeries02GrandCanyonPoints
         var (generationReturn, _) =
             await GeoJsonGenerator.SaveAndGenerateHtml(geoJsonTest, null, DebugTrackers.DebugProgressTracker());
 
-        Assert.IsFalse(generationReturn.HasError);
+        Assert.That(generationReturn.HasError, Is.False);
     }
 
     [Test]
@@ -184,7 +187,7 @@ public class TestSeries02GrandCanyonPoints
     {
         var testFile = new FileInfo(Path.Combine(Directory.GetCurrentDirectory(), "TestMedia",
             "GrandCanyonHorseShoeMesaEastSideLoop.gpx"));
-        Assert.True(testFile.Exists, "GPX Test File Found");
+        Assert.That(testFile.Exists, "GPX Test File Found");
 
         var track = (await GpxTools.TracksFromGpxFile(testFile, DebugTrackers.DebugProgressTracker()))
             .First();
@@ -207,12 +210,12 @@ public class TestSeries02GrandCanyonPoints
 
         var validationResult = await LineGenerator.Validate(lineTest);
 
-        Assert.IsFalse(validationResult.HasError);
+        Assert.That(validationResult.HasError, Is.False);
 
         var (generationReturn, _) =
             await LineGenerator.SaveAndGenerateHtml(lineTest, null, DebugTrackers.DebugProgressTracker());
 
-        Assert.IsFalse(generationReturn.HasError);
+        Assert.That(generationReturn.HasError, Is.False);
     }
 
     [Test]
@@ -271,12 +274,12 @@ public class TestSeries02GrandCanyonPoints
 
         var validationResult = await MapComponentGenerator.Validate(newMapDto);
 
-        Assert.IsFalse(validationResult.HasError);
+        Assert.That(validationResult.HasError, Is.False);
 
         var (generationReturn, _) =
             await MapComponentGenerator.SaveAndGenerateData(newMapDto, null, DebugTrackers.DebugProgressTracker());
 
-        Assert.IsFalse(generationReturn.HasError);
+        Assert.That(generationReturn.HasError, Is.False);
     }
 
     [Test]
@@ -332,7 +335,7 @@ And what about a line...
 
         await HtmlGenerationGroups.GenerateAllHtml(DebugTrackers.DebugProgressTracker());
 
-        Assert.AreEqual(currentGenerationCount + 1, db.GenerationLogs.Count(),
+        Assert.That(db.GenerationLogs.Count(), Is.EqualTo(currentGenerationCount + 1),
             $"Expected {currentGenerationCount + 1} generation logs - found {db.GenerationLogs.Count()}");
 
         var currentGeneration = await db.GenerationLogs.OrderByDescending(x => x.GenerationVersion).FirstAsync();

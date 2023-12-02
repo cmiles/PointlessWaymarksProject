@@ -23,7 +23,7 @@ A significant concentration of ironwood (also known as desert ironwood, Olneya t
 ";
         var result = BracketCodeCommon.BracketCodeContentIds(testString);
 
-        Assert.AreEqual(5, result.Count);
+        Assert.That(result.Count, Is.EqualTo(5));
     }
 
     [Test]
@@ -38,7 +38,7 @@ A significant concentration of ironwood (also known as desert ironwood, Olneya t
 ";
         var result = BracketCodeCommon.BracketCodeContentIds(testString);
 
-        Assert.AreEqual(5, result.Count);
+        Assert.That(result.Count, Is.EqualTo(5));
     }
 
     [Test]
@@ -52,10 +52,13 @@ A significant concentration of ironwood (also known as desert ironwood, Olneya t
 
         var matches = BracketCodeCommon.ContentBracketCodeMatches(testString, bracketCodeToken);
 
-        Assert.IsTrue(matches.Count == 1);
-        Assert.AreEqual(testGuid, matches.First().contentGuid);
-        Assert.AreEqual(bracketCode, matches.First().bracketCodeText);
-        Assert.AreEqual(string.Empty, matches.First().displayText);
+        Assert.Multiple(() =>
+        {
+            Assert.That(matches.Count == 1);
+            Assert.That(matches.First().contentGuid, Is.EqualTo(testGuid));
+            Assert.That(matches.First().bracketCodeText, Is.EqualTo(bracketCode));
+            Assert.That(matches.First().displayText, Is.EqualTo(string.Empty));
+        });
     }
 
     [Test]
@@ -70,10 +73,13 @@ A significant concentration of ironwood (also known as desert ironwood, Olneya t
 
         var matches = BracketCodeCommon.ContentBracketCodeMatches(testString, bracketCodeToken);
 
-        Assert.IsTrue(matches.Count == 1);
-        Assert.AreEqual(testGuid, matches.First().contentGuid);
-        Assert.AreEqual(bracketCode, matches.First().bracketCodeText);
-        Assert.AreEqual(displayText, matches.First().displayText);
+        Assert.Multiple(() =>
+        {
+            Assert.That(matches.Count == 1);
+            Assert.That(matches.First().contentGuid, Is.EqualTo(testGuid));
+            Assert.That(matches.First().bracketCodeText, Is.EqualTo(bracketCode));
+            Assert.That(matches.First().displayText, Is.EqualTo(displayText));
+        });
     }
 
     [Test]
@@ -88,10 +94,13 @@ A significant concentration of ironwood (also known as desert ironwood, Olneya t
 
         var matches = BracketCodeCommon.ContentBracketCodeMatches(testString, bracketCodeToken);
 
-        Assert.IsTrue(matches.Count == 1);
-        Assert.AreEqual(testGuid, matches.First().contentGuid);
-        Assert.AreEqual(bracketCode, matches.First().bracketCodeText);
-        Assert.AreEqual(displayText, matches.First().displayText);
+        Assert.Multiple(() =>
+        {
+            Assert.That(matches.Count == 1);
+            Assert.That(matches.First().contentGuid, Is.EqualTo(testGuid));
+            Assert.That(matches.First().bracketCodeText, Is.EqualTo(bracketCode));
+            Assert.That(matches.First().displayText, Is.EqualTo(displayText));
+        });
     }
 
     [Test]
@@ -110,18 +119,21 @@ A significant concentration of ironwood (also known as desert ironwood, Olneya t
 
         var matches = BracketCodeCommon.ContentBracketCodeMatches(testString, bracketCodeToken);
 
-        Assert.IsTrue(matches.Count == 3);
-        Assert.AreEqual(testGuid02, matches[0].contentGuid);
-        Assert.AreEqual(testGuid, matches[1].contentGuid);
-        Assert.AreEqual(testGuid, matches[2].contentGuid);
+        Assert.Multiple(() =>
+        {
+            Assert.That(matches.Count == 3);
+            Assert.That(matches[0].contentGuid, Is.EqualTo(testGuid02));
+            Assert.That(matches[1].contentGuid, Is.EqualTo(testGuid));
+            Assert.That(matches[2].contentGuid, Is.EqualTo(testGuid));
 
-        Assert.AreEqual(bracketCode02, matches[0].bracketCodeText);
-        Assert.AreEqual(bracketCode, matches[1].bracketCodeText);
-        Assert.AreEqual(bracketCode, matches[2].bracketCodeText);
+            Assert.That(matches[0].bracketCodeText, Is.EqualTo(bracketCode02));
+            Assert.That(matches[1].bracketCodeText, Is.EqualTo(bracketCode));
+            Assert.That(matches[2].bracketCodeText, Is.EqualTo(bracketCode));
 
-        Assert.AreEqual(displayText02, matches[0].displayText);
-        Assert.AreEqual(string.Empty, matches[1].displayText);
-        Assert.AreEqual(string.Empty, matches[2].displayText);
+            Assert.That(matches[0].displayText, Is.EqualTo(displayText02));
+            Assert.That(matches[1].displayText, Is.EqualTo(string.Empty));
+            Assert.That(matches[2].displayText, Is.EqualTo(string.Empty));
+        });
     }
 
     [Test]
@@ -136,13 +148,16 @@ A significant concentration of ironwood (also known as desert ironwood, Olneya t
 
         var matches = BracketCodeCommon.ContentBracketCodeMatches(testString, bracketCodeToken);
 
-        Assert.IsTrue(matches.Count == 2);
-        Assert.AreEqual(testGuid, matches[0].contentGuid);
-        Assert.AreEqual(testGuid, matches[1].contentGuid);
-        Assert.AreEqual(bracketCode, matches[0].bracketCodeText);
-        Assert.AreEqual(bracketCode, matches[1].bracketCodeText);
-        Assert.AreEqual(string.Empty, matches[0].displayText);
-        Assert.AreEqual(string.Empty, matches[1].displayText);
+        Assert.Multiple(() =>
+        {
+            Assert.That(matches.Count == 2);
+            Assert.That(matches[0].contentGuid, Is.EqualTo(testGuid));
+            Assert.That(matches[1].contentGuid, Is.EqualTo(testGuid));
+            Assert.That(matches[0].bracketCodeText, Is.EqualTo(bracketCode));
+            Assert.That(matches[1].bracketCodeText, Is.EqualTo(bracketCode));
+            Assert.That(matches[0].displayText, Is.EqualTo(string.Empty));
+            Assert.That(matches[1].displayText, Is.EqualTo(string.Empty));
+        });
     }
 
     [Test]
@@ -169,23 +184,26 @@ A significant concentration of ironwood (also known as desert ironwood, Olneya t
 
         var pageMatches = BracketCodeCommon.SpecialPageBracketCodeMatches(testString, bracketCodeToken);
 
-        Assert.IsTrue(contentMatches.Count == 3);
-        Assert.AreEqual(testGuid02, contentMatches[0].contentGuid);
-        Assert.AreEqual(testGuid, contentMatches[1].contentGuid);
-        Assert.AreEqual(testGuid, contentMatches[2].contentGuid);
+        Assert.Multiple(() =>
+        {
+            Assert.That(contentMatches.Count == 3);
+            Assert.That(contentMatches[0].contentGuid, Is.EqualTo(testGuid02));
+            Assert.That(contentMatches[1].contentGuid, Is.EqualTo(testGuid));
+            Assert.That(contentMatches[2].contentGuid, Is.EqualTo(testGuid));
 
-        Assert.AreEqual(bracketCode02, contentMatches[0].bracketCodeText);
-        Assert.AreEqual(bracketCode, contentMatches[1].bracketCodeText);
-        Assert.AreEqual(bracketCode, contentMatches[2].bracketCodeText);
+            Assert.That(contentMatches[0].bracketCodeText, Is.EqualTo(bracketCode02));
+            Assert.That(contentMatches[1].bracketCodeText, Is.EqualTo(bracketCode));
+            Assert.That(contentMatches[2].bracketCodeText, Is.EqualTo(bracketCode));
 
-        Assert.AreEqual(displayText02, contentMatches[0].displayText);
-        Assert.AreEqual(string.Empty, contentMatches[1].displayText);
-        Assert.AreEqual(string.Empty, contentMatches[2].displayText);
+            Assert.That(contentMatches[0].displayText, Is.EqualTo(displayText02));
+            Assert.That(contentMatches[1].displayText, Is.EqualTo(string.Empty));
+            Assert.That(contentMatches[2].displayText, Is.EqualTo(string.Empty));
 
-        Assert.IsTrue(pageMatches.Count == 2);
-        Assert.AreEqual(pageBracketCode01, pageMatches[0].bracketCodeText);
-        Assert.AreEqual(pageBracketCode02, pageMatches[1].bracketCodeText);
-        Assert.AreEqual(pageDisplayText, pageMatches[0].displayText);
+            Assert.That(pageMatches.Count == 2);
+            Assert.That(pageMatches[0].bracketCodeText, Is.EqualTo(pageBracketCode01));
+            Assert.That(pageMatches[1].bracketCodeText, Is.EqualTo(pageBracketCode02));
+            Assert.That(pageMatches[0].displayText, Is.EqualTo(pageDisplayText));
+        });
     }
 
 
@@ -207,7 +225,7 @@ A significant concentration of ironwood (also known as desert ironwood, Olneya t
 ";
         var result = BracketCodeCommon.PhotoOrImageCodeFirstIdInContent(testString);
 
-        Assert.AreEqual(Guid.Parse("be010d97-a2b1-4c88-97ac-c36ebbd3fad4"), result);
+        Assert.That(result, Is.EqualTo(Guid.Parse("be010d97-a2b1-4c88-97ac-c36ebbd3fad4")));
     }
 
     [Test]
@@ -220,9 +238,12 @@ A significant concentration of ironwood (also known as desert ironwood, Olneya t
 
         var matches = BracketCodeCommon.SpecialPageBracketCodeMatches(testString, bracketCodeToken);
 
-        Assert.IsTrue(matches.Count == 1);
-        Assert.AreEqual(bracketCode, matches.First().bracketCodeText);
-        Assert.AreEqual(string.Empty, matches.First().displayText);
+        Assert.Multiple(() =>
+        {
+            Assert.That(matches.Count == 1);
+            Assert.That(matches.First().bracketCodeText, Is.EqualTo(bracketCode));
+            Assert.That(matches.First().displayText, Is.EqualTo(string.Empty));
+        });
     }
 
     [Test]
@@ -236,9 +257,12 @@ A significant concentration of ironwood (also known as desert ironwood, Olneya t
 
         var matches = BracketCodeCommon.SpecialPageBracketCodeMatches(testString, bracketCodeToken);
 
-        Assert.IsTrue(matches.Count == 1);
-        Assert.AreEqual(bracketCode, matches.First().bracketCodeText);
-        Assert.AreEqual(displayText, matches.First().displayText);
+        Assert.Multiple(() =>
+        {
+            Assert.That(matches.Count == 1);
+            Assert.That(matches.First().bracketCodeText, Is.EqualTo(bracketCode));
+            Assert.That(matches.First().displayText, Is.EqualTo(displayText));
+        });
     }
 
     [Test]
@@ -252,9 +276,12 @@ A significant concentration of ironwood (also known as desert ironwood, Olneya t
 
         var matches = BracketCodeCommon.SpecialPageBracketCodeMatches(testString, bracketCodeToken);
 
-        Assert.IsTrue(matches.Count == 1);
-        Assert.AreEqual(bracketCode, matches.First().bracketCodeText);
-        Assert.AreEqual(displayText, matches.First().displayText);
+        Assert.Multiple(() =>
+        {
+            Assert.That(matches.Count == 1);
+            Assert.That(matches.First().bracketCodeText, Is.EqualTo(bracketCode));
+            Assert.That(matches.First().displayText, Is.EqualTo(displayText));
+        });
     }
 
     [Test]
@@ -271,15 +298,18 @@ A significant concentration of ironwood (also known as desert ironwood, Olneya t
 
         var matches = BracketCodeCommon.SpecialPageBracketCodeMatches(testString, bracketCodeToken);
 
-        Assert.IsTrue(matches.Count == 3);
+        Assert.Multiple(() =>
+        {
+            Assert.That(matches.Count == 3);
 
-        Assert.AreEqual(bracketCode02, matches[0].bracketCodeText);
-        Assert.AreEqual(bracketCode, matches[1].bracketCodeText);
-        Assert.AreEqual(bracketCode, matches[2].bracketCodeText);
+            Assert.That(matches[0].bracketCodeText, Is.EqualTo(bracketCode02));
+            Assert.That(matches[1].bracketCodeText, Is.EqualTo(bracketCode));
+            Assert.That(matches[2].bracketCodeText, Is.EqualTo(bracketCode));
 
-        Assert.AreEqual(displayText02, matches[0].displayText);
-        Assert.AreEqual(string.Empty, matches[1].displayText);
-        Assert.AreEqual(string.Empty, matches[2].displayText);
+            Assert.That(matches[0].displayText, Is.EqualTo(displayText02));
+            Assert.That(matches[1].displayText, Is.EqualTo(string.Empty));
+            Assert.That(matches[2].displayText, Is.EqualTo(string.Empty));
+        });
     }
 
     [Test]
@@ -293,10 +323,13 @@ A significant concentration of ironwood (also known as desert ironwood, Olneya t
 
         var matches = BracketCodeCommon.SpecialPageBracketCodeMatches(testString, bracketCodeToken);
 
-        Assert.IsTrue(matches.Count == 2);
-        Assert.AreEqual(bracketCode, matches[0].bracketCodeText);
-        Assert.AreEqual(bracketCode, matches[1].bracketCodeText);
-        Assert.AreEqual(string.Empty, matches[0].displayText);
-        Assert.AreEqual(string.Empty, matches[1].displayText);
+        Assert.Multiple(() =>
+        {
+            Assert.That(matches.Count == 2);
+            Assert.That(matches[0].bracketCodeText, Is.EqualTo(bracketCode));
+            Assert.That(matches[1].bracketCodeText, Is.EqualTo(bracketCode));
+            Assert.That(matches[0].displayText, Is.EqualTo(string.Empty));
+            Assert.That(matches[1].displayText, Is.EqualTo(string.Empty));
+        });
     }
 }

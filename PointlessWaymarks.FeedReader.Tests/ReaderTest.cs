@@ -5,8 +5,6 @@ namespace PointlessWaymarks.FeedReader.Tests
     [TestClass]
     public class ReaderTest
     {
-        #region special cases
-
         [TestMethod]
         public async Task TestDownload400BadRequest()
         {
@@ -19,7 +17,7 @@ namespace PointlessWaymarks.FeedReader.Tests
         {
             // results in 403 Forbidden if webclient does not have the accept header set
             var feed = await Reader.ReadAsync("http://www.girlsguidetopm.com/feed/").ConfigureAwait(false);
-            string title = feed.Title;
+            var title = feed.Title;
             Assert.IsTrue(feed.Items.Count > 2);
             Assert.IsTrue(!string.IsNullOrEmpty(title));
         }
@@ -40,10 +38,6 @@ namespace PointlessWaymarks.FeedReader.Tests
         }
 
 
-        #endregion
-
-        #region ParseRssLinksFromHTML
-
         [TestMethod]
         public async Task TestParseRssLinksCodehollow()
         {
@@ -61,18 +55,14 @@ namespace PointlessWaymarks.FeedReader.Tests
 
         private static async Task TestParseRssLinksAsync(string url, int expectedNumberOfLinks)
         {
-            string[] urls = await Reader.ParseFeedUrlsAsStringAsync(url).ConfigureAwait(false);
+            var urls = await Reader.ParseFeedUrlsAsStringAsync(url).ConfigureAwait(false);
             Assert.AreEqual(expectedNumberOfLinks, urls.Length);
         }
-
-        #endregion
-
-        #region Parse Html and check if it returns absolute urls
 
         [TestMethod]
         public async Task TestParseAndAbsoluteUrlDerStandard1()
         {
-            string url = "derstandard.at";
+            var url = "derstandard.at";
             var links = await Reader.GetFeedUrlsFromUrlAsync(url).ConfigureAwait(false);
 
             foreach (var link in links)
@@ -83,15 +73,11 @@ namespace PointlessWaymarks.FeedReader.Tests
 
         }
 
-        #endregion
-
-        #region Read Feed
-
         [TestMethod]
         public async Task TestReadSimpleFeed()
         {
             var feed = await Reader.ReadAsync("https://arminreiter.com/feed").ConfigureAwait(false);
-            string title = feed.Title;
+            var title = feed.Title;
             Assert.AreEqual("arminreiter.com", title);
             Assert.AreEqual(10, feed.Items.Count());
         }
@@ -100,7 +86,7 @@ namespace PointlessWaymarks.FeedReader.Tests
         public async Task TestReadRss20GermanFeed()
         {
             var feed = await Reader.ReadAsync("http://guidnew.com/feed").ConfigureAwait(false);
-            string title = feed.Title;
+            var title = feed.Title;
             Assert.AreEqual("Guid.New", title);
             Assert.IsTrue(feed.Items.Count > 0);
         }
@@ -109,7 +95,7 @@ namespace PointlessWaymarks.FeedReader.Tests
         public async Task TestReadRss10GermanFeed()
         {
             var feed = await Reader.ReadAsync("http://rss.orf.at/news.xml").ConfigureAwait(false);
-            string title = feed.Title;
+            var title = feed.Title;
             Assert.AreEqual("news.ORF.at", title);
             Assert.IsTrue(feed.Items.Count > 10);
         }
@@ -252,16 +238,11 @@ namespace PointlessWaymarks.FeedReader.Tests
             var feed = await Reader.ReadAsync("http://www.stadtfeuerwehr-weiz.at/rss/einsaetze.xml");
             Assert.AreEqual("Stadtfeuerwehr Weiz - Einsätze", feed.Title);
         }
-        #endregion
-
-        #region private helpers
 
         private static async Task DownloadTestAsync(string url)
         {
             var content = await Helpers.DownloadAsync(url).ConfigureAwait(false);
             Assert.IsTrue(content.Length > 200);
         }
-
-        #endregion
     }
 }

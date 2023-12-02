@@ -38,15 +38,18 @@ A significant concentration of ironwood (also known as desert ironwood, Olneya t
     {
         var contentDirectory = UserSettingsSingleton.CurrentSettings()
             .LocalSitePostContentDirectory(newContent, false);
-        Assert.True(contentDirectory.Exists, "Content Directory Not Found?");
+        Assert.That(contentDirectory.Exists, "Content Directory Not Found?");
 
         var filesInDirectory = contentDirectory.GetFiles().ToList();
 
-        Assert.True(filesInDirectory.Any(x => x.Name == $"{newContent.Slug}.html"),
-            "Post Html file not found in Content Directory");
+        Assert.Multiple(() =>
+        {
+            Assert.That(filesInDirectory.Any(x => x.Name == $"{newContent.Slug}.html"),
+                    "Post Html file not found in Content Directory");
 
-        Assert.True(filesInDirectory.Any(x => x.Name == $"{Names.PostContentPrefix}{newContent.ContentId}.json"),
-            "Post Json file not found in Content Directory");
+            Assert.That(filesInDirectory.Any(x => x.Name == $"{Names.PostContentPrefix}{newContent.ContentId}.json"),
+                "Post Json file not found in Content Directory");
+        });
 
         var db = await Db.Context();
         if (db.HistoricPostContents.Any(x => x.ContentId == newContent.ContentId))
@@ -54,7 +57,7 @@ A significant concentration of ironwood (also known as desert ironwood, Olneya t
             var historicJsonFile = filesInDirectory.SingleOrDefault(x =>
                 x.Name == $"{Names.HistoricPostContentPrefix}{newContent.ContentId}.json");
 
-            Assert.NotNull(historicJsonFile, "Historic Post Json File not Found in Content Directory");
+            Assert.That(historicJsonFile, Is.Not.Null, "Historic Post Json File not Found in Content Directory");
         }
     }
 
@@ -83,7 +86,7 @@ A significant concentration of ironwood (also known as desert ironwood, Olneya t
     {
         var htmlFile = UserSettingsSingleton.CurrentSettings().LocalSitePostHtmlFile(newContent);
 
-        Assert.True(htmlFile.Exists, "Html File not Found for Html Checks?");
+        Assert.That(htmlFile.Exists, "Html File not Found for Html Checks?");
 
         var document = IronwoodHtmlHelpers.DocumentFromFile(htmlFile);
 
@@ -97,13 +100,13 @@ A significant concentration of ironwood (also known as desert ironwood, Olneya t
             new FileInfo(Path.Combine(
                 UserSettingsSingleton.CurrentSettings().LocalSitePostContentDirectory(newContent).FullName,
                 $"{Names.PostContentPrefix}{newContent.ContentId}.json"));
-        Assert.True(jsonFile.Exists, $"Json file {jsonFile.FullName} does not exist?");
+        Assert.That(jsonFile.Exists, $"Json file {jsonFile.FullName} does not exist?");
 
         var jsonFileImported = Import.ContentFromFiles<PostContent>(
             new List<string> { jsonFile.FullName }, Names.PostContentPrefix).Single();
         var compareLogic = new CompareLogic();
         var comparisonResult = compareLogic.Compare(newContent, jsonFileImported);
-        Assert.True(comparisonResult.AreEqual,
+        Assert.That(comparisonResult.AreEqual,
             $"Json Import does not match expected File Content {comparisonResult.DifferencesString}");
     }
 
@@ -114,14 +117,14 @@ A significant concentration of ironwood (also known as desert ironwood, Olneya t
         contentToSave.InjectFrom(contentReference);
 
         var validationReturn = await PostGenerator.Validate(contentToSave);
-        Assert.False(validationReturn.HasError, $"Unexpected Validation Error - {validationReturn.GenerationNote}");
+        Assert.That(validationReturn.HasError, Is.False, $"Unexpected Validation Error - {validationReturn.GenerationNote}");
 
         var (generationReturn, newContent) =
             await PostGenerator.SaveAndGenerateHtml(contentToSave, null, DebugTrackers.DebugProgressTracker());
-        Assert.False(generationReturn.HasError, $"Unexpected Save Error - {generationReturn.GenerationNote}");
+        Assert.That(generationReturn.HasError, Is.False, $"Unexpected Save Error - {generationReturn.GenerationNote}");
 
         var contentComparison = CompareContent(contentReference, newContent);
-        Assert.True(contentComparison.areEqual, contentComparison.comparisonNotes);
+        Assert.That(contentComparison.areEqual, contentComparison.comparisonNotes);
 
         await CheckForExpectedFilesAfterHtmlGeneration(newContent);
 

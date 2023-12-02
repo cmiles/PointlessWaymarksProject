@@ -1,4 +1,4 @@
-﻿using AngleSharp;
+using AngleSharp;
 using AngleSharp.Html.Dom;
 using AngleSharp.Html.Parser;
 using NUnit.Framework;
@@ -17,8 +17,7 @@ public static class IronwoodHtmlHelpers
         var generationVersionAttributeString =
             indexDocument.Head.Attributes.Single(x => x.Name == "data-generationversion").Value;
 
-        Assert.AreEqual(generationVersion.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fffffff"),
-            generationVersionAttributeString,
+        Assert.That(generationVersionAttributeString, Is.EqualTo(generationVersion.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fffffff")),
             $"Generation Version of HTML Does not match Data for {htmlFile.Name}");
     }
 
@@ -31,7 +30,7 @@ public static class IronwoodHtmlHelpers
 
         var generationVersionAttribute = DateTime.Parse(generationVersionAttributeString);
 
-        Assert.Less(generationVersionAttribute, generationVersion,
+        Assert.That(generationVersionAttribute, Is.LessThan(generationVersion),
             $"Expecting a generation version less than {generationVersion:O} but found {generationVersionAttribute:O} for {htmlFile.Name}");
     }
 
@@ -40,72 +39,68 @@ public static class IronwoodHtmlHelpers
     {
         var indexFile = UserSettingsSingleton.CurrentSettings().LocalSiteIndexFile();
 
-        Assert.True(indexFile.Exists, "Index file doesn't exist after generation");
+        Assert.That(indexFile.Exists, "Index file doesn't exist after generation");
 
         var indexDocument = DocumentFromFile(indexFile);
 
         var generationVersionAttributeString =
             indexDocument.Head.Attributes.Single(x => x.Name == "data-generationversion").Value;
 
-        Assert.AreEqual(generationVersion.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fffffff"),
-            generationVersionAttributeString, "Content Version of HTML Does not match Data");
+        Assert.Multiple(() =>
+        {
+            Assert.That(generationVersionAttributeString, Is.EqualTo(generationVersion.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fffffff")), "Content Version of HTML Does not match Data");
 
-        Assert.AreEqual(UserSettingsSingleton.CurrentSettings().SiteName, indexDocument.Title);
+            Assert.That(indexDocument.Title, Is.EqualTo(UserSettingsSingleton.CurrentSettings().SiteName));
 
-        Assert.AreEqual(UserSettingsSingleton.CurrentSettings().SiteSummary,
-            indexDocument.QuerySelector("meta[name='description']")?.Attributes
-                .FirstOrDefault(x => x.LocalName == "content")?.Value);
+            Assert.That(indexDocument.QuerySelector("meta[name='description']")?.Attributes
+                    .FirstOrDefault(x => x.LocalName == "content")?.Value, Is.EqualTo(UserSettingsSingleton.CurrentSettings().SiteSummary));
 
-        Assert.AreEqual(UserSettingsSingleton.CurrentSettings().SiteAuthors,
-            indexDocument.QuerySelector("meta[name='author']")?.Attributes
-                .FirstOrDefault(x => x.LocalName == "content")?.Value);
+            Assert.That(indexDocument.QuerySelector("meta[name='author']")?.Attributes
+                    .FirstOrDefault(x => x.LocalName == "content")?.Value, Is.EqualTo(UserSettingsSingleton.CurrentSettings().SiteAuthors));
 
-        Assert.AreEqual(UserSettingsSingleton.CurrentSettings().SiteKeywords,
-            indexDocument.QuerySelector("meta[name='keywords']")?.Attributes
-                .FirstOrDefault(x => x.LocalName == "content")?.Value);
+            Assert.That(indexDocument.QuerySelector("meta[name='keywords']")?.Attributes
+                    .FirstOrDefault(x => x.LocalName == "content")?.Value, Is.EqualTo(UserSettingsSingleton.CurrentSettings().SiteKeywords));
+        });
 
-        Assert.AreEqual(UserSettingsSingleton.CurrentSettings().SiteSummary,
-            indexDocument.QuerySelector("meta[name='description']")?.Attributes
-                .FirstOrDefault(x => x.LocalName == "content")?.Value);
+        Assert.That(indexDocument.QuerySelector("meta[name='description']")?.Attributes
+                .FirstOrDefault(x => x.LocalName == "content")?.Value, Is.EqualTo(UserSettingsSingleton.CurrentSettings().SiteSummary));
     }
 
     public static async Task CommonContentChecks(IHtmlDocument document, IContentCommon toCheck)
     {
-        Assert.AreEqual(toCheck.Title, document.Title);
+        Assert.That(document.Title, Is.EqualTo(toCheck.Title));
 
         var contentVersionAttributeString =
             document.Head.Attributes.Single(x => x.Name == "data-contentversion").Value;
 
-        Assert.AreEqual(toCheck.ContentVersion.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fffffff"),
-            contentVersionAttributeString, "Content Version of HTML Does not match Data");
+        Assert.Multiple(async () =>
+        {
+            Assert.That(contentVersionAttributeString, Is.EqualTo(toCheck.ContentVersion.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fffffff")), "Content Version of HTML Does not match Data");
 
-        //Todo - check description
+            //Todo - check description
 
-        Assert.AreEqual(toCheck.Tags,
-            document.QuerySelector("meta[name='keywords']")?.Attributes
-                .FirstOrDefault(x => x.LocalName == "content")?.Value);
+            Assert.That(document.QuerySelector("meta[name='keywords']")?.Attributes
+                    .FirstOrDefault(x => x.LocalName == "content")?.Value, Is.EqualTo(toCheck.Tags));
 
-        Assert.AreEqual(UserSettingsSingleton.CurrentSettings().SiteName,
-            document.QuerySelector("meta[property='og:site_name']")?.Attributes
-                .FirstOrDefault(x => x.LocalName == "content")?.Value);
+            Assert.That(document.QuerySelector("meta[property='og:site_name']")?.Attributes
+                    .FirstOrDefault(x => x.LocalName == "content")?.Value, Is.EqualTo(UserSettingsSingleton.CurrentSettings().SiteName));
 
-        Assert.AreEqual($"{await UserSettingsSingleton.CurrentSettings().PageUrl(toCheck.ContentId)}",
-            document.QuerySelector("meta[property='og:url']")?.Attributes
-                .FirstOrDefault(x => x.LocalName == "content")?.Value);
+            Assert.That(document.QuerySelector("meta[property='og:url']")?.Attributes
+                    .FirstOrDefault(x => x.LocalName == "content")?.Value, Is.EqualTo($"{await UserSettingsSingleton.CurrentSettings().PageUrl(toCheck.ContentId)}"));
 
-        Assert.AreEqual("article",
-            document.QuerySelector("meta[property='og:type']")?.Attributes
-                .FirstOrDefault(x => x.LocalName == "content")?.Value);
+            Assert.That(document.QuerySelector("meta[property='og:type']")?.Attributes
+                    .FirstOrDefault(x => x.LocalName == "content")?.Value, Is.EqualTo("article"));
+        });
 
         var tagContainers = document.QuerySelectorAll(".tags-detail-link-container");
         var contentTags = Db.TagListParseToSlugsAndIsExcluded(toCheck);
-        Assert.AreEqual(tagContainers.Length, contentTags.Count);
+        Assert.That(contentTags.Count, Is.EqualTo(tagContainers.Length));
 
         var tagLinks = document.QuerySelectorAll(".tag-detail-link");
-        Assert.AreEqual(tagLinks.Length, contentTags.Count(x => !x.IsExcluded));
+        Assert.That(contentTags.Count(x => !x.IsExcluded), Is.EqualTo(tagLinks.Length));
 
         var tagNoLinks = document.QuerySelectorAll(".tag-detail-text");
-        Assert.AreEqual(tagNoLinks.Length, contentTags.Count(x => x.IsExcluded));
+        Assert.That(contentTags.Count(x => x.IsExcluded), Is.EqualTo(tagNoLinks.Length));
     }
 
     public static IHtmlDocument DocumentFromFile(FileInfo htmlFile)

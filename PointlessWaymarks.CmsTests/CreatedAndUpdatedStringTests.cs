@@ -16,9 +16,8 @@ public class CreatedAndUpdatedStringTests
 
         var createdAndUpdatedString = CreatedByAndUpdatedOnString(testData);
 
-        Assert.AreEqual(
-            $"Created by {testData.CreatedBy} on {CreatedByAndUpdatedOnFormattedDateTimeString(testData.CreatedOn)}.",
-            createdAndUpdatedString);
+        Assert.That(
+            createdAndUpdatedString, Is.EqualTo($"Created by {testData.CreatedBy} on {CreatedByAndUpdatedOnFormattedDateTimeString(testData.CreatedOn)}."));
     }
 
     [Test]
@@ -34,10 +33,9 @@ public class CreatedAndUpdatedStringTests
 
         var createdAndUpdatedString = CreatedByAndUpdatedOnString(testData);
 
-        Assert.AreEqual(
-            $"Created by {testData.CreatedBy} on {CreatedByAndUpdatedOnFormattedDateTimeString(testData.CreatedOn)}." +
-            $" Updated by {testData.LastUpdatedBy} on {CreatedByAndUpdatedOnFormattedDateTimeString(testData.LastUpdatedOn.Value)}.",
-            createdAndUpdatedString);
+        Assert.That(
+            createdAndUpdatedString, Is.EqualTo($"Created by {testData.CreatedBy} on {CreatedByAndUpdatedOnFormattedDateTimeString(testData.CreatedOn)}." +
+            $" Updated by {testData.LastUpdatedBy} on {CreatedByAndUpdatedOnFormattedDateTimeString(testData.LastUpdatedOn.Value)}."));
     }
 
     [Test]
@@ -53,10 +51,9 @@ public class CreatedAndUpdatedStringTests
 
         var createdAndUpdatedString = CreatedByAndUpdatedOnString(testData);
 
-        Assert.AreEqual(
-            $"Created by {testData.CreatedBy} on {CreatedByAndUpdatedOnFormattedDateTimeString(testData.CreatedOn)}." +
-            $" Updated by {testData.LastUpdatedBy} on {CreatedByAndUpdatedOnFormattedDateTimeString(testData.LastUpdatedOn.Value)}.",
-            createdAndUpdatedString);
+        Assert.That(
+            createdAndUpdatedString, Is.EqualTo($"Created by {testData.CreatedBy} on {CreatedByAndUpdatedOnFormattedDateTimeString(testData.CreatedOn)}." +
+            $" Updated by {testData.LastUpdatedBy} on {CreatedByAndUpdatedOnFormattedDateTimeString(testData.LastUpdatedOn.Value)}."));
     }
 
     [Test]
@@ -72,9 +69,8 @@ public class CreatedAndUpdatedStringTests
 
         var createdAndUpdatedString = CreatedByAndUpdatedOnString(testData);
 
-        Assert.AreEqual(
-            $"Created and Updated by {testData.CreatedBy} on {CreatedByAndUpdatedOnFormattedDateTimeString(testData.CreatedOn)}.",
-            createdAndUpdatedString);
+        Assert.That(
+            createdAndUpdatedString, Is.EqualTo($"Created and Updated by {testData.CreatedBy} on {CreatedByAndUpdatedOnFormattedDateTimeString(testData.CreatedOn)}."));
     }
 
     [Test]
@@ -90,10 +86,9 @@ public class CreatedAndUpdatedStringTests
 
         var createdAndUpdatedString = CreatedByAndUpdatedOnString(testData);
 
-        Assert.AreEqual(
-            $"Created by {testData.CreatedBy} on {CreatedByAndUpdatedOnFormattedDateTimeString(testData.CreatedOn)}." +
-            $" Updated on {CreatedByAndUpdatedOnFormattedDateTimeString(testData.LastUpdatedOn.Value)}.",
-            createdAndUpdatedString);
+        Assert.That(
+            createdAndUpdatedString, Is.EqualTo($"Created by {testData.CreatedBy} on {CreatedByAndUpdatedOnFormattedDateTimeString(testData.CreatedOn)}." +
+            $" Updated on {CreatedByAndUpdatedOnFormattedDateTimeString(testData.LastUpdatedOn.Value)}."));
     }
 
     private class CreatedAndUpdatedTestStructure : ICreatedAndLastUpdateOnAndBy

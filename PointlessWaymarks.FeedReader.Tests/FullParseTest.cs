@@ -16,9 +16,7 @@ namespace PointlessWaymarks.FeedReader.Tests
             Assert.AreEqual(expected, actual);
         }
 
-        #region Synchronous 
-
-                [TestMethod]
+        [TestMethod]
         public void TestAtomParseAdobe()
         {
             var feed = (AtomFeed)Reader.ReadFromFile("Feeds/AtomAdobe.xml").SpecificFeed;
@@ -397,7 +395,7 @@ namespace PointlessWaymarks.FeedReader.Tests
                 var feed = Reader.ReadFromFile(file);
                 if (feed != null)
                 {
-                    string filename = System.IO.Path.GetFileName(file);
+                    var filename = System.IO.Path.GetFileName(file);
                     if (!linkless.Contains(filename))
                         Assert.IsTrue(!string.IsNullOrEmpty(feed.Link));
                     
@@ -405,10 +403,6 @@ namespace PointlessWaymarks.FeedReader.Tests
                 }
             }
         }
-
-        #endregion Synchronous 
-
-        #region Asynchronous 
 
         [TestMethod]
         public async Task TestAtomParseAdobe_Async()
@@ -764,7 +758,7 @@ namespace PointlessWaymarks.FeedReader.Tests
                 var feed = await Reader.ReadFromFileAsync(file).ConfigureAwait(false);
                 if (feed != null)
                 {
-                    string filename = System.IO.Path.GetFileName(file);
+                    var filename = System.IO.Path.GetFileName(file);
                     if (!linkless.Contains(filename))
                         Assert.IsTrue(!string.IsNullOrEmpty(feed.Link));
 
@@ -772,8 +766,6 @@ namespace PointlessWaymarks.FeedReader.Tests
                 }
             }
         }
-
-        #endregion Asynchronous 
 
         private static void TestItunesParsingForException(Feed feed)
         {
