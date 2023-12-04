@@ -63,7 +63,7 @@
                         AcceptsReturn="True"
                         BorderThickness="0"
                         SpellCheck.IsEnabled="True"
-                        Text="{Binding UpdateNotes, UpdateSourceTrigger=PropertyChanged}"
+                        Text="{Binding UserValue, UpdateSourceTrigger=PropertyChanged}"
                         TextWrapping="Wrap"
                         VerticalScrollBarVisibility="Visible">
                         <b:Interaction.Behaviors>

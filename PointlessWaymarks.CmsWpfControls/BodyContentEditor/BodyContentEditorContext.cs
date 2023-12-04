@@ -1,4 +1,4 @@
-﻿using System.ComponentModel;
+using System.ComponentModel;
 using System.IO;
 using System.Text.RegularExpressions;
 using System.Web;
@@ -31,7 +31,7 @@ public partial class BodyContentEditorContext : IHasChanges, IHasValidationIssue
 
         BodyContentFormat.InitialValue = DbEntry.BodyContentFormat;
 
-        BodyContent = DbEntry.BodyContent;
+        UserValue = DbEntry.BodyContent;
 
         SelectedBodyText = string.Empty;
 
@@ -42,21 +42,20 @@ public partial class BodyContentEditorContext : IHasChanges, IHasValidationIssue
         PropertyScanners.SubscribeToChildHasChangesAndHasValidationIssues(this, CheckForChangesAndValidationIssues);
     }
 
-    public string? BodyContent { get; set; }
+    public string? UserValue { get; set; }
     public ContentFormatChooserContext BodyContentFormat { get; set; }
     public bool BodyContentHasChanges { get; set; }
     public string? BodyContentHtmlOutput { get; set; }
     public IBodyContent? DbEntry { get; set; }
     public string? SelectedBodyText { get; set; }
     public StatusControlContext StatusContext { get; set; }
-    public string UserBodyContent { get; set; } = string.Empty;
     public int UserBodyContentUserSelectionLength { get; set; }
     public int UserBodyContentUserSelectionStart { get; set; }
     public string? UserHtmlSelectedText { get; set; }
 
     public void CheckForChangesAndValidationIssues()
     {
-        BodyContentHasChanges = !StringTools.AreEqual((DbEntry?.BodyContent).TrimNullToEmpty(), BodyContent);
+        BodyContentHasChanges = !StringTools.AreEqual((DbEntry?.BodyContent).TrimNullToEmpty(), UserValue);
 
         HasChanges = BodyContentHasChanges || PropertyScanners.ChildPropertiesHaveValidationIssues(this);
         HasValidationIssues = PropertyScanners.ChildPropertiesHaveChanges(this);
@@ -105,7 +104,7 @@ public partial class BodyContentEditorContext : IHasChanges, IHasValidationIssue
         try
         {
             var preprocessResults =
-                await BracketCodeCommon.ProcessCodesForLocalDisplay(BodyContent, StatusContext.ProgressTracker());
+                await BracketCodeCommon.ProcessCodesForLocalDisplay(UserValue, StatusContext.ProgressTracker());
             var processResults =
                 ContentProcessing.ProcessContent(preprocessResults, BodyContentFormat.SelectedContentFormat);
 

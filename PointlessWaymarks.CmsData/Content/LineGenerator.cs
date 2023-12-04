@@ -27,7 +27,8 @@ public static class LineGenerator
     }
 
     public static async Task<LineContent> NewFromGpxTrack(GpxTools.GpxTrackInformation trackInformation,
-        bool replaceElevations, bool skipFeatureIntersectTagging, bool linkAssociatedPhotosInBody, IProgress<string> progress)
+        bool replaceElevations, bool skipFeatureIntersectTagging, bool linkAssociatedPhotosInBody,
+        IProgress<string> progress)
     {
         var lineStatistics = DistanceTools.LineStatsInImperialFromCoordinateList(trackInformation.Track);
 
@@ -41,7 +42,7 @@ public static class LineGenerator
             tagList = new List<string> { stateCounty.state, stateCounty.county };
         }
 
-        if (trackInformation.Track.Any() && UserSettingsSingleton.CurrentSettings().FeatureIntersectionTagOnImport && 
+        if (trackInformation.Track.Any() && UserSettingsSingleton.CurrentSettings().FeatureIntersectionTagOnImport &&
             !string.IsNullOrWhiteSpace(UserSettingsSingleton.CurrentSettings().FeatureIntersectionTagSettingsFile) &&
             !skipFeatureIntersectTagging)
             try
@@ -59,31 +60,27 @@ public static class LineGenerator
                 Log.Error(e, "Silent Error with FeatureIntersectionTags in Photo Metadata Extraction");
             }
 
-        var newEntry = new LineContent
-        {
-            ContentId = Guid.NewGuid(),
-            CreatedBy = UserSettingsSingleton.CurrentSettings().DefaultCreatedBy,
-            BodyContentFormat = UserSettingsUtilities.DefaultContentFormatChoice(),
-            UpdateNotesFormat = UserSettingsUtilities.DefaultContentFormatChoice(),
-            CreatedOn = trackInformation.StartsOnLocal ?? DateTime.Now,
-            FeedOn = trackInformation.StartsOnLocal ?? DateTime.Now,
-            ContentVersion = Db.ContentVersionDateTime(),
-            Line = await LineTools.GeoJsonWithLineStringFromCoordinateList(trackInformation.Track,
-                replaceElevations, progress),
-            Title = trackInformation.Name,
-            Summary = trackInformation.Name,
-            BodyContent = trackInformation.Description,
-            LineDistance = lineStatistics.Length,
-            MaximumElevation = lineStatistics.MaximumElevation,
-            MinimumElevation = lineStatistics.MinimumElevation,
-            ClimbElevation = lineStatistics.ElevationClimb,
-            DescentElevation = lineStatistics.ElevationDescent,
-            RecordingStartedOn = trackInformation.StartsOnLocal,
-            RecordingStartedOnUtc = trackInformation.StartsOnUtc,
-            RecordingEndedOn = trackInformation.EndsOnLocal,
-            RecordingEndedOnUtc = trackInformation.EndsOnUtc,
-            Tags = Db.TagListJoin(tagList)
-        };
+        var newEntry = NewContentModels.InitializeLineContent(null);
+
+        newEntry.CreatedBy = UserSettingsSingleton.CurrentSettings().DefaultCreatedBy;
+        newEntry.CreatedOn = trackInformation.StartsOnLocal ?? DateTime.Now;
+        newEntry.FeedOn = trackInformation.StartsOnLocal ?? DateTime.Now;
+        newEntry.ContentVersion = Db.ContentVersionDateTime();
+        newEntry.Line = await LineTools.GeoJsonWithLineStringFromCoordinateList(trackInformation.Track,
+            replaceElevations, progress);
+        newEntry.Title = trackInformation.Name;
+        newEntry.Summary = trackInformation.Name;
+        newEntry.BodyContent = trackInformation.Description;
+        newEntry.LineDistance = lineStatistics.Length;
+        newEntry.MaximumElevation = lineStatistics.MaximumElevation;
+        newEntry.MinimumElevation = lineStatistics.MinimumElevation;
+        newEntry.ClimbElevation = lineStatistics.ElevationClimb;
+        newEntry.DescentElevation = lineStatistics.ElevationDescent;
+        newEntry.RecordingStartedOn = trackInformation.StartsOnLocal;
+        newEntry.RecordingStartedOnUtc = trackInformation.StartsOnUtc;
+        newEntry.RecordingEndedOn = trackInformation.EndsOnLocal;
+        newEntry.RecordingEndedOnUtc = trackInformation.EndsOnUtc;
+        newEntry.Tags = Db.TagListJoin(tagList);
 
         if (!string.IsNullOrWhiteSpace(trackInformation.Name))
             newEntry.Slug = SlugTools.CreateSlug(true, trackInformation.Name);
@@ -115,28 +112,20 @@ public static class LineGenerator
     {
         var lineStatistics = DistanceTools.LineStatsInImperialFromCoordinateList(trackInformation.Track);
 
-        var newEntry = new LineContent
-        {
-            ContentId = Guid.NewGuid(),
-            CreatedBy = UserSettingsSingleton.CurrentSettings().DefaultCreatedBy,
-            BodyContentFormat = UserSettingsUtilities.DefaultContentFormatChoice(),
-            UpdateNotesFormat = UserSettingsUtilities.DefaultContentFormatChoice(),
-            CreatedOn = DateTime.Now,
-            FeedOn = DateTime.Now,
-            ContentVersion = Db.ContentVersionDateTime(),
-            Line = await LineTools.GeoJsonWithLineStringFromCoordinateList(trackInformation.Track,
-                replaceElevations, progress),
-            Title = trackInformation.Name,
-            Summary = trackInformation.Name,
-            BodyContent = trackInformation.Description,
-            LineDistance = lineStatistics.Length,
-            MaximumElevation = lineStatistics.MaximumElevation,
-            MinimumElevation = lineStatistics.MinimumElevation,
-            ClimbElevation = lineStatistics.ElevationClimb,
-            DescentElevation = lineStatistics.ElevationDescent,
-            RecordingStartedOn = null,
-            RecordingEndedOn = null
-        };
+        var newEntry = NewContentModels.InitializeLineContent(null);
+
+        newEntry.CreatedBy = UserSettingsSingleton.CurrentSettings().DefaultCreatedBy;
+        newEntry.ContentVersion = Db.ContentVersionDateTime();
+        newEntry.Line = await LineTools.GeoJsonWithLineStringFromCoordinateList(trackInformation.Track,
+            replaceElevations, progress);
+        newEntry.Title = trackInformation.Name;
+        newEntry.Summary = trackInformation.Name;
+        newEntry.BodyContent = trackInformation.Description;
+        newEntry.LineDistance = lineStatistics.Length;
+        newEntry.MaximumElevation = lineStatistics.MaximumElevation;
+        newEntry.MinimumElevation = lineStatistics.MinimumElevation;
+        newEntry.ClimbElevation = lineStatistics.ElevationClimb;
+        newEntry.DescentElevation = lineStatistics.ElevationDescent;
 
         if (!string.IsNullOrWhiteSpace(trackInformation.Name))
             newEntry.Slug = SlugTools.CreateSlug(true, trackInformation.Name);

@@ -1,4 +1,4 @@
-﻿using System.ComponentModel;
+using System.ComponentModel;
 using System.Web;
 using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.Database.Models;
@@ -26,7 +26,7 @@ public partial class UpdateNotesEditorContext : IHasChanges, IHasValidationIssue
         UpdateNotesFormat = contentChooser;
 
         DbEntry = dbEntry;
-        UpdateNotes = DbEntry.UpdateNotes ?? string.Empty;
+        UserValue = DbEntry.UpdateNotes ?? string.Empty;
 
         UpdateNotesFormat = contentChooser;
 
@@ -37,14 +37,14 @@ public partial class UpdateNotesEditorContext : IHasChanges, IHasValidationIssue
 
     public IUpdateNotes DbEntry { get; set; }
     public StatusControlContext StatusContext { get; set; }
-    public string UpdateNotes { get; set; }
+    public string UserValue { get; set; }
     public ContentFormatChooserContext UpdateNotesFormat { get; set; }
     public bool UpdateNotesHasChanges { get; set; }
     public string? UpdateNotesHtmlOutput { get; set; }
 
     public void CheckForChangesAndValidationIssues()
     {
-        UpdateNotesHasChanges = !StringTools.AreEqual(DbEntry.UpdateNotes.TrimNullToEmpty(), UpdateNotes);
+        UpdateNotesHasChanges = !StringTools.AreEqual(DbEntry.UpdateNotes.TrimNullToEmpty(), UserValue);
 
         HasChanges = UpdateNotesHasChanges || PropertyScanners.ChildPropertiesHaveChanges(this);
         HasValidationIssues = PropertyScanners.ChildPropertiesHaveValidationIssues(this);
@@ -94,8 +94,8 @@ public partial class UpdateNotesEditorContext : IHasChanges, IHasValidationIssue
         if (!e.PropertyName.Contains("HasChanges") && !e.PropertyName.Contains("Validation"))
             CheckForChangesAndValidationIssues();
 
-        if (e.PropertyName == nameof(UpdateNotes))
-            UpdateNotesHasChanges = !StringTools.AreEqual(DbEntry.UpdateNotes, UpdateNotes);
+        if (e.PropertyName == nameof(UserValue))
+            UpdateNotesHasChanges = !StringTools.AreEqual(DbEntry.UpdateNotes, UserValue);
         if (e.PropertyName == nameof(UpdateNotesFormat))
             StatusContext.RunFireAndForgetNonBlockingTask(RefreshPreview);
     }
@@ -108,7 +108,7 @@ public partial class UpdateNotesEditorContext : IHasChanges, IHasValidationIssue
         try
         {
             var preprocessResults =
-                await BracketCodeCommon.ProcessCodesForLocalDisplay(UpdateNotes, StatusContext.ProgressTracker());
+                await BracketCodeCommon.ProcessCodesForLocalDisplay(UserValue, StatusContext.ProgressTracker());
             var processResults =
                 ContentProcessing.ProcessContent(preprocessResults, UpdateNotesFormat.SelectedContentFormat);
             UpdateNotesHtmlOutput = processResults.ToHtmlDocumentWithLeaflet("Update Notes", string.Empty);

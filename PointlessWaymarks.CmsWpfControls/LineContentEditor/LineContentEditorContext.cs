@@ -1,4 +1,4 @@
-﻿using System.ComponentModel;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Windows;
@@ -24,6 +24,7 @@ using PointlessWaymarks.FeatureIntersectionTags;
 using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.SpatialTools;
 using PointlessWaymarks.WpfCommon;
+using PointlessWaymarks.WpfCommon.BoolDataEntry;
 using PointlessWaymarks.WpfCommon.ChangesAndValidation;
 using PointlessWaymarks.WpfCommon.ConversionDataEntry;
 using PointlessWaymarks.WpfCommon.MarkdownDisplay;
@@ -60,6 +61,9 @@ public partial class LineContentEditorContext : IHasChanges, IHasValidationIssue
     public LineContent DbEntry { get; set; }
     public ConversionDataEntryContext<double>? DescentElevationEntry { get; set; }
     public ConversionDataEntryContext<double>? DistanceEntry { get; set; }
+
+    public bool HasChanges { get; set; }
+    public bool HasValidationIssues { get; set; }
     public HelpDisplayContext? HelpContext { get; set; }
     public string LineGeoJson { get; set; } = string.Empty;
     public ContentSiteFeedAndIsDraftContext? MainSiteFeed { get; set; }
@@ -67,6 +71,8 @@ public partial class LineContentEditorContext : IHasChanges, IHasValidationIssue
     public ConversionDataEntryContext<double>? MinimumElevationEntry { get; set; }
     public string PreviewHtml { get; set; }
     public string PreviewLineJsonDto { get; set; } = string.Empty;
+
+    public BoolDataEntryContext? PublicDownloadLink { get; set; }
     public ConversionDataEntryContext<DateTime?>? RecordingEndedOnEntry { get; set; }
     public ConversionDataEntryContext<DateTime?>? RecordingStartedOnEntry { get; set; }
     public bool ReplaceElevationOnImport { get; set; }
@@ -81,9 +87,6 @@ public partial class LineContentEditorContext : IHasChanges, IHasValidationIssue
         HasChanges = PropertyScanners.ChildPropertiesHaveChanges(this);
         HasValidationIssues = PropertyScanners.ChildPropertiesHaveValidationIssues(this);
     }
-
-    public bool HasChanges { get; set; }
-    public bool HasValidationIssues { get; set; }
 
     [BlockingCommand]
     private async Task AddFeatureIntersectTags()
@@ -157,11 +160,13 @@ public partial class LineContentEditorContext : IHasChanges, IHasValidationIssue
         newEntry.Tags = TagEdit!.TagListString();
         newEntry.Title = TitleSummarySlugFolder.TitleEntry.UserValue.TrimNullToEmpty();
         newEntry.CreatedBy = CreatedUpdatedDisplay!.CreatedByEntry.UserValue.TrimNullToEmpty();
-        newEntry.UpdateNotes = UpdateNotes!.UpdateNotes.TrimNullToEmpty();
+        newEntry.UpdateNotes = UpdateNotes!.UserValue.TrimNullToEmpty();
         newEntry.UpdateNotesFormat = UpdateNotes.UpdateNotesFormat.SelectedContentFormatAsString;
-        newEntry.BodyContent = BodyContent!.BodyContent.TrimNullToEmpty();
+        newEntry.BodyContent = BodyContent!.UserValue.TrimNullToEmpty();
         newEntry.BodyContentFormat = BodyContent.BodyContentFormat.SelectedContentFormatAsString;
         newEntry.Line = LineGeoJson;
+
+        newEntry.PublicDownloadLink = PublicDownloadLink!.UserValue;
 
         newEntry.RecordingStartedOn = RecordingStartedOnEntry!.UserValue;
         newEntry.RecordingEndedOn = RecordingEndedOnEntry!.UserValue;
@@ -179,7 +184,7 @@ public partial class LineContentEditorContext : IHasChanges, IHasValidationIssue
     public async Task ExtractNewLinks()
     {
         await LinkExtraction.ExtractNewAndShowLinkContentEditors(
-            $"{BodyContent!.BodyContent} {UpdateNotes!.UpdateNotes}", StatusContext.ProgressTracker());
+            $"{BodyContent!.UserValue} {UpdateNotes!.UserValue}", StatusContext.ProgressTracker());
     }
 
     [BlockingCommand]
@@ -342,6 +347,15 @@ public partial class LineContentEditorContext : IHasChanges, IHasValidationIssue
         TagEdit = await TagsEditorContext.CreateInstance(StatusContext, DbEntry);
         BodyContent = await BodyContentEditorContext.CreateInstance(StatusContext, DbEntry);
         LineGeoJson = toLoad?.Line ?? string.Empty;
+
+        PublicDownloadLink = await BoolDataEntryContext.CreateInstance();
+        PublicDownloadLink.Title = "Show Public Download Link";
+        PublicDownloadLink.ReferenceValue = DbEntry.PublicDownloadLink;
+        PublicDownloadLink.UserValue = DbEntry.PublicDownloadLink;
+        PublicDownloadLink.HelpText =
+            "If checked there will be a hyperlink will on the File Content Page to download the content. NOTE! The File" +
+            "will be copied into the generated HTML for the site regardless of this setting - this setting is only about " +
+            "whether a download link is shown.";
 
         RecordingStartedOnEntry =
             await ConversionDataEntryContext<DateTime?>.CreateInstance(ConversionDataEntryHelpers

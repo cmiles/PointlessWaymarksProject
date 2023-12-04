@@ -243,6 +243,56 @@
                             </b:Interaction.Behaviors>
                         </wpf:MarkdownViewer>
                     </StackPanel>
+                    
+                    <StackPanel Orientation="Vertical">
+                        <Label Style="{StaticResource DataEntryLabelStyle}" Target="{Binding ElementName=DefaultFilePublicDownloadDefaultCheckBox}">
+                            Public Download Link Default - Files
+                        </Label>
+                        <CheckBox
+                            Name="DefaultFilePublicDownloadDefaultCheckBox"
+                            Margin="6,0,0,0"
+                            IsChecked="{Binding EditorSettings.FilesHavePublicDownloadLinkByDefault, UpdateSourceTrigger=PropertyChanged}">
+                            Show Public Download Links
+                        </CheckBox>
+                        <wpf:MarkdownViewer Markdown="{Binding HelpMarkdownFilesHavePublicDownloadLinkByDefault}">
+                            <b:Interaction.Behaviors>
+                                <behaviors:IgnoreMouseWheelBehavior />
+                            </b:Interaction.Behaviors>
+                        </wpf:MarkdownViewer>
+                    </StackPanel>
+                    <StackPanel Orientation="Vertical">
+                        <Label Style="{StaticResource DataEntryLabelStyle}" Target="{Binding ElementName=DefaultLinePublicDownloadDefaultCheckBox}">
+                            Public Download Link Default - Lines
+                        </Label>
+                        <CheckBox
+                            Name="DefaultLinePublicDownloadDefaultCheckBox"
+                            Margin="6,0,0,0"
+                            IsChecked="{Binding EditorSettings.LinesHavePublicDownloadLinkByDefault, UpdateSourceTrigger=PropertyChanged}">
+                            Show Public Download Links
+                        </CheckBox>
+                        <wpf:MarkdownViewer Markdown="{Binding HelpMarkdownLinesHavePublicDownloadLinkByDefault}">
+                            <b:Interaction.Behaviors>
+                                <behaviors:IgnoreMouseWheelBehavior />
+                            </b:Interaction.Behaviors>
+                        </wpf:MarkdownViewer>
+                    </StackPanel>
+                    <StackPanel Orientation="Vertical">
+                        <Label Style="{StaticResource DataEntryLabelStyle}" Target="{Binding ElementName=DefaultFilePublicDownloadDefaultCheckBox}">
+                            Public Download Link Default - GeoJson
+                        </Label>
+                        <CheckBox
+                            Name="DefaultGeoJsonPublicDownloadDefaultCheckBox"
+                            Margin="6,0,0,0"
+                            IsChecked="{Binding EditorSettings.GeoJsonHasPublicDownloadLinkByDefault, UpdateSourceTrigger=PropertyChanged}">
+                            Show Public Download Links
+                        </CheckBox>
+                        <wpf:MarkdownViewer Markdown="{Binding HelpMarkdownGeoJsonHasPublicDownloadLinkByDefault}">
+                            <b:Interaction.Behaviors>
+                                <behaviors:IgnoreMouseWheelBehavior />
+                            </b:Interaction.Behaviors>
+                        </wpf:MarkdownViewer>
+                    </StackPanel>
+                    
                     <StackPanel Orientation="Vertical">
                         <Label Style="{StaticResource DataEntryLabelStyle}" Target="{Binding ElementName=FeatureIntersectionTextBox}">
                             Feature Intersection Settings File

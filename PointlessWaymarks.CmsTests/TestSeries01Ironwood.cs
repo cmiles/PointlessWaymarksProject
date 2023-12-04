@@ -179,11 +179,11 @@ public class TestSeries01Ironwood
             Assert.That(newContext.TagEdit.HasChanges);
         });
 
-        newContext.BodyContent.BodyContent =
+        newContext.BodyContent.UserValue =
             IronwoodPhotoInfo.QuarryContent02_BodyContentUpdateNotesTags.BodyContent;
         Assert.That(newContext.BodyContent.BodyContentHasChanges);
 
-        newContext.UpdateNotes.UpdateNotes =
+        newContext.UpdateNotes.UserValue =
             IronwoodPhotoInfo.QuarryContent02_BodyContentUpdateNotesTags.UpdateNotes;
         Assert.That(newContext.UpdateNotes.UpdateNotesHasChanges);
 

@@ -1,4 +1,4 @@
-﻿using System.ComponentModel;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Windows;
 using PointlessWaymarks.CmsData;
@@ -104,9 +104,9 @@ Notes:
         newEntry.Tags = TagEdit!.TagListString();
         newEntry.Title = TitleSummarySlugFolder.TitleEntry.UserValue.TrimNullToEmpty();
         newEntry.CreatedBy = CreatedUpdatedDisplay!.CreatedByEntry.UserValue.TrimNullToEmpty();
-        newEntry.UpdateNotes = UpdateNotes!.UpdateNotes.TrimNullToEmpty();
+        newEntry.UpdateNotes = UpdateNotes!.UserValue.TrimNullToEmpty();
         newEntry.UpdateNotesFormat = UpdateNotes.UpdateNotesFormat.SelectedContentFormatAsString;
-        newEntry.BodyContent = BodyContent!.BodyContent.TrimNullToEmpty();
+        newEntry.BodyContent = BodyContent!.UserValue.TrimNullToEmpty();
         newEntry.BodyContentFormat = BodyContent.BodyContentFormat.SelectedContentFormatAsString;
 
         return newEntry;
@@ -116,7 +116,7 @@ Notes:
     public async Task ExtractNewLinks()
     {
         await LinkExtraction.ExtractNewAndShowLinkContentEditors(
-            $"{BodyContent!.BodyContent} {UpdateNotes!.UpdateNotes}",
+            $"{BodyContent!.UserValue} {UpdateNotes!.UserValue}",
             StatusContext.ProgressTracker());
     }
 
@@ -220,7 +220,7 @@ Notes:
 
         var settings = UserSettingsSingleton.CurrentSettings();
 
-        var url = $@"{settings.PostPageUrl(DbEntry)}";
+        var url = $"{settings.PostPageUrl(DbEntry)}";
 
         var ps = new ProcessStartInfo(url) { UseShellExecute = true, Verb = "open" };
         Process.Start(ps);

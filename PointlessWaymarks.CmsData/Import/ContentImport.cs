@@ -1,4 +1,4 @@
-﻿using ClosedXML.Excel;
+using ClosedXML.Excel;
 using KellermanSoftware.CompareNetObjects;
 using KellermanSoftware.CompareNetObjects.Reports;
 using Microsoft.Office.Interop.Excel;
@@ -343,7 +343,7 @@ public static class ContentImport
         {
             //I can be tricky getting the correct range back from Excel - this may need more feedback or should
             //be done earlier in the process but I think this should be pretty safe to skip rows with all
-            //blanks as that is likely the either the user intent or it is bad row detection...
+            //blanks as that is likely either the user intent or it is bad row detection...
             if (loopRow.Values.All(string.IsNullOrWhiteSpace)) continue;
 
             var importResult = await ImportContentFromExcelRow(headerInfo, loopRow).ConfigureAwait(false);
@@ -760,7 +760,10 @@ public static class ContentImport
                 if (excelResult.ValueParsed == null || !excelResult.ValueParsed.Value)
                     returnString.Add($"Row {toProcess.RowIdentifier} - could not process {loopProperties.Name}");
 
-                loopProperties.SetValue(toUpdate, excelResult.ParsedValue.TrimNullToEmpty());
+                //20230-12-4: The ReplaceLineEndings replaces Excel-in-cell returns with the standard line ending
+                //for this program - without this comparisons will detect all multi-line string content as having 
+                //changes regardless of whether it does or not...
+                loopProperties.SetValue(toUpdate, excelResult.ParsedValue.TrimNullToEmpty().ReplaceLineEndings("\r\n"));
             }
             else if (loopProperties.PropertyType == typeof(Guid?))
             {

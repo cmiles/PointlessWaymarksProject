@@ -1,4 +1,4 @@
-﻿using System.Collections.ObjectModel;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Text.RegularExpressions;
 using System.Windows;
@@ -238,7 +238,7 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
         newEntry.Summary = SummaryEntry?.UserValue.TrimNullToEmpty() ?? string.Empty;
         newEntry.Title = TitleEntry?.UserValue.TrimNullToEmpty() ?? string.Empty;
         newEntry.CreatedBy = CreatedUpdatedDisplay?.CreatedByEntry.UserValue.TrimNullToEmpty() ?? string.Empty;
-        newEntry.UpdateNotes = UpdateNotes?.UpdateNotes.TrimNullToEmpty();
+        newEntry.UpdateNotes = UpdateNotes?.UserValue.TrimNullToEmpty();
         newEntry.UpdateNotesFormat = UpdateNotes?.UpdateNotesFormat.SelectedContentFormatAsString ?? string.Empty;
 
         var currentElementList = MapElements?.ToList() ?? new List<IMapElementListItem>();

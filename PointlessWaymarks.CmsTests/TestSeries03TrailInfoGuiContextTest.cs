@@ -408,7 +408,7 @@ public class TestSeries03TrailInfoGuiContextTest
             //Body Text
             Assert.That(newFileContext.BodyContent.HasChanges, Is.False);
         });
-        newFileContext.BodyContent.BodyContent =
+        newFileContext.BodyContent.UserValue =
             "UI Context Testing File with Bad Content Id {{postlink c3c63473-6b60-4531-97f7-2d201d84e2be; Cocopa and Yuma Points, Grand Canyon - 9/30-10/1/2020}}";
         Assert.Multiple(() =>
         {
@@ -417,7 +417,7 @@ public class TestSeries03TrailInfoGuiContextTest
             //Update Text
             Assert.That(newFileContext.UpdateNotes.HasChanges, Is.False);
         });
-        newFileContext.UpdateNotes.UpdateNotes =
+        newFileContext.UpdateNotes.UserValue =
             "UI Context Testing File with Bad Content Id {{postlink c3c63473-6b60-4531-97f7-2d201d84e2be; text Bad Content Id Text ;Cocopa and Yuma Points, Grand Canyon - 9/30-10/1/2020}}";
         Assert.That(newFileContext.UpdateNotes.HasChanges);
 
@@ -427,7 +427,7 @@ public class TestSeries03TrailInfoGuiContextTest
 
 
         //Body Text
-        newFileContext.BodyContent.BodyContent = "UI Context Testing File";
+        newFileContext.BodyContent.UserValue = "UI Context Testing File";
         Assert.That(newFileContext.BodyContent.HasChanges);
 
         validationResult = await FileGenerator.Validate(newFileContext.CurrentStateToFileContent(),
@@ -435,7 +435,7 @@ public class TestSeries03TrailInfoGuiContextTest
         Assert.That(validationResult.HasError);
 
         //Update Text
-        newFileContext.UpdateNotes.UpdateNotes = "UI Context Testing File Update";
+        newFileContext.UpdateNotes.UserValue = "UI Context Testing File Update";
         Assert.That(newFileContext.UpdateNotes.HasChanges);
 
         validationResult = await FileGenerator.Validate(newFileContext.CurrentStateToFileContent(),
@@ -463,8 +463,8 @@ public class TestSeries03TrailInfoGuiContextTest
             Assert.That(dbContent.Summary == newFileContext.TitleSummarySlugFolder.SummaryEntry.UserValue);
             Assert.That(dbContent.Tags == newFileContext.TagEdit.TagListString());
             Assert.That(dbContent.CreatedBy == newFileContext.CreatedUpdatedDisplay.CreatedByEntry.UserValue);
-            Assert.That(dbContent.BodyContent == newFileContext.BodyContent.BodyContent);
-            Assert.That(dbContent.UpdateNotes == newFileContext.UpdateNotes.UpdateNotes);
+            Assert.That(dbContent.BodyContent == newFileContext.BodyContent.UserValue);
+            Assert.That(dbContent.UpdateNotes == newFileContext.UpdateNotes.UserValue);
         });
     }
 

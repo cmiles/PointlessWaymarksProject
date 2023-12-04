@@ -444,7 +444,11 @@ pre code.hljs {
 
 .file-download-container {
     margin: 1rem;
-    text-align: center;
+    display: flex;
+    justify-content: center;
+    column-gap: 1rem;
+    flex-wrap: wrap;
+    row-gap: .5rem;
 }
 
 .file-embed-container {

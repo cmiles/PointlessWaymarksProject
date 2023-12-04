@@ -1,4 +1,4 @@
-﻿using System.Data;
+using System.Data;
 using FluentMigrator;
 
 namespace PointlessWaymarks.CmsData.Database.Migrations;

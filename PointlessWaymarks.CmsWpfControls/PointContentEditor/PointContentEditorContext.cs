@@ -1,4 +1,4 @@
-﻿using System.ComponentModel;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Windows;
 using NetTopologySuite.Features;
@@ -139,9 +139,9 @@ public partial class PointContentEditorContext : IHasChanges, ICheckForChangesAn
         newEntry.Tags = TagEdit!.TagListString();
         newEntry.Title = TitleSummarySlugFolder.TitleEntry.UserValue.TrimNullToEmpty();
         newEntry.CreatedBy = CreatedUpdatedDisplay!.CreatedByEntry.UserValue.TrimNullToEmpty();
-        newEntry.UpdateNotes = UpdateNotes!.UpdateNotes.TrimNullToEmpty();
+        newEntry.UpdateNotes = UpdateNotes!.UserValue.TrimNullToEmpty();
         newEntry.UpdateNotesFormat = UpdateNotes.UpdateNotesFormat.SelectedContentFormatAsString;
-        newEntry.BodyContent = BodyContent!.BodyContent.TrimNullToEmpty();
+        newEntry.BodyContent = BodyContent!.UserValue.TrimNullToEmpty();
         newEntry.BodyContentFormat = BodyContent.BodyContentFormat.SelectedContentFormatAsString;
         newEntry.MapLabel = MapLabelContent!.UserValue.TrimNullToEmpty();
 
@@ -167,7 +167,7 @@ public partial class PointContentEditorContext : IHasChanges, ICheckForChangesAn
     public async Task ExtractNewLinks()
     {
         await LinkExtraction.ExtractNewAndShowLinkContentEditors(
-            $"{BodyContent!.BodyContent} {UpdateNotes!.UpdateNotes}",
+            $"{BodyContent!.UserValue} {UpdateNotes!.UserValue}",
             StatusContext.ProgressTracker());
     }
 

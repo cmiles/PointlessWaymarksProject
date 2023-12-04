@@ -1,4 +1,4 @@
-﻿<#@ template language="C#" debug="true"#>
+<#@ template language="C#" debug="true"#>
 <#@ import namespace="PointlessWaymarks.CmsData.CommonHtml" #>
 <#@ import namespace="PointlessWaymarks.CommonTools" #>
 <!DOCTYPE html>
@@ -57,6 +57,7 @@
                     GeoJsonParts.GeoJsonDivAndScript(DbEntry) #>
     <#=
                     Tags.PostBodyDiv(DbEntry).Result.ToString() #>
+    <#= GeoJsonParts.DownloadLinkTag(DbEntry) #>
     <#= HorizontalRule.StandardRule() #>
     <div class="information-section">
         <#= Tags.TagList(DbEntry).ToString() #>

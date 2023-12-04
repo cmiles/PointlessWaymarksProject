@@ -165,10 +165,10 @@ public partial class ImageContentEditorContext : IHasChanges, IHasValidationIssu
         newEntry.Title = TitleSummarySlugFolder.TitleEntry.UserValue.TrimNullToEmpty();
         newEntry.AltText = AltTextEntry!.UserValue.TrimNullToEmpty();
         newEntry.CreatedBy = CreatedUpdatedDisplay!.CreatedByEntry.UserValue.TrimNullToEmpty();
-        newEntry.UpdateNotes = UpdateNotes!.UpdateNotes.TrimNullToEmpty();
+        newEntry.UpdateNotes = UpdateNotes!.UserValue.TrimNullToEmpty();
         newEntry.UpdateNotesFormat = UpdateNotes.UpdateNotesFormat.SelectedContentFormatAsString;
         newEntry.OriginalFileName = SelectedFile?.Name;
-        newEntry.BodyContent = BodyContent!.BodyContent.TrimNullToEmpty();
+        newEntry.BodyContent = BodyContent!.UserValue.TrimNullToEmpty();
         newEntry.BodyContentFormat = BodyContent.BodyContentFormat.SelectedContentFormatAsString;
         newEntry.ShowImageSizes = ShowSizes!.UserValue;
 
@@ -178,7 +178,7 @@ public partial class ImageContentEditorContext : IHasChanges, IHasValidationIssu
     [BlockingCommand]
     public async Task ExtractNewLinks()
     {
-        await LinkExtraction.ExtractNewAndShowLinkContentEditors(BodyContent!.BodyContent,
+        await LinkExtraction.ExtractNewAndShowLinkContentEditors(BodyContent!.UserValue,
             StatusContext.ProgressTracker());
     }
 

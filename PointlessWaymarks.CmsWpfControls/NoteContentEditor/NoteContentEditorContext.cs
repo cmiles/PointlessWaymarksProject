@@ -1,4 +1,4 @@
-﻿using System.ComponentModel;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Windows;
 using PointlessWaymarks.CmsData;
@@ -97,7 +97,7 @@ Note Content is like a simplified Post - no title and slug to edit or maintain a
         newEntry.IsDraft = MainSiteFeed.IsDraftEntry.UserValue;
         newEntry.Tags = TagEdit!.TagListString();
         newEntry.CreatedBy = CreatedUpdatedDisplay!.CreatedByEntry.UserValue.TrimNullToEmpty();
-        newEntry.BodyContent = BodyContent!.BodyContent.TrimNullToEmpty();
+        newEntry.BodyContent = BodyContent!.UserValue.TrimNullToEmpty();
         newEntry.BodyContentFormat = BodyContent.BodyContentFormat.SelectedContentFormatAsString;
 
         return newEntry;
@@ -106,7 +106,7 @@ Note Content is like a simplified Post - no title and slug to edit or maintain a
     [BlockingCommand]
     public async Task ExtractNewLinks()
     {
-        await LinkExtraction.ExtractNewAndShowLinkContentEditors(BodyContent!.BodyContent,
+        await LinkExtraction.ExtractNewAndShowLinkContentEditors(BodyContent!.UserValue,
             StatusContext.ProgressTracker());
     }
 

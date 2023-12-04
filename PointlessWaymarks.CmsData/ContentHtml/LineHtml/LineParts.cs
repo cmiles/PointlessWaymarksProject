@@ -1,4 +1,4 @@
-﻿using HtmlTags;
+using HtmlTags;
 using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.Database.Models;
 
@@ -6,6 +6,23 @@ namespace PointlessWaymarks.CmsData.ContentHtml.LineHtml;
 
 public static class LineParts
 {
+    public static HtmlTag DownloadLinkTag(LineContent content)
+    {
+        if (!content.PublicDownloadLink) return HtmlTag.Empty();
+
+        var downloadLinkContainer = new DivTag().AddClass("file-download-container");
+
+        var settings = UserSettingsSingleton.CurrentSettings();
+        var gpxDownloadLink =
+            new LinkTag("Download GPX", settings.LineGpxDownloadUrl(content)).AddClass("file-download-link");
+        var jsonDownloadLink =
+            new LinkTag("Download GeoJson", settings.LineJsonDownloadUrl(content)).AddClass("file-download-link");
+        downloadLinkContainer.Children.Add(gpxDownloadLink);
+        downloadLinkContainer.Children.Add(jsonDownloadLink);
+
+        return downloadLinkContainer;
+    }
+
     public static string LineDivAndScript(LineContent content)
     {
         var divScriptGuidConnector = Guid.NewGuid();
@@ -15,21 +32,6 @@ public static class LineParts
 
         var script =
             $"<script>lazyInit(document.querySelector(\"#Line-{divScriptGuidConnector}\"), () => singleLineMapInit(document.querySelector(\"#Line-{divScriptGuidConnector}\"), \"{content.ContentId}\"))</script>";
-
-        return tag + script;
-    }
-
-    public static string LineElevationChartDivAndScript(LineContent content)
-    {
-        var divScriptGuidConnector = Guid.NewGuid();
-
-        var tag =
-            $"<div id=\"LineElevationContainer-{divScriptGuidConnector}\" class=\"line-elevation-chart-container\">" +
-            $"  <canvas id=\"LineElevationChart-{divScriptGuidConnector}\" class=\"line-elevation-chart\"></canvas>" +
-            $"</div>";
-
-        var script =
-            $"<script>lazyInit(document.querySelector(\"#LineElevationChart-{divScriptGuidConnector}\"), () => singleLineElevationChartInit(document.querySelector(\"#LineElevationChart-{divScriptGuidConnector}\"), \"{content.ContentId}\"))</script>";
 
         return tag + script;
     }
@@ -63,21 +65,6 @@ public static class LineParts
         return $"<figure class=\"map-figure\">{LineDivAndScriptForDirectLocalAccess(content)}{titleCaption}</figure>";
     }
 
-    public static string LineStatsString(LineContent line)
-    {
-        var lineStats =
-            $"{line.LineDistance:N1} Miles, {line.ClimbElevation:N0}' Climbing, {line.DescentElevation:N0}' Descent";
-
-        var lineDuration = LineParts.LineDurationInHoursAndMinutes(line);
-
-        if (lineDuration.totalMinutes is not null) lineStats = $"{lineStats}, {lineDuration.presentationString}";
-
-        lineStats =
-            $"{lineStats}, {line.MinimumElevation:N0}' Min Elevation, {line.MaximumElevation:N0} Max Elevation";
-
-        return lineStats;
-    }
-
 
     /// <summary>
     ///     Returns the total minutes and a well formatted human readable string of a Lines duration in
@@ -99,7 +86,7 @@ public static class LineParts
 
                 if (hours == 0)
                     return (minuteDuration, $"{minutes} Minutes");
-                if(minutes == 0)
+                if (minutes == 0)
                     return (minuteDuration, $"{hours} Hour{(hours > 1 ? "s" : "")}");
                 return (minuteDuration,
                     $"{hours} Hour{(hours > 1 ? "s" : "")} {minutes} Minute{(minutes > 1 ? "s" : "")}");
@@ -107,6 +94,21 @@ public static class LineParts
         }
 
         return (null, null);
+    }
+
+    public static string LineElevationChartDivAndScript(LineContent content)
+    {
+        var divScriptGuidConnector = Guid.NewGuid();
+
+        var tag =
+            $"<div id=\"LineElevationContainer-{divScriptGuidConnector}\" class=\"line-elevation-chart-container\">" +
+            $"  <canvas id=\"LineElevationChart-{divScriptGuidConnector}\" class=\"line-elevation-chart\"></canvas>" +
+            $"</div>";
+
+        var script =
+            $"<script>lazyInit(document.querySelector(\"#LineElevationChart-{divScriptGuidConnector}\"), () => singleLineElevationChartInit(document.querySelector(\"#LineElevationChart-{divScriptGuidConnector}\"), \"{content.ContentId}\"))</script>";
+
+        return tag + script;
     }
 
     /// <summary>
@@ -173,10 +175,8 @@ public static class LineParts
             var mph = dbEntry.LineDistance / (duration.totalMinutes.Value / 60D);
 
             if (mph >= .1)
-            {
                 outerContainer.Children.Add(Tags.InfoTextDivTag($"{mph:F1} Mph", "line-detail",
                     "pace-in-mph", mph.ToString("F1")));
-            }
         }
 
         outerContainer.Children.Add(Tags.InfoTextDivTag($"{dbEntry.MinimumElevation:F0}' Min Elevation", "line-detail",
@@ -195,5 +195,20 @@ public static class LineParts
 
         //Return empty if there are no details
         return outerContainer.Children.Count(x => !x.IsEmpty()) > 1 ? outerContainer : HtmlTag.Empty();
+    }
+
+    public static string LineStatsString(LineContent line)
+    {
+        var lineStats =
+            $"{line.LineDistance:N1} Miles, {line.ClimbElevation:N0}' Climbing, {line.DescentElevation:N0}' Descent";
+
+        var lineDuration = LineDurationInHoursAndMinutes(line);
+
+        if (lineDuration.totalMinutes is not null) lineStats = $"{lineStats}, {lineDuration.presentationString}";
+
+        lineStats =
+            $"{lineStats}, {line.MinimumElevation:N0}' Min Elevation, {line.MaximumElevation:N0} Max Elevation";
+
+        return lineStats;
     }
 }

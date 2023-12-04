@@ -1,4 +1,4 @@
-﻿using Amazon;
+using Amazon;
 using Omu.ValueInjecter;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.S3;
@@ -49,6 +49,15 @@ public partial class UserSettingsEditorContext
 
     public static string HelpMarkdownFeatureIntersectionTagOnImport =>
         "If checked - and the Feature Intersection Settings File is set/valid - newly imported content that has position information will have feature intersect tags added.";
+
+    public static string HelpMarkdownFilesHavePublicDownloadLinkByDefault =>
+        "Default setting for whether File Content has a download link. All Content is ALWAYS sent to the site!!! Controls like this only determine if there is an obvious link to the content - private content should not be added to this program.";
+
+    public static string HelpMarkdownLinesHavePublicDownloadLinkByDefault =>
+        "Default setting for whether Line Content has a download link. All Content is ALWAYS sent to the site!!! Controls like this only determine if there is an obvious link to the content - private content should not be added to this program.";
+
+    public static string HelpMarkdownGeoJsonHasPublicDownloadLinkByDefault =>
+        "Default setting for whether GeoJson Content has a download link. All Content is ALWAYS sent to the site!!! Controls like this only determine if there is an obvious link to the content - private content should not be added to this program.";
 
     public static string HelpMarkdownLocalMediaArchive =>
         "The original/source media files are stored separately from the generated site - this (local) directory is very " +

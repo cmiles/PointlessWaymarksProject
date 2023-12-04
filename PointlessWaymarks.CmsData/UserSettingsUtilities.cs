@@ -1,14 +1,17 @@
 using System.Data;
 using System.Globalization;
 using Amazon;
+using FluentMigrator.Runner;
 using IniParser;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Omu.ValueInjecter;
 using PointlessWaymarks.CmsData.Content;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsData.Json;
 using PointlessWaymarks.CommonTools;
+using Serilog;
 
 namespace PointlessWaymarks.CmsData;
 
@@ -54,11 +57,6 @@ public static class UserSettingsUtilities
     {
         return
             $"{UserSettingsSingleton.CurrentSettings().SiteResourcesUrl()}pointless-waymarks-content-gallery.js";
-    }
-
-    public static string LatestContentGalleryUrl(this UserSettings settings)
-    {
-        return $"{settings.SiteUrl()}/LatestContent.html";
     }
 
     public static async Task<string> ContentUrl(this UserSettings settings, Guid toLink)
@@ -213,22 +211,26 @@ public static class UserSettingsUtilities
         //  at PointlessWaymarks.CmsGui.MainWindow.LoadData() in C:\Code\PointlessWaymarksProject - 05\PointlessWaymarks.CmsGui\MainWindow.xaml.cs:line 495
         //  at PointlessWaymarks.WpfCommon.Status.StatusControlContext.<> c__DisplayClass119_0.<< RunFireAndForgetBlockingTask > b__0 > d.MoveNext() in C:\Code\PointlessWaymarksProject - 05\PointlessWaymarks.WpfCommon\Status\StatusControlContext.cs:line 338
 
+        Log.Information($"Migration possibleDbFile {possibleDbFile.FullName}");
+        
+        if (possibleDbFile.Exists)
+        {
+            await using var sc = new ServiceCollection().AddFluentMigratorCore().ConfigureRunner(rb =>
+                    rb.AddSQLite()
+                        .WithGlobalConnectionString(
+                            $"Data Source={possibleDbFile.FullName}")
+                        .ScanIn(typeof(PointlessWaymarksContext).Assembly).For.Migrations())
+                .AddLogging(lb => lb.AddFluentMigratorConsole()).BuildServiceProvider(false);
 
-        //if (possibleDbFile.Exists)
-        //{
-        //    var sc = new ServiceCollection().AddFluentMigratorCore().ConfigureRunner(rb =>
-        //            rb.AddSQLite()
-        //                .WithGlobalConnectionString(
-        //                    $"Data Source={UserSettingsSingleton.CurrentSettings().DatabaseFileFullName()}")
-        //                .ScanIn(typeof(PointlessWaymarksContext).Assembly).For.Migrations())
-        //        .AddLogging(lb => lb.AddFluentMigratorConsole()).BuildServiceProvider(false);
+            using var scope = sc.CreateScope();
+            // Instantiate the runner
+            var runner = sc.GetRequiredService<IMigrationRunner>();
 
-        //    // Instantiate the runner
-        //    var runner = sc.GetRequiredService<IMigrationRunner>();
-
-        //    // Execute the migrations
-        //    runner.MigrateUp();
-        //}
+            Log.ForContext("runner", runner.SafeObjectDump()).Information($"Migration Runner - {runner.HasMigrationsToApplyUp()}");
+            
+            // Execute the migrations
+            runner.MigrateUp();
+        }
 
         progress?.Report("Checking for database files...");
 
@@ -266,6 +268,11 @@ public static class UserSettingsUtilities
         return (UserSettingsGenerationValues)new UserSettingsGenerationValues().InjectFrom(settings);
     }
 
+    public static string GeoJsonJsonDownloadUrl(this UserSettings settings, GeoJsonContent content)
+    {
+        return $"{settings.SiteUrl()}/GeoJson/Data/GeoJson-{content.ContentId}.json";
+    }
+
     public static string GeoJsonListUrl(this UserSettings settings)
     {
         return $"{settings.SiteUrl()}/GeoJson/GeoJsonList.html";
@@ -299,6 +306,21 @@ public static class UserSettingsUtilities
     public static string IndexPageUrl(this UserSettings settings)
     {
         return $"{settings.SiteUrl()}/index.html";
+    }
+
+    public static string LatestContentGalleryUrl(this UserSettings settings)
+    {
+        return $"{settings.SiteUrl()}/LatestContent.html";
+    }
+
+    public static string LineGpxDownloadUrl(this UserSettings settings, LineContent content)
+    {
+        return $"{settings.SiteUrl()}/Lines/Data/Line-{content.ContentId}.gpx";
+    }
+
+    public static string LineJsonDownloadUrl(this UserSettings settings, LineContent content)
+    {
+        return $"{settings.SiteUrl()}/Lines/Data/Line-{content.ContentId}.json";
     }
 
     public static string LinePageUrl(this UserSettings settings, LineContent content)
@@ -467,12 +489,6 @@ public static class UserSettingsUtilities
     {
         var directory = settings.LocalSitePhotoGalleryDirectory();
         return new FileInfo($"{Path.Combine(directory.FullName, "CameraRoll")}.html");
-    }
-
-    public static FileInfo LocalSiteLatestContentGalleryFileInfo(this UserSettings settings)
-    {
-        var directory = settings.LocalSiteRootFullDirectory().FullName;
-        return new FileInfo($"{Path.Combine(directory, "LatestContent")}.html");
     }
 
     public static DirectoryInfo LocalSiteDailyPhotoGalleryDirectory(this UserSettings settings)
@@ -706,6 +722,12 @@ public static class UserSettingsUtilities
     {
         var directory = settings.LocalSiteRootFullDirectory().FullName;
         return new FileInfo($"{Path.Combine(directory, "index")}.html");
+    }
+
+    public static FileInfo LocalSiteLatestContentGalleryFileInfo(this UserSettings settings)
+    {
+        var directory = settings.LocalSiteRootFullDirectory().FullName;
+        return new FileInfo($"{Path.Combine(directory, "LatestContent")}.html");
     }
 
     public static DirectoryInfo LocalSiteLineContentDirectory(this UserSettings settings, LineContent content,

@@ -17,7 +17,8 @@ public static class NewContentModels
             CreatedOn = created,
             CreatedBy = UserSettingsSingleton.CurrentSettings().DefaultCreatedBy,
             FeedOn = created,
-            ContentVersion = Db.ContentVersionDateTime()
+            ContentVersion = Db.ContentVersionDateTime(),
+            PublicDownloadLink = UserSettingsSingleton.CurrentSettings().FilesHavePublicDownloadLinkByDefault
         };
 
         return returnEntry;
@@ -36,7 +37,8 @@ public static class NewContentModels
             CreatedOn = created,
             CreatedBy = UserSettingsSingleton.CurrentSettings().DefaultCreatedBy,
             FeedOn = created,
-            ContentVersion = Db.ContentVersionDateTime()
+            ContentVersion = Db.ContentVersionDateTime(),
+            PublicDownloadLink = UserSettingsSingleton.CurrentSettings().GeoJsonHasPublicDownloadLinkByDefault
         };
 
         return returnEntry;
@@ -74,7 +76,8 @@ public static class NewContentModels
             CreatedOn = created,
             CreatedBy = UserSettingsSingleton.CurrentSettings().DefaultCreatedBy,
             FeedOn = created,
-            ContentVersion = Db.ContentVersionDateTime()
+            ContentVersion = Db.ContentVersionDateTime(),
+            PublicDownloadLink = UserSettingsSingleton.CurrentSettings().LinesHavePublicDownloadLinkByDefault
         };
 
         return returnEntry;

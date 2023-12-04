@@ -1,4 +1,4 @@
-﻿using System.ComponentModel;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Text.RegularExpressions;
@@ -227,7 +227,7 @@ Notes:
         if (UserMainPictureEntry is { HasValidationIssues: false, UserValue: not null })
             return UserMainPictureEntry.UserValue;
 
-        return BracketCodeCommon.PhotoOrImageCodeFirstIdInContent(BodyContent?.UserBodyContent);
+        return BracketCodeCommon.PhotoOrImageCodeFirstIdInContent(BodyContent?.UserValue);
     }
 
     public VideoContent CurrentStateToVideoContent()
@@ -251,9 +251,9 @@ Notes:
         newEntry.Tags = TagEdit!.TagListString();
         newEntry.Title = TitleSummarySlugFolder.TitleEntry.UserValue.TrimNullToEmpty();
         newEntry.CreatedBy = CreatedUpdatedDisplay!.CreatedByEntry.UserValue.TrimNullToEmpty();
-        newEntry.UpdateNotes = UpdateNotes!.UpdateNotes.TrimNullToEmpty();
+        newEntry.UpdateNotes = UpdateNotes!.UserValue.TrimNullToEmpty();
         newEntry.UpdateNotesFormat = UpdateNotes.UpdateNotesFormat.SelectedContentFormatAsString;
-        newEntry.BodyContent = BodyContent!.BodyContent.TrimNullToEmpty();
+        newEntry.BodyContent = BodyContent!.UserValue.TrimNullToEmpty();
         newEntry.BodyContentFormat = BodyContent.BodyContentFormat.SelectedContentFormatAsString;
         newEntry.OriginalFileName = SelectedFile!.Name;
         newEntry.UserMainPicture = UserMainPictureEntry!.UserValue;
@@ -300,7 +300,7 @@ Notes:
     public async Task ExtractNewLinks()
     {
         await LinkExtraction.ExtractNewAndShowLinkContentEditors(
-            $"{BodyContent!.BodyContent} {UpdateNotes!.UpdateNotes}",
+            $"{BodyContent!.UserValue} {UpdateNotes!.UserValue}",
             StatusContext.ProgressTracker());
     }
 

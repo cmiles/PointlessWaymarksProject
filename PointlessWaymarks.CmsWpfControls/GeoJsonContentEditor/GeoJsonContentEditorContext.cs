@@ -1,4 +1,4 @@
-﻿using System.ComponentModel;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
@@ -25,6 +25,7 @@ using PointlessWaymarks.FeatureIntersectionTags;
 using PointlessWaymarks.FeatureIntersectionTags.Models;
 using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon;
+using PointlessWaymarks.WpfCommon.BoolDataEntry;
 using PointlessWaymarks.WpfCommon.ChangesAndValidation;
 using PointlessWaymarks.WpfCommon.MarkdownDisplay;
 using PointlessWaymarks.WpfCommon.Status;
@@ -56,10 +57,15 @@ public partial class GeoJsonContentEditorContext : IHasChanges, IHasValidationIs
     public CreatedAndUpdatedByAndOnDisplayContext? CreatedUpdatedDisplay { get; set; }
     public GeoJsonContent DbEntry { get; set; }
     public string GeoJsonText { get; set; } = string.Empty;
+
+    public bool HasChanges { get; set; }
+    public bool HasValidationIssues { get; set; }
     public HelpDisplayContext? HelpContext { get; set; }
     public ContentSiteFeedAndIsDraftContext? MainSiteFeed { get; set; }
     public string PreviewGeoJsonDto { get; set; } = string.Empty;
     public string PreviewHtml { get; set; }
+
+    public BoolDataEntryContext? PublicDownloadLink { get; set; }
     public EventHandler? RequestContentEditorWindowClose { get; set; }
     public StatusControlContext StatusContext { get; set; }
     public TagsEditorContext? TagEdit { get; set; }
@@ -72,9 +78,6 @@ public partial class GeoJsonContentEditorContext : IHasChanges, IHasValidationIs
         HasChanges = PropertyScanners.ChildPropertiesHaveChanges(this);
         HasValidationIssues = PropertyScanners.ChildPropertiesHaveValidationIssues(this);
     }
-
-    public bool HasChanges { get; set; }
-    public bool HasValidationIssues { get; set; }
 
     [BlockingCommand]
     private async Task AddFeatureIntersectTags()
@@ -150,11 +153,13 @@ public partial class GeoJsonContentEditorContext : IHasChanges, IHasValidationIs
         newEntry.Tags = TagEdit!.TagListString();
         newEntry.Title = TitleSummarySlugFolder.TitleEntry.UserValue.TrimNullToEmpty();
         newEntry.CreatedBy = CreatedUpdatedDisplay!.CreatedByEntry.UserValue.TrimNullToEmpty();
-        newEntry.UpdateNotes = UpdateNotes!.UpdateNotes.TrimNullToEmpty();
+        newEntry.UpdateNotes = UpdateNotes!.UserValue.TrimNullToEmpty();
         newEntry.UpdateNotesFormat = UpdateNotes.UpdateNotesFormat.SelectedContentFormatAsString;
-        newEntry.BodyContent = BodyContent!.BodyContent.TrimNullToEmpty();
+        newEntry.BodyContent = BodyContent!.UserValue.TrimNullToEmpty();
         newEntry.BodyContentFormat = BodyContent.BodyContentFormat.SelectedContentFormatAsString;
         newEntry.GeoJson = GeoJsonText;
+
+        newEntry.PublicDownloadLink = PublicDownloadLink!.UserValue;
 
         return newEntry;
     }
@@ -163,7 +168,7 @@ public partial class GeoJsonContentEditorContext : IHasChanges, IHasValidationIs
     public async Task ExtractNewLinks()
     {
         await LinkExtraction.ExtractNewAndShowLinkContentEditors(
-            $"{BodyContent!.BodyContent} {UpdateNotes!.UpdateNotes}",
+            $"{BodyContent!.UserValue} {UpdateNotes!.UserValue}",
             StatusContext.ProgressTracker());
     }
 
@@ -268,6 +273,15 @@ public partial class GeoJsonContentEditorContext : IHasChanges, IHasValidationIs
         TagEdit = await TagsEditorContext.CreateInstance(StatusContext, DbEntry);
         BodyContent = await BodyContentEditorContext.CreateInstance(StatusContext, DbEntry);
         GeoJsonText = StringTools.NullToEmptyTrim(DbEntry.GeoJson);
+
+        PublicDownloadLink = await BoolDataEntryContext.CreateInstance();
+        PublicDownloadLink.Title = "Show Public Download Link";
+        PublicDownloadLink.ReferenceValue = DbEntry.PublicDownloadLink;
+        PublicDownloadLink.UserValue = DbEntry.PublicDownloadLink;
+        PublicDownloadLink.HelpText =
+            "If checked there will be a hyperlink will on the File Content Page to download the content. NOTE! The File" +
+            "will be copied into the generated HTML for the site regardless of this setting - this setting is only about " +
+            "whether a download link is shown.";
 
         HelpContext = new HelpDisplayContext(new List<string>
         {

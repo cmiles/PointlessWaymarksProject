@@ -1,10 +1,15 @@
-﻿using System.ComponentModel;
+using System.ComponentModel;
 
 namespace PointlessWaymarks.WpfCommon.ChangesAndValidation;
 
 public static class PropertyScanners
 {
     public static bool ChildPropertiesHaveChanges(object toScan)
+    {
+        return ChildPropertiesHaveChangesWithChangedList(toScan).hasChanges;
+    }
+
+    public static (bool hasChanges, List<(bool hasChanges, string description)> changeProperties) ChildPropertiesHaveChangesWithChangedList(object toScan)
     {
         var allProperties = toScan.GetType().GetProperties();
 
@@ -21,13 +26,13 @@ public static class PropertyScanners
 
             if (value == null) continue;
 
-            var hasChangesValue = ((IHasChanges) value).HasChanges;
+            var hasChangesValue = ((IHasChanges)value).HasChanges;
             propertyList.Add((hasChangesValue, loopProperties.Name));
 
-            hasChanges = hasChanges || ((IHasChanges) value).HasChanges;
+            hasChanges = hasChanges || ((IHasChanges)value).HasChanges;
         }
 
-        return hasChanges;
+        return (hasChanges, propertyList);
     }
 
     public static bool ChildPropertiesHaveValidationIssues(object toScan)

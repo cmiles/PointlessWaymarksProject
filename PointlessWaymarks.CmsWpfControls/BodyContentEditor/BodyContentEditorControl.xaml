@@ -87,7 +87,7 @@
                         PreviewDragOver="TextBoxPreviewDragOver"
                         SelectionChanged="BodyContentTextBox_OnSelectionChanged"
                         SpellCheck.IsEnabled="True"
-                        Text="{Binding BodyContent, UpdateSourceTrigger=PropertyChanged, Delay=350}"
+                        Text="{Binding UserValue, UpdateSourceTrigger=PropertyChanged, Delay=350}"
                         TextWrapping="Wrap"
                         VerticalScrollBarVisibility="Visible">
                         <b:Interaction.Behaviors>

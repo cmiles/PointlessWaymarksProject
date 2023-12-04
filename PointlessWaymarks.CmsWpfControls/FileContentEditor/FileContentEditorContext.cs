@@ -36,7 +36,7 @@ namespace PointlessWaymarks.CmsWpfControls.FileContentEditor;
 
 [NotifyPropertyChanged]
 [GenerateStatusCommands]
-public partial class FileContentEditorContext : IHasChanges, IHasValidationIssues,
+public partial class FileContentEditorContext : IHasChangesExtended, IHasValidationIssues,
     ICheckForChangesAndValidation
 {
     public EventHandler? RequestContentEditorWindowClose;
@@ -83,6 +83,11 @@ Notes:
 
     public bool FileIsMp4 { get; set; }
     public bool FileIsPdf { get; set; }
+
+    public bool HasChanges { get; set; }
+
+    public List<(bool hasChanges, string description)> HasChangesChangedList { get; set; } = new();
+    public bool HasValidationIssues { get; set; }
     public HelpDisplayContext? HelpContext { get; set; }
     public FileInfo? InitialFile { get; set; }
     public FileInfo? LoadedFile { get; set; }
@@ -105,14 +110,20 @@ Notes:
 
     public void CheckForChangesAndValidationIssues()
     {
-        HasChanges = PropertyScanners.ChildPropertiesHaveChanges(this) || SelectedFileHasPathOrNameChanges ||
-                     DbEntry.MainPicture != CurrentMainPicture();
+        var childProperties = PropertyScanners.ChildPropertiesHaveChangesWithChangedList(this);
+
+        HasChangesChangedList = childProperties.changeProperties;
+        HasChangesChangedList.Add((SelectedFileHasPathOrNameChanges, nameof(SelectedFileHasPathOrNameChanges)));
+
+        var mainPictureChanges = DbEntry.MainPicture != CurrentMainPicture();
+        HasChangesChangedList.Add((mainPictureChanges, nameof(mainPictureChanges)));
+
+        HasChanges = childProperties.hasChanges || SelectedFileHasPathOrNameChanges ||
+                     mainPictureChanges;
+
         HasValidationIssues = PropertyScanners.ChildPropertiesHaveValidationIssues(this) ||
                               SelectedFileHasValidationIssues;
     }
-
-    public bool HasChanges { get; set; }
-    public bool HasValidationIssues { get; set; }
 
     [BlockingCommand]
     public async Task AutoRenameSelectedFile()
@@ -185,7 +196,7 @@ Notes:
         if (UserMainPictureEntry is { HasValidationIssues: false, UserValue: not null })
             return UserMainPictureEntry.UserValue;
 
-        return BracketCodeCommon.PhotoOrImageCodeFirstIdInContent(BodyContent?.UserBodyContent);
+        return BracketCodeCommon.PhotoOrImageCodeFirstIdInContent(BodyContent?.UserValue);
     }
 
     public FileContent CurrentStateToFileContent()
@@ -209,13 +220,13 @@ Notes:
         newEntry.Tags = TagEdit!.TagListString();
         newEntry.Title = TitleSummarySlugFolder.TitleEntry.UserValue.TrimNullToEmpty();
         newEntry.CreatedBy = CreatedUpdatedDisplay!.CreatedByEntry.UserValue.TrimNullToEmpty();
-        newEntry.UpdateNotes = UpdateNotes!.UpdateNotes.TrimNullToEmpty();
+        newEntry.UpdateNotes = UpdateNotes!.UserValue.TrimNullToEmpty();
         newEntry.UpdateNotesFormat = UpdateNotes.UpdateNotesFormat.SelectedContentFormatAsString;
-        newEntry.BodyContent = BodyContent!.BodyContent.TrimNullToEmpty();
+        newEntry.BodyContent = BodyContent!.UserValue.TrimNullToEmpty();
         newEntry.BodyContentFormat = BodyContent.BodyContentFormat.SelectedContentFormatAsString;
         newEntry.OriginalFileName = SelectedFile?.Name;
         newEntry.PublicDownloadLink = PublicDownloadLink!.UserValue;
-        newEntry.EmbedFile = PublicDownloadLink.UserValue && EmbedFile!.UserValue;
+        newEntry.EmbedFile = EmbedFile!.UserValue;
         newEntry.UserMainPicture = UserMainPictureEntry!.UserValue;
 
         return newEntry;
@@ -285,7 +296,7 @@ Notes:
     public async Task ExtractNewLinks()
     {
         await LinkExtraction.ExtractNewAndShowLinkContentEditors(
-            $"{BodyContent!.BodyContent} {UpdateNotes!.UpdateNotes}",
+            $"{BodyContent!.UserValue} {UpdateNotes!.UserValue}",
             StatusContext.ProgressTracker());
     }
 
@@ -443,15 +454,19 @@ Notes:
                     Path.GetFileNameWithoutExtension(SelectedFile.Name).Replace("-", " ").Replace("_", " ")
                         .CamelCaseToSpacedString(), @"\s+", " ");
 
-            if(!string.IsNullOrWhiteSpace(TitleSummarySlugFolder.TitleEntry.UserValue))
+            if (!string.IsNullOrWhiteSpace(TitleSummarySlugFolder.TitleEntry.UserValue))
             {
-                var possibleDateTimeFromTitle = DateTimeTools.DateOnlyFromTitleStringByConvention(TitleSummarySlugFolder.TitleEntry.UserValue);
+                var possibleDateTimeFromTitle =
+                    DateTimeTools.DateOnlyFromTitleStringByConvention(TitleSummarySlugFolder.TitleEntry.UserValue);
                 if (possibleDateTimeFromTitle != null)
-                    TitleSummarySlugFolder.FolderEntry.UserValue = possibleDateTimeFromTitle.Value.titleDate.Year.ToString("F0");
+                    TitleSummarySlugFolder.FolderEntry.UserValue =
+                        possibleDateTimeFromTitle.Value.titleDate.Year.ToString("F0");
             }
         }
 
         await SelectedFileChanged();
+
+        PropertyScanners.SubscribeToChildHasChangesAndHasValidationIssues(this, CheckForChangesAndValidationIssues);
     }
 
     private void MainImageExternalContextSaved(object? sender, EventArgs e)
@@ -680,7 +695,7 @@ Notes:
 
         var (isValid, explanation) =
             await CommonContentValidation.FileContentFileValidation(SelectedFile, DbEntry.ContentId);
-        
+
         SelectedFileHasValidationIssues = !isValid;
 
         SelectedFileValidationMessage = explanation;
@@ -689,7 +704,7 @@ Notes:
             await CommonContentValidation.FileContentFileFileNameHasInvalidCharacters(SelectedFile, DbEntry.ContentId);
 
         DetectGuiFileTypes();
-        
+
         TitleSummarySlugFolder?.CheckForChangesToTitleToFunctionStates();
     }
 

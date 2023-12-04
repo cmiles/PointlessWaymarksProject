@@ -1,4 +1,4 @@
-﻿using System.ComponentModel;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Windows;
@@ -288,13 +288,13 @@ Photo Content Notes:
         newEntry.CreatedBy = CreatedUpdatedDisplay!.CreatedByEntry.UserValue.TrimNullToEmpty();
         newEntry.FocalLength = FocalLengthEntry!.UserValue.TrimNullToEmpty();
         newEntry.ShutterSpeed = ShutterSpeedEntry!.UserValue.TrimNullToEmpty();
-        newEntry.UpdateNotes = UpdateNotes!.UpdateNotes.TrimNullToEmpty();
+        newEntry.UpdateNotes = UpdateNotes!.UserValue.TrimNullToEmpty();
         newEntry.UpdateNotesFormat = UpdateNotes.UpdateNotesFormat.SelectedContentFormatAsString;
         newEntry.OriginalFileName = SelectedFile?.Name;
         newEntry.PhotoCreatedBy = PhotoCreatedByEntry!.UserValue.TrimNullToEmpty();
         newEntry.PhotoCreatedOn = PhotoCreatedOnEntry!.UserValue;
         newEntry.PhotoCreatedOnUtc = PhotoCreatedOnUtcEntry!.UserValue;
-        newEntry.BodyContent = BodyContent!.BodyContent.TrimNullToEmpty();
+        newEntry.BodyContent = BodyContent!.UserValue.TrimNullToEmpty();
         newEntry.BodyContentFormat = BodyContent.BodyContentFormat.SelectedContentFormatAsString;
         newEntry.ShowPhotoSizes = ShowSizes!.UserValue;
         newEntry.Latitude = LatitudeEntry!.UserValue;
@@ -307,7 +307,7 @@ Photo Content Notes:
     [BlockingCommand]
     public async Task ExtractNewLinks()
     {
-        await LinkExtraction.ExtractNewAndShowLinkContentEditors(BodyContent!.BodyContent,
+        await LinkExtraction.ExtractNewAndShowLinkContentEditors(BodyContent!.UserValue,
             StatusContext.ProgressTracker());
     }
 
