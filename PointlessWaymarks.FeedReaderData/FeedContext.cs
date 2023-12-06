@@ -41,13 +41,14 @@ public class FeedContext : DbContext
     {
         if (File.Exists(fileName))
         {
-            var sc = new ServiceCollection().AddFluentMigratorCore().ConfigureRunner(rb =>
+            await using var sc = new ServiceCollection().AddFluentMigratorCore().ConfigureRunner(rb =>
                     rb.AddSQLite()
                         .WithGlobalConnectionString(
                             $"Data Source={fileName}")
                         .ScanIn(typeof(FeedContext).Assembly).For.Migrations())
                 .AddLogging(lb => lb.AddSerilog()).BuildServiceProvider(false);
 
+            using var scope = sc.CreateScope();
             // Instantiate the runner
             var runner = sc.GetRequiredService<IMigrationRunner>();
 

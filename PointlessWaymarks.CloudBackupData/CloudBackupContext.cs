@@ -1,11 +1,10 @@
+using System.Diagnostics;
 using FluentMigrator.Runner;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using PointlessWaymarks.CloudBackupData.Models;
 using Serilog;
 using SQLitePCL;
-using System.Diagnostics;
 
 namespace PointlessWaymarks.CloudBackupData;
 
@@ -18,15 +17,15 @@ public class CloudBackupContext : DbContext
     }
 
     public DbSet<BackupJob> BackupJobs { get; set; } = null!;
+    public DbSet<CloudCacheFile> CloudCacheFiles { get; set; } = null!;
     public DbSet<CloudDelete> CloudDeletions { get; set; } = null!;
+    public DbSet<CloudFile> CloudFiles { get; set; } = null!;
     public DbSet<CloudTransferBatch> CloudTransferBatches { get; set; } = null!;
     public DbSet<CloudUpload> CloudUploads { get; set; } = null!;
-    public DbSet<CloudCacheFile> CloudCacheFiles { get; set; } = null!;
     public DbSet<ExcludedDirectory> ExcludedDirectories { get; set; } = null!;
     public DbSet<ExcludedDirectoryNamePattern> ExcludedDirectoryNamePatterns { get; set; } = null!;
     public DbSet<ExcludedFileNamePattern> ExcludedFileNamePatterns { get; set; } = null!;
     public DbSet<FileSystemFile> FileSystemFiles { get; set; } = null!;
-    public DbSet<CloudFile> CloudFiles { get; set; } = null!;
 
     public static async Task<CloudBackupContext> CreateInstance()
     {
@@ -79,24 +78,26 @@ public class CloudBackupContext : DbContext
     /// <param name="fileName"></param>
     /// <param name="setFileNameAsCurrentDb"></param>
     /// <returns></returns>
-    public static Task<(bool success, string message, CloudBackupContext? context)> TryCreateInstance(string fileName,
+    public static async Task<(bool success, string message, CloudBackupContext? context)> TryCreateInstance(
+        string fileName,
         bool setFileNameAsCurrentDb = true)
     {
         var newFileInfo = new FileInfo(fileName);
 
         if (!newFileInfo.Exists)
-            return Task.FromResult<(bool success, string message, CloudBackupContext? context)>((false,
-                "File does not exist?", null));
+            return (false,
+                "File does not exist?", null);
 
         try
         {
-            var sc = new ServiceCollection().AddFluentMigratorCore().ConfigureRunner(rb =>
+            await using var sc = new ServiceCollection().AddFluentMigratorCore().ConfigureRunner(rb =>
                     rb.AddSQLite()
                         .WithGlobalConnectionString(
                             $"Data Source={fileName}")
                         .ScanIn(typeof(CloudBackupContext).Assembly).For.Migrations())
                 .AddLogging(lb => lb.AddSerilog()).BuildServiceProvider(false);
 
+            using var scope = sc.CreateScope();
             // Instantiate the runner
             var runner = sc.GetRequiredService<IMigrationRunner>();
 
@@ -105,8 +106,7 @@ public class CloudBackupContext : DbContext
         }
         catch (Exception e)
         {
-            return Task.FromResult<(bool success, string message, CloudBackupContext? context)>(
-                (false, e.Message, null));
+            return (false, e.Message, null);
         }
 
         // https://github.com/aspnet/EntityFrameworkCore/issues/9994#issuecomment-508588678
@@ -123,12 +123,11 @@ public class CloudBackupContext : DbContext
         }
         catch (Exception e)
         {
-            return Task.FromResult<(bool success, string message, CloudBackupContext? context)>(
-                (false, e.Message, null));
+            return (false, e.Message, null);
         }
 
         if (setFileNameAsCurrentDb) CurrentDatabaseFileName = fileName;
 
-        return Task.FromResult<(bool success, string message, CloudBackupContext? context)>((true, string.Empty, db));
+        return (true, string.Empty, db);
     }
 }

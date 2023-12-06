@@ -212,7 +212,7 @@ public static class UserSettingsUtilities
         //  at PointlessWaymarks.WpfCommon.Status.StatusControlContext.<> c__DisplayClass119_0.<< RunFireAndForgetBlockingTask > b__0 > d.MoveNext() in C:\Code\PointlessWaymarksProject - 05\PointlessWaymarks.WpfCommon\Status\StatusControlContext.cs:line 338
 
         Log.Information($"Migration possibleDbFile {possibleDbFile.FullName}");
-        
+
         if (possibleDbFile.Exists)
         {
             await using var sc = new ServiceCollection().AddFluentMigratorCore().ConfigureRunner(rb =>
@@ -220,14 +220,12 @@ public static class UserSettingsUtilities
                         .WithGlobalConnectionString(
                             $"Data Source={possibleDbFile.FullName}")
                         .ScanIn(typeof(PointlessWaymarksContext).Assembly).For.Migrations())
-                .AddLogging(lb => lb.AddFluentMigratorConsole()).BuildServiceProvider(false);
+                .AddLogging(lb => lb.AddSerilog()).BuildServiceProvider(false);
 
             using var scope = sc.CreateScope();
             // Instantiate the runner
             var runner = sc.GetRequiredService<IMigrationRunner>();
 
-            Log.ForContext("runner", runner.SafeObjectDump()).Information($"Migration Runner - {runner.HasMigrationsToApplyUp()}");
-            
             // Execute the migrations
             runner.MigrateUp();
         }
