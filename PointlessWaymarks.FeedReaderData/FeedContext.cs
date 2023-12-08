@@ -9,6 +9,8 @@ namespace PointlessWaymarks.FeedReaderData;
 
 public class FeedContext : DbContext
 {
+    public static readonly string FeedReaderDbIdKeyValueKey = "FeedReaderDbIdBasicAuthKey";
+
     public FeedContext(DbContextOptions<FeedContext> options) : base(options)
     {
     }
@@ -23,8 +25,23 @@ public class FeedContext : DbContext
 
     public DbSet<HistoricSavedFeedItem> HistoricSavedFeedItems { get; set; } = null!;
 
+    public DbSet<ReaderKeyValue> KeyValues { get; set; } = null!;
+
     public DbSet<SavedFeedItem> SavedFeedItems { get; set; } = null!;
 
+    public static async Task<string> FeedReaderGuid(string fileName)
+    {
+        var db = await CreateInstanceWithEnsureCreated(fileName);
+
+        return (await db.KeyValues.SingleAsync(x => x.Key == FeedReaderDbIdKeyValueKey)).Value;
+    }
+
+    public static async Task<string> FeedReaderGuidIdString(string fileName)
+    {
+        var db = await CreateInstanceWithEnsureCreated(fileName);
+
+        return $"FeedReaderBasicAuth-{(await db.KeyValues.SingleAsync(x => x.Key == FeedReaderDbIdKeyValueKey)).Value}";
+    }
 
     public static Task<FeedContext> CreateInstance(string fileName)
     {
@@ -59,7 +76,27 @@ public class FeedContext : DbContext
         var context = await CreateInstance(fileName);
         await context.Database.EnsureCreatedAsync();
 
+        await FeedReaderGuidInitialValueAsNeeded(context);
+
         return context;
+    }
+
+    private static async Task FeedReaderGuidInitialValueAsNeeded(FeedContext db)
+    {
+        var feedReaderGuids = await db.KeyValues.Where(x => x.Key == FeedReaderDbIdKeyValueKey).ToListAsync();
+
+        if (feedReaderGuids.Count == 0)
+        {
+            db.KeyValues.Add(new ReaderKeyValue { Key = FeedReaderDbIdKeyValueKey, Value = Guid.NewGuid().ToString() });
+            await db.SaveChangesAsync();
+        }
+
+        if (feedReaderGuids.Count > 1)
+        {
+            var toDelete = feedReaderGuids.OrderByDescending(x => x.Id).Skip(1).ToList();
+            db.KeyValues.RemoveRange(toDelete);
+            await db.SaveChangesAsync();
+        }
     }
 
     /// <summary>
@@ -67,13 +104,12 @@ public class FeedContext : DbContext
     /// </summary>
     /// <param name="fileName"></param>
     /// <returns></returns>
-    public static Task<(bool success, string message, FeedContext? context)> TryCreateInstance(string fileName)
+    public static async Task<(bool success, string message, FeedContext? context)> TryCreateInstance(string fileName)
     {
         var newFileInfo = new FileInfo(fileName);
 
         if (!newFileInfo.Exists)
-            return Task.FromResult<(bool success, string message, FeedContext? context)>((false,
-                "File does not exist?", null));
+            return (false, "File does not exist?", null);
 
         try
         {
@@ -92,8 +128,7 @@ public class FeedContext : DbContext
         }
         catch (Exception e)
         {
-            return Task.FromResult<(bool success, string message, FeedContext? context)>(
-                (false, e.Message, null));
+            return (false, e.Message, null);
         }
 
         // https://github.com/aspnet/EntityFrameworkCore/issues/9994#issuecomment-508588678
@@ -107,13 +142,14 @@ public class FeedContext : DbContext
         {
             db = new FeedContext(optionsBuilder.UseSqlite($"Data Source={fileName}")
                 .Options);
+
+            await FeedReaderGuidInitialValueAsNeeded(db);
         }
         catch (Exception e)
         {
-            return Task.FromResult<(bool success, string message, FeedContext? context)>(
-                (false, e.Message, null));
+            return (false, e.Message, null);
         }
 
-        return Task.FromResult<(bool success, string message, FeedContext? context)>((true, string.Empty, db));
+        return (true, string.Empty, db);
     }
 }

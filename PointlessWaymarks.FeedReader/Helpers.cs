@@ -47,9 +47,11 @@ public static class Helpers
     /// <param name="cancellationToken">token to cancel operation</param>
     /// <param name="autoRedirect">autoredirect if page is moved permanently</param>
     /// <param name="userAgent">override built-in user-agent header</param>
+    /// <param name="basicAuthUsername"></param>
+    /// <param name="basicAuthPassword"></param>
     /// <returns>Content as byte array</returns>
     public static async Task<byte[]> DownloadBytesAsync(string url, CancellationToken cancellationToken,
-        bool autoRedirect = true, string? userAgent = USER_AGENT_VALUE)
+        bool autoRedirect = true, string? userAgent = USER_AGENT_VALUE, string? basicAuthUsername = null, string? basicAuthPassword = null)
     {
         //TODO: Pass better Errors from this method
         url = WebUtility.UrlDecode(url);
@@ -58,7 +60,12 @@ public static class Helpers
         {
             request.Headers.TryAddWithoutValidation(ACCEPT_HEADER_NAME, ACCEPT_HEADER_VALUE);
             request.Headers.TryAddWithoutValidation(USER_AGENT_NAME, userAgent);
-
+            if (basicAuthUsername is not null && basicAuthPassword is not null)
+            {
+                var authString = Convert.ToBase64String(Encoding.UTF8.GetBytes($"{basicAuthUsername}:{basicAuthPassword}"));
+                request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Basic", authString);
+            }
+            
             response = await _httpClient.SendAsync(request, HttpCompletionOption.ResponseContentRead, cancellationToken)
                 .ConfigureAwait(false);
         }
@@ -71,6 +78,16 @@ public static class Helpers
             {
                 url = response.Headers?.Location?.AbsoluteUri ?? url;
                 using var request = new HttpRequestMessage(HttpMethod.Get, url);
+                
+                request.Headers.TryAddWithoutValidation(ACCEPT_HEADER_NAME, ACCEPT_HEADER_VALUE);
+                request.Headers.TryAddWithoutValidation(USER_AGENT_NAME, userAgent);
+                
+                if (basicAuthUsername is not null && basicAuthPassword is not null)
+                {
+                    var authString = Convert.ToBase64String(Encoding.UTF8.GetBytes($"{basicAuthUsername}:{basicAuthPassword}"));
+                    request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Basic", authString);
+                }
+                
                 response = await _httpClient.SendAsync(request, HttpCompletionOption.ResponseContentRead, cancellationToken)
                     .ConfigureAwait(false);
             }

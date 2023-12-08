@@ -5,6 +5,8 @@ namespace PointlessWaymarks.FeedReaderData.Models;
 [NotifyPropertyChanged]
 public class ReaderFeed
 {
+    public string BasicAuthPassword { get; set; } = string.Empty;
+    public string BasicAuthUsername { get; set; } = string.Empty;
     public DateTime CreatedOn { get; set; } = DateTime.Now;
     public DateTime? FeedLastUpdatedDate { get; set; }
     public int Id { get; set; }
@@ -14,4 +16,5 @@ public class ReaderFeed
     public Guid PersistentId { get; set; } = Guid.NewGuid();
     public string Tags { get; set; } = string.Empty;
     public string Url { get; set; } = string.Empty;
+    public bool UseBasicAuth { get; set; }
 }

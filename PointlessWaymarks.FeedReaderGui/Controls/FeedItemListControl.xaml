@@ -11,7 +11,7 @@
              xmlns:columnSort="clr-namespace:PointlessWaymarks.WpfCommon.ColumnSort;assembly=PointlessWaymarks.WpfCommon"
              xmlns:local="clr-namespace:PointlessWaymarks.FeedReaderGui.Controls"
              mc:Ignorable="d"
-             d:DesignHeight="800" d:DesignWidth="600" d:DataContext="{d:DesignInstance local:FeedItemListContext}">
+             d:DesignHeight="800" d:DesignWidth="1200" d:DataContext="{d:DesignInstance local:FeedItemListContext}">
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -177,6 +177,7 @@
                 <TabItem Header="Web">
                     <wpf:WebView2
                         x:Name="BodyContentWebView"
+                        CoreWebView2InitializationCompleted="BodyContentWebView_OnCoreWebView2InitializationCompleted"
                         Source="{Binding DisplayUrl, TargetNullValue='about:blank'}"
                         Visibility="{Binding StatusContext.BlockUi, Converter={StaticResource BooleanNotToVisibility}}" />
                 </TabItem>
@@ -194,7 +195,11 @@
                 <TextBlock VerticalAlignment="Center" Margin="4">Add Feed:</TextBlock>
                 <TextBox VerticalAlignment="Center"
                          Text="{Binding UserAddFeedInput, UpdateSourceTrigger=PropertyChanged}" Width="308"
-                         Margin="4" />
+                         Margin="4">
+                    <TextBox.InputBindings>
+                        <KeyBinding Command="{Binding Path=NewFeedEditorFromUrlCommand}" Key="Enter" />
+                    </TextBox.InputBindings>
+                </TextBox>
                 <Button
                     Content="_Add - Auto"
                     VerticalAlignment="Center"

@@ -52,6 +52,5 @@ public static class FeedReaderGuiSettingTools
 
         await using var stream = File.Create(settingsFile.FullName);
         await JsonSerializer.SerializeAsync(stream, settings);
-        await stream.DisposeAsync();
     }
 }

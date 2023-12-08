@@ -327,7 +327,16 @@ public class FeedQueries
 
             try
             {
-                currentFeed = await ReadAsync(loopFeed.Url);
+                if (loopFeed.UseBasicAuth)
+                {
+                    var credentials = FeedReaderEncryption.DecryptBasicAuthCredentials(loopFeed.BasicAuthUsername,
+                        loopFeed.BasicAuthPassword, DbFileFullName);
+                    currentFeed = await ReadAsync(loopFeed.Url, basicAuthUsername: credentials.username, basicAuthPassword: credentials.password);
+                }
+                else
+                {
+                    currentFeed = await ReadAsync(loopFeed.Url);
+                }
             }
             catch (Exception e)
             {

@@ -26,6 +26,9 @@ public partial class FeedItemListContext : IStandardListWithContext<FeedItemList
     public bool AutoMarkRead { get; set; } = true;
     public required FeedQueries ContextDb { get; init; }
     public DataNotificationsWorkQueue? DataNotificationsProcessor { get; set; }
+    public string DisplayBasicAuthPassword { get; set; } = string.Empty;
+
+    public string DisplayBasicAuthUsername { get; set; } = string.Empty;
     public string DisplayUrl { get; set; } = string.Empty;
     public string FeedDisplayHtml { get; set; } = string.Empty;
     public List<Guid> FeedList { get; set; } = new();
@@ -37,6 +40,16 @@ public partial class FeedItemListContext : IStandardListWithContext<FeedItemList
     public required StatusControlContext StatusContext { get; set; }
     public string UserAddFeedInput { get; set; } = string.Empty;
     public string UserFilterText { get; set; } = string.Empty;
+
+    public FeedItemListListItem? SelectedListItem()
+    {
+        return SelectedItem;
+    }
+
+    public List<FeedItemListListItem> SelectedListItems()
+    {
+        return SelectedItems;
+    }
 
     [NonBlockingCommand]
     public async Task ClearReadItems()
@@ -255,7 +268,7 @@ public partial class FeedItemListContext : IStandardListWithContext<FeedItemList
             StatusContext.ToastWarning("Feed to Add is Blank?");
             return;
         }
-        
+
         var feedItem = await ContextDb.TryGetFeed(UserAddFeedInput, StatusContext.ProgressTracker());
 
         await ThreadSwitcher.ResumeForegroundAsync();
@@ -304,6 +317,20 @@ public partial class FeedItemListContext : IStandardListWithContext<FeedItemList
 
             try
             {
+                if (SelectedItem is not null && SelectedItem.DbReaderFeed.UseBasicAuth)
+                {
+                    var credentials = FeedReaderEncryption.DecryptBasicAuthCredentials(
+                        SelectedItem.DbReaderFeed.BasicAuthUsername, SelectedItem.DbReaderFeed.BasicAuthPassword,
+                        ContextDb.DbFileFullName);
+                    DisplayBasicAuthUsername = credentials.username;
+                    DisplayBasicAuthPassword = credentials.password;
+                }
+                else
+                {
+                    DisplayBasicAuthUsername = string.Empty;
+                    DisplayBasicAuthPassword = string.Empty;
+                }
+
                 StatusContext.RunFireAndForgetNonBlockingTask(async () => await ComposeFeedDisplayHtml(SelectedItem));
                 DisplayUrl = string.IsNullOrWhiteSpace(SelectedItem?.DbItem.Link)
                     ? "about:blank"
@@ -383,16 +410,6 @@ public partial class FeedItemListContext : IStandardListWithContext<FeedItemList
         await ContextDb.SaveFeedItems(SelectedItems.Select(x => x.DbItem.PersistentId).ToList());
     }
 
-    public FeedItemListListItem? SelectedListItem()
-    {
-        return SelectedItem;
-    }
-
-    public List<FeedItemListListItem> SelectedListItems()
-    {
-        return SelectedItems;
-    }
-
     public async Task Setup()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -466,7 +483,8 @@ public partial class FeedItemListContext : IStandardListWithContext<FeedItemList
     {
         var clipboardBlock = new StringBuilder();
 
-        foreach (var loopItems in SelectedListItems()) clipboardBlock.AppendLine($"{loopItems.DbItem.Title ?? "(No Title)"}");
+        foreach (var loopItems in SelectedListItems())
+            clipboardBlock.AppendLine($"{loopItems.DbItem.Title ?? "(No Title)"}");
 
         await ThreadSwitcher.ResumeForegroundAsync();
 

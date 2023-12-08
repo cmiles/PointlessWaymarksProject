@@ -3,10 +3,12 @@ using Microsoft.EntityFrameworkCore;
 using OneOf;
 using OneOf.Types;
 using PointlessWaymarks.CommonTools;
+using PointlessWaymarks.FeedReader;
 using PointlessWaymarks.FeedReaderData;
 using PointlessWaymarks.FeedReaderData.Models;
 using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon;
+using PointlessWaymarks.WpfCommon.BoolDataEntry;
 using PointlessWaymarks.WpfCommon.ChangesAndValidation;
 using PointlessWaymarks.WpfCommon.MarkdownDisplay;
 using PointlessWaymarks.WpfCommon.Status;
@@ -24,8 +26,8 @@ public partial class FeedEditorContext : IHasChanges, IHasValidationIssues,
 {
     public required FeedQueries ContextDb { get; init; }
     public DataNotificationsWorkQueue? DataNotificationsProcessor { get; set; }
-    public required ReaderFeed DbReaderFeedItem { get; set; }
     public int DbKeptUnReadFeedItems { get; set; }
+    public required ReaderFeed DbReaderFeedItem { get; set; }
     public int DbReadFeedItems { get; set; }
     public int DbUnReadFeedItems { get; set; }
     public bool HasChanges { get; set; }
@@ -34,27 +36,31 @@ public partial class FeedEditorContext : IHasChanges, IHasValidationIssues,
 
     public string HelpText =>
         """
-## Feed Editor
+        ## Feed Editor
 
-The Feed Editor allows you to create and edit Feeds, show the current results of parsing the Feed URL and displays some basic information about the feed.
+        The Feed Editor allows you to create and edit Feeds, show the current results of parsing the Feed URL and displays some basic information about the feed.
+        
+          - Name: When creating a new Feed the program will try to extract a value for Name from the Feed - but this value can be anything you want to help you identify the Feed.
+          - Notes (Optional): Years and years later it can sometimes be hard to remember why you added a feed, what is was or why it was important to you... Notes is available to use for anything you want!
+          - Tags (Optional): Used for Filtering the Feed Items list this is intended to be a comma separated list, but could be a single word or nothing.
+          - URL: This is the Feed's URL - remember that the Feed URL is not the same as a website's address - the URL for Pointless Waymarks is https://pointlesswaymarks.com/ - the feed URL is https://PointlessWaymarks.com/RssIndexFeed.xml - sites sometimes show a link on one of the top level pages for a Feed, but there are also browser extensions that can help you find Feed URLs.
 
-  - Name: When creating a new Feed the program will try to extract a value for Name from the Feed - but this value can be anything you want to help you identify the Feed.
-  - Notes (Optional): Years and years later it can sometimes be hard to remember why you added a feed, what is was or why it was important to you... Notes is available to use for anything you want!
-  - Tags (Optional): Used for Filtering the Feed Items list this is intended to be a comma separated list, but could be a single word or nothing.
-  - URL: This is the Feed's URL - remember that the Feed URL is not the same as a website's address - the URL for Pointless Waymarks is https://pointlesswaymarks.com/ - the feed URL is https://PointlessWaymarks.com/RssIndexFeed.xml - sites sometimes show a link on one of the top level pages for a Feed, but there are also browser extensions that can help you find Feed URLs.
-
-URL Parse Result: When you update the URL (or use the Refresh Button) the program will show a simple text view of parsing the Feed. This can be useful for making sure you have the right URL and sometimes the correct feed - some sites will offer multiple feeds, for example one for posts and one for comments. The program will NOT stop you from saving a broken or invalid Feed URL - no Feed/Website is up and running without errors 100% of the time - the URL Parse Result is the result of parsing the feed 'now', useful but it has no ability to show you 'was it working yesterday and will it work again in the future'.
-""";
+        URL Parse Result: When you update the URL (or use the Refresh Button) the program will show a simple text view of parsing the Feed. This can be useful for making sure you have the right URL and sometimes the correct feed - some sites will offer multiple feeds, for example one for posts and one for comments. The program will NOT stop you from saving a broken or invalid Feed URL - no Feed/Website is up and running without errors 100% of the time - the URL Parse Result is the result of parsing the feed 'now', useful but it has no ability to show you 'was it working yesterday and will it work again in the future'.
+        """;
 
     public EventHandler? RequestContentEditorWindowClose { get; set; }
     public required StatusControlContext StatusContext { get; init; }
     public bool UrlCheckHasError { get; set; }
     public bool UrlCheckHasWarning { get; set; }
     public string UrlCheckMessage { get; set; } = string.Empty;
+    public required StringDataEntryContext UserBasicAuthPasswordEntry { get; set; }
+    public required StringDataEntryContext UserBasicAuthUsernameEntry { get; set; }
     public required StringDataEntryContext UserNameEntry { get; init; }
     public required StringDataEntryContext UserNoteEntry { get; init; }
     public required StringDataEntryContext UserTagsEntry { get; init; }
     public required StringDataEntryContext UserUrlEntry { get; init; }
+
+    public required BoolDataEntryContext UserUseBasicAuthEntry { get; set; }
 
     public void CheckForChangesAndValidationIssues()
     {
@@ -67,7 +73,17 @@ URL Parse Result: When you update the URL (or use the Refresh Button) the progra
     {
         try
         {
-            var results = await ReadAsync(url);
+            Feed results;
+
+            if (UserUseBasicAuthEntry.UserValue)
+            {
+                results = await ReadAsync(url, basicAuthUsername: UserBasicAuthUsernameEntry.UserValue,
+                    basicAuthPassword: UserBasicAuthPasswordEntry.UserValue);
+            }
+            else
+            {
+                results = await ReadAsync(url);
+            }
 
             if (!results.Items.Any()) return new Warning<string>("No Feed Items?");
 
@@ -104,7 +120,7 @@ URL Parse Result: When you update the URL (or use the Refresh Button) the progra
     {
         feedItem ??= new ReaderFeed();
 
-        var FeedQueries = new FeedQueries() { DbFileFullName = dbFile };
+        var feedQueries = new FeedQueries() { DbFileFullName = dbFile };
 
         var userNameEntry = StringDataEntryContext.CreateInstance();
         userNameEntry.Title = "Name";
@@ -152,15 +168,42 @@ URL Parse Result: When you update the URL (or use the Refresh Button) the progra
             _ => Task.FromResult(new IsValid(true, string.Empty))
         };
 
+        var userUseBasicAuthEntry = await BoolDataEntryContext.CreateInstance();
+        userUseBasicAuthEntry.Title = "Use Basic Auth";
+        userUseBasicAuthEntry.HelpText =
+            "A feed behind Basic Auth can be read by enabling Use Basic Auth - the username and password you enter below will be encrypted in your database, but the password is stored on your computer and an attacker with access to your profile could decrypt this information! This will be secure enough for many uses but it is up to you whether this makes sense for your use.";
+        userUseBasicAuthEntry.ReferenceValue = feedItem.UseBasicAuth;
+        userUseBasicAuthEntry.UserValue = feedItem.UseBasicAuth;
+
+        var basicAuth = FeedReaderEncryption.DecryptBasicAuthCredentials(feedItem.BasicAuthUsername,
+            feedItem.BasicAuthPassword, feedQueries.DbFileFullName);
+
+        var userBasicAuthUsernameEntry = StringDataEntryContext.CreateInstance();
+        userBasicAuthUsernameEntry.Title = "Basic Auth - Username";
+        userBasicAuthUsernameEntry.HelpText =
+            "Basic Auth Username - this will be encrypted in your database, but the password is stored on your computer and an attacker with access to your profile could decrypt this information! This will be secure enough for many uses but it is up to you whether this makes sense for your use.";
+        userBasicAuthUsernameEntry.ReferenceValue = basicAuth.username;
+        userBasicAuthUsernameEntry.UserValue = basicAuth.username;
+
+        var userBasicAuthPasswordEntry = StringDataEntryContext.CreateInstance();
+        userBasicAuthPasswordEntry.Title = "Basic Auth - Password";
+        userBasicAuthPasswordEntry.HelpText =
+            "Basic Auth Password - this will be encrypted in your database, but the password is stored on your computer and an attacker with access to your profile could decrypt this information! This will be secure enough for many uses but it is up to you whether this makes sense for your use.";
+        userBasicAuthPasswordEntry.ReferenceValue = basicAuth.password;
+        userBasicAuthPasswordEntry.UserValue = basicAuth.password;
+
         var newContext = new FeedEditorContext
         {
             DbReaderFeedItem = feedItem,
             StatusContext = context,
             UserNameEntry = userNameEntry,
             UserNoteEntry = userNoteEntry,
+            UserUseBasicAuthEntry = userUseBasicAuthEntry,
+            UserBasicAuthUsernameEntry = userBasicAuthUsernameEntry,
+            UserBasicAuthPasswordEntry = userBasicAuthPasswordEntry,
             UserUrlEntry = userUrlEntry,
             UserTagsEntry = userTagEntry,
-            ContextDb = FeedQueries
+            ContextDb = feedQueries
         };
 
         newContext.UserUrlEntry.ValidationFunctions = new List<Func<string?, Task<IsValid>>>
@@ -200,7 +243,7 @@ URL Parse Result: When you update the URL (or use the Refresh Button) the progra
     public async Task<IsValid> ProcessCheckFeedUrl(string url)
     {
         var result = await CheckFeedUrl(url);
-        IsValid toReturn = new IsValid(false, "An Error Occurred");
+        var toReturn = new IsValid(false, "An Error Occurred");
 
         result.Switch(success =>
         {
@@ -238,14 +281,22 @@ URL Parse Result: When you update the URL (or use the Refresh Button) the progra
                 UserNameEntry.ReferenceValue = dbFeedItem.Name;
                 UserNoteEntry.ReferenceValue = dbFeedItem.Note;
                 UserTagsEntry.ReferenceValue = dbFeedItem.Tags;
+
+                var basicAuth = FeedReaderEncryption.DecryptBasicAuthCredentials(dbFeedItem.BasicAuthUsername,
+                    dbFeedItem.BasicAuthPassword, ContextDb.DbFileFullName);
+
+                UserUseBasicAuthEntry.ReferenceValue = dbFeedItem.UseBasicAuth;
+                UserBasicAuthUsernameEntry.ReferenceValue = basicAuth.username;
+                UserBasicAuthPasswordEntry.ReferenceValue = basicAuth.password;
+
                 DbReaderFeedItem = dbFeedItem;
+                
+                CheckForChangesAndValidationIssues();
             }
 
         if (interProcessUpdateNotification.ContentType == DataNotificationContentType.FeedItem &&
             interProcessUpdateNotification.ContentIds.Contains(DbReaderFeedItem.PersistentId))
-        {
             await UpdateDbReadStats();
-        }
     }
 
     [BlockingCommand]
@@ -273,12 +324,29 @@ URL Parse Result: When you update the URL (or use the Refresh Button) the progra
             if (continueAfterWarning.Equals("No", StringComparison.OrdinalIgnoreCase)) return;
         }
 
+        if (UserUseBasicAuthEntry.UserValue || !string.IsNullOrWhiteSpace(UserBasicAuthUsernameEntry.UserValue) ||
+            !string.IsNullOrWhiteSpace(UserBasicAuthPasswordEntry.UserValue))
+            if (string.IsNullOrWhiteSpace(
+                    FeedReaderEncryption.GetUserBasicAuthEncryptionKeyEntry(ContextDb.DbFileFullName)))
+            {
+                await FeedReaderEncryptionHelper.SetUserBasicAuthEncryptionKeyEntry(StatusContext, ContextDb.DbFileFullName);
+            }
+
         var db = await ContextDb.GetInstance();
+
+        var unencryptedBasicAuth = (UserBasicAuthUsernameEntry.UserValue,
+            UserBasicAuthPasswordEntry.UserValue);
+        var basicAuth = FeedReaderEncryption.EncryptBasicAuthCredentials(UserBasicAuthUsernameEntry.UserValue,
+            UserBasicAuthPasswordEntry.UserValue, ContextDb.DbFileFullName);
 
         DbReaderFeedItem.Name = UserNameEntry.UserValue;
         DbReaderFeedItem.Note = UserNoteEntry.UserValue;
         DbReaderFeedItem.Tags = UserTagsEntry.UserValue;
         DbReaderFeedItem.Url = UserUrlEntry.UserValue;
+        DbReaderFeedItem.UseBasicAuth = UserUseBasicAuthEntry.UserValue;
+        DbReaderFeedItem.BasicAuthUsername = basicAuth.username;
+        DbReaderFeedItem.BasicAuthPassword = basicAuth.password;
+
 
         if (DbReaderFeedItem.Id == 0)
         {
@@ -298,13 +366,6 @@ URL Parse Result: When you update the URL (or use the Refresh Button) the progra
             DataNotifications.PublishDataNotification(LogTools.GetCaller(), DataNotificationContentType.Feed,
                 DataNotificationUpdateType.Update, DbReaderFeedItem.PersistentId.AsList());
         }
-
-        //This is 'double coverage' of these changes with the Data Notifications but should
-        //eliminate timing issues
-        UserUrlEntry.ReferenceValue = DbReaderFeedItem.Url;
-        UserNameEntry.ReferenceValue = DbReaderFeedItem.Name;
-        UserNoteEntry.ReferenceValue = DbReaderFeedItem.Note;
-        UserTagsEntry.ReferenceValue = DbReaderFeedItem.Tags;
 
         CheckForChangesAndValidationIssues();
     }

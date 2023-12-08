@@ -6,6 +6,7 @@
              xmlns:stringDataEntry="clr-namespace:PointlessWaymarks.WpfCommon.StringDataEntry;assembly=PointlessWaymarks.WpfCommon"
              xmlns:markdownDisplay="clr-namespace:PointlessWaymarks.WpfCommon.MarkdownDisplay;assembly=PointlessWaymarks.WpfCommon"
              xmlns:controls="clr-namespace:PointlessWaymarks.FeedReaderGui.Controls"
+             xmlns:boolDataEntry="clr-namespace:PointlessWaymarks.WpfCommon.BoolDataEntry;assembly=PointlessWaymarks.WpfCommon"
              mc:Ignorable="d"
              d:DesignHeight="300" d:DesignWidth="300" d:DataContext="{d:DesignInstance controls:FeedEditorContext}">
     <UserControl.Resources>
@@ -39,6 +40,11 @@
                                                                      Style="{StaticResource EntryStyle}" />
                     <stringDataEntry:StringDataEntryMultiLineControl DataContext="{Binding UserTagsEntry}"
                                                                      Style="{StaticResource EntryStyle}" />
+                    <boolDataEntry:BoolDataEntryControl Margin="6,8,8,0" DataContext="{Binding UserUseBasicAuthEntry}"></boolDataEntry:BoolDataEntryControl>
+                    <stringDataEntry:StringDataEntryControl DataContext="{Binding UserBasicAuthUsernameEntry}"
+                                                            Style="{StaticResource EntryStyle}" />
+                    <stringDataEntry:StringDataEntryControl DataContext="{Binding UserBasicAuthPasswordEntry}"
+                                                            Style="{StaticResource EntryStyle}" />
                     <StackPanel Orientation="Vertical" Margin="24,20,16,8">
                         <TextBlock
                             Text="{Binding DbReaderFeedItem.FeedLastUpdatedDate, StringFormat='Feed Last Updated On: {0}', TargetNullValue='Feed Last Updated On: Unknown'}"
