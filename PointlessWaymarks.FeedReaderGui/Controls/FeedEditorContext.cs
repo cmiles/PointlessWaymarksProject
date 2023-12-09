@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using System.Text;
 using Microsoft.EntityFrameworkCore;
 using OneOf;
@@ -76,14 +77,10 @@ public partial class FeedEditorContext : IHasChanges, IHasValidationIssues,
             Feed results;
 
             if (UserUseBasicAuthEntry.UserValue)
-            {
                 results = await ReadAsync(url, basicAuthUsername: UserBasicAuthUsernameEntry.UserValue,
                     basicAuthPassword: UserBasicAuthPasswordEntry.UserValue);
-            }
             else
-            {
                 results = await ReadAsync(url);
-            }
 
             if (!results.Items.Any()) return new Warning<string>("No Feed Items?");
 
@@ -174,8 +171,9 @@ public partial class FeedEditorContext : IHasChanges, IHasValidationIssues,
             "A feed behind Basic Auth can be read by enabling Use Basic Auth - the username and password you enter below will be encrypted in your database, but the password is stored on your computer and an attacker with access to your profile could decrypt this information! This will be secure enough for many uses but it is up to you whether this makes sense for your use.";
         userUseBasicAuthEntry.ReferenceValue = feedItem.UseBasicAuth;
         userUseBasicAuthEntry.UserValue = feedItem.UseBasicAuth;
+        userUrlEntry.BindingDelay = 200;
 
-        var basicAuth = FeedReaderEncryption.DecryptBasicAuthCredentials(feedItem.BasicAuthUsername,
+        var basicAuth = await FeedReaderEncryption.DecryptBasicAuthCredentials(feedItem.BasicAuthUsername,
             feedItem.BasicAuthPassword, feedQueries.DbFileFullName);
 
         var userBasicAuthUsernameEntry = StringDataEntryContext.CreateInstance();
@@ -184,6 +182,7 @@ public partial class FeedEditorContext : IHasChanges, IHasValidationIssues,
             "Basic Auth Username - this will be encrypted in your database, but the password is stored on your computer and an attacker with access to your profile could decrypt this information! This will be secure enough for many uses but it is up to you whether this makes sense for your use.";
         userBasicAuthUsernameEntry.ReferenceValue = basicAuth.username;
         userBasicAuthUsernameEntry.UserValue = basicAuth.username;
+        userUrlEntry.BindingDelay = 800;
 
         var userBasicAuthPasswordEntry = StringDataEntryContext.CreateInstance();
         userBasicAuthPasswordEntry.Title = "Basic Auth - Password";
@@ -191,6 +190,7 @@ public partial class FeedEditorContext : IHasChanges, IHasValidationIssues,
             "Basic Auth Password - this will be encrypted in your database, but the password is stored on your computer and an attacker with access to your profile could decrypt this information! This will be secure enough for many uses but it is up to you whether this makes sense for your use.";
         userBasicAuthPasswordEntry.ReferenceValue = basicAuth.password;
         userBasicAuthPasswordEntry.UserValue = basicAuth.password;
+        userUrlEntry.BindingDelay = 800;
 
         var newContext = new FeedEditorContext
         {
@@ -210,6 +210,10 @@ public partial class FeedEditorContext : IHasChanges, IHasValidationIssues,
         {
             async x => await newContext.ProcessCheckFeedUrl(x ?? string.Empty)
         };
+
+        newContext.UserUseBasicAuthEntry.PropertyChanged += newContext.UserBasicAuthPropertyChanged;
+        newContext.UserBasicAuthPasswordEntry.PropertyChanged += newContext.UserBasicAuthPropertyChanged;
+        newContext.UserBasicAuthUsernameEntry.PropertyChanged += newContext.UserBasicAuthPropertyChanged;
 
         await newContext.Setup();
 
@@ -282,7 +286,7 @@ public partial class FeedEditorContext : IHasChanges, IHasValidationIssues,
                 UserNoteEntry.ReferenceValue = dbFeedItem.Note;
                 UserTagsEntry.ReferenceValue = dbFeedItem.Tags;
 
-                var basicAuth = FeedReaderEncryption.DecryptBasicAuthCredentials(dbFeedItem.BasicAuthUsername,
+                var basicAuth = await FeedReaderEncryption.DecryptBasicAuthCredentials(dbFeedItem.BasicAuthUsername,
                     dbFeedItem.BasicAuthPassword, ContextDb.DbFileFullName);
 
                 UserUseBasicAuthEntry.ReferenceValue = dbFeedItem.UseBasicAuth;
@@ -290,7 +294,7 @@ public partial class FeedEditorContext : IHasChanges, IHasValidationIssues,
                 UserBasicAuthPasswordEntry.ReferenceValue = basicAuth.password;
 
                 DbReaderFeedItem = dbFeedItem;
-                
+
                 CheckForChangesAndValidationIssues();
             }
 
@@ -327,16 +331,15 @@ public partial class FeedEditorContext : IHasChanges, IHasValidationIssues,
         if (UserUseBasicAuthEntry.UserValue || !string.IsNullOrWhiteSpace(UserBasicAuthUsernameEntry.UserValue) ||
             !string.IsNullOrWhiteSpace(UserBasicAuthPasswordEntry.UserValue))
             if (string.IsNullOrWhiteSpace(
-                    FeedReaderEncryption.GetUserBasicAuthEncryptionKeyEntry(ContextDb.DbFileFullName)))
-            {
-                await FeedReaderEncryptionHelper.SetUserBasicAuthEncryptionKeyEntry(StatusContext, ContextDb.DbFileFullName);
-            }
+                    await FeedReaderEncryption.GetUserBasicAuthEncryptionKeyEntry(ContextDb.DbFileFullName)))
+                await FeedReaderEncryptionHelper.SetUserBasicAuthEncryptionKeyEntry(StatusContext,
+                    ContextDb.DbFileFullName);
 
         var db = await ContextDb.GetInstance();
 
         var unencryptedBasicAuth = (UserBasicAuthUsernameEntry.UserValue,
             UserBasicAuthPasswordEntry.UserValue);
-        var basicAuth = FeedReaderEncryption.EncryptBasicAuthCredentials(UserBasicAuthUsernameEntry.UserValue,
+        var basicAuth = await FeedReaderEncryption.EncryptBasicAuthCredentials(UserBasicAuthUsernameEntry.UserValue,
             UserBasicAuthPasswordEntry.UserValue, ContextDb.DbFileFullName);
 
         DbReaderFeedItem.Name = UserNameEntry.UserValue;
@@ -346,7 +349,6 @@ public partial class FeedEditorContext : IHasChanges, IHasValidationIssues,
         DbReaderFeedItem.UseBasicAuth = UserUseBasicAuthEntry.UserValue;
         DbReaderFeedItem.BasicAuthUsername = basicAuth.username;
         DbReaderFeedItem.BasicAuthPassword = basicAuth.password;
-
 
         if (DbReaderFeedItem.Id == 0)
         {
@@ -414,5 +416,10 @@ public partial class FeedEditorContext : IHasChanges, IHasValidationIssues,
     public async Task UpdateUrlCheck()
     {
         await UserUrlEntry.CheckForChangesAndValidationIssues();
+    }
+
+    private void UserBasicAuthPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        StatusContext.RunNonBlockingTask(() => UserUrlEntry.CheckForChangesAndValidationIssues());
     }
 }

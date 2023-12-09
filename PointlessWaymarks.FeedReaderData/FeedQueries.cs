@@ -329,7 +329,7 @@ public class FeedQueries
             {
                 if (loopFeed.UseBasicAuth)
                 {
-                    var credentials = FeedReaderEncryption.DecryptBasicAuthCredentials(loopFeed.BasicAuthUsername,
+                    var credentials = await FeedReaderEncryption.DecryptBasicAuthCredentials(loopFeed.BasicAuthUsername,
                         loopFeed.BasicAuthPassword, DbFileFullName);
                     currentFeed = await ReadAsync(loopFeed.Url, basicAuthUsername: credentials.username, basicAuthPassword: credentials.password);
                 }

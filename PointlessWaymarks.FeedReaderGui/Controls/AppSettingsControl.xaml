@@ -11,22 +11,50 @@
         <valueConverters:BooleanToVisibilityConverter x:Key="BooleanToVisibility" />
     </UserControl.Resources>
     <Grid>
-        <GroupBox Header="Program Update Location">
-            <Grid Margin="4">
+        <StackPanel Orientation="Vertical">
+            <GroupBox Header="Program Update Location">
+                <Grid Margin="4">
+                    <StackPanel Orientation="Vertical">
+                        <TextBox
+                            Text="{Binding  ProgramUpdateLocation, Delay=400, UpdateSourceTrigger=PropertyChanged}" />
+                        <TextBlock Margin="8,4,4,4" FontWeight="Bold"
+                                   Visibility="{Binding ShowUpdateLocationExistsWarning, Converter={StaticResource BooleanToVisibility}}">
+                            ! The Directory Does Not Exist !
+                        </TextBlock>
+                        <TextBlock Margin="8,4,4,4" TextWrapping="Wrap">
+                            The Program Update Location is
+                            the Directory where the program will look for an updated installer/setup file.
+                            There is no requirement to set this - blank is ok, but the program will not check for
+                            updates...
+                        </TextBlock>
+                    </StackPanel>
+                </Grid>
+            </GroupBox>
+            <GroupBox Header="Basic Auth Decryption Key">
                 <StackPanel Orientation="Vertical">
-                    <TextBox Text="{Binding  ProgramUpdateLocation, Delay=400, UpdateSourceTrigger=PropertyChanged}" />
-                    <TextBlock Margin="8,4,4,4" FontWeight="Bold"
-                               Visibility="{Binding ShowUpdateLocationExistsWarning, Converter={StaticResource BooleanToVisibility}}">
-                        ! The Directory Does Not Exist !
+                    <TextBlock Margin="8,4,4,4" TextWrapping="Wrap">
+                        Basic Auth credentials that are needed to access a Feed are stored in the database entry for the Feed.
+                        In order to store/encrypt/decrypt those values you will need to enter a decryption key for the program
+                        to use.
+                    </TextBlock>
+                    <TextBlock Margin="8,4,4,4" TextWrapping="Wrap" FontWeight="Bold">
+                        Your Basic Auth Decryption Key is stored by the Windows Credential Manager - this value can be accessed
+                        by anyone who gains access to your Windows Account and with this Key all your Basic Auth Usernames and
+                        Passwords stored in your Feed Reader database could be decrypted! PLEASE take a moment to consider the
+                        security risks before entering a Decryption Key or any Basic Auth Credentials into this program!
                     </TextBlock>
                     <TextBlock Margin="8,4,4,4" TextWrapping="Wrap">
-                        The Program Update Location is
-                        the Directory where the program will look for an updated installer/setup file.
-                        There is no requirement to set this - blank is ok, but the program will not check for
-                        updates...
+                        This program does not enforce any requirements on decryption key length/content - it is your choice
+                        what to use but a random Password Manager generated key is suggested - DO NOT REUSE a password.
                     </TextBlock>
+                    <TextBlock Margin="8,4,4,4" TextWrapping="Wrap">
+                        The Decryption Key is stored on your computer - it is recommended you store this value in a Password
+                        Manager so you have it available if you move to another computer or if there is an OS reset/restore/update
+                        that causes Windows to loose this value.
+                    </TextBlock>
+                    <Button Command="{Binding EnterBasicAuthDecryptionKeyCommand}">Enter Decryption Key</Button>
                 </StackPanel>
-            </Grid>
-        </GroupBox>
+            </GroupBox>
+        </StackPanel>
     </Grid>
 </UserControl>

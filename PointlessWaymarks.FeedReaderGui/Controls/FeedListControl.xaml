@@ -78,8 +78,8 @@
                     <ContextMenu d:DataContext="{d:DesignInstance local:FeedListContext}">
                         <MenuItem Header="Edit Feed" Command="{Binding FeedEditorForSelectedItemCommand}" />
                         <MenuItem Header="Refresh Feed" Command="{Binding RefreshSelectedFeedCommand}" />
-                        <MenuItem Header="Mark All Read" Command="{Binding MarkAllReadCommand}" />
-                        <MenuItem Header="Mark All Unread" Command="{Binding MarkAllUnReadCommand}" />
+                        <MenuItem Header="Mark All Read" Command="{Binding MarkAllReadForSelectedItemCommand}" />
+                        <MenuItem Header="Mark All Unread" Command="{Binding MarkAllUnReadForSelectedItemCommand}" />
                         <MenuItem Header="Archive Feed" Command="{Binding ArchiveSelectedFeedCommand}" />
                         <Separator />
                         <MenuItem Header="Markdown to Clipboard"

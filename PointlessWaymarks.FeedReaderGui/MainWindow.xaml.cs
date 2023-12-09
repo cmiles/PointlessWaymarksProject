@@ -208,7 +208,7 @@ public partial class MainWindow
         FeedItemListTabContext = await FeedItemListContext.CreateInstance(StatusContext, dbFileName);
         FeedListTabContext = await FeedListContext.CreateInstance(StatusContext, dbFileName);
         SavedFeedItemListTabContext = await SavedFeedItemListContext.CreateInstance(StatusContext, dbFileName);
-        AppSettingsTabContext = new AppSettingsContext();
+        AppSettingsTabContext = new AppSettingsContext(StatusContext);
     }
 
     [BlockingCommand]

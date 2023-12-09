@@ -265,6 +265,13 @@ public partial class FeedListContext : IStandardListWithContext<FeedListListItem
 
         await ContextDb.FeedAllItemsRead(listItem.DbReaderFeed.PersistentId, true);
     }
+    
+    [NonBlockingCommand]
+    [StopAndWarnIfNoSelectedListItem]
+    public async Task MarkAllReadForSelectedItem()
+    {
+        await ContextDb.FeedAllItemsRead(SelectedListItem()!.DbReaderFeed.PersistentId, true);
+    }
 
     [NonBlockingCommand]
     public async Task MarkAllUnRead(FeedListListItem? listItem)
@@ -276,6 +283,13 @@ public partial class FeedListContext : IStandardListWithContext<FeedListListItem
         await ContextDb.FeedAllItemsRead(listItem.DbReaderFeed.PersistentId, false);
     }
 
+    [NonBlockingCommand]
+    [StopAndWarnIfNoSelectedListItem]
+    public async Task MarkAllUnReadForSelectedItem()
+    {
+        await ContextDb.FeedAllItemsRead(SelectedListItem()!.DbReaderFeed.PersistentId, false);
+    }
+    
     [BlockingCommand]
     public async Task NewFeedEditorFromUrl()
     {

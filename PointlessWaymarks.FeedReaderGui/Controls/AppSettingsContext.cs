@@ -1,14 +1,20 @@
 ﻿using System.ComponentModel;
 using System.IO;
 using PointlessWaymarks.LlamaAspects;
+using PointlessWaymarks.WpfCommon.Status;
 
 namespace PointlessWaymarks.FeedReaderGui.Controls;
 
 [NotifyPropertyChanged]
+[GenerateStatusCommands]
 public partial class AppSettingsContext
 {
-    public AppSettingsContext()
+    public AppSettingsContext(StatusControlContext context)
     {
+        StatusContext = context;
+        
+        BuildCommands();
+        
         Settings = FeedReaderGuiSettingTools.ReadSettings();
 
         ProgramUpdateLocation = Settings.ProgramUpdateDirectory;
@@ -18,6 +24,7 @@ public partial class AppSettingsContext
         ValidateProgramUpdateLocation();
     }
 
+    public StatusControlContext StatusContext { get; set; }
     public string ProgramUpdateLocation { get; set; }
     public FeedReaderGuiSettings Settings { get; set; }
     public bool ShowUpdateLocationExistsWarning { get; set; }
@@ -45,4 +52,13 @@ public partial class AppSettingsContext
 
         ShowUpdateLocationExistsWarning = !Directory.Exists(ProgramUpdateLocation);
     }
+    
+        
+    [NonBlockingCommand]
+    public async Task EnterBasicAuthDecryptionKey()
+    {
+        var settings = FeedReaderGuiSettingTools.ReadSettings();
+        await FeedReaderEncryptionHelper.SetUserBasicAuthEncryptionKeyEntry(StatusContext, settings.LastDatabaseFile);
+    }
+
 }

@@ -314,33 +314,38 @@ public partial class FeedItemListContext : IStandardListWithContext<FeedItemList
                     await ContextDb.ItemRead(SelectedItem.DbItem.PersistentId.AsList(), true);
                 });
 
-            try
+            StatusContext.RunFireAndForgetNonBlockingTask(async () =>
             {
-                if (SelectedItem is not null && SelectedItem.DbReaderFeed.UseBasicAuth)
+                try
                 {
-                    var credentials = FeedReaderEncryption.DecryptBasicAuthCredentials(
-                        SelectedItem.DbReaderFeed.BasicAuthUsername, SelectedItem.DbReaderFeed.BasicAuthPassword,
-                        ContextDb.DbFileFullName);
-                    DisplayBasicAuthUsername = credentials.username;
-                    DisplayBasicAuthPassword = credentials.password;
-                }
-                else
-                {
-                    DisplayBasicAuthUsername = string.Empty;
-                    DisplayBasicAuthPassword = string.Empty;
-                }
+                    if (SelectedItem is not null && SelectedItem.DbReaderFeed.UseBasicAuth)
+                    {
+                        var credentials = await FeedReaderEncryption.DecryptBasicAuthCredentials(
+                            SelectedItem.DbReaderFeed.BasicAuthUsername,
+                            SelectedItem.DbReaderFeed.BasicAuthPassword,
+                            ContextDb.DbFileFullName);
+                        DisplayBasicAuthUsername = credentials.username;
+                        DisplayBasicAuthPassword = credentials.password;
+                    }
+                    else
+                    {
+                        DisplayBasicAuthUsername = string.Empty;
+                        DisplayBasicAuthPassword = string.Empty;
+                    }
 
-                StatusContext.RunFireAndForgetNonBlockingTask(async () => await ComposeFeedDisplayHtml(SelectedItem));
-                DisplayUrl = string.IsNullOrWhiteSpace(SelectedItem?.DbItem.Link)
-                    ? "about:blank"
-                    : SelectedItem.DbItem.Link;
-            }
-            catch (Exception exception)
-            {
-                Log.Error(exception, "Error With Display URL in the FeedItemListContext");
-                FeedDisplayHtml = string.Empty;
-                DisplayUrl = "about:blank";
-            }
+                    StatusContext.RunFireAndForgetNonBlockingTask(async () =>
+                        await ComposeFeedDisplayHtml(SelectedItem));
+                    DisplayUrl = string.IsNullOrWhiteSpace(SelectedItem?.DbItem.Link)
+                        ? "about:blank"
+                        : SelectedItem.DbItem.Link;
+                }
+                catch (Exception exception)
+                {
+                    Log.Error(exception, "Error With Display URL in the FeedItemListContext");
+                    FeedDisplayHtml = string.Empty;
+                    DisplayUrl = "about:blank";
+                }
+            });
         }
     }
 

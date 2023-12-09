@@ -4,32 +4,32 @@ namespace PointlessWaymarks.FeedReaderData;
 
 public static class FeedReaderEncryption
 {
-    public static (string username, string password) DecryptBasicAuthCredentials(string username, string password,
+    public static async Task<(string username, string password)> DecryptBasicAuthCredentials(string username, string password,
         string dbFileName)
     {
-        var key = GetUserBasicAuthEncryptionKeyEntry(dbFileName);
+        var key = await GetUserBasicAuthEncryptionKeyEntry(dbFileName);
 
         return (username.Decrypt(key), password.Decrypt(key));
     }
 
-    public static (string username, string password) EncryptBasicAuthCredentials(string username, string password,
+    public static async Task<(string username, string password)> EncryptBasicAuthCredentials(string username, string password,
         string dbFileName)
     {
-        var key = GetUserBasicAuthEncryptionKeyEntry(dbFileName);
+        var key = await GetUserBasicAuthEncryptionKeyEntry(dbFileName);
 
         return (username.Encrypt(key), password.Encrypt(key));
     }
 
-    public static string FeedReaderBasicAuthEncryptionResourceKey(string dbFileName)
+    public static async Task<string> FeedReaderBasicAuthEncryptionResourceKey(string dbFileName)
     {
-        var readerId = FeedContext.FeedReaderGuidIdString(dbFileName);
+        var readerId = await FeedContext.FeedReaderGuidIdString(dbFileName);
 
         return $"FeedReaderBasicAuth-{readerId}";
     }
 
-    public static string GetUserBasicAuthEncryptionKeyEntry(string dbFileName)
+    public static async Task<string> GetUserBasicAuthEncryptionKeyEntry(string dbFileName)
     {
-        var resourceKey = FeedReaderBasicAuthEncryptionResourceKey(dbFileName);
+        var resourceKey = await FeedReaderBasicAuthEncryptionResourceKey(dbFileName);
 
         var credentials = PasswordVaultTools.GetCredentials(resourceKey);
 
