@@ -398,8 +398,8 @@ public partial class IndexPage
                     content = $"<p>{HttpUtility.HtmlEncode(post.DbEntry.Summary)}</p>" +
                               $"<p>Read more at <a href=\"{post.PageUrl}\">{UserSettingsSingleton.CurrentSettings().SiteName}</a></p>";
 
-                items.Add(RssBuilder.RssItemString(post.DbEntry.Title, $"{post.PageUrl}", content,
-                    Tags.CreatedByAndUpdatedByNameList(post.DbEntry),
+                items.Add(RssBuilder.RssItemString(post.DbEntry.Title, $"{post.PageUrl}", 
+                    Tags.CreatedByAndUpdatedByNameList(post.DbEntry), content,
                     post.DbEntry.CreatedOn, post.DbEntry.ContentId.ToString()));
             }
 
@@ -423,8 +423,8 @@ public partial class IndexPage
                     content = $"<p>{HttpUtility.HtmlEncode(post.DbEntry.Summary)}</p>" +
                               $"<p>Read more at <a href=\"{post.PageUrl}\">{UserSettingsSingleton.CurrentSettings().SiteName}</a></p>";
 
-                items.Add(RssBuilder.RssItemString(post.DbEntry.Title, $"{post.PageUrl}", content,
-                    Tags.CreatedByAndUpdatedByNameList(post.DbEntry),
+                items.Add(RssBuilder.RssItemString(post.DbEntry.Title, $"{post.PageUrl}", 
+                    Tags.CreatedByAndUpdatedByNameList(post.DbEntry), content,
                     post.DbEntry.CreatedOn, post.DbEntry.ContentId.ToString()));
             }
 
@@ -448,8 +448,8 @@ public partial class IndexPage
                     content = $"<p>{HttpUtility.HtmlEncode(post.DbEntry.Summary)}</p>" +
                               $"<p>Read more at <a href=\"{post.PageUrl}\">{UserSettingsSingleton.CurrentSettings().SiteName}</a></p>";
 
-                items.Add(RssBuilder.RssItemString(post.DbEntry.Title, $"{post.PageUrl}", content,
-                    Tags.CreatedByAndUpdatedByNameList(post.DbEntry),
+                items.Add(RssBuilder.RssItemString(post.DbEntry.Title, $"{post.PageUrl}", 
+                    Tags.CreatedByAndUpdatedByNameList(post.DbEntry), content,
                     post.DbEntry.CreatedOn, post.DbEntry.ContentId.ToString()));
             }
         }
