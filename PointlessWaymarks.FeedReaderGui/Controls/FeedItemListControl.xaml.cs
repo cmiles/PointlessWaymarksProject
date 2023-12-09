@@ -21,4 +21,15 @@ public partial class FeedItemListControl
             args.Response.Password = context.DisplayBasicAuthPassword;
         };
     }
+    
+    private void RssContentWebView_OnCoreWebView2InitializationCompleted(object? sender, CoreWebView2InitializationCompletedEventArgs e)
+    {
+        RssContentWebView.CoreWebView2.BasicAuthenticationRequested += (o, args) =>
+        {
+            if (DataContext is not FeedItemListContext context) return;
+            
+            args.Response.UserName = context.DisplayBasicAuthUsername;
+            args.Response.Password = context.DisplayBasicAuthPassword;
+        };
+    }
 }

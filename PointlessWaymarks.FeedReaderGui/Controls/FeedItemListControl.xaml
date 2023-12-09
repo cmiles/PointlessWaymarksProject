@@ -184,6 +184,7 @@
                 <TabItem Header="Feed Content">
                     <wpf:WebView2
                         x:Name="RssContentWebView"
+                        CoreWebView2InitializationCompleted="RssContentWebView_OnCoreWebView2InitializationCompleted"
                         Visibility="{Binding StatusContext.BlockUi, Converter={StaticResource BooleanNotToVisibility}}">
                         <b:Interaction.Behaviors>
                             <wpfHtml:WebViewHtmlStringBindingBehavior HtmlString="{Binding FeedDisplayHtml}" />

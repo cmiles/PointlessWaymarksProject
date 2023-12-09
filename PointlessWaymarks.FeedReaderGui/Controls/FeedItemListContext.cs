@@ -27,7 +27,6 @@ public partial class FeedItemListContext : IStandardListWithContext<FeedItemList
     public required FeedQueries ContextDb { get; init; }
     public DataNotificationsWorkQueue? DataNotificationsProcessor { get; set; }
     public string DisplayBasicAuthPassword { get; set; } = string.Empty;
-
     public string DisplayBasicAuthUsername { get; set; } = string.Empty;
     public string DisplayUrl { get; set; } = string.Empty;
     public string FeedDisplayHtml { get; set; } = string.Empty;

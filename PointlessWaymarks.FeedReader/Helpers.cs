@@ -18,7 +18,9 @@ public static class Helpers
         "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8";
 
     private const string USER_AGENT_NAME = "User-Agent";
-    private const string USER_AGENT_VALUE = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.0 Safari/605.1.15 Edg/119.0.0.0";
+
+    private const string USER_AGENT_VALUE =
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.0 Safari/605.1.15 Edg/119.0.0.0";
 
     // The HttpClient instance must be a static field
     // https://aspnetmonsters.com/2016/08/2016-08-27-httpclientwrong/
@@ -51,7 +53,8 @@ public static class Helpers
     /// <param name="basicAuthPassword"></param>
     /// <returns>Content as byte array</returns>
     public static async Task<byte[]> DownloadBytesAsync(string url, CancellationToken cancellationToken,
-        bool autoRedirect = true, string? userAgent = USER_AGENT_VALUE, string? basicAuthUsername = null, string? basicAuthPassword = null)
+        bool autoRedirect = true, string? userAgent = USER_AGENT_VALUE, string? basicAuthUsername = null,
+        string? basicAuthPassword = null)
     {
         //TODO: Pass better Errors from this method
         url = WebUtility.UrlDecode(url);
@@ -62,10 +65,12 @@ public static class Helpers
             request.Headers.TryAddWithoutValidation(USER_AGENT_NAME, userAgent);
             if (basicAuthUsername is not null && basicAuthPassword is not null)
             {
-                var authString = Convert.ToBase64String(Encoding.UTF8.GetBytes($"{basicAuthUsername}:{basicAuthPassword}"));
-                request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Basic", authString);
+                var authString =
+                    Convert.ToBase64String(Encoding.UTF8.GetBytes($"{basicAuthUsername}:{basicAuthPassword}"));
+                request.Headers.Authorization =
+                    new System.Net.Http.Headers.AuthenticationHeaderValue("Basic", authString);
             }
-            
+
             response = await _httpClient.SendAsync(request, HttpCompletionOption.ResponseContentRead, cancellationToken)
                 .ConfigureAwait(false);
         }
@@ -78,23 +83,40 @@ public static class Helpers
             {
                 url = response.Headers?.Location?.AbsoluteUri ?? url;
                 using var request = new HttpRequestMessage(HttpMethod.Get, url);
-                
+
                 request.Headers.TryAddWithoutValidation(ACCEPT_HEADER_NAME, ACCEPT_HEADER_VALUE);
                 request.Headers.TryAddWithoutValidation(USER_AGENT_NAME, userAgent);
-                
+
                 if (basicAuthUsername is not null && basicAuthPassword is not null)
                 {
-                    var authString = Convert.ToBase64String(Encoding.UTF8.GetBytes($"{basicAuthUsername}:{basicAuthPassword}"));
-                    request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Basic", authString);
+                    var authString =
+                        Convert.ToBase64String(Encoding.UTF8.GetBytes($"{basicAuthUsername}:{basicAuthPassword}"));
+                    request.Headers.Authorization =
+                        new System.Net.Http.Headers.AuthenticationHeaderValue("Basic", authString);
                 }
-                
-                response = await _httpClient.SendAsync(request, HttpCompletionOption.ResponseContentRead, cancellationToken)
+
+                response = await _httpClient
+                    .SendAsync(request, HttpCompletionOption.ResponseContentRead, cancellationToken)
                     .ConfigureAwait(false);
             }
             else
             {
                 //TODO: Better Fallback Code - all the way to Playwright?
                 //If there is a failure and it is not a redirect try using AngleSharp
+
+                if (basicAuthUsername is not null && basicAuthPassword is not null)
+                {
+                    var basicAuthHandler = new HttpClientHandler
+                    {
+                        Credentials = new NetworkCredential("going", "nowhere")
+                    };
+
+                    var basicAuthConfig = Configuration.Default.WithRequesters(basicAuthHandler).WithJs();
+                    var basicAuthContext = BrowsingContext.New(basicAuthConfig);
+                    var basicAuthDocument = await basicAuthContext.OpenAsync(url);
+                    return Encoding.Unicode.GetBytes(basicAuthDocument.Source.Text);
+                }
+
                 var config = Configuration.Default.WithDefaultLoader().WithJs();
                 var context = BrowsingContext.New(config);
                 var document = await context.OpenAsync(url);
