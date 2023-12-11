@@ -14,6 +14,7 @@ using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsWpfControls.AllContentList;
+using PointlessWaymarks.CmsWpfControls.ContentMap;
 using PointlessWaymarks.CmsWpfControls.FileContentEditor;
 using PointlessWaymarks.CmsWpfControls.FileList;
 using PointlessWaymarks.CmsWpfControls.GeoJsonList;
@@ -48,6 +49,7 @@ public partial class ContentListContext : IDragSource, IDropTarget
 {
     private ContentListContext(StatusControlContext? statusContext,
         ObservableCollection<IContentListItem> factoryContentListItems,
+        ICollectionView factoryObservableView,
         ContentListSelected<IContentListItem> factoryListSelection, IContentListLoader loader,
         WindowIconStatus? windowStatus = null)
     {
@@ -62,6 +64,8 @@ public partial class ContentListContext : IDragSource, IDropTarget
         ContentListLoader = loader;
 
         Items = factoryContentListItems;
+        ItemsView = factoryObservableView;
+
         ListSelection = factoryListSelection;
 
         FileItemActions = new FileContentActions(StatusContext);
@@ -96,6 +100,7 @@ public partial class ContentListContext : IDragSource, IDropTarget
     public GeoJsonContentActions GeoJsonItemActions { get; set; }
     public ImageContentActions ImageItemActions { get; set; }
     public ObservableCollection<IContentListItem> Items { get; set; }
+    public ICollectionView ItemsView { get; set; }
     public LineContentActions LineItemActions { get; set; }
     public LinkContentActions LinkItemActions { get; set; }
     public ContentListSelected<IContentListItem> ListSelection { get; set; }
@@ -234,12 +239,14 @@ public partial class ContentListContext : IDragSource, IDropTarget
     {
         await ThreadSwitcher.ResumeForegroundAsync();
         var factoryObservable = new ObservableCollection<IContentListItem>();
+        var factoryObservableView = CollectionViewSource.GetDefaultView(factoryObservable);
 
         await ThreadSwitcher.ResumeBackgroundAsync();
         var factoryContext = statusContext ?? new StatusControlContext();
         var factoryListSelection = await ContentListSelected<IContentListItem>.CreateInstance(factoryContext);
 
-        return new ContentListContext(statusContext, factoryObservable, factoryListSelection, loader, windowStatus);
+        return new ContentListContext(statusContext, factoryObservable, factoryObservableView, factoryListSelection,
+            loader, windowStatus);
     }
 
     private async Task DataNotificationReceived(TinyMessageReceivedEventArgs e)
@@ -433,7 +440,7 @@ public partial class ContentListContext : IDragSource, IDropTarget
 
         if (string.IsNullOrWhiteSpace(UserFilterText))
         {
-            ((CollectionView)CollectionViewSource.GetDefaultView(Items)).Filter = _ => true;
+            ItemsView.Filter = _ => true;
             return;
         }
 
@@ -496,11 +503,11 @@ public partial class ContentListContext : IDragSource, IDropTarget
 
         if (!searchFilterStack.Any())
         {
-            ((CollectionView)CollectionViewSource.GetDefaultView(Items)).Filter = _ => true;
+            ItemsView.Filter = _ => true;
             return;
         }
 
-        ((CollectionView)CollectionViewSource.GetDefaultView(Items)).Filter = o =>
+        ItemsView.Filter = o =>
         {
             if (o is not IContentListItem toFilter) return false;
 
@@ -701,6 +708,34 @@ public partial class ContentListContext : IDragSource, IDropTarget
     public async Task SelectedToExcel()
     {
         await ExcelHelpers.SelectedToExcel(SelectedListItems().Cast<dynamic>().ToList(), StatusContext);
+    }
+
+    [BlockingCommand]
+    [StopAndWarnIfNoSelectedListItems]
+    public async Task SpatialItemsToContentMapWindowSelected(CancellationToken cancelToken)
+    {
+        var currentSelected = SelectedListItems();
+
+        var spatialContent =
+            await Db.ContentIdsAreSpatialContentInDatabase(
+                currentSelected.Select(x => x.ContentId()).Where(x => x != null).Select(x => x!.Value).ToList(), true);
+
+        if (!spatialContent.Any())
+        {
+            StatusContext.ToastError("No Spatial Content Selected?");
+            return;
+        }
+
+        if (spatialContent.Count != currentSelected.Count)
+            StatusContext.ToastWarning(
+                $"{currentSelected.Count - spatialContent.Count} Selected Items not sent to the map - no spatial data...");
+
+        cancelToken.ThrowIfCancellationRequested();
+
+        var mapWindow =
+            await ContentMapWindow.CreateInstance(new ContentMapListLoader("Mapped Content", spatialContent));
+
+        await mapWindow.PositionWindowAndShowOnUiThread();
     }
 
     private void StatusContextOnPropertyChanged(object? sender, PropertyChangedEventArgs e)

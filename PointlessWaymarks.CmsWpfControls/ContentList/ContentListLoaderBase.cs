@@ -58,8 +58,6 @@ public abstract class ContentListLoaderBase : IContentListLoader
 
     public string ListHeaderName { get; }
 
-    public abstract Task<List<object>> LoadItems(IProgress<string>? progress = null);
-
     public int? PartialLoadQuantity
     {
         get => _partialLoadQuantity;
@@ -82,6 +80,8 @@ public abstract class ContentListLoaderBase : IContentListLoader
         }
     }
 
+    public abstract Task<List<object>> LoadItems(IProgress<string>? progress = null);
+
     public event PropertyChangedEventHandler? PropertyChanged;
 
     [NotifyPropertyChangedInvocator]
@@ -92,7 +92,7 @@ public abstract class ContentListLoaderBase : IContentListLoader
 
     public static ColumnSortControlContext SortContextDefault()
     {
-        return new()
+        return new ColumnSortControlContext
         {
             Items = new List<ColumnSortControlSortItem>
             {

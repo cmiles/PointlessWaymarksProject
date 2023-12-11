@@ -1,17 +1,18 @@
-﻿using PointlessWaymarks.CmsWpfControls.ContentList;
-using PointlessWaymarks.CmsWpfControls.WordPressXmlImport;
+﻿using System.Collections.Specialized;
+using PointlessWaymarks.CmsWpfControls.AllContentList;
+using PointlessWaymarks.CmsWpfControls.ContentList;
 using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.Utility;
 
-namespace PointlessWaymarks.CmsWpfControls.AllContentList;
+namespace PointlessWaymarks.CmsWpfControls.ContentMap;
 
 [NotifyPropertyChanged]
 [GenerateStatusCommands]
-public partial class AllContentListWithActionsContext
+public partial class ContentMapContext
 {
-    private AllContentListWithActionsContext(StatusControlContext? statusContext, WindowIconStatus? windowStatus,
+    private ContentMapContext(StatusControlContext? statusContext, WindowIconStatus? windowStatus,
         ContentListContext factoryListContext, bool loadInBackground = true)
     {
         StatusContext = statusContext ?? new StatusControlContext();
@@ -19,6 +20,7 @@ public partial class AllContentListWithActionsContext
 
         CommonCommands = new CmsCommonCommands(StatusContext, WindowStatus);
         ListContext = factoryListContext;
+        ListContext.ItemsView.CollectionChanged += ItemsViewOnCollectionChanged;
 
         BuildCommands();
 
@@ -30,23 +32,28 @@ public partial class AllContentListWithActionsContext
     public StatusControlContext StatusContext { get; set; }
     public WindowIconStatus? WindowStatus { get; set; }
 
-    public static async Task<AllContentListWithActionsContext> CreateInstance(StatusControlContext? statusContext,
+    public static async Task<ContentMapContext> CreateInstance(StatusControlContext? statusContext,
         WindowIconStatus? windowStatus)
     {
         var factoryStatusContext = statusContext ?? new StatusControlContext();
         var factoryListContext =
             await ContentListContext.CreateInstance(factoryStatusContext, new AllContentListLoader(100), windowStatus);
 
-        return new AllContentListWithActionsContext(factoryStatusContext, windowStatus, factoryListContext);
+        return new ContentMapContext(factoryStatusContext, windowStatus, factoryListContext);
     }
 
-    public static async Task<AllContentListWithActionsContext> CreateInstance(StatusControlContext? statusContext,
+    public static async Task<ContentMapContext> CreateInstance(StatusControlContext? statusContext,
         IContentListLoader reportFilter, bool loadInBackground = true)
     {
         var factoryStatusContext = statusContext ?? new StatusControlContext();
         var factoryListContext = await ContentListContext.CreateInstance(factoryStatusContext, reportFilter);
 
-        return new AllContentListWithActionsContext(factoryStatusContext, null, factoryListContext, loadInBackground);
+        return new ContentMapContext(factoryStatusContext, null, factoryListContext, loadInBackground);
+    }
+
+    private void ItemsViewOnCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
+    {
+        //TODO: Resync Map
     }
 
     public async Task LoadData()
@@ -63,16 +70,9 @@ public partial class AllContentListWithActionsContext
             new() { ItemName = "Extract New Links", ItemCommand = ListContext.ExtractNewLinksSelectedCommand },
             new() { ItemName = "Open URL", ItemCommand = ListContext.ViewOnSiteCommand },
             new() { ItemName = "Delete", ItemCommand = ListContext.DeleteSelectedCommand },
-            new() { ItemName = "View History", ItemCommand = ListContext.ViewHistorySelectedCommand },
-            new() { ItemName = "Map Selected Items", ItemCommand = ListContext.SpatialItemsToContentMapWindowSelectedCommand },
+            new() { ItemName = "View History", ItemCommand = ListContext.ViewHistorySelectedCommand }
         };
 
         await ListContext.LoadData();
-    }
-
-    [NonBlockingCommand]
-    private async Task WordPressImportWindow()
-    {
-        await (await WordPressXmlImportWindow.CreateInstance()).PositionWindowAndShowOnUiThread();
     }
 }
